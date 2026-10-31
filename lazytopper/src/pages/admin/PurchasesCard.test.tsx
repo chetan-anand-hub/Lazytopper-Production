@@ -53,4 +53,34 @@ describe("PurchasesCard", () => {
     expect(productLabel({ passType: "till_boards", packTarget: null })).toBe("Premium · till boards");
     expect(productLabel({ passType: "pack_bundle", packTarget: "all" })).toMatch(/Bundle/);
   });
+  it("CHECKOUT-1: lists abandoned checkouts read-only, with email, product, rupees, IST time and the ADMIN / TEST pill", async () => {
+    const ab = (over = {}) => ({
+      orderId: "ab_1", createdAtMs: 1761890000000, uid: "u9", email: "kid@x.in", name: null, passType: "till_boards", packTarget: null,
+      kind: "premium", amountInr: 1917, channel: "student", isAdminAccount: false, ...over,
+    });
+    stub({ ...resp([item()]), abandoned: { items: [ab(), ab({ orderId: "ab_2", isAdminAccount: true, passType: "month", amountInr: 599 })] } });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-abandoned-list")).toBeTruthy());
+    const row = screen.getByTestId("pu-ab-row-ab_1").textContent || "";
+    expect(row).toMatch(/kid@x\.in/);
+    expect(row).toMatch(/Premium · till boards/);
+    expect(row).toMatch(/₹1,917/);
+    expect(screen.queryByTestId("pu-ab-admin-ab_1")).toBeNull();
+    expect(screen.getByTestId("pu-ab-admin-ab_2").textContent).toBe("ADMIN / TEST");
+    // read-only: one GET, no buttons inside the abandoned list
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
+    expect(screen.getByTestId("pu-abandoned-list").querySelectorAll("button").length).toBe(0);
+  });
+  it("CHECKOUT-1: abandoned empty / unavailable are honest", async () => {
+    stub({ ...resp([item()]), abandoned: { items: [] } });
+    const r = render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-abandoned-empty").textContent).toBe("No abandoned checkouts."));
+    r.unmount();
+    stub({ ...resp([item()]), abandoned: null });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-abandoned-unavailable")).toBeTruthy());
+  });
 });

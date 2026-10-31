@@ -32,11 +32,11 @@ export interface PackDialogProps {
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
-  pack_chapter: { name: "Chapter Pack", line: "Every question of a chapter, with worked solutions" },
-  pack_mock: { name: "Mock Pack", line: "8 full papers, 80 marks each, with keys" },
-  pack_subject: { name: "Subject Pack", line: "Every chapter of a subject plus its 8 mocks" },
-  pack_bundle: { name: "Maths + Science Bundle", line: "All 26 chapters and 16 mock papers" },
-  pack_cbq: { name: "CBQ Pack", line: "Competency-based questions, with step-wise worked solutions" },
+  pack_chapter: { name: "Chapter Pack", line: "Important questions for one chapter, with CBSE step-marking key" },
+  pack_mock: { name: "Mock Pack", line: "8 board-pattern mock papers for 2027, with step-marking keys" },
+  pack_subject: { name: "Subject Pack", line: "Every chapter of Maths or Science — chapter-wise question bank 2026-27" },
+  pack_bundle: { name: "Maths + Science Bundle", line: "Maths + Science: all 26 chapters + 16 mocks — the whole year at one price" },
+  pack_cbq: { name: "CBQ Pack", line: "About half your 2027 paper is competency-based. Curated CBQs, chapter-wise and topic-wise — MCQ, assertion-reason, short, case study and long answer, Sections A to E." },
 };
 
 const IMG_BASE = "/packs";

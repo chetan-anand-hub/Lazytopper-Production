@@ -183,6 +183,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'paywall_action_pay',
   'paywall_action_qr',
   'paywall_action_forward',
+  // CHECKOUT-1 - a tap on "Ask a parent to pay". Name only. Additive only.
+  'ask_parent_pay',
   // LIMITS-1 - a paper PDF was started / refused by the weekly download limit / the wall was shown. Names only. Additive only.
   'download_start',
   'download_blocked',

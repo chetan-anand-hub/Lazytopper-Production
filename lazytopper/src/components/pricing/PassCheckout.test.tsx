@@ -448,17 +448,26 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
     expect(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL })).toBeTruthy();
   });
 
+  it("CHECKOUT-1: the month button (₹599 at the founding rate) is FIRST and the Board Pass ('till boards') button second", () => {
+    view({ offerOpen: true });
+    const buttons = screen.getAllByRole("button");
+    expect(buttons[0].textContent).toBe(monthButtonLabel(true));
+    expect(buttons[0].textContent).toMatch(/₹599/);
+    expect(buttons[1].textContent).toBe(TILL_BOARDS_BUTTON_LABEL);
+    expect(buttons[0].className).toContain("lt-pricing-pay--month");
+  });
+
   it("the page's CSS places every one of those classes (and makes the wrapper display: contents)", () => {
     expect(baseBlock(".lt-pricing-checkout")).toMatch(/display:\s*contents/);
-    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
-    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
     expect(baseBlock(".lt-pricing-checkout-note--top")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*1/);
     expect(baseBlock(".lt-pricing-checkout-note--bottom")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*4/);
     // CONTROL — the reader finds nothing for a class the page does not style.
     expect(baseBlock(".lt-pricing-no-such-class")).toBe("");
   });
 
-  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Board Pass tile first", () => {
+  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Month pass tile first (CHECKOUT-1)", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     render(
       <MemoryRouter initialEntries={["/pricing"]}>
@@ -477,7 +486,7 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
             ? "month-pay"
             : "boards-pay",
     );
-    expect(order).toEqual(["boards-tile", "month-tile", "boards-pay", "month-pay"]);
+    expect(order).toEqual(["month-tile", "boards-tile", "month-pay", "boards-pay"]);
     expect(grid!.querySelector(":scope > .lt-pricing-plan-desc")).toBeNull();
   });
 });

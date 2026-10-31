@@ -106,7 +106,7 @@ describe("lock screen (RequirePremium)", () => {
     </RequirePremium>
   );
 
-  it("expired trial, switched on: Pay / Share QR code / Forward link to parents; Pay goes to /pricing", async () => {
+  it("expired trial, switched on: Pay / Share QR code / Ask a parent to pay; Pay goes to /pricing", async () => {
     flags(true);
     at(gate);
     await expectThree();

@@ -77,7 +77,7 @@ export default function PackPromoCard({ surface }: { surface: PackPromoSurface }
   return (
     <section className="lt-pp" data-testid="pack-promo-card" data-surface={surface} aria-label="Printable board PDF packs">
       <h3 className="lt-pp__title">Printable board PDF packs</h3>
-      <p className="lt-pp__sub">Printed questions with answer keys, no marking. A cheaper step before the Board Pass.</p>
+      <p className="lt-pp__sub">Important questions with CBSE step-marking keys, plus CBQs for the competency half of the paper. A cheaper step before the Board Pass.</p>
       <ul className="lt-pp__chips">
         {chips.map((c) => (
           <li key={c} className="lt-pp__chip">{c}</li>

@@ -50,7 +50,7 @@ import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { useSubscription } from "../../hooks/useSubscription";
 import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
 import PaywallActions from "../pricing/PaywallActions";
-import { boardPassOffer } from "../pricing/boardPassOffer";
+import { premiumOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import TrialStartButton from "../pricing/TrialStartButton";
 import { isTrialEligible, lowerFirst, useOptionalUid } from "../pricing/trialCta";
@@ -247,7 +247,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: Upgr
   };
 
   const trialLine = formatTrialEnded(trialEndedAt);
-  const offer = boardPassOffer(new Date(), predictCbseExamDate("10"));
+  const offer = premiumOffer(new Date(), predictCbseExamDate("10"));
 
   return (
     <div
@@ -287,12 +287,11 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: Upgr
 
         <div className="lt-upsheet__offer">
           {/* ★ From pricing.ts. Never a literal. */}
-          {/* ASK-FIX-1 - the Board Pass leads; the monthly pass is the second option. */}
-          <p className="lt-upsheet__price" data-testid="upgrade-sheet-board-pass">
-            {offer.title}
-            {offer.priceDisplay ? ` ${offer.priceDisplay}` : ""} — {offer.detail}
+          {/* CHECKOUT-1 (31 Oct 2026) - the month pass leads; the Board Pass is the second option, its price unchanged. */}
+          <p className="lt-upsheet__price" data-testid="upgrade-sheet-month-pass">
+            {offer.title} — {monthlyInline(foundingRateApplies(Date.now(), subscription?.foundingMember))} · everything unlocked
           </p>
-          <p className="lt-upsheet__price">Or Premium — {monthlyInline(foundingRateApplies(Date.now(), subscription?.foundingMember))} · everything unlocked</p>
+          <p className="lt-upsheet__price" data-testid="upgrade-sheet-board-pass">{offer.second}</p>
           <ul className="lt-upsheet__list">
             {premiumFeatures.map((f) => (
               <li key={f.id}>

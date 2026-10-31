@@ -58,6 +58,10 @@ export interface Class10ScienceTrendsRoot {
 
 // 🔹 Main trends object – same shape as class10MathTopicTrends
 export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
+  // WEIGHTAGE-1 (owner ruling 31 Oct 2026): units sum to CBSE 2026-27 unit marks / 80 (src/config/syllabusUnits2026-27.ts):
+  // Chemical Substances 25 (4 chapters) - World of Living 25 (Life Processes, Control, Reproduction, Heredity) -
+  // Natural Phenomena 12 (Light, Human Eye) - Effects of Current 13 (Electricity, Magnetic) - Natural Resources 5 (Our Environment).
+  // Tiers are hand-set, not derived from weight, so unchanged.
   topics: {
     ChemicalReactions: {
       topicKey: "ChemicalReactions",
@@ -332,7 +336,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       topicKey: "OurEnvironment",
       topicName: "Our Environment",
       tier: "good-to-do",
-      weightagePercent: 3.75,
+      weightagePercent: 6.25,
       concepts: [
         {
           name: "Food Chains, Trophic Levels & Energy Flow",
