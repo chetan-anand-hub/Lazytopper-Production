@@ -30,6 +30,8 @@ describe("PurchasesCard", () => {
     expect(screen.getByTestId("pu-totals").textContent).toMatch(/Excludes admin/);
     expect(screen.getByTestId("pu-note").textContent).toMatch(/Refunds are not shown here/);
     expect(screen.queryByTestId("pu-admin-order_1")).toBeNull();
+    // every row has the same cells (the flag cell is always rendered), so columns line up
+    expect(screen.getByTestId("pu-row-order_1").children.length).toBe(screen.getByTestId("pu-row-order_2").children.length);
     expect(screen.getByTestId("pu-admin-order_2").textContent).toBe("ADMIN / TEST");
     expect(screen.getByTestId("pu-row-order_1").textContent).toMatch(/Subject Pack · Maths/);
     expect(screen.getByTestId("pu-row-order_2").textContent).toMatch(/Parent pay link/);

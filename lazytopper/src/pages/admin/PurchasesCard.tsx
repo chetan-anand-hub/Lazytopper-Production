@@ -133,11 +133,13 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
                   <span className="pu-product">{productLabel(p)}</span>
                   <span className="pu-amount">{inr(p.amountInr)}</span>
                   <span className="pu-channel sa-muted">{p.channel === "parent" ? "Parent pay link" : "Student checkout"}</span>
-                  {p.isAdminAccount && (
-                    <span className="pu-pill" data-testid={`pu-admin-${p.orderId}`}>
-                      ADMIN / TEST
-                    </span>
-                  )}
+                  <span className="pu-flag">
+                    {p.isAdminAccount && (
+                      <span className="pu-pill" data-testid={`pu-admin-${p.orderId}`}>
+                        ADMIN / TEST
+                      </span>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>

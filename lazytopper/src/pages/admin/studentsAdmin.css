@@ -658,7 +658,7 @@
 }
 .pu-row {
   display: grid;
-  grid-template-columns: 11rem minmax(0, 1.4fr) minmax(0, 1.4fr) 5rem minmax(0, 1fr) auto;
+  grid-template-columns: 11rem minmax(0, 1.4fr) minmax(0, 1.4fr) 5rem minmax(0, 1fr) 7rem;
   gap: 8px 12px;
   align-items: center;
   padding: 8px 0;
@@ -684,6 +684,9 @@
   white-space: nowrap;
 }
 @media (max-width: 720px) {
+  .pu-flag:empty {
+    display: none;
+  }
   .pu-row {
     grid-template-columns: minmax(0, 1fr) auto;
   }
