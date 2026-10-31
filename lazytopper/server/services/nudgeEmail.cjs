@@ -93,6 +93,9 @@ const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
 /** One doc per IST day holding ONLY a count (uid-free; listed in studentDataMap NON_STUDENT_COLLECTIONS). */
 const NUDGE_EMAIL_DAILY_COLLECTION = 'nudgeEmailDaily';
 const ACTIVITY_COLLECTION = 'activityLog';
+const PRACTICE_INSIGHTS_COLLECTION = 'practiceInsights';
+// A SUBcollection held as a property (same pattern as ACTIVITY_SEGMENTS) so the drift scanner does not read it as a top-level one.
+const PRACTICE_SEGMENTS = Object.freeze({ attempts: 'attempts' });
 // A SUBcollection held as a property (the studentActivity pattern) so the studentDataMap drift
 // scanner does not read it as a phantom top-level collection.
 const ACTIVITY_SEGMENTS = Object.freeze({ days: 'activityDays' });
@@ -526,7 +529,7 @@ function createNudgeEmailer(deps = {}) {
   /** REACTIVATE-1: has the student tapped any practice card? (writes no session record). null = unreadable. */
   async function hasPracticeAttempts(uid) {
     try {
-      const snap = await adminFirestore.collection('practiceInsights').doc(uid).collection('attempts').limit(1).get();
+      const snap = await adminFirestore.collection(PRACTICE_INSIGHTS_COLLECTION).doc(uid).collection(PRACTICE_SEGMENTS.attempts).limit(1).get();
       return snap.docs.length > 0;
     } catch {
       return null;
