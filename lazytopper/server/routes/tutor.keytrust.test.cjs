@@ -46,7 +46,7 @@ function harness({ reply, uid = 'u1' } = {}) {
   const route = createTutorRoute({
     sendJson: (res, status, body) => { res.status = status; res.body = body; },
     readJson: async (req) => req.body,
-    callGemini: async (_m, contents) => { prompts.push(contents[0].parts[0].text); return { text: reply, finishReason: 'STOP' }; },
+    callGemini: async (_m, contents) => { prompts.push(contents[0].parts[0].text); prompts.last = contents.map((c) => c.parts[0].text).join('\n'); return { text: reply, finishReason: 'STOP' }; },
     GEMINI_TUTOR_MODEL: 'g', GEMINI_MODEL: 'g', ACTIVE_PROVIDER: 'gemini', isStubMode: () => false,
     resolveVerifiedUid: async () => uid, adminFirestore: fs,
   });
@@ -257,4 +257,27 @@ test('TUTOR-CHALLENGE-1: PREV_OFFERED_CHECK_RE boundary (server mirror)', () => 
   const { detectOfferIntent } = require('./tutor.cjs');
   assert.equal(detectOfferIntent('yes', { prevTutor: 'Want to open the answercheckerx?' }), null);
   assert.equal(detectOfferIntent('yes', { prevTutor: 'Open the Answer Checker?' })?.offer, 'check-improve');
+});
+
+// TUTOR-CHALLENGE-1 review round 1
+test('TUTOR-CHALLENGE-1 r1: Hinglish/third-party/both shapes are detected; learning-ask claims are not disputes', () => {
+  const { studentDisputesKey } = require('./tutor.cjs');
+  for (const t of ['teacher ne bola (ii) hai', 'book mein answer (b) hai', 'tum galat ho, answer b hai', 'nahi answer c hai',
+    'both b and c are correct', 'both (i) and (iii) are right', 'ans is b but i think the key is wrong', 'the answer is c, why is the key wrong']) {
+    assert.equal(studentDisputesKey(t), true, t);
+  }
+  for (const t of ["it's b because of valency", 'answer is c, how?', 'the answer is c, explain why', 'ans is b but i dont understand',
+    'answer is c, samjhao', 'answer is b, samajh nahi aaya', 'mera answer b hai']) {
+    assert.equal(studentDisputesKey(t), false, t);
+  }
+});
+
+test('TUTOR-CHALLENGE-1 r1: the "key is final" note is skipped when the row has mismatch evidence', async () => {
+  const ok = harness({ reply: 'It is C.' });
+  await ok.ask('the answer is wrong', ANCHOR_OK);
+  assert.match(ok.prompts.last, /The key is final/);
+  const bad = harness({ reply: 'Mismatch.' });
+  await bad.ask('the answer is wrong', ANCHOR_BAD);
+  assert.doesNotMatch(bad.prompts.last, /The key is final/);
+  assert.match(bad.prompts[0], /ROW CHECK/);
 });

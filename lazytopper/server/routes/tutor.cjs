@@ -330,12 +330,26 @@ const STUDENT_DISPUTES_KEY_PARTS = [
   '\\b(?:friend|teacher|sir|ma\'?am|madam|book|guide|ncert)\\s+(?:says?|said|told)\\b[^.?!\\n]{0,40}\\b(?:answer|key)\\s+(?:is\\s+)?(?:wrong|incorrect|galat)',
   // Hinglish
   '(?<!\\bmy\\s)(?<!\\bmera\\s)(?<!\\bmeri\\s)\\b(?:(?:answer|ans|key|solution)\\s+(?:bhi\\s+)?galat\\s+(?:hai|h|lag\\s+raha)|(?:ye|yeh|yah)\\s+galat\\s+hai|sahi\\s+(?:answer|ans|option)\\s+(?:' + OPTS + ')\\s+(?:hai|h))|(?:' + OPTS + ')\\s+hona\\s+chahiye',
+  // Hinglish third party / "answer X hai": "teacher ne bola (ii) hai", "book mein answer (b) hai", "nahi answer c hai"
+  '\\b(?:friend|dost|teacher|sir|ma\'?am|madam|book|guide|ncert)\\s+(?:ne\\s+)?(?:bola|kaha|bataya|likha)\\s+(?:ki\\s+)?(?:(?:correct\\s+|sahi\\s+)?(?:answer|ans)\\s+)?(?:only\\s+)?' + OPTS,
+  '\\b(?:book|guide|ncert)\\s+(?:mein|me)\\s+(?:(?:answer|ans)\\s+)?' + OPTS + '\\s+(?:hai|h)\\b',
+  OWN_NOT + '\\b(?:answer|ans)\\s+' + OPTS + '\\s+(?:hai|h)\\b',
+  // "both b and c are correct", "both (i) and (iii) are right"
+  '\\bboth\\s+(?:options?\\s+)?' + OPTS + '\\s+(?:are\\s+)?(?:correct|right)',
   // Devanagari: no \b
   '(?<!मेरा\\s)(?<!मेरी\\s)(?:उत्तर|जवाब|answer|key|ans)\\s*(?:भी\\s*)?गलत(?!\\s*क्यों)|गलत\\s*(?:उत्तर|जवाब)',
 ];
-const STUDENT_DISPUTES_KEY = new RegExp(STUDENT_DISPUTES_KEY_PARTS.map((p) => '(?:' + p + ')').join('|'), 'iu');
+// Part 1 is the bare "it's X / answer is X" claim: with a learning ask in the same message ("answer is c, how?")
+// it is a question ABOUT the key, not a dispute - unless an explicit dispute word is also present.
+const STUDENT_CLAIM_ONLY_RE = new RegExp('(?:' + STUDENT_DISPUTES_KEY_PARTS[1] + ')', 'iu');
+const STUDENT_DISPUTES_OTHER_RE = new RegExp(STUDENT_DISPUTES_KEY_PARTS.filter((_, i) => i !== 1).map((p) => '(?:' + p + ')').join('|'), 'iu');
+const LEARNING_ASK_RE = /\b(?:how|why|explain|because|kaise|kyun|kyu|samjhao|samjhaao|(?:don'?t|do\s+not)\s+understand|samajh\s+nahi)\b/i;
+const EXPLICIT_DISPUTE_RE = /\b(?:wrong|incorrect|galat|not\s+correct|should\s+be|isn'?t\s+it|i\s+think)\b/i;
 function studentDisputesKey(text) {
-  return STUDENT_DISPUTES_KEY.test(String(text || ''));
+  const t = String(text || '');
+  if (STUDENT_DISPUTES_OTHER_RE.test(t)) return true;
+  if (!STUDENT_CLAIM_ONLY_RE.test(t)) return false;
+  return !LEARNING_ASK_RE.test(t) || EXPLICIT_DISPUTE_RE.test(t);
 }
 const squashText = (v) => String(v == null ? '' : v).toLowerCase().replace(/\s+/g, ' ').trim();
 function returnedWorkMatchesAnchor(rw, anchor) {
@@ -908,7 +922,9 @@ function createTutorRoute(deps) {
         `if you said earlier that you could not see them, that is no longer true - use them now.]`;
     }
     // TUTOR-ANCHOR-KEY-1: earlier tutor turns that hedged or contradicted the key must not outweigh it.
-    if (anchorNoteApplies(studentLast, convo.slice(0, -1).filter((t) => t.role === 'model').map((t) => t.parts[0].text), anchorQuestion)) {
+    // TUTOR-CHALLENGE-1: with row-level mismatch evidence the main prompt already says the key may be mis-entered,
+    // so the "key is final" note would contradict it - skip it then.
+    if (!detectKeyMismatch(anchorQuestion) && anchorNoteApplies(studentLast, convo.slice(0, -1).filter((t) => t.role === 'model').map((t) => t.parts[0].text), anchorQuestion)) {
       convo[convo.length - 1].parts[0].text +=
         `\n\n[System note: the question the student is asking about, and its OFFICIAL ANSWER KEY, are in your ` +
         `instructions. The key is final: if you gave a different answer earlier in this chat, correct it plainly ` +
