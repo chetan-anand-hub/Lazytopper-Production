@@ -646,3 +646,51 @@
   background: transparent;
   accent-color: #2f9e6b;
 }
+
+/* ADMIN-PURCHASES-1 · Purchases card */
+.pu-totals p {
+  margin: 4px 0;
+}
+.pu-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.pu-row {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1.4fr) minmax(0, 1.4fr) 5rem minmax(0, 1fr) auto;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--sa-line);
+  font-size: 0.85rem;
+}
+.pu-who,
+.pu-product {
+  overflow-wrap: anywhere;
+}
+.pu-amount {
+  font-variant-numeric: tabular-nums;
+  color: var(--sa-green);
+  font-weight: 600;
+}
+.pu-pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sa-amber);
+  color: var(--sa-amber);
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .pu-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .pu-date,
+  .pu-who,
+  .pu-product,
+  .pu-channel {
+    grid-column: 1 / -1;
+  }
+}

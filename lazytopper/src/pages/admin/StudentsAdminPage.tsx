@@ -18,6 +18,7 @@ import { useAuth } from "../../context/AuthContext";
 import StudentDetailPanel from "./StudentDetailPanel";
 import GraderHealthCard from "./GraderHealthCard";
 import KeyDisputesCard from "./KeyDisputesCard";
+import PurchasesCard from "./PurchasesCard";
 import AiCostSummaryCard, { useAiCostSummary } from "./AiCostSummaryCard";
 import {
   AI_COST_NOTE,
@@ -410,6 +411,9 @@ export default function StudentsAdminPage() {
 
           {/* TUTOR-KEY-TRUST-1: disputed answer keys, loads on request, admin API answered OK. */}
           {list.status === "ok" && <KeyDisputesCard getToken={stableGetToken} />}
+
+          {/* ADMIN-PURCHASES-1: who bought what (paid orders only), loads on request, admin API answered OK. */}
+          {list.status === "ok" && <PurchasesCard getToken={stableGetToken} />}
 
           {/* PREVIEW-1: only once the admin API has answered OK (never on 401/403/503). */}
           {list.status === "ok" && <GuidePreviewPanel />}
