@@ -321,6 +321,21 @@ export function reportTitle(firstName: string | null): { en: string; hi: string 
     : { en: "Where I am losing marks", hi: "मेरे अंक कहाँ कट रहे हैं" };
 }
 
+/**
+ * PARENT-CARD-2 — the shared card's heading (display copy only, no new data): the name only when the
+ * student chose to show it. `thin` = below the report threshold, the honest "has just started" line.
+ */
+export function weekTitle(firstName: string | null, thin: boolean): { en: string; hi: string } {
+  if (thin) {
+    return firstName
+      ? { en: `${firstName} has just started`, hi: `${firstName} ने अभी शुरुआत की है` }
+      : { en: "I have just started", hi: "मैंने अभी शुरुआत की है" };
+  }
+  return firstName
+    ? { en: `${firstName}\u2019s week in 20 seconds`, hi: `${firstName} का हफ़्ता, 20 सेकंड में` }
+    : { en: "My week in 20 seconds", hi: "मेरा हफ़्ता, 20 सेकंड में" };
+}
+
 /** The message that rides with the image (and is the whole wa.me message on desktop). No figure,
  *  no answer, no id: the first name only when chosen. */
 export function parentReportShareText(report: Pick<ParentReport, "firstName" | "weekLabel" | "state">): string {

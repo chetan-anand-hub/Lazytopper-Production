@@ -114,15 +114,22 @@ describe("ParentReportCard — honest states, no placeholder", () => {
 
   it("pattern: the model's figures, the Hindi line, the price framing that already exists, and the link label", () => {
     const html = renderToStaticMarkup(<ParentReportCard report={PATTERN} />);
-    for (const s of ["17", "Concept gap", "कॉन्सेप्ट समझने में कमी", "Real Numbers", "12 – 18 Oct 2026", "Where I am losing marks", "मेरे अंक कहाँ कट रहे हैं"]) {
+    for (const s of ["17", "Concept gap", "कॉन्सेप्ट समझने में कमी", "Real Numbers", "12 – 18 Oct 2026", "My week in 20 seconds", "मेरा हफ़्ता, 20 सेकंड में", "Class 10 CBSE", "Where the marks went", "Marks to win back", "Fix first"]) {
       expect(html).toContain(s);
     }
     expect(CARD_FOOTER).toBe("Month pass: less than one tuition session · lazytopper.com/pricing");
     expect(html).not.toMatch(PLACEHOLDER);
   });
 
+  it("PARENT-CARD-2: the tests tile is dropped (never a 0) and the bar only appears with a split", () => {
+    const html = renderToStaticMarkup(<ParentReportCard report={{ ...PATTERN, testsTaken: 0 }} />);
+    expect(html).not.toContain('data-testid="prc-tests"');
+    expect(html).toContain('data-testid="prc-bar"');
+    expect(renderToStaticMarkup(<ParentReportCard report={{ ...PATTERN, state: "empty", answersMarked: 1, testsTaken: 0, marksLost: null, typeRows: [], chapters: [], wonBack: null, nextSteps: [] }} />)).toContain("I have just started");
+  });
+
   it("the first name appears only when the report carries it", () => {
-    expect(renderToStaticMarkup(<ParentReportCard report={{ ...PATTERN, firstName: "Aarav" }} />)).toContain("Where Aarav is losing marks");
+    expect(renderToStaticMarkup(<ParentReportCard report={{ ...PATTERN, firstName: "Aarav" }} />)).toContain("Aarav\u2019s week in 20 seconds");
     expect(renderToStaticMarkup(<ParentReportCard report={PATTERN} />)).not.toContain("Aarav");
   });
 });

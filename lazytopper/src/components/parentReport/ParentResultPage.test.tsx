@@ -10,6 +10,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 const { trackParentReportViewed } = vi.hoisted(() => ({ trackParentReportViewed: vi.fn() }));
 vi.mock("../../analytics/analytics", () => ({ trackParentReportViewed }));
 
+import { parentPrimaryCtaLabel, parentSecondaryCtaLabel } from "./parentResultCopy";
 import ParentResultPage, { PARENT_RESULT_TAB_KEY } from "./ParentResultPage";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests } from "../guide/mascotsMute";
 import {
@@ -19,7 +20,6 @@ import {
   PARENT_RESULT_CTA_LABEL,
 } from "./parentResultCopy";
 import { ParentResultError, readParentResultView } from "./parentResultLink";
-import { MARKS_HEADING } from "../../lib/mistakeDisplay";
 
 const TOKEN = "Q".repeat(43);
 const HASH = `#r=${TOKEN}`;
@@ -112,7 +112,8 @@ describe("ParentResultPage — only the allowed fields", () => {
     expect(screen.getByTestId("pr-meta").textContent).toContain("22 Oct 2026");
     expect(screen.getByTestId("pr-score").textContent).toContain("7");
     expect(screen.getByTestId("pr-score").textContent).toContain("/ 10 marks");
-    expect(html).toContain(MARKS_HEADING);
+    expect(html).toContain("Where the marks went");
+    expect(html).not.toContain("Where your marks went");
     expect(html).toContain("Concept gap");
     expect(html).toContain("Not attempted — not counted as a mistake");
     const slips = screen.getAllByTestId("pr-slip").map((n) => n.textContent);
@@ -153,6 +154,20 @@ describe("ParentResultPage — Mummy", () => {
     );
     expect(MUMMY_LINE_OBJECTIVE).toBe(screen.getByTestId("pr-mummy-line").textContent);
     await waitFor(() => expect(trackParentReportViewed).toHaveBeenCalledWith("objective"));
+  });
+
+  it("PARENT-CARD-2: two pay buttons from the code's own prices, the trust line, and the old link kept", async () => {
+    render(<ParentResultPage hash={HASH} view={viewOf(serverJson())} drawFigure={false} />);
+    const primary = (await screen.findByTestId("pr-cta-primary")) as HTMLAnchorElement;
+    expect(primary.textContent).toBe(parentPrimaryCtaLabel("Aarav"));
+    expect(primary.textContent).toMatch(/^Give Aarav full board prep/);
+    expect(primary.getAttribute("href")).toMatch(/^\/pricing\?/);
+    const secondary = screen.getByTestId("pr-cta-secondary") as HTMLAnchorElement;
+    expect(secondary.textContent).toBe(parentSecondaryCtaLabel());
+    expect(secondary.getAttribute("href")).toMatch(/^\/packs\?/);
+    expect(screen.getByTestId("pr-trust").textContent).toBe("Secure payment via Razorpay \u00b7 Made by an IITian (IIT Kanpur)");
+    expect(screen.getByTestId("pr-bar")).toBeTruthy();
+    expect(screen.getByTestId("pr-fix-first").textContent).toContain("Quadratic Equations");
   });
 
   it("the copy never says 'Ask' and never shows a price", () => {
