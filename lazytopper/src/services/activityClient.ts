@@ -202,6 +202,9 @@ export const ACTIVITY_EVENTS = [
   "one_min_photo_cta",
   // FIVE-MORE-1 - "5 more like this" tap. Name only. Additive.
   "one_min_more_practice",
+  // FRIEND-CHALLENGE-1 - "Challenge a friend": shared / a challenge link opened. Names only. Additive.
+  "friend_challenge_share",
+  "friend_challenge_open",
   // ENGAGE10-1 — ten visible minutes in one IST day. Additive.
   "engaged_10min",
   // ENGAGE5-1 — five visible minutes in one IST day. Additive.

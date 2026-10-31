@@ -699,6 +699,8 @@ import { PracticeAttemptCountingProvider } from "../components/practice/Practice
 import type { SessionStats } from "../components/practice/SessionProgressBar";
 import { downloadWorksheet } from "../components/practice/worksheetGenerator";
 import ResultsScorecard from "../components/results/ResultsScorecard";
+import ChallengeFriendButton from "../components/ciDemo/ChallengeFriendButton";
+import { canShareScore } from "../components/results/share/shareCardModel";
 import {
   aggregateFourType,
   aggregateMarksLost,
@@ -3896,6 +3898,8 @@ const packTopicKey = useMemo(() => {
         )}
       </div>
     ) : null;
+  const withChallengeNode = (node: React.ReactNode, challenge: React.ReactNode): React.ReactNode =>
+    challenge ? <>{node}{challenge}</> : node;
   const withUploadLater = (node: React.ReactNode): React.ReactNode =>
     node || uploadLaterBlock ? <>{node}{uploadLaterBlock}</> : undefined;
 
@@ -4967,6 +4971,13 @@ const packTopicKey = useMemo(() => {
     onShowMissed: showMissed,
     // QP-WORKING-AFTER-1 (owner 23:11 "B") — no post-scorecard working box: Byte looks forward.
   };
+  // FRIEND-CHALLENGE-1 - "Challenge a friend" beside "Share result": the MCQs this set got right (scored taps only,
+  // not review picks). The button resolves the first that is a served board MCQ and renders nothing otherwise.
+  const challengeIds = filteredQuestions.map((q) => String(q.id)).filter((id) => mcqResults[id] === "correct" && !reviewMcqIds[id]);
+  const challengeNode =
+    !isGuest && !overlay && challengeIds.length > 0 && canShareScore(tapOnlyVariant) ? (
+      <ChallengeFriendButton placement="quick-practice" candidateIds={challengeIds} />
+    ) : null;
   // GUIDE-SCORE-2 (cofounder ruling, #1322 re-review) — where Byte's OBJECTIVE line shows ("Add
   // working to one…" / "N questions wrong. Add working…": the owner-approved 17:57 lines, true
   // under §13), MOMENTS-1 M11 is SUPPRESSED. Its owner copy promises step-by-step marking, which a
@@ -4984,7 +4995,7 @@ const packTopicKey = useMemo(() => {
       hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
       // QP-UPLOAD-LATER — the guest card (unchanged) plus the "Upload later" block when written
       // questions have nothing saved.
-      belowScore={withUploadLater(
+      belowScore={withChallengeNode(withUploadLater(
         isGuest && !overlay && guestCardDismissedForSet !== freshSetNonce ? (
           <div className="lt-qp-signin lt-qp-signin--sc" data-testid="qp-guest-signin-card">
             <style>{QP_SIGNIN_CSS}</style>
@@ -5022,7 +5033,7 @@ const packTopicKey = useMemo(() => {
           // GUIDE-SCORE-2 — its button opens THIS set's working box (first question), never another page.
           <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} onOpenWorking={null} />
         ) : undefined,
-      )}
+      ), challengeNode)}
     />
   );
 })()}

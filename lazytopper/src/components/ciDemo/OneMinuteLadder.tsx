@@ -9,7 +9,9 @@
  * A failed load renders nothing for this step: the card falls back to its sample picker.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { trackOneMinute } from "../../analytics/analytics";
+import { trackFriendChallenge, trackOneMinute } from "../../analytics/analytics";
+import ChallengeFriendButton from "./ChallengeFriendButton";
+import { parseChallengeId, type ChallengeQuestion } from "./challengeModel";
 import { markLadderStart } from "./ladderClock";
 import { useClearBottomNav } from "./useClearBottomNav";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
@@ -60,6 +62,31 @@ async function loadStarter(starter: OneMinuteStarter): Promise<LoadedMcq | null>
   }
 }
 
+/** FRIEND-CHALLENGE-1 - a friend's question, shaped like a starter so the rest of the ladder is unchanged. */
+function loadedFromChallenge(q: ChallengeQuestion): LoadedMcq {
+  const starter: OneMinuteStarter = {
+    bankId: q.id,
+    topicKey: q.topicKey,
+    subject: q.subject,
+    chapter: q.chapter,
+    nextKey: q.subject === "Maths" ? "circ" : "elec",
+  };
+  return { starter, question: q.question, options: q.options, right: q.right, why: q.why, topicKey: q.topicKey, topicName: q.chapter };
+}
+
+function readChallengeParam(): string | null {
+  try {
+    return typeof window === "undefined" ? null : parseChallengeId(window.location.search);
+  } catch {
+    return null;
+  }
+}
+
+/** The shareable question behind a loaded MCQ (the same bank row, the same stored answer). */
+function challengeFrom(m: LoadedMcq): ChallengeQuestion {
+  return { id: m.starter.bankId, subject: m.starter.subject, topicKey: m.topicKey, chapter: m.topicName, question: m.question, options: m.options, right: m.right, why: m.why };
+}
+
 export interface OneMinuteLadderProps {
   hint: DesktopSubject | null;
   /** Byte's line for this moment (the card voices it). */
@@ -78,6 +105,8 @@ export interface OneMinuteLadderProps {
 
 export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable, onMore }: OneMinuteLadderProps) {
   const starter = useMemo(() => pickStarter(hint, visitSeed()), [hint]);
+  // FRIEND-CHALLENGE-1 - a friend's link names one question; an id that resolves to no objective bank row is ignored.
+  const [challengeId] = useState<string | null>(() => readChallengeParam());
   const [mcq, setMcq] = useState<LoadedMcq | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
   const shown = useRef(false);
@@ -87,7 +116,21 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
 
   useEffect(() => {
     let live = true;
-    void loadStarter(starter).then((m) => {
+    void (async (): Promise<LoadedMcq | null> => {
+      if (challengeId) {
+        try {
+          const { resolveChallengeQuestion } = await import("./challengeBank");
+          const q = await resolveChallengeQuestion(challengeId);
+          if (q) {
+            if (live) trackFriendChallenge("friend_challenge_open");
+            return loadedFromChallenge(q);
+          }
+        } catch {
+          /* fall back to the normal ladder */
+        }
+      }
+      return loadStarter(starter);
+    })().then((m) => {
       if (!live) return;
       if (!m) {
         onUnavailable();
@@ -198,6 +241,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
           >
             <span>{CI_DEMO_COPY.ladderNext}</span>
           </button>
+          {correct ? <ChallengeFriendButton placement="ladder" question={challengeFrom(mcq)} /> : null}
           {onMore ? (
             <button
               type="button"

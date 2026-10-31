@@ -912,6 +912,9 @@ export type NamedAnalyticsEvent =
   | "one_min_photo_cta"
   // FIVE-MORE-1 - "5 more like this" after the ladder verdict / typed score. Name only.
   | "one_min_more_practice"
+  // FRIEND-CHALLENGE-1 - "Challenge a friend": an image + link shared (channel only) / a challenge link opened with a valid id.
+  | "friend_challenge_share"
+  | "friend_challenge_open"
   // ENGAGE10-1 — ten visible minutes in one IST day, once per browser per day, bare name.
   | "engaged_10min"
   // ENGAGE5-1 — five visible minutes in one IST day, once per browser per day, bare name.
@@ -942,6 +945,20 @@ export type OneMinuteEvent = Extract<
 >;
 
 export function trackOneMinute(name: OneMinuteEvent, data?: { correct?: boolean; seconds_since_ladder_start?: number }): void {
+  try {
+    send("event", data ? { name, data } : { name }, data ? { ga4: data } : {}, name);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * FRIEND-CHALLENGE-1 - `friend_challenge_share { channel }` (a challenge actually went out) and
+ * `friend_challenge_open` (a challenge link arrived with a valid question id). The vendors get the name plus,
+ * for the share, the coarse channel only - never the question id, a name or a uid. The first-party activity log
+ * gets the BARE NAME (both are in `NamedAnalyticsEvent` and both allow-lists), for a signed-in student only.
+ */
+export function trackFriendChallenge(name: "friend_challenge_share" | "friend_challenge_open", data?: { channel: "native" | "whatsapp" | "copy" | "download" }): void {
   try {
     send("event", data ? { name, data } : { name }, data ? { ga4: data } : {}, name);
   } catch {
