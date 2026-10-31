@@ -33,13 +33,30 @@ export const ONE_MINUTE_STARTERS: readonly OneMinuteStarter[] = [
 ];
 
 /**
+ * FIVE-MORE-1 - approx % of the 80 marks per starter chapter. SOURCE: data/class10TopicRegistry.ts
+ * (`approxWeightagePercent`, Maths) and data/class10ScienceTopicTrends.ts (`weightagePercent`, Science); copied here
+ * so this file stays dependency-free, and oneMinuteStarters.test.ts asserts every value equals its source.
+ */
+export const STARTER_WEIGHTAGE: Readonly<Record<string, number>> = {
+  "quadratic-equations": 8,
+  probability: 6,
+  "areas-related-to-circles": 4,
+  "chemical-reactions-and-equations": 8.75,
+  "acids-bases-and-salts": 8.75,
+  "light-reflection-and-refraction": 10,
+};
+
+/**
  * A stable per-visit choice with no randomness and no clock reads: a hash of the page load's own time origin
  * (`performance.timeOrigin`) picks within the subject the landing hints at (all six with no hint). The same tab
  * keeps the same question; a new visit may get another. Never Math.random (CLAUDE.md §7).
  */
 export function pickStarter(hint: DesktopSubject | null, seed: number): OneMinuteStarter {
   const pool = hint ? ONE_MINUTE_STARTERS.filter((s) => s.subject === hint) : ONE_MINUTE_STARTERS;
-  const from = pool.length > 0 ? pool : ONE_MINUTE_STARTERS;
+  const all = pool.length > 0 ? pool : ONE_MINUTE_STARTERS;
+  // FIVE-MORE-1: prefer high-weightage chapters - order by approx % of marks (stable) and drop the single lowest.
+  const ranked = [...all].sort((a, b) => STARTER_WEIGHTAGE[b.topicKey] - STARTER_WEIGHTAGE[a.topicKey]);
+  const from = ranked.length > 2 ? ranked.slice(0, ranked.length - 1) : ranked;
   return from[Math.abs(Math.floor(seed)) % from.length];
 }
 

@@ -54,3 +54,22 @@
     scroll-margin-bottom: calc(var(--mob-nav-height, 60px) + env(safe-area-inset-bottom, 0px) + 16px);
   }
 }
+
+/* FIVE-MORE-1 - the quiet secondary "5 more like this" button (under the tap verdict and the typed score). */
+.ci-ladder-more__btn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border: 1px solid #c9d3e0;
+  border-radius: 14px;
+  background: #f4f7fb;
+  color: #15233a;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ci-ladder-more__btn:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}

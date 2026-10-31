@@ -66,6 +66,8 @@ export interface CiDemoChunkProps {
   onLadderAnswered?: (a: LadderAnswer) => void;
   /** ONE-MINUTE-1 step 2 — prefill the 2-mark question, seed its confirmed metadata, focus the Type box. */
   onLadderType?: (pick: CiDemoLadderPick) => void;
+  /** FIVE-MORE-1: "5 more like this" under the tap verdict. */
+  onLadderMore?: (c: { subject: "Maths" | "Science"; chapter: string }) => void;
 }
 
 /** A CI-SOFT-1 sample handed on to the Type step, with the bank row's own metadata the page seeds `confirmed` from. */
@@ -109,7 +111,7 @@ function ladderLeads(uid: string | null | undefined, forced: boolean): boolean {
   }
 }
 
-export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderType }: CiDemoChunkProps) {
+export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderType, onLadderMore }: CiDemoChunkProps) {
   const [view, setView] = useState<View>({ name: "pick" });
   const [ladderOn, setLadderOn] = useState<boolean>(() => ladderLeads(uid, ladderForced));
   const [ladderSay, setLadderSay] = useState<{ line: string; mood: "tap" | "right" | "wrong" }>({ line: CI_DEMO_COPY.ladderHead, mood: "tap" });
@@ -227,6 +229,7 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
         onLine={(l, mood) => setLadderSay({ line: l, mood })}
         onAnswered={(a) => onLadderAnswered?.(a)}
         onNext={(st) => goType(st)}
+        onMore={onLadderMore}
         onWatch={() => setLadderOn(false)}
         onUnavailable={() => setLadderOn(false)}
       />

@@ -910,6 +910,8 @@ export type NamedAnalyticsEvent =
   | "one_min_type_shown"
   | "one_min_type_graded"
   | "one_min_photo_cta"
+  // FIVE-MORE-1 - "5 more like this" after the ladder verdict / typed score. Name only.
+  | "one_min_more_practice"
   // ENGAGE10-1 — ten visible minutes in one IST day, once per browser per day, bare name.
   | "engaged_10min"
   // ENGAGE5-1 — five visible minutes in one IST day, once per browser per day, bare name.
@@ -936,7 +938,7 @@ export function trackNamedEvent(name: NamedAnalyticsEvent): void {
  */
 export type OneMinuteEvent = Extract<
   NamedAnalyticsEvent,
-  "one_min_tap_shown" | "one_min_tap_answered" | "one_min_type_shown" | "one_min_type_graded" | "one_min_photo_cta"
+  "one_min_tap_shown" | "one_min_tap_answered" | "one_min_type_shown" | "one_min_type_graded" | "one_min_photo_cta" | "one_min_more_practice"
 >;
 
 export function trackOneMinute(name: OneMinuteEvent, data?: { correct?: boolean; seconds_since_ladder_start?: number }): void {

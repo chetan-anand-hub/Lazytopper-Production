@@ -136,6 +136,7 @@ import { clearCheckOneLadder, peekCheckOneLadder } from "../../components/startH
 import CiDemoCard, { type CiDemoOwnPick, type CiDemoLadderPick, type LadderAnswer } from "../../components/ciDemo/CiDemoCard";
 import { secondsSinceLadderStart } from "../../components/ciDemo/ladderClock";
 import LadderPhotoCta from "../../components/ciDemo/LadderPhotoCta";
+import { launchMoreLikeThis } from "../../components/ciDemo/ladderMore";
 import { recordLadderTap } from "../../components/ciDemo/ladderAttempt";
 import { useCiDemoAudience } from "../../components/ciDemo/ciDemoModel";
 import { buildSingleGradeRequest, seedConfirmedFromBank } from "../../components/ciDemo/ladderGradeRequest";
@@ -1848,6 +1849,11 @@ const DesktopCheckImprovePageInner: React.FC<{
     recordLadderTap(user, a);
   }
 
+  // FIVE-MORE-1 - "5 more like this": a ready Quick Practice set for the same chapter (signed out: via login, never a guest).
+  function ciLadderMore(c: { subject: DesktopSubject; chapter: string }) {
+    void launchMoreLikeThis({ navigate: (to) => navigate(to), signedIn: !!user, subject: c.subject, chapter: c.chapter });
+  }
+
   // ONE-MINUTE-1 step 3 (PHOTO) — after the typed result: the existing Upload tab, nothing new behind it.
   function ciLadderPhoto() {
     resetToInput();
@@ -2879,6 +2885,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             ladderForced={ciDemo.ladderForced}
             onLadderAnswered={ciLadderAnswered}
             onLadderType={ciDemoLadderType}
+            onLadderMore={ciLadderMore}
           />
         )}
         {!overlay && !ciDemo.show && (
@@ -4275,7 +4282,10 @@ const DesktopCheckImprovePageInner: React.FC<{
             ? { to: worksheetForTopicPath(resultCtx.subject, resultCtx.topicSlug), chapter: resultCtx.topicName }
             : null)}
           // ONE-MINUTE-1 step 3: under the typed result, one line to the existing Upload tab.
-          belowScore={!overlay && ladderTyped ? <LadderPhotoCta onTap={ciLadderPhoto} /> : undefined}
+          belowScore={!overlay && ladderTyped ? <LadderPhotoCta
+              onTap={ciLadderPhoto}
+              onMore={resultCtx?.topicSlug ? () => ciLadderMore({ subject: resultCtx.subject, chapter: resultCtx.topicSlug }) : undefined}
+            /> : undefined}
           onClose={() => setScorecardOpen(false)}
         />
       )}
