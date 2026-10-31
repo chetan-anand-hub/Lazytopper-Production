@@ -167,3 +167,12 @@ describe("[FU-PRACTICE-COUNT-PASSTHROUGH] · the count", () => {
     expect(practiceCountForThread([u("Test me with 5 questions"), u("give me some practice questions")])).toBe(2);
   });
 });
+
+describe("PREV_OFFERED_CHECK_RE word boundary (TUTOR-CHALLENGE-1)", () => {
+  it("does not match inside a longer word", () => {
+    expect(detectOfferIntent("yes", "Want to open the answercheckerx?")).toBeNull();
+  });
+  it("still matches Answer Checker", () => {
+    expect(detectOfferIntent("yes", "Open the Answer Checker?")?.offer).toBe("check-improve");
+  });
+});

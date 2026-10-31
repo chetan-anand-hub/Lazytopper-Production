@@ -234,3 +234,27 @@ test('review: "what is my mistake" / "where did I go wrong" are NOT challenges; 
   for (const t of ["what's my mistake?", 'where did I go wrong', 'why is my answer incorrect', 'I made a silly mistake']) assert.equal(studentDisputesKey(t), false, t);
   for (const t of ['the answer is wrong', 'key is wrong', 'there are two correct options', 'both are correct', 'option B is also correct', 'it should be (b)']) assert.equal(studentDisputesKey(t), true, t);
 });
+
+// TUTOR-CHALLENGE-1
+test('TUTOR-CHALLENGE-1: real-world challenge shapes are detected', () => {
+  const { studentDisputesKey } = require('./tutor.cjs');
+  const POS = ['(iii)', 'only (iii)', "it's (i) and (ii)", 'option 3', 'answer is B', "isn't it c?", "shouldn't it be (ii)",
+    "I think it's (b)", 'I think the answer is only iii', 'my friend says only (iii)', 'my friend says it\'s (b)',
+    'my teacher says the answer is wrong', 'sir said option c', "NCERT says (ii)", 'the book says it is (iv)',
+    'answer galat hai', 'key galat hai', 'ye galat hai', 'sahi answer (b) hai', 'answer (iii) hona chahiye',
+    'उत्तर गलत है', 'answer गलत है', 'key गलत लग रही है', 'pretty sure it is only (ii) and (iii)'];
+  for (const t of POS) assert.equal(studentDisputesKey(t), true, t);
+  const NEG = ['my answer was (b), why is it wrong', 'I chose (iii) but got it wrong', 'why is (b) wrong',
+    'explain why option c is incorrect', 'is option b correct?', "what's the answer", 'I got it wrong',
+    'mera answer galat kyun hai', 'teacher said I should practise more', 'my friend says this chapter is hard',
+    "what's my mistake?", 'where did I go wrong', 'why is my answer incorrect', 'I made a silly mistake',
+    'my answer is (b), is it right?', 'I think I got it wrong', 'it is 3 marks right?', 'is it (b)?', 'mera answer galat hai',
+    'मेरा उत्तर गलत क्यों है', 'the answer is a bit confusing'];
+  for (const t of NEG) assert.equal(studentDisputesKey(t), false, t);
+});
+
+test('TUTOR-CHALLENGE-1: PREV_OFFERED_CHECK_RE boundary (server mirror)', () => {
+  const { detectOfferIntent } = require('./tutor.cjs');
+  assert.equal(detectOfferIntent('yes', { prevTutor: 'Want to open the answercheckerx?' }), null);
+  assert.equal(detectOfferIntent('yes', { prevTutor: 'Open the Answer Checker?' })?.offer, 'check-improve');
+});
