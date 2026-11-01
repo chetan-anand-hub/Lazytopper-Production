@@ -168,8 +168,9 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     H.checkSolutionImage.mockResolvedValue(GRADED);
     fireEvent.click(await screen.findByRole("button", { name: /^check|grade/i }));
     expect(await screen.findByTestId("one-min-photo-cta")).toBeInTheDocument();
+    // The event fires after the grade settles; wait for it rather than racing the CTA's paint (CI flake, 1 Nov).
+    await waitFor(() => expect(H.one.mock.calls.filter((c) => c[0] === "one_min_type_graded")).toHaveLength(1));
     const graded = H.one.mock.calls.filter((c) => c[0] === "one_min_type_graded");
-    expect(graded).toHaveLength(1);
     expect(Object.keys(graded[0][1] as object)).toEqual(["seconds_since_ladder_start"]);
     expect(typeof (graded[0][1] as { seconds_since_ladder_start: number }).seconds_since_ladder_start).toBe("number");
   });

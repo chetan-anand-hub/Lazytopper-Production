@@ -72,7 +72,8 @@ describe("ONE-MINUTE-1 step 1 — TAP", () => {
     expect(screen.getAllByTestId(/^one-min-opt-/)).toHaveLength(4);
     expect(screen.getByTestId("one-min-watch")).toHaveTextContent("Or watch me mark a board answer");
     expect(screen.queryByTestId("ci-demo-tile-circ")).toBeNull();
-    expect(H.one).toHaveBeenCalledWith("one_min_tap_shown");
+    // The event fires in a post-commit effect; wait for it rather than racing the first paint (CI flake, 1 Nov).
+    await waitFor(() => expect(H.one).toHaveBeenCalledWith("one_min_tap_shown"));
     const meta = screen.getByTestId("one-min-ladder").textContent ?? "";
     expect(ONE_MINUTE_STARTERS.some((s) => meta.includes(s.subject))).toBe(true);
   });
