@@ -327,6 +327,7 @@ export default function PackDialog(props: PackDialogProps) {
               </div>
             )}
             {sku === "pack_bundle" && <p className="lt-pkd__plain">Both subjects, everything included.</p>}
+            {sku === "pack_cbq" && <p className="lt-pkd__plain" data-testid="pack-cbq-tutor-line">Includes 3 tutor questions</p>}
           </div>
           <div className="lt-pkd__buy">{buy}</div>
         </div>

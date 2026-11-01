@@ -15,7 +15,7 @@ const PACKS_MINE_PATH = '/api/packs/mine';
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 
 function createPackRoutes(deps = {}) {
-  const { sendJson, verifiedCaller, adminFirestore, getLicensee, telemetry, now = () => Date.now(), foundingOfferOpen } = deps;
+  const { sendJson, verifiedCaller, adminFirestore, getLicensee, telemetry, cbqTutorTaste, now = () => Date.now(), foundingOfferOpen } = deps;
 
   function emit(event) {
     try {
@@ -72,7 +72,18 @@ function createPackRoutes(deps = {}) {
     } catch {
       emit('packs.mine.credit_read_failed');
     }
-    return sendJson(res, 200, { packs, licensee, boardPassCredit });
+    // CBQ-TUTOR-TASTE-1: how many of the 3 CBQ-Pack tutor questions are left. READ ONLY, additive, and present only
+    // for a student who owns a CBQ Pack (the client shows its banner from it, and only to a non-Premium student).
+    let tutorTaste;
+    try {
+      if (packs.some((p) => p.sku === 'pack_cbq') && cbqTutorTaste && typeof cbqTutorTaste.status === 'function') {
+        const t = await cbqTutorTaste.status(uid);
+        if (t && t.owned) tutorTaste = { used: t.used, left: t.left, limit: t.limit };
+      }
+    } catch {
+      tutorTaste = undefined;
+    }
+    return sendJson(res, 200, { packs, licensee, boardPassCredit, ...(tutorTaste ? { tutorTaste } : {}) });
   }
 
   return { handleMine };

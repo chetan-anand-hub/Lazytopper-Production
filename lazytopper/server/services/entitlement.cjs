@@ -219,6 +219,9 @@ const DENY_ANONYMOUS = 'entitlement.deny.anonymous';
  * The raw `error: "premium_required"` code is still sent for the CLIENT to branch
  * on; it is never what a student reads. See aiClient.ts's 402 branch.
  */
+const TUTOR_PATH = '/api/tutor';
+const CBQ_TUTOR_BONUS_EVENT = 'entitlement.cbq_tutor_bonus.admitted';
+
 const GATED_ROUTES = {
   '/api/check-solution': {
     feature: 'check-solution',
@@ -430,6 +433,8 @@ function createEntitlementGate(deps = {}) {
     now = () => Date.now(),
     logger = console,
     cacheTtlMs = DEFAULT_CACHE_TTL_MS,
+    // CBQ-TUTOR-TASTE-1: optional (services/cbqTutorTaste.cjs). Absent -> /api/tutor is decided exactly as before.
+    cbqTutorTaste = null,
   } = deps;
 
   /**
@@ -776,10 +781,43 @@ function createEntitlementGate(deps = {}) {
       return true;
     }
 
+    // CBQ-TUTOR-TASTE-1: a NON-Premium student who has paid for a CBQ Pack gets 3 tutor questions in total.
+    // Only a successful READ of a non-entitled account reaches here (never a reauth or a fail-open), the verified
+    // uid is the only input, and the allowance is counted server-side in one transaction. It never grants Premium:
+    // `entitled` stays false and no tier or pass document is touched.
+    let bonusBody = null;
+    if (reqPath === TUTOR_PATH && cbqTutorTaste && typeof cbqTutorTaste.tryConsume === 'function' && verifiedUid
+      && (decision.outcome === 'absent' || decision.outcome === 'read')) {
+      let taste = null;
+      try {
+        taste = await cbqTutorTaste.tryConsume(verifiedUid);
+      } catch {
+        taste = null;
+      }
+      if (taste && taste.allowed) {
+        req.lazytopperCbqTutorBonus = { used: taste.used, left: taste.left, limit: taste.limit };
+        // A question is only spent for an ANSWER: if the tutor ends non-2xx (400 bad body, 5xx / 504 model failure)
+        // THIS request's one question is given back, once. It restores only what this request took.
+        if (res && typeof res.once === 'function' && typeof cbqTutorTaste.refund === 'function') {
+          let settled = false;
+          res.once('finish', () => {
+            if (settled) return;
+            settled = true;
+            if (res.statusCode >= 200 && res.statusCode < 300) return;
+            void Promise.resolve(cbqTutorTaste.refund(verifiedUid)).catch(() => {});
+          });
+        }
+        emit(CBQ_TUTOR_BONUS_EVENT);
+        return false;
+      }
+      if (taste && taste.owned) bonusBody = { used: taste.used, left: 0, limit: taste.limit };
+    }
+
     if (typeof sendJson === 'function') {
       // 402 Payment Required, NEVER 403. The client must be able to tell "you
       // cannot" from "you have not paid" — only 402 may surface an upgrade path.
-      sendJson(res, 402, denialBody(featureSpec, decision));
+      const body = denialBody(featureSpec, decision);
+      sendJson(res, 402, bonusBody ? { ...body, cbqTutorBonus: bonusBody } : body);
     }
     return true;
   }
