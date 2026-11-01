@@ -21,7 +21,7 @@ const ELEMENTS = new Set(
 /** All-capitals formulas that end in a digit and so cannot be told from a label (BC2, OP2) by shape alone. */
 const KNOWN_CAPS_ENDING_IN_DIGIT = new Set([
   "H2", "O2", "N2", "CO2", "SO2", "SO3", "NO2", "CS2", "CH4", "NH3", "PH3", "CO3", "SO4", "NO3", "PO4", "NH4",
-  "HCO3", "HNO3", "P4", "S8",
+  "HCO3", "HNO3", "S8",
 ]);
 
 const SUB = "₀₁₂₃₄₅₆₇₈₉";
@@ -35,6 +35,11 @@ function isFormula(body: string): boolean {
   if (!/\d/.test(body)) return false;
   const symbols = body.match(/[A-Z][a-z]?/g) ?? [];
   if (symbols.length === 0 || !symbols.every((s) => ELEMENTS.has(s))) return false;
+  // Geometry labels, not formulas: chemists never write a subscript 1 ("O1", "C1C2"), and a repeated single
+  // letter with numbers ("P4P6", "O2O3") names points, not atoms.
+  if (/[A-Za-z)]1(?!\d)/.test(body)) return false;
+  const singles = body.match(/^(?:[A-Z]\d+){2,}$/) ? body.match(/[A-Z]/g) ?? [] : [];
+  if (singles.length && new Set(singles).size < singles.length) return false;
   if (body.includes("(")) return true;
   if (/[a-z]/.test(body)) return true;
   if (/\d(?=[A-Z])/.test(body)) return true; // a digit with more formula after it: H2O, C2H5OH
@@ -46,6 +51,8 @@ export function subscriptFormulas(text: string): string {
   return text.replace(FORMULA_TOKEN, (match, coeff: string, body: string, offset: number, whole: string) => {
     if (!isFormula(body)) return match;
     const next = whole[offset + match.length];
+    // A point with coordinates: "O2(−4, −1)", "P4 (9, 3)" — a label, not a formula.
+    if (/^\s?\(\s*[-−+]?\d/.test(whole.slice(offset + match.length))) return match;
     let head = body;
     let tail = "";
     // "Mg2+", "Fe3+", "Cl-": the trailing digit is an ionic charge, not an atom count.
