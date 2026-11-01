@@ -4,6 +4,8 @@ import { CbqPremiumCta, CBQ_PACK_TO } from "../../components/cbq/CbqCtas";
 import { CBQ_HUB_H1, cbqChapterPath, cbqChapterTopics } from "../../components/cbq/cbqSeo";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 import { subjectLabel, type PackSubject } from "../../services/packs";
+import SeoFaq from "../../components/seo/SeoFaq";
+import { CBQ_HUB_FAQ } from "../../components/seo/faqContent";
 import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
 import { CBQ_PRACTICE_TO } from "./CbqChapterPage";
 import "./cbqSeo.css";
@@ -89,6 +91,8 @@ export default function CbqHubPage() {
             Practise CBQs free
           </Link>
         </section>
+
+        <SeoFaq headingId="cbqs-faq" heading="Common questions" items={CBQ_HUB_FAQ} />
 
         <p className="lt-cbqs__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>
       </div>

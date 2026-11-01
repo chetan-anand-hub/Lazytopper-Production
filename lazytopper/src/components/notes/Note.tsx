@@ -1766,6 +1766,10 @@ export function Note({ spec, initialTab }: NoteProps) {
           <Link to={cbqChapterPath(meta.topic_key)}>CBQs for this chapter →</Link>
         </p>
       )}
+      {/* SEO-QUICK-1 — a crawlable link from every chapter note to the PDF packs (the /pricing packs strip, id="packs"). */}
+      <p className="lt-note__ncert-read" data-testid="note-pack-link">
+        <Link to="/pricing#packs">Chapter pack: printable questions with worked solutions →</Link>
+      </p>
       {ncertCode && (
         <p className="lt-note__ncert-pdf">
           <a href={ncertPdfHref(ncertCode)} target="_blank" rel="noopener">

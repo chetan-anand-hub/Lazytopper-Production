@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
+import SeoFaq from "../components/seo/SeoFaq";
+import { CHECK_ANSWER_FAQ } from "../components/seo/faqContent";
 import "./checkYourAnswer.css";
 
 /**
@@ -249,6 +251,8 @@ export default function CheckYourAnswerPage() {
             Check an answer free
           </Link>
         </section>
+
+        <SeoFaq headingId="cya-faq" heading="Common questions" items={CHECK_ANSWER_FAQ} />
 
         <p className="lt-cya__fine">
           Quotations in “Marks are given for steps” are from the general instructions printed with the{" "}

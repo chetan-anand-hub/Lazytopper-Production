@@ -1,0 +1,13 @@
+.lt-seofaq__item {
+  margin: 0 0 14px;
+  overflow-wrap: anywhere;
+}
+.lt-seofaq__item h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.lt-seofaq__item p {
+  margin: 0;
+  line-height: 1.55;
+}
