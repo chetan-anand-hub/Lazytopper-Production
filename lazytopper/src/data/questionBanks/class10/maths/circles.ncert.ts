@@ -12,7 +12,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
     questionText: "A tangent PQ at a point P of a circle of radius 5 cm meets a line through the centre O at a point Q so that OQ = 12 cm. Length PQ is",
     options: ["12 cm", "13 cm", "8.5 cm", "√119 cm"],
     answer: "√119 cm",
-    solutionSteps: ["By Theorem 10.1, OP ⊥ PQ at the point of contact.", "In right ∆OPQ, by Pythagoras: PQ² = OQ² − OP² = 12² − 5² = 144 − 25 = 119.", "PQ = √119 cm. Answer: (D)"],
+    solutionSteps: ["By Theorem 10.1, OP ⊥ PQ at the point of contact.", "In right ∆OPQ, by Pythagoras: PQ² = OQ² − OP² = 12² − 5² = 144 − 25 = 119.", "PQ = √119 cm."],
     finalAnswer: "√119 cm — option (d).",
     ncertRef: "NCERT Ex 10.1 Q3", isCompetencyBased: false,
     strategyHint: "OP ⊥ PQ ⇒ right triangle ⇒ Pythagoras." },
@@ -21,7 +21,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
     questionText: "From a point Q, the length of the tangent to a circle is 24 cm and the distance of Q from the centre is 25 cm. The radius of the circle is",
     options: ["7 cm", "12 cm", "15 cm", "24.5 cm"],
     answer: "7 cm",
-    solutionSteps: ["Let P be the point of contact and O the centre. OP ⊥ PQ.", "OP² = OQ² − PQ² = 25² − 24² = 625 − 576 = 49.", "OP = 7 cm. Answer: (A)"],
+    solutionSteps: ["Let P be the point of contact and O the centre. OP ⊥ PQ.", "OP² = OQ² − PQ² = 25² − 24² = 625 − 576 = 49.", "OP = 7 cm."],
     finalAnswer: "7 cm — option (a).",
     ncertRef: "NCERT Ex 10.2 Q1", isCompetencyBased: false },
 
@@ -38,7 +38,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
     questionText: "Tangents PA and PB from a point P to a circle with centre O are inclined to each other at an angle of 80°. Then ∠POA equals",
     options: ["50°", "60°", "70°", "80°"],
     answer: "50°",
-    solutionSteps: ["By Theorem 10.2, PA = PB, and ∆OPA ≅ ∆OPB. So ∠OPA = ∠OPB = 40°.", "∠OAP = 90° (radius ⊥ tangent).", "In ∆OPA: ∠POA = 180° − 90° − 40° = 50°. Answer: (A)"],
+    solutionSteps: ["By Theorem 10.2, PA = PB, and ∆OPA ≅ ∆OPB. So ∠OPA = ∠OPB = 40°.", "∠OAP = 90° (radius ⊥ tangent).", "In ∆OPA: ∠POA = 180° − 90° − 40° = 50°."],
     finalAnswer: "50° — option (a).",
     ncertRef: "NCERT Ex 10.2 Q3", isCompetencyBased: true },
 

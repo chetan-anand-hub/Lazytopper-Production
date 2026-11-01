@@ -95,7 +95,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
       "(a) False — e.g. tan 60° = √3 > 1.",
       "(b) True — sec A = hyp/adj, and 12/5 > 1 is allowed since sec A ≥ 1.",
       "(c) False — 'cos' is cosine, not cosecant; cosec is the abbreviation for cosecant.",
-      "(d) False — sin θ ≤ 1 always, so 4/3 is impossible. Answer: (B)"
+      "(d) False — sin θ ≤ 1 always, so 4/3 is impossible."
     ],
     finalAnswer: "Option (b): sec A = 12/5 is possible.",
     ncertRef: "NCERT Ex 8.1 Q11", isCompetencyBased: true,
@@ -133,7 +133,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
       "tan 30° = 1/√3, so 2 tan 30° = 2/√3.",
       "1 + tan²30° = 1 + 1/3 = 4/3.",
       "Ratio = (2/√3) / (4/3) = (2/√3) × (3/4) = 6/(4√3) = 3/(2√3) = √3/2.",
-      "√3/2 = sin 60°. Answer: (A)"
+      "√3/2 = sin 60°."
     ],
     finalAnswer: "sin 60° — option (a).",
     ncertRef: "NCERT Ex 8.2 Q2(i)", isCompetencyBased: true,
@@ -207,7 +207,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Factor: 9 sec²A − 9 tan²A = 9(sec²A − tan²A).",
       "Use the identity sec²A − tan²A = 1.",
-      "So the expression = 9 × 1 = 9. Answer: (B)"
+      "So the expression = 9 × 1 = 9."
     ],
     finalAnswer: "9 — option (b).",
     ncertRef: "NCERT Ex 8.3 Q3(i)", isCompetencyBased: false,
@@ -219,7 +219,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
     answer: "cos A",
     solutionSteps: [
       "(sec A + tan A)(1 − sin A) = (1/cos A + sin A/cos A)(1 − sin A) = [(1 + sin A)/cos A] · (1 − sin A).",
-      "= (1 − sin²A) / cos A = cos²A / cos A = cos A. Answer: (D)"
+      "= (1 − sin²A) / cos A = cos²A / cos A = cos A."
     ],
     finalAnswer: "cos A — option (d).",
     ncertRef: "NCERT Ex 8.3 Q3(iii)", isCompetencyBased: true,

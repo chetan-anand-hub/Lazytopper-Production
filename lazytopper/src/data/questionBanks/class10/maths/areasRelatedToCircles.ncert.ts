@@ -22,7 +22,7 @@ export const ARC_NCERT: CanonicalQuestion[] = [
     questionText: "The area of a sector of angle p° (in degrees) of a circle of radius R is",
     options: ["(p/180) × 2πR", "(p/180) × πR²", "(p/360) × 2πR", "(p/360) × πR²"],
     answer: "(p/360) × πR²",
-    solutionSteps: ["By the unitary method, fraction of full circle = p/360.", "Area of sector = (p/360) × πR². Answer: (D)"],
+    solutionSteps: ["By the unitary method, fraction of full circle = p/360.", "Area of sector = (p/360) × πR²."],
     finalAnswer: "(p/360) × πR² — option (d).",
     ncertRef: "NCERT Ex 11.1 Q14", isCompetencyBased: false },
 
@@ -46,7 +46,7 @@ export const ARC_NCERT: CanonicalQuestion[] = [
     questionText: "The area of a sector of a circle of radius 6 cm and angle 60° (use π = 22/7) is approximately",
     options: ["132/7 cm²", "264/7 cm²", "66/7 cm²", "33/14 cm²"],
     answer: "132/7 cm²",
-    solutionSteps: ["Area = (θ/360) × πr² = (60/360) × (22/7) × 36 = (1/6) × (22 × 36/7) = (22 × 6)/7 = 132/7.", "≈ 18.857 cm². Answer: (A)"],
+    solutionSteps: ["Area = (θ/360) × πr² = (60/360) × (22/7) × 36 = (1/6) × (22 × 36/7) = (22 × 6)/7 = 132/7.", "≈ 18.857 cm²."],
     finalAnswer: "132/7 cm² — option (a).",
     ncertRef: "NCERT Ex 11.1 Q1", isCompetencyBased: true },
 

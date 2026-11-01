@@ -3,6 +3,8 @@
 import { createRequire } from "node:module";
 import { canonicalQuestionBank } from "../../src/data/canonicalQuestionBank";
 import { buildAnchorQuestion } from "../../src/pages/tutor/tutorAnchorQuestion";
+import { SOLUTIONS_2_LEDGER } from "../../src/config/solutions2Ledger";
+import { SOLUTIONS_3_BOARD_LEDGER } from "../../src/config/solutions3BoardLedger";
 import { normaliseOption, optionsDifferOnlyByCase, normaliseOptionKeepCase } from "../../src/lib/objectiveScoring";
 
 const require = createRequire(import.meta.url);
@@ -30,6 +32,12 @@ function namedOptions(a: unknown): "none" | "some" {
   return "none";
 }
 
+/** Rows hash-pinned by a SOLUTIONS ledger: any text change makes them "unverified" again, so they are never edited. */
+export const PINNED_IDS = new Set<string>([
+  ...Object.entries(SOLUTIONS_2_LEDGER as Record<string, { hash?: string }>).filter(([, e]) => e.hash).map(([id]) => id),
+  ...Object.entries(SOLUTIONS_3_BOARD_LEDGER as Record<string, { hash?: string }>).filter(([, e]) => e.hash).map(([id]) => id),
+]);
+
 export function analyse(): Verdict[] {
   const out: Verdict[] = [];
   for (const row of canonicalQuestionBank) {
@@ -38,6 +46,10 @@ export function analyse(): Verdict[] {
     const id = built.id;
     const a = normalizeAnchorQuestion(built);
     if (!a) continue;
+    if (PINNED_IDS.has(id)) {
+      out.push({ id, status: "skip", why: "hash-pinned by a SOLUTIONS ledger" });
+      continue;
+    }
     const real = detectKeyMismatch(a);
     if (real && real.kind === "no-option") {
       out.push({ id, status: "no-option" });

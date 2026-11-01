@@ -20,7 +20,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "cos A = adjacent/hypotenuse = 4/5: let adjacent = 4k, hypotenuse = 5k.",
       "Pythagoras: opposite² = 25k² − 16k² = 9k² ⇒ opposite = 3k.",
-      "tan A = opposite/adjacent = 3k/4k = 3/4. Answer: (B)"
+      "tan A = opposite/adjacent = 3k/4k = 3/4."
     ],
     finalAnswer: "tan A = 3/4 — option (b).",
     ncertRef: "Exemplar Ch8 MCQ Q1", isCompetencyBased: true,
@@ -32,7 +32,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     answer: "√3",
     solutionSteps: [
       "sin A = 1/2 ⇒ A = 30°.",
-      "cot 30° = √3. Answer: (A)"
+      "cot 30° = √3."
     ],
     finalAnswer: "cot A = √3 — option (a).",
     ncertRef: "Exemplar Ch8 MCQ Q2", isCompetencyBased: false,
@@ -60,7 +60,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     answer: "√(b² − a²)/b",
     solutionSteps: [
       "sin²θ + cos²θ = 1 ⇒ cos²θ = 1 − (a/b)² = (b² − a²)/b².",
-      "cos θ = √(b² − a²) / b (positive root, since θ is acute). Answer: (C)"
+      "cos θ = √(b² − a²) / b (positive root, since θ is acute)."
     ],
     finalAnswer: "cos θ = √(b² − a²)/b — option (c).",
     ncertRef: "Exemplar Ch8 MCQ Q4", isCompetencyBased: true,
@@ -99,7 +99,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     answer: "0",
     solutionSteps: [
       "Sum of angles in a triangle = 180°. Since C = 90°, A + B = 90°.",
-      "cos(A + B) = cos 90° = 0. Answer: (A)"
+      "cos(A + B) = cos 90° = 0."
     ],
     finalAnswer: "0 — option (a).",
     ncertRef: "Exemplar Ch8 MCQ Q8", isCompetencyBased: false,
@@ -112,7 +112,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Given sin A + sin²A = 1 ⇒ sin A = 1 − sin²A = cos²A.",
       "Compute cos²A + cos⁴A = cos²A + (cos²A)² = sin A + sin²A (substituting cos²A = sin A).",
-      "= 1 (given). Answer: (A)"
+      "= 1 (given)."
     ],
     finalAnswer: "1 — option (a).",
     ncertRef: "Exemplar Ch8 MCQ Q9", isCompetencyBased: true,
@@ -125,7 +125,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "sin α = 1/2 ⇒ α = 30°.",
       "cos β = 1/2 ⇒ β = 60°.",
-      "α + β = 30° + 60° = 90°. Answer: (D)"
+      "α + β = 30° + 60° = 90°."
     ],
     finalAnswer: "90° — option (d).",
     ncertRef: "Exemplar Ch8 MCQ Q10", isCompetencyBased: false,
@@ -137,7 +137,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     answer: "1/2",
     solutionSteps: [
       "Divide numerator and denominator by cos θ: numerator → 4 tan θ − 1; denominator → 4 tan θ + 1.",
-      "Substitute 4 tan θ = 3: (3 − 1)/(3 + 1) = 2/4 = 1/2. Answer: (C)"
+      "Substitute 4 tan θ = 3: (3 − 1)/(3 + 1) = 2/4 = 1/2."
     ],
     finalAnswer: "1/2 — option (c).",
     ncertRef: "Exemplar Ch8 MCQ Q12", isCompetencyBased: true,
@@ -150,7 +150,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "sin θ = cos θ ⇒ tan θ = 1 ⇒ θ = 45°.",
       "sin 45° = cos 45° = 1/√2.",
-      "sin⁴θ + cos⁴θ = (1/√2)⁴ + (1/√2)⁴ = 1/4 + 1/4 = 1/2. Answer: (C)"
+      "sin⁴θ + cos⁴θ = (1/√2)⁴ + (1/√2)⁴ = 1/4 + 1/4 = 1/2."
     ],
     finalAnswer: "1/2 — option (c).",
     ncertRef: "Exemplar Ch8 MCQ Q13", isCompetencyBased: true,
@@ -306,7 +306,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
     answer: "60°",
     solutionSteps: [
       "Let the Sun's elevation be θ. Then tan θ = height/shadow = 6/(2√3) = 3/√3 = √3.",
-      "tan θ = √3 ⇒ θ = 60°. Answer: (A)"
+      "tan θ = √3 ⇒ θ = 60°."
     ],
     finalAnswer: "60° — option (a).",
     ncertRef: "Exemplar Ch8 MCQ Q15 (Applications)", isCompetencyBased: true,

@@ -13,7 +13,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If an event cannot occur, then its probability is",
     options: ["1", "3/4", "1/2", "0"],
     answer: "0",
-    solutionSteps: ["An event that cannot occur is called an impossible event.", "Number of favourable outcomes for an impossible event is 0.", "Hence P(impossible event) = 0. Answer: (D)"],
+    solutionSteps: ["An event that cannot occur is called an impossible event.", "Number of favourable outcomes for an impossible event is 0.", "Hence P(impossible event) = 0."],
     finalAnswer: "0 — option (d).",
     ncertRef: "Exemplar Ex 13.1 Q12", isCompetencyBased: false },
 
@@ -21,7 +21,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Which of the following CANNOT be the probability of an event?",
     options: ["1/3", "0.1", "3%", "17/16"],
     answer: "17/16",
-    solutionSteps: ["Probability lies in [0, 1]. 17/16 > 1, so it cannot be a probability. Answer: (D)"],
+    solutionSteps: ["Probability lies in [0, 1]. 17/16 > 1, so it cannot be a probability."],
     finalAnswer: "17/16 — option (d).",
     ncertRef: "Exemplar Ex 13.1 Q13", isCompetencyBased: false },
 
@@ -29,7 +29,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If P(A) denotes the probability of event A, then which inequality is always true?",
     options: ["P(A) < 0", "P(A) > 1", "0 ≤ P(A) ≤ 1", "−1 ≤ P(A) ≤ 1"],
     answer: "0 ≤ P(A) ≤ 1",
-    solutionSteps: ["By definition of theoretical probability, the count of favourable outcomes is between 0 and the total count.", "Therefore 0 ≤ P(A) ≤ 1. Answer: (C)"],
+    solutionSteps: ["By definition of theoretical probability, the count of favourable outcomes is between 0 and the total count.", "Therefore 0 ≤ P(A) ≤ 1."],
     finalAnswer: "0 ≤ P(A) ≤ 1 — option (c).",
     ncertRef: "Exemplar Ex 13.1 Q17", isCompetencyBased: false },
 
@@ -37,7 +37,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A card is selected from a deck of 52 cards. The probability of its being a red face card is",
     options: ["3/26", "3/13", "2/13", "1/2"],
     answer: "3/26",
-    solutionSteps: ["Face cards: J, Q, K. Red face cards = 3 (hearts) + 3 (diamonds) = 6.", "P(red face card) = 6/52 = 3/26. Answer: (A)"],
+    solutionSteps: ["Face cards: J, Q, K. Red face cards = 3 (hearts) + 3 (diamonds) = 6.", "P(red face card) = 6/52 = 3/26."],
     finalAnswer: "3/26 — option (a).",
     ncertRef: "Exemplar Ex 13.1 Q18", isCompetencyBased: true },
 
@@ -45,7 +45,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The probability that a non-leap year selected at random will contain 53 Sundays is",
     options: ["1/7", "2/7", "3/7", "5/7"],
     answer: "1/7",
-    solutionSteps: ["A non-leap year has 365 days = 52 complete weeks + 1 extra day.", "The extra day is equally likely to be any of the 7 days of the week.", "For 53 Sundays, the extra day must be Sunday. Hence P = 1/7. Answer: (A)"],
+    solutionSteps: ["A non-leap year has 365 days = 52 complete weeks + 1 extra day.", "The extra day is equally likely to be any of the 7 days of the week.", "For 53 Sundays, the extra day must be Sunday. Hence P = 1/7."],
     finalAnswer: "1/7 — option (a).",
     ncertRef: "Exemplar Ex 13.1 Q19", isCompetencyBased: true,
     strategyHint: "365 = 52 × 7 + 1; the leftover day determines the answer." },
@@ -54,7 +54,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "When a die is thrown, the probability of getting an odd number less than 3 is",
     options: ["1/6", "1/3", "1/2", "0"],
     answer: "1/6",
-    solutionSteps: ["Odd numbers less than 3 on a die: just 1.", "Total outcomes = 6.", "P = 1/6. Answer: (A)"],
+    solutionSteps: ["Odd numbers less than 3 on a die: just 1.", "Total outcomes = 6.", "P = 1/6."],
     finalAnswer: "1/6 — option (a).",
     ncertRef: "Exemplar Ex 13.1 Q20", isCompetencyBased: false },
 
@@ -62,7 +62,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The probability of getting a bad egg in a lot of 400 is 0.035. The number of bad eggs in the lot is",
     options: ["7", "14", "21", "28"],
     answer: "14",
-    solutionSteps: ["Let n be the number of bad eggs. Then n/400 = 0.035.", "n = 0.035 × 400 = 14. Answer: (B)"],
+    solutionSteps: ["Let n be the number of bad eggs. Then n/400 = 0.035.", "n = 0.035 × 400 = 14."],
     finalAnswer: "14 — option (b).",
     ncertRef: "Exemplar Ex 13.1 Q22", isCompetencyBased: true },
 
@@ -70,7 +70,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "One ticket is drawn at random from a bag containing tickets numbered 1 to 40. The probability that the selected ticket has a number which is a multiple of 5 is",
     options: ["1/5", "3/5", "4/5", "1/3"],
     answer: "1/5",
-    solutionSteps: ["Multiples of 5 in 1–40: 5, 10, 15, …, 40 → 8 numbers.", "P = 8/40 = 1/5. Answer: (A)"],
+    solutionSteps: ["Multiples of 5 in 1–40: 5, 10, 15, …, 40 → 8 numbers.", "P = 8/40 = 1/5."],
     finalAnswer: "1/5 — option (a).",
     ncertRef: "Exemplar Ex 13.1 Q24", isCompetencyBased: false },
 

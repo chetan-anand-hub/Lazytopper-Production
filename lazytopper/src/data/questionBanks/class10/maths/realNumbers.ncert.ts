@@ -13,7 +13,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     questionText: "The prime factorisation of 156 is",
     options: ["2² × 3 × 13", "2 × 3² × 13", "2² × 3 × 11", "2³ × 3 × 13"],
     answer: "2² × 3 × 13",
-    solutionSteps: ["Divide 156 by 2: 156 ÷ 2 = 78.", "78 ÷ 2 = 39. 39 ÷ 3 = 13. 13 is prime.", "So 156 = 2 × 2 × 3 × 13 = 2² × 3 × 13. Answer: (A)"],
+    solutionSteps: ["Divide 156 by 2: 156 ÷ 2 = 78.", "78 ÷ 2 = 39. 39 ÷ 3 = 13. 13 is prime.", "So 156 = 2 × 2 × 3 × 13 = 2² × 3 × 13."],
     finalAnswer: "2² × 3 × 13 — option (a).",
     ncertRef: "NCERT Ex 1.1 Q1(ii)", isCompetencyBased: false },
 
@@ -21,7 +21,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     questionText: "If HCF(306, 657) = 9, then LCM(306, 657) is",
     options: ["22338", "11169", "201042", "2754"],
     answer: "22338",
-    solutionSteps: ["For two positive integers a and b: HCF(a, b) × LCM(a, b) = a × b.", "LCM(306, 657) = (306 × 657) / HCF(306, 657) = 201042 / 9.", "201042 / 9 = 22338. Answer: (A)"],
+    solutionSteps: ["For two positive integers a and b: HCF(a, b) × LCM(a, b) = a × b.", "LCM(306, 657) = (306 × 657) / HCF(306, 657) = 201042 / 9.", "201042 / 9 = 22338."],
     finalAnswer: "22338 — option (a).",
     ncertRef: "NCERT Ex 1.1 Q4", isCompetencyBased: true,
     strategyHint: "Use HCF × LCM = product of the two numbers." },
@@ -48,7 +48,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     questionText: "The LCM and HCF of 26 and 91 are respectively",
     options: ["182 and 13", "13 and 182", "91 and 26", "26 and 91"],
     answer: "182 and 13",
-    solutionSteps: ["26 = 2 × 13. 91 = 7 × 13.", "HCF = product of smallest powers of common primes = 13.", "LCM = product of greatest powers of all primes = 2 × 7 × 13 = 182.", "Check: HCF × LCM = 13 × 182 = 2366 = 26 × 91. ✓ Answer: (A)"],
+    solutionSteps: ["26 = 2 × 13. 91 = 7 × 13.", "HCF = product of smallest powers of common primes = 13.", "LCM = product of greatest powers of all primes = 2 × 7 × 13 = 182.", "Check: HCF × LCM = 13 × 182 = 2366 = 26 × 91. ✓"],
     finalAnswer: "LCM = 182, HCF = 13 — option (a).",
     ncertRef: "NCERT Ex 1.1 Q2(i)", isCompetencyBased: false },
 

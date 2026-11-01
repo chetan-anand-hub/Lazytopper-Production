@@ -13,7 +13,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     questionText: "On comparing the ratios a₁/a₂, b₁/b₂ and c₁/c₂, the pair of linear equations 5x − 4y + 8 = 0 and 7x + 6y − 9 = 0 represents lines that are:",
     options: ["intersecting at a point", "parallel", "coincident", "perpendicular"],
     answer: "intersecting at a point",
-    solutionSteps: ["For the two equations a₁ = 5, b₁ = −4, c₁ = 8 and a₂ = 7, b₂ = 6, c₂ = −9.", "Compute a₁/a₂ = 5/7 and b₁/b₂ = −4/6 = −2/3.", "Since 5/7 ≠ −2/3, i.e., a₁/a₂ ≠ b₁/b₂, the lines are intersecting (unique solution).", "Hence the pair represents intersecting lines. Answer: (A)"],
+    solutionSteps: ["For the two equations a₁ = 5, b₁ = −4, c₁ = 8 and a₂ = 7, b₂ = 6, c₂ = −9.", "Compute a₁/a₂ = 5/7 and b₁/b₂ = −4/6 = −2/3.", "Since 5/7 ≠ −2/3, i.e., a₁/a₂ ≠ b₁/b₂, the lines are intersecting (unique solution).", "Hence the pair represents intersecting lines."],
     finalAnswer: "Intersecting at a point — option (a).",
     ncertRef: "NCERT Ex 3.1 Q2(i)", isCompetencyBased: false,
     strategyHint: "Check a₁/a₂ vs b₁/b₂ first: if unequal → unique solution → intersecting." },
@@ -22,7 +22,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     questionText: "The pair of linear equations 9x + 3y + 12 = 0 and 18x + 6y + 24 = 0 is:",
     options: ["inconsistent (parallel lines)", "consistent with a unique solution", "consistent with infinitely many solutions (coincident)", "has exactly two solutions"],
     answer: "consistent with infinitely many solutions (coincident)",
-    solutionSteps: ["a₁/a₂ = 9/18 = 1/2.", "b₁/b₂ = 3/6 = 1/2.", "c₁/c₂ = 12/24 = 1/2.", "Since a₁/a₂ = b₁/b₂ = c₁/c₂, the lines are coincident → infinitely many solutions (consistent, dependent). Answer: (C)"],
+    solutionSteps: ["a₁/a₂ = 9/18 = 1/2.", "b₁/b₂ = 3/6 = 1/2.", "c₁/c₂ = 12/24 = 1/2.", "Since a₁/a₂ = b₁/b₂ = c₁/c₂, the lines are coincident → infinitely many solutions (consistent, dependent)."],
     finalAnswer: "Coincident lines with infinitely many solutions — option (c).",
     ncertRef: "NCERT Ex 3.1 Q2(ii)", isCompetencyBased: false },
 
@@ -81,7 +81,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     questionText: "Graphically, the pair of equations 6x − 3y + 10 = 0 and 2x − y + 9 = 0 represents two lines which are:",
     options: ["intersecting at exactly one point", "intersecting at exactly two points", "coincident", "parallel"],
     answer: "parallel",
-    solutionSteps: ["a₁/a₂ = 6/2 = 3.", "b₁/b₂ = −3/−1 = 3.", "c₁/c₂ = 10/9.", "a₁/a₂ = b₁/b₂ ≠ c₁/c₂ → parallel lines.", "Hence the pair represents parallel (non-intersecting) lines. Answer: (D)"],
+    solutionSteps: ["a₁/a₂ = 6/2 = 3.", "b₁/b₂ = −3/−1 = 3.", "c₁/c₂ = 10/9.", "a₁/a₂ = b₁/b₂ ≠ c₁/c₂ → parallel lines.", "Hence the pair represents parallel (non-intersecting) lines."],
     finalAnswer: "Parallel — option (d).",
     ncertRef: "NCERT Ex 3.1 Q2(iii)", isCompetencyBased: false },
 

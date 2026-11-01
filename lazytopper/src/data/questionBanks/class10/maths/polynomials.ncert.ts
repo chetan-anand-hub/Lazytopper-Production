@@ -14,7 +14,7 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     questionText: "The zeroes of the quadratic polynomial x² – 2x – 8 are",
     options: ["–2 and 4", "2 and –4", "–2 and –4", "2 and 4"],
     answer: "–2 and 4",
-    solutionSteps: ["Factorise: x² – 2x – 8 = (x – 4)(x + 2).", "Zeroes occur when each factor is zero: x = 4 or x = –2. Answer: (A)"],
+    solutionSteps: ["Factorise: x² – 2x – 8 = (x – 4)(x + 2).", "Zeroes occur when each factor is zero: x = 4 or x = –2."],
     finalAnswer: "–2 and 4 — option (a).",
     ncertRef: "NCERT Ex 2.2 Q1(i)", isCompetencyBased: false,
     strategyHint: "Split the middle term." },

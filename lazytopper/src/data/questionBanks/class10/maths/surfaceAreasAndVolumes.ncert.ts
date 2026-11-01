@@ -18,7 +18,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Side of each cube = ∛64 = 4 cm.",
       "When joined end to end, the resulting cuboid has dimensions l × b × h = 8 × 4 × 4 cm.",
-      "Surface area = 2(lb + bh + hl) = 2(8·4 + 4·4 + 4·8) cm² = 2(32 + 16 + 32) cm² = 2 × 80 cm² = 160 cm². Answer: (B)"
+      "Surface area = 2(lb + bh + hl) = 2(8·4 + 4·4 + 4·8) cm² = 2(32 + 16 + 32) cm² = 2 × 80 cm² = 160 cm²."
     ],
     finalAnswer: "160 cm² — option (B).",
     ncertRef: "NCERT Ex 12.1 Q1", isCompetencyBased: false,

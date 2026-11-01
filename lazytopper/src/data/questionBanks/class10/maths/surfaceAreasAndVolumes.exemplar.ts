@@ -111,7 +111,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Radius r = 0.25 cm; cylinder length h = 2 − 2(0.25) = 1.5 cm.",
       "V = πr²h + (4/3)πr³ = π(0.0625)(1.5) + (4/3)π(0.015625) = π[0.09375 + 0.02083].",
-      "= π × 0.11458 ≈ 3.14 × 0.11458 ≈ 0.36 cm³. Answer: (A)"
+      "= π × 0.11458 ≈ 3.14 × 0.11458 ≈ 0.36 cm³."
     ],
     finalAnswer: "0.36 cm³ — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q14", isCompetencyBased: true,
@@ -126,7 +126,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Two hemispheres joined along their bases form a complete sphere.",
       "Surface area of a sphere = 4πr².",
-      "(The two flat circles are joined and are no longer exposed.) Answer: (A)"
+      "(The two flat circles are joined and are no longer exposed.)"
     ],
     finalAnswer: "4πr² — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q15", isCompetencyBased: false },
@@ -140,7 +140,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "The sphere must fit inside the cylinder, so its diameter is limited by the cylinder's diameter.",
       "Cylinder diameter = 2r. The condition h > 2r ensures the sphere also fits in height.",
-      "Hence the largest enclosed sphere has diameter 2r. Answer: (B)"
+      "Hence the largest enclosed sphere has diameter 2r."
     ],
     finalAnswer: "2r cm — option (B).",
     ncertRef: "Exemplar Ex 12.1 Q16", isCompetencyBased: false },
