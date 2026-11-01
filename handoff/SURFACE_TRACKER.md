@@ -1,3 +1,17 @@
+> **2026-11-01 (daily) - #1463 - #1475 (CLAUDE.md section 10, once a day).** Scope: the Tutor (memory, stickiness, key letters, CBQ allowance, polish, figure), the Answer Checker ladder (entry only), checkout rescue, analytics (Ads conversion), PDFs, WhatsApp on buying pages, SEO heads. The Answer Checker's grading is unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Tutor | key-dispute reply, subscripts (`#1470`); NCERT figure (`#1471`); CBQ allowance (`#1472`); picked option + lastSeen (`#1474`); daily fix, one-tap check, trial summary (`#1475`); key letters (`#1473`) | merged 1 Nov | `[FU-CBQ-TUTOR-TASTE-LIVE]`, `[FU-TUTOR-MEM-LIVE]`, `[FU-TUTOR-STICKY-LIVE]` |
+| Home | "Fix 3 lost marks" card (`#1475`) | merged | `[FU-TUTOR-STICKY-LIVE]` |
+| Public CBQ / board-question pages | step ends "Answer: (X)" (`#1473`); FAQ JSON-LD on /cbq-class-10 (`#1464`) | merged | `[FU-TUTOR-KEYS-PUBLIC-PAGES]` |
+| Answer Checker one-minute ladder | leads every non-CBQ ad arrival (`#1463`) | live | read GA4 share |
+| Pricing / packs checkout | rescue card after a closed checkout, failure reasons (`#1465`); WhatsApp buying openers (`#1469`) | live | live-verify `#1465` |
+| Analytics | Google Ads purchase conversion (`#1466`) | live; Ads Purchase goal Active | none |
+| PDFs | IITian footer and cover badge (`#1468`) | live | none |
+| Admin - Students | tutor use line (`#1470`); new events labelled (`#1472`, `#1475`) | merged | none |
+
+
 > **2026-10-31 (daily) - #1445 - #1458 (CLAUDE.md section 10, once a day).** Scope: pricing and checkout, the parent page and report, the Answer Checker ladder (navigation and entry only), the tutor's dispute detection, the admin Students page, Exam Trends weightage, nudge emails. The Answer Checker's grading is unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Live results [coordinator].
 
 | surface | what moved (PR) | state | owed |

@@ -23,6 +23,35 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-01 (daily) - #1463 - #1475 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `a818698a`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff of 1 Nov **[coordinator]** unless marked [git/gh].*
+
+### [FU-CBQ-TUTOR-TASTE-LIVE]
+Evidence [coordinator; `#1472`]: not live-verified. With a CBQ Pack owner without Premium, ask the tutor three times (banner counts down), then a fourth (Premium card, no answer). Confirm a failed tutor reply did not spend a question.
+
+### [FU-TUTOR-MEM-LIVE]
+Evidence [coordinator; `#1474`]: not live-verified. Pick a wrong MCQ option in Quick Practice, open the tutor on it, and confirm it names the picked option and the key; confirm "last practised <date>, N days ago" for a concept seen before.
+
+### [FU-TUTOR-STICKY-LIVE]
+Evidence [coordinator; `#1475`]: not live-verified. "Fix 3 lost marks" on Home and as the tutor opener once mistakes exist; the one-tap check clears only the same concept; the trial summary appears near trial end. Watch the six events in admin.
+
+### [FU-TUTOR-KEYS-PUBLIC-PAGES]
+Evidence [git/gh; `#1473` prerender diff]: public CBQ pages now end the worked MCQ step with "Answer: (X)". Confirm hints (`stripAnswerLetter`) never show the letter, and that 147 rows (133 hash-pinned SOLUTIONS-2 + others) remain unverifiable by design.
+
+### [FU-ADS-CITY-LIST-V2]
+Evidence [coordinator]: the 40 cities were chosen by CBSE regional-office cities, CBSE-dense metros and owner-requested south cities, not by per-city exam counts (CBSE publishes by region only). Rank by CBSE-affiliated school count per district and by our own GA4/Razorpay city data; propose to the owner.
+
+### [FU-ADS-LOGO-DISAPPROVED]
+Evidence [coordinator]: the account-level business logo uploaded 1 Nov 09:32 is "Disapproved (Business Logo Irrelevance)", as was the 12 Oct campaign logo. Owner to appeal, or upload the exact site favicon mark and confirm the advertiser verification name.
+
+### [FU-ADS-INCOME-FILTER-REVIEW]
+Evidence [coordinator]: lower 50% income excluded on Search (hard) and narrowed on Demand Gen (signal) on 1 Nov; PDF Packs 25-31 Oct showed top 10% = 4 conversions, lower 50% = 1 for Rs 948. Compare cost per sign-up and purchases for 5-7 days before changing again.
+
+### [FU-DEPENDABOT-1460-DRAFTED]
+Evidence [git/gh]: dependabot `#1460` was converted to draft on 1 Nov to clear the lane-overlap gate for the tutor lanes and returned to ready afterwards. It still overlaps `lazytopper/package.json` with any lane that edits it.
+
+
 ## 2026-10-31 (daily) - #1445 - #1458 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `ba213620`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff of 31 Oct **[coordinator]**; this builder re-derived none of the code facts.*
