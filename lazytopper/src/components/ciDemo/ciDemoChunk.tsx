@@ -99,9 +99,12 @@ function marginMark(awarded: number, max: number): string {
 }
 
 /**
- * A2 — the ladder leads ONLY where the intent map already leads with "Check one answer" (Byte's own order for
- * this arrival), or when Byte's "Check one answer" asked for it. A CBQ, chapter, packs, papers or quick arrival
- * keeps today's sample picker. The map is read, never changed.
+ * LADDER-REACH-1 — the one-minute ladder leads for EVERY visitor the card is shown to (an ad arrival that qualifies by
+ * `ciDemoModel`), except a CBQ arrival, which keeps today's sample picker (owner rule 30 Oct: CBQ arrivals see CBQ first;
+ * GUIDE-1's intent map encodes that as intent "cbq" and is read, never changed). Before this, the ladder led only when
+ * the map's FIRST option was "check_one", so any ad whose utm_content said sample / mock / preboard / quick / mcq / tap /
+ * pack (or a ?quick=1 URL) was classed papers / packs / quick and fell back to the picker: ~1% of arrivals saw the ladder.
+ * "Watch a sample get marked" stays reachable from the ladder (onWatch).
  */
 function ladderLeads(uid: string | null | undefined, forced: boolean): boolean {
   if (forced) return true;
@@ -113,7 +116,7 @@ function ladderLeads(uid: string | null | undefined, forced: boolean): boolean {
     /* no param */
   }
   try {
-    return guidePlanFor("check_improve", uid ?? null).options[0]?.id === "check_one";
+    return guidePlanFor("check_improve", uid ?? null).intent !== "cbq";
   } catch {
     return false;
   }
