@@ -621,9 +621,12 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     // it is standard carbonyl shorthand and is shared vocabulary with student-facing bank
     // answers, so narrowing it here alone would desync the hub from what students read.
     conceptLabel: "Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br)",
-    best: { kind: "none", ref: "", why: "No notes figure and no bank figure for functional groups (only a keyword-heuristic concept stub)." },
+    // 2026-11-01 TUTOR-FIG-2: official NCERT Science 2026-27 ch.4 Table 4.3 ("Some functional
+    // groups in carbon compounds"), printed p66, cropped from the owner-supplied chapter PDF
+    // and eye-checked against the page.
+    best: { kind: "notes-figure", ref: "carbon-and-its-compounds/fig_functional_groups_table_43.webp", why: "NCERT Table 4.3 — the functional groups (—Cl/—Br, —OH, aldehyde, ketone, carboxylic acid) with their class names and formulae." },
     alternates: [],
-    gap: true,
+    gap: false,
     vocabSource: "boardEssentials",
     ncertPage: { subject: "chemistry", chapter: 4, page: 66 },
   },

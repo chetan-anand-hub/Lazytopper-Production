@@ -111,6 +111,7 @@ describe("★ TUTOR-SVG-REPLACE-1 (D47b, 2026-10-11) — official figures only",
     ["atmospheric-refraction", "human-eye-and-colourful-world/fig_atmospheric_refraction_109.webp", false],
     ["scattering-of-light", "", true],
     ["reactions-of-ethanol-and-ethanoic-acid", "", true],
+    ["functional-groups", "carbon-and-its-compounds/fig_functional_groups_table_43.webp", false],
   ])("%s -> best %s (gap %s)", (conceptKey, ref, gap) => {
     const row = conceptFigureCatalogue.find((r) => r.conceptKey === conceptKey)!;
     expect(row.best.ref).toBe(ref);
