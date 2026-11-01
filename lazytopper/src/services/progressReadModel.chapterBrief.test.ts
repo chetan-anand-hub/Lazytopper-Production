@@ -177,7 +177,8 @@ describe("TUTOR-FIX-2 T2 — the brief is chapter-correct", () => {
   it("★ (3) Real Numbers — mistakes without a bank questionId still yield 'Fundamental Theorem of Arithmetic' with 6 marks (Me's row)", async () => {
     const rn = await brief("real-numbers");
     // TUTOR-MIND-1 (B1): the row also carries the concept's graded-question count (the rung's own points).
-    expect(rn.chapter?.concepts).toEqual([{ name: "Fundamental Theorem of Arithmetic", marksLost: 6, attempts: expect.any(Number), ...(rn.chapter?.concepts?.[0]?.trend ? { trend: rn.chapter.concepts[0].trend } : {}) }]);
+    // TUTOR-MEM-1: and, when the graded points carry a time, the IST date of the newest one.
+    expect(rn.chapter?.concepts).toEqual([{ name: "Fundamental Theorem of Arithmetic", marksLost: 6, attempts: expect.any(Number), ...(rn.chapter?.concepts?.[0]?.trend ? { trend: rn.chapter.concepts[0].trend } : {}), ...(rn.chapter?.concepts?.[0]?.lastSeen ? { lastSeen: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) } : {}) }]);
     expect(rn.topic.weakConcepts).toEqual(["Fundamental Theorem of Arithmetic"]);
     // == Me's open-chapter concept rows (Me's own read for an open chapter).
     const scoped = await readStudyModel(UID, { window: WINDOW, topicKey: "real-numbers", mistakes: false, nowMs: NOW });
