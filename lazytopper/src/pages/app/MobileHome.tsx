@@ -22,6 +22,8 @@ import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import PackPromo from "../../components/packs/PackPromoLazy";
+// TUTOR-STICKY-1 — the daily "Fix 3 lost marks" card and the trial-ending tutor summary (lazy; real data only).
+import { DailyFixHome, TrialTutorSummaryHome } from "../../components/tutorSticky/TutorStickyHome";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import { CompanionHome } from "../../components/guide/companion/companion";
 import CbseBanner from "../../components/cbse/CbseBanner";
@@ -622,6 +624,9 @@ export default function MobileHome() {
           <LinkPhoneNudge spaced />
         )}
 
+        {/* TUTOR-STICKY-1 — the tutor's trial-ending summary (last 2 trial days; renders nothing without real tutor use). */}
+        {isSignedIn && !user?.isLocalSession ? <TrialTutorSummaryHome /> : null}
+
         <StartHereView surface="home" returnTo="/browse" state={startHere} spaced />
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
             renders nothing for a signed-out visitor or an existing student. */}
@@ -725,6 +730,13 @@ export default function MobileHome() {
             its own kicker. The wrapper supplies the rhythm the label used to —
             it is safe here (unlike `spaced`) because something ALWAYS renders in
             this slot. */}
+        {/* TUTOR-STICKY-1 — "Fix 3 lost marks today": the student's own unresolved mistakes, one tap to the tutor. */}
+        {isSignedIn && !user?.isLocalSession && !startHere.visible ? (
+          <div style={{ marginTop: 20 }}>
+            <DailyFixHome gen={Number(mistakeLogsHydrated) || 0} />
+          </div>
+        ) : null}
+
         <div style={{ marginTop: 20 }}>
           {startHere.visible ? null : (
             <FirstSession

@@ -27,6 +27,11 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { FORMATIVE_ONLY_TOPICS, isBoardChapterKey } from "../../config/syllabus2026-27";
 import { MathText } from "../../components/question/MathText";
 import { TutorText } from "./TutorText";
+// TUTOR-STICKY-1 — the daily "Fix 3 lost marks" opener, the one-tap check after an explanation, and the
+// trial-ending summary at the top of the thread.
+import DailyFixCard from "../../components/tutorSticky/DailyFixCard";
+import TrialTutorSummary from "../../components/tutorSticky/TrialTutorSummary";
+import TutorCheckCard, { TutorNextFix } from "../../components/tutorSticky/TutorCheckCard";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../../components/question/katexEager";
 import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
@@ -79,7 +84,16 @@ export function isTutorTopicKeyAllowed(topicKeyRaw: string): boolean {
   return isBoardChapterKey(resolveCanonicalSlug(topicKeyRaw) || topicKeyRaw);
 }
 
+function fixKeyOf(search: string): string {
+  try {
+    return new URLSearchParams(search).get("fix") || "";
+  } catch {
+    return "";
+  }
+}
+
 export default function TutorPage() {
+  const location = useLocation();
   const params = useParams<{ grade?: string; subject?: string; topicKey?: string }>();
   const topicKeyRaw = params.topicKey || "";
   if (!isTutorTopicKeyAllowed(topicKeyRaw)) {
@@ -89,7 +103,9 @@ export default function TutorPage() {
   // no tutor session (so no thread under an empty topic key, no "this topic" opener) starts
   // until one is chosen. Deep links that carry a chapter are unchanged.
   if (!topicKeyRaw) return <TutorChapterFirst />;
-  return <TutorSession />;
+  // TUTOR-STICKY-1 — hopping to the NEXT daily-fix lost mark is a new thread (another chapter or question):
+  // keyed by the chapter and the fix item, so it opens fresh. Every other visit keeps one mounted session.
+  return <TutorSession key={`${topicKeyRaw}|${fixKeyOf(location.search)}`} />;
 }
 
 /** "Maths" / "Science" for the route's subject segment, or null when it is neither. */
@@ -281,6 +297,33 @@ function TutorSession() {
     sendToTutor(text);
   };
   const composerRef = useRef<HTMLInputElement | null>(null);
+
+  // ── TUTOR-STICKY-1 — every explanation ends in a one-tap check ─────────────────────────────────────────
+  // A LIVE reply (the status went sending -> idle) is followed by ONE similar objective bank question, graded
+  // on the device. `liveReplyAt` is the thread length at that moment: the check belongs to that reply and goes
+  // away as soon as the thread moves on (a restored thread, an away-cue or a return opener never earns one).
+  // When the thread was opened from the daily "Fix 3 lost marks" card (`fix`), the next lost mark is offered
+  // once the check is done (or when the bank has no honest question to ask).
+  const fixKey = searchParams.get("fix") || "";
+  const [prevStatus, setPrevStatus] = useState(status);
+  const [liveReplyAt, setLiveReplyAt] = useState<number | null>(null);
+  const [checkDoneAt, setCheckDoneAt] = useState<number | null>(null);
+  const offeredCheckIdsRef = useRef<string[]>([]);
+  if (prevStatus !== status) {
+    setPrevStatus(status);
+    if (prevStatus === "sending" && status === "idle") setLiveReplyAt(messages.length);
+  }
+  const lastTurn = messages[messages.length - 1];
+  const checkOffered =
+    liveReplyAt !== null &&
+    liveReplyAt === messages.length &&
+    status === "idle" &&
+    !pending &&
+    !!lastTurn &&
+    lastTurn.role === "tutor" &&
+    lastTurn.kind !== "away-cue" &&
+    lastTurn.kind !== "return-result" &&
+    !lastTurn.truncated;
   const arrivalDivider =
     arrivalIdx !== null && concept ? (
       <div className="lt-tutor__now" role="separator" data-testid="tutor-concept-divider">
@@ -516,9 +559,14 @@ function TutorSession() {
         <section className="lt-tutor__chat">
           <UsageWarning scope="tutor" selfRead refreshKey={status === "sending" ? null : messages.length} />
           <div className="lt-tutor__stream" ref={streamRef} role="log" aria-live="polite">
+            {/* TUTOR-STICKY-1 — the last days of a trial: what the tutor did for this student (real counts only).
+                Inside the stream, so it scrolls away with the thread and never pins space over the composer. */}
+            <TrialTutorSummary surface="tutor" />
             {/* Opener shows only for a fresh session (no persisted thread) */}
             {messages.length === 0 && (
               <>
+                {/* TUTOR-STICKY-1 — arriving with no question to anchor on: offer today's lost marks. */}
+                {!questionId && !searchParams.get("from") && <DailyFixCard surface="tutor" />}
                 <div className="lt-tutor__t">
                   <MathText text={opener.text} />
                 </div>
@@ -562,6 +610,27 @@ function TutorSession() {
               </Fragment>
             ))}
             {arrivalIdx === messages.length ? arrivalDivider : null}
+
+            {/* TUTOR-STICKY-1 — the one-tap check under the latest live reply, then the next lost mark. */}
+            {checkOffered && (
+              <TutorCheckCard
+                key={liveReplyAt}
+                topicKey={canonicalTopicKey}
+                topicLabel={topicLabel}
+                subject={subject}
+                concept={concept}
+                anchorId={questionId}
+                excludeIds={offeredCheckIdsRef.current}
+                fixKey={fixKey || null}
+                uid={user && !user.isLocalSession ? user.uid : null}
+                onOffered={(id) => {
+                  offeredCheckIdsRef.current = [...offeredCheckIdsRef.current, id];
+                }}
+                onAsk={send}
+                onResolved={() => setCheckDoneAt(liveReplyAt)}
+              />
+            )}
+            {checkOffered && fixKey && checkDoneAt === liveReplyAt && <TutorNextFix fixKey={fixKey} />}
 
             {/* One-shot follow-up quick-reply after a reframed return-opener */}
             {returnFollow && !pending && (

@@ -10,6 +10,8 @@ import ShareWithParentsButton from "../../components/parentReport/ShareWithParen
 import type { TypeMarks } from "../../services/meHomeSummary";
 // MI-CONSISTENCY-1 — the ONE MI card (same selector, scope and figures as the sidebar and phone Home).
 import { MiCardHost } from "../../components/mi/MiCardHost";
+// TUTOR-STICKY-1 — the daily "Fix 3 lost marks" card and the trial-ending tutor summary (lazy; real data only).
+import { DailyFixHome, TrialTutorSummaryHome } from "../../components/tutorSticky/TutorStickyHome";
 import {
   hasMeaningfulMemory,
   readLandingMemory,
@@ -383,6 +385,9 @@ export default function DesktopHome() {
 
         {showPending || trialBanner ? null : <LinkPhoneNudge />}
 
+        {/* TUTOR-STICKY-1 — the tutor's trial-ending summary (last 2 trial days; renders nothing without real tutor use). */}
+        {realUid ? <TrialTutorSummaryHome /> : null}
+
         <StartHereView surface="home" returnTo="/" state={startHere} />
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
             renders nothing for a signed-out visitor or an existing student. */}
@@ -461,6 +466,9 @@ export default function DesktopHome() {
             The old "Your mistakes, understood" section label is gone with it: a
             label cannot be right for both states, and each card already carries
             its own kicker ("Mistake Intelligence" / "First session"). */}
+        {/* TUTOR-STICKY-1 — "Fix 3 lost marks today": the student's own unresolved mistakes, one tap to the tutor. */}
+        {realUid && !startHere.visible ? <DailyFixHome gen={Number(mistakeLogsHydrated) || 0} /> : null}
+
         {startHere.visible ? null : (
           <FirstSession
             uid={user?.uid ?? null}

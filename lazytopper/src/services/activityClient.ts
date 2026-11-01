@@ -224,6 +224,13 @@ export const ACTIVITY_EVENTS = [
   "pack_entry_click",
   // CBQ-TUTOR-TASTE-1 - a CBQ Pack buyer spent one of their 3 tutor questions. Name only.
   "cbq_tutor_bonus_used",
+  // TUTOR-STICKY-1 — the tutor's daily fix card, its one-tap check, the trial-ending tutor summary. Additive.
+  "tutor_daily_fix_shown",
+  "tutor_daily_fix_tap",
+  "tutor_check_shown",
+  "tutor_check_correct",
+  "trial_summary_shown",
+  "trial_summary_tap",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 
