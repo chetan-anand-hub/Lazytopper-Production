@@ -1,7 +1,7 @@
 /**
  * ONE-MINUTE-1 — the ladder inside the card, rendered: step 1 (tap, local verdict, no network), the hand-on to
  * step 2 with the bank-seeded metadata, the sample picker as Byte's secondary option, and A2: the ladder leads ONLY
- * where Byte's intent map leads with "Check one answer" (a check_improve arrival), not for a CBQ arrival.
+ * for every qualifying arrival except a CBQ one (LADDER-REACH-1).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
@@ -83,6 +83,48 @@ describe("ONE-MINUTE-1 step 1 — TAP", () => {
     expect(screen.queryByTestId("one-min-ladder")).toBeNull();
     expect(screen.getByTestId("ci-demo-tile-circ")).toBeInTheDocument();
     expect(line()).toBe(CI_DEMO_COPY.l1);
+  });
+
+  it("LADDER-REACH-1: sample / mock / preboard / quick / mcq / tap / pack ads and a ?quick=1 URL all get the ladder first", async () => {
+    for (const utm_content of ["sample_paper", "mock_test", "preboard_2027", "quick_tap", "mcq_ad", "tap_5", "packs_ad"]) {
+      window.sessionStorage.clear();
+      arrive({ landing: "/check-improve", utm_content });
+      const r = card();
+      await screen.findByTestId("one-min-ladder");
+      expect(screen.queryByTestId("ci-demo-tile-circ")).toBeNull();
+      expect(screen.getByTestId("one-min-watch")).toBeInTheDocument();
+      r.unmount();
+    }
+    window.sessionStorage.clear();
+    arrive({ landing: "/check-improve", utm_campaign: "yt_students" });
+    window.history.pushState({}, "", "/check-improve?quick=1");
+    card();
+    await screen.findByTestId("one-min-ladder");
+    window.history.pushState({}, "", "/");
+  });
+
+  it("LADDER-REACH-1: a Science-ad arrival and a Maths hint without CBQ content still lead with the ladder; a Maths (CBQ) hint keeps the picker", async () => {
+    arrive({ landing: "/check-improve", utm_content: "sci_electricity" });
+    window.sessionStorage.setItem("lazytopper.startHereSubject", "Science");
+    card();
+    await screen.findByTestId("one-min-ladder");
+    cleanup();
+    window.sessionStorage.clear();
+    arrive({ landing: "/check-improve", utm_campaign: "yt_students" });
+    window.sessionStorage.setItem("lazytopper.startHereSubject", "Maths");
+    card();
+    expect(screen.queryByTestId("one-min-ladder")).toBeNull();
+    expect(screen.getByTestId("ci-demo-tile-circ")).toBeInTheDocument();
+  });
+
+  it("LADDER-REACH-1: the audience is unchanged - signed-out free check unspent and signed-in zero-graded qualify, a graded student or a spent check does not", () => {
+    const visit = { landing: "/check-improve", utmCampaign: null };
+    const base = { overlay: false, visit, closed: false };
+    expect(ciDemoEligible({ ...base, who: { kind: "signedOut", freeMode: true, freeCheckUsed: false } })).toBe(true);
+    expect(ciDemoEligible({ ...base, who: { kind: "signedIn", zeroGraded: "none" } })).toBe(true);
+    expect(ciDemoEligible({ ...base, who: { kind: "signedIn", zeroGraded: "some" } })).toBe(false);
+    expect(ciDemoEligible({ ...base, who: { kind: "signedOut", freeMode: true, freeCheckUsed: true } })).toBe(false);
+    expect(ciDemoEligible({ ...base, visit: { landing: "/", utmCampaign: null }, who: { kind: "signedIn", zeroGraded: "none" } })).toBe(false);
   });
 
   it("the intent map itself: check_improve leads with check_one, cbq/packs/chapter/quick do not (map unchanged)", () => {
