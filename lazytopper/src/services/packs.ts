@@ -23,7 +23,11 @@ import {
   loadCheckoutScript,
   PayAlreadyOwnedError,
   PayOrderExpiredError,
+  prefillOption,
+  readCheckoutPrefill,
   verifyPackPayment,
+  watchPaymentFailed,
+  type CheckoutPrefill,
   type PackGrant,
   type PackStatusResult,
   type PayOrder,
@@ -279,7 +283,8 @@ export function packDescription(sku: PackSku, target: string | undefined, chapte
 
 export type PackBuyOutcome =
   | { status: "paid"; grant: PackGrant; paymentId?: string; amountInr?: number }
-  | { status: "dismissed" }
+  /** `afterFailure`: Razorpay reported a failed payment before the sheet was closed (PAY-RESCUE-1). */
+  | { status: "dismissed"; afterFailure?: boolean }
   /** The server says the student already owns everything this would grant: nothing was charged. */
   | { status: "already_owned" }
   | { status: "expired" }
@@ -291,12 +296,15 @@ export interface PackBuyDeps {
   createOrder: (sku: PackSku, target?: string) => Promise<PayOrder>;
   loadScript: () => Promise<RazorpayConstructor>;
   verify: (success: RazorpaySuccess) => Promise<PackGrant>;
+  /** PAY-RESCUE-1 - optional; absent in injected test deps. */
+  prefill?: () => Promise<CheckoutPrefill>;
 }
 
 const DEFAULT_BUY_DEPS: PackBuyDeps = {
   createOrder: createPackOrder,
   loadScript: () => loadCheckoutScript(),
   verify: verifyPackPayment,
+  prefill: readCheckoutPrefill,
 };
 
 /**
@@ -312,7 +320,12 @@ export async function buyPack(
   if (!isValidPackTarget(sku, target)) return { status: "failed" };
   try {
     const sendTarget = sku === "pack_bundle" ? undefined : target;
-    const [order, Razorpay] = await Promise.all([deps.createOrder(sku, sendTarget), deps.loadScript()]);
+    const [order, Razorpay, prefill] = await Promise.all([
+      deps.createOrder(sku, sendTarget),
+      deps.loadScript(),
+      deps.prefill ? deps.prefill().catch((): CheckoutPrefill => ({})) : Promise.resolve<CheckoutPrefill>({}),
+    ]);
+    let sawFailure = false;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -323,10 +336,14 @@ export async function buyPack(
         description: packDescription(sku, target, options.chapterName),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...prefillOption(prefill),
+      });
+      watchPaymentFailed(checkout, () => {
+        sawFailure = true;
       });
       checkout.open();
     });
-    if (!success) return { status: "dismissed" };
+    if (!success) return sawFailure ? { status: "dismissed", afterFailure: true } : { status: "dismissed" };
     const paymentId =
       typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
     let grant: PackGrant;

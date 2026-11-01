@@ -185,6 +185,10 @@ const ACTIVITY_EVENTS = Object.freeze([
   'paywall_action_forward',
   // CHECKOUT-1 - a tap on "Ask a parent to pay". Name only. Additive only.
   'ask_parent_pay',
+  // PAY-RESCUE-1 - the "Can't pay yourself?" card: shown / Ask a parent tapped / Try again tapped. Names only. Additive only.
+  'pay_rescue_shown',
+  'pay_rescue_parent',
+  'pay_rescue_retry',
   // LIMITS-1 - a paper PDF was started / refused by the weekly download limit / the wall was shown. Names only. Additive only.
   'download_start',
   'download_blocked',

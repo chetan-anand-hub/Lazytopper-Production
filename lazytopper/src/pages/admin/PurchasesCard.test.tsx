@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
-import PurchasesCard, { productLabel } from "./PurchasesCard";
+import PurchasesCard, { abandonedReason, productLabel } from "./PurchasesCard";
 
 afterEach(() => {
   cleanup();
@@ -82,5 +82,38 @@ describe("PurchasesCard", () => {
     render(<PurchasesCard getToken={async () => "t"} />);
     fireEvent.click(screen.getByTestId("pu-load"));
     await waitFor(() => expect(screen.getByTestId("pu-abandoned-unavailable")).toBeTruthy());
+  });
+});
+
+describe("PAY-RESCUE-1 · abandoned checkouts show why", () => {
+  const ab = (over = {}) => ({
+    orderId: "order_a", createdAtMs: 1761890000000, uid: "u1", email: "s@x.in", name: "S", passType: "till_boards", packTarget: null,
+    kind: "premium", amountInr: 1917, channel: "student", isAdminAccount: false, ...over,
+  });
+  it("abandonedReason: the stored Razorpay reason, else 'No payment attempted'", () => {
+    expect(abandonedReason({})).toBe("No payment attempted");
+    expect(abandonedReason({ attempted: false, lastFailure: null })).toBe("No payment attempted");
+    expect(abandonedReason({ attempted: true, lastFailure: { code: "BAD_REQUEST_ERROR", reason: "payment_timeout", source: "customer", step: "payment_authorization", atMs: 1 } })).toBe(
+      "Payment failed: payment_timeout",
+    );
+    expect(abandonedReason({ attempted: true, lastFailure: { code: "", reason: "", source: "", step: "", atMs: null } })).toBe("Payment failed");
+  });
+  it("renders the reason on each abandoned row", async () => {
+    stub({
+      ...resp([]),
+      abandoned: {
+        items: [
+          ab({ orderId: "order_f", attempted: true, lastFailure: { code: "X", reason: "payment_timeout", source: "customer", step: "s", atMs: 1 } }),
+          ab({ orderId: "order_n", attempted: false, lastFailure: null }),
+          ab({ orderId: "order_old" }),
+        ],
+      },
+    });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-abandoned-list")).toBeTruthy());
+    expect(screen.getByTestId("pu-ab-reason-order_f").textContent).toBe("Payment failed: payment_timeout");
+    expect(screen.getByTestId("pu-ab-reason-order_n").textContent).toBe("No payment attempted");
+    expect(screen.getByTestId("pu-ab-reason-order_old").textContent).toBe("No payment attempted");
   });
 });

@@ -882,6 +882,10 @@ export type NamedAnalyticsEvent =
   | "paywall_action_forward"
   // CHECKOUT-1 - a tap on "Ask a parent to pay" (it replaced "Forward link to parents"). Name only.
   | "ask_parent_pay"
+  // PAY-RESCUE-1 - the "Can't pay yourself?" card after a closed / failed checkout: shown, "Ask a parent to pay" tapped, "Try again" tapped. Names only.
+  | "pay_rescue_shown"
+  | "pay_rescue_parent"
+  | "pay_rescue_retry"
   // LIMITS-1 — a paper PDF started, was refused by the weekly download limit, or the wall showed.
   // Names only (no paper id, no kind in the first-party log). Sent by trackDownload
   | "download_start"
@@ -1488,7 +1492,9 @@ export type PaywallSurface =
   // LIMITS-1 — the walls at the weekly download limit and (PR-2) the grading limit / locked scorecard.
   | "download_limit"
   | "grade_limit"
-  | "scorecard_lock";
+  | "scorecard_lock"
+  // PAY-RESCUE-1 - the "Can't pay yourself?" card shown after a closed or failed checkout.
+  | "pay_rescue";
 
 const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",

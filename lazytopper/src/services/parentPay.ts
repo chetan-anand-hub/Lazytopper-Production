@@ -17,7 +17,7 @@
  * to a server, never appears in a Referer, and no analytics vendor receives it (GA4 and
  * Vercel get a redacted path; Meta sends nothing from an address with a hash).
  */
-import { loadCheckoutScript, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
+import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { formatInr } from "../config/pricing";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
@@ -264,6 +264,9 @@ export async function buyPassAsParent(
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });
+      // PAY-RESCUE-1 - listen only: the sheet stays open for a retry and the server records the
+      // reason from Razorpay's signed `payment.failed` webhook. Nothing is sent from here.
+      watchPaymentFailed(checkout, () => undefined);
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

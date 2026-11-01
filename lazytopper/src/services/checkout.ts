@@ -126,10 +126,56 @@ interface RazorpayOptions {
   description: string;
   handler: (response: RazorpaySuccess) => void;
   modal: { ondismiss: () => void };
+  /** PAY-RESCUE-1 - only values we already hold for the signed-in user; absent when we hold none. */
+  prefill?: CheckoutPrefill;
 }
 
 interface RazorpayInstance {
   open(): void;
+  /** Razorpay's event hook; `payment.failed` fires while the sheet stays open for a retry. */
+  on?(event: "payment.failed", callback: () => void): void;
+}
+
+/** PAY-RESCUE-1 - what we may hand Razorpay to skip one of its screens. Both fields are optional. */
+export interface CheckoutPrefill {
+  email?: string;
+  contact?: string;
+}
+
+/**
+ * PAY-RESCUE-1 - the signed-in user's email / phone, ONLY if the Firebase account already holds them.
+ * Best effort and silent: signed-out, no field, or any error -> `{}` (no `prefill` is sent at all).
+ */
+export async function readCheckoutPrefill(): Promise<CheckoutPrefill> {
+  try {
+    const { authClient } = await import("./firebaseClient");
+    const user = authClient?.currentUser ?? null;
+    if (!user) return {};
+    const email = typeof user.email === "string" ? user.email.trim() : "";
+    const phone = typeof user.phoneNumber === "string" ? user.phoneNumber.trim() : "";
+    return { ...(email ? { email } : {}), ...(phone ? { contact: phone } : {}) };
+  } catch {
+    return {};
+  }
+}
+
+/** `prefill` option for Razorpay, or nothing when we hold neither value. */
+export function prefillOption(prefill: CheckoutPrefill | undefined): { prefill?: CheckoutPrefill } {
+  return prefill && (prefill.email || prefill.contact) ? { prefill } : {};
+}
+
+/**
+ * PAY-RESCUE-1 - listen for Razorpay's `payment.failed` WITHOUT closing or resolving anything: the sheet
+ * stays open so the student can retry inside it. We only remember that a failure happened, so a later
+ * close can offer the parent hand-off. The failure REASON is recorded by the server from Razorpay's
+ * signed `payment.failed` webhook (server/routes/payments.cjs), never sent from here.
+ */
+export function watchPaymentFailed(instance: RazorpayInstance, onFailed: () => void): void {
+  try {
+    if (typeof instance.on === "function") instance.on("payment.failed", onFailed);
+  } catch {
+    /* a missing / throwing hook must never break checkout */
+  }
 }
 
 export type RazorpayConstructor = new (options: RazorpayOptions) => RazorpayInstance;
@@ -299,7 +345,8 @@ export type BuyOutcome =
       /** FOLLOWUPS-1 A4 — the SERVER order's amount in rupees (amountPaise / 100). Analytics only. */
       amountInr?: number;
     }
-  | { status: "dismissed" }
+  /** `afterFailure`: Razorpay reported a failed payment before the sheet was closed (PAY-RESCUE-1). */
+  | { status: "dismissed"; afterFailure?: boolean }
   /** PRICING-1 — the server refused the order as expired (before capture): nothing was taken; start again. */
   | { status: "expired" }
   /**
@@ -314,12 +361,15 @@ export interface BuyDeps {
   createOrder: typeof createPayOrder;
   loadScript: () => Promise<RazorpayConstructor>;
   verify: typeof verifyPayment;
+  /** PAY-RESCUE-1 - optional; absent in injected test deps. */
+  prefill?: () => Promise<CheckoutPrefill>;
 }
 
 const DEFAULT_DEPS: BuyDeps = {
   createOrder: createPayOrder,
   loadScript: () => loadCheckoutScript(),
   verify: verifyPayment,
+  prefill: readCheckoutPrefill,
 };
 
 /**
@@ -329,9 +379,14 @@ const DEFAULT_DEPS: BuyDeps = {
  */
 export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS): Promise<BuyOutcome> {
   try {
-    const [order, Razorpay] = await Promise.all([deps.createOrder(passType), deps.loadScript()]);
+    const [order, Razorpay, prefill] = await Promise.all([
+      deps.createOrder(passType),
+      deps.loadScript(),
+      deps.prefill ? deps.prefill().catch((): CheckoutPrefill => ({})) : Promise.resolve<CheckoutPrefill>({}),
+    ]);
     // PAY-RECOVER-1 — remember THIS tab's open order (an order id, never premium state).
     writePayPending(order.orderId);
+    let sawFailure = false;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -343,11 +398,15 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
         description: passType === "month" ? "Premium pass for a month" : "Premium pass till your boards",
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...prefillOption(prefill),
+      });
+      watchPaymentFailed(checkout, () => {
+        sawFailure = true;
       });
       checkout.open();
     });
     // PAY-RECOVER-1 — the marker is KEPT on dismiss: a UPI app can finish after the sheet closes.
-    if (!success) return { status: "dismissed" };
+    if (!success) return sawFailure ? { status: "dismissed", afterFailure: true } : { status: "dismissed" };
     // FOLLOWUPS-1 A4 — additive, analytics only: Razorpay's payment id is read from its signed
     // result (before the verify, so a `pending` outcome can carry it) and the amount from the
     // SERVER order; neither value is sent anywhere by this function.

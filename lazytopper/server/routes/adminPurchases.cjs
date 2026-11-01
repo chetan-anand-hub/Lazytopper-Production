@@ -82,6 +82,20 @@ function createAdminPurchasesRoutes(deps = {}) {
     return out;
   }
 
+  /**
+   * PAY-RESCUE-1 - what Razorpay's signed `payment.failed` webhook left on the order (`lastFailure`, payments.cjs).
+   * `attempted` is true only when such a note exists; its absence means we have no record of an attempt.
+   */
+  function failureFields(raw) {
+    const f = raw && typeof raw === 'object' ? raw : null;
+    const text = (x) => (typeof x === 'string' ? x.slice(0, 80) : '');
+    if (!f) return { attempted: false, lastFailure: null };
+    return {
+      attempted: true,
+      lastFailure: { code: text(f.code), reason: text(f.reason), source: text(f.source), step: text(f.step), atMs: msOf(f.atMs) },
+    };
+  }
+
   /** CHECKOUT-1 - 'created' orders older than 30 min, last 30 days, newest first. Returns null when the read fails. */
   async function abandonedOrders(nowMs, admins) {
     try {
@@ -103,6 +117,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
           channel: v.payer === 'parent' ? 'parent' : 'student',
           isAdminAccount: admins.has(v.uid),
+          ...failureFields(v.lastFailure),
         });
       });
       rows.sort((a, b) => b.createdAtMs - a.createdAtMs);

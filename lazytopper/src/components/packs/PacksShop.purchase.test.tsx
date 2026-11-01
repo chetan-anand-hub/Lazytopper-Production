@@ -5,7 +5,7 @@
  * later, and a shop that unmounted while Razorpay was open. Real analytics + packAnalytics; only gtag is a spy.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
@@ -29,7 +29,8 @@ vi.mock("../../lib/packs/packContent", () => ({
   countChapterQuestions: () => 100,
   countCbqPackQuestions: () => 50,
 }));
-vi.mock("../../pages/PackDialog", () => ({ default: () => null }));
+// The dialog hosts the buy area; render just that slot so the rescue card (inside it) is visible.
+vi.mock("../../pages/PackDialog", () => ({ default: (p: { buy?: unknown }) => (p.buy as never) ?? null }));
 
 import PacksShop from "./PacksShop";
 import { __resetPurchaseMemoryForTests } from "../../analytics/analytics";
@@ -119,6 +120,28 @@ describe("PURCHASE-EVENT-1 · pack purchase", () => {
     await new Promise((r) => setTimeout(r, 30));
     expect(ga4("begin_checkout")).toHaveLength(1);
     expect(ga4("purchase")).toHaveLength(0);
+  });
+
+  it("PAY-RESCUE-1: a closed checkout shows the \"Can't pay yourself?\" card for the pack; Try again re-opens; Not now hides it", async () => {
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    shop("/pricing?buy=pack_bundle");
+    expect(await screen.findByTestId("pay-rescue")).toBeTruthy();
+    expect(screen.getByTestId("pay-rescue").getAttribute("data-kind")).toBe("pack");
+    expect(screen.getByText("Can't pay yourself?")).toBeTruthy();
+    expect(buyMock).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByTestId("pay-rescue-retry"));
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(2));
+    expect(await screen.findByTestId("pay-rescue")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("pay-rescue-close"));
+    expect(screen.queryByTestId("pay-rescue")).toBeNull();
+  });
+
+  it("PAY-RESCUE-1: a failed or paid pack checkout never shows the rescue card", async () => {
+    buyMock.mockResolvedValue({ status: "failed" });
+    shop("/pricing?buy=pack_bundle");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByTestId("pay-rescue")).toBeNull();
   });
 
   it("a remount / reload with the same payment id does not fire a second purchase", async () => {

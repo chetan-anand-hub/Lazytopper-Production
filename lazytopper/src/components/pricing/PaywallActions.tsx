@@ -33,6 +33,10 @@ export interface PaywallActionsLiveProps {
   payTo?: string;
   /** "Share QR code" and "Ask a parent to pay" (also needs a signed-in account). */
   showParent: boolean;
+  /** PAY-RESCUE-1 - render ONLY "Ask a parent to pay" (as the primary button): no Pay, no QR. */
+  askOnly?: boolean;
+  /** PAY-RESCUE-1 - called once per tap on "Ask a parent to pay" (not on the panel's "Share" retry). */
+  onAsk?: () => void;
 }
 
 export interface PaywallActionsProps extends Omit<PaywallActionsLiveProps, "showParent"> {
@@ -70,7 +74,7 @@ export function trackPricingPayTap(e: { target: EventTarget | null }): void {
 }
 
 /** The three paywall actions, or the surface's own control while payments are dark. */
-export default function PaywallActions({ surface, onPay, payTo, fallback = null }: PaywallActionsProps) {
+export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, fallback = null }: PaywallActionsProps) {
   if (!isPaymentsClientEnabled()) return <>{fallback}</>;
   return (
     <Suspense fallback={fallback}>
@@ -79,6 +83,8 @@ export default function PaywallActions({ surface, onPay, payTo, fallback = null 
         onPay={onPay}
         payTo={payTo}
         showParent={isParentPayClientEnabled()}
+        askOnly={askOnly}
+        onAsk={onAsk}
         fallback={fallback}
       />
     </Suspense>

@@ -544,6 +544,100 @@ test('Z5 · unknown order -> 200 + telemetry, nothing granted; other events are 
   assert.equal([...srv.db.docs.keys()].filter((k) => k.startsWith('subscriptions/')).length, 0);
 });
 
+/* ── PAY-RESCUE-1 · a signed `payment.failed` leaves an additive note, and never grants ────────── */
+const failedPayment = (orderId, extra = {}) => ({
+  id: 'pay_F1', order_id: orderId, amount: 59900, currency: 'INR', status: 'failed',
+  error_code: 'BAD_REQUEST_ERROR', error_reason: 'payment_timeout', error_source: 'customer', error_step: 'payment_authorization',
+  vpa: 'child@upi', email: 'kid@example.com', contact: '+919999999999', ...extra,
+});
+const sendWebhook = (srv, raw, sig = hmac(WEBHOOK_SECRET, raw)) =>
+  request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': sig } });
+
+test('PAY-RESCUE-1 · payment.failed writes lastFailure on our open order and never grants or changes status', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const before = srv.db.read(`payOrders/${orderId}`);
+  const r = await sendWebhook(srv, webhookBody(failedPayment(orderId), 'payment.failed'));
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json, { ok: true });
+  const after = srv.db.read(`payOrders/${orderId}`);
+  assert.deepEqual(after.lastFailure, { code: 'BAD_REQUEST_ERROR', reason: 'payment_timeout', source: 'customer', step: 'payment_authorization', atMs: NOW });
+  const { lastFailure, ...rest } = after;
+  assert.deepEqual(rest, before, 'every other field on the order is untouched');
+  assert.equal(after.status, 'created');
+  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'no grant');
+  assert.equal([...srv.db.docs.keys()].filter((k) => k.startsWith('subscriptions/') || k.startsWith('payments/')).length, 0);
+  assert.ok(srv.events.includes('payments.webhook.failure_recorded'));
+  assert.ok(!JSON.stringify(after).includes('child@upi') && !JSON.stringify(after).includes('9999999999'), 'no UPI id / phone is stored');
+});
+
+test('PAY-RESCUE-1 · payment.failed text is capped at 80 chars and stripped of markup / odd characters', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  await sendWebhook(srv, webhookBody(failedPayment(orderId, { error_reason: `<b>${'x'.repeat(200)}</b>`, error_code: 7 }), 'payment.failed'));
+  const f = srv.db.read(`payOrders/${orderId}`).lastFailure;
+  assert.equal(f.reason.length, 80);
+  assert.ok(!/[<>]/.test(f.reason));
+  assert.equal(f.code, '', 'a non-string field becomes empty');
+});
+
+test('PAY-RESCUE-1 · payment.failed bad signature -> 400, nothing written', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const raw = webhookBody(failedPayment(orderId), 'payment.failed');
+  const r = await sendWebhook(srv, raw, hmac('wrong_secret', raw));
+  assert.equal(r.status, 400);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).lastFailure, undefined);
+});
+
+test('PAY-RESCUE-1 · payment.failed for an unknown, paid or erased order is acknowledged and writes nothing', async (t) => {
+  const db = memoryFirestore({
+    'payOrders/order_paid': { uid: 'u2', passType: 'month', amountPaise: 59900, status: 'paid', paymentId: 'pay_ok' },
+    'payOrders/order_E': { uid: 'erased', passType: 'month', amountPaise: 59900, status: 'created' },
+  });
+  const srv = await startRoutes({ db });
+  t.after(srv.close);
+  for (const id of ['order_nope', 'order_paid', 'order_E']) {
+    const r = await sendWebhook(srv, webhookBody(failedPayment(id), 'payment.failed'));
+    assert.equal(r.status, 200, id);
+    assert.equal(r.json.ignored, true, id);
+  }
+  assert.equal(db.read('payOrders/order_nope'), undefined);
+  assert.equal(db.read('payOrders/order_paid').lastFailure, undefined);
+  assert.equal(db.read('payOrders/order_paid').status, 'paid');
+  assert.equal(db.read('payOrders/order_E').lastFailure, undefined);
+});
+
+test('PAY-RESCUE-1 · payment.failed with a missing / odd payment or order id is acknowledged 200 ignored (not 4xx), captured path unchanged', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  for (const bad of [{ order_id: undefined }, { order_id: 'bad id!' }, { order_id: orderId, id: undefined }, { order_id: orderId, id: 'x y' }]) {
+    const r = await sendWebhook(srv, webhookBody(failedPayment(orderId, bad), 'payment.failed'));
+    assert.equal(r.status, 200, JSON.stringify(bad));
+    assert.deepEqual(r.json, { ok: true, ignored: true });
+  }
+  assert.ok(srv.events.includes('payments.webhook.failed_malformed'));
+  assert.equal(srv.db.read(`payOrders/${orderId}`).lastFailure, undefined);
+  const raw = webhookBody({ id: 'bad id', order_id: orderId });
+  assert.equal((await sendWebhook(srv, raw)).status, 400, 'a malformed payment.captured is still rejected');
+});
+
+test('PAY-RESCUE-1 · payment.failed then payment.captured for the same order still grants once', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  await sendWebhook(srv, webhookBody(failedPayment(orderId), 'payment.failed'));
+  const ok = srv.rzp.pay(orderId);
+  const r = await sendWebhook(srv, webhookBody(ok));
+  assert.equal(r.status, 200, r.text);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid');
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+});
+
 test('Z5 · an order anonymised by account erasure is never granted to "erased"', async (t) => {
   const db = memoryFirestore({ 'payOrders/order_E': { uid: 'erased', passType: 'month', amountPaise: 59900, status: 'created' } });
   const srv = await startRoutes({ db });

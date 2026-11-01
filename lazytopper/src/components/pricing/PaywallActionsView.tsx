@@ -87,6 +87,10 @@ export interface PaywallActionsViewProps {
   payTo?: string;
   /** "Share QR code" and "Forward link to parents". */
   showParent: boolean;
+  /** PAY-RESCUE-1 - only "Ask a parent to pay", styled as the primary action. */
+  askOnly?: boolean;
+  /** PAY-RESCUE-1 - fires with each fresh tap on "Ask a parent to pay". */
+  onAsk?: () => void;
   deps: ParentShareDeps;
 }
 
@@ -97,7 +101,7 @@ function errorName(e: unknown): string {
   return e && typeof e === "object" && "name" in e ? String((e as { name: unknown }).name) : "";
 }
 
-export function PaywallActionsView({ surface, onPay, payTo, showParent, deps }: PaywallActionsViewProps) {
+export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly = false, onAsk, deps }: PaywallActionsViewProps) {
   const [link, setLink] = useState<LinkState>({ kind: "idle" });
   const [lang, setLang] = useState<ParentPayLang>("en");
   const [panel, setPanel] = useState<Panel>(null);
@@ -194,7 +198,10 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, deps }: 
 
   async function handleForward(retry = false) {
     if (busy) return;
-    if (!retry) trackPaywallAction("ask", surface);
+    if (!retry) {
+      trackPaywallAction("ask", surface);
+      onAsk?.();
+    }
     setNotice(null);
     setBusy(true);
     try {
@@ -247,13 +254,21 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, deps }: 
 
   return (
     <div className="lt-paywall-actions" data-testid="paywall-actions" data-surface={surface}>
-      {payAction}
+      {!askOnly && payAction}
       {showParent && (
         <>
-          <button type="button" className="lt-paywall-parent" data-testid="paywall-qr" onClick={() => void handleQr()} disabled={busy}>
-            {QR_LABEL}
-          </button>
-          <button type="button" className="lt-paywall-parent" data-testid="paywall-forward" onClick={() => void handleForward()} disabled={busy}>
+          {!askOnly && (
+            <button type="button" className="lt-paywall-parent" data-testid="paywall-qr" onClick={() => void handleQr()} disabled={busy}>
+              {QR_LABEL}
+            </button>
+          )}
+          <button
+            type="button"
+            className={askOnly ? "lt-paywall-parent lt-paywall-parent--primary" : "lt-paywall-parent"}
+            data-testid="paywall-forward"
+            onClick={() => void handleForward()}
+            disabled={busy}
+          >
             {ASK_PARENT_LABEL}
           </button>
           {link.kind === "loading" && (
@@ -356,7 +371,7 @@ async function makeQrPng(url: string): Promise<QrImage> {
 }
 
 /** The live actions: Pay always (when given); the parent pair only for a signed-in account. */
-export default function PaywallActionsLive({ surface, onPay, payTo, showParent }: PaywallActionsLiveProps) {
+export default function PaywallActionsLive({ surface, onPay, payTo, showParent, askOnly, onAsk }: PaywallActionsLiveProps) {
   const { user } = useAuth();
   const uid = user?.uid ?? "";
   const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -374,6 +389,6 @@ export default function PaywallActionsLive({ surface, onPay, payTo, showParent }
     copyText: (text) => navigator.clipboard.writeText(text),
     download: downloadBlob,
   };
-  if (!parent && !onPay && !payTo) return null;
-  return <PaywallActionsView surface={surface} onPay={onPay} payTo={payTo} showParent={parent} deps={deps} />;
+  if (!parent && (askOnly || (!onPay && !payTo))) return null;
+  return <PaywallActionsView surface={surface} onPay={onPay} payTo={payTo} showParent={parent} askOnly={askOnly} onAsk={onAsk} deps={deps} />;
 }
