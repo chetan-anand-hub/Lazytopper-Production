@@ -33,7 +33,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Hemisphere: r = 1 cm → V₁ = (2/3)πr³ = (2/3)π cm³.",
       "Cone: r = 1 cm, h = 1 cm → V₂ = (1/3)πr²h = (1/3)π cm³.",
-      "Total volume = (2/3)π + (1/3)π = π cm³."
+      "Total volume = (2/3)π + (1/3)π = π cm³. Answer: (C)"
     ],
     finalAnswer: "π cm³ — option (C).",
     ncertRef: "NCERT Ex 13.2 Q1", isCompetencyBased: false,

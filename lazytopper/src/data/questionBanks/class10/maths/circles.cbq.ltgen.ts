@@ -21,7 +21,7 @@ export const CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "22 cm",
     "solutionSteps": [
-      "[1 mark] The frame circumscribes the circle, so by equal tangents from each vertex PQ + RS = QR + SP ⇒ 18 + 25 = 21 + SP ⇒ SP = 43 − 21 = 22 cm."
+      "[1 mark] The frame circumscribes the circle, so by equal tangents from each vertex PQ + RS = QR + SP ⇒ 18 + 25 = 21 + SP ⇒ SP = 43 − 21 = 22 cm. Answer: (B)"
     ],
     "finalAnswer": "SP = 22 cm",
     "isCompetencyBased": true,

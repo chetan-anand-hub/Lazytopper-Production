@@ -14,7 +14,7 @@ export const ARC_NCERT: CanonicalQuestion[] = [
     questionText: "If the perimeter and the area of a circle are numerically equal, the radius of the circle is",
     options: ["2 units", "π units", "4 units", "7 units"],
     answer: "2 units",
-    solutionSteps: ["Set 2πr = πr² ⇒ 2r = r² (divide by π, since π ≠ 0).", "r² − 2r = 0 ⇒ r(r − 2) = 0 ⇒ r = 2 (taking r > 0)."],
+    solutionSteps: ["Set 2πr = πr² ⇒ 2r = r² (divide by π, since π ≠ 0).", "r² − 2r = 0 ⇒ r(r − 2) = 0 ⇒ r = 2 (taking r > 0). Answer: (A)"],
     finalAnswer: "2 units — option (a).",
     ncertRef: "NCERT Ex 12.1 Q5", isCompetencyBased: true },
 
@@ -30,7 +30,7 @@ export const ARC_NCERT: CanonicalQuestion[] = [
     questionText: "The radii of two circles are 19 cm and 9 cm. The radius of the circle whose circumference equals the sum of the two circumferences is",
     options: ["28 cm", "14 cm", "190 cm", "10 cm"],
     answer: "28 cm",
-    solutionSteps: ["Sum of circumferences = 2π(19) + 2π(9) = 2π × 28.", "If r is the radius of the desired circle, 2πr = 2π × 28 ⇒ r = 28 cm."],
+    solutionSteps: ["Sum of circumferences = 2π(19) + 2π(9) = 2π × 28.", "If r is the radius of the desired circle, 2πr = 2π × 28 ⇒ r = 28 cm. Answer: (A)"],
     finalAnswer: "28 cm — option (a).",
     ncertRef: "NCERT Ex 12.1 Q1", isCompetencyBased: true },
 
@@ -38,7 +38,7 @@ export const ARC_NCERT: CanonicalQuestion[] = [
     questionText: "The radii of two circles are 8 cm and 6 cm. The radius of a circle whose area equals the sum of the areas of the two circles is",
     options: ["10 cm", "12 cm", "14 cm", "16 cm"],
     answer: "10 cm",
-    solutionSteps: ["Sum of areas = π(8²) + π(6²) = 64π + 36π = 100π.", "If r is the radius: πr² = 100π ⇒ r² = 100 ⇒ r = 10 cm."],
+    solutionSteps: ["Sum of areas = π(8²) + π(6²) = 64π + 36π = 100π.", "If r is the radius: πr² = 100π ⇒ r² = 100 ⇒ r = 10 cm. Answer: (A)"],
     finalAnswer: "10 cm — option (a).",
     ncertRef: "NCERT Ex 12.1 Q2", isCompetencyBased: true },
 

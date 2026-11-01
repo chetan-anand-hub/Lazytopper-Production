@@ -21,7 +21,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "P supplies the larger current: 2.0 A, compared with 1.5 A for Q.",
     "solutionSteps": [
-      "[1 mark] I = Q/t with t in seconds: P = 1800 C ÷ 900 s = 2.0 A; Q = 2700 C ÷ 1800 s = 1.5 A. Current is the RATE of flow of charge, so the larger total charge of Q does not mean a larger current; 120 A and 90 A come from forgetting to convert minutes to seconds."
+      "[1 mark] I = Q/t with t in seconds: P = 1800 C ÷ 900 s = 2.0 A; Q = 2700 C ÷ 1800 s = 1.5 A. Current is the RATE of flow of charge, so the larger total charge of Q does not mean a larger current; 120 A and 90 A come from forgetting to convert minutes to seconds. Answer: (A)"
     ],
     "finalAnswer": "P supplies the larger current: 2.0 A, compared with 1.5 A for Q.",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Bhavesh: the + terminal of the cell is joined through the key to the + terminal of the ammeter, the ammeter's other terminal to R, and R back to the − terminal of the cell; the voltmeter is connected between the two ends of R, with its + terminal on the end of R joined to the ammeter.",
     "solutionSteps": [
-      "[1 mark] Bhavesh: the ammeter is in series with R and the voltmeter in parallel with R, with each + terminal on the side at higher potential (towards the cell's + terminal). Chitra's voltmeter is reversed, so its pointer deflects the wrong way; Anu and Dev have the meters' positions swapped."
+      "[1 mark] Bhavesh: the ammeter is in series with R and the voltmeter in parallel with R, with each + terminal on the side at higher potential (towards the cell's + terminal). Chitra's voltmeter is reversed, so its pointer deflects the wrong way; Anu and Dev have the meters' positions swapped. Answer: (B)"
     ],
     "finalAnswer": "Bhavesh: the + terminal of the cell is joined through the key to the + terminal of the ammeter, the ammeter's other terminal to R, and R back to the − terminal of the cell; the voltmeter is connected between the two ends of R, with its + terminal on the end of R joined to the ammeter.",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The 1.5 V cell has driven more charge, 20 C, compared with 2.5 C for the battery.",
     "solutionSteps": [
-      "[1 mark] Q = W/V: cell 30 J ÷ 1.5 V = 20 C; battery 30 J ÷ 12 V = 2.5 C. Each coulomb gets less energy from the 1.5 V cell, so more coulombs are needed to transfer the same 30 J; multiplying W × V (360 C, 45 C) is the common error."
+      "[1 mark] Q = W/V: cell 30 J ÷ 1.5 V = 20 C; battery 30 J ÷ 12 V = 2.5 C. Each coulomb gets less energy from the 1.5 V cell, so more coulombs are needed to transfer the same 30 J; multiplying W × V (360 C, 45 C) is the common error. Answer: (C)"
     ],
     "finalAnswer": "The 1.5 V cell has driven more charge, 20 C, compared with 2.5 C for the battery.",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1.20 A",
     "solutionSteps": [
-      "[1 mark] 1.20 A: least count = 5 A ÷ 100 = 0.05 A; observed reading = 26 × 0.05 = 1.30 A; the pointer already read 2 × 0.05 = 0.10 A with no current, so the true current = 1.30 − 0.10 = 1.20 A. Choosing 1.30 A ignores this zero error."
+      "[1 mark] 1.20 A: least count = 5 A ÷ 100 = 0.05 A; observed reading = 26 × 0.05 = 1.30 A; the pointer already read 2 × 0.05 = 0.10 A with no current, so the true current = 1.30 − 0.10 = 1.20 A. Choosing 1.30 A ignores this zero error. Answer: (D)"
     ],
     "finalAnswer": "1.20 A",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false and R is true: charge is not consumed by the bulb (only energy is transferred), so the same current flows everywhere in the series loop and the ammeter reads the same before or after the bulb."
+      "[1 mark] (D) A is false and R is true: charge is not consumed by the bulb (only energy is transferred), so the same current flows everywhere in the series loop and the ammeter reads the same before or after the bulb. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: the voltmeter's very high resistance in series makes the current almost zero, so the bulb does not glow; almost the whole battery p.d. appears across the voltmeter, so it reads close to 6 V."
+      "[1 mark] (A) Both true and R explains A: the voltmeter's very high resistance in series makes the current almost zero, so the bulb does not glow; almost the whole battery p.d. appears across the voltmeter, so it reads close to 6 V. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -541,7 +541,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Its resistance stays 5 Ω up to 3.0 V and then increases, so it obeys Ohm's law only for the first three readings.",
     "solutionSteps": [
-      "[1 mark] V/I = 5 Ω for the first three readings but 4.0/0.68 ≈ 5.9 Ω for the last, so resistance rises (the component has warmed up); 0.2 Ω is I/V, not V/I, and Ohm's law needs V/I constant, not V = I."
+      "[1 mark] V/I = 5 Ω for the first three readings but 4.0/0.68 ≈ 5.9 Ω for the last, so resistance rises (the component has warmed up); 0.2 Ω is I/V, not V/I, and Ohm's law needs V/I constant, not V = I. Answer: (A)"
     ],
     "finalAnswer": "Its resistance stays 5 Ω up to 3.0 V and then increases, so it obeys Ohm's law only for the first three readings.",
     "isCompetencyBased": true,
@@ -570,7 +570,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12 : 1",
     "solutionSteps": [
-      "[1 mark] R ∝ l/A: R_P ∝ 1/2 = 0.5 and R_Q ∝ 3/0.5 = 6, so R_P : R_Q = 1 : 12; at the same potential difference I ∝ 1/R, so I_P : I_Q = 12 : 1 (1 : 12 is the resistance ratio, not the current ratio)."
+      "[1 mark] R ∝ l/A: R_P ∝ 1/2 = 0.5 and R_Q ∝ 3/0.5 = 6, so R_P : R_Q = 1 : 12; at the same potential difference I ∝ 1/R, so I_P : I_Q = 12 : 1 (1 : 12 is the resistance ratio, not the current ratio). Answer: (B)"
     ],
     "finalAnswer": "12 : 1",
     "isCompetencyBased": true,
@@ -599,7 +599,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Resistance 10 Ω; resistivity the same as that of the original wire",
     "solutionSteps": [
-      "[1 mark] Resistance ∝ length, so the 0.5 m piece has 40 × 0.5/2 = 10 Ω; resistivity is a property of the material (nichrome) at a given temperature, so it does not change when the wire is cut."
+      "[1 mark] Resistance ∝ length, so the 0.5 m piece has 40 × 0.5/2 = 10 Ω; resistivity is a property of the material (nichrome) at a given temperature, so it does not change when the wire is cut. Answer: (C)"
     ],
     "finalAnswer": "Resistance 10 Ω; resistivity the same as that of the original wire",
     "isCompetencyBased": true,
@@ -628,7 +628,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "X: 0.45 A, Y: 0.90 A",
     "solutionSteps": [
-      "[1 mark] R_X = 6/0.3 = 20 Ω and R_Y = 6/0.6 = 10 Ω stay constant, so at 9 V, I_X = 9/20 = 0.45 A and I_Y = 9/10 = 0.90 A; the current does not stay fixed when the potential difference changes."
+      "[1 mark] R_X = 6/0.3 = 20 Ω and R_Y = 6/0.6 = 10 Ω stay constant, so at 9 V, I_X = 9/20 = 0.45 A and I_Y = 9/10 = 0.90 A; the current does not stay fixed when the potential difference changes. Answer: (D)"
     ],
     "finalAnswer": "X: 0.45 A, Y: 0.90 A",
     "isCompetencyBased": true,
@@ -657,7 +657,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: with equal length and area, R = ρl/A depends only on ρ; nichrome has a far higher resistivity than copper, so its resistance is larger and the current smaller."
+      "[1 mark] (A) Both true and R explains A: with equal length and area, R = ρl/A depends only on ρ; nichrome has a far higher resistivity than copper, so its resistance is larger and the current smaller. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -686,7 +686,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true because R ∝ 1/A, so the thinner wire has more resistance and draws less current; R is false because resistivity depends on the material and temperature, not on the thickness of the wire."
+      "[1 mark] (C) A is true because R ∝ 1/A, so the thinner wire has more resistance and draws less current; R is false because resistivity depends on the material and temperature, not on the thickness of the wire. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1061,7 +1061,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Across the 4 Ω and 6 Ω resistors taken together",
     "solutionSteps": [
-      "[1 mark] Total resistance = 12 Ω, so current = 12 V / 12 Ω = 1 A through every resistor; PDs are 2 V, 4 V and 6 V. Only the 4 Ω + 6 Ω pair gives 4 + 6 = 10 V (the 2 Ω + 6 Ω pair gives only 8 V)."
+      "[1 mark] Total resistance = 12 Ω, so current = 12 V / 12 Ω = 1 A through every resistor; PDs are 2 V, 4 V and 6 V. Only the 4 Ω + 6 Ω pair gives 4 + 6 = 10 V (the 2 Ω + 6 Ω pair gives only 8 V). Answer: (A)"
     ],
     "finalAnswer": "Across the 4 Ω and 6 Ω resistors taken together",
     "isCompetencyBased": true,
@@ -1090,7 +1090,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1.5 A",
     "solutionSteps": [
-      "[1 mark] PD across the 6 Ω branch = 0.5 A × 6 Ω = 3 V, and in parallel the 3 Ω branch has the same 3 V, so it carries 1 A; main current = 0.5 + 1 = 1.5 A. 0.75 A wrongly gives the smaller resistor the smaller current."
+      "[1 mark] PD across the 6 Ω branch = 0.5 A × 6 Ω = 3 V, and in parallel the 3 Ω branch has the same 3 V, so it carries 1 A; main current = 0.5 + 1 = 1.5 A. 0.75 A wrongly gives the smaller resistor the smaller current. Answer: (B)"
     ],
     "finalAnswer": "1.5 A",
     "isCompetencyBased": true,
@@ -1119,7 +1119,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Join two of them in parallel, then connect this pair in series with the third",
     "solutionSteps": [
-      "[1 mark] Two 4 Ω in parallel give 4 × 4 / (4 + 4) = 2 Ω; adding the third in series gives 2 + 4 = 6 Ω. The other way round gives 8 × 4 / 12 ≈ 2.7 Ω; all-parallel gives about 1.3 Ω and all-series 12 Ω."
+      "[1 mark] Two 4 Ω in parallel give 4 × 4 / (4 + 4) = 2 Ω; adding the third in series gives 2 + 4 = 6 Ω. The other way round gives 8 × 4 / 12 ≈ 2.7 Ω; all-parallel gives about 1.3 Ω and all-series 12 Ω. Answer: (C)"
     ],
     "finalAnswer": "Join two of them in parallel, then connect this pair in series with the third",
     "isCompetencyBased": true,
@@ -1148,7 +1148,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4 Ω and 8 Ω",
     "solutionSteps": [
-      "[1 mark] Series: 6 / 0.5 = 12 Ω, which every option satisfies; parallel: 6 / 2.25 = 8/3 Ω. Only 4 Ω and 8 Ω give 32/12 = 8/3 Ω (6 Ω and 6 Ω give 3 Ω, so 2 A)."
+      "[1 mark] Series: 6 / 0.5 = 12 Ω, which every option satisfies; parallel: 6 / 2.25 = 8/3 Ω. Only 4 Ω and 8 Ω give 32/12 = 8/3 Ω (6 Ω and 6 Ω give 3 Ω, so 2 A). Answer: (D)"
     ],
     "finalAnswer": "4 Ω and 8 Ω",
     "isCompetencyBased": true,
@@ -1177,7 +1177,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: in series the current I is common, so the power I²R in the 20 Ω wire is twice that in the 10 Ω wire."
+      "[1 mark] (A) Both are true and R explains A: in series the current I is common, so the power I²R in the 20 Ω wire is twice that in the 10 Ω wire. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1206,7 +1206,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) R is true — both get 220 V — but A is false: I = P/V, so the kettle draws about 4.5 A while the lamp draws only about 0.05 A."
+      "[1 mark] (D) R is true — both get 220 V — but A is false: I = P/V, so the kettle draws about 4.5 A while the lamp draws only about 0.05 A. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1582,7 +1582,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12 A",
     "solutionSteps": [
-      "[1 mark] 12 A: the cooktop draws I = P/V = 2200 W ÷ 220 V = 10 A, so the fuse must be rated just above 10 A. A 5 A or 8 A fuse would melt in normal use, while a 32 A fuse would not melt on a dangerous overload."
+      "[1 mark] 12 A: the cooktop draws I = P/V = 2200 W ÷ 220 V = 10 A, so the fuse must be rated just above 10 A. A 5 A or 8 A fuse would melt in normal use, while a 32 A fuse would not melt on a dangerous overload. Answer: (A)"
     ],
     "finalAnswer": "12 A",
     "isCompetencyBased": true,
@@ -1611,7 +1611,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "64 W",
     "solutionSteps": [
-      "[1 mark] 64 W: R = V²/P = (220)²/100 = 484 Ω stays fixed, so P = (176)²/484 = 64 W. Power varies as V², so a 20% fall in voltage gives (0.8)² = 0.64 of the rated power, not 80 W."
+      "[1 mark] 64 W: R = V²/P = (220)²/100 = 484 Ω stays fixed, so P = (176)²/484 = 64 W. Power varies as V², so a 20% fall in voltage gives (0.8)² = 0.64 of the rated power, not 80 W. Answer: (B)"
     ],
     "finalAnswer": "64 W",
     "isCompetencyBased": true,
@@ -1640,7 +1640,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Coil B produces more heat, because it has the higher resistance and the same current flows through both coils.",
     "solutionSteps": [
-      "[1 mark] Coil B: R_A = 12²/24 = 6 Ω and R_B = 12²/12 = 12 Ω. In series the current is the same in both, so heat per second I²R is larger in the 12 Ω coil B. The power rating applies only when each coil is used alone at 12 V."
+      "[1 mark] Coil B: R_A = 12²/24 = 6 Ω and R_B = 12²/12 = 12 Ω. In series the current is the same in both, so heat per second I²R is larger in the 12 Ω coil B. The power rating applies only when each coil is used alone at 12 V. Answer: (C)"
     ],
     "finalAnswer": "Coil B produces more heat, because it has the higher resistance and the same current flows through both coils.",
     "isCompetencyBased": true,
@@ -1669,7 +1669,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹1480",
     "solutionSteps": [
-      "[1 mark] ₹1480: energy used = 23655 − 23415 = 240 units (kWh). Charge = 100 × ₹5 + 140 × ₹7 = ₹500 + ₹980 = ₹1480. Charging all 240 units at a single rate (₹1200 or ₹1680) ignores the slab tariff."
+      "[1 mark] ₹1480: energy used = 23655 − 23415 = 240 units (kWh). Charge = 100 × ₹5 + 140 × ₹7 = ₹500 + ₹980 = ₹1480. Charging all 240 units at a single rate (₹1200 or ₹1680) ignores the slab tariff. Answer: (D)"
     ],
     "finalAnswer": "₹1480",
     "isCompetencyBased": true,
@@ -1698,7 +1698,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: in parallel each bulb gets 220 V; the 100 W bulb has lower resistance (484 Ω against about 807 Ω), so it draws more current, P = V²/R is larger and it glows brighter."
+      "[1 mark] (A) Both are true and R explains A: in parallel each bulb gets 220 V; the 100 W bulb has lower resistance (484 Ω against about 807 Ω), so it draws more current, P = V²/R is larger and it glows brighter. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1727,7 +1727,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false, R is true: by Joule's law H = I²Rt, so doubling the current from 2 A to 4 A makes the heat per minute (4/2)² = 4 times, not 2 times."
+      "[1 mark] (D) A is false, R is true: by Joule's law H = I²Rt, so doubling the current from 2 A to 4 A makes the heat per minute (4/2)² = 4 times, not 2 times. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -2102,7 +2102,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The geyser stops working, but its heating element is still connected to the live wire, so it can still give a shock.",
     "solutionSteps": [
-      "[1 mark] The melted fuse breaks the only return path, so no current flows and the geyser stops; but the fuse sat in the neutral, so the element stays joined to the live wire at 220 V. That is why a fuse must always be in the live wire."
+      "[1 mark] The melted fuse breaks the only return path, so no current flows and the geyser stops; but the fuse sat in the neutral, so the element stays joined to the live wire at 220 V. That is why a fuse must always be in the live wire. Answer: (A)"
     ],
     "finalAnswer": "The geyser stops working, but its heating element is still connected to the live wire, so it can still give a shock.",
     "isCompetencyBased": true,
@@ -2131,7 +2131,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1.8 kWh",
     "solutionSteps": [
-      "[1 mark] Power saved = 15 W − 9 W = 6 W; energy saved = 6 W × 10 h × 30 = 1800 Wh = 1.8 kWh. (4.5 kWh is the CFL's total use; 15.3 kWh wrongly compares the filament bulb with the LED.)"
+      "[1 mark] Power saved = 15 W − 9 W = 6 W; energy saved = 6 W × 10 h × 30 = 1800 Wh = 1.8 kWh. (4.5 kWh is the CFL's total use; 15.3 kWh wrongly compares the filament bulb with the LED.) Answer: (B)"
     ],
     "finalAnswer": "1.8 kWh",
     "isCompetencyBased": true,
@@ -2160,7 +2160,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2.5 mm²",
     "solutionSteps": [
-      "[1 mark] I = P/V = 3300 W ÷ 220 V = 15 A. The 1.5 mm² cable is safe only up to 13 A and would overheat; 4.0 mm² is safe but not the thinnest; so 2.5 mm² (safe up to 18 A) is the answer."
+      "[1 mark] I = P/V = 3300 W ÷ 220 V = 15 A. The 1.5 mm² cable is safe only up to 13 A and would overheat; 4.0 mm² is safe but not the thinnest; so 2.5 mm² (safe up to 18 A) is the answer. Answer: (C)"
     ],
     "finalAnswer": "2.5 mm²",
     "isCompetencyBased": true,
@@ -2189,7 +2189,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The filament of bulb Q is broken.",
     "solutionSteps": [
-      "[1 mark] A break at Q stops the current, so V = IR = 0 across P and R, and the full 6 V appears across the gap in Q. A short at Q would make P and R glow; a dead battery or broken P and R would give 0 V across Q."
+      "[1 mark] A break at Q stops the current, so V = IR = 0 across P and R, and the full 6 V appears across the gap in Q. A short at Q would make P and R glow; a dead battery or broken P and R would give 0 V across Q. Answer: (D)"
     ],
     "finalAnswer": "The filament of bulb Q is broken.",
     "isCompetencyBased": true,
@@ -2218,7 +2218,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: thick copper will not melt on an overload or short circuit, so the wiring may overheat and catch fire. R is false: a fuse is connected in series in the live wire, so melting it cuts off the current."
+      "[1 mark] (C) A is true: thick copper will not melt on an overload or short circuit, so the wiring may overheat and catch fire. R is false: a fuse is connected in series in the live wire, so melting it cuts off the current. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -2247,7 +2247,7 @@ export const ELECTRICITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) R is true since R = V²/P at fixed V. So the 100 W filament has 220²/100 = 484 Ω and the 25 W filament has 220²/25 = 1936 Ω; the 100 W bulb has the SMALLER resistance, so A is false."
+      "[1 mark] (D) R is true since R = V²/P at fixed V. So the 100 W filament has 220²/100 = 484 Ω and the 25 W filament has 220²/25 = 1936 Ω; the 100 W bulb has the SMALLER resistance, so A is false. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,

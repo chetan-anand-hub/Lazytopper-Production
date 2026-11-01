@@ -84,7 +84,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Both A and R are true and R is the correct explanation of A.",
     solutionSteps: [
-      "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation of A. Neither pills nor copper-T forms a barrier at the mucous membranes, and it is exactly that contact route named in R which explains why these methods cannot prevent transmission.",
+      "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation of A. Neither pills nor copper-T forms a barrier at the mucous membranes, and it is exactly that contact route named in R which explains why these methods cannot prevent transmission. Answer: (A)",
     ],
     finalAnswer: "Both A and R are true and R is the correct explanation of A.",
     isCompetencyBased: true,
@@ -107,7 +107,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     options: ["P", "Q", "R", "S"],
     answer: "S",
     solutionSteps: [
-      "[1 mark] Correct option: (4) S, the testis. Testosterone is secreted by the testes; the other labelled parts are ducts and glands of the tract and do not produce it.",
+      "[1 mark] Correct option: (4) S, the testis. Testosterone is secreted by the testes; the other labelled parts are ducts and glands of the tract and do not produce it. Answer: (D)",
     ],
     finalAnswer: "S",
     isCompetencyBased: true,
@@ -132,7 +132,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     answer:
       "True, as every egg carries an X chromosome while a sperm carries either X or Y",
     solutionSteps: [
-      "[1 mark] True, as every egg carries an X chromosome while a sperm carries either X or Y — the egg always contributes X; whether the sperm brings X or Y decides the sex of the child."
+      "[1 mark] True, as every egg carries an X chromosome while a sperm carries either X or Y — the egg always contributes X; whether the sperm brings X or Y decides the sex of the child. Answer: (C)"
     ],
     finalAnswer:
       "True, as every egg carries an X chromosome while a sperm carries either X or Y",
@@ -156,7 +156,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     questionText: "In the diagram, each labelled region (P to W) represents a combination of reproductive processes found in an animal, decided by which circles the region is (or is not) part of. Which animal's mode of reproduction is represented by region P?",
     answer: "Hen",
     solutionSteps: [
-      "[1 mark] Hen — P = internal fertilisation only; a hen fertilises internally but lays eggs that develop outside."
+      "[1 mark] Hen — P = internal fertilisation only; a hen fertilises internally but lays eggs that develop outside. Answer: (D)"
     ],
     finalAnswer: "Hen",
     isCompetencyBased: true,
@@ -206,7 +206,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     bloomSkill: "Analysing",
     questionText: "In the diagram, each labelled region (P to W) represents a combination of reproductive processes found in an animal.\n\n'In vitro fertilisation' fuses a human egg and sperm outside a woman's body, in a laboratory. The zygote develops into an embryo for 2–6 days, which is then implanted in the woman's uterus, where it develops normally.\n\nWhich labelled region BEST represents reproduction via in vitro fertilisation?",
     answer: "U",
-    solutionSteps: ["[1 mark] U — fertilisation is not internal, but the embryo develops inside the mother and gets nutrition from her: region U."],
+    solutionSteps: ["[1 mark] U — fertilisation is not internal, but the embryo develops inside the mother and gets nutrition from her: region U. Answer: (A)"],
     finalAnswer: "U",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.8 — CFPQ_Science10.pdf, questions pdf pp.65–67 (printed folios 64–66)",
@@ -229,7 +229,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Bindu wants to produce a hybrid variety of tomatoes. She has tomato plants X and Y of two different varieties, one with smooth, long fruits and the other with wrinkled, round fruits. Tomatoes have bisexual flowers. She carries out these steps to cross-pollinate X and Y:\n\n1. She removes a part of the flowers of plant X just before they bloom.\n2. She manually pollinates the flowers of plant X using pollen from plant Y.\n3. She ties small plastic bags around the pollinated flowers of plant X, removing them after a couple of days.\n\nStep 1 was carried out to prevent self-pollination. Which part did she remove?",
     answer: "Stamens (anthers)",
-    solutionSteps: ["[1 mark] Stamens (anthers) — removing the anthers before they release pollen stops the flower pollinating itself."],
+    solutionSteps: ["[1 mark] Stamens (anthers) — removing the anthers before they release pollen stops the flower pollinating itself. Answer: (B)"],
     finalAnswer: "Stamens (anthers)",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.8 — CFPQ_Science10.pdf, questions pdf pp.65–67 (printed folios 64–66)",
@@ -253,7 +253,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     answer:
       "Lack of variation, so one disease can wipe out the whole population",
     solutionSteps: [
-      "[1 mark] Lack of variation, so one disease can wipe out the whole population — identical plants share the same susceptibility, so a single pathogen can destroy all of them."
+      "[1 mark] Lack of variation, so one disease can wipe out the whole population — identical plants share the same susceptibility, so a single pathogen can destroy all of them. Answer: (C)"
     ],
     finalAnswer:
       "Lack of variation, so one disease can wipe out the whole population",

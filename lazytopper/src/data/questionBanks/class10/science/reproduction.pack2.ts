@@ -23,7 +23,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Asexual reproduction involves only one parent organism",
       "Budding in hydra is a form of asexual reproduction where a new organism develops from a bud",
       "Other options involve sexual reproduction (two parents)",
-      "Therefore, budding in hydra is the correct answer"
+      "Therefore, budding in hydra is the correct answer Answer: (B)"
     ],
     "finalAnswer": "Budding in hydra",
     "explanation": "Asexual reproduction involves only one parent organism. Budding in hydra is a form of asexual reproduction where a new organism develops from a bud. Other options involve sexual reproduction (two parents). Therefore, budding in hydra is the correct answer. Therefore, the correct answer is Budding in hydra.",
@@ -54,7 +54,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Bacteria reproduce by binary fission",
       "In binary fission, one bacterium divides into two identical daughter cells",
       "This is an asexual reproduction method",
-      "Each daughter cell is genetically identical to the parent"
+      "Each daughter cell is genetically identical to the parent Answer: (A)"
     ],
     "finalAnswer": "Two identical daughter cells",
     "explanation": "Bacteria reproduce by binary fission. In binary fission, one bacterium divides into two identical daughter cells. This is an asexual reproduction method. Each daughter cell is genetically identical to the parent. Therefore, the correct answer is Two identical daughter cells.",
@@ -85,7 +85,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Vegetative propagation is asexual reproduction in plants",
       "Potato plants have underground stems called tubers",
       "New potato plants grow from the 'eyes' on tubers",
-      "This is a form of asexual reproduction producing genetically identical plants"
+      "This is a form of asexual reproduction producing genetically identical plants Answer: (B)"
     ],
     "finalAnswer": "Tubers",
     "explanation": "Vegetative propagation is asexual reproduction in plants. Potato plants have underground stems called tubers. New potato plants grow from the 'eyes' on tubers. This is a form of asexual reproduction producing genetically identical plants. Therefore, the correct answer is Tubers.",
@@ -141,7 +141,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Flower has male and female reproductive organs",
       "The male reproductive organ is the stamen",
       "Stamen consists of anther (produces pollen) and filament",
-      "Pistil is the female reproductive organ"
+      "Pistil is the female reproductive organ Answer: (B)"
     ],
     "finalAnswer": "Stamen",
     "explanation": "Flower has male and female reproductive organs. The male reproductive organ is the stamen. Stamen consists of anther (produces pollen) and filament. Pistil is the female reproductive organ. Therefore, the correct answer is Stamen.",
@@ -172,7 +172,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Pollination is a crucial step in sexual reproduction of plants",
       "Pollen is produced in the anther (male organ)",
       "Pollen must be transferred to the stigma (part of female organ)",
-      "This transfer is called pollination"
+      "This transfer is called pollination Answer: (A)"
     ],
     "finalAnswer": "Anther to stigma",
     "explanation": "Pollination is a crucial step in sexual reproduction of plants. Pollen is produced in the anther (male organ). Pollen must be transferred to the stigma (part of female organ). This transfer is called pollination. Therefore, the correct answer is Anther to stigma.",
@@ -203,7 +203,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Pollination is classified as self-pollination and cross-pollination",
       "Self-pollination: Pollen from anther of one flower fertilizes stigma of the same flower or another flower on the same plant",
       "Cross-pollination: Pollen from one plant fertilizes flowers of a different plant",
-      "Options B, C, and D describe cross-pollination"
+      "Options B, C, and D describe cross-pollination Answer: (A)"
     ],
     "finalAnswer": "Pollen from one flower pollinates another flower on the same plant",
     "explanation": "Pollination is classified as self-pollination and cross-pollination. Self-pollination: Pollen from anther of one flower fertilizes stigma of the same flower or another flower on the same plant. Cross-pollination: Pollen from one plant fertilizes flowers of a different plant. Options B, C, and D describe cross-pollination. Therefore, the correct answer is Pollen from one flower pollinates another flower on the same plant.",
@@ -290,7 +290,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Testis contains seminiferous tubules",
       "Sperm are produced in seminiferous tubules through spermatogenesis",
       "Epididymis stores and matures sperm",
-      "Ductus deferens transports sperm"
+      "Ductus deferens transports sperm Answer: (B)"
     ],
     "finalAnswer": "Seminiferous tubule",
     "explanation": "Testis is the male reproductive gland. Testis contains seminiferous tubules. Sperm are produced in seminiferous tubules through spermatogenesis. Epididymis stores and matures sperm. Ductus deferens transports sperm. Therefore, the correct answer is Seminiferous tubule.",
@@ -322,7 +322,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Male gamete is sperm (produced in testis)",
       "Female gamete is ovum or egg (produced in ovary)",
       "Zygote is formed after fertilization",
-      "Embryo is developing organism after several divisions"
+      "Embryo is developing organism after several divisions Answer: (B)"
     ],
     "finalAnswer": "Ovum",
     "explanation": "Gametes are sex cells involved in sexual reproduction. Male gamete is sperm (produced in testis). Female gamete is ovum or egg (produced in ovary). Zygote is formed after fertilization. Embryo is developing organism after several divisions. Therefore, the correct answer is Ovum.",
@@ -354,7 +354,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Ovum travels through fallopian tube",
       "Sperm travel up through vagina, cervix, uterus to fallopian tube",
       "Fertilization (fusion of sperm and ovum) occurs in the fallopian tube",
-      "Fertilized ovum then travels to uterus for implantation"
+      "Fertilized ovum then travels to uterus for implantation Answer: (C)"
     ],
     "finalAnswer": "Fallopian tube",
     "explanation": "Ovum is released from ovary during ovulation. Ovum travels through fallopian tube. Sperm travel up through vagina, cervix, uterus to fallopian tube. Fertilization (fusion of sperm and ovum) occurs in the fallopian tube. Fertilized ovum then travels to uterus for implantation. Therefore, the correct answer is Fallopian tube.",
@@ -443,7 +443,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "It also increases prostaglandins causing sperm death",
       "Condom is a barrier method",
       "Pills contain hormones to prevent ovulation",
-      "Diaphragm is a barrier method"
+      "Diaphragm is a barrier method Answer: (C)"
     ],
     "finalAnswer": "Intrauterine device (IUD)",
     "explanation": "IUD is a T-shaped device inserted into the uterus. IUD prevents implantation of fertilized ovum in the uterine wall. It also increases prostaglandins causing sperm death. Condom is a barrier method. Pills contain hormones to prevent ovulation. Diaphragm is a barrier method. Therefore, the correct answer is Intrauterine device (IUD).",
@@ -476,7 +476,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Syphilis is caused by bacterium Treponema pallidum",
       "HIV/AIDS is caused by virus HIV",
       "Chlamydia is caused by bacterium Chlamydia trachomatis",
-      "Only HIV/AIDS is viral; others are bacterial"
+      "Only HIV/AIDS is viral; others are bacterial Answer: (C)"
     ],
     "finalAnswer": "HIV/AIDS",
     "explanation": "STIs are sexually transmitted infections. Gonorrhea is caused by bacterium Neisseria gonorrhoeae. Syphilis is caused by bacterium Treponema pallidum. HIV/AIDS is caused by virus HIV. Chlamydia is caused by bacterium Chlamydia trachomatis. Only HIV/AIDS is viral; others are bacterial. Therefore, the correct answer is HIV/AIDS.",
@@ -795,7 +795,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Binary fission in amoeba is a form of asexual reproduction.",
       "The parent cell divides into two equal-sized daughter cells.",
-      "Both daughter cells are genetically identical to each other and the parent."
+      "Both daughter cells are genetically identical to each other and the parent. Answer: (B)"
     ],
     "finalAnswer": "B. Two genetically identical daughter cells",
     "explanation": "Binary fission in amoeba is a form of asexual reproduction. The parent cell divides into two equal-sized daughter cells. Both daughter cells are genetically identical to each other and the parent. Therefore, the correct answer is B. Two genetically identical daughter cells.",
@@ -818,7 +818,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "options": ["It produces large variation among offspring", "It always involves fusion of gametes", "Offspring adapt better to changing environments", "Only one parent is needed"],
     "answer": "Only one parent is needed",
     "solutionSteps": [
-      "[1 mark] Only one parent is needed — asexual reproduction needs a single parent and is rapid; variation comes from sexual reproduction."
+      "[1 mark] Only one parent is needed — asexual reproduction needs a single parent and is rapid; variation comes from sexual reproduction. Answer: (D)"
     ],
     "finalAnswer": "Only one parent is needed",
     "isCompetencyBased": true,
@@ -848,7 +848,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "A flower has male and female reproductive parts.",
       "The stamen is the male part consisting of anther and filament.",
       "The anther produces pollen grains.",
-      "Carpel is the female part."
+      "Carpel is the female part. Answer: (B)"
     ],
     "finalAnswer": "B. Stamen",
     "explanation": "A flower has male and female reproductive parts. The stamen is the male part consisting of anther and filament. The anther produces pollen grains. Carpel is the female part. Therefore, the correct answer is B. Stamen.",
@@ -880,7 +880,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Wind-pollinated plants: Anemophily",
       "Insect-pollinated plants: Entomophily",
       "Water-pollinated plants: Hydrophily",
-      "Animal-pollinated plants: Zoophily"
+      "Animal-pollinated plants: Zoophily Answer: (C)"
     ],
     "finalAnswer": "C. Anemophily",
     "explanation": "Different types of pollination exist based on pollinating agents. Wind-pollinated plants: Anemophily. Insect-pollinated plants: Entomophily. Water-pollinated plants: Hydrophily. Animal-pollinated plants: Zoophily. Therefore, the correct answer is C. Anemophily.",
@@ -935,7 +935,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Self-pollination occurs when pollen from the anther of one flower reaches the stigma of the same flower.",
       "This can be within the same flower or between flowers of the same plant.",
-      "Cross-pollination is when pollen transfers between different plants."
+      "Cross-pollination is when pollen transfers between different plants. Answer: (B)"
     ],
     "finalAnswer": "B. Pollen from anther of the same flower pollinates its own stigma",
     "isCompetencyBased": true,
@@ -964,7 +964,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "The male reproductive system produces sperms.",
       "Testes are the site of sperm production (spermatogenesis).",
       "Prostate and seminal vesicles add secretions to semen.",
-      "Epididymis stores and matures sperms."
+      "Epididymis stores and matures sperms. Answer: (C)"
     ],
     "finalAnswer": "C. Testis",
     "explanation": "The male reproductive system produces sperms. Testes are the site of sperm production (spermatogenesis). Prostate and seminal vesicles add secretions to semen. Epididymis stores and matures sperms. Therefore, the correct answer is C. Testis.",
@@ -995,7 +995,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Fertilization is the fusion of egg and sperm.",
       "The ovum is released from the ovary during ovulation.",
       "It travels through the fallopian tube.",
-      "If sperm meets the ovum in the fallopian tube, fertilization occurs there."
+      "If sperm meets the ovum in the fallopian tube, fertilization occurs there. Answer: (C)"
     ],
     "finalAnswer": "C. Fallopian tube",
     "explanation": "Fertilization is the fusion of egg and sperm. The ovum is released from the ovary during ovulation. It travels through the fallopian tube. If sperm meets the ovum in the fallopian tube, fertilization occurs there. Therefore, the correct answer is C. Fallopian tube.",
@@ -1051,7 +1051,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The menstrual cycle is the monthly reproductive cycle in females.",
       "It occurs approximately every 28 days (range: 21-35 days).",
-      "The cycle includes menstruation, proliferation, ovulation, and secretion phases."
+      "The cycle includes menstruation, proliferation, ovulation, and secretion phases. Answer: (C)"
     ],
     "finalAnswer": "C. 28 days",
     "isCompetencyBased": false,
@@ -1080,7 +1080,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "The menstrual cycle is approximately 28 days.",
       "Ovulation (release of mature ovum) occurs around the middle of the cycle.",
       "This is approximately on day 14 of a 28-day cycle.",
-      "This marks the start of the luteal phase."
+      "This marks the start of the luteal phase. Answer: (B)"
     ],
     "finalAnswer": "B. 14",
     "isCompetencyBased": true,
@@ -1109,7 +1109,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Sexually transmitted infections spread through sexual contact.",
       "Syphilis is caused by the bacterium Treponema pallidum.",
       "Other STIs include gonorrhea, chlamydia, and HIV/AIDS.",
-      "Diabetes, asthma, and arthritis are not sexually transmitted."
+      "Diabetes, asthma, and arthritis are not sexually transmitted. Answer: (B)"
     ],
     "finalAnswer": "B. Syphilis",
     "explanation": "Sexually transmitted infections spread through sexual contact. Syphilis is caused by the bacterium Treponema pallidum. Other STIs include gonorrhea, chlamydia, and HIV/AIDS. Diabetes, asthma, and arthritis are not sexually transmitted. Therefore, the correct answer is B. Syphilis.",
@@ -1194,7 +1194,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Reproductive health requires overall physical and mental well-being.",
       "Regular exercise and balanced diet support healthy reproductive function.",
       "Good nutrition provides essential micronutrients for reproductive hormones.",
-      "Exercise improves circulation and hormonal balance."
+      "Exercise improves circulation and hormonal balance. Answer: (B)"
     ],
     "finalAnswer": "B. Regular exercise and balanced diet",
     "explanation": "Reproductive health requires overall physical and mental well-being. Regular exercise and balanced diet support healthy reproductive function. Good nutrition provides essential micronutrients for reproductive hormones. Exercise improves circulation and hormonal balance. Therefore, the correct answer is B. Regular exercise and balanced diet.",
@@ -1474,7 +1474,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which of the following is an example of asexual reproduction?",
     "options": ["Pollination","Budding in Hydra","Fertilisation","Seed germination"],
     "answer": "Budding in Hydra",
-    "solutionSteps": ["Budding in Hydra is asexual — a new organism develops from a bud on the parent"],
+    "solutionSteps": ["Budding in Hydra is asexual — a new organism develops from a bud on the parent Answer: (B)"],
     "finalAnswer": "Budding in Hydra",
     "explanation": "Budding in Hydra is asexual reproduction.",
     "isCompetencyBased": false,
@@ -1495,7 +1495,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Regeneration as a mode of reproduction is seen in:",
     "options": ["Amoeba","Planaria","Yeast","Rhizopus"],
     "answer": "Planaria",
-    "solutionSteps": ["Planaria flatworm can regenerate a complete organism from cut pieces"],
+    "solutionSteps": ["Planaria flatworm can regenerate a complete organism from cut pieces Answer: (B)"],
     "finalAnswer": "Planaria",
     "explanation": "Planaria regenerates complete organisms from fragments.",
     "isCompetencyBased": false,
@@ -1516,7 +1516,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): Spore formation is a method of asexual reproduction.\nReason (R): Spores are reproductive units that can grow into a new organism without fertilisation.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — sporulation is asexual reproduction","R: true — spores germinate without fertilisation","R explains A"],
+    "solutionSteps": ["A: true — sporulation is asexual reproduction","R: true — spores germinate without fertilisation","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Spores germinate without fertilisation (R) confirming asexual reproduction (A).",
     "isCompetencyBased": true,
@@ -1537,7 +1537,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Pollination is defined as:",
     "options": ["Germination of pollen","Transfer of pollen from anther to stigma","Fusion of gametes","Growth of pollen tube"],
     "answer": "Transfer of pollen from anther to stigma",
-    "solutionSteps": ["Pollination: transfer of pollen grains from anther to stigma of a flower"],
+    "solutionSteps": ["Pollination: transfer of pollen grains from anther to stigma of a flower Answer: (B)"],
     "finalAnswer": "Transfer of pollen from anther to stigma",
     "explanation": "Pollination = transfer of pollen from anther to stigma.",
     "isCompetencyBased": false,
@@ -1558,7 +1558,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Amoeba reproduces by:",
     "options": ["Budding","Fragmentation","Binary fission","Spore formation"],
     "answer": "Binary fission",
-    "solutionSteps": ["Amoeba splits into two daughter cells — binary fission"],
+    "solutionSteps": ["Amoeba splits into two daughter cells — binary fission Answer: (C)"],
     "finalAnswer": "Binary fission",
     "explanation": "Amoeba reproduces by binary fission.",
     "isCompetencyBased": false,
@@ -1579,7 +1579,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Fertilisation in human females occurs in the:",
     "options": ["Uterus","Ovary","Vagina","Fallopian tube"],
     "answer": "Fallopian tube",
-    "solutionSteps": ["Fertilisation occurs when sperm meets the egg in the fallopian tube (oviduct)"],
+    "solutionSteps": ["Fertilisation occurs when sperm meets the egg in the fallopian tube (oviduct) Answer: (D)"],
     "finalAnswer": "Fallopian tube",
     "explanation": "Fertilisation occurs in the fallopian tube.",
     "isCompetencyBased": false,

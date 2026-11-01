@@ -21,7 +21,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Malleability",
     "solutionSteps": [
-      "[1 mark] Malleability: silver is beaten (hammered) into a very thin sheet without breaking. Ductility is tempting but it means drawing a metal into a thin wire, not flattening it into a sheet."
+      "[1 mark] Malleability: silver is beaten (hammered) into a very thin sheet without breaking. Ductility is tempting but it means drawing a metal into a thin wire, not flattening it into a sheet. Answer: (A)"
     ],
     "finalAnswer": "Malleability",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "graphite",
     "solutionSteps": [
-      "[1 mark] Graphite: it is a non-metal that conducts electricity, yet it is soft, slippery and brittle, so it snaps. Aluminium also conducts but is malleable and would bend; iodine and sulphur do not conduct electricity."
+      "[1 mark] Graphite: it is a non-metal that conducts electricity, yet it is soft, slippery and brittle, so it snaps. Aluminium also conducts but is malleable and would bend; iodine and sulphur do not conduct electricity. Answer: (B)"
     ],
     "finalAnswer": "graphite",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Aluminium",
     "solutionSteps": [
-      "[1 mark] Aluminium: only copper (100) and aluminium (59) conduct at least half as well as copper, and aluminium (2.7 g/cm³) is far lighter than copper (8.9 g/cm³). Copper is tempting as the best conductor but fails the lightness condition."
+      "[1 mark] Aluminium: only copper (100) and aluminium (59) conduct at least half as well as copper, and aluminium (2.7 g/cm³) is far lighter than copper (8.9 g/cm³). Copper is tempting as the best conductor but fails the lightness condition. Answer: (C)"
     ],
     "finalAnswer": "Aluminium",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Gallium",
     "solutionSteps": [
-      "[1 mark] Gallium: it melts at about 30 °C, so it is solid at 20 °C but melts at body temperature (about 37 °C). Mercury is tempting, but it is already a liquid at 20 °C; sodium and lead melt far above body temperature."
+      "[1 mark] Gallium: it melts at about 30 °C, so it is solid at 20 °C but melts at body temperature (about 37 °C). Mercury is tempting, but it is already a liquid at 20 °C; sodium and lead melt far above body temperature. Answer: (D)"
     ],
     "finalAnswer": "Gallium",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: iodine is an exception that is lustrous, but its brittleness and inability to conduct electricity show it is a non-metal, so lustre alone does not decide the classification."
+      "[1 mark] (A) Both are true and R explains A: iodine is an exception that is lustrous, but its brittleness and inability to conduct electricity show it is a non-metal, so lustre alone does not decide the classification. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) Both statements are true, but the different behaviour on hammering is explained by aluminium being malleable and sulphur being brittle, not by their electrical conductivity."
+      "[1 mark] (B) Both statements are true, but the different behaviour on hammering is explained by aluminium being malleable and sulphur being brittle, not by their electrical conductivity. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -540,7 +540,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Red litmus turns blue; magnesium oxide is a basic oxide.",
     "solutionSteps": [
-      "[1 mark] Magnesium oxide dissolves slightly in water to form magnesium hydroxide, Mg(OH)₂, which is an alkali, so red litmus turns blue: metal oxides are basic. Blue litmus turning red would indicate an acidic oxide, which non-metals form."
+      "[1 mark] Magnesium oxide dissolves slightly in water to form magnesium hydroxide, Mg(OH)₂, which is an alkali, so red litmus turns blue: metal oxides are basic. Blue litmus turning red would indicate an acidic oxide, which non-metals form. Answer: (A)"
     ],
     "finalAnswer": "Red litmus turns blue; magnesium oxide is a basic oxide.",
     "isCompetencyBased": true,
@@ -569,7 +569,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Iron",
     "solutionSteps": [
-      "[1 mark] Iron does not react with cold or hot water but reacts with steam to give black iron oxide (Fe₃O₄) and hydrogen, which burns with a pop. Magnesium reacts with hot water, forming magnesium hydroxide, so it would have changed in the boiling water; copper does not react even with steam; sodium reacts with cold water."
+      "[1 mark] Iron does not react with cold or hot water but reacts with steam to give black iron oxide (Fe₃O₄) and hydrogen, which burns with a pop. Magnesium reacts with hot water, forming magnesium hydroxide, so it would have changed in the boiling water; copper does not react even with steam; sodium reacts with cold water. Answer: (B)"
     ],
     "finalAnswer": "Iron",
     "isCompetencyBased": true,
@@ -598,7 +598,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Copper sulphate solution and a zinc strip",
     "solutionSteps": [
-      "[1 mark] Zinc is more reactive than copper, so it displaces copper from blue copper sulphate: Zn + CuSO₄ → ZnSO₄ + Cu; zinc sulphate is colourless and copper is red-brown. Copper cannot displace zinc or iron, and silver cannot displace copper, so the other pairs show no change."
+      "[1 mark] Zinc is more reactive than copper, so it displaces copper from blue copper sulphate: Zn + CuSO₄ → ZnSO₄ + Cu; zinc sulphate is colourless and copper is red-brown. Copper cannot displace zinc or iron, and silver cannot displace copper, so the other pairs show no change. Answer: (C)"
     ],
     "finalAnswer": "Copper sulphate solution and a zinc strip",
     "isCompetencyBased": true,
@@ -627,7 +627,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "R > Q > P",
     "solutionSteps": [
-      "[1 mark] R reacts even with cold water (most reactive), Q needs hot water, and P reacts only with steam (least reactive), so R > Q > P. Needing harsher conditions such as steam shows lower reactivity, not higher, which is why P > Q > R is wrong."
+      "[1 mark] R reacts even with cold water (most reactive), Q needs hot water, and P reacts only with steam (least reactive), so R > Q > P. Needing harsher conditions such as steam shows lower reactivity, not higher, which is why P > Q > R is wrong. Answer: (D)"
     ],
     "finalAnswer": "R > Q > P",
     "isCompetencyBased": true,
@@ -656,7 +656,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: zinc displaces hydrogen from both acids, but nitric acid oxidises that hydrogen to water, so the gas leaving the nitric acid tube is an oxide of nitrogen, not hydrogen, and gives no pop; hydrochloric acid is not oxidising, so its hydrogen pops."
+      "[1 mark] (A) Both are true and R explains A: zinc displaces hydrogen from both acids, but nitric acid oxidises that hydrogen to water, so the gas leaving the nitric acid tube is an oxide of nitrogen, not hydrogen, and gives no pop; hydrochloric acid is not oxidising, so its hydrogen pops. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -685,7 +685,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) R is true: zinc lies above iron in the reactivity series. A is false: a less reactive metal (iron) cannot displace a more reactive metal (zinc) from its salt solution, so no zinc coating forms on the nail."
+      "[1 mark] (D) R is true: zinc lies above iron in the reactivity series. A is false: a less reactive metal (iron) cannot displace a more reactive metal (zinc) from its salt solution, so no zinc coating forms on the nail. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1060,7 +1060,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Solid Q",
     "solutionSteps": [
-      "[1 mark] Solid Q: an ionic compound has a high melting point and conducts only when molten, because its ions are fixed in the solid but free to move in the melt. R also melts at a high temperature, but it conducts even as a solid, which is the behaviour of a metal, not an ionic compound."
+      "[1 mark] Solid Q: an ionic compound has a high melting point and conducts only when molten, because its ions are fixed in the solid but free to move in the melt. R also melts at a high temperature, but it conducts even as a solid, which is the behaviour of a metal, not an ionic compound. Answer: (A)"
     ],
     "finalAnswer": "Solid Q",
     "isCompetencyBased": true,
@@ -1089,7 +1089,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "XY",
     "solutionSteps": [
-      "[1 mark] XY: X loses its 2 outer electrons to become X²⁺ (2, 8) and one Y atom gains 2 electrons to become Y²⁻ (2, 8), so the charges balance in a 1 : 1 ratio. XY₂ is tempting by analogy with magnesium chloride, but there each chlorine atom needs only one electron."
+      "[1 mark] XY: X loses its 2 outer electrons to become X²⁺ (2, 8) and one Y atom gains 2 electrons to become Y²⁻ (2, 8), so the charges balance in a 1 : 1 ratio. XY₂ is tempting by analogy with magnesium chloride, but there each chlorine atom needs only one electron. Answer: (B)"
     ],
     "finalAnswer": "XY",
     "isCompetencyBased": true,
@@ -1118,7 +1118,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The product will conduct electricity as a dry solid, because it is made of charged ions.",
     "solutionSteps": [
-      "[1 mark] The dry-solid prediction is wrong: the product is ionic, but in the solid its ions are held in fixed positions by strong forces and cannot move, so it does not conduct. MX₂ is correct because one M²⁺ balances two X⁻ ions; a high melting point and solubility in water are typical of ionic compounds."
+      "[1 mark] The dry-solid prediction is wrong: the product is ionic, but in the solid its ions are held in fixed positions by strong forces and cannot move, so it does not conduct. MX₂ is correct because one M²⁺ balances two X⁻ ions; a high melting point and solubility in water are typical of ionic compounds. Answer: (C)"
     ],
     "finalAnswer": "The product will conduct electricity as a dry solid, because it is made of charged ions.",
     "isCompetencyBased": true,
@@ -1147,7 +1147,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Magnesium loses two electrons, one to each of two chlorine atoms, so Mg²⁺ and both Cl⁻ ions get a stable octet.",
     "solutionSteps": [
-      "[1 mark] Magnesium, a metal with 2 outer electrons, loses them more easily than it could gain 6; chlorine needs only 1 electron to complete its octet. So one Mg atom gives one electron to each of two Cl atoms, forming Mg²⁺ (2, 8) and two Cl⁻ (2, 8, 8). A chlorine atom accepts only one electron, so Cl²⁻ is wrong."
+      "[1 mark] Magnesium, a metal with 2 outer electrons, loses them more easily than it could gain 6; chlorine needs only 1 electron to complete its octet. So one Mg atom gives one electron to each of two Cl atoms, forming Mg²⁺ (2, 8) and two Cl⁻ (2, 8, 8). A chlorine atom accepts only one electron, so Cl²⁻ is wrong. Answer: (D)"
     ],
     "finalAnswer": "Magnesium loses two electrons, one to each of two chlorine atoms, so Mg²⁺ and both Cl⁻ ions get a stable octet.",
     "isCompetencyBased": true,
@@ -1176,7 +1176,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: in molten sodium chloride the Na⁺ and Cl⁻ ions are free to move and carry charge. R is false: the electron lost by sodium is held by chlorine in the Cl⁻ ion; conduction in the melt is due to moving ions, not free electrons."
+      "[1 mark] (C) A is true: in molten sodium chloride the Na⁺ and Cl⁻ ions are free to move and carry charge. R is false: the electron lost by sodium is held by chlorine in the Cl⁻ ion; conduction in the melt is due to moving ions, not free electrons. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1205,7 +1205,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: by losing one electron, a sodium atom has 11 protons but only 10 electrons, so it becomes the positive ion Na⁺, not a negative ion. R is true: losing the one outer electron leaves the stable configuration 2, 8."
+      "[1 mark] (D) A is false: by losing one electron, a sodium atom has 11 protons but only 10 electrons, so it becomes the positive ion Na⁺, not a negative ion. R is true: losing the one outer electron leaves the stable configuration 2, 8. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1580,7 +1580,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Zinc carbonate underwent calcination and was converted into zinc oxide.",
     "solutionSteps": [
-      "[1 mark] Heating in limited air with release of an odourless gas that turns lime water milky (CO₂) is calcination of zinc carbonate: ZnCO₃ → ZnO + CO₂; the residue, yellow when hot and white when cold, is ZnO. Roasting of ZnS needs excess air and gives pungent-smelling SO₂, so it is ruled out."
+      "[1 mark] Heating in limited air with release of an odourless gas that turns lime water milky (CO₂) is calcination of zinc carbonate: ZnCO₃ → ZnO + CO₂; the residue, yellow when hot and white when cold, is ZnO. Roasting of ZnS needs excess air and gives pungent-smelling SO₂, so it is ruled out. Answer: (A)"
     ],
     "finalAnswer": "Zinc carbonate underwent calcination and was converted into zinc oxide.",
     "isCompetencyBased": true,
@@ -1609,7 +1609,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Impurities from the impure electrode either dissolved in the electrolyte or settled below it as anode mud, so only the copper reached the pure electrode.",
     "solutionSteps": [
-      "[1 mark] In electrolytic refining the impure anode dissolves; soluble impurities stay in solution and insoluble ones settle as anode mud, while only pure copper deposits on the cathode, so the cathode gains less than the anode loses. Silver and gold collect in the anode mud, not on the cathode, and the pure electrode is the negative electrode."
+      "[1 mark] In electrolytic refining the impure anode dissolves; soluble impurities stay in solution and insoluble ones settle as anode mud, while only pure copper deposits on the cathode, so the cathode gains less than the anode loses. Silver and gold collect in the anode mud, not on the cathode, and the pure electrode is the negative electrode. Answer: (B)"
     ],
     "finalAnswer": "Impurities from the impure electrode either dissolved in the electrolyte or settled below it as anode mud, so only the copper reached the pure electrode.",
     "isCompetencyBased": true,
@@ -1638,7 +1638,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Moving parts of the sewing machine — oiling; body of the cupboard — painting",
     "solutionSteps": [
-      "[1 mark] A film of oil keeps air and moisture away from moving parts and also lubricates them, whereas paint on parts that rub against each other would soon wear off; the cupboard body does not move, so a coat of paint lasts and keeps out air and moisture."
+      "[1 mark] A film of oil keeps air and moisture away from moving parts and also lubricates them, whereas paint on parts that rub against each other would soon wear off; the cupboard body does not move, so a coat of paint lasts and keeps out air and moisture. Answer: (C)"
     ],
     "finalAnswer": "Moving parts of the sewing machine — oiling; body of the cupboard — painting",
     "isCompetencyBased": true,
@@ -1667,7 +1667,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "An alloy can melt at a lower temperature than each of its constituent metals, which makes this alloy useful for joining electrical wires.",
     "solutionSteps": [
-      "[1 mark] The alloy melts at 183 °C, below both 327 °C and 232 °C, so alloying can lower the melting point; this is why the lead–tin alloy (solder) is used to join wires. An alloy is a homogeneous mixture, not a compound, and 183 °C is not the average (279.5 °C)."
+      "[1 mark] The alloy melts at 183 °C, below both 327 °C and 232 °C, so alloying can lower the melting point; this is why the lead–tin alloy (solder) is used to join wires. An alloy is a homogeneous mixture, not a compound, and 183 °C is not the average (279.5 °C). Answer: (D)"
     ],
     "finalAnswer": "An alloy can melt at a lower temperature than each of its constituent metals, which makes this alloy useful for joining electrical wires.",
     "isCompetencyBased": true,
@@ -1696,7 +1696,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: 2Cu₂S + 3O₂ → 2Cu₂O + 2SO₂, then 2Cu₂O + Cu₂S → 6Cu + SO₂. Because copper is a low-reactivity metal, heating alone gives the metal and no carbon is needed."
+      "[1 mark] (A) Both true and R explains A: 2Cu₂S + 3O₂ → 2Cu₂O + 2SO₂, then 2Cu₂O + Cu₂S → 6Cu + SO₂. Because copper is a low-reactivity metal, heating alone gives the metal and no carbon is needed. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1725,7 +1725,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true but R is false: aluminium is MORE reactive than iron. It reacts with oxygen to form a thin, tough, non-porous layer of aluminium oxide that sticks to the surface and stops further corrosion, whereas rust is porous and flakes off."
+      "[1 mark] (C) A is true but R is false: aluminium is MORE reactive than iron. It reacts with oxygen to form a thin, tough, non-porous layer of aluminium oxide that sticks to the surface and stops further corrosion, whereas rust is porous and flakes off. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -2105,7 +2105,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Metal P will not be able to reduce the oxide of R.",
     "solutionSteps": [
-      "[1 mark] Q removes oxygen from the oxide of P, so Q is more reactive than P; R removes oxygen from the oxide of Q, so R is more reactive than Q. Order: R > Q > P. The least reactive metal P cannot reduce the oxide of the most reactive metal R. The option 'Q more reactive than R' reverses the second result."
+      "[1 mark] Q removes oxygen from the oxide of P, so Q is more reactive than P; R removes oxygen from the oxide of Q, so R is more reactive than Q. Order: R > Q > P. The least reactive metal P cannot reduce the oxide of the most reactive metal R. The option 'Q more reactive than R' reverses the second result. Answer: (A)"
     ],
     "finalAnswer": "Metal P will not be able to reduce the oxide of R.",
     "isCompetencyBased": true,
@@ -2134,7 +2134,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Two lithium atoms each give one electron to one oxygen atom, forming Li₂O.",
     "solutionSteps": [
-      "[1 mark] Lithium (2, 1) loses its single valence electron to become Li⁺ with a stable duplet; oxygen (2, 6) needs two electrons to complete its octet and becomes O²⁻. So two lithium atoms each transfer one electron to one oxygen atom, giving Li₂O. A metal atom loses electrons (it does not gain them), and one lithium atom has only one valence electron to give."
+      "[1 mark] Lithium (2, 1) loses its single valence electron to become Li⁺ with a stable duplet; oxygen (2, 6) needs two electrons to complete its octet and becomes O²⁻. So two lithium atoms each transfer one electron to one oxygen atom, giving Li₂O. A metal atom loses electrons (it does not gain them), and one lithium atom has only one valence electron to give. Answer: (B)"
     ],
     "finalAnswer": "Two lithium atoms each give one electron to one oxygen atom, forming Li₂O.",
     "isCompetencyBased": true,
@@ -2163,7 +2163,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Zinc is more reactive than iron, so the zinc around the scratch reacts with air and moisture in preference to the exposed iron.",
     "solutionSteps": [
-      "[1 mark] Paint protects iron only while it covers it, so the exposed iron on X rusts. Zinc lies above iron in the reactivity series, so even where the zinc coating is broken, the surrounding zinc reacts with air and moisture first and the exposed iron of Y is protected. Zinc is more reactive than iron, not less."
+      "[1 mark] Paint protects iron only while it covers it, so the exposed iron on X rusts. Zinc lies above iron in the reactivity series, so even where the zinc coating is broken, the surrounding zinc reacts with air and moisture first and the exposed iron of Y is protected. Zinc is more reactive than iron, not less. Answer: (C)"
     ],
     "finalAnswer": "Zinc is more reactive than iron, so the zinc around the scratch reacts with air and moisture in preference to the exposed iron.",
     "isCompetencyBased": true,
@@ -2192,7 +2192,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Tungsten, because it is the only one of the four metals that remains solid at 2500 °C.",
     "solutionSteps": [
-      "[1 mark] The coil must stay solid at about 2500 °C. Tin, copper and iron all melt below this temperature, whereas tungsten melts only at 3422 °C. Good conductivity or ductility alone is not enough — a copper coil, though a better conductor, would melt at the working temperature."
+      "[1 mark] The coil must stay solid at about 2500 °C. Tin, copper and iron all melt below this temperature, whereas tungsten melts only at 3422 °C. Good conductivity or ductility alone is not enough — a copper coil, though a better conductor, would melt at the working temperature. Answer: (D)"
     ],
     "finalAnswer": "Tungsten, because it is the only one of the four metals that remains solid at 2500 °C.",
     "isCompetencyBased": true,
@@ -2221,7 +2221,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) A is true: sodium is much more reactive than magnesium, so it reacts violently with cold water, while magnesium reacts only with hot water. R is also true, since both are metal oxides and basic in nature. But a property that the two metals SHARE cannot explain the DIFFERENCE in their reactivity with water, so R is not the explanation of A."
+      "[1 mark] (B) A is true: sodium is much more reactive than magnesium, so it reacts violently with cold water, while magnesium reacts only with hot water. R is also true, since both are metal oxides and basic in nature. But a property that the two metals SHARE cannot explain the DIFFERENCE in their reactivity with water, so R is not the explanation of A. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2250,7 +2250,7 @@ export const METALS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) Magnesium chloride is an ionic compound made of Mg²⁺ and Cl⁻ ions, and ionic compounds are generally insoluble in kerosene, so the crystals would remain undissolved — Tapi's prediction (A) is false. R is a correct statement about the solubility of ionic compounds."
+      "[1 mark] (D) Magnesium chloride is an ionic compound made of Mg²⁺ and Cl⁻ ions, and ionic compounds are generally insoluble in kerosene, so the crystals would remain undissolved — Tapi's prediction (A) is false. R is a correct statement about the solubility of ionic compounds. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,

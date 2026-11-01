@@ -17,7 +17,7 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
       "all - growth, photosynthesis, respiration and transport of substances"
     ],
     answer: "only growth",
-    solutionSteps: ["Only the energy stored in plant biomass (growth/structural compounds) is transferred to the next trophic level when consumed.", "Respiration, transport, and most metabolic processes dissipate energy as heat — these are NOT transferred. Photosynthesis captures solar energy but only the part stored as biomass moves up the food chain."],
+    solutionSteps: ["Only the energy stored in plant biomass (growth/structural compounds) is transferred to the next trophic level when consumed.", "Respiration, transport, and most metabolic processes dissipate energy as heat — these are NOT transferred. Photosynthesis captures solar energy but only the part stored as biomass moves up the food chain. Answer: (A)"],
     finalAnswer: "(a) only growth",
     ncertRef: "APQ Science-PQ Q15", isCompetencyBased: true },
 
@@ -26,7 +26,7 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
     questionText: "The action of which among the following is crucial to the formation of ozone?",
     options: ["humans", "sunlight", "carbon dioxide", "chlorofluoro carbons"],
     answer: "sunlight",
-    solutionSteps: ["Ozone (O3) forms in the stratosphere when UV radiation from sunlight splits O2 into atomic oxygen, which then combines with another O2: O2 + UV → 2 O; O + O2 → O3.", "CFCs DEPLETE ozone (they don't form it). Humans contribute to CFC release but aren't the formation agent."],
+    solutionSteps: ["Ozone (O3) forms in the stratosphere when UV radiation from sunlight splits O2 into atomic oxygen, which then combines with another O2: O2 + UV → 2 O; O + O2 → O3.", "CFCs DEPLETE ozone (they don't form it). Humans contribute to CFC release but aren't the formation agent. Answer: (B)"],
     finalAnswer: "(b) sunlight",
     ncertRef: "APQ Science-PQ Q16", isCompetencyBased: false },
 
@@ -40,7 +40,7 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "A is true but R is false.",
-    solutionSteps: ["A is true: 10% law — only ~10% of energy at one trophic level transfers to the next.", "R is false: omnivores eat from MULTIPLE trophic levels (plants AND animals), so they're not 'always just above herbivores'. They can occupy more than one trophic level."],
+    solutionSteps: ["A is true: 10% law — only ~10% of energy at one trophic level transfers to the next.", "R is false: omnivores eat from MULTIPLE trophic levels (plants AND animals), so they're not 'always just above herbivores'. They can occupy more than one trophic level. Answer: (C)"],
     finalAnswer: "(c) A is true but R is false.",
     ncertRef: "APQ Science-PQ Q20", isCompetencyBased: true },
 
@@ -65,7 +65,7 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
       "remain the same in the lower trophic level"
     ],
     answer: "increase in the lower trophic level",
-    solutionSteps: ["If predators (one trophic level) are wiped out, the prey at the LOWER trophic level no longer face that predation pressure — their population INCREASES.", "Next trophic level (above the dead level) loses its food source ⟹ that population would decrease, not stay same."],
+    solutionSteps: ["If predators (one trophic level) are wiped out, the prey at the LOWER trophic level no longer face that predation pressure — their population INCREASES.", "Next trophic level (above the dead level) loses its food source ⟹ that population would decrease, not stay same. Answer: (C)"],
     finalAnswer: "(c) increase in the lower trophic level",
     ncertRef: "APQ Science-PQ2 Q15", isCompetencyBased: true },
 
@@ -74,7 +74,7 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
     questionText: "The chemicals that are non-degradable, get progressively accumulated at each trophic level, and their concentration is seen maximum in the bodies of top consumers. This phenomenon is known as:",
     options: ["Eutrophication", "Pollution", "Accumulation", "Biomagnification"],
     answer: "Biomagnification",
-    solutionSteps: ["BIOMAGNIFICATION = progressive build-up of non-biodegradable substances (e.g., DDT, mercury) as they move up the food chain; top consumers carry the maximum concentration.", "Eutrophication = nutrient enrichment of water bodies; pollution is a general term; accumulation alone does not imply trophic-level concentration."],
+    solutionSteps: ["BIOMAGNIFICATION = progressive build-up of non-biodegradable substances (e.g., DDT, mercury) as they move up the food chain; top consumers carry the maximum concentration.", "Eutrophication = nutrient enrichment of water bodies; pollution is a general term; accumulation alone does not imply trophic-level concentration. Answer: (D)"],
     finalAnswer: "(d) Biomagnification",
     ncertRef: "APQ Science-PQ2 Q16", isCompetencyBased: false },
 
@@ -88,7 +88,7 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "Both A and R are true, and R is the correct explanation of A.",
-    solutionSteps: ["A is true: some items found in kitchen waste (e.g., plastics, foils, milk packets) cannot be composted.", "R is true and EXPLAINS A: composting requires biodegradable matter. Milk packets (often plastic-lined) are non-biodegradable, so they cannot form compost — hence not ALL kitchen waste can form compost."],
+    solutionSteps: ["A is true: some items found in kitchen waste (e.g., plastics, foils, milk packets) cannot be composted.", "R is true and EXPLAINS A: composting requires biodegradable matter. Milk packets (often plastic-lined) are non-biodegradable, so they cannot form compost — hence not ALL kitchen waste can form compost. Answer: (A)"],
     finalAnswer: "(a) Both A and R are true, and R is the correct explanation of A.",
     ncertRef: "APQ Science-PQ2 Q20", isCompetencyBased: true },
 

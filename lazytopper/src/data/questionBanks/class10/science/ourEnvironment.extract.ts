@@ -20,7 +20,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Plastic flowers",
     "solutionSteps": [
-      "[1 mark] Plastic flowers — plastic is non-biodegradable, so decomposers/red worms cannot break it down into compost; the other three are biodegradable organic matter."
+      "[1 mark] Plastic flowers — plastic is non-biodegradable, so decomposers/red worms cannot break it down into compost; the other three are biodegradable organic matter. Answer: (C)"
     ],
     "finalAnswer": "Plastic flowers",
     "isCompetencyBased": false,
@@ -45,7 +45,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Putrefying bacteria",
     "solutionSteps": [
-      "[1 mark] Putrefying bacteria break down the dead remains of plants and animals, so they act as decomposers; Rhizobium fixes nitrogen and cyanobacteria are producers."
+      "[1 mark] Putrefying bacteria break down the dead remains of plants and animals, so they act as decomposers; Rhizobium fixes nitrogen and cyanobacteria are producers. Answer: (C)"
     ],
     "finalAnswer": "Putrefying bacteria",
     "isCompetencyBased": false,
@@ -70,7 +70,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Decomposers",
     "solutionSteps": [
-      "[1 mark] Decomposers — without them dead organic matter would not be broken down and nutrients would not be returned to the soil, so the ecosystem cannot function completely."
+      "[1 mark] Decomposers — without them dead organic matter would not be broken down and nutrients would not be returned to the soil, so the ecosystem cannot function completely. Answer: (B)"
     ],
     "finalAnswer": "Decomposers",
     "isCompetencyBased": false,
@@ -120,7 +120,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Producers",
     "solutionSteps": [
-      "[1 mark] Producers — by the ten per cent law only about 10% of the energy passes to each higher trophic level (the rest is lost as heat and in respiration), so the energy available is greatest at the producer (first) trophic level and falls at each higher level."
+      "[1 mark] Producers — by the ten per cent law only about 10% of the energy passes to each higher trophic level (the rest is lost as heat and in respiration), so the energy available is greatest at the producer (first) trophic level and falls at each higher level. Answer: (A)"
     ],
     "finalAnswer": "Producers",
     "isCompetencyBased": false,
@@ -145,7 +145,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Fungi",
     "solutionSteps": [
-      "[1 mark] Fungi are saprophytic micro-consumers that obtain nutrition by decomposing dead organic matter, unlike the insects listed, which are macro-consumers."
+      "[1 mark] Fungi are saprophytic micro-consumers that obtain nutrition by decomposing dead organic matter, unlike the insects listed, which are macro-consumers. Answer: (C)"
     ],
     "finalAnswer": "Fungi",
     "isCompetencyBased": false,
@@ -170,7 +170,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Lindemann",
     "solutionSteps": [
-      "[1 mark] Lindemann (1942) gave the ten per cent law, which states that only about 10% of the energy of one trophic level is stored as biomass and passed to the next level."
+      "[1 mark] Lindemann (1942) gave the ten per cent law, which states that only about 10% of the energy of one trophic level is stored as biomass and passed to the next level. Answer: (C)"
     ],
     "finalAnswer": "Lindemann",
     "isCompetencyBased": false,
@@ -195,7 +195,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "1 per cent",
     "solutionSteps": [
-      "[1 mark] Only about 1% of the sunlight reaching green leaves is trapped and converted into chemical (food) energy through photosynthesis; the rest is reflected or lost as heat."
+      "[1 mark] Only about 1% of the sunlight reaching green leaves is trapped and converted into chemical (food) energy through photosynthesis; the rest is reflected or lost as heat. Answer: (A)"
     ],
     "finalAnswer": "1 per cent",
     "isCompetencyBased": false,
@@ -220,7 +220,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Dichlorodiphenyltrichloroethane",
     "solutionSteps": [
-      "[1 mark] Dichlorodiphenyltrichloroethane (DDT) is a non-biodegradable pesticide that accumulates progressively at each trophic level, reaching maximum concentration in humans."
+      "[1 mark] Dichlorodiphenyltrichloroethane (DDT) is a non-biodegradable pesticide that accumulates progressively at each trophic level, reaching maximum concentration in humans. Answer: (B)"
     ],
     "finalAnswer": "Dichlorodiphenyltrichloroethane",
     "isCompetencyBased": false,
@@ -246,7 +246,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Algae",
     "solutionSteps": [
-      "[1 mark] Algae are producers that prepare their own food by photosynthesis; the other three are animals that depend on other organisms, so they are consumers."
+      "[1 mark] Algae are producers that prepare their own food by photosynthesis; the other three are animals that depend on other organisms, so they are consumers. Answer: (C)"
     ],
     "finalAnswer": "Algae",
     "isCompetencyBased": false,
@@ -271,7 +271,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Flow of energy",
     "solutionSteps": [
-      "[1 mark] An ecosystem functions through a one-way flow of energy (Sun → producers → consumers) and a cyclic movement of materials (nutrients) between biotic and abiotic components."
+      "[1 mark] An ecosystem functions through a one-way flow of energy (Sun → producers → consumers) and a cyclic movement of materials (nutrients) between biotic and abiotic components. Answer: (B)"
     ],
     "finalAnswer": "Flow of energy",
     "isCompetencyBased": false,
@@ -296,7 +296,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "About 10% of the energy of one trophic level is incorporated into the biomass of the next level",
     "solutionSteps": [
-      "[1 mark] By the ten per cent law, only about 10% of the energy at a trophic level is stored as new biomass and passed to the next level; the rest is lost as heat and in respiration."
+      "[1 mark] By the ten per cent law, only about 10% of the energy at a trophic level is stored as new biomass and passed to the next level; the rest is lost as heat and in respiration. Answer: (A)"
     ],
     "finalAnswer": "About 10% of the energy of one trophic level is incorporated into the biomass of the next level",
     "isCompetencyBased": false,
@@ -321,7 +321,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Incineration",
     "solutionSteps": [
-      "[1 mark] Incineration — burning the waste at high temperature destroys pathogens and greatly reduces the volume, making it the safest disposal method for infectious hospital waste."
+      "[1 mark] Incineration — burning the waste at high temperature destroys pathogens and greatly reduces the volume, making it the safest disposal method for infectious hospital waste. Answer: (C)"
     ],
     "finalAnswer": "Incineration",
     "isCompetencyBased": false,
@@ -346,7 +346,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Vegetation",
     "solutionSteps": [
-      "[1 mark] Vegetation is living, so it is a biotic component; water, temperature and wind are non-living, physical (abiotic) factors."
+      "[1 mark] Vegetation is living, so it is a biotic component; water, temperature and wind are non-living, physical (abiotic) factors. Answer: (D)"
     ],
     "finalAnswer": "Vegetation",
     "isCompetencyBased": false,
@@ -371,7 +371,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Mouse",
     "solutionSteps": [
-      "[1 mark] The mouse feeds directly on grass, so a fall in the grass population immediately reduces the energy available to the mouse before the effect passes up the chain."
+      "[1 mark] The mouse feeds directly on grass, so a fall in the grass population immediately reduces the energy available to the mouse before the effect passes up the chain. Answer: (A)"
     ],
     "finalAnswer": "Mouse",
     "isCompetencyBased": false,
@@ -396,7 +396,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Ecology",
     "solutionSteps": [
-      "[1 mark] Ecology is the scientific study of the interactions among organisms and between organisms and their physical environment."
+      "[1 mark] Ecology is the scientific study of the interactions among organisms and between organisms and their physical environment. Answer: (B)"
     ],
     "finalAnswer": "Ecology",
     "isCompetencyBased": false,
@@ -421,7 +421,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Duckweed",
     "solutionSteps": [
-      "[1 mark] Duckweed is a green aquatic plant that makes its own food by photosynthesis, so it is a producer; the others are consumers."
+      "[1 mark] Duckweed is a green aquatic plant that makes its own food by photosynthesis, so it is a producer; the others are consumers. Answer: (A)"
     ],
     "finalAnswer": "Duckweed",
     "isCompetencyBased": false,
@@ -446,7 +446,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Abiotic component",
     "solutionSteps": [
-      "[1 mark] Non-living physical factors such as temperature, rainfall, wind and soil together form the abiotic component of an ecosystem."
+      "[1 mark] Non-living physical factors such as temperature, rainfall, wind and soil together form the abiotic component of an ecosystem. Answer: (B)"
     ],
     "finalAnswer": "Abiotic component",
     "isCompetencyBased": false,
@@ -471,7 +471,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Peacock",
     "solutionSteps": [
-      "[1 mark] Peacock — it occupies the highest trophic level, where the least energy is available, so the number of organisms is minimum there."
+      "[1 mark] Peacock — it occupies the highest trophic level, where the least energy is available, so the number of organisms is minimum there. Answer: (D)"
     ],
     "finalAnswer": "Peacock",
     "isCompetencyBased": false,
@@ -497,7 +497,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "90%",
     "solutionSteps": [
-      "[1 mark] Only about 10% of energy is passed on to the next trophic level, so about 90% is lost as heat and used up in the metabolic activities of the organism."
+      "[1 mark] Only about 10% of energy is passed on to the next trophic level, so about 90% is lost as heat and used up in the metabolic activities of the organism. Answer: (C)"
     ],
     "finalAnswer": "90%",
     "isCompetencyBased": false,
@@ -517,7 +517,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "options": ["Bacteria and fungi", "Grass and algae", "Green plants and fungi", "Deer and bacteria"],
     "answer": "Bacteria and fungi",
     "solutionSteps": [
-      "[1 mark] Bacteria and fungi — bacteria and fungi break down dead organic remains into simple inorganic substances."
+      "[1 mark] Bacteria and fungi — bacteria and fungi break down dead organic remains into simple inorganic substances. Answer: (A)"
     ],
     "finalAnswer": "Bacteria and fungi",
     "isCompetencyBased": false,
@@ -538,7 +538,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "options": ["Forest and pond", "Lake and grassland", "Ocean and desert", "Aquarium and crop field"],
     "answer": "Aquarium and crop field",
     "solutionSteps": [
-      "[1 mark] Aquarium and crop field — aquariums and crop fields are created and maintained by humans."
+      "[1 mark] Aquarium and crop field — aquariums and crop fields are created and maintained by humans. Answer: (D)"
     ],
     "finalAnswer": "Aquarium and crop field",
     "isCompetencyBased": false,
@@ -559,7 +559,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "options": ["They are made from natural raw materials", "They dissolve completely in water", "Micro-organisms lack the enzymes needed to break them down", "Sunlight breaks them down within a few days"],
     "answer": "Micro-organisms lack the enzymes needed to break them down",
     "solutionSteps": [
-      "[1 mark] Micro-organisms lack the enzymes needed to break them down — decomposers such as bacteria and fungi do not possess enzymes to break down plastics, so they persist."
+      "[1 mark] Micro-organisms lack the enzymes needed to break them down — decomposers such as bacteria and fungi do not possess enzymes to break down plastics, so they persist. Answer: (C)"
     ],
     "finalAnswer": "Micro-organisms lack the enzymes needed to break them down",
     "isCompetencyBased": false,
@@ -580,7 +580,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "options": ["Tiger → Deer → Grass", "Grass → Deer → Tiger", "Grass → Tiger → Deer", "Deer → Grass → Tiger"],
     "answer": "Grass → Deer → Tiger",
     "solutionSteps": [
-      "[1 mark] Grass → Deer → Tiger — grass (producer) is eaten by deer (primary consumer), which is eaten by tiger (secondary consumer)."
+      "[1 mark] Grass → Deer → Tiger — grass (producer) is eaten by deer (primary consumer), which is eaten by tiger (secondary consumer). Answer: (B)"
     ],
     "finalAnswer": "Grass → Deer → Tiger",
     "isCompetencyBased": false,
@@ -601,7 +601,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     "options": ["Producers and primary consumers", "Producers and decomposers", "Primary and secondary consumers", "Decomposers and primary consumers"],
     "answer": "Producers and primary consumers",
     "solutionSteps": [
-      "[1 mark] Producers and primary consumers — solar energy is first captured by producers and then passed to primary consumers."
+      "[1 mark] Producers and primary consumers — solar energy is first captured by producers and then passed to primary consumers. Answer: (A)"
     ],
     "finalAnswer": "Producers and primary consumers",
     "isCompetencyBased": false,
@@ -627,7 +627,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] Both are true and R explains A: green plants are called transducers precisely because they convert (transduce) the Sun's radiant energy into chemical energy."
+      "[1 mark] Both are true and R explains A: green plants are called transducers precisely because they convert (transduce) the Sun's radiant energy into chemical energy. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,
@@ -652,7 +652,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] Both are true and R explains A: an aquarium is an artificial (man-made) ecosystem exactly because it is set up and maintained by humans."
+      "[1 mark] Both are true and R explains A: an aquarium is an artificial (man-made) ecosystem exactly because it is set up and maintained by humans. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,
@@ -677,7 +677,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "A is true but R is false",
     "solutionSteps": [
-      "[1 mark] A is true, R is false: non-biodegradable toxicants do accumulate up the trophic levels, but the maximum concentration is found in top consumers (e.g. humans), not in small fishes."
+      "[1 mark] A is true, R is false: non-biodegradable toxicants do accumulate up the trophic levels, but the maximum concentration is found in top consumers (e.g. humans), not in small fishes. Answer: (C)"
     ],
     "finalAnswer": "A is true but R is false",
     "isCompetencyBased": false,
@@ -702,7 +702,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "A is true but R is false",
     "solutionSteps": [
-      "[1 mark] A is true, R is false: a food web is a network of interlinked food chains, and a kite, being a consumer, is very much a part of many food chains within a food web."
+      "[1 mark] A is true, R is false: a food web is a network of interlinked food chains, and a kite, being a consumer, is very much a part of many food chains within a food web. Answer: (C)"
     ],
     "finalAnswer": "A is true but R is false",
     "isCompetencyBased": false,
@@ -727,7 +727,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] Both are true and R explains A: harmful chemicals build up at each trophic level, and since man occupies the top of most food chains, the concentration is highest in humans."
+      "[1 mark] Both are true and R explains A: harmful chemicals build up at each trophic level, and since man occupies the top of most food chains, the concentration is highest in humans. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,
@@ -752,7 +752,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "A is true but R is false",
     "solutionSteps": [
-      "[1 mark] A is true, R is false: polythene and plastics are non-biodegradable precisely because micro-organisms CANNOT break them down into simpler substances."
+      "[1 mark] A is true, R is false: polythene and plastics are non-biodegradable precisely because micro-organisms CANNOT break them down into simpler substances. Answer: (C)"
     ],
     "finalAnswer": "A is true but R is false",
     "isCompetencyBased": false,
@@ -777,7 +777,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "A is false but R is true",
     "solutionSteps": [
-      "[1 mark] A is false, R is true: the first trophic level is occupied by producers (autotrophs), not consumers; autotrophs fix solar energy and make it available to consumers."
+      "[1 mark] A is false, R is true: the first trophic level is occupied by producers (autotrophs), not consumers; autotrophs fix solar energy and make it available to consumers. Answer: (D)"
     ],
     "finalAnswer": "A is false but R is true",
     "isCompetencyBased": false,
@@ -802,7 +802,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true but R is not the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] Both are true but R does not explain A: ozone is beneficial (shields UV) yet a poison at ground level; stopping CFC release protects ozone but does not explain its dual nature."
+      "[1 mark] Both are true but R does not explain A: ozone is beneficial (shields UV) yet a poison at ground level; stopping CFC release protects ozone but does not explain its dual nature. Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true but R is not the correct explanation of A",
     "isCompetencyBased": false,
@@ -827,7 +827,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] Both are true and R explains A: decomposers keep the environment clean by breaking down dead remains and wastes, recycling nutrients back to the soil."
+      "[1 mark] Both are true and R explains A: decomposers keep the environment clean by breaking down dead remains and wastes, recycling nutrients back to the soil. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,
@@ -852,7 +852,7 @@ export const OE_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true but R is not the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] Both are true but R does not explain A: herbivores are first-order consumers because they feed on producers; the fact that a tiger is a top carnivore is unrelated to that definition."
+      "[1 mark] Both are true but R does not explain A: herbivores are first-order consumers because they feed on producers; the fact that a tiger is a top carnivore is unrelated to that definition. Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true but R is not the correct explanation of A",
     "isCompetencyBased": false,

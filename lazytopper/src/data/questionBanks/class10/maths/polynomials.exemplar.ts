@@ -22,7 +22,7 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A quadratic polynomial whose zeroes are −3 and 4 is",
     options: ["x² – x + 12", "x² + x + 12", "x²/2 − x/2 − 6", "2x² + 2x − 24"],
     answer: "x²/2 − x/2 − 6",
-    solutionSteps: ["Sum of zeroes = −3 + 4 = 1; product = −12.", "Polynomial of the form x² − (sum)x + product = x² − x − 12.", "Dividing by 2 gives x²/2 − x/2 − 6, which is option (c) and matches the NCERT key.", "Option (d) 2x² + 2x − 24 ≠ x² − x − 12 (sign of linear term differs)."],
+    solutionSteps: ["Sum of zeroes = −3 + 4 = 1; product = −12.", "Polynomial of the form x² − (sum)x + product = x² − x − 12.", "Dividing by 2 gives x²/2 − x/2 − 6, which is option (c) and matches the NCERT key.", "Option (d) 2x² + 2x − 24 ≠ x² − x − 12 (sign of linear term differs). Answer: (C)"],
     finalAnswer: "x²/2 − x/2 − 6 — option (c).",
     ncertRef: "Exemplar Ex 2.1 Q2", isCompetencyBased: true },
 

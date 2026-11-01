@@ -11,7 +11,7 @@ export const QE_NCERT: CanonicalQuestion[] = [
     questionText: "Which of the following is a quadratic equation?",
     options: ["(x + 1)² = 2(x − 3)", "x(x + 1) + 8 = (x + 2)(x − 2)", "(x − 2)² + 1 = x² − 3x", "x(2x + 3) = 2x² + 5"],
     answer: "(x + 1)² = 2(x − 3)",
-    solutionSteps: ["Expand (x + 1)² = x² + 2x + 1 and RHS = 2x − 6.", "Bring all terms to one side: x² + 2x + 1 − 2x + 6 = 0 ⇒ x² + 7 = 0.", "This is of the form ax² + bx + c = 0 with a = 1 ≠ 0 — a quadratic equation.", "Option (b): x² + x + 8 = x² − 4 ⇒ x + 12 = 0 (linear). Option (c): x² − 4x + 5 = x² − 3x ⇒ −x + 5 = 0 (linear). Option (d): 2x² + 3x = 2x² + 5 ⇒ 3x − 5 = 0 (linear). Only (a) is quadratic."],
+    solutionSteps: ["Expand (x + 1)² = x² + 2x + 1 and RHS = 2x − 6.", "Bring all terms to one side: x² + 2x + 1 − 2x + 6 = 0 ⇒ x² + 7 = 0.", "This is of the form ax² + bx + c = 0 with a = 1 ≠ 0 — a quadratic equation.", "Option (b): x² + x + 8 = x² − 4 ⇒ x + 12 = 0 (linear). Option (c): x² − 4x + 5 = x² − 3x ⇒ −x + 5 = 0 (linear). Option (d): 2x² + 3x = 2x² + 5 ⇒ 3x − 5 = 0 (linear). Only (a) is quadratic. Answer: (A)"],
     finalAnswer: "(x + 1)² = 2(x − 3) — option (a).",
     ncertRef: "NCERT Ex 4.1 Q1(i)", isCompetencyBased: true,
     strategyHint: "Expand both sides and check whether the x² coefficient survives — if a = 0 after simplification, it is NOT quadratic.",

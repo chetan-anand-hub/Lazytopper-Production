@@ -1,15 +1,15 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const STATISTICS_PACK1: CanonicalQuestion[] = [
-  { id: "STAT-E01", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mean of first 10 natural numbers is:", options: ["5", "5.5", "6", "10"], answer: "5.5", explanation: "Mean = (1+2+..+10)/10 = 55/10 = 5.5. Therefore, the correct answer is 5.5.", solutionSteps: ["Mean = (1+2+...+10)/10 = 55/10 = 5.5"], finalAnswer: "5.5" , isCompetencyBased: false },
+  { id: "STAT-E01", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mean of first 10 natural numbers is:", options: ["5", "5.5", "6", "10"], answer: "5.5", explanation: "Mean = (1+2+..+10)/10 = 55/10 = 5.5. Therefore, the correct answer is 5.5.", solutionSteps: ["Mean = (1+2+...+10)/10 = 55/10 = 5.5 Answer: (B)"], finalAnswer: "5.5" , isCompetencyBased: false },
   { id: "STAT-E02", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mode of the data 2, 3, 4, 4, 5, 5, 5, 6, 7 is:", options: ["4", "5", "6", "3"], answer: "5", explanation: "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "5" , isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (b) 5 is correct: the mode is the most frequent value; 5 occurs 3 times, more than any other value (4 occurs twice, the rest once).",
+      "[1 mark] Option (b) 5 is correct: the mode is the most frequent value; 5 occurs 3 times, more than any other value (4 occurs twice, the rest once). Answer: (B)",
     ],
   },
   { id: "STAT-E03", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The median class is the class whose cumulative frequency is just greater than or equal to:", options: ["n", "n/2", "n/4", "n/3"], answer: "n/2", explanation: "The correct answer is n/2. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "n/2" , isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (b) n/2 is correct: the median is the middle observation, so the median class is the class whose cumulative frequency is just greater than or equal to n/2, where n is the total frequency.",
+      "[1 mark] Option (b) n/2 is correct: the median is the middle observation, so the median class is the class whose cumulative frequency is just greater than or equal to n/2, where n is the total frequency. Answer: (B)",
     ],
   },
   { id: "STAT-E05", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the mean of the following distribution: Class: 10–20, 20–30, 30–40; Frequency: 5, 8, 7.", solutionSteps: [
@@ -20,17 +20,17 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
   { id: "STAT-E06", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The formula for mode of grouped data is:", options: ["l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h", "l + [(n/2−cf)/f] × h", "a + Σfᵢdᵢ/Σfᵢ", "l + f₁/(f₀+f₂) × h"], answer: "l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h", explanation: "The correct answer is l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h" , isCompetencyBased: false,
     solutionSteps: [
       "The mode of grouped data is the value that occurs most frequently in the data.",
-      "The formula for calculating the mode of grouped data is l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h.",
+      "The formula for calculating the mode of grouped data is l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h. Answer: (A)",
     ],
   },
   { id: "STAT-E07", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The median divides the data into two equal halves.\nReason (R): Median is the middle value when data is arranged in order.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A) is true: The median is defined as the value that divides the data into two equal halves.",
       "Reason (R) is true: The median is the middle value of the data when it is arranged in order.",
-      "Reason (R) correctly explains Assertion (A) as the middle value naturally divides the data into two equal halves.",
+      "Reason (R) correctly explains Assertion (A) as the middle value naturally divides the data into two equal halves. Answer: (A)",
     ],
   },
-  { id: "STAT-E08", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the mean of 5 observations is 15 and four observations are 10, 12, 18, 20, then the fifth observation is:", options: ["15", "10", "20", "25"], answer: "15", explanation: "Sum = 75, known = 60, fifth = 15. Therefore, the correct answer is 15.", solutionSteps: ["Sum = 75, known = 60, fifth = 15"], finalAnswer: "15" , isCompetencyBased: false },
+  { id: "STAT-E08", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the mean of 5 observations is 15 and four observations are 10, 12, 18, 20, then the fifth observation is:", options: ["15", "10", "20", "25"], answer: "15", explanation: "Sum = 75, known = 60, fifth = 15. Therefore, the correct answer is 15.", solutionSteps: ["Sum = 75, known = 60, fifth = 15 Answer: (A)"], finalAnswer: "15" , isCompetencyBased: false },
   { id: "STAT-E10", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the mode of: Class: 0–10, 10–20, 20–30, 30–40; Frequency: 5, 10, 12, 8.", solutionSteps: [
       "Modal class: 20–30 (f₁=12) [½]",
       "f₀=10, f₂=8, l=20, h=10 [½]",
@@ -39,7 +39,7 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
   { id: "STAT-E11", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The empirical relationship between mean, median and mode is:", options: ["Mode = 3 Mean − 2 Median", "Mode = 3 Median − 2 Mean", "Mean = 3 Median − 2 Mode", "Median = 3 Mean − 2 Mode"], answer: "Mode = 3 Median − 2 Mean", explanation: "The correct answer is Mode = 3 Median − 2 Mean. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Mode = 3 Median − 2 Mean" , isCompetencyBased: false,
     solutionSteps: [
       "The empirical relationship connects the three measures of central tendency: mean, median, and mode.",
-      "This relationship is given by the formula: Mode = 3 Median − 2 Mean.",
+      "This relationship is given by the formula: Mode = 3 Median − 2 Mean. Answer: (B)",
     ],
     sourceOverride: "others",
   },
@@ -52,12 +52,12 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Assertion (A) states that the modal class is identified as the class with the highest frequency. This is a true statement as per the definition of the modal class in grouped data.",
       "Reason (R) states that the mode is the value that occurs most frequently, and in grouped data, the class with the highest frequency is assumed to contain the mode. This is also a true statement.",
-      "Reason (R) correctly explains why the modal class is identified by the highest frequency, as the mode is the most frequent value.",
+      "Reason (R) correctly explains why the modal class is identified by the highest frequency, as the mode is the most frequent value. Answer: (A)",
     ],
   },
   { id: "STAT-E15", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The class mark of the class 15–35 is:", options: ["25", "20", "30", "15"], answer: "25", explanation: "The correct answer is 25. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "25" , isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (a) 25 is correct: class mark = (lower limit + upper limit)/2 = (15 + 35)/2 = 50/2 = 25.",
+      "[1 mark] Option (a) 25 is correct: class mark = (lower limit + upper limit)/2 = (15 + 35)/2 = 50/2 = 25. Answer: (A)",
     ],
   },
   { id: "STAT-E16", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the median of: 3, 5, 7, 9, 11, 13, 15.", solutionSteps: [
@@ -68,12 +68,12 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "9" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-E17", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If Σfᵢ = 20 and Σfᵢxᵢ = 300, then the mean is:", options: ["15", "20", "10", "30"], answer: "15", explanation: "The correct answer is 15. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "15" , isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] Option (a) 15 is correct: mean = (sum of f_i x_i)/(sum of f_i) = 300/20 = 15.",
+      "[1 mark] Option (a) 15 is correct: mean = (sum of f_i x_i)/(sum of f_i) = 300/20 = 15. Answer: (A)",
     ],
   },
   { id: "STAT-E18", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "In the mode formula, f₁ represents:", options: ["Frequency of modal class", "Frequency before modal class", "Frequency after modal class", "Total frequency"], answer: "Frequency of modal class", explanation: "The correct answer is Frequency of modal class. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Frequency of modal class" , isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (a) is correct: in Mode = l + [(f1 - f0)/(2f1 - f0 - f2)] * h, f1 is the frequency of the modal class, f0 that of the class before it and f2 that of the class after it.",
+      "[1 mark] Option (a) is correct: in Mode = l + [(f1 - f0)/(2f1 - f0 - f2)] * h, f1 is the frequency of the modal class, f0 that of the class before it and f2 that of the class after it. Answer: (A)",
     ],
   },
   { id: "STAT-E20", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "The median of an ungrouped data is 25 and mean is 28. Find the mode using the empirical formula.", solutionSteps: [
@@ -97,7 +97,7 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "Σfᵢdᵢ = −42−112−60+0+74+124+144 = 128 [1]",
       "Mean = 3250 + (128/400)×500 = 3250 + 160 = 3410 [1]",
     ], finalAnswer: "3410 hours" , visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
-  { id: "STAT-M05", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If mode = 12, mean = 15, then median = 14.\nReason (R): Mode = 3 Median − 2 Mean.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["12 = 3M − 30 → 3M = 42 → M = 14 ✓"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
+  { id: "STAT-M05", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If mode = 12, mean = 15, then median = 14.\nReason (R): Mode = 3 Median − 2 Mean.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["12 = 3M − 30 → 3M = 42 → M = 14 ✓ Answer: (A)"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
   { id: "STAT-M07", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "The marks obtained by 100 students in a test are:\nMarks: 0–20, 20–40, 40–60, 60–80, 80–100\nStudents: 12, 18, 27, 20, 23\nNot all students could clear the passing mark of 40.\n(i) How many students failed?\n(ii) Find the mean marks.\n(iii) Find the modal class and mode.\n(iv) Find the median.", solutionSteps: [
       "(i) Failed (below 40) = 12 + 18 = 30 students; (ii) Σfx = 12(10)+18(30)+27(50)+20(70)+23(90) = 120+540+1350+1400+2070 = 5480 [1]",
       "Mean = 5480/100 = 54.8; (iii) Modal class: 40–60 (f₁=27), f₀=18, f₂=20 [1]",
@@ -117,7 +117,7 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       sourceOverride: "others" },
   { id: "STAT-M10", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The mean of a grouped data can never be less than the smallest class mark or greater than the largest class mark.\nReason (R): Mean is a weighted average of class marks.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Mean = Σfᵢxᵢ / Σfᵢ is a weighted average of the class marks xᵢ with non-negative weights fᵢ, and a weighted average always lies between the smallest and largest values averaged. A is true, R is true, and R explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] Mean of grouped data x̄ = Σfᵢxᵢ / Σfᵢ is a weighted average of the class marks xᵢ with non-negative weights fᵢ, so it must lie between the smallest and largest class marks. R is true and is exactly why A is true.",
+      "[1 mark] Mean of grouped data x̄ = Σfᵢxᵢ / Σfᵢ is a weighted average of the class marks xᵢ with non-negative weights fᵢ, so it must lie between the smallest and largest class marks. R is true and is exactly why A is true. Answer: (A)",
     ],
   },
   { id: "STAT-M12", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The mean of the following frequency distribution is 50. Find the missing frequency f:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100\nFreq: 5, f, 10, 7, 8", solutionSteps: [
@@ -249,7 +249,7 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Recall the formula for calculating the mode of grouped data.",
       "The formula is Mode = L + [ (f1 - f0) / (2f1 - f0 - f2) ] * h, where L is lower limit of modal class, f1 is frequency of modal class, f0 is frequency of preceding class, f2 is frequency of succeeding class, and h is class size.",
-      "Identify the correct option or apply given values to this formula to find the mode.",
+      "Identify the correct option or apply given values to this formula to find the mode. Answer: (B)",
     ],
   },
   { id: "STAT2P1-R04", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The mean of the following grouped distribution is 60. Find the missing frequency f.\nClass: 10–30, 30–50, 50–70, 70–90, 90–110\nFrequency: 6, f, 14, 10, 4\nTotal: 40", solutionSteps: [
@@ -257,15 +257,15 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "Σfx = 6(20)+6(40)+14(60)+10(80)+4(100) = 120+240+840+800+400 = 2400 [1]",
       "Mean = 2400/40 = 60 ✓ [1]",
     ], finalAnswer: "f = 6", visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
-  { id: "STAT2P1-R05", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The median of a data set always lies between the mode and the mean.\nReason (R): The empirical formula Mode = 3 Median − 2 Mean holds for moderately skewed data.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "A is false, R is true.", explanation: "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.", solutionSteps: ["The empirical formula (R) is true — it holds for moderately skewed unimodal distributions.", "The assertion (A) is false because 'always' overstates the claim; the median lies between mode and mean only when the empirical formula applies (moderately skewed data), not for all distributions (e.g. bimodal or highly skewed data)."], finalAnswer: "A is false, R is true.", isCompetencyBased: true },
+  { id: "STAT2P1-R05", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The median of a data set always lies between the mode and the mean.\nReason (R): The empirical formula Mode = 3 Median − 2 Mean holds for moderately skewed data.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "A is false, R is true.", explanation: "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.", solutionSteps: ["The empirical formula (R) is true — it holds for moderately skewed unimodal distributions.", "The assertion (A) is false because 'always' overstates the claim; the median lies between mode and mean only when the empirical formula applies (moderately skewed data), not for all distributions (e.g. bimodal or highly skewed data). Answer: (D)"], finalAnswer: "A is false, R is true.", isCompetencyBased: true },
   { id: "STAT-N01", subject: "Maths", topicKey: "statistics", subtopic: "Mean", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mean of 5 observations is 12. If one observation 10 is removed, the new mean is:", options: ["12.5","13","11.5","14"], answer: "12.5", explanation: "The correct answer is 12.5. Original sum = 5 × 12 = 60. New sum = 60 − 10 = 50. New mean = 50/4 = 12.5.", finalAnswer: "12.5", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Sum of 5 observations = 5 × 12 = 60. After removing 10: sum = 50 over 4 observations, so new mean = 50/4 = 12.5.",
+      "[1 mark] Sum of 5 observations = 5 × 12 = 60. After removing 10: sum = 50 over 4 observations, so new mean = 50/4 = 12.5. Answer: (A)",
     ],
   },
   { id: "STAT-N02", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mode of a grouped data is found using:", options: ["Modal class formula","Direct formula","Step deviation method","Cumulative frequency"], answer: "Modal class formula", explanation: "The correct answer is Modal class formula. Mode = l + ((f₁−f₀)/(2f₁−f₀−f₂)) × h, using the modal class.", finalAnswer: "Modal class formula", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] For grouped data the mode is found from the modal class (class with highest frequency) using Mode = l + [(f₁ − f₀)/(2f₁ − f₀ − f₂)] × h. The direct and step-deviation methods give the mean, and cumulative frequency is used for the median.",
+      "[1 mark] For grouped data the mode is found from the modal class (class with highest frequency) using Mode = l + [(f₁ − f₀)/(2f₁ − f₀ − f₂)] × h. The direct and step-deviation methods give the mean, and cumulative frequency is used for the median. Answer: (A)",
     ],
   }
 ];

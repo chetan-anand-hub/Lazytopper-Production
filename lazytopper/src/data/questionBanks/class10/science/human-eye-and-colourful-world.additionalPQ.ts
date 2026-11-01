@@ -16,7 +16,7 @@ export const HUMAN_EYE_APQ: CanonicalQuestion[] = [
       "black, as sunlight does not fall on the far side of the Moon"
     ],
     answer: "black, as there is no atmosphere on Moon to scatter sunlight",
-    solutionSteps: ["Sky appears blue on Earth because the atmosphere scatters shorter (blue) wavelengths of sunlight (Rayleigh scattering).", "The Moon has no atmosphere, so no scattering occurs ⟹ sky appears BLACK (sunlight reaches the eyes only when looking directly at the Sun)."],
+    solutionSteps: ["Sky appears blue on Earth because the atmosphere scatters shorter (blue) wavelengths of sunlight (Rayleigh scattering).", "The Moon has no atmosphere, so no scattering occurs ⟹ sky appears BLACK (sunlight reaches the eyes only when looking directly at the Sun). Answer: (C)"],
     finalAnswer: "(c) black, as there is no atmosphere on Moon to scatter sunlight",
     ncertRef: "APQ Science-PQ Q14", isCompetencyBased: true },
 

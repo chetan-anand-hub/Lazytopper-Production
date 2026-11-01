@@ -21,7 +21,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "They are fungi acting as decomposers, breaking down the complex organic matter of the dead wood into simpler substances.",
     "solutionSteps": [
-      "[1 mark] The trunk is dead and is softening, so the fungi are decomposers breaking its complex organic matter into simple substances. They lack chlorophyll, so they cannot be producers; the tree is no longer living, so they are not parasites."
+      "[1 mark] The trunk is dead and is softening, so the fungi are decomposers breaking its complex organic matter into simple substances. They lack chlorophyll, so they cannot be producers; the tree is no longer living, so they are not parasites. Answer: (A)"
     ],
     "finalAnswer": "They are fungi acting as decomposers, breaking down the complex organic matter of the dead wood into simpler substances.",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Air humidity, acidity (pH) of the soil, hours of sunlight",
     "solutionSteps": [
-      "[1 mark] Humidity, soil pH and sunlight are non-living (physical and chemical) factors, so they are abiotic. Moss, mushrooms and earthworms are living organisms, i.e. biotic components, so every other option contains a biotic item."
+      "[1 mark] Humidity, soil pH and sunlight are non-living (physical and chemical) factors, so they are abiotic. Moss, mushrooms and earthworms are living organisms, i.e. biotic components, so every other option contains a biotic item. Answer: (B)"
     ],
     "finalAnswer": "Air humidity, acidity (pH) of the soil, hours of sunlight",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Dragonfly larva",
     "solutionSteps": [
-      "[1 mark] Algae (producer) → tadpole (primary consumer) → dragonfly larva (secondary consumer) → pond heron (tertiary consumer). The heron is tempting as the 'meat-eater', but it feeds on a secondary consumer, so it is one level higher."
+      "[1 mark] Algae (producer) → tadpole (primary consumer) → dragonfly larva (secondary consumer) → pond heron (tertiary consumer). The heron is tempting as the 'meat-eater', but it feeds on a secondary consumer, so it is one level higher. Answer: (C)"
     ],
     "finalAnswer": "Dragonfly larva",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Producers make food using sunlight, and decomposers in the soil return minerals from dead parts to the soil.",
     "solutionSteps": [
-      "[1 mark] Light enters through the glass, so moss and ferns (producers) keep making food; soil bacteria and fungi decompose fallen fronds and release minerals that the plants absorb again. Energy is not recycled — it flows in as light, so option B is wrong."
+      "[1 mark] Light enters through the glass, so moss and ferns (producers) keep making food; soil bacteria and fungi decompose fallen fronds and release minerals that the plants absorb again. Energy is not recycled — it flows in as light, so option B is wrong. Answer: (D)"
     ],
     "finalAnswer": "Producers make food using sunlight, and decomposers in the soil return minerals from dead parts to the soil.",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: a mushroom is a fungus without chlorophyll, so it cannot make its own food and is not a producer. R is true: it feeds by breaking down dead organic matter, which makes it a decomposer."
+      "[1 mark] (D) A is false: a mushroom is a fungus without chlorophyll, so it cannot make its own food and is not a producer. R is true: it feeds by breaking down dead organic matter, which makes it a decomposer. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: snails cannot make food (they are heterotrophs) and they eat algae, which are producers, so they are consumers (herbivores) in the aquarium."
+      "[1 mark] (A) Both are true and R explains A: snails cannot make food (they are heterotrophs) and they eat algae, which are producers, so they are consumers (herbivores) in the aquarium. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -539,7 +539,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12,000 J",
     "solutionSteps": [
-      "[1 mark] 12,000 J: the lizard is at the fourth trophic level, three transfers above the tea bushes, so 12 J × 10 × 10 × 10 = 12,000 J. The tempting 1,20,000 J wrongly counts four transfers, treating the lizard as the fifth level."
+      "[1 mark] 12,000 J: the lizard is at the fourth trophic level, three transfers above the tea bushes, so 12 J × 10 × 10 × 10 = 12,000 J. The tempting 1,20,000 J wrongly counts four transfers, treating the lizard as the fifth level. Answer: (A)"
     ],
     "finalAnswer": "12,000 J",
     "isCompetencyBased": true,
@@ -568,7 +568,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Octopus",
     "solutionSteps": [
-      "[1 mark] Octopus: eating sea snails it is at the third level (seaweed → snail → octopus); eating small fish it is at the fourth (seaweed → shrimp → small fish → octopus). The seagull eats only small fish, so it stays at the fourth level."
+      "[1 mark] Octopus: eating sea snails it is at the third level (seaweed → snail → octopus); eating small fish it is at the fourth (seaweed → shrimp → small fish → octopus). The seagull eats only small fish, so it stays at the fourth level. Answer: (B)"
     ],
     "finalAnswer": "Octopus",
     "isCompetencyBased": true,
@@ -597,7 +597,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Grasshoppers increase in number and the damage to the wheat crop rises.",
     "solutionSteps": [
-      "[1 mark] With their only predator gone, grasshoppers multiply and eat more wheat. Snakes do not vanish, because they still eat rats; they now hunt rats more, so owls face more competition, not less."
+      "[1 mark] With their only predator gone, grasshoppers multiply and eat more wheat. Snakes do not vanish, because they still eat rats; they now hunt rats more, so owls face more competition, not less. Answer: (C)"
     ],
     "finalAnswer": "Grasshoppers increase in number and the damage to the wheat crop rises.",
     "isCompetencyBased": true,
@@ -626,7 +626,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Only about 5 J would reach the hawk in chain Q, too little to support many top consumers or any further level.",
     "solutionSteps": [
-      "[1 mark] Chain Q: 50,000 → 5,000 → 500 → 50 → 5 J, so the hawk gets only 5 J; with about 90 per cent lost per step, long chains run short of energy. The tiger gets 500 J, not 50 J."
+      "[1 mark] Chain Q: 50,000 → 5,000 → 500 → 50 → 5 J, so the hawk gets only 5 J; with about 90 per cent lost per step, long chains run short of energy. The tiger gets 500 J, not 50 J. Answer: (D)"
     ],
     "finalAnswer": "Only about 5 J would reach the hawk in chain Q, too little to support many top consumers or any further level.",
     "isCompetencyBased": true,
@@ -655,7 +655,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A): both are true. Algae make food only from light energy, and energy moves one way along a food chain; once the fish release it as heat to the surroundings it cannot go back to the producers, which is exactly what R states."
+      "[1 mark] (A): both are true. Algae make food only from light energy, and energy moves one way along a food chain; once the fish release it as heat to the surroundings it cannot go back to the producers, which is exactly what R states. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -684,7 +684,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true: the chapati-eater is at the second level (about 10,000 J of wheat) and the chicken-eater at the third (about 1,00,000 J). R is false: plants store only about 1 per cent of sunlight; 10 per cent is the transfer between levels."
+      "[1 mark] (C): A is true: the chapati-eater is at the second level (about 10,000 J of wheat) and the chicken-eater at the third (about 1,00,000 J). R is false: plants store only about 1 per cent of sunlight; 10 per cent is the transfer between levels. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1078,7 +1078,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Q → P → S → R",
     "solutionSteps": [
-      "[1 mark] Q → P → S → R: a non-biodegradable pesticide becomes more concentrated at each higher trophic level, so rising concentration (0.05 < 0.5 < 2.4 < 12 ppm) gives the order of the chain, producer Q first. R → S → P → Q reverses the direction of feeding."
+      "[1 mark] Q → P → S → R: a non-biodegradable pesticide becomes more concentrated at each higher trophic level, so rising concentration (0.05 < 0.5 < 2.4 < 12 ppm) gives the order of the chain, producer Q first. R → S → P → Q reverses the direction of feeding. Answer: (A)"
     ],
     "finalAnswer": "Q → P → S → R",
     "isCompetencyBased": true,
@@ -1107,7 +1107,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The pesticide is not broken down or excreted, so it collects in each animal's body, and each hawk eats many snakes in its lifetime, taking in the pesticide stored in all of them.",
     "solutionSteps": [
-      "[1 mark] The option saying the pesticide is not broken down or excreted is correct: the non-biodegradable pesticide builds up at each trophic level because every consumer eats many organisms of the level below. Water is only a minor route, and energy decreases (about 10% passes on) at each higher level."
+      "[1 mark] The option saying the pesticide is not broken down or excreted is correct: the non-biodegradable pesticide builds up at each trophic level because every consumer eats many organisms of the level below. Water is only a minor route, and energy decreases (about 10% passes on) at each higher level. Answer: (B)"
     ],
     "finalAnswer": "The pesticide is not broken down or excreted, so it collects in each animal's body, and each hawk eats many snakes in its lifetime, taking in the pesticide stored in all of them.",
     "isCompetencyBased": true,
@@ -1136,7 +1136,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Buried in a moist compost pit, the bag disappears into the soil within a few months, leaving no pieces behind.",
     "solutionSteps": [
-      "[1 mark] A biodegradable material is broken down by decomposers into simple substances that mix with the soil, so disappearing in a compost pit is the right evidence. Breaking into tiny plastic bits is not biodegradation — the bits remain in the environment."
+      "[1 mark] A biodegradable material is broken down by decomposers into simple substances that mix with the soil, so disappearing in a compost pit is the right evidence. Breaking into tiny plastic bits is not biodegradation — the bits remain in the environment. Answer: (C)"
     ],
     "finalAnswer": "Buried in a moist compost pit, the bag disappears into the soil within a few months, leaving no pieces behind.",
     "isCompetencyBased": true,
@@ -1165,7 +1165,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Its amount in the soil of a field remains almost unchanged five years after spraying was stopped.",
     "solutionSteps": [
-      "[1 mark] A chemical that stays unchanged in soil for years is not broken down by decomposers, so it can enter plants and build up at each trophic level. Killing insects quickly, dissolving in water or a small dose tell us nothing about whether it breaks down."
+      "[1 mark] A chemical that stays unchanged in soil for years is not broken down by decomposers, so it can enter plants and build up at each trophic level. Killing insects quickly, dissolving in water or a small dose tell us nothing about whether it breaks down. Answer: (D)"
     ],
     "finalAnswer": "Its amount in the soil of a field remains almost unchanged five years after spraying was stopped.",
     "isCompetencyBased": true,
@@ -1194,7 +1194,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: this is biological magnification — the pesticide builds up at each trophic level. R is false: the birds take in the pesticide mainly through the many fish they eat, not by contact with the water."
+      "[1 mark] (C) A is true: this is biological magnification — the pesticide builds up at each trophic level. R is false: the birds take in the pesticide mainly through the many fish they eat, not by contact with the water. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1223,7 +1223,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) R is true, but A is false: large amounts of biodegradable waste dumped together rot, give a foul smell, breed flies and disease-causing microbes, and in water bodies their decomposition uses up dissolved oxygen, killing fish."
+      "[1 mark] (D) R is true, but A is false: large amounts of biodegradable waste dumped together rot, give a foul smell, breed flies and disease-causing microbes, and in water bodies their decomposition uses up dissolved oxygen, killing fish. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1602,7 +1602,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The thinning is seasonal: the ozone hole appears only in September and October, and the layer largely recovers by December.",
     "solutionSteps": [
-      "[1 mark] Only September (140 DU) and October (155 DU) fall below 220 DU; July and December are above it, so the hole is seasonal. Option 2 wrongly uses 300 DU as the limit; a lower reading means a deeper hole."
+      "[1 mark] Only September (140 DU) and October (155 DU) fall below 220 DU; July and December are above it, so the hole is seasonal. Option 2 wrongly uses 300 DU as the limit; a lower reading means a deeper hole. Answer: (A)"
     ],
     "finalAnswer": "The thinning is seasonal: the ozone hole appears only in September and October, and the layer largely recovers by December.",
     "isCompetencyBased": true,
@@ -1631,7 +1631,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "UV radiation split some O₂ molecules into single oxygen atoms, and each free atom then combined with an O₂ molecule to form O₃.",
     "solutionSteps": [
-      "[1 mark] Ozone forms in two steps: UV splits O₂ → O + O, then O + O₂ → O₃. Option 1 skips the free-atom step; option 3 destroys ozone instead of making it; the tube held pure oxygen, so no nitrogen."
+      "[1 mark] Ozone forms in two steps: UV splits O₂ → O + O, then O + O₂ → O₃. Option 1 skips the free-atom step; option 3 destroys ozone instead of making it; the tube held pure oxygen, so no nitrogen. Answer: (B)"
     ],
     "finalAnswer": "UV radiation split some O₂ molecules into single oxygen atoms, and each free atom then combined with an O₂ molecule to form O₃.",
     "isCompetencyBased": true,
@@ -1660,7 +1660,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "More cases of skin cancer and cataract, because more ultraviolet radiation would reach the ground.",
     "solutionSteps": [
-      "[1 mark] A thinner ozone layer absorbs less of the Sun's UV radiation, so more UV reaches the ground and causes skin cancer and cataract. Option 1 is wrong: ozone lost high up is destroyed by chlorine, not shifted down to ground level."
+      "[1 mark] A thinner ozone layer absorbs less of the Sun's UV radiation, so more UV reaches the ground and causes skin cancer and cataract. Option 1 is wrong: ozone lost high up is destroyed by chlorine, not shifted down to ground level. Answer: (C)"
     ],
     "finalAnswer": "More cases of skin cancer and cataract, because more ultraviolet radiation would reach the ground.",
     "isCompetencyBased": true,
@@ -1689,7 +1689,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Production stopped rising above the 1986 level, which matches the 1987 freeze, and was later cut sharply.",
     "solutionSteps": [
-      "[1 mark] The 1990 value equals the 1986 value (120), so the freeze was kept, and later values fall to 4. Option 2 is tempting but wrong: CFCs already released stay in the atmosphere for decades, so the layer cannot have fully recovered by 2006."
+      "[1 mark] The 1990 value equals the 1986 value (120), so the freeze was kept, and later values fall to 4. Option 2 is tempting but wrong: CFCs already released stay in the atmosphere for decades, so the layer cannot have fully recovered by 2006. Answer: (D)"
     ],
     "finalAnswer": "Production stopped rising above the 1986 level, which matches the 1987 freeze, and was later cut sharply.",
     "isCompetencyBased": true,
@@ -1718,7 +1718,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: ozone lost is continuously replaced because UV splits O₂ into O atoms that join O₂ to form O₃, so formation balances breakdown and the amount stays nearly steady."
+      "[1 mark] (A) Both are true and R explains A: ozone lost is continuously replaced because UV splits O₂ into O atoms that join O₂ to form O₃, so formation balances breakdown and the amount stays nearly steady. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1747,7 +1747,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false but R is true: CFCs mix through the whole atmosphere, so gas released in any country, however distant, adds chlorine to the stratosphere over Antarctica; the hole is not caused only by nearby countries."
+      "[1 mark] (D) A is false but R is true: CFCs mix through the whole atmosphere, so gas released in any country, however distant, adds chlorine to the stratosphere over Antarctica; the hole is not caused only by nearby countries. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -2123,7 +2123,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Knowing that an item is biodegradable tells us it will be broken down, but not how quickly.",
     "solutionSteps": [
-      "[1 mark] (a) is correct: wool is broken down by microorganisms, so it is biodegradable even though it takes years; speed does not decide the category. (c) wrongly treats 'slow' as 'non-biodegradable', and (d) is wrong because microorganisms cannot break polythene at all, whatever its thickness."
+      "[1 mark] (a) is correct: wool is broken down by microorganisms, so it is biodegradable even though it takes years; speed does not decide the category. (c) wrongly treats 'slow' as 'non-biodegradable', and (d) is wrong because microorganisms cannot break polythene at all, whatever its thickness. Answer: (A)"
     ],
     "finalAnswer": "Knowing that an item is biodegradable tells us it will be broken down, but not how quickly.",
     "isCompetencyBased": true,
@@ -2152,7 +2152,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A plastic-lined paper cup will leave behind thin pieces of plastic in a compost pit even after the paper has decomposed.",
     "solutionSteps": [
-      "[1 mark] (b): the paper part is broken down by bacteria and fungi, but the plastic film is non-biodegradable and stays behind in the pit. (a) ignores the lining; (c) is wrong because cutting plastic only makes smaller plastic pieces that microorganisms still cannot break down."
+      "[1 mark] (b): the paper part is broken down by bacteria and fungi, but the plastic film is non-biodegradable and stays behind in the pit. (a) ignores the lining; (c) is wrong because cutting plastic only makes smaller plastic pieces that microorganisms still cannot break down. Answer: (B)"
     ],
     "finalAnswer": "A plastic-lined paper cup will leave behind thin pieces of plastic in a compost pit even after the paper has decomposed.",
     "isCompetencyBased": true,
@@ -2181,7 +2181,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Neither the cow's digestive enzymes nor the microorganisms in its stomach can break down polythene, so it collected in the stomach and left little room for food.",
     "solutionSteps": [
-      "[1 mark] (c): polythene is non-biodegradable — enzymes are specific in their action and none can break it, nor can microbes — so it piles up in the stomach and the cow cannot eat enough. (b) is the tempting error of treating polythene like food waste."
+      "[1 mark] (c): polythene is non-biodegradable — enzymes are specific in their action and none can break it, nor can microbes — so it piles up in the stomach and the cow cannot eat enough. (b) is the tempting error of treating polythene like food waste. Answer: (C)"
     ],
     "finalAnswer": "Neither the cow's digestive enzymes nor the microorganisms in its stomach can break down polythene, so it collected in the stomach and left little room for food.",
     "isCompetencyBased": true,
@@ -2210,7 +2210,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "70%",
     "solutionSteps": [
-      "[1 mark] (d) 70%: biodegradable = food leftovers + paper + leaves = 14 + 8 + 6 = 28 kg out of a total of 40 kg, i.e. 70%. Option (b) leaves out the paper (20 kg), and (a) counts only food."
+      "[1 mark] (d) 70%: biodegradable = food leftovers + paper + leaves = 14 + 8 + 6 = 28 kg out of a total of 40 kg, i.e. 70%. Option (b) leaves out the paper (20 kg), and (a) counts only food. Answer: (D)"
     ],
     "finalAnswer": "70%",
     "isCompetencyBased": true,
@@ -2239,7 +2239,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true because food waste is biodegradable and becomes manure. R is false: the breakdown in a compost pit is carried out by decomposers such as bacteria and fungi, not by sunlight."
+      "[1 mark] (C): A is true because food waste is biodegradable and becomes manure. R is false: the breakdown in a compost pit is carried out by decomposers such as bacteria and fungi, not by sunlight. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -2268,7 +2268,7 @@ export const ENVIRONMENT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A): Both are true and R explains A. Burying only hides the plastic: because decomposers cannot break it down, it stays in the soil for a very long time instead of disappearing."
+      "[1 mark] (A): Both are true and R explains A. Burying only hides the plastic: because decomposers cannot break it down, it stays in the soil for a very long time instead of disappearing. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

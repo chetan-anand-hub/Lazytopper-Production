@@ -46,7 +46,7 @@ export const CARBON_COMPOUNDS_APQ: CanonicalQuestion[] = [
     questionText: "From the chemical changes shown, which of the following correctly represents 'X'?",
     options: ["Ethane", "Ethene", "Ethyne", "Ethanoic acid"],
     answer: "Ethene",
-    solutionSteps: ["Based on the marking scheme, the chemical transformations shown lead to ethene (C2H4) — an unsaturated hydrocarbon with one C=C double bond.", "Ethene decolourises bromine water and is the immediate dehydration product of ethanol."],
+    solutionSteps: ["Based on the marking scheme, the chemical transformations shown lead to ethene (C2H4) — an unsaturated hydrocarbon with one C=C double bond.", "Ethene decolourises bromine water and is the immediate dehydration product of ethanol. Answer: (B)"],
     finalAnswer: "(b) Ethene",
     ncertRef: "APQ Science-PQ2 Q5", isCompetencyBased: true },
 
@@ -55,7 +55,7 @@ export const CARBON_COMPOUNDS_APQ: CanonicalQuestion[] = [
     questionText: "Which of the following structures correctly represents the electron dot (Lewis) structure of a nitrogen molecule (N2)?",
     options: ["Structure with single bond and 2 lone pairs each", "Structure with double bond and lone pairs", "Structure with triple bond and one lone pair on each N", "Structure with only lone pairs and no bond"],
     answer: "Structure with triple bond and one lone pair on each N",
-    solutionSteps: ["Each N atom has 5 valence electrons. To complete an octet, both atoms share THREE electron pairs ⟹ triple bond (N≡N).", "After triple-bond sharing, each N has ONE lone pair left. Correct electron-dot structure: :N⫶⫶⫶N: (triple bond between the two N, one lone pair on each)."],
+    solutionSteps: ["Each N atom has 5 valence electrons. To complete an octet, both atoms share THREE electron pairs ⟹ triple bond (N≡N).", "After triple-bond sharing, each N has ONE lone pair left. Correct electron-dot structure: :N⫶⫶⫶N: (triple bond between the two N, one lone pair on each). Answer: (C)"],
     finalAnswer: "Electron-dot N2: triple bond (3 shared pairs) + one lone pair on each nitrogen.",
     ncertRef: "APQ Science-PQ2 Q6", isCompetencyBased: false,
  },

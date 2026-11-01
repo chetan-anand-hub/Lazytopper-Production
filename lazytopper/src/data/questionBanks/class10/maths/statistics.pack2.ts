@@ -21,7 +21,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "Mean = a + (Σfd/Σf) × h",
     "solutionSteps": [
       "The assumed mean method uses the formula: Mean = a + (Σfd/Σf) × h",
-      "where a is assumed mean, d = (x - a), f is frequency, and h is class width"
+      "where a is assumed mean, d = (x - a), f is frequency, and h is class width Answer: (A)"
     ],
     "finalAnswer": "Mean = a + (Σfd/Σf) × h",
     "explanation": "The assumed mean method uses the formula: Mean = a + (Σfd/Σf) × h. where a is assumed mean, d = (x - a), f is frequency, and h is class width. Therefore, the correct answer is Mean = a + (Σfd/Σf) × h.",
@@ -50,7 +50,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "Class mark or midpoint",
     "solutionSteps": [
       "In direct method: Mean = Σ(f × x)/Σf",
-      "'x' is the class mark, calculated as (upper limit + lower limit)/2"
+      "'x' is the class mark, calculated as (upper limit + lower limit)/2 Answer: (B)"
     ],
     "finalAnswer": "Class mark or midpoint",
     "explanation": "In direct method: Mean = Σ(f × x)/Σf. 'x' is the class mark, calculated as (upper limit + lower limit)/2. Therefore, the correct answer is Class mark or midpoint.",
@@ -106,7 +106,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Where l = lower limit of median class",
       "n = total frequency, cf = cumulative frequency before median class",
-      "f = frequency of median class, h = class width"
+      "f = frequency of median class, h = class width Answer: (A)"
     ],
     "finalAnswer": "Median = l + ((n/2 - cf)/f) × h",
     "explanation": "Where l = lower limit of median class. n = total frequency, cf = cumulative frequency before median class. f = frequency of median class, h = class width. Therefore, the correct answer is Median = l + ((n/2 - cf)/f) × h.",
@@ -135,7 +135,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "n/2",
     "solutionSteps": [
       "Median class is the class where cumulative frequency first exceeds n/2",
-      "where n is the total frequency"
+      "where n is the total frequency Answer: (A)"
     ],
     "finalAnswer": "n/2",
     "explanation": "Median class is the class where cumulative frequency first exceeds n/2. where n is the total frequency. Therefore, the correct answer is n/2.",
@@ -190,7 +190,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "Highest frequency",
     "solutionSteps": [
       "Modal class is the class with the highest frequency",
-      "Mode lies within this class"
+      "Mode lies within this class Answer: (A)"
     ],
     "finalAnswer": "Highest frequency",
     "explanation": "Modal class is the class with the highest frequency. Mode lies within this class. Therefore, the correct answer is Highest frequency.",
@@ -219,7 +219,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "Frequency of modal class",
     "solutionSteps": [
       "In the mode formula: f₁ = frequency of modal class",
-      "f₀ = frequency of preceding class, f₂ = frequency of succeeding class"
+      "f₀ = frequency of preceding class, f₂ = frequency of succeeding class Answer: (A)"
     ],
     "finalAnswer": "Frequency of modal class",
     "explanation": "In the mode formula: f₁ = frequency of modal class. f₀ = frequency of preceding class, f₂ = frequency of succeeding class. Therefore, the correct answer is Frequency of modal class.",
@@ -331,7 +331,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Assertion: Modal class is defined as the class with highest frequency - TRUE",
       "Reason: Mode represents the most frequent value - TRUE",
-      "The reason correctly explains why modal class has highest frequency"
+      "The reason correctly explains why modal class has highest frequency Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -361,7 +361,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Assertion: Median formula uses CF to locate median class - TRUE",
       "Reason: Median divides data into 50-50 split - TRUE",
-      "The reason explains why we need CF to find n/2 position"
+      "The reason explains why we need CF to find n/2 position Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -493,7 +493,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "In the formula Σ(fi × xi) / Σfi for mean of grouped data",
       "fi represents the frequency of each class",
       "xi represents the midpoint of each class interval",
-      "The mean is calculated using class midpoints"
+      "The mean is calculated using class midpoints Answer: (B)"
     ],
     "finalAnswer": "Class midpoint",
     "explanation": "In the formula Σ(fi × xi) / Σfi for mean of grouped data. fi represents the frequency of each class. xi represents the midpoint of each class interval. The mean is calculated using class midpoints. Therefore, the correct answer is Class midpoint.",
@@ -524,7 +524,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Class midpoint = (Lower limit + Upper limit) / 2",
       "= (10 + 20) / 2",
       "= 30 / 2",
-      "= 15"
+      "= 15 Answer: (B)"
     ],
     "finalAnswer": "15",
     "explanation": "Class midpoint = (Lower limit + Upper limit) / 2. = (10 + 20) / 2. = 30 / 2. = 15. Therefore, the correct answer is 15.",
@@ -584,7 +584,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "In grouped data, median is found using n/2",
       "Here n is the total number of observations",
       "n/2 gives the position/location of the median",
-      "We find the class where cumulative frequency ≥ n/2"
+      "We find the class where cumulative frequency ≥ n/2 Answer: (C)"
     ],
     "finalAnswer": "The position of median value",
     "explanation": "In grouped data, median is found using n/2. Here n is the total number of observations. n/2 gives the position/location of the median. We find the class where cumulative frequency ≥ n/2. Therefore, the correct answer is The position of median value.",
@@ -617,7 +617,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "n = total frequency",
       "cf = cumulative frequency of the class BEFORE median class",
       "f = frequency of median class",
-      "h = class width"
+      "h = class width Answer: (B)"
     ],
     "finalAnswer": "Cumulative frequency of the class before median class",
     "visualExplainerId": "maths-statistics-median-of-grouped-data",
@@ -675,7 +675,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Mode is the value that appears most frequently",
       "In grouped data, the modal class is the class interval with the highest frequency",
-      "Mode lies within this modal class"
+      "Mode lies within this modal class Answer: (B)"
     ],
     "finalAnswer": "Highest frequency",
     "explanation": "Mode is the value that appears most frequently. In grouped data, the modal class is the class interval with the highest frequency. Mode lies within this modal class. Therefore, the correct answer is Highest frequency.",
@@ -707,7 +707,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "f1 = frequency of modal class",
       "f0 = frequency of class before modal class",
       "f2 = frequency of class after modal class",
-      "(f1 - f0) is the difference between modal class and previous class"
+      "(f1 - f0) is the difference between modal class and previous class Answer: (B)"
     ],
     "finalAnswer": "Difference between modal class and previous class frequency",
     "visualExplainerId": "maths-statistics-mode-of-grouped-data",
@@ -851,7 +851,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "In grouped data, we use class midpoints to estimate values",
       "The calculated mean may not be an actual observation",
       "Reason R explains why: class midpoints are approximations",
-      "R is TRUE and explains why A is false"
+      "R is TRUE and explains why A is false Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -884,7 +884,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Reason R: Median divides data into two equal halves - TRUE",
       "This is the fundamental property of median",
       "R correctly explains why we use n/2 in A",
-      "Both are true and R explains A"
+      "Both are true and R explains A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -917,7 +917,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Reason R: Modal class has maximum frequency - TRUE",
       "This is the definition of modal class",
       "R correctly explains why A is true",
-      "Mode exists in the class with highest frequency"
+      "Mode exists in the class with highest frequency Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1063,7 +1063,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): For the data with frequencies 3, 8, 12, 8, 3 in five consecutive class intervals of width 10, the mean, median and mode are all equal.\nReason (R): The mode of grouped data is always equal to the class mark of the modal class.",
     "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     "answer": "A is true, R is false.",
-    "solutionSteps": ["Let the middle class be l to l + 10. Mean: frequencies are symmetric, so mean = l + 5. Median: n = 34, n/2 = 17, cf before median class = 11, so median = l + (17 − 11)/12 × 10 = l + 5. Mode: l + (12 − 8)/(24 − 8 − 8) × 10 = l + 5. All equal, so A is true. R is false: Mode = l + [(f₁ − f₀)/(2f₁ − f₀ − f₂)] × h equals the class mark only when f₀ = f₂, not always. Hence A is true, R is false."],
+    "solutionSteps": ["Let the middle class be l to l + 10. Mean: frequencies are symmetric, so mean = l + 5. Median: n = 34, n/2 = 17, cf before median class = 11, so median = l + (17 − 11)/12 × 10 = l + 5. Mode: l + (12 − 8)/(24 − 8 − 8) × 10 = l + 5. All equal, so A is true. R is false: Mode = l + [(f₁ − f₀)/(2f₁ − f₀ − f₂)] × h equals the class mark only when f₀ = f₂, not always. Hence A is true, R is false. Answer: (C)"],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The frequencies are symmetric about the middle class, so mean = median = mode = class mark of the middle class; A is true. R is false: in general Mode = l + [(f₁ − f₀)/(2f₁ − f₀ − f₂)] × h, which equals the class mark only when f₀ = f₂. Hence A is true, R is false.",
     "isCompetencyBased": true,
@@ -1140,7 +1140,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "questionText": "The median formula for grouped data is l + [(n/2 - cf)/f] × h. What does 'cf' represent?",
     "options": ["Frequency of median class", "Cumulative frequency before median class", "Cumulative frequency of median class", "Total frequency"],
     "answer": "Cumulative frequency before median class",
-    "solutionSteps": ["cf = cumulative frequency of all classes preceding the median class"],
+    "solutionSteps": ["cf = cumulative frequency of all classes preceding the median class Answer: (B)"],
     "finalAnswer": "Cumulative frequency before median class",
     "explanation": "cf = cumulative frequency of all classes preceding the median class. Therefore, the correct answer is Cumulative frequency before median class.",
     "isCompetencyBased": false,

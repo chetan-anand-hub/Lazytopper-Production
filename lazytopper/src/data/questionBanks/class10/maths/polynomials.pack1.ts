@@ -13,7 +13,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "To find the zeroes, set the polynomial equal to zero: x² - 3 = 0.",
       "Add 3 to both sides: x² = 3.",
-      "Take the square root of both sides: x = ±√3.",
+      "Take the square root of both sides: x = ±√3. Answer: (A)",
     ],
   },
 {
@@ -23,7 +23,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["5", "6", "−5", "−6"],
     answer: "5",
     explanation: "Sum of zeroes = −(−5)/1 = 5. Therefore, the correct answer is 5.",
-    solutionSteps: ["Sum of zeroes = −(−5)/1 = 5"],
+    solutionSteps: ["Sum of zeroes = −(−5)/1 = 5 Answer: (A)"],
     finalAnswer: "5",
     isCompetencyBased: false,
   },
@@ -39,7 +39,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "The graph of a quadratic polynomial p(x) = ax² + bx + c is a parabola.",
       "The direction in which the parabola opens is determined by the sign of the leading coefficient 'a'.",
-      "For the parabola to open upward, the coefficient 'a' must be positive, i.e., a > 0.",
+      "For the parabola to open upward, the coefficient 'a' must be positive, i.e., a > 0. Answer: (A)",
     ],
   },
 {
@@ -54,7 +54,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "The maximum number of zeroes a polynomial can have is equal to its degree.",
       "A cubic polynomial is a polynomial of degree 3.",
-      "Therefore, a cubic polynomial can have at most 3 zeroes.",
+      "Therefore, a cubic polynomial can have at most 3 zeroes. Answer: (C)",
     ],
   },
 {
@@ -64,7 +64,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["2", "4", "−2", "8"],
     answer: "2",
     explanation: "Let zeroes be α and 1/α. Product = α × (1/α) = 1. Product of zeroes = k/2 = 1. k = 2. Therefore, the correct answer is 2.",
-    solutionSteps: ["Let zeroes be α and 1/α", "Product = α × (1/α) = 1", "Product of zeroes = k/2 = 1", "k = 2"],
+    solutionSteps: ["Let zeroes be α and 1/α", "Product = α × (1/α) = 1", "Product of zeroes = k/2 = 1", "k = 2 Answer: (A)"],
     finalAnswer: "2",
     isCompetencyBased: false,
   },
@@ -80,7 +80,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "A zero of a polynomial p(x) is a value of x for which p(x) = 0.",
       "Graphically, p(x) = 0 means the point lies on the x-axis.",
-      "Therefore, the number of zeroes is the number of times the graph intersects or touches the x-axis.",
+      "Therefore, the number of zeroes is the number of times the graph intersects or touches the x-axis. Answer: (D)",
     ],
   },
 {
@@ -90,7 +90,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["0", "1", "−1", "3"],
     answer: "0",
     explanation: "p(1) = 1 − 4 + 3 = 0. Therefore, the correct answer is 0.",
-    solutionSteps: ["p(1) = 1 − 4 + 3 = 0"],
+    solutionSteps: ["p(1) = 1 − 4 + 3 = 0 Answer: (A)"],
     finalAnswer: "0",
     isCompetencyBased: true,
   },
@@ -106,7 +106,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "For a quadratic polynomial p(x) = ax² + bx + c, where a ≠ 0.",
       "The product of its zeroes (αβ) is given by the constant term divided by the coefficient of x².",
-      "Thus, αβ = c/a.",
+      "Thus, αβ = c/a. Answer: (C)",
     ],
   },
 {
@@ -133,7 +133,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "The degree of a polynomial is the highest power of the variable in the polynomial.",
       "A fundamental property of polynomials states that a polynomial of degree 'n' can have at most 'n' real zeroes.",
-      "Therefore, a polynomial of degree n has at most n zeroes.",
+      "Therefore, a polynomial of degree n has at most n zeroes. Answer: (A)",
     ],
   },
 {
@@ -161,7 +161,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "To find the zeroes of a polynomial p(x), we set p(x) = 0. So, for x² + 1, we set x² + 1 = 0.",
       "This implies x² = -1. However, the square of any real number x (x²) is always greater than or equal to 0.",
       "Therefore, x² can never be equal to -1 for any real number x. This means the polynomial x² + 1 has no real zeroes, making Assertion (A) true.",
-      "Reason (R) states x² >= 0 for all real x, which is correct. Consequently, x² + 1 >= 1, meaning x² + 1 is always positive and never zero. This correctly explains why there are no real zeroes. Thus, R is true and is the correct explanation of A.",
+      "Reason (R) states x² >= 0 for all real x, which is correct. Consequently, x² + 1 >= 1, meaning x² + 1 is always positive and never zero. This correctly explains why there are no real zeroes. Thus, R is true and is the correct explanation of A. Answer: (A)",
     ],
   },
 {
@@ -171,7 +171,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["1", "2", "3", "4"],
     answer: "3",
     explanation: "p(2) = 0 ⟹ 4 − 2k + 2 = 0 ⟹ 2k = 6 ⟹ k = 3. Therefore, the correct answer is 3.",
-    solutionSteps: ["p(2) = 0 ⟹ 4 − 2k + 2 = 0 ⟹ 2k = 6 ⟹ k = 3"],
+    solutionSteps: ["p(2) = 0 ⟹ 4 − 2k + 2 = 0 ⟹ 2k = 6 ⟹ k = 3 Answer: (C)"],
     finalAnswer: "3",
     isCompetencyBased: false,
   },
@@ -182,7 +182,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["7/10", "10/7", "3/10", "−7/10"],
     answer: "7/10",
     explanation: "1/α + 1/β = (α + β)/(αβ) = 7/10. Therefore, the correct answer is 7/10.",
-    solutionSteps: ["1/α + 1/β = (α + β)/(αβ) = 7/10"],
+    solutionSteps: ["1/α + 1/β = (α + β)/(αβ) = 7/10 Answer: (A)"],
     finalAnswer: "7/10",
     isCompetencyBased: true,
   },
@@ -198,7 +198,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "The zeroes of a polynomial p(x) are the values of x for which p(x) = 0.",
       "When we graph y = p(x), the condition p(x) = 0 means that the y-coordinate of the point is 0.",
-      "Points with a y-coordinate of 0 lie on the x-axis. Therefore, the zeroes are the x-coordinates where the graph intersects the x-axis.",
+      "Points with a y-coordinate of 0 lie on the x-axis. Therefore, the zeroes are the x-coordinates where the graph intersects the x-axis. Answer: (B)",
     ],
   },
 {
@@ -224,7 +224,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "For a general quadratic polynomial of the form ax² + bx + c, let the zeroes be alpha and beta.",
       "According to Vieta's formulas, the sum of the zeroes (alpha + beta) is given by the formula: - (coefficient of x) / (coefficient of x²).",
-      "Substituting the coefficients from the given polynomial, the sum of zeroes = -b/a.",
+      "Substituting the coefficients from the given polynomial, the sum of zeroes = -b/a. Answer: (B)",
     ],
   },
 {
@@ -234,7 +234,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["3/2 and −1/3", "−3/2 and 1/3", "3/2 and 1/3", "−3/2 and −1/3"],
     answer: "3/2 and −1/3",
     explanation: "6x² − 7x − 3 = 0. (2x − 3)(3x + 1) = 0. x = 3/2 or x = −1/3. Therefore, the correct answer is 3/2 and −1/3.",
-    solutionSteps: ["6x² − 7x − 3 = 0", "(2x − 3)(3x + 1) = 0", "x = 3/2 or x = −1/3"],
+    solutionSteps: ["6x² − 7x − 3 = 0", "(2x − 3)(3x + 1) = 0", "x = 3/2 or x = −1/3 Answer: (A)"],
     finalAnswer: "3/2 and −1/3",
     isCompetencyBased: true,
   },
@@ -250,7 +250,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Assertion (A): A linear polynomial ax+b (a!=0) has exactly one zero x = -b/a. So, A is true.",
       "Reason (R): The graph of a linear polynomial y=ax+b is a straight line. It intersects the x-axis (where y=0) at exactly one point. So, R is true.",
-      "The x-intercept of the graph represents the zero of the polynomial. Since the line intersects the x-axis at one point, it has one zero. Thus, R correctly explains A.",
+      "The x-intercept of the graph represents the zero of the polynomial. Since the line intersects the x-axis at one point, it has one zero. Thus, R correctly explains A. Answer: (A)",
     ],
   },
 {
@@ -318,7 +318,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
     explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    solutionSteps: ["If zeroes are α and −α, sum = 0", "−(−8k)/4 = 0 ⟹ 2k = 0 ⟹ k = 0"],
+    solutionSteps: ["If zeroes are α and −α, sum = 0", "−(−8k)/4 = 0 ⟹ 2k = 0 ⟹ k = 0 Answer: (A)"],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
   },
@@ -358,7 +358,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "When the graph of a quadratic polynomial touches the x-axis at exactly one point, it means the parabola has only one x-intercept.",
       "This single x-intercept indicates that the two roots (zeroes) of the quadratic equation are identical.",
-      "Therefore, the quadratic polynomial has two equal real zeroes.",
+      "Therefore, the quadratic polynomial has two equal real zeroes. Answer: (B)",
     ],
   },
 {
@@ -405,7 +405,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["−16", "8", "2", "−8"],
     answer: "−16",
     explanation: "α + β = 6. 3α + 2β = 20 and α + β = 6. Subtract: 2α + β = 14. From α + β = 6: β = 6 − α, so 2α + 6 − α = 14, α = 8, β = −2. k = αβ = 8(−2) = −16. Therefore, the correct answer is −16.",
-    solutionSteps: ["α + β = 6", "3α + 2β = 20 and α + β = 6", "Subtract: 2α + β = 14", "From α + β = 6: β = 6 − α, so 2α + 6 − α = 14, α = 8, β = −2", "k = αβ = 8(−2) = −16"],
+    solutionSteps: ["α + β = 6", "3α + 2β = 20 and α + β = 6", "Subtract: 2α + β = 14", "From α + β = 6: β = 6 − α, so 2α + 6 − α = 14, α = 8, β = −2", "k = αβ = 8(−2) = −16 Answer: (A)"],
     finalAnswer: "−16",
     isCompetencyBased: true,
   },
@@ -421,7 +421,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Reason (R): The general form of a quadratic polynomial with zeroes α and β is k[x² − (α+β)x + αβ]. For k=1, R is true.",
       "Assertion (A): Given zeroes α = -3 and β = 4. Sum of zeroes (α+β) = -3 + 4 = 1. Product of zeroes (αβ) = (-3)(4) = -12.",
-      "Using the formula from R, the polynomial is x² − (1)x + (-12) = x² − x − 12. This matches A. So, A is true and R correctly explains A.",
+      "Using the formula from R, the polynomial is x² − (1)x + (-12) = x² − x − 12. This matches A. So, A is true and R correctly explains A. Answer: (A)",
     ],
   },
 {
@@ -492,7 +492,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["4", "10", "16", "2"],
     answer: "4",
     explanation: "(α−β)² = (α+β)² − 4αβ = 16 − 12 = 4. Therefore, the correct answer is 4.",
-    solutionSteps: ["(α−β)² = (α+β)² − 4αβ = 16 − 12 = 4"],
+    solutionSteps: ["(α−β)² = (α+β)² − 4αβ = 16 − 12 = 4 Answer: (A)"],
     finalAnswer: "4",
     isCompetencyBased: true,
   },
@@ -676,7 +676,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Assertion (A): A quadratic polynomial has degree 2. A polynomial of degree 'n' can have at most 'n' zeroes. So, a quadratic polynomial can have at most 2 zeroes. Thus, A is true.",
       "Reason (R): The degree of a polynomial is the highest power of the variable, and it determines the maximum number of zeroes the polynomial can have. Thus, R is true.",
-      "Reason (R) correctly explains why a quadratic polynomial (degree 2) can have at most 2 zeroes, as the degree dictates this maximum.",
+      "Reason (R) correctly explains why a quadratic polynomial (degree 2) can have at most 2 zeroes, as the degree dictates this maximum. Answer: (A)",
     ],
   }  ,
   {

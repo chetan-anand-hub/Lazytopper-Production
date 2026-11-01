@@ -22,7 +22,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A straight current-carrying conductor produces a magnetic field around it.",
       "The field lines form concentric circles centered on the wire.",
-      "This pattern can be verified using the right-hand thumb rule."
+      "This pattern can be verified using the right-hand thumb rule. Answer: (B)"
     ],
     "finalAnswer": "Concentric circles",
     "explanation": "A straight current-carrying conductor produces a magnetic field around it. The field lines form concentric circles centered on the wire. This pattern can be verified using the right-hand thumb rule. Therefore, the correct answer is Concentric circles.",
@@ -52,7 +52,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Magnetic field lines originate from north pole and end at south pole (outside the magnet).",
       "Inside the magnet, they travel from south to north.",
-      "Other options are correct characteristics of field lines."
+      "Other options are correct characteristics of field lines. Answer: (C)"
     ],
     "finalAnswer": "They originate from south pole and end at north pole",
     "explanation": "Magnetic field lines originate from north pole and end at south pole (outside the magnet). Inside the magnet, they travel from south to north. Other options are correct characteristics of field lines. Therefore, the correct answer is They originate from south pole and end at north pole.",
@@ -82,7 +82,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Force on current-carrying wire: F = BIL sin θ",
       "Force is maximum when sin θ = 1, i.e., θ = 90°",
-      "This means wire must be perpendicular to magnetic field."
+      "This means wire must be perpendicular to magnetic field. Answer: (B)"
     ],
     "finalAnswer": "Wire is perpendicular to field",
     "explanation": "Force on current-carrying wire: F = BIL sin θ. Force is maximum when sin θ = 1, i.e., θ = 90°. This means wire must be perpendicular to magnetic field. Therefore, the correct answer is Wire is perpendicular to field.",
@@ -112,7 +112,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current)",
       "It determines the direction of force when current flows through a conductor in a magnetic field.",
-      "It does not give the direction of the magnetic field itself; that is found with a compass or the right-hand thumb rule."
+      "It does not give the direction of the magnetic field itself; that is found with a compass or the right-hand thumb rule. Answer: (C)"
     ],
     "finalAnswer": "Direction of force on current-carrying conductor",
     "explanation": "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current). It determines the direction of force when current flows through a conductor in a magnetic field. It does not give the direction of the magnetic field itself; that is found with a compass or the right-hand thumb rule. Therefore, the correct answer is Direction of force on current-carrying conductor.",
@@ -173,7 +173,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Strength of electromagnet depends on: number of turns, current, and core material.",
       "Higher current → stronger magnetic field",
       "More turns → stronger field",
-      "Soft iron core → stronger field than air/wood"
+      "Soft iron core → stronger field than air/wood Answer: (B)"
     ],
     "finalAnswer": "Increasing the current through the coil",
     "explanation": "Strength of electromagnet depends on: number of turns, current, and core material. Higher current → stronger magnetic field. More turns → stronger field. Soft iron core → stronger field than air/wood. Therefore, the correct answer is Increasing the current through the coil.",
@@ -196,7 +196,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "options": ["Steel", "Soft iron", "Copper", "Aluminium"],
     "answer": "Soft iron",
     "solutionSteps": [
-      "[1 mark] Soft iron — soft iron is magnetised strongly when current flows and loses its magnetism when current is switched off."
+      "[1 mark] Soft iron — soft iron is magnetised strongly when current flows and loses its magnetism when current is switched off. Answer: (B)"
     ],
     "finalAnswer": "Soft iron",
     "isCompetencyBased": true,
@@ -660,7 +660,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Assertion is true: soft iron is used as the core of electromagnets instead of steel.",
-      "Reason is true: steel has high retentivity (retains magnetism), soft iron has low retentivity — an electromagnet must lose its magnetism as soon as the current is switched off, which soft iron does and steel does not. So R correctly explains A."
+      "Reason is true: steel has high retentivity (retains magnetism), soft iron has low retentivity — an electromagnet must lose its magnetism as soon as the current is switched off, which soft iron does and steel does not. So R correctly explains A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both statements are true. An electromagnet must be magnetised only while current flows; because steel has higher retentivity, it stays magnetised after the current is switched off, whereas soft iron loses its magnetism. This is exactly why soft iron is preferred, so R is the correct explanation of A.",
@@ -747,7 +747,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Magnetic field strength is directly proportional to current",
       "Higher current → stronger magnetic field",
-      "Lower current → weaker magnetic field"
+      "Lower current → weaker magnetic field Answer: (B)"
     ],
     "finalAnswer": "Field strength increases",
     "explanation": "Magnetic field strength is directly proportional to current. Higher current → stronger magnetic field. Lower current → weaker magnetic field. Therefore, the correct answer is Field strength increases.",
@@ -777,7 +777,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "An electromagnet uses electric current to generate a magnetic field",
       "When current flows through a coil, it acts as a magnet",
-      "The field disappears when current is switched off"
+      "The field disappears when current is switched off Answer: (B)"
     ],
     "finalAnswer": "Electric current flowing through a coil",
     "explanation": "An electromagnet uses electric current to generate a magnetic field. When current flows through a coil, it acts as a magnet. The field disappears when current is switched off. Therefore, the correct answer is Electric current flowing through a coil.",
@@ -807,7 +807,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "More coils → stronger field",
       "Larger current → stronger field",
-      "Iron core increases permeability → stronger field"
+      "Iron core increases permeability → stronger field Answer: (C)"
     ],
     "finalAnswer": "Increasing the current and using an iron core",
     "explanation": "More coils → stronger field. Larger current → stronger field. Iron core increases permeability → stronger field. Therefore, the correct answer is Increasing the current and using an iron core.",
@@ -837,7 +837,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current",
       "Used to find the direction of force (and hence motion) on a current-carrying conductor placed in a magnetic field",
-      "It gives only the direction of the force, not the strength of the magnetic field"
+      "It gives only the direction of the force, not the strength of the magnetic field Answer: (B)"
     ],
     "finalAnswer": "Direction of force on a current-carrying conductor in a magnetic field",
     "explanation": "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current. It is used to find the direction of force (and hence motion) on a current-carrying conductor placed in a magnetic field. It gives only the direction of the force, not the strength of the magnetic field. Therefore, the correct answer is Direction of force on a current-carrying conductor in a magnetic field.",
@@ -1096,7 +1096,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "DC (Direct Current): Flows in one direction, from battery",
       "AC (Alternating Current): Changes direction periodically",
-      "AC frequency is typically 50 Hz or 60 Hz"
+      "AC frequency is typically 50 Hz or 60 Hz Answer: (B)"
     ],
     "finalAnswer": "AC changes direction periodically while DC flows in one direction",
     "explanation": "DC (Direct Current): Flows in one direction, from battery. AC (Alternating Current): Changes direction periodically. AC frequency is typically 50 Hz or 60 Hz. Therefore, the correct answer is AC changes direction periodically while DC flows in one direction.",
@@ -1297,7 +1297,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Force F = BIL sin(θ) where θ is angle between conductor and field",
       "Force is maximum when sin(θ) = 1, i.e., θ = 90°",
-      "This means conductor is perpendicular to the field"
+      "This means conductor is perpendicular to the field Answer: (B)"
     ],
     "finalAnswer": "Perpendicular to the magnetic field",
     "explanation": "Force F = BIL sin(θ) where θ is angle between conductor and field. Force is maximum when sin(θ) = 1, i.e., θ = 90°. This means conductor is perpendicular to the field. Therefore, the correct answer is Perpendicular to the magnetic field.",
@@ -1352,7 +1352,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Assertion is true: a cell gives direct current, which does not change its direction with time.",
-      "Reason is true and explains A: the cell's polarity is fixed (one terminal always positive, the other always negative), so the current in the external circuit always flows in the same direction."
+      "Reason is true and explains A: the cell's polarity is fixed (one terminal always positive, the other always negative), so the current in the external circuit always flows in the same direction. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both statements are true. Because a cell's terminals never swap polarity, the current it drives in a circuit always flows in the same direction (direct current). So R is the correct explanation of A.",
@@ -1401,7 +1401,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "questionText": "What is an electromagnet?",
     "options": ["A permanent magnet","A coil with iron core that becomes magnetic when current flows","A magnet made of steel","A non-magnetic material"],
     "answer": "A coil with iron core that becomes magnetic when current flows",
-    "solutionSteps": ["Electromagnet: solenoid with soft iron core; magnetic when current flows, demagnetises when current stops"],
+    "solutionSteps": ["Electromagnet: solenoid with soft iron core; magnetic when current flows, demagnetises when current stops Answer: (B)"],
     "finalAnswer": "A coil with iron core that becomes magnetic when current flows",
     "explanation": "Electromagnet = solenoid with iron core; magnetic when current flows.",
     "isCompetencyBased": false,
@@ -1443,7 +1443,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): A current-carrying conductor in a magnetic field experiences a force.\nReason (R): The interaction between the conductor's magnetic field and the external field causes a force.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — current in magnetic field experiences force (Fleming's left-hand rule)","R: true — field interaction causes force","R explains A"],
+    "solutionSteps": ["A: true — current in magnetic field experiences force (Fleming's left-hand rule)","R: true — field interaction causes force","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Field interaction (R) causes force on the current-carrying conductor (A).",
     "isCompetencyBased": true,
@@ -1464,7 +1464,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "questionText": "Fuses and circuit breakers in household circuits protect against:",
     "options": ["Electric shock on touching a live wire", "Decreased voltage", "Overloading and short circuits", "Improved power factor"],
     "answer": "Overloading and short circuits",
-    "solutionSteps": ["Fuses and MCBs break the circuit when current exceeds safe limit, preventing fire and damage"],
+    "solutionSteps": ["Fuses and MCBs break the circuit when current exceeds safe limit, preventing fire and damage Answer: (C)"],
     "finalAnswer": "Overloading and short circuits",
     "explanation": "Fuse/MCB protect against overload and short circuit.",
     "isCompetencyBased": false,

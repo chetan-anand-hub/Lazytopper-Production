@@ -12,7 +12,7 @@ export const ARITHMETIC_PROGRESSION_PYQ_2025: CanonicalQuestion[] = [
     questionText: "Assertion (A): Common difference of the AP 5, 1, −3, −7, … is 4.\nReason (R): Common difference of the AP a₁, a₂, a₃, …, aₙ is obtained by d = aₙ − aₙ₋₁.",
     options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
     answer: "Assertion (A) is false but Reason (R) is true.",
-    solutionSteps: ["[1 mark] d = 1 − 5 = −4 (not 4), so A is false; R is the correct definition d = aₙ − aₙ₋₁, so R is true. Option (d)."],
+    solutionSteps: ["[1 mark] d = 1 − 5 = −4 (not 4), so A is false; R is the correct definition d = aₙ − aₙ₋₁, so R is true. Option (d). Answer: (D)"],
     finalAnswer: "(d) Assertion (A) is false, but Reason (R) is true.",
     ncertRef: "PYQ 30/2/1 Q19", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1",

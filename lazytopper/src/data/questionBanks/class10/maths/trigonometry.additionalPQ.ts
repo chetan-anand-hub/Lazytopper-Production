@@ -20,7 +20,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "In the figure, PQRS is a square. What is the value of sin ∠SPT?",
     options: ["8/17", "8/15", "15/17", "(cannot be found with the given information)"],
     answer: "8/17",
-    solutionSteps: ["[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT + ∠UPQ = 90°; in right △PUQ, ∠PQU + ∠UPQ = 90°. So ∠SPT = ∠PQU, and sin ∠SPT = sin ∠PQU = PU/PQ = 8/17."],
+    solutionSteps: ["[1 mark] From the figure, ∠PUQ = 90°, PU = 8 cm, UQ = 15 cm, PQ = 17 cm. Since ∠SPQ = 90°, ∠SPT + ∠UPQ = 90°; in right △PUQ, ∠PQU + ∠UPQ = 90°. So ∠SPT = ∠PQU, and sin ∠SPT = sin ∠PQU = PU/PQ = 8/17. Answer: (A)"],
     finalAnswer: "(a) 8/17",
     ncertRef: "APQ PQ1 Q11", isCompetencyBased: true,
     sourceOverride: "others", },
@@ -40,7 +40,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "If 4 cot θ − 5 = 0, then the value of (5 sin θ − 4 cos θ) / (5 sin θ + 4 cos θ) is",
     options: ["5/3", "5/6", "0", "1/6"],
     answer: "0",
-    solutionSteps: ["cot θ = 5/4 ⟹ cos θ / sin θ = 5/4 ⟹ 4 cos θ = 5 sin θ.", "Numerator: 5 sin θ − 4 cos θ = 5 sin θ − 5 sin θ = 0. Whole expression = 0."],
+    solutionSteps: ["cot θ = 5/4 ⟹ cos θ / sin θ = 5/4 ⟹ 4 cos θ = 5 sin θ.", "Numerator: 5 sin θ − 4 cos θ = 5 sin θ − 5 sin θ = 0. Whole expression = 0. Answer: (C)"],
     finalAnswer: "(c) 0",
     ncertRef: "APQ PQ2 Q10", isCompetencyBased: true },
 
@@ -54,7 +54,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
       "(A) is false but (R) is true."
     ],
     answer: "(A) is false but (R) is true.",
-    solutionSteps: ["1/sec θ + 1/cosec θ = cos θ + sin θ. Max value of (cos θ + sin θ) = √2 (not 1). So A is FALSE.", "Max value of sin θ and cos θ individually is 1 — R is TRUE."],
+    solutionSteps: ["1/sec θ + 1/cosec θ = cos θ + sin θ. Max value of (cos θ + sin θ) = √2 (not 1). So A is FALSE.", "Max value of sin θ and cos θ individually is 1 — R is TRUE. Answer: (D)"],
     finalAnswer: "(d) (A) is false but (R) is true.",
     ncertRef: "APQ PQ2 Q19", isCompetencyBased: true },
 
@@ -118,7 +118,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "The sine of an angle in a right triangle is 4/5. Which of these could be the measures of the sides of the triangle?",
     options: ["4 cm, 5 cm and 9 cm", "4 cm, 5 cm and √41 cm", "6 cm, 8 cm and 10 cm", "8 cm, 10 cm and 4√41 cm"],
     answer: "6 cm, 8 cm and 10 cm",
-    solutionSteps: ["sin θ = opp/hyp = 4/5 ⟹ opp:hyp = 4:5, so triangle is in ratio 3:4:5 (Pythagorean triple).", "Scaled by 2: 6:8:10 cm. Check: 6^2 + 8^2 = 36 + 64 = 100 = 10^2 ✓ and 8/10 = 4/5 ✓."],
+    solutionSteps: ["sin θ = opp/hyp = 4/5 ⟹ opp:hyp = 4:5, so triangle is in ratio 3:4:5 (Pythagorean triple).", "Scaled by 2: 6:8:10 cm. Check: 6^2 + 8^2 = 36 + 64 = 100 = 10^2 ✓ and 8/10 = 4/5 ✓. Answer: (C)"],
     finalAnswer: "(c) 6 cm, 8 cm and 10 cm",
     ncertRef: "APQ PQ_2022 Q11", isCompetencyBased: true },
 
@@ -127,7 +127,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "Which of the following is equal to the expression shown in the given figure?",
     options: ["sec θ", "cosec θ", "(cot^2 θ)(sec θ)", "(cot^2 θ)(cosec θ)"],
     answer: "sec θ",
-    solutionSteps: ["(cot θ · sec² θ)/cosec θ = (cos θ/sin θ) × (1/cos² θ) × sin θ = 1/cos θ = sec θ. So option (a) sec θ."],
+    solutionSteps: ["(cot θ · sec² θ)/cosec θ = (cos θ/sin θ) × (1/cos² θ) × sin θ = 1/cos θ = sec θ. So option (a) sec θ. Answer: (A)"],
     finalAnswer: "(a) sec θ",
     ncertRef: "APQ PQ_2022 Q16", isCompetencyBased: true,
     sourceOverride: "others", },

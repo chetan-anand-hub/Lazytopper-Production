@@ -23,7 +23,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "For hemisphere: curved surface = 2πr²",
       "For cylinder: lateral surface = 2πrh",
       "For cylinder base (only bottom): πr²",
-      "Total = 2πr² + 2πrh + πr² = 2πrh + 3πr²"
+      "Total = 2πr² + 2πrh + πr² = 2πrh + 3πr² Answer: (B)"
     ],
     "finalAnswer": "2πrh + 3πr²",
     "explanation": "For hemisphere: curved surface = 2πr². For cylinder: lateral surface = 2πrh. For cylinder base (only bottom): πr². Total = 2πr² + 2πrh + πr² = 2πrh + 3πr². Therefore, the correct answer is 2πrh + 3πr².",
@@ -52,7 +52,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Volume of hemisphere = (2/3)πr³ = (2/3)π(3)³ = 18π cm³",
       "Volume of cone = (1/3)πr²h = (1/3)π(3)²(4) = 12π cm³",
-      "Total volume = 18π + 12π = 30π cm³"
+      "Total volume = 18π + 12π = 30π cm³ Answer: (A)"
     ],
     "finalAnswer": "30π cm³",
     "explanation": "Volume of hemisphere = (2/3)πr³ = (2/3)π(3)³ = 18π cm³. Volume of cone = (1/3)πr²h = (1/3)π(3)²(4) = 12π cm³. Total volume = 18π + 12π = 30π cm³. Therefore, the correct answer is 30π cm³.",
@@ -82,7 +82,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Volume of cylinder = πr²h₁",
       "Volume of cone = (1/3)πr²h₂",
-      "Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3)"
+      "Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3) Answer: (A)"
     ],
     "finalAnswer": "πr²(h₁ + h₂/3)",
     "explanation": "Volume of cylinder = πr²h₁. Volume of cone = (1/3)πr²h₂. Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3). Therefore, the correct answer is πr²(h₁ + h₂/3).",
@@ -165,7 +165,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "TSA = Lateral cylinder + Base of cylinder + Curved cone surface",
       "= 2πrh + πr² + πrl, not 2πrh + 2πr² + πrl, so A is false",
-      "The junction area (top of cylinder / base of cone) is hidden, hence excluded, so R is true"
+      "The junction area (top of cylinder / base of cone) is hidden, hence excluded, so R is true Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The top of the cylinder is covered by the cone's base, so TSA = 2πrh + πr² + πrl; the Assertion's 2πr² wrongly counts the hidden top, so A is false. The Reason (the joining area is excluded) is true. Hence A is false, R is true.",
@@ -219,7 +219,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Volume of hemisphere = (2/3)πr³ = (2/3)π(7)³ = 686π/3 cm³",
       "Volume of cylinder = πr²h = π(7)²(10) = 490π cm³",
-      "Total = 686π/3 + 490π = (686π + 1470π)/3 = 2156π/3 ≈ 718.67π cm³"
+      "Total = 686π/3 + 490π = (686π + 1470π)/3 = 2156π/3 ≈ 718.67π cm³ Answer: (A)"
     ],
     "finalAnswer": "2156π/3 cm³",
     "explanation": "Volume of hemisphere = (2/3)πr³ = (2/3)π(7)³ = 686π/3 cm³. Volume of cylinder = πr²h = π(7)²(10) = 490π cm³. Total = 686π/3 + 490π = (686π + 1470π)/3 = 2156π/3 ≈ 718.67π cm³. Therefore, the correct answer is 2156π/3 cm³.",
@@ -249,7 +249,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Curved surface area of cylinder = 2πrh",
       "Curved surface area of hemisphere = 2πr²",
-      "Total curved surface area = 2πrh + 2πr²"
+      "Total curved surface area = 2πrh + 2πr² Answer: (B)"
     ],
     "finalAnswer": "2πrh + 2πr²",
     "explanation": "Curved surface area of cylinder = 2πrh. Curved surface area of hemisphere = 2πr². Total curved surface area = 2πrh + 2πr². Therefore, the correct answer is 2πrh + 2πr².",
@@ -279,7 +279,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Top of cylinder is hidden by cone base",
       "So only base of cylinder is counted",
-      "Curved surfaces of cylinder and cone are included"
+      "Curved surfaces of cylinder and cone are included Answer: (C)"
     ],
     "finalAnswer": "Base of cylinder and curved surfaces of both",
     "explanation": "Top of cylinder is hidden by cone base. So only base of cylinder is counted. Curved surfaces of cylinder and cone are included. Therefore, the correct answer is Base of cylinder and curved surfaces of both.",
@@ -360,7 +360,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Combined solid is a cylinder with r = 5 cm, h = 16 cm",
       "CSA = 2πrh = 2π(5)(16) = 160π cm²",
       "Two exposed circular bases = 2πr² = 2π(25) = 50π cm²",
-      "Total SA = 160π + 50π = 210π cm²"
+      "Total SA = 160π + 50π = 210π cm² Answer: (A)"
     ],
     "finalAnswer": "210π cm²",
     "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
@@ -392,7 +392,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "This junction becomes internal and not part of surface",
       "Only the external surfaces are counted",
       "Cylinder's base is exposed, so it's included",
-      "Both A and R are correct, and R explains why A is true"
+      "Both A and R are correct, and R explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
@@ -475,7 +475,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Surface area of cube = 6a² = 6(10)² = 600 cm²",
       "The hemisphere's base covers only a circle of radius 5 cm on the face: subtract πr² = 25π cm²",
       "Curved surface area of hemisphere = 2πr² = 2π(5)² = 50π cm²",
-      "Total = 600 − 25π + 50π = 600 + 25π cm²"
+      "Total = 600 − 25π + 50π = 600 + 25π cm² Answer: (B)"
     ],
     "finalAnswer": "600 + 25π cm²",
     "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
@@ -598,7 +598,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): A cone and a cylinder of same base radius and height have a volume ratio of 1:3.\nReason (R): Volume of cone = (1/3)πr²h and Volume of cylinder = πr²h.",
     "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["Ratio = (1/3)πr²h : πr²h = 1:3 ✓"],
+    "solutionSteps": ["Ratio = (1/3)πr²h : πr²h = 1:3 ✓ Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -713,7 +713,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "questionText": "The total surface area of a solid hemisphere of radius r is:",
     "options": ["2πr²", "3πr²", "4πr²", "πr²"],
     "answer": "3πr²",
-    "solutionSteps": ["TSA of hemisphere = CSA + base = 2πr² + πr² = 3πr²"],
+    "solutionSteps": ["TSA of hemisphere = CSA + base = 2πr² + πr² = 3πr² Answer: (B)"],
     "finalAnswer": "3πr²",
     "explanation": "TSA of hemisphere = CSA + base = 2πr² + πr² = 3πr². Therefore, the correct answer is 3πr².",
     "isCompetencyBased": false,
@@ -797,7 +797,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   },
   { id: "SAV2-R16", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The total surface area of a cube with side a is:", options: ["6a²","4a²","2a²","a³"], answer: "6a²", explanation: "The correct answer is 6a². A cube has 6 faces, each of area a². Total SA = 6a².", finalAnswer: "6a²", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] A cube has 6 congruent square faces, each of area a², so TSA = 6a² (4a² is its lateral surface area and a³ is its volume).",
+      "[1 mark] A cube has 6 congruent square faces, each of area a², so TSA = 6a² (4a² is its lateral surface area and a³ is its volume). Answer: (A)",
     ],
   },
   { id: "SAV2-R17", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Volume", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A sphere of radius r is melted and recast into a cylinder of radius r. The height of the cylinder is:", options: ["4r/3","2r/3","r","4r"], answer: "4r/3", explanation: "The correct answer is 4r/3. Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", finalAnswer: "Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", isCompetencyBased: false,
@@ -809,12 +809,12 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   },
   { id: "SAV2-R18", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Curved Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The curved surface area of a hemisphere of radius r is:", options: ["2πr²","4πr²","πr²","3πr²"], answer: "2πr²", explanation: "The correct answer is 2πr². CSA of hemisphere = 2πr².", finalAnswer: "CSA of hemisphere = 2πr².", isCompetencyBased: false,
     solutionSteps: [
-      "A hemisphere is half of a sphere, whose surface area is 4πr², so its curved surface area is 2πr². [1]",
+      "A hemisphere is half of a sphere, whose surface area is 4πr², so its curved surface area is 2πr². [1] Answer: (A)",
     ],
   },
   { id: "SAV2-R19", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): When a cone is placed on a cylinder with the same base radius, the CSA of the solid is πrl + 2πrh.\nReason (R): The total curved surface area is obtained by adding the lateral surface areas of the individual solids.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "CSA of combined solid = CSA of cone + CSA of cylinder = πrl + 2πrh. R explains the additive method used in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] The exposed curved surfaces of the combined solid are the cone's curved surface (πrl) and the cylinder's curved surface (2πrh), so the solid's CSA = πrl + 2πrh. A is true, and it is obtained precisely by adding the lateral (curved) surface areas of the individual solids as R states, so R correctly explains A.",
+      "[1 mark] The exposed curved surfaces of the combined solid are the cone's curved surface (πrl) and the cylinder's curved surface (2πrh), so the solid's CSA = πrl + 2πrh. A is true, and it is obtained precisely by adding the lateral (curved) surface areas of the individual solids as R states, so R correctly explains A. Answer: (A)",
     ],
   }
 ];

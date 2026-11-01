@@ -3,42 +3,42 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
   { id: "CC-E01", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The functional unit of the nervous system is:", options: ["Nephron", "Neuron", "Alveoli", "Sarcomere"], answer: "Neuron", explanation: "The correct answer is Neuron. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Neuron" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Neuron. The neuron (nerve cell) is the structural and functional unit of the nervous system; it receives information through dendrites and carries it as an electrical impulse along the axon.",
+      "Correct answer: Neuron. The neuron (nerve cell) is the structural and functional unit of the nervous system; it receives information through dendrites and carries it as an electrical impulse along the axon. Answer: (B)",
     ],
   },
   { id: "CC-E02", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which part of the brain controls involuntary actions like breathing and heartbeat?", options: ["Cerebrum", "Cerebellum", "Medulla oblongata", "Hypothalamus"], answer: "Medulla oblongata", explanation: "The correct answer is Medulla oblongata. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Medulla oblongata" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Medulla oblongata. The medulla in the hind-brain controls involuntary actions such as blood pressure, breathing (respiration), heartbeat, salivation and vomiting.",
+      "Correct answer: Medulla oblongata. The medulla in the hind-brain controls involuntary actions such as blood pressure, breathing (respiration), heartbeat, salivation and vomiting. Answer: (C)",
     ],
   },
   { id: "CC-E03", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A reflex action is controlled by the:", options: ["Brain", "Spinal cord", "Muscles", "Sense organs"], answer: "Spinal cord", explanation: "The correct answer is Spinal cord. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Spinal cord" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Spinal cord. In a reflex arc, the sensory nerve carries the impulse to the spinal cord, where it connects directly to a motor nerve, so the spinal cord controls the reflex action without waiting for the brain to think.",
+      "Correct answer: Spinal cord. In a reflex arc, the sensory nerve carries the impulse to the spinal cord, where it connects directly to a motor nerve, so the spinal cord controls the reflex action without waiting for the brain to think. Answer: (B)",
     ],
   },
   { id: "CC-E04", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The hormone insulin is secreted by:", options: ["Thyroid gland", "Pituitary gland", "Pancreas", "Adrenal gland"], answer: "Pancreas", explanation: "The correct answer is Pancreas. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Pancreas" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Pancreas. Insulin is secreted by the pancreas (by the islets of Langerhans) and helps regulate the blood sugar level.",
+      "Correct answer: Pancreas. Insulin is secreted by the pancreas (by the islets of Langerhans) and helps regulate the blood sugar level. Answer: (C)",
     ],
   },
   { id: "CC-E05", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which plant hormone promotes cell elongation?", options: ["Auxin", "Cytokinin", "Abscisic acid", "Ethylene"], answer: "Auxin", explanation: "The correct answer is Auxin. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Auxin" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Auxin. Auxin is synthesised at the shoot tip and helps cells grow longer (cell elongation), which is why it causes bending of the shoot towards light.",
+      "Correct answer: Auxin. Auxin is synthesised at the shoot tip and helps cells grow longer (cell elongation), which is why it causes bending of the shoot towards light. Answer: (A)",
     ],
   },
   { id: "CC-E06", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Nerve impulses travel in one direction only.\nReason (R): Synapse ensures unidirectional transmission of impulse.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, and R is the correct explanation of A. A is true: a nerve impulse travels only from dendrite to cell body to axon end. R is true: at a synapse the chemical (neurotransmitter) is released only from the axon end of one neuron and received by the dendrite of the next, so the synapse makes transmission one-way, which explains A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: a nerve impulse travels only from dendrite to cell body to axon end. R is true: at a synapse the chemical (neurotransmitter) is released only from the axon end of one neuron and received by the dendrite of the next, so the synapse makes transmission one-way, which explains A. Answer: (A)",
     ],
   },
   { id: "CC-E07", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Iodine deficiency leads to:", options: ["Diabetes", "Goitre", "Dwarfism", "Acromegaly"], answer: "Goitre", explanation: "The correct answer is Goitre. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Goitre" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Goitre. Iodine is needed by the thyroid gland to make thyroxine; when iodine is deficient, thyroxine is not made properly and the thyroid gland swells, causing goitre (a swollen neck).",
+      "Correct answer: Goitre. Iodine is needed by the thyroid gland to make thyroxine; when iodine is deficient, thyroxine is not made properly and the thyroid gland swells, causing goitre (a swollen neck). Answer: (B)",
     ],
   },
   { id: "CC-E08", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Movement of a plant towards light is called:", options: ["Geotropism", "Phototropism", "Hydrotropism", "Chemotropism"], answer: "Phototropism", explanation: "The correct answer is Phototropism. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Phototropism" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Phototropism. A directional growth movement of a plant part in response to the stimulus of light is called phototropism; shoots bend towards light (positively phototropic).",
+      "Correct answer: Phototropism. A directional growth movement of a plant part in response to the stimulus of light is called phototropism; shoots bend towards light (positively phototropic). Answer: (B)",
     ],
   },
   { id: "CC-E09", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Name the three types of neurons and state the function of each.", solutionSteps: [
@@ -48,20 +48,20 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Sensory (receptor→CNS), motor (CNS→effector), relay (connects them)" , isCompetencyBased: false },
   { id: "CC-E10", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 'master gland' of the endocrine system is:", options: ["Thyroid", "Pituitary", "Adrenal", "Pancreas"], answer: "Pituitary", explanation: "The correct answer is Pituitary. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Pituitary" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Pituitary. The pituitary gland is called the master gland because, besides secreting hormones such as growth hormone, it regulates the secretion of several other endocrine glands.",
+      "Correct answer: Pituitary. The pituitary gland is called the master gland because, besides secreting hormones such as growth hormone, it regulates the secretion of several other endocrine glands. Answer: (B)",
     ],
   },
   { id: "CC-E11", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Abscisic acid inhibits growth.\nReason (R): Abscisic acid promotes cell division in plants.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "A is true, R is false.", explanation: "A is true: abscisic acid is a growth-inhibiting plant hormone (its effects include wilting of leaves). R is false: cell division is promoted by cytokinins, not abscisic acid. Hence A is true, R is false.", finalAnswer: "A is true, R is false.", isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): Abscisic acid is a plant hormone that inhibits growth — true (NCERT).",
       "Reason (R): Cell division is promoted by cytokinins; abscisic acid inhibits growth, it does not promote cell division — false.",
-      "Hence A is true but R is false."
+      "Hence A is true but R is false. Answer: (C)"
     ],
     sourceOverride: "others",
   },
   { id: "CC-E12", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The gap between two neurons is called:", options: ["Dendrite", "Axon", "Synapse", "Myelin sheath"], answer: "Synapse", explanation: "The correct answer is Synapse. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Synapse" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Synapse. The small gap between the axon ending of one neuron and the dendrite of the next neuron, across which a chemical carries the impulse, is called a synapse.",
+      "Correct answer: Synapse. The small gap between the axon ending of one neuron and the dendrite of the next neuron, across which a chemical carries the impulse, is called a synapse. Answer: (C)",
     ],
   },
   { id: "CC-E13", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is the function of adrenaline in the human body?", solutionSteps: [
@@ -71,12 +71,12 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Prepares body for emergency; increases heart rate and alertness" , isCompetencyBased: false },
   { id: "CC-E14", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which part of the brain is responsible for maintaining balance and posture?", options: ["Cerebrum", "Cerebellum", "Medulla", "Pons"], answer: "Cerebellum", explanation: "The correct answer is Cerebellum. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Cerebellum" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Cerebellum. The cerebellum in the hind-brain is responsible for precision of voluntary actions and for maintaining the posture and balance of the body.",
+      "Correct answer: Cerebellum. The cerebellum in the hind-brain is responsible for precision of voluntary actions and for maintaining the posture and balance of the body. Answer: (B)",
     ],
   },
   { id: "CC-E15", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Testosterone is produced by:", options: ["Ovaries", "Testes", "Adrenal gland", "Thyroid gland"], answer: "Testes", explanation: "The correct answer is Testes. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Testes" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Testes. Testosterone, the male sex hormone that brings about the changes of puberty in boys, is secreted by the testes.",
+      "Correct answer: Testes. Testosterone, the male sex hormone that brings about the changes of puberty in boys, is secreted by the testes. Answer: (B)",
     ],
   },
   { id: "CC-M01", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Draw a labelled diagram of a neuron and explain how a nerve impulse travels through it.", solutionSteps: [
@@ -96,7 +96,7 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Speed, duration, precision, and transmission medium differ" , isCompetencyBased: true },
   { id: "CC-M04", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Brain is protected by cerebrospinal fluid.\nReason (R): CSF acts as a shock absorber and provides nutrients.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, and R is the correct explanation of A. A is true: the brain sits inside a fluid-filled balloon (cerebrospinal fluid) within the bony skull. R is true: this fluid acts as a shock absorber and also supplies nutrients, and it is this cushioning that protects the brain, so R explains A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: the brain sits inside a fluid-filled balloon (cerebrospinal fluid) within the bony skull. R is true: this fluid acts as a shock absorber and also supplies nutrients, and it is this cushioning that protects the brain, so R explains A. Answer: (A)",
     ],
   },
   { id: "CC-M05", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Ramesh noticed that his younger brother was growing very slowly and appeared mentally dull. The doctor diagnosed a thyroid disorder.\n(i) Which hormone is deficient?\n(ii) Name the gland that secretes it.\n(iii) What mineral is essential for its production?\n(iv) What condition results from this deficiency in children?", solutionSteps: [
@@ -116,12 +116,12 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Receptor→Sensory→Relay (spinal cord)→Motor→Effector" , visualExplainerId: "science-control-coordination-reflex-arc", isCompetencyBased: false },
   { id: "CC-M08", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Which hormone regulates the metabolism of carbohydrates, fats, and proteins?", options: ["Insulin", "Thyroxine", "Growth hormone", "Adrenaline"], answer: "Thyroxine", explanation: "The correct answer is Thyroxine. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Thyroxine" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Thyroxine. Thyroxine, secreted by the thyroid gland (which needs iodine to make it), regulates carbohydrate, protein and fat metabolism in the body.",
+      "Correct answer: Thyroxine. Thyroxine, secreted by the thyroid gland (which needs iodine to make it), regulates carbohydrate, protein and fat metabolism in the body. Answer: (B)",
     ],
   },
   { id: "CC-M09", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Ethylene is a plant hormone that:", options: ["Promotes cell division", "Inhibits growth", "Promotes fruit ripening", "Promotes root growth"], answer: "Promotes fruit ripening", explanation: "The correct answer is Promotes fruit ripening. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Promotes fruit ripening" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Promotes fruit ripening. Ethylene is a gaseous plant hormone that promotes the ripening of fruits; it is used commercially to ripen fruits.",
+      "Correct answer: Promotes fruit ripening. Ethylene is a gaseous plant hormone that promotes the ripening of fruits; it is used commercially to ripen fruits. Answer: (C)",
     ],
   },
   { id: "CC-M10", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "While cooking, Meera accidentally touched a hot pan and immediately withdrew her hand.\n(i) What is this type of response called?\n(ii) Which part of the CNS is involved?\n(iii) Why is this response faster than a voluntary action?\n(iv) Name the effector in this action.", solutionSteps: [
@@ -136,7 +136,7 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Secretes many hormones; controls other endocrine glands" , isCompetencyBased: false },
   { id: "CC-M12", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Damage to the cerebellum would most likely affect a person's ability to:", options: ["See clearly", "Think logically", "Walk steadily", "Feel pain"], answer: "Walk steadily", explanation: "The correct answer is Walk steadily. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Walk steadily" , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: Walk steadily. The cerebellum maintains posture and balance and gives precision to voluntary movements, so damage to it would most likely affect the ability to walk steadily (for example, walking in a straight line).",
+      "Correct answer: Walk steadily. The cerebellum maintains posture and balance and gives precision to voluntary movements, so damage to it would most likely affect the ability to walk steadily (for example, walking in a straight line). Answer: (C)",
     ],
   },
   { id: "CC-M13", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "What is thigmotropism? Give one example.", solutionSteps: [
@@ -145,12 +145,12 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Growth response to touch; e.g., tendril coiling around support" , isCompetencyBased: false },
   { id: "CC-M14", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Diabetes is caused by deficiency of insulin.\nReason (R): Insulin is produced by beta cells of the islets of Langerhans in the pancreas.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, but R is not the correct explanation of A.", explanation: "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.", finalAnswer: "Both A and R are true, but R is not the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, but R is not the correct explanation of A. A is true: diabetes results when the pancreas does not secrete enough insulin, so the blood sugar level rises. R is true: insulin is made by the beta cells of the islets of Langerhans in the pancreas. However, R only states where insulin is made; it does not explain why its deficiency causes diabetes (insulin lowers blood sugar), so R does not explain A.",
+      "Both A and R are true, but R is not the correct explanation of A. A is true: diabetes results when the pancreas does not secrete enough insulin, so the blood sugar level rises. R is true: insulin is made by the beta cells of the islets of Langerhans in the pancreas. However, R only states where insulin is made; it does not explain why its deficiency causes diabetes (insulin lowers blood sugar), so R does not explain A. Answer: (B)",
     ],
   },
   { id: "CC-M15", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "The protective membranes covering the brain are called:", options: ["Myelin sheath", "Meninges", "Periosteum", "Dura mater only"], answer: "Meninges", explanation: "The correct answer is Meninges. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Meninges" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Meninges. The brain (and spinal cord) is covered by three protective membranes called the meninges, which lie between the skull and the brain along with the cerebrospinal fluid.",
+      "Correct answer: Meninges. The brain (and spinal cord) is covered by three protective membranes called the meninges, which lie between the skull and the brain along with the cerebrospinal fluid. Answer: (B)",
     ],
   },
   { id: "CC-H01", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Draw a labelled diagram of the human brain and describe the functions of: (i) Cerebrum (ii) Cerebellum (iii) Medulla oblongata.", solutionSteps: [
@@ -213,7 +213,7 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Five differences in medium, speed, duration, target, pathway with examples" , isCompetencyBased: true },
   { id: "CC-AR05", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Reflex actions are controlled by the spinal cord, not the brain.\nReason (R): Reflex arcs provide a faster response pathway by bypassing the brain.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, and R is the correct explanation of A. A is true: reflex arcs (for example, pulling the hand away from a flame) are formed in the spinal cord, where sensory and motor nerves meet, without the thinking part of the brain being involved. R is true: because the thinking process of the brain is not fast enough, the reflex arc in the spinal cord gives a quicker response, which explains A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: reflex arcs (for example, pulling the hand away from a flame) are formed in the spinal cord, where sensory and motor nerves meet, without the thinking part of the brain being involved. R is true: because the thinking process of the brain is not fast enough, the reflex arc in the spinal cord gives a quicker response, which explains A. Answer: (A)",
     ],
   },
   { id: "CC-D04", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain the role of hormones in human beings. Describe (i) insulin and glucagon in blood sugar control, (ii) thyroid hormones in metabolism, (iii) adrenaline in emergency response.", solutionSteps: [

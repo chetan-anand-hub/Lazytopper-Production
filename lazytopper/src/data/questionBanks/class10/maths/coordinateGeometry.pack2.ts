@@ -22,7 +22,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Using distance formula: d = √[(x₂-x₁)² + (y₂-y₁)²]",
       "d = √[(0-3)² + (0-4)²]",
-      "d = √[9 + 16] = √25 = 5"
+      "d = √[9 + 16] = √25 = 5 Answer: (A)"
     ],
     "finalAnswer": "5",
     "explanation": "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
@@ -54,7 +54,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "√[(5-0)² + (y-0)²] = 13",
       "25 + y² = 169",
       "y² = 144",
-      "y = ±12"
+      "y = ±12 Answer: (A)"
     ],
     "finalAnswer": "±12",
     "explanation": "Distance PQ = 13. Therefore, the correct answer is ±12.",
@@ -110,7 +110,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Midpoint M = [(x₁+x₂)/2, (y₁+y₂)/2]",
       "M = [(2+4)/2, (3+7)/2]",
-      "M = [6/2, 10/2] = (3, 5)"
+      "M = [6/2, 10/2] = (3, 5) Answer: (A)"
     ],
     "finalAnswer": "(3, 5)",
     "explanation": "The correct answer is (3, 5). This is a fundamental result that should be recalled directly from the key concepts of this topic.",
@@ -142,7 +142,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Midpoint = [(3+x)/2, (4+y)/2] = (5, 6)",
       "(3+x)/2 = 5 ⟹ x = 7",
       "(4+y)/2 = 6 ⟹ y = 8",
-      "B = (7, 8)"
+      "B = (7, 8) Answer: (A)"
     ],
     "finalAnswer": "(7, 8)",
     "explanation": "Let B = (x, y). Therefore, the correct answer is (7, 8).",
@@ -198,7 +198,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Using section formula with m = 3, n = 2",
       "x = (3·10 + 2·0)/(3+2) = 30/5 = 6",
       "y = (3·5 + 2·0)/(3+2) = 15/5 = 3",
-      "P = (6, 3)"
+      "P = (6, 3) Answer: (A)"
     ],
     "finalAnswer": "(6, 3)",
     "explanation": "Using section formula with m = 3, n = 2. x = (3·10 + 2·0)/(3+2) = 30/5 = 6. y = (3·5 + 2·0)/(3+2) = 15/5 = 3. P = (6, 3). Therefore, the correct answer is (6, 3).",
@@ -228,7 +228,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Distance = √[(3-0)² + (4-0)²] = √[9+16] = √25 = 5",
       "Both A and R are correct",
-      "R explains A perfectly"
+      "R explains A perfectly Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -258,7 +258,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Midpoint = [(1+3)/2, (1+5)/2] = (2, 3)",
       "A is true",
-      "R explains the principle correctly"
+      "R explains the principle correctly Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -419,7 +419,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Midpoint of AB = [(2+6)/2, (3+3)/2] = (4, 3); AB is horizontal, so the perpendicular bisector is x = 4",
       "Only (4, 3) among the options has x = 4",
       "Check: distance from (4,3) to A = √[(4-2)² + (3-3)²] = 2",
-      "Distance from (4,3) to B = √[(4-6)² + (3-3)²] = 2"
+      "Distance from (4,3) to B = √[(4-6)² + (3-3)²] = 2 Answer: (B)"
     ],
     "finalAnswer": "(4, 3)",
     "explanation": "A point equidistant from A(2, 3) and B(6, 3) lies on the perpendicular bisector x = 4. Only (4, 3) lies on it (PA = PB = 2). Therefore, the correct answer is (4, 3).",
@@ -448,7 +448,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "O = (0, 0), A = (8, 0), B = (0, 6)",
       "AB = √[(8-0)² + (0-6)²]",
-      "AB = √[64 + 36] = √100 = 10"
+      "AB = √[64 + 36] = √100 = 10 Answer: (A)"
     ],
     "finalAnswer": "10",
     "explanation": "O = (0, 0), A = (8, 0), B = (0, 6). Therefore, the correct answer is 10.",
@@ -504,7 +504,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Distance = √[(3-0)² + (4-0)²]",
       "= √[9 + 16]",
-      "= √25 = 5"
+      "= √25 = 5 Answer: (A)"
     ],
     "finalAnswer": "5",
     "explanation": "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
@@ -534,7 +534,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Distance of (3, 4) from origin = √(9 + 16) = 5",
       "Distance of (4, 3) from origin = √(16 + 9) = 5",
-      "Both distances are equal"
+      "Both distances are equal Answer: (B)"
     ],
     "finalAnswer": "(3, 4) and (4, 3)",
     "explanation": "Distance of (3, 4) from origin = √(9 + 16) = 5. Distance of (4, 3) from origin = √(16 + 9) = 5. Both distances are equal. Therefore, the correct answer is (3, 4) and (4, 3).",
@@ -589,7 +589,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Midpoint M = ((4+8)/2, (6+10)/2)",
       "= (12/2, 16/2)",
-      "= (6, 8)"
+      "= (6, 8) Answer: (A)"
     ],
     "finalAnswer": "(6, 8)",
     "explanation": "Midpoint M = ((4+8)/2, (6+10)/2). = (12/2, 16/2). = (6, 8). Therefore, the correct answer is (6, 8).",
@@ -644,7 +644,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Section formula for ratio m:n is ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)), with A(x₁, y₁), B(x₂, y₂)",
       "For ratio 2:1: ((2x₂+1x₁)/(2+1), (2y₂+1y₁)/(2+1))",
-      "= ((x₁+2x₂)/3, (y₁+2y₂)/3)"
+      "= ((x₁+2x₂)/3, (y₁+2y₂)/3) Answer: (B)"
     ],
     "finalAnswer": "((x₁+2x₂)/3, (y₁+2y₂)/3)",
     "explanation": "Section formula for ratio m:n is ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)). For ratio 2:1: ((2x₂+1x₁)/(2+1), (2y₂+1y₁)/(2+1)) = ((x₁+2x₂)/3, (y₁+2y₂)/3). Therefore, the correct answer is ((x₁+2x₂)/3, (y₁+2y₂)/3).",
@@ -724,7 +724,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "P = ((3×7+4×1)/(3+4), (3×10+4×4)/(3+4))",
       "= ((21+4)/7, (30+16)/7)",
       "= (25/7, 46/7) ≈ (3.57, 6.57)",
-      "Both coordinates positive, so Quadrant I"
+      "Both coordinates positive, so Quadrant I Answer: (A)"
     ],
     "finalAnswer": "I",
     "isCompetencyBased": true,
@@ -754,7 +754,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Midpoint = ((2+6)/2, (5+9)/2) = (4, 7)",
       "Assertion A is correct",
       "Reason R states the midpoint formula correctly",
-      "R explains A"
+      "R explains A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -785,7 +785,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Distance = √[(3-(-1))² + (-1-2)²] = √[16 + 9] = 5",
       "A is true",
       "The distance formula comes from a² + b² = c² for the sides of a right triangle",
-      "R is correct and explains A"
+      "R is correct and explains A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -846,7 +846,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "2a(a - 7) = 0",
       "a = 0 or a = 7",
       "Verification: for a=0, √[(3-0)²+(0-4)²] = √[9+16] = √25 = 5 ✓",
-      "For a=7, √[(3-7)²+(7-4)²] = √[16+9] = √25 = 5 ✓"
+      "For a=7, √[(3-7)²+(7-4)²] = √[16+9] = √25 = 5 ✓ Answer: (A)"
     ],
     "finalAnswer": "0 or 7",
     "isCompetencyBased": true,
@@ -878,7 +878,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "PQ² = 8, QR² = 4, RP² = 4",
       "QR² + RP² = 4 + 4 = 8 = PQ², i.e. PQ² = QR² + RP²",
       "Also QR = RP = 2, so isosceles",
-      "Therefore isosceles right-angled triangle"
+      "Therefore isosceles right-angled triangle Answer: (B)"
     ],
     "finalAnswer": "Isosceles right-angled",
     "isCompetencyBased": true,
@@ -1020,12 +1020,12 @@ export const CG2_PACK2: CanonicalQuestion[] = [
   },
   { id: "CG2-049", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between the points (a, 0) and (0, b) is:", options: ["√(a²+b²)","a+b","|a−b|","√(a²−b²)"], answer: "√(a²+b²)", explanation: "The correct answer is √(a²+b²). d = √((a−0)²+(0−b)²) = √(a²+b²).", finalAnswer: "√(a² + b²)", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Distance = √[(0 − a)² + (b − 0)²] = √(a² + b²).",
+      "[1 mark] Distance = √[(0 − a)² + (b − 0)²] = √(a² + b²). Answer: (A)",
     ],
   },
   { id: "CG2-050", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The point which divides the segment joining (1, 3) and (4, 6) in ratio 1:2 internally is:", options: ["(2, 4)","(3, 5)","(2.5, 4.5)","(1.5, 3.5)"], answer: "(2, 4)", explanation: "The correct answer is (2, 4). P = ((1×4+2×1)/3, (1×6+2×3)/3) = (6/3, 12/3) = (2, 4).", finalAnswer: "(2, 4)", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (A) (2, 4): by the section formula with m1:m2 = 1:2, x = (1×4 + 2×1)/3 = 6/3 = 2 and y = (1×6 + 2×3)/3 = 12/3 = 4.",
+      "[1 mark] Option (A) (2, 4): by the section formula with m1:m2 = 1:2, x = (1×4 + 2×1)/3 = 6/3 = 2 and y = (1×6 + 2×3)/3 = 12/3 = 4. Answer: (A)",
     ],
   },
   { id: "CG2-051", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between (−5, 7) and (−1, 3) is:", options: ["4√2", "2√2", "4", "5√2"], answer: "4√2", explanation: "The correct answer is 4√2. d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", finalAnswer: "4√2", isCompetencyBased: false,
@@ -1033,7 +1033,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Let A(−5, 7) and B(−1, 3).",
       "Apply the distance formula: d = √[(x₂ − x₁)² + (y₂ − y₁)²].",
       "Substitute: d = √[(−1 + 5)² + (3 − 7)²] = √[16 + 16] = √32.",
-      "Simplify: d = √32 = 4√2 units. This matches option (A)."
+      "Simplify: d = √32 = 4√2 units. This matches option (A). Answer: (A)"
     ],
     sourceOverride: "others",
   },
@@ -1046,17 +1046,17 @@ export const CG2_PACK2: CanonicalQuestion[] = [
   },
   { id: "CG2-053", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The midpoint of (−3, 4) and (5, −2) is:", options: ["(1, 1)","(1, 2)","(2, 1)","(0, 1)"], answer: "(1, 1)", explanation: "The correct answer is (1, 1). Midpoint = ((−3+5)/2, (4+(−2))/2) = (2/2, 2/2) = (1, 1).", finalAnswer: "(1, 1)", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (A) (1, 1): midpoint = ((−3 + 5)/2, (4 + (−2))/2) = (2/2, 2/2) = (1, 1).",
+      "[1 mark] Option (A) (1, 1): midpoint = ((−3 + 5)/2, (4 + (−2))/2) = (2/2, 2/2) = (1, 1). Answer: (A)",
     ],
   },
   { id: "CG2-054", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If A(2, y) and B(6, 4) and AB = 5, then y equals:", options: ["1 or 7","0 or 8","1 or −7","7 only"], answer: "1 or 7", explanation: "The correct answer is 1 or 7. AB² = 16+(y−4)² = 25 → (y−4)² = 9 → y−4 = ±3 → y = 7 or y = 1.", finalAnswer: "y = 1 or y = 7", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] AB² = (6 − 2)² + (4 − y)² = 25 ⇒ (4 − y)² = 9 ⇒ 4 − y = ±3 ⇒ y = 1 or y = 7.",
+      "[1 mark] AB² = (6 − 2)² + (4 − y)² = 25 ⇒ (4 − y)² = 9 ⇒ 4 − y = ±3 ⇒ y = 1 or y = 7. Answer: (A)",
     ],
   },
   { id: "CG2-055", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The distance of the point (3, 4) from the origin is 5.\nReason (R): The distance formula between (x₁, y₁) and (x₂, y₂) is √((x₂−x₁)²+(y₂−y₁)²).", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "d = √(3²+4²) = √25 = 5. R gives the formula used to compute A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] R states the correct distance formula; applying it to (0, 0) and (3, 4) gives √(3² + 4²) = √25 = 5, so A is true and R is the correct explanation of A.",
+      "[1 mark] R states the correct distance formula; applying it to (0, 0) and (3, 4) gives √(3² + 4²) = √25 = 5, so A is true and R is the correct explanation of A. Answer: (A)",
     ],
   },
   { id: "CG2-056", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the point P which divides the join of A(−1, 7) and B(4, −3) in the ratio 2:3. Also find the distance AP.", solutionSteps: [

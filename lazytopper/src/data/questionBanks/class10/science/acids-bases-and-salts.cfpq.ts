@@ -70,7 +70,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     options: ["copper metal strips", "silver metal strips", "calcium carbonate", "sodium chloride"],
     answer: "calcium carbonate",
     solutionSteps: [
-      "[1 mark] Correct option: (3) calcium carbonate. An acid reacts with a metal carbonate to give brisk effervescence of carbon dioxide, which is a visible test. Copper and silver are below hydrogen in the activity series and do not react with dilute HCl, and sodium chloride gives no visible change.",
+      "[1 mark] Correct option: (3) calcium carbonate. An acid reacts with a metal carbonate to give brisk effervescence of carbon dioxide, which is a visible test. Copper and silver are below hydrogen in the activity series and do not react with dilute HCl, and sodium chloride gives no visible change. Answer: (C)",
     ],
     finalAnswer: "calcium carbonate",
     isCompetencyBased: true,
@@ -92,7 +92,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
       "The following table lists the pH values of some substances.\n\nSolutions | pH\nhydrochloric acid | 1\nmilk | 6\npure water | 7\nbaking soda | 9\nsodium hydroxide | 14\n\nWhat happens to the pH of an acid and of a base when each is diluted with pure distilled water?",
     answer: "pH of the acid increases; pH of the base decreases",
     solutionSteps: [
-      "[1 mark] pH of the acid increases; pH of the base decreases — dilution moves both towards neutral pH 7, so acid pH rises and base pH falls."
+      "[1 mark] pH of the acid increases; pH of the base decreases — dilution moves both towards neutral pH 7, so acid pH rises and base pH falls. Answer: (A)"
     ],
     finalAnswer: "pH of the acid increases; pH of the base decreases",
     isCompetencyBased: true,
@@ -211,7 +211,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Rajesh was given a substance and asked to identify it. He conducted three tests and recorded the results below.\n(P) It releases carbon dioxide, water and a sodium salt on heating with water.\n(Q) It turns universal indicator greenish-blue.\n(R) It can be prepared from ammonia as a raw material.\n\nWhat substance was Rajesh given?",
     answer: "Sodium hydrogencarbonate (baking soda), NaHCO₃",
-    solutionSteps: ["[1 mark] Sodium hydrogencarbonate (baking soda), NaHCO₃ — only NaHCO₃ releases CO₂ on heating and is a mild base made using ammonia."],
+    solutionSteps: ["[1 mark] Sodium hydrogencarbonate (baking soda), NaHCO₃ — only NaHCO₃ releases CO₂ on heating and is a mild base made using ammonia. Answer: (B)"],
     finalAnswer: "Sodium hydrogencarbonate (baking soda), NaHCO₃",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
@@ -234,7 +234,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
       "Rajesh was given a substance and asked to identify it. He conducted three tests and recorded the results below.\n(P) It releases carbon dioxide, water and a sodium salt on heating with water.\n(Q) It turns universal indicator greenish-blue.\n(R) It can be prepared from ammonia as a raw material.\n\nWhich is a use of the substance based on the properties in P and Q?",
     answer: "As an antacid to relieve acidity in the stomach",
     solutionSteps: [
-      "[1 mark] As an antacid to relieve acidity in the stomach — being a mild base (Q) that releases CO₂ (P), it neutralises excess stomach acid."
+      "[1 mark] As an antacid to relieve acidity in the stomach — being a mild base (Q) that releases CO₂ (P), it neutralises excess stomach acid. Answer: (C)"
     ],
     finalAnswer: "As an antacid to relieve acidity in the stomach",
     isCompetencyBased: true,
@@ -257,7 +257,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Rajesh was given a substance and asked to identify it. He conducted three tests and recorded the results below.\n(P) It releases carbon dioxide, water and a sodium salt on heating with water.\n(Q) It turns universal indicator greenish-blue.\n(R) It can be prepared from ammonia as a raw material.\n\nRajesh later read that recrystallisation of the sodium salt formed in P gives another basic salt that is used in the manufacture of borax. The sodium salt formed in P is",
     answer: "sodium carbonate, Na₂CO₃",
-    solutionSteps: ["[1 mark] sodium carbonate, Na₂CO₃ — 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂; recrystallised Na₂CO₃ gives washing soda, used to make borax."],
+    solutionSteps: ["[1 mark] sodium carbonate, Na₂CO₃ — 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂; recrystallised Na₂CO₃ gives washing soda, used to make borax. Answer: (D)"],
     finalAnswer: "sodium carbonate, Na₂CO₃",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
@@ -279,7 +279,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Aditi finds that a mixture of an acid and a base does not change the colour of either red or blue litmus paper. Compared with each other, the amounts of H⁺ and OH⁻ ions in the solution are",
     answer: "equal",
-    solutionSteps: ["[1 mark] equal — no litmus change means the solution is neutral, so H⁺ and OH⁻ are present in equal amounts."],
+    solutionSteps: ["[1 mark] equal — no litmus change means the solution is neutral, so H⁺ and OH⁻ are present in equal amounts. Answer: (A)"],
     finalAnswer: "equal",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
@@ -303,7 +303,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     answer:
       "10,000 times higher",
     solutionSteps: [
-      "[1 mark] 10,000 times higher — a 4-unit pH drop means 10⁴ = 10,000 times more H⁺ ions."
+      "[1 mark] 10,000 times higher — a 4-unit pH drop means 10⁴ = 10,000 times more H⁺ ions. Answer: (B)"
     ],
     finalAnswer: "10,000 times higher",
     isCompetencyBased: true,

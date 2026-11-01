@@ -12,7 +12,7 @@ export const AP_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "If a, b, c, d, e, f are in AP, then e − c is equal to",
     options: ["2(d − c)", "3(d − c)", "(d − c)", "(f − a)/2"],
     answer: "2(d − c)",
-    solutionSteps: ["[1 mark] Consecutive terms differ by the common difference, so d − c = one common difference; e and c are two positions apart, hence e − c = 2(d − c)."],
+    solutionSteps: ["[1 mark] Consecutive terms differ by the common difference, so d − c = one common difference; e and c are two positions apart, hence e − c = 2(d − c). Answer: (A)"],
     finalAnswer: "2(d − c).",
     isCompetencyBased: true,
     sourceOverride: "others" },
@@ -21,7 +21,7 @@ export const AP_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The first term of an AP is p and its common difference is q. Its 10th term is",
     options: ["p + 9q", "q + 9p", "9q − p", "2p + 9q"],
     answer: "p + 9q",
-    solutionSteps: ["[1 mark] a₁₀ = a + 9d = p + 9q."],
+    solutionSteps: ["[1 mark] a₁₀ = a + 9d = p + 9q. Answer: (A)"],
     finalAnswer: "p + 9q.",
     isCompetencyBased: false },
 
@@ -29,7 +29,7 @@ export const AP_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The 7th term of an AP is −1 and its 16th term is 17. The nth term of the AP is",
     options: ["2n − 15", "4n − 7", "15 − 2n", "3n + 8"],
     answer: "2n − 15",
-    solutionSteps: ["[1 mark] a₁₆ − a₇ = 9d = 18 ⇒ d = 2, a = a₇ − 6d = −1 − 12 = −13, so aₙ = −13 + (n − 1)·2 = 2n − 15."],
+    solutionSteps: ["[1 mark] a₁₆ − a₇ = 9d = 18 ⇒ d = 2, a = a₇ − 6d = −1 − 12 = −13, so aₙ = −13 + (n − 1)·2 = 2n − 15. Answer: (A)"],
     finalAnswer: "aₙ = 2n − 15.",
     isCompetencyBased: true },
 
@@ -37,7 +37,7 @@ export const AP_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The sum of 11 terms of an AP whose middle term is 30 is",
     options: ["330", "320", "340", "350"],
     answer: "330",
-    solutionSteps: ["[1 mark] For an odd number of terms, Sₙ = n × (middle term) = 11 × 30 = 330."],
+    solutionSteps: ["[1 mark] For an odd number of terms, Sₙ = n × (middle term) = 11 × 30 = 330. Answer: (A)"],
     finalAnswer: "330.",
     isCompetencyBased: true },
 

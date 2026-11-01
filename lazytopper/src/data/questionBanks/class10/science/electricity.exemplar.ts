@@ -13,7 +13,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A cell, a resistor, a key and ammeter are arranged as shown in the circuit diagrams of Figure 12.1. The current recorded in the ammeter will be",
     options: ["maximum in (i)", "maximum in (ii)", "maximum in (iii)", "the same in all the cases"],
     answer: "the same in all the cases",
-    solutionSteps: ["In a single-loop series circuit, the current is the same at every point regardless of the position of the ammeter.", "Rearranging the order of the cell, resistor, key and ammeter in a series loop does not change the total resistance.", "Hence the ammeter reading is the same in all the three arrangements."],
+    solutionSteps: ["In a single-loop series circuit, the current is the same at every point regardless of the position of the ammeter.", "Rearranging the order of the cell, resistor, key and ammeter in a series loop does not change the total resistance.", "Hence the ammeter reading is the same in all the three arrangements. Answer: (D)"],
     finalAnswer: "Option (d) — same in all the cases",
     ncertRef: "Exemplar MCQ Q1", isCompetencyBased: true },
 
@@ -22,7 +22,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In the following circuits (Figure 12.2), heat produced in the resistor or combination of resistors connected to a 12 V battery will be",
     options: ["same in all the cases", "minimum in case (i)", "maximum in case (ii)", "maximum in case (iii)"],
     answer: "maximum in case (iii)",
-    solutionSteps: ["For the same supply voltage V = 12 V, heat produced per second is P = V²/R, so the lowest equivalent resistance gives the most heat.", "From the figure: (i) single 2 Ω → R = 2 Ω, P = 144/2 = 72 W; (ii) two 2 Ω in series → R = 4 Ω, P = 36 W; (iii) two 2 Ω in parallel → R = 1 Ω, P = 144 W.", "Hence heat produced is maximum in case (iii). Correct option (d)."],
+    solutionSteps: ["For the same supply voltage V = 12 V, heat produced per second is P = V²/R, so the lowest equivalent resistance gives the most heat.", "From the figure: (i) single 2 Ω → R = 2 Ω, P = 144/2 = 72 W; (ii) two 2 Ω in series → R = 4 Ω, P = 36 W; (iii) two 2 Ω in parallel → R = 1 Ω, P = 144 W.", "Hence heat produced is maximum in case (iii). Correct option (d). Answer: (D)"],
     finalAnswer: "Option (d) — maximum in case (iii)",
     ncertRef: "Exemplar MCQ Q2", isCompetencyBased: true,
     sourceOverride: "others", },
@@ -31,7 +31,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Electrical resistivity of a given metallic wire depends upon",
     options: ["its length", "its thickness", "its shape", "nature of the material"],
     answer: "nature of the material",
-    solutionSteps: ["Resistivity ρ is a characteristic property of the material itself, not of any particular sample's geometry.", "Length, thickness and shape change the resistance R = ρl/A, but the intrinsic resistivity ρ remains the same.", "Hence resistivity depends only on the nature of the material (and temperature)."],
+    solutionSteps: ["Resistivity ρ is a characteristic property of the material itself, not of any particular sample's geometry.", "Length, thickness and shape change the resistance R = ρl/A, but the intrinsic resistivity ρ remains the same.", "Hence resistivity depends only on the nature of the material (and temperature). Answer: (D)"],
     finalAnswer: "Option (d) — nature of the material",
     ncertRef: "Exemplar MCQ Q3", isCompetencyBased: false },
 
@@ -39,7 +39,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A current of 1 A is drawn by a filament of an electric bulb. Number of electrons passing through a cross section of the filament in 16 seconds would be roughly",
     options: ["10²⁰", "10¹⁶", "10¹⁸", "10²³"],
     answer: "10²⁰",
-    solutionSteps: ["Total charge in 16 s: Q = I × t = 1 × 16 = 16 C.", "Number of electrons n = Q/e = 16 / (1.6 × 10⁻¹⁹) = 10 × 10¹⁹ = 10²⁰.", "Hence roughly 10²⁰ electrons pass through the cross-section."],
+    solutionSteps: ["Total charge in 16 s: Q = I × t = 1 × 16 = 16 C.", "Number of electrons n = Q/e = 16 / (1.6 × 10⁻¹⁹) = 10 × 10¹⁹ = 10²⁰.", "Hence roughly 10²⁰ electrons pass through the cross-section. Answer: (A)"],
     finalAnswer: "Option (a) — 10²⁰",
     ncertRef: "Exemplar MCQ Q4", isCompetencyBased: true },
 
@@ -48,7 +48,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Identify the circuit (Figure 12.3) in which the electrical components have been properly connected.",
     options: ["(i)", "(ii)", "(iii)", "(iv)"],
     answer: "(ii)",
-    solutionSteps: ["A correct circuit needs the ammeter in series with its + terminal towards the cell's + side, and the voltmeter in parallel across R with its + terminal towards the cell's + side.", "In the figure: (i) has the voltmeter in series - wrong; (iii) has the ammeter in parallel with R and the voltmeter in series - wrong; (iv) has the ammeter in series but with its polarity reversed - wrong.", "Only (ii) has the voltmeter across R and the ammeter in series, both with correct polarity. Correct option (b)."],
+    solutionSteps: ["A correct circuit needs the ammeter in series with its + terminal towards the cell's + side, and the voltmeter in parallel across R with its + terminal towards the cell's + side.", "In the figure: (i) has the voltmeter in series - wrong; (iii) has the ammeter in parallel with R and the voltmeter in series - wrong; (iv) has the ammeter in series but with its polarity reversed - wrong.", "Only (ii) has the voltmeter across R and the ammeter in series, both with correct polarity. Correct option (b). Answer: (B)"],
     finalAnswer: "Option (b) — circuit (ii)",
     ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true,
     sourceOverride: "others", },
@@ -57,7 +57,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "What is the maximum resistance which can be made using five resistors each of 1/5 Ω?",
     options: ["1/5 Ω", "10 Ω", "5 Ω", "1 Ω"],
     answer: "1 Ω",
-    solutionSteps: ["Maximum resistance is obtained when resistors are connected in series.", "R_max = 5 × (1/5 Ω) = 1 Ω.", "Hence option (d)."],
+    solutionSteps: ["Maximum resistance is obtained when resistors are connected in series.", "R_max = 5 × (1/5 Ω) = 1 Ω.", "Hence option (d). Answer: (D)"],
     finalAnswer: "Option (d) — 1 Ω",
     ncertRef: "Exemplar MCQ Q6", isCompetencyBased: true },
 
@@ -65,7 +65,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "What is the minimum resistance which can be made using five resistors each of 1/5 Ω?",
     options: ["1/5 Ω", "1/25 Ω", "1/10 Ω", "25 Ω"],
     answer: "1/25 Ω",
-    solutionSteps: ["Minimum resistance is obtained when resistors are connected in parallel.", "1/R_min = 5 × (1/(1/5)) = 5 × 5 = 25 ⇒ R_min = 1/25 Ω.", "Hence option (b)."],
+    solutionSteps: ["Minimum resistance is obtained when resistors are connected in parallel.", "1/R_min = 5 × (1/(1/5)) = 5 × 5 = 25 ⇒ R_min = 1/25 Ω.", "Hence option (b). Answer: (B)"],
     finalAnswer: "Option (b) — 1/25 Ω",
     ncertRef: "Exemplar MCQ Q7", isCompetencyBased: true },
 
@@ -74,7 +74,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The proper representation of series combination of cells (Figure 12.4) obtaining maximum potential is",
     options: ["(i)", "(ii)", "(iii)", "(iv)"],
     answer: "(i)",
-    solutionSteps: ["[1 mark] For maximum potential difference the cells must be in series with the positive terminal of each cell joined to the negative terminal of the next, so that the EMFs add. In Figure 12.4 only arrangement (i) has every cell in the same sense (longer line +, shorter line −, joined head to tail); in (iii) the second cell is reversed, and in (ii) and (iv) the cells are not all in one sense. Correct option (a) — diagram (i)."],
+    solutionSteps: ["[1 mark] For maximum potential difference the cells must be in series with the positive terminal of each cell joined to the negative terminal of the next, so that the EMFs add. In Figure 12.4 only arrangement (i) has every cell in the same sense (longer line +, shorter line −, joined head to tail); in (iii) the second cell is reversed, and in (ii) and (iv) the cells are not all in one sense. Correct option (a) — diagram (i). Answer: (A)"],
     finalAnswer: "Option (a) — diagram (i)",
     ncertRef: "Exemplar MCQ Q8", isCompetencyBased: true },
 
@@ -82,7 +82,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Which of the following represents voltage?",
     options: ["Work done / (Current × Time)", "Work done × Charge", "(Work done × Time) / Current", "Work done × Charge × Time"],
     answer: "Work done / (Current × Time)",
-    solutionSteps: ["By definition V = Work done / Charge = W/Q.", "Charge Q = Current × Time = I × t, so V = W/(I × t).", "Therefore option (a) — Work done / (Current × Time) — represents voltage."],
+    solutionSteps: ["By definition V = Work done / Charge = W/Q.", "Charge Q = Current × Time = I × t, so V = W/(I × t).", "Therefore option (a) — Work done / (Current × Time) — represents voltage. Answer: (A)"],
     finalAnswer: "Option (a) — Work done / (Current × Time)",
     ncertRef: "Exemplar MCQ Q9", isCompetencyBased: false },
 
@@ -90,7 +90,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A cylindrical conductor of length l and uniform area of cross-section A has resistance R. Another conductor of length 2l and resistance R of the same material has area of cross section",
     options: ["A/2", "3A/2", "2A", "3A"],
     answer: "2A",
-    solutionSteps: ["R = ρl/A. For first wire: R = ρl/A.", "For second wire of length 2l and area A': ρ(2l)/A' = R.", "Setting equal: ρ(2l)/A' = ρl/A ⇒ A' = 2A.", "Hence the new area is 2A."],
+    solutionSteps: ["R = ρl/A. For first wire: R = ρl/A.", "For second wire of length 2l and area A': ρ(2l)/A' = R.", "Setting equal: ρ(2l)/A' = ρl/A ⇒ A' = 2A.", "Hence the new area is 2A. Answer: (C)"],
     finalAnswer: "Option (c) — 2A",
     ncertRef: "Exemplar MCQ Q10", isCompetencyBased: true },
 
@@ -99,7 +99,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A student carries out an experiment and plots the V–I graph of three samples of nichrome wire with resistances R₁, R₂ and R₃ respectively (Figure 12.5). Which of the following is true?",
     options: ["R₁ = R₂ = R₃", "R₁ > R₂ > R₃", "R₃ > R₂ > R₁", "R₂ > R₃ > R₁"],
     answer: "R₃ > R₂ > R₁",
-    solutionSteps: ["[1 mark] In Figure 12.5 the current I is on the y-axis and V on the x-axis, so the slope of each line is I/V = 1/R: the LESS steep the line, the HIGHER the resistance. The line for R₁ is steepest and R₃ is least steep, with R₂ in between, so R₃ > R₂ > R₁. Correct option (c)."],
+    solutionSteps: ["[1 mark] In Figure 12.5 the current I is on the y-axis and V on the x-axis, so the slope of each line is I/V = 1/R: the LESS steep the line, the HIGHER the resistance. The line for R₁ is steepest and R₃ is least steep, with R₂ in between, so R₃ > R₂ > R₁. Correct option (c). Answer: (C)"],
     finalAnswer: "Option (c) — R₃ > R₂ > R₁",
     ncertRef: "Exemplar MCQ Q11", isCompetencyBased: true },
 
@@ -107,7 +107,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If the current I through a resistor is increased by 100% (assume that temperature remains unchanged), the increase in power dissipated will be",
     options: ["100%", "200%", "300%", "400%"],
     answer: "300%",
-    solutionSteps: ["Power dissipated P = I²R; for constant R, P ∝ I².", "Increasing I by 100% means new I' = 2I.", "New power P' = (2I)²R = 4I²R = 4P. Increase = P' − P = 3P.", "Percentage increase = (3P/P) × 100% = 300%."],
+    solutionSteps: ["Power dissipated P = I²R; for constant R, P ∝ I².", "Increasing I by 100% means new I' = 2I.", "New power P' = (2I)²R = 4I²R = 4P. Increase = P' − P = 3P.", "Percentage increase = (3P/P) × 100% = 300%. Answer: (C)"],
     finalAnswer: "Option (c) — 300%",
     ncertRef: "Exemplar MCQ Q12", isCompetencyBased: true },
 
@@ -115,7 +115,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The resistivity does not change if",
     options: ["the material is changed", "the temperature is changed", "the shape of the resistor is changed", "both material and temperature are changed"],
     answer: "the shape of the resistor is changed",
-    solutionSteps: ["Resistivity ρ is an intrinsic property of the material.", "It depends on the material's nature and on temperature, but NOT on the shape, length or area of the sample.", "Hence changing shape does not change resistivity."],
+    solutionSteps: ["Resistivity ρ is an intrinsic property of the material.", "It depends on the material's nature and on temperature, but NOT on the shape, length or area of the sample.", "Hence changing shape does not change resistivity. Answer: (C)"],
     finalAnswer: "Option (c) — shape of the resistor is changed",
     ncertRef: "Exemplar MCQ Q13", isCompetencyBased: false },
 
@@ -123,7 +123,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In an electrical circuit three incandescent bulbs A, B and C of rating 40 W, 60 W and 100 W respectively are connected in parallel to an electric source. Which of the following is likely to happen regarding their brightness?",
     options: ["Brightness of all the bulbs will be the same", "Brightness of bulb A will be the maximum", "Brightness of bulb B will be more than that of A", "Brightness of bulb C will be less than that of B"],
     answer: "Brightness of bulb B will be more than that of A",
-    solutionSteps: ["In parallel each bulb gets the full supply voltage equal to its rated voltage.", "Power dissipated equals the rated wattage, and brightness is proportional to actual power.", "Thus brightness order: C (100 W) > B (60 W) > A (40 W).", "Therefore B is brighter than A. (Option (b) is wrong because C is the brightest, and (d) is wrong because C > B.)"],
+    solutionSteps: ["In parallel each bulb gets the full supply voltage equal to its rated voltage.", "Power dissipated equals the rated wattage, and brightness is proportional to actual power.", "Thus brightness order: C (100 W) > B (60 W) > A (40 W).", "Therefore B is brighter than A. (Option (b) is wrong because C is the brightest, and (d) is wrong because C > B.) Answer: (C)"],
     finalAnswer: "Option (c) — B brighter than A",
     ncertRef: "Exemplar MCQ Q14", isCompetencyBased: true },
 
@@ -131,7 +131,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In an electrical circuit two resistors of 2 Ω and 4 Ω respectively are connected in series to a 6 V battery. The heat dissipated by the 4 Ω resistor in 5 s will be",
     options: ["5 J", "10 J", "20 J", "30 J"],
     answer: "20 J",
-    solutionSteps: ["Series: R_total = 2 + 4 = 6 Ω. Current I = V/R = 6/6 = 1 A.", "Heat in 4 Ω resistor in time t: H = I²Rt = (1)² × 4 × 5 = 20 J.", "Hence option (c)."],
+    solutionSteps: ["Series: R_total = 2 + 4 = 6 Ω. Current I = V/R = 6/6 = 1 A.", "Heat in 4 Ω resistor in time t: H = I²Rt = (1)² × 4 × 5 = 20 J.", "Hence option (c). Answer: (C)"],
     finalAnswer: "Option (c) — 20 J",
     ncertRef: "Exemplar MCQ Q15", isCompetencyBased: true },
 
@@ -139,7 +139,7 @@ export const ELEC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "An electric kettle consumes 1 kW of electric power when operated at 220 V. A fuse wire of what rating must be used for it?",
     options: ["1 A", "2 A", "4 A", "5 A"],
     answer: "5 A",
-    solutionSteps: ["Current drawn: I = P/V = 1000 W / 220 V ≈ 4.55 A.", "The fuse rating must be just above the operating current.", "Among the given options, only 5 A is greater than 4.55 A.", "Hence a 5 A fuse must be used."],
+    solutionSteps: ["Current drawn: I = P/V = 1000 W / 220 V ≈ 4.55 A.", "The fuse rating must be just above the operating current.", "Among the given options, only 5 A is greater than 4.55 A.", "Hence a 5 A fuse must be used. Answer: (D)"],
     finalAnswer: "Option (d) — 5 A",
     ncertRef: "Exemplar MCQ Q16", isCompetencyBased: true },
 

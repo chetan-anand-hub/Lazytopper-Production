@@ -220,7 +220,7 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
       "(b) CO₂ is the PRODUCT of carbon's oxidation, not the substance being oxidised. So (b) is incorrect.",
       "(c) 'Carbon is getting oxidised' is correct — C gains oxygen to form CO₂.",
       "(d) 'Lead oxide is getting reduced' is correct — PbO loses oxygen to form Pb.",
-      "Incorrect statements: (a) and (b). Answer: (i).",
+      "Incorrect statements: (a) and (b). Answer: (i). Answer: (A)",
     ],
     finalAnswer: "(a) and (b)",
     ncertRef: "Exercise Q1",
@@ -248,7 +248,7 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Al is more reactive than Fe — Al displaces Fe from Fe₂O₃.",
       "Only one element (Al) replaces another element (Fe) from its compound — this is a displacement reaction.",
-      "It is also exothermic and is famously known as the thermite reaction.",
+      "It is also exothermic and is famously known as the thermite reaction. Answer: (D)",
     ],
     finalAnswer: "displacement reaction",
     ncertRef: "Exercise Q2",
@@ -276,7 +276,7 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Iron is more reactive than hydrogen and displaces H from dilute HCl.",
       "Reaction: Fe(s) + 2HCl(aq) → FeCl₂(aq) + H₂(g).",
-      "Products: iron(II) chloride and hydrogen gas (bubbles).",
+      "Products: iron(II) chloride and hydrogen gas (bubbles). Answer: (A)",
     ],
     finalAnswer: "Hydrogen gas and iron chloride are produced.",
     ncertRef: "Exercise Q3",

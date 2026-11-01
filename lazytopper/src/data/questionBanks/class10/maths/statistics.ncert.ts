@@ -14,7 +14,7 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     questionText: "In the formula x̄ = a + (Σfᵢdᵢ / Σfᵢ) for the mean of grouped data, the dᵢ’s are deviations from a of the",
     options: ["lower limits of the classes", "upper limits of the classes", "mid-points (class marks) of the classes", "frequencies of the class marks"],
     answer: "mid-points (class marks) of the classes",
-    solutionSteps: ["In the assumed-mean method we set dᵢ = xᵢ − a where xᵢ is the class mark of the iᵗʰ class.", "Hence dᵢ is the deviation from a of the class mid-point."],
+    solutionSteps: ["In the assumed-mean method we set dᵢ = xᵢ − a where xᵢ is the class mark of the iᵗʰ class.", "Hence dᵢ is the deviation from a of the class mid-point. Answer: (C)"],
     finalAnswer: "Class mid-points — option (c).",
     ncertRef: "NCERT Section 14.2 (assumed mean)", isCompetencyBased: false },
 
@@ -22,7 +22,7 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     questionText: "While computing the mean of grouped data, we assume that the frequencies are",
     options: ["evenly distributed over all the classes", "centred at the class marks of the classes", "centred at the upper limits of the classes", "centred at the lower limits of the classes"],
     answer: "centred at the class marks of the classes",
-    solutionSteps: ["The standard assumption in the direct method (and its variants) is that each class's frequency is concentrated at its mid-point (class mark)."],
+    solutionSteps: ["The standard assumption in the direct method (and its variants) is that each class's frequency is concentrated at its mid-point (class mark). Answer: (B)"],
     finalAnswer: "Centred at class marks — option (b).",
     ncertRef: "NCERT Section 14.2 (direct method)", isCompetencyBased: false },
 
@@ -30,7 +30,7 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     questionText: "For grouped data, the class whose cumulative frequency is greater than (and nearest to) n/2 is called the",
     options: ["mean class", "median class", "modal class", "cumulative class"],
     answer: "median class",
-    solutionSteps: ["In the median formula for grouped data, the class containing the (n/2)ᵗʰ observation is the median class."],
+    solutionSteps: ["In the median formula for grouped data, the class containing the (n/2)ᵗʰ observation is the median class. Answer: (B)"],
     finalAnswer: "Median class — option (b).",
     ncertRef: "NCERT Section 14.4", isCompetencyBased: false },
 
@@ -38,7 +38,7 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     questionText: "The modal class of a grouped frequency distribution is",
     options: ["the class with the highest cumulative frequency", "the class with the highest frequency", "the class containing the mean", "the class containing the median"],
     answer: "the class with the highest frequency",
-    solutionSteps: ["By definition, the modal class is the class with the maximum frequency.", "The mode is then found by applying the formula inside that class."],
+    solutionSteps: ["By definition, the modal class is the class with the maximum frequency.", "The mode is then found by applying the formula inside that class. Answer: (B)"],
     finalAnswer: "Class with highest frequency — option (b).",
     ncertRef: "NCERT Section 14.3", isCompetencyBased: false },
 
@@ -46,7 +46,7 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     questionText: "If the mean of a distribution is 62 and the mode is 52, then the median (by the empirical relationship) is approximately",
     options: ["57", "58.67", "60", "62"],
     answer: "58.67",
-    solutionSteps: ["Empirical: 3·Median = Mode + 2·Mean = 52 + 2 × 62 = 52 + 124 = 176.", "Median = 176/3 ≈ 58.67."],
+    solutionSteps: ["Empirical: 3·Median = Mode + 2·Mean = 52 + 2 × 62 = 52 + 124 = 176.", "Median = 176/3 ≈ 58.67. Answer: (B)"],
     finalAnswer: "≈ 58.67 — option (b).",
     ncertRef: "NCERT Section 14.4 (empirical remark)", isCompetencyBased: true,
     strategyHint: "Use 3·Median = Mode + 2·Mean." },

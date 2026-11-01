@@ -29,7 +29,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
     questionText: "In a figure, TP and TQ are two tangents to a circle with centre O so that ∠POQ = 110°. Then ∠PTQ equals",
     options: ["60°", "70°", "80°", "90°"],
     answer: "70°",
-    solutionSteps: ["OP ⊥ TP and OQ ⊥ TQ ⇒ ∠OPT = ∠OQT = 90°.", "Quadrilateral OPTQ has angle sum 360°: ∠POQ + ∠PTQ + 90° + 90° = 360°.", "∠PTQ = 360° − 110° − 180° = 70°."],
+    solutionSteps: ["OP ⊥ TP and OQ ⊥ TQ ⇒ ∠OPT = ∠OQT = 90°.", "Quadrilateral OPTQ has angle sum 360°: ∠POQ + ∠PTQ + 90° + 90° = 360°.", "∠PTQ = 360° − 110° − 180° = 70°. Answer: (B)"],
     finalAnswer: "70° — option (b).",
     ncertRef: "NCERT Ex 10.2 Q2", isCompetencyBased: true,
     strategyHint: "Sum of angles in quadrilateral OPTQ is 360°." },
@@ -46,7 +46,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
     questionText: "The number of tangents that can be drawn from an external point to a circle is",
     options: ["1", "2", "3", "Infinitely many"],
     answer: "2",
-    solutionSteps: ["From a point outside the circle, exactly two tangents can be drawn (NCERT Section 10.3).", "From a point on the circle, exactly one tangent. From inside, none."],
+    solutionSteps: ["From a point outside the circle, exactly two tangents can be drawn (NCERT Section 10.3).", "From a point on the circle, exactly one tangent. From inside, none. Answer: (B)"],
     finalAnswer: "2 — option (b).",
     ncertRef: "NCERT Section 10.3", isCompetencyBased: false },
 

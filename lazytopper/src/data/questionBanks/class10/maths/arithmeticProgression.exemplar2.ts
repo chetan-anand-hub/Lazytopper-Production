@@ -87,7 +87,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The famous mathematician associated with finding the sum of the first 100 natural numbers is",
     options: ["Pythagoras", "Newton", "Gauss", "Euclid"],
     answer: "Gauss",
-    solutionSteps: ["[1 mark] Carl Friedrich Gauss is credited with quickly summing 1 + 2 + ... + 100 = 5050 by pairing terms — option (C)."],
+    solutionSteps: ["[1 mark] Carl Friedrich Gauss is credited with quickly summing 1 + 2 + ... + 100 = 5050 by pairing terms — option (C). Answer: (C)"],
     finalAnswer: "Gauss — option (C).",
     ncertRef: "Exemplar Ex 5.1 Q14", isCompetencyBased: false },
 

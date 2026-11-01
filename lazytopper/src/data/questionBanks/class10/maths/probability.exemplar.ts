@@ -84,7 +84,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
       "(D) Assertion is false but Reason is true."
     ],
     answer: "(D) Assertion is false but Reason is true.",
-    solutionSteps: ["P(1) = 1/6 and P(not 1) = 5/6 — these are not equal, so A is false.", "R is true: two outcomes have probability 1/2 each only when they are equally likely (here '1' and 'not 1' are not).", "A is false and R is true, so option (D)."],
+    solutionSteps: ["P(1) = 1/6 and P(not 1) = 5/6 — these are not equal, so A is false.", "R is true: two outcomes have probability 1/2 each only when they are equally likely (here '1' and 'not 1' are not).", "A is false and R is true, so option (D). Answer: (D)"],
     finalAnswer: "(D) Assertion is false but Reason is true.",
     ncertRef: "Exemplar Ex 13.2 Q9", isCompetencyBased: true,
     strategyHint: "Two outcomes are equally likely only when each has the same number of favourable cases.",

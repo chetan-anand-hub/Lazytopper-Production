@@ -45,7 +45,7 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "options": ["7.5 cm", "15√3 cm", "15 cm", "5√3 cm"],
     "answer": "15 cm",
     "solutionSteps": [
-      "[1 mark] 15 cm — the cube's space diagonal equals the sphere's diameter = 2 × 7.5 = 15 cm."
+      "[1 mark] 15 cm — the cube's space diagonal equals the sphere's diameter = 2 × 7.5 = 15 cm. Answer: (C)"
     ],
     "finalAnswer": "15 cm",
     "isCompetencyBased": false
@@ -64,7 +64,7 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "options": ["7 cm", "1.75 cm", "14 cm", "3.5 cm"],
     "answer": "3.5 cm",
     "solutionSteps": [
-      "[1 mark] 3.5 cm — base circumference = 22 cm: 2 × (22/7) × r = 22 ⇒ r = 3.5 cm."
+      "[1 mark] 3.5 cm — base circumference = 22 cm: 2 × (22/7) × r = 22 ⇒ r = 3.5 cm. Answer: (D)"
     ],
     "finalAnswer": "3.5 cm",
     "isCompetencyBased": false
@@ -107,7 +107,7 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "options": ["49 : 25", "7 : 5", "343 : 125", "25 : 49"],
     "answer": "49 : 25",
     "solutionSteps": [
-      "[1 mark] 49 : 25 — V = πr²h with equal h, so ratio = 7² : 5² = 49 : 25."
+      "[1 mark] 49 : 25 — V = πr²h with equal h, so ratio = 7² : 5² = 49 : 25. Answer: (A)"
     ],
     "finalAnswer": "49 : 25",
     "isCompetencyBased": false
@@ -126,7 +126,7 @@ export const SAV_PREBOARD: CanonicalQuestion[] = [
     "options": ["2π : 1", "3π : 1", "4π : 1", "π : 1"],
     "answer": "3π : 1",
     "solutionSteps": [
-      "[1 mark] 3π : 1 — TSA of a solid hemisphere = 2πr² + πr² = 3πr², so the ratio is 3π : 1."
+      "[1 mark] 3π : 1 — TSA of a solid hemisphere = 2πr² + πr² = 3πr², so the ratio is 3π : 1. Answer: (B)"
     ],
     "finalAnswer": "3π : 1",
     "isCompetencyBased": false

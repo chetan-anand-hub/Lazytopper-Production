@@ -22,7 +22,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A combination reaction involves two or more substances combining to form one product",
       "2H₂ + O₂ → 2H₂O: Two elements (H and O) combine to form water",
-      "This is a combination reaction"
+      "This is a combination reaction Answer: (A)"
     ],
     "finalAnswer": "A) 2H₂ + O₂ → 2H₂O",
     "explanation": "A combination reaction involves two or more substances combining to form one product. 2H₂ + O₂ → 2H₂O: Two elements (H and O) combine to form water. This is a combination reaction. Therefore, the correct answer is A) 2H₂ + O₂ → 2H₂O.",
@@ -52,7 +52,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "CaCO₃ → CaO + CO₂",
       "One compound breaks down into two simpler substances",
-      "This is a decomposition reaction"
+      "This is a decomposition reaction Answer: (B)"
     ],
     "finalAnswer": "B) Decomposition reaction",
     "explanation": "CaCO₃ → CaO + CO₂. One compound breaks down into two simpler substances. This is a decomposition reaction. Therefore, the correct answer is B) Decomposition reaction.",
@@ -83,7 +83,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Count atoms on both sides",
       "Left: C=1, H=4, O=4 (from 2O₂)",
       "Right: C=1, H=4, O=4 (2 from CO₂, 2 from 2H₂O)",
-      "Equation is balanced"
+      "Equation is balanced Answer: (B)"
     ],
     "finalAnswer": "B) CH₄ + 2O₂ → CO₂ + 2H₂O",
     "explanation": "Count atoms on both sides. Left: C=1, H=4, O=4 (from 2O₂). Right: C=1, H=4, O=4 (2 from CO₂, 2 from 2H₂O). Equation is balanced. Therefore, the correct answer is B) CH₄ + 2O₂ → CO₂ + 2H₂O.",
@@ -113,7 +113,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Count Fe atoms: need 4 on left to get 2Fe₂O₃ on right",
       "Count O atoms: need 3O₂ (6 atoms) to balance 6 O atoms in 2Fe₂O₃",
-      "4Fe + 3O₂ → 2Fe₂O₃ is balanced"
+      "4Fe + 3O₂ → 2Fe₂O₃ is balanced Answer: (A)"
     ],
     "finalAnswer": "A) 4Fe + 3O₂ → 2Fe₂O₃",
     "explanation": "Count Fe atoms: need 4 on left to get 2Fe₂O₃ on right. Count O atoms: need 3O₂ (6 atoms) to balance 6 O atoms in 2Fe₂O₃. 4Fe + 3O₂ → 2Fe₂O₃ is balanced. Therefore, the correct answer is A) 4Fe + 3O₂ → 2Fe₂O₃.",
@@ -144,7 +144,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Double displacement: AB + CD → AD + CB",
       "AgNO₃ + NaCl → AgCl + NaNO₃",
       "Ag and Na exchange partners (anions)",
-      "This is double displacement"
+      "This is double displacement Answer: (B)"
     ],
     "finalAnswer": "B) AgNO₃ + NaCl → AgCl↓ + NaNO₃",
     "explanation": "Double displacement: AB + CD → AD + CB. AgNO₃ + NaCl → AgCl + NaNO₃. Ag and Na exchange partners (anions). This is double displacement. Therefore, the correct answer is B) AgNO₃ + NaCl → AgCl↓ + NaNO₃.",
@@ -174,7 +174,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Oxidation is loss of electrons or increase in oxidation state",
       "Mg: 0 → +2 (loses 2 electrons, oxidized)",
       "O₂: 0 → -2 (gains electrons, reduced)",
-      "Mg is oxidized"
+      "Mg is oxidized Answer: (A)"
     ],
     "finalAnswer": "A) Mg",
     "explanation": "Oxidation is loss of electrons or increase in oxidation state. Mg: 0 → +2 (loses 2 electrons, oxidized). O₂: 0 → -2 (gains electrons, reduced). Mg is oxidized. Therefore, the correct answer is A) Mg.",
@@ -205,7 +205,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Redox reaction: both oxidation and reduction occur",
       "H₂: 0 → +1 (oxidation)",
       "Cl₂: 0 → -1 (reduction)",
-      "Both occur, so it's a redox reaction"
+      "Both occur, so it's a redox reaction Answer: (B)"
     ],
     "finalAnswer": "B) H₂ + Cl₂ → 2HCl",
     "explanation": "Redox reaction: both oxidation and reduction occur. H₂: 0 → +1 (oxidation). Cl₂: 0 → -1 (reduction). Both occur, so it's a redox reaction. Therefore, the correct answer is B) H₂ + Cl₂ → 2HCl.",
@@ -235,7 +235,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Corrosion is oxidation of metals",
       "Iron rusts to form iron oxide (Fe₂O₃·xH₂O)",
-      "This happens in presence of oxygen and moisture"
+      "This happens in presence of oxygen and moisture Answer: (A)"
     ],
     "finalAnswer": "A) Iron oxide",
     "explanation": "Corrosion is oxidation of metals. Iron rusts to form iron oxide (Fe₂O₃·xH₂O). This happens in presence of oxygen and moisture. Therefore, the correct answer is A) Iron oxide.",
@@ -266,7 +266,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Corrosion requires oxygen and moisture",
       "Galvanization, painting, oiling prevent contact with oxygen/moisture",
       "Heating increases corrosion rate by increasing reaction rate",
-      "Heating does not prevent corrosion"
+      "Heating does not prevent corrosion Answer: (D)"
     ],
     "finalAnswer": "D) Heating",
     "explanation": "Corrosion requires oxygen and moisture. Galvanization, painting, oiling prevent contact with oxygen/moisture. Heating increases corrosion rate by increasing reaction rate. Heating does not prevent corrosion. Therefore, the correct answer is D) Heating.",
@@ -450,7 +450,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "H in H₂: 0 → +1 in H₂O (oxidation state increases)",
       "Oxidation = loss of electrons or increase in oxidation state",
       "Hydrogen loses electrons, so it is oxidized",
-      "Reason correctly explains assertion"
+      "Reason correctly explains assertion Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -481,7 +481,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Decomposition: one compound → two or more simpler substances",
       "CaCO₃ → CaO + CO₂ (one compound → two substances)",
       "Reason says 'three substances' which is wrong",
-      "Only two products are formed (CaO, CO₂)"
+      "Only two products are formed (CaO, CO₂) Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
@@ -511,7 +511,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Galvanization: coating iron with zinc",
       "Prevents corrosion by blocking oxygen and moisture",
       "Also, if coating breaks, Zn oxidizes preferentially (sacrificial protection)",
-      "Reason correctly explains why it's effective"
+      "Reason correctly explains why it's effective Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -648,7 +648,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Fe is a single atom, H₂SO₄ is formula unit",
       "Fe + H₂SO₄ → FeSO₄ + H₂",
       "Count: Fe(1), H(2), S(1), O(4) on both sides",
-      "Already balanced with coefficient 1"
+      "Already balanced with coefficient 1 Answer: (A)"
     ],
     "finalAnswer": "A) 1",
     "explanation": "Fe is a single atom, H₂SO₄ is formula unit. Fe + H₂SO₄ → FeSO₄ + H₂. Count: Fe(1), H(2), S(1), O(4) on both sides. Already balanced with coefficient 1. Therefore, the correct answer is A) 1.",
@@ -680,7 +680,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Endothermic: absorbs heat",
       "CaCO₃ → CaO + CO₂ (decomposition, requires heat)",
       "Must heat CaCO₃ to decompose it",
-      "This is both decomposition and endothermic"
+      "This is both decomposition and endothermic Answer: (C)"
     ],
     "finalAnswer": "C) Thermal decomposition of CaCO₃",
     "explanation": "Decomposition: breaks into simpler substances. Endothermic: absorbs heat. CaCO₃ → CaO + CO₂ (decomposition, requires heat). Must heat CaCO₃ to decompose it. This is both decomposition and endothermic. Therefore, the correct answer is C) Thermal decomposition of CaCO₃.",
@@ -761,7 +761,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Balance Fe: 2Fe + O₂ → Fe₂O₃",
       "Balance O: Need 3 oxygen atoms on right, so 3/2 O₂",
       "Multiply by 2: 4Fe + 3O₂ → 2Fe₂O₃",
-      "Coefficient of O₂ = 3"
+      "Coefficient of O₂ = 3 Answer: (C)"
     ],
     "finalAnswer": "C) 3",
     "explanation": "Unbalanced: Fe + O₂ → Fe₂O₃. Balance Fe: 2Fe + O₂ → Fe₂O₃. Balance O: Need 3 oxygen atoms on right, so 3/2 O₂. Multiply by 2: 4Fe + 3O₂ → 2Fe₂O₃. Coefficient of O₂ = 3. Therefore, the correct answer is C) 3.",
@@ -792,7 +792,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Oxidation is loss of electrons",
       "Cu goes from 0 to +2 oxidation state (loses 2 electrons)",
       "O goes from 0 to -2 oxidation state (gains electrons)",
-      "Cu is oxidized, O₂ is reduced"
+      "Cu is oxidized, O₂ is reduced Answer: (B)"
     ],
     "finalAnswer": "B) Cu",
     "explanation": "Oxidation is loss of electrons. Cu goes from 0 to +2 oxidation state (loses 2 electrons). O goes from 0 to -2 oxidation state (gains electrons). Cu is oxidized, O₂ is reduced. Therefore, the correct answer is B) Cu.",
@@ -823,7 +823,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Corrosion requires moisture and oxygen",
       "Salt accelerates corrosion",
       "Dry air prevents corrosion",
-      "Dry conditions do not accelerate corrosion"
+      "Dry conditions do not accelerate corrosion Answer: (C)"
     ],
     "finalAnswer": "C) Dry air",
     "explanation": "Corrosion requires moisture and oxygen. Salt accelerates corrosion. Dry air prevents corrosion. Dry conditions do not accelerate corrosion. Therefore, the correct answer is C) Dry air.",
@@ -881,7 +881,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This is a displacement reaction",
       "Fe (more reactive) displaces Cu (less reactive) from CuSO₄",
       "Cu is released as free element",
-      "Cu is the displaced element"
+      "Cu is the displaced element Answer: (B)"
     ],
     "finalAnswer": "B) Cu",
     "explanation": "This is a displacement reaction. Fe (more reactive) displaces Cu (less reactive) from CuSO₄. Cu is released as free element. Cu is the displaced element. Therefore, the correct answer is B) Cu.",
@@ -909,7 +909,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "H₂ (oxidation state 0) becomes H in H₂O (+1): hydrogen loses electrons, i.e. is oxidised — so A is true, R is true, and R explains A → option (a)."
+      "H₂ (oxidation state 0) becomes H in H₂O (+1): hydrogen loses electrons, i.e. is oxidised — so A is true, R is true, and R explains A → option (a). Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -939,7 +939,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Double displacement: AB + CD → AD + CB",
       "Option A: Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl",
       "Na and Ba exchange partners, Cl and SO₄ exchange partners",
-      "This is double displacement (or double decomposition)"
+      "This is double displacement (or double decomposition) Answer: (A)"
     ],
     "finalAnswer": "A) Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl",
     "explanation": "Double displacement: AB + CD → AD + CB. Option A: Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl. Na and Ba exchange partners, Cl and SO₄ exchange partners. This is double displacement (or double decomposition). Therefore, the correct answer is A) Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl.",
@@ -1022,7 +1022,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "2Mg + O₂ → 2MgO: two reactants combine to form a single product, which is exactly the definition in R — A true, R true, R explains A → option (a)."
+      "2Mg + O₂ → 2MgO: two reactants combine to form a single product, which is exactly the definition in R — A true, R true, R explains A → option (a). Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1078,7 +1078,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Unbalanced: C + O₂ → CO₂",
       "C atoms: 1 on each side (balanced)",
       "O atoms: 2 on left, 2 on right (balanced)",
-      "Coefficients: 1, 1, 1"
+      "Coefficients: 1, 1, 1 Answer: (A)"
     ],
     "finalAnswer": "A) 1, 1, 1",
     "explanation": "Unbalanced: C + O₂ → CO₂. C atoms: 1 on each side (balanced). O atoms: 2 on left, 2 on right (balanced). Coefficients: 1, 1, 1. Therefore, the correct answer is A) 1, 1, 1.",
@@ -1110,7 +1110,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Redox: involves transfer of electrons",
       "2KClO₃ → 2KCl + 3O₂: Cl goes from +5 to -1 and 0 (redox + decomposition)",
       "NaCl → Na + Cl₂: Na goes from +1 to 0, Cl from -1 to 0 (redox + decomposition)",
-      "Both B and C satisfy both criteria"
+      "Both B and C satisfy both criteria Answer: (D)"
     ],
     "finalAnswer": "D) Both B and C",
     "explanation": "Decomposition: compound breaks into 2+ products. Redox: involves transfer of electrons. 2KClO₃ → 2KCl + 3O₂: Cl goes from +5 to -1 and 0 (redox + decomposition). NaCl → Na + Cl₂: Na goes from +1 to 0, Cl from -1 to 0 (redox + decomposition). Both B and C satisfy both criteria. Therefore, the correct answer is D) Both B and C.",
@@ -1163,7 +1163,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "An oxidising agent oxidises another substance by accepting its electrons, so it itself gets reduced — A true, R true, and R explains A → option (a)."
+      "An oxidising agent oxidises another substance by accepting its electrons, so it itself gets reduced — A true, R true, and R explains A → option (a). Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1374,7 +1374,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which of the following is a combination reaction?",
     "options": ["CaCO3 → CaO + CO2","CaO + H2O → Ca(OH)2","Fe + CuSO4 → FeSO4 + Cu","Zn + H2SO4 → ZnSO4 + H2"],
     "answer": "CaO + H2O → Ca(OH)2",
-    "solutionSteps": ["CaO + H2O → Ca(OH)2: two substances combine to form one product"],
+    "solutionSteps": ["CaO + H2O → Ca(OH)2: two substances combine to form one product Answer: (B)"],
     "finalAnswer": "CaO + H2O → Ca(OH)2",
     "explanation": "CaO + H2O → Ca(OH)2 is a combination reaction.",
     "isCompetencyBased": false,
@@ -1395,7 +1395,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "questionText": "In the reaction CuO + H2 → Cu + H2O, which substance is oxidised?",
     "options": ["CuO","H2O","Cu","H2"],
     "answer": "H2",
-    "solutionSteps": ["H2 gains oxygen to form H2O — H2 is oxidised; CuO loses oxygen — CuO is reduced"],
+    "solutionSteps": ["H2 gains oxygen to form H2O — H2 is oxidised; CuO loses oxygen — CuO is reduced Answer: (D)"],
     "finalAnswer": "H2",
     "explanation": "H2 is oxidised (gains O) to become H2O.",
     "isCompetencyBased": false,
@@ -1416,7 +1416,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): Respiration is an exothermic reaction.\nReason (R): During respiration, glucose is oxidised to CO2 and H2O, releasing energy.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — respiration releases energy (exothermic)","R: true — oxidation of glucose releases energy","R explains A"],
+    "solutionSteps": ["A: true — respiration releases energy (exothermic)","R: true — oxidation of glucose releases energy","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Oxidation of glucose (R) releases energy making respiration exothermic (A).",
     "isCompetencyBased": true,
@@ -1437,7 +1437,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "questionText": "In a single displacement reaction:",
     "options": ["Two compounds swap ions","A reactive element replaces a less reactive one from its compound","Two elements combine","One compound decomposes"],
     "answer": "A reactive element replaces a less reactive one from its compound",
-    "solutionSteps": ["Single displacement: A + BC → AC + B; A is more reactive and displaces B"],
+    "solutionSteps": ["Single displacement: A + BC → AC + B; A is more reactive and displaces B Answer: (B)"],
     "finalAnswer": "A reactive element replaces a less reactive one from its compound",
     "explanation": "Displacement: reactive element displaces less reactive from compound.",
     "isCompetencyBased": false,

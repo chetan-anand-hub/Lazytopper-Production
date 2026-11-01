@@ -192,7 +192,7 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
       "Assertion: sin²A + cos²A = 1 — true (standard identity).",
       "Reason: Pythagoras' theorem in a right triangle — also true.",
       "Derivation: In a right triangle with legs a, b and hypotenuse c, sin A = a/c, cos A = b/c, so sin²A + cos²A = (a² + b²)/c² = c²/c² = 1 (using a² + b² = c²).",
-      "Thus the identity sin²A + cos²A = 1 follows directly from Pythagoras' theorem — Reason explains Assertion."
+      "Thus the identity sin²A + cos²A = 1 follows directly from Pythagoras' theorem — Reason explains Assertion. Answer: (A)"
     ],
     finalAnswer: "Option (A) — both true and Reason explains Assertion.",
     ncertRef: "Exemplar Ch8 (derived)", isCompetencyBased: true,

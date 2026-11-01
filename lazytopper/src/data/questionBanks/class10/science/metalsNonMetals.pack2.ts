@@ -22,7 +22,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Physical properties of metals include: lustrous appearance, malleability, ductility, conductivity",
       "Metals conduct both electricity and heat",
-      "Brittleness, non-lustrous appearance, and poor conductivity are properties of non-metals"
+      "Brittleness, non-lustrous appearance, and poor conductivity are properties of non-metals Answer: (B)"
     ],
     "finalAnswer": "They conduct electricity",
     "explanation": "Physical properties of metals include: lustrous appearance, malleability, ductility, conductivity. Metals conduct both electricity and heat. Brittleness, non-lustrous appearance, and poor conductivity are properties of non-metals. Therefore, the correct answer is They conduct electricity.",
@@ -53,7 +53,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Sodium is so soft that it can be cut with a knife — this property is softness",
       "Ductility is the ability to be drawn into wires",
       "Malleability is the ability to be beaten into thin sheets",
-      "Brittleness is the tendency to break easily"
+      "Brittleness is the tendency to break easily Answer: (C)"
     ],
     "finalAnswer": "Softness",
     "explanation": "Sodium is so soft that it can be cut with a knife — this property is softness. Ductility is the ability to be drawn into wires. Malleability is the ability to be beaten into thin sheets. Brittleness is the tendency to break easily. Therefore, the correct answer is Softness.",
@@ -82,7 +82,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Most non-metals are dull and non-lustrous",
       "Iodine is an exception - it is a lustrous non-metal with a shiny, dark grey appearance",
-      "Chlorine, oxygen, and nitrogen are gases and non-lustrous"
+      "Chlorine, oxygen, and nitrogen are gases and non-lustrous Answer: (B)"
     ],
     "finalAnswer": "Iodine",
     "explanation": "Most non-metals are dull and non-lustrous. Iodine is an exception - it is a lustrous non-metal with a shiny, dark grey appearance. Chlorine, oxygen, and nitrogen are gases and non-lustrous. Therefore, the correct answer is Iodine.",
@@ -112,7 +112,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Metals react with oxygen to form metallic oxides",
       "These oxides are generally basic in nature",
-      "Example: 2Na + O₂ → Na₂O₂ (sodium peroxide)"
+      "Example: 2Na + O₂ → Na₂O₂ (sodium peroxide) Answer: (B)"
     ],
     "finalAnswer": "Metallic oxide",
     "explanation": "Metals react with oxygen to form metallic oxides. These oxides are generally basic in nature. Example: 2Na + O₂ → Na₂O₂ (sodium peroxide). Therefore, the correct answer is Metallic oxide.",
@@ -142,7 +142,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Metals react with dilute acids to produce metal salts and hydrogen gas",
       "Mg + 2HCl → MgCl₂ + H₂↑",
-      "Hydrogen gas burns with a 'pop' sound"
+      "Hydrogen gas burns with a 'pop' sound Answer: (A)"
     ],
     "finalAnswer": "Magnesium chloride and hydrogen gas are produced",
     "explanation": "Metals react with dilute acids to produce metal salts and hydrogen gas. Mg + 2HCl → MgCl₂ + H₂↑. Hydrogen gas burns with a 'pop' sound. Therefore, the correct answer is Magnesium chloride and hydrogen gas are produced.",
@@ -172,7 +172,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Only metals more reactive than hydrogen can displace hydrogen from dilute acids",
       "Copper is less reactive than hydrogen, so it cannot displace it",
-      "Zinc, iron, and magnesium are more reactive than hydrogen"
+      "Zinc, iron, and magnesium are more reactive than hydrogen Answer: (C)"
     ],
     "finalAnswer": "Copper",
     "explanation": "Only metals more reactive than hydrogen can displace hydrogen from dilute acids. Copper is less reactive than hydrogen, so it cannot displace it. Zinc, iron, and magnesium are more reactive than hydrogen. Therefore, the correct answer is Copper.",
@@ -203,7 +203,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "The reactivity series arranges metals in order of their reactivity",
       "Potassium (K) is one of the most reactive metals",
       "Gold and silver are least reactive",
-      "The series helps predict reactions between metals and compounds"
+      "The series helps predict reactions between metals and compounds Answer: (C)"
     ],
     "finalAnswer": "Potassium",
     "explanation": "The reactivity series arranges metals in order of their reactivity. Potassium (K) is one of the most reactive metals. Gold and silver are least reactive. The series helps predict reactions between metals and compounds. Therefore, the correct answer is Potassium.",
@@ -233,7 +233,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A more reactive metal can displace a less reactive metal from its salt solution",
       "Iron is more reactive than copper, so Fe displaces Cu from CuSO₄",
-      "Copper is less reactive than iron, so the reverse reaction won't occur"
+      "Copper is less reactive than iron, so the reverse reaction won't occur Answer: (A)"
     ],
     "finalAnswer": "Fe + CuSO₄ → FeSO₄ + Cu",
     "explanation": "A more reactive metal can displace a less reactive metal from its salt solution. Iron is more reactive than copper, so Fe displaces Cu from CuSO₄. Copper is less reactive than iron, so the reverse reaction won't occur. Therefore, the correct answer is Fe + CuSO₄ → FeSO₄ + Cu.",
@@ -262,7 +262,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Reduction is the process of removing oxygen from a metal oxide",
       "This produces the pure metal",
-      "Carbon is often used as a reducing agent: 2Fe₂O₃ + 3C → 4Fe + 3CO₂"
+      "Carbon is often used as a reducing agent: 2Fe₂O₃ + 3C → 4Fe + 3CO₂ Answer: (B)"
     ],
     "finalAnswer": "Reduction",
     "explanation": "Reduction is the process of removing oxygen from a metal oxide. This produces the pure metal. Carbon is often used as a reducing agent: 2Fe₂O₃ + 3C → 4Fe + 3CO₂. Therefore, the correct answer is Reduction.",
@@ -292,7 +292,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Roasting is heating ore in air, but without fusion",
       "Sulphide ores are converted to oxides by roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂",
-      "This is done to concentrate the ore and remove impurities"
+      "This is done to concentrate the ore and remove impurities Answer: (D)"
     ],
     "finalAnswer": "Sulphides",
     "explanation": "Roasting is heating ore in air, but without fusion. Sulphide ores are converted to oxides by roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂. This is done to concentrate the ore and remove impurities. Therefore, the correct answer is Sulphides.",
@@ -323,7 +323,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Carbon is cost-effective compared to other reducing agents",
       "Carbon remains stable at the high temperatures required for iron extraction",
       "Carbon has high affinity for oxygen, forming CO and CO₂",
-      "In blast furnaces, C + O₂ → CO₂, and CO acts as the actual reducing agent"
+      "In blast furnaces, C + O₂ → CO₂, and CO acts as the actual reducing agent Answer: (D)"
     ],
     "finalAnswer": "All of the above",
     "explanation": "Carbon is cost-effective compared to other reducing agents. Carbon remains stable at the high temperatures required for iron extraction. Carbon has high affinity for oxygen, forming CO and CO₂. In blast furnaces, C + O₂ → CO₂, and CO acts as the actual reducing agent. Therefore, the correct answer is All of the above.",
@@ -352,7 +352,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Corrosion is the degradation of metals by chemical reaction",
       "Most common form is oxidation of metals in presence of oxygen and moisture",
-      "Rust formation in iron is a common example of corrosion"
+      "Rust formation in iron is a common example of corrosion Answer: (A)"
     ],
     "finalAnswer": "Breakdown of metals due to chemical reactions with the environment",
     "explanation": "Corrosion is the degradation of metals by chemical reaction. Most common form is oxidation of metals in presence of oxygen and moisture. Rust formation in iron is a common example of corrosion. Therefore, the correct answer is Breakdown of metals due to chemical reactions with the environment.",
@@ -382,7 +382,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Rusting occurs when iron reacts with oxygen and moisture",
       "Prevention includes: applying protective coatings, galvanization (coating with zinc), painting, oiling",
-      "These methods prevent direct contact of iron with oxygen and moisture"
+      "These methods prevent direct contact of iron with oxygen and moisture Answer: (C)"
     ],
     "finalAnswer": "Galvanization or applying protective coatings",
     "explanation": "Rusting occurs when iron reacts with oxygen and moisture. Prevention includes: applying protective coatings, galvanization (coating with zinc), painting, oiling. These methods prevent direct contact of iron with oxygen and moisture. Therefore, the correct answer is Galvanization or applying protective coatings.",
@@ -413,7 +413,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Tarnishing is a form of corrosion specific to certain metals",
       "2Ag + H₂S → Ag₂S (black) + H₂",
       "The black layer of silver sulphide forms on the surface",
-      "This is similar to rusting but with different chemical reactants"
+      "This is similar to rusting but with different chemical reactants Answer: (B)"
     ],
     "finalAnswer": "Silver reacts with hydrogen sulphide to form silver sulphide (a black layer)",
     "explanation": "Tarnishing is a form of corrosion specific to certain metals. 2Ag + H₂S → Ag₂S (black) + H₂. The black layer of silver sulphide forms on the surface. This is similar to rusting but with different chemical reactants. Therefore, the correct answer is Silver reacts with hydrogen sulphide to form silver sulphide (a black layer).",
@@ -435,7 +435,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "options": ["Lustre and good electrical conductivity", "Brittleness and dull surface", "Low density and poor conduction of heat", "Brittleness and poor electrical conductivity"],
     "answer": "Lustre and good electrical conductivity",
     "solutionSteps": [
-      "[1 mark] Lustre and good electrical conductivity — metals are lustrous and good conductors of heat and electricity; non-metals are dull and poor conductors."
+      "[1 mark] Lustre and good electrical conductivity — metals are lustrous and good conductors of heat and electricity; non-metals are dull and poor conductors. Answer: (A)"
     ],
     "finalAnswer": "Lustre and good electrical conductivity",
     "isCompetencyBased": false,
@@ -541,7 +541,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Assertion is true: 2Na + O₂ → Na₂O₂ (basic oxide)",
       "Reason is true: Na₂O + 2HCl → 2NaCl + H₂O",
       "But Reason does not explain why metals form basic oxides",
-      "The reason explains a property of basic oxides, not their formation"
+      "The reason explains a property of basic oxides, not their formation Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
@@ -572,7 +572,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Assertion is true: Fe + CuSO₄ → FeSO₄ + Cu (displacement reaction)",
       "Reason is true: In reactivity series, Fe is above Cu",
       "Reason correctly explains the assertion - displacement occurs because Fe is more reactive",
-      "A more reactive metal displaces a less reactive one from its salt"
+      "A more reactive metal displaces a less reactive one from its salt Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -602,7 +602,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Assertion is true: Galvanization (zinc coating) prevents iron rusting",
       "Reason is true: Zinc is more reactive than iron (higher in reactivity series)",
       "Zinc forms a protective oxide layer and gets preferentially oxidized",
-      "This acts as a sacrificial protection for iron"
+      "This acts as a sacrificial protection for iron Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -721,7 +721,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Bromine (Br₂) is unique - it is a non-metal that exists as a liquid at room temperature",
       "It is reddish-brown in color and has a pungent odor",
       "Oxygen and nitrogen are gases at room temperature",
-      "Chlorine is also a gas at room temperature"
+      "Chlorine is also a gas at room temperature Answer: (C)"
     ],
     "finalAnswer": "Bromine",
     "explanation": "Most non-metals are solid or gas at room temperature. Bromine (Br₂) is unique - it is a non-metal that exists as a liquid at room temperature. It is reddish-brown in color and has a pungent odor. Oxygen and nitrogen are gases at room temperature. Chlorine is also a gas at room temperature. Therefore, the correct answer is Bromine.",
@@ -750,7 +750,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Metals conduct electricity due to free electrons in their structure.",
       "These electrons move freely and carry electrical charge.",
-      "This property is a characteristic of metallic bonding."
+      "This property is a characteristic of metallic bonding. Answer: (A)"
     ],
     "finalAnswer": "They have loosely bound electrons",
     "explanation": "Metals conduct electricity due to free electrons in their structure. These electrons move freely and carry electrical charge. This property is a characteristic of metallic bonding. Therefore, the correct answer is They have loosely bound electrons.",
@@ -780,7 +780,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "When metals are struck, they vibrate elastically.",
       "These vibrations produce sound waves, causing a ringing sound.",
-      "Non-metals are brittle and don't vibrate elastically."
+      "Non-metals are brittle and don't vibrate elastically. Answer: (B)"
     ],
     "finalAnswer": "Due to elasticity and vibrations of metal structure",
     "explanation": "When metals are struck, they vibrate elastically. These vibrations produce sound waves, causing a ringing sound. Non-metals are brittle and don't vibrate elastically. Therefore, the correct answer is Due to elasticity and vibrations of metal structure.",
@@ -810,7 +810,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Sodium is a highly reactive metal.",
       "2Na + O₂ → Na₂O₂ (sodium peroxide)",
-      "It reacts vigorously even at room temperature."
+      "It reacts vigorously even at room temperature. Answer: (B)"
     ],
     "finalAnswer": "Sodium",
     "explanation": "Sodium is a highly reactive metal. 2Na + O₂ → Na₂O₂ (sodium peroxide). It reacts vigorously even at room temperature. Therefore, the correct answer is Sodium.",
@@ -840,7 +840,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Metals react with dilute acids to produce hydrogen gas.",
       "Example: Mg + 2HCl → MgCl₂ + H₂↑",
-      "The hydrogen gas can be tested with a burning splint (pop sound)."
+      "The hydrogen gas can be tested with a burning splint (pop sound). Answer: (C)"
     ],
     "finalAnswer": "Hydrogen",
     "explanation": "Metals react with dilute acids to produce hydrogen gas. Example: Mg + 2HCl → MgCl₂ + H₂↑. The hydrogen gas can be tested with a burning splint (pop sound). Therefore, the correct answer is Hydrogen.",
@@ -894,7 +894,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The reactivity series shows metals in order of their chemical reactivity.",
       "Mg is more reactive than Zn, Zn more than Fe, and Fe more than Cu.",
-      "This series is based on the tendency of metals to lose electrons."
+      "This series is based on the tendency of metals to lose electrons. Answer: (B)"
     ],
     "finalAnswer": "Mg > Zn > Fe > Cu",
     "explanation": "The reactivity series shows metals in order of their chemical reactivity. Mg is more reactive than Zn, Zn more than Fe, and Fe more than Cu. This series is based on the tendency of metals to lose electrons. Therefore, the correct answer is Mg > Zn > Fe > Cu.",
@@ -924,7 +924,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Iron is more reactive than copper in the reactivity series.",
       "Fe + CuSO₄ → FeSO₄ + Cu",
-      "A more reactive metal can displace a less reactive metal from its salt solution."
+      "A more reactive metal can displace a less reactive metal from its salt solution. Answer: (A)"
     ],
     "finalAnswer": "Iron",
     "explanation": "Iron is more reactive than copper in the reactivity series. Fe + CuSO₄ → FeSO₄ + Cu. A more reactive metal can displace a less reactive metal from its salt solution. Therefore, the correct answer is Iron.",
@@ -977,7 +977,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Metallurgy is the sum of all processes for extracting a metal from its ore and refining it for use.",
       "Refining is only the final purification step; calcination is only a step that converts carbonate ore to oxide.",
-      "Corrosion is the slow eating away of a metal, not its extraction."
+      "Corrosion is the slow eating away of a metal, not its extraction. Answer: (A)"
     ],
     "finalAnswer": "Metallurgy",
     "explanation": "Metallurgy is the sum of all processes for extracting a metal from its ore and refining it for use. Refining is only the final purification step; calcination is only a step that converts carbonate ore to oxide. Corrosion is the slow eating away of a metal, not its extraction. Therefore, the correct answer is Metallurgy.",
@@ -1006,7 +1006,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Aluminum is a highly reactive metal extracted through electrolysis.",
       "2Al₂O₃ → 4Al + 3O₂ (electrolysis of molten alumina)",
-      "Electrolysis is used because Al cannot be reduced using carbon."
+      "Electrolysis is used because Al cannot be reduced using carbon. Answer: (C)"
     ],
     "finalAnswer": "Aluminum",
     "explanation": "Aluminum is a highly reactive metal extracted through electrolysis. 2Al₂O₃ → 4Al + 3O₂ (electrolysis of molten alumina). Electrolysis is used because Al cannot be reduced using carbon. Therefore, the correct answer is Aluminum.",
@@ -1058,7 +1058,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Carbon is more reactive than copper (copper is low in the reactivity series).",
       "So carbon can remove oxygen from copper oxide: 2CuO + C → 2Cu + CO₂ (carbon acts as the reducing agent).",
-      "Carbon is a reducing agent, not an oxidising agent, and copper is a metal less reactive than carbon."
+      "Carbon is a reducing agent, not an oxidising agent, and copper is a metal less reactive than carbon. Answer: (B)"
     ],
     "finalAnswer": "Carbon is more reactive than copper",
     "explanation": "Carbon is more reactive than copper (copper is low in the reactivity series). So carbon can remove oxygen from copper oxide: 2CuO + C → 2Cu + CO₂ (carbon acts as the reducing agent). Carbon is a reducing agent, not an oxidising agent, and copper is a metal less reactive than carbon. Therefore, the correct answer is Carbon is more reactive than copper.",
@@ -1087,7 +1087,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Corrosion is the deterioration of metals due to chemical reactions.",
       "Rusting is a specific type of corrosion affecting iron and steel.",
-      "Corrosion occurs due to oxidation in the presence of moisture and oxygen."
+      "Corrosion occurs due to oxidation in the presence of moisture and oxygen. Answer: (B)"
     ],
     "finalAnswer": "Corrosion",
     "explanation": "Corrosion is the deterioration of metals due to chemical reactions. Rusting is a specific type of corrosion affecting iron and steel. Corrosion occurs due to oxidation in the presence of moisture and oxygen. Therefore, the correct answer is Corrosion.",
@@ -1117,7 +1117,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Rusting is the corrosion of iron in the presence of moisture and oxygen.",
       "4Fe + 3O₂ + 2xH₂O → 2Fe₂O₃.xH₂O (rust)",
-      "Either oxygen or water alone cannot cause rusting; both are essential."
+      "Either oxygen or water alone cannot cause rusting; both are essential. Answer: (C)"
     ],
     "finalAnswer": "Both oxygen and water",
     "explanation": "Rusting is the corrosion of iron in the presence of moisture and oxygen. 4Fe + 3O₂ + 2xH₂O → 2Fe₂O₃.xH₂O (rust). Either oxygen or water alone cannot cause rusting; both are essential. Therefore, the correct answer is Both oxygen and water.",
@@ -1171,7 +1171,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Sonorousness is the ability to produce sound when struck.",
       "This property occurs because metals have elastic properties.",
-      "When struck, they vibrate and produce sound waves."
+      "When struck, they vibrate and produce sound waves. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1201,7 +1201,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Non-metals form covalent oxides by sharing electrons with oxygen.",
       "Examples: CO₂, SO₂, P₂O₅ are all covalent compounds.",
-      "This is unlike metals which form ionic oxides."
+      "This is unlike metals which form ionic oxides. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1231,7 +1231,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Gold is found as native metal (pure form) in nature.",
       "This is because gold is extremely unreactive and doesn't corrode.",
-      "Unreactive metals are not oxidized easily and remain in pure form."
+      "Unreactive metals are not oxidized easily and remain in pure form. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1345,7 +1345,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Graphite is an allotrope of carbon with free electrons in its structure.",
       "These delocalized electrons allow graphite to conduct electricity.",
-      "Most non-metals are poor conductors, making graphite an exception."
+      "Most non-metals are poor conductors, making graphite an exception. Answer: (B)"
     ],
     "finalAnswer": "Graphite",
     "explanation": "Graphite is an allotrope of carbon with free electrons in its structure. These delocalized electrons allow graphite to conduct electricity. Most non-metals are poor conductors, making graphite an exception. Therefore, the correct answer is Graphite.",
@@ -1401,7 +1401,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Aluminum is above carbon in the reactivity series.",
       "Carbon can only reduce metals below it in the reactivity series.",
       "Since Al is more reactive than C, C cannot reduce Al₂O₃.",
-      "Only electrolysis can reduce highly reactive metals like Al."
+      "Only electrolysis can reduce highly reactive metals like Al. Answer: (C)"
     ],
     "finalAnswer": "Aluminum is too reactive and carbon cannot displace it from its oxide",
     "explanation": "Aluminum is above carbon in the reactivity series. Carbon can only reduce metals below it in the reactivity series. Since Al is more reactive than C, C cannot reduce Al₂O₃. Only electrolysis can reduce highly reactive metals like Al. Therefore, the correct answer is Aluminum is too reactive and carbon cannot displace it from its oxide.",
@@ -1424,7 +1424,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which property allows metals to be beaten into thin sheets?",
     "options": ["Ductility","Conductivity","Malleability","Lustre"],
     "answer": "Malleability",
-    "solutionSteps": ["Malleability is the property of metals to be beaten into thin sheets"],
+    "solutionSteps": ["Malleability is the property of metals to be beaten into thin sheets Answer: (C)"],
     "finalAnswer": "Malleability",
     "explanation": "Metals can be beaten into sheets = malleability.",
     "isCompetencyBased": false,
@@ -1445,7 +1445,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "Non-metal oxides dissolved in water generally form:",
     "options": ["Bases","Neutral solutions","Acids","Salts"],
     "answer": "Acids",
-    "solutionSteps": ["Non-metal oxides react with water to form acids, e.g., SO2 + H2O → H2SO3"],
+    "solutionSteps": ["Non-metal oxides react with water to form acids, e.g., SO2 + H2O → H2SO3 Answer: (C)"],
     "finalAnswer": "Acids",
     "explanation": "Non-metal oxides form acids with water.",
     "isCompetencyBased": false,
@@ -1466,7 +1466,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which metal is at the top of the reactivity series?",
     "options": ["Gold","Copper","Potassium","Iron"],
     "answer": "Potassium",
-    "solutionSteps": ["Potassium (K) is the most reactive common metal — top of the electrochemical series"],
+    "solutionSteps": ["Potassium (K) is the most reactive common metal — top of the electrochemical series Answer: (C)"],
     "finalAnswer": "Potassium",
     "explanation": "Potassium is the most reactive metal in the series.",
     "isCompetencyBased": false,
@@ -1487,7 +1487,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "The thermite reaction involves:",
     "options": ["Iron and water","Reduction of Fe2O3 by aluminium","Oxidation of copper","Sodium reacting with acid"],
     "answer": "Reduction of Fe2O3 by aluminium",
-    "solutionSteps": ["Thermite: 2Al + Fe2O3 → Al2O3 + 2Fe + heat; used for welding railway tracks"],
+    "solutionSteps": ["Thermite: 2Al + Fe2O3 → Al2O3 + 2Fe + heat; used for welding railway tracks Answer: (B)"],
     "finalAnswer": "Reduction of Fe2O3 by aluminium",
     "explanation": "Thermite = 2Al + Fe2O3 → Al2O3 + 2Fe.",
     "isCompetencyBased": false,
@@ -1508,7 +1508,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "Ionic compounds generally have:",
     "options": ["Low melting points","Poor electrical conductivity in all states","High melting and boiling points","Molecular structure"],
     "answer": "High melting and boiling points",
-    "solutionSteps": ["Strong electrostatic forces between ions require high energy to overcome → high MP and BP"],
+    "solutionSteps": ["Strong electrostatic forces between ions require high energy to overcome → high MP and BP Answer: (C)"],
     "finalAnswer": "High melting and boiling points",
     "explanation": "Ionic compounds: strong forces → high MP and BP.",
     "isCompetencyBased": false,
@@ -1529,7 +1529,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which gas is produced when zinc reacts with dilute HCl?",
     "options": ["O2","CO2","H2","Cl2"],
     "answer": "H2",
-    "solutionSteps": ["Zn + 2HCl → ZnCl2 + H2; hydrogen burns with a pop sound"],
+    "solutionSteps": ["Zn + 2HCl → ZnCl2 + H2; hydrogen burns with a pop sound Answer: (C)"],
     "finalAnswer": "H2",
     "explanation": "Zn + 2HCl → ZnCl2 + H2 (pop sound).",
     "isCompetencyBased": false,
@@ -1550,7 +1550,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): Gold and silver are used for jewellery.\nReason (R): Gold and silver are at the bottom of the reactivity series and are highly resistant to corrosion.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — Au and Ag are used for jewellery","R: true — low reactivity means they resist corrosion","R explains A"],
+    "solutionSteps": ["A: true — Au and Ag are used for jewellery","R: true — low reactivity means they resist corrosion","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Low reactivity of Au and Ag (R) makes them suitable for jewellery (A).",
     "isCompetencyBased": true,
@@ -1571,7 +1571,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "What type of bond is formed between two non-metal atoms?",
     "options": ["Ionic bond","Metallic bond","Covalent bond","Hydrogen bond"],
     "answer": "Covalent bond",
-    "solutionSteps": ["Non-metals share electrons to form covalent bonds, e.g., H2O, CO2, HCl"],
+    "solutionSteps": ["Non-metals share electrons to form covalent bonds, e.g., H2O, CO2, HCl Answer: (C)"],
     "finalAnswer": "Covalent bond",
     "explanation": "Non-metals share electrons → covalent bond.",
     "isCompetencyBased": false,
@@ -1592,7 +1592,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "questionText": "Coating iron with zinc to prevent rusting is called:",
     "options": ["Electroplating","Galvanisation","Anodising","Alloying"],
     "answer": "Galvanisation",
-    "solutionSteps": ["Galvanisation: coating iron/steel with zinc; zinc acts as a sacrificial anode preventing corrosion"],
+    "solutionSteps": ["Galvanisation: coating iron/steel with zinc; zinc acts as a sacrificial anode preventing corrosion Answer: (B)"],
     "finalAnswer": "Galvanisation",
     "explanation": "Coating iron with zinc = galvanisation.",
     "isCompetencyBased": false,

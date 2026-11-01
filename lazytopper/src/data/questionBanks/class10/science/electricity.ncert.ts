@@ -287,7 +287,7 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     questionText: "A piece of wire of resistance R is cut into five equal parts. These parts are then connected in parallel. If the equivalent resistance of this combination is R', then the ratio R/R' is –",
     options: ["1/25", "1/5", "5", "25"],
     answer: "25",
-    solutionSteps: ["Each of the 5 equal parts has resistance R/5.", "Connecting five resistors of (R/5) in parallel: 1/R' = 5 × (1/(R/5)) = 5 × (5/R) = 25/R.", "So R' = R/25.", "Therefore R/R' = R/(R/25) = 25."],
+    solutionSteps: ["Each of the 5 equal parts has resistance R/5.", "Connecting five resistors of (R/5) in parallel: 1/R' = 5 × (1/(R/5)) = 5 × (5/R) = 25/R.", "So R' = R/25.", "Therefore R/R' = R/(R/25) = 25. Answer: (D)"],
     finalAnswer: "25 — option (d)",
     ncertRef: "Exercise Q1", isCompetencyBased: true },
 
@@ -295,7 +295,7 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     questionText: "Which of the following terms does not represent electrical power in a circuit?",
     options: ["I²R", "IR²", "VI", "V²/R"],
     answer: "IR²",
-    solutionSteps: ["Electric power expressions: P = VI = I²R = V²/R.", "I²R, VI and V²/R are all valid forms of power.", "IR² (current × resistance²) has units A × Ω² = V·Ω, which is not power.", "Hence the odd one out is IR²."],
+    solutionSteps: ["Electric power expressions: P = VI = I²R = V²/R.", "I²R, VI and V²/R are all valid forms of power.", "IR² (current × resistance²) has units A × Ω² = V·Ω, which is not power.", "Hence the odd one out is IR². Answer: (B)"],
     finalAnswer: "IR² — option (b)",
     ncertRef: "Exercise Q2", isCompetencyBased: false },
 
@@ -303,7 +303,7 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     questionText: "An electric bulb is rated 220 V and 100 W. When it is operated on 110 V, the power consumed will be –",
     options: ["100 W", "75 W", "50 W", "25 W"],
     answer: "25 W",
-    solutionSteps: ["At rated values: R = V²/P = (220)²/100 = 48400/100 = 484 Ω.", "Assuming R stays approximately constant, at V' = 110 V: P' = V'²/R = (110)²/484 = 12100/484 = 25 W.", "Equivalently, halving the voltage quarters the power (P ∝ V²).", "Hence the power consumed becomes 25 W."],
+    solutionSteps: ["At rated values: R = V²/P = (220)²/100 = 48400/100 = 484 Ω.", "Assuming R stays approximately constant, at V' = 110 V: P' = V'²/R = (110)²/484 = 12100/484 = 25 W.", "Equivalently, halving the voltage quarters the power (P ∝ V²).", "Hence the power consumed becomes 25 W. Answer: (D)"],
     finalAnswer: "25 W — option (d)",
     ncertRef: "Exercise Q3", isCompetencyBased: true },
 
@@ -311,7 +311,7 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
     questionText: "Two conducting wires of the same material and of equal lengths and equal diameters are first connected in series and then parallel in a circuit across the same potential difference. The ratio of heat produced in series and parallel combinations would be –",
     options: ["1:2", "2:1", "1:4", "4:1"],
     answer: "1:4",
-    solutionSteps: ["Let each wire have resistance R. Series: R_s = 2R. Parallel: R_p = R/2.", "Heat produced in time t with same V: H = V²t/R.", "H_series = V²t/(2R); H_parallel = V²t/(R/2) = 2V²t/R.", "Ratio H_series : H_parallel = (V²t/2R) : (2V²t/R) = (1/2) : 2 = 1 : 4."],
+    solutionSteps: ["Let each wire have resistance R. Series: R_s = 2R. Parallel: R_p = R/2.", "Heat produced in time t with same V: H = V²t/R.", "H_series = V²t/(2R); H_parallel = V²t/(R/2) = 2V²t/R.", "Ratio H_series : H_parallel = (V²t/2R) : (2V²t/R) = (1/2) : 2 = 1 : 4. Answer: (C)"],
     finalAnswer: "1:4 — option (c)",
     ncertRef: "Exercise Q4", isCompetencyBased: true },
 

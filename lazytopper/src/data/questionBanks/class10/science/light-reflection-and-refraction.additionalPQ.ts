@@ -16,7 +16,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
       "exactly at the principal focus"
     ],
     answer: "anywhere between the pole and principal focus",
-    solutionSteps: ["[1 mark] For a concave mirror, virtual and enlarged image is formed only when the object is between the pole (P) and the principal focus (F)."],
+    solutionSteps: ["[1 mark] For a concave mirror, virtual and enlarged image is formed only when the object is between the pole (P) and the principal focus (F). Answer: (B)"],
     finalAnswer: "(b) anywhere between the pole and principal focus",
     ncertRef: "APQ Science-PQ Q13", isCompetencyBased: false },
 
@@ -44,7 +44,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
     questionText: "The light enters from air to glass having refractive index 1.5. The speed of light in glass is:",
     options: ["3 × 10^8 m/s", "2 × 10^8 m/s", "1.5 × 10^8 m/s", "2.25 × 10^8 m/s"],
     answer: "2 × 10^8 m/s",
-    solutionSteps: ["[0.5 mark] Refractive index n = c / v ⟹ v = c / n.", "[0.5 mark] v = (3 × 10^8 m/s) / 1.5 = 2 × 10^8 m/s."],
+    solutionSteps: ["[0.5 mark] Refractive index n = c / v ⟹ v = c / n.", "[0.5 mark] v = (3 × 10^8 m/s) / 1.5 = 2 × 10^8 m/s. Answer: (B)"],
     finalAnswer: "(b) 2 × 10^8 m/s",
     ncertRef: "APQ Science-PQ2 Q13", isCompetencyBased: false },
 
@@ -58,7 +58,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
       "v = +5 cm, f = +10 cm and hi = +7.5 cm"
     ],
     answer: "v = +5 cm, f = +10 cm and hi = +7.5 cm",
-    solutionSteps: ["For a convex mirror, the image formed is virtual (behind the mirror) and erect.", "Distances measured opposite to incident light (behind mirror) are POSITIVE — so v = +5 cm. Focal length is also behind mirror ⟹ f = +10 cm.", "Erect (upright) images have POSITIVE height ⟹ hi = +7.5 cm."],
+    solutionSteps: ["For a convex mirror, the image formed is virtual (behind the mirror) and erect.", "Distances measured opposite to incident light (behind mirror) are POSITIVE — so v = +5 cm. Focal length is also behind mirror ⟹ f = +10 cm.", "Erect (upright) images have POSITIVE height ⟹ hi = +7.5 cm. Answer: (D)"],
     finalAnswer: "(d) v = +5 cm, f = +10 cm and hi = +7.5 cm",
     ncertRef: "APQ Science-PQ2 Q14", isCompetencyBased: false },
 

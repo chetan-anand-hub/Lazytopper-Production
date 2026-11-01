@@ -39,7 +39,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     questionText: "For any natural number n, the number 6ⁿ cannot end with the digit",
     options: ["2", "4", "0", "8"],
     answer: "0",
-    solutionSteps: ["6ⁿ = (2 × 3)ⁿ = 2ⁿ × 3ⁿ. The only prime factors of 6ⁿ are 2 and 3.", "A number ends with 0 only if it is divisible by 10 = 2 × 5, i.e. its prime factorisation must contain 5.", "Since 6ⁿ has no factor of 5, by the uniqueness of prime factorisation (FTA), 6ⁿ can NEVER end with 0."],
+    solutionSteps: ["6ⁿ = (2 × 3)ⁿ = 2ⁿ × 3ⁿ. The only prime factors of 6ⁿ are 2 and 3.", "A number ends with 0 only if it is divisible by 10 = 2 × 5, i.e. its prime factorisation must contain 5.", "Since 6ⁿ has no factor of 5, by the uniqueness of prime factorisation (FTA), 6ⁿ can NEVER end with 0. Answer: (C)"],
     finalAnswer: "0 — option (c).",
     ncertRef: "NCERT Ex 1.1 Q5", isCompetencyBased: true,
     strategyHint: "Ends-with-0 ⇒ divisible by 10 ⇒ must have factor 5." },

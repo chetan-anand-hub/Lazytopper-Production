@@ -21,7 +21,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Only one strip has lost the smell of clove oil; that strip was dipped in the sodium hydroxide solution.",
     "solutionSteps": [
-      "[1 mark] Clove oil is an olfactory indicator: its smell cannot be detected in a basic solution but remains in acidic and neutral ones. So the one strip that loses its smell was in NaOH; two strips (acid and water) keep the smell, so 'only one strip still smells' is wrong."
+      "[1 mark] Clove oil is an olfactory indicator: its smell cannot be detected in a basic solution but remains in acidic and neutral ones. So the one strip that loses its smell was in NaOH; two strips (acid and water) keep the smell, so 'only one strip still smells' is wrong. Answer: (A)"
     ],
     "finalAnswer": "Only one strip has lost the smell of clove oil; that strip was dipped in the sodium hydroxide solution.",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Sodium carbonate (washing soda) solution",
     "solutionSteps": [
-      "[1 mark] Red litmus turning blue, turmeric turning red-brown and red cabbage turning green all happen only in a base, and washing soda solution is basic. Vinegar and ammonium chloride solution are acidic and sugar solution is neutral, so none of them would turn turmeric red-brown."
+      "[1 mark] Red litmus turning blue, turmeric turning red-brown and red cabbage turning green all happen only in a base, and washing soda solution is basic. Vinegar and ammonium chloride solution are acidic and sugar solution is neutral, so none of them would turn turmeric red-brown. Answer: (B)"
     ],
     "finalAnswer": "Sodium carbonate (washing soda) solution",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Blue litmus turns red; turmeric stays yellow; China rose extract turns dark pink (magenta).",
     "solutionSteps": [
-      "[1 mark] An acid turns blue litmus red and China rose extract dark pink (magenta), while turmeric changes colour only in a base, so it stays yellow. The option with turmeric turning red-brown wrongly assumes turmeric also responds to acids."
+      "[1 mark] An acid turns blue litmus red and China rose extract dark pink (magenta), while turmeric changes colour only in a base, so it stays yellow. The option with turmeric turning red-brown wrongly assumes turmeric also responds to acids. Answer: (C)"
     ],
     "finalAnswer": "Blue litmus turns red; turmeric stays yellow; China rose extract turns dark pink (magenta).",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Lemon juice turned phenolphthalein pink.",
     "solutionSteps": [
-      "[1 mark] Phenolphthalein turns pink only in a basic solution and stays colourless in acidic lemon juice, so that entry is wrong. 'Vinegar left turmeric yellow' is correct, because turmeric does not change colour in acids."
+      "[1 mark] Phenolphthalein turns pink only in a basic solution and stays colourless in acidic lemon juice, so that entry is wrong. 'Vinegar left turmeric yellow' is correct, because turmeric does not change colour in acids. Answer: (D)"
     ],
     "finalAnswer": "Lemon juice turned phenolphthalein pink.",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: since turmeric stays yellow in acidic HCl and in neutral salt solution alike, it gives the same result for both and cannot distinguish them."
+      "[1 mark] (A) Both are true and R explains A: since turmeric stays yellow in acidic HCl and in neutral salt solution alike, it gives the same result for both and cannot distinguish them. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: vanilla essence is an olfactory indicator, and its smell cannot be detected in a basic solution, so the base can be picked out by smell. R is false: the change is in odour, not in colour."
+      "[1 mark] (C) A is true: vanilla essence is an olfactory indicator, and its smell cannot be detected in a basic solution, so the base can be picked out by smell. R is false: the change is in odour, not in colour. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -539,7 +539,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Brisk effervescence occurs, and the gas, when bubbled through lime water, turns it milky.",
     "solutionSteps": [
-      "[1 mark] An acid reacts with a metal carbonate to give a salt, water and carbon dioxide, which turns lime water milky. The 'pop' test is for hydrogen, which comes from acids reacting with metals, not with carbonates; simply dissolving happens in all four liquids."
+      "[1 mark] An acid reacts with a metal carbonate to give a salt, water and carbon dioxide, which turns lime water milky. The 'pop' test is for hydrogen, which comes from acids reacting with metals, not with carbonates; simply dissolving happens in all four liquids. Answer: (A)"
     ],
     "finalAnswer": "Brisk effervescence occurs, and the gas, when bubbled through lime water, turns it milky.",
     "isCompetencyBased": true,
@@ -568,7 +568,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A salt and water are the only products formed.",
     "solutionSteps": [
-      "[1 mark] ZnO + 2HCl → ZnCl₂ + H₂O; CO₂ + 2NaOH → Na₂CO₃ + H₂O; HNO₃ + KOH → KNO₃ + H₂O. Each is an acid–base type reaction giving salt + water. No free metal is used, so no hydrogen forms, and reaction (2) uses up CO₂ rather than releasing it."
+      "[1 mark] ZnO + 2HCl → ZnCl₂ + H₂O; CO₂ + 2NaOH → Na₂CO₃ + H₂O; HNO₃ + KOH → KNO₃ + H₂O. Each is an acid–base type reaction giving salt + water. No free metal is used, so no hydrogen forms, and reaction (2) uses up CO₂ rather than releasing it. Answer: (B)"
     ],
     "finalAnswer": "A salt and water are the only products formed.",
     "isCompetencyBased": true,
@@ -597,7 +597,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "30 mL",
     "solutionSteps": [
-      "[1 mark] The acid needed is proportional to the amount of base: 45 mL is three times 15 mL, so 3 × 10 mL = 30 mL of acid is needed. 67.5 mL comes from inverting the ratio (45 × 15/10), which is wrong."
+      "[1 mark] The acid needed is proportional to the amount of base: 45 mL is three times 15 mL, so 3 × 10 mL = 30 mL of acid is needed. 67.5 mL comes from inverting the ratio (45 × 15/10), which is wrong. Answer: (C)"
     ],
     "finalAnswer": "30 mL",
     "isCompetencyBased": true,
@@ -626,7 +626,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Quicklime",
     "solutionSteps": [
-      "[1 mark] Quicklime is calcium oxide, a basic metal oxide; with an acid it forms only a salt and water (CaO + 2HCl → CaCl₂ + H₂O), so no gas is released. Baking soda, washing soda and marble are a hydrogencarbonate or carbonates, which all release carbon dioxide."
+      "[1 mark] Quicklime is calcium oxide, a basic metal oxide; with an acid it forms only a salt and water (CaO + 2HCl → CaCl₂ + H₂O), so no gas is released. Baking soda, washing soda and marble are a hydrogencarbonate or carbonates, which all release carbon dioxide. Answer: (D)"
     ],
     "finalAnswer": "Quicklime",
     "isCompetencyBased": true,
@@ -655,7 +655,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: copper is less reactive than hydrogen, so no hydrogen bubbles form in dilute hydrochloric acid. R is a true statement of the general rule — and it is exactly why the assertion is false."
+      "[1 mark] (D) A is false: copper is less reactive than hydrogen, so no hydrogen bubbles form in dilute hydrochloric acid. R is a true statement of the general rule — and it is exactly why the assertion is false. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -684,7 +684,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: exhaled air contains carbon dioxide, which reacts with the base calcium hydroxide (Ca(OH)₂ + CO₂ → CaCO₃ + H₂O); the insoluble white calcium carbonate makes the lime water milky."
+      "[1 mark] (A) Both are true and R explains A: exhaled air contains carbon dioxide, which reacts with the base calcium hydroxide (Ca(OH)₂ + CO₂ → CaCO₃ + H₂O); the insoluble white calcium carbonate makes the lime water milky. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1064,7 +1064,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Glass cleaner",
     "solutionSteps": [
-      "[1 mark] Glass cleaner: the further the pH lies above 7, the higher the OH⁻ ion concentration, so pH 11 is the most basic. The toilet-bowl cleaner (pH 1) is the strongest acid, with the most H⁺ ions, not OH⁻ ions."
+      "[1 mark] Glass cleaner: the further the pH lies above 7, the higher the OH⁻ ion concentration, so pH 11 is the most basic. The toilet-bowl cleaner (pH 1) is the strongest acid, with the most H⁺ ions, not OH⁻ ions. Answer: (A)"
     ],
     "finalAnswer": "Glass cleaner",
     "isCompetencyBased": true,
@@ -1093,7 +1093,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Her note is wrong, because strength depends on how completely the acid ionises to give H⁺ ions; acetic acid remains weak and hydrochloric acid remains strong at any concentration.",
     "solutionSteps": [
-      "[1 mark] Strength is about the extent of ionisation, not the amount of acid: hydrochloric acid ionises almost completely and acetic acid only partially, whatever the dilution. Concentration (dilute/concentrated) is a separate idea, so Shreya has confused it with strength."
+      "[1 mark] Strength is about the extent of ionisation, not the amount of acid: hydrochloric acid ionises almost completely and acetic acid only partially, whatever the dilution. Concentration (dilute/concentrated) is a separate idea, so Shreya has confused it with strength. Answer: (B)"
     ],
     "finalAnswer": "Her note is wrong, because strength depends on how completely the acid ionises to give H⁺ ions; acetic acid remains weak and hydrochloric acid remains strong at any concentration.",
     "isCompetencyBased": true,
@@ -1122,7 +1122,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Barley",
     "solutionSteps": [
-      "[1 mark] Barley: the soil is mildly basic (pH 8.0), which lies inside barley's range of 7.0–8.5. Potato, tea and blueberry all need acidic soil (pH below 6), so they would grow poorly in this field."
+      "[1 mark] Barley: the soil is mildly basic (pH 8.0), which lies inside barley's range of 7.0–8.5. Potato, tea and blueberry all need acidic soil (pH below 6), so they would grow poorly in this field. Answer: (C)"
     ],
     "finalAnswer": "Barley",
     "isCompetencyBased": true,
@@ -1151,7 +1151,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The milk becomes more acidic with time, and its H⁺ ion concentration at 12 h is higher than at 0 h.",
     "solutionSteps": [
-      "[1 mark] A falling pH means the solution is becoming more acidic, i.e. its H⁺ ion concentration is rising, as acid forms while milk sets into curd. The tempting first option reverses this: a lower pH value means more acidic, not more basic."
+      "[1 mark] A falling pH means the solution is becoming more acidic, i.e. its H⁺ ion concentration is rising, as acid forms while milk sets into curd. The tempting first option reverses this: a lower pH value means more acidic, not more basic. Answer: (D)"
     ],
     "finalAnswer": "The milk becomes more acidic with time, and its H⁺ ion concentration at 12 h is higher than at 0 h.",
     "isCompetencyBased": true,
@@ -1180,7 +1180,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true because sodium hydroxide is a strong base that ionises almost completely, giving more OH⁻ ions and hence a higher pH. R is false: ammonium hydroxide is a weak base that ionises only partially in water."
+      "[1 mark] (C): A is true because sodium hydroxide is a strong base that ionises almost completely, giving more OH⁻ ions and hence a higher pH. R is false: ammonium hydroxide is a weak base that ionises only partially in water. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1209,7 +1209,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] Key (A): A is true, since bacteria turn sugar on the teeth into acids, so the pH drops to 5.0, below 5.5, where enamel can corrode. R is true and explains the advice: basic toothpaste neutralises that acid."
+      "[1 mark] Key (A): A is true, since bacteria turn sugar on the teeth into acids, so the pH drops to 5.0, below 5.5, where enamel can corrode. R is true and explains the advice: basic toothpaste neutralises that acid. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1585,7 +1585,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Sodium carbonate and sodium hydrogencarbonate",
     "solutionSteps": [
-      "[1 mark] Sodium carbonate and sodium hydrogencarbonate are salts of a strong base (NaOH) and a weak acid (carbonic acid), so both solutions are basic (pH > 7). NaCl, K₂SO₄ and Na₂SO₄ are neutral, and ammonium salts (strong acid + weak base) are acidic, so every other pair fails."
+      "[1 mark] Sodium carbonate and sodium hydrogencarbonate are salts of a strong base (NaOH) and a weak acid (carbonic acid), so both solutions are basic (pH > 7). NaCl, K₂SO₄ and Na₂SO₄ are neutral, and ammonium salts (strong acid + weak base) are acidic, so every other pair fails. Answer: (A)"
     ],
     "finalAnswer": "Sodium carbonate and sodium hydrogencarbonate",
     "isCompetencyBased": true,
@@ -1614,7 +1614,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Chlorine gas released at the anode, passed over dry slaked lime",
     "solutionSteps": [
-      "[1 mark] The disinfectant is bleaching powder, made by the action of chlorine on dry slaked lime: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O. In the chlor-alkali process chlorine is released at the anode, while hydrogen is released at the cathode and NaOH forms near the cathode."
+      "[1 mark] The disinfectant is bleaching powder, made by the action of chlorine on dry slaked lime: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O. In the chlor-alkali process chlorine is released at the anode, while hydrogen is released at the cathode and NaOH forms near the cathode. Answer: (B)"
     ],
     "finalAnswer": "Chlorine gas released at the anode, passed over dry slaked lime",
     "isCompetencyBased": true,
@@ -1643,7 +1643,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Both crystals contain water of crystallisation, which is driven off on heating and can be taken up again",
     "solutionSteps": [
-      "[1 mark] Both are hydrated salts (CuSO₄·5H₂O and CaSO₄·2H₂O). Heating drives off their water of crystallisation, seen as droplets; adding water hydrates the residue again (the blue colour returns; Plaster of Paris sets into gypsum). Mere surface moisture could not explain the colour change or the setting."
+      "[1 mark] Both are hydrated salts (CuSO₄·5H₂O and CaSO₄·2H₂O). Heating drives off their water of crystallisation, seen as droplets; adding water hydrates the residue again (the blue colour returns; Plaster of Paris sets into gypsum). Mere surface moisture could not explain the colour change or the setting. Answer: (C)"
     ],
     "finalAnswer": "Both crystals contain water of crystallisation, which is driven off on heating and can be taken up again",
     "isCompetencyBased": true,
@@ -1672,7 +1672,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "On heating a little of the powder in a dry test tube, a gas is given off that turns lime water milky",
     "solutionSteps": [
-      "[1 mark] On heating, 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂, and CO₂ turns lime water milky; common salt gives no gas. Both powders dissolve to give colourless solutions, a baking soda solution would turn red litmus blue, and neither gives chlorine, so only the first result decides it."
+      "[1 mark] On heating, 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂, and CO₂ turns lime water milky; common salt gives no gas. Both powders dissolve to give colourless solutions, a baking soda solution would turn red litmus blue, and neither gives chlorine, so only the first result decides it. Answer: (D)"
     ],
     "finalAnswer": "On heating a little of the powder in a dry test tube, a gas is given off that turns lime water milky",
     "isCompetencyBased": true,
@@ -1701,7 +1701,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: ammonium chloride solution is acidic (pH < 7), so it turns blue litmus red. R is false: ammonium chloride is formed from a strong acid (HCl) and a WEAK base (ammonium hydroxide); a salt of a strong acid and a strong base would give a neutral solution."
+      "[1 mark] (C) A is true: ammonium chloride solution is acidic (pH < 7), so it turns blue litmus red. R is false: ammonium chloride is formed from a strong acid (HCl) and a WEAK base (ammonium hydroxide); a salt of a strong acid and a strong base would give a neutral solution. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1730,7 +1730,7 @@ export const ACIDS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) Both are true, but R does not explain A: the pink colour is due to sodium hydroxide, a base, which forms in the solution near the cathode. Chlorine is indeed released at the anode, but that happens at the other electrode and does not explain the pink colour at the cathode."
+      "[1 mark] (B) Both are true, but R does not explain A: the pink colour is due to sodium hydroxide, a base, which forms in the solution near the cathode. Chlorine is indeed released at the anode, but that happens at the other electrode and does not explain the pink colour at the cathode. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,

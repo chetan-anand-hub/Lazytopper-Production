@@ -25,7 +25,7 @@ export const TRIANGLES_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["Two rectangles", "Two rhombuses", "Two regular hexagons", "Two isosceles triangles"],
     "answer": "Two regular hexagons",
     "solutionSteps": [
-      "[1 mark] Two regular hexagons always have all angles equal (120°) and all sides in one common ratio, so they are similar; rectangles, rhombuses and isosceles triangles can differ in side ratio or in angles."
+      "[1 mark] Two regular hexagons always have all angles equal (120°) and all sides in one common ratio, so they are similar; rectangles, rhombuses and isosceles triangles can differ in side ratio or in angles. Answer: (C)"
     ],
     "finalAnswer": "Two regular hexagons",
     "isCompetencyBased": false,
@@ -53,7 +53,7 @@ export const TRIANGLES_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "their corresponding angles are equal and their corresponding sides are proportional",
     "solutionSteps": [
-      "[1 mark] By definition, two polygons with the same number of sides are similar when BOTH conditions hold: corresponding angles are equal AND corresponding sides are in the same ratio."
+      "[1 mark] By definition, two polygons with the same number of sides are similar when BOTH conditions hold: corresponding angles are equal AND corresponding sides are in the same ratio. Answer: (C)"
     ],
     "finalAnswer": "their corresponding angles are equal and their corresponding sides are proportional",
     "isCompetencyBased": false,
@@ -81,7 +81,7 @@ export const TRIANGLES_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Any two right triangles are similar.",
     "solutionSteps": [
-      "[1 mark] Two right triangles share only the 90° angle; their other angles can differ (e.g. 30°–60°–90° and 45°–45°–90°), so they need not be similar. The other three statements are true."
+      "[1 mark] Two right triangles share only the 90° angle; their other angles can differ (e.g. 30°–60°–90° and 45°–45°–90°), so they need not be similar. The other three statements are true. Answer: (C)"
     ],
     "finalAnswer": "Any two right triangles are similar.",
     "isCompetencyBased": false,
@@ -109,7 +109,7 @@ export const TRIANGLES_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "They are not similar because their corresponding angles are not equal.",
     "solutionSteps": [
-      "[1 mark] All sides are in the ratio 4 : 8 = 1 : 2, so the sides ARE proportional; but a rhombus that is not a square has angles other than 90°, so the corresponding angles are not equal — not similar."
+      "[1 mark] All sides are in the ratio 4 : 8 = 1 : 2, so the sides ARE proportional; but a rhombus that is not a square has angles other than 90°, so the corresponding angles are not equal — not similar. Answer: (C)"
     ],
     "finalAnswer": "They are not similar because their corresponding angles are not equal.",
     "isCompetencyBased": true,

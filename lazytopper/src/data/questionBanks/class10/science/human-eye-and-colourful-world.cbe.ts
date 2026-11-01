@@ -20,7 +20,7 @@ export const HEYE_CBE: CanonicalQuestion[] = [
     "options": ["scattering", "reflection followed by scattering", "reflection", "dispersion"],
     "answer": "dispersion",
     "solutionSteps": [
-      "[1 mark] dispersion — splitting of white light into its component colours by a prism is dispersion."
+      "[1 mark] dispersion — splitting of white light into its component colours by a prism is dispersion. Answer: (D)"
     ],
     "finalAnswer": "dispersion",
     "isCompetencyBased": false,

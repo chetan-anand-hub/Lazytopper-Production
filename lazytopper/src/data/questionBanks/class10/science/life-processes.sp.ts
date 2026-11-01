@@ -24,7 +24,7 @@ export const LIFE_SP: CanonicalQuestion[] = [
     ],
     "answer": "(a) Lactic acid + Energy",
     "solutionSteps": [
-      "[1 mark] Correct option (a) Lactic acid + Energy: during vigorous exercise muscles respire anaerobically, breaking down pyruvate into lactic acid (plus energy); accumulation of lactic acid causes muscle cramps."
+      "[1 mark] Correct option (a) Lactic acid + Energy: during vigorous exercise muscles respire anaerobically, breaking down pyruvate into lactic acid (plus energy); accumulation of lactic acid causes muscle cramps. Answer: (A)"
     ],
     "finalAnswer": "(a) Lactic acid + Energy",
     "isCompetencyBased": false
@@ -49,7 +49,7 @@ export const LIFE_SP: CanonicalQuestion[] = [
     ],
     "answer": "(d) Test tube B (as HCl will activate the pepsinogen enzyme into pepsin for the breakdown of the protein into simpler molecules).",
     "solutionSteps": [
-      "[1 mark] Correct option (d) Test tube B: HCl provides the acidic medium that converts inactive pepsinogen into active pepsin, which then digests the protein (egg white) into simpler molecules; without HCl (tube A) no digestion occurs."
+      "[1 mark] Correct option (d) Test tube B: HCl provides the acidic medium that converts inactive pepsinogen into active pepsin, which then digests the protein (egg white) into simpler molecules; without HCl (tube A) no digestion occurs. Answer: (D)"
     ],
     "finalAnswer": "(d) Test tube B (as HCl will activate the pepsinogen enzyme into pepsin for the breakdown of the protein into simpler molecules).",
     "isCompetencyBased": true,
@@ -75,7 +75,7 @@ export const LIFE_SP: CanonicalQuestion[] = [
     ],
     "answer": "(a) Both A and R are true and R is the correct explanation of A.",
     "solutionSteps": [
-      "[1 mark] Correct option (a): blood does keep water balance constant (A true) precisely because of the continuous exchange of water between circulating blood and the tissue fluid (R true), so R correctly explains A."
+      "[1 mark] Correct option (a): blood does keep water balance constant (A true) precisely because of the continuous exchange of water between circulating blood and the tissue fluid (R true), so R correctly explains A. Answer: (A)"
     ],
     "finalAnswer": "(a) Both A and R are true and R is the correct explanation of A.",
     "isCompetencyBased": true

@@ -11,7 +11,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "The coordinates of the centre of the circle, O, and a point on the circle, N, are shown in the figure. What is the radius of the circle?",
     options: ["√0.4 units", "2 units", "4 units", "√42.4 units"],
     answer: "2 units",
-    solutionSteps: ["From the figure, O(−4, 3) and N(−2.4, 1.8). Radius = ON = √[(−2.4 − (−4))² + (1.8 − 3)²] = √[(1.6)² + (−1.2)²].", "= √(2.56 + 1.44) = √4 = 2 units. Correct option (b)."],
+    solutionSteps: ["From the figure, O(−4, 3) and N(−2.4, 1.8). Radius = ON = √[(−2.4 − (−4))² + (1.8 − 3)²] = √[(1.6)² + (−1.2)²].", "= √(2.56 + 1.44) = √4 = 2 units. Correct option (b). Answer: (B)"],
     finalAnswer: "(b) 2 units",
     ncertRef: "APQ PQ1 Q4", isCompetencyBased: false,
     sourceOverride: "others", },
@@ -26,7 +26,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
       "(A) is false but (R) is true."
     ],
     answer: "(A) is false but (R) is true.",
-    solutionSteps: ["Set of all points equidistant from P and Q is the perpendicular bisector of PQ — an entire line, not a single point. So A is FALSE.", "The equation (x+2)^2 + (y−5)^2 = (x−2)^2 + (y+1)^2 simplifies to 2x − 3y + 6 = 0, the perpendicular-bisector line. Many (x, y) satisfy it. R is TRUE."],
+    solutionSteps: ["Set of all points equidistant from P and Q is the perpendicular bisector of PQ — an entire line, not a single point. So A is FALSE.", "The equation (x+2)^2 + (y−5)^2 = (x−2)^2 + (y+1)^2 simplifies to 2x − 3y + 6 = 0, the perpendicular-bisector line. Many (x, y) satisfy it. R is TRUE. Answer: (D)"],
     finalAnswer: "(d) (A) is false but (R) is true.",
     ncertRef: "APQ PQ1 Q20", isCompetencyBased: true },
 
@@ -35,7 +35,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "The distance between two points A and B, on a graph is given as √(10^2 + 7^2). The coordinates of A are (−4, 3). Given that the point B lies in the first quadrant, then all the possible x-coordinates of point B are",
     options: ["multiple of 2", "multiple of 3", "multiple of 5", "multiple of 6"],
     answer: "multiple of 3",
-    solutionSteps: ["[1 mark] AB² = 10² + 7² = 149, and for grid points the only way to write 149 as a sum of two squares is 10² + 7². So for B(x, y), (x + 4)² + (y − 3)² = 149 means the gaps from A(−4, 3) are 10 and 7 in some order: x + 4 = ±10 or ±7. In the first quadrant x > 0, so x = 6 (then y − 3 = 7, y = 10) or x = 3 (then y − 3 = 10, y = 13). Both possible x-coordinates, 3 and 6, are multiples of 3 (3 is not a multiple of 2, 5 or 6). Hence option (b)."],
+    solutionSteps: ["[1 mark] AB² = 10² + 7² = 149, and for grid points the only way to write 149 as a sum of two squares is 10² + 7². So for B(x, y), (x + 4)² + (y − 3)² = 149 means the gaps from A(−4, 3) are 10 and 7 in some order: x + 4 = ±10 or ±7. In the first quadrant x > 0, so x = 6 (then y − 3 = 7, y = 10) or x = 3 (then y − 3 = 10, y = 13). Both possible x-coordinates, 3 and 6, are multiples of 3 (3 is not a multiple of 2, 5 or 6). Hence option (b). Answer: (B)"],
     finalAnswer: "(b) multiple of 3",
     ncertRef: "APQ PQ2 Q14", isCompetencyBased: true },
 
@@ -44,7 +44,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "If A(1, 2), B(4, 3) and C(6, 6) are the three vertices of a parallelogram ABCD, then the coordinates of the fourth vertex D are",
     options: ["(1/2, 4)", "(7/2, 5)", "(3, 4)", "(3, 5)"],
     answer: "(3, 5)",
-    solutionSteps: ["In parallelogram ABCD, diagonals AC and BD bisect each other.", "Midpoint of AC = ((1 + 6)/2, (2 + 6)/2) = (7/2, 4). This is also midpoint of BD.", "Let D = (x, y). (4 + x)/2 = 7/2 ⟹ x = 3. (3 + y)/2 = 4 ⟹ y = 5. D = (3, 5)."],
+    solutionSteps: ["In parallelogram ABCD, diagonals AC and BD bisect each other.", "Midpoint of AC = ((1 + 6)/2, (2 + 6)/2) = (7/2, 4). This is also midpoint of BD.", "Let D = (x, y). (4 + x)/2 = 7/2 ⟹ x = 3. (3 + y)/2 = 4 ⟹ y = 5. D = (3, 5). Answer: (D)"],
     finalAnswer: "(d) (3, 5)",
     ncertRef: "APQ PQ2 Q15", isCompetencyBased: true },
 
@@ -73,7 +73,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     questionText: "Two concentric circles are centered at O(−4, 3). The ratio of the area of inner circle to that of the outer circle is 1:9. Points A and B lie on the boundaries of the inner and outer circles, respectively. The coordinates of point B are (3, 5). Which of the following are the coordinates of A?",
     options: ["(2/3, 13/3)", "(−5/3, 11/3)", "(−9/4, 14/4)", "(−33/10, 16/5)"],
     answer: "(−5/3, 11/3)",
-    solutionSteps: ["Area ratio 1:9 ⟹ radius ratio 1:3. So OA = (1/3)·OB.", "If A lies on segment OB (same direction from centre as B), A divides OB internally in ratio 1:2 (from O).", "A = O + (1/3)·(B − O) = (−4 + (1/3)·7, 3 + (1/3)·2) = (−4 + 7/3, 3 + 2/3) = (−5/3, 11/3)."],
+    solutionSteps: ["Area ratio 1:9 ⟹ radius ratio 1:3. So OA = (1/3)·OB.", "If A lies on segment OB (same direction from centre as B), A divides OB internally in ratio 1:2 (from O).", "A = O + (1/3)·(B − O) = (−4 + (1/3)·7, 3 + (1/3)·2) = (−4 + 7/3, 3 + 2/3) = (−5/3, 11/3). Answer: (B)"],
     finalAnswer: "(b) (−5/3, 11/3)",
     ncertRef: "APQ PQ_2022 Q4", isCompetencyBased: true,
  },
@@ -88,7 +88,7 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
       "(A) is false but (R) is true."
     ],
     answer: "(A) is false but (R) is true.",
-    solutionSteps: ["R is TRUE: midpoint of (2, 3) and (−2, −3) is ((2 + (−2))/2, (3 + (−3))/2) = (0, 0) = origin.", "A is FALSE: the locus of points equidistant from (2, 3) and (−2, −3) is the perpendicular bisector — an entire line, not just the origin."],
+    solutionSteps: ["R is TRUE: midpoint of (2, 3) and (−2, −3) is ((2 + (−2))/2, (3 + (−3))/2) = (0, 0) = origin.", "A is FALSE: the locus of points equidistant from (2, 3) and (−2, −3) is the perpendicular bisector — an entire line, not just the origin. Answer: (D)"],
     finalAnswer: "(d) (A) is false but (R) is true.",
     ncertRef: "APQ PQ_2022 Q20", isCompetencyBased: true },
 

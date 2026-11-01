@@ -22,7 +22,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Using formula: aₙ = a + (n-1)d",
       "a₄ = 5 + (4-1)×3",
-      "a₄ = 5 + 9 = 14"
+      "a₄ = 5 + 9 = 14 Answer: (A)"
     ],
     "finalAnswer": "14",
     "explanation": "Using formula: aₙ = a + (n-1)d. a₄ = 5 + (4-1)×3. a₄ = 5 + 9 = 14. Therefore, the correct answer is 14.",
@@ -51,7 +51,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "answer": "3",
     "solutionSteps": [
       "For aₙ = 3n + 2, d = coefficient of n",
-      "d = 3"
+      "d = 3 Answer: (B)"
     ],
     "finalAnswer": "3",
     "explanation": "For aₙ = 3n + 2, d = coefficient of n. d = 3. Therefore, the correct answer is 3.",
@@ -134,7 +134,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₅ = a + 4d = 12",
       "a₁₂ = a + 11d = 33",
       "Subtracting: 7d = 21",
-      "d = 3"
+      "d = 3 Answer: (B)"
     ],
     "finalAnswer": "3",
     "explanation": "a₅ = a + 4d = 12. a₁₂ = a + 11d = 33. Subtracting: 7d = 21. d = 3. Therefore, the correct answer is 3.",
@@ -165,7 +165,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "Sₙ = n/2[2a + (n-1)d]",
       "S₅ = 5/2[2(2) + (5-1)×3]",
       "S₅ = 5/2[4 + 12]",
-      "S₅ = 5/2 × 16 = 40"
+      "S₅ = 5/2 × 16 = 40 Answer: (B)"
     ],
     "finalAnswer": "40",
     "explanation": "The correct answer is 40. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
@@ -247,7 +247,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "S₁ = 3(1)² + 5(1) = 8, so a₁ = 8",
       "S₂ = 3(4) + 10 = 22",
       "a₂ = S₂ - S₁ = 22 - 8 = 14",
-      "d = a₂ - a₁ = 14 - 8 = 6"
+      "d = a₂ - a₁ = 14 - 8 = 6 Answer: (A)"
     ],
     "finalAnswer": "a = 8, d = 6",
     "explanation": "S₁ = 3(1)² + 5(1) = 8, so a₁ = 8. S₂ = 3(4) + 10 = 22. a₂ = S₂ - S₁ = 22 - 8 = 14. d = a₂ - a₁ = 14 - 8 = 6. Therefore, the correct answer is a = 8, d = 6.",
@@ -381,7 +381,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Checking A: a₇ = 2 + (7-1)×3 = 2 + 18 = 20 ✓",
       "R is true: formula aₙ = a + (n-1)d is correct ✓",
-      "R explains A correctly"
+      "R explains A correctly Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -411,7 +411,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "S₁₀ = 10/2[2(1) + (10-1)×1] = 5[2 + 9] = 5 × 11 = 55 ✓",
       "A is true ✓",
-      "R correctly explains the method ✓"
+      "R correctly explains the method ✓ Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -441,7 +441,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A: a₂ = (a₁ + a₃)/2 = (5 + 11)/2 = 8 ✓",
       "R is a fundamental property of AP ✓",
-      "R correctly explains A ✓"
+      "R correctly explains A ✓ Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -626,7 +626,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a = 5, d = 5, n = 6",
       "aₙ = a + (n-1)d",
       "a₆ = 5 + (6-1)×5",
-      "a₆ = 5 + 25 = 30"
+      "a₆ = 5 + 25 = 30 Answer: (B)"
     ],
     "finalAnswer": "30",
     "explanation": "a = 5, d = 5, n = 6. aₙ = a + (n-1)d. a₆ = 5 + (6-1)×5. a₆ = 5 + 25 = 30. Therefore, the correct answer is 30.",
@@ -656,7 +656,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "First term a = 2, common difference d = 5 - 2 = 3",
       "nth term formula: aₙ = a + (n-1)d",
-      "a₅ = 2 + (5-1)×3 = 2 + 12 = 14"
+      "a₅ = 2 + (5-1)×3 = 2 + 12 = 14 Answer: (A)"
     ],
     "finalAnswer": "14",
     "explanation": "First term a = 2, common difference d = 5 - 2 = 3. nth term formula: aₙ = a + (n-1)d. a₅ = 2 + (5-1)×3 = 2 + 12 = 14. Therefore, the correct answer is 14.",
@@ -688,7 +688,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "78 = 3 + (n-1)×5",
       "75 = (n-1)×5",
       "n-1 = 15",
-      "n = 16"
+      "n = 16 Answer: (B)"
     ],
     "finalAnswer": "16th",
     "explanation": "a = 3, d = 5, aₙ = 78. 78 = 3 + (n-1)×5. 75 = (n-1)×5. n-1 = 15. n = 16. Therefore, the correct answer is 16th.",
@@ -718,7 +718,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "aₙ = a + (n-1)d",
       "a₆ = 10 + (6-1)×(-2)",
-      "a₆ = 10 - 10 = 0"
+      "a₆ = 10 - 10 = 0 Answer: (A)"
     ],
     "finalAnswer": "0",
     "explanation": "aₙ = a + (n-1)d. a₆ = 10 + (6-1)×(-2). a₆ = 10 - 10 = 0. Therefore, the correct answer is 0.",
@@ -748,7 +748,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "AP: 1, 2, 3, ..., 10",
       "a = 1, l = 10, n = 10",
-      "Sₙ = n/2(a + l) = 10/2(1 + 10) = 5×11 = 55"
+      "Sₙ = n/2(a + l) = 10/2(1 + 10) = 5×11 = 55 Answer: (B)"
     ],
     "finalAnswer": "55",
     "explanation": "AP: 1, 2, 3, .., 10. a = 1, l = 10, n = 10. Sₙ = n/2(a + l) = 10/2(1 + 10) = 5×11 = 55. Therefore, the correct answer is 55.",
@@ -779,7 +779,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a = 5, d = 5, n = 8",
       "Sₙ = n/2[2a + (n-1)d]",
       "S₈ = 8/2[2(5) + (8-1)5]",
-      "S₈ = 4[10 + 35] = 4×45 = 180"
+      "S₈ = 4[10 + 35] = 4×45 = 180 Answer: (C)"
     ],
     "finalAnswer": "180",
     "explanation": "a = 5, d = 5, n = 8. Therefore, the correct answer is 180.",
@@ -865,7 +865,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₁₀ = 2 + (10-1)×5 = 2 + 45 = 47 ✓",
       "Statement A is correct",
       "Reason R is the correct formula",
-      "R explains A correctly"
+      "R explains A correctly Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -896,7 +896,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a = 1, d = 2, n = 15",
       "S₁₅ = 15/2[2(1) + (15-1)2]",
       "S₁₅ = 15/2[2 + 28] = 15/2 × 30 = 225 ✓",
-      "Both statements are correct"
+      "Both statements are correct Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -927,7 +927,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₃ = a + 2d = 5",
       "a₇ = a + 6d = 17",
       "Subtracting: 4d = 12, so d = 3",
-      "Therefore a = -1, d = 3"
+      "Therefore a = -1, d = 3 Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -1007,7 +1007,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "a = 100, d = 10, n = 10",
       "aₙ = a + (n-1)d",
-      "a₁₀ = 100 + (10-1)×10 = 100 + 90 = 190"
+      "a₁₀ = 100 + (10-1)×10 = 100 + 90 = 190 Answer: (A)"
     ],
     "finalAnswer": "190",
     "explanation": "a = 100, d = 10, n = 10. aₙ = a + (n-1)d. a₁₀ = 100 + (10-1)×10 = 100 + 90 = 190. Therefore, the correct answer is 190.",
@@ -1151,7 +1151,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "a₁ = 1/q",
       "a₂ = (1+q)/q = 1/q + 1",
-      "d = a₂ - a₁ = (1/q + 1) - 1/q = 1"
+      "d = a₂ - a₁ = (1/q + 1) - 1/q = 1 Answer: (A)"
     ],
     "finalAnswer": "1",
     "explanation": "a₁ = 1/q. a₂ = (1+q)/q = 1/q + 1. d = a₂ - a₁ = (1/q + 1) - 1/q = 1. Therefore, the correct answer is 1.",
@@ -1183,7 +1183,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₁ = S₁ = 5(1) + 2(1)² = 7",
       "S₂ = 5(2) + 2(2)² = 18, so a₂ = S₂ - S₁ = 18 - 7 = 11",
       "S₃ = 5(3) + 2(3)² = 33, so a₃ = S₃ - S₂ = 33 - 18 = 15",
-      "First three terms: 7, 11, 15 with d = 4"
+      "First three terms: 7, 11, 15 with d = 4 Answer: (A)"
     ],
     "finalAnswer": "7, 11, 15",
     "explanation": "Sₙ = 5n + 2n². a₁ = S₁ = 5(1) + 2(1)² = 7. S₂ = 5(2) + 2(2)² = 18, so a₂ = S₂ - S₁ = 18 - 7 = 11. S₃ = 5(3) + 2(3)² = 33, so a₃ = S₃ - S₂ = 33 - 18 = 15. First three terms: 7, 11, 15 with d = 4. Therefore, the correct answer is 7, 11, 15.",
@@ -1216,7 +1216,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "196 = 105 + (n-1)7",
       "91 = 7(n-1)",
       "n-1 = 13, so n = 14",
-      "Sₙ = n/2(a + l) = 14/2(105 + 196) = 7 × 301 = 2107"
+      "Sₙ = n/2(a + l) = 14/2(105 + 196) = 7 × 301 = 2107 Answer: (A)"
     ],
     "finalAnswer": "2107",
     "explanation": "Multiples of 7 between 100 and 200: 105, 112, 119, .., 196. a = 105, d = 7, l = 196. Finding n: l = a + (n-1)d. 196 = 105 + (n-1)7. 91 = 7(n-1). n-1 = 13, so n = 14. Sₙ = n/2(a + l) = 14/2(105 + 196) = 7 × 301 = 2107. Therefore, the correct answer is 2107.",
@@ -1258,62 +1258,62 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   },
   { id: "AP2-044", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 10th term of the AP 3, 7, 11, 15, … is:", options: ["39","40","37","43"], answer: "39", explanation: "The correct answer is 39. a_n = a + (n−1)d = 3 + 9×4 = 39.", finalAnswer: "a₁₀ = 39", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] a = 3, d = 7 − 3 = 4, so a₁₀ = a + 9d = 3 + 36 = 39; the correct option is 39.",
+      "[1 mark] a = 3, d = 7 − 3 = 4, so a₁₀ = a + 9d = 3 + 36 = 39; the correct option is 39. Answer: (A)",
     ],
   },
   { id: "AP2-045", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Common Difference", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is an AP?", options: ["1, 2, 4, 8, …","2, 4, 6, 8, …","1, 4, 9, 16, …","1, 1, 2, 3, 5, …"], answer: "2, 4, 6, 8, …", explanation: "The correct answer is 2, 4, 6, 8, …. The sequence 2, 4, 6, 8 has constant difference d = 2 — it is an AP.", finalAnswer: "2, 4, 6, 8, …", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] In 2, 4, 6, 8, … the difference between consecutive terms is always 2 (constant), so it is an AP; the other sequences have differences 1, 2, 4 / 3, 5, 7 / 0, 1, 1, which are not constant.",
+      "[1 mark] In 2, 4, 6, 8, … the difference between consecutive terms is always 2 (constant), so it is an AP; the other sequences have differences 1, 2, 4 / 3, 5, 7 / 0, 1, 1, which are not constant. Answer: (B)",
     ],
   },
   { id: "AP2-046", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first 20 natural numbers is:", options: ["210","200","190","220"], answer: "210", explanation: "The correct answer is 210. S = n(n+1)/2 = 20×21/2 = 210.", finalAnswer: "S₂₀ = 210", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Sum of first n natural numbers = n(n + 1)/2 ⇒ 20 × 21/2 = 210, so the correct option is 210.",
+      "[1 mark] Sum of first n natural numbers = n(n + 1)/2 ⇒ 20 × 21/2 = 210, so the correct option is 210. Answer: (A)",
     ],
   },
   { id: "AP2-047", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the nth term of an AP is (2n − 1), the 15th term is:", options: ["29","30","31","28"], answer: "29", explanation: "The correct answer is 29. a_15 = 2(15)−1 = 30−1 = 29.", finalAnswer: "a₁₅ = 29", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Substituting n = 15 in aₙ = 2n − 1 gives a₁₅ = 30 − 1 = 29, so the correct option is 29.",
+      "[1 mark] Substituting n = 15 in aₙ = 2n − 1 gives a₁₅ = 30 − 1 = 29, so the correct option is 29. Answer: (A)",
     ],
   },
   { id: "AP2-048", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first n odd natural numbers is:", options: ["n²","n(n+1)/2","n(n−1)","2n−1"], answer: "n²", explanation: "The correct answer is n². Sum of first n odd numbers = 1+3+5+…+(2n−1) = n².", finalAnswer: "Sₙ = n²", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] The odd numbers 1, 3, 5, … form an AP with a = 1, d = 2, so Sₙ = n/2[2(1) + (n − 1)2] = n/2 × 2n = n², so the correct option is n².",
+      "[1 mark] The odd numbers 1, 3, 5, … form an AP with a = 1, d = 2, so Sₙ = n/2[2(1) + (n − 1)2] = n/2 × 2n = n², so the correct option is n². Answer: (A)",
     ],
   },
   { id: "AP2-049", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Common Difference", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In an AP, if a = 5 and d = −2, the 8th term is:", options: ["−9","9","−5","5"], answer: "−9", explanation: "The correct answer is −9. a_8 = 5 + 7×(−2) = 5−14 = −9.", finalAnswer: "a₈ = −9", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] aₙ = a + (n − 1)d ⇒ a₈ = 5 + 7(−2) = 5 − 14 = −9, so the correct option is −9.",
+      "[1 mark] aₙ = a + (n − 1)d ⇒ a₈ = 5 + 7(−2) = 5 − 14 = −9, so the correct option is −9. Answer: (A)",
     ],
   },
   { id: "AP2-050", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If a = 2, d = 3, n = 10, the sum S_10 is:", options: ["155","150","145","160"], answer: "155", explanation: "The correct answer is 155. S_10 = (10/2)[2×2 + 9×3] = 5[4+27] = 5×31 = 155.", finalAnswer: "S₁₀ = 155", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Sₙ = n/2[2a + (n − 1)d] ⇒ S₁₀ = 10/2[2(2) + 9(3)] = 5 × 31 = 155, so the correct option is 155.",
+      "[1 mark] Sₙ = n/2[2a + (n − 1)d] ⇒ S₁₀ = 10/2[2(2) + 9(3)] = 5 × 31 = 155, so the correct option is 155. Answer: (A)",
     ],
   },
   { id: "AP2-051", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "How many two-digit numbers are divisible by 7?", options: ["12","13","14","11"], answer: "13", explanation: "The correct answer is 13. Two-digit multiples of 7: 14, 21, 28, …, 98. Number of terms = (98 − 14)/7 + 1 = 84/7 + 1 = 12 + 1 = 13.", finalAnswer: "13", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Two-digit multiples of 7 are 14, 21, …, 98 (a = 14, d = 7); 98 = 14 + (n − 1)7 ⇒ n − 1 = 12 ⇒ n = 13, so the correct option is 13.",
+      "[1 mark] Two-digit multiples of 7 are 14, 21, …, 98 (a = 14, d = 7); 98 = 14 + (n − 1)7 ⇒ n − 1 = 12 ⇒ n = 13, so the correct option is 13. Answer: (B)",
     ],
   },
   { id: "AP2-052", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 7th term of an AP is 32 and its 13th term is 62. What is the first term?", options: ["2","5","7","10"], answer: "2", explanation: "The correct answer is 2. a_7 = a+6d = 32 and a_13 = a+12d = 62. Subtracting: 6d = 30 → d = 5. Then a = 32 − 6×5 = 2.", finalAnswer: "a = 2", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] a + 6d = 32 and a + 12d = 62 ⇒ 6d = 30 ⇒ d = 5, so a = 32 − 30 = 2; the correct option is 2.",
+      "[1 mark] a + 6d = 32 and a + 12d = 62 ⇒ 6d = 30 ⇒ d = 5, so a = 32 − 30 = 2; the correct option is 2. Answer: (A)",
     ],
   },
   { id: "AP2-053", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of terms in the AP 7, 13, 19, …, 205 is:", options: ["33","34","35","32"], answer: "34", explanation: "The correct answer is 34. a = 7, d = 6, a_n = 205. n = (205−7)/6 + 1 = 198/6 + 1 = 33 + 1 = 34.", finalAnswer: "n = 34", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] a = 7, d = 6, aₙ = 205: 205 = 7 + (n − 1)6 ⇒ n − 1 = 33 ⇒ n = 34, so the correct option is 34.",
+      "[1 mark] a = 7, d = 6, aₙ = 205: 205 = 7 + (n − 1)6 ⇒ n − 1 = 33 ⇒ n = 34, so the correct option is 34. Answer: (B)",
     ],
   },
   { id: "AP2-054", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of all multiples of 3 between 1 and 100 is:", options: ["1683","1650","1782","1716"], answer: "1683", explanation: "The correct answer is 1683. Multiples of 3: 3, 6, 9, …, 99. n=33. S = (33/2)(3+99) = (33/2)×102 = 33×51 = 1683.", finalAnswer: "1683", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Multiples of 3 between 1 and 100 are 3, 6, …, 99, so n = 99/3 = 33 and S = 33/2 × (3 + 99) = 33 × 51 = 1683; the correct option is 1683.",
+      "[1 mark] Multiples of 3 between 1 and 100 are 3, 6, …, 99, so n = 99/3 = 33 and S = 33/2 × (3 + 99) = 33 × 51 = 1683; the correct option is 1683. Answer: (A)",
     ],
   },
   { id: "AP2-055", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The sequence 1, 3, 5, 7, … is an AP with common difference 2.\nReason (R): In an arithmetic progression, the difference between consecutive terms is constant.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "d = 3−1 = 5−3 = 2 (constant). R defines what an AP is and explains why the sequence in A qualifies.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] In 1, 3, 5, 7, … each term exceeds the previous by 2, so A is true; R is the definition of an AP and is true; A holds precisely because the consecutive difference is constant (= 2), so R correctly explains A.",
+      "[1 mark] In 1, 3, 5, 7, … each term exceeds the previous by 2, so A is true; R is the definition of an AP and is true; A holds precisely because the consecutive difference is constant (= 2), so R correctly explains A. Answer: (A)",
     ],
   },
   { id: "AP2-056", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The sum of first n terms of an AP is S_n = 3n² + 5n. Find the AP, its first term, common difference, and the 20th term.", solutionSteps: [

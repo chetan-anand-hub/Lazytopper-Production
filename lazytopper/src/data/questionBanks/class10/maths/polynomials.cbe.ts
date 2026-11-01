@@ -24,7 +24,7 @@ export const POLY_CBE: CanonicalQuestion[] = [
     "options": ["2", "−8", "8", "4"],
     "answer": "8",
     "solutionSteps": [
-      "[1 mark] 8 — product of zeroes = c/a = m/2 = 4, so m = 8."
+      "[1 mark] 8 — product of zeroes = c/a = m/2 = 4, so m = 8. Answer: (C)"
     ],
     "finalAnswer": "8",
     "isCompetencyBased": false,

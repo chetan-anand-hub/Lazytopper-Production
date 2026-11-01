@@ -32,7 +32,7 @@ export const STAT_CBE: CanonicalQuestion[] = [
     ],
     "answer": "iii. 35–44",
     "solutionSteps": [
-      "[1 mark] The most highly affected age group is the class with the highest frequency. The class 35–44 has the highest frequency (23), so the answer is (iii) 35–44."
+      "[1 mark] The most highly affected age group is the class with the highest frequency. The class 35–44 has the highest frequency (23), so the answer is (iii) 35–44. Answer: (C)"
     ],
     "finalAnswer": "iii. 35–44",
     "isCompetencyBased": true

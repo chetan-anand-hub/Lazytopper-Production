@@ -21,7 +21,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "A law of reflection",
     "solutionSteps": [
       "The statement 'angle of incidence = angle of reflection' is one of the two laws of reflection (NCERT); both angles are measured from the normal",
-      "It is not Snell's law (refraction), the mirror formula (1/v + 1/u = 1/f) or the definition of magnification (h′/h)"
+      "It is not Snell's law (refraction), the mirror formula (1/v + 1/u = 1/f) or the definition of magnification (h′/h) Answer: (A)"
     ],
     "finalAnswer": "A law of reflection",
     "explanation": "NCERT lists two laws of reflection: the angle of incidence is equal to the angle of reflection, and the incident ray, the normal and the reflected ray lie in the same plane. Snell's law relates sin i / sin r for refraction, the mirror formula is 1/v + 1/u = 1/f, and magnification is h′/h. Therefore, the correct answer is A law of reflection.",
@@ -50,7 +50,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Angle to mirror surface = 30°",
       "Angle of incidence (from normal) = 90° - 30° = 60°",
-      "By law of reflection, angle of reflection = angle of incidence = 60°"
+      "By law of reflection, angle of reflection = angle of incidence = 60° Answer: (B)"
     ],
     "finalAnswer": "60°",
     "explanation": "Angle to mirror surface = 30°. Angle of incidence (from normal) = 90° - 30° = 60°. By law of reflection, angle of reflection = angle of incidence = 60°. Therefore, the correct answer is 60°.",
@@ -79,7 +79,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "A is true, R is false.",
     "solutionSteps": [
       "Assertion is true: the incident ray, the reflected ray and the normal at the point of incidence always lie in the same plane (a law of reflection).",
-      "Reason is false: the laws of reflection apply to all reflecting surfaces, plane or spherical (NCERT). Hence A is true, R is false."
+      "Reason is false: the laws of reflection apply to all reflecting surfaces, plane or spherical (NCERT). Hence A is true, R is false. Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "A is a correct statement of a law of reflection. R is false: NCERT states that the laws of reflection are applicable to all types of reflecting surfaces, including spherical surfaces. Hence A is true, R is false.",
@@ -107,7 +107,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "20 cm",
     "solutionSteps": [
       "Focal length (f) = Radius of curvature (R) / 2",
-      "f = 40 / 2 = 20 cm"
+      "f = 40 / 2 = 20 cm Answer: (B)"
     ],
     "finalAnswer": "20 cm",
     "explanation": "Focal length (f) = Radius of curvature (R) / 2. f = 40 / 2 = 20 cm. Therefore, the correct answer is 20 cm.",
@@ -137,7 +137,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "For a real, inverted, same-sized image in a concave mirror",
       "Object distance must equal radius of curvature",
-      "Center of curvature is at distance R = 2f = 2(15) = 30 cm"
+      "Center of curvature is at distance R = 2f = 2(15) = 30 cm Answer: (B)"
     ],
     "finalAnswer": "At the center of curvature",
     "explanation": "For a real, inverted, same-sized image in a concave mirror. Object distance must equal radius of curvature. Center of curvature is at distance R = 2f = 2(15) = 30 cm. Therefore, the correct answer is At the center of curvature.",
@@ -215,7 +215,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "1/f = 1/u + 1/v",
     "solutionSteps": [
       "The mirror formula relates object distance (u), image distance (v), and focal length (f)",
-      "Standard form: 1/f = 1/u + 1/v"
+      "Standard form: 1/f = 1/u + 1/v Answer: (B)"
     ],
     "finalAnswer": "1/f = 1/u + 1/v",
     "explanation": "The mirror formula relates object distance (u), image distance (v), and focal length (f). Standard form: 1/f = 1/u + 1/v. Therefore, the correct answer is 1/f = 1/u + 1/v.",
@@ -246,7 +246,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Convex mirrors diverge incident rays",
       "This creates a virtual, erect, diminished image",
       "Focal length is negative (f < 0) for convex mirrors",
-      "The diverging nature explains the image characteristics"
+      "The diverging nature explains the image characteristics Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -274,7 +274,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "n₁ sin θ₁ = n₂ sin θ₂",
     "solutionSteps": [
       "Snell's law: n₁ sin θ₁ = n₂ sin θ₂",
-      "where n is refractive index and θ is angle of incidence/refraction"
+      "where n is refractive index and θ is angle of incidence/refraction Answer: (A)"
     ],
     "finalAnswer": "n₁ sin θ₁ = n₂ sin θ₂",
     "explanation": "Snell's law: n₁ sin θ₁ = n₂ sin θ₂. where n is refractive index and θ is angle of incidence/refraction. Therefore, the correct answer is n₁ sin θ₁ = n₂ sin θ₂.",
@@ -305,7 +305,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "When light goes from denser (higher n) to rarer (lower n) medium",
       "Using Snell's law: n₁ sin θ₁ = n₂ sin θ₂",
       "Since n₁ > n₂, we need sin θ₂ > sin θ₁",
-      "Therefore θ₂ > θ₁, light bends away from normal"
+      "Therefore θ₂ > θ₁, light bends away from normal Answer: (B)"
     ],
     "finalAnswer": "Away from the normal",
     "explanation": "When light goes from denser (higher n) to rarer (lower n) medium. Using Snell's law: n₁ sin θ₁ = n₂ sin θ₂. Since n₁ > n₂, we need sin θ₂ > sin θ₁. Therefore θ₂ > θ₁, light bends away from normal. Therefore, the correct answer is Away from the normal.",
@@ -390,7 +390,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The lens formula (New Cartesian sign convention) is",
       "1/f = 1/v - 1/u",
-      "where f is focal length, u is object distance, v is image distance; 1/f = 1/u + 1/v is the mirror formula"
+      "where f is focal length, u is object distance, v is image distance; 1/f = 1/u + 1/v is the mirror formula Answer: (B)"
     ],
     "finalAnswer": "1/f = 1/v - 1/u",
     "explanation": "The lens formula in the New Cartesian sign convention is 1/v - 1/u = 1/f, where f is focal length, u is object distance and v is image distance. 1/f = 1/u + 1/v is the mirror formula, not the lens formula. Therefore, the correct answer is 1/f = 1/v - 1/u.",
@@ -420,7 +420,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "For a lens, magnification m = v/u",
       "For m = -1 (same-sized, inverted image), v = -u",
       "Using lens formula 1/v - 1/u = 1/f: 1/(-u) - 1/u = -2/u = 1/f, so u = -2f",
-      "Therefore v = +2f: object at 2F1 and image at 2F2, i.e. u = v = 2f in magnitude"
+      "Therefore v = +2f: object at 2F1 and image at 2F2, i.e. u = v = 2f in magnitude Answer: (B)"
     ],
     "finalAnswer": "u = v = 2f",
     "explanation": "For a lens m = v/u. For a real same-sized image m = -1, so v = -u. Lens formula 1/v - 1/u = 1/f gives -2/u = 1/f, so u = -2f and v = +2f. In magnitude the object and image distances are both 2f. Therefore, the correct answer is u = v = 2f.",
@@ -473,7 +473,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Concave lens diverges all incident rays",
       "The diverged rays appear to come from a virtual focus",
       "Virtual image is always erect and diminished",
-      "Image distance v is always negative and |v| < |u|"
+      "Image distance v is always negative and |v| < |u| Answer: (C)"
     ],
     "finalAnswer": "Virtual, erect, and diminished",
     "explanation": "Concave lens diverges all incident rays. The diverged rays appear to come from a virtual focus. Virtual image is always erect and diminished. Image distance v is always negative and |v| < |u|. Therefore, the correct answer is Virtual, erect, and diminished.",
@@ -503,7 +503,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Power P = 1/f (in meters)",
       "If f increases, P decreases (inverse relationship)",
       "The formula P = 1/f explains why they are inversely related",
-      "Power is measured in diopters (D)"
+      "Power is measured in diopters (D) Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -623,7 +623,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Refractive index n = c/v",
       "where c = speed in vacuum (3×10⁸ m/s)",
-      "v = speed in medium"
+      "v = speed in medium Answer: (B)"
     ],
     "finalAnswer": "Speed of light in vacuum / Speed of light in medium",
     "explanation": "Refractive index n = c/v. where c = speed in vacuum (3×10⁸ m/s). v = speed in medium. Therefore, the correct answer is Speed of light in vacuum / Speed of light in medium.",
@@ -652,7 +652,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "Converging mirror",
     "solutionSteps": [
       "Concave mirrors converge parallel incident rays to a focal point",
-      "They are therefore called converging mirrors"
+      "They are therefore called converging mirrors Answer: (A)"
     ],
     "finalAnswer": "Converging mirror",
     "explanation": "Concave mirrors converge parallel incident rays to a focal point. They are therefore called converging mirrors. Therefore, the correct answer is Converging mirror.",
@@ -737,7 +737,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "The normal to the reflecting surface",
     "solutionSteps": [
       "Both angles of incidence and reflection are measured from the normal (perpendicular) to the reflecting surface",
-      "This is a fundamental law of reflection"
+      "This is a fundamental law of reflection Answer: (B)"
     ],
     "finalAnswer": "The normal to the reflecting surface",
     "explanation": "Both angles of incidence and reflection are measured from the normal (perpendicular) to the reflecting surface. This is a fundamental law of reflection. Therefore, the correct answer is The normal to the reflecting surface.",
@@ -768,7 +768,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Assertion A is true: plane mirrors produce upright virtual images",
       "Reason R is also true: the law of reflection states all three lie in the same plane",
       "But R explains the law of reflection, not why images are upright",
-      "The upright nature comes from the geometry of plane mirror reflection"
+      "The upright nature comes from the geometry of plane mirror reflection Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
@@ -797,7 +797,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "answer": "30 cm",
     "solutionSteps": [
       "Relationship: R = 2f, where R is radius of curvature and f is focal length",
-      "R = 2 × 15 = 30 cm"
+      "R = 2 × 15 = 30 cm Answer: (C)"
     ],
     "finalAnswer": "30 cm",
     "explanation": "Relationship: R = 2f, where R is radius of curvature and f is focal length. R = 2 × 15 = 30 cm. Therefore, the correct answer is 30 cm.",
@@ -828,7 +828,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "When object is at center of curvature (u = R = 2f)",
       "Using mirror formula: 1/f = 1/u + 1/v gives v = R = 2f",
       "Image is at center of curvature on opposite side",
-      "Magnification m = -v/u = -1 (same size, inverted)"
+      "Magnification m = -v/u = -1 (same size, inverted) Answer: (B)"
     ],
     "finalAnswer": "Real, inverted, and same size as object",
     "explanation": "When object is at center of curvature (u = R = 2f). Using mirror formula: 1/f = 1/u + 1/v gives v = R = 2f. Image is at center of curvature on opposite side. Magnification m = -v/u = -1 (same size, inverted). Therefore, the correct answer is Real, inverted, and same size as object.",
@@ -860,7 +860,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Given: f = 10 cm, u = 25 cm",
       "1/10 = 1/25 + 1/v",
       "1/v = 1/10 - 1/25 = (5-2)/50 = 3/50",
-      "v = 50/3 = 16.67 cm (in front of mirror)"
+      "v = 50/3 = 16.67 cm (in front of mirror) Answer: (A)"
     ],
     "finalAnswer": "16.67 cm in front of mirror",
     "explanation": "Using mirror formula: 1/f = 1/u + 1/v. Given: f = 10 cm, u = 25 cm. 1/10 = 1/25 + 1/v. 1/v = 1/10 - 1/25 = (5-2)/50 = 3/50. v = 50/3 = 16.67 cm (in front of mirror). Therefore, the correct answer is 16.67 cm in front of mirror.",
@@ -917,7 +917,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "When object is at focal point (u = f) of concave mirror",
       "From mirror formula: 1/f = 1/f + 1/v gives 1/v = 0, so v = ∞",
       "Image at infinity means reflected rays are parallel",
-      "This is useful in searchlights for long-distance illumination"
+      "This is useful in searchlights for long-distance illumination Answer: (B)"
     ],
     "finalAnswer": "To produce parallel rays of light",
     "explanation": "When object is at focal point (u = f) of concave mirror. From mirror formula: 1/f = 1/f + 1/v gives 1/v = 0, so v = ∞. Image at infinity means reflected rays are parallel. This is useful in searchlights for long-distance illumination. Therefore, the correct answer is To produce parallel rays of light.",
@@ -947,7 +947,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Frequency remains constant during refraction",
       "When light enters a different medium, its speed changes",
       "As v = fλ, if v changes and f is constant, λ must change",
-      "This change in speed causes bending of light"
+      "This change in speed causes bending of light Answer: (B)"
     ],
     "finalAnswer": "Wavelength and speed of light",
     "explanation": "Frequency remains constant during refraction. When light enters a different medium, its speed changes. As v = fλ, if v changes and f is constant, λ must change. This change in speed causes bending of light. Therefore, the correct answer is Wavelength and speed of light.",
@@ -977,7 +977,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Refractive index n = c/v",
       "1.5 = (3 × 10⁸)/v",
-      "v = (3 × 10⁸)/1.5 = 2 × 10⁸ m/s"
+      "v = (3 × 10⁸)/1.5 = 2 × 10⁸ m/s Answer: (B)"
     ],
     "finalAnswer": "2 × 10⁸ m/s",
     "explanation": "Refractive index n = c/v. 1.5 = (3 × 10⁸)/v. v = (3 × 10⁸)/1.5 = 2 × 10⁸ m/s. Therefore, the correct answer is 2 × 10⁸ m/s.",
@@ -1007,7 +1007,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Assertion A is true: due to refraction, pencil appears bent",
       "Reason R is false: light travels at different speeds in different media",
       "Water (n=1.33) has slower light speed than air (n=1)",
-      "This difference in speed causes refraction and apparent bending"
+      "This difference in speed causes refraction and apparent bending Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
@@ -1037,7 +1037,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The lens formula (New Cartesian sign convention) is: 1/v - 1/u = 1/f",
       "where f = focal length, u = object distance, v = image distance",
-      "This applies to both converging and diverging lenses; 1/f = 1/u + 1/v is the mirror formula"
+      "This applies to both converging and diverging lenses; 1/f = 1/u + 1/v is the mirror formula Answer: (A)"
     ],
     "finalAnswer": "1/f = 1/v - 1/u",
     "explanation": "The lens formula is 1/v - 1/u = 1/f, where f = focal length, u = object distance, v = image distance, with distances taken in the New Cartesian sign convention. It applies to both converging and diverging lenses. 1/f = 1/u + 1/v is the mirror formula. Therefore, the correct answer is 1/f = 1/v - 1/u.",
@@ -1068,7 +1068,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Given: f = +20 cm, u = -30 cm (object in front of lens)",
       "1/v = 1/f + 1/u = 1/20 + 1/(-30)",
       "1/v = 1/20 - 1/30 = (3-2)/60 = 1/60",
-      "v = +60 cm (positive, real image on the other side of the lens)"
+      "v = +60 cm (positive, real image on the other side of the lens) Answer: (C)"
     ],
     "finalAnswer": "60 cm",
     "explanation": "Using lens formula: 1/v - 1/u = 1/f. Given: f = +20 cm, u = -30 cm (object in front of lens). 1/v = 1/f + 1/u = 1/20 + 1/(-30). 1/v = 1/20 - 1/30 = (3-2)/60 = 1/60. v = +60 cm (positive, real image on the other side of the lens). Therefore, the correct answer is 60 cm.",
@@ -1156,7 +1156,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Reason R is true: focal point and center of curvature are behind the mirror",
       "The position behind mirror means light never actually converges",
       "This results in virtual image formation always",
-      "The diverging nature produces diminished, erect images"
+      "The diverging nature produces diminished, erect images Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1192,7 +1192,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Case 2 (virtual image on the same side): v = -15 cm",
       "1/u = -1/15 - 1/10 = (-2-3)/30 = -1/6",
       "u = -6 cm (object 6 cm in front, between optical centre and F, virtual erect image)",
-      "Object distances: 30 cm or 6 cm"
+      "Object distances: 30 cm or 6 cm Answer: (C)"
     ],
     "finalAnswer": "30 cm and 6 cm",
     "explanation": "Using lens formula: 1/v - 1/u = 1/f, so 1/u = 1/v - 1/f. Given: f = +10 cm. Case 1 (real image): v = +15 cm. 1/u = 1/15 - 1/10 = (2-3)/30 = -1/30. u = -30 cm (object 30 cm in front, beyond 2F, real image). Case 2 (virtual image on the same side): v = -15 cm. 1/u = -1/15 - 1/10 = (-2-3)/30 = -1/6. u = -6 cm (object 6 cm in front, between optical centre and F, virtual erect image). Object distances: 30 cm or 6 cm. Therefore, the correct answer is 30 cm and 6 cm.",
@@ -1299,7 +1299,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Angle to mirror surface = 40°",
       "Angle of incidence is measured from normal (perpendicular to surface)",
-      "Angle of incidence = 90° - 40° = 50°"
+      "Angle of incidence = 90° - 40° = 50° Answer: (B)"
     ],
     "finalAnswer": "50°",
     "explanation": "Angle to mirror surface = 40°. Angle of incidence is measured from normal (perpendicular to surface). Angle of incidence = 90° - 40° = 50°. Therefore, the correct answer is 50°.",
@@ -1384,7 +1384,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Power P = 1/f (in meters)",
       "f = 25 cm = 0.25 m",
       "P = 1/0.25 = 4 D (diopters)",
-      "Positive power indicates converging lens"
+      "Positive power indicates converging lens Answer: (A)"
     ],
     "finalAnswer": "+4 D",
     "explanation": "Power P = 1/f (in meters). f = 25 cm = 0.25 m. P = 1/0.25 = 4 D (diopters). Positive power indicates converging lens. Therefore, the correct answer is +4 D.",
@@ -1406,7 +1406,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "The image formed by a plane mirror is:",
     "options": ["Real and inverted","Virtual and inverted","Virtual and laterally inverted","Real and erect"],
     "answer": "Virtual and laterally inverted",
-    "solutionSteps": ["Plane mirror forms a virtual, erect, laterally inverted image of same size"],
+    "solutionSteps": ["Plane mirror forms a virtual, erect, laterally inverted image of same size Answer: (C)"],
     "finalAnswer": "Virtual and laterally inverted",
     "explanation": "Plane mirror: virtual, erect, laterally inverted, same size.",
     "isCompetencyBased": false,
@@ -1427,7 +1427,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "The bending of light when it passes from one medium to another is called:",
     "options": ["Reflection","Refraction","Dispersion","Diffraction"],
     "answer": "Refraction",
-    "solutionSteps": ["Refraction: change in speed causes bending at interface of two media"],
+    "solutionSteps": ["Refraction: change in speed causes bending at interface of two media Answer: (B)"],
     "finalAnswer": "Refraction",
     "explanation": "Bending of light at media interface = refraction.",
     "isCompetencyBased": false,
@@ -1448,7 +1448,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "A convex lens is also called:",
     "options": ["Concave lens","Diverging lens","Converging lens","Plane lens"],
     "answer": "Converging lens",
-    "solutionSteps": ["Convex lens is thicker in the middle; bends parallel rays to converge at principal focus"],
+    "solutionSteps": ["Convex lens is thicker in the middle; bends parallel rays to converge at principal focus Answer: (C)"],
     "finalAnswer": "Converging lens",
     "explanation": "Convex lens = converging lens.",
     "isCompetencyBased": false,
@@ -1469,7 +1469,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "By sign convention, the focal length of a concave mirror is:",
     "options": ["Positive","Negative","Zero","Infinite"],
     "answer": "Negative",
-    "solutionSteps": ["By convention, focal length of concave mirror is negative (focus is in front)"],
+    "solutionSteps": ["By convention, focal length of concave mirror is negative (focus is in front) Answer: (B)"],
     "finalAnswer": "Negative",
     "explanation": "Concave mirror focal length is negative (sign convention).",
     "isCompetencyBased": false,
@@ -1490,7 +1490,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "The power of a convex lens of focal length 50 cm is:",
     "options": ["0.02 D", "0.5 D", "-2 D", "+2 D"],
     "answer": "+2 D",
-    "solutionSteps": ["Convex lens: f = +50 cm = +0.5 m; P = 1/f(m) = 1/0.5 = +2 D"],
+    "solutionSteps": ["Convex lens: f = +50 cm = +0.5 m; P = 1/f(m) = 1/0.5 = +2 D Answer: (D)"],
     "finalAnswer": "+2 D",
     "explanation": "For a convex lens f = +50 cm = +0.5 m, so P = 1/f = 1/0.5 = +2 D (convex lens has positive power).",
     "isCompetencyBased": false,
@@ -1510,7 +1510,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "A ray passes from water to glass. What happens to the ray?",
     "options": ["Speed increases; bends away from normal","Speed decreases; bends towards normal","Speed increases; bends towards normal","Speed stays the same"],
     "answer": "Speed decreases; bends towards normal",
-    "solutionSteps": ["Glass is optically denser; speed decreases; bends towards normal"],
+    "solutionSteps": ["Glass is optically denser; speed decreases; bends towards normal Answer: (B)"],
     "finalAnswer": "Speed decreases; bends towards normal",
     "explanation": "Water to glass (denser): speed decreases, bends towards normal.",
     "isCompetencyBased": false,
@@ -1531,7 +1531,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): A concave mirror is used as a shaving mirror.\nReason (R): When the object is placed between the pole and focus, a concave mirror produces a magnified, erect, virtual image.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — concave mirror is used for shaving and makeup","R: true — object inside F gives virtual magnified erect image","R explains A"],
+    "solutionSteps": ["A: true — concave mirror is used for shaving and makeup","R: true — object inside F gives virtual magnified erect image","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Magnified erect image (R) makes concave mirror useful for shaving (A).",
     "isCompetencyBased": true,
@@ -1552,7 +1552,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "An object is placed at the centre of curvature of a concave mirror. The image is formed:",
     "options": ["At infinity","At the focus","At the centre of curvature","Between focus and centre of curvature"],
     "answer": "At the centre of curvature",
-    "solutionSteps": ["Object at C of concave mirror → image at C; real, inverted, same size"],
+    "solutionSteps": ["Object at C of concave mirror → image at C; real, inverted, same size Answer: (C)"],
     "finalAnswer": "At the centre of curvature",
     "explanation": "Object at C → image at C (real, inverted, same size).",
     "isCompetencyBased": false,
@@ -1573,7 +1573,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "The second law of refraction is also known as:",
     "options": ["Snell's law","Newton's law","Kepler's law","Coulomb's law"],
     "answer": "Snell's law",
-    "solutionSteps": ["Snell's law: n1 sin θ1 = n2 sin θ2 — the second law of refraction"],
+    "solutionSteps": ["Snell's law: n1 sin θ1 = n2 sin θ2 — the second law of refraction Answer: (A)"],
     "finalAnswer": "Snell's law",
     "explanation": "Snell's law = second law of refraction.",
     "isCompetencyBased": false,
@@ -1594,7 +1594,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "A concave (diverging) lens always forms:",
     "options": ["Real and enlarged image","Virtual, erect and diminished image","Real and inverted image","Virtual and magnified image"],
     "answer": "Virtual, erect and diminished image",
-    "solutionSteps": ["Concave lens always forms virtual, erect, diminished image for real objects on the same side as object"],
+    "solutionSteps": ["Concave lens always forms virtual, erect, diminished image for real objects on the same side as object Answer: (B)"],
     "finalAnswer": "Virtual, erect and diminished image",
     "explanation": "Concave lens: always virtual, erect, diminished.",
     "isCompetencyBased": false,
@@ -1615,7 +1615,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): A person with myopia uses a concave lens.\nReason (R): In myopia, image forms in front of retina; concave lens diverges rays to push image back onto retina.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: correct — concave (diverging) lens corrects myopia","R: correct — image in front of retina; concave lens shifts it back","R directly explains A"],
+    "solutionSteps": ["A: correct — concave (diverging) lens corrects myopia","R: correct — image in front of retina; concave lens shifts it back","R directly explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Myopia: image in front of retina; concave lens corrects by diverging rays.",
     "isCompetencyBased": true,
@@ -1636,7 +1636,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "The unit of power of a lens is:",
     "options": ["Metre","Centimetre","Dioptre","Watt"],
     "answer": "Dioptre",
-    "solutionSteps": ["Power of a lens is measured in dioptre (D); 1 D = 1 per metre"],
+    "solutionSteps": ["Power of a lens is measured in dioptre (D); 1 D = 1 per metre Answer: (C)"],
     "finalAnswer": "Dioptre",
     "explanation": "Power of lens is measured in dioptre (D).",
     "isCompetencyBased": false,
@@ -1657,7 +1657,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "questionText": "The mirror formula is:",
     "options": ["1/v + 1/u = 1/f","1/v - 1/u = 1/f","1/f + 1/v = 1/u","v + u = f"],
     "answer": "1/v + 1/u = 1/f",
-    "solutionSteps": ["Mirror formula: 1/v + 1/u = 1/f"],
+    "solutionSteps": ["Mirror formula: 1/v + 1/u = 1/f Answer: (A)"],
     "finalAnswer": "1/v + 1/u = 1/f",
     "explanation": "Mirror formula: 1/v + 1/u = 1/f.",
     "isCompetencyBased": false,

@@ -43,7 +43,7 @@ export const CG_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "If the point P(2, 1) lies on the line passing through the points A(4, 2) and B(8, 4), then",
     options: ["AP = (1/3) AB", "AP = PB", "PB = (1/3) AB", "AP = (1/2) AB"],
     answer: "AP = (1/2) AB",
-    solutionSteps: ["[1 mark] AP = √((4−2)²+(2−1)²) = √5, AB = √((8−4)²+(4−2)²) = √20 = 2√5 and PB = √45 = 3√5, so AP = (1/2) AB — option (D)."],
+    solutionSteps: ["[1 mark] AP = √((4−2)²+(2−1)²) = √5, AB = √((8−4)²+(4−2)²) = √20 = 2√5 and PB = √45 = 3√5, so AP = (1/2) AB — option (D). Answer: (D)"],
     finalAnswer: "AP = (1/2) AB — option (D).",
     ncertRef: "Exemplar Ex 7.1 Q12", isCompetencyBased: false,
     sourceOverride: "others", },

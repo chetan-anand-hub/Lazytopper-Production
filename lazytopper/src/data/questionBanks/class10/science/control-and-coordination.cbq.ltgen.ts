@@ -158,7 +158,7 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Root — positive geotropism; shoot — negative geotropism",
     "solutionSteps": [
-      "[1 mark] Root — positive geotropism; shoot — negative geotropism. In complete darkness light cannot be the stimulus; the root grows towards the pull of gravity and the shoot grows away from it."
+      "[1 mark] Root — positive geotropism; shoot — negative geotropism. In complete darkness light cannot be the stimulus; the root grows towards the pull of gravity and the shoot grows away from it. Answer: (A)"
     ],
     "finalAnswer": "Root — positive geotropism; shoot — negative geotropism",
     "isCompetencyBased": true,
@@ -187,7 +187,7 @@ export const CONTROL_COORDINATION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) — The folding is not a tropic (directional growth) movement; it is a quick movement in response to touch involving no growth, so A is false. R is true: the leaf cells change shape by changing the amount of water in them, which causes the folding."
+      "[1 mark] (D) — The folding is not a tropic (directional growth) movement; it is a quick movement in response to touch involving no growth, so A is false. R is true: the leaf cells change shape by changing the amount of water in them, which causes the folding. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,

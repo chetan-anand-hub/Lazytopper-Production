@@ -12,7 +12,7 @@ export const LIGHT_REFLECTION_PYQ: CanonicalQuestion[] = [
     questionText: "An object is placed in front of a convex mirror at infinity. According to the New Cartesian Sign Convention, the sign of the focal length and the sign of the image distance in this case are respectively :",
     options: ["+, –", "–, +", "–, –", "+, +"],
     answer: "+, +",
-    solutionSteps: ["[1 mark] (d) +, + — for a convex mirror the principal focus lies behind the mirror, so f is positive; an object at infinity forms its image at the focus, behind the mirror, so v is also positive."],
+    solutionSteps: ["[1 mark] (d) +, + — for a convex mirror the principal focus lies behind the mirror, so f is positive; an object at infinity forms its image at the focus, behind the mirror, so v is also positive. Answer: (D)"],
     finalAnswer: "(d) +, +",
     ncertRef: "PYQ 31/2/1 Q13", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },

@@ -21,7 +21,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "answer": "Pea plant",
     "solutionSteps": [
       "Mendel chose Pisum sativum (garden pea) for his experiments",
-      "It had easily distinguishable traits and short generation time"
+      "It had easily distinguishable traits and short generation time Answer: (B)"
     ],
     "finalAnswer": "Pea plant",
     "explanation": "Mendel chose Pisum sativum (garden pea) for his experiments. It had easily distinguishable traits and short generation time. Therefore, the correct answer is Pea plant.",
@@ -50,7 +50,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "answer": "3:1",
     "solutionSteps": [
       "In monohybrid cross, Mendel observed phenotypic ratio in F2",
-      "Dominant traits appeared 3 times for every 1 recessive trait"
+      "Dominant traits appeared 3 times for every 1 recessive trait Answer: (B)"
     ],
     "finalAnswer": "3:1",
     "explanation": "In monohybrid cross, Mendel observed phenotypic ratio in F2. Dominant traits appeared 3 times for every 1 recessive trait. Therefore, the correct answer is 3:1.",
@@ -79,7 +79,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "answer": "Different forms of a gene",
     "solutionSteps": [
       "Alleles are alternate forms of the same gene",
-      "They control the same trait but produce different effects"
+      "They control the same trait but produce different effects Answer: (A)"
     ],
     "finalAnswer": "Different forms of a gene",
     "explanation": "Alleles are alternate forms of the same gene. They control the same trait but produce different effects. Therefore, the correct answer is Different forms of a gene.",
@@ -109,7 +109,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Homozygous means two identical alleles (R is true)",
       "If homozygous recessive (aa), recessive traits appear, not dominant (A is false)",
-      "Therefore, A is false but R is true"
+      "Therefore, A is false but R is true Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -188,7 +188,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "answer": "Chromosome 23 (X and Y)",
     "solutionSteps": [
       "Humans have 23 pairs of chromosomes",
-      "The 23rd pair consists of sex chromosomes: XX (female) or XY (male)"
+      "The 23rd pair consists of sex chromosomes: XX (female) or XY (male) Answer: (D)"
     ],
     "finalAnswer": "Chromosome 23 (X and Y)",
     "explanation": "Humans have 23 pairs of chromosomes. The 23rd pair consists of sex chromosomes: XX (female) or XY (male). Therefore, the correct answer is Chromosome 23 (X and Y).",
@@ -294,7 +294,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Cross: Tt (heterozygous tall) × tt (homozygous dwarf)",
       "Heterozygous Tt produces gametes T and t (R is true)",
       "Offspring: Tt (tall) and tt (dwarf) in 1:1 ratio or 50:50 (A is true)",
-      "R correctly explains why A is true"
+      "R correctly explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -355,7 +355,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Law of segregation: Mendel's first law",
       "Alleles of a trait separate during meiosis",
-      "Each gamete receives only one allele for each trait"
+      "Each gamete receives only one allele for each trait Answer: (B)"
     ],
     "finalAnswer": "Alleles separate during gamete formation",
     "explanation": "Law of segregation: Mendel's first law. Alleles of a trait separate during meiosis. Each gamete receives only one allele for each trait. Therefore, the correct answer is Alleles separate during gamete formation.",
@@ -412,7 +412,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Offspring: Aa (dominant phenotype) and aa (recessive phenotype) in 1:1 ratio",
       "50% show recessive phenotype (A is true)",
       "Test cross is with homozygous RECESSIVE (aa), not dominant (BB is false)",
-      "Therefore A is true but R is false"
+      "Therefore A is true but R is false Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
@@ -442,7 +442,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "In F₁ generation, all plants were tall (heterozygous Tt)",
       "In F₂ generation, self-pollination of F₁ gave: TT, Tt, Tt, tt",
-      "Phenotypic ratio: 3 tall : 1 dwarf"
+      "Phenotypic ratio: 3 tall : 1 dwarf Answer: (B)"
     ],
     "finalAnswer": "3:1",
     "explanation": "In F₁ generation, all plants were tall (heterozygous Tt). In F₂ generation, self-pollination of F₁ gave: TT, Tt, Tt, tt. Phenotypic ratio: 3 tall : 1 dwarf. Therefore, the correct answer is 3:1.",
@@ -473,7 +473,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Pea plants had contrasting traits (tall/dwarf, green/yellow seeds)",
       "Could undergo both self-pollination and cross-pollination",
       "Short life cycle allowed multiple generations in short time",
-      "These features made it ideal for genetic studies"
+      "These features made it ideal for genetic studies Answer: (C)"
     ],
     "finalAnswer": "It had easily distinguishable traits and could self-pollinate",
     "explanation": "Pea plants had contrasting traits (tall/dwarf, green/yellow seeds). Could undergo both self-pollination and cross-pollination. Short life cycle allowed multiple generations in short time. These features made it ideal for genetic studies. Therefore, the correct answer is It had easily distinguishable traits and could self-pollinate.",
@@ -505,7 +505,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Gametes from Aa: A and a",
       "Gametes from aa: only a",
       "Punnett square: Aa (50%) and aa (50%)",
-      "This is a test cross"
+      "This is a test cross Answer: (B)"
     ],
     "finalAnswer": "50% Aa : 50% aa",
     "explanation": "Cross: Aa × aa. Gametes from Aa: A and a. Gametes from aa: only a. Punnett square: Aa (50%) and aa (50%). This is a test cross. Therefore, the correct answer is 50% Aa : 50% aa.",
@@ -564,7 +564,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Law of Independent Assortment: genes assort independently",
       "In dihybrid cross, 16 genotypic combinations form",
       "Phenotypic ratio: 9 (A_B_) : 3 (A_bb) : 3 (aaB_) : 1 (aabb)",
-      "Independent assortment causes this 9:3:3:1 ratio"
+      "Independent assortment causes this 9:3:3:1 ratio Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -594,7 +594,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Males: XY (have Y chromosome)",
       "Females: XX (no Y chromosome)",
       "Y chromosome carries male-determining genes",
-      "Male offspring: 50% chance when father's Y combines with mother's X"
+      "Male offspring: 50% chance when father's Y combines with mother's X Answer: (B)"
     ],
     "finalAnswer": "Presence or absence of Y chromosome",
     "explanation": "Males: XY (have Y chromosome). Females: XX (no Y chromosome). Y chromosome carries male-determining genes. Male offspring: 50% chance when father's Y combines with mother's X. Therefore, the correct answer is Presence or absence of Y chromosome.",
@@ -717,7 +717,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "TT (25%) tall, Tt (50%) tall = 75% tall total",
       "tt (25%) dwarf",
       "Dominant allele T produces tall phenotype",
-      "Both assertion and reason are correct explanations"
+      "Both assertion and reason are correct explanations Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -835,7 +835,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "F₀ or P: Parental generation (pure-breeding)",
       "F₁: First filial generation (offspring from P cross)",
       "F₂: Second filial generation (F₁ × F₁ offspring)",
-      "In monohybrid cross, F₁ are all heterozygous and show dominant trait"
+      "In monohybrid cross, F₁ are all heterozygous and show dominant trait Answer: (C)"
     ],
     "finalAnswer": "First filial generation (offspring of pure parents)",
     "explanation": "F₀ or P: Parental generation (pure-breeding). F₁: First filial generation (offspring from P cross). F₂: Second filial generation (F₁ × F₁ offspring). In monohybrid cross, F₁ are all heterozygous and show dominant trait. Therefore, the correct answer is First filial generation (offspring of pure parents).",
@@ -857,7 +857,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "questionText": "In a monohybrid cross Tt × Tt, what is the genotypic ratio of the F₂ generation?",
     "options": ["1:2:1", "3:1", "1:1", "9:3:3:1"],
     "answer": "1:2:1",
-    "solutionSteps": ["Tt × Tt gives: TT, Tt, Tt, tt", "Genotypic ratio: 1 TT : 2 Tt : 1 tt = 1:2:1", "Phenotypic ratio: 3 tall : 1 dwarf (3:1)"],
+    "solutionSteps": ["Tt × Tt gives: TT, Tt, Tt, tt", "Genotypic ratio: 1 TT : 2 Tt : 1 tt = 1:2:1", "Phenotypic ratio: 3 tall : 1 dwarf (3:1) Answer: (A)"],
     "finalAnswer": "1:2:1",
     "explanation": "Tt × Tt gives TT:Tt:tt = 1:2:1 genotypically. Therefore, the correct answer is 1:2:1.",
     "isCompetencyBased": false,
@@ -878,7 +878,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): In humans, the sex of the child is determined by the father and not the mother.\nReason (R): All eggs produced by the mother carry only the X chromosome, while the father produces X-carrying and Y-carrying sperms.",
     "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A is true: the father's sperm (X or Y) determines the sex of the child", "R is true: mother is XX → only X eggs; father is XY → X and Y sperms", "R directly explains A"],
+    "solutionSteps": ["A is true: the father's sperm (X or Y) determines the sex of the child", "R is true: mother is XX → only X eggs; father is XY → X and Y sperms", "R directly explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both are correct, and the mother's inability to contribute Y chromosomes (R) directly explains why the father determines sex (A).",
     "isCompetencyBased": true,
@@ -899,7 +899,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "questionText": "In a dihybrid cross between RRYY and rryy, what is the genotype of the F₁ generation?",
     "options": ["RRYY", "rryy", "RrYy", "RRYy"],
     "answer": "RrYy",
-    "solutionSteps": ["RRYY gametes: only RY", "rryy gametes: only ry", "All F₁ offspring: RrYy (heterozygous for both traits)", "These plants show round-yellow phenotype (both dominant traits expressed)"],
+    "solutionSteps": ["RRYY gametes: only RY", "rryy gametes: only ry", "All F₁ offspring: RrYy (heterozygous for both traits)", "These plants show round-yellow phenotype (both dominant traits expressed) Answer: (C)"],
     "finalAnswer": "RrYy",
     "explanation": "RRYY × rryy → all F₁ are RrYy. Therefore, the correct answer is RrYy.",
     "isCompetencyBased": false,

@@ -52,7 +52,7 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "options": ["1", "not defined", "√3", "0"],
     "answer": "not defined",
     "solutionSteps": [
-      "[1 mark] not defined — A − B = 30° and A + B = 60° give A = 45°, so tan 2A = tan 90°, which is not defined."
+      "[1 mark] not defined — A − B = 30° and A + B = 60° give A = 45°, so tan 2A = tan 90°, which is not defined. Answer: (B)"
     ],
     "finalAnswer": "not defined",
     "isCompetencyBased": false,
@@ -96,7 +96,7 @@ export const TRIG_CBE: CanonicalQuestion[] = [
     "options": ["1", "1/2", "√3/2", "0"],
     "answer": "0",
     "solutionSteps": [
-      "[1 mark] 0 — (1/2)(√3/2) − (√3/2)(1/2) = √3/4 − √3/4 = 0."
+      "[1 mark] 0 — (1/2)(√3/2) − (√3/2)(1/2) = √3/4 − √3/4 = 0. Answer: (D)"
     ],
     "finalAnswer": "0",
     "isCompetencyBased": false,

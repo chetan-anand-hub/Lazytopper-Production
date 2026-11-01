@@ -20,7 +20,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "It produces the same phenotype in both the heterozygous and homozygous condition.",
     "solutionSteps": [
-      "[1 mark] A dominant allele expresses its phenotype whether present in the homozygous (e.g. TT) or heterozygous (e.g. Tt) state; both TT and Tt pea plants are tall, so the dominant allele gives the same phenotype in both conditions."
+      "[1 mark] A dominant allele expresses its phenotype whether present in the homozygous (e.g. TT) or heterozygous (e.g. Tt) state; both TT and Tt pea plants are tall, so the dominant allele gives the same phenotype in both conditions. Answer: (C)"
     ],
     "finalAnswer": "It produces the same phenotype in both the heterozygous and homozygous condition.",
     "isCompetencyBased": false,
@@ -45,7 +45,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "There are two different alleles of the gene for height.",
     "solutionSteps": [
-      "[1 mark] T and t are two contrasting forms of the same height gene present at the same locus on homologous chromosomes; such alternate forms of one gene are called alleles, so Tt means the plant carries two different alleles of the height gene (it is heterozygous)."
+      "[1 mark] T and t are two contrasting forms of the same height gene present at the same locus on homologous chromosomes; such alternate forms of one gene are called alleles, so Tt means the plant carries two different alleles of the height gene (it is heterozygous). Answer: (B)"
     ],
     "finalAnswer": "There are two different alleles of the gene for height.",
     "isCompetencyBased": false,
@@ -70,7 +70,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "It must be homozygous recessive (tt).",
     "solutionSteps": [
-      "[1 mark] A recessive trait is masked whenever a dominant allele is present, so the dwarf (recessive) phenotype can appear only when both alleles are recessive. Hence the dwarf plant must be homozygous recessive, tt."
+      "[1 mark] A recessive trait is masked whenever a dominant allele is present, so the dwarf (recessive) phenotype can appear only when both alleles are recessive. Hence the dwarf plant must be homozygous recessive, tt. Answer: (A)"
     ],
     "finalAnswer": "It must be homozygous recessive (tt).",
     "isCompetencyBased": false,
@@ -95,7 +95,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "For every molecule of fat there is a gene.",
     "solutionSteps": [
-      "[1 mark] Genes code for proteins, and enzymes and protein hormones are proteins, so each has a corresponding gene. Fats are made by enzyme-controlled reactions but are not themselves coded by a gene, so 'for every molecule of fat there is a gene' is incorrect."
+      "[1 mark] Genes code for proteins, and enzymes and protein hormones are proteins, so each has a corresponding gene. Fats are made by enzyme-controlled reactions but are not themselves coded by a gene, so 'for every molecule of fat there is a gene' is incorrect. Answer: (D)"
     ],
     "finalAnswer": "For every molecule of fat there is a gene.",
     "isCompetencyBased": false,
@@ -120,7 +120,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "14",
     "solutionSteps": [
-      "[1 mark] Gametes are formed by meiosis, which halves the chromosome number, so each gamete has 28 / 2 = 14 chromosomes; fusion of two gametes then restores the somatic number 28 in the zygote."
+      "[1 mark] Gametes are formed by meiosis, which halves the chromosome number, so each gamete has 28 / 2 = 14 chromosomes; fusion of two gametes then restores the somatic number 28 in the zygote. Answer: (C)"
     ],
     "finalAnswer": "14",
     "isCompetencyBased": false,
@@ -145,7 +145,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "TtRr",
     "solutionSteps": [
-      "[1 mark] A dihybrid is heterozygous for two different genes simultaneously. Only TtRr carries two different alleles for both genes (Tt and Rr), so it is the true dihybrid genotype."
+      "[1 mark] A dihybrid is heterozygous for two different genes simultaneously. Only TtRr carries two different alleles for both genes (Tt and Rr), so it is the true dihybrid genotype. Answer: (C)"
     ],
     "finalAnswer": "TtRr",
     "isCompetencyBased": false,
@@ -170,7 +170,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "22 pairs",
     "solutionSteps": [
-      "[1 mark] A human body cell has 23 pairs (46) of chromosomes. One pair is the sex chromosomes (XX or XY) and the remaining 22 pairs are the autosomes."
+      "[1 mark] A human body cell has 23 pairs (46) of chromosomes. One pair is the sex chromosomes (XX or XY) and the remaining 22 pairs are the autosomes. Answer: (A)"
     ],
     "finalAnswer": "22 pairs",
     "isCompetencyBased": false,
@@ -195,7 +195,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "1 : 1 : 1 : 1",
     "solutionSteps": [
-      "[1 mark] RrYy forms four equally frequent gamete types (RY, Ry, rY, ry) while rryy forms only ry gametes; combining them gives four phenotypes in equal proportion — a 1 : 1 : 1 : 1 ratio (this is a dihybrid test cross)."
+      "[1 mark] RrYy forms four equally frequent gamete types (RY, Ry, rY, ry) while rryy forms only ry gametes; combining them gives four phenotypes in equal proportion — a 1 : 1 : 1 : 1 ratio (this is a dihybrid test cross). Answer: (C)"
     ],
     "finalAnswer": "1 : 1 : 1 : 1",
     "isCompetencyBased": false,
@@ -245,7 +245,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "4 tall plants and 1 medium-height plant",
     "solutionSteps": [
-      "[1 mark] In pea plants height shows complete dominance, so a plant is either tall or short and never an intermediate 'medium' height. Hence '4 tall and 1 medium-height plant' is impossible, whereas 3:1 (and its multiple 24:8) and an all-tall F1 result are all possible."
+      "[1 mark] In pea plants height shows complete dominance, so a plant is either tall or short and never an intermediate 'medium' height. Hence '4 tall and 1 medium-height plant' is impossible, whereas 3:1 (and its multiple 24:8) and an all-tall F1 result are all possible. Answer: (D)"
     ],
     "finalAnswer": "4 tall plants and 1 medium-height plant",
     "isCompetencyBased": false,
@@ -270,7 +270,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "135",
     "solutionSteps": [
-      "[1 mark] Tall and white are the dominant traits, so short-blue is the double-recessive class, expected as 1/16 of the F2. Number = 1/16 x 2160 = 135 plants."
+      "[1 mark] Tall and white are the dominant traits, so short-blue is the double-recessive class, expected as 1/16 of the F2. Number = 1/16 x 2160 = 135 plants. Answer: (D)"
     ],
     "finalAnswer": "135",
     "isCompetencyBased": false,
@@ -295,7 +295,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "wrinkled and green",
     "solutionSteps": [
-      "[1 mark] 15 out of 240 is 1/16 of the F2, which is exactly the fraction of the double-recessive class. The recessive traits are wrinkled and green, so these 15 plants are wrinkled and green."
+      "[1 mark] 15 out of 240 is 1/16 of the F2, which is exactly the fraction of the double-recessive class. The recessive traits are wrinkled and green, so these 15 plants are wrinkled and green. Answer: (D)"
     ],
     "finalAnswer": "wrinkled and green",
     "isCompetencyBased": false,
@@ -320,7 +320,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "5643",
     "solutionSteps": [
-      "[1 mark] In a monohybrid F2 the dominant : recessive ratio is 3 : 1, so round seeds form 3/4 of the total: 3/4 x 7524 = 5643 round seeds."
+      "[1 mark] In a monohybrid F2 the dominant : recessive ratio is 3 : 1, so round seeds form 3/4 of the total: 3/4 x 7524 = 5643 round seeds. Answer: (C)"
     ],
     "finalAnswer": "5643",
     "isCompetencyBased": false,
@@ -345,7 +345,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A.",
     "solutionSteps": [
-      "[1 mark] A test cross does cross the dominant-phenotype individual with a homozygous recessive: if any recessive offspring appear the individual is heterozygous, if all are dominant it is homozygous. So R correctly explains the purpose stated in A, and both are true."
+      "[1 mark] A test cross does cross the dominant-phenotype individual with a homozygous recessive: if any recessive offspring appear the individual is heterozygous, if all are dominant it is homozygous. So R correctly explains the purpose stated in A, and both are true. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A.",
     "isCompetencyBased": false,
@@ -370,7 +370,7 @@ export const HEREDITY_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Four",
     "solutionSteps": [
-      "[1 mark] Each heterozygous gene pair gives two kinds of gametes and the two genes assort independently, so the number of gamete types is 2 x 2 = 4: AB, Ab, aB and ab."
+      "[1 mark] Each heterozygous gene pair gives two kinds of gametes and the two genes assort independently, so the number of gamete types is 2 x 2 = 4: AB, Ab, aB and ab. Answer: (C)"
     ],
     "finalAnswer": "Four",
     "isCompetencyBased": false,

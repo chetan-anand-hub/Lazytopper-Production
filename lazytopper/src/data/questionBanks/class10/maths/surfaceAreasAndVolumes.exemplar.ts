@@ -23,7 +23,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "a cone and a cylinder",
     solutionSteps: [
       "A sharpened pencil has a cylindrical body and a conical (tapering) tip.",
-      "Hence it is a combination of a cylinder + a cone."
+      "Hence it is a combination of a cylinder + a cone. Answer: (A)"
     ],
     finalAnswer: "A cone and a cylinder — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q1", isCompetencyBased: false },
@@ -41,7 +41,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "a sphere and a cylinder",
     solutionSteps: [
       "A surahi has a spherical body (the round pot) and a long cylindrical neck.",
-      "So: sphere + cylinder."
+      "So: sphere + cylinder. Answer: (A)"
     ],
     finalAnswer: "A sphere and a cylinder — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q2", isCompetencyBased: false },
@@ -59,7 +59,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "a hemisphere and a cone",
     solutionSteps: [
       "A plumb-bob has a rounded (hemispherical) top tapering to a pointed (conical) bottom.",
-      "Hence it is a hemisphere + a cone."
+      "Hence it is a hemisphere + a cone. Answer: (B)"
     ],
     finalAnswer: "A hemisphere and a cone — option (B).",
     ncertRef: "Exemplar Ex 12.1 Q3", isCompetencyBased: false },
@@ -77,7 +77,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "two cones and a cylinder",
     solutionSteps: [
       "A gilli has a small cylindrical middle and two conical ends (the tapered tips).",
-      "Hence: cylinder + 2 cones."
+      "Hence: cylinder + 2 cones. Answer: (C)"
     ],
     finalAnswer: "Two cones and a cylinder — option (C).",
     ncertRef: "Exemplar Ex 12.1 Q5", isCompetencyBased: false },

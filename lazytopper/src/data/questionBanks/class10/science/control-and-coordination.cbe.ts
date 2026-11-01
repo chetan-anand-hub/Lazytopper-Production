@@ -44,7 +44,7 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "options": ["auxin", "abscisic acid", "cytokinin", "thyroxine"],
     "answer": "auxin",
     "solutionSteps": [
-      "[1 mark] auxin — auxin controls tropic growth: its uneven distribution makes the shoot grow up and the root grow down."
+      "[1 mark] auxin — auxin controls tropic growth: its uneven distribution makes the shoot grow up and the root grow down. Answer: (A)"
     ],
     "finalAnswer": "auxin",
     "isCompetencyBased": false,
@@ -66,7 +66,7 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "options": ["touch", "chemicals", "temperature", "gravity"],
     "answer": "gravity",
     "solutionSteps": [
-      "[1 mark] gravity — the roots grow downwards, towards the pull of the earth — a response to gravity (positive geotropism)."
+      "[1 mark] gravity — the roots grow downwards, towards the pull of the earth — a response to gravity (positive geotropism). Answer: (D)"
     ],
     "finalAnswer": "gravity",
     "isCompetencyBased": false,
@@ -88,7 +88,7 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "options": ["phototropism", "geotropism (gravitropism)", "hydrotropism", "chemotropism"],
     "answer": "geotropism (gravitropism)",
     "solutionSteps": [
-      "[1 mark] geotropism (gravitropism) — growth movement in response to gravity is geotropism; roots are positively geotropic."
+      "[1 mark] geotropism (gravitropism) — growth movement in response to gravity is geotropism; roots are positively geotropic. Answer: (B)"
     ],
     "finalAnswer": "geotropism (gravitropism)",
     "isCompetencyBased": false,
@@ -130,7 +130,7 @@ export const CTRL_CBE: CanonicalQuestion[] = [
     "options": ["geotropism", "phototropism", "hydrotropism", "chemotropism"],
     "answer": "phototropism",
     "solutionSteps": [
-      "[1 mark] phototropism — growth movement in response to light is phototropism; shoots are positively phototropic."
+      "[1 mark] phototropism — growth movement in response to light is phototropism; shoots are positively phototropic. Answer: (B)"
     ],
     "finalAnswer": "phototropism",
     "isCompetencyBased": false,

@@ -29,7 +29,7 @@ export const ARC_CBE: CanonicalQuestion[] = [
     "options": ["56 m", "28 m", "112 m", "64 m"],
     "answer": "56 m",
     "solutionSteps": [
-      "[1 mark] 56 m — πr² = 9856 ⇒ r² = 9856 × 7/22 = 3136 ⇒ r = 56 m."
+      "[1 mark] 56 m — πr² = 9856 ⇒ r² = 9856 × 7/22 = 3136 ⇒ r = 56 m. Answer: (A)"
     ],
     "finalAnswer": "56 m",
     "isCompetencyBased": false,

@@ -21,7 +21,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "48π cm³",
     "solutionSteps": [
-      "[1 mark] Volume = cone + hemisphere = (1/3)π(3)²(10) + (2/3)π(3)³ = 30π + 18π = 48π cm³."
+      "[1 mark] Volume = cone + hemisphere = (1/3)π(3)²(10) + (2/3)π(3)³ = 30π + 18π = 48π cm³. Answer: (A)"
     ],
     "finalAnswer": "48π cm³",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "902 cm²",
     "solutionSteps": [
-      "[1 mark] Painted area = CSA of cylinder + base of cylinder + CSA of hemisphere = 2πrh + πr² + 2πr² = 440 + 154 + 308 = 902 cm² (the joined circular face is hidden)."
+      "[1 mark] Painted area = CSA of cylinder + base of cylinder + CSA of hemisphere = 2πrh + πr² + 2πr² = 440 + 154 + 308 = 902 cm² (the joined circular face is hidden). Answer: (B)"
     ],
     "finalAnswer": "902 cm²",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1364 m²",
     "solutionSteps": [
-      "[1 mark] Canvas = CSA of cylinder + CSA of cone = 2πrh + πrl = 2 × (22/7) × 14 × 3 + (22/7) × 14 × 25 = 264 + 1100 = 1364 m²."
+      "[1 mark] Canvas = CSA of cylinder + CSA of cone = 2πrh + πrl = 2 × (22/7) × 14 × 3 + (22/7) × 14 × 25 = 264 + 1100 = 1364 m². Answer: (C)"
     ],
     "finalAnswer": "1364 m²",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5.5 cm²",
     "solutionSteps": [
-      "[1 mark] Slant height l = √(0.7² + 2.4²) = √(0.49 + 5.76) = √6.25 = 2.5 cm; CSA of the conical tip = πrl = (22/7) × 0.7 × 2.5 = 5.5 cm²."
+      "[1 mark] Slant height l = √(0.7² + 2.4²) = √(0.49 + 5.76) = √6.25 = 2.5 cm; CSA of the conical tip = πrl = (22/7) × 0.7 × 2.5 = 5.5 cm². Answer: (D)"
     ],
     "finalAnswer": "5.5 cm²",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "438.5 cm²",
     "solutionSteps": [
-      "[1 mark] TSA = TSA of cuboid − area of circle covered + CSA of hemisphere = 2(100 + 50 + 50) − πr² + 2πr² = 400 + πr² = 400 + 38.5 = 438.5 cm²."
+      "[1 mark] TSA = TSA of cuboid − area of circle covered + CSA of hemisphere = 2(100 + 50 + 50) − πr² + 2πr² = 400 + πr² = 400 + 38.5 = 438.5 cm². Answer: (A)"
     ],
     "finalAnswer": "438.5 cm²",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "90π m³",
     "solutionSteps": [
-      "[1 mark] Volume = πr²h + (2/3)πr³ = π(9)(8) + (2/3)π(27) = 72π + 18π = 90π m³."
+      "[1 mark] Volume = πr²h + (2/3)πr³ = π(9)(8) + (2/3)π(27) = 72π + 18π = 90π m³. Answer: (B)"
     ],
     "finalAnswer": "90π m³",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2 : 1",
     "solutionSteps": [
-      "[1 mark] (1/3)πr²h = (2/3)πr³ ⇒ h = 2r, so height : radius = 2 : 1."
+      "[1 mark] (1/3)πr²h = (2/3)πr³ ⇒ h = 2r, so height : radius = 2 : 1. Answer: (C)"
     ],
     "finalAnswer": "2 : 1",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "335.5 cm²",
     "solutionSteps": [
-      "[1 mark] The top circle is removed and the inner hemispherical surface is added: area = 2πrh + πr² (bottom) + 2πr² (hollow) = 220 + 38.5 + 77 = 335.5 cm²."
+      "[1 mark] The top circle is removed and the inner hemispherical surface is added: area = 2πrh + πr² (bottom) + 2πr² (hollow) = 220 + 38.5 + 77 = 335.5 cm². Answer: (D)"
     ],
     "finalAnswer": "335.5 cm²",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "528 cm³",
     "solutionSteps": [
-      "[1 mark] Remaining volume = πr²h − (1/3)πr²h = (2/3)πr²h = (2/3) × (22/7) × 36 × 7 = 528 cm³."
+      "[1 mark] Remaining volume = πr²h − (1/3)πr²h = (2/3)πr²h = (2/3) × (22/7) × 36 × 7 = 528 cm³. Answer: (A)"
     ],
     "finalAnswer": "528 cm³",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹10560",
     "solutionSteps": [
-      "[1 mark] Area = 2πrh + 2πr² = 220 + 308 = 528 m²; cost = 528 × ₹20 = ₹10560."
+      "[1 mark] Area = 2πrh + 2πr² = 220 + 308 = 528 m²; cost = 528 × ₹20 = ₹10560. Answer: (B)"
     ],
     "finalAnswer": "₹10560",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "200.96 cm³",
     "solutionSteps": [
-      "[1 mark] Volume = πr²H + (1/3)πr²h = π(4)(14) + (1/3)π(4)(6) = 56π + 8π = 64π = 64 × 3.14 = 200.96 cm³."
+      "[1 mark] Volume = πr²H + (1/3)πr²h = π(4)(14) + (1/3)π(4)(6) = 56π + 8π = 64π = 64 × 3.14 = 200.96 cm³. Answer: (C)"
     ],
     "finalAnswer": "200.96 cm³",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/4",
     "solutionSteps": [
-      "[1 mark] Here h = 3r: CSA of cylinder = 2πr(3r) = 6πr², CSA of hemisphere = 2πr²; fraction = 2πr² / (6πr² + 2πr²) = 1/4."
+      "[1 mark] Here h = 3r: CSA of cylinder = 2πr(3r) = 6πr², CSA of hemisphere = 2πr²; fraction = 2πr² / (6πr² + 2πr²) = 1/4. Answer: (D)"
     ],
     "finalAnswer": "1/4",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10 cm",
     "solutionSteps": [
-      "[1 mark] πr²h + (1/3)πr²(6) = 1848 ⇒ 154h + 308 = 1848 ⇒ 154h = 1540 ⇒ h = 10 cm."
+      "[1 mark] πr²h + (1/3)πr²(6) = 1848 ⇒ 154h + 308 = 1848 ⇒ 154h = 1540 ⇒ h = 10 cm. Answer: (A)"
     ],
     "finalAnswer": "10 cm",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2440 cm²",
     "solutionSteps": [
-      "[1 mark] Visible area = 5 faces of cube − circle covered + top of cylinder + CSA of cylinder = 2000 − 154 + 154 + 2πrh = 2000 + 440 = 2440 cm²."
+      "[1 mark] Visible area = 5 faces of cube − circle covered + top of cylinder + CSA of cylinder = 2000 − 154 + 154 + 2πrh = 2000 + 440 = 2440 cm². Answer: (B)"
     ],
     "finalAnswer": "2440 cm²",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/3",
     "solutionSteps": [
-      "[1 mark] Can = πr²(2r) = 2πr³, ball = (4/3)πr³; empty = 2πr³ − (4/3)πr³ = (2/3)πr³, which is (2/3)/2 = 1/3 of the can."
+      "[1 mark] Can = πr²(2r) = 2πr³, ball = (4/3)πr³; empty = 2πr³ − (4/3)πr³ = (2/3)πr³, which is (2/3)/2 = 1/3 of the can. Answer: (C)"
     ],
     "finalAnswer": "1/3",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "516.88 cm³",
     "solutionSteps": [
-      "[1 mark] Volume left = lbh − πr²h = 560 − (22/7)(1.96)(7) = 560 − 43.12 = 516.88 cm³."
+      "[1 mark] Volume left = lbh − πr²h = 560 − (22/7)(1.96)(7) = 560 − 43.12 = 516.88 cm³. Answer: (D)"
     ],
     "finalAnswer": "516.88 cm³",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "517 cm²",
     "solutionSteps": [
-      "[1 mark] The joint faces are hidden, giving a cylinder of radius 3.5 cm and length 20 cm: TSA = 2πrh + 2πr² = 440 + 77 = 517 cm²."
+      "[1 mark] The joint faces are hidden, giving a cylinder of radius 3.5 cm and length 20 cm: TSA = 2πrh + 2πr² = 440 + 77 = 517 cm². Answer: (A)"
     ],
     "finalAnswer": "517 cm²",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "234.84 cm²",
     "solutionSteps": [
-      "[1 mark] l = √(3² + 4²) = 5 cm; TSA = 6a² − πr² + πrl = 216 − 9π + 15π = 216 + 6π = 216 + 18.84 = 234.84 cm²."
+      "[1 mark] l = √(3² + 4²) = 5 cm; TSA = 6a² − πr² + πrl = 216 − 9π + 15π = 216 + 6π = 216 + 18.84 = 234.84 cm². Answer: (B)"
     ],
     "finalAnswer": "234.84 cm²",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "32π/3 cm³",
     "solutionSteps": [
-      "[1 mark] Capacity = πr²h + (2/3)πr³ = π(1)(10) + (2/3)π = 32π/3 cm³."
+      "[1 mark] Capacity = πr²h + (2/3)πr³ = π(1)(10) + (2/3)π = 32π/3 cm³. Answer: (C)"
     ],
     "finalAnswer": "32π/3 cm³",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/3",
     "solutionSteps": [
-      "[1 mark] Cone = (1/3)πr²(9) = 3πr², cylinder = πr²(6) = 6πr²; fraction = 3πr² / 9πr² = 1/3."
+      "[1 mark] Cone = (1/3)πr²(9) = 3πr², cylinder = πr²(6) = 6πr²; fraction = 3πr² / 9πr² = 1/3. Answer: (D)"
     ],
     "finalAnswer": "1/3",
     "isCompetencyBased": true,

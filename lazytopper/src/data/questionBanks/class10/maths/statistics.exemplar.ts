@@ -23,7 +23,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "For the distribution Class 0-5 → 10, 5-10 → 15, 10-15 → 12, 15-20 → 20, 20-25 → 9, the sum of the lower limits of the median class and the modal class is",
     options: ["15", "25", "30", "35"],
     answer: "25",
-    solutionSteps: ["n = 10 + 15 + 12 + 20 + 9 = 66, so n/2 = 33. Cumulative frequencies: 10, 25, 37, 57, 66. The first cf greater than 33 is 37, so the median class is 10-15 (lower limit 10).", "The highest frequency is 20, in the class 15-20, so the modal class is 15-20 (lower limit 15).", "Sum of lower limits = 10 + 15 = 25, option (b)."],
+    solutionSteps: ["n = 10 + 15 + 12 + 20 + 9 = 66, so n/2 = 33. Cumulative frequencies: 10, 25, 37, 57, 66. The first cf greater than 33 is 37, so the median class is 10-15 (lower limit 10).", "The highest frequency is 20, in the class 15-20, so the modal class is 15-20 (lower limit 15).", "Sum of lower limits = 10 + 15 = 25, option (b). Answer: (B)"],
     finalAnswer: "25",
     ncertRef: "Exemplar Ex 13.1 Q6", isCompetencyBased: true,
     strategyHint: "Identify median class via cumulative frequency; modal class via max frequency.",

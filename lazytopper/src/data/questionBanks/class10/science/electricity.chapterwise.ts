@@ -21,7 +21,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "You are given n identical wires, each of resistance R. When these are connected in parallel, the equivalent resistance is X. When these will be connected in series, then the equivalent resistance will be",
     options: ["X/n²", "n²X", "X/n", "nX"],
     answer: "n²X",
-    solutionSteps: ["[1 mark] In parallel the n wires give X = R/n, so R = nX; in series the equivalent resistance is nR = n × nX = n²X. Correct option (b) n²X."],
+    solutionSteps: ["[1 mark] In parallel the n wires give X = R/n, so R = nX; in series the equivalent resistance is nR = n × nX = n²X. Correct option (b) n²X. Answer: (B)"],
     finalAnswer: "(b) n²X",
     ncertRef: "cbjescco12 Q2", isCompetencyBased: true },
   // cbjescco12 Q3
@@ -45,7 +45,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "2 ampere current is flowing through a conductor from a 10 volt emf source then resistance of conductor is",
     options: ["20 Ω", "5 Ω", "12 Ω", "8 Ω"],
     answer: "5 Ω",
-    solutionSteps: ["[1 mark] By Ohm's law R = V/I = 10 V / 2 A = 5 Ω. Correct option (b) 5 Ω."],
+    solutionSteps: ["[1 mark] By Ohm's law R = V/I = 10 V / 2 A = 5 Ω. Correct option (b) 5 Ω. Answer: (B)"],
     finalAnswer: "(b) 5 Ω",
     ncertRef: "cbjescco12 Q6", isCompetencyBased: true },
   // cbjescco12 Q7
@@ -61,7 +61,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "A cylindrical rod is reformed to twice its length with no change in its volume. If the resistance of the rod was R, the new resistance will be",
     options: ["R", "2R", "4R", "8R"],
     answer: "4R",
-    solutionSteps: ["[1 mark] The volume is unchanged, so doubling the length halves the area of cross-section: R′ = ρ(2l)/(A/2) = 4 × ρl/A = 4R. Correct option (c) 4R."],
+    solutionSteps: ["[1 mark] The volume is unchanged, so doubling the length halves the area of cross-section: R′ = ρ(2l)/(A/2) = 4 × ρl/A = 4R. Correct option (c) 4R. Answer: (C)"],
     finalAnswer: "(c) 4R",
     ncertRef: "cbjescco12 Q8", isCompetencyBased: true },
   // cbjescco12 Q10
@@ -77,7 +77,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "If a wire of resistance R is melted and recast to half of its length, the new resistance of the wire will be",
     options: ["R/4", "R/2", "R", "2R"],
     answer: "R/4",
-    solutionSteps: ["[1 mark] The volume is unchanged, so halving the length doubles the area of cross-section: R′ = ρ(l/2)/(2A) = R/4. Correct option (a) R/4."],
+    solutionSteps: ["[1 mark] The volume is unchanged, so halving the length doubles the area of cross-section: R′ = ρ(l/2)/(2A) = R/4. Correct option (a) R/4. Answer: (A)"],
     finalAnswer: "(a) R/4",
     ncertRef: "cbjescco12 Q13", isCompetencyBased: true },
   // cbjescco12 Q14
@@ -85,7 +85,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "100 J of heat is produced each second in a 4 Ω resistance. The potential difference across the resistor is",
     options: ["20 V", "10 V", "5 V", "15 V"],
     answer: "20 V",
-    solutionSteps: ["[1 mark] H = I²Rt ⇒ I = √(H/Rt) = √(100/(4 × 1)) = 5 A; V = IR = 5 × 4 = 20 V. Correct option (a) 20 V."],
+    solutionSteps: ["[1 mark] H = I²Rt ⇒ I = √(H/Rt) = √(100/(4 × 1)) = 5 A; V = IR = 5 × 4 = 20 V. Correct option (a) 20 V. Answer: (A)"],
     finalAnswer: "(a) 20 V",
     ncertRef: "cbjescco12 Q14", isCompetencyBased: true },
   // cbjescco12 Q16
@@ -135,7 +135,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "The length of a wire is doubled. By what factor does the resistance change",
     options: ["4 time as large", "twice as large", "unchanged", "half as large"],
     answer: "twice as large",
-    solutionSteps: ["[1 mark] R = ρl/A, so R ∝ l: doubling the length of the wire doubles its resistance. Correct option (b) twice as large."],
+    solutionSteps: ["[1 mark] R = ρl/A, so R ∝ l: doubling the length of the wire doubles its resistance. Correct option (b) twice as large. Answer: (B)"],
     finalAnswer: "(b) twice as large",
     ncertRef: "cbjescco12 Q24", isCompetencyBased: true },
   // cbjescco12 Q26

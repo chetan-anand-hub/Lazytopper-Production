@@ -24,7 +24,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "If sin θ = 3/5, then (3/5)² + cos²θ = 1",
       "9/25 + cos²θ = 1",
       "cos²θ = 16/25",
-      "cos θ = 4/5 (taking positive value)"
+      "cos θ = 4/5 (taking positive value) Answer: (A)"
     ],
     "finalAnswer": "4/5",
     "explanation": "In a right triangle, sin²θ + cos²θ = 1. If sin θ = 3/5, then (3/5)² + cos²θ = 1. 9/25 + cos²θ = 1. cos²θ = 16/25. cos θ = 4/5 (taking positive value). Therefore, the correct answer is 4/5.",
@@ -53,7 +53,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "1",
     "solutionSteps": [
       "In a 45-45-90 triangle, the opposite and adjacent sides are equal",
-      "tan 45° = opposite/adjacent = 1/1 = 1"
+      "tan 45° = opposite/adjacent = 1/1 = 1 Answer: (B)"
     ],
     "finalAnswer": "1",
     "explanation": "In a 45-45-90 triangle, the opposite and adjacent sides are equal. tan 45° = opposite/adjacent = 1/1 = 1. Therefore, the correct answer is 1.",
@@ -83,7 +83,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "sin 30° = 1/2",
       "cos 60° = 1/2",
-      "sin 30° + cos 60° = 1/2 + 1/2 = 1"
+      "sin 30° + cos 60° = 1/2 + 1/2 = 1 Answer: (B)"
     ],
     "finalAnswer": "1",
     "explanation": "sin 30° = 1/2. cos 60° = 1/2. sin 30° + cos 60° = 1/2 + 1/2 = 1. Therefore, the correct answer is 1.",
@@ -112,7 +112,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "sin²θ + cos²θ = 1",
     "solutionSteps": [
       "The Pythagorean identity states: sin²θ + cos²θ = 1",
-      "This is true for all values of θ"
+      "This is true for all values of θ Answer: (B)"
     ],
     "finalAnswer": "sin²θ + cos²θ = 1",
     "explanation": "The Pythagorean identity states: sin²θ + cos²θ = 1. This is true for all values of θ. Therefore, the correct answer is sin²θ + cos²θ = 1.",
@@ -141,7 +141,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "opposite/hypotenuse",
     "solutionSteps": [
       "In a right-angled triangle with angle θ,",
-      "sin θ = length of opposite side / length of hypotenuse"
+      "sin θ = length of opposite side / length of hypotenuse Answer: (A)"
     ],
     "finalAnswer": "opposite/hypotenuse",
     "explanation": "By definition, sin θ = opposite/hypotenuse in a right-angled triangle. This is the foundational definition of the sine ratio.",
@@ -171,7 +171,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "If tan θ = 4/3, then opposite = 4, adjacent = 3",
       "hypotenuse = √(4² + 3²) = √25 = 5",
-      "sin θ = opposite/hypotenuse = 4/5"
+      "sin θ = opposite/hypotenuse = 4/5 Answer: (B)"
     ],
     "finalAnswer": "4/5",
     "explanation": "If tan θ = 4/3, then opposite = 4, adjacent = 3. hypotenuse = √(4² + 3²) = √25 = 5. sin θ = opposite/hypotenuse = 4/5. Therefore, the correct answer is 4/5.",
@@ -201,7 +201,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "Using identity: sin²θ + cos²θ = 1",
       "This is true for all angles, including θ = 60°",
-      "Therefore, sin²60° + cos²60° = 1"
+      "Therefore, sin²60° + cos²60° = 1 Answer: (B)"
     ],
     "finalAnswer": "1",
     "explanation": "Using identity: sin²θ + cos²θ = 1. This is true for all angles, including θ = 60°. Therefore, sin²60° + cos²60° = 1. Therefore, the correct answer is 1.",
@@ -232,7 +232,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan 45° = 1",
       "sin 90° = 1",
       "cos 0° = 1",
-      "tan 45° + sin 90° - cos 0° = 1 + 1 - 1 = 1"
+      "tan 45° + sin 90° - cos 0° = 1 + 1 - 1 = 1 Answer: (B)"
     ],
     "finalAnswer": "1",
     "explanation": "tan 45° = 1, sin 90° = 1, cos 0° = 1. So tan 45° + sin 90° - cos 0° = 1 + 1 - 1 = 1. Therefore, the correct answer is 1.",
@@ -367,7 +367,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Assertion is a fundamental trigonometric identity",
       "In a right triangle: opposite² + adjacent² = hypotenuse²",
       "Dividing by hypotenuse²: (opposite/hypotenuse)² + (adjacent/hypotenuse)² = 1",
-      "This gives: sin²θ + cos²θ = 1"
+      "This gives: sin²θ + cos²θ = 1 Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -397,7 +397,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "cosec θ = 1/sin θ by definition",
       "Therefore sin θ · cosec θ = sin θ · (1/sin θ) = 1",
-      "The Reason (R) directly explains why the Assertion (A) is true"
+      "The Reason (R) directly explains why the Assertion (A) is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Since cosec θ = 1/sin θ, we have sin θ · cosec θ = 1. The Reason correctly explains the Assertion.",
@@ -428,7 +428,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan θ = sin θ/cos θ",
       "When cos θ = 0, the denominator becomes 0",
       "Division by zero results in undefined value",
-      "Therefore, tan θ is undefined when cos θ = 0"
+      "Therefore, tan θ is undefined when cos θ = 0 Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -460,7 +460,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Squaring both sides: (sin θ + cos θ)² = 2",
       "sin²θ + 2sin θ cos θ + cos²θ = 2",
       "1 + 2sin θ cos θ = 2",
-      "sin θ cos θ = 1/2"
+      "sin θ cos θ = 1/2 Answer: (A)"
     ],
     "finalAnswer": "1/2",
     "isCompetencyBased": true,
@@ -677,7 +677,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "Both (2) and (3)",
     "solutionSteps": [
       "cot θ = cos θ/sin θ = 1/tan θ",
-      "Both expressions are equivalent"
+      "Both expressions are equivalent Answer: (D)"
     ],
     "finalAnswer": "Both (2) and (3)",
     "explanation": "cot θ = cos θ/sin θ = 1/tan θ. Both expressions are equivalent. Therefore, the correct answer is Both (2) and (3).",
@@ -705,7 +705,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "1",
     "solutionSteps": [
-      "cos 0° = 1 (from unit circle or standard values)"
+      "cos 0° = 1 (from unit circle or standard values) Answer: (B)"
     ],
     "finalAnswer": "1",
     "explanation": "cos 0° = 1 (from unit circle or standard values). Therefore, the correct answer is 1.",
@@ -734,7 +734,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "3/5",
     "solutionSteps": [
       "sec θ = 1/cos θ = 5/3",
-      "cos θ = 3/5"
+      "cos θ = 3/5 Answer: (B)"
     ],
     "finalAnswer": "3/5",
     "explanation": "sec θ = 1/cos θ = 5/3. cos θ = 3/5. Therefore, the correct answer is 3/5.",
@@ -764,7 +764,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "sin 30° = 1/2, so sin²30° = (1/2)² = 1/4",
       "cos 60° = 1/2, so cos²60° = (1/2)² = 1/4",
-      "sin²30° + cos²60° = 1/4 + 1/4 = 1/2"
+      "sin²30° + cos²60° = 1/4 + 1/4 = 1/2 Answer: (C)"
     ],
     "finalAnswer": "1/2",
     "explanation": "sin 30° = 1/2 and cos 60° = 1/2. So sin²30° + cos²60° = 1/4 + 1/4 = 1/2. Therefore, the correct answer is 1/2.",
@@ -867,7 +867,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin θ = 3/5, so opposite = 3, hypotenuse = 5",
       "Using Pythagoras: adjacent² = 5² - 3² = 25 - 9 = 16",
       "adjacent = 4",
-      "cos θ = adjacent/hypotenuse = 4/5"
+      "cos θ = adjacent/hypotenuse = 4/5 Answer: (A)"
     ],
     "finalAnswer": "4/5",
     "explanation": "sin θ = 3/5, so opposite = 3, hypotenuse = 5. Using Pythagoras: adjacent² = 5² - 3² = 25 - 9 = 16. adjacent = 4. cos θ = adjacent/hypotenuse = 4/5. Therefore, the correct answer is 4/5.",
@@ -896,7 +896,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "1/2",
     "solutionSteps": [
       "Standard angle value from trigonometric table",
-      "sin 30° = 1/2"
+      "sin 30° = 1/2 Answer: (A)"
     ],
     "finalAnswer": "1/2",
     "explanation": "Standard angle value from trigonometric table. sin 30° = 1/2. Therefore, the correct answer is 1/2.",
@@ -925,7 +925,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "1",
     "solutionSteps": [
       "This is a standard Pythagorean identity",
-      "cosec²θ - cot²θ = 1 (derived from sin²θ + cos²θ = 1 by dividing by sin²θ)"
+      "cosec²θ - cot²θ = 1 (derived from sin²θ + cos²θ = 1 by dividing by sin²θ) Answer: (B)"
     ],
     "finalAnswer": "1",
     "explanation": "cosec²θ - cot²θ = 1 is a fundamental Pythagorean trigonometric identity. Therefore, the correct answer is 1.",
@@ -955,7 +955,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "In a right-angled triangle with acute angle θ: (side opposite θ)² + (side adjacent to θ)² = (hypotenuse)².",
       "Divide every term by (hypotenuse)²: (opposite/hypotenuse)² + (adjacent/hypotenuse)² = 1.",
-      "Since sin θ = opposite/hypotenuse and cos θ = adjacent/hypotenuse, this is sin² θ + cos² θ = 1, the fundamental identity."
+      "Since sin θ = opposite/hypotenuse and cos θ = adjacent/hypotenuse, this is sin² θ + cos² θ = 1, the fundamental identity. Answer: (A)"
     ],
     "finalAnswer": "sin² θ + cos² θ = 1",
     "explanation": "Fundamental identity. In a right-angled triangle: opposite² + adjacent² = hypotenuse². Dividing by hypotenuse²: sin² θ + cos² θ = 1. Therefore, the correct answer is sin² θ + cos² θ = 1.",
@@ -986,7 +986,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan θ = 5/12 (opposite/adjacent)",
       "Using Pythagoras: hypotenuse² = 5² + 12² = 25 + 144 = 169",
       "hypotenuse = 13",
-      "sec θ = hypotenuse/adjacent = 13/12"
+      "sec θ = hypotenuse/adjacent = 13/12 Answer: (A)"
     ],
     "finalAnswer": "13/12",
     "explanation": "tan θ = 5/12 (opposite/adjacent). Using Pythagoras: hypotenuse² = 5² + 12² = 25 + 144 = 169. hypotenuse = 13. sec θ = hypotenuse/adjacent = 13/12. Therefore, the correct answer is 13/12.",
@@ -1038,7 +1038,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "1",
     "solutionSteps": [
       "1 - sin² θ = cos² θ",
-      "cos² θ · sec² θ = cos² θ · (1/cos² θ) = 1"
+      "cos² θ · sec² θ = cos² θ · (1/cos² θ) = 1 Answer: (A)"
     ],
     "finalAnswer": "1",
     "explanation": "1 - sin² θ = cos² θ. cos² θ · sec² θ = cos² θ · (1/cos² θ) = 1. Therefore, the correct answer is 1.",
@@ -1093,7 +1093,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.",
       "sin 60° = height/hypotenuse",
       "√3/2 = height/10",
-      "height = 10 × √3/2 = 5√3 m"
+      "height = 10 × √3/2 = 5√3 m Answer: (B)"
     ],
     "finalAnswer": "5√3 m",
     "explanation": "sin 60° = height/hypotenuse. √3/2 = height/10. height = 10 × √3/2 = 5√3 m. Therefore, the correct answer is 5√3 m.",
@@ -1122,7 +1122,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "answer": "1",
     "solutionSteps": [
       "tan 60° = √3, cot 60° = 1/√3",
-      "tan 60° × cot 60° = √3 × (1/√3) = 1"
+      "tan 60° × cot 60° = √3 × (1/√3) = 1 Answer: (A)"
     ],
     "finalAnswer": "1",
     "explanation": "tan 60° = √3, cot 60° = 1/√3. tan 60° × cot 60° = √3 × (1/√3) = 1. Therefore, the correct answer is 1.",
@@ -1150,7 +1150,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "tan² θ + 1 = sec² θ",
     "solutionSteps": [
-      "[1 mark] Option (c) tan^2 θ + 1 = sec^2 θ is correct: subtracting tan^2 θ from both sides gives sec^2 θ - tan^2 θ = 1 directly; option (a) gives it only after dividing by cos^2 θ, option (b) is the cot and cosec identity, and (d) is false.",
+      "[1 mark] Option (c) tan^2 θ + 1 = sec^2 θ is correct: subtracting tan^2 θ from both sides gives sec^2 θ - tan^2 θ = 1 directly; option (a) gives it only after dividing by cos^2 θ, option (b) is the cot and cosec identity, and (d) is false. Answer: (C)",
     ],
     "finalAnswer": "tan² θ + 1 = sec² θ",
     "explanation": "From tan² θ + 1 = sec² θ. Rearranging: sec² θ - tan² θ = 1. Therefore, the correct answer is tan² θ + 1 = sec² θ.",
@@ -1205,7 +1205,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "cosec² θ = 1 + cot² θ = 1 + (7/8)² = 1 + 49/64 = 113/64",
       "cosec θ = √(113/64) = √113/8",
-      "R explains why A is true using the identity"
+      "R explains why A is true using the identity Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1317,7 +1317,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Sine is opposite/hypotenuse",
       "Opposite side is always ≤ hypotenuse in a right triangle",
       "Therefore sin θ ≤ 1",
-      "R correctly explains why A is true"
+      "R correctly explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1492,7 +1492,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cosec² θ - cot² θ = 1 (fundamental identity)",
       "(cosec θ - cot θ)(cosec θ + cot θ) = 1",
       "(1/3)(cosec θ + cot θ) = 1",
-      "cosec θ + cot θ = 3"
+      "cosec θ + cot θ = 3 Answer: (A)"
     ],
     "finalAnswer": "3",
     "explanation": "cosec² θ - cot² θ = 1 (fundamental identity). (cosec θ - cot θ)(cosec θ + cot θ) = 1. (1/3)(cosec θ + cot θ) = 1. cosec θ + cot θ = 3. Therefore, the correct answer is 3.",
@@ -1523,7 +1523,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin⁴ θ - cos⁴ θ = (sin² θ)² - (cos² θ)²",
       "= (sin² θ - cos² θ)(sin² θ + cos² θ)",
       "= (sin² θ - cos² θ)(1)",
-      "= sin² θ - cos² θ"
+      "= sin² θ - cos² θ Answer: (B)"
     ],
     "finalAnswer": "sin² θ - cos² θ",
     "explanation": "sin⁴ θ - cos⁴ θ = (sin² θ)² - (cos² θ)². = (sin² θ - cos² θ)(sin² θ + cos² θ). = (sin² θ - cos² θ)(1). = sin² θ - cos² θ. Therefore, the correct answer is sin² θ - cos² θ.",
@@ -1603,7 +1603,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "By Pythagoras: hypotenuse² = a² + b²",
       "hypotenuse = √(a² + b²)",
       "sin θ = opposite/hypotenuse = b/√(a² + b²)",
-      "R explains the derivation of A"
+      "R explains the derivation of A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1641,7 +1641,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Let the height of the building be 10 m and the horizontal distance to the tower be x m.",
       "From the angle of depression of 45° to the foot of the tower, tan 45° = 10/x, so x = 10 m.",
       "Let the height of the tower above the building be y. From the angle of elevation of 60°, tan 60° = y/x.",
-      "Substitute x=10: √3 = y/10, so y = 10√3 m. Total tower height = 10 + 10√3 = 10(1+√3) m.",
+      "Substitute x=10: √3 = y/10, so y = 10√3 m. Total tower height = 10 + 10√3 = 10(1+√3) m. Answer: (A)",
     ],
   },
   { id: "TG3-064", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If tan θ = 1/√3, then θ equals:", options: ["30°","45°","60°","90°"], answer: "30°", explanation: "The correct answer is 30°. tan 30° = 1/√3. So θ = 30°.", finalAnswer: "tan 30° = 1/√3. So θ = 30°.", isCompetencyBased: false,
@@ -1649,12 +1649,12 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "The given trigonometric equation is tan θ = 1/√3.",
       "Recall the standard trigonometric values for common angles.",
       "We know that tan 30° has a value of 1/√3.",
-      "Therefore, comparing the given equation with the standard value, θ = 30°.",
+      "Therefore, comparing the given equation with the standard value, θ = 30°. Answer: (A)",
     ],
   },
   { id: "TG3-065", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric identities", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): cosec²θ − cot²θ = 1 for all values of θ where the expressions are defined.\nReason (R): This identity is derived from the Pythagorean identity sin²θ + cos²θ = 1 by dividing both sides by sin²θ.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Dividing sin²θ + cos²θ = 1 by sin²θ gives 1 + cot²θ = cosec²θ, i.e., cosec²θ − cot²θ = 1.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] Dividing sin²θ + cos²θ = 1 by sin²θ (sin θ ≠ 0) gives 1 + cot²θ = cosec²θ, i.e. cosec²θ − cot²θ = 1 wherever defined; so A is true, R is true, and R is exactly how A is obtained — R correctly explains A.",
+      "[1 mark] Dividing sin²θ + cos²θ = 1 by sin²θ (sin θ ≠ 0) gives 1 + cot²θ = cosec²θ, i.e. cosec²θ − cot²θ = 1 wherever defined; so A is true, R is true, and R is exactly how A is obtained — R correctly explains A. Answer: (A)",
     ],
   }
 ];

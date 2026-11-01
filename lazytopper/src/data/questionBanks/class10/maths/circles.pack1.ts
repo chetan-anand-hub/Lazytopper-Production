@@ -3,21 +3,21 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const CIRCLES_PACK1: CanonicalQuestion[] = [
   { id: "CIR-E01", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A tangent to a circle is perpendicular to the radius at the point of:", options: ["Centre", "Contact", "Chord", "Diameter"], answer: "Contact", explanation: "The correct answer is Contact. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Contact" , isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (B) Contact: by the theorem, the tangent at any point of a circle is perpendicular to the radius through the point of contact.",
+      "[1 mark] Option (B) Contact: by the theorem, the tangent at any point of a circle is perpendicular to the radius through the point of contact. Answer: (B)",
     ],
   },
-  { id: "CIR-E02", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The length of a tangent from an external point to a circle is 8 cm and the distance of the point from the centre is 10 cm. The radius of the circle is:", options: ["6 cm", "4 cm", "5 cm", "12 cm"], answer: "6 cm", explanation: "r² + 8² = 10². r² = 36 → r = 6. Therefore, the correct answer is 6 cm.", solutionSteps: ["r² + 8² = 10²", "r² = 36 → r = 6"], finalAnswer: "6 cm" , isCompetencyBased: false },
+  { id: "CIR-E02", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The length of a tangent from an external point to a circle is 8 cm and the distance of the point from the centre is 10 cm. The radius of the circle is:", options: ["6 cm", "4 cm", "5 cm", "12 cm"], answer: "6 cm", explanation: "r² + 8² = 10². r² = 36 → r = 6. Therefore, the correct answer is 6 cm.", solutionSteps: ["r² + 8² = 10²", "r² = 36 → r = 6 Answer: (A)"], finalAnswer: "6 cm" , isCompetencyBased: false },
   { id: "CIR-E03", subject: "Maths", topicKey: "circles", subtopic: "Number/Type of Tangents", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The maximum number of tangents that can be drawn to a circle from an external point is:", options: ["1", "2", "3", "Infinite"], answer: "2", explanation: "The correct answer is 2. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "2" , isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (B) 2: from a point outside a circle exactly two tangents can be drawn (one on each side of the line joining the point to the centre).",
+      "[1 mark] Option (B) 2: from a point outside a circle exactly two tangents can be drawn (one on each side of the line joining the point to the centre). Answer: (B)",
     ],
   },
-  { id: "CIR-E04", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If tangents PA and PB from a point P to a circle with centre O are inclined to each other at 80°, then ∠POA =", options: ["50°", "60°", "70°", "80°"], answer: "50°", explanation: "∠APB = 80°, ∠OAP = 90°. In quad OAPB: ∠AOB = 360° − 90° − 90° − 80° = 100°. ∠POA = 100°/2 = 50°. Therefore, the correct answer is 50°.", solutionSteps: ["∠APB = 80°, ∠OAP = 90°", "In quad OAPB: ∠AOB = 360° − 90° − 90° − 80° = 100°", "∠POA = 100°/2 = 50°"], finalAnswer: "50°" , isCompetencyBased: false },
+  { id: "CIR-E04", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If tangents PA and PB from a point P to a circle with centre O are inclined to each other at 80°, then ∠POA =", options: ["50°", "60°", "70°", "80°"], answer: "50°", explanation: "∠APB = 80°, ∠OAP = 90°. In quad OAPB: ∠AOB = 360° − 90° − 90° − 80° = 100°. ∠POA = 100°/2 = 50°. Therefore, the correct answer is 50°.", solutionSteps: ["∠APB = 80°, ∠OAP = 90°", "In quad OAPB: ∠AOB = 360° − 90° − 90° − 80° = 100°", "∠POA = 100°/2 = 50° Answer: (A)"], finalAnswer: "50°" , isCompetencyBased: false },
   { id: "CIR-E05", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The tangent at any point of a circle is perpendicular to the radius through the point of contact.\nReason (R): Of all the line segments joining the centre O to points on the tangent, the radius OP to the point of contact P is the shortest, and the shortest segment from a point to a line is perpendicular to it.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "A is true (Theorem 10.1). R is true: every point of the tangent other than P lies outside the circle, so OP is the shortest distance from O to the tangent, and the shortest segment from a point to a line is the perpendicular. This is exactly the NCERT proof of A, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "A is true: the tangent at any point of a circle is perpendicular to the radius through the point of contact (Theorem 10.1).",
       "R is true: every point Q ≠ P on the tangent lies outside the circle, so OQ > OP; hence OP is the shortest segment from O to the tangent, and the shortest segment is the perpendicular.",
-      "R is the reasoning used to prove A, so both are true and R is the correct explanation of A — option (a)."
+      "R is the reasoning used to prove A, so both are true and R is the correct explanation of A — option (a). Answer: (A)"
     ],
     sourceOverride: "others",
   },
@@ -25,7 +25,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "According to Theorem 10.2 of NCERT Class 10 Mathematics,",
       "the lengths of tangents drawn from an external point to a circle are equal.",
-      "Therefore, the lengths are Equal.",
+      "Therefore, the lengths are Equal. Answer: (A)",
     ],
   },
   { id: "CIR-E07", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "From an external point P, tangents PA and PB are drawn to a circle of radius 5 cm. If PA = 12 cm, find the distance OP.", solutionSteps: [
@@ -33,8 +33,8 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
       "OP² = PA² + OA² = 144 + 25 = 169 [½]",
       "OP = 13 cm [1]",
     ], finalAnswer: "13 cm" , isCompetencyBased: true },
-  { id: "CIR-E08", subject: "Maths", topicKey: "circles", subtopic: "Number/Type of Tangents", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "A point P is at a distance 13 cm from the centre of a circle of radius 5 cm. The number of tangents from P is:", options: ["0", "1", "2", "3"], answer: "2", explanation: "13 > 5, P is outside → 2 tangents. Therefore, the correct answer is 2.", solutionSteps: ["13 > 5, P is outside → 2 tangents"], finalAnswer: "2" , isCompetencyBased: false },
-  { id: "CIR-E09", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "TP and TQ are tangents from an external point T to a circle with centre O. If ∠PTQ = 70°, then ∠POQ =", options: ["110°", "70°", "140°", "100°"], answer: "110°", explanation: "∠OPT = ∠OQT = 90° (tangent ⊥ radius). In quadrilateral OPTQ, ∠POQ = 360° − 90° − 90° − 70° = 110°. Therefore, the correct answer is 110°.", solutionSteps: ["∠OPT = ∠OQT = 90°; in quadrilateral OPTQ, ∠POQ = 360° − 180° − 70° = 110°."], finalAnswer: "110°" , isCompetencyBased: true, sourceOverride: "others" },
+  { id: "CIR-E08", subject: "Maths", topicKey: "circles", subtopic: "Number/Type of Tangents", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "A point P is at a distance 13 cm from the centre of a circle of radius 5 cm. The number of tangents from P is:", options: ["0", "1", "2", "3"], answer: "2", explanation: "13 > 5, P is outside → 2 tangents. Therefore, the correct answer is 2.", solutionSteps: ["13 > 5, P is outside → 2 tangents Answer: (C)"], finalAnswer: "2" , isCompetencyBased: false },
+  { id: "CIR-E09", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "TP and TQ are tangents from an external point T to a circle with centre O. If ∠PTQ = 70°, then ∠POQ =", options: ["110°", "70°", "140°", "100°"], answer: "110°", explanation: "∠OPT = ∠OQT = 90° (tangent ⊥ radius). In quadrilateral OPTQ, ∠POQ = 360° − 90° − 90° − 70° = 110°. Therefore, the correct answer is 110°.", solutionSteps: ["∠OPT = ∠OQT = 90°; in quadrilateral OPTQ, ∠POQ = 360° − 180° − 70° = 110°. Answer: (A)"], finalAnswer: "110°" , isCompetencyBased: true, sourceOverride: "others" },
   { id: "CIR-E10", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Two concentric circles of radii 5 cm and 3 cm are drawn. Find the length of the chord of the larger circle which touches the smaller circle.", solutionSteps: [
       "The chord is a tangent to smaller circle [½]",
       "Half-chord² + 3² = 5² [½]",
@@ -44,19 +44,19 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "By definition, a tangent to a circle is a line that touches the circle at exactly one point.",
       "This point is known as the point of contact.",
-      "Thus, a tangent intersects a circle in One point.",
+      "Thus, a tangent intersects a circle in One point. Answer: (A)",
     ],
   },
   { id: "CIR-E12", subject: "Maths", topicKey: "circles", subtopic: "Number/Type of Tangents", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If a point lies inside a circle, the number of tangents from that point is:", options: ["0", "1", "2", "Infinite"], answer: "0", explanation: "The correct answer is 0. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "0" , isCompetencyBased: false,
     solutionSteps: [
       "A tangent to a circle is a line that touches the circle at exactly one point.",
       "If a point lies inside the circle, any line passing through it will intersect the circle at two distinct points (a secant).",
-      "Therefore, no tangent can be drawn from a point lying inside a circle, so the number is 0.",
+      "Therefore, no tangent can be drawn from a point lying inside a circle, so the number is 0. Answer: (A)",
     ],
   },
   { id: "CIR-E13", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Two tangents from an external point to a circle subtend equal angles at the centre.\nReason (R): The tangent segments from an external point are equal.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Tangent segments from an external point are equal (PA = PB), so triangles OAP and OBP are congruent by SSS (OA = OB, OP common), giving ∠AOP = ∠BOP: A and R are both true, and R explains A. [1]",
+      "Tangent segments from an external point are equal (PA = PB), so triangles OAP and OBP are congruent by SSS (OA = OB, OP common), giving ∠AOP = ∠BOP: A and R are both true, and R explains A. [1] Answer: (A)",
     ],
   },
   { id: "CIR-E14", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "If the angle between two tangents drawn from an external point P to a circle of radius r and centre O is 60°, find the length of OP.", solutionSteps: [
@@ -66,13 +66,13 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "OP = 2r" , isCompetencyBased: true },
   { id: "CIR-E15", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A line that has two common points with a circle is called:", options: ["Tangent", "Secant", "Chord", "Radius"], answer: "Secant", explanation: "The correct answer is Secant. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Secant" , isCompetencyBased: false,
     solutionSteps: [
-      "A line that meets a circle at two points is called a secant. [1]",
+      "A line that meets a circle at two points is called a secant. [1] Answer: (B)",
     ],
   },
-  { id: "CIR-E16", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "PQ is a tangent drawn from point P at Q to a circle with centre O. If OQ = 5 cm and OP = 13 cm, then PQ =", options: ["12 cm", "8 cm", "10 cm", "18 cm"], answer: "12 cm", explanation: "PQ = √(13² − 5²) = √144 = 12. Therefore, the correct answer is 12 cm.", solutionSteps: ["PQ = √(13² − 5²) = √144 = 12"], finalAnswer: "12 cm" , isCompetencyBased: true },
+  { id: "CIR-E16", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "PQ is a tangent drawn from point P at Q to a circle with centre O. If OQ = 5 cm and OP = 13 cm, then PQ =", options: ["12 cm", "8 cm", "10 cm", "18 cm"], answer: "12 cm", explanation: "PQ = √(13² − 5²) = √144 = 12. Therefore, the correct answer is 12 cm.", solutionSteps: ["PQ = √(13² − 5²) = √144 = 12 Answer: (A)"], finalAnswer: "12 cm" , isCompetencyBased: true },
   { id: "CIR-E17", subject: "Maths", topicKey: "circles", subtopic: "Number/Type of Tangents", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "A point on the circle has how many tangent(s)?", options: ["0", "1", "2", "Infinite"], answer: "1", explanation: "The correct answer is 1. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1" , isCompetencyBased: false,
     solutionSteps: [
-      "Through a point on a circle there is exactly one tangent, so the number of tangents is 1. [1]",
+      "Through a point on a circle there is exactly one tangent, so the number of tangents is 1. [1] Answer: (B)",
     ],
   },
   { id: "CIR-E18", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Prove that the tangents drawn at the ends of a diameter are parallel.", solutionSteps: [
@@ -80,7 +80,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
       "OA and OB are along the same line (diameter) [½]",
       "Both tangents ⊥ to the same line → parallel [1]",
     ], finalAnswer: "Proved" , visualExplainerId: "maths-circles-tangent-to-a-circle", isCompetencyBased: true },
-  { id: "CIR-E19", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "PA and PB are tangents from an external point P to a circle with centre O. If ∠APB = 50°, then ∠OAB =", options: ["25°", "50°", "65°", "40°"], answer: "25°", explanation: "∠OAP = ∠OBP = 90°, so in quadrilateral OAPB, ∠AOB = 360° − 180° − 50° = 130°. △OAB is isosceles (OA = OB), so ∠OAB = (180° − 130°)/2 = 25°. Therefore, the correct answer is 25°.", solutionSteps: ["∠OAP = ∠OBP = 90° ⇒ ∠AOB = 360° − 180° − 50° = 130°.", "△OAB is isosceles (OA = OB = radius).", "∠OAB = (180° − 130°)/2 = 25°."], finalAnswer: "25°" , isCompetencyBased: false, sourceOverride: "others" },
+  { id: "CIR-E19", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "PA and PB are tangents from an external point P to a circle with centre O. If ∠APB = 50°, then ∠OAB =", options: ["25°", "50°", "65°", "40°"], answer: "25°", explanation: "∠OAP = ∠OBP = 90°, so in quadrilateral OAPB, ∠AOB = 360° − 180° − 50° = 130°. △OAB is isosceles (OA = OB), so ∠OAB = (180° − 130°)/2 = 25°. Therefore, the correct answer is 25°.", solutionSteps: ["∠OAP = ∠OBP = 90° ⇒ ∠AOB = 360° − 180° − 50° = 130°.", "△OAB is isosceles (OA = OB = radius).", "∠OAB = (180° − 130°)/2 = 25°. Answer: (A)"], finalAnswer: "25°" , isCompetencyBased: false, sourceOverride: "others" },
   { id: "CIR-E20", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "State and prove: 'The tangent to a circle is perpendicular to the radius through the point of contact' (statement only, brief proof).", solutionSteps: [
       "Construction: Draw a circle with centre O and point P on the circle. Draw the tangent l at P and radius OP. Assume l is not perpendicular to OP and derive a contradiction.; If tangent were not ⊥ to radius, we could draw a shorter line from centre to tangent [½]",
       "That shorter line would be inside the circle, so the tangent would intersect the circle at two points; But a tangent touches at exactly one point — contradiction [½]",
@@ -104,7 +104,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Proved: all sides are equal → rhombus" , visualExplainerId: "maths-circles-tangent-to-a-circle", isCompetencyBased: true },
   { id: "CIR-M04", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If PA and PB are tangents from P to a circle, then the centre O lies on the perpendicular bisector of AB.\nReason (R): PA = PB and OA = OB.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] Option (A): tangents from an external point are equal, so PA = PB, and OA = OB as radii; so both P and O are equidistant from A and B and lie on the perpendicular bisector of AB. Both A and R are true and R explains A.",
+      "[1 mark] Option (A): tangents from an external point are equal, so PA = PB, and OA = OB as radii; so both P and O are equidistant from A and B and lie on the perpendicular bisector of AB. Both A and R are true and R explains A. Answer: (A)",
     ],
   },
   { id: "CIR-M05", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "XY and X'Y' are two parallel tangents to a circle with centre O, touching it at P and Q respectively. Another tangent AB, with point of contact C, intersects XY at A and X'Y' at B. Prove that ∠AOB = 90°.", solutionSteps: [
@@ -131,7 +131,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "AB + CD = AD + BC (proved)" , visualExplainerId: "maths-circles-tangent-to-a-circle", isCompetencyBased: true },
   { id: "CIR-M09", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The angle between two tangents from an external point is supplementary to the angle subtended by the line segment joining the points of contact at the centre.\nReason (R): OAPB is a cyclic quadrilateral where ∠OAP = ∠OBP = 90°.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "In quadrilateral OAPB, ∠OAP = ∠OBP = 90°, so ∠AOB + ∠APB = 360° − 180° = 180° (A is true), and since the opposite angles at A and B are each 90° and sum to 180°, OAPB is cyclic (R is true), which gives the supplementary relation: R explains A. [1]",
+      "In quadrilateral OAPB, ∠OAP = ∠OBP = 90°, so ∠AOB + ∠APB = 360° − 180° = 180° (A is true), and since the opposite angles at A and B are each 90° and sum to 180°, OAPB is cyclic (R is true), which gives the supplementary relation: R explains A. [1] Answer: (A)",
     ],
   },
   { id: "CIR-M10", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.", solutionSteps: [
@@ -154,7 +154,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
       "r² = OP² − PA² = 100 − 36 = 64 [1]",
       "r = 8 cm [1]",
     ], finalAnswer: "8 cm" , isCompetencyBased: true },
-  { id: "CIR-M14", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "A circle touches the side BC of △ABC at P and extensions of AB and AC at Q and R respectively. If the perimeter of △ABC is 30 cm, then AQ =", options: ["15 cm", "10 cm", "30 cm", "20 cm"], answer: "15 cm", explanation: "AQ = AB + BQ = AB + BP, AR = AC + CR = AC + CP. AQ = AR (tangents), AQ + AR = AB + BC + AC = 30. 2AQ = 30 → AQ = 15. Therefore, the correct answer is 15 cm.", solutionSteps: ["AQ = AB + BQ = AB + BP, AR = AC + CR = AC + CP", "AQ = AR (tangents), AQ + AR = AB + BC + AC = 30", "2AQ = 30 → AQ = 15"], finalAnswer: "15 cm" , isCompetencyBased: true },
+  { id: "CIR-M14", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "A circle touches the side BC of △ABC at P and extensions of AB and AC at Q and R respectively. If the perimeter of △ABC is 30 cm, then AQ =", options: ["15 cm", "10 cm", "30 cm", "20 cm"], answer: "15 cm", explanation: "AQ = AB + BQ = AB + BP, AR = AC + CR = AC + CP. AQ = AR (tangents), AQ + AR = AB + BC + AC = 30. 2AQ = 30 → AQ = 15. Therefore, the correct answer is 15 cm.", solutionSteps: ["AQ = AB + BQ = AB + BP, AR = AC + CR = AC + CP", "AQ = AR (tangents), AQ + AR = AB + BC + AC = 30", "2AQ = 30 → AQ = 15 Answer: (A)"], finalAnswer: "15 cm" , isCompetencyBased: true },
   { id: "CIR-M15", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If a circle is inscribed in an equilateral triangle of side 12 cm, find the radius of the inscribed circle.", solutionSteps: [
       "For equilateral triangle: inradius = side/(2√3) = 12/(2√3) = 2√3 cm [½]",
       "Or: Area = (√3/4)(144) = 36√3, s = 18 [½]",
@@ -162,7 +162,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "2√3 cm" , isCompetencyBased: true },
   { id: "CIR-M16", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If a quadrilateral ABCD circumscribes a circle, then AB + CD = BC + DA.\nReason (R): Tangent segments from the same external point are equal.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] Option (A): if the sides AB, BC, CD, DA touch the circle at P, Q, R, S, equal tangents give AP = AS, BP = BQ, CR = CQ, DR = DS; adding, AB + CD = AS + BQ + CQ + DS = BC + DA. So A is true, R is true, and R is the correct explanation of A.",
+      "[1 mark] Option (A): if the sides AB, BC, CD, DA touch the circle at P, Q, R, S, equal tangents give AP = AS, BP = BQ, CR = CQ, DR = DS; adding, AB + CD = AS + BQ + CQ + DS = BC + DA. So A is true, R is true, and R is the correct explanation of A. Answer: (A)",
     ],
   },
   { id: "CIR-M17", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "PQ is a chord of length 8 cm of a circle of radius 5 cm. The tangents at P and Q intersect at a point T. Find the length TP.", solutionSteps: [
@@ -280,7 +280,7 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Let O be the centre of the circle, T be the point of contact of the tangent. Triangle OTP is a right-angled triangle at T.",
       "Using Pythagoras theorem, OP^2 = OT^2 + PT^2, where OT = radius = 5 cm and PT = tangent length = 12 cm.",
-      "OP^2 = 5^2 + 12^2 = 25 + 144 = 169. Therefore, OP = sqrt(169) = 13 cm.",
+      "OP^2 = 5^2 + 12^2 = 25 + 144 = 169. Therefore, OP = sqrt(169) = 13 cm. Answer: (A)",
     ],
   }
 ];

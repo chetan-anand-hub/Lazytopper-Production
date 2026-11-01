@@ -13,7 +13,7 @@ export const humanEyePYQ2024: CanonicalQuestion[] = [
     questionText: "The phenomena of light involved in the formation of rainbow are :",
     options: ["Refraction, reflection and dispersion", "Refraction, dispersion and internal reflection", "Reflection, dispersion and internal reflection", "Refraction, dispersion, scattering and total internal reflection"],
     answer: "Refraction, dispersion and internal reflection",
-    solutionSteps: ["[1 mark] A rainbow forms when sunlight enters tiny water droplets: light is refracted and dispersed on entering the droplet, internally reflected at its back surface, and refracted again on leaving it. So the phenomena involved are refraction, dispersion and internal reflection."],
+    solutionSteps: ["[1 mark] A rainbow forms when sunlight enters tiny water droplets: light is refracted and dispersed on entering the droplet, internally reflected at its back surface, and refracted again on leaving it. So the phenomena involved are refraction, dispersion and internal reflection. Answer: (B)"],
     finalAnswer: "Refraction, dispersion and internal reflection",
     ncertRef: "PYQ 31/5/1 Q12", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1",

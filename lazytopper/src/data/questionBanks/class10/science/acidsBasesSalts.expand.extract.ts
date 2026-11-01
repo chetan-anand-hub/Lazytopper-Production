@@ -13,7 +13,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following is NOT an organic acid?",
     options: ["Ethanoic acid", "Formic acid", "Citric acid", "Carbonic acid"],
     answer: "Carbonic acid",
-    solutionSteps: ["[1 mark] Carbonic acid (H₂CO₃) is a mineral (inorganic) acid formed when CO₂ dissolves in water; ethanoic, formic and citric acids occur in plants/animals and are organic acids."],
+    solutionSteps: ["[1 mark] Carbonic acid (H₂CO₃) is a mineral (inorganic) acid formed when CO₂ dissolves in water; ethanoic, formic and citric acids occur in plants/animals and are organic acids. Answer: (D)"],
     finalAnswer: "Carbonic acid", isCompetencyBased: false,
   },
   {
@@ -21,7 +21,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Aqua regia, which can dissolve gold, is a mixture of concentrated:",
     options: ["3 parts HCl and 1 part HNO₃", "1 part HCl and 3 parts HNO₃", "Equal volumes of HNO₃ and H₂SO₄", "H₂SO₄ only"],
     answer: "3 parts HCl and 1 part HNO₃",
-    solutionSteps: ["[1 mark] Aqua regia is a freshly prepared mixture of concentrated hydrochloric acid and concentrated nitric acid in the ratio 3 : 1, and it can dissolve even noble metals like gold and platinum."],
+    solutionSteps: ["[1 mark] Aqua regia is a freshly prepared mixture of concentrated hydrochloric acid and concentrated nitric acid in the ratio 3 : 1, and it can dissolve even noble metals like gold and platinum. Answer: (A)"],
     finalAnswer: "3 parts HCl and 1 part HNO₃", isCompetencyBased: false,
   },
   {
@@ -29,7 +29,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following does NOT inject an acidic liquid into the skin through its sting?",
     options: ["Honey bee", "Ant", "Wasp", "Nettle leaf hair"],
     answer: "Wasp",
-    solutionSteps: ["[1 mark] A honey bee, an ant and a nettle-leaf hair inject methanoic (formic) acid, but a wasp injects an alkaline liquid; hence a wasp sting is not treated with a base."],
+    solutionSteps: ["[1 mark] A honey bee, an ant and a nettle-leaf hair inject methanoic (formic) acid, but a wasp injects an alkaline liquid; hence a wasp sting is not treated with a base. Answer: (C)"],
     finalAnswer: "Wasp", isCompetencyBased: false,
   },
   {
@@ -37,7 +37,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The property common to both vinegar and curd is that they:",
     options: ["Have a sweet taste", "Have a bitter taste", "Are tasteless", "Have a sour taste"],
     answer: "Have a sour taste",
-    solutionSteps: ["[1 mark] Vinegar contains acetic acid and curd contains lactic acid; both are acidic and therefore have a sour taste."],
+    solutionSteps: ["[1 mark] Vinegar contains acetic acid and curd contains lactic acid; both are acidic and therefore have a sour taste. Answer: (D)"],
     finalAnswer: "Have a sour taste", isCompetencyBased: false,
   },
   {
@@ -45,7 +45,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The aqueous solution of which salt will have NO effect on either red or blue litmus paper?",
     options: ["Potassium sulphate", "Sodium carbonate", "Ammonium sulphate", "Sodium acetate"],
     answer: "Potassium sulphate",
-    solutionSteps: ["[1 mark] Potassium sulphate (K₂SO₄) is a salt of a strong acid (H₂SO₄) and a strong base (KOH), so its solution is neutral (pH ≈ 7) and does not change the colour of either litmus."],
+    solutionSteps: ["[1 mark] Potassium sulphate (K₂SO₄) is a salt of a strong acid (H₂SO₄) and a strong base (KOH), so its solution is neutral (pH ≈ 7) and does not change the colour of either litmus. Answer: (A)"],
     finalAnswer: "Potassium sulphate", isCompetencyBased: false,
   },
   {
@@ -53,7 +53,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The aqueous solution of which of the following salts will turn blue litmus red?",
     options: ["Ammonium sulphate", "Sodium acetate", "Sodium chloride", "Potassium carbonate"],
     answer: "Ammonium sulphate",
-    solutionSteps: ["[1 mark] Ammonium sulphate [(NH₄)₂SO₄] is a salt of a weak base (NH₄OH) and a strong acid (H₂SO₄); its solution is acidic and so turns blue litmus red."],
+    solutionSteps: ["[1 mark] Ammonium sulphate [(NH₄)₂SO₄] is a salt of a weak base (NH₄OH) and a strong acid (H₂SO₄); its solution is acidic and so turns blue litmus red. Answer: (A)"],
     finalAnswer: "Ammonium sulphate", isCompetencyBased: false,
   },
   {
@@ -61,7 +61,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The number of water molecules of crystallisation present in washing soda crystals is:",
     options: ["Five", "Two", "Ten", "Seven"],
     answer: "Ten",
-    solutionSteps: ["[1 mark] Washing soda is sodium carbonate decahydrate, Na₂CO₃·10H₂O, so ten water molecules of crystallisation are present per formula unit."],
+    solutionSteps: ["[1 mark] Washing soda is sodium carbonate decahydrate, Na₂CO₃·10H₂O, so ten water molecules of crystallisation are present per formula unit. Answer: (C)"],
     finalAnswer: "Ten", isCompetencyBased: false,
   },
   {
@@ -69,7 +69,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following is NOT a property of acids?",
     options: ["They have a sour taste", "They feel soapy to touch", "They turn blue litmus red", "Their pH is less than 7"],
     answer: "They feel soapy to touch",
-    solutionSteps: ["[1 mark] A soapy/slippery feel is a property of bases; acids are sour, turn blue litmus red and have pH less than 7."],
+    solutionSteps: ["[1 mark] A soapy/slippery feel is a property of bases; acids are sour, turn blue litmus red and have pH less than 7. Answer: (B)"],
     finalAnswer: "They feel soapy to touch", isCompetencyBased: false,
   },
   {
@@ -77,7 +77,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following compounds is an acid?",
     options: ["Na₂O", "Ca(OH)₂", "CuO", "HNO₃"],
     answer: "HNO₃",
-    solutionSteps: ["[1 mark] HNO₃ (nitric acid) releases H⁺ ions in water and is an acid; Na₂O and CuO are basic metal oxides and Ca(OH)₂ is a base."],
+    solutionSteps: ["[1 mark] HNO₃ (nitric acid) releases H⁺ ions in water and is an acid; Na₂O and CuO are basic metal oxides and Ca(OH)₂ is a base. Answer: (D)"],
     finalAnswer: "HNO₃", isCompetencyBased: false,
   },
   {
@@ -85,7 +85,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following is NOT basic in nature?",
     options: ["KOH", "ZnO", "Al(OH)₃", "NaCl"],
     answer: "NaCl",
-    solutionSteps: ["[1 mark] Sodium chloride is a neutral salt of a strong acid and a strong base; KOH and Al(OH)₃ are bases and ZnO is a (basic/amphoteric) metal oxide that behaves basically towards acids."],
+    solutionSteps: ["[1 mark] Sodium chloride is a neutral salt of a strong acid and a strong base; KOH and Al(OH)₃ are bases and ZnO is a (basic/amphoteric) metal oxide that behaves basically towards acids. Answer: (D)"],
     finalAnswer: "NaCl", isCompetencyBased: false,
   },
   {
@@ -93,7 +93,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following reactions can lead to the formation of copper sulphate?",
     options: ["Cu(OH)₂ + H₂S", "Cu(OH)₂ + H₂SO₄", "CuCl₂ + H₂S", "CuCl₂ + HCl"],
     answer: "Cu(OH)₂ + H₂SO₄",
-    solutionSteps: ["[1 mark] A base reacts with an acid to give a salt and water: Cu(OH)₂ + H₂SO₄ → CuSO₄ + 2H₂O, forming copper sulphate."],
+    solutionSteps: ["[1 mark] A base reacts with an acid to give a salt and water: Cu(OH)₂ + H₂SO₄ → CuSO₄ + 2H₂O, forming copper sulphate. Answer: (B)"],
     finalAnswer: "Cu(OH)₂ + H₂SO₄", isCompetencyBased: false,
   },
   {
@@ -101,7 +101,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Calcium carbonate is a constituent of:",
     options: ["Only limestone", "Only chalk", "Only marble", "Limestone, chalk and marble"],
     answer: "Limestone, chalk and marble",
-    solutionSteps: ["[1 mark] Limestone, chalk and marble are all naturally occurring forms of calcium carbonate (CaCO₃)."],
+    solutionSteps: ["[1 mark] Limestone, chalk and marble are all naturally occurring forms of calcium carbonate (CaCO₃). Answer: (D)"],
     finalAnswer: "Limestone, chalk and marble", isCompetencyBased: false,
   },
   {
@@ -109,7 +109,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "An oxide that reacts with an acid to form salt and water could be:",
     options: ["CO₂", "NO₂", "CaO", "SO₂"],
     answer: "CaO",
-    solutionSteps: ["[1 mark] CaO is a basic (metal) oxide and reacts with acid to give salt and water; CO₂, NO₂ and SO₂ are acidic non-metal oxides."],
+    solutionSteps: ["[1 mark] CaO is a basic (metal) oxide and reacts with acid to give salt and water; CO₂, NO₂ and SO₂ are acidic non-metal oxides. Answer: (C)"],
     finalAnswer: "CaO", isCompetencyBased: false,
   },
   {
@@ -117,7 +117,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following is NOT an acid–base indicator?",
     options: ["Litmus", "Methyl orange", "Hydrochloric acid", "Phenolphthalein"],
     answer: "Hydrochloric acid",
-    solutionSteps: ["[1 mark] Litmus, methyl orange and phenolphthalein are indicators; hydrochloric acid is itself an acid, not an indicator."],
+    solutionSteps: ["[1 mark] Litmus, methyl orange and phenolphthalein are indicators; hydrochloric acid is itself an acid, not an indicator. Answer: (C)"],
     finalAnswer: "Hydrochloric acid", isCompetencyBased: false,
   },
   {
@@ -125,7 +125,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The chemical formula of milk of magnesia is:",
     options: ["MgCl₂", "MgO", "MgSO₄", "Mg(OH)₂"],
     answer: "Mg(OH)₂",
-    solutionSteps: ["[1 mark] Milk of magnesia is a suspension of magnesium hydroxide, Mg(OH)₂, a mild base used as an antacid."],
+    solutionSteps: ["[1 mark] Milk of magnesia is a suspension of magnesium hydroxide, Mg(OH)₂, a mild base used as an antacid. Answer: (D)"],
     finalAnswer: "Mg(OH)₂", isCompetencyBased: false,
   },
   {
@@ -133,7 +133,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Calcium sulphate hemihydrate is commonly known as:",
     options: ["Plaster of Paris", "Gypsum", "Ferrous sulphate", "Bleaching powder"],
     answer: "Plaster of Paris",
-    solutionSteps: ["[1 mark] Calcium sulphate hemihydrate, CaSO₄·½H₂O, is commonly called Plaster of Paris."],
+    solutionSteps: ["[1 mark] Calcium sulphate hemihydrate, CaSO₄·½H₂O, is commonly called Plaster of Paris. Answer: (A)"],
     finalAnswer: "Plaster of Paris", isCompetencyBased: false,
   },
   {
@@ -141,7 +141,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Washing soda (sodium carbonate) is an example of a:",
     options: ["Acidic salt", "Basic salt", "Neutral salt", "Mixed salt"],
     answer: "Basic salt",
-    solutionSteps: ["[1 mark] Sodium carbonate is a salt of a strong base (NaOH) and a weak acid (H₂CO₃); its solution is basic, so it is a basic salt."],
+    solutionSteps: ["[1 mark] Sodium carbonate is a salt of a strong base (NaOH) and a weak acid (H₂CO₃); its solution is basic, so it is a basic salt. Answer: (B)"],
     finalAnswer: "Basic salt", isCompetencyBased: false,
   },
   {
@@ -149,7 +149,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The chlor-alkali process does NOT yield:",
     options: ["KOH", "H₂", "Cl₂", "NaOH"],
     answer: "KOH",
-    solutionSteps: ["[1 mark] Electrolysis of brine (NaCl solution) gives NaOH, Cl₂ and H₂; KOH is not a product of the chlor-alkali process."],
+    solutionSteps: ["[1 mark] Electrolysis of brine (NaCl solution) gives NaOH, Cl₂ and H₂; KOH is not a product of the chlor-alkali process. Answer: (A)"],
     finalAnswer: "KOH", isCompetencyBased: false,
   },
   {
@@ -157,7 +157,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Olfactory indicators are substances whose:",
     options: ["Colour changes in water", "Colour changes in acids and bases", "Odour changes in acidic or basic medium", "State changes in acids and bases"],
     answer: "Odour changes in acidic or basic medium",
-    solutionSteps: ["[1 mark] Olfactory indicators (e.g. onion, clove oil, vanilla essence) show a change in smell in acidic and basic media, so they are useful to visually impaired students."],
+    solutionSteps: ["[1 mark] Olfactory indicators (e.g. onion, clove oil, vanilla essence) show a change in smell in acidic and basic media, so they are useful to visually impaired students. Answer: (C)"],
     finalAnswer: "Odour changes in acidic or basic medium", isCompetencyBased: false,
   },
   {
@@ -165,7 +165,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Non-metallic oxides are generally:",
     options: ["Acidic in nature", "Basic in nature", "Neutral in nature", "Amphoteric in nature"],
     answer: "Acidic in nature",
-    solutionSteps: ["[1 mark] Non-metal oxides such as CO₂ and SO₂ dissolve in water to give acids, so they are acidic in nature."],
+    solutionSteps: ["[1 mark] Non-metal oxides such as CO₂ and SO₂ dissolve in water to give acids, so they are acidic in nature. Answer: (A)"],
     finalAnswer: "Acidic in nature", isCompetencyBased: false,
   },
   {
@@ -173,7 +173,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following statements is NOT true of dilute hydrochloric acid?",
     options: ["It liberates ammonia gas from ammonium chloride on warming", "It liberates carbon dioxide from carbonates", "It ionises in water to form hydrogen ions", "It reacts with active metals to produce hydrogen"],
     answer: "It liberates ammonia gas from ammonium chloride on warming",
-    solutionSteps: ["[1 mark] Ammonia is liberated from ammonium salts by an alkali, not by an acid; the other three statements are correct properties of dilute HCl."],
+    solutionSteps: ["[1 mark] Ammonia is liberated from ammonium salts by an alkali, not by an acid; the other three statements are correct properties of dilute HCl. Answer: (A)"],
     finalAnswer: "It liberates ammonia gas from ammonium chloride on warming", isCompetencyBased: false,
   },
   {
@@ -181,7 +181,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A substance ‘X’ is warmed with aqueous sodium hydroxide and ammonia gas is evolved. ‘X’ is:",
     options: ["Sodium chloride", "Ammonium sulphate", "Hydrochloric acid", "Nitric acid"],
     answer: "Ammonium sulphate",
-    solutionSteps: ["[1 mark] An alkali reacts with an ammonium salt to liberate ammonia: (NH₄)₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O + 2NH₃↑; hence X is ammonium sulphate."],
+    solutionSteps: ["[1 mark] An alkali reacts with an ammonium salt to liberate ammonia: (NH₄)₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O + 2NH₃↑; hence X is ammonium sulphate. Answer: (B)"],
     finalAnswer: "Ammonium sulphate", isCompetencyBased: false,
   },
   {
@@ -189,7 +189,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following burns in air to form an oxide which, when shaken with water, gives a solution with a pH greater than 7?",
     options: ["Nitrogen", "Calcium", "Oxygen", "Hydrogen"],
     answer: "Calcium",
-    solutionSteps: ["[1 mark] Calcium burns to form CaO (a basic metal oxide); CaO with water gives Ca(OH)₂, a base with pH greater than 7."],
+    solutionSteps: ["[1 mark] Calcium burns to form CaO (a basic metal oxide); CaO with water gives Ca(OH)₂, a base with pH greater than 7. Answer: (B)"],
     finalAnswer: "Calcium", isCompetencyBased: false,
   },
   {
@@ -197,7 +197,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following metals does NOT react with dilute sulphuric acid to liberate hydrogen gas?",
     options: ["Magnesium", "Silver", "Zinc", "Iron"],
     answer: "Silver",
-    solutionSteps: ["[1 mark] Silver lies below hydrogen in the reactivity series, so it cannot displace hydrogen from dilute H₂SO₄; magnesium, zinc and iron do."],
+    solutionSteps: ["[1 mark] Silver lies below hydrogen in the reactivity series, so it cannot displace hydrogen from dilute H₂SO₄; magnesium, zinc and iron do. Answer: (B)"],
     finalAnswer: "Silver", isCompetencyBased: false,
   },
   {
@@ -205,7 +205,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following salts has a pH less than 7 in aqueous solution?",
     options: ["Sodium acetate", "Sodium hydrogencarbonate", "Sodium carbonate", "Zinc sulphate"],
     answer: "Zinc sulphate",
-    solutionSteps: ["[1 mark] Zinc sulphate is a salt of a weak base [Zn(OH)₂] and a strong acid (H₂SO₄); its solution is acidic (pH < 7). The other three are basic salts."],
+    solutionSteps: ["[1 mark] Zinc sulphate is a salt of a weak base [Zn(OH)₂] and a strong acid (H₂SO₄); its solution is acidic (pH < 7). The other three are basic salts. Answer: (D)"],
     finalAnswer: "Zinc sulphate", isCompetencyBased: false,
   },
   {
@@ -213,7 +213,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A common household substance that contains acetic acid is:",
     options: ["Soap", "Ammonia water", "Coconut oil", "Vinegar"],
     answer: "Vinegar",
-    solutionSteps: ["[1 mark] Vinegar is a dilute (about 5–8%) solution of acetic acid in water."],
+    solutionSteps: ["[1 mark] Vinegar is a dilute (about 5–8%) solution of acetic acid in water. Answer: (D)"],
     finalAnswer: "Vinegar", isCompetencyBased: false,
   },
   {
@@ -221,7 +221,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which type of litmus paper is used to test whether a solution is acidic?",
     options: ["Blue litmus paper", "Red litmus paper", "Purple litmus paper", "Yellow litmus paper"],
     answer: "Blue litmus paper",
-    solutionSteps: ["[1 mark] An acid turns blue litmus red, so blue litmus paper is used to test for acids (red litmus stays red in acid)."],
+    solutionSteps: ["[1 mark] An acid turns blue litmus red, so blue litmus paper is used to test for acids (red litmus stays red in acid). Answer: (A)"],
     finalAnswer: "Blue litmus paper", isCompetencyBased: false,
   },
   {
@@ -229,7 +229,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The base used in the manufacture of soap is:",
     options: ["Calcium hydroxide", "Sodium hydroxide", "Ammonium hydroxide", "Aluminium hydroxide"],
     answer: "Sodium hydroxide",
-    solutionSteps: ["[1 mark] Sodium hydroxide (caustic soda), obtained from the chlor-alkali process, is used in the manufacture of soap."],
+    solutionSteps: ["[1 mark] Sodium hydroxide (caustic soda), obtained from the chlor-alkali process, is used in the manufacture of soap. Answer: (B)"],
     finalAnswer: "Sodium hydroxide", isCompetencyBased: false,
   },
   {
@@ -237,7 +237,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "An oxide of a metal M is soluble in water. When a blue litmus strip is dipped in this solution, no change in colour is observed. The nature of the oxide is:",
     options: ["Acidic", "Basic", "Amphoteric", "Neutral"],
     answer: "Basic",
-    solutionSteps: ["[1 mark] A soluble metal oxide gives an alkaline (basic) solution; a base keeps blue litmus blue (no change), so the oxide is basic."],
+    solutionSteps: ["[1 mark] A soluble metal oxide gives an alkaline (basic) solution; a base keeps blue litmus blue (no change), so the oxide is basic. Answer: (B)"],
     finalAnswer: "Basic", isCompetencyBased: false,
   },
   {
@@ -245,7 +245,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The sour taste of lemon is due to the presence of:",
     options: ["Acetic acid", "Carbonic acid", "Hydrochloric acid", "Citric acid"],
     answer: "Citric acid",
-    solutionSteps: ["[1 mark] Lemon and other citrus fruits contain citric acid, which gives them a sour taste."],
+    solutionSteps: ["[1 mark] Lemon and other citrus fruits contain citric acid, which gives them a sour taste. Answer: (D)"],
     finalAnswer: "Citric acid", isCompetencyBased: false,
   },
   {
@@ -253,7 +253,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A product ‘P’ is obtained by the action of chlorine on dry slaked lime and is used for bleaching. ‘P’ is:",
     options: ["CaCl₂", "Ca(OH)₂", "CaO", "CaOCl₂"],
     answer: "CaOCl₂",
-    solutionSteps: ["[1 mark] Chlorine reacts with dry slaked lime to give bleaching powder: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O; so P is CaOCl₂."],
+    solutionSteps: ["[1 mark] Chlorine reacts with dry slaked lime to give bleaching powder: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O; so P is CaOCl₂. Answer: (D)"],
     finalAnswer: "CaOCl₂", isCompetencyBased: false,
   },
   {
@@ -261,7 +261,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Baking powder gives which gas on reacting with acid (or on heating during baking)?",
     options: ["Hydrogen", "Oxygen", "Methane", "Carbon dioxide"],
     answer: "Carbon dioxide",
-    solutionSteps: ["[1 mark] The sodium hydrogencarbonate in baking powder reacts with the tartaric acid to release carbon dioxide, which makes cakes and bread rise."],
+    solutionSteps: ["[1 mark] The sodium hydrogencarbonate in baking powder reacts with the tartaric acid to release carbon dioxide, which makes cakes and bread rise. Answer: (D)"],
     finalAnswer: "Carbon dioxide", isCompetencyBased: false,
   },
 
@@ -271,7 +271,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): On adding sulphuric acid to water, the resulting aqueous solution becomes corrosive. Reason (R): Hydronium ions are responsible for the corrosive action.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, and R is the correct explanation of A",
-    solutionSteps: ["[1 mark] H₂SO₄ is a strong acid that ionises in water to give H₃O⁺ (hydronium) ions, which are responsible for the corrosive action; hence both statements are true and R explains A."],
+    solutionSteps: ["[1 mark] H₂SO₄ is a strong acid that ionises in water to give H₃O⁺ (hydronium) ions, which are responsible for the corrosive action; hence both statements are true and R explains A. Answer: (A)"],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A", isCompetencyBased: false,
   },
   {
@@ -279,7 +279,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): H₂CO₃ is a strong acid. Reason (R): A strong acid dissociates completely or almost completely in water.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is false but R is true",
-    solutionSteps: ["[1 mark] Carbonic acid (H₂CO₃) is a weak acid because it ionises only partially, so A is false; the definition in R is correct, so R is true."],
+    solutionSteps: ["[1 mark] Carbonic acid (H₂CO₃) is a weak acid because it ionises only partially, so A is false; the definition in R is correct, so R is true. Answer: (D)"],
     finalAnswer: "A is false but R is true", isCompetencyBased: false,
   },
   {
@@ -287,7 +287,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): Sodium hydroxide reacts with zinc to produce hydrogen gas. Reason (R): Acids react with active metals to produce hydrogen gas.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, but R is not the correct explanation of A",
-    solutionSteps: ["[1 mark] NaOH (a base) does react with zinc to give sodium zincate and H₂, and acids also give H₂ with active metals; but since NaOH is a base, R does not explain A."],
+    solutionSteps: ["[1 mark] NaOH (a base) does react with zinc to give sodium zincate and H₂, and acids also give H₂ with active metals; but since NaOH is a base, R does not explain A. Answer: (B)"],
     finalAnswer: "Both A and R are true, but R is not the correct explanation of A", isCompetencyBased: false,
   },
   {
@@ -295,7 +295,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): Ammonia solution is an alkali. Reason (R): Ammonia solution turns blue litmus red.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is true but R is false",
-    solutionSteps: ["[1 mark] Ammonia solution is basic (an alkali), so A is true; but being basic it turns red litmus blue, not blue litmus red, so R is false."],
+    solutionSteps: ["[1 mark] Ammonia solution is basic (an alkali), so A is true; but being basic it turns red litmus blue, not blue litmus red, so R is false. Answer: (C)"],
     finalAnswer: "A is true but R is false", isCompetencyBased: false,
   },
   {
@@ -303,7 +303,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): Baking soda creates acidity in the stomach. Reason (R): Baking soda is alkaline in nature.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is false but R is true",
-    solutionSteps: ["[1 mark] Baking soda is alkaline (R true) and therefore neutralises excess stomach acid rather than creating acidity, so A is false."],
+    solutionSteps: ["[1 mark] Baking soda is alkaline (R true) and therefore neutralises excess stomach acid rather than creating acidity, so A is false. Answer: (D)"],
     finalAnswer: "A is false but R is true", isCompetencyBased: false,
   },
   {
@@ -311,7 +311,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): When common salt is kept open, it absorbs moisture from the air. Reason (R): Common salt contains magnesium chloride, which is deliquescent.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, and R is the correct explanation of A",
-    solutionSteps: ["[1 mark] Crude common salt absorbs moisture because the magnesium chloride impurity in it is deliquescent; both statements are true and R explains A."],
+    solutionSteps: ["[1 mark] Crude common salt absorbs moisture because the magnesium chloride impurity in it is deliquescent; both statements are true and R explains A. Answer: (A)"],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A", isCompetencyBased: false,
   },
   {
@@ -319,7 +319,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): Weak acids have low electrical conductivity. Reason (R): Strong acids and weak acids have equal concentration of hydrogen ions in their solutions.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is true but R is false",
-    solutionSteps: ["[1 mark] Weak acids ionise partially, giving fewer ions and low conductivity (A true); a strong acid gives many more H⁺ ions than a weak acid of the same concentration, so R is false."],
+    solutionSteps: ["[1 mark] Weak acids ionise partially, giving fewer ions and low conductivity (A true); a strong acid gives many more H⁺ ions than a weak acid of the same concentration, so R is false. Answer: (C)"],
     finalAnswer: "A is true but R is false", isCompetencyBased: false,
   },
   {
@@ -327,7 +327,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): During electrolysis of concentrated sodium chloride solution, hydrogen is produced at the anode and chlorine at the cathode. Reason (R): Ions get attracted to oppositely charged electrodes.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "A is false but R is true",
-    solutionSteps: ["[1 mark] In the chlor-alkali process chlorine is liberated at the anode and hydrogen at the cathode (A reverses this, so A is false); the general statement about ion attraction in R is true."],
+    solutionSteps: ["[1 mark] In the chlor-alkali process chlorine is liberated at the anode and hydrogen at the cathode (A reverses this, so A is false); the general statement about ion attraction in R is true. Answer: (D)"],
     finalAnswer: "A is false but R is true", isCompetencyBased: false,
   },
   {
@@ -335,7 +335,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): Salts are the products of an acid–base reaction. Reason (R): A salt may be acidic or basic in nature.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, but R is not the correct explanation of A",
-    solutionSteps: ["[1 mark] Salts are indeed formed by neutralisation of an acid and a base (A true), and salts can be acidic or basic depending on the parent acid/base (R true); but R does not explain A."],
+    solutionSteps: ["[1 mark] Salts are indeed formed by neutralisation of an acid and a base (A true), and salts can be acidic or basic depending on the parent acid/base (R true); but R does not explain A. Answer: (B)"],
     finalAnswer: "Both A and R are true, but R is not the correct explanation of A", isCompetencyBased: false,
   },
   {
@@ -343,7 +343,7 @@ export const ABS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Assertion (A): The pH of an ammonium chloride solution lies in the acidic range. Reason (R): The solution of a salt of a weak base and a strong acid is acidic.",
     options: ["Both A and R are true, and R is the correct explanation of A", "Both A and R are true, but R is not the correct explanation of A", "A is true but R is false", "A is false but R is true"],
     answer: "Both A and R are true, and R is the correct explanation of A",
-    solutionSteps: ["[1 mark] NH₄Cl is a salt of the weak base NH₄OH and the strong acid HCl, so its solution is acidic; both statements are true and R correctly explains A."],
+    solutionSteps: ["[1 mark] NH₄Cl is a salt of the weak base NH₄OH and the strong acid HCl, so its solution is acidic; both statements are true and R correctly explains A. Answer: (A)"],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A", isCompetencyBased: false,
   },
 

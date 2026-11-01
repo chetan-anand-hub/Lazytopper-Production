@@ -28,7 +28,7 @@ export const RN_CBE: CanonicalQuestion[] = [
     "options": ["3 × 5 × 17", "5 × 51", "3 × 85", "15 × 17"],
     "answer": "3 × 5 × 17",
     "solutionSteps": [
-      "[1 mark] 3 × 5 × 17 — 255 = 3 × 85 = 3 × 5 × 17, and 3, 5, 17 are all prime."
+      "[1 mark] 3 × 5 × 17 — 255 = 3 × 85 = 3 × 5 × 17, and 3, 5, 17 are all prime. Answer: (A)"
     ],
     "finalAnswer": "3 × 5 × 17",
     "isCompetencyBased": false,

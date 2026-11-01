@@ -74,7 +74,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "all in series",
     solutionSteps: [
-      "[1 mark] Correct option: (1) all in series. Tracing the diagram, a single conductor leaves the plug, passes through LED 1 to LED 8, turns at the far end and returns through LED 9 to LED 16 - there is one path only, so every LED carries the same current.",
+      "[1 mark] Correct option: (1) all in series. Tracing the diagram, a single conductor leaves the plug, passes through LED 1 to LED 8, turns at the far end and returns through LED 9 to LED 16 - there is one path only, so every LED carries the same current. Answer: (A)",
     ],
     finalAnswer: "all in series",
     isCompetencyBased: true,
@@ -104,7 +104,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "all the other LEDs in the circuit",
     solutionSteps: [
-      "[1 mark] Correct option: (3) all the other LEDs in the circuit. The sixteen LEDs form a single series loop, so a break anywhere opens the only path and every LED goes out.",
+      "[1 mark] Correct option: (3) all the other LEDs in the circuit. The sixteen LEDs form a single series loop, so a break anywhere opens the only path and every LED goes out. Answer: (C)",
     ],
     finalAnswer: "all the other LEDs in the circuit",
     isCompetencyBased: true,
@@ -130,7 +130,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     options: ["16", "80", "240", "1200"],
     answer: "80",
     solutionSteps: [
-      "[1 mark] Correct option: (2) 80. In series the supply voltage divides across the LEDs, and each is rated 3 V, so the number needed is 240 V ÷ 3 V = 80.",
+      "[1 mark] Correct option: (2) 80. In series the supply voltage divides across the LEDs, and each is rated 3 V, so the number needed is 240 V ÷ 3 V = 80. Answer: (B)",
     ],
     finalAnswer: "80",
     isCompetencyBased: true,
@@ -159,7 +159,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
     solutionSteps: [
-      "[1 mark] Correct option: (2). In a parallel combination every branch has the full supply voltage across it, so each LED - rated for only 3 V - gets 240 V across it and is damaged."
+      "[1 mark] Correct option: (2). In a parallel combination every branch has the full supply voltage across it, so each LED - rated for only 3 V - gets 240 V across it and is damaged. Answer: (B)"
     ],
     finalAnswer: "Each LED will have a potential difference of 240 V across it and therefore they will get damaged.",
     isCompetencyBased: true,
@@ -183,7 +183,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     options: ["0.067 A", "0.600 A", "10 A", "15 A"],
     answer: "0.067 A",
     solutionSteps: [
-      "[1 mark] Correct option: (1) 0.067 A. From P = VI, I = P/V = 0.2 W ÷ 3 V = 0.067 A.",
+      "[1 mark] Correct option: (1) 0.067 A. From P = VI, I = P/V = 0.2 W ÷ 3 V = 0.067 A. Answer: (A)",
     ],
     finalAnswer: "0.067 A",
     isCompetencyBased: true,
@@ -260,7 +260,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
       "Suresh arranges the electric circuit shown to measure the current through, and the potential difference across, a bulb. Which statement about the circuit is correct?",
     answer: "It is incorrect: the ammeter and voltmeter have been interchanged",
     solutionSteps: [
-      "[1 mark] It is incorrect: the ammeter and voltmeter have been interchanged — the ammeter is across the bulb and the voltmeter is in series; they must be swapped."
+      "[1 mark] It is incorrect: the ammeter and voltmeter have been interchanged — the ammeter is across the bulb and the voltmeter is in series; they must be swapped. Answer: (A)"
     ],
     finalAnswer: "It is incorrect: the ammeter and voltmeter have been interchanged",
     isCompetencyBased: true,
@@ -286,7 +286,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
       "Study the circuit diagram. You are given one extra resistor. How should it be connected to INCREASE the reading on the ammeter?",
     answer: "In parallel with the existing resistor",
     solutionSteps: [
-      "[1 mark] In parallel with the existing resistor — a parallel resistor lowers the total resistance, so the current through the ammeter rises."
+      "[1 mark] In parallel with the existing resistor — a parallel resistor lowers the total resistance, so the current through the ammeter rises. Answer: (B)"
     ],
     finalAnswer: "In parallel with the existing resistor",
     isCompetencyBased: true,
@@ -364,7 +364,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Observe the circuit shown. All three switches are open. Closing which switch/switches will cause the fuse to blow?",
     answer: "Switch 1 and Switch 2",
-    solutionSteps: ["[1 mark] Switch 1 and Switch 2 — Switch 1 completes the circuit and Switch 2 short-circuits the bulb, so a very large current flows through the fuse."],
+    solutionSteps: ["[1 mark] Switch 1 and Switch 2 — Switch 1 completes the circuit and Switch 2 short-circuits the bulb, so a very large current flows through the fuse. Answer: (C)"],
     finalAnswer: "Switch 1 and Switch 2",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.12 — CFPQ_Science10.pdf, questions pdf pp.100–105 (printed folios 99–104)",

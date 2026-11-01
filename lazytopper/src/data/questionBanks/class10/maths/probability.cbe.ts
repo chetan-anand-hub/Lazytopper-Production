@@ -26,7 +26,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "options": ["1/4", "1/3", "3/4", "1/13"],
     "answer": "3/4",
     "solutionSteps": [
-      "[1 mark] 3/4 — P(not chocolate) = 1 − 13/52 = 39/52 = 3/4."
+      "[1 mark] 3/4 — P(not chocolate) = 1 − 13/52 = 39/52 = 3/4. Answer: (C)"
     ],
     "finalAnswer": "3/4",
     "isCompetencyBased": false,
@@ -94,7 +94,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "options": ["16/52", "4/52", "12/52", "13/52"],
     "answer": "12/52",
     "solutionSteps": [
-      "[1 mark] 12/52 — there are 12 face cards (J, Q, K of 4 suits), so P = 12/52."
+      "[1 mark] 12/52 — there are 12 face cards (J, Q, K of 4 suits), so P = 12/52. Answer: (C)"
     ],
     "finalAnswer": "12/52",
     "isCompetencyBased": false,
@@ -119,7 +119,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
     ],
     "answer": "i. −5/7",
     "solutionSteps": [
-      "[1 mark] Probability cannot be less than 0, so −5/7 cannot be the probability of an event. Answer: (i)."
+      "[1 mark] Probability cannot be less than 0, so −5/7 cannot be the probability of an event. Answer: (i). Answer: (A)"
     ],
     "finalAnswer": "i. −5/7",
     "isCompetencyBased": false
@@ -138,7 +138,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "options": ["1/39", "2/39", "2/52", "1/52"],
     "answer": "1/39",
     "solutionSteps": [
-      "[1 mark] 1/39 — 39 cards remain and the only red jack left is the jack of hearts, so P = 1/39."
+      "[1 mark] 1/39 — 39 cards remain and the only red jack left is the jack of hearts, so P = 1/39. Answer: (A)"
     ],
     "finalAnswer": "1/39",
     "isCompetencyBased": false,
@@ -158,7 +158,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "options": ["4/52", "2/52", "16/52", "8/52"],
     "answer": "8/52",
     "solutionSteps": [
-      "[1 mark] 8/52 — there are 4 jacks and 4 aces, so P = 8/52."
+      "[1 mark] 8/52 — there are 4 jacks and 4 aces, so P = 8/52. Answer: (D)"
     ],
     "finalAnswer": "8/52",
     "isCompetencyBased": false,
@@ -207,7 +207,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
     ],
     "answer": "B. 7/13",
     "solutionSteps": [
-      "[1 mark] Black cards = 26, plus the two red tens = 28 favourable cards. P = 28/52 = 7/13."
+      "[1 mark] Black cards = 26, plus the two red tens = 28 favourable cards. P = 28/52 = 7/13. Answer: (B)"
     ],
     "finalAnswer": "7/13",
     "isCompetencyBased": false
@@ -250,7 +250,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
     "options": ["1/2", "2/5", "3/10", "3/5"],
     "answer": "2/5",
     "solutionSteps": [
-      "[1 mark] 2/5 — primes from 1 to 10 are 2, 3, 5, 7, so P = 4/10 = 2/5."
+      "[1 mark] 2/5 — primes from 1 to 10 are 2, 3, 5, 7, so P = 4/10 = 2/5. Answer: (B)"
     ],
     "finalAnswer": "2/5",
     "isCompetencyBased": false,

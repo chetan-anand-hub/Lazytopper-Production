@@ -68,7 +68,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["basic", "neutral", "amphoteric", "acidic"],
     "answer": "acidic",
     "solutionSteps": [
-      "[1 mark] acidic — NH₄NO₃ is a salt of a strong acid (HNO₃) and a weak base (NH₄OH), so it is acidic."
+      "[1 mark] acidic — NH₄NO₃ is a salt of a strong acid (HNO₃) and a weak base (NH₄OH), so it is acidic. Answer: (D)"
     ],
     "finalAnswer": "acidic",
     "isCompetencyBased": false,
@@ -88,7 +88,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["copper sulfate pentahydrate, CuSO₄·5H₂O", "iron(II) sulfate heptahydrate, FeSO₄·7H₂O", "sodium carbonate decahydrate, Na₂CO₃·10H₂O", "calcium sulfate dihydrate, CaSO₄·2H₂O"],
     "answer": "copper sulfate pentahydrate, CuSO₄·5H₂O",
     "solutionSteps": [
-      "[1 mark] copper sulfate pentahydrate, CuSO₄·5H₂O — blue CuSO₄·5H₂O loses its water of crystallisation on heating and becomes white anhydrous CuSO₄."
+      "[1 mark] copper sulfate pentahydrate, CuSO₄·5H₂O — blue CuSO₄·5H₂O loses its water of crystallisation on heating and becomes white anhydrous CuSO₄. Answer: (A)"
     ],
     "finalAnswer": "copper sulfate pentahydrate, CuSO₄·5H₂O",
     "isCompetencyBased": false,
@@ -108,7 +108,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["they decompose into copper and sulfur", "they react with oxygen in the air", "they lose their water of crystallisation", "they absorb moisture from the air"],
     "answer": "they lose their water of crystallisation",
     "solutionSteps": [
-      "[1 mark] they lose their water of crystallisation — heating removes the water of crystallisation, leaving white anhydrous CuSO₄."
+      "[1 mark] they lose their water of crystallisation — heating removes the water of crystallisation, leaving white anhydrous CuSO₄. Answer: (C)"
     ],
     "finalAnswer": "they lose their water of crystallisation",
     "isCompetencyBased": false,
@@ -128,7 +128,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["1 – 2", "5 – 6", "12 – 14", "7"],
     "answer": "12 – 14",
     "solutionSteps": [
-      "[1 mark] 12 – 14 — NaOH is a strong alkali, so its solution has a high pH of about 12 – 14."
+      "[1 mark] 12 – 14 — NaOH is a strong alkali, so its solution has a high pH of about 12 – 14. Answer: (C)"
     ],
     "finalAnswer": "12 – 14",
     "isCompetencyBased": false,
@@ -148,7 +148,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["decreases towards 7", "increases above 14", "remains unchanged", "falls below 7"],
     "answer": "decreases towards 7",
     "solutionSteps": [
-      "[1 mark] decreases towards 7 — dilution lowers the OH⁻ concentration, so the solution becomes less basic and pH decreases towards 7."
+      "[1 mark] decreases towards 7 — dilution lowers the OH⁻ concentration, so the solution becomes less basic and pH decreases towards 7. Answer: (A)"
     ],
     "finalAnswer": "decreases towards 7",
     "isCompetencyBased": false,
@@ -168,7 +168,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["increases", "remains unchanged", "becomes zero", "decreases"],
     "answer": "decreases",
     "solutionSteps": [
-      "[1 mark] decreases — the same number of OH⁻ ions is spread through a larger volume, so their concentration decreases."
+      "[1 mark] decreases — the same number of OH⁻ ions is spread through a larger volume, so their concentration decreases. Answer: (D)"
     ],
     "finalAnswer": "decreases",
     "isCompetencyBased": false,
@@ -188,7 +188,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["hydroxide ions (OH⁻)", "hydrogen ions (H⁺)", "dissolved oxygen (O₂)", "sodium ions (Na⁺)"],
     "answer": "hydrogen ions (H⁺)",
     "solutionSteps": [
-      "[1 mark] hydrogen ions (H⁺) — pH is a measure of the hydrogen ion concentration of a solution."
+      "[1 mark] hydrogen ions (H⁺) — pH is a measure of the hydrogen ion concentration of a solution. Answer: (B)"
     ],
     "finalAnswer": "hydrogen ions (H⁺)",
     "isCompetencyBased": false,
@@ -208,7 +208,7 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": ["lime water", "litmus", "common salt", "baking soda"],
     "answer": "litmus",
     "solutionSteps": [
-      "[1 mark] litmus — litmus changes colour (red in acid, blue in base) and is used as an acid–base indicator."
+      "[1 mark] litmus — litmus changes colour (red in acid, blue in base) and is used as an acid–base indicator. Answer: (B)"
     ],
     "finalAnswer": "litmus",
     "isCompetencyBased": false,

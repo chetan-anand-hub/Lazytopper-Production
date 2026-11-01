@@ -1,4 +1,5 @@
 import { use, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { stripAnswerLetter } from "../lib/answerLetterSuffix";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
 import { trackNamedEvent, type NamedAnalyticsEvent } from "../analytics/analytics";
@@ -238,7 +239,7 @@ function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: Publi
             Stuck? Show a hint
           </button>
           <div id={`ncs-hint-${anchor}`} className="lt-ncs__hint" hidden={!hint} data-testid={`ncs-hint-${anchor}`}>
-            <span className="lt-ncs__steplabel">Step 1</span> <MathText text={String(steps[0])} />
+            <span className="lt-ncs__steplabel">Step 1</span> <MathText text={stripAnswerLetter(String(steps[0]))} />
           </div>
         </div>
       )}

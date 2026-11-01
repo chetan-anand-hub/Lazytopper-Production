@@ -23,7 +23,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Compare a₁/a₂ = 2/4 = 1/2",
       "Compare b₁/b₂ = 3/6 = 1/2",
       "Compare c₁/c₂ = 5/10 = 1/2",
-      "Since a₁/a₂ = b₁/b₂ = c₁/c₂, lines are coincident"
+      "Since a₁/a₂ = b₁/b₂ = c₁/c₂, lines are coincident Answer: (C)"
     ],
     "finalAnswer": "Coincident lines",
     "explanation": "Compare a₁/a₂ = 2/4 = 1/2. Compare b₁/b₂ = 3/6 = 1/2. Compare c₁/c₂ = 5/10 = 1/2. Since a₁/a₂ = b₁/b₂ = c₁/c₂, lines are coincident. Therefore, the correct answer is Coincident lines.",
@@ -53,7 +53,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Second equation is 2(x + y) = 2(4)",
       "Both equations represent the same line",
-      "Infinitely many points satisfy both equations"
+      "Infinitely many points satisfy both equations Answer: (C)"
     ],
     "finalAnswer": "Infinitely many solutions",
     "explanation": "Second equation is 2(x + y) = 2(4). Both equations represent the same line. Infinitely many points satisfy both equations. Therefore, the correct answer is Infinitely many solutions.",
@@ -84,7 +84,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Step 1: Solve one equation for one variable",
       "Step 2: Substitute in the other equation",
       "Step 3: Solve the resulting single variable equation",
-      "Step 4: Find the other variable"
+      "Step 4: Find the other variable Answer: (C)"
     ],
     "finalAnswer": "Substitute this value in the other equation",
     "explanation": "Step 1: Solve one equation for one variable. Step 2: Substitute in the other equation. Step 3: Solve the resulting single variable equation. Step 4: Find the other variable. Therefore, the correct answer is Substitute this value in the other equation.",
@@ -146,7 +146,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "To eliminate x, coefficients must be equal",
       "Multiply first by 2: 6x + 4y = 10",
       "Multiply second by 3: 6x - 3y = 12",
-      "Now subtract to eliminate x"
+      "Now subtract to eliminate x Answer: (A)"
     ],
     "finalAnswer": "Multiply first by 2, second by 3",
     "explanation": "First equation: 3x + 2y = 5. Second equation: 2x - y = 4. To eliminate x, coefficients must be equal. Multiply first by 2: 6x + 4y = 10. Multiply second by 3: 6x - 3y = 12. Now subtract to eliminate x. Therefore, the correct answer is Multiply first by 2, second by 3.",
@@ -354,7 +354,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "b₁/b₂ = -3/-6 = 1/2",
       "c₁/c₂ = 5/12",
       "Since 1/2 ≠ 5/12, the lines are parallel",
-      "Parallel lines have no solution"
+      "Parallel lines have no solution Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -386,7 +386,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "b₁/b₂ = 2/4 = 1/2",
       "c₁/c₂ = 5/10 = 1/2",
       "Since all ratios are equal, lines are coincident",
-      "Coincident lines have infinitely many solutions"
+      "Coincident lines have infinitely many solutions Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -586,7 +586,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "In the graphical method, we plot both linear equations as straight lines.",
       "The point where these two lines intersect gives the common solution.",
-      "This intersection point represents the values of x and y that satisfy both equations simultaneously."
+      "This intersection point represents the values of x and y that satisfy both equations simultaneously. Answer: (B)"
     ],
     "finalAnswer": "The solution(s) of the pair of equations",
     "explanation": "In the graphical method, we plot both linear equations as straight lines. The point where these two lines intersect gives the common solution. This intersection point represents the values of x and y that satisfy both equations simultaneously. Therefore, the correct answer is The solution(s) of the pair of equations.",
@@ -618,7 +618,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "From x - y = 2, we get y = x - 2",
       "Setting equal: 4 - x = x - 2",
       "6 = 2x, so x = 3",
-      "Substituting: y = 4 - 3 = 1"
+      "Substituting: y = 4 - 3 = 1 Answer: (A)"
     ],
     "finalAnswer": "(3, 1)",
     "explanation": "From x + y = 4, we get y = 4 - x. From x - y = 2, we get y = x - 2. Setting equal: 4 - x = x - 2. 6 = 2x, so x = 3. Substituting: y = 4 - 3 = 1. Therefore, the correct answer is (3, 1).",
@@ -648,7 +648,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The substitution method involves solving one equation for one variable.",
       "This expression is then substituted into the second equation.",
-      "This reduces the system to a single equation with one variable."
+      "This reduces the system to a single equation with one variable. Answer: (B)"
     ],
     "finalAnswer": "Express one variable in terms of the other from one equation",
     "explanation": "The substitution method involves solving one equation for one variable. This expression is then substituted into the second equation. This reduces the system to a single equation with one variable. Therefore, the correct answer is Express one variable in terms of the other from one equation.",
@@ -705,7 +705,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The elimination method aims to eliminate one variable.",
       "By making coefficients equal and then adding/subtracting, one variable cancels out.",
-      "This leaves a single equation with one variable."
+      "This leaves a single equation with one variable. Answer: (B)"
     ],
     "finalAnswer": "To eliminate one variable when we add or subtract",
     "explanation": "The elimination method aims to eliminate one variable. By making coefficients equal and then adding/subtracting, one variable cancels out. This leaves a single equation with one variable. Therefore, the correct answer is To eliminate one variable when we add or subtract.",
@@ -794,7 +794,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Two lines are parallel when they have the same slope but different y-intercepts.",
       "Since parallel lines never intersect, there is no common point.",
       "Therefore, the system of equations has no solution (inconsistent).",
-      "The reason correctly explains why the assertion is true."
+      "The reason correctly explains why the assertion is true. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -825,7 +825,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "The elimination method works for any solvable pair of linear equations.",
       "Making coefficients equal is the process, not the limitation or explanation.",
       "A is true because the method is universally applicable.",
-      "R is true but does not directly explain A; it only describes the procedure."
+      "R is true but does not directly explain A; it only describes the procedure. Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
@@ -1118,7 +1118,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): The pair 3x + 2y = 5 and 6x + 4y = 10 has infinitely many solutions.\nReason (R): When a₁/a₂ = b₁/b₂ = c₁/c₂, the system has infinitely many solutions.",
     "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["3/6 = 1/2, 2/4 = 1/2, 5/10 = 1/2 → all ratios equal ✓"],
+    "solutionSteps": ["3/6 = 1/2, 2/4 = 1/2, 5/10 = 1/2 → all ratios equal ✓ Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -1183,37 +1183,37 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   },
   { id: "PLE2-R08", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The pair 2x + 3y = 7 and 4x + 6y = 14 has:", options: ["Infinitely many solutions","No solution","Exactly one solution","Exactly two solutions"], answer: "Infinitely many solutions", explanation: "The correct answer is Infinitely many solutions. 4x+6y=14 is exactly 2×(2x+3y=7). The lines are coincident, giving infinitely many solutions.", finalAnswer: "Infinitely many solutions", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] a₁/a₂ = 2/4 = 1/2, b₁/b₂ = 3/6 = 1/2, c₁/c₂ = 7/14 = 1/2; all ratios are equal, so the lines are coincident and the pair has infinitely many solutions.",
+      "[1 mark] a₁/a₂ = 2/4 = 1/2, b₁/b₂ = 3/6 = 1/2, c₁/c₂ = 7/14 = 1/2; all ratios are equal, so the lines are coincident and the pair has infinitely many solutions. Answer: (A)",
     ],
   },
   { id: "PLE2-R09", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If x + y = 10 and x − y = 2, then x equals:", options: ["6","8","4","5"], answer: "6", explanation: "The correct answer is 6. Adding: 2x = 12 → x = 6.", finalAnswer: "x = 6", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Adding the equations: 2x = 12, so x = 6 (and y = 4).",
+      "[1 mark] Adding the equations: 2x = 12, so x = 6 (and y = 4). Answer: (A)",
     ],
   },
   { id: "PLE2-R10", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Elimination Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of k for which the pair kx + 2y = 3 and 3x + 6y = 9 is consistent with infinitely many solutions:", options: ["1","3","2","−1"], answer: "1", explanation: "The correct answer is 1. For infinite solutions: k/3 = 2/6 = 3/9 → k/3 = 1/3 → k = 1.", finalAnswer: "k = 1", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] For infinitely many solutions, a₁/a₂ = b₁/b₂ = c₁/c₂: k/3 = 2/6 = 3/9 = 1/3, so k = 1.",
+      "[1 mark] For infinitely many solutions, a₁/a₂ = b₁/b₂ = c₁/c₂: k/3 = 2/6 = 3/9 = 1/3, so k = 1. Answer: (A)",
     ],
   },
   { id: "PLE2-R11", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two lines a₁x+b₁y+c₁=0 and a₂x+b₂y+c₂=0 have no solution when:", options: ["a₁/a₂ = b₁/b₂ ≠ c₁/c₂","a₁/a₂ ≠ b₁/b₂","a₁/a₂ = b₁/b₂ = c₁/c₂","a₁b₂ ≠ a₂b₁"], answer: "a₁/a₂ = b₁/b₂ ≠ c₁/c₂", explanation: "The correct answer is a₁/a₂ = b₁/b₂ ≠ c₁/c₂. Parallel (inconsistent) lines: same slope ratios but different constant ratios.", finalAnswer: "a₁/a₂ = b₁/b₂ ≠ c₁/c₂", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] The pair has no solution when the lines are parallel and distinct, i.e. a₁/a₂ = b₁/b₂ ≠ c₁/c₂. The options a₁/a₂ ≠ b₁/b₂ and a₁b₂ ≠ a₂b₁ mean a unique solution, and all three ratios equal means infinitely many.",
+      "[1 mark] The pair has no solution when the lines are parallel and distinct, i.e. a₁/a₂ = b₁/b₂ ≠ c₁/c₂. The options a₁/a₂ ≠ b₁/b₂ and a₁b₂ ≠ a₂b₁ mean a unique solution, and all three ratios equal means infinitely many. Answer: (A)",
     ],
   },
   { id: "PLE2-R12", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If 2x − y = 3 and x + y = 6, then y equals:", options: ["3","4","2","1"], answer: "3", explanation: "The correct answer is 3. Adding: 3x = 9 → x = 3. Then y = 6 − 3 = 3.", finalAnswer: "y = 3", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Adding the equations: 3x = 9, so x = 3; then x + y = 6 gives y = 6 − 3 = 3.",
+      "[1 mark] Adding the equations: 3x = 9, so x = 3; then x + y = 6 gives y = 6 − 3 = 3. Answer: (A)",
     ],
   },
   { id: "PLE2-R13", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The solution of x + 2y = 8 and 3x − 2y = 0 is:", options: ["x=2, y=3","x=3, y=2","x=4, y=2","x=1, y=4"], answer: "x=2, y=3", explanation: "The correct answer is x=2, y=3. Adding the equations: 4x = 8 → x = 2. Then 2 + 2y = 8 → y = 3. Verify in eq2: 3(2) − 2(3) = 6 − 6 = 0. ✓", finalAnswer: "x = 2, y = 3", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Adding the equations: 4x = 8, so x = 2; then 2 + 2y = 8 gives y = 3. Check: 3(2) − 2(3) = 0 ✓.",
+      "[1 mark] Adding the equations: 4x = 8, so x = 2; then 2 + 2y = 8 gives y = 3. Check: 3(2) − 2(3) = 0 ✓. Answer: (A)",
     ],
   },
   { id: "PLE2-R14", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The system 3x + 2y = 12 and 6x + 4y = 24 is consistent.\nReason (R): When the ratio of coefficients and constants are equal, the system has infinitely many solutions.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "6x+4y=24 is 2×(3x+2y=12): all ratios equal, infinite solutions. R explains why A is consistent.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] a₁/a₂ = 3/6 = 1/2, b₁/b₂ = 2/4 = 1/2, c₁/c₂ = 12/24 = 1/2; all ratios are equal, so the lines coincide and have infinitely many solutions, hence the system is consistent. R is true and explains why A is true.",
+      "[1 mark] a₁/a₂ = 3/6 = 1/2, b₁/b₂ = 2/4 = 1/2, c₁/c₂ = 12/24 = 1/2; all ratios are equal, so the lines coincide and have infinitely many solutions, hence the system is consistent. R is true and explains why A is true. Answer: (A)",
     ],
   },
   { id: "PLE2-R15", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Five years hence, the age of Jacob will be three times that of his son. Five years ago, Jacob's age was seven times that of his son. Find their present ages.", solutionSteps: [

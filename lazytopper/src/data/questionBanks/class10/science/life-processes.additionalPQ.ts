@@ -16,7 +16,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
       "The movement of water from roots to leaves is bidirectional."
     ],
     answer: "Water enters the roots due to osmosis.",
-    solutionSteps: ["[0.5 mark] Water moves from soil (lower solute concentration) to root cell sap (higher solute) across selectively permeable membranes — this is osmosis, not diffusion.", "[0.5 mark] Roots take up water even at night (via root pressure), and water flow is unidirectional (root → leaves)."],
+    solutionSteps: ["[0.5 mark] Water moves from soil (lower solute concentration) to root cell sap (higher solute) across selectively permeable membranes — this is osmosis, not diffusion.", "[0.5 mark] Roots take up water even at night (via root pressure), and water flow is unidirectional (root → leaves). Answer: (B)"],
     finalAnswer: "(b) Water enters the roots due to osmosis.",
     ncertRef: "APQ Science-PQ Q8", isCompetencyBased: false },
 
@@ -25,7 +25,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     questionText: "Oxygen saturation levels refer to the extent haemoglobin is bound to oxygen. As altitude increases, the atmospheric pressure decreases. Which of the following graphs correctly represents the oxygen saturation levels as altitude increases?",
     options: ["P", "Q", "R", "S"],
     answer: "Q",
-    solutionSteps: ["[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology."],
+    solutionSteps: ["[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology. Answer: (B)"],
     finalAnswer: "(b) Q",
     ncertRef: "APQ Science-PQ Q9", isCompetencyBased: true,
   },
@@ -40,7 +40,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
       "including only liquid foods"
     ],
     answer: "eating a diet with low-fat content",
-    solutionSteps: ["[1 mark] Pancreas secretes lipase (digests fats) along with amylase, trypsin. If pancreas malfunctions, fat digestion is impaired ⟹ low-fat diet recommended."],
+    solutionSteps: ["[1 mark] Pancreas secretes lipase (digests fats) along with amylase, trypsin. If pancreas malfunctions, fat digestion is impaired ⟹ low-fat diet recommended. Answer: (B)"],
     finalAnswer: "(b) eating a diet with low-fat content",
     ncertRef: "APQ Science-PQ Q12", isCompetencyBased: true },
 
@@ -67,7 +67,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     questionText: "Gastric juice is secreted by gastric glands and contains hydrochloric acid, mucus, and pepsin. Which activity will be affected in the absence of hydrochloric acid?",
     options: ["Digestion of proteins.", "Digestion of carbohydrates", "Digestion of lipids", "Digestion of starch."],
     answer: "Digestion of proteins.",
-    solutionSteps: ["[0.5 mark] HCl creates an acidic medium needed to activate pepsin (the inactive pepsinogen → active pepsin), the enzyme that digests proteins.", "[0.5 mark] Carbohydrate / starch digestion (salivary amylase) and lipid digestion (pancreatic lipase + bile) occur in mouth and small intestine respectively, and do not depend on stomach HCl."],
+    solutionSteps: ["[0.5 mark] HCl creates an acidic medium needed to activate pepsin (the inactive pepsinogen → active pepsin), the enzyme that digests proteins.", "[0.5 mark] Carbohydrate / starch digestion (salivary amylase) and lipid digestion (pancreatic lipase + bile) occur in mouth and small intestine respectively, and do not depend on stomach HCl. Answer: (A)"],
     finalAnswer: "(a) Digestion of proteins.",
     ncertRef: "APQ Science-PQ2 Q8", isCompetencyBased: true },
 
@@ -76,7 +76,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
     questionText: "The lining of the alimentary canal has certain muscles that contract rhythmically in order to push the food forward. This process is called:",
     options: ["Translocation", "Transpiration", "Peristalsis", "Autotrophism"],
     answer: "Peristalsis",
-    solutionSteps: ["[0.5 mark] Peristalsis is the rhythmic, wave-like contraction of smooth muscles lining the alimentary canal that pushes food forward.", "[0.5 mark] Translocation = movement of food in plants; transpiration = water loss from leaves; autotrophism = self-feeding mode of plants."],
+    solutionSteps: ["[0.5 mark] Peristalsis is the rhythmic, wave-like contraction of smooth muscles lining the alimentary canal that pushes food forward.", "[0.5 mark] Translocation = movement of food in plants; transpiration = water loss from leaves; autotrophism = self-feeding mode of plants. Answer: (C)"],
     finalAnswer: "(c) Peristalsis",
     ncertRef: "APQ Science-PQ2 Q10", isCompetencyBased: false },
 
@@ -90,7 +90,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
       "Tissue fluid and blood capillaries"
     ],
     answer: "Alveoli of the lungs and blood.",
-    solutionSteps: ["[0.5 mark] In the lungs, gaseous exchange occurs across the thin alveolar wall: CO2 diffuses from blood (in pulmonary capillaries) into the alveoli; O2 diffuses from alveoli into blood.", "[0.5 mark] Tissue-fluid–blood exchange occurs at body tissues (systemic capillaries), not in the lungs."],
+    solutionSteps: ["[0.5 mark] In the lungs, gaseous exchange occurs across the thin alveolar wall: CO2 diffuses from blood (in pulmonary capillaries) into the alveoli; O2 diffuses from alveoli into blood.", "[0.5 mark] Tissue-fluid–blood exchange occurs at body tissues (systemic capillaries), not in the lungs. Answer: (A)"],
     finalAnswer: "(a) Alveoli of the lungs and blood.",
     ncertRef: "APQ Science-PQ2 Q12", isCompetencyBased: true },
 
@@ -104,7 +104,7 @@ export const LIFE_PROCESSES_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "Both A and R are true, and R is the correct explanation of A.",
-    solutionSteps: ["[0.5 mark] A is true: the ion concentration in xylem (after active uptake) differs significantly from that of surrounding soil.", "[0.5 mark] R is true and EXPLAINS A: root cells actively transport (against gradient) mineral ions from soil into xylem, creating the concentration difference observed."],
+    solutionSteps: ["[0.5 mark] A is true: the ion concentration in xylem (after active uptake) differs significantly from that of surrounding soil.", "[0.5 mark] R is true and EXPLAINS A: root cells actively transport (against gradient) mineral ions from soil into xylem, creating the concentration difference observed. Answer: (A)"],
     finalAnswer: "(a) Both A and R are true, and R is the correct explanation of A.",
     ncertRef: "APQ Science-PQ2 Q18", isCompetencyBased: true },
 

@@ -16,7 +16,7 @@ export const MAGNETIC_EFFECTS_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "Both A and R are true, and R is not the correct explanation of A.",
-    solutionSteps: ["A is true: the magnetic field lines around a straight current-carrying conductor form concentric circles in a plane perpendicular to the wire (Oersted's experiment).", "R is true: magnetic field is a vector quantity with both magnitude and direction. But R doesn't explain WHY the field is circular — that's due to the symmetry of the current configuration, not because B is a vector."],
+    solutionSteps: ["A is true: the magnetic field lines around a straight current-carrying conductor form concentric circles in a plane perpendicular to the wire (Oersted's experiment).", "R is true: magnetic field is a vector quantity with both magnitude and direction. But R doesn't explain WHY the field is circular — that's due to the symmetry of the current configuration, not because B is a vector. Answer: (B)"],
     finalAnswer: "(b) Both A and R are true, and R is not the correct explanation of A.",
     ncertRef: "APQ Science-PQ Q19", isCompetencyBased: true },
 
@@ -41,7 +41,7 @@ export const MAGNETIC_EFFECTS_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "Both A and R are true, but R is not the correct explanation of A.",
-    solutionSteps: ["A is true: high-power appliances (geysers, air coolers) draw large currents — they are served by a separate 15 A circuit (vs ~5 A circuit for bulbs/fans).", "R is true: metallic-body appliances are earthed through a low-resistance earth wire to safely conduct away leakage current and prevent shocks.", "However, R explains the SAFETY of metallic appliances, not why a 15 A circuit is used. Hence R is true but does NOT explain A."],
+    solutionSteps: ["A is true: high-power appliances (geysers, air coolers) draw large currents — they are served by a separate 15 A circuit (vs ~5 A circuit for bulbs/fans).", "R is true: metallic-body appliances are earthed through a low-resistance earth wire to safely conduct away leakage current and prevent shocks.", "However, R explains the SAFETY of metallic appliances, not why a 15 A circuit is used. Hence R is true but does NOT explain A. Answer: (B)"],
     finalAnswer: "(b) Both A and R are true, but R is not the correct explanation of A.",
     ncertRef: "APQ Science-PQ2 Q19", isCompetencyBased: true },
 

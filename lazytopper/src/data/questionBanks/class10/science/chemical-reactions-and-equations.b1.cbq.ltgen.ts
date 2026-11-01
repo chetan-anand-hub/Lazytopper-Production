@@ -21,7 +21,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A combination reaction that gives out heat: 2Na(s) + Cl₂(g) → 2NaCl(s)",
     "solutionSteps": [
-      "[1 mark] Two elements form one product, sodium chloride, so it is a combination reaction; the flame and the warm jar show heat is given out (exothermic). It is not a decomposition (NaCl is the product, not the reactant) and nothing is displaced from a compound."
+      "[1 mark] Two elements form one product, sodium chloride, so it is a combination reaction; the flame and the warm jar show heat is given out (exothermic). It is not a decomposition (NaCl is the product, not the reactant) and nothing is displaced from a compound. Answer: (A)"
     ],
     "finalAnswer": "A combination reaction that gives out heat: 2Na(s) + Cl₂(g) → 2NaCl(s)",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Iron has combined with oxygen from the air to form an iron oxide, so the mass of the oxygen taken up is added to the solid.",
     "solutionSteps": [
-      "[1 mark] 3Fe(s) + 2O₂(g) → Fe₃O₄(s) is a combination reaction; the 1.6 g gain is oxygen taken from the air. A decomposition would release a product and lower the mass, density does not change mass, and matter is never created."
+      "[1 mark] 3Fe(s) + 2O₂(g) → Fe₃O₄(s) is a combination reaction; the 1.6 g gain is oxygen taken from the air. A decomposition would release a product and lower the mass, density does not change mass, and matter is never created. Answer: (B)"
     ],
     "finalAnswer": "Iron has combined with oxygen from the air to form an iron oxide, so the mass of the oxygen taken up is added to the solid.",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "CaO(s) + CO₂(g) → CaCO₃(s)",
     "solutionSteps": [
-      "[1 mark] CaO + CO₂ → CaCO₃ forms a single product, so it is a combination reaction, yet both reactants are compounds. The first two have only elements as reactants; the last has compounds but is a decomposition, not a combination."
+      "[1 mark] CaO + CO₂ → CaCO₃ forms a single product, so it is a combination reaction, yet both reactants are compounds. The first two have only elements as reactants; the last has compounds but is a decomposition, not a combination. Answer: (C)"
     ],
     "finalAnswer": "CaO(s) + CO₂(g) → CaCO₃(s)",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Sample Q, because a gas escaped and the solid left behind weighs less than the solid taken",
     "solutionSteps": [
-      "[1 mark] In Q one solid breaks into a gas (CO₂, turns lime water milky) and a lighter residue — thermal decomposition. S gains mass by combining with oxygen (combination); P is only a physical change; R shows no reaction."
+      "[1 mark] In Q one solid breaks into a gas (CO₂, turns lime water milky) and a lighter residue — thermal decomposition. S gains mass by combining with oxygen (combination); P is only a physical change; R shows no reaction. Answer: (D)"
     ],
     "finalAnswer": "Sample Q, because a gas escaped and the solid left behind weighs less than the solid taken",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: the greying is due to silver formed by photolytic decomposition, 2AgBr → 2Ag + Br₂, which needs light; in darkness no light energy is absorbed, so the sample stays pale yellow."
+      "[1 mark] (A) Both are true and R explains A: the greying is due to silver formed by photolytic decomposition, 2AgBr → 2Ag + Br₂, which needs light; in darkness no light energy is absorbed, so the sample stays pale yellow. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: CaCO₃ → CaO + CO₂ is an endothermic thermal decomposition and stops when heating stops. R is true: most decomposition reactions need a continuous supply of heat, light or electrical energy."
+      "[1 mark] (D) A is false: CaCO₃ → CaO + CO₂ is an endothermic thermal decomposition and stops when heating stops. R is true: most decomposition reactions need a continuous supply of heat, light or electrical energy. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -548,7 +548,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Iron",
     "solutionSteps": [
-      "[1 mark] Iron: it is more reactive than copper, so it displaces copper (red-brown layer) and forms iron(II) sulphate, which is pale green. Zinc also displaces copper, but zinc sulphate is colourless; silver cannot displace copper at all."
+      "[1 mark] Iron: it is more reactive than copper, so it displaces copper (red-brown layer) and forms iron(II) sulphate, which is pale green. Zinc also displaces copper, but zinc sulphate is colourless; silver cannot displace copper at all. Answer: (A)"
     ],
     "finalAnswer": "Iron",
     "isCompetencyBased": true,
@@ -577,7 +577,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Potassium sulphate solution + sodium nitrate solution",
     "solutionSteps": [
-      "[1 mark] Potassium sulphate + sodium nitrate: exchanging ions would give potassium nitrate and sodium sulphate, both soluble, so no precipitate forms. The other pairs give insoluble barium sulphate (white), silver chloride (white) and lead iodide (yellow)."
+      "[1 mark] Potassium sulphate + sodium nitrate: exchanging ions would give potassium nitrate and sodium sulphate, both soluble, so no precipitate forms. The other pairs give insoluble barium sulphate (white), silver chloride (white) and lead iodide (yellow). Answer: (B)"
     ],
     "finalAnswer": "Potassium sulphate solution + sodium nitrate solution",
     "isCompetencyBased": true,
@@ -606,7 +606,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Aluminium is more reactive than iron, so it displaces iron from iron(II) sulphate; the solution loses its colour because aluminium sulphate is colourless.",
     "solutionSteps": [
-      "[1 mark] 2Al + 3FeSO₄ → Al₂(SO₄)₃ + 3Fe: the more reactive aluminium displaces iron (dark grey deposit), and colourless aluminium sulphate replaces the pale green salt. It is not double displacement, since a free element (Al) reacts with a compound."
+      "[1 mark] 2Al + 3FeSO₄ → Al₂(SO₄)₃ + 3Fe: the more reactive aluminium displaces iron (dark grey deposit), and colourless aluminium sulphate replaces the pale green salt. It is not double displacement, since a free element (Al) reacts with a compound. Answer: (C)"
     ],
     "finalAnswer": "Aluminium is more reactive than iron, so it displaces iron from iron(II) sulphate; the solution loses its colour because aluminium sulphate is colourless.",
     "isCompetencyBased": true,
@@ -635,7 +635,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "R > P > Q",
     "solutionSteps": [
-      "[1 mark] R > P > Q: P displaces Q, so P is more reactive than Q; P cannot displace R, so R is more reactive than P. Choosing P > R > Q wrongly assumes that 'no change' means R is the least reactive."
+      "[1 mark] R > P > Q: P displaces Q, so P is more reactive than Q; P cannot displace R, so R is more reactive than P. Choosing P > R > Q wrongly assumes that 'no change' means R is the least reactive. Answer: (D)"
     ],
     "finalAnswer": "R > P > Q",
     "isCompetencyBased": true,
@@ -664,7 +664,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: exchanging ions would give zinc nitrate and potassium sulphate, both of which are soluble, so no insoluble product can form and no precipitate appears."
+      "[1 mark] (A) Both are true and R explains A: exchanging ions would give zinc nitrate and potassium sulphate, both of which are soluble, so no insoluble product can form and no precipitate appears. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -693,7 +693,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) R is true: zinc lies above iron in the reactivity series. Therefore A is false: a less reactive metal (iron) cannot displace a more reactive metal (zinc) from its salt, so no zinc layer forms."
+      "[1 mark] (D) R is true: zinc lies above iron in the reactivity series. Therefore A is false: a less reactive metal (iron) cannot displace a more reactive metal (zinc) from its salt, so no zinc layer forms. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1079,7 +1079,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Tungsten oxide is reduced and hydrogen is the reducing agent.",
     "solutionSteps": [
-      "[1 mark] Tungsten oxide loses oxygen, so it is reduced; hydrogen gains that oxygen (is oxidised to water) and therefore acts as the reducing agent. The idea that hydrogen is reduced reverses the roles — hydrogen gains oxygen, so it cannot be reduced."
+      "[1 mark] Tungsten oxide loses oxygen, so it is reduced; hydrogen gains that oxygen (is oxidised to water) and therefore acts as the reducing agent. The idea that hydrogen is reduced reverses the roles — hydrogen gains oxygen, so it cannot be reduced. Answer: (A)"
     ],
     "finalAnswer": "Tungsten oxide is reduced and hydrogen is the reducing agent.",
     "isCompetencyBased": true,
@@ -1108,7 +1108,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Seal the screws in a box together with a few sachets of silica gel, a substance that absorbs moisture.",
     "solutionSteps": [
-      "[1 mark] Rusting needs both air (oxygen) and water; silica gel in a sealed box removes the moisture, so rusting nearly stops. Tap water is tempting but it contains dissolved air, so screws kept in it still rust."
+      "[1 mark] Rusting needs both air (oxygen) and water; silica gel in a sealed box removes the moisture, so rusting nearly stops. Tap water is tempting but it contains dissolved air, so screws kept in it still rust. Answer: (B)"
     ],
     "finalAnswer": "Seal the screws in a box together with a few sachets of silica gel, a substance that absorbs moisture.",
     "isCompetencyBased": true,
@@ -1137,7 +1137,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It is a double displacement reaction: the two salts exchange their ions, so the solid is copper carbonate and sodium sulphate stays dissolved.",
     "solutionSteps": [
-      "[1 mark] The salts swap partners: CuSO₄(aq) + Na₂CO₃(aq) → CuCO₃(s) + Na₂SO₄(aq); insoluble copper carbonate settles, soluble sodium sulphate stays dissolved. The 'sodium displaces copper' idea fails — no free metal reacts, and a blue-green solid is not copper metal."
+      "[1 mark] The salts swap partners: CuSO₄(aq) + Na₂CO₃(aq) → CuCO₃(s) + Na₂SO₄(aq); insoluble copper carbonate settles, soluble sodium sulphate stays dissolved. The 'sodium displaces copper' idea fails — no free metal reacts, and a blue-green solid is not copper metal. Answer: (C)"
     ],
     "finalAnswer": "It is a double displacement reaction: the two salts exchange their ions, so the solid is copper carbonate and sodium sulphate stays dissolved.",
     "isCompetencyBased": true,
@@ -1166,7 +1166,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Hydrogen sulphide is oxidised and chlorine is the oxidising agent.",
     "solutionSteps": [
-      "[1 mark] Hydrogen sulphide loses hydrogen, so it is oxidised; chlorine gains hydrogen, so it is reduced and acts as the oxidising agent. Redox can involve gain or loss of hydrogen, so 'no oxygen, no redox' is wrong."
+      "[1 mark] Hydrogen sulphide loses hydrogen, so it is oxidised; chlorine gains hydrogen, so it is reduced and acts as the oxidising agent. Redox can involve gain or loss of hydrogen, so 'no oxygen, no redox' is wrong. Answer: (D)"
     ],
     "finalAnswer": "Hydrogen sulphide is oxidised and chlorine is the oxidising agent.",
     "isCompetencyBased": true,
@@ -1195,7 +1195,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) A is true: CaO(s) + CO₂(g) → CaCO₃(s) — two reactants form a single product, so it is a combination reaction. R is also true (the reverse, a decomposition), but it describes a different reaction and does not explain A."
+      "[1 mark] (B) A is true: CaO(s) + CO₂(g) → CaCO₃(s) — two reactants form a single product, so it is a combination reaction. R is also true (the reverse, a decomposition), but it describes a different reaction and does not explain A. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1224,7 +1224,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: carbon dioxide gives its oxygen to magnesium (magnesium is oxidised), so carbon dioxide is the oxidising agent. R is false: carbon dioxide loses oxygen and is reduced to carbon."
+      "[1 mark] (C) A is true: carbon dioxide gives its oxygen to magnesium (magnesium is oxidised), so carbon dioxide is the oxidising agent. R is false: carbon dioxide loses oxygen and is reduced to carbon. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1605,7 +1605,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5, 3, 4",
     "solutionSteps": [
-      "[1 mark] (a): 3 C atoms give 3CO₂ and 8 H atoms give 4H₂O, so the products hold 6 + 4 = 10 O atoms, needing 5O₂. Option (b) forgets the oxygen in water; (d) counts 16 H atoms on the right."
+      "[1 mark] (a): 3 C atoms give 3CO₂ and 8 H atoms give 4H₂O, so the products hold 6 + 4 = 10 O atoms, needing 5O₂. Option (b) forgets the oxygen in water; (d) counts 16 H atoms on the right. Answer: (A)"
     ],
     "finalAnswer": "5, 3, 4",
     "isCompetencyBased": true,
@@ -1634,7 +1634,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1 : 3",
     "solutionSteps": [
-      "[1 mark] (b): 3H₂ has 6 H atoms, so y = 6; 6 Cl atoms need z = 2 AlCl₃, so x = 2. So x : y = 2 : 6 = 1 : 3. Option (a) wrongly compares Al with H₂, not HCl."
+      "[1 mark] (b): 3H₂ has 6 H atoms, so y = 6; 6 Cl atoms need z = 2 AlCl₃, so x = 2. So x : y = 2 : 6 = 1 : 3. Option (a) wrongly compares Al with H₂, not HCl. Answer: (B)"
     ],
     "finalAnswer": "1 : 3",
     "isCompetencyBased": true,
@@ -1663,7 +1663,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq)",
     "solutionSteps": [
-      "[1 mark] (c): the white solid that settles is silver chloride, so it is AgCl(s), while sodium nitrate remains dissolved, NaNO₃(aq). Option (a) hides the precipitate; (d) wrongly marks a solution as a pure liquid (l)."
+      "[1 mark] (c): the white solid that settles is silver chloride, so it is AgCl(s), while sodium nitrate remains dissolved, NaNO₃(aq). Option (a) hides the precipitate; (d) wrongly marks a solution as a pure liquid (l). Answer: (C)"
     ],
     "finalAnswer": "AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq)",
     "isCompetencyBased": true,
@@ -1692,7 +1692,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2H₂O₂(aq) —MnO₂→ 2H₂O(l) + O₂(g)",
     "solutionSteps": [
-      "[1 mark] (d): it is balanced (4 H, 4 O on each side) and MnO₂, being recovered unchanged, is written over the arrow as a condition, not as a reactant as in (b). (a) is unbalanced; (c) gives hydrogen instead of water."
+      "[1 mark] (d): it is balanced (4 H, 4 O on each side) and MnO₂, being recovered unchanged, is written over the arrow as a condition, not as a reactant as in (b). (a) is unbalanced; (c) gives hydrogen instead of water. Answer: (D)"
     ],
     "finalAnswer": "2H₂O₂(aq) —MnO₂→ 2H₂O(l) + O₂(g)",
     "isCompetencyBased": true,
@@ -1721,7 +1721,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true because CuCO₃(s) → CuO(s) + CO₂(g) and the carbon dioxide escapes from the open tube. R is false: by the law of conservation of mass, mass of CuO plus CO₂ equals 6.2 g; no matter is destroyed."
+      "[1 mark] (C): A is true because CuCO₃(s) → CuO(s) + CO₂(g) and the carbon dioxide escapes from the open tube. R is false: by the law of conservation of mass, mass of CuO plus CO₂ equals 6.2 g; no matter is destroyed. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1750,7 +1750,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D): A is false — changing (l) to (g) leaves 4 H and 2 O atoms on each side, so the coefficients stay 2, 2 and 1. R is true: state symbols describe physical state and never alter atom counts."
+      "[1 mark] (D): A is false — changing (l) to (g) leaves 4 H and 2 O atoms on each side, so the coefficients stay 2, 2 and 1. R is true: state symbols describe physical state and never alter atom counts. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -2146,7 +2146,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The dissolving process absorbs heat from the water and its surroundings, so heat flows from the ankle into the pack.",
     "solutionSteps": [
-      "[1 mark] The first option is right: this dissolving is endothermic, so it takes in heat from the water and from the ankle touching the pack, lowering their temperature. 'Cold' is not energy that can flow, so the second option is a misconception."
+      "[1 mark] The first option is right: this dissolving is endothermic, so it takes in heat from the water and from the ankle touching the pack, lowering their temperature. 'Cold' is not energy that can flow, so the second option is a misconception. Answer: (A)"
     ],
     "finalAnswer": "The dissolving process absorbs heat from the water and its surroundings, so heat flows from the ankle into the pack.",
     "isCompetencyBased": true,
@@ -2175,7 +2175,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "P – decomposition; Q – displacement; R – combination; S – double displacement",
     "solutionSteps": [
-      "[1 mark] Second option: P is light-driven decomposition (AgCl → Ag + Cl₂); in Q iron displaces copper; in R magnesium combines with oxygen; in S ions are exchanged, precipitating lead iodide. Q is not double displacement, since only iron replaces copper."
+      "[1 mark] Second option: P is light-driven decomposition (AgCl → Ag + Cl₂); in Q iron displaces copper; in R magnesium combines with oxygen; in S ions are exchanged, precipitating lead iodide. Q is not double displacement, since only iron replaces copper. Answer: (B)"
     ],
     "finalAnswer": "P – decomposition; Q – displacement; R – combination; S – double displacement",
     "isCompetencyBased": true,
@@ -2204,7 +2204,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Glucose is oxidised to carbon dioxide and water, and the reaction is exothermic.",
     "solutionSteps": [
-      "[1 mark] Third option: in respiration glucose combines with oxygen (it is oxidised) to give carbon dioxide and water, releasing energy, partly as body heat. The first option has the right energy change but calls the gain of oxygen a reduction."
+      "[1 mark] Third option: in respiration glucose combines with oxygen (it is oxidised) to give carbon dioxide and water, releasing energy, partly as body heat. The first option has the right energy change but calls the gain of oxygen a reduction. Answer: (C)"
     ],
     "finalAnswer": "Glucose is oxidised to carbon dioxide and water, and the reaction is exothermic.",
     "isCompetencyBased": true,
@@ -2233,7 +2233,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Mixing the acid with water is highly exothermic; if water is added to the acid, the small amount of water can boil suddenly and throw out drops of acid.",
     "solutionSteps": [
-      "[1 mark] Fourth option: dilution of the acid releases a large amount of heat. A little water added to much acid gets heated locally, boils and splashes acid; acid added slowly to much water spreads the heat. Order of mixing does not make it endothermic."
+      "[1 mark] Fourth option: dilution of the acid releases a large amount of heat. A little water added to much acid gets heated locally, boils and splashes acid; acid added slowly to much water spreads the heat. Order of mixing does not make it endothermic. Answer: (D)"
     ],
     "finalAnswer": "Mixing the acid with water is highly exothermic; if water is added to the acid, the small amount of water can boil suddenly and throw out drops of acid.",
     "isCompetencyBased": true,
@@ -2262,7 +2262,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: once lit, the burning wax keeps giving out heat and light, so the combustion is exothermic. R is true: the matchstick only supplies starting heat; the reaction then releases more heat than it absorbed."
+      "[1 mark] (D) A is false: once lit, the burning wax keeps giving out heat and light, so the combustion is exothermic. R is true: the matchstick only supplies starting heat; the reaction then releases more heat than it absorbed. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -2291,7 +2291,7 @@ export const CHEM_REACTIONS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s); brown copper deposits and colourless zinc sulphate forms. R is false: zinc is MORE reactive than copper, which is exactly why zinc displaces copper."
+      "[1 mark] (C) A is true: Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s); brown copper deposits and colourless zinc sulphate forms. R is false: zinc is MORE reactive than copper, which is exactly why zinc displaces copper. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,

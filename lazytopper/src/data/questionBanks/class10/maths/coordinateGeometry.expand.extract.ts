@@ -21,7 +21,7 @@ export const COORD_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "±3",
     "solutionSteps": [
-      "[1 mark] The point (x, 4) is at distance 5 from O(0, 0): x² + 4² = 5² ⇒ x² = 25 − 16 = 9 ⇒ x = ±3."
+      "[1 mark] The point (x, 4) is at distance 5 from O(0, 0): x² + 4² = 5² ⇒ x² = 25 − 16 = 9 ⇒ x = ±3. Answer: (B)"
     ],
     "finalAnswer": "x = ±3.",
     "ncertRef": "Foundation MCQ Bank (Coordinate Geometry) Q1",
@@ -48,7 +48,7 @@ export const COORD_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "(−6, 5/2)",
     "solutionSteps": [
-      "[1 mark] Radius = distance of O(0,0) from (13/2, 0) = 6.5. A point is interior ⇔ its distance from O < 6.5. Distances: (−3/4,1)→1.25, (2,7/3)→√(85/9)≈3.07, (5,−1/2)→√(101)/2≈5.02 (all < 6.5), but (−6,5/2)→√(36+25/4)=√(169/4)=6.5 = radius, so it lies ON the circle, not inside."
+      "[1 mark] Radius = distance of O(0,0) from (13/2, 0) = 6.5. A point is interior ⇔ its distance from O < 6.5. Distances: (−3/4,1)→1.25, (2,7/3)→√(85/9)≈3.07, (5,−1/2)→√(101)/2≈5.02 (all < 6.5), but (−6,5/2)→√(36+25/4)=√(169/4)=6.5 = radius, so it lies ON the circle, not inside. Answer: (D)"
     ],
     "finalAnswer": "(−6, 5/2) — it lies on the circle (distance 6.5 = radius), not in the interior.",
     "ncertRef": "Foundation MCQ Bank (Coordinate Geometry) Q46",

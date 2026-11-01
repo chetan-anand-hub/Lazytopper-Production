@@ -48,7 +48,7 @@ export const TRI_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "8√2 cm",
     "solutionSteps": [
-      "[1 mark] For a square of side x, diagonal = x√2 (Pythagoras on two equal sides). So x√2 = 16 ⇒ x = 16/√2 = 8√2 cm."
+      "[1 mark] For a square of side x, diagonal = x√2 (Pythagoras on two equal sides). So x√2 = 16 ⇒ x = 16/√2 = 8√2 cm. Answer: (A)"
     ],
     "finalAnswer": "8√2 cm — option (a).",
     "ncertRef": "rava.org.in CBSE Objective QB Ch6 Q8",
@@ -75,7 +75,7 @@ export const TRI_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "All isosceles triangles are similar.",
     "solutionSteps": [
-      "[1 mark] Isosceles triangles can have different vertex angles, so they need not be equiangular ⇒ not always similar. Squares, circles and equilateral triangles are each always similar. Hence the false statement is 'All isosceles triangles are similar.'"
+      "[1 mark] Isosceles triangles can have different vertex angles, so they need not be equiangular ⇒ not always similar. Squares, circles and equilateral triangles are each always similar. Hence the false statement is 'All isosceles triangles are similar.' Answer: (A)"
     ],
     "finalAnswer": "All isosceles triangles are similar — option (a).",
     "ncertRef": "rava.org.in CBSE Objective QB Ch6 Q10",
@@ -128,7 +128,7 @@ export const TRI_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "18 cm",
     "solutionSteps": [
-      "[1 mark] Let legs a, b and hypotenuse c: ab = 80, a+b+c = 40 and a²+b² = c². Then (a+b)² = c²+2ab ⇒ (40−c)² = c²+160 ⇒ 1600−80c = 160 ⇒ c = 18 cm."
+      "[1 mark] Let legs a, b and hypotenuse c: ab = 80, a+b+c = 40 and a²+b² = c². Then (a+b)² = c²+2ab ⇒ (40−c)² = c²+160 ⇒ 1600−80c = 160 ⇒ c = 18 cm. Answer: (A)"
     ],
     "finalAnswer": "18 cm — option (a).",
     "ncertRef": "rava.org.in CBSE Objective QB Ch6 Q16",
@@ -182,7 +182,7 @@ export const TRI_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "scale factor",
     "solutionSteps": [
-      "[1 mark] For similar polygons every pair of corresponding sides is in the same ratio; this constant ratio is called the scale factor."
+      "[1 mark] For similar polygons every pair of corresponding sides is in the same ratio; this constant ratio is called the scale factor. Answer: (A)"
     ],
     "finalAnswer": "scale factor — option (a).",
     "ncertRef": "rava.org.in CBSE Objective QB Ch6 (Fill-in-the-blank 13)",
@@ -208,7 +208,7 @@ export const TRI_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "trapezium",
     "solutionSteps": [
-      "[1 mark] AO/BO = CO/DO ⇒ AO/CO = BO/DO, so the diagonals divide each other in the same ratio. By the converse of BPT this forces one pair of opposite sides parallel (AB ∥ CD), i.e. ABCD is a trapezium."
+      "[1 mark] AO/BO = CO/DO ⇒ AO/CO = BO/DO, so the diagonals divide each other in the same ratio. By the converse of BPT this forces one pair of opposite sides parallel (AB ∥ CD), i.e. ABCD is a trapezium. Answer: (A)"
     ],
     "finalAnswer": "trapezium — option (a).",
     "ncertRef": "rava.org.in CBSE Objective QB Ch6 (Fill-in-the-blank 21)",
@@ -261,7 +261,7 @@ export const TRI_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "5.6 cm",
     "solutionSteps": [
-      "[1 mark] DE ∥ BC ⇒ △ADE ~ △ABC, so AD/AB = DE/BC ⇒ 3.5/AB = 5/8 ⇒ AB = 3.5×8/5 = 5.6 cm."
+      "[1 mark] DE ∥ BC ⇒ △ADE ~ △ABC, so AD/AB = DE/BC ⇒ 3.5/AB = 5/8 ⇒ AB = 3.5×8/5 = 5.6 cm. Answer: (A)"
     ],
     "finalAnswer": "5.6 cm — option (a).",
     "ncertRef": "Question-Bank-with-Explanations Ch6 Q5",

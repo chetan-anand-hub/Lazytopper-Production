@@ -11,6 +11,7 @@
  * syllabus, and a first stored solution step that says WHY (not just the option letter).
  */
 import type { DesktopSubject } from "../../lib/desktop/navigation";
+import { stripAnswerLetter } from "../../lib/answerLetterSuffix";
 import type { CiDemoKey } from "./ciDemoModel";
 
 export interface OneMinuteStarter {
@@ -84,7 +85,7 @@ export function correctIndex(options: readonly string[], answer: string): number
  * "Correct option ..." bookkeeping removed. No generated text. "" when nothing explanatory remains.
  */
 export function whyLine(steps: readonly unknown[] | undefined): string {
-  const first = String(steps?.[0] ?? "").trim();
+  const first = stripAnswerLetter(String(steps?.[0] ?? "").trim());
   let t = first.replace(/^\[[^\]]*\]\s*/, "");
   t = t.replace(/^Correct option[^—.]*[—]\s*/i, "");
   t = t.replace(/^Correct option(?: is)?:?\s*(?:\([a-d]\))?[^.]*\.\s*/i, "");

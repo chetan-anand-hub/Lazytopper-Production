@@ -54,7 +54,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "insufficient production of insulin in her body",
     solutionSteps: [
-      "[1 mark] Correct option: (2) insufficient production of insulin in her body. Insulin lowers blood glucose; too little of it leaves the blood sugar persistently high, which is what her reading shows. Excess insulin would lower it, and thyroxine regulates metabolism rather than blood glucose directly.",
+      "[1 mark] Correct option: (2) insufficient production of insulin in her body. Insulin lowers blood glucose; too little of it leaves the blood sugar persistently high, which is what her reading shows. Excess insulin would lower it, and thyroxine regulates metabolism rather than blood glucose directly. Answer: (B)",
     ],
     finalAnswer: "insufficient production of insulin in her body",
     isCompetencyBased: true,
@@ -82,7 +82,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "trim the hedge by cutting off the tips of the stems",
     solutionSteps: [
-      "[1 mark] Correct option: (3) trim the hedge by cutting off the tips of the stems. The tips carry the apical meristem that makes the auxin suppressing the lateral buds; removing them releases those buds, so more branches grow and the hedge becomes bushier.",
+      "[1 mark] Correct option: (3) trim the hedge by cutting off the tips of the stems. The tips carry the apical meristem that makes the auxin suppressing the lateral buds; removing them releases those buds, so more branches grow and the hedge becomes bushier. Answer: (C)",
     ],
     finalAnswer: "trim the hedge by cutting off the tips of the stems",
     isCompetencyBased: true,
@@ -110,7 +110,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Part Y did not grow at all.",
     solutionSteps: [
-      "[1 mark] Correct option: (3) Part Y did not grow at all. Part X, the shoot tip, is where auxin is made; with it removed there is no auxin to drive cell elongation in the stem, so part Y neither grows nor bends towards the light.",
+      "[1 mark] Correct option: (3) Part Y did not grow at all. Part X, the shoot tip, is where auxin is made; with it removed there is no auxin to drive cell elongation in the stem, so part Y neither grows nor bends towards the light. Answer: (C)",
     ],
     finalAnswer: "Part Y did not grow at all.",
     isCompetencyBased: true,
@@ -135,7 +135,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     options: ["hydrotropism", "chemotropism", "phototropism", "geotropism"],
     answer: "chemotropism",
     solutionSteps: [
-      "[1 mark] Correct option: (2) chemotropism. The growth of the pollen tube towards the ovule is a directional response to a chemical stimulus, which is chemotropism. Hydrotropism responds to water, phototropism to light and geotropism to gravity.",
+      "[1 mark] Correct option: (2) chemotropism. The growth of the pollen tube towards the ovule is a directional response to a chemical stimulus, which is chemotropism. Hydrotropism responds to water, phototropism to light and geotropism to gravity. Answer: (B)",
     ],
     finalAnswer: "chemotropism",
     isCompetencyBased: true,
@@ -231,7 +231,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     answer:
       "Jumping back was an involuntary reflex; walking away was voluntary",
     solutionSteps: [
-      "[1 mark] Jumping back was an involuntary reflex; walking away was voluntary — the instant jump is a quick reflex, while the slow walk away is a deliberate, voluntary action."
+      "[1 mark] Jumping back was an involuntary reflex; walking away was voluntary — the instant jump is a quick reflex, while the slow walk away is a deliberate, voluntary action. Answer: (D)"
     ],
     finalAnswer: "Jumping back was an involuntary reflex; walking away was voluntary",
     isCompetencyBased: true,
@@ -279,7 +279,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
     questionText:
       "While on a roller coaster ride, Aditya noticed an increase in his heartbeat and his breathing. Which hormone is responsible for these changes?",
     answer: "Adrenaline",
-    solutionSteps: ["[1 mark] Adrenaline — adrenaline is released in stress or excitement and speeds up heartbeat and breathing."],
+    solutionSteps: ["[1 mark] Adrenaline — adrenaline is released in stress or excitement and speeds up heartbeat and breathing. Answer: (A)"],
     finalAnswer: "Adrenaline",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.7 — CFPQ_Science10.pdf, questions pdf pp.59–61 (printed folios 58–60)",
@@ -302,7 +302,7 @@ export const CTRL_CFPQ: CanonicalQuestion[] = [
       "'Plant growth regulators do not always promote growth.' Which example supports this statement?",
     answer: "Abscisic acid, which promotes ageing and wilting of leaves",
     solutionSteps: [
-      "[1 mark] Abscisic acid, which promotes ageing and wilting of leaves — abscisic acid inhibits growth and promotes senescence, unlike the other three."
+      "[1 mark] Abscisic acid, which promotes ageing and wilting of leaves — abscisic acid inhibits growth and promotes senescence, unlike the other three. Answer: (B)"
     ],
     finalAnswer: "Abscisic acid, which promotes ageing and wilting of leaves",
     isCompetencyBased: true,

@@ -12,7 +12,7 @@ export const PROBABILITY_APQ: CanonicalQuestion[] = [
     questionText: "Ginny flipped a fair coin three times and tails came up each time. Ginny wants to flip the coin again. What is the probability of getting heads in the next coin flip?",
     options: ["0", "0.25", "0.5", "1"],
     answer: "0.5",
-    solutionSteps: ["Each coin toss is an independent event — past outcomes do not affect future outcomes.", "For a fair coin, P(Heads) = 1/2 = 0.5 on every toss."],
+    solutionSteps: ["Each coin toss is an independent event — past outcomes do not affect future outcomes.", "For a fair coin, P(Heads) = 1/2 = 0.5 on every toss. Answer: (C)"],
     finalAnswer: "(c) 0.5",
     ncertRef: "APQ PQ1 Q18", isCompetencyBased: true,
     strategyHint: "Common misconception: 'gambler's fallacy' — independent events are not affected by prior outcomes." },
@@ -22,7 +22,7 @@ export const PROBABILITY_APQ: CanonicalQuestion[] = [
     questionText: "In an MCQ test, a student guesses the correct answer x out of y times. If the probability that the student guesses the answer to be wrong is 2/3 then what is the relation between x and y",
     options: ["y = 3x", "x = 3y", "3x = 2y", "2x = 3y"],
     answer: "y = 3x",
-    solutionSteps: ["P(wrong) = 2/3 ⟹ P(correct) = 1 − 2/3 = 1/3.", "P(correct) = x/y = 1/3 ⟹ y = 3x."],
+    solutionSteps: ["P(wrong) = 2/3 ⟹ P(correct) = 1 − 2/3 = 1/3.", "P(correct) = x/y = 1/3 ⟹ y = 3x. Answer: (A)"],
     finalAnswer: "(a) y = 3x",
     ncertRef: "APQ PQ2 Q18", isCompetencyBased: true },
 
@@ -36,7 +36,7 @@ export const PROBABILITY_APQ: CanonicalQuestion[] = [
       "(A) is false but (R) is true."
     ],
     answer: "Both (A) and (R) are true and (R) is the correct explanation of (A).",
-    solutionSteps: ["P(bad egg) = 0.035 ⟹ Number of bad eggs = 0.035 × 400 = 14.", "P(good egg) = 1 − 0.035 = 0.965 (using complement rule).", "Number of good eggs = 400 − 14 = 386. Both A and R are true; R correctly explains A."],
+    solutionSteps: ["P(bad egg) = 0.035 ⟹ Number of bad eggs = 0.035 × 400 = 14.", "P(good egg) = 1 − 0.035 = 0.965 (using complement rule).", "Number of good eggs = 400 − 14 = 386. Both A and R are true; R correctly explains A. Answer: (A)"],
     finalAnswer: "(a) Both (A) and (R) are true and (R) is the correct explanation of (A).",
     ncertRef: "APQ PQ2 Q20", isCompetencyBased: true },
 
@@ -64,7 +64,7 @@ export const PROBABILITY_APQ: CanonicalQuestion[] = [
     questionText: "A bowl contains 3 red and 2 blue marbles. Roohi wants to pick a red marble. Which of the following changes could she make so that the probability of picking a red marble is greater than it was before? (i) Adding a red marble. (ii) Removing a blue marble. (iii) Adding 1 red and 1 blue marble.",
     options: ["only (i)", "only (i) and (ii)", "only (i) and (iii)", "(all of the above)"],
     answer: "only (i) and (ii)",
-    solutionSteps: ["Starting: P(red) = 3/5 = 0.6.", "(i) Add red: 4/6 ≈ 0.67 > 0.6 ✓.", "(ii) Remove blue: 3/4 = 0.75 > 0.6 ✓.", "(iii) Add 1 red and 1 blue: 4/7 ≈ 0.57 < 0.6 ✗. Only (i) and (ii) increase the probability."],
+    solutionSteps: ["Starting: P(red) = 3/5 = 0.6.", "(i) Add red: 4/6 ≈ 0.67 > 0.6 ✓.", "(ii) Remove blue: 3/4 = 0.75 > 0.6 ✓.", "(iii) Add 1 red and 1 blue: 4/7 ≈ 0.57 < 0.6 ✗. Only (i) and (ii) increase the probability. Answer: (B)"],
     finalAnswer: "(b) only (i) and (ii)",
     ncertRef: "APQ PQ_2022 Q18", isCompetencyBased: true },
 

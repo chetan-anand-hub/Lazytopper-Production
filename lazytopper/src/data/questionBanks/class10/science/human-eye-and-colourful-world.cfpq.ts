@@ -63,7 +63,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     options: ["Yellow colour", "Red colour", "Black colour", "Blue colour"],
     answer: "Black colour",
     solutionSteps: [
-      "[1 mark] Correct option: (3) Black colour. The sky looks blue because the atmosphere scatters sunlight; with no atmosphere there is nothing to scatter the light, so no light reaches the eye from any direction except straight from the Sun and the surrounding sky appears black.",
+      "[1 mark] Correct option: (3) Black colour. The sky looks blue because the atmosphere scatters sunlight; with no atmosphere there is nothing to scatter the light, so no light reaches the eye from any direction except straight from the Sun and the surrounding sky appears black. Answer: (C)",
     ],
     finalAnswer: "Black colour",
     isCompetencyBased: true,
@@ -88,7 +88,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     options: ["pupil", "retina", "eye-ball", "ciliary muscles"],
     answer: "ciliary muscles",
     solutionSteps: [
-      "[1 mark] Correct option: (4) ciliary muscles. They change the curvature of the eye lens - accommodation - and so set the range of distances over which an object can be brought into focus.",
+      "[1 mark] Correct option: (4) ciliary muscles. They change the curvature of the eye lens - accommodation - and so set the range of distances over which an object can be brought into focus. Answer: (D)",
     ],
     finalAnswer: "ciliary muscles",
     isCompetencyBased: true,
@@ -116,7 +116,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "The image forms behind the retina.",
     solutionSteps: [
-      "[1 mark] Correct option: (2) The image forms behind the retina. In hypermetropia the eye converges light too weakly, so a nearby object would focus past the retina; a converging (convex) lens adds the missing convergence and brings the image forward onto it.",
+      "[1 mark] Correct option: (2) The image forms behind the retina. In hypermetropia the eye converges light too weakly, so a nearby object would focus past the retina; a converging (convex) lens adds the missing convergence and brings the image forward onto it. Answer: (B)",
     ],
     finalAnswer: "The image forms behind the retina.",
     isCompetencyBased: true,
@@ -143,7 +143,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "incorrect bending of light in the eye",
     solutionSteps: [
-      "[1 mark] Correct option: (2) incorrect bending of light in the eye. Both are refractive defects - the eye's converging power does not match its length, so light is not bent to focus on the retina.",
+      "[1 mark] Correct option: (2) incorrect bending of light in the eye. Both are refractive defects - the eye's converging power does not match its length, so light is not bent to focus on the retina. Answer: (B)",
     ],
     finalAnswer: "incorrect bending of light in the eye",
     isCompetencyBased: true,
@@ -170,7 +170,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "the amount of light entering the eye",
     solutionSteps: [
-      "[1 mark] Correct option: (2) the amount of light entering the eye. The iris is the diaphragm that widens and narrows the pupil; colour identification is done by the retina, transmission by the optic nerve and focussing by the ciliary muscles.",
+      "[1 mark] Correct option: (2) the amount of light entering the eye. The iris is the diaphragm that widens and narrows the pupil; colour identification is done by the retina, transmission by the optic nerve and focussing by the ciliary muscles. Answer: (B)",
     ],
     finalAnswer: "the amount of light entering the eye",
     isCompetencyBased: true,
@@ -195,7 +195,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     options: ["It is a pure substance.", "It is a compound.", "It is a solution.", "It is a colloid."],
     answer: "It is a colloid.",
     solutionSteps: [
-      "[1 mark] Correct option: (4) It is a colloid. The smoke particles are large enough to scatter the light and make the beam's path visible - the Tyndall effect - which happens in a colloid but not in a true solution or a pure substance.",
+      "[1 mark] Correct option: (4) It is a colloid. The smoke particles are large enough to scatter the light and make the beam's path visible - the Tyndall effect - which happens in a colloid but not in a true solution or a pure substance. Answer: (D)",
     ],
     finalAnswer: "It is a colloid.",
     isCompetencyBased: true,
@@ -218,7 +218,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     options: ["blue", "violet", "green", "red"],
     answer: "red",
     solutionSteps: [
-      "[1 mark] Correct option: (4) red. Of the four, red has the longest wavelength, so by the rule given it travels fastest in glass - which is also why it is deviated least on dispersion.",
+      "[1 mark] Correct option: (4) red. Of the four, red has the longest wavelength, so by the rule given it travels fastest in glass - which is also why it is deviated least on dispersion. Answer: (D)",
     ],
     finalAnswer: "red",
     isCompetencyBased: true,
@@ -247,7 +247,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     answer:
       "ciliary muscles contract - -> curvature of eye lens increases --> focal length of eye lens decreases",
     solutionSteps: [
-      "[1 mark] Correct option: (4) ciliary muscles contract, curvature of eye lens increases, focal length of eye lens decreases. Focusing on a near object needs more converging power, which the eye gets by contracting the ciliary muscles so the lens bulges - a greater curvature means a shorter focal length.",
+      "[1 mark] Correct option: (4) ciliary muscles contract, curvature of eye lens increases, focal length of eye lens decreases. Focusing on a near object needs more converging power, which the eye gets by contracting the ciliary muscles so the lens bulges - a greater curvature means a shorter focal length. Answer: (D)",
     ],
     finalAnswer:
       "ciliary muscles contract → curvature increases → focal length decreases",
@@ -271,7 +271,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     options: ["convex", "concave", "bifocal", "plano-convex"],
     answer: "bifocal",
     solutionSteps: [
-      "[1 mark] Correct option: (3) bifocal. A normal near point is about 25 cm and the far point is at infinity; this person's near point is too far AND his far point is too near, so he has both hypermetropia and myopia and needs a lens correcting each - a bifocal.",
+      "[1 mark] Correct option: (3) bifocal. A normal near point is about 25 cm and the far point is at infinity; this person's near point is too far AND his far point is too near, so he has both hypermetropia and myopia and needs a lens correcting each - a bifocal. Answer: (C)",
     ],
     finalAnswer: "bifocal",
     isCompetencyBased: true,
@@ -319,7 +319,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Mars's atmosphere is composed mainly of carbon dioxide, nitrogen and argon, with negligible amounts of oxygen, water vapour and methane. Using this and your knowledge of how rainbows form on Earth, why is rainbow formation impossible on Mars?",
     answer: "There are no water droplets to refract, disperse and internally reflect sunlight",
-    solutionSteps: ["[1 mark] There are no water droplets to refract, disperse and internally reflect sunlight — a rainbow needs water droplets to disperse sunlight, and Mars has negligible water vapour."],
+    solutionSteps: ["[1 mark] There are no water droplets to refract, disperse and internally reflect sunlight — a rainbow needs water droplets to disperse sunlight, and Mars has negligible water vapour. Answer: (D)"],
     finalAnswer: "There are no water droplets to refract, disperse and internally reflect sunlight",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.11 — CFPQ_Science10.pdf, questions pdf pp.93–96 (printed folios 92–95)",

@@ -15,7 +15,7 @@ export const HEREDITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["TT × tt", "Tt × tt", "Tt × Tt", "TT × Tt"],
     "answer": "Tt × tt",
     "solutionSteps": [
-      "[1 mark] Tt × tt. The dwarf parent must be tt; the progeny are tall and dwarf in about 1 : 1 (52 : 49), so the tall parent must carry the recessive allele, i.e. it is Tt (Tt × tt gives Tt and tt in equal numbers; TT × tt would give only tall plants)."
+      "[1 mark] Tt × tt. The dwarf parent must be tt; the progeny are tall and dwarf in about 1 : 1 (52 : 49), so the tall parent must carry the recessive allele, i.e. it is Tt (Tt × tt gives Tt and tt in equal numbers; TT × tt would give only tall plants). Answer: (B)"
     ],
     "finalAnswer": "Tt × tt",
     "isCompetencyBased": true,

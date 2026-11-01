@@ -13,7 +13,7 @@ export const CIRCLES_PYQ_2024: CanonicalQuestion[] = [
     questionText: "If two tangents inclined at an angle of 60º are drawn to a circle of radius 5 cm, then the length of each tangent is :",
     options: ["5√3/2 cm", "10 cm", "5/√3 cm", "5√3 cm"],
     answer: "5√3 cm",
-    solutionSteps: ["[1 mark] OP bisects the 60° angle, so ∠APO = 30° with OA ⊥ AP; tan 30° = OA/AP ⟹ 1/√3 = 5/AP ⟹ AP = 5√3 cm → option (d)."],
+    solutionSteps: ["[1 mark] OP bisects the 60° angle, so ∠APO = 30° with OA ⊥ AP; tan 30° = OA/AP ⟹ 1/√3 = 5/AP ⟹ AP = 5√3 cm → option (d). Answer: (D)"],
     finalAnswer: "(d) 5√3 cm",
     ncertRef: "PYQ 30(B) Q10", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1",

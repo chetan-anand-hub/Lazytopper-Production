@@ -21,7 +21,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "answer": "x² + 2x + 1 = 0",
     "solutionSteps": [
       "A quadratic equation has the form ax² + bx + c = 0 where a ≠ 0",
-      "x² + 2x + 1 = 0 has degree 2, so it is quadratic"
+      "x² + 2x + 1 = 0 has degree 2, so it is quadratic Answer: (B)"
     ],
     "finalAnswer": "x² + 2x + 1 = 0",
     "explanation": "A quadratic equation has the form ax² + bx + c = 0 where a ≠ 0. x² + 2x + 1 = 0 has degree 2, so it is quadratic. Therefore, the correct answer is x² + 2x + 1 = 0.",
@@ -51,7 +51,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "x² - 5x + 6 = 0",
       "Factors: (x - 2)(x - 3) = 0",
-      "x = 2 or x = 3"
+      "x = 2 or x = 3 Answer: (A)"
     ],
     "finalAnswer": "x = 2, 3",
     "explanation": "x² - 5x + 6 = 0. Factors: (x - 2)(x - 3) = 0. x = 2 or x = 3. Therefore, the correct answer is x = 2, 3.",
@@ -81,7 +81,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "2x² + 7x + 3 = 0",
       "(2x + 1)(x + 3) = 0",
-      "x = -1/2 or x = -3"
+      "x = -1/2 or x = -3 Answer: (A)"
     ],
     "finalAnswer": "x = -1/2, -3",
     "explanation": "2x² + 7x + 3 = 0. (2x + 1)(x + 3) = 0. x = -1/2 or x = -3. Therefore, the correct answer is x = -1/2, -3.",
@@ -171,7 +171,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "x = [-b ± √(b² - 4ac)] / 2a",
     "solutionSteps": [
-      "The standard quadratic formula is x = [-b ± √(b² - 4ac)] / 2a"
+      "The standard quadratic formula is x = [-b ± √(b² - 4ac)] / 2a Answer: (A)"
     ],
     "finalAnswer": "x = [-b ± √(b² - 4ac)] / 2a",
     "explanation": "The correct answer is x = [-b ± √(b² - 4ac)] / 2a. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
@@ -202,7 +202,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "a = 1, b = -4, c = 3",
       "x = [4 ± √(16 - 12)] / 2",
       "x = [4 ± √4] / 2 = [4 ± 2] / 2",
-      "x = 3 or x = 1"
+      "x = 3 or x = 1 Answer: (A)"
     ],
     "finalAnswer": "x = 1, 3",
     "explanation": "a = 1, b = -4, c = 3. Therefore, the correct answer is x = 1, 3.",
@@ -233,7 +233,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "a = 2, b = 5, c = 2",
       "Δ = 25 - 16 = 9",
       "x = [-5 ± 3] / 4",
-      "x = -1/2 or x = -2"
+      "x = -1/2 or x = -2 Answer: (A)"
     ],
     "finalAnswer": "x = -1/2, -2",
     "explanation": "a = 2, b = 5, c = 2. Δ = 25 - 16 = 9. Therefore, the correct answer is x = -1/2, -2.",
@@ -261,7 +261,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "answer": "1",
     "solutionSteps": [
       "Δ = b² - 4ac",
-      "Δ = (-5)² - 4(1)(6) = 25 - 24 = 1"
+      "Δ = (-5)² - 4(1)(6) = 25 - 24 = 1 Answer: (A)"
     ],
     "finalAnswer": "1",
     "explanation": "Δ = b² - 4ac. Δ = (-5)² - 4(1)(6) = 25 - 24 = 1. Therefore, the correct answer is 1.",
@@ -291,7 +291,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "When discriminant Δ = 0",
       "The roots are x = -b/2a (equal roots)",
-      "Both roots have the same value"
+      "Both roots have the same value Answer: (B)"
     ],
     "finalAnswer": "real and equal",
     "explanation": "When discriminant Δ = 0. The roots are x = -b/2a (equal roots). Both roots have the same value. Therefore, the correct answer is real and equal.",
@@ -322,7 +322,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "For equal roots: Δ = 0",
       "k² - 4(1)(1) = 0",
       "k² = 4",
-      "k = ±2"
+      "k = ±2 Answer: (A)"
     ],
     "finalAnswer": "k = ±2",
     "explanation": "For equal roots: Δ = 0. k² - 4(1)(1) = 0. k² = 4. k = ±2. Therefore, the correct answer is k = ±2.",
@@ -349,7 +349,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "p",
     "solutionSteps": [
-      "Sum of roots = −b/a; for x² − px + q = 0, a = 1, b = −p, so α + β = −(−p)/1 = p."
+      "Sum of roots = −b/a; for x² − px + q = 0, a = 1, b = −p, so α + β = −(−p)/1 = p. Answer: (A)"
     ],
     "finalAnswer": "p",
     "explanation": "By Vieta's formulas, sum of roots = -b/a. Here: α + β = -(-p)/1 = p. Therefore, the correct answer is p.",
@@ -667,7 +667,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x² + 2x + 1 = 0 has Δ = 4 - 4 = 0",
       "When Δ = 0, roots are real and equal",
       "Root is x = -1 (double root)",
-      "A is true and R correctly explains A"
+      "A is true and R correctly explains A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -697,7 +697,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "x² - 5x + 6 = (x - 2)(x - 3)",
       "Setting this to zero gives roots x = 2 and x = 3",
-      "Both A and R are true, and R explains why A is correct"
+      "Both A and R are true, and R explains why A is correct Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -726,7 +726,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A is true: if Δ < 0, √Δ is not a real number, so the quadratic has no real roots.",
       "R is true: for x² + x + 1 = 0, Δ = 1² − 4(1)(1) = -3.",
-      "R is only a particular example; it does not explain why Δ < 0 gives no real roots. So R is not the correct explanation of A."
+      "R is only a particular example; it does not explain why Δ < 0 gives no real roots. So R is not the correct explanation of A. Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are true, but the Reason is just one example of an equation with negative discriminant; it does not explain the general result in the Assertion. Hence option (b).",
@@ -753,7 +753,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "A is true, R is false.",
     "solutionSteps": [
-      "For 2x² − 8x + 6 = 0, sum of roots = −b/a = 8/2 = 4, so A is true; but the sum of roots is −b/a, not c/a (c/a is the product), so R is false. Hence option (c)."
+      "For 2x² − 8x + 6 = 0, sum of roots = −b/a = 8/2 = 4, so A is true; but the sum of roots is −b/a, not c/a (c/a is the product), so R is false. Hence option (c). Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
@@ -782,7 +782,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "x² + 1 = 0 has Δ = -4 < 0, so no real roots",
       "A is false: not every quadratic has real roots",
-      "R is true: discriminant can be negative"
+      "R is true: discriminant can be negative Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -1028,7 +1028,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "x² - 9 = (x)² - (3)²",
       "= (x - 3)(x + 3) by difference of squares",
-      "Roots are x = 3 and x = -3"
+      "Roots are x = 3 and x = -3 Answer: (A)"
     ],
     "finalAnswer": "(x-3)(x+3) = 0",
     "explanation": "x² - 9 = (x)² - (3)². = (x - 3)(x + 3) by difference of squares. Roots are x = 3 and x = -3. Therefore, the correct answer is (x-3)(x+3) = 0.",
@@ -1084,7 +1084,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "x² = 0",
       "This is a double root at x = 0",
-      "Roots are 0 and 0 (or x = 0 with multiplicity 2)"
+      "Roots are 0 and 0 (or x = 0 with multiplicity 2) Answer: (A)"
     ],
     "finalAnswer": "0, 0",
     "explanation": "x² = 0. This is a double root at x = 0. Roots are 0 and 0 (or x = 0 with multiplicity 2). Therefore, the correct answer is 0, 0.",
@@ -1257,7 +1257,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "answer": "1",
     "solutionSteps": [
       "a = 3, b = -5, c = 2",
-      "Δ = b² - 4ac = 25 - 24 = 1"
+      "Δ = b² - 4ac = 25 - 24 = 1 Answer: (A)"
     ],
     "finalAnswer": "1",
     "explanation": "a = 3, b = -5, c = 2. Δ = b² - 4ac = 25 - 24 = 1. Therefore, the correct answer is 1.",
@@ -1270,68 +1270,68 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     solutionSteps: [
       "The given quadratic equation is x^2 - 5x + 6 = 0.",
       "Factorize the equation: x^2 - 2x - 3x + 6 = 0 => x(x - 2) - 3(x - 2) = 0 => (x - 2)(x - 3) = 0.",
-      "Setting each factor to zero, we get x - 2 = 0 or x - 3 = 0. Thus, x = 2 or x = 3. The roots are 2 and 3.",
+      "Setting each factor to zero, we get x - 2 = 0 or x - 3 = 0. Thus, x = 2 or x = 3. The roots are 2 and 3. Answer: (A)",
     ],
   },
   { id: "QE2-047", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The discriminant of 3x² − 5x + 2 = 0 is:", options: ["1", "−1", "49", "0"], answer: "1", explanation: "The correct answer is 1. D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", finalAnswer: "1", isCompetencyBased: false,
     solutionSteps: [
       "The given quadratic equation is 3x² − 5x + 2 = 0. Comparing with ax² + bx + c = 0, a = 3, b = −5, c = 2.",
       "The discriminant D is given by D = b² − 4ac.",
-      "Substitute: D = (−5)² − 4(3)(2) = 25 − 24 = 1. The discriminant is 1."
+      "Substitute: D = (−5)² − 4(3)(2) = 25 − 24 = 1. The discriminant is 1. Answer: (A)"
     ],
     sourceOverride: "others",
   },
   { id: "QE2-048", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation x² + 4x + 4 = 0, the nature of roots is:", options: ["Two equal real roots","Two distinct real roots","No real roots","Complex roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 16−16 = 0 → two equal roots: x = −2.", finalAnswer: "Two equal real roots", isCompetencyBased: false,
     solutionSteps: [
-      "For x² + 4x + 4 = 0, D = b² − 4ac = 16 − 16 = 0, so the roots are real and equal (x = −2): two equal real roots. [1]",
+      "For x² + 4x + 4 = 0, D = b² − 4ac = 16 − 16 = 0, so the roots are real and equal (x = −2): two equal real roots. [1] Answer: (A)",
     ],
   },
   { id: "QE2-049", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of 2x² − 7x + 3 = 0 are:", options: ["3 and 1/2","3 and 2","1/2 and −3","−3 and 1/2"], answer: "3 and 1/2", explanation: "The correct answer is 3 and 1/2. x = (7 ± √(49−24))/4 = (7 ± 5)/4. x = 3 or x = 1/2.", finalAnswer: "x = 3, x = 1/2", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] 2x² − 7x + 3 = 2x² − 6x − x + 3 = (2x − 1)(x − 3) = 0 ⇒ x = 1/2 or x = 3.",
+      "[1 mark] 2x² − 7x + 3 = 2x² − 6x − x + 3 = (2x − 1)(x − 3) = 0 ⇒ x = 1/2 or x = 3. Answer: (A)",
     ],
   },
   { id: "QE2-050", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For what value of k does x² − kx + 9 = 0 have equal roots?", options: ["6 or −6","3 or −3","9 or −9","0"], answer: "6 or −6", explanation: "The correct answer is 6 or −6. Equal roots: D = 0 → k²−36 = 0 → k = ±6.", finalAnswer: "k = 6 or k = −6", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] For equal roots D = 0: (−k)² − 4(1)(9) = 0 ⇒ k² = 36 ⇒ k = ±6.",
+      "[1 mark] For equal roots D = 0: (−k)² − 4(1)(9) = 0 ⇒ k² = 36 ⇒ k = ±6. Answer: (A)",
     ],
   },
   { id: "QE2-051", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a quadratic equation?", options: ["x³ + 2x + 1 = 0","x + 1/x = 2","√x + 1 = 2","(x+1)(x−1) = x² + 1"], answer: "x + 1/x = 2", explanation: "The correct answer is x + 1/x = 2. x + 1/x = 2 → x² − 2x + 1 = 0. This is a quadratic equation.", finalAnswer: "x + 1/x = 2", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Multiplying by x (x ≠ 0): x² + 1 = 2x ⇒ x² − 2x + 1 = 0, a quadratic. x³ + 2x + 1 = 0 is cubic, √x + 1 = 2 is not a polynomial equation, and (x + 1)(x − 1) = x² + 1 reduces to −1 = 1 (no x² term).",
+      "[1 mark] Multiplying by x (x ≠ 0): x² + 1 = 2x ⇒ x² − 2x + 1 = 0, a quadratic. x³ + 2x + 1 = 0 is cubic, √x + 1 = 2 is not a polynomial equation, and (x + 1)(x − 1) = x² + 1 reduces to −1 = 1 (no x² term). Answer: (B)",
     ],
   },
   { id: "QE2-052", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of 4x² = 9 are:", options: ["3/2 and −3/2","3/4 and −3/4","9/4 and −9/4","±3"], answer: "3/2 and −3/2", explanation: "The correct answer is 3/2 and −3/2. 4x² = 9 → x² = 9/4 → x = ±3/2.", finalAnswer: "x = 3/2, x = −3/2", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] 4x² = 9 ⇒ x² = 9/4 ⇒ x = ±3/2.",
+      "[1 mark] 4x² = 9 ⇒ x² = 9/4 ⇒ x = ±3/2. Answer: (A)",
     ],
   },
   { id: "QE2-053", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If one root of 3x² − 10x + k = 0 is 1/3, find k.", options: ["1","−1","3","−3"], answer: "3", explanation: "The correct answer is 3. Since x = 1/3 is a root: 3(1/3)² − 10(1/3) + k = 0 → 1/3 − 10/3 + k = 0 → −3 + k = 0 → k = 3.", finalAnswer: "3", isCompetencyBased: false,
     solutionSteps: [
       "Since x = 1/3 is a root, it satisfies 3x² − 10x + k = 0.",
       "Substitute: 3(1/9) − 10(1/3) + k = 0 → 1/3 − 10/3 + k = 0.",
-      "−9/3 + k = 0 → −3 + k = 0 → k = 3."
+      "−9/3 + k = 0 → −3 + k = 0 → k = 3. Answer: (C)"
     ],
     sourceOverride: "others",
   },
   { id: "QE2-054", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of x² + x + 1 = 0 are:", options: ["Not real","1 and 1","0 and −1","−1 and −1"], answer: "Not real", explanation: "The correct answer is Not real. D = 1−4 = −3 < 0. No real roots exist.", finalAnswer: "No real roots", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] D = 1² − 4(1)(1) = 1 − 4 = −3 < 0, so the equation has no real roots.",
+      "[1 mark] D = 1² − 4(1)(1) = 1 − 4 = −3 < 0, so the equation has no real roots. Answer: (A)",
     ],
   },
   { id: "QE2-055", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic equation has roots 5 and −3. The equation is:", options: ["x²−2x−15=0","x²+2x−15=0","x²−2x+15=0","x²+2x+15=0"], answer: "x²−2x−15=0", explanation: "The correct answer is x²−2x−15=0. Sum = 2, Product = −15. Equation: x²−2x−15 = 0.", finalAnswer: "x² − 2x − 15 = 0", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Equation with roots 5 and −3: (x − 5)(x + 3) = 0 ⇒ x² − 2x − 15 = 0 (sum of roots 2, product −15).",
+      "[1 mark] Equation with roots 5 and −3: (x − 5)(x + 3) = 0 ⇒ x² − 2x − 15 = 0 (sum of roots 2, product −15). Answer: (A)",
     ],
   },
   { id: "QE2-056", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The equation (x+2)² = 2(x+3) in standard form is:", options: ["x²+2x−2=0","x²+2x+2=0","x²−2x−2=0","x²−2x+2=0"], answer: "x²+2x−2=0", explanation: "The correct answer is x²+2x−2=0. x²+4x+4 = 2x+6 → x²+2x−2 = 0.", finalAnswer: "x² + 2x − 2 = 0", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (A) x^2 + 2x − 2 = 0: expanding, x^2 + 4x + 4 = 2x + 6; bringing all terms to the left gives x^2 + 2x − 2 = 0.",
+      "[1 mark] Option (A) x^2 + 2x − 2 = 0: expanding, x^2 + 4x + 4 = 2x + 6; bringing all terms to the left gives x^2 + 2x − 2 = 0. Answer: (A)",
     ],
   },
   { id: "QE2-057", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The equation 2x² + 3x + 1 = 0 has two distinct real roots.\nReason (R): A quadratic equation has two distinct real roots when its discriminant is positive.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "D = 9−8 = 1 > 0, so two distinct real roots exist. R gives the condition that confirms A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] D = 3² − 4(2)(1) = 9 − 8 = 1 > 0, so 2x² + 3x + 1 = 0 has two distinct real roots (A true). R states the rule D > 0 ⇒ two distinct real roots, which is true and is the reason for A.",
+      "[1 mark] D = 3² − 4(2)(1) = 9 − 8 = 1 > 0, so 2x² + 3x + 1 = 0 has two distinct real roots (A true). R states the rule D > 0 ⇒ two distinct real roots, which is true and is the reason for A. Answer: (A)",
     ],
   },
   { id: "QE2-058", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.", solutionSteps: [

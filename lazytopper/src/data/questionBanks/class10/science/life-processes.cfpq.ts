@@ -68,7 +68,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Both A and R are true and R is the correct explanation for A.",
     solutionSteps: [
-      "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation for A. Keeping a constant body temperature demands a high rate of respiration, which needs an efficient oxygen supply - and that is exactly what a fully separated heart provides by keeping oxygenated and deoxygenated blood apart.",
+      "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation for A. Keeping a constant body temperature demands a high rate of respiration, which needs an efficient oxygen supply - and that is exactly what a fully separated heart provides by keeping oxygenated and deoxygenated blood apart. Answer: (A)",
     ],
     finalAnswer: "Both A and R are true and R is the correct explanation for A.",
     isCompetencyBased: true,
@@ -91,7 +91,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     options: ["hydrogen", "nitrogen", "carbon", "iron"],
     answer: "iron",
     solutionSteps: [
-      "[1 mark] Correct option: (4) iron. The two molecules share the same four elements and differ only in the central metal - iron in haemoglobin, magnesium in chlorophyll - so the colour difference must come from that central atom.",
+      "[1 mark] Correct option: (4) iron. The two molecules share the same four elements and differ only in the central metal - iron in haemoglobin, magnesium in chlorophyll - so the colour difference must come from that central atom. Answer: (D)",
     ],
     finalAnswer: "iron",
     isCompetencyBased: true,
@@ -114,7 +114,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     options: ["digestion", "respiration", "transpiration", "photosynthesis"],
     answer: "photosynthesis",
     solutionSteps: [
-      "[1 mark] Correct option: (4) photosynthesis. It builds glucose, a complex molecule, out of the simpler carbon dioxide and water. Digestion and respiration break complex molecules down, and transpiration is loss of water, not a synthesis.",
+      "[1 mark] Correct option: (4) photosynthesis. It builds glucose, a complex molecule, out of the simpler carbon dioxide and water. Digestion and respiration break complex molecules down, and transpiration is loss of water, not a synthesis. Answer: (D)",
     ],
     finalAnswer: "photosynthesis",
     isCompetencyBased: true,
@@ -142,7 +142,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Filtration: Q; Selective reabsorption: R",
     solutionSteps: [
-      "[1 mark] Correct option: (3) filtration at Q and selective reabsorption at R. Q is the glomerulus inside the Bowman's capsule, where blood is filtered, and R is the coiled tubule, where useful substances are selectively reabsorbed back into the blood.",
+      "[1 mark] Correct option: (3) filtration at Q and selective reabsorption at R. Q is the glomerulus inside the Bowman's capsule, where blood is filtered, and R is the coiled tubule, where useful substances are selectively reabsorbed back into the blood. Answer: (C)",
     ],
     finalAnswer: "Filtration at Q, selective reabsorption at R.",
     isCompetencyBased: true,
@@ -173,7 +173,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     answer:
       "humans: lactic acid ✓, carbon dioxide X; yeast: lactic acid X, carbon dioxide ✓",
     solutionSteps: [
-      "[1 mark] Correct option: (2). In humans anaerobic respiration in muscle produces lactic acid only, with no carbon dioxide; in yeast it is fermentation, producing ethanol and carbon dioxide but no lactic acid.",
+      "[1 mark] Correct option: (2). In humans anaerobic respiration in muscle produces lactic acid only, with no carbon dioxide; in yeast it is fermentation, producing ethanol and carbon dioxide but no lactic acid. Answer: (B)",
     ],
     finalAnswer: "Humans give lactic acid only; yeast gives carbon dioxide.",
     isCompetencyBased: true,
@@ -201,7 +201,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "soups and juices only",
     solutionSteps: [
-      "[1 mark] Correct option: (1) soups and juices only. With the stomach muscles paralysed, the food must be low in fat and already liquid so that it can leave the stomach without churning; the other options are either high in fat or need mechanical breakdown.",
+      "[1 mark] Correct option: (1) soups and juices only. With the stomach muscles paralysed, the food must be low in fat and already liquid so that it can leave the stomach without churning; the other options are either high in fat or need mechanical breakdown. Answer: (A)",
     ],
     finalAnswer: "soups and juices only",
     isCompetencyBased: true,
@@ -224,7 +224,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     options: ["X is more than Y.", "X is less than Y.", "X is equal to Y.", "(Cannot be determined.)"],
     answer: "X is more than Y.",
     solutionSteps: [
-      "[1 mark] Correct option: (1) X is more than Y. Aerobic respiration oxidises glucose completely, giving six molecules of carbon dioxide per glucose, whereas fermentation breaks it only as far as ethanol and gives two.",
+      "[1 mark] Correct option: (1) X is more than Y. Aerobic respiration oxidises glucose completely, giving six molecules of carbon dioxide per glucose, whereas fermentation breaks it only as far as ethanol and gives two. Answer: (A)",
     ],
     finalAnswer: "X is more than Y.",
     isCompetencyBased: true,

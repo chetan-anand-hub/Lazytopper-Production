@@ -79,7 +79,7 @@ export const TRI_CBE: CanonicalQuestion[] = [
     "options": ["18 cm", "20 cm", "15 cm", "21 cm"],
     "answer": "20 cm",
     "solutionSteps": [
-      "[1 mark] 20 cm — AE = AC + CE = 12 + 8 = 20 cm (consistent with 9/6 = 12/x, x = 8 cm)."
+      "[1 mark] 20 cm — AE = AC + CE = 12 + 8 = 20 cm (consistent with 9/6 = 12/x, x = 8 cm). Answer: (B)"
     ],
     "finalAnswer": "20 cm",
     "isCompetencyBased": false,

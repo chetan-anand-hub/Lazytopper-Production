@@ -30,7 +30,7 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Area of the largest triangle that can be inscribed in a semi-circle of radius r is",
     options: ["r² sq. units", "(1/2)r² sq. units", "2r² sq. units", "√2·r² sq. units"],
     answer: "r² sq. units",
-    solutionSteps: ["Largest triangle in a semicircle has the diameter (= 2r) as its base and the apex at the highest point above the diameter, with height = r.", "Area = (1/2) × base × height = (1/2) × 2r × r = r²."],
+    solutionSteps: ["Largest triangle in a semicircle has the diameter (= 2r) as its base and the apex at the highest point above the diameter, with height = r.", "Area = (1/2) × base × height = (1/2) × 2r × r = r². Answer: (A)"],
     finalAnswer: "r² sq. units — option (a).",
     ncertRef: "Exemplar Ex 11.1 Q4", isCompetencyBased: true },
 

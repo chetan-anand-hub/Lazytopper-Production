@@ -21,7 +21,7 @@ export const REAL_NUMBERS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3",
     "solutionSteps": [
-      "[1 mark] LCM(4, 6, 15) = 2² × 3 × 5 = 60, so they switch on together every 60 minutes; from 6:00 AM to 9:00 AM is 180 minutes, 180 ÷ 60 = 3 more times (7:00, 8:00 and 9:00 AM)."
+      "[1 mark] LCM(4, 6, 15) = 2² × 3 × 5 = 60, so they switch on together every 60 minutes; from 6:00 AM to 9:00 AM is 180 minutes, 180 ÷ 60 = 3 more times (7:00, 8:00 and 9:00 AM). Answer: (B)"
     ],
     "finalAnswer": "3",
     "isCompetencyBased": true,

@@ -29,7 +29,7 @@ export const acidsBasesSaltsPYQ2024: CanonicalQuestion[] = [
     questionText: "An aqueous solution of sodium chloride is prepared in distilled water. The pH of this solution is :",
     options: ["6", "8", "7", "3"],
     answer: "7",
-    solutionSteps: ["[1 mark] Correct option: 7 — sodium chloride is the salt of a strong acid (HCl) and a strong base (NaOH), so its solution in distilled water is neutral, pH = 7."],
+    solutionSteps: ["[1 mark] Correct option: 7 — sodium chloride is the salt of a strong acid (HCl) and a strong base (NaOH), so its solution in distilled water is neutral, pH = 7. Answer: (C)"],
     finalAnswer: "7 — the NaCl solution is neutral (salt of a strong acid and a strong base)",
     ncertRef: "PYQ 31/5/1 Q4", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },

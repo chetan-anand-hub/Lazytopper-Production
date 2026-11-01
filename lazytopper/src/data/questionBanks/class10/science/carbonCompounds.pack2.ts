@@ -23,7 +23,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Carbon atomic number is 6",
       "Electronic configuration: 2,4",
       "4 electrons in outermost shell (valence shell)",
-      "Forms 4 covalent bonds to complete octet"
+      "Forms 4 covalent bonds to complete octet Answer: (B)"
     ],
     "finalAnswer": "4 electrons in valence shell",
     "explanation": "Carbon atomic number is 6. Electronic configuration: 2,4. 4 electrons in outermost shell (valence shell). Forms 4 covalent bonds to complete octet. Therefore, the correct answer is 4 electrons in valence shell.",
@@ -53,7 +53,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Ethene: C=C with 4 hydrogens",
       "Each carbon shares 2 electron pairs with other carbon",
-      "This forms double bond (C=C)"
+      "This forms double bond (C=C) Answer: (B)"
     ],
     "finalAnswer": "Double covalent bond",
     "explanation": "Ethene: C=C with 4 hydrogens. Each carbon shares 2 electron pairs with other carbon. This forms double bond (C=C). Therefore, the correct answer is Double covalent bond.",
@@ -84,7 +84,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Homologous series: consecutive organic compounds",
       "Differ by one -CH2- group",
       "Example: CH4, C2H6, C3H8 differ by CH2",
-      "Same functional group, similar properties"
+      "Same functional group, similar properties Answer: (B)"
     ],
     "finalAnswer": "Members differ by CH2 unit",
     "explanation": "Homologous series: consecutive organic compounds. Differ by one -CH2- group. Example: CH4, C2H6, C3H8 differ by CH2. Same functional group, similar properties. Therefore, the correct answer is Members differ by CH2 unit.",
@@ -115,7 +115,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Alkanes: saturated hydrocarbons",
       "Single bonds only",
       "Methane: CH4 = C1H2(1)+2 = C1H4 ✓",
-      "Ethane: C2H6 = C2H2(2)+2 = C2H6 ✓"
+      "Ethane: C2H6 = C2H2(2)+2 = C2H6 ✓ Answer: (B)"
     ],
     "finalAnswer": "CnH2n+2",
     "explanation": "Alkanes: saturated hydrocarbons. Single bonds only. Methane: CH4 = C1H2(1)+2 = C1H4 ✓. Ethane: C2H6 = C2H2(2)+2 = C2H6 ✓. Therefore, the correct answer is CnH2n+2.",
@@ -147,7 +147,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "All single bonds",
       "Prefix for 4 carbons: but-",
       "Suffix for alkane: -ane",
-      "Name: Butane"
+      "Name: Butane Answer: (A)"
     ],
     "finalAnswer": "Butane",
     "explanation": "Count carbon atoms: 4. All single bonds. Prefix for 4 carbons: but-. Suffix for alkane: -ane. Name: Butane. Therefore, the correct answer is Butane.",
@@ -179,7 +179,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Double bond between C1 and C2",
       "Prefix: prop-",
       "Suffix for double bond: -ene",
-      "Name: Propene (double bond position 1 is implicit)"
+      "Name: Propene (double bond position 1 is implicit) Answer: (B)"
     ],
     "finalAnswer": "Propene",
     "explanation": "3 carbon atoms present. Double bond between C1 and C2. Prefix: prop-. Suffix for double bond: -ene. Name: Propene (double bond position 1 is implicit). Therefore, the correct answer is Propene.",
@@ -210,7 +210,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "CH4 + 2O2 → CO2 + 2H2O",
       "Carbon loses electrons (oxidized)",
       "Oxygen gains electrons (reduced)",
-      "This is redox/oxidation reaction"
+      "This is redox/oxidation reaction Answer: (C)"
     ],
     "finalAnswer": "Oxidation reaction",
     "explanation": "CH4 + 2O2 → CO2 + 2H2O. Carbon loses electrons (oxidized). Oxygen gains electrons (reduced). This is redox/oxidation reaction. Therefore, the correct answer is Oxidation reaction.",
@@ -241,7 +241,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Alkenes: contain C=C double bonds",
       "Alkynes: contain C≡C triple bonds",
       "H2, Br2, HCl can add across these bonds",
-      "Alkanes cannot undergo addition (saturated)"
+      "Alkanes cannot undergo addition (saturated) Answer: (B)"
     ],
     "finalAnswer": "Alkenes and alkynes",
     "explanation": "Addition requires unsaturation (C=C or C≡C). Alkenes: contain C=C double bonds. Alkynes: contain C≡C triple bonds. H2, Br2, HCl can add across these bonds. Alkanes cannot undergo addition (saturated). Therefore, the correct answer is Alkenes and alkynes.",
@@ -298,7 +298,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "CH4 + Cl2 → CH3Cl + HCl (substitution)",
       "This requires UV light or heat",
       "Breaks C-H or Cl-Cl bonds",
-      "Homolytic fission occurs with light/heat"
+      "Homolytic fission occurs with light/heat Answer: (A)"
     ],
     "finalAnswer": "Heat and sunlight",
     "explanation": "CH4 + Cl2 → CH3Cl + HCl (substitution). This requires UV light or heat. Breaks C-H or Cl-Cl bonds. Homolytic fission occurs with light/heat. Therefore, the correct answer is Heat and sunlight.",
@@ -329,7 +329,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Each C bonded to 4 other C atoms tetrahedrally",
       "Strong C-C covalent bonds throughout",
       "3D network structure provides rigidity",
-      "Explains extreme hardness of diamond"
+      "Explains extreme hardness of diamond Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -360,7 +360,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Both in same homologous series",
       "Both contain only single bonds (C-C, C-H)",
       "Same functional group → similar reactions",
-      "Both undergo combustion, substitution similarly"
+      "Both undergo combustion, substitution similarly Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -391,7 +391,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "But ethene has C=C (double bond), not triple bond",
       "Addition of Br2: C2H4 + Br2 → C2H4Br2",
       "Double bond is unsaturated, breaks for addition",
-      "So A is true but R is false"
+      "So A is true but R is false Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
@@ -423,7 +423,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Amphipathic: has both hydrophobic and hydrophilic parts",
       "Hydrophobic tail interacts with oil/grease",
       "Hydrophilic head remains in water",
-      "This allows soap to remove dirt"
+      "This allows soap to remove dirt Answer: (D)"
     ],
     "finalAnswer": "Amphipathic nature",
     "explanation": "Soap: long chain carboxylic acid salt. Has hydrophobic tail (nonpolar) and hydrophilic head (polar). Amphipathic: has both hydrophobic and hydrophilic parts. Hydrophobic tail interacts with oil/grease. Hydrophilic head remains in water. This allows soap to remove dirt. Therefore, the correct answer is Amphipathic nature.",
@@ -454,7 +454,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Soap + Ca2+/Mg2+ → insoluble salt (scum)",
       "Example: 2C17H35COO-Na+ + Ca2+ → (C17H35COO-)2Ca + 2Na+",
       "Detergents: synthetic, don't form scum with hard water",
-      "Detergent-metal compounds remain soluble"
+      "Detergent-metal compounds remain soluble Answer: (B)"
     ],
     "finalAnswer": "Soap reacts with Ca2+/Mg2+ ions; detergents don't",
     "explanation": "Hard water contains Ca2+ and Mg2+ ions. Soap + Ca2+/Mg2+ → insoluble salt (scum). Example: 2C17H35COO-Na+ + Ca2+ → (C17H35COO-)2Ca + 2Na+. Detergents: synthetic, don't form scum with hard water. Detergent-metal compounds remain soluble. Therefore, the correct answer is Soap reacts with Ca2+/Mg2+ ions; detergents don't.",
@@ -485,7 +485,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Long hydrophobic chain: CnH2n+1-",
       "Carboxylate head: -COO-Na+",
       "Complete formula: CnH2n+1COONa",
-      "Example: Sodium stearate C17H35COONa"
+      "Example: Sodium stearate C17H35COONa Answer: (B)"
     ],
     "finalAnswer": "CnH2n+1COONa",
     "explanation": "Soap: sodium salt of long-chain carboxylic acid. Long hydrophobic chain: CnH2n+1-. Carboxylate head: -COO-Na+. Complete formula: CnH2n+1COONa. Example: Sodium stearate C17H35COONa. Therefore, the correct answer is CnH2n+1COONa.",
@@ -513,7 +513,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Butanal",
     "solutionSteps": [
-      "Correct option: Butanal. The chain has 4 carbon atoms (but-), including the –CHO carbon, and the aldehyde functional group gives the suffix '-al'. So CH3CH2CH2CHO is butanal."
+      "Correct option: Butanal. The chain has 4 carbon atoms (but-), including the –CHO carbon, and the aldehyde functional group gives the suffix '-al'. So CH3CH2CH2CHO is butanal. Answer: (A)"
     ],
     "finalAnswer": "Butanal",
     "explanation": "Count the carbon atoms including the –CHO carbon: 4, so the stem is 'butane'. The aldehyde group (–CHO) is shown by replacing the final 'e' with '-al'. Butanone would have a C=O inside the chain (ketone) and butanol an –OH group. Therefore, the correct answer is Butanal.",
@@ -545,7 +545,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Between layers: weak van der Waals forces",
       "Layers can slide over each other easily",
       "Diamond: rigid 3D network of strong bonds",
-      "No weak layers in diamond"
+      "No weak layers in diamond Answer: (B)"
     ],
     "finalAnswer": "Graphite has weak van der Waals forces between layers",
     "explanation": "Graphite: layered structure. Within layers: strong C-C covalent bonds. Between layers: weak van der Waals forces. Layers can slide over each other easily. Diamond: rigid 3D network of strong bonds. No weak layers in diamond. Therefore, the correct answer is Graphite has weak van der Waals forces between layers.",
@@ -577,7 +577,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Decolorizes bromine (brown → colorless)",
       "Second addition: CHBr=CHBr + Br2 → CHBr2-CHBr2",
       "Can undergo two consecutive additions",
-      "Triple bond allows two molecules of Br2 to add"
+      "Triple bond allows two molecules of Br2 to add Answer: (C)"
     ],
     "finalAnswer": "Decolorizes in two stages (tetrabromo product)",
     "explanation": "Ethyne: HC≡CH (triple bond). First addition: HC≡CH + Br2 → CHBr=CHBr. Decolorizes bromine (brown → colorless). Second addition: CHBr=CHBr + Br2 → CHBr2-CHBr2. Can undergo two consecutive additions. Triple bond allows two molecules of Br2 to add. Therefore, the correct answer is Decolorizes in two stages (tetrabromo product).",
@@ -785,7 +785,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Atomic number of C = 6",
       "Electronic configuration = 2,4",
-      "Valence electrons = electrons in outermost shell = 4"
+      "Valence electrons = electrons in outermost shell = 4 Answer: (B)"
     ],
     "finalAnswer": "4",
     "explanation": "Atomic number of C = 6. Electronic configuration = 2,4. Valence electrons = electrons in outermost shell = 4. Therefore, the correct answer is 4.",
@@ -815,7 +815,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Carbon atoms share electrons to form bonds",
       "In ethane, C-C and C-H bonds are covalent",
-      "Both atoms contribute electrons to the shared pair"
+      "Both atoms contribute electrons to the shared pair Answer: (B)"
     ],
     "finalAnswer": "Covalent bond",
     "explanation": "Carbon atoms share electrons to form bonds. In ethane, C-C and C-H bonds are covalent. Both atoms contribute electrons to the shared pair. Therefore, the correct answer is Covalent bond.",
@@ -846,7 +846,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Tetravalency refers to the ability of carbon to form 4 covalent bonds",
       "This is due to 4 valence electrons in carbon",
       "Allotropy = different forms of same element",
-      "Catenation = chain formation"
+      "Catenation = chain formation Answer: (B)"
     ],
     "finalAnswer": "Tetravalency",
     "explanation": "Tetravalency refers to the ability of carbon to form 4 covalent bonds. This is due to 4 valence electrons in carbon. Allotropy = different forms of same element. Catenation = chain formation. Therefore, the correct answer is Tetravalency.",
@@ -877,7 +877,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Catenation is the property of forming long chains",
       "Carbon atoms link with each other via C-C bonds",
       "This creates organic compounds with multiple carbon atoms",
-      "Polymerization = formation of polymers from monomers"
+      "Polymerization = formation of polymers from monomers Answer: (B)"
     ],
     "finalAnswer": "Catenation",
     "explanation": "Catenation is the property of forming long chains. Carbon atoms link with each other via C-C bonds. This creates organic compounds with multiple carbon atoms. Polymerization = formation of polymers from monomers. Therefore, the correct answer is Catenation.",
@@ -907,7 +907,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Alkanes follow the general formula CₙH₂ₙ₊₂",
       "First member: n=1",
-      "Formula = C₁H₂(₁)₊₂ = CH₄ (methane)"
+      "Formula = C₁H₂(₁)₊₂ = CH₄ (methane) Answer: (A)"
     ],
     "finalAnswer": "CH₄",
     "explanation": "Alkanes follow the general formula CₙH₂ₙ₊₂. First member: n=1. Formula = C₁H₂(₁)₊₂ = CH₄ (methane). Therefore, the correct answer is CH₄.",
@@ -936,7 +936,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "answer": "Same molecular mass",
     "solutionSteps": [
       "Homologous series have: same general formula, same functional group, successive members differ by CH₂, similar chemical properties and a gradation in physical properties",
-      "Because successive members differ by CH₂ (14 u), their molecular masses are different, so 'Same molecular mass' is NOT a characteristic"
+      "Because successive members differ by CH₂ (14 u), their molecular masses are different, so 'Same molecular mass' is NOT a characteristic Answer: (C)"
     ],
     "finalAnswer": "Same molecular mass",
     "explanation": "Members of a homologous series have the same functional group, successive members differ by CH₂ (14 u), they have similar chemical properties and show a gradation in physical properties. Since successive members differ by 14 u, they cannot have the same molecular mass. Therefore, the correct answer is Same molecular mass.",
@@ -965,7 +965,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Propane = ethane + CH₂",
       "C₂H₆ + CH₂ = C₃H₈",
-      "Each member of alkane series differs by CH₂ unit"
+      "Each member of alkane series differs by CH₂ unit Answer: (A)"
     ],
     "finalAnswer": "C₃H₈",
     "explanation": "Propane = ethane + CH₂. C₂H₆ + CH₂ = C₃H₈. Each member of alkane series differs by CH₂ unit. Therefore, the correct answer is C₃H₈.",
@@ -996,7 +996,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "CH₃CH₂OH has 2 carbon atoms",
       "Prefix 'Eth' = 2 carbons",
       "Suffix 'ol' = alcohol group (-OH)",
-      "Name = Ethanol"
+      "Name = Ethanol Answer: (B)"
     ],
     "finalAnswer": "Ethanol",
     "explanation": "CH₃CH₂OH has 2 carbon atoms. Prefix 'Eth' = 2 carbons. Suffix 'ol' = alcohol group (-OH). Name = Ethanol. Therefore, the correct answer is Ethanol.",
@@ -1058,7 +1058,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Prefix = Prop (3 carbons)",
       "-OH group is on 2nd carbon",
       "Suffix = -an-ol (alcohol)",
-      "Name = 2-Propanol (isopropanol)"
+      "Name = 2-Propanol (isopropanol) Answer: (B)"
     ],
     "finalAnswer": "2-Propanol",
     "explanation": "Structure has 3 carbons in main chain. Prefix = Prop (3 carbons). -OH group is on 2nd carbon. Suffix = -an-ol (alcohol). Name = 2-Propanol (isopropanol). Therefore, the correct answer is 2-Propanol.",
@@ -1087,7 +1087,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Complete combustion of hydrocarbons produces CO₂ and H₂O",
       "C₂H₆ + 3.5O₂ → 2CO₂ + 3H₂O",
-      "This is an oxidation reaction"
+      "This is an oxidation reaction Answer: (B)"
     ],
     "finalAnswer": "CO₂ and H₂O",
     "explanation": "Complete combustion of hydrocarbons produces CO₂ and H₂O. C₂H₆ + 3.5O₂ → 2CO₂ + 3H₂O. This is an oxidation reaction. Therefore, the correct answer is CO₂ and H₂O.",
@@ -1118,7 +1118,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Ethene has a C=C double bond",
       "Br₂ adds across the double bond: C₂H₄ + Br₂ → C₂H₄Br₂",
       "Double bond breaks, Br atoms add",
-      "Brown color of Br₂ disappears"
+      "Brown color of Br₂ disappears Answer: (A)"
     ],
     "finalAnswer": "Addition reaction",
     "explanation": "Ethene has a C=C double bond. Br₂ adds across the double bond: C₂H₄ + Br₂ → C₂H₄Br₂. Double bond breaks, Br atoms add. Brown color of Br₂ disappears. Therefore, the correct answer is Addition reaction.",
@@ -1149,7 +1149,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "2C₂H₅OH + 2Na → 2C₂H₅ONa + H₂",
       "The H of -OH group reacts with Na",
       "This hydrogen is acidic in nature",
-      "Alcohols are weak acids"
+      "Alcohols are weak acids Answer: (C)"
     ],
     "finalAnswer": "Ethanol has acidic hydrogen in -OH group",
     "explanation": "2C₂H₅OH + 2Na → 2C₂H₅ONa + H₂. The H of -OH group reacts with Na. This hydrogen is acidic in nature. Alcohols are weak acids. Therefore, the correct answer is Ethanol has acidic hydrogen in -OH group.",
@@ -1180,7 +1180,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "They undergo substitution, not addition",
       "CH₄ + Cl₂ → CH₃Cl + HCl (in sunlight)",
       "H atom is replaced by Cl atom",
-      "Burning = combustion (oxidation)"
+      "Burning = combustion (oxidation) Answer: (C)"
     ],
     "finalAnswer": "Reaction with Cl₂ in sunlight",
     "explanation": "Alkanes have C-C and C-H single bonds. They undergo substitution, not addition. CH₄ + Cl₂ → CH₃Cl + HCl (in sunlight). H atom is replaced by Cl atom. Burning = combustion (oxidation). Therefore, the correct answer is Reaction with Cl₂ in sunlight.",
@@ -1210,7 +1210,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Soap = Na/K salt of long-chain fatty acids",
       "Fatty acids: C₁₅H₃₁COOH, C₁₇H₃₅COOH, etc.",
       "Produced by saponification of fats/oils",
-      "General structure: RCOONa (where R is long alkyl chain)"
+      "General structure: RCOONa (where R is long alkyl chain) Answer: (A)"
     ],
     "finalAnswer": "Long-chain carboxylic acids",
     "explanation": "Soap = Na/K salt of long-chain fatty acids. Fatty acids: C₁₅H₃₁COOH, C₁₇H₃₅COOH, etc. Produced by saponification of fats/oils. General structure: RCOONa (where R is long alkyl chain). Therefore, the correct answer is Long-chain carboxylic acids.",
@@ -1241,7 +1241,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Hard water contains Ca²⁺ and Mg²⁺ ions",
       "2C₁₇H₃₅COONa + Ca²⁺ → (C₁₇H₃₅COO)₂Ca↓ + 2Na⁺",
       "Insoluble precipitate formed = scum",
-      "Reduces cleaning efficiency"
+      "Reduces cleaning efficiency Answer: (B)"
     ],
     "finalAnswer": "Soap forms insoluble precipitate with Ca²⁺ and Mg²⁺ ions",
     "explanation": "Hard water contains Ca²⁺ and Mg²⁺ ions. 2C₁₇H₃₅COONa + Ca²⁺ → (C₁₇H₃₅COO)₂Ca↓ + 2Na⁺. Insoluble precipitate formed = scum. Reduces cleaning efficiency. Therefore, the correct answer is Soap forms insoluble precipitate with Ca²⁺ and Mg²⁺ ions.",
@@ -1271,7 +1271,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Detergents have sulphonate or sulphate groups",
       "Do not form precipitate with hard water ions",
       "Work well in hard and soft water",
-      "Also known as synthetic detergents or soapless soaps"
+      "Also known as synthetic detergents or soapless soaps Answer: (B)"
     ],
     "finalAnswer": "Work effectively in hard water",
     "explanation": "Detergents have sulphonate or sulphate groups. Do not form precipitate with hard water ions. Work well in hard and soft water. Also known as synthetic detergents or soapless soaps. Therefore, the correct answer is Work effectively in hard water.",
@@ -1301,7 +1301,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Soap molecule has two parts: hydrophobic tail (long alkyl chain), hydrophilic head (COO⁻)",
       "Tail surrounds oil/dirt particle",
       "Head faces water, forms micelle",
-      "Dirt particle is suspended in water and removed"
+      "Dirt particle is suspended in water and removed Answer: (B)"
     ],
     "finalAnswer": "Hydrophobic tail enters dirt, hydrophilic head faces water",
     "explanation": "Soap molecule has two parts: hydrophobic tail (long alkyl chain), hydrophilic head (COO⁻). Tail surrounds oil/dirt particle. Head faces water, forms micelle. Dirt particle is suspended in water and removed. Therefore, the correct answer is Hydrophobic tail enters dirt, hydrophilic head faces water.",
@@ -1332,7 +1332,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "A: Carbon forms 4 covalent bonds - TRUE",
       "R: Carbon has 4 valence electrons - TRUE",
       "Connection: 4 valence electrons enable 4 bonds formation",
-      "R explains A correctly"
+      "R explains A correctly Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1362,7 +1362,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A: All alkanes belong to one homologous series, so they show similar chemical properties - TRUE",
       "R: Successive members differ by -CH2- (14 u), so molecular masses increase along the series - R is FALSE",
-      "Hence A is true, R is false"
+      "Hence A is true, R is false Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is true: members of the alkane homologous series show similar chemical properties. The Reason is false: successive alkanes differ by a –CH₂– unit, i.e. by 14 u in molecular mass, so their molecular masses are different. Hence A is true, R is false.",
@@ -1393,7 +1393,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "R: C=C bond is electron-rich and can break - TRUE",
       "Double bond is less stable than single bond",
       "Electrons in π-bond easily available for addition",
-      "R correctly explains A"
+      "R correctly explains A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1557,7 +1557,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "questionText": "Why does carbon form covalent bonds rather than ionic bonds?",
     "options": ["It has 4 valence electrons — too many to gain or lose; sharing is preferred","It cannot share electrons","It has only 2 valence electrons","It always forms ionic bonds"],
     "answer": "It has 4 valence electrons — too many to gain or lose; sharing is preferred",
-    "solutionSteps": ["Carbon needs 4 electrons to complete its octet; gaining 4 (C4-) or losing 4 (C4+) requires too much energy; sharing is energetically favourable"],
+    "solutionSteps": ["Carbon needs 4 electrons to complete its octet; gaining 4 (C4-) or losing 4 (C4+) requires too much energy; sharing is energetically favourable Answer: (A)"],
     "finalAnswer": "It has 4 valence electrons — too many to gain or lose; sharing is preferred",
     "explanation": "Carbon shares 4 electrons (covalent) because gaining/losing 4 is energetically unfeasible.",
     "isCompetencyBased": false,
@@ -1578,7 +1578,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which functional group is present in ethanol?",
     "options": ["Aldehyde (–CHO)","Carboxyl (–COOH)","Hydroxyl (–OH)","Amino (–NH2)"],
     "answer": "Hydroxyl (–OH)",
-    "solutionSteps": ["Ethanol (C2H5OH) contains the hydroxyl (–OH) group characteristic of alcohols"],
+    "solutionSteps": ["Ethanol (C2H5OH) contains the hydroxyl (–OH) group characteristic of alcohols Answer: (C)"],
     "finalAnswer": "Hydroxyl (–OH)",
     "explanation": "Ethanol = C2H5OH; contains –OH (hydroxyl) group.",
     "isCompetencyBased": false,
@@ -1599,7 +1599,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): Ethanoic acid reacts with NaHCO3 to produce CO2 gas.\nReason (R): Ethanoic acid contains a carboxyl group that reacts with NaHCO3 to release CO2.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — CH3COOH + NaHCO3 → CH3COONa + H2O + CO2","R: true — carboxyl group reacts with NaHCO3 releasing CO2","R explains A"],
+    "solutionSteps": ["A: true — CH3COOH + NaHCO3 → CH3COONa + H2O + CO2","R: true — carboxyl group reacts with NaHCO3 releasing CO2","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Carboxyl group reaction with NaHCO3 (R) explains CO2 production (A).",
     "isCompetencyBased": true,
@@ -1620,7 +1620,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "questionText": "The molecular formula of butane is:",
     "options": ["C3H8","C4H10","C5H12","C4H8"],
     "answer": "C4H10",
-    "solutionSteps": ["Alkanes: CnH2n+2; butane n=4: C4H10"],
+    "solutionSteps": ["Alkanes: CnH2n+2; butane n=4: C4H10 Answer: (B)"],
     "finalAnswer": "C4H10",
     "explanation": "Butane = C4H10 (CnH2n+2, n=4).",
     "isCompetencyBased": false,

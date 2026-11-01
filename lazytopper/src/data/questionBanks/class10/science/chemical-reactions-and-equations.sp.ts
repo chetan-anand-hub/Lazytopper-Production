@@ -24,7 +24,7 @@ export const CHEM_SP: CanonicalQuestion[] = [
     ],
     "answer": "(c) i., ii. and iv.",
     "solutionSteps": [
-      "[1 mark] Correct option (c) i., ii. and iv.: Fe gains oxygen so it is oxidised (i true); H2O loses oxygen / supplies oxygen and is reduced (ii true), thereby acting as the oxidising agent (iv true)."
+      "[1 mark] Correct option (c) i., ii. and iv.: Fe gains oxygen so it is oxidised (i true); H2O loses oxygen / supplies oxygen and is reduced (ii true), thereby acting as the oxidising agent (iv true). Answer: (C)"
     ],
     "finalAnswer": "(c) i., ii. and iv.",
     "isCompetencyBased": true
@@ -48,7 +48,7 @@ export const CHEM_SP: CanonicalQuestion[] = [
     ],
     "answer": "(b) Both A and R are true but R is not the correct explanation of A.",
     "solutionSteps": [
-      "[1 mark] Correct option (b): the thermal decomposition of limestone [CaCO3 → CaO + CO2] (A true) is endothermic as it absorbs heat (R true), but R does not specifically explain the particular products named in A, so R is not the correct explanation of A."
+      "[1 mark] Correct option (b): the thermal decomposition of limestone [CaCO3 → CaO + CO2] (A true) is endothermic as it absorbs heat (R true), but R does not specifically explain the particular products named in A, so R is not the correct explanation of A. Answer: (B)"
     ],
     "finalAnswer": "(b) Both A and R are true but R is not the correct explanation of A.",
     "isCompetencyBased": true

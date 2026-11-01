@@ -21,7 +21,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "30 m",
     "solutionSteps": [
-      "[1 mark] OF = √[(-18 - 0)² + (24 - 0)²] = √(324 + 576) = √900 = 30 m."
+      "[1 mark] OF = √[(-18 - 0)² + (24 - 0)²] = √(324 + 576) = √900 = 30 m. Answer: (A)"
     ],
     "finalAnswer": "30 m",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(3, 2)",
     "solutionSteps": [
-      "[1 mark] Midpoint of RB = ((-4 + 10)/2, (7 + (-3))/2) = (6/2, 4/2) = (3, 2)."
+      "[1 mark] Midpoint of RB = ((-4 + 10)/2, (7 + (-3))/2) = (6/2, 4/2) = (3, 2). Answer: (B)"
     ],
     "finalAnswer": "(3, 2)",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3 : 2",
     "solutionSteps": [
-      "[1 mark] Let the crossing point divide PQ in k : 1. Its y-coordinate is (4k - 6)/(k + 1) = 0, so k = 3/2 and the ratio is 3 : 2."
+      "[1 mark] Let the crossing point divide PQ in k : 1. Its y-coordinate is (4k - 6)/(k + 1) = 0, so k = 3/2 and the ratio is 3 : 2. Answer: (C)"
     ],
     "finalAnswer": "3 : 2",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(3, 3)",
     "solutionSteps": [
-      "[1 mark] Diagonals of a parallelogram bisect each other, so midpoint of AC = midpoint of BD: D = (1 + 7 - 5, -2 + 6 - 1) = (3, 3)."
+      "[1 mark] Diagonals of a parallelogram bisect each other, so midpoint of AC = midpoint of BD: D = (1 + 7 - 5, -2 + 6 - 1) = (3, 3). Answer: (D)"
     ],
     "finalAnswer": "(3, 3)",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "an isosceles right-angled triangle",
     "solutionSteps": [
-      "[1 mark] AB = √(16 + 9) = 5, BC = √(9 + 16) = 5 and AC = √(1 + 49) = √50; AB = BC and AB² + BC² = 50 = AC², so it is an isosceles right-angled triangle."
+      "[1 mark] AB = √(16 + 9) = 5, BC = √(9 + 16) = 5 and AC = √(1 + 49) = √50; AB = BC and AB² + BC² = 50 = AC², so it is an isosceles right-angled triangle. Answer: (A)"
     ],
     "finalAnswer": "an isosceles right-angled triangle",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5",
     "solutionSteps": [
-      "[1 mark] (x - 2)² + (3 + 1)² = 25 gives (x - 2)² = 9, so x = 5 or x = -1; east of the hospital means x > 2, so x = 5."
+      "[1 mark] (x - 2)² + (3 + 1)² = 25 gives (x - 2)² = 9, so x = 5 or x = -1; east of the hospital means x > 2, so x = 5. Answer: (B)"
     ],
     "finalAnswer": "5",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(2, -1)",
     "solutionSteps": [
-      "[1 mark] By the section formula with m : n = 2 : 3, x = (2 × 8 + 3 × (-2))/5 = 10/5 = 2 and y = (2 × (-10) + 3 × 5)/5 = -5/5 = -1, so the shelter is at (2, -1)."
+      "[1 mark] By the section formula with m : n = 2 : 3, x = (2 × 8 + 3 × (-2))/5 = 10/5 = 2 and y = (2 × (-10) + 3 × 5)/5 = -5/5 = -1, so the shelter is at (2, -1). Answer: (C)"
     ],
     "finalAnswer": "(2, -1)",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(1, 0)",
     "solutionSteps": [
-      "[1 mark] For T(x, 0): (x + 1)² + 16 = (x - 5)² + 4, so x² + 2x + 17 = x² - 10x + 29, giving 12x = 12 and x = 1; the tank is at (1, 0)."
+      "[1 mark] For T(x, 0): (x + 1)² + 16 = (x - 5)² + 4, so x² + 2x + 17 = x² - 10x + 29, giving 12x = 12 and x = 1; the tank is at (1, 0). Answer: (D)"
     ],
     "finalAnswer": "(1, 0)",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(40, 25)",
     "solutionSteps": [
-      "[1 mark] The diagonals of a rectangle bisect each other, so the centre spot is the midpoint of AC = ((10 + 70)/2, (5 + 45)/2) = (40, 25)."
+      "[1 mark] The diagonals of a rectangle bisect each other, so the centre spot is the midpoint of AC = ((10 + 70)/2, (5 + 45)/2) = (40, 25). Answer: (A)"
     ],
     "finalAnswer": "(40, 25)",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "20 km",
     "solutionSteps": [
-      "[1 mark] SL = √[(5 + 1)² + (11 - 3)²] = √(36 + 64) = √100 = 10 units, and 10 units × 2 km = 20 km."
+      "[1 mark] SL = √[(5 + 1)² + (11 - 3)²] = √(36 + 64) = √100 = 10 units, and 10 units × 2 km = 20 km. Answer: (B)"
     ],
     "finalAnswer": "20 km",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(42, -5)",
     "solutionSteps": [
-      "[1 mark] If the other spot is Q(x, y), then (-38 + x)/2 = 2 and (3 + y)/2 = -1, so x = 42 and y = -5; Q = (42, -5)."
+      "[1 mark] If the other spot is Q(x, y), then (-38 + x)/2 = 2 and (3 + y)/2 = -1, so x = 42 and y = -5; Q = (42, -5). Answer: (C)"
     ],
     "finalAnswer": "(42, -5)",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4",
     "solutionSteps": [
-      "[1 mark] Points with x² + y² = 625, x < 0, y > 0 and integer coordinates are (-7, 24), (-24, 7), (-15, 20) and (-20, 15) (49 + 576 = 225 + 400 = 625), so there are 4 flags."
+      "[1 mark] Points with x² + y² = 625, x < 0, y > 0 and integer coordinates are (-7, 24), (-24, 7), (-15, 20) and (-20, 15) (49 + 576 = 225 + 400 = 625), so there are 4 flags. Answer: (D)"
     ],
     "finalAnswer": "4",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(0, 6)",
     "solutionSteps": [
-      "[1 mark] Let the interchange divide AB in k : 1; x = (3k - 6)/(k + 1) = 0 gives k = 2, so y = (2 × 8 + 1 × 2)/3 = 18/3 = 6 and the interchange is (0, 6)."
+      "[1 mark] Let the interchange divide AB in k : 1; x = (3k - 6)/(k + 1) = 0 gives k = 2, so y = (2 × 8 + 1 × 2)/3 = 18/3 = 6 and the interchange is (0, 6). Answer: (A)"
     ],
     "finalAnswer": "(0, 6)",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Rider at A, 5 km away",
     "solutionSteps": [
-      "[1 mark] KA = √(16 + 9) = 5, KB = √(9 + 25) = √34, KC = √(0 + 36) = 6, KD = √(25 + 4) = √29; since 5 = √25 is the least, the rider at A (5 km) gets the order."
+      "[1 mark] KA = √(16 + 9) = 5, KB = √(9 + 25) = √34, KC = √(0 + 36) = 6, KD = √(25 + 4) = √29; since 5 = √25 is the least, the rider at A (5 km) gets the order. Answer: (B)"
     ],
     "finalAnswer": "Rider at A, 5 km away",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "240 m",
     "solutionSteps": [
-      "[1 mark] PQ = √(64 + 36) = 10, QR = 6 and PR = 8 units, so the perimeter is 24 units = 24 × 10 m = 240 m."
+      "[1 mark] PQ = √(64 + 36) = 10, QR = 6 and PR = 8 units, so the perimeter is 24 units = 24 × 10 m = 240 m. Answer: (C)"
     ],
     "finalAnswer": "240 m",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "-8",
     "solutionSteps": [
-      "[1 mark] (a + 6)/2 = 2 gives a = -2 and (4 + b)/2 = -1 gives b = -6, so a + b = -8."
+      "[1 mark] (a + 6)/2 = 2 gives a = -2 and (4 + b)/2 = -1 gives b = -6, so a + b = -8. Answer: (D)"
     ],
     "finalAnswer": "-8",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(3, 4)",
     "solutionSteps": [
-      "[1 mark] TH = √(144 + 256) = 20 m, so the valve divides TH in 5 : 15 = 1 : 3; its coordinates are ((1 × 12 + 3 × 0)/4, (1 × 16 + 3 × 0)/4) = (3, 4)."
+      "[1 mark] TH = √(144 + 256) = 20 m, so the valve divides TH in 5 : 15 = 1 : 3; its coordinates are ((1 × 12 + 3 × 0)/4, (1 × 16 + 3 × 0)/4) = (3, 4). Answer: (A)"
     ],
     "finalAnswer": "(3, 4)",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(5, -4)",
     "solutionSteps": [
-      "[1 mark] The point nearer F divides SF in 2 : 1: x = (2 × 9 + 1 × (-3))/3 = 15/3 = 5 and y = (2 × (-8) + 1 × 4)/3 = -12/3 = -4, giving (5, -4)."
+      "[1 mark] The point nearer F divides SF in 2 : 1: x = (2 × 9 + 1 × (-3))/3 = 15/3 = 5 and y = (2 × (-8) + 1 × 4)/3 = -12/3 = -4, giving (5, -4). Answer: (B)"
     ],
     "finalAnswer": "(5, -4)",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(-3, 0)",
     "solutionSteps": [
-      "[1 mark] For P(x, 0): (x - 3)² + 4 = (x + 1)² + 36, so x² - 6x + 13 = x² + 2x + 37, giving -8x = 24 and x = -3; the trough is at (-3, 0)."
+      "[1 mark] For P(x, 0): (x - 3)² + 4 = (x + 1)² + 36, so x² - 6x + 13 = x² + 2x + 37, giving -8x = 24 and x = -3; the trough is at (-3, 0). Answer: (C)"
     ],
     "finalAnswer": "(-3, 0)",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const COORDINATE_GEOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1.5 km",
     "solutionSteps": [
-      "[1 mark] Library L(6, 2) and bus stop B(-3, 14); LB = √[(6 + 3)² + (2 - 14)²] = √(81 + 144) = √225 = 15 units = 15 × 100 m = 1.5 km."
+      "[1 mark] Library L(6, 2) and bus stop B(-3, 14); LB = √[(6 + 3)² + (2 - 14)²] = √(81 + 144) = √225 = 15 units = 15 × 100 m = 1.5 km. Answer: (D)"
     ],
     "finalAnswer": "1.5 km",
     "isCompetencyBased": true,

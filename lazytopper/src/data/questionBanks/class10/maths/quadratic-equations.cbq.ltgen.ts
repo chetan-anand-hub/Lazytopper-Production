@@ -21,7 +21,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "x² + 6x − 160 = 0",
     "solutionSteps": [
-      "[1 mark] Length = (x + 6) m, so area x(x + 6) = 160 ⇒ x² + 6x − 160 = 0."
+      "[1 mark] Length = (x + 6) m, so area x(x + 6) = 160 ⇒ x² + 6x − 160 = 0. Answer: (A)"
     ],
     "finalAnswer": "x² + 6x − 160 = 0",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12",
     "solutionSteps": [
-      "[1 mark] Let the number of rows be x; then x(x + 4) = 96 ⇒ x² + 4x − 96 = 0 ⇒ (x + 12)(x − 8) = 0 ⇒ x = 8 (x = −12 rejected, rows cannot be negative). Chairs in each row = 8 + 4 = 12."
+      "[1 mark] Let the number of rows be x; then x(x + 4) = 96 ⇒ x² + 4x − 96 = 0 ⇒ (x + 12)(x − 8) = 0 ⇒ x = 8 (x = −12 rejected, rows cannot be negative). Chairs in each row = 8 + 4 = 12. Answer: (B)"
     ],
     "finalAnswer": "12 chairs in each row",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It is not possible, because the resulting quadratic equation has a negative discriminant",
     "solutionSteps": [
-      "[1 mark] If one side is x m, the other is (18 − x) m, so x(18 − x) = 90 ⇒ x² − 18x + 90 = 0; D = 18² − 4(1)(90) = 324 − 360 = −36 < 0, so no real x exists and such a stage is not possible."
+      "[1 mark] If one side is x m, the other is (18 − x) m, so x(18 − x) = 90 ⇒ x² − 18x + 90 = 0; D = 18² − 4(1)(90) = 324 − 360 = −36 < 0, so no real x exists and such a stage is not possible. Answer: (C)"
     ],
     "finalAnswer": "Not possible (D = −36 < 0)",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4 s",
     "solutionSteps": [
-      "[1 mark] At sea level h = 0: 20 + 15t − 5t² = 0 ⇒ t² − 3t − 4 = 0 ⇒ (t − 4)(t + 1) = 0 ⇒ t = 4 s (t = −1 rejected, time cannot be negative)."
+      "[1 mark] At sea level h = 0: 20 + 15t − 5t² = 0 ⇒ t² − 3t − 4 = 0 ⇒ (t − 4)(t + 1) = 0 ⇒ t = 4 s (t = −1 rejected, time cannot be negative). Answer: (D)"
     ],
     "finalAnswer": "t = 4 s",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "36",
     "solutionSteps": [
-      "[1 mark] Exactly one meeting point means equal roots, so D = 0: (−12)² − 4(1)(k) = 0 ⇒ 144 − 4k = 0 ⇒ k = 36."
+      "[1 mark] Exactly one meeting point means equal roots, so D = 0: (−12)² − 4(1)(k) = 0 ⇒ 144 − 4k = 0 ⇒ k = 36. Answer: (A)"
     ],
     "finalAnswer": "k = 36",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "8 m",
     "solutionSteps": [
-      "[1 mark] Remaining part is x m by (x − 2) m, so x(x − 2) = 48 ⇒ x² − 2x − 48 = 0 ⇒ (x − 8)(x + 6) = 0 ⇒ x = 8 m (x = −6 rejected, a length cannot be negative)."
+      "[1 mark] Remaining part is x m by (x − 2) m, so x(x − 2) = 48 ⇒ x² − 2x − 48 = 0 ⇒ (x − 8)(x + 6) = 0 ⇒ x = 8 m (x = −6 rejected, a length cannot be negative). Answer: (B)"
     ],
     "finalAnswer": "Side = 8 m",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(√3 − 1) m",
     "solutionSteps": [
-      "[1 mark] With width x m, x(x + 2) = 2 ⇒ x² + 2x − 2 = 0; by the quadratic formula x = [−2 ± √(4 + 8)]/2 = (−2 ± 2√3)/2 = −1 ± √3; the width must be positive, so x = (√3 − 1) m."
+      "[1 mark] With width x m, x(x + 2) = 2 ⇒ x² + 2x − 2 = 0; by the quadratic formula x = [−2 ± √(4 + 8)]/2 = (−2 ± 2√3)/2 = −1 ± √3; the width must be positive, so x = (√3 − 1) m. Answer: (C)"
     ],
     "finalAnswer": "Width = (√3 − 1) m",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "No, because the equation t² − 6t + 10 = 0 has no real roots",
     "solutionSteps": [
-      "[1 mark] For h = 0: t² − 6t + 10 = 0, D = (−6)² − 4(1)(10) = 36 − 40 = −4 < 0, so there is no real t; the cable car never touches the river."
+      "[1 mark] For h = 0: t² − 6t + 10 = 0, D = (−6)² − 4(1)(10) = 36 − 40 = −4 < 0, so there is no real t; the cable car never touches the river. Answer: (D)"
     ],
     "finalAnswer": "No (D = −4 < 0)",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "x² + 5x − 150 = 0",
     "solutionSteps": [
-      "[1 mark] 30/x − 30/(x + 5) = 1 ⇒ 30(x + 5) − 30x = x(x + 5) ⇒ 150 = x² + 5x ⇒ x² + 5x − 150 = 0."
+      "[1 mark] 30/x − 30/(x + 5) = 1 ⇒ 30(x + 5) − 30x = x(x + 5) ⇒ 150 = x² + 5x ⇒ x² + 5x − 150 = 0. Answer: (A)"
     ],
     "finalAnswer": "x² + 5x − 150 = 0",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "m < 50",
     "solutionSteps": [
-      "[1 mark] Two different real roots need D > 0: (−20)² − 4(2)(m) > 0 ⇒ 400 − 8m > 0 ⇒ m < 50."
+      "[1 mark] Two different real roots need D > 0: (−20)² − 4(2)(m) > 0 ⇒ 400 − 8m > 0 ⇒ m < 50. Answer: (B)"
     ],
     "finalAnswer": "m < 50",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "8",
     "solutionSteps": [
-      "[1 mark] n(n − 3)/2 = 20 ⇒ n² − 3n − 40 = 0 ⇒ (n − 8)(n + 5) = 0 ⇒ n = 8 (n = −5 rejected, the number of sides is positive)."
+      "[1 mark] n(n − 3)/2 = 20 ⇒ n² − 3n − 40 = 0 ⇒ (n − 8)(n + 5) = 0 ⇒ n = 8 (n = −5 rejected, the number of sides is positive). Answer: (C)"
     ],
     "finalAnswer": "n = 8 sides",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The product of two consecutive even numbers is 168",
     "solutionSteps": [
-      "[1 mark] If the numbers are x and x + 2, then x(x + 2) = 168 ⇒ x² + 2x − 168 = 0, which has degree 2; the other three situations give linear equations."
+      "[1 mark] If the numbers are x and x + 2, then x(x + 2) = 168 ⇒ x² + 2x − 168 = 0, which has degree 2; the other three situations give linear equations. Answer: (D)"
     ],
     "finalAnswer": "The product of two consecutive even numbers is 168",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The income is ₹1200 at a price of ₹20 or ₹30 per glass",
     "solutionSteps": [
-      "[1 mark] x(100 − 2x) = 1200 ⇒ 2x² − 100x + 1200 = 0 ⇒ x² − 50x + 600 = 0 ⇒ (x − 20)(x − 30) = 0 ⇒ x = 20 or 30; both are positive and give (100 − 2x) > 0 (60 and 40 glasses), so both prices work."
+      "[1 mark] x(100 − 2x) = 1200 ⇒ 2x² − 100x + 1200 = 0 ⇒ x² − 50x + 600 = 0 ⇒ (x − 20)(x − 30) = 0 ⇒ x = 20 or 30; both are positive and give (100 − 2x) > 0 (60 and 40 glasses), so both prices work. Answer: (A)"
     ],
     "finalAnswer": "₹20 or ₹30 per glass",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "No, because the equation x² − 20x + 110 = 0 has no real roots",
     "solutionSteps": [
-      "[1 mark] If one piece is x m, the other is (20 − x) m, so x(20 − x) = 110 ⇒ x² − 20x + 110 = 0; D = 400 − 440 = −40 < 0, so no real length exists and the claim is not possible."
+      "[1 mark] If one piece is x m, the other is (20 − x) m, so x(20 − x) = 110 ⇒ x² − 20x + 110 = 0; D = 400 − 440 = −40 < 0, so no real length exists and the claim is not possible. Answer: (B)"
     ],
     "finalAnswer": "Not possible (D = −40 < 0)",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10",
     "solutionSteps": [
-      "[1 mark] n(n + 1)/2 = 55 ⇒ n² + n − 110 = 0 ⇒ (n + 11)(n − 10) = 0 ⇒ n = 10 (n = −11 rejected)."
+      "[1 mark] n(n + 1)/2 = 55 ⇒ n² + n − 110 = 0 ⇒ (n + 11)(n − 10) = 0 ⇒ n = 10 (n = −11 rejected). Answer: (C)"
     ],
     "finalAnswer": "10 rows",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "16 cm",
     "solutionSteps": [
-      "[1 mark] x² + (x + 14)² = 34² ⇒ 2x² + 28x + 196 = 1156 ⇒ x² + 14x − 480 = 0 ⇒ (x + 30)(x − 16) = 0 ⇒ x = 16 cm (x = −30 rejected)."
+      "[1 mark] x² + (x + 14)² = 34² ⇒ 2x² + 28x + 196 = 1156 ⇒ x² + 14x − 480 = 0 ⇒ (x + 30)(x − 16) = 0 ⇒ x = 16 cm (x = −30 rejected). Answer: (D)"
     ],
     "finalAnswer": "Height = 16 cm",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10%",
     "solutionSteps": [
-      "[1 mark] Expanding, 2000 + 40r + r²/5 = 2420 ⇒ r² + 200r − 2100 = 0 ⇒ (r + 210)(r − 10) = 0 ⇒ r = 10 (r = −210 rejected), so the rate is 10%."
+      "[1 mark] Expanding, 2000 + 40r + r²/5 = 2420 ⇒ r² + 200r − 2100 = 0 ⇒ (r + 210)(r − 10) = 0 ⇒ r = 10 (r = −210 rejected), so the rate is 10%. Answer: (A)"
     ],
     "finalAnswer": "r = 10%",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Only one rectangle, 24 m by 15 m, is possible; the two roots just swap length and breadth",
     "solutionSteps": [
-      "[1 mark] x(39 − x) = 360 ⇒ x² − 39x + 360 = 0, D = 1521 − 1440 = 81, x = (39 ± 9)/2 = 24 or 15; if one side is 24 the other is 15 and vice versa, so it is the same 24 m × 15 m rectangle."
+      "[1 mark] x(39 − x) = 360 ⇒ x² − 39x + 360 = 0, D = 1521 − 1440 = 81, x = (39 ± 9)/2 = 24 or 15; if one side is 24 the other is 15 and vice versa, so it is the same 24 m × 15 m rectangle. Answer: (B)"
     ],
     "finalAnswer": "One rectangle: 24 m × 15 m",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const QUADRATIC_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "x² − 3x − 180 = 0",
     "solutionSteps": [
-      "[1 mark] 180/(x − 3) − 180/x = 3 ⇒ 180x − 180(x − 3) = 3x(x − 3) ⇒ 540 = 3x² − 9x ⇒ x² − 3x − 180 = 0."
+      "[1 mark] 180/(x − 3) − 180/x = 3 ⇒ 180x − 180(x − 3) = 3x(x − 3) ⇒ 540 = 3x² − 9x ⇒ x² − 3x − 180 = 0. Answer: (D)"
     ],
     "finalAnswer": "x² − 3x − 180 = 0",
     "isCompetencyBased": true,

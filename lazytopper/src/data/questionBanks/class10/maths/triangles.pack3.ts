@@ -21,7 +21,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "answer": "AAA similarity",
     "solutionSteps": [
       "Similarity criteria based on equal corresponding angles is AAA (Angle-Angle-Angle) similarity.",
-      "When all three angles of one triangle are equal to all three angles of another triangle, they are similar."
+      "When all three angles of one triangle are equal to all three angles of another triangle, they are similar. Answer: (C)"
     ],
     "finalAnswer": "AAA similarity",
     "explanation": "Similarity criteria based on equal corresponding angles is AAA (Angle-Angle-Angle) similarity. When all three angles of one triangle are equal to all three angles of another triangle, they are similar. Therefore, the correct answer is AAA similarity.",
@@ -49,7 +49,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "SAS criterion",
     "solutionSteps": [
-      "SAS (Side-Angle-Side) similarity states: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then the triangles are similar."
+      "SAS (Side-Angle-Side) similarity states: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then the triangles are similar. Answer: (C)"
     ],
     "finalAnswer": "SAS criterion",
     "explanation": "SAS (Side-Angle-Side) similarity states: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then the triangles are similar. Therefore, the correct answer is SAS criterion.",
@@ -78,7 +78,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "answer": "SSS criterion",
     "solutionSteps": [
       "SSS (Side-Side-Side) similarity: If all three corresponding sides of two triangles are in the same ratio, then the triangles are similar.",
-      "Here, all three pairs of sides are proportional, so △ABC ~ △DEF by SSS."
+      "Here, all three pairs of sides are proportional, so △ABC ~ △DEF by SSS. Answer: (C)"
     ],
     "finalAnswer": "SSS criterion",
     "explanation": "SSS (Side-Side-Side) similarity: If all three corresponding sides of two triangles are in the same ratio, then the triangles are similar. Here, all three pairs of sides are proportional, so △ABC ~ △DEF by SSS. Therefore, the correct answer is SSS criterion.",
@@ -159,7 +159,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "Ratio",
     "solutionSteps": [
-      "The Basic Proportionality Theorem (Thales' Theorem) states: If a line is drawn parallel to one side of a triangle, it divides the other two sides proportionally (in the same ratio)."
+      "The Basic Proportionality Theorem (Thales' Theorem) states: If a line is drawn parallel to one side of a triangle, it divides the other two sides proportionally (in the same ratio). Answer: (B)"
     ],
     "finalAnswer": "Ratio",
     "explanation": "The Basic Proportionality Theorem (Thales' Theorem) states: If a line is drawn parallel to one side of a triangle, it divides the other two sides proportionally (in the same ratio). Therefore, the correct answer is Ratio.",
@@ -189,7 +189,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "By Basic Proportionality Theorem (BPT), when DE ∥ BC:",
       "AD/DB = AE/EC",
-      "This is the proportionality relation established by the theorem."
+      "This is the proportionality relation established by the theorem. Answer: (B)"
     ],
     "finalAnswer": "AE/EC",
     "explanation": "By Basic Proportionality Theorem (BPT), when DE ∥ BC:. AD/DB = AE/EC. This is the proportionality relation established by the theorem. Therefore, the correct answer is AE/EC.",
@@ -267,7 +267,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "Hypotenuse",
     "solutionSteps": [
-      "In a right-angled triangle, the side opposite to the 90° angle is the longest side, called the hypotenuse."
+      "In a right-angled triangle, the side opposite to the 90° angle is the longest side, called the hypotenuse. Answer: (C)"
     ],
     "finalAnswer": "Hypotenuse",
     "explanation": "In a right-angled triangle, the side opposite to the 90° angle is the longest side, called the hypotenuse. Therefore, the correct answer is Hypotenuse.",
@@ -325,7 +325,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "Using Pythagoras Theorem: c² = a² + b²",
       "c² = 3² + 4² = 9 + 16 = 25",
-      "c = √25 = 5 cm"
+      "c = √25 = 5 cm Answer: (A)"
     ],
     "finalAnswer": "5 cm",
     "explanation": "Using Pythagoras Theorem: c² = a² + b². c² = 3² + 4² = 9 + 16 = 25. c = √25 = 5 cm. Therefore, the correct answer is 5 cm.",
@@ -617,7 +617,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Assertion A is true: if two angles of △ABC equal two angles of △PQR, the third angles are also equal (angle sum = 180°).",
       "So all three corresponding angles are equal.",
       "Reason R is true: by the AAA criterion, equiangular triangles are similar.",
-      "R, together with the angle-sum property, is exactly why A holds (NCERT states AA as a consequence of AAA). So R correctly explains A — option (a)."
+      "R, together with the angle-sum property, is exactly why A holds (NCERT states AA as a consequence of AAA). So R correctly explains A — option (a). Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both statements are true. Two equal angles force the third to be equal (angle-sum property), so the triangles are equiangular and the AAA criterion in R gives the similarity in A. NCERT derives the AA criterion from AAA in exactly this way, so R is the correct explanation of A.",
@@ -816,7 +816,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "answer": "∠A = ∠P",
     "solutionSteps": [
       "When ΔABC ~ ΔPQR, corresponding angles are equal (∠A = ∠P) and corresponding sides are proportional: AB/PQ = BC/QR = CA/RP.",
-      "AB = PQ holds only if the triangles are congruent; AB/PQ = BC/PR pairs non-corresponding sides, so it is not true in general. Hence only ∠A = ∠P is true."
+      "AB = PQ holds only if the triangles are congruent; AB/PQ = BC/PR pairs non-corresponding sides, so it is not true in general. Hence only ∠A = ∠P is true. Answer: (B)"
     ],
     "finalAnswer": "∠A = ∠P",
     "explanation": "For ΔABC ~ ΔPQR, corresponding angles are equal, so ∠A = ∠P. AB = PQ need not hold, because similar triangles need not be congruent. AB/PQ = BC/PR uses non-corresponding sides (it should be BC/QR). So 'All of the above' is false. Therefore, the correct answer is ∠A = ∠P.",
@@ -843,7 +843,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "Two sides and included angle in the same ratio",
     "solutionSteps": [
-      "SAS (Side-Angle-Side) similarity: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then triangles are similar."
+      "SAS (Side-Angle-Side) similarity: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then triangles are similar. Answer: (B)"
     ],
     "finalAnswer": "Two sides and included angle in the same ratio",
     "explanation": "SAS (Side-Angle-Side) similarity: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then triangles are similar. Therefore, the correct answer is Two sides and included angle in the same ratio.",
@@ -895,7 +895,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "proportion",
     "solutionSteps": [
-      "The Basic Proportionality Theorem states: If a line is drawn parallel to one side of a triangle, it divides the other two sides in the same ratio."
+      "The Basic Proportionality Theorem states: If a line is drawn parallel to one side of a triangle, it divides the other two sides in the same ratio. Answer: (B)"
     ],
     "finalAnswer": "proportion",
     "explanation": "The Basic Proportionality Theorem states: If a line is drawn parallel to one side of a triangle, it divides the other two sides in the same ratio. Therefore, the correct answer is proportion.",
@@ -973,7 +973,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "By Pythagoras Theorem: c² = a² + b²",
       "c² = 3² + 4² = 9 + 16 = 25",
-      "c = 5 cm"
+      "c = 5 cm Answer: (A)"
     ],
     "finalAnswer": "5 cm",
     "explanation": "By Pythagoras Theorem: c² = a² + b². c² = 3² + 4² = 9 + 16 = 25. c = 5 cm. Therefore, the correct answer is 5 cm.",
@@ -1161,7 +1161,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "SSS",
     "solutionSteps": [
-      "SSS (Side-Side-Side) similarity: If all three pairs of corresponding sides of two triangles are proportional, then the triangles are similar."
+      "SSS (Side-Side-Side) similarity: If all three pairs of corresponding sides of two triangles are proportional, then the triangles are similar. Answer: (B)"
     ],
     "finalAnswer": "SSS",
     "explanation": "SSS (Side-Side-Side) similarity: If all three pairs of corresponding sides of two triangles are proportional, then the triangles are similar. Therefore, the correct answer is SSS.",
@@ -1268,7 +1268,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "solutionSteps": [
       "If two angles of triangle 1 equal two angles of triangle 2, then the third angle must also be equal (since angle sum = 180°)",
       "This is AAA similarity criterion",
-      "The reason correctly explains why the assertion is true"
+      "The reason correctly explains why the assertion is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1327,7 +1327,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "This is the statement of Basic Proportionality Theorem",
-      "The reason correctly explains the assertion"
+      "The reason correctly explains the assertion Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",

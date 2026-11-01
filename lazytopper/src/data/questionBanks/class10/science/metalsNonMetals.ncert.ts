@@ -321,7 +321,7 @@ export const METALS_NON_METALS_NCERT: CanonicalQuestion[] = [
       "(a) Cu cannot displace Na (Na is far more reactive). No reaction.",
       "(b) Al cannot displace Mg (Mg is more reactive than Al). No reaction.",
       "(c) Ag cannot displace Fe (Fe is more reactive). No reaction.",
-      "(d) Cu CAN displace Ag (Cu above Ag in reactivity). Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag. ✓",
+      "(d) Cu CAN displace Ag (Cu above Ag in reactivity). Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag. ✓ Answer: (D)",
     ],
     finalAnswer: "AgNO₃ + Cu (option d)",
     ncertRef: "Exercise Q1",
@@ -343,7 +343,7 @@ export const METALS_NON_METALS_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Grease (a) and paint (b) wash off easily during cooking/cleaning a frying pan — not suitable.",
       "Coating with zinc (galvanisation) provides a durable protective coat that doesn't come off with washing/heating.",
-      "Hence (c) is the practical choice for a frying pan; 'all of the above' is incorrect because (a) and (b) are not durable.",
+      "Hence (c) is the practical choice for a frying pan; 'all of the above' is incorrect because (a) and (b) are not durable. Answer: (C)",
     ],
     finalAnswer: "Applying a coating of zinc (galvanisation) — option (c)",
     ncertRef: "Exercise Q2",
@@ -365,7 +365,7 @@ export const METALS_NON_METALS_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "High melting point + soluble in water → ionic oxide of a metal (basic oxide soluble in water → forms alkali).",
       "Calcium: CaO has high m.p. (~2570°C) and dissolves in water to form Ca(OH)₂ — soluble. ✓",
-      "Carbon (CO₂) is a gas; Silicon (SiO₂) has high m.p. but is INSOLUBLE in water; Iron (Fe₂O₃) is insoluble.",
+      "Carbon (CO₂) is a gas; Silicon (SiO₂) has high m.p. but is INSOLUBLE in water; Iron (Fe₂O₃) is insoluble. Answer: (A)",
     ],
     finalAnswer: "Calcium — option (a)",
     ncertRef: "Exercise Q3",
@@ -387,7 +387,7 @@ export const METALS_NON_METALS_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Food cans need a non-reactive, non-toxic coating that won't react with food contents.",
       "Zn is more reactive than tin (Sn) — would react with weak acids in food, releasing toxic Zn²⁺ ions into the food.",
-      "Tin is less reactive (below Pb but above H), and acid-resistant for short-term storage — safe for food.",
+      "Tin is less reactive (below Pb but above H), and acid-resistant for short-term storage — safe for food. Answer: (C)",
     ],
     finalAnswer: "Zn is more reactive than Sn — option (c)",
     ncertRef: "Exercise Q4",
