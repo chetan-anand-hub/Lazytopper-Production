@@ -34,6 +34,9 @@ const SHOWN: readonly string[] = [
   "/welcome",
   "/pricing",
   "/pricing/",
+  "/packs",
+  "/packs/",
+  "/cbq-class-10",
   "/contact",
   "/legal/privacy",
   "/legal/refund",
@@ -64,6 +67,9 @@ const HIDDEN: readonly string[] = [
   "/exam-simulation",
   "/mock-paper/sample-paper-2026",
   "/something-new",
+  "/checkout",
+  "/cbq-class-10/some-chapter",
+  "/packs-x",
   // look-alikes of shown families must not match
   "/mex",
   "/contact-us",
@@ -99,6 +105,23 @@ describe("the prefilled message", () => {
 
   it("starts with the owner's greeting", () => {
     expect(whatsAppMessageFor("/practice-hub")).toBe("Hi LazyTopper, I have a doubt about the Practice page");
+  });
+});
+
+describe("WA-OFFER-1 buying-page openers", () => {
+  it("uses the purchase openers on the three buying pages", () => {
+    expect(whatsAppMessageFor("/pricing")).toBe("Hi LazyTopper, I want to know about the Board Pass");
+    expect(whatsAppMessageFor("/pricing/")).toBe("Hi LazyTopper, I want to know about the Board Pass");
+    expect(whatsAppMessageFor("/packs")).toBe("Hi LazyTopper, I want to know about the PDF packs");
+    expect(whatsAppMessageFor("/cbq-class-10")).toBe("Hi LazyTopper, I want to know about the CBQ packs");
+  });
+  it("leaves other pages on the doubt text", () => {
+    expect(whatsAppMessageFor("/exam-trends")).toBe("Hi LazyTopper, I have a doubt about Exam Trends");
+    expect(whatsAppMessageFor("/notes/trigonometry")).toMatch(/^Hi LazyTopper, I have a doubt about /);
+  });
+  it("still hides on test and practice routes", () => {
+    expect(shouldShowWhatsAppFab("/chapter-test/10/Maths/triangles")).toBe(false);
+    expect(shouldShowWhatsAppFab("/practice/10/Maths")).toBe(false);
   });
 });
 
