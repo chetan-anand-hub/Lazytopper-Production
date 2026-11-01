@@ -9,6 +9,7 @@
  * A failed load renders nothing for this step: the card falls back to its sample picker.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { wrongPickFields } from "../../services/mistakePick";
 import { trackFriendChallenge, trackOneMinute } from "../../analytics/analytics";
 import ChallengeFriendButton from "./ChallengeFriendButton";
 import { parseChallengeId, type ChallengeQuestion } from "./challengeModel";
@@ -28,6 +29,9 @@ export interface LadderAnswer {
   topicName: string;
   question: string;
   correct: boolean;
+  /** TUTOR-MEM-1 - a WRONG tap's option and the key ("(b) 7" / "(c) 9"); absent on a right tap. */
+  pickedOption?: string;
+  keyOption?: string;
 }
 
 interface LoadedMcq {
@@ -176,6 +180,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       topicName: mcq.topicName,
       question: mcq.question,
       correct: ok,
+      ...(ok ? {} : wrongPickFields(mcq.options, mcq.options[i], mcq.options[mcq.right])),
     });
   }
 

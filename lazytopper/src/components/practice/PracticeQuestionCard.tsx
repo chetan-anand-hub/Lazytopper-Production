@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, Suspense, createContext, useContext, type ReactNode } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
+import { wrongPickFields } from "../../services/mistakePick";
 import { MathText } from "../question/MathText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../question/katexEager";
@@ -460,6 +461,8 @@ export function PracticeQuestionCard({
           marksScored: resultStatus === "correct" ? 1 : 0,
           marksAvailable: 1,
           mode: "mcq",
+          // TUTOR-MEM-1 - a wrong tap keeps the option picked and the key (attempt only; no mistake entry).
+          ...(resultStatus === "wrong" ? wrongPickFields(opts, opts[oi], opts[correctIdx]) : {}),
           // N2 (verifier, controller fix round 2026-10-05) — superseded by owner ruling 2026-10-05:
           // re-grade replaces. The card's ONE attempt identity, shared with its SolutionChecker
           // below: a click and a written check of this question are ONE attempt, latest wins —

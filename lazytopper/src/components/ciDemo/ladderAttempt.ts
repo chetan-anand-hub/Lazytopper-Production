@@ -17,6 +17,7 @@ export function recordLadderTap(user: Parameters<typeof recordAttempt>[0], a: La
     marksScored: a.correct ? 1 : 0,
     marksAvailable: 1,
     mode: "mcq",
+    ...(a.pickedOption ? { pickedOption: a.pickedOption, ...(a.keyOption ? { keyOption: a.keyOption } : {}) } : {}),
     ...practiceCardAttemptIdentity(a.bankId),
   });
 }

@@ -56,6 +56,7 @@ import {
 } from "../lib/mistakeDisplay";
 import { recordAttempt, type PracticeAttempt } from "./practiceInsights";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
+import { wrongPickFields } from "./mistakePick";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import {
   buildQuickPracticeSessionRecord,
@@ -860,6 +861,7 @@ export async function gradeQuickPracticeBatch(args: {
     if (typeof record === "function" ? !record(answer) : !record) return;
     const questionId = String(answer.questionId);
     const topic = String(answer.topicLabel || "");
+    const pickFields = wrongPickFields(answer.options, answer.pickedOption, answer.answer);
     // eslint-disable-next-line no-await-in-loop
     const rec = await recordMistake(user ?? null, csr, {
       subject: String(subject || ""),
@@ -871,6 +873,8 @@ export async function gradeQuickPracticeBatch(args: {
       // same session replaces; a new session (a genuine retry) is a new entry.
       surface: "quick-practice",
       submissionId: worksheetId,
+      // TUTOR-MEM-1 - the option the student tapped, when it was wrong (an MCQ with a stored pick only).
+      ...pickFields,
     });
     recordAttempt(user ?? null, {
       subject: String(subject || ""),
@@ -886,6 +890,7 @@ export async function gradeQuickPracticeBatch(args: {
       surface: "quick-practice",
       submissionId: worksheetId,
       grade: csr,
+      ...pickFields,
     });
     miOutcomes.push({
       qNumber: answer.qNumber,

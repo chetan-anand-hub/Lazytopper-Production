@@ -652,6 +652,10 @@ export interface ConceptEvidence {
   gradedCount?: Record<string, number>;
   /** TUTOR-MIND-1 — marks lost over those same raw points (same key). */
   gradedLost?: Record<string, number>;
+  /** TUTOR-MEM-1 (FU-TUTOR-CONCEPT-LASTSEEN) - the newest graded point's time (ms) per concept evidence key,
+   *  from the same pass as `gradedCount`. Optional: absent on evidence built before this field existed, and a
+   *  concept with no usable timestamp has no entry (nothing is invented). */
+  lastTs?: Record<string, number>;
 }
 
 /** The ONE cross-device windowed aggregation, read at altitudes. Every array is
@@ -1072,6 +1076,10 @@ function buildConceptSectionRungs(
       const evKey = conceptEvidenceKey(ref);
       evidence.gradedCount![evKey] = (evidence.gradedCount![evKey] ?? 0) + 1;
       evidence.gradedLost![evKey] = (evidence.gradedLost![evKey] ?? 0) + lostHere;
+      if (Number.isFinite(ts) && ts > 0) {
+        const lastTs = (evidence.lastTs ??= {});
+        lastTs[evKey] = Math.max(lastTs[evKey] ?? 0, ts);
+      }
       // Won-back evidence: a FULLY correct graded answer (no mark lost).
       if (scored >= available) {
         (evidence.fullyCorrect[conceptEvidenceKey(ref)] ??= []).push({ ts, ...answer });

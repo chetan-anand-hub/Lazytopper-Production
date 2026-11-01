@@ -58,6 +58,7 @@ import type { TutorBrief, TutorBriefChapter, TutorBriefSubject } from "../../ai/
 import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { desktopTopicForWeakAreaKey } from "../../lib/desktop/topics";
+import { briefPickOf } from "../../services/mistakePick";
 import { mistakeGroupByKey, mistakeGroupOf, mistakeTypeLabel, type MistakeGroupKey } from "../../lib/mistakeDisplay";
 
 /**
@@ -269,12 +270,16 @@ function recentOf(
   // model already keeps (`bankIdOfMistake`). Unresolved (free-typed `ci:`, no evidence) -> no stem.
   const bankId = bankIdOfMistake(e, evidence);
   const stem = bankId ? questionTextById?.get(bankId) : undefined;
+  const pick = briefPickOf(e);
   const question = stem ? stem.replace(/\s+/g, " ").trim().slice(0, MAX_QUESTION_CHARS) : "";
   return {
     id,
     ...(question ? { question } : {}),
     marksLost: Math.max(0, Math.round((Number(e.marksLost) || 0) * 10) / 10),
     ...(group ? { group } : {}),
+    // TUTOR-MEM-1 - the wrong tap the entry stored ("(b) 7; key (c) 9"). `correct: false` is what the
+    // prompt needs to show it; both are omitted for an entry with no stored pick (older entries, other surfaces).
+    ...(pick ? { pick, correct: false } : {}),
     surface,
     ...(Number.isFinite(ts) ? { date: istDayKey(ts) } : {}),
   };
@@ -374,7 +379,10 @@ function chapterConceptActivity(
         ? rungLost
         : Math.max(0, Math.round((ev?.gradedLost?.[key] ?? model.mistakes.byConcept[key]?.marksLost ?? 0) * 10) / 10);
     const trend = rung ? rungDirection(rung) : undefined;
-    rows.push({ name, marksLost: lost, attempts, ...(trend ? { trend } : {}) });
+    // TUTOR-MEM-1 - the newest graded point of this concept, as an IST date; unknown -> no field.
+    const lastTs = ev?.lastTs?.[key];
+    const lastSeen = typeof lastTs === "number" && Number.isFinite(lastTs) && lastTs > 0 ? istDayKey(lastTs) : undefined;
+    rows.push({ name, marksLost: lost, attempts, ...(trend ? { trend } : {}), ...(lastSeen ? { lastSeen } : {}) });
     return true;
   };
   for (const r of chapterModel.progress.concepts ?? []) add(r.key, r.label || r.key);
