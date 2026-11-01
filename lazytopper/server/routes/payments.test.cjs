@@ -611,6 +611,21 @@ test('PAY-RESCUE-1 · payment.failed for an unknown, paid or erased order is ack
   assert.equal(db.read('payOrders/order_E').lastFailure, undefined);
 });
 
+test('PAY-RESCUE-1 · payment.failed with a missing / odd payment or order id is acknowledged 200 ignored (not 4xx), captured path unchanged', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  for (const bad of [{ order_id: undefined }, { order_id: 'bad id!' }, { order_id: orderId, id: undefined }, { order_id: orderId, id: 'x y' }]) {
+    const r = await sendWebhook(srv, webhookBody(failedPayment(orderId, bad), 'payment.failed'));
+    assert.equal(r.status, 200, JSON.stringify(bad));
+    assert.deepEqual(r.json, { ok: true, ignored: true });
+  }
+  assert.ok(srv.events.includes('payments.webhook.failed_malformed'));
+  assert.equal(srv.db.read(`payOrders/${orderId}`).lastFailure, undefined);
+  const raw = webhookBody({ id: 'bad id', order_id: orderId });
+  assert.equal((await sendWebhook(srv, raw)).status, 400, 'a malformed payment.captured is still rejected');
+});
+
 test('PAY-RESCUE-1 · payment.failed then payment.captured for the same order still grants once', async (t) => {
   const srv = await startRoutes();
   t.after(srv.close);

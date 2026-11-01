@@ -655,7 +655,12 @@ function createPaymentRoutes(deps = {}) {
   async function handlePaymentFailed(event, res) {
     const entity = event.payload && event.payload.payment && event.payload.payment.entity;
     const orderId = entity && typeof entity.order_id === 'string' ? entity.order_id : '';
-    if (!ID_PATTERN.test(orderId)) return reject(res, 'webhook', 'malformed');
+    // A failed payment with no usable order id (another product on the account) is acknowledged, never a 4xx:
+    // Razorpay retries 4xx responses.
+    if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(entity && typeof entity.id === 'string' ? entity.id : '')) {
+      emit('payments.webhook.failed_malformed');
+      return sendJson(res, 200, { ok: true, ignored: true });
+    }
     const lastFailure = {
       code: cleanFailureText(entity.error_code),
       reason: cleanFailureText(entity.error_reason),
