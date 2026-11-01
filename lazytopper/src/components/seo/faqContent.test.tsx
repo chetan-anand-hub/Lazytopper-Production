@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -6,7 +7,7 @@ import CbqHubPage from "../../pages/cbq/CbqHubPage";
 import { applyJsonLd, headForPath } from "../../../scripts/seo/writeStaticHeads";
 import { CBQ_HUB_FAQ, CHECK_ANSWER_FAQ, faqJsonLdForPath, faqPageJsonLd } from "./faqContent";
 
-const render = (el: JSX.Element) => renderToStaticMarkup(<MemoryRouter>{el}</MemoryRouter>);
+const render = (el: ReactElement) => renderToStaticMarkup(<MemoryRouter>{el}</MemoryRouter>);
 const decode = (s: string) => s.replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
 
 describe("SEO-QUICK-1 — FAQ content and FAQPage JSON-LD", () => {
