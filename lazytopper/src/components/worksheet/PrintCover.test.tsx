@@ -22,6 +22,10 @@ describe("PrintCover", () => {
     expect(t).toContain("Get your test answers marked in the LazyTopper app");
     expect(t).not.toContain("2026-27");
   });
+  it("carries the exact IITian trust badge", () => {
+    const { container } = render(<PrintCover {...base} />);
+    expect(container.querySelector(".lt-cover__iit")?.textContent).toBe("Made by an IITian (IIT Kanpur)");
+  });
   it("shows the licensee box only when a line is given", () => {
     const line = "Licensed to A · a@b.in · Order o1 — personal use only";
     expect(render(<PrintCover {...base} licenseeLine={line} />).container.textContent).toContain(line);

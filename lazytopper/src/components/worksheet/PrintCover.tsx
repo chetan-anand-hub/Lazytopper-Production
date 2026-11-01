@@ -48,6 +48,7 @@ export function PrintCover({ kicker, title, subtitle, stats, licenseeLine, editi
       <div className="lt-cover__bar" />
       <div className="lt-cover__panel">
         <div className="lt-cover__board">For CBSE Board Exam {BOARD_EXAM_YEAR}</div>
+        <div className="lt-cover__iit">Made by an IITian (IIT Kanpur)</div>
         <img className="lt-cover__fp" src={BRAND_FINGERPRINT_SRC} alt="" aria-hidden="true" />
         <img className="lt-cover__wmk" src={BRAND_WORDMARK_SRC} alt="LazyTopper" />
       </div>
@@ -101,6 +102,8 @@ const COVER_CSS = `
 .lt-cover__panel { background: #ffffff; flex-shrink: 0; height: 392px; box-sizing: border-box; padding: 34px 64px 0; display: flex;
   flex-direction: column; align-items: center; position: relative; }
 .lt-cover__board { position: absolute; right: 64px; top: 34px; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; color: #3a4a60; font-weight: 600; }
+.lt-cover__iit { position: absolute; left: 64px; top: 30px; font-size: 13px; font-weight: 600; color: #15233a; background: #e8f7ef;
+  border: 1px solid #3fbf82; border-radius: 999px; padding: 4px 12px; }
 .lt-cover__fp { height: 236px; width: auto; display: block; margin-top: 12px; }
 .lt-cover__wmk { height: 84px; width: auto; display: block; margin-top: 10px; }
 
