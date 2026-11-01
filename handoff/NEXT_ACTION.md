@@ -1,3 +1,17 @@
+## 2026-11-01 (daily) - #1463 - #1475
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`a818698a`** [git].
+
+- **Done [git/gh]:** 13 product PRs (table in CURRENT_STATE), all CI-green. Ads: 40 cities, income filter, policy-safe copy, new broad keywords and negatives, parents YouTube group live [coordinator].
+- **NEXT, in order [coordinator; handoff 1 Nov section 5]:**
+  1. Owner: switch the repo to PRIVATE; delete branch `assets/cbq-ads-1nov`; appeal or replace the disapproved Google Ads business logo.
+  2. Live-verify the tutor lanes: `[FU-CBQ-TUTOR-TASTE-LIVE]`, `[FU-TUTOR-MEM-LIVE]`, `[FU-TUTOR-STICKY-LIVE]`, `[FU-TUTOR-KEYS-PUBLIC-PAGES]`.
+  3. **Mon 2 Nov ads review** (31 Oct item 8 plus): effect of 40 cities and the income filter on cost per sign-up and purchases; search terms of the 14 new broad keywords; parents ad group first numbers; logo appeal; `[FU-ADS-CITY-LIST-V2]`. Discuss with the owner before ANY ads change.
+  4. 31 Oct items 2, 5, 6, 7 stand (pricing after-checks, Resend, paid-but-inactive buyers, `#1457` live-verify).
+  5. Live-verify the morning lanes: `#1463` (ladder share in GA4), `#1465` (rescue card after a closed checkout), `#1466` (Ads purchase conversion fires with value), `#1468` (PDF footer), `#1469` (WhatsApp on /packs).
+- **Standing for builders [coordinator]:** unchanged from 31 Oct. lane-overlap is a required check: draft the other overlapping PRs (`ccr/convert_to_draft`), merge, then `ccr/ready_for_review` the next.
+
+
 ## 2026-10-31 (daily) - #1445 - #1458
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ba213620`** [git].

@@ -1,3 +1,20 @@
+## 2026-11-01 (daily) - #1463 - #1475: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 1 Nov 2026 relayed by the cofounder **[coordinator]**, with the reason given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Ads optimise for purchases, not clicks | "Maximize clicks" withdrawn; Maximize conversions stays with Purchase + Sign-up goals on Search | owner: "our aim is purchase, not only clicks". |
+| Target 40 CBSE cities, not states or all India, on every running campaign | PDF Packs, Search v2, YouTube (all live ad groups) | owner: villages and small towns have few CBSE students; south cities requested. Basis is a proxy, not exam counts (`[FU-ADS-CITY-LIST-V2]`). |
+| Exclude the lower 50% household-income band; keep "unknown" | Search: hard exclusion per ad group; Demand Gen: audience narrowed (signal) | owner: higher spending capacity buys more; "unknown" kept because students' income is unknown. |
+| Students are reached by "unknown age" + Class 10 search segments; parents by 35-54 + Parents of Teens | YouTube audiences | Google forbids targeting under-18s by age. |
+| YouTube Demand Gen keeps Sign-ups as its single goal | purchases stay a goal on Search only | Demand Gen allows one goal here; purchases (about 4 a week) are too few to bid on. |
+| CBQ Pack buyers get 3 lifetime tutor questions, counted on the server | `#1472` | a taste of the tutor for pack buyers sells the Board Pass; a client counter could be reset. |
+| A tutor key letter is shown only at the end of a worked step, never in a hint | `#1473` `stripAnswerLetter` | key trust needs a verifiable letter; a hint must not give the answer away. |
+| Hand-drawn SVG figures stay banned; use official NCERT crops | `#1471` | D47b/#1079; the owner supplied the NCERT books. |
+| Overlapping open PRs are sequenced by drafting the siblings | lane-overlap required check | the check exists to stop parallel edits of the same files; drafting is its documented escape. |
+
+
 ## 2026-10-31 (daily) - #1445 - #1458: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 31 Oct 2026 relayed by the cofounder **[coordinator]**, with the reason given.

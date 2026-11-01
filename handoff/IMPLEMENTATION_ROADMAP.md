@@ -1,3 +1,17 @@
+## 2026-11-01 (daily) - #1463 - #1475: LADDER-REACH-1 ... TUTOR-KEYS-1 - MERGED
+
+- DONE. `#1463` (`32166de2`): ladder leads every non-CBQ ad arrival. NEXT: read `one_min_tap_shown` vs `ci_demo_shown`.
+- DONE. `#1464` (`53e55fd2`): SEO titles, FAQ JSON-LD, llms.txt. NEXT: GSC CTR in two weeks.
+- DONE. `#1465` (`cdf0b8d8`), `#1466` (`ad5c2e27`): pay rescue; Ads purchase conversion. NEXT: live-verify both.
+- DONE. `#1467` (`3b317cea`), `#1468` (`90d589ee`), `#1469` (`a776458d`): flake fix; IITian on PDFs; WhatsApp on buying pages.
+- DONE. `#1470` (`b06809f2`), `#1471` (`765d71e6`): tutor polish; NCERT Table 4.3 figure.
+- DONE. `#1472` (`e9580418`): 3 tutor questions for CBQ Pack buyers. NEXT: `[FU-CBQ-TUTOR-TASTE-LIVE]`.
+- DONE. `#1474` (`a4283166`), `#1475` (`a0fd2416`): tutor memory; daily fix card, one-tap check, trial summary. NEXT: `[FU-TUTOR-MEM-LIVE]`, `[FU-TUTOR-STICKY-LIVE]`.
+- DONE. `#1473` (`a818698a`, trunk): key letters on MCQ steps. NEXT: `[FU-TUTOR-KEYS-PUBLIC-PAGES]`.
+- NEXT (ads): Mon 2 Nov review; `[FU-ADS-CITY-LIST-V2]`; `[FU-ADS-LOGO-DISAPPROVED]`.
+- Open: `#1399` MISTAKE-CALC-1 (draft, HELD); dependabot `#1460`.
+
+
 ## 2026-10-31 (daily) - #1445 - #1458: TUTOR-CHALLENGE-1 ... PRICE-FIXED-1 - MERGED
 
 - DONE. `#1445` (`51f6e739`): tutor recognises a student disputing the key. NEXT: `[FU-KEYDISPUTE-QID-VALIDATION]`, `[FU-RETURNEDWORK-STEM-MATCH]` stand.
