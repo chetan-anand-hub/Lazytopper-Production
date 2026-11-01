@@ -1049,6 +1049,37 @@ function rememberPurchaseSent(transactionId: string): void {
   }
 }
 
+/**
+ * ADS-TAG-1 (owner ruling 2026-11-01, spec ADS-TAG-1) - the Google Ads purchase conversion, so Ads credits the
+ * ad click (gclid) that led to a sale instead of GA4's last session. Destination AW-18471331566 is configured in
+ * index.html on the same gtag as GA4. NO PII and NO enhanced conversions (the audience includes minors).
+ */
+export const ADS_CONVERSION_SEND_TO = "AW-18471331566/6ahqCIbi4q8dEO7N6OdE";
+
+/**
+ * Fire the Ads conversion for ONE server-verified paid purchase. Callers invoke it only from the paid branch, right
+ * after the once-per-transaction dedupe, so it fires exactly when GA4 `purchase` does. Silent no-op on /admin, when
+ * analytics is off, when gtag is absent, or when the amount is not a finite positive number.
+ */
+export function sendAdsConversion(transactionId: string, valueInr: number | null | undefined): void {
+  try {
+    if (!analyticsEnabled()) return;
+    if (!transactionId) return;
+    if (typeof valueInr !== "number" || !Number.isFinite(valueInr) || valueInr <= 0) return;
+    if (isAdminHit("event", { name: "purchase" })) return;
+    const gtag = resolveGtag();
+    if (!gtag) return;
+    gtag("event", "conversion", {
+      send_to: ADS_CONVERSION_SEND_TO,
+      value: valueInr,
+      currency: CHECKOUT_CURRENCY,
+      transaction_id: transactionId,
+    });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 /** Once per `transactionId`, ever in this tab. Call ONLY from the server-verified paid branch. */
 export function trackPurchase(details: CheckoutDetails & { transactionId: string }): void {
   try {
@@ -1057,6 +1088,7 @@ export function trackPurchase(details: CheckoutDetails & { transactionId: string
     rememberPurchaseSent(id);
     const p = checkoutParams(details);
     send("event", { name: "purchase", data: p.vercel }, { ga4: { transaction_id: id, ...p.ga4 }, meta: p.meta });
+    sendAdsConversion(id, details.valueInr);
   } catch {
     /* analytics must never break the page */
   }

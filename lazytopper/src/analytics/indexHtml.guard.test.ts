@@ -251,7 +251,7 @@ describe("index.html — the GA4 block (GA4-1)", () => {
   it("on an ordinary page, configures G-1T8Q12H4RQ at once and requests gtag.js async once the page is idle (CONTROL for the skips below)", () => {
     const run = runGa4Block("https://www.lazytopper.com/notes/trigonometry");
     expect(run.gtagDefined).toBe(true);
-    expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config"]);
+    expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config", "config"]);
     expect(run.dataLayer?.[1][1]).toBe(GA4_ID);
     run.fire("load");
     run.runIdle();
@@ -401,7 +401,7 @@ describe("index.html — internal traffic marker (HYGIENE-2)", () => {
     const storage = new Map<string, string>();
     const run = runGa4Block("https://www.lazytopper.com/notes/trigonometry", { storage });
     expect(storage.size).toBe(0);
-    expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config"]);
+    expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config", "config"]);
     expect(run.config).not.toHaveProperty("traffic_type");
     expect(JSON.stringify(run.dataLayer)).not.toContain("internal");
   });
@@ -414,7 +414,7 @@ describe("index.html — internal traffic marker (HYGIENE-2)", () => {
       expect(storage.get(INTERNAL_KEY)).toBe("1");
       expect(run.config).toMatchObject({ traffic_type: "internal", send_page_view: false });
       expect(setEntries(run)).toEqual([["set", { traffic_type: "internal" }]]);
-      expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config", "set"]);
+      expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config", "config", "set"]);
     },
   );
 
@@ -442,8 +442,8 @@ describe("index.html — internal traffic marker (HYGIENE-2)", () => {
     gtag("set", { page_location: "https://www.lazytopper.com/notes/electricity" });
     gtag("event", "page_view", { page_location: "https://www.lazytopper.com/notes/electricity" });
     const entries = (run.win.dataLayer as Array<ArrayLike<unknown>>).map((e) => Array.from(e));
-    expect(entries.map((e) => e[0])).toEqual(["js", "config", "set", "set", "event"]);
-    expect(entries[2]).toEqual(["set", { traffic_type: "internal" }]);
+    expect(entries.map((e) => e[0])).toEqual(["js", "config", "config", "set", "set", "event"]);
+    expect(entries[3]).toEqual(["set", { traffic_type: "internal" }]);
   });
 
   it("a marker with any other value is ignored", () => {
@@ -456,7 +456,7 @@ describe("index.html — internal traffic marker (HYGIENE-2)", () => {
     expect(admin.gtagDefined).toBe(true);
     expect(admin.config).toMatchObject({ traffic_type: "internal" });
     const page = runGa4Block("https://www.lazytopper.com/pricing", { storage: "throws" });
-    expect(page.dataLayer?.map((e) => e[0])).toEqual(["js", "config"]);
+    expect(page.dataLayer?.map((e) => e[0])).toEqual(["js", "config", "config"]);
     expect(page.config).not.toHaveProperty("traffic_type");
   });
 
@@ -565,6 +565,7 @@ describe("index.html — the GA4 library is deferred (LOW-END-1 L2)", () => {
     expect(delivered.map((e) => (e[0] === "event" ? `event:${String(e[1])}` : String(e[0])))).toEqual([
       "js",
       "config",
+      "config", // ADS-TAG-1: the AW- destination
       "set",
       "event:page_view",
       "event:sign_up",
