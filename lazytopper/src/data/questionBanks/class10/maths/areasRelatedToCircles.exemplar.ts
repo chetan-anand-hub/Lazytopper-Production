@@ -14,7 +14,7 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If the sum of the areas of two circles with radii R₁ and R₂ equals the area of a circle of radius R, then",
     options: ["R₁ + R₂ = R", "R₁² + R₂² = R²", "R₁ + R₂ < R", "R₁² + R₂² < R²"],
     answer: "R₁² + R₂² = R²",
-    solutionSteps: ["Equate areas: πR₁² + πR₂² = πR² ⇒ R₁² + R₂² = R²."],
+    solutionSteps: ["Equate areas: πR₁² + πR₂² = πR² ⇒ R₁² + R₂² = R². Answer: (B)"],
     finalAnswer: "R₁² + R₂² = R² — option (b).",
     ncertRef: "Exemplar Ex 11.1 Q1", isCompetencyBased: true },
 
@@ -22,7 +22,7 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If the sum of the circumferences of two circles with radii R₁ and R₂ equals the circumference of a circle of radius R, then",
     options: ["R₁ + R₂ = R", "R₁ + R₂ > R", "R₁ + R₂ < R", "Nothing definite can be said"],
     answer: "R₁ + R₂ = R",
-    solutionSteps: ["Equate circumferences: 2πR₁ + 2πR₂ = 2πR ⇒ R₁ + R₂ = R."],
+    solutionSteps: ["Equate circumferences: 2πR₁ + 2πR₂ = 2πR ⇒ R₁ + R₂ = R. Answer: (A)"],
     finalAnswer: "R₁ + R₂ = R — option (a).",
     ncertRef: "Exemplar Ex 11.1 Q2", isCompetencyBased: true },
 
@@ -30,7 +30,7 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Area of the largest triangle that can be inscribed in a semi-circle of radius r is",
     options: ["r² sq. units", "(1/2)r² sq. units", "2r² sq. units", "√2·r² sq. units"],
     answer: "r² sq. units",
-    solutionSteps: ["Largest triangle in a semicircle has the diameter (= 2r) as its base and the apex at the highest point above the diameter, with height = r.", "Area = (1/2) × base × height = (1/2) × 2r × r = r²."],
+    solutionSteps: ["Largest triangle in a semicircle has the diameter (= 2r) as its base and the apex at the highest point above the diameter, with height = r.", "Area = (1/2) × base × height = (1/2) × 2r × r = r². Answer: (A)"],
     finalAnswer: "r² sq. units — option (a).",
     ncertRef: "Exemplar Ex 11.1 Q4", isCompetencyBased: true },
 
@@ -38,7 +38,7 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The area of the circle that can be inscribed in a square of side 6 cm is",
     options: ["36π cm²", "18π cm²", "12π cm²", "9π cm²"],
     answer: "9π cm²",
-    solutionSteps: ["Largest inscribed circle has diameter = side of square = 6 ⇒ radius 3 cm.", "Area = π × 3² = 9π cm²."],
+    solutionSteps: ["Largest inscribed circle has diameter = side of square = 6 ⇒ radius 3 cm.", "Area = π × 3² = 9π cm². Answer: (D)"],
     finalAnswer: "9π cm² — option (d).",
     ncertRef: "Exemplar Ex 11.1 Q7", isCompetencyBased: true },
 
@@ -46,7 +46,7 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The area of the square that can be inscribed in a circle of radius 8 cm is",
     options: ["256 cm²", "128 cm²", "64√2 cm²", "64 cm²"],
     answer: "128 cm²",
-    solutionSteps: ["Diagonal of inscribed square = diameter = 16 cm.", "Side × √2 = 16 ⇒ side = 16/√2 = 8√2.", "Area = (8√2)² = 64 × 2 = 128 cm²."],
+    solutionSteps: ["Diagonal of inscribed square = diameter = 16 cm.", "Side × √2 = 16 ⇒ side = 16/√2 = 8√2.", "Area = (8√2)² = 64 × 2 = 128 cm². Answer: (B)"],
     finalAnswer: "128 cm² — option (b).",
     ncertRef: "Exemplar Ex 11.1 Q8", isCompetencyBased: true },
 
@@ -54,7 +54,7 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The diameter of a circle whose area equals the sum of the areas of two circles of radii 24 cm and 7 cm is",
     options: ["31 cm", "25 cm", "62 cm", "50 cm"],
     answer: "50 cm",
-    solutionSteps: ["Sum of areas: π(24² + 7²) = π(576 + 49) = 625π.", "If r = radius of new circle: πr² = 625π ⇒ r = 25.", "Diameter = 50 cm."],
+    solutionSteps: ["Sum of areas: π(24² + 7²) = π(576 + 49) = 625π.", "If r = radius of new circle: πr² = 625π ⇒ r = 25.", "Diameter = 50 cm. Answer: (D)"],
     finalAnswer: "50 cm — option (d).",
     ncertRef: "Exemplar Ex 11.1 Q10", isCompetencyBased: true },
 

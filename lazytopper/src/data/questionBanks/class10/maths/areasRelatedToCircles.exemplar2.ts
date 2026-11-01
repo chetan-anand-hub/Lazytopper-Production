@@ -30,7 +30,7 @@ export const ARC_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "If the circumference of a circle and the perimeter of a square are equal, then",
     options: ["Area of the circle = Area of the square", "Area of the circle > Area of the square", "Area of the circle < Area of the square", "Nothing definite can be said about the relation between the areas of the circle and square."],
     answer: "Area of the circle > Area of the square",
-    solutionSteps: ["[1 mark] For a fixed perimeter the circle encloses the maximum area; with 2πr = 4a one gets area of circle πr² and area of square π²r²/4, and since π < 4 the circle's area is larger — option (B)."],
+    solutionSteps: ["[1 mark] For a fixed perimeter the circle encloses the maximum area; with 2πr = 4a one gets area of circle πr² and area of square π²r²/4, and since π < 4 the circle's area is larger — option (B). Answer: (B)"],
     finalAnswer: "Area of the circle > Area of the square — option (B).",
     ncertRef: "Exemplar Ex 11.1 Q3", isCompetencyBased: true },
 
@@ -38,7 +38,7 @@ export const ARC_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "If the perimeter of a circle is equal to that of a square, then the ratio of their areas is",
     options: ["22 : 7", "14 : 11", "7 : 22", "11 : 14"],
     answer: "14 : 11",
-    solutionSteps: ["[1 mark] 2πr = 4a ⇒ a = πr/2; ratio of areas = πr² : a² = πr² : π²r²/4 = 4 : π = 4 : 22/7 = 28 : 22 = 14 : 11 — option (B)."],
+    solutionSteps: ["[1 mark] 2πr = 4a ⇒ a = πr/2; ratio of areas = πr² : a² = πr² : π²r²/4 = 4 : π = 4 : 22/7 = 28 : 22 = 14 : 11 — option (B). Answer: (B)"],
     finalAnswer: "14 : 11 — option (B).",
     ncertRef: "Exemplar Ex 11.1 Q5", isCompetencyBased: true },
 
@@ -46,7 +46,7 @@ export const ARC_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "It is proposed to build a single circular park equal in area to the sum of areas of two circular parks of diameters 16 m and 12 m in a locality. The radius of the new park would be",
     options: ["10 m", "15 m", "20 m", "24 m"],
     answer: "10 m",
-    solutionSteps: ["[1 mark] Radii are 8 m and 6 m; equating areas, πR² = π(8²) + π(6²) ⇒ R² = 64 + 36 = 100 ⇒ R = 10 m — option (A)."],
+    solutionSteps: ["[1 mark] Radii are 8 m and 6 m; equating areas, πR² = π(8²) + π(6²) ⇒ R² = 64 + 36 = 100 ⇒ R = 10 m — option (A). Answer: (A)"],
     finalAnswer: "10 m — option (A).",
     ncertRef: "Exemplar Ex 11.1 Q6", isCompetencyBased: true },
 
@@ -54,7 +54,7 @@ export const ARC_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The radius of a circle whose circumference is equal to the sum of the circumferences of the two circles of diameters 36 cm and 20 cm is",
     options: ["56 cm", "42 cm", "28 cm", "16 cm"],
     answer: "28 cm",
-    solutionSteps: ["[1 mark] Radii are 18 cm and 10 cm; equating circumferences, 2πR = 2π(18) + 2π(10) ⇒ R = 28 cm — option (C)."],
+    solutionSteps: ["[1 mark] Radii are 18 cm and 10 cm; equating circumferences, 2πR = 2π(18) + 2π(10) ⇒ R = 28 cm — option (C). Answer: (C)"],
     finalAnswer: "28 cm — option (C).",
     ncertRef: "Exemplar Ex 11.1 Q9", isCompetencyBased: true },
 

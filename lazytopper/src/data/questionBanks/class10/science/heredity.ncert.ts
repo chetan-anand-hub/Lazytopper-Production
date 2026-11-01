@@ -62,7 +62,7 @@ export const HEREDITY_NCERT: CanonicalQuestion[] = [
     questionText: "A Mendelian experiment consisted of breeding tall pea plants bearing violet flowers with short pea plants bearing white flowers. The progeny all bore violet flowers, but almost half of them were short. This suggests that the genetic make-up of the tall parent can be depicted as",
     options: ["TTWW", "TTww", "TtWW", "TtWw"],
     answer: "TtWW",
-    solutionSteps: ["All progeny had violet flowers → violet (W) is dominant; since ALL progeny are violet, the tall parent must be homozygous WW (because if it were Ww, ~half would be white given a ww parent).", "Almost half the progeny are short → tallness segregates 1:1 → the tall parent must be heterozygous Tt (because Tt × tt → 1 Tt : 1 tt = 50% tall, 50% short).", "Combining: tall parent = Tt for height and WW for flower colour → TtWW.", "So option (c) TtWW is correct."],
+    solutionSteps: ["All progeny had violet flowers → violet (W) is dominant; since ALL progeny are violet, the tall parent must be homozygous WW (because if it were Ww, ~half would be white given a ww parent).", "Almost half the progeny are short → tallness segregates 1:1 → the tall parent must be heterozygous Tt (because Tt × tt → 1 Tt : 1 tt = 50% tall, 50% short).", "Combining: tall parent = Tt for height and WW for flower colour → TtWW.", "So option (c) TtWW is correct. Answer: (C)"],
     finalAnswer: "TtWW — option (c).",
     ncertRef: "Exercise Q1", isCompetencyBased: true,
     strategyHint: "Analyse each trait separately: all violet → WW; half short → Tt." },

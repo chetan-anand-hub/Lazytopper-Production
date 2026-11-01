@@ -23,7 +23,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "a cone and a cylinder",
     solutionSteps: [
       "A sharpened pencil has a cylindrical body and a conical (tapering) tip.",
-      "Hence it is a combination of a cylinder + a cone."
+      "Hence it is a combination of a cylinder + a cone. Answer: (A)"
     ],
     finalAnswer: "A cone and a cylinder — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q1", isCompetencyBased: false },
@@ -41,7 +41,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "a sphere and a cylinder",
     solutionSteps: [
       "A surahi has a spherical body (the round pot) and a long cylindrical neck.",
-      "So: sphere + cylinder."
+      "So: sphere + cylinder. Answer: (A)"
     ],
     finalAnswer: "A sphere and a cylinder — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q2", isCompetencyBased: false },
@@ -59,7 +59,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "a hemisphere and a cone",
     solutionSteps: [
       "A plumb-bob has a rounded (hemispherical) top tapering to a pointed (conical) bottom.",
-      "Hence it is a hemisphere + a cone."
+      "Hence it is a hemisphere + a cone. Answer: (B)"
     ],
     finalAnswer: "A hemisphere and a cone — option (B).",
     ncertRef: "Exemplar Ex 12.1 Q3", isCompetencyBased: false },
@@ -77,7 +77,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     answer: "two cones and a cylinder",
     solutionSteps: [
       "A gilli has a small cylindrical middle and two conical ends (the tapered tips).",
-      "Hence: cylinder + 2 cones."
+      "Hence: cylinder + 2 cones. Answer: (C)"
     ],
     finalAnswer: "Two cones and a cylinder — option (C).",
     ncertRef: "Exemplar Ex 12.1 Q5", isCompetencyBased: false },
@@ -111,7 +111,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Radius r = 0.25 cm; cylinder length h = 2 − 2(0.25) = 1.5 cm.",
       "V = πr²h + (4/3)πr³ = π(0.0625)(1.5) + (4/3)π(0.015625) = π[0.09375 + 0.02083].",
-      "= π × 0.11458 ≈ 3.14 × 0.11458 ≈ 0.36 cm³."
+      "= π × 0.11458 ≈ 3.14 × 0.11458 ≈ 0.36 cm³. Answer: (A)"
     ],
     finalAnswer: "0.36 cm³ — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q14", isCompetencyBased: true,
@@ -126,7 +126,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Two hemispheres joined along their bases form a complete sphere.",
       "Surface area of a sphere = 4πr².",
-      "(The two flat circles are joined and are no longer exposed.)"
+      "(The two flat circles are joined and are no longer exposed.) Answer: (A)"
     ],
     finalAnswer: "4πr² — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q15", isCompetencyBased: false },
@@ -140,7 +140,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "The sphere must fit inside the cylinder, so its diameter is limited by the cylinder's diameter.",
       "Cylinder diameter = 2r. The condition h > 2r ensures the sphere also fits in height.",
-      "Hence the largest enclosed sphere has diameter 2r."
+      "Hence the largest enclosed sphere has diameter 2r. Answer: (B)"
     ],
     finalAnswer: "2r cm — option (B).",
     ncertRef: "Exemplar Ex 12.1 Q16", isCompetencyBased: false },

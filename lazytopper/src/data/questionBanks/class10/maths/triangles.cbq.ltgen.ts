@@ -21,7 +21,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3 m",
     "solutionSteps": [
-      "[1 mark] DE ∥ BC, so by the Basic Proportionality Theorem AD/DB = AE/EC ⇒ 1.8/2.7 = 2/EC ⇒ EC = (2 × 2.7)/1.8 = 3 m."
+      "[1 mark] DE ∥ BC, so by the Basic Proportionality Theorem AD/DB = AE/EC ⇒ 1.8/2.7 = 2/EC ⇒ EC = (2 × 2.7)/1.8 = 3 m. Answer: (A)"
     ],
     "finalAnswer": "EC = 3 m",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "27 m",
     "solutionSteps": [
-      "[1 mark] The sun's rays make the same angle with the ground for both, and both stand vertically, so the two right triangles are similar (AA): h/36 = 1.2/1.6 ⇒ h = 36 × 0.75 = 27 m."
+      "[1 mark] The sun's rays make the same angle with the ground for both, and both stand vertically, so the two right triangles are similar (AA): h/36 = 1.2/1.6 ⇒ h = 36 × 0.75 = 27 m. Answer: (B)"
     ],
     "finalAnswer": "Height of the tower = 27 m",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "ST ∥ QR, because PS/SQ = PT/TR",
     "solutionSteps": [
-      "[1 mark] PS/SQ = 15/25 = 3/5 and PT/TR = 18/30 = 3/5; the strip divides two sides of △PQR in the same ratio, so by the converse of the Basic Proportionality Theorem ST ∥ QR."
+      "[1 mark] PS/SQ = 15/25 = 3/5 and PT/TR = 18/30 = 3/5; the strip divides two sides of △PQR in the same ratio, so by the converse of the Basic Proportionality Theorem ST ∥ QR. Answer: (C)"
     ],
     "finalAnswer": "ST ∥ QR (PS/SQ = PT/TR = 3/5)",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "△ABC ~ △PQR by SAS, and BC : QR = 3 : 4",
     "solutionSteps": [
-      "[1 mark] AB/PQ = 6/8 = 3/4 and AC/PR = 9/12 = 3/4 with the included angles ∠A = ∠P = 50°, so △ABC ~ △PQR by SAS; corresponding sides are proportional, so BC : QR = 3 : 4."
+      "[1 mark] AB/PQ = 6/8 = 3/4 and AC/PR = 9/12 = 3/4 with the included angles ∠A = ∠P = 50°, so △ABC ~ △PQR by SAS; corresponding sides are proportional, so BC : QR = 3 : 4. Answer: (D)"
     ],
     "finalAnswer": "△ABC ~ △PQR (SAS), BC : QR = 3 : 4",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Only (i)",
     "solutionSteps": [
-      "[1 mark] KL/XY = 4/6 = 2/3 and LM/YZ = 6/9 = 2/3. The angle included between these sides is ∠L in △KLM and ∠Y in △XYZ, so (i) gives similarity by SAS; ∠K = ∠X is not the included angle, so (ii) alone is not enough."
+      "[1 mark] KL/XY = 4/6 = 2/3 and LM/YZ = 6/9 = 2/3. The angle included between these sides is ∠L in △KLM and ∠Y in △XYZ, so (i) gives similarity by SAS; ∠K = ∠X is not the included angle, so (ii) alone is not enough. Answer: (A)"
     ],
     "finalAnswer": "Only (i)",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "18 cm × 12 cm",
     "solutionSteps": [
-      "[1 mark] All angles of rectangles are 90°, so the prints are similar exactly when the sides are in the same ratio: 18/12 = 12/8 = 1.5, whereas 15/12 ≠ 11/8, 24/12 ≠ 12/8 and 20/12 ≠ 16/8. So 18 cm × 12 cm."
+      "[1 mark] All angles of rectangles are 90°, so the prints are similar exactly when the sides are in the same ratio: 18/12 = 12/8 = 1.5, whereas 15/12 ≠ 11/8, 24/12 ≠ 12/8 and 20/12 ≠ 16/8. So 18 cm × 12 cm. Answer: (B)"
     ],
     "finalAnswer": "18 cm × 12 cm",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2.4 m",
     "solutionSteps": [
-      "[1 mark] Top of ladder: height = √(6.5² − 2.5²) = √36 = 6 m. The perpendicular from P to the ground forms a right triangle similar (AA) to the whole ladder triangle, so height of P = 6 × 2.6/6.5 = 2.4 m."
+      "[1 mark] Top of ladder: height = √(6.5² − 2.5²) = √36 = 6 m. The perpendicular from P to the ground forms a right triangle similar (AA) to the whole ladder triangle, so height of P = 6 × 2.6/6.5 = 2.4 m. Answer: (C)"
     ],
     "finalAnswer": "Height of P = 2.4 m",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "7",
     "solutionSteps": [
-      "[1 mark] DE ∥ BC, so by BPT (x + 1)/(3x − 1) = (x + 3)/(3x + 4) ⇒ 3x² + 7x + 4 = 3x² + 8x − 3 ⇒ x = 7 (check: 8/20 = 10/25 = 2/5)."
+      "[1 mark] DE ∥ BC, so by BPT (x + 1)/(3x − 1) = (x + 3)/(3x + 4) ⇒ 3x² + 7x + 4 = 3x² + 8x − 3 ⇒ x = 7 (check: 8/20 = 10/25 = 2/5). Answer: (D)"
     ],
     "finalAnswer": "x = 7",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4.8 m",
     "solutionSteps": [
-      "[1 mark] The pole and Tanvi are both vertical and the ray makes equal angles with the ground at the mirror, so the two right triangles are similar (AA): h/6 = 1.2/1.5 ⇒ h = 4.8 m."
+      "[1 mark] The pole and Tanvi are both vertical and the ray makes equal angles with the ground at the mirror, so the two right triangles are similar (AA): h/6 = 1.2/1.5 ⇒ h = 4.8 m. Answer: (A)"
     ],
     "finalAnswer": "Height of the flagpole = 4.8 m",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "6 cm",
     "solutionSteps": [
-      "[1 mark] The stand and the screen are parallel and the rays cross at the pinhole (vertically opposite angles), so the two triangles are similar (AA): image/2.4 m = 0.15 m/6 m ⇒ image = 0.06 m = 6 cm."
+      "[1 mark] The stand and the screen are parallel and the rays cross at the pinhole (vertically opposite angles), so the two triangles are similar (AA): image/2.4 m = 0.15 m/6 m ⇒ image = 0.06 m = 6 cm. Answer: (B)"
     ],
     "finalAnswer": "Image height = 6 cm",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Only P and Q are similar",
     "solutionSteps": [
-      "[1 mark] P and Q: 3/4.5 = 4/6 = 6/9 = 2/3, so similar by SSS. P and R: 3/6 = 4/8 = 1/2 but 6/10 = 3/5, not similar; Q and R: 4.5/6 = 6/8 = 3/4 but 9/10 ≠ 3/4, not similar."
+      "[1 mark] P and Q: 3/4.5 = 4/6 = 6/9 = 2/3, so similar by SSS. P and R: 3/6 = 4/8 = 1/2 but 6/10 = 3/5, not similar; Q and R: 4.5/6 = 6/8 = 3/4 but 9/10 ≠ 3/4, not similar. Answer: (C)"
     ],
     "finalAnswer": "Only P and Q are similar (SSS)",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "6 m",
     "solutionSteps": [
-      "[1 mark] A ↔ R, B ↔ P, C ↔ Q, so RP ↔ AB and QR ↔ CA; scale = RP/AB = 8/12 = 2/3, hence QR = (2/3) × 9 = 6 m."
+      "[1 mark] A ↔ R, B ↔ P, C ↔ Q, so RP ↔ AB and QR ↔ CA; scale = RP/AB = 8/12 = 2/3, hence QR = (2/3) × 9 = 6 m. Answer: (D)"
     ],
     "finalAnswer": "QR = 6 m",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "20 m",
     "solutionSteps": [
-      "[1 mark] In △TBC and △EDC, ∠B = ∠D = 90° and ∠TCB = ∠ECD (vertically opposite), so they are similar (AA): TB/ED = BC/DC ⇒ TB = 8 × 30/12 = 20 m."
+      "[1 mark] In △TBC and △EDC, ∠B = ∠D = 90° and ∠TCB = ∠ECD (vertically opposite), so they are similar (AA): TB/ED = BC/DC ⇒ TB = 8 × 30/12 = 20 m. Answer: (A)"
     ],
     "finalAnswer": "Width of the canal = 20 m",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "36 cm",
     "solutionSteps": [
-      "[1 mark] AB ∥ DC gives ∠OAB = ∠OCD (alternate) and ∠AOB = ∠COD (vertically opposite), so △AOB ~ △COD (AA): AO/OC = AB/CD ⇒ OC = 54 × 60/90 = 36 cm."
+      "[1 mark] AB ∥ DC gives ∠OAB = ∠OCD (alternate) and ∠AOB = ∠COD (vertically opposite), so △AOB ~ △COD (AA): AO/OC = AB/CD ⇒ OC = 54 × 60/90 = 36 cm. Answer: (B)"
     ],
     "finalAnswer": "OC = 36 cm",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2 m",
     "solutionSteps": [
-      "[1 mark] Let the shadow be s m. The boy and the pole are vertical and share the angle at the shadow's tip, so the triangles are similar (AA): 4.8/(4 + s) = 1.6/s ⇒ 4.8s = 6.4 + 1.6s ⇒ s = 2 m."
+      "[1 mark] Let the shadow be s m. The boy and the pole are vertical and share the angle at the shadow's tip, so the triangles are similar (AA): 4.8/(4 + s) = 1.6/s ⇒ 4.8s = 6.4 + 1.6s ⇒ s = 2 m. Answer: (C)"
     ],
     "finalAnswer": "Length of shadow = 2 m",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "54 cm",
     "solutionSteps": [
-      "[1 mark] Parallel lines cut the two supports in the same ratio (apply BPT in the triangles formed with a diagonal joining the supports): 30/45 = 36/x ⇒ x = 36 × 45/30 = 54 cm."
+      "[1 mark] Parallel lines cut the two supports in the same ratio (apply BPT in the triangles formed with a diagonal joining the supports): 30/45 = 36/x ⇒ x = 36 × 45/30 = 54 cm. Answer: (D)"
     ],
     "finalAnswer": "54 cm",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1.5 m",
     "solutionSteps": [
-      "[1 mark] Corresponding sides of similar figures are proportional: scale = 1.2 m/20 cm = 120/20 = 6, so longest side = 25 × 6 = 150 cm = 1.5 m."
+      "[1 mark] Corresponding sides of similar figures are proportional: scale = 1.2 m/20 cm = 120/20 = 6, so longest side = 25 × 6 = 150 cm = 1.5 m. Answer: (A)"
     ],
     "finalAnswer": "1.5 m",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12 cm",
     "solutionSteps": [
-      "[1 mark] For similarity by SSS the sides must be proportional: 6/4 = 9/6 = 3/2, so longest side = 8 × 3/2 = 12 cm."
+      "[1 mark] For similarity by SSS the sides must be proportional: 6/4 = 9/6 = 3/2, so longest side = 8 × 3/2 = 12 cm. Answer: (B)"
     ],
     "finalAnswer": "12 cm",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "6 m",
     "solutionSteps": [
-      "[1 mark] △ADB ~ △CDA (AA: ∠ADB = ∠CDA = 90° and ∠BAD = ∠ACD), so BD/AD = AD/DC ⇒ AD² = 4 × 9 = 36 ⇒ AD = 6 m."
+      "[1 mark] △ADB ~ △CDA (AA: ∠ADB = ∠CDA = 90° and ∠BAD = ∠ACD), so BD/AD = AD/DC ⇒ AD² = 4 × 9 = 36 ⇒ AD = 6 m. Answer: (C)"
     ],
     "finalAnswer": "AD = 6 m",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const TRIANGLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "24 m",
     "solutionSteps": [
-      "[1 mark] DE ∥ BC, so by BPT AE : EC = AD : DB = 3 : 5, hence AE/AC = 3/8 and AE = (3/8) × 64 = 24 m."
+      "[1 mark] DE ∥ BC, so by BPT AE : EC = AD : DB = 3 : 5, hence AE/AC = 3/8 and AE = (3/8) × 64 = 24 m. Answer: (D)"
     ],
     "finalAnswer": "AE = 24 m",
     "isCompetencyBased": true,

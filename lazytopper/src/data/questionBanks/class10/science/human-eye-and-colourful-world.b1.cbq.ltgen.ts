@@ -21,7 +21,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The iris enlarges the pupil so that more light can enter the eye and reach the retina.",
     "solutionSteps": [
-      "[1 mark] In dim light the iris enlarges (dilates) the pupil so that more light reaches the retina; this takes a little time, hence the delay. A smaller pupil would admit even less light, and the ciliary muscles and cornea are concerned with focusing, not with the amount of light."
+      "[1 mark] In dim light the iris enlarges (dilates) the pupil so that more light reaches the retina; this takes a little time, hence the delay. A smaller pupil would admit even less light, and the ciliary muscles and cornea are concerned with focusing, not with the amount of light. Answer: (A)"
     ],
     "finalAnswer": "The iris enlarges the pupil so that more light can enter the eye and reach the retina.",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Her ciliary muscles stay relaxed for both, because both objects are effectively at the far point (infinity) of a normal eye.",
     "solutionSteps": [
-      "[1 mark] The far point of a normal eye is at infinity; light from a star and from a lamp 5 km away arrives practically parallel, so the eye lens stays thin with the ciliary muscles relaxed for both. Contraction of the ciliary muscles is needed only for nearby objects, not for more distant ones."
+      "[1 mark] The far point of a normal eye is at infinity; light from a star and from a lamp 5 km away arrives practically parallel, so the eye lens stays thin with the ciliary muscles relaxed for both. Contraction of the ciliary muscles is needed only for nearby objects, not for more distant ones. Answer: (C)"
     ],
     "finalAnswer": "Her ciliary muscles stay relaxed for both, because both objects are effectively at the far point (infinity) of a normal eye.",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The eye lens stays thin with its longest focal length, so the image of the nearby book is formed behind the retina.",
     "solutionSteps": [
-      "[1 mark] Relaxed ciliary muscles leave the eye lens thin, with its longest focal length, which suits only distant objects. Light from the near book is not converged enough, so its image falls behind the retina and looks blurred. A thick lens would be the state for near vision, which Manoj cannot reach."
+      "[1 mark] Relaxed ciliary muscles leave the eye lens thin, with its longest focal length, which suits only distant objects. Light from the near book is not converged enough, so its image falls behind the retina and looks blurred. A thick lens would be the state for near vision, which Manoj cannot reach. Answer: (D)"
     ],
     "finalAnswer": "The eye lens stays thin with its longest focal length, so the image of the nearby book is formed behind the retina.",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true, since in bright light the pupil contracts to limit the light reaching the retina. R is false, because the size of the pupil is controlled by the iris; the ciliary muscles change the curvature of the eye lens."
+      "[1 mark] (C): A is true, since in bright light the pupil contracts to limit the light reaching the retina. R is false, because the size of the pupil is controlled by the iris; the ciliary muscles change the curvature of the eye lens. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A): Both are true and R explains A. At 8 cm the strip is closer than the person's near point; even with the ciliary muscles fully contracted the lens cannot become thick enough (focal length short enough) to focus it on the retina, while at 30 cm it can."
+      "[1 mark] (A): Both are true and R explains A. At 8 cm the strip is closer than the person's near point; even with the ciliary muscles fully contracted the lens cannot become thick enough (focal length short enough) to focus it on the retina, while at 30 cm it can. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -546,7 +546,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "He has myopia and needs concave lenses of focal length −80 cm.",
     "solutionSteps": [
-      "[1 mark] A negative power means a concave (diverging) lens, which corrects myopia; f = 1/P = 1/(−1.25 D) = −0.8 m = −80 cm. Taking f = −1.25 cm wrongly treats the power value as a focal length."
+      "[1 mark] A negative power means a concave (diverging) lens, which corrects myopia; f = 1/P = 1/(−1.25 D) = −0.8 m = −80 cm. Taking f = −1.25 cm wrongly treats the power value as a focal length. Answer: (A)"
     ],
     "finalAnswer": "He has myopia and needs concave lenses of focal length −80 cm.",
     "isCompetencyBased": true,
@@ -575,7 +575,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The lenses are converging, so they help the eye focus on nearby print in presbyopia.",
     "solutionSteps": [
-      "[1 mark] Only a convex (converging) lens gives an upright, enlarged image of print held close to it. She sees far objects clearly but cannot read, so her near point has receded with age (presbyopia), which a convex lens corrects; a diverging lens would make the print look smaller."
+      "[1 mark] Only a convex (converging) lens gives an upright, enlarged image of print held close to it. She sees far objects clearly but cannot read, so her near point has receded with age (presbyopia), which a convex lens corrects; a diverging lens would make the print look smaller. Answer: (B)"
     ],
     "finalAnswer": "The lenses are converging, so they help the eye focus on nearby print in presbyopia.",
     "isCompetencyBased": true,
@@ -604,7 +604,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Person D",
     "solutionSteps": [
-      "[1 mark] Person D can see clearly neither near (near point 80 cm, beyond 25 cm) nor far (far point only 2.5 m), so needs a concave upper portion and a convex lower portion. B needs only a concave lens, C only a convex lens, and A has normal vision."
+      "[1 mark] Person D can see clearly neither near (near point 80 cm, beyond 25 cm) nor far (far point only 2.5 m), so needs a concave upper portion and a convex lower portion. B needs only a concave lens, C only a convex lens, and A has normal vision. Answer: (C)"
     ],
     "finalAnswer": "Person D",
     "isCompetencyBased": true,
@@ -633,7 +633,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "+2.0 D",
     "solutionSteps": [
-      "[1 mark] With u = −25 cm the lens must form a virtual image at her near point, v = −50 cm: 1/f = 1/v − 1/u = −1/50 + 1/25 = 1/50, so f = +50 cm = +0.5 m and P = +2.0 D (convex). +4.0 D wrongly takes f = 25 cm; −2.0 D is a concave lens, which corrects myopia."
+      "[1 mark] With u = −25 cm the lens must form a virtual image at her near point, v = −50 cm: 1/f = 1/v − 1/u = −1/50 + 1/25 = 1/50, so f = +50 cm = +0.5 m and P = +2.0 D (convex). +4.0 D wrongly takes f = 25 cm; −2.0 D is a concave lens, which corrects myopia. Answer: (D)"
     ],
     "finalAnswer": "+2.0 D",
     "isCompetencyBased": true,
@@ -662,7 +662,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A): f = 1/(−2.0 D) = −0.5 m, so her far point is 50 cm and A is true. R is true and states exactly why the far-point distance equals the magnitude of the focal length, so R correctly explains A."
+      "[1 mark] (A): f = 1/(−2.0 D) = −0.5 m, so her far point is 50 cm and A is true. R is true and states exactly why the far-point distance equals the magnitude of the focal length, so R correctly explains A. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -691,7 +691,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D): A is false — spectacles only change where light is focused and cannot clear a cloudy lens; vision is restored by cataract surgery. R is a correct description of cataract."
+      "[1 mark] (D): A is false — spectacles only change where light is focused and cannot clear a cloudy lens; vision is restored by cataract surgery. R is a correct description of cataract. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1070,7 +1070,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It bends towards the normal on entering the prism and away from the normal on leaving it, so the emergent beam is turned towards the base.",
     "solutionSteps": [
-      "[1 mark] Air to glass at the first face: the beam bends towards the normal; glass to air at the second face: it bends away from the normal. The faces are inclined, so both bends turn the beam towards the base; it is not parallel as in a slab."
+      "[1 mark] Air to glass at the first face: the beam bends towards the normal; glass to air at the second face: it bends away from the normal. The faces are inclined, so both bends turn the beam towards the base; it is not parallel as in a slab. Answer: (A)"
     ],
     "finalAnswer": "It bends towards the normal on entering the prism and away from the normal on leaving it, so the emergent beam is turned towards the base.",
     "isCompetencyBased": true,
@@ -1099,7 +1099,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "X — red, Y — green, Z — violet",
     "solutionSteps": [
-      "[1 mark] Glass slows violet the most and red the least, so violet is deviated the most (40.2°, Z) and red the least (38.4°, X), with green in between. The reversed matching wrongly assumes red, with the longest wavelength, bends the most."
+      "[1 mark] Glass slows violet the most and red the least, so violet is deviated the most (40.2°, Z) and red the least (38.4°, X), with green in between. The reversed matching wrongly assumes red, with the longest wavelength, bends the most. Answer: (B)"
     ],
     "finalAnswer": "X — red, Y — green, Z — violet",
     "isCompetencyBased": true,
@@ -1128,7 +1128,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Towards the west, with the Sun behind her",
     "solutionSteps": [
-      "[1 mark] A rainbow is always seen in the direction opposite to the Sun, with the Sun behind the observer. The morning Sun is in the east, so she must face west; looking towards the Sun is the tempting but wrong choice."
+      "[1 mark] A rainbow is always seen in the direction opposite to the Sun, with the Sun behind the observer. The morning Sun is in the east, so she must face west; looking towards the Sun is the tempting but wrong choice. Answer: (C)"
     ],
     "finalAnswer": "Towards the west, with the Sun behind her",
     "isCompetencyBased": true,
@@ -1157,7 +1157,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A band of colours, because the first prism has already separated the colours",
     "solutionSteps": [
-      "[1 mark] The first prism has already dispersed the sunlight, so the light crossing the gap is a band of colours; only the inverted second prism recombines it into white. Choosing a white patch wrongly assumes the colours appear only at the end."
+      "[1 mark] The first prism has already dispersed the sunlight, so the light crossing the gap is a band of colours; only the inverted second prism recombines it into white. Choosing a white patch wrongly assumes the colours appear only at the end. Answer: (D)"
     ],
     "finalAnswer": "A band of colours, because the first prism has already separated the colours",
     "isCompetencyBased": true,
@@ -1186,7 +1186,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true — light of a single colour is deviated towards the base but has no other colours to be separated from. R is false — red light slows down in glass; without a change in speed it would not bend at all."
+      "[1 mark] (C): A is true — light of a single colour is deviated towards the base but has no other colours to be separated from. R is false — red light slows down in glass; without a change in speed it would not bend at all. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1215,7 +1215,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D): A is false — a rainbow is seen only in the direction opposite to the Sun, so the Sun must be behind the observer. R is true — the droplets refract and disperse sunlight, then reflect it internally before it leaves."
+      "[1 mark] (D): A is false — a rainbow is seen only in the direction opposite to the Sun, so the Sun must be behind the observer. R is true — the droplets refract and disperse sunlight, then reflect it internally before it leaves. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1591,7 +1591,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Jupiter is much nearer than the star and appears as an extended source, so the variations in light from its many points average out.",
     "solutionSteps": [
-      "[1 mark] Jupiter is close enough to act as an extended source (many point sources); the fluctuations in light from individual points cancel out, so no twinkling. Its light is also refracted by the atmosphere, and it only reflects sunlight, so the other options are wrong."
+      "[1 mark] Jupiter is close enough to act as an extended source (many point sources); the fluctuations in light from individual points cancel out, so no twinkling. Its light is also refracted by the atmosphere, and it only reflects sunlight, so the other options are wrong. Answer: (A)"
     ],
     "finalAnswer": "Jupiter is much nearer than the star and appears as an extended source, so the variations in light from its many points average out.",
     "isCompetencyBased": true,
@@ -1620,7 +1620,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "They shine with a steady light and do not twinkle.",
     "solutionSteps": [
-      "[1 mark] Twinkling is caused by refraction of starlight in atmospheric layers whose refractive index keeps changing. Above the atmosphere there is no such medium, so the stars shine steadily; light travels through vacuum, so they are still visible."
+      "[1 mark] Twinkling is caused by refraction of starlight in atmospheric layers whose refractive index keeps changing. Above the atmosphere there is no such medium, so the stars shine steadily; light travels through vacuum, so they are still visible. Answer: (B)"
     ],
     "finalAnswer": "They shine with a steady light and do not twinkle.",
     "isCompetencyBased": true,
@@ -1649,7 +1649,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The air above the fire is hotter and optically rarer than the air around it, and its refractive index keeps fluctuating, so light from the lamp post is refracted by varying amounts.",
     "solutionSteps": [
-      "[1 mark] Hot air is optically rarer (lower refractive index) than the cooler air around it, and the hot, rising air keeps changing, so the light path keeps changing and the apparent position of the lamp post wavers. Scattering by smoke does not shift the image."
+      "[1 mark] Hot air is optically rarer (lower refractive index) than the cooler air around it, and the hot, rising air keeps changing, so the light path keeps changing and the apparent position of the lamp post wavers. Scattering by smoke does not shift the image. Answer: (C)"
     ],
     "finalAnswer": "The air above the fire is hotter and optically rarer than the air around it, and its refractive index keeps fluctuating, so light from the lamp post is refracted by varying amounts.",
     "isCompetencyBased": true,
@@ -1678,7 +1678,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Sunrise 6:08 a.m. and sunset 6:22 p.m.",
     "solutionSteps": [
-      "[1 mark] Atmospheric refraction lets us see the Sun about 2 minutes before it actually crosses the horizon and about 2 minutes after it actually goes below it, so sunrise is advanced and sunset is delayed: 6:08 a.m. and 6:22 p.m."
+      "[1 mark] Atmospheric refraction lets us see the Sun about 2 minutes before it actually crosses the horizon and about 2 minutes after it actually goes below it, so sunrise is advanced and sunset is delayed: 6:08 a.m. and 6:22 p.m. Answer: (D)"
     ],
     "finalAnswer": "Sunrise 6:08 a.m. and sunset 6:22 p.m.",
     "isCompetencyBased": true,
@@ -1707,7 +1707,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: the star appears raised. R is false: light going from an optically rarer to an optically denser medium bends towards the normal, and this bending towards the normal is what makes the star appear higher."
+      "[1 mark] (C) A is true: the star appears raised. R is false: light going from an optically rarer to an optically denser medium bends towards the normal, and this bending towards the normal is what makes the star appear higher. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1736,7 +1736,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: the Moon is near and large, so it acts as a collection of many point sources; the flicker of each point is cancelled by the others, and the total light entering the eye stays nearly constant."
+      "[1 mark] (A) Both true and R explains A: the Moon is near and large, so it acts as a collection of many point sources; the flicker of each point is cancelled by the others, and the total light entering the eye stays nearly constant. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2111,7 +2111,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The dust particles floating in the air scattered part of the sunlight sideways into his eyes; once they settled, very little light was scattered towards him.",
     "solutionSteps": [
-      "[1 mark] Scattering by the floating dust (Tyndall effect) sends light sideways into the eye, so the path is seen; with the dust settled there is little to scatter. Splitting into colours is dispersion by a prism, not what makes a path visible."
+      "[1 mark] Scattering by the floating dust (Tyndall effect) sends light sideways into the eye, so the path is seen; with the dust settled there is little to scatter. Splitting into colours is dispersion by a prism, not what makes a path visible. Answer: (A)"
     ],
     "finalAnswer": "The dust particles floating in the air scattered part of the sunlight sideways into his eyes; once they settled, very little light was scattered towards him.",
     "isCompetencyBased": true,
@@ -2140,7 +2140,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The thin wisp contains very fine particles that scatter mainly the shorter (blue) wavelengths, while the thick smoke contains larger particles that scatter all colours nearly equally.",
     "solutionSteps": [
-      "[1 mark] The colour of scattered light depends on particle size: very fine particles scatter blue (shorter wavelengths) more, while particles large compared with the wavelength scatter all colours almost equally, so the light looks white. Option (A) reverses this size rule."
+      "[1 mark] The colour of scattered light depends on particle size: very fine particles scatter blue (shorter wavelengths) more, while particles large compared with the wavelength scatter all colours almost equally, so the light looks white. Option (A) reverses this size rule. Answer: (B)"
     ],
     "finalAnswer": "The thin wisp contains very fine particles that scatter mainly the shorter (blue) wavelengths, while the thick smoke contains larger particles that scatter all colours nearly equally.",
     "isCompetencyBased": true,
@@ -2169,7 +2169,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "There is much less air above the aeroplane, so much less sunlight is scattered towards her eyes from the sky above.",
     "solutionSteps": [
-      "[1 mark] The blue of the sky is sunlight scattered by air; at 11 km most of the air lies below, so less light is scattered towards her and the sky looks darker. Air molecules do not grow larger with height, so option (B) is wrong."
+      "[1 mark] The blue of the sky is sunlight scattered by air; at 11 km most of the air lies below, so less light is scattered towards her and the sky looks darker. Air molecules do not grow larger with height, so option (B) is wrong. Answer: (C)"
     ],
     "finalAnswer": "There is much less air above the aeroplane, so much less sunlight is scattered towards her eyes from the sky above.",
     "isCompetencyBased": true,
@@ -2198,7 +2198,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Red, because red light has the longest wavelength among visible colours and is scattered the least by mist and smoke.",
     "solutionSteps": [
-      "[1 mark] Red has the longest wavelength and is scattered least by mist or smoke, so a red beam stays strong over a long distance. Blue is scattered most, so it is weakened quickly and the lamp looks dim from afar."
+      "[1 mark] Red has the longest wavelength and is scattered least by mist or smoke, so a red beam stays strong over a long distance. Blue is scattered most, so it is weakened quickly and the lamp looks dim from afar. Answer: (D)"
     ],
     "finalAnswer": "Red, because red light has the longest wavelength among visible colours and is scattered the least by mist and smoke.",
     "isCompetencyBased": true,
@@ -2227,7 +2227,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) Both statements are true, but R does not explain A. The path is seen in the auditorium because dust and smoke particles scatter light sideways into the eye (Tyndall effect); dust-free air has no such particles."
+      "[1 mark] (B) Both statements are true, but R does not explain A. The path is seen in the auditorium because dust and smoke particles scatter light sideways into the eye (Tyndall effect); dust-free air has no such particles. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2256,7 +2256,7 @@ export const HUMAN_EYE_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: far above the atmosphere there is no air to scatter sunlight, so the sky looks dark. R is true: fine air particles scatter shorter (blue) wavelengths more strongly, which is why the sky looks blue from the ground."
+      "[1 mark] (D) A is false: far above the atmosphere there is no air to scatter sunlight, so the sky looks dark. R is true: fine air particles scatter shorter (blue) wavelengths more strongly, which is why the sky looks blue from the ground. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,

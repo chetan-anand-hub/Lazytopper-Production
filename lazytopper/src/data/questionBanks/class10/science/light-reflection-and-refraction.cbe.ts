@@ -20,7 +20,7 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "options": ["reflection", "dispersion", "refraction", "scattering"],
     "answer": "refraction",
     "solutionSteps": [
-      "[1 mark] refraction — light bends as it passes from water into air because its speed changes — refraction."
+      "[1 mark] refraction — light bends as it passes from water into air because its speed changes — refraction. Answer: (C)"
     ],
     "finalAnswer": "refraction",
     "isCompetencyBased": false,
@@ -42,7 +42,7 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "options": ["the refracted rays do not actually meet; they only appear to meet", "the refracted rays actually meet at the image point", "the image of the coin is formed upside down", "light travels more slowly in air than in water"],
     "answer": "the refracted rays do not actually meet; they only appear to meet",
     "solutionSteps": [
-      "[1 mark] the refracted rays do not actually meet; they only appear to meet — the refracted rays diverge and only appear to come from the image point, so the image is virtual."
+      "[1 mark] the refracted rays do not actually meet; they only appear to meet — the refracted rays diverge and only appear to come from the image point, so the image is virtual. Answer: (A)"
     ],
     "finalAnswer": "the refracted rays do not actually meet; they only appear to meet",
     "isCompetencyBased": false,
@@ -88,7 +88,7 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "options": ["its optical centre and its principal focus", "its optical centre and its centre of curvature", "its two principal foci", "the object and its image"],
     "answer": "its optical centre and its principal focus",
     "solutionSteps": [
-      "[1 mark] its optical centre and its principal focus — focal length is measured from the optical centre to the principal focus."
+      "[1 mark] its optical centre and its principal focus — focal length is measured from the optical centre to the principal focus. Answer: (A)"
     ],
     "finalAnswer": "its optical centre and its principal focus",
     "isCompetencyBased": false,
@@ -108,7 +108,7 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "options": ["real, inverted and of the same size", "real, inverted and magnified", "virtual, erect and magnified", "real, inverted and diminished"],
     "answer": "real, inverted and magnified",
     "solutionSteps": [
-      "[1 mark] real, inverted and magnified — the object lies between F₁ and 2F₁, so the image forms beyond 2F₂ and is larger than the object, as the figure shows."
+      "[1 mark] real, inverted and magnified — the object lies between F₁ and 2F₁, so the image forms beyond 2F₂ and is larger than the object, as the figure shows. Answer: (B)"
     ],
     "finalAnswer": "real, inverted and magnified",
     "isCompetencyBased": false,
@@ -130,7 +130,7 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "options": ["0", "4", "1", "16"],
     "answer": "1",
     "solutionSteps": [
-      "[1 mark] 1 — M = H_B / H_A = 4 cm / 4 cm = 1."
+      "[1 mark] 1 — M = H_B / H_A = 4 cm / 4 cm = 1. Answer: (C)"
     ],
     "finalAnswer": "1",
     "isCompetencyBased": false,

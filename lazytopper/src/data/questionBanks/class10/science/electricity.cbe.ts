@@ -20,7 +20,7 @@ export const ELEC_CBE: CanonicalQuestion[] = [
     "options": ["R1 and R2", "R4 and R5", "R1 and R3", "R2 and R3"],
     "answer": "R1 and R2",
     "solutionSteps": [
-      "[1 mark] R1 and R2 — R1 and R2 lie one after the other in the same branch with no junction between them, so they carry the same current."
+      "[1 mark] R1 and R2 — R1 and R2 lie one after the other in the same branch with no junction between them, so they carry the same current. Answer: (A)"
     ],
     "finalAnswer": "R1 and R2",
     "isCompetencyBased": false,
@@ -42,7 +42,7 @@ export const ELEC_CBE: CanonicalQuestion[] = [
     "options": ["R1 and R2", "R4 and R5", "R2 and R4", "R1 and R5"],
     "answer": "R4 and R5",
     "solutionSteps": [
-      "[1 mark] R4 and R5 — R4 and R5 are joined between the same two junctions, so they are in parallel."
+      "[1 mark] R4 and R5 — R4 and R5 are joined between the same two junctions, so they are in parallel. Answer: (B)"
     ],
     "finalAnswer": "R4 and R5",
     "isCompetencyBased": false,

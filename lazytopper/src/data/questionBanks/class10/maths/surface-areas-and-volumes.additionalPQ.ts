@@ -11,7 +11,7 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
     questionText: "A cuboid of base area P sq units is filled with water upto a height of Q units. A sphere of volume R cu units is dropped into the cuboid such that it is completely submerged. Which of these represents the increase in the height of water?",
     options: ["0 units", "R/P units", "R units", "Q + R/P units"],
     answer: "R/P units",
-    solutionSteps: ["Volume of water displaced = volume of sphere = R cu units.", "Increase in water height × base area = R ⟹ height increase = R/P units."],
+    solutionSteps: ["Volume of water displaced = volume of sphere = R cu units.", "Increase in water height × base area = R ⟹ height increase = R/P units. Answer: (B)"],
     finalAnswer: "(b) R/P units",
     ncertRef: "APQ PQ1 Q15", isCompetencyBased: true },
 
@@ -20,7 +20,7 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
     questionText: "Two cubes each with 6 cm edge are joined end to end. The surface area of the resulting cuboid is",
     options: ["180 cm^2", "360 cm^2", "300 cm^2", "260 cm^2"],
     answer: "360 cm^2",
-    solutionSteps: ["Resulting cuboid dimensions: 12 cm × 6 cm × 6 cm.", "Surface area = 2(lb + bh + lh) = 2(72 + 36 + 72) = 2 × 180 = 360 cm^2."],
+    solutionSteps: ["Resulting cuboid dimensions: 12 cm × 6 cm × 6 cm.", "Surface area = 2(lb + bh + lh) = 2(72 + 36 + 72) = 2 × 180 = 360 cm^2. Answer: (B)"],
     finalAnswer: "(b) 360 cm^2",
     ncertRef: "APQ PQ2 Q12", isCompetencyBased: false },
 
@@ -29,7 +29,7 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
     questionText: "A sphere of maximum volume is cut out from a solid hemisphere of radius 7 cm. Then the ratio of the volume of the original hemisphere to that of the cut-out sphere is",
     options: ["2 : 1", "16 : 1", "3 : 1", "4 : 1"],
     answer: "4 : 1",
-    solutionSteps: ["Hemisphere radius R = 7. Max inscribed sphere has radius R/2 = 7/2 (largest sphere inside hemisphere has diameter = R).", "V(hemisphere)/V(sphere) = (2/3)πR^3 / [(4/3)π(R/2)^3] = (2/3)R^3 / [(4/3)·R^3/8] = (2/3)/(1/6) = 4."],
+    solutionSteps: ["Hemisphere radius R = 7. Max inscribed sphere has radius R/2 = 7/2 (largest sphere inside hemisphere has diameter = R).", "V(hemisphere)/V(sphere) = (2/3)πR^3 / [(4/3)π(R/2)^3] = (2/3)R^3 / [(4/3)·R^3/8] = (2/3)/(1/6) = 4. Answer: (D)"],
     finalAnswer: "(d) 4 : 1",
     ncertRef: "APQ PQ2 Q13", isCompetencyBased: true },
 
@@ -70,7 +70,7 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
     questionText: "Shown below is a solid made by joining a right circular cylinder and a hemisphere of equal radius (r cm). The total surface area of the solid is equal to the surface area of a sphere with twice the radius of this solid. Which of the following gives the height of the cylinder in the above solid?",
     options: ["6r cm", "6.5r cm", "7r cm", "7.5r cm"],
     answer: "6.5r cm",
-    solutionSteps: ["TSA(solid) = 2πrh + 2πr^2 + πr^2 = 2πrh + 3πr^2 (cylinder CSA + base circle + hemisphere CSA; the joined face is internal).", "SA(sphere of radius 2r) = 4π(2r)^2 = 16πr^2.", "Equate: 2πrh + 3πr^2 = 16πr^2 ⟹ 2rh = 13r^2 ⟹ h = 6.5r cm."],
+    solutionSteps: ["TSA(solid) = 2πrh + 2πr^2 + πr^2 = 2πrh + 3πr^2 (cylinder CSA + base circle + hemisphere CSA; the joined face is internal).", "SA(sphere of radius 2r) = 4π(2r)^2 = 16πr^2.", "Equate: 2πrh + 3πr^2 = 16πr^2 ⟹ 2rh = 13r^2 ⟹ h = 6.5r cm. Answer: (B)"],
     finalAnswer: "(b) 6.5r cm",
     ncertRef: "APQ PQ_2022 Q15", isCompetencyBased: true },
 

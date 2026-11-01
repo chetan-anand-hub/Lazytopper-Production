@@ -21,7 +21,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Leishmania, reproducing by binary fission",
     "solutionSteps": [
-      "[1 mark] Leishmania by binary fission: one cell splits into two along a definite orientation with respect to its whip-like structure. Amoeba also splits into two, but it has no whip-like structure and can split in any plane."
+      "[1 mark] Leishmania by binary fission: one cell splits into two along a definite orientation with respect to its whip-like structure. Amoeba also splits into two, but it has no whip-like structure and can split in any plane. Answer: (A)"
     ],
     "finalAnswer": "Leishmania, reproducing by binary fission",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3200",
     "solutionSteps": [
-      "[1 mark] 3200: 2 hours = 120 min gives 120 ÷ 20 = 6 divisions; the number doubles each time, so 50 × 2⁶ = 50 × 64 = 3200 cells. 300 multiplies by 6 instead of doubling six times; 6400 counts one division too many."
+      "[1 mark] 3200: 2 hours = 120 min gives 120 ÷ 20 = 6 divisions; the number doubles each time, so 50 × 2⁶ = 50 × 64 = 3200 cells. 300 multiplies by 6 instead of doubling six times; 6400 counts one division too many. Answer: (B)"
     ],
     "finalAnswer": "3200",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Each broken piece of a filament grew and divided to form a new filament, so the alga reproduced by fragmentation.",
     "solutionSteps": [
-      "[1 mark] Fragmentation: a Spirogyra filament has a simple body organisation, so each broken piece simply grows into a new filament. Regeneration is wrong because it involves specialised cells forming different tissues, as in Planaria."
+      "[1 mark] Fragmentation: a Spirogyra filament has a simple body organisation, so each broken piece simply grows into a new filament. Regeneration is wrong because it involves specialised cells forming different tissues, as in Planaria. Answer: (C)"
     ],
     "finalAnswer": "Each broken piece of a filament grew and divided to form a new filament, so the alga reproduced by fragmentation.",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Small inaccuracies arose when the DNA was copied during some of the divisions.",
     "solutionSteps": [
-      "[1 mark] DNA copying is never absolutely accurate, so a copying error passed to a daughter cell creates a slight variation. Two parents are not involved in binary fission, and each daughter cell gets a full copy of the DNA, not half."
+      "[1 mark] DNA copying is never absolutely accurate, so a copying error passed to a daughter cell creates a slight variation. Two parents are not involved in binary fission, and each daughter cell gets a full copy of the DNA, not half. Answer: (D)"
     ],
     "finalAnswer": "Small inaccuracies arose when the DNA was copied during some of the divisions.",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true because DNA copying is very accurate but not perfect, so slight variations can appear. R is false because the DNA is first copied, and each daughter cell receives one complete copy, not half."
+      "[1 mark] (C): A is true because DNA copying is very accurate but not perfect, so slight variations can appear. R is false because the DNA is first copied, and each daughter cell receives one complete copy, not half. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D): A is false because regrowing a tail only repairs the same lizard; no new individual is formed, so it is not reproduction. R is true: in Planaria, regeneration counts as reproduction because each piece becomes a new individual."
+      "[1 mark] (D): A is false because regrowing a tail only repairs the same lizard; no new individual is formed, so it is not reproduction. R is true: in Planaria, regeneration counts as reproduction because each piece becomes a new individual. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -540,7 +540,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Potato – a piece of tuber with an eye; Sugarcane – a stem piece with nodes; Bryophyllum – a leaf with notches; Rose – a stem cutting",
     "solutionSteps": [
-      "[1 mark] The first option is correct: the potato tuber is an underground stem whose eyes are buds; sugarcane sprouts from buds at the nodes; Bryophyllum leaves bear buds in their marginal notches; rose grows from stem cuttings. 'Potato – swollen root' is tempting but wrong, as the tuber is a stem."
+      "[1 mark] The first option is correct: the potato tuber is an underground stem whose eyes are buds; sugarcane sprouts from buds at the nodes; Bryophyllum leaves bear buds in their marginal notches; rose grows from stem cuttings. 'Potato – swollen root' is tempting but wrong, as the tuber is a stem. Answer: (A)"
     ],
     "finalAnswer": "Potato – a piece of tuber with an eye; Sugarcane – a stem piece with nodes; Bryophyllum – a leaf with notches; Rose – a stem cutting",
     "isCompetencyBased": true,
@@ -569,7 +569,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Stem cuttings taken from the mother plant",
     "solutionSteps": [
-      "[1 mark] Stem cuttings: this is vegetative propagation, so every new plant carries a copy of the mother plant's DNA and shows its exact flower colour and form. Seeds after cross-pollination are tempting, but they arise from fusion of gametes of two parents and show variation; pollen grains cannot grow into plants."
+      "[1 mark] Stem cuttings: this is vegetative propagation, so every new plant carries a copy of the mother plant's DNA and shows its exact flower colour and form. Seeds after cross-pollination are tempting, but they arise from fusion of gametes of two parents and show variation; pollen grains cannot grow into plants. Answer: (B)"
     ],
     "finalAnswer": "Stem cuttings taken from the mother plant",
     "isCompetencyBased": true,
@@ -598,7 +598,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Transfer the mass of cells to another medium containing plant hormones that make it form plantlets",
     "solutionSteps": [
-      "[1 mark] The shapeless mass is a callus; in tissue culture it is moved to a medium containing hormones that make its cells grow and differentiate into plantlets, which are later shifted to soil. Planting it straight in soil is tempting, but a callus has no roots and would not survive."
+      "[1 mark] The shapeless mass is a callus; in tissue culture it is moved to a medium containing hormones that make its cells grow and differentiate into plantlets, which are later shifted to soil. Planting it straight in soil is tempting, but a callus has no roots and would not survive. Answer: (C)"
     ],
     "finalAnswer": "Transfer the mass of cells to another medium containing plant hormones that make it form plantlets",
     "isCompetencyBased": true,
@@ -627,7 +627,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The cultivated banana has lost the capacity to produce seeds, so it can only be multiplied by vegetative propagation.",
     "solutionSteps": [
-      "[1 mark] The cultivated banana does not form viable seeds, so farmers depend on vegetative propagation by suckers (or tissue culture). The reversed claim is wrong: seeds come from sexual reproduction and show variation, while suckers give plants identical to the parent without gametes or spores."
+      "[1 mark] The cultivated banana does not form viable seeds, so farmers depend on vegetative propagation by suckers (or tissue culture). The reversed claim is wrong: seeds come from sexual reproduction and show variation, while suckers give plants identical to the parent without gametes or spores. Answer: (D)"
     ],
     "finalAnswer": "The cultivated banana has lost the capacity to produce seeds, so it can only be multiplied by vegetative propagation.",
     "isCompetencyBased": true,
@@ -656,7 +656,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: the potato tuber is a modified underground stem and its eyes are buds; every piece that carries an eye has a bud that sprouts into a shoot, so one tuber gives as many plants as pieces with eyes."
+      "[1 mark] (A) Both are true and R explains A: the potato tuber is a modified underground stem and its eyes are buds; every piece that carries an eye has a bud that sprouts into a shoot, so one tuber gives as many plants as pieces with eyes. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -685,7 +685,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: plantlets raised by tissue culture come from cells of one parent with no fusion of gametes, so they are genetically identical and bear flowers of the parent's colour. R is true, and it actually explains why A is false."
+      "[1 mark] (D) A is false: plantlets raised by tissue culture come from cells of one parent with no fusion of gametes, so they are genetically identical and bear flowers of the parent's colour. R is true, and it actually explains why A is false. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1063,7 +1063,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Formation of seeds and fruits from those flowers",
     "solutionSteps": [
-      "[1 mark] The swollen base is the ovary, which holds the ovules; ovules become seeds and the ovary becomes the fruit, so seeds and fruits cannot form. The sticky tip (stigma) and anthers are intact, so pollen can still form and land on the stigma."
+      "[1 mark] The swollen base is the ovary, which holds the ovules; ovules become seeds and the ovary becomes the fruit, so seeds and fruits cannot form. The sticky tip (stigma) and anthers are intact, so pollen can still form and land on the stigma. Answer: (A)"
     ],
     "finalAnswer": "Formation of seeds and fruits from those flowers",
     "isCompetencyBased": true,
@@ -1092,7 +1092,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Plant R only",
     "solutionSteps": [
-      "[1 mark] In R the pistil-bearing plant has no stamens anywhere, so pollen must come from another plant (cross-pollination). Q, though its flowers are unisexual, carries both kinds of flowers on one plant, so pollen from its own flowers can pollinate it."
+      "[1 mark] In R the pistil-bearing plant has no stamens anywhere, so pollen must come from another plant (cross-pollination). Q, though its flowers are unisexual, carries both kinds of flowers on one plant, so pollen from its own flowers can pollinate it. Answer: (B)"
     ],
     "finalAnswer": "Plant R only",
     "isCompetencyBased": true,
@@ -1121,7 +1121,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The spray killed or drove away the bees, so pollen was not carried to the stigmas and few ovules were fertilised.",
     "solutionSteps": [
-      "[1 mark] Bees are the pollinating agents; with almost no visits, pollen was not transferred to stigmas, so fertilisation and fruit formation dropped. Pollen was present, so lack of pollen is ruled out; petals are not needed for the ovary to grow into a fruit."
+      "[1 mark] Bees are the pollinating agents; with almost no visits, pollen was not transferred to stigmas, so fertilisation and fruit formation dropped. Pollen was present, so lack of pollen is ruled out; petals are not needed for the ovary to grow into a fruit. Answer: (C)"
     ],
     "finalAnswer": "The spray killed or drove away the bees, so pollen was not carried to the stigmas and few ovules were fertilised.",
     "isCompetencyBased": true,
@@ -1150,7 +1150,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Water is needed for these seeds to germinate, but light is not.",
     "solutionSteps": [
-      "[1 mark] Dishes 1 and 2 differ only in light and both sprouted almost equally, so light is not needed; Dishes 1 and 3 differ only in water and only the wet dish sprouted, so water is needed."
+      "[1 mark] Dishes 1 and 2 differ only in light and both sprouted almost equally, so light is not needed; Dishes 1 and 3 differ only in water and only the wet dish sprouted, so water is needed. Answer: (D)"
     ],
     "finalAnswer": "Water is needed for these seeds to germinate, but light is not.",
     "isCompetencyBased": true,
@@ -1179,7 +1179,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: pumpkin flowers are unisexual, so pollen must be carried by an agent such as a bee from a stamen-bearing flower to a pistil-bearing flower before fruit can form. R is false: pumpkin flowers are not bisexual."
+      "[1 mark] (C) A is true: pumpkin flowers are unisexual, so pollen must be carried by an agent such as a bee from a stamen-bearing flower to a pistil-bearing flower before fruit can form. R is false: pumpkin flowers are not bisexual. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1208,7 +1208,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: the seed holds a many-celled embryo (with future root, future shoot and cotyledons), not a single zygote. R is true: the zygote divides repeatedly to form the embryo inside the ovule, which becomes the seed."
+      "[1 mark] (D) A is false: the seed holds a many-celled embryo (with future root, future shoot and cotyledons), not a single zygote. R is true: the zygote divides repeatedly to form the embryo inside the ovule, which becomes the seed. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1586,7 +1586,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "P and R only",
     "solutionSteps": [
-      "[1 mark] P and R only: thick hair in the armpits and genital area and oily skin with pimples appear in both sexes. Cracking of the voice (Q) is a change in boys and breast development (S) is a change in girls, so options containing Q or S are wrong."
+      "[1 mark] P and R only: thick hair in the armpits and genital area and oily skin with pimples appear in both sexes. Cracking of the voice (Q) is a change in boys and breast development (S) is a change in girls, so options containing Q or S are wrong. Answer: (A)"
     ],
     "finalAnswer": "P and R only",
     "isCompetencyBased": true,
@@ -1615,7 +1615,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Formation of sperms in the testes and release of testosterone into the blood",
     "solutionSteps": [
-      "[1 mark] The testes still form sperms and release testosterone into the blood, which does not use the vas deferens. Since the vas deferens carries sperms towards the urethra, the blockage stops sperms reaching the urethra and the outgoing fluid, so fertilisation is not possible."
+      "[1 mark] The testes still form sperms and release testosterone into the blood, which does not use the vas deferens. Since the vas deferens carries sperms towards the urethra, the blockage stops sperms reaching the urethra and the outgoing fluid, so fertilisation is not possible. Answer: (B)"
     ],
     "finalAnswer": "Formation of sperms in the testes and release of testosterone into the blood",
     "isCompetencyBased": true,
@@ -1644,7 +1644,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The egg released during the previous cycle was not fertilised, so the thick, blood-rich lining of the uterus broke down and came out.",
     "solutionSteps": [
-      "[1 mark] Menstruation occurs when the egg is not fertilised: the thickened lining is not needed, so it breaks down and comes out as blood and mucus. It is not the release of an egg, and it would not occur if an embryo had implanted."
+      "[1 mark] Menstruation occurs when the egg is not fertilised: the thickened lining is not needed, so it breaks down and comes out as blood and mucus. It is not the release of an egg, and it would not occur if an embryo had implanted. Answer: (C)"
     ],
     "finalAnswer": "The egg released during the previous cycle was not fertilised, so the thick, blood-rich lining of the uterus broke down and came out.",
     "isCompetencyBased": true,
@@ -1673,7 +1673,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "R can still occur, but P cannot, so S and Q cannot follow either.",
     "solutionSteps": [
-      "[1 mark] The order is R → P → S → Q. Fertilisation (R) happens in the oviduct, so it is not affected, but without a thick lining the embryo cannot be embedded (P); the placenta forms only after implantation, so S and then Q cannot follow."
+      "[1 mark] The order is R → P → S → Q. Fertilisation (R) happens in the oviduct, so it is not affected, but without a thick lining the embryo cannot be embedded (P); the placenta forms only after implantation, so S and then Q cannot follow. Answer: (D)"
     ],
     "finalAnswer": "R can still occur, but P cannot, so S and Q cannot follow either.",
     "isCompetencyBased": true,
@@ -1702,7 +1702,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): A is true — the formation of sperms begins only at puberty, when the reproductive organs become active. R is false — the testes lie in the scrotum, outside the abdominal cavity, because sperm formation needs a temperature lower than the normal body temperature."
+      "[1 mark] (C): A is true — the formation of sperms begins only at puberty, when the reproductive organs become active. R is false — the testes lie in the scrotum, outside the abdominal cavity, because sperm formation needs a temperature lower than the normal body temperature. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1731,7 +1731,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D): A is false because a later start of voice change at 13 is within the normal range and is not proof of a disorder; R is true, since the changes of puberty begin at different ages in different individuals."
+      "[1 mark] (D): A is false because a later start of voice change at 13 is within the normal range and is not proof of a disorder; R is true, since the changes of puberty begin at different ages in different individuals. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -2109,7 +2109,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A copper-T placed in the uterus",
     "solutionSteps": [
-      "[1 mark] A copper-T is a device placed inside the uterus, so it can cause side effects by irritating the uterus. Oral pills (the tempting choice) also have side effects, but these come from changing the hormonal balance of the body, not from irritating the uterine lining."
+      "[1 mark] A copper-T is a device placed inside the uterus, so it can cause side effects by irritating the uterus. Oral pills (the tempting choice) also have side effects, but these come from changing the hormonal balance of the body, not from irritating the uterine lining. Answer: (A)"
     ],
     "finalAnswer": "A copper-T placed in the uterus",
     "isCompetencyBased": true,
@@ -2138,7 +2138,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Gonorrhoea only",
     "solutionSteps": [
-      "[1 mark] Gonorrhoea is caused by a bacterium, so antibiotics can cure it. Warts and HIV-AIDS are both caused by viruses, so antibiotics do not act on them; hence 'gonorrhoea and warts' is wrong because warts are viral."
+      "[1 mark] Gonorrhoea is caused by a bacterium, so antibiotics can cure it. Warts and HIV-AIDS are both caused by viruses, so antibiotics do not act on them; hence 'gonorrhoea and warts' is wrong because warts are viral. Answer: (B)"
     ],
     "finalAnswer": "Gonorrhoea only",
     "isCompetencyBased": true,
@@ -2167,7 +2167,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "900",
     "solutionSteps": [
-      "[1 mark] Sex ratio at birth = (girls ÷ boys) × 1000 = (1125 ÷ 1250) × 1000 = 900 girls per 1000 boys. The tempting value 1111 comes from dividing boys by girls, which gives boys per 1000 girls instead."
+      "[1 mark] Sex ratio at birth = (girls ÷ boys) × 1000 = (1125 ÷ 1250) × 1000 = 900 girls per 1000 boys. The tempting value 1111 comes from dividing boys by girls, which gives boys per 1000 girls instead. Answer: (C)"
     ],
     "finalAnswer": "900",
     "isCompetencyBased": true,
@@ -2196,7 +2196,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Surgical blocking of the vas deferens",
     "solutionSteps": [
-      "[1 mark] Surgical blocking of the vas deferens is a generally permanent method and is not easily reversed, so it does not suit a couple who want a child later. Condoms, oral pills and a copper-T can all be stopped or removed when the couple decide to have a child."
+      "[1 mark] Surgical blocking of the vas deferens is a generally permanent method and is not easily reversed, so it does not suit a couple who want a child later. Condoms, oral pills and a copper-T can all be stopped or removed when the couple decide to have a child. Answer: (D)"
     ],
     "finalAnswer": "Surgical blocking of the vas deferens",
     "isCompetencyBased": true,
@@ -2225,7 +2225,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) Both statements are true, but R only explains how sex is decided. The law exists because prenatal sex determination was misused for female foeticide, which lowers the sex ratio; R does not give this reason."
+      "[1 mark] (B) Both statements are true, but R only explains how sex is decided. The law exists because prenatal sex determination was misused for female foeticide, which lowers the sex ratio; R does not give this reason. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2254,7 +2254,7 @@ export const REPRODUCTION_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: the surgery only prevents sperms from passing out, so it prevents pregnancy, but body fluids that can carry the virus are still exchanged; only a barrier such as a condom reduces this risk."
+      "[1 mark] (A) Both are true and R explains A: the surgery only prevents sperms from passing out, so it prevents pregnancy, but body fluids that can carry the virus are still exchanged; only a barrier such as a condom reduces this risk. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

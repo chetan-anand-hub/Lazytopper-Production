@@ -21,7 +21,7 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "options": ["22 cm", "5.5 cm", "11 cm", "77 cm"],
     "answer": "11 cm",
     "solutionSteps": [
-      "[1 mark] 11 cm — (45/360) × 2 × (22/7) × 14 = (1/8) × 88 = 11 cm."
+      "[1 mark] 11 cm — (45/360) × 2 × (22/7) × 14 = (1/8) × 88 = 11 cm. Answer: (C)"
     ],
     "finalAnswer": "11 cm",
     "isCompetencyBased": false
@@ -40,7 +40,7 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "options": ["990 m", "3960 m", "630 m", "1980 m"],
     "answer": "1980 m",
     "solutionSteps": [
-      "[1 mark] 1980 m — one revolution = πd = (22/7) × 1.26 = 3.96 m; 500 × 3.96 = 1980 m."
+      "[1 mark] 1980 m — one revolution = πd = (22/7) × 1.26 = 3.96 m; 500 × 3.96 = 1980 m. Answer: (D)"
     ],
     "finalAnswer": "1980 m",
     "isCompetencyBased": false
@@ -83,7 +83,7 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "options": ["616 cm²", "88 cm²", "154 cm²", "1232 cm²"],
     "answer": "616 cm²",
     "solutionSteps": [
-      "[1 mark] 616 cm² — πr² = (22/7) × 14 × 14 = 616 cm²."
+      "[1 mark] 616 cm² — πr² = (22/7) × 14 × 14 = 616 cm². Answer: (A)"
     ],
     "finalAnswer": "616 cm²",
     "isCompetencyBased": false
@@ -102,7 +102,7 @@ export const ARC_PREBOARD: CanonicalQuestion[] = [
     "options": ["π cm²", "3π cm²", "4π cm²", "12π cm²"],
     "answer": "3π cm²",
     "solutionSteps": [
-      "[1 mark] 3π cm² — radii are 2 cm and 1 cm; area = π(2² − 1²) = 3π cm² (≈ 9.43 cm²)."
+      "[1 mark] 3π cm² — radii are 2 cm and 1 cm; area = π(2² − 1²) = 3π cm² (≈ 9.43 cm²). Answer: (B)"
     ],
     "finalAnswer": "3π cm²",
     "isCompetencyBased": false,

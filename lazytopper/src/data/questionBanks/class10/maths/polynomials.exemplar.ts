@@ -14,7 +14,7 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If one of the zeroes of the quadratic polynomial (k – 1)x² + kx + 1 is −3, then the value of k is",
     options: ["4/3", "−4/3", "2/3", "−2/3"],
     answer: "4/3",
-    solutionSteps: ["Substitute x = −3 into (k − 1)x² + kx + 1: (k − 1)(9) + k(−3) + 1 = 0.", "9k − 9 − 3k + 1 = 0 ⇒ 6k − 8 = 0 ⇒ k = 8/6 = 4/3."],
+    solutionSteps: ["Substitute x = −3 into (k − 1)x² + kx + 1: (k − 1)(9) + k(−3) + 1 = 0.", "9k − 9 − 3k + 1 = 0 ⇒ 6k − 8 = 0 ⇒ k = 8/6 = 4/3. Answer: (A)"],
     finalAnswer: "4/3 — option (a).",
     ncertRef: "Exemplar Ex 2.1 Q1", isCompetencyBased: true },
 
@@ -22,7 +22,7 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A quadratic polynomial whose zeroes are −3 and 4 is",
     options: ["x² – x + 12", "x² + x + 12", "x²/2 − x/2 − 6", "2x² + 2x − 24"],
     answer: "x²/2 − x/2 − 6",
-    solutionSteps: ["Sum of zeroes = −3 + 4 = 1; product = −12.", "Polynomial of the form x² − (sum)x + product = x² − x − 12.", "Dividing by 2 gives x²/2 − x/2 − 6, which is option (c) and matches the NCERT key.", "Option (d) 2x² + 2x − 24 ≠ x² − x − 12 (sign of linear term differs)."],
+    solutionSteps: ["Sum of zeroes = −3 + 4 = 1; product = −12.", "Polynomial of the form x² − (sum)x + product = x² − x − 12.", "Dividing by 2 gives x²/2 − x/2 − 6, which is option (c) and matches the NCERT key.", "Option (d) 2x² + 2x − 24 ≠ x² − x − 12 (sign of linear term differs). Answer: (C)"],
     finalAnswer: "x²/2 − x/2 − 6 — option (c).",
     ncertRef: "Exemplar Ex 2.1 Q2", isCompetencyBased: true },
 
@@ -30,7 +30,7 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If the zeroes of the quadratic polynomial x² + (a + 1)x + b are 2 and −3, then",
     options: ["a = −7, b = −1", "a = 5, b = −1", "a = 2, b = −6", "a = 0, b = −6"],
     answer: "a = 0, b = −6",
-    solutionSteps: ["Sum of zeroes: 2 + (−3) = −1 = −(a + 1) ⇒ a + 1 = 1 ⇒ a = 0.", "Product of zeroes: 2 × (−3) = −6 = b ⇒ b = −6."],
+    solutionSteps: ["Sum of zeroes: 2 + (−3) = −1 = −(a + 1) ⇒ a + 1 = 1 ⇒ a = 0.", "Product of zeroes: 2 × (−3) = −6 = b ⇒ b = −6. Answer: (D)"],
     finalAnswer: "a = 0, b = −6 — option (d).",
     ncertRef: "Exemplar Ex 2.1 Q3", isCompetencyBased: true },
 
@@ -38,7 +38,7 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The number of polynomials having zeroes as −2 and 5 is",
     options: ["1", "2", "3", "more than 3"],
     answer: "more than 3",
-    solutionSteps: ["Any polynomial of the form k(x + 2)(x − 5), where k ≠ 0 is real, has these zeroes.", "k can take infinitely many real values, so infinitely many such polynomials exist."],
+    solutionSteps: ["Any polynomial of the form k(x + 2)(x − 5), where k ≠ 0 is real, has these zeroes.", "k can take infinitely many real values, so infinitely many such polynomials exist. Answer: (D)"],
     finalAnswer: "More than 3 — option (d).",
     ncertRef: "Exemplar Ex 2.1 Q4", isCompetencyBased: true,
     strategyHint: "The set of polynomials with given roots is {k·(x−α)(x−β) : k ≠ 0}." },
@@ -55,7 +55,7 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The zeroes of the quadratic polynomial x² + 99x + 127 are",
     options: ["both positive", "both negative", "one positive and one negative", "both equal"],
     answer: "both negative",
-    solutionSteps: ["Sum of zeroes = −99 (negative) and product = 127 (positive).", "Two numbers with negative sum and positive product are both negative."],
+    solutionSteps: ["Sum of zeroes = −99 (negative) and product = 127 (positive).", "Two numbers with negative sum and positive product are both negative. Answer: (B)"],
     finalAnswer: "Both negative — option (b).",
     ncertRef: "Exemplar Ex 2.1 Q7", isCompetencyBased: true },
 

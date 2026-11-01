@@ -77,7 +77,7 @@ export const OE_TEXTBOOK: CanonicalQuestion[] = [
     questionText: "Which of the following constitute a food-chain?",
     options: ["Grass, wheat and mango", "Grass, goat and human", "Goat, cow and elephant", "Grass, fish and goat"],
     answer: "Grass, goat and human",
-    solutionSteps: ["[1 mark] Grass (producer) is eaten by the goat (herbivore), which is eaten by humans (consumer), so Grass → Goat → Human is a food chain; (a) has only producers, (c) only herbivores, and in (d) the goat does not eat fish — option (b)."],
+    solutionSteps: ["[1 mark] Grass (producer) is eaten by the goat (herbivore), which is eaten by humans (consumer), so Grass → Goat → Human is a food chain; (a) has only producers, (c) only herbivores, and in (d) the goat does not eat fish — option (b). Answer: (B)"],
     finalAnswer: "Grass, goat and human — option (b)",
     ncertRef: "Exercise Q2", isCompetencyBased: false },
 
@@ -85,7 +85,7 @@ export const OE_TEXTBOOK: CanonicalQuestion[] = [
     questionText: "Which of the following are environment-friendly practices?",
     options: ["Carrying cloth-bags to put purchases in while shopping", "Switching off unnecessary lights and fans", "Walking to school instead of getting your mother to drop you on her scooter", "All of the above"],
     answer: "All of the above",
-    solutionSteps: ["[1 mark] Cloth bags avoid non-biodegradable plastic bags, switching off unnecessary lights and fans saves electricity, and walking avoids fuel use and vehicle pollution — all three are environment-friendly, so option (d)."],
+    solutionSteps: ["[1 mark] Cloth bags avoid non-biodegradable plastic bags, switching off unnecessary lights and fans saves electricity, and walking avoids fuel use and vehicle pollution — all three are environment-friendly, so option (d). Answer: (D)"],
     finalAnswer: "All of the above — option (d)",
     ncertRef: "Exercise Q3", isCompetencyBased: false },
 

@@ -21,7 +21,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "91 cm",
     "solutionSteps": [
-      "[1 mark] The road is a tangent to the wheel at P, so OP ⊥ PQ (tangent ⊥ radius); in right △OPQ, OQ = √(35² + 84²) = √(1225 + 7056) = √8281 = 91 cm."
+      "[1 mark] The road is a tangent to the wheel at P, so OP ⊥ PQ (tangent ⊥ radius); in right △OPQ, OQ = √(35² + 84²) = √(1225 + 7056) = √8281 = 91 cm. Answer: (A)"
     ],
     "finalAnswer": "OQ = 91 cm",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "21 m",
     "solutionSteps": [
-      "[1 mark] PT is a tangent at T, so OT ⊥ PT; in right △OTP, OT = √(OP² − PT²) = √(29² − 20²) = √(841 − 400) = √441 = 21 m."
+      "[1 mark] PT is a tangent at T, so OT ⊥ PT; in right △OTP, OT = √(OP² − PT²) = √(29² − 20²) = √(841 − 400) = √441 = 21 m. Answer: (B)"
     ],
     "finalAnswer": "Radius = 21 m",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "116°",
     "solutionSteps": [
-      "[1 mark] OA ⊥ PA and OB ⊥ PB (tangent ⊥ radius), so in quadrilateral OAPB, ∠AOB = 360° − 90° − 90° − 64° = 116°."
+      "[1 mark] OA ⊥ PA and OB ⊥ PB (tangent ⊥ radius), so in quadrilateral OAPB, ∠AOB = 360° − 90° − 90° − 64° = 116°. Answer: (C)"
     ],
     "finalAnswer": "∠AOB = 116°",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "32 cm",
     "solutionSteps": [
-      "[1 mark] The panels are parallel tangents; the radii to the two points of contact are both perpendicular to the parallel panels, so the two points of contact are the ends of a diameter. Diameter = distance between panels = 64 cm, so radius = 32 cm."
+      "[1 mark] The panels are parallel tangents; the radii to the two points of contact are both perpendicular to the parallel panels, so the two points of contact are the ends of a diameter. Diameter = distance between panels = 64 cm, so radius = 32 cm. Answer: (D)"
     ],
     "finalAnswer": "Radius = 32 cm",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10 cm",
     "solutionSteps": [
-      "[1 mark] Equal tangents from each vertex give AB + CD = BC + DA; in a parallelogram AB = CD and BC = DA, so 2AB = 2BC, i.e. all four sides are equal (a rhombus). Perimeter = 4 × 2.5 = 10 cm."
+      "[1 mark] Equal tangents from each vertex give AB + CD = BC + DA; in a parallelogram AB = CD and BC = DA, so 2AB = 2BC, i.e. all four sides are equal (a rhombus). Perimeter = 4 × 2.5 = 10 cm. Answer: (A)"
     ],
     "finalAnswer": "Perimeter = 10 cm",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "28 m",
     "solutionSteps": [
-      "[1 mark] Tangents from an external point are equal: AR = AP = 3.5 m, BP = BQ = 4.5 m, CQ = CR = 6 m; perimeter = 2(3.5 + 4.5 + 6) = 2 × 14 = 28 m."
+      "[1 mark] Tangents from an external point are equal: AR = AP = 3.5 m, BP = BQ = 4.5 m, CQ = CR = 6 m; perimeter = 2(3.5 + 4.5 + 6) = 2 × 14 = 28 m. Answer: (B)"
     ],
     "finalAnswer": "Perimeter = 28 m",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "16 m",
     "solutionSteps": [
-      "[1 mark] The rope touches the inner circle at T, so OT ⊥ rope and T bisects the rope; half-length = √(17² − 15²) = √(289 − 225) = √64 = 8 m, so the rope is 2 × 8 = 16 m."
+      "[1 mark] The rope touches the inner circle at T, so OT ⊥ rope and T bisects the rope; half-length = √(17² − 15²) = √(289 − 225) = √64 = 8 m, so the rope is 2 × 8 = 16 m. Answer: (C)"
     ],
     "finalAnswer": "Length of rope = 16 m",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12 mm",
     "solutionSteps": [
-      "[1 mark] Both radii are ⊥ to the ruler (tangent ⊥ radius), so they are parallel; a line from the smaller centre parallel to AB gives a right triangle with hypotenuse 13 mm and one leg 9 − 4 = 5 mm, so AB = √(13² − 5²) = √144 = 12 mm."
+      "[1 mark] Both radii are ⊥ to the ruler (tangent ⊥ radius), so they are parallel; a line from the smaller centre parallel to AB gives a right triangle with hypotenuse 13 mm and one leg 9 − 4 = 5 mm, so AB = √(13² − 5²) = √144 = 12 mm. Answer: (A)"
     ],
     "finalAnswer": "AB = 12 mm",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "63 cm",
     "solutionSteps": [
-      "[1 mark] The radii to the points of contact are both ⊥ to the belt, so they are parallel; the right triangle formed has hypotenuse 65 cm and leg 20.5 − 4.5 = 16 cm, so the straight portion = √(65² − 16²) = √(4225 − 256) = √3969 = 63 cm."
+      "[1 mark] The radii to the points of contact are both ⊥ to the belt, so they are parallel; the right triangle formed has hypotenuse 65 cm and leg 20.5 − 4.5 = 16 cm, so the straight portion = √(65² − 16²) = √(4225 − 256) = √3969 = 63 cm. Answer: (B)"
     ],
     "finalAnswer": "Straight portion = 63 cm",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "75 cm",
     "solutionSteps": [
-      "[1 mark] The road is tangent at P, so the radius OP ⊥ road and T lies on line PO, so PT is a vertical diameter of length 60 cm; in the right triangle with legs 60 cm and 45 cm, distance = √(60² + 45²) = √(3600 + 2025) = √5625 = 75 cm."
+      "[1 mark] The road is tangent at P, so the radius OP ⊥ road and T lies on line PO, so PT is a vertical diameter of length 60 cm; in the right triangle with legs 60 cm and 45 cm, distance = √(60² + 45²) = √(3600 + 2025) = √5625 = 75 cm. Answer: (C)"
     ],
     "finalAnswer": "Distance = 75 cm",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "70°",
     "solutionSteps": [
-      "[1 mark] OA ⊥ PA and OB ⊥ PB, so ∠APB = 180° − 140° = 40°; PA = PB (tangents from an external point), so ∠PAB = ∠PBA = (180° − 40°) ÷ 2 = 70°."
+      "[1 mark] OA ⊥ PA and OB ⊥ PB, so ∠APB = 180° − 140° = 40°; PA = PB (tangents from an external point), so ∠PAB = ∠PBA = (180° − 40°) ÷ 2 = 70°. Answer: (D)"
     ],
     "finalAnswer": "∠PAB = 70°",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "20 cm",
     "solutionSteps": [
-      "[1 mark] NA is a tangent at A, so OA ⊥ NA; in right △OAN, ON = √(OA² + NA²) = √(12² + 16²) = √(144 + 256) = √400 = 20 cm."
+      "[1 mark] NA is a tangent at A, so OA ⊥ NA; in right △OAN, ON = √(OA² + NA²) = √(12² + 16²) = √(144 + 256) = √400 = 20 cm. Answer: (A)"
     ],
     "finalAnswer": "ON = 20 cm",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "300√2 m",
     "solutionSteps": [
-      "[1 mark] OA ⊥ PA, OB ⊥ PB and ∠APB = 90°, with OA = OB and PA = PB (equal tangents), so OAPB is a square of side 300 m; OP is its diagonal = 300√2 m."
+      "[1 mark] OA ⊥ PA, OB ⊥ PB and ∠APB = 90°, with OA = OB and PA = PB (equal tangents), so OAPB is a square of side 300 m; OP is its diagonal = 300√2 m. Answer: (B)"
     ],
     "finalAnswer": "OP = 300√2 m",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "30 m",
     "solutionSteps": [
-      "[1 mark] OP bisects ∠APB (△OAP ≅ △OBP), so ∠OPA = 30° and ∠OAP = 90° (tangent ⊥ radius); sin 30° = OA/OP ⇒ ½ = 15/OP ⇒ OP = 30 m."
+      "[1 mark] OP bisects ∠APB (△OAP ≅ △OBP), so ∠OPA = 30° and ∠OAP = 90° (tangent ⊥ radius); sin 30° = OA/OP ⇒ ½ = 15/OP ⇒ OP = 30 m. Answer: (C)"
     ],
     "finalAnswer": "OP = 30 m",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3",
     "solutionSteps": [
-      "[1 mark] From a point inside a circle there are 0 tangents, from a point on the circle exactly 1, and from a point outside exactly 2; total = 0 + 1 + 2 = 3."
+      "[1 mark] From a point inside a circle there are 0 tangents, from a point on the circle exactly 1, and from a point outside exactly 2; total = 0 + 1 + 2 = 3. Answer: (D)"
     ],
     "finalAnswer": "3",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "24 m",
     "solutionSteps": [
-      "[1 mark] OT ⊥ PT, so PT² = OP² − OT² < OP², i.e. PT < 26 m; only 24 m is possible (then OT = √(676 − 576) = 10 m)."
+      "[1 mark] OT ⊥ PT, so PT² = OP² − OT² < OP², i.e. PT < 26 m; only 24 m is possible (then OT = √(676 − 576) = 10 m). Answer: (A)"
     ],
     "finalAnswer": "PT = 24 m",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "36 m",
     "solutionSteps": [
-      "[1 mark] Tangents from an external point are equal: CE = CA and DE = DB; perimeter = PC + CD + DP = PC + CA + DB + DP = PA + PB = 18 + 18 = 36 m."
+      "[1 mark] Tangents from an external point are equal: CE = CA and DE = DB; perimeter = PC + CD + DP = PC + CA + DB + DP = PA + PB = 18 + 18 = 36 m. Answer: (B)"
     ],
     "finalAnswer": "Perimeter of △PCD = 36 m",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "stays 50 cm all the time",
     "solutionSteps": [
-      "[1 mark] At every instant the road is a tangent to the hoop at the point of contact, and the radius to that point is ⊥ to the road; so the centre is always exactly one radius, 50 cm, above the road."
+      "[1 mark] At every instant the road is a tangent to the hoop at the point of contact, and the radius to that point is ⊥ to the road; so the centre is always exactly one radius, 50 cm, above the road. Answer: (C)"
     ],
     "finalAnswer": "Height of centre = 50 cm (constant)",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const CIRCLES_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "25 cm",
     "solutionSteps": [
-      "[1 mark] Equal tangents from each vertex give AB + CD = BC + DA ⇒ 30 + 22 = 27 + DA ⇒ DA = 52 − 27 = 25 cm."
+      "[1 mark] Equal tangents from each vertex give AB + CD = BC + DA ⇒ 30 + 22 = 27 + DA ⇒ DA = 52 − 27 = 25 cm. Answer: (D)"
     ],
     "finalAnswer": "DA = 25 cm",
     "isCompetencyBased": true,

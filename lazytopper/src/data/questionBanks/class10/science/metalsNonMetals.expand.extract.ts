@@ -24,7 +24,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Na and K", "K and C", "Na and S", "K and P"],
     answer: "Na and K",
     solutionSteps: [
-      "[1 mark] Na and K are metals; their oxides (Na₂O, K₂O) are basic and dissolve in water to give alkalis (NaOH, KOH), which turn phenolphthalein pink — so the answer is Na and K.",
+      "[1 mark] Na and K are metals; their oxides (Na₂O, K₂O) are basic and dissolve in water to give alkalis (NaOH, KOH), which turn phenolphthalein pink — so the answer is Na and K. Answer: (A)",
     ],
     finalAnswer: "Na and K",
     ncertRef: "QB (s13 Q8)",
@@ -44,7 +44,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Pale green and light blue", "Light blue and dark green", "Dark green and dark blue", "Dark blue and pale green"],
     answer: "Dark blue and pale green",
     solutionSteps: [
-      "[1 mark] Copper sulphate solution is dark blue and iron(II) sulphate solution is pale (light) green — so the answer is 'Dark blue and pale green'.",
+      "[1 mark] Copper sulphate solution is dark blue and iron(II) sulphate solution is pale (light) green — so the answer is 'Dark blue and pale green'. Answer: (D)",
     ],
     finalAnswer: "Dark blue and pale green",
     ncertRef: "QB (s13 Q18)",
@@ -69,7 +69,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     answer: "Prepare a solution of copper sulphate and suspend a zinc strip in it",
     solutionSteps: [
-      "[1 mark] The more reactive metal displaces the less reactive one from its salt solution; zinc suspended in copper sulphate turns the strip brown (Cu deposit) and fades the blue colour, proving Zn > Cu — so the answer is 'Prepare a solution of copper sulphate and suspend a zinc strip in it'.",
+      "[1 mark] The more reactive metal displaces the less reactive one from its salt solution; zinc suspended in copper sulphate turns the strip brown (Cu deposit) and fades the blue colour, proving Zn > Cu — so the answer is 'Prepare a solution of copper sulphate and suspend a zinc strip in it'. Answer: (D)",
     ],
     finalAnswer: "Suspend a zinc strip in copper sulphate solution",
     ncertRef: "QB (s13 Q28)",
@@ -89,7 +89,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Aluminium", "Copper", "Tin", "Calcium"],
     answer: "Calcium",
     solutionSteps: [
-      "[1 mark] In the reactivity series the order is Ca > Al > Sn > Cu; calcium lies highest, so calcium is the most reactive of the four.",
+      "[1 mark] In the reactivity series the order is Ca > Al > Sn > Cu; calcium lies highest, so calcium is the most reactive of the four. Answer: (D)",
     ],
     finalAnswer: "Calcium",
     ncertRef: "QB (s13 Q52)",
@@ -109,7 +109,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Aluminium and lead", "Iron and magnesium", "Copper and tin", "Copper and mercury"],
     answer: "Copper and tin",
     solutionSteps: [
-      "[1 mark] Copper lies below hydrogen (less reactive) while tin lies above hydrogen (more reactive) in the reactivity series — so the pair is Copper and tin.",
+      "[1 mark] Copper lies below hydrogen (less reactive) while tin lies above hydrogen (more reactive) in the reactivity series — so the pair is Copper and tin. Answer: (C)",
     ],
     finalAnswer: "Copper and tin",
     ncertRef: "QB (s13 Q40)",
@@ -129,7 +129,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Magnesium", "Zinc", "Gold", "Copper"],
     answer: "Gold",
     solutionSteps: [
-      "[1 mark] Only a metal more reactive than silver can displace it; gold is less reactive than silver, so gold cannot displace Ag — the answer is Gold.",
+      "[1 mark] Only a metal more reactive than silver can displace it; gold is less reactive than silver, so gold cannot displace Ag — the answer is Gold. Answer: (C)",
     ],
     finalAnswer: "Gold",
     ncertRef: "QB (s13 Q41)",
@@ -149,7 +149,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Cinnabar", "Calamine", "Haematite", "Rock salt"],
     answer: "Haematite",
     solutionSteps: [
-      "[1 mark] Haematite is an oxide ore of iron (Fe₂O₃); cinnabar is a mercury ore, calamine a zinc ore and rock salt a sodium ore — so the answer is Haematite.",
+      "[1 mark] Haematite is an oxide ore of iron (Fe₂O₃); cinnabar is a mercury ore, calamine a zinc ore and rock salt a sodium ore — so the answer is Haematite. Answer: (C)",
     ],
     finalAnswer: "Haematite",
     ncertRef: "QB (s13 Q69)",
@@ -169,7 +169,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Cinnabar", "Calamine", "Bauxite", "Pyrolusite"],
     answer: "Bauxite",
     solutionSteps: [
-      "[1 mark] Bauxite (hydrated aluminium oxide, Al₂O₃·2H₂O) is the chief ore of aluminium — so the answer is Bauxite.",
+      "[1 mark] Bauxite (hydrated aluminium oxide, Al₂O₃·2H₂O) is the chief ore of aluminium — so the answer is Bauxite. Answer: (C)",
     ],
     finalAnswer: "Bauxite",
     ncertRef: "QB (s13 Q84)",
@@ -189,7 +189,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Rock salt", "Cinnabar", "Calamine", "Haematite"],
     answer: "Cinnabar",
     solutionSteps: [
-      "[1 mark] Cinnabar is mercury(II) sulphide (HgS), the chief ore of mercury — so the answer is Cinnabar.",
+      "[1 mark] Cinnabar is mercury(II) sulphide (HgS), the chief ore of mercury — so the answer is Cinnabar. Answer: (B)",
     ],
     finalAnswer: "Cinnabar",
     ncertRef: "QB (s13 Q120)",
@@ -209,7 +209,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Mercury", "Manganese", "Aluminium", "Magnesium"],
     answer: "Manganese",
     solutionSteps: [
-      "[1 mark] Pyrolusite is manganese dioxide (MnO₂); the metal obtained from it is manganese — so the answer is Manganese.",
+      "[1 mark] Pyrolusite is manganese dioxide (MnO₂); the metal obtained from it is manganese — so the answer is Manganese. Answer: (B)",
     ],
     finalAnswer: "Manganese",
     ncertRef: "QB (s13 Q72)",
@@ -229,7 +229,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Dehydration", "Roasting", "Calcination", "Sulphonation"],
     answer: "Calcination",
     solutionSteps: [
-      "[1 mark] A carbonate ore is converted to its oxide by calcination (strong heating in limited/absence of air): ZnCO₃ → ZnO + CO₂ — so the answer is Calcination.",
+      "[1 mark] A carbonate ore is converted to its oxide by calcination (strong heating in limited/absence of air): ZnCO₃ → ZnO + CO₂ — so the answer is Calcination. Answer: (C)",
     ],
     finalAnswer: "Calcination",
     ncertRef: "QB (s13 Q107)",
@@ -249,7 +249,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Roasting", "Hydrogenation", "Chlorination", "Calcination"],
     answer: "Roasting",
     solutionSteps: [
-      "[1 mark] A sulphide ore is converted to its oxide by roasting (heating strongly in excess air): 2ZnS + 3O₂ → 2ZnO + 2SO₂ — so the answer is Roasting.",
+      "[1 mark] A sulphide ore is converted to its oxide by roasting (heating strongly in excess air): 2ZnS + 3O₂ → 2ZnO + 2SO₂ — so the answer is Roasting. Answer: (A)",
     ],
     finalAnswer: "Roasting",
     ncertRef: "QB (s13 Q64)",
@@ -269,7 +269,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Iron", "Aluminium", "Mercury", "Magnesium"],
     answer: "Mercury",
     solutionSteps: [
-      "[1 mark] An amalgam is, by definition, an alloy of mercury with one or more other metals — so mercury is always present.",
+      "[1 mark] An amalgam is, by definition, an alloy of mercury with one or more other metals — so mercury is always present. Answer: (C)",
     ],
     finalAnswer: "Mercury",
     ncertRef: "QB (s13 Q74)",
@@ -289,7 +289,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Copper and tin", "Copper and lead", "Lead and tin", "Zinc and copper"],
     answer: "Zinc and copper",
     solutionSteps: [
-      "[1 mark] Brass is an alloy of copper and zinc (roughly 80% Cu, 20% Zn) — so the answer is Zinc and copper.",
+      "[1 mark] Brass is an alloy of copper and zinc (roughly 80% Cu, 20% Zn) — so the answer is Zinc and copper. Answer: (D)",
     ],
     finalAnswer: "Zinc and copper",
     ncertRef: "QB (s13 Q78)",
@@ -309,7 +309,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Sulphur", "Carbon", "Calcium", "Hydrogen"],
     answer: "Carbon",
     solutionSteps: [
-      "[1 mark] Carbon forms CO (a neutral oxide) and CO₂ (an acidic oxide); this matches XO neutral and XO₂ acidic — so X is Carbon.",
+      "[1 mark] Carbon forms CO (a neutral oxide) and CO₂ (an acidic oxide); this matches XO neutral and XO₂ acidic — so X is Carbon. Answer: (B)",
     ],
     finalAnswer: "Carbon",
     ncertRef: "QB (s13 Q80)",
@@ -329,7 +329,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Sodium and copper", "Copper and aluminium", "Potassium and zinc", "Mercury and copper"],
     answer: "Mercury and copper",
     solutionSteps: [
-      "[1 mark] Mercury and copper are low in the reactivity series, so their sulphides on heating in air give the free metal (or an oxide easily reduced by more heating) — so the answer is Mercury and copper.",
+      "[1 mark] Mercury and copper are low in the reactivity series, so their sulphides on heating in air give the free metal (or an oxide easily reduced by more heating) — so the answer is Mercury and copper. Answer: (D)",
     ],
     finalAnswer: "Mercury and copper",
     ncertRef: "QB (s13 Q112)",
@@ -349,7 +349,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Copper", "Zinc", "Aluminium", "Iron"],
     answer: "Iron",
     solutionSteps: [
-      "[1 mark] Iron forms the oxide Fe₂O₃ (haematite) and two chlorides FeCl₂ (iron II) and FeCl₃ (iron III), matching ECl₂ and ECl₃ — so E is Iron.",
+      "[1 mark] Iron forms the oxide Fe₂O₃ (haematite) and two chlorides FeCl₂ (iron II) and FeCl₃ (iron III), matching ECl₂ and ECl₃ — so E is Iron. Answer: (D)",
     ],
     finalAnswer: "Iron",
     ncertRef: "QB (s13 Q118)",
@@ -369,7 +369,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["14 carat", "24 carat", "18 carat", "22 carat"],
     answer: "24 carat",
     solutionSteps: [
-      "[1 mark] Pure gold is 24 carat; jewellery gold is usually 22 carat or lower because pure gold is too soft — so the answer is 24 carat.",
+      "[1 mark] Pure gold is 24 carat; jewellery gold is usually 22 carat or lower because pure gold is too soft — so the answer is 24 carat. Answer: (B)",
     ],
     finalAnswer: "24 carat",
     ncertRef: "Module (s2 L-I Q12)",
@@ -389,7 +389,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Iron", "Copper or silver", "Zinc", "Mercury"],
     answer: "Copper or silver",
     solutionSteps: [
-      "[1 mark] Pure (24-carat) gold is very soft, so it is alloyed with a little copper or silver to make it hard enough for ornaments — so the answer is Copper or silver.",
+      "[1 mark] Pure (24-carat) gold is very soft, so it is alloyed with a little copper or silver to make it hard enough for ornaments — so the answer is Copper or silver. Answer: (B)",
     ],
     finalAnswer: "Copper or silver",
     ncertRef: "Module (s2 L-I Q13)",
@@ -409,7 +409,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Flux", "Gangue", "Slag", "Mineral"],
     answer: "Gangue",
     solutionSteps: [
-      "[1 mark] The earthy/rocky impurity mixed with an ore is called gangue; it must be removed during concentration of the ore — so the answer is Gangue.",
+      "[1 mark] The earthy/rocky impurity mixed with an ore is called gangue; it must be removed during concentration of the ore — so the answer is Gangue. Answer: (B)",
     ],
     finalAnswer: "Gangue",
     ncertRef: "Module (s2 L-I Q22)",
@@ -429,7 +429,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Oxide ores", "Sulphide ores", "Carbonate ores", "Halide ores"],
     answer: "Sulphide ores",
     solutionSteps: [
-      "[1 mark] Froth flotation separates sulphide ore particles (which are wetted by oil and rise with the froth) from the gangue (wetted by water) — so it is used for sulphide ores.",
+      "[1 mark] Froth flotation separates sulphide ore particles (which are wetted by oil and rise with the froth) from the gangue (wetted by water) — so it is used for sulphide ores. Answer: (B)",
     ],
     finalAnswer: "Sulphide ores",
     ncertRef: "Module (s2 L-I Q23)",
@@ -449,7 +449,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Cuprite", "Copper glance", "Malachite", "Copper pyrites"],
     answer: "Copper pyrites",
     solutionSteps: [
-      "[1 mark] Copper pyrites (CuFeS₂) is the chief ore from which most copper is extracted — so the answer is Copper pyrites.",
+      "[1 mark] Copper pyrites (CuFeS₂) is the chief ore from which most copper is extracted — so the answer is Copper pyrites. Answer: (D)",
     ],
     finalAnswer: "Copper pyrites",
     ncertRef: "Module (s2 L-I Q17)",
@@ -469,7 +469,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Magnesium", "Calcium", "Sodium", "Aluminium"],
     answer: "Calcium",
     solutionSteps: [
-      "[1 mark] Gypsum is calcium sulphate dihydrate (CaSO₄·2H₂O), an ore of calcium — so the answer is Calcium.",
+      "[1 mark] Gypsum is calcium sulphate dihydrate (CaSO₄·2H₂O), an ore of calcium — so the answer is Calcium. Answer: (B)",
     ],
     finalAnswer: "Calcium",
     ncertRef: "Module (s2 L-I Q29)",
@@ -489,7 +489,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["FeO", "Fe2O3", "Fe3O4", "Fe2O3.xH2O (hydrated iron(III) oxide)"],
     answer: "Fe2O3.xH2O (hydrated iron(III) oxide)",
     solutionSteps: [
-      "[1 mark] Rust is hydrated iron(III) oxide, Fe₂O₃·xH₂O, formed when iron reacts with both oxygen and moisture — so the answer is Fe2O3.xH2O.",
+      "[1 mark] Rust is hydrated iron(III) oxide, Fe₂O₃·xH₂O, formed when iron reacts with both oxygen and moisture — so the answer is Fe2O3.xH2O. Answer: (D)",
     ],
     finalAnswer: "Fe2O3.xH2O",
     ncertRef: "PYQ CBSE 2014 (cq03 Q7)",
@@ -509,7 +509,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Brass", "Bronze", "Solder", "Stainless steel"],
     answer: "Solder",
     solutionSteps: [
-      "[1 mark] Solder is an alloy of lead and tin with a low melting point, which makes it suitable for electrical fuses and for joining (soldering) wires — so the answer is Solder.",
+      "[1 mark] Solder is an alloy of lead and tin with a low melting point, which makes it suitable for electrical fuses and for joining (soldering) wires — so the answer is Solder. Answer: (C)",
     ],
     finalAnswer: "Solder",
     ncertRef: "PYQ CBSE 2014 (cq03 Q8)",
@@ -529,7 +529,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     options: ["Gallium and Caesium", "Magnesium and Aluminium", "Gallium and Aluminium", "Magnesium and Caesium"],
     answer: "Gallium and Caesium",
     solutionSteps: [
-      "[1 mark] Gallium (m.p. ≈ 303 K) and caesium (m.p. ≈ 302 K) both melt near body temperature, unlike the high-melting magnesium and aluminium — so the answer is Gallium and Caesium.",
+      "[1 mark] Gallium (m.p. ≈ 303 K) and caesium (m.p. ≈ 302 K) both melt near body temperature, unlike the high-melting magnesium and aluminium — so the answer is Gallium and Caesium. Answer: (A)",
     ],
     finalAnswer: "Gallium and Caesium",
     ncertRef: "PYQ CBSE 2008 (cq03 Q42)",
@@ -554,7 +554,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     answer: "Both A and R are true and R is the correct explanation of A",
     solutionSteps: [
-      "[1 mark] CO₂ dissolves in water to give carbonic acid (turns blue litmus red), so it is acidic — A is true; non-metals form acidic oxides is the general rule that explains why CO₂ is acidic — R is true and correctly explains A. Hence option 1.",
+      "[1 mark] CO₂ dissolves in water to give carbonic acid (turns blue litmus red), so it is acidic — A is true; non-metals form acidic oxides is the general rule that explains why CO₂ is acidic — R is true and correctly explains A. Hence option 1. Answer: (A)",
     ],
     finalAnswer: "Both A and R are true and R is the correct explanation of A",
     ncertRef: "A&R worksheet (3927 Q7)",
@@ -579,7 +579,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     answer: "Both A and R are true and R is the correct explanation of A",
     solutionSteps: [
-      "[1 mark] Zinc does lose its shine in moist air (A true) because it forms a dull surface film of basic zinc carbonate (R true), which is exactly why it becomes dull — R correctly explains A. Hence option 1.",
+      "[1 mark] Zinc does lose its shine in moist air (A true) because it forms a dull surface film of basic zinc carbonate (R true), which is exactly why it becomes dull — R correctly explains A. Hence option 1. Answer: (A)",
     ],
     finalAnswer: "Both A and R are true and R is the correct explanation of A",
     ncertRef: "A&R worksheet (3927 Q15)",
@@ -604,7 +604,7 @@ export const MNM_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     answer: "Both A and R are true but R is not the correct explanation of A",
     solutionSteps: [
-      "[1 mark] The definition of an ore (A) is true, and the statement that all ores are minerals but not vice-versa (R) is also true, but R is a consequence of the definition rather than its explanation — so R does not explain A. Hence option 2.",
+      "[1 mark] The definition of an ore (A) is true, and the statement that all ores are minerals but not vice-versa (R) is also true, but R is a consequence of the definition rather than its explanation — so R does not explain A. Hence option 2. Answer: (B)",
     ],
     finalAnswer: "Both A and R are true but R is not the correct explanation of A",
     ncertRef: "A&R worksheet (3927 Q17)",

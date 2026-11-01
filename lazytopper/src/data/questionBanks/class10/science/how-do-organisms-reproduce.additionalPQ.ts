@@ -11,7 +11,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_APQ: CanonicalQuestion[] = [
     questionText: "Which of the following method/s are useful to prevent fertilisation even when ovulation occurs? P) surgical blocking of the fallopian tube; Q) copper-T; R) oral pills; S) condom",
     options: ["only P", "only Q and R", "only P, Q and S", "only Q, R and S"],
     answer: "only P, Q and S",
-    solutionSteps: ["P (tubectomy): blocks sperm/egg meeting in fallopian tube → prevents fertilisation even if ovulation occurs ✓.", "Q (copper-T/IUCD): prevents implantation of fertilised egg; but it also creates local conditions hostile to sperm — prevents fertilisation ✓.", "R (oral pills): prevent ovulation in the first place — so this option doesn't apply when ovulation HAS occurred ✗.", "S (condom): blocks sperm from entering vagina → no sperm meets egg → no fertilisation ✓. Hence P, Q, S."],
+    solutionSteps: ["P (tubectomy): blocks sperm/egg meeting in fallopian tube → prevents fertilisation even if ovulation occurs ✓.", "Q (copper-T/IUCD): prevents implantation of fertilised egg; but it also creates local conditions hostile to sperm — prevents fertilisation ✓.", "R (oral pills): prevent ovulation in the first place — so this option doesn't apply when ovulation HAS occurred ✗.", "S (condom): blocks sperm from entering vagina → no sperm meets egg → no fertilisation ✓. Hence P, Q, S. Answer: (C)"],
     finalAnswer: "(c) only P, Q and S",
     ncertRef: "APQ Science-PQ Q10", isCompetencyBased: true },
 

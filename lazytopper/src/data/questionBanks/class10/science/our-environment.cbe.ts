@@ -20,7 +20,7 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "options": ["the transfer of energy from the consumers back to the producer", "the flow of oxygen from producers to consumers", "the transfer of energy from the food to the feeder (producer to consumers)", "the number of organisms at each trophic level"],
     "answer": "the transfer of energy from the food to the feeder (producer to consumers)",
     "solutionSteps": [
-      "[1 mark] the transfer of energy from the food to the feeder (producer to consumers) — arrows show the direction of energy flow, from the organism eaten to the one that eats it."
+      "[1 mark] the transfer of energy from the food to the feeder (producer to consumers) — arrows show the direction of energy flow, from the organism eaten to the one that eats it. Answer: (C)"
     ],
     "finalAnswer": "the transfer of energy from the food to the feeder (producer to consumers)",
     "isCompetencyBased": false,
@@ -64,7 +64,7 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "options": ["grasshopper", "fruit bat", "frog", "coconut tree"],
     "answer": "coconut tree",
     "solutionSteps": [
-      "[1 mark] coconut tree — the coconut tree makes its own food by photosynthesis; the others are consumers."
+      "[1 mark] coconut tree — the coconut tree makes its own food by photosynthesis; the others are consumers. Answer: (D)"
     ],
     "finalAnswer": "coconut tree",
     "isCompetencyBased": false,
@@ -86,7 +86,7 @@ export const ENVI_CBE: CanonicalQuestion[] = [
     "options": ["Spinach → Human", "Spinach → Goat → Human", "Spinach → Chicken → Human", "Human → Spinach"],
     "answer": "Spinach → Human",
     "solutionSteps": [
-      "[1 mark] Spinach → Human — the shortest chain has the fewest trophic levels, so the least energy is lost before reaching the human."
+      "[1 mark] Spinach → Human — the shortest chain has the fewest trophic levels, so the least energy is lost before reaching the human. Answer: (A)"
     ],
     "finalAnswer": "Spinach → Human",
     "isCompetencyBased": true,

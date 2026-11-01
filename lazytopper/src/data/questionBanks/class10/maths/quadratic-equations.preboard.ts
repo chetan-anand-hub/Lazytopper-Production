@@ -45,7 +45,7 @@ export const QE_PREBOARD: CanonicalQuestion[] = [
     "options": ["1", "3", "√3", "√5"],
     "answer": "1",
     "solutionSteps": [
-      "[1 mark] 1 — 3x² = 3 ⇒ x² = 1 ⇒ x = ±1; the positive root is 1."
+      "[1 mark] 1 — 3x² = 3 ⇒ x² = 1 ⇒ x = ±1; the positive root is 1. Answer: (A)"
     ],
     "finalAnswer": "1",
     "isCompetencyBased": false
@@ -88,7 +88,7 @@ export const QE_PREBOARD: CanonicalQuestion[] = [
     "options": ["−2", "2", "8/3", "10/3"],
     "answer": "2",
     "solutionSteps": [
-      "[1 mark] 2 — 6(4/9) − 2/3 − k = 0 ⇒ 8/3 − 2/3 = k ⇒ k = 2."
+      "[1 mark] 2 — 6(4/9) − 2/3 − k = 0 ⇒ 8/3 − 2/3 = k ⇒ k = 2. Answer: (B)"
     ],
     "finalAnswer": "2",
     "isCompetencyBased": false

@@ -24,7 +24,7 @@ export const RN_EXTRACT: CanonicalQuestion[] = [
     options: ["3", "5", "8", "2"],
     answer: "2",
     solutionSteps: [
-      "[1 mark] 2 — a and b have no factor 2, so both are odd; hence a + b is even and its least prime factor is 2."
+      "[1 mark] 2 — a and b have no factor 2, so both are odd; hence a + b is even and its least prime factor is 2. Answer: (D)"
     ],
     finalAnswer: "2",
     isCompetencyBased: false,
@@ -45,7 +45,7 @@ export const RN_EXTRACT: CanonicalQuestion[] = [
     options: ["5k", "k", "60k", "1"],
     answer: "k",
     solutionSteps: [
-      "[1 mark] k — k divides every number and HCF(1, 2, 3, 4, 5) = 1, so the HCF is k."
+      "[1 mark] k — k divides every number and HCF(1, 2, 3, 4, 5) = 1, so the HCF is k. Answer: (B)"
     ],
     finalAnswer: "k",
     isCompetencyBased: false,
@@ -66,7 +66,7 @@ export const RN_EXTRACT: CanonicalQuestion[] = [
     options: ["13", "65", "875", "1750"],
     answer: "13",
     solutionSteps: [
-      "[1 mark] The required number divides (70 − 5) = 65 and (125 − 8) = 117 exactly, so it is HCF(65, 117). Since 65 = 5 × 13 and 117 = 3² × 13, HCF(65, 117) = 13.",
+      "[1 mark] The required number divides (70 − 5) = 65 and (125 − 8) = 117 exactly, so it is HCF(65, 117). Since 65 = 5 × 13 and 117 = 3² × 13, HCF(65, 117) = 13. Answer: (A)",
     ],
     finalAnswer: "13",
     isCompetencyBased: false,
@@ -87,7 +87,7 @@ export const RN_EXTRACT: CanonicalQuestion[] = [
     options: ["1", "3/2", "2", "7/4"],
     answer: "3/2",
     solutionSteps: [
-      "[1 mark] 3/2 — √2 ≈ 1.414 and √3 ≈ 1.732, and 1.414 < 3/2 = 1.5 < 1.732."
+      "[1 mark] 3/2 — √2 ≈ 1.414 and √3 ≈ 1.732, and 1.414 < 3/2 = 1.5 < 1.732. Answer: (B)"
     ],
     finalAnswer: "3/2",
     isCompetencyBased: false,

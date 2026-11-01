@@ -152,7 +152,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     questionText: "Which one of the following materials cannot be used to make a lens?",
     options: ["Water", "Glass", "Plastic", "Clay"],
     answer: "Clay",
-    solutionSteps: ["A lens must be made of a TRANSPARENT material so that light can refract through it.", "Water, glass and plastic are transparent. Clay is opaque — it does not transmit light.", "Therefore clay cannot be used to make a lens."],
+    solutionSteps: ["A lens must be made of a TRANSPARENT material so that light can refract through it.", "Water, glass and plastic are transparent. Clay is opaque — it does not transmit light.", "Therefore clay cannot be used to make a lens. Answer: (D)"],
     finalAnswer: "(d) Clay (opaque material).",
     ncertRef: "Exercise Q1", isCompetencyBased: false },
 
@@ -160,7 +160,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     questionText: "The image formed by a concave mirror is observed to be virtual, erect and larger than the object. Where should be the position of the object?",
     options: ["Between the principal focus and the centre of curvature", "At the centre of curvature", "Beyond the centre of curvature", "Between the pole of the mirror and its principal focus"],
     answer: "Between the pole of the mirror and its principal focus",
-    solutionSteps: ["Concave mirror: only ONE position gives a virtual, erect AND enlarged image.", "When the object is BETWEEN the pole P and the focus F (object distance < f).", "Image is formed behind the mirror — virtual, erect, magnified (used in shaving mirrors).", "All other positions give real, inverted images."],
+    solutionSteps: ["Concave mirror: only ONE position gives a virtual, erect AND enlarged image.", "When the object is BETWEEN the pole P and the focus F (object distance < f).", "Image is formed behind the mirror — virtual, erect, magnified (used in shaving mirrors).", "All other positions give real, inverted images. Answer: (D)"],
     finalAnswer: "(d) Between the pole and the principal focus.",
     ncertRef: "Exercise Q2", isCompetencyBased: true },
 
@@ -168,7 +168,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     questionText: "Where should an object be placed in front of a convex lens to get a real image of the size of the object?",
     options: ["At the principal focus of the lens", "At twice the focal length", "At infinity", "Between the optical centre of the lens and its principal focus"],
     answer: "At twice the focal length",
-    solutionSteps: ["For a convex lens: object at 2F₁ → image at 2F₂, same size, real, inverted.", "At F → image at infinity. At infinity → image at F. Between F and O → virtual, enlarged.", "Hence the object should be placed at 2F (twice the focal length) for same-size real image."],
+    solutionSteps: ["For a convex lens: object at 2F₁ → image at 2F₂, same size, real, inverted.", "At F → image at infinity. At infinity → image at F. Between F and O → virtual, enlarged.", "Hence the object should be placed at 2F (twice the focal length) for same-size real image. Answer: (B)"],
     finalAnswer: "(b) At twice the focal length (2F).",
     ncertRef: "Exercise Q3", isCompetencyBased: false },
 
@@ -176,7 +176,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     questionText: "A spherical mirror and a thin spherical lens have each a focal length of −15 cm. The mirror and the lens are likely to be",
     options: ["both concave", "both convex", "the mirror is concave and the lens is convex", "the mirror is convex, but the lens is concave"],
     answer: "both concave",
-    solutionSteps: ["By New Cartesian Sign Convention for mirrors: f is NEGATIVE for a concave mirror, positive for convex.", "For lenses: f is NEGATIVE for a concave (diverging) lens, positive for a convex lens.", "f = −15 cm for the mirror ⇒ concave mirror.", "f = −15 cm for the lens ⇒ concave lens.", "Hence both are concave."],
+    solutionSteps: ["By New Cartesian Sign Convention for mirrors: f is NEGATIVE for a concave mirror, positive for convex.", "For lenses: f is NEGATIVE for a concave (diverging) lens, positive for a convex lens.", "f = −15 cm for the mirror ⇒ concave mirror.", "f = −15 cm for the lens ⇒ concave lens.", "Hence both are concave. Answer: (A)"],
     finalAnswer: "(a) Both concave.",
     ncertRef: "Exercise Q4", isCompetencyBased: true },
 
@@ -184,7 +184,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     questionText: "No matter how far you stand from a mirror, your image appears erect. The mirror is likely to be",
     options: ["only plane", "only concave", "only convex", "either plane or convex"],
     answer: "either plane or convex",
-    solutionSteps: ["Plane mirror: always gives an erect, virtual image of the same size.", "Convex mirror: always gives an erect, virtual, diminished image — irrespective of object distance.", "Concave mirror: gives an erect image ONLY when object is between P and F — at larger distances the image becomes inverted.", "Hence the mirror is either plane or convex."],
+    solutionSteps: ["Plane mirror: always gives an erect, virtual image of the same size.", "Convex mirror: always gives an erect, virtual, diminished image — irrespective of object distance.", "Concave mirror: gives an erect image ONLY when object is between P and F — at larger distances the image becomes inverted.", "Hence the mirror is either plane or convex. Answer: (D)"],
     finalAnswer: "(d) Either plane or convex.",
     ncertRef: "Exercise Q5", isCompetencyBased: true },
 
@@ -192,7 +192,7 @@ export const LIGHT_NCERT: CanonicalQuestion[] = [
     questionText: "Which of the following lenses would you prefer to use while reading small letters found in a dictionary?",
     options: ["A convex lens of focal length 50 cm", "A concave lens of focal length 50 cm", "A convex lens of focal length 5 cm", "A concave lens of focal length 5 cm"],
     answer: "A convex lens of focal length 5 cm",
-    solutionSteps: ["A magnifying glass must be a CONVEX lens — concave lenses always give diminished images.", "The shorter the focal length, the greater the magnification (power P = 1/f).", "Between f = 50 cm and f = 5 cm convex lenses, the 5 cm one magnifies more.", "Hence a convex lens of focal length 5 cm is best for reading small letters."],
+    solutionSteps: ["A magnifying glass must be a CONVEX lens — concave lenses always give diminished images.", "The shorter the focal length, the greater the magnification (power P = 1/f).", "Between f = 50 cm and f = 5 cm convex lenses, the 5 cm one magnifies more.", "Hence a convex lens of focal length 5 cm is best for reading small letters. Answer: (C)"],
     finalAnswer: "(c) Convex lens of focal length 5 cm.",
     ncertRef: "Exercise Q6", isCompetencyBased: true },
 

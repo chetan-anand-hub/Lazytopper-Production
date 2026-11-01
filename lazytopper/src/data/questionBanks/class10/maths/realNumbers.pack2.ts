@@ -21,7 +21,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "answer": "A product of prime numbers in a unique way",
     "solutionSteps": [
       "The Fundamental Theorem of Arithmetic states that every integer greater than 1 is either prime or can be uniquely factorized as a product of prime numbers",
-      "This unique factorization (up to order) is a key property of integers"
+      "This unique factorization (up to order) is a key property of integers Answer: (A)"
     ],
     "finalAnswer": "A product of prime numbers in a unique way",
     "isCompetencyBased": true,
@@ -75,7 +75,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "answer": "2160",
     "solutionSteps": [
       "Using the property: HCF(a, b) × LCM(a, b) = a × b",
-      "a × b = 12 × 180 = 2160"
+      "a × b = 12 × 180 = 2160 Answer: (A)"
     ],
     "finalAnswer": "2160",
     "isCompetencyBased": true,
@@ -96,7 +96,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "questionText": "Which of the following is an irrational number?",
       "options": ["√16", "√25/√9", "√11", "22/7"],
       "answer": "√11",
-      "solutionSteps": ["√16 = 4 (rational)", "√25/√9 = 5/3 (rational)", "√11 is irrational (11 is prime, not a perfect square)", "22/7 is rational"],
+      "solutionSteps": ["√16 = 4 (rational)", "√25/√9 = 5/3 (rational)", "√11 is irrational (11 is prime, not a perfect square)", "22/7 is rational Answer: (C)"],
       "finalAnswer": "√11",
       "isCompetencyBased": true,
       "pyqYear": undefined,
@@ -116,7 +116,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "questionText": "The prime factorisation of 2310 is 2 × 3 × 5 × 7 × 11. The HCF of 2310 and 630 is:",
       "options": ["70", "90", "210", "630"],
       "answer": "210",
-      "solutionSteps": ["2310 = 2 × 3 × 5 × 7 × 11", "630 = 2 × 3² × 5 × 7", "HCF = product of lowest powers of common factors", "HCF = 2 × 3 × 5 × 7 = 210"],
+      "solutionSteps": ["2310 = 2 × 3 × 5 × 7 × 11", "630 = 2 × 3² × 5 × 7", "HCF = product of lowest powers of common factors", "HCF = 2 × 3 × 5 × 7 = 210 Answer: (C)"],
       "finalAnswer": "210",
       "isCompetencyBased": true,
       "pyqYear": undefined,
@@ -200,7 +200,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "√16 = 4 (rational)",
       "√(1/4) = 1/2 (rational)",
       "√7 cannot be expressed as ratio of two integers (irrational)",
-      "√0.25 = 0.5 (rational)"
+      "√0.25 = 0.5 (rational) Answer: (C)"
     ],
     "finalAnswer": "√7",
     "isCompetencyBased": true,
@@ -257,7 +257,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A is true: 2310 = 2 × 3 × 5 × 7 × 11 is indeed its prime factorization",
       "R is true: Fundamental Theorem guarantees unique prime factorization",
-      "R correctly explains why A is true"
+      "R correctly explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -443,7 +443,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "answer": "Every composite number can be expressed uniquely as a product of prime numbers",
     "solutionSteps": [
       "The Fundamental Theorem of Arithmetic states that every integer greater than 1 either is a prime number itself or can be represented as a unique product of prime numbers (ignoring the order of factors).",
-      "For example: 12 = 2² × 3 is the unique prime factorization."
+      "For example: 12 = 2² × 3 is the unique prime factorization. Answer: (B)"
     ],
     "finalAnswer": "Every composite number can be expressed uniquely as a product of prime numbers",
     "isCompetencyBased": true,
@@ -501,7 +501,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "12 = 2² × 3",
       "18 = 2 × 3²",
       "HCF = product of lowest powers of common factors",
-      "HCF = 2¹ × 3¹ = 6"
+      "HCF = 2¹ × 3¹ = 6 Answer: (C)"
     ],
     "finalAnswer": "6",
     "isCompetencyBased": true,
@@ -557,7 +557,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "We know: HCF(a, b) × LCM(a, b) = a × b",
       "12 × LCM(a, b) = 1728",
-      "LCM(a, b) = 1728 ÷ 12 = 144"
+      "LCM(a, b) = 1728 ÷ 12 = 144 Answer: (A)"
     ],
     "finalAnswer": "144",
     "isCompetencyBased": true,
@@ -585,7 +585,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "solutionSteps": [
         "The fundamental property: for any two positive integers a and b,",
         "HCF(a, b) × LCM(a, b) = a × b.",
-        "This is derived from the prime factorisation of a and b."
+        "This is derived from the prime factorisation of a and b. Answer: (B)"
       ],
       "finalAnswer": "HCF(a, b) × LCM(a, b) = a × b",
       "isCompetencyBased": true,
@@ -640,7 +640,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "By the Fundamental Theorem of Arithmetic, prime factorisation is unique.",
         "If p | a², then p must appear in the prime factorisation of a².",
         "Since p is prime, it must also appear in the prime factorisation of a.",
-        "Therefore p | a. This is the key lemma used in irrationality proofs."
+        "Therefore p | a. This is the key lemma used in irrationality proofs. Answer: (B)"
       ],
       "finalAnswer": "p | a always",
       "isCompetencyBased": true,
@@ -786,7 +786,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "solutionSteps": [
         "A is true: Assume 5 + 2√3 = r (rational). Then √3 = (r−5)/2, rational — contradiction.",
         "R is true: rational + irrational = irrational (if the rational added is non-zero).",
-        "R correctly explains A: 5 (rational) + 2√3 (irrational) is irrational."
+        "R correctly explains A: 5 (rational) + 2√3 (irrational) is irrational. Answer: (A)"
       ],
       "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
       "isCompetencyBased": true,
@@ -817,7 +817,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "18 = 2 × 3²",
       "Common factors: 1, 2, 3, 6 - TRUE",
       "HCF = 6 - TRUE",
-      "R correctly explains why A is true"
+      "R correctly explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -953,7 +953,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "By Fundamental Theorem of Arithmetic, every such number has unique prime factorization",
       "Product of numbers of form 4m + 1 is always of form 4m + 1",
       "So if a number is 4n + 3, it cannot be product of only (4m+1) primes",
-      "Therefore, it must have at least one prime factor of form 4k + 3"
+      "Therefore, it must have at least one prime factor of form 4k + 3 Answer: (C)"
     ],
     "finalAnswer": "It always has at least one prime factor of the form 4k + 3",
     "isCompetencyBased": true,

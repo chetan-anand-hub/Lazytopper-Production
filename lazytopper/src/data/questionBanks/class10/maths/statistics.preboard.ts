@@ -21,7 +21,7 @@ export const STAT_PREBOARD: CanonicalQuestion[] = [
     "options": ["3", "6", "9", "1"],
     "answer": "9",
     "solutionSteps": [
-      "[1 mark] 9 — Mode = 3 Median − 2 Mean ⇒ Mode − Mean = 3(Median − Mean) = 3 × 3 = 9."
+      "[1 mark] 9 — Mode = 3 Median − 2 Mean ⇒ Mode − Mean = 3(Median − Mean) = 3 × 3 = 9. Answer: (C)"
     ],
     "finalAnswer": "9",
     "isCompetencyBased": false
@@ -60,7 +60,7 @@ export const STAT_PREBOARD: CanonicalQuestion[] = [
     "options": ["11.45", "21.95", "9.87", "11.13"],
     "answer": "11.13",
     "solutionSteps": [
-      "[1 mark] 11.13 — 12.4 = 3 Median − 2(10.5) ⇒ 3 Median = 33.4 ⇒ Median ≈ 11.13."
+      "[1 mark] 11.13 — 12.4 = 3 Median − 2(10.5) ⇒ 3 Median = 33.4 ⇒ Median ≈ 11.13. Answer: (D)"
     ],
     "finalAnswer": "11.13",
     "isCompetencyBased": false

@@ -21,7 +21,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹148",
     "solutionSteps": [
-      "[1 mark] The weekly savings 15, 22, 29, … form an AP with a = 15, d = 7, so a₂₀ = a + 19d = 15 + 19 × 7 = 15 + 133 = ₹148."
+      "[1 mark] The weekly savings 15, 22, 29, … form an AP with a = 15, d = 7, so a₂₀ = a + 19d = 15 + 19 × 7 = 15 + 133 = ₹148. Answer: (B)"
     ],
     "finalAnswer": "₹148",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹2,250",
     "solutionSteps": [
-      "[1 mark] Monthly deposits form an AP with a = 50, d = 25, n = 12; S₁₂ = 12/2 [2 × 50 + 11 × 25] = 6 × (100 + 275) = 6 × 375 = ₹2,250."
+      "[1 mark] Monthly deposits form an AP with a = 50, d = 25, n = 12; S₁₂ = 12/2 [2 × 50 + 11 × 25] = 6 × (100 + 275) = 6 × 375 = ₹2,250. Answer: (A)"
     ],
     "finalAnswer": "₹2,250",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "19th row",
     "solutionSteps": [
-      "[1 mark] Chairs per row form an AP with a = 24, d = 2; 24 + (n − 1) × 2 = 60 ⇒ n − 1 = 18 ⇒ n = 19, so it is the 19th row."
+      "[1 mark] Chairs per row form an AP with a = 24, d = 2; 24 + (n − 1) × 2 = 60 ⇒ n − 1 = 18 ⇒ n = 19, so it is the 19th row. Answer: (C)"
     ],
     "finalAnswer": "19th row",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "11th year",
     "solutionSteps": [
-      "[1 mark] Monthly salaries by year form an AP with a = 32000, d = 1800; 32000 + (n − 1) × 1800 = 50000 ⇒ (n − 1) × 1800 = 18000 ⇒ n − 1 = 10 ⇒ n = 11, i.e. the 11th year."
+      "[1 mark] Monthly salaries by year form an AP with a = 32000, d = 1800; 32000 + (n − 1) × 1800 = 50000 ⇒ (n − 1) × 1800 = 18000 ⇒ n − 1 = 10 ⇒ n = 11, i.e. the 11th year. Answer: (D)"
     ],
     "finalAnswer": "11th year",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "234",
     "solutionSteps": [
-      "[1 mark] Rows form an AP 30, 28, …, 6 with d = −2; 6 = 30 + (n − 1)(−2) ⇒ n = 13 rows; total = n/2 (a + l) = 13/2 × (30 + 6) = 13 × 18 = 234 logs."
+      "[1 mark] Rows form an AP 30, 28, …, 6 with d = −2; 6 = 30 + (n − 1)(−2) ⇒ n = 13 rows; total = n/2 (a + l) = 13/2 × (30 + 6) = 13 × 18 = 234 logs. Answer: (A)"
     ],
     "finalAnswer": "234 logs",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12:00 noon",
     "solutionSteps": [
-      "[1 mark] Departure times form an AP with common difference 25 min; the 15th bus leaves 14 × 25 = 350 min = 5 h 50 min after 6:10 am, i.e. at 12:00 noon."
+      "[1 mark] Departure times form an AP with common difference 25 min; the 15th bus leaves 14 × 25 = 350 min = 5 h 50 min after 6:10 am, i.e. at 12:00 noon. Answer: (B)"
     ],
     "finalAnswer": "12:00 noon",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12 h 15 min",
     "solutionSteps": [
-      "[1 mark] Daily practice forms an AP with a = 20, d = 5, n = 14; S₁₄ = 14/2 [2 × 20 + 13 × 5] = 7 × 105 = 735 min = 12 h 15 min."
+      "[1 mark] Daily practice forms an AP with a = 20, d = 5, n = 14; S₁₄ = 14/2 [2 × 20 + 13 × 5] = 7 × 105 = 735 min = 12 h 15 min. Answer: (C)"
     ],
     "finalAnswer": "12 h 15 min",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "15",
     "solutionSteps": [
-      "[1 mark] The rows hold 1, 2, 3, …, n cans, so n(n + 1)/2 = 120 ⇒ n² + n − 240 = 0 ⇒ (n + 16)(n − 15) = 0 ⇒ n = 15 rows (n cannot be negative)."
+      "[1 mark] The rows hold 1, 2, 3, …, n cans, so n(n + 1)/2 = 120 ⇒ n² + n − 240 = 0 ⇒ (n + 16)(n − 15) = 0 ⇒ n = 15 rows (n cannot be negative). Answer: (D)"
     ],
     "finalAnswer": "15 rows",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The amount of air left in a cylinder when a vacuum pump removes one-fourth of the air remaining in the cylinder at each stroke",
     "solutionSteps": [
-      "[1 mark] If the air is V, it becomes 3V/4, 9V/16, 27V/64, …; the differences V/4, 3V/16, … are not equal, so this is not an AP. The other three lists increase by a fixed amount (₹12, 3 seats, 4 cm) each time, so they are APs."
+      "[1 mark] If the air is V, it becomes 3V/4, 9V/16, 27V/64, …; the differences V/4, 3V/16, … are not equal, so this is not an AP. The other three lists increase by a fixed amount (₹12, 3 seats, 4 cm) each time, so they are APs. Answer: (B)"
     ],
     "finalAnswer": "The air left in the cylinder after each stroke",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "9:35 am",
     "solutionSteps": [
-      "[1 mark] a₉ − a₄ = 5d = 75 min ⇒ d = 15 min; the 1st patient is seen 3d = 45 min before 10:20 am, i.e. at 9:35 am."
+      "[1 mark] a₉ − a₄ = 5d = 75 min ⇒ d = 15 min; the 1st patient is seen 3d = 45 min before 10:20 am, i.e. at 9:35 am. Answer: (A)"
     ],
     "finalAnswer": "9:35 am",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹23,40,000",
     "solutionSteps": [
-      "[1 mark] Annual salaries form an AP with a = 420000, d = 24000, n = 5; S₅ = 5/2 [2 × 420000 + 4 × 24000] = 5/2 × 936000 = ₹23,40,000."
+      "[1 mark] Annual salaries form an AP with a = 420000, d = 24000, n = 5; S₅ = 5/2 [2 × 420000 + 4 × 24000] = 5/2 × 936000 = ₹23,40,000. Answer: (C)"
     ],
     "finalAnswer": "₹23,40,000",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1008",
     "solutionSteps": [
-      "[1 mark] Last row a₂₁ = 18 + 20 × 3 = 78; total = n/2 (a + l) = 21/2 × (18 + 78) = 21 × 48 = 1008 seats."
+      "[1 mark] Last row a₂₁ = 18 + 20 × 3 = 78; total = n/2 (a + l) = 21/2 × (18 + 78) = 21 × 48 = 1008 seats. Answer: (C)"
     ],
     "finalAnswer": "1008 seats",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10",
     "solutionSteps": [
-      "[1 mark] a = 3, d = 4: Sₙ = n/2 [6 + 4(n − 1)] = n(2n + 1) = 210 ⇒ 2n² + n − 210 = 0 ⇒ (n − 10)(2n + 21) = 0 ⇒ n = 10 stacks."
+      "[1 mark] a = 3, d = 4: Sₙ = n/2 [6 + 4(n − 1)] = n(2n + 1) = 210 ⇒ 2n² + n − 210 = 0 ⇒ (n − 10)(2n + 21) = 0 ⇒ n = 10 stacks. Answer: (A)"
     ],
     "finalAnswer": "10 stacks",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10",
     "solutionSteps": [
-      "[1 mark] a = 100, d = 50: Sₙ = n/2 [200 + 50(n − 1)] = 25n² + 75n = 3250 ⇒ n² + 3n − 130 = 0 ⇒ (n + 13)(n − 10) = 0 ⇒ n = 10 months."
+      "[1 mark] a = 100, d = 50: Sₙ = n/2 [200 + 50(n − 1)] = 25n² + 75n = 3250 ⇒ n² + 3n − 130 = 0 ⇒ (n + 13)(n − 10) = 0 ⇒ n = 10 months. Answer: (D)"
     ],
     "finalAnswer": "10 months",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹160",
     "solutionSteps": [
-      "[1 mark] Charges for 1, 2, 3, … hours form an AP 40, 55, 70, … with a = 40, d = 15; a₉ = 40 + 8 × 15 = ₹160."
+      "[1 mark] Charges for 1, 2, 3, … hours form an AP 40, 55, 70, … with a = 40, d = 15; a₉ = 40 + 8 × 15 = ₹160. Answer: (B)"
     ],
     "finalAnswer": "₹160",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5 May",
     "solutionSteps": [
-      "[1 mark] Meeting dates are 9 days apart, so the 8th meeting is 7 × 9 = 63 days after 3 March; 3 March + 28 days = 31 March, + 30 days = 30 April, + 5 more days = 5 May."
+      "[1 mark] Meeting dates are 9 days apart, so the 8th meeting is 7 × 9 = 63 days after 3 March; 3 March + 28 days = 31 March, + 30 days = 30 April, + 5 more days = 5 May. Answer: (D)"
     ],
     "finalAnswer": "5 May",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10th year",
     "solutionSteps": [
-      "[1 mark] Qₙ − Pₙ = [26000 + 1500(n − 1)] − [30000 + 1000(n − 1)] = 500(n − 1) − 4000 > 0 ⇒ n − 1 > 8 ⇒ n > 9; in year 9 both are ₹38,000, so Q is first more in the 10th year (₹39,500 vs ₹39,000)."
+      "[1 mark] Qₙ − Pₙ = [26000 + 1500(n − 1)] − [30000 + 1000(n − 1)] = 500(n − 1) − 4000 > 0 ⇒ n − 1 > 8 ⇒ n > 9; in year 9 both are ₹38,000, so Q is first more in the 10th year (₹39,500 vs ₹39,000). Answer: (C)"
     ],
     "finalAnswer": "10th year",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "26",
     "solutionSteps": [
-      "[1 mark] Stack heights form an AP with a = 80 cm, d = 6 cm; 80 + 6(n − 1) ≤ 230 ⇒ n − 1 ≤ 25 ⇒ n ≤ 26; so 26 chairs (height exactly 230 cm), while 27 chairs would be 236 cm."
+      "[1 mark] Stack heights form an AP with a = 80 cm, d = 6 cm; 80 + 6(n − 1) ≤ 230 ⇒ n − 1 ≤ 25 ⇒ n ≤ 26; so 26 chairs (height exactly 230 cm), while 27 chairs would be 236 cm. Answer: (B)"
     ],
     "finalAnswer": "26 chairs",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹51",
     "solutionSteps": [
-      "[1 mark] For an odd number of terms the middle (6th) term is the average: S₁₁ = 11/2 (a₁ + a₁₁) = 11 × a₆ since a₁ + a₁₁ = 2a₆; so a₆ = 561 ÷ 11 = ₹51."
+      "[1 mark] For an odd number of terms the middle (6th) term is the average: S₁₁ = 11/2 (a₁ + a₁₁) = 11 × a₆ since a₁ + a₁₁ = 2a₆; so a₆ = 561 ÷ 11 = ₹51. Answer: (A)"
     ],
     "finalAnswer": "₹51",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const ARITHMETIC_PROGRESSION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "14th day",
     "solutionSteps": [
-      "[1 mark] aₙ = 12 + 1.5(n − 1) > 30 ⇒ n − 1 > 12 ⇒ n > 13; on day 13 she rides exactly 30 km, so the first day with more than 30 km is the 14th day (31.5 km)."
+      "[1 mark] aₙ = 12 + 1.5(n − 1) > 30 ⇒ n − 1 > 12 ⇒ n > 13; on day 13 she rides exactly 30 km, so the first day with more than 30 km is the 14th day (31.5 km). Answer: (D)"
     ],
     "finalAnswer": "14th day",
     "isCompetencyBased": true,

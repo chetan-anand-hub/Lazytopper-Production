@@ -189,7 +189,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     options: ["only k", "only k and 7k", "only k, 7k and k³", "all - k/2, k, 7k and k³"],
     answer: "only k, 7k and k³",
     solutionSteps: [
-      "[1 mark] Correct option: (3) only k, 7k and k³. Since p is prime and p divides k², p must itself divide k. Then 7k and k³ are multiples of k, so p divides both of them as well. k/2 need not even be an integer, so it is not definitely divisible by p.",
+      "[1 mark] Correct option: (3) only k, 7k and k³. Since p is prime and p divides k², p must itself divide k. Then 7k and k³ are multiples of k, so p divides both of them as well. k/2 need not even be an integer, so it is not definitely divisible by p. Answer: (C)",
     ],
     finalAnswer: "only k, 7k and k³",
     isCompetencyBased: true,
@@ -216,7 +216,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "only i) and ii)",
     solutionSteps: [
-      "[1 mark] Correct option: (2) only i) and ii). √n is given to be a natural number and n > 1, so √n is at least 2 and n = (√n)² is a natural number greater than 1; by the Fundamental Theorem of Arithmetic each of them has a prime factorisation. √n/2 need not be an integer at all, so it cannot definitely be written as a product of primes.",
+      "[1 mark] Correct option: (2) only i) and ii). √n is given to be a natural number and n > 1, so √n is at least 2 and n = (√n)² is a natural number greater than 1; by the Fundamental Theorem of Arithmetic each of them has a prime factorisation. √n/2 need not be an integer at all, so it cannot definitely be written as a product of primes. Answer: (B)",
     ],
     finalAnswer: "only i) and ii)",
     isCompetencyBased: true,
@@ -243,7 +243,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "only i), iii) and iv)",
     solutionSteps: [
-      "[1 mark] Correct option: (3) only i), iii) and iv). HCF(k, 93) = 31 forces 31 to divide k, so i) must hold. If k were a multiple of 93 = 3 × 31 then the HCF would be 93, not 31, so ii) is impossible. k = 62 is even and k = 31 is odd, and each gives HCF 31 with 93, so iii) and iv) can each be true for some values of k.",
+      "[1 mark] Correct option: (3) only i), iii) and iv). HCF(k, 93) = 31 forces 31 to divide k, so i) must hold. If k were a multiple of 93 = 3 × 31 then the HCF would be 93, not 31, so ii) is impossible. k = 62 is even and k = 31 is odd, and each gives HCF 31 with 93, so iii) and iv) can each be true for some values of k. Answer: (C)",
     ],
     finalAnswer: "only i), iii) and iv)",
     isCompetencyBased: true,
@@ -264,7 +264,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
       "Two representations of real numbers are shown. Which one is correct?",
     answer: "Representation 1, as rational and irrational numbers are separate, non-overlapping sets",
     solutionSteps: [
-      "[1 mark] Representation 1, as rational and irrational numbers are separate, non-overlapping sets — rational and irrational numbers are disjoint and together form the real numbers, as Representation 1 shows."
+      "[1 mark] Representation 1, as rational and irrational numbers are separate, non-overlapping sets — rational and irrational numbers are disjoint and together form the real numbers, as Representation 1 shows. Answer: (C)"
     ],
     finalAnswer: "Representation 1, as rational and irrational numbers are separate, non-overlapping sets",
     isCompetencyBased: true,
@@ -381,7 +381,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
       "(n² + 3n − 4) can be expressed as a product of only 2 prime factors, where n is a natural number. For which value of n is the given expression an even composite number?",
     answer: "n = 3",
     solutionSteps: [
-      "[1 mark] n = 3 — n² + 3n − 4 = (n − 1)(n + 4); for an even product of two primes one factor must be 2, so n − 1 = 2, n = 3 (value 14 = 2 × 7)."
+      "[1 mark] n = 3 — n² + 3n − 4 = (n − 1)(n + 4); for an even product of two primes one factor must be 2, so n − 1 = 2, n = 3 (value 14 = 2 × 7). Answer: (D)"
     ],
     finalAnswer: "n = 3",
     isCompetencyBased: true,
@@ -404,7 +404,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
       "The prime factorisation of a prime number is the number itself. How many factors and how many prime factors does the square of a prime number have?",
     answer: "3 factors and 1 prime factor",
     solutionSteps: [
-      "[1 mark] 3 factors and 1 prime factor — p² has factors 1, p, p² (three) and only one prime factor, p."
+      "[1 mark] 3 factors and 1 prime factor — p² has factors 1, p, p² (three) and only one prime factor, p. Answer: (A)"
     ],
     finalAnswer: "3 factors and 1 prime factor",
     isCompetencyBased: true,

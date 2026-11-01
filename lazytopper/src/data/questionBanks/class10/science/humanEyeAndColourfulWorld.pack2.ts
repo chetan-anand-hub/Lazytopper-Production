@@ -22,7 +22,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The cornea is the transparent front layer of the eye.",
       "It covers the iris and pupil.",
-      "It acts as the primary refracting surface of the eye."
+      "It acts as the primary refracting surface of the eye. Answer: (B)"
     ],
     "finalAnswer": "B) Cornea",
     "explanation": "The cornea is the transparent front layer of the eye. It covers the iris and pupil. It acts as the primary refracting surface of the eye. Therefore, the correct answer is B) Cornea.",
@@ -52,7 +52,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The ciliary muscles support the lens.",
       "These muscles help change the shape of the lens for accommodation.",
-      "They are connected to the lens via the suspensory ligaments."
+      "They are connected to the lens via the suspensory ligaments. Answer: (B)"
     ],
     "finalAnswer": "B) Ciliary muscles",
     "explanation": "The ciliary muscles support the lens. These muscles help change the shape of the lens for accommodation. They are connected to the lens via the suspensory ligaments. Therefore, the correct answer is B) Ciliary muscles.",
@@ -82,7 +82,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The iris is a muscular diaphragm that controls pupil size.",
       "It regulates the amount of light entering the eye.",
-      "The pupil is the opening in the iris."
+      "The pupil is the opening in the iris. Answer: (C)"
     ],
     "finalAnswer": "C) Iris",
     "explanation": "The iris is a muscular diaphragm that controls pupil size. It regulates the amount of light entering the eye. The pupil is the opening in the iris. Therefore, the correct answer is C) Iris.",
@@ -112,7 +112,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Myopia (short-sightedness) occurs when light rays converge before reaching the retina.",
       "A concave lens diverges light rays before they enter the eye.",
-      "This shifts the focal point onto the retina, allowing distant objects to be seen clearly."
+      "This shifts the focal point onto the retina, allowing distant objects to be seen clearly. Answer: (B)"
     ],
     "finalAnswer": "B) Concave lens",
     "explanation": "Myopia (short-sightedness) occurs when light rays converge before reaching the retina. A concave lens diverges light rays before they enter the eye. This shifts the focal point onto the retina, allowing distant objects to be seen clearly. Therefore, the correct answer is B) Concave lens.",
@@ -142,7 +142,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "In hypermetropia, the eyeball is too short or the cornea is too flat.",
       "Light rays converge at a point behind the retina.",
-      "Near objects cannot be focused on the retina, causing blurred near vision."
+      "Near objects cannot be focused on the retina, causing blurred near vision. Answer: (B)"
     ],
     "finalAnswer": "B) Light rays converge behind the retina",
     "explanation": "In hypermetropia, the eyeball is too short or the cornea is too flat. Light rays converge at a point behind the retina. Near objects cannot be focused on the retina, causing blurred near vision. Therefore, the correct answer is B) Light rays converge behind the retina.",
@@ -173,7 +173,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Presbyopia develops with age as the lens loses elasticity.",
       "The ciliary muscles cannot change the lens shape effectively.",
       "Both near and far vision are affected, especially close vision.",
-      "Bifocal lenses are used to correct this defect."
+      "Bifocal lenses are used to correct this defect. Answer: (A)"
     ],
     "finalAnswer": "A) Loss of elasticity in the lens due to aging",
     "explanation": "Presbyopia develops with age as the lens loses elasticity. The ciliary muscles cannot change the lens shape effectively. Both near and far vision are affected, especially close vision. Bifocal lenses are used to correct this defect. Therefore, the correct answer is A) Loss of elasticity in the lens due to aging.",
@@ -235,7 +235,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Light from stars travels through the Earth's atmosphere.",
       "The atmosphere has layers of varying density and temperature.",
       "These variations cause refraction of starlight.",
-      "The refracted light intensity fluctuates, making stars appear to twinkle."
+      "The refracted light intensity fluctuates, making stars appear to twinkle. Answer: (B)"
     ],
     "finalAnswer": "B) Atmospheric refraction causes fluctuation in light intensity",
     "explanation": "Light from stars travels through the Earth's atmosphere. The atmosphere has layers of varying density and temperature. These variations cause refraction of starlight. The refracted light intensity fluctuates, making stars appear to twinkle. Therefore, the correct answer is B) Atmospheric refraction causes fluctuation in light intensity.",
@@ -265,7 +265,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The sun appears at the horizon even when it is actually below the horizon.",
       "Light from the sun undergoes refraction in the atmosphere.",
       "The denser air near the Earth's surface bends light rays.",
-      "This results in the sun appearing higher than its actual position."
+      "This results in the sun appearing higher than its actual position. Answer: (C)"
     ],
     "finalAnswer": "C) Atmospheric refraction",
     "explanation": "The sun appears at the horizon even when it is actually below the horizon. Light from the sun undergoes refraction in the atmosphere. The denser air near the Earth's surface bends light rays. This results in the sun appearing higher than its actual position. Therefore, the correct answer is C) Atmospheric refraction.",
@@ -296,7 +296,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "White light is a mixture of different colors.",
       "Each color has a different wavelength.",
       "Different colors refract at different angles.",
-      "This separation of colors is called dispersion."
+      "This separation of colors is called dispersion. Answer: (B)"
     ],
     "finalAnswer": "B) Splitting of white light into its constituent colors",
     "explanation": "White light is a mixture of different colors. Each color has a different wavelength. Different colors refract at different angles. This separation of colors is called dispersion. Therefore, the correct answer is B) Splitting of white light into its constituent colors.",
@@ -327,7 +327,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Rainbows are formed due to dispersion of sunlight in water droplets.",
       "Red light has the longest wavelength and refracts the least.",
       "Violet light has the shortest wavelength and refracts the most.",
-      "Red light appears at the top of the primary rainbow."
+      "Red light appears at the top of the primary rainbow. Answer: (B)"
     ],
     "finalAnswer": "B) Red",
     "explanation": "Rainbows are formed due to dispersion of sunlight in water droplets. Red light has the longest wavelength and refracts the least. Violet light has the shortest wavelength and refracts the most. Red light appears at the top of the primary rainbow. Therefore, the correct answer is B) Red.",
@@ -357,7 +357,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Sunlight contains all colors of the visible spectrum.",
       "Blue light has shorter wavelengths than red light.",
       "Shorter wavelengths are scattered more by air molecules.",
-      "This is called Rayleigh scattering, making the sky appear blue."
+      "This is called Rayleigh scattering, making the sky appear blue. Answer: (B)"
     ],
     "finalAnswer": "B) Scattering of light",
     "explanation": "Sunlight contains all colors of the visible spectrum. Blue light has shorter wavelengths than red light. Shorter wavelengths are scattered more by air molecules. This is called Rayleigh scattering, making the sky appear blue. Therefore, the correct answer is B) Scattering of light.",
@@ -551,7 +551,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The refractive index of cornea (≈1.38) differs significantly from air (≈1.00).",
       "This large refractive index change causes significant refraction.",
       "The cornea is responsible for approximately 65-75% of the eye's total refraction.",
-      "The lens provides the remaining refraction and fine-tuning through accommodation."
+      "The lens provides the remaining refraction and fine-tuning through accommodation. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -583,7 +583,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "A concave lens diverges incoming light rays.",
       "The diverged rays converge later, shifting the focal point onto the retina.",
       "This allows distant objects to be seen clearly.",
-      "The power of the concave lens must match the degree of myopia for correction."
+      "The power of the concave lens must match the degree of myopia for correction. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -710,7 +710,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The ciliary muscles control the curvature of the lens",
       "This changes the focal length for accommodation",
-      "Other parts have fixed roles (cornea for refraction, iris for pupil control, retina for image formation)"
+      "Other parts have fixed roles (cornea for refraction, iris for pupil control, retina for image formation) Answer: (B)"
     ],
     "finalAnswer": "Ciliary muscles",
     "explanation": "The ciliary muscles control the curvature of the lens. This changes the focal length for accommodation. Other parts have fixed roles (cornea for refraction, iris for pupil control, retina for image formation). Therefore, the correct answer is Ciliary muscles.",
@@ -740,7 +740,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The near point is the closest distance at which the eye can form a clear image",
       "For a normal adult eye, this distance is approximately 25 cm",
-      "This is also called the least distance of distinct vision"
+      "This is also called the least distance of distinct vision Answer: (C)"
     ],
     "finalAnswer": "25 cm",
     "explanation": "The near point is the closest distance at which the eye can form a clear image. For a normal adult eye, this distance is approximately 25 cm. This is also called the least distance of distinct vision. Therefore, the correct answer is 25 cm.",
@@ -770,7 +770,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "When ciliary muscles contract, they allow the lens to become more curved",
       "A more curved lens has greater refractive power",
-      "This enables focusing on objects close to the eye"
+      "This enables focusing on objects close to the eye Answer: (B)"
     ],
     "finalAnswer": "Ciliary muscles are contracted",
     "explanation": "When ciliary muscles contract, they allow the lens to become more curved. A more curved lens has greater refractive power. This enables focusing on objects close to the eye. Therefore, the correct answer is Ciliary muscles are contracted.",
@@ -801,7 +801,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Myopia is a refractive error where the eye focuses light in front of the retina",
       "This causes distant objects to appear blurred",
       "Only nearby objects can be seen clearly",
-      "It is also called short-sightedness"
+      "It is also called short-sightedness Answer: (B)"
     ],
     "finalAnswer": "Very close to the eye",
     "explanation": "Myopia is a refractive error where the eye focuses light in front of the retina. This causes distant objects to appear blurred. Only nearby objects can be seen clearly. It is also called short-sightedness. Therefore, the correct answer is Very close to the eye.",
@@ -832,7 +832,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Hypermetropia occurs when the eye focuses light behind the retina",
       "A convex lens converges light rays before they enter the eye",
       "This shifts the focal point forward onto the retina",
-      "Convex lenses have positive power"
+      "Convex lenses have positive power Answer: (B)"
     ],
     "finalAnswer": "Convex lens",
     "explanation": "Hypermetropia occurs when the eye focuses light behind the retina. A convex lens converges light rays before they enter the eye. This shifts the focal point forward onto the retina. Convex lenses have positive power. Therefore, the correct answer is Convex lens.",
@@ -862,7 +862,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Power P = 1/f, where f is in meters",
       "2.5 = 1/f",
       "f = 1/2.5 = 0.4 m = 40 cm",
-      "Positive power indicates a convex lens"
+      "Positive power indicates a convex lens Answer: (B)"
     ],
     "finalAnswer": "+40 cm",
     "explanation": "Power P = 1/f, where f is in meters. 2.5 = 1/f. f = 1/2.5 = 0.4 m = 40 cm. Positive power indicates a convex lens. Therefore, the correct answer is +40 cm.",
@@ -892,7 +892,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Presbyopia is age-related deterioration of vision",
       "The lens becomes less flexible and elastic with age",
       "This reduces the ability of ciliary muscles to change lens shape",
-      "It affects both near and distant vision"
+      "It affects both near and distant vision Answer: (B)"
     ],
     "finalAnswer": "The lens loses its elasticity with age",
     "explanation": "Presbyopia is age-related deterioration of vision. The lens becomes less flexible and elastic with age. This reduces the ability of ciliary muscles to change lens shape. It affects both near and distant vision. Therefore, the correct answer is The lens loses its elasticity with age.",
@@ -948,7 +948,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Stars twinkle because of continuous refraction of their light in Earth's atmosphere",
       "The atmosphere has layers of varying densities and temperatures",
       "Light from stars undergoes refraction as it passes through these layers",
-      "This causes the apparent position of stars to change rapidly"
+      "This causes the apparent position of stars to change rapidly Answer: (C)"
     ],
     "finalAnswer": "Atmospheric refraction",
     "explanation": "Stars twinkle because of continuous refraction of their light in Earth's atmosphere. The atmosphere has layers of varying densities and temperatures. Light from stars undergoes refraction as it passes through these layers. This causes the apparent position of stars to change rapidly. Therefore, the correct answer is Atmospheric refraction.",
@@ -978,7 +978,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Planets appear as extended objects, not point sources like stars",
       "Light from different parts of the planet undergoes different refractions",
       "These variations average out, preventing noticeable twinkling",
-      "Stars appear as point sources, so any refraction causes visible twinkling"
+      "Stars appear as point sources, so any refraction causes visible twinkling Answer: (C)"
     ],
     "finalAnswer": "Subtend a larger angle at the eye",
     "explanation": "Planets appear as extended objects, not point sources like stars. Light from different parts of the planet undergoes different refractions. These variations average out, preventing noticeable twinkling. Stars appear as point sources, so any refraction causes visible twinkling. Therefore, the correct answer is Subtend a larger angle at the eye.",
@@ -1009,7 +1009,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The atmosphere is denser near Earth's surface",
       "Light passes from rarer upper layers into denser lower layers and bends towards the normal",
       "This causes the sun to appear higher in the sky than it actually is",
-      "The same effect makes the sun appear higher at sunset"
+      "The same effect makes the sun appear higher at sunset Answer: (C)"
     ],
     "finalAnswer": "Refraction through layers of atmosphere",
     "explanation": "Light from the sun undergoes refraction in Earth's atmosphere. The atmosphere is denser near Earth's surface. Light passes from rarer upper layers into denser lower layers and bends towards the normal. This causes the sun to appear higher in the sky than it actually is. The same effect makes the sun appear higher at sunset. Therefore, the correct answer is Refraction through layers of atmosphere.",
@@ -1039,7 +1039,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Dispersion occurs because different colors have different refractive indices",
       "Violet light has the shortest wavelength in visible light",
       "Shorter wavelengths are refracted more than longer wavelengths",
-      "Therefore, violet has the highest refractive index"
+      "Therefore, violet has the highest refractive index Answer: (D)"
     ],
     "finalAnswer": "Violet",
     "explanation": "Dispersion occurs because different colors have different refractive indices. Violet light has the shortest wavelength in visible light. Shorter wavelengths are refracted more than longer wavelengths. Therefore, violet has the highest refractive index. Therefore, the correct answer is Violet.",
@@ -1070,7 +1070,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "In a primary rainbow, violet appears on the inner arc",
       "Red appears on the outer arc",
       "This is due to the different angles of refraction",
-      "Violet (shortest wavelength) is refracted most, so it appears innermost"
+      "Violet (shortest wavelength) is refracted most, so it appears innermost Answer: (A)"
     ],
     "finalAnswer": "VIBGYOR (inside to outside)",
     "explanation": "In a primary rainbow, violet appears on the inner arc. Red appears on the outer arc. This is due to the different angles of refraction. Violet (shortest wavelength) is refracted most, so it appears innermost. Therefore, the correct answer is VIBGYOR (inside to outside).",
@@ -1126,7 +1126,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The sky appears blue because of Rayleigh scattering",
       "Blue light has a shorter wavelength than red light",
       "According to Rayleigh's law, scattering is inversely proportional to the fourth power of wavelength",
-      "Blue light is scattered more than red light by atmospheric molecules"
+      "Blue light is scattered more than red light by atmospheric molecules Answer: (C)"
     ],
     "finalAnswer": "Rayleigh scattering",
     "explanation": "The sky appears blue because of Rayleigh scattering. Blue light has a shorter wavelength than red light. According to Rayleigh's law, scattering is inversely proportional to the fourth power of wavelength. Blue light is scattered more than red light by atmospheric molecules. Therefore, the correct answer is Rayleigh scattering.",
@@ -1189,7 +1189,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Currently, scattering ∝ λ⁻⁴, so shorter wavelengths scatter more",
       "If scattering ∝ λ², longer wavelengths would scatter more",
       "Red light (longest wavelength) would be scattered most",
-      "Therefore, the sky would appear red instead of blue"
+      "Therefore, the sky would appear red instead of blue Answer: (B)"
     ],
     "finalAnswer": "Red",
     "explanation": "Currently, scattering ∝ λ⁻⁴, so shorter wavelengths scatter more. If scattering ∝ λ², longer wavelengths would scatter more. Red light (longest wavelength) would be scattered most. Therefore, the sky would appear red instead of blue. Therefore, the correct answer is Red.",
@@ -1219,7 +1219,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The cornea does provide most of the refraction, due to its curved surface and the large refractive-index change at the air-cornea boundary, so A is true",
       "The cornea's refractive index (about 1.38) is lower than that of the eye lens (about 1.40), so R is false",
-      "Hence A is true and R is false"
+      "Hence A is true and R is false Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "A is true: most refraction occurs at the cornea because of the large refractive-index change at the air-cornea surface. R is false: the cornea's refractive index (~1.38) is lower than the lens's (~1.40). So A is true, R is false.",
@@ -1250,7 +1250,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "A concave lens diverges incoming light rays",
       "Diverging rays appear to come from a point farther away",
       "This shifts the focal point backward, allowing it to fall on the retina",
-      "Thus, a concave lens corrects myopia by diverging light"
+      "Thus, a concave lens corrects myopia by diverging light Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1281,7 +1281,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "With atmosphere, refraction bends the sun's light rays toward Earth",
       "This allows us to see the sun even when it is geometrically below the horizon",
       "This effect increases the duration of daylight by about 4 minutes per day",
-      "Both the assertion and reason are correct, and the reason explains the assertion"
+      "Both the assertion and reason are correct, and the reason explains the assertion Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1379,7 +1379,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "questionText": "The minimum distance at which a normal human eye can see clearly is:",
     "options": ["10 cm","25 cm","50 cm","100 cm"],
     "answer": "25 cm",
-    "solutionSteps": ["Normal human eye: least distance of distinct vision = 25 cm (near point)"],
+    "solutionSteps": ["Normal human eye: least distance of distinct vision = 25 cm (near point) Answer: (B)"],
     "finalAnswer": "25 cm",
     "explanation": "Least distance of distinct vision = 25 cm for normal eye.",
     "isCompetencyBased": false,
@@ -1400,7 +1400,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "questionText": "A student cannot see objects beyond 3 m clearly. This condition is:",
     "options": ["Hypermetropia","Presbyopia","Myopia","Astigmatism"],
     "answer": "Myopia",
-    "solutionSteps": ["Myopia: cannot see distant objects; image forms in front of retina"],
+    "solutionSteps": ["Myopia: cannot see distant objects; image forms in front of retina Answer: (C)"],
     "finalAnswer": "Myopia",
     "explanation": "Cannot see distant objects = myopia.",
     "isCompetencyBased": false,
@@ -1421,7 +1421,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): The sky appears blue during the day.\nReason (R): Blue light has a shorter wavelength and is scattered more by atmospheric particles (Rayleigh scattering) than red light.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — sky is blue due to scattering","R: true — shorter wavelengths scatter more; blue scatters more than red","R explains A"],
+    "solutionSteps": ["A: true — sky is blue due to scattering","R: true — shorter wavelengths scatter more; blue scatters more than red","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Blue scatters more than red by Rayleigh scattering (R) explains blue sky (A).",
     "isCompetencyBased": true,
@@ -1442,7 +1442,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "questionText": "The splitting of white light into its component colours by a prism is called:",
     "options": ["Reflection","Refraction","Dispersion","Scattering"],
     "answer": "Dispersion",
-    "solutionSteps": ["Dispersion: white light splits into VIBGYOR as different wavelengths refract at different angles"],
+    "solutionSteps": ["Dispersion: white light splits into VIBGYOR as different wavelengths refract at different angles Answer: (C)"],
     "finalAnswer": "Dispersion",
     "explanation": "Splitting of white light by prism = dispersion.",
     "isCompetencyBased": false,
@@ -1463,7 +1463,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "questionText": "A person with hypermetropia needs which type of lens?",
     "options": ["Concave lens","Plane glass","Convex lens","Bifocal lens"],
     "answer": "Convex lens",
-    "solutionSteps": ["Hypermetropia: image behind retina; convex (converging) lens corrects by converging rays onto retina"],
+    "solutionSteps": ["Hypermetropia: image behind retina; convex (converging) lens corrects by converging rays onto retina Answer: (C)"],
     "finalAnswer": "Convex lens",
     "explanation": "Hypermetropia corrected with convex (converging) lens.",
     "isCompetencyBased": false,

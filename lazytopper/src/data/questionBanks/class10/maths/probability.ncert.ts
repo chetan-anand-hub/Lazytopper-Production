@@ -13,7 +13,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     questionText: "Which of the following CANNOT be the probability of an event?",
     options: ["2/3", "−1.5", "15%", "0.7"],
     answer: "−1.5",
-    solutionSteps: ["A probability must satisfy 0 ≤ P(E) ≤ 1.", "−1.5 is negative, so it lies outside this range and cannot be a probability."],
+    solutionSteps: ["A probability must satisfy 0 ≤ P(E) ≤ 1.", "−1.5 is negative, so it lies outside this range and cannot be a probability. Answer: (B)"],
     finalAnswer: "−1.5 — option (b).",
     ncertRef: "NCERT Ex 14.1 Q4", isCompetencyBased: false,
     strategyHint: "Reject any value < 0 or > 1." },
@@ -22,7 +22,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     questionText: "If P(E) = 0.05, then P(not E) equals",
     options: ["0.05", "0.50", "0.95", "1.05"],
     answer: "0.95",
-    solutionSteps: ["P(E) + P(not E) = 1.", "P(not E) = 1 − 0.05 = 0.95."],
+    solutionSteps: ["P(E) + P(not E) = 1.", "P(not E) = 1 − 0.05 = 0.95. Answer: (C)"],
     finalAnswer: "0.95 — option (c).",
     ncertRef: "NCERT Ex 14.1 Q5", isCompetencyBased: false },
 
@@ -30,7 +30,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     questionText: "A die is thrown once. The probability of getting an odd number is",
     options: ["1/6", "1/3", "1/2", "2/3"],
     answer: "1/2",
-    solutionSteps: ["Total outcomes = 6 (faces 1–6).", "Favourable odd outcomes: 1, 3, 5 → 3 outcomes.", "P(odd) = 3/6 = 1/2."],
+    solutionSteps: ["Total outcomes = 6 (faces 1–6).", "Favourable odd outcomes: 1, 3, 5 → 3 outcomes.", "P(odd) = 3/6 = 1/2. Answer: (C)"],
     finalAnswer: "1/2 — option (c).",
     ncertRef: "NCERT Ex 14.1 Q13(iii)", isCompetencyBased: false },
 
@@ -38,7 +38,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     questionText: "One card is drawn from a well-shuffled deck of 52 cards. The probability that the card is an ace is",
     options: ["1/13", "1/4", "1/52", "4/13"],
     answer: "1/13",
-    solutionSteps: ["A deck has 4 aces out of 52.", "P(ace) = 4/52 = 1/13."],
+    solutionSteps: ["A deck has 4 aces out of 52.", "P(ace) = 4/52 = 1/13. Answer: (A)"],
     finalAnswer: "1/13 — option (a).",
     ncertRef: "NCERT Example 4", isCompetencyBased: false },
 
@@ -46,7 +46,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     questionText: "Two dice (one blue and one grey) are thrown simultaneously. The probability that the sum of the two numbers appearing on top is 8 equals",
     options: ["5/36", "5/12", "1/8", "1/6"],
     answer: "5/36",
-    solutionSteps: ["Total outcomes = 6 × 6 = 36.", "Favourable pairs (sum 8): (2,6), (3,5), (4,4), (5,3), (6,2) → 5 outcomes.", "P(sum = 8) = 5/36."],
+    solutionSteps: ["Total outcomes = 6 × 6 = 36.", "Favourable pairs (sum 8): (2,6), (3,5), (4,4), (5,3), (6,2) → 5 outcomes.", "P(sum = 8) = 5/36. Answer: (A)"],
     finalAnswer: "5/36 — option (a).",
     ncertRef: "NCERT Example 13(i)", isCompetencyBased: true,
     strategyHint: "Enumerate ordered pairs systematically using the 6×6 grid." },
@@ -55,7 +55,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     questionText: "Two coins are tossed simultaneously. The probability of getting at least one head is",
     options: ["1/4", "1/2", "3/4", "1"],
     answer: "3/4",
-    solutionSteps: ["Sample space: {HH, HT, TH, TT} — 4 outcomes.", "‘At least one head’ is favoured by HH, HT, TH → 3 outcomes.", "P(at least one head) = 3/4."],
+    solutionSteps: ["Sample space: {HH, HT, TH, TT} — 4 outcomes.", "‘At least one head’ is favoured by HH, HT, TH → 3 outcomes.", "P(at least one head) = 3/4. Answer: (C)"],
     finalAnswer: "3/4 — option (c).",
     ncertRef: "NCERT Example 9", isCompetencyBased: true },
 

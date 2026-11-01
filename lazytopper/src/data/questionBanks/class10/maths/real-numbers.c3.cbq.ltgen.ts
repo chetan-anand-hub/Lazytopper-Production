@@ -21,7 +21,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5:04 PM",
     "solutionSteps": [
-      "[1 mark] 16 = 2⁴, 24 = 2³ × 3, 40 = 2³ × 5, so LCM = 2⁴ × 3 × 5 = 240 seconds = 4 minutes; they next shoot up together at 5:04 PM."
+      "[1 mark] 16 = 2⁴, 24 = 2³ × 3, 40 = 2³ × 5, so LCM = 2⁴ × 3 × 5 = 240 seconds = 4 minutes; they next shoot up together at 5:04 PM. Answer: (A)"
     ],
     "finalAnswer": "5:04 PM",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10",
     "solutionSteps": [
-      "[1 mark] 168 = 2³ × 3 × 7, 252 = 2² × 3² × 7, 420 = 2² × 3 × 5 × 7, so HCF = 2² × 3 × 7 = 84 magazines per bundle; bundles = 2 + 3 + 5 = 10."
+      "[1 mark] 168 = 2³ × 3 × 7, 252 = 2² × 3² × 7, 420 = 2² × 3 × 5 × 7, so HCF = 2² × 3 × 7 = 84 magazines per bundle; bundles = 2 + 3 + 5 = 10. Answer: (B)"
     ],
     "finalAnswer": "10",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "15",
     "solutionSteps": [
-      "[1 mark] The side of the square must be a multiple of both 18 and 30, so the smallest side = LCM(18, 30) = 2 × 3² × 5 = 90 cm; tiles = (90 ÷ 18) × (90 ÷ 30) = 5 × 3 = 15."
+      "[1 mark] The side of the square must be a multiple of both 18 and 30, so the smallest side = LCM(18, 30) = 2 × 3² × 5 = 90 cm; tiles = (90 ÷ 18) × (90 ÷ 30) = 5 × 3 = 15. Answer: (C)"
     ],
     "finalAnswer": "15",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "30",
     "solutionSteps": [
-      "[1 mark] Number of crates = (2³ × 3² × 5²) ÷ (2² × 3 × 5) = 2 × 3 × 5 = 30."
+      "[1 mark] Number of crates = (2³ × 3² × 5²) ÷ (2² × 3 × 5) = 2 × 3 × 5 = 30. Answer: (D)"
     ],
     "finalAnswer": "30",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5",
     "solutionSteps": [
-      "[1 mark] The marked teeth meet again after a number of teeth passing that is a multiple of both 36 and 60; LCM(36, 60) = 2² × 3² × 5 = 180 teeth, so the smaller wheel turns 180 ÷ 36 = 5 times."
+      "[1 mark] The marked teeth meet again after a number of teeth passing that is a multiple of both 36 and 60; LCM(36, 60) = 2² × 3² × 5 = 180 teeth, so the smaller wheel turns 180 ÷ 36 = 5 times. Answer: (A)"
     ],
     "finalAnswer": "5",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12",
     "solutionSteps": [
-      "[1 mark] 126 = 2 × 3² × 7, 168 = 2³ × 3 × 7, 210 = 2 × 3 × 5 × 7, so HCF = 2 × 3 × 7 = 42 m; pieces = 3 + 4 + 5 = 12."
+      "[1 mark] 126 = 2 × 3² × 7, 168 = 2³ × 3 × 7, 210 = 2 × 3 × 5 × 7, so HCF = 2 × 3 × 7 = 42 m; pieces = 3 + 4 + 5 = 12. Answer: (B)"
     ],
     "finalAnswer": "12",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4",
     "solutionSteps": [
-      "[1 mark] 72 = 2³ × 3², 96 = 2⁵ × 3, so LCM = 2⁵ × 3² = 288 seconds; the faster cyclist has done 288 ÷ 72 = 4 laps (the other 3)."
+      "[1 mark] 72 = 2³ × 3², 96 = 2⁵ × 3, so LCM = 2⁵ × 3² = 288 seconds; the faster cyclist has done 288 ÷ 72 = 4 laps (the other 3). Answer: (C)"
     ],
     "finalAnswer": "4",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "14",
     "solutionSteps": [
-      "[1 mark] Pencils given = 126 = 2 × 3² × 7 and erasers given = 70 = 2 × 5 × 7, so the greatest number of students = HCF(126, 70) = 2 × 7 = 14 (and 14 is more than the 7 left over, so this is valid)."
+      "[1 mark] Pencils given = 126 = 2 × 3² × 7 and erasers given = 70 = 2 × 5 × 7, so the greatest number of students = HCF(126, 70) = 2 × 7 = 14 (and 14 is more than the 7 left over, so this is valid). Answer: (D)"
     ],
     "finalAnswer": "14",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "243",
     "solutionSteps": [
-      "[1 mark] 12 = 2² × 3, 16 = 2⁴, 20 = 2² × 5, so LCM = 2⁴ × 3 × 5 = 240; least number = 240 + 3 = 243."
+      "[1 mark] 12 = 2² × 3, 16 = 2⁴, 20 = 2² × 5, so LCM = 2⁴ × 3 × 5 = 240; least number = 240 + 3 = 243. Answer: (A)"
     ],
     "finalAnswer": "243",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "N ends with the digit 5",
     "solutionSteps": [
-      "[1 mark] 15ⁿ = 3ⁿ × 5ⁿ; by the Fundamental Theorem of Arithmetic this factorisation is unique and has no factor 2, so N is always odd and a multiple of 5, hence it always ends with 5 and never with 0."
+      "[1 mark] 15ⁿ = 3ⁿ × 5ⁿ; by the Fundamental Theorem of Arithmetic this factorisation is unique and has no factor 2, so N is always odd and a multiple of 5, hence it always ends with 5 and never with 0. Answer: (B)"
     ],
     "finalAnswer": "N ends with the digit 5",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "90 cm",
     "solutionSteps": [
-      "[1 mark] For two numbers, HCF × LCM = product, so the other length = (18 × 360) ÷ 72 = 90 cm (check: HCF(72, 90) = 18, LCM = 360)."
+      "[1 mark] For two numbers, HCF × LCM = product, so the other length = (18 × 360) ÷ 72 = 90 cm (check: HCF(72, 90) = 18, LCM = 360). Answer: (C)"
     ],
     "finalAnswer": "90 cm",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "60 litres",
     "solutionSteps": [
-      "[1 mark] Let the capacities be 4k and 5k (4 and 5 coprime), so LCM = 20k = 240, giving k = 12; larger can = 5 × 12 = 60 litres."
+      "[1 mark] Let the capacities be 4k and 5k (4 and 5 coprime), so LCM = 20k = 240, giving k = 12; larger can = 5 × 12 = 60 litres. Answer: (D)"
     ],
     "finalAnswer": "60 litres",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "8:55 AM",
     "solutionSteps": [
-      "[1 mark] 25 = 5², 35 = 5 × 7, so LCM = 5² × 7 = 175 minutes = 2 hours 55 minutes after 6:00 AM, i.e. 8:55 AM."
+      "[1 mark] 25 = 5², 35 = 5 × 7, so LCM = 5² × 7 = 175 minutes = 2 hours 55 minutes after 6:00 AM, i.e. 8:55 AM. Answer: (A)"
     ],
     "finalAnswer": "8:55 AM",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3",
     "solutionSteps": [
-      "[1 mark] 360 = 2³ × 3² × 5 and 270 = 2 × 3³ × 5, so the greatest number of kits = HCF = 2 × 3² × 5 = 90; pens per kit = 270 ÷ 90 = 3 (and 4 notebooks)."
+      "[1 mark] 360 = 2³ × 3² × 5 and 270 = 2 × 3³ × 5, so the greatest number of kits = HCF = 2 × 3² × 5 = 90; pens per kit = 270 ÷ 90 = 3 (and 4 notebooks). Answer: (B)"
     ],
     "finalAnswer": "3",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10",
     "solutionSteps": [
-      "[1 mark] 360 = 2³ × 3² × 5; for a perfect square every prime must have an even power, so multiply by 2 × 5 = 10, giving 3600 = 60². Smallest k = 10."
+      "[1 mark] 360 = 2³ × 3² × 5; for a perfect square every prime must have an even power, so multiply by 2 × 5 = 10, giving 3600 = 60². Smallest k = 10. Answer: (C)"
     ],
     "finalAnswer": "10",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Both the total length and the product",
     "solutionSteps": [
-      "[1 mark] Total length = (3 + √5) + (3 − √5) = 6 and product = 3² − (√5)² = 9 − 5 = 4; both are rational."
+      "[1 mark] Total length = (3 + √5) + (3 − √5) = 6 and product = 3² − (√5)² = 9 − 5 = 4; both are rational. Answer: (D)"
     ],
     "finalAnswer": "Both the total length and the product",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10:00 AM (next day)",
     "solutionSteps": [
-      "[1 mark] 20 = 2² × 5, 36 = 2² × 3², 48 = 2⁴ × 3, so LCM = 2⁴ × 3² × 5 = 720 minutes = 12 hours; 10:00 PM + 12 hours = 10:00 AM next day."
+      "[1 mark] 20 = 2² × 5, 36 = 2² × 3², 48 = 2⁴ × 3, so LCM = 2⁴ × 3² × 5 = 720 minutes = 12 hours; 10:00 PM + 12 hours = 10:00 AM next day. Answer: (A)"
     ],
     "finalAnswer": "10:00 AM (next day)",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] 1260 = 2² × 3² × 5 × 7 and 840 = 2³ × 3 × 5 × 7, so the side = HCF = 2² × 3 × 5 × 7 = 420 m; plots = 3 × 2 = 6."
+      "[1 mark] 1260 = 2² × 3² × 5 × 7 and 840 = 2³ × 3 × 5 × 7, so the side = HCF = 2² × 3 × 5 × 7 = 420 m; plots = 3 × 2 = 6. Answer: (B)"
     ],
     "finalAnswer": "6",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It can be done, for example in 13 rows of 78 seats each",
     "solutionSteps": [
-      "[1 mark] 7 × 11 × 13 + 13 = 13 × (7 × 11 + 1) = 13 × 78 = 1014 = 2 × 3 × 13², which is composite, so 13 rows of 78 seats works; 7 and 11 do not divide 1014, so the \"only 7 rows\" and \"only 11 rows\" options are false."
+      "[1 mark] 7 × 11 × 13 + 13 = 13 × (7 × 11 + 1) = 13 × 78 = 1014 = 2 × 3 × 13², which is composite, so 13 rows of 78 seats works; 7 and 11 do not divide 1014, so the \"only 7 rows\" and \"only 11 rows\" options are false. Answer: (C)"
     ],
     "finalAnswer": "It can be done, for example in 13 rows of 78 seats each",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const REAL_NUMBERS_C3_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "30 hours",
     "solutionSteps": [
-      "[1 mark] 90 = 2 × 3² × 5, 120 = 2³ × 3 × 5, 150 = 2 × 3 × 5², so LCM = 2³ × 3² × 5² = 1800 minutes = 30 hours."
+      "[1 mark] 90 = 2 × 3² × 5, 120 = 2³ × 3 × 5, 150 = 2 × 3 × 5², so LCM = 2³ × 3² × 5² = 1800 minutes = 30 hours. Answer: (D)"
     ],
     "finalAnswer": "30 hours",
     "isCompetencyBased": true,

@@ -20,7 +20,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Charge",
     "solutionSteps": [
-      "Electric current is the rate of flow of electric charge through a conductor, I = Q/t; it is measured in amperes (A). (Rate of flow of energy is power, not current.)"
+      "Electric current is the rate of flow of electric charge through a conductor, I = Q/t; it is measured in amperes (A). (Rate of flow of energy is power, not current.) Answer: (C)"
     ],
     "finalAnswer": "Charge",
     "explanation": "Electric current is the amount of charge flowing through a cross-section per unit time (I = Q/t). It is measured in amperes (A). Rate of flow of energy is power. Therefore, the correct answer is Charge.",
@@ -71,7 +71,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "options": ["Current flows from − to +; electrons flow from + to −", "Both current and electrons flow from + to −", "Current flows from + to −; electrons flow from − to +", "Both current and electrons flow from − to +"],
     "answer": "Current flows from + to −; electrons flow from − to +",
     "solutionSteps": [
-      "[1 mark] Current flows from + to −; electrons flow from − to + — conventional current is taken from the positive to the negative terminal, opposite to the actual electron flow."
+      "[1 mark] Current flows from + to −; electrons flow from − to + — conventional current is taken from the positive to the negative terminal, opposite to the actual electron flow. Answer: (C)"
     ],
     "finalAnswer": "Current flows from + to −; electrons flow from − to +",
     "isCompetencyBased": true,
@@ -155,7 +155,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "ρ = resistivity (material)",
       "L = length",
       "A = cross-sectional area",
-      "Velocity affects current, not resistance directly"
+      "Velocity affects current, not resistance directly Answer: (D)"
     ],
     "finalAnswer": "Velocity of charge carriers",
     "explanation": "Resistance depends on: R = ρL/A. ρ = resistivity (material). L = length. A = cross-sectional area. Velocity affects current, not resistance directly. Therefore, the correct answer is Velocity of charge carriers.",
@@ -208,7 +208,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "20 V",
     "solutionSteps": [
-      "In series Rs = 2 Ω + 3 Ω + 5 Ω = 10 Ω, so V = IR = 2 A × 10 Ω = 20 V.",
+      "In series Rs = 2 Ω + 3 Ω + 5 Ω = 10 Ω, so V = IR = 2 A × 10 Ω = 20 V. Answer: (B)",
     ],
     "finalAnswer": "20 V",
     "explanation": "In series: R_total = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω. V_total = I × R_total = 2 × 10 = 20 V. Therefore, the correct answer is 20 V.",
@@ -237,7 +237,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Less than the smallest individual resistance",
     "solutionSteps": [
-      "For resistors in parallel, 1/Rp = 1/R1 + 1/R2 + ..., so 1/Rp is greater than the reciprocal of any single resistance; hence the total resistance is less than the smallest individual resistance.",
+      "For resistors in parallel, 1/Rp = 1/R1 + 1/R2 + ..., so 1/Rp is greater than the reciprocal of any single resistance; hence the total resistance is less than the smallest individual resistance. Answer: (B)",
     ],
     "finalAnswer": "Less than the smallest individual resistance",
     "explanation": "In parallel: 1/R_total = 1/R₁ + 1/R₂ + .. The reciprocals add up, making R_total smaller than any individual resistance. Therefore, the correct answer is Less than the smallest individual resistance.",
@@ -294,7 +294,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "H = I²Rt (Joule's Law)",
       "H = V²/R × t (derived from above)",
       "H = VIt (another form)",
-      "All are equivalent expressions"
+      "All are equivalent expressions Answer: (D)"
     ],
     "finalAnswer": "All of the above",
     "explanation": "H = I²Rt (Joule's Law). H = V²/R × t (derived from above). H = VIt (another form). All are equivalent expressions. Therefore, the correct answer is All of the above.",
@@ -370,7 +370,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Power P = Energy/Time = Work/Time",
       "P = VI (also valid)",
-      "Power measures energy per unit time"
+      "Power measures energy per unit time Answer: (B)"
     ],
     "finalAnswer": "Energy consumption",
     "explanation": "Power P = Energy/Time = Work/Time. P = VI (also valid). Power measures energy per unit time. Therefore, the correct answer is Energy consumption.",
@@ -400,7 +400,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Given: P = 1500 W, V = 220 V",
       "P = VI, so I = P/V",
-      "I = 1500/220 ≈ 6.8 A"
+      "I = 1500/220 ≈ 6.8 A Answer: (A)"
     ],
     "finalAnswer": "6.8 A",
     "explanation": "Given: P = 1500 W, V = 220 V. P = VI, so I = P/V. I = 1500/220 ≈ 6.8 A. Therefore, the correct answer is 6.8 A.",
@@ -455,7 +455,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Assertion is false: an insulator does not allow electric current to flow through it (practically no current); only conductors carry current.",
       "Reasoning is true: conductors have many free electrons that can move, while insulators have almost no free electrons.",
-      "Hence A is false and R is true; the lack of free electrons in insulators is exactly why A fails."
+      "Hence A is false and R is true; the lack of free electrons in insulators is exactly why A fails. Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion is false because insulators do not conduct electric current. The Reason is a correct statement: conductors have plenty of free electrons while insulators have almost none. So A is false, R is true.",
@@ -485,7 +485,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Assertion is true: R increases with temperature for most metals",
       "Reasoning is true: higher temperature = more atomic vibrations",
       "Vibrations obstruct electron movement, increasing resistance",
-      "R explains A correctly"
+      "R explains A correctly Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -514,7 +514,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Assertion is true: when one bulb in a series circuit burns out (filament breaks), all the other bulbs go off.",
       "Reasoning is true: a series circuit has only one path, and the same current passes through every component.",
-      "When the one path breaks at the burnt bulb, the circuit is open and the current becomes zero everywhere — so R correctly explains A."
+      "When the one path breaks at the burnt bulb, the circuit is open and the current becomes zero everywhere — so R correctly explains A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both statements are true. Because a series circuit has only one path for current, a break anywhere (a burnt-out bulb) opens the whole circuit and current stops in all bulbs. So R is the correct explanation of A.",
@@ -723,7 +723,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Using Ohm's Law: V = IR",
       "Rearranging: I = V/R",
       "I = 10/5 = 2 A",
-      "Current flowing through the conductor is 2 amperes"
+      "Current flowing through the conductor is 2 amperes Answer: (C)"
     ],
     "finalAnswer": "2 A",
     "isCompetencyBased": true,
@@ -753,7 +753,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Resistance = Voltage/Current",
       "Unit = Volt/Ampere = Ohm (Ω)",
       "Named after Georg Simon Ohm",
-      "1 Ohm = 1 Volt/1 Ampere"
+      "1 Ohm = 1 Volt/1 Ampere Answer: (B)"
     ],
     "finalAnswer": "Ohm",
     "explanation": "Resistance = Voltage/Current. Unit = Volt/Ampere = Ohm (Ω). Named after Georg Simon Ohm. 1 Ohm = 1 Volt/1 Ampere. Therefore, the correct answer is Ohm.",
@@ -786,7 +786,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Resistance depends on all three factors mentioned",
       "R ∝ L (increases with length)",
       "R ∝ 1/A (decreases with area)",
-      "So R correctly explains A"
+      "So R correctly explains A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -844,7 +844,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "In series connection: R_total = R₁ + R₂ + R₃ + ...",
       "Current flows through each resistor in sequence",
       "Total resistance increases with each additional resistor",
-      "This is different from parallel connection"
+      "This is different from parallel connection Answer: (B)"
     ],
     "finalAnswer": "Sum of individual resistances",
     "explanation": "In series connection: R_total = R₁ + R₂ + R₃ + .. Current flows through each resistor in sequence. Total resistance increases with each additional resistor. This is different from parallel connection. Therefore, the correct answer is Sum of individual resistances.",
@@ -875,7 +875,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "In parallel: 1/R_eq = 1/R₁ + 1/R₂ + 1/R₃ + ...",
       "R_eq is always less than the smallest resistance",
       "More paths allow more current to flow",
-      "Total resistance decreases with parallel connection"
+      "Total resistance decreases with parallel connection Answer: (C)"
     ],
     "finalAnswer": "Less than the smallest resistance",
     "explanation": "In parallel: 1/R_eq = 1/R₁ + 1/R₂ + 1/R₃ + .. R_eq is always less than the smallest resistance. More paths allow more current to flow. Total resistance decreases with parallel connection. Therefore, the correct answer is Less than the smallest resistance.",
@@ -906,7 +906,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Series connection: R_total = R₁ + R₂ + R₃",
       "R_total = 2 + 3 + 5",
       "R_total = 10 Ω",
-      "In series, resistances simply add up"
+      "In series, resistances simply add up Answer: (C)"
     ],
     "finalAnswer": "10 Ω",
     "isCompetencyBased": true,
@@ -936,7 +936,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Parallel connection: 1/R_eq = 1/R₁ + 1/R₂",
       "1/R_eq = 1/4 + 1/6",
       "1/R_eq = 3/12 + 2/12 = 5/12",
-      "R_eq = 12/5 = 2.4 Ω"
+      "R_eq = 12/5 = 2.4 Ω Answer: (A)"
     ],
     "finalAnswer": "2.4 Ω",
     "isCompetencyBased": true,
@@ -991,7 +991,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Joule's Law: H = I²Rt (heat is proportional to square of current)",
       "From V = IR: H = I²Rt = I × (IR) × t = VIt",
       "Also: H = V²t/R (when expressed in terms of voltage)",
-      "All three forms are equivalent"
+      "All three forms are equivalent Answer: (D)"
     ],
     "finalAnswer": "All of the above",
     "explanation": "Joule's Law: H = I²Rt (heat is proportional to square of current). From V = IR: H = I²Rt = I × (IR) × t = VIt. Also: H = V²t/R (when expressed in terms of voltage). All three forms are equivalent. Therefore, the correct answer is All of the above.",
@@ -1022,7 +1022,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Using Joule's Law: H = I²Rt",
       "I = 3 A, R = 2 Ω, t = 5 min = 5 × 60 = 300 s",
       "H = (3)² × 2 × 300",
-      "H = 9 × 2 × 300 = 5400 J"
+      "H = 9 × 2 × 300 = 5400 J Answer: (D)"
     ],
     "finalAnswer": "5400 J",
     "isCompetencyBased": true,
@@ -1078,7 +1078,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Power = Energy/Time",
       "P = W/t (where W is work/energy)",
       "SI unit: Watt (J/s)",
-      "Can also be expressed as P = VI or P = I²R"
+      "Can also be expressed as P = VI or P = I²R Answer: (A)"
     ],
     "finalAnswer": "Energy per unit time",
     "explanation": "Power = Energy/Time. P = W/t (where W is work/energy). SI unit: Watt (J/s). Can also be expressed as P = VI or P = I²R. Therefore, the correct answer is Energy per unit time.",
@@ -1110,7 +1110,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "SI unit of energy = Joule (J)",
       "SI unit of time = Second (s)",
       "SI unit of power = Joule/Second = Watt (W)",
-      "1 Watt = 1 Joule/1 Second"
+      "1 Watt = 1 Joule/1 Second Answer: (B)"
     ],
     "finalAnswer": "Watt",
     "explanation": "Power = Energy/Time. SI unit of energy = Joule (J). SI unit of time = Second (s). SI unit of power = Joule/Second = Watt (W). 1 Watt = 1 Joule/1 Second. Therefore, the correct answer is Watt.",
@@ -1141,7 +1141,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Power P = 1000 W = 1 kW",
       "Time t = 10 min = 10/60 hours = 1/6 hours",
       "Energy E = P × t = 1 × (1/6) = 1/6 kWh ≈ 0.167 kWh",
-      "Or in Joules: E = 1000 × 600 = 600,000 J = 600 kJ"
+      "Or in Joules: E = 1000 × 600 = 600,000 J = 600 kJ Answer: (B)"
     ],
     "finalAnswer": "0.167 kWh",
     "isCompetencyBased": true,
@@ -1195,7 +1195,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "A is true: a fuse wire is made of a material with a low melting point. R is true: the fuse must melt quickly when excess current heats it, breaking the circuit and protecting the appliances. A low melting point is needed precisely so that it melts in time, so both A and R are true, and R is the correct explanation of A.",
+      "A is true: a fuse wire is made of a material with a low melting point. R is true: the fuse must melt quickly when excess current heats it, breaking the circuit and protecting the appliances. A low melting point is needed precisely so that it melts in time, so both A and R are true, and R is the correct explanation of A. Answer: (A)",
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1224,7 +1224,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "A is true: if one branch of a parallel circuit breaks, current still flows in the other branches. R is true: a parallel circuit provides a separate path through each branch. Because the paths are independent, breaking one does not stop the others, so both A and R are true, and R is the correct explanation of A.",
+      "A is true: if one branch of a parallel circuit breaks, current still flows in the other branches. R is true: a parallel circuit provides a separate path through each branch. Because the paths are independent, breaking one does not stop the others, so both A and R are true, and R is the correct explanation of A. Answer: (A)",
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1351,7 +1351,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which statement best describes Ohm's law?",
     "options": ["V = IR^2","Voltage is directly proportional to current at constant temperature","Current is inversely proportional to voltage","Resistance depends on current"],
     "answer": "Voltage is directly proportional to current at constant temperature",
-    "solutionSteps": ["Ohm's law: V = IR; at constant temperature V is directly proportional to I"],
+    "solutionSteps": ["Ohm's law: V = IR; at constant temperature V is directly proportional to I Answer: (B)"],
     "finalAnswer": "Voltage is directly proportional to current at constant temperature",
     "explanation": "Ohm's law: V=IR; V proportional to I at constant T.",
     "isCompetencyBased": false,
@@ -1372,7 +1372,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "questionText": "The SI unit of electrical resistance is:",
     "options": ["Ampere","Volt","Ohm","Watt"],
     "answer": "Ohm",
-    "solutionSteps": ["Resistance is measured in ohms (Ω); 1 Ω = 1 V/A"],
+    "solutionSteps": ["Resistance is measured in ohms (Ω); 1 Ω = 1 V/A Answer: (C)"],
     "finalAnswer": "Ohm",
     "explanation": "Resistance is measured in ohm (Ω).",
     "isCompetencyBased": false,
@@ -1392,7 +1392,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "questionText": "Three resistors of 2 Ω, 3 Ω and 6 Ω are connected in parallel. Their equivalent resistance is:",
     "options": ["11 Ω", "1 Ω", "6 Ω", "0.5 Ω"],
     "answer": "1 Ω",
-    "solutionSteps": ["1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 1; R = 1 Ω"],
+    "solutionSteps": ["1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 1; R = 1 Ω Answer: (B)"],
     "finalAnswer": "1 Ω",
     "explanation": "1/R = 1/2 + 1/3 + 1/6 = 1; R = 1 Ω.",
     "isCompetencyBased": false,
@@ -1412,7 +1412,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "questionText": "The SI unit of electric power is:",
     "options": ["Joule","Coulomb","Watt","Kilowatt-hour"],
     "answer": "Watt",
-    "solutionSteps": ["Power = Voltage x Current = VI; unit is watt (W) = joule per second"],
+    "solutionSteps": ["Power = Voltage x Current = VI; unit is watt (W) = joule per second Answer: (C)"],
     "finalAnswer": "Watt",
     "explanation": "Power = VI; unit = watt (W).",
     "isCompetencyBased": false,
@@ -1433,7 +1433,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): Resistors in series have a greater equivalent resistance than any individual resistor.\nReason (R): In series connection, R_total = R1 + R2 + R3 — all resistances add up.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — series equivalent > individual resistors","R: true — series formula directly explains this"],
+    "solutionSteps": ["A: true — series equivalent > individual resistors","R: true — series formula directly explains this Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Series: R total = sum (R) explains why total > individual (A).",
     "isCompetencyBased": true,
@@ -1454,7 +1454,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "questionText": "The commercial unit of electrical energy is:",
     "options": ["Watt","Joule","Kilowatt-hour","Volt"],
     "answer": "Kilowatt-hour",
-    "solutionSteps": ["1 kWh = 3.6 x 10^6 J; used for billing household electricity"],
+    "solutionSteps": ["1 kWh = 3.6 x 10^6 J; used for billing household electricity Answer: (C)"],
     "finalAnswer": "Kilowatt-hour",
     "explanation": "Commercial unit of energy = kilowatt-hour (kWh).",
     "isCompetencyBased": false,
@@ -1475,7 +1475,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "questionText": "A bulb has a resistance of 100 Ω. A current of 2 A flows through it. What is the potential difference across it?",
     "options": ["50 V","100 V","200 V","20 V"],
     "answer": "200 V",
-    "solutionSteps": ["V = IR = 2 × 100 = 200 V"],
+    "solutionSteps": ["V = IR = 2 × 100 = 200 V Answer: (C)"],
     "finalAnswer": "200 V",
     "explanation": "V = IR = 2 × 100 = 200 V.",
     "isCompetencyBased": false,

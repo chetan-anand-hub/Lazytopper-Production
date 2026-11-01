@@ -20,7 +20,7 @@ export const CARBON_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "They are structural isomers.",
     "solutionSteps": [
-      "[1 mark] They are structural isomers: both have the same molecular formula (C4H10, hence the same molecular mass) but different structures (straight and branched chains); both are saturated, and successive homologues would differ by a –CH2– unit."
+      "[1 mark] They are structural isomers: both have the same molecular formula (C4H10, hence the same molecular mass) but different structures (straight and branched chains); both are saturated, and successive homologues would differ by a –CH2– unit. Answer: (A)"
     ],
     "finalAnswer": "They are structural isomers.",
     "isCompetencyBased": true,
@@ -49,7 +49,7 @@ export const CARBON_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] Option (C). Saturated hydrocarbons generally burn with a clean blue flame when the air supply is sufficient, so A is true; but butane (C4H10) has only single bonds and fits CnH2n+2, so it is a saturated hydrocarbon and R is false."
+      "[1 mark] Option (C). Saturated hydrocarbons generally burn with a clean blue flame when the air supply is sufficient, so A is true; but butane (C4H10) has only single bonds and fits CnH2n+2, so it is a saturated hydrocarbon and R is false. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,

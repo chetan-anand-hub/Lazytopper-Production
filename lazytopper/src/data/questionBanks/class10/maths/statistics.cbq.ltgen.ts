@@ -21,7 +21,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "9.36 minutes",
     "solutionSteps": [
-      "[1 mark] Class marks 2, 6, 10, 14, 18; Σfx = 6 + 42 + 80 + 70 + 36 = 234 and Σf = 25, so mean = 234 ÷ 25 = 9.36 minutes."
+      "[1 mark] Class marks 2, 6, 10, 14, 18; Σfx = 6 + 42 + 80 + 70 + 36 = 234 and Σf = 25, so mean = 234 ÷ 25 = 9.36 minutes. Answer: (A)"
     ],
     "finalAnswer": "9.36 minutes",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "25.2 GB",
     "solutionSteps": [
-      "[1 mark] uᵢ = (xᵢ − 25) ÷ 10 = −2, −1, 0, 1, 2; Σfu = −12 − 11 + 0 + 12 + 12 = 1, Σf = 50; mean = 25 + 10 × (1 ÷ 50) = 25.2 GB (forgetting to multiply by h gives 25.02)."
+      "[1 mark] uᵢ = (xᵢ − 25) ÷ 10 = −2, −1, 0, 1, 2; Σfu = −12 − 11 + 0 + 12 + 12 = 1, Σf = 50; mean = 25 + 10 × (1 ÷ 50) = 25.2 GB (forgetting to multiply by h gives 25.02). Answer: (B)"
     ],
     "finalAnswer": "25.2 GB",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "35 years",
     "solutionSteps": [
-      "[1 mark] n/2 = 30; cumulative frequencies 6, 20, 40, … so the median class is 30-40 with l = 30, cf = 20, f = 20, h = 10; median = 30 + ((30 − 20) ÷ 20) × 10 = 35 years."
+      "[1 mark] n/2 = 30; cumulative frequencies 6, 20, 40, … so the median class is 30-40 with l = 30, cf = 20, f = 20, h = 10; median = 30 + ((30 − 20) ÷ 20) × 10 = 35 years. Answer: (C)"
     ],
     "finalAnswer": "35 years",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "26 runs",
     "solutionSteps": [
-      "[1 mark] Modal class 20-30 (highest frequency 14): l = 20, f₁ = 14, f₀ = 8, f₂ = 10, h = 10; mode = 20 + (14 − 8) ÷ (28 − 8 − 10) × 10 = 20 + 6 = 26 runs."
+      "[1 mark] Modal class 20-30 (highest frequency 14): l = 20, f₁ = 14, f₀ = 8, f₂ = 10, h = 10; mode = 20 + (14 − 8) ÷ (28 − 8 − 10) × 10 = 20 + 6 = 26 runs. Answer: (D)"
     ],
     "finalAnswer": "26 runs",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹1300",
     "solutionSteps": [
-      "[1 mark] Mode = 3 Median − 2 Mean = 3 × 1400 − 2 × 1450 = 4200 − 2900 = ₹1300."
+      "[1 mark] Mode = 3 Median − 2 Mean = 3 × 1400 − 2 × 1450 = 4200 − 2900 = ₹1300. Answer: (A)"
     ],
     "finalAnswer": "₹1300",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "0-2 and 2-4",
     "solutionSteps": [
-      "[1 mark] Highest frequency 14 is in 0-2, so the modal class is 0-2; n/2 = 20 and cumulative frequencies are 14, 24, …, so the first cf ≥ 20 is in 2-4, the median class."
+      "[1 mark] Highest frequency 14 is in 0-2, so the modal class is 0-2; n/2 = 20 and cumulative frequencies are 14, 24, …, so the first cf ≥ 20 is in 2-4, the median class. Answer: (C)"
     ],
     "finalAnswer": "0-2 and 2-4",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] Σfx = 20 + 15p + 250 + 210 + 180 = 660 + 15p and Σf = 24 + p; 25(24 + p) = 660 + 15p gives 600 + 25p = 660 + 15p, so 10p = 60 and p = 6."
+      "[1 mark] Σfx = 20 + 15p + 250 + 210 + 180 = 660 + 15p and Σf = 24 + p; 25(24 + p) = 660 + 15p gives 600 + 25p = 660 + 15p, so 10p = 60 and p = 6. Answer: (C)"
     ],
     "finalAnswer": "6",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "14",
     "solutionSteps": [
-      "[1 mark] n = 30 + x, cf before 40-60 = 5 + x, f = 12, h = 20; 45 = 40 + (((30 + x) ÷ 2 − (5 + x)) ÷ 12) × 20 gives (20 − x) ÷ 2 = 3, so x = 14 (check: n = 44, n/2 = 22 lies in 40-60)."
+      "[1 mark] n = 30 + x, cf before 40-60 = 5 + x, f = 12, h = 20; 45 = 40 + (((30 + x) ÷ 2 − (5 + x)) ÷ 12) × 20 gives (20 − x) ÷ 2 = 3, so x = 14 (check: n = 44, n/2 = 22 lies in 40-60). Answer: (C)"
     ],
     "finalAnswer": "14",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "23 °C",
     "solutionSteps": [
-      "[1 mark] Adding the same 2 °C to every observation shifts every class (and so the median) up by 2 °C: correct median = 21 + 2 = 23 °C."
+      "[1 mark] Adding the same 2 °C to every observation shifts every class (and so the median) up by 2 °C: correct median = 21 + 2 = 23 °C. Answer: (D)"
     ],
     "finalAnswer": "23 °C",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "21 minutes",
     "solutionSteps": [
-      "[1 mark] 3 Median = Mode + 2 Mean gives 60 = 18 + 2 Mean, so Mean = 42 ÷ 2 = 21 minutes."
+      "[1 mark] 3 Median = Mode + 2 Mean gives 60 = 18 + 2 Mean, so Mean = 42 ÷ 2 = 21 minutes. Answer: (B)"
     ],
     "finalAnswer": "21 minutes",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "25 years",
     "solutionSteps": [
-      "[1 mark] Modal class 20-30: l = 20, f₁ = 24, f₀ = 15, f₂ = 15, h = 10; mode = 20 + (9 ÷ 18) × 10 = 25 years."
+      "[1 mark] Modal class 20-30: l = 20, f₁ = 24, f₀ = 15, f₂ = 15, h = 10; mode = 20 + (9 ÷ 18) × 10 = 25 years. Answer: (D)"
     ],
     "finalAnswer": "25 years",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "33 minutes",
     "solutionSteps": [
-      "[1 mark] Mean = a + h × (Σfu ÷ Σf) = 35 + 10 × (−8 ÷ 40) = 35 − 2 = 33 minutes."
+      "[1 mark] Mean = a + h × (Σfu ÷ Σf) = 35 + 10 × (−8 ÷ 40) = 35 − 2 = 33 minutes. Answer: (B)"
     ],
     "finalAnswer": "33 minutes",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "44.25",
     "solutionSteps": [
-      "[1 mark] Convert to continuous classes (subtract 0.5 / add 0.5): median class 40.5-50.5 (cf 5, 14, 30; n/2 = 20); median = 40.5 + ((20 − 14) ÷ 16) × 10 = 40.5 + 3.75 = 44.25."
+      "[1 mark] Convert to continuous classes (subtract 0.5 / add 0.5): median class 40.5-50.5 (cf 5, 14, 30; n/2 = 20); median = 40.5 + ((20 − 14) ÷ 16) × 10 = 40.5 + 3.75 = 44.25. Answer: (A)"
     ],
     "finalAnswer": "44.25",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "54 km/h",
     "solutionSteps": [
-      "[1 mark] Modal class 50-60: l = 50, f₁ = 22, f₀ = 14, f₂ = 10, h = 10; mode = 50 + (8 ÷ 20) × 10 = 54 km/h."
+      "[1 mark] Modal class 50-60: l = 50, f₁ = 22, f₀ = 14, f₂ = 10, h = 10; mode = 50 + (8 ÷ 20) × 10 = 54 km/h. Answer: (B)"
     ],
     "finalAnswer": "54 km/h",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "50.2 years",
     "solutionSteps": [
-      "[1 mark] uᵢ = −2, −1, 0, 1, 2, 3; Σfu = −8 − 8 + 0 + 14 + 16 + 12 = 26, Σf = 50; mean = 45 + 10 × (26 ÷ 50) = 50.2 years."
+      "[1 mark] uᵢ = −2, −1, 0, 1, 2, 3; Σfu = −8 − 8 + 0 + 14 + 16 + 12 = 26, Σf = 50; mean = 45 + 10 × (26 ÷ 50) = 50.2 years. Answer: (A)"
     ],
     "finalAnswer": "50.2 years",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Mode",
     "solutionSteps": [
-      "[1 mark] The value around which observations are most concentrated (the most frequent) is the mode, found from the modal class; mean and median do not tell her which range occurs most often."
+      "[1 mark] The value around which observations are most concentrated (the most frequent) is the mode, found from the modal class; mean and median do not tell her which range occurs most often. Answer: (D)"
     ],
     "finalAnswer": "Mode",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Median",
     "solutionSteps": [
-      "[1 mark] The median divides the data into two equal halves and depends only on the middle position, so a few extreme incomes do not pull it up as they do the mean."
+      "[1 mark] The median divides the data into two equal halves and depends only on the middle position, so a few extreme incomes do not pull it up as they do the mean. Answer: (A)"
     ],
     "finalAnswer": "Median",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "41.5 minutes",
     "solutionSteps": [
-      "[1 mark] 3 Median = Mode + 2 Mean = 39.5 + 85 = 124.5, so Median = 124.5 ÷ 3 = 41.5 minutes."
+      "[1 mark] 3 Median = Mode + 2 Mean = 39.5 + 85 = 124.5, so Median = 124.5 ÷ 3 = 41.5 minutes. Answer: (C)"
     ],
     "finalAnswer": "41.5 minutes",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "80",
     "solutionSteps": [
-      "[1 mark] Mean = Σfx ÷ Σf, so Σf = 2880 ÷ 36 = 80 participants."
+      "[1 mark] Mean = Σfx ÷ Σf, so Σf = 2880 ÷ 36 = 80 participants. Answer: (D)"
     ],
     "finalAnswer": "80",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const STATISTICS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2875 hours",
     "solutionSteps": [
-      "[1 mark] Modal class 2500-3000: l = 2500, f₁ = 120, f₀ = 60, f₂ = 100, h = 500; mode = 2500 + (60 ÷ 80) × 500 = 2500 + 375 = 2875 hours."
+      "[1 mark] Modal class 2500-3000: l = 2500, f₁ = 120, f₀ = 60, f₂ = 100, h = 500; mode = 2500 + (60 ÷ 80) × 500 = 2500 + 375 = 2875 hours. Answer: (B)"
     ],
     "finalAnswer": "2875 hours",
     "isCompetencyBased": true,

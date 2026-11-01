@@ -21,7 +21,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "2, 3",
     "solutionSteps": [
       "Factorize: x² - 5x + 6 = (x-2)(x-3)",
-      "Setting each factor to zero: x = 2 or x = 3"
+      "Setting each factor to zero: x = 2 or x = 3 Answer: (A)"
     ],
     "finalAnswer": "2, 3",
     "explanation": "Factorize: x² - 5x + 6 = (x-2)(x-3). Setting each factor to zero: x = 2 or x = 3. Therefore, the correct answer is 2, 3.",
@@ -49,7 +49,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "x² + x - 2",
     "solutionSteps": [
-      "Polynomial = (x-1)(x+2) = x² + 2x - x - 2 = x² + x - 2"
+      "Polynomial = (x-1)(x+2) = x² + 2x - x - 2 = x² + x - 2 Answer: (A)"
     ],
     "finalAnswer": "x² + x - 2",
     "explanation": "Polynomial = (x-1)(x+2) = x² + 2x - x - 2 = x² + x - 2. Therefore, the correct answer is x² + x - 2.",
@@ -107,7 +107,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "7",
     "solutionSteps": [
       "For quadratic ax² + bx + c, sum of zeroes = -b/a",
-      "Here: α + β = -(-7)/1 = 7"
+      "Here: α + β = -(-7)/1 = 7 Answer: (A)"
     ],
     "finalAnswer": "7",
     "explanation": "For quadratic ax² + bx + c, sum of zeroes = -b/a. Here: α + β = -(-7)/1 = 7. Therefore, the correct answer is 7.",
@@ -136,7 +136,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "1/2",
     "solutionSteps": [
       "For quadratic ax² + bx + c, product of zeroes = c/a",
-      "Here: αβ = 1/2"
+      "Here: αβ = 1/2 Answer: (A)"
     ],
     "finalAnswer": "1/2",
     "explanation": "For quadratic ax² + bx + c, product of zeroes = c/a. Here: αβ = 1/2. Therefore, the correct answer is 1/2.",
@@ -345,7 +345,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "For equal zeroes, discriminant = 0",
       "b² - 4ac = 0",
-      "Therefore, b² = 4ac"
+      "Therefore, b² = 4ac Answer: (A)"
     ],
     "finalAnswer": "4ac",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
@@ -453,7 +453,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "A is false, R is true.",
     "solutionSteps": [
       "A is false: The correct relation is α + β = -b/a, not b/a",
-      "R is true: Expansion gives x² - (α + β)x + αβ = ax² + bx + c after dividing by a"
+      "R is true: Expansion gives x² - (α + β)x + αβ = ax² + bx + c after dividing by a Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -484,7 +484,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Discriminant = 4 - 8 = -4 < 0, so no real zeroes",
       "A is false: The polynomial has no real zeroes",
-      "R is true: The discriminant is indeed -4"
+      "R is true: The discriminant is indeed -4 Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -515,7 +515,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Product of zeroes = 2(2k - 1)/1 = -1",
       "4k - 2 = -1",
-      "4k = 1, k = 1/4"
+      "4k = 1, k = 1/4 Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -597,7 +597,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "p(x) = 0 when (x - 2)² = 0 or (x + 1) = 0",
       "So x = 2 (repeated factor) or x = -1",
-      "Distinct zeroes are 2 and -1, so the number of distinct zeroes = 2 (the graph meets the x-axis at 2 points)"
+      "Distinct zeroes are 2 and -1, so the number of distinct zeroes = 2 (the graph meets the x-axis at 2 points) Answer: (B)"
     ],
     "finalAnswer": "2",
     "explanation": "p(x) = 0 gives x = 2 (from the repeated factor (x - 2)²) or x = -1. The graph meets the x-axis at exactly two points, x = 2 and x = -1. Therefore, the number of distinct zeroes is 2.",
@@ -626,7 +626,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "For equal zeroes, discriminant = 0",
       "b² - 4c = 0",
-      "b² = 4c"
+      "b² = 4c Answer: (A)"
     ],
     "finalAnswer": "b² = 4c",
     "explanation": "For equal zeroes, discriminant = 0. b² - 4c = 0. b² = 4c. Therefore, the correct answer is b² = 4c.",
@@ -863,7 +863,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Product of zeroes = 3",
       "If one zero is 2: 2 × (other zero) = 3",
-      "Other zero = 3/2"
+      "Other zero = 3/2 Answer: (A)"
     ],
     "finalAnswer": "3/2",
     "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
@@ -885,7 +885,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "questionText": "If α and β are zeroes of x² + 5x + 6, then α² + β² =",
     "options": ["13", "25", "37", "1"],
     "answer": "13",
-    "solutionSteps": ["α + β = -5, αβ = 6", "α² + β² = (α + β)² - 2αβ = 25 - 12 = 13"],
+    "solutionSteps": ["α + β = -5, αβ = 6", "α² + β² = (α + β)² - 2αβ = 25 - 12 = 13 Answer: (A)"],
     "finalAnswer": "13",
     "explanation": "α + β = -5, αβ = 6. α² + β² = (α + β)² - 2αβ = 25 - 12 = 13. Therefore, the correct answer is 13.",
     "isCompetencyBased": true,
@@ -923,7 +923,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): If α and β are zeroes of p(x) = x² - (p+q)x + pq, then α = p and β = q.\nReason (R): For quadratic ax² + bx + c, sum of zeroes = -b/a and product = c/a.",
     "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["Sum of zeroes = p + q = -(-(p+q))/1 ✓", "Product of zeroes = pq = pq/1 ✓"],
+    "solutionSteps": ["Sum of zeroes = p + q = -(-(p+q))/1 ✓", "Product of zeroes = pq = pq/1 ✓ Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -999,7 +999,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "questionText": "If α and β are zeroes of 3x² + 2x - 1, then (1/α) + (1/β) equals:",
     "options": ["-2", "2", "3", "-3"],
     "answer": "2",
-    "solutionSteps": ["α + β = -2/3, αβ = -1/3", "1/α + 1/β = (α+β)/(αβ) = (-2/3)/(-1/3) = 2"],
+    "solutionSteps": ["α + β = -2/3, αβ = -1/3", "1/α + 1/β = (α+β)/(αβ) = (-2/3)/(-1/3) = 2 Answer: (B)"],
     "finalAnswer": "2",
     "explanation": "α + β = -2/3, αβ = -1/3. 1/α + 1/β = (α+β)/(αβ) = (-2/3)/(-1/3) = 2. Therefore, the correct answer is 2.",
     "isCompetencyBased": true,
@@ -1018,7 +1018,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): x = 2 is a zero of p(x) = x³ - 8.\nReason (R): A number a is a zero of p(x) if p(a) = 0.",
     "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["p(2) = 8 - 8 = 0 ✓"],
+    "solutionSteps": ["p(2) = 8 - 8 = 0 ✓ Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -1103,29 +1103,29 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   },
   { id: "PL2-R13", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The zeros of the polynomial x² − 3x + 2 are:", options: ["1 and 2","−1 and −2","2 and −1","−2 and 1"], answer: "1 and 2", explanation: "The correct answer is 1 and 2. x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", finalAnswer: "1 and 2", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Factorise: x² − 3x + 2 = x² − x − 2x + 2 = (x − 1)(x − 2). Setting each factor to 0 gives x = 1 and x = 2, so the zeros are 1 and 2.",
+      "[1 mark] Factorise: x² − 3x + 2 = x² − x − 2x + 2 = (x − 1)(x − 2). Setting each factor to 0 gives x = 1 and x = 2, so the zeros are 1 and 2. Answer: (A)",
     ],
   },
   { id: "PL2-R14", subject: "Maths", topicKey: "polynomials", subtopic: "Degree of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The degree of the polynomial 2x³ − x² + 5x − 3 is:", options: ["3","2","1","4"], answer: "3", explanation: "The correct answer is 3. The highest power of x is 3, so the degree is 3.", finalAnswer: "3", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] The degree is the highest power of x with a non-zero coefficient. In 2x³ − x² + 5x − 3 the highest power is x³ (coefficient 2), so the degree is 3.",
+      "[1 mark] The degree is the highest power of x with a non-zero coefficient. In 2x³ − x² + 5x − 3 the highest power is x³ (coefficient 2), so the degree is 3. Answer: (A)",
     ],
   },
   { id: "PL2-R15", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If α and β are zeros of 2x² − 5x + 3, then α + β equals:", options: ["5/2","3/2","5","−5/2"], answer: "5/2", explanation: "The correct answer is 5/2. Sum of zeros = −b/a = −(−5)/2 = 5/2.", finalAnswer: "Sum of zeros = −b/a = −(−5)/2 = 5/2.", isCompetencyBased: false,
     solutionSteps: [
       "For a quadratic polynomial of the form ax^2 + bx + c, let its zeros be alpha and beta.",
       "The sum of the zeros is given by the formula: alpha + beta = -b/a.",
-      "The product of the zeros is given by the formula: alpha * beta = c/a.",
+      "The product of the zeros is given by the formula: alpha * beta = c/a. Answer: (A)",
     ],
   },
   { id: "PL2-R16", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If α and β are zeros of x² − 4x + 3, then αβ is:", options: ["3","−3","4","−4"], answer: "3", explanation: "The correct answer is 3. Product of zeros = c/a = 3/1 = 3.", finalAnswer: "3", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (a) 3 is correct: for ax^2 + bx + c, product of zeros αβ = c/a; here a = 1, c = 3, so αβ = 3/1 = 3 (check: x^2 - 4x + 3 = (x - 1)(x - 3), zeros 1 and 3).",
+      "[1 mark] Option (a) 3 is correct: for ax^2 + bx + c, product of zeros αβ = c/a; here a = 1, c = 3, so αβ = 3/1 = 3 (check: x^2 - 4x + 3 = (x - 1)(x - 3), zeros 1 and 3). Answer: (A)",
     ],
   },
   { id: "PL2-R17", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "x² − x − 6", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Sum of zeros = 3 + (−2) = 1 and product = 3 × (−2) = −6. The polynomial is x² − (sum)x + (product) = x² − x − 6.",
+      "[1 mark] Sum of zeros = 3 + (−2) = 1 and product = 3 × (−2) = −6. The polynomial is x² − (sum)x + (product) = x² − x − 6. Answer: (A)",
     ],
   },
   { id: "PL2-R18", subject: "Maths", topicKey: "polynomials", subtopic: "Polynomial Division", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If p(x) = q(x)·g(x) + r(x), then:", options: ["degree r < degree g","degree r = degree g","degree r > degree g","degree r = degree p"], answer: "degree r < degree g", explanation: "The correct answer is degree r < degree g. The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", finalAnswer: "The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", isCompetencyBased: false,
@@ -1139,13 +1139,13 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     solutionSteps: [
       "To find the zeros of the polynomial, set the expression (x−1)²(x+2) equal to zero.",
       "This implies (x−1)² = 0 or (x+2) = 0. From (x−1)² = 0, we get x = 1 (repeated factor).",
-      "From (x+2) = 0, we get x = −2. The distinct zeros are 1 and −2, so the number of distinct zeros is 2."
+      "From (x+2) = 0, we get x = −2. The distinct zeros are 1 and −2, so the number of distinct zeros is 2. Answer: (B)"
     ],
     sourceOverride: "others",
   },
   { id: "PL2-R20", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The product of the zeros of the polynomial x² + kx + 8 is −8 for every value of k.\nReason (R): For a quadratic polynomial ax² + bx + c, the product of the zeros is c/a.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "A is false, R is true.", explanation: "By R, the product of the zeros of x² + kx + 8 is c/a = 8/1 = 8, whatever the value of k. So A (product −8) is false, while R is a true statement.", finalAnswer: "A is false, R is true.", isCompetencyBased: true,
     solutionSteps: [
-      "Using c/a with a = 1 and c = 8, the product of the zeros is 8 for every k, not −8; so A is false, and R is a true standard result. Answer: A is false, R is true."
+      "Using c/a with a = 1 and c = 8, the product of the zeros is 8 for every k, not −8; so A is false, and R is a true standard result. Answer: A is false, R is true. Answer: (D)"
     ],
     sourceOverride: "others",
   }

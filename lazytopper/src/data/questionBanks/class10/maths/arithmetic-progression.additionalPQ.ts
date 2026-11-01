@@ -11,7 +11,7 @@ export const ARITHMETIC_PROGRESSION_APQ: CanonicalQuestion[] = [
     questionText: "If the sum of first n odd natural numbers is equal to k times the sum of first n even natural numbers, then k is equal to",
     options: ["(n+1)/(2n)", "(2n)/(n+1)", "(n+1)/n", "n/(n+1)"],
     answer: "n/(n+1)",
-    solutionSteps: ["Sum of first n odd naturals = n^2. Sum of first n even naturals = n(n + 1).", "k × n(n + 1) = n^2 ⟹ k = n^2 / [n(n+1)] = n/(n+1)."],
+    solutionSteps: ["Sum of first n odd naturals = n^2. Sum of first n even naturals = n(n + 1).", "k × n(n + 1) = n^2 ⟹ k = n^2 / [n(n+1)] = n/(n+1). Answer: (D)"],
     finalAnswer: "(d) n/(n+1)",
     ncertRef: "APQ PQ2 Q5", isCompetencyBased: true },
 

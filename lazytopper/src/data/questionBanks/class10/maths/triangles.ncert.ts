@@ -13,7 +13,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     questionText: "Fill in the blank: All circles are ______.",
     options: ["congruent", "similar", "equal in area", "equilateral"],
     answer: "similar",
-    solutionSteps: ["All circles have the same shape (a closed curve at constant distance from a centre).", "Two circles need not have the same radius, so they are not always congruent.", "Same shape but possibly different size → similar."],
+    solutionSteps: ["All circles have the same shape (a closed curve at constant distance from a centre).", "Two circles need not have the same radius, so they are not always congruent.", "Same shape but possibly different size → similar. Answer: (B)"],
     finalAnswer: "similar — option (b).",
     ncertRef: "NCERT Ex 6.1 Q1(i)", isCompetencyBased: false,
     strategyHint: "Same shape, any size = similar; same shape AND size = congruent." },
@@ -22,7 +22,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     questionText: "Fill in the blank: All ______ triangles are similar.",
     options: ["isosceles", "equilateral", "right", "scalene"],
     answer: "equilateral",
-    solutionSteps: ["Every equilateral triangle has all three angles equal to 60°.", "So any two equilateral triangles are equiangular → corresponding angles equal.", "By AAA similarity, all equilateral triangles are similar (regardless of side length).", "Isosceles triangles can have different vertex angles, so they are not always similar."],
+    solutionSteps: ["Every equilateral triangle has all three angles equal to 60°.", "So any two equilateral triangles are equiangular → corresponding angles equal.", "By AAA similarity, all equilateral triangles are similar (regardless of side length).", "Isosceles triangles can have different vertex angles, so they are not always similar. Answer: (B)"],
     finalAnswer: "equilateral — option (b).",
     ncertRef: "NCERT Ex 6.1 Q1(iii)", isCompetencyBased: false },
 

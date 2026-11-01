@@ -26,7 +26,7 @@ export const AP_CBE: CanonicalQuestion[] = [
     "options": ["16", "24", "54", "48"],
     "answer": "48",
     "solutionSteps": [
-      "[1 mark] 48 — each section of class 8 plants 2 × 8 = 16 trees; 3 sections plant 3 × 16 = 48 trees."
+      "[1 mark] 48 — each section of class 8 plants 2 × 8 = 16 trees; 3 sections plant 3 × 16 = 48 trees. Answer: (D)"
     ],
     "finalAnswer": "48",
     "isCompetencyBased": true,
@@ -94,7 +94,7 @@ export const AP_CBE: CanonicalQuestion[] = [
     "options": ["Rs. 7000", "Rs. 6800", "Rs. 6600", "Rs. 5800"],
     "answer": "Rs. 6800",
     "solutionSteps": [
-      "[1 mark] Rs. 6800 — a₃₀ = a + 29d = 1000 + 29 × 200 = Rs. 6800."
+      "[1 mark] Rs. 6800 — a₃₀ = a + 29d = 1000 + 29 × 200 = Rs. 6800. Answer: (B)"
     ],
     "finalAnswer": "Rs. 6800",
     "isCompetencyBased": true,
@@ -114,7 +114,7 @@ export const AP_CBE: CanonicalQuestion[] = [
     "options": ["Rs. 8600", "Rs. 8800", "Rs. 9000", "Rs. 7800"],
     "answer": "Rs. 8800",
     "solutionSteps": [
-      "[1 mark] a₄₀ = 1000 + (40−1)(200) = 1000 + 39 × 200 = 8800."
+      "[1 mark] a₄₀ = 1000 + (40−1)(200) = 1000 + 39 × 200 = 8800. Answer: (B)"
     ],
     "finalAnswer": "Rs. 8800",
     "isCompetencyBased": true,

@@ -75,7 +75,7 @@ export const LIGHT_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "9/8",
     "solutionSteps": [
-      "[1 mark] 9/8 — the refractive index of glass with respect to water = n(glass)/n(water) = (3/2) ÷ (4/3) = (3/2) × (3/4) = 9/8."
+      "[1 mark] 9/8 — the refractive index of glass with respect to water = n(glass)/n(water) = (3/2) ÷ (4/3) = (3/2) × (3/4) = 9/8. Answer: (B)"
     ],
     "finalAnswer": "9/8",
     "isCompetencyBased": true,
@@ -104,7 +104,7 @@ export const LIGHT_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "12 cm",
     "solutionSteps": [
-      "[1 mark] 12 cm — the image of a distant object forms at the focus, so f = 20 cm; a convex lens gives a virtual, erect, magnified image only when the object is between the optical centre and the focus (less than 20 cm), and 12 cm is the only such option."
+      "[1 mark] 12 cm — the image of a distant object forms at the focus, so f = 20 cm; a convex lens gives a virtual, erect, magnified image only when the object is between the optical centre and the focus (less than 20 cm), and 12 cm is the only such option. Answer: (A)"
     ],
     "finalAnswer": "12 cm",
     "isCompetencyBased": true,

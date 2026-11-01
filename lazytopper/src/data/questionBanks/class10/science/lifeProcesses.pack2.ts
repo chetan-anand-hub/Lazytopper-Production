@@ -22,7 +22,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Autotrophs are organisms that can produce their own food using sunlight or chemical energy",
       "Green plants are autotrophs as they perform photosynthesis",
-      "Lions are carnivores (heterotrophs), fungi are saprophytes (heterotrophs)"
+      "Lions are carnivores (heterotrophs), fungi are saprophytes (heterotrophs) Answer: (B)"
     ],
     "finalAnswer": "Green plant",
     "explanation": "Autotrophs are organisms that can produce their own food using sunlight or chemical energy. Green plants are autotrophs as they perform photosynthesis. Lions are carnivores (heterotrophs), fungi are saprophytes (heterotrophs). Therefore, the correct answer is Green plant.",
@@ -52,7 +52,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Chlorophyll is the main photosynthetic pigment in green plants",
       "It absorbs light energy in the visible spectrum (red and blue wavelengths)",
-      "Other pigments are accessory pigments that help in light absorption"
+      "Other pigments are accessory pigments that help in light absorption Answer: (B)"
     ],
     "finalAnswer": "Chlorophyll",
     "explanation": "Chlorophyll is the main photosynthetic pigment in green plants. It absorbs light energy in the visible spectrum (red and blue wavelengths). Other pigments are accessory pigments that help in light absorption. Therefore, the correct answer is Chlorophyll.",
@@ -82,7 +82,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Photosynthesis equation: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂",
       "Raw materials (reactants) are water and carbon dioxide",
-      "Light energy and chlorophyll are conditions, not raw materials"
+      "Light energy and chlorophyll are conditions, not raw materials Answer: (B)"
     ],
     "finalAnswer": "Water and carbon dioxide",
     "explanation": "Photosynthesis equation: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂. Raw materials (reactants) are water and carbon dioxide. Light energy and chlorophyll are conditions, not raw materials. Therefore, the correct answer is Water and carbon dioxide.",
@@ -114,7 +114,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Amoeba engulfs food through pseudopodia",
       "Hydra uses tentacles to capture prey",
       "Humans use mouth and digestive system",
-      "All are examples of holozoic nutrition"
+      "All are examples of holozoic nutrition Answer: (D)"
     ],
     "finalAnswer": "All of the above",
     "explanation": "Holozoic nutrition involves ingestion of solid food particles. Amoeba engulfs food through pseudopodia. Hydra uses tentacles to capture prey. Humans use mouth and digestive system. All are examples of holozoic nutrition. Therefore, the correct answer is All of the above.",
@@ -168,7 +168,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Light is an essential requirement for photosynthesis (light reactions)",
       "Without light, light-dependent reactions cannot occur",
-      "Therefore, overall photosynthesis becomes zero"
+      "Therefore, overall photosynthesis becomes zero Answer: (B)"
     ],
     "finalAnswer": "Decrease to zero",
     "explanation": "Light is an essential requirement for photosynthesis (light reactions). Without light, light-dependent reactions cannot occur. Therefore, overall photosynthesis becomes zero. Therefore, the correct answer is Decrease to zero.",
@@ -229,7 +229,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Respiration is a catabolic process (breakdown)",
       "It releases energy from organic molecules like glucose",
-      "This energy is used for various life activities"
+      "This energy is used for various life activities Answer: (B)"
     ],
     "finalAnswer": "Breakdown of food to release energy",
     "explanation": "Respiration is a catabolic process (breakdown). It releases energy from organic molecules like glucose. This energy is used for various life activities. Therefore, the correct answer is Breakdown of food to release energy.",
@@ -259,7 +259,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Glycolysis occurs in cytoplasm (produces 2 ATP)",
       "Krebs cycle and electron transport chain occur in mitochondria",
-      "Mitochondria is called the 'powerhouse of the cell'"
+      "Mitochondria is called the 'powerhouse of the cell' Answer: (C)"
     ],
     "finalAnswer": "Mitochondrion",
     "explanation": "Glycolysis occurs in cytoplasm (produces 2 ATP). Krebs cycle and electron transport chain occur in mitochondria. Mitochondria is called the 'powerhouse of the cell'. Therefore, the correct answer is Mitochondrion.",
@@ -289,7 +289,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "During intense exercise, oxygen supply is limited",
       "Pyruvate is converted to lactic acid instead of entering Krebs cycle",
-      "Lactic acid buildup causes muscle fatigue"
+      "Lactic acid buildup causes muscle fatigue Answer: (B)"
     ],
     "finalAnswer": "Lactic acid",
     "explanation": "During intense exercise, oxygen supply is limited. Pyruvate is converted to lactic acid instead of entering Krebs cycle. Lactic acid buildup causes muscle fatigue. Therefore, the correct answer is Lactic acid.",
@@ -320,7 +320,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Aerobic respiration: 1 glucose → 30-32 ATP",
       "Anaerobic respiration: 1 glucose → 2 ATP",
       "Aerobic respiration has glycolysis, Krebs cycle, and electron transport chain (complete oxidation)",
-      "R correctly explains why A is true"
+      "R correctly explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -373,7 +373,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Obligate anaerobes: cannot survive in presence of oxygen",
       "Example: Some bacteria in sewage, deep soil",
-      "Facultative anaerobes: can survive with or without oxygen (e.g., E. coli)"
+      "Facultative anaerobes: can survive with or without oxygen (e.g., E. coli) Answer: (B)"
     ],
     "finalAnswer": "Some bacteria that cannot survive in oxygen",
     "explanation": "Obligate anaerobes: cannot survive in presence of oxygen. Example: Some bacteria in sewage, deep soil. Facultative anaerobes: can survive with or without oxygen (e.g., E. coli). Therefore, the correct answer is Some bacteria that cannot survive in oxygen.",
@@ -435,7 +435,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Pulmonary artery: carries deoxygenated blood from heart to lungs",
       "Pulmonary vein: carries oxygenated blood from lungs to heart",
       "Aorta: carries oxygenated blood from heart to body",
-      "Vena cava: carries deoxygenated blood from body to heart"
+      "Vena cava: carries deoxygenated blood from body to heart Answer: (C)"
     ],
     "finalAnswer": "Pulmonary vein",
     "explanation": "Pulmonary artery: carries deoxygenated blood from heart to lungs. Pulmonary vein: carries oxygenated blood from lungs to heart. Aorta: carries oxygenated blood from heart to body. Vena cava: carries deoxygenated blood from body to heart. Therefore, the correct answer is Pulmonary vein.",
@@ -465,7 +465,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Hemoglobin is the iron-containing protein in RBCs",
       "Each hemoglobin molecule can bind 4 oxygen molecules",
-      "Hemocyanin is found in molluscs and arthropods"
+      "Hemocyanin is found in molluscs and arthropods Answer: (B)"
     ],
     "finalAnswer": "Hemoglobin",
     "explanation": "Hemoglobin is the iron-containing protein in RBCs. Each hemoglobin molecule can bind 4 oxygen molecules. Hemocyanin is found in molluscs and arthropods. Therefore, the correct answer is Hemoglobin.",
@@ -520,7 +520,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Lymph is derived from tissue fluid that enters lymphatic capillaries",
       "It flows through lymphatic vessels with one-way valves",
       "Lymph contains lymphocytes and drains into blood at subclavian veins",
-      "Helps in immune response and returns proteins to blood"
+      "Helps in immune response and returns proteins to blood Answer: (B)"
     ],
     "finalAnswer": "Tissue fluid that flows in lymphatic vessels",
     "explanation": "Lymph is derived from tissue fluid that enters lymphatic capillaries. It flows through lymphatic vessels with one-way valves. Lymph contains lymphocytes and drains into blood at subclavian veins. Helps in immune response and returns proteins to blood. Therefore, the correct answer is Tissue fluid that flows in lymphatic vessels.",
@@ -551,7 +551,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Arteries receive blood directly from heart at high pressure",
       "Their thick muscular walls can withstand this high pressure",
       "Veins have thinner walls as blood pressure is lower",
-      "R correctly explains why A is true"
+      "R correctly explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -582,7 +582,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Hepatic portal vein is unique as it connects two capillary beds",
       "It carries blood from intestines (capillaries) to liver (capillaries)",
       "This allows liver to process nutrients before they enter systemic circulation",
-      "Important for regulating glucose, detoxification, and nutrient processing"
+      "Important for regulating glucose, detoxification, and nutrient processing Answer: (B)"
     ],
     "finalAnswer": "It carries nutrient-rich blood from intestines to liver for processing",
     "explanation": "Hepatic portal vein is unique as it connects two capillary beds. It carries blood from intestines (capillaries) to liver (capillaries). This allows liver to process nutrients before they enter systemic circulation. Important for regulating glucose, detoxification, and nutrient processing. Therefore, the correct answer is It carries nutrient-rich blood from intestines to liver for processing.",
@@ -613,7 +613,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Nephron is the basic filtration unit of kidney",
       "Each kidney has about 1 million nephrons",
       "Glomerulus is part of nephron",
-      "Collecting duct collects filtrate from many nephrons"
+      "Collecting duct collects filtrate from many nephrons Answer: (B)"
     ],
     "finalAnswer": "Nephron",
     "explanation": "Nephron is the basic filtration unit of kidney. Each kidney has about 1 million nephrons. Glomerulus is part of nephron. Collecting duct collects filtrate from many nephrons. Therefore, the correct answer is Nephron.",
@@ -644,7 +644,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Urea is formed in liver from amino acid deamination",
       "It is less toxic than ammonia",
       "Uric acid is main waste in birds and reptiles",
-      "Ammonia is toxic and needs dilution"
+      "Ammonia is toxic and needs dilution Answer: (B)"
     ],
     "finalAnswer": "Urea",
     "explanation": "Urea is formed in liver from amino acid deamination. It is less toxic than ammonia. Uric acid is main waste in birds and reptiles. Ammonia is toxic and needs dilution. Therefore, the correct answer is Urea.",
@@ -700,7 +700,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Assertion: Normal urine of a healthy person contains no glucose — true.",
       "Reason: As the filtrate flows along the tubule, useful substances such as glucose, amino acids, salts and a major amount of water are selectively reabsorbed (NCERT) — true.",
       "Since all the filtered glucose is reabsorbed, none appears in the urine; R directly explains A.",
-      "Hence both A and R are true and R is the correct explanation of A."
+      "Hence both A and R are true and R is the correct explanation of A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both are true. Glucose is filtered in Bowman's capsule, but it is selectively reabsorbed into the blood as the filtrate passes along the tubule, so none is left in normal urine. Hence R is the correct explanation of A.",
@@ -813,7 +813,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "answer": "Photosynthesis",
     "solutionSteps": [
       "Photosynthesis is the process of food preparation in plants using light energy.",
-      "The equation is: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂"
+      "The equation is: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂ Answer: (B)"
     ],
     "finalAnswer": "Photosynthesis",
     "explanation": "Photosynthesis is the process of food preparation in plants using light energy. The equation is: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂. Therefore, the correct answer is Photosynthesis.",
@@ -866,7 +866,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Mesophyll cells contain chloroplasts which are the sites of photosynthesis.",
       "Palisade mesophyll cells have more chloroplasts and are the main site of photosynthesis.",
-      "Epidermis is protective; vascular bundles transport; guard cells regulate stomata."
+      "Epidermis is protective; vascular bundles transport; guard cells regulate stomata. Answer: (B)"
     ],
     "finalAnswer": "Mesophyll (Palisade and Spongy parenchyma)",
     "isCompetencyBased": true,
@@ -895,7 +895,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Heterotrophs cannot prepare their own food.",
       "Saprophytes like fungi feed on dead and decaying organic matter.",
-      "Lion is a predator (carnivore); grasshopper is a herbivore."
+      "Lion is a predator (carnivore); grasshopper is a herbivore. Answer: (C)"
     ],
     "finalAnswer": "Fungus",
     "isCompetencyBased": true,
@@ -950,7 +950,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Transpiration is the loss of water in the form of vapour from the aerial parts of the plant.",
       "In a sealed container this water vapour condenses on the cooler inner walls as droplets.",
       "Photosynthesis uses water and gives off oxygen; it does not produce the water droplets, so it is not demonstrated here.",
-      "Hence the droplets demonstrate transpiration only."
+      "Hence the droplets demonstrate transpiration only. Answer: (B)"
     ],
     "finalAnswer": "Transpiration only",
     "isCompetencyBased": true,
@@ -977,7 +977,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "answer": "Respiration",
     "solutionSteps": [
       "Respiration is the breakdown of glucose to release energy in the form of ATP.",
-      "General equation: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP)"
+      "General equation: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP) Answer: (B)"
     ],
     "finalAnswer": "Respiration",
     "explanation": "Respiration is the breakdown of glucose to release energy in the form of ATP. General equation: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP). Therefore, the correct answer is Respiration.",
@@ -1032,7 +1032,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "During heavy exercise, oxygen demand exceeds supply.",
       "Muscles switch to anaerobic respiration.",
       "Anaerobic respiration produces lactic acid as a byproduct.",
-      "Lactic acid accumulation causes muscle fatigue and soreness."
+      "Lactic acid accumulation causes muscle fatigue and soreness. Answer: (A)"
     ],
     "finalAnswer": "Oxygen is not available in sufficient amount",
     "isCompetencyBased": true,
@@ -1086,7 +1086,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Muscle cells are highly active and require continuous ATP supply.",
       "Mitochondria are the powerhouse and produce ATP.",
       "Therefore, muscle cells have more mitochondria to meet high energy demand.",
-      "R correctly explains A."
+      "R correctly explains A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -1115,7 +1115,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Pulmonary artery carries deoxygenated blood to lungs.",
       "Pulmonary vein carries oxygenated blood from lungs to heart.",
       "Aorta carries oxygenated blood from heart to body.",
-      "Vena cava brings deoxygenated blood to heart."
+      "Vena cava brings deoxygenated blood to heart. Answer: (B)"
     ],
     "finalAnswer": "Pulmonary vein",
     "explanation": "Pulmonary artery carries deoxygenated blood to lungs. Pulmonary vein carries oxygenated blood from lungs to heart. Aorta carries oxygenated blood from heart to body. Vena cava brings deoxygenated blood to heart. Therefore, the correct answer is Pulmonary vein.",
@@ -1169,7 +1169,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Xylem transports water and minerals from roots upward.",
       "Phloem transports organic substances like glucose and amino acids from leaves to all parts.",
-      "This is called translocation."
+      "This is called translocation. Answer: (B)"
     ],
     "finalAnswer": "Sugars and amino acids",
     "isCompetencyBased": false,
@@ -1253,7 +1253,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Left ventricle pumps blood through systemic circulation (entire body).",
       "This requires more force against higher vascular resistance.",
       "Right ventricle pumps to nearby lungs with lower resistance.",
-      "Therefore, left ventricle needs thicker, stronger muscles."
+      "Therefore, left ventricle needs thicker, stronger muscles. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -1281,7 +1281,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Urea is produced from the deamination of amino acids in the liver.",
       "It is the major nitrogenous waste excreted by humans.",
-      "Urea is less toxic than ammonia and requires less water for excretion than ammonia."
+      "Urea is less toxic than ammonia and requires less water for excretion than ammonia. Answer: (B)"
     ],
     "finalAnswer": "Urea",
     "explanation": "Urea is produced from the deamination of amino acids in the liver. It is the major nitrogenous waste excreted by humans. Urea is less toxic than ammonia and requires less water for excretion than ammonia. Therefore, the correct answer is Urea.",
@@ -1311,7 +1311,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Nephron is the microscopic filtering unit of the kidney.",
       "Each kidney contains about 10 lakh nephrons.",
-      "It performs ultrafiltration, selective reabsorption, and secretion."
+      "It performs ultrafiltration, selective reabsorption, and secretion. Answer: (B)"
     ],
     "finalAnswer": "Nephron",
     "explanation": "Nephron is the microscopic filtering unit of the kidney. Each kidney contains about 10 lakh nephrons. It performs ultrafiltration, selective reabsorption, and secretion. Therefore, the correct answer is Nephron.",
@@ -1366,7 +1366,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Glucose is a small molecule and is filtered in glomerulus.",
       "In proximal convoluted tubule, glucose is selectively reabsorbed by active transport.",
       "It is returned to blood as it is a useful substance.",
-      "Presence of glucose in urine indicates kidney dysfunction or diabetes."
+      "Presence of glucose in urine indicates kidney dysfunction or diabetes. Answer: (B)"
     ],
     "finalAnswer": "Glucose is filtered but reabsorbed in proximal convoluted tubule",
     "isCompetencyBased": true,
@@ -1495,7 +1495,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which organelle is the site of photosynthesis?",
     "options": ["Mitochondria","Ribosome","Chloroplast","Nucleus"],
     "answer": "Chloroplast",
-    "solutionSteps": ["Chloroplasts contain chlorophyll and are the site of photosynthesis in plant cells"],
+    "solutionSteps": ["Chloroplasts contain chlorophyll and are the site of photosynthesis in plant cells Answer: (C)"],
     "finalAnswer": "Chloroplast",
     "explanation": "Chloroplast is the site of photosynthesis.",
     "isCompetencyBased": false,
@@ -1516,7 +1516,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Aerobic respiration requires:",
     "options": ["CO2","N2","O2","H2"],
     "answer": "O2",
-    "solutionSteps": ["Aerobic respiration: C6H12O6 + 6O2 → 6CO2 + 6H2O + ATP; requires oxygen"],
+    "solutionSteps": ["Aerobic respiration: C6H12O6 + 6O2 → 6CO2 + 6H2O + ATP; requires oxygen Answer: (C)"],
     "finalAnswer": "O2",
     "explanation": "Aerobic respiration requires O2.",
     "isCompetencyBased": false,
@@ -1537,7 +1537,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): Photosynthesis only occurs in the presence of sunlight.\nReason (R): Light energy is required for the photolysis of water in the light-dependent reactions.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — photosynthesis needs light for the light reactions","R: true — photolysis (splitting of H2O) requires light energy","R explains why light is essential (A)"],
+    "solutionSteps": ["A: true — photosynthesis needs light for the light reactions","R: true — photolysis (splitting of H2O) requires light energy","R explains why light is essential (A) Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Light needed for photolysis (R) explains why sunlight is essential for photosynthesis (A).",
     "isCompetencyBased": true,
@@ -1558,7 +1558,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "questionText": "What is the primary function of haemoglobin in blood?",
     "options": ["Clotting of blood","Transport of oxygen","Immune response","Digestion of food"],
     "answer": "Transport of oxygen",
-    "solutionSteps": ["Haemoglobin in RBCs binds oxygen in lungs and releases it in tissues"],
+    "solutionSteps": ["Haemoglobin in RBCs binds oxygen in lungs and releases it in tissues Answer: (B)"],
     "finalAnswer": "Transport of oxygen",
     "explanation": "Haemoglobin transports oxygen from lungs to body tissues.",
     "isCompetencyBased": false,

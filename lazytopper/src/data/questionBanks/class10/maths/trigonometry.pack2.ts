@@ -1,20 +1,20 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const trigonometryPack2Questions: CanonicalQuestion[] = [
-  { id: "TRIG2-E01", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of sin 30° + cos 60° is:", options: ["1", "1/2", "√3", "0"], answer: "1", explanation: "sin 30° = 1/2, cos 60° = 1/2. 1/2 + 1/2 = 1. Therefore, the correct answer is 1.", solutionSteps: ["sin 30° = 1/2, cos 60° = 1/2", "1/2 + 1/2 = 1"], finalAnswer: "1" , isCompetencyBased: false},
+  { id: "TRIG2-E01", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of sin 30° + cos 60° is:", options: ["1", "1/2", "√3", "0"], answer: "1", explanation: "sin 30° = 1/2, cos 60° = 1/2. 1/2 + 1/2 = 1. Therefore, the correct answer is 1.", solutionSteps: ["sin 30° = 1/2, cos 60° = 1/2", "1/2 + 1/2 = 1 Answer: (A)"], finalAnswer: "1" , isCompetencyBased: false},
   { id: "TRIG2-E02", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If cos A = 1/2, then the value of A is:", options: ["30°", "45°", "60°", "90°"], answer: "60°", explanation: "The correct answer is 60°. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "60°",
     solutionSteps: [
       "From the standard trigonometric table: cos 30° = √3/2, cos 45° = 1/√2, cos 60° = 1/2, cos 90° = 0.",
       "We need cos A = 1/2. Comparing with the table, cos 60° = 1/2.",
-      "Therefore, A = 60°.",
+      "Therefore, A = 60°. Answer: (C)",
     ], isCompetencyBased: false,
   },
-  { id: "TRIG2-E03", subject: "Maths", topicKey: "trigonometry", subtopic: "Ratio definitions and setup", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If tan θ = 3/4, then sin θ is:", options: ["3/5", "4/5", "3/4", "4/3"], answer: "3/5", explanation: "tan θ = 3/4, so opposite = 3, adjacent = 4. Hypotenuse = √(9+16) = 5. sin θ = 3/5. Therefore, the correct answer is 3/5.", solutionSteps: ["tan θ = 3/4, so opposite = 3, adjacent = 4", "Hypotenuse = √(9+16) = 5", "sin θ = 3/5"], finalAnswer: "3/5" , isCompetencyBased: false},
+  { id: "TRIG2-E03", subject: "Maths", topicKey: "trigonometry", subtopic: "Ratio definitions and setup", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If tan θ = 3/4, then sin θ is:", options: ["3/5", "4/5", "3/4", "4/3"], answer: "3/5", explanation: "tan θ = 3/4, so opposite = 3, adjacent = 4. Hypotenuse = √(9+16) = 5. sin θ = 3/5. Therefore, the correct answer is 3/5.", solutionSteps: ["tan θ = 3/4, so opposite = 3, adjacent = 4", "Hypotenuse = √(9+16) = 5", "sin θ = 3/5 Answer: (A)"], finalAnswer: "3/5" , isCompetencyBased: false},
   { id: "TRIG2-E04", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of tan 45° is:", options: ["0", "1", "√3", "1/√3"], answer: "1", explanation: "The correct answer is 1. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1",
     solutionSteps: [
       "From the standard trigonometric table: tan 0° = 0, tan 30° = 1/√3, tan 45° = 1, tan 60° = √3, tan 90° = not defined.",
       "tan 45° = sin 45°/cos 45° = (1/√2)/(1/√2) = 1.",
-      "Therefore, tan 45° = 1.",
+      "Therefore, tan 45° = 1. Answer: (B)",
     ], isCompetencyBased: false,
   },
   { id: "TRIG2-E05", subject: "Maths", topicKey: "trigonometry", subtopic: "Identities and simplification", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the value of sin²60° + cos²60°.", solutionSteps: [
@@ -25,7 +25,7 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
     solutionSteps: [
       "From the standard trigonometric table: sin 0° = 0, sin 30° = 1/2, sin 45° = 1/√2, sin 60° = √3/2, sin 90° = 1.",
       "Geometrically, sin 0° represents the y-coordinate of a point on the unit circle at 0°, which is 0.",
-      "Therefore, sin 0° = 0.",
+      "Therefore, sin 0° = 0. Answer: (A)",
     ], isCompetencyBased: false,
   },
   { id: "TRIG2-E07", subject: "Maths", topicKey: "trigonometry", subtopic: "Ratio definitions and setup", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "In △ABC, right-angled at B, AB = 5 cm and BC = 12 cm. Find sin A and cos A.", solutionSteps: [
@@ -38,7 +38,7 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
       "tan 45° = 1, cos 30° = √3/2, sin 60° = √3/2 [1]",
       "2(1)² + (3/4) − (3/4) = 2 [1]",
     ], finalAnswer: "2" , isCompetencyBased: false},
-  { id: "TRIG2-E10", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "sec 0° is equal to:", options: ["0", "1", "Not defined", "∞"], answer: "1", explanation: "sec 0° = 1/cos 0° = 1/1 = 1. Therefore, the correct answer is 1.", solutionSteps: ["sec 0° = 1/cos 0° = 1/1 = 1"], finalAnswer: "1" , isCompetencyBased: false},
+  { id: "TRIG2-E10", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "sec 0° is equal to:", options: ["0", "1", "Not defined", "∞"], answer: "1", explanation: "sec 0° = 1/cos 0° = 1/1 = 1. Therefore, the correct answer is 1.", solutionSteps: ["sec 0° = 1/cos 0° = 1/1 = 1 Answer: (B)"], finalAnswer: "1" , isCompetencyBased: false},
   { id: "TRIG2-M01", subject: "Maths", topicKey: "trigonometry", subtopic: "Identities and simplification", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Prove that: (1 + tan²A)/(1 + cot²A) = tan²A.", solutionSteps: [
       "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan. [1]",
       "LHS = sec²A/cosec²A (using identities 1+tan²A = sec²A and 1+cot²A = cosec²A) [1]",
@@ -159,35 +159,35 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
     solutionSteps: [
       "Assertion (A): In a right triangle with hypotenuse h, opposite side p and adjacent side b, sin θ = p/h and cos θ = b/h. So sin²θ + cos²θ = p²/h² + b²/h² = (p²+b²)/h². Since p² + b² = h² for the sides of a right triangle, the result is 1. Assertion (A) is true.",
       "Reason (R): The identity sin²θ + cos²θ = 1 is directly obtained by dividing p² + b² = h² (the sides of a right triangle) by h². Reason (R) is true.",
-      "Reason (R) correctly explains Assertion (A) by providing the relation among the sides (p² + b² = h²) from which the identity is obtained.",
+      "Reason (R) correctly explains Assertion (A) by providing the relation among the sides (p² + b² = h²) from which the identity is obtained. Answer: (A)",
     ], isCompetencyBased: true,
   },
   { id: "TRIG2-AR02", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): tan 90° is not defined.\nReason (R): tan θ = sin θ/cos θ and cos 90° = 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
       "Assertion (A): tan 90° requires evaluating sin 90°/cos 90° = 1/0, which involves division by zero. Division by zero is undefined in mathematics. Assertion (A) is true.",
       "Reason (R): tan θ = sin θ/cos θ is the standard definition. cos 90° = 0, so the denominator is zero at θ = 90°. Reason (R) is true.",
-      "Reason (R) correctly explains Assertion (A): tan 90° is undefined precisely because cos 90° = 0 makes the denominator zero.",
+      "Reason (R) correctly explains Assertion (A): tan 90° is undefined precisely because cos 90° = 0 makes the denominator zero. Answer: (A)",
     ], isCompetencyBased: true,
   },
   { id: "TRIG2-AR03", subject: "Maths", topicKey: "trigonometry", subtopic: "Identities and simplification", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): sec²θ − tan²θ = 1 for all θ where sec θ is defined.\nReason (R): 1 + tan²θ = sec²θ is a standard trigonometric identity.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
       "Reason (R): The standard Pythagorean identity is 1 + tan²θ = sec²θ. This is derived from sin²θ + cos²θ = 1 by dividing throughout by cos²θ. Reason (R) is true.",
       "Assertion (A): Rearranging Reason (R): sec²θ − tan²θ = 1. This is algebraically equivalent and therefore also true.",
-      "Reason (R) directly implies Assertion (A) by simple rearrangement of the same identity, so R is the correct explanation of A.",
+      "Reason (R) directly implies Assertion (A) by simple rearrangement of the same identity, so R is the correct explanation of A. Answer: (A)",
     ], isCompetencyBased: true,
   },
   { id: "TRIG2-AR04", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Assertion (A): The angle of elevation of the sun is 45° when a pole and its shadow are of equal length.\nReason (R): tan 45° = 1.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
       "Assertion (A): When a pole of height h casts a shadow of equal length h on the ground, tan(elevation angle) = opposite/adjacent = h/h = 1.",
       "Since tan 45° = 1, the angle of elevation of the sun must be 45°. Assertion (A) is true.",
-      "Reason (R): tan 45° = 1 is a standard trigonometric value. This is true and directly gives the relationship used in Assertion (A): shadow length = pole height when elevation = 45°.",
+      "Reason (R): tan 45° = 1 is a standard trigonometric value. This is true and directly gives the relationship used in Assertion (A): shadow length = pole height when elevation = 45°. Answer: (A)",
     ], isCompetencyBased: true,
   },
   { id: "TRIG2-AR05", subject: "Maths", topicKey: "trigonometry", subtopic: "Ratio definitions and setup", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): sin θ can never be greater than 1 for any angle θ.\nReason (R): sin θ = opposite/hypotenuse, and the hypotenuse is always the longest side in a right triangle.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
       "Assertion (A): sin θ = opposite/hypotenuse. Since the hypotenuse is always the longest side in a right triangle, the opposite side can never exceed the hypotenuse. So opposite/hypotenuse ≤ 1, meaning sin θ ≤ 1. Also, opposite ≥ 0, so sin θ ≥ 0 for acute angles. Assertion (A) is true.",
       "Reason (R): sin θ = opposite/hypotenuse by definition in a right triangle. The hypotenuse is always the longest side (greater than or equal to any other side). Reason (R) is true.",
-      "Reason (R) correctly explains Assertion (A): because hypotenuse ≥ opposite, their ratio is at most 1, so sin θ can never exceed 1.",
+      "Reason (R) correctly explains Assertion (A): because hypotenuse ≥ opposite, their ratio is at most 1, so sin θ can never exceed 1. Answer: (A)",
     ], isCompetencyBased: true,
   },
   { id: "TRIG2-CB01", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A statue stands on a pedestal. From a point on the ground 60 m from the base, the angles of elevation to the top of the pedestal and the top of the statue are 30° and 60° respectively.\n(i) Find the height of the pedestal.\n(ii) Find the total height (pedestal + statue).\n(iii) Find the height of the statue.\n(iv) Find the distance from the point to the top of the statue.", solutionSteps: [
@@ -213,49 +213,49 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
     solutionSteps: [
       "Recall standard trigonometric values: sin 30° = 1/2, cos 60° = 1/2.",
       "sin²30° + cos²60° = (1/2)² + (1/2)² = 1/4 + 1/4 = 2/4.",
-      "Therefore, sin²30° + cos²60° = 1/2.",
+      "Therefore, sin²30° + cos²60° = 1/2. Answer: (A)",
     ],
   },
   { id: "TRIG2-E14", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric identities", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a trigonometric identity?", options: ["sin²θ + cos²θ = 1","sin θ + cos θ = 1","tan θ = sin θ + cos θ","sec θ + tan θ = 1"], answer: "sin²θ + cos²θ = 1", explanation: "The correct answer is sin²θ + cos²θ = 1. The Pythagorean identity sin²θ + cos²θ = 1 holds for all values of θ.", finalAnswer: "The Pythagorean identity sin²θ + cos²θ = 1 holds for all values of θ.", isCompetencyBased: false,
     solutionSteps: [
       "A trigonometric identity is an equation that is true for all values of the angle.",
       "sin²θ + cos²θ = 1 is the Pythagorean identity — it holds for every angle θ. This is an identity.",
-      "The other options (sin θ + cos θ = 1, tan θ = sin θ + cos θ, sec θ + tan θ = 1) are not true for all angles and are therefore equations, not identities. The correct answer is sin²θ + cos²θ = 1.",
+      "The other options (sin θ + cos θ = 1, tan θ = sin θ + cos θ, sec θ + tan θ = 1) are not true for all angles and are therefore equations, not identities. The correct answer is sin²θ + cos²θ = 1. Answer: (A)",
     ],
   },
   { id: "TRIG2-E15", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of sin 0° + cos 90° is:", options: ["0","1","2","−1"], answer: "0", explanation: "The correct answer is 0. sin 0° = 0, cos 90° = 0. Sum = 0.", finalAnswer: "sin 0° = 0, cos 90° = 0. Sum = 0.", isCompetencyBased: false,
     solutionSteps: [
       "Recall standard trigonometric values: sin 0° = 0 and cos 90° = 0.",
       "sin 0° + cos 90° = 0 + 0 = 0.",
-      "Therefore, the value is 0.",
+      "Therefore, the value is 0. Answer: (A)",
     ],
   },
   { id: "TRIG2-E16", subject: "Maths", topicKey: "trigonometry", subtopic: "Ratio definitions and setup", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If sin A = 3/5, then cos A equals:", options: ["4/5","3/4","5/3","5/4"], answer: "4/5", explanation: "The correct answer is 4/5. sin²A + cos²A = 1. cos²A = 1 − 9/25 = 16/25. cos A = 4/5.", finalAnswer: "sin²A + cos²A = 1. cos²A = 1 − 9/25 = 16/25. cos A = 4/5.", isCompetencyBased: false,
     solutionSteps: [
       "Given sin A = 3/5. Using the Pythagorean identity: sin²A + cos²A = 1.",
       "cos²A = 1 − sin²A = 1 − (3/5)² = 1 − 9/25 = 16/25.",
-      "cos A = √(16/25) = 4/5 (taking positive root for acute angle A).",
+      "cos A = √(16/25) = 4/5 (taking positive root for acute angle A). Answer: (A)",
     ],
   },
   { id: "TRIG2-E17", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of sin 60° × cos 30° + cos 60° × sin 30° is:", options: ["1","√3/2","1/2","√3"], answer: "1", explanation: "The correct answer is 1. sin 60° × cos 30° + cos 60° × sin 30° = (√3/2)(√3/2) + (1/2)(1/2) = 3/4 + 1/4 = 1. (This is sin(60°+30°) = sin 90° = 1.)", finalAnswer: "1", isCompetencyBased: false,
     solutionSteps: [
       "Recall standard values: sin 60° = √3/2, cos 30° = √3/2, cos 60° = 1/2, sin 30° = 1/2.",
       "sin 60° × cos 30° + cos 60° × sin 30° = (√3/2)(√3/2) + (1/2)(1/2) = 3/4 + 1/4 = 1.",
-      "This equals sin(60°+30°) = sin 90° = 1 by the sine addition formula, confirming the result.",
+      "This equals sin(60°+30°) = sin 90° = 1 by the sine addition formula, confirming the result. Answer: (A)",
     ],
   },
   { id: "TRIG2-E18", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric identities", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "sec²θ − tan²θ equals:", options: ["1","0","sec²θ","tan²θ"], answer: "1", explanation: "The correct answer is 1. This is a standard Pythagorean identity: sec²θ − tan²θ = 1.", finalAnswer: "This is a standard Pythagorean identity: sec²θ − tan²θ = 1.", isCompetencyBased: false,
     solutionSteps: [
       "The standard Pythagorean identity for sec and tan is: 1 + tan²θ = sec²θ.",
       "Rearranging: sec²θ − tan²θ = 1.",
-      "Therefore, sec²θ − tan²θ = 1 for all θ where sec θ is defined.",
+      "Therefore, sec²θ − tan²θ = 1 for all θ where sec θ is defined. Answer: (A)",
     ],
   },
   { id: "TRIG2-E19", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): sin θ increases as θ increases from 0° to 90°.\nReason (R): sin 0° = 0, sin 30° = 0.5, sin 60° = √3/2, sin 90° = 1 — the values increase monotonically.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "R lists the values of sin at key angles confirming the increasing pattern from 0 to 1 as θ goes from 0° to 90°.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): sin θ increases from 0° to 90°. From the table: sin 0° = 0 < sin 30° = 0.5 < sin 60° ≈ 0.866 < sin 90° = 1. This is an increasing sequence. Assertion (A) is true.",
       "Reason (R): The values sin 0° = 0, sin 30° = 0.5, sin 60° = √3/2, sin 90° = 1 are listed in increasing order, confirming the monotonic increase. Reason (R) is true.",
-      "Reason (R) directly supports Assertion (A) by providing the numerical evidence of the increasing pattern, so R is the correct explanation of A.",
+      "Reason (R) directly supports Assertion (A) by providing the numerical evidence of the increasing pattern, so R is the correct explanation of A. Answer: (A)",
     ],
   },
   { id: "TRIG2-B06", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "From a point on the ground, the angle of elevation of the top of a vertical tower is 30°. If the tower is 30 m tall, find the distance from the point to the base of the tower.", solutionSteps: [

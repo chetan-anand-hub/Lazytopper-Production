@@ -20,7 +20,7 @@ export const RN_EXTRACT2: CanonicalQuestion[] = [
     ],
     "answer": "20",
     "solutionSteps": [
-      "[1 mark] Smallest two-digit composite number = 10 = 2 x 5; smallest composite number = 4 = 2^2. LCM = 2^2 x 5 = 20."
+      "[1 mark] Smallest two-digit composite number = 10 = 2 x 5; smallest composite number = 4 = 2^2. LCM = 2^2 x 5 = 20. Answer: (C)"
     ],
     "finalAnswer": "20",
     "isCompetencyBased": false,
@@ -40,7 +40,7 @@ export const RN_EXTRACT2: CanonicalQuestion[] = [
     "options": ["n = 1", "n = 2", "n = 5", "No such natural number n exists"],
     "answer": "No such natural number n exists",
     "solutionSteps": [
-      "[1 mark] No such natural number n exists — 24ⁿ = 2³ⁿ × 3ⁿ has no prime factor 5, so 24ⁿ is never divisible by 10."
+      "[1 mark] No such natural number n exists — 24ⁿ = 2³ⁿ × 3ⁿ has no prime factor 5, so 24ⁿ is never divisible by 10. Answer: (D)"
     ],
     "finalAnswer": "No such natural number n exists",
     "isCompetencyBased": false,
@@ -65,7 +65,7 @@ export const RN_EXTRACT2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] 4^n = 2^(2n) has only the prime 2 and no factor 5, so by R it can never end with 0 — A is true. R correctly states the terminal-zero condition and directly explains A. Hence both are true and R explains A."
+      "[1 mark] 4^n = 2^(2n) has only the prime 2 and no factor 5, so by R it can never end with 0 — A is true. R correctly states the terminal-zero condition and directly explains A. Hence both are true and R explains A. Answer: (A)"
     ],
     "finalAnswer": "(a) Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,
@@ -90,7 +90,7 @@ export const RN_EXTRACT2: CanonicalQuestion[] = [
     ],
     "answer": "3",
     "solutionSteps": [
-      "[1 mark] A terminal zero needs a pair of factors 2 and 5, so the number of trailing zeros = min(power of 2, power of 5) = min(3, 4) = 3."
+      "[1 mark] A terminal zero needs a pair of factors 2 and 5, so the number of trailing zeros = min(power of 2, power of 5) = min(3, 4) = 3. Answer: (B)"
     ],
     "finalAnswer": "3",
     "isCompetencyBased": false,

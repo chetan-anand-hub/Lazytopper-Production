@@ -20,7 +20,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["oxygen (O₂)", "carbon dioxide (CO₂)", "hydrogen (H₂)", "nitrogen (N₂)"],
     "answer": "hydrogen (H₂)",
     "solutionSteps": [
-      "[1 mark] hydrogen (H₂) — 2Na + 2CH₃CH₂OH → 2CH₃CH₂ONa + H₂: hydrogen gas is evolved."
+      "[1 mark] hydrogen (H₂) — 2Na + 2CH₃CH₂OH → 2CH₃CH₂ONa + H₂: hydrogen gas is evolved. Answer: (C)"
     ],
     "finalAnswer": "hydrogen (H₂)",
     "isCompetencyBased": false,
@@ -40,7 +40,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["carbon dioxide", "methane", "carbon tetrachloride", "carbon disulfide"],
     "answer": "carbon dioxide",
     "solutionSteps": [
-      "[1 mark] carbon dioxide — the element with atomic number 8 is oxygen; C + O₂ → CO₂ (carbon dioxide)."
+      "[1 mark] carbon dioxide — the element with atomic number 8 is oxygen; C + O₂ → CO₂ (carbon dioxide). Answer: (A)"
     ],
     "finalAnswer": "carbon dioxide",
     "isCompetencyBased": false,
@@ -60,7 +60,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["ionic bonding", "metallic bonding", "hydrogen bonding", "covalent bonding"],
     "answer": "covalent bonding",
     "solutionSteps": [
-      "[1 mark] covalent bonding — carbon and oxygen are non-metals that share electrons, so CO₂ has covalent bonds."
+      "[1 mark] covalent bonding — carbon and oxygen are non-metals that share electrons, so CO₂ has covalent bonds. Answer: (D)"
     ],
     "finalAnswer": "covalent bonding",
     "isCompetencyBased": false,
@@ -80,7 +80,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["C₂H₄", "C₂H₆", "C₂H₂", "C₃H₈"],
     "answer": "C₂H₆",
     "solutionSteps": [
-      "[1 mark] C₂H₆ — CₙH₂ₙ₊₂ with n = 2 gives C₂H₍2×2+2₎ = C₂H₆."
+      "[1 mark] C₂H₆ — CₙH₂ₙ₊₂ with n = 2 gives C₂H₍2×2+2₎ = C₂H₆. Answer: (B)"
     ],
     "finalAnswer": "C₂H₆",
     "isCompetencyBased": false,
@@ -100,7 +100,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["H₂C=CH₂ (double C=C bond, four C–H bonds)", "H₃C–CH₃ (single C–C bond, six C–H bonds)", "HC≡CH (triple C≡C bond, two C–H bonds)", "H₃C–CH₂–CH₃ (two C–C bonds, eight C–H bonds)"],
     "answer": "H₃C–CH₃ (single C–C bond, six C–H bonds)",
     "solutionSteps": [
-      "[1 mark] H₃C–CH₃ (single C–C bond, six C–H bonds) — ethane is saturated: two carbons joined by a single bond, each carbon bonded to three hydrogens."
+      "[1 mark] H₃C–CH₃ (single C–C bond, six C–H bonds) — ethane is saturated: two carbons joined by a single bond, each carbon bonded to three hydrogens. Answer: (B)"
     ],
     "finalAnswer": "H₃C–CH₃ (single C–C bond, six C–H bonds)",
     "isCompetencyBased": false,
@@ -122,7 +122,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["C₂H₆", "C₂H₂", "C₃H₆", "C₂H₄"],
     "answer": "C₂H₄",
     "solutionSteps": [
-      "[1 mark] C₂H₄ — CₙH₂ₙ with n = 2 gives C₂H₄."
+      "[1 mark] C₂H₄ — CₙH₂ₙ with n = 2 gives C₂H₄. Answer: (D)"
     ],
     "finalAnswer": "C₂H₄",
     "isCompetencyBased": false,
@@ -142,7 +142,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["H₂C=CH₂ (double C=C bond, four C–H bonds)", "H₃C–CH₃ (single C–C bond, six C–H bonds)", "HC≡CH (triple C≡C bond, two C–H bonds)", "H₂C=CH–CH₃ (one C=C bond, six C–H bonds)"],
     "answer": "H₂C=CH₂ (double C=C bond, four C–H bonds)",
     "solutionSteps": [
-      "[1 mark] H₂C=CH₂ (double C=C bond, four C–H bonds) — ethene is unsaturated: two carbons joined by a double bond, each carbon bonded to two hydrogens."
+      "[1 mark] H₂C=CH₂ (double C=C bond, four C–H bonds) — ethene is unsaturated: two carbons joined by a double bond, each carbon bonded to two hydrogens. Answer: (A)"
     ],
     "finalAnswer": "H₂C=CH₂ (double C=C bond, four C–H bonds)",
     "isCompetencyBased": false,
@@ -164,7 +164,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     "options": ["as an antacid to cure acidity", "as a fuel in spirit lamps", "in making dyes, pigments and paints", "as a drying agent for gases"],
     "answer": "in making dyes, pigments and paints",
     "solutionSteps": [
-      "[1 mark] in making dyes, pigments and paints — ethanoic acid is an industrial raw material for dyes, pigments, paints and coatings (dilute form is vinegar)."
+      "[1 mark] in making dyes, pigments and paints — ethanoic acid is an industrial raw material for dyes, pigments, paints and coatings (dilute form is vinegar). Answer: (C)"
     ],
     "finalAnswer": "in making dyes, pigments and paints",
     "isCompetencyBased": false,

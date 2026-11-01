@@ -25,7 +25,7 @@ export const CTRL_SP: CanonicalQuestion[] = [
     ],
     "answer": "(b) Phototropism",
     "solutionSteps": [
-      "[1 mark] Correct option (b) Phototropism: the shoot bends towards the light (a directional growth response to light), which is phototropism."
+      "[1 mark] Correct option (b) Phototropism: the shoot bends towards the light (a directional growth response to light), which is phototropism. Answer: (B)"
     ],
     "finalAnswer": "(b) Phototropism",
     "isCompetencyBased": true,

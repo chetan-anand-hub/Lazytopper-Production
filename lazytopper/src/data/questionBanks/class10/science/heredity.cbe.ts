@@ -20,7 +20,7 @@ export const HERD_CBE: CanonicalQuestion[] = [
     "options": ["DNA", "proteins", "lipids", "carbohydrates"],
     "answer": "DNA",
     "solutionSteps": [
-      "[1 mark] DNA — a gene is a segment of DNA on a chromosome."
+      "[1 mark] DNA — a gene is a segment of DNA on a chromosome. Answer: (A)"
     ],
     "finalAnswer": "DNA",
     "isCompetencyBased": false,
@@ -40,7 +40,7 @@ export const HERD_CBE: CanonicalQuestion[] = [
     "options": ["a pair of homologous chromosomes", "a protein made by a gene", "a different form of the same gene", "a sex chromosome"],
     "answer": "a different form of the same gene",
     "solutionSteps": [
-      "[1 mark] a different form of the same gene — alleles are alternative forms of the same gene, e.g. PA and PN."
+      "[1 mark] a different form of the same gene — alleles are alternative forms of the same gene, e.g. PA and PN. Answer: (C)"
     ],
     "finalAnswer": "a different form of the same gene",
     "isCompetencyBased": false,

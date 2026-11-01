@@ -22,7 +22,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "By definition, a tangent is a line that touches a circle at exactly one point.",
       "The radius at the point of contact is perpendicular to the tangent.",
-      "Therefore, the line perpendicular to the radius at the point of contact is the tangent."
+      "Therefore, the line perpendicular to the radius at the point of contact is the tangent. Answer: (B)"
     ],
     "finalAnswer": "Tangent",
     "explanation": "By definition, a tangent is a line that touches a circle at exactly one point. The radius at the point of contact is perpendicular to the tangent. Therefore, the line perpendicular to the radius at the point of contact is the tangent. Therefore, the correct answer is Tangent.",
@@ -52,7 +52,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The radius OP is perpendicular to the tangent at P.",
       "The tangent makes 65° with chord PQ.",
-      "Since OP ⊥ tangent, the angle between OP and PQ = 90° - 65° = 25°."
+      "Since OP ⊥ tangent, the angle between OP and PQ = 90° - 65° = 25°. Answer: (A)"
     ],
     "finalAnswer": "25°",
     "explanation": "The radius OP is perpendicular to the tangent at P. The tangent makes 65° with chord PQ. Since OP ⊥ tangent, the angle between OP and PQ = 90° - 65° = 25°. Therefore, the correct answer is 25°.",
@@ -82,7 +82,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "From an external point, exactly 2 tangents can be drawn to a circle.",
       "These two tangents are of equal length.",
-      "They make equal angles with the line joining the external point to the center."
+      "They make equal angles with the line joining the external point to the center. Answer: (B)"
     ],
     "finalAnswer": "2",
     "explanation": "From an external point, exactly 2 tangents can be drawn to a circle. These two tangents are of equal length. They make equal angles with the line joining the external point to the center. Therefore, the correct answer is 2.",
@@ -112,7 +112,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "From an external point, the two tangent segments to a circle are equal in length.",
       "This is a fundamental property of tangents from an external point.",
-      "Therefore, PA = PB."
+      "Therefore, PA = PB. Answer: (B)"
     ],
     "finalAnswer": "PA = PB",
     "explanation": "From an external point, the two tangent segments to a circle are equal in length. This is a fundamental property of tangents from an external point. Therefore, PA = PB. Therefore, the correct answer is PA = PB.",
@@ -143,7 +143,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Assertion A is true: A tangent is perpendicular to the radius at the point of contact.",
       "Reason R is true: The radius does pass through the center.",
       "However, the fact that the radius passes through the center does not explain why it's perpendicular to the tangent.",
-      "The correct reason is that a tangent touches the circle at only one point, and the shortest distance from the center to the tangent is along the perpendicular (the radius)."
+      "The correct reason is that a tangent touches the circle at only one point, and the shortest distance from the center to the tangent is along the perpendicular (the radius). Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
@@ -254,7 +254,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Since PA = PB (tangents from external point), triangle APB is isosceles.",
       "Also, OA = OB (radii), so triangle OAB is isosceles.",
       "Since PA = PB and OA = OB, the line OP is the perpendicular bisector of AB.",
-      "Therefore, OP bisects AB at right angles."
+      "Therefore, OP bisects AB at right angles. Answer: (A)"
     ],
     "finalAnswer": "OP bisects AB at right angles",
     "isCompetencyBased": true,
@@ -285,7 +285,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "If P ≠ T, then OT is the perpendicular distance from O to the line l.",
       "OP is the distance from O to point P.",
       "Since OT is perpendicular to l and P is on l, triangle OTP is a right triangle with the right angle at T.",
-      "By the property of right triangles, OT < OP."
+      "By the property of right triangles, OT < OP. Answer: (B)"
     ],
     "finalAnswer": "OT < OP",
     "isCompetencyBased": true,
@@ -316,7 +316,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "O₁P ⊥ PQ (radius perpendicular to tangent)",
       "O₂Q ⊥ PQ (radius perpendicular to tangent)",
       "Both O₁P and O₂Q are perpendicular to the same line PQ.",
-      "Therefore, O₁P is parallel to O₂Q, not perpendicular."
+      "Therefore, O₁P is parallel to O₂Q, not perpendicular. Answer: (C)"
       ],
     "finalAnswer": "O₁P is parallel to O₂Q",
     "isCompetencyBased": true,
@@ -404,7 +404,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Reason R is true: The two tangent segments from an external point are equal in length.",
       "However, R does not explain why exactly 2 tangents exist.",
       "The fact that the tangents are equal is a consequence of drawing 2 tangents, not the reason for the existence of 2 tangents.",
-      "The correct reason is the geometric position of the external point relative to the circle."
+      "The correct reason is the geometric position of the external point relative to the circle. Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "isCompetencyBased": true,
@@ -435,7 +435,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Reason R: The shortest distance from center to a tangent line is along the perpendicular—TRUE",
       "Since the tangent touches at only one point and the radius to that point is the perpendicular distance,",
       "R correctly explains why A is true.",
-      "The geometric principle of the shortest distance being perpendicular is the fundamental reason for the tangent-radius perpendicularity."
+      "The geometric principle of the shortest distance being perpendicular is the fundamental reason for the tangent-radius perpendicularity. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "isCompetencyBased": true,
@@ -596,7 +596,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Triangle PTO has ∠OTP = 90°",
       "It is right-angled at T.",
       "It's isosceles only if PT = OT, which is not always true.",
-      "Generally, PT ≠ OT, so it's a right-angled triangle but not necessarily isosceles."
+      "Generally, PT ≠ OT, so it's a right-angled triangle but not necessarily isosceles. Answer: (C)"
     ],
     "finalAnswer": "Right-angled but not isosceles",
     "isCompetencyBased": true,
@@ -625,7 +625,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "A tangent line touches a circle at exactly one point and does not pass through the interior.",
       "From a point inside the circle, any line passing through it will intersect the circle at two points.",
       "Therefore, no line through an interior point can be a tangent.",
-      "Hence, 0 tangents can be drawn from an interior point."
+      "Hence, 0 tangents can be drawn from an interior point. Answer: (A)"
     ],
     "finalAnswer": "0",
     "explanation": "A tangent line touches a circle at exactly one point and does not pass through the interior. From a point inside the circle, any line passing through it will intersect the circle at two points. Therefore, no line through an interior point can be a tangent. Hence, 0 tangents can be drawn from an interior point. Therefore, the correct answer is 0.",
@@ -684,7 +684,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "answer": "90°",
     "solutionSteps": [
       "By the fundamental property of tangents: A tangent to a circle is always perpendicular to the radius at the point of contact.",
-      "Therefore, the angle between the tangent and radius at P is 90°."
+      "Therefore, the angle between the tangent and radius at P is 90°. Answer: (C)"
     ],
     "finalAnswer": "90°",
     "explanation": "By the fundamental property of tangents: A tangent to a circle is always perpendicular to the radius at the point of contact. Therefore, the angle between the tangent and radius at P is 90°. Therefore, the correct answer is 90°.",
@@ -713,7 +713,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "answer": "They are equal in length",
     "solutionSteps": [
       "From an external point, two tangents drawn to a circle are always equal in length.",
-      "This follows from the congruence of right triangles formed by the radii and tangents."
+      "This follows from the congruence of right triangles formed by the radii and tangents. Answer: (B)"
     ],
     "finalAnswer": "They are equal in length",
     "explanation": "From an external point, two tangents drawn to a circle are always equal in length. This follows from the congruence of right triangles formed by the radii and tangents. Therefore, the correct answer is They are equal in length.",
@@ -772,7 +772,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "10² = 6² + PA²",
       "100 = 36 + PA²",
       "PA² = 64",
-      "PA = 8 cm"
+      "PA = 8 cm Answer: (C)"
     ],
     "finalAnswer": "8 cm",
     "isCompetencyBased": true,
@@ -833,7 +833,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "25² = 7² + PA²",
       "625 = 49 + PA²",
       "PA² = 576",
-      "PA = 24 cm"
+      "PA = 24 cm Answer: (A)"
     ],
     "finalAnswer": "24 cm",
     "isCompetencyBased": true,
@@ -920,7 +920,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Assertion: True - By symmetry and the property that tangents are equal, the line OP bisects ∠APB",
       "Reason: True - From external point P, PA = PB (equal tangent property)",
       "The reason explains why: Equal tangents create symmetry, making OP the angle bisector",
-      "Therefore both are true with correct causal relationship"
+      "Therefore both are true with correct causal relationship Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -952,7 +952,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "By tangent-chord angle theorem: Angle between tangent and chord = half the arc",
       "The angle between tangent and chord PQ = 30°",
       "Therefore, arc PQ corresponds to central angle = 2 × 30° = 60°",
-      "∠POQ = 60°"
+      "∠POQ = 60° Answer: (B)"
     ],
     "finalAnswer": "60°",
     "isCompetencyBased": true,
@@ -1118,7 +1118,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A tangent to a circle can only be drawn from an external point or a point on the circle.",
       "From any point inside the circle, no tangent can be drawn to that circle.",
-      "Therefore, the answer is 0."
+      "Therefore, the answer is 0. Answer: (A)"
     ],
     "finalAnswer": "0",
     "explanation": "A tangent to a circle can only be drawn from an external point or a point on the circle. From any point inside the circle, no tangent can be drawn to that circle. Therefore, the answer is 0. Therefore, the correct answer is 0.",
@@ -1147,7 +1147,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "answer": "Perpendicular to the tangent",
     "solutionSteps": [
       "By the fundamental property: A tangent to a circle is perpendicular to the radius at the point of tangency.",
-      "Therefore, OP ⊥ tangent at P."
+      "Therefore, OP ⊥ tangent at P. Answer: (B)"
     ],
     "finalAnswer": "Perpendicular to the tangent",
     "explanation": "By the fundamental property: A tangent to a circle is perpendicular to the radius at the point of tangency. Therefore, OP ⊥ tangent at P. Therefore, the correct answer is Perpendicular to the tangent.",
@@ -1208,7 +1208,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Reason R: True - The line joining external point to center lies in the plane",
       "However, R does not explain why exactly 2 tangents exist",
       "The reason for 2 tangents is the geometric property of tangent construction, not the planar property",
-      "Therefore: Both true, but R is not the correct explanation"
+      "Therefore: Both true, but R is not the correct explanation Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
@@ -1277,24 +1277,24 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Let O be the centre, P be the external point, and T be the point of tangency.",
       "In right-angled triangle OTP, OP^2 = OT^2 + PT^2 (Pythagoras theorem).",
       "Substitute given values: 10^2 = 6^2 + PT^2 => 100 = 36 + PT^2.",
-      "Calculate PT^2 = 100 - 36 = 64, so PT = sqrt(64) = 8 cm.",
+      "Calculate PT^2 = 100 - 36 = 64, so PT = sqrt(64) = 8 cm. Answer: (A)",
     ],
   },
   { id: "CI2-047", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A tangent to a circle is perpendicular to:", options: ["The diameter at the point of contact","The radius at the point of contact","Any chord of the circle","The chord through the centre"], answer: "The radius at the point of contact", explanation: "The correct answer is The radius at the point of contact. A tangent at any point of a circle is perpendicular to the radius through that point of contact.", finalAnswer: "A tangent at any point of a circle is perpendicular to the radius through that point of contact.", isCompetencyBased: false,
     solutionSteps: [
       "Recall the theorem: The tangent at any point of a circle is perpendicular to the radius through the point of contact.",
-      "Therefore, a tangent to a circle is perpendicular to the radius at the point of contact.",
+      "Therefore, a tangent to a circle is perpendicular to the radius at the point of contact. Answer: (B)",
     ],
   },
   { id: "CI2-048", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two tangents drawn from an external point to a circle are:", options: ["Equal in length","Parallel to each other","Perpendicular to each other","Not equal in length"], answer: "Equal in length", explanation: "The correct answer is Equal in length. The two tangents drawn from any external point to a circle are equal in length.", finalAnswer: "The two tangents drawn from any external point to a circle are equal in length.", isCompetencyBased: false,
     solutionSteps: [
       "Recall the theorem: The lengths of tangents drawn from an external point to a circle are equal.",
-      "Thus, two tangents drawn from an external point to a circle are equal in length.",
+      "Thus, two tangents drawn from an external point to a circle are equal in length. Answer: (A)",
     ],
   },
   { id: "CI2-049", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA and PB are tangents from P to a circle with centre O, then ∠AOB + ∠APB equals:", options: ["180°","90°","270°","360°"], answer: "180°", explanation: "The correct answer is 180°. ∠OAP = ∠OBP = 90°. In quadrilateral AOBP: ∠AOB + ∠APB = 360° − 90° − 90° = 180°.", finalAnswer: "180°", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] In quadrilateral OAPB, ∠OAP = ∠OBP = 90° (radius ⟂ tangent at the point of contact); angle sum 360° gives ∠AOB + ∠APB = 360° − 180° = 180°.",
+      "[1 mark] In quadrilateral OAPB, ∠OAP = ∠OBP = 90° (radius ⟂ tangent at the point of contact); angle sum 360° gives ∠AOB + ∠APB = 360° − 180° = 180°. Answer: (A)",
     ],
   },
   { id: "CI2-050", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The angle between a tangent to a circle and the chord drawn from the point of tangency equals:", options: ["The angle in the alternate segment","Half the arc subtended by the chord","The angle between tangent and diameter","The inscribed angle of the chord"], answer: "The angle in the alternate segment", explanation: "The correct answer is The angle in the alternate segment. This is the Tangent-Chord angle theorem (Alternate Segment Theorem).", finalAnswer: "This is the Tangent-Chord angle theorem (Alternate Segment Theorem).", isCompetencyBased: false,
@@ -1306,27 +1306,27 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   },
   { id: "CI2-051", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadrilateral ABCD is circumscribed about a circle. Then AB + CD equals:", options: ["BC + DA","2(AB)","2(CD)","AB − CD"], answer: "BC + DA", explanation: "The correct answer is BC + DA. For a tangential quadrilateral: AB + CD = BC + DA (tangent segments from each vertex are equal).", finalAnswer: "AB + CD = BC + DA", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Tangents from an external point are equal: with AP = AS, BP = BQ, CR = CQ, DR = DS (P, Q, R, S the points of contact on AB, BC, CD, DA), adding gives AB + CD = (AP + BP) + (CR + DR) = (BQ + CQ) + (DS + AS) = BC + DA.",
+      "[1 mark] Tangents from an external point are equal: with AP = AS, BP = BQ, CR = CQ, DR = DS (P, Q, R, S the points of contact on AB, BC, CD, DA), adding gives AB + CD = (AP + BP) + (CR + DR) = (BQ + CQ) + (DS + AS) = BC + DA. Answer: (A)",
     ],
   },
   { id: "CI2-052", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two circles of radii 5 cm and 3 cm touch externally. The distance between their centres is:", options: ["8 cm","2 cm","15 cm","4 cm"], answer: "8 cm", explanation: "The correct answer is 8 cm. External tangent: distance = r₁ + r₂ = 5 + 3 = 8 cm.", finalAnswer: "8 cm", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (a) 8 cm is correct: when two circles touch externally, the distance between centres = r1 + r2 = 5 + 3 = 8 cm.",
+      "[1 mark] Option (a) 8 cm is correct: when two circles touch externally, the distance between centres = r1 + r2 = 5 + 3 = 8 cm. Answer: (A)",
     ],
   },
   { id: "CI2-053", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA = 5 cm is a tangent to a circle of radius 3 cm, the distance OP (O = centre) is:", options: ["√34 cm","4 cm","√5 cm","8 cm"], answer: "√34 cm", explanation: "The correct answer is √34 cm. OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", finalAnswer: "OP = √34 cm.", isCompetencyBased: false,
     solutionSteps: [
-      "The tangent is perpendicular to the radius at the point of contact, so OP² = OA² + PA² = 3² + 5² = 34, hence OP = √34 cm. [1]",
+      "The tangent is perpendicular to the radius at the point of contact, so OP² = OA² + PA² = 3² + 5² = 34, hence OP = √34 cm. [1] Answer: (A)",
     ],
   },
   { id: "CI2-054", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of tangents that can be drawn from a point inside a circle is:", options: ["0","1","2","Infinite"], answer: "0", explanation: "The correct answer is 0. No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", finalAnswer: "0", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Every line through a point inside a circle cuts the circle at two points (it is a secant), so no tangent can be drawn from an interior point: the number is 0.",
+      "[1 mark] Every line through a point inside a circle cuts the circle at two points (it is a secant), so no tangent can be drawn from an interior point: the number is 0. Answer: (A)",
     ],
   },
   { id: "CI2-055", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The tangent to a circle at any point is unique.\nReason (R): Only one line can be drawn perpendicular to a radius at a given point on the circle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "A unique perpendicular to the radius at the point of contact gives the unique tangent — R directly explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] The tangent at a point is perpendicular to the radius there, and exactly one line can be drawn perpendicular to that radius through that point; so the tangent is unique (A true) and R is true and is exactly the reason for A.",
+      "[1 mark] The tangent at a point is perpendicular to the radius there, and exactly one line can be drawn perpendicular to that radius through that point; so the tangent is unique (A true) and R is true and is exactly the reason for A. Answer: (A)",
     ],
   },
   { id: "CI2-056", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that the tangents drawn from an external point to a circle are equal in length. Use this to prove that if a parallelogram circumscribes a circle, it must be a rhombus.", solutionSteps: [

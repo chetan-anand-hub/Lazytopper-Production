@@ -24,7 +24,7 @@ export const REPR_SP: CanonicalQuestion[] = [
     ],
     "answer": "(a) Formation of fruit",
     "solutionSteps": [
-      "[1 mark] Correct option (a) Formation of fruit: the labelled part P is the ovary (within the carpel/pistil); on removing it, fertilisation cannot lead to a ripened ovary, so fruit formation will not occur."
+      "[1 mark] Correct option (a) Formation of fruit: the labelled part P is the ovary (within the carpel/pistil); on removing it, fertilisation cannot lead to a ripened ovary, so fruit formation will not occur. Answer: (A)"
     ],
     "finalAnswer": "(a) Formation of fruit",
     "isCompetencyBased": true,

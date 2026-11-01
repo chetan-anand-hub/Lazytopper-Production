@@ -13,7 +13,7 @@ export const magneticEffectsPYQ2024: CanonicalQuestion[] = [
     questionText: "The current carrying device which produces a magnetic field similar to that of a bar magnet is :",
     options: ["A straight conductor", "A circular loop", "A solenoid", "A circular coil"],
     answer: "A solenoid",
-    solutionSteps: ["[1 mark] The magnetic field lines of a current-carrying solenoid emerge from one end and enter the other, exactly like a bar magnet; one end acts as a north pole and the other as a south pole. Hence (c) a solenoid."],
+    solutionSteps: ["[1 mark] The magnetic field lines of a current-carrying solenoid emerge from one end and enter the other, exactly like a bar magnet; one end acts as a north pole and the other as a south pole. Hence (c) a solenoid. Answer: (C)"],
     finalAnswer: "(c) A solenoid",
     ncertRef: "PYQ 31/5/1 Q14", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1",

@@ -117,7 +117,7 @@ export const CG_CBE: CanonicalQuestion[] = [
     "options": ["2√2 units", "6 units", "20 units", "2√5 units"],
     "answer": "2√5 units",
     "solutionSteps": [
-      "[1 mark] 2√5 units — BC = √[(3 + 1)² + (0 + 2)²] = √(16 + 4) = √20 = 2√5 units."
+      "[1 mark] 2√5 units — BC = √[(3 + 1)² + (0 + 2)²] = √(16 + 4) = √20 = 2√5 units. Answer: (D)"
     ],
     "finalAnswer": "2√5 units",
     "isCompetencyBased": true,

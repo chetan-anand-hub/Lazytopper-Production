@@ -12,7 +12,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     questionText: "Galvanisation is a process of coating iron articles with a layer of zinc to prevent the iron from rusting. The iron is protected even if the zinc coating is scratched and iron is exposed. Which of the following is true about how zinc prevents the rusting of iron? P) A galvanised iron article does not undergo oxidation. Q) The zinc coating prevents contact of iron with air. R) Zinc undergoes corrosion more easily than iron.",
     options: ["only P", "only Q", "only P and Q", "only Q and R"],
     answer: "only Q and R",
-    solutionSteps: ["[0.5 mark] Q correct: zinc coating blocks air/moisture from iron surface.", "[0.5 mark] R correct: zinc is more reactive than iron (sacrificial anode), so it corrodes preferentially. P false: oxidation still occurs but on zinc, not iron."],
+    solutionSteps: ["[0.5 mark] Q correct: zinc coating blocks air/moisture from iron surface.", "[0.5 mark] R correct: zinc is more reactive than iron (sacrificial anode), so it corrodes preferentially. P false: oxidation still occurs but on zinc, not iron. Answer: (D)"],
     finalAnswer: "(d) only Q and R",
     ncertRef: "APQ Science-PQ Q5", isCompetencyBased: true },
 
@@ -26,7 +26,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
       "Metal ions gain electrons to become neutral metal atoms"
     ],
     answer: "Metal ions gain electrons to become neutral metal atoms",
-    solutionSteps: ["[1 mark] At cathode (negative electrode): reduction occurs. Metal ions (Mn+) accept electrons from the electrode to deposit as neutral metal atoms (M)."],
+    solutionSteps: ["[1 mark] At cathode (negative electrode): reduction occurs. Metal ions (Mn+) accept electrons from the electrode to deposit as neutral metal atoms (M). Answer: (D)"],
     finalAnswer: "(d) Metal ions gain electrons to become neutral metal atoms",
     ncertRef: "APQ Science-PQ Q6", isCompetencyBased: false },
 
@@ -35,7 +35,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     questionText: "Metals are lustrous and shine especially when their freshly cut surfaces are exposed. Salma cut pieces and compared the lustre of the freshly cut surfaces of: aluminium, sodium, copper, iron. The freshly cut surface of which of these metals is likely to lose its lustre first on exposure to air?",
     options: ["aluminium", "sodium", "copper", "iron"],
     answer: "sodium",
-    solutionSteps: ["[1 mark] Sodium is the most reactive among the four (highest in reactivity series). It rapidly reacts with O2 and moisture in air, forming a dull oxide layer fastest. (Sodium is stored under kerosene to prevent this.)"],
+    solutionSteps: ["[1 mark] Sodium is the most reactive among the four (highest in reactivity series). It rapidly reacts with O2 and moisture in air, forming a dull oxide layer fastest. (Sodium is stored under kerosene to prevent this.) Answer: (B)"],
     finalAnswer: "(b) sodium",
     ncertRef: "APQ Science-PQ Q7", isCompetencyBased: true },
 
@@ -49,7 +49,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "A is true but R is false.",
-    solutionSteps: ["[0.5 mark] A is true: ZnO + C → Zn + CO (carbon reduces ZnO to Zn at high temperature).", "[0.5 mark] R is false: carbon is MORE reactive than zinc in the reactivity context — that's why it can reduce ZnO."],
+    solutionSteps: ["[0.5 mark] A is true: ZnO + C → Zn + CO (carbon reduces ZnO to Zn at high temperature).", "[0.5 mark] R is false: carbon is MORE reactive than zinc in the reactivity context — that's why it can reduce ZnO. Answer: (C)"],
     finalAnswer: "(c) A is true but R is false.",
     ncertRef: "APQ Science-PQ Q17", isCompetencyBased: true },
 
@@ -93,7 +93,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     questionText: "The metal X does not react with cold water but floats on hot water with the formation of colourless bubbles. Which of the following represents metal X?",
     options: ["Aluminium", "Copper", "Magnesium", "Lead"],
     answer: "Magnesium",
-    solutionSteps: ["Aluminium does not react with cold or hot water under normal conditions (Al2O3 protective layer).", "Copper and lead do not react with cold or hot water (below H in reactivity series).", "Magnesium does not react with cold water but reacts with hot water to liberate H2 bubbles (Mg + 2 H2O → Mg(OH)2 + H2). The H2 bubbles cling to Mg, making it float."],
+    solutionSteps: ["Aluminium does not react with cold or hot water under normal conditions (Al2O3 protective layer).", "Copper and lead do not react with cold or hot water (below H in reactivity series).", "Magnesium does not react with cold water but reacts with hot water to liberate H2 bubbles (Mg + 2 H2O → Mg(OH)2 + H2). The H2 bubbles cling to Mg, making it float. Answer: (C)"],
     finalAnswer: "(c) Magnesium",
     ncertRef: "APQ Science-PQ2 Q4", isCompetencyBased: true },
 
@@ -107,7 +107,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
       "Choking smell with the smell of burning sulphur"
     ],
     answer: "Burning matchstick produces a pop sound and the flame puts off",
-    solutionSteps: ["[0.5 mark] Metals (above H in reactivity series) react with dilute acid to release hydrogen gas: M + 2 HCl → MCl2 + H2↑.", "[0.5 mark] H2 gas is identified by the 'pop' sound test: when a burning matchstick is brought near the gas, it burns rapidly with a characteristic pop and the flame is then extinguished."],
+    solutionSteps: ["[0.5 mark] Metals (above H in reactivity series) react with dilute acid to release hydrogen gas: M + 2 HCl → MCl2 + H2↑.", "[0.5 mark] H2 gas is identified by the 'pop' sound test: when a burning matchstick is brought near the gas, it burns rapidly with a characteristic pop and the flame is then extinguished. Answer: (C)"],
     finalAnswer: "(c) Burning matchstick produces a pop sound and the flame puts off",
     ncertRef: "APQ Science-PQ2 Q7", isCompetencyBased: true,
  },
@@ -122,7 +122,7 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "A is true but R is false.",
-    solutionSteps: ["[0.5 mark] A is true: In electrorefining, the impure copper anode dissolves into solution as Cu^2+ ions, which then migrate to and deposit on the pure copper cathode.", "[0.5 mark] R is false: Reduction (gain of electrons) occurs at the CATHODE, not the anode. At the anode oxidation occurs (Cu → Cu^2+ + 2 e-). So R is incorrect."],
+    solutionSteps: ["[0.5 mark] A is true: In electrorefining, the impure copper anode dissolves into solution as Cu^2+ ions, which then migrate to and deposit on the pure copper cathode.", "[0.5 mark] R is false: Reduction (gain of electrons) occurs at the CATHODE, not the anode. At the anode oxidation occurs (Cu → Cu^2+ + 2 e-). So R is incorrect. Answer: (C)"],
     finalAnswer: "(c) A is true but R is false.",
     ncertRef: "APQ Science-PQ2 Q17", isCompetencyBased: true },
 

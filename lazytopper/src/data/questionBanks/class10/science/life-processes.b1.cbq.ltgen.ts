@@ -21,7 +21,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It removes the starch already stored in the leaves, so any starch found later must have been made during the experiment.",
     "solutionSteps": [
-      "[1 mark] Keeping the plant in the dark (destarching) uses up the stored starch, so a positive iodine test later can only come from fresh photosynthesis. Chlorophyll is removed by boiling in alcohol, not by darkness, so the second option is wrong."
+      "[1 mark] Keeping the plant in the dark (destarching) uses up the stored starch, so a positive iodine test later can only come from fresh photosynthesis. Chlorophyll is removed by boiling in alcohol, not by darkness, so the second option is wrong. Answer: (A)"
     ],
     "finalAnswer": "It removes the starch already stored in the leaves, so any starch found later must have been made during the experiment.",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Light is essential for the seedling to make its own food; once the food stored in the seed was used up, the seedlings in the dark could not make more.",
     "solutionSteps": [
-      "[1 mark] Water, air (carbon dioxide) and minerals were all supplied, so the missing condition was light. Without light no photosynthesis occurs, so the seedlings survived only on the seed's stored food. Minerals are not the plant's food, so the third option is wrong."
+      "[1 mark] Water, air (carbon dioxide) and minerals were all supplied, so the missing condition was light. Without light no photosynthesis occurs, so the seedlings survived only on the seed's stored food. Minerals are not the plant's food, so the third option is wrong. Answer: (B)"
     ],
     "finalAnswer": "Light is essential for the seedling to make its own food; once the food stored in the seed was used up, the seedlings in the dark could not make more.",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The lower surface of this leaf has many more stomata than the upper surface.",
     "solutionSteps": [
-      "[1 mark] Heat makes the air inside the leaf expand and escape through the stomatal pores, so more bubbles from the lower surface means more stomata there. The bubbles are not fresh oxygen from photosynthesis, so the fourth option is wrong."
+      "[1 mark] Heat makes the air inside the leaf expand and escape through the stomatal pores, so more bubbles from the lower surface means more stomata there. The bubbles are not fresh oxygen from photosynthesis, so the fourth option is wrong. Answer: (C)"
     ],
     "finalAnswer": "The lower surface of this leaf has many more stomata than the upper surface.",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Oxygen, released when water molecules are split during photosynthesis",
     "solutionSteps": [
-      "[1 mark] A glowing stick bursting into flame shows oxygen. During photosynthesis, water is split into hydrogen and oxygen, and this oxygen is given out; the carbon dioxide is used to build carbohydrate, so the first option is a common but wrong idea."
+      "[1 mark] A glowing stick bursting into flame shows oxygen. During photosynthesis, water is split into hydrogen and oxygen, and this oxygen is given out; the carbon dioxide is used to build carbohydrate, so the first option is a common but wrong idea. Answer: (D)"
     ],
     "finalAnswer": "Oxygen, released when water molecules are split during photosynthesis",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) Both statements are true, but R only explains why the colour is blue-black; it does not explain why only the green regions have starch. That is because chlorophyll, present only in green regions, is needed for photosynthesis."
+      "[1 mark] (B) Both statements are true, but R only explains why the colour is blue-black; it does not explain why only the green regions have starch. That is because chlorophyll, present only in green regions, is needed for photosynthesis. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: without light there is no photosynthesis at night, but the stored starch keeps being broken down and moved out, so by sunrise the leaves hold much less starch than at sunset."
+      "[1 mark] (A) Both are true and R explains A: without light there is no photosynthesis at night, but the stored starch keeps being broken down and moved out, so by sunrise the leaves hold much less starch than at sunset. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Tube P",
     "solutionSteps": [
-      "[1 mark] Tube P: pancreatic juice contains trypsin, which digests proteins in an alkaline medium. Tube S is tempting, but pepsin acts only in an acidic medium (provided by HCl), so in distilled water it stays inactive; saliva acts on starch and bile has no enzyme."
+      "[1 mark] Tube P: pancreatic juice contains trypsin, which digests proteins in an alkaline medium. Tube S is tempting, but pepsin acts only in an acidic medium (provided by HCl), so in distilled water it stays inactive; saliva acts on starch and bile has no enzyme. Answer: (A)"
     ],
     "finalAnswer": "Tube P",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Partial breakdown of proteins by pepsin in the stomach",
     "solutionSteps": [
-      "[1 mark] Pepsin comes from the gastric glands of the stomach, which work normally, so partial protein digestion in the stomach continues. Pancreatic lipase, trypsin and pancreatic amylase are all parts of pancreatic juice, which is no longer released, so those three processes cannot take place normally (bile only emulsifies fats; it cannot break them down)."
+      "[1 mark] Pepsin comes from the gastric glands of the stomach, which work normally, so partial protein digestion in the stomach continues. Pancreatic lipase, trypsin and pancreatic amylase are all parts of pancreatic juice, which is no longer released, so those three processes cannot take place normally (bile only emulsifies fats; it cannot break them down). Answer: (B)"
     ],
     "finalAnswer": "Partial breakdown of proteins by pepsin in the stomach",
     "isCompetencyBased": true,
@@ -601,7 +601,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Starch digestion stops once acid mixes with the food and is completed later in the small intestine.",
     "solutionSteps": [
-      "[1 mark] Food stays in the mouth only briefly, so starch digestion is only begun there; once acid mixes with it in the stomach, salivary amylase stops (statement 1). Pepsin acts on proteins, not starch, so the remaining starch is digested in the small intestine by pancreatic amylase and intestinal juice."
+      "[1 mark] Food stays in the mouth only briefly, so starch digestion is only begun there; once acid mixes with it in the stomach, salivary amylase stops (statement 1). Pepsin acts on proteins, not starch, so the remaining starch is digested in the small intestine by pancreatic amylase and intestinal juice. Answer: (C)"
     ],
     "finalAnswer": "Starch digestion stops once acid mixes with the food and is completed later in the small intestine.",
     "isCompetencyBased": true,
@@ -630,7 +630,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Food is digested inside a food vacuole and the simpler products diffuse into the cytoplasm.",
     "solutionSteps": [
-      "[1 mark] The engulfed yeast lies in a food vacuole; enzymes there break the food into simpler substances that diffuse into the cytoplasm, so the sac shrinks and the dye spreads. A contractile vacuole removes excess water, not food, and Amoeba is heterotrophic with digestion inside the cell."
+      "[1 mark] The engulfed yeast lies in a food vacuole; enzymes there break the food into simpler substances that diffuse into the cytoplasm, so the sac shrinks and the dye spreads. A contractile vacuole removes excess water, not food, and Amoeba is heterotrophic with digestion inside the cell. Answer: (D)"
     ],
     "finalAnswer": "Food is digested inside a food vacuole and the simpler products diffuse into the cytoplasm.",
     "isCompetencyBased": true,
@@ -659,7 +659,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: fat is not chemically digested in the mouth or stomach; only in the small intestine do bile salts emulsify it and lipase convert it into fatty acids and glycerol, which can then pass through the villi."
+      "[1 mark] (A) Both are true and R explains A: fat is not chemically digested in the mouth or stomach; only in the small intestine do bile salts emulsify it and lipase convert it into fatty acids and glycerol, which can then pass through the villi. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -688,7 +688,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: saliva has no protein-digesting enzyme, so protein digestion begins only in the stomach with pepsin. R is true: salivary amylase acts on starch only, which is exactly why milk proteins are untouched in the mouth."
+      "[1 mark] (D) A is false: saliva has no protein-digesting enzyme, so protein digestion begins only in the stomach with pepsin. R is true: salivary amylase acts on starch only, which is exactly why milk proteins are untouched in the mouth. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1062,7 +1062,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "P and Q only",
     "solutionSteps": [
-      "[1 mark] P and Q only: live yeast releases carbon dioxide in aerobic respiration (P) and in anaerobic respiration/fermentation (Q), and CO₂ turns lime water milky. 'Q only' is tempting, but aerobic respiration also gives CO₂; boiled yeast (R) and no yeast (S) cannot respire."
+      "[1 mark] P and Q only: live yeast releases carbon dioxide in aerobic respiration (P) and in anaerobic respiration/fermentation (Q), and CO₂ turns lime water milky. 'Q only' is tempting, but aerobic respiration also gives CO₂; boiled yeast (R) and no yeast (S) cannot respire. Answer: (A)"
     ],
     "finalAnswer": "P and Q only",
     "isCompetencyBased": true,
@@ -1091,7 +1091,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Each breath of the thin mountain air brings in less oxygen, so he breathes faster to supply enough oxygen to his cells.",
     "solutionSteps": [
-      "[1 mark] At high altitude the air is thinner, so each breath delivers less oxygen; the body raises the breathing rate to keep up the oxygen supply for aerobic respiration. Resting muscles do not switch fully to anaerobic respiration, and mountain air is not richer in CO₂."
+      "[1 mark] At high altitude the air is thinner, so each breath delivers less oxygen; the body raises the breathing rate to keep up the oxygen supply for aerobic respiration. Resting muscles do not switch fully to anaerobic respiration, and mountain air is not richer in CO₂. Answer: (B)"
     ],
     "finalAnswer": "Each breath of the thin mountain air brings in less oxygen, so he breathes faster to supply enough oxygen to his cells.",
     "isCompetencyBased": true,
@@ -1120,7 +1120,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The walls between neighbouring alveoli break down, so many small alveoli merge into fewer, larger air sacs.",
     "solutionSteps": [
-      "[1 mark] Merging many small alveoli into fewer large sacs greatly reduces the total surface area for diffusion, so less oxygen enters the blood. More capillaries and faster breathing would increase uptake; thin, moist walls are the normal condition that aids diffusion."
+      "[1 mark] Merging many small alveoli into fewer large sacs greatly reduces the total surface area for diffusion, so less oxygen enters the blood. More capillaries and faster breathing would increase uptake; thin, moist walls are the normal condition that aids diffusion. Answer: (C)"
     ],
     "finalAnswer": "The walls between neighbouring alveoli break down, so many small alveoli merge into fewer, larger air sacs.",
     "isCompetencyBased": true,
@@ -1149,7 +1149,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Only the yeast releases carbon dioxide; the muscle converts pyruvate into lactic acid without releasing carbon dioxide.",
     "solutionSteps": [
-      "[1 mark] In yeast without oxygen, pyruvate gives ethanol + CO₂ + energy; in oxygen-short muscle, pyruvate is converted into lactic acid + energy and no CO₂ is released. 'Neither releases CO₂' is wrong because fermentation in yeast does produce CO₂."
+      "[1 mark] In yeast without oxygen, pyruvate gives ethanol + CO₂ + energy; in oxygen-short muscle, pyruvate is converted into lactic acid + energy and no CO₂ is released. 'Neither releases CO₂' is wrong because fermentation in yeast does produce CO₂. Answer: (D)"
     ],
     "finalAnswer": "Only the yeast releases carbon dioxide; the muscle converts pyruvate into lactic acid without releasing carbon dioxide.",
     "isCompetencyBased": true,
@@ -1178,7 +1178,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: in the dark there is no photosynthesis, so CO₂ released by the plant's respiration collects in the box and turns lime water milky. R is false: plants respire all the time, day and night; in daylight the CO₂ they release is used up in photosynthesis."
+      "[1 mark] (C) A is true: in the dark there is no photosynthesis, so CO₂ released by the plant's respiration collects in the box and turns lime water milky. R is false: plants respire all the time, day and night; in daylight the CO₂ they release is used up in photosynthesis. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1207,7 +1207,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: oxygen-short muscle cells convert pyruvate into lactic acid (not ethanol), and the build-up of lactic acid causes cramps. R is true: without enough oxygen, pyruvate is not fully oxidised to CO₂ and water."
+      "[1 mark] (D) A is false: oxygen-short muscle cells convert pyruvate into lactic acid (not ethanol), and the build-up of lactic acid causes cramps. R is true: without enough oxygen, pyruvate is not fully oxidised to CO₂ and water. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1581,7 +1581,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Right ventricle → pulmonary artery → lungs → pulmonary vein",
     "solutionSteps": [
-      "[1 mark] Blood from the arm enters the right atrium, then the right ventricle pumps it through the pulmonary artery to the lungs; oxygenated blood returns by the pulmonary vein to the left atrium. The last option reverses the vessels: the pulmonary artery carries blood away from the heart."
+      "[1 mark] Blood from the arm enters the right atrium, then the right ventricle pumps it through the pulmonary artery to the lungs; oxygenated blood returns by the pulmonary vein to the left atrium. The last option reverses the vessels: the pulmonary artery carries blood away from the heart. Answer: (A)"
     ],
     "finalAnswer": "Right ventricle → pulmonary artery → lungs → pulmonary vein",
     "isCompetencyBased": true,
@@ -1610,7 +1610,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Veins, because blood in them flows back towards the heart and is held up at the band",
     "solutionSteps": [
-      "[1 mark] Veins carry blood towards the heart at low pressure, so the band stops their flow and blood collects below it. Arteries are wrong: their blood moves from the shoulder towards the hand, so a block would hold it up above the band, not below."
+      "[1 mark] Veins carry blood towards the heart at low pressure, so the band stops their flow and blood collects below it. Arteries are wrong: their blood moves from the shoulder towards the hand, so a block would hold it up above the band, not below. Answer: (B)"
     ],
     "finalAnswer": "Veins, because blood in them flows back towards the heart and is held up at the band",
     "isCompetencyBased": true,
@@ -1639,7 +1639,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Phloem; food can move both upward and downward according to the plant's needs",
     "solutionSteps": [
-      "[1 mark] Sucrose and amino acids are carried in the phloem by translocation, which delivers them both upward to buds and downward to storage organs as needed. Food moving only downward is a common misconception; xylem carries water and minerals, not sugar-rich sap."
+      "[1 mark] Sucrose and amino acids are carried in the phloem by translocation, which delivers them both upward to buds and downward to storage organs as needed. Food moving only downward is a common misconception; xylem carries water and minerals, not sugar-rich sap. Answer: (C)"
     ],
     "finalAnswer": "Phloem; food can move both upward and downward according to the plant's needs",
     "isCompetencyBased": true,
@@ -1668,7 +1668,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A sunny balcony with a dry, steady breeze",
     "solutionSteps": [
-      "[1 mark] Transpiration is fastest when stomata are open in light and the air around the leaves is dry and moving, carrying water vapour away. The sunny but humid, still balcony is tempting, but humid air slows evaporation from the leaves."
+      "[1 mark] Transpiration is fastest when stomata are open in light and the air around the leaves is dry and moving, carrying water vapour away. The sunny but humid, still balcony is tempting, but humid air slows evaporation from the leaves. Answer: (D)"
     ],
     "finalAnswer": "A sunny balcony with a dry, steady breeze",
     "isCompetencyBased": true,
@@ -1697,7 +1697,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: transpiration from the leaves pulls an unbroken column of water up the xylem; air drawn into a stem cut in air breaks the column, so water stops reaching the petals and leaves, and they wilt."
+      "[1 mark] (A) Both are true and R explains A: transpiration from the leaves pulls an unbroken column of water up the xylem; air drawn into a stem cut in air breaks the column, so water stops reaching the petals and leaves, and they wilt. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1726,7 +1726,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: lymphatic vessels collect the extra tissue fluid (lymph) and return it to the blood through large veins, so a block lets fluid collect and swell the feet. R is false: the heart does not pump lymph; it is moved along by the normal movements of the body."
+      "[1 mark] (C) A is true: lymphatic vessels collect the extra tissue fluid (lymph) and return it to the blood through large veins, so a block lets fluid collect and swell the feet. R is false: the heart does not pump lymph; it is moved along by the normal movements of the body. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -2102,7 +2102,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Amino acids",
     "solutionSteps": [
-      "[1 mark] (a) Amino acids: S passes through the glomerulus (same level in plasma and capsule fluid) and is then fully reabsorbed in the tubule. Blood proteins are tempting but are too large to be filtered, so they would be absent from the capsule fluid itself; urea and water remain in urine."
+      "[1 mark] (a) Amino acids: S passes through the glomerulus (same level in plasma and capsule fluid) and is then fully reabsorbed in the tubule. Blood proteins are tempting but are too large to be filtered, so they would be absent from the capsule fluid itself; urea and water remain in urine. Answer: (A)"
     ],
     "finalAnswer": "Amino acids",
     "isCompetencyBased": true,
@@ -2131,7 +2131,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Urine formed in the left kidney cannot reach the urinary bladder.",
     "solutionSteps": [
-      "[1 mark] (b): the tube leaving the kidney is the ureter, which carries urine from the kidney to the urinary bladder, so urine from the left kidney is held back. Option (c) would need a blocked urethra; (d) would need a blocked renal artery; the right kidney still works, so (a) is wrong."
+      "[1 mark] (b): the tube leaving the kidney is the ureter, which carries urine from the kidney to the urinary bladder, so urine from the left kidney is held back. Option (c) would need a blocked urethra; (d) would need a blocked renal artery; the right kidney still works, so (a) is wrong. Answer: (B)"
     ],
     "finalAnswer": "Urine formed in the left kidney cannot reach the urinary bladder.",
     "isCompetencyBased": true,
@@ -2160,7 +2160,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Less water is reabsorbed from the kidney tubules because the body has excess water.",
     "solutionSteps": [
-      "[1 mark] (c): the amount of water reabsorbed in the tubules depends on how much excess water the body has; with extra water, less is reabsorbed, so more dilute urine forms. (d) is the reverse and would give less urine; the bladder only stores urine and urea is still filtered."
+      "[1 mark] (c): the amount of water reabsorbed in the tubules depends on how much excess water the body has; with extra water, less is reabsorbed, so more dilute urine forms. (d) is the reverse and would give less urine; the bladder only stores urine and urea is still filtered. Answer: (C)"
     ],
     "finalAnswer": "Less water is reabsorbed from the kidney tubules because the body has excess water.",
     "isCompetencyBased": true,
@@ -2189,7 +2189,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It is a by-product of photosynthesis that the plant gets rid of through its stomata.",
     "solutionSteps": [
-      "[1 mark] (d): oxygen released in photosynthesis is not needed by the plant in that amount, so it is a waste that diffuses out through the stomata. (a) is tempting, but respiration uses up oxygen; it does not produce it."
+      "[1 mark] (d): oxygen released in photosynthesis is not needed by the plant in that amount, so it is a waste that diffuses out through the stomata. (a) is tempting, but respiration uses up oxygen; it does not produce it. Answer: (D)"
     ],
     "finalAnswer": "It is a by-product of photosynthesis that the plant gets rid of through its stomata.",
     "isCompetencyBased": true,
@@ -2218,7 +2218,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: the amount of water reabsorbed in the tubules depends on how much water the body has; after heavy water loss, more water is reabsorbed, so less urine is formed."
+      "[1 mark] (A) Both are true and R explains A: the amount of water reabsorbed in the tubules depends on how much water the body has; after heavy water loss, more water is reabsorbed, so less urine is formed. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2247,7 +2247,7 @@ export const LIFE_PROCESSES_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: plants have no excretory organs, so many wastes are stored in old leaves; these leaves therefore carry more waste than young ones, and the waste leaves the plant when the leaves fall."
+      "[1 mark] (A) Both are true and R explains A: plants have no excretory organs, so many wastes are stored in old leaves; these leaves therefore carry more waste than young ones, and the waste leaves the plant when the leaves fall. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

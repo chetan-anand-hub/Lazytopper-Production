@@ -13,7 +13,7 @@ export const ourEnvironmentPYQ2024: CanonicalQuestion[] = [
     questionText: "Some wastes are given below : (i) Garden waste (ii) Ball point pen refills (iii) Empty medicine bottles made of glass (iv) Peels of fruits and vegetables (v) Old cotton shirt The non-biodegradable wastes among these are :",
     options: ["(i) and (ii)", "(ii) and (iii)", "(i), (iv) and (v)", "(i), (iii) and (iv)"],
     answer: "(ii) and (iii)",
-    solutionSteps: ["[1 mark] Correct option: (ii) and (iii) — ball-point pen refills (plastic) and glass medicine bottles are non-biodegradable; garden waste, fruit and vegetable peels and an old cotton shirt are biodegradable."],
+    solutionSteps: ["[1 mark] Correct option: (ii) and (iii) — ball-point pen refills (plastic) and glass medicine bottles are non-biodegradable; garden waste, fruit and vegetable peels and an old cotton shirt are biodegradable. Answer: (B)"],
     finalAnswer: "(ii) and (iii)",
     ncertRef: "PYQ 31/4/2 Q11", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "2" },

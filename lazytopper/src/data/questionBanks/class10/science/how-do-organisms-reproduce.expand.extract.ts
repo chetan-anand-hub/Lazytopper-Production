@@ -28,7 +28,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Cockroach", "Earthworm", "Housefly", "Frog"],
     "answer": "Earthworm",
     "solutionSteps": [
-      "[1 mark] An earthworm carries both testes and ovaries in the same body, so it is a hermaphrodite. Answer: Earthworm."
+      "[1 mark] An earthworm carries both testes and ovaries in the same body, so it is a hermaphrodite. Answer: Earthworm. Answer: (B)"
     ],
     "finalAnswer": "Earthworm",
     "isCompetencyBased": false,
@@ -48,7 +48,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Plasmodium", "Leishmania", "Entamoeba", "Paramecium"],
     "answer": "Leishmania",
     "solutionSteps": [
-      "[1 mark] Kala-azar is caused by Leishmania, a flagellated protozoan that reproduces by binary fission. Answer: Leishmania."
+      "[1 mark] Kala-azar is caused by Leishmania, a flagellated protozoan that reproduces by binary fission. Answer: Leishmania. Answer: (B)"
     ],
     "finalAnswer": "Leishmania",
     "isCompetencyBased": false,
@@ -68,7 +68,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Vasectomy", "Tubectomy", "Copper-T", "Diaphragm"],
     "answer": "Tubectomy",
     "solutionSteps": [
-      "[1 mark] Surgically cutting and tying the oviducts in a female to block the egg's path is called tubectomy. Answer: Tubectomy."
+      "[1 mark] Surgically cutting and tying the oviducts in a female to block the egg's path is called tubectomy. Answer: Tubectomy. Answer: (B)"
     ],
     "finalAnswer": "Tubectomy",
     "isCompetencyBased": false,
@@ -88,7 +88,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Stock", "Scion", "Sucker", "Runner"],
     "answer": "Scion",
     "solutionSteps": [
-      "[1 mark] In grafting, the rooted lower part is the stock and the upper cut part without roots is the scion. Answer: Scion."
+      "[1 mark] In grafting, the rooted lower part is the stock and the upper cut part without roots is the scion. Answer: Scion. Answer: (B)"
     ],
     "finalAnswer": "Scion",
     "isCompetencyBased": false,
@@ -108,7 +108,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Layering", "Grafting", "Micropropagation", "Fragmentation"],
     "answer": "Micropropagation",
     "solutionSteps": [
-      "[1 mark] Growing plants from a callus in a nutrient medium (tissue culture) is called micropropagation. Answer: Micropropagation."
+      "[1 mark] Growing plants from a callus in a nutrient medium (tissue culture) is called micropropagation. Answer: Micropropagation. Answer: (C)"
     ],
     "finalAnswer": "Micropropagation",
     "isCompetencyBased": false,
@@ -128,7 +128,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Menarche", "Menopause", "Ovulation", "Puberty"],
     "answer": "Menopause",
     "solutionSteps": [
-      "[1 mark] The permanent cessation of menstruation with age is called menopause. Answer: Menopause."
+      "[1 mark] The permanent cessation of menstruation with age is called menopause. Answer: Menopause. Answer: (B)"
     ],
     "finalAnswer": "Menopause",
     "isCompetencyBased": false,
@@ -148,7 +148,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Hydra and Yeast", "Corals and Sponges", "Amoeba and Paramecium", "Planaria and Hydra"],
     "answer": "Corals and Sponges",
     "solutionSteps": [
-      "[1 mark] In corals and sponges the buds stay attached to the parent and form colonies. Answer: Corals and Sponges."
+      "[1 mark] In corals and sponges the buds stay attached to the parent and form colonies. Answer: Corals and Sponges. Answer: (B)"
     ],
     "finalAnswer": "Corals and Sponges",
     "isCompetencyBased": false,
@@ -168,7 +168,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Leishmania", "Entamoeba", "Plasmodium", "Trypanosoma"],
     "answer": "Plasmodium",
     "solutionSteps": [
-      "[1 mark] Plasmodium reproduces by multiple fission and causes malaria. Answer: Plasmodium."
+      "[1 mark] Plasmodium reproduces by multiple fission and causes malaria. Answer: Plasmodium. Answer: (C)"
     ],
     "finalAnswer": "Plasmodium",
     "isCompetencyBased": false,
@@ -188,7 +188,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Protozoa", "Fungi", "Bacteria", "Mammals"],
     "answer": "Fungi",
     "solutionSteps": [
-      "[1 mark] Fungi such as Rhizopus and Mucor commonly reproduce asexually by spore formation. Answer: Fungi."
+      "[1 mark] Fungi such as Rhizopus and Mucor commonly reproduce asexually by spore formation. Answer: Fungi. Answer: (B)"
     ],
     "finalAnswer": "Fungi",
     "isCompetencyBased": false,
@@ -208,7 +208,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Potato", "Fern", "Onion", "Rose"],
     "answer": "Fern",
     "solutionSteps": [
-      "[1 mark] Ferns are non-flowering plants that reproduce by spores formed in structures on the underside of their leaves. Answer: Fern."
+      "[1 mark] Ferns are non-flowering plants that reproduce by spores formed in structures on the underside of their leaves. Answer: Fern. Answer: (B)"
     ],
     "finalAnswer": "Fern",
     "isCompetencyBased": false,
@@ -228,7 +228,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["AIDS", "Genital warts", "Gonorrhoea", "Genital herpes"],
     "answer": "Gonorrhoea",
     "solutionSteps": [
-      "[1 mark] Gonorrhoea is caused by a bacterium, whereas AIDS, warts and herpes are caused by viruses. Answer: Gonorrhoea."
+      "[1 mark] Gonorrhoea is caused by a bacterium, whereas AIDS, warts and herpes are caused by viruses. Answer: Gonorrhoea. Answer: (C)"
     ],
     "finalAnswer": "Gonorrhoea",
     "isCompetencyBased": false,
@@ -253,7 +253,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "It conveys nutrients and wastes to and from the embryo",
     "solutionSteps": [
-      "[1 mark] The umbilical cord connects the embryo to the placenta and carries nutrients to, and wastes from, the embryo. Answer: It conveys nutrients and wastes to and from the embryo."
+      "[1 mark] The umbilical cord connects the embryo to the placenta and carries nutrients to, and wastes from, the embryo. Answer: It conveys nutrients and wastes to and from the embryo. Answer: (B)"
     ],
     "finalAnswer": "It conveys nutrients and wastes to and from the embryo",
     "isCompetencyBased": false,
@@ -273,7 +273,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["1 : 2", "2 : 1", "1 : 1", "4 : 1"],
     "answer": "2 : 1",
     "solutionSteps": [
-      "[1 mark] A sperm is haploid (23 chromosomes) while the zygote is diploid (46 chromosomes), so the ratio is 46 : 23 = 2 : 1. Answer: 2 : 1."
+      "[1 mark] A sperm is haploid (23 chromosomes) while the zygote is diploid (46 chromosomes), so the ratio is 46 : 23 = 2 : 1. Answer: 2 : 1. Answer: (B)"
     ],
     "finalAnswer": "2 : 1",
     "isCompetencyBased": false,
@@ -293,7 +293,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["56", "28", "14", "112"],
     "answer": "28",
     "solutionSteps": [
-      "[1 mark] Gametes are haploid, carrying half the chromosomes of a body cell: 56 / 2 = 28. Answer: 28."
+      "[1 mark] Gametes are haploid, carrying half the chromosomes of a body cell: 56 / 2 = 28. Answer: 28. Answer: (B)"
     ],
     "finalAnswer": "28",
     "isCompetencyBased": false,
@@ -318,7 +318,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Testis to vas deferens to urethra",
     "solutionSteps": [
-      "[1 mark] Sperms form in the testis, travel through the vas deferens, and leave through the urethra. Answer: Testis to vas deferens to urethra."
+      "[1 mark] Sperms form in the testis, travel through the vas deferens, and leave through the urethra. Answer: Testis to vas deferens to urethra. Answer: (B)"
     ],
     "finalAnswer": "Testis to vas deferens to urethra",
     "isCompetencyBased": false,
@@ -338,7 +338,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Anther", "Ovary", "Style", "Stamen"],
     "answer": "Ovary",
     "solutionSteps": [
-      "[1 mark] Both a flower and a human female have an ovary that produces the female gametes. Answer: Ovary."
+      "[1 mark] Both a flower and a human female have an ovary that produces the female gametes. Answer: Ovary. Answer: (B)"
     ],
     "finalAnswer": "Ovary",
     "isCompetencyBased": false,
@@ -363,7 +363,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Survival of an individual organism",
     "solutionSteps": [
-      "[1 mark] Unlike nutrition or respiration, reproduction is not needed to keep an individual alive; it maintains the species. Answer: Survival of an individual organism."
+      "[1 mark] Unlike nutrition or respiration, reproduction is not needed to keep an individual alive; it maintains the species. Answer: Survival of an individual organism. Answer: (C)"
     ],
     "finalAnswer": "Survival of an individual organism",
     "isCompetencyBased": false,
@@ -383,7 +383,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Binary fission", "Fragmentation", "Fertilisation", "Budding"],
     "answer": "Fertilisation",
     "solutionSteps": [
-      "[1 mark] Fertilisation fuses gametes from two parents, giving variation, so it does not form clones; the others are asexual. Answer: Fertilisation."
+      "[1 mark] Fertilisation fuses gametes from two parents, giving variation, so it does not form clones; the others are asexual. Answer: Fertilisation. Answer: (C)"
     ],
     "finalAnswer": "Fertilisation",
     "isCompetencyBased": false,
@@ -403,7 +403,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Ureter", "Vas deferens", "Urethra", "Seminal vesicle"],
     "answer": "Urethra",
     "solutionSteps": [
-      "[1 mark] The urethra carries both urine from the bladder and semen out of the body in the male. Answer: Urethra."
+      "[1 mark] The urethra carries both urine from the bladder and semen out of the body in the male. Answer: Urethra. Answer: (C)"
     ],
     "finalAnswer": "Urethra",
     "isCompetencyBased": false,
@@ -423,7 +423,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Estrogen", "Progesterone", "Testosterone", "Oxytocin"],
     "answer": "Testosterone",
     "solutionSteps": [
-      "[1 mark] Testosterone, secreted by the testes, is the male sex hormone that brings about secondary sexual characters in boys. Answer: Testosterone."
+      "[1 mark] Testosterone, secreted by the testes, is the male sex hormone that brings about secondary sexual characters in boys. Answer: Testosterone. Answer: (C)"
     ],
     "finalAnswer": "Testosterone",
     "isCompetencyBased": false,
@@ -443,7 +443,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Radicle", "Plumule", "Cotyledon", "Testa"],
     "answer": "Plumule",
     "solutionSteps": [
-      "[1 mark] The plumule of the embryo develops into the shoot system on germination. Answer: Plumule."
+      "[1 mark] The plumule of the embryo develops into the shoot system on germination. Answer: Plumule. Answer: (B)"
     ],
     "finalAnswer": "Plumule",
     "isCompetencyBased": false,
@@ -463,7 +463,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Plumule", "Radicle", "Cotyledon", "Tegmen"],
     "answer": "Radicle",
     "solutionSteps": [
-      "[1 mark] The radicle of the embryo grows downwards and forms the primary root. Answer: Radicle."
+      "[1 mark] The radicle of the embryo grows downwards and forms the primary root. Answer: Radicle. Answer: (B)"
     ],
     "finalAnswer": "Radicle",
     "isCompetencyBased": false,
@@ -483,7 +483,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Change in voice", "Menstruation", "Increase in height", "Appearance of body hair"],
     "answer": "Menstruation",
     "solutionSteps": [
-      "[1 mark] The first menstruation (menarche) signals that the female has become sexually mature and can reproduce. Answer: Menstruation."
+      "[1 mark] The first menstruation (menarche) signals that the female has become sexually mature and can reproduce. Answer: Menstruation. Answer: (B)"
     ],
     "finalAnswer": "Menstruation",
     "isCompetencyBased": false,
@@ -503,7 +503,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "options": ["Amoeba", "Hydra", "Spirogyra", "Rhizopus"],
     "answer": "Hydra",
     "solutionSteps": [
-      "[1 mark] Hydra reproduces by budding and can also regenerate a full body from a cut piece. Answer: Hydra."
+      "[1 mark] Hydra reproduces by budding and can also regenerate a full body from a cut piece. Answer: Hydra. Answer: (B)"
     ],
     "finalAnswer": "Hydra",
     "isCompetencyBased": false,
@@ -528,7 +528,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] Asexual offspring are genetically identical to the single parent, which is exactly why they are called clones - so both statements are true and R correctly explains A. Answer: Both A and R are true and R is the correct explanation of A."
+      "[1 mark] Asexual offspring are genetically identical to the single parent, which is exactly why they are called clones - so both statements are true and R correctly explains A. Answer: Both A and R are true and R is the correct explanation of A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,
@@ -553,7 +553,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are false",
     "solutionSteps": [
-      "[1 mark] AIDS is caused by the HIV virus (not a bacterium) and spreads mainly through sexual contact, blood and from mother to child - not by sharing food or water. Both statements are false. Answer: Both A and R are false."
+      "[1 mark] AIDS is caused by the HIV virus (not a bacterium) and spreads mainly through sexual contact, blood and from mother to child - not by sharing food or water. Both statements are false. Answer: Both A and R are false. Answer: (D)"
     ],
     "finalAnswer": "Both A and R are false",
     "isCompetencyBased": false,
@@ -578,7 +578,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] The vagina is called the birth canal precisely because the baby is delivered through it, so R correctly explains A. Answer: Both A and R are true and R is the correct explanation of A."
+      "[1 mark] The vagina is called the birth canal precisely because the baby is delivered through it, so R correctly explains A. Answer: Both A and R are true and R is the correct explanation of A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,
@@ -603,7 +603,7 @@ export const REPRODUCE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A",
     "solutionSteps": [
-      "[1 mark] DNA carries the blueprint of the body; copying it passes characters to the offspring, which is why DNA copying is essential - R correctly explains A. Answer: Both A and R are true and R is the correct explanation of A."
+      "[1 mark] DNA carries the blueprint of the body; copying it passes characters to the offspring, which is why DNA copying is essential - R correctly explains A. Answer: Both A and R are true and R is the correct explanation of A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A",
     "isCompetencyBased": false,

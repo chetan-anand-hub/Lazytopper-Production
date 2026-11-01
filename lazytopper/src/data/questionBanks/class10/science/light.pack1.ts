@@ -5,51 +5,51 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Recall the fundamental laws of reflection of light.",
       "One of the laws states that the angle of incidence is always equal to the angle of reflection.",
-      "Therefore, this statement describes the Law of Reflection.",
+      "Therefore, this statement describes the Law of Reflection. Answer: (B)",
     ],
   },
   { id: "LT-E02", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A concave mirror is used in:", options: ["Rear-view mirrors", "Torches and headlights", "Periscopes", "Kaleidoscopes"], answer: "Torches and headlights", explanation: "The correct answer is Torches and headlights. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Torches and headlights" , isCompetencyBased: false,
     solutionSteps: [
       "Identify the property of a concave mirror to produce a parallel beam of light when a light source is placed at its focus.",
       "This property is useful in applications requiring a strong, parallel beam of light.",
-      "Torches and headlights utilize concave mirrors to achieve this effect for illumination.",
+      "Torches and headlights utilize concave mirrors to achieve this effect for illumination. Answer: (B)",
     ],
   },
   { id: "LT-E03", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The SI unit of power of a lens is:", options: ["Metre", "Centimetre", "Dioptre", "Hertz"], answer: "Dioptre", explanation: "The correct answer is Dioptre. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Dioptre" , isCompetencyBased: false,
     solutionSteps: [
       "Recall the definition of the power of a lens, which is the reciprocal of its focal length (in meters).",
       "The SI unit for the power of a lens is specifically named after this concept.",
-      "The SI unit of power of a lens is Dioptre (D).",
+      "The SI unit of power of a lens is Dioptre (D). Answer: (C)",
     ],
   },
   { id: "LT-E04", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The image formed by a plane mirror is:", options: ["Real and inverted", "Virtual and erect", "Real and erect", "Virtual and inverted"], answer: "Virtual and erect", explanation: "The correct answer is Virtual and erect. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Virtual and erect" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Virtual and erect. A plane mirror forms an image that is virtual, erect, of the same size as the object, and as far behind the mirror as the object is in front of it.",
+      "Correct answer: Virtual and erect. A plane mirror forms an image that is virtual, erect, of the same size as the object, and as far behind the mirror as the object is in front of it. Answer: (B)",
     ],
   },
   { id: "LT-E05", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The refractive index of glass is approximately:", options: ["1.0", "1.33", "1.5", "2.42"], answer: "1.5", explanation: "The correct answer is 1.5. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1.5" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: 1.5. The refractive index of crown glass is about 1.52, so the refractive index of glass is approximately 1.5.",
+      "Correct answer: 1.5. The refractive index of crown glass is about 1.52, so the refractive index of glass is approximately 1.5. Answer: (C)",
     ],
   },
   { id: "LT-E06", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Convex mirrors are used as rear-view mirrors in vehicles.\nReason (R): Convex mirrors always form erect, diminished images and have a wider field of view.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, and R is the correct explanation of A. A is true: convex mirrors are used as rear-view (wing) mirrors in vehicles. R is true: a convex mirror always forms an erect, diminished image, and being curved outwards it gives a wider field of view, so the driver can see a large area behind; this explains A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: convex mirrors are used as rear-view (wing) mirrors in vehicles. R is true: a convex mirror always forms an erect, diminished image, and being curved outwards it gives a wider field of view, so the driver can see a large area behind; this explains A. Answer: (A)",
     ],
   },
   { id: "LT-E07", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A convex lens is also known as:", options: ["Diverging lens", "Converging lens", "Plano lens", "Concavo-convex lens"], answer: "Converging lens", explanation: "The correct answer is Converging lens. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Converging lens" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Converging lens. A convex lens is thicker in the middle and bends parallel rays of light so that they converge (meet) at its principal focus, so it is called a converging lens.",
+      "Correct answer: Converging lens. A convex lens is thicker in the middle and bends parallel rays of light so that they converge (meet) at its principal focus, so it is called a converging lens. Answer: (B)",
     ],
   },
-  { id: "LT-E08", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The focal length of a concave mirror is 15 cm. Its radius of curvature is:", options: ["7.5 cm", "15 cm", "30 cm", "45 cm"], answer: "30 cm", explanation: "R = 2f = 2 × 15 = 30 cm. Therefore, the correct answer is 30 cm.", solutionSteps: ["R = 2f = 2 × 15 = 30 cm"], finalAnswer: "30 cm" , isCompetencyBased: false },
+  { id: "LT-E08", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The focal length of a concave mirror is 15 cm. Its radius of curvature is:", options: ["7.5 cm", "15 cm", "30 cm", "45 cm"], answer: "30 cm", explanation: "R = 2f = 2 × 15 = 30 cm. Therefore, the correct answer is 30 cm.", solutionSteps: ["R = 2f = 2 × 15 = 30 cm Answer: (C)"], finalAnswer: "30 cm" , isCompetencyBased: false },
   { id: "LT-E09", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering", questionText: "State Snell's law of refraction.", solutionSteps: [
       "The ratio of sine of angle of incidence to sine of angle of refraction is constant [1]",
       "sin i / sin r = n₂/n₁ = constant (refractive index) [1]",
     ], finalAnswer: "sin i / sin r = constant = refractive index" , isCompetencyBased: false },
   { id: "LT-E10", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mirror formula is:", options: ["1/v + 1/u = 1/f", "1/v − 1/u = 1/f", "v + u = f", "v − u = f"], answer: "1/v + 1/u = 1/f", explanation: "The correct answer is 1/v + 1/u = 1/f. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1/v + 1/u = 1/f" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: 1/v + 1/u = 1/f. The mirror formula relates the object distance u, the image distance v and the focal length f of a spherical mirror as 1/v + 1/u = 1/f.",
+      "Correct answer: 1/v + 1/u = 1/f. The mirror formula relates the object distance u, the image distance v and the focal length f of a spherical mirror as 1/v + 1/u = 1/f. Answer: (A)",
     ],
   },
   { id: "LT-E11", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): A pencil partly immersed in water appears bent at the surface.\nReason (R): Light bends when it passes from water to air (refraction).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
@@ -57,12 +57,12 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
       "Assertion (A) states that a stick partially immersed in water appears bent. This phenomenon is observed due to the refraction of light.",
       "Reason (R) states that light bends when it travels from one medium to another. This is the definition of refraction.",
       "The bending of light (refraction) as it passes from water to air causes the light rays from the immersed part of the stick to appear to come from a different position, making the stick look bent.",
-      "Therefore, both A and R are true, and R is the correct explanation for A.",
+      "Therefore, both A and R are true, and R is the correct explanation for A. Answer: (A)",
     ],
   },
   { id: "LT-E12", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For a concave mirror, the centre of curvature lies:", options: ["Behind the mirror", "In front of the mirror", "At the pole", "At infinity"], answer: "In front of the mirror", explanation: "The correct answer is In front of the mirror. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "In front of the mirror" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: In front of the mirror. The reflecting surface of a concave mirror faces towards the centre of the sphere of which it is a part, so its centre of curvature C lies in front of the mirror.",
+      "Correct answer: In front of the mirror. The reflecting surface of a concave mirror faces towards the centre of the sphere of which it is a part, so its centre of curvature C lies in front of the mirror. Answer: (B)",
     ],
   },
   { id: "LT-E13", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Define the terms: (i) Focal length of a lens (ii) Principal axis.", solutionSteps: [
@@ -71,12 +71,12 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) Distance from optical centre to focus (ii) Line through optical centre ⊥ to lens" , isCompetencyBased: false },
   { id: "LT-E14", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "When an object is placed between the pole and focus of a concave mirror, the image is:", options: ["Real, inverted, magnified", "Virtual, erect, magnified", "Real, inverted, diminished", "Virtual, erect, diminished"], answer: "Virtual, erect, magnified", explanation: "The correct answer is Virtual, erect, magnified. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Virtual, erect, magnified" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Virtual, erect, magnified. When the object is between the pole P and the focus F of a concave mirror, the reflected rays diverge and appear to meet behind the mirror, so the image is virtual, erect and enlarged (magnified).",
+      "Correct answer: Virtual, erect, magnified. When the object is between the pole P and the focus F of a concave mirror, the reflected rays diverge and appear to meet behind the mirror, so the image is virtual, erect and enlarged (magnified). Answer: (B)",
     ],
   },
   { id: "LT-E15", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The lens formula is:", options: ["1/v − 1/u = 1/f", "1/v + 1/u = 1/f", "v/u = f", "v − u = 2f"], answer: "1/v − 1/u = 1/f", explanation: "The correct answer is 1/v − 1/u = 1/f. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1/v − 1/u = 1/f" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: 1/v − 1/u = 1/f. The lens formula relates the object distance u, the image distance v and the focal length f of a spherical lens as 1/v − 1/u = 1/f.",
+      "Correct answer: 1/v − 1/u = 1/f. The lens formula relates the object distance u, the image distance v and the focal length f of a spherical lens as 1/v − 1/u = 1/f. Answer: (A)",
     ],
   },
   { id: "LT-M01", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "An object is placed 30 cm in front of a concave mirror of focal length 15 cm. Find the position, nature, and magnification of the image using the mirror formula.", solutionSteps: [
@@ -96,7 +96,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) At C: real, inverted, same size (ii) Between F & C: beyond C, real, inverted, magnified" , visualExplainerId: "science-light-reflection-of-light", isCompetencyBased: false },
   { id: "LT-M04", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Light travels slower in glass than in air.\nReason (R): The refractive index of glass is greater than 1.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, and R is the correct explanation of A. A is true: the speed of light in glass (about 2 × 10⁸ m/s) is less than in air (about 3 × 10⁸ m/s). R is true: the refractive index of glass (about 1.5) is greater than 1. Since refractive index n = speed of light in air / speed of light in the medium, n > 1 means light is slower in glass, so R explains A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: the speed of light in glass (about 2 × 10⁸ m/s) is less than in air (about 3 × 10⁸ m/s). R is true: the refractive index of glass (about 1.5) is greater than 1. Since refractive index n = speed of light in air / speed of light in the medium, n > 1 means light is slower in glass, so R explains A. Answer: (A)",
     ],
   },
   { id: "LT-M05", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A dentist uses a small mirror to examine teeth.\n(i) What type of mirror does the dentist use?\n(ii) Why is this type preferred?\n(iii) Where is the tooth placed relative to the mirror?\n(iv) What is the nature of the image formed?", solutionSteps: [
@@ -112,7 +112,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "P = +1 D; f = 100 cm (converging)" , isCompetencyBased: true },
   { id: "LT-M07", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "An object placed at the centre of curvature of a concave mirror will form an image that is:", options: ["At focus, diminished", "At C, same size, inverted", "At infinity", "Between F and C, magnified"], answer: "At C, same size, inverted", explanation: "The correct answer is At C, same size, inverted. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "At C, same size, inverted" , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: At C, same size, inverted. When the object is at the centre of curvature C of a concave mirror, the reflected rays meet at C, so the image is formed at C, is real and inverted, and is of the same size as the object.",
+      "Correct answer: At C, same size, inverted. When the object is at the centre of curvature C of a concave mirror, the reflected rays meet at C, so the image is formed at C, is real and inverted, and is of the same size as the object. Answer: (B)",
     ],
   },
   { id: "LT-M08", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A student performed an experiment with a glass slab and observed that the emergent ray is parallel to the incident ray but shifted.\n(i) What is this shift called?\n(ii) Why does the ray bend at the first surface?\n(iii) Why does it bend again at the second surface?\n(iv) Does the glass slab change the direction of the emergent ray compared to the incident ray?", solutionSteps: [
@@ -126,10 +126,10 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
       "For virtual image (erect), m is positive [½]",
       "m = +3 (image is 3 times larger and erect) [1]",
     ], finalAnswer: "m = h'/h = −v/u; for virtual erect image m = +3" , isCompetencyBased: false },
-  { id: "LT-M10", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the power of a lens is −2.5 D, its focal length is:", options: ["+40 cm", "−40 cm", "+25 cm", "−25 cm"], answer: "−40 cm", explanation: "f = 1/P = 1/(−2.5) = −0.4 m = −40 cm. Therefore, the correct answer is −40 cm.", solutionSteps: ["f = 1/P = 1/(−2.5) = −0.4 m = −40 cm"], finalAnswer: "−40 cm" , isCompetencyBased: true },
+  { id: "LT-M10", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the power of a lens is −2.5 D, its focal length is:", options: ["+40 cm", "−40 cm", "+25 cm", "−25 cm"], answer: "−40 cm", explanation: "f = 1/P = 1/(−2.5) = −0.4 m = −40 cm. Therefore, the correct answer is −40 cm.", solutionSteps: ["f = 1/P = 1/(−2.5) = −0.4 m = −40 cm Answer: (B)"], finalAnswer: "−40 cm" , isCompetencyBased: true },
   { id: "LT-M11", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A concave mirror can form both real and virtual images.\nReason (R): The image formed depends on the position of the object relative to the focal point.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, and R is the correct explanation of A. A is true: a concave mirror forms real, inverted images when the object is beyond F, and a virtual, erect image when the object is between P and F. R is true: the nature of the image depends on where the object is placed relative to the focus, which is exactly why the same mirror can give both kinds of image, so R explains A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: a concave mirror forms real, inverted images when the object is beyond F, and a virtual, erect image when the object is between P and F. R is true: the nature of the image depends on where the object is placed relative to the focus, which is exactly why the same mirror can give both kinds of image, so R explains A. Answer: (A)",
     ],
   },
   { id: "LT-M12", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The refractive index of water is 1.33. If the speed of light in vacuum is 3 × 10⁸ m/s, find the speed of light in water.", solutionSteps: [
@@ -138,7 +138,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "v ≈ 2.26 × 10⁸ m/s" , isCompetencyBased: true },
   { id: "LT-M13", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "When light passes from a denser to a rarer medium, it bends:", options: ["Towards the normal", "Away from the normal", "Does not bend", "Along the normal"], answer: "Away from the normal", explanation: "The correct answer is Away from the normal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Away from the normal" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Away from the normal. When a ray of light goes from an optically denser medium to a rarer medium, its speed increases and it bends away from the normal.",
+      "Correct answer: Away from the normal. When a ray of light goes from an optically denser medium to a rarer medium, its speed increases and it bends away from the normal. Answer: (B)",
     ],
   },
   { id: "LT-M14", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "State two differences between real and virtual images.", solutionSteps: [
@@ -148,7 +148,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Real: converge, on screen, inverted; Virtual: diverge, not on screen, erect" , isCompetencyBased: false },
   { id: "LT-M15", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "An object is placed at 2F₁ of a convex lens. The image formed is:", options: ["At F₂, real, diminished", "At 2F₂, real, same size", "Beyond 2F₂, real, magnified", "Virtual, erect, magnified"], answer: "At 2F₂, real, same size", explanation: "The correct answer is At 2F₂, real, same size. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "At 2F₂, real, same size" , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: At 2F₂, real, same size. For an object at 2F₁ of a convex lens, the refracted rays meet at 2F₂ on the other side, so the image is formed at 2F₂, is real and inverted, and is of the same size as the object.",
+      "Correct answer: At 2F₂, real, same size. For an object at 2F₁ of a convex lens, the refracted rays meet at 2F₂ on the other side, so the image is formed at 2F₂, is real and inverted, and is of the same size as the object. Answer: (B)",
     ],
   },
   { id: "LT-H01", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Draw ray diagrams for the following positions of an object in front of a concave mirror and state the nature of the image in each case: (i) At infinity (ii) Beyond C (iii) At C (iv) Between F and C (v) At F.", solutionSteps: [
@@ -211,7 +211,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Cartesian convention: object side negative, image side positive; ensures formula consistency" , isCompetencyBased: true },
   { id: "LT-AR05", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Mirrors", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A concave mirror is used as a shaving mirror.\nReason (R): When an object is placed between the pole and focus of a concave mirror, a virtual, erect and magnified image is formed.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Both A and R are true, and R is the correct explanation of A. A is true: concave mirrors are used as shaving mirrors. R is true: when an object is placed between the pole and the focus of a concave mirror, the image is virtual, erect and magnified. A face held close to the mirror (within F) therefore gives an enlarged, upright image, so R explains A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: concave mirrors are used as shaving mirrors. R is true: when an object is placed between the pole and the focus of a concave mirror, the image is virtual, erect and magnified. A face held close to the mirror (within F) therefore gives an enlarged, upright image, so R explains A. Answer: (A)",
     ],
   },
   { id: "LT-D04", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Lenses", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain with ray diagrams the image formation by a convex lens when the object is placed (i) beyond 2F, (ii) at 2F, (iii) between F and 2F, (iv) at F, and (v) between O and F.", solutionSteps: [

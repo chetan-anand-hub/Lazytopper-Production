@@ -22,7 +22,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total outcomes when a coin is tossed = {H, T} = 2",
       "Favourable outcomes (getting heads) = {H} = 1",
-      "P(heads) = 1/2"
+      "P(heads) = 1/2 Answer: (A)"
     ],
     "finalAnswer": "1/2",
     "explanation": "Total outcomes when a coin is tossed = {H, T} = 2. Favourable outcomes (getting heads) = {H} = 1. P(heads) = 1/2. Therefore, the correct answer is 1/2.",
@@ -52,7 +52,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total outcomes = {1, 2, 3, 4, 5, 6} = 6",
       "Numbers less than 7 = {1, 2, 3, 4, 5, 6} = 6",
-      "P(number < 7) = 6/6 = 1"
+      "P(number < 7) = 6/6 = 1 Answer: (B)"
     ],
     "finalAnswer": "1",
     "explanation": "Total outcomes = {1, 2, 3, 4, 5, 6} = 6. Numbers less than 7 = {1, 2, 3, 4, 5, 6} = 6. P(number < 7) = 6/6 = 1. Therefore, the correct answer is 1.",
@@ -82,7 +82,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A sure event has probability = 1",
       "All outcomes on a die are {1, 2, 3, 4, 5, 6}",
-      "All these are ≤ 6, so it's a sure event"
+      "All these are ≤ 6, so it's a sure event Answer: (C)"
     ],
     "finalAnswer": "Getting a number ≤ 6 on rolling a die",
     "explanation": "A sure event has probability = 1. All outcomes on a die are {1, 2, 3, 4, 5, 6}. All these are ≤ 6, so it's a sure event. Therefore, the correct answer is Getting a number ≤ 6 on rolling a die.",
@@ -112,7 +112,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total cards = 52",
       "Number of aces = 4",
-      "P(ace) = 4/52 = 1/13"
+      "P(ace) = 4/52 = 1/13 Answer: (A)"
     ],
     "finalAnswer": "1/13",
     "explanation": "Total cards = 52. Number of aces = 4. P(ace) = 4/52 = 1/13. Therefore, the correct answer is 1/13.",
@@ -143,7 +143,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "P(E) + P(E') = 1",
       "P(E') = 1 - P(E)",
-      "P(E') = 1 - 0.3 = 0.7"
+      "P(E') = 1 - 0.3 = 0.7 Answer: (B)"
     ],
     "finalAnswer": "0.7",
     "explanation": "P(E) + P(E') = 1. P(E') = 1 - P(E). P(E') = 1 - 0.3 = 0.7. Therefore, the correct answer is 0.7.",
@@ -223,7 +223,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total outcomes = 6 × 6 = 36",
       "Outcomes with sum 7 = {(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)} = 6",
-      "P(sum = 7) = 6/36 = 1/6"
+      "P(sum = 7) = 6/36 = 1/6 Answer: (A)"
     ],
     "finalAnswer": "1/6",
     "explanation": "Total outcomes = 6 × 6 = 36. Outcomes with sum 7 = {(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)} = 6. P(sum = 7) = 6/36 = 1/6. Therefore, the correct answer is 1/6.",
@@ -254,7 +254,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Probability always lies between 0 and 1 (inclusive)",
       "0 ≤ P(E) ≤ 1",
-      "1.5 > 1, so it cannot be a probability"
+      "1.5 > 1, so it cannot be a probability Answer: (C)"
     ],
     "finalAnswer": "1.5",
     "explanation": "Probability always lies between 0 and 1 (inclusive). 0 ≤ P(E) ≤ 1. 1.5 > 1, so it cannot be a probability. Therefore, the correct answer is 1.5.",
@@ -360,7 +360,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total outcomes = 36",
       "Doublets = {(1,1), (2,2), (3,3), (4,4), (5,5), (6,6)} = 6",
-      "P(doublet) = 6/36 = 1/6"
+      "P(doublet) = 6/36 = 1/6 Answer: (A)"
     ],
     "finalAnswer": "1/6",
     "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
@@ -415,7 +415,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "An impossible event cannot occur, so it has 0 favourable outcomes",
       "P(impossible) = 0/n = 0",
-      "R correctly explains why A is true"
+      "R correctly explains why A is true Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -446,7 +446,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A is true: complementary events sum to 1",
       "R is false: E and E' cannot occur together; they are mutually exclusive",
-      "E and E' form a complete sample space (one always occurs)"
+      "E and E' form a complete sample space (one always occurs) Answer: (C)"
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
@@ -477,7 +477,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A is true: P(6) = 1/6",
       "R is true and gives the correct reason",
-      "Classical probability = Favourable/Total outcomes"
+      "Classical probability = Favourable/Total outcomes Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -636,7 +636,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total cards = 52",
       "Red cards (hearts + diamonds) = 13 + 13 = 26",
-      "P(red) = 26/52 = 1/2"
+      "P(red) = 26/52 = 1/2 Answer: (A)"
     ],
     "finalAnswer": "1/2",
     "explanation": "Total cards = 52. Red cards (hearts + diamonds) = 13 + 13 = 26. P(red) = 26/52 = 1/2. Therefore, the correct answer is 1/2.",
@@ -666,7 +666,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total possible outcomes when rolling a die = 6",
       "Favorable outcomes (numbers > 4) = {5, 6} = 2",
-      "Probability = Favorable outcomes / Total outcomes = 2/6 = 1/3"
+      "Probability = Favorable outcomes / Total outcomes = 2/6 = 1/3 Answer: (B)"
     ],
     "finalAnswer": "1/3",
     "explanation": "Total possible outcomes when rolling a die = 6. Favorable outcomes (numbers > 4) = {5, 6} = 2. Probability = Favorable outcomes / Total outcomes = 2/6 = 1/3. Therefore, the correct answer is 1/3.",
@@ -697,7 +697,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "An impossible event has probability = 0",
       "An impossible event cannot occur under any circumstances",
       "When rolling a die, outcomes are {1, 2, 3, 4, 5, 6}",
-      "Getting a number > 6 is impossible"
+      "Getting a number > 6 is impossible Answer: (B)"
     ],
     "finalAnswer": "Getting a number greater than 6 on rolling a die",
     "explanation": "An impossible event has probability = 0. An impossible event cannot occur under any circumstances. When rolling a die, outcomes are {1, 2, 3, 4, 5, 6}. Getting a number > 6 is impossible. Therefore, the correct answer is Getting a number greater than 6 on rolling a die.",
@@ -727,7 +727,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "By the complementary event rule: P(E) + P(not E) = 1",
       "P(not E) = 1 - P(E)",
-      "P(not E) = 1 - 0.7 = 0.3"
+      "P(not E) = 1 - 0.7 = 0.3 Answer: (A)"
     ],
     "finalAnswer": "0.3",
     "explanation": "By the complementary event rule: P(E) + P(not E) = 1. P(not E) = 1 - P(E). P(not E) = 1 - 0.7 = 0.3. Therefore, the correct answer is 0.3.",
@@ -758,7 +758,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Total cards = 52",
       "Number of aces = 4",
       "P(ace) = 4/52 = 1/13",
-      "P(not ace) = 1 - P(ace) = 1 - 1/13 = 12/13"
+      "P(not ace) = 1 - P(ace) = 1 - 1/13 = 12/13 Answer: (B)"
     ],
     "finalAnswer": "12/13",
     "explanation": "Total cards = 52. Number of aces = 4. P(ace) = 4/52 = 1/13. P(not ace) = 1 - P(ace) = 1 - 1/13 = 12/13. Therefore, the correct answer is 12/13.",
@@ -788,7 +788,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "A sure event is an event that will definitely occur",
       "The probability of a sure event is 1",
-      "Example: Getting a number between 1 and 6 on rolling a die"
+      "Example: Getting a number between 1 and 6 on rolling a die Answer: (C)"
     ],
     "finalAnswer": "1",
     "explanation": "A sure event is an event that will definitely occur. The probability of a sure event is 1. Example: Getting a number between 1 and 6 on rolling a die. Therefore, the correct answer is 1.",
@@ -820,7 +820,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Total outcomes = 2, Favorable outcome (H) = 1",
       "P(H) = 1/2 - Assertion is true",
       "R explains why P(H) = 1/2 because both outcomes are equally likely",
-      "R is the correct explanation of A"
+      "R is the correct explanation of A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -851,7 +851,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total outcomes when rolling two dice = 6 × 6 = 36",
       "Favorable outcomes for sum = 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6",
-      "P(sum = 7) = 6/36 = 1/6"
+      "P(sum = 7) = 6/36 = 1/6 Answer: (B)"
     ],
     "finalAnswer": "6/36",
     "explanation": "Total outcomes when rolling two dice = 6 × 6 = 36. Favorable outcomes for sum = 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6. P(sum = 7) = 6/36 = 1/6. Therefore, the correct answer is 6/36.",
@@ -931,7 +931,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Total numbers from 1 to 20 = 20",
       "Prime numbers: 2, 3, 5, 7, 11, 13, 17, 19 = 8 primes",
-      "P(prime) = 8/20 = 2/5"
+      "P(prime) = 8/20 = 2/5 Answer: (A)"
     ],
     "finalAnswer": "8/20",
     "explanation": "Total numbers from 1 to 20 = 20. Prime numbers: 2, 3, 5, 7, 11, 13, 17, 19 = 8 primes. P(prime) = 8/20 = 2/5. Therefore, the correct answer is 8/20.",
@@ -961,7 +961,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "An impossible event has probability 0",
       "When rolling a standard die, maximum number is 6",
-      "Getting a number > 100 is impossible, so P = 0"
+      "Getting a number > 100 is impossible, so P = 0 Answer: (C)"
     ],
     "finalAnswer": "Getting a number greater than 100 when rolling a die",
     "explanation": "An impossible event has probability 0. When rolling a standard die, maximum number is 6. Getting a number > 100 is impossible, so P = 0. Therefore, the correct answer is Getting a number greater than 100 when rolling a die.",
@@ -993,7 +993,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(E) + P(not E) = 1 is a fundamental rule - A is true",
       "Event E and not E cannot occur simultaneously (mutually exclusive)",
       "One of them must occur (exhaustive)",
-      "R correctly explains why the sum is 1"
+      "R correctly explains why the sum is 1 Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1051,7 +1051,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Total students = 40",
       "Students who like math = 24",
       "Students who don't like math = 40 - 24 = 16",
-      "P(not like math) = 16/40 = 2/5"
+      "P(not like math) = 16/40 = 2/5 Answer: (B)"
     ],
     "finalAnswer": "2/5",
     "explanation": "Total students = 40. Students who like math = 24. Students who don't like math = 40 - 24 = 16. P(not like math) = 16/40 = 2/5. Therefore, the correct answer is 2/5.",
@@ -1107,7 +1107,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(E) = (number of favourable outcomes)/(total number of outcomes)",
       "0 ≤ favourable outcomes ≤ total outcomes, so R is true",
       "Dividing by the total gives 0 ≤ P(E) ≤ 1, so A is true",
-      "R directly gives the bound in A, so R is the correct explanation of A"
+      "R directly gives the bound in A, so R is the correct explanation of A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both A and R are true. Since P(E) = favourable/total and 0 ≤ favourable ≤ total, dividing by the total gives 0 ≤ P(E) ≤ 1. So R is the correct explanation of A.",
@@ -1239,60 +1239,60 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   },
   { id: "PR2-046", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A die is thrown once. The probability of getting a prime number is:", options: ["1/2","1/3","2/3","1/6"], answer: "1/2", explanation: "The correct answer is 1/2. Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", finalAnswer: "1/2", isCompetencyBased: false,
     solutionSteps: [
-      "The prime numbers on a die are 2, 3 and 5, so P(prime) = 3/6 = 1/2. [1]",
+      "The prime numbers on a die are 2, 3 and 5, so P(prime) = 3/6 = 1/2. [1] Answer: (A)",
     ],
   },
   { id: "PR2-047", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A card is drawn from a pack of 52 cards. The probability of drawing a spade is:", options: ["1/4","1/13","1/52","3/4"], answer: "1/4", explanation: "The correct answer is 1/4. There are 13 spades in 52 cards. P = 13/52 = 1/4.", finalAnswer: "1/4", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (a) 1/4 is correct: a pack has 13 spades out of 52 cards, so P(spade) = 13/52 = 1/4.",
+      "[1 mark] Option (a) 1/4 is correct: a pack has 13 spades out of 52 cards, so P(spade) = 13/52 = 1/4. Answer: (A)",
     ],
   },
   { id: "PR2-048", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If P(E) = 0.3, then P(Ē) is:", options: ["0.7","0.3","0","1"], answer: "0.7", explanation: "The correct answer is 0.7. P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", finalAnswer: "0.7", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] P(E) + P(Ē) = 1, so P(Ē) = 1 − 0.3 = 0.7.",
+      "[1 mark] P(E) + P(Ē) = 1, so P(Ē) = 1 − 0.3 = 0.7. Answer: (A)",
     ],
   },
   { id: "PR2-049", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two coins are tossed simultaneously. The probability of getting exactly one head is:", options: ["1/2","1/4","3/4","2/3"], answer: "1/2", explanation: "The correct answer is 1/2. Sample space: HH, HT, TH, TT. Exactly one head: HT, TH. P = 2/4 = 1/2.", finalAnswer: "1/2", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Sample space = {HH, HT, TH, TT}, 4 equally likely outcomes. Exactly one head: HT, TH = 2 outcomes. P = 2/4 = 1/2.",
+      "[1 mark] Sample space = {HH, HT, TH, TT}, 4 equally likely outcomes. Exactly one head: HT, TH = 2 outcomes. P = 2/4 = 1/2. Answer: (A)",
     ],
   },
   { id: "PR2-050", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A bag contains 3 red, 5 blue, and 2 green balls. The probability of drawing a blue ball is:", options: ["1/2", "1/5", "2/5", "3/10"], answer: "1/2", explanation: "The correct answer is 1/2. P = 5/10 = 1/2.", finalAnswer: "P = 5/10 = 1/2.", isCompetencyBased: false,
     solutionSteps: [
       "Total balls = 3 + 5 + 2 = 10; blue balls = 5",
-      "P(blue) = 5/10 = 1/2"
+      "P(blue) = 5/10 = 1/2 Answer: (A)"
     ],
     sourceOverride: "others",
   },
   { id: "PR2-051", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A letter is selected at random from the word \"MATHEMATICS\". The probability of selecting a vowel is:", options: ["4/11","5/11","3/11","7/11"], answer: "4/11", explanation: "The correct answer is 4/11. MATHEMATICS has 11 letters. Vowels: A, E, A, I = 4 vowels. P = 4/11.", finalAnswer: "4/11", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] MATHEMATICS has 11 letters: M, A, T, H, E, M, A, T, I, C, S. Vowels: A, E, A, I = 4. P(vowel) = 4/11.",
+      "[1 mark] MATHEMATICS has 11 letters: M, A, T, H, E, M, A, T, I, C, S. Vowels: A, E, A, I = 4. P(vowel) = 4/11. Answer: (A)",
     ],
   },
   { id: "PR2-052", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "From a pack of 52 cards, a card is drawn. The probability that it is a king or a queen is:", options: ["2/13","1/13","4/52","8/52"], answer: "2/13", explanation: "The correct answer is 2/13. Kings: 4, Queens: 4. Total: 8. P = 8/52 = 2/13.", finalAnswer: "Kings: 4, Queens: 4. Total: 8. P = 8/52 = 2/13.", isCompetencyBased: false,
     solutionSteps: [
       "Total number of cards in a pack = 52.",
       "Number of kings = 4, Number of queens = 4. So, favorable outcomes (king or queen) = 4 + 4 = 8.",
-      "Probability P(King or Queen) = (Favorable outcomes) / (Total outcomes) = 8/52 = 2/13.",
+      "Probability P(King or Queen) = (Favorable outcomes) / (Total outcomes) = 8/52 = 2/13. Answer: (A)",
     ],
   },
   { id: "PR2-053", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two dice are thrown simultaneously. The probability of getting a sum of 7 is:", options: ["1/6","5/36","7/36","1/9"], answer: "1/6", explanation: "The correct answer is 1/6. Favorable outcomes for sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6. P = 6/36 = 1/6.", finalAnswer: "Favorable outcomes for sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6. P = 6/36 = 1/6.", isCompetencyBased: false,
     solutionSteps: [
       "Total possible outcomes when two dice are thrown = 6 * 6 = 36.",
       "Favorable outcomes for a sum of 7 are: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). There are 6 such outcomes.",
-      "Probability P(sum of 7) = (Favorable outcomes) / (Total outcomes) = 6/36 = 1/6.",
+      "Probability P(sum of 7) = (Favorable outcomes) / (Total outcomes) = 6/36 = 1/6. Answer: (A)",
     ],
   },
   { id: "PR2-054", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The probability of an event that is certain to happen is:", options: ["0","0.5","1",">1"], answer: "1", explanation: "The correct answer is 1. A certain event has P = 1 — it always occurs.", finalAnswer: "A certain event has P = 1 — it always occurs.", isCompetencyBased: false,
     solutionSteps: [
       "An event that is certain to happen is called a sure event.",
       "For a sure event, the number of favorable outcomes is equal to the total number of possible outcomes.",
-      "Therefore, the probability of a certain event is (Total outcomes) / (Total outcomes) = 1.",
+      "Therefore, the probability of a certain event is (Total outcomes) / (Total outcomes) = 1. Answer: (C)",
     ],
   },
   { id: "PR2-055", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The probability of getting a number greater than 3 when a die is thrown is 1/2.\nReason (R): Numbers greater than 3 on a die are 4, 5, 6 — which are 3 out of 6 outcomes.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "P(>3) = 3/6 = 1/2. R identifies the favorable outcomes, explaining A correctly.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "The numbers greater than 3 on a die are 4, 5 and 6, which are 3 of the 6 equally likely outcomes, so P = 3/6 = 1/2: A and R are both true, and R explains A. [1]",
+      "The numbers greater than 3 on a die are 4, 5 and 6, which are 3 of the 6 equally likely outcomes, so P = 3/6 = 1/2: A and R are both true, and R explains A. [1] Answer: (A)",
     ],
   }
 ];

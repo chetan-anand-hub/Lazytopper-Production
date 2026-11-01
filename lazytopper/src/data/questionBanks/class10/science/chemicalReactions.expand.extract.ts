@@ -13,7 +13,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following is an exothermic reaction?",
     options: ["Electrolysis of water", "Conversion of limestone into quicklime", "Process of respiration", "Process of photosynthesis"],
     answer: "Process of respiration",
-    solutionSteps: ["[1 mark] Respiration is the oxidation of glucose that releases energy to maintain body temperature, so it is an exothermic reaction; electrolysis, calcination of limestone and photosynthesis all absorb energy (endothermic)."],
+    solutionSteps: ["[1 mark] Respiration is the oxidation of glucose that releases energy to maintain body temperature, so it is an exothermic reaction; electrolysis, calcination of limestone and photosynthesis all absorb energy (endothermic). Answer: (C)"],
     finalAnswer: "Process of respiration", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -23,7 +23,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The removal of oxygen from a substance during a chemical reaction is called:",
     options: ["Oxidation", "Corrosion", "Reduction", "Rancidity"],
     answer: "Reduction",
-    solutionSteps: ["[1 mark] Reduction is defined as the loss (removal) of oxygen or the gain of hydrogen by a substance; therefore removal of oxygen is reduction."],
+    solutionSteps: ["[1 mark] Reduction is defined as the loss (removal) of oxygen or the gain of hydrogen by a substance; therefore removal of oxygen is reduction. Answer: (C)"],
     finalAnswer: "Reduction", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -33,7 +33,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The chemical reaction involved in the corrosion (rusting) of iron metal is that of:",
     options: ["Oxidation as well as displacement", "Reduction as well as combination", "Oxidation as well as combination", "Reduction as well as displacement"],
     answer: "Oxidation as well as combination",
-    solutionSteps: ["[1 mark] In rusting, iron gains oxygen (oxidation) and iron combines with oxygen and moisture to form hydrated iron(III) oxide (combination); hence corrosion is both an oxidation and a combination reaction."],
+    solutionSteps: ["[1 mark] In rusting, iron gains oxygen (oxidation) and iron combines with oxygen and moisture to form hydrated iron(III) oxide (combination); hence corrosion is both an oxidation and a combination reaction. Answer: (C)"],
     finalAnswer: "Oxidation as well as combination", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -43,7 +43,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which among the following is getting reduced in the reaction: Fe₂O₃ + 3CO → 2Fe + 3CO₂?",
     options: ["CO", "Fe", "CO₂", "Fe₂O₃"],
     answer: "Fe₂O₃",
-    solutionSteps: ["[1 mark] Fe₂O₃ loses oxygen to form Fe, so ferric oxide (Fe₂O₃) is reduced, while CO gains oxygen to become CO₂ (oxidised)."],
+    solutionSteps: ["[1 mark] Fe₂O₃ loses oxygen to form Fe, so ferric oxide (Fe₂O₃) is reduced, while CO gains oxygen to become CO₂ (oxidised). Answer: (D)"],
     finalAnswer: "Fe₂O₃", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -53,7 +53,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A white precipitate will be formed if we add common salt (sodium chloride) solution to:",
     options: ["Ba(NO₃)₂ solution", "KNO₃ solution", "AgNO₃ solution", "Mg(NO₃)₂ solution"],
     answer: "AgNO₃ solution",
-    solutionSteps: ["[1 mark] NaCl reacts with silver nitrate in a double displacement reaction, AgNO₃ + NaCl → AgCl↓ + NaNO₃, forming a white precipitate of silver chloride; the other nitrates give no precipitate with chloride."],
+    solutionSteps: ["[1 mark] NaCl reacts with silver nitrate in a double displacement reaction, AgNO₃ + NaCl → AgCl↓ + NaNO₃, forming a white precipitate of silver chloride; the other nitrates give no precipitate with chloride. Answer: (C)"],
     finalAnswer: "AgNO₃ solution", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -63,7 +63,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "In the context of redox reactions, the removal of hydrogen from a substance is known as:",
     options: ["Oxidation", "Dehydration", "Reduction", "Hydrogenation"],
     answer: "Oxidation",
-    solutionSteps: ["[1 mark] Oxidation is the addition of oxygen or the removal (loss) of hydrogen from a substance; therefore removal of hydrogen is oxidation."],
+    solutionSteps: ["[1 mark] Oxidation is the addition of oxygen or the removal (loss) of hydrogen from a substance; therefore removal of hydrogen is oxidation. Answer: (A)"],
     finalAnswer: "Oxidation", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -73,7 +73,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "In the preparation of soap, a small amount of sodium chloride (common salt) is added to the mixture of fat and sodium hydroxide. The role of the common salt is to:",
     options: ["Favour the precipitation of soap", "Enhance the cleansing capacity of soap", "Increase the weight of the soap", "Decrease the acidity of the soap"],
     answer: "Favour the precipitation of soap",
-    solutionSteps: ["[1 mark] Adding common salt reduces the solubility of soap in the solution so that the soap separates out (precipitates) from the reaction mixture during the process of salting out."],
+    solutionSteps: ["[1 mark] Adding common salt reduces the solubility of soap in the solution so that the soap separates out (precipitates) from the reaction mixture during the process of salting out. Answer: (A)"],
     finalAnswer: "Favour the precipitation of soap", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -83,7 +83,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following does NOT happen during a chemical reaction?",
     options: ["Breaking of old chemical bonds and formation of new chemical bonds", "Formation of new substances with entirely different properties", "Atoms of one element change into those of another element to form new products", "A rearrangement of atoms takes place to form new products"],
     answer: "Atoms of one element change into those of another element to form new products",
-    solutionSteps: ["[1 mark] In a chemical reaction atoms are only rearranged; one element is never converted into another element (that would be a nuclear change), so this statement does not happen during a chemical reaction."],
+    solutionSteps: ["[1 mark] In a chemical reaction atoms are only rearranged; one element is never converted into another element (that would be a nuclear change), so this statement does not happen during a chemical reaction. Answer: (C)"],
     finalAnswer: "Atoms of one element change into those of another element to form new products", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -93,7 +93,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The process of respiration is:",
     options: ["An oxidation reaction which is endothermic", "A reduction reaction which is exothermic", "A combination reaction which is endothermic", "An oxidation reaction which is exothermic"],
     answer: "An oxidation reaction which is exothermic",
-    solutionSteps: ["[1 mark] During respiration glucose is oxidised (gains oxygen) and energy is released, so respiration is an oxidation reaction that is exothermic."],
+    solutionSteps: ["[1 mark] During respiration glucose is oxidised (gains oxygen) and energy is released, so respiration is an oxidation reaction that is exothermic. Answer: (D)"],
     finalAnswer: "An oxidation reaction which is exothermic", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -103,7 +103,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The equation Mg(s) + CuO(s) → MgO(s) + Cu(s) represents:",
     options: ["Decomposition reaction as well as displacement reaction", "Combination reaction as well as double displacement reaction", "Redox reaction as well as displacement reaction", "Double displacement reaction as well as redox reaction"],
     answer: "Redox reaction as well as displacement reaction",
-    solutionSteps: ["[1 mark] Mg gains oxygen (oxidised) and CuO loses oxygen (reduced), making it a redox reaction; Mg also displaces Cu from copper oxide, so it is also a displacement reaction."],
+    solutionSteps: ["[1 mark] Mg gains oxygen (oxidised) and CuO loses oxygen (reduced), making it a redox reaction; Mg also displaces Cu from copper oxide, so it is also a displacement reaction. Answer: (C)"],
     finalAnswer: "Redox reaction as well as displacement reaction", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -113,7 +113,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following salts can be decomposed by the action of light (photolytic decomposition)?",
     options: ["NaCl", "KCl", "AgCl", "CuCl"],
     answer: "AgCl",
-    solutionSteps: ["[1 mark] Silver chloride undergoes photolytic decomposition, 2AgCl →(sunlight) 2Ag + Cl₂, turning grey; the other chlorides are stable in light."],
+    solutionSteps: ["[1 mark] Silver chloride undergoes photolytic decomposition, 2AgCl →(sunlight) 2Ag + Cl₂, turning grey; the other chlorides are stable in light. Answer: (C)"],
     finalAnswer: "AgCl", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -133,7 +133,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The colour of an aqueous solution of zinc sulphate, as observed in the laboratory, is:",
     options: ["Green", "Yellow", "Blue", "Colourless"],
     answer: "Colourless",
-    solutionSteps: ["[1 mark] Zinc sulphate solution is colourless because the zinc ion (Zn²⁺) has no unpaired d-electrons that absorb visible light, unlike coloured salts such as copper sulphate."],
+    solutionSteps: ["[1 mark] Zinc sulphate solution is colourless because the zinc ion (Zn²⁺) has no unpaired d-electrons that absorb visible light, unlike coloured salts such as copper sulphate. Answer: (D)"],
     finalAnswer: "Colourless", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -143,7 +143,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A chemical reaction between two substances is characterised by a change in colour from orange to green. These two substances are most likely to be:",
     options: ["Potassium dichromate solution and sulphur dioxide", "Potassium permanganate solution and sulphur dioxide", "Potassium permanganate solution and lemon juice", "Potassium dichromate solution and carbon dioxide"],
     answer: "Potassium dichromate solution and sulphur dioxide",
-    solutionSteps: ["[1 mark] Orange potassium dichromate is reduced by sulphur dioxide to green chromium(III) ions, giving the orange-to-green colour change; permanganate gives a purple-to-colourless change instead."],
+    solutionSteps: ["[1 mark] Orange potassium dichromate is reduced by sulphur dioxide to green chromium(III) ions, giving the orange-to-green colour change; permanganate gives a purple-to-colourless change instead. Answer: (A)"],
     finalAnswer: "Potassium dichromate solution and sulphur dioxide", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -153,7 +153,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which one of the following is an endothermic reaction?",
     options: ["Combination of carbon and oxygen to form carbon monoxide", "Combination of nitrogen and oxygen to form nitrogen monoxide", "Combination of glucose and oxygen to form carbon dioxide and water", "Combination of zinc and hydrochloric acid to form zinc chloride and hydrogen"],
     answer: "Combination of nitrogen and oxygen to form nitrogen monoxide",
-    solutionSteps: ["[1 mark] The combination of nitrogen and oxygen to form nitrogen monoxide absorbs energy (occurs at high temperature), so it is endothermic; the other three release heat and are exothermic."],
+    solutionSteps: ["[1 mark] The combination of nitrogen and oxygen to form nitrogen monoxide absorbs energy (occurs at high temperature), so it is endothermic; the other three release heat and are exothermic. Answer: (B)"],
     finalAnswer: "Combination of nitrogen and oxygen to form nitrogen monoxide", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -163,7 +163,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "An acid which can decolourise purple coloured potassium permanganate solution is:",
     options: ["Sulphuric acid", "Citric acid", "Carbonic acid", "Hydrochloric acid"],
     answer: "Citric acid",
-    solutionSteps: ["[1 mark] Citric acid is a mild reducing agent that reduces (decolourises) purple potassium permanganate; dilute sulphuric, carbonic and hydrochloric acids do not reduce it under these conditions."],
+    solutionSteps: ["[1 mark] Citric acid is a mild reducing agent that reduces (decolourises) purple potassium permanganate; dilute sulphuric, carbonic and hydrochloric acids do not reduce it under these conditions. Answer: (B)"],
     finalAnswer: "Citric acid", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -173,7 +173,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Iron nails were dipped in an aqueous solution of copper sulphate. After about 30 minutes it was observed that the colour of the solution changed from:",
     options: ["Colourless to light green", "Blue to light green", "Blue to colourless", "Green to blue"],
     answer: "Blue to light green",
-    solutionSteps: ["[1 mark] Iron displaces copper from copper sulphate, Fe + CuSO₄ → FeSO₄ + Cu, so the blue copper sulphate solution changes to light green ferrous sulphate solution."],
+    solutionSteps: ["[1 mark] Iron displaces copper from copper sulphate, Fe + CuSO₄ → FeSO₄ + Cu, so the blue copper sulphate solution changes to light green ferrous sulphate solution. Answer: (B)"],
     finalAnswer: "Blue to light green", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -183,7 +183,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A white precipitate can be obtained by adding dilute sulphuric acid to:",
     options: ["CuSO₄ solution", "NaCl solution", "BaCl₂ solution", "Na₂SO₄ solution"],
     answer: "BaCl₂ solution",
-    solutionSteps: ["[1 mark] Dilute sulphuric acid reacts with barium chloride in a double displacement reaction, BaCl₂ + H₂SO₄ → BaSO₄↓ + 2HCl, giving a white precipitate of insoluble barium sulphate."],
+    solutionSteps: ["[1 mark] Dilute sulphuric acid reacts with barium chloride in a double displacement reaction, BaCl₂ + H₂SO₄ → BaSO₄↓ + 2HCl, giving a white precipitate of insoluble barium sulphate. Answer: (C)"],
     finalAnswer: "BaCl₂ solution", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -193,7 +193,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Consider the double displacement reaction between sodium sulphate solution and barium chloride solution. Which of the following statements are correct?\n(A) Exchange of atoms takes place.\n(B) Exchange of ions takes place.\n(C) A precipitate is produced.\n(D) An insoluble salt is produced.",
     options: ["(B) and (D)", "(A) and (C)", "Only (B)", "(B), (C) and (D)"],
     answer: "(B), (C) and (D)",
-    solutionSteps: ["[1 mark] In Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl the ions are exchanged (B), an insoluble salt barium sulphate is formed (D) which appears as a precipitate (C); atoms are not exchanged, so statements (B), (C) and (D) are correct."],
+    solutionSteps: ["[1 mark] In Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl the ions are exchanged (B), an insoluble salt barium sulphate is formed (D) which appears as a precipitate (C); atoms are not exchanged, so statements (B), (C) and (D) are correct. Answer: (D)"],
     finalAnswer: "(B), (C) and (D)", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -203,7 +203,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Consider the reaction of a metal M: 4M + 3O₂ → 2M₂O₃. This equation represents:",
     options: ["Combination reaction as well as reduction reaction", "Decomposition reaction as well as oxidation reaction", "Oxidation reaction as well as displacement reaction", "Combination reaction as well as oxidation reaction"],
     answer: "Combination reaction as well as oxidation reaction",
-    solutionSteps: ["[1 mark] Two reactants combine to give a single product (combination reaction), and the metal gains oxygen (oxidation), so it is both a combination and an oxidation reaction."],
+    solutionSteps: ["[1 mark] Two reactants combine to give a single product (combination reaction), and the metal gains oxygen (oxidation), so it is both a combination and an oxidation reaction. Answer: (D)"],
     finalAnswer: "Combination reaction as well as oxidation reaction", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -213,7 +213,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The reaction KBr(aq) + AgNO₃(aq) → KNO₃(aq) + AgBr(s) is an example of:",
     options: ["Decomposition reaction", "Combination reaction", "Double displacement reaction", "Displacement reaction"],
     answer: "Double displacement reaction",
-    solutionSteps: ["[1 mark] The two compounds exchange their ions to form silver bromide and potassium nitrate, so it is a double displacement reaction (also a precipitation reaction)."],
+    solutionSteps: ["[1 mark] The two compounds exchange their ions to form silver bromide and potassium nitrate, so it is a double displacement reaction (also a precipitation reaction). Answer: (C)"],
     finalAnswer: "Double displacement reaction", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -223,7 +223,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A powdered salt X in a dry test tube was heated and it evolved brown fumes of nitrogen dioxide, leaving a yellow residue of lead oxide. The salt X is:",
     options: ["MgCO₃", "Pb(NO₃)₂", "(NH₄)₂SO₄", "CaCO₃"],
     answer: "Pb(NO₃)₂",
-    solutionSteps: ["[1 mark] Lead nitrate decomposes on heating, 2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂, giving brown nitrogen dioxide fumes and a yellow residue of lead oxide, so X is Pb(NO₃)₂."],
+    solutionSteps: ["[1 mark] Lead nitrate decomposes on heating, 2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂, giving brown nitrogen dioxide fumes and a yellow residue of lead oxide, so X is Pb(NO₃)₂. Answer: (B)"],
     finalAnswer: "Pb(NO₃)₂", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -233,7 +233,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Identify the type(s) of the reaction: Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s).\n(i) Displacement reaction\n(ii) Redox reaction\n(iii) Combination reaction\n(iv) Double displacement reaction",
     options: ["(i) and (ii)", "(ii) and (iii)", "(i) and (iv)", "(iii) and (iv)"],
     answer: "(i) and (ii)",
-    solutionSteps: ["[1 mark] Iron displaces copper (displacement) and, since iron is oxidised while copper is reduced, it is also a redox reaction; so (i) and (ii) are correct."],
+    solutionSteps: ["[1 mark] Iron displaces copper (displacement) and, since iron is oxidised while copper is reduced, it is also a redox reaction; so (i) and (ii) are correct. Answer: (A)"],
     finalAnswer: "(i) and (ii)", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -243,7 +243,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "In the reaction 3MnO₂ + 4Al → 2Al₂O₃ + 3Mn, the reducing agent is:",
     options: ["MnO₂", "Al", "Al₂O₃", "Mn"],
     answer: "Al",
-    solutionSteps: ["[1 mark] Aluminium gains oxygen to form Al₂O₃ (it is oxidised); the substance that is oxidised brings about reduction of the other, so aluminium is the reducing agent."],
+    solutionSteps: ["[1 mark] Aluminium gains oxygen to form Al₂O₃ (it is oxidised); the substance that is oxidised brings about reduction of the other, so aluminium is the reducing agent. Answer: (B)"],
     finalAnswer: "Al", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -253,7 +253,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "You are given the solution of lead nitrate. In order to obtain a yellow precipitate you should mix with it a solution of:",
     options: ["Potassium chloride", "Potassium nitride", "Potassium sulphide", "Potassium iodide"],
     answer: "Potassium iodide",
-    solutionSteps: ["[1 mark] Potassium iodide reacts with lead nitrate, Pb(NO₃)₂ + 2KI → PbI₂↓ + 2KNO₃, giving a yellow precipitate of lead iodide."],
+    solutionSteps: ["[1 mark] Potassium iodide reacts with lead nitrate, Pb(NO₃)₂ + 2KI → PbI₂↓ + 2KNO₃, giving a yellow precipitate of lead iodide. Answer: (D)"],
     finalAnswer: "Potassium iodide", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -263,7 +263,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "A metal M reacts with an acid according to the equation M + H⁺ → M³⁺ + H₂. Which of the following is the metal M?",
     options: ["Calcium", "Aluminium", "Barium", "Potassium"],
     answer: "Aluminium",
-    solutionSteps: ["[1 mark] The metal forms an M³⁺ ion, so it has a valency of three; among the options only aluminium forms a tripositive (Al³⁺) ion, while calcium, barium and potassium do not."],
+    solutionSteps: ["[1 mark] The metal forms an M³⁺ ion, so it has a valency of three; among the options only aluminium forms a tripositive (Al³⁺) ion, while calcium, barium and potassium do not. Answer: (B)"],
     finalAnswer: "Aluminium", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -273,7 +273,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The reaction CH₄ + 2O₂ → CO₂ + 2H₂O (burning of methane) is an example of:",
     options: ["Oxidation", "Decomposition reaction", "Endothermic reaction", "Double displacement reaction"],
     answer: "Oxidation",
-    solutionSteps: ["[1 mark] Methane combines with oxygen (gains oxygen) and releases heat and light; this addition of oxygen makes it an oxidation (combustion) reaction."],
+    solutionSteps: ["[1 mark] Methane combines with oxygen (gains oxygen) and releases heat and light; this addition of oxygen makes it an oxidation (combustion) reaction. Answer: (A)"],
     finalAnswer: "Oxidation", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -283,7 +283,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The chemical reaction between quicklime and water is characterised by:",
     options: ["Evolution of hydrogen gas", "Formation of slaked lime precipitate", "Change in temperature of the mixture", "Change in colour of the product"],
     answer: "Change in temperature of the mixture",
-    solutionSteps: ["[1 mark] Quicklime reacts vigorously with water, CaO + H₂O → Ca(OH)₂, releasing a large amount of heat, so the reaction is characterised by a rise in temperature of the mixture (an exothermic reaction)."],
+    solutionSteps: ["[1 mark] Quicklime reacts vigorously with water, CaO + H₂O → Ca(OH)₂, releasing a large amount of heat, so the reaction is characterised by a rise in temperature of the mixture (an exothermic reaction). Answer: (C)"],
     finalAnswer: "Change in temperature of the mixture", isCompetencyBased: false, requiresDiagram: false,
   },
   {
@@ -293,7 +293,7 @@ export const CHEM_REACTIONS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Chemical equations are balanced to satisfy one of the following laws. This law is known as the:",
     options: ["Law of conservation of momentum", "Law of conservation of mass", "Law of conservation of motion", "Law of conservation of magnetism"],
     answer: "Law of conservation of mass",
-    solutionSteps: ["[1 mark] An equation is balanced so that the number of atoms of each element is equal on both sides, which satisfies the law of conservation of mass (mass is neither created nor destroyed in a chemical reaction)."],
+    solutionSteps: ["[1 mark] An equation is balanced so that the number of atoms of each element is equal on both sides, which satisfies the law of conservation of mass (mass is neither created nor destroyed in a chemical reaction). Answer: (B)"],
     finalAnswer: "Law of conservation of mass", isCompetencyBased: false, requiresDiagram: false,
   },
 

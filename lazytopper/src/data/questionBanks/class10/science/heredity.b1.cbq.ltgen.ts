@@ -21,7 +21,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Two sugarcane plants raised from stem pieces cut from the same parent sugarcane plant",
     "solutionSteps": [
-      "[1 mark] Stem pieces are vegetative (asexual) propagation, so both sugarcane plants carry copies of one parent's DNA. Each seed or puppy arises from a separate fertilisation, getting a new combination of genes from two parents."
+      "[1 mark] Stem pieces are vegetative (asexual) propagation, so both sugarcane plants carry copies of one parent's DNA. Each seed or puppy arises from a separate fertilisation, getting a new combination of genes from two parents. Answer: (A)"
     ],
     "finalAnswer": "Two sugarcane plants raised from stem pieces cut from the same parent sugarcane plant",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "from both plants in equal amount, because it formed by the fusion of one male gamete with one female gamete",
     "solutionSteps": [
-      "[1 mark] The embryo develops from the zygote, formed when a male gamete from the red-flowered plant's pollen fuses with the white-flowered plant's egg; each gamete carries one set of chromosomes, so both parents contribute equally."
+      "[1 mark] The embryo develops from the zygote, formed when a male gamete from the red-flowered plant's pollen fuses with the white-flowered plant's egg; each gamete carries one set of chromosomes, so both parents contribute equally. Answer: (B)"
     ],
     "finalAnswer": "from both plants in equal amount, because it formed by the fusion of one male gamete with one female gamete",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Small inaccuracies in copying DNA during cell division were passed on to some daughter cells",
     "solutionSteps": [
-      "[1 mark] The colony arose asexually from one bacterium, so no gametes fused; DNA copying during division is not perfectly accurate, and rare copying errors passed to daughter cells give a few different cells. A medium effect would change every cell."
+      "[1 mark] The colony arose asexually from one bacterium, so no gametes fused; DNA copying during division is not perfectly accurate, and rare copying errors passed to daughter cells give a few different cells. A medium effect would change every cell. Answer: (C)"
     ],
     "finalAnswer": "Small inaccuracies in copying DNA during cell division were passed on to some daughter cells",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Each egg or sperm receives only one chromosome from every pair, and which member of a pair it receives is a matter of chance",
     "solutionSteps": [
-      "[1 mark] A gamete gets one chromosome of each pair, chosen by chance, so different eggs and sperms carry different mixes of parental genes; Sneha and Aniket came from different egg-sperm pairs. Sperms are not all alike."
+      "[1 mark] A gamete gets one chromosome of each pair, chosen by chance, so different eggs and sperms carry different mixes of parental genes; Sneha and Aniket came from different egg-sperm pairs. Sperms are not all alike. Answer: (D)"
     ],
     "finalAnswer": "Each egg or sperm receives only one chromosome from every pair, and which member of a pair it receives is a matter of chance",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: cuttings are vegetative (asexual) propagation, so plants from them carry the parent's DNA and are nearly identical, while seed-raised plants vary more. R is true: fertilisation combines genes from two gametes, which is exactly why seedlings vary."
+      "[1 mark] (D) A is false: cuttings are vegetative (asexual) propagation, so plants from them carry the parent's DNA and are nearly identical, while seed-raised plants vary more. R is true: fertilisation combines genes from two gametes, which is exactly why seedlings vary. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Plantlets form asexually by cell division from the parent's leaf cells, so they are mostly alike; but DNA copying is not absolutely accurate, and a rare copying error can make a plantlet slightly different. Both are true and R explains A."
+      "[1 mark] (A) Plantlets form asexually by cell division from the parent's leaf cells, so they are mostly alike; but DNA copying is not absolutely accurate, and a rare copying error can make a plantlet slightly different. Both are true and R explains A. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -542,7 +542,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "104",
     "solutionSteps": [
-      "[1 mark] 104 — the F2 genotypes are TT : Tt : tt = 1 : 2 : 1, so only one-third of the tall plants are TT (312 ÷ 3 = 104). 208 wrongly counts the heterozygous (Tt) tall plants."
+      "[1 mark] 104 — the F2 genotypes are TT : Tt : tt = 1 : 2 : 1, so only one-third of the tall plants are TT (312 ÷ 3 = 104). 208 wrongly counts the heterozygous (Tt) tall plants. Answer: (A)"
     ],
     "finalAnswer": "104",
     "isCompetencyBased": true,
@@ -571,7 +571,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Violet is dominant; the allele for white flowers was present in the F1 plants but was not expressed.",
     "solutionSteps": [
-      "[1 mark] Only violet appeared in F1, so violet is dominant; white reappeared in about one-fourth of F2 (696 : 232 = 3 : 1), so its allele was carried, unexpressed, by every F1 plant. Reappearance in F2 does not make white dominant."
+      "[1 mark] Only violet appeared in F1, so violet is dominant; white reappeared in about one-fourth of F2 (696 : 232 = 3 : 1), so its allele was carried, unexpressed, by every F1 plant. Reappearance in F2 does not make white dominant. Answer: (B)"
     ],
     "finalAnswer": "Violet is dominant; the allele for white flowers was present in the F1 plants but was not expressed.",
     "isCompetencyBased": true,
@@ -600,7 +600,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Tt, because nearly half the offspring are dwarf (tt) and each must have received a t allele from it",
     "solutionSteps": [
-      "[1 mark] Each dwarf offspring (tt) got one t from each parent, so the tall parent carries t: it is Tt, and Tt × tt gives tall : dwarf = 1 : 1, matching 24 : 22. A TT parent would give only tall offspring."
+      "[1 mark] Each dwarf offspring (tt) got one t from each parent, so the tall parent carries t: it is Tt, and Tt × tt gives tall : dwarf = 1 : 1, matching 24 : 22. A TT parent would give only tall offspring. Answer: (C)"
     ],
     "finalAnswer": "Tt, because nearly half the offspring are dwarf (tt) and each must have received a t allele from it",
     "isCompetencyBased": true,
@@ -629,7 +629,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Plants from packet P are RR and plants from packet Q are Rr.",
     "solutionSteps": [
-      "[1 mark] P breeds true for round, so it is RR. Q's plants are round yet give round : wrinkled = 450 : 150 = 3 : 1, the result of selfing Rr. An rr plant would itself be wrinkled and give only wrinkled seeds."
+      "[1 mark] P breeds true for round, so it is RR. Q's plants are round yet give round : wrinkled = 450 : 150 = 3 : 1, the result of selfing Rr. An rr plant would itself be wrinkled and give only wrinkled seeds. Answer: (D)"
     ],
     "finalAnswer": "Plants from packet P are RR and plants from packet Q are Rr.",
     "isCompetencyBased": true,
@@ -658,7 +658,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: the F1 plants are Tt; T and t separate into different gametes, and fusion of two t gametes (probability 1/2 × 1/2 = 1/4) gives tt dwarf plants in about one-fourth of the offspring."
+      "[1 mark] (A) Both true and R explains A: the F1 plants are Tt; T and t separate into different gametes, and fusion of two t gametes (probability 1/2 × 1/2 = 1/4) gives tt dwarf plants in about one-fourth of the offspring. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -687,7 +687,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: the white F2 plant shows the recessive trait, so it is vv and its selfed offspring can only be vv (white). R is true — recessive white is seen only in vv plants."
+      "[1 mark] (D) A is false: the white F2 plant shows the recessive trait, so it is vv and its selfed offspring can only be vv (white). R is true — recessive white is seen only in vv plants. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1062,7 +1062,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "300",
     "solutionSteps": [
-      "[1 mark] 300: yellow, inflated plants are ggI_, i.e. 1/4 (yellow) × 3/4 (inflated) = 3/16 of the F2, and 3/16 × 1600 = 300. 400 wrongly takes only the 1/4 yellow fraction and ignores pod shape; 100 is the yellow, constricted class (1/16)."
+      "[1 mark] 300: yellow, inflated plants are ggI_, i.e. 1/4 (yellow) × 3/4 (inflated) = 3/16 of the F2, and 3/16 × 1600 = 300. 400 wrongly takes only the 1/4 yellow fraction and ignores pod shape; 100 is the yellow, constricted class (1/16). Answer: (A)"
     ],
     "finalAnswer": "300",
     "isCompetencyBased": true,
@@ -1091,7 +1091,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Flower position and pod colour are inherited independently of each other.",
     "solutionSteps": [
-      "[1 mark] The counts are close to 9:3:3:1 (450:150:150:50) and include new combinations (axial-yellow, terminal-green), so the two traits are inherited independently. If the alleles were always passed on together, only the two parental types would appear, in 3:1."
+      "[1 mark] The counts are close to 9:3:3:1 (450:150:150:50) and include new combinations (axial-yellow, terminal-green), so the two traits are inherited independently. If the alleles were always passed on together, only the two parental types would appear, in 3:1. Answer: (B)"
     ],
     "finalAnswer": "Flower position and pod colour are inherited independently of each other.",
     "isCompetencyBased": true,
@@ -1120,7 +1120,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4",
     "solutionSteps": [
-      "[1 mark] 4: a round, yellow seed needs at least one R and at least one Y, so it can be RRYY, RRYy, RrYY or RrYy. 9 is the number of genotypes in the whole F2, not in the round, yellow class alone."
+      "[1 mark] 4: a round, yellow seed needs at least one R and at least one Y, so it can be RRYY, RRYy, RrYY or RrYy. 9 is the number of genotypes in the whole F2, not in the round, yellow class alone. Answer: (C)"
     ],
     "finalAnswer": "4",
     "isCompetencyBased": true,
@@ -1149,7 +1149,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Rr — a gamete carries only one allele of each gene, so it must have one allele for seed shape and one for seed colour.",
     "solutionSteps": [
-      "[1 mark] Rr is wrong: during gamete formation the two alleles of each gene separate, so a gamete has one shape allele and one colour allele; Rr has two shape alleles and no colour allele. The missing correct gamete is ry. RY, rY and Ry are all valid gametes."
+      "[1 mark] Rr is wrong: during gamete formation the two alleles of each gene separate, so a gamete has one shape allele and one colour allele; Rr has two shape alleles and no colour allele. The missing correct gamete is ry. RY, rY and Ry are all valid gametes. Answer: (D)"
     ],
     "finalAnswer": "Rr — a gamete carries only one allele of each gene, so it must have one allele for seed shape and one for seed colour.",
     "isCompetencyBased": true,
@@ -1178,7 +1178,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: because shape and colour alleles separate independently, the F1 forms Ry gametes as often as RY gametes; an Ry gamete fusing with an ry or Ry gamete gives a round, green (R_yy) seed — a new combination."
+      "[1 mark] (A) Both are true and R explains A: because shape and colour alleles separate independently, the F1 forms Ry gametes as often as RY gametes; an Ry gamete fusing with an ry or Ry gamete gives a round, green (R_yy) seed — a new combination. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1207,7 +1207,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: since R and Y are dominant (R is true), RrYy, RRYy and RrYY plants also produce round, yellow seeds, so round, yellow seeds do not prove the genotype RRYY."
+      "[1 mark] (D) A is false: since R and Y are dominant (R is true), RrYy, RRYy and RrYY plants also produce round, yellow seeds, so round, yellow seeds do not prove the genotype RRYY. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1582,7 +1582,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The gene in variety Q carries information for a less efficient enzyme, so less growth hormone is made and the plants grow less.",
     "solutionSteps": [
-      "[1 mark] The first option is right: a gene carries information for a protein (here an enzyme); a less efficient enzyme makes less hormone, so the plant is short. Q still has two copies of the height gene, and more hormone would make it taller, not shorter."
+      "[1 mark] The first option is right: a gene carries information for a protein (here an enzyme); a less efficient enzyme makes less hormone, so the plant is short. Q still has two copies of the height gene, and more hormone would make it taller, not shorter. Answer: (A)"
     ],
     "finalAnswer": "The gene in variety Q carries information for a less efficient enzyme, so less growth hormone is made and the plants grow less.",
     "isCompetencyBased": true,
@@ -1611,7 +1611,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The T gene carries information for making an enzyme; the enzyme makes a growth hormone, and the hormone makes the stem grow taller.",
     "solutionSteps": [
-      "[1 mark] A gene does not act directly: it is a section of DNA carrying information for a protein. Here the protein is an enzyme that makes growth hormone, and the hormone controls stem growth. A gene is not a hormone and does not add chromosomes."
+      "[1 mark] A gene does not act directly: it is a section of DNA carrying information for a protein. Here the protein is an enzyme that makes growth hormone, and the hormone controls stem growth. A gene is not a hormone and does not add chromosomes. Answer: (B)"
     ],
     "finalAnswer": "The T gene carries information for making an enzyme; the enzyme makes a growth hormone, and the hormone makes the stem grow taller.",
     "isCompetencyBased": true,
@@ -1640,7 +1640,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "One chromosome from each of the 23 pairs, so the sperm carries one copy of every gene.",
     "solutionSteps": [
-      "[1 mark] During germ-cell formation each sperm receives exactly one chromosome of every pair, so it carries one copy of each gene. It is not a random 23 (pairs could be missing), and the chromosome taken from each pair may be either the maternal or the paternal one."
+      "[1 mark] During germ-cell formation each sperm receives exactly one chromosome of every pair, so it carries one copy of each gene. It is not a random 23 (pairs could be missing), and the chromosome taken from each pair may be either the maternal or the paternal one. Answer: (C)"
     ],
     "finalAnswer": "One chromosome from each of the 23 pairs, so the sperm carries one copy of every gene.",
     "isCompetencyBased": true,
@@ -1669,7 +1669,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Incorrect, because dominance only means the trait shows even when one copy is present; how common it is depends on how many people carry each form of the gene.",
     "solutionSteps": [
-      "[1 mark] Dominance describes which trait is expressed in a person carrying both forms (Ff shows free earlobes); it says nothing about how frequent the trait is. A recessive form is not removed from families; it stays hidden in carriers."
+      "[1 mark] Dominance describes which trait is expressed in a person carrying both forms (Ff shows free earlobes); it says nothing about how frequent the trait is. A recessive form is not removed from families; it stays hidden in carriers. Answer: (D)"
     ],
     "finalAnswer": "Incorrect, because dominance only means the trait shows even when one copy is present; how common it is depends on how many people carry each form of the gene.",
     "isCompetencyBased": true,
@@ -1698,7 +1698,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: the gene carries information for the enzyme (a protein); altered DNA gives a less efficient enzyme, less growth hormone is made and the plant stays short."
+      "[1 mark] (A) Both true and R explains A: the gene carries information for the enzyme (a protein); altered DNA gives a less efficient enzyme, less growth hormone is made and the plant stays short. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1727,7 +1727,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: the egg brings 23 chromosomes and the sperm 23. R is false: the egg carries only one chromosome of each pair, so it has one copy of each gene, not both."
+      "[1 mark] (C) A is true: the egg brings 23 chromosomes and the sperm 23. R is false: the egg carries only one chromosome of each pair, so it has one copy of each gene, not both. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -2102,7 +2102,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The father produces X-carrying and Y-carrying sperms in about equal numbers, so the third child has an equal chance of being a boy or a girl.",
     "solutionSteps": [
-      "[1 mark] The first option is correct: a man forms X- and Y-carrying sperms in equal numbers; two sons only mean Y-sperms fertilised the egg twice by chance. Each pregnancy is independent: son or daughter, 50% each."
+      "[1 mark] The first option is correct: a man forms X- and Y-carrying sperms in equal numbers; two sons only mean Y-sperms fertilised the egg twice by chance. Each pregnancy is independent: son or daughter, 50% each. Answer: (A)"
     ],
     "finalAnswer": "The father produces X-carrying and Y-carrying sperms in about equal numbers, so the third child has an equal chance of being a boy or a girl.",
     "isCompetencyBased": true,
@@ -2131,7 +2131,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "In this crocodile species, the temperature at which the eggs develop largely decides whether a hatchling becomes male or female.",
     "solutionSteps": [
-      "[1 mark] The second option: eggs from the same nest (same parents) gave almost all males at 31 °C and all females at 28 °C, so incubation temperature decides sex. Heat cannot convert chromosomes, and chance cannot give 17 : 1 against 0 : 20."
+      "[1 mark] The second option: eggs from the same nest (same parents) gave almost all males at 31 °C and all females at 28 °C, so incubation temperature decides sex. Heat cannot convert chromosomes, and chance cannot give 17 : 1 against 0 : 20. Answer: (B)"
     ],
     "finalAnswer": "In this crocodile species, the temperature at which the eggs develop largely decides whether a hatchling becomes male or female.",
     "isCompetencyBased": true,
@@ -2189,7 +2189,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Fathers produce X-carrying and Y-carrying sperms in equal numbers, and either kind is equally likely to fertilise the egg.",
     "solutionSteps": [
-      "[1 mark] The fourth option: every egg carries X; half the sperms carry X (giving XX, girl) and half carry Y (giving XY, boy), each equally likely to fertilise, so large numbers give about 1 : 1. Eggs never carry Y; diet cannot alter chromosomes."
+      "[1 mark] The fourth option: every egg carries X; half the sperms carry X (giving XX, girl) and half carry Y (giving XY, boy), each equally likely to fertilise, so large numbers give about 1 : 1. Eggs never carry Y; diet cannot alter chromosomes. Answer: (D)"
     ],
     "finalAnswer": "Fathers produce X-carrying and Y-carrying sperms in equal numbers, and either kind is equally likely to fertilise the egg.",
     "isCompetencyBased": true,
@@ -2218,7 +2218,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: a woman's sex chromosomes are XX, and since every egg gets one chromosome from each pair, each egg must receive an X; there is no Y in her cells to pass on."
+      "[1 mark] (A) Both are true and R explains A: a woman's sex chromosomes are XX, and since every egg gets one chromosome from each pair, each egg must receive an X; there is no Y in her cells to pass on. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2620,7 +2620,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "100",
     "solutionSteps": [
-      "[1 mark] The vestigial (nn) offspring show that both parents are Nn; Nn × Nn gives NN : Nn : nn = 1 : 2 : 1, so 2 of every 3 normal-winged flies (about 100 of 150) are Nn carriers. The tempting 50 is only the expected number of NN flies, which carry no n allele."
+      "[1 mark] The vestigial (nn) offspring show that both parents are Nn; Nn × Nn gives NN : Nn : nn = 1 : 2 : 1, so 2 of every 3 normal-winged flies (about 100 of 150) are Nn carriers. The tempting 50 is only the expected number of NN flies, which carry no n allele. Answer: (C)"
     ],
     "finalAnswer": "100",
     "isCompetencyBased": true,
@@ -2782,7 +2782,7 @@ export const HEREDITY_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "100",
     "solutionSteps": [
-      "[1 mark] The red, hairy parent is ggss and forms only gs gametes, while GgSs forms GS, Gs, gS and gs in equal numbers; so 1/4 of the offspring are ggss, i.e. 1/4 × 400 = 100. The tempting 25 uses the 1/16 of a GgSs × GgSs cross, which is not the cross made here."
+      "[1 mark] The red, hairy parent is ggss and forms only gs gametes, while GgSs forms GS, Gs, gS and gs in equal numbers; so 1/4 of the offspring are ggss, i.e. 1/4 × 400 = 100. The tempting 25 uses the 1/16 of a GgSs × GgSs cross, which is not the cross made here. Answer: (B)"
     ],
     "finalAnswer": "100",
     "isCompetencyBased": true,

@@ -20,7 +20,7 @@ export const REPR_CBE: CanonicalQuestion[] = [
     "options": ["Oral contraceptive pills", "Copper-T", "Vasectomy", "Condom"],
     "answer": "Condom",
     "solutionSteps": [
-      "[1 mark] Condom — a condom is a barrier that prevents contact with body fluids, so it also protects against STIs."
+      "[1 mark] Condom — a condom is a barrier that prevents contact with body fluids, so it also protects against STIs. Answer: (D)"
     ],
     "finalAnswer": "Condom",
     "isCompetencyBased": false,

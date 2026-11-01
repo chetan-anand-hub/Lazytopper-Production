@@ -21,7 +21,7 @@ export const PROB_PREBOARD: CanonicalQuestion[] = [
     "options": ["1/2", "1/3", "2/3", "1/6"],
     "answer": "1/2",
     "solutionSteps": [
-      "[1 mark] 1/2 — primes on a die are 2, 3, 5: P = 3/6 = 1/2."
+      "[1 mark] 1/2 — primes on a die are 2, 3, 5: P = 3/6 = 1/2. Answer: (A)"
     ],
     "finalAnswer": "1/2",
     "isCompetencyBased": false
@@ -40,7 +40,7 @@ export const PROB_PREBOARD: CanonicalQuestion[] = [
     "options": ["3/10", "2/5", "1/10", "9/20"],
     "answer": "2/5",
     "solutionSteps": [
-      "[1 mark] 2/5 — multiples of 3: 6, multiples of 7: 2, none common; P = 8/20 = 2/5."
+      "[1 mark] 2/5 — multiples of 3: 6, multiples of 7: 2, none common; P = 8/20 = 2/5. Answer: (B)"
     ],
     "finalAnswer": "2/5",
     "isCompetencyBased": false
@@ -59,7 +59,7 @@ export const PROB_PREBOARD: CanonicalQuestion[] = [
     "options": ["0.05", "0.5", "0.95", "1.05"],
     "answer": "0.95",
     "solutionSteps": [
-      "[1 mark] 0.95 — P(not E) = 1 − P(E) = 1 − 0.05 = 0.95."
+      "[1 mark] 0.95 — P(not E) = 1 − P(E) = 1 − 0.05 = 0.95. Answer: (C)"
     ],
     "finalAnswer": "0.95",
     "isCompetencyBased": false
@@ -78,7 +78,7 @@ export const PROB_PREBOARD: CanonicalQuestion[] = [
     "options": ["3/8", "1/4", "5/8", "1/2"],
     "answer": "1/2",
     "solutionSteps": [
-      "[1 mark] 1/2 — factors of 8 are 1, 2, 4, 8: P = 4/8 = 1/2."
+      "[1 mark] 1/2 — factors of 8 are 1, 2, 4, 8: P = 4/8 = 1/2. Answer: (D)"
     ],
     "finalAnswer": "1/2",
     "isCompetencyBased": false

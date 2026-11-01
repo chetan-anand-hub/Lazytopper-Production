@@ -21,7 +21,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Receptors in the skin → sensory neuron → relay neuron in the spinal cord → motor neuron → muscles of the arm",
     "solutionSteps": [
-      "[1 mark] This is a reflex action: skin receptors → sensory neuron → relay neuron in the spinal cord → motor neuron → arm muscles. The fore-brain does not decide a reflex, and the message never runs from motor to sensory neuron."
+      "[1 mark] This is a reflex action: skin receptors → sensory neuron → relay neuron in the spinal cord → motor neuron → arm muscles. The fore-brain does not decide a reflex, and the message never runs from motor to sensory neuron. Answer: (A)"
     ],
     "finalAnswer": "Receptors in the skin → sensory neuron → relay neuron in the spinal cord → motor neuron → muscles of the arm",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Neuron 2 does not produce an electrical impulse, because the signal can no longer cross the synapse.",
     "solutionSteps": [
-      "[1 mark] At the axon ending the electrical impulse is converted into chemicals that cross the synapse and start a new impulse in the next neuron's dendrites. With no chemicals released, neuron 2 is not stimulated; the impulse cannot jump the gap electrically."
+      "[1 mark] At the axon ending the electrical impulse is converted into chemicals that cross the synapse and start a new impulse in the next neuron's dendrites. With no chemicals released, neuron 2 is not stimulated; the impulse cannot jump the gap electrically. Answer: (B)"
     ],
     "finalAnswer": "Neuron 2 does not produce an electrical impulse, because the signal can no longer cross the synapse.",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Q and R only",
     "solutionSteps": [
-      "[1 mark] Q and R happen without her deciding to do them (heartbeat; pupil response to bright light), so they are involuntary. P and S are voluntary, decided by the fore-brain, even though P is well practised."
+      "[1 mark] Q and R happen without her deciding to do them (heartbeat; pupil response to bright light), so they are involuntary. P and S are voluntary, decided by the fore-brain, even though P is well practised. Answer: (C)"
     ],
     "finalAnswer": "Q and R only",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "He will feel the heat but will not be able to pull his hand away.",
     "solutionSteps": [
-      "[1 mark] The sensory nerve still carries the message to the spinal cord and on to the brain, so he feels the heat; but the motor nerve that carries the command to the hand muscles is damaged, so neither reflex nor voluntary withdrawal is possible."
+      "[1 mark] The sensory nerve still carries the message to the spinal cord and on to the brain, so he feels the heat; but the motor nerve that carries the command to the hand muscles is damaged, so neither reflex nor voluntary withdrawal is possible. Answer: (D)"
     ],
     "finalAnswer": "He will feel the heat but will not be able to pull his hand away.",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: the knee-jerk is a reflex action that happens without a conscious decision. R is false: the connection for this reflex is made in the spinal cord, not in the cerebellum."
+      "[1 mark] (C) A is true: the knee-jerk is a reflex action that happens without a conscious decision. R is false: the connection for this reflex is made in the spinal cord, not in the cerebellum. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: information is picked up at the dendrite tip, where it starts the electrical impulse. If the dendrite endings are damaged, no impulse begins, so nothing travels towards the spinal cord and brain."
+      "[1 mark] (A) Both true and R explains A: information is picked up at the dendrite tip, where it starts the electrical impulse. If the dendrite endings are damaged, no impulse begins, so nothing travels towards the spinal cord and brain. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Cerebrum",
     "solutionSteps": [
-      "[1 mark] (a) Cerebrum: memory and recognising objects are functions of the cerebrum, the thinking part of the forebrain. Steady walking and posture rule out the cerebellum, and normal breathing and blood pressure rule out the medulla."
+      "[1 mark] (a) Cerebrum: memory and recognising objects are functions of the cerebrum, the thinking part of the forebrain. Steady walking and posture rule out the cerebellum, and normal breathing and blood pressure rule out the medulla. Answer: (A)"
     ],
     "finalAnswer": "Cerebrum",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Keeping her body upright and balanced as she turns the pages — cerebellum",
     "solutionSteps": [
-      "[1 mark] (b): the cerebellum in the hindbrain maintains posture and balance. Understanding and deciding are cerebrum (forebrain) functions, while salivation and blood pressure are involuntary actions controlled by the medulla, so (a), (c) and (d) are mismatched."
+      "[1 mark] (b): the cerebellum in the hindbrain maintains posture and balance. Understanding and deciding are cerebrum (forebrain) functions, while salivation and blood pressure are involuntary actions controlled by the medulla, so (a), (c) and (d) are mismatched. Answer: (B)"
     ],
     "finalAnswer": "Keeping her body upright and balanced as she turns the pages — cerebellum",
     "isCompetencyBased": true,
@@ -601,7 +601,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A message travels from his brain through the spinal cord and a motor nerve to the arm muscle; proteins in the muscle cells change their shape and arrangement, making the cells shorter.",
     "solutionSteps": [
-      "[1 mark] (c): the brain orders the movement and the impulse reaches the muscle via the spinal cord and a motor nerve; muscle-cell proteins change shape and arrangement, shortening the cells. Sensory nerves carry messages towards the brain, and water changes move plant cells, not muscles."
+      "[1 mark] (c): the brain orders the movement and the impulse reaches the muscle via the spinal cord and a motor nerve; muscle-cell proteins change shape and arrangement, shortening the cells. Sensory nerves carry messages towards the brain, and water changes move plant cells, not muscles. Answer: (C)"
     ],
     "finalAnswer": "A message travels from his brain through the spinal cord and a motor nerve to the arm muscle; proteins in the muscle cells change their shape and arrangement, making the cells shorter.",
     "isCompetencyBased": true,
@@ -630,7 +630,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The clay brain placed inside a balloon filled with water, and the balloon placed inside a hard plastic box",
     "solutionSteps": [
-      "[1 mark] (d): the brain lies in a bony box (skull or cranium), cushioned in a fluid-filled balloon (cerebrospinal fluid) that absorbs shocks; (d) shows both. (a) omits the fluid cushion, and the vertebral column in (b) protects the spinal cord, not the brain."
+      "[1 mark] (d): the brain lies in a bony box (skull or cranium), cushioned in a fluid-filled balloon (cerebrospinal fluid) that absorbs shocks; (d) shows both. (a) omits the fluid cushion, and the vertebral column in (b) protects the spinal cord, not the brain. Answer: (D)"
     ],
     "finalAnswer": "The clay brain placed inside a balloon filled with water, and the balloon placed inside a hard plastic box",
     "isCompetencyBased": true,
@@ -659,7 +659,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D): R is true, as the cerebellum controls precision of voluntary actions, posture and balance. A is false because thinking, memory and decision-making are functions of the cerebrum in the forebrain, so such a person can still think but moves unsteadily and imprecisely."
+      "[1 mark] (D): R is true, as the cerebellum controls precision of voluntary actions, posture and balance. A is false because thinking, memory and decision-making are functions of the cerebrum in the forebrain, so such a person can still think but moves unsteadily and imprecisely. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -688,7 +688,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A): both are true and R explains A. Leg muscles contract only when impulses from the brain reach them through the spinal cord; if the spinal cord is damaged, these messages are blocked, so even healthy muscles cannot be moved at will."
+      "[1 mark] (A): both are true and R explains A. Leg muscles contract only when impulses from the brain reach them through the spinal cord; if the spinal cord is damaged, these messages are blocked, so even healthy muscles cannot be moved at will. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1063,7 +1063,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Positive hydrotropism — the roots grew towards the moisture coming from the drip line",
     "solutionSteps": [
-      "[1 mark] Positive hydrotropism: the roots grew sideways towards the only moist zone, along the drip line. Geotropism or growing away from light would take roots downward, not sideways, and touch cannot guide roots towards water they had not yet reached."
+      "[1 mark] Positive hydrotropism: the roots grew sideways towards the only moist zone, along the drip line. Geotropism or growing away from light would take roots downward, not sideways, and touch cannot guide roots towards water they had not yet reached. Answer: (A)"
     ],
     "finalAnswer": "Positive hydrotropism — the roots grew towards the moisture coming from the drip line",
     "isCompetencyBased": true,
@@ -1092,7 +1092,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Cytokinin",
     "solutionSteps": [
-      "[1 mark] Cytokinin: H increased the number of cells without making them longer, so it promotes cell division, and cytokinins are present in high amounts where cells divide rapidly, such as fruits and seeds. Auxin and gibberellin mainly cause cell elongation or stem growth; abscisic acid inhibits growth."
+      "[1 mark] Cytokinin: H increased the number of cells without making them longer, so it promotes cell division, and cytokinins are present in high amounts where cells divide rapidly, such as fruits and seeds. Auxin and gibberellin mainly cause cell elongation or stem growth; abscisic acid inhibits growth. Answer: (B)"
     ],
     "finalAnswer": "Cytokinin",
     "isCompetencyBased": true,
@@ -1121,7 +1121,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Abscisic acid, because it inhibits growth and its effects include wilting of leaves",
     "solutionSteps": [
-      "[1 mark] Abscisic acid is a growth inhibitor whose effects include wilting of leaves, matching both observations. Gibberellin and cytokinin promote growth, so a rise in them would not stop growth; auxin causes bending of growing shoots, not wilting."
+      "[1 mark] Abscisic acid is a growth inhibitor whose effects include wilting of leaves, matching both observations. Gibberellin and cytokinin promote growth, so a rise in them would not stop growth; auxin causes bending of growing shoots, not wilting. Answer: (C)"
     ],
     "finalAnswer": "Abscisic acid, because it inhibits growth and its effects include wilting of leaves",
     "isCompetencyBased": true,
@@ -1150,7 +1150,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "grow straight up, because no side stays shaded long enough for auxin to collect on one side",
     "solutionSteps": [
-      "[1 mark] The shoot grows straight up: as each side faces the light equally often, auxin does not stay concentrated on any one shaded side, so cells on all sides elongate equally. Option A is tempting but auxin moves to the shaded side, not the lit side."
+      "[1 mark] The shoot grows straight up: as each side faces the light equally often, auxin does not stay concentrated on any one shaded side, so cells on all sides elongate equally. Option A is tempting but auxin moves to the shaded side, not the lit side. Answer: (D)"
     ],
     "finalAnswer": "grow straight up, because no side stays shaded long enough for auxin to collect on one side",
     "isCompetencyBased": true,
@@ -1179,7 +1179,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: tendrils show thigmotropism and wind around a support they touch. R is false: the side in contact with the stake grows LESS, while the side away from it grows more, which makes the tendril curl around the stake."
+      "[1 mark] (C) A is true: tendrils show thigmotropism and wind around a support they touch. R is false: the side in contact with the stake grows LESS, while the side away from it grows more, which makes the tendril curl around the stake. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1208,7 +1208,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: auxin diffuses to the side of the shoot AWAY from the light, so the shaded side elongates more and the shoot bends towards the window. R is true: auxin made at the shoot tip promotes cell elongation."
+      "[1 mark] (D) A is false: auxin diffuses to the side of the shoot AWAY from the light, so the shaded side elongates more and the shoot bends towards the window. R is true: auxin made at the shoot tip promotes cell elongation. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1581,7 +1581,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Her pancreas is releasing too little insulin, so the extra sugar in her blood is not being lowered.",
     "solutionSteps": [
-      "[1 mark] (A): insulin from the pancreas lowers blood sugar, so too little insulin leaves it high on both days. (B) is the tempting reversal — insulin removes sugar from the blood, it does not add it; adrenaline and growth hormone do not explain this report."
+      "[1 mark] (A): insulin from the pancreas lowers blood sugar, so too little insulin leaves it high on both days. (B) is the tempting reversal — insulin removes sugar from the blood, it does not add it; adrenaline and growth hormone do not explain this report. Answer: (A)"
     ],
     "finalAnswer": "Her pancreas is releasing too little insulin, so the extra sugar in her blood is not being lowered.",
     "isCompetencyBased": true,
@@ -1610,7 +1610,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "An electric iron whose thermostat switches the heater off when the iron becomes hot enough and on again when it cools.",
     "solutionSteps": [
-      "[1 mark] (B): like the pancreas, the thermostat senses the result (temperature) and switches the output off or on to keep it in a set range — a feedback mechanism. The timer (A) acts for a fixed time without sensing the result, so it is not feedback."
+      "[1 mark] (B): like the pancreas, the thermostat senses the result (temperature) and switches the output off or on to keep it in a set range — a feedback mechanism. The timer (A) acts for a fixed time without sensing the result, so it is not feedback. Answer: (B)"
     ],
     "finalAnswer": "An electric iron whose thermostat switches the heater off when the iron becomes hot enough and on again when it cools.",
     "isCompetencyBased": true,
@@ -1639,7 +1639,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "More blood flowed to her digestive system.",
     "solutionSteps": [
-      "[1 mark] (C): adrenaline contracts the muscles around the small arteries of the digestive system and skin, so LESS blood flows there and it is diverted to the skeletal muscles (D). Faster heartbeat (A) and faster breathing (B) are adrenaline effects."
+      "[1 mark] (C): adrenaline contracts the muscles around the small arteries of the digestive system and skin, so LESS blood flows there and it is diverted to the skeletal muscles (D). Faster heartbeat (A) and faster breathing (B) are adrenaline effects. Answer: (C)"
     ],
     "finalAnswer": "More blood flowed to her digestive system.",
     "isCompetencyBased": true,
@@ -1668,7 +1668,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Patient 1: an adult with a painless swelling at the front of the neck and a low thyroxin level.",
     "solutionSteps": [
-      "[1 mark] (D): the thyroid gland needs iodine to make thyroxin; too little iodine lowers thyroxin and causes goitre (swollen neck), so iodised salt helps. Growth hormone (A) and insulin (B) are not made from iodine, and (C) is a normal adrenaline response."
+      "[1 mark] (D): the thyroid gland needs iodine to make thyroxin; too little iodine lowers thyroxin and causes goitre (swollen neck), so iodised salt helps. Growth hormone (A) and insulin (B) are not made from iodine, and (C) is a normal adrenaline response. Answer: (D)"
     ],
     "finalAnswer": "Patient 1: an adult with a painless swelling at the front of the neck and a low thyroxin level.",
     "isCompetencyBased": true,
@@ -1697,7 +1697,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: the thyroid is a ductless (endocrine) gland, so thyroxin enters the blood directly and is carried to distant cells such as those in the arms and legs."
+      "[1 mark] (A) Both are true and R explains A: the thyroid is a ductless (endocrine) gland, so thyroxin enters the blood directly and is carried to distant cells such as those in the arms and legs. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1726,7 +1726,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: his thyroxin is already normal, and his problem is low growth hormone from the pituitary, which iodine does not help make. R is false: growth hormone comes from the pituitary; it is thyroxin, from the thyroid, that needs iodine."
+      "[1 mark] (C) A is true: his thyroxin is already normal, and his problem is low growth hormone from the pituitary, which iodine does not help make. R is false: growth hormone comes from the pituitary; it is thyroxin, from the thyroid, that needs iodine. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -2109,7 +2109,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "P was brought about by nerve impulses and Q mainly by a hormone, because nervous responses are quick and short-lived while hormonal responses are slower and last longer.",
     "solutionSteps": [
-      "[1 mark] P is nervous (a reflex: begins in a fraction of a second, ends at once); Q is hormonal (adrenaline: starts in seconds, lasts minutes after the stimulus). The option calling Q a reflex completed in the spinal cord is wrong: a reflex is over almost instantly, while lasting effects point to a hormone."
+      "[1 mark] P is nervous (a reflex: begins in a fraction of a second, ends at once); Q is hormonal (adrenaline: starts in seconds, lasts minutes after the stimulus). The option calling Q a reflex completed in the spinal cord is wrong: a reflex is over almost instantly, while lasting effects point to a hormone. Answer: (A)"
     ],
     "finalAnswer": "P was brought about by nerve impulses and Q mainly by a hormone, because nervous responses are quick and short-lived while hormonal responses are slower and last longer.",
     "isCompetencyBased": true,
@@ -2138,7 +2138,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A hormone is carried by the blood to all parts of the body, whereas a nerve impulse travels only along the neurons that lead to particular muscles.",
     "solutionSteps": [
-      "[1 mark] Thyroxin, made by the thyroid gland, is carried by blood to cells all over the body, so its shortage affects many organs; a nerve carries impulses only to the specific muscles it supplies. The option calling a hormone an electrical impulse reverses the nature of the two signals."
+      "[1 mark] Thyroxin, made by the thyroid gland, is carried by blood to cells all over the body, so its shortage affects many organs; a nerve carries impulses only to the specific muscles it supplies. The option calling a hormone an electrical impulse reverses the nature of the two signals. Answer: (B)"
     ],
     "finalAnswer": "A hormone is carried by the blood to all parts of the body, whereas a nerve impulse travels only along the neurons that lead to particular muscles.",
     "isCompetencyBased": true,
@@ -2167,7 +2167,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The snail used nerve impulses that made its muscles contract, while the plant cells passed an electrical-chemical signal from cell to cell and changed shape by changing the amount of water in them.",
     "solutionSteps": [
-      "[1 mark] Plants have no nerves or muscles: touch-me-not cells pass electrical-chemical signals and change shape by losing water, while the snail uses nerve impulses and muscles. The option crediting auxin-driven growth is wrong because growth is far too slow to fold leaves in seconds."
+      "[1 mark] Plants have no nerves or muscles: touch-me-not cells pass electrical-chemical signals and change shape by losing water, while the snail uses nerve impulses and muscles. The option crediting auxin-driven growth is wrong because growth is far too slow to fold leaves in seconds. Answer: (C)"
     ],
     "finalAnswer": "The snail used nerve impulses that made its muscles contract, while the plant cells passed an electrical-chemical signal from cell to cell and changed shape by changing the amount of water in them.",
     "isCompetencyBased": true,
@@ -2196,7 +2196,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "They affected several organs at the same time and continued long after the exam had ended.",
     "solutionSteps": [
-      "[1 mark] A hormone (adrenaline) travels in blood, so it acts on many organs (heart, breathing muscles, digestive system) together and its effect lasts long. A change beginning within a fraction of a second would point to a nervous response, which is very fast and short-lived."
+      "[1 mark] A hormone (adrenaline) travels in blood, so it acts on many organs (heart, breathing muscles, digestive system) together and its effect lasts long. A change beginning within a fraction of a second would point to a nervous response, which is very fast and short-lived. Answer: (D)"
     ],
     "finalAnswer": "They affected several organs at the same time and continued long after the exam had ended.",
     "isCompetencyBased": true,
@@ -2225,7 +2225,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: adrenaline released into the blood keeps acting on the heart until its level falls, so the fast heartbeat outlasts the fright; a purely nervous response would stop almost at once."
+      "[1 mark] (A) Both are true and R explains A: adrenaline released into the blood keeps acting on the heart until its level falls, so the fast heartbeat outlasts the fright; a purely nervous response would stop almost at once. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2254,7 +2254,7 @@ export const CONTROL_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) Both are true, but R does not explain A: leg movements are nerve-controlled because impulses are fast and reach specific muscles; R only explains why the muscles get more blood (oxygen), not why nerves control the movement."
+      "[1 mark] (B) Both are true, but R does not explain A: leg movements are nerve-controlled because impulses are fast and reach specific muscles; R only explains why the muscles get more blood (oxygen), not why nerves control the movement. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,

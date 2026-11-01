@@ -24,7 +24,7 @@ export const MNM_SP: CanonicalQuestion[] = [
     ],
     "answer": "(d) Magnesium and Calcium",
     "solutionSteps": [
-      "[1 mark] Correct option (d) Magnesium and Calcium: both react with water to liberate hydrogen gas, whose bubbles stick to the metal surface and make the metal float."
+      "[1 mark] Correct option (d) Magnesium and Calcium: both react with water to liberate hydrogen gas, whose bubbles stick to the metal surface and make the metal float. Answer: (D)"
     ],
     "finalAnswer": "(d) Magnesium and Calcium",
     "isCompetencyBased": false

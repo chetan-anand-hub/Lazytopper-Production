@@ -17,7 +17,7 @@ export const REAL_NUMBERS_APQ: CanonicalQuestion[] = [
       "(A) is false but (R) is true."
     ],
     answer: "(A) is false but (R) is true.",
-    solutionSteps: ["R is true: 3^2 × 7^2 = 441 is odd (product of odd numbers).", "A is false: if b = 2 (the only even prime), then q = 441 × 2 = 882 is even. So q is NOT definitely odd."],
+    solutionSteps: ["R is true: 3^2 × 7^2 = 441 is odd (product of odd numbers).", "A is false: if b = 2 (the only even prime), then q = 441 × 2 = 882 is even. So q is NOT definitely odd. Answer: (D)"],
     finalAnswer: "(d) (A) is false but (R) is true.",
     ncertRef: "APQ PQ1 Q19", isCompetencyBased: true },
 
@@ -34,7 +34,7 @@ export const REAL_NUMBERS_APQ: CanonicalQuestion[] = [
     questionText: "In a formula racing competition, the time taken by two racing cars A and B to complete 1 round of the track is 30 minutes and p minutes respectively. If the cars meet again at the starting point for the first time after 90 minutes and the HCF (30, p) = 15, then the value of p is",
     options: ["45 minutes", "60 minutes", "75 minutes", "180 minutes"],
     answer: "45 minutes",
-    solutionSteps: ["LCM(30, p) = 90 (cars meet first at 90 min). Using HCF × LCM = product: 15 × 90 = 30 × p ⟹ p = 45 minutes."],
+    solutionSteps: ["LCM(30, p) = 90 (cars meet first at 90 min). Using HCF × LCM = product: 15 × 90 = 30 × p ⟹ p = 45 minutes. Answer: (A)"],
     finalAnswer: "(a) 45 minutes",
     ncertRef: "APQ PQ2 Q2", isCompetencyBased: true },
 
@@ -74,7 +74,7 @@ export const REAL_NUMBERS_APQ: CanonicalQuestion[] = [
       "(A) is false but (R) is true."
     ],
     answer: "(A) is true but (R) is false.",
-    solutionSteps: ["A is true: 2 is the smallest prime number.", "R is false: (√2)^2 = 2 is prime, but (√3)^2 = 3 is also prime, while (√4)^2 = 4 is not prime. The square of an irrational number is not always prime — counter-example (√6)^2 = 6 (composite)."],
+    solutionSteps: ["A is true: 2 is the smallest prime number.", "R is false: (√2)^2 = 2 is prime, but (√3)^2 = 3 is also prime, while (√4)^2 = 4 is not prime. The square of an irrational number is not always prime — counter-example (√6)^2 = 6 (composite). Answer: (C)"],
     finalAnswer: "(c) (A) is true but (R) is false.",
     ncertRef: "APQ PQ_2022 Q19", isCompetencyBased: true },
 

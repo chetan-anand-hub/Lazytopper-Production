@@ -11,7 +11,7 @@ export const ACIDS_BASES_SALTS_APQ: CanonicalQuestion[] = [
     questionText: "Neetu has two test tubes containing dilute hydrochloric acid and dilute sodium hydroxide solution, but they are not labeled. Adding which of the following solutions to the test tubes will help her visually identify the acidic and basic solution?",
     options: ["only vinegar", "only baking soda", "only sodium chloride", "either vinegar or sodium chloride"],
     answer: "only baking soda",
-    solutionSteps: ["[0.5 mark] Baking soda (NaHCO3) reacts with acid (HCl) to release CO2 gas (visible effervescence) but does not react visibly with base (NaOH).", "[0.5 mark] Vinegar (an acid) would only react with the base (no visible cue distinguishing test tubes clearly). NaCl gives no reaction with either."],
+    solutionSteps: ["[0.5 mark] Baking soda (NaHCO3) reacts with acid (HCl) to release CO2 gas (visible effervescence) but does not react visibly with base (NaOH).", "[0.5 mark] Vinegar (an acid) would only react with the base (no visible cue distinguishing test tubes clearly). NaCl gives no reaction with either. Answer: (B)"],
     finalAnswer: "(b) only baking soda",
     ncertRef: "APQ Science-PQ Q3", isCompetencyBased: true },
 
@@ -20,7 +20,7 @@ export const ACIDS_BASES_SALTS_APQ: CanonicalQuestion[] = [
     questionText: "Sonia has aqueous solutions of three salts — sodium acetate, sodium chloride and ammonium chloride — in three test tubes. The test tubes are not labelled. On checking, she finds the pH of the solutions to be 4.6, 7.0 and 8.9. Which of the following correctly matches the salts with their respective pH?",
     options: ["pH 4.6 = sodium acetate, pH 7.0 = sodium chloride, pH 8.9 = ammonium chloride", "pH 4.6 = sodium chloride, pH 7.0 = ammonium chloride, pH 8.9 = sodium acetate", "pH 4.6 = ammonium chloride, pH 7.0 = sodium acetate, pH 8.9 = sodium chloride", "pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate"],
     answer: "pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate",
-    solutionSteps: ["Salt of strong acid + strong base (NaCl) → pH neutral ≈ 7.", "Salt of weak acid + strong base (sodium acetate, NaOAc) → pH basic > 7 ⟹ 8.9.", "Salt of strong acid + weak base (NH4Cl) → pH acidic < 7 ⟹ 4.6."],
+    solutionSteps: ["Salt of strong acid + strong base (NaCl) → pH neutral ≈ 7.", "Salt of weak acid + strong base (sodium acetate, NaOAc) → pH basic > 7 ⟹ 8.9.", "Salt of strong acid + weak base (NH4Cl) → pH acidic < 7 ⟹ 4.6. Answer: (D)"],
     finalAnswer: "(d) pH 4.6 = ammonium chloride, pH 7.0 = sodium chloride, pH 8.9 = sodium acetate",
     ncertRef: "APQ Science-PQ Q4", isCompetencyBased: true,
     sourceOverride: "others", },
@@ -32,7 +32,7 @@ export const ACIDS_BASES_SALTS_APQ: CanonicalQuestion[] = [
     questionText: "Washing soda is hydrated:",
     options: ["Sodium hydrogen carbonate", "Calcium hydrogen carbonate", "Slaked carbonate", "Sodium carbonate"],
     answer: "Sodium carbonate",
-    solutionSteps: ["[1 mark] Washing soda is the common name for hydrated sodium carbonate, Na2CO3·10 H2O. It is obtained by recrystallisation of sodium carbonate."],
+    solutionSteps: ["[1 mark] Washing soda is the common name for hydrated sodium carbonate, Na2CO3·10 H2O. It is obtained by recrystallisation of sodium carbonate. Answer: (D)"],
     finalAnswer: "(d) Sodium carbonate",
     ncertRef: "APQ Science-PQ2 Q3", isCompetencyBased: false },
 

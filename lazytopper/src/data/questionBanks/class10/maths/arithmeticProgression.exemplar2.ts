@@ -31,7 +31,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The 11th term of the AP: −5, −5/2, 0, 5/2, ... is",
     options: ["−20", "20", "−30", "30"],
     answer: "20",
-    solutionSteps: ["[1 mark] Here a = −5 and d = −5/2 − (−5) = 5/2; so a₁₁ = a + 10d = −5 + 10 × (5/2) = −5 + 25 = 20 — option (B)."],
+    solutionSteps: ["[1 mark] Here a = −5 and d = −5/2 − (−5) = 5/2; so a₁₁ = a + 10d = −5 + 10 × (5/2) = −5 + 25 = 20 — option (B). Answer: (B)"],
     finalAnswer: "20 — option (B).",
     ncertRef: "Exemplar Ex 5.1 Q4", isCompetencyBased: false },
 
@@ -39,7 +39,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The first four terms of an AP, whose first term is −2 and the common difference is −2, are",
     options: ["−2, 0, 2, 4", "−2, 4, −8, 16", "−2, −4, −6, −8", "−2, −4, −8, −16"],
     answer: "−2, −4, −6, −8",
-    solutionSteps: ["[1 mark] Adding d = −2 successively to a = −2 gives −2, −4, −6, −8 — option (C)."],
+    solutionSteps: ["[1 mark] Adding d = −2 successively to a = −2 gives −2, −4, −6, −8 — option (C). Answer: (C)"],
     finalAnswer: "−2, −4, −6, −8 — option (C).",
     ncertRef: "Exemplar Ex 5.1 Q5", isCompetencyBased: false },
 
@@ -47,7 +47,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The 21st term of the AP whose first two terms are −3 and 4 is",
     options: ["17", "137", "143", "−143"],
     answer: "137",
-    solutionSteps: ["[1 mark] a = −3, d = 4 − (−3) = 7, so a₂₁ = a + 20d = −3 + 20 × 7 = 137 — option (B)."],
+    solutionSteps: ["[1 mark] a = −3, d = 4 − (−3) = 7, so a₂₁ = a + 20d = −3 + 20 × 7 = 137 — option (B). Answer: (B)"],
     finalAnswer: "137 — option (B).",
     ncertRef: "Exemplar Ex 5.1 Q6", isCompetencyBased: false },
 
@@ -55,7 +55,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "Which term of the AP: 21, 42, 63, 84, ... is 210?",
     options: ["9th", "10th", "11th", "12th"],
     answer: "10th",
-    solutionSteps: ["[1 mark] a = 21, d = 21, so aₙ = 21n; setting 21n = 210 gives n = 10, i.e. the 10th term — option (B)."],
+    solutionSteps: ["[1 mark] a = 21, d = 21, so aₙ = 21n; setting 21n = 210 gives n = 10, i.e. the 10th term — option (B). Answer: (B)"],
     finalAnswer: "10th term — option (B).",
     ncertRef: "Exemplar Ex 5.1 Q8", isCompetencyBased: false },
 
@@ -63,7 +63,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "What is the common difference of an AP in which a₁₈ − a₁₄ = 32?",
     options: ["8", "−8", "−4", "4"],
     answer: "8",
-    solutionSteps: ["[1 mark] a₁₈ − a₁₄ = (18 − 14)d = 4d = 32, so d = 8 — option (A)."],
+    solutionSteps: ["[1 mark] a₁₈ − a₁₄ = (18 − 14)d = 4d = 32, so d = 8 — option (A). Answer: (A)"],
     finalAnswer: "8 — option (A).",
     ncertRef: "Exemplar Ex 5.1 Q10", isCompetencyBased: false },
 
@@ -79,7 +79,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The 4th term from the end of the AP: −11, −8, −5, ..., 49 is",
     options: ["37", "40", "43", "58"],
     answer: "40",
-    solutionSteps: ["[1 mark] With last term l = 49 and d = 3, the kth term from the end is l − (k − 1)d; the 4th from the end = 49 − 3 × 3 = 40 — option (B)."],
+    solutionSteps: ["[1 mark] With last term l = 49 and d = 3, the kth term from the end is l − (k − 1)d; the 4th from the end = 49 − 3 × 3 = 40 — option (B). Answer: (B)"],
     finalAnswer: "40 — option (B).",
     ncertRef: "Exemplar Ex 5.1 Q13", isCompetencyBased: false },
 
@@ -87,7 +87,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The famous mathematician associated with finding the sum of the first 100 natural numbers is",
     options: ["Pythagoras", "Newton", "Gauss", "Euclid"],
     answer: "Gauss",
-    solutionSteps: ["[1 mark] Carl Friedrich Gauss is credited with quickly summing 1 + 2 + ... + 100 = 5050 by pairing terms — option (C)."],
+    solutionSteps: ["[1 mark] Carl Friedrich Gauss is credited with quickly summing 1 + 2 + ... + 100 = 5050 by pairing terms — option (C). Answer: (C)"],
     finalAnswer: "Gauss — option (C).",
     ncertRef: "Exemplar Ex 5.1 Q14", isCompetencyBased: false },
 
@@ -95,7 +95,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "In an AP if a = 1, aₙ = 20 and Sₙ = 399, then n is",
     options: ["19", "21", "38", "42"],
     answer: "38",
-    solutionSteps: ["[1 mark] Sₙ = (n/2)(a + aₙ) ⇒ 399 = (n/2)(1 + 20) = 21n/2, so n = 798/21 = 38 — option (C)."],
+    solutionSteps: ["[1 mark] Sₙ = (n/2)(a + aₙ) ⇒ 399 = (n/2)(1 + 20) = 21n/2, so n = 798/21 = 38 — option (C). Answer: (C)"],
     finalAnswer: "38 — option (C).",
     ncertRef: "Exemplar Ex 5.1 Q17", isCompetencyBased: false },
 
@@ -103,7 +103,7 @@ export const AP_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The sum of first five multiples of 3 is",
     options: ["45", "55", "65", "75"],
     answer: "45",
-    solutionSteps: ["[1 mark] The first five multiples of 3 are 3, 6, 9, 12, 15; their sum = (5/2)(3 + 15) = 45 — option (A)."],
+    solutionSteps: ["[1 mark] The first five multiples of 3 are 3, 6, 9, 12, 15; their sum = (5/2)(3 + 15) = 45 — option (A). Answer: (A)"],
     finalAnswer: "45 — option (A).",
     ncertRef: "Exemplar Ex 5.1 Q18", isCompetencyBased: false },
 

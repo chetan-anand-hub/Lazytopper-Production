@@ -129,7 +129,7 @@ export const HUMAN_EYE_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "cornea",
     "solutionSteps": [
-      "[1 mark] Cornea — light enters the eye through this thin transparent membrane forming the bulge at the front of the eyeball, and most of the refraction of the entering rays occurs at its outer surface."
+      "[1 mark] Cornea — light enters the eye through this thin transparent membrane forming the bulge at the front of the eyeball, and most of the refraction of the entering rays occurs at its outer surface. Answer: (C)"
     ],
     "finalAnswer": "cornea",
     "isCompetencyBased": true,
@@ -158,7 +158,7 @@ export const HUMAN_EYE_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The ciliary muscles relax, the eye lens becomes thinner and its focal length increases.",
     "solutionSteps": [
-      "[1 mark] For a distant object the ciliary muscles relax, the eye lens becomes thinner and its focal length increases, so the image of the hill forms on the retina (power of accommodation)."
+      "[1 mark] For a distant object the ciliary muscles relax, the eye lens becomes thinner and its focal length increases, so the image of the hill forms on the retina (power of accommodation). Answer: (A)"
     ],
     "finalAnswer": "The ciliary muscles relax, the eye lens becomes thinner and its focal length increases.",
     "isCompetencyBased": true,

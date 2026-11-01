@@ -20,7 +20,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Nitrates and nitrites",
     "solutionSteps": [
-      "[1 mark] Plants cannot use atmospheric nitrogen directly or synthesise proteins from it in the soil; they absorb nitrogen mainly as soluble nitrates and nitrites taken up by the roots. Correct option: Nitrates and nitrites."
+      "[1 mark] Plants cannot use atmospheric nitrogen directly or synthesise proteins from it in the soil; they absorb nitrogen mainly as soluble nitrates and nitrites taken up by the roots. Correct option: Nitrates and nitrites. Answer: (B)"
     ],
     "finalAnswer": "Nitrates and nitrites",
     "isCompetencyBased": false
@@ -44,7 +44,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Osmoregulation",
     "solutionSteps": [
-      "[1 mark] The contractile vacuole collects excess water entering the cell by osmosis and expels it, thereby regulating the water and salt balance — osmoregulation. Correct option: Osmoregulation."
+      "[1 mark] The contractile vacuole collects excess water entering the cell by osmosis and expels it, thereby regulating the water and salt balance — osmoregulation. Correct option: Osmoregulation. Answer: (C)"
     ],
     "finalAnswer": "Osmoregulation",
     "isCompetencyBased": false
@@ -68,7 +68,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Sphygmomanometer",
     "solutionSteps": [
-      "[1 mark] Arterial blood pressure is measured with a sphygmomanometer. Correct option: Sphygmomanometer."
+      "[1 mark] Arterial blood pressure is measured with a sphygmomanometer. Correct option: Sphygmomanometer. Answer: (D)"
     ],
     "finalAnswer": "Sphygmomanometer",
     "isCompetencyBased": false
@@ -92,7 +92,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Ingestion → digestion → absorption → assimilation",
     "solutionSteps": [
-      "[1 mark] Food is first taken in (ingestion), broken down (digestion), the products are taken into blood (absorption) and then used by cells (assimilation). Correct option: Ingestion → digestion → absorption → assimilation."
+      "[1 mark] Food is first taken in (ingestion), broken down (digestion), the products are taken into blood (absorption) and then used by cells (assimilation). Correct option: Ingestion → digestion → absorption → assimilation. Answer: (A)"
     ],
     "finalAnswer": "Ingestion → digestion → absorption → assimilation",
     "isCompetencyBased": false
@@ -116,7 +116,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Liver",
     "solutionSteps": [
-      "[1 mark] Excess amino acids are deaminated and the ammonia produced is converted to urea in the liver; the kidney only removes this urea. Correct option: Liver."
+      "[1 mark] Excess amino acids are deaminated and the ammonia produced is converted to urea in the liver; the kidney only removes this urea. Correct option: Liver. Answer: (A)"
     ],
     "finalAnswer": "Liver",
     "isCompetencyBased": false
@@ -140,7 +140,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "The surface area of the root is reduced",
     "solutionSteps": [
-      "[1 mark] Transplanting damages the fine root hairs, reducing the root's surface area for water and mineral absorption. Correct option: The surface area of the root is reduced."
+      "[1 mark] Transplanting damages the fine root hairs, reducing the root's surface area for water and mineral absorption. Correct option: The surface area of the root is reduced. Answer: (D)"
     ],
     "finalAnswer": "The surface area of the root is reduced",
     "isCompetencyBased": false
@@ -164,7 +164,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Helps in translocation of sugar in plants",
     "solutionSteps": [
-      "[1 mark] Transpiration creates the pull that draws up water and minerals and cools the leaf, but translocation of sugars is carried out by the phloem, not by transpiration. Correct option: Helps in translocation of sugar in plants."
+      "[1 mark] Transpiration creates the pull that draws up water and minerals and cools the leaf, but translocation of sugars is carried out by the phloem, not by transpiration. Correct option: Helps in translocation of sugar in plants. Answer: (B)"
     ],
     "finalAnswer": "Helps in translocation of sugar in plants",
     "isCompetencyBased": false
@@ -188,7 +188,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Earthworm",
     "solutionSteps": [
-      "[1 mark] Segmentally arranged nephridia are the excretory organs of the earthworm. Correct option: Earthworm."
+      "[1 mark] Segmentally arranged nephridia are the excretory organs of the earthworm. Correct option: Earthworm. Answer: (C)"
     ],
     "finalAnswer": "Earthworm",
     "isCompetencyBased": false
@@ -212,7 +212,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Cytoplasm",
     "solutionSteps": [
-      "[1 mark] Glycolysis, the breakdown of glucose to pyruvate, takes place in the cytoplasm of the cell. Correct option: Cytoplasm."
+      "[1 mark] Glycolysis, the breakdown of glucose to pyruvate, takes place in the cytoplasm of the cell. Correct option: Cytoplasm. Answer: (B)"
     ],
     "finalAnswer": "Cytoplasm",
     "isCompetencyBased": false
@@ -236,7 +236,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Capillaries",
     "solutionSteps": [
-      "[1 mark] Capillaries have extremely thin, one-cell-thick walls that allow exchange of gases, nutrients and wastes between blood and tissue cells. Correct option: Capillaries."
+      "[1 mark] Capillaries have extremely thin, one-cell-thick walls that allow exchange of gases, nutrients and wastes between blood and tissue cells. Correct option: Capillaries. Answer: (C)"
     ],
     "finalAnswer": "Capillaries",
     "isCompetencyBased": false
@@ -260,7 +260,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "filter the blood and collect the filtrate",
     "solutionSteps": [
-      "[1 mark] Blood is filtered under pressure in the glomerulus and the filtrate is collected by the surrounding Bowman's capsule. Correct option: filter the blood and collect the filtrate."
+      "[1 mark] Blood is filtered under pressure in the glomerulus and the filtrate is collected by the surrounding Bowman's capsule. Correct option: filter the blood and collect the filtrate. Answer: (D)"
     ],
     "finalAnswer": "filter the blood and collect the filtrate",
     "isCompetencyBased": false
@@ -284,7 +284,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "no urea",
     "solutionSteps": [
-      "[1 mark] The dialysing fluid contains no nitrogenous waste, so urea diffuses out of the blood into it; hence it has no urea. Correct option: no urea."
+      "[1 mark] The dialysing fluid contains no nitrogenous waste, so urea diffuses out of the blood into it; hence it has no urea. Correct option: no urea. Answer: (C)"
     ],
     "finalAnswer": "no urea",
     "isCompetencyBased": false
@@ -308,7 +308,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "have valves",
     "solutionSteps": [
-      "[1 mark] Veins carry blood at low pressure and possess valves that prevent the backflow of blood; arteries lack such valves. Correct option: have valves."
+      "[1 mark] Veins carry blood at low pressure and possess valves that prevent the backflow of blood; arteries lack such valves. Correct option: have valves. Answer: (A)"
     ],
     "finalAnswer": "have valves",
     "isCompetencyBased": false
@@ -332,7 +332,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Amoeba is unicellular",
     "solutionSteps": [
-      "[1 mark] Being a single-celled organism, Amoeba engulfs food into a food vacuole and digests it within the cell, so its digestion is intracellular. Correct option: Amoeba is unicellular."
+      "[1 mark] Being a single-celled organism, Amoeba engulfs food into a food vacuole and digests it within the cell, so its digestion is intracellular. Correct option: Amoeba is unicellular. Answer: (A)"
     ],
     "finalAnswer": "Amoeba is unicellular",
     "isCompetencyBased": false
@@ -356,7 +356,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Pepsin",
     "solutionSteps": [
-      "[1 mark] Pepsin, secreted by gastric glands and active in the acidic medium of the stomach, breaks proteins into peptones. Correct option: Pepsin."
+      "[1 mark] Pepsin, secreted by gastric glands and active in the acidic medium of the stomach, breaks proteins into peptones. Correct option: Pepsin. Answer: (C)"
     ],
     "finalAnswer": "Pepsin",
     "isCompetencyBased": false
@@ -380,7 +380,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "140/90",
     "solutionSteps": [
-      "[1 mark] Normal blood pressure is about 120/80 mm Hg; a reading of 140/90 mm Hg indicates hypertension. Correct option: 140/90."
+      "[1 mark] Normal blood pressure is about 120/80 mm Hg; a reading of 140/90 mm Hg indicates hypertension. Correct option: 140/90. Answer: (D)"
     ],
     "finalAnswer": "140/90",
     "isCompetencyBased": false
@@ -404,7 +404,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Platyhelminthes",
     "solutionSteps": [
-      "[1 mark] Flame cells (protonephridia) are the excretory structures of flatworms belonging to phylum Platyhelminthes. Correct option: Platyhelminthes."
+      "[1 mark] Flame cells (protonephridia) are the excretory structures of flatworms belonging to phylum Platyhelminthes. Correct option: Platyhelminthes. Answer: (B)"
     ],
     "finalAnswer": "Platyhelminthes",
     "isCompetencyBased": false
@@ -428,7 +428,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Diffusion of oxygen from the alveoli into the blood",
     "solutionSteps": [
-      "[1 mark] Diffusion of oxygen across the alveolar wall is a passive process driven by a concentration gradient and needs no metabolic energy; the other processes are energy-requiring. Correct option: Diffusion of oxygen from the alveoli into the blood."
+      "[1 mark] Diffusion of oxygen across the alveolar wall is a passive process driven by a concentration gradient and needs no metabolic energy; the other processes are energy-requiring. Correct option: Diffusion of oxygen from the alveoli into the blood. Answer: (B)"
     ],
     "finalAnswer": "Diffusion of oxygen from the alveoli into the blood",
     "isCompetencyBased": false
@@ -452,7 +452,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Phagocytosis",
     "solutionSteps": [
-      "[1 mark] Amoeba engulfs food particles by extending pseudopodia around them, a process called phagocytosis. Correct option: Phagocytosis."
+      "[1 mark] Amoeba engulfs food particles by extending pseudopodia around them, a process called phagocytosis. Correct option: Phagocytosis. Answer: (C)"
     ],
     "finalAnswer": "Phagocytosis",
     "isCompetencyBased": false
@@ -476,7 +476,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Starch breaking down into sugars",
     "solutionSteps": [
-      "[1 mark] Salivary amylase digests starch into maltose in the mouth; without it, starch will not be broken down into sugars. Correct option: Starch breaking down into sugars."
+      "[1 mark] Salivary amylase digests starch into maltose in the mouth; without it, starch will not be broken down into sugars. Correct option: Starch breaking down into sugars. Answer: (B)"
     ],
     "finalAnswer": "Starch breaking down into sugars",
     "isCompetencyBased": false
@@ -500,7 +500,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Red blood cell",
     "solutionSteps": [
-      "[1 mark] Mature mammalian red blood cells lose their nucleus to make more room for haemoglobin. Correct option: Red blood cell."
+      "[1 mark] Mature mammalian red blood cells lose their nucleus to make more room for haemoglobin. Correct option: Red blood cell. Answer: (A)"
     ],
     "finalAnswer": "Red blood cell",
     "isCompetencyBased": false
@@ -524,7 +524,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "White blood cells",
     "solutionSteps": [
-      "[1 mark] White blood cells (lymphocytes) produce antibodies that fight infection. Correct option: White blood cells."
+      "[1 mark] White blood cells (lymphocytes) produce antibodies that fight infection. Correct option: White blood cells. Answer: (B)"
     ],
     "finalAnswer": "White blood cells",
     "isCompetencyBased": false
@@ -548,7 +548,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Pulse",
     "solutionSteps": [
-      "[1 mark] Each surge of blood pumped by the heart expands the artery wall; this rhythmic expansion felt as a throb is the pulse. Correct option: Pulse."
+      "[1 mark] Each surge of blood pumped by the heart expands the artery wall; this rhythmic expansion felt as a throb is the pulse. Correct option: Pulse. Answer: (C)"
     ],
     "finalAnswer": "Pulse",
     "isCompetencyBased": false
@@ -572,7 +572,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Gall bladder",
     "solutionSteps": [
-      "[1 mark] Bile is secreted by the liver and stored and concentrated in the gall bladder until released into the small intestine. Correct option: Gall bladder."
+      "[1 mark] Bile is secreted by the liver and stored and concentrated in the gall bladder until released into the small intestine. Correct option: Gall bladder. Answer: (B)"
     ],
     "finalAnswer": "Gall bladder",
     "isCompetencyBased": false
@@ -596,7 +596,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Prawn",
     "solutionSteps": [
-      "[1 mark] A prawn is an aquatic arthropod that respires through gills rather than by simple diffusion across the body surface. Correct option: Prawn."
+      "[1 mark] A prawn is an aquatic arthropod that respires through gills rather than by simple diffusion across the body surface. Correct option: Prawn. Answer: (B)"
     ],
     "finalAnswer": "Prawn",
     "isCompetencyBased": false
@@ -620,7 +620,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Parakeet and Paramecium",
     "solutionSteps": [
-      "[1 mark] Holozoic nutrition involves taking in solid food and digesting it internally; both the parakeet and Paramecium feed this way, whereas Plasmodium and Cuscuta are parasites. Correct option: Parakeet and Paramecium."
+      "[1 mark] Holozoic nutrition involves taking in solid food and digesting it internally; both the parakeet and Paramecium feed this way, whereas Plasmodium and Cuscuta are parasites. Correct option: Parakeet and Paramecium. Answer: (C)"
     ],
     "finalAnswer": "Parakeet and Paramecium",
     "isCompetencyBased": false
@@ -644,7 +644,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Spiracles",
     "solutionSteps": [
-      "[1 mark] Insects such as cockroaches take in air through tiny openings called spiracles that lead into a network of tracheae. Correct option: Spiracles."
+      "[1 mark] Insects such as cockroaches take in air through tiny openings called spiracles that lead into a network of tracheae. Correct option: Spiracles. Answer: (C)"
     ],
     "finalAnswer": "Spiracles",
     "isCompetencyBased": false
@@ -692,7 +692,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Urea",
     "solutionSteps": [
-      "[1 mark] Useful substances such as glucose, amino acids and most water are selectively reabsorbed, while the nitrogenous waste urea is largely left behind to be excreted. Correct option: Urea."
+      "[1 mark] Useful substances such as glucose, amino acids and most water are selectively reabsorbed, while the nitrogenous waste urea is largely left behind to be excreted. Correct option: Urea. Answer: (C)"
     ],
     "finalAnswer": "Urea",
     "isCompetencyBased": false
@@ -716,7 +716,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Cohesion of water and transpiration pull",
     "solutionSteps": [
-      "[1 mark] In tall trees, water loss by transpiration creates a tension (pull) that, together with the cohesion of water molecules in a continuous column, draws water up the xylem. Correct option: Cohesion of water and transpiration pull."
+      "[1 mark] In tall trees, water loss by transpiration creates a tension (pull) that, together with the cohesion of water molecules in a continuous column, draws water up the xylem. Correct option: Cohesion of water and transpiration pull. Answer: (D)"
     ],
     "finalAnswer": "Cohesion of water and transpiration pull",
     "isCompetencyBased": false
@@ -740,7 +740,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Sieve tube",
     "solutionSteps": [
-      "[1 mark] Mature sieve tube cells of phloem retain cytoplasm to conduct food but lose their nucleus, functioning with the help of adjacent companion cells. Correct option: Sieve tube."
+      "[1 mark] Mature sieve tube cells of phloem retain cytoplasm to conduct food but lose their nucleus, functioning with the help of adjacent companion cells. Correct option: Sieve tube. Answer: (B)"
     ],
     "finalAnswer": "Sieve tube",
     "isCompetencyBased": false
@@ -764,7 +764,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Pulmonary vein",
     "solutionSteps": [
-      "[1 mark] The pulmonary vein is the only vein that carries oxygenated blood — from the lungs back to the heart — so it does not carry deoxygenated blood. Correct option: Pulmonary vein."
+      "[1 mark] The pulmonary vein is the only vein that carries oxygenated blood — from the lungs back to the heart — so it does not carry deoxygenated blood. Correct option: Pulmonary vein. Answer: (D)"
     ],
     "finalAnswer": "Pulmonary vein",
     "isCompetencyBased": false
@@ -788,7 +788,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Fishes",
     "solutionSteps": [
-      "[1 mark] Fishes have a two-chambered heart through which blood passes only once per circuit (heart → gills → body → heart), i.e. single circulation. Correct option: Fishes."
+      "[1 mark] Fishes have a two-chambered heart through which blood passes only once per circuit (heart → gills → body → heart), i.e. single circulation. Correct option: Fishes. Answer: (C)"
     ],
     "finalAnswer": "Fishes",
     "isCompetencyBased": false
@@ -812,7 +812,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Salivary amylase",
     "solutionSteps": [
-      "[1 mark] Digestion begins in the mouth where salivary amylase (ptyalin) in saliva acts first on the food. Correct option: Salivary amylase."
+      "[1 mark] Digestion begins in the mouth where salivary amylase (ptyalin) in saliva acts first on the food. Correct option: Salivary amylase. Answer: (C)"
     ],
     "finalAnswer": "Salivary amylase",
     "isCompetencyBased": false
@@ -836,7 +836,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "digest proteins with trypsin and emulsified fats with lipase",
     "solutionSteps": [
-      "[1 mark] In pancreatic juice, trypsin digests proteins and lipase digests emulsified fats into fatty acids and glycerol. Correct option: digest proteins with trypsin and emulsified fats with lipase."
+      "[1 mark] In pancreatic juice, trypsin digests proteins and lipase digests emulsified fats into fatty acids and glycerol. Correct option: digest proteins with trypsin and emulsified fats with lipase. Answer: (D)"
     ],
     "finalAnswer": "digest proteins with trypsin and emulsified fats with lipase",
     "isCompetencyBased": false
@@ -860,7 +860,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Tracheids",
     "solutionSteps": [
-      "[1 mark] Non-flowering vascular plants (e.g. ferns, gymnosperms) conduct water through tracheids; vessels are characteristic of flowering plants. Correct option: Tracheids."
+      "[1 mark] Non-flowering vascular plants (e.g. ferns, gymnosperms) conduct water through tracheids; vessels are characteristic of flowering plants. Correct option: Tracheids. Answer: (D)"
     ],
     "finalAnswer": "Tracheids",
     "isCompetencyBased": false
@@ -884,7 +884,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Alveoli",
     "solutionSteps": [
-      "[1 mark] Carbon dioxide diffuses from the blood in the pulmonary capillaries into the alveoli of the lungs, from where it is breathed out. Correct option: Alveoli."
+      "[1 mark] Carbon dioxide diffuses from the blood in the pulmonary capillaries into the alveoli of the lungs, from where it is breathed out. Correct option: Alveoli. Answer: (C)"
     ],
     "finalAnswer": "Alveoli",
     "isCompetencyBased": false
@@ -908,7 +908,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Oesophagus",
     "solutionSteps": [
-      "[1 mark] The oesophagus only conducts food from the mouth to the stomach by peristalsis; no digestive enzymes act there. Correct option: Oesophagus."
+      "[1 mark] The oesophagus only conducts food from the mouth to the stomach by peristalsis; no digestive enzymes act there. Correct option: Oesophagus. Answer: (B)"
     ],
     "finalAnswer": "Oesophagus",
     "isCompetencyBased": false
@@ -932,7 +932,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "flaccid",
     "solutionSteps": [
-      "[1 mark] The strong sugar solution is hypertonic, so water leaves the potato cells by osmosis (exosmosis) and the chip becomes flaccid. Correct option: flaccid."
+      "[1 mark] The strong sugar solution is hypertonic, so water leaves the potato cells by osmosis (exosmosis) and the chip becomes flaccid. Correct option: flaccid. Answer: (A)"
     ],
     "finalAnswer": "flaccid",
     "isCompetencyBased": false
@@ -956,7 +956,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "internal respiration",
     "solutionSteps": [
-      "[1 mark] Tissue (cellular) respiration, the oxidation of glucose within cells to release energy, is called internal respiration. Correct option: internal respiration."
+      "[1 mark] Tissue (cellular) respiration, the oxidation of glucose within cells to release energy, is called internal respiration. Correct option: internal respiration. Answer: (C)"
     ],
     "finalAnswer": "internal respiration",
     "isCompetencyBased": false
@@ -975,7 +975,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["Epiglottis", "Larynx", "Diaphragm", "Pharynx"],
     "answer": "Epiglottis",
     "solutionSteps": [
-      "[1 mark] Epiglottis — the epiglottis covers the glottis (opening of the trachea) during swallowing."
+      "[1 mark] Epiglottis — the epiglottis covers the glottis (opening of the trachea) during swallowing. Answer: (A)"
     ],
     "finalAnswer": "Epiglottis",
     "isCompetencyBased": false
@@ -994,7 +994,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["Lymph nodes", "Blood capillaries", "Venules", "Lacteals"],
     "answer": "Lacteals",
     "solutionSteps": [
-      "[1 mark] Lacteals — lacteals in the villi absorb the products of fat digestion."
+      "[1 mark] Lacteals — lacteals in the villi absorb the products of fat digestion. Answer: (D)"
     ],
     "finalAnswer": "Lacteals",
     "isCompetencyBased": false
@@ -1013,7 +1013,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["Bolus", "Bile", "Chyme", "Chyle"],
     "answer": "Chyme",
     "solutionSteps": [
-      "[1 mark] Chyme — the acidic, partially digested food leaving the stomach is chyme."
+      "[1 mark] Chyme — the acidic, partially digested food leaving the stomach is chyme. Answer: (C)"
     ],
     "finalAnswer": "Chyme",
     "isCompetencyBased": false
@@ -1032,7 +1032,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["Systolic pressure", "Diastolic pressure", "Osmotic pressure", "Atmospheric pressure"],
     "answer": "Diastolic pressure",
     "solutionSteps": [
-      "[1 mark] Diastolic pressure — pressure during ventricular relaxation (diastole) is diastolic pressure."
+      "[1 mark] Diastolic pressure — pressure during ventricular relaxation (diastole) is diastolic pressure. Answer: (B)"
     ],
     "finalAnswer": "Diastolic pressure",
     "isCompetencyBased": false
@@ -1051,7 +1051,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["Glycolysis", "Fermentation", "Photolysis", "Transpiration"],
     "answer": "Glycolysis",
     "solutionSteps": [
-      "[1 mark] Glycolysis — glycolysis (glucose to pyruvate in the cytoplasm) is the first step of both types of respiration."
+      "[1 mark] Glycolysis — glycolysis (glucose to pyruvate in the cytoplasm) is the first step of both types of respiration. Answer: (A)"
     ],
     "finalAnswer": "Glycolysis",
     "isCompetencyBased": false
@@ -1070,7 +1070,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["Transport of water from roots to leaves through xylem", "Loss of water vapour from the aerial parts of the plant", "Transport of food from leaves to other parts through xylem", "Transport of food from leaves to other parts through phloem"],
     "answer": "Transport of food from leaves to other parts through phloem",
     "solutionSteps": [
-      "[1 mark] Transport of food from leaves to other parts through phloem — translocation is the movement of soluble products of photosynthesis from leaves to other parts via phloem."
+      "[1 mark] Transport of food from leaves to other parts through phloem — translocation is the movement of soluble products of photosynthesis from leaves to other parts via phloem. Answer: (D)"
     ],
     "finalAnswer": "Transport of food from leaves to other parts through phloem",
     "isCompetencyBased": false,
@@ -1090,7 +1090,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["the absorption of digested food by the villi of the small intestine", "the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward", "the breaking of fat into small globules by the action of bile juice", "the mixing of food with saliva by the chewing action of teeth"],
     "answer": "the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward",
     "solutionSteps": [
-      "[1 mark] the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward — peristalsis is the wave-like muscular movement of the gut wall that moves food along the alimentary canal."
+      "[1 mark] the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward — peristalsis is the wave-like muscular movement of the gut wall that moves food along the alimentary canal. Answer: (B)"
     ],
     "finalAnswer": "the rhythmic contraction and relaxation of the muscles of the alimentary canal that pushes food forward",
     "isCompetencyBased": false,
@@ -1110,7 +1110,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["energy is absorbed to break down glucose during respiration", "oxygen is taken in from the air during respiration", "water is absorbed by the cells during respiration", "oxidation of glucose during respiration releases energy"],
     "answer": "oxidation of glucose during respiration releases energy",
     "solutionSteps": [
-      "[1 mark] oxidation of glucose during respiration releases energy — glucose is oxidised in respiration and energy is given out, so the process is exothermic."
+      "[1 mark] oxidation of glucose during respiration releases energy — glucose is oxidised in respiration and energy is given out, so the process is exothermic. Answer: (D)"
     ],
     "finalAnswer": "oxidation of glucose during respiration releases energy",
     "isCompetencyBased": false,
@@ -1130,7 +1130,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     "options": ["starch and glycogen", "glycogen and starch", "glucose and glycogen", "sucrose and fat"],
     "answer": "starch and glycogen",
     "solutionSteps": [
-      "[1 mark] starch and glycogen — plants store carbohydrate as starch, animals store it as glycogen (in liver and muscles)."
+      "[1 mark] starch and glycogen — plants store carbohydrate as starch, animals store it as glycogen (in liver and muscles). Answer: (A)"
     ],
     "finalAnswer": "starch and glycogen",
     "isCompetencyBased": false,
@@ -1155,7 +1155,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Urine",
     "solutionSteps": [
-      "[1 mark] The bulk of nitrogenous waste (urea) is removed from a mammal's body dissolved in urine. Correct option: Urine."
+      "[1 mark] The bulk of nitrogenous waste (urea) is removed from a mammal's body dissolved in urine. Correct option: Urine. Answer: (D)"
     ],
     "finalAnswer": "Urine",
     "isCompetencyBased": false
@@ -1179,7 +1179,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "A is true but R is false.",
     "solutionSteps": [
-      "[1 mark] A is true — digestion converts complex molecules into absorbable simpler ones. R is false because some molecules such as glucose and vitamin C are absorbed without any digestion, so digestion is not needed for absorption of all molecules. Correct option: A is true but R is false."
+      "[1 mark] A is true — digestion converts complex molecules into absorbable simpler ones. R is false because some molecules such as glucose and vitamin C are absorbed without any digestion, so digestion is not needed for absorption of all molecules. Correct option: A is true but R is false. Answer: (C)"
     ],
     "finalAnswer": "A is true but R is false.",
     "isCompetencyBased": false
@@ -1203,7 +1203,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "A is true but R is false.",
     "solutionSteps": [
-      "[1 mark] A is true — ventricles have thicker walls than atria because they must pump blood out of the heart. R is false because backflow of blood is prevented by valves, not by the thickness of the ventricle walls. Correct option: A is true but R is false."
+      "[1 mark] A is true — ventricles have thicker walls than atria because they must pump blood out of the heart. R is false because backflow of blood is prevented by valves, not by the thickness of the ventricle walls. Correct option: A is true but R is false. Answer: (C)"
     ],
     "finalAnswer": "A is true but R is false.",
     "isCompetencyBased": false
@@ -1227,7 +1227,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true and R is the correct explanation of A.",
     "solutionSteps": [
-      "[1 mark] Both statements are true: a residual volume of air always remains in the lungs even after forceful exhalation, and this residual air ensures continuous gas exchange, giving oxygen time to be absorbed and carbon dioxide time to be released. R correctly explains A. Correct option: Both A and R are true and R is the correct explanation of A."
+      "[1 mark] Both statements are true: a residual volume of air always remains in the lungs even after forceful exhalation, and this residual air ensures continuous gas exchange, giving oxygen time to be absorbed and carbon dioxide time to be released. R correctly explains A. Correct option: Both A and R are true and R is the correct explanation of A. Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true and R is the correct explanation of A.",
     "isCompetencyBased": false
@@ -1251,7 +1251,7 @@ export const LP_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are false.",
     "solutionSteps": [
-      "[1 mark] Both statements are false because the definitions are swapped: egestion is the discharge of undigested matter from the digestive tract, whereas excretion is the removal of nitrogenous metabolic waste from the body. Correct option: Both A and R are false."
+      "[1 mark] Both statements are false because the definitions are swapped: egestion is the discharge of undigested matter from the digestive tract, whereas excretion is the removal of nitrogenous metabolic waste from the body. Correct option: Both A and R are false. Answer: (D)"
     ],
     "finalAnswer": "Both A and R are false.",
     "isCompetencyBased": false

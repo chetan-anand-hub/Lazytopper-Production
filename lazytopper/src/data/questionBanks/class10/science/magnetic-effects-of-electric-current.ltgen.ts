@@ -28,7 +28,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["0.01 s", "0.02 s", "0.05 s", "0.5 s"],
     "answer": "0.02 s",
     "solutionSteps": [
-      "[1 mark] Time for one cycle = 1/frequency = 1/50 s = 0.02 s."
+      "[1 mark] Time for one cycle = 1/frequency = 1/50 s = 0.02 s. Answer: (B)"
     ],
     "finalAnswer": "0.02 s",
     "isCompetencyBased": false,
@@ -51,7 +51,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["30", "60", "120", "240"],
     "answer": "120",
     "solutionSteps": [
-      "[1 mark] The current reverses direction twice in every cycle, so in one second it changes direction 2 × 60 = 120 times."
+      "[1 mark] The current reverses direction twice in every cycle, so in one second it changes direction 2 × 60 = 120 times. Answer: (C)"
     ],
     "finalAnswer": "120",
     "isCompetencyBased": true,
@@ -74,7 +74,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["25 Hz", "50 Hz", "100 Hz", "200 Hz"],
     "answer": "50 Hz",
     "solutionSteps": [
-      "[1 mark] 200 reversals in 2 s = 100 reversals per second; there are 2 reversals per cycle, so the frequency is 100/2 = 50 Hz."
+      "[1 mark] 200 reversals in 2 s = 100 reversals per second; there are 2 reversals per cycle, so the frequency is 100/2 = 50 Hz. Answer: (B)"
     ],
     "finalAnswer": "50 Hz",
     "isCompetencyBased": true,
@@ -102,7 +102,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It reverses its direction periodically, with a frequency of 50 Hz.",
     "solutionSteps": [
-      "[1 mark] Household supply in India is alternating current of frequency 50 Hz: it reverses direction periodically (100 times per second), and 220 V is its voltage, not its frequency."
+      "[1 mark] Household supply in India is alternating current of frequency 50 Hz: it reverses direction periodically (100 times per second), and 220 V is its voltage, not its frequency. Answer: (B)"
     ],
     "finalAnswer": "It reverses its direction periodically, with a frequency of 50 Hz.",
     "isCompetencyBased": false,
@@ -281,7 +281,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "can be transmitted over long distances without much loss of energy",
     "solutionSteps": [
-      "[1 mark] AC can be transmitted over long distances without much loss of energy; the other options are false."
+      "[1 mark] AC can be transmitted over long distances without much loss of energy; the other options are false. Answer: (B)"
     ],
     "finalAnswer": "can be transmitted over long distances without much loss of energy",
     "isCompetencyBased": false,
@@ -309,7 +309,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "AC can be transmitted over long distances without much loss of energy.",
     "solutionSteps": [
-      "[1 mark] The advantage of AC over DC is that it can be transmitted over long distances without much loss of energy. A cell stores DC, long-distance supply uses AC, and DC never reverses — so the other three are false."
+      "[1 mark] The advantage of AC over DC is that it can be transmitted over long distances without much loss of energy. A cell stores DC, long-distance supply uses AC, and DC never reverses — so the other three are false. Answer: (C)"
     ],
     "finalAnswer": "AC can be transmitted over long distances without much loss of energy.",
     "isCompetencyBased": true,
@@ -337,7 +337,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "AC, because it can be sent over long distances with much less loss of energy",
     "solutionSteps": [
-      "[1 mark] Power is transmitted as AC because AC can be sent over long distances with much less loss of energy; the reasons given in the other options are false."
+      "[1 mark] Power is transmitted as AC because AC can be sent over long distances with much less loss of energy; the reasons given in the other options are false. Answer: (B)"
     ],
     "finalAnswer": "AC, because it can be sent over long distances with much less loss of energy",
     "isCompetencyBased": true,

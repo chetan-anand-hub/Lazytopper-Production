@@ -3,27 +3,27 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const trianglesPack2Questions: CanonicalQuestion[] = [
   { id: "TRI2-E01", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In △ABC, if D and E are points on AB and AC respectively such that DE ∥ BC, then △ADE is similar to △ABC by:", options: ["AA similarity", "SSS similarity", "SAS similarity", "RHS congruence"], answer: "AA similarity", explanation: "The correct answer is AA similarity. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "AA similarity",
     solutionSteps: [
-      "[1 mark] Option (a) AA similarity is correct: since DE ∥ BC, ∠ADE = ∠ABC and ∠AED = ∠ACB (corresponding angles), so △ADE ~ △ABC by AA.",
+      "[1 mark] Option (a) AA similarity is correct: since DE ∥ BC, ∠ADE = ∠ABC and ∠AED = ∠ACB (corresponding angles), so △ADE ~ △ABC by AA. Answer: (A)",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-E02", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The ratio of the corresponding medians of two similar triangles is equal to:", options: ["Ratio of corresponding sides", "Square of ratio of corresponding sides", "Ratio of areas", "Ratio of perimeters squared"], answer: "Ratio of corresponding sides", explanation: "The correct answer is Ratio of corresponding sides. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Ratio of corresponding sides",
     solutionSteps: [
-      "[1 mark] Option (a) is correct: in similar triangles every corresponding length (sides, medians, altitudes, angle bisectors, perimeters) is in the same ratio as the corresponding sides; only areas go as the square of that ratio.",
+      "[1 mark] Option (a) is correct: in similar triangles every corresponding length (sides, medians, altitudes, angle bisectors, perimeters) is in the same ratio as the corresponding sides; only areas go as the square of that ratio. Answer: (A)",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-E03", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle with legs 6 cm and 8 cm, the hypotenuse is:", options: ["10 cm", "12 cm", "14 cm", "7 cm"], answer: "10 cm", explanation: "The correct answer is 10 cm. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10 cm",
     solutionSteps: [
-      "[1 mark] Option (a) 10 cm is correct: by Pythagoras theorem, hypotenuse^2 = 6^2 + 8^2 = 36 + 64 = 100, so hypotenuse = sqrt(100) = 10 cm.",
+      "[1 mark] Option (a) 10 cm is correct: by Pythagoras theorem, hypotenuse^2 = 6^2 + 8^2 = 36 + 64 = 100, so hypotenuse = sqrt(100) = 10 cm. Answer: (A)",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-E04", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "In △ABC, D is on AB and E is on AC such that DE ∥ BC. If AD = 2 cm and DB = 3 cm, then AE:EC is:", options: ["2:3", "3:2", "2:5", "5:2"], answer: "2:3", explanation: "The correct answer is 2:3. Since DE ∥ BC, the Basic Proportionality Theorem gives AD/DB = AE/EC, so AE : EC = 2 : 3.", finalAnswer: "AE : EC = 2 : 3",
     solutionSteps: [
-      "[1 mark] By BPT, DE ∥ BC gives AE/EC = AD/DB = 2 cm / 3 cm, so AE : EC = 2 : 3.",
+      "[1 mark] By BPT, DE ∥ BC gives AE/EC = AD/DB = 2 cm / 3 cm, so AE : EC = 2 : 3. Answer: (A)",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-E05", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is NOT a criterion for similarity of triangles?", options: ["AAA", "SSS", "SAS", "ASA"], answer: "ASA", explanation: "The correct answer is ASA. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "ASA",
     solutionSteps: [
-      "AAA (equivalently AA), SSS and SAS are the criteria for similarity of triangles; ASA is a congruence criterion, not a similarity criterion, so the answer is ASA. [1]",
+      "AAA (equivalently AA), SSS and SAS are the criteria for similarity of triangles; ASA is a congruence criterion, not a similarity criterion, so the answer is ASA. [1] Answer: (D)",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-E06", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "In △ABC, DE ∥ BC. If AD = 4 cm and AB = 12 cm, find DB and the ratio AD:DB.", solutionSteps: [
@@ -57,7 +57,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
     ], finalAnswer: "TR = 4" , isCompetencyBased: false},
   { id: "TRI2-E11", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Two triangles are similar if their corresponding angles are equal. This is known as:", options: ["AA criterion", "SAS criterion", "SSS criterion", "RHS criterion"], answer: "AA criterion", explanation: "The correct answer is AA criterion. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "AA criterion",
     solutionSteps: [
-      "[1 mark] Option (a) AA criterion is correct: similarity by equal corresponding angles is the AAA/AA criterion (two equal angle pairs force the third by angle sum 180°); SAS, SSS use sides and RHS is a congruence rule.",
+      "[1 mark] Option (a) AA criterion is correct: similarity by equal corresponding angles is the AAA/AA criterion (two equal angle pairs force the third by angle sum 180°); SAS, SSS use sides and RHS is a congruence rule. Answer: (A)",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-AR01", subject: "Maths", topicKey: "triangles", subtopic: "Area ratio of similar triangles", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Analysing", questionText: "Assertion (A): If the ratio of corresponding sides of two similar triangles is 2:3, then the ratio of their areas is 4:9.\nReason (R): The ratio of areas of two similar triangles is equal to the square of the ratio of their corresponding sides.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
@@ -70,7 +70,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
   },
   { id: "TRI2-AR02", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In △ABC, D is on AB and E is on AC. If AD/DB = AE/EC, then DE ∥ BC.\nReason (R): This follows from the converse of the Basic Proportionality Theorem.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "The converse of the Basic Proportionality Theorem says: if a line divides two sides of a triangle in the same ratio, it is parallel to the third side. AD/DB = AE/EC is that condition, so DE ∥ BC. A is true, R is true, and R explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
-      "[1 mark] The converse of BPT states that a line dividing two sides of a triangle in the same ratio is parallel to the third side; AD/DB = AE/EC is exactly that condition, so DE ∥ BC. A is true, R is true, and R is the reason A holds.",
+      "[1 mark] The converse of BPT states that a line dividing two sides of a triangle in the same ratio is parallel to the third side; AD/DB = AE/EC is exactly that condition, so DE ∥ BC. A is true, R is true, and R is the reason A holds. Answer: (A)",
     ], isCompetencyBased: true,
   },
   { id: "TRI2-AR03", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In a triangle with sides 5, 12, 13 cm, the angle opposite to the side 13 cm is 90°.\nReason (R): By the converse of Pythagoras theorem, if AB² + BC² = AC², then ∠B = 90°.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
@@ -135,7 +135,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
     ], finalAnswer: "Yes" , isCompetencyBased: false},
   { id: "TRI2-E13", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "All equilateral triangles are:", options: ["Similar", "Congruent", "Neither similar nor congruent", "Both similar and congruent"], answer: "Similar", explanation: "The correct answer is Similar. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Similar",
     solutionSteps: [
-      "[1 mark] Option (a) Similar is correct: every angle of an equilateral triangle is 60°, so any two are similar by AA; they need not be congruent because their sides can differ in length.",
+      "[1 mark] Option (a) Similar is correct: every angle of an equilateral triangle is 60°, so any two are similar by AA; they need not be congruent because their sides can differ in length. Answer: (A)",
     ], isCompetencyBased: false,
   },
   { id: "TRI2-M07", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In an equilateral triangle ABC with side 2a, prove that the altitude AD = a√3.", solutionSteps: [
@@ -191,12 +191,12 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
     ], finalAnswer: "AF = (1/3)AC (proved)", visualExplainerId: "maths-triangles-basic-proportionality-theorem" , isCompetencyBased: true},
   { id: "TRI2-E21", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two triangles are similar if their corresponding angles are equal. This is the:", options: ["AA similarity criterion","SSS similarity criterion","SAS similarity criterion","RHS criterion"], answer: "AA similarity criterion", explanation: "The correct answer is AA similarity criterion. If all corresponding angles are equal, the triangles satisfy the Angle-Angle (AA) similarity criterion.", finalAnswer: "AA similarity criterion", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Similarity based on equal corresponding angles is the AAA criterion, which reduces to AA (two equal angles force the third equal by the angle-sum property); SSS and SAS use side ratios, and RHS is a congruence criterion.",
+      "[1 mark] Similarity based on equal corresponding angles is the AAA criterion, which reduces to AA (two equal angles force the third equal by the angle-sum property); SSS and SAS use side ratios, and RHS is a congruence criterion. Answer: (A)",
     ],
   },
   { id: "TRI2-E14", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In △ABC, if DE ∥ BC and AD/DB = 2/3, then AE/AC equals:", options: ["2/5","3/5","2/3","3/2"], answer: "2/5", explanation: "The correct answer is 2/5. By BPT, AD/AB = AE/AC. AD/AB = 2/(2+3) = 2/5. So AE/AC = 2/5.", finalAnswer: "AE/AC = 2/5", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] By BPT, DE ∥ BC gives AE/EC = AD/DB = 2/3, so AE : EC = 2 : 3 and AE/AC = 2/(2 + 3) = 2/5.",
+      "[1 mark] By BPT, DE ∥ BC gives AE/EC = AD/DB = 2/3, so AE : EC = 2 : 3 and AE/AC = 2/(2 + 3) = 2/5. Answer: (A)",
     ],
   },
   { id: "TRI2-E15", subject: "Maths", topicKey: "triangles", subtopic: "Area Ratio", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The ratio of areas of two similar triangles is 16:25. The ratio of their corresponding sides is:", options: ["4:5","16:25","2:5","8:25"], answer: "4:5", explanation: "The correct answer is 4:5. Area ratio = (side ratio)². So side ratio = √(16/25) = 4/5 = 4:5.", finalAnswer: "Area ratio = (side ratio)². So side ratio = √(16/25) = 4/5 = 4:5.", isCompetencyBased: false,
@@ -208,26 +208,26 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
     solutionSteps: [
       "Let the legs of the right triangle be 'a' and 'b', and the hypotenuse be 'c'.",
       "According to Pythagoras theorem, a^2 + b^2 = c^2.",
-      "Given a = 8 cm, c = 17 cm. So, 8^2 + b^2 = 17^2 => 64 + b^2 = 289 => b^2 = 225 => b = 15 cm.",
+      "Given a = 8 cm, c = 17 cm. So, 8^2 + b^2 = 17^2 => 64 + b^2 = 289 => b^2 = 225 => b = 15 cm. Answer: (A)",
     ],
   },
   { id: "TRI2-E17", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If △ABC ~ △PQR with AB/PQ = BC/QR = CA/RP = 3/2, then the triangles are:", options: ["Similar with scale factor 3/2","Congruent","Equal in area","Not related"], answer: "Similar with scale factor 3/2", explanation: "The correct answer is Similar with scale factor 3/2. All corresponding sides are in ratio 3:2, so the triangles are similar with scale factor 3/2.", finalAnswer: "All corresponding sides are in ratio 3:2, so the triangles are similar with scale factor 3/2.", isCompetencyBased: false,
     solutionSteps: [
       "The symbol '~' indicates that the triangles △ABC and △PQR are similar.",
       "The given ratios of corresponding sides AB/PQ = BC/QR = CA/RP = 3/2 confirm their similarity.",
-      "The common ratio of corresponding sides (3/2) is defined as the scale factor of similarity.",
+      "The common ratio of corresponding sides (3/2) is defined as the scale factor of similarity. Answer: (A)",
     ],
   },
   { id: "TRI2-E18", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which theorem states: if a line divides two sides of a triangle in the same ratio, it is parallel to the third side?", options: ["Converse of BPT","BPT (Thales theorem)","Midpoint theorem","Pythagoras theorem"], answer: "Converse of BPT", explanation: "The correct answer is Converse of BPT. The converse of the Basic Proportionality Theorem states that if a line divides two sides proportionally, it is parallel to the third side.", finalAnswer: "The converse of the Basic Proportionality Theorem states that if a line divides two sides proportionally, it is parallel to the third side.", isCompetencyBased: false,
     solutionSteps: [
       "The Basic Proportionality Theorem (BPT) states that if a line is parallel to one side of a triangle, it divides the other two sides proportionally.",
       "The given statement describes the reverse condition: if a line divides two sides proportionally, then it is parallel to the third side.",
-      "This specific statement is known as the Converse of the Basic Proportionality Theorem (BPT).",
+      "This specific statement is known as the Converse of the Basic Proportionality Theorem (BPT). Answer: (A)",
     ],
   },
   { id: "TRI2-E19", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two similar triangles have corresponding sides in ratio 3:4. The ratio of their altitudes is:", options: ["3:4","9:16","4:3","√3:2"], answer: "3:4", explanation: "The correct answer is 3:4. In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", finalAnswer: "In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] In similar triangles, corresponding altitudes are in the same ratio as corresponding sides (the two right triangles cut off by an altitude are similar by AA). Ratio of altitudes = 3 : 4.",
+      "[1 mark] In similar triangles, corresponding altitudes are in the same ratio as corresponding sides (the two right triangles cut off by an altitude are similar by AA). Ratio of altitudes = 3 : 4. Answer: (A)",
     ],
   },
   { id: "TRI2-E20", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In a right triangle with legs a and b and hypotenuse c, a² + b² = c².\nReason (R): This relationship is called the Pythagoras Theorem and holds for any right-angled triangle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "R names and states the Pythagoras Theorem, which is exactly the relationship expressed in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,

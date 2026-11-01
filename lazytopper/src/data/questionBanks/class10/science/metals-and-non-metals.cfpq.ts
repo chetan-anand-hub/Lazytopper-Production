@@ -67,7 +67,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     options: ["electrolysis", "electroplating", "a combination reaction", "a displacement reaction"],
     answer: "a displacement reaction",
     solutionSteps: [
-      "[1 mark] Correct option: (4) a displacement reaction. The switch was still open, so no current flowed and neither electrolysis nor electroplating can be responsible. Iron is more reactive than copper, so it displaces copper from copper sulphate solution on its own.",
+      "[1 mark] Correct option: (4) a displacement reaction. The switch was still open, so no current flowed and neither electrolysis nor electroplating can be responsible. Iron is more reactive than copper, so it displaces copper from copper sulphate solution on its own. Answer: (D)",
     ],
     finalAnswer: "a displacement reaction",
     isCompetencyBased: true,
@@ -94,7 +94,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Copper will continue to be deposited on the iron plate.",
     solutionSteps: [
-      "[1 mark] Correct option: (2) Copper will continue to be deposited on the iron plate. The iron plate is joined to the negative terminal, so it is the cathode; the positive Cu²⁺ ions in solution move to it and are deposited there.",
+      "[1 mark] Correct option: (2) Copper will continue to be deposited on the iron plate. The iron plate is joined to the negative terminal, so it is the cathode; the positive Cu²⁺ ions in solution move to it and are deposited there. Answer: (B)",
     ],
     finalAnswer: "Copper will continue to be deposited on the iron plate.",
     isCompetencyBased: true,
@@ -123,7 +123,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Silver is less reactive than copper.",
     solutionSteps: [
-      "[1 mark] Correct option: (2) Silver is less reactive than copper. A metal can displace another from its salt solution only if it is more reactive; silver is below copper in the activity series, so it cannot displace copper.",
+      "[1 mark] Correct option: (2) Silver is less reactive than copper. A metal can displace another from its salt solution only if it is more reactive; silver is below copper in the activity series, so it cannot displace copper. Answer: (B)",
     ],
     finalAnswer: "Silver is less reactive than copper.",
     isCompetencyBased: true,
@@ -151,7 +151,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "It will remain the same.",
     solutionSteps: [
-      "[1 mark] Correct option: (3) It will remain the same. Copper is deposited on the cathode, but the copper anode dissolves at the same rate to replace the Cu²⁺ ions removed, so the concentration of copper sulphate in the solution is unchanged.",
+      "[1 mark] Correct option: (3) It will remain the same. Copper is deposited on the cathode, but the copper anode dissolves at the same rate to replace the Cu²⁺ ions removed, so the concentration of copper sulphate in the solution is unchanged. Answer: (C)",
     ],
     finalAnswer: "It will remain the same.",
     isCompetencyBased: true,
@@ -180,7 +180,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "The weight of the silver plate will increase and that of the copper plate will decrease.",
     solutionSteps: [
-      "[1 mark] Correct option: (1) The weight of the silver plate will increase and that of the copper plate will decrease. The silver plate is the cathode and gains deposited copper, while the copper plate is the anode and dissolves into the solution.",
+      "[1 mark] Correct option: (1) The weight of the silver plate will increase and that of the copper plate will decrease. The silver plate is the cathode and gains deposited copper, while the copper plate is the anode and dissolves into the solution. Answer: (A)",
     ],
     finalAnswer: "The silver plate gains weight and the copper plate loses weight.",
     isCompetencyBased: true,
@@ -228,7 +228,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Listed here is the reactivity of certain metals.\n\nMetal | Reaction with air | Reaction with water | Reaction with dilute acids\nGold | Does not oxidise or burn | No reaction | No reaction\nSodium | Burns vigorously to form an oxide | Violent reaction | Violent reaction\nZinc | Burns to form an oxide | Reacts on heating | Reacts to produce hydrogen\nPlatinum | No reaction | Does not dissolve or react | No reaction\n\nWhich metal(s) are likely to be found in a pure (free) state in the Earth's crust?",
     answer: "Gold and platinum",
-    solutionSteps: ["[1 mark] Gold and platinum — gold and platinum react with nothing in the table, so they stay uncombined in nature."],
+    solutionSteps: ["[1 mark] Gold and platinum — gold and platinum react with nothing in the table, so they stay uncombined in nature. Answer: (C)"],
     finalAnswer: "Gold and platinum",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.3 — CFPQ_Science10.pdf, questions pdf pp.20–23 (printed folios 19–22)",
@@ -353,7 +353,7 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     questionText:
       "A metal oxide on being heated with carbon does NOT produce carbon dioxide. The most likely explanation is that",
     answer: "the metal is more reactive than carbon",
-    solutionSteps: ["[1 mark] the metal is more reactive than carbon — carbon can reduce an oxide only of a less reactive metal; a more reactive metal holds on to its oxygen."],
+    solutionSteps: ["[1 mark] the metal is more reactive than carbon — carbon can reduce an oxide only of a less reactive metal; a more reactive metal holds on to its oxygen. Answer: (D)"],
     finalAnswer: "the metal is more reactive than carbon",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.3 — CFPQ_Science10.pdf, questions pdf pp.20–23 (printed folios 19–22)",

@@ -21,7 +21,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5 m",
     "solutionSteps": [
-      "[1 mark] The feet of the arch are the zeroes of h(x): −x² + 11x − 24 = 0 ⇒ x² − 11x + 24 = 0 ⇒ (x − 3)(x − 8) = 0 ⇒ x = 3 or 8; width at ground = 8 − 3 = 5 m."
+      "[1 mark] The feet of the arch are the zeroes of h(x): −x² + 11x − 24 = 0 ⇒ x² − 11x + 24 = 0 ⇒ (x − 3)(x − 8) = 0 ⇒ x = 3 or 8; width at ground = 8 − 3 = 5 m. Answer: (A)"
     ],
     "finalAnswer": "5 m",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3 m",
     "solutionSteps": [
-      "[1 mark] Sum of zeroes = −b/a = −12/(−2) = 6, so the midpoint is at (sum of zeroes)/2 = 6/2 = 3 m from the marker stone (the zeroes are 1 and 5)."
+      "[1 mark] Sum of zeroes = −b/a = −12/(−2) = 6, so the midpoint is at (sum of zeroes)/2 = 6/2 = 3 m from the marker stone (the zeroes are 1 and 5). Answer: (B)"
     ],
     "finalAnswer": "3 m",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "−x² + 11x − 18",
     "solutionSteps": [
-      "[1 mark] Zeroes are 2 and 9, so p(x) = −(x − 2)(x − 9) = −x² + 11x − 18; leading coefficient −1 makes p(x) positive between 2 and 9 (x² − 11x + 18 has the same zeroes but is negative there)."
+      "[1 mark] Zeroes are 2 and 9, so p(x) = −(x − 2)(x − 9) = −x² + 11x − 18; leading coefficient −1 makes p(x) positive between 2 and 9 (x² − 11x + 18 has the same zeroes but is negative there). Answer: (C)"
     ],
     "finalAnswer": "−x² + 11x − 18",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "60 m²",
     "solutionSteps": [
-      "[1 mark] Area = length × breadth = product of zeroes = c/a = 60/1 = 60 m² (the zeroes are 5 and 12)."
+      "[1 mark] Area = length × breadth = product of zeroes = c/a = 60/1 = 60 m² (the zeroes are 5 and 12). Answer: (D)"
     ],
     "finalAnswer": "60 m²",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2 hours",
     "solutionSteps": [
-      "[1 mark] Part filled in 1 hour = 1/α + 1/β = (α + β)/(αβ) = 9/18 = 1/2, so together the tank fills in 2 hours (α = 3, β = 6)."
+      "[1 mark] Part filled in 1 hour = 1/α + 1/β = (α + β)/(αβ) = 9/18 = 1/2, so together the tank fills in 2 hours (α = 3, β = 6). Answer: (A)"
     ],
     "finalAnswer": "2 hours",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "600 items",
     "solutionSteps": [
-      "[1 mark] P(4) = 0 ⇒ −16 + 4k − 24 = 0 ⇒ k = 10; product of zeroes = c/a = (−24)/(−1) = 24, so the other zero is 24 ÷ 4 = 6, i.e. 600 items."
+      "[1 mark] P(4) = 0 ⇒ −16 + 4k − 24 = 0 ⇒ k = 10; product of zeroes = c/a = (−24)/(−1) = 24, so the other zero is 24 ÷ 4 = 6, i.e. 600 items. Answer: (B)"
     ],
     "finalAnswer": "600 items",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "16",
     "solutionSteps": [
-      "[1 mark] Equal zeroes α, α: sum 2α = 8 ⇒ α = 4; product α² = k ⇒ k = 16. (x² − 8x + 16 = (x − 4)².)"
+      "[1 mark] Equal zeroes α, α: sum 2α = 8 ⇒ α = 4; product α² = k ⇒ k = 16. (x² − 8x + 16 = (x − 4)².) Answer: (C)"
     ],
     "finalAnswer": "16",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "0",
     "solutionSteps": [
-      "[1 mark] x² − 4x + 5 = (x − 2)² + 1 ≥ 1 > 0 for every real x, so the polynomial has no zero: the chain never touches the floor (its lowest point is 1 m above it)."
+      "[1 mark] x² − 4x + 5 = (x − 2)² + 1 ≥ 1 > 0 for every real x, so the polynomial has no zero: the chain never touches the floor (its lowest point is 1 m above it). Answer: (D)"
     ],
     "finalAnswer": "0",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "b > 0 and c > 0",
     "solutionSteps": [
-      "[1 mark] If both zeroes are negative, their sum −b < 0 ⇒ b > 0, and their product c > 0. So b > 0 and c > 0."
+      "[1 mark] If both zeroes are negative, their sum −b < 0 ⇒ b > 0, and their product c > 0. So b > 0 and c > 0. Answer: (A)"
     ],
     "finalAnswer": "b > 0 and c > 0",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3",
     "solutionSteps": [
-      "[1 mark] Zeroes α and −α ⇒ sum = 0 = −(k − 3)/(−1) = k − 3 ⇒ k = 3. (The feet are then at x = 6 and x = −6.)"
+      "[1 mark] Zeroes α and −α ⇒ sum = 0 = −(k − 3)/(−1) = k − 3 ⇒ k = 3. (The feet are then at x = 6 and x = −6.) Answer: (B)"
     ],
     "finalAnswer": "3",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] Reciprocal zeroes ⇒ product = 1 = (m − 2)/4 ⇒ m − 2 = 4 ⇒ m = 6. (4x² − 17x + 4 has zeroes 4 and 1/4.)"
+      "[1 mark] Reciprocal zeroes ⇒ product = 1 = (m − 2)/4 ⇒ m − 2 = 4 ⇒ m = 6. (4x² − 17x + 4 has zeroes 4 and 1/4.) Answer: (C)"
     ],
     "finalAnswer": "6",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2x² − 18x + 40",
     "solutionSteps": [
-      "[1 mark] A polynomial with sum 9 and product 20 is k(x² − 9x + 20), k ≠ 0; with k = 2 it is 2x² − 18x + 40 (zeroes 4 and 5)."
+      "[1 mark] A polynomial with sum 9 and product 20 is k(x² − 9x + 20), k ≠ 0; with k = 2 it is 2x² − 18x + 40 (zeroes 4 and 5). Answer: (D)"
     ],
     "finalAnswer": "2x² − 18x + 40",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10 m",
     "solutionSteps": [
-      "[1 mark] Run² + rise² = α² + β² = (α + β)² − 2αβ = 14² − 2 × 48 = 100, so the sloping side = √100 = 10 m (the zeroes are 6 and 8)."
+      "[1 mark] Run² + rise² = α² + β² = (α + β)² − 2αβ = 14² − 2 × 48 = 100, so the sloping side = √100 = 10 m (the zeroes are 6 and 8). Answer: (A)"
     ],
     "finalAnswer": "10 m",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "10",
     "solutionSteps": [
-      "[1 mark] 3 and 7 are the zeroes, so sum = 10 = −k/(−1) = k ⇒ k = 10 (check: product 21 = (−21)/(−1))."
+      "[1 mark] 3 and 7 are the zeroes, so sum = 10 = −k/(−1) = k ⇒ k = 10 (check: product 21 = (−21)/(−1)). Answer: (B)"
     ],
     "finalAnswer": "10",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "x² − 3x − 10",
     "solutionSteps": [
-      "[1 mark] p(x) = a(x + 2)(x − 5); p(0) = −10a = −10 ⇒ a = 1, so p(x) = x² − 3x − 10."
+      "[1 mark] p(x) = a(x + 2)(x − 5); p(0) = −10a = −10 ⇒ a = 1, so p(x) = x² − 3x − 10. Answer: (C)"
     ],
     "finalAnswer": "x² − 3x − 10",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "8 minutes",
     "solutionSteps": [
-      "[1 mark] T(t) = 0 ⇒ 48 − 6t = 0 ⇒ t = 8 minutes."
+      "[1 mark] T(t) = 0 ⇒ 48 − 6t = 0 ⇒ t = 8 minutes. Answer: (D)"
     ],
     "finalAnswer": "8 minutes",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2",
     "solutionSteps": [
-      "[1 mark] The graph opens downward from a highest point above the x-axis, so it must cut the x-axis once on each side of x = 3: p(x) has 2 zeroes."
+      "[1 mark] The graph opens downward from a highest point above the x-axis, so it must cut the x-axis once on each side of x = 3: p(x) has 2 zeroes. Answer: (A)"
     ],
     "finalAnswer": "2",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const POLYNOMIALS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "x² − 9x + 18",
     "solutionSteps": [
-      "[1 mark] New sum = (α + 2) + (β + 2) = 5 + 4 = 9; new product = αβ + 2(α + β) + 4 = 4 + 10 + 4 = 18; so x² − 9x + 18 (zeroes 3 and 6)."
+      "[1 mark] New sum = (α + 2) + (β + 2) = 5 + 4 = 9; new product = αβ + 2(α + β) + 4 = 4 + 10 + 4 = 18; so x² − 9x + 18 (zeroes 3 and 6). Answer: (B)"
     ],
     "finalAnswer": "x² − 9x + 18",
     "isCompetencyBased": true,

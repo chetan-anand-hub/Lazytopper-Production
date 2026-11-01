@@ -25,7 +25,7 @@ export const ELEC_SP: CanonicalQuestion[] = [
     ],
     "answer": "(d) same in all the cases.",
     "solutionSteps": [
-      "[1 mark] Correct option (d) same in all the cases: in a series circuit the current is the same everywhere and is independent of the order/position of the cell, resistor, key and ammeter, so all three ammeters read the same value."
+      "[1 mark] Correct option (d) same in all the cases: in a series circuit the current is the same everywhere and is independent of the order/position of the cell, resistor, key and ammeter, so all three ammeters read the same value. Answer: (D)"
     ],
     "finalAnswer": "(d) same in all the cases.",
     "isCompetencyBased": true,
@@ -51,7 +51,7 @@ export const ELEC_SP: CanonicalQuestion[] = [
     ],
     "answer": "(a) 4 Ω",
     "solutionSteps": [
-      "[1 mark] From the figure, the 6 Ω resistor is short-circuited by the plain connecting wire joined across it: a zero-resistance path in parallel with 6 Ω gives 0 Ω, so the current bypasses the 6 Ω resistor and the effective resistance between A and B is just the 4 Ω in the main line. Correct option (a) 4 Ω."
+      "[1 mark] From the figure, the 6 Ω resistor is short-circuited by the plain connecting wire joined across it: a zero-resistance path in parallel with 6 Ω gives 0 Ω, so the current bypasses the 6 Ω resistor and the effective resistance between A and B is just the 4 Ω in the main line. Correct option (a) 4 Ω. Answer: (A)"
     ],
     "finalAnswer": "(a) 4 Ω",
     "isCompetencyBased": false,

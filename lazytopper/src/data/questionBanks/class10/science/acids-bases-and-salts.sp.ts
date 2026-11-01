@@ -25,7 +25,7 @@ export const ACID_SP: CanonicalQuestion[] = [
     ],
     "answer": "(d) ii. only",
     "solutionSteps": [
-      "[1 mark] Correct option (d) ii. only: NaOH is a strong base that dissociates completely in water to give Na+ and OH- ions; these mobile ions conduct electricity, so the bulb lights up."
+      "[1 mark] Correct option (d) ii. only: NaOH is a strong base that dissociates completely in water to give Na+ and OH- ions; these mobile ions conduct electricity, so the bulb lights up. Answer: (D)"
     ],
     "finalAnswer": "(d) ii. only",
     "isCompetencyBased": true,
@@ -52,7 +52,7 @@ export const ACID_SP: CanonicalQuestion[] = [
     ],
     "answer": "(c) calcium hydrogen carbonate is produced.",
     "solutionSteps": [
-      "[1 mark] Correct option (c): excess CO2 converts the insoluble calcium carbonate into soluble calcium hydrogen carbonate [CaCO3 + H2O + CO2 → Ca(HCO3)2], so the milkiness disappears."
+      "[1 mark] Correct option (c): excess CO2 converts the insoluble calcium carbonate into soluble calcium hydrogen carbonate [CaCO3 + H2O + CO2 → Ca(HCO3)2], so the milkiness disappears. Answer: (C)"
     ],
     "finalAnswer": "(c) calcium hydrogen carbonate is produced.",
     "isCompetencyBased": false
@@ -77,7 +77,7 @@ export const ACID_SP: CanonicalQuestion[] = [
     ],
     "answer": "(d) Hydrochloric acid",
     "solutionSteps": [
-      "[1 mark] Correct option (d) Hydrochloric acid: the unknown solution is basic (red→blue), so adding the acid HCl neutralises it and turns the litmus back to red; the other options are basic."
+      "[1 mark] Correct option (d) Hydrochloric acid: the unknown solution is basic (red→blue), so adding the acid HCl neutralises it and turns the litmus back to red; the other options are basic. Answer: (D)"
     ],
     "finalAnswer": "(d) Hydrochloric acid",
     "isCompetencyBased": false

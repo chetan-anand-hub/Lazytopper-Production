@@ -5,23 +5,23 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "A sure event is one that is certain to happen — it always occurs.",
       "By definition, for a sure event, every possible outcome is a favorable outcome, so n(E) = n(S).",
-      "Probability P(sure event) = n(E) / n(S) = n(S) / n(S) = 1.",
+      "Probability P(sure event) = n(E) / n(S) = n(S) / n(S) = 1. Answer: (B)",
     ],
   },
-  { id: "PROB-E02", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "A die is thrown once. The probability of getting a number greater than 4 is:", options: ["1/3", "2/3", "1/6", "1/2"], answer: "1/3", explanation: "Favourable: {5,6} → 2/6 = 1/3. Therefore, the correct answer is 1/3.", solutionSteps: ["Favourable: {5,6} → 2/6 = 1/3"], finalAnswer: "1/3" , isCompetencyBased: true },
+  { id: "PROB-E02", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "A die is thrown once. The probability of getting a number greater than 4 is:", options: ["1/3", "2/3", "1/6", "1/2"], answer: "1/3", explanation: "Favourable: {5,6} → 2/6 = 1/3. Therefore, the correct answer is 1/3.", solutionSteps: ["Favourable: {5,6} → 2/6 = 1/3 Answer: (A)"], finalAnswer: "1/3" , isCompetencyBased: true },
   { id: "PROB-E03", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If P(E) = 0.05, what is P(not E)?", options: ["0.95", "0.05", "1", "0"], answer: "0.95", explanation: "The correct answer is 0.95. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "0.95" , isCompetencyBased: false,
     solutionSteps: [
       "By the complement rule: P(E) + P(not E) = 1 for any event E.",
       "P(not E) = 1 − P(E) = 1 − 0.05.",
-      "P(not E) = 0.95.",
+      "P(not E) = 0.95. Answer: (A)",
     ],
   },
-  { id: "PROB-E04", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "A card is drawn from a well-shuffled deck of 52 cards. The probability that it is a king is:", options: ["1/13", "4/13", "1/52", "1/4"], answer: "1/13", explanation: "4 kings out of 52 = 4/52 = 1/13. Therefore, the correct answer is 1/13.", solutionSteps: ["4 kings out of 52 = 4/52 = 1/13"], finalAnswer: "1/13" , isCompetencyBased: true },
+  { id: "PROB-E04", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "A card is drawn from a well-shuffled deck of 52 cards. The probability that it is a king is:", options: ["1/13", "4/13", "1/52", "1/4"], answer: "1/13", explanation: "4 kings out of 52 = 4/52 = 1/13. Therefore, the correct answer is 1/13.", solutionSteps: ["4 kings out of 52 = 4/52 = 1/13 Answer: (A)"], finalAnswer: "1/13" , isCompetencyBased: true },
   { id: "PROB-E05", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The probability of an impossible event is:", options: ["0", "1", "−1", "1/2"], answer: "0", explanation: "The correct answer is 0. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "0" , isCompetencyBased: false,
     solutionSteps: [
       "An impossible event is one that can never occur under any circumstances.",
       "Since no outcome is favorable, n(E) = 0.",
-      "Probability P(impossible event) = n(E) / n(S) = 0 / n(S) = 0.",
+      "Probability P(impossible event) = n(E) / n(S) = 0 / n(S) = 0. Answer: (A)",
     ],
   },
   { id: "PROB-E06", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Two coins are tossed simultaneously. Find the probability of getting at least one head.", solutionSteps: [
@@ -32,33 +32,33 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Event E and its complement (not E) together cover all possible outcomes of the sample space.",
       "By the complement rule: P(E) + P(not E) = 1 for any event E.",
-      "This is a fundamental property of probability — the probabilities of an event and its complement always add up to 1.",
+      "This is a fundamental property of probability — the probabilities of an event and its complement always add up to 1. Answer: (B)",
     ],
   },
   { id: "PROB-E08", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The probability of getting 3 heads when 2 coins are tossed is 0.\nReason (R): The maximum number of heads possible with 2 coins is 2.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): When 2 coins are tossed, the sample space is {HH, HT, TH, TT}. The maximum number of heads in any outcome is 2 (from HH). Getting 3 heads is impossible, so P(3 heads) = 0. Assertion (A) is true.",
       "Reason (R): With 2 coins, each coin can show at most 1 head, so the maximum total heads is 2. This statement is true.",
-      "Since it is impossible to get 3 heads precisely because the maximum is 2, Reason (R) correctly explains why Assertion (A) is true.",
+      "Since it is impossible to get 3 heads precisely because the maximum is 2, Reason (R) correctly explains why Assertion (A) is true. Answer: (A)",
     ],
   },
   { id: "PROB-E09", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "A bag has 3 red balls and 5 blue balls. A ball is drawn at random. P(red) =", options: ["3/8", "5/8", "3/5", "1/2"], answer: "3/8", explanation: "The correct answer is 3/8. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "3/8" , isCompetencyBased: true,
     solutionSteps: [
       "Total number of balls in the bag = 3 (red) + 5 (blue) = 8. So, n(S) = 8.",
       "Number of favorable outcomes (drawing a red ball) = 3. So, n(E) = 3.",
-      "P(red) = n(E) / n(S) = 3 / 8.",
+      "P(red) = n(E) / n(S) = 3 / 8. Answer: (A)",
     ],
   },
   { id: "PROB-E10", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A die is thrown once. Find the probability of getting (i) a prime number (ii) a number lying between 2 and 6.", solutionSteps: [
       "(i) Primes: {2,3,5} → P = 3/6 = 1/2 [1]",
       "(ii) Between 2 and 6: {3,4,5} → P = 3/6 = 1/2 [1]",
     ], finalAnswer: "(i) 1/2, (ii) 1/2" , visualExplainerId: "maths-probability-dice-and-cards-sample-space", isCompetencyBased: true },
-  { id: "PROB-E11", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The probability that a number selected at random from 1 to 15 is a multiple of 4 is:", options: ["1/5", "2/15", "1/3", "4/15"], answer: "1/5", explanation: "Multiples of 4: {4,8,12} → 3/15 = 1/5. Therefore, the correct answer is 1/5.", solutionSteps: ["Multiples of 4: {4,8,12} → 3/15 = 1/5"], finalAnswer: "1/5" , isCompetencyBased: true },
+  { id: "PROB-E11", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The probability that a number selected at random from 1 to 15 is a multiple of 4 is:", options: ["1/5", "2/15", "1/3", "4/15"], answer: "1/5", explanation: "Multiples of 4: {4,8,12} → 3/15 = 1/5. Therefore, the correct answer is 1/5.", solutionSteps: ["Multiples of 4: {4,8,12} → 3/15 = 1/5 Answer: (A)"], finalAnswer: "1/5" , isCompetencyBased: true },
   { id: "PROB-E12", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If P(E) = 0, then E is called:", options: ["Certain event", "Impossible event", "Complementary event", "Sure event"], answer: "Impossible event", explanation: "The correct answer is Impossible event. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Impossible event" , isCompetencyBased: false,
     solutionSteps: [
       "P(E) = 0 means there are no favorable outcomes for event E — it can never occur.",
       "By definition, an event that can never happen is called an impossible event.",
-      "Therefore, if P(E) = 0, E is an impossible event.",
+      "Therefore, if P(E) = 0, E is an impossible event. Answer: (B)",
     ],
   },
   { id: "PROB-E13", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A box contains 5 red marbles, 8 white marbles and 4 green marbles. One marble is drawn at random. Find P(not green).", solutionSteps: [
@@ -70,7 +70,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
       "Assertion (A) states that 0 <= P(E) <= 1, which is a fundamental property of probability and is true.",
       "Reason (R) states that the number of favorable outcomes is always less than or equal to the total number of possible outcomes, which is also true.",
       "The formula for probability is P(E) = (Number of favorable outcomes) / (Total number of outcomes).",
-      "Since the number of favorable outcomes cannot be negative and cannot exceed the total outcomes, P(E) must be between 0 and 1. Thus, Reason (R) correctly explains Assertion (A).",
+      "Since the number of favorable outcomes cannot be negative and cannot exceed the total outcomes, P(E) must be between 0 and 1. Thus, Reason (R) correctly explains Assertion (A). Answer: (A)",
     ],
     sourceOverride: "others",
   },
@@ -78,7 +78,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "When a single die is thrown, it can show any of 6 faces: {1, 2, 3, 4, 5, 6}.",
       "When two dice are thrown simultaneously, the total number of outcomes = 6 × 6 = 36.",
-      "Each pair (i, j) where i is the result of die 1 and j is the result of die 2 is a unique outcome.",
+      "Each pair (i, j) where i is the result of die 1 and j is the result of die 2 is a unique outcome. Answer: (C)",
     ],
   },
   { id: "PROB-E16", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "From a deck of 52 cards, find the probability that the card drawn is a face card.", solutionSteps: [
@@ -89,14 +89,14 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Each toss of a coin has 2 possible outcomes: Head (H) or Tail (T).",
       "When a coin is tossed 3 times, the total number of possible outcomes = 2 × 2 × 2 = 2³ = 8.",
-      "The outcomes are: {HHH, HHT, HTH, HTT, THH, THT, TTH, TTT}.",
+      "The outcomes are: {HHH, HHT, HTH, HTT, THH, THT, TTH, TTT}. Answer: (C)",
     ],
   },
   { id: "PROB-E18", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Events A and B are complementary if:", options: ["P(A) + P(B) = 1", "P(A) × P(B) = 1", "P(A) = P(B)", "P(A) − P(B) = 1"], answer: "P(A) + P(B) = 1", explanation: "The correct answer is P(A) + P(B) = 1. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "P(A) + P(B) = 1" , isCompetencyBased: false,
     solutionSteps: [
       "Two events A and B are said to be complementary if one occurs exactly when the other does not.",
       "Complementary events together cover all possible outcomes of the sample space.",
-      "Therefore, P(A) + P(B) = 1 is the defining condition for complementary events.",
+      "Therefore, P(A) + P(B) = 1 is the defining condition for complementary events. Answer: (A)",
     ],
   },
   { id: "PROB-E19", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A number is chosen at random from 1 to 100. Find the probability that it is a perfect square.", solutionSteps: [
@@ -107,7 +107,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Assertion (A): When a die is thrown, even outcomes = {2, 4, 6} (3 outcomes) and odd outcomes = {1, 3, 5} (3 outcomes) out of 6 total. P(even) = 3/6 = 1/2 and P(odd) = 3/6 = 1/2. Assertion (A) is true.",
       "Reason (R): Even = {2, 4, 6} and Odd = {1, 3, 5}, each with exactly 3 outcomes out of 6. This is true and directly gives the calculation in Assertion (A).",
-      "Since Reason (R) explicitly shows the favorable outcomes used to compute P(even) = P(odd) = 1/2, it correctly explains Assertion (A).",
+      "Since Reason (R) explicitly shows the favorable outcomes used to compute P(even) = P(odd) = 1/2, it correctly explains Assertion (A). Answer: (A)",
     ],
   },
   { id: "PROB-M01", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A bag contains 12 balls out of which x are white. (i) If one ball is drawn, what is the probability that it will be a white ball? (ii) If 6 more white balls are put in the bag, the probability of drawing a white ball is double that of (i). Find x.", solutionSteps: [
@@ -134,7 +134,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Assertion (A): On a standard die, all faces show numbers 1, 2, 3, 4, 5, 6, which are all less than 7. So every outcome is favorable. P(number < 7) = 6/6 = 1. Assertion (A) is true.",
       "Reason (R): The sample space is {1, 2, 3, 4, 5, 6} and all 6 outcomes satisfy 'number < 7'. This is true and directly shows why P = 6/6 = 1.",
-      "Reason (R) correctly explains Assertion (A) by showing that every element of the sample space is a favorable outcome.",
+      "Reason (R) correctly explains Assertion (A) by showing that every element of the sample space is a favorable outcome. Answer: (A)",
     ],
   },
   { id: "PROB-M06", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A jar contains 24 marbles: some green and some blue. If a marble is drawn at random, the probability that it is green is 2/3. (i) Find the number of green marbles. (ii) If 5 green marbles are removed, find the new probability of getting a green marble.", solutionSteps: [
@@ -166,7 +166,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Assertion (A): The maximum value on each die is 6, so the maximum possible sum with two dice is 6 + 6 = 12. A sum of 13 is impossible, so P(sum = 13) = 0. Assertion (A) is true.",
       "Reason (R): The maximum sum with two standard dice is indeed 12 (both showing 6). This is a true statement.",
-      "Reason (R) directly explains Assertion (A): sum of 13 is impossible precisely because 13 > 12 (the maximum), making P = 0.",
+      "Reason (R) directly explains Assertion (A): sum of 13 is impossible precisely because 13 > 12 (the maximum), making P = 0. Answer: (A)",
     ],
   },
   { id: "PROB-M12", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "1500 families with 2 children were selected randomly. The following data was recorded:\nGirls: 0, 1, 2\nFamilies: 211, 814, 475\nFind P(i) family with 2 girls (ii) family with 1 girl (iii) family with no girl.", solutionSteps: [
@@ -189,7 +189,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
       "(ii) Queens: 3 (clubs queen removed). P = 3/49 [1]",
       "(iii) Clubs: 10 (3 removed). P = 10/49 [1]",
     ], finalAnswer: "(i) 13/49, (ii) 3/49, (iii) 10/49" , visualExplainerId: "maths-probability-dice-and-cards-sample-space", isCompetencyBased: true },
-  { id: "PROB-M16", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two dice are thrown. The probability of getting a sum of 11 is:", options: ["1/18", "1/12", "1/6", "1/36"], answer: "1/18", explanation: "Sum 11: (5,6),(6,5) → 2/36 = 1/18. Therefore, the correct answer is 1/18.", solutionSteps: ["Sum 11: (5,6),(6,5) → 2/36 = 1/18"], finalAnswer: "1/18" , isCompetencyBased: true },
+  { id: "PROB-M16", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two dice are thrown. The probability of getting a sum of 11 is:", options: ["1/18", "1/12", "1/6", "1/36"], answer: "1/18", explanation: "Sum 11: (5,6),(6,5) → 2/36 = 1/18. Therefore, the correct answer is 1/18.", solutionSteps: ["Sum 11: (5,6),(6,5) → 2/36 = 1/18 Answer: (A)"], finalAnswer: "1/18" , isCompetencyBased: true },
   { id: "PROB-M17", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A child has a die whose six faces show the letters A, B, C, D, E and F. The die is thrown once. What is the probability of getting (i) A? (ii) a vowel? (iii) D or F?", solutionSteps: [
       "(i) P(A) = 1/6 [1]",
       "(ii) Vowels: A, E → P = 2/6 = 1/3 [1]",
@@ -209,7 +209,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Sample space when two coins are tossed: {HH, HT, TH, TT}. n(S) = 4.",
       "Assertion (A): 'At most one head' means 0 heads or 1 head. Favorable outcomes = {TT, TH, HT} = 3. P = 3/4. Assertion (A) is true.",
-      "Reason (R): 'At most one head' includes {TT, TH, HT} — exactly the 3 outcomes identified in Assertion (A). This is true and directly yields P = 3/4, correctly explaining Assertion (A).",
+      "Reason (R): 'At most one head' includes {TT, TH, HT} — exactly the 3 outcomes identified in Assertion (A). This is true and directly yields P = 3/4, correctly explaining Assertion (A). Answer: (A)",
     ],
   },
   { id: "PROB-H01", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "A card is drawn from a well-shuffled deck of 52 cards. Find the probability that it is: (i) a king of red colour (ii) a face card (iii) a red face card.", solutionSteps: [
@@ -307,7 +307,7 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "Total number of cards in a well-shuffled deck = 52. So, n(S) = 52.",
       "Red queens are the Queen of Hearts and the Queen of Diamonds. So, n(E) = 2.",
-      "P(red queen) = n(E) / n(S) = 2/52 = 1/26.",
+      "P(red queen) = n(E) / n(S) = 2/52 = 1/26. Answer: (A)",
     ],
   }
 ];

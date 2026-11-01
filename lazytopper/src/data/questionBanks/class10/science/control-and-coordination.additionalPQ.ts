@@ -34,7 +34,7 @@ export const CONTROL_COORDINATION_APQ: CanonicalQuestion[] = [
       "More growth in the region away from light due to diffusion of cytokinin hormone"
     ],
     answer: "More growth in the region away from light due to diffusion of auxin hormone",
-    solutionSteps: ["Auxin synthesised at the shoot tip diffuses away from light to the shaded side of the stem.", "Higher auxin concentration on the shaded side promotes more cell elongation there ⟹ the shaded side grows longer ⟹ the shoot bends TOWARDS light (positive phototropism)."],
+    solutionSteps: ["Auxin synthesised at the shoot tip diffuses away from light to the shaded side of the stem.", "Higher auxin concentration on the shaded side promotes more cell elongation there ⟹ the shaded side grows longer ⟹ the shoot bends TOWARDS light (positive phototropism). Answer: (B)"],
     finalAnswer: "(b) More growth in the region away from light due to diffusion of auxin hormone",
     ncertRef: "APQ Science-PQ2 Q9", isCompetencyBased: true },
 

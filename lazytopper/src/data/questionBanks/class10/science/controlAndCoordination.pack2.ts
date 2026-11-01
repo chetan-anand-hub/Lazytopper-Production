@@ -22,7 +22,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The nervous system is composed of millions of cells called neurons.",
       "A neuron is the structural and functional unit that transmits nerve impulses.",
-      "Synapse is the junction between neurons, dendrite and axon are parts of neuron."
+      "Synapse is the junction between neurons, dendrite and axon are parts of neuron. Answer: (A)"
     ],
     "finalAnswer": "Neuron",
     "explanation": "The nervous system is composed of millions of cells called neurons. A neuron is the structural and functional unit that transmits nerve impulses. Synapse is the junction between neurons, dendrite and axon are parts of neuron. Therefore, the correct answer is Neuron.",
@@ -53,7 +53,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "The nervous system has two main divisions: CNS and PNS",
       "Central Nervous System includes brain and spinal cord",
       "Peripheral Nervous System includes nerves and ganglia",
-      "Hormonal system is part of endocrine system, not nervous system"
+      "Hormonal system is part of endocrine system, not nervous system Answer: (C)"
     ],
     "finalAnswer": "Hormonal System",
     "explanation": "The nervous system has two main divisions: CNS and PNS. Central Nervous System includes brain and spinal cord. Peripheral Nervous System includes nerves and ganglia. Hormonal system is part of endocrine system, not nervous system. Therefore, the correct answer is Hormonal System.",
@@ -83,7 +83,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "In a reflex arc, the pathway is: Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector (muscle)",
       "Sensory neurons carry impulses from receptors to the CNS",
-      "Motor neurons carry impulses from CNS to muscles"
+      "Motor neurons carry impulses from CNS to muscles Answer: (A)"
     ],
     "finalAnswer": "Sensory neuron → Motor neuron",
     "explanation": "In a reflex arc, the pathway is: Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector (muscle). Sensory neurons carry impulses from receptors to the CNS. Motor neurons carry impulses from CNS to muscles. Therefore, the correct answer is Sensory neuron → Motor neuron.",
@@ -138,7 +138,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The medulla oblongata is the lowest part of the brainstem",
       "It controls involuntary activities like respiration, heart rate, and blood pressure",
-      "Cerebrum controls voluntary activities; cerebellum coordinates movement"
+      "Cerebrum controls voluntary activities; cerebellum coordinates movement Answer: (C)"
     ],
     "finalAnswer": "Medulla oblongata",
     "explanation": "The medulla oblongata is the lowest part of the brainstem. It controls involuntary activities like respiration, heart rate, and blood pressure. Cerebrum controls voluntary activities; cerebellum coordinates movement. Therefore, the correct answer is Medulla oblongata.",
@@ -168,7 +168,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Cerebellum is responsible for muscle coordination and balance",
       "It maintains posture and equilibrium during movement",
-      "Memory is in cerebrum; heart rate control is in medulla"
+      "Memory is in cerebrum; heart rate control is in medulla Answer: (B)"
     ],
     "finalAnswer": "Balance and coordination of voluntary muscles",
     "explanation": "Cerebellum is responsible for muscle coordination and balance. It maintains posture and equilibrium during movement. Memory is in cerebrum; heart rate control is in medulla. Therefore, the correct answer is Balance and coordination of voluntary muscles.",
@@ -199,7 +199,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Assertion is true: Cerebrum is indeed the largest part of brain",
       "Reason is true: Cerebrum controls voluntary activities and higher functions",
       "But R does not explain why cerebrum is largest—it explains what it does",
-      "Size of cerebrum is not due to its functions but evolutionary development"
+      "Size of cerebrum is not due to its functions but evolutionary development Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
@@ -229,7 +229,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Insulin is a hormone that regulates blood glucose levels",
       "It is secreted by beta cells in the islets of Langerhans in pancreas",
-      "Thyroid secretes thyroxine; pituitary secretes growth hormone"
+      "Thyroid secretes thyroxine; pituitary secretes growth hormone Answer: (B)"
     ],
     "finalAnswer": "Pancreas",
     "explanation": "Insulin is a hormone that regulates blood glucose levels. It is secreted by beta cells in the islets of Langerhans in pancreas. Thyroid secretes thyroxine; pituitary secretes growth hormone. Therefore, the correct answer is Pancreas.",
@@ -260,7 +260,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Thyroxine controls metabolic rate in the body",
       "Decrease in thyroxine leads to decrease in metabolism",
       "This causes reduced energy production and lower body temperature",
-      "Condition is called hypothyroidism"
+      "Condition is called hypothyroidism Answer: (C)"
     ],
     "finalAnswer": "Metabolic rate decreases",
     "explanation": "Thyroxine controls metabolic rate in the body. Decrease in thyroxine leads to decrease in metabolism. This causes reduced energy production and lower body temperature. Condition is called hypothyroidism. Therefore, the correct answer is Metabolic rate decreases.",
@@ -316,7 +316,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Assertion is true: Hormones are indeed chemical messengers",
       "Reason is true: Hormones are secreted by endocrine glands and travel via blood",
       "The reason correctly explains why hormones are chemical messengers",
-      "They communicate between different organs and systems"
+      "They communicate between different organs and systems Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -347,7 +347,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Auxins are plant hormones that promote cell elongation",
       "They are produced in the shoot apex and move downward",
       "They regulate phototropism and gravitropism",
-      "Gibberellins also promote growth but auxins are primary for elongation"
+      "Gibberellins also promote growth but auxins are primary for elongation Answer: (B)"
     ],
     "finalAnswer": "Auxin",
     "explanation": "Auxins are plant hormones that promote cell elongation. They are produced in the shoot apex and move downward. They regulate phototropism and gravitropism. Gibberellins also promote growth but auxins are primary for elongation. Therefore, the correct answer is Auxin.",
@@ -378,7 +378,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "When light falls on one side of plant, auxin accumulates on the shaded side",
       "Higher auxin concentration causes more elongation on shaded side",
       "This causes the plant to bend towards light (phototropism)",
-      "This is differential growth due to unequal auxin distribution"
+      "This is differential growth due to unequal auxin distribution Answer: (C)"
     ],
     "finalAnswer": "Auxin",
     "explanation": "When light falls on one side of plant, auxin accumulates on the shaded side. Higher auxin concentration causes more elongation on shaded side. This causes the plant to bend towards light (phototropism). This is differential growth due to unequal auxin distribution. Therefore, the correct answer is Auxin.",
@@ -434,7 +434,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Assertion is false: ABA inhibits seed germination, not promotes it",
       "Gibberellins promote germination; ABA prevents it",
       "Reason is true: ABA is indeed a growth inhibitor and stress hormone",
-      "ABA helps plants conserve water during drought stress"
+      "ABA helps plants conserve water during drought stress Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -701,7 +701,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Auxin accumulates on lower side due to gravity perception by statocytes",
       "In roots: auxin inhibits elongation on lower side, causing downward growth",
       "In shoots: auxin promotes elongation on lower side, causing upward growth",
-      "This differential auxin distribution controls both responses"
+      "This differential auxin distribution controls both responses Answer: (B)"
     ],
     "finalAnswer": "Auxin distribution and gravitropism response",
     "explanation": "Gravitropism is directional growth response to gravity. Roots show positive gravitropism (grow downward). Shoots show negative gravitropism (grow upward). Auxin accumulates on lower side due to gravity perception by statocytes. In roots: auxin inhibits elongation on lower side, causing downward growth. In shoots: auxin promotes elongation on lower side, causing upward growth. This differential auxin distribution controls both responses. Therefore, the correct answer is Auxin distribution and gravitropism response.",
@@ -730,7 +730,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The nervous system is composed of specialized cells called neurons",
       "Each neuron is the basic structural and functional unit",
-      "Neurons conduct nerve impulses throughout the body"
+      "Neurons conduct nerve impulses throughout the body Answer: (A)"
     ],
     "finalAnswer": "Neuron",
     "explanation": "The nervous system is composed of specialized cells called neurons. Each neuron is the basic structural and functional unit. Neurons conduct nerve impulses throughout the body. Therefore, the correct answer is Neuron.",
@@ -760,7 +760,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Dendrites are branched extensions of the neuron",
       "They receive neurotransmitters from the axon terminal of another neuron",
-      "This allows signal transmission between neurons"
+      "This allows signal transmission between neurons Answer: (B)"
     ],
     "finalAnswer": "Dendrite",
     "explanation": "Dendrites are branched extensions of the neuron. They receive neurotransmitters from the axon terminal of another neuron. This allows signal transmission between neurons. Therefore, the correct answer is Dendrite.",
@@ -790,7 +790,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Reflex arcs bypass the brain",
       "Signal path: Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector",
-      "This eliminates the delay of brain processing"
+      "This eliminates the delay of brain processing Answer: (B)"
     ],
     "finalAnswer": "A direct pathway from receptor to effector through spinal cord",
     "explanation": "Reflex arcs bypass the brain. Signal path: Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector. This eliminates the delay of brain processing. Therefore, the correct answer is A direct pathway from receptor to effector through spinal cord.",
@@ -820,7 +820,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Assertion is true: Withdrawal from hot surface happens quickly",
       "Reason is true: Spinal cord processes reflex signals",
-      "Reason explains assertion: Spinal cord processing is faster than brain processing"
+      "Reason explains assertion: Spinal cord processing is faster than brain processing Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -849,7 +849,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Medulla oblongata is part of the brainstem",
       "It contains vital centers that control involuntary functions",
-      "Functions include: heart rate, breathing, blood pressure control"
+      "Functions include: heart rate, breathing, blood pressure control Answer: (C)"
     ],
     "finalAnswer": "Medulla oblongata",
     "explanation": "Medulla oblongata is part of the brainstem. It contains vital centers that control involuntary functions. Functions include: heart rate, breathing, blood pressure control. Therefore, the correct answer is Medulla oblongata.",
@@ -879,7 +879,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Cerebellum is the second largest part of the brain",
       "It coordinates voluntary muscle movements",
-      "It maintains balance and posture"
+      "It maintains balance and posture Answer: (B)"
     ],
     "finalAnswer": "Balance and coordination of movements",
     "explanation": "Cerebellum is the second largest part of the brain. It coordinates voluntary muscle movements. It maintains balance and posture. Therefore, the correct answer is Balance and coordination of movements.",
@@ -909,7 +909,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Pancreas is an endocrine gland",
       "Insulin is secreted by beta cells of islets of Langerhans",
-      "Insulin regulates blood glucose levels"
+      "Insulin regulates blood glucose levels Answer: (B)"
     ],
     "finalAnswer": "Pancreas",
     "explanation": "Pancreas is an endocrine gland. Insulin is secreted by beta cells of islets of Langerhans. Insulin regulates blood glucose levels. Therefore, the correct answer is Pancreas.",
@@ -939,7 +939,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Thyroid hormone regulates metabolic rate",
       "Low thyroid hormone → Low metabolic rate",
-      "This causes fatigue, weight gain, and reduced energy"
+      "This causes fatigue, weight gain, and reduced energy Answer: (C)"
     ],
     "finalAnswer": "Metabolism decreases",
     "explanation": "Thyroid hormone regulates metabolic rate. Low thyroid hormone → Low metabolic rate. This causes fatigue, weight gain, and reduced energy. Therefore, the correct answer is Metabolism decreases.",
@@ -969,7 +969,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Adrenaline is secreted by adrenal medulla",
       "It is released in response to stress or danger",
-      "It increases heart rate, blood pressure, and glucose availability for muscles"
+      "It increases heart rate, blood pressure, and glucose availability for muscles Answer: (B)"
     ],
     "finalAnswer": "Adrenaline",
     "explanation": "Adrenaline is secreted by adrenal medulla. It is released in response to stress or danger. It increases heart rate, blood pressure, and glucose availability for muscles. Therefore, the correct answer is Adrenaline.",
@@ -998,7 +998,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Auxin is a plant growth hormone",
       "It promotes cell elongation and growth",
-      "It is produced in shoot tips and moves downward"
+      "It is produced in shoot tips and moves downward Answer: (B)"
     ],
     "finalAnswer": "Auxin",
     "explanation": "Auxin is a plant growth hormone. It promotes cell elongation and growth. It is produced in shoot tips and moves downward. Therefore, the correct answer is Auxin.",
@@ -1029,7 +1029,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "This is phototropism - directional growth towards light",
       "Light causes auxin to redistribute to the shaded side",
       "Higher auxin on shaded side promotes more growth there",
-      "This causes the plant to bend towards light"
+      "This causes the plant to bend towards light Answer: (B)"
     ],
     "finalAnswer": "Auxin redistributes away from light, causing unequal growth",
     "explanation": "This is phototropism - directional growth towards light. Light causes auxin to redistribute to the shaded side. Higher auxin on shaded side promotes more growth there. This causes the plant to bend towards light. Therefore, the correct answer is Auxin redistributes away from light, causing unequal growth.",
@@ -1059,7 +1059,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Assertion is true: Ethylene is used commercially for fruit ripening",
       "Reason is true: Ethylene naturally promotes ripening",
-      "Reason explains assertion: We use ethylene because it's the natural ripening hormone"
+      "Reason explains assertion: We use ethylene because it's the natural ripening hormone Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -1088,7 +1088,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Abscisic acid (ABA) is a stress hormone",
       "It causes stomata to close during water stress",
-      "This reduces water loss and helps plants survive drought"
+      "This reduces water loss and helps plants survive drought Answer: (C)"
     ],
     "finalAnswer": "Abscisic acid",
     "explanation": "Abscisic acid (ABA) is a stress hormone. It causes stomata to close during water stress. This reduces water loss and helps plants survive drought. Therefore, the correct answer is Abscisic acid.",
@@ -1244,7 +1244,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Assertion is true: PNS contains sensory and motor neurons",
       "Reason is true: PNS connects CNS to body",
       "However, having both types of neurons is not a direct consequence of connecting to body",
-      "The reason doesn't explain why both types exist, just the connection function"
+      "The reason doesn't explain why both types exist, just the connection function Answer: (B)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
@@ -1400,7 +1400,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "questionText": "A reflex action is:",
     "options": ["A voluntary response","An automatic involuntary response to a stimulus","A learned behaviour","A hormonal response"],
     "answer": "An automatic involuntary response to a stimulus",
-    "solutionSteps": ["Reflex: rapid automatic response; spinal cord coordinates it without conscious brain involvement"],
+    "solutionSteps": ["Reflex: rapid automatic response; spinal cord coordinates it without conscious brain involvement Answer: (B)"],
     "finalAnswer": "An automatic involuntary response to a stimulus",
     "explanation": "Reflex = automatic involuntary response (spinal cord).",
     "isCompetencyBased": false,
@@ -1421,7 +1421,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "questionText": "Which hormone is responsible for the emergency response in the body?",
     "options": ["Insulin","Thyroxine","Adrenaline","Oestrogen"],
     "answer": "Adrenaline",
-    "solutionSteps": ["Adrenaline from adrenal glands: increases heart rate, blood glucose, and blood flow to muscles during stress"],
+    "solutionSteps": ["Adrenaline from adrenal glands: increases heart rate, blood glucose, and blood flow to muscles during stress Answer: (C)"],
     "finalAnswer": "Adrenaline",
     "explanation": "Adrenaline = emergency (stress) hormone from adrenal glands.",
     "isCompetencyBased": false,
@@ -1442,7 +1442,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "questionText": "Assertion (A): Plants bend towards light (phototropism) due to unequal distribution of auxin.\nReason (R): Auxin accumulates on the shaded side of the shoot, causing greater cell elongation on that side.",
     "options": ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": ["A: true — auxin drives phototropism","R: true — auxin accumulates on shaded side; greater elongation bends shoot toward light","R explains A"],
+    "solutionSteps": ["A: true — auxin drives phototropism","R: true — auxin accumulates on shaded side; greater elongation bends shoot toward light","R explains A Answer: (A)"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Auxin on shaded side (R) causes bending toward light (A).",
     "isCompetencyBased": true,
@@ -1463,7 +1463,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "questionText": "The basic functional unit of the nervous system is the:",
     "options": ["Synapse","Neuron","Axon","Cerebrum"],
     "answer": "Neuron",
-    "solutionSteps": ["Neuron is the structural and functional unit of the nervous system"],
+    "solutionSteps": ["Neuron is the structural and functional unit of the nervous system Answer: (B)"],
     "finalAnswer": "Neuron",
     "explanation": "Neuron is the basic functional unit of the nervous system.",
     "isCompetencyBased": false,

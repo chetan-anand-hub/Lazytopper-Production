@@ -21,7 +21,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "110°",
     "solutionSteps": [
-      "[1 mark] 110°: angles are measured from the normal, so angle of incidence = 90° − 35° = 55°; by the laws of reflection the angle of reflection is also 55°, giving 55° + 55° = 110°. 70° wrongly treats 35° as the angle of incidence."
+      "[1 mark] 110°: angles are measured from the normal, so angle of incidence = 90° − 35° = 55°; by the laws of reflection the angle of reflection is also 55°, giving 55° + 55° = 110°. 70° wrongly treats 35° as the angle of incidence. Answer: (A)"
     ],
     "finalAnswer": "110°",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4 m",
     "solutionSteps": [
-      "[1 mark] 4 m: Rehan is now 2 m from the mirror and his image is 2 m behind it, giving 2 m + 2 m = 4 m. 6 m is the old gap."
+      "[1 mark] 4 m: Rehan is now 2 m from the mirror and his image is 2 m behind it, giving 2 m + 2 m = 4 m. 6 m is the old gap. Answer: (B)"
     ],
     "finalAnswer": "4 m",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "60 cm in front of the mirror; inverted and enlarged",
     "solutionSteps": [
-      "[1 mark] Distant window → f = −20 cm; u = −30 cm: 1/v = 1/f − 1/u = −1/20 + 1/30 = −1/60, so v = −60 cm in front; object between F and C gives a real, inverted, enlarged image. 12 cm is a sign error."
+      "[1 mark] Distant window → f = −20 cm; u = −30 cm: 1/v = 1/f − 1/u = −1/20 + 1/30 = −1/60, so v = −60 cm in front; object between F and C gives a real, inverted, enlarged image. 12 cm is a sign error. Answer: (C)"
     ],
     "finalAnswer": "60 cm in front of the mirror; inverted and enlarged",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A convex mirror, because it always gives an erect, diminished image and covers a wider field of view",
     "solutionSteps": [
-      "[1 mark] A convex mirror forms a virtual, erect, diminished image for every object position, so a large area fits in it. A concave mirror gives inverted images of distant customers; a plane mirror shows only a narrow field of view."
+      "[1 mark] A convex mirror forms a virtual, erect, diminished image for every object position, so a large area fits in it. A concave mirror gives inverted images of distant customers; a plane mirror shows only a narrow field of view. Answer: (D)"
     ],
     "finalAnswer": "A convex mirror, because it always gives an erect, diminished image and covers a wider field of view",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: a ray along the normal has i = 0°; since the angle of reflection equals the angle of incidence, r = 0°, so the ray goes back along the normal, retracing its path."
+      "[1 mark] (A) Both are true and R explains A: a ray along the normal has i = 0°; since the angle of reflection equals the angle of incidence, r = 0°, so the ray goes back along the normal, retracing its path. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: a convex mirror gives an erect image for every object position. R is false: the image lies between P and F behind the mirror and is virtual, not real (a real image would be inverted)."
+      "[1 mark] (C) A is true: a convex mirror gives an erect image for every object position. R is false: the image lies between P and F behind the mirror and is virtual, not real (a real image would be inverted). Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -548,7 +548,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "+4 (erect and enlarged)",
     "solutionSteps": [
-      "[1 mark] With u = −1.5 cm and f = −2.0 cm, 1/v = 1/f − 1/u = −1/2 + 1/1.5 = 1/6, so v = +6 cm; m = −v/u = −(+6)/(−1.5) = +4. The image is virtual, erect and four times larger; −4 wrongly treats it as a real image."
+      "[1 mark] With u = −1.5 cm and f = −2.0 cm, 1/v = 1/f − 1/u = −1/2 + 1/1.5 = 1/6, so v = +6 cm; m = −v/u = −(+6)/(−1.5) = +4. The image is virtual, erect and four times larger; −4 wrongly treats it as a real image. Answer: (A)"
     ],
     "finalAnswer": "+4 (erect and enlarged)",
     "isCompetencyBased": true,
@@ -577,7 +577,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A concave mirror with focal length between 10 cm and 50 cm",
     "solutionSteps": [
-      "[1 mark] An erect, enlarged image needs a concave mirror with the object between P and F, so f > 10 cm; an inverted (real) image at 50 cm needs the object beyond F, so f < 50 cm. A focal length below 10 cm would make the image at 10 cm inverted."
+      "[1 mark] An erect, enlarged image needs a concave mirror with the object between P and F, so f > 10 cm; an inverted (real) image at 50 cm needs the object beyond F, so f < 50 cm. A focal length below 10 cm would make the image at 10 cm inverted. Answer: (B)"
     ],
     "finalAnswer": "A concave mirror with focal length between 10 cm and 50 cm",
     "isCompetencyBased": true,
@@ -606,7 +606,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A concave mirror of focal length 20 cm, forming a real, inverted image twice the size of the object",
     "solutionSteps": [
-      "[1 mark] 1/f = 1/v + 1/u = −1/60 − 1/30 = −1/20, so f = −20 cm (concave, focal length 20 cm). m = −v/u = −(−60)/(−30) = −2: a negative v means the image is in front of the mirror, so it is real and inverted, not virtual."
+      "[1 mark] 1/f = 1/v + 1/u = −1/60 − 1/30 = −1/20, so f = −20 cm (concave, focal length 20 cm). m = −v/u = −(−60)/(−30) = −2: a negative v means the image is in front of the mirror, so it is real and inverted, not virtual. Answer: (C)"
     ],
     "finalAnswer": "A concave mirror of focal length 20 cm, forming a real, inverted image twice the size of the object",
     "isCompetencyBased": true,
@@ -635,7 +635,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "u = −25 cm, v = −35 cm",
     "solutionSteps": [
-      "[1 mark] With f = −15 cm, 1/v = 1/f − 1/u: for u = −25 cm, 1/v = −1/15 + 1/25 = −2/75, so v = −37.5 cm, not −35 cm. The other three readings satisfy 1/v + 1/u = 1/f exactly (e.g. −1/60 − 1/20 = −1/15)."
+      "[1 mark] With f = −15 cm, 1/v = 1/f − 1/u: for u = −25 cm, 1/v = −1/15 + 1/25 = −2/75, so v = −37.5 cm, not −35 cm. The other three readings satisfy 1/v + 1/u = 1/f exactly (e.g. −1/60 − 1/20 = −1/15). Answer: (D)"
     ],
     "finalAnswer": "u = −25 cm, v = −35 cm",
     "isCompetencyBased": true,
@@ -664,7 +664,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: the parallel sunrays meet at F, so the reflected energy is concentrated on a small area there; at C the rays have already crossed and spread out, so less energy falls on the pot."
+      "[1 mark] (A) Both are true and R explains A: the parallel sunrays meet at F, so the reflected energy is concentrated on a small area there; at C the rays have already crossed and spread out, so less energy falls on the pot. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -693,7 +693,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: light from a bulb at C is reflected back through C, not into a parallel beam. R is true: rays from F become parallel after reflection, which is why the bulb is placed at the principal focus."
+      "[1 mark] (D) A is false: light from a bulb at C is reflected back through C, not into a parallel beam. R is true: rays from F become parallel after reflection, which is why the bulb is placed at the principal focus. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1069,7 +1069,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Liquid Q",
     "solutionSteps": [
-      "[1 mark] Liquid Q: light is slowest in Q, so Q has the highest refractive index (3 × 10⁸ ÷ 2.00 × 10⁸ = 1.5) and the ray bends most towards the normal; Liquid R, where light is fastest, would bend the ray the least."
+      "[1 mark] Liquid Q: light is slowest in Q, so Q has the highest refractive index (3 × 10⁸ ÷ 2.00 × 10⁸ = 1.5) and the ray bends most towards the normal; Liquid R, where light is fastest, would bend the ray the least. Answer: (A)"
     ],
     "finalAnswer": "Liquid Q",
     "isCompetencyBased": true,
@@ -1098,7 +1098,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Joseph",
     "solutionSteps": [
-      "[1 mark] Joseph: entering glass from air the ray bends towards the normal, so r must be less than 40° (rules out Harpreet), and since the slab has parallel faces with air on both sides, the angle of emergence equals the angle of incidence, 40° (rules out Pallavi and Ayaan)."
+      "[1 mark] Joseph: entering glass from air the ray bends towards the normal, so r must be less than 40° (rules out Harpreet), and since the slab has parallel faces with air on both sides, the angle of emergence equals the angle of incidence, 40° (rules out Pallavi and Ayaan). Answer: (B)"
     ],
     "finalAnswer": "Joseph",
     "isCompetencyBased": true,
@@ -1127,7 +1127,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "0.8; the ray bends away from the normal",
     "solutionSteps": [
-      "[1 mark] n(Y w.r.t. X) = speed in X ÷ speed in Y = 2.0 × 10⁸ ÷ 2.5 × 10⁸ = 0.8; light speeds up on entering Y (optically rarer), so it bends away from the normal. 1.25 is the tempting inverted ratio."
+      "[1 mark] n(Y w.r.t. X) = speed in X ÷ speed in Y = 2.0 × 10⁸ ÷ 2.5 × 10⁸ = 0.8; light speeds up on entering Y (optically rarer), so it bends away from the normal. 1.25 is the tempting inverted ratio. Answer: (C)"
     ],
     "finalAnswer": "0.8; the ray bends away from the normal",
     "isCompetencyBased": true,
@@ -1156,7 +1156,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Light from the coin bends away from the normal as it passes from water into air, so it reaches her eye over the rim.",
     "solutionSteps": [
-      "[1 mark] Water is optically denser than air, so light leaving the water bends away from the normal; this bent ray clears the rim and enters her eye. Bending towards the normal happens only when light enters a denser medium."
+      "[1 mark] Water is optically denser than air, so light leaving the water bends away from the normal; this bent ray clears the rim and enters her eye. Bending towards the normal happens only when light enters a denser medium. Answer: (D)"
     ],
     "finalAnswer": "Light from the coin bends away from the normal as it passes from water into air, so it reaches her eye over the rim.",
     "isCompetencyBased": true,
@@ -1185,7 +1185,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: kerosene has lower mass density so it floats, but light travels slower in it (higher refractive index), so it is optically denser; optical density and mass density are different properties."
+      "[1 mark] (A) Both are true and R explains A: kerosene has lower mass density so it floats, but light travels slower in it (higher refractive index), so it is optically denser; optical density and mass density are different properties. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1214,7 +1214,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: for normal incidence the angle of incidence is 0°, so the angle of refraction is also 0° and the ray goes straight. R is false: light still slows down in glass (speed = c ÷ 1.5); only its direction is unchanged."
+      "[1 mark] (C) A is true: for normal incidence the angle of incidence is 0°, so the angle of refraction is also 0° and the ray goes straight. R is false: light still slows down in glass (speed = c ÷ 1.5); only its direction is unchanged. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1594,7 +1594,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The lens forms a real, inverted image, so an inverted slide gives an upright picture on the wall.",
     "solutionSteps": [
-      "[1 mark] The first option is right: with the slide between F and 2F, a convex lens forms a real, inverted, enlarged image beyond 2F, so loading the slide inverted makes the picture upright. A virtual image could never be caught on the wall."
+      "[1 mark] The first option is right: with the slide between F and 2F, a convex lens forms a real, inverted, enlarged image beyond 2F, so loading the slide inverted makes the picture upright. A virtual image could never be caught on the wall. Answer: (A)"
     ],
     "finalAnswer": "The lens forms a real, inverted image, so an inverted slide gives an upright picture on the wall.",
     "isCompetencyBased": true,
@@ -1623,7 +1623,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It is a concave lens, because a concave lens forms virtual, erect and diminished images for every position of the object.",
     "solutionSteps": [
-      "[1 mark] Concave lens: it always gives a virtual, erect, diminished image, at any object distance. A convex lens with the page within F would make the letters look enlarged; with the page beyond 2F its image is inverted; and a concave lens never forms real images."
+      "[1 mark] Concave lens: it always gives a virtual, erect, diminished image, at any object distance. A convex lens with the page within F would make the letters look enlarged; with the page beyond 2F its image is inverted; and a concave lens never forms real images. Answer: (B)"
     ],
     "finalAnswer": "It is a concave lens, because a concave lens forms virtual, erect and diminished images for every position of the object.",
     "isCompetencyBased": true,
@@ -1652,7 +1652,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "36 cm behind the lens",
     "solutionSteps": [
-      "[1 mark] The distant building gives f = +18 cm, so the candle at 36 cm is at 2F: 1/v = 1/f + 1/u = 1/18 − 1/36 = 1/36, v = +36 cm (real, inverted, same size). 18 cm is the image distance only for a very distant object."
+      "[1 mark] The distant building gives f = +18 cm, so the candle at 36 cm is at 2F: 1/v = 1/f + 1/u = 1/18 − 1/36 = 1/36, v = +36 cm (real, inverted, same size). 18 cm is the image distance only for a very distant object. Answer: (C)"
     ],
     "finalAnswer": "36 cm behind the lens",
     "isCompetencyBased": true,
@@ -1681,7 +1681,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The concave lens forms a virtual, erect and diminished image of a visitor at any distance outside the door.",
     "solutionSteps": [
-      "[1 mark] A concave lens forms a virtual, erect, diminished image for every object position, so visitors at any distance look small and upright. A convex lens with the object beyond 2F forms a real, inverted image, not an erect one."
+      "[1 mark] A concave lens forms a virtual, erect, diminished image for every object position, so visitors at any distance look small and upright. A convex lens with the object beyond 2F forms a real, inverted image, not an erect one. Answer: (D)"
     ],
     "finalAnswer": "The concave lens forms a virtual, erect and diminished image of a visitor at any distance outside the door.",
     "isCompetencyBased": true,
@@ -1710,7 +1710,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: the hill is far beyond 2F, so a real, inverted, diminished image forms near F. R is false: with the object between the optical centre and F, a convex lens forms a virtual, erect, enlarged image."
+      "[1 mark] (C) A is true: the hill is far beyond 2F, so a real, inverted, diminished image forms near F. R is false: with the object between the optical centre and F, a convex lens forms a virtual, erect, enlarged image. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1739,7 +1739,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: the screen still shows the complete flame, only less bright. R is true: rays from each point of the flame also pass through the uncovered half and meet at the image point, so only the brightness falls."
+      "[1 mark] (D) A is false: the screen still shows the complete flame, only less bright. R is true: rays from each point of the flame also pass through the uncovered half and meet at the image point, so only the brightness falls. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -2117,7 +2117,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Power −1.25 D; focal length −80 cm",
     "solutionSteps": [
-      "[1 mark] Smaller, upright images at every distance mean a concave (diverging) lens, so power and focal length are both negative: f = 1/P = 1/(−1.25 D) = −0.80 m = −80 cm. −12.5 cm comes from a wrong conversion; positive power would mean a convex lens."
+      "[1 mark] Smaller, upright images at every distance mean a concave (diverging) lens, so power and focal length are both negative: f = 1/P = 1/(−1.25 D) = −0.80 m = −80 cm. −12.5 cm comes from a wrong conversion; positive power would mean a convex lens. Answer: (A)"
     ],
     "finalAnswer": "Power −1.25 D; focal length −80 cm",
     "isCompetencyBased": true,
@@ -2146,7 +2146,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Convex lens of 20 cm with concave lens of 100 cm",
     "solutionSteps": [
-      "[1 mark] Needed power = 1/(+0.25 m) = +4 D. Convex 20 cm gives +5 D and concave 100 cm gives −1 D; +5 D + (−1 D) = +4 D. The other pairs give +3 D, +1 D and +7 D."
+      "[1 mark] Needed power = 1/(+0.25 m) = +4 D. Convex 20 cm gives +5 D and concave 100 cm gives −1 D; +5 D + (−1 D) = +4 D. The other pairs give +3 D, +1 D and +7 D. Answer: (B)"
     ],
     "finalAnswer": "Convex lens of 20 cm with concave lens of 100 cm",
     "isCompetencyBased": true,
@@ -2175,7 +2175,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Lens R (+10 D)",
     "solutionSteps": [
-      "[1 mark] Only a convex (positive-power) lens gives a magnified, upright image of an object held within its focus; +10 D has the shortest focal length (10 cm) and magnifies most. Q has the same size of power but is concave, so it only gives diminished images."
+      "[1 mark] Only a convex (positive-power) lens gives a magnified, upright image of an object held within its focus; +10 D has the shortest focal length (10 cm) and magnifies most. Q has the same size of power but is concave, so it only gives diminished images. Answer: (C)"
     ],
     "finalAnswer": "Lens R (+10 D)",
     "isCompetencyBased": true,
@@ -2204,7 +2204,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "u = −240 cm",
     "solutionSteps": [
-      "[1 mark] Real, inverted image: m = −6.0 cm/120 cm = −0.05 and v = +12 cm; m = v/u gives u = (+12 cm)/(−0.05) = −240 cm. +240 cm drops the negative sign of an inverted image; −0.60 cm multiplies instead of dividing."
+      "[1 mark] Real, inverted image: m = −6.0 cm/120 cm = −0.05 and v = +12 cm; m = v/u gives u = (+12 cm)/(−0.05) = −240 cm. +240 cm drops the negative sign of an inverted image; −0.60 cm multiplies instead of dividing. Answer: (D)"
     ],
     "finalAnswer": "u = −240 cm",
     "isCompetencyBased": true,
@@ -2233,7 +2233,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: net power = +2.5 D + (−2.5 D) = 0 D, so the pair neither converges nor diverges light and behaves like a plane sheet of glass, giving a same-size view."
+      "[1 mark] (A) Both are true and R explains A: net power = +2.5 D + (−2.5 D) = 0 D, so the pair neither converges nor diverges light and behaves like a plane sheet of glass, giving a same-size view. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -2262,7 +2262,7 @@ export const LIGHT_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: positive power means a convex lens with f = 1/(+2.0 D) = +0.50 m = 50 cm, where parallel rays converge. R is false: a positive-power lens is converging (convex), not diverging."
+      "[1 mark] (C) A is true: positive power means a convex lens with f = 1/(+2.0 D) = +0.50 m = 50 cm, where parallel rays converge. R is false: a positive-power lens is converging (convex), not diverging. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,

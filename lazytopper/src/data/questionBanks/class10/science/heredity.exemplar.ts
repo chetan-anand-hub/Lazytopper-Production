@@ -12,7 +12,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Exchange of genetic material takes place in",
     options: ["vegetative reproduction", "asexual reproduction", "sexual reproduction", "budding"],
     answer: "sexual reproduction",
-    solutionSteps: ["In sexual reproduction, gametes from two parents fuse → genetic material is exchanged/combined.", "Vegetative, asexual, and budding involve a single parent → no genetic exchange."],
+    solutionSteps: ["In sexual reproduction, gametes from two parents fuse → genetic material is exchanged/combined.", "Vegetative, asexual, and budding involve a single parent → no genetic exchange. Answer: (C)"],
     finalAnswer: "Sexual reproduction — option (c).",
     ncertRef: "Exemplar MCQ Q1", isCompetencyBased: false },
 
@@ -20,7 +20,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Two pink coloured flowers on crossing resulted in 1 red, 2 pink and 1 white flower progeny. The nature of the cross will be",
     options: ["double fertilisation", "self pollination", "cross fertilisation", "no fertilisation"],
     answer: "self pollination",
-    solutionSteps: ["The 1:2:1 phenotypic ratio is the signature of selfing a heterozygote (incomplete dominance).", "Pink (Rr) × Pink (Rr) → 1 RR (red) : 2 Rr (pink) : 1 rr (white).", "Such a cross between two identical pink plants is self/intra-variety pollination (selfing)."],
+    solutionSteps: ["The 1:2:1 phenotypic ratio is the signature of selfing a heterozygote (incomplete dominance).", "Pink (Rr) × Pink (Rr) → 1 RR (red) : 2 Rr (pink) : 1 rr (white).", "Such a cross between two identical pink plants is self/intra-variety pollination (selfing). Answer: (B)"],
     finalAnswer: "Self pollination — option (b).",
     ncertRef: "Exemplar MCQ Q2", isCompetencyBased: true,
     strategyHint: "1:2:1 ratio in a single trait → cross between two identical heterozygotes (selfing)." },
@@ -29,7 +29,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A cross between a tall plant (TT) and short pea plant (tt) resulted in progeny that were all tall plants because",
     options: ["tallness is the dominant trait", "shortness is the dominant trait", "tallness is the recessive trait", "height of pea plant is not governed by gene 'T' or 't'"],
     answer: "tallness is the dominant trait",
-    solutionSteps: ["TT × tt → all F1 are Tt.", "If all Tt are tall → T (tallness) masks t (shortness).", "Hence tallness is dominant."],
+    solutionSteps: ["TT × tt → all F1 are Tt.", "If all Tt are tall → T (tallness) masks t (shortness).", "Hence tallness is dominant. Answer: (A)"],
     finalAnswer: "Tallness is dominant — option (a).",
     ncertRef: "Exemplar MCQ Q3", isCompetencyBased: false },
 
@@ -37,7 +37,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Which of the following statement is incorrect?",
     options: ["For every hormone there is a gene.", "For every protein there is a gene.", "For production of every enzyme there is a gene.", "For every molecule of fat there is a gene."],
     answer: "For every molecule of fat there is a gene.",
-    solutionSteps: ["Genes code for proteins (including enzymes and protein/peptide hormones).", "Fats are NOT directly coded by genes — they are synthesised by enzyme-catalysed reactions; the enzymes are gene-coded, not the fat itself.", "So statement (d) is incorrect."],
+    solutionSteps: ["Genes code for proteins (including enzymes and protein/peptide hormones).", "Fats are NOT directly coded by genes — they are synthesised by enzyme-catalysed reactions; the enzymes are gene-coded, not the fat itself.", "So statement (d) is incorrect. Answer: (D)"],
     finalAnswer: "Option (d) is incorrect.",
     ncertRef: "Exemplar MCQ Q4", isCompetencyBased: true },
 
@@ -45,7 +45,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If a round, green seeded pea plant (RRyy) is crossed with wrinkled, yellow seeded pea plant (rrYY), the seeds produced in F1 generation are",
     options: ["round and yellow", "round and green", "wrinkled and green", "wrinkled and yellow"],
     answer: "round and yellow",
-    solutionSteps: ["Parent gametes: RRyy → Ry; rrYY → rY.", "F1 genotype: RrYy.", "Both R (round) and Y (yellow) are dominant → F1 phenotype = round, yellow."],
+    solutionSteps: ["Parent gametes: RRyy → Ry; rrYY → rY.", "F1 genotype: RrYy.", "Both R (round) and Y (yellow) are dominant → F1 phenotype = round, yellow. Answer: (A)"],
     finalAnswer: "Round and yellow — option (a).",
     ncertRef: "Exemplar MCQ Q5", isCompetencyBased: true },
 
@@ -53,7 +53,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In human males all the chromosomes are paired perfectly except one. This/these unpaired chromosome is/are\n(i) large chromosome\n(ii) small chromosome\n(iii) Y-chromosome\n(iv) X-chromosome",
     options: ["(i) and (ii)", "(iii) only", "(iii) and (iv)", "(ii) and (iv)"],
     answer: "(iii) and (iv)",
-    solutionSteps: ["Human males have XY as the sex chromosome pair.", "X is a normal-sized chromosome and Y is much shorter — so the pair is mismatched.", "Both X and Y are 'unpaired' in the sense that they are not identical partners.", "Option (c): (iii) and (iv)."],
+    solutionSteps: ["Human males have XY as the sex chromosome pair.", "X is a normal-sized chromosome and Y is much shorter — so the pair is mismatched.", "Both X and Y are 'unpaired' in the sense that they are not identical partners.", "Option (c): (iii) and (iv). Answer: (C)"],
     finalAnswer: "Option (c) — (iii) and (iv).",
     ncertRef: "Exemplar MCQ Q6", isCompetencyBased: true },
 
@@ -61,7 +61,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The maleness of a child is determined by",
     options: ["the X chromosome in the zygote", "the Y chromosome in zygote", "the cytoplasm of germ cell which determines the sex", "sex is determined by chance"],
     answer: "the Y chromosome in zygote",
-    solutionSteps: ["Boys are XY → presence of the Y chromosome is what makes the zygote develop as male.", "X comes from mother always; Y comes only from father → maleness is set by inheritance of Y."],
+    solutionSteps: ["Boys are XY → presence of the Y chromosome is what makes the zygote develop as male.", "X comes from mother always; Y comes only from father → maleness is set by inheritance of Y. Answer: (B)"],
     finalAnswer: "Y chromosome in zygote — option (b).",
     ncertRef: "Exemplar MCQ Q7", isCompetencyBased: false },
 
@@ -69,7 +69,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A zygote which has an X-chromosome inherited from the father will develop into a",
     options: ["boy", "girl", "X-chromosome does not determine the sex of a child", "either boy or girl"],
     answer: "girl",
-    solutionSteps: ["Mother always gives X. If father also gives X → zygote XX → female.", "If father gives Y → zygote XY → male.", "So inheriting X from the father → girl."],
+    solutionSteps: ["Mother always gives X. If father also gives X → zygote XX → female.", "If father gives Y → zygote XY → male.", "So inheriting X from the father → girl. Answer: (B)"],
     finalAnswer: "Girl — option (b).",
     ncertRef: "Exemplar MCQ Q8", isCompetencyBased: false },
 
@@ -86,7 +86,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Which of the following statements is not true with respect to variation?",
     options: ["All variations in a species have equal chance of survival", "Change in genetic composition results in variation", "Selection of variants by environmental factors forms the basis of evolutionary processes.", "Variation is minimum in asexual reproduction"],
     answer: "All variations in a species have equal chance of survival",
-    solutionSteps: ["Statement (a) is false — variations differ in how well they suit the environment; some survive better than others.", "(b), (c), (d) are all true statements about variation.", "Hence (a) is the 'not true' statement."],
+    solutionSteps: ["Statement (a) is false — variations differ in how well they suit the environment; some survive better than others.", "(b), (c), (d) are all true statements about variation.", "Hence (a) is the 'not true' statement. Answer: (A)"],
     finalAnswer: "Option (a) is not true.",
     ncertRef: "Exemplar MCQ Q15", isCompetencyBased: true },
 
@@ -94,7 +94,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "A trait in an organism is influenced by",
     options: ["paternal DNA only", "maternal DNA only", "both maternal and paternal DNA", "neither by paternal nor by maternal DNA"],
     answer: "both maternal and paternal DNA",
-    solutionSteps: ["Both parents contribute one chromosome of each pair → each trait has two alleles, one from each parent.", "Hence both maternal and paternal DNA influence a trait."],
+    solutionSteps: ["Both parents contribute one chromosome of each pair → each trait has two alleles, one from each parent.", "Hence both maternal and paternal DNA influence a trait. Answer: (C)"],
     finalAnswer: "Both maternal and paternal DNA — option (c).",
     ncertRef: "Exemplar MCQ Q16", isCompetencyBased: false },
 
@@ -102,7 +102,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The two versions of a trait (character) which are brought in by the male and female gametes are situated on",
     options: ["copies of the same chromosome", "two different chromosomes", "sex chromosomes", "any chromosome"],
     answer: "copies of the same chromosome",
-    solutionSteps: ["Each gene has a fixed position (locus) on a specific chromosome.", "The two alleles of a trait sit at the SAME locus on the two homologous copies of that chromosome — one from mother, one from father.", "So both versions are on copies of the same chromosome."],
+    solutionSteps: ["Each gene has a fixed position (locus) on a specific chromosome.", "The two alleles of a trait sit at the SAME locus on the two homologous copies of that chromosome — one from mother, one from father.", "So both versions are on copies of the same chromosome. Answer: (A)"],
     finalAnswer: "Copies of the same chromosome — option (a).",
     ncertRef: "Exemplar MCQ Q20", isCompetencyBased: true },
 
@@ -110,7 +110,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Select the statements that describe characteristics of genes\n(i) genes are specific sequence of bases in a DNA molecule\n(ii) a gene does not code for proteins\n(iii) in individuals of a given species, a specific gene is located on a particular chromosome\n(iv) each chromosome has only one gene",
     options: ["(i) and (ii)", "(i) and (iii)", "(i) and (iv)", "(ii) and (iv)"],
     answer: "(i) and (iii)",
-    solutionSteps: ["(i) True — a gene is a specific sequence of bases in DNA.", "(ii) False — genes DO code for proteins.", "(iii) True — a given gene is located at a specific locus on a particular chromosome.", "(iv) False — each chromosome carries many genes.", "Correct statements: (i) and (iii) → option (b)."],
+    solutionSteps: ["(i) True — a gene is a specific sequence of bases in DNA.", "(ii) False — genes DO code for proteins.", "(iii) True — a given gene is located at a specific locus on a particular chromosome.", "(iv) False — each chromosome carries many genes.", "Correct statements: (i) and (iii) → option (b). Answer: (B)"],
     finalAnswer: "(i) and (iii) — option (b).",
     ncertRef: "Exemplar MCQ Q21", isCompetencyBased: true },
 
@@ -118,7 +118,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In peas, a pure tall plant (TT) is crossed with a short plant (tt). The ratio of pure tall plants to short plants in F2 is",
     options: ["1 : 3", "3 : 1", "1 : 1", "2 : 1"],
     answer: "1 : 1",
-    solutionSteps: ["TT × tt → all F1 are Tt (tall, heterozygous).", "F1 selfed (Tt × Tt) → F2 = 1 TT : 2 Tt : 1 tt.", "Pure tall = TT = 1; short = tt = 1.", "Hence ratio of PURE tall : short = 1 : 1."],
+    solutionSteps: ["TT × tt → all F1 are Tt (tall, heterozygous).", "F1 selfed (Tt × Tt) → F2 = 1 TT : 2 Tt : 1 tt.", "Pure tall = TT = 1; short = tt = 1.", "Hence ratio of PURE tall : short = 1 : 1. Answer: (C)"],
     finalAnswer: "1 : 1 — option (c).",
     ncertRef: "Exemplar MCQ Q22", isCompetencyBased: true,
     strategyHint: "Note: 'pure tall' means homozygous TT, not all tall plants. Counts: TT = 1, tt = 1." },
@@ -127,7 +127,7 @@ export const HEREDITY_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The number of pair(s) of sex chromosomes in the zygote of humans is",
     options: ["one", "two", "three", "four"],
     answer: "one",
-    solutionSteps: ["Humans have 23 pairs of chromosomes — 22 pairs of autosomes and 1 pair of sex chromosomes.", "Hence the zygote has ONE pair of sex chromosomes (XX or XY)."],
+    solutionSteps: ["Humans have 23 pairs of chromosomes — 22 pairs of autosomes and 1 pair of sex chromosomes.", "Hence the zygote has ONE pair of sex chromosomes (XX or XY). Answer: (A)"],
     finalAnswer: "One — option (a).",
     ncertRef: "Exemplar MCQ Q23", isCompetencyBased: false },
 

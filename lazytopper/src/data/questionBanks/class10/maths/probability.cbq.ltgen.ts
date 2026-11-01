@@ -21,7 +21,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/12",
     "solutionSteps": [
-      "[1 mark] Multiples of both 4 and 6 are multiples of LCM(4, 6) = 12: 12, 24, 36, 48, 60, i.e. 5 favourable tokens out of 60 equally likely, so P(prize) = 5/60 = 1/12."
+      "[1 mark] Multiples of both 4 and 6 are multiples of LCM(4, 6) = 12: 12, 24, 36, 48, 60, i.e. 5 favourable tokens out of 60 equally likely, so P(prize) = 5/60 = 1/12. Answer: (B)"
     ],
     "finalAnswer": "1/12",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "47/50",
     "solutionSteps": [
-      "[1 mark] Non-defective bulbs = 250 - 15 = 235, so P(not defective) = 235/250 = 47/50."
+      "[1 mark] Non-defective bulbs = 250 - 15 = 235, so P(not defective) = 235/250 = 47/50. Answer: (D)"
     ],
     "finalAnswer": "47/50",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/2",
     "solutionSteps": [
-      "[1 mark] The equally likely outcomes are HH, HT, TH, TT (4, not 3); the faces differ in HT and TH, so P(Kabir) = 2/4 = 1/2."
+      "[1 mark] The equally likely outcomes are HH, HT, TH, TT (4, not 3); the faces differ in HT and TH, so P(Kabir) = 2/4 = 1/2. Answer: (C)"
     ],
     "finalAnswer": "1/2",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5/18",
     "solutionSteps": [
-      "[1 mark] Of the 36 equally likely outcomes, sum 9 occurs 4 times, sum 10 occurs 3 times, sum 11 occurs 2 times and sum 12 once: 4 + 3 + 2 + 1 = 10, so P = 10/36 = 5/18."
+      "[1 mark] Of the 36 equally likely outcomes, sum 9 occurs 4 times, sum 10 occurs 3 times, sum 11 occurs 2 times and sum 12 once: 4 + 3 + 2 + 1 = 10, so P = 10/36 = 5/18. Answer: (A)"
     ],
     "finalAnswer": "5/18",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/4",
     "solutionSteps": [
-      "[1 mark] After removing 4 aces, 48 cards remain and all 12 face cards are still there, so P(face card) = 12/48 = 1/4."
+      "[1 mark] After removing 4 aces, 48 cards remain and all 12 face cards are still there, so P(face card) = 12/48 = 1/4. Answer: (D)"
     ],
     "finalAnswer": "1/4",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5",
     "solutionSteps": [
-      "[1 mark] Let the number of yellow balls be y; then y/(15 + y) = 1/4, so 4y = 15 + y, giving y = 5 (check: 5/20 = 1/4)."
+      "[1 mark] Let the number of yellow balls be y; then y/(15 + y) = 1/4, so 4y = 15 + y, giving y = 5 (check: 5/20 = 1/4). Answer: (C)"
     ],
     "finalAnswer": "5",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1440",
     "solutionSteps": [
-      "[1 mark] P(correctly filled) = 1 - 0.04 = 0.96, so the number of correctly filled bottles = 0.96 x 1500 = 1440 (60 are underfilled)."
+      "[1 mark] P(correctly filled) = 1 - 0.04 = 0.96, so the number of correctly filled bottles = 0.96 x 1500 = 1440 (60 are underfilled). Answer: (A)"
     ],
     "finalAnswer": "1440",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "getting an odd number",
     "solutionSteps": [
-      "[1 mark] Every number on the spinner is even, so no outcome is odd: 'getting an odd number' has 0 favourable outcomes and probability 0 (whereas 'even' is a sure event with probability 1)."
+      "[1 mark] Every number on the spinner is even, so no outcome is odd: 'getting an odd number' has 0 favourable outcomes and probability 0 (whereas 'even' is a sure event with probability 1). Answer: (D)"
     ],
     "finalAnswer": "getting an odd number",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Charu: 7/5",
     "solutionSteps": [
-      "[1 mark] A probability must satisfy 0 <= P(E) <= 1; 7/5 = 1.4 > 1, so Charu's answer is impossible (0.08, 12% = 0.12 and 0 all lie in the range)."
+      "[1 mark] A probability must satisfy 0 <= P(E) <= 1; 7/5 = 1.4 > 1, so Charu's answer is impossible (0.08, 12% = 0.12 and 0 all lie in the range). Answer: (C)"
     ],
     "finalAnswer": "Charu: 7/5",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "7/20",
     "solutionSteps": [
-      "[1 mark] Households using neither = 80 - 32 - 20 = 28, so P = 28/80 = 7/20."
+      "[1 mark] Households using neither = 80 - 32 - 20 = 28, so P = 28/80 = 7/20. Answer: (B)"
     ],
     "finalAnswer": "7/20",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5/18",
     "solutionSteps": [
-      "[1 mark] Ordered outcomes with difference 1: (1,2), (2,1), (2,3), (3,2), (3,4), (4,3), (4,5), (5,4), (5,6), (6,5) = 10 of 36, so P = 10/36 = 5/18."
+      "[1 mark] Ordered outcomes with difference 1: (1,2), (2,1), (2,3), (3,2), (3,4), (4,3), (4,5), (5,4), (5,6), (6,5) = 10 of 36, so P = 10/36 = 5/18. Answer: (B)"
     ],
     "finalAnswer": "5/18",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/6",
     "solutionSteps": [
-      "[1 mark] There are 2 x 6 = 12 equally likely outcomes; the winning ones are (H, 5) and (H, 6), so P(win) = 2/12 = 1/6."
+      "[1 mark] There are 2 x 6 = 12 equally likely outcomes; the winning ones are (H, 5) and (H, 6), so P(win) = 2/12 = 1/6. Answer: (A)"
     ],
     "finalAnswer": "1/6",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/20",
     "solutionSteps": [
-      "[1 mark] Coupons left = 200 - 40 = 160, of which 8 are Mrs. Rao's, so P(she wins) = 8/160 = 1/20."
+      "[1 mark] Coupons left = 200 - 40 = 160, of which 8 are Mrs. Rao's, so P(she wins) = 8/160 = 1/20. Answer: (D)"
     ],
     "finalAnswer": "1/20",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2/25",
     "solutionSteps": [
-      "[1 mark] Chargers left = 400 - 100 = 300 and all 24 faulty ones are still among them, so P(faulty) = 24/300 = 2/25."
+      "[1 mark] Chargers left = 400 - 100 = 300 and all 24 faulty ones are still among them, so P(faulty) = 24/300 = 2/25. Answer: (C)"
     ],
     "finalAnswer": "2/25",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Remove 3 mint candies",
     "solutionSteps": [
-      "[1 mark] Check each: add 2 orange gives 6/12 = 1/2 (not greater); remove 3 mint gives 4/7 > 1/2; add 1 of each gives 5/12; remove 1 orange and 2 mint gives 3/7. Only removing 3 mint candies works."
+      "[1 mark] Check each: add 2 orange gives 6/12 = 1/2 (not greater); remove 3 mint gives 4/7 > 1/2; add 1 of each gives 5/12; remove 1 orange and 2 mint gives 3/7. Only removing 3 mint candies works. Answer: (B)"
     ],
     "finalAnswer": "Remove 3 mint candies",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/2",
     "solutionSteps": [
-      "[1 mark] The 8 equally likely answer patterns match the key in 3 places once (HTH) and in exactly 2 places three times (TTH, HHH, HTT), so P(at least two correct) = 4/8 = 1/2."
+      "[1 mark] The 8 equally likely answer patterns match the key in 3 places once (HTH) and in exactly 2 places three times (TTH, HHH, HTT), so P(at least two correct) = 4/8 = 1/2. Answer: (A)"
     ],
     "finalAnswer": "1/2",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2/3",
     "solutionSteps": [
-      "[1 mark] The six faces are equally likely and the odd faces are 1, 1, 3, 5 (four faces), so P(odd) = 4/6 = 2/3."
+      "[1 mark] The six faces are equally likely and the odd faces are 1, 1, 3, 5 (four faces), so P(odd) = 4/6 = 2/3. Answer: (C)"
     ],
     "finalAnswer": "2/3",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2/3",
     "solutionSteps": [
-      "[1 mark] Commuters using bus or metro = 45 + 35 = 80, so P = 80/120 = 2/3."
+      "[1 mark] Commuters using bus or metro = 45 + 35 = 80, so P = 80/120 = 2/3. Answer: (D)"
     ],
     "finalAnswer": "2/3",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2y = 3x",
     "solutionSteps": [
-      "[1 mark] P(blank) = y/(x + y) = 3/5, so 5y = 3x + 3y, i.e. 2y = 3x."
+      "[1 mark] P(blank) = y/(x + y) = 3/5, so 5y = 3x + 3y, i.e. 2y = 3x. Answer: (B)"
     ],
     "finalAnswer": "2y = 3x",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const PROBABILITY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5/13",
     "solutionSteps": [
-      "[1 mark] Red cards = 26, of which 6 are face cards (J, Q, K of hearts and diamonds), so favourable = 20 and P = 20/52 = 5/13."
+      "[1 mark] Red cards = 26, of which 6 are face cards (J, Q, K of hearts and diamonds), so favourable = 20 and P = 20/52 = 5/13. Answer: (A)"
     ],
     "finalAnswer": "5/13",
     "isCompetencyBased": true,

@@ -29,7 +29,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "An object is placed 60 cm in front of a concave mirror. The real image formed by the mirror is located 30 cm in front of the mirror. What is the object's magnification?",
     options: ["+2", "−2", "+0.5", "−0.5"],
     answer: "−0.5",
-    solutionSteps: ["[1 mark] (d) −0.5 — for the concave mirror u = −60 cm and the real image is in front of it, so v = −30 cm; magnification m = −v/u = −(−30)/(−60) = −0.5 (real, inverted, half the size)."],
+    solutionSteps: ["[1 mark] (d) −0.5 — for the concave mirror u = −60 cm and the real image is in front of it, so v = −30 cm; magnification m = −v/u = −(−30)/(−60) = −0.5 (real, inverted, half the size). Answer: (D)"],
     finalAnswer: "(d) −0.5",
     ncertRef: "cbjescco10 Q3", isCompetencyBased: true },
   // cbjescco10 Q6
@@ -37,7 +37,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "An object is placed 40.0 cm in front of a convex mirror. The image appears 15 cm behind the mirror. What is the focal length of the mirror?",
     options: ["+24 cm", "+11 cm", "−11 cm", "−24 cm"],
     answer: "+24 cm",
-    solutionSteps: ["[1 mark] (a) +24 cm — u = −40 cm; the image is behind the convex mirror (virtual), so v = +15 cm. Mirror formula 1/f = 1/v + 1/u = 1/15 − 1/40 = (8 − 3)/120 = 5/120 = 1/24 ⇒ f = +24 cm (positive for a convex mirror in the New Cartesian convention)."],
+    solutionSteps: ["[1 mark] (a) +24 cm — u = −40 cm; the image is behind the convex mirror (virtual), so v = +15 cm. Mirror formula 1/f = 1/v + 1/u = 1/15 − 1/40 = (8 − 3)/120 = 5/120 = 1/24 ⇒ f = +24 cm (positive for a convex mirror in the New Cartesian convention). Answer: (A)"],
     finalAnswer: "(a) +24 cm",
     ncertRef: "cbjescco10 Q6", isCompetencyBased: true },
   // cbjescco10 Q7
@@ -54,7 +54,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Focal length of a plane mirror is",
     options: ["zero", "infinite", "25 cm", "−25"],
     answer: "infinite",
-    solutionSteps: ["[1 mark] (b) infinite — a plane mirror is a spherical mirror of infinitely large radius of curvature, so its focal length f = R/2 is infinite (parallel rays remain parallel after reflection)."],
+    solutionSteps: ["[1 mark] (b) infinite — a plane mirror is a spherical mirror of infinitely large radius of curvature, so its focal length f = R/2 is infinite (parallel rays remain parallel after reflection). Answer: (B)"],
     finalAnswer: "(b) infinite",
     ncertRef: "cbjescco10 Q9", isCompetencyBased: true },
   // cbjescco10 Q11
@@ -62,7 +62,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "The radius of curvature of concave mirror is 12 cm. Then, the focal length will be",
     options: ["12 cm", "−12 cm", "−24 cm", "−6 cm"],
     answer: "−6 cm",
-    solutionSteps: ["[1 mark] (d) −6 cm — f = R/2 = 12/2 = 6 cm in magnitude, and for a concave mirror the focus lies in front of the mirror, so f = −6 cm in the New Cartesian convention."],
+    solutionSteps: ["[1 mark] (d) −6 cm — f = R/2 = 12/2 = 6 cm in magnitude, and for a concave mirror the focus lies in front of the mirror, so f = −6 cm in the New Cartesian convention. Answer: (D)"],
     finalAnswer: "(d) −6 cm",
     ncertRef: "cbjescco10 Q11", isCompetencyBased: true,
     sourceOverride: "others" },
@@ -103,7 +103,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "An object is placed 20 cm from the concave mirror of focal length 10 cm, then image is formed at",
     options: ["behind the mirror", "between the mirror and focus", "at focus", "centre of curvature of mirror"],
     answer: "centre of curvature of mirror",
-    solutionSteps: ["[1 mark] (d) centre of curvature of mirror — u = −20 cm = −2f (f = 10 cm), so the object is at C; the mirror formula gives 1/v = −1/10 + 1/20 = −1/20 ⇒ v = −20 cm: the image is formed at the centre of curvature (real, inverted, same size)."],
+    solutionSteps: ["[1 mark] (d) centre of curvature of mirror — u = −20 cm = −2f (f = 10 cm), so the object is at C; the mirror formula gives 1/v = −1/10 + 1/20 = −1/20 ⇒ v = −20 cm: the image is formed at the centre of curvature (real, inverted, same size). Answer: (D)"],
     finalAnswer: "(d) centre of curvature of mirror",
     ncertRef: "cbjescco10 Q18", isCompetencyBased: true },
   // cbjescco10 Q19
@@ -111,7 +111,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "The refractive index of dens flint glass is 1.65 and for alcohol, it is 1.36 with respect to air, then the refractive index of the dens flint glass with respect to alcohol is",
     options: ["1.31", "1.21", "1.11", "1.01"],
     answer: "1.21",
-    solutionSteps: ["[1 mark] (b) 1.21 — refractive index of dense flint glass with respect to alcohol = n(glass)/n(alcohol) = 1.65/1.36 = 1.21."],
+    solutionSteps: ["[1 mark] (b) 1.21 — refractive index of dense flint glass with respect to alcohol = n(glass)/n(alcohol) = 1.65/1.36 = 1.21. Answer: (B)"],
     finalAnswer: "(b) 1.21",
     ncertRef: "cbjescco10 Q19", isCompetencyBased: true },
   // cbjescco10 Q20
@@ -119,7 +119,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "A virtual image three times the size of the object is obtained with a concave mirror of radius of curvature 36 cm. The distance of the object from the mirror is",
     options: ["20 cm", "10 cm", "12 cm", "5 cm"],
     answer: "12 cm",
-    solutionSteps: ["[1 mark] (c) 12 cm — f = −R/2 = −18 cm; a virtual, erect image with m = +3 means m = −v/u = 3 ⇒ v = −3u. Mirror formula 1/f = 1/v + 1/u ⇒ −1/18 = −1/(3u) + 1/u = 2/(3u) ⇒ u = −12 cm, i.e. the object is 12 cm from the mirror (between P and F)."],
+    solutionSteps: ["[1 mark] (c) 12 cm — f = −R/2 = −18 cm; a virtual, erect image with m = +3 means m = −v/u = 3 ⇒ v = −3u. Mirror formula 1/f = 1/v + 1/u ⇒ −1/18 = −1/(3u) + 1/u = 2/(3u) ⇒ u = −12 cm, i.e. the object is 12 cm from the mirror (between P and F). Answer: (C)"],
     finalAnswer: "(c) 12 cm",
     ncertRef: "cbjescco10 Q20", isCompetencyBased: true },
   // cbjescco10 Q22
@@ -127,7 +127,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "An object is placed at the centre of curvature of a concave mirror. The distance between its image and the pole is",
     options: ["equal to f", "between f and 2f", "equal to 2f", "greater than 2f"],
     answer: "equal to 2f",
-    solutionSteps: ["[1 mark] (c) equal to 2f — an object at the centre of curvature C (u = −2f) of a concave mirror forms its image at C itself (1/v = 1/f − 1/u = −1/f + 1/(2f) = −1/(2f) ⇒ v = −2f), so the image is 2f from the pole."],
+    solutionSteps: ["[1 mark] (c) equal to 2f — an object at the centre of curvature C (u = −2f) of a concave mirror forms its image at C itself (1/v = 1/f − 1/u = −1/f + 1/(2f) = −1/(2f) ⇒ v = −2f), so the image is 2f from the pole. Answer: (C)"],
     finalAnswer: "(c) equal to 2f",
     ncertRef: "cbjescco10 Q22", isCompetencyBased: true },
   // cbjescco10 Q24
@@ -135,7 +135,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Refractive index of diamond with respect to glass is 1.6. If the absolute refractive index of glass is 1.5, then the absolute refractive index of diamond is",
     options: ["1.4", "2.4", "3.4", "4.4"],
     answer: "2.4",
-    solutionSteps: ["[1 mark] (b) 2.4 — n(diamond w.r.t. glass) = n(diamond)/n(glass) ⇒ n(diamond) = 1.6 × 1.5 = 2.4."],
+    solutionSteps: ["[1 mark] (b) 2.4 — n(diamond w.r.t. glass) = n(diamond)/n(glass) ⇒ n(diamond) = 1.6 × 1.5 = 2.4. Answer: (B)"],
     finalAnswer: "(b) 2.4",
     ncertRef: "cbjescco10 Q24", isCompetencyBased: true },
   // cbjescco10 Q26
@@ -159,7 +159,7 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "If the refractive indices for water and diamond relative to air are 1.33 and 2.4 respectively, then the refractive index of diamond relative to water is-",
     options: [".55", "1.80", "3.19", "None of these"],
     answer: "1.80",
-    solutionSteps: ["[1 mark] (b) 1.80 — refractive index of diamond relative to water = n(diamond)/n(water) = 2.4/1.33 = 1.80."],
+    solutionSteps: ["[1 mark] (b) 1.80 — refractive index of diamond relative to water = n(diamond)/n(water) = 2.4/1.33 = 1.80. Answer: (B)"],
     finalAnswer: "(b) 1.80",
     ncertRef: "cbjescco10 Q28", isCompetencyBased: true },
   // cbjescco10 Q29

@@ -14,7 +14,7 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     questionText: "The zeroes of the quadratic polynomial x² – 2x – 8 are",
     options: ["–2 and 4", "2 and –4", "–2 and –4", "2 and 4"],
     answer: "–2 and 4",
-    solutionSteps: ["Factorise: x² – 2x – 8 = (x – 4)(x + 2).", "Zeroes occur when each factor is zero: x = 4 or x = –2."],
+    solutionSteps: ["Factorise: x² – 2x – 8 = (x – 4)(x + 2).", "Zeroes occur when each factor is zero: x = 4 or x = –2. Answer: (A)"],
     finalAnswer: "–2 and 4 — option (a).",
     ncertRef: "NCERT Ex 2.2 Q1(i)", isCompetencyBased: false,
     strategyHint: "Split the middle term." },
@@ -23,7 +23,7 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     questionText: "If the graph of a quadratic polynomial y = p(x) does not intersect the x-axis at any point, then the number of real zeroes of p(x) is",
     options: ["0", "1", "2", "Infinite"],
     answer: "0",
-    solutionSteps: ["The real zeroes of p(x) are exactly the x-coordinates where the graph y = p(x) meets the x-axis.", "No intersection ⇒ no real zeroes."],
+    solutionSteps: ["The real zeroes of p(x) are exactly the x-coordinates where the graph y = p(x) meets the x-axis.", "No intersection ⇒ no real zeroes. Answer: (A)"],
     finalAnswer: "0 — option (a).",
     ncertRef: "NCERT Section 2.2 Case (iii)", isCompetencyBased: false },
 
@@ -31,7 +31,7 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     questionText: "If α and β are the zeroes of the quadratic polynomial 6x² – 7x – 3, then α + β equals",
     options: ["7/6", "–7/6", "1/2", "–1/2"],
     answer: "7/6",
-    solutionSteps: ["For ax² + bx + c, sum of zeroes = −b/a.", "Here a = 6, b = −7. α + β = −(−7)/6 = 7/6."],
+    solutionSteps: ["For ax² + bx + c, sum of zeroes = −b/a.", "Here a = 6, b = −7. α + β = −(−7)/6 = 7/6. Answer: (A)"],
     finalAnswer: "7/6 — option (a).",
     ncertRef: "NCERT Section 2.3", isCompetencyBased: false },
 
@@ -39,7 +39,7 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     questionText: "If the sum of the zeroes of a quadratic polynomial is 0 and the product is 5, the polynomial is",
     options: ["x² + 5", "x² – 5", "x² + 5x", "x² – 5x"],
     answer: "x² + 5",
-    solutionSteps: ["A quadratic with sum s and product p of zeroes is x² – sx + p.", "Here s = 0, p = 5 ⇒ x² – 0·x + 5 = x² + 5."],
+    solutionSteps: ["A quadratic with sum s and product p of zeroes is x² – sx + p.", "Here s = 0, p = 5 ⇒ x² – 0·x + 5 = x² + 5. Answer: (A)"],
     finalAnswer: "x² + 5 — option (a).",
     ncertRef: "NCERT Ex 2.2 Q2(iii)", isCompetencyBased: true },
 
@@ -47,7 +47,7 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     questionText: "The zero of the linear polynomial p(x) = 3x + 6 is",
     options: ["–2", "2", "–6", "6"],
     answer: "–2",
-    solutionSteps: ["Set p(x) = 0: 3x + 6 = 0 ⇒ x = −6/3 = −2."],
+    solutionSteps: ["Set p(x) = 0: 3x + 6 = 0 ⇒ x = −6/3 = −2. Answer: (A)"],
     finalAnswer: "–2 — option (a).",
     ncertRef: "NCERT Section 2.1", isCompetencyBased: false },
 

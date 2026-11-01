@@ -21,7 +21,7 @@ export const MNM_CBE: CanonicalQuestion[] = [
     "options": ["C and E", "A and D only", "B, C and D", "A, B and D"],
     "answer": "A, B and D",
     "solutionSteps": [
-      "[1 mark] A, B and D — A, B and D have low melting points and do not conduct even when liquid/aqueous, so they are covalent; C and E are ionic."
+      "[1 mark] A, B and D — A, B and D have low melting points and do not conduct even when liquid/aqueous, so they are covalent; C and E are ionic. Answer: (D)"
     ],
     "finalAnswer": "A, B and D",
     "isCompetencyBased": true,
@@ -66,7 +66,7 @@ export const MNM_CBE: CanonicalQuestion[] = [
     "options": ["D, C, A, B", "B, A, C, D", "D, A, C, B", "C, D, A, B"],
     "answer": "D, C, A, B",
     "solutionSteps": [
-      "[1 mark] D, C, A, B — D displaces nothing (even Ag); C displaces only Ag; A displaces Cu but not Fe; B displaces Fe — so D < C < A < B."
+      "[1 mark] D, C, A, B — D displaces nothing (even Ag); C displaces only Ag; A displaces Cu but not Fe; B displaces Fe — so D < C < A < B. Answer: (A)"
     ],
     "finalAnswer": "D, C, A, B",
     "isCompetencyBased": true,
@@ -86,7 +86,7 @@ export const MNM_CBE: CanonicalQuestion[] = [
     "options": ["to raise the melting point of alumina", "to supply oxygen for the reaction", "to lower the melting point of alumina", "to reduce alumina chemically to aluminium"],
     "answer": "to lower the melting point of alumina",
     "solutionSteps": [
-      "[1 mark] to lower the melting point of alumina — cryolite lowers the melting point of alumina (and improves conductivity), saving energy in electrolysis."
+      "[1 mark] to lower the melting point of alumina — cryolite lowers the melting point of alumina (and improves conductivity), saving energy in electrolysis. Answer: (C)"
     ],
     "finalAnswer": "to lower the melting point of alumina",
     "isCompetencyBased": false,

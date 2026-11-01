@@ -16,7 +16,7 @@ export const HEREDITY_APQ: CanonicalQuestion[] = [
       "One parent is heterozygous."
     ],
     answer: "One parent is heterozygous.",
-    solutionSteps: ["Horned parent is homozygous recessive (hh). For 50:50 ratio of horned:hornless offspring, the hornless parent must contribute H and h equally — meaning heterozygous (Hh).", "Cross: hh × Hh → 50% Hh (hornless), 50% hh (horned). Matches observed ratio. So one parent is heterozygous (the hornless one)."],
+    solutionSteps: ["Horned parent is homozygous recessive (hh). For 50:50 ratio of horned:hornless offspring, the hornless parent must contribute H and h equally — meaning heterozygous (Hh).", "Cross: hh × Hh → 50% Hh (hornless), 50% hh (horned). Matches observed ratio. So one parent is heterozygous (the hornless one). Answer: (D)"],
     finalAnswer: "(d) One parent is heterozygous.",
     ncertRef: "APQ Science-PQ Q11", isCompetencyBased: true },
 
@@ -30,7 +30,7 @@ export const HEREDITY_APQ: CanonicalQuestion[] = [
       "A is false but R is true."
     ],
     answer: "A is false but R is true.",
-    solutionSteps: ["A is false: variations may be advantageous, neutral, or HARMFUL depending on environment. Many variations reduce fitness.", "R is true: errors during DNA replication (copying) are a major source of genetic variation."],
+    solutionSteps: ["A is false: variations may be advantageous, neutral, or HARMFUL depending on environment. Many variations reduce fitness.", "R is true: errors during DNA replication (copying) are a major source of genetic variation. Answer: (D)"],
     finalAnswer: "(d) A is false but R is true.",
     ncertRef: "APQ Science-PQ Q18", isCompetencyBased: true },
 
@@ -60,7 +60,7 @@ export const HEREDITY_APQ: CanonicalQuestion[] = [
     questionText: "A cross between pure tall and pure short pea plants gives hybrid tall pea plants in the first generation. What would be the genotypic ratio in the offspring of the second generation if these F1 plants were self-pollinated?",
     options: ["3:1", "9:3:3:1", "1:2:1", "1:1"],
     answer: "1:2:1",
-    solutionSteps: ["Cross TT × tt → F1 all Tt (hybrid tall).", "Self-pollination of F1 (Tt × Tt) gives F2 genotypes: TT, Tt, Tt, tt ⟹ GENOTYPIC ratio = 1 TT : 2 Tt : 1 tt = 1:2:1. (Note: phenotypic ratio is 3:1.)"],
+    solutionSteps: ["Cross TT × tt → F1 all Tt (hybrid tall).", "Self-pollination of F1 (Tt × Tt) gives F2 genotypes: TT, Tt, Tt, tt ⟹ GENOTYPIC ratio = 1 TT : 2 Tt : 1 tt = 1:2:1. (Note: phenotypic ratio is 3:1.) Answer: (C)"],
     finalAnswer: "(c) 1:2:1",
     ncertRef: "APQ Science-PQ2 Q11", isCompetencyBased: true },
 

@@ -66,7 +66,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "It releases into the atmosphere a gas that is toxic to human beings.",
     solutionSteps: [
-      "[1 mark] Correct option: (3) It releases into the atmosphere a gas that is toxic to human beings. Brown hydrogen differs from grey hydrogen only by also releasing carbon monoxide, which is poisonous to humans. Both release carbon dioxide, so the greenhouse and stored-carbon points do not distinguish them.",
+      "[1 mark] Correct option: (3) It releases into the atmosphere a gas that is toxic to human beings. Brown hydrogen differs from grey hydrogen only by also releasing carbon monoxide, which is poisonous to humans. Both release carbon dioxide, so the greenhouse and stored-carbon points do not distinguish them. Answer: (C)",
     ],
     finalAnswer: "It releases into the atmosphere a gas that is toxic to human beings.",
     isCompetencyBased: true,
@@ -89,7 +89,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     options: ["1:2", "2:1", "1:10", "10:1"],
     answer: "10:1",
     solutionSteps: [
-      "[1 mark] Correct option: (4) 10:1. By the ten per cent law only about 10% of the energy at one trophic level passes to the next, so producers hold about ten times the energy of the primary consumers that feed on them.",
+      "[1 mark] Correct option: (4) 10:1. By the ten per cent law only about 10% of the energy at one trophic level passes to the next, so producers hold about ten times the energy of the primary consumers that feed on them. Answer: (D)",
     ],
     finalAnswer: "10:1",
     isCompetencyBased: true,
@@ -117,7 +117,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "unidirectional and cyclic",
     solutionSteps: [
-      "[1 mark] Correct option: (2) unidirectional and cyclic. Energy enters as sunlight and passes one way up the trophic levels, being lost as heat at each step, whereas nutrients are returned to the soil by decomposers and cycled repeatedly.",
+      "[1 mark] Correct option: (2) unidirectional and cyclic. Energy enters as sunlight and passes one way up the trophic levels, being lost as heat at each step, whereas nutrients are returned to the soil by decomposers and cycled repeatedly. Answer: (B)",
     ],
     finalAnswer: "unidirectional and cyclic",
     isCompetencyBased: true,
@@ -163,7 +163,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
       "Two animals differ in how far they can see without turning their heads. Animal 1 has eyes towards the front of the head: a narrower field of view, but a large central part is seen by both eyes at once. Animal 2 has eyes on either side of the head: a much wider field of view, but only a narrow central part is seen by both eyes.\n\nAnimal 2 can see a broader area at any time. Animal 1 can judge depth (distance) better.\n\nObserve the food web in the figure. Which grouping is correct?",
     answer: "Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit",
     solutionSteps: [
-      "[1 mark] Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit — predators need depth judgement to catch prey; prey need a wide view to spot predators."
+      "[1 mark] Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit — predators need depth judgement to catch prey; prey need a wide view to spot predators. Answer: (D)"
     ],
     finalAnswer:
       "Like Animal 1: lion, jackal, kite, wild cat, owl; like Animal 2: mouse, goat, rabbit",
@@ -190,7 +190,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     questionText:
       "bone | metal can | paper sheet | plastic bottle\n\nWhich option arranges these objects by the time they take to biodegrade, from LEAST time to MOST time?",
     answer: "paper sheet, bone, metal can, plastic bottle",
-    solutionSteps: ["[1 mark] paper sheet, bone, metal can, plastic bottle — paper decomposes fastest, then bone, then a metal can; plastic takes the longest."],
+    solutionSteps: ["[1 mark] paper sheet, bone, metal can, plastic bottle — paper decomposes fastest, then bone, then a metal can; plastic takes the longest. Answer: (A)"],
     finalAnswer: "paper sheet, bone, metal can, plastic bottle",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.15 — CFPQ_Science10.pdf, questions pdf pp.133–135 (printed folios 132–134)",
@@ -265,7 +265,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     answer:
       "too little energy remains above the lion's trophic level to support another predator",
     solutionSteps: [
-      "[1 mark] too little energy remains above the lion's trophic level to support another predator — lions are at the tertiary/quaternary level; after the 10% loss at each step, too little energy is left for a higher level."
+      "[1 mark] too little energy remains above the lion's trophic level to support another predator — lions are at the tertiary/quaternary level; after the 10% loss at each step, too little energy is left for a higher level. Answer: (B)"
     ],
     finalAnswer:
       "too little energy remains above the lion's trophic level to support another predator",

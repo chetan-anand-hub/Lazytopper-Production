@@ -34,7 +34,7 @@ export const STAT_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "In the formula x̄ = a + (Σfᵢdᵢ)/(Σfᵢ), for finding the mean of grouped data the dᵢ's are deviations from a of",
     options: ["lower limits of the classes", "upper limits of the classes", "mid points of the classes", "frequencies of the class marks"],
     answer: "mid points of the classes",
-    solutionSteps: ["[1 mark] In the assumed-mean method dᵢ = xᵢ − a, where xᵢ is the class mark (mid point) of the iᵗʰ class; so the deviations are taken from the mid points — option (C)."],
+    solutionSteps: ["[1 mark] In the assumed-mean method dᵢ = xᵢ − a, where xᵢ is the class mark (mid point) of the iᵗʰ class; so the deviations are taken from the mid points — option (C). Answer: (C)"],
     finalAnswer: "mid points of the classes — option (C).",
     ncertRef: "Exemplar Ex 13.1 Q1", isCompetencyBased: false },
 
@@ -42,7 +42,7 @@ export const STAT_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "While computing mean of grouped data, we assume that the frequencies are",
     options: ["evenly distributed over all the classes", "centred at the classmarks of the classes", "centred at the upper limits of the classes", "centred at the lower limits of the classes"],
     answer: "centred at the classmarks of the classes",
-    solutionSteps: ["[1 mark] The grouped-mean formula treats each class's frequency as concentrated at its class mark (mid point); hence option (B)."],
+    solutionSteps: ["[1 mark] The grouped-mean formula treats each class's frequency as concentrated at its class mark (mid point); hence option (B). Answer: (B)"],
     finalAnswer: "centred at the classmarks of the classes — option (B).",
     ncertRef: "Exemplar Ex 13.1 Q2", isCompetencyBased: false },
 
@@ -50,7 +50,7 @@ export const STAT_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "Consider the following frequency distribution: Class 0-5 → 13, 6-11 → 10, 12-17 → 15, 18-23 → 8, 24-29 → 11. The upper limit of the median class is",
     options: ["17", "17.5", "18", "18.5"],
     answer: "17.5",
-    solutionSteps: ["[1 mark] n = 57, so n/2 = 28.5; converting to continuous classes the cumulative frequencies are 13, 23, 38, 46, 57, so the median class is 12-17 (continuous 11.5-17.5), whose upper limit is 17.5 — option (B)."],
+    solutionSteps: ["[1 mark] n = 57, so n/2 = 28.5; converting to continuous classes the cumulative frequencies are 13, 23, 38, 46, 57, so the median class is 12-17 (continuous 11.5-17.5), whose upper limit is 17.5 — option (B). Answer: (B)"],
     finalAnswer: "17.5 — option (B).",
     ncertRef: "Exemplar Ex 13.1 Q7", isCompetencyBased: true },
 
@@ -58,7 +58,7 @@ export const STAT_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "Consider the data: Class 65-85 → 4, 85-105 → 5, 105-125 → 13, 125-145 → 20, 145-165 → 14, 165-185 → 7, 185-205 → 4. The difference of the upper limit of the median class and the lower limit of the modal class is",
     options: ["0", "19", "20", "38"],
     answer: "20",
-    solutionSteps: ["[1 mark] n = 67, n/2 = 33.5; cumulative frequencies 4, 9, 22, 42, ... give median class 125-145 (upper limit 145), and the maximum frequency 20 gives modal class 125-145 (lower limit 125), so the difference = 145 − 125 = 20 — option (C)."],
+    solutionSteps: ["[1 mark] n = 67, n/2 = 33.5; cumulative frequencies 4, 9, 22, 42, ... give median class 125-145 (upper limit 145), and the maximum frequency 20 gives modal class 125-145 (lower limit 125), so the difference = 145 − 125 = 20 — option (C). Answer: (C)"],
     finalAnswer: "20 — option (C).",
     ncertRef: "Exemplar Ex 13.1 Q9", isCompetencyBased: true },
 
@@ -66,7 +66,7 @@ export const STAT_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The times, in seconds, taken by 150 athletes to run a 110 m hurdle race are tabulated: 13.8-14 → 2, 14-14.2 → 4, 14.2-14.4 → 5, 14.4-14.6 → 71, 14.6-14.8 → 48, 14.8-15 → 20. The number of athletes who completed the race in less than 14.6 seconds is",
     options: ["11", "71", "82", "130"],
     answer: "82",
-    solutionSteps: ["[1 mark] 'Less than 14.6 s' adds the frequencies of all classes up to 14.4-14.6: 2 + 4 + 5 + 71 = 82 — option (C)."],
+    solutionSteps: ["[1 mark] 'Less than 14.6 s' adds the frequencies of all classes up to 14.4-14.6: 2 + 4 + 5 + 71 = 82 — option (C). Answer: (C)"],
     finalAnswer: "82 — option (C).",
     ncertRef: "Exemplar Ex 13.1 Q10", isCompetencyBased: true },
 

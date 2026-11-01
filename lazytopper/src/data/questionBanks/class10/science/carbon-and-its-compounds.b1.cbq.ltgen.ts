@@ -21,7 +21,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4 shared pairs: one between hydrogen and carbon, and three between carbon and nitrogen",
     "solutionSteps": [
-      "[1 mark] A single bond is one shared pair and a triple bond is three shared pairs, so 1 + 3 = 4 shared pairs. The unshared (lone) pair on nitrogen is not shared with any atom, so counting it to get 5 is wrong."
+      "[1 mark] A single bond is one shared pair and a triple bond is three shared pairs, so 1 + 3 = 4 shared pairs. The unshared (lone) pair on nitrogen is not shared with any atom, so counting it to get 5 is wrong. Answer: (A)"
     ],
     "finalAnswer": "4 shared pairs: one between hydrogen and carbon, and three between carbon and nitrogen",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Substance R",
     "solutionSteps": [
-      "[1 mark] R: covalent molecular compounds have low melting points (weak forces between molecules) and do not conduct even when molten because they contain no ions. P and S conduct when molten, so they contain ions; Q conducts as a solid, like a metal."
+      "[1 mark] R: covalent molecular compounds have low melting points (weak forces between molecules) and do not conduct even when molten because they contain no ions. P and S conduct when molten, so they contain ions; Q conducts as a solid, like a metal. Answer: (B)"
     ],
     "finalAnswer": "Substance R",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Graphite, because its layers are held to one another only weakly and can slide over each other",
     "solutionSteps": [
-      "[1 mark] Graphite: it is made of flat layers of carbon atoms stacked on one another with weak forces between layers, so the layers slip and it acts as a dry lubricant. Diamond's rigid three-dimensional network makes it hard, not slippery."
+      "[1 mark] Graphite: it is made of flat layers of carbon atoms stacked on one another with weak forces between layers, so the layers slip and it acts as a dry lubricant. Diamond's rigid three-dimensional network makes it hard, not slippery. Answer: (C)"
     ],
     "finalAnswer": "Graphite, because its layers are held to one another only weakly and can slide over each other",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "CH3–CH=CH3",
     "solutionSteps": [
-      "[1 mark] In CH3–CH=CH3 the last carbon has three C–H bonds plus a double bond (two bonds), i.e. five bonds, breaking tetravalency. CH2=C=CH2 looks odd but its middle carbon has two double bonds = four bonds, so it is allowed."
+      "[1 mark] In CH3–CH=CH3 the last carbon has three C–H bonds plus a double bond (two bonds), i.e. five bonds, breaking tetravalency. CH2=C=CH2 looks odd but its middle carbon has two double bonds = four bonds, so it is allowed. Answer: (D)"
     ],
     "finalAnswer": "CH3–CH=CH3",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: glucose is a covalent compound and forms no ions in water, so its solution does not conduct. R is false: glucose itself dissolves in water, so covalent compounds can dissolve; dissolving is not what decides conduction."
+      "[1 mark] (C) A is true: glucose is a covalent compound and forms no ions in water, so its solution does not conduct. R is false: glucose itself dissolves in water, so covalent compounds can dissolve; dissolving is not what decides conduction. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both true and R explains A: boiling methane only separates whole molecules from one another; the C–H bonds inside each molecule are not broken. Since the forces between molecules are weak, little energy is needed, so it is a gas at room temperature."
+      "[1 mark] (A) Both true and R explains A: boiling methane only separates whole molecules from one another; the C–H bonds inside each molecule are not broken. Since the forces between molecules are weak, little energy is needed, so it is a gas at room temperature. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -541,7 +541,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "C5H8",
     "solutionSteps": [
-      "[1 mark] The saturated open-chain product with five carbons is C5H12 (CnH2n+2). Two molecules of H2 (4 H atoms) were added, so the starting compound had 12 − 4 = 8 H atoms: C5H8 (CnH2n−2, e.g. one triple bond). C5H10 would take up only one H2, and C5H12 is the product itself."
+      "[1 mark] The saturated open-chain product with five carbons is C5H12 (CnH2n+2). Two molecules of H2 (4 H atoms) were added, so the starting compound had 12 − 4 = 8 H atoms: C5H8 (CnH2n−2, e.g. one triple bond). C5H10 would take up only one H2, and C5H12 is the product itself. Answer: (A)"
     ],
     "finalAnswer": "C5H8",
     "isCompetencyBased": true,
@@ -570,7 +570,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "S, P, R, Q",
     "solutionSteps": [
-      "[1 mark] In a homologous series the boiling point rises as the chain gets longer and the molecular mass increases, so the lowest boiling point belongs to the smallest member: S (−104 °C) < P (−48 °C) < R (−6 °C) < Q (30 °C). The order Q, R, P, S wrongly assumes boiling point falls with size."
+      "[1 mark] In a homologous series the boiling point rises as the chain gets longer and the molecular mass increases, so the lowest boiling point belongs to the smallest member: S (−104 °C) < P (−48 °C) < R (−6 °C) < Q (30 °C). The order Q, R, P, S wrongly assumes boiling point falls with size. Answer: (B)"
     ],
     "finalAnswer": "S, P, R, Q",
     "isCompetencyBased": true,
@@ -599,7 +599,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "There are only two different compounds: P and R are the same compound, and Q is its isomer.",
     "solutionSteps": [
-      "[1 mark] In R the CH3 group is bonded to the end CH2 group, so tracing the carbons gives an unbranched chain of four, CH3–CH2–CH2–CH3, the same as P; bending a chain does not change the compound. Q has a CH3 branch on the middle carbon, so it is a different compound (an isomer)."
+      "[1 mark] In R the CH3 group is bonded to the end CH2 group, so tracing the carbons gives an unbranched chain of four, CH3–CH2–CH2–CH3, the same as P; bending a chain does not change the compound. Q has a CH3 branch on the middle carbon, so it is a different compound (an isomer). Answer: (C)"
     ],
     "finalAnswer": "There are only two different compounds: P and R are the same compound, and Q is its isomer.",
     "isCompetencyBased": true,
@@ -628,7 +628,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Carboxylic acid group (–COOH)",
     "solutionSteps": [
-      "[1 mark] Carboxylic acid group (–COOH): only an acid releases carbon dioxide (which turns lime water milky) from sodium hydrogencarbonate. The alcohol group (–OH) is the tempting choice because it also contains –OH, but alcohols are neutral, and aldehydes and ketones also give no effervescence."
+      "[1 mark] Carboxylic acid group (–COOH): only an acid releases carbon dioxide (which turns lime water milky) from sodium hydrogencarbonate. The alcohol group (–OH) is the tempting choice because it also contains –OH, but alcohols are neutral, and aldehydes and ketones also give no effervescence. Answer: (D)"
     ],
     "finalAnswer": "Carboxylic acid group (–COOH)",
     "isCompetencyBased": true,
@@ -657,7 +657,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) Both are true, but R does not explain A. Structural isomers have different structures and therefore different physical properties such as boiling point; having the same molecular formula is what makes them isomers, and on its own it would suggest similar, not different, properties."
+      "[1 mark] (B) Both are true, but R does not explain A. Structural isomers have different structures and therefore different physical properties such as boiling point; having the same molecular formula is what makes them isomers, and on its own it would suggest similar, not different, properties. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -686,7 +686,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: ethanol (C2H6O) has an –OH group while propanal (C3H6O) has a –CHO group, and their formulae differ by one C atom, not by CH2, so they are in different series. R is a true statement about homologous series."
+      "[1 mark] (D) A is false: ethanol (C2H6O) has an –OH group while propanal (C3H6O) has a –CHO group, and their formulae differ by one C atom, not by CH2, so they are in different series. R is a true statement about homologous series. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1064,7 +1064,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Clean the burner holes so that enough air mixes with the kerosene vapour.",
     "solutionSteps": [
-      "[1 mark] Cleaning the burner holes is right: a yellow, sooty flame means incomplete combustion from too little air; enough air gives complete combustion and a blue flame. More fuel or closed windows lower the air supply further."
+      "[1 mark] Cleaning the burner holes is right: a yellow, sooty flame means incomplete combustion from too little air; enough air gives complete combustion and a blue flame. More fuel or closed windows lower the air supply further. Answer: (A)"
     ],
     "finalAnswer": "Clean the burner holes so that enough air mixes with the kerosene vapour.",
     "isCompetencyBased": true,
@@ -1093,7 +1093,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Hydrogen atoms added across carbon–carbon double bonds, making the molecules saturated.",
     "solutionSteps": [
-      "[1 mark] Hydrogenation is an addition reaction: H2 adds across the C=C bonds in the presence of a nickel catalyst, giving saturated molecules that are solid at room temperature. Nickel is not used up and no atom is replaced."
+      "[1 mark] Hydrogenation is an addition reaction: H2 adds across the C=C bonds in the presence of a nickel catalyst, giving saturated molecules that are solid at room temperature. Nickel is not used up and no atom is replaced. Answer: (B)"
     ],
     "finalAnswer": "Hydrogen atoms added across carbon–carbon double bonds, making the molecules saturated.",
     "isCompetencyBased": true,
@@ -1122,7 +1122,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Ethanol is oxidised, and acidified potassium dichromate acts as the oxidising agent.",
     "solutionSteps": [
-      "[1 mark] Acidified K2Cr2O7 supplies oxygen, so ethanol is oxidised (towards ethanoic acid) and the dichromate itself changes colour. Ethanol has no C=C bond, so addition is impossible, and chromium does not replace its hydrogen."
+      "[1 mark] Acidified K2Cr2O7 supplies oxygen, so ethanol is oxidised (towards ethanoic acid) and the dichromate itself changes colour. Ethanol has no C=C bond, so addition is impossible, and chromium does not replace its hydrogen. Answer: (C)"
     ],
     "finalAnswer": "Ethanol is oxidised, and acidified potassium dichromate acts as the oxidising agent.",
     "isCompetencyBased": true,
@@ -1151,7 +1151,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "In jar Q, chlorine atoms replaced hydrogen atoms of methane, forming compounds such as CH3Cl along with HCl gas.",
     "solutionSteps": [
-      "[1 mark] Methane is saturated (no double bond), so addition is impossible; in sunlight chlorine substitutes its H atoms, giving CH3Cl and acidic HCl, which turns blue litmus red. No oxygen is present for burning, and jar P shows light is needed."
+      "[1 mark] Methane is saturated (no double bond), so addition is impossible; in sunlight chlorine substitutes its H atoms, giving CH3Cl and acidic HCl, which turns blue litmus red. No oxygen is present for burning, and jar P shows light is needed. Answer: (D)"
     ],
     "finalAnswer": "In jar Q, chlorine atoms replaced hydrogen atoms of methane, forming compounds such as CH3Cl along with HCl gas.",
     "isCompetencyBased": true,
@@ -1180,7 +1180,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: hydrogen adds across C=C bonds, making the oil molecules saturated, so they solidify as fat. R is false: a catalyst only speeds up the reaction and is recovered unchanged; nickel is not part of the fat."
+      "[1 mark] (C) A is true: hydrogen adds across C=C bonds, making the oil molecules saturated, so they solidify as fat. R is false: a catalyst only speeds up the reaction and is recovered unchanged; nickel is not part of the fat. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1209,7 +1209,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: ethane is saturated and does not react with chlorine in the dark; sunlight allows chlorine to substitute its hydrogen atoms, so chlorine is used up and its colour fades."
+      "[1 mark] (A) Both are true and R explains A: ethane is saturated and does not react with chlorine in the dark; sunlight allows chlorine to substitute its hydrogen atoms, so chlorine is used up and its colour fades. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1593,7 +1593,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "sodium ethoxide, because sodium replaces the hydrogen of the –OH group of ethanol",
     "solutionSteps": [
-      "[1 mark] Sodium ethoxide: 2Na + 2CH3CH2OH → 2CH3CH2ONa + H2; sodium displaces the H of the –OH group, releasing hydrogen (the 'pop'). Sodium ethanoate is tempting but needs ethanoic acid, and sodium does not oxidise ethanol."
+      "[1 mark] Sodium ethoxide: 2Na + 2CH3CH2OH → 2CH3CH2ONa + H2; sodium displaces the H of the –OH group, releasing hydrogen (the 'pop'). Sodium ethanoate is tempting but needs ethanoic acid, and sodium does not oxidise ethanol. Answer: (A)"
     ],
     "finalAnswer": "sodium ethoxide, because sodium replaces the hydrogen of the –OH group of ethanol",
     "isCompetencyBased": true,
@@ -1622,7 +1622,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "P is vinegar, and the gas is carbon dioxide formed by the reaction of ethanoic acid with the hydrogencarbonate.",
     "solutionSteps": [
-      "[1 mark] P is vinegar: CH3COOH + NaHCO3 → CH3COONa + H2O + CO2, and CO2 turns lime water milky. Hydrogen is tempting but is released by acids with metals, not with hydrogencarbonates, and it does not turn lime water milky."
+      "[1 mark] P is vinegar: CH3COOH + NaHCO3 → CH3COONa + H2O + CO2, and CO2 turns lime water milky. Hydrogen is tempting but is released by acids with metals, not with hydrogencarbonates, and it does not turn lime water milky. Answer: (B)"
     ],
     "finalAnswer": "P is vinegar, and the gas is carbon dioxide formed by the reaction of ethanoic acid with the hydrogencarbonate.",
     "isCompetencyBased": true,
@@ -1651,7 +1651,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "CH3COOCH3",
     "solutionSteps": [
-      "[1 mark] CH3COOCH3 (methyl ethanoate): CH3COOH + CH3OH → CH3COOCH3 + H2O. The acid keeps its CH3COO– part and the alcohol supplies the CH3 group; CH3COOC2H5 is tempting but would need ethanol, not methanol."
+      "[1 mark] CH3COOCH3 (methyl ethanoate): CH3COOH + CH3OH → CH3COOCH3 + H2O. The acid keeps its CH3COO– part and the alcohol supplies the CH3 group; CH3COOC2H5 is tempting but would need ethanol, not methanol. Answer: (C)"
     ],
     "finalAnswer": "CH3COOCH3",
     "isCompetencyBased": true,
@@ -1680,7 +1680,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Borewell water contains the most calcium and magnesium salts, which use up soap as scum before any lather can form.",
     "solutionSteps": [
-      "[1 mark] Borewell water is hardest: its Ca2+ and Mg2+ ions react with soap to form insoluble scum, so much soap is used up before lather appears. Fewer drops means softer water, so distilled water is the softest, not the hardest."
+      "[1 mark] Borewell water is hardest: its Ca2+ and Mg2+ ions react with soap to form insoluble scum, so much soap is used up before lather appears. Fewer drops means softer water, so distilled water is the softest, not the hardest. Answer: (D)"
     ],
     "finalAnswer": "Borewell water contains the most calcium and magnesium salts, which use up soap as scum before any lather can form.",
     "isCompetencyBased": true,
@@ -1709,7 +1709,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: a child who swallows sanitiser takes in ethanol, which depresses the central nervous system and causes lack of coordination, confusion and drowsiness, so the bottle must be kept away from children."
+      "[1 mark] (A) Both are true and R explains A: a child who swallows sanitiser takes in ethanol, which depresses the central nervous system and causes lack of coordination, confusion and drowsiness, so the bottle must be kept away from children. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1738,7 +1738,7 @@ export const CARBON_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: the charged ends of detergents do not form insoluble precipitates with Ca2+ and Mg2+ ions. R is false: sodium salts of long-chain carboxylic acids are soaps; detergents are generally sodium salts of sulphonic acids or ammonium salts."
+      "[1 mark] (C) A is true: the charged ends of detergents do not form insoluble precipitates with Ca2+ and Mg2+ ions. R is false: sodium salts of long-chain carboxylic acids are soaps; detergents are generally sodium salts of sulphonic acids or ammonium salts. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,

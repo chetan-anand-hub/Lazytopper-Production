@@ -11,7 +11,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     questionText: "Sweety, Nitesh, and Ashraf visited a hospital for their annual body checkup, which included a blood pressure evaluation. Sweety: 121 mmHg, Nitesh: 147 mmHg, Ashraf: 160 mmHg. The table depicts the systolic blood pressure ranges (115-125: 10, 125-135: 9, 135-145: 12, 145-155: 19, 155-165: 10). Who among the three friends has a blood pressure reading that falls in the modal class?",
     options: ["Sweety", "Nitesh", "Ashraf", "Both Sweety and Ashraf"],
     answer: "Nitesh",
-    solutionSteps: ["Modal class = class with highest frequency. Frequencies: 10, 9, 12, 19, 10 — highest is 19 in class 145-155.", "Nitesh's reading is 147 mmHg, which lies in 145-155. So Nitesh is in the modal class."],
+    solutionSteps: ["Modal class = class with highest frequency. Frequencies: 10, 9, 12, 19, 10 — highest is 19 in class 145-155.", "Nitesh's reading is 147 mmHg, which lies in 145-155. So Nitesh is in the modal class. Answer: (B)"],
     finalAnswer: "(b) Nitesh",
     ncertRef: "APQ PQ1 Q16", isCompetencyBased: true },
 
@@ -20,7 +20,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     questionText: "If mode of some data is 7 and their mean is also 7 then their median is",
     options: ["10", "9", "8", "7"],
     answer: "7",
-    solutionSteps: ["Empirical relation: Mode = 3·Median − 2·Mean ⟹ 7 = 3·Median − 14 ⟹ Median = 7."],
+    solutionSteps: ["Empirical relation: Mode = 3·Median − 2·Mean ⟹ 7 = 3·Median − 14 ⟹ Median = 7. Answer: (D)"],
     finalAnswer: "(d) 7",
     ncertRef: "APQ PQ2 Q17", isCompetencyBased: true },
 
@@ -29,7 +29,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     questionText: "The table depicts the weight of the students of class 6. There are 18 students that weigh above the median weight. If there are no students with the same weight as median weight, how many students weigh between the range of 37 - 40 kgs?",
     options: ["5", "7", "18", "31"],
     answer: "5",
-    solutionSteps: ["[1 mark] No student weighs exactly the median weight and 18 students weigh above it, so 18 weigh below it: total = 36 students. From the table, 25-28: 6, 28-31: 8, 31-34: 7, 34-37: 10, so 6 + 8 + 7 + 10 = 31 students weigh 25-37 kg. Students weighing 37-40 kg = 36 − 31 = 5."],
+    solutionSteps: ["[1 mark] No student weighs exactly the median weight and 18 students weigh above it, so 18 weigh below it: total = 36 students. From the table, 25-28: 6, 28-31: 8, 31-34: 7, 34-37: 10, so 6 + 8 + 7 + 10 = 31 students weigh 25-37 kg. Students weighing 37-40 kg = 36 − 31 = 5. Answer: (A)"],
     finalAnswer: "(a) 5",
     ncertRef: "APQ PQ1 Q17", isCompetencyBased: true,
  },
@@ -58,7 +58,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     questionText: "The marks obtained by a set of students in an exam are recorded in a grouped frequency table. The maximum number of students are found to be in the range of (70-80) marks. If the number of students in the ranges before and after the (70-80) range are equal, which of the following is the mode of the data?",
     options: ["70 marks", "75 marks", "80 marks", "(mode cannot be found as frequency is not given)"],
     answer: "75 marks",
-    solutionSteps: ["Mode formula: Mode = L + [(f1 − f0)/(2f1 − f0 − f2)] × h. Given f0 = f2 (frequencies before/after equal). So denominator = 2f1 − 2f0 = 2(f1 − f0); numerator = f1 − f0.", "Ratio = (f1 − f0) / [2(f1 − f0)] = 1/2. Mode = 70 + (1/2) × 10 = 75."],
+    solutionSteps: ["Mode formula: Mode = L + [(f1 − f0)/(2f1 − f0 − f2)] × h. Given f0 = f2 (frequencies before/after equal). So denominator = 2f1 − 2f0 = 2(f1 − f0); numerator = f1 − f0.", "Ratio = (f1 − f0) / [2(f1 − f0)] = 1/2. Mode = 70 + (1/2) × 10 = 75. Answer: (B)"],
     finalAnswer: "(b) 75 marks",
     ncertRef: "APQ PQ_2022 Q12", isCompetencyBased: true },
 
@@ -67,7 +67,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
     questionText: "The heights of plants in Dipti's garden are recorded in the table given below. Classes: 0-20 (2x), 20-40 (4), 40-60 (4x), 60-80 (8), 80-100 (4). Median = 55 cm. Which of the following is the value of x?",
     options: ["1", "2", "8", "(the value of x cannot be found without knowing the total number of plants)"],
     answer: "2",
-    solutionSteps: ["[1 mark] N = 2x + 4 + 4x + 8 + 4 = 6x + 16, so N/2 = 3x + 8. Median 55 lies in class 40–60: l = 40, cf = 2x + 4, f = 4x, h = 20. Median = l + ((N/2 − cf)/f) × h gives 55 = 40 + ((3x + 8 − 2x − 4)/4x) × 20, so 15 = 5(x + 4)/x, 15x = 5x + 20, x = 2. Hence option (b)."],
+    solutionSteps: ["[1 mark] N = 2x + 4 + 4x + 8 + 4 = 6x + 16, so N/2 = 3x + 8. Median 55 lies in class 40–60: l = 40, cf = 2x + 4, f = 4x, h = 20. Median = l + ((N/2 − cf)/f) × h gives 55 = 40 + ((3x + 8 − 2x − 4)/4x) × 20, so 15 = 5(x + 4)/x, 15x = 5x + 20, x = 2. Hence option (b). Answer: (B)"],
     finalAnswer: "(b) 2",
     ncertRef: "APQ PQ_2022 Q17", isCompetencyBased: true },
 

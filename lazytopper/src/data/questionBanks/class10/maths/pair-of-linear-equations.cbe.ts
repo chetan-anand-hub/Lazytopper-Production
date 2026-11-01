@@ -80,7 +80,7 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "options": ["x − y = 6 and x + y = 4", "x + y = 6 and x − y = 8", "x − y = 6 and x + y = 8", "x − y = 6 and x + y = 2"],
     "answer": "x − y = 6 and x + y = 8",
     "solutionSteps": [
-      "[1 mark] x − y = 6 and x + y = 8 — difference gives x − y = 6; average (x + y)/2 = 4 gives x + y = 8."
+      "[1 mark] x − y = 6 and x + y = 8 — difference gives x − y = 6; average (x + y)/2 = 4 gives x + y = 8. Answer: (C)"
     ],
     "finalAnswer": "x − y = 6 and x + y = 8",
     "isCompetencyBased": false,
@@ -205,7 +205,7 @@ export const PLE_CBE: CanonicalQuestion[] = [
     "options": ["Rs 122250", "Rs 188500", "Rs 62250", "Rs 310750"],
     "answer": "Rs 122250",
     "solutionSteps": [
-      "[1 mark] Rs 122250 — 415 × 150 + 150 × 400 = 62250 + 60000 = Rs 122250."
+      "[1 mark] Rs 122250 — 415 × 150 + 150 × 400 = 62250 + 60000 = Rs 122250. Answer: (A)"
     ],
     "finalAnswer": "Rs 122250",
     "isCompetencyBased": true,

@@ -185,7 +185,7 @@ export const REPRODUCTION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Planting pieces of its tubers, each piece having a bud (eye)",
     "solutionSteps": [
-      "[1 mark] Planting tuber pieces bearing buds — vegetative propagation is asexual, so the new plants are genetically similar to the parent; any method using seeds involves sexual reproduction (fusion of gametes), which brings in variation."
+      "[1 mark] Planting tuber pieces bearing buds — vegetative propagation is asexual, so the new plants are genetically similar to the parent; any method using seeds involves sexual reproduction (fusion of gametes), which brings in variation. Answer: (B)"
     ],
     "finalAnswer": "Planting pieces of its tubers, each piece having a bud (eye)",
     "isCompetencyBased": true,
@@ -214,7 +214,7 @@ export const REPRODUCTION_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) — Papaya bears unisexual flowers; a flower with only stamens has no pistil and hence no ovary. Since a fruit develops from the ovary after fertilisation, such a flower can never form a fruit, so R correctly explains A."
+      "[1 mark] (A) — Papaya bears unisexual flowers; a flower with only stamens has no pistil and hence no ovary. Since a fruit develops from the ovary after fertilisation, such a flower can never form a fruit, so R correctly explains A. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

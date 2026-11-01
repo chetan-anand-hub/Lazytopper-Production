@@ -78,7 +78,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "the reaction of a metal with an acid",
     solutionSteps: [
-      "[1 mark] Correct option: (3) the reaction of a metal with an acid. A more reactive metal displaces hydrogen from the acid, so one element displaces another from a compound - a simple (single) displacement reaction.",
+      "[1 mark] Correct option: (3) the reaction of a metal with an acid. A more reactive metal displaces hydrogen from the acid, so one element displaces another from a compound - a simple (single) displacement reaction. Answer: (C)",
     ],
     finalAnswer: "the reaction of a metal with an acid",
     isCompetencyBased: true,
@@ -105,7 +105,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "There should be physical contact between the reactants.",
     solutionSteps: [
-      "[1 mark] Correct option: (4) There should be physical contact between the reactants. Reactant particles must come into contact in order to collide and react. The other three are not required by every reaction - reactants may be in different states, energy need not be supplied to an exothermic reaction, and equal temperatures are not necessary.",
+      "[1 mark] Correct option: (4) There should be physical contact between the reactants. Reactant particles must come into contact in order to collide and react. The other three are not required by every reaction - reactants may be in different states, energy need not be supplied to an exothermic reaction, and equal temperatures are not necessary. Answer: (D)",
     ],
     finalAnswer: "There should be physical contact between the reactants.",
     isCompetencyBased: true,
@@ -133,7 +133,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "the ratio of the number of moles produced of the two substances",
     solutionSteps: [
-      "[1 mark] Correct option: (1) the ratio of the number of moles produced of the two substances. The coefficients in a balanced equation give the mole ratio of the species, so 2 PbO and 4 NO₂ means 2 mol of PbO are produced for every 4 mol of NO₂.",
+      "[1 mark] Correct option: (1) the ratio of the number of moles produced of the two substances. The coefficients in a balanced equation give the mole ratio of the species, so 2 PbO and 4 NO₂ means 2 mol of PbO are produced for every 4 mol of NO₂. Answer: (A)",
     ],
     finalAnswer: "the ratio of the number of moles produced of the two substances",
     isCompetencyBased: true,
@@ -181,7 +181,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
     questionText:
       "The following chemical equation does not represent a reaction that can take place:\n\n3 Fe (s) + 4 H₂O (l) ------> Fe₃O₄ (s) + 4 H₂ (g)\n\nWhat needs to be changed in the equation for it to represent the correct reaction between Fe and H₂O?",
     answer: "H₂O (l) should be H₂O (g), i.e. steam",
-    solutionSteps: ["[1 mark] H₂O (l) should be H₂O (g), i.e. steam — iron reacts with steam, not liquid water, to give Fe₃O₄ and hydrogen."],
+    solutionSteps: ["[1 mark] H₂O (l) should be H₂O (g), i.e. steam — iron reacts with steam, not liquid water, to give Fe₃O₄ and hydrogen. Answer: (B)"],
     finalAnswer: "H₂O (l) should be H₂O (g), i.e. steam",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.1 — CFPQ_Science10.pdf, questions pdf pp.5–7 (printed folios 4–6)",
@@ -227,7 +227,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
     questionText:
       "Dilip was comparing combination reactions with decomposition reactions. Which class of chemical substances may be a product of a decomposition reaction but is NEVER the product of a combination reaction?",
     answer: "Element",
-    solutionSteps: ["[1 mark] Element — a combination reaction joins substances into a single compound, whereas decomposition can release elements (e.g. 2H₂O → 2H₂ + O₂)."],
+    solutionSteps: ["[1 mark] Element — a combination reaction joins substances into a single compound, whereas decomposition can release elements (e.g. 2H₂O → 2H₂ + O₂). Answer: (C)"],
     finalAnswer: "Element",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.1 — CFPQ_Science10.pdf, questions pdf pp.5–7 (printed folios 4–6)",
@@ -250,7 +250,7 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
       "Which of the following reactions CANNOT be classified as combination, decomposition, displacement or double displacement?",
     answer: "CH₄ + 2 O₂ → CO₂ + 2 H₂O",
     solutionSteps: [
-      "[1 mark] CH₄ + 2 O₂ → CO₂ + 2 H₂O — combustion of methane fits none of the four types; the others are combination, decomposition and displacement."
+      "[1 mark] CH₄ + 2 O₂ → CO₂ + 2 H₂O — combustion of methane fits none of the four types; the others are combination, decomposition and displacement. Answer: (D)"
     ],
     finalAnswer: "CH₄ + 2 O₂ → CO₂ + 2 H₂O",
     isCompetencyBased: true,

@@ -44,7 +44,7 @@ export const EYE_NCERT: CanonicalQuestion[] = [
     questionText: "The human eye can focus on objects at different distances by adjusting the focal length of the eye lens. This is due to",
     options: ["presbyopia.", "accommodation.", "near-sightedness.", "far-sightedness."],
     answer: "accommodation.",
-    solutionSteps: ["Adjustment of focal length of the eye lens by the action of ciliary muscles is called accommodation.", "Presbyopia, near-sightedness and far-sightedness are defects of vision, not the focusing mechanism."],
+    solutionSteps: ["Adjustment of focal length of the eye lens by the action of ciliary muscles is called accommodation.", "Presbyopia, near-sightedness and far-sightedness are defects of vision, not the focusing mechanism. Answer: (B)"],
     finalAnswer: "accommodation — option (b)",
     ncertRef: "Exercise Q1", isCompetencyBased: false },
 
@@ -52,7 +52,7 @@ export const EYE_NCERT: CanonicalQuestion[] = [
     questionText: "The human eye forms the image of an object at its",
     options: ["cornea.", "iris.", "pupil.", "retina."],
     answer: "retina.",
-    solutionSteps: ["The retina is the light-sensitive screen at the back of the eye where the image is formed.", "Cornea is the transparent outer membrane; iris controls pupil size; pupil regulates light entry."],
+    solutionSteps: ["The retina is the light-sensitive screen at the back of the eye where the image is formed.", "Cornea is the transparent outer membrane; iris controls pupil size; pupil regulates light entry. Answer: (D)"],
     finalAnswer: "retina — option (d)",
     ncertRef: "Exercise Q2", isCompetencyBased: false },
 
@@ -60,7 +60,7 @@ export const EYE_NCERT: CanonicalQuestion[] = [
     questionText: "The least distance of distinct vision for a young adult with normal vision is about",
     options: ["25 m.", "2.5 cm.", "25 cm.", "2.5 m."],
     answer: "25 cm.",
-    solutionSteps: ["The least distance of distinct vision (near point) for a young adult with normal vision is 25 cm.", "Other options are incorrect by an order of magnitude."],
+    solutionSteps: ["The least distance of distinct vision (near point) for a young adult with normal vision is 25 cm.", "Other options are incorrect by an order of magnitude. Answer: (C)"],
     finalAnswer: "25 cm — option (c)",
     ncertRef: "Exercise Q3", isCompetencyBased: false },
 
@@ -68,7 +68,7 @@ export const EYE_NCERT: CanonicalQuestion[] = [
     questionText: "The change in focal length of an eye lens is caused by the action of the",
     options: ["pupil.", "retina.", "ciliary muscles.", "iris."],
     answer: "ciliary muscles.",
-    solutionSteps: ["Ciliary muscles modify the curvature of the eye lens, which in turn changes its focal length.", "Pupil and iris regulate light entry; retina is the screen receiving the image."],
+    solutionSteps: ["Ciliary muscles modify the curvature of the eye lens, which in turn changes its focal length.", "Pupil and iris regulate light entry; retina is the screen receiving the image. Answer: (C)"],
     finalAnswer: "ciliary muscles — option (c)",
     ncertRef: "Exercise Q4", isCompetencyBased: false },
 

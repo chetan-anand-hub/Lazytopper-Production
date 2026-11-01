@@ -15,7 +15,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "The zeroes of the quadratic polynomial x² + kx + k, where k ≠ 0,",
     options: ["cannot both be positive", "cannot both be negative", "are always unequal", "are always equal"],
     answer: "cannot both be positive",
-    solutionSteps: ["[0.5 mark] For x² + kx + k: sum of zeroes = −k and product of zeroes = k.", "[0.5 mark] Both zeroes positive would need sum > 0 (so k < 0) and product > 0 (so k > 0) — impossible; hence they cannot both be positive."],
+    solutionSteps: ["[0.5 mark] For x² + kx + k: sum of zeroes = −k and product of zeroes = k.", "[0.5 mark] Both zeroes positive would need sum > 0 (so k < 0) and product > 0 (so k > 0) — impossible; hence they cannot both be positive. Answer: (A)"],
     finalAnswer: "They cannot both be positive.",
     isCompetencyBased: true, strategyHint: "Use signs of sum (−k) and product (k)." },
 
@@ -23,7 +23,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "What must be added to the polynomial x² − 5x + 4 so that 3 becomes a zero of the resulting polynomial?",
     options: ["1", "2", "4", "5"],
     answer: "2",
-    solutionSteps: ["[0.5 mark] Value at x = 3: (3)² − 5(3) + 4 = 9 − 15 + 4 = −2.", "[0.5 mark] To make the value 0 we must add 2, since −2 + 2 = 0."],
+    solutionSteps: ["[0.5 mark] Value at x = 3: (3)² − 5(3) + 4 = 9 − 15 + 4 = −2.", "[0.5 mark] To make the value 0 we must add 2, since −2 + 2 = 0. Answer: (B)"],
     finalAnswer: "2 must be added.",
     isCompetencyBased: true },
 
@@ -31,7 +31,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "If one zero of the quadratic polynomial (k² + 4)x² + 13x + 4k is the reciprocal of the other, then the value of k is",
     options: ["2", "3", "4", "1"],
     answer: "2",
-    solutionSteps: ["[0.5 mark] Reciprocal zeroes ⇒ product of zeroes = 1, i.e. 4k/(k² + 4) = 1.", "[0.5 mark] So k² + 4 = 4k ⇒ k² − 4k + 4 = 0 ⇒ (k − 2)² = 0 ⇒ k = 2."],
+    solutionSteps: ["[0.5 mark] Reciprocal zeroes ⇒ product of zeroes = 1, i.e. 4k/(k² + 4) = 1.", "[0.5 mark] So k² + 4 = 4k ⇒ k² − 4k + 4 = 0 ⇒ (k − 2)² = 0 ⇒ k = 2. Answer: (A)"],
     finalAnswer: "k = 2.",
     isCompetencyBased: true },
 
@@ -39,7 +39,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "If x + 2 is a factor of x² + ax + 2b and a + b = 4, then",
     options: ["a = 1, b = 3", "a = 3, b = 1", "a = 6, b = −2", "a = 5, b = −1"],
     answer: "a = 3, b = 1",
-    solutionSteps: ["[0.5 mark] Since x + 2 is a factor, x = −2 is a zero: (−2)² + a(−2) + 2b = 0 ⇒ 4 − 2a + 2b = 0 ⇒ a − b = 2.", "[0.5 mark] Solve a − b = 2 with a + b = 4 ⇒ a = 3, b = 1."],
+    solutionSteps: ["[0.5 mark] Since x + 2 is a factor, x = −2 is a zero: (−2)² + a(−2) + 2b = 0 ⇒ 4 − 2a + 2b = 0 ⇒ a − b = 2.", "[0.5 mark] Solve a − b = 2 with a + b = 4 ⇒ a = 3, b = 1. Answer: (B)"],
     finalAnswer: "a = 3, b = 1.",
     isCompetencyBased: true },
 
@@ -47,7 +47,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following is a polynomial?",
     options: ["x² − 5x + 4√x + 3", "2/x + x² + 1", "√x + 1/√x", "√2·x² − 3√3·x + √6"],
     answer: "√2·x² − 3√3·x + √6",
-    solutionSteps: ["[0.5 mark] In a polynomial every power of the variable must be a non-negative integer; fractional powers of x or a variable in the denominator are not allowed.", "[0.5 mark] Only √2·x² − 3√3·x + √6 has integer powers of x (the √ are just real coefficients), so it is a polynomial."],
+    solutionSteps: ["[0.5 mark] In a polynomial every power of the variable must be a non-negative integer; fractional powers of x or a variable in the denominator are not allowed.", "[0.5 mark] Only √2·x² − 3√3·x + √6 has integer powers of x (the √ are just real coefficients), so it is a polynomial. Answer: (D)"],
     finalAnswer: "√2·x² − 3√3·x + √6.",
     isCompetencyBased: false },
 
@@ -55,7 +55,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Which of the following statements is true?",
     options: ["x² + 5x − 3 is a linear polynomial", "x² + 4x − 1 is a binomial", "x + 1 is a monomial", "5x³ is a monomial"],
     answer: "5x³ is a monomial",
-    solutionSteps: ["[0.5 mark] A monomial has exactly one term; a binomial two terms; a degree-1 expression is linear.", "[0.5 mark] 5x³ has a single term, so it is a monomial (the other three statements are misclassifications)."],
+    solutionSteps: ["[0.5 mark] A monomial has exactly one term; a binomial two terms; a degree-1 expression is linear.", "[0.5 mark] 5x³ has a single term, so it is a monomial (the other three statements are misclassifications). Answer: (D)"],
     finalAnswer: "5x³ is a monomial.",
     isCompetencyBased: false },
 
@@ -63,7 +63,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "Let α, β be the zeroes of f(x) = x² + px + q. Which polynomial has the reciprocals 1/α and 1/β as its zeroes?",
     options: ["x² + qx + p", "x² − px + q", "qx² + px + 1", "px² + qx + 1"],
     answer: "qx² + px + 1",
-    solutionSteps: ["[0.5 mark] α + β = −p and αβ = q. Reciprocal-zero sum = 1/α + 1/β = (α + β)/αβ = −p/q; reciprocal-zero product = 1/(αβ) = 1/q.", "[0.5 mark] Polynomial: x² − (−p/q)x + 1/q = x² + (p/q)x + 1/q; multiplying by q gives qx² + px + 1."],
+    solutionSteps: ["[0.5 mark] α + β = −p and αβ = q. Reciprocal-zero sum = 1/α + 1/β = (α + β)/αβ = −p/q; reciprocal-zero product = 1/(αβ) = 1/q.", "[0.5 mark] Polynomial: x² − (−p/q)x + 1/q = x² + (p/q)x + 1/q; multiplying by q gives qx² + px + 1. Answer: (C)"],
     finalAnswer: "qx² + px + 1.",
     isCompetencyBased: true },
 
@@ -71,7 +71,7 @@ export const POLYNOMIALS_EXPAND_EXTRACT: CanonicalQuestion[] = [
     questionText: "If the square of the difference of the zeroes of the quadratic polynomial x² + px + 45 is equal to 144, then the value of p is",
     options: ["±9", "±12", "±15", "±18"],
     answer: "±18",
-    solutionSteps: ["[0.5 mark] For x² + px + 45: α + β = −p, αβ = 45. (α − β)² = (α + β)² − 4αβ = p² − 180.", "[0.5 mark] p² − 180 = 144 ⇒ p² = 324 ⇒ p = ±18."],
+    solutionSteps: ["[0.5 mark] For x² + px + 45: α + β = −p, αβ = 45. (α − β)² = (α + β)² − 4αβ = p² − 180.", "[0.5 mark] p² − 180 = 144 ⇒ p² = 324 ⇒ p = ±18. Answer: (D)"],
     finalAnswer: "p = ±18.",
     isCompetencyBased: true },
 

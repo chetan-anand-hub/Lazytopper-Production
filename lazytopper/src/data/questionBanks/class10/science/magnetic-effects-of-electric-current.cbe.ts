@@ -25,7 +25,7 @@ export const MAGN_CBE: CanonicalQuestion[] = [
     ],
     "answer": "Diagram A",
     "solutionSteps": [
-      "[1 mark] The magnetic field around a straight current-carrying conductor consists of concentric circles centred on the wire, as in diagram A. Diagram B shows a bar-magnet-like pattern and diagram C shows straight parallel lines, so both are wrong."
+      "[1 mark] The magnetic field around a straight current-carrying conductor consists of concentric circles centred on the wire, as in diagram A. Diagram B shows a bar-magnet-like pattern and diagram C shows straight parallel lines, so both are wrong. Answer: (A)"
     ],
     "finalAnswer": "Diagram A (concentric circular field lines around the wire).",
     "isCompetencyBased": false,

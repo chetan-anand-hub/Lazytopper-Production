@@ -101,7 +101,7 @@ export const acidsBasesSaltsPYQ2026: CanonicalQuestion[] = [
     questionText: "In the following diagram, if acetic acid of same concentration is taken in place of dilute sulphuric acid, then",
     options: ["Same amount of H2 gas will be evolved.", "H2 gas will not be evolved.", "The amount of H2 gas evolved in less amount.", "In place of H2 gas, O2 gas will be evolved."],
     answer: "The amount of H2 gas evolved in less amount.",
-    solutionSteps: ["[1 mark] Acetic acid is a weak acid — it ionises only partially in water, so at the same concentration it provides far fewer H⁺ ions than dilute sulphuric acid, a strong acid. The metal still displaces hydrogen from the acid, but with fewer H⁺ ions available the amount of H₂ gas evolved is less. Hence option (c)."],
+    solutionSteps: ["[1 mark] Acetic acid is a weak acid — it ionises only partially in water, so at the same concentration it provides far fewer H⁺ ions than dilute sulphuric acid, a strong acid. The metal still displaces hydrogen from the acid, but with fewer H⁺ ions available the amount of H₂ gas evolved is less. Hence option (c). Answer: (C)"],
     finalAnswer: "(c) The amount of H2 gas evolved in less amount.",
     ncertRef: "PYQ 31/5/2 Q19", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "2" },

@@ -22,7 +22,7 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
     questionText: "A quadratic polynomial, the sum of whose zeroes is 0 and one zero is 4, is",
     options: ["x^2 − 16", "x^2 + 16", "x^2 + 4", "x^2 − 4"],
     answer: "x^2 − 16",
-    solutionSteps: ["Sum of zeroes = 0 ⟹ other zero = −4. Product = 4 × (−4) = −16.", "Polynomial: x^2 − (sum)x + (product) = x^2 − 0·x − 16 = x^2 − 16."],
+    solutionSteps: ["Sum of zeroes = 0 ⟹ other zero = −4. Product = 4 × (−4) = −16.", "Polynomial: x^2 − (sum)x + (product) = x^2 − 0·x − 16 = x^2 − 16. Answer: (A)"],
     finalAnswer: "(a) x^2 − 16",
     ncertRef: "APQ PQ2 Q1", isCompetencyBased: false },
 
@@ -50,7 +50,7 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
     questionText: "The graph of a polynomial p(x) passes through the points (-5, 0), (0, -40), (8, 0) and (5, -30). Which among the following is a factor of p(x)?",
     options: ["(x - 5)", "(x - 8)", "(x + 30)", "(x + 40)"],
     answer: "(x - 8)",
-    solutionSteps: ["Zeros of p(x) are x-coordinates where graph crosses x-axis (y = 0). Points (−5, 0) and (8, 0) are on the x-axis ⟹ x = −5 and x = 8 are zeros.", "Factors corresponding to zeros: (x + 5) and (x − 8). From options, (x − 8) is a factor."],
+    solutionSteps: ["Zeros of p(x) are x-coordinates where graph crosses x-axis (y = 0). Points (−5, 0) and (8, 0) are on the x-axis ⟹ x = −5 and x = 8 are zeros.", "Factors corresponding to zeros: (x + 5) and (x − 8). From options, (x − 8) is a factor. Answer: (B)"],
     finalAnswer: "(b) (x - 8)",
     ncertRef: "APQ PQ_2022 Q1", isCompetencyBased: true },
 

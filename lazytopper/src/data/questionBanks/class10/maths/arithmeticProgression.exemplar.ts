@@ -13,7 +13,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In an AP, if d = −4, n = 7 and aₙ = 4, then a is",
     options: ["6", "7", "20", "28"],
     answer: "28",
-    solutionSteps: ["aₙ = a + (n − 1)d ⇒ 4 = a + 6 × (−4) ⇒ 4 = a − 24.", "a = 28."],
+    solutionSteps: ["aₙ = a + (n − 1)d ⇒ 4 = a + 6 × (−4) ⇒ 4 = a − 24.", "a = 28. Answer: (D)"],
     finalAnswer: "28 — option (d).",
     ncertRef: "Exemplar Ex 5.1 Q1", isCompetencyBased: false },
 
@@ -21,7 +21,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In an AP, if a = 3.5, d = 0 and n = 101, then aₙ equals",
     options: ["0", "3.5", "103.5", "104.5"],
     answer: "3.5",
-    solutionSteps: ["When d = 0, every term equals the first term.", "Hence a₁₀₁ = 3.5."],
+    solutionSteps: ["When d = 0, every term equals the first term.", "Hence a₁₀₁ = 3.5. Answer: (B)"],
     finalAnswer: "3.5 — option (b).",
     ncertRef: "Exemplar Ex 5.1 Q2", isCompetencyBased: false },
 
@@ -29,7 +29,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The list of numbers −10, −6, −2, 2, … is",
     options: ["an AP with d = −16", "an AP with d = 4", "an AP with d = −4", "not an AP"],
     answer: "an AP with d = 4",
-    solutionSteps: ["a₂ − a₁ = −6 − (−10) = 4. a₃ − a₂ = −2 − (−6) = 4. a₄ − a₃ = 2 − (−2) = 4.", "Common difference is 4 throughout, so it is an AP with d = 4."],
+    solutionSteps: ["a₂ − a₁ = −6 − (−10) = 4. a₃ − a₂ = −2 − (−6) = 4. a₄ − a₃ = 2 − (−2) = 4.", "Common difference is 4 throughout, so it is an AP with d = 4. Answer: (B)"],
     finalAnswer: "an AP with d = 4 — option (b).",
     ncertRef: "Exemplar Ex 5.1 Q3", isCompetencyBased: false },
 
@@ -37,7 +37,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If the 2nd term of an AP is 13 and the 5th term is 25, then the 7th term is",
     options: ["30", "33", "37", "38"],
     answer: "33",
-    solutionSteps: ["a + d = 13 and a + 4d = 25. Subtract: 3d = 12 ⇒ d = 4. Hence a = 13 − 4 = 9.", "a₇ = a + 6d = 9 + 24 = 33."],
+    solutionSteps: ["a + d = 13 and a + 4d = 25. Subtract: 3d = 12 ⇒ d = 4. Hence a = 13 − 4 = 9.", "a₇ = a + 6d = 9 + 24 = 33. Answer: (B)"],
     finalAnswer: "33 — option (b).",
     ncertRef: "Exemplar Ex 5.1 Q7", isCompetencyBased: true },
 
@@ -45,7 +45,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If the common difference of an AP is 5, then a₁₈ − a₁₃ is",
     options: ["5", "20", "25", "30"],
     answer: "25",
-    solutionSteps: ["a₁₈ − a₁₃ = (a + 17d) − (a + 12d) = 5d.", "5d = 5 × 5 = 25."],
+    solutionSteps: ["a₁₈ − a₁₃ = (a + 17d) − (a + 12d) = 5d.", "5d = 5 × 5 = 25. Answer: (C)"],
     finalAnswer: "25 — option (c).",
     ncertRef: "Exemplar Ex 5.1 Q9", isCompetencyBased: true },
 
@@ -53,7 +53,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If 7 times the 7th term of an AP is equal to 11 times its 11th term, then its 18th term is",
     options: ["7", "11", "18", "0"],
     answer: "0",
-    solutionSteps: ["7(a + 6d) = 11(a + 10d) ⇒ 7a + 42d = 11a + 110d ⇒ −4a = 68d ⇒ a = −17d.", "a₁₈ = a + 17d = −17d + 17d = 0."],
+    solutionSteps: ["7(a + 6d) = 11(a + 10d) ⇒ 7a + 42d = 11a + 110d ⇒ −4a = 68d ⇒ a = −17d.", "a₁₈ = a + 17d = −17d + 17d = 0. Answer: (D)"],
     finalAnswer: "0 — option (d).",
     ncertRef: "Exemplar Ex 5.1 Q12", isCompetencyBased: true,
     strategyHint: "Rewrite each statement in (a, d) and set them equal." },
@@ -62,7 +62,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "The sum of the first 16 terms of the AP 10, 6, 2, … is",
     options: ["−320", "320", "−352", "−400"],
     answer: "−320",
-    solutionSteps: ["a = 10, d = −4, n = 16.", "S₁₆ = 16/2 [2 × 10 + 15 × (−4)] = 8(20 − 60) = 8 × (−40) = −320."],
+    solutionSteps: ["a = 10, d = −4, n = 16.", "S₁₆ = 16/2 [2 × 10 + 15 × (−4)] = 8(20 − 60) = 8 × (−40) = −320. Answer: (A)"],
     finalAnswer: "−320 — option (a).",
     ncertRef: "Exemplar Ex 5.1 Q16", isCompetencyBased: false },
 
@@ -70,7 +70,7 @@ export const AP_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If the first term of an AP is −5 and the common difference is 2, then the sum of the first 6 terms is",
     options: ["0", "5", "6", "15"],
     answer: "0",
-    solutionSteps: ["S₆ = 6/2 [2 × (−5) + 5 × 2] = 3(−10 + 10) = 3 × 0 = 0."],
+    solutionSteps: ["S₆ = 6/2 [2 × (−5) + 5 × 2] = 3(−10 + 10) = 3 × 0 = 0. Answer: (A)"],
     finalAnswer: "0 — option (a).",
     ncertRef: "Exemplar Ex 5.1 Q15", isCompetencyBased: true },
 

@@ -47,7 +47,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Red→blue means the solution is BASIC. To reverse, we need an ACID.",
       "Of the options, only HCl is a strong acid. Baking powder, lime, NH₄OH are all basic.",
-      "Excess HCl turns the litmus back to red.",
+      "Excess HCl turns the litmus back to red. Answer: (D)",
     ],
     finalAnswer: "Hydrochloric acid — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q2 (MCQ)",
@@ -68,7 +68,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "absorb moisture from the gas",
     solutionSteps: [
       "[0.5 mark] Anhydrous CaCl₂ is a desiccant — strongly absorbs water/moisture.",
-      "[0.5 mark] On a humid day, evolved HCl gas would pick up water vapour; we want dry HCl. The CaCl₂ guard tube removes moisture from the gas stream.",
+      "[0.5 mark] On a humid day, evolved HCl gas would pick up water vapour; we want dry HCl. The CaCl₂ guard tube removes moisture from the gas stream. Answer: (C)",
     ],
     finalAnswer: "Absorb moisture from the gas — option (c)",
     ncertRef: "Exemplar Ex 2.1 Q3 (MCQ)",
@@ -89,7 +89,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Baking soda",
     solutionSteps: [
       "[0.5 mark] Blue vitriol = CuSO₄·5H₂O (5 water); Washing soda = Na₂CO₃·10H₂O (10 water); Gypsum = CaSO₄·2H₂O (2 water).",
-      "[0.5 mark] Baking soda = NaHCO₃ — no water of crystallisation.",
+      "[0.5 mark] Baking soda = NaHCO₃ — no water of crystallisation. Answer: (B)",
     ],
     finalAnswer: "Baking soda — option (b)",
     ncertRef: "Exemplar Ex 2.1 Q4 (MCQ)",
@@ -110,7 +110,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "weak acid and strong base",
     solutionSteps: [
       "[0.5 mark] Na₂CO₃ = sodium (Na from NaOH, strong base) + carbonate (CO₃²⁻ from H₂CO₃, weak acid).",
-      "[0.5 mark] Salt of weak acid + strong base → BASIC salt (pH > 7).",
+      "[0.5 mark] Salt of weak acid + strong base → BASIC salt (pH > 7). Answer: (D)",
     ],
     finalAnswer: "Weak acid + strong base — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q5 (MCQ)",
@@ -131,7 +131,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "basic",
     solutionSteps: [
       "[0.5 mark] Tooth enamel = Ca₅(PO₄)₃(OH) or calcium hydroxyapatite — a basic compound (contains OH⁻ and phosphate from H₃PO₄ + strong base Ca(OH)₂).",
-      "[0.5 mark] It is corroded by acids (pH < 5.5) — which is why acidic drinks cause tooth decay.",
+      "[0.5 mark] It is corroded by acids (pH < 5.5) — which is why acidic drinks cause tooth decay. Answer: (A)",
     ],
     finalAnswer: "Basic — option (a)",
     ncertRef: "Exemplar Ex 2.1 Q6 (MCQ)",
@@ -153,7 +153,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Yellowish-orange on pH paper indicates acidic soil (pH ~4-5).",
       "To turn the paper greenish-blue (pH ~8-9, alkaline), we need to add a basic substance.",
-      "Lemon juice and vinegar are acidic; common salt is neutral. Only an antacid (mild base) would shift toward alkaline.",
+      "Lemon juice and vinegar are acidic; common salt is neutral. Only an antacid (mild base) would shift toward alkaline. Answer: (D)",
     ],
     finalAnswer: "An antacid — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q7 (MCQ)",
@@ -181,7 +181,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
       "Water (pH≈7) is neutral, neither acidic nor basic.",
       "Acetic acid is a WEAK acid (partial ionisation).",
       "Hydrochloric acid is a STRONG acid (complete ionisation, lowest pH).",
-      "Increasing acidic strength: Water < Acetic acid < HCl.",
+      "Increasing acidic strength: Water < Acetic acid < HCl. Answer: (A)",
     ],
     finalAnswer: "Water < Acetic acid < HCl — option (a)",
     ncertRef: "Exemplar Ex 2.1 Q8 (MCQ)",
@@ -207,7 +207,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Wash the hand immediately with plenty of water and apply a paste of sodium hydrogencarbonate",
     solutionSteps: [
       "[0.5 mark] First: dilute the acid by washing immediately with plenty of water (reduces the H⁺ concentration on skin).",
-      "[0.5 mark] Then: apply paste of mild base NaHCO₃ to neutralise residual acid. Strong base (like NaOH) is corrosive too — don't use it on skin.",
+      "[0.5 mark] Then: apply paste of mild base NaHCO₃ to neutralise residual acid. Strong base (like NaOH) is corrosive too — don't use it on skin. Answer: (B)",
     ],
     finalAnswer: "Wash with water then apply NaHCO₃ paste — option (b)",
     ncertRef: "Exemplar Ex 2.1 Q9 (MCQ)",
@@ -273,7 +273,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Baking powder = NaHCO₃ + tartaric acid (a mild edible acid).",
       "When mixed with water, the acid reacts with NaHCO₃ to release CO₂, making the cake rise.",
-      "Other acids listed are mineral acids (HCl, H₂SO₄) — too strong, would taste bad / be unsafe.",
+      "Other acids listed are mineral acids (HCl, H₂SO₄) — too strong, would taste bad / be unsafe. Answer: (B)",
     ],
     finalAnswer: "Tartaric acid — option (b)",
     ncertRef: "Exemplar Ex 2.1 Q12 (MCQ)",
@@ -294,7 +294,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "basic",
     solutionSteps: [
       "[0.5 mark] Tooth decay occurs when bacteria produce acid (pH < 5.5) in the mouth.",
-      "[0.5 mark] Toothpaste contains a mild base — neutralises the acid and brings mouth pH back up.",
+      "[0.5 mark] Toothpaste contains a mild base — neutralises the acid and brings mouth pH back up. Answer: (C)",
     ],
     finalAnswer: "Basic — option (c)",
     ncertRef: "Exemplar Ex 2.1 Q13 (MCQ)",
@@ -316,7 +316,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Acidic strength: lower pH = stronger acid. So higher pH means WEAKER acid → (ii) ✓.",
       "Basic strength: higher pH = stronger base. So lower pH means WEAKER base → (iv) ✓.",
-      "(i) and (iii) are wrong (reversed logic).",
+      "(i) and (iii) are wrong (reversed logic). Answer: (D)",
     ],
     finalAnswer: "(ii) and (iv) — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q14 (MCQ)",
@@ -358,7 +358,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "(i) and (iii)",
     solutionSteps: [
       "[0.5 mark] When acid is added to water: (i) Acid ionises in water releasing H⁺ ions ✓. (iii) The acid gets diluted (volume increases, [H⁺] decreases per unit volume) ✓.",
-      "[0.5 mark] No base present → no (ii) neutralisation; no (iv) salt formation.",
+      "[0.5 mark] No base present → no (ii) neutralisation; no (iv) salt formation. Answer: (B)",
     ],
     finalAnswer: "(i) and (iii) — option (b)",
     ncertRef: "Exemplar Ex 2.1 Q16 (MCQ)",
@@ -380,7 +380,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Visually impaired students cannot detect colour changes; they need an OLFACTORY (smell-based) indicator.",
       "Vanilla essence has a strong smell — its smell disappears in basic solutions. So it can be used by detecting whether smell remains (acidic) or vanishes (basic).",
-      "Litmus, turmeric, petunia leaves are colour-based — not suitable.",
+      "Litmus, turmeric, petunia leaves are colour-based — not suitable. Answer: (C)",
     ],
     finalAnswer: "Vanilla essence — option (c)",
     ncertRef: "Exemplar Ex 2.1 Q17 (MCQ)",
@@ -401,7 +401,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Lime",
     solutionSteps: [
       "[0.5 mark] Marble (CaCO₃), limestone (CaCO₃), and baking soda (NaHCO₃) are all carbonates/bicarbonates → release CO₂ with dilute acid.",
-      "[0.5 mark] Lime = CaO (an oxide, not a carbonate). On reacting with dilute acid it gives CaCl₂ + H₂O — NO CO₂.",
+      "[0.5 mark] Lime = CaO (an oxide, not a carbonate). On reacting with dilute acid it gives CaCl₂ + H₂O — NO CO₂. Answer: (D)",
     ],
     finalAnswer: "Lime — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q18 (MCQ)",
@@ -422,7 +422,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Lime juice",
     solutionSteps: [
       "[0.5 mark] Lime juice contains citric acid → acidic (pH ~2).",
-      "[0.5 mark] Human blood pH ≈ 7.4 (slightly basic); lime water Ca(OH)₂ ≈ pH 12 (basic); antacid is basic.",
+      "[0.5 mark] Human blood pH ≈ 7.4 (slightly basic); lime water Ca(OH)₂ ≈ pH 12 (basic); antacid is basic. Answer: (A)",
     ],
     finalAnswer: "Lime juice — option (a)",
     ncertRef: "Exemplar Ex 2.1 Q19 (MCQ)",
@@ -445,7 +445,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "NaOH(aq) ionises completely to give Na⁺ + OH⁻ — many mobile ions present.",
       "Mobile ions conduct current → bulb GLOWS. Statement (ii) is correct.",
-      "(i) is wrong (basics also conduct); (iii) circuit is complete; (iv) is wrong reasoning.",
+      "(i) is wrong (basics also conduct); (iii) circuit is complete; (iv) is wrong reasoning. Answer: (C)",
     ],
     finalAnswer: "(ii) only — option (c)",
     ncertRef: "Exemplar Ex 2.1 Q20 (MCQ)",
@@ -466,7 +466,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Aqua regia",
     solutionSteps: [
       "[0.5 mark] Gold is unreactive — it does not dissolve in any single common acid.",
-      "[0.5 mark] Aqua regia (Latin: 'royal water') is a 3:1 mixture of conc. HCl and conc. HNO₃ — dissolves gold and platinum.",
+      "[0.5 mark] Aqua regia (Latin: 'royal water') is a 3:1 mixture of conc. HCl and conc. HNO₃ — dissolves gold and platinum. Answer: (D)",
     ],
     finalAnswer: "Aqua regia — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q21 (MCQ)",
@@ -487,7 +487,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Citric acid",
     solutionSteps: [
       "[0.5 mark] Mineral acids are inorganic acids from minerals/rocks: HCl, H₂SO₄, HNO₃, H₃PO₄.",
-      "[0.5 mark] Citric acid is an ORGANIC acid found in citrus fruits (lemon, orange) — not a mineral acid.",
+      "[0.5 mark] Citric acid is an ORGANIC acid found in citrus fruits (lemon, orange) — not a mineral acid. Answer: (B)",
     ],
     finalAnswer: "Citric acid — option (b)",
     ncertRef: "Exemplar Ex 2.1 Q22 (MCQ)",
@@ -508,7 +508,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "C₂H₅OH",
     solutionSteps: [
       "[0.5 mark] NaOH (sodium hydroxide), KOH (potassium hydroxide), NH₄OH (ammonium hydroxide) — all are bases (release OH⁻ in water).",
-      "[0.5 mark] C₂H₅OH = ethanol/ethyl alcohol — an alcohol, not a base. It does NOT ionise to give OH⁻.",
+      "[0.5 mark] C₂H₅OH = ethanol/ethyl alcohol — an alcohol, not a base. It does NOT ionise to give OH⁻. Answer: (D)",
     ],
     finalAnswer: "C₂H₅OH — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q23 (MCQ)",
@@ -536,7 +536,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
       "(a) True — carbonates + acid → salt + water + CO₂.",
       "(b) FALSE — metal oxides are BASIC; they react with water to give base (e.g. CaO + H₂O → Ca(OH)₂), NOT salt and acid.",
       "(c) True — metals above H displace it from acids.",
-      "(d) True — non-metal oxides like CO₂, SO₂ form carbonic and sulphurous acids with water.",
+      "(d) True — non-metal oxides like CO₂, SO₂ form carbonic and sulphurous acids with water. Answer: (B)",
     ],
     finalAnswer: "All metal oxides react with water to give salt and acid — option (b)",
     ncertRef: "Exemplar Ex 2.1 Q24 (MCQ)",
@@ -587,7 +587,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Equal volumes of equimolar strong acid (HCl) and strong base (NaOH) → complete neutralisation.",
       "Product: NaCl + H₂O, neutral solution (pH = 7).",
-      "On pH paper, pH 7 shows yellowish-green colour.",
+      "On pH paper, pH 7 shows yellowish-green colour. Answer: (C)",
     ],
     finalAnswer: "Yellowish green — option (c)",
     ncertRef: "Exemplar Ex 2.1 Q26 (MCQ)",
@@ -609,7 +609,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "HCl is covalent but ionises in water (water enables ionisation): HCl + H₂O → H₃O⁺ + Cl⁻.",
       "(ii) ionisation occurs ✓. (iv) H⁺ combines with H₂O to form hydronium H₃O⁺ ✓.",
-      "(i) wrong — HCl DOES ionise in water. (iii) wrong — only H⁺/H₃O⁺ ions, no OH⁻ from HCl.",
+      "(i) wrong — HCl DOES ionise in water. (iii) wrong — only H⁺/H₃O⁺ ions, no OH⁻ from HCl. Answer: (C)",
     ],
     finalAnswer: "(ii) and (iv) — option (c)",
     ncertRef: "Exemplar Ex 2.1 Q27 (MCQ)",
@@ -635,7 +635,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Sour and change blue litmus to red",
     solutionSteps: [
       "[0.5 mark] Acids: taste SOUR, turn BLUE litmus RED. Bases: bitter, turn red litmus blue.",
-      "[0.5 mark] Correct property of acids: sour + blue→red. Option (c).",
+      "[0.5 mark] Correct property of acids: sour + blue→red. Option (c). Answer: (C)",
     ],
     finalAnswer: "Sour and change blue litmus to red — option (c)",
     ncertRef: "Exemplar Ex 2.1 Q28 (MCQ)",
@@ -656,7 +656,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     answer: "H₃O⁺ + Cl⁻",
     solutionSteps: [
       "[0.5 mark] Dilute HCl(aq) ionises completely (strong acid): HCl + H₂O → H₃O⁺ + Cl⁻.",
-      "[0.5 mark] Main species: H₃O⁺ and Cl⁻ ions.",
+      "[0.5 mark] Main species: H₃O⁺ and Cl⁻ ions. Answer: (A)",
     ],
     finalAnswer: "H₃O⁺ + Cl⁻ — option (a)",
     ncertRef: "Exemplar Ex 2.1 Q29 (MCQ)",
@@ -683,7 +683,7 @@ export const ACIDS_BASES_SALTS_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: [
       "Chlor-alkali: electrolysis of aqueous NaCl (brine).",
       "Reactants: NaCl(aq) and H₂O(l). Products: NaOH(aq) (stays in solution), Cl₂(g) (at anode), H₂(g) (at cathode).",
-      "Option (d) has all correct state symbols.",
+      "Option (d) has all correct state symbols. Answer: (D)",
     ],
     finalAnswer: "2NaCl(aq)+2H₂O(l)→2NaOH(aq)+Cl₂(g)+H₂(g) — option (d)",
     ncertRef: "Exemplar Ex 2.1 Q30 (MCQ)",

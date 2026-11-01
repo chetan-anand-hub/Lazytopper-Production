@@ -11,7 +11,7 @@ export const QUADRATIC_EQUATIONS_APQ: CanonicalQuestion[] = [
     questionText: "What is/are the roots of 3x^2 = 6x?",
     options: ["only 2", "only 3", "0 and 6", "0 and 2"],
     answer: "0 and 2",
-    solutionSteps: ["3x^2 − 6x = 0 ⟹ 3x(x − 2) = 0 ⟹ x = 0 or x = 2."],
+    solutionSteps: ["3x^2 − 6x = 0 ⟹ 3x(x − 2) = 0 ⟹ x = 0 or x = 2. Answer: (D)"],
     finalAnswer: "(d) 0 and 2",
     ncertRef: "APQ PQ1 Q3", isCompetencyBased: false },
 
@@ -20,7 +20,7 @@ export const QUADRATIC_EQUATIONS_APQ: CanonicalQuestion[] = [
     questionText: "If the quadratic equation x^2 − 8x + k = 0 has real roots, then",
     options: ["k < 16", "k ≤ 16", "k > 16", "k ≥ 16"],
     answer: "k ≤ 16",
-    solutionSteps: ["Real roots condition: discriminant D ≥ 0.", "D = (−8)^2 − 4·1·k = 64 − 4k ≥ 0 ⟹ k ≤ 16."],
+    solutionSteps: ["Real roots condition: discriminant D ≥ 0.", "D = (−8)^2 − 4·1·k = 64 − 4k ≥ 0 ⟹ k ≤ 16. Answer: (B)"],
     finalAnswer: "(b) k ≤ 16",
     ncertRef: "APQ PQ2 Q4", isCompetencyBased: false },
 
@@ -50,7 +50,7 @@ export const QUADRATIC_EQUATIONS_APQ: CanonicalQuestion[] = [
     questionText: "A teacher asks three students to complete the following statement about the nature of the roots of a quadratic equation. If q^2 − 4pr > 0, the roots of the quadratic equation px^2 + qx + r = 0 will be... Zain answers, \"always positive\". Vipul answers, \"positive, if p, q, and r are positive\". Suman answers, \"negative, if p, q, and r are positive\". Who answered correctly?",
     options: ["Zain", "Vipul", "Suman", "(none of them)"],
     answer: "Suman",
-    solutionSteps: ["q^2 − 4pr > 0 ⟹ two distinct real roots. Sum of roots = −q/p; product of roots = r/p.", "If p, q, r > 0: sum = −q/p < 0 (negative), product = r/p > 0 (positive). Both roots negative.", "Suman is correct."],
+    solutionSteps: ["q^2 − 4pr > 0 ⟹ two distinct real roots. Sum of roots = −q/p; product of roots = r/p.", "If p, q, r > 0: sum = −q/p < 0 (negative), product = r/p > 0 (positive). Both roots negative.", "Suman is correct. Answer: (C)"],
     finalAnswer: "(c) Suman",
     ncertRef: "APQ PQ_2022 Q3", isCompetencyBased: true },
 

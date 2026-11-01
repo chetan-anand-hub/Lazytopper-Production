@@ -20,7 +20,7 @@ export const OUR_ENVIRONMENT_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Eating the maize grains directly",
     "solutionSteps": [
-      "[1 mark] Eating the maize grains directly. Only about 10% of the energy is passed on from one trophic level to the next, so as herbivores (second trophic level) the family gets about 10% of the maize's energy; if animals eat the maize first, the family is at the third trophic level and gets only about 1%."
+      "[1 mark] Eating the maize grains directly. Only about 10% of the energy is passed on from one trophic level to the next, so as herbivores (second trophic level) the family gets about 10% of the maize's energy; if animals eat the maize first, the family is at the third trophic level and gets only about 1%. Answer: (A)"
     ],
     "finalAnswer": "Eating the maize grains directly",
     "isCompetencyBased": true,
@@ -49,7 +49,7 @@ export const OUR_ENVIRONMENT_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] Option (A). Vegetable peels are biodegradable and are decomposed by microbes, but polythene is non-biodegradable because bacteria and other saprophytes cannot break it down; so it stays unchanged in the pit. R correctly explains A."
+      "[1 mark] Option (A). Vegetable peels are biodegradable and are decomposed by microbes, but polythene is non-biodegradable because bacteria and other saprophytes cannot break it down; so it stays unchanged in the pit. R correctly explains A. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

@@ -36,7 +36,7 @@ export const SAV_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "A hollow cube of internal edge 22 cm is filled with spherical marbles of diameter 0.5 cm and it is assumed that 1/8 space of the cube remains unfilled. Then the number of marbles that the cube can accommodate is",
     options: ["142296", "142396", "142496", "142596"],
     answer: "142296",
-    solutionSteps: ["[1 mark] Filled volume = (7/8) × 22³ = (7/8) × 10648 = 9317 cm³; each marble = (4/3)(22/7)(0.25)³ ≈ 0.0654762 cm³, so number = 9317 / 0.0654762 ≈ 142296 — option (A)."],
+    solutionSteps: ["[1 mark] Filled volume = (7/8) × 22³ = (7/8) × 10648 = 9317 cm³; each marble = (4/3)(22/7)(0.25)³ ≈ 0.0654762 cm³, so number = 9317 / 0.0654762 ≈ 142296 — option (A). Answer: (A)"],
     finalAnswer: "142296 — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q8", isCompetencyBased: true },
 
@@ -44,7 +44,7 @@ export const SAV_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "A mason constructs a wall of dimensions 270 cm × 300 cm × 350 cm with bricks each of size 22.5 cm × 11.25 cm × 8.75 cm and it is assumed that 1/8 space is covered by the mortar. Then the number of bricks used to construct the wall is",
     options: ["11100", "11200", "11000", "11300"],
     answer: "11200",
-    solutionSteps: ["[1 mark] Brick-filled volume = (7/8)(270 × 300 × 350) = (7/8)(28350000) = 24806250 cm³; each brick = 22.5 × 11.25 × 8.75 = 2214.84375 cm³, so number = 24806250 / 2214.84375 = 11200 — option (B)."],
+    solutionSteps: ["[1 mark] Brick-filled volume = (7/8)(270 × 300 × 350) = (7/8)(28350000) = 24806250 cm³; each brick = 22.5 × 11.25 × 8.75 = 2214.84375 cm³, so number = 24806250 / 2214.84375 = 11200 — option (B). Answer: (B)"],
     finalAnswer: "11200 — option (B).",
     ncertRef: "Exemplar Ex 12.1 Q11", isCompetencyBased: true },
 
@@ -52,7 +52,7 @@ export const SAV_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "In a right circular cone, the cross-section made by a plane parallel to the base is a",
     options: ["circle", "frustum of a cone", "sphere", "hemisphere"],
     answer: "circle",
-    solutionSteps: ["[1 mark] A plane parallel to the base of a right circular cone cuts it in a circle (a smaller circular section) — option (A)."],
+    solutionSteps: ["[1 mark] A plane parallel to the base of a right circular cone cuts it in a circle (a smaller circular section) — option (A). Answer: (A)"],
     finalAnswer: "circle — option (A).",
     ncertRef: "Exemplar Ex 12.1 Q19", isCompetencyBased: false },
 
@@ -60,7 +60,7 @@ export const SAV_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "Volumes of two spheres are in the ratio 64:27. The ratio of their surface areas is",
     options: ["3 : 4", "4 : 3", "9 : 16", "16 : 9"],
     answer: "16 : 9",
-    solutionSteps: ["[1 mark] (r₁/r₂)³ = 64/27 ⇒ r₁/r₂ = 4/3, so the surface-area ratio = (r₁/r₂)² = 16/9 — option (D)."],
+    solutionSteps: ["[1 mark] (r₁/r₂)³ = 64/27 ⇒ r₁/r₂ = 4/3, so the surface-area ratio = (r₁/r₂)² = 16/9 — option (D). Answer: (D)"],
     finalAnswer: "16 : 9 — option (D).",
     ncertRef: "Exemplar Ex 12.1 Q20", isCompetencyBased: true },
 

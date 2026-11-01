@@ -12,7 +12,7 @@ export const HEREDITY_PYQ: CanonicalQuestion[] = [
     questionText: "Consider the following two statements : (i) The trait that expresses itself in F1 generation. (ii) The trait that keeps on passing from one generation to another. The appropriate terms for the statements (i) and (ii) respectively are :",
     options: ["Recessive trait, Dominant trait", "Dominant trait, Recessive trait", "Dominant trait, Inherited trait", "Recessive trait, Inherited trait"],
     answer: "Dominant trait, Inherited trait",
-    solutionSteps: ["[1 mark] (i) The trait that expresses itself in the F1 generation is the dominant trait; (ii) a trait that keeps passing from one generation to the next is an inherited trait. Correct option (c) Dominant trait, Inherited trait."],
+    solutionSteps: ["[1 mark] (i) The trait that expresses itself in the F1 generation is the dominant trait; (ii) a trait that keeps passing from one generation to the next is an inherited trait. Correct option (c) Dominant trait, Inherited trait. Answer: (C)"],
     finalAnswer: "(c) Dominant trait, Inherited trait",
     ncertRef: "PYQ 31/5/1 Q10", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1",

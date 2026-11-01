@@ -237,7 +237,7 @@ export const MAGNETIC_EFFECTS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The magnetic field is strongest just outside the middle of the solenoid and weakest inside it.",
     "solutionSteps": [
-      "[1 mark] The incorrect observation is that the field is strongest just outside the middle of the solenoid: inside a long solenoid the field lines are parallel straight lines and the field is strong and uniform, while the field outside it is weak."
+      "[1 mark] The incorrect observation is that the field is strongest just outside the middle of the solenoid: inside a long solenoid the field lines are parallel straight lines and the field is strong and uniform, while the field outside it is weak. Answer: (D)"
     ],
     "finalAnswer": "The magnetic field is strongest just outside the middle of the solenoid and weakest inside it.",
     "isCompetencyBased": true,
@@ -266,7 +266,7 @@ export const MAGNETIC_EFFECTS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: the current produces a magnetic field that deflects the needle, and since the direction of this field depends on the direction of the current, reversing the current reverses the deflection."
+      "[1 mark] (A) Both are true and R explains A: the current produces a magnetic field that deflects the needle, and since the direction of this field depends on the direction of the current, reversing the current reverses the deflection. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

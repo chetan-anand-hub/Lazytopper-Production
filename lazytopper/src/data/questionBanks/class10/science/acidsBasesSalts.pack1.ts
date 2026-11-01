@@ -3,17 +3,17 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
   { id: "ABS-E01", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The pH of a neutral solution is:", options: ["0", "7", "14", "1"], answer: "7", explanation: "The correct answer is 7. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "7" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: 7. On the pH scale (0 to 14) a neutral solution has pH 7; below 7 is acidic and above 7 is basic.",
+      "Correct answer: 7. On the pH scale (0 to 14) a neutral solution has pH 7; below 7 is acidic and above 7 is basic. Answer: (B)",
     ],
   },
   { id: "ABS-E02", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Blue litmus turns red in:", options: ["Basic solution", "Acidic solution", "Neutral solution", "Salt solution"], answer: "Acidic solution", explanation: "The correct answer is Acidic solution. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Acidic solution" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Acidic solution. Acids turn blue litmus red, while bases turn red litmus blue.",
+      "Correct answer: Acidic solution. Acids turn blue litmus red, while bases turn red litmus blue. Answer: (B)",
     ],
   },
   { id: "ABS-E03", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "When an acid reacts with a base, the products formed are:", options: ["Salt and water", "Salt and hydrogen", "Metal oxide and water", "Base and water"], answer: "Salt and water", explanation: "The correct answer is Salt and water. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Salt and water" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Salt and water. An acid and a base neutralise each other to form a salt and water, e.g. NaOH + HCl → NaCl + H₂O.",
+      "Correct answer: Salt and water. An acid and a base neutralise each other to form a salt and water, e.g. NaOH + HCl → NaCl + H₂O. Answer: (A)",
     ],
   },
   { id: "ABS-E04", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Which of the following is a strong acid?", options: ["Acetic acid", "Citric acid", "Hydrochloric acid", "Carbonic acid"], answer: "Hydrochloric acid", explanation: "The correct answer is Hydrochloric acid. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Hydrochloric acid" , isCompetencyBased: false,
@@ -25,12 +25,12 @@ export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
   },
   { id: "ABS-E05", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Important Salts/Compounds", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The chemical formula of baking soda is:", options: ["NaOH", "Na₂CO₃", "NaHCO₃", "NaCl"], answer: "NaHCO₃", explanation: "The correct answer is NaHCO₃. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "NaHCO₃" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: NaHCO₃. Baking soda is sodium hydrogencarbonate, whose formula is NaHCO₃.",
+      "Correct answer: NaHCO₃. Baking soda is sodium hydrogencarbonate, whose formula is NaHCO₃. Answer: (C)",
     ],
   },
   { id: "ABS-E06", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Acids produce H⁺ ions in aqueous solution.\nReason (R): H⁺ ions are responsible for the acidic properties.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, but R is not the correct explanation of A.", explanation: "Both the Assertion and the Reason are true, but the Reason states what H⁺ ions do (cause acidic properties), not why acids produce H⁺ ions in water. So R is not the correct explanation of A.", finalAnswer: "Both A and R are true, but R is not the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: Both A and R are true, but R is not the correct explanation of A. A is true: acids dissociate in water to give H⁺ ions. R is true: H⁺ ions are responsible for the acidic properties of a solution (turning blue litmus red, sour taste, reacting with metals). But R says what the H⁺ ions do, not why acids produce them in water, so R does not explain A.",
+      "Correct answer: Both A and R are true, but R is not the correct explanation of A. A is true: acids dissociate in water to give H⁺ ions. R is true: H⁺ ions are responsible for the acidic properties of a solution (turning blue litmus red, sour taste, reacting with metals). But R says what the H⁺ ions do, not why acids produce them in water, so R does not explain A. Answer: (B)",
     ],
   },
   { id: "ABS-E07", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Write the equation when zinc reacts with dilute sulphuric acid.", solutionSteps: [
@@ -39,12 +39,12 @@ export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Zn + H₂SO₄ → ZnSO₄ + H₂" , isCompetencyBased: true },
   { id: "ABS-E08", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The common name of CaOCl₂ is:", options: ["Washing soda", "Baking soda", "Bleaching powder", "Plaster of Paris"], answer: "Bleaching powder", explanation: "The correct answer is Bleaching powder. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Bleaching powder" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Bleaching powder. CaOCl₂ is bleaching powder, made by the action of chlorine on dry slaked lime: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O.",
+      "Correct answer: Bleaching powder. CaOCl₂ is bleaching powder, made by the action of chlorine on dry slaked lime: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O. Answer: (C)",
     ],
   },
   { id: "ABS-E09", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "When sodium hydroxide solution is added to hydrochloric acid, the reaction is called:", options: ["Decomposition", "Neutralisation", "Displacement", "Combination"], answer: "Neutralisation", explanation: "The correct answer is Neutralisation. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Neutralisation" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Neutralisation. A base reacting with an acid to give a salt and water is a neutralisation reaction: NaOH + HCl → NaCl + H₂O.",
+      "Correct answer: Neutralisation. A base reacting with an acid to give a salt and water is a neutralisation reaction: NaOH + HCl → NaCl + H₂O. Answer: (B)",
     ],
   },
   { id: "ABS-E10", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Important Salts/Compounds", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Write the chemical formulae of: (i) Washing soda (ii) Plaster of Paris.", solutionSteps: [
@@ -53,22 +53,22 @@ export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) Na₂CO₃·10H₂O (ii) CaSO₄·½H₂O" , isCompetencyBased: false },
   { id: "ABS-E11", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "A solution with pH = 2 is:", options: ["Strongly acidic", "Weakly acidic", "Neutral", "Basic"], answer: "Strongly acidic", explanation: "The correct answer is Strongly acidic. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Strongly acidic" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Strongly acidic. A pH below 7 is acidic, and the lower the pH the higher the H⁺ ion concentration, so pH 2 indicates a strongly acidic solution.",
+      "Correct answer: Strongly acidic. A pH below 7 is acidic, and the lower the pH the higher the H⁺ ion concentration, so pH 2 indicates a strongly acidic solution. Answer: (A)",
     ],
   },
   { id: "ABS-E12", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Acid must always be added to water, never water to acid.\nReason (R): Dissolving acid in water is exothermic; adding water to acid can cause splattering.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: when diluting, acid must be added slowly to water with constant stirring. R is true: mixing an acid with water is highly exothermic, and adding water to concentrated acid can make the mixture splash out and cause burns. R explains why the order matters.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: when diluting, acid must be added slowly to water with constant stirring. R is true: mixing an acid with water is highly exothermic, and adding water to concentrated acid can make the mixture splash out and cause burns. R explains why the order matters. Answer: (A)",
     ],
   },
   { id: "ABS-E13", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Tooth enamel is made of:", options: ["Calcium phosphate", "Calcium carbonate", "Sodium chloride", "Calcium sulphate"], answer: "Calcium phosphate", explanation: "The correct answer is Calcium phosphate. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Calcium phosphate" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Calcium phosphate. Tooth enamel is made of calcium hydroxyapatite, a crystalline form of calcium phosphate, the hardest substance in the body.",
+      "Correct answer: Calcium phosphate. Tooth enamel is made of calcium hydroxyapatite, a crystalline form of calcium phosphate, the hardest substance in the body. Answer: (A)",
     ],
   },
   { id: "ABS-E14", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Important Salts/Compounds", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The chemical name of Plaster of Paris is:", options: ["Calcium sulphate hemihydrate", "Calcium sulphate dihydrate", "Calcium carbonate", "Calcium hydroxide"], answer: "Calcium sulphate hemihydrate", explanation: "The correct answer is Calcium sulphate hemihydrate. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Calcium sulphate hemihydrate" , isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Calcium sulphate hemihydrate. Plaster of Paris is CaSO₄·½H₂O, in which two formula units of calcium sulphate share one molecule of water, hence hemihydrate.",
+      "Correct answer: Calcium sulphate hemihydrate. Plaster of Paris is CaSO₄·½H₂O, in which two formula units of calcium sulphate share one molecule of water, hence hemihydrate. Answer: (A)",
     ],
   },
   { id: "ABS-E15", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "What happens when sodium carbonate reacts with dilute HCl? Write the equation.", solutionSteps: [
@@ -92,7 +92,7 @@ export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Acid+base→salt+water; acidic salt formed from strong acid + weak base" , visualExplainerId: "science-acids-bases-salts-acid-base-reactions", isCompetencyBased: true },
   { id: "ABS-M04", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): HCl gas does not show acidic behaviour in the absence of water.\nReason (R): HCl can produce H⁺ ions only in the presence of water.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: dry HCl gas does not change the colour of dry blue litmus paper. R is true: HCl ionises to give H⁺ (as H₃O⁺) ions only in the presence of water. Since acidic behaviour is due to H⁺ ions, R explains A.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: dry HCl gas does not change the colour of dry blue litmus paper. R is true: HCl ionises to give H⁺ (as H₃O⁺) ions only in the presence of water. Since acidic behaviour is due to H⁺ ions, R explains A. Answer: (A)",
     ],
   },
   { id: "ABS-M05", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Important Salts/Compounds", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "What is Plaster of Paris? Write the reaction when it is mixed with water. Give two uses.", solutionSteps: [
@@ -118,7 +118,7 @@ export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Caustic soda; chlor-alkali process" , isCompetencyBased: false },
   { id: "ABS-M09", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): When metals react with acids, hydrogen gas is evolved.\nReason (R): Metals displace hydrogen from acids because they are more reactive than hydrogen.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: metals such as zinc react with dilute acids to give a salt and hydrogen gas (Zn + H₂SO₄ → ZnSO₄ + H₂). R is true: these metals are more reactive than hydrogen, so they displace it from the acid, which is why hydrogen gas is evolved. R explains A.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: metals such as zinc react with dilute acids to give a salt and hydrogen gas (Zn + H₂SO₄ → ZnSO₄ + H₂). R is true: these metals are more reactive than hydrogen, so they displace it from the acid, which is why hydrogen gas is evolved. R explains A. Answer: (A)",
     ],
   },
   { id: "ABS-M10", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Fresh milk has a pH of 6. When it changes to curd, will its pH increase or decrease? Explain.", solutionSteps: [
@@ -144,12 +144,12 @@ export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Enamel (calcium phosphate) corrodes below pH 5.5" , isCompetencyBased: false },
   { id: "ABS-M14", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Important Salts/Compounds", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "The by-products of the chlor-alkali process are:", options: ["NaOH and Cl₂", "Cl₂ and H₂", "NaOH, Cl₂ and H₂", "NaCl and H₂O"], answer: "NaOH, Cl₂ and H₂", explanation: "The correct answer is NaOH, Cl₂ and H₂. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "NaOH, Cl₂ and H₂" , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: NaOH, Cl₂ and H₂. In the chlor-alkali process, electrolysis of brine gives sodium hydroxide, chlorine gas at the anode and hydrogen gas at the cathode: 2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂.",
+      "Correct answer: NaOH, Cl₂ and H₂. In the chlor-alkali process, electrolysis of brine gives sodium hydroxide, chlorine gas at the anode and hydrogen gas at the cathode: 2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂. Answer: (C)",
     ],
   },
   { id: "ABS-M15", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Sodium hydroxide solution gives a soapy feel.\nReason (R): Bases are slippery because they react with oils on the skin.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: sodium hydroxide solution, like other bases, feels soapy to touch. R is true: bases react with the oils on the skin to form a soap-like substance, which is why they feel slippery, so R explains A.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: sodium hydroxide solution, like other bases, feels soapy to touch. R is true: bases react with the oils on the skin to form a soap-like substance, which is why they feel slippery, so R explains A. Answer: (A)",
     ],
   },
   { id: "ABS-H01", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain the importance of pH in everyday life. Give five examples.", solutionSteps: [
@@ -219,24 +219,24 @@ export const ACIDS_BASES_SALTS_PACK1: CanonicalQuestion[] = [
     ], explanation: "Acid+Base → salt+water; NaOH+HCl→NaCl+H2O; Ca(OH)2+H2SO4→CaSO4+2H2O; NaHCO3+HCl→CO2 — see solution steps for the complete derivation.", finalAnswer: "Acid+Base → salt+water; NaOH+HCl→NaCl+H2O; Ca(OH)2+H2SO4→CaSO4+2H2O; NaHCO3+HCl→CO2", isCompetencyBased: true },
   { id: "ABS-E16", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following turns litmus paper red?", options: ["NaOH solution","Lime water","Vinegar (acetic acid)","Baking soda solution"], answer: "Vinegar (acetic acid)", explanation: "Vinegar is an acidic solution; acids turn blue litmus paper red.", finalAnswer: "Vinegar is acidic and turns blue litmus red.", isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: Vinegar (acetic acid). Vinegar contains acetic acid, and acids turn blue litmus paper red.",
+      "Correct answer: Vinegar (acetic acid). Vinegar contains acetic acid, and acids turn blue litmus paper red. Answer: (C)",
     ],
   },
   { id: "ABS-E17", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "pH Scale", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "What is the pH of pure water?", options: ["0","7","14","4"], answer: "7", explanation: "Pure water is neutral with pH exactly 7 on the pH scale — neither acidic nor basic.", finalAnswer: "Pure water is neutral with pH = 7.", isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: 7. Pure water is neutral because it has equal concentrations of H⁺ and OH⁻ ions, so its pH is 7.",
+      "Correct answer: 7. Pure water is neutral because it has equal concentrations of H⁺ and OH⁻ ions, so its pH is 7. Answer: (B)",
     ],
   },
   { id: "ABS-E18", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Properties & Identification", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a base?", options: ["HCl","H2SO4","NaOH","HNO3"], answer: "NaOH", explanation: "NaOH (sodium hydroxide) is a strong base that releases OH⁻ ions when dissolved in water.", finalAnswer: "NaOH (sodium hydroxide) is a strong base — releases OH- ions in water.", isCompetencyBased: false,
     solutionSteps: [
-      "Correct answer: NaOH. Sodium hydroxide dissolves in water to give OH⁻ ions, so it is a base (a strong alkali).",
+      "Correct answer: NaOH. Sodium hydroxide dissolves in water to give OH⁻ ions, so it is a base (a strong alkali). Answer: (C)",
     ],
   },
   { id: "ABS-E19", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reactions", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "When an acid reacts with a metal carbonate, which gas is produced?", options: ["H2","O2","CO2","SO2"], answer: "CO2", explanation: "Acid + metal carbonate → salt + water + CO₂ gas; the carbon dioxide turns lime water milky.", finalAnswer: "Acid + metal carbonate → salt + water + CO2 gas (turns lime water milky).", isCompetencyBased: false,
     solutionSteps: [
       "Acids react with metal carbonates to form a salt, water, and a gas.",
       "The general reaction is: Acid + Metal Carbonate -> Salt + Water + Carbon Dioxide.",
-      "Therefore, the gas produced when an acid reacts with a metal carbonate is carbon dioxide.",
+      "Therefore, the gas produced when an acid reacts with a metal carbonate is carbon dioxide. Answer: (C)",
     ],
   }
 ];

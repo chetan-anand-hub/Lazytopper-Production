@@ -24,7 +24,7 @@ export const CARB_SP: CanonicalQuestion[] = [
     ],
     "answer": "(d) All of the above.",
     "solutionSteps": [
-      "[1 mark] Correct option (d) All of the above: ethene (C2H4) has 2 C and 4 H; in ethene each C forms C–H bonds by sharing electrons; in ethane (C2H6) the two carbons share one electron pair forming one C–C single covalent bond — all statements are correct."
+      "[1 mark] Correct option (d) All of the above: ethene (C2H4) has 2 C and 4 H; in ethene each C forms C–H bonds by sharing electrons; in ethane (C2H6) the two carbons share one electron pair forming one C–C single covalent bond — all statements are correct. Answer: (D)"
     ],
     "finalAnswer": "(d) All of the above.",
     "isCompetencyBased": false

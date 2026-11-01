@@ -28,7 +28,7 @@ export const AP_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["a + (n − 2)d", "a + (n − 1)d", "a + nd", "a − (n − 1)d"],
     "answer": "a + (n − 2)d",
     "solutionSteps": [
-      "[1 mark] The kth term is a + (k − 1)d; putting k = n − 1 gives a + (n − 1 − 1)d = a + (n − 2)d."
+      "[1 mark] The kth term is a + (k − 1)d; putting k = n − 1 gives a + (n − 1 − 1)d = a + (n − 2)d. Answer: (A)"
     ],
     "finalAnswer": "a + (n − 2)d",
     "isCompetencyBased": false,
@@ -51,7 +51,7 @@ export const AP_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["6n − 4", "6n − 1", "3n − 1", "6n + 2"],
     "answer": "6n − 4",
     "solutionSteps": [
-      "[1 mark] aₙ = Sₙ − Sₙ₋₁ = (3n² − n) − [3(n − 1)² − (n − 1)] = 3n² − n − 3n² + 7n − 4 = 6n − 4 (check: a₁ = S₁ = 2)."
+      "[1 mark] aₙ = Sₙ − Sₙ₋₁ = (3n² − n) − [3(n − 1)² − (n − 1)] = 3n² − n − 3n² + 7n − 4 = 6n − 4 (check: a₁ = S₁ = 2). Answer: (A)"
     ],
     "finalAnswer": "6n − 4",
     "isCompetencyBased": false,

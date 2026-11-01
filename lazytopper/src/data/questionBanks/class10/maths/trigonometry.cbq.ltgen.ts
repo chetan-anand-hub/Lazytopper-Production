@@ -21,7 +21,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "30°",
     "solutionSteps": [
-      "[1 mark] sin θ = rise ÷ sloping length = 1/2, and sin 30° = 1/2, so the ramp makes 30° with the ground."
+      "[1 mark] sin θ = rise ÷ sloping length = 1/2, and sin 30° = 1/2, so the ramp makes 30° with the ground. Answer: (A)"
     ],
     "finalAnswer": "30°",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3 m",
     "solutionSteps": [
-      "[1 mark] cos 60° = (distance of foot from wall) ÷ 6, so distance = 6 × 1/2 = 3 m."
+      "[1 mark] cos 60° = (distance of foot from wall) ÷ 6, so distance = 6 × 1/2 = 3 m. Answer: (B)"
     ],
     "finalAnswer": "3 m",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "60 m",
     "solutionSteps": [
-      "[1 mark] The cable is the hypotenuse: height = 120 × sin 30° = 120 × 1/2 = 60 m."
+      "[1 mark] The cable is the hypotenuse: height = 120 × sin 30° = 120 × 1/2 = 60 m. Answer: (D)"
     ],
     "finalAnswer": "60 m",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5/12",
     "solutionSteps": [
-      "[1 mark] Horizontal run = √(13² − 5²) = √144 = 12 m (used as a numeric tool), so tan θ = rise ÷ run = 5/12."
+      "[1 mark] Horizontal run = √(13² − 5²) = √144 = 12 m (used as a numeric tool), so tan θ = rise ÷ run = 5/12. Answer: (C)"
     ],
     "finalAnswer": "tan θ = 5/12",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Step 3",
     "solutionSteps": [
-      "[1 mark] cos 0° = 1, not 0, so Step 3 is the first error (Steps 1 and 2 are correct); the correct value is 1 + 3 − 1 = 3."
+      "[1 mark] cos 0° = 1, not 0, so Step 3 is the first error (Steps 1 and 2 are correct); the correct value is 1 + 3 − 1 = 3. Answer: (C)"
     ],
     "finalAnswer": "Step 3",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "3√3 m",
     "solutionSteps": [
-      "[1 mark] tan 60° = 9 ÷ shadow, so shadow = 9/√3 = 3√3 m."
+      "[1 mark] tan 60° = 9 ÷ shadow, so shadow = 9/√3 = 3√3 m. Answer: (A)"
     ],
     "finalAnswer": "3√3 m",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "4√3/3 m",
     "solutionSteps": [
-      "[1 mark] cos 30° = 2 ÷ (length of brace), so length = 2 ÷ (√3/2) = 4/√3 = 4√3/3 m."
+      "[1 mark] cos 30° = 2 ÷ (length of brace), so length = 2 ÷ (√3/2) = 4/√3 = 4√3/3 m. Answer: (D)"
     ],
     "finalAnswer": "4√3/3 m",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The readings are not possible because sin²θ + cos²θ is not equal to 1.",
     "solutionSteps": [
-      "[1 mark] For every acute θ, sin²θ + cos²θ = 1; here 16/25 + 4/25 = 20/25 ≠ 1, so the readings cannot both be correct."
+      "[1 mark] For every acute θ, sin²θ + cos²θ = 1; here 16/25 + 4/25 = 20/25 ≠ 1, so the readings cannot both be correct. Answer: (B)"
     ],
     "finalAnswer": "Not possible, since sin²θ + cos²θ ≠ 1",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The value 1 in every cell",
     "solutionSteps": [
-      "[1 mark] 1 + tan²θ = sec²θ, so (1 + tan²θ) × cos²θ = sec²θ × cos²θ = 1 for every acute θ."
+      "[1 mark] 1 + tan²θ = sec²θ, so (1 + tan²θ) × cos²θ = sec²θ × cos²θ = 1 for every acute θ. Answer: (A)"
     ],
     "finalAnswer": "1 in every cell",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "30(√3 − 1) m",
     "solutionSteps": [
-      "[1 mark] Distances from the foot: 30 ÷ tan 30° = 30√3 m and 30 ÷ tan 45° = 30 m; same side, so the gap = 30√3 − 30 = 30(√3 − 1) m."
+      "[1 mark] Distances from the foot: 30 ÷ tan 30° = 30√3 m and 30 ÷ tan 45° = 30 m; same side, so the gap = 30√3 − 30 = 30(√3 − 1) m. Answer: (D)"
     ],
     "finalAnswer": "30(√3 − 1) m",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "120 m",
     "solutionSteps": [
-      "[1 mark] Rise : run = 3 : 4, so the road length for that rise is √(3² + 4²) = 5 and sin θ = 3/5; height risen = 200 × 3/5 = 120 m."
+      "[1 mark] Rise : run = 3 : 4, so the road length for that rise is √(3² + 4²) = 5 and sin θ = 3/5; height risen = 200 × 3/5 = 120 m. Answer: (C)"
     ],
     "finalAnswer": "120 m",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "0 m and 10 m",
     "solutionSteps": [
-      "[1 mark] sin 0° = 0 and sin 90° = 1, so the heights are 10 × 0 = 0 m and 10 × 1 = 10 m."
+      "[1 mark] sin 0° = 0 and sin 90° = 1, so the heights are 10 × 0 = 0 m and 10 × 1 = 10 m. Answer: (A)"
     ],
     "finalAnswer": "0 m and 10 m",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "0 m",
     "solutionSteps": [
-      "[1 mark] cot 90° = cos 90° ÷ sin 90° = 0 ÷ 1 = 0, so the shadow length is 2 × 0 = 0 m."
+      "[1 mark] cot 90° = cos 90° ÷ sin 90° = 0 ÷ 1 = 0, so the shadow length is 2 × 0 = 0 m. Answer: (D)"
     ],
     "finalAnswer": "0 m",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "60°",
     "solutionSteps": [
-      "[1 mark] sin θ = 15√3 ÷ 30 = √3/2, and sin 60° = √3/2, so θ = 60°."
+      "[1 mark] sin θ = 15√3 ÷ 30 = √3/2, and sin 60° = √3/2, so θ = 60°. Answer: (C)"
     ],
     "finalAnswer": "60°",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "7/25",
     "solutionSteps": [
-      "[1 mark] cos θ = (adjacent side along the ground) ÷ (hypotenuse = wire) = 7/25."
+      "[1 mark] cos θ = (adjacent side along the ground) ÷ (hypotenuse = wire) = 7/25. Answer: (C)"
     ],
     "finalAnswer": "cos θ = 7/25",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "−7",
     "solutionSteps": [
-      "[1 mark] Dividing numerator and denominator by cos θ: (tan θ + 1) ÷ (tan θ − 1) = (7/4) ÷ (−1/4) = −7."
+      "[1 mark] Dividing numerator and denominator by cos θ: (tan θ + 1) ÷ (tan θ − 1) = (7/4) ÷ (−1/4) = −7. Answer: (B)"
     ],
     "finalAnswer": "−7",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1/4",
     "solutionSteps": [
-      "[1 mark] sec²θ − tan²θ = 1, so (sec θ − tan θ)(sec θ + tan θ) = 1 and sec θ − tan θ = 1/4."
+      "[1 mark] sec²θ − tan²θ = 1, so (sec θ − tan θ)(sec θ + tan θ) = 1 and sec θ − tan θ = 1/4. Answer: (D)"
     ],
     "finalAnswer": "1/4",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "75√3 m",
     "solutionSteps": [
-      "[1 mark] tan 30° = 75 ÷ d, so d = 75 ÷ (1/√3) = 75√3 m."
+      "[1 mark] tan 30° = 75 ÷ d, so d = 75 ÷ (1/√3) = 75√3 m. Answer: (A)"
     ],
     "finalAnswer": "75√3 m",
     "isCompetencyBased": true,
@@ -920,7 +920,7 @@ export const TRIGONOMETRY_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A): Height of the top above her eyes = 20 tan 45° = 20 × 1 = 20 m, so the tree is 20 + 1.5 = 21.5 m: A is true. R is true (tan 45° = 1) and it is exactly what gives the 20 m above eye level, so R explains A."
+      "[1 mark] (A): Height of the top above her eyes = 20 tan 45° = 20 × 1 = 20 m, so the tree is 20 + 1.5 = 21.5 m: A is true. R is true (tan 45° = 1) and it is exactly what gives the 20 m above eye level, so R explains A. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

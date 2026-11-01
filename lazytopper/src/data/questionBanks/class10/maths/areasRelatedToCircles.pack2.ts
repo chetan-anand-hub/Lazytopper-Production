@@ -23,7 +23,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of sector = (θ/360°) × πr²",
       "= (60°/360°) × π × 7²",
       "= (1/6) × 22/7 × 49",
-      "= (22/7 × 49)/6 = (22 × 7)/6 = 154/6 cm² ≈ 25.67 cm²"
+      "= (22/7 × 49)/6 = (22 × 7)/6 = 154/6 cm² ≈ 25.67 cm² Answer: (B)"
     ],
     "finalAnswer": "B) 154/6 cm²",
     "explanation": "Area of sector = (θ/360°) × πr². = (60°/360°) × π × 7². = (1/6) × 22/7 × 49. = (22/7 × 49)/6 = (22 × 7)/6 = 154/6 cm² ≈ 25.67 cm². Therefore, the correct answer is B) 154/6 cm².",
@@ -54,7 +54,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Arc length = (θ/360°) × 2πr",
       "= (90°/360°) × 2π × 10",
       "= (1/4) × 20π",
-      "= 5π cm"
+      "= 5π cm Answer: (A)"
     ],
     "finalAnswer": "A) 5π cm",
     "explanation": "Arc length = (θ/360°) × 2πr. = (90°/360°) × 2π × 10. = (1/4) × 20π. = 5π cm. Therefore, the correct answer is A) 5π cm.",
@@ -85,7 +85,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area = (θ/360°) × πr²",
       "18.84 = (θ/360°) × 3.14 × 36",
       "18.84 = (θ/360°) × 113.04",
-      "θ = 60°"
+      "θ = 60° Answer: (C)"
     ],
     "finalAnswer": "C) 60°",
     "explanation": "Area = (θ/360°) × πr². 18.84 = (θ/360°) × 3.14 × 36. 18.84 = (θ/360°) × 113.04. θ = 60°. Therefore, the correct answer is C) 60°.",
@@ -114,7 +114,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "answer": "B) Area of sector - Area of triangle",
     "solutionSteps": [
       "A segment is the region between a chord and the arc",
-      "Area of segment = Area of sector - Area of triangle formed by two radii and chord"
+      "Area of segment = Area of sector - Area of triangle formed by two radii and chord Answer: (B)"
     ],
     "finalAnswer": "B) Area of sector - Area of triangle",
     "explanation": "A segment is the region between a chord and the arc. Area of segment = Area of sector - Area of triangle formed by two radii and chord. Therefore, the correct answer is B) Area of sector - Area of triangle.",
@@ -250,7 +250,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area = (θ/360°) × πr², so area depends on both θ and r",
       "R is true: Area = (θ/360°) × πr², depends on both θ and r",
       "A is false because area also depends on radius",
-      "Since A is false and R is true, answer is option 4"
+      "Since A is false and R is true, answer is option 4 Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -281,7 +281,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Arc length = (θ/360°) × 2πr",
       "22 = (θ/360°) × 2 × (22/7) × 21",
       "22 = (θ/360°) × 132",
-      "θ = (22 × 360°)/132 = 60°"
+      "θ = (22 × 360°)/132 = 60° Answer: (C)"
     ],
     "finalAnswer": "C) 60°",
     "explanation": "Arc length = (θ/360°) × 2πr. 22 = (θ/360°) × 2 × (22/7) × 21. 22 = (θ/360°) × 132. θ = (22 × 360°)/132 = 60°. Therefore, the correct answer is C) 60°.",
@@ -382,7 +382,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Assertion: When radius is constant, area ∝ θ (central angle)",
       "From formula Area = (θ/360°) × πr², with r constant, Area ∝ θ",
       "Reason: Correctly states the formula showing this proportionality",
-      "R is the correct mathematical explanation of A"
+      "R is the correct mathematical explanation of A Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -516,7 +516,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Let angles be 3x and 5x",
       "Area₁/Area₂ = 3x/5x = 3/5",
       "Area₁/60 = 3/5",
-      "Area₁ = (3/5) × 60 = 36 cm²"
+      "Area₁ = (3/5) × 60 = 36 cm² Answer: (B)"
     ],
     "finalAnswer": "B) 36 cm²",
     "explanation": "For sectors of same circle: Area ∝ Central angle. Let angles be 3x and 5x. Area₁/Area₂ = 3x/5x = 3/5. Area₁/60 = 3/5. Area₁ = (3/5) × 60 = 36 cm². Therefore, the correct answer is B) 36 cm².",
@@ -547,7 +547,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Two arcs with same length can have different r and θ combinations",
       "For example: r₁=10, θ₁=90° and r₂=5, θ₂=180° can give same arc length",
       "Assertion A is false: same arc length doesn't require same radius",
-      "Since A is false and R is true, the answer is option (4)"
+      "Since A is false and R is true, the answer is option (4) Answer: (D)"
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
@@ -665,7 +665,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of sector = (θ/360°) × πr²",
       "102.67 = (θ/360°) × 22/7 × 196",
       "102.67 = (θ/360°) × 616",
-      "θ = 60°"
+      "θ = 60° Answer: (C)"
     ],
     "finalAnswer": "60°",
     "explanation": "Area of sector = (θ/360°) × πr². 102.67 = (θ/360°) × 22/7 × 196. 102.67 = (θ/360°) × 616. θ = 60°. Therefore, the correct answer is 60°.",
@@ -694,7 +694,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "answer": "Sector and triangle",
     "solutionSteps": [
       "Area of segment = Area of sector - Area of triangle",
-      "This is the standard formula for segment area"
+      "This is the standard formula for segment area Answer: (B)"
     ],
     "finalAnswer": "Sector and triangle",
     "explanation": "Area of segment = Area of sector - Area of triangle. This is the standard formula for segment area. Therefore, the correct answer is Sector and triangle.",
@@ -799,7 +799,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Area = (180°/360°) × 22/7 × 49",
       "= (1/2) × 22/7 × 49 = 77 cm²",
-      "A is true and R is the correct formula"
+      "A is true and R is the correct formula Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -829,7 +829,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "From formula: Arc length = (θ/360°) × 2πr",
       "As θ increases, arc length increases proportionally",
-      "Both statements are true and related"
+      "Both statements are true and related Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
@@ -857,7 +857,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
-      "[1 mark] Sector area = (90/360)πr² = (π/4)r²; triangle area = (1/2)·r·r = r²/2 (right angle at centre); segment = (π/4 − 1/2)r², so A is true, and it is obtained exactly by R (sector − triangle). Hence option (a)."
+      "[1 mark] Sector area = (90/360)πr² = (π/4)r²; triangle area = (1/2)·r·r = r²/2 (right angle at centre); segment = (π/4 − 1/2)r², so A is true, and it is obtained exactly by R (sector − triangle). Hence option (a). Answer: (A)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "A is true: for θ = 90°, sector = πr²/4 and the right triangle = r²/2, so the minor segment = (π/4 − 1/2)r². R is the standard segment formula and is exactly how A is obtained, so R correctly explains A.",
@@ -887,7 +887,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Minute hand moves 360° in 60 minutes",
       "In 15 minutes, it moves (15/60) × 360° = 90°",
       "Area = (90°/360°) × πr² = (1/4) × π × 100",
-      "= 78.5 cm²"
+      "= 78.5 cm² Answer: (A)"
     ],
     "finalAnswer": "78.5 cm²",
     "isCompetencyBased": true,
@@ -940,7 +940,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Area of sector 1 = (60°/360°) × πr²",
       "Area of sector 2 = (120°/360°) × πr²",
-      "Ratio = (60°/360°)/(120°/360°) = 60°/120° = 1:2"
+      "Ratio = (60°/360°)/(120°/360°) = 60°/120° = 1:2 Answer: (A)"
     ],
     "finalAnswer": "1:2",
     "isCompetencyBased": true,
@@ -1023,7 +1023,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Circumference = 2πr = 2 × 22/7 × 0.5",
       "= 3.14 m (approximately π)",
-      "Distance in 10 revolutions = 10 × 3.14 = 31.4 m"
+      "Distance in 10 revolutions = 10 × 3.14 = 31.4 m Answer: (B)"
     ],
     "finalAnswer": "31.4 m",
     "isCompetencyBased": true,
@@ -1051,7 +1051,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Area of a full circle = πr²",
       "Full angle = 360°",
-      "So area of sector with angle θ = (θ/360°) × πr²"
+      "So area of sector with angle θ = (θ/360°) × πr² Answer: (C)"
     ],
     "finalAnswer": "(θ/360°) × πr²",
     "explanation": "Area of a full circle = πr². Full angle = 360°. So area of sector with angle θ = (θ/360°) × πr². Therefore, the correct answer is (θ/360°) × πr².",
@@ -1131,7 +1131,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Arc length = (θ/360°) × 2πr",
       "22 = (120°/360°) × 2 × 22/7 × r",
       "22 = (1/3) × 44r/7",
-      "r = 10.5 cm"
+      "r = 10.5 cm Answer: (A)"
     ],
     "finalAnswer": "10.5 cm",
     "explanation": "Arc length = (θ/360°) × 2πr. 22 = (120°/360°) × 2 × 22/7 × r. 22 = (1/3) × 44r/7. r = 10.5 cm. Therefore, the correct answer is 10.5 cm.",
@@ -1187,7 +1187,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "231 = (60°/360°) × 22/7 × r²",
       "231 = (1/6) × (22/7) × r²",
       "r² = 231 × 42/22 = 441",
-      "r = 21 cm"
+      "r = 21 cm Answer: (C)"
     ],
     "finalAnswer": "21 cm",
     "isCompetencyBased": true,
@@ -1197,71 +1197,71 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
   },
   { id: "ARC2-046", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a circle with radius 7 cm is:", options: ["154 cm²","44 cm²","77 cm²","22 cm²"], answer: "154 cm²", explanation: "The correct answer is 154 cm². Area = πr² = (22/7) × 49 = 154 cm².", finalAnswer: "154 cm²", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Area of a circle = πr² = 22/7 × 7 × 7 = 154 cm², so the correct option is 154 cm².",
+      "[1 mark] Area of a circle = πr² = 22/7 × 7 × 7 = 154 cm², so the correct option is 154 cm². Answer: (A)",
     ],
   },
   { id: "ARC2-047", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The circumference of a circle with diameter 21 cm is:", options: ["66 cm","44 cm","22 cm","33 cm"], answer: "66 cm", explanation: "The correct answer is 66 cm. C = πd = (22/7) × 21 = 66 cm.", finalAnswer: "66 cm", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Circumference = πd = 22/7 × 21 = 66 cm, so the correct option is 66 cm.",
+      "[1 mark] Circumference = πd = 22/7 × 21 = 66 cm, so the correct option is 66 cm. Answer: (A)",
     ],
   },
   { id: "ARC2-048", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a quadrant of a circle with radius 14 cm is:", options: ["154 cm²","616 cm²","77 cm²","308 cm²"], answer: "154 cm²", explanation: "The correct answer is 154 cm². Quadrant area = (1/4)πr² = (1/4) × (22/7) × 196 = 154 cm².", finalAnswer: "154 cm²", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Area of a quadrant = ¼ πr² = ¼ × 22/7 × 14 × 14 = ¼ × 616 = 154 cm², so the correct option is 154 cm².",
+      "[1 mark] Area of a quadrant = ¼ πr² = ¼ × 22/7 × 14 × 14 = ¼ × 616 = 154 cm², so the correct option is 154 cm². Answer: (A)",
     ],
   },
   { id: "ARC2-049", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The length of an arc of a circle with radius 7 cm and central angle 90° is:", options: ["11 cm","22 cm","7 cm","14 cm"], answer: "11 cm", explanation: "The correct answer is 11 cm. Arc length = (θ/360) × 2πr = (90/360) × 2 × (22/7) × 7 = 11 cm.", finalAnswer: "11 cm", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Length of arc = (θ/360°) × 2πr = (90°/360°) × 2 × 22/7 × 7 = ¼ × 44 = 11 cm, so the correct option is 11 cm.",
+      "[1 mark] Length of arc = (θ/360°) × 2πr = (90°/360°) × 2 × 22/7 × 7 = ¼ × 44 = 11 cm, so the correct option is 11 cm. Answer: (A)",
     ],
   },
   { id: "ARC2-050", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a sector with radius 14 cm and central angle 90° is:", options: ["154 cm²","77 cm²","308 cm²","44 cm²"], answer: "154 cm²", explanation: "The correct answer is 154 cm². Area = (90/360) × πr² = (1/4) × (22/7) × 196 = 154 cm².", finalAnswer: "Area = (90/360) × πr² = (1/4) × (22/7) × 196 = 154 cm².", isCompetencyBased: false,
     solutionSteps: [
       "The formula for the area of a sector is A = (theta/360) * pi * r^2.",
       "Given radius r = 14 cm and angle theta = 90 degrees. Use pi = 22/7.",
-      "Substitute the values: A = (90/360) * (22/7) * 14 * 14 = (1/4) * 22 * 2 * 14 = 154 sq cm.",
+      "Substitute the values: A = (90/360) * (22/7) * 14 * 14 = (1/4) * 22 * 2 * 14 = 154 sq cm. Answer: (A)",
     ],
   },
   { id: "ARC2-051", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the circumference of a circle is 44 cm, its radius is:", options: ["7 cm","14 cm","22 cm","11 cm"], answer: "7 cm", explanation: "The correct answer is 7 cm. C = 2πr → 44 = 2 × (22/7) × r → r = 7 cm.", finalAnswer: "7 cm", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Option (a) 7 cm is correct: C = 2*pi*r, so 44 = 2 * (22/7) * r, giving r = 44 * 7/44 = 7 cm.",
+      "[1 mark] Option (a) 7 cm is correct: C = 2*pi*r, so 44 = 2 * (22/7) * r, giving r = 44 * 7/44 = 7 cm. Answer: (A)",
     ],
   },
   { id: "ARC2-052", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a semicircle with diameter 28 cm is:", options: ["308 cm²","154 cm²","616 cm²","77 cm²"], answer: "308 cm²", explanation: "The correct answer is 308 cm². r = 14. Semicircle area = (1/2)πr² = (1/2) × (22/7) × 196 = 308 cm².", finalAnswer: "308 cm²", isCompetencyBased: false,
     solutionSteps: [
-      "Diameter 28 cm gives r = 14 cm, so the area of the semicircle = ½πr² = ½ × (22/7) × 14² = 308 cm². [1]",
+      "Diameter 28 cm gives r = 14 cm, so the area of the semicircle = ½πr² = ½ × (22/7) × 14² = 308 cm². [1] Answer: (A)",
     ],
   },
   { id: "ARC2-053", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The perimeter of a sector with radius 7 cm and angle 60° is:", options: ["21.33 cm","14 cm","22 cm","28 cm"], answer: "21.33 cm", explanation: "The correct answer is 21.33 cm. Perimeter = 2r + arc = 2(7) + (60/360)×2π×7 = 14 + 22/3 ≈ 14 + 7.33 = 21.33 cm.", finalAnswer: "21.33 cm (= 64/3 cm)", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Perimeter of a sector = 2r + arc length. Arc length = (60°/360°) × 2 × 22/7 × 7 = 44/6 = 22/3 ≈ 7.33 cm, so perimeter = 2 × 7 + 22/3 = 64/3 ≈ 21.33 cm. Hence the correct option is 21.33 cm.",
+      "[1 mark] Perimeter of a sector = 2r + arc length. Arc length = (60°/360°) × 2 × 22/7 × 7 = 44/6 = 22/3 ≈ 7.33 cm, so perimeter = 2 × 7 + 22/3 = 64/3 ≈ 21.33 cm. Hence the correct option is 21.33 cm. Answer: (A)",
     ],
   },
   { id: "ARC2-054", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Annulus", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area between two concentric circles with radii 7 cm and 14 cm is:", options: ["462 cm²","308 cm²","154 cm²","616 cm²"], answer: "462 cm²", explanation: "The correct answer is 462 cm². Area = π(R²−r²) = (22/7)(196−49) = (22/7)×147 = 462 cm².", finalAnswer: "Area = π(R²−r²) = (22/7)(196−49) = (22/7)×147 = 462 cm².", isCompetencyBased: false,
     solutionSteps: [
       "The area of the region between two concentric circles (annulus) is A = pi * (R^2 - r^2).",
       "Given outer radius R = 14 cm and inner radius r = 7 cm. Substitute pi = 22/7.",
-      "Area = (22/7) * (14^2 - 7^2) = (22/7) * (196 - 49) = (22/7) * 147 = 462 cm^2.",
+      "Area = (22/7) * (14^2 - 7^2) = (22/7) * (196 - 49) = (22/7) * 147 = 462 cm^2. Answer: (A)",
     ],
   },
   { id: "ARC2-055", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the area of a circle is 154 cm², its circumference is:", options: ["44 cm","22 cm","11 cm","66 cm"], answer: "44 cm", explanation: "The correct answer is 44 cm. 154 = πr² → r = 7 cm. Circumference = 2πr = 2×(22/7)×7 = 44 cm.", finalAnswer: "44 cm", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] πr² = 154 ⇒ 22/7 × r² = 154 ⇒ r² = 49 ⇒ r = 7 cm. Circumference = 2πr = 2 × 22/7 × 7 = 44 cm, so the correct option is 44 cm.",
+      "[1 mark] πr² = 154 ⇒ 22/7 × r² = 154 ⇒ r² = 49 ⇒ r = 7 cm. Circumference = 2πr = 2 × 22/7 × 7 = 44 cm, so the correct option is 44 cm. Answer: (A)",
     ],
   },
   { id: "ARC2-056", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Segment Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a minor segment of a circle is obtained by:", options: ["Subtracting area of triangle from area of sector","Adding area of triangle to area of sector","Subtracting area of sector from area of circle","Dividing area of circle by 2"], answer: "Subtracting area of triangle from area of sector", explanation: "The correct answer is Subtracting area of triangle from area of sector. Minor segment area = Area of sector − Area of corresponding triangle formed by the chord.", finalAnswer: "Area of minor segment = area of minor sector − area of the corresponding triangle", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] Let O be the centre and AB a chord, with P a point on the minor arc AB. The minor segment APB is the region between chord AB and the minor arc. The minor sector OAPB is made up of this segment together with triangle OAB, so area of minor segment APB = area of sector OAPB − area of △OAB. Hence the correct option is 'Subtracting area of triangle from area of sector'.",
+      "[1 mark] Let O be the centre and AB a chord, with P a point on the minor arc AB. The minor segment APB is the region between chord AB and the minor arc. The minor sector OAPB is made up of this segment together with triangle OAB, so area of minor segment APB = area of sector OAPB − area of △OAB. Hence the correct option is 'Subtracting area of triangle from area of sector'. Answer: (A)",
     ],
   },
   { id: "ARC2-057", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A circular clock face has radius 21 cm. The area swept by the minute hand in 15 minutes is:", options: ["346.5 cm²","693 cm²","1386 cm²","173.25 cm²"], answer: "346.5 cm²", explanation: "The correct answer is 346.5 cm². 15 min = 90°. Area = (90/360) × (22/7) × 441 = (1/4) × 1386 = 346.5 cm².", finalAnswer: "346.5 cm²", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] The minute hand turns 360° in 60 minutes, so in 15 minutes it turns 90°. Area swept = (90°/360°) × πr² = ¼ × 22/7 × 21 × 21 = ¼ × 1386 = 346.5 cm², so the correct option is 346.5 cm².",
+      "[1 mark] The minute hand turns 360° in 60 minutes, so in 15 minutes it turns 90°. Area swept = (90°/360°) × πr² = ¼ × 22/7 × 21 × 21 = ¼ × 1386 = 346.5 cm², so the correct option is 346.5 cm². Answer: (A)",
     ],
   },
   { id: "ARC2-058", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If two sectors have equal areas and equal radii, they must have equal central angles.\nReason (R): The area of a sector is directly proportional to its central angle for a fixed radius.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Area = (θ/360)πr². For fixed r, Area ∝ θ, so equal areas imply equal angles — R explains A directly.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "[1 mark] Area of sector = (θ/360°) × πr². For a fixed radius r, area ∝ θ, so R is true. If two sectors have equal areas and equal radii, then θ₁/360° × πr² = θ₂/360° × πr² gives θ₁ = θ₂, so A is true, and it follows directly from R. Hence both are true and R is the correct explanation of A.",
+      "[1 mark] Area of sector = (θ/360°) × πr². For a fixed radius r, area ∝ θ, so R is true. If two sectors have equal areas and equal radii, then θ₁/360° × πr² = θ₂/360° × πr² gives θ₁ = θ₂, so A is true, and it follows directly from R. Hence both are true and R is the correct explanation of A. Answer: (A)",
     ],
   }
 ];

@@ -203,7 +203,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
     options: ["It is less than k.", "It is equal to k.", "It is more than k.", "(cannot conclude without knowing the polynomials)"],
     answer: "It is less than k.",
     solutionSteps: [
-      "[1 mark] Correct option: (1) It is less than k. By the remainder theorem the remainder on dividing by (x - 3) is the value of the polynomial at x = 3, so the two remainders are g(3) and h(3) = k. Both curves pass through the same two x-intercepts, -2 and 2, but h(x) is the narrower, steeper curve, so to the right of x = 2 it has already climbed above g(x). At x = 3 the h(x) curve is therefore higher, giving g(3) < h(3) = k.",
+      "[1 mark] Correct option: (1) It is less than k. By the remainder theorem the remainder on dividing by (x - 3) is the value of the polynomial at x = 3, so the two remainders are g(3) and h(3) = k. Both curves pass through the same two x-intercepts, -2 and 2, but h(x) is the narrower, steeper curve, so to the right of x = 2 it has already climbed above g(x). At x = 3 the h(x) curve is therefore higher, giving g(3) < h(3) = k. Answer: (A)",
     ],
     finalAnswer: "It is less than k.",
     isCompetencyBased: true,
@@ -227,7 +227,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
     options: ["only ii)", "only i) and iii)", "only ii) and iv)", "(cannot be determined without knowing the polynomial h(x))"],
     answer: "only ii)",
     solutionSteps: [
-      "[1 mark] Correct option: (1) only ii). A division leaves remainder zero exactly when the divisor is a factor, i.e. when the corresponding value is a zero of h(x). The graph crosses the x-axis at x = -2, so (x + 2) is a factor. No zero is shown at x = 2, x = 4 or x = -4 on the part of the graph drawn, so none of i), iii) or iv) can be claimed.",
+      "[1 mark] Correct option: (1) only ii). A division leaves remainder zero exactly when the divisor is a factor, i.e. when the corresponding value is a zero of h(x). The graph crosses the x-axis at x = -2, so (x + 2) is a factor. No zero is shown at x = 2, x = 4 or x = -4 on the part of the graph drawn, so none of i), iii) or iv) can be claimed. Answer: (A)",
     ],
     finalAnswer: "only ii)",
     isCompetencyBased: true,
@@ -297,7 +297,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
       "Two polynomials are shown in the graph. How many zeroes are common to both the polynomials?",
     answer: "1",
     solutionSteps: [
-      "[1 mark] 1 — the curves meet at two points, but only one of them lies on the x-axis, so they share one zero."
+      "[1 mark] 1 — the curves meet at two points, but only one of them lies on the x-axis, so they share one zero. Answer: (B)"
     ],
     finalAnswer: "1",
     isCompetencyBased: true,
@@ -493,7 +493,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
       "Students of a class were shown the graph. Group 1 said the graph represents a quadratic polynomial, whereas group 2 said it represents a cubic polynomial. Which option gives the correct group and the polynomial represented by the graph?",
     answer: "Group 2; p(x) = (x − 2)²(x + 2)",
     solutionSteps: [
-      "[1 mark] Group 2; p(x) = (x − 2)²(x + 2) — the curve crosses at x = −2, touches at x = 2 and has p(0) = 8; (−2)²(2) = 8 fits, and the turning shape shows degree 3."
+      "[1 mark] Group 2; p(x) = (x − 2)²(x + 2) — the curve crosses at x = −2, touches at x = 2 and has p(0) = 8; (−2)²(2) = 8 fits, and the turning shape shows degree 3. Answer: (C)"
     ],
     finalAnswer: "Group 2; p(x) = (x − 2)²(x + 2)",
     isCompetencyBased: true,

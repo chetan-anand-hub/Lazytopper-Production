@@ -60,7 +60,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     options: ["only P", "only P or Q", "only Q or R", "any - P, Q or R"],
     answer: "any - P, Q or R",
     solutionSteps: [
-      "[1 mark] Correct option: (4) any - P, Q or R. Alkanes, alcohols and aldehydes all contain only carbon, hydrogen and (in the last two) oxygen, so complete combustion of any of them can give only carbon dioxide and water vapour. The information therefore does not narrow the series down.",
+      "[1 mark] Correct option: (4) any - P, Q or R. Alkanes, alcohols and aldehydes all contain only carbon, hydrogen and (in the last two) oxygen, so complete combustion of any of them can give only carbon dioxide and water vapour. The information therefore does not narrow the series down. Answer: (D)",
     ],
     finalAnswer: "any - P, Q or R",
     isCompetencyBased: true,
@@ -109,7 +109,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     options: ["only P", "only Q", "both P and Q", "neither P nor Q"],
     answer: "only Q",
     solutionSteps: [
-      "[1 mark] Correct option: (2) only Q. Each mole of hydrocarbon gives one mole of the saturated product, so P is the same for both. Ethene has one C=C and needs 1 mole of hydrogen, while ethyne has a C≡C and needs 2 moles, so only Q differs.",
+      "[1 mark] Correct option: (2) only Q. Each mole of hydrocarbon gives one mole of the saturated product, so P is the same for both. Ethene has one C=C and needs 1 mole of hydrogen, while ethyne has a C≡C and needs 2 moles, so only Q differs. Answer: (B)",
     ],
     finalAnswer: "only Q",
     isCompetencyBased: true,
@@ -137,7 +137,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     ],
     answer: "Both A and R are true and R is the correct explanation for A.",
     solutionSteps: [
-      "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation for A. Vegetable oils are indeed considered healthier, and the reason given - that they contain unsaturated chains while animal fats are saturated - is exactly why.",
+      "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation for A. Vegetable oils are indeed considered healthier, and the reason given - that they contain unsaturated chains while animal fats are saturated - is exactly why. Answer: (A)",
     ],
     finalAnswer: "Both A and R are true and R is the correct explanation for A.",
     isCompetencyBased: true,
@@ -184,7 +184,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
       "Bromine water is a reddish solution of bromine (Br₂) in water. When shaken with an unsaturated hydrocarbon, the red colour disappears because bromine is used up in an addition reaction.\n\nKohli has three test tubes containing hexane, hexene and hexyne respectively. Which compound can he identify using the bromine water test, and why?",
     answer: "Hexane, as it is the only one that does NOT decolourise bromine water",
     solutionSteps: [
-      "[1 mark] Hexane, as it is the only one that does NOT decolourise bromine water — hexene and hexyne are both unsaturated and both decolourise it; only saturated hexane gives a distinct result."
+      "[1 mark] Hexane, as it is the only one that does NOT decolourise bromine water — hexene and hexyne are both unsaturated and both decolourise it; only saturated hexane gives a distinct result. Answer: (A)"
     ],
     finalAnswer: "Hexane, as it is the only one that does NOT decolourise bromine water",
     isCompetencyBased: true,
@@ -383,7 +383,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     questionText:
       "An alkane has 11 carbon atoms arranged within ring structures as shown. The molecular formula of the alkane is",
     answer: "C₁₁H₂₀",
-    solutionSteps: ["[1 mark] C₁₁H₂₀ — two rings with only single bonds: H = 2n + 2 − 2(rings) = 24 − 4 = 20."],
+    solutionSteps: ["[1 mark] C₁₁H₂₀ — two rings with only single bonds: H = 2n + 2 − 2(rings) = 24 − 4 = 20. Answer: (B)"],
     finalAnswer: "C₁₁H₂₀",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.4 — CFPQ_Science10.pdf, questions pdf pp.28–32 (printed folios 27–31)",
@@ -482,7 +482,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
       "Polythene is a plastic made from ethene (CH₂=CH₂). Under high pressure and moderately high temperature, ethene molecules react with each other to form molecules hundreds of times bigger. Which property of carbon atoms is instrumental in the formation of polythene?",
     answer: "Catenation",
     solutionSteps: [
-      "[1 mark] Catenation — catenation lets carbon atoms link to each other into the long chains of polythene."
+      "[1 mark] Catenation — catenation lets carbon atoms link to each other into the long chains of polythene. Answer: (C)"
     ],
     finalAnswer: "Catenation",
     isCompetencyBased: true,

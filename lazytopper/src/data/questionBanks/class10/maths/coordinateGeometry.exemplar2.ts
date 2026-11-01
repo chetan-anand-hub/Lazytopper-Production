@@ -35,7 +35,7 @@ export const CG_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The perimeter of a triangle with vertices (0, 4), (0, 0) and (3, 0) is",
     options: ["5", "12", "11", "7 + √5"],
     answer: "12",
-    solutionSteps: ["[1 mark] The side lengths are 4 (from (0,4) to (0,0)), 3 (from (0,0) to (3,0)) and 5 (from (0,4) to (3,0), since √(3²+4²)=5); perimeter = 4 + 3 + 5 = 12 — option (B)."],
+    solutionSteps: ["[1 mark] The side lengths are 4 (from (0,4) to (0,0)), 3 (from (0,0) to (3,0)) and 5 (from (0,4) to (3,0), since √(3²+4²)=5); perimeter = 4 + 3 + 5 = 12 — option (B). Answer: (B)"],
     finalAnswer: "12 — option (B).",
     ncertRef: "Exemplar Ex 7.1 Q6", isCompetencyBased: false },
 
@@ -43,7 +43,7 @@ export const CG_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "If the point P(2, 1) lies on the line passing through the points A(4, 2) and B(8, 4), then",
     options: ["AP = (1/3) AB", "AP = PB", "PB = (1/3) AB", "AP = (1/2) AB"],
     answer: "AP = (1/2) AB",
-    solutionSteps: ["[1 mark] AP = √((4−2)²+(2−1)²) = √5, AB = √((8−4)²+(4−2)²) = √20 = 2√5 and PB = √45 = 3√5, so AP = (1/2) AB — option (D)."],
+    solutionSteps: ["[1 mark] AP = √((4−2)²+(2−1)²) = √5, AB = √((8−4)²+(4−2)²) = √20 = 2√5 and PB = √45 = 3√5, so AP = (1/2) AB — option (D). Answer: (D)"],
     finalAnswer: "AP = (1/2) AB — option (D).",
     ncertRef: "Exemplar Ex 7.1 Q12", isCompetencyBased: false,
     sourceOverride: "others", },
@@ -53,7 +53,7 @@ export const CG_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "If P (a/3, 4) is the mid-point of the line segment joining the points Q (−6, 5) and R (−2, 3), then the value of a is",
     options: ["−4", "−12", "12", "−6"],
     answer: "−12",
-    solutionSteps: ["[1 mark] The mid-point of Q(−6,5) and R(−2,3) is ((−6−2)/2, (5+3)/2) = (−4, 4); equating x-coordinates, a/3 = −4, so a = −12 — option (B)."],
+    solutionSteps: ["[1 mark] The mid-point of Q(−6,5) and R(−2,3) is ((−6−2)/2, (5+3)/2) = (−4, 4); equating x-coordinates, a/3 = −4, so a = −12 — option (B). Answer: (B)"],
     finalAnswer: "−12 — option (B).",
     ncertRef: "Exemplar Ex 7.1 Q13", isCompetencyBased: false },
 
@@ -61,7 +61,7 @@ export const CG_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "The perpendicular bisector of the line segment joining the points A (1, 5) and B (4, 6) cuts the y-axis at",
     options: ["(0, 13)", "(0, −13)", "(0, 12)", "(13, 0)"],
     answer: "(0, 13)",
-    solutionSteps: ["[1 mark] A point (0, y) on the y-axis equidistant from A and B satisfies 1²+(y−5)² = 4²+(y−6)²; expanding, 1+y²−10y+25 = 16+y²−12y+36, so 2y = 26 and y = 13, giving (0, 13) — option (A)."],
+    solutionSteps: ["[1 mark] A point (0, y) on the y-axis equidistant from A and B satisfies 1²+(y−5)² = 4²+(y−6)²; expanding, 1+y²−10y+25 = 16+y²−12y+36, so 2y = 26 and y = 13, giving (0, 13) — option (A). Answer: (A)"],
     finalAnswer: "(0, 13) — option (A).",
     ncertRef: "Exemplar Ex 7.1 Q14", isCompetencyBased: true },
 
@@ -69,7 +69,7 @@ export const CG_EXEMPLAR2: CanonicalQuestion[] = [
     questionText: "A line intersects the y-axis and x-axis at the points P and Q, respectively. If (2, −5) is the mid-point of PQ, then the coordinates of P and Q are, respectively",
     options: ["(0, −5) and (2, 0)", "(0, 10) and (−4, 0)", "(0, 4) and (−10, 0)", "(0, −10) and (4, 0)"],
     answer: "(0, −10) and (4, 0)",
-    solutionSteps: ["[1 mark] Let P = (0, b) on the y-axis and Q = (a, 0) on the x-axis; the mid-point is (a/2, b/2) = (2, −5), so a = 4 and b = −10, giving P(0, −10) and Q(4, 0) — option (D)."],
+    solutionSteps: ["[1 mark] Let P = (0, b) on the y-axis and Q = (a, 0) on the x-axis; the mid-point is (a/2, b/2) = (2, −5), so a = 4 and b = −10, giving P(0, −10) and Q(4, 0) — option (D). Answer: (D)"],
     finalAnswer: "P(0, −10) and Q(4, 0) — option (D).",
     ncertRef: "Exemplar Ex 7.1 Q17", isCompetencyBased: true },
 

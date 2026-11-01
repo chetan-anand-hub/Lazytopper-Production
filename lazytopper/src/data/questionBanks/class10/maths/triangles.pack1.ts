@@ -240,7 +240,7 @@ const sectionAQuestions = [
           "In Delta ABC, DE is parallel to BC. Which theorem justifies AD/DB = AE/EC?",
         options: ["Basic Proportionality Theorem", "SSS similarity", "Converse BPT", "Pythagoras theorem"],
         answer: "Basic Proportionality Theorem",
-        working: ["A line parallel to one side of a triangle divides the other two sides proportionally."],
+        working: ["A line parallel to one side of a triangle divides the other two sides proportionally. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-003",
@@ -248,7 +248,7 @@ const sectionAQuestions = [
           "If AD/DB = AE/EC for points D on AB and E on AC, which theorem helps you conclude DE is parallel to BC?",
         options: ["BPT", "Converse of BPT", "AA similarity", "CPST"],
         answer: "Converse of BPT",
-        working: ["If a line divides two sides of a triangle in the same ratio, then it is parallel to the third side."],
+        working: ["If a line divides two sides of a triangle in the same ratio, then it is parallel to the third side. Answer: (B)"],
       },
       {
         questionId: "2026-TRI-P1-A-005",
@@ -256,7 +256,7 @@ const sectionAQuestions = [
           "A student sees one pair of equal angles from parallel lines and another common angle. Which criterion should be checked first?",
         options: ["AA similarity", "SSS similarity", "Converse BPT", "Area ratio theorem"],
         answer: "AA similarity",
-        working: ["Equal angles are the quickest trigger for AA similarity."],
+        working: ["Equal angles are the quickest trigger for AA similarity. Answer: (A)"],
       },
     ]
   ),
@@ -274,14 +274,14 @@ const sectionAQuestions = [
           "If two angles of one triangle are equal to two angles of another triangle, the triangles are similar by:",
         options: ["AA", "SAS", "SSS", "RHS"],
         answer: "AA",
-        working: ["AA is the similarity criterion based on two equal angles."],
+        working: ["AA is the similarity criterion based on two equal angles. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-006",
         questionText: "If Delta ABC is similar to Delta PQR, then angle B corresponds to:",
         options: ["angle P", "angle Q", "angle R", "no angle"],
         answer: "angle Q",
-        working: ["The similarity statement fixes the order: A to P, B to Q, and C to R."],
+        working: ["The similarity statement fixes the order: A to P, B to Q, and C to R. Answer: (B)"],
       },
     ]
   ),
@@ -322,7 +322,7 @@ const sectionAQuestions = [
           "The question number",
         ],
         answer: "The similarity criterion or theorem line",
-        working: ["The examiner expects the theorem or criterion before the ratio step."],
+        working: ["The examiner expects the theorem or criterion before the ratio step. Answer: (A)"],
       },
     ]
   ),
@@ -345,7 +345,7 @@ const sectionAQuestions = [
           "a median of the triangle",
         ],
         answer: "parallel to the third side",
-        working: ["By the midpoint theorem, the segment joining the midpoints of two sides is parallel to the third side."],
+        working: ["By the midpoint theorem, the segment joining the midpoints of two sides is parallel to the third side. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-009",
@@ -366,7 +366,7 @@ const sectionAQuestions = [
           "Area ratio is 1:4.",
         ],
         answer: "Since DE is parallel to BC, use BPT.",
-        working: ["The parallel-line condition must be stated before the ratio relation."],
+        working: ["The parallel-line condition must be stated before the ratio relation. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-011",
@@ -376,7 +376,7 @@ const sectionAQuestions = [
           "A is false, R is true.",
         working: [
           "Proportional sides alone are not enough for SAS similarity.",
-          "The included angles must also be equal.",
+          "The included angles must also be equal. Answer: (D)",
         ],
         formatOverride: "Assertion-Reasoning",
         options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
@@ -388,7 +388,7 @@ const sectionAQuestions = [
           "At the same time of day, a 1.5 m pole casts a 2 m shadow and a tree casts an 8 m shadow. Which chapter idea helps compare their heights first?",
         options: ["Similarity of triangles", "Converse BPT", "Midpoint theorem", "Pythagoras converse"],
         answer: "Similarity of triangles",
-        working: ["Same sun angle gives similar right triangles, so corresponding heights and shadows are proportional."],
+        working: ["Same sun angle gives similar right triangles, so corresponding heights and shadows are proportional. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-013",
@@ -396,7 +396,7 @@ const sectionAQuestions = [
           "If Delta ABC is similar to Delta DEF, then AB/DE equals:",
         options: ["BC/EF", "DE/AB", "AC/DF only", "angle B/angle E"],
         answer: "BC/EF",
-        working: ["In similar triangles, corresponding sides are in the same ratio."],
+        working: ["In similar triangles, corresponding sides are in the same ratio. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-014",
@@ -406,7 +406,7 @@ const sectionAQuestions = [
           "Both A and R are true, and R is the correct explanation of A.",
         working: [
           "Parallel lines create equal corresponding angles.",
-          "That proves Delta ADE is similar to Delta ABC, which gives the proportional side relation.",
+          "That proves Delta ADE is similar to Delta ABC, which gives the proportional side relation. Answer: (A)",
         ],
         formatOverride: "Assertion-Reasoning",
         options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
@@ -441,7 +441,7 @@ const sectionAQuestions = [
           "In △ABC, if ∠A = ∠D, ∠B = ∠E, then △ABC ~ △DEF by:",
         options: ["AA similarity criterion", "SAS similarity criterion", "SSS similarity criterion", "RHS congruence"],
         answer: "AA similarity criterion",
-        working: ["Two pairs of equal angles satisfy the AA criterion for triangle similarity."],
+        working: ["Two pairs of equal angles satisfy the AA criterion for triangle similarity. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-018",
@@ -457,7 +457,7 @@ const sectionAQuestions = [
           "In a right triangle with the right angle at C, if CD is the altitude to the hypotenuse AB, which of the following is true?",
         options: ["△ACD ~ △ABC", "△ACD ~ △BCD", "△ACD ~ △BAC", "△BCD ~ △CAB"],
         answer: "△ACD ~ △ABC",
-        working: ["In △ACD and △ABC, ∠A is common and both have a right angle, so AA similarity gives △ACD ~ △ABC."],
+        working: ["In △ACD and △ABC, ∠A is common and both have a right angle, so AA similarity gives △ACD ~ △ABC. Answer: (A)"],
       },
       {
         questionId: "2026-TRI-P1-A-020",
@@ -466,7 +466,7 @@ const sectionAQuestions = [
         answer: "Both A and R are true, and R is the correct explanation of A.",
         working: [
           "With AB ∥ CD, alternate interior angles give two pairs of equal angles in the triangles formed by the diagonals.",
-          "By AA, the triangles are similar, so their sides are proportional, proving the diagonals divide each other in the same ratio.",
+          "By AA, the triangles are similar, so their sides are proportional, proving the diagonals divide each other in the same ratio. Answer: (A)",
         ],
         formatOverride: "Assertion-Reasoning",
         options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],

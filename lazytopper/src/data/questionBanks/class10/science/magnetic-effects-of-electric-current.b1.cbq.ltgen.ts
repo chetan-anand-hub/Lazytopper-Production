@@ -21,7 +21,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The magnetic field at P is stronger than the magnetic field at Q.",
     "solutionSteps": [
-      "[1 mark] The relative closeness of field lines shows field strength: lines crowded at P (2 mm apart) mean a stronger field than at Q (8 mm apart). Lines spreading out show a weakening field, so the second option is wrong."
+      "[1 mark] The relative closeness of field lines shows field strength: lines crowded at P (2 mm apart) mean a stronger field than at Q (8 mm apart). Lines spreading out show a weakening field, so the second option is wrong. Answer: (A)"
     ],
     "finalAnswer": "The magnetic field at P is stronger than the magnetic field at Q.",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Parallel to the magnet, towards the end that is the magnet's south pole",
     "solutionSteps": [
-      "[1 mark] Outside a bar magnet the field lines run from the north pole to the south pole; beside the middle they run parallel to the magnet, so the needle's north end points towards the S pole. The field there is weaker than at the poles but not zero."
+      "[1 mark] Outside a bar magnet the field lines run from the north pole to the south pole; beside the middle they run parallel to the magnet, so the needle's north end points towards the S pole. The field there is weaker than at the poles but not zero. Answer: (B)"
     ],
     "finalAnswer": "Parallel to the magnet, towards the end that is the magnet's south pole",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Two lines near the north pole are drawn crossing each other.",
     "solutionSteps": [
-      "[1 mark] Field lines never cross: at a crossing point a compass needle would have to point in two directions at once, which is impossible. The other three features are correct properties of a bar magnet's field."
+      "[1 mark] Field lines never cross: at a crossing point a compass needle would have to point in two directions at once, which is impossible. The other three features are correct properties of a bar magnet's field. Answer: (C)"
     ],
     "finalAnswer": "Two lines near the north pole are drawn crossing each other.",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The other end of X repels the north pole of the needle.",
     "solutionSteps": [
-      "[1 mark] Attraction occurs between a magnet and any magnetic material, so attraction alone cannot prove X is a magnet. Repulsion occurs only between like poles of two magnets, so the other end of X repelling the needle's north pole proves X is the magnet."
+      "[1 mark] Attraction occurs between a magnet and any magnetic material, so attraction alone cannot prove X is a magnet. Repulsion occurs only between like poles of two magnets, so the other end of X repelling the needle's north pole proves X is the magnet. Answer: (D)"
     ],
     "finalAnswer": "The other end of X repels the north pole of the needle.",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) A is false: a field line leaving the north pole continues outside to the south pole and then through the magnet back to the north pole; it never stops in mid-air. R is true: field lines are closed curves."
+      "[1 mark] (D) A is false: a field line leaving the north pole continues outside to the south pole and then through the magnet back to the north pole; it never stops in mid-air. R is true: field lines are closed curves. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (B) A is true: the field is strongest near the poles, so most filings gather there. R is also true, but the direction of the lines inside the magnet does not explain the clustering; the crowding of field lines near the poles does."
+      "[1 mark] (B) A is true: the field is strongest near the poles, so most filings gather there. R is also true, but the direction of the lines inside the magnet does not explain the clustering; the crowding of field lines near the poles does. Answer: (B)"
     ],
     "finalAnswer": "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -540,7 +540,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "36 units",
     "solutionSteps": [
-      "[1 mark] 36 units: the readings show the field falls to one-third when the distance triples, so at 4 cm and 3 A it is 18 units; doubling the current doubles it to 36 units. 18 units forgets the current change; 72 units ignores the larger distance."
+      "[1 mark] 36 units: the readings show the field falls to one-third when the distance triples, so at 4 cm and 3 A it is 18 units; doubling the current doubles it to 36 units. 18 units forgets the current change; 72 units ignores the larger distance. Answer: (A)"
     ],
     "finalAnswer": "36 units",
     "isCompetencyBased": true,
@@ -569,7 +569,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Towards the north",
     "solutionSteps": [
-      "[1 mark] Towards the north: with the right thumb pointing up along the current, the fingers curl anticlockwise when seen from above, so at a point east of the cable the field points north. South comes from using the wrong hand; the field is never along the wire or radially away from it."
+      "[1 mark] Towards the north: with the right thumb pointing up along the current, the fingers curl anticlockwise when seen from above, so at a point east of the cable the field points north. South comes from using the wrong hand; the field is never along the wire or radially away from it. Answer: (B)"
     ],
     "finalAnswer": "Towards the north",
     "isCompetencyBased": true,
@@ -598,7 +598,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Kabir is wrong: the field at the centre points vertically downwards, so the upper face acts as a south pole.",
     "solutionSteps": [
-      "[1 mark] Curling the right-hand fingers along a clockwise current (seen from above) makes the thumb point down, so field lines enter the upper face, which therefore acts as a south pole. Opposite sides of the loop do not cancel at the centre; their fields point the same way and add."
+      "[1 mark] Curling the right-hand fingers along a clockwise current (seen from above) makes the thumb point down, so field lines enter the upper face, which therefore acts as a south pole. Opposite sides of the loop do not cancel at the centre; their fields point the same way and add. Answer: (C)"
     ],
     "finalAnswer": "Kabir is wrong: the field at the centre points vertically downwards, so the upper face acts as a south pole.",
     "isCompetencyBased": true,
@@ -627,7 +627,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Coil R",
     "solutionSteps": [
-      "[1 mark] Coil R: comparing (turns × current) ÷ radius gives P = 5, Q = 5, R = 6, S = 2.5, so R is strongest even though it has the fewest turns; choosing P (most turns) or S (largest current) looks at only one factor."
+      "[1 mark] Coil R: comparing (turns × current) ÷ radius gives P = 5, Q = 5, R = 6, S = 2.5, so R is strongest even though it has the fewest turns; choosing P (most turns) or S (largest current) looks at only one factor. Answer: (D)"
     ],
     "finalAnswer": "Coil R",
     "isCompetencyBased": true,
@@ -656,7 +656,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A): by the right-hand thumb rule the circular field lines of the two wires point in opposite directions in the region between them; at the midpoint the distances and currents are equal, so the fields are equal and opposite and cancel, which is exactly why A holds."
+      "[1 mark] (A): by the right-hand thumb rule the circular field lines of the two wires point in opposite directions in the region between them; at the midpoint the distances and currents are equal, so the fields are equal and opposite and cancel, which is exactly why A holds. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -685,7 +685,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C): more turns add their fields and a smaller radius brings every part of the wire closer to the centre, so the field grows and A is true; R is false because the field at the centre decreases as the radius increases (inverse, not direct, dependence)."
+      "[1 mark] (C): more turns add their fields and a smaller radius brings every part of the wire closer to the centre, so the field grows and A is true; R is false because the field at the centre decreases as the radius increases (inverse, not direct, dependence). Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -1062,7 +1062,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Solenoid S",
     "solutionSteps": [
-      "[1 mark] Field ∝ (turns per cm) × current: P = 10, Q = 15, R = 5, S = 30. S is strongest; R tempts with the most turns, but they are spread over 40 cm."
+      "[1 mark] Field ∝ (turns per cm) × current: P = 10, Q = 15, R = 5, S = 30. S is strongest; R tempts with the most turns, but they are spread over 40 cm. Answer: (A)"
     ],
     "finalAnswer": "Solenoid S",
     "isCompetencyBased": true,
@@ -1091,7 +1091,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The needle turns through a larger angle in the same sense, because the soft iron core makes the field stronger without changing its direction.",
     "solutionSteps": [
-      "[1 mark] The soft iron rod is magnetised along the solenoid's own field and adds to it: the field becomes much stronger, direction unchanged. The iron need not be in the circuit; it neither cancels nor reverses the field."
+      "[1 mark] The soft iron rod is magnetised along the solenoid's own field and adds to it: the field becomes much stronger, direction unchanged. The iron need not be in the circuit; it neither cancels nor reverses the field. Answer: (B)"
     ],
     "finalAnswer": "The needle turns through a larger angle in the same sense, because the soft iron core makes the field stronger without changing its direction.",
     "isCompetencyBased": true,
@@ -1120,7 +1120,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Soft iron, because it becomes strongly magnetised while the current flows and loses almost all its magnetism when the current stops",
     "solutionSteps": [
-      "[1 mark] Soft iron is strongly magnetised by the coil but does not retain magnetism, so the latch is released as soon as the current stops. Steel retains its magnetism and would keep the latch held; copper and aluminium are not magnetised at all."
+      "[1 mark] Soft iron is strongly magnetised by the coil but does not retain magnetism, so the latch is released as soon as the current stops. Steel retains its magnetism and would keep the latch held; copper and aluminium are not magnetised at all. Answer: (C)"
     ],
     "finalAnswer": "Soft iron, because it becomes strongly magnetised while the current flows and loses almost all its magnetism when the current stops",
     "isCompetencyBased": true,
@@ -1149,7 +1149,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The bar magnet is repelled, because end X behaves as a north pole.",
     "solutionSteps": [
-      "[1 mark] When the current at an end appears anticlockwise to an observer facing it, that end is a north pole. Like poles repel, so the bar magnet's north pole is pushed away. The field outside a solenoid is weaker, not zero."
+      "[1 mark] When the current at an end appears anticlockwise to an observer facing it, that end is a north pole. Like poles repel, so the bar magnet's north pole is pushed away. The field outside a solenoid is weaker, not zero. Answer: (D)"
     ],
     "finalAnswer": "The bar magnet is repelled, because end X behaves as a north pole.",
     "isCompetencyBased": true,
@@ -1178,7 +1178,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: soft iron has very low retentivity, so when the current stops it is no longer a magnet and the pins fall off at once."
+      "[1 mark] (A) Both are true and R explains A: soft iron has very low retentivity, so when the current stops it is no longer a magnet and the pins fall off at once. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1207,7 +1207,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) R is true: the field inside depends on turns per unit length and current. A is false: neither of these changes, and the field inside a long solenoid does not depend on its diameter, so it stays the same."
+      "[1 mark] (D) R is true: the field inside depends on turns per unit length and current. A is false: neither of these changes, and the field inside a long solenoid does not depend on its diameter, so it stays the same. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -1580,7 +1580,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Towards the east",
     "solutionSteps": [
-      "[1 mark] Towards the east: electrons moving north are equivalent to a current flowing south; with the field downwards, Fleming's left-hand rule gives a force towards the east. 'West' is tempting only if one forgets that electron flow is opposite to the direction of current."
+      "[1 mark] Towards the east: electrons moving north are equivalent to a current flowing south; with the field downwards, Fleming's left-hand rule gives a force towards the east. 'West' is tempting only if one forgets that electron flow is opposite to the direction of current. Answer: (A)"
     ],
     "finalAnswer": "Towards the east",
     "isCompetencyBased": true,
@@ -1609,7 +1609,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Turning the rod so that it lies along the direction of the magnetic field",
     "solutionSteps": [
-      "[1 mark] The force is largest when the current is at right angles to the field and becomes zero when the rod lies along the field, so turning the rod removes the displacement. More current, a stronger field and a longer length in the field all increase the force."
+      "[1 mark] The force is largest when the current is at right angles to the field and becomes zero when the rod lies along the field, so turning the rod removes the displacement. More current, a stronger field and a longer length in the field all increase the force. Answer: (B)"
     ],
     "finalAnswer": "Turning the rod so that it lies along the direction of the magnetic field",
     "isCompetencyBased": true,
@@ -1638,7 +1638,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The reading decreases, because the force on the wire is vertically upwards",
     "solutionSteps": [
-      "[1 mark] By Fleming's left-hand rule, with the field towards the east and the current towards the south, the thumb points vertically upwards, so the wire is partly lifted and the balance reads less. The field is perpendicular to the wire, so the force is not zero."
+      "[1 mark] By Fleming's left-hand rule, with the field towards the east and the current towards the south, the thumb points vertically upwards, so the wire is partly lifted and the balance reads less. The field is perpendicular to the wire, so the force is not zero. Answer: (C)"
     ],
     "finalAnswer": "The reading decreases, because the force on the wire is vertically upwards",
     "isCompetencyBased": true,
@@ -1667,7 +1667,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Neutrons moving at right angles to the field",
     "solutionSteps": [
-      "[1 mark] A magnetic field exerts a force only on a moving charged particle. Neutrons carry no charge, so they go straight through; protons, electrons and alpha particles are charged and are not moving along the field, so all three are deflected."
+      "[1 mark] A magnetic field exerts a force only on a moving charged particle. Neutrons carry no charge, so they go straight through; protons, electrons and alpha particles are charged and are not moving along the field, so all three are deflected. Answer: (D)"
     ],
     "finalAnswer": "Neutrons moving at right angles to the field",
     "isCompetencyBased": true,
@@ -1696,7 +1696,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: a moving proton acts like a current along its motion, a moving electron like a current opposite to its motion, so Fleming's left-hand rule gives opposite forces for the two particles."
+      "[1 mark] (A) Both are true and R explains A: a moving proton acts like a current along its motion, a moving electron like a current opposite to its motion, so Fleming's left-hand rule gives opposite forces for the two particles. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,
@@ -1725,7 +1725,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "[1 mark] (D) The Assertion is false: a rod lying along the field lines experiences no force and is not displaced at all. The Reason is true: the force is largest when the current is perpendicular to the field."
+      "[1 mark] (D) The Assertion is false: a rod lying along the field lines experiences no force and is not displaced at all. The Reason is true: the force is largest when the current is perpendicular to the field. Answer: (D)"
     ],
     "finalAnswer": "(D) Assertion is false but Reason is true.",
     "isCompetencyBased": true,
@@ -2099,7 +2099,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "A 750 W electric iron and three 100 W bulbs",
     "solutionSteps": [
-      "[1 mark] The circuit can safely supply at most 220 V × 5 A = 1100 W. The iron and three bulbs total 1050 W, drawing about 4.8 A, which is below 5 A. The heater and television look safe singly, but together they total 1200 W (about 5.5 A) and melt the fuse."
+      "[1 mark] The circuit can safely supply at most 220 V × 5 A = 1100 W. The iron and three bulbs total 1050 W, drawing about 4.8 A, which is below 5 A. The heater and television look safe singly, but together they total 1200 W (about 5.5 A) and melt the fuse. Answer: (A)"
     ],
     "finalAnswer": "A 750 W electric iron and three 100 W bulbs",
     "isCompetencyBased": true,
@@ -2128,7 +2128,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The leaked current flows through the earth wire into the ground, so the metal body stays at nearly zero potential and a person touching it is protected from a severe shock.",
     "solutionSteps": [
-      "[1 mark] The earth wire is a low-resistance path from the metal body to the ground, so leaked current flows through it and the body stays at the potential of the earth. It does not need the neutral wire to be broken; that is the tempting misconception."
+      "[1 mark] The earth wire is a low-resistance path from the metal body to the ground, so leaked current flows through it and the body stays at the potential of the earth. It does not need the neutral wire to be broken; that is the tempting misconception. Answer: (B)"
     ],
     "finalAnswer": "The leaked current flows through the earth wire into the ground, so the metal body stays at nearly zero potential and a person touching it is protected from a severe shock.",
     "isCompetencyBased": true,
@@ -2157,7 +2157,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Both P and Q have a frequency of 50 Hz.",
     "solutionSteps": [
-      "[1 mark] The current reverses twice in every cycle, so P makes 100 ÷ 2 = 50 cycles per second, i.e. 50 Hz. Q makes 100 cycles ÷ 2 s = 50 cycles per second, i.e. 50 Hz. Counting each reversal as a cycle gives the tempting wrong 100 Hz."
+      "[1 mark] The current reverses twice in every cycle, so P makes 100 ÷ 2 = 50 cycles per second, i.e. 50 Hz. Q makes 100 cycles ÷ 2 s = 50 cycles per second, i.e. 50 Hz. Counting each reversal as a cycle gives the tempting wrong 100 Hz. Answer: (C)"
     ],
     "finalAnswer": "Both P and Q have a frequency of 50 Hz.",
     "isCompetencyBased": true,
@@ -2186,7 +2186,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "The resistance of the path becomes very small, so the current rises to a very large value and the fuse or MCB cuts off the supply.",
     "solutionSteps": [
-      "[1 mark] When live and neutral touch directly, the current bypasses the lamp through a path of almost zero resistance; since I = V/R, the current becomes very large (short circuit) and the fuse or MCB breaks the circuit. The lamp is bypassed, but the current does not drop to zero."
+      "[1 mark] When live and neutral touch directly, the current bypasses the lamp through a path of almost zero resistance; since I = V/R, the current becomes very large (short circuit) and the fuse or MCB breaks the circuit. The lamp is bypassed, but the current does not drop to zero. Answer: (D)"
     ],
     "finalAnswer": "The resistance of the path becomes very small, so the current rises to a very large value and the fuse or MCB cuts off the supply.",
     "isCompetencyBased": true,
@@ -2215,7 +2215,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "[1 mark] (C) A is true: with the fuse in the live wire, a melted fuse cuts the appliance off from the high-potential wire. R is false: the neutral wire is at nearly zero potential, but it carries the same current back to the supply."
+      "[1 mark] (C) A is true: with the fuse in the live wire, a melted fuse cuts the appliance off from the high-potential wire. R is false: the neutral wire is at nearly zero potential, but it carries the same current back to the supply. Answer: (C)"
     ],
     "finalAnswer": "(C) Assertion is true but Reason is false.",
     "isCompetencyBased": true,
@@ -2244,7 +2244,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "solutionSteps": [
-      "[1 mark] (A) Both are true and R explains A: because each appliance is in parallel with its own path across the 220 V supply, a break in one bulb's filament does not break the path of the others."
+      "[1 mark] (A) Both are true and R explains A: because each appliance is in parallel with its own path across the 220 V supply, a break in one bulb's filament does not break the path of the others. Answer: (A)"
     ],
     "finalAnswer": "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     "isCompetencyBased": true,

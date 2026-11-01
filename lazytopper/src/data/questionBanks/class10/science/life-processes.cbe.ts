@@ -68,7 +68,7 @@ export const LIFE_CBE: CanonicalQuestion[] = [
     "options": ["CO₂ + H₂O → C₆H₁₂O₆ + O₂", "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O", "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂", "6CO₂ + 6H₂O → C₆H₁₂O₆ + 3O₂"],
     "answer": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
     "solutionSteps": [
-      "[1 mark] 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ — carbon dioxide and water form glucose and oxygen; atoms balance with 6CO₂, 6H₂O and 6O₂ (the reverse equation is respiration)."
+      "[1 mark] 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ — carbon dioxide and water form glucose and oxygen; atoms balance with 6CO₂, 6H₂O and 6O₂ (the reverse equation is respiration). Answer: (C)"
     ],
     "finalAnswer": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
     "isCompetencyBased": false,

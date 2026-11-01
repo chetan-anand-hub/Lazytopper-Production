@@ -21,7 +21,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "5 months, ₹4500",
     "solutionSteps": [
-      "[1 mark] 2000 + 500x = 500 + 800x gives 300x = 1500, so x = 5 months; y = 2000 + 500 × 5 = ₹4500."
+      "[1 mark] 2000 + 500x = 500 + 800x gives 300x = 1500, so x = 5 months; y = 2000 + 500 × 5 = ₹4500. Answer: (A)"
     ],
     "finalAnswer": "5 months, ₹4500",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "x + y = 7 and 12x + 20y = 108",
     "solutionSteps": [
-      "[1 mark] Number of items: x + y = 7; amount paid: 12x + 20y = 108 (this gives x = 4, y = 3, a sensible purchase)."
+      "[1 mark] Number of items: x + y = 7; amount paid: 12x + 20y = 108 (this gives x = 4, y = 3, a sensible purchase). Answer: (C)"
     ],
     "finalAnswer": "x + y = 7 and 12x + 20y = 108",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "They never meet, because the lines are parallel.",
     "solutionSteps": [
-      "[1 mark] a1/a2 = 2/4 = 1/2, b1/b2 = 3/6 = 1/2, c1/c2 = 12/30 = 2/5; since a1/a2 = b1/b2 ≠ c1/c2 the lines are parallel and the roads never meet."
+      "[1 mark] a1/a2 = 2/4 = 1/2, b1/b2 = 3/6 = 1/2, c1/c2 = 12/30 = 2/5; since a1/a2 = b1/b2 ≠ c1/c2 the lines are parallel and the roads never meet. Answer: (B)"
     ],
     "finalAnswer": "They never meet, because the lines are parallel.",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "Infinitely many",
     "solutionSteps": [
-      "[1 mark] 3x + 2y = 90 and 6x + 4y = 180 have a1/a2 = b1/b2 = c1/c2 = 1/2, so the lines coincide and there are infinitely many solutions; the second bill gives no new information."
+      "[1 mark] 3x + 2y = 90 and 6x + 4y = 180 have a1/a2 = b1/b2 = c1/c2 = 1/2, so the lines coincide and there are infinitely many solutions; the second bill gives no new information. Answer: (D)"
     ],
     "finalAnswer": "Infinitely many",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "-2",
     "solutionSteps": [
-      "[1 mark] No solution needs a1/a2 = b1/b2 ≠ c1/c2: 3/6 = -1/k gives k = -2, and c1/c2 = 5/7 ≠ 1/2, so the paths are parallel."
+      "[1 mark] No solution needs a1/a2 = b1/b2 ≠ c1/c2: 3/6 = -1/k gives k = -2, and c1/c2 = 5/7 ≠ 1/2, so the paths are parallel. Answer: (B)"
     ],
     "finalAnswer": "-2",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "40 and 10",
     "solutionSteps": [
-      "[1 mark] x - 5 = 7(y - 5) gives x = 7y - 30; x + 5 = 3(y + 5) gives x = 3y + 10; so 4y = 40, y = 10 and x = 40 years."
+      "[1 mark] x - 5 = 7(y - 5) gives x = 7y - 30; x + 5 = 3(y + 5) gives x = 3y + 10; so 4y = 40, y = 10 and x = 40 years. Answer: (A)"
     ],
     "finalAnswer": "40 and 10",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹50",
     "solutionSteps": [
-      "[1 mark] F + 8r = 170 and F + 14r = 260; subtracting, 6r = 90 so r = ₹15 per km, and F = 170 - 120 = ₹50."
+      "[1 mark] F + 8r = 170 and F + 14r = 260; subtracting, 6r = 90 so r = ₹15 per km, and F = 170 - 120 = ₹50. Answer: (D)"
     ],
     "finalAnswer": "₹50",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "₹40",
     "solutionSteps": [
-      "[1 mark] 2x + 5y = 420 minus 2x + 3y = 340 eliminates x: 2y = 80, so y = ₹40 per kg."
+      "[1 mark] 2x + 5y = 420 minus 2x + 3y = 340 eliminates x: 2y = 80, so y = ₹40 per kg. Answer: (C)"
     ],
     "finalAnswer": "₹40",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "6 L orange and 4 L mango",
     "solutionSteps": [
-      "[1 mark] x + y = 10 and 60x + 90y = 720; substituting y = 10 - x gives 900 - 30x = 720, so x = 6 L orange and y = 4 L mango."
+      "[1 mark] x + y = 10 and 60x + 90y = 720; substituting y = 10 - x gives 900 - 30x = 720, so x = 6 L orange and y = 4 L mango. Answer: (A)"
     ],
     "finalAnswer": "6 L orange and 4 L mango",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "His equations or his working contain an error, since a price cannot be negative.",
     "solutionSteps": [
-      "[1 mark] A price must be positive, so y = -1 cannot describe the real situation; the model or the working must be checked."
+      "[1 mark] A price must be positive, so y = -1 cannot describe the real situation; the model or the working must be checked. Answer: (C)"
     ],
     "finalAnswer": "His equations or his working contain an error, since a price cannot be negative.",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "192 m²",
     "solutionSteps": [
-      "[1 mark] l + b = 28 and l - b = 4 give l = 16 m and b = 12 m, so area = 16 × 12 = 192 m²."
+      "[1 mark] l + b = 28 and l - b = 4 give l = 16 m and b = 12 m, so area = 16 × 12 = 192 m². Answer: (B)"
     ],
     "finalAnswer": "192 m²",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "(10, 400): both tanks hold 400 L after 10 minutes",
     "solutionSteps": [
-      "[1 mark] 800 - 40t = 200 + 20t gives 60t = 600, t = 10 min, and y = 200 + 200 = 400 L, so the lines meet at (10, 400)."
+      "[1 mark] 800 - 40t = 200 + 20t gives 60t = 600, t = 10 min, and y = 200 + 200 = 400 L, so the lines meet at (10, 400). Answer: (D)"
     ],
     "finalAnswer": "(10, 400): both tanks hold 400 L after 10 minutes",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "9",
     "solutionSteps": [
-      "[1 mark] Coincident lines need a1/a2 = b1/b2 = c1/c2: 2/6 = 3/p = 12/36 = 1/3, so p = 9."
+      "[1 mark] Coincident lines need a1/a2 = b1/b2 = c1/c2: 2/6 = 3/p = 12/36 = 1/3, so p = 9. Answer: (B)"
     ],
     "finalAnswer": "9",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "13",
     "solutionSteps": [
-      "[1 mark] x + y = 30 and 2x + 5y = 99; substituting x = 30 - y gives 60 + 3y = 99, so y = 13 coins of ₹5 (and 17 of ₹2)."
+      "[1 mark] x + y = 30 and 2x + 5y = 99; substituting x = 30 - y gives 60 + 3y = 99, so y = 13 coins of ₹5 (and 17 of ₹2). Answer: (A)"
     ],
     "finalAnswer": "13",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2 km/h",
     "solutionSteps": [
-      "[1 mark] u + v = 24/2 = 12 and u - v = 24/3 = 8; subtracting, 2v = 4, so the stream's speed v = 2 km/h (boat u = 10 km/h)."
+      "[1 mark] u + v = 24/2 = 12 and u - v = 24/3 = 8; subtracting, 2v = 4, so the stream's speed v = 2 km/h (boat u = 10 km/h). Answer: (C)"
     ],
     "finalAnswer": "2 km/h",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "x + y = 25 and 4x - y = 60",
     "solutionSteps": [
-      "[1 mark] All 25 attempted: x + y = 25; score = 4x - 1·y = 60 (giving x = 17, y = 8)."
+      "[1 mark] All 25 attempted: x + y = 25; score = 4x - 1·y = 60 (giving x = 17, y = 8). Answer: (C)"
     ],
     "finalAnswer": "x + y = 25 and 4x - y = 60",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "It has no solution, so both statements cannot be true together.",
     "solutionSteps": [
-      "[1 mark] 2x + y = 1300 and 4x + 2y = 2400: a1/a2 = b1/b2 = 1/2 but c1/c2 = 13/24 ≠ 1/2, so the pair is inconsistent (no solution)."
+      "[1 mark] 2x + y = 1300 and 4x + 2y = 2400: a1/a2 = b1/b2 = 1/2 but c1/c2 = 13/24 ≠ 1/2, so the pair is inconsistent (no solution). Answer: (A)"
     ],
     "finalAnswer": "It has no solution, so both statements cannot be true together.",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const PAIR_OF_LINEAR_EQUATIONS_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "24",
     "solutionSteps": [
-      "[1 mark] x + y = 40 with y = x + 8 (y = girls); substituting, 2x + 8 = 40, so x = 16 boys and y = 24 girls."
+      "[1 mark] x + y = 40 with y = x + 8 (y = girls); substituting, 2x + 8 = 40, so x = 16 boys and y = 24 girls. Answer: (D)"
     ],
     "finalAnswer": "24",
     "isCompetencyBased": true,

@@ -24,7 +24,7 @@ export const MAGN_SP: CanonicalQuestion[] = [
     ],
     "answer": "(c) If the magnetic field lines are parallel and equidistant, they show zero field strength.",
     "solutionSteps": [
-      "[1 mark] Correct option (c) is incorrect: parallel and equidistant magnetic field lines represent a uniform (constant, non-zero) magnetic field, not zero field strength; the other statements are correct."
+      "[1 mark] Correct option (c) is incorrect: parallel and equidistant magnetic field lines represent a uniform (constant, non-zero) magnetic field, not zero field strength; the other statements are correct. Answer: (C)"
     ],
     "finalAnswer": "(c) If the magnetic field lines are parallel and equidistant, they show zero field strength.",
     "isCompetencyBased": false
@@ -48,7 +48,7 @@ export const MAGN_SP: CanonicalQuestion[] = [
     ],
     "answer": "(d) A is false but R is true.",
     "solutionSteps": [
-      "[1 mark] Correct option (d): soft iron, not steel, is used as the core of an electromagnet because it loses magnetism when the current is switched off (so A is false); steel does get permanently magnetised, which is why it is unsuitable for electromagnets (R true)."
+      "[1 mark] Correct option (d): soft iron, not steel, is used as the core of an electromagnet because it loses magnetism when the current is switched off (so A is false); steel does get permanently magnetised, which is why it is unsuitable for electromagnets (R true). Answer: (D)"
     ],
     "finalAnswer": "(d) A is false but R is true.",
     "isCompetencyBased": true

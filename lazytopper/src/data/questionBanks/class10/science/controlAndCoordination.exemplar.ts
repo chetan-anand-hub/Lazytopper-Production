@@ -48,14 +48,14 @@ export const CONTROL_COORDINATION_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Which of the following statements are true? (i) Sudden action in response to something in the environment is called reflex action; (ii) Sensory neurons carry signals from spinal cord to muscles; (iii) Motor neurons carry signals from receptors to spinal cord; (iv) The path through which signals are transmitted from a receptor to a muscle or a gland is called reflex arc",
     options: ["(i) and (ii)", "(i) and (iii)", "(i) and (iv)", "(i), (ii) and (iii)"],
     answer: "(i) and (iv)",
-    solutionSteps: ["(i) Correct definition of reflex action.", "(ii) WRONG — sensory neurons carry from receptor TO spinal cord.", "(iii) WRONG — motor neurons carry from spinal cord TO muscles.", "(iv) Correct definition of reflex arc."],
+    solutionSteps: ["(i) Correct definition of reflex action.", "(ii) WRONG — sensory neurons carry from receptor TO spinal cord.", "(iii) WRONG — motor neurons carry from spinal cord TO muscles.", "(iv) Correct definition of reflex arc. Answer: (C)"],
     finalAnswer: "(c) (i) and (iv).", ncertRef: "Exemplar Q6", isCompetencyBased: true },
 
   { id: "CTRL-EXMPLR-6-MCQ-007", subject: "Science", topicKey: "control-and-coordination", subtopic: "Brain", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Which of the following statements are true about the brain? (i) The main thinking part of brain is hind brain; (ii) Centres of hearing, smell, memory, sight etc are located in fore brain; (iii) Involuntary actions like salivation, vomiting, blood pressure are controlled by the medulla in the hind brain; (iv) Cerebellum does not control posture and balance of the body",
     options: ["(i) and (ii)", "(i), (ii) and (iii)", "(ii) and (iii)", "(iii) and (iv)"],
     answer: "(ii) and (iii)",
-    solutionSteps: ["(i) WRONG — fore-brain (not hind) is the main thinking part.", "(ii) Correct — sensory centres are in fore-brain.", "(iii) Correct — medulla controls involuntary actions.", "(iv) WRONG — cerebellum DOES control posture/balance."],
+    solutionSteps: ["(i) WRONG — fore-brain (not hind) is the main thinking part.", "(ii) Correct — sensory centres are in fore-brain.", "(iii) Correct — medulla controls involuntary actions.", "(iv) WRONG — cerebellum DOES control posture/balance. Answer: (C)"],
     finalAnswer: "(c) (ii) and (iii).", ncertRef: "Exemplar Q7", isCompetencyBased: true },
 
   { id: "CTRL-EXMPLR-6-MCQ-008", subject: "Science", topicKey: "control-and-coordination", subtopic: "Cerebellum", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",

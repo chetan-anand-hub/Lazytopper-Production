@@ -24,7 +24,7 @@ export const HERD_SP: CanonicalQuestion[] = [
     ],
     "answer": "(c) Genes are made of DNA and are located on chromosomes.",
     "solutionSteps": [
-      "[1 mark] Correct option (c): Mendel's crosses showed that only one parental trait appears in F1, that two copies of each trait are inherited, and that a recessive trait shows only when both copies are identical; he knew nothing of DNA or chromosomes, so (c) is not a direct conclusion of his experiment."
+      "[1 mark] Correct option (c): Mendel's crosses showed that only one parental trait appears in F1, that two copies of each trait are inherited, and that a recessive trait shows only when both copies are identical; he knew nothing of DNA or chromosomes, so (c) is not a direct conclusion of his experiment. Answer: (C)"
     ],
     "finalAnswer": "(c) Genes are made of DNA and are located on chromosomes.",
     "isCompetencyBased": true,
@@ -49,7 +49,7 @@ export const HERD_SP: CanonicalQuestion[] = [
     ],
     "answer": "(c) A is true but R is false.",
     "solutionSteps": [
-      "[1 mark] Correct option (c): tallness and dwarfness are inherited as a pair of contrasting traits with one dominant (A true), but on crossing a homozygous tall pea plant with a dwarf one the F1 offspring are all tall (tall is dominant), not medium-sized, so R is false."
+      "[1 mark] Correct option (c): tallness and dwarfness are inherited as a pair of contrasting traits with one dominant (A true), but on crossing a homozygous tall pea plant with a dwarf one the F1 offspring are all tall (tall is dominant), not medium-sized, so R is false. Answer: (C)"
     ],
     "finalAnswer": "(c) A is true but R is false.",
     "isCompetencyBased": true

@@ -26,7 +26,7 @@ export const CIRCLES_LT_GENERATED: CanonicalQuestion[] = [
     "options": ["50°", "65°", "115°", "130°"],
     "answer": "50°",
     "solutionSteps": [
-      "[1 mark] PA = PB (tangents from an external point), so ∠PBA = ∠PAB = 65° and ∠APB = 180° − 2 × 65° = 50°."
+      "[1 mark] PA = PB (tangents from an external point), so ∠PBA = ∠PAB = 65° and ∠APB = 180° − 2 × 65° = 50°. Answer: (A)"
     ],
     "finalAnswer": "50°",
     "isCompetencyBased": false,

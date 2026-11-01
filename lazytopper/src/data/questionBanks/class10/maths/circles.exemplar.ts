@@ -13,7 +13,7 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If radii of two concentric circles are 4 cm and 5 cm, then the length of each chord of one circle which is tangent to the other circle is",
     options: ["3 cm", "6 cm", "9 cm", "1 cm"],
     answer: "6 cm",
-    solutionSteps: ["Let AB be a chord of the larger circle tangent to the smaller circle at P. OP ⊥ AB, OP = 4.", "OA = 5. In right ∆OPA: AP² = 25 − 16 = 9 ⇒ AP = 3.", "AB = 2 × AP = 6 cm."],
+    solutionSteps: ["Let AB be a chord of the larger circle tangent to the smaller circle at P. OP ⊥ AB, OP = 4.", "OA = 5. In right ∆OPA: AP² = 25 − 16 = 9 ⇒ AP = 3.", "AB = 2 × AP = 6 cm. Answer: (B)"],
     finalAnswer: "6 cm — option (b).",
     ncertRef: "Exemplar Ex 9.1 Q1", isCompetencyBased: true },
 
@@ -21,7 +21,7 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If two tangents inclined at an angle 60° are drawn to a circle of radius 3 cm, then the length of each tangent is",
     options: ["(3/2)√3 cm", "6 cm", "3 cm", "3√3 cm"],
     answer: "3√3 cm",
-    solutionSteps: ["Let T be the external point. OT bisects the 60° angle, so ∠OTP = 30°.", "In right ∆OPT (right-angled at P): tan 30° = OP/TP ⇒ TP = OP/tan 30° = 3/(1/√3) = 3√3 cm."],
+    solutionSteps: ["Let T be the external point. OT bisects the 60° angle, so ∠OTP = 30°.", "In right ∆OPT (right-angled at P): tan 30° = OP/TP ⇒ TP = OP/tan 30° = 3/(1/√3) = 3√3 cm. Answer: (D)"],
     finalAnswer: "3√3 cm — option (d).",
     ncertRef: "Exemplar Ex 9.1 Q9", isCompetencyBased: true,
     strategyHint: "Use half the angle at the external point inside the right triangle." },
@@ -30,7 +30,7 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "From a point P at a distance of 13 cm from the centre O of a circle of radius 5 cm, the pair of tangents PQ and PR are drawn. The area of the quadrilateral PQOR is",
     options: ["60 cm²", "65 cm²", "30 cm²", "32.5 cm²"],
     answer: "60 cm²",
-    solutionSteps: ["PQ = √(13² − 5²) = √144 = 12 cm. Similarly PR = 12 cm.", "Each of ∆PQO and ∆PRO is right-angled with legs 5 and 12.", "Area of one such triangle = (1/2) × 5 × 12 = 30 cm².", "Area(PQOR) = 2 × 30 = 60 cm²."],
+    solutionSteps: ["PQ = √(13² − 5²) = √144 = 12 cm. Similarly PR = 12 cm.", "Each of ∆PQO and ∆PRO is right-angled with legs 5 and 12.", "Area of one such triangle = (1/2) × 5 × 12 = 30 cm².", "Area(PQOR) = 2 × 30 = 60 cm². Answer: (A)"],
     finalAnswer: "60 cm² — option (a).",
     ncertRef: "Exemplar Ex 9.1 Q4", isCompetencyBased: true },
 
@@ -38,7 +38,7 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "AB is a chord of a circle and AOC is its diameter such that ∠ACB = 50°. If AT is the tangent to the circle at A, then ∠BAT equals",
     options: ["65°", "60°", "50°", "40°"],
     answer: "50°",
-    solutionSteps: ["∠ABC = 90° (angle in a semicircle), so in ∆ABC: ∠BAC = 180° − 90° − 50° = 40°.", "AT ⊥ AC (radius OA along AC ⇒ tangent ⊥ radius). So ∠OAT = 90°.", "∠BAT = ∠OAT − ∠BAC = 90° − 40° = 50°."],
+    solutionSteps: ["∠ABC = 90° (angle in a semicircle), so in ∆ABC: ∠BAC = 180° − 90° − 50° = 40°.", "AT ⊥ AC (radius OA along AC ⇒ tangent ⊥ radius). So ∠OAT = 90°.", "∠BAT = ∠OAT − ∠BAC = 90° − 40° = 50°. Answer: (C)"],
     finalAnswer: "50° — option (c).",
     ncertRef: "Exemplar Ex 9.1 Q3", isCompetencyBased: true },
 
@@ -46,7 +46,7 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "AT is a tangent to a circle with centre O such that OT = 4 cm and ∠OTA = 30°. Then AT equals",
     options: ["4 cm", "2 cm", "2√3 cm", "4√3 cm"],
     answer: "2√3 cm",
-    solutionSteps: ["In right ∆OAT (right angle at A): cos 30° = AT/OT.", "AT = 4 × cos 30° = 4 × (√3/2) = 2√3 cm."],
+    solutionSteps: ["In right ∆OAT (right angle at A): cos 30° = AT/OT.", "AT = 4 × cos 30° = 4 × (√3/2) = 2√3 cm. Answer: (C)"],
     finalAnswer: "2√3 cm — option (c).",
     ncertRef: "Exemplar Ex 9.1 Q6", isCompetencyBased: true },
 
@@ -54,7 +54,7 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If PA and PB are tangents to the circle with centre O such that ∠APB = 50°, then ∠OAB equals",
     options: ["25°", "30°", "40°", "50°"],
     answer: "25°",
-    solutionSteps: ["PA = PB (equal tangents), so ∆PAB is isosceles with ∠PAB = ∠PBA = (180° − 50°)/2 = 65°.", "OA ⊥ PA ⇒ ∠OAP = 90°.", "∠OAB = ∠OAP − ∠BAP = 90° − 65° = 25°."],
+    solutionSteps: ["PA = PB (equal tangents), so ∆PAB is isosceles with ∠PAB = ∠PBA = (180° − 50°)/2 = 65°.", "OA ⊥ PA ⇒ ∠OAP = 90°.", "∠OAB = ∠OAP − ∠BAP = 90° − 65° = 25°. Answer: (A)"],
     finalAnswer: "25° — option (a).",
     ncertRef: "Exemplar Ex 9.1 Q8", isCompetencyBased: true },
 

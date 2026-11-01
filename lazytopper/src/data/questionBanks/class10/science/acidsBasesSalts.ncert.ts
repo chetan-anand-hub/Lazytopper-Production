@@ -304,7 +304,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     questionText: "The common name of the compound CaOCl₂ is",
     answer: "Bleaching powder",
     solutionSteps: [
-      "[1 mark] Bleaching powder — CaOCl₂ (calcium oxychloride) is bleaching powder."
+      "[1 mark] Bleaching powder — CaOCl₂ (calcium oxychloride) is bleaching powder. Answer: (D)"
     ],
     finalAnswer: "Bleaching powder",
     ncertRef: "In-text Q1 (after §2.4)",
@@ -325,7 +325,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     questionText: "The substance which on treatment with chlorine yields bleaching powder is",
     answer: "Dry slaked lime, Ca(OH)₂",
     solutionSteps: [
-      "[1 mark] Dry slaked lime, Ca(OH)₂ — Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O."
+      "[1 mark] Dry slaked lime, Ca(OH)₂ — Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O. Answer: (C)"
     ],
     finalAnswer: "Dry slaked lime, Ca(OH)₂",
     ncertRef: "In-text Q2 (after §2.4)",
@@ -346,7 +346,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     questionText: "The sodium compound used for softening hard water is",
     answer: "Washing soda, Na₂CO₃·10H₂O",
     solutionSteps: [
-      "[1 mark] Washing soda, Na₂CO₃·10H₂O — washing soda removes Ca²⁺ and Mg²⁺ ions by precipitating them as insoluble carbonates."
+      "[1 mark] Washing soda, Na₂CO₃·10H₂O — washing soda removes Ca²⁺ and Mg²⁺ ions by precipitating them as insoluble carbonates. Answer: (B)"
     ],
     finalAnswer: "Washing soda, Na₂CO₃·10H₂O",
     ncertRef: "In-text Q3 (after §2.4)",
@@ -414,7 +414,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     answer: "10",
     solutionSteps: [
       "[0.5 mark] Red litmus → blue indicates a BASIC (alkaline) solution.",
-      "[0.5 mark] Basic solutions have pH > 7. Among 1, 4, 5, 10 — only 10 is > 7.",
+      "[0.5 mark] Basic solutions have pH > 7. Among 1, 4, 5, 10 — only 10 is > 7. Answer: (D)",
     ],
     finalAnswer: "10 — option (d)",
     ncertRef: "Exercise Q1",
@@ -437,7 +437,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
       "Egg-shells are mainly CaCO₃ (calcium carbonate).",
       "An acid + carbonate → CO₂ gas, which turns lime water milky.",
       "Among the options, only HCl is an acid; the others are neutral salts.",
-      "CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂.",
+      "CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂. Answer: (B)",
     ],
     finalAnswer: "HCl — option (b)",
     ncertRef: "Exercise Q2",
@@ -459,7 +459,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Neutralisation is in a fixed mole ratio: 10 mL NaOH ≡ 8 mL HCl (given).",
       "If we double the NaOH (20 mL), we need double the HCl: 2 × 8 = 16 mL.",
-      "By proportion: (20/10) × 8 = 16 mL.",
+      "By proportion: (20/10) × 8 = 16 mL. Answer: (D)",
     ],
     finalAnswer: "16 mL — option (d)",
     ncertRef: "Exercise Q3",
@@ -481,7 +481,7 @@ export const ACIDS_BASES_SALTS_NCERT: CanonicalQuestion[] = [
     solutionSteps: [
       "Indigestion is caused by excess HCl in the stomach.",
       "Antacid is a mild base (e.g., milk of magnesia Mg(OH)₂) that neutralises the excess acid → relieves indigestion.",
-      "Antibiotic = kills bacteria; Analgesic = painkiller; Antiseptic = prevents infection.",
+      "Antibiotic = kills bacteria; Analgesic = painkiller; Antiseptic = prevents infection. Answer: (C)",
     ],
     finalAnswer: "Antacid — option (c)",
     ncertRef: "Exercise Q4",

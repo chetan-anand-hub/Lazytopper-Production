@@ -21,7 +21,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "462 cm²",
     "solutionSteps": [
-      "[1 mark] In 20 minutes the minute hand turns 20 × 6° = 120°, so area swept = (120/360) × (22/7) × 21 × 21 = (1/3) × 1386 = 462 cm²."
+      "[1 mark] In 20 minutes the minute hand turns 20 × 6° = 120°, so area swept = (120/360) × (22/7) × 21 × 21 = (1/3) × 1386 = 462 cm². Answer: (A)"
     ],
     "finalAnswer": "462 cm²",
     "isCompetencyBased": true,
@@ -50,7 +50,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "110 m",
     "solutionSteps": [
-      "[1 mark] Arc length = (60/360) × 2 × (22/7) × 105 = (1/6) × 660 = 110 m."
+      "[1 mark] Arc length = (60/360) × 2 × (22/7) × 105 = (1/6) × 660 = 110 m. Answer: (B)"
     ],
     "finalAnswer": "110 m",
     "isCompetencyBased": true,
@@ -79,7 +79,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "1078 cm²",
     "solutionSteps": [
-      "[1 mark] The cleaned part lies between two arcs of radii 35 cm and 14 cm with angle 120°: area = (120/360) × (22/7) × (35² − 14²) = (1/3) × (22/7) × 1029 = 1078 cm²."
+      "[1 mark] The cleaned part lies between two arcs of radii 35 cm and 14 cm with angle 120°: area = (120/360) × (22/7) × (35² − 14²) = (1/3) × (22/7) × 1029 = 1078 cm². Answer: (C)"
     ],
     "finalAnswer": "1078 cm²",
     "isCompetencyBased": true,
@@ -108,7 +108,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "231 m²",
     "solutionSteps": [
-      "[1 mark] Watered region is a sector of radius 14 m and angle 135°: area = (135/360) × (22/7) × 14 × 14 = (3/8) × 616 = 231 m²."
+      "[1 mark] Watered region is a sector of radius 14 m and angle 135°: area = (135/360) × (22/7) × 14 × 14 = (3/8) × 616 = 231 m². Answer: (D)"
     ],
     "finalAnswer": "231 m²",
     "isCompetencyBased": true,
@@ -137,7 +137,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "39 cm",
     "solutionSteps": [
-      "[1 mark] Each slice is a sector of radius 14 cm and angle 360°/8 = 45°; arc = (45/360) × 2 × (22/7) × 14 = 11 cm, so perimeter = 11 + 14 + 14 = 39 cm."
+      "[1 mark] Each slice is a sector of radius 14 cm and angle 360°/8 = 45°; arc = (45/360) × 2 × (22/7) × 14 = 11 cm, so perimeter = 11 + 14 + 14 = 39 cm. Answer: (A)"
     ],
     "finalAnswer": "39 cm",
     "isCompetencyBased": true,
@@ -166,7 +166,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "132 m",
     "solutionSteps": [
-      "[1 mark] One revolution = circumference = 2 × (22/7) × 70 = 440 cm; in 30 revolutions the tip travels 30 × 440 = 13200 cm = 132 m."
+      "[1 mark] One revolution = circumference = 2 × (22/7) × 70 = 440 cm; in 30 revolutions the tip travels 30 × 440 = 13200 cm = 132 m. Answer: (B)"
     ],
     "finalAnswer": "132 m",
     "isCompetencyBased": true,
@@ -195,7 +195,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "500",
     "solutionSteps": [
-      "[1 mark] Distance per revolution = circumference = (22/7) × 70 = 220 cm; number of revolutions = 110000 cm ÷ 220 cm = 500."
+      "[1 mark] Distance per revolution = circumference = (22/7) × 70 = 220 cm; number of revolutions = 110000 cm ÷ 220 cm = 500. Answer: (C)"
     ],
     "finalAnswer": "500",
     "isCompetencyBased": true,
@@ -224,7 +224,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "44 m",
     "solutionSteps": [
-      "[1 mark] Distance = arc length = (40/360) × 2 × (22/7) × 63 = (1/9) × 396 = 44 m."
+      "[1 mark] Distance = arc length = (40/360) × 2 × (22/7) × 63 = (1/9) × 396 = 44 m. Answer: (D)"
     ],
     "finalAnswer": "44 m",
     "isCompetencyBased": true,
@@ -253,7 +253,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "36°",
     "solutionSteps": [
-      "[1 mark] Arc = (θ/360) × 2 × (22/7) × 35 = (θ/360) × 220 = 22, so θ = 360 × 22/220 = 36°."
+      "[1 mark] Arc = (θ/360) × 2 × (22/7) × 35 = (θ/360) × 220 = 22, so θ = 360 × 22/220 = 36°. Answer: (A)"
     ],
     "finalAnswer": "36°",
     "isCompetencyBased": true,
@@ -282,7 +282,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "616 cm²",
     "solutionSteps": [
-      "[1 mark] The cloth lies between semicircular arcs of radii 21 cm and 7 cm: area = (1/2) × (22/7) × (21² − 7²) = (1/2) × (22/7) × 392 = 616 cm²."
+      "[1 mark] The cloth lies between semicircular arcs of radii 21 cm and 7 cm: area = (1/2) × (22/7) × (21² − 7²) = (1/2) × (22/7) × 392 = 616 cm². Answer: (B)"
     ],
     "finalAnswer": "616 cm²",
     "isCompetencyBased": true,
@@ -311,7 +311,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "18π km²",
     "solutionSteps": [
-      "[1 mark] Area = (80/360) × π × 9² = (2/9) × 81π = 18π km²."
+      "[1 mark] Area = (80/360) × π × 9² = (2/9) × 81π = 18π km². Answer: (C)"
     ],
     "finalAnswer": "18π km²",
     "isCompetencyBased": true,
@@ -340,7 +340,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "56 cm²",
     "solutionSteps": [
-      "[1 mark] Smaller piece = minor segment with central angle 90°: area = (90/360) × (22/7) × 14² − (1/2) × 14 × 14 = 154 − 98 = 56 cm²."
+      "[1 mark] Smaller piece = minor segment with central angle 90°: area = (90/360) × (22/7) × 14² − (1/2) × 14 × 14 = 154 − 98 = 56 cm². Answer: (D)"
     ],
     "finalAnswer": "56 cm²",
     "isCompetencyBased": true,
@@ -369,7 +369,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "13.08 m²",
     "solutionSteps": [
-      "[1 mark] Minor segment = sector − equilateral triangle = (60/360) × 3.14 × 144 − (√3/4) × 144 = 75.36 − 62.28 = 13.08 m²."
+      "[1 mark] Minor segment = sector − equilateral triangle = (60/360) × 3.14 × 144 − (√3/4) × 144 = 75.36 − 62.28 = 13.08 m². Answer: (A)"
     ],
     "finalAnswer": "13.08 m²",
     "isCompetencyBased": true,
@@ -398,7 +398,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "500.5 m²",
     "solutionSteps": [
-      "[1 mark] Outer radius = 24.5 m; path area = (22/7) × (24.5² − 21²) = (22/7) × 159.25 = 500.5 m²."
+      "[1 mark] Outer radius = 24.5 m; path area = (22/7) × (24.5² − 21²) = (22/7) × 159.25 = 500.5 m². Answer: (B)"
     ],
     "finalAnswer": "500.5 m²",
     "isCompetencyBased": true,
@@ -427,7 +427,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "88 cm",
     "solutionSteps": [
-      "[1 mark] The largest circle in a square has diameter equal to the side, so r = 14 cm; thread = circumference = 2 × (22/7) × 14 = 88 cm."
+      "[1 mark] The largest circle in a square has diameter equal to the side, so r = 14 cm; thread = circumference = 2 × (22/7) × 14 = 88 cm. Answer: (C)"
     ],
     "finalAnswer": "88 cm",
     "isCompetencyBased": true,
@@ -456,7 +456,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "21 m",
     "solutionSteps": [
-      "[1 mark] Each angle of an equilateral triangle is 60°, so the grazed region is a 60° sector: (60/360) × (22/7) × r² = 231 ⇒ r² = 441 ⇒ r = 21 m (less than 30 m, so it stays inside the field)."
+      "[1 mark] Each angle of an equilateral triangle is 60°, so the grazed region is a 60° sector: (60/360) × (22/7) × r² = 231 ⇒ r² = 441 ⇒ r = 21 m (less than 30 m, so it stays inside the field). Answer: (D)"
     ],
     "finalAnswer": "21 m",
     "isCompetencyBased": true,
@@ -485,7 +485,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "2.25 times",
     "solutionSteps": [
-      "[1 mark] Area ∝ r², so new area ÷ old area = (45/30)² = (3/2)² = 2.25 times."
+      "[1 mark] Area ∝ r², so new area ÷ old area = (45/30)² = (3/2)² = 2.25 times. Answer: (A)"
     ],
     "finalAnswer": "2.25 times",
     "isCompetencyBased": true,
@@ -514,7 +514,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "120°",
     "solutionSteps": [
-      "[1 mark] (θ/360) × π × 15² = 75π ⇒ θ = 360 × 75/225 = 120°."
+      "[1 mark] (θ/360) × π × 15² = 75π ⇒ θ = 360 × 75/225 = 120°. Answer: (B)"
     ],
     "finalAnswer": "120°",
     "isCompetencyBased": true,
@@ -543,7 +543,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "44 m",
     "solutionSteps": [
-      "[1 mark] r = 21 m; arc = (120/360) × 2 × (22/7) × 21 = (1/3) × 132 = 44 m."
+      "[1 mark] r = 21 m; arc = (120/360) × 2 × (22/7) × 21 = (1/3) × 132 = 44 m. Answer: (C)"
     ],
     "finalAnswer": "44 m",
     "isCompetencyBased": true,
@@ -572,7 +572,7 @@ export const AREAS_RELATED_TO_CIRCLES_CBQ_LT_GENERATED: CanonicalQuestion[] = [
     ],
     "answer": "43 m",
     "solutionSteps": [
-      "[1 mark] With 60° at the centre and two equal radii, the triangle is equilateral, so the fence (chord) = 21 m; arc = (60/360) × 2 × (22/7) × 21 = 22 m; hedge = 22 + 21 = 43 m."
+      "[1 mark] With 60° at the centre and two equal radii, the triangle is equilateral, so the fence (chord) = 21 m; arc = (60/360) × 2 × (22/7) × 21 = 22 m; hedge = 22 + 21 = 43 m. Answer: (D)"
     ],
     "finalAnswer": "43 m",
     "isCompetencyBased": true,

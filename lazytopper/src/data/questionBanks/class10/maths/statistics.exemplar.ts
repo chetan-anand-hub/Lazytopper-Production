@@ -15,7 +15,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In the formula x̄ = a + h(Σfᵢuᵢ/Σfᵢ) for the mean of grouped frequency distribution, uᵢ equals",
     options: ["(xᵢ + a)/h", "h(xᵢ − a)", "(xᵢ − a)/h", "(a − xᵢ)/h"],
     answer: "(xᵢ − a)/h",
-    solutionSteps: ["By definition in the step-deviation method, uᵢ = (xᵢ − a)/h, where xᵢ is the class mark, a is the assumed mean and h is the class size."],
+    solutionSteps: ["By definition in the step-deviation method, uᵢ = (xᵢ − a)/h, where xᵢ is the class mark, a is the assumed mean and h is the class size. Answer: (C)"],
     finalAnswer: "(xᵢ − a)/h — option (c).",
     ncertRef: "Exemplar Ex 13.1 Q4", isCompetencyBased: false },
 
@@ -23,7 +23,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "For the distribution Class 0-5 → 10, 5-10 → 15, 10-15 → 12, 15-20 → 20, 20-25 → 9, the sum of the lower limits of the median class and the modal class is",
     options: ["15", "25", "30", "35"],
     answer: "25",
-    solutionSteps: ["n = 10 + 15 + 12 + 20 + 9 = 66, so n/2 = 33. Cumulative frequencies: 10, 25, 37, 57, 66. The first cf greater than 33 is 37, so the median class is 10-15 (lower limit 10).", "The highest frequency is 20, in the class 15-20, so the modal class is 15-20 (lower limit 15).", "Sum of lower limits = 10 + 15 = 25, option (b)."],
+    solutionSteps: ["n = 10 + 15 + 12 + 20 + 9 = 66, so n/2 = 33. Cumulative frequencies: 10, 25, 37, 57, 66. The first cf greater than 33 is 37, so the median class is 10-15 (lower limit 10).", "The highest frequency is 20, in the class 15-20, so the modal class is 15-20 (lower limit 15).", "Sum of lower limits = 10 + 15 = 25, option (b). Answer: (B)"],
     finalAnswer: "25",
     ncertRef: "Exemplar Ex 13.1 Q6", isCompetencyBased: true,
     strategyHint: "Identify median class via cumulative frequency; modal class via max frequency.",
@@ -33,7 +33,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Given cumulative frequencies (less-than type): Below 10 → 3, Below 20 → 12, Below 30 → 27, Below 40 → 57, Below 50 → 75, Below 60 → 80. The modal class is",
     options: ["10-20", "20-30", "30-40", "50-60"],
     answer: "30-40",
-    solutionSteps: ["Convert to class frequencies: 0-10 → 3, 10-20 → 9, 20-30 → 15, 30-40 → 30, 40-50 → 18, 50-60 → 5.", "Maximum frequency is 30 in the class 30-40 ⇒ modal class is 30-40."],
+    solutionSteps: ["Convert to class frequencies: 0-10 → 3, 10-20 → 9, 20-30 → 15, 30-40 → 30, 40-50 → 18, 50-60 → 5.", "Maximum frequency is 30 in the class 30-40 ⇒ modal class is 30-40. Answer: (C)"],
     finalAnswer: "30-40 — option (c).",
     ncertRef: "Exemplar Ex 13.1 Q8", isCompetencyBased: true },
 
@@ -41,7 +41,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "Given 'more-than-or-equal-to' cumulative frequencies: ≥0 → 63, ≥10 → 58, ≥20 → 55, ≥30 → 51, ≥40 → 48, ≥50 → 42, the frequency of the class 30-40 is",
     options: ["3", "4", "48", "51"],
     answer: "3",
-    solutionSteps: ["Frequency of class 30-40 = (number with ≥30) − (number with ≥40) = 51 − 48 = 3."],
+    solutionSteps: ["Frequency of class 30-40 = (number with ≥30) − (number with ≥40) = 51 − 48 = 3. Answer: (A)"],
     finalAnswer: "3 — option (a).",
     ncertRef: "Exemplar Ex 13.1 Q11", isCompetencyBased: true },
 
@@ -49,7 +49,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "If xᵢ are class marks, fᵢ are frequencies and x̄ is the mean, then Σ fᵢ(xᵢ − x̄) equals",
     options: ["0", "−1", "1", "2"],
     answer: "0",
-    solutionSteps: ["Σ fᵢ(xᵢ − x̄) = Σ fᵢxᵢ − x̄ · Σ fᵢ.", "Since x̄ = Σ fᵢxᵢ / Σ fᵢ, the right side equals Σ fᵢxᵢ − Σ fᵢxᵢ = 0."],
+    solutionSteps: ["Σ fᵢ(xᵢ − x̄) = Σ fᵢxᵢ − x̄ · Σ fᵢ.", "Since x̄ = Σ fᵢxᵢ / Σ fᵢ, the right side equals Σ fᵢxᵢ − Σ fᵢxᵢ = 0. Answer: (A)"],
     finalAnswer: "0 — option (a).",
     ncertRef: "Exemplar Ex 13.1 Q3", isCompetencyBased: true,
     strategyHint: "Algebraic identity — the deviations from the mean sum to zero." },
@@ -58,7 +58,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In the distribution (more-than-type): >₹10000 → 100, >₹13000 → 85, >₹16000 → 69, >₹19000 → 50, >₹22000 → 33, >₹25000 → 15, the number of families having income in the range ₹16000-₹19000 is",
     options: ["15", "16", "17", "19"],
     answer: "19",
-    solutionSteps: ["Number in 16000-19000 range = (>16000 count) − (>19000 count) = 69 − 50 = 19."],
+    solutionSteps: ["Number in 16000-19000 range = (>16000 count) − (>19000 count) = 69 − 50 = 19. Answer: (D)"],
     finalAnswer: "19 — option (d).",
     ncertRef: "Exemplar Sample Question 2", isCompetencyBased: true },
 

@@ -21,7 +21,7 @@ export const POLY_PREBOARD: CanonicalQuestion[] = [
     "options": ["α + β = b/a and αβ = c/a", "α + β = −b/c and αβ = a/c", "α + β = −b/a and αβ = c/a", "α + β = −c/a and αβ = b/a"],
     "answer": "α + β = −b/a and αβ = c/a",
     "solutionSteps": [
-      "[1 mark] α + β = −b/a and αβ = c/a — for ax² + bx + c, sum of zeroes = −b/a and product = c/a."
+      "[1 mark] α + β = −b/a and αβ = c/a — for ax² + bx + c, sum of zeroes = −b/a and product = c/a. Answer: (C)"
     ],
     "finalAnswer": "α + β = −b/a and αβ = c/a",
     "isCompetencyBased": false
@@ -61,7 +61,7 @@ export const POLY_PREBOARD: CanonicalQuestion[] = [
     "options": ["2 zeroes", "4 zeroes", "6 zeroes", "3 zeroes"],
     "answer": "3 zeroes",
     "solutionSteps": [
-      "[1 mark] 3 zeroes — the number of zeroes cannot exceed the degree, which is 3 for a cubic."
+      "[1 mark] 3 zeroes — the number of zeroes cannot exceed the degree, which is 3 for a cubic. Answer: (D)"
     ],
     "finalAnswer": "3 zeroes",
     "isCompetencyBased": false

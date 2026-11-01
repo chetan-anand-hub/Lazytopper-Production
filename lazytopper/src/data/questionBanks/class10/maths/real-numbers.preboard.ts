@@ -45,7 +45,7 @@ export const RN_PREBOARD: CanonicalQuestion[] = [
     "options": ["12", "6", "24", "360"],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] 6 — 6 = 2 × 3, 72 = 2³ × 3², 120 = 2³ × 3 × 5; least powers of common primes give 2 × 3 = 6."
+      "[1 mark] 6 — 6 = 2 × 3, 72 = 2³ × 3², 120 = 2³ × 3 × 5; least powers of common primes give 2 × 3 = 6. Answer: (B)"
     ],
     "finalAnswer": "6",
     "isCompetencyBased": false

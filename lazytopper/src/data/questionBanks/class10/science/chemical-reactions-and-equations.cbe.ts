@@ -20,7 +20,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": ["a combination reaction, because two reactants form a single product", "a decomposition reaction, because a single reactant breaks into two products", "a displacement reaction, because calcium displaces hydrogen from water", "a double displacement reaction, because ions are exchanged between reactants"],
     "answer": "a combination reaction, because two reactants form a single product",
     "solutionSteps": [
-      "[1 mark] a combination reaction, because two reactants form a single product — CaO + H₂O → Ca(OH)₂: two reactants form a single product (it is also exothermic)."
+      "[1 mark] a combination reaction, because two reactants form a single product — CaO + H₂O → Ca(OH)₂: two reactants form a single product (it is also exothermic). Answer: (A)"
     ],
     "finalAnswer": "a combination reaction, because two reactants form a single product",
     "isCompetencyBased": false,
@@ -61,7 +61,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": ["endothermic, because heat is absorbed", "endothermic, because a flame is needed to start it", "exothermic, because heat is released", "neither, because there is no heat change"],
     "answer": "exothermic, because heat is released",
     "solutionSteps": [
-      "[1 mark] exothermic, because heat is released — combustion of methane (CH₄ + 2O₂ → CO₂ + 2H₂O) releases heat, so it is exothermic."
+      "[1 mark] exothermic, because heat is released — combustion of methane (CH₄ + 2O₂ → CO₂ + 2H₂O) releases heat, so it is exothermic. Answer: (C)"
     ],
     "finalAnswer": "exothermic, because heat is released",
     "isCompetencyBased": false,
@@ -105,7 +105,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": ["a single reactant breaks down into two products", "magnesium displaces another metal from its salt", "two reactants combine to form a single product", "ions are exchanged between two compounds"],
     "answer": "two reactants combine to form a single product",
     "solutionSteps": [
-      "[1 mark] two reactants combine to form a single product — 2Mg + O₂ → 2MgO: more than one reactant combine to form a single product."
+      "[1 mark] two reactants combine to form a single product — 2Mg + O₂ → 2MgO: more than one reactant combine to form a single product. Answer: (C)"
     ],
     "finalAnswer": "two reactants combine to form a single product",
     "isCompetencyBased": false,
@@ -125,7 +125,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": ["magnesium gains oxygen", "magnesium loses oxygen", "magnesium gains hydrogen", "magnesium gains electrons"],
     "answer": "magnesium gains oxygen",
     "solutionSteps": [
-      "[1 mark] magnesium gains oxygen — in 2Mg + O₂ → 2MgO, oxygen is added to magnesium, which is oxidation."
+      "[1 mark] magnesium gains oxygen — in 2Mg + O₂ → 2MgO, oxygen is added to magnesium, which is oxidation. Answer: (A)"
     ],
     "finalAnswer": "magnesium gains oxygen",
     "isCompetencyBased": false,
@@ -145,7 +145,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": ["heat is absorbed during the reaction", "the reaction needs continuous heating", "light is absorbed by magnesium", "heat is released during the reaction"],
     "answer": "heat is released during the reaction",
     "solutionSteps": [
-      "[1 mark] heat is released during the reaction — burning magnesium gives out heat (and light), so the reaction is exothermic."
+      "[1 mark] heat is released during the reaction — burning magnesium gives out heat (and light), so the reaction is exothermic. Answer: (D)"
     ],
     "finalAnswer": "heat is released during the reaction",
     "isCompetencyBased": false,
@@ -189,7 +189,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": ["has a very high boiling point", "contains almost no free ions to conduct electricity", "is a mixture of hydrogen and oxygen", "contains too many dissolved salts"],
     "answer": "contains almost no free ions to conduct electricity",
     "solutionSteps": [
-      "[1 mark] contains almost no free ions to conduct electricity — pure water is covalent with practically no ions, so it hardly conducts and is not electrolysed."
+      "[1 mark] contains almost no free ions to conduct electricity — pure water is covalent with practically no ions, so it hardly conducts and is not electrolysed. Answer: (B)"
     ],
     "finalAnswer": "contains almost no free ions to conduct electricity",
     "isCompetencyBased": false,
@@ -257,7 +257,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": ["combination", "decomposition", "displacement", "neutralisation"],
     "answer": "decomposition",
     "solutionSteps": [
-      "[1 mark] decomposition — 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂: one reactant breaks into several products on heating (thermal decomposition)."
+      "[1 mark] decomposition — 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂: one reactant breaks into several products on heating (thermal decomposition). Answer: (B)"
     ],
     "finalAnswer": "decomposition",
     "isCompetencyBased": false,

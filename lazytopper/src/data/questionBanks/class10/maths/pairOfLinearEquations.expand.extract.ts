@@ -20,7 +20,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "b = 2a",
     "solutionSteps": [
-      "[1 mark] Infinitely many ⇒ 2/2a = 3/(a+b) = 7/28 = 1/4, giving a = 4 and a + b = 12 ⇒ b = 8 = 2a."
+      "[1 mark] Infinitely many ⇒ 2/2a = 3/(a+b) = 7/28 = 1/4, giving a = 4 and a + b = 12 ⇒ b = 8 = 2a. Answer: (B)"
     ],
     "finalAnswer": "b = 2a",
     "isCompetencyBased": false
@@ -44,7 +44,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] No solution ⇒ 1/3 = 2/k ≠ −5/15; 1/3 = 2/k gives k = 6, and −1/3 ≠ 1/3 holds, so k = 6."
+      "[1 mark] No solution ⇒ 1/3 = 2/k ≠ −5/15; 1/3 = 2/k gives k = 6, and −1/3 ≠ 1/3 holds, so k = 6. Answer: (A)"
     ],
     "finalAnswer": "k = 6",
     "isCompetencyBased": false
@@ -68,7 +68,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "parallel lines",
     "solutionSteps": [
-      "[1 mark] a₁/a₂ = 1/2 = b₁/b₂ but c₁/c₂ = −3/7 ≠ 1/2, so the lines are parallel (no solution)."
+      "[1 mark] a₁/a₂ = 1/2 = b₁/b₂ but c₁/c₂ = −3/7 ≠ 1/2, so the lines are parallel (no solution). Answer: (A)"
     ],
     "finalAnswer": "Parallel lines",
     "isCompetencyBased": false
@@ -92,7 +92,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "every real value except −6",
     "solutionSteps": [
-      "[1 mark] Unique ⇒ a₁/a₂ ≠ b₁/b₂ ⇒ k/3 ≠ −2/1 ⇒ k ≠ −6; every real value except −6 works."
+      "[1 mark] Unique ⇒ a₁/a₂ ≠ b₁/b₂ ⇒ k/3 ≠ −2/1 ⇒ k ≠ −6; every real value except −6 works. Answer: (D)"
     ],
     "finalAnswer": "Every real value except −6",
     "isCompetencyBased": false
@@ -116,7 +116,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "2",
     "solutionSteps": [
-      "[1 mark] No solution ⇒ 1/2 = 1/k ≠ −4/−3, so k = 2 (and 1/2 ≠ 4/3 holds)."
+      "[1 mark] No solution ⇒ 1/2 = 1/k ≠ −4/−3, so k = 2 (and 1/2 ≠ 4/3 holds). Answer: (A)"
     ],
     "finalAnswer": "k = 2",
     "isCompetencyBased": false
@@ -140,7 +140,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] Infinitely many ⇒ 2/4 = 3/k = 5/10 = 1/2, so k = 6."
+      "[1 mark] Infinitely many ⇒ 2/4 = 3/k = 5/10 = 1/2, so k = 6. Answer: (C)"
     ],
     "finalAnswer": "k = 6",
     "isCompetencyBased": false
@@ -164,7 +164,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "−15",
     "solutionSteps": [
-      "[1 mark] No solution ⇒ a₁/a₂ = b₁/b₂ ⇒ k/6 = −5/2 ⇒ k = −15."
+      "[1 mark] No solution ⇒ a₁/a₂ = b₁/b₂ ⇒ k/6 = −5/2 ⇒ k = −15. Answer: (B)"
     ],
     "finalAnswer": "k = −15",
     "isCompetencyBased": false
@@ -189,7 +189,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "answer": "x − 4y − 14 = 0 and 5x − y − 13 = 0",
     "solutionSteps": [
       "[0.5 mark] x = 2, y = −3 must satisfy BOTH equations and the pair must be independent (unique).",
-      "[0.5 mark] Only x − 4y − 14 = 0, 5x − y − 13 = 0 gives 0 = 0 in both AND a₁/a₂ = 1/5 ≠ b₁/b₂ = 4; the 2x+5y/4x+10y pair is the same line (infinitely many)."
+      "[0.5 mark] Only x − 4y − 14 = 0, 5x − y − 13 = 0 gives 0 = 0 in both AND a₁/a₂ = 1/5 ≠ b₁/b₂ = 4; the 2x+5y/4x+10y pair is the same line (infinitely many). Answer: (D)"
     ],
     "finalAnswer": "x − 4y − 14 = 0 and 5x − y − 13 = 0",
     "isCompetencyBased": false
@@ -213,7 +213,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "k is not equal to 3",
     "solutionSteps": [
-      "[1 mark] Unique ⇒ a₁/a₂ ≠ b₁/b₂ ⇒ k/6 ≠ 1/2 ⇒ k ≠ 3."
+      "[1 mark] Unique ⇒ a₁/a₂ ≠ b₁/b₂ ⇒ k/6 ≠ 1/2 ⇒ k ≠ 3. Answer: (B)"
     ],
     "finalAnswer": "k is not equal to 3",
     "isCompetencyBased": false
@@ -237,7 +237,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "x = 3, y = 2",
     "solutionSteps": [
-      "[1 mark] Eliminate y: 4x + 6y = 24 and 9x − 6y = 15 ⇒ 13x = 39 ⇒ x = 3, then y = 2."
+      "[1 mark] Eliminate y: 4x + 6y = 24 and 9x − 6y = 15 ⇒ 13x = 39 ⇒ x = 3, then y = 2. Answer: (C)"
     ],
     "finalAnswer": "x = 3, y = 2",
     "isCompetencyBased": false
@@ -261,7 +261,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "intersecting at exactly one point",
     "solutionSteps": [
-      "[1 mark] a₁/a₂ = 2/1 ≠ b₁/b₂ = 3/(−2), so the lines intersect at exactly one point."
+      "[1 mark] a₁/a₂ = 2/1 ≠ b₁/b₂ = 3/(−2), so the lines intersect at exactly one point. Answer: (C)"
     ],
     "finalAnswer": "Intersecting at exactly one point",
     "isCompetencyBased": false
@@ -285,7 +285,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "x = 1, y = 2",
     "solutionSteps": [
-      "[1 mark] Add ⇒ x + y = 3; subtract (Eq1 − Eq2) ⇒ −8x + 8y = 8 ⇒ y − x = 1. Solving gives x = 1, y = 2 (verify: 29 + 74 = 103)."
+      "[1 mark] Add ⇒ x + y = 3; subtract (Eq1 − Eq2) ⇒ −8x + 8y = 8 ⇒ y − x = 1. Solving gives x = 1, y = 2 (verify: 29 + 74 = 103). Answer: (A)"
     ],
     "finalAnswer": "x = 1, y = 2",
     "isCompetencyBased": false
@@ -309,7 +309,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "6",
     "solutionSteps": [
-      "[1 mark] A homogeneous pair has a non-zero solution when a₁/a₂ = b₁/b₂ ⇒ 3/k = 5/10 ⇒ k = 6."
+      "[1 mark] A homogeneous pair has a non-zero solution when a₁/a₂ = b₁/b₂ ⇒ 3/k = 5/10 ⇒ k = 6. Answer: (C)"
     ],
     "finalAnswer": "k = 6",
     "isCompetencyBased": false
@@ -333,7 +333,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "a = negative 5, b = negative 1",
     "solutionSteps": [
-      "[1 mark] Infinitely many ⇒ 2/(a+b) = −3/−(a+b−3) = 7/(4a+b); solving gives a + b = −6 and a − 5b = 0, so a = −5, b = −1."
+      "[1 mark] Infinitely many ⇒ 2/(a+b) = −3/−(a+b−3) = 7/(4a+b); solving gives a + b = −6 and a − 5b = 0, so a = −5, b = −1. Answer: (D)"
     ],
     "finalAnswer": "a = −5, b = −1",
     "isCompetencyBased": false
@@ -357,7 +357,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "has a unique solution",
     "solutionSteps": [
-      "[1 mark] am ≠ bl ⇒ a/l ≠ b/m ⇒ a₁/a₂ ≠ b₁/b₂, so the lines intersect — a unique solution."
+      "[1 mark] am ≠ bl ⇒ a/l ≠ b/m ⇒ a₁/a₂ ≠ b₁/b₂, so the lines intersect — a unique solution. Answer: (A)"
     ],
     "finalAnswer": "Has a unique solution",
     "isCompetencyBased": false
@@ -381,7 +381,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "36",
     "solutionSteps": [
-      "[1 mark] x + y = 9 and (10y + x) − (10x + y) = 27 ⇒ y − x = 3, giving x = 3, y = 6 → number 36."
+      "[1 mark] x + y = 9 and (10y + x) − (10x + y) = 27 ⇒ y − x = 3, giving x = 3, y = 6 → number 36. Answer: (D)"
     ],
     "finalAnswer": "36",
     "isCompetencyBased": false
@@ -405,7 +405,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "80°",
     "solutionSteps": [
-      "[1 mark] Opposite angles are supplementary: ∠A + ∠C = 180 ⇒ x + y = 100; ∠B + ∠D = 180 ⇒ x + 2y = 160, so y = 60 and ∠B = y + 20 = 80°."
+      "[1 mark] Opposite angles are supplementary: ∠A + ∠C = 180 ⇒ x + y = 100; ∠B + ∠D = 180 ⇒ x + 2y = 160, so y = 60 and ∠B = y + 20 = 80°. Answer: (B)"
     ],
     "finalAnswer": "80°",
     "isCompetencyBased": false
@@ -429,7 +429,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "40°",
     "solutionSteps": [
-      "[1 mark] ∠C = 3∠B and ∠C = 2(∠A + ∠B) ⇒ ∠B = 2∠A; with ∠A + ∠B + ∠C = 180 ⇒ 9∠A = 180 ⇒ ∠A = 20°, ∠B = 40°."
+      "[1 mark] ∠C = 3∠B and ∠C = 2(∠A + ∠B) ⇒ ∠B = 2∠A; with ∠A + ∠B + ∠C = 180 ⇒ 9∠A = 180 ⇒ ∠A = 20°, ∠B = 40°. Answer: (B)"
     ],
     "finalAnswer": "40°",
     "isCompetencyBased": false
@@ -453,7 +453,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "k = 2",
     "solutionSteps": [
-      "[1 mark] Infinitely many ⇒ 1/(k+1) = (k+1)/9 = 4/(5k+2); (k+1)² = 9 ⇒ k = 2 (checked with the third ratio 4/12 = 1/3)."
+      "[1 mark] Infinitely many ⇒ 1/(k+1) = (k+1)/9 = 4/(5k+2); (k+1)² = 9 ⇒ k = 2 (checked with the third ratio 4/12 = 1/3). Answer: (B)"
     ],
     "finalAnswer": "k = 2",
     "isCompetencyBased": false
@@ -477,7 +477,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "64",
     "solutionSteps": [
-      "[1 mark] 11(x + y) = 110 ⇒ x + y = 10; (10x + y) − 10 = 5(10) + 4 = 54 ⇒ 10x + y = 64."
+      "[1 mark] 11(x + y) = 110 ⇒ x + y = 10; (10x + y) − 10 = 5(10) + 4 = 54 ⇒ 10x + y = 64. Answer: (C)"
     ],
     "finalAnswer": "64",
     "isCompetencyBased": false
@@ -501,7 +501,7 @@ export const PLE_EXPAND_EXTRACT: CanonicalQuestion[] = [
     ],
     "answer": "22 years",
     "solutionSteps": [
-      "[1 mark] f − 10 = 12(s − 10) and f + 10 = 2(s + 10) ⇒ f = 34, s = 12; difference = 22 years."
+      "[1 mark] f − 10 = 12(s − 10) and f + 10 = 2(s + 10) ⇒ f = 34, s = 12; difference = 22 years. Answer: (D)"
     ],
     "finalAnswer": "22 years",
     "isCompetencyBased": false
