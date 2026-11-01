@@ -198,6 +198,12 @@ const EVENT_LABELS: Record<string, string> = {
   // PACKS-ENTRY-1
   pack_entry_click: "Tapped a PDF packs link",
   cbq_tutor_bonus_used: "Used a CBQ Pack tutor question",
+  tutor_daily_fix_shown: "Saw the tutor's daily lost-marks card",
+  tutor_daily_fix_tap: "Tapped the tutor's daily lost-marks card",
+  tutor_check_shown: "Was offered a one-tap check by the tutor",
+  tutor_check_correct: "Got the tutor's one-tap check right",
+  trial_summary_shown: "Saw the trial-ending tutor summary",
+  trial_summary_tap: "Tapped the trial-ending tutor summary",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

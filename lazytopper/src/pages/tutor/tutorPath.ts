@@ -33,6 +33,11 @@ export interface TutorPathInput {
    * marks. An id only: never an answer, never text.
    */
   from?: string;
+  /**
+   * TUTOR-STICKY-1 — the key of the daily "Fix 3 lost marks" item this hop is about (a mistake-log entry id,
+   * an id only). The tutor uses it to offer the NEXT lost mark after it has explained this one.
+   */
+  fix?: string;
 }
 
 export function buildTutorPath(input: TutorPathInput): string {
@@ -43,6 +48,7 @@ export function buildTutorPath(input: TutorPathInput): string {
   if (input.source) params.set("source", input.source);
   if (input.returnTo) params.set("returnTo", input.returnTo);
   if (input.from) params.set("from", input.from);
+  if (input.fix) params.set("fix", input.fix);
   const query = params.toString();
   const path = `/tutor/${grade}/${encodeURIComponent(input.subject)}/${encodeURIComponent(input.topicKey)}`;
   return query ? `${path}?${query}` : path;

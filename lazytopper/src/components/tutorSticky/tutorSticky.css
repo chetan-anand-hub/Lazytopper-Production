@@ -1,0 +1,186 @@
+/* TUTOR-STICKY-1 — the daily fix card, the one-tap check and the trial-ending tutor summary.
+   Deep navy + soft white + green accent; 44px tap targets; no fixed widths (360px safe). */
+.lt-dfix,
+.lt-tsum,
+.lt-tchk,
+.lt-tnext {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  font-family: Inter, system-ui, sans-serif;
+  color: hsl(214, 60%, 19%);
+}
+
+/* ── Daily fix card ── */
+.lt-dfix {
+  margin: 0 0 14px;
+  padding: 14px 16px 16px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid hsl(214, 30%, 88%);
+  border-left: 4px solid hsl(152, 55%, 42%);
+  box-shadow: 0 1px 2px hsla(214, 60%, 19%, 0.05);
+}
+.lt-dfix--locked { border-left-color: hsl(214, 30%, 70%); }
+.lt-dfix--tutor { margin: 0 0 12px; }
+.lt-dfix--spaced { margin-top: 20px; }
+.lt-dfix__kicker {
+  margin: 0 0 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: hsl(152, 55%, 30%);
+}
+.lt-dfix--locked .lt-dfix__kicker { color: hsl(214, 30%, 40%); }
+.lt-dfix__h {
+  margin: 0 0 8px;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.lt-dfix__list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.lt-dfix__item { display: flex; gap: 8px; align-items: baseline; font-size: 14px; line-height: 1.4; min-width: 0; }
+.lt-dfix__tick { flex: 0 0 auto; width: 14px; text-align: center; color: hsl(152, 55%, 36%); font-weight: 700; }
+.lt-dfix__line { min-width: 0; overflow-wrap: anywhere; }
+.lt-dfix__item--done .lt-dfix__line { color: hsl(214, 20%, 45%); }
+.lt-dfix__fixed { color: hsl(152, 55%, 30%); font-weight: 600; }
+.lt-dfix__note { margin: 0 0 10px; font-size: 13px; line-height: 1.4; color: hsl(214, 25%, 36%); }
+.lt-dfix__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: hsl(152, 55%, 36%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.lt-dfix__cta--lock { background: hsl(214, 60%, 19%); }
+.lt-dfix__cta:focus-visible,
+.lt-tchk__opt:focus-visible,
+.lt-tchk__btn:focus-visible,
+.lt-tnext__cta:focus-visible,
+.lt-tsum__cta:focus-visible,
+.lt-tsum__close:focus-visible {
+  outline: 2px solid hsl(152, 55%, 45%);
+  outline-offset: 2px;
+}
+
+/* ── One-tap check (inside the tutor thread) ── */
+.lt-tchk {
+  margin: 8px 0 4px;
+  padding: 12px 14px 14px;
+  border-radius: 14px;
+  background: hsl(152, 40%, 96%);
+  border: 1px solid hsl(152, 30%, 82%);
+}
+.lt-tchk__kicker { margin: 0 0 4px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: hsl(152, 55%, 28%); }
+.lt-tchk__q { margin: 0 0 10px; font-size: 14.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.lt-tchk__opts { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.lt-tchk__opt {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  color: inherit;
+  background: #ffffff;
+  border: 1px solid hsl(214, 30%, 82%);
+  border-radius: 10px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.lt-tchk__opt:disabled { cursor: default; }
+.lt-tchk__opt--right { border-color: hsl(152, 55%, 38%); background: hsl(152, 50%, 92%); }
+.lt-tchk__opt--wrong { border-color: hsl(8, 60%, 55%); background: hsl(8, 70%, 96%); }
+.lt-tchk__letter { flex: 0 0 auto; font-weight: 700; }
+.lt-tchk__res { margin: 10px 0 0; font-size: 14px; line-height: 1.4; font-weight: 600; }
+.lt-tchk__res--right { color: hsl(152, 55%, 26%); }
+.lt-tchk__res--wrong { color: hsl(214, 60%, 19%); }
+.lt-tchk__btn {
+  margin-top: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: hsl(214, 60%, 19%);
+  background: #ffffff;
+  border: 1px solid hsl(214, 30%, 78%);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* ── "Next lost mark" offer (inside the tutor thread) ── */
+.lt-tnext { margin: 8px 0 4px; padding: 12px 14px; border-radius: 14px; background: #ffffff; border: 1px solid hsl(214, 30%, 86%); }
+.lt-tnext__p { margin: 0 0 8px; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+.lt-tnext__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: hsl(152, 55%, 36%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+/* ── Trial-ending tutor summary ── */
+.lt-tsum {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 14px 8px 14px 16px;
+  border-radius: 16px;
+  background: hsl(214, 60%, 19%);
+  color: #eaf2fb;
+}
+.lt-tsum--tutor { margin: 0 0 14px; }
+.lt-tsum__body { flex: 1 1 auto; min-width: 0; }
+.lt-tsum__h { margin: 0; font-size: 15px; font-weight: 650; line-height: 1.35; color: #ffffff; overflow-wrap: anywhere; }
+.lt-tsum__line { margin: 6px 0 0; font-size: 13px; line-height: 1.45; color: #cfe0f2; overflow-wrap: anywhere; }
+.lt-tsum__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.lt-tsum__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: hsl(152, 55%, 42%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.lt-tsum__close {
+  flex: 0 0 auto;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #b9d0e8;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.lt-tsum .lt-paywall-actions { margin: 0; }

@@ -935,7 +935,15 @@ export type NamedAnalyticsEvent =
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).
   | "pack_entry_click"
   // CBQ-TUTOR-TASTE-1 - a CBQ Pack buyer spent one of their 3 tutor questions. Name only.
-  | "cbq_tutor_bonus_used";
+  | "cbq_tutor_bonus_used"
+  // TUTOR-STICKY-1 — the tutor's daily "Fix 3 lost marks" card, its one-tap check question and the
+  // trial-ending tutor summary. Bare names in the first-party log, sent by trackTutorSticky below.
+  | "tutor_daily_fix_shown"
+  | "tutor_daily_fix_tap"
+  | "tutor_check_shown"
+  | "tutor_check_correct"
+  | "trial_summary_shown"
+  | "trial_summary_tap";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1485,6 +1493,40 @@ export function trackTrialBannerShown(dayKey: string): void {
 export function trackTrialBannerClick(cta: TrialBannerCta): void {
   try {
     send("event", { name: "trial_banner_click", data: { cta } }, { ga4: { cta } });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * TUTOR-STICKY-1 — the six events of the daily-return loop. The vendors get the name plus ONE coarse
+ * slug (`surface` / `cta`: never an id, a chapter, a count or text); the first-party log gets the bare
+ * name. A "shown" event is sent at most once per tab per IST day per surface (a re-render or a reload
+ * never counts it twice); a tap or a result is sent every time.
+ */
+export type TutorStickyEvent =
+  | "tutor_daily_fix_shown"
+  | "tutor_daily_fix_tap"
+  | "tutor_check_shown"
+  | "tutor_check_correct"
+  | "trial_summary_shown"
+  | "trial_summary_tap";
+
+export function trackTutorSticky(name: TutorStickyEvent, slug?: { surface?: string; cta?: string }, onceKey?: string): void {
+  try {
+    if (onceKey) {
+      const key = `lazytopper.tutorSticky.${name}.${slug?.surface ?? ""}`;
+      try {
+        if (window.sessionStorage.getItem(key) === onceKey) return;
+        window.sessionStorage.setItem(key, onceKey);
+      } catch {
+        /* storage blocked: still count it once for this render */
+      }
+    }
+    const data: Record<string, string> = {};
+    if (slug?.surface && ONBOARDING_SLUG.test(slug.surface)) data.surface = slug.surface;
+    if (slug?.cta && ONBOARDING_SLUG.test(slug.cta)) data.cta = slug.cta;
+    send("event", { name, data }, { ga4: data });
   } catch {
     /* analytics must never break the page */
   }
