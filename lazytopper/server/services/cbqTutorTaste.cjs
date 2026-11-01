@@ -15,8 +15,10 @@
 //   turns cannot both spend the same question: exactly 3 turns are ever admitted.
 // ★ FAILS CLOSED. Any read or transaction failure answers "not allowed" - the normal Premium lock - never a free turn.
 
-const ENTITLEMENTS_COLLECTION = 'packEntitlements';
-const PACKS_SEGMENT = 'packs';
+// The collection / subcollection names come from packGrant.cjs (the one place that writes them), so the
+// student-data drift guard sees no second declaration.
+const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
+const PACKS_SEGMENT = PACK_SEGMENTS.packs;
 const USED_FIELD = 'cbqTutorTasteUsed';
 const CBQ_SKU = 'pack_cbq';
 const CBQ_TUTOR_TASTE_LIMIT = 3;

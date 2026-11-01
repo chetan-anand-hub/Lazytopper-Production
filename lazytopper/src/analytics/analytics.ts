@@ -933,7 +933,9 @@ export type NamedAnalyticsEvent =
   | "pack_purchase"
   | "pack_download"
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).
-  | "pack_entry_click";
+  | "pack_entry_click"
+  // CBQ-TUTOR-TASTE-1 - a CBQ Pack buyer spent one of their 3 tutor questions. Name only.
+  | "cbq_tutor_bonus_used";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });

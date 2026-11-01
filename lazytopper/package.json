@@ -98,7 +98,7 @@
     "test:server:check-solution": "node --test server/routes/checkSolution.test.cjs",
     "test:server:grading-core": "node --test server/grading/core.test.cjs",
     "test:server:ecf-august": "node --test server/routes/checkSolution.ecf-august.test.cjs",
-    "test:server:entitlement": "node --test server/services/entitlement.test.cjs",
+    "test:server:entitlement": "node --test server/services/entitlement.test.cjs server/services/cbqTutorTaste.test.cjs",
     "test:server:pass-grant": "node --test server/services/passGrant.test.cjs",
     "test:server:http-utils": "node --test server/services/httpUtils.test.cjs",
     "test:server:session-store": "node --test server/sessionStore.test.cjs",
