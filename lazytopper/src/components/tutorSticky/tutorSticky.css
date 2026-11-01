@@ -23,6 +23,7 @@
 }
 .lt-dfix--locked { border-left-color: hsl(214, 30%, 70%); }
 .lt-dfix--tutor { margin: 0 0 12px; }
+.lt-dfix--spaced { margin-top: 20px; }
 .lt-dfix__kicker {
   margin: 0 0 2px;
   font-size: 11.5px;

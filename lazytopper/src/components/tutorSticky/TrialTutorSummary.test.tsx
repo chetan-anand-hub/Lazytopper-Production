@@ -76,7 +76,7 @@ describe("TrialTutorSummary", () => {
     hydrate.mockResolvedValue(trial());
     mount();
     const line = await screen.findByTestId("trial-tutor-summary-line");
-    expect(line.textContent).toBe("This week the tutor helped you with 3 questions across 2 chapters.");
+    expect(line.textContent).toBe("During your trial the tutor helped you with 3 questions across 2 chapters.");
     const plans = screen.getByTestId("trial-tutor-summary-plans");
     expect(plans.textContent).toMatch(/^Board Pass ₹[\d,]+ →$/);
     expect(plans.getAttribute("href")).toBe("/pricing?source=tutor-trial-summary");

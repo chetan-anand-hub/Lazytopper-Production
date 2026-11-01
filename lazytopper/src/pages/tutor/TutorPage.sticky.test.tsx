@@ -104,7 +104,7 @@ describe("the one-tap check", () => {
     view.rerender(tree("/tutor/10/science/electricity"));
     await screen.findByTestId("tutor-check");
     fireEvent.click(screen.getByTestId("tutor-check-opt-1"));
-    expect(screen.getByTestId("tutor-check-result").textContent).toContain("Got it — that mark is back.");
+    expect(screen.getByTestId("tutor-check-result").textContent).toContain("Right — nice work."); // no concept known: chapter fallback, neutral line
     // no fix param -> no "next lost mark"
     expect(screen.queryByTestId("tutor-next-fix")).toBeNull();
   });

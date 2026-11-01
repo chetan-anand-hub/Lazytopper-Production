@@ -732,9 +732,7 @@ export default function MobileHome() {
             this slot. */}
         {/* TUTOR-STICKY-1 — "Fix 3 lost marks today": the student's own unresolved mistakes, one tap to the tutor. */}
         {isSignedIn && !user?.isLocalSession && !startHere.visible ? (
-          <div style={{ marginTop: 20 }}>
-            <DailyFixHome gen={Number(mistakeLogsHydrated) || 0} />
-          </div>
+          <DailyFixHome gen={Number(mistakeLogsHydrated) || 0} spaced />
         ) : null}
 
         <div style={{ marginTop: 20 }}>

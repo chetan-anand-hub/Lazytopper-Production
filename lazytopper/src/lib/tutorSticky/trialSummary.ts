@@ -1,5 +1,5 @@
 /**
- * TUTOR-STICKY-1 — the PURE half of the trial-ending tutor summary: "This week the tutor helped you with N
+ * TUTOR-STICKY-1 — the PURE half of the trial-ending tutor summary: "During your trial the tutor helped you with N
  * questions across M chapters". N and M come only from the student's real, synced tutor doubts
  * (`getTutorTurnsFromCloud`: when and which chapter, never what). Nothing is estimated or rounded up; with
  * N = 0 there is no summary at all.
@@ -29,9 +29,9 @@ export function countTutorHelp(events: readonly TutorTurnEvent[]): TutorTrialCou
 
 const plural = (n: number, one: string, many: string): string => `${n} ${n === 1 ? one : many}`;
 
-/** "This week the tutor helped you with 12 questions across 4 chapters." */
+/** "During your trial the tutor helped you with 12 questions across 4 chapters." */
 export function tutorHelpLine(c: TutorTrialCounts): string {
-  return `This week the tutor helped you with ${plural(c.questions, "question", "questions")} across ${plural(c.chapters, "chapter", "chapters")}.`;
+  return `During your trial the tutor helped you with ${plural(c.questions, "question", "questions")} across ${plural(c.chapters, "chapter", "chapters")}.`;
 }
 
 /** localStorage key prefix: the IST day this uid hid the summary ("hidden today" only, never trial state). */

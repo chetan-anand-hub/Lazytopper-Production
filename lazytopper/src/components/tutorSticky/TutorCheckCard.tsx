@@ -9,7 +9,8 @@ import { istDay, markFixCleared, nextFix } from "../../lib/tutorSticky/dailyFix"
 import { useDailyFix } from "./useDailyFix";
 import "./tutorSticky.css";
 
-export const CHECK_RIGHT_COPY = "Got it — that mark is back.";
+export const CHECK_RIGHT_COPY = "Right — nice recovery.";
+export const CHECK_RIGHT_NEUTRAL_COPY = "Right — nice work.";
 export const CHECK_WRONG_COPY = "Not this one — now you know it for the exam.";
 
 export interface TutorCheckCardProps {
@@ -97,7 +98,8 @@ export default function TutorCheckCard(props: TutorCheckCardProps) {
     const ok = gradeCheckPick(question, i);
     if (ok) {
       trackTutorSticky("tutor_check_correct", { surface: "tutor" });
-      if (uid && fixKey) markFixCleared(uid, fixKey, istDay(Date.now()));
+      // Only a question on the SAME concept counts as working through the lost mark; a chapter fallback does not.
+      if (uid && fixKey && question.sameConcept) markFixCleared(uid, fixKey, istDay(Date.now()));
     }
     onResolvedRef.current(ok);
   };
@@ -134,7 +136,7 @@ export default function TutorCheckCard(props: TutorCheckCardProps) {
       {answered ? (
         <div role="status" data-testid="tutor-check-result">
           <p className={`lt-tchk__res ${correct ? "lt-tchk__res--right" : "lt-tchk__res--wrong"}`}>
-            {correct ? CHECK_RIGHT_COPY : `${CHECK_WRONG_COPY} The answer is ${letterOf(question.correctIndex)}.`}
+            {correct ? (question.sameConcept ? CHECK_RIGHT_COPY : CHECK_RIGHT_NEUTRAL_COPY) : `${CHECK_WRONG_COPY} The answer is ${letterOf(question.correctIndex)}.`}
           </p>
           {!correct && question.explanation && !/^the correct answer/i.test(question.explanation) ? (
             <p className="lt-tchk__res lt-tchk__res--wrong">

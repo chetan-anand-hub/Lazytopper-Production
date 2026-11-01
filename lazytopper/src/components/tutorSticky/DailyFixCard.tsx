@@ -24,7 +24,7 @@ export const DAILY_FIX_START_LABEL = "Fix these with the tutor";
  * `surface` is "home" (a card in the Home feed) or "tutor" (the tutor's opening offer when the student
  * arrives with no question to anchor on).
  */
-export default function DailyFixCard({ surface, gen = 0 }: { surface: "home" | "tutor"; gen?: number }) {
+export default function DailyFixCard({ surface, gen = 0, spaced = false }: { surface: "home" | "tutor"; gen?: number; spaced?: boolean }) {
   const state = useDailyFix(gen);
   const shown = state !== null;
   // The clock is read only once there is a real card to show: every empty render stays clock-free.
@@ -40,7 +40,7 @@ export default function DailyFixCard({ surface, gen = 0 }: { surface: "home" | "
 
   return (
     <section
-      className={`lt-dfix lt-dfix--${surface}${locked ? " lt-dfix--locked" : ""}`}
+      className={`lt-dfix lt-dfix--${surface}${locked ? " lt-dfix--locked" : ""}${spaced ? " lt-dfix--spaced" : ""}`}
       aria-labelledby={`lt-dfix-h-${surface}`}
       data-testid={`daily-fix-${surface}`}
     >

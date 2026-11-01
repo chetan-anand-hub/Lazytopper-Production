@@ -1,4 +1,4 @@
-// TUTOR-STICKY-1 — the one-tap check: graded on the device, "Got it — that mark is back" on success,
+// TUTOR-STICKY-1 — the one-tap check: graded on the device, "Right — nice recovery." on success,
 // the daily-fix item cleared on success only, and silent when the bank has no honest question.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -15,7 +15,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 const fix = vi.hoisted(() => ({ state: null as unknown }));
 vi.mock("./useDailyFix", () => ({ useDailyFix: () => fix.state }));
 
-import TutorCheckCard, { CHECK_RIGHT_COPY, TutorNextFix } from "./TutorCheckCard";
+import TutorCheckCard, { CHECK_RIGHT_COPY, CHECK_RIGHT_NEUTRAL_COPY, TutorNextFix } from "./TutorCheckCard";
 import * as analytics from "../../analytics/analytics";
 import { readClearedFixes, istDay } from "../../lib/tutorSticky/dailyFix";
 
@@ -70,7 +70,7 @@ describe("TutorCheckCard", () => {
     expect(track).toHaveBeenCalledWith("tutor_check_shown", { surface: "tutor" });
   });
 
-  it("a right tap: 'Got it — that mark is back', counted, and the daily-fix item cleared today", async () => {
+  it("a right tap: 'Right — nice recovery.', counted, and the daily-fix item cleared today", async () => {
     const cb = mount();
     await screen.findByTestId("tutor-check");
     fireEvent.click(screen.getByTestId("tutor-check-opt-1"));
@@ -80,6 +80,17 @@ describe("TutorCheckCard", () => {
     expect(readClearedFixes("u1")).toEqual({ m1: istDay(Date.now()) });
     // locked once answered
     expect((screen.getByTestId("tutor-check-opt-0") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("a right tap on a chapter-fallback question: neutral line, the daily-fix item is NOT ticked", async () => {
+    bank.rows = [{ ...row, subtopic: "Something else" }];
+    mount();
+    await screen.findByTestId("tutor-check");
+    expect(screen.getByText("Quick check · Electricity")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("tutor-check-opt-1"));
+    expect(screen.getByTestId("tutor-check-result").textContent).toContain(CHECK_RIGHT_NEUTRAL_COPY);
+    expect(screen.getByTestId("tutor-check-result").textContent).not.toContain(CHECK_RIGHT_COPY);
+    expect(readClearedFixes("u1")).toEqual({});
   });
 
   it("a wrong tap: shows the key, never clears the fix, offers to explain", async () => {

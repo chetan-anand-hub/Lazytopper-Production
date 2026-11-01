@@ -8,10 +8,10 @@ import { lazy, Suspense } from "react";
 const DailyFixCard = lazy(() => import("./DailyFixCard"));
 const TrialTutorSummary = lazy(() => import("./TrialTutorSummary"));
 
-export function DailyFixHome({ gen = 0 }: { gen?: number }) {
+export function DailyFixHome({ gen = 0, spaced = false }: { gen?: number; spaced?: boolean }) {
   return (
     <Suspense fallback={null}>
-      <DailyFixCard surface="home" gen={gen} />
+      <DailyFixCard surface="home" gen={gen} spaced={spaced} />
     </Suspense>
   );
 }

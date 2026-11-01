@@ -28,10 +28,10 @@ describe("countTutorHelp / tutorHelpLine", () => {
   it("counts real doubts and distinct chapters", () => {
     const c = countTutorHelp([ev("electricity", 1), ev("electricity", 2), ev("light", 3)]);
     expect(c).toEqual({ questions: 3, chapters: 2 });
-    expect(tutorHelpLine(c)).toBe("This week the tutor helped you with 3 questions across 2 chapters.");
+    expect(tutorHelpLine(c)).toBe("During your trial the tutor helped you with 3 questions across 2 chapters.");
   });
   it("uses singular honestly", () => {
-    expect(tutorHelpLine({ questions: 1, chapters: 1 })).toBe("This week the tutor helped you with 1 question across 1 chapter.");
+    expect(tutorHelpLine({ questions: 1, chapters: 1 })).toBe("During your trial the tutor helped you with 1 question across 1 chapter.");
   });
   it("is zero for no events", () => {
     expect(countTutorHelp([])).toEqual({ questions: 0, chapters: 0 });
