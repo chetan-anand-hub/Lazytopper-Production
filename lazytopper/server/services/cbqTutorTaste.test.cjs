@@ -7,6 +7,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createEntitlementGate } = require('./entitlement.cjs');
 const { createCbqTutorTaste, CBQ_TUTOR_TASTE_LIMIT } = require('./cbqTutorTaste.cjs');
+const { EventEmitter } = require('node:events');
 const { createPackRoutes } = require('../routes/packs.cjs');
 
 const NOW = Date.UTC(2026, 10, 1, 6, 0, 0);
@@ -197,4 +198,41 @@ test('the tutor route echoes the remaining allowance only when the gate spent on
   const plain = {};
   await route.handleTutorRequest({ body }, plain);
   assert.equal(plain.body.cbqTutorBonus, undefined);
+});
+
+// D1: a question is spent for an ANSWER. The gate spends at admission; a non-2xx end gives that one back.
+async function served(ctx, statusCode) {
+  const res = Object.assign(new EventEmitter(), { statusCode });
+  const r = req();
+  const refused = await ctx.gate.applyToRequest(r, res, '/api/tutor', ctx.uid, { uid: ctx.uid, reason: 'ok' });
+  assert.equal(refused, false);
+  res.emit('finish');
+  await new Promise((resolve) => setImmediate(resolve));
+  return ctx.db.store.get('packEntitlements/u1').cbqTutorTasteUsed;
+}
+
+test('D1 success spends 1; a 400 body, a 500 and a 504 each leave no net spend', async () => {
+  assert.equal(await served(setup(), 200), 1);
+  for (const code of [400, 500, 504]) assert.equal(await served(setup(), code), 0, `status ${code}`);
+});
+
+test('D1 retries on failures never burn the 3; only answered turns count; refund never goes below 0', async () => {
+  const ctx = setup();
+  for (let i = 0; i < 6; i += 1) assert.equal(await served(ctx, 500), 0);
+  assert.equal(await served(ctx, 200), 1);
+  assert.equal(await served(ctx, 200), 2);
+  assert.equal(await served(ctx, 200), 3);
+  assert.equal((await turn(ctx)).refused, true);
+  assert.equal(await ctx.cbq.refund('u1'), true); // a direct call can only lower it by one, down to 0
+  assert.equal((await setup({ used: 0 }).cbq.refund('u1')), false);
+});
+
+test('D1 a refund restores only the turn this request took (one refund per request)', async () => {
+  const ctx = setup({ used: 2 });
+  const res = Object.assign(new EventEmitter(), { statusCode: 500 });
+  await ctx.gate.applyToRequest(req(), res, '/api/tutor', 'u1', { uid: 'u1', reason: 'ok' });
+  res.emit('finish');
+  res.emit('finish');
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(ctx.db.store.get('packEntitlements/u1').cbqTutorTasteUsed, 2);
 });

@@ -796,6 +796,17 @@ function createEntitlementGate(deps = {}) {
       }
       if (taste && taste.allowed) {
         req.lazytopperCbqTutorBonus = { used: taste.used, left: taste.left, limit: taste.limit };
+        // A question is only spent for an ANSWER: if the tutor ends non-2xx (400 bad body, 5xx / 504 model failure)
+        // THIS request's one question is given back, once. It restores only what this request took.
+        if (res && typeof res.once === 'function' && typeof cbqTutorTaste.refund === 'function') {
+          let settled = false;
+          res.once('finish', () => {
+            if (settled) return;
+            settled = true;
+            if (res.statusCode >= 200 && res.statusCode < 300) return;
+            void Promise.resolve(cbqTutorTaste.refund(verifiedUid)).catch(() => {});
+          });
+        }
         emit(CBQ_TUTOR_BONUS_EVENT);
         return false;
       }

@@ -103,7 +103,32 @@ function createCbqTutorTaste(deps = {}) {
     }
   }
 
-  return { status, tryConsume };
+  /**
+   * Give back ONE question that THIS request spent (the caller calls it at most once, only for a request whose
+   * tryConsume returned allowed, when the tutor ended non-2xx). Never below 0. Never throws.
+   * It restores only what was taken, so it cannot create a turn the student did not already hold.
+   */
+  async function refund(uid) {
+    const id = docId(uid);
+    if (!id || !adminFirestore || typeof adminFirestore.runTransaction !== 'function') return false;
+    try {
+      const userRef = adminFirestore.collection(ENTITLEMENTS_COLLECTION).doc(id);
+      const done = await adminFirestore.runTransaction(async (tx) => {
+        const userSnap = await tx.get(userRef);
+        const used = usedFrom(userSnap && userSnap.exists ? userSnap.data() || {} : {});
+        if (used <= 0) return false;
+        tx.set(userRef, { [USED_FIELD]: used - 1, updatedAt: new Date(now()) }, { merge: true });
+        return true;
+      });
+      if (done) emit('cbq_tutor_taste.refunded');
+      return done;
+    } catch {
+      emit('cbq_tutor_taste.refund_failed');
+      return false;
+    }
+  }
+
+  return { status, tryConsume, refund };
 }
 
 module.exports = {
