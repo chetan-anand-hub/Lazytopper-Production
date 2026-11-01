@@ -332,6 +332,13 @@
         };
         if (internal) ga4Config.traffic_type = "internal";
         window.gtag("config", "G-1T8Q12H4RQ", ga4Config);
+        // ADS-TAG-1: the Google Ads destination rides the same gtag.js as GA4 (no second script). Same redacted
+        // address/referrer as GA4; no enhanced conversions, no user data. The purchase conversion itself is fired
+        // from src/analytics/analytics.ts (sendAdsConversion).
+        window.gtag("config", "AW-18471331566", {
+          page_location: ga4Config.page_location,
+          page_referrer: ga4Config.page_referrer
+        });
         if (internal) window.gtag("set", { traffic_type: "internal" });
         var loaded = false;
         var cues = ["pointerdown", "keydown", "touchstart", "scroll"];

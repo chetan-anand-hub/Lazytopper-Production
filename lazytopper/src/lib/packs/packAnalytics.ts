@@ -20,6 +20,7 @@ import {
   purchaseSentMemory,
   readPurchaseSent,
   rememberPurchaseSent,
+  sendAdsConversion,
   sendAnalyticsHit,
   sendGa4Hit,
 } from "../../analytics/analytics";
@@ -98,6 +99,7 @@ export function trackPackPurchase(details: PackCheckoutDetails & { transactionId
       ...money,
       items: [packItem(details)],
     });
+    sendAdsConversion(id, details.valueInr); // ADS-TAG-1: same moment as the GA4 purchase above
   } catch {
     /* analytics must never break the page */
   }

@@ -91,8 +91,8 @@ describe("TRACK-2 · checkout events", () => {
   it("purchase carries transaction_id, value and currency, and fires once per transaction id", () => {
     trackPurchase({ ...month, transactionId: "lt_a" });
     trackPurchase({ ...month, transactionId: "lt_a" });
-    expect(ga4Events()).toHaveLength(1);
-    expect(ga4Events()[0][2]).toMatchObject({ transaction_id: "lt_a", currency: "INR", value: 599 });
+    expect(ga4Events().filter((e) => e[1] === "purchase")).toHaveLength(1);
+    expect(ga4Events().filter((e) => e[1] === "purchase")[0][2]).toMatchObject({ transaction_id: "lt_a", currency: "INR", value: 599 });
     expect(meta).toEqual([["track", "Purchase", { currency: "INR", value: 599 }]]);
   });
 
@@ -100,7 +100,7 @@ describe("TRACK-2 · checkout events", () => {
     trackPurchase({ ...month, transactionId: "lt_b" });
     __resetPurchaseMemoryForTests();
     trackPurchase({ ...month, transactionId: "lt_b" });
-    expect(ga4Events()).toHaveLength(1);
+    expect(ga4Events().filter((e) => e[1] === "purchase")).toHaveLength(1);
     expect(window.sessionStorage.getItem(PURCHASE_SENT_KEY)).toContain("lt_b");
   });
 
