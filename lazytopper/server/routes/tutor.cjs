@@ -556,6 +556,8 @@ function normalizeBrief(input) {
           const att = briefCount(c.attempts);
           if (att !== undefined) row.attempts = att;
           if (BRIEF_CONCEPT_TRENDS.includes(c.trend)) row.trend = c.trend;
+          const ls = briefStr(c.lastSeen);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(ls)) row.lastSeen = ls;
           concepts.push(row);
         }
         if (concepts.length >= BRIEF_MAX_CONCEPTS) break;
