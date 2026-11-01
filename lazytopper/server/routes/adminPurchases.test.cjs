@@ -152,6 +152,18 @@ test('abandoned: only status created, older than 30 minutes, within 30 days; pai
   assert.equal(old.amountInr, 1917);
 });
 
+test('PAY-RESCUE-1 abandoned: shows the stored lastFailure with attempted:true; no note -> attempted:false', async () => {
+  const lastFailure = { code: 'BAD_REQUEST_ERROR', reason: 'payment_timeout', source: 'customer', step: 'payment_authorization', atMs: NOW - 40 * MIN, upi: 'kid@upi' };
+  const { route } = harness({ orders: [created('failed', 'u1', 'month', 599, 2 * 60 * MIN, { lastFailure }), created('never', 'u2', 'month', 599, 3 * 60 * MIN)] });
+  const res = {}; await route.list({}, res);
+  const [failed, never] = res.body.abandoned.items;
+  assert.equal(failed.orderId, 'failed');
+  assert.equal(failed.attempted, true);
+  assert.deepEqual(failed.lastFailure, { code: 'BAD_REQUEST_ERROR', reason: 'payment_timeout', source: 'customer', step: 'payment_authorization', atMs: NOW - 40 * MIN });
+  assert.equal(never.attempted, false);
+  assert.equal(never.lastFailure, null);
+});
+
 test('abandoned: the admin gate refuses before the abandoned read too', async () => {
   const { route, fs } = harness({ ok: false, orders: [created('o', 'u1', 'month', 599, DAY)] });
   const res = {}; await route.list({}, res);

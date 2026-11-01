@@ -15,7 +15,12 @@ vi.mock("../../services/subscriptionService", async (orig) => ({
   ...(await orig<typeof import("../../services/subscriptionService")>()),
   loadSubscription: () => ({ tier: sub.tier }),
 }));
-vi.mock("../../analytics/analytics", () => ({ newCheckoutAttemptId: () => "lt_attempt" }));
+vi.mock("../../analytics/analytics", () => ({
+  newCheckoutAttemptId: () => "lt_attempt",
+  // PAY-RESCUE-1: a dismissed checkout now mounts the rescue card, which records these.
+  trackNamedEvent: () => undefined,
+  trackPaywallAction: () => undefined,
+}));
 const trackEvent = vi.hoisted(() => vi.fn());
 vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackCheckout: () => undefined, trackPackPurchase: () => undefined, trackPackEvent: trackEvent }));
 const buyPack = vi.hoisted(() => vi.fn(async (..._a: unknown[]) => ({ status: "dismissed" })));

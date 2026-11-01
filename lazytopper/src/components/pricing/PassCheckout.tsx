@@ -30,6 +30,7 @@ import {
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
+import PayRescueCard from "../payRescue/PayRescueCard";
 import {
   newCheckoutAttemptId,
   trackBeginCheckout,
@@ -182,6 +183,8 @@ export function PassCheckoutView({
   const [expired, setExpired] = useState(false);
   /** PAY-RECOVER-1 — "checking" while polls run; "confirming" once they ran out still pending. */
   const [recovery, setRecovery] = useState<null | "checking" | "confirming">(null);
+  /** PAY-RESCUE-1 — the checkout sheet was closed: the pass whose "Can't pay yourself?" card is showing, else null. */
+  const [rescue, setRescue] = useState<PassType | null>(null);
   const pendingRef = useRef<{ orderId: string; details: CheckoutDetails; attemptId: string; paymentId?: string } | null>(null);
   const pollRun = useRef(0);
   const mounted = useRef(true);
@@ -275,6 +278,7 @@ export function PassCheckoutView({
     setBusy(passType);
     setFailed(false);
     setExpired(false);
+    setRescue(null);
     setRecovery(null);
     pendingRef.current = null;
     clearHold();
@@ -319,6 +323,9 @@ export function PassCheckoutView({
       setFailed(true);
     } else if (outcome.status === "expired") {
       setExpired(true);
+    } else if (outcome.status === "dismissed") {
+      // PAY-RESCUE-1 — the sheet was closed (with or without a failed payment first): offer the parent hand-off.
+      setRescue(passType);
     }
   }
 
@@ -370,6 +377,19 @@ export function PassCheckoutView({
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-pack-credit">
           {creditLine}
         </p>
+      )}
+      {rescue && !recovery && (
+        <div className="lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-rescue">
+          <PayRescueCard
+            kind="pass"
+            onRetry={() => {
+              const again = rescue;
+              setRescue(null);
+              void handleBuy(again);
+            }}
+            onClose={() => setRescue(null)}
+          />
+        </div>
       )}
       {failed && !recovery && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-failed">

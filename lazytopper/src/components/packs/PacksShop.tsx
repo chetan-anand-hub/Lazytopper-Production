@@ -35,6 +35,7 @@ import {
 } from "../../services/packs";
 import { BUNDLE_NAME, packChapterLabel } from "../../lib/packs/packLabels";
 import { readPacksQuery } from "../../lib/packs/packEntry";
+import PayRescueCard from "../payRescue/PayRescueCard";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -151,7 +152,7 @@ function useChapterCounts(): { counts: Counts; request: (first?: string) => void
 
 interface BuyState {
   key: string;
-  phase: "idle" | "busy" | "checking" | "confirming" | "paid" | "failed" | "expired" | "owned";
+  phase: "idle" | "busy" | "checking" | "confirming" | "paid" | "failed" | "expired" | "owned" | "dismissed";
 }
 
 /** What the catalogue (hero tiles on /packs, the strip on /pricing) can do: open a pack's pop-up, optionally on a subject. */
@@ -354,7 +355,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     } else if (outcome.status === "expired") {
       setBuy({ key, phase: "expired" });
     } else if (outcome.status === "dismissed") {
-      setBuy({ key: "", phase: "idle" });
+      // PAY-RESCUE-1: the sheet was closed - keep THIS pack's key so its "Can't pay yourself?" card shows under its button.
+      setBuy({ key, phase: "dismissed" });
     } else {
       setBuy({ key, phase: "failed" });
     }
@@ -425,6 +427,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         {mine_ && buy.phase === "failed" && <p className={`${prefix}__note ${prefix}__note--bad`} role="alert">{PACK_FAILED_COPY}</p>}
         {mine_ && buy.phase === "expired" && <p className={`${prefix}__note`} role="alert">{PACK_EXPIRED_COPY}</p>}
         {mine_ && buy.phase === "owned" && <p className={`${prefix}__note`} role="status">{PACK_ALREADY_OWNED_COPY}</p>}
+        {mine_ && buy.phase === "dismissed" && (
+          <PayRescueCard
+            kind="pack"
+            packLabel={packDescription(sku, target, target ? chapterLabel(target) : undefined)}
+            onRetry={() => void handleBuy(sku, target)}
+            onClose={() => setBuy({ key: "", phase: "idle" })}
+          />
+        )}
       </>
     );
   }

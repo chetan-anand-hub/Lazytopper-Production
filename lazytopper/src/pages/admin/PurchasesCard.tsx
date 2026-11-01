@@ -40,6 +40,9 @@ export interface AbandonedItem {
   amountInr: number | null;
   channel: "student" | "parent";
   isAdminAccount: boolean;
+  /** PAY-RESCUE-1: absent on an older server. True only when Razorpay's `payment.failed` left a note on the order. */
+  attempted?: boolean;
+  lastFailure?: { code: string; reason: string; source: string; step: string; atMs: number | null } | null;
 }
 interface Bucket {
   count: number;
@@ -97,6 +100,14 @@ const line = (w: WindowTotals) =>
   `Premium ${w.premium.count} (${inr(w.premium.inr)}) · Packs ${w.packs.count} (${inr(w.packs.inr)})` +
   (w.topups.count ? ` · Top-ups ${w.topups.count} (${inr(w.topups.inr)})` : "");
 
+/** PAY-RESCUE-1 - why this order was never paid, from Razorpay's own failure note; else "no payment attempted". */
+export function abandonedReason(a: Pick<AbandonedItem, "attempted" | "lastFailure">): string {
+  const f = a.lastFailure;
+  if (!f) return "No payment attempted";
+  const why = f.reason || f.code || f.step;
+  return why ? `Payment failed: ${why}` : "Payment failed";
+}
+
 export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["abandoned"] }) {
   return (
     <div className="pu-abandoned" data-testid="pu-abandoned">
@@ -127,6 +138,9 @@ export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["aba
                     ADMIN / TEST
                   </span>
                 )}
+              </span>
+              <span className="pu-reason sa-muted" data-testid={`pu-ab-reason-${a.orderId}`}>
+                {abandonedReason(a)}
               </span>
             </li>
           ))}

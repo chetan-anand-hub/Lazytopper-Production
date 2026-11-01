@@ -184,6 +184,12 @@ function paymentMismatch(payment, order) {
   return null;
 }
 
+/** PAY-RESCUE-1 - one of Razorpay's short error strings, trimmed to 80 chars of plain text ('' when absent). */
+function cleanFailureText(value) {
+  if (typeof value !== 'string') return '';
+  return value.replace(/[^A-Za-z0-9_ .,:;'()/-]/g, '').trim().slice(0, 80);
+}
+
 function parseJsonObject(buf) {
   const text = buf.length ? buf.toString('utf8') : '{}';
   const parsed = JSON.parse(text);
@@ -640,6 +646,42 @@ function createPaymentRoutes(deps = {}) {
     }
   }
 
+  /**
+   * PAY-RESCUE-1 - Razorpay's SIGNED `payment.failed` (the caller already verified the signature).
+   * Writes ONLY an additive `lastFailure` note onto a `payOrders/{orderId}` we created and that is still `created`:
+   * `{ code, reason, source, step, atMs }` - Razorpay's own short error strings (capped, no card / UPI / contact).
+   * It never grants, never touches status / paid fields / amount, and never runs for a paid, erased or unknown order.
+   */
+  async function handlePaymentFailed(event, res) {
+    const entity = event.payload && event.payload.payment && event.payload.payment.entity;
+    const orderId = entity && typeof entity.order_id === 'string' ? entity.order_id : '';
+    if (!ID_PATTERN.test(orderId)) return reject(res, 'webhook', 'malformed');
+    const lastFailure = {
+      code: cleanFailureText(entity.error_code),
+      reason: cleanFailureText(entity.error_reason),
+      source: cleanFailureText(entity.error_source),
+      step: cleanFailureText(entity.error_step),
+      atMs: now(),
+    };
+    let wrote = false;
+    try {
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      await adminFirestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const order = snap && snap.exists ? snap.data() || {} : null;
+        if (!order || order.status !== 'created' || order.uid === ERASED_UID || typeof order.uid !== 'string' || !order.uid) return;
+        tx.set(ref, { lastFailure }, { merge: true });
+        wrote = true;
+      });
+    } catch (e) {
+      emit('payments.webhook.store_write_failed');
+      console.error('[pay/webhook] failure note write failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not record the failure.' });
+    }
+    emit(wrote ? 'payments.webhook.failure_recorded' : 'payments.webhook.ignored');
+    return sendJson(res, 200, wrote ? { ok: true } : { ok: true, ignored: true });
+  }
+
   /* ── Z5 · POST /api/pay/webhook ─────────────────────────────────────────── */
   async function handleWebhook(req, res) {
     if (!enabled()) return sendJson(res, 404, NOT_FOUND_BODY);
@@ -668,6 +710,8 @@ function createPaymentRoutes(deps = {}) {
     } catch {
       return reject(res, 'webhook', 'malformed');
     }
+    // PAY-RESCUE-1 - a FAILED attempt only leaves a note on our own order (never a grant, never a status change).
+    if (event.event === 'payment.failed') return handlePaymentFailed(event, res);
     if (event.event !== 'payment.captured') {
       emit('payments.webhook.ignored');
       return sendJson(res, 200, { ok: true, ignored: true });

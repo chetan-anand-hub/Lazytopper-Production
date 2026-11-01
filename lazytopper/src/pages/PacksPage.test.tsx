@@ -6,7 +6,12 @@ const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 
 const events = vi.hoisted(() => ({ names: [] as string[] }));
-vi.mock("../analytics/analytics", () => ({ newCheckoutAttemptId: () => "lt_attempt" }));
+vi.mock("../analytics/analytics", () => ({
+  newCheckoutAttemptId: () => "lt_attempt",
+  // PAY-RESCUE-1: a dismissed checkout now mounts the rescue card, which records these.
+  trackNamedEvent: () => undefined,
+  trackPaywallAction: () => undefined,
+}));
 vi.mock("../lib/packs/packAnalytics", () => ({
   trackPackCheckout: () => events.names.push("pack_checkout"),
   trackPackPurchase: () => events.names.push("pack_purchase"),
