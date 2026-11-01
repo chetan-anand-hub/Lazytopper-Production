@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useReducer } from "react";
 import type katexModule from "katex";
+import { subscriptFormulas } from "../../lib/chemSubscript";
 
 // ---------------------------------------------------------------------------
 // LOW-END-1 (L6) — KaTeX ON DEMAND.
@@ -634,7 +635,8 @@ function applyUnicodeFallbacks(text: string): string {
     return [...sub].map((d: string) => subscripts[d] || d).join("");
   });
 
-  return result;
+  // TUTOR-POLISH-1: H2O -> H₂O, Ca(OH)2 -> Ca(OH)₂ (display only; clearly-formula tokens only).
+  return subscriptFormulas(result);
 }
 
 const MATH_DELIMITERS_RE = /\\\((.+?)\\\)|\\\[(.+?)\\\]/gs;

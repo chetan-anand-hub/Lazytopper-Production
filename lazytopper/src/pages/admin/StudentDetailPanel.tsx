@@ -26,6 +26,7 @@ import {
   type Refusal,
   type ActivityFeedItem,
   type TimelineDay,
+  tutorUseSummary,
 } from "./studentsAdminModel";
 import {
   FEEDBACK_MOMENT_LABELS,
@@ -148,6 +149,20 @@ function TutorMessages({ ai }: { ai: TimelineDay["ai"] }) {
       {" · "}
       {n} tutor {n === 1 ? "message" : "messages"}
     </span>
+  );
+}
+
+/** TUTOR-POLISH-1 — one line of tutor use across the loaded days, from the same ledger days. Silent when
+ *  no day recorded a tutor message (the "No tutor use yet" note covers an empty ledger). */
+function TutorUseSummary({ timeline }: { timeline: TimelineDay[] }) {
+  const t = tutorUseSummary(timeline);
+  if (t.messages === 0 || t.lastDay === null) return null;
+  return (
+    <p className="sa-note" data-testid="sa-tutor-summary">
+      Tutor: {t.messages} {t.messages === 1 ? "message" : "messages"} recorded across {t.daysUsed}{" "}
+      {t.daysUsed === 1 ? "day" : "days"}; last tutor use {formatDayKey(t.lastDay)}. Counts trial-plan tutor messages only
+      (Premium tutor calls are inside the AI calls), and the number of chats started is not stored.
+    </p>
   );
 }
 
@@ -439,6 +454,7 @@ export default function StudentDetailPanel({
               </p>
             ))}
           <AiCostTable data={state.data} />
+          <TutorUseSummary timeline={state.data.timeline} />
           {hasNoAiUse(state.data) && (
             <p className="sa-note" data-testid="sa-no-tutor-use">
               AI usage: No tutor use yet.

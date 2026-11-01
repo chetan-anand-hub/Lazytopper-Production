@@ -468,7 +468,7 @@ function syllabusBlock() {
  *   (routes/tutor.cjs normalizeAnchorQuestion). Absent -> no block. The key is FINAL.
  * @returns {string}
  */
-function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag } = {}) {
+function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag, keyDisputed } = {}) {
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
   // TUTOR-FIX-2 T5: no chapter (a cold /tutor/10/:subject entry) -> the SUBJECT names the session,
   // never "this topic".
@@ -637,7 +637,7 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
 
   lines.push(returnedWorkBlock(returnedWork));
 
-  lines.push(anchorQuestionBlock(anchorQuestion, canFlag === true));
+  lines.push(anchorQuestionBlock(anchorQuestion, canFlag === true, keyDisputed === true && canFlag === true));
 
   lines.push(honestyBlock());
 
@@ -1192,7 +1192,7 @@ function returnedWorkBlock(returnedWork) {
  * the answer alone (CLAUDE.md section 13): no partial-credit talk. The demonstration question keeps its own
  * job ("see how it's solved"); for "this question" this block wins.
  */
-function anchorQuestionBlock(anchorQuestion, canFlag) {
+function anchorQuestionBlock(anchorQuestion, canFlag, keyDisputed) {
   const a = anchorQuestion && typeof anchorQuestion === 'object' ? anchorQuestion : null;
   const text = a && typeof a.questionText === 'string' ? a.questionText.trim() : '';
   if (!text) return '';
@@ -1269,8 +1269,16 @@ function anchorQuestionBlock(anchorQuestion, canFlag) {
         : `Nothing in this row contradicts itself, so the key stands: explain the bank answer using its steps. Never tell the student the board or NCERT is wrong, and never say ` +
           `our key is wrong because of your own view. If YOUR OWN view differs from the key, or the student raises a point, acknowledge their point briefly and kindly, still explain the ` +
           `bank answer` + (canFlag ? `, and put \`[[keyflag:opinion:<one line, at most 200 characters, on why you or the student differ>]]\` on its own line. ` : `. `) +
-          `If the student insists the key is wrong, say calmly that this answer follows the official key and you will not change it; they can tell the LazyTopper team if they still think it is wrong. ` +
-          `Never flip, and never claim a report was filed.\n`) +
+          (keyDisputed
+            ? // TUTOR-POLISH-1: the route sets keyDisputed ONLY when this turn's dispute is really being logged (verified uid + keyed anchor + the
+              // student's message disputes the key), so the one "flagged" line below is true. No in-row evidence: the key still stands.
+              `The student is questioning the key in this message. Stay kind and unbothered: explain the key and why, in your own words, and do not flip. ` +
+              `Then add exactly ONE short, warm line that you have flagged this question for a teacher to check (it is already logged, so this is true) - ` +
+              `for example "I have flagged this one for a teacher to double-check, thanks for pointing it out" in your own words. ` +
+              `Put that line before your closing question. Do not promise a change, a timeline or a reply, do not claim anyone else was told, and do not repeat the line in later turns unless asked. ` +
+              `Never say the board or NCERT is wrong. Apart from that one line, never claim a report was filed.\n`
+            : `If the student insists the key is wrong, say calmly that this answer follows the official key and you will not change it; they can tell the LazyTopper team if they still think it is wrong. ` +
+              `Never flip, and never claim a report was filed.\n`)) +
       (canFlag
         ? `- If, while teaching, you find the steps and the key disagree even though no ROW CHECK is shown, treat it as a mismatch exactly as above and emit \`[[keyflag:mismatch:<reason>]]\`.\n` +
           `- The keyflag tag is machine-readable: it goes on its own line just before any offer tag, is stripped by the app, and is NEVER shown, described or mentioned to the student. ` +

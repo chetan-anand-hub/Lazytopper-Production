@@ -1,6 +1,7 @@
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 import { CHALLENGE_COPY, type ChallengeCardModel } from "./challengeModel";
 import "./friendChallenge.css";
+import { subscriptFormulas } from "../../lib/chemSubscript";
 
 /**
  * FRIEND-CHALLENGE-1 - the challenge image, 1080 x 1920. Renders ONLY a ChallengeCardModel (the
@@ -37,7 +38,7 @@ export default function ChallengeCard({ model }: { model: ChallengeCardModel }) 
           <div className={`lt-fc__opts${longOpts ? " lt-fc__opts--long" : ""}`}>
             {model.options.map((o, i) => (
               <span key={i} className="lt-fc__opt" data-testid="challenge-option">
-                {LETTERS[i]} {"·"} {o}
+                {LETTERS[i]} {"·"} {subscriptFormulas(o)}
               </span>
             ))}
           </div>

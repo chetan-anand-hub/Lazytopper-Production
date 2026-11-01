@@ -47,7 +47,8 @@ describe("MathText extended shorthand — what the student now sees", () => {
   });
 
   it("the stored-arrow `$` rows are NOT promoted (a content defect, not maths)", () => {
-    expect(shown("CH4(g) + 2O2(g) $ CO2(g)").visible).toBe("CH4(g) + 2O2(g) $ CO2(g)");
+    // TUTOR-POLISH-1: the `$` stays (not promoted); the formula digits now render as subscripts.
+    expect(shown("CH4(g) + 2O2(g) $ CO2(g)").visible).toBe("CH₄(g) + 2O₂(g) $ CO₂(g)");
   });
 });
 

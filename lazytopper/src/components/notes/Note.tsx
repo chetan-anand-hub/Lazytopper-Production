@@ -31,6 +31,7 @@ import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncer
 import { ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { cbqChapterPath, cbqTopicBySlug } from "../cbq/cbqSeo";
+import { subscriptFormulas } from "../../lib/chemSubscript";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -1357,7 +1358,7 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
             <ol className="lt-note__bq-opts">
               {stripOwnOptionLabels(q.options).map((opt, oi) => (
                 <li key={oi}>
-                  <span className="lt-note__bq-optl">({String.fromCharCode(65 + oi)})</span> {opt}
+                  <span className="lt-note__bq-optl">({String.fromCharCode(65 + oi)})</span> {subscriptFormulas(opt)}
                 </li>
               ))}
             </ol>

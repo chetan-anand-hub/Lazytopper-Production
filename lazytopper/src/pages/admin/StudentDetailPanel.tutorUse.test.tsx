@@ -68,4 +68,23 @@ describe("StudentDetailPanel — tutor use (TUTOR-FIX-2 T8)", () => {
     expect(within(d2).queryByTestId("sa-tutor-messages")).toBeNull();
     expect(screen.queryByTestId("sa-no-tutor-use")).toBeNull();
   });
+
+  it("TUTOR-POLISH-1: a summary line gives total recorded messages and the last tutor day; none when no day has any", async () => {
+    serve(
+      detail([
+        { day: "2026-11-18", dayNumber: 0, ...EMPTY_DAY, ai: { ...AI, tutorMessages: 2 } },
+        { day: "2026-11-19", dayNumber: 1, ...EMPTY_DAY, ai: { ...AI, tutorMessages: 4 } },
+        { day: "2026-11-20", dayNumber: 2, ...EMPTY_DAY, ai: { ...AI, tutorMessages: null } },
+      ]),
+    );
+    const line = (await screen.findByTestId("sa-tutor-summary")).textContent ?? "";
+    expect(line).toContain("6 messages recorded across 2 days");
+    expect(line).toContain("not stored");
+  });
+
+  it("TUTOR-POLISH-1: no summary when no day recorded a tutor message", async () => {
+    serve(detail([{ day: "2026-11-20", dayNumber: 2, ...EMPTY_DAY, ai: { ...AI, tutorMessages: null } }]));
+    await screen.findByTestId("sa-day-2026-11-20");
+    expect(screen.queryByTestId("sa-tutor-summary")).toBeNull();
+  });
 });

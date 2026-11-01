@@ -199,6 +199,8 @@ export interface TimelineDay {
     calls: number;
     costInr: number;
     providerSpendInr?: number | null;
+    /** TUTOR-FIX-2 T8: trial-tier tutor messages that day; null/absent = not recorded (never 0). */
+    tutorMessages?: number | null;
     checks: number;
     chapterTests: number;
     mocks: number;
@@ -400,3 +402,24 @@ export const PLAN_OPTIONS: { value: PlanFilter; label: string }[] = [
   { value: "premium", label: "Premium" },
   { value: "basic", label: "Basic" },
 ];
+
+/**
+ * TUTOR-POLISH-1 — what the ledger can honestly say about one student's tutor use, from the day
+ * documents the detail already returned. `messages` counts only days that carry the trial tutor
+ * counter (a Premium student's tutor calls are inside `ai.calls` and are not separable), so this is
+ * "recorded tutor messages", not total use. Chats STARTED is not stored anywhere and is not derived.
+ * `lastDay` is the newest IST day key with at least one recorded tutor message, else null.
+ */
+export function tutorUseSummary(timeline: TimelineDay[]): { messages: number; daysUsed: number; lastDay: string | null } {
+  let messages = 0;
+  let daysUsed = 0;
+  let lastDay: string | null = null;
+  for (const d of timeline) {
+    const n = d.ai?.tutorMessages;
+    if (typeof n !== "number" || !(n > 0)) continue;
+    messages += n;
+    daysUsed += 1;
+    if (lastDay === null || d.day > lastDay) lastDay = d.day;
+  }
+  return { messages, daysUsed, lastDay };
+}
