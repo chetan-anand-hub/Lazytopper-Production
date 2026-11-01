@@ -32,6 +32,8 @@ const EXACT_SHOW: ReadonlySet<string> = new Set([
   "/for-parents",
   "/welcome",
   "/pricing",
+  "/packs",
+  "/cbq-class-10",
   "/contact",
   "/check-your-answer",
 ]);
@@ -109,8 +111,20 @@ export function whatsAppContextFor(pathname: string): string {
   return "LazyTopper";
 }
 
+/**
+ * WA-OFFER-1 — the buying pages open with a purchase question, not a doubt. Exact paths
+ * only (after `normalise`); every other page keeps the "I have a doubt about ..." text.
+ */
+const BUYING_OPENERS: Readonly<Record<string, string>> = {
+  "/pricing": "Hi LazyTopper, I want to know about the Board Pass",
+  "/packs": "Hi LazyTopper, I want to know about the PDF packs",
+  "/cbq-class-10": "Hi LazyTopper, I want to know about the CBQ packs",
+};
+
 /** The prefilled message for `pathname`. */
 export function whatsAppMessageFor(pathname: string): string {
+  const opener = BUYING_OPENERS[normalise(pathname)];
+  if (opener) return opener;
   return `Hi LazyTopper, I have a doubt about ${whatsAppContextFor(pathname)}`;
 }
 
