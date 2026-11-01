@@ -472,6 +472,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         <div className="lt-packs__w">
           <p className="lt-packs__status" role="status" data-testid="packs-status">
             {buy.phase === "paid" ? PACK_PAID_COPY : buy.phase === "checking" ? PACK_CHECKING_COPY : PACK_STILL_CONFIRMING_COPY}
+            {buy.phase === "paid" && buy.key.startsWith("pack_cbq:") && (
+              <span data-testid="packs-status-cbq-tutor"> Includes 3 tutor questions.</span>
+            )}
           </p>
         </div>
       )}

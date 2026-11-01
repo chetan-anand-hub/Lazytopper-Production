@@ -11,6 +11,7 @@ import { paidJsonHeaders, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHea
 // ALL-AI-METERING-1: pure copy + decision (no fetch, no runtime edge into aiClient).
 import { limitFromAiRefusal, tutorLimitMessage } from "../components/usage/fairUseGate";
 import type { PremiumWindow } from "../services/usageClient";
+import { noteCbqTutorBonusFromServer } from "./cbqTutorBonus";
 
 export const TUTOR_ENDPOINT = `${API_BASE}/tutor`;
 
@@ -226,6 +227,8 @@ export interface TutorReply {
   truncated?: boolean;
   model?: string;
   provider?: string;
+  /** CBQ-TUTOR-TASTE-1 - present only when this turn spent one of a CBQ Pack buyer's 3 tutor questions. */
+  cbqTutorBonus?: { used: number; left: number; limit: number };
 }
 
 /**
@@ -357,6 +360,8 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
     // handleJsonResponse: the student reads the server's own copy (or plain English),
     // never the raw `premium_required` code.
     if (res.status === 402 && details?.error === "premium_required") {
+      // CBQ-TUTOR-TASTE-1: the server says a CBQ Pack buyer's 3 questions are used up -> the normal lock below.
+      noteCbqTutorBonusFromServer(req.uid, (details as { cbqTutorBonus?: unknown }).cbqTutorBonus, false);
       throw new TutorPremiumRequiredError(
         details.message || "The tutor is a Premium feature. You can unlock it whenever you're ready.",
         details.feature || "unknown",
@@ -397,5 +402,6 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
   const offer = parsed.offer === "practice" || parsed.offer === "check-improve" ? parsed.offer : null;
   // Stage 3: only a non-empty string figure key survives (garbled → no panel).
   const figure = typeof parsed.figure === "string" && parsed.figure.trim() ? parsed.figure.trim() : null;
+  noteCbqTutorBonusFromServer(req.uid, parsed.cbqTutorBonus, true);
   return { ...parsed, offer, figure };
 }

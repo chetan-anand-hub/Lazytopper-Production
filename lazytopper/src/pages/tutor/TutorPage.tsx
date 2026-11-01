@@ -20,6 +20,7 @@ import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { offerForTutorTurn } from "./tutorIntent";
 import TutorErrorView from "./TutorErrorView";
+import CbqTutorBonusBanner from "./CbqTutorBonusBanner";
 import { useAuth } from "../../context/AuthContext";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
@@ -613,6 +614,7 @@ function TutorSession() {
           {/* TUTOR-FIX-2 T4.3 — the dock (offer CTA + composer); its height positions the phone
               diagram sheet ABOVE it. */}
           <div className="lt-tutor__dock" ref={dockRef}>
+          <CbqTutorBonusBanner />
           {/* Round-trip CTA (Fix 3 / D-TUT-4/5). TUTOR-FIX-2 integration: the permanent pair
               below opens the SAME overlays with the SAME handlers, so the old under-reply
               "Practise this" / "Get my attempt marked" button would be a duplicate. Keep one:
@@ -1163,6 +1165,13 @@ const TUTOR_CSS = `
   margin: 2px 0 12px;
 }
 .lt-tutor__limit .lt-tutor__retry { text-decoration: none; }
+.lt-tutor__bonus {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--lt-soft);
+  overflow-wrap: anywhere;
+}
 
 /* KaTeX: keep long display math from forcing a horizontal page scroll on mobile. */
 .lt-tutor__t .katex-display { overflow-x: auto; overflow-y: hidden; margin: 0.4em 0; }

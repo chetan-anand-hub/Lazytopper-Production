@@ -2102,3 +2102,6 @@ test('AAM1 · premiumRequiredBody IS the gated routes\' 402 body (one builder, s
     error: 'premium_required', feature: 'detect-question', tier: 'free', message: ENT.AI_TIER_GATED_ROUTES['/api/detect-question'].message,
   });
 });
+
+// CBQ-TUTOR-TASTE-1: the CBQ-Pack tutor allowance suite rides this script (test:server:entitlement) so CI runs it.
+require('./cbqTutorTaste.test.cjs');

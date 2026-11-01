@@ -145,6 +145,8 @@ export interface MyPacks {
   packs: OwnedPack[];
   licensee: PackLicensee;
   boardPassCredit: BoardPassCredit | null;
+  /** CBQ-TUTOR-TASTE-1 - the server's count of the 3 CBQ-Pack tutor questions; absent unless a CBQ Pack is owned. */
+  tutorTaste?: { used: number; left: number; limit: number };
 }
 
 /** A credit only when every field is a sane server number; anything else is no credit. */
@@ -254,13 +256,19 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown }; boardPassCredit?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
     email: typeof json.licensee?.email === "string" ? json.licensee.email : "",
   };
-  return { packs, licensee, boardPassCredit: readBoardPassCredit(json.boardPassCredit) };
+  const taste = json.tutorTaste && typeof json.tutorTaste === "object" ? (json.tutorTaste as { used?: unknown; left?: unknown; limit?: unknown }) : null;
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null);
+  const tutorTaste =
+    taste && num(taste.left) !== null && num(taste.limit) !== null
+      ? { used: num(taste.used) ?? 0, left: num(taste.left) as number, limit: num(taste.limit) as number }
+      : undefined;
+  return { packs, licensee, boardPassCredit: readBoardPassCredit(json.boardPassCredit), ...(tutorTaste ? { tutorTaste } : {}) };
 }
 
 /* ── buying ─────────────────────────────────────────────────────────────────── */

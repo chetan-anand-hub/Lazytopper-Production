@@ -367,7 +367,10 @@ const tutorRoute = createTutorRoute({ ...routeDeps, resolveVerifiedUid: (req) =>
 const rateLimiter = createRateLimiter({ telemetry });
 const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 // AUTHGATE-2: firebaseAdmin is passed for appCheck() only (requireVerifiedCallerOrAppCheck).
-const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson });
+// CBQ-TUTOR-TASTE-1: 3 lifetime tutor questions for a student who has PAID for a CBQ Pack (not Premium).
+const { createCbqTutorTaste } = require('./services/cbqTutorTaste.cjs');
+const cbqTutorTaste = createCbqTutorTaste({ adminFirestore, telemetry });
+const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson, cbqTutorTaste });
 const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
 // LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
 const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
@@ -415,6 +418,7 @@ const packRoutes = createPackRoutes({
   verifiedCaller,
   adminFirestore,
   telemetry,
+  cbqTutorTaste,
   // The licensee printed on every page: the server's own auth record for the VERIFIED uid - never a request value.
   getLicensee: async (uid) => {
     if (!firebaseAdmin) return { name: '', email: '' };

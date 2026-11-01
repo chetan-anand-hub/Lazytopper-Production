@@ -746,6 +746,12 @@ function defaultTelemetry() {
   }
 }
 
+// CBQ-TUTOR-TASTE-1: the entitlement gate sets this ONLY after it spent one of a CBQ Pack buyer's 3 questions.
+function bonusField(req) {
+  const b = req && req.lazytopperCbqTutorBonus;
+  return b && typeof b.left === 'number' ? { cbqTutorBonus: { used: b.used, left: b.left, limit: b.limit } } : {};
+}
+
 function createTutorRoute(deps) {
   const {
     sendJson,
@@ -867,6 +873,7 @@ function createTutorRoute(deps) {
     // Stub mode (no provider / local dev / tests): honest canned reply, no model call.
     if (typeof isStubMode === 'function' && isStubMode()) {
       return sendJson(res, 200, {
+        ...bonusField(req),
         reply: `Staying on ${topicLabel}. (Local stub mode — the tutor model is not called here.)`,
         model: 'stub',
         provider: 'stub',
@@ -1014,7 +1021,7 @@ function createTutorRoute(deps) {
       // TUTOR-FIX-1: honest cut-off signal — true only when the model stopped at its token limit.
       const truncated = Boolean(reply && reply.finishReason === 'MAX_TOKENS');
       // offerSource is additive ('model' | 'safety-net' | null); older clients ignore it.
-      return sendJson(res, 200, { reply: text, offer, offerSource, figure, truncated, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
+      return sendJson(res, 200, { ...bonusField(req), reply: text, offer, offerSource, figure, truncated, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
     } catch (err) {
       console.error('[tutor] generation failed:', err && err.message);
       const status = err && err.status === 504 ? 504 : 500;

@@ -222,6 +222,8 @@ export const ACTIVITY_EVENTS = [
   "pack_download",
   // PACKS-ENTRY-1 — a tap on a small PDF-packs link beside an ask. Name only.
   "pack_entry_click",
+  // CBQ-TUTOR-TASTE-1 - a CBQ Pack buyer spent one of their 3 tutor questions. Name only.
+  "cbq_tutor_bonus_used",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

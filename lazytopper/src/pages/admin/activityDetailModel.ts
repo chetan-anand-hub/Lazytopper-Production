@@ -197,6 +197,7 @@ const EVENT_LABELS: Record<string, string> = {
   pack_download: "Downloaded a PDF from a pack",
   // PACKS-ENTRY-1
   pack_entry_click: "Tapped a PDF packs link",
+  cbq_tutor_bonus_used: "Used a CBQ Pack tutor question",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */
