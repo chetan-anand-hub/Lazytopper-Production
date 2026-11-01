@@ -896,3 +896,13 @@ test('★ the correction note rides only the answer-talk turn, not an unrelated 
   assert.doesNotMatch(seen[1], /OFFICIAL ANSWER KEY, are in your instructions/);
   assert.match(seen[1], /The key above is final/); // the system block still applies every turn
 });
+
+test('TUTOR-MEM-1 normalizeBrief keeps a valid concept lastSeen and drops junk', () => {
+  const mk = (lastSeen) => normalizeBrief({ hasData: true, chapter: { name: 'Electricity', concepts: [{ name: 'Ohm law', marksLost: 2, lastSeen }] } });
+  const row = (o) => o && o.chapter && o.chapter.concepts && o.chapter.concepts[0];
+  const good = row(mk('2026-10-27'));
+  assert.ok(good, 'concept row survives');
+  assert.equal(good.lastSeen, '2026-10-27');
+  assert.equal(row(mk('27 Oct')).lastSeen, undefined);
+  assert.equal(row(mk(12345)).lastSeen, undefined);
+});

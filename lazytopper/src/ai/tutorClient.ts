@@ -114,7 +114,7 @@ export interface TutorBriefChapter {
   topGroup?: "knowledge" | "careless" | "examTechnique" | "notAttempted";
   /** TUTOR-MIND-1 (B1) — up to 12 concepts with any graded activity, most marks lost first.
    *  `attempts` = graded questions; `trend` only when both halves have work. */
-  concepts?: Array<{ name: string; marksLost: number; attempts?: number; trend?: "improving" | "worsening" | "stable" }>;
+  concepts?: Array<{ name: string; marksLost: number; attempts?: number; trend?: "improving" | "worsening" | "stable"; /** TUTOR-MEM-1 - IST date (YYYY-MM-DD) of the newest graded question on this concept; absent when unknown. */ lastSeen?: string }>;
   /** TUTOR-MIND-1 (B1) — Exam Trends concepts of this chapter with NO graded question in the window (names only). */
   untouched?: string[];
   /** TUTOR-MIND-1 (B2) — the Topic Hub's before→now figure for this chapter (same source, same numbers).

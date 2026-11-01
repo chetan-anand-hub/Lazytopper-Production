@@ -65,6 +65,9 @@ export interface PracticeAttempt {
    *  show those marks as "Not attempted" rather than "no reason recorded". Absent on every
    *  attempt written before PR-2 (never back-filled). */
   notAttempted?: boolean;
+  /** TUTOR-MEM-1 - ADDITIVE OPTIONAL. A WRONG tap's option and the key as short strings ("(b) 7" / "(c) 9"). */
+  pickedOption?: string;
+  keyOption?: string;
   /** SCORECARD-MI-1 PR-2 (H7, B7) — ADDITIVE OPTIONAL, VERSIONED. The grade's marks lost per
    *  bucket, written ONLY from a grade that carries GRADER-CORE-1 v2 `marksLostByType`, and read
    *  only with `marksLostByTypeVersion` (an old or count-only attempt is never given marks). */
@@ -269,6 +272,9 @@ export interface RecordAttemptContext {
    *  surface has one. Read only for its v2 marks (versioned) and its not-attempted state
    *  (`isLossOnlyNotAttempted`); the marks recorded stay `marksScored` / `marksAvailable`. */
   grade?: GradedQuestionLike | null;
+  /** TUTOR-MEM-1 - the wrong tap (see services/mistakePick); stored only when the attempt lost marks. */
+  pickedOption?: string;
+  keyOption?: string;
 }
 
 export type RecordAttemptOutcome =
@@ -379,6 +385,9 @@ export function recordAttempt(
     ...(ctx.marksSource ? { marksSource: ctx.marksSource } : {}),
     ...(ctx.detectionOverride ? { detectionOverride: ctx.detectionOverride } : {}),
     ...(notAttempted ? { notAttempted: true } : {}),
+    ...(scored < available && ctx.pickedOption?.trim()
+      ? { pickedOption: ctx.pickedOption.trim(), ...(ctx.keyOption?.trim() ? { keyOption: ctx.keyOption.trim() } : {}) }
+      : {}),
     ...(v2Marks ? { marksLostByType: v2Marks, marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION } : {}),
     timestamp: Number(ctx.timestamp) || Date.now(),
   };

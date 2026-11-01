@@ -172,7 +172,16 @@ describe("ONE-MINUTE-1 step 1 — TAP", () => {
     expect((screen.getByTestId("one-min-why").textContent ?? "").length).toBeGreaterThan(20);
     expect(answered).toHaveBeenCalledTimes(1);
     const a = answered.mock.calls[0][0];
-    expect(Object.keys(a).sort()).toEqual(["bankId", "correct", "question", "subject", "topicKey", "topicName"]); // no marks field: the page records 1 or 0 of 1
+    // No marks field: the page records 1 or 0 of 1. TUTOR-MEM-1: a WRONG tap also carries the picked option and the
+    // key, so the tutor can name the trap; a right tap carries neither.
+    const base = ["bankId", "correct", "question", "subject", "topicKey", "topicName"];
+    if (a.correct) {
+      expect(Object.keys(a).sort()).toEqual(base);
+    } else {
+      expect(Object.keys(a).filter((k) => !base.includes(k)).every((k) => k === "pickedOption" || k === "keyOption")).toBe(true);
+      expect(typeof a.pickedOption).toBe("string");
+      if (a.keyOption !== undefined) expect(a.keyOption).not.toBe(a.pickedOption);
+    }
     expect(typeof a.correct).toBe("boolean");
     expect(a.bankId).toMatch(/^PYQ-/);
     expect(line()).toBe(a.correct ? CI_DEMO_COPY.ladderRight : CI_DEMO_COPY.ladderWrong);

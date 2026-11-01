@@ -40,6 +40,14 @@ export interface MistakeLogEntry {
    * handle that (see [FU-RETRY-SYNTHETIC-QUESTION-ID]).
    */
   questionId?: string;
+  /**
+   * TUTOR-MEM-1 (FU-TUTOR-PICK-HISTORY) - ADDITIVE OPTIONAL. On a WRONG objective answer, the option the
+   * student picked and the key, as short strings ("(b) 7", "(c) 9"). Written only by a surface that
+   * recorded the tap itself (Quick Practice today). ABSENT on every older entry and on any surface
+   * with no tap - never back-filled, never guessed.
+   */
+  pickedOption?: string;
+  keyOption?: string;
   subject: string;
   totalMarks: number;
   marksLost: number;

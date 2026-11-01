@@ -468,7 +468,7 @@ function syllabusBlock() {
  *   (routes/tutor.cjs normalizeAnchorQuestion). Absent -> no block. The key is FINAL.
  * @returns {string}
  */
-function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag, keyDisputed } = {}) {
+function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag, keyDisputed, nowMs } = {}) {
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
   // TUTOR-FIX-2 T5: no chapter (a cold /tutor/10/:subject entry) -> the SUBJECT names the session,
   // never "this topic".
@@ -633,7 +633,7 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     );
   }
 
-  lines.push(briefBlock(brief, { chapter: chapterLabel, subj }));
+  lines.push(briefBlock(brief, { chapter: chapterLabel, subj, nowMs }));
 
   lines.push(returnedWorkBlock(returnedWork));
 
@@ -684,7 +684,25 @@ function marksText(n) {
   return `${n} ${n === 1 ? 'mark' : 'marks'}`;
 }
 
-function briefBlock(brief, { chapter, subj } = {}) {
+/**
+ * TUTOR-MEM-1 - "last practised" for a concept row. `lastSeen` is the client's IST date (YYYY-MM-DD) of the
+ * newest graded question on that concept. Honest-or-silent: a malformed date, or one in the future of
+ * today's IST date, yields nothing. Returns { text } or null.
+ */
+const IST_OFFSET_MS = 330 * 60 * 1000;
+function istToday(nowMs) {
+  const ms = typeof nowMs === 'number' && Number.isFinite(nowMs) ? nowMs : Date.now();
+  return new Date(ms + IST_OFFSET_MS).toISOString().slice(0, 10);
+}
+function lastPractisedText(lastSeen, today) {
+  if (typeof lastSeen !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(lastSeen)) return null;
+  const days = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${lastSeen}T00:00:00Z`)) / 86400000);
+  if (!Number.isFinite(days) || days < 0) return null;
+  const when = days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
+  return `last practised ${lastSeen}, ${when}`;
+}
+
+function briefBlock(brief, { chapter, subj, nowMs } = {}) {
   const b = brief && typeof brief === 'object' ? brief : null;
   const hasData = !!(b && b.hasData);
   const num = (v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : null);
@@ -775,11 +793,15 @@ function briefBlock(brief, { chapter, subj } = {}) {
       `A concept name says WHERE marks were lost, not WHY — it is not a mistake type and does not mean a concept/knowledge gap.`,
     );
   } else if (concepts.length) {
+    // TUTOR-MEM-1 - today's IST date is needed (and stated) only when some concept row carries a lastSeen.
+    const today = istToday(nowMs);
     const row = (c) => {
       const att = num(c.attempts);
       const bits = [marksText(num(c.marksLost)) + ' lost'];
       if (att !== null) bits.push(`${att} graded ${att === 1 ? 'question' : 'questions'}`);
       if (c.trend === 'improving' || c.trend === 'worsening' || c.trend === 'stable') bits.push(friendlyTrend(c.trend));
+      const seen = lastPractisedText(c.lastSeen, today);
+      if (seen) bits.push(seen);
       return `${str(c.name)} (${bits.join(', ')})`;
     };
     facts.push(
@@ -787,6 +809,12 @@ function briefBlock(brief, { chapter, subj } = {}) {
       `A concept name says WHERE marks were lost (or that it was practised), not WHY — it is not a mistake type and ` +
       `does not mean a concept/knowledge gap. "0 marks lost" means practised without losing marks there.`,
     );
+    if (concepts.some((c) => lastPractisedText(c.lastSeen, today))) {
+      facts.push(
+        `- Today's date (IST) is ${today}. "last practised" is the date of the newest graded question on that concept in LazyTopper; ` +
+        `quote it as given. Where a concept has no "last practised", you do not know when they last saw it.`,
+      );
+    }
   } else if (Array.isArray(topic.weakConcepts) && topic.weakConcepts.length) {
     facts.push(`- Sub-topics that have cost marks: ${topic.weakConcepts.slice(0, 3).map(str).filter(Boolean).join(', ')}.`);
   }

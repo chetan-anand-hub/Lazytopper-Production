@@ -336,12 +336,14 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
             "concepts": [
               {
                 "attempts": 10,
+                "lastSeen": "2026-10-20",
                 "marksLost": 11,
                 "name": "Fundamental Theorem of Arithmetic",
                 "trend": "improving",
               },
               {
                 "attempts": 4,
+                "lastSeen": "2026-10-18",
                 "marksLost": 6,
                 "name": "Irrationality Proofs",
               },
@@ -443,11 +445,13 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
             "concepts": [
               {
                 "attempts": 5,
+                "lastSeen": "2026-10-20",
                 "marksLost": 5,
                 "name": "Mirror / Lens Formula & Ray Diagrams",
               },
               {
                 "attempts": 3,
+                "lastSeen": "2026-10-20",
                 "marksLost": 3,
                 "name": "Refraction through Glass Slab / Prism",
               },

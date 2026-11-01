@@ -108,6 +108,10 @@ export interface RecordMistakeContext {
   /** GA-41 — when the grade happened (ms or ISO). A free-check replay passes the original
    *  `gradedAt`, so the MI entry and the attempt fall in the same Me window. Defaults to now. */
   gradedAt?: number | string;
+  /** TUTOR-MEM-1 - the wrong tap as short strings ("(b) 7" / "(c) 9"; see services/mistakePick). Stored only
+   *  when the question actually lost marks. Absent for a surface with no tap. */
+  pickedOption?: string;
+  keyOption?: string;
 }
 
 export type RecordMistakeOutcome =
@@ -247,6 +251,9 @@ function buildEntry(
     questionText: ctx.question,
     ...(questionId ? { questionId } : {}),
     ...(concept ? { concept } : {}),
+    ...(marksLost > 0 && ctx.pickedOption?.trim()
+      ? { pickedOption: ctx.pickedOption.trim(), ...(ctx.keyOption?.trim() ? { keyOption: ctx.keyOption.trim() } : {}) }
+      : {}),
     topic: ctx.topic,
     subject: ctx.subject,
     totalMarks: Number(result.totalMarks) || 0,
