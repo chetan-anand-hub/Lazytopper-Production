@@ -281,3 +281,51 @@ test('TUTOR-CHALLENGE-1 r1: the "key is final" note is skipped when the row has 
   assert.doesNotMatch(bad.prompts.last, /The key is final/);
   assert.match(bad.prompts[0], /ROW CHECK/);
 });
+
+// ---- TUTOR-POLISH-1: a softer reply when the student challenges a key (no in-row evidence)
+const FLAGGED_LINE = /flagged this question for a teacher to check/;
+
+test('POLISH-1: dispute + logged + no in-row evidence -> the prompt asks for ONE warm "flagged" line, and the report is really written', async () => {
+  const h = harness({ reply: 'The key is C because N is oxidised. I have flagged this one for a teacher to double-check.' });
+  const res = await h.ask('I think the key is wrong, two are correct', ANCHOR_OK);
+  assert.match(h.prompts[0], FLAGGED_LINE);
+  assert.match(h.prompts[0], /do not flip/);
+  assert.match(h.prompts[0], /Never say the board or NCERT is wrong/);
+  assert.match(h.prompts[0], /before your closing question/);
+  assert.equal(res.status, 200);
+  assert.match(res.body.reply, /flagged this one for a teacher/); // the stubbed model reply passes through untouched
+  const r = reports(h.fs);
+  assert.equal(r.length, 1);
+  assert.equal(r[0][1].kind, 'challenge'); // the write the line promises happened on this turn
+});
+
+test('POLISH-1: the "flagged" line is NOT offered when nothing is logged (signed out) or the student is not disputing', async () => {
+  const out = harness({ reply: 'C.', uid: '' });
+  await out.ask('I think the key is wrong', ANCHOR_OK);
+  assert.doesNotMatch(out.prompts[0], FLAGGED_LINE);
+  assert.match(out.prompts[0], /never claim a report was filed/);
+  assert.equal(reports(out.fs).length, 0);
+
+  const calm = harness({ reply: 'C.' });
+  await calm.ask('why is it C?', ANCHOR_OK);
+  assert.doesNotMatch(calm.prompts[0], FLAGGED_LINE);
+});
+
+test('POLISH-1: with in-row mismatch evidence the old mismatch wording stands (no duplicate "flagged" instruction)', async () => {
+  const h = harness({ reply: 'There is a mismatch in our key.' });
+  await h.ask('I think the key is wrong', ANCHOR_BAD);
+  assert.match(h.prompts[0], /ROW CHECK \(computed/);
+  assert.doesNotMatch(h.prompts[0], FLAGGED_LINE);
+  assert.match(h.prompts[0], /Do not insist the key is right/);
+});
+
+test('POLISH-1 prompt builder: keyDisputed is ignored without canFlag; the tone rules and the MI block are untouched', () => {
+  const base = { topicLabel: 'Chem', subject: 'science', anchorQuestion: ANCHOR_OK };
+  assert.doesNotMatch(buildTutorSystemPrompt({ ...base, canFlag: false, keyDisputed: true }), FLAGGED_LINE);
+  const on = buildTutorSystemPrompt({ ...base, canFlag: true, keyDisputed: true });
+  const off = buildTutorSystemPrompt({ ...base, canFlag: true, keyDisputed: false });
+  assert.match(on, FLAGGED_LINE);
+  assert.match(on, /SOUND LIKE A HUMAN TUTOR/);
+  // everything outside the dispute sentence is identical
+  assert.equal(on.split('The student is questioning the key')[0], off.split('If the student insists')[0]);
+});

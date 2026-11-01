@@ -53,6 +53,7 @@ import {
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { EVIDENCE_BASE_YEARS } from "../../config/evidenceBase";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
+import { subscriptFormulas } from "../../lib/chemSubscript";
 // DIAGRAMS-1 PR-2a — solution figure drawn from the question's own numbers (lazy; null when unbound).
 const SolutionFigure = lazyWithRetry(() => import("../../diagrams/SolutionFigure"));
 
@@ -2776,7 +2777,7 @@ export default function DesktopPracticePage() {
                             >
                               {activeQuestion.options.map((option, optionIndex) => (
                                 <li key={`${activeQuestion.id}-option-${optionIndex}`}>
-                                  {option}
+                                  {subscriptFormulas(option)}
                                 </li>
                               ))}
                             </ul>

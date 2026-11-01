@@ -18,6 +18,7 @@ import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
+import { subscriptFormulas } from "../../lib/chemSubscript";
 
 /** What the page needs to record the tap as an MCQ attempt (signed in) — nothing else leaves this component. */
 export interface LadderAnswer {
@@ -195,7 +196,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
           {correct ? "✓ 1/1" : "✗ 0/1"}
           <span className="ci-demo__verdict-ans">
             {" "}
-            Right answer: {LETTERS[mcq.right]}. {mcq.options[mcq.right]}
+            Right answer: {LETTERS[mcq.right]}. {subscriptFormulas(mcq.options[mcq.right])}
           </span>
         </p>
       ) : null}
@@ -216,7 +217,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
                 <span className="ci-demo__opt-letter" aria-hidden="true">
                   {LETTERS[i]}
                 </span>
-                <span className="ci-demo__opt-text">{o}</span>
+                <span className="ci-demo__opt-text">{subscriptFormulas(o)}</span>
               </button>
             </li>
           );

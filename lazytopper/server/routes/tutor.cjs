@@ -877,7 +877,9 @@ function createTutorRoute(deps) {
     // TUTOR-KEY-TRUST-1: the prompt may say "I've flagged it" ONLY when the server will really log (verified uid + a keyed anchor + Firestore).
     const flagUid = await resolveFlagUid(req, anchorQuestion);
     const canFlag = !!flagUid;
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag });
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag,
+      // TUTOR-POLISH-1: true only when logKeyDisputes WILL file the 'challenge' report this turn (same predicate as there).
+      keyDisputed: canFlag && studentDisputesKey(studentLast) });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
