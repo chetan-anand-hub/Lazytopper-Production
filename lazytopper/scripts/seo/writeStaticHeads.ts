@@ -65,6 +65,7 @@ import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
 import { cbqHeadForPath, cbqJsonLd } from "../../src/components/cbq/cbqSeo";
+import { faqJsonLdForPath } from "../../src/components/seo/faqContent";
 import { testimonialVideoJsonLdFor } from "./testimonialVideoJsonLd";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -114,7 +115,10 @@ export function solutionsStaticHeads(): Record<string, PageHead> {
  */
 export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
   "/pricing": {
-    title: "Pricing — Free and Premium | LazyTopper",
+    // SEO-QUICK-1 (owner 1 Nov 2026): title only — leads with the searcher's words; number-free (the price depends on the
+    // date). "Free plan" and "Board Pass" are the pricing page's own names.
+    title: "Class 10 CBSE Pricing: Free Plan & Board Pass | LazyTopper",
+    // The description is OWNER WORDING (OR-P7, 26 Sep 2026; pinned word for word by passesNotSubscriptions.orP7.test) — unchanged.
     description:
       "What the free tier includes, what Premium adds, and how passes work. " +
       "CBSE Class 10 Maths and Science prep.",
@@ -137,9 +141,10 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "unit-wise marks and what the two-exam rule actually means for you.",
   },
   "/practice-hub": {
-    title: "Practice CBSE Class 10 Maths & Science | LazyTopper",
+    // SEO-QUICK-1 (owner 1 Nov 2026): names the three things the hub offers.
+    title: "Class 10 CBSE Practice Questions & Mock Tests | LazyTopper",
     description:
-      "Pick a subject, scope and topic, then choose how to practise — questions, " +
+      "Practise CBSE Class 10 Maths and Science: pick a subject and topic, then choose questions, " +
       "worksheets, or predicted-question mocks.",
   },
   // SEO-3 — owner text (titles: SEO-3 §2 S2; descriptions: owner ruling D2, which
@@ -167,18 +172,21 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
   // SEO-5 PR-3 — the answer-writing guide. Both strings restate the page's own h1 and
   // section headings (src/pages/CheckYourAnswerPage.tsx); nothing is added.
   "/check-your-answer": {
-    title: "How CBSE Examiners Mark Class 10 Answers | LazyTopper",
+    // SEO-QUICK-1 (owner 1 Nov 2026): "step marking" is the searcher's phrase; the page explains it and
+    // offers the free check (its own h1 / hero CTA).
+    title: "CBSE Class 10 Step Marking Explained | LazyTopper",
     description:
-      "How CBSE examiners mark Class 10 Maths and Science answers: step marks, where marks " +
-      "are lost, and worked examples from past board papers.",
+      "How CBSE step marking works in Class 10 Maths and Science: where marks are earned and lost, " +
+      "with past-paper examples. Check your answer free.",
   },
   // PARENTS-1 — the parent landing page. Both strings restate the page's own h1 and sub-line
   // (src/pages/ForParentsPage.tsx); nothing is added. Title kept to 60 characters or fewer.
   "/for-parents": {
-    title: "CBSE Class 10 Help for Parents | LazyTopper",
+    // SEO-QUICK-1 (owner 1 Nov 2026): leads with what a parent wants to know.
+    title: "CBSE Class 10 for Parents: Find Lost Marks | LazyTopper",
     description:
-      "Your child photographs a written answer; LazyTopper marks every step the way a CBSE " +
-      "examiner does and shows what to fix. First check free.",
+      "Your Class 10 child photographs a written answer; LazyTopper marks every step like a CBSE " +
+      "examiner and shows what to fix. First check free.",
   },
   // CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) — the contact page. Both strings are the page's
   // own CONTACT_TITLE / CONTACT_DESCRIPTION (src/pages/ContactPage.tsx), word for word; the
@@ -770,7 +778,10 @@ async function main(): Promise<void> {
     });
     // SEO-NOTES-LINK-2 — notes pages also carry their BreadcrumbList + LearningResource.
     const jsonLd = pageJsonLd(path, basename, head !== null);
-    const html = jsonLd ? applyJsonLd(stamped, jsonLd, path) : stamped;
+    let html = jsonLd ? applyJsonLd(stamped, jsonLd, path) : stamped;
+    // SEO-QUICK-1 — the FAQPage block, a SEPARATE script so the existing Breadcrumb / VideoObject block is untouched.
+    const faqLd = head !== null ? faqJsonLdForPath(path) : null;
+    if (faqLd) html = applyJsonLd(html, faqLd, path);
 
     const relative = path.replace(/^\//, "");
     for (const target of [`${relative}.html`, join(relative, "index.html")]) {

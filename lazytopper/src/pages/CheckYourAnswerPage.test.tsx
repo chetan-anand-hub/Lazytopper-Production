@@ -60,7 +60,7 @@ describe("/check-your-answer — the page renders, signed out, with one way into
     expect(WORKED_EXAMPLES.some((e) => e.tag.startsWith("Science"))).toBe(true);
   });
 
-  it("is 600-900 words, says it is not affiliated with CBSE, and never says 'official marking scheme'", () => {
+  it("is 600-1100 words, says it is not affiliated with CBSE, and never says 'official marking scheme'", () => {
     const { container } = renderPage();
     const main = container.querySelector("main") as HTMLElement;
     const footer = main.querySelector(".lt-public-legal");
@@ -69,7 +69,8 @@ describe("/check-your-answer — the page renders, signed out, with one way into
     // eslint-disable-next-line no-console
     console.log(`CYA_WORDS: ${words}`);
     expect(words).toBeGreaterThanOrEqual(600);
-    expect(words).toBeLessThanOrEqual(900);
+    // SEO-QUICK-1: the cap moved 900 -> 1100 for the visible 5-question FAQ (about 215 words; the guide itself is 875).
+    expect(words).toBeLessThanOrEqual(1100);
     expect(text).toContain("not affiliated with CBSE");
     expect(text.toLowerCase()).not.toContain("official marking scheme");
   });
@@ -145,7 +146,7 @@ describe("/check-your-answer — advertised, self-canonical, headed and routed (
 
   it("has its own title and a description within the 155 cap, and preloads its own chunk", () => {
     const head = headForPath(PATH);
-    expect(head?.title).toBe("How CBSE Examiners Mark Class 10 Answers | LazyTopper");
+    expect(head?.title).toBe("CBSE Class 10 Step Marking Explained | LazyTopper");
     expect(head?.description.length).toBeGreaterThan(0);
     expect(head?.description.length).toBeLessThanOrEqual(155);
     expect(routeChunkModulesFor(PATH)).toEqual(["CheckYourAnswerPage"]);
