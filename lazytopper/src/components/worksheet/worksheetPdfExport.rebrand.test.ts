@@ -88,6 +88,18 @@ describe("exportWorksheetPdf - licensee", () => {
     for (let p = 1; p <= pages; p += 1) expect(texts()).toContain(`Page ${p} of ${pages}`);
   });
 
+  it("both footer branches (licensed and unlicensed) carry the exact IITian trust line on every page", async () => {
+    const PHRASE = "Made by an IITian (IIT Kanpur)";
+    for (const opts of [{ licensee }, {}]) {
+      textMock.mockClear();
+      await exportWorksheetPdf(ws, "questions", undefined, opts);
+      const pages = addImageMock.mock.calls.length;
+      expect(texts().filter((t) => t === `${PHRASE} \u00b7 lazytopper.com`)).toHaveLength(pages);
+      expect(texts().some((t) => t.includes("\u00a9 LazyTopper"))).toBe(false);
+      addImageMock.mockClear();
+    }
+  });
+
   it("does not draw the tiled watermark for a licensed copy; draws it without a licensee", async () => {
     await exportWorksheetPdf(ws, "questions", undefined, { licensee });
     await exportWorksheetPdf(ws, "answers");

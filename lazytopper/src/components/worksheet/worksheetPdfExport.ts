@@ -237,6 +237,20 @@ function fitLicensee(pdf: Doc, l: { name: string; email: string; orderId: string
 }
 
 /** Per-page chrome the raster does not carry: green top rule, running header (after the first body page) and footer. */
+/** The trust line printed bottom right of every LazyTopper PDF (owner ruling 1 Nov 2026) - exact wording, no variants. */
+export const PDF_TRUST_LINE = "Made by an IITian (IIT Kanpur) \u00b7 lazytopper.com";
+
+/** Draws the right-hand footer text; drops to 9pt only if it could touch the left "Page N of M" at this width. */
+function drawTrustLine(pdf: Doc, leftText: string, innerW: number, y: number): void {
+  pdf.setFontSize(10);
+  if (typeof pdf.getTextWidth === "function") {
+    const gap = 6;
+    if (pdf.getTextWidth(leftText) + gap + pdf.getTextWidth(PDF_TRUST_LINE) > innerW) pdf.setFontSize(9);
+  }
+  pdf.text(PDF_TRUST_LINE, PAGE_W - MARGIN_X, y, { align: "right" });
+  pdf.setFontSize(10);
+}
+
 function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null): void {
   const innerW = PAGE_W - MARGIN_X * 2;
   pdf.setFillColor(...ACCENT_RGB);
@@ -278,11 +292,11 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
     pdf.text(fit.text, MARGIN_X, PAGE_H - 12.5);
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 6.5);
-    pdf.text("lazytopper.com", PAGE_W - MARGIN_X, PAGE_H - 6.5, { align: "right" });
+    drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, PAGE_H - 6.5);
   } else {
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
-    pdf.text("LazyTopper \u00b7 lazytopper.com \u00b7 \u00a9 LazyTopper", PAGE_W - MARGIN_X, PAGE_H - 10, { align: "right" });
+    drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, PAGE_H - 10);
   }
 }
 
