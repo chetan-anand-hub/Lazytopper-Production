@@ -1,3 +1,18 @@
+> **2026-11-02 (daily) - #1479 - #1492 (CLAUDE.md section 10, once a day).** Scope: the shared results scorecard (buying block), packs and pricing pages, Important Questions pages, PDF covers and samples, sign-in telemetry, first-action ladder, the CBQ tutor gate, the admin Students source column, and the pay-by-phone sheet. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a).** Surfaces that show the buying block received a presentation prop only. No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| /packs | tile Buy buttons with one-tap `?buy=<sku>&t=<target>` (`#1487`); free sample links (`#1485`); Pre-boards pick badge on the Bundle tile until 20 Dec (`#1491`) | merged 2 Nov | `[FU-OFFERS-V2-LIVE]`, `[FU-PACKS-BUNDLE-CHAPTERS]` |
+| /pricing packs strip | Bundle badge (`#1491`); sample links (`#1485`); `?buy=board_pass` one-tap (`#1487`) | merged | `[FU-OFFERS-V2-LIVE]` |
+| Results scorecards (Answer Checker single and multi, Worksheet, Chapter Test, Full Mock, Quick Practice) | one buying block: Board Pass then packs by price (`#1487`); Full Mock offers the Mock Pack (`#1486`); earlier buying row (`#1483`). Presentation only | merged | live-verify on two paths (`[FU-OFFERS-V2-LIVE]`) |
+| Important Questions pages (/highly-probable/10/Maths, /Science) | offers block under the intro and at the end (`#1489`) | merged | re-check Search v2 purchases 2-3 days after deploy |
+| PDF pack covers | Clean Print white cover (`#1492`) | merged | `[FU-CBQ-COVER-KICKER]` |
+| Admin - Students | source column names Google Ads sign-ups (`#1490`) | merged | `[FU-ADMIN-SRC-GADS-LIVE]` |
+| Phone pay sheet and guest pay routes | pay with phone, claim by same number (`#1488`) | merged, **dark until the three flags are on** | owner sets flags; `[FU-PAY-PHONE-LIVE]` |
+| Sign-in (Login) | YouTube in-app guidance, 45 s popup timeout, telemetry (`#1481`) | merged | `[FU-AUTH-SIGNAL-LIVE]` |
+| Answer Checker entry / Home first action | saved free-check result after sign-up (`#1482`); reliable first-action ladder; sign-up from /pricing, /packs lands on Home (`#1484`) | merged | `[FU-ACT-FIRST-LIVE]` |
+| Tutor gate | CBQ Pack owners reach 3 tutor questions (`#1480`) | merged | `[FU-CBQ-TUTOR-GATE-LIVE]` |
+| Public notes pages | honest authored-prompt label (`#1479`) | merged | `[FU-NOTES-AUTHORED-LIVE]` |
 > **2026-11-01 (daily) - #1463 - #1475 (CLAUDE.md section 10, once a day).** Scope: the Tutor (memory, stickiness, key letters, CBQ allowance, polish, figure), the Answer Checker ladder (entry only), checkout rescue, analytics (Ads conversion), PDFs, WhatsApp on buying pages, SEO heads. The Answer Checker's grading is unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
