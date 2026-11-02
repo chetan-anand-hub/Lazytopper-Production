@@ -33,7 +33,6 @@ import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { cbqChapterPath, cbqTopicBySlug } from "../cbq/cbqSeo";
 import { subscriptFormulas } from "../../lib/chemSubscript";
 import {
-  AUTHORED_PROMPT_LABEL,
   displayPromptText,
   examplesProvenance,
   examplesSectionCopy,
@@ -957,15 +956,10 @@ function ExampleCard({
         chapterFallback={chapterNo}
         onOpenPage={onOpenPage}
         className="lt-note__ex-cite"
-        prefix={authored ? "Follows NCERT " : undefined}
       />
-      {(authored || mixed) && (
+      {mixed && !authored && (
         <div className="lt-note__ex-prov">
-          {authored ? (
-            <span className="lt-note__tag-auth">{AUTHORED_PROMPT_LABEL}</span>
-          ) : (
-            <span className="lt-note__tag-src">NCERT VERBATIM</span>
-          )}
+          <span className="lt-note__tag-src">NCERT VERBATIM</span>
         </div>
       )}
       <div className="lt-note__ex-q">

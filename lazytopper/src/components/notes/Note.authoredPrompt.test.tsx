@@ -9,7 +9,7 @@ import { MemoryRouter } from "react-router-dom";
 import { Note } from "./Note";
 import { ensureAllNoteSpecs, getNoteSpecForTopic } from "./noteSpecRegistry";
 import { allDesktopTopics } from "../../lib/desktop/topics";
-import { AUTHORED_PROMPT_LABEL, displayPromptText, isAuthoredPrompt } from "./noteAuthoredPrompt";
+import { displayPromptText, isAuthoredPrompt } from "./noteAuthoredPrompt";
 
 await ensureAllNoteSpecs();
 
@@ -29,13 +29,15 @@ describe("Note — authored worked-example prompts", () => {
     const out = html(spec);
     expect(out.toLowerCase()).not.toContain("[authored prompt]");
     const authored = spec.examples.filter((e) => isAuthoredPrompt(e.problem_verbatim)).length;
-    expect(out.split(AUTHORED_PROMPT_LABEL).length - 1, "one label per authored card").toBe(authored);
     if (authored > 0) {
       expect(out).not.toContain("Every problem is a real sourced item");
       expect(out).not.toContain("Solved exactly as the source does them");
       const sec = out.slice(out.indexOf("lt-note__sec-label"), out.length);
       const examplesBlock = out.slice(out.indexOf("Worked examples"), out.indexOf("Worked examples") + 400);
       expect(examplesBlock).not.toContain("NCERT VERBATIM");
+      expect(out).not.toContain("Follows NCERT");
+      expect(out).not.toContain("written by LazyTopper");
+      expect(out).toMatch(/Important questions|important questions/);
       expect(sec.length).toBeGreaterThan(0);
     } else if (spec.examples.length > 0) {
       expect(out).toContain("Every problem is a real sourced item");
@@ -50,7 +52,7 @@ describe("Note — authored worked-example prompts", () => {
   it("the reported card: marker gone, formulae subscripted, label present", () => {
     const out = html(getNoteSpecForTopic("chemical-reactions-and-equations")!);
     expect(out).toContain("Balance the skeletal equation Fe + H₂O -> Fe₃O₄ + H₂ by the hit-and-trial method");
-    expect(out).toContain("Practice question written by LazyTopper");
+    expect(out).toContain("Important questions, solved step by step");
   });
 
   it("displayPromptText: strips a prefix or suffix marker; leaves $...$ maths and O1-style labels alone", () => {
@@ -66,15 +68,17 @@ describe("Note — authored worked-example prompts", () => {
     const out = html(spec);
     expect(out).toContain("Every problem is a real sourced item");
     expect(out).toContain("NCERT VERBATIM");
-    expect(out).not.toContain(AUTHORED_PROMPT_LABEL);
+    expect(out).not.toContain("Important questions");
   });
 
-  it("a mixed section says so and chips only the sourced card", () => {
+  it("a mixed section does not claim all sourced and chips only the sourced card", () => {
     const spec = structuredClone(getNoteSpecForTopic("chemical-reactions-and-equations")!);
     spec.examples[1].problem_verbatim = spec.examples[1].problem_verbatim.replace("[authored prompt]", "").trim();
     const out = html(spec);
-    expect(out).toContain("plus a few practice prompts we wrote");
+    expect(out).toContain("Worked examples and important questions, decoded step by step");
     expect(out).not.toContain("Every problem is a real sourced item");
-    expect(out.split(AUTHORED_PROMPT_LABEL).length - 1).toBe(spec.examples.length - 1);
+    const from = out.indexOf("Worked examples and important questions");
+    const block = out.slice(from, out.indexOf("Problem-solving strategies", from));
+    expect(block.split("NCERT VERBATIM").length - 1, "chip only on the sourced card").toBe(1);
   });
 });

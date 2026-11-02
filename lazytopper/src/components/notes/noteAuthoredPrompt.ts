@@ -13,9 +13,6 @@ import { subscriptFormulas } from "../../lib/chemSubscript";
 
 const MARKER_RE = /\s*\[authored prompt\]\s*/i;
 
-/** Label shown on the card of a prompt LazyTopper wrote. */
-export const AUTHORED_PROMPT_LABEL = "Practice question written by LazyTopper";
-
 export function isAuthoredPrompt(problemText: string | null | undefined): boolean {
   return MARKER_RE.test(problemText ?? "");
 }
@@ -49,7 +46,7 @@ export function examplesProvenance(examples: ReadonlyArray<{ problem_verbatim: s
   return n === 0 ? "verbatim" : n === examples.length ? "authored" : "mixed";
 }
 
-/** Section copy that is true for the section's actual contents. */
+/** Section copy that is true for the section's actual contents (no verbatim/sourced claim on authored items). */
 export function examplesSectionCopy(p: ExamplesProvenance): { label: string; heading: string; intro: string; chip: boolean; allAuthored: boolean } {
   if (p === "verbatim") {
     return {
@@ -61,14 +58,20 @@ export function examplesSectionCopy(p: ExamplesProvenance): { label: string; hea
       allAuthored: false,
     };
   }
+  if (p === "mixed") {
+    return {
+      label: "Worked examples and important questions",
+      heading: "Worked examples and important questions, decoded step by step",
+      intro: "Worked examples and important questions, decoded step by step with the marks each step earns.",
+      chip: false,
+      allAuthored: false,
+    };
+  }
   return {
-    label: "Worked examples — solved step by step",
-    heading: p === "mixed" ? "Real sourced problems, plus practice prompts we wrote" : "Practice questions, solved step by step",
-    intro:
-      p === "mixed"
-        ? "Real sourced problems, plus a few practice prompts we wrote — each is labelled. The step-by-step decoding and mark-logic are LazyTopper-authored coaching."
-        : "These practice questions are written by LazyTopper, and each is labelled. They follow the NCERT page cited on the card; the step-by-step decoding and mark-logic are LazyTopper-authored coaching.",
+    label: "Important questions — solved step by step",
+    heading: "Important questions, solved step by step",
+    intro: "Board-style questions on this chapter, decoded step by step with the marks each step earns.",
     chip: false,
-    allAuthored: p === "authored",
+    allAuthored: true,
   };
 }
