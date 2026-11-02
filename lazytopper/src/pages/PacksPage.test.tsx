@@ -73,7 +73,7 @@ afterEach(() => cleanup());
 describe("PacksPage", () => {
   const tap = (id: string) => fireEvent.click(screen.getByTestId(`packs-card-${id}`));
 
-  it("renders the v3 hero, four pack tiles with prices, the short FAQ and the refund link signed out; no My packs; fires pack_view", () => {
+  it("renders the v3 hero, four pack tiles with prices, the short FAQ and the cancellation-policy link signed out; no My packs; fires pack_view", () => {
     page();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Every question. Worked solutions.");
     for (const id of ["chapter", "mock", "subject", "bundle"]) expect(screen.getByTestId(`packs-card-${id}`)).toBeTruthy();
@@ -85,7 +85,8 @@ describe("PacksPage", () => {
     expect(text).toContain("All 26 chapters");
     expect(text).not.toMatch(/\b27 chapters/);
     expect(text).not.toMatch(/Complete Bundle|Stray/);
-    expect(screen.getByRole("link", { name: /refund policy/i }).getAttribute("href")).toBe("/legal/refund");
+    // Owner 2 Nov 2026 (no refunds): the visible text is "Cancellation policy"; the link target is unchanged.
+    expect(screen.getByRole("link", { name: "Cancellation policy" }).getAttribute("href")).toBe("/legal/refund");
     expect(screen.queryByTestId("packs-mine")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.getByTestId("founder-badge").textContent).toBe("Made by an IITian (IIT Kanpur)");

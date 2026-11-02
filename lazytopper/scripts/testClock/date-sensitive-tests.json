@@ -389,6 +389,7 @@
     "src/components/home/pendingPapers.test.ts",
     "src/components/limits/limits.test.tsx",
     "src/components/mi/MiCard.consistency.test.tsx",
+    "src/components/packs/PackTileBuy.test.tsx",
     "src/components/packs/PacksShop.purchase.test.tsx",
     "src/components/packs/useOwnedPacks.test.tsx",
     "src/components/papers/PaperReminderActions.test.tsx",

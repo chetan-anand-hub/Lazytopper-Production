@@ -1,5 +1,5 @@
 import { packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
-import type { PacksShopApi } from "./PacksShop";
+import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "./PacksShop";
 import "./packTileBuy.css";
 
 /**
@@ -11,11 +11,41 @@ import "./packTileBuy.css";
 const SUBJECTS: readonly PackSubject[] = ["maths", "science"];
 
 function Owned({ label, testId }: { label?: string; testId: string }) {
+  // Review fix 4: an outline pill with a check mark - never the look of a Buy button.
   return (
     <span className="lt-ptb__owned" data-testid={testId}>
+      <span className="lt-ptb__tick" aria-hidden="true">&#10003;</span>
       {label ? `${label} · ` : ""}You own this
     </span>
   );
+}
+
+/** A tile Buy: disabled (with a visible reason) while another pack's payment is open or being checked (review fix 2). */
+function BuyButton({ blocked, onClick, testId, className = "lt-ptb__btn", children, dialog = false }: {
+  blocked: boolean;
+  onClick: () => void;
+  testId: string;
+  className?: string;
+  children: string;
+  dialog?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={onClick}
+      disabled={blocked}
+      aria-disabled={blocked}
+      {...(dialog ? { "aria-haspopup": "dialog" as const } : {})}
+      data-testid={testId}
+    >
+      {children}
+    </button>
+  );
+}
+
+function BusyNote({ show }: { show: boolean }) {
+  return show ? <span className="lt-ptb__busy" role="status">{OTHER_PAYMENT_BUSY_COPY}</span> : null;
 }
 
 export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku; api: PacksShopApi; tone?: "light" | "on-dark" }) {
@@ -24,39 +54,41 @@ export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku
   const cls = tone === "on-dark" ? "lt-ptb lt-ptb--dark" : "lt-ptb";
 
   if (sku === "pack_chapter") {
+    const blocked = api.blockedBy(sku);
     return (
       <div className={cls}>
-        <button type="button" className="lt-ptb__btn" onClick={api.chooseChapter} aria-haspopup="dialog" data-testid="tile-buy-pack_chapter">
-          {`Choose chapter & buy · ${price}`}
-        </button>
+        <BuyButton blocked={blocked} onClick={api.chooseChapter} dialog testId="tile-buy-pack_chapter">{`Choose chapter & buy · ${price}`}</BuyButton>
+        <BusyNote show={blocked} />
       </div>
     );
   }
   if (sku === "pack_bundle") {
+    const blocked = api.blockedBy(sku);
     return (
       <div className={cls}>
         {api.ownsPack(sku) ? (
           <Owned testId="tile-owned-pack_bundle" />
         ) : (
-          <button type="button" className="lt-ptb__btn" onClick={() => api.buyNow(sku)} data-testid="tile-buy-pack_bundle">
-            {`Buy · ${price}`}
-          </button>
+          <BuyButton blocked={blocked} onClick={() => api.buyNow(sku)} testId="tile-buy-pack_bundle">{`Buy · ${price}`}</BuyButton>
         )}
+        <BusyNote show={blocked && !api.ownsPack(sku)} />
       </div>
     );
   }
   if (sku === "pack_cbq") return null; // the CBQ cards use PackCbqBuy (one card per subject)
+  const anyBlocked = SUBJECTS.some((s) => !api.ownsPack(sku, s) && api.blockedBy(sku, s));
   return (
     <div className={`${cls} lt-ptb--pair`}>
       {SUBJECTS.map((s) =>
         api.ownsPack(sku, s) ? (
           <Owned key={s} label={subjectLabel(s)} testId={`tile-owned-${sku}-${s}`} />
         ) : (
-          <button key={s} type="button" className="lt-ptb__btn" onClick={() => api.buyNow(sku, s)} data-testid={`tile-buy-${sku}-${s}`}>
-            {`${subjectLabel(s)} ${price}`}
-          </button>
+          <BuyButton key={s} blocked={api.blockedBy(sku, s)} onClick={() => api.buyNow(sku, s)} testId={`tile-buy-${sku}-${s}`}>
+            {`Buy ${subjectLabel(s)} ${price}`}
+          </BuyButton>
         ),
       )}
+      <BusyNote show={anyBlocked} />
     </div>
   );
 }
@@ -80,10 +112,16 @@ export function PackCbqBuy({ subject, api, testPrefix }: { subject: PackSubject;
       {api.ownsPack("pack_cbq", subject) ? (
         <Owned testId={`tile-owned-pack_cbq-${subject}`} />
       ) : (
-        <button type="button" className="lt-cbq__btn" onClick={() => api.buyNow("pack_cbq", subject)} data-testid={`tile-buy-pack_cbq-${subject}`}>
+        <BuyButton
+          blocked={api.blockedBy("pack_cbq", subject)}
+          className="lt-cbq__btn"
+          onClick={() => api.buyNow("pack_cbq", subject)}
+          testId={`tile-buy-pack_cbq-${subject}`}
+        >
           {`Buy ${subjectLabel(subject)} CBQ · ${packPriceLabel("pack_cbq")}`}
-        </button>
+        </BuyButton>
       )}
+      <BusyNote show={!api.ownsPack("pack_cbq", subject) && api.blockedBy("pack_cbq", subject)} />
       {see}
     </div>
   );

@@ -180,7 +180,12 @@ export interface PacksShopApi {
   ownsPack: (sku: PackSku, target?: string) => boolean;
   /** False while packs are dark (no Buy buttons on tiles then; the pop-up already says "Opens soon"). */
   buyEnabled: boolean;
+  /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
+  blockedBy: (sku: PackSku, target?: string) => boolean;
 }
+
+/** Review fix 2: shown under a Buy that waits for another pack's payment. */
+export const OTHER_PAYMENT_BUSY_COPY = "Finishing your other payment…";
 
 export interface PacksShopProps {
   /** Where sign-in returns the student after a signed-out Buy: the page the visitor is on. */
@@ -215,6 +220,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   /** PAY-PHONE-1 - the pack a signed-out visitor is paying for with a phone number (the sheet is open), else null. */
   const [guest, setGuest] = useState<{ sku: PackSku; target: string | undefined } | null>(null);
   const guestEnabled = enabled && isGuestPayClientEnabled();
+  /** Review fix 6: a local (non-cloud) session cannot pay or own anything - it is treated as signed out (as PassCheckout does). */
+  const signedIn = Boolean(user) && !user?.isLocalSession;
   const mounted = useRef(true);
   const viewSent = useRef(false);
   const myPacksRef = useRef<HTMLElement | null>(null);
@@ -336,7 +343,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
 
   async function handleBuy(sku: PackSku, target: string | undefined) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
-    if (!user) {
+    // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
+    if (settling(packIdOf(sku, target))) return;
+    if (!signedIn) {
       // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the
       // visitor to sign-in first. Off: today's flow, unchanged.
       if (guestEnabled) {
@@ -439,7 +448,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // pack's pop-up and the "How do you want to pay?" sheet, once. Signed in, the resume effect above handles it as before.
   const guestResumeDone = useRef(false);
   useEffect(() => {
-    if (guestResumeDone.current || authLoading || user || !guestEnabled) return;
+    if (guestResumeDone.current || authLoading || signedIn || !guestEnabled) return;
     const want = readBuyResume(location.search);
     if (!want) return;
     guestResumeDone.current = true;
@@ -469,30 +478,36 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   /** The buy button (and its status notes) for one SKU. `prefix` picks the pop-up's or the page's class set. */
   function buyArea(sku: PackSku, target: string | undefined, ready: boolean, prefix: "lt-pkd" | "lt-packs" = "lt-pkd") {
     const key = packIdOf(sku, target);
-    const isOwned = ready && isAlreadyOwned(owned, sku, target);
+    const isOwned = ready && (isAlreadyOwned(owned, sku, target) || (buy.key === key && buy.phase === "paid"));
     const mine_ = buy.key === key;
     const busy = mine_ && (buy.phase === "busy" || buy.phase === "checking");
+    const confirming = ready && mine_ && buy.phase === "confirming";
     const dismissed = mine_ && buy.phase === "dismissed";
+    const blocked = ready && otherBusy(key);
     let label = `Buy for ${packPriceLabel(sku)}`;
     if (!enabled) label = "Opens soon";
     else if (!ready) label = "Choose a chapter first";
     else if (isOwned) label = "You own this";
+    else if (confirming) label = PACK_CHECKING_COPY;
     else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
-    else if (!user && !authLoading) label = `Buy · ${packPriceLabel(sku)}`;
+    else if (!signedIn && !authLoading) label = `Buy · ${packPriceLabel(sku)}`;
     // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
     else if (dismissed) label = `Pay ${packPriceLabel(sku)}`;
-    const showSigninNote = enabled && ready && !isOwned && !busy && !user && !authLoading;
+    const showSigninNote = enabled && ready && !isOwned && !busy && !blocked && !signedIn && !authLoading;
+    const off = !enabled || !ready || isOwned || busy || confirming || blocked;
     return (
       <>
         <button
           type="button"
           className={`${prefix}__btn`}
-          disabled={!enabled || !ready || isOwned || busy}
+          disabled={off}
+          aria-disabled={off}
           onClick={() => void handleBuy(sku, target)}
           data-testid={`packs-buy-${sku}`}
         >
           {label}
         </button>
+        {blocked && <p className={`${prefix}__note`} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{guestEnabled ? PACK_GUEST_NOTE : PACK_SIGNIN_NOTE}</p>}
         {dismissed && (
           <div className={`${prefix}__sample`} data-testid="packs-dismissed-sample">
@@ -578,6 +593,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     </>
   );
 
+  /** Review fix 1: this pack's payment just succeeded or is still being confirmed. */
+  function settling(key: string): boolean {
+    return buy.key === key && (buy.phase === "paid" || buy.phase === "confirming");
+  }
+  /** Review fix 2: ANOTHER pack's checkout is open or being checked ("" = any pack, for the chapter picker). */
+  function otherBusy(key: string): boolean {
+    return (buy.phase === "busy" || buy.phase === "checking") && buy.key !== key;
+  }
+
   const api: PacksShopApi = {
     openPack,
     openCbq: (s) => {
@@ -594,8 +618,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       openPack("pack_chapter");
       setFocusPicker(true);
     },
-    ownsPack: (sku, target) => Boolean(user) && isAlreadyOwned(owned, sku, target),
+    // Review fix 1: a pack just paid for, or still confirming, counts as owned (no second Buy on its tile).
+    ownsPack: (sku, target) => signedIn && (isAlreadyOwned(owned, sku, target) || settling(packIdOf(sku, target))),
     buyEnabled: enabled,
+    // Review fix 2: another pack's checkout is open or being checked - every other Buy waits.
+    blockedBy: (sku, target) => otherBusy(sku === "pack_chapter" && !target ? "" : packIdOf(sku, target)),
   };
 
   return (

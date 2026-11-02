@@ -22,3 +22,7 @@
   .lt-cbq__title { font-size: 32px; }
   .lt-cbq__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 }
+/* Review fix 5: the free-sample link on the navy CBQ cards must stay light even inside a page that colours every link
+   (e.g. `.lt-packs a`, dark green): #6fe0a8 on the band's navy (#15233a..#1d3354) is about 9:1, well above 4.5:1. */
+.lt-cbq a.lt-psl--dark, .lt-cbq a.lt-psl--dark:visited { color: #6fe0a8; }
+.lt-cbq a.lt-psl--dark:hover { color: #9cf0c6; }
