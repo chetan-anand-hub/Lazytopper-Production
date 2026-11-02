@@ -45,7 +45,7 @@ vi.mock("html2canvas", () => ({
   },
 }));
 
-import { exportWorksheetPdf, licenseeLine } from "./worksheetPdfExport";
+import { exportWorksheetPdf, licenseeLine, pageGeometry, PRINT_GEOMETRY } from "./worksheetPdfExport";
 
 const ws: PersistedWorksheet = {
   worksheetId: "ws-test",
@@ -120,6 +120,26 @@ describe("exportWorksheetPdf - licensee", () => {
     const line = texts().find((t) => t.startsWith("Licensed to")) ?? "";
     expect(line.length * 1.5).toBeLessThanOrEqual(186);
     expect(line).toContain("Order order_999");
+  });
+
+  it("PAY-PHONE-1 (print): a PAID file keeps all chrome >= 10 mm inside every A4 edge and puts no ink on the edge", () => {
+    const g = pageGeometry({ licensee: { name: "A", email: "a@b.in", orderId: "o" } });
+    expect(g).toBe(PRINT_GEOMETRY);
+    expect(g.bar).toBe(false);
+    expect(g.headerImgY).toBeGreaterThanOrEqual(10);
+    expect(297 - g.pageY).toBeGreaterThanOrEqual(10 + 3); // the page-number baseline, plus its text height
+    expect(g.top).toBeGreaterThan(g.headerRuleY);
+    expect(297 - g.footerH).toBeLessThan(g.footLineY);
+    // A free sample and an unlicensed worksheet keep their layout.
+    expect(pageGeometry({ sample: {} }).bar).toBe(true);
+    expect(pageGeometry({}).top).toBe(15);
+  });
+
+  it("PAY-PHONE-1: a masked phone stays MASKED in the PDF footer (bullets -> *), never collapses to a short number", () => {
+    const l = { name: "Asha", email: "+91 98\u2022\u2022\u2022\u2022\u2022948", orderId: "o1" };
+    expect(licenseeLine(l)).toBe("Licensed to Asha · +91 98\u2022\u2022\u2022\u2022\u2022948 · Order o1 — personal use only");
+    expect(licenseeLine(l, true)).toBe("Licensed to Asha · +91 98*****948 · Order o1 — personal use only");
+    expect(licenseeLine({ name: "", email: l.email, orderId: "o1" }, true)).toBe("Licensed to +91 98*****948 · Order o1 — personal use only");
   });
 
   it("a name the PDF font cannot print is left out of the PDF line, not garbled", () => {

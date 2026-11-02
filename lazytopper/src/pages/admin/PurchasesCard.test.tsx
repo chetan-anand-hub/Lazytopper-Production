@@ -117,3 +117,53 @@ describe("PAY-RESCUE-1 · abandoned checkouts show why", () => {
     expect(screen.getByTestId("pu-ab-reason-order_old").textContent).toBe("No payment attempted");
   });
 });
+
+describe("PAY-PHONE-1 · unclaimed guest payments", () => {
+  it("lists masked phone, product, amount, payment id and age; empty and failed reads are honest; an older server shows nothing", async () => {
+    const { UnclaimedGuestList, ageLabel } = await import("./PurchasesCard");
+    const { render: r, screen: s, cleanup: c } = await import("@testing-library/react");
+    r(
+      <UnclaimedGuestList
+        unclaimed={{
+          items: [{ orderId: "o1", paymentId: "pay_1", phoneMasked: "+91 98•••••948", passType: "pack_mock", packTarget: "maths", kind: "pack", amountInr: 99, paidAtMs: 1, ageHours: 3 }],
+        }}
+      />,
+    );
+    const row = s.getByTestId("pu-uc-row-o1").textContent || "";
+    expect(row).toContain("+91 98•••••948");
+    expect(row).toContain("pay_1");
+    expect(row).toContain("₹99");
+    expect(row).toContain("3 h");
+    c();
+    r(<UnclaimedGuestList unclaimed={{ items: [] }} />);
+    expect(s.getByTestId("pu-unclaimed-empty")).toBeTruthy();
+    c();
+    r(<UnclaimedGuestList unclaimed={null} />);
+    expect(s.getByTestId("pu-unclaimed-unavailable")).toBeTruthy();
+    c();
+    const { container } = r(<UnclaimedGuestList unclaimed={undefined} />);
+    expect(container.innerHTML).toBe("");
+    expect(ageLabel(50)).toBe("2 d");
+  });
+});
+
+describe("PAY-PHONE-1 review · phone payments that need the owner", () => {
+  it("shows state, masked phone, payment id and reason", async () => {
+    const { GuestAttentionList } = await import("./PurchasesCard");
+    render(
+      <GuestAttentionList
+        attention={{
+          items: [
+            { orderId: "f1", state: "claimed, grant failed", reason: "grant_failed", paymentId: "pay_f1", phoneMasked: "+91 98•••••948", passType: "pack_mock", packTarget: "maths", kind: "pack", amountInr: 99, paidAtMs: 1, ageHours: 2 },
+            { orderId: "e1", state: "Paid, account erased before sign-in", reason: null, paymentId: "pay_e1", phoneMasked: "", passType: "till_boards", packTarget: null, kind: "premium", amountInr: 1917, paidAtMs: 1, ageHours: 9 },
+          ],
+        }}
+      />,
+    );
+    const f1 = screen.getByTestId("pu-at-row-f1").textContent || "";
+    expect(f1).toContain("claimed, grant failed");
+    expect(f1).toContain("+91 98•••••948");
+    expect(f1).toContain("pay_f1");
+    expect(screen.getByTestId("pu-at-row-e1").textContent).toContain("number erased");
+  });
+});

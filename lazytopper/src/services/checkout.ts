@@ -128,6 +128,8 @@ interface RazorpayOptions {
   modal: { ondismiss: () => void };
   /** PAY-RESCUE-1 - only values we already hold for the signed-in user; absent when we hold none. */
   prefill?: CheckoutPrefill;
+  /** PAY-PHONE-1 - Razorpay's own read-only lock: the guest's number is shown but cannot be changed in the sheet. */
+  readonly?: { contact?: boolean; email?: boolean };
 }
 
 interface RazorpayInstance {
@@ -179,6 +181,12 @@ export function watchPaymentFailed(instance: RazorpayInstance, onFailed: () => v
 }
 
 export type RazorpayConstructor = new (options: RazorpayOptions) => RazorpayInstance;
+
+/**
+ * PAY-PHONE-1 (B) - what the Board Pass is, as Razorpay shows it inside the payment window. Taken from the existing
+ * /pricing copy ("Checked answers, the AI tutor and Mistake Intelligence come with Premium"); no new claim.
+ */
+export const BOARD_PASS_CHECKOUT_DESCRIPTION = "Board Pass · checked answers, AI tutor and Mistake Intelligence till your boards";
 
 type WindowWithRazorpay = Window & { Razorpay?: RazorpayConstructor };
 
@@ -395,7 +403,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: passType === "month" ? "Premium pass for a month" : "Premium pass till your boards",
+        description: passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION,
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

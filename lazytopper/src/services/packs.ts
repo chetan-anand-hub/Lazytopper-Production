@@ -128,6 +128,23 @@ export interface OwnedPack {
 export interface PackLicensee {
   name: string;
   email: string;
+  /** PAY-PHONE-1 - a phone-only account (no email): its verified number, MASKED by the server (`+91 98•••••948`). */
+  phone?: string;
+}
+
+/** Exactly the server's mask: `+91`, two digits, five bullets, three digits. A full number is never accepted. */
+export const MASKED_PHONE_PATTERN = /^\+91 [6-9][0-9]\u2022{5}[0-9]{3}$/;
+
+/**
+ * PAY-PHONE-1 - what the PDF licence line names after the buyer's name: the email, or (a phone-only account) the masked
+ * phone. "" when there is neither.
+ */
+export function licenseeContact(licensee: PackLicensee | null | undefined): string {
+  if (!licensee) return "";
+  const email = typeof licensee.email === "string" ? licensee.email.trim() : "";
+  if (email) return email;
+  const phone = typeof licensee.phone === "string" ? licensee.phone.trim() : "";
+  return MASKED_PHONE_PATTERN.test(phone) ? phone : "";
 }
 
 /**
@@ -236,9 +253,17 @@ export class PacksLicenseeUnavailableError extends Error {
   }
 }
 
-/** True when a licensee carries an email: the ONLY condition under which a pack PDF may be produced. */
+/** True when a licensee carries an email. */
 export function hasLicenseeEmail(licensee: PackLicensee | null | undefined): boolean {
   return !!licensee && typeof licensee.email === "string" && licensee.email.trim().length > 0;
+}
+
+/**
+ * True when a licensee carries an email OR (PAY-PHONE-1) a server-masked verified phone: the ONLY condition under which
+ * a pack PDF may be produced. A pack file is never produced without a buyer line.
+ */
+export function hasLicenseeContact(licensee: PackLicensee | null | undefined): boolean {
+  return licenseeContact(licensee) !== "";
 }
 
 /** The signed-in student's packs and the name / email the PDFs are licensed to. Throws when signed out or on a failed request. */
@@ -256,11 +281,12 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
     email: typeof json.licensee?.email === "string" ? json.licensee.email : "",
+    ...(typeof json.licensee?.phone === "string" && MASKED_PHONE_PATTERN.test(json.licensee.phone) ? { phone: json.licensee.phone } : {}),
   };
   const taste = json.tutorTaste && typeof json.tutorTaste === "object" ? (json.tutorTaste as { used?: unknown; left?: unknown; limit?: unknown }) : null;
   const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null);
@@ -286,6 +312,26 @@ export function packDescription(sku: PackSku, target: string | undefined, chapte
       return target ? `${subjectLabel(target as PackSubject)} CBQ Pack` : "CBQ Pack";
     case "pack_bundle":
       return "Maths + Science Bundle";
+  }
+}
+
+/**
+ * PAY-PHONE-1 (B) - the line Razorpay shows inside the payment window: the pack, then what is inside it. Every phrase
+ * comes from the existing pack copy (PackDialog TITLES, the /packs tiles); no new claim. Kept short for the sheet.
+ */
+export function packCheckoutDescription(sku: PackSku, target: string | undefined, chapterName?: string): string {
+  const subject = target === "maths" || target === "science" ? subjectLabel(target as PackSubject) : "";
+  switch (sku) {
+    case "pack_chapter":
+      return `Chapter Pack · ${chapterName || target || "1 chapter"} · important questions with CBSE step-marking key`;
+    case "pack_mock":
+      return `${subject ? `${subject} ` : ""}Mock Pack · 8 board-pattern mock papers for 2027, with step-marking keys`;
+    case "pack_subject":
+      return `${subject ? `${subject} ` : ""}Subject Pack · every chapter, chapter-wise question bank 2026-27`;
+    case "pack_cbq":
+      return `${subject ? `${subject} ` : ""}CBQ Pack · chapter-wise competency questions, every type`;
+    case "pack_bundle":
+      return "Maths + Science Bundle · all 26 chapters + 16 mocks";
   }
 }
 
@@ -341,7 +387,7 @@ export async function buyPack(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: packDescription(sku, target, options.chapterName),
+        description: packCheckoutDescription(sku, target, options.chapterName),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

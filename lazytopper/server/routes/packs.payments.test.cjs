@@ -809,3 +809,36 @@ test('CREDIT · GET /api/packs/mine reports boardPassCredit { creditInr, expires
   assert.deepEqual(r.json.boardPassCredit, { creditInr: 49, expiresAtMs: NOW - 3000 + WEEK, payInr: (full - 4900) / 100 });
   assert.equal(srv.db.stats.writes.length, writes, 'no write');
 });
+
+test('PAY-PHONE-1 · GET /api/packs/mine: a phone-only account is licensed by its MASKED number; email accounts unchanged', async (t) => {
+  const srv = await start({
+    licensees: {
+      phoneOnly: { name: 'Asha', email: '', phone: '+919876543948' },
+      both: { name: 'Ravi', email: 'ravi@example.com', phone: '+917012345678' },
+      foreign: { name: 'X', email: '', phone: '+14155550123' },
+    },
+  });
+  t.after(srv.close);
+  const p = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('phoneOnly') });
+  assert.equal(p.status, 200);
+  assert.deepEqual(p.json.licensee, { name: 'Asha', email: '', phone: '+91 98•••••948' });
+  assert.ok(!p.text.includes('9876543948'), 'the full number never leaves the server');
+  const b = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('both') });
+  assert.deepEqual(b.json.licensee, { name: 'Ravi', email: 'ravi@example.com' }, 'an email account is licensed exactly as before');
+  const f = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('foreign') });
+  assert.equal(f.status, 503, 'no email and no maskable Indian mobile -> refuse as before');
+});
+
+test('OWNER 2 Nov · packs are not part of Premium: a Premium uid (pass till the boards) buys pack_cbq maths through the signed-in path', async (t) => {
+  const db = memoryFirestore();
+  await db.collection('subscriptions').doc('prem1').set({
+    tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')),
+    pricePaidInr: 1917, lastPaymentRef: 'pay_pass', foundingMember: true,
+  });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const r = await order(srv, 'prem1', 'pack_cbq', { packTarget: 'maths' });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.amountPaise, 19900);
+  assert.equal(db.read(`payOrders/${r.json.orderId}`).uid, 'prem1');
+});

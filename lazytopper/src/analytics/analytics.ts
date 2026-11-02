@@ -877,7 +877,7 @@ export type NamedAnalyticsEvent =
   // GUIDE-1 — the Byte-guide A/B: which arm this account is in, once per account per device.
   // The arm itself is a vendor param only (the first-party store keeps names, never values)
   | "guide_variant_assigned"
-  // PAYWALL-PAY-1 — a tap on one of the three paywall actions (Pay, Share QR code, Forward
+  // PAYWALL-PAY-1 — a tap on one of the three paywall actions (Pay, Pay by QR code, Forward
   // link to parents). The vendors get the generic `paywall_action { action, surface }`, the
   // first-party log one name per action (it keeps names only). Sent by trackPaywallAction
   | "paywall_action_pay"
@@ -956,7 +956,12 @@ export type NamedAnalyticsEvent =
   | "sale_moment_shown"
   | "sale_moment_tap"
   // OFFERS-V2 A2 - /pricing?buy=board_pass started the Board Pass checkout once, straight from a "Pay" button. Name only.
-  | "board_pass_direct_checkout";
+  | "board_pass_direct_checkout"
+  // PAY-PHONE-1 - pay first with a phone number, then sign in with the same number. Names only (never the number).
+  | "guest_pay_option_shown"
+  | "guest_pay_start"
+  | "guest_pay_paid"
+  | "guest_pay_claimed";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1610,7 +1615,7 @@ const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
 };
 
 /**
- * PAYWALL-PAY-1 — `paywall_action { action, surface }`: ONE event per tap on "Pay", "Share QR
+ * PAYWALL-PAY-1 — `paywall_action { action, surface }`: ONE event per tap on "Pay", "Pay by QR
  * code" or "Forward link to parents". Action + surface ONLY: never the message, the link, its
  * token, a count or a contact. The vendors read `data` (Vercel) / the params (GA4); the
  * first-party log, which keeps names only, records `paywall_action_<action>` (the

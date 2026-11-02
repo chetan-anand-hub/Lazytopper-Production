@@ -382,12 +382,41 @@ async function deleteFirestoreByField(db, pathTemplate, uid, field) {
  * `uid` FIELD — but the document is KEPT and only that field is overwritten with
  * "erased". Returns the count, so zero matched is `notFound`, never success.
  */
-async function anonymiseFirestoreByField(db, pathTemplate, uid, field) {
+/**
+ * PAY-PHONE-1 - personal fields an anonymised record must not keep. A guest (phone) payment order carries the buyer's
+ * phone number as its claim key (`guestPhone`); it is cleared wherever the uid is blanked. Only a field the document
+ * actually has is written, so records without it are rewritten exactly as before.
+ */
+const ANONYMISE_ALSO_CLEAR = Object.freeze(['guestPhone']);
+
+async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone } = {}) {
   const segs = templateSegments(pathTemplate);
   const snap = await db.collection(segs[0]).where(field, '==', uid).get();
   const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
-  for (const doc of docs) await doc.ref.update({ [field]: ERASED_UID });
-  return docs.length;
+  const seen = new Set();
+  for (const doc of docs) {
+    const data = typeof doc.data === 'function' ? doc.data() || {} : {};
+    const extra = {};
+    for (const k of ANONYMISE_ALSO_CLEAR) if (Object.prototype.hasOwnProperty.call(data, k) && data[k] !== null) extra[k] = null;
+    await doc.ref.update({ [field]: ERASED_UID, ...extra });
+    seen.add(doc.id);
+  }
+  // PAY-PHONE-1 - a payment made with this account's phone number that was never claimed has no uid to match: it is
+  // found by the number (read from the account's own auth record before the account is deleted) and only its
+  // `guestPhone` is cleared. Its uid stays null (it was never this account's), the accounting record is kept.
+  let phoneCleared = 0;
+  if (typeof phone === 'string' && phone) {
+    const byPhone = await db.collection(segs[0]).where('guestPhone', '==', phone).get();
+    for (const doc of (byPhone && Array.isArray(byPhone.docs) ? byPhone.docs : [])) {
+      if (seen.has(doc.id)) continue;
+      const data = typeof doc.data === 'function' ? doc.data() || {} : {};
+      // Review fix 10: a PAID order nobody claimed can now never be claimed (its key is gone): mark it
+      // `erased_unclaimed` - paymentId kept - an information label the owner sees in admin purchases.
+      await doc.ref.update(data.status === 'paid_unclaimed' ? { guestPhone: null, status: 'erased_unclaimed' } : { guestPhone: null });
+      phoneCleared += 1;
+    }
+  }
+  return docs.length + phoneCleared;
 }
 
 /** `qr-uploads/{uid}/{slotId}.{ext}` -> `qr-uploads/<uid>/`. */
@@ -466,12 +495,15 @@ function createAccountErasureService(deps = {}) {
     return firebaseAdmin.storage().bucket(resolveBucketName());
   }
 
+  /** PAY-PHONE-1 - the erased account's own verified phone, read once per erasure BEFORE the auth record is deleted. */
+  let accountPhone = '';
+
   async function runOne(step, uid) {
     switch (step.strategy) {
       case STRATEGY.FIRESTORE_DOC_TREE:
         return deleteFirestoreDocTree(adminFirestore, step.path, uid);
       case STRATEGY.FIRESTORE_FIELD_QUERY:
-        if (step.anonymise) return anonymiseFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD);
+        if (step.anonymise) return anonymiseFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD, { phone: accountPhone });
         return deleteFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD);
       case STRATEGY.STORAGE_PREFIX:
         return deleteStoragePrefix(bucket(), step.path, uid);
@@ -492,6 +524,17 @@ function createAccountErasureService(deps = {}) {
   async function eraseAccount(uid) {
     const trimmed = typeof uid === 'string' ? uid.trim() : '';
     if (!trimmed) throw new Error('eraseAccount requires a uid');
+
+    // PAY-PHONE-1 - best effort: no phone, or a failed read, simply clears nothing by number.
+    accountPhone = '';
+    try {
+      const record = firebaseAdmin && typeof firebaseAdmin.auth === 'function' && typeof firebaseAdmin.auth().getUser === 'function'
+        ? await firebaseAdmin.auth().getUser(trimmed)
+        : null;
+      accountPhone = record && typeof record.phoneNumber === 'string' ? record.phoneNumber : '';
+    } catch {
+      accountPhone = '';
+    }
 
     const plan = planErasure(locations);
     const statuses = new Map();

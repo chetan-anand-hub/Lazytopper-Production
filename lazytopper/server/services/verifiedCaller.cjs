@@ -119,7 +119,16 @@ function createVerifiedCaller(deps = {}) {
         return { uid: "", reason: REASON_INVALID };
       }
       const uid = decoded && typeof decoded.uid === "string" ? decoded.uid.trim() : "";
-      if (uid) return { uid, reason: REASON_VERIFIED };
+      // PAY-PHONE-1 - the VERIFIED token's own `phone_number` claim (Firebase sets it only for a phone credential that
+      // passed SMS verification). Additive: every existing caller reads `uid` / `reason` only.
+      // Review fix 8: only when the token's own sign-in identities list that number as a PHONE credential
+      // (decoded.firebase.identities.phone), never a bare profile claim.
+      const claimed = decoded && typeof decoded.phone_number === "string" ? decoded.phone_number.trim() : "";
+      const phoneIds = decoded && decoded.firebase && decoded.firebase.identities && Array.isArray(decoded.firebase.identities.phone)
+        ? decoded.firebase.identities.phone
+        : [];
+      const phoneNumber = claimed && phoneIds.includes(claimed) ? claimed : "";
+      if (uid) return { uid, reason: REASON_VERIFIED, ...(phoneNumber ? { phoneNumber } : {}) };
       emit(UNVERIFIED_EVENT);
       emit(INVALID_EVENT);
       return { uid: "", reason: REASON_INVALID };
@@ -138,7 +147,16 @@ function createVerifiedCaller(deps = {}) {
     return (await resolveVerifiedCaller(req)).uid;
   }
 
-  return { resolveVerifiedUid, resolveVerifiedCaller };
+  /**
+   * PAY-PHONE-1 - the verified uid AND the verified phone number ("" when the token has none). Both come ONLY from a
+   * token firebase-admin verified; nothing from the request body or a header other than the bearer token.
+   */
+  async function resolveVerifiedIdentity(req) {
+    const caller = await resolveVerifiedCaller(req);
+    return caller.uid ? { uid: caller.uid, phoneNumber: caller.phoneNumber || "" } : { uid: "", phoneNumber: "" };
+  }
+
+  return { resolveVerifiedUid, resolveVerifiedCaller, resolveVerifiedIdentity };
 }
 
 module.exports = {

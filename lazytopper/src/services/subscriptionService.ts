@@ -335,6 +335,21 @@ async function loadCloud(uid: string): Promise<CloudResult> {
         raw.passEnd === undefined || raw.passEnd === null ? null : (toIso(raw.passEnd) ?? "unreadable"),
       ...(raw.foundingMember === true ? { foundingMember: true } : {}),
     };
+    // PAY-PHONE-1 (review fix 1) - mirror of entitlement.cjs: a stored TRIAL that also carries a complete server grant
+    // record (pass type, running passEnd, payment ref, price) is the trial-write-after-claim race: it is the paid pass.
+    if (
+      data.tier === "trial" &&
+      (raw.passType === "month" || raw.passType === "till_boards") &&
+      typeof raw.lastPaymentRef === "string" &&
+      raw.lastPaymentRef !== "" &&
+      typeof raw.pricePaidInr === "number" &&
+      raw.pricePaidInr > 0 &&
+      data.passEnd &&
+      Date.parse(data.passEnd) > Date.now()
+    ) {
+      data.tier = "premium";
+      data.plan = raw.passType === "month" ? "pass_month" : "pass_till_boards";
+    }
     return { kind: "found", data, startIsServerPinned };
   } catch {
     return { kind: "error" };
@@ -433,6 +448,11 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
 export function activateTrial(uid: string): SubscriptionStatus {
   const existing = loadSubscription(uid);
   if (existing.tier === "premium") return existing;
+  // PAY-PHONE-1 (review fix 1) - a trial is never written onto a record that carries a paid pass (even an expired-looking
+  // one): the pass is server-owned. No extra read here on purpose - the trial write must stay queued BEFORE the first
+  // cloud read (P0-TRIAL D6); the claim instead WAITS for this write (whenTrialWriteSettled), and both tier derivations
+  // rank a running paid pass above a trial for any write that still lands late.
+  if (existing.passEnd) return existing;
   if (existing.trialStartDate) return existing;
 
   const status: SubscriptionStatus = {
@@ -451,8 +471,22 @@ export function activateTrial(uid: string): SubscriptionStatus {
     premiumSince: null,
   };
   saveLocal(uid, status);
-  void saveCloud(uid, status, { pinTrialStart: true });
+  // PAY-PHONE-1 (review fix 1): remembered so a purchase claim waits for the trial write to settle first.
+  const write = saveCloud(uid, status, { pinTrialStart: true });
+  pendingTrialWrites.set(uid, write);
+  void write.finally(() => {
+    if (pendingTrialWrites.get(uid) === write) pendingTrialWrites.delete(uid);
+  });
   return status;
+}
+
+/** In-flight sign-up trial writes, by uid (memory only). */
+const pendingTrialWrites = new Map<string, Promise<void>>();
+
+/** Resolves once this uid's sign-up trial write (if any is in flight) has settled. Never rejects. */
+export function whenTrialWriteSettled(uid: string): Promise<void> {
+  const p = pendingTrialWrites.get(uid);
+  return p ? p.then(() => undefined, () => undefined) : Promise.resolve();
 }
 
 export function activatePremium(uid: string): SubscriptionStatus {

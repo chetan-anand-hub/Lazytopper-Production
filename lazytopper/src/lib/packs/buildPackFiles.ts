@@ -21,7 +21,8 @@ import { registerPackPaper, type PackPaperReg } from "./packPaperRecord";
 import { packPaperCode } from "./packPaperCode";
 import {
   chaptersOfSubject,
-  hasLicenseeEmail,
+  hasLicenseeContact,
+  licenseeContact,
   PACK_CHAPTER_SLUGS,
   PACK_SUBJECTS,
   subjectOfChapter,
@@ -141,12 +142,13 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
     group: spec.group,
     filename: spec.filename,
     build: async () => {
-      // No licensee email, no PDF: a pack file is never produced unwatermarked.
-      if (!hasLicenseeEmail(ctx.licensee)) throw new Error("licensee_unavailable");
+      // No licensee email (or, for a phone-only account, its masked phone): no PDF. A pack file is never produced unwatermarked.
+      if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
       const exportPdf = ctx.exportPdf ?? (await defaultExport());
       const ws = { ...spec.ws(), createdAt: (ctx.nowIso ?? (() => new Date().toISOString()))() };
       await exportPdf(ws, spec.mode, spec.paper?.code, {
-        licensee: { name: ctx.licensee.name, email: ctx.licensee.email, orderId: spec.orderRef },
+        // The exporter's `email` slot is the contact printed after the name: the email, or the MASKED phone.
+        licensee: { name: ctx.licensee.name, email: licenseeContact(ctx.licensee), orderId: spec.orderRef },
         cover: spec.cover,
         filename: spec.filename,
       });

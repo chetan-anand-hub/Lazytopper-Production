@@ -956,3 +956,31 @@ test('eraseAccount refuses an empty uid rather than walking the map against ""',
   await assert.rejects(() => service.eraseAccount('   '), /requires a uid/);
   await assert.rejects(() => service.eraseAccount(undefined), /requires a uid/);
 });
+
+test('PAY-PHONE-1: erasure clears guestPhone on the account\'s claimed orders AND its unclaimed phone payments; others untouched', async () => {
+  const PHONE = '+919876543948';
+  const seed = {
+    ...realSeed(),
+    'payOrders/order_G1': { uid: UID, payer: 'guest', guestPhone: PHONE, passType: 'pack_mock', amountPaise: 9900, status: 'paid', paymentId: 'pay_G1' },
+    'payOrders/order_G2': { uid: null, payer: 'guest', guestPhone: PHONE, passType: 'till_boards', amountPaise: 191700, status: 'paid_unclaimed', paymentId: 'pay_G2' },
+    'payOrders/order_G3': { uid: null, payer: 'guest', guestPhone: '+917012345678', passType: 'pack_cbq', amountPaise: 19900, status: 'paid_unclaimed', paymentId: 'pay_G3' },
+  };
+  const store = makeFirestore(seed);
+  const bucket = makeBucket([]);
+  const admin = makeAdmin(bucket, [UID, OTHER]);
+  const baseAuth = admin.auth;
+  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => ({ uid, phoneNumber: uid === UID ? PHONE : null }) });
+  const service = createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'test-bucket' });
+  const result = await service.eraseAccount(UID);
+  assert.equal(result.ok, true);
+  assert.deepEqual(store.docs.get('payOrders/order_G1'), { uid: 'erased', payer: 'guest', guestPhone: null, passType: 'pack_mock', amountPaise: 9900, status: 'paid', paymentId: 'pay_G1' });
+  assert.equal(store.docs.get('payOrders/order_G2').guestPhone, null);
+  assert.equal(store.docs.get('payOrders/order_G2').uid, null, 'an unclaimed order never becomes this account\'s');
+  assert.equal(store.docs.get('payOrders/order_G2').paymentId, 'pay_G2', 'the accounting record is kept');
+  assert.equal(store.docs.get('payOrders/order_G2').status, 'erased_unclaimed', 'review fix 10: an admin information label');
+  assert.equal(store.docs.get('payOrders/order_G1').status, 'paid', 'a claimed order keeps its status');
+  assert.equal(store.docs.get('payOrders/order_G3').guestPhone, '+917012345678', 'another number is untouched');
+  // Orders without the field are rewritten exactly as before (no guestPhone key added).
+  assert.equal(Object.prototype.hasOwnProperty.call(store.docs.get('payOrders/order_A'), 'guestPhone'), false);
+  assert.ok(!store.deleted.some((p) => p.startsWith('payOrders/')));
+});

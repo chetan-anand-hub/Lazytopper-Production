@@ -3,9 +3,10 @@ import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
 import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
-import { packPriceLabel, subjectLabel, type PackSku } from "../services/packs";
+import { packPriceLabel, type PackSku } from "../services/packs";
 import { PackSampleChoice } from "../components/packs/PackSampleLink";
 import CbqBand from "../components/pricing/CbqBand";
+import PackTileBuy, { PackCbqBuy } from "../components/packs/PackTileBuy";
 import "./packs.css";
 
 /** PRICING-ONE-1: the shop (My packs, pop-ups, Buy, buy-resume) moved to components/packs/PacksShop; these names stay importable from here. */
@@ -15,7 +16,7 @@ export default function PacksPage() {
   return (
     <main className="lt-packs" aria-label="LazyTopper PDF packs">
       <PacksShop returnPath={PACKS_RETURN_PATH}>
-        {({ openPack, openCbq }) => (
+        {(api) => (
           <>
       <section className="lt-packs__hero" aria-labelledby="packs-h1">
         <div className="lt-packs__w lt-packs__herogrid">
@@ -36,7 +37,7 @@ export default function PacksPage() {
               <button
                 type="button"
                 className={t.best ? "lt-packs__tile lt-packs__tile--best" : "lt-packs__tile"}
-                onClick={() => openPack(t.sku)}
+                onClick={() => api.openPack(t.sku)}
                 aria-haspopup="dialog"
                 data-testid={`packs-card-${t.id}`}
               >
@@ -49,6 +50,8 @@ export default function PacksPage() {
               </button>
               {/* PACK-SAMPLE-1: a sibling of the tile button (a link cannot sit inside a button); secondary to opening the pack. The
                   tile has no subject yet, so it offers Maths and Science; the pop-up follows the chosen subject / chapter. */}
+              {/* PACKS-TILE-BUY-1: Buy right on the tile; "See inside" (the tile) and the sample stay secondary. */}
+              <PackTileBuy sku={t.sku} api={api} />
               <PackSampleChoice sku={t.sku} surface="packs_tile" />
               </div>
             ))}
@@ -61,11 +64,7 @@ export default function PacksPage() {
             <CbqBand
               headingId="packs-cbq-h"
               sampleSurface="packs_cbq"
-              action={(s) => (
-                <button type="button" className="lt-cbq__btn" onClick={() => openCbq(s)} aria-haspopup="dialog" data-testid={`packs-card-cbq-${s}`}>
-                  {`${subjectLabel(s)} CBQ Pack · ${packPriceLabel("pack_cbq")}`}
-                </button>
-              )}
+              action={(s) => <PackCbqBuy subject={s} api={api} testPrefix="packs-card-cbq" />}
             />
           </div>
         </div>
@@ -117,9 +116,9 @@ export default function PacksPage() {
               </p>
             </details>
             <details>
-              <summary>What about refunds?</summary>
+              <summary>Can I cancel after buying?</summary>
               <p>
-                Read the <Link to="/legal/refund">cancellation and refund policy</Link> before you buy.
+                Read the <Link to="/legal/refund">Cancellation policy</Link> before you buy.
               </p>
             </details>
           </div>

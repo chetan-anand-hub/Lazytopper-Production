@@ -12,6 +12,7 @@ import {
   ownsChapter,
   ownsMocks,
   packDescription,
+  packCheckoutDescription,
   packIdOf,
   subjectOfChapter,
   type PackBuyDeps,
@@ -126,6 +127,18 @@ function deps(over: Partial<PackBuyDeps> & { dismiss?: boolean } = {}): PackBuyD
   return Object.assign(d, { opened }) as never;
 }
 
+describe("PAY-PHONE-1 (B) · packCheckoutDescription", () => {
+  it.each([
+    ["pack_chapter", "triangles", "Triangles", "Chapter Pack · Triangles · important questions with CBSE step-marking key"],
+    ["pack_mock", "maths", undefined, "Maths Mock Pack · 8 board-pattern mock papers for 2027, with step-marking keys"],
+    ["pack_subject", "science", undefined, "Science Subject Pack · every chapter, chapter-wise question bank 2026-27"],
+    ["pack_cbq", "science", undefined, "Science CBQ Pack · chapter-wise competency questions, every type"],
+    ["pack_bundle", undefined, undefined, "Maths + Science Bundle · all 26 chapters + 16 mocks"],
+  ] as const)("%s %s -> %s", (sku, target, chapter, want) => {
+    expect(packCheckoutDescription(sku, target, chapter)).toBe(want);
+  });
+});
+
 describe("buyPack", () => {
   it("happy path: order -> checkout (server amount, pack description) -> verify -> paid", async () => {
     const d = deps();
@@ -134,7 +147,8 @@ describe("buyPack", () => {
     expect((d as unknown as { opened: Array<Record<string, unknown>> }).opened[0]).toMatchObject({
       amount: 4900,
       order_id: "order_1",
-      description: "Chapter Pack · Triangles",
+      // PAY-PHONE-1 (B): the payment window says what is inside, from the existing pack copy.
+      description: "Chapter Pack · Triangles · important questions with CBSE step-marking key",
     });
     expect(out).toEqual({
       status: "paid",
@@ -258,6 +272,23 @@ describe("fetchMyPacks", () => {
     expect(mine.licensee).toEqual({ name: "Asha", email: "a@b.in" });
     vi.doUnmock("./firebaseClient");
     void fetchMyPacks;
+  });
+
+  it("PAY-PHONE-1: a phone-only licensee keeps only a MASKED phone; a full number from anywhere is dropped", async () => {
+    vi.resetModules();
+    vi.doMock("./firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } } }));
+    const mod = await import("./packs");
+    const masked = "+91 98\u2022\u2022\u2022\u2022\u2022948";
+    for (const [phone, kept] of [[masked, true], ["+919876543948", false], ["9876543948", false]] as const) {
+      vi.stubGlobal("fetch", async () => ({ ok: true, status: 200, json: async () => ({ packs: [], licensee: { name: "Asha", email: "", phone } }) }) as Response);
+      const mine = await mod.fetchMyPacks();
+      expect(mine.licensee).toEqual(kept ? { name: "Asha", email: "", phone: masked } : { name: "Asha", email: "" });
+      expect(mod.hasLicenseeContact(mine.licensee)).toBe(kept);
+    }
+    // An email account is unchanged: the email is the contact, a phone (if any) is ignored.
+    expect(mod.licenseeContact({ name: "R", email: "r@b.in", phone: masked })).toBe("r@b.in");
+    expect(mod.hasLicenseeEmail({ name: "A", email: "", phone: masked })).toBe(false);
+    vi.doUnmock("./firebaseClient");
   });
 });
 

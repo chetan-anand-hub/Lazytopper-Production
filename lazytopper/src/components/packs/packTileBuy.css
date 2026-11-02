@@ -1,0 +1,29 @@
+/* PACKS-TILE-BUY-1 - Buy buttons on the pack tiles (/packs, /pricing strip). Tap targets >= 44px; stacks in narrow tiles. */
+.lt-ptb { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; min-width: 0; }
+.lt-ptb__btn {
+  width: 100%; min-height: 44px; border: 0; border-radius: 12px; background: #3fbf82; color: #0f1b2d; font: inherit; font-size: 15px;
+  font-weight: 800; cursor: pointer; padding: 8px 10px; line-height: 1.2; text-align: center;
+}
+.lt-ptb__btn:hover { filter: brightness(1.05); }
+.lt-ptb__btn:focus-visible, .lt-ptb__see:focus-visible { outline: 3px solid #136b43; outline-offset: 2px; }
+.lt-ptb__btn:disabled, .lt-ptb .lt-cbq__btn:disabled { background: #d3dbe5; color: #3c4b60; cursor: not-allowed; filter: none; }
+/* Review fix 4: owned = a neutral OUTLINE pill with a check mark, never a filled green button. */
+.lt-ptb__owned {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; border-radius: 999px; background: transparent;
+  border: 1.5px solid #9fb0c8; color: #2f3e55; font-weight: 700; font-size: 14.5px; text-align: center; padding: 6px 12px;
+}
+.lt-ptb__tick { color: #136b43; font-weight: 800; }
+.lt-ptb--dark .lt-ptb__owned { border-color: #9fb0c8; color: #dbe4f0; }
+.lt-ptb--dark .lt-ptb__tick { color: #6fe0a8; }
+.lt-ptb__busy { font-size: 13.5px; font-weight: 600; color: #3c4b60; text-align: center; }
+.lt-ptb--dark .lt-ptb__busy { color: #dbe4f0; }
+.lt-ptb__see {
+  align-self: center; min-height: 44px; border: 0; background: none; color: inherit; font: inherit; font-size: 15px; font-weight: 700;
+  text-decoration: underline; cursor: pointer; padding: 0 8px;
+}
+.lt-ptb--dark .lt-ptb__see { color: #dbe4f0; }
+.lt-ptb--dark .lt-ptb__see:focus-visible { outline-color: #e8b94a; }
+.lt-ptb--cbq { margin-top: auto; }
+@media (min-width: 900px) {
+  .lt-ptb__btn { font-size: 16px; }
+}

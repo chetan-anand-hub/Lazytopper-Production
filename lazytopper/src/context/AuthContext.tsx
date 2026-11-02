@@ -337,6 +337,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user?.uid, user?.email, user?.phoneNumber, user?.displayName, user?.isLocalSession]);
 
+  // PAY-PHONE-1 - a sign-in whose account carries a phone number attaches anything paid earlier with that number
+  // ("Pay now with your phone number"). Once per uid per page session; a failure is silent and retried at the next
+  // sign-in. The server reads the number from the VERIFIED ID token, never from here. Dark unless the guest-pay flags.
+  useEffect(() => {
+    const uid = user?.uid || "";
+    if (!uid || !user?.phoneNumber || user.isLocalSession) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const guestPay = await import("../services/guestPay");
+        if (cancelled || !guestPay.isGuestPayClientEnabled()) return;
+        const claimed = await guestPay.claimOncePerSession(uid);
+        if (!claimed || claimed.length === 0) return;
+        // A claimed Board Pass wrote the server pass: re-read it so Premium shows without a reload.
+        void hydrateSubscriptionFromCloud(uid).catch(() => undefined);
+        const { trackNamedEvent } = await import("../analytics/analytics");
+        trackNamedEvent("guest_pay_claimed");
+      } catch {
+        /* silent: the next sign-in tries again */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.uid, user?.phoneNumber, user?.isLocalSession]);
+
   const getToken = useCallback(async (): Promise<string | null> => {
     if (!authClient?.currentUser) return null;
     try {

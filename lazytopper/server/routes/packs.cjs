@@ -9,6 +9,8 @@
 const { listPacks } = require('../services/packGrant.cjs');
 const { boardPassCreditFor } = require('../services/packCredit.cjs');
 const { quotePass } = require('./payments.cjs');
+// PAY-PHONE-1: a phone-only account is licensed by its MASKED verified number (never the full number).
+const { maskIndianMobile } = require('../services/guestPay.cjs');
 
 const PACKS_MINE_PATH = '/api/packs/mine';
 /** The subscription document the Board Pass quote is read from (same collection passGrant writes). */
@@ -32,13 +34,20 @@ function createPackRoutes(deps = {}) {
       emit('packs.mine.unavailable');
       return sendJson(res, 503, { ok: false, error: 'Packs are unavailable right now.' });
     }
-    // The licensee is printed on every page of every PDF: without a real email there is nothing safe to
-    // print, so refuse (503) rather than hand back blanks. Checked first; nothing about the packs is sent.
+    // The licensee is printed on every page of every PDF: without a real email — or, for a phone-only account
+    // (PAY-PHONE-1), its verified phone number MASKED (+91 98•••••948) — there is nothing safe to print, so refuse
+    // (503) rather than hand back blanks. Checked first; nothing about the packs is sent. An account WITH an email is
+    // licensed exactly as before (the phone is not even read). The full phone number never leaves the server.
     let licensee = null;
     try {
       const got = typeof getLicensee === 'function' ? await getLicensee(uid) : null;
       const email = got && typeof got.email === 'string' ? got.email.trim() : '';
-      if (email) licensee = { name: typeof got.name === 'string' ? got.name : '', email };
+      const name = got && typeof got.name === 'string' ? got.name : '';
+      if (email) licensee = { name, email };
+      else {
+        const phone = maskIndianMobile(got && typeof got.phone === 'string' ? got.phone : '');
+        if (phone) licensee = { name, email: '', phone };
+      }
     } catch {
       /* falls through to licensee_unavailable */
     }

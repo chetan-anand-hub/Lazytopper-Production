@@ -1,0 +1,52 @@
+/* PAY-PHONE-1 - "How do you want to pay?" sheet. Same visual grammar as the pack pop-up (packsDialog.css): navy ink,
+   white panel, green primary. Bottom sheet on phones, centred card from 640px. Sits above the pack pop-up. */
+.lt-gps {
+  position: fixed; inset: 0; z-index: 1100; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(15, 27, 45, 0.6); font-family: Inter, system-ui, -apple-system, sans-serif; color: #0f1b2d;
+  -webkit-font-smoothing: antialiased;
+}
+.lt-gps__panel {
+  width: 100%; max-height: calc(100dvh - 12px); overflow-y: auto; background: #fff; border-radius: 22px 22px 0 0;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; outline: none;
+}
+.lt-gps__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.lt-gps__title { margin: 0; font-size: 20px; font-weight: 800; line-height: 1.25; }
+.lt-gps__item { margin: 2px 0 0; font-size: 14.5px; color: #3c4b60; }
+.lt-gps__close {
+  flex: none; width: 40px; height: 40px; border: 0; border-radius: 12px; background: #eef2f7; color: #0f1b2d; font: inherit;
+  font-size: 22px; line-height: 1; cursor: pointer;
+}
+.lt-gps__primary {
+  width: 100%; min-height: 56px; border: 0; border-radius: 14px; background: #3fbf82; color: #0f1b2d; font: inherit;
+  font-size: 18px; font-weight: 700; cursor: pointer; padding: 0 16px;
+}
+.lt-gps__primary:disabled { background: #d3dbe5; color: #3c4b60; cursor: not-allowed; }
+.lt-gps__or { margin: 4px 0 0; font-size: 13.5px; color: #5a6a80; text-align: center; }
+.lt-gps__secondary {
+  width: 100%; min-height: 48px; border: 1.5px solid #c9d3df; border-radius: 14px; background: #fff; color: #0f1b2d; font: inherit;
+  font-size: 16px; font-weight: 600; cursor: pointer; padding: 0 16px;
+}
+.lt-gps__panel-form { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.lt-gps__label { font-size: 14.5px; font-weight: 600; }
+.lt-gps__field {
+  display: flex; align-items: stretch; border: 1.5px solid #c9d3df; border-radius: 14px; overflow: hidden; background: #fff;
+}
+.lt-gps__field:focus-within { border-color: #0f1b2d; }
+.lt-gps__cc { display: flex; align-items: center; padding: 0 12px; background: #eef2f7; font-size: 17px; font-weight: 700; }
+.lt-gps__input {
+  flex: 1; min-width: 0; height: 52px; border: 0; padding: 0 12px; font: inherit; font-size: 18px; letter-spacing: 0.04em;
+  color: #0f1b2d; background: transparent; outline: none;
+}
+.lt-gps__hint { margin: 0; font-size: 14.5px; color: #2f3e55; }
+.lt-gps__error { margin: 0; font-size: 14.5px; color: #b42318; }
+.lt-gps__ok { margin: 0; font-size: 18px; font-weight: 800; color: #136b43; }
+.lt-gps__line { margin: 0; font-size: 16px; line-height: 1.45; }
+.lt-gps__fine { margin: 0; font-size: 13.5px; color: #5a6a80; }
+
+@media (min-width: 640px) {
+  .lt-gps { align-items: center; padding: 24px; }
+  .lt-gps__panel { width: min(460px, 100%); border-radius: 22px; padding: 26px 28px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4); }
+}
+.lt-gps__textlink {
+  border: 0; background: none; padding: 0; font: inherit; color: #136b43; text-decoration: underline; cursor: pointer; text-align: left;
+}

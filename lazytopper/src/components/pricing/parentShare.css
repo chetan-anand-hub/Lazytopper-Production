@@ -1,4 +1,4 @@
-/* ASK-PARENTS-PAY-1 / PAYWALL-PAY-1 — the student's "Share QR code" and "Forward link to
+/* ASK-PARENTS-PAY-1 / PAYWALL-PAY-1 — the student's "Pay by QR code" and "Forward link to
    parents" (PaywallActions: every paywall and the pricing page's Premium card) and the
    parent's pay page (/pricing#pp=…). Own class names; the pricing page's tokens are used
    when present, with the same values as fallbacks. */
@@ -128,7 +128,7 @@
   cursor: default;
 }
 
-/* ── PAYWALL-PAY-1 — the three actions: Pay, Share QR code, Forward link to parents ── */
+/* ── PAYWALL-PAY-1 — the three actions: Pay, Pay by QR code, Forward link to parents ── */
 
 .lt-paywall-actions {
   display: flex;

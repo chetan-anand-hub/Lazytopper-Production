@@ -205,13 +205,37 @@ const PAGE_H = 297;
 const MARGIN_X = 12;
 const MARGIN_TOP = 15;
 const FOOTER_H = 19;
+
+/**
+ * PAY-PHONE-1 (print) - where the page chrome sits. A PAID pack file (`licensee` set) is printed by students on home A4
+ * printers, whose unprintable band is up to ~5 mm: its header, footer and licence line therefore all sit at least 10 mm
+ * inside every edge, and no ink is put on the edge itself (no top bar). Every other PDF keeps its exact layout.
+ */
+interface PageGeometry {
+  top: number;
+  footerH: number;
+  bar: boolean;
+  headerImgY: number;
+  headerTextY: number;
+  headerRuleY: number;
+  footLineY: number;
+  licY: number;
+  pageY: number;
+}
+const SCREEN_GEOMETRY: PageGeometry = { top: MARGIN_TOP, footerH: FOOTER_H, bar: true, headerImgY: 3.6, headerTextY: 8.5, headerRuleY: 11.5, footLineY: PAGE_H - 17, licY: PAGE_H - 12.5, pageY: PAGE_H - 6.5 };
+export const PRINT_GEOMETRY: PageGeometry = { top: 22, footerH: 27, bar: false, headerImgY: 10.6, headerTextY: 15.5, headerRuleY: 18.5, footLineY: PAGE_H - 25, licY: PAGE_H - 20.5, pageY: PAGE_H - 14 };
+export function pageGeometry(opts: { licensee?: unknown; sample?: unknown }): PageGeometry {
+  return opts.licensee && !opts.sample ? PRINT_GEOMETRY : SCREEN_GEOMETRY;
+}
 const ACCENT_RGB: [number, number, number] = [63, 191, 130];
 const NAVY_RGB: [number, number, number] = [21, 35, 58];
 const MUTED_RGB: [number, number, number] = [58, 74, 96];
 
 /** jsPDF's built-in fonts hold Latin-1 only; anything else would print as garbage, so it is left out of the PDF line. */
 function latin1(text: string): string {
-  return text.replace(/[^\u0020-\u007e\u00a0-\u00ff]/g, "").replace(/\s+/g, " ").trim();
+  // PAY-PHONE-1 - a masked phone's bullets (+91 98•••••948) become "*" so the PDF footer still shows a MASKED number
+  // (dropping them would print a misleading "+91 98948").
+  return text.replace(/\u2022/g, "*").replace(/[^\u0020-\u007e\u00a0-\u00ff]/g, "").replace(/\s+/g, " ").trim();
 }
 
 /** "Licensed to <name> - <email> - Order <id> - personal use only". `ascii` keeps only what the PDF font can print. */
@@ -322,8 +346,11 @@ function drawSampleChrome(pdf: Doc, innerW: number, line: ReturnType<typeof rend
 
 function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null): void {
   const innerW = PAGE_W - MARGIN_X * 2;
-  pdf.setFillColor(...ACCENT_RGB);
-  pdf.rect(0, 0, PAGE_W, 1.6, "F");
+  const g = pageGeometry(opts);
+  if (g.bar) {
+    pdf.setFillColor(...ACCENT_RGB);
+    pdf.rect(0, 0, PAGE_W, 1.6, "F");
+  }
   if (opts.sample) {
     drawSampleChrome(pdf, innerW, renderSampleLineImage(opts.sample.line), opts.sample.line);
     return;
@@ -331,13 +358,13 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
 
   if (bodyIndex > 0) {
     if (brand) {
-      pdf.addImage(brand.tile, "PNG", MARGIN_X, 3.6, 6.4, 6.4);
-      pdf.addImage(brand.wordmark, "PNG", MARGIN_X + 8, 3.9, 21, 6);
+      pdf.addImage(brand.tile, "PNG", MARGIN_X, g.headerImgY, 6.4, 6.4);
+      pdf.addImage(brand.wordmark, "PNG", MARGIN_X + 8, g.headerImgY + 0.3, 21, 6);
     } else {
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(11);
       pdf.setTextColor(...NAVY_RGB);
-      pdf.text("LazyTopper", MARGIN_X, 8.5);
+      pdf.text("LazyTopper", MARGIN_X, g.headerTextY);
     }
     if (opts.runningHeader) {
       pdf.setFont("helvetica", "normal");
@@ -347,25 +374,25 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
       if (typeof pdf.getTextWidth === "function") {
         while (h.length > 4 && pdf.getTextWidth(h) > innerW - 44) h = `${h.slice(0, h.length - 4)}...`;
       }
-      pdf.text(h, PAGE_W - MARGIN_X, 8.5, { align: "right" });
+      pdf.text(h, PAGE_W - MARGIN_X, g.headerTextY, { align: "right" });
     }
     pdf.setDrawColor(216, 222, 230);
     pdf.setLineWidth(0.2);
-    pdf.line(MARGIN_X, 11.5, PAGE_W - MARGIN_X, 11.5);
+    pdf.line(MARGIN_X, g.headerRuleY, PAGE_W - MARGIN_X, g.headerRuleY);
   }
 
   pdf.setDrawColor(216, 222, 230);
   pdf.setLineWidth(0.2);
-  pdf.line(MARGIN_X, PAGE_H - 17, PAGE_W - MARGIN_X, PAGE_H - 17);
+  pdf.line(MARGIN_X, g.footLineY, PAGE_W - MARGIN_X, g.footLineY);
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(...MUTED_RGB);
   if (opts.licensee) {
     const fit = fitLicensee(pdf, opts.licensee, innerW);
     pdf.setFontSize(fit.size);
-    pdf.text(fit.text, MARGIN_X, PAGE_H - 12.5);
+    pdf.text(fit.text, MARGIN_X, g.licY);
     pdf.setFontSize(10);
-    pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 6.5);
-    drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, PAGE_H - 6.5);
+    pdf.text(`Page ${page} of ${total}`, MARGIN_X, g.pageY);
+    drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, g.pageY);
   } else {
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
@@ -432,8 +459,10 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
   return withHost(HOST_WIDTH, element, async (host) => {
     // Where a page may be cut, measured now (the laid-out DOM) and converted to canvas pixels after the capture.
     const atomsCss = collectPrintAtoms(host);
-    if (opts.sample) {
+    if (opts.sample || opts.licensee) {
       // A one-page sample must not end on a question whose options are on the next page: keep each whole question together.
+      // PAY-PHONE-1 (print): the same rule for every PAID pack file - a question's stem and its options never split across a
+      // page break (a question taller than a page still breaks, inside it, rather than leave a page nearly empty).
       const top0 = host.getBoundingClientRect().top;
       host.querySelectorAll(".lt-wsp__q").forEach((q) => {
         const r = q.getBoundingClientRect();
@@ -455,7 +484,8 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     // PACK-SAMPLE-1: the sample's pack + price travel in the PDF's Subject field (the price line itself is an image).
     if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
     const imgW = PAGE_W - MARGIN_X * 2;
-    const usableH = PAGE_H - MARGIN_TOP - FOOTER_H;
+    const geom = pageGeometry(opts);
+    const usableH = PAGE_H - geom.top - geom.footerH;
     const pxPerMm = canvas.width / imgW || 1;
     const sliceHpx = Math.max(1, Math.floor(usableH * pxPerMm));
     const yScale = hostH > 0 ? canvas.height / hostH : 1;
@@ -487,7 +517,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
         sctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
       }
       if (page > 0 || coverJpeg) pdf.addPage();
-      pdf.addImage(slice.toDataURL("image/jpeg", opts.sample ? 0.78 : 0.95), "JPEG", MARGIN_X, MARGIN_TOP, imgW, hPx / pxPerMm);
+      pdf.addImage(slice.toDataURL("image/jpeg", opts.sample ? 0.78 : 0.95), "JPEG", MARGIN_X, geom.top, imgW, hPx / pxPerMm);
       drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand);
     }
 

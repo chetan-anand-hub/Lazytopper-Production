@@ -1,0 +1,848 @@
+// PAY-PHONE-1 — "Pay now with your phone number", then sign in with the same number.
+//
+// Money + access path for a payer who is NOT signed in. Every test below is a reason an order, a payment or a claim
+// is NOT believed — or proof that the grant lands only on the account whose VERIFIED token carries the order's phone.
+//
+//   D* dark by default        O* order: phone, SKU whitelist, server amount, limits, no double charge
+//   V* verify: every check, no grant, idempotent    W* webhook: guest captured -> paid_unclaimed
+//   C* claim: phone from the token only, both grants land, idempotent, concurrent
+//
+// ★ MUTATIONS (run against THIS file only, each shown red, each restored):
+//   M1 guestPay.cjs handleClaim reads the phone from the body
+//        -> "C · the phone comes ONLY from the verified token: a body phone is ignored" red
+//   M2 guestPay.cjs takeOrder drops the `order.uid === uid` check on a `claimed` order
+//        -> "C · a claim interrupted after take is finished by the SAME uid only" red
+//   M3 guestPay.cjs handleOrder takes amountPaise from the body
+//        -> "O · the amount is the server's: a pack is the table price, the Board Pass a NEW account's quote" red
+//
+// Run: node --test lazytopper/server/routes/guestPay.test.cjs
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const http = require('node:http');
+
+const {
+  createGuestPayRoutes,
+  isGuestPayEnabled,
+  GUEST_ORDER_PATH,
+  GUEST_VERIFY_PATH,
+  GUEST_CLAIM_PATH,
+  MAX_GUEST_ORDERS_PER_PHONE_PER_DAY,
+} = require('./guestPay.cjs');
+const { normaliseIndianMobile, maskIndianMobile } = require('../services/guestPay.cjs');
+const { createPaymentRoutes, quotePass, PAY_ORDER_PATH, PAY_WEBHOOK_PATH, PAY_VERIFY_PATH } = require('./payments.cjs');
+const { createHttpUtils } = require('../services/httpUtils.cjs');
+const { createPaymentReceiptEmailer, buildReceiptEmail, resolveReceiptEmailConfig } = require('../services/paymentReceiptEmail.cjs');
+
+const KEY_ID = 'rzp_test_KEYID';
+const KEY_SECRET = 'test_key_secret_never_sent';
+const WEBHOOK_SECRET = 'test_webhook_secret';
+const ENV_ON = {
+  PAYMENTS_ENABLED: '1',
+  GUEST_PAY_ENABLED: '1',
+  PACKS_ENABLED: '1',
+  RAZORPAY_KEY_ID: KEY_ID,
+  RAZORPAY_KEY_SECRET: KEY_SECRET,
+  RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
+};
+const NOW = Date.parse('2026-11-02T12:00:00+05:30');
+const hmac = (secret, data) => crypto.createHmac('sha256', secret).update(data).digest('hex');
+const checkoutSig = (orderId, paymentId, secret = KEY_SECRET) => hmac(secret, `${orderId}|${paymentId}`);
+const PHONE = '+919876543948';
+const OTHER_PHONE = '+917012345678';
+
+/* ── in-memory Firestore with optimistic transactions (the payments.test harness) ── */
+function memoryFirestore(seed = {}) {
+  const docs = new Map();
+  for (const [key, data] of Object.entries(seed)) docs.set(key, { data: { ...data }, version: 1 });
+  const yieldNow = () => new Promise((r) => setImmediate(r));
+  const snapOf = (entry) => ({ exists: !!entry, data: () => (entry ? { ...entry.data } : undefined) });
+  function write(key, data, opts) {
+    const prev = docs.get(key);
+    const base = opts && opts.merge && prev ? prev.data : {};
+    docs.set(key, { data: { ...base, ...data }, version: (prev ? prev.version : 0) + 1 });
+  }
+  // PRICE-FIXED-1: chainable equality query over the documents directly under `prefix`.
+  function chain(prefix, depth, filters = [], max = Infinity) {
+    return {
+      where(field, op, value) {
+        assert.equal(op, '==');
+        return chain(prefix, depth, [...filters, [field, value]], max);
+      },
+      limit: (n) => chain(prefix, depth, filters, n),
+      async get() {
+        await yieldNow();
+        const out = [];
+        for (const [key, entry] of docs) {
+          if (!key.startsWith(`${prefix}/`) || key.slice(prefix.length + 1).includes('/')) continue;
+          if (filters.every(([f, v]) => entry.data[f] === v) && out.length < max) out.push({ id: key.slice(prefix.length + 1), data: () => ({ ...entry.data }) });
+        }
+        return { docs: out, empty: out.length === 0, size: out.length };
+      },
+    };
+  }
+  function ref(key) {
+    return {
+      key,
+      collection: (sub) => ({
+        doc: (id) => ref(`${key}/${sub}/${id}`),
+        ...chain(`${key}/${sub}`, 3),
+        // PACK-CREDIT-1: the pack list read (packEntitlements/{uid}/packs).
+        async get() {
+          await yieldNow();
+          const prefix = `${key}/${sub}/`;
+          const out = [];
+          for (const [k, e] of docs) {
+            if (k.startsWith(prefix) && !k.slice(prefix.length).includes('/')) out.push({ id: k.slice(prefix.length), data: () => ({ ...e.data }) });
+          }
+          return { docs: out };
+        },
+      }),
+      async get() { await yieldNow(); return snapOf(docs.get(key)); },
+      async set(data, opts) { await yieldNow(); write(key, data, opts); },
+    };
+  }
+  return {
+    docs,
+    read: (key) => (docs.get(key) ? { ...docs.get(key).data } : undefined),
+    keys: (prefix) => [...docs.keys()].filter((k) => k.startsWith(prefix)),
+    collection: (name) => ({
+      doc: (id) => ref(`${name}/${id}`),
+      // Equality queries, chainable (`where().where().limit().get()`), on a top-level collection.
+      ...chain(name, 2),
+    }),
+    async runTransaction(fn) {
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        const seen = new Map();
+        const pending = [];
+        const tx = {
+          async get(r) {
+            await yieldNow();
+            const entry = docs.get(r.key);
+            seen.set(r.key, entry ? entry.version : 0);
+            return snapOf(entry);
+          },
+          set(r, data, opts) { pending.push([r.key, data, opts]); },
+        };
+        const out = await fn(tx);
+        await yieldNow();
+        const conflict = [...seen].some(([k, v]) => (docs.get(k) ? docs.get(k).version : 0) !== v);
+        if (conflict) continue;
+        for (const [k, d, o] of pending) write(k, d, o);
+        return out;
+      }
+      throw new Error('transaction contention: too many retries');
+    },
+  };
+}
+
+/* ── a fake Razorpay REST API, recording every call ─────────────────────────────── */
+function fakeRazorpay() {
+  const orders = new Map();
+  const payments = new Map();
+  const calls = [];
+  let seq = 0;
+  const reply = (status, json) => ({ ok: status >= 200 && status < 300, status, json: async () => json });
+  async function fetchImpl(url, init = {}) {
+    const method = init.method || 'GET';
+    const body = init.body ? JSON.parse(init.body) : undefined;
+    calls.push({ url, method, body });
+    const expectedAuth = `Basic ${Buffer.from(`${KEY_ID}:${KEY_SECRET}`).toString('base64')}`;
+    if (!init.headers || init.headers.Authorization !== expectedAuth) return reply(401, {});
+    const u = new URL(url);
+    let m;
+    if (method === 'POST' && u.pathname === '/v1/orders') {
+      seq += 1;
+      const order = { id: `order_P${seq}`, amount: body.amount, currency: body.currency, notes: body.notes, status: 'created' };
+      orders.set(order.id, order);
+      return reply(200, order);
+    }
+    if (method === 'GET' && (m = u.pathname.match(/^\/v1\/payments\/([^/]+)$/))) {
+      const p = payments.get(m[1]);
+      return p ? reply(200, { ...p }) : reply(400, {});
+    }
+    if (method === 'POST' && (m = u.pathname.match(/^\/v1\/payments\/([^/]+)\/capture$/))) {
+      const p = payments.get(m[1]);
+      if (!p || p.status !== 'authorized' || body.amount !== p.amount) return reply(400, {});
+      p.status = 'captured';
+      return reply(200, { ...p });
+    }
+    return reply(404, {});
+  }
+  function pay(orderId, { id = `pay_${orderId}`, amount, status = 'captured', currency = 'INR' } = {}) {
+    const order = orders.get(orderId);
+    const p = { id, order_id: orderId, amount: amount === undefined ? order.amount : amount, currency, status };
+    payments.set(id, p);
+    return p;
+  }
+  return { fetchImpl, orders, payments, calls, pay };
+}
+
+
+/* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone } = {}) {
+  const { sendJson } = createHttpUtils('*');
+  const events = [];
+  const telemetry = { increment: (e) => events.push(e) };
+  const now = () => NOW;
+  // `Bearer uid:<uid>` or `Bearer uid:<uid>|phone:<e164>` — the test stand-in for a token firebase-admin verified.
+  const identityOf = (req) => {
+    const h = String(req.headers.authorization || '');
+    if (!h.startsWith('Bearer uid:')) return { uid: '', phoneNumber: '' };
+    const [uidPart, phonePart] = h.slice('Bearer uid:'.length).split('|phone:');
+    return { uid: uidPart, phoneNumber: phonePart || '' };
+  };
+  const verifiedCaller = {
+    async resolveVerifiedUid(req) { return identityOf(req).uid; },
+    async resolveVerifiedIdentity(req) { return identityOf(req); },
+  };
+  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone });
+  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer });
+  const table = {
+    [GUEST_ORDER_PATH]: guest.handleOrder,
+    [GUEST_VERIFY_PATH]: guest.handleVerify,
+    [GUEST_CLAIM_PATH]: guest.handleClaim,
+    [PAY_ORDER_PATH]: pay.handleOrder,
+    [PAY_VERIFY_PATH]: pay.handleVerify,
+    [PAY_WEBHOOK_PATH]: pay.handleWebhook,
+  };
+  const server = http.createServer((req, res) => {
+    const h = req.method === 'POST' ? table[String(req.url).split('?')[0]] : null;
+    if (!h) return sendJson(res, 404, { error: 'Not Found' });
+    return Promise.resolve(h(req, res)).catch((e) => sendJson(res, 500, { error: e.message }));
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const { port } = server.address();
+  return { port, db, rzp, events, close: () => new Promise((r) => server.close(r)) };
+}
+
+let ipSeq = 0;
+function request(port, urlPath, { body, raw, headers = {} } = {}) {
+  ipSeq += 1;
+  return new Promise((resolve, reject) => {
+    const payload = raw !== undefined ? raw : JSON.stringify(body === undefined ? {} : body);
+    const req = http.request(
+      { host: '127.0.0.1', port, path: urlPath, method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload), 'X-Forwarded-For': `198.51.100.${ipSeq % 250}`, ...headers } },
+      (res) => {
+        let text = '';
+        res.on('data', (d) => { text += d; });
+        res.on('end', () => {
+          let json = null;
+          try { json = JSON.parse(text); } catch {}
+          resolve({ status: res.statusCode, json, text });
+        });
+      },
+    );
+    req.on('error', reject);
+    req.end(payload);
+  });
+}
+const signedIn = (uid, phone) => ({ Authorization: `Bearer uid:${uid}${phone ? `|phone:${phone}` : ''}` });
+const guestOrder = (srv, body) => request(srv.port, GUEST_ORDER_PATH, { body });
+const guestVerify = (srv, orderId, paymentId, signature = checkoutSig(orderId, paymentId)) =>
+  request(srv.port, GUEST_VERIFY_PATH, { body: { orderId, paymentId, signature } });
+const claim = (srv, headers, body = {}) => request(srv.port, GUEST_CLAIM_PATH, { body, headers });
+function webhookBody(payment) {
+  return `{"entity":"event","event":"payment.captured","payload":{"payment":{"entity":${JSON.stringify(payment)}}}}`;
+}
+function sendWebhook(srv, payment) {
+  const raw = webhookBody(payment);
+  return request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+}
+/** Order + Razorpay capture + verify: a guest order in paid_unclaimed. */
+async function paidGuestOrder(srv, body) {
+  const o = await guestOrder(srv, body);
+  assert.equal(o.status, 200, o.text);
+  const p = srv.rzp.pay(o.json.orderId);
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  return { orderId: o.json.orderId, paymentId: p.id, order: o.json, verify: v.json };
+}
+const subsDocs = (db) => db.keys('subscriptions/');
+const packDocs = (db) => db.keys('packEntitlements/');
+
+/* ══ D · dark by default ═══════════════════════════════════════════════════════ */
+
+test('D · the switch needs BOTH PAYMENTS_ENABLED and GUEST_PAY_ENABLED', () => {
+  assert.equal(isGuestPayEnabled({ PAYMENTS_ENABLED: '1', GUEST_PAY_ENABLED: '1' }), true);
+  assert.equal(isGuestPayEnabled({ PAYMENTS_ENABLED: '1' }), false);
+  assert.equal(isGuestPayEnabled({ GUEST_PAY_ENABLED: '1' }), false);
+  assert.equal(isGuestPayEnabled({ PAYMENTS_ENABLED: '1', GUEST_PAY_ENABLED: 'enabled' }), false);
+  assert.equal(isGuestPayEnabled({}), false);
+});
+
+test('D · either switch off: order and verify answer 404 and touch nothing; claim is 404 only while PAYMENTS is off', async (t) => {
+  for (const env of [{ ...ENV_ON, GUEST_PAY_ENABLED: '' }, { ...ENV_ON, PAYMENTS_ENABLED: '0' }]) {
+    const srv = await startRoutes({ env });
+    t.after(srv.close);
+    for (const p of [GUEST_ORDER_PATH, GUEST_VERIFY_PATH]) {
+      const r = await request(srv.port, p, { body: { sku: 'till_boards', phone: '9876543948', orderId: 'order_X', paymentId: 'pay_X', signature: 'ab' } });
+      assert.equal(r.status, 404, p);
+      assert.deepEqual(r.json, { error: 'Not Found' });
+    }
+    const c = await claim(srv, signedIn('u1', PHONE));
+    assert.equal(c.status, env.PAYMENTS_ENABLED === '1' ? 200 : 404);
+    assert.equal(srv.rzp.calls.length, 0);
+    assert.equal(srv.db.docs.size, 0);
+  }
+});
+
+/* ══ O · the order ═════════════════════════════════════════════════════════════ */
+
+test('O · phone validation: Indian mobile only, normalised to E.164; everything else is refused', () => {
+  const ok = { '9876543948': PHONE, '+919876543948': PHONE, '919876543948': PHONE, '09876543948': PHONE, '98765 43948': PHONE, '+91 98765-43948': PHONE, '6000000000': '+916000000000' };
+  for (const [raw, want] of Object.entries(ok)) assert.equal(normaliseIndianMobile(raw), want, raw);
+  for (const bad of ['', '5876543948', '987654394', '98765439481', '+19876543948', '+44 9876543948', 'abcdefghij', '98765abc48', null, 9876543948, '+91987654394', '0'.repeat(30)]) {
+    assert.equal(normaliseIndianMobile(bad), null, String(bad));
+  }
+  assert.equal(maskIndianMobile(PHONE), '+91 98•••••948');
+  assert.equal(maskIndianMobile('nonsense'), '');
+});
+
+test('O · a bad phone, an unknown / month / top-up SKU or a bad target is a 400 before Razorpay is called', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const cases = [
+    [{ sku: 'till_boards', phone: '12345' }, 'invalid_phone'],
+    [{ sku: 'till_boards' }, 'invalid_phone'],
+    [{ sku: 'month', phone: PHONE }, 'invalid_sku'],
+    [{ sku: 'topup_small', phone: PHONE }, 'invalid_sku'],
+    [{ sku: 'premium', phone: PHONE }, 'invalid_sku'],
+    [{ sku: 'pack_mock', target: 'history', phone: PHONE }, 'invalid_target'],
+    [{ sku: 'pack_chapter', target: 'not-a-chapter', phone: PHONE }, 'invalid_target'],
+  ];
+  for (const [body, reason] of cases) {
+    const r = await guestOrder(srv, body);
+    assert.equal(r.status, 400, JSON.stringify(body));
+    assert.equal(r.json.reason, reason, JSON.stringify(body));
+  }
+  assert.equal(srv.rzp.calls.length, 0);
+  assert.equal(srv.db.docs.size, 0);
+});
+
+test('O · packs are not sold to a guest while PACKS_ENABLED is off (the pack key is just an unknown SKU)', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, PACKS_ENABLED: '' } });
+  t.after(srv.close);
+  const r = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  assert.equal(r.status, 400);
+  assert.equal(r.json.reason, 'invalid_sku');
+});
+
+test('O · the amount is the server\'s: a pack is the table price, the Board Pass a NEW account\'s quote; body amount / uid ignored', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const pack = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: '98765 43948', amountPaise: 100, amount: 1, price: 1, uid: 'attacker' });
+  assert.equal(pack.status, 200, pack.text);
+  assert.equal(pack.json.amountPaise, 9900);
+  assert.equal(pack.json.contact, undefined, 'review fix 6: the number is never echoed back');
+  assert.ok(!pack.text.includes('9876543948'));
+  assert.equal(pack.json.phoneMasked, '+91 98•••••948');
+  const stored = srv.db.read(`payOrders/${pack.json.orderId}`);
+  assert.equal(stored.uid, null);
+  assert.equal(stored.payer, 'guest');
+  assert.equal(stored.guestPhone, PHONE);
+  assert.equal(stored.passType, 'pack_mock');
+  assert.equal(stored.packTarget, 'maths');
+  assert.equal(stored.amountPaise, 9900);
+  assert.equal(stored.status, 'created');
+
+  const pass = await guestOrder(srv, { sku: 'till_boards', phone: OTHER_PHONE, amountPaise: 100 });
+  assert.equal(pass.status, 200, pass.text);
+  const fresh = quotePass({}, 'till_boards', NOW, { foundingOfferOpen: true });
+  assert.equal(pass.json.amountPaise, fresh.amountPaise);
+  assert.equal(srv.db.read(`payOrders/${pass.json.orderId}`).offerKey, 'founding');
+
+  // Razorpay sees the server amount and NO phone / uid in its notes.
+  const created = srv.rzp.calls.filter((c) => c.method === 'POST' && c.url.endsWith('/orders'));
+  assert.deepEqual(created.map((c) => c.body.amount), [9900, fresh.amountPaise]);
+  for (const c of created) {
+    assert.ok(!JSON.stringify(c.body).includes('9876543948') && !JSON.stringify(c.body).includes('7012345678'));
+    assert.equal(c.body.notes.uid, undefined);
+    assert.equal(c.body.notes.payer, 'guest');
+  }
+});
+
+test('O · per-phone limit: the same number cannot start more than the daily cap of orders', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  for (let i = 0; i < MAX_GUEST_ORDERS_PER_PHONE_PER_DAY; i += 1) {
+    const r = await guestOrder(srv, { sku: 'pack_chapter', target: 'real-numbers', phone: PHONE });
+    assert.equal(r.status, 200, `order ${i}`);
+  }
+  const over = await guestOrder(srv, { sku: 'pack_chapter', target: 'real-numbers', phone: '+91 98765 43948' });
+  assert.equal(over.status, 429);
+  const other = await guestOrder(srv, { sku: 'pack_chapter', target: 'real-numbers', phone: OTHER_PHONE });
+  assert.equal(other.status, 200);
+});
+
+test('O · the same thing already paid with this number and not yet claimed is refused (409), nothing charged twice', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const again = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  assert.equal(again.status, 409);
+  // Review fix 4: generic - nothing says this number has a purchase.
+  assert.deepEqual(again.json, { ok: false, error: 'payment_unavailable' });
+  // A different pack is a different purchase.
+  const other = await guestOrder(srv, { sku: 'pack_mock', target: 'science', phone: PHONE });
+  assert.equal(other.status, 200);
+});
+
+/* ══ V · verify ════════════════════════════════════════════════════════════════ */
+
+test('V · a verified, captured payment moves the order to paid_unclaimed and grants NOTHING', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId, paymentId, verify } = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  assert.deepEqual(
+    { status: verify.status, kind: verify.kind, sku: verify.sku, phoneMasked: verify.phoneMasked },
+    { status: 'paid_unclaimed', kind: 'pass', sku: 'till_boards', phoneMasked: '+91 98•••••948' },
+  );
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.paymentId, paymentId);
+  assert.equal(stored.uid, null);
+  assert.equal(stored.paidAt, undefined, 'paidAt is written only by a grant');
+  assert.deepEqual(subsDocs(srv.db), []);
+  assert.deepEqual(packDocs(srv.db), []);
+});
+
+test('V · every check: bad signature, unknown order, a student\'s own order, wrong amount / currency / order, not captured, payment swap', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const orderId = o.json.orderId;
+  const good = srv.rzp.pay(orderId, { id: 'pay_good' });
+
+  assert.equal((await guestVerify(srv, orderId, good.id, checkoutSig(orderId, good.id, 'wrong-secret'))).json.reason, 'bad_signature');
+  assert.equal((await guestVerify(srv, 'order_nope', 'pay_x')).json.reason, 'unknown_order');
+  assert.equal((await request(srv.port, GUEST_VERIFY_PATH, { body: { orderId, paymentId: 'p/../x', signature: 'zz' } })).json.reason, 'malformed');
+
+  // A signed-in student's own (non-guest) order can never be pushed through the guest route.
+  const own = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'pack_mock', packTarget: 'maths' }, headers: signedIn('student1') });
+  assert.equal(own.status, 200, own.text);
+  const ownPay = srv.rzp.pay(own.json.orderId);
+  assert.equal((await guestVerify(srv, own.json.orderId, ownPay.id)).json.reason, 'not_guest');
+
+  const cheap = srv.rzp.pay(orderId, { id: 'pay_cheap', amount: 100 });
+  assert.equal((await guestVerify(srv, orderId, cheap.id)).json.reason, 'amount_mismatch');
+  const usd = srv.rzp.pay(orderId, { id: 'pay_usd', currency: 'USD' });
+  assert.equal((await guestVerify(srv, orderId, usd.id)).json.reason, 'currency_mismatch');
+  const failed = srv.rzp.pay(orderId, { id: 'pay_failed', status: 'failed' });
+  assert.equal((await guestVerify(srv, orderId, failed.id)).json.reason, 'not_captured');
+  // A real payment of ANOTHER order, signed for this one.
+  const o2 = await guestOrder(srv, { sku: 'pack_mock', target: 'science', phone: PHONE });
+  const elsewhere = srv.rzp.pay(o2.json.orderId, { id: 'pay_elsewhere' });
+  assert.equal((await guestVerify(srv, orderId, elsewhere.id)).json.reason, 'order_mismatch');
+
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
+  const ok = await guestVerify(srv, orderId, good.id);
+  assert.equal(ok.status, 200);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid_unclaimed');
+  assert.deepEqual(packDocs(srv.db), []);
+});
+
+test('V · an authorized payment is captured for the STORED amount, then recorded', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_chapter', target: 'real-numbers', phone: PHONE });
+  const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  const capture = srv.rzp.calls.find((c) => c.url.endsWith('/capture'));
+  assert.equal(capture.body.amount, 4900);
+});
+
+test('V · idempotent: a repeat verify (and verify after the webhook) answers the same and asks Razorpay nothing new', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId, paymentId } = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const before = srv.rzp.calls.length;
+  const again = await guestVerify(srv, orderId, paymentId);
+  assert.equal(again.status, 200);
+  assert.equal(again.json.status, 'paid_unclaimed');
+  assert.equal(srv.rzp.calls.length, before);
+  const wh = await sendWebhook(srv, srv.rzp.payments.get(paymentId));
+  assert.equal(wh.status, 200);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid_unclaimed');
+  assert.deepEqual(subsDocs(srv.db), []);
+});
+
+/* ══ W · the webhook ═══════════════════════════════════════════════════════════ */
+
+test('W · a guest payment.captured with no verify marks the order paid_unclaimed (no grant); a wrong amount is refused', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const bad = await sendWebhook(srv, { id: 'pay_bad', order_id: o.json.orderId, amount: 100, currency: 'INR', status: 'captured' });
+  assert.equal(bad.status, 400);
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+
+  const p = srv.rzp.pay(o.json.orderId);
+  const wh = await sendWebhook(srv, p);
+  assert.equal(wh.status, 200, wh.text);
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.paymentId, p.id);
+  assert.equal(stored.uid, null);
+  assert.deepEqual(packDocs(srv.db), []);
+  assert.ok(srv.events.includes('payments.webhook.guest_paid_unclaimed'));
+  // ...and it is then claimable exactly like a verified one.
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.equal(c.json.claimed.length, 1);
+});
+
+test('W · the webhook still grants a normal student order exactly as before', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const own = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'pack_mock', packTarget: 'maths' }, headers: signedIn('student1') });
+  const p = srv.rzp.pay(own.json.orderId);
+  const wh = await sendWebhook(srv, p);
+  assert.equal(wh.status, 200, wh.text);
+  assert.equal(wh.json.kind, 'pack');
+  assert.ok(srv.db.read('packEntitlements/student1/packs/pack_mock:maths'));
+});
+
+/* ══ C · the claim ═════════════════════════════════════════════════════════════ */
+
+test('C · no verified sign-in is 401; a token with no phone claims nothing', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  assert.equal((await claim(srv, {}, { phone: PHONE })).status, 401);
+  const noPhone = await claim(srv, signedIn('googleUser'), { phone: PHONE });
+  assert.equal(noPhone.status, 200);
+  assert.deepEqual(noPhone.json.claimed, []);
+  assert.deepEqual(subsDocs(srv.db), []);
+});
+
+test('C · the phone comes ONLY from the verified token: a body phone is ignored', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const thief = await claim(srv, signedIn('thief', OTHER_PHONE), { phone: PHONE, phoneNumber: PHONE, guestPhone: PHONE });
+  assert.equal(thief.status, 200);
+  assert.deepEqual(thief.json.claimed, []);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid_unclaimed');
+  assert.equal(srv.db.read('subscriptions/thief'), undefined);
+});
+
+test('C · Board Pass: the claim grants Premium to the claiming uid through grantPass, order paid, recorded price = charged', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId, paymentId, order } = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const c = await claim(srv, signedIn('newPhoneUser', PHONE));
+  assert.equal(c.status, 200, c.text);
+  assert.equal(c.json.claimed.length, 1);
+  assert.equal(c.json.claimed[0].kind, 'pass');
+  assert.ok(c.json.claimed[0].passEnd);
+  const sub = srv.db.read('subscriptions/newPhoneUser');
+  assert.equal(sub.tier, 'premium');
+  assert.equal(sub.passType, 'till_boards');
+  assert.equal(sub.pricePaidInr, order.amountPaise / 100);
+  assert.equal(sub.lastPaymentRef, paymentId);
+  assert.ok(srv.db.read(`subscriptions/newPhoneUser/payments/${paymentId}`));
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.status, 'paid');
+  assert.equal(stored.uid, 'newPhoneUser');
+  assert.ok(stored.paidAt);
+  assert.ok(!JSON.stringify(c.json).includes('9876543948'));
+});
+
+test('C · pack: the claim grants the pack through grantPack, exactly as a normal order', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_cbq', target: 'science', phone: PHONE });
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.equal(c.json.claimed[0].kind, 'pack');
+  assert.equal(c.json.claimed[0].packId, 'pack_cbq:science');
+  const pack = srv.db.read('packEntitlements/u1/packs/pack_cbq:science');
+  assert.equal(pack.pricePaidInr, 199);
+  assert.equal(pack.orderId, orderId);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid');
+  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'a pack never grants Premium');
+});
+
+test('C · several purchases on one number all attach in one claim; a wrong number claims nothing; a second claim claims nothing', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const unpaid = await guestOrder(srv, { sku: 'pack_bundle', phone: PHONE }); // never paid
+  await paidGuestOrder(srv, { sku: 'pack_mock', target: 'science', phone: OTHER_PHONE });
+
+  const first = await claim(srv, signedIn('u1', PHONE));
+  assert.deepEqual(first.json.claimed.map((x) => x.sku).sort(), ['pack_mock', 'till_boards']);
+  assert.equal(srv.db.read(`payOrders/${unpaid.json.orderId}`).status, 'created');
+  const second = await claim(srv, signedIn('u1', PHONE));
+  assert.deepEqual(second.json.claimed, []);
+  assert.ok(srv.db.read('packEntitlements/u1/packs/pack_mock:maths'));
+  assert.equal(srv.db.read('packEntitlements/u1/packs/pack_mock:science'), undefined);
+});
+
+test('C · concurrent claims by the same uid grant each payment exactly once', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { paymentId } = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  await Promise.all([1, 2, 3, 4].map(() => claim(srv, signedIn('u1', PHONE))));
+  assert.deepEqual(srv.db.keys('subscriptions/u1/payments/'), [`subscriptions/u1/payments/${paymentId}`]);
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+});
+
+test('C · two DIFFERENT accounts racing for the same order: exactly one gets it', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const [a, b] = await Promise.all([claim(srv, signedIn('uA', PHONE)), claim(srv, signedIn('uB', PHONE))]);
+  assert.equal(a.json.claimed.length + b.json.claimed.length, 1);
+  const owner = srv.db.read(`payOrders/${orderId}`).uid;
+  assert.ok(owner === 'uA' || owner === 'uB');
+  const loser = owner === 'uA' ? 'uB' : 'uA';
+  assert.equal(srv.db.read(`packEntitlements/${loser}/packs/pack_mock:maths`), undefined);
+});
+
+test('C · a claim interrupted after take is finished by the SAME uid only', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  // Simulate a crash between the take transaction and the grant: claimed by uA, not yet paid.
+  await srv.db.collection('payOrders').doc(orderId).set({ status: 'claimed', uid: 'uA' }, { merge: true });
+  const other = await claim(srv, signedIn('uB', PHONE));
+  assert.deepEqual(other.json.claimed, []);
+  assert.equal(srv.db.read('packEntitlements/uB/packs/pack_mock:maths'), undefined);
+  const same = await claim(srv, signedIn('uA', PHONE));
+  assert.equal(same.json.claimed.length, 1);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid');
+  assert.ok(srv.db.read('packEntitlements/uA/packs/pack_mock:maths'));
+});
+
+/* ══ E · the receipt email (owner item A) ══════════════════════════════════════ */
+
+const EMAIL_ENV = { PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key' };
+function resendRecorder() {
+  const sent = [];
+  return {
+    sent,
+    fetchImpl: async (url, init) => {
+      sent.push({ url, headers: init.headers, body: JSON.parse(init.body) });
+      return { ok: true, status: 200, json: async () => ({ id: `em_${sent.length}` }) };
+    },
+  };
+}
+function emailHarness(env = EMAIL_ENV) {
+  const db = memoryFirestore();
+  const resend = resendRecorder();
+  const receiptEmailer = createPaymentReceiptEmailer({ env, adminFirestore: db, fetchImpl: resend.fetchImpl, now: () => NOW });
+  return { db, resend, receiptEmailer };
+}
+
+test('E · off by default: no PAYMENT_EMAIL_ENABLED or no RESEND_API_KEY -> nothing is sent; an off-domain sender is refused', () => {
+  assert.equal(resolveReceiptEmailConfig({}).mode, 'off');
+  assert.equal(resolveReceiptEmailConfig({ PAYMENT_EMAIL_ENABLED: '1' }).mode, 'off');
+  assert.equal(resolveReceiptEmailConfig({ RESEND_API_KEY: 'k' }).mode, 'off');
+  assert.equal(resolveReceiptEmailConfig(EMAIL_ENV).mode, 'send');
+  assert.equal(resolveReceiptEmailConfig(EMAIL_ENV).from, 'LazyTopper <hello@mail.lazytopper.com>');
+  assert.equal(resolveReceiptEmailConfig(EMAIL_ENV).replyTo, 'support@lazytopper.com');
+  assert.equal(resolveReceiptEmailConfig({ ...EMAIL_ENV, PAYMENT_EMAIL_FROM: 'x@gmail.com' }).mode, 'off');
+});
+
+test('E · guest: ONE email to the Razorpay address after verify; masked phone + phone-mode login link; the webhook adds none', async (t) => {
+  const { db, resend, receiptEmailer } = emailHarness();
+  const srv = await startRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const p = srv.rzp.pay(o.json.orderId);
+  srv.rzp.payments.get(p.id).email = 'parent@example.com';
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id)).status, 200);
+  await receiptEmailer.whenIdle();
+  assert.equal((await sendWebhook(srv, { ...srv.rzp.payments.get(p.id) })).status, 200);
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id)).status, 200);
+  await receiptEmailer.whenIdle();
+
+  assert.equal(resend.sent.length, 1);
+  const [mail] = resend.sent;
+  assert.deepEqual(mail.body.to, ['parent@example.com']);
+  assert.equal(mail.body.from, 'LazyTopper <hello@mail.lazytopper.com>');
+  assert.equal(mail.body.reply_to, 'support@lazytopper.com');
+  assert.equal(mail.headers['Idempotency-Key'], `payment-receipt-${p.id}`);
+  assert.equal(mail.body.headers, undefined, 'a receipt carries no unsubscribe header');
+  assert.equal(mail.body.subject, 'Payment received: Maths Mock Pack (₹99)');
+  const text = mail.body.text;
+  for (const want of ['Maths Mock Pack', '₹99', p.id, '2 November 2026', '+91 98•••••948', 'your pack is in My packs',
+    '/login?method=phone&redirect=%2Fpacks%23my-packs', 'support@lazytopper.com', '+91 97145 68948']) {
+    assert.ok(text.includes(want), want);
+  }
+  const all = JSON.stringify(mail.body);
+  assert.ok(!all.includes('9876543948'), 'never the full phone');
+  assert.ok(!/token|uid/i.test(text));
+  assert.equal(db.read(`payOrders/${o.json.orderId}`).receiptEmail.status, 'sent');
+  assert.ok(!JSON.stringify(db.read(`payOrders/${o.json.orderId}`)).includes('parent@example.com'), 'the address is never stored');
+});
+
+test('E · guest paid by webhook only: one email from the webhook', async (t) => {
+  const { db, resend, receiptEmailer } = emailHarness();
+  const srv = await startRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const p = { ...srv.rzp.pay(o.json.orderId), email: 'kid@example.com' };
+  await sendWebhook(srv, p);
+  await sendWebhook(srv, p);
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 1);
+  assert.ok(resend.sent[0].body.text.includes('your Premium is switched on'));
+  assert.ok(resend.sent[0].body.text.includes('redirect=%2F\n') || resend.sent[0].body.text.includes('redirect=%2F'));
+});
+
+test('E · signed-in pack verify: the direct My packs link; verify + webhook still send ONE email', async (t) => {
+  const { db, resend, receiptEmailer } = emailHarness();
+  const srv = await startRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  const own = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'pack_cbq', packTarget: 'science' }, headers: signedIn('student1') });
+  const p = srv.rzp.pay(own.json.orderId);
+  srv.rzp.payments.get(p.id).email = 'student@example.com';
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: own.json.orderId, paymentId: p.id, signature: checkoutSig(own.json.orderId, p.id) }, headers: signedIn('student1') });
+  assert.equal(v.status, 200, v.text);
+  await sendWebhook(srv, { ...srv.rzp.payments.get(p.id) });
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 1);
+  const text = resend.sent[0].body.text;
+  assert.ok(text.includes('Science CBQ Pack'));
+  assert.ok(text.includes('https://www.lazytopper.com/packs#my-packs'));
+  assert.ok(!text.includes('/login'));
+});
+
+test('E · no email on the payment -> silent skip; a failed (5xx) send may be retried once by a later path', async (t) => {
+  const { db, receiptEmailer, resend } = emailHarness();
+  const srv = await startRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 0);
+
+  // A provider failure releases the slot as `failed`; the next path sends it.
+  const db2 = memoryFirestore();
+  let fail = true;
+  const sent = [];
+  const flaky = createPaymentReceiptEmailer({
+    env: EMAIL_ENV, adminFirestore: db2, now: () => NOW,
+    fetchImpl: async (url, init) => { sent.push(JSON.parse(init.body)); if (fail) { fail = false; return { ok: false, status: 503 }; } return { ok: true, status: 200, json: async () => ({}) }; },
+  });
+  await db2.collection('payOrders').doc('order_Z').set({ status: 'paid', paymentId: 'pay_Z', passType: 'pack_bundle', packTarget: 'all', amountPaise: 29900, uid: 'u1' });
+  await flaky.sendForPayment({ orderId: 'order_Z', paymentId: 'pay_Z', email: 'a@b.in' });
+  assert.equal(db2.read('payOrders/order_Z').receiptEmail.status, 'failed');
+  await flaky.sendForPayment({ orderId: 'order_Z', paymentId: 'pay_Z', email: 'a@b.in' });
+  await flaky.sendForPayment({ orderId: 'order_Z', paymentId: 'pay_Z', email: 'a@b.in' });
+  assert.equal(sent.length, 2);
+  assert.equal(db2.read('payOrders/order_Z').receiptEmail.status, 'sent');
+  // An unpaid order, or a payment id that is not the order's, never emails.
+  await db2.collection('payOrders').doc('order_U').set({ status: 'created', passType: 'pack_bundle', amountPaise: 29900 });
+  await flaky.sendForPayment({ orderId: 'order_U', paymentId: 'pay_U', email: 'a@b.in' });
+  await flaky.sendForPayment({ orderId: 'order_Z', paymentId: 'pay_OTHER', email: 'a@b.in' });
+  assert.equal(sent.length, 2);
+});
+
+test('E · the email copy: honest, plain, no full phone; top-ups get no receipt', () => {
+  const guest = buildReceiptEmail({ passType: 'pack_chapter', packTarget: 'human-eye-and-colourful-world', amountPaise: 4900, paymentId: 'pay_1', paidAtMs: NOW, guestPhoneMasked: '+91 98•••••948', appUrl: 'https://www.lazytopper.com' });
+  assert.equal(guest.subject, 'Payment received: Chapter Pack · Human Eye and Colourful World (₹49)');
+  assert.ok(guest.html.includes('+91 98•••••948'));
+  assert.ok(!/hurry|only today|limited|save \d|\d%/i.test(guest.text));
+  assert.equal(buildReceiptEmail({ passType: 'topup_small', amountPaise: 4900, paymentId: 'p', paidAtMs: NOW, appUrl: 'x' }), null);
+});
+
+/* ══ R · review fixes ══════════════════════════════════════════════════════════ */
+
+const seedGuest = (db, id, data) => db.collection('payOrders').doc(id).set({ uid: null, payer: 'guest', guestPhone: PHONE, createdAt: new Date(NOW), ...data });
+
+test('R2 · a paid order is found even under 60 unpaid orders for the same number (query by phone AND status)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  for (let i = 0; i < 60; i += 1) await seedGuest(srv.db, `order_spam${i}`, { passType: 'pack_mock', packTarget: 'maths', amountPaise: 9900, status: 'created' });
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_cbq', target: 'maths', phone: PHONE });
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.deepEqual(c.json.claimed.map((x) => x.orderId), [orderId]);
+});
+
+test('R3 · a grant that fails is recorded on the order, retried by the same uid, and capped', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  // A stored amount that is not the pack price: grantPack refuses it every time.
+  await seedGuest(srv.db, 'order_bad', { passType: 'pack_mock', packTarget: 'maths', amountPaise: 100, status: 'paid_unclaimed', paymentId: 'pay_bad' });
+  for (let i = 0; i < 8; i += 1) {
+    const c = await claim(srv, signedIn('u1', PHONE));
+    assert.deepEqual(c.json.claimed, []);
+  }
+  const o = srv.db.read('payOrders/order_bad');
+  assert.equal(o.status, 'claimed');
+  assert.equal(o.uid, 'u1');
+  assert.equal(o.claimError.code, 'grant_refused');
+  assert.equal(o.claimAttempts, 5, 'capped at MAX_CLAIM_ATTEMPTS');
+});
+
+test('R5 · a pack the account already owns: the order is labelled a duplicate purchase, never swallowed', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await srv.db.collection('packEntitlements').doc('u1').collection('packs').doc('pack_mock:maths').set({ packId: 'pack_mock:maths', sku: 'pack_mock', target: 'maths', pricePaidInr: 99, paidAt: 1, orderId: 'order_old', paymentRef: 'pay_old' });
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.deepEqual(c.json.claimed, []);
+  assert.equal(c.json.duplicates, 1);
+  const o = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(o.status, 'duplicate_purchase');
+  assert.equal(o.duplicateReason, 'already_owned');
+  assert.equal(srv.db.read('packEntitlements/u1/packs/pack_mock:maths').orderId, 'order_old', 'the first purchase is untouched');
+});
+
+test('R5 · a Board Pass for an account already Premium till the boards: duplicate purchase, no grant', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await srv.db.collection('subscriptions').doc('u1').set({ tier: 'premium', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')), lastPaymentRef: 'pay_first' });
+  const { orderId, paymentId } = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.equal(c.json.duplicates, 1);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'duplicate_purchase');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).duplicateReason, 'already_premium_till_boards');
+  assert.equal(srv.db.read(`subscriptions/u1/payments/${paymentId}`), undefined);
+  assert.equal(srv.db.read('subscriptions/u1').lastPaymentRef, 'pay_first');
+});
+
+test('R7 · a parent-paid pass receipt says Premium is active on the STUDENT\'s account', () => {
+  const m = buildReceiptEmail({ passType: 'till_boards', amountPaise: 191700, paymentId: 'pay_p', paidAtMs: NOW, appUrl: 'https://www.lazytopper.com', payer: 'parent' });
+  assert.ok(m.text.includes("Premium is now active on the student's account"));
+  const own = buildReceiptEmail({ passType: 'till_boards', amountPaise: 191700, paymentId: 'pay_s', paidAtMs: NOW, appUrl: 'https://www.lazytopper.com' });
+  assert.ok(own.text.includes('Premium is switched on for your account'));
+});
+
+test('OWNER · a number that already has an account cannot pay as a guest: one generic answer, no Razorpay order, limits first', async (t) => {
+  const lookups = [];
+  const accounts = new Set([PHONE, OTHER_PHONE]);
+  const srv = await startRoutes({ accountExistsForPhone: async (p) => { lookups.push(p); return accounts.has(p); } });
+  t.after(srv.close);
+  // Two existing accounts - one that bought things, one that never did - get byte-identical answers.
+  await srv.db.collection('packEntitlements').doc('buyer').collection('packs').doc('pack_mock:maths').set({ packId: 'pack_mock:maths' });
+  const a = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const b = await guestOrder(srv, { sku: 'till_boards', phone: OTHER_PHONE });
+  assert.equal(a.status, 409);
+  assert.equal(a.text, b.text);
+  assert.deepEqual(a.json, { ok: false, error: 'account_exists' });
+  assert.equal(srv.rzp.calls.length, 0);
+  assert.deepEqual(lookups, [PHONE, OTHER_PHONE]);
+  // A bad number is refused before any lookup; a new number pays normally.
+  await guestOrder(srv, { sku: 'till_boards', phone: '123' });
+  assert.equal(lookups.length, 2);
+  const fresh = await guestOrder(srv, { sku: 'till_boards', phone: '+917899999999' });
+  assert.equal(fresh.status, 200);
+});
+
+test('OWNER · the account check counts against the per-phone limit, and a lookup that fails is a refusal (fail closed)', async (t) => {
+  const srv = await startRoutes({ accountExistsForPhone: async () => true });
+  t.after(srv.close);
+  for (let i = 0; i < MAX_GUEST_ORDERS_PER_PHONE_PER_DAY; i += 1) assert.equal((await guestOrder(srv, { sku: 'till_boards', phone: PHONE })).status, 409);
+  assert.equal((await guestOrder(srv, { sku: 'till_boards', phone: PHONE })).status, 429);
+  const down = await startRoutes({ accountExistsForPhone: async () => { throw new Error('auth down'); } });
+  t.after(down.close);
+  const r = await guestOrder(down, { sku: 'till_boards', phone: PHONE });
+  assert.equal(r.status, 500);
+  assert.equal(down.rzp.calls.length, 0);
+});

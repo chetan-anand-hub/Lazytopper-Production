@@ -1,6 +1,6 @@
 /**
  * PaywallActions — the light GATE of PAYWALL-PAY-1 (owner rulings 19 + 22 Oct 2026). Every
- * lock point imports this file: "Pay", "Share QR code", "Forward link to parents".
+ * lock point imports this file: "Pay", "Pay by QR code", "Forward link to parents".
  *
  * ★★ DARK-SHIP PARITY. While `VITE_PAYMENTS_ENABLED` is off this renders the surface's own
  * old control (`fallback`) and nothing else — no Suspense, no wrapper — so a dark build's DOM
@@ -15,7 +15,7 @@ import { isPaymentsClientEnabled } from "../../services/checkout";
 import { isParentPayClientEnabled } from "../../services/parentPay";
 
 export const PAY_LABEL = "Pay";
-export const QR_LABEL = "Share QR code";
+export const QR_LABEL = "Pay by QR code";
 /**
  * CHECKOUT-1 (owner, 31 Oct 2026): the text-share action is now "Ask a parent to pay" - one tap mints the
  * existing parent-pay link and shares it (native share sheet, else WhatsApp wa.me, else copy). This replaces
@@ -31,7 +31,7 @@ export interface PaywallActionsLiveProps {
   onPay?: () => void;
   /** "Pay" as an internal route link (no /app/ prefix — CLAUDE.md §7). */
   payTo?: string;
-  /** "Share QR code" and "Ask a parent to pay" (also needs a signed-in account). */
+  /** "Pay by QR code" and "Ask a parent to pay" (also needs a signed-in account). */
   showParent: boolean;
   /** PAY-RESCUE-1 - render ONLY "Ask a parent to pay" (as the primary button): no Pay, no QR. */
   askOnly?: boolean;

@@ -175,7 +175,7 @@ export const ACTIVITY_EVENTS = [
   "feedback_after_graded_next_note_saved",
   // GUIDE-1 — which Byte-guide A/B arm the account is in, once per account per device. Additive.
   "guide_variant_assigned",
-  // PAYWALL-PAY-1 — a tap on "Pay", "Share QR code" or "Forward link to parents". Additive.
+  // PAYWALL-PAY-1 — a tap on "Pay", "Pay by QR code" or "Forward link to parents". Additive.
   "paywall_action_pay",
   "paywall_action_qr",
   "paywall_action_forward",
@@ -243,6 +243,11 @@ export const ACTIVITY_EVENTS = [
   "sale_moment_tap",
   // OFFERS-V2 A2 - the one-tap Board Pass checkout started from /pricing?buy=board_pass. Name only.
   "board_pass_direct_checkout",
+  // PAY-PHONE-1 - pay first with a phone number, then sign in with it. Names only (never the number).
+  "guest_pay_option_shown",
+  "guest_pay_start",
+  "guest_pay_paid",
+  "guest_pay_claimed",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

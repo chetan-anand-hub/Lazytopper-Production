@@ -210,6 +210,9 @@ const { createPackRoutes, PACKS_MINE_PATH } = require('./routes/packs.cjs'); // 
 const {
   createParentPayRoutes, PARENT_LINK_PATH, PARENT_VIEW_PATH, PARENT_ORDER_PATH, PARENT_VERIFY_PATH,
 } = require('./routes/parentPay.cjs');
+// PAY-PHONE-1 - "Pay now with your phone number": order/verify dark unless PAYMENTS_ENABLED + GUEST_PAY_ENABLED; the claim
+// (auth required) reads the phone ONLY from the verified ID token.
+const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH } = require('./routes/guestPay.cjs');
 // PARENT-REPORT-1: a parent's read-only page for ONE result the student chose to share. The
 // student mints (verified uid, own record only); the parent reads a stored snapshot by token.
 const { createParentReportRoutes, PARENT_REPORT_LINK_PATH, PARENT_REPORT_VIEW_PATH } = require('./routes/parentReport.cjs');
@@ -411,7 +414,9 @@ const accountExportRoutes = createAccountExportRoutes({
   corsOrigin: config.CORS_ORIGIN,
 });
 
-const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry });
+// PAY-PHONE-1 (A): one receipt email per verified payment. OFF unless PAYMENT_EMAIL_ENABLED + RESEND_API_KEY.
+const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({ adminFirestore, telemetry });
+const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry, receiptEmailer: paymentReceiptEmailer });
 // PACKS-SERVER-1: the packs a verified student owns. Not behind PACKS_ENABLED (owned packs stay downloadable).
 const packRoutes = createPackRoutes({
   sendJson,
@@ -423,7 +428,8 @@ const packRoutes = createPackRoutes({
   getLicensee: async (uid) => {
     if (!firebaseAdmin) return { name: '', email: '' };
     const record = await firebaseAdmin.auth().getUser(uid);
-    return { name: (record && record.displayName) || '', email: (record && record.email) || '' };
+    // PAY-PHONE-1: the VERIFIED phone (Firebase Auth's own record) for a phone-only account; packs.cjs masks it.
+    return { name: (record && record.displayName) || '', email: (record && record.email) || '', phone: (record && record.phoneNumber) || '' };
   },
 });
 const parentPayRoutes = createParentPayRoutes({
@@ -436,6 +442,24 @@ const parentPayRoutes = createParentPayRoutes({
     if (!firebaseAdmin) return '';
     const record = await firebaseAdmin.auth().getUser(uid);
     return (record && record.displayName) || '';
+  },
+});
+const guestPayRoutes = createGuestPayRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  receiptEmailer: paymentReceiptEmailer,
+  // Owner ruling 2 Nov 2026: a number that already has an account signs in instead of paying as a guest.
+  accountExistsForPhone: async (e164) => {
+    if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
+    try {
+      await firebaseAdmin.auth().getUserByPhoneNumber(e164);
+      return true;
+    } catch (e) {
+      if (e && e.code === 'auth/user-not-found') return false;
+      throw e;
+    }
   },
 });
 const parentReportRoutes = createParentReportRoutes({
@@ -738,6 +762,10 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);
   if (req.method === 'POST' && reqPath === PARENT_ORDER_PATH) return parentPayRoutes.handleOrder(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VERIFY_PATH) return parentPayRoutes.handleVerify(req, res);
+  // PAY-PHONE-1 — self-gating (404 while dark); the claim resolves the verified uid + phone itself (401 on none).
+  if (req.method === 'POST' && reqPath === GUEST_ORDER_PATH) return guestPayRoutes.handleOrder(req, res);
+  if (req.method === 'POST' && reqPath === GUEST_VERIFY_PATH) return guestPayRoutes.handleVerify(req, res);
+  if (req.method === 'POST' && reqPath === GUEST_CLAIM_PATH) return guestPayRoutes.handleClaim(req, res);
   // PARENT-REPORT-1 - self-gating: the link route resolves the verified uid itself (401 on
   // none); the view route reads only the stored snapshot its token names.
   if (req.method === 'POST' && reqPath === PARENT_REPORT_LINK_PATH) return parentReportRoutes.handleMintLink(req, res);

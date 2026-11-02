@@ -159,7 +159,7 @@ const EVENT_LABELS: Record<string, string> = {
   // PAYWALL-PAY-1 — the three paywall actions (any surface: lock, upgrade popup / sheet, limit, /pricing,
   // tutor, trial_paper, more_like_this).
   paywall_action_pay: "Tapped Pay on a paywall",
-  paywall_action_qr: "Tapped Share QR code (for parents)",
+  paywall_action_qr: "Tapped Pay by QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
   ask_parent_pay: "Tapped Ask a parent to pay",
   // PAY-RESCUE-1
@@ -212,6 +212,10 @@ const EVENT_LABELS: Record<string, string> = {
   sale_moment_shown: "Was shown a pack / Board Pass line after a result",
   sale_moment_tap: "Tapped a pack / Board Pass line after a result",
   board_pass_direct_checkout: "Opened the Board Pass checkout straight from a Pay button",
+  guest_pay_option_shown: "Was shown \"Pay now with your phone number\"",
+  guest_pay_start: "Started paying with a phone number",
+  guest_pay_paid: "Paid with a phone number (before signing in)",
+  guest_pay_claimed: "Signed in and got a purchase paid with a phone number",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

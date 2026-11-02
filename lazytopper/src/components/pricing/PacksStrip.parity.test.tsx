@@ -75,8 +75,10 @@ describe("/pricing packs - the same for every account", () => {
     sub.tier = tier;
     const { container } = strip();
     expect(screen.getByTestId("cbq-band")).toBeTruthy();
-    expect(screen.getByTestId("pricing-cbq-maths").textContent).toContain("₹199");
-    expect(screen.getByTestId("pricing-cbq-science").textContent).toContain("₹199");
+    // PACKS-TILE-BUY-1: each CBQ card BUYS directly (same for every account, Premium included); "See inside" opens the pop-up.
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe("Buy Maths CBQ · ₹199");
+    expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe("Buy Science CBQ · ₹199");
+    expect(screen.getByTestId("pricing-cbq-maths").textContent).toBe("See inside →");
     const tiles = Array.from(container.querySelectorAll("button.lt-packoffer__item"));
     expect(tiles.map((t) => t.getAttribute("data-pack"))).toEqual(["chapter", "mock", "subject", "bundle"]);
     expect(Array.from(container.querySelectorAll(".lt-packoffer__cell")).map((c) => c.getAttribute("data-price"))).toEqual(["49", "99", "199", "299"]);
