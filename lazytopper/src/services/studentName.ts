@@ -7,6 +7,7 @@
  * "Skip" is remembered on this device only: localStorage `lazytopper.packNameSkipped.<tag>` ("1"; <tag> is an 8-hex hash
  * of the uid, never the uid). It is a "don't ask again" convenience, never premium, trial or pack state.
  */
+import { updateProfile } from "firebase/auth";
 import { guideAccountTag } from "../components/guide/guideVariant";
 
 export const STUDENT_NAME_MAX = 40;
@@ -40,7 +41,9 @@ export function skipPackName(uid: string): void {
 export async function saveStudentName(raw: string): Promise<string> {
   const name = cleanStudentName(raw);
   if (!name) throw new Error("invalid_name");
-  const [{ authClient }, { updateProfile }] = await Promise.all([import("./firebaseClient"), import("firebase/auth")]);
+  // A STATIC firebase/auth import (as every other module): a dynamic one split firebase/auth out of its own chunk and
+  // into the entry, over the PERF-3 budget.
+  const { authClient } = await import("./firebaseClient");
   const user = authClient?.currentUser ?? null;
   if (!user) throw new Error("signed-out");
   if (user.displayName && user.displayName.trim()) return user.displayName;

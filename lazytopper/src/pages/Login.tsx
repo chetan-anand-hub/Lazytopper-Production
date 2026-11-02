@@ -1,6 +1,5 @@
 import { type CSSProperties, type FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { claimOncePerSession } from "../services/guestPay";
 import { useAuth, type AuthUser } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { trackNamedEvent } from "../analytics/analytics";
@@ -1664,7 +1663,11 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     creditPendingReferral(user.uid);
     // PAY-PHONE-1 - signed in right after paying with this number: attach the purchase now (AuthContext also does it
     // once per session; the claim is idempotent and de-duplicated while in flight).
-    if (guestPayDigits && user.phoneNumber) void claimOncePerSession(user.uid, { force: true });
+    // Loaded on demand: the guest-pay client must stay out of the entry chunk (PERF-3 budget).
+    if (guestPayDigits && user.phoneNumber) {
+      const uid = user.uid;
+      void import("../services/guestPay").then((m) => m.claimOncePerSession(uid, { force: true })).catch(() => undefined);
+    }
     if (isStartTrial && !trialIntentConsumed.current) {
       trialIntentConsumed.current = true;
       const status = subscription.status;
