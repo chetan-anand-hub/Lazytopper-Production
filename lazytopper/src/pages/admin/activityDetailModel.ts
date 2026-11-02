@@ -117,6 +117,8 @@ const EVENT_LABELS: Record<string, string> = {
   free_check_used_block: "Was shown that the free check is used",
   free_check_signup: "Saved a free check to a new account",
   free_check_trial_start: "Started the free trial from a free check",
+  free_check_result_restored: "Saw their saved free-check result after signing up",
+  free_check_result_restored_buy_click: "Tapped the buy line under their saved free-check result",
   trial_start: "Started the free trial",
   check_question_read: "Read a question to check",
   check_answer_added: "Added an answer",

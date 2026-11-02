@@ -93,6 +93,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'free_check_used_block',
   'free_check_signup',
   'free_check_trial_start',
+  'free_check_result_restored',
+  'free_check_result_restored_buy_click',
   'trial_start',
   'check_question_read',
   'check_answer_added',

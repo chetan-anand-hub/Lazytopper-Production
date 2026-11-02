@@ -160,7 +160,11 @@ import {
   markFreeCheckSigninIntent,
   recordFreeCheckSuccess,
   type FreeCheckRefusalReason,
+  type PendingFreeCheck,
 } from "../../services/freeCheckClient";
+import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
+import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
+import { showPackLine } from "../../components/limits/packLine";
 import {
   FreeCheckRefusalPanel,
   FreeCheckResultBar,
@@ -883,8 +887,14 @@ export interface CheckImproveOverlayProps {
  *   return  a signed-in student whose free result is being saved (R8), then offered
  *           the trial (R9) — rendered through this page's own chrome (N11)
  */
-type FreeCheckInnerMode =
+/** ACT-FREECHECK-1 — the saved free result shown before the next action (null result: said honestly). */
+interface FreeCheckRestoredProps {
+  result: PendingFreeCheck | null;
+  showBuy: boolean;
+}
+type FreeCheckInnerMode = (
   | { mode: "free" }
+  | { mode: "return"; step: "result"; onContinue: () => void }
   | { mode: "return"; step: "saving" }
   | {
       mode: "return";
@@ -899,7 +909,8 @@ type FreeCheckInnerMode =
       step: "confirmed";
       endsOn: string;
       onContinue: () => void;
-    };
+    }
+) & { restored?: FreeCheckRestoredProps };
 
 /** The per-call opt-in that makes aiClient send the marker + a fresh App Check token. */
 const FREE_CHECK_CALL: PaidCallOptions = { freeCheck: true };
@@ -2830,8 +2841,20 @@ const DesktopCheckImprovePageInner: React.FC<{
   /* ──────────── FREE-CHECK-1b — the free-check states (absent on every other visit) ──────────── */
 
   if (freeCheck?.mode === "return") {
-    return withChrome(
-      freeCheck.step === "confirmed" ? (
+    // ACT-FREECHECK-1 — the result they signed up to keep comes FIRST, then the next action.
+    const restored = freeCheck.restored ? (
+      <FreeCheckRestoredResult result={freeCheck.restored.result} showBuy={freeCheck.restored.showBuy} />
+    ) : null;
+    const next =
+      freeCheck.step === "result" ? (
+        <div className="lt-fc" data-testid="free-check-continue">
+          <div className="lt-fc__actions">
+            <button type="button" className="lt-fc__btn lt-fc__btn--primary" onClick={freeCheck.onContinue}>
+              {FREE_CHECK_COPY.confirmCta}
+            </button>
+          </div>
+        </div>
+      ) : freeCheck.step === "confirmed" ? (
         <FreeCheckTrialConfirmation endsOn={freeCheck.endsOn} onContinue={freeCheck.onContinue} />
       ) : freeCheck.step === "offer" ? (
         <FreeCheckTrialOffer
@@ -2841,7 +2864,12 @@ const DesktopCheckImprovePageInner: React.FC<{
         />
       ) : (
         <FreeCheckSavingPanel />
-      ),
+      );
+    return withChrome(
+      <>
+        {restored}
+        {next}
+      </>,
       "Your answer",
     );
   }
@@ -4765,6 +4793,23 @@ const FreeCheckCheckImprovePage: React.FC = () => {
   const navigate = useNavigate();
   const phase = useFreeCheckReturn(loading ? null : user, true);
   const [offerClosed, setOfferClosed] = useState(false);
+  // ACT-FREECHECK-1 — the result the replay just saved (in memory), shown before the next action.
+  const restored: FreeCheckRestoredProps | undefined =
+    phase === "saved" && user
+      ? {
+          result: getSavedFreeCheckResult(user.uid),
+          showBuy: showPackLine(subscription.status, subscription.hydrated),
+        }
+      : undefined;
+  // Sign-out (or auth settled with nobody): forget any held result so the next account never sees it.
+  const signedOut = !loading && !user;
+  useEffect(() => {
+    if (signedOut) clearAllSavedFreeCheckResults();
+  }, [signedOut]);
+  const closeRestored = () => {
+    clearSavedFreeCheckResult(user?.uid);
+    setOfferClosed(true);
+  };
 
   const gated = (
     <RequirePremium featureLabel="Answer Checker">
@@ -4798,7 +4843,8 @@ const FreeCheckCheckImprovePage: React.FC = () => {
           mode: "return",
           step: "confirmed",
           endsOn: trialEndsOnLabel(trialStartMsForLabel),
-          onContinue: () => setOfferClosed(true),
+          onContinue: closeRestored,
+          restored,
         }}
       />
     );
@@ -4824,15 +4870,25 @@ const FreeCheckCheckImprovePage: React.FC = () => {
             subscription.startTrial();
             trackNamedEvent("trial_start");
             trackNamedEvent("free_check_trial_start");
-            setOfferClosed(true);
+            closeRestored();
           },
           // TRIAL-ON-SIGNUP-1 · T2 — an existing account that declines goes HOME, never
           // to a locked page (it used to fall through to the Premium lock).
           onMaybeLater: () => {
-            setOfferClosed(true);
+            closeRestored();
             navigate("/");
           },
+          restored,
         }}
+      />
+    );
+  }
+  // ACT-FREECHECK-1 — saved, but neither the confirmation nor the offer applies (a paid pass, an expired
+  // trial): the result still comes first, then the way on. Only when there is a result to show.
+  if (phase === "saved" && !offerClosed && subscription.hydrated && restored?.result) {
+    return (
+      <DesktopCheckImprovePageInner
+        freeCheck={{ mode: "return", step: "result", onContinue: closeRestored, restored }}
       />
     );
   }
