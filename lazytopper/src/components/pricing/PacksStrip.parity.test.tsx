@@ -107,7 +107,8 @@ describe("/pricing packs - the same for every account", () => {
       vi.setSystemTime(new Date("2026-12-21T00:00:00+05:30"));
       strip();
       expect(document.body.textContent).not.toContain("Pre-boards pick");
-      expect(document.querySelector('[data-pack="bundle"]')?.textContent).toContain("the whole year at one price");
+      expect(document.querySelector('[data-pack="bundle"]')?.textContent).toContain("Maths + Science: all 26 chapters + 16 mocks \u2014 the whole year at one price");
+      expect(document.body.textContent).not.toMatch(/\b27 chapters/);
     } finally {
       vi.useRealTimers();
     }
