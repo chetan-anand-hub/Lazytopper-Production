@@ -954,7 +954,9 @@ export type NamedAnalyticsEvent =
   | "trial_summary_tap"
   // SALE-MOMENT-1 - the one buying line at the moment of value (ladder verdict, graded scorecards). Slugs only, see trackSaleMoment.
   | "sale_moment_shown"
-  | "sale_moment_tap";
+  | "sale_moment_tap"
+  // OFFERS-V2 A2 - /pricing?buy=board_pass started the Board Pass checkout once, straight from a "Pay" button. Name only.
+  | "board_pass_direct_checkout";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
