@@ -161,6 +161,12 @@ export interface WorksheetPdfOptions {
   cover?: { kicker: string; title: string; subtitle: string; stats: Array<{ value: string; label: string }> };
   /** Overrides the default saved file name. */
   filename?: string;
+  /**
+   * PACK-SAMPLE-1 - a FREE SAMPLE page: only the first body page of the document (no cover, no buyer line, the tiled watermark
+   * stays), marked "Sample - lazytopper.com", with `line` printed as the last line of the page (it carries the pack's price,
+   * so it is drawn as an image: the rupee sign is not in the PDF font). Used only by the sample generator script.
+   */
+  sample?: { line: string; meta?: string };
 }
 
 interface CoreOptions extends WorksheetPdfOptions {
@@ -251,10 +257,77 @@ function drawTrustLine(pdf: Doc, leftText: string, innerW: number, y: number): v
   pdf.setFontSize(10);
 }
 
+/** The marking printed on every free sample page (top right and bottom left). */
+export const PDF_SAMPLE_MARK = "Sample \u00b7 lazytopper.com";
+
+/**
+ * The sample's last line as a PNG data URL (canvas text, so the rupee sign prints). Width is the footer's inner width,
+ * 8 px per mm. Returns null when no canvas is available (the page then carries the line as ASCII text instead).
+ */
+export function renderSampleLineImage(line: string): { dataUrl: string; wMm: number; hMm: number } | null {
+  try {
+    const wMm = PAGE_W - MARGIN_X * 2;
+    const hMm = 5;
+    const k = 8;
+    const canvas = document.createElement("canvas");
+    canvas.width = wMm * k;
+    canvas.height = hMm * k;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgb(21,35,58)";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    let size = 4.2 * k; // ~12 pt
+    ctx.font = `700 ${size}px "DejaVu Sans", Arial, sans-serif`;
+    while (size > 2 * k && ctx.measureText(line).width > canvas.width - 2 * k) {
+      size -= 0.25 * k;
+      ctx.font = `700 ${size}px "DejaVu Sans", Arial, sans-serif`;
+    }
+    ctx.fillText(line, canvas.width / 2, canvas.height / 2 + 0.2 * k);
+    return { dataUrl: canvas.toDataURL("image/png"), wMm, hMm };
+  } catch {
+    return null;
+  }
+}
+
+function drawSampleChrome(pdf: Doc, innerW: number, line: ReturnType<typeof renderSampleLineImage>, fallbackLine: string): void {
+  // top right: a green pill, "Sample - lazytopper.com"
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+  const w = (typeof pdf.getTextWidth === "function" ? pdf.getTextWidth(PDF_SAMPLE_MARK) : 40) + 6;
+  pdf.setFillColor(...ACCENT_RGB);
+  pdf.roundedRect(PAGE_W - MARGIN_X - w, 4.2, w, 6, 3, 3, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.text(PDF_SAMPLE_MARK, PAGE_W - MARGIN_X - w / 2, 8.2, { align: "center" });
+  // footer: rule, "Sample" left + the IITian trust line right, and the price line as the LAST line of the page
+  pdf.setDrawColor(216, 222, 230);
+  pdf.setLineWidth(0.2);
+  pdf.line(MARGIN_X, PAGE_H - 17, PAGE_W - MARGIN_X, PAGE_H - 17);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(...MUTED_RGB);
+  pdf.setFontSize(10);
+  pdf.text(PDF_SAMPLE_MARK, MARGIN_X, PAGE_H - 11.5);
+  pdf.setFont("helvetica", "normal");
+  drawTrustLine(pdf, PDF_SAMPLE_MARK, innerW, PAGE_H - 11.5);
+  if (line) {
+    pdf.addImage(line.dataUrl, "PNG", MARGIN_X, PAGE_H - 9.5, line.wMm, line.hMm);
+  } else {
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(...NAVY_RGB);
+    pdf.text(latin1(fallbackLine), PAGE_W / 2, PAGE_H - 6, { align: "center" });
+  }
+}
+
 function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null): void {
   const innerW = PAGE_W - MARGIN_X * 2;
   pdf.setFillColor(...ACCENT_RGB);
   pdf.rect(0, 0, PAGE_W, 1.6, "F");
+  if (opts.sample) {
+    drawSampleChrome(pdf, innerW, renderSampleLineImage(opts.sample.line), opts.sample.line);
+    return;
+  }
 
   if (bodyIndex > 0) {
     if (brand) {
@@ -343,7 +416,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
 
   // The cover (PDF-REBRAND-1) is its own full-bleed page; loaded only when asked for.
   let coverJpeg: string | null = null;
-  if (opts.cover) {
+  if (opts.cover && !opts.sample) {
     const { PrintCover, COVER_W } = await import("./PrintCover");
     const cover = opts.cover;
     coverJpeg = await withHost(COVER_W, createElement(PrintCover, {
@@ -359,6 +432,14 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
   return withHost(HOST_WIDTH, element, async (host) => {
     // Where a page may be cut, measured now (the laid-out DOM) and converted to canvas pixels after the capture.
     const atomsCss = collectPrintAtoms(host);
+    if (opts.sample) {
+      // A one-page sample must not end on a question whose options are on the next page: keep each whole question together.
+      const top0 = host.getBoundingClientRect().top;
+      host.querySelectorAll(".lt-wsp__q").forEach((q) => {
+        const r = q.getBoundingClientRect();
+        atomsCss.push({ top: r.top - top0, bottom: r.bottom - top0 });
+      });
+    }
     const hostH = host.getBoundingClientRect().height;
 
     const canvas = await html2canvas(host, {
@@ -371,6 +452,8 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
 
     // 2. Paginate the tall raster across A4, leaving room for the crisp jsPDF page chrome.
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    // PACK-SAMPLE-1: the sample's pack + price travel in the PDF's Subject field (the price line itself is an image).
+    if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
     const imgW = PAGE_W - MARGIN_X * 2;
     const usableH = PAGE_H - MARGIN_TOP - FOOTER_H;
     const pxPerMm = canvas.width / imgW || 1;
@@ -381,7 +464,8 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       canvas.height,
       sliceHpx,
     );
-    const bodyPages = Math.max(1, slices.length);
+    // A free sample is the document's FIRST page only (PACK-SAMPLE-1).
+    const bodyPages = opts.sample ? 1 : Math.max(1, slices.length);
     const offset = coverJpeg ? 1 : 0;
     const totalPages = bodyPages + offset;
 
@@ -403,7 +487,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
         sctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
       }
       if (page > 0 || coverJpeg) pdf.addPage();
-      pdf.addImage(slice.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN_X, MARGIN_TOP, imgW, hPx / pxPerMm);
+      pdf.addImage(slice.toDataURL("image/jpeg", opts.sample ? 0.78 : 0.95), "JPEG", MARGIN_X, MARGIN_TOP, imgW, hPx / pxPerMm);
       drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand);
     }
 

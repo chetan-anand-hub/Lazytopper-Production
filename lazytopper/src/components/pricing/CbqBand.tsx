@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { PACK_PRICE_INR, chaptersOfSubject, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
+import PackSampleLink from "../packs/PackSampleLink";
+import type { PackSampleSurface } from "../../lib/packs/packSamples";
 import "./cbqBand.css";
 
 /**
@@ -15,9 +17,11 @@ export interface CbqBandProps {
   action: (subject: PackSubject) => ReactNode;
   /** Heading level the page wants (the /packs hero already has an h1). */
   headingId: string;
+  /** PACK-SAMPLE-1: which page the band is on; each card gets a "Free sample page" link under its action (secondary to the buy action). */
+  sampleSurface: PackSampleSurface;
 }
 
-export default function CbqBand({ action, headingId }: CbqBandProps) {
+export default function CbqBand({ action, headingId, sampleSurface }: CbqBandProps) {
   const price = packPriceLabel("pack_cbq");
   return (
     <section
@@ -45,6 +49,9 @@ export default function CbqBand({ action, headingId }: CbqBandProps) {
                 <li>Your name on every page</li>
               </ul>
               {action(s)}
+              <div className="lt-cbq__sample">
+                <PackSampleLink sku="pack_cbq" target={s} surface={sampleSurface} tone="on-dark" />
+              </div>
             </div>
           );
         })}

@@ -225,6 +225,8 @@ export const ACTIVITY_EVENTS = [
   "pack_checkout",
   "pack_purchase",
   "pack_download",
+  // PACK-SAMPLE-1 — the free sample page of a pack downloaded (no sign-up needed). Name only.
+  "pack_sample_download",
   // PACKS-ENTRY-1 — a tap on a small PDF-packs link beside an ask. Name only.
   "pack_entry_click",
   // CBQ-TUTOR-TASTE-1 - a CBQ Pack buyer spent one of their 3 tutor questions. Name only.

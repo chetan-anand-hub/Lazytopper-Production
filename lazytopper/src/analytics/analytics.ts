@@ -938,6 +938,8 @@ export type NamedAnalyticsEvent =
   | "pack_checkout"
   | "pack_purchase"
   | "pack_download"
+  // PACK-SAMPLE-1 — the free sample page of a pack downloaded without signing up (data: pack, surface).
+  | "pack_sample_download"
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).
   | "pack_entry_click"
   // CBQ-TUTOR-TASTE-1 - a CBQ Pack buyer spent one of their 3 tutor questions. Name only.

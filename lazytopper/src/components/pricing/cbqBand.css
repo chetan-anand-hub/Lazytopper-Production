@@ -15,6 +15,7 @@
 .lt-cbq__btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; margin-top: auto; border: 0; border-radius: 12px; background: #3fbf82; color: #07210f; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; padding: 10px 16px; text-decoration: none; text-align: center; }
 .lt-cbq__btn:hover { filter: brightness(1.05); }
 .lt-cbq__btn:focus-visible { outline: 3px solid #e8b94a; outline-offset: 2px; }
+.lt-cbq__sample { display: flex; justify-content: center; }
 .lt-cbq__foot { margin: 0; font-size: 14px; line-height: 1.45; color: #dbe4f0; }
 @media (min-width: 640px) {
   .lt-cbq { padding: 24px; }

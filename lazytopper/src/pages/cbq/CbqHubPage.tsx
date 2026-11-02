@@ -75,6 +75,7 @@ export default function CbqHubPage() {
           <h2 id="cbqs-packs" className="lt-cbqs__packhead">Get every CBQ for this subject</h2>
           <CbqBand
             headingId="cbqs-band"
+            sampleSurface="cbq_hub"
             action={(subject: PackSubject) => (
               <Link className="lt-cbq__btn" to={CBQ_PACK_TO} data-testid={`cbq-cta-pack-${subject}`}>
                 Get the {subjectLabel(subject)} CBQ Pack

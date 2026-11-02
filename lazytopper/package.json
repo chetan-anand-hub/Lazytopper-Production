@@ -12,6 +12,7 @@
     "scope:guard:tutor": "node scripts/scopeGuard.mjs --mode tutor",
     "scope:guard": "node scripts/scopeGuard.mjs",
     "predev": "node scripts/prebuild.cjs",
+    "gen:pack-samples": "tsx scripts/samples/generatePackSamples.ts",
     "seo:capture": "tsx scripts/seo/captureStaticBodies.ts",
     "seo:index-status": "tsx scripts/seo/indexStatusReport.ts",
     "build": "tsc -b && vite build && tsx scripts/seo/writeStaticHeads.ts && tsx scripts/seo/applyPrerendered.ts && tsx scripts/seo/writeVersion.ts && tsx scripts/ops/perf3_entry_chunk_acceptance.mjs",

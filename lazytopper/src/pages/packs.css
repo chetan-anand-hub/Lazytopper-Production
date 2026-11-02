@@ -44,6 +44,17 @@
 .lt-packs__lede--long { display: none; }
 .lt-packs__terms--hero { display: none; }
 .lt-packs__tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 16px 12px 0; }
+.lt-packs__cell { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
+.lt-packs__cell .lt-packs__tile { flex: 1 1 auto; }
+.lt-packs__cell .lt-psl { align-self: center; }
+/* the hero is navy only from 1024px: there the link is the light green, below it sits on the soft white page */
+@media (min-width: 1024px) {
+  .lt-packs__cell .lt-psl { color: #6fe0a8; }
+  .lt-packs__cell .lt-psl-pair { color: #dbe4f0; }
+  .lt-packs__cell .lt-psl-pair__dot { color: #9fb0c8; }
+  .lt-packs__cell .lt-psl:hover { color: #9cf0c6; }
+  .lt-packs__cell .lt-psl:focus-visible { outline-color: #e8b94a; }
+}
 .lt-packs__tile {
   display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-height: 176px; padding: 14px; border-radius: 16px;
   background: #fff; color: var(--pk-ink); border: 1px solid var(--pk-line2); font: inherit; cursor: pointer; min-width: 0;
