@@ -41,6 +41,11 @@ import {
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { isPacksEntryEnabled } from "../lib/packs/packEntryLazy";
+import { showPackLine } from "../components/limits/packLine";
+import OffersBlock from "../components/packs/OffersBlock";
+import { BOARD_PASS_BENEFIT } from "../components/packs/offersCopy";
+import { useKnownStatus, useOptionalUid } from "../components/packs/PackPromoCard";
 
 // BANK-LEAN-1 (H1) — the answer checker loads ON DEMAND. It mounts only when a student
 // opens "Check my answer" on one card, yet its static import put the checker (and, via
@@ -459,6 +464,31 @@ const HPQ_CANONICAL_GRADE = "10";
 /** The canonical path for a subject: `/highly-probable/10/Maths` or `/highly-probable/10/Science`. */
 function hpqCanonicalPath(subject: HPQSubject): string {
   return `/highly-probable/${HPQ_CANONICAL_GRADE}/${subject}`;
+}
+
+/**
+ * IQ-PACKS-1 (owner, 2 Nov 2026) - the Important Questions page sells too: the SAME buying block the results show (OffersBlock), twice
+ * (under the intro, and at the end of the list). A signed-out visitor (the ad traffic) and a KNOWN non-paid student see the Board Pass card
+ * and the pack rows; paid Premium sees the pack rows only (Premium can buy packs); while the record is not yet known nothing shows (no
+ * flash for a paid student). Packs switch off -> nothing. The chapter row follows the topic filter, when one is chosen.
+ */
+function ImportantQsOffers({ subject, topic, placement }: { subject: HPQSubject; topic: string; placement: "top" | "end" }) {
+  const uid = useOptionalUid();
+  const [status, known] = useKnownStatus(uid);
+  if (!isPacksEntryEnabled()) return null;
+  const nonPaid = showPackLine(status, known);
+  if (uid && !known) return null;
+  const chapterSlug = topic !== "all" ? resolveCanonicalTopicKey(topic) : null;
+  return (
+    <OffersBlock
+      surface={placement === "top" ? "important-qs" : "important-qs-end"}
+      ctx={{ kind: "important-qs", subject: subject === "Science" ? "science" : "maths", chapterSlug, chapterName: topic !== "all" ? topic : null }}
+      uid={uid}
+      showCard={!uid || nonPaid}
+      showPacks
+      benefit={BOARD_PASS_BENEFIT["important-qs"]}
+    />
+  );
 }
 
 const HighlyProbableQuestionsPage: React.FC = () => {
@@ -1101,6 +1131,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
             </div>
           </div>
         </section>
+
+        <ImportantQsOffers subject={subjectKey} topic={topicFilter} placement="top" />
 
         {/* Topic dropdown row (under hero) */}
         <section
@@ -2130,6 +2162,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
             </div>
           </section>
         )}
+        <ImportantQsOffers subject={subjectKey} topic={topicFilter} placement="end" />
       </div>
     </div>
   );
