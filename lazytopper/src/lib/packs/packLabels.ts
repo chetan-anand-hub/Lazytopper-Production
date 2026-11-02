@@ -27,8 +27,6 @@ export const CBQ_MIN_PER_SUBJECT = 1400;
 export const CBQ_MIN_PER_CHAPTER = 100;
 export const CBQ_SUBJECT_CLAIM = `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ CBQs`;
 export const CBQ_CHAPTER_CLAIM = `${CBQ_MIN_PER_CHAPTER}+ in every chapter`;
-/** The question types a CBQ pack contains (same five formats the pricing band lists). The PDF cover counts and lists them from here. */
-export const CBQ_QUESTION_TYPES: readonly string[] = ["MCQ", "Assertion-Reason", "Short answer", "Case study", "Long answer"];
 
 /** Owned packs stay downloadable until this date (copy only; My packs keeps working regardless of flags). */
 export const REDOWNLOAD_UNTIL = "31 May 2027";

@@ -50,7 +50,8 @@ import {
   toWorksheetQuestion,
   withProvenance,
 } from "./packContent";
-import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_QUESTION_TYPES, MATHS_MOCK_PATTERN, MOCKS_PER_SUBJECT } from "./packLabels";
+import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, MATHS_MOCK_PATTERN, MOCKS_PER_SUBJECT } from "./packLabels";
+import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
 import type { PrintCoverProps } from "../../components/worksheet/PrintCover";
 
 /** The 4th argument of `exportWorksheetPdf` (PACKS contract §5; PDF-REBRAND-1 adds it). */

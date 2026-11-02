@@ -1,7 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { PrintCover, BOARD_EXAM_YEAR } from "./PrintCover";
-import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_QUESTION_TYPES } from "../../lib/packs/packLabels";
+import { CBQ_MIN_PER_CHAPTER, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
+import { CBQ_QUESTION_TYPES } from "../../lib/packs/cbqPackTypes";
 
 afterEach(cleanup);
 
@@ -31,7 +32,7 @@ describe("PrintCover", () => {
       <PrintCover
         {...base}
         kicker="SCIENCE CBQ PACK · SCIENCE"
-        headline={{ value: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+`, label: "CBQs", note: "competency-based questions" }}
+        headline={{ value: CBQ_SUBJECT_CLAIM.replace(" CBQs", ""), label: "CBQs", note: "competency-based questions" }}
         stats={[{ value: "13", label: "chapters" }, { value: `${CBQ_MIN_PER_CHAPTER}+`, label: "in every chapter" }, { value: String(CBQ_QUESTION_TYPES.length), label: "question types" }]}
         types={CBQ_QUESTION_TYPES}
       />,

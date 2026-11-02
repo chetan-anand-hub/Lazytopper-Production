@@ -474,7 +474,6 @@
     "src/components/usage/usageWarning.test.tsx",
     "src/components/usage/usageWarning.thirtyDay.test.ts",
     "src/components/ux/PublicLegalFooter.reach.test.tsx",
-    "src/components/worksheet/PrintCover.test.tsx",
     "src/components/worksheet/WorksheetGenerator.bankAwait.test.tsx",
     "src/components/worksheet/WorksheetGenerator.cbqMix.test.tsx",
     "src/components/worksheet/WorksheetGenerator.mi.test.tsx",
