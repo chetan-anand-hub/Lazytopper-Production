@@ -237,6 +237,9 @@ const ACTIVITY_EVENTS = Object.freeze([
   'tutor_check_correct',
   'trial_summary_shown',
   'trial_summary_tap',
+  // SALE-MOMENT-1 - the buying line at the moment of value. Additive only.
+  'sale_moment_shown',
+  'sale_moment_tap',
 ]);
 
 /**
