@@ -777,6 +777,9 @@ export type NamedAnalyticsEvent =
   | "free_check_used_block"
   | "free_check_signup"
   | "free_check_trial_start"
+  // ACT-FREECHECK-1 — the saved free result was shown again after sign-up, and a tap on its purchase line. Names only.
+  | "free_check_result_restored"
+  | "free_check_result_restored_buy_click"
   | "trial_start"
   | "check_question_read"
   | "check_answer_added"
@@ -1645,6 +1648,20 @@ export {
  */
 export function trackTrialEndScreen(kind: "shown" | "basic"): void {
   trackNamedEvent(kind === "shown" ? "trial_end_screen_shown" : "trial_end_screen_basic");
+}
+
+/**
+ * ACT-FREECHECK-1 — the converting free check's `check_graded`, FIRST-PARTY ONLY. The signed-out grade already sent
+ * `check_graded` to the vendors (GA4 / Vercel); the replay must add the student to the first-party activity log
+ * (they are signed in now) without sending the vendors a second one. Name only, like every named event.
+ */
+export function trackCheckGradedFirstPartyOnly(): void {
+  if (!analyticsEnabled()) return;
+  try {
+    recordActivity("event", { name: "check_graded" });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 /** ASK-FIX-1 — the scorecard's upgrade line: shown once per scorecard, and a tap on it. Bare names only. */

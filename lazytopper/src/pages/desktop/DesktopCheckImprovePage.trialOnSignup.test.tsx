@@ -37,6 +37,7 @@ const H = vi.hoisted(() => ({
   },
   phase: "none" as "none" | "saving" | "saved",
   startedAtSignUp: new Set<string>(),
+  saved: null as unknown,
   track: vi.fn(),
 }));
 
@@ -51,6 +52,10 @@ vi.mock("../../services/newAccountTrial", () => ({
   wasTrialStartedAtSignUp: (uid: string | null | undefined) => Boolean(uid) && H.startedAtSignUp.has(uid as string),
   clearTrialStartedAtSignUp: () => H.startedAtSignUp.clear(),
 }));
+vi.mock("../../services/freeCheckReplay", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/freeCheckReplay")>();
+  return { ...actual, getSavedFreeCheckResult: () => H.saved, clearSavedFreeCheckResult: () => {} };
+});
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
   return { ...actual, trackNamedEvent: (...a: unknown[]) => H.track(...a) };
@@ -101,6 +106,7 @@ beforeEach(() => {
   H.sub.status = { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null };
   H.phase = "none";
   H.startedAtSignUp.clear();
+  H.saved = null;
   H.track.mockReset();
   setMatchMediaMatches(true);
   vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -141,6 +147,30 @@ describe("T2 — a NEW account: the confirmation replaces the offer", () => {
     await act(async () => {});
     expect(H.sub.startTrial).not.toHaveBeenCalled();
     expect(H.track.mock.calls.filter(([n]) => n === "trial_start")).toHaveLength(0);
+  });
+
+  it("ACT-FREECHECK-1 — the saved result comes first (before the trial card), then 'Check my next answer'", () => {
+    H.saved = {
+      v: 1, kind: "single", gradedAt: 1, subject: "Maths", topicName: "T", topicSlug: "t", topicTouched: false,
+      question: "q", marksSource: null, detectionOverride: null,
+      graded: {
+        ok: true, totalMarks: 2, marksAwarded: 1, percentage: 50, annotatedSteps: [],
+        mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 }, teacherNote: "Check your arithmetic.",
+      },
+    };
+    renderPage();
+    const result = screen.getByTestId("free-check-restored");
+    const trial = screen.getByTestId("free-check-trial-confirmation");
+    expect(result.compareDocumentPosition(trial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(result.textContent).toContain("1/2 marks");
+    expect(result.textContent).toContain("Check your arithmetic.");
+    expect(screen.getByRole("button", { name: "Check my next answer" })).toBeInTheDocument();
+  });
+
+  it("ACT-FREECHECK-1 — an unrecoverable result is said honestly, and the next action still shows", () => {
+    renderPage();
+    expect(screen.getByTestId("free-check-restored-unavailable")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Check my next answer" })).toBeInTheDocument();
   });
 
   it("the date follows the STORED start, not today (a different start → a different end)", () => {

@@ -57,7 +57,7 @@ import {
   restorePendingFreeCheck,
   type PendingFreeCheck,
 } from "./freeCheckClient";
-import { trackNamedEvent } from "../analytics/analytics";
+import { trackCheckGradedFirstPartyOnly, trackNamedEvent } from "../analytics/analytics";
 import {
   ciQuestionIds,
   isMixedPaper,
@@ -236,6 +236,26 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
 }
 
 /**
+ * ACT-FREECHECK-1 — the result this tab just saved, by uid, in memory only. Set after a successful replay (the
+ * device copy is claimed and removed by then); read by the page to show the student the result they signed up to
+ * keep. Never persisted, never sent anywhere. A reload loses it, and the page then says so honestly.
+ */
+const savedResults = new Map<string, PendingFreeCheck>();
+
+export function getSavedFreeCheckResult(uid: string | null | undefined): PendingFreeCheck | null {
+  return (uid && savedResults.get(uid)) || null;
+}
+
+export function clearSavedFreeCheckResult(uid: string | null | undefined): void {
+  if (uid) savedResults.delete(uid);
+}
+
+/** Test seam. */
+export function __resetSavedFreeCheckResultsForTests(): void {
+  savedResults.clear();
+}
+
+/**
  * Replay the waiting free result into `user`'s account. `not-ready` leaves it waiting
  * (the progress scope is not this uid yet); `none` means there was nothing to replay.
  */
@@ -267,7 +287,11 @@ export async function replayPendingFreeCheck(
     // ONE-MINUTE-1 R4 — a free check that converts is an ACTIVE student: record the same first-party `check_graded`
     // a signed-in grade records. The grade itself ran signed out (nothing was recorded then); the replay is the first
     // moment the student is signed in, and it runs once per claimed result, so this counts once.
-    trackNamedEvent("check_graded");
+    // ACT-FREECHECK-1 — FIRST-PARTY ONLY: the signed-out grade already sent the vendors `check_graded`
+    // (DesktopCheckImprovePage), so a converting free check no longer counts twice in GA4.
+    trackCheckGradedFirstPartyOnly();
+    // ACT-FREECHECK-1 — keep the claimed result in memory so the page can show it once more (the device copy is gone).
+    savedResults.set(user.uid, pending);
     return { kind: "saved", code };
   } catch (error) {
     console.warn("[freeCheckReplay] replay failed; the result stays on the device", error);

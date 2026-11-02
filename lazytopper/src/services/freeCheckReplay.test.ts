@@ -20,6 +20,7 @@ const H = vi.hoisted(() => ({
   ensureCode: vi.fn(),
   persist: vi.fn(),
   track: vi.fn(),
+  trackFp: vi.fn(),
 }));
 
 vi.mock("./mistakeIntelligence", () => ({
@@ -40,12 +41,16 @@ vi.mock("./studentProgressStore", () => ({
 }));
 vi.mock("../analytics/analytics", () => ({
   trackNamedEvent: (...a: unknown[]) => H.track(...a),
+  trackCheckGradedFirstPartyOnly: (...a: unknown[]) => H.trackFp(...a),
 }));
 
 import {
   replayPendingFreeCheck,
   startFreeCheckReplay,
   getInflightFreeCheckReplay,
+  getSavedFreeCheckResult,
+  clearSavedFreeCheckResult,
+  __resetSavedFreeCheckResultsForTests,
 } from "./freeCheckReplay";
 import {
   FREE_CHECK_PENDING_KEY,
@@ -128,6 +133,8 @@ beforeEach(() => {
   // The injectable clock (OR-18): five minutes after the fixtures were graded.
   __setFreeCheckClockForTests(() => GRADED_AT + 5 * 60 * 1000);
   H.activeUid = null;
+  H.trackFp.mockReset();
+  __resetSavedFreeCheckResultsForTests();
   H.recordMistake.mockReset().mockResolvedValue({ outcome: "logged", bridged: false });
   H.recordAttempt.mockReset().mockReturnValue("recorded");
   // The SIGNED-IN mint: this returning student already has papers #01 and #02.
@@ -214,14 +221,27 @@ describe("R8 replay — a single-question result", () => {
     expect(args.response.results).toHaveLength(1);
   });
 
+  it("ACT-FREECHECK-1 — keeps the saved result in memory for the page, by uid, exactly as graded", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = USER.uid;
+    expect(getSavedFreeCheckResult(USER.uid)).toBeNull();
+    await replayPendingFreeCheck(USER);
+    expect(getSavedFreeCheckResult(USER.uid)).toEqual(SINGLE);
+    expect(getSavedFreeCheckResult("someone-else")).toBeNull();
+    clearSavedFreeCheckResult(USER.uid);
+    expect(getSavedFreeCheckResult(USER.uid)).toBeNull();
+  });
+
   it("counts a free_check_signup with NO identifier (R10)", async () => {
     waitingWithIntent(SINGLE);
     H.activeUid = USER.uid;
     await replayPendingFreeCheck(USER);
     expect(H.track.mock.calls[0]).toEqual(["free_check_signup"]);
-    // ONE-MINUTE-1 R4: the converted free check also counts as a graded check, ONCE, so the admin "Active students" card sees it.
-    expect(H.track.mock.calls.slice(1)).toEqual([["check_graded"]]);
-    expect(H.track).toHaveBeenCalledTimes(2);
+    // ONE-MINUTE-1 R4 + ACT-FREECHECK-1: the converted free check counts as a graded check in the FIRST-PARTY log, ONCE,
+    // and NOT again to the vendors (the signed-out grade already sent `check_graded` to GA4).
+    expect(H.trackFp).toHaveBeenCalledTimes(1);
+    expect(H.track).toHaveBeenCalledTimes(1);
+    expect(H.track.mock.calls.some(([n]) => n === "check_graded")).toBe(false);
   });
 });
 
