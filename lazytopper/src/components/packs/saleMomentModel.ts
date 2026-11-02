@@ -7,12 +7,14 @@
  * components/pricing/boardPassOffer. The server still charges its own amount; nothing here grants or unlocks anything.
  *
  * Which pack (most specific that is honestly known; nothing is guessed):
+ *   0. a Full Mock result (`mock` true)             -> that subject's Mock Pack (8 board mocks; needs the subject, else falls through)
  *   1. a competency question (`cbq` true)          -> Board CBQ Pack (needs the subject for its pop-up; else the pop-up asks)
  *   2. the result names one chapter                 -> that chapter's Chapter Pack
  *   3. the result names only a subject              -> that subject's Subject Pack
  *   4. nothing known                                -> null (the caller keeps the plain "PDF packs from ₹49" line)
  */
 import { chapterFromLocation } from "../../lib/packs/packEntry";
+import { MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 import {
   PACK_PRICE_INR,
   isAlreadyOwned,
@@ -24,9 +26,11 @@ import {
   type PackSubject,
 } from "../../services/packs";
 
-export type SaleMomentSku = Extract<PackSku, "pack_chapter" | "pack_subject" | "pack_cbq">;
+export type SaleMomentSku = Extract<PackSku, "pack_chapter" | "pack_mock" | "pack_subject" | "pack_cbq">;
 
 export interface SaleMomentHint {
+  /** The result is a Full Mock paper: the matching pack is that subject's Mock Pack. Needs `subject`; without one this rule is skipped. */
+  mock?: boolean;
   /** The question just done is a competency-based question. Only a host that KNOWS passes true. */
   cbq?: boolean;
   /** A chapter slug (one of the 26 pack chapters); anything else is ignored. */
@@ -53,6 +57,9 @@ function subjectFromHint(hint: SaleMomentHint): PackSubject | null {
 /** The most relevant pack for this hint, or null when nothing specific is known. */
 export function pickSaleOffer(hint: SaleMomentHint): SaleOffer | null {
   const subject = subjectFromHint(hint);
+  if (hint.mock && subject) {
+    return { sku: "pack_mock", target: subject, href: `/packs?mock=${subject}`, price: packPriceLabel("pack_mock") };
+  }
   if (hint.cbq) {
     const href = subject ? `/packs?pack=cbq&subject=${subject}` : "/packs?pack=cbq";
     // The CBQ Pack is per subject. Without a known subject the pop-up asks, so the offer carries no target to test.
@@ -90,6 +97,12 @@ export function saleOfferParts(offer: SaleOffer, chapterName?: string | null): S
         before: `${chapterName ? `${chapterName} Chapter Pack` : "This chapter's Chapter Pack"} `,
         price: offer.price,
         after: " \u2014 printed questions with answer keys \u2192",
+      };
+    case "pack_mock":
+      return {
+        before: `${subjectLabel(offer.target as PackSubject)} Mock Pack `,
+        price: offer.price,
+        after: ` \u2014 ${MOCKS_PER_SUBJECT} full board mocks, printed with answer keys \u2192`,
       };
     case "pack_cbq":
       return { before: "Board CBQ Pack ", price: offer.price, after: " \u2014 chapter-wise competency questions, explained step by step \u2192" };

@@ -106,7 +106,6 @@ import {
   withGuideTarget,
   withPaperTutorAsks,
   type ScorecardTutorAsk,
-  withSaleCbq,
 } from "../components/results/scorecardVariants";
 import { trackOnboardingEvent } from "../analytics/analytics";
 import { buildTutorPath } from "./tutor/tutorPath";
@@ -1619,7 +1618,7 @@ export default function ChapterTestPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "chapter-test", resultKey: nomen.code }} // LIMITS-1 PR-2 — Chapter Test surface
-              variant={withSaleCbq(withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
+              variant={withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,
                 phase: "full",
@@ -1647,7 +1646,7 @@ export default function ChapterTestPage() {
                   void downloadSolution();
                 },
                 onRevisit: () => navigate(backTo),
-              }), ctGuideTarget), fullResponse, liveTutorAskFor), paper.questions)}
+              }), ctGuideTarget), fullResponse, liveTutorAskFor)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

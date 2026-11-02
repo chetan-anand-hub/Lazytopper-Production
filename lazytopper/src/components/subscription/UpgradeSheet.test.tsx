@@ -19,7 +19,7 @@ import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { boardPassPriceDisplay } from "../../config/pricing";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { limitCopy, limitFromRefusal, type LimitState } from "../usage/fairUseGate";
-import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine } from "../limits/limitsCopy";
+import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine, type PaperPackLine } from "../limits/limitsCopy";
 
 // PRICING-1 — the sheet reads the student's own founding flag; the hook is stubbed so these tests
 // need no auth provider, and each test sets what the "student" is.
@@ -534,6 +534,11 @@ describe("paperPackLine", () => {
     expect(paperPackLine("worksheet", { chapters: ["triangles", "electricity"] })).toMatchObject({ label: "PDF packs", priceLabel: "", href: "/pricing#packs" });
     expect(paperPackLine("full-mock", {})?.href).toBe("/pricing#packs");
   });
+  it("carries the Mock Pack subject", () => {
+    on();
+    expect(paperPackLine("full-mock", { subject: "maths" })?.subject).toBe("maths");
+    expect(paperPackLine("chapter-test", { chapters: ["triangles"] })?.subject).toBeUndefined();
+  });
   it("is null while the pack links are off", () => {
     vi.stubEnv("VITE_PACKS_ENABLED", "");
     expect(paperPackLine("chapter-test", { chapters: ["triangles"] })).toBeNull();
@@ -547,8 +552,8 @@ describe("paperPackLine", () => {
 });
 
 describe("UpgradeSheet pack line", () => {
-  const pack = { label: "Mock Pack", priceLabel: "₹99", href: "/pricing?mock=maths#packs" };
-  const mount = (p?: typeof pack | null) =>
+  const pack: PaperPackLine = { label: "Mock Pack", priceLabel: "₹99", href: "/pricing?mock=maths#packs", subject: "maths" };
+  const mount = (p?: PaperPackLine | null) =>
     render(
       <MemoryRouter>
         <UpgradeSheet featureLabel="Grading your full mock" pack={p} onClose={() => {}} />
@@ -560,8 +565,23 @@ describe("UpgradeSheet pack line", () => {
     const bpEl = screen.getByTestId("upgrade-sheet-board-pass");
     const packEl = screen.getByTestId("upgrade-sheet-pack");
     expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.textContent).toContain("Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →");
-    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/pricing#packs");
+    expect(packEl.textContent).toBe("Maths Mock Pack ₹99 — 8 full board mocks, printed with answer keys →");
+    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/pricing?mock=maths#packs");
+  });
+  it("SALE-MOMENT-2: names the pack the paper wall was given (Mock, Chapter) and keeps the generic line for plain", () => {
+    on();
+    for (const [line, text, href] of [
+      [paperPackLine("full-mock", { subject: "maths" }), "Maths Mock Pack ₹99 — 8 full board mocks, printed with answer keys →", "/pricing?mock=maths#packs"],
+      [paperPackLine("full-mock", { subject: "science" }), "Science Mock Pack ₹99 — 8 full board mocks, printed with answer keys →", "/pricing?mock=science#packs"],
+      [paperPackLine("chapter-test", { chapters: ["triangles"] }), "Chapter Pack ₹49 — printed questions with answer keys →", "/pricing?chapter=triangles#packs"],
+      [paperPackLine("worksheet", { chapters: ["triangles", "electricity"] }), "Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →", "/pricing#packs"],
+    ] as const) {
+      mount(line);
+      const el = screen.getByTestId("upgrade-sheet-pack");
+      expect(el.textContent).toBe(text);
+      expect(el.querySelector("a")?.getAttribute("href")).toBe(href);
+      cleanup();
+    }
   });
   it("PACK-BASIC-ONLY-1: shown to Basic and trial students; hidden for paid Premium and when unhydrated", () => {
     for (const [tier, trialStartDate, hydrated, shown] of [

@@ -204,13 +204,29 @@ describe("FIRST-OFFER-1 / SALE-MOMENT-1: the first-result offer names the Board 
     expect(screen.queryByTestId("sale-moment")).toBeNull();
     expect(await screen.findByTestId("pack-promo-card")).toBeInTheDocument();
   });
-  it("a paper with a case-based (Section E) question offers the Board CBQ Pack for its subject, even with a chapter named", async () => {
+  it("a Full Mock result offers that subject's Mock Pack, even when it also names a weak chapter", async () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
-    const v = { ...variantFor("chapter-test", marks(6, 10)), saleCbq: true, guideTarget: { to: "/practice/10/science?topic=life-processes", chapter: "Life Processes" } } as ScorecardVariant;
+    const v = { ...variantFor("full-mock", marks(40, 80)), saleMockSubject: "maths", guideTarget: { to: "/practice/10/maths?topic=triangles", chapter: "Triangles" } } as ScorecardVariant;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
     const pack = await screen.findByTestId("sale-moment-pack");
-    expect(pack).toHaveAttribute("href", "/packs?pack=cbq&subject=science");
-    expect(pack).toHaveTextContent(`Board CBQ Pack ₹${PACK_PRICE_INR.pack_cbq}`);
+    expect(pack).toHaveAttribute("href", "/packs?mock=maths");
+    expect(pack).toHaveTextContent(`Maths Mock Pack ₹${PACK_PRICE_INR.pack_mock} \u2014 8 full board mocks, printed with answer keys \u2192`);
+  });
+  it.each([["pack_mock:maths"], ["pack_subject:maths"], ["pack_bundle:all"]])("a Full Mock result hides the Mock Pack line for an owner of %s", async (id) => {
+    auth.owned = [{ packId: id }];
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    const v = { ...variantFor("full-mock", marks(40, 80)), saleMockSubject: "maths" } as ScorecardVariant;
+    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    await act(async () => {});
+    expect(screen.queryByTestId("sale-moment-pack")).toBeNull();
+  });
+  it("a Chapter Test never offers the CBQ Pack from its sections: it keeps its Chapter Pack", async () => {
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    const v = { ...variantFor("chapter-test", marks(6, 10)), guideTarget: { to: "/practice/10/science?topic=life-processes", chapter: "Life Processes" } } as ScorecardVariant;
+    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    const pack = await screen.findByTestId("sale-moment-pack");
+    expect(pack).toHaveAttribute("href", "/packs?chapter=life-processes");
+    expect(pack).toHaveTextContent(`Life Processes Chapter Pack ₹${PACK_PRICE_INR.pack_chapter}`);
   });
   it("a result that names only its subject offers that subject's Subject Pack", async () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";

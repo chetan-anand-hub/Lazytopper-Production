@@ -9,6 +9,9 @@ import { offerIsOwned, pickSaleOffer, saleHintFromTarget, saleOfferText } from "
 
 describe("pickSaleOffer", () => {
   it.each([
+    ["a Full Mock, maths", { mock: true, subject: "maths" as const }, "pack_mock", "maths", "/packs?mock=maths"],
+    ["a Full Mock, science", { mock: true, subject: "science" as const }, "pack_mock", "science", "/packs?mock=science"],
+    ["a Full Mock beats its weak chapter", { mock: true, subject: "maths" as const, chapterSlug: "trigonometry" }, "pack_mock", "maths", "/packs?mock=maths"],
     ["a competency question, subject known", { cbq: true, subject: "maths" as const }, "pack_cbq", "maths", "/packs?pack=cbq&subject=maths"],
     ["a competency question, subject from its chapter", { cbq: true, chapterSlug: "light-reflection-and-refraction" }, "pack_cbq", "science", "/packs?pack=cbq&subject=science"],
     ["a competency question, nothing else known", { cbq: true }, "pack_cbq", "", "/packs?pack=cbq"],
@@ -22,11 +25,14 @@ describe("pickSaleOffer", () => {
   it("names nothing it does not know: an unknown slug or an empty hint gives no specific offer", () => {
     expect(pickSaleOffer({})).toBeNull();
     expect(pickSaleOffer({ chapterSlug: "not-a-chapter" })).toBeNull();
+    expect(pickSaleOffer({ mock: true })).toBeNull(); // a Full Mock of an unknown subject: no invalid /packs?mock=
     expect(pickSaleOffer({ chapterSlug: "not-a-chapter", subject: "maths" })?.sku).toBe("pack_subject");
   });
   it("every deep link is one /packs actually reads (PacksShop entry contract)", () => {
     const chapter = pickSaleOffer({ chapterSlug: "triangles" })!;
     expect(readPacksQuery(chapter.href.split("?")[1] ? `?${chapter.href.split("?")[1]}` : "").chapter).toBe("triangles");
+    expect(readPacksQuery("?mock=maths")).toMatchObject({ mock: "maths" });
+    expect(pickSaleOffer({ mock: true, subject: "science" })!.href).toBe("/packs?mock=science");
     const cbq = pickSaleOffer({ cbq: true, subject: "maths" })!;
     expect(readPacksQuery(`?${cbq.href.split("?")[1]}`)).toMatchObject({ pack: "cbq", subject: "maths" });
     const sub = pickSaleOffer({ subject: "science" })!;
@@ -42,11 +48,13 @@ describe("saleOfferText", () => {
       saleOfferText(pickSaleOffer({ chapterSlug: "trigonometry" })!, null),
       saleOfferText(pickSaleOffer({ cbq: true, subject: "maths" })!),
       saleOfferText(pickSaleOffer({ subject: "science" })!),
+      saleOfferText(pickSaleOffer({ mock: true, subject: "maths" })!),
     ];
     expect(texts[0]).toBe(`Trigonometry Chapter Pack ₹${PACK_PRICE_INR.pack_chapter} — printed questions with answer keys →`);
     expect(texts[1]).toContain("This chapter's Chapter Pack");
     expect(texts[2]).toContain(`Board CBQ Pack ₹${PACK_PRICE_INR.pack_cbq}`);
     expect(texts[3]).toContain(`Science Subject Pack ₹${PACK_PRICE_INR.pack_subject}`);
+    expect(texts[4]).toBe(`Maths Mock Pack ₹${PACK_PRICE_INR.pack_mock} \u2014 8 full board mocks, printed with answer keys \u2192`);
     for (const t of texts) expect(t).not.toMatch(/599|999|save|%|off\b/i);
   });
 });
@@ -80,6 +88,10 @@ describe("offerIsOwned", () => {
     [{ chapterSlug: "trigonometry" }, own("pack_cbq:maths"), false],
     [{ subject: "science" as const }, own("pack_subject:science"), true],
     [{ subject: "science" as const }, own("pack_subject:maths"), false],
+    [{ mock: true, subject: "maths" as const }, own("pack_mock:maths"), true],
+    [{ mock: true, subject: "maths" as const }, own("pack_subject:maths"), true],
+    [{ mock: true, subject: "maths" as const }, own("pack_bundle:all"), true],
+    [{ mock: true, subject: "maths" as const }, own("pack_mock:science", "pack_cbq:maths"), false],
     [{ cbq: true, subject: "maths" as const }, own("pack_cbq:maths"), true],
     [{ cbq: true, subject: "maths" as const }, own("pack_subject:maths", "pack_bundle:all"), false], // CBQ is its own product
     [{ cbq: true }, own("pack_cbq:maths"), false],
