@@ -162,7 +162,7 @@ import {
   type FreeCheckRefusalReason,
   type PendingFreeCheck,
 } from "../../services/freeCheckClient";
-import { clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
+import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
 import { showPackLine } from "../../components/limits/packLine";
 import {
@@ -4801,6 +4801,11 @@ const FreeCheckCheckImprovePage: React.FC = () => {
           showBuy: showPackLine(subscription.status, subscription.hydrated),
         }
       : undefined;
+  // Sign-out (or auth settled with nobody): forget any held result so the next account never sees it.
+  const signedOut = !loading && !user;
+  useEffect(() => {
+    if (signedOut) clearAllSavedFreeCheckResults();
+  }, [signedOut]);
   const closeRestored = () => {
     clearSavedFreeCheckResult(user?.uid);
     setOfferClosed(true);

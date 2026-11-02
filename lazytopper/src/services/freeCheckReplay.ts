@@ -243,7 +243,18 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
 const savedResults = new Map<string, PendingFreeCheck>();
 
 export function getSavedFreeCheckResult(uid: string | null | undefined): PendingFreeCheck | null {
-  return (uid && savedResults.get(uid)) || null;
+  // A result belongs to the account that saved it. If the active progress account is no longer that uid (sign-out,
+  // or another student signed in), everything held is dropped: uid B can never be handed uid A's result.
+  if (!uid || getActiveProgressUser() !== uid) {
+    savedResults.clear();
+    return null;
+  }
+  return savedResults.get(uid) ?? null;
+}
+
+/** Sign-out: forget every held result. */
+export function clearAllSavedFreeCheckResults(): void {
+  savedResults.clear();
 }
 
 export function clearSavedFreeCheckResult(uid: string | null | undefined): void {
@@ -291,6 +302,7 @@ export async function replayPendingFreeCheck(
     // (DesktopCheckImprovePage), so a converting free check no longer counts twice in GA4.
     trackCheckGradedFirstPartyOnly();
     // ACT-FREECHECK-1 — keep the claimed result in memory so the page can show it once more (the device copy is gone).
+    savedResults.clear(); // one account's result at a time
     savedResults.set(user.uid, pending);
     return { kind: "saved", code };
   } catch (error) {

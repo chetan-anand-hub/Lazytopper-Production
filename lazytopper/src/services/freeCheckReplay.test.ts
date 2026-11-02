@@ -50,6 +50,7 @@ import {
   getInflightFreeCheckReplay,
   getSavedFreeCheckResult,
   clearSavedFreeCheckResult,
+  clearAllSavedFreeCheckResults,
   __resetSavedFreeCheckResultsForTests,
 } from "./freeCheckReplay";
 import {
@@ -229,6 +230,27 @@ describe("R8 replay — a single-question result", () => {
     expect(getSavedFreeCheckResult(USER.uid)).toEqual(SINGLE);
     expect(getSavedFreeCheckResult("someone-else")).toBeNull();
     clearSavedFreeCheckResult(USER.uid);
+    expect(getSavedFreeCheckResult(USER.uid)).toBeNull();
+  });
+
+  it("ACT-FREECHECK-1 — sign-out clears the held result: uid B never receives uid A's", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = USER.uid;
+    await replayPendingFreeCheck(USER);
+    // another student signs in on the same tab: the active progress account is no longer A
+    H.activeUid = "u-b";
+    expect(getSavedFreeCheckResult("u-b")).toBeNull();
+    expect(getSavedFreeCheckResult(USER.uid)).toBeNull();
+    // and even if A became active again, it was dropped
+    H.activeUid = USER.uid;
+    expect(getSavedFreeCheckResult(USER.uid)).toBeNull();
+  });
+
+  it("ACT-FREECHECK-1 — clearAllSavedFreeCheckResults forgets it", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = USER.uid;
+    await replayPendingFreeCheck(USER);
+    clearAllSavedFreeCheckResults();
     expect(getSavedFreeCheckResult(USER.uid)).toBeNull();
   });
 

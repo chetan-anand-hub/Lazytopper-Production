@@ -15,7 +15,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 
 import { boardPassPriceDisplay } from "../../config/pricing";
 import { FreeCheckRestoredResult, FREE_CHECK_RESTORED_COPY, freeCheckBuyCopy } from "./FreeCheckRestoredResult";
-import type { PendingSingleFreeCheck } from "../../services/freeCheckClient";
+import type { PendingMultiFreeCheck, PendingSingleFreeCheck } from "../../services/freeCheckClient";
 
 const SINGLE: PendingSingleFreeCheck = {
   v: 1,
@@ -119,5 +119,44 @@ describe("FreeCheckRestoredResult", () => {
     expect(screen.getByText(FREE_CHECK_RESTORED_COPY.unavailable)).toBeTruthy();
     expect(screen.queryByTestId("free-check-restored-buy")).toBeNull();
     expect(track).not.toHaveBeenCalled();
+  });
+});
+
+describe("FreeCheckRestoredResult — a whole paper (kind: multi)", () => {
+  const step = (n: number, status: string) => ({
+    stepNumber: n, description: `d${n}`, studentWork: "", status, marksAwarded: 1, marksDeducted: 0,
+    teacherAnnotation: "", mistakeType: null, correctedWorking: null,
+  });
+  const MULTI = {
+    v: 1, kind: "multi", gradedAt: 1, subject: "Science", topicName: "", topicSlug: "", topicTouched: false,
+    questions: [{ questionNumber: 1, questionText: "a" }, { questionNumber: 2, questionText: "b" }, { questionNumber: 3, questionText: "c" }],
+    response: {
+      ok: true,
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 2, ok: true, marksAwarded: 1, percentage: 50, annotatedSteps: [step(1, "correct"), step(2, "withdrawn")], mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 }, teacherNote: "n1" },
+        { qNumber: 2, couldNotRead: true, totalMarks: 3, note: "unreadable" },
+        // a graded question with NO steps, summary or note: must not crash
+        { qNumber: 3, couldNotRead: false, totalMarks: 1, ok: true, marksAwarded: 1, percentage: 100 },
+      ],
+      totalQuestions: 3, gradedCount: 2, pendingCount: 1, gradedMarksAwarded: 2, gradedMarksTotal: 3, worksheetTotalMarks: 6,
+    },
+  } as unknown as PendingMultiFreeCheck;
+
+  it("one 'Question N' heading per question; an unreadable one says so; withdrawn work is not marked; missing parts do not crash", () => {
+    render(
+      <MemoryRouter>
+        <FreeCheckRestoredResult result={MULTI} showBuy />
+      </MemoryRouter>,
+    );
+    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Question 1", "Question 2", "Question 3"]);
+    expect(screen.getByText("2/3 marks")).toBeTruthy();
+    expect(screen.getAllByTestId("free-check-restored-step")).toHaveLength(1); // the withdrawn step is not drawn as marked
+    expect(screen.getByText(/couldn.t read/i)).toBeTruthy();
+    expect(screen.getByText("n1")).toBeTruthy();
+  });
+
+  it("a multi result with no results array does not crash", () => {
+    const bad = { ...MULTI, response: { ...MULTI.response, results: undefined } } as unknown as PendingMultiFreeCheck;
+    expect(() => render(<MemoryRouter><FreeCheckRestoredResult result={bad} showBuy={false} /></MemoryRouter>)).not.toThrow();
   });
 });

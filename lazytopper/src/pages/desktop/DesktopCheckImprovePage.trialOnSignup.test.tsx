@@ -173,6 +173,25 @@ describe("T2 — a NEW account: the confirmation replaces the offer", () => {
     expect(screen.getByRole("button", { name: "Check my next answer" })).toBeInTheDocument();
   });
 
+  it("ACT-FREECHECK-1 — paid-pass path (no confirmation, no offer): the result shows, then 'Check my next answer' continues", () => {
+    H.startedAtSignUp.clear(); // not a trial-at-sign-up account
+    H.sub.isTrialActive = false;
+    H.sub.isPremium = true;
+    H.sub.tier = "premium";
+    H.sub.status = { ...H.sub.status, tier: "premium", trialStartDate: null };
+    H.saved = {
+      v: 1, kind: "single", gradedAt: 1, subject: "Maths", topicName: "T", topicSlug: "t", topicTouched: false,
+      question: "q", marksSource: null, detectionOverride: null,
+      graded: { ok: true, totalMarks: 2, marksAwarded: 2, percentage: 100, annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "Full marks." },
+    };
+    renderPage();
+    expect(screen.getByTestId("free-check-restored").textContent).toContain("2/2 marks");
+    expect(screen.queryByTestId("free-check-trial-confirmation")).toBeNull();
+    expect(screen.queryByTestId("free-check-restored-buy")).toBeNull(); // paid: no buy line
+    fireEvent.click(screen.getByRole("button", { name: "Check my next answer" }));
+    expect(screen.queryByTestId("free-check-restored")).toBeNull();
+  });
+
   it("the date follows the STORED start, not today (a different start → a different end)", () => {
     asActiveTrial("2026-12-28T04:00:00.000Z");
     renderPage();
