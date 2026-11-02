@@ -9,6 +9,7 @@ const H = vi.hoisted(() => ({
   trialStart: null as string | null,
   owned: [] as Array<{ packId: string }>,
   fail: false,
+  listeners: [] as Array<(uid: string, cloud: unknown) => void>,
   fetch: vi.fn(),
   track: vi.fn(),
 }));
@@ -18,7 +19,12 @@ vi.mock("../../services/subscriptionService", async (importOriginal) => {
   return {
     ...actual,
     loadSubscription: () => ({ tier: H.tier, plan: "none", trialStartDate: H.trialStart, trialEndDate: null, premiumSince: null }),
-    onSubscriptionHydrated: () => () => {},
+    onSubscriptionHydrated: (cb: (uid: string, cloud: unknown) => void) => {
+      H.listeners.push(cb);
+      return () => {
+        H.listeners = H.listeners.filter((l) => l !== cb);
+      };
+    },
   };
 });
 vi.mock("../../services/packs", async (importOriginal) => {
@@ -56,6 +62,7 @@ beforeEach(() => {
   H.trialStart = "2026-10-30T00:00:00.000Z";
   H.owned = [];
   H.fail = false;
+  H.listeners = [];
   H.fetch.mockClear();
   H.track.mockClear();
   resetOwnedPacksCache();
@@ -85,6 +92,18 @@ describe("who sees it", () => {
     expect(screen.queryByTestId("sale-moment")).toBeNull();
     expect(H.fetch).not.toHaveBeenCalled();
     expect(H.track).not.toHaveBeenCalled();
+  });
+  it("a stale cached Basic status that hydrates to Premium never shows the row", async () => {
+    H.tier = "free";
+    H.trialStart = null; // the empty cache a not-yet-hydrated paid student has: it must not be treated as Basic
+    mount();
+    await act(async () => {
+      H.listeners.forEach((l) => l("u1", { tier: "premium", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: "2026-11-01T00:00:00.000Z" }));
+    });
+    await act(async () => {});
+    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    expect(H.track).not.toHaveBeenCalled();
+    expect(H.fetch).not.toHaveBeenCalled();
   });
   it("a signed-out visitor sees it too, with no ownership read, no status read and the same events", async () => {
     H.user = null;

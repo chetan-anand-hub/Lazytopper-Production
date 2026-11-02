@@ -25,27 +25,31 @@ function load(uid: string): Promise<OwnedPack[]> {
   return promise;
 }
 
-/** Test seam: forget what was read. */
+/** Forget what was read. Called after a server-verified pack payment so the student is never offered what they just bought; also a test seam. */
 export function resetOwnedPacksCache(): void {
   cache.clear();
 }
 
 export function useOwnedPacks(uid: string, enabled: boolean): OwnedPacksState {
-  const [state, setState] = useState<OwnedPacksState>({ phase: "loading" });
+  const key = `${uid}|${enabled ? 1 : 0}`;
+  const [held, setHeld] = useState<{ key: string; value: OwnedPacksState }>({ key, value: { phase: "loading" } });
   useEffect(() => {
+    // Another student (or the switch flipping) starts again from "loading": one account's answer is never shown for another.
+    setHeld((h) => (h.key === key && h.value.phase === "loading" ? h : { key, value: { phase: "loading" } }));
     if (!uid || !enabled) return undefined;
     let live = true;
     load(uid).then(
       (packs) => {
-        if (live) setState({ phase: "ready", packs });
+        if (live) setHeld({ key, value: { phase: "ready", packs } });
       },
       () => {
-        if (live) setState({ phase: "error" });
+        if (live) setHeld({ key, value: { phase: "error" } });
       },
     );
     return () => {
       live = false;
     };
-  }, [uid, enabled]);
-  return state;
+  }, [uid, enabled, key]);
+  // Render-time guard: before the effect runs for a new uid, the previous uid's answer must not leak through.
+  return held.key === key ? held.value : { phase: "loading" };
 }

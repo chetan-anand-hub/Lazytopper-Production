@@ -1,4 +1,5 @@
 import { Suspense, lazy, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { resetOwnedPacksCache } from "./useOwnedPacks";
 import { createPortal } from "react-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -315,6 +316,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
     if (outcome.status === "paid") {
+      resetOwnedPacksCache(); // client cache only: the sale-moment rows must re-ask the server, not offer what was just bought
       trackPackPurchase({ ...details, valueInr: outcome.amountInr ?? details.valueInr, transactionId: outcome.paymentId || attemptId });
     }
     if (!mounted.current && outcome.status !== "pending") return;
@@ -333,6 +335,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         // PURCHASE-EVENT-1: keep checking after an unmount too, so a payment the server confirms late is still counted once.
         const status = await checkPackOrder(outcome.orderId);
         if (status.state === "paid") {
+          resetOwnedPacksCache();
           trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.paymentId || outcome.paymentId || attemptId });
           settled = true;
           break;

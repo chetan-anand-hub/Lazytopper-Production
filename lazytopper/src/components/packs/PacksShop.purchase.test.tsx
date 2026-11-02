@@ -35,6 +35,8 @@ vi.mock("../../pages/PackDialog", () => ({ default: (p: { buy?: unknown }) => (p
 import PacksShop from "./PacksShop";
 import { __resetPurchaseMemoryForTests } from "../../analytics/analytics";
 import * as packs from "../../services/packs";
+import { renderHook } from "@testing-library/react";
+import { useOwnedPacks } from "./useOwnedPacks";
 
 type Win = { gtag?: unknown };
 const w = window as unknown as Win;
@@ -181,5 +183,24 @@ describe("PURCHASE-EVENT-1 · pack purchase", () => {
     expect(ga4("purchase")[0]).toMatchObject({ transaction_id: "pay_p", currency: "INR", value: 99, items: [{ item_id: "pack_mock", quantity: 1 }] });
     await new Promise((r) => setTimeout(r, 30));
     expect(ga4("purchase")).toHaveLength(1);
+  });
+
+  it("SALE-MOMENT-1: a verified purchase clears the owned-packs cache so a sale row re-asks the server", async () => {
+    const fetchMine = packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>;
+    const primed = renderHook(() => useOwnedPacks("cache-u", true));
+    await waitFor(() => expect(primed.result.current.phase).toBe("ready"));
+    primed.unmount();
+    const before = fetchMine.mock.calls.length;
+    const again = renderHook(() => useOwnedPacks("cache-u", true));
+    await waitFor(() => expect(again.result.current.phase).toBe("ready"));
+    expect(fetchMine.mock.calls.length).toBe(before); // still served from the 30 s cache
+    again.unmount();
+    buyMock.mockResolvedValue({ status: "paid", grant, paymentId: "pay_cache", amountInr: 49 });
+    shop("/pricing?buy=pack_chapter&t=real-numbers");
+    await waitFor(() => expect(ga4("purchase")).toHaveLength(1));
+    const afterBuy = fetchMine.mock.calls.length;
+    const fresh = renderHook(() => useOwnedPacks("cache-u", true));
+    await waitFor(() => expect(fresh.result.current.phase).toBe("ready"));
+    expect(fetchMine.mock.calls.length).toBeGreaterThan(afterBuy);
   });
 });

@@ -103,7 +103,7 @@ export default function SaleMomentLine({ surface, chapterName, withBoardPass = f
       )}
       {withBoardPass ? (
         <SmartLink className="lt-sm__pass" to="/pricing" onClick={tapPass} testId="sale-moment-boardpass">
-          <span>{`Want every answer marked like this till your boards? ${boardPassCtaLabel(priceNow)}`}</span>
+          <span>{`Want more board questions like this, with answer keys? ${boardPassCtaLabel(priceNow)}`}</span>
           {founding ? <span className="lt-sm__badge">{founding}</span> : null}
         </SmartLink>
       ) : null}

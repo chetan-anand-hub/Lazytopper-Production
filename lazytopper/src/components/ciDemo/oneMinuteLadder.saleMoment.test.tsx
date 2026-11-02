@@ -1,16 +1,21 @@
 // SALE-MOMENT-1 - the buying line under the one-minute ladder's verdict.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-const H = vi.hoisted(() => ({ user: { uid: "u1" } as { uid: string } | null, tier: "trial", owned: [] as Array<{ packId: string }>, shown: vi.fn() }));
+const H = vi.hoisted(() => ({ user: { uid: "u1" } as { uid: string } | null, tier: "trial", owned: [] as Array<{ packId: string }>, listeners: [] as Array<(uid: string, cloud: unknown) => void>, shown: vi.fn() }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: H.user, loading: false }) }));
 vi.mock("../../services/subscriptionService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/subscriptionService")>();
   return {
     ...actual,
-    loadSubscription: () => ({ tier: H.tier, plan: "none", trialStartDate: "2026-10-30T00:00:00.000Z", trialEndDate: null, premiumSince: null }),
-    onSubscriptionHydrated: () => () => {},
+    loadSubscription: () => ({ tier: H.tier, plan: "none", trialStartDate: H.tier === "free" ? null : "2026-10-30T00:00:00.000Z", trialEndDate: null, premiumSince: null }),
+    onSubscriptionHydrated: (cb: (uid: string, cloud: unknown) => void) => {
+      H.listeners.push(cb);
+      return () => {
+        H.listeners = H.listeners.filter((l) => l !== cb);
+      };
+    },
   };
 });
 vi.mock("../../services/packs", async (importOriginal) => {
@@ -41,6 +46,7 @@ beforeEach(() => {
   H.user = { uid: "u1" };
   H.tier = "trial";
   H.owned = [];
+  H.listeners = [];
   H.shown.mockClear();
   resetOwnedPacksCache();
 });
@@ -66,6 +72,18 @@ describe("ladder verdict", () => {
     expect(screen.getByTestId("one-min-next").compareDocumentPosition(pack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     await waitFor(() => expect(H.shown).toHaveBeenCalledWith("sale_moment_shown", { surface: "ladder", offer: "pack_chapter" }));
     expect(H.shown.mock.calls.filter((c) => c[0] === "sale_moment_shown")).toHaveLength(1);
+  });
+  it("a stale cached Basic status that hydrates to Premium never shows the row, even after the tap", async () => {
+    H.tier = "free";
+    ladder();
+    await screen.findByTestId("one-min-ladder");
+    await act(async () => {
+      H.listeners.forEach((l) => l("u1", { tier: "premium", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: "2026-11-01T00:00:00.000Z" }));
+    });
+    fireEvent.click(screen.getByTestId("one-min-opt-0"));
+    await act(async () => {});
+    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    expect(H.shown).not.toHaveBeenCalledWith("sale_moment_shown", expect.anything());
   });
   it("a signed-out visitor sees the pack and the Board Pass too", async () => {
     H.user = null;
