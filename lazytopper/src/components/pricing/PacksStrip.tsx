@@ -8,6 +8,7 @@ import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import type { PacksQueryPack } from "../../lib/packs/packEntry";
 import CbqBand from "./CbqBand";
 import { PackSampleChoice } from "../packs/PackSampleLink";
+import PackTileBuy, { PackCbqBuy } from "../packs/PackTileBuy";
 import "./packsStrip.css";
 
 /**
@@ -84,7 +85,7 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
   }, [hash]);
   return (
     <PacksShop embedded returnPath="/pricing">
-      {({ openPack, openCbq }) => (
+      {(api) => (
         <>
           {/* PRICING-ONE-1: a visitor who came from /for-parents (?from=for_parents) gets the way back here too, since #packs / #cbq land mid-page.
               Renders nothing for anyone else (the wrapper is :empty -> display none). */}
@@ -95,11 +96,7 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
           <CbqBand
             headingId="pricing-cbq-h"
             sampleSurface="pricing_cbq"
-            action={(s) => (
-              <button type="button" className="lt-cbq__btn" onClick={() => openCbq(s)} aria-haspopup="dialog" data-testid={`pricing-cbq-${s}`}>
-                {`${s === "maths" ? "Maths" : "Science"} CBQ Pack · ${packPriceLabel("pack_cbq")}`}
-              </button>
-            )}
+            action={(s) => <PackCbqBuy subject={s} api={api} testPrefix="pricing-cbq" />}
           />
           <section id="packs" ref={ref} className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
             <ParentReturnLink testId="parent-return-packs" />
@@ -112,7 +109,7 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
                 <li key={i.sku} className="lt-packoffer__cell" data-price={PACK_PRICE_INR[i.sku]}>
                   <button
                     type="button"
-                    onClick={() => openPack(i.sku)}
+                    onClick={() => api.openPack(i.sku)}
                     aria-haspopup="dialog"
                     className={i.best ? "lt-packoffer__item lt-packoffer__item--best" : "lt-packoffer__item"}
                     data-pack={i.query}
@@ -120,8 +117,11 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
                     <span className="lt-packoffer__name">{i.name}</span>
                     <span className="lt-packoffer__price">{packPriceLabel(i.sku)}</span>
                     <span className="lt-packoffer__what">{i.what}</span>
+                    <span className="lt-packoffer__see">See inside &rarr;</span>
                   </button>
                   {/* PACK-SAMPLE-1: a sibling of the tile button; Maths and Science links (the pop-up follows the chosen subject). */}
+                  {/* PACKS-TILE-BUY-1: Buy right on the tile. */}
+                  <PackTileBuy sku={i.sku} api={api} />
                   <PackSampleChoice sku={i.sku} surface="pricing_tile" />
                 </li>
               ))}

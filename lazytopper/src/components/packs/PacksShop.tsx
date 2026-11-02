@@ -168,6 +168,18 @@ interface BuyState {
 export interface PacksShopApi {
   openPack: (sku: PackSku) => void;
   openCbq: (subject: PackSubject) => void;
+  /**
+   * PACKS-TILE-BUY-1 (owner 2 Nov 2026) - a Buy button ON the tile: opens that pack's pop-up (so every status line and the
+   * ask-a-parent card have their place) and starts the SAME handleBuy as the pop-up's Buy: signed in -> Razorpay; signed
+   * out -> the pay-with-phone sheet when that flag is on, else today's sign-in-then-pay resume.
+   */
+  buyNow: (sku: PackSku, target?: string) => void;
+  /** The Chapter Pack has no target yet: open its pop-up with the chapter picker focused and Buy right under it. */
+  chooseChapter: () => void;
+  /** True when the signed-in account already owns this pack (the tile then says "You own this"). */
+  ownsPack: (sku: PackSku, target?: string) => boolean;
+  /** False while packs are dark (no Buy buttons on tiles then; the pop-up already says "Opens soon"). */
+  buyEnabled: boolean;
 }
 
 export interface PacksShopProps {
@@ -197,6 +209,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [subject, setSubject] = useState<PackSubject>("maths");
   const [openSku, setOpenSku] = useState<PackSku | null>(null);
   const [entrySlide, setEntrySlide] = useState(0);
+  /** PACKS-TILE-BUY-1: the Chapter Pack pop-up opened from "Choose chapter & buy" focuses its picker. */
+  const [focusPicker, setFocusPicker] = useState(false);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
   /** PAY-PHONE-1 - the pack a signed-out visitor is paying for with a phone number (the sheet is open), else null. */
   const [guest, setGuest] = useState<{ sku: PackSku; target: string | undefined } | null>(null);
@@ -271,6 +285,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   }
   function openPack(sku: PackSku) {
     setEntrySlide(0);
+    setFocusPicker(false);
     setOpenSku(sku);
     requestCounts(sku === "pack_chapter" && chapter ? chapter : undefined);
   }
@@ -569,6 +584,18 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       setSubject(s);
       openPack("pack_cbq");
     },
+    buyNow: (sku, target) => {
+      if (sku === "pack_chapter" && target) setChapter(target);
+      else if (target === "maths" || target === "science") setSubject(target);
+      openPack(sku);
+      void handleBuy(sku, sku === "pack_bundle" ? undefined : target);
+    },
+    chooseChapter: () => {
+      openPack("pack_chapter");
+      setFocusPicker(true);
+    },
+    ownsPack: (sku, target) => Boolean(user) && isAlreadyOwned(owned, sku, target),
+    buyEnabled: enabled,
   };
 
   return (
@@ -589,6 +616,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               questions={dialogQuestions}
               buy={buyArea(openSku, dialogTarget, openSku !== "pack_chapter" || Boolean(chapter))}
               sampleInBuy={buy.phase === "dismissed" && buy.key === packIdOf(openSku, dialogTarget)}
+              focusPicker={focusPicker}
               onClose={closePack}
               initialSlide={entrySlide}
             />

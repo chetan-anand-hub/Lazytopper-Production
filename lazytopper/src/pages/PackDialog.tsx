@@ -32,6 +32,8 @@ export interface PackDialogProps {
   initialSlide?: number;
   /** PAY-PHONE-1 (C) - the buy area already shows the free sample next to "Pay" (after a closed checkout): don't repeat it. */
   sampleInBuy?: boolean;
+  /** PACKS-TILE-BUY-1 - opened from "Choose chapter & buy": focus the chapter picker (Buy sits right under it). */
+  focusPicker?: boolean;
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
@@ -53,7 +55,14 @@ const SLIDE_COUNT = SLIDES.length + 1;
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 export default function PackDialog(props: PackDialogProps) {
-  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide, sampleInBuy = false } = props;
+  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide, sampleInBuy = false, focusPicker = false } = props;
+  const pickerRef = useRef<HTMLSelectElement | null>(null);
+  useEffect(() => {
+    if (!focusPicker || sku !== "pack_chapter") return undefined;
+    // After the dialog's own mount focus (a later effect) has run.
+    const t = window.setTimeout(() => pickerRef.current?.focus(), 0);
+    return () => window.clearTimeout(t);
+  }, [focusPicker, sku]);
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -305,7 +314,7 @@ export default function PackDialog(props: PackDialogProps) {
             {sku === "pack_chapter" && (
               <label className="lt-pkd__label">
                 Pick your chapter
-                <select className="lt-pkd__select" value={chapter} onChange={(e) => onChapter(e.target.value)} data-testid="pack-chapter-select">
+                <select ref={pickerRef} className="lt-pkd__select" value={chapter} onChange={(e) => onChapter(e.target.value)} data-testid="pack-chapter-select">
                   <option value="">Choose a chapter…</option>
                   {PACK_CHAPTER_SLUGS.map((slug) => (
                     <option key={slug} value={slug}>{`${packChapterLabel(slug)} · ${subjectLabel(subjectOfChapter(slug) ?? "maths")}`}</option>

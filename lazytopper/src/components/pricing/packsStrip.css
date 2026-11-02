@@ -39,3 +39,5 @@ button.lt-packoffer__item { font: inherit; text-align: left; cursor: pointer; mi
 /* PRICING-ONE-1: wrapper above the CBQ band holding the optional "Back to parents page" link; nothing shows when it is empty. */
 .lt-packoffer-top { max-width: 1040px; margin: 0 auto; width: 100%; scroll-margin-top: 16px; }
 .lt-packoffer-top:empty { display: none; }
+/* PACKS-TILE-BUY-1: the tile itself is the secondary "See inside" action now that Buy sits under it. */
+.lt-packoffer__see { margin-top: auto; padding-top: 6px; font-size: 14.5px; font-weight: 700; color: #136b43; }
