@@ -88,6 +88,8 @@ const { deriveEffectiveTier, isServerPinnedStart } = require('./entitlement.cjs'
 const pricing = require('./passPricing.cjs');
 const { isPackProduct } = require('./packProducts.cjs');
 const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
+const packNudge = require('./packNudge.cjs');
+const { packIdFor } = require('./packProducts.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
 /** One doc per IST day holding ONLY a count (uid-free; listed in studentDataMap NON_STUDENT_COLLECTIONS). */
@@ -125,6 +127,10 @@ function comebackPracticeUrl(appUrl, chapter) {
   return `${appUrl}/practice/10/${chapter.subject}?topic=${encodeURIComponent(chapter.topic)}&count=5&utm_source=email&utm_medium=email&utm_campaign=nudge_comeback`;
 }
 const PAY_ORDERS_COLLECTION = 'payOrders';
+/** PACK-NUDGE-1: where a student's purchased packs live (packEntitlements/{uid}/packs/{packId}). Subcollection held as a property. */
+const PACK_ENTITLEMENTS_COLLECTION = 'packEntitlements';
+const PACK_ENTITLEMENT_SEGMENTS = Object.freeze({ packs: 'packs' });
+const CAP_PACK_NUDGE = 500;
 /** checkout_help: an order created 2-48 h ago and still not paid. */
 const CHECKOUT_MIN_MS = 2 * HOUR_MS;
 const CHECKOUT_MAX_MS = 48 * HOUR_MS;
@@ -218,6 +224,8 @@ function resolveNudgeConfig(env = process.env) {
     conciergeEnabled: isOnFlag(e.NUDGE_CONCIERGE_ENABLED),
     // REACTIVATE-1: the comeback email has its OWN switch, default OFF, on top of NUDGE_EMAIL_ENABLED.
     comebackEnabled: isOnFlag(e.NUDGE_COMEBACK_ENABLED),
+    // PACK-NUDGE-1: the "you have not opened your pack" emails have their OWN switch, default OFF, on top of NUDGE_EMAIL_ENABLED.
+    packNudgeEnabled: isOnFlag(e.PACK_NUDGE_ENABLED),
     // Never emailed: the admin allowlist (the same ADMIN_FIREBASE_UIDS the admin pages use).
     adminUids: new Set(str(e.ADMIN_FIREBASE_UIDS).split(',').map((x) => x.trim()).filter(Boolean)),
   };
@@ -602,8 +610,9 @@ function createNudgeEmailer(deps = {}) {
       if (!row[kind] || row[kind].status !== 'claimed') return false;
       delete row[kind];
       let last = null;
-      for (const k of ALL_KINDS) {
-        const c = row[k] && typeof row[k].claimedMs === 'number' ? row[k].claimedMs : null;
+      // Every ledger entry that carries a claim time (the fixed kinds AND the per-pack PACK-NUDGE-1 keys).
+      for (const k of Object.keys(row)) {
+        const c = row[k] && typeof row[k] === 'object' && typeof row[k].claimedMs === 'number' ? row[k].claimedMs : null;
         if (c !== null && (last === null || c > last)) last = c;
       }
       if (last === null) delete row.lastClaimMs;
@@ -1070,9 +1079,212 @@ function createNudgeEmailer(deps = {}) {
     return false;
   }
 
+  /**
+   * PACK-NUDGE-1: email a student who BOUGHT a PDF pack and has not saved any file of it. Email 1 on day 2-4 after the
+   * purchase, email 2 on day 5-7 (only after email 1 was sent, and only if still unopened). Same rails as every other
+   * nudge: the claim + durable daily cap + opt-out re-read transaction, 24 h spacing (so a second email the same day is
+   * deferred to the next hourly run, never duplicated), the shared unsubscribe, Resend. A guest (phone) purchase that
+   * is not yet claimed has no uid and is never a candidate. Returns true when the daily cap is full.
+   */
+  async function runPackNudge({ summary, skip, nowMs, day }) {
+    if (!config.packNudgeEnabled) return false;
+    let orders = [];
+    try {
+      const qs = await adminFirestore
+        .collection(PAY_ORDERS_COLLECTION)
+        .where('paidAt', '>=', timestampFromMillis(nowMs - packNudge.PACK_NUDGE_MAX_AGE_MS - DAY_MS))
+        .where('paidAt', '<', timestampFromMillis(nowMs - packNudge.PACK_NUDGE_MIN_AGE_MS + 1))
+        .orderBy('paidAt', 'desc')
+        .limit(CAP_PACK_NUDGE)
+        .get();
+      orders = qs.docs.map((d) => d.data() || {});
+    } catch {
+      skip('pack-orders-unavailable');
+      return false;
+    }
+    const seenPacks = new Set();
+    for (const o of orders) {
+      if (o.status !== 'paid' || !isPackProduct(o.passType) || o.duplicate) continue;
+      if (typeof o.uid !== 'string' || !o.uid) {
+        skip('pack-guest-unclaimed');
+        continue;
+      }
+      const uid = o.uid;
+      const packId = packIdFor(o.passType, o.packTarget);
+      if (!packId || seenPacks.has(`${uid}|${packId}`)) continue;
+      seenPacks.add(`${uid}|${packId}`);
+      summary.candidates += 1;
+
+      // The entitlement is the truth for "bought, and when".
+      let paidAtMs = null;
+      try {
+        const es = await adminFirestore.collection(PACK_ENTITLEMENTS_COLLECTION).doc(uid).collection(PACK_ENTITLEMENT_SEGMENTS.packs).doc(packId).get();
+        const ent = es.exists ? es.data() || {} : null;
+        paidAtMs = ent && typeof ent.paidAt === 'number' ? ent.paidAt : null;
+      } catch {
+        skip('pack-entitlement-unavailable');
+        continue;
+      }
+      if (paidAtMs === null) {
+        skip('pack-not-granted');
+        continue;
+      }
+      const stage = packNudge.packNudgeStageFor(nowMs - paidAtMs);
+      if (!stage) {
+        skip('pack-no-window');
+        continue;
+      }
+      const kind = packNudge.packNudgeKind(stage, packId);
+      const kind1 = packNudge.packNudgeKind(1, packId);
+      const kind2 = packNudge.packNudgeKind(2, packId);
+      const metric = `pack_nudge_${stage}`;
+
+      if (config.adminUids.has(uid)) {
+        skip('internal');
+        continue;
+      }
+      const ledgerSnap = await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).get();
+      const ledger = ledgerSnap.exists ? ledgerSnap.data() || {} : {};
+      if (ledger[kind]) {
+        skip('already-sent');
+        continue;
+      }
+      if (stage === 2 && !(ledger[kind1] && ledger[kind1].status === 'sent')) {
+        skip('pack-email1-not-sent');
+        continue;
+      }
+      if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
+        skip(`marked-${ledger.skip.reason || 'skipped'}`);
+        continue;
+      }
+      const check = ledger.check && typeof ledger.check === 'object' ? ledger.check : {};
+      if (typeof check[kind] === 'number' && check[kind] > nowMs) {
+        skip('not-yet');
+        continue;
+      }
+      const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+      const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+      if (trialRow.optedOut) {
+        skip('opted-out');
+        continue;
+      }
+      // One email a day: deferred (retried next hour, inside the window), re-checked INSIDE the claim transaction.
+      if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+        skip('spaced');
+        continue;
+      }
+      let sub = {};
+      try {
+        const ss = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+        sub = ss.exists ? ss.data() || {} : {};
+      } catch {
+        skip('subscription-unavailable');
+        continue;
+      }
+      const trialRecent = trialEmailRecentMs(trialRow);
+      if ((trialRecent !== null && nowMs - trialRecent < SPACING_MS) || decideCandidate(sub, nowMs).ok) {
+        skip('trial-email-covers');
+        continue;
+      }
+      // Has the student saved any pack file since buying? Unreadable activity -> no email (never nag blind).
+      const days = await readDays(uid);
+      if (days === null) {
+        skip('activity-unavailable');
+        continue;
+      }
+      if (packNudge.packDownloadedSince(days, paidAtMs)) {
+        skip('pack-already-opened');
+        if (config.mode === 'send') await writeCheckMarker(uid, { [kind1]: paidAtMs + packNudge.PACK_NUDGE_MAX_AGE_MS, [kind2]: paidAtMs + packNudge.PACK_NUDGE_MAX_AGE_MS });
+        continue;
+      }
+
+      let user = null;
+      try {
+        user = await firebaseAdmin.auth().getUser(uid);
+      } catch {
+        skip('no-account');
+        continue;
+      }
+      const who = emailEligibility(user);
+      if (!who.ok) {
+        skip(who.reason);
+        if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+          await writeSkipMarker(uid, who.reason, nowMs);
+        }
+        continue;
+      }
+      if (isInternalAccount(uid, who.email, config.adminUids)) {
+        skip('internal');
+        continue;
+      }
+
+      if (config.mode !== 'send') {
+        summary.wouldSend += 1;
+        summary.byKind[metric] += 1;
+        const key = `${uid}:${kind}`;
+        if (!dryRunLogged.has(key)) {
+          dryRunLogged.add(key);
+          log(`[nudge-email] dry-run: would email kind=${metric} pack=${packId} uid=${uid} to=${maskEmail(who.email)}`);
+        }
+        continue;
+      }
+
+      let claim;
+      try {
+        claim = await claimWithinCap(uid, kind, day, nowMs);
+      } catch (e) {
+        skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+        continue;
+      }
+      if (claim !== 'claimed') {
+        skip(claim);
+        if (claim === 'daily-cap') return true;
+        continue;
+      }
+
+      const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
+      const message = packNudge.buildPackNudgeEmail(stage, { packId, displayName: user && user.displayName, appUrl: config.appUrl, unsubscribeUrl });
+      const result =
+        fetchImpl && message
+          ? await sendViaResend({
+              fetchImpl,
+              apiKey: config.apiKey,
+              from: config.from,
+              replyTo: config.replyTo || packNudge.DEFAULT_REPLY_TO,
+              to: who.email,
+              subject: message.subject,
+              text: message.text,
+              html: message.html,
+              unsubscribeUrl,
+              idempotencyKey: `nudge-${kind}-${uid}`,
+              category: `nudge_${metric}`,
+            })
+          : { ok: false, retryable: false, code: message ? 'no-fetch' : 'bad-pack' };
+      try {
+        const ref = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
+        if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+        else if (result.retryable) await releaseClaim(uid, kind, day);
+        else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+      } catch {
+        /* the claim stays: at most once */
+      }
+      if (result.ok) {
+        summary.sent += 1;
+        summary.byKind[metric] += 1;
+        bump(`nudge_email_sent_${metric}`);
+        log(`[nudge-email] nudge_email_sent kind=${metric} uid=${uid}`);
+      } else {
+        summary.failed += 1;
+        bump(`nudge_email_failed_${metric}`);
+        log(`[nudge-email] send failed kind=${metric} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+      }
+    }
+    return false;
+  }
+
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
-    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0 } };
+    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0 } };
     const skip = (reason) => {
       summary.skipped[reason] = (summary.skipped[reason] || 0) + 1;
     };
@@ -1286,7 +1498,9 @@ function createNudgeEmailer(deps = {}) {
           log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
         }
       }
-      const capFull = await runConcierge({ summary, skip, nowMs, day, phase: 'founder_checkin', state: conciergeState });
+      // PACK-NUDGE-1: a buyer who has not opened their pack is served before the founder note and the comeback.
+      let capFull = await runPackNudge({ summary, skip, nowMs, day });
+      if (!capFull) capFull = await runConcierge({ summary, skip, nowMs, day, phase: 'founder_checkin', state: conciergeState });
       if (!capFull) await runComeback({ summary, skip, nowMs, day });
       if (foundingGate) log(`[nudge-email] founding email not running: ${foundingGate}`);
       log(`[nudge-email] run mode=${summary.mode} candidates=${summary.candidates} wouldSend=${summary.wouldSend} sent=${summary.sent} failed=${summary.failed} byKind=${JSON.stringify(summary.byKind)} skipped=${JSON.stringify(summary.skipped)}`);
