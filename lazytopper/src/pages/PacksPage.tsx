@@ -4,7 +4,7 @@ import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
 import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
 import { packPriceLabel, subjectLabel, type PackSku } from "../services/packs";
-import PackSampleLink from "../components/packs/PackSampleLink";
+import { PackSampleChoice } from "../components/packs/PackSampleLink";
 import CbqBand from "../components/pricing/CbqBand";
 import "./packs.css";
 
@@ -48,8 +48,8 @@ export default function PacksPage() {
                 <span className="lt-packs__topen">See inside →</span>
               </button>
               {/* PACK-SAMPLE-1: a sibling of the tile button (a link cannot sit inside a button); secondary to opening the pack. The
-                  tile has no subject yet, so Maths is the sample here; the pop-up follows the chosen subject / chapter. */}
-              <PackSampleLink sku={t.sku} target="maths" surface="packs_tile" />
+                  tile has no subject yet, so it offers Maths and Science; the pop-up follows the chosen subject / chapter. */}
+              <PackSampleChoice sku={t.sku} surface="packs_tile" />
               </div>
             ))}
           </div>

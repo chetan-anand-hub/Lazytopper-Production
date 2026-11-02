@@ -7,7 +7,7 @@ import ParentReturnLink from "../parents/ParentReturnLink";
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import type { PacksQueryPack } from "../../lib/packs/packEntry";
 import CbqBand from "./CbqBand";
-import PackSampleLink from "../packs/PackSampleLink";
+import { PackSampleChoice } from "../packs/PackSampleLink";
 import "./packsStrip.css";
 
 /**
@@ -121,8 +121,8 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
                     <span className="lt-packoffer__price">{packPriceLabel(i.sku)}</span>
                     <span className="lt-packoffer__what">{i.what}</span>
                   </button>
-                  {/* PACK-SAMPLE-1: a sibling of the tile button; Maths is the sample here (the pop-up follows the chosen subject). */}
-                  <PackSampleLink sku={i.sku} target="maths" surface="pricing_tile" />
+                  {/* PACK-SAMPLE-1: a sibling of the tile button; Maths and Science links (the pop-up follows the chosen subject). */}
+                  <PackSampleChoice sku={i.sku} surface="pricing_tile" />
                 </li>
               ))}
             </ul>

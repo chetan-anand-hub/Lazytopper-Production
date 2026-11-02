@@ -18,9 +18,11 @@ export interface PackSampleLinkProps {
   surface: PackSampleSurface;
   /** `on-dark` for the navy CBQ band. */
   tone?: "light" | "on-dark";
+  /** Replaces the default "Free sample page" text (e.g. "Maths" inside a Maths / Science pair, or "Free sample page (Maths)"). */
+  label?: string;
 }
 
-export default function PackSampleLink({ sku, target, surface, tone = "light" }: PackSampleLinkProps) {
+export default function PackSampleLink({ sku, target, surface, tone = "light", label }: PackSampleLinkProps) {
   const sample = packSampleFor(sku, target);
   if (!sample) return null;
   return (
@@ -35,8 +37,24 @@ export default function PackSampleLink({ sku, target, surface, tone = "light" }:
       data-surface={surface}
     >
       <span className="lt-psl__icon" aria-hidden="true">&#8681;</span>
-      {PACK_SAMPLE_LINK_TEXT}
+      {label ?? PACK_SAMPLE_LINK_TEXT}
       <span className="lt-psl__sr"> (PDF, one page, no sign-up needed)</span>
     </a>
+  );
+}
+
+/**
+ * PackSampleChoice - for a tile that has no subject yet (the /packs and /pricing tiles): "Free sample: Maths . Science", two links,
+ * each opening its own subject's PDF. The bundle has ONE sample (Maths), so it is a single honestly labelled link instead.
+ */
+export function PackSampleChoice({ sku, surface }: { sku: PackSku; surface: PackSampleSurface }) {
+  if (sku === "pack_bundle") return <PackSampleLink sku={sku} surface={surface} label={`${PACK_SAMPLE_LINK_TEXT} (Maths)`} />;
+  return (
+    <div className="lt-psl-pair" data-testid={`pack-sample-choice-${sku}`}>
+      <span className="lt-psl-pair__cap">Free sample:</span>
+      <PackSampleLink sku={sku} target="maths" surface={surface} label="Maths" />
+      <span className="lt-psl-pair__dot" aria-hidden="true">&middot;</span>
+      <PackSampleLink sku={sku} target="science" surface={surface} label="Science" />
+    </div>
   );
 }
