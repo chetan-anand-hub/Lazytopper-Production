@@ -8,6 +8,7 @@ import { MemoryRouter } from "react-router-dom";
 // the gate itself is unchanged. Same harness as RequireAuth.trialCta.test.tsx.
 
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" }, loading: false }) }));
+vi.mock("../../services/packs", () => ({ fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) })); // CBQ-TUTOR-GATE-1: no CBQ Pack
 vi.mock("../UpgradeModal", () => ({
   UpgradeModal: ({ open }: { open: boolean }) => (open ? <div>PLANS_MODAL</div> : null),
 }));
@@ -61,7 +62,8 @@ describe("RequirePremium — the scorecard lock line (START-HERE-1)", () => {
     hydrate.mockResolvedValue(EXPIRED);
     gate("/tutor/10/Maths/real-numbers?source=practice");
     await waitFor(() => expect(screen.queryByText("Start my free 7-day trial")).toBeNull());
-    expect(screen.getByText(/Ask the tutor is part of Premium\./)).toBeInTheDocument();
+    // CBQ-TUTOR-GATE-1: the tutor gate now reads the pack allowance first, so the lock arrives a tick later.
+    expect(await screen.findByText(/Ask the tutor is part of Premium\./)).toBeInTheDocument();
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
   });
 
