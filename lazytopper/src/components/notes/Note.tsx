@@ -32,6 +32,13 @@ import { ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { cbqChapterPath, cbqTopicBySlug } from "../cbq/cbqSeo";
 import { subscriptFormulas } from "../../lib/chemSubscript";
+import {
+  AUTHORED_PROMPT_LABEL,
+  displayPromptText,
+  examplesProvenance,
+  examplesSectionCopy,
+  isAuthoredPrompt,
+} from "./noteAuthoredPrompt";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -320,6 +327,7 @@ const NOTE_CSS = `
   font-size: 15px; color: var(--lt-note-navy); background: #fbfdff;
   border-bottom: 1px solid var(--lt-note-line);
 }
+.lt-note__ex-prov { padding: 8px 16px 0; background: #fbfdff; }
 .lt-note__ex-body { padding: 14px 16px; }
 .lt-note__steps { display: grid; gap: 9px; }
 .lt-note__step {
@@ -915,14 +923,18 @@ function ExampleCard({
   subject,
   chapterNo,
   onOpenPage,
+  mixed = false,
 }: {
   example: NoteExample;
   defaultOpen: boolean;
+  /** True when the section holds both sourced and authored prompts: sourced cards then carry their own chip. */
+  mixed?: boolean;
   subject: NoteSubject;
   chapterNo: number;
   onOpenPage: (ref: NcertPageRef) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const authored = isAuthoredPrompt(example.problem_verbatim);
   return (
     <div className={`lt-note__ex${open ? " lt-note__ex--open" : ""}`}>
       <button
@@ -945,9 +957,19 @@ function ExampleCard({
         chapterFallback={chapterNo}
         onOpenPage={onOpenPage}
         className="lt-note__ex-cite"
+        prefix={authored ? "Follows NCERT " : undefined}
       />
+      {(authored || mixed) && (
+        <div className="lt-note__ex-prov">
+          {authored ? (
+            <span className="lt-note__tag-auth">{AUTHORED_PROMPT_LABEL}</span>
+          ) : (
+            <span className="lt-note__tag-src">NCERT VERBATIM</span>
+          )}
+        </div>
+      )}
       <div className="lt-note__ex-q">
-        &ldquo;<NoteRichText text={example.problem_verbatim} />&rdquo;
+        &ldquo;<NoteRichText text={displayPromptText(example.problem_verbatim)} />&rdquo;
       </div>
       {open && (
         <div className="lt-note__ex-body">
@@ -1657,18 +1679,21 @@ export function Note({ spec, initialTab }: NoteProps) {
             </section>
           )}
 
-          {spec.examples.length > 0 && (
+          {spec.examples.length > 0 && (() => {
+            const copy = examplesSectionCopy(examplesProvenance(spec.examples));
+            return (
             <section className="lt-note__block">
               <div className="lt-note__sec-label">
-                Worked examples — real solved problems{" "}
-                <span className="lt-note__tag-src">NCERT VERBATIM</span>
+                {copy.label}
+                {copy.chip && (
+                  <>
+                    {" "}
+                    <span className="lt-note__tag-src">NCERT VERBATIM</span>
+                  </>
+                )}
               </div>
-              <h3 className="lt-note__sec">Solved exactly as the source does them</h3>
-              <p className="lt-note__hint">
-                Every problem is a real sourced item, quoted verbatim with its
-                page; the step-by-step decoding and mark-logic are
-                LazyTopper-authored coaching.
-              </p>
+              <h3 className="lt-note__sec">{copy.heading}</h3>
+              <p className="lt-note__hint">{copy.intro}</p>
               {spec.examples.map((example, i) => (
                 <ExampleCard
                   key={example.id}
@@ -1677,10 +1702,12 @@ export function Note({ spec, initialTab }: NoteProps) {
                   subject={meta.subject}
                   chapterNo={meta.chapter_no}
                   onOpenPage={setPageRef}
+                  mixed={!copy.chip && !copy.allAuthored}
                 />
               ))}
             </section>
-          )}
+            );
+          })()}
 
           {spec.strategies.length > 0 && (
             <section className="lt-note__block">
