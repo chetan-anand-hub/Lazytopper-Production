@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -8,6 +8,10 @@ import { trackNamedEvent } from "../../analytics/analytics";
 import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
 import BoardPassLine from "../pricing/BoardPassLine";
 import { isSafeInternalPath } from "../../utils/safeInternalPath";
+import { CBQ_GATE_WAIT_MS, useCbqTutorAllowance } from "../../hooks/useCbqTutorAllowance";
+
+/** CBQ-TUTOR-GATE-1 - the one gate label (set in App.tsx) that a CBQ Pack owner's bonus questions may open. */
+export const TUTOR_GATE_LABEL = "Ask the tutor";
 
 /** START-HERE-1 — the lock line for a student who came from a scorecard's tutor button. */
 export const SCORECARD_LOCK_COPY = "Your free week has ended — upgrade to ask the tutor why you lost this mark.";
@@ -53,6 +57,20 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
   const { isPremium, isTrialExpired, startTrial, hydrated, status } = useSubscription();
   const location = useLocation();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  // CBQ-TUTOR-GATE-1 - only the tutor gate, only a signed-in non-Premium student, only once the plan is known.
+  const cbqAllowance = useCbqTutorAllowance(
+    user?.uid || "",
+    !loading && Boolean(user) && hydrated && !isPremium && featureLabel === TUTOR_GATE_LABEL,
+  );
+
+  // Bound the wait for subscription hydration on the tutor gate: if it never completes, fall back to the lock.
+  const waitingForPlan = Boolean(user) && !loading && !hydrated && !isPremium && featureLabel === TUTOR_GATE_LABEL;
+  const [planWaitExpired, setPlanWaitExpired] = useState(false);
+  useEffect(() => {
+    if (!waitingForPlan) return;
+    const t = setTimeout(() => setPlanWaitExpired(true), CBQ_GATE_WAIT_MS);
+    return () => clearTimeout(t);
+  }, [waitingForPlan]);
 
   if (loading) {
     return (
@@ -67,6 +85,22 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
 
   if (!user) {
     return <Navigate to="/login" replace state={{ from: loginFromFor(location) }} />;
+  }
+
+  // Plan not yet read for the tutor gate: wait, do not flash the lock at a student who may be a pack owner.
+  if (!isPremium && featureLabel === TUTOR_GATE_LABEL && ((!hydrated && !planWaitExpired) || cbqAllowance === "loading")) {
+    return (
+      <div className="lt-page">
+        <div className="card">
+          <h3>Checking your session...</h3>
+          <p>Please wait.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isPremium && cbqAllowance === "allowed") {
+    return <>{children}</>;
   }
 
   if (!isPremium) {

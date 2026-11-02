@@ -10,6 +10,7 @@ import { boardPassPriceDisplay } from "../../config/pricing";
 
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" }, loading: false }) }));
 // Stub the plans modal to a visible marker so we can assert the "See plans" path.
+vi.mock("../../services/packs", () => ({ fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) })); // CBQ-TUTOR-GATE-1: no CBQ Pack
 vi.mock("../UpgradeModal", () => ({
   UpgradeModal: ({ open }: { open: boolean }) => (open ? <div>PLANS_MODAL</div> : null),
 }));
@@ -28,6 +29,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 });
 
 import { RequirePremium } from "./RequireAuth";
+import { CBQ_GATE_WAIT_MS } from "../../hooks/useCbqTutorAllowance";
 import * as analytics from "../../analytics/analytics";
 import * as svc from "../../services/subscriptionService";
 import type { SubscriptionStatus } from "../../services/subscriptionService";
@@ -43,10 +45,10 @@ const EXPIRED: SubscriptionStatus = { tier: "free", plan: "none", trialStartDate
 const ACTIVE: SubscriptionStatus = { tier: "trial", plan: "trial_7day", trialStartDate: new Date().toISOString(), trialEndDate: new Date(Date.now() + 5 * DAY).toISOString(), premiumSince: null };
 const PREMIUM: SubscriptionStatus = { tier: "premium", plan: "premium_monthly", trialStartDate: null, trialEndDate: null, premiumSince: new Date().toISOString() };
 
-function renderGate() {
+function renderGate(featureLabel = "Ask the tutor") {
   return render(
     <MemoryRouter>
-      <RequirePremium featureLabel="Ask the tutor">
+      <RequirePremium featureLabel={featureLabel}>
         <div>UNLOCKED_CHILD</div>
       </RequirePremium>
     </MemoryRouter>,
@@ -83,10 +85,38 @@ describe("RequirePremium — trial CTA + eligibility", () => {
 
   it("TRIAL-CTA-1 — a tap BEFORE the record has hydrated starts nothing and counts nothing", async () => {
     hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
-    renderGate();
+    // Not the tutor gate: the tutor gate (CBQ-TUTOR-GATE-1) holds on "Checking your session" until hydrated.
+    renderGate("Weak Area Practice");
     fireEvent.click(await screen.findByText("Start my free 7-day trial"));
     expect(activate).not.toHaveBeenCalled();
     expect(trialStarts()).toBe(0);
+  });
+
+  it("tutor gate while hydration is pending: Checking, no trial CTA, nothing started, nothing counted", async () => {
+    hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
+    renderGate();
+    await screen.findByText("Checking your session...");
+    expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
+    expect(screen.queryByText("Premium Feature")).toBeNull();
+    expect(activate).not.toHaveBeenCalled();
+    expect(track).not.toHaveBeenCalled();
+  });
+
+  it("tutor gate: hydration that never completes falls back to the lock after the bound (no forever spinner)", async () => {
+    vi.useFakeTimers();
+    try {
+      hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
+      renderGate();
+      await act(async () => {});
+      expect(screen.getByText("Checking your session...")).toBeInTheDocument();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(CBQ_GATE_WAIT_MS + 100);
+      });
+      expect(screen.getByText("Premium Feature")).toBeInTheDocument();
+      expect(activate).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("EXPIRED-trial user does NOT see the trial CTA — only the plans path", async () => {
@@ -94,7 +124,8 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     renderGate();
     // Once hydration resolves to expired, the trial CTA must be gone.
     await waitFor(() => expect(screen.queryByText("Start my free 7-day trial")).toBeNull());
-    expect(screen.getByText("Unlock Full Access")).toBeInTheDocument();
+    // CBQ-TUTOR-GATE-1: the lock arrives a tick after hydration (the pack allowance is read first).
+    expect(await screen.findByText("Unlock Full Access")).toBeInTheDocument();
     fireEvent.click(screen.getByText("Unlock Full Access"));
     expect(screen.getByText("PLANS_MODAL")).toBeInTheDocument();
     expect(activate).not.toHaveBeenCalled();
