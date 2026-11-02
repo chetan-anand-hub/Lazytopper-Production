@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useInRouterContext } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../../services/subscriptionService";
-import { trackScorecardUpgrade } from "../../analytics/analytics";
+import { trackSaleMoment, trackScorecardUpgrade } from "../../analytics/analytics";
 import UpgradeSheet from "../subscription/UpgradeSheet";
 import { START_TRIAL_LABEL } from "../pricing/trialCta";
 import { boardPassCtaLabel, boardPassPriceNow } from "../pricing/boardPassOffer";
-import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
+import SaleMoment from "../packs/SaleMomentLazy";
+import { saleHintFromTarget } from "../packs/saleMomentModel";
 import { formatScoreNumber } from "./scoreNumber";
 import type { ScorecardVariant } from "./scorecardVariants";
 
@@ -18,8 +18,9 @@ import type { ScorecardVariant } from "./scorecardVariants";
  *   marks lost > 0      "You lost {N} marks here. Get every answer marked like this till your boards — Board Pass ₹{price} →"
  *   nothing lost        "Full marks! Keep every answer marked like this till your boards — Board Pass ₹{price} →"
  *   marks not known     "Get every answer marked like this till your boards — Board Pass ₹{price} →"
- * and, for any non-paid student (PACK-BASIC-ONLY-1; never paid Premium), a quiet second line
- * "Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →" (to /pricing#packs).
+ * and, for any non-paid student (PACK-BASIC-ONLY-1; never paid Premium), SALE-MOMENT-1's pack line under it: the pack that fits
+ * this result (that chapter's Chapter Pack, else the subject's Subject Pack, else the plain "PDF packs from ₹49" line), deep-linked
+ * to its pop-up on /packs, hidden when the student owns it and on a re-opened or locked card (components/packs/SaleMomentLine).
  *
  * "Not known" is every attempts-style score (Quick Practice has no marks total), any paper with an
  * ungraded question or an awaited sheet (a number there would be wrong), and an all-pending card
@@ -83,12 +84,7 @@ const LINE_CSS = `
   background: rgba(22, 185, 106, 0.08); color: inherit;
   font: inherit; font-size: 0.88rem; font-weight: 600; line-height: 1.4;
 }
-.lt-sc__up--pack {
-  display: block; margin: 6px 0 0; padding: 6px 4px; min-height: 44px; box-sizing: border-box;
-  font-size: 0.8rem; font-weight: 500; opacity: 0.85; color: inherit; text-decoration: underline;
-  text-underline-offset: 3px; overflow-wrap: anywhere;
-}
-.lt-sc__up:focus-visible, .lt-sc__up--pack:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.8); outline-offset: 2px; }
+.lt-sc__up:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.8); outline-offset: 2px; }
 `;
 
 /** The signed-in uid, or "" when there is no AuthProvider (a bare scorecard render). */
@@ -129,15 +125,13 @@ function useCachedStatus(uid: string): [SubscriptionStatus, () => void, boolean]
   return [status, () => setStatus(loadSubscription(uid)), known];
 }
 
-function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countShown: boolean; uid: string }) {
+function Line({ variant, countShown, uid, saleMoment }: { variant: ScorecardVariant; countShown: boolean; uid: string; saleMoment: boolean }) {
   const copy = scorecardUpgradeCopy(variant, boardPassPriceNow());
   const text = copy ? copy.text : "";
-  // FIRST-OFFER-1 - the Chapter Pack deep link: only a chapter the result itself names (its practice route); else plain /packs.
-  const packHref = PACK_LINE_HREF;
-  const packText = PACK_LINE_TEXT;
+  // SALE-MOMENT-1 - the pack under the Board Pass line names the pack that fits THIS result (its chapter / subject, read from the
+  // host's own practice route) and deep-links to it; see packs/SaleMomentLine.
+  const saleHint = saleHintFromTarget(variant.guideTarget?.to);
   const [status, refresh, statusKnown] = useCachedStatus(uid);
-  // A scorecard can render outside the router (PDF/report renders, bare tests): fall back to a plain link.
-  const inRouter = useInRouterContext();
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
   const show = status.tier !== "premium";
@@ -173,21 +167,14 @@ function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countSh
         data-testid="scorecard-upgrade-line"
         onClick={() => {
           trackScorecardUpgrade("click");
+          trackSaleMoment("sale_moment_tap", { surface: variant.surface, offer: "board_pass" });
           setOpen(true);
         }}
       >
         {text}
       </button>
-      {showPackLine(status, statusKnown) ? (
-        inRouter ? (
-          <Link className="lt-sc__up--pack" to={packHref} data-testid="scorecard-pack-line">
-            {packText}
-          </Link>
-        ) : (
-          <a className="lt-sc__up--pack" href={packHref} data-testid="scorecard-pack-line">
-            {packText}
-          </a>
-        )
+      {saleMoment && statusKnown && status.tier !== "premium" ? (
+        <SaleMoment nonPaidChecked cbq={variant.saleCbq === true} surface={variant.surface} chapterSlug={saleHint.chapterSlug} subject={saleHint.subject} chapterName={variant.guideTarget?.chapter ?? null} />
       ) : null}
       {open ? <UpgradeSheet
           featureLabel="Your full marks breakdown"
@@ -200,9 +187,9 @@ function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countSh
   );
 }
 
-export default function ScorecardUpgradeLine({ variant, countShown = true }: { variant: ScorecardVariant; countShown?: boolean }) {
+export default function ScorecardUpgradeLine({ variant, countShown = true, saleMoment = true }: { variant: ScorecardVariant; countShown?: boolean; saleMoment?: boolean }) {
   const uid = useOptionalUid();
   const copy = scorecardUpgradeCopy(variant);
   if (!uid || !copy) return null;
-  return <Line variant={variant} countShown={countShown} uid={uid} />;
+  return <Line variant={variant} countShown={countShown} uid={uid} saleMoment={saleMoment} />;
 }

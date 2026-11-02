@@ -20,6 +20,7 @@ import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { subscriptFormulas } from "../../lib/chemSubscript";
+import SaleMoment from "../packs/SaleMomentLazy";
 
 /** What the page needs to record the tap as an MCQ attempt (signed in) — nothing else leaves this component. */
 export interface LadderAnswer {
@@ -258,6 +259,8 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
               {LADDER_MORE_COPY}
             </button>
           ) : null}
+          {/* SALE-MOMENT-1 - the one buying line at the first verdict: this chapter's Chapter Pack, and the Board Pass. Non-paid students only. */}
+          <SaleMoment surface="ladder" chapterSlug={mcq.topicKey} chapterName={mcq.topicName} withBoardPass />
         </div>
       ) : null}
 

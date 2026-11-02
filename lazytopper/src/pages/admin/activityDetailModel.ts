@@ -204,6 +204,8 @@ const EVENT_LABELS: Record<string, string> = {
   tutor_check_correct: "Got the tutor's one-tap check right",
   trial_summary_shown: "Saw the trial-ending tutor summary",
   trial_summary_tap: "Tapped the trial-ending tutor summary",
+  sale_moment_shown: "Was shown a pack / Board Pass line after a result",
+  sale_moment_tap: "Tapped a pack / Board Pass line after a result",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

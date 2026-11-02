@@ -231,6 +231,9 @@ export const ACTIVITY_EVENTS = [
   "tutor_check_correct",
   "trial_summary_shown",
   "trial_summary_tap",
+  // SALE-MOMENT-1 - the buying line at the moment of value. Additive; the vendors also get surface + offer slugs.
+  "sale_moment_shown",
+  "sale_moment_tap",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

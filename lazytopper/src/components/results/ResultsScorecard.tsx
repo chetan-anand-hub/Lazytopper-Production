@@ -780,7 +780,9 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 </Suspense>
               )}
               {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
-              <ScorecardUpgradeLine variant={variant} countShown={!reopened} />
+              {/* SALE-MOMENT-1 - the pack line under the Board Pass line (Answer Checker, Worksheet, Chapter Test, Full Mock): never on a
+                  re-opened old result, never beside the locked breakdown, and not on Quick Practice, which keeps its own pack card below. */}
+              <ScorecardUpgradeLine variant={variant} countShown={!reopened} saleMoment={!reopened && !detailLocked && variant.surface !== "quick-practice"} />
               {/* PACKS-VISIBLE-1 - Quick Practice results: the pack card sits BELOW the Board Pass line. */}
               {variant.surface === "quick-practice" ? <PackPromo surface="quick_practice" /> : null}
             </>

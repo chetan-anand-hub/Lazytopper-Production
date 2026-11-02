@@ -31,7 +31,7 @@ export function promoChips(prices: Readonly<Record<string, number>>): string[] {
   return chips;
 }
 
-function useOptionalUid(): string {
+export function useOptionalUid(): string {
   try {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { user } = useAuth();
@@ -42,7 +42,7 @@ function useOptionalUid(): string {
 }
 
 /** This device's cached record, then the app's shared hydration; no Firestore read of its own. */
-function useKnownStatus(uid: string): [SubscriptionStatus | null, boolean] {
+export function useKnownStatus(uid: string): [SubscriptionStatus | null, boolean] {
   const [status, setStatus] = useState<SubscriptionStatus | null>(() => (uid ? loadSubscription(uid) : null));
   const [heard, setHeard] = useState(false);
   useEffect(() => {

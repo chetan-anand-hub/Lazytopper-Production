@@ -943,7 +943,10 @@ export type NamedAnalyticsEvent =
   | "tutor_check_shown"
   | "tutor_check_correct"
   | "trial_summary_shown"
-  | "trial_summary_tap";
+  | "trial_summary_tap"
+  // SALE-MOMENT-1 - the one buying line at the moment of value (ladder verdict, graded scorecards). Slugs only, see trackSaleMoment.
+  | "sale_moment_shown"
+  | "sale_moment_tap";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1949,4 +1952,21 @@ export interface OnboardingEventParams {
   login_attempt: { method: "google" | "email" | "phone"; ua_class: string };
   login_success: { method: "google" | "email" | "phone"; ua_class: string };
   login_error: { method: "google" | "email" | "phone"; ua_class: string; error_code: string };
+}
+
+/**
+ * SALE-MOMENT-1 - `sale_moment_shown` (the buying line appeared, once per scorecard / ladder verdict) and `sale_moment_tap`.
+ * The vendors get the name plus two coarse slugs: `surface` (ladder | check-improve | worksheet | chapter-test | full-mock |
+ * quick-practice) and `offer` (a pack SKU - pack_chapter | pack_subject | pack_cbq - or board_pass). Never a chapter, an id,
+ * a price or a uid. The first-party log gets the bare name (signed-in students only, like every named event).
+ */
+export function trackSaleMoment(name: "sale_moment_shown" | "sale_moment_tap", slug: { surface: string; offer: string }): void {
+  try {
+    const data: Record<string, string> = {};
+    if (ONBOARDING_SLUG.test(slug.surface)) data.surface = slug.surface;
+    if (ONBOARDING_SLUG.test(slug.offer)) data.offer = slug.offer;
+    send("event", { name, data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
