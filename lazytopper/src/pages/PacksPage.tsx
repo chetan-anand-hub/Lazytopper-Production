@@ -116,7 +116,7 @@ export default function PacksPage() {
               </p>
             </details>
             <details>
-              <summary>What about refunds?</summary>
+              <summary>Can I cancel after buying?</summary>
               <p>
                 Read the <Link to="/legal/refund">Cancellation policy</Link> before you buy.
               </p>
