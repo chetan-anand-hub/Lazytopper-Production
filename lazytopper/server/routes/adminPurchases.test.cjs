@@ -35,6 +35,19 @@ function fakeFirestore(orders) {
         ...make('paidAt', []),
         // CHECKOUT-1: the abandoned-checkout read is a createdAt range ordered by createdAt.
         where(field, op, value) {
+          // PAY-PHONE-1: the unclaimed-guest read is a single equality on status, with a limit.
+          if (field === 'status') {
+            assert.equal(op, '==');
+            return {
+              limit: (n) => ({
+                async get() {
+                  reads += 1;
+                  const docs = orders.filter((o) => o.data.status === value).slice(0, n);
+                  return { size: docs.length, forEach: (fn) => docs.forEach((o) => fn({ id: o.id, data: () => o.data })) };
+                },
+              }),
+            };
+          }
           assert.equal(field, 'createdAt'); assert.equal(op, '>=');
           return make('createdAt', [(o) => o.data.createdAt >= value]);
         },
@@ -184,4 +197,27 @@ test('abandoned: a failed abandoned read keeps the purchases (abandoned is null)
   assert.equal(res.status, 200);
   assert.equal(res.body.items.length, 1);
   assert.equal(res.body.abandoned, null);
+});
+
+test('PAY-PHONE-1 unclaimedGuest: guest paid_unclaimed only, phone MASKED, oldest first; never counted as a purchase', async () => {
+  const HOUR = 3600000;
+  const guest = (id, phone, passType, inr, ago, extra = {}) => ({
+    id, data: { uid: null, payer: 'guest', guestPhone: phone, passType, amountPaise: inr * 100, status: 'paid_unclaimed', paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - ago), ...extra },
+  });
+  const orders = [
+    guest('g1', '+919876543948', 'pack_mock', 99, 2 * HOUR, { packTarget: 'maths' }),
+    guest('g2', '+917012345678', 'till_boards', 1917, 30 * HOUR),
+    { id: 'notGuest', data: { uid: 'u1', passType: 'month', amountPaise: 59900, status: 'paid_unclaimed' } },
+    paid('p1', 'u2', 'month', 599, HOUR),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.unclaimedGuest.items.map((i) => i.orderId), ['g2', 'g1']);
+  const [g2, g1] = res.body.unclaimedGuest.items;
+  assert.equal(g1.phoneMasked, '+91 98•••••948');
+  assert.equal(g1.paymentId, 'pay_g1'); assert.equal(g1.amountInr, 99); assert.equal(g1.kind, 'pack'); assert.equal(g1.ageHours, 2);
+  assert.equal(g2.kind, 'premium'); assert.equal(g2.ageHours, 30);
+  assert.ok(!JSON.stringify(res.body).includes('9876543948'), 'the full number never leaves the store');
+  assert.deepEqual(res.body.items.map((i) => i.orderId), ['p1']);
 });

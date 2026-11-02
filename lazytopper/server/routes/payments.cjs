@@ -59,6 +59,8 @@ const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor, i
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 // PACK-CREDIT-1: a Board Pass order is credited with the student's recent pack purchases.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
+// PAY-PHONE-1: a guest (signed-out, phone-number) order is only marked paid_unclaimed by the webhook, never granted here.
+const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
 
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
@@ -227,7 +229,23 @@ function createPaymentRoutes(deps = {}) {
     now = () => Date.now(),
     foundingOfferOpen,
     topupBonus, // test seam only: { percent, endsIso }; production passes nothing (the constants decide)
+    receiptEmailer, // PAY-PHONE-1 (A): optional; absent -> no receipt email (it is off by default anyway)
   } = deps;
+
+  /**
+   * PAY-PHONE-1 (A) - ONE receipt email per paid order, to the address Razorpay recorded on the payment. Fire and
+   * forget: never awaited, never able to fail or delay a payment response; the emailer itself is idempotent per payment
+   * and only sends for an order that is really paid. Top-ups get none.
+   */
+  function sendReceipt(orderId, paymentId, payment, passType) {
+    if (!receiptEmailer || typeof receiptEmailer.sendForPayment !== 'function' || isTopupProduct(passType)) return;
+    const email = payment && typeof payment.email === 'string' ? payment.email : '';
+    try {
+      void receiptEmailer.sendForPayment({ orderId, paymentId, email });
+    } catch {
+      /* never */
+    }
+  }
 
   const rateLimiter =
     deps.rateLimiter ||
@@ -571,7 +589,9 @@ function createPaymentRoutes(deps = {}) {
     if (mismatch) return reject(res, 'verify', mismatch);
 
     // 4. Grant — idempotent, with the order's created -> paid in the same transaction.
-    return grantAndRespond(res, 'verify', { uid: order.uid, passType: order.passType, paymentId, orderId });
+    const answered = await grantAndRespond(res, 'verify', { uid: order.uid, passType: order.passType, paymentId, orderId });
+    sendReceipt(orderId, paymentId, payment, order.passType);
+    return answered;
   }
 
   /**
@@ -742,6 +762,9 @@ function createPaymentRoutes(deps = {}) {
       emit('payments.webhook.unknown_order');
       return sendJson(res, 200, { ok: true, ignored: true });
     }
+    // PAY-PHONE-1 - a guest order has no uid yet: the SAME Z4 checks, then `created -> paid_unclaimed` only. The grant
+    // happens at claim time (routes/guestPay.cjs), for the account whose VERIFIED token carries the order's phone.
+    if (order.payer === GUEST_PAYER) return handleGuestCaptured(res, { entity, order, orderId, paymentId });
     // The account was erased (Z7 anonymises its orders): there is no one to grant to.
     if (order.uid === ERASED_UID || typeof order.uid !== 'string' || !order.uid) {
       emit('payments.webhook.erased_order');
@@ -753,7 +776,26 @@ function createPaymentRoutes(deps = {}) {
     const mismatch = paymentMismatch(entity, { orderId, amountPaise: order.amountPaise });
     if (mismatch) return reject(res, 'webhook', mismatch);
 
-    return grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId });
+    const answered = await grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId });
+    sendReceipt(orderId, paymentId, entity, order.passType);
+    return answered;
+  }
+
+  /** PAY-PHONE-1 - the webhook's guest branch: every Z4 check, then the order is recorded paid_unclaimed (no grant). */
+  async function handleGuestCaptured(res, { entity, order, orderId, paymentId }) {
+    const mismatch = paymentMismatch(entity, { orderId, amountPaise: order.amountPaise });
+    if (mismatch) return reject(res, 'webhook', mismatch);
+    try {
+      const marked = await markGuestOrderPaid(adminFirestore, { orderId, paymentId, nowMs: now() });
+      emit(marked.changed ? 'payments.webhook.guest_paid_unclaimed' : 'payments.webhook.guest_replayed');
+      if (marked.reason === 'other_payment') emit('payments.webhook.guest_duplicate_payment');
+      else sendReceipt(orderId, paymentId, entity, order.passType);
+      return sendJson(res, 200, { ok: true, guest: true, status: marked.status || null });
+    } catch (e) {
+      emit('payments.webhook.store_write_failed');
+      console.error('[pay/webhook] guest order write failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not record the payment.' });
+    }
   }
 
   /**
@@ -901,12 +943,14 @@ function createPaymentRoutes(deps = {}) {
 
     // 3. A Razorpay-confirmed captured payment for this order: the SAME idempotent grant.
     const paymentId = found.payment.id;
-    return grantAndRespond(
+    const reconciled = await grantAndRespond(
       res,
       'status',
       { uid: order.uid, passType: order.passType, paymentId, orderId },
       { body: { state: 'paid', paymentId, amountInr }, counter: 'payments.status.reconciled' },
     );
+    sendReceipt(orderId, paymentId, found.payment, order.passType);
+    return reconciled;
   }
 
   return { handleOrder, handleVerify, handleWebhook, handleStatus, isEnabled: enabled, isTopupEnabled: topupEnabled };
@@ -922,6 +966,7 @@ module.exports = {
   hmacSha256Hex,
   quotePass,
   readRawBody,
+  paymentMismatch,
   PAY_ORDER_PATH,
   PAY_VERIFY_PATH,
   PAY_WEBHOOK_PATH,

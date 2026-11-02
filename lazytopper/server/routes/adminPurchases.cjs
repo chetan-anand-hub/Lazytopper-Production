@@ -18,6 +18,8 @@
  */
 const { istDayKey } = require('../services/rateLimiter.cjs');
 const { istDayStartMs, addIstDays } = require('./adminStudents.cjs');
+// PAY-PHONE-1: guest (phone-number) payments nobody has claimed yet. Read-only; the phone is shown MASKED.
+const { maskIndianMobile, GUEST_STATUS } = require('../services/guestPay.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const NO_STORE = Object.freeze({ 'Cache-Control': 'no-store' });
@@ -134,6 +136,39 @@ function createAdminPurchasesRoutes(deps = {}) {
     }
   }
 
+  /**
+   * PAY-PHONE-1 - guest payments that are captured but not yet claimed by a sign-in with the same number, oldest first,
+   * so the owner can help a student who typed a wrong number. Single-field equality query (no composite index). The
+   * phone is MASKED here; the full number never leaves the store. Returns null when the read fails.
+   */
+  async function unclaimedGuestOrders(nowMs) {
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('status', '==', GUEST_STATUS.paidUnclaimed).limit(ABANDONED_READ_CAP).get();
+      const rows = [];
+      snap.forEach((d) => {
+        const v = d.data() || {};
+        if (v.payer !== 'guest') return;
+        const paidAtMs = msOf(v.guestPaidAt);
+        rows.push({
+          orderId: d.id,
+          paymentId: typeof v.paymentId === 'string' ? v.paymentId : null,
+          phoneMasked: maskIndianMobile(v.guestPhone),
+          passType: typeof v.passType === 'string' ? v.passType : '',
+          packTarget: typeof v.packTarget === 'string' ? v.packTarget : null,
+          kind: kindOf(v.passType),
+          amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
+          paidAtMs,
+          ageHours: paidAtMs === null ? null : Math.max(0, Math.floor((nowMs - paidAtMs) / 3600000)),
+        });
+      });
+      rows.sort((a, b) => (a.paidAtMs || 0) - (b.paidAtMs || 0));
+      return { items: rows.slice(0, ABANDONED_SHOWN_CAP), truncated: rows.length > ABANDONED_SHOWN_CAP || snap.size >= ABANDONED_READ_CAP };
+    } catch (e) {
+      console.error('[admin-purchases] unclaimed guest read failed:', e && e.message);
+      return null;
+    }
+  }
+
   async function list(req, res) {
     if (!(await gate(req, res))) return;
     try {
@@ -187,7 +222,8 @@ function createAdminPurchasesRoutes(deps = {}) {
         return { ...p, email: pr.email, name: pr.name };
       });
       const abandoned = await abandonedOrders(nowMs, admins);
-      return send(res, 200, { ok: true, items, totals, truncated: paid.length > SHOWN_CAP || readFull, abandoned });
+      const unclaimedGuest = await unclaimedGuestOrders(nowMs);
+      return send(res, 200, { ok: true, items, totals, truncated: paid.length > SHOWN_CAP || readFull, abandoned, unclaimedGuest });
     } catch (e) {
       console.error('[admin-purchases] list failed:', e && e.message);
       return send(res, 500, { ok: false, error: 'Could not read the purchases' });

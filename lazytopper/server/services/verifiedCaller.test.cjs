@@ -303,3 +303,24 @@ test("resolveCaller with tokenRejected ignores the uid header and keys on the IP
   // A verified uid always wins, whatever the flag says.
   assert.deepEqual(resolveCaller(r, "real", { tokenRejected: true }), { id: "real", anonymous: false, verified: true });
 });
+
+/* ── 7 · PAY-PHONE-1 — the verified phone number comes ONLY from the verified token ── */
+
+test("resolveVerifiedIdentity: phone_number from the VERIFIED token; headers never supply one; failure is empty", async () => {
+  const admin = {
+    auth: () => ({
+      verifyIdToken: async (t) => {
+        if (t === "phone-token") return { uid: "uid-phone", phone_number: "+919876543210" };
+        if (t === "google-token") return { uid: "uid-google" };
+        throw new Error("invalid token");
+      },
+    }),
+  };
+  const { resolveVerifiedIdentity, resolveVerifiedCaller } = createVerifiedCaller({ firebaseAdmin: admin });
+  assert.deepEqual(await resolveVerifiedIdentity(bearer("phone-token")), { uid: "uid-phone", phoneNumber: "+919876543210" });
+  assert.deepEqual(await resolveVerifiedIdentity(bearer("google-token", { "x-phone-number": "+919876543210" })), { uid: "uid-google", phoneNumber: "" });
+  assert.deepEqual(await resolveVerifiedIdentity(bearer("forged")), { uid: "", phoneNumber: "" });
+  assert.deepEqual(await resolveVerifiedIdentity(req({ "x-lazytopper-uid": "uid-phone" })), { uid: "", phoneNumber: "" });
+  // The older shape is unchanged for a token without a phone.
+  assert.deepEqual(await resolveVerifiedCaller(bearer("google-token")), { uid: "uid-google", reason: REASON_VERIFIED });
+});

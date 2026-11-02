@@ -368,10 +368,15 @@ async function sendViaResend({ fetchImpl, apiKey, from, replyTo, to, subject, te
       subject,
       text,
       html,
-      headers: {
-        'List-Unsubscribe': `<${unsubscribeUrl}>`,
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-      },
+      // PAY-PHONE-1: a payment receipt is transactional and carries no unsubscribe link; every marketing caller passes one.
+      ...(unsubscribeUrl
+        ? {
+            headers: {
+              'List-Unsubscribe': `<${unsubscribeUrl}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            },
+          }
+        : {}),
       tags: [{ name: 'category', value: typeof category === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(category) ? category : 'trial_ending' }],
     };
     if (replyTo) body.reply_to = replyTo;
