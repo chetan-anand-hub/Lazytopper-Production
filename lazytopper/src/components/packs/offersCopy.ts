@@ -12,6 +12,7 @@ export const BOARD_PASS_BENEFIT: Readonly<Record<OfferKind, string>> = {
   "chapter-test": "Every chapter test, mock and handwritten answer marked step by step — and a tutor that knows where you slip.",
   worksheet: "Every worksheet, chapter test and handwritten answer marked step by step — and a tutor that knows where you slip.",
   "quick-practice": "Upload your rough work and find out exactly why — then get every written answer marked step by step till your boards.",
+  "important-qs": "Write your own answer to any important question and get it marked step by step, like a CBSE examiner, till your boards.",
   ladder: "Get your written answers marked step by step, like a CBSE examiner, till your boards.",
 };
 

@@ -23,7 +23,7 @@ import {
 } from "../../services/packs";
 
 /** The surface the block belongs to: it decides which rows are offered. */
-export type OfferKind = "full-mock" | "chapter-test" | "worksheet" | "check-improve" | "quick-practice" | "ladder";
+export type OfferKind = "full-mock" | "chapter-test" | "worksheet" | "check-improve" | "quick-practice" | "ladder" | "important-qs";
 
 export interface OfferContext {
   kind: OfferKind;
@@ -132,6 +132,7 @@ export function offerRows(ctx: OfferContext): OfferRow[] {
       rows = [bundle, cbq, chapterRow];
       break;
     case "check-improve":
+    case "important-qs": // IQ-PACKS-1: the Important Questions page offers everything its subject (and the filtered chapter) has
       rows = [bundle, subjectRow, cbq, mock, chapterRow];
       break;
     case "quick-practice":
