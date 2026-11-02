@@ -121,7 +121,13 @@ function createVerifiedCaller(deps = {}) {
       const uid = decoded && typeof decoded.uid === "string" ? decoded.uid.trim() : "";
       // PAY-PHONE-1 - the VERIFIED token's own `phone_number` claim (Firebase sets it only for a phone credential that
       // passed SMS verification). Additive: every existing caller reads `uid` / `reason` only.
-      const phoneNumber = decoded && typeof decoded.phone_number === "string" ? decoded.phone_number.trim() : "";
+      // Review fix 8: only when the token's own sign-in identities list that number as a PHONE credential
+      // (decoded.firebase.identities.phone), never a bare profile claim.
+      const claimed = decoded && typeof decoded.phone_number === "string" ? decoded.phone_number.trim() : "";
+      const phoneIds = decoded && decoded.firebase && decoded.firebase.identities && Array.isArray(decoded.firebase.identities.phone)
+        ? decoded.firebase.identities.phone
+        : [];
+      const phoneNumber = claimed && phoneIds.includes(claimed) ? claimed : "";
       if (uid) return { uid, reason: REASON_VERIFIED, ...(phoneNumber ? { phoneNumber } : {}) };
       emit(UNVERIFIED_EVENT);
       emit(INVALID_EVENT);

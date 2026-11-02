@@ -39,7 +39,7 @@ function fakeRazorpay(outcome: "success" | "dismiss") {
 function deps(over: Partial<GuestBuyDeps> & { outcome?: "success" | "dismiss" } = {}) {
   const rz = fakeRazorpay(over.outcome ?? "success");
   const d: GuestBuyDeps = {
-    createOrder: vi.fn(async () => ({ orderId: "order_1", keyId: "rzp_test", amountPaise: 9900, contact: "+919876543948" })),
+    createOrder: vi.fn(async () => ({ orderId: "order_1", keyId: "rzp_test", amountPaise: 9900 })),
     loadScript: async () => rz.ctor,
     verify: vi.fn(async () => undefined),
     ...over,
@@ -114,12 +114,14 @@ describe("PAY-PHONE-1 · buyAsGuest", () => {
   it("an order refused as already paid on this number says so (no checkout opens); a 5xx is failed", async () => {
     const { createGuestOrder } = await import("./guestPay");
     const fetchSpy = vi.spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: "already_paid" }), { status: 409 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: "payment_unavailable" }), { status: 409 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: "x" }), { status: 502 }));
     const { d, seen } = deps({ createOrder: createGuestOrder });
     expect(await buyAsGuest(ITEM, "9876543948", d)).toEqual({ status: "already_paid", phoneMasked: "+91 98•••••948", phone: "+919876543948" });
     expect(await buyAsGuest(ITEM, "9876543948", d)).toEqual({ status: "failed" });
     expect(seen).toHaveLength(0);
+    fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: "account_exists" }), { status: 409 }));
+    expect(await buyAsGuest(ITEM, "9876543948", d)).toEqual({ status: "account_exists", phoneMasked: "+91 98•••••948", phone: "+919876543948" });
     const sent = JSON.parse(String((fetchSpy.mock.calls[0][1] as RequestInit).body));
     expect(sent).toEqual({ sku: "pack_mock", target: "maths", phone: "+919876543948" });
     fetchSpy.mockRestore();
@@ -148,6 +150,7 @@ describe("PAY-PHONE-1 · claim once per session", () => {
     const slow = vi.fn(() => new Promise<[]>((r) => { resolve = r; }));
     const a = claimOncePerSession("u2", { claim: slow });
     const b = claimOncePerSession("u2", { claim: slow });
+    await vi.waitFor(() => expect(slow).toHaveBeenCalled());
     resolve([]);
     await Promise.all([a, b]);
     expect(slow).toHaveBeenCalledTimes(1);
@@ -163,5 +166,23 @@ describe("PAY-PHONE-1 · claim once per session", () => {
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer t");
     fetchSpy.mockRestore();
     vi.doUnmock("./checkout");
+  });
+});
+
+describe("PAY-PHONE-1 review fix 1 · the claim waits for the sign-up trial write", () => {
+  it("does not call the claim until the in-flight trial write has settled", async () => {
+    const order: string[] = [];
+    let release: () => void = () => undefined;
+    const write = new Promise<void>((r) => { release = r; });
+    vi.doMock("./subscriptionService", () => ({ whenTrialWriteSettled: () => write.then(() => { order.push("trial settled"); }) }));
+    vi.resetModules();
+    const mod = await import("./guestPay");
+    const p = mod.claimOncePerSession("u-new", { claim: async () => { order.push("claim"); return []; } });
+    await new Promise((r) => setTimeout(r, 10));
+    expect(order).toEqual([]);
+    release();
+    await p;
+    expect(order).toEqual(["trial settled", "claim"]);
+    vi.doUnmock("./subscriptionService");
   });
 });

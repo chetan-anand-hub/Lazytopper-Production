@@ -166,7 +166,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 9 }}>
               {TRIAL_WORDING.shortFragment}
             </div>
-            {/* PAYWALL-PAY-1 — under the trial (which stays first): Pay, Share QR code,
+            {/* PAYWALL-PAY-1 — under the trial (which stays first): Pay, Pay by QR code,
                 Forward link to parents. Payments dark: the old "See plans instead". */}
             <PaywallActions
               surface="lock"

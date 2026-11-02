@@ -12,7 +12,7 @@
  *   "Pay"                     the student pays (to /pricing's Pay buttons; on /pricing the
  *                             pass tiles' own Pay buttons ARE this action, so it is not
  *                             repeated there).
- *   "Share QR code"           the parent-pay link (#1240: server-minted, 72 h, single use,
+ *   "Pay by QR code"           the parent-pay link (#1240: server-minted, 72 h, single use,
  *                             /api/pay/parent-link) drawn as a QR PNG and shared as a FILE
  *                             (the phone's share sheet -> WhatsApp). Where the browser cannot
  *                             share files: the QR on screen, "Download QR" and a wa.me link.
@@ -25,7 +25,7 @@
  *
  * ★★ SWITCHES. Nothing here renders while `VITE_PAYMENTS_ENABLED` is off: the caller's own
  * existing control (the `fallback`) is rendered instead, byte for byte, so the production
- * build (payments dark) is unchanged. "Share QR code" and "Forward link to parents" need
+ * build (payments dark) is unchanged. "Pay by QR code" and "Forward link to parents" need
  * `VITE_PARENT_PAY_ENABLED` as well; the server has its own pair and answers a link request
  * with 404 while dark, which shows the honest "couldn't create a link" line (a second tap
  * tries again).
@@ -85,7 +85,7 @@ export interface PaywallActionsViewProps {
   onPay?: () => void;
   /** "Pay" as an internal route link (no /app/ prefix — CLAUDE.md §7). */
   payTo?: string;
-  /** "Share QR code" and "Forward link to parents". */
+  /** "Pay by QR code" and "Forward link to parents". */
   showParent: boolean;
   /** PAY-RESCUE-1 - only "Ask a parent to pay", styled as the primary action. */
   askOnly?: boolean;

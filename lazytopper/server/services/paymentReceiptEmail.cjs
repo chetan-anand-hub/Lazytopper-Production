@@ -92,7 +92,7 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer }) {
   const item = itemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   const isPack = isPackProduct(passType);
@@ -112,7 +112,12 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
 <p>Use the same number you paid with. A different number will not find this purchase.</p>`;
   } else {
     const url = `${appUrl}${where}`;
-    const lands = isPack ? 'It is in My packs on your account' : 'Premium is switched on for your account';
+    // Review fix 7: a parent paid through the child's link - the pass is on the STUDENT's account, not the payer's.
+    const lands = isPack
+      ? 'It is in My packs on your account'
+      : payer === 'parent'
+        ? "Premium is now active on the student's account"
+        : 'Premium is switched on for your account';
     howText = `${lands}.\nOpen it: ${url}`;
     howHtml = `<p>${lands}.</p>\n<p><a href="${escapeHtml(url)}">${isPack ? 'Open My packs' : 'Open LazyTopper'}</a></p>`;
   }
@@ -190,6 +195,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       paidAtMs: now(),
       guestPhoneMasked: guest ? maskIndianMobile(order.guestPhone) || null : null,
       appUrl: config.appUrl,
+      payer: typeof order.payer === 'string' ? order.payer : null,
     });
     if (!built) {
       await settle(orderId, 'skipped');

@@ -548,12 +548,12 @@ function PassCheckoutConnected() {
         return result;
       }}
     />
-    {showGuest && !uid && (
+    {showGuest && (!uid || user?.isLocalSession === true) && (
       <GuestPaySheet
         item={{ kind: "pass", sku: "till_boards", label: "Board Pass", description: BOARD_PASS_CHECKOUT_DESCRIPTION }}
         onClose={() => setShowGuest(false)}
-        onSignInFirst={(method) => {
-          const state: GuestSigninState | undefined = method === "phone" ? { phoneFirst: true } : undefined;
+        onSignInFirst={(method, digits) => {
+          const state: GuestSigninState | undefined = method === "phone" ? (digits ? { guestPayPhone: digits } : { phoneFirst: true }) : undefined;
           navigate(withSigninRedirect("/login", BOARD_PASS_BUY_PATH), state ? { state } : undefined);
         }}
         onSignInWithNumber={(digits) => {

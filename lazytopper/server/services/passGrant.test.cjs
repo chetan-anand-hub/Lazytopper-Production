@@ -675,3 +675,17 @@ test('R4 · wrong / missing X-Admin-Key -> 401; right key -> 200 with the server
   const bad = await post(port, GRANT, { uid: 'u1', passType: 'forever', paymentRef: 'x' }, { 'X-Admin-Key': 's3cret' });
   assert.equal(bad.status, 400);
 });
+
+test('PAY-PHONE-1 · the sign-up trial write lands AFTER a claimed Board Pass grant -> still Premium until passEnd', () => {
+  // The grant wrote the pass; the browser's trial merge then overwrote tier/plan only (pass fields are rules-protected).
+  const raced = { tier: 'trial', plan: 'trial_7day', trialStartDate: stamp(END - DAY), premiumSince: null,
+    passType: 'till_boards', passStart: stamp(END - DAY), passEnd: stamp(END + 90 * DAY), pricePaidInr: 1917, offerKey: 'founding', lastPaymentRef: 'pay_1' };
+  assert.equal(deriveEffectiveTier(raced, END).tier, 'premium');
+  // ...and still Premium after the 7-day trial window, until the pass ends.
+  assert.equal(deriveEffectiveTier(raced, END + 30 * DAY).tier, 'premium');
+  assert.equal(deriveEffectiveTier(raced, END + 91 * DAY).tier, 'free');
+  // An incomplete grant record does not upgrade a trial.
+  const { lastPaymentRef, ...noRef } = raced;
+  void lastPaymentRef;
+  assert.equal(deriveEffectiveTier(noRef, END + 30 * DAY).tier, 'free');
+});

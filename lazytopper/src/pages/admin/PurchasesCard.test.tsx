@@ -146,3 +146,24 @@ describe("PAY-PHONE-1 · unclaimed guest payments", () => {
     expect(ageLabel(50)).toBe("2 d");
   });
 });
+
+describe("PAY-PHONE-1 review · phone payments that need the owner", () => {
+  it("shows state, masked phone, payment id and reason", async () => {
+    const { GuestAttentionList } = await import("./PurchasesCard");
+    render(
+      <GuestAttentionList
+        attention={{
+          items: [
+            { orderId: "f1", state: "claimed, grant failed", reason: "grant_failed", paymentId: "pay_f1", phoneMasked: "+91 98•••••948", passType: "pack_mock", packTarget: "maths", kind: "pack", amountInr: 99, paidAtMs: 1, ageHours: 2 },
+            { orderId: "e1", state: "Paid, account erased before sign-in", reason: null, paymentId: "pay_e1", phoneMasked: "", passType: "till_boards", packTarget: null, kind: "premium", amountInr: 1917, paidAtMs: 1, ageHours: 9 },
+          ],
+        }}
+      />,
+    );
+    const f1 = screen.getByTestId("pu-at-row-f1").textContent || "";
+    expect(f1).toContain("claimed, grant failed");
+    expect(f1).toContain("+91 98•••••948");
+    expect(f1).toContain("pay_f1");
+    expect(screen.getByTestId("pu-at-row-e1").textContent).toContain("number erased");
+  });
+});

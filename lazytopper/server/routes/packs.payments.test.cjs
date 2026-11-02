@@ -828,3 +828,17 @@ test('PAY-PHONE-1 · GET /api/packs/mine: a phone-only account is licensed by it
   const f = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('foreign') });
   assert.equal(f.status, 503, 'no email and no maskable Indian mobile -> refuse as before');
 });
+
+test('OWNER 2 Nov · packs are not part of Premium: a Premium uid (pass till the boards) buys pack_cbq maths through the signed-in path', async (t) => {
+  const db = memoryFirestore();
+  await db.collection('subscriptions').doc('prem1').set({
+    tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')),
+    pricePaidInr: 1917, lastPaymentRef: 'pay_pass', foundingMember: true,
+  });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const r = await order(srv, 'prem1', 'pack_cbq', { packTarget: 'maths' });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.amountPaise, 19900);
+  assert.equal(db.read(`payOrders/${r.json.orderId}`).uid, 'prem1');
+});

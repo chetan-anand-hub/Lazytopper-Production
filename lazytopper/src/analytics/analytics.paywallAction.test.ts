@@ -13,7 +13,7 @@ import { ACTIVITY_EVENTS } from "../services/activityClient";
 import { activityEventLabel } from "../pages/admin/activityDetailModel";
 
 /**
- * PAYWALL-PAY-1 — `paywall_action { action, surface }`: one event per tap on Pay / Share QR
+ * PAYWALL-PAY-1 — `paywall_action { action, surface }`: one event per tap on Pay / Pay by QR
  * code / Forward link to parents. Vendors get the action + surface only; the first-party log
  * (names only) gets `paywall_action_<action>`, which the client AND server allowlists carry.
  */

@@ -1857,7 +1857,7 @@ function PricingPlansPage() {
                     {/* L2 — the P17 trial states, directly below the tiles. */}
                     <div className="lt-pricing-trial-slot">{premiumTrialAction}</div>
                     {/* ASK-PARENTS-PAY-1 / PAYWALL-PAY-1 — a signed-in student on a trial or Basic
-                        (never Premium) can send a parent the pay link: "Share QR code" and
+                        (never Premium) can send a parent the pay link: "Pay by QR code" and
                         "Forward link to parents". "Pay" is the pass tiles' own Pay buttons above.
                         Renders nothing while parent pay is dark. */}
                     {user && subscription.hydrated && subscription.status.tier !== "premium" && paymentsOn && isParentPayClientEnabled() && (

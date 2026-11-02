@@ -181,7 +181,7 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -197,7 +197,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     async resolveVerifiedUid(req) { return identityOf(req).uid; },
     async resolveVerifiedIdentity(req) { return identityOf(req); },
   };
-  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer });
+  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone });
   const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer });
   const table = {
     [GUEST_ORDER_PATH]: guest.handleOrder,
@@ -336,7 +336,8 @@ test('O · the amount is the server\'s: a pack is the table price, the Board Pas
   const pack = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: '98765 43948', amountPaise: 100, amount: 1, price: 1, uid: 'attacker' });
   assert.equal(pack.status, 200, pack.text);
   assert.equal(pack.json.amountPaise, 9900);
-  assert.equal(pack.json.contact, PHONE);
+  assert.equal(pack.json.contact, undefined, 'review fix 6: the number is never echoed back');
+  assert.ok(!pack.text.includes('9876543948'));
   assert.equal(pack.json.phoneMasked, '+91 98•••••948');
   const stored = srv.db.read(`payOrders/${pack.json.orderId}`);
   assert.equal(stored.uid, null);
@@ -382,8 +383,8 @@ test('O · the same thing already paid with this number and not yet claimed is r
   await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
   const again = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
   assert.equal(again.status, 409);
-  assert.equal(again.json.error, 'already_paid');
-  assert.equal(again.json.phoneMasked, '+91 98•••••948');
+  // Review fix 4: generic - nothing says this number has a purchase.
+  assert.deepEqual(again.json, { ok: false, error: 'payment_unavailable' });
   // A different pack is a different purchase.
   const other = await guestOrder(srv, { sku: 'pack_mock', target: 'science', phone: PHONE });
   assert.equal(other.status, 200);
@@ -748,4 +749,100 @@ test('E · the email copy: honest, plain, no full phone; top-ups get no receipt'
   assert.ok(guest.html.includes('+91 98•••••948'));
   assert.ok(!/hurry|only today|limited|save \d|\d%/i.test(guest.text));
   assert.equal(buildReceiptEmail({ passType: 'topup_small', amountPaise: 4900, paymentId: 'p', paidAtMs: NOW, appUrl: 'x' }), null);
+});
+
+/* ══ R · review fixes ══════════════════════════════════════════════════════════ */
+
+const seedGuest = (db, id, data) => db.collection('payOrders').doc(id).set({ uid: null, payer: 'guest', guestPhone: PHONE, createdAt: new Date(NOW), ...data });
+
+test('R2 · a paid order is found even under 60 unpaid orders for the same number (query by phone AND status)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  for (let i = 0; i < 60; i += 1) await seedGuest(srv.db, `order_spam${i}`, { passType: 'pack_mock', packTarget: 'maths', amountPaise: 9900, status: 'created' });
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_cbq', target: 'maths', phone: PHONE });
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.deepEqual(c.json.claimed.map((x) => x.orderId), [orderId]);
+});
+
+test('R3 · a grant that fails is recorded on the order, retried by the same uid, and capped', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  // A stored amount that is not the pack price: grantPack refuses it every time.
+  await seedGuest(srv.db, 'order_bad', { passType: 'pack_mock', packTarget: 'maths', amountPaise: 100, status: 'paid_unclaimed', paymentId: 'pay_bad' });
+  for (let i = 0; i < 8; i += 1) {
+    const c = await claim(srv, signedIn('u1', PHONE));
+    assert.deepEqual(c.json.claimed, []);
+  }
+  const o = srv.db.read('payOrders/order_bad');
+  assert.equal(o.status, 'claimed');
+  assert.equal(o.uid, 'u1');
+  assert.equal(o.claimError.code, 'grant_refused');
+  assert.equal(o.claimAttempts, 5, 'capped at MAX_CLAIM_ATTEMPTS');
+});
+
+test('R5 · a pack the account already owns: the order is labelled a duplicate purchase, never swallowed', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await srv.db.collection('packEntitlements').doc('u1').collection('packs').doc('pack_mock:maths').set({ packId: 'pack_mock:maths', sku: 'pack_mock', target: 'maths', pricePaidInr: 99, paidAt: 1, orderId: 'order_old', paymentRef: 'pay_old' });
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.deepEqual(c.json.claimed, []);
+  assert.equal(c.json.duplicates, 1);
+  const o = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(o.status, 'duplicate_purchase');
+  assert.equal(o.duplicateReason, 'already_owned');
+  assert.equal(srv.db.read('packEntitlements/u1/packs/pack_mock:maths').orderId, 'order_old', 'the first purchase is untouched');
+});
+
+test('R5 · a Board Pass for an account already Premium till the boards: duplicate purchase, no grant', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await srv.db.collection('subscriptions').doc('u1').set({ tier: 'premium', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')), lastPaymentRef: 'pay_first' });
+  const { orderId, paymentId } = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.equal(c.json.duplicates, 1);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'duplicate_purchase');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).duplicateReason, 'already_premium_till_boards');
+  assert.equal(srv.db.read(`subscriptions/u1/payments/${paymentId}`), undefined);
+  assert.equal(srv.db.read('subscriptions/u1').lastPaymentRef, 'pay_first');
+});
+
+test('R7 · a parent-paid pass receipt says Premium is active on the STUDENT\'s account', () => {
+  const m = buildReceiptEmail({ passType: 'till_boards', amountPaise: 191700, paymentId: 'pay_p', paidAtMs: NOW, appUrl: 'https://www.lazytopper.com', payer: 'parent' });
+  assert.ok(m.text.includes("Premium is now active on the student's account"));
+  const own = buildReceiptEmail({ passType: 'till_boards', amountPaise: 191700, paymentId: 'pay_s', paidAtMs: NOW, appUrl: 'https://www.lazytopper.com' });
+  assert.ok(own.text.includes('Premium is switched on for your account'));
+});
+
+test('OWNER · a number that already has an account cannot pay as a guest: one generic answer, no Razorpay order, limits first', async (t) => {
+  const lookups = [];
+  const accounts = new Set([PHONE, OTHER_PHONE]);
+  const srv = await startRoutes({ accountExistsForPhone: async (p) => { lookups.push(p); return accounts.has(p); } });
+  t.after(srv.close);
+  // Two existing accounts - one that bought things, one that never did - get byte-identical answers.
+  await srv.db.collection('packEntitlements').doc('buyer').collection('packs').doc('pack_mock:maths').set({ packId: 'pack_mock:maths' });
+  const a = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const b = await guestOrder(srv, { sku: 'till_boards', phone: OTHER_PHONE });
+  assert.equal(a.status, 409);
+  assert.equal(a.text, b.text);
+  assert.deepEqual(a.json, { ok: false, error: 'account_exists' });
+  assert.equal(srv.rzp.calls.length, 0);
+  assert.deepEqual(lookups, [PHONE, OTHER_PHONE]);
+  // A bad number is refused before any lookup; a new number pays normally.
+  await guestOrder(srv, { sku: 'till_boards', phone: '123' });
+  assert.equal(lookups.length, 2);
+  const fresh = await guestOrder(srv, { sku: 'till_boards', phone: '+917899999999' });
+  assert.equal(fresh.status, 200);
+});
+
+test('OWNER · the account check counts against the per-phone limit, and a lookup that fails is a refusal (fail closed)', async (t) => {
+  const srv = await startRoutes({ accountExistsForPhone: async () => true });
+  t.after(srv.close);
+  for (let i = 0; i < MAX_GUEST_ORDERS_PER_PHONE_PER_DAY; i += 1) assert.equal((await guestOrder(srv, { sku: 'till_boards', phone: PHONE })).status, 409);
+  assert.equal((await guestOrder(srv, { sku: 'till_boards', phone: PHONE })).status, 429);
+  const down = await startRoutes({ accountExistsForPhone: async () => { throw new Error('auth down'); } });
+  t.after(down.close);
+  const r = await guestOrder(down, { sku: 'till_boards', phone: PHONE });
+  assert.equal(r.status, 500);
+  assert.equal(down.rzp.calls.length, 0);
 });

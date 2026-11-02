@@ -360,6 +360,26 @@ function deriveEffectiveTier(raw, nowMs) {
 
   let tier = storedTier;
 
+  // PAY-PHONE-1 (review fix 1) - A VALID PAID PASS OUTRANKS A TRIAL. A new phone account's sign-up trial is written by
+  // the browser (merge of tier "trial") and can land AFTER a claimed Board Pass's grant wrote tier "premium"; the pass
+  // fields survive that merge (firestore.rules refuse every client write of them, so a running `passEnd` with a pass
+  // `passType` is always server-written). Such a document is premium until its `passEnd`, whatever `tier` says.
+  // Deliberately narrow (defence in depth, R6 FORGED): only the race's exact shape - a stored TRIAL that also carries a
+  // complete server grant record (pass type, running passEnd, the payment ref and the price paid). A free document with a
+  // stray passEnd stays free.
+  if (
+    tier === 'trial' &&
+    (doc.passType === 'month' || doc.passType === 'till_boards') &&
+    hasPassEnd(doc) &&
+    typeof doc.lastPaymentRef === 'string' &&
+    doc.lastPaymentRef !== '' &&
+    Number.isInteger(doc.pricePaidInr) &&
+    doc.pricePaidInr > 0
+  ) {
+    const endMs = toMillis(doc.passEnd);
+    if (endMs !== null && endMs > nowMs) tier = 'premium';
+  }
+
   // repairInterruptedTrial — FIRST. Deliberately narrow: only free + trial_7day +
   // no premiumSince + a SERVER-PINNED, unelapsed start. It never invents a plan
   // and never touches premium.

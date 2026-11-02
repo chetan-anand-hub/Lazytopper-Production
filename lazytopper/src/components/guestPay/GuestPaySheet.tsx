@@ -25,6 +25,12 @@ export const GUEST_PAY_SAME_NUMBER = "You'll use this same number to sign in and
 export const GUEST_PAY_BAD_NUMBER = "Enter a 10-digit Indian mobile number.";
 export const GUEST_PAY_FAILED = "We couldn't start the payment. You have not been charged. Please try again.";
 export const GUEST_PAY_SIGNIN_CTA = "Sign in with this number";
+/** Owner ruling 2 Nov 2026: a number that already has an account signs in (nothing about what it owns is said). */
+export const GUEST_PAY_ACCOUNT_EXISTS = "This number already has a LazyTopper account. Sign in with it to continue.";
+/** The small line on the number step. */
+export const GUEST_PAY_BOUGHT_BEFORE = "Bought from LazyTopper before? Sign in with that number instead.";
+/** Review fix 4: generic - the same words whatever the reason, so nobody learns whether a number has a purchase. */
+export const GUEST_PAY_UNAVAILABLE = "We couldn't start a payment for this number. If you have paid with it before, sign in with it to get your purchase.";
 
 /** "Now sign in with +91 98•••••948 to download it." / "... to switch on Premium." */
 export function guestPaidLine(kind: GuestItem["kind"], phoneMasked: string): string {
@@ -37,8 +43,11 @@ export function formatRupees(inr: number | undefined): string {
 
 export interface GuestPaySheetProps {
   item: GuestItem;
-  /** Signed-in "first" options: the caller's existing sign-in navigation (Google flow unchanged). */
-  onSignInFirst: (method: "google" | "phone") => void;
+  /**
+   * Signed-in "first" options: the caller's existing sign-in navigation (Google flow unchanged), returning to the
+   * purchase. `tenDigits` (phone only) prefills the number - used when this number already has an account.
+   */
+  onSignInFirst: (method: "google" | "phone", tenDigits?: string) => void;
   /** After payment: open the existing phone sign-in with this 10-digit number prefilled. */
   onSignInWithNumber: (tenDigitNumber: string) => void;
   onClose: () => void;
@@ -53,7 +62,8 @@ type Step =
   | { name: "phone"; error?: string; closed?: boolean }
   | { name: "busy" }
   | { name: "paid"; phoneMasked: string; phone: string; amountInr?: number; confirmed: boolean }
-  | { name: "already"; phoneMasked: string; phone: string };
+  | { name: "already"; phoneMasked: string; phone: string }
+  | { name: "exists"; phone: string };
 
 function readUserAgent(): string {
   try {
@@ -103,6 +113,8 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
       setStep({ name: "paid", phoneMasked: outcome.phoneMasked, phone: outcome.phone, amountInr: outcome.amountInr, confirmed: outcome.confirmed });
     } else if (outcome.status === "already_paid") {
       setStep({ name: "already", phoneMasked: outcome.phoneMasked, phone: outcome.phone });
+    } else if (outcome.status === "account_exists") {
+      setStep({ name: "exists", phone: outcome.phone });
     } else if (outcome.status === "invalid_phone") {
       setStep({ name: "phone", error: GUEST_PAY_BAD_NUMBER });
     } else if (outcome.status === "dismissed") {
@@ -158,6 +170,11 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
           />
         </div>
         <p className="lt-gps__hint" id="lt-gps-hint">{GUEST_PAY_SAME_NUMBER}</p>
+        <p className="lt-gps__fine">
+          <button type="button" className="lt-gps__textlink" onClick={() => onSignInFirst("phone")} disabled={busy} data-testid="guest-pay-bought-before">
+            {GUEST_PAY_BOUGHT_BEFORE}
+          </button>
+        </p>
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "phone" && step.closed && <p className="lt-gps__fine" role="status">Payment window closed. Tap Continue to try again.</p>}
         <button type="submit" className="lt-gps__primary" disabled={busy || !valid} data-testid="guest-pay-continue">
@@ -180,11 +197,20 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
         <p className="lt-gps__fine">Use the same number. A different number won&rsquo;t find this purchase.</p>
       </>
     );
+  } else if (step.name === "exists") {
+    body = (
+      <>
+        <p className="lt-gps__line" role="status" data-testid="guest-pay-exists">{GUEST_PAY_ACCOUNT_EXISTS}</p>
+        <button type="button" className="lt-gps__primary" onClick={() => onSignInFirst("phone", tenDigits(step.phone))} data-testid="guest-pay-exists-signin">
+          {GUEST_PAY_SIGNIN_CTA}
+        </button>
+      </>
+    );
   } else {
     body = (
       <>
         <p className="lt-gps__line" role="status" data-testid="guest-pay-already">
-          This number has already paid for {item.label}. Sign in with {step.phoneMasked} to get it.
+          {GUEST_PAY_UNAVAILABLE}
         </p>
         <button type="button" className="lt-gps__primary" onClick={() => onSignInWithNumber(tenDigits(step.phone))}>
           {GUEST_PAY_SIGNIN_CTA}

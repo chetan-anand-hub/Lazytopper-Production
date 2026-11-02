@@ -310,7 +310,9 @@ test("resolveVerifiedIdentity: phone_number from the VERIFIED token; headers nev
   const admin = {
     auth: () => ({
       verifyIdToken: async (t) => {
-        if (t === "phone-token") return { uid: "uid-phone", phone_number: "+919876543210" };
+        if (t === "phone-token") return { uid: "uid-phone", phone_number: "+919876543210", firebase: { identities: { phone: ["+919876543210"] } } };
+        // A phone_number claim with NO phone identity behind it is not accepted (review fix 8).
+        if (t === "bare-claim") return { uid: "uid-bare", phone_number: "+919876543210", firebase: { identities: { "google.com": ["1"] } } };
         if (t === "google-token") return { uid: "uid-google" };
         throw new Error("invalid token");
       },
@@ -320,6 +322,7 @@ test("resolveVerifiedIdentity: phone_number from the VERIFIED token; headers nev
   assert.deepEqual(await resolveVerifiedIdentity(bearer("phone-token")), { uid: "uid-phone", phoneNumber: "+919876543210" });
   assert.deepEqual(await resolveVerifiedIdentity(bearer("google-token", { "x-phone-number": "+919876543210" })), { uid: "uid-google", phoneNumber: "" });
   assert.deepEqual(await resolveVerifiedIdentity(bearer("forged")), { uid: "", phoneNumber: "" });
+  assert.deepEqual(await resolveVerifiedIdentity(bearer("bare-claim")), { uid: "uid-bare", phoneNumber: "" });
   assert.deepEqual(await resolveVerifiedIdentity(req({ "x-lazytopper-uid": "uid-phone" })), { uid: "", phoneNumber: "" });
   // The older shape is unchanged for a token without a phone.
   assert.deepEqual(await resolveVerifiedCaller(bearer("google-token")), { uid: "uid-google", reason: REASON_VERIFIED });

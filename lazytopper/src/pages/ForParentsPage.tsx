@@ -219,7 +219,7 @@ function ParentPriceSection() {
       <FounderBadge tone="light" />
       <h3>How to pay for your child</h3>
       <ol className="lt-fp__price-steps" data-testid="fp-pay-steps">
-        <li>Your child opens LazyTopper on their phone, goes to the price page and taps “Share QR code” or “Forward link to parents”.</li>
+        <li>Your child opens LazyTopper on their phone, goes to the price page and taps “Pay by QR code” or “Forward link to parents”.</li>
         <li>You get a secure link on WhatsApp. It works once and expires in 72 hours.</li>
         <li>Open it and pay on Razorpay. You need no account and no password; the pass goes to your child’s account.</li>
       </ol>

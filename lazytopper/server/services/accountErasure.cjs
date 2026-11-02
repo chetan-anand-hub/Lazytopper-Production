@@ -409,7 +409,10 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone }
     const byPhone = await db.collection(segs[0]).where('guestPhone', '==', phone).get();
     for (const doc of (byPhone && Array.isArray(byPhone.docs) ? byPhone.docs : [])) {
       if (seen.has(doc.id)) continue;
-      await doc.ref.update({ guestPhone: null });
+      const data = typeof doc.data === 'function' ? doc.data() || {} : {};
+      // Review fix 10: a PAID order nobody claimed can now never be claimed (its key is gone): mark it
+      // `erased_unclaimed` - paymentId kept - an information label the owner sees in admin purchases.
+      await doc.ref.update(data.status === 'paid_unclaimed' ? { guestPhone: null, status: 'erased_unclaimed' } : { guestPhone: null });
       phoneCleared += 1;
     }
   }

@@ -221,3 +221,27 @@ test('PAY-PHONE-1 unclaimedGuest: guest paid_unclaimed only, phone MASKED, oldes
   assert.ok(!JSON.stringify(res.body).includes('9876543948'), 'the full number never leaves the store');
   assert.deepEqual(res.body.items.map((i) => i.orderId), ['p1']);
 });
+
+test('PAY-PHONE-1 review · guestAttention: claimed+grant failed, duplicate purchases, erased before claim; masked; in-progress claims hidden', async () => {
+  const HOUR = 3600000;
+  const g = (id, status, extra = {}) => ({ id, data: { uid: 'u1', payer: 'guest', guestPhone: '+919876543948', passType: 'pack_mock', packTarget: 'maths', amountPaise: 9900, status, paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - 5 * HOUR), ...extra } });
+  const orders = [
+    g('f1', 'claimed', { claimError: { code: 'grant_failed', atMs: NOW } }),
+    g('busy', 'claimed'),
+    g('r1', 'duplicate_purchase', { duplicateReason: 'already_owned' }),
+    g('e1', 'erased_unclaimed', { guestPhone: null, uid: null }),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  const rows = res.body.guestAttention.items;
+  assert.deepEqual(rows.map((r) => [r.orderId, r.state]), [
+    ['f1', 'claimed, grant failed'],
+    ['r1', 'Paid again for something the account already has'],
+    ['e1', 'Paid, account erased before sign-in'],
+  ]);
+  assert.equal(rows[0].phoneMasked, '+91 98•••••948');
+  assert.equal(rows[0].paymentId, 'pay_f1');
+  assert.equal(rows[1].reason, 'already_owned');
+  assert.equal(rows[2].paymentId, 'pay_e1');
+  assert.ok(!JSON.stringify(res.body).includes('9876543948'));
+});

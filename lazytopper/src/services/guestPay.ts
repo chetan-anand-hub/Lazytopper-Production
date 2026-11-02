@@ -77,6 +77,8 @@ export type GuestBuyOutcome =
   | { status: "paid"; confirmed: boolean; phoneMasked: string; phone: string; amountInr?: number; paymentId?: string }
   | { status: "dismissed" }
   | { status: "already_paid"; phoneMasked: string; phone: string }
+  /** Owner ruling 2 Nov 2026: this number already has a LazyTopper account - sign in with it instead of paying as a guest. */
+  | { status: "account_exists"; phoneMasked: string; phone: string }
   | { status: "invalid_phone" }
   | { status: "failed" };
 
@@ -84,12 +86,11 @@ interface GuestOrder {
   orderId: string;
   keyId: string;
   amountPaise: number;
-  contact: string;
 }
 
 class GuestPayError extends Error {
-  readonly code: "already_paid" | "invalid_phone" | "failed";
-  constructor(code: "already_paid" | "invalid_phone" | "failed") {
+  readonly code: "already_paid" | "account_exists" | "invalid_phone" | "failed";
+  constructor(code: "already_paid" | "account_exists" | "invalid_phone" | "failed") {
     super(code);
     this.code = code;
   }
@@ -104,7 +105,9 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
     parsed = null;
   }
   if (res.ok && parsed && parsed.ok === true) return parsed;
-  if (res.status === 409 && parsed && parsed.error === "already_paid") throw new GuestPayError("already_paid");
+  // Review fix 4: the server's refusal is deliberately generic (it does not say whether this number has a purchase).
+  if (res.status === 409 && parsed && parsed.error === "payment_unavailable") throw new GuestPayError("already_paid");
+  if (res.status === 409 && parsed && parsed.error === "account_exists") throw new GuestPayError("account_exists");
   if (parsed && parsed.reason === "invalid_phone") throw new GuestPayError("invalid_phone");
   throw new GuestPayError("failed");
 }
@@ -116,11 +119,11 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
     ...(item.kind === "pack" && item.target ? { target: item.target } : {}),
     phone,
   });
-  const { orderId, keyId, amountPaise, contact } = json;
-  if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number" || typeof contact !== "string") {
+  const { orderId, keyId, amountPaise } = json;
+  if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new GuestPayError("failed");
   }
-  return { orderId, keyId, amountPaise, contact };
+  return { orderId, keyId, amountPaise };
 }
 
 async function verifyGuestPayment(success: RazorpaySuccess): Promise<void> {
@@ -162,7 +165,8 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
         description: item.description,
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
-        prefill: { contact: order.contact },
+        // The number the visitor typed (normalised here); the server never echoes it back (review fix 6).
+        prefill: { contact: phone },
         readonly: { contact: true },
       });
       watchPaymentFailed(checkout, () => undefined);
@@ -188,6 +192,7 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
     };
   } catch (e) {
     if (e instanceof GuestPayError && e.code === "already_paid") return { status: "already_paid", phoneMasked, phone };
+    if (e instanceof GuestPayError && e.code === "account_exists") return { status: "account_exists", phoneMasked, phone };
     if (e instanceof GuestPayError && e.code === "invalid_phone") return { status: "invalid_phone" };
     return { status: "failed" };
   }
@@ -235,7 +240,16 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
   if (!opts.force && claimedThisSession.has(uid)) return Promise.resolve([]);
   const running = inFlight.get(uid);
   if (running) return running;
-  const p = (opts.claim || claimGuestPurchases)()
+  // Review fix 1: a NEW account's sign-up trial write must settle before the claim can grant a pass on top of it.
+  const p = (async () => {
+    try {
+      const { whenTrialWriteSettled } = await import("./subscriptionService");
+      await whenTrialWriteSettled(uid);
+    } catch {
+      /* nothing in flight */
+    }
+    return (opts.claim || claimGuestPurchases)();
+  })()
     .then((claimed) => {
       if (claimed !== null) claimedThisSession.add(uid);
       if (claimed && claimed.length > 0) {

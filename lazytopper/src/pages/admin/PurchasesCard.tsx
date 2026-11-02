@@ -62,6 +62,42 @@ export interface PurchasesResponse {
   abandoned?: { items: AbandonedItem[]; truncated?: boolean } | null;
   /** PAY-PHONE-1: absent on an older server, null when that read failed. */
   unclaimedGuest?: { items: UnclaimedGuestItem[]; truncated?: boolean } | null;
+  /** PAY-PHONE-1 review: guest payments the owner should know about (grant failed / duplicate / erased before sign-in). */
+  guestAttention?: { items: GuestAttentionItem[]; truncated?: boolean } | null;
+}
+
+export interface GuestAttentionItem extends UnclaimedGuestItem {
+  /** "claimed, grant failed" | "Paid again for something the account already has" | "Paid, account erased before sign-in". */
+  state: string;
+  reason: string | null;
+}
+
+export function GuestAttentionList({ attention }: { attention: PurchasesResponse["guestAttention"] }) {
+  if (attention === undefined) return null;
+  return (
+    <div className="pu-abandoned" data-testid="pu-attention">
+      <h3 className="gh-title">Phone payments that need you</h3>
+      <p className="sa-muted gh-note">A grant that failed after sign-in, a payment for something the account already had, or a payment whose account was erased before sign-in. Look a payment up by its id.</p>
+      {attention === null ? (
+        <p className="sa-muted" data-testid="pu-attention-unavailable">These could not be read.</p>
+      ) : attention.items.length === 0 ? (
+        <p className="sa-empty" data-testid="pu-attention-empty">Nothing needs you.</p>
+      ) : (
+        <ul className="pu-list" data-testid="pu-attention-list">
+          {attention.items.map((u) => (
+            <li key={u.orderId} className="pu-row" data-testid={`pu-at-row-${u.orderId}`}>
+              <span className="pu-date">{u.state}</span>
+              <span className="pu-who">{u.phoneMasked || "number erased"}</span>
+              <span className="pu-product">{productLabel(u)}</span>
+              <span className="pu-amount">{inr(u.amountInr)}</span>
+              <span className="pu-channel sa-muted">{u.paymentId || ""}</span>
+              <span className="pu-reason sa-muted">{u.reason || ""}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 /** PAY-PHONE-1 - a payment made with a phone number that no sign-in has claimed yet. The phone arrives MASKED. */
@@ -271,6 +307,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
           {state.data.truncated && <p className="sa-muted">Showing the latest 100 only.</p>}
           <AbandonedList abandoned={state.data.abandoned} />
           <UnclaimedGuestList unclaimed={state.data.unclaimedGuest} />
+          <GuestAttentionList attention={state.data.guestAttention} />
         </>
       )}
     </section>

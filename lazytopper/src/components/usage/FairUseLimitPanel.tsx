@@ -18,7 +18,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 import { formatResetIst, limitCopy, trialComeBackLine, type LimitState } from "./fairUseGate";
-// PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Share QR code / Forward link
+// PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Pay by QR code / Forward link
 // to parents ("Pay" goes to the same plans page). Payments dark: "See plans", unchanged.
 import PaywallActions from "../pricing/PaywallActions";
 // PAPER-WALLS-1 - the Board Pass line (price from config/pricing.ts) leads; a matching pack is the smaller second line.
@@ -250,7 +250,7 @@ export default function FairUseLimitPanel({
           </button>
         </div>
         {offers ? <PaperOffers tier={limit.tier} offers={offers} /> : pack ? <PackLine tier={limit.tier} /> : null}
-        {/* GUIDE-PAGES-1 M7 — AFTER the actions, so Pay / Share QR code / Forward link / Close stay
+        {/* GUIDE-PAGES-1 M7 — AFTER the actions, so Pay / Pay by QR code / Forward link / Close stay
             exactly where they were; no "still works" here (the line above already says it). */}
         <LimitByte limit={limit} when={when} variant="dialog" />
       </section>

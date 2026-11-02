@@ -169,6 +169,43 @@ function createAdminPurchasesRoutes(deps = {}) {
     }
   }
 
+  /**
+   * PAY-PHONE-1 review fixes 3 / 5 / 10 - guest payments that need the owner: "claimed, grant failed" (status claimed,
+   * a recorded claimError), duplicate purchases (paid again for something the account already has) and paid orders whose
+   * number was erased before a claim. Equality query per status (no composite index); phone MASKED. null on a failed read.
+   */
+  async function guestAttentionOrders(nowMs) {
+    const LABEL = { claimed: 'claimed, grant failed', duplicate_purchase: 'Paid again for something the account already has', erased_unclaimed: 'Paid, account erased before sign-in' };
+    try {
+      const rows = [];
+      for (const status of Object.keys(LABEL)) {
+        const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('status', '==', status).limit(ABANDONED_READ_CAP).get();
+        snap.forEach((d) => {
+          const v = d.data() || {};
+          if (v.payer !== 'guest') return;
+          if (status === 'claimed' && !(v.claimError && typeof v.claimError === 'object')) return; // still in progress
+          const atMs = msOf(v.guestPaidAt);
+          rows.push({
+            orderId: d.id,
+            state: LABEL[status],
+            reason: typeof v.duplicateReason === 'string' ? v.duplicateReason : v.claimError && typeof v.claimError.code === 'string' ? v.claimError.code : null,
+            paymentId: typeof v.paymentId === 'string' ? v.paymentId : null,
+            phoneMasked: maskIndianMobile(v.guestPhone),
+            passType: typeof v.passType === 'string' ? v.passType : '',
+            packTarget: typeof v.packTarget === 'string' ? v.packTarget : null,
+            kind: kindOf(v.passType),
+            amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
+            ageHours: atMs === null ? null : Math.max(0, Math.floor((nowMs - atMs) / 3600000)),
+          });
+        });
+      }
+      return { items: rows.slice(0, ABANDONED_SHOWN_CAP), truncated: rows.length > ABANDONED_SHOWN_CAP };
+    } catch (e) {
+      console.error('[admin-purchases] guest attention read failed:', e && e.message);
+      return null;
+    }
+  }
+
   async function list(req, res) {
     if (!(await gate(req, res))) return;
     try {
@@ -223,7 +260,8 @@ function createAdminPurchasesRoutes(deps = {}) {
       });
       const abandoned = await abandonedOrders(nowMs, admins);
       const unclaimedGuest = await unclaimedGuestOrders(nowMs);
-      return send(res, 200, { ok: true, items, totals, truncated: paid.length > SHOWN_CAP || readFull, abandoned, unclaimedGuest });
+      const guestAttention = await guestAttentionOrders(nowMs);
+      return send(res, 200, { ok: true, items, totals, truncated: paid.length > SHOWN_CAP || readFull, abandoned, unclaimedGuest, guestAttention });
     } catch (e) {
       console.error('[admin-purchases] list failed:', e && e.message);
       return send(res, 500, { ok: false, error: 'Could not read the purchases' });

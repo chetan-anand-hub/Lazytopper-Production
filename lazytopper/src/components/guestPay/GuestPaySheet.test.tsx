@@ -9,7 +9,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 const track = vi.hoisted(() => ({ trackNamedEvent: vi.fn() }));
 vi.mock("../../analytics/analytics", () => track);
 
-import GuestPaySheet, { GUEST_PAY_BAD_NUMBER, GUEST_PAY_GOOGLE_FIRST, GUEST_PAY_PHONE_CTA, GUEST_PAY_PHONE_FIRST, guestPaidLine } from "./GuestPaySheet";
+import GuestPaySheet, { GUEST_PAY_ACCOUNT_EXISTS, GUEST_PAY_BOUGHT_BEFORE, GUEST_PAY_BAD_NUMBER, GUEST_PAY_GOOGLE_FIRST, GUEST_PAY_PHONE_CTA, GUEST_PAY_PHONE_FIRST, guestPaidLine } from "./GuestPaySheet";
 import type { GuestBuyOutcome, GuestItem } from "../../services/guestPay";
 
 const PACK: GuestItem = { kind: "pack", sku: "pack_mock", target: "maths", label: "Mock Pack · Maths", description: "d" };
@@ -87,13 +87,37 @@ describe("PAY-PHONE-1 · GuestPaySheet", () => {
     await waitFor(() => expect(screen.getByRole("alert").textContent).toBe(GUEST_PAY_BAD_NUMBER));
   });
 
-  it("already paid with this number: no second payment, straight to sign in", async () => {
+  it("a refused order (e.g. already paid with this number) shows the GENERIC line and a sign-in, no second payment", async () => {
     const p = sheet({ buy: vi.fn(async (): Promise<GuestBuyOutcome> => ({ status: "already_paid", phoneMasked: "+91 98•••••948", phone: "+919876543948" })) });
     fireEvent.click(screen.getByText(GUEST_PAY_PHONE_CTA));
     fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
     fireEvent.click(screen.getByTestId("guest-pay-continue"));
     await waitFor(() => expect(screen.getByTestId("guest-pay-already")).toBeTruthy());
+    expect(screen.getByTestId("guest-pay-already").textContent).toBe(
+      "We couldn't start a payment for this number. If you have paid with it before, sign in with it to get your purchase.",
+    );
     fireEvent.click(screen.getByText("Sign in with this number"));
     expect(p.onSignInWithNumber).toHaveBeenCalledWith("9876543948");
+  });
+
+  it("OWNER: a number with an account is sent to sign in with it (prefilled); the step offers 'Bought before?'", async () => {
+    const p = sheet({ buy: vi.fn(async (): Promise<GuestBuyOutcome> => ({ status: "account_exists", phoneMasked: "+91 98•••••948", phone: "+919876543948" })) });
+    fireEvent.click(screen.getByText(GUEST_PAY_PHONE_CTA));
+    expect(screen.getByText(GUEST_PAY_BOUGHT_BEFORE)).toBeTruthy();
+    fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
+    fireEvent.click(screen.getByTestId("guest-pay-continue"));
+    await waitFor(() => expect(screen.getByTestId("guest-pay-exists").textContent).toBe(GUEST_PAY_ACCOUNT_EXISTS));
+    expect(document.body.textContent).not.toMatch(/own|bought|refund/i);
+    fireEvent.click(screen.getByTestId("guest-pay-exists-signin"));
+    // Back to the SAME purchase after signing in (a Premium account still buys packs), number prefilled.
+    expect(p.onSignInFirst).toHaveBeenCalledWith("phone", "9876543948");
+    expect(p.onSignInWithNumber).not.toHaveBeenCalled();
+  });
+
+  it("'Bought from LazyTopper before?' goes to the phone sign-in", () => {
+    const p = sheet();
+    fireEvent.click(screen.getByText(GUEST_PAY_PHONE_CTA));
+    fireEvent.click(screen.getByTestId("guest-pay-bought-before"));
+    expect(p.onSignInFirst).toHaveBeenCalledWith("phone");
   });
 });

@@ -977,6 +977,8 @@ test('PAY-PHONE-1: erasure clears guestPhone on the account\'s claimed orders AN
   assert.equal(store.docs.get('payOrders/order_G2').guestPhone, null);
   assert.equal(store.docs.get('payOrders/order_G2').uid, null, 'an unclaimed order never becomes this account\'s');
   assert.equal(store.docs.get('payOrders/order_G2').paymentId, 'pay_G2', 'the accounting record is kept');
+  assert.equal(store.docs.get('payOrders/order_G2').status, 'erased_unclaimed', 'review fix 10: an admin information label');
+  assert.equal(store.docs.get('payOrders/order_G1').status, 'paid', 'a claimed order keeps its status');
   assert.equal(store.docs.get('payOrders/order_G3').guestPhone, '+917012345678', 'another number is untouched');
   // Orders without the field are rewritten exactly as before (no guestPhone key added).
   assert.equal(Object.prototype.hasOwnProperty.call(store.docs.get('payOrders/order_A'), 'guestPhone'), false);

@@ -52,6 +52,8 @@ const { grantPass, isStaleFoundingOrder, PassGrantInputError } = require('../ser
 const { grantPack, PackGrantInputError } = require('../services/packGrant.cjs');
 const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor } = require('../services/packProducts.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
+// Review fix 5: "already covered till the boards" is the parent-pay rule, reused.
+const { coveredTillBoards } = require('./parentPay.cjs');
 const {
   GUEST_PAYER,
   GUEST_STATUS,
@@ -76,8 +78,12 @@ const MAX_GUEST_ORDERS_PER_PHONE_PER_DAY = 10;
 const MAX_CLAIMS_PER_UID_PER_DAY = 30;
 /** Orders read per claim: far more than any honest buyer has, and a bound on the work one claim can cause. */
 const MAX_ORDERS_PER_CLAIM = 50;
+/** Grant attempts per claimed order before it is left for the owner (admin "claimed, grant failed"). */
+const MAX_CLAIM_ATTEMPTS = 5;
 
 const GUEST_PHONE_CLASS = 'guestPayPhone';
+/** Review fix 5: paid again for something the account already has; an admin information label only (owner ruling 2 Nov 2026). */
+const DUPLICATE_PURCHASE = 'duplicate_purchase';
 const GUEST_CLAIM_CLASS = 'guestPayClaim';
 
 const RAZORPAY_TIMEOUT_MS = 15000;
@@ -147,6 +153,11 @@ function createGuestPayRoutes(deps = {}) {
     now = () => Date.now(),
     foundingOfferOpen,
     receiptEmailer, // PAY-PHONE-1 (A): optional, fire and forget, idempotent per payment
+    /**
+     * Owner ruling 2 Nov 2026 (prevent duplicates): async (e164) => boolean - does ANY Firebase account already use this
+     * number (firebase-admin getUserByPhoneNumber)? Throws when it cannot tell. Absent -> no check (tests / no admin).
+     */
+    accountExistsForPhone,
   } = deps;
   const limiters = deps.limiters || createGuestPayLimiters({ telemetry, now });
 
@@ -249,9 +260,18 @@ function createGuestPayRoutes(deps = {}) {
     return true;
   }
 
-  /** Guest orders already stored for this phone (single-field equality query: no composite index). */
-  async function ordersForPhone(phone) {
-    const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('guestPhone', '==', phone).limit(MAX_ORDERS_PER_CLAIM).get();
+  /**
+   * Guest orders for this phone IN ONE STATUS (review fix 2): one query per status, so unpaid orders (anyone can create
+   * them for any number) can never bury a paid one under the read cap. Two EQUALITY filters only: Firestore serves that
+   * by merging its automatic single-field indexes, so no composite index is needed.
+   */
+  async function ordersForPhone(phone, status) {
+    const snap = await adminFirestore
+      .collection(PAY_ORDERS_COLLECTION)
+      .where('guestPhone', '==', phone)
+      .where('status', '==', status)
+      .limit(MAX_ORDERS_PER_CLAIM)
+      .get();
     const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
     return docs.map((d) => ({ id: d.id, order: typeof d.data === 'function' ? d.data() || {} : {} })).filter((x) => x.order.payer === GUEST_PAYER);
   }
@@ -282,6 +302,25 @@ function createGuestPayRoutes(deps = {}) {
       return sendJson(res, 429, { ok: false, error: 'Too many attempts for this number today. Please try again tomorrow.' });
     }
 
+    // Owner ruling 2 Nov 2026 - PREVENT duplicates: a number that already has a LazyTopper account signs in instead (the
+    // signed-in path already refuses an owned pack and never offers a Board Pass to a holder). Checked after the same
+    // per-IP and per-phone limits as the order. ONE answer for every existing account, whatever it does or does not
+    // own: nothing about purchases is read or said. A lookup that cannot tell fails CLOSED (no order).
+    if (typeof accountExistsForPhone === 'function') {
+      let exists;
+      try {
+        exists = await accountExistsForPhone(phone);
+      } catch (e) {
+        emit('payments.guest.order.account_lookup_failed');
+        console.error('[pay/guest/order] account lookup failed:', e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Could not start the payment.' });
+      }
+      if (exists) {
+        emit('payments.guest.order.account_exists');
+        return sendJson(res, 409, { ok: false, error: 'account_exists' });
+      }
+    }
+
     // The amount is the SERVER's, never the body's.
     let quote;
     try {
@@ -301,15 +340,15 @@ function createGuestPayRoutes(deps = {}) {
     // CLOSED (no order) - we cannot promise the buyer is not paying twice without it.
     try {
       const wanted = isPack ? packIdFor(sku, packTarget) : GUEST_PASS_SKU;
-      const existing = await ordersForPhone(phone);
+      const existing = [...(await ordersForPhone(phone, GUEST_STATUS.paidUnclaimed)), ...(await ordersForPhone(phone, GUEST_STATUS.claimed))];
       const already = existing.some(({ order }) => {
-        if (order.status !== GUEST_STATUS.paidUnclaimed && order.status !== GUEST_STATUS.claimed) return false;
         const id = isPackProduct(order.passType) ? packIdFor(order.passType, order.packTarget) : order.passType;
         return id === wanted;
       });
       if (already) {
+        // Review fix 4: GENERIC - the answer must not tell a stranger that this number has a purchase. The guard stays.
         emit('payments.guest.order.already_paid_unclaimed');
-        return sendJson(res, 409, { ok: false, error: 'already_paid', phoneMasked: maskIndianMobile(phone) });
+        return sendJson(res, 409, { ok: false, error: 'payment_unavailable' });
       }
     } catch (e) {
       emit('payments.guest.order.existing_read_failed');
@@ -361,8 +400,7 @@ function createGuestPayRoutes(deps = {}) {
       orderId: order.id,
       keyId: keys.keyId,
       amountPaise: quote.amountPaise,
-      // The normalised number the buyer typed, for Razorpay's read-only contact field; plus its masked form.
-      contact: phone,
+      // Review fix 6: never the number itself (the browser already has what it typed); only its masked form.
       phoneMasked: maskIndianMobile(phone),
     });
   }
@@ -463,11 +501,17 @@ function createGuestPayRoutes(deps = {}) {
       if (!order || order.payer !== GUEST_PAYER || order.guestPhone !== phone) return null;
       if (typeof order.paymentId !== 'string' || !order.paymentId) return null;
       if (order.status === GUEST_STATUS.paidUnclaimed && (order.uid === null || order.uid === undefined)) {
-        tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()) }, { merge: true });
+        tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()), claimAttempts: 1 }, { merge: true });
         return { ...order, uid, status: GUEST_STATUS.claimed };
       }
-      // A claim interrupted after this step: only the SAME uid may finish it.
-      if (order.status === GUEST_STATUS.claimed && order.uid === uid) return order;
+      // A claim interrupted after this step (or whose grant failed): only the SAME uid may finish it, and only while
+      // under the retry cap (review fix 3) - past it the order waits in the admin view as "claimed, grant failed".
+      if (order.status === GUEST_STATUS.claimed && order.uid === uid) {
+        const attempts = Number.isInteger(order.claimAttempts) ? order.claimAttempts : 0;
+        if (attempts >= MAX_CLAIM_ATTEMPTS) return null;
+        tx.set(ref, { claimAttempts: attempts + 1 }, { merge: true });
+        return order;
+      }
       return null;
     });
   }
@@ -494,9 +538,10 @@ function createGuestPayRoutes(deps = {}) {
 
     let candidates;
     try {
-      candidates = (await ordersForPhone(phone)).filter(
-        ({ order }) => order.status === GUEST_STATUS.paidUnclaimed || (order.status === GUEST_STATUS.claimed && order.uid === uid),
-      );
+      candidates = [
+        ...(await ordersForPhone(phone, GUEST_STATUS.paidUnclaimed)),
+        ...(await ordersForPhone(phone, GUEST_STATUS.claimed)).filter(({ order }) => order.uid === uid),
+      ];
     } catch (e) {
       emit('payments.guest.claim.read_failed');
       console.error('[pay/guest/claim] read failed:', e && e.message);
@@ -505,16 +550,35 @@ function createGuestPayRoutes(deps = {}) {
 
     const claimed = [];
     let failed = 0;
+    let duplicates = 0;
     for (const { id: orderId } of candidates) {
       try {
         const order = await takeOrder(orderId, uid, phone);
         if (!order) continue;
         const paymentRef = order.paymentId;
+        const orderRef = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
         if (isPackProduct(order.passType)) {
           const granted = await grantPack({ db: adminFirestore, uid, order: { orderId }, paymentRef, nowMs: now() });
-          if (granted.duplicate) emit('payments.guest.claim.pack_duplicate_payment');
+          if (granted.duplicate) {
+            // Review fix 5: the account already owned this pack - a real payment for nothing. Never swallowed: the order
+            // is labelled a duplicate purchase the owner sees in admin purchases.
+            emit('payments.guest.claim.pack_duplicate_payment');
+            await orderRef.set({ status: DUPLICATE_PURCHASE, duplicateReason: 'already_owned' }, { merge: true });
+            duplicates += 1;
+            continue;
+          }
           claimed.push({ orderId, ...describeOrder(order), packId: granted.pack.packId });
         } else {
+          // Review fix 5: a Board Pass bought for an account whose pass ALREADY runs to the boards buys nothing: no grant,
+          // the order is labelled a duplicate purchase. (A shorter running pass is extended by the grant as usual.)
+          const subSnap = await adminFirestore.collection('subscriptions').doc(uid).get();
+          const stored = subSnap && subSnap.exists ? subSnap.data() || {} : {};
+          if (order.passType === GUEST_PASS_SKU && coveredTillBoards(stored, now())) {
+            emit('payments.guest.claim.already_covered');
+            await orderRef.set({ status: DUPLICATE_PURCHASE, duplicateReason: 'already_premium_till_boards' }, { merge: true });
+            duplicates += 1;
+            continue;
+          }
           const granted = await grantPass(
             { uid, passType: order.passType, paymentRef, now: now() },
             { firestore: adminFirestore, payOrderId: orderId, foundingOfferOpen },
@@ -524,11 +588,21 @@ function createGuestPayRoutes(deps = {}) {
         emit('payments.guest.claim.granted');
       } catch (e) {
         failed += 1;
-        emit(e instanceof PassGrantInputError || e instanceof PackGrantInputError ? 'payments.guest.claim.grant_refused' : 'payments.guest.claim.grant_failed');
+        const refused = e instanceof PassGrantInputError || e instanceof PackGrantInputError;
+        emit(refused ? 'payments.guest.claim.grant_refused' : 'payments.guest.claim.grant_failed');
         console.error('[pay/guest/claim] could not claim an order:', e && e.message);
+        // Review fix 3: the failure is recorded ON the order (still `claimed`, this uid) for the admin view and the retry cap.
+        try {
+          await adminFirestore
+            .collection(PAY_ORDERS_COLLECTION)
+            .doc(orderId)
+            .set({ claimError: { code: refused ? 'grant_refused' : 'grant_failed', atMs: now() } }, { merge: true });
+        } catch {
+          /* the next claim retries; the cap still applies */
+        }
       }
     }
-    return sendJson(res, 200, { ok: true, claimed, ...(failed ? { failed } : {}) });
+    return sendJson(res, 200, { ok: true, claimed, ...(failed ? { failed } : {}), ...(duplicates ? { duplicates } : {}) });
   }
 
   return { handleOrder, handleVerify, handleClaim, isEnabled: () => isGuestPayEnabled(env) };
@@ -543,6 +617,7 @@ module.exports = {
   GUEST_VERIFY_PATH,
   GUEST_CLAIM_PATH,
   GUEST_PASS_SKU,
+  MAX_CLAIM_ATTEMPTS,
   MAX_GUEST_ORDERS_PER_PHONE_PER_DAY,
   MAX_GUEST_CALLS_PER_CLIENT_PER_DAY,
 };

@@ -85,6 +85,13 @@ describe("PAY-PHONE-1 · Board Pass signed out", () => {
     await waitFor(() => expect(where).toBe("/pricing"));
   });
 
+  it("a LOCAL (non-cloud) session on /pricing?buy=board_pass gets the pay sheet, not a dead click (review fix 9)", async () => {
+    mockAuth.user = { uid: "local-dev", isLocalSession: true };
+    mount("/pricing?buy=board_pass");
+    expect(await screen.findByTestId("guest-pay-sheet")).toBeTruthy();
+    await waitFor(() => expect(where).toBe("/pricing"));
+  });
+
   it("guest pay off: today's redirect to sign-in, unchanged", async () => {
     flags.guest = false;
     mount("/pricing?buy=board_pass");

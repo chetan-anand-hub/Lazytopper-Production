@@ -444,7 +444,24 @@ const parentPayRoutes = createParentPayRoutes({
     return (record && record.displayName) || '';
   },
 });
-const guestPayRoutes = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry, receiptEmailer: paymentReceiptEmailer });
+const guestPayRoutes = createGuestPayRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  receiptEmailer: paymentReceiptEmailer,
+  // Owner ruling 2 Nov 2026: a number that already has an account signs in instead of paying as a guest.
+  accountExistsForPhone: async (e164) => {
+    if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
+    try {
+      await firebaseAdmin.auth().getUserByPhoneNumber(e164);
+      return true;
+    } catch (e) {
+      if (e && e.code === 'auth/user-not-found') return false;
+      throw e;
+    }
+  },
+});
 const parentReportRoutes = createParentReportRoutes({
   sendJson,
   verifiedCaller,

@@ -366,7 +366,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
           </ul>
         </div>
 
-        {/* PAYWALL-PAY-1 — Pay, Share QR code, Forward link to parents ("Pay" goes where
+        {/* PAYWALL-PAY-1 — Pay, Pay by QR code, Forward link to parents ("Pay" goes where
             "See plans" went). Payments dark: "See plans", unchanged. */}
         <PaywallActions
           surface="upgrade_sheet"

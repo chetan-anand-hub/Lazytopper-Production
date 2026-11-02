@@ -606,8 +606,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             description: packCheckoutDescription(guest.sku, guest.target, guest.target ? chapterLabel(guest.target) : undefined),
           }}
           onClose={() => setGuest(null)}
-          onSignInFirst={(method) => {
-            const state: GuestSigninState | undefined = method === "phone" ? { phoneFirst: true } : undefined;
+          onSignInFirst={(method, digits) => {
+            const state: GuestSigninState | undefined = method === "phone" ? (digits ? { guestPayPhone: digits } : { phoneFirst: true }) : undefined;
             navigate(withSigninRedirect("/login", packsResumePath(guest.sku, guest.target, location.search, returnPath)), state ? { state } : undefined);
           }}
           onSignInWithNumber={(digits) => {
