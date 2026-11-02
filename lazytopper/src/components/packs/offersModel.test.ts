@@ -62,7 +62,7 @@ describe("the owner's one-liners are the catalogue's own claims", () => {
   it("counts come from the pack catalogue, not typed numbers", () => {
     expect(OFFER_LINES.bundle).toBe(`All ${PACK_CHAPTER_SLUGS.length} chapters + ${BUNDLE_MOCKS} mocks, the whole year`);
     expect(OFFER_LINES.bundle).toBe("All 26 chapters + 16 mocks, the whole year");
-    expect(OFFER_LINES.mock).toBe(`${MOCKS_PER_SUBJECT} full board mocks with step-marking keys`);
+    expect(OFFER_LINES.mock).toBe(`${MOCKS_PER_SUBJECT} board-pattern mock papers with step-marking keys`);
     expect(OFFER_LINES.subject("science")).toBe("Every Science chapter, chapter-wise question bank");
     expect(OFFER_LINES.cbq).toBe("Competency questions of every type, chapter-wise");
     expect(OFFER_LINES.chapter).toBe("Important questions with answer keys");

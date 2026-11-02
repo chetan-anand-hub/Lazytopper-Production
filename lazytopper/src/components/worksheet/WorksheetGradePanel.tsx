@@ -43,6 +43,7 @@ import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLim
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../upload/PageTray";
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
 import { UpgradeSheet } from "../subscription/UpgradeSheet";
+import { subjectOfChapter } from "../../services/packs";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../limits/limitsCopy";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../../ai/gradingJobs";
@@ -257,7 +258,10 @@ export default function WorksheetGradePanel({
   // OFFERS-V2: the wall's buying block - rows for the ONE chapter a worksheet covers (else the Bundle only; never a guess).
   const paperOffers = useMemo(() => {
     const unique = Array.from(new Set(ws.questions.map((q) => resolveCanonicalSlug(q.topicKey) || "")));
-    return { kind: "worksheet" as const, chapterSlug: unique.length === 1 && unique[0] ? unique[0] : null };
+    // One subject across every chapter -> that subject (the CBQ row); mixed or unknown subjects are never guessed.
+    const subjects = new Set(unique.map((c) => (c ? subjectOfChapter(c) : null)));
+    const only = subjects.size === 1 ? Array.from(subjects)[0] : null;
+    return { kind: "worksheet" as const, chapterSlug: unique.length === 1 && unique[0] ? unique[0] : null, subject: only };
   }, [ws.questions]);
   const [outcome, setOutcome] = useState<WorksheetGradeOutcome | null>(null);
   const [fromCache, setFromCache] = useState(false);

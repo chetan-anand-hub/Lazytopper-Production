@@ -104,7 +104,7 @@ export function scorecardHeadline(
     score.total > 0;
   if (!known || score.kind !== "marks") return [`Get every answer ${TILL_BOARDS}.`];
   const lost = Math.max(0, Math.round((score.total - score.awarded) * 100) / 100);
-  if (lost > 0) return [`You lost ${formatScoreNumber(lost)} ${marksWord(lost)}.`, "Let\u2019s win them back before boards."];
+  if (lost > 0) return [`You lost ${formatScoreNumber(lost)} ${marksWord(lost)}.`, lost === 1 ? "Let\u2019s win it back before boards." : "Let\u2019s win them back before boards."];
   return ["Full marks!", `Keep every answer ${TILL_BOARDS}.`];
 }
 
@@ -173,9 +173,12 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
   const trialLead = show && !status.trialStartDate;
   useEffect(() => {
     // A history re-open of an old result shows the line but is not counted as a fresh "shown".
-    if (show && countShown) trackScorecardUpgrade("shown");
-  }, [show, countShown]);
+    // OFFERS-V2: the block counts as shown only once the record is known (a cold cache must not flash a Pay card).
+    if (show && countShown && (!block || statusKnown)) trackScorecardUpgrade("shown");
+  }, [show, countShown, block, statusKnown]);
   if (!show) return null;
+  // OFFERS-V2: the whole block (headline, lead, card, rows) waits for a KNOWN record - an unhydrated cache may belong to a paid student.
+  if (block && !statusKnown) return null;
   const leadButton = trialLead ? (
     <button
       type="button"

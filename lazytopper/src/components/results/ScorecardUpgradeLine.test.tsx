@@ -54,7 +54,7 @@ beforeEach(() => {
   auth.user = { uid: "u1" };
   auth.tier = "free";
   auth.hydrated = true;
-  auth.trialStart = null;
+  auth.trialStart = "2026-01-01T00:00:00.000Z"; // a KNOWN Basic account (trial over); the block waits for a known record
   auth.listeners = [];
   track.mockClear();
 });
@@ -111,8 +111,10 @@ describe("scorecardUpgradeCopy", () => {
 describe("OFFERS-V2: the headline is the result's own numbers (never invented)", () => {
   it("marks lost / full marks / unknown", () => {
     expect(scorecardHeadline(variantFor("full-mock", marks(52, 80)))).toEqual(["You lost 28 marks.", "Let\u2019s win them back before boards."]);
-    expect(scorecardHeadline(variantFor("worksheet", marks(9, 10)))).toEqual(["You lost 1 mark.", "Let\u2019s win them back before boards."]);
-    expect(scorecardHeadline(variantFor("worksheet", marks(8.5, 10)))?.[0]).toBe("You lost 1.5 marks.");
+    expect(scorecardHeadline(variantFor("worksheet", marks(9, 10)))).toEqual(["You lost 1 mark.", "Let\u2019s win it back before boards."]);
+    expect(scorecardHeadline(variantFor("worksheet", marks(8.5, 10)))).toEqual(["You lost 1.5 marks.", "Let\u2019s win them back before boards."]);
+    expect(scorecardHeadline(variantFor("worksheet", marks(8, 10)))?.[1]).toBe("Let\u2019s win them back before boards.");
+    expect(scorecardHeadline(variantFor("worksheet", { kind: "attempts", attempted: 1, ofN: 1, mcqAnswered: 1, mcqCorrect: 0 } as ScorecardVariant["score"]))).toBeTruthy();
     expect(scorecardHeadline(variantFor("check-improve", marks(5, 5)))).toEqual(["Full marks!", "Keep every answer marked like this till your boards."]);
   });
   it("Quick Practice MCQs: the wrong count and the slip-or-gap question", () => {
@@ -232,10 +234,27 @@ describe("the shell renders the block on every grading surface (one call site: R
   });
 });
 
+describe("OFFERS-V2: no offer flash before the status is known", () => {
+  it("a paid student's cold cache: nothing at all (no headline, no Pay card, no 'shown'), then it hydrates to Premium and the block never appears", async () => {
+    auth.trialStart = null; // the empty default cache of a not-yet-hydrated student
+    render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    expect(screen.queryByTestId("offers-block")).toBeNull();
+    expect(screen.queryByTestId("offers-pay")).toBeNull();
+    expect(screen.queryByTestId("scorecard-trial-lead")).toBeNull();
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "premium", trialStartDate: null })));
+    await act(async () => {});
+    expect(screen.queryByTestId("offers-block")).toBeNull();
+    expect(track).not.toHaveBeenCalledWith("shown");
+  });
+});
+
 describe("ASK-COPY-1: the trial leads where the student can still start it (never on mount)", () => {
   const v = variantFor("worksheet", marks(6, 10));
-  it("an account that never had a trial sees 'Start your free 7-day trial' ABOVE the Board Pass card", () => {
+  it("an account that never had a trial sees 'Start your free 7-day trial' ABOVE the Board Pass card (once the cloud has answered)", () => {
+    auth.trialStart = null;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    expect(screen.queryByTestId("offers-block")).toBeNull(); // unknown yet: nothing
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
     const lead = screen.getByTestId("scorecard-trial-lead");
     const card = screen.getByTestId("offers-board-pass");
     expect(lead).toHaveTextContent("Start your free 7-day trial");
@@ -243,7 +262,9 @@ describe("ASK-COPY-1: the trial leads where the student can still start it (neve
     expect(screen.getByTestId("offers-headline").compareDocumentPosition(lead) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
   it("a tap opens the sheet; nothing starts a trial by itself", () => {
+    auth.trialStart = null;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
     expect(screen.queryByTestId("upgrade-sheet")).toBeNull();
     fireEvent.click(screen.getByTestId("scorecard-trial-lead"));
     expect(screen.getByTestId("upgrade-sheet")).toBeInTheDocument();
