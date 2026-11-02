@@ -1,0 +1,9 @@
+/* PackSampleLink (PACK-SAMPLE-1): a secondary text link, 44px tall for thumbs, never louder than the Buy button. */
+.lt-psl { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 6px 4px; font: inherit; font-size: 15px; font-weight: 700; color: #0e6a3e; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lt-psl:hover { color: #0a4f2e; }
+.lt-psl:focus-visible { outline: 3px solid #0e7c47; outline-offset: 2px; border-radius: 6px; }
+.lt-psl--dark { color: #6fe0a8; }
+.lt-psl--dark:hover { color: #9cf0c6; }
+.lt-psl--dark:focus-visible { outline-color: #e8b94a; }
+.lt-psl__icon { font-size: 17px; line-height: 1; text-decoration: none; }
+.lt-psl__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; white-space: nowrap; }

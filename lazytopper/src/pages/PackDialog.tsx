@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, ty
 import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../services/packs";
 import { packChapterLabel } from "../lib/packs/packLabels";
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
+import PackSampleLink from "../components/packs/PackSampleLink";
 import "./packsDialog.css";
 
 /**
@@ -329,7 +330,13 @@ export default function PackDialog(props: PackDialogProps) {
             {sku === "pack_bundle" && <p className="lt-pkd__plain">Both subjects, everything included.</p>}
             {sku === "pack_cbq" && <p className="lt-pkd__plain" data-testid="pack-cbq-tutor-line">Includes 3 tutor questions</p>}
           </div>
-          <div className="lt-pkd__buy">{buy}</div>
+          <div className="lt-pkd__buy">
+            {buy}
+            {/* PACK-SAMPLE-1: secondary to Buy; follows the chosen chapter / subject (the bundle has one sample). */}
+            <div className="lt-pkd__sample">
+              <PackSampleLink sku={sku} target={sku === "pack_chapter" ? chapter : subject} surface="packs_dialog" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

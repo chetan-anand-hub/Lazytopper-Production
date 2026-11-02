@@ -4,6 +4,7 @@ import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
 import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
 import { packPriceLabel, subjectLabel, type PackSku } from "../services/packs";
+import PackSampleLink from "../components/packs/PackSampleLink";
 import CbqBand from "../components/pricing/CbqBand";
 import "./packs.css";
 
@@ -31,10 +32,9 @@ export default function PacksPage() {
           <div className="lt-packs__shelf">
           <div className="lt-packs__tiles" role="list">
             {TILES.map((t) => (
+              <div key={t.sku} role="listitem" className="lt-packs__cell">
               <button
-                key={t.sku}
                 type="button"
-                role="listitem"
                 className={t.best ? "lt-packs__tile lt-packs__tile--best" : "lt-packs__tile"}
                 onClick={() => openPack(t.sku)}
                 aria-haspopup="dialog"
@@ -47,6 +47,10 @@ export default function PacksPage() {
                 <span className="lt-packs__tline lt-packs__tline--short">{t.lineShort}</span>
                 <span className="lt-packs__topen">See inside →</span>
               </button>
+              {/* PACK-SAMPLE-1: a sibling of the tile button (a link cannot sit inside a button); secondary to opening the pack. The
+                  tile has no subject yet, so Maths is the sample here; the pop-up follows the chosen subject / chapter. */}
+              <PackSampleLink sku={t.sku} target="maths" surface="packs_tile" />
+              </div>
             ))}
           </div>
           <p className="lt-packs__terms lt-packs__cbqnote" data-testid="packs-bundle-cbq-note">
@@ -56,6 +60,7 @@ export default function PacksPage() {
           <div className="lt-packs__cbqwrap">
             <CbqBand
               headingId="packs-cbq-h"
+              sampleSurface="packs_cbq"
               action={(s) => (
                 <button type="button" className="lt-cbq__btn" onClick={() => openCbq(s)} aria-haspopup="dialog" data-testid={`packs-card-cbq-${s}`}>
                   {`${subjectLabel(s)} CBQ Pack · ${packPriceLabel("pack_cbq")}`}

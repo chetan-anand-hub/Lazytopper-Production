@@ -5,7 +5,7 @@ vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity }));
 
 import { __resetPurchaseMemoryForTests } from "../../analytics/analytics";
-import { trackPackCheckout, trackPackEvent, trackPackPurchase } from "./packAnalytics";
+import { trackPackCheckout, trackPackEvent, trackPackPurchase, trackPackSampleDownload } from "./packAnalytics";
 
 type Win = { gtag?: unknown; va?: unknown; fbq?: unknown };
 const w = window as unknown as Win;
@@ -95,5 +95,13 @@ describe("pack analytics", () => {
     const p = gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase");
     expect(p).toHaveLength(1);
     expect(p[0][2]).toMatchObject({ transaction_id: "pay_cbq", currency: "INR", value: 199, items: [{ item_id: "pack_cbq", item_name: "Maths CBQ Pack" }] });
+  });
+
+  it("PACK-SAMPLE-1: pack_sample_download goes to the first-party log by name and to GA4 with { pack, surface }, for a signed-out visitor too", () => {
+    trackPackSampleDownload("pack_cbq:science", "packs_cbq");
+    expect(names()).toEqual(["pack_sample_download"]);
+    expect(recordActivity.mock.calls[0][1]).toMatchObject({ name: "pack_sample_download", data: { pack: "pack_cbq:science", surface: "packs_cbq" } });
+    const hit = gtagCalls.find((c) => c[0] === "event" && c[1] === "pack_sample_download");
+    expect(hit?.[2]).toMatchObject({ pack: "pack_cbq:science", surface: "packs_cbq" });
   });
 });

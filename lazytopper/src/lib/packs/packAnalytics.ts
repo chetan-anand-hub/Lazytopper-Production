@@ -76,6 +76,19 @@ export function trackPackEvent(name: "pack_view" | "pack_download", sku?: PackSk
   }
 }
 
+/**
+ * `pack_sample_download` (PACK-SAMPLE-1): a visitor tapped "Free sample page". `pack` is `<sku>:<target>` (e.g. `pack_cbq:science`),
+ * `surface` says where the link was. Sent for signed-out visitors too: nothing about the person is attached.
+ */
+export function trackPackSampleDownload(pack: string, surface: string): void {
+  try {
+    const data = { pack, surface };
+    sendAnalyticsHit("event", { name: "pack_sample_download", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 export function trackPackCheckout(details: PackCheckoutDetails): void {
   try {
     const money = packMoney(details);
