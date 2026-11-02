@@ -237,9 +237,10 @@ export function useStartHere(uid?: string | null): StartHereState {
   // no preview this is exactly `uid && graded === "none" && !dismissed`.
   // ACT-FIRST-1: an account whose trial THIS tab started at sign-up is new by the device's own signal: its card
   // does not wait for the cloud (local rows were already checked; a later "some" takes the card away again).
-  const newBySignup = !!uid && graded === "loading" && wasTrialStartedAtSignUp(uid);
-  const audience = graded === "none" || newBySignup || (!!uid && guidePreviewActive());
   const firstAction = useFirstActionZeroGraded(uid);
+  const newBySignup = !!uid && graded === "loading" && wasTrialStartedAtSignUp(uid) && firstAction.zeroGraded !== "some";
+  // A card shown on a signal is taken away if the server later says the student has graded work.
+  const audience = (graded === "none" && firstAction.zeroGraded !== "some") || newBySignup || (!!uid && guidePreviewActive());
   // MOMENTS-1: the server-confirmed read, for the guide arm only (it joins the read above: no new ask).
   const confirmed = useZeroGraded(resolveGuideVariant(uid) === "guide" ? uid : null, { serverOnly: true });
 

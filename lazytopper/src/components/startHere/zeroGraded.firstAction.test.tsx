@@ -5,6 +5,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
+import { useStartHere } from "./StartHereCard";
 
 const { cloudHas, localRows, auth, signup } = vi.hoisted(() => ({
   cloudHas: vi.fn(),
@@ -101,5 +102,47 @@ describe("ACT-FIRST-1 · the first-action zero-graded read", () => {
   it("signed out: loading, no reason", () => {
     const { result } = renderHook(() => useFirstActionZeroGraded(null));
     expect(result.current).toEqual({ zeroGraded: "loading", reason: null });
+  });
+
+  it("★★ RETRACTION: shown on new_by_signal, then the server answers 'some' -> the card is gone (hook and Start-here card)", async () => {
+    vi.useFakeTimers();
+    try {
+      signup.mockReturnValue(true);
+      cloudHas.mockResolvedValueOnce(null).mockResolvedValue(true); // first read fails, the re-ask finds graded work
+      const first = renderHook(() => useFirstActionZeroGraded(UID));
+      const card = renderHook(() => useStartHere(UID));
+      await act(async () => {});
+      expect(first.result.current).toEqual({ zeroGraded: "none", reason: "new_by_signal" });
+      expect(card.result.current.visible).toBe(true);
+      await act(async () => {
+        vi.advanceTimersByTime(FIRST_ACTION_AGE_WAIT_MS + 10);
+      });
+      expect(first.result.current).toEqual({ zeroGraded: "some", reason: null });
+      expect(card.result.current.visible).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("the re-ask is ONE extra read: a failed re-ask is not repeated on focus", async () => {
+    vi.useFakeTimers();
+    try {
+      signup.mockReturnValue(true);
+      cloudHas.mockResolvedValue(null);
+      const { result } = renderHook(() => useFirstActionZeroGraded(UID));
+      await act(async () => {});
+      const before = cloudHas.mock.calls.length;
+      await act(async () => {
+        vi.advanceTimersByTime(FIRST_ACTION_AGE_WAIT_MS + 10);
+      });
+      expect(cloudHas.mock.calls.length).toBe(before + 1);
+      await act(async () => {
+        window.dispatchEvent(new Event("focus"));
+      });
+      expect(cloudHas.mock.calls.length).toBe(before + 1);
+      expect(result.current.reason).toBe("new_by_signal");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

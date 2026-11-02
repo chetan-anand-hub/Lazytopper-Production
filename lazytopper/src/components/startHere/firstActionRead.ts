@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
-import { START_HERE_RETRY_MS, accountIsNew, useZeroGraded, type ZeroGraded } from "./zeroGraded";
+import { START_HERE_RETRY_MS, accountIsNew, askCloudOnce, useZeroGraded, type ZeroGraded } from "./zeroGraded";
 
 /**
  * ACT-FIRST-1 — why the LADDER / first-action card may show: the server's own "zero graded"
@@ -32,8 +32,36 @@ export function useFirstActionZeroGraded(uid?: string | null): { zeroGraded: Zer
     const t = setTimeout(() => setWaited(uid), FIRST_ACTION_AGE_WAIT_MS);
     return () => clearTimeout(t);
   }, [uid, young]);
+  const bySignal = !!uid && server === "loading" && (signup || (young && waited === uid));
+
+  // RETRACTION: a card shown on a signal is checked once more against the server - after the wait, and on
+  // window focus. askCloudOnce joins an ask in flight / uses a kept answer, and a failed ask is not repeated
+  // here, so this adds at most ONE extra read. A server "some" takes the card away.
+  const [retracted, setRetracted] = useState<string | null>(null);
+  const recheck = useRef<"idle" | "failed">("idle");
+  useEffect(() => {
+    if (!uid || !bySignal) return;
+    let live = true;
+    const check = () => {
+      if (recheck.current === "failed") return;
+      void askCloudOnce(uid).then((has) => {
+        if (!live) return;
+        if (has === null) recheck.current = "failed";
+        else if (has) setRetracted(uid);
+      });
+    };
+    const t = setTimeout(check, FIRST_ACTION_AGE_WAIT_MS);
+    window.addEventListener("focus", check);
+    return () => {
+      live = false;
+      clearTimeout(t);
+      window.removeEventListener("focus", check);
+    };
+  }, [uid, bySignal]);
+
   if (!uid) return { zeroGraded: "loading", reason: null };
+  if (retracted === uid) return { zeroGraded: "some", reason: null };
   if (server !== "loading") return { zeroGraded: server, reason: server === "none" ? "server_zero" : null };
-  if (signup || (young && waited === uid)) return { zeroGraded: "none", reason: "new_by_signal" };
+  if (bySignal) return { zeroGraded: "none", reason: "new_by_signal" };
   return { zeroGraded: "loading", reason: null };
 }
