@@ -11,7 +11,7 @@ import {
   PACK_CHAPTER_SLUGS,
   PACK_DETAILS_UNAVAILABLE_COPY,
   PacksLicenseeUnavailableError,
-  hasLicenseeEmail,
+  hasLicenseeContact,
   PACK_CHECKING_COPY,
   PACK_EXPIRED_COPY,
   PACK_FAILED_COPY,
@@ -39,6 +39,8 @@ import { BUNDLE_NAME, packChapterLabel } from "../../lib/packs/packLabels";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import PackSampleLink from "./PackSampleLink";
+import PackNamePrompt from "./PackNamePrompt";
+import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, type GuestSigninState } from "../../services/guestPay";
 import "../../pages/packs.css";
@@ -502,6 +504,17 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const dialogQuestions =
     openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
   const showMine = Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
+  // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
+  const [namePromptDone, setNamePromptDone] = useState(false);
+  const askName =
+    !!user &&
+    !namePromptDone &&
+    !!mine &&
+    mine.packs.length > 0 &&
+    !mine.licensee.email &&
+    !!mine.licensee.phone &&
+    !mine.licensee.name.trim() &&
+    !packNameSkipped(user.uid);
   const afterPay = buy.phase === "paid" || buy.phase === "checking" || buy.phase === "confirming";
 
   const mineAndStatus = (
@@ -516,13 +529,23 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                 <button type="button" className="lt-packs__link" onClick={() => void loadMine()}>Retry</button>
               </p>
             )}
-            {mine && mine.packs.length > 0 && !hasLicenseeEmail(mine.licensee) && (
+            {mine && mine.packs.length > 0 && !hasLicenseeContact(mine.licensee) && (
               <p className="lt-packs__note lt-packs__note--bad" role="alert" data-testid="packs-details-unavailable">
                 {PACK_DETAILS_UNAVAILABLE_COPY}{" "}
                 <button type="button" className="lt-packs__link" onClick={() => void loadMine()}>Retry</button>
               </p>
             )}
-            {mine && hasLicenseeEmail(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} />)}
+            {askName && user && mine && (
+              <PackNamePrompt
+                uid={user.uid}
+                phoneMasked={mine.licensee.phone || ""}
+                onDone={(saved) => {
+                  setNamePromptDone(true);
+                  if (saved) void loadMine();
+                }}
+              />
+            )}
+            {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} />)}
           </div>
         </section>
       )}

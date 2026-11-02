@@ -942,6 +942,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "click id or the uid; NOT cleared at sign-up, it ends with the tab), and localStorage `lazytopper.ziggyShown.<tag>` " +
       "(the single character 1 once Ziggy reacted to this account's first scorecard on this device; " +
       "<tag> is an 8-hex hash of the uid, never the uid). " +
+      "PAY-PHONE-1: plus localStorage `lazytopper.packNameSkipped.<tag>` (the single character 1 once a phone-only " +
+      "account skipped the \"Student's name for your PDFs\" question in My packs, so it is not asked again on this device; " +
+      "<tag> is an 8-hex hash of the uid, never the uid; never a name, never pack state). " +
       "GUIDE-PUBLIC-1: plus localStorage `lazytopper.guidePublicArm` (guide or control: this DEVICE's " +
       "group in the public-page Byte test, drawn once at random; a device key, NOT cleared at sign-out; " +
       "never the uid; the group alone is sent once, as an analytics user property, so the test can be " +

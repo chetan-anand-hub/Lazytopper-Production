@@ -113,3 +113,30 @@ describe("PAY-PHONE-1 (C) · after a closed checkout", () => {
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(2));
   });
 });
+
+describe("PAY-PHONE-1 · My packs for a phone-only account", () => {
+  const owned = { packId: "pack_mock:maths", sku: "pack_mock", target: "maths", pricePaidInr: 99, paidAt: 5, orderId: "order_1" };
+  const fetchMine = packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>;
+
+  it("a phone-only account with no name sees its packs AND is asked once for the name; an email account is not asked", async () => {
+    auth.user = { uid: "u-phone" };
+    fetchMine.mockResolvedValueOnce({ packs: [owned], licensee: { name: "", email: "", phone: "+91 98•••••948" }, boardPassCredit: null });
+    shop();
+    expect(await screen.findByTestId("pack-name-prompt")).toBeTruthy();
+    expect(screen.getByText(/Mock Pack · Maths/)).toBeTruthy();
+    expect(screen.queryByTestId("packs-details-unavailable")).toBeNull();
+    cleanup();
+
+    fetchMine.mockResolvedValueOnce({ packs: [owned], licensee: { name: "", email: "a@b.in" }, boardPassCredit: null });
+    shop();
+    expect(await screen.findByText(/Mock Pack · Maths/)).toBeTruthy();
+    expect(screen.queryByTestId("pack-name-prompt")).toBeNull();
+    cleanup();
+
+    // A named phone account is not asked either.
+    fetchMine.mockResolvedValueOnce({ packs: [owned], licensee: { name: "Asha", email: "", phone: "+91 98•••••948" }, boardPassCredit: null });
+    shop();
+    expect(await screen.findByText(/Mock Pack · Maths/)).toBeTruthy();
+    expect(screen.queryByTestId("pack-name-prompt")).toBeNull();
+  });
+});

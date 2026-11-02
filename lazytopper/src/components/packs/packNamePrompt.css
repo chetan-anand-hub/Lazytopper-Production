@@ -1,0 +1,8 @@
+/* PAY-PHONE-1 - "Student's name for your PDFs", asked once in My packs for a phone-only account. */
+.lt-packs__name { display: flex; flex-direction: column; gap: 8px; margin: 0 0 16px; padding: 14px 16px; border: 1px solid #d3dbe5; border-radius: 14px; background: #fff; }
+.lt-packs__name-label { font-weight: 700; font-size: 15.5px; color: #0f1b2d; }
+.lt-packs__name-input { height: 48px; border: 1.5px solid #c9d3df; border-radius: 12px; padding: 0 12px; font: inherit; font-size: 17px; color: #0f1b2d; background: #fff; }
+.lt-packs__name-input:focus { outline: none; border-color: #0f1b2d; }
+.lt-packs__name-actions { display: flex; align-items: center; gap: 12px; }
+.lt-packs__name-actions .lt-packs__btn { width: auto; flex: 1; }
+@media (min-width: 640px) { .lt-packs__name-actions .lt-packs__btn { flex: none; min-width: 180px; } }

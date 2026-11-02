@@ -169,6 +169,22 @@ describe("no licensee email, no PDF", () => {
     }
     expect(exportPdf).not.toHaveBeenCalled();
   });
+
+  it("PAY-PHONE-1: a phone-only account is licensed by its MASKED number; a full or malformed number never prints", async () => {
+    const pack = owned("pack_chapter:triangles");
+    const exportPdf = vi.fn(async (..._a: unknown[]) => "x");
+    const files = await buildPackFiles(ref(pack), ctx([pack], { licensee: { name: "Asha", email: "", phone: "+91 98\u2022\u2022\u2022\u2022\u2022948" }, exportPdf: exportPdf as never }));
+    await files[0].build();
+    const opts = exportPdf.mock.calls[0][3] as { licensee: { name: string; email: string; orderId: string } };
+    expect(opts.licensee.email).toBe("+91 98\u2022\u2022\u2022\u2022\u2022948");
+    expect(opts.licensee.name).toBe("Asha");
+    const blocked = vi.fn(async () => "x");
+    for (const phone of ["+919876543948", "9876543948", "+91 98*****948", ""]) {
+      const f = await buildPackFiles(ref(pack), ctx([pack], { licensee: { name: "A", email: "", phone }, exportPdf: blocked as never }));
+      await expect(f[0].build()).rejects.toThrow("licensee_unavailable");
+    }
+    expect(blocked).not.toHaveBeenCalled();
+  });
 });
 
 describe("buildPackFiles — mock, subject, bundle", () => {

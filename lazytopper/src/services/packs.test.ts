@@ -273,6 +273,23 @@ describe("fetchMyPacks", () => {
     vi.doUnmock("./firebaseClient");
     void fetchMyPacks;
   });
+
+  it("PAY-PHONE-1: a phone-only licensee keeps only a MASKED phone; a full number from anywhere is dropped", async () => {
+    vi.resetModules();
+    vi.doMock("./firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } } }));
+    const mod = await import("./packs");
+    const masked = "+91 98\u2022\u2022\u2022\u2022\u2022948";
+    for (const [phone, kept] of [[masked, true], ["+919876543948", false], ["9876543948", false]] as const) {
+      vi.stubGlobal("fetch", async () => ({ ok: true, status: 200, json: async () => ({ packs: [], licensee: { name: "Asha", email: "", phone } }) }) as Response);
+      const mine = await mod.fetchMyPacks();
+      expect(mine.licensee).toEqual(kept ? { name: "Asha", email: "", phone: masked } : { name: "Asha", email: "" });
+      expect(mod.hasLicenseeContact(mine.licensee)).toBe(kept);
+    }
+    // An email account is unchanged: the email is the contact, a phone (if any) is ignored.
+    expect(mod.licenseeContact({ name: "R", email: "r@b.in", phone: masked })).toBe("r@b.in");
+    expect(mod.hasLicenseeEmail({ name: "A", email: "", phone: masked })).toBe(false);
+    vi.doUnmock("./firebaseClient");
+  });
 });
 
 describe("CBQ-PACK-1: the Board CBQ Pack (pack_cbq)", () => {

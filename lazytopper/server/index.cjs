@@ -428,7 +428,8 @@ const packRoutes = createPackRoutes({
   getLicensee: async (uid) => {
     if (!firebaseAdmin) return { name: '', email: '' };
     const record = await firebaseAdmin.auth().getUser(uid);
-    return { name: (record && record.displayName) || '', email: (record && record.email) || '' };
+    // PAY-PHONE-1: the VERIFIED phone (Firebase Auth's own record) for a phone-only account; packs.cjs masks it.
+    return { name: (record && record.displayName) || '', email: (record && record.email) || '', phone: (record && record.phoneNumber) || '' };
   },
 });
 const parentPayRoutes = createParentPayRoutes({
