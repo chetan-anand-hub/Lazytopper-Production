@@ -52,6 +52,10 @@ import { premiumOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import TrialStartButton from "../pricing/TrialStartButton";
 import { isTrialEligible, lowerFirst, useOptionalUid } from "../pricing/trialCta";
+import { trackPaywallAction } from "../../analytics/analytics";
+import OffersBlock from "../packs/OffersBlock";
+import { paperWallCopy } from "../packs/offersCopy";
+import type { OfferKind } from "../packs/offersModel";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -66,6 +70,13 @@ export interface UpgradeSheetProps {
    * Hidden for paid Premium. Absent -> the sheet is exactly as before.
    */
   pack?: PaperPackLine | null;
+  /**
+   * OFFERS-V2: a PAPER WALL (a full mock, chapter test or worksheet the student could not have graded). The sheet then shows the one buying block:
+   * "<Your paper> is saved", the free-week button where it can still be started, the Board Pass card (one tap to payment, with "Ask a parent to pay"
+   * and the QR link as small links), the pack rows for that paper from the highest price down, and a small grey way out at the very bottom
+   * ("Not now" on a trial limit, "Continue with Basic (free)" for Basic). Replaces `pack`. Absent -> the sheet is exactly as before.
+   */
+  offers?: { kind: OfferKind; subject?: "maths" | "science" | null; chapterSlug?: string | null; chapterName?: string | null } | null;
   /** "Keep using Basic", the backdrop, Escape, and the close control all land here. */
   onClose: () => void;
 }
@@ -186,6 +197,14 @@ const UPGRADE_SHEET_CSS = `
     margin-bottom: 12px;
   }
   .lt-upsheet__keep strong { color: var(--lt-ink, #0f2743); }
+  /* OFFERS-V2 paper wall: the buying block inside the sheet, and the small grey way out at the very bottom. */
+  .lt-upsheet--offers { color: var(--lt-ink, #0f2743); }
+  .lt-upsheet--offers .lt-upsheet__trial { margin: 0 0 4px; }
+  .lt-upsheet__dismiss {
+    display: block; width: 100%; margin: 14px 0 0; padding: 10px 8px; min-height: 44px; border: 0; background: none; cursor: pointer;
+    font: inherit; font-size: 0.84rem; color: var(--lt-muted, #6b7f99); text-align: center;
+  }
+  .lt-upsheet__dismiss:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.8); outline-offset: 2px; border-radius: 8px; }
 
   /* Desktop: a small centred modal. useIsDesktop is a 1024px breakpoint, so the
      sheet uses the same boundary rather than inventing a second one. */
@@ -196,7 +215,7 @@ const UPGRADE_SHEET_CSS = `
   }
 `;
 
-export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: UpgradeSheetProps) {
+export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose }: UpgradeSheetProps) {
   // PRICING-1 — a lapsed founder still pays the founding rate, so the quote follows their record.
   const { status: subscription, hydrated } = useSubscription();
   const uid = useOptionalUid();
@@ -248,6 +267,49 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: Upgr
 
   const trialLine = formatTrialEnded(trialEndedAt);
   const offer = premiumOffer(new Date(), predictCbseExamDate("10"));
+
+  if (offers) {
+    const wall = paperWallCopy(offers.kind, onTrial, trialLine);
+    return (
+      <div className="lt-upsheet__scrim" onClick={dismiss} data-testid="upgrade-sheet-scrim">
+        <style>{UPGRADE_SHEET_CSS}</style>
+        <div
+          className="lt-upsheet lt-upsheet--offers"
+          role="dialog"
+          aria-modal="true"
+          aria-label={wall.title}
+          tabIndex={-1}
+          ref={sheetRef}
+          onClick={(e) => e.stopPropagation()}
+          data-testid="upgrade-sheet"
+        >
+          <div className="lt-upsheet__grip" />
+          <h2 className="lt-upsheet__title">{wall.title}</h2>
+          {wall.body ? <p className="lt-upsheet__trial" data-testid="upgrade-sheet-wall-body">{wall.body}</p> : null}
+          <OffersBlock
+            surface={`wall-${offers.kind}`}
+            ctx={{ kind: offers.kind, subject: offers.subject ?? null, chapterSlug: offers.chapterSlug ?? null, chapterName: offers.chapterName ?? null }}
+            uid={uid}
+            // Basic AND trial students see the packs on a wall (owner, 28 Oct + 2 Nov); never paid Premium, never while the record is unknown.
+            showPacks={Boolean(uid) && showPackLine(subscription, hydrated)}
+            lead={
+              trialEligible ? (
+                <TrialStartButton uid={uid} returnTo={`${location.pathname}${location.search}${location.hash}`} className="lt-upsheet__cta" onStarted={onClose} />
+              ) : null
+            }
+            benefit={wall.benefit}
+            payVerb="Get it for"
+            whatYouGet={false}
+            onPayTap={() => trackPaywallAction("pay", "upgrade_sheet")}
+            cardExtras={<PaywallActions surface="upgrade_sheet" fallback={null} />}
+          />
+          <button type="button" className="lt-upsheet__dismiss" data-testid="upgrade-sheet-dismiss" onClick={dismiss}>
+            {wall.dismiss}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

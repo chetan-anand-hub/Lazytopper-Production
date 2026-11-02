@@ -27,6 +27,7 @@ import {
   PRICE_MONTHLY_LIST_INR,
   tillBoardsQuote,
 } from "../../config/pricing";
+import { BOARD_PASS_BUY_PARAM, BOARD_PASS_BUY_PATH, BOARD_PASS_BUY_VALUE, readBoardPassBuy } from "./boardPassBuy";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
@@ -59,23 +60,7 @@ import {
 /** Where sign-in returns the student. A constant, never taken from the URL. */
 export const PASS_CHECKOUT_RETURN_PATH = "/pricing";
 
-/**
- * OFFERS-V2 A2 - the one-tap Board Pass link every "Pay" button after a result uses: `/pricing?buy=board_pass`.
- * A constant, never built from the URL, so it is also the only sign-in return path this feature ever sends.
- */
-export const BOARD_PASS_BUY_PARAM = "buy";
-export const BOARD_PASS_BUY_VALUE = "board_pass";
-export const BOARD_PASS_BUY_PATH = `${PASS_CHECKOUT_RETURN_PATH}?${BOARD_PASS_BUY_PARAM}=${BOARD_PASS_BUY_VALUE}`;
-
-/** True only for exactly one `buy=board_pass` (anything else, repeated or unknown, is ignored). */
-export function readBoardPassBuy(search: string): boolean {
-  try {
-    const all = new URLSearchParams(search).getAll(BOARD_PASS_BUY_PARAM);
-    return all.length === 1 && all[0] === BOARD_PASS_BUY_VALUE;
-  } catch {
-    return false;
-  }
-}
+export { BOARD_PASS_BUY_PARAM, BOARD_PASS_BUY_PATH, BOARD_PASS_BUY_VALUE, readBoardPassBuy };
 
 /** The monthly button's label, from the pricing module's display constants. */
 export function monthButtonLabel(offerOpen: boolean): string {

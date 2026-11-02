@@ -25,6 +25,10 @@ import PaywallActions from "../pricing/PaywallActions";
 import { boardPassOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import type { PaperPackLine } from "../limits/limitsCopy";
+import OffersBlock from "../packs/OffersBlock";
+import { useOptionalUid } from "../packs/PackPromoCard";
+import type { OfferKind } from "../packs/offersModel";
+import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
 // GUIDE-PAGES-1 M7 — Byte explains the limit from this panel's own data (display only; words
 // render with the panel, only his drawing is lazy; nothing with "Hide mascots"). The actions are unchanged.
@@ -47,6 +51,33 @@ function boardPassLine(): string {
   return `${offer.title}${offer.priceDisplay ? ` ${offer.priceDisplay}` : ""} — ${offer.detail}`;
 }
 
+/**
+ * OFFERS-V2: the paper's pack rows (Bundle, CBQ, Mock / Chapter Pack ...) from the highest price down, under the panel's own Board Pass offer. Shown to a
+ * non-paid student only (the refusal's own tier is the server's word), never on a paid-Premium refusal; the Board Pass card itself is the panel's own line
+ * and Pay action above, so only the rows are drawn here.
+ */
+function PaperOffers({ tier, offers }: { tier: "trial" | "premium"; offers: PaperOffers }) {
+  const uid = useOptionalUid();
+  if (!showPackLine({ tier })) return null;
+  return (
+    <OffersBlock
+      surface={`wall-${offers.kind}`}
+      ctx={{ kind: offers.kind, subject: offers.subject ?? null, chapterSlug: offers.chapterSlug ?? null, chapterName: offers.chapterName ?? null }}
+      uid={uid}
+      showCard={false}
+      showPacks={Boolean(uid)}
+      benefit=""
+    />
+  );
+}
+
+export interface PaperOffers {
+  kind: OfferKind;
+  subject?: "maths" | "science" | null;
+  chapterSlug?: string | null;
+  chapterName?: string | null;
+}
+
 function PackLine({ tier }: { tier: "trial" | "premium" }) {
   // PACK-BASIC-ONLY-1 - the refusal's own tier is the server's word: a trial refusal shows the line (a trial
   // student is not paid); a paid-Premium refusal never does.
@@ -63,12 +94,15 @@ export default function FairUseLimitPanel({
   onDismiss,
   dismissLabel = "OK",
   pack = null,
+  offers = null,
 }: {
   limit: LimitState;
   onDismiss?: () => void;
   dismissLabel?: string;
   /** PAPER-WALLS-1 (optional): the matching pack, shown second and to any non-paid student (PACK-BASIC-ONLY-1); never on a paid-Premium refusal. */
   pack?: PaperPackLine | null;
+  /** OFFERS-V2: the paper's pack rows replace the one generic pack line (a paper wall). Absent -> the line is exactly as before. */
+  offers?: PaperOffers | null;
 }) {
   const copy = limitCopy(limit);
   const when = limit.resetAt ? formatResetIst(limit.resetAt) : "";
@@ -120,7 +154,7 @@ export default function FairUseLimitPanel({
             {copy.showPlans ? (
               <PaywallActions
                 surface="usage_limit"
-                payTo={PLANS_PATH}
+                payTo={offers ? BOARD_PASS_BUY_PATH : PLANS_PATH}
                 fallback={
                   <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
                     See plans
@@ -135,7 +169,7 @@ export default function FairUseLimitPanel({
             ) : null}
           </div>
         ) : null}
-        {copy.showPlans && pack ? <PackLine tier={limit.tier} /> : null}
+        {copy.showPlans && offers ? <PaperOffers tier={limit.tier} offers={offers} /> : copy.showPlans && pack ? <PackLine tier={limit.tier} /> : null}
       </section>
     );
   }
@@ -199,7 +233,7 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__actions">
           <PaywallActions
             surface="usage_limit"
-            payTo={PLANS_PATH}
+            payTo={offers ? BOARD_PASS_BUY_PATH : PLANS_PATH}
             fallback={
               <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
                 See plans
@@ -215,7 +249,7 @@ export default function FairUseLimitPanel({
             {onDismiss ? dismissLabel : "Close"}
           </button>
         </div>
-        {pack ? <PackLine tier={limit.tier} /> : null}
+        {offers ? <PaperOffers tier={limit.tier} offers={offers} /> : pack ? <PackLine tier={limit.tier} /> : null}
         {/* GUIDE-PAGES-1 M7 — AFTER the actions, so Pay / Share QR code / Forward link / Close stay
             exactly where they were; no "still works" here (the line above already says it). */}
         <LimitByte limit={limit} when={when} variant="dialog" />
