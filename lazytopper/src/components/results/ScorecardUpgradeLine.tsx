@@ -174,7 +174,7 @@ function Line({ variant, countShown, uid, saleMoment }: { variant: ScorecardVari
         {text}
       </button>
       {saleMoment && statusKnown && status.tier !== "premium" ? (
-        <SaleMoment nonPaidChecked surface={variant.surface} chapterSlug={saleHint.chapterSlug} subject={saleHint.subject} chapterName={variant.guideTarget?.chapter ?? null} />
+        <SaleMoment nonPaidChecked cbq={variant.saleCbq === true} surface={variant.surface} chapterSlug={saleHint.chapterSlug} subject={saleHint.subject} chapterName={variant.guideTarget?.chapter ?? null} />
       ) : null}
       {open ? <UpgradeSheet
           featureLabel="Your full marks breakdown"

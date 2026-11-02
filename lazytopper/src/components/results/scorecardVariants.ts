@@ -354,6 +354,22 @@ export interface ScorecardVariant {
    *  into the set's review, where the working box takes a written answer. Byte's button calls it.
    *  Quick Practice never sends a student to Check & Improve. */
   onAddWorking?: (() => void) | null;
+  /** SALE-MOMENT-1 - the paper had a case-based (Section E) question, i.e. a competency question: the buying line then offers the
+   *  Board CBQ Pack. Set only by a host that KNOWS (see `withSaleCbq`); absent otherwise. Display only. */
+  saleCbq?: boolean;
+}
+
+/**
+ * SALE-MOMENT-1 - a Worksheet / Chapter Test / Full Mock paper carries `section` letters; Section E is the 4-mark case-based
+ * (competency) section (CLAUDE.md section 13). True only when a question really is in Section E - nothing is inferred from marks.
+ */
+export function paperHasCaseBased(questions: ReadonlyArray<{ section?: unknown }> | null | undefined): boolean {
+  return !!questions && questions.some((q) => typeof q.section === "string" && q.section.trim().toUpperCase() === "E");
+}
+
+/** Marks the variant for the Board CBQ Pack offer when the paper has a case-based question (otherwise returns it unchanged). */
+export function withSaleCbq<V extends ScorecardVariant>(variant: V, questions: ReadonlyArray<{ section?: unknown }> | null | undefined): V {
+  return paperHasCaseBased(questions) ? { ...variant, saleCbq: true } : variant;
 }
 
 /** GUIDE-SCORE-1 — an internal route (a host's existing practice link) and its chapter's name. */

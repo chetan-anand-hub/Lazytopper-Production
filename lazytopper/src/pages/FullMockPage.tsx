@@ -115,6 +115,7 @@ import {
   withPaperTutorAsks,
   withGuideTarget,
   type ScorecardTutorAsk,
+  withSaleCbq,
 } from "../components/results/scorecardVariants";
 // FOLLOWUPS-1 B — the scorecard's tutor hop + the tutor's return to THIS saved scorecard.
 import { trackOnboardingEvent } from "../analytics/analytics";
@@ -1874,7 +1875,7 @@ export default function FullMockPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "full-mock", resultKey: activeMock.code }} // LIMITS-1 PR-2 — Full Mock surface
-              variant={withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
+              variant={withSaleCbq(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "full",
@@ -1902,7 +1903,7 @@ export default function FullMockPage() {
                   setScorecardOpen(false);
                   void downloadSolution();
                 },
-              }), worstChapterPractice().target), fullResponse, liveTutorAskFor)}
+              }), worstChapterPractice().target), fullResponse, liveTutorAskFor), activeMock.paper.questions)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

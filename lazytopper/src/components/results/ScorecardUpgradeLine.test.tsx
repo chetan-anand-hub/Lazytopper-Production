@@ -187,7 +187,7 @@ describe("FIRST-OFFER-1 / SALE-MOMENT-1: the first-result offer names the Board 
     expect(pack).toHaveAttribute("href", "/pricing#packs");
     expect(screen.getByTestId("scorecard-upgrade-line").compareDocumentPosition(pack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
-  it.each(SURFACES)("%s: deep-links the chapter pack the result names, with the chapter's name and the catalogue price", async (surface) => {
+  it.each(SURFACES.filter((x) => x !== "quick-practice"))("%s: deep-links the chapter pack the result names, with the chapter's name and the catalogue price", async (surface) => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
     const v = { ...variantFor(surface, marks(6, 10)), guideTarget: { to: "/practice/10/maths?topic=triangles&weakMode=1", chapter: "Triangles" } } as ScorecardVariant;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
@@ -195,6 +195,22 @@ describe("FIRST-OFFER-1 / SALE-MOMENT-1: the first-result offer names the Board 
     expect(pack).toHaveAttribute("href", "/packs?chapter=triangles");
     expect(pack).toHaveTextContent(`Triangles Chapter Pack ₹${PACK_PRICE_INR.pack_chapter}`);
     expect(screen.getAllByTestId("sale-moment")).toHaveLength(1); // at most once per scorecard
+  });
+  it("Quick Practice keeps its own pack card and gets no second pack line", async () => {
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    const v = { ...variantFor("quick-practice", marks(6, 10)), guideTarget: { to: "/practice/10/maths?topic=triangles", chapter: "Triangles" } } as ScorecardVariant;
+    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    await act(async () => {});
+    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    expect(await screen.findByTestId("pack-promo-card")).toBeInTheDocument();
+  });
+  it("a paper with a case-based (Section E) question offers the Board CBQ Pack for its subject, even with a chapter named", async () => {
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    const v = { ...variantFor("chapter-test", marks(6, 10)), saleCbq: true, guideTarget: { to: "/practice/10/science?topic=life-processes", chapter: "Life Processes" } } as ScorecardVariant;
+    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    const pack = await screen.findByTestId("sale-moment-pack");
+    expect(pack).toHaveAttribute("href", "/packs?pack=cbq&subject=science");
+    expect(pack).toHaveTextContent(`Board CBQ Pack ₹${PACK_PRICE_INR.pack_cbq}`);
   });
   it("a result that names only its subject offers that subject's Subject Pack", async () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";

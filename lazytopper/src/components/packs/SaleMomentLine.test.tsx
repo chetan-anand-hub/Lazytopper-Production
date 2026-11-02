@@ -86,13 +86,16 @@ describe("who sees it", () => {
     expect(H.fetch).not.toHaveBeenCalled();
     expect(H.track).not.toHaveBeenCalled();
   });
-  it("a signed-out visitor, and the packs switch being off, show nothing", async () => {
+  it("a signed-out visitor sees it too, with no ownership read, no status read and the same events", async () => {
     H.user = null;
-    mount();
-    await act(async () => {});
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
-    cleanup();
-    H.user = { uid: "u1" };
+    mount({ surface: "ladder", withBoardPass: true });
+    const a = await screen.findByTestId("sale-moment-pack");
+    expect(a).toHaveAttribute("href", "/packs?chapter=trigonometry");
+    expect(screen.getByTestId("sale-moment-boardpass")).toBeInTheDocument();
+    expect(H.fetch).not.toHaveBeenCalled();
+    expect(H.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "ladder", offer: "pack_chapter" });
+  });
+  it("the packs switch being off shows nothing", async () => {
     vi.stubEnv("VITE_PACKS_ENABLED", "");
     mount();
     await act(async () => {});
@@ -105,6 +108,39 @@ describe("who sees it", () => {
     mount();
     await act(async () => {});
     expect(screen.queryByTestId("sale-moment")).toBeNull();
+  });
+});
+
+describe("competency (CBQ) questions get the Board CBQ Pack", () => {
+  it("offers pack_cbq for the subject, with the owner's copy and a bold price", async () => {
+    mount({ cbq: true });
+    const a = await screen.findByTestId("sale-moment-pack");
+    expect(a).toHaveAttribute("href", "/packs?pack=cbq&subject=maths");
+    expect(a).toHaveTextContent(`Board CBQ Pack ₹${PACK_PRICE_INR.pack_cbq} \u2014 chapter-wise competency questions, explained step by step \u2192`);
+    expect(a.querySelector("strong")?.textContent).toBe(`₹${PACK_PRICE_INR.pack_cbq}`);
+    expect(H.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "worksheet", offer: "pack_cbq" });
+  });
+  it("hidden for a student who owns that subject's CBQ Pack, but not for one who owns only the Subject Pack", async () => {
+    H.owned = [{ packId: "pack_subject:maths" }, { packId: "pack_bundle:all" }];
+    mount({ cbq: true });
+    expect(await screen.findByTestId("sale-moment-pack")).toBeInTheDocument();
+    cleanup();
+    resetOwnedPacksCache();
+    H.owned = [{ packId: "pack_cbq:maths" }];
+    mount({ cbq: true });
+    await waitFor(() => expect(H.fetch).toHaveBeenCalledTimes(2));
+    await act(async () => {});
+    expect(screen.queryByTestId("sale-moment")).toBeNull();
+  });
+});
+
+describe("it is a visible row, not a small link", () => {
+  it("is a block-level tappable row with an icon and a bold price", async () => {
+    mount();
+    const a = await screen.findByTestId("sale-moment-pack");
+    expect(a.className).toBe("lt-sm__pack");
+    expect(a.querySelector("svg[aria-hidden='true']")).not.toBeNull();
+    expect(a.querySelector("strong")).toHaveTextContent(`₹${PACK_PRICE_INR.pack_chapter}`);
   });
 });
 

@@ -24,6 +24,7 @@ import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import FirstGradedAsk from "../feedback/FirstGradedAsk";
 import ScorecardUpgradeLine from "./ScorecardUpgradeLine";
+import PackPromo from "../packs/PackPromoLazy";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
 import { useDetailLock, type DetailLimitKey } from "./useDetailLock";
@@ -779,9 +780,11 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 </Suspense>
               )}
               {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
-              {/* SALE-MOMENT-1 - the pack line under the Board Pass line is on ALL six surfaces (it replaces the Quick Practice-only
-                  pack card): never on a re-opened old result and never beside the locked breakdown. */}
-              <ScorecardUpgradeLine variant={variant} countShown={!reopened} saleMoment={!reopened && !detailLocked} />
+              {/* SALE-MOMENT-1 - the pack line under the Board Pass line (Answer Checker, Worksheet, Chapter Test, Full Mock): never on a
+                  re-opened old result, never beside the locked breakdown, and not on Quick Practice, which keeps its own pack card below. */}
+              <ScorecardUpgradeLine variant={variant} countShown={!reopened} saleMoment={!reopened && !detailLocked && variant.surface !== "quick-practice"} />
+              {/* PACKS-VISIBLE-1 - Quick Practice results: the pack card sits BELOW the Board Pass line. */}
+              {variant.surface === "quick-practice" ? <PackPromo surface="quick_practice" /> : null}
             </>
           )}
         </div>

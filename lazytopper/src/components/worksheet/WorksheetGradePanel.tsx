@@ -14,6 +14,7 @@ import {
   withPaperTutorAsks,
   worksheetScorecardVariant,
   type ScorecardTutorAsk,
+  withSaleCbq,
 } from "../results/scorecardVariants";
 import {
   MISTAKE_TYPE_LABEL,
@@ -610,7 +611,7 @@ export default function WorksheetGradePanel({
         <ResultsScorecard
           askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
           limitKey={{ kind: "worksheet", resultKey: nomen.code }} // LIMITS-1 PR-2 — Worksheet surface
-          variant={withPaperTutorAsks(
+          variant={withSaleCbq(withPaperTutorAsks(
             withGuideTarget(
               worksheetScorecardVariant({
                 name: nomen.name,
@@ -629,7 +630,7 @@ export default function WorksheetGradePanel({
             ),
             response,
             tutorAskFor?.(nomen.code, response),
-          )}
+          ), ws.questions)}
           onClose={() => setScorecardOpen(false)}
         />
       )}

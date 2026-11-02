@@ -7,7 +7,7 @@ import { boardPassCtaLabel, boardPassPriceNow } from "../pricing/boardPassOffer"
 import { boardPassFoundingLabel } from "../../config/pricing";
 import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
 import { useKnownStatus, useOptionalUid } from "./PackPromoCard";
-import { offerIsOwned, pickSaleOffer, saleOfferText, type SaleMomentHint } from "./saleMomentModel";
+import { offerIsOwned, pickSaleOffer, saleOfferParts, type SaleMomentHint } from "./saleMomentModel";
 import { useOwnedPacks } from "./useOwnedPacks";
 import "./SaleMomentLine.css";
 
@@ -33,6 +33,16 @@ export interface SaleMomentLineProps extends SaleMomentHint {
   nonPaidChecked?: boolean;
 }
 
+/** A small printed-sheet icon: decorative, the words carry the meaning. */
+function PackIcon() {
+  return (
+    <svg className="lt-sm__ico" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+      <path d="M6 3h8l4 4v14H6z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M14 3v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function SmartLink({ to, className, onClick, testId, children }: { to: string; className: string; onClick: () => void; testId: string; children: React.ReactNode }) {
   const inRouter = useInRouterContext();
   return inRouter ? (
@@ -49,8 +59,11 @@ function SmartLink({ to, className, onClick, testId, children }: { to: string; c
 export default function SaleMomentLine({ surface, chapterName, withBoardPass = false, nonPaidChecked = false, ...hint }: SaleMomentLineProps) {
   const uid = useOptionalUid();
   const [status, known] = useKnownStatus(uid);
-  const enabled = Boolean(uid) && isPacksEntryEnabled() && (nonPaidChecked || showPackLine(status, known));
-  const owned = useOwnedPacks(uid, enabled);
+  // A signed-out visitor (the ladder shows to them too) owns nothing and has paid for nothing: no status, no ownership read.
+  const signedOut = !uid;
+  const enabled = isPacksEntryEnabled() && (signedOut || nonPaidChecked || showPackLine(status, known));
+  const ownedRead = useOwnedPacks(uid, enabled && !signedOut);
+  const owned: { phase: "ready"; packs: Array<{ packId: string }> } | { phase: "loading" } | { phase: "error" } = signedOut && enabled ? { phase: "ready", packs: [] } : ownedRead;
   const offer = pickSaleOffer(hint);
   const shown = useRef(false);
 
@@ -75,11 +88,17 @@ export default function SaleMomentLine({ surface, chapterName, withBoardPass = f
     <div className="lt-sm" data-testid="sale-moment" data-surface={surface}>
       {offer ? (
         <SmartLink className="lt-sm__pack" to={offer.href} onClick={tapPack} testId="sale-moment-pack">
-          {saleOfferText(offer, chapterName)}
+          <PackIcon />
+          <span className="lt-sm__txt">
+            {saleOfferParts(offer, chapterName).before}
+            <strong className="lt-sm__price">{offer.price}</strong>
+            {saleOfferParts(offer, chapterName).after}
+          </span>
         </SmartLink>
       ) : (
-        <SmartLink className="lt-sm__plain" to={PACK_LINE_HREF} onClick={tapPack} testId="sale-moment-pack">
-          {PACK_LINE_TEXT}
+        <SmartLink className="lt-sm__pack" to={PACK_LINE_HREF} onClick={tapPack} testId="sale-moment-pack">
+          <PackIcon />
+          <span className="lt-sm__txt">{PACK_LINE_TEXT}</span>
         </SmartLink>
       )}
       {withBoardPass ? (

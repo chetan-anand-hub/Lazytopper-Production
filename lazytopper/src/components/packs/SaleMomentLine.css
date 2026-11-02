@@ -4,8 +4,10 @@
   border-radius: 12px; font: inherit; font-size: 0.86rem; line-height: 1.4; text-align: left; color: inherit;
   overflow-wrap: anywhere; cursor: pointer; text-decoration: none;
 }
-.lt-sm__pack { border: 1px solid rgba(22, 185, 106, 0.28); background: rgba(22, 185, 106, 0.08); font-weight: 600; }
+.lt-sm__pack { gap: 10px; min-height: 48px; padding: 10px 14px; border: 1.5px solid rgba(22, 185, 106, 0.55); background: rgba(22, 185, 106, 0.12); font-weight: 600; font-size: 0.92rem; }
+.lt-sm__ico { flex: none; color: rgb(22, 185, 106); }
+.lt-sm__txt { min-width: 0; }
+.lt-sm__price { font-weight: 800; }
 .lt-sm__pass { border: 1px solid rgba(128, 128, 128, 0.3); background: transparent; font-weight: 500; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; }
 .lt-sm__badge { font-size: 0.74rem; font-weight: 700; opacity: 0.8; }
-.lt-sm__plain { display: block; min-height: 44px; padding: 6px 4px; box-sizing: border-box; font-size: 0.8rem; font-weight: 500; opacity: 0.85; color: inherit; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
-.lt-sm__pack:focus-visible, .lt-sm__pass:focus-visible, .lt-sm__plain:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.8); outline-offset: 2px; }
+.lt-sm__pack:focus-visible, .lt-sm__pass:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.8); outline-offset: 2px; }

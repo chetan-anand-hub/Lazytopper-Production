@@ -75,16 +75,37 @@ export function offerIsOwned(owned: ReadonlyArray<{ packId: string }>, offer: Sa
   return isAlreadyOwned(owned, offer.sku, offer.target);
 }
 
-/** The words of the pack line. `chapterName` is the chapter's display name when the host knows it. */
-export function saleOfferText(offer: SaleOffer, chapterName?: string | null): string {
+export interface SaleOfferParts {
+  /** Words before the price, the price ("₹49", shown bold), words after it. */
+  before: string;
+  price: string;
+  after: string;
+}
+
+/** The words of the pack line in three parts, so the price can be drawn bold. `chapterName` is the chapter's display name when the host knows it. */
+export function saleOfferParts(offer: SaleOffer, chapterName?: string | null): SaleOfferParts {
   switch (offer.sku) {
     case "pack_chapter":
-      return `${chapterName ? `${chapterName} Chapter Pack` : "This chapter's Chapter Pack"} ${offer.price} — printed questions with answer keys →`;
+      return {
+        before: `${chapterName ? `${chapterName} Chapter Pack` : "This chapter's Chapter Pack"} `,
+        price: offer.price,
+        after: " \u2014 printed questions with answer keys \u2192",
+      };
     case "pack_cbq":
-      return `Board CBQ Pack ${offer.price} — printed competency questions with answer keys →`;
+      return { before: "Board CBQ Pack ", price: offer.price, after: " \u2014 chapter-wise competency questions, explained step by step \u2192" };
     case "pack_subject":
-      return `${subjectLabel(offer.target as PackSubject)} Subject Pack ${offer.price} — every chapter, printed with answer keys →`;
+      return {
+        before: `${subjectLabel(offer.target as PackSubject)} Subject Pack `,
+        price: offer.price,
+        after: " \u2014 every chapter, printed with answer keys \u2192",
+      };
   }
+}
+
+/** The words of the pack line, whole. */
+export function saleOfferText(offer: SaleOffer, chapterName?: string | null): string {
+  const p = saleOfferParts(offer, chapterName);
+  return `${p.before}${p.price}${p.after}`;
 }
 
 /**

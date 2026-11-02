@@ -67,20 +67,20 @@ describe("ladder verdict", () => {
     await waitFor(() => expect(H.shown).toHaveBeenCalledWith("sale_moment_shown", { surface: "ladder", offer: "pack_chapter" }));
     expect(H.shown.mock.calls.filter((c) => c[0] === "sale_moment_shown")).toHaveLength(1);
   });
-  it("paid Premium and a signed-out visitor see nothing at the verdict", async () => {
+  it("a signed-out visitor sees the pack and the Board Pass too", async () => {
+    H.user = null;
+    ladder();
+    await screen.findByTestId("one-min-ladder");
+    fireEvent.click(screen.getByTestId("one-min-opt-0"));
+    expect(await screen.findByTestId("sale-moment-pack")).toHaveAttribute("href", expect.stringMatching(/^\/packs\?chapter=/));
+    expect(screen.getByTestId("sale-moment-boardpass")).toBeInTheDocument();
+  });
+  it("paid Premium sees nothing at the verdict", async () => {
     H.tier = "premium";
     ladder();
     await screen.findByTestId("one-min-ladder");
     fireEvent.click(screen.getByTestId("one-min-opt-0"));
     await screen.findByTestId("one-min-verdict");
     await waitFor(() => expect(screen.queryByTestId("sale-moment")).toBeNull());
-    cleanup();
-    H.tier = "trial";
-    H.user = null;
-    ladder();
-    await screen.findByTestId("one-min-ladder");
-    fireEvent.click(screen.getByTestId("one-min-opt-0"));
-    await screen.findByTestId("one-min-verdict");
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
   });
 });
