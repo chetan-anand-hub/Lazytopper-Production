@@ -4,7 +4,7 @@
  * current message.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -23,6 +23,11 @@ const H = vi.hoisted(() => ({
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: H.user, loading: false }) }));
 vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => H.sub }));
 vi.mock("../../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
+// CBQ-TUTOR-GATE-1: the tutor gate reads the pack allowance first; this student owns no CBQ Pack.
+vi.mock("../../services/packs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/packs")>();
+  return { ...actual, fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) };
+});
 
 import { BASIC_FREE_LABELS, FREE_FEATURES } from "./BasicFreeList";
 import { RequirePremium } from "../auth/RequireAuth";
@@ -71,7 +76,7 @@ describe("Pricing's Basic card reads the L4 list (signed out — the prerendered
 
 describe("RequirePremium — 'Free on Basic:' under the current message, on every gated feature", () => {
   for (const featureLabel of ["Answer Checker", "Ask the tutor", "Exam Simulation", undefined]) {
-    it(`${featureLabel ?? "(no label)"}: the message stays, the Basic list follows it`, () => {
+    it(`${featureLabel ?? "(no label)"}: the message stays, the Basic list follows it`, async () => {
       H.user = { uid: "u1" };
       const { container } = render(
         <MemoryRouter>
@@ -80,8 +85,9 @@ describe("RequirePremium — 'Free on Basic:' under the current message, on ever
           </RequirePremium>
         </MemoryRouter>,
       );
+      // The tutor gate holds on "Checking your session" for a tick; wait for the lock, then assert as before.
+      await waitFor(() => expect(container.textContent).toContain(`${featureLabel || "This feature"} is part of Premium.`));
       expect(container.textContent).not.toContain("premium content");
-      expect(container.textContent).toContain(`${featureLabel || "This feature"} is part of Premium.`);
       const list = screen.getByTestId("basic-free-list");
       expect(list.textContent).toContain("Free on Basic:");
       for (const label of BASIC_FREE_LABELS) expect(list.textContent).toContain(label);
