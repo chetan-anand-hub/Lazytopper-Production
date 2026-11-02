@@ -23,6 +23,74 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-02 (daily) - #1479 - #1492 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `179b6c52`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff of 2 Nov **[coordinator]** and the PR bodies **[git/gh]** unless marked. No grading behaviour changed today (CLAUDE.md section 4a).*
+
+### [FU-CBQ-TUTOR-GATE-LIVE]
+`#1480`. Live-verify a CBQ-pack-only account at 3, 2, 1 and 0 questions left, a free account with no pack, on mobile and desktop.
+
+### [FU-OFFERS-V2-LIVE]
+`#1483`, `#1486`, `#1487`. Live-verify the buying block on at least two grading surfaces (Answer Checker single via `handleCheckSolution` and Chapter Test via the structured path; also Full Mock shows the Mock Pack), a Premium account (no Board Pass card), a pack owner (row hidden), 360 px. One-tap: signed-in `/pricing?buy=board_pass` opens checkout once; signed-out resumes after sign-in; each pack row `?buy=` opens its dialog and checkout.
+
+### [FU-ACT-FIRST-LIVE]
+`#1482`, `#1484`. New Google sign-up from /pricing lands on Home with the ladder; free check then sign-up shows the saved result; sign-out clears it; a returning student on a second device does not keep the new-student card.
+
+### [FU-AUTH-SIGNAL-LIVE]
+`#1481`. Android phone via a YouTube ad tap (GA4 DebugView `ua_class`), iPhone banner, desktop Chrome unchanged. Read `login_error` codes at the Wed 4 Nov review.
+
+### [FU-NOTES-AUTHORED-LIVE]
+`#1479`. The 9 Science notes pages no longer show "[authored prompt]" or the NCERT VERBATIM chip on authored sections; prerender refreshed.
+
+### [FU-PACK-SAMPLE-LIVE]
+`#1485`. Download from a tile and from the dialog on Android Chrome and desktop; the `pack_sample_download` event appears in the activity log. Known gap from the PR: the paid exporter could split a question stem from its options at a page break (`#1488` keeps questions whole).
+
+### [FU-PAY-PHONE-LIVE]
+`#1488`, dark. After the owner sets the three flags: guest pay then sign in with the same number (Android Chrome and desktop); close the tab after paying and sign in on another device; Instagram in-app browser; the receipt email; a Board Pass claim shows Premium; an owner Rs 49 test payment.
+
+### [FU-ADMIN-SRC-GADS-LIVE]
+`#1490`. /admin/students on mobile and desktop against a real Google Ads sign-up: "Google ad" or "Google ad (search partner)".
+
+### [FU-CBQ-COVER-KICKER]
+`#1492`. The CBQ cover kicker repeats the subject ("SCIENCE CBQ PACK . SCIENCE"). Drop the trailing subject for CBQ packs.
+
+### [FU-PACKS-BUNDLE-CHAPTERS]
+`#1491`. The /packs Bundle tile hardcodes "26". Make it read `BUNDLE_CHAPTERS` so it cannot drift from the catalogue.
+
+### [FU-YT-PARENTS-CAMPAIGN-UNLAUNCHED]
+The YouTube "Parents | Sign-ups" draft campaign (Rs 300/day) stays unlaunched on purpose; parents are reached through the ad group inside YouTube Students. Do not launch it without the owner.
+
+### [FU-ADS-CITIES-ALL-INDIA]
+Both Search campaigns now target all of India (widened from 40 cities). Compare cities at the Wed 4 Nov review, now that Search clicks are tagged (Final URL suffix `utm_source=google&utm_medium=cpc&utm_campaign=search_pdf_packs` / `search_signups_v2`, set 2 Nov). Supersedes `[FU-ADS-CITY-LIST-V2]` as the decision input.
+
+### [FU-NUDGE-UNUSED-PACK-TEXT]
+Unused-pack nudge email text was proposed for pack buyers who have not opened their PDFs; it waits for owner approval. Do not send.
+
+### [FU-ADS-NEW-YT-ADS-APPROVAL]
+Two new YouTube ads were Pending review at handoff (Preboard Cyclone v2 -> /packs; CBQ Electricity v2 clean copy -> /cbq-class-10). When the clean one is Eligible, pause the old Limited "CBQ Short - Electricity video (1 Nov)". Check the 2 Nov appeal ("Enabling dishonest behavior", 3 campaigns, In progress); if it fails follow the fresh-ads rule or book the Google Ads expert call.
+
+### [FU-ADS-NAVRATRI-REPLACE]
+The Navratri Short (Dandiya vs Boards) takes most YouTube spend (Rs 15k in 7 days) and Navratri is over. Propose replacing or pausing at the Wed 4 Nov review; ask the owner first. Also waiting on the owner's yes: re-add "CBQ Easy Hai 3-Step Trick" (ddz38kWtav8, 581k views) as an ad for CBQ Packs.
+
+### [FU-ADS-SCIENCE-IQ-RECHECK]
+Search v2 "3b Science important questions": Rs 8,766, 348 clicks, 14 sign-ups, 0 purchases in 7 days, on a page with no pack offer. `#1489` adds the offers; re-check purchases 2-3 days after it deployed. The ad's display path "lazytopper.com/important-qs/science" is only a display path; the real final URL works.
+
+### [FU-ADS-TOPUP-5NOV]
+Funds Rs 46.5k after the 2 Nov Rs 20k UPI top-up last about 3.5 days at about Rs 12.5k/day. Remind the owner to top up by Thu 5 Nov.
+
+### [FU-ADS-SIGNUP-CONVERSION-SECONDARY]
+Once `first_graded` records, demote the sign_up conversion to Secondary (Wed 4 Nov review).
+
+### [FU-RESEND-PRO]
+Carried over: Resend Pro decision (80 reminder emails plus verify/trial emails sit at the 100/day free limit); `PAYMENT_EMAIL_ENABLED` receipts add to the volume once on.
+
+### [FU-WHATSAPP-BUSINESS-NUMBER]
+The owner is getting a new independent number for payment confirmations. Update Docs artifact NbJoDvrKhykEGqqoWgKknV once it is known.
+
+### [FU-BRANCH-CLEANUP-2NOV]
+The owner deletes branches `assets/cbq-ads-1nov` and `assets/ads-images-2nov` on GitHub (the proxy blocks deletion from the container), deletes the old private Shorts, and switches the repo back to PRIVATE.
+
+
 ## 2026-11-01 (daily) - #1463 - #1475 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `a818698a`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff of 1 Nov **[coordinator]** unless marked [git/gh].*

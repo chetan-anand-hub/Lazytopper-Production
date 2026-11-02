@@ -1,3 +1,20 @@
+## 2026-11-02 (daily) - #1479 - #1492: CBQ-TUTOR-GATE-1 ... COVER-CLEAN-1 - MERGED
+
+- DONE. `#1460` (`54e6017c`): dependency bumps.
+- DONE. `#1480` (`0a14271`): CBQ Pack owners reach their 3 tutor questions. NEXT: `[FU-CBQ-TUTOR-GATE-LIVE]`.
+- DONE. `#1479` (`348e2d8`): honest "Important questions" copy. NEXT: `[FU-NOTES-AUTHORED-LIVE]`.
+- DONE. `#1481` (`ee0923a`): sign-in guidance and telemetry. NEXT: read `ua_class` in the Wed 4 Nov review; `[FU-AUTH-SIGNAL-LIVE]`.
+- DONE. `#1483` (`d70f41a`), `#1486` (`d14a1c6`), `#1487` (`573fb39`), `#1489` (`cc48321`): buying row, then one offers block on every result and the Important Questions pages. NEXT: `[FU-OFFERS-V2-LIVE]`, re-check Science Important Qs purchases.
+- DONE. `#1482` (`cfafbee`), `#1484` (`e02bf79`): free-check result after sign-up; reliable first action. NEXT: `[FU-ACT-FIRST-LIVE]`.
+- DONE. `#1485` (`f4be473`): free sample page for every pack. NEXT: `[FU-PACK-SAMPLE-LIVE]`.
+- DONE (dark). `#1488` (`b1f3229`): pay by phone. NEXT: owner sets the three flags, then `[FU-PAY-PHONE-LIVE]`.
+- DONE. `#1490` (`1f9743e`): admin names Google Ads sign-ups. NEXT: `[FU-ADMIN-SRC-GADS-LIVE]`.
+- DONE. `#1491` (`05b4605`): Pre-boards pick badge until 20 Dec. NEXT: `[FU-PACKS-BUNDLE-CHAPTERS]`.
+- DONE. `#1492` (`179b6c5`, trunk): Clean Print cover. NEXT: `[FU-CBQ-COVER-KICKER]`.
+- NEXT (ads): Wed 4 Nov review; Google Ads top-up by Thu 5 Nov (see NEXT_ACTION).
+- Open: `#1399` MISTAKE-CALC-1 (draft, HELD).
+
+
 ## 2026-11-01 (daily) - #1463 - #1475: LADDER-REACH-1 ... TUTOR-KEYS-1 - MERGED
 
 - DONE. `#1463` (`32166de2`): ladder leads every non-CBQ ad arrival. NEXT: read `one_min_tap_shown` vs `ci_demo_shown`.

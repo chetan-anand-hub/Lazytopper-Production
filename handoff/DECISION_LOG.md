@@ -1,3 +1,31 @@
+## 2026-11-02 (daily) - #1479 - #1492: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 2 Nov 2026 relayed by the cofounder **[coordinator]**, with the reason given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| No refunds, ever | never write refund wording in product, email or admin copy; a second payment for something already owned is labelled "duplicate purchase" and the product prevents duplicates; the /packs FAQ reads "Can I cancel after buying?" -> Cancellation policy | owner ruling 2 Nov: a refund promise is a commitment the business does not make; prevention is cleaner than reversal. |
+| Premium accounts can buy every pack, CBQ included | `#1487` rows apply to Premium for packs; Premium sees no Board Pass card | owner ruling: packs are separate PDFs, not covered by Premium. |
+| Offer order after any result: Board Pass first, then packs from highest price to lowest, Basic last and visually minor; no "offer 1/2" language | `#1487` | owner ruling: the goal is purchases and the Board Pass is the main product; price order is simple to read. |
+| A Full Mock scorecard offers the Mock Pack, not the CBQ Pack; CBQ means competency questions of every type | `#1486` removed the Section E => CBQ rule | owner correction 2 Nov (and the 29 Oct CBQ ruling): the pack that matches a Full Mock result is the Mock Pack, and no surface knows a question came from the CBQ bank. |
+| A signed-out visitor may pay with a phone number, then sign in with the same number to claim the purchase | `#1488`; the amount comes from the server catalogue, the phone only from the verified token; an existing number is asked to sign in; confirmation email; the student's name is asked for the PDF licence; PDFs must be printable | owner 2 Nov 13:02: students drop at the sign-in step before paying, the biggest leak. |
+| The pay-by-phone flags are NOT yet switched on | `GUEST_PAY_ENABLED` and `PAYMENT_EMAIL_ENABLED` (Railway), `VITE_GUEST_PAY_ENABLED` (Vercel) stay unset; the owner decides who sets them | money path ships dark; turning it on is a live-money change that needs the live-verify list and a Rs 49 owner test payment first. |
+| Wording: badge "Founding member offer"; QR link "Pay by QR code" | copy | owner ruling 2 Nov. |
+| The Pre-boards pick badge on the Rs 299 Bundle runs until 20 Dec 2026, not 15 Nov or 30 Nov | `PREBOARDS_PICK_UNTIL` in `lib/packs/packLabels.ts` (`isPreboardsSeason()`), `#1491`; one constant, reverts by itself | pre-board 1 runs November to December and Sahodaya round 1 runs in December (Careers360). |
+| PDF pack covers use the white Clean Print design, not the navy one | `#1492` | cheapest to print, no banding, reads the same in black and white; it was the owner's pick. |
+| The cover says "5 question types" for CBQ packs, not the prototype's 4 | `#1492`, `CBQ_QUESTION_TYPES` | the pack's real formats are 5 (MCQ, Assertion-Reason, Short answer, Case study, Long answer), the same as the pricing band; facts come only from existing data. |
+| Every pack gets a free sample page, CBQ included, as static pre-generated PDFs with no answer key | `#1485` | owner-approved 2 Nov: visitors cannot see what they are buying; static files change no paid output, checkout or entitlement. |
+| The payment-confirmation WhatsApp number must be a new, independent number, not the owner's personal one | WhatsApp Business setup note: Docs artifact NbJoDvrKhykEGqqoWgKknV; update it once the number is known | owner 2 Nov: keep customer messages off a personal number; the owner is getting one. |
+| Preboard Cyclone v2 (GD5LOoiGeNo) is public; v1 (2uEiA8cAd8U) is private | Shorts | v1 said "27 chapters"; the right number is 26. |
+| YouTube Students budget raised to Rs 4,000/day | ads account | owner-approved 2 Nov; the Electricity CBQ Short is the best creative (95.4% stayed to watch). |
+| Both Search campaigns target all of India, widened from the 40 cities, with utm tags on Search clicks | Final URL suffix `utm_source=google&utm_medium=cpc&utm_campaign=search_pdf_packs` / `search_signups_v2`, set 2 Nov | the city list was a proxy, not exam counts; tagging lets us compare cities at the Wed 4 Nov review. |
+| The YouTube "Parents | Sign-ups" draft campaign (Rs 300/day) stays unlaunched | parents are reached through the ad group inside YouTube Students | owner/cofounder: a separate campaign would split a small budget. |
+| If a Google Ads policy appeal fails, book a call with the account's free Google Ads expert (Shubham Rawat, "Schedule now" in the Ads Help panel) | process | a human review is the route when an appeal is rejected; saved in project memory. |
+| Where a clean ad is flagged, launch fresh ads rather than re-appeal (owner rule 1 Nov, applied 2 Nov) | new CBQ Electricity v2 clean-copy ad; pause the old Limited ad once the clean one is Eligible | re-appeals are slow; fixed wording on a new ad is faster. |
+| The disapproved "Premium - 7-Day Trial" sitelinks are paused | YouTube and Search v2 | Google's 12:23 email on 2 Nov was about this asset. |
+| No grading behaviour changed today | marks, mistake types, departure handling, the objective clamp and prompt rules untouched on all six surfaces (CLAUDE.md section 4a) | the buying block is a presentation prop on the shared scorecard; recorded explicitly because it reaches every grading surface. |
+
+
 ## 2026-11-01 (daily) - #1463 - #1475: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 1 Nov 2026 relayed by the cofounder **[coordinator]**, with the reason given.

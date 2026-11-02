@@ -1,3 +1,18 @@
+## 2026-11-02 (daily) - #1479 - #1492
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`179b6c52`** [git].
+
+- **Done [git/gh]:** 15 product PRs (table in CURRENT_STATE), all CI-green. No grading behaviour changed. Nothing is in flight: no open PRs at writing.
+- **NEXT, in order [coordinator; handoff 2 Nov section 5]:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the 2 Nov section of OPEN_QUESTIONS_AND_FOLLOWUPS.
+  2. Live-verify the 2 Nov lanes (list in the follow-ups): offers block on all six surfaces (two paths at least, section 4a), one-tap pay, sample PDFs, covers, `#1480` CBQ tutor gate, `#1484` first action, `#1481` sign-in telemetry. Phone pay only after the flags are on (owner decides who sets `GUEST_PAY_ENABLED`, `PAYMENT_EMAIL_ENABLED`, `VITE_GUEST_PAY_ENABLED`).
+  3. Ads: confirm the 2 new YouTube ads are approved, then pause the old Limited Electricity ad; read the appeal result (if it failed: fresh ads with clean words and/or book the Google Ads expert call); check the PDF Packs CPC against the Rs 30 cap. **Remind the owner to top up by Thu 5 Nov.** Discuss with the owner before ANY ads change.
+  4. **Wed 4 Nov ads review:** sign-in data; demote the sign_up conversion to Secondary once first_graded records; PDF Packs spend against purchases; Navratri ad replace or pause; Science Important Qs purchases 2-3 days after `#1489` deployed; is the YouTube Rs 4,000/day paying back; compare cities now that both Search campaigns are all-India and utm-tagged.
+  5. Carried over: Resend Pro; inactive-buyer nudge text (waits for owner approval); month pass refused for new accounts and the 1 Dec switch to Rs 2,499; live-verify `#1457`; city list v2; delete the old private Shorts.
+  6. Owner: switch the repo to PRIVATE; delete branches `assets/cbq-ads-1nov` and `assets/ads-images-2nov` (the proxy blocks deletion from the container); WhatsApp Business number, then update Docs artifact NbJoDvrKhykEGqqoWgKknV.
+- **Standing for builders [coordinator]:** unchanged. lane-overlap is a required check: draft the overlapping siblings, merge, then mark the next ready. Fix the date-sensitive CI guard with `node lazytopper/scripts/testClock/dateSensitive.mjs --write`.
+
+
 ## 2026-11-01 (daily) - #1463 - #1475
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`a818698a`** [git].
