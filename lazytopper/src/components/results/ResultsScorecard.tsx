@@ -780,10 +780,10 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 </Suspense>
               )}
               {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
-              {/* SALE-MOMENT-1 - the pack line under the Board Pass line (Answer Checker, Worksheet, Chapter Test, Full Mock): never on a
-                  re-opened old result, never beside the locked breakdown, and not on Quick Practice, which keeps its own pack card below. */}
-              <ScorecardUpgradeLine variant={variant} countShown={!reopened} saleMoment={!reopened && !detailLocked && variant.surface !== "quick-practice"} />
-              {/* PACKS-VISIBLE-1 - Quick Practice results: the pack card sits BELOW the Board Pass line. */}
+              {/* OFFERS-V2 - on a FRESH result it is the one buying block (headline, Board Pass card, pack rows) on all six grading surfaces;
+                  a re-opened old result or the locked breakdown keeps the quiet one line, no block. */}
+              <ScorecardUpgradeLine variant={variant} countShown={!reopened} block={!reopened && !detailLocked} />
+              {/* PACKS-VISIBLE-1 - Quick Practice results: its own pack card stays BELOW the block (Bundle and CBQ rows sit above it). */}
               {variant.surface === "quick-practice" ? <PackPromo surface="quick_practice" /> : null}
             </>
           )}

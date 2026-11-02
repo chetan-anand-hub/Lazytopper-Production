@@ -154,7 +154,7 @@ import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
 import { gradingErrorMessage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
-import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine } from "../components/limits/limitsCopy";
+import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
 import { resumableJob, type GradingJobInterruptedError } from "../ai/gradingJobs";
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
@@ -405,7 +405,11 @@ export default function FullMockPage() {
   const [gradeError, setGradeError] = useState<string | null>(null);
   // PAPER-WALLS-1: the upgrade sheet (Board Pass first, the Mock Pack second) for a Basic 402 / spent trial allowance.
   const [paperWall, setPaperWall] = useState(false);
-  const paperPack = useMemo(() => paperPackLine("full-mock", { subject: sessionSubject }), [sessionSubject]);
+  // OFFERS-V2: the wall's buying block - this mock's subject rows (Bundle, CBQ, Mock Pack) under the Board Pass card. An unknown subject keeps the Bundle only.
+  const paperOffers = useMemo(() => {
+    const subject = String(sessionSubject ?? "").toLowerCase();
+    return { kind: "full-mock" as const, subject: subject === "maths" || subject === "science" ? (subject as "maths" | "science") : null };
+  }, [sessionSubject]);
   const [downloading, setDownloading] = useState(false);
   // AWAIT-1-PAPERS — the paper just downloaded (the confirmation card), a downloaded paper
   // re-opened for its Section A picks, and whether the ACTIVE mock was sat on paper: a
@@ -1441,7 +1445,7 @@ export default function FullMockPage() {
                       scopeName={subject}
                     />
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} pack={paperPack} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} /> : null}
 
                     {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
                     <PreTestSlot surface="full_mock" />
@@ -1768,9 +1772,9 @@ export default function FullMockPage() {
             <span className="lt-ct__pagetitle">Mock · Result</span>
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} pack={paperPack} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
           {paperWall && (
-            <UpgradeSheet featureLabel="Grading your full mock" pack={paperPack} onClose={() => setPaperWall(false)} />
+            <UpgradeSheet featureLabel="Grading your full mock" offers={paperOffers} onClose={() => setPaperWall(false)} />
           )}
 
           {resultsPhase === "partial" && (

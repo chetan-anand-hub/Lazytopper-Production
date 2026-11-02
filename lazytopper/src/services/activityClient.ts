@@ -241,6 +241,8 @@ export const ACTIVITY_EVENTS = [
   // SALE-MOMENT-1 - the buying line at the moment of value. Additive; the vendors also get surface + offer slugs.
   "sale_moment_shown",
   "sale_moment_tap",
+  // OFFERS-V2 A2 - the one-tap Board Pass checkout started from /pricing?buy=board_pass. Name only.
+  "board_pass_direct_checkout",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

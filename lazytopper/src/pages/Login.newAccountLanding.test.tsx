@@ -127,6 +127,12 @@ describe("LOGIN-HOME-1 · where a sign-in lands", () => {
     renderDoorAt("/login?redirect=%2Fpricing%3Fbuy%3Dpack_cbq%26t%3Dmaths");
     expect(await screen.findByText("LANDED ON PRICING")).toBeTruthy();
     cleanup();
+    // OFFERS-V2 A2: the one-tap Board Pass link is a purchase intent too - a brand-new account that signs in from it keeps /pricing.
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fpricing%3Fbuy%3Dboard_pass");
+    expect(await screen.findByText("LANDED ON PRICING")).toBeTruthy();
+    cleanup();
     markNewAccountLanding();
     authState.user = GOOGLE_USER;
     renderDoorAt("/login?redirect=%2Fmex");
@@ -207,7 +213,7 @@ describe("ACT-FIRST-1 · a new account from /pricing, /packs or Highly Probable 
 
   it("isBrowseTarget keeps every purchase intent and unrelated pages", () => {
     for (const t of ["/pricing", "/pricing/", "/packs", "/packs?utm_source=x", "/packs#cbq", "/highly-probable", "/highly-probable/maths/abc", "/PRICING"]) expect(isBrowseTarget(t), t).toBe(true);
-    for (const t of ["/pricing?buy=pack_cbq", "/packs?buy=pack_bundle&t=maths", "/packs?pack=cbq", "/packs?chapter=real-numbers", "/packs?mock=Maths", "/packs?view=sample", "/pricingx", "/packs-old", "/highly-probable-x", "/check-improve", "", null, undefined]) expect(isBrowseTarget(t), String(t)).toBe(false);
+    for (const t of ["/pricing?buy=pack_cbq", "/pricing?buy=board_pass", "/packs?buy=pack_bundle&t=maths", "/packs?pack=cbq", "/packs?chapter=real-numbers", "/packs?mock=Maths", "/packs?view=sample", "/pricingx", "/packs-old", "/highly-probable-x", "/check-improve", "", null, undefined]) expect(isBrowseTarget(t), String(t)).toBe(false);
   });
 });
 

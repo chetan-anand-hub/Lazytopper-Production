@@ -211,6 +211,7 @@ const EVENT_LABELS: Record<string, string> = {
   trial_summary_tap: "Tapped the trial-ending tutor summary",
   sale_moment_shown: "Was shown a pack / Board Pass line after a result",
   sale_moment_tap: "Tapped a pack / Board Pass line after a result",
+  board_pass_direct_checkout: "Opened the Board Pass checkout straight from a Pay button",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

@@ -954,7 +954,9 @@ export type NamedAnalyticsEvent =
   | "trial_summary_tap"
   // SALE-MOMENT-1 - the one buying line at the moment of value (ladder verdict, graded scorecards). Slugs only, see trackSaleMoment.
   | "sale_moment_shown"
-  | "sale_moment_tap";
+  | "sale_moment_tap"
+  // OFFERS-V2 A2 - /pricing?buy=board_pass started the Board Pass checkout once, straight from a "Pay" button. Name only.
+  | "board_pass_direct_checkout";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1998,11 +2000,13 @@ export interface OnboardingEventParams {
  * quick-practice) and `offer` (a pack SKU - pack_chapter | pack_subject | pack_cbq - or board_pass). Never a chapter, an id,
  * a price or a uid. The first-party log gets the bare name (signed-in students only, like every named event).
  */
-export function trackSaleMoment(name: "sale_moment_shown" | "sale_moment_tap", slug: { surface: string; offer: string }): void {
+export function trackSaleMoment(name: "sale_moment_shown" | "sale_moment_tap", slug: { surface: string; offer: string; rank?: number }): void {
   try {
     const data: Record<string, string> = {};
     if (ONBOARDING_SLUG.test(slug.surface)) data.surface = slug.surface;
     if (ONBOARDING_SLUG.test(slug.offer)) data.offer = slug.offer;
+    // OFFERS-V2: where the offer sits in the block (1 = the Board Pass card, 2.. = the pack rows top to bottom). A small whole number only.
+    if (typeof slug.rank === "number" && Number.isInteger(slug.rank) && slug.rank >= 1 && slug.rank <= 9) data.rank = String(slug.rank);
     send("event", { name, data }, { ga4: data });
   } catch {
     /* analytics must never break the page */

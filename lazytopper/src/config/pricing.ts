@@ -258,6 +258,16 @@ export function boardPassDeadlineLine(now: Date | number = Date.now()): string |
   if (!foundingOfferOpen(now)) return null;
   return `${FOUNDING_OFFER_BADGE} ends ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}: ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)}.`;
 }
+/**
+ * OFFERS-V2 - the short line under a Pay button: "One payment · ₹2,499 from 1 Dec" while the founding offer is open. DERIVED from the same
+ * constants as boardPassDeadlineLine (so the date and the figure cannot drift from it); from the deadline on it is the plain "One payment,
+ * no renewals". No crossed-out price, no saving claim.
+ */
+export function boardPassFromLine(now: Date | number = Date.now()): string {
+  if (!boardPassDeadlineLine(now)) return "One payment, no renewals";
+  const [day = "", month = ""] = FOUNDING_OFFER_LIST_FROM_LABEL.split(" ");
+  return `One payment \u00b7 ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} from ${day} ${month.slice(0, 3)}`;
+}
 /** The Board Pass LEADS (PRICING-1). Number-free so it may sit in static markup; no "saving" claim against a monthly price (PRICE-FIXED-1). */
 export const TILL_BOARDS_LINE = "One payment, till your board exam.";
 export const TILL_BOARDS_INLINE = `or pay once till boards`;

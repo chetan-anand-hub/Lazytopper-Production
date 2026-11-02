@@ -1,0 +1,40 @@
+/* OFFERS-V2 - the one buying block. Colours follow the surface it sits on (inherit + translucent tints) so it reads on the navy cockpit and on a light sheet. */
+.lt-offers { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; box-sizing: border-box; margin: 12px 0 0; text-align: left; }
+.lt-offers__head { margin: 4px 0 0; font-size: 1.3rem; line-height: 1.25; font-weight: 800; color: inherit; }
+.lt-offers__head-line { display: block; }
+.lt-offers__card {
+  display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; padding: 16px;
+  border-radius: 16px; border: 2px solid var(--lt-green, #16b96a); background: rgba(22, 185, 106, 0.12);
+}
+.lt-offers__cardhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.lt-offers__cardname { font-size: 1.06rem; font-weight: 800; }
+.lt-offers__badge { font-size: 0.7rem; font-weight: 700; color: #062015; background: #7ee2ad; border-radius: 999px; padding: 4px 9px; }
+.lt-offers__benefit { margin: 0; font-size: 0.88rem; line-height: 1.45; }
+.lt-offers__pay {
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 48px; padding: 0 16px;
+  border-radius: 12px; background: var(--lt-green, #16b96a); color: #062015; font-size: 1rem; font-weight: 800; text-decoration: none; text-align: center;
+}
+.lt-offers__fine { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 0.78rem; opacity: 0.85; }
+.lt-offers__link { font-size: 0.78rem; font-weight: 600; color: inherit; text-decoration: underline; text-underline-offset: 2px; min-height: 24px; }
+.lt-offers__packs { display: flex; flex-direction: column; gap: 8px; }
+.lt-offers__packs-head { margin: 4px 0 0; font-size: 0.88rem; font-weight: 700; }
+.lt-offers__row {
+  display: flex; align-items: center; gap: 10px; box-sizing: border-box; padding: 10px 12px;
+  border-radius: 12px; border: 1px solid rgba(128, 128, 128, 0.35); background: rgba(128, 128, 128, 0.08);
+}
+.lt-offers__row--best { border-color: var(--lt-green, #16b96a); }
+.lt-offers__row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lt-offers__row-name { font-size: 0.88rem; font-weight: 700; overflow-wrap: anywhere; }
+.lt-offers__best { margin-left: 6px; font-size: 0.62rem; font-weight: 800; color: #062015; background: #7ee2ad; border-radius: 999px; padding: 2px 6px; white-space: nowrap; }
+.lt-offers__row-line { font-size: 0.75rem; opacity: 0.8; }
+.lt-offers__buy {
+  flex: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 44px; min-width: 76px; padding: 0 12px;
+  border-radius: 10px; background: var(--lt-green, #16b96a); color: #062015; font-size: 0.88rem; font-weight: 800; text-decoration: none;
+}
+.lt-offers__pay:focus-visible, .lt-offers__buy:focus-visible, .lt-offers__link:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.9); outline-offset: 2px; }
+/* A wall's parent links sit inside the card as small links, not buttons. */
+.lt-offers__card .lt-paywall-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; justify-content: center; margin: 0; }
+.lt-offers__card .lt-paywall-parent { background: none; border: 0; padding: 4px 0; min-height: 32px; font: inherit; font-size: 0.78rem; font-weight: 600; color: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; width: auto; }
+@media (min-width: 1024px) {
+  .lt-offers { max-width: 560px; }
+}

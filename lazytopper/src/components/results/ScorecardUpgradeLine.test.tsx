@@ -1,9 +1,9 @@
-// ASK-FIX-1 - the scorecard's upgrade line: real marks only, never for Premium, on all six surfaces.
+// ASK-FIX-1 / OFFERS-V2 - the scorecard's upgrade line and (on a fresh result) the one buying block: real marks only, never for Premium, on all six surfaces.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-const auth = vi.hoisted(() => ({ user: { uid: "u1" } as { uid: string } | null, tier: "free" as string, hydrated: true, trialStart: null as string | null, listeners: [] as Array<(uid: string, s: unknown) => void>, owned: [] as Array<{ packId: string }> }));
+const auth = vi.hoisted(() => ({ user: { uid: "u1" } as { uid: string } | null, tier: "free" as string, hydrated: true, trialStart: null as string | null, listeners: [] as Array<(uid: string, s: unknown) => void>, owned: [] as Array<{ packId: string }>, fail: false }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 vi.mock("../../hooks/useSubscription", () => ({
   useSubscription: () => ({ hydrated: auth.hydrated, tier: auth.tier, isTrialExpired: false, isTrialActive: auth.tier === "trial", daysLeftInTrial: 3, status: {} }),
@@ -27,12 +27,12 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 });
 vi.mock("../../services/packs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/packs")>();
-  return { ...actual, fetchMyPacks: () => Promise.resolve({ packs: auth.owned, licensee: { name: "", email: "" }, boardPassCredit: null }) };
+  return { ...actual, fetchMyPacks: () => (auth.fail ? Promise.reject(new Error("request failed: 500")) : Promise.resolve({ packs: auth.owned, licensee: { name: "", email: "" }, boardPassCredit: null })) };
 });
 vi.mock("../feedback/feedbackPromptHost", () => ({ notifyFirstGradedResult: vi.fn(), notifyPaywallDismissed: vi.fn(), dismissFeedbackPromptFor: vi.fn() }));
 
 import ResultsScorecard from "./ResultsScorecard";
-import { scorecardUpgradeCopy } from "./ScorecardUpgradeLine";
+import { scorecardHeadline, scorecardUpgradeCopy } from "./ScorecardUpgradeLine";
 import { boardPassPriceNow } from "../pricing/boardPassOffer";
 import * as analytics from "../../analytics/analytics";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
@@ -47,12 +47,14 @@ const SURFACES: ScorecardSurface[] = ["check-improve", "worksheet", "chapter-tes
 
 beforeEach(() => {
   vi.stubEnv("VITE_PACKS_ENABLED", "1"); // SALE-MOMENT-1: the pack line is behind the packs switch
+  vi.stubEnv("VITE_PAYMENTS_ENABLED", "1"); // OFFERS-V2: Pay goes to checkout only while payments are on
   resetOwnedPacksCache();
   auth.owned = [];
+  auth.fail = false;
   auth.user = { uid: "u1" };
   auth.tier = "free";
   auth.hydrated = true;
-  auth.trialStart = null;
+  auth.trialStart = "2026-01-01T00:00:00.000Z"; // a KNOWN Basic account (trial over); the block waits for a known record
   auth.listeners = [];
   track.mockClear();
 });
@@ -106,55 +108,163 @@ describe("scorecardUpgradeCopy", () => {
   });
 });
 
-describe("the shell renders it on every grading surface (one call site: ResultsScorecard)", () => {
-  it.each(SURFACES)("%s: a non-Premium student sees it, and a tap opens the Board Pass sheet", (surface) => {
+describe("OFFERS-V2: the headline is the result's own numbers (never invented)", () => {
+  it("marks lost / full marks / unknown", () => {
+    expect(scorecardHeadline(variantFor("full-mock", marks(52, 80)))).toEqual(["You lost 28 marks.", "Let\u2019s win them back before boards."]);
+    expect(scorecardHeadline(variantFor("worksheet", marks(9, 10)))).toEqual(["You lost 1 mark.", "Let\u2019s win it back before boards."]);
+    expect(scorecardHeadline(variantFor("worksheet", marks(8.5, 10)))).toEqual(["You lost 1.5 marks.", "Let\u2019s win them back before boards."]);
+    expect(scorecardHeadline(variantFor("worksheet", marks(8, 10)))?.[1]).toBe("Let\u2019s win them back before boards.");
+    expect(scorecardHeadline(variantFor("worksheet", { kind: "attempts", attempted: 1, ofN: 1, mcqAnswered: 1, mcqCorrect: 0 } as ScorecardVariant["score"]))).toBeTruthy();
+    expect(scorecardHeadline(variantFor("check-improve", marks(5, 5)))).toEqual(["Full marks!", "Keep every answer marked like this till your boards."]);
+  });
+  it("Quick Practice MCQs: the wrong count and the slip-or-gap question", () => {
+    const qp = (answered: number, correct: number) => variantFor("quick-practice", { kind: "attempts", attempted: answered, ofN: 10, mcqAnswered: answered, mcqCorrect: correct });
+    expect(scorecardHeadline(qp(10, 7))).toEqual(["3 wrong.", "A slip, or a concept gap?"]);
+    expect(scorecardHeadline(qp(5, 5))).toEqual(["Get every answer marked like this till your boards."]);
+  });
+  it("no number when marks are unknown (pending, awaited sheet); nothing on an all-pending or deferred card", () => {
+    const pending = { ...variantFor("worksheet", marks(4, 10)), pending: { count: 1, worksheetTotalMarks: 10 } } as ScorecardVariant;
+    expect((scorecardHeadline(pending) ?? []).join(" ")).not.toMatch(/\d/);
+    const awaiting = { ...variantFor("chapter-test", marks(4, 10)), awaitingSheet: true } as ScorecardVariant;
+    expect((scorecardHeadline(awaiting) ?? []).join(" ")).not.toMatch(/\d/);
+    expect(scorecardHeadline({ ...variantFor("worksheet", marks(0, 10)), allPending: { title: "x", detail: "y" } } as ScorecardVariant)).toBeNull();
+    expect(scorecardHeadline({ ...variantFor("full-mock", marks(0, 10)), deferred: true } as ScorecardVariant)).toBeNull();
+  });
+});
+
+const spyTap = () => vi.spyOn(analytics, "trackSaleMoment");
+
+describe("the shell renders the block on every grading surface (one call site: ResultsScorecard)", () => {
+  it.each(SURFACES)("%s: a non-Premium student sees the headline and the Board Pass card, and Pay goes straight to checkout", (surface) => {
+    const spy = spyTap();
     const score = surface === "quick-practice"
       ? ({ kind: "attempts", attempted: 2, ofN: 5, mcqAnswered: 2, mcqCorrect: 1 } as const)
       : marks(6, 10);
     render(<MemoryRouter><ResultsScorecard variant={variantFor(surface, score)} onClose={() => {}} /></MemoryRouter>);
-    const line = screen.getByTestId("scorecard-upgrade-line");
-    expect(line).toHaveTextContent(surface === "quick-practice" ? "You lost 1 mark here. Upload your working" : "You lost 4 marks here.");
+    expect(screen.getByTestId("offers-block")).toHaveAttribute("data-surface", surface);
+    expect(screen.getByTestId("offers-headline")).toHaveTextContent(surface === "quick-practice" ? "1 wrong.A slip, or a concept gap?" : "You lost 4 marks.");
+    const pay = screen.getByTestId("offers-pay");
+    expect(pay).toHaveTextContent(`Pay ${boardPassPriceNow()}`);
+    expect(pay).toHaveAttribute("href", "/pricing?buy=board_pass");
+    expect(screen.getByTestId("offers-what-you-get")).toHaveAttribute("href", "/pricing");
     expect(track).toHaveBeenCalledWith("shown");
-    fireEvent.click(line);
+    expect(spy).toHaveBeenCalledWith("sale_moment_shown", { surface, offer: "board_pass", rank: 1 });
+    fireEvent.click(pay);
     expect(track).toHaveBeenCalledWith("click");
-    expect(screen.getByTestId("upgrade-sheet-board-pass")).toHaveTextContent("Board Pass");
+    expect(spy).toHaveBeenCalledWith("sale_moment_tap", { surface, offer: "board_pass", rank: 1 });
+    // OFFERS-V2: the tap goes to checkout; it no longer opens the upgrade sheet first.
+    expect(screen.queryByTestId("upgrade-sheet")).toBeNull();
   });
 
-  it("a history re-open shows the line but does not count 'shown'", () => {
+  it("each surface's own benefit line (honest, no number)", () => {
+    const want: Record<string, RegExp> = {
+      "full-mock": /^Every answer you write, marked step by step like a CBSE examiner/,
+      "check-improve": /^Check every answer like this till your boards/,
+      "chapter-test": /^Every chapter test, mock and handwritten answer marked step by step/,
+      worksheet: /^Every worksheet, chapter test and handwritten answer marked step by step/,
+      "quick-practice": /^Upload your rough work and find out exactly why/,
+    };
+    for (const surface of SURFACES) {
+      const score = surface === "quick-practice" ? ({ kind: "attempts", attempted: 2, ofN: 5, mcqAnswered: 2, mcqCorrect: 1 } as const) : marks(6, 10);
+      render(<MemoryRouter><ResultsScorecard variant={variantFor(surface, score)} onClose={() => {}} /></MemoryRouter>);
+      expect(screen.getByTestId("offers-board-pass").querySelector(".lt-offers__benefit")?.textContent ?? "").toMatch(want[surface]);
+      cleanup();
+    }
+  });
+
+  it("payments dark: the card only shows the plan (no Pay promise) and links to /pricing", () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "");
+    render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    const pay = screen.getByTestId("offers-pay");
+    expect(pay).toHaveTextContent(`See Board Pass ${boardPassPriceNow()}`);
+    expect(pay).toHaveAttribute("href", "/pricing");
+  });
+
+  it("no ₹599 / ₹999 / crossed-out price / saving claim anywhere in the block", () => {
+    render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    expect(screen.getByTestId("offers-block").textContent ?? "").not.toMatch(/599|999|save|%|unlimited/i);
+    expect(screen.getByTestId("offers-block").querySelector("s, del, strike")).toBeNull();
+  });
+
+  it("the later price line comes from the pricing module while the founding offer is open (pinned clock), and says no date once it is closed", () => {
+    vi.useFakeTimers({ now: new Date("2026-11-10T06:30:00.000Z"), toFake: ["Date"] });
+    try {
+      render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+      expect(screen.getByTestId("offers-from-line")).toHaveTextContent("One payment · ₹2,499 from 1 Dec");
+      expect(screen.getByTestId("offers-founding")).toHaveTextContent("Founding member offer");
+      cleanup();
+      vi.setSystemTime(new Date("2026-12-02T06:30:00.000Z"));
+      render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+      expect(screen.getByTestId("offers-from-line")).toHaveTextContent("One payment, no renewals");
+      expect(screen.queryByTestId("offers-founding")).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("a history re-open shows the quiet one line (no block) and does not count 'shown'", () => {
     render(<MemoryRouter><ResultsScorecard reopened variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
     expect(screen.getByTestId("scorecard-upgrade-line")).toBeInTheDocument();
+    expect(screen.queryByTestId("offers-block")).toBeNull();
     expect(track).not.toHaveBeenCalledWith("shown");
+  });
+
+  it("the compact line still opens the Board Pass sheet (re-opened result)", () => {
+    render(<MemoryRouter><ResultsScorecard reopened variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    fireEvent.click(screen.getByTestId("scorecard-upgrade-line"));
+    expect(track).toHaveBeenCalledWith("click");
+    expect(screen.getByTestId("upgrade-sheet-board-pass")).toHaveTextContent("Board Pass");
   });
 
   it("a trial student sees it; a Premium student, a signed-out visitor and a bare render do not", () => {
     const v = variantFor("worksheet", marks(6, 10));
     auth.tier = "trial";
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    expect(screen.queryByTestId("scorecard-upgrade-line")).not.toBeNull();
+    expect(screen.queryByTestId("offers-board-pass")).not.toBeNull();
     cleanup();
     auth.tier = "premium";
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    expect(screen.queryByTestId("offers-block")).toBeNull();
     expect(screen.queryByTestId("scorecard-upgrade-line")).toBeNull();
     cleanup();
     auth.tier = "free";
     auth.user = null;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    expect(screen.queryByTestId("scorecard-upgrade-line")).toBeNull();
+    expect(screen.queryByTestId("offers-block")).toBeNull();
+  });
+});
+
+describe("OFFERS-V2: no offer flash before the status is known", () => {
+  it("a paid student's cold cache: nothing at all (no headline, no Pay card, no 'shown'), then it hydrates to Premium and the block never appears", async () => {
+    auth.trialStart = null; // the empty default cache of a not-yet-hydrated student
+    render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    expect(screen.queryByTestId("offers-block")).toBeNull();
+    expect(screen.queryByTestId("offers-pay")).toBeNull();
+    expect(screen.queryByTestId("scorecard-trial-lead")).toBeNull();
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "premium", trialStartDate: null })));
+    await act(async () => {});
+    expect(screen.queryByTestId("offers-block")).toBeNull();
+    expect(track).not.toHaveBeenCalledWith("shown");
   });
 });
 
 describe("ASK-COPY-1: the trial leads where the student can still start it (never on mount)", () => {
   const v = variantFor("worksheet", marks(6, 10));
-  it("an account that never had a trial sees 'Start your free 7-day trial' first and the Board Pass line second", () => {
+  it("an account that never had a trial sees 'Start your free 7-day trial' ABOVE the Board Pass card (once the cloud has answered)", () => {
+    auth.trialStart = null;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    expect(screen.queryByTestId("offers-block")).toBeNull(); // unknown yet: nothing
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
     const lead = screen.getByTestId("scorecard-trial-lead");
-    const line = screen.getByTestId("scorecard-upgrade-line");
+    const card = screen.getByTestId("offers-board-pass");
     expect(lead).toHaveTextContent("Start your free 7-day trial");
-    expect(lead.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(line).toHaveTextContent("Board Pass");
+    expect(lead.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByTestId("offers-headline").compareDocumentPosition(lead) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
   it("a tap opens the sheet; nothing starts a trial by itself", () => {
+    auth.trialStart = null;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
     expect(screen.queryByTestId("upgrade-sheet")).toBeNull();
     fireEvent.click(screen.getByTestId("scorecard-trial-lead"));
     expect(screen.getByTestId("upgrade-sheet")).toBeInTheDocument();
@@ -163,132 +273,155 @@ describe("ASK-COPY-1: the trial leads where the student can still start it (neve
     auth.trialStart = "2026-10-01T00:00:00.000Z";
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
     expect(screen.queryByTestId("scorecard-trial-lead")).toBeNull();
-    expect(screen.getByTestId("scorecard-upgrade-line")).toBeInTheDocument();
+    expect(screen.getByTestId("offers-board-pass")).toBeInTheDocument();
   });
 });
 
-describe("FIRST-OFFER-1 / SALE-MOMENT-1: the first-result offer names the Board Pass price, then the pack that fits the result", () => {
-  it("the copy carries the price it is given and never says 'unlimited'", () => {
-    const t = scorecardUpgradeCopy(variantFor("worksheet", marks(7, 10)), "₹1,234")?.text ?? "";
-    expect(t).toBe("You lost 3 marks here. Get every answer marked like this till your boards — Board Pass ₹1,234 →");
-    for (const surface of SURFACES) {
-      const score = surface === "quick-practice" ? ({ kind: "attempts", attempted: 3, ofN: 5, mcqAnswered: 3, mcqCorrect: 1 } as const) : marks(5, 5);
-      expect(scorecardUpgradeCopy(variantFor(surface, score), "₹1,234")?.text).not.toMatch(/unlimited/i);
-    }
-  });
-  it("renders the real price and, when the result names no chapter, the plain pack line to the packs strip (Basic, trial ended)", async () => {
+describe("OFFERS-V2: the pack rows, per surface, highest price first", () => {
+  const rowSkus = () => Array.from(document.querySelectorAll("[data-testid^='offers-row-']")).map((n) => n.getAttribute("data-testid")!.replace("offers-row-", ""));
+  const withTarget = (surface: ScorecardSurface, to: string, chapter?: string, score: ScorecardVariant["score"] = marks(6, 10)) =>
+    ({ ...variantFor(surface, score), guideTarget: { to, chapter } }) as ScorecardVariant;
+  const show = (v: ScorecardVariant) => render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+
+  it("renders the real Board Pass price; with no chapter or subject known only the Bundle row is offered (never a guess)", async () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
-    render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    show(variantFor("worksheet", marks(6, 10)));
     const price = boardPassPriceNow();
     expect(price).toMatch(/^₹/);
-    expect(screen.getByTestId("scorecard-upgrade-line")).toHaveTextContent(`Board Pass ${price} →`);
-    const pack = await screen.findByTestId("sale-moment-pack");
-    expect(pack).toHaveTextContent("Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →");
-    expect(pack).toHaveAttribute("href", "/pricing#packs");
-    expect(screen.getByTestId("scorecard-upgrade-line").compareDocumentPosition(pack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByTestId("offers-pay")).toHaveTextContent(price as string);
+    await screen.findByTestId("offers-packs");
+    expect(screen.getByText("Prefer practising on paper?")).toBeInTheDocument();
+    expect(rowSkus()).toEqual(["pack_bundle"]);
+    expect(screen.getByTestId("offers-buy-pack_bundle")).toHaveAttribute("href", "/packs?buy=pack_bundle");
+    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("BEST VALUE");
+    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("All 26 chapters + 16 mocks, the whole year");
   });
-  it.each(SURFACES.filter((x) => x !== "quick-practice"))("%s: deep-links the chapter pack the result names, with the chapter's name and the catalogue price", async (surface) => {
+  it.each(["worksheet", "chapter-test"] as const)("%s: Bundle, the subject's CBQ Pack, this chapter's Chapter Pack - each button one tap to payment", async (surface) => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
-    const v = { ...variantFor(surface, marks(6, 10)), guideTarget: { to: "/practice/10/maths?topic=triangles&weakMode=1", chapter: "Triangles" } } as ScorecardVariant;
-    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    const pack = await screen.findByTestId("sale-moment-pack");
-    expect(pack).toHaveAttribute("href", "/packs?chapter=triangles");
-    expect(pack).toHaveTextContent(`Triangles Chapter Pack ₹${PACK_PRICE_INR.pack_chapter}`);
-    expect(screen.getAllByTestId("sale-moment")).toHaveLength(1); // at most once per scorecard
+    show(withTarget(surface, "/practice/10/maths?topic=triangles&weakMode=1", "Triangles"));
+    await screen.findByTestId("offers-packs");
+    expect(rowSkus()).toEqual(["pack_bundle", "pack_cbq", "pack_chapter"]);
+    expect(screen.getByTestId("offers-buy-pack_cbq")).toHaveAttribute("href", "/packs?buy=pack_cbq&t=maths");
+    expect(screen.getByTestId("offers-buy-pack_chapter")).toHaveAttribute("href", "/packs?buy=pack_chapter&t=triangles");
+    expect(screen.getByTestId("offers-buy-pack_chapter")).toHaveTextContent(`₹${PACK_PRICE_INR.pack_chapter}`);
+    expect(screen.getByTestId("offers-row-pack_chapter")).toHaveTextContent("Triangles Chapter Pack");
+    expect(screen.getByTestId("offers-inside-pack_chapter")).toHaveAttribute("href", "/packs?chapter=triangles");
   });
-  it("Quick Practice keeps its own pack card and gets no second pack line", async () => {
+  it("Answer Checker: Bundle, Subject, CBQ, Mock and Chapter rows, in that order", async () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
-    const v = { ...variantFor("quick-practice", marks(6, 10)), guideTarget: { to: "/practice/10/maths?topic=triangles", chapter: "Triangles" } } as ScorecardVariant;
-    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    await act(async () => {});
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
-    expect(await screen.findByTestId("pack-promo-card")).toBeInTheDocument();
+    show(withTarget("check-improve", "/practice/10/science?topic=electricity", "Electricity"));
+    await screen.findByTestId("offers-packs");
+    expect(rowSkus()).toEqual(["pack_bundle", "pack_subject", "pack_cbq", "pack_mock", "pack_chapter"]);
   });
-  it("a Full Mock result offers that subject's Mock Pack, even when it also names a weak chapter", async () => {
+  it("a Full Mock result offers its subject's CBQ and Mock Pack with the Bundle, even when it also names a weak chapter", async () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
-    const v = { ...variantFor("full-mock", marks(40, 80)), saleMockSubject: "maths", guideTarget: { to: "/practice/10/maths?topic=triangles", chapter: "Triangles" } } as ScorecardVariant;
-    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    const pack = await screen.findByTestId("sale-moment-pack");
-    expect(pack).toHaveAttribute("href", "/packs?mock=maths");
-    expect(pack).toHaveTextContent(`Maths Mock Pack ₹${PACK_PRICE_INR.pack_mock} \u2014 8 full board mocks, printed with answer keys \u2192`);
+    show({ ...withTarget("full-mock", "/practice/10/maths?topic=triangles", "Triangles", marks(40, 80)), saleMockSubject: "maths" } as ScorecardVariant);
+    await screen.findByTestId("offers-packs");
+    expect(rowSkus()).toEqual(["pack_bundle", "pack_cbq", "pack_mock"]);
+    expect(screen.getByTestId("offers-buy-pack_mock")).toHaveAttribute("href", "/packs?buy=pack_mock&t=maths");
+    expect(screen.getByTestId("offers-row-pack_mock")).toHaveTextContent("Maths Mock Pack");
   });
-  it.each([["pack_mock:maths"], ["pack_subject:maths"], ["pack_bundle:all"]])("a Full Mock result hides the Mock Pack line for an owner of %s", async (id) => {
+  it("Quick Practice: Bundle and the subject's CBQ Pack above its own pack card", async () => {
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    const score = { kind: "attempts", attempted: 5, ofN: 10, mcqAnswered: 5, mcqCorrect: 3 } as const;
+    show(withTarget("quick-practice", "/practice/10/maths?topic=triangles", "Triangles", score));
+    await screen.findByTestId("offers-packs");
+    expect(rowSkus()).toEqual(["pack_bundle", "pack_cbq"]);
+    const promo = await screen.findByTestId("pack-promo-card");
+    expect(screen.getByTestId("offers-packs").compareDocumentPosition(promo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+  it.each([
+    ["pack_mock:maths", ["pack_bundle", "pack_cbq"]],
+    ["pack_subject:maths", ["pack_bundle", "pack_cbq"]],
+    ["pack_bundle:all", ["pack_cbq"]],
+    ["pack_cbq:maths", ["pack_bundle", "pack_mock"]],
+  ])("a Full Mock result hides what an owner of %s already has (the Bundle does not include CBQ)", async (id, want) => {
     auth.owned = [{ packId: id }];
     auth.trialStart = "2026-01-01T00:00:00.000Z";
-    const v = { ...variantFor("full-mock", marks(40, 80)), saleMockSubject: "maths" } as ScorecardVariant;
-    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    await act(async () => {});
-    expect(screen.queryByTestId("sale-moment-pack")).toBeNull();
+    show({ ...variantFor("full-mock", marks(40, 80)), saleMockSubject: "maths" } as ScorecardVariant);
+    await waitFor(() => expect(rowSkus()).toEqual(want));
   });
-  it("a Chapter Test never offers the CBQ Pack from its sections: it keeps its Chapter Pack", async () => {
+  it("an owner of every row sees the Board Pass card but no pack section", async () => {
+    auth.owned = [{ packId: "pack_bundle:all" }, { packId: "pack_cbq:maths" }];
     auth.trialStart = "2026-01-01T00:00:00.000Z";
-    const v = { ...variantFor("chapter-test", marks(6, 10)), guideTarget: { to: "/practice/10/science?topic=life-processes", chapter: "Life Processes" } } as ScorecardVariant;
-    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    const pack = await screen.findByTestId("sale-moment-pack");
-    expect(pack).toHaveAttribute("href", "/packs?chapter=life-processes");
-    expect(pack).toHaveTextContent(`Life Processes Chapter Pack ₹${PACK_PRICE_INR.pack_chapter}`);
-  });
-  it("a result that names only its subject offers that subject's Subject Pack", async () => {
-    auth.trialStart = "2026-01-01T00:00:00.000Z";
-    const v = { ...variantFor("full-mock", marks(40, 80)), guideTarget: { to: "/practice/10/science?weakMode=1" } } as ScorecardVariant;
-    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    const pack = await screen.findByTestId("sale-moment-pack");
-    expect(pack).toHaveAttribute("href", "/packs?pack=subject&subject=science");
-    expect(pack).toHaveTextContent(`Science Subject Pack ₹${PACK_PRICE_INR.pack_subject}`);
-  });
-  it("hidden for a student who already owns that pack", async () => {
-    auth.owned = [{ packId: "pack_subject:maths" }];
-    const v = { ...variantFor("worksheet", marks(6, 10)), guideTarget: { to: "/practice/10/maths?topic=triangles", chapter: "Triangles" } } as ScorecardVariant;
-    render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
+    show({ ...variantFor("full-mock", marks(40, 80)), saleMockSubject: "maths" } as ScorecardVariant);
     await act(async () => {});
-    expect(screen.getByTestId("scorecard-upgrade-line")).toBeInTheDocument(); // the Board Pass line stays
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    expect(screen.getByTestId("offers-board-pass")).toBeInTheDocument();
+    expect(screen.queryByTestId("offers-packs")).toBeNull();
+  });
+  it("a failed ownership read hides every pack row (when unsure, never sell) but keeps the Board Pass card", async () => {
+    auth.owned = null as unknown as Array<{ packId: string }>; // fetchMyPacks rejects below
+    auth.fail = true;
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    show(variantFor("worksheet", marks(6, 10)));
+    await act(async () => {});
+    expect(screen.getByTestId("offers-board-pass")).toBeInTheDocument();
+    expect(screen.queryByTestId("offers-packs")).toBeNull();
+  });
+  it("no pack rows when the packs switch is off", async () => {
+    vi.stubEnv("VITE_PACKS_ENABLED", "");
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    show(variantFor("worksheet", marks(6, 10)));
+    await act(async () => {});
+    expect(screen.getByTestId("offers-board-pass")).toBeInTheDocument();
+    expect(screen.queryByTestId("offers-packs")).toBeNull();
   });
   it("not on a re-opened old result", async () => {
-    render(<MemoryRouter><ResultsScorecard reopened variant={{ ...variantFor("worksheet", marks(6, 10)), guideTarget: { to: "/practice/10/maths?topic=triangles" } } as ScorecardVariant} onClose={() => {}} /></MemoryRouter>);
+    render(<MemoryRouter><ResultsScorecard reopened variant={withTarget("worksheet", "/practice/10/maths?topic=triangles")} onClose={() => {}} /></MemoryRouter>);
     await act(async () => {});
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    expect(screen.queryByTestId("offers-packs")).toBeNull();
   });
-  it("a Board Pass tap is counted as a sale-moment tap for that surface", () => {
-    const spy = vi.spyOn(analytics, "trackSaleMoment");
-    render(<MemoryRouter><ResultsScorecard variant={variantFor("chapter-test", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
-    fireEvent.click(screen.getByTestId("scorecard-upgrade-line"));
-    expect(spy).toHaveBeenCalledWith("sale_moment_tap", { surface: "chapter-test", offer: "board_pass" });
+  it("events: one 'shown' per offer with its rank (card 1, rows 2..), and a row tap carries sku + rank", async () => {
+    const spy = spyTap();
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
+    show(withTarget("chapter-test", "/practice/10/maths?topic=triangles", "Triangles"));
+    await screen.findByTestId("offers-packs");
+    const shown = spy.mock.calls.filter((c) => c[0] === "sale_moment_shown").map((c) => c[1]);
+    expect(shown).toEqual([
+      { surface: "chapter-test", offer: "board_pass", rank: 1 },
+      { surface: "chapter-test", offer: "pack_bundle", rank: 2 },
+      { surface: "chapter-test", offer: "pack_cbq", rank: 3 },
+      { surface: "chapter-test", offer: "pack_chapter", rank: 4 },
+    ]);
+    fireEvent.click(screen.getByTestId("offers-buy-pack_cbq"));
+    expect(spy).toHaveBeenLastCalledWith("sale_moment_tap", { surface: "chapter-test", offer: "pack_cbq", rank: 3 });
+    fireEvent.click(screen.getByTestId("offers-inside-pack_chapter"));
+    expect(spy).toHaveBeenLastCalledWith("sale_moment_tap", { surface: "chapter-test", offer: "pack_chapter_inside", rank: 4 });
   });
-  it("PACK-BASIC-ONLY-1: the pack line shows to every non-paid student, and not before the status is known", async () => {
-    const mount = () => render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
-    const packShown = () => screen.queryByTestId("sale-moment-pack") !== null;
-    // trial (any day) -> shown; the Board Pass line is the control that the card rendered
+  it("PACK-BASIC-ONLY-1: the rows show to every non-paid student, and not before the status is known", async () => {
+    const mount = () => show(variantFor("worksheet", marks(6, 10)));
+    const rowsShown = () => screen.queryByTestId("offers-packs") !== null;
+    // trial (any day) -> shown
     auth.tier = "trial";
     auth.trialStart = "2026-10-27T00:00:00.000Z";
     mount();
-    expect(screen.getByTestId("scorecard-upgrade-line")).toBeInTheDocument();
-    await screen.findByTestId("sale-moment-pack");
+    expect(screen.getByTestId("offers-board-pass")).toBeInTheDocument();
+    await screen.findByTestId("offers-packs");
     cleanup();
     // Basic, trial ended -> shown
     auth.tier = "free";
     mount();
-    await screen.findByTestId("sale-moment-pack");
+    await screen.findByTestId("offers-packs");
     cleanup();
     // never-trialled Basic: hidden until the cloud has answered (no flash for a paid student), then shown
     auth.trialStart = null;
     mount();
     await act(async () => {});
-    expect(packShown()).toBe(false);
+    expect(rowsShown()).toBe(false);
     act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
-    await screen.findByTestId("sale-moment-pack");
+    await screen.findByTestId("offers-packs");
     cleanup();
-    // an unhydrated cache that turns out to be paid never showed it
+    // an unhydrated cache that turns out to be paid never showed the rows
     auth.listeners = [];
     mount();
-    expect(packShown()).toBe(false);
+    expect(rowsShown()).toBe(false);
     act(() => auth.listeners.forEach((l) => l("u1", { tier: "premium", trialStartDate: null })));
     await act(async () => {});
-    expect(packShown()).toBe(false);
+    expect(rowsShown()).toBe(false);
   });
-  it("paid Premium sees neither line", () => {
+  it("paid Premium sees nothing", () => {
     auth.tier = "premium";
-    render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    show(variantFor("worksheet", marks(6, 10)));
+    expect(screen.queryByTestId("offers-block")).toBeNull();
   });
 });

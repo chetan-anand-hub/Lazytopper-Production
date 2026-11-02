@@ -1,4 +1,4 @@
-// SALE-MOMENT-1 - the buying line under the one-minute ladder's verdict.
+// SALE-MOMENT-1 / OFFERS-V2 - the buying block under the one-minute ladder's verdict.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -42,6 +42,7 @@ function ladder() {
 
 beforeEach(() => {
   vi.stubEnv("VITE_PACKS_ENABLED", "1");
+  vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
   window.sessionStorage.clear();
   H.user = { uid: "u1" };
   H.tier = "trial";
@@ -56,24 +57,33 @@ afterEach(() => {
 });
 
 describe("ladder verdict", () => {
-  it("shows nothing before the tap; after it, this chapter's Chapter Pack and the Board Pass, once", async () => {
+  it("shows nothing before the tap; after it, the Board Pass card then this chapter's rows, once each", async () => {
     ladder();
     await screen.findByTestId("one-min-ladder");
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    expect(screen.queryByTestId("offers-block")).toBeNull();
     fireEvent.click(screen.getByTestId("one-min-opt-0"));
-    const pack = await screen.findByTestId("sale-moment-pack");
+    const pass = await screen.findByTestId("offers-board-pass");
+    expect(screen.getByTestId("offers-pay")).toHaveAttribute("href", "/pricing?buy=board_pass");
+    await screen.findByTestId("offers-packs");
+    const chapterBuy = screen.getByTestId("offers-buy-pack_chapter");
     const slugs = ONE_MINUTE_STARTERS.map((s) => s.topicKey);
-    const slug = decodeURIComponent((pack.getAttribute("href") ?? "").replace("/packs?chapter=", ""));
-    expect(slugs).toContain(slug);
-    expect(pack).toHaveTextContent(`Chapter Pack ₹${PACK_PRICE_INR.pack_chapter}`);
-    expect(screen.getByTestId("sale-moment-boardpass")).toHaveAttribute("href", "/pricing");
-    expect(screen.getAllByTestId("sale-moment")).toHaveLength(1);
+    const href = chapterBuy.getAttribute("href") ?? "";
+    expect(href.startsWith("/packs?buy=pack_chapter&t=")).toBe(true);
+    expect(slugs).toContain(decodeURIComponent(href.replace("/packs?buy=pack_chapter&t=", "")));
+    expect(chapterBuy).toHaveTextContent(`₹${PACK_PRICE_INR.pack_chapter}`);
+    expect(Array.from(document.querySelectorAll("[data-testid^='offers-row-']")).map((n) => n.getAttribute("data-testid"))).toEqual([
+      "offers-row-pack_bundle",
+      "offers-row-pack_cbq",
+      "offers-row-pack_chapter",
+    ]);
+    expect(screen.getAllByTestId("offers-block")).toHaveLength(1);
     // the primary step stays first
-    expect(screen.getByTestId("one-min-next").compareDocumentPosition(pack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    await waitFor(() => expect(H.shown).toHaveBeenCalledWith("sale_moment_shown", { surface: "ladder", offer: "pack_chapter" }));
-    expect(H.shown.mock.calls.filter((c) => c[0] === "sale_moment_shown")).toHaveLength(1);
+    expect(screen.getByTestId("one-min-next").compareDocumentPosition(pass) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    await waitFor(() => expect(H.shown).toHaveBeenCalledWith("sale_moment_shown", { surface: "ladder", offer: "pack_chapter", rank: 4 }));
+    expect(H.shown).toHaveBeenCalledWith("sale_moment_shown", { surface: "ladder", offer: "board_pass", rank: 1 });
+    expect(H.shown.mock.calls.filter((c) => c[0] === "sale_moment_shown")).toHaveLength(4);
   });
-  it("a stale cached Basic status that hydrates to Premium never shows the row, even after the tap", async () => {
+  it("a stale cached Basic status that hydrates to Premium never shows the block, even after the tap", async () => {
     H.tier = "free";
     ladder();
     await screen.findByTestId("one-min-ladder");
@@ -82,16 +92,25 @@ describe("ladder verdict", () => {
     });
     fireEvent.click(screen.getByTestId("one-min-opt-0"));
     await act(async () => {});
-    expect(screen.queryByTestId("sale-moment")).toBeNull();
+    expect(screen.queryByTestId("offers-block")).toBeNull();
     expect(H.shown).not.toHaveBeenCalledWith("sale_moment_shown", expect.anything());
   });
-  it("a signed-out visitor sees the pack and the Board Pass too", async () => {
+  it("a signed-out visitor sees the Board Pass card and the rows too (no ownership read)", async () => {
     H.user = null;
     ladder();
     await screen.findByTestId("one-min-ladder");
     fireEvent.click(screen.getByTestId("one-min-opt-0"));
-    expect(await screen.findByTestId("sale-moment-pack")).toHaveAttribute("href", expect.stringMatching(/^\/packs\?chapter=/));
-    expect(screen.getByTestId("sale-moment-boardpass")).toBeInTheDocument();
+    expect(await screen.findByTestId("offers-buy-pack_chapter")).toHaveAttribute("href", expect.stringMatching(/^\/packs\?buy=pack_chapter&t=/));
+    expect(screen.getByTestId("offers-pay")).toHaveAttribute("href", "/pricing?buy=board_pass");
+  });
+  it("the packs switch off: nothing at the verdict, as before", async () => {
+    vi.stubEnv("VITE_PACKS_ENABLED", "");
+    ladder();
+    await screen.findByTestId("one-min-ladder");
+    fireEvent.click(screen.getByTestId("one-min-opt-0"));
+    await screen.findByTestId("one-min-verdict");
+    await act(async () => {});
+    expect(screen.queryByTestId("offers-block")).toBeNull();
   });
   it("paid Premium sees nothing at the verdict", async () => {
     H.tier = "premium";
@@ -99,6 +118,6 @@ describe("ladder verdict", () => {
     await screen.findByTestId("one-min-ladder");
     fireEvent.click(screen.getByTestId("one-min-opt-0"));
     await screen.findByTestId("one-min-verdict");
-    await waitFor(() => expect(screen.queryByTestId("sale-moment")).toBeNull());
+    await waitFor(() => expect(screen.queryByTestId("offers-block")).toBeNull());
   });
 });

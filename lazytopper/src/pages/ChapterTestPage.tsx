@@ -130,7 +130,7 @@ import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
 import { gradingErrorMessage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
-import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine } from "../components/limits/limitsCopy";
+import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
 import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../ai/gradingJobs";
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
@@ -352,7 +352,8 @@ export default function ChapterTestPage() {
   const [gradeError, setGradeError] = useState<string | null>(null);
   // PAPER-WALLS-1: the upgrade sheet (Board Pass first, the Chapter Pack second) for a Basic 402 / spent trial allowance.
   const [paperWall, setPaperWall] = useState(false);
-  const paperPack = useMemo(() => paperPackLine("chapter-test", { chapters: [resolveCanonicalSlug(topicKey) || ""] }), [topicKey]);
+  // OFFERS-V2: the wall's buying block - this chapter's rows (Bundle, subject CBQ, Chapter Pack) under the Board Pass card.
+  const paperOffers = useMemo(() => ({ kind: "chapter-test" as const, chapterSlug: resolveCanonicalSlug(topicKey) || null, chapterName: topicName }), [topicKey, topicName]);
   const [downloading, setDownloading] = useState(false);
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
@@ -1223,7 +1224,7 @@ export default function ChapterTestPage() {
                       />
                     </div>
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} pack={paperPack} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} /> : null}
 
                     {restoredPaper && (
                       <div className="lt-ct__honest" data-testid="ct-resume-note">
@@ -1506,9 +1507,9 @@ export default function ChapterTestPage() {
             <span className="lt-ct__pagetitle">Chapter Test · Result</span>
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} pack={paperPack} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
           {paperWall && (
-            <UpgradeSheet featureLabel="Grading your chapter test" pack={paperPack} onClose={() => setPaperWall(false)} />
+            <UpgradeSheet featureLabel="Grading your chapter test" offers={paperOffers} onClose={() => setPaperWall(false)} />
           )}
 
           {resultsPhase === "partial" ? (

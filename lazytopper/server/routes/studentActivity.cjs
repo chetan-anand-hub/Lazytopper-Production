@@ -247,6 +247,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   // SALE-MOMENT-1 - the buying line at the moment of value. Additive only.
   'sale_moment_shown',
   'sale_moment_tap',
+  // OFFERS-V2 A2 - the one-tap Board Pass checkout started from /pricing?buy=board_pass. Name only.
+  'board_pass_direct_checkout',
 ]);
 
 /**

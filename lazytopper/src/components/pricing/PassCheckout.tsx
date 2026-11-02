@@ -13,7 +13,7 @@
  * no caller-supplied destination ever reaches the redirect.
  */
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { hydrateSubscriptionFromCloud } from "../../services/subscriptionService";
@@ -27,6 +27,7 @@ import {
   PRICE_MONTHLY_LIST_INR,
   tillBoardsQuote,
 } from "../../config/pricing";
+import { BOARD_PASS_BUY_PARAM, BOARD_PASS_BUY_PATH, BOARD_PASS_BUY_VALUE, readBoardPassBuy } from "./boardPassBuy";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
@@ -34,6 +35,7 @@ import PayRescueCard from "../payRescue/PayRescueCard";
 import {
   newCheckoutAttemptId,
   trackBeginCheckout,
+  trackNamedEvent,
   trackPurchase,
   type CheckoutDetails,
 } from "../../analytics/analytics";
@@ -57,6 +59,8 @@ import {
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
 export const PASS_CHECKOUT_RETURN_PATH = "/pricing";
+
+export { BOARD_PASS_BUY_PARAM, BOARD_PASS_BUY_PATH, BOARD_PASS_BUY_VALUE, readBoardPassBuy };
 
 /** The monthly button's label, from the pricing module's display constants. */
 export function monthButtonLabel(offerOpen: boolean): string {
@@ -150,6 +154,11 @@ export interface PassCheckoutViewProps {
   pendingHoldMs?: number;
   /** PACK-CREDIT-1 - the server's Board Pass credit for this student, or null. Hidden when signed out or Premium is active. */
   packCredit?: BoardPassCredit | null;
+  /**
+   * OFFERS-V2 A2 - start the Board Pass checkout ONCE, as if the Pay button was tapped. The connected half sets it only for a signed-in,
+   * hydrated, non-Premium student who arrived on /pricing?buy=board_pass (and has already removed that param). Never repeats on re-render.
+   */
+  autoStart?: boolean;
 }
 
 /**
@@ -175,6 +184,7 @@ export function PassCheckoutView({
   pollDelaysMs = PAY_STATUS_POLL_DELAYS_MS,
   pendingHoldMs = PAY_PENDING_TTL_MS,
   packCredit = null,
+  autoStart = false,
 }: PassCheckoutViewProps) {
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
@@ -329,6 +339,15 @@ export function PassCheckoutView({
     }
   }
 
+  // OFFERS-V2 A2: the one-tap start. A ref makes it once per mount, so a re-render, a StrictMode re-run or a prop flicker never opens a second order.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!autoStart || autoStarted.current) return;
+    autoStarted.current = true;
+    void handleBuy("till_boards");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart]);
+
   function handleCheckAgain() {
     if (recovery !== "confirming") return;
     void pollStatus([0]);
@@ -421,10 +440,34 @@ export function PassCheckoutView({
 /** Connected half — identity, the server-written pass, and the purchase. */
 function PassCheckoutConnected() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const location = useLocation();
+  const { user, loading: authLoading } = useAuth();
   const { status, hydrated } = useSubscription();
   const uid = user?.uid ?? "";
   const showMonth = useMonthPassAvailable();
+
+  // OFFERS-V2 A2 - /pricing?buy=board_pass. Once the account and its record are known: remove the param FIRST (replace, so reload and Back never
+  // re-trigger), then start the existing Board Pass checkout once. Premium (a pass or an admin grant) does nothing. Signed out goes to sign-in
+  // with this fixed internal path as the return, so the same link resumes. Payments dark: this component is not mounted, nothing starts.
+  const [autoStart, setAutoStart] = useState(false);
+  const buyHandled = useRef(false);
+  useEffect(() => {
+    if (buyHandled.current || authLoading || !readBoardPassBuy(location.search)) return;
+    if (!user || user.isLocalSession) {
+      buyHandled.current = true;
+      navigate(withSigninRedirect("/login", BOARD_PASS_BUY_PATH), { replace: true });
+      return;
+    }
+    if (!hydrated) return;
+    buyHandled.current = true;
+    const rest = new URLSearchParams(location.search);
+    rest.delete(BOARD_PASS_BUY_PARAM);
+    const search = rest.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
+    if (status.tier === "premium") return;
+    trackNamedEvent("board_pass_direct_checkout");
+    setAutoStart(true);
+  }, [authLoading, user, hydrated, status.tier, location.search, location.pathname, location.hash, navigate]);
 
   // PACK-CREDIT-1: the server's credit for this student. A failed read is simply no credit line.
   const [packCredit, setPackCredit] = useState<BoardPassCredit | null>(null);
@@ -455,6 +498,7 @@ function PassCheckoutConnected() {
       showMonth={showMonth}
       activePassEnd={activePassEnd}
       packCredit={packCredit}
+      autoStart={autoStart}
       onSignIn={() => navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH))}
       onBuy={async (passType) => {
         const outcome = await buyPass(passType);

@@ -6,7 +6,8 @@ import { trackSaleMoment, trackScorecardUpgrade } from "../../analytics/analytic
 import UpgradeSheet from "../subscription/UpgradeSheet";
 import { START_TRIAL_LABEL } from "../pricing/trialCta";
 import { boardPassCtaLabel, boardPassPriceNow } from "../pricing/boardPassOffer";
-import SaleMoment from "../packs/SaleMomentLazy";
+import OffersBlock from "../packs/OffersBlock";
+import { BOARD_PASS_BENEFIT } from "../packs/offersCopy";
 import { saleHintFromTarget } from "../packs/saleMomentModel";
 import { formatScoreNumber } from "./scoreNumber";
 import type { ScorecardVariant } from "./scorecardVariants";
@@ -27,8 +28,13 @@ import type { ScorecardVariant } from "./scorecardVariants";
  * (nothing is shown at all). N is total - awarded from the scorecard's own score; never invented.
  * A tap opens the upgrade sheet (Board Pass first). Display only - no grade, mark or prompt is touched.
  *
- * Rendered by the ONE <ResultsScorecard> shell, so it reaches all six grading surfaces: Check &
- * Improve (single and multi-question), Worksheet, Chapter Test, Full Mock and Quick Practice.
+ * OFFERS-V2 (owner, 2 Nov 2026): on a FRESH result (`block`) the line grows into THE buying block (packs/OffersBlock): one plain headline from
+ * the same numbers ("You lost 28 marks."), the free-week lead for an account that never had a trial, the Board Pass card with a Pay button that
+ * goes straight to checkout (/pricing?buy=board_pass), then the PDF-pack rows for this surface from the highest price down. A re-opened old
+ * result or a locked breakdown keeps the quiet one-line form below (no block). Premium sees nothing either way.
+ *
+ * Rendered by the ONE <ResultsScorecard> shell, so it reaches all six grading surfaces: Answer Checker (single and multi-question),
+ * Worksheet, Chapter Test, Full Mock and Quick Practice.
  */
 
 const TILL_BOARDS = "marked like this till your boards";
@@ -74,6 +80,32 @@ export function scorecardUpgradeCopy(
     return { text: `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. Get every answer ${TILL_BOARDS} — ${cta}` };
   }
   return { text: `Full marks! Keep every answer ${TILL_BOARDS} — ${cta}` };
+}
+
+/**
+ * OFFERS-V2 - the block's one plain headline, as lines, from the SAME numbers the line above uses (never invented). Null when the card must
+ * say nothing. Quick Practice MCQs: the wrong count and the slip-or-gap question (no step marks to unlock, CLAUDE.md objective invariant).
+ */
+export function scorecardHeadline(
+  variant: Pick<ScorecardVariant, "surface" | "score" | "pending" | "allPending" | "awaitingSheet" | "deferred">,
+): string[] | null {
+  if (variant.deferred || variant.allPending) return null;
+  const score = variant.score;
+  if (variant.surface === "quick-practice" && score.kind === "attempts") {
+    const lostMcq = Math.max(0, score.mcqAnswered - score.mcqCorrect);
+    if (lostMcq > 0) return [`${formatScoreNumber(lostMcq)} wrong.`, "A slip, or a concept gap?"];
+  }
+  const known =
+    score.kind === "marks" &&
+    !variant.pending &&
+    !variant.awaitingSheet &&
+    Number.isFinite(score.awarded) &&
+    Number.isFinite(score.total) &&
+    score.total > 0;
+  if (!known || score.kind !== "marks") return [`Get every answer ${TILL_BOARDS}.`];
+  const lost = Math.max(0, Math.round((score.total - score.awarded) * 100) / 100);
+  if (lost > 0) return [`You lost ${formatScoreNumber(lost)} ${marksWord(lost)}.`, lost === 1 ? "Let\u2019s win it back before boards." : "Let\u2019s win them back before boards."];
+  return ["Full marks!", `Keep every answer ${TILL_BOARDS}.`];
 }
 
 const LINE_CSS = `
@@ -125,11 +157,10 @@ function useCachedStatus(uid: string): [SubscriptionStatus, () => void, boolean]
   return [status, () => setStatus(loadSubscription(uid)), known];
 }
 
-function Line({ variant, countShown, uid, saleMoment }: { variant: ScorecardVariant; countShown: boolean; uid: string; saleMoment: boolean }) {
+function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; countShown: boolean; uid: string; block: boolean }) {
   const copy = scorecardUpgradeCopy(variant, boardPassPriceNow());
   const text = copy ? copy.text : "";
-  // SALE-MOMENT-1 - the pack under the Board Pass line names the pack that fits THIS result (its chapter / subject, read from the
-  // host's own practice route) and deep-links to it; see packs/SaleMomentLine.
+  // The pack rows name the pack that fits THIS result (its chapter / subject, read from the host's own practice route).
   const saleHint = saleHintFromTarget(variant.guideTarget?.to);
   const [status, refresh, statusKnown] = useCachedStatus(uid);
   const [open, setOpen] = useState(false);
@@ -142,25 +173,58 @@ function Line({ variant, countShown, uid, saleMoment }: { variant: ScorecardVari
   const trialLead = show && !status.trialStartDate;
   useEffect(() => {
     // A history re-open of an old result shows the line but is not counted as a fresh "shown".
-    if (show && countShown) trackScorecardUpgrade("shown");
-  }, [show, countShown]);
+    // OFFERS-V2: the block counts as shown only once the record is known (a cold cache must not flash a Pay card).
+    if (show && countShown && (!block || statusKnown)) trackScorecardUpgrade("shown");
+  }, [show, countShown, block, statusKnown]);
   if (!show) return null;
+  // OFFERS-V2: the whole block (headline, lead, card, rows) waits for a KNOWN record - an unhydrated cache may belong to a paid student.
+  if (block && !statusKnown) return null;
+  const leadButton = trialLead ? (
+    <button
+      type="button"
+      className="lt-sc__up"
+      data-testid="scorecard-trial-lead"
+      onClick={() => {
+        trackScorecardUpgrade("click");
+        setOpen(true);
+      }}
+    >
+      {`${START_TRIAL_LABEL} \u2192`}
+    </button>
+  ) : null;
+  const sheet = open ? (
+    <UpgradeSheet
+      featureLabel="Your full marks breakdown"
+      onClose={() => {
+        setOpen(false);
+        refresh(); // a trial started from the sheet is on this device's record now
+      }}
+    />
+  ) : null;
+  const headline = scorecardHeadline(variant);
+  if (block && headline) {
+    // OFFERS-V2: a Full Mock offers its own subject's rows; every other surface reads the chapter / subject its practice route names.
+    const subject = variant.saleMockSubject ?? saleHint.subject ?? null;
+    return (
+      <>
+        <OffersBlock
+          surface={variant.surface}
+          ctx={{ kind: variant.surface, subject, chapterSlug: variant.saleMockSubject ? null : saleHint.chapterSlug, chapterName: variant.guideTarget?.chapter ?? null }}
+          uid={uid}
+          showPacks={statusKnown && status.tier !== "premium"}
+          headline={headline}
+          lead={leadButton}
+          benefit={BOARD_PASS_BENEFIT[variant.surface]}
+          onPayTap={() => trackScorecardUpgrade("click")}
+        />
+        {sheet}
+      </>
+    );
+  }
   return (
     <>
       <style>{LINE_CSS}</style>
-      {trialLead ? (
-        <button
-          type="button"
-          className="lt-sc__up"
-          data-testid="scorecard-trial-lead"
-          onClick={() => {
-            trackScorecardUpgrade("click");
-            setOpen(true);
-          }}
-        >
-          {`${START_TRIAL_LABEL} →`}
-        </button>
-      ) : null}
+      {leadButton}
       <button
         type="button"
         className="lt-sc__up"
@@ -173,23 +237,14 @@ function Line({ variant, countShown, uid, saleMoment }: { variant: ScorecardVari
       >
         {text}
       </button>
-      {saleMoment && statusKnown && status.tier !== "premium" ? (
-        <SaleMoment nonPaidChecked mock={!!variant.saleMockSubject} surface={variant.surface} chapterSlug={saleHint.chapterSlug} subject={variant.saleMockSubject ?? saleHint.subject} chapterName={variant.guideTarget?.chapter ?? null} />
-      ) : null}
-      {open ? <UpgradeSheet
-          featureLabel="Your full marks breakdown"
-          onClose={() => {
-            setOpen(false);
-            refresh(); // a trial started from the sheet is on this device's record now
-          }}
-        /> : null}
+      {sheet}
     </>
   );
 }
 
-export default function ScorecardUpgradeLine({ variant, countShown = true, saleMoment = true }: { variant: ScorecardVariant; countShown?: boolean; saleMoment?: boolean }) {
+export default function ScorecardUpgradeLine({ variant, countShown = true, block = true }: { variant: ScorecardVariant; countShown?: boolean; block?: boolean }) {
   const uid = useOptionalUid();
   const copy = scorecardUpgradeCopy(variant);
   if (!uid || !copy) return null;
-  return <Line variant={variant} countShown={countShown} uid={uid} saleMoment={saleMoment} />;
+  return <Line variant={variant} countShown={countShown} uid={uid} block={block} />;
 }
