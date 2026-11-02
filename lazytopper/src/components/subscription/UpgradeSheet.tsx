@@ -45,6 +45,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { PREMIUM_PLUS } from "../../config/pricingCompare";
 import { useSubscription } from "../../hooks/useSubscription";
+import { paperPackLineParts, type PaperPackLine } from "../limits/limitsCopy";
 import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
 import PaywallActions from "../pricing/PaywallActions";
 import { premiumOffer } from "../pricing/boardPassOffer";
@@ -64,7 +65,7 @@ export interface UpgradeSheetProps {
    * PAPER-WALLS-1 (optional): the matching PDF pack, shown as a quiet SECOND line under the Board Pass actions.
    * Hidden for paid Premium. Absent -> the sheet is exactly as before.
    */
-  pack?: { label: string; priceLabel: string; href: string } | null;
+  pack?: PaperPackLine | null;
   /** "Keep using Basic", the backdrop, Escape, and the close control all land here. */
   onClose: () => void;
 }
@@ -202,6 +203,8 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: Upgr
   const navigate = useNavigate();
   const location = useLocation();
   const sheetRef = useRef<HTMLDivElement>(null);
+  // SALE-MOMENT-2 - the matching pack's words (null = the plain /packs link: keep the generic line).
+  const packParts = pack ? paperPackLineParts(pack) : null;
 
   // FEEDBACK-1 — every way of closing WITHOUT going to plans ("Keep using Basic", the
   // backdrop, Escape) is the paywall moment: close first, then ask the host for the
@@ -316,7 +319,15 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: Upgr
         {/* PAPER-WALLS-1 - the pack is the SECOND, smaller line; PACK-BASIC-ONLY-1: Basic students only (never a trial or paid student). */}
         {pack && uid && showPackLine(subscription, hydrated) && (
           <p className="lt-upsheet__pack" data-testid="upgrade-sheet-pack">
-            <Link to={PACK_LINE_HREF}>{PACK_LINE_TEXT}</Link>
+            {packParts ? (
+              <Link to={pack.href}>
+                {packParts.before}
+                <strong>{packParts.price}</strong>
+                {packParts.after}
+              </Link>
+            ) : (
+              <Link to={PACK_LINE_HREF}>{PACK_LINE_TEXT}</Link>
+            )}
           </p>
         )}
 

@@ -13,6 +13,7 @@ import {
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { isPackChapterSlug, isPacksEntryEnabled, packsHref } from "../../lib/packs/packEntry";
 import { packPriceLabel } from "../../services/packs";
+import { saleOfferParts } from "../packs/saleMomentModel";
 
 export const SIGNED_OUT_CHIP = "Sign up — your first download is free";
 export const FIRST_FREE_CHIP = "Your first download is free.";
@@ -109,6 +110,8 @@ export interface PaperPackLine {
   /** "₹49" | "₹99", or "" for the plain /packs link (no price named). */
   priceLabel: string;
   href: string;
+  /** A Mock Pack's subject ("maths" | "science"); absent on every other pack. */
+  subject?: "maths" | "science";
 }
 
 /**
@@ -130,7 +133,7 @@ export function paperPackLine(
   } else {
     const subject = (opts.subject ?? "").toLowerCase();
     if (subject === "maths" || subject === "science") {
-      return { label: "Mock Pack", priceLabel: packPriceLabel("pack_mock"), href: packsHref({ mock: subject }) };
+      return { label: "Mock Pack", priceLabel: packPriceLabel("pack_mock"), href: packsHref({ mock: subject }), subject };
     }
   }
   return { label: "PDF packs", priceLabel: "", href: packsHref() };
@@ -145,4 +148,22 @@ export function isPremiumRequiredRefusal(err: unknown): boolean {
 export function isTrialLimitRefusal(err: unknown): boolean {
   const e = err as { name?: unknown; kind?: unknown } | null;
   return !!e && typeof e === "object" && e.name === "FairUseLimitError" && e.kind === "trial_limit";
+}
+
+/**
+ * SALE-MOMENT-2 - the words of a paper wall's pack line in three parts (price drawn bold), matching the scorecard row's wording
+ * (saleMomentModel). Null for the plain /packs link (no price named): the caller keeps the generic line. The price is the
+ * catalogue's, carried by the pack itself; nothing is typed here.
+ */
+export function paperPackLineParts(pack: PaperPackLine): { before: string; price: string; after: string } | null {
+  if (!pack.priceLabel) return null;
+  if (pack.label === "Mock Pack" && pack.subject) {
+    const p = saleOfferParts({ sku: "pack_mock", target: pack.subject, href: pack.href, price: pack.priceLabel });
+    return { before: p.before, price: p.price, after: p.after };
+  }
+  if (pack.label === "Chapter Pack") {
+    const p = saleOfferParts({ sku: "pack_chapter", target: "", href: pack.href, price: pack.priceLabel });
+    return { before: "Chapter Pack ", price: p.price, after: p.after };
+  }
+  return null;
 }
