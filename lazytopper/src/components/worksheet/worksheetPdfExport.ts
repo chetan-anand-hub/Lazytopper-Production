@@ -28,6 +28,7 @@ import {
 } from "../checkimprove/CheckImproveGradedPrintDoc";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
+import type { PrintCoverProps } from "./PrintCover";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
 type Doc = import("jspdf").jsPDF;
@@ -158,7 +159,7 @@ export interface WorksheetPdfOptions {
   /** The buyer: printed in every page footer and on the cover; the tiled watermark is then not drawn. */
   licensee?: { name: string; email: string; orderId: string };
   /** A navy cover page, page 1 of the file. */
-  cover?: { kicker: string; title: string; subtitle: string; stats: Array<{ value: string; label: string }> };
+  cover?: Pick<PrintCoverProps, "kicker" | "title" | "subtitle" | "stats" | "headline" | "types">;
   /** Overrides the default saved file name. */
   filename?: string;
   /**

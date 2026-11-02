@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { buildPackFiles, groupPackFiles, type BuildContext, type PackFile } from "./buildPackFiles";
 import { CBQ_PACK_EXCLUDED_IDS, CBQ_MIN_CASE_CHARS, cbqPackRows, isCbqPackRow, chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, isStepMarked, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
 import { PACK_CHAPTER_SLUGS, chaptersOfSubject, type OwnedPack } from "../../services/packs";
-import { CBQ_CHAPTER_CLAIM, CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_SUBJECT_CLAIM } from "./packLabels";
+import { CBQ_CHAPTER_CLAIM, CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_QUESTION_TYPES, CBQ_SUBJECT_CLAIM } from "./packLabels";
 import { isCbq } from "../cbq/cbqClassification";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
@@ -275,7 +275,9 @@ describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
     it(`builds a ${subject} CBQ pack: intro + per chapter questions and key, watermarked, no excluded id`, async () => {
       const pack = owned(`pack_cbq:${subject}`, { pricePaidInr: 199 });
       const seen: Array<{ file: string; mode: string; ids: string[]; licensee?: string }> = [];
-      const exportPdf = vi.fn(async (ws: { questions: Array<{ id: string }> }, mode: string, _c?: string, opts?: { filename?: string; licensee?: { orderId: string } }) => {
+      const covers: Array<{ file: string; cover?: { headline?: { value: string }; stats: Array<{ value: string; label: string }>; types?: readonly string[] } }> = [];
+      const exportPdf = vi.fn(async (ws: { questions: Array<{ id: string }> }, mode: string, _c?: string, opts?: { filename?: string; licensee?: { orderId: string }; cover?: (typeof covers)[number]["cover"] }) => {
+        covers.push({ file: opts?.filename ?? "", cover: opts?.cover });
         seen.push({ file: opts?.filename ?? "", mode, ids: ws.questions.map((q) => q.id), licensee: opts?.licensee?.orderId });
         return "x";
       });
@@ -288,6 +290,18 @@ describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
       for (const f of files) await f.build();
       const ids = new Set(seen.flatMap((s) => s.ids));
       for (const id of CBQ_PACK_EXCLUDED_IDS) expect(ids.has(id), id).toBe(false);
+      // COVER-CLEAN-1: chapter covers carry the pack facts from the constants; the intro page keeps the marking rules.
+      const chapterCovers = covers.filter((c) => c.cover?.headline);
+      expect(chapterCovers.length).toBe(files.length - 1);
+      for (const c of chapterCovers) {
+        expect(c.cover!.headline!.value).toBe("1,400+");
+        expect(c.cover!.stats).toEqual([
+          { value: String(chaptersOfSubject(subject).length), label: "chapters" },
+          { value: `${CBQ_MIN_PER_CHAPTER}+`, label: "in every chapter" },
+          { value: String(CBQ_QUESTION_TYPES.length), label: "question types" },
+        ]);
+        expect(c.cover!.types).toEqual(CBQ_QUESTION_TYPES);
+      }
       for (const slug of chaptersOfSubject(subject)) {
         await loadChapter(slug);
         const rows = cbqPackRows(slug);
