@@ -285,6 +285,9 @@ describe("OFFERS-V2: the pack rows, per surface, highest price first", () => {
 
   it("renders the real Board Pass price; with no chapter or subject known only the Bundle row is offered (never a guess)", async () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
+    // PREBOARDS-BADGE-1: the Bundle badge depends on the date, so pin Date inside the season.
+    vi.useFakeTimers({ now: new Date("2026-11-10T06:30:00.000Z"), toFake: ["Date"] });
+    try {
     show(variantFor("worksheet", marks(6, 10)));
     const price = boardPassPriceNow();
     expect(price).toMatch(/^₹/);
@@ -293,8 +296,11 @@ describe("OFFERS-V2: the pack rows, per surface, highest price first", () => {
     expect(screen.getByText("Prefer practising on paper?")).toBeInTheDocument();
     expect(rowSkus()).toEqual(["pack_bundle"]);
     expect(screen.getByTestId("offers-buy-pack_bundle")).toHaveAttribute("href", "/packs?buy=pack_bundle");
-    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("BEST VALUE");
-    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("All 26 chapters + 16 mocks, the whole year");
+    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("PRE-BOARDS PICK");
+    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("All 26 chapters + 16 board mocks \u2014 ready before your pre-boards");
+    } finally {
+      vi.useRealTimers();
+    }
   });
   it.each(["worksheet", "chapter-test"] as const)("%s: Bundle, the subject's CBQ Pack, this chapter's Chapter Pack - each button one tap to payment", async (surface) => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";

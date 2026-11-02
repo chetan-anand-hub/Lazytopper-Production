@@ -9,7 +9,7 @@
  * Nothing is guessed: a row whose subject or chapter is not known is dropped. Ownership follows services/packs isAlreadyOwned (the Subject
  * Pack and the Bundle cover chapters and mocks; the Bundle does NOT include CBQ, so a CBQ row is only hidden by owning that CBQ Pack).
  */
-import { BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT, packChapterLabel } from "../../lib/packs/packLabels";
+import { BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, isPreboardsSeason, packChapterLabel } from "../../lib/packs/packLabels";
 import {
   PACK_CHAPTER_SLUGS,
   PACK_PRICE_INR,
@@ -43,7 +43,7 @@ export interface OfferRow {
   /** "₹299" etc. */
   price: string;
   priceInr: number;
-  /** "BEST VALUE" on the Bundle only. */
+  /** "BEST VALUE" (in the pre-boards season "PRE-BOARDS PICK") on the Bundle only. */
   badge: string | null;
   /** The one-tap link: opens that pack's pop-up and starts checkout once (PacksShop readBuyResume). */
   buyHref: string;
@@ -116,7 +116,8 @@ export const OFFER_LINES = {
 export function offerRows(ctx: OfferContext): OfferRow[] {
   const subject = offerSubject(ctx);
   const chapter = validChapter(ctx.chapterSlug);
-  const bundle = row("pack_bundle", "", BUNDLE_NAME, OFFER_LINES.bundle, BEST_VALUE_BADGE);
+  const season = isPreboardsSeason();
+  const bundle = row("pack_bundle", "", BUNDLE_NAME, season ? PREBOARDS_PICK_LINE : OFFER_LINES.bundle, season ? PREBOARDS_PICK_BADGE.toUpperCase() : BEST_VALUE_BADGE);
   const subjectRow = subject ? row("pack_subject", subject, `${subjectLabel(subject)} Subject Pack`, OFFER_LINES.subject(subject)) : null;
   const cbq = subject ? row("pack_cbq", subject, `${subjectLabel(subject)} CBQ Pack`, OFFER_LINES.cbq) : null;
   const mock = subject ? row("pack_mock", subject, `${subjectLabel(subject)} Mock Pack`, OFFER_LINES.mock) : null;

@@ -13,6 +13,7 @@
 .lt-packoffer__item:hover { background: #fff; border-color: hsl(152, 55%, 45%); transform: translateY(-1px); }
 .lt-packoffer__item:focus-visible { outline: 3px solid #0e7c47; outline-offset: 2px; }
 .lt-packoffer__item--best { background: #fff; border-color: hsl(152, 55%, 45%); }
+.lt-packoffer__badge { align-self: flex-start; padding: 2px 8px; border-radius: 999px; background: #0e6a3e; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; line-height: 1.4; }
 .lt-packoffer__name { font-size: 15px; font-weight: 700; color: #0e6a3e; line-height: 1.25; }
 .lt-packoffer__price { font-family: Fraunces, Georgia, serif; font-size: 26px; font-weight: 700; line-height: 1.1; color: #15233a; }
 .lt-packoffer__what { font-size: 14px; line-height: 1.4; color: #3d4c63; overflow-wrap: anywhere; }

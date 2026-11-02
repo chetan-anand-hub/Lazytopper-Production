@@ -94,6 +94,30 @@ describe("PacksPage", () => {
     expect(events.names).toContain("pack_view");
   });
 
+  it("PREBOARDS-BADGE-1: the Bundle tile is the Pre-boards pick in season (name and price unchanged), Best value after 20 Dec 2026, and no other tile has it", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30"));
+      page();
+      const tile = screen.getByTestId("packs-card-bundle");
+      expect(tile.textContent).toContain("Pre-boards pick");
+      expect(tile.textContent).toContain("All 26 chapters + 16 board mocks \u2014 ready before your pre-boards");
+      expect(tile.textContent).toContain("Maths + Science Bundle");
+      expect(tile.textContent).toContain("\u20b9299");
+      expect(tile.textContent).not.toContain("Best value");
+      for (const id of ["chapter", "mock", "subject"]) expect(screen.getByTestId(`packs-card-${id}`).textContent).not.toContain("Pre-boards pick");
+      cleanup();
+      vi.setSystemTime(new Date("2026-12-21T00:00:00+05:30"));
+      page();
+      const after = screen.getByTestId("packs-card-bundle").textContent ?? "";
+      expect(after).toContain("Best value");
+      expect(after).toContain("All 26 chapters + 16 mocks, one price");
+      expect(after).not.toContain("Pre-boards pick");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("CBQ-PACK-1: the CBQ band is in the hero with anchor #cbq: a Maths and a Science pack side by side, each Rs 199 with its own buy button, counts computed", async () => {
     page("/packs#cbq");
     const band = screen.getByTestId("cbq-band");

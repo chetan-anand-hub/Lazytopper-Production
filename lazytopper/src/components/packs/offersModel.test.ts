@@ -1,10 +1,11 @@
 // OFFERS-V2 - which pack rows each surface shows, in what order, with what words, and where each button goes.
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { PACK_CHAPTER_SLUGS, PACK_PRICE_INR, isValidPackTarget } from "../../services/packs";
 import { BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 import { readBuyResume } from "./PacksShop";
 import { readPacksQuery } from "../../lib/packs/packEntry";
+import { PREBOARDS_PICK_LINE, isPreboardsSeason } from "../../lib/packs/packLabels";
 import { OFFER_LINES, buyHrefFor, insideHrefFor, offerRows, unownedRows, type OfferContext, type OfferKind } from "./offersModel";
 
 const names = (ctx: OfferContext) => offerRows(ctx).map((r) => r.name);
@@ -58,9 +59,33 @@ describe("rows by surface (price high to low; Subject before CBQ on a tie)", () 
     expect(offerRows({ kind: "check-improve", subject: "maths", chapterSlug: "triangles" }).map((r) => r.price)).toEqual(["₹299", "₹199", "₹199", "₹99", "₹49"]);
   });
 
-  it("only the Bundle carries BEST VALUE", () => {
-    const rows = offerRows({ kind: "check-improve", subject: "maths", chapterSlug: "triangles" });
-    expect(rows.filter((r) => r.badge).map((r) => [r.sku, r.badge])).toEqual([["pack_bundle", "BEST VALUE"]]);
+  it("PREBOARDS-BADGE-1: in season only the Bundle carries PRE-BOARDS PICK; after 20 Dec 2026 IST it reverts to BEST VALUE and the old line", () => {
+    const ctx = { kind: "check-improve", subject: "maths", chapterSlug: "triangles" } as const;
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30"));
+      let rows = offerRows(ctx);
+      expect(rows.filter((r) => r.badge).map((r) => [r.sku, r.badge])).toEqual([["pack_bundle", "PRE-BOARDS PICK"]]);
+      expect(rows[0].line).toBe("All 26 chapters + 16 board mocks \u2014 ready before your pre-boards");
+      expect(rows[0].name).toBe("Maths + Science Bundle");
+      expect(rows[0].price).toBe("\u20b9299");
+      vi.setSystemTime(new Date("2026-12-20T23:59:59+05:30"));
+      expect(offerRows(ctx)[0].badge).toBe("PRE-BOARDS PICK");
+      vi.setSystemTime(new Date("2026-12-21T00:00:00+05:30"));
+      rows = offerRows(ctx);
+      expect(rows.filter((r) => r.badge).map((r) => [r.sku, r.badge])).toEqual([["pack_bundle", "BEST VALUE"]]);
+      expect(rows[0].line).toBe(OFFER_LINES.bundle);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it("the pre-boards line counts the same chapters as the catalogue", () => {
+    expect(PREBOARDS_PICK_LINE).toBe(`All ${PACK_CHAPTER_SLUGS.length} chapters + ${BUNDLE_MOCKS} board mocks \u2014 ready before your pre-boards`);
+  });
+  it("isPreboardsSeason is inclusive of the last second and flips at midnight IST", () => {
+    expect(isPreboardsSeason(Date.parse("2026-12-20T23:59:59+05:30"))).toBe(true);
+    expect(isPreboardsSeason(new Date("2026-12-21T00:00:00+05:30"))).toBe(false);
+    expect(isPreboardsSeason(new Date("2026-11-02T00:00:00+05:30"))).toBe(true);
   });
 });
 

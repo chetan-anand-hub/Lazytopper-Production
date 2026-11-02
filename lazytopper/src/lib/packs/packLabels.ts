@@ -28,6 +28,21 @@ export const CBQ_MIN_PER_CHAPTER = 100;
 export const CBQ_SUBJECT_CLAIM = `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ CBQs`;
 export const CBQ_CHAPTER_CLAIM = `${CBQ_MIN_PER_CHAPTER}+ in every chapter`;
 
+/**
+ * PREBOARDS-BADGE-1: until the pre-board season ends the Bundle is sold as the "Pre-boards pick" (owner ruling 2 Nov 2026). ONE constant:
+ * move this instant to move the season. Name, price and sku never change; after it every surface reverts to the plain copy by itself.
+ */
+export const PREBOARDS_PICK_UNTIL = "2026-12-20T23:59:59+05:30";
+const PREBOARDS_PICK_UNTIL_MS = Date.parse(PREBOARDS_PICK_UNTIL);
+/** Is the pre-boards badge on at `now`? PURE: the clock is an argument (default: the repo clock, `Date.now()`, which the test clock moves). */
+export function isPreboardsSeason(now: Date | number = Date.now()): boolean {
+  return (typeof now === "number" ? now : now.getTime()) <= PREBOARDS_PICK_UNTIL_MS;
+}
+export const PREBOARDS_PICK_BADGE = "Pre-boards pick";
+/** The chapters the Bundle contains: our packs treat Trigonometry (Ch 8 + Ch 9) as one, so 26 (offersModel.test pins it to PACK_CHAPTER_SLUGS). */
+export const BUNDLE_CHAPTERS = ALL_NCERT_CHAPTERS - 1;
+export const PREBOARDS_PICK_LINE = `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} board mocks \u2014 ready before your pre-boards`;
+
 /** Owned packs stay downloadable until this date (copy only; My packs keeps working regardless of flags). */
 export const REDOWNLOAD_UNTIL = "31 May 2027";
 export const REDOWNLOAD_COPY = `Download again any time until ${REDOWNLOAD_UNTIL}`;
