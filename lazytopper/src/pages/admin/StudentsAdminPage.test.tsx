@@ -226,6 +226,12 @@ describe("StudentsAdminPage — list", () => {
       ["mt-paid", src({ utm_source: "meta", utm_medium: "paid" }), "Meta ad"],
       ["gcpc", src({ utm_source: "google", utm_medium: "cpc" }), "Google ad"],
       ["g-none", src({ utm_source: "google" }), "Google (untagged)"],
+      // ADMIN-SRC-GADS-1: Google Search ads carry no utm tags; the stored gclid flag names them
+      ["gclid", src({ gclid: true, ref: "www.google.com" }), "Google ad"],
+      ["gclid-c", src({ gclid: true, utm_campaign: "brand" }), "Google ad (brand)"],
+      ["gsp", src({ ref: "syndicatedsearch.goog" }), "Google ad (search partner)"],
+      ["gsp-gclid", src({ ref: "syndicatedsearch.goog", gclid: true }), "Google ad (search partner)"],
+      ["g-plain", src({ ref: "www.google.com" }), "From www.google.com"],
       ["parent", src({ utm_source: "parent_share", utm_medium: "whatsapp", landing: "/check-improve" }), "Parent share"],
       // unchanged-in-kind rows whose text changed because their medium is absent (listed in the PR body)
       ["mt", src({ utm_source: "meta" }), "Facebook (untagged)"],
@@ -263,6 +269,10 @@ describe("StudentsAdminPage — list", () => {
     });
     // hover text names the campaign exactly
     expect(rows[0].querySelectorAll("td")[3].getAttribute("title")).toContain("campaign: test");
+    const at = (id: string) => rows[cases.findIndex(([c]) => c === id)].querySelectorAll("td")[3].getAttribute("title");
+    expect(at("gclid")).toContain("Google Ads click (gclid)");
+    expect(at("ig-org")).toContain("Meta click (fbclid)");
+    expect(at("g-plain")).not.toContain("gclid");
   });
 
   it("filters refetch with period and plan; an empty result says so", async () => {

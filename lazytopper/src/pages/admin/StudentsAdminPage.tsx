@@ -194,6 +194,8 @@ function sourceLabel(source: RowSource | null | undefined): string {
   else if (platform && (medium === "paid" || medium === "cpc")) label = src === "meta" ? "Meta ad" : `${platform} ad`;
   else if (platform && medium === "organic" && src !== "google") label = `${platform} post`;
   else if (platform && medium !== "organic") label = `${platform} (untagged)`;
+  else if ((source.ref ?? "").toLowerCase() === "syndicatedsearch.goog") label = "Google ad (search partner)";
+  else if (source.gclid) label = "Google ad"; // gclid is set only by Google Ads auto-tagging
   else if (!src && source.fbclid) label = "Facebook/Instagram (untagged)";
   else if (source.ref) label = `From ${source.ref}`;
   else label = "Direct";
@@ -210,6 +212,8 @@ function sourceTitle(source: RowSource | null | undefined): string | undefined {
     source.utm_content && `content: ${source.utm_content}`,
     source.ref && `referrer: ${source.ref}`,
     source.landing && `landed on: ${source.landing}`,
+    source.gclid && "Google Ads click (gclid)",
+    source.fbclid && "Meta click (fbclid)",
   ].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : undefined;
 }
