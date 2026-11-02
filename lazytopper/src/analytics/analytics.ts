@@ -921,6 +921,9 @@ export type NamedAnalyticsEvent =
   | "one_min_photo_cta"
   // FIVE-MORE-1 - "5 more like this" after the ladder verdict / typed score. Name only.
   | "one_min_more_practice"
+  // ACT-FIRST-1 - the first-action card (ladder on Answer Checker, Start-here on Home) shown / tapped, with a reason param.
+  | "first_action_shown"
+  | "first_action_tap"
   // FRIEND-CHALLENGE-1 - "Challenge a friend": an image + link shared (channel only) / a challenge link opened with a valid id.
   | "friend_challenge_share"
   | "friend_challenge_open"
@@ -969,6 +972,22 @@ export type OneMinuteEvent = Extract<
 export function trackOneMinute(name: OneMinuteEvent, data?: { correct?: boolean; seconds_since_ladder_start?: number }): void {
   try {
     send("event", data ? { name, data } : { name }, data ? { ga4: data } : {}, name);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * ACT-FIRST-1 - the first-action card was shown / tapped. The vendors get `{ surface, reason }` only (surface:
+ * "answer_checker" | "home"; reason: "server_zero" | "new_by_signal" - never a uid or an answer); the first-party
+ * activity log gets the BARE NAME (both are in `NamedAnalyticsEvent` and both allow-lists), signed-in students only.
+ */
+export function trackFirstAction(
+  name: "first_action_shown" | "first_action_tap",
+  data: { surface: "answer_checker" | "home"; reason: "server_zero" | "new_by_signal" | "unknown" },
+): void {
+  try {
+    send("event", { name, data }, { ga4: data }, name);
   } catch {
     /* analytics must never break the page */
   }

@@ -15,6 +15,9 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import { START_HERE_AVAILABILITY } from "./startHereAvailability.generated";
 import { useZeroGraded } from "./zeroGraded";
+import { useFirstActionZeroGraded, type FirstActionReason } from "./firstActionRead";
+import { reportFirstActionShown, reportFirstActionTap } from "./firstAction";
+import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
 import { trackOnboardingEvent, type StartHereFocusSurface, type StartHereSurface } from "../../analytics/analytics";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
@@ -33,7 +36,7 @@ import {
 import { guidePlanFor } from "../guide/guideInputs";
 import type { ChapterRef } from "../guide/intentMap";
 import AdminPreviewBadge from "../guide/AdminPreviewBadge";
-import { LazyByteGuide, LazyGuideChip } from "../guide/lazyGuide";
+import { LazyByteGuide, LazyGuideChip, preloadGuideChunk } from "../guide/lazyGuide";
 import { useMascotsHidden } from "../guide/mascotsMute";
 import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../guide/mascotBudget";
 import {
@@ -217,6 +220,8 @@ export interface StartHereState {
    * (the cloud could not answer) keeps GUIDE-1's plain cheer. Guide arm only (no read otherwise).
    */
   momentsConfirmed?: boolean;
+  /** ACT-FIRST-1 — why the card shows: the server's zero-graded answer, or a new-account signal. Measurement only. */
+  reason?: FirstActionReason | null;
 }
 
 /**
@@ -230,7 +235,12 @@ export function useStartHere(uid?: string | null): StartHereState {
   // PREVIEW-1: an admin preview on this browser relaxes ONLY the zero-graded rule (so the owner
   // can re-see Byte / the card on a used account). Signed-out and "Not now" are unchanged; with
   // no preview this is exactly `uid && graded === "none" && !dismissed`.
-  const audience = graded === "none" || (!!uid && guidePreviewActive());
+  // ACT-FIRST-1: an account whose trial THIS tab started at sign-up is new by the device's own signal: its card
+  // does not wait for the cloud (local rows were already checked; a later "some" takes the card away again).
+  const firstAction = useFirstActionZeroGraded(uid);
+  const newBySignup = !!uid && graded === "loading" && wasTrialStartedAtSignUp(uid) && firstAction.zeroGraded !== "some";
+  // A card shown on a signal is taken away if the server later says the student has graded work.
+  const audience = (graded === "none" && firstAction.zeroGraded !== "some") || newBySignup || (!!uid && guidePreviewActive());
   // MOMENTS-1: the server-confirmed read, for the guide arm only (it joins the read above: no new ask).
   const confirmed = useZeroGraded(resolveGuideVariant(uid) === "guide" ? uid : null, { serverOnly: true });
 
@@ -243,6 +253,7 @@ export function useStartHere(uid?: string | null): StartHereState {
     eligible: !!uid && audience,
     uid: uid ?? null,
     momentsConfirmed: !!uid && (confirmed === "none" || guidePreviewActive()),
+    reason: !audience ? null : firstAction.reason ?? "new_by_signal",
   };
 }
 
@@ -374,6 +385,10 @@ export function StartHereView({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount, as before
   }, [visible, surface]);
+  // ACT-FIRST-1 — Home's first-action card is up: record why (once per page load).
+  useEffect(() => {
+    if (visible && surface === "home") reportFirstActionShown("home", state.reason ?? null);
+  }, [visible, surface, state.reason]);
 
   if (arm === "guide" && !mascotsHidden && (byteAllowed || !visible)) {
     return (
@@ -428,7 +443,7 @@ function GuideInlineArm({
   const plan = useMemo(() => guidePlanFor(surface, state.uid), [surface, state.uid]);
   // BYTE-TRYONE-1: Home passes no question box -> Byte's "Check one answer" launches the typed try-one.
   const navigate = useNavigate();
-  const ladderOk = useZeroGraded(surface === "home" && !checkOneAnswer ? state.uid : null, { serverOnly: true }) === "none";
+  const ladderOk = useFirstActionZeroGraded(surface === "home" && !checkOneAnswer ? state.uid : null).zeroGraded === "none";
   const homeTryOne = useMemo(
     () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo, null, ladderOk) : null),
     [surface, checkOneAnswer, navigate, returnTo, ladderOk],
@@ -615,6 +630,7 @@ export async function launchStartHereSet(args: {
       });
     }
     trackOnboardingEvent("start_here_start", { subject: analyticsSubject(s), chapter: ch, qtype: t, mode });
+    reportFirstActionTap("home");
     go(startHerePracticePath({ subject: s, chapter: ch, ids, qtype: t, returnTo }));
     return true;
   } catch {
@@ -638,6 +654,7 @@ export function byteTryOneLauncher(
   // Check & Improve and the one-minute ladder starts there (ONE-MINUTE-1's own startLadder).
   if (ladder) {
     return () => {
+      reportFirstActionTap("home");
       markCheckOneHandover();
       markCheckOneLadder();
       navigate("/check-improve");
@@ -1180,7 +1197,7 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
   const allowed = useMemo(() => (eligible ? focusAllowed(uid) : false), [eligible, uid]);
   // BYTE-TRYONE-1: the full-screen / overlay Byte on Home has no question box either.
   const navigate = useNavigate();
-  const ladderOk = useZeroGraded(surface === "home" && !checkOneAnswer ? uid : null, { serverOnly: true }) === "none";
+  const ladderOk = useFirstActionZeroGraded(surface === "home" && !checkOneAnswer ? uid : null).zeroGraded === "none";
   const homeTryOne = useMemo(
     () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo, null, ladderOk) : null),
     [surface, checkOneAnswer, navigate, returnTo, ladderOk],
@@ -1241,7 +1258,48 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
 const FOCUSABLE =
   'button:not([disabled]), select:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-function StartHereFocusDialog({
+/** ACT-FIRST-1 — the longest the focused Byte waits for its chunk before the plain card stands in. */
+export const GUIDE_CHUNK_WAIT_MS = 4000;
+
+/**
+ * ACT-FIRST-1 — the focused Byte's styling (guide.css) ships in the lazy guide chunk. Until that chunk is
+ * here the sheet would be an unstyled, transparent, tap-eating full-screen layer with the page scroll locked.
+ * So the dialog mounts (overlay, scroll lock, focus trap, shown event) only when the chunk is READY; a failed
+ * or slow (GUIDE_CHUNK_WAIT_MS) load shows the plain first-action card instead. Decided once per mount.
+ */
+function StartHereFocusDialog(props: FocusDialogProps) {
+  const mascotsOff = useMascotsHidden();
+  const wantsGuide = props.arm === "guide" && !mascotsOff;
+  const [chunk, setChunk] = useState<"pending" | "ready" | "plain">(wantsGuide ? "pending" : "plain");
+  useEffect(() => {
+    if (!wantsGuide) return;
+    let live = true;
+    const t = setTimeout(() => live && setChunk((c) => (c === "pending" ? "plain" : c)), GUIDE_CHUNK_WAIT_MS);
+    void preloadGuideChunk().then((ok) => live && setChunk((c) => (c === "pending" ? (ok ? "ready" : "plain") : c)));
+    return () => {
+      live = false;
+      clearTimeout(t);
+    };
+  }, [wantsGuide]);
+  if (chunk === "pending") return null;
+  return <StartHereFocusDialogReady {...props} plain={chunk === "plain"} />;
+}
+
+type FocusDialogProps = {
+  surface: StartHereSurface;
+  returnTo: string;
+  onNotNow: () => void;
+  checkOne?: boolean;
+  onCheckOne?: () => void;
+  byteTryOne?: () => void;
+  onDone?: () => void;
+  arm?: GuideVariant | null;
+  uid?: string | null;
+  momentOk?: boolean;
+};
+
+function StartHereFocusDialogReady({
+  plain = false,
   surface,
   returnTo,
   onNotNow,
@@ -1268,6 +1326,8 @@ function StartHereFocusDialog({
   uid?: string | null;
   /** MOMENTS-1 — the zero-graded answer is the server's: Byte's M2 moment may play. */
   momentOk?: boolean;
+  /** ACT-FIRST-1 — the guide chunk did not arrive in time: the plain first-action card, not Byte. */
+  plain?: boolean;
 }) {
   const isDesktop = useIsDesktop();
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -1294,7 +1354,7 @@ function StartHereFocusDialog({
   const mascotsHidden = useMascotsHidden();
   // MOMENTS-3 — the focused Byte and the inline Byte are the SAME appearance ("starthere"): one slot.
   const byteAllowed = useAppearance(arm === "guide" && !mascotsHidden ? "starthere" : null, APPEARANCE_PRIORITY.explainer, SH_OCC);
-  const guideArm = arm === "guide" && !mascotsHidden && byteAllowed;
+  const guideArm = arm === "guide" && !mascotsHidden && byteAllowed && !plain;
   useEffect(() => {
     if (!guideArm) return;
     setGuideFocusOpen(true);

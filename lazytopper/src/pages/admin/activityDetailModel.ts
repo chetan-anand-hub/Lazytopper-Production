@@ -188,6 +188,8 @@ const EVENT_LABELS: Record<string, string> = {
   one_min_type_graded: "Got a typed 2-mark answer graded in the first-minute ladder",
   one_min_photo_cta: "Was offered to snap an answer on paper",
   one_min_more_practice: "Tapped 5 more like this after the first-minute ladder",
+  first_action_shown: "Saw the first-action card (one question to try)",
+  first_action_tap: "Tapped the first-action card",
   friend_challenge_share: "Shared a challenge question with a friend",
   friend_challenge_open: "Opened a friend's challenge link",
   engaged_10min: "Stayed 10 minutes (in one day)",

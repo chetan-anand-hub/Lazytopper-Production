@@ -61,11 +61,39 @@ export function isMeTarget(target: string | null | undefined): boolean {
 }
 
 /**
+ * ACT-FIRST-1 — browsing pages a student signs up FROM without having asked to buy: /pricing, /packs and
+ * the Highly Probable pages. Landing a brand-new account back there gave it no first task at all (no Byte,
+ * no ladder, no Start-here); Home is where the one obvious first action waits.
+ *
+ * A PURCHASE INTENT stays exactly as it was: any `?buy=` (the signed-out Buy resume that auto-opens
+ * checkout) and the pack entry links (`?pack=` / `?chapter=` / `?mock=` / `?view=`, which open a pack's
+ * pop-up) are the student's own destination and win. utm_* and unknown params are not an intent. Only a NEW
+ * account is ever redirected (Login's gate); a returning login still goes back where it came from.
+ */
+const BROWSE_PATHS: ReadonlySet<string> = new Set(["/pricing", "/packs", "/highly-probable"]);
+const PURCHASE_INTENT_PARAMS: readonly string[] = ["buy", "t", "pack", "chapter", "mock", "view"];
+export function isBrowseTarget(target: string | null | undefined): boolean {
+  const raw = String(target ?? "").trim();
+  const [beforeHash] = raw.split("#");
+  const [rawPath, query = ""] = beforeHash.split("?");
+  const path = rawPath.replace(/\/+$/, "").toLowerCase();
+  const browse = BROWSE_PATHS.has(path) || path.startsWith("/highly-probable/");
+  if (!browse) return false;
+  try {
+    const q = new URLSearchParams(query);
+    return !PURCHASE_INTENT_PARAMS.some((k) => q.has(k));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * A NEW account with one of these targets lands on Home (NEW_ACCOUNT_LANDING_PATH): the default
- * Home targets and the Me page. Any other target is the student's own.
+ * Home targets, the Me page, and (ACT-FIRST-1) a /pricing, /packs or /highly-probable page with no
+ * purchase intent. Any other target is the student's own.
  */
 export function newAccountGoesHome(target: string | null | undefined): boolean {
-  return isDefaultHomeTarget(target) || isMeTarget(target);
+  return isDefaultHomeTarget(target) || isMeTarget(target) || isBrowseTarget(target);
 }
 
 /** True once, for a fresh mark; the mark is cleared either way. */

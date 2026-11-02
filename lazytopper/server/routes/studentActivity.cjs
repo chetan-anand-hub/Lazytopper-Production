@@ -216,6 +216,9 @@ const ACTIVITY_EVENTS = Object.freeze([
   'one_min_photo_cta',
   // FIVE-MORE-1 - "5 more like this" tap. Name only. Additive.
   'one_min_more_practice',
+  // ACT-FIRST-1 — the first-action card shown / tapped. Names only.
+  'first_action_shown',
+  'first_action_tap',
   // FRIEND-CHALLENGE-1 - "Challenge a friend": shared / a challenge link opened. Names only. Additive.
   'friend_challenge_share',
   'friend_challenge_open',
