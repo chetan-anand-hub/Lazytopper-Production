@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
-import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
+import { BUNDLE_NAME, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
 import { packPriceLabel, type PackSku } from "../services/packs";
 import { PackSampleChoice } from "../components/packs/PackSampleLink";
 import CbqBand from "../components/pricing/CbqBand";
@@ -41,11 +41,11 @@ export default function PacksPage() {
                 aria-haspopup="dialog"
                 data-testid={`packs-card-${t.id}`}
               >
-                <span className="lt-packs__tkick">{t.kicker}</span>
+                <span className="lt-packs__tkick">{t.best && isPreboardsSeason() ? PREBOARDS_PICK_BADGE : t.kicker}</span>
                 <span className="lt-packs__tname">{t.name}</span>
                 <span className="lt-packs__tprice">{packPriceLabel(t.sku)}</span>
-                <span className="lt-packs__tline lt-packs__tline--long">{t.lineLong}</span>
-                <span className="lt-packs__tline lt-packs__tline--short">{t.lineShort}</span>
+                <span className="lt-packs__tline lt-packs__tline--long">{t.best && isPreboardsSeason() ? PREBOARDS_PICK_LINE : t.lineLong}</span>
+                <span className="lt-packs__tline lt-packs__tline--short">{t.best && isPreboardsSeason() ? PREBOARDS_PICK_LINE : t.lineShort}</span>
                 <span className="lt-packs__topen">See inside →</span>
               </button>
               {/* PACK-SAMPLE-1: a sibling of the tile button (a link cannot sit inside a button); secondary to opening the pack. The

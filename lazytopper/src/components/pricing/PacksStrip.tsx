@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
-import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
+import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, isPreboardsSeason } from "../../lib/packs/packLabels";
 import PacksShop from "../packs/PacksShop";
 import ParentReturnLink from "../parents/ParentReturnLink";
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
@@ -114,9 +114,10 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
                     className={i.best ? "lt-packoffer__item lt-packoffer__item--best" : "lt-packoffer__item"}
                     data-pack={i.query}
                   >
+                    {i.best && isPreboardsSeason() ? <span className="lt-packoffer__badge">{PREBOARDS_PICK_BADGE}</span> : null}
                     <span className="lt-packoffer__name">{i.name}</span>
                     <span className="lt-packoffer__price">{packPriceLabel(i.sku)}</span>
-                    <span className="lt-packoffer__what">{i.what}</span>
+                    <span className="lt-packoffer__what">{i.best && isPreboardsSeason() ? PREBOARDS_PICK_LINE : i.what}</span>
                     <span className="lt-packoffer__see">See inside &rarr;</span>
                   </button>
                   {/* PACK-SAMPLE-1: a sibling of the tile button; Maths and Science links (the pop-up follows the chosen subject). */}

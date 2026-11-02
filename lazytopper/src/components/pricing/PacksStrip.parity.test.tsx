@@ -93,6 +93,26 @@ describe("/pricing packs - the same for every account", () => {
     expect(screen.queryByTestId("pricing-pack-credit") !== null).toBe(tier !== "premium");
   });
 
+  it("PREBOARDS-BADGE-1: the Bundle tile carries the Pre-boards pick badge and line in season, none after 20 Dec 2026, and no other tile has it", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30"));
+      strip();
+      const bundle = document.querySelector('[data-pack="bundle"]')?.textContent ?? "";
+      expect(bundle).toContain("Pre-boards pick");
+      expect(bundle).toContain("All 26 chapters + 16 board mocks \u2014 ready before your pre-boards");
+      expect(bundle).toContain("Maths + Science Bundle");
+      expect(document.body.textContent?.match(/Pre-boards pick/g)?.length).toBe(1);
+      cleanup();
+      vi.setSystemTime(new Date("2026-12-21T00:00:00+05:30"));
+      strip();
+      expect(document.body.textContent).not.toContain("Pre-boards pick");
+      expect(document.querySelector('[data-pack="bundle"]')?.textContent).toContain("the whole year at one price");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("a signed-out Buy returns to /pricing (not /packs) after sign-in, carrying ?buy=", async () => {
     strip();
     fireEvent.click(screen.getByRole("button", { name: /Maths \+ Science Bundle/ }));

@@ -293,8 +293,8 @@ describe("OFFERS-V2: the pack rows, per surface, highest price first", () => {
     expect(screen.getByText("Prefer practising on paper?")).toBeInTheDocument();
     expect(rowSkus()).toEqual(["pack_bundle"]);
     expect(screen.getByTestId("offers-buy-pack_bundle")).toHaveAttribute("href", "/packs?buy=pack_bundle");
-    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("BEST VALUE");
-    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("All 26 chapters + 16 mocks, the whole year");
+    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("PRE-BOARDS PICK");
+    expect(screen.getByTestId("offers-row-pack_bundle")).toHaveTextContent("All 26 chapters + 16 board mocks \u2014 ready before your pre-boards");
   });
   it.each(["worksheet", "chapter-test"] as const)("%s: Bundle, the subject's CBQ Pack, this chapter's Chapter Pack - each button one tap to payment", async (surface) => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
