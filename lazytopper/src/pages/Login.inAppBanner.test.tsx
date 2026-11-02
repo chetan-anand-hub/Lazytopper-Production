@@ -120,6 +120,17 @@ describe("Login in an in-app browser", () => {
     expect(screen.queryByRole("link", { name: "Open in Chrome" })).toBeNull();
   });
 
+  it("AUTH-SIGNAL-1 · a home-screen web app (navigator.standalone) gets no banner", () => {
+    Object.defineProperty(window.navigator, "standalone", { value: true, configurable: true });
+    try {
+      mount(IOS_WEBVIEW);
+    } finally {
+      Reflect.deleteProperty(window.navigator, "standalone");
+    }
+    expect(screen.queryByTestId("inapp-signin-banner")).toBeNull();
+    expect(track).not.toHaveBeenCalled();
+  });
+
   it("a normal browser sees no banner and sends no event", () => {
     mount(CHROME);
     expect(screen.queryByTestId("inapp-signin-banner")).toBeNull();

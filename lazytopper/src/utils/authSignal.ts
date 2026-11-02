@@ -62,7 +62,8 @@ export function telemetryErrorCode(err: unknown): string {
 
 export function currentUaClass(): UaClass {
   try {
-    return uaClass(typeof navigator !== "undefined" ? navigator.userAgent : "");
+    const nav = typeof navigator !== "undefined" ? (navigator as Navigator & { standalone?: boolean }) : null;
+    return uaClass(nav ? nav.userAgent : "", nav?.standalone === true);
   } catch {
     return "other";
   }
@@ -108,8 +109,9 @@ export const GOOGLE_TIMEOUT_MESSAGE =
 export function describeAuthError(err: unknown): string {
   const code = authErrorCode(err);
   switch (code) {
-    case "auth/popup-closed-by-user":
     case "auth/cancelled-popup-request":
+      return ""; // a second tap superseded the first popup: the newer attempt is live, say nothing
+    case "auth/popup-closed-by-user":
       return POPUP_CLOSED_MESSAGE;
     case GOOGLE_POPUP_TIMEOUT_CODE:
       return GOOGLE_TIMEOUT_MESSAGE;

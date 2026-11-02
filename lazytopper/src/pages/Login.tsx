@@ -1496,6 +1496,17 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   // can report login_success for it. Null when no attempt was made on this page (an already
   // signed-in visitor passing through /login reports nothing).
   const loginMethodRef = useRef<LoginMethod | null>(null);
+  // A Google attempt that timed out but may still finish. Kept apart from loginMethodRef so a
+  // later email / phone attempt is never reported as Google (nor Google as email / phone).
+  const lateGoogleRef = useRef(false);
+  const mountedRef = useRef(true);
+  const signedInRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [offerReset, setOfferReset] = useState(false);
 
@@ -1604,10 +1615,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     trackUxEvent("login_complete", "login", {
       reason: reason ?? "unspecified",
     });
-    if (loginMethodRef.current) {
-      trackLoginSuccess(loginMethodRef.current);
-      loginMethodRef.current = null;
-    }
+    signedInRef.current = true;
+    // Exactly one method is reported. If a timed-out Google attempt and a newer email / phone
+    // attempt are both open, which one finished is unknowable, so nothing is reported.
+    const method = loginMethodRef.current;
+    if (method && !lateGoogleRef.current) trackLoginSuccess(method);
+    else if (!method && lateGoogleRef.current) trackLoginSuccess("google");
+    loginMethodRef.current = null;
+    lateGoogleRef.current = false;
     // ACTIVATION-1 · L1 — verification no longer BLOCKS. The wall held a new email account
     // on this step and never navigated it (58 sign-ups, 2 graded checks). The verification
     // email is still sent, once, and the student goes on to `nextPath`; a dismissible
@@ -1720,6 +1735,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     setError(null);
     setBusy(true);
     loginMethodRef.current = "google";
+    lateGoogleRef.current = false;
     trackLoginAttempt("google");
     // AUTH-SIGNAL-1 — a popup that never reports back (some in-app browsers and custom tabs)
     // must not leave every button disabled. After GOOGLE_POPUP_TIMEOUT_MS the buttons come back
@@ -1729,8 +1745,16 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       await withTimeout(signInWithGoogle(), GOOGLE_POPUP_TIMEOUT_MS);
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
-      // After a timeout loginMethodRef stays set: a late success is still a Google success.
-      if (authErrorCode(err) !== GOOGLE_POPUP_TIMEOUT_CODE) loginMethodRef.current = null;
+      // Already signed in, or this page is gone: a timeout / late rejection must not set state
+      // or report an error for a sign-in that has since worked.
+      if (!mountedRef.current || signedInRef.current) return;
+      if (authErrorCode(err) === GOOGLE_POPUP_TIMEOUT_CODE) {
+        // A late success is still a Google success, whatever the student tries meanwhile.
+        if (loginMethodRef.current === "google") loginMethodRef.current = null;
+        lateGoogleRef.current = true;
+      } else if (loginMethodRef.current === "google") {
+        loginMethodRef.current = null;
+      }
       trackLoginError("google", err);
       setError(describeAuthError(err));
       setBusy(false);

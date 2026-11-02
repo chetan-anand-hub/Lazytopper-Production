@@ -18,7 +18,9 @@ const APP_NAME: Record<InAppBrowser, string> = {
 
 export default function InAppSignin() {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-  const app = inAppBrowser(ua);
+  const standalone =
+    typeof navigator !== "undefined" && (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  const app = inAppBrowser(ua, standalone);
   useEffect(() => {
     if (app) trackOnboardingEvent("inapp_signin_banner_shown", { app });
   }, [app]);

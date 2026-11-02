@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 /**
  * AUTH-SIGNAL-1 — a Google popup that never reports back must not leave the buttons disabled
@@ -16,6 +16,11 @@ vi.mock("../analytics/analytics", async (orig) => ({
 vi.mock("../components/auth/OfferStrip", () => ({ default: () => null }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
 const signInWithGoogle = vi.fn(async () => {});
+const landed = vi.hoisted(() => vi.fn());
+function LandedProbe() {
+  landed();
+  return <div>LANDED</div>;
+}
 const authState: { user: AuthUser | null } = { user: null };
 vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({
@@ -102,6 +107,20 @@ describe("Google popup that never reports back", () => {
   });
 });
 
+describe("cancelled-popup-request", () => {
+  it("stays silent (a double-tap superseding the first popup)", async () => {
+    signInWithGoogle.mockImplementation(async () => {
+      throw Object.assign(new Error("x"), { code: "auth/cancelled-popup-request" });
+    });
+    const google = mount();
+    await act(async () => {
+      fireEvent.click(google);
+    });
+    expect(document.body.textContent).not.toContain(POPUP_CLOSED_MESSAGE);
+    expect(document.body.textContent).not.toContain("Sign-in failed");
+  });
+});
+
 describe("Google failure messages", () => {
   const cases: Array<[string, string, string]> = [
     ["auth/popup-closed-by-user", POPUP_CLOSED_MESSAGE, "popup-closed-by-user"],
@@ -158,5 +177,75 @@ describe("login_success", () => {
       render(tree());
     });
     expect(track).not.toHaveBeenCalledWith("login_success", expect.anything());
+  });
+});
+
+describe("late Google success after the 45 s timeout", () => {
+  const routed = () => (
+    <MemoryRouter initialEntries={["/login"]}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<LandedProbe />} />
+      </Routes>
+    </MemoryRouter>
+  );
+  it("navigates exactly once and reports exactly one login_success (google)", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(CHROME);
+    let finish: () => void = () => {};
+    signInWithGoogle.mockImplementation(
+      () =>
+        new Promise<void>((res) => {
+          finish = res;
+        }),
+    );
+    landed.mockClear();
+    const view = render(routed());
+    fireEvent.click(screen.getByRole("button", { name: /Continue with Google/ }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(GOOGLE_POPUP_TIMEOUT_MS);
+    });
+    expect(document.body.textContent).toContain(GOOGLE_TIMEOUT_MESSAGE);
+    // The student switches nothing; the popup finally completes.
+    authState.user = { uid: "u3", email: "c@d.com", displayName: "C", phoneNumber: null, emailVerified: true } as unknown as AuthUser;
+    await act(async () => {
+      finish();
+      view.rerender(routed());
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(landed).toHaveBeenCalledTimes(1);
+    expect(track.mock.calls.filter((c) => c[0] === "login_success")).toEqual([
+      ["login_success", { method: "google", ua_class: "chrome_android" }],
+    ]);
+    // No second error and no timeout event after success.
+    expect(track.mock.calls.filter((c) => c[0] === "login_error")).toHaveLength(1);
+  });
+  it("a timeout that fires after a successful sign-in reports nothing", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(CHROME);
+    signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
+    const view = render(routed());
+    fireEvent.click(screen.getByRole("button", { name: /Continue with Google/ }));
+    authState.user = { uid: "u4", email: "e@f.com", displayName: "E", phoneNumber: null, emailVerified: true } as unknown as AuthUser;
+    await act(async () => {
+      view.rerender(routed());
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(GOOGLE_POPUP_TIMEOUT_MS + 1000);
+    });
+    expect(track.mock.calls.filter((c) => c[0] === "login_error")).toHaveLength(0);
+    expect(track.mock.calls.filter((c) => c[0] === "login_success")).toHaveLength(1);
+  });
+  it("unmounting before the timeout reports nothing", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(CHROME);
+    signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
+    render(routed());
+    fireEvent.click(screen.getByRole("button", { name: /Continue with Google/ }));
+    cleanup();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(GOOGLE_POPUP_TIMEOUT_MS + 1000);
+    });
+    expect(track.mock.calls.filter((c) => c[0] === "login_error")).toHaveLength(0);
   });
 });

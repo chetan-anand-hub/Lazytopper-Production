@@ -42,7 +42,7 @@ export type UaClass =
   | "desktop"
   | "other";
 
-export function inAppBrowser(userAgent: string | null | undefined): InAppBrowser | null {
+export function inAppBrowser(userAgent: string | null | undefined, standalone = false): InAppBrowser | null {
   const ua = typeof userAgent === "string" ? userAgent : "";
   if (!ua) return null;
   if (/com\.google\.(android|ios)\.youtube/i.test(ua)) return "youtube";
@@ -50,15 +50,19 @@ export function inAppBrowser(userAgent: string | null | undefined): InAppBrowser
   if (/FBAN|FBAV|FB_IAB|FBIOS|FB4A|Messenger/i.test(ua)) return "facebook";
   if (/LinkedInApp|Snapchat|\bLine\/|\bLIFF\b/i.test(ua)) return "other-webview";
   if (/Android/i.test(ua) && /;\s*wv\)/i.test(ua)) return "other-webview";
-  if (/\b(iPhone|iPad|iPod)\b/.test(ua) && /AppleWebKit/i.test(ua) && !/Safari\//i.test(ua)) return "other-webview";
+  // `standalone` (navigator.standalone: a home-screen web app) also sends no `Safari/` token but is
+  // a real browser context for sign-in, so it is not an in-app browser.
+  if (!standalone && /\b(iPhone|iPad|iPod)\b/.test(ua) && /AppleWebKit/i.test(ua) && !/Safari\//i.test(ua)) {
+    return "other-webview";
+  }
   return null;
 }
 
 /** AUTH-SIGNAL-1 — the coarse class for telemetry. Pure; a user-agent string in, a label out. */
-export function uaClass(userAgent: string | null | undefined): UaClass {
+export function uaClass(userAgent: string | null | undefined, standalone = false): UaClass {
   const ua = typeof userAgent === "string" ? userAgent : "";
   if (!ua) return "other";
-  const app = inAppBrowser(ua);
+  const app = inAppBrowser(ua, standalone);
   if (app === "youtube") return "inapp_youtube";
   if (app === "instagram") return "inapp_instagram";
   if (app === "facebook") return "inapp_facebook";

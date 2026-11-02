@@ -150,3 +150,15 @@ describe("uaClass", () => {
     expect(uaClass(undefined)).toBe("other");
   });
 });
+
+describe("standalone (home-screen web app)", () => {
+  it("the bare iOS web view UA is not an in-app browser when standalone", () => {
+    expect(inAppBrowser(UA.iosBareWebview, true)).toBeNull();
+    expect(uaClass(UA.iosBareWebview, true)).toBe("other");
+    expect(inAppBrowser(UA.iosBareWebview, false)).toBe("other-webview");
+  });
+  it("named apps are still detected when standalone is true", () => {
+    expect(inAppBrowser(UA.youtubeIphone, true)).toBe("youtube");
+    expect(inAppBrowser(UA.instagramIos, true)).toBe("instagram");
+  });
+});

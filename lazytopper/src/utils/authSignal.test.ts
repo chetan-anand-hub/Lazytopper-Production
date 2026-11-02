@@ -27,7 +27,7 @@ afterEach(() => {
 describe("describeAuthError", () => {
   const cases: Array<[string, string]> = [
     ["auth/popup-closed-by-user", POPUP_CLOSED_MESSAGE],
-    ["auth/cancelled-popup-request", POPUP_CLOSED_MESSAGE],
+    ["auth/cancelled-popup-request", ""],
     ["auth/popup-blocked", POPUP_BLOCKED_MESSAGE],
     ["auth/operation-not-supported-in-this-environment", UNSUPPORTED_ENVIRONMENT_MESSAGE],
     ["auth/web-storage-unsupported", UNSUPPORTED_ENVIRONMENT_MESSAGE],
@@ -39,8 +39,8 @@ describe("describeAuthError", () => {
   it.each(cases)("%s", (code, message) => {
     expect(describeAuthError({ code })).toBe(message);
   });
-  it("never returns an empty message for a Google popup failure", () => {
-    for (const code of ["auth/popup-closed-by-user", "auth/cancelled-popup-request", "auth/popup-blocked"]) {
+  it("never returns an empty message for a Google popup failure (cancelled-popup-request is deliberately silent)", () => {
+    for (const code of ["auth/popup-closed-by-user", "auth/popup-blocked"]) {
       expect(describeAuthError({ code })).not.toBe("");
     }
   });
