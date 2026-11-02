@@ -29,6 +29,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 });
 
 import { RequirePremium } from "./RequireAuth";
+import { CBQ_GATE_WAIT_MS } from "../../hooks/useCbqTutorAllowance";
 import * as analytics from "../../analytics/analytics";
 import * as svc from "../../services/subscriptionService";
 import type { SubscriptionStatus } from "../../services/subscriptionService";
@@ -89,6 +90,33 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     fireEvent.click(await screen.findByText("Start my free 7-day trial"));
     expect(activate).not.toHaveBeenCalled();
     expect(trialStarts()).toBe(0);
+  });
+
+  it("tutor gate while hydration is pending: Checking, no trial CTA, nothing started, nothing counted", async () => {
+    hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
+    renderGate();
+    await screen.findByText("Checking your session...");
+    expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
+    expect(screen.queryByText("Premium Feature")).toBeNull();
+    expect(activate).not.toHaveBeenCalled();
+    expect(track).not.toHaveBeenCalled();
+  });
+
+  it("tutor gate: hydration that never completes falls back to the lock after the bound (no forever spinner)", async () => {
+    vi.useFakeTimers();
+    try {
+      hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
+      renderGate();
+      await act(async () => {});
+      expect(screen.getByText("Checking your session...")).toBeInTheDocument();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(CBQ_GATE_WAIT_MS + 100);
+      });
+      expect(screen.getByText("Premium Feature")).toBeInTheDocument();
+      expect(activate).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("EXPIRED-trial user does NOT see the trial CTA — only the plans path", async () => {

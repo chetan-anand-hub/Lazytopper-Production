@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -8,7 +8,7 @@ import { trackNamedEvent } from "../../analytics/analytics";
 import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
 import BoardPassLine from "../pricing/BoardPassLine";
 import { isSafeInternalPath } from "../../utils/safeInternalPath";
-import { useCbqTutorAllowance } from "../../hooks/useCbqTutorAllowance";
+import { CBQ_GATE_WAIT_MS, useCbqTutorAllowance } from "../../hooks/useCbqTutorAllowance";
 
 /** CBQ-TUTOR-GATE-1 - the one gate label (set in App.tsx) that a CBQ Pack owner's bonus questions may open. */
 export const TUTOR_GATE_LABEL = "Ask the tutor";
@@ -63,6 +63,15 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
     !loading && Boolean(user) && hydrated && !isPremium && featureLabel === TUTOR_GATE_LABEL,
   );
 
+  // Bound the wait for subscription hydration on the tutor gate: if it never completes, fall back to the lock.
+  const waitingForPlan = Boolean(user) && !loading && !hydrated && !isPremium && featureLabel === TUTOR_GATE_LABEL;
+  const [planWaitExpired, setPlanWaitExpired] = useState(false);
+  useEffect(() => {
+    if (!waitingForPlan) return;
+    const t = setTimeout(() => setPlanWaitExpired(true), CBQ_GATE_WAIT_MS);
+    return () => clearTimeout(t);
+  }, [waitingForPlan]);
+
   if (loading) {
     return (
       <div className="lt-page">
@@ -79,7 +88,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
   }
 
   // Plan not yet read for the tutor gate: wait, do not flash the lock at a student who may be a pack owner.
-  if (!isPremium && featureLabel === TUTOR_GATE_LABEL && (!hydrated || cbqAllowance === "loading")) {
+  if (!isPremium && featureLabel === TUTOR_GATE_LABEL && ((!hydrated && !planWaitExpired) || cbqAllowance === "loading")) {
     return (
       <div className="lt-page">
         <div className="card">

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, waitFor, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 // CBQ-TUTOR-GATE-1 - a non-Premium CBQ Pack owner with bonus questions left reaches the tutor; everyone else is
@@ -15,6 +15,7 @@ const fetchMyPacks = vi.fn();
 vi.mock("../../services/packs", () => ({ fetchMyPacks: (...a: unknown[]) => fetchMyPacks(...a) }));
 
 import { RequirePremium } from "./RequireAuth";
+import { CBQ_GATE_WAIT_MS } from "../../hooks/useCbqTutorAllowance";
 import * as svc from "../../services/subscriptionService";
 import type { SubscriptionStatus } from "../../services/subscriptionService";
 import { resetCbqTutorBonusForTests } from "../../ai/cbqTutorBonus";
@@ -89,6 +90,26 @@ describe("RequirePremium tutor gate - CBQ Pack bonus (CBQ-TUTOR-GATE-1)", () => 
     await waitFor(() => expect(fetchMyPacks).toHaveBeenCalled());
     expect(screen.queryByText("Premium Feature")).toBeNull();
     expect(screen.queryByText("TUTOR_CHILD")).toBeNull();
+  });
+
+  it("a stalled server read falls back to the lock after the bound (no forever spinner)", async () => {
+    vi.useFakeTimers();
+    try {
+      hydrate.mockResolvedValue(FREE);
+      fetchMyPacks.mockReturnValue(new Promise(() => {}));
+      gate();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(50);
+      });
+      expect(screen.getByText("Checking your session...")).toBeInTheDocument();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(CBQ_GATE_WAIT_MS + 100);
+      });
+      expect(screen.getByText("Premium Feature")).toBeInTheDocument();
+      expect(screen.queryByText("TUTOR_CHILD")).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("another gate label never consults the pack allowance", async () => {
