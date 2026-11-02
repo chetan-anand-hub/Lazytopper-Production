@@ -6,18 +6,21 @@ import { chromeIntentUrl, isAndroidUserAgent, isIosUserAgent } from "../../utils
 
 /**
  * INAPP-SIGNIN-1 — a calm note above the Google button when the page is open inside
- * Instagram, Facebook or another app's browser, where Google sign-in is refused. Google is
+ * Instagram, Facebook, YouTube or another app's browser, where Google sign-in is refused. Google is
  * not hidden (it works in some apps); the student is told what to do instead.
  */
 const APP_NAME: Record<InAppBrowser, string> = {
   instagram: "Instagram",
   facebook: "Facebook",
+  youtube: "YouTube",
   "other-webview": "this app",
 };
 
 export default function InAppSignin() {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-  const app = inAppBrowser(ua);
+  const standalone =
+    typeof navigator !== "undefined" && (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  const app = inAppBrowser(ua, standalone);
   useEffect(() => {
     if (app) trackOnboardingEvent("inapp_signin_banner_shown", { app });
   }, [app]);

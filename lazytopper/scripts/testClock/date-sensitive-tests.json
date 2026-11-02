@@ -512,6 +512,7 @@
     "src/pages/FullMockPage.tutorReturn.test.tsx",
     "src/pages/Login.forgotPassword.test.tsx",
     "src/pages/Login.freeCheckRedirect.test.tsx",
+    "src/pages/Login.googleSignal.test.tsx",
     "src/pages/Login.legalLinks.test.tsx",
     "src/pages/Login.nameCapture.test.tsx",
     "src/pages/Login.newAccountLanding.test.tsx",
@@ -698,6 +699,7 @@
     "src/services/weakAreaAggregator.marks.test.ts",
     "src/services/weakAreaAggregator.saturation.test.ts",
     "src/services/weakAreaAggregator.syllabus.test.ts",
-    "src/test/testClock.test.ts"
+    "src/test/testClock.test.ts",
+    "src/utils/authSignal.test.ts"
   ]
 }

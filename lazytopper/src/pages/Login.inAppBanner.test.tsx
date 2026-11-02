@@ -64,6 +64,10 @@ const IG_ANDROID =
   "Mozilla/5.0 (Linux; Android 13; SM-S911B Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/118.0.0.0 Mobile Safari/537.36 Instagram 309.1.0.41.113 Android (33/13; 480dpi; 1080x2340; samsung; SM-S911B; dm1q; qcom; en_IN; 541635897)";
 const IG_IOS =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/21A329 Instagram 309.0.0.28.114 (iPhone14,5; iOS 17_0; en_IN; en; scale=3.00; 1170x2532; 541635897)";
+const YT_ANDROID =
+  "Mozilla/5.0 (Linux; Android 13; SM-S901B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/118.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.12.35";
+const IOS_WEBVIEW =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
 const CHROME =
   "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36";
 
@@ -99,6 +103,32 @@ describe("Login in an in-app browser", () => {
     await screen.findByTestId("inapp-signin-banner");
     expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("Open in Safari");
     expect(screen.queryByRole("link", { name: "Open in Chrome" })).toBeNull();
+  });
+
+  it("AUTH-SIGNAL-1 · YouTube app (Android): banner names YouTube, Open in Chrome, event app=youtube", async () => {
+    mount(YT_ANDROID);
+    await screen.findByTestId("inapp-signin-banner");
+    expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside YouTube");
+    expect(screen.getByRole("link", { name: "Open in Chrome" })).toBeTruthy();
+    await waitFor(() => expect(track).toHaveBeenCalledWith("inapp_signin_banner_shown", { app: "youtube" }));
+  });
+
+  it("AUTH-SIGNAL-1 · a bare iOS web view gets the Safari instruction", async () => {
+    mount(IOS_WEBVIEW);
+    await screen.findByTestId("inapp-signin-banner");
+    expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("Open in Safari");
+    expect(screen.queryByRole("link", { name: "Open in Chrome" })).toBeNull();
+  });
+
+  it("AUTH-SIGNAL-1 · a home-screen web app (navigator.standalone) gets no banner", () => {
+    Object.defineProperty(window.navigator, "standalone", { value: true, configurable: true });
+    try {
+      mount(IOS_WEBVIEW);
+    } finally {
+      Reflect.deleteProperty(window.navigator, "standalone");
+    }
+    expect(screen.queryByTestId("inapp-signin-banner")).toBeNull();
+    expect(track).not.toHaveBeenCalled();
   });
 
   it("a normal browser sees no banner and sends no event", () => {

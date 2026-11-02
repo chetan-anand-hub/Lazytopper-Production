@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { inAppBrowser } from "./inAppBrowser";
+import { inAppBrowser, uaClass } from "./inAppBrowser";
 import { chromeIntentUrl, isAndroidUserAgent, isIosUserAgent } from "./inAppBrowserLinks";
 
 const UA = {
@@ -26,6 +26,28 @@ const UA = {
     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
   desktopChrome:
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+  // AUTH-SIGNAL-1. VERBATIM from https://whatmyuseragent.com/apps/youtube (joined segments):
+  youtubeAndroidVerbatim:
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 com.google.android.youtube/2.4.4(Linux; Android 13; SM-S901B) gzip",
+  youtubeIpadVerbatim:
+    "Mozilla/5.0 (iPad; CPU OS 10_3_4 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/13.0.1 Mobile/14G61 Safari/604.1 com.google.ios.youtube/20.31.6 (iPad; CPU OS 10_3_4 like Mac OS)",
+  // CONSTRUCTED by appending the same package token to an ordinary WebView / Safari user agent:
+  youtubeAndroidWebview:
+    "Mozilla/5.0 (Linux; Android 13; SM-S901B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/118.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.12.35",
+  youtubeIphone:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1 com.google.ios.youtube/20.38.4 (iPhone16,2; U; CPU iOS 17_0 like Mac OS X)",
+  // iOS WKWebView with no app token: no Version/ and no Safari/ (mobiForge, "Webviews and User-Agent strings").
+  iosBareWebview:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+  chromeIos:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/118.0.5993.69 Mobile/15E148 Safari/604.1",
+  firefoxIos:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/118.0 Mobile/15E148 Safari/605.1.15",
+  samsungInternet:
+    "Mozilla/5.0 (Linux; Android 13; SAMSUNG SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36",
+  firefoxAndroid: "Mozilla/5.0 (Android 13; Mobile; rv:118.0) Gecko/118.0 Firefox/118.0",
+  ipadSafari:
+    "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
 };
 
 describe("inAppBrowser", () => {
@@ -75,5 +97,68 @@ describe("chromeIntentUrl", () => {
   it("refuses non-http URLs and garbage", () => {
     expect(chromeIntentUrl("javascript:alert(1)")).toBeNull();
     expect(chromeIntentUrl("not a url")).toBeNull();
+  });
+});
+
+describe("AUTH-SIGNAL-1 detection additions", () => {
+  const cases: Array<[string, keyof typeof UA, ReturnType<typeof inAppBrowser>]> = [
+    ["YouTube Android, verbatim sample", "youtubeAndroidVerbatim", "youtube"],
+    ["YouTube iPad, verbatim sample", "youtubeIpadVerbatim", "youtube"],
+    ["YouTube Android WebView", "youtubeAndroidWebview", "youtube"],
+    ["YouTube iPhone", "youtubeIphone", "youtube"],
+    ["bare iOS WKWebView", "iosBareWebview", "other-webview"],
+    ["Chrome on iOS keeps Safari/", "chromeIos", null],
+    ["Firefox on iOS keeps Safari/", "firefoxIos", null],
+    ["iPad Safari", "ipadSafari", null],
+    ["Samsung Internet", "samsungInternet", null],
+    ["Firefox Android", "firefoxAndroid", null],
+  ];
+  it.each(cases)("%s", (_label, key, expected) => {
+    expect(inAppBrowser(UA[key])).toBe(expected);
+  });
+});
+
+describe("uaClass", () => {
+  const cases: Array<[keyof typeof UA, string]> = [
+    ["youtubeAndroidVerbatim", "inapp_youtube"],
+    ["youtubeAndroidWebview", "inapp_youtube"],
+    ["youtubeIphone", "inapp_youtube"],
+    ["youtubeIpadVerbatim", "inapp_youtube"],
+    ["instagramAndroid", "inapp_instagram"],
+    ["instagramIos", "inapp_instagram"],
+    ["facebookAndroid", "inapp_facebook"],
+    ["facebookIos", "inapp_facebook"],
+    ["messenger", "inapp_facebook"],
+    ["androidWebview", "android_webview"],
+    ["line", "android_webview"],
+    ["iosBareWebview", "ios_webview"],
+    ["linkedin", "ios_webview"],
+    ["snapchat", "ios_webview"],
+    ["chromeAndroid", "chrome_android"],
+    ["desktopChrome", "desktop"],
+    ["safariIos", "other"],
+    ["chromeIos", "other"],
+    ["samsungInternet", "other"],
+    ["firefoxAndroid", "other"],
+  ];
+  it.each(cases)("%s -> %s", (key, expected) => {
+    expect(uaClass(UA[key])).toBe(expected);
+  });
+  it("empty or missing input is other", () => {
+    expect(uaClass("")).toBe("other");
+    expect(uaClass(null)).toBe("other");
+    expect(uaClass(undefined)).toBe("other");
+  });
+});
+
+describe("standalone (home-screen web app)", () => {
+  it("the bare iOS web view UA is not an in-app browser when standalone", () => {
+    expect(inAppBrowser(UA.iosBareWebview, true)).toBeNull();
+    expect(uaClass(UA.iosBareWebview, true)).toBe("other");
+    expect(inAppBrowser(UA.iosBareWebview, false)).toBe("other-webview");
+  });
+  it("named apps are still detected when standalone is true", () => {
+    expect(inAppBrowser(UA.youtubeIphone, true)).toBe("youtube");
+    expect(inAppBrowser(UA.instagramIos, true)).toBe("instagram");
   });
 });

@@ -1929,5 +1929,24 @@ export function trackSignUpIfNew(credential: UserCredential): void {
  * ------------------------------------------------------------------------- */
 
 export interface OnboardingEventParams {
-  inapp_signin_banner_shown: { app: "instagram" | "facebook" | "other-webview" };
+  inapp_signin_banner_shown: { app: "instagram" | "facebook" | "youtube" | "other-webview" };
+}
+
+/* ------------------------------------------------------------------------- *
+ * AUTH-SIGNAL-1 — sign-in telemetry, so the loss between "tapped Google" and "signed in" can be
+ * sized per client (YouTube / Instagram / Facebook in-app browsers, Android or iOS webviews,
+ * Chrome on Android, desktop). Same onboarding sender (coarse slugs only). Params:
+ *   method      google | email | phone
+ *   ua_class    inapp_youtube | inapp_instagram | inapp_facebook | android_webview | ios_webview |
+ *               chrome_android | desktop | other   (never the raw user agent)
+ *   error_code  the Firebase code without "auth/" (e.g. popup-blocked), "popup-timeout" for the
+ *               45 s Google wait, or "unknown". No email, phone, uid or name rides along.
+ * GA4 / Vercel only: signed-out visitors are never in the first-party activity log, so none of
+ * these is (or needs to be) on the activity allow-list.
+ * ------------------------------------------------------------------------- */
+
+export interface OnboardingEventParams {
+  login_attempt: { method: "google" | "email" | "phone"; ua_class: string };
+  login_success: { method: "google" | "email" | "phone"; ua_class: string };
+  login_error: { method: "google" | "email" | "phone"; ua_class: string; error_code: string };
 }

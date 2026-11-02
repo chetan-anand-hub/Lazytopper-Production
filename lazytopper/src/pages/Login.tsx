@@ -3,6 +3,17 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import { useAuth, type AuthUser } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { trackNamedEvent } from "../analytics/analytics";
+import {
+  authErrorCode,
+  describeAuthError,
+  GOOGLE_POPUP_TIMEOUT_CODE,
+  GOOGLE_POPUP_TIMEOUT_MS,
+  trackLoginAttempt,
+  trackLoginError,
+  trackLoginSuccess,
+  withTimeout,
+  type LoginMethod,
+} from "../utils/authSignal";
 import OfferStrip from "../components/auth/OfferStrip";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
@@ -1216,11 +1227,6 @@ const LOGIN_CSS = `
  * echoing the address in the CTA — "Continue as you@example.com" — and (b) the
  * blocking verification gate, which is the real protection.
  */
-function authErrorCode(err: unknown): string {
-  return typeof err === "object" && err !== null && "code" in err
-    ? String((err as { code?: unknown }).code || "")
-    : "";
-}
 
 /**
  * The ONE neutral password-reset confirmation.
@@ -1325,48 +1331,6 @@ const AMBIGUOUS_SIGN_IN_MESSAGE =
 const EMAIL_TAKEN_MESSAGE =
   "That address is already registered here. Switch to \"Already have an " +
   'account" to sign in, or reset your password.';
-
-function describeAuthError(err: unknown): string {
-  const code = authErrorCode(err);
-  switch (code) {
-    case "auth/popup-closed-by-user":
-    case "auth/cancelled-popup-request":
-      return ""; // user dismissed the Google popup — nothing to surface
-    case "auth/invalid-email":
-      return "Enter a valid email address.";
-    case "auth/user-disabled":
-      return "This account has been disabled.";
-    case "auth/email-already-in-use":
-      return "An account with this email already exists — sign in instead.";
-    case "auth/weak-password":
-      return "Choose a password with at least 6 characters.";
-    case "auth/operation-not-allowed":
-      return "Email sign-up is not enabled yet. Please try Google.";
-    case "auth/user-not-found":
-    case "auth/wrong-password":
-    case "auth/invalid-credential":
-      return "Incorrect email or password.";
-    case "auth/too-many-requests":
-      return "Too many attempts. Please try again in a few minutes.";
-    case "auth/invalid-phone-number":
-    case "auth/missing-phone-number":
-      return "Enter a valid 10-digit mobile number.";
-    case "auth/invalid-verification-code":
-      return "That code is incorrect. Check the SMS and try again.";
-    case "auth/code-expired":
-      return "This code has expired. Request a new one.";
-    case "auth/quota-exceeded":
-      return "SMS limit reached. Please try again later.";
-    case "auth/captcha-check-failed":
-      return "Verification check failed. Please try again.";
-    case "auth/popup-blocked":
-      return "Your browser blocked the sign-in popup. Allow popups and try again.";
-    case "auth/network-request-failed":
-      return "Network error. Check your connection and try again.";
-    default:
-      return "Sign-in failed. Please try again.";
-  }
-}
 
 /**
  * Does this student have to verify their address before entering?
@@ -1528,6 +1492,21 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [phoneStep, setPhoneStep] = useState<"number" | "otp">("number");
   const [otp, setOtp] = useState("");
   const [busy, setBusy] = useState(false);
+  // AUTH-SIGNAL-1 — the method of the attempt in flight, so the one successful-auth exit below
+  // can report login_success for it. Null when no attempt was made on this page (an already
+  // signed-in visitor passing through /login reports nothing).
+  const loginMethodRef = useRef<LoginMethod | null>(null);
+  // A Google attempt that timed out but may still finish. Kept apart from loginMethodRef so a
+  // later email / phone attempt is never reported as Google (nor Google as email / phone).
+  const lateGoogleRef = useRef(false);
+  const mountedRef = useRef(true);
+  const signedInRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [offerReset, setOfferReset] = useState(false);
 
@@ -1636,6 +1615,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     trackUxEvent("login_complete", "login", {
       reason: reason ?? "unspecified",
     });
+    signedInRef.current = true;
+    // Exactly one method is reported. If a timed-out Google attempt and a newer email / phone
+    // attempt are both open, which one finished is unknowable, so nothing is reported.
+    const method = loginMethodRef.current;
+    if (method && !lateGoogleRef.current) trackLoginSuccess(method);
+    else if (!method && lateGoogleRef.current) trackLoginSuccess("google");
+    loginMethodRef.current = null;
+    lateGoogleRef.current = false;
     // ACTIVATION-1 · L1 — verification no longer BLOCKS. The wall held a new email account
     // on this step and never navigated it (58 sign-ups, 2 graded checks). The verification
     // email is still sent, once, and the student goes on to `nextPath`; a dismissible
@@ -1747,10 +1734,28 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     if (busy) return;
     setError(null);
     setBusy(true);
+    loginMethodRef.current = "google";
+    lateGoogleRef.current = false;
+    trackLoginAttempt("google");
+    // AUTH-SIGNAL-1 — a popup that never reports back (some in-app browsers and custom tabs)
+    // must not leave every button disabled. After GOOGLE_POPUP_TIMEOUT_MS the buttons come back
+    // with a message pointing at phone / email. If the popup does finish later, auth state still
+    // changes and the `user` effect navigates as usual; a late rejection finds the race already lost.
     try {
-      await signInWithGoogle();
+      await withTimeout(signInWithGoogle(), GOOGLE_POPUP_TIMEOUT_MS);
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
+      // Already signed in, or this page is gone: a timeout / late rejection must not set state
+      // or report an error for a sign-in that has since worked.
+      if (!mountedRef.current || signedInRef.current) return;
+      if (authErrorCode(err) === GOOGLE_POPUP_TIMEOUT_CODE) {
+        // A late success is still a Google success, whatever the student tries meanwhile.
+        if (loginMethodRef.current === "google") loginMethodRef.current = null;
+        lateGoogleRef.current = true;
+      } else if (loginMethodRef.current === "google") {
+        loginMethodRef.current = null;
+      }
+      trackLoginError("google", err);
       setError(describeAuthError(err));
       setBusy(false);
     }
@@ -1791,6 +1796,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     }
 
     setBusy(true);
+    loginMethodRef.current = "email";
+    trackLoginAttempt("email");
 
     if (creating) {
       // ── CREATE, DIRECTLY ────────────────────────────────────────────────
@@ -1813,6 +1820,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         } else {
           setError(describeAuthError(err));
         }
+        loginMethodRef.current = null;
+        trackLoginError("email", err);
         setBusy(false);
       }
       return;
@@ -1839,6 +1848,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         // network — keeps its own accurate message.
         setError(describeAuthError(signInErr));
       }
+      loginMethodRef.current = null;
+      trackLoginError("email", signInErr);
       setBusy(false);
     }
   };
@@ -1910,10 +1921,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         return;
       }
       setBusy(true);
+      loginMethodRef.current = "phone";
+      trackLoginAttempt("phone");
       try {
         await sendPhoneOtp(`+91${phone}`, recaptchaContainerId);
         setPhoneStep("otp");
       } catch (err) {
+        loginMethodRef.current = null;
+        trackLoginError("phone", err);
         setError(describeAuthError(err));
       } finally {
         setBusy(false);
@@ -1938,6 +1953,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       await verifyPhoneOtp(otp, creatingPhoneAccount ? name.trim() : undefined);
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
+      trackLoginError("phone", err);
       setError(describeAuthError(err));
       setBusy(false);
     }
@@ -1958,6 +1974,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     try {
       await sendPhoneOtp(`+91${phone}`, recaptchaContainerId);
     } catch (err) {
+      trackLoginError("phone", err);
       setError(describeAuthError(err));
     } finally {
       setBusy(false);
