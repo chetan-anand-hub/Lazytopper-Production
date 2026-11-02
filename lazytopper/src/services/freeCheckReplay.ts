@@ -300,10 +300,15 @@ export async function replayPendingFreeCheck(
     // moment the student is signed in, and it runs once per claimed result, so this counts once.
     // ACT-FREECHECK-1 — FIRST-PARTY ONLY: the signed-out grade already sent the vendors `check_graded`
     // (DesktopCheckImprovePage), so a converting free check no longer counts twice in GA4.
-    trackCheckGradedFirstPartyOnly();
     // ACT-FREECHECK-1 — keep the claimed result in memory so the page can show it once more (the device copy is gone).
     savedResults.clear(); // one account's result at a time
     savedResults.set(user.uid, pending);
+    // Analytics must never turn a completed save into a "failed" one (the write is already confirmed above).
+    try {
+      trackCheckGradedFirstPartyOnly();
+    } catch {
+      /* ignore */
+    }
     return { kind: "saved", code };
   } catch (error) {
     console.warn("[freeCheckReplay] replay failed; the result stays on the device", error);
