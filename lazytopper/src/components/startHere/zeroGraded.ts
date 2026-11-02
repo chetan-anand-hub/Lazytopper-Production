@@ -29,14 +29,14 @@ export const START_HERE_NEW_ACCOUNT_DAYS = 7;
 
 /** The signed-in user's Firebase Auth `metadata.creationTime`, already on the device. Missing,
  *  unparseable, a different user, or in the future -> false (never guess "new"). */
-export function accountIsNew(uid: string, now: number = Date.now()): boolean {
+export function accountIsNew(uid: string, now: number = Date.now(), days: number = START_HERE_NEW_ACCOUNT_DAYS): boolean {
   try {
     const user = authClient?.currentUser;
     if (!user || user.uid !== uid) return false;
     const created = Date.parse(user.metadata?.creationTime ?? "");
     if (!Number.isFinite(created)) return false;
     const age = now - created;
-    return age >= 0 && age <= START_HERE_NEW_ACCOUNT_DAYS * 24 * 60 * 60 * 1000;
+    return age >= 0 && age <= days * 24 * 60 * 60 * 1000;
   } catch {
     return false;
   }

@@ -139,6 +139,7 @@ import LadderPhotoCta from "../../components/ciDemo/LadderPhotoCta";
 import { launchMoreLikeThis } from "../../components/ciDemo/ladderMore";
 import { recordLadderTap } from "../../components/ciDemo/ladderAttempt";
 import { useCiDemoAudience } from "../../components/ciDemo/ciDemoModel";
+import { reportFirstActionShown, reportFirstActionTap } from "../../components/startHere/firstAction";
 import { buildSingleGradeRequest, seedConfirmedFromBank } from "../../components/ciDemo/ladderGradeRequest";
 import { typeFirstAnswerMode, useZeroGraded } from "../../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
@@ -1608,6 +1609,11 @@ const DesktopCheckImprovePageInner: React.FC<{
     resultSeen: ciShownResultHere || status !== "idle",
   });
 
+  // ACT-FIRST-1 — the first-action card (the ladder) was shown to a signed-in student: why (server_zero | new_by_signal).
+  useEffect(() => {
+    if (ciDemo.show && ciDemo.reason) reportFirstActionShown("answer_checker", ciDemo.reason);
+  }, [ciDemo.show, ciDemo.reason]);
+
   // HOME-LADDER-1b — Home's Byte left a one-shot "start the ladder" note. The page's inputs (auth, the
   // zero-graded read) are not settled at mount, so `startLadder()` is RETRIED as they settle, for up to
   // LADDER_ARRIVAL_WAIT_MS, and never falls through to focusing the question box meanwhile. On timeout the
@@ -1857,6 +1863,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // ONE-MINUTE-1 step 1 — the tap is a real MCQ attempt for a signed-in student (the Practice card's own door and
   // identity, so "Tried practice" counts it once); nothing is persisted signed out. No mistake type: a tap has no working.
   function ciLadderAnswered(a: LadderAnswer) {
+    reportFirstActionTap("answer_checker");
     recordLadderTap(user, a);
   }
 

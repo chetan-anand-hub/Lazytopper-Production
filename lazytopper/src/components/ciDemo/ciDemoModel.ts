@@ -6,11 +6,14 @@
  * WHO SEES IT (all must hold)
  *   - not inside the tutor overlay;
  *   - the visit is an ad arrival: the tab's landing record says landing "/check-improve" OR
- *     utm_campaign "yt_students" (the guide's own record first, so it survives sign-up);
+ *     utm_campaign "yt_students" (the guide's own record first, so it survives sign-up) - OR
+ *     (ACT-FIRST-1) the signed-in account's trial was started at sign-up in this tab, so a lost or
+ *     never-written landing record cannot hide the first action from a brand-new account;
  *   - not closed in this tab (sessionStorage `lazytopper.ciDemoClosed` = "1");
  *   - nothing in progress on the page, OR the card is already open (it never vanishes under a student);
  *   - EITHER signed out in free-check mode with the free check still unspent, OR signed in with ZERO
- *     graded results on the SERVER's answer ("loading" is not zero).
+ *     graded results on the SERVER's answer ("loading" is not zero) - or, for this card only
+ *     (ACT-FIRST-1), a new-account signal while the server is slow (see useFirstActionZeroGraded).
  *   Unreadable storage → no card.
  *
  * DISPLAY ONLY: nothing here reads or changes a grade, a mark, a prompt or a mistake type.
@@ -18,7 +21,9 @@
 import { useEffect, useRef, useState } from "react";
 import { readVisitLanding } from "../guide/guideInputs";
 import { hasUsedFreeCheck } from "../../services/freeCheckClient";
-import { useZeroGraded, type ZeroGraded } from "../startHere/zeroGraded";
+import type { ZeroGraded } from "../startHere/zeroGraded";
+import { useFirstActionZeroGraded, type FirstActionReason } from "../startHere/firstActionRead";
+import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
 import { readSubjectHint } from "../startHere/startHereModel";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 
@@ -44,6 +49,8 @@ export interface CiDemoAudienceInput {
    * closed-this-tab rules do not apply; the same students still qualify (signed out with the free check unspent, or signed in with ZERO graded results).
    */
   forced?: boolean;
+  /** ACT-FIRST-1 - this tab started the signed-in account's trial at sign-up: qualifies without an ad record. */
+  newAccount?: boolean;
   who:
     | { kind: "signedOut"; freeMode: boolean; freeCheckUsed: boolean }
     | { kind: "signedIn"; zeroGraded: ZeroGraded };
@@ -59,7 +66,7 @@ export function isCiAdArrival(visit: CiDemoAudienceInput["visit"]): boolean {
 export function ciDemoEligible(i: Omit<CiDemoAudienceInput, "inProgress" | "alreadyOpen">): boolean {
   if (i.overlay) return false;
   if (i.forced) return i.who.kind === "signedOut" ? i.who.freeMode && !i.who.freeCheckUsed : i.who.zeroGraded === "none";
-  if (i.closed || !isCiAdArrival(i.visit)) return false;
+  if (i.closed || !(isCiAdArrival(i.visit) || (i.newAccount && i.who.kind === "signedIn"))) return false;
   return i.who.kind === "signedOut"
     ? i.who.freeMode && !i.who.freeCheckUsed
     : i.who.zeroGraded === "none";
@@ -148,11 +155,15 @@ export function useCiDemoAudience(args: CiDemoAudienceArgs): {
   startLadder: () => boolean;
   /** The ladder was asked for by Byte (leads whatever the arrival). */
   ladderForced: boolean;
+  /** ACT-FIRST-1 - why the card shows for a signed-in student (null until it does). */
+  reason: FirstActionReason | null;
 } {
   const visit = readVisitLanding();
   const adArrival = isCiAdArrival(visit);
   const [forced, setForced] = useState(false);
-  const zeroGraded = useZeroGraded(args.overlay || !(adArrival || forced) ? null : args.uid, { serverOnly: true });
+  const newAccount = !!args.uid && wasTrialStartedAtSignUp(args.uid);
+  // ACT-FIRST-1: the ladder's own read; a new-account signal stands in while the server is slow, cached or failed.
+  const { zeroGraded, reason } = useFirstActionZeroGraded(args.overlay || !(adArrival || forced || newAccount) ? null : args.uid);
   const [closed, setClosed] = useState<boolean>(() => readCiDemoClosed());
   const [open, setOpen] = useState(false);
   // The card was shown and closed in this tab (key or in-memory close): the page uses it to keep the
@@ -162,7 +173,7 @@ export function useCiDemoAudience(args: CiDemoAudienceArgs): {
     ? { kind: "signedIn", zeroGraded }
     : { kind: "signedOut", freeMode: args.freeMode, freeCheckUsed: args.freeMode ? hasUsedFreeCheck() : false };
   const done = (closed && !forced) || args.resultSeen;
-  const show = ciDemoAudience({ overlay: args.overlay, visit, closed: done, who, inProgress: args.inProgress, alreadyOpen: open, forced });
+  const show = ciDemoAudience({ overlay: args.overlay, visit, closed: done, who, inProgress: args.inProgress, alreadyOpen: open, forced, newAccount });
   // Derived-state latch: once the card has shown it stays through typing, until closed.
   if (show !== open && (show || closed)) setOpen(show);
   // A real result ends it for this tab (derived state: no effect-driven setState).
@@ -189,5 +200,5 @@ export function useCiDemoAudience(args: CiDemoAudienceArgs): {
     setClosedHere(true);
     setOpen(false);
   };
-  return { show, close, closedHere, startLadder, ladderForced: forced };
+  return { show, close, closedHere, startLadder, ladderForced: forced, reason: show && args.uid ? reason : null };
 }

@@ -30,6 +30,20 @@ import { currentAha } from "./ahaModel";
 type Chunk = typeof import("./guideChunk");
 const load = (): Promise<Chunk> => import("./guideChunk");
 
+/**
+ * ACT-FIRST-1 — fetch the guide chunk (and the guide.css it pulls in) ahead of a surface that must not
+ * draw before it can paint: true once it has loaded, false when the load failed. One shared promise.
+ */
+let chunkLoad: Promise<boolean> | null = null;
+export function preloadGuideChunk(): Promise<boolean> {
+  if (!chunkLoad) chunkLoad = load().then(() => true, () => false);
+  return chunkLoad;
+}
+/** Tests only: forget the shared load. */
+export function resetGuideChunkForTests(): void {
+  chunkLoad = null;
+}
+
 /** One named export of the chunk, as a lazy component; a failed load renders nothing. */
 function lazyPart<P extends object>(pick: (m: Chunk) => ComponentType<P>) {
   const Nothing: ComponentType<P> = () => null;

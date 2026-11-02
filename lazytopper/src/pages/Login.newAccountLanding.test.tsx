@@ -42,6 +42,7 @@ import {
   NEW_ACCOUNT_LANDING_TTL_MS,
   markNewAccountLanding,
   isMeTarget,
+  isBrowseTarget,
   markNewAccountLandingIfNew,
   takeNewAccountLanding,
 } from "../services/newAccountLanding";
@@ -120,10 +121,10 @@ describe("LOGIN-HOME-1 · where a sign-in lands", () => {
     expect(await screen.findByText("LANDED ON PRACTICE HUB")).toBeTruthy();
   });
 
-  it("★★ a NEW account with /pricing keeps /pricing; a literal /mex keeps /mex (not read as /me)", async () => {
+  it("★★ a NEW account with /pricing?buy=... keeps /pricing; a literal /mex keeps /mex (not read as /me)", async () => {
     markNewAccountLanding();
     authState.user = GOOGLE_USER;
-    renderDoorAt("/login?redirect=%2Fpricing");
+    renderDoorAt("/login?redirect=%2Fpricing%3Fbuy%3Dpack_cbq%26t%3Dmaths");
     expect(await screen.findByText("LANDED ON PRICING")).toBeTruthy();
     cleanup();
     markNewAccountLanding();
@@ -180,6 +181,33 @@ describe("LOGIN-HOME-1 · where a sign-in lands", () => {
     authState.user = GOOGLE_USER;
     renderDoorAt("/login?redirect=%2F%2Fevil.example");
     expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+});
+
+describe("ACT-FIRST-1 · a new account from /pricing, /packs or Highly Probable lands on Home (no purchase intent)", () => {
+  it.each([
+    ["/pricing", "/login?reason=start-trial&redirect=%2Fpricing"],
+    ["/pricing + utm", "/login?redirect=%2Fpricing%3Futm_source%3Dyt"],
+    ["/packs", "/login?redirect=%2Fpacks"],
+    ["/packs#cbq", "/login?redirect=%2Fpacks%23cbq"],
+    ["/highly-probable", "/login?redirect=%2Fhighly-probable"],
+    ["/highly-probable/maths/x", "/login?redirect=%2Fhighly-probable%2Fmaths%2Fx"],
+  ])("a NEW account from %s lands on Home", async (_n, entry) => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt(entry);
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+
+  it("a RETURNING login from /pricing goes back to /pricing (owner ruling 24 Oct)", async () => {
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fpricing");
+    expect(await screen.findByText("LANDED ON PRICING")).toBeTruthy();
+  });
+
+  it("isBrowseTarget keeps every purchase intent and unrelated pages", () => {
+    for (const t of ["/pricing", "/pricing/", "/packs", "/packs?utm_source=x", "/packs#cbq", "/highly-probable", "/highly-probable/maths/abc", "/PRICING"]) expect(isBrowseTarget(t), t).toBe(true);
+    for (const t of ["/pricing?buy=pack_cbq", "/packs?buy=pack_bundle&t=maths", "/packs?pack=cbq", "/packs?chapter=real-numbers", "/packs?mock=Maths", "/packs?view=sample", "/pricingx", "/packs-old", "/highly-probable-x", "/check-improve", "", null, undefined]) expect(isBrowseTarget(t), String(t)).toBe(false);
   });
 });
 

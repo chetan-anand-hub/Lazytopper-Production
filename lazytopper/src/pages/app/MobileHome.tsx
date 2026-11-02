@@ -25,6 +25,7 @@ import PackPromo from "../../components/packs/PackPromoLazy";
 // TUTOR-STICKY-1 — the daily "Fix 3 lost marks" card and the trial-ending tutor summary (lazy; real data only).
 import { DailyFixHome, TrialTutorSummaryHome } from "../../components/tutorSticky/TutorStickyHome";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
+import { isBrandNewAccount } from "../../components/startHere/firstAction";
 import { CompanionHome } from "../../components/guide/companion/companion";
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
@@ -443,6 +444,8 @@ export default function MobileHome() {
     deferToScreen: feedbackShouldDeferToScreen(user?.uid, subStatus?.trialStartDate ?? null),
   });
   const isSignedIn = !!user;
+  // ACT-FIRST-1 — a brand-new account is welcomed, not "welcomed back", and pointed at one question.
+  const brandNew = isSignedIn && startHere.visible && isBrandNewAccount(user?.uid);
   // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same memoised read as
   // the bell in the brand bar).
   const { papers: pendingPapers } = usePendingPapers(user);
@@ -582,10 +585,12 @@ export default function MobileHome() {
 
         {/* Greeting */}
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: 23, fontWeight: 600, lineHeight: 1.05, color: FG, margin: 0 }}>
-          {isSignedIn ? "Welcome back" : "What do you want to do?"}
+          {brandNew ? "Welcome to LazyTopper" : isSignedIn ? "Welcome back" : "What do you want to do?"}
         </h1>
         <p style={{ fontSize: 11.5, color: MUTED, marginTop: 4, lineHeight: 1.4 }}>
-          {isSignedIn
+          {brandNew
+            ? "Try one board question now. It takes about a minute."
+            : isSignedIn
             ? "Pick up where you left off, or start fresh."
             : "Explore everything free. Sign in only when you want to save."}
         </p>
