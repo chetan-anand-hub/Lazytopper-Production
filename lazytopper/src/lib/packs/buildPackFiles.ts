@@ -50,12 +50,14 @@ import {
   toWorksheetQuestion,
   withProvenance,
 } from "./packContent";
-import { MATHS_MOCK_PATTERN, MOCKS_PER_SUBJECT } from "./packLabels";
+import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, MATHS_MOCK_PATTERN, MOCKS_PER_SUBJECT } from "./packLabels";
+import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
+import type { PrintCoverProps } from "../../components/worksheet/PrintCover";
 
 /** The 4th argument of `exportWorksheetPdf` (PACKS contract §5; PDF-REBRAND-1 adds it). */
 export type ExportOpts = {
   licensee?: { name: string; email: string; orderId: string };
-  cover?: { kicker: string; title: string; subtitle: string; stats: Array<{ value: string; label: string }> };
+  cover?: Pick<PrintCoverProps, "kicker" | "title" | "subtitle" | "stats" | "headline" | "types">;
   filename?: string;
 };
 type ExportFn = (ws: PersistedWorksheet, mode: "questions" | "answers", code?: string, opts?: ExportOpts) => Promise<string>;
@@ -447,11 +449,15 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
               cover: {
                 kicker: `${mode === "questions" ? `${kicker} CBQ PACK` : "CBQ ANSWER KEY"} \u00b7 ${kicker}`,
                 title,
-                subtitle: `${name} \u00b7 Class 10 CBSE \u00b7 competency-based, with worked step-wise solutions`,
+                subtitle: `${name} \u00b7 ${questions.length} ${questions.length === 1 ? "question" : "questions"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
+                // COVER-CLEAN-1: the pack's own facts, read from the same constants the pack page and pricing band use.
+                headline: { value: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+`, label: "CBQs", note: "competency-based questions" },
                 stats: [
-                  { value: String(questions.length), label: questions.length === 1 ? "question" : "questions" },
-                  { value: String(marks), label: marks === 1 ? "mark" : "marks" },
+                  { value: String(slugs.length), label: "chapters" },
+                  { value: `${CBQ_MIN_PER_CHAPTER}+`, label: "in every chapter" },
+                  { value: String(CBQ_QUESTION_TYPES.length), label: "question types" },
                 ],
+                types: CBQ_QUESTION_TYPES,
               },
             },
             sku,
