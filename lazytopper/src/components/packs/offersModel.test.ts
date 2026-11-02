@@ -22,13 +22,19 @@ describe("rows by surface (price high to low; Subject before CBQ on a tie)", () 
     ],
     ["Answer Checker, subject only", { kind: "check-improve", subject: "maths" }, [BUNDLE_NAME, "Maths Subject Pack", "Maths CBQ Pack", "Maths Mock Pack"]],
     ["Quick Practice (its own pack card stays below)", { kind: "quick-practice", subject: "science" }, [BUNDLE_NAME, "Science CBQ Pack"]],
+    [
+      "Important Questions page, subject and filtered chapter",
+      { kind: "important-qs", subject: "science", chapterSlug: "electricity", chapterName: "Electricity" },
+      [BUNDLE_NAME, "Science Subject Pack", "Science CBQ Pack", "Science Mock Pack", "Electricity Chapter Pack"],
+    ],
+    ["Important Questions page, no chapter filtered", { kind: "important-qs", subject: "maths" }, [BUNDLE_NAME, "Maths Subject Pack", "Maths CBQ Pack", "Maths Mock Pack"]],
     ["ladder, this chapter", { kind: "ladder", chapterSlug: "triangles" }, [BUNDLE_NAME, "Maths CBQ Pack", "Triangles Chapter Pack"]],
   ])("%s", (_n, ctx, want) => {
     expect(names(ctx)).toEqual(want);
   });
 
   it("the subject is read from the chapter when none is given, and the order is never ascending in price", () => {
-    for (const kind of ["full-mock", "chapter-test", "worksheet", "check-improve", "quick-practice", "ladder"] as OfferKind[]) {
+    for (const kind of ["full-mock", "chapter-test", "worksheet", "check-improve", "quick-practice", "ladder", "important-qs"] as OfferKind[]) {
       const rows = offerRows({ kind, subject: "maths", chapterSlug: "triangles" });
       const prices = rows.map((r) => r.priceInr);
       expect(prices, kind).toEqual([...prices].sort((a, b) => b - a));
