@@ -289,6 +289,26 @@ export function packDescription(sku: PackSku, target: string | undefined, chapte
   }
 }
 
+/**
+ * PAY-PHONE-1 (B) - the line Razorpay shows inside the payment window: the pack, then what is inside it. Every phrase
+ * comes from the existing pack copy (PackDialog TITLES, the /packs tiles); no new claim. Kept short for the sheet.
+ */
+export function packCheckoutDescription(sku: PackSku, target: string | undefined, chapterName?: string): string {
+  const subject = target === "maths" || target === "science" ? subjectLabel(target as PackSubject) : "";
+  switch (sku) {
+    case "pack_chapter":
+      return `Chapter Pack · ${chapterName || target || "1 chapter"} · important questions with CBSE step-marking key`;
+    case "pack_mock":
+      return `${subject ? `${subject} ` : ""}Mock Pack · 8 board-pattern mock papers for 2027, with step-marking keys`;
+    case "pack_subject":
+      return `${subject ? `${subject} ` : ""}Subject Pack · every chapter, chapter-wise question bank 2026-27`;
+    case "pack_cbq":
+      return `${subject ? `${subject} ` : ""}CBQ Pack · chapter-wise competency questions, every type`;
+    case "pack_bundle":
+      return "Maths + Science Bundle · all 26 chapters + 16 mocks";
+  }
+}
+
 export type PackBuyOutcome =
   | { status: "paid"; grant: PackGrant; paymentId?: string; amountInr?: number }
   /** `afterFailure`: Razorpay reported a failed payment before the sheet was closed (PAY-RESCUE-1). */
@@ -341,7 +361,7 @@ export async function buyPack(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: packDescription(sku, target, options.chapterName),
+        description: packCheckoutDescription(sku, target, options.chapterName),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

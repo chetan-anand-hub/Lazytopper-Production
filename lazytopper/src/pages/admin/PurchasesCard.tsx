@@ -60,6 +60,57 @@ export interface PurchasesResponse {
   truncated?: boolean;
   /** CHECKOUT-1: absent on an older server, null when that read failed. */
   abandoned?: { items: AbandonedItem[]; truncated?: boolean } | null;
+  /** PAY-PHONE-1: absent on an older server, null when that read failed. */
+  unclaimedGuest?: { items: UnclaimedGuestItem[]; truncated?: boolean } | null;
+}
+
+/** PAY-PHONE-1 - a payment made with a phone number that no sign-in has claimed yet. The phone arrives MASKED. */
+export interface UnclaimedGuestItem {
+  orderId: string;
+  paymentId: string | null;
+  phoneMasked: string;
+  passType: string;
+  packTarget: string | null;
+  kind: "premium" | "pack" | "topup" | "other";
+  amountInr: number | null;
+  paidAtMs: number | null;
+  ageHours: number | null;
+}
+
+/** "3 h" / "2 d" — how long a guest payment has waited. */
+export function ageLabel(hours: number | null): string {
+  if (hours === null || !Number.isFinite(hours)) return "";
+  return hours < 48 ? `${hours} h` : `${Math.floor(hours / 24)} d`;
+}
+
+export function UnclaimedGuestList({ unclaimed }: { unclaimed: PurchasesResponse["unclaimedGuest"] }) {
+  if (unclaimed === undefined) return null;
+  return (
+    <div className="pu-abandoned" data-testid="pu-unclaimed">
+      <h3 className="gh-title">Paid with a phone number, not yet claimed</h3>
+      <p className="sa-muted gh-note">
+        Paid before signing in. It attaches when someone signs in with the same number. Oldest first. If a student typed a wrong number, find the payment here.
+      </p>
+      {unclaimed === null ? (
+        <p className="sa-muted" data-testid="pu-unclaimed-unavailable">Unclaimed payments could not be read.</p>
+      ) : unclaimed.items.length === 0 ? (
+        <p className="sa-empty" data-testid="pu-unclaimed-empty">No unclaimed payments.</p>
+      ) : (
+        <ul className="pu-list" data-testid="pu-unclaimed-list">
+          {unclaimed.items.map((u) => (
+            <li key={u.orderId} className="pu-row" data-testid={`pu-uc-row-${u.orderId}`}>
+              <span className="pu-date">{ageLabel(u.ageHours)}</span>
+              <span className="pu-who">{u.phoneMasked}</span>
+              <span className="pu-product">{productLabel(u)}</span>
+              <span className="pu-amount">{inr(u.amountInr)}</span>
+              <span className="pu-channel sa-muted">{u.paymentId || ""}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {unclaimed?.truncated && <p className="sa-muted">Showing the oldest 50 only.</p>}
+    </div>
+  );
 }
 
 type State =
@@ -219,6 +270,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
           )}
           {state.data.truncated && <p className="sa-muted">Showing the latest 100 only.</p>}
           <AbandonedList abandoned={state.data.abandoned} />
+          <UnclaimedGuestList unclaimed={state.data.unclaimedGuest} />
         </>
       )}
     </section>

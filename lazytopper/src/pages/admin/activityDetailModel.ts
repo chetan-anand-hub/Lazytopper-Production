@@ -212,6 +212,10 @@ const EVENT_LABELS: Record<string, string> = {
   sale_moment_shown: "Was shown a pack / Board Pass line after a result",
   sale_moment_tap: "Tapped a pack / Board Pass line after a result",
   board_pass_direct_checkout: "Opened the Board Pass checkout straight from a Pay button",
+  guest_pay_option_shown: "Was shown \"Pay now with your phone number\"",
+  guest_pay_start: "Started paying with a phone number",
+  guest_pay_paid: "Paid with a phone number (before signing in)",
+  guest_pay_claimed: "Signed in and got a purchase paid with a phone number",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

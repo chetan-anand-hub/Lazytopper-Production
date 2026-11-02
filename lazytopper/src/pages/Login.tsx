@@ -1,5 +1,6 @@
 import { type CSSProperties, type FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { claimOncePerSession } from "../services/guestPay";
 import { useAuth, type AuthUser } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { trackNamedEvent } from "../analytics/analytics";
@@ -27,7 +28,19 @@ import { BRAND_MARK_SRC } from "../config/brandMark";
 // INAPP-SIGNIN-1 — the UA check, the note and its CSS all live in this lazy chunk.
 const InAppSignin = lazy(() => import("../components/auth/InAppSigninBanner"));
 
-type LocationState = { from?: string };
+type LocationState = {
+  from?: string;
+  /** PAY-PHONE-1 - the 10 digits a guest just paid with (router state only, never a URL): open the phone step with them. */
+  guestPayPhone?: string;
+  /** PAY-PHONE-1 - "Sign in with phone first" from the pay sheet: open the phone step. */
+  phoneFirst?: boolean;
+};
+
+/** PAY-PHONE-1 - a valid 10-digit Indian mobile from router state, else "". Never read from the URL. */
+export function guestPayDigitsFrom(state: unknown): string {
+  const v = state && typeof state === "object" ? (state as LocationState).guestPayPhone : undefined;
+  return typeof v === "string" && /^[6-9][0-9]{9}$/.test(v) ? v : "";
+}
 
 /** TRIAL-CTA-1 — how long the trial-intent step waits for hydration before moving on. */
 export const TRIAL_INTENT_HYDRATION_WAIT_MS = 8000;
@@ -1484,11 +1497,18 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     return "/";
   }, [location.state, searchParams]);
 
-  const [step, setStep] = useState<DoorStep>("choose");
+  // PAY-PHONE-1 - straight to the phone step (number prefilled) after paying with a phone number, after "Sign in with
+  // phone first", or from the receipt email's `?method=phone` link. The number only ever comes from router state.
+  const guestPayDigits = guestPayDigitsFrom(location.state);
+  const opensOnPhone =
+    guestPayDigits !== "" ||
+    ((location.state || {}) as LocationState).phoneFirst === true ||
+    searchParams.get("method") === "phone";
+  const [step, setStep] = useState<DoorStep>(opensOnPhone ? "phone" : "choose");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(guestPayDigits);
   const [phoneStep, setPhoneStep] = useState<"number" | "otp">("number");
   const [otp, setOtp] = useState("");
   const [busy, setBusy] = useState(false);
@@ -1642,6 +1662,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     // stable identifier the `addReferralToCode` dedup can actually match (the old
     // `user_${Date.now()}` was fresh on every call and defeated that dedup).
     creditPendingReferral(user.uid);
+    // PAY-PHONE-1 - signed in right after paying with this number: attach the purchase now (AuthContext also does it
+    // once per session; the claim is idempotent and de-duplicated while in flight).
+    if (guestPayDigits && user.phoneNumber) void claimOncePerSession(user.uid, { force: true });
     if (isStartTrial && !trialIntentConsumed.current) {
       trialIntentConsumed.current = true;
       const status = subscription.status;

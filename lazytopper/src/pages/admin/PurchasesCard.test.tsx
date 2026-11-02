@@ -117,3 +117,32 @@ describe("PAY-RESCUE-1 · abandoned checkouts show why", () => {
     expect(screen.getByTestId("pu-ab-reason-order_old").textContent).toBe("No payment attempted");
   });
 });
+
+describe("PAY-PHONE-1 · unclaimed guest payments", () => {
+  it("lists masked phone, product, amount, payment id and age; empty and failed reads are honest; an older server shows nothing", async () => {
+    const { UnclaimedGuestList, ageLabel } = await import("./PurchasesCard");
+    const { render: r, screen: s, cleanup: c } = await import("@testing-library/react");
+    r(
+      <UnclaimedGuestList
+        unclaimed={{
+          items: [{ orderId: "o1", paymentId: "pay_1", phoneMasked: "+91 98•••••948", passType: "pack_mock", packTarget: "maths", kind: "pack", amountInr: 99, paidAtMs: 1, ageHours: 3 }],
+        }}
+      />,
+    );
+    const row = s.getByTestId("pu-uc-row-o1").textContent || "";
+    expect(row).toContain("+91 98•••••948");
+    expect(row).toContain("pay_1");
+    expect(row).toContain("₹99");
+    expect(row).toContain("3 h");
+    c();
+    r(<UnclaimedGuestList unclaimed={{ items: [] }} />);
+    expect(s.getByTestId("pu-unclaimed-empty")).toBeTruthy();
+    c();
+    r(<UnclaimedGuestList unclaimed={null} />);
+    expect(s.getByTestId("pu-unclaimed-unavailable")).toBeTruthy();
+    c();
+    const { container } = r(<UnclaimedGuestList unclaimed={undefined} />);
+    expect(container.innerHTML).toBe("");
+    expect(ageLabel(50)).toBe("2 d");
+  });
+});

@@ -30,6 +30,8 @@ export interface PackDialogProps {
   onClose: () => void;
   /** Slide to open on (0..3), applied once on mount. Default 0. */
   initialSlide?: number;
+  /** PAY-PHONE-1 (C) - the buy area already shows the free sample next to "Pay" (after a closed checkout): don't repeat it. */
+  sampleInBuy?: boolean;
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
@@ -51,7 +53,7 @@ const SLIDE_COUNT = SLIDES.length + 1;
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 export default function PackDialog(props: PackDialogProps) {
-  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide } = props;
+  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide, sampleInBuy = false } = props;
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -333,9 +335,11 @@ export default function PackDialog(props: PackDialogProps) {
           <div className="lt-pkd__buy">
             {buy}
             {/* PACK-SAMPLE-1: secondary to Buy; follows the chosen chapter / subject (the bundle has one sample). */}
-            <div className="lt-pkd__sample">
-              <PackSampleLink sku={sku} target={sku === "pack_chapter" ? chapter : subject} surface="packs_dialog" />
-            </div>
+            {!sampleInBuy && (
+              <div className="lt-pkd__sample">
+                <PackSampleLink sku={sku} target={sku === "pack_chapter" ? chapter : subject} surface="packs_dialog" />
+              </div>
+            )}
           </div>
         </div>
       </div>

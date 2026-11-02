@@ -956,7 +956,12 @@ export type NamedAnalyticsEvent =
   | "sale_moment_shown"
   | "sale_moment_tap"
   // OFFERS-V2 A2 - /pricing?buy=board_pass started the Board Pass checkout once, straight from a "Pay" button. Name only.
-  | "board_pass_direct_checkout";
+  | "board_pass_direct_checkout"
+  // PAY-PHONE-1 - pay first with a phone number, then sign in with the same number. Names only (never the number).
+  | "guest_pay_option_shown"
+  | "guest_pay_start"
+  | "guest_pay_paid"
+  | "guest_pay_claimed";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });

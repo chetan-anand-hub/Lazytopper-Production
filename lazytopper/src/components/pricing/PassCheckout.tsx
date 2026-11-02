@@ -32,6 +32,9 @@ import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
+import GuestPaySheet from "../guestPay/GuestPaySheet";
+import { isGuestPayClientEnabled, type GuestSigninState } from "../../services/guestPay";
+import "./passCheckoutRepay.css";
 import {
   newCheckoutAttemptId,
   trackBeginCheckout,
@@ -40,6 +43,7 @@ import {
   type CheckoutDetails,
 } from "../../analytics/analytics";
 import {
+  BOARD_PASS_CHECKOUT_DESCRIPTION,
   buyPass,
   checkPayStatus,
   formatPassDate,
@@ -69,6 +73,8 @@ export function monthButtonLabel(offerOpen: boolean): string {
 
 /** A function: the price follows the founding deadline, so the label is read at RENDER time. */
 export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPriceDisplay()} once till your boards`;
+/** PAY-PHONE-1 (C) - the button that stays at the top after the Board Pass checkout was closed without paying. */
+export const repayBoardPassLabel = (): string => `Pay ${boardPassPriceDisplay()}`;
 
 /**
  * PAY-RECOVER-1 — when (ms after the pending outcome) the server is asked about the order.
@@ -374,6 +380,22 @@ export function PassCheckoutView({
           {premiumAlreadyActiveCopy(activeLabel)}
         </p>
       )}
+      {rescue === "till_boards" && !recovery && !activeLabel && (
+        <div className="lt-pricing-checkout-note lt-pricing-checkout-note--top lt-pricing-repay" data-testid="pass-checkout-repay">
+          <span>Checkout closed. Your Board Pass is one tap away.</span>
+          <button
+            type="button"
+            className="lt-pricing-cta lt-pricing-repay__btn"
+            disabled={busy !== null}
+            onClick={() => {
+              setRescue(null);
+              void handleBuy("till_boards");
+            }}
+          >
+            {repayBoardPassLabel()}
+          </button>
+        </div>
+      )}
       {showMonth && (
         <button
           type="button"
@@ -450,11 +472,23 @@ function PassCheckoutConnected() {
   // re-trigger), then start the existing Board Pass checkout once. Premium (a pass or an admin grant) does nothing. Signed out goes to sign-in
   // with this fixed internal path as the return, so the same link resumes. Payments dark: this component is not mounted, nothing starts.
   const [autoStart, setAutoStart] = useState(false);
+  // PAY-PHONE-1 - "How do you want to pay?" for a signed-out visitor (only while paying-by-phone is on).
+  const guestEnabled = isGuestPayClientEnabled();
+  const [showGuest, setShowGuest] = useState(false);
   const buyHandled = useRef(false);
   useEffect(() => {
     if (buyHandled.current || authLoading || !readBoardPassBuy(location.search)) return;
     if (!user || user.isLocalSession) {
       buyHandled.current = true;
+      if (guestEnabled) {
+        // Strip the param first (reload / Back never re-open it), then ask how they want to pay.
+        const rest = new URLSearchParams(location.search);
+        rest.delete(BOARD_PASS_BUY_PARAM);
+        const search = rest.toString();
+        navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
+        setShowGuest(true);
+        return;
+      }
       navigate(withSigninRedirect("/login", BOARD_PASS_BUY_PATH), { replace: true });
       return;
     }
@@ -467,7 +501,7 @@ function PassCheckoutConnected() {
     if (status.tier === "premium") return;
     trackNamedEvent("board_pass_direct_checkout");
     setAutoStart(true);
-  }, [authLoading, user, hydrated, status.tier, location.search, location.pathname, location.hash, navigate]);
+  }, [authLoading, user, hydrated, status.tier, location.search, location.pathname, location.hash, navigate, guestEnabled]);
 
   // PACK-CREDIT-1: the server's credit for this student. A failed read is simply no credit line.
   const [packCredit, setPackCredit] = useState<BoardPassCredit | null>(null);
@@ -492,6 +526,7 @@ function PassCheckoutConnected() {
       : null;
 
   return (
+    <>
     <PassCheckoutView
       signedIn={Boolean(uid)}
       offerOpen={foundingRateApplies(Date.now(), status.foundingMember)}
@@ -499,7 +534,7 @@ function PassCheckoutConnected() {
       activePassEnd={activePassEnd}
       packCredit={packCredit}
       autoStart={autoStart}
-      onSignIn={() => navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH))}
+      onSignIn={() => (guestEnabled ? setShowGuest(true) : navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH)))}
       onBuy={async (passType) => {
         const outcome = await buyPass(passType);
         // Refresh the cached entitlement from the SERVER record the grant just wrote.
@@ -513,6 +548,21 @@ function PassCheckoutConnected() {
         return result;
       }}
     />
+    {showGuest && !uid && (
+      <GuestPaySheet
+        item={{ kind: "pass", sku: "till_boards", label: "Board Pass", description: BOARD_PASS_CHECKOUT_DESCRIPTION }}
+        onClose={() => setShowGuest(false)}
+        onSignInFirst={(method) => {
+          const state: GuestSigninState | undefined = method === "phone" ? { phoneFirst: true } : undefined;
+          navigate(withSigninRedirect("/login", BOARD_PASS_BUY_PATH), state ? { state } : undefined);
+        }}
+        onSignInWithNumber={(digits) => {
+          const state: GuestSigninState = { guestPayPhone: digits };
+          navigate(withSigninRedirect("/login", "/"), { state });
+        }}
+      />
+    )}
+    </>
   );
 }
 

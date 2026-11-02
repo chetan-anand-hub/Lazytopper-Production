@@ -475,7 +475,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "document. Written only by server/routes/payments.cjs and passGrant.cjs through the " +
       "Admin SDK; NOT declared in firestore.rules, so browsers fall to the deny-all " +
       "catch-all. ★ Field-keyed like `qrUploadSlots`: export and erasure must QUERY " +
-      "`where('uid','==',uid)`.",
+      "`where('uid','==',uid)`. ★ PAY-PHONE-1: a GUEST order (paid with a phone number before sign-in, " +
+      "server/routes/guestPay.cjs) is created with `uid: null`, `payer: \"guest\"` and `guestPhone` (the E.164 " +
+      "number, the claim key), status created -> paid_unclaimed -> claimed -> paid; its `uid` is set only when an " +
+      "account whose VERIFIED token carries that number claims it. `receiptEmail` records the one receipt email " +
+      "(status only; the address is never stored).",
   },
 
   // ── Firestore: parent pay links (server-only, ASK-PARENTS-PAY-1) ─────────────────

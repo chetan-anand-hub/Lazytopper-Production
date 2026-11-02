@@ -28,6 +28,7 @@ import {
   packDescription,
   packIdOf,
   packPriceLabel,
+  packCheckoutDescription,
   type MyPacks,
   type OwnedPack,
   type PackSku,
@@ -37,6 +38,9 @@ import {
 import { BUNDLE_NAME, packChapterLabel } from "../../lib/packs/packLabels";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import PayRescueCard from "../payRescue/PayRescueCard";
+import PackSampleLink from "./PackSampleLink";
+import GuestPaySheet from "../guestPay/GuestPaySheet";
+import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, type GuestSigninState } from "../../services/guestPay";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -44,6 +48,8 @@ export const PACKS_RETURN_PATH = "/packs";
 
 /** The one-line promise under a signed-out Buy button. */
 export const PACK_SIGNIN_NOTE = "Quick sign-in (Google, 1 tap), then payment opens.";
+/** PAY-PHONE-1 - the same line while paying with a phone number is on. */
+export const PACK_GUEST_NOTE = "Pay with your phone number, or sign in first.";
 
 /** The single value of a query param, or null when absent or repeated. */
 function onlyOne(q: URLSearchParams, key: string): string | null {
@@ -190,6 +196,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [openSku, setOpenSku] = useState<PackSku | null>(null);
   const [entrySlide, setEntrySlide] = useState(0);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
+  /** PAY-PHONE-1 - the pack a signed-out visitor is paying for with a phone number (the sheet is open), else null. */
+  const [guest, setGuest] = useState<{ sku: PackSku; target: string | undefined } | null>(null);
+  const guestEnabled = enabled && isGuestPayClientEnabled();
   const mounted = useRef(true);
   const viewSent = useRef(false);
   const myPacksRef = useRef<HTMLElement | null>(null);
@@ -226,6 +235,17 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       return;
     }
     void loadMine();
+  }, [user, loadMine]);
+
+  // PAY-PHONE-1 - a sign-in just attached a pack paid with this phone number: re-read My packs from the server.
+  useEffect(() => {
+    if (!user) return undefined;
+    const onClaimed = () => {
+      resetOwnedPacksCache();
+      void loadMine();
+    };
+    window.addEventListener(GUEST_CLAIMED_EVENT, onClaimed);
+    return () => window.removeEventListener(GUEST_CLAIMED_EVENT, onClaimed);
   }, [user, loadMine]);
 
   const owned = useMemo(() => mine?.packs ?? [], [mine]);
@@ -300,6 +320,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   async function handleBuy(sku: PackSku, target: string | undefined) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
     if (!user) {
+      // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the
+      // visitor to sign-in first. Off: today's flow, unchanged.
+      if (guestEnabled) {
+        setGuest({ sku, target });
+        return;
+      }
       navigate(withSigninRedirect("/login", packsResumePath(sku, target, location.search, returnPath)));
       return;
     }
@@ -392,6 +418,28 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (mine !== null) void handleBuyRef.current(want.sku, want.target);
   }, [authLoading, user, enabled, mine, mineError, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
+  // PAY-PHONE-1 - a SIGNED-OUT visitor on a one-tap `?buy=` link (with paying-by-phone on): strip the params first, open the
+  // pack's pop-up and the "How do you want to pay?" sheet, once. Signed in, the resume effect above handles it as before.
+  const guestResumeDone = useRef(false);
+  useEffect(() => {
+    if (guestResumeDone.current || authLoading || user || !guestEnabled) return;
+    const want = readBuyResume(location.search);
+    if (!want) return;
+    guestResumeDone.current = true;
+    const rest = new URLSearchParams(location.search);
+    rest.delete("buy");
+    rest.delete("t");
+    const search = rest.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
+    entryDone.current = true;
+    if (want.sku === "pack_chapter" && want.target) setChapter(want.target);
+    else if (want.target) setSubject(want.target as PackSubject);
+    setEntrySlide(0);
+    setOpenSku(want.sku);
+    requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
+    setGuest({ sku: want.sku, target: want.target });
+  }, [authLoading, user, guestEnabled, location.search, location.pathname, location.hash, navigate, requestCounts]);
+
   const mathsTotal = subjectTotal("maths");
   const scienceTotal = subjectTotal("science");
   const bundleTotal = mathsTotal !== null && scienceTotal !== null ? mathsTotal + scienceTotal : null;
@@ -407,12 +455,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const isOwned = ready && isAlreadyOwned(owned, sku, target);
     const mine_ = buy.key === key;
     const busy = mine_ && (buy.phase === "busy" || buy.phase === "checking");
+    const dismissed = mine_ && buy.phase === "dismissed";
     let label = `Buy for ${packPriceLabel(sku)}`;
     if (!enabled) label = "Opens soon";
     else if (!ready) label = "Choose a chapter first";
     else if (isOwned) label = "You own this";
     else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
     else if (!user && !authLoading) label = `Buy · ${packPriceLabel(sku)}`;
+    // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
+    else if (dismissed) label = `Pay ${packPriceLabel(sku)}`;
     const showSigninNote = enabled && ready && !isOwned && !busy && !user && !authLoading;
     return (
       <>
@@ -425,7 +476,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         >
           {label}
         </button>
-        {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{PACK_SIGNIN_NOTE}</p>}
+        {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{guestEnabled ? PACK_GUEST_NOTE : PACK_SIGNIN_NOTE}</p>}
+        {dismissed && (
+          <div className={`${prefix}__sample`} data-testid="packs-dismissed-sample">
+            <PackSampleLink sku={sku} target={target ?? null} surface="packs_dialog" />
+          </div>
+        )}
         {mine_ && buy.phase === "confirming" && <p className={`${prefix}__note`} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
         {mine_ && buy.phase === "failed" && <p className={`${prefix}__note ${prefix}__note--bad`} role="alert">{PACK_FAILED_COPY}</p>}
         {mine_ && buy.phase === "expired" && <p className={`${prefix}__note`} role="alert">{PACK_EXPIRED_COPY}</p>}
@@ -509,12 +565,34 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               onSubject={onSubject}
               questions={dialogQuestions}
               buy={buyArea(openSku, dialogTarget, openSku !== "pack_chapter" || Boolean(chapter))}
+              sampleInBuy={buy.phase === "dismissed" && buy.key === packIdOf(openSku, dialogTarget)}
               onClose={closePack}
               initialSlide={entrySlide}
             />
           </Suspense>,
           document.body,
         )}
+
+      {guest && (
+        <GuestPaySheet
+          item={{
+            kind: "pack",
+            sku: guest.sku,
+            ...(guest.target ? { target: guest.target } : {}),
+            label: packDescription(guest.sku, guest.target, guest.target ? chapterLabel(guest.target) : undefined),
+            description: packCheckoutDescription(guest.sku, guest.target, guest.target ? chapterLabel(guest.target) : undefined),
+          }}
+          onClose={() => setGuest(null)}
+          onSignInFirst={(method) => {
+            const state: GuestSigninState | undefined = method === "phone" ? { phoneFirst: true } : undefined;
+            navigate(withSigninRedirect("/login", packsResumePath(guest.sku, guest.target, location.search, returnPath)), state ? { state } : undefined);
+          }}
+          onSignInWithNumber={(digits) => {
+            const state: GuestSigninState = { guestPayPhone: digits };
+            navigate(withSigninRedirect("/login", `${returnPath}#my-packs`), { state });
+          }}
+        />
+      )}
     </>
   );
 }

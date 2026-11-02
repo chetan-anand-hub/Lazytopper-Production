@@ -12,6 +12,7 @@ import {
   ownsChapter,
   ownsMocks,
   packDescription,
+  packCheckoutDescription,
   packIdOf,
   subjectOfChapter,
   type PackBuyDeps,
@@ -126,6 +127,18 @@ function deps(over: Partial<PackBuyDeps> & { dismiss?: boolean } = {}): PackBuyD
   return Object.assign(d, { opened }) as never;
 }
 
+describe("PAY-PHONE-1 (B) · packCheckoutDescription", () => {
+  it.each([
+    ["pack_chapter", "triangles", "Triangles", "Chapter Pack · Triangles · important questions with CBSE step-marking key"],
+    ["pack_mock", "maths", undefined, "Maths Mock Pack · 8 board-pattern mock papers for 2027, with step-marking keys"],
+    ["pack_subject", "science", undefined, "Science Subject Pack · every chapter, chapter-wise question bank 2026-27"],
+    ["pack_cbq", "science", undefined, "Science CBQ Pack · chapter-wise competency questions, every type"],
+    ["pack_bundle", undefined, undefined, "Maths + Science Bundle · all 26 chapters + 16 mocks"],
+  ] as const)("%s %s -> %s", (sku, target, chapter, want) => {
+    expect(packCheckoutDescription(sku, target, chapter)).toBe(want);
+  });
+});
+
 describe("buyPack", () => {
   it("happy path: order -> checkout (server amount, pack description) -> verify -> paid", async () => {
     const d = deps();
@@ -134,7 +147,8 @@ describe("buyPack", () => {
     expect((d as unknown as { opened: Array<Record<string, unknown>> }).opened[0]).toMatchObject({
       amount: 4900,
       order_id: "order_1",
-      description: "Chapter Pack · Triangles",
+      // PAY-PHONE-1 (B): the payment window says what is inside, from the existing pack copy.
+      description: "Chapter Pack · Triangles · important questions with CBSE step-marking key",
     });
     expect(out).toEqual({
       status: "paid",
