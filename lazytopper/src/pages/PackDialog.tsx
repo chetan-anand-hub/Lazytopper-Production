@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../services/packs";
-import { packChapterLabel } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel } from "../lib/packs/packLabels";
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
 import PackSampleLink from "../components/packs/PackSampleLink";
 import "./packsDialog.css";
@@ -40,7 +40,7 @@ const TITLES: Record<PackSku, { name: string; line: string }> = {
   pack_chapter: { name: "Chapter Pack", line: "Important questions for one chapter, with CBSE step-marking key" },
   pack_mock: { name: "Mock Pack", line: "8 board-pattern mock papers for 2027, with step-marking keys" },
   pack_subject: { name: "Subject Pack", line: "Every chapter of Maths or Science — chapter-wise question bank 2026-27" },
-  pack_bundle: { name: "Maths + Science Bundle", line: "Maths + Science: all 26 chapters + 16 mocks — the whole year at one price" },
+  pack_bundle: { name: "Maths + Science Bundle", line: `Maths + Science: all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks — the whole year at one price` },
   pack_cbq: { name: "CBQ Pack", line: "About half your 2027 paper is competency-based. Curated CBQs, chapter-wise and topic-wise — MCQ, assertion-reason, short, case study and long answer, Sections A to E." },
 };
 
