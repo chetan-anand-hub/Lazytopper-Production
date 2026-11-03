@@ -308,7 +308,13 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
           /* no window (tests / SSR) */
         }
         // PACK-READY-1 - tell the buyer on any page except /packs (its own banner) and the sign-in page. Lazy: not in the entry chunk.
-        void import("../components/packs/PackReadyToast").then((m) => m.showPackReadyToast(items, uid)).catch(() => undefined);
+        void import("../components/packs/PackReadyToast")
+          .then((m) => {
+            // The import resolves later: in tests the DOM may already be torn down ("window is not defined").
+            if (typeof window === "undefined" || typeof document === "undefined") return;
+            m.showPackReadyToast(items, uid);
+          })
+          .catch(() => undefined);
       }
       return claimed;
     })
