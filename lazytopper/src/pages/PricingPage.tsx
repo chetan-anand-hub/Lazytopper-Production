@@ -1942,12 +1942,13 @@ function PricingPlansPage() {
             </div>
 
             {/* TRUST-1 — real student proof directly under the Board Pass card (not above the price). The facade
-                is click-to-play: nothing comes from YouTube until the tap. */}
+                is click-to-play: nothing comes from YouTube until the tap. The half-mark sign is written as an escape:
+                PaywallActions.test.tsx keeps the literal character out of this file's source (a pay surface). */}
             <section className="lt-pricing-video" aria-labelledby="pricing-video">
               <TestimonialVideo
                 headingId="pricing-video"
-                heading="Where did his ½ mark go?"
-                lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
+                heading={"Where did his \u00bd mark go?"}
+                lede={"A Class 10 student photographs his written answer and sees exactly where he lost \u00bd mark."}
               />
             </section>
 
