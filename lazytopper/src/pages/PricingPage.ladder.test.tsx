@@ -11,7 +11,7 @@ const paid = vi.hoisted(() => ({ value: false }));
 vi.mock("../lib/packs/usePaidPremium", () => ({ usePaidPremium: () => paid.value }));
 
 import PricingPage, { boardPassPerDay } from "./PricingPage";
-import PacksStrip, { PACK_CREDIT_LIVE, PACK_CREDIT_LINE } from "../components/pricing/PacksStrip";
+import PacksStrip from "../components/pricing/PacksStrip";
 import StickyPassBar, { stickyMode } from "../components/pricing/StickyPassBar";
 
 beforeEach(() => {
@@ -105,23 +105,12 @@ describe("PricingPage - PRICING-B-1 layout", () => {
 });
 
 describe("PacksStrip - the ladder", () => {
-  const renderStrip = (props: { creditLive?: boolean } = {}) => render(<MemoryRouter><PacksStrip {...props} /></MemoryRouter>);
+  const renderStrip = () => render(<MemoryRouter><PacksStrip /></MemoryRouter>);
 
-  it("ships with the credit line ON (PACK_CREDIT_LIVE is true: PACK-CREDIT-1 is on trunk)", () => {
-    expect(PACK_CREDIT_LIVE).toBe(true);
-    renderStrip();
-    expect(flat(screen.getByTestId("pricing-pack-credit"))).toBe(PACK_CREDIT_LINE);
-  });
-
-  it("credit line OFF (creditLive=false): the line is not rendered", () => {
-    renderStrip({ creditLive: false });
+  it("PACK-TERMS-1: no Board Pass credit promise anywhere in the strip (packs and the Board Pass are different products)", () => {
+    const { container } = renderStrip();
     expect(screen.queryByTestId("pricing-pack-credit")).toBeNull();
-    expect(screen.queryByText(PACK_CREDIT_LINE)).toBeNull();
-  });
-
-  it("credit line ON: the line renders word for word", () => {
-    renderStrip({ creditLive: true });
-    expect(flat(screen.getByTestId("pricing-pack-credit"))).toBe("Take the Board Pass within 7 days and the pack price comes off.");
+    expect(container.textContent).not.toMatch(/pack price comes off|within 7 days|comes off|taken off|credited/i);
   });
 
   it("heading, sub and four pack tiles that open the shared pop-up (buttons, not links into /packs)", () => {
@@ -137,10 +126,10 @@ describe("PacksStrip - the ladder", () => {
 
   it("PRICING-ONE-1: a student who has BOUGHT Premium sees the same strip (the page is uniform)", () => {
     paid.value = true;
-    const { container } = renderStrip({ creditLive: true });
+    const { container } = renderStrip();
     expect(container.querySelector('[data-testid="pricing-packs-strip"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="cbq-band"]')).not.toBeNull();
-    expect(container.querySelector('[data-testid="pricing-pack-credit"]')).toBeNull(); // already has the Board Pass
+    expect(container.querySelector('[data-testid="pricing-pack-credit"]')).toBeNull();
   });
 });
 

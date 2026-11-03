@@ -938,6 +938,8 @@ export type NamedAnalyticsEvent =
   | "pack_checkout"
   | "pack_purchase"
   | "pack_download"
+  // PACK-READY-1 - the "Your pack is ready" banner / toast was shown after a claim (data: sku, surface). No phone, no name.
+  | "pack_ready_shown"
   // PACK-SAMPLE-1 — the free sample page of a pack downloaded without signing up (data: pack, surface).
   | "pack_sample_download"
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).

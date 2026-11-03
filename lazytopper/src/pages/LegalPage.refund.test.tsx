@@ -103,11 +103,11 @@ describe("OR-P4 — the refund page, as rendered", () => {
     }
   });
 
-  it("PACKS-LEGAL-1 — the PDF Packs section also carries the 7-day Board Pass credit sentence", () => {
+  it("PACKS-LEGAL-1 — the PDF Packs section also carries the Board Pass credit sentence (PACK-TERMS-1: honoured only for packs bought before 5 Nov 2026)", () => {
     const card = renderRefund();
     const h2 = Array.from(card.querySelectorAll("h2")).find((h) => flat(h.textContent) === "PDF Packs");
     expect(flat(h2?.nextElementSibling?.nextElementSibling?.textContent)).toBe(
-      "If you buy the Board Pass within 7 days of buying a pack, the pack's price is taken off the Board Pass price.",
+      "Packs bought before 5 November 2026: if you buy the Board Pass within 7 days of buying such a pack, that pack's price is taken off the Board Pass. Packs bought from 5 November 2026 are separate purchases and do not change the Board Pass price.",
     );
   });
 

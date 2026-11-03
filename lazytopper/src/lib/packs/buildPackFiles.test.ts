@@ -142,6 +142,26 @@ describe("buildPackFiles — chapter", () => {
   });
 });
 
+describe("PACK-TERMS-1 - the covering pack's paid time reaches the exporter (cover re-download date)", () => {
+  const CUT = 1793817000000; // 2026-11-05T00:00:00+05:30
+  const paidAtSeen = async (packs: OwnedPack[], pack: OwnedPack) => {
+    const exportPdf = vi.fn(async () => "x");
+    const files = await buildPackFiles(ref(pack), ctx(packs, { exportPdf: exportPdf as never }));
+    await (files.find((x) => x.label === "Worksheet · Answer key") as PackFile).build();
+    return (exportPdf.mock.calls[0] as unknown as [unknown, unknown, unknown, { paidAtMs?: number }])[3].paidAtMs;
+  };
+  it("passes the paid time of the pack whose order is printed on the file; the subject pack for a chapter it covers", async () => {
+    const chapter = owned("pack_chapter:triangles", { orderId: "order_CH", paidAt: CUT + 5 });
+    expect(await paidAtSeen([chapter], chapter)).toBe(CUT + 5);
+    const old = owned("pack_chapter:triangles", { orderId: "order_OLD", paidAt: CUT - 5 });
+    expect(await paidAtSeen([old], old)).toBe(CUT - 5);
+  });
+  it("unknown paid time (0 / missing) -> undefined, so the cover prints the later date", async () => {
+    const chapter = owned("pack_chapter:triangles", { orderId: "order_CH", paidAt: 0 });
+    expect(await paidAtSeen([chapter], chapter)).toBeUndefined();
+  });
+});
+
 describe("provenance", () => {
   it("carries pyqYear / pyqSet / sourceOverride from the bank row onto pack questions", async () => {
     await loadChapter("real-numbers");

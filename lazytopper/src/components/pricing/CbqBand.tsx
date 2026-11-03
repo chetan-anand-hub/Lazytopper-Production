@@ -68,7 +68,7 @@ export default function CbqBand({ action, headingId, sampleSurface, sampleBuy = 
           );
         })}
       </div>
-      <p className="lt-cbq__foot">One-time {price} per pack, download till May 2027 · Made by an IITian (IIT Kanpur)</p>
+      <p className="lt-cbq__foot">One-time {price} per pack, download till 31 March 2027 · Made by an IITian (IIT Kanpur)</p>
     </section>
   );
 }
