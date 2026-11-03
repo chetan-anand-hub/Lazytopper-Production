@@ -201,6 +201,7 @@ describe("OR-P4 — WHERE ELSE: no retired refund term on any student-facing sur
   it("the committed prerendered/legal/refund.html carries the new policy and none of the old", () => {
     const html = readFileSync(resolve(process.cwd(), "prerendered/legal/refund.html"), "utf8")
       .replace(/&amp;/g, "&")
+      .replace(/<a [^>]*>([^<]*)<\/a>/g, "$1") // the mail link is an anchor in the prerendered body
       .replace(/\s+/g, " ");
     expect(html).toContain(`<h1>${TITLE}</h1>`);
     expect(html).toContain(UPDATED);
