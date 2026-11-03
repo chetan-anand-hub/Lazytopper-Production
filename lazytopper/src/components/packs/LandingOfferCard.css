@@ -20,3 +20,20 @@
 .lt-lo__bp { color: hsl(152, 60%, 28%); font-weight: 700; }
 .lt-lo__btn:focus-visible, .lt-lo__more:focus-visible, .lt-lo__bp:focus-visible { outline: 2px solid #15233a; outline-offset: 2px; }
 .lt-lo--check { padding: 12px 14px; gap: 6px; background: hsl(152, 55%, 97%); }
+.lt-lo__foot { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.lt-lo__foot .lt-psl-pair { justify-content: flex-start; }
+/* Phones: keep the free practice entry high - no subtitle, the two buys in ONE row, sample + Board Pass as one small text line. */
+@media (max-width: 480px) {
+  .lt-lo { margin: 8px 0 2px; padding: 10px 12px; gap: 6px; }
+  .lt-lo__title { font-size: 0.92rem; line-height: 1.25; }
+  .lt-lo__sub { display: none; }
+  .lt-lo__btns { flex-wrap: nowrap; gap: 6px; }
+  .lt-lo__btn { flex: 1 1 0; min-height: 40px; padding: 6px 4px; font-size: 0.76rem; line-height: 1.2; white-space: nowrap; }
+  .lt-lo__foot { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 10px; row-gap: 0; font-size: 0.78rem; }
+  .lt-lo .lt-lo__foot .lt-psl-pair { flex-wrap: nowrap; font-size: 0.78rem; }
+  .lt-lo .lt-lo__foot .lt-psl-pair__cap { flex: 0 0 auto; padding-top: 0; }
+  .lt-lo .lt-lo__foot .lt-psl { min-height: 28px; padding: 2px 3px; font-size: 0.78rem; }
+  .lt-lo .lt-lo__long { display: none; }
+  .lt-lo__foot .lt-lo__more { font-size: 0.78rem; min-height: 28px; display: inline-flex; align-items: center; }
+  .lt-lo--check .lt-lo__bp, .lt-lo--check .lt-lo__more { font-size: 0.84rem; }
+}

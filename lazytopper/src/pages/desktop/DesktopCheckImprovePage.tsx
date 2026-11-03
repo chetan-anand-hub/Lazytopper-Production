@@ -2961,8 +2961,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             </button>
           }
         />
-        {/* AD-LANDING-OFFER-1 - with no sample card on screen, the same compact line sits under the page title (signed-out only). */}
-        {!overlay && !ciDemo.show && !ciMomentUid ? <LandingOffer variant="check" /> : null}
+        {/* AD-LANDING-OFFER-1 - with no sample card on screen, the same compact line sits under the page title (signed-out only); never
+            after the ladder's tap or "type your answer" (the page has just scrolled to the answer box: no shift above it). */}
+        {!overlay && !ciDemo.show && !ciMomentUid && !ladderAnsweredHere && !ladderTyped ? <LandingOffer variant="check" /> : null}
         {/* MOMENTS-1 M9 — the signed-out free check (no sign-up by construction: free mode
             renders only for a signed-out visitor) opened from a shared link. */}
         {/* CI-SOFT-1: one Byte per screen: the shared-link moment waits while the sample card shows. */}

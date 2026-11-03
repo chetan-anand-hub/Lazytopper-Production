@@ -13,7 +13,7 @@ vi.mock("../guide/guideInputs", () => ({ guidePlanFor: () => ({ intent: flags.in
 vi.mock("../../analytics/analytics", () => ({ trackSaleMoment: track, sendAnalyticsHit: vi.fn() }));
 vi.mock("../pricing/boardPassOffer", () => ({ boardPassPriceNow: () => "₹1,917" }));
 
-import LandingOfferCard, { isCbqArrival } from "./LandingOfferCard";
+import LandingOfferCard, { __resetLandingOfferShownForTests, isCbqArrival } from "./LandingOfferCard";
 import { CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 import { buyHrefFor } from "./offersModel";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
@@ -38,6 +38,7 @@ beforeEach(() => {
   flags.packs = true;
   flags.intent = "default";
   track.mockClear();
+  __resetLandingOfferShownForTests();
   setSearch("?cbq=1");
 });
 afterEach(cleanup);
@@ -127,5 +128,38 @@ describe("check variant", () => {
     auth.user = { uid: "u1" };
     ui("check");
     expect(screen.queryByTestId("landing-offer")).toBeNull();
+  });
+});
+
+describe("review fixes (fix round 1)", () => {
+  it("rendered DOM text and aria labels carry no banned word (both variants)", () => {
+    for (const v of ["practice-cbq", "check"] as const) {
+      const r = ui(v);
+      const el = screen.getByTestId("landing-offer");
+      const aria = [el, ...el.querySelectorAll("*")].map((n) => n.getAttribute("aria-label") ?? "").join(" ");
+      expect(el.textContent ?? "").not.toMatch(LANDING_BANNED_WORDS);
+      expect(aria).not.toMatch(LANDING_BANNED_WORDS);
+      r.unmount();
+    }
+  });
+  it("sale_moment_shown fires ONCE per page view across two mounts (the /check-improve remount)", () => {
+    setSearch("");
+    const a = ui("check");
+    a.unmount();
+    ui("check");
+    expect(track.mock.calls.filter((c) => c[0] === "sale_moment_shown")).toHaveLength(1);
+  });
+  it("a new page view (new history entry) may send it again", () => {
+    setSearch("");
+    const a = ui("check");
+    a.unmount();
+    window.history.pushState({ key: "next" }, "", "/check-improve");
+    ui("check");
+    expect(track.mock.calls.filter((c) => c[0] === "sale_moment_shown")).toHaveLength(2);
+  });
+  it("the full button and Board Pass words stay in the markup (phones only hide parts with CSS)", () => {
+    ui("practice-cbq");
+    expect(screen.getByTestId("landing-offer-buy-maths").textContent).toBe("Maths CBQ Pack ₹199");
+    expect(screen.getByTestId("landing-offer-board-pass").textContent).toBe(cbqBoardPassLine("₹1,917"));
   });
 });

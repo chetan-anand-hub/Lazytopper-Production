@@ -41,9 +41,9 @@ export const LANDING_BOARD_PASS_HREF = BOARD_PASS_BUY_PATH;
 /** The one-hop packs page (not /pricing#packs). */
 export const LANDING_PACKS_HREF = "/packs";
 
-/** "or the Board Pass ₹1,917 - step marking on everything you write till your boards" (no figure when none can be quoted). */
+/** "or the Board Pass ₹1,917 - step marking till boards" (no figure when none can be quoted). */
 export function cbqBoardPassLine(price: string | null): string {
-  return `or the Board Pass${price ? ` ${price}` : ""} — step marking on everything you write till your boards`;
+  return `or the Board Pass${price ? ` ${price}` : ""} — step marking till boards`;
 }
 
 /** "Get every question step-marked till your boards · Board Pass ₹1,917 →" */

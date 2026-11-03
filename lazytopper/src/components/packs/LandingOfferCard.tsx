@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import { trackSaleMoment } from "../../analytics/analytics";
@@ -60,6 +60,24 @@ export function isCbqArrival(search: string = typeof window === "undefined" ? ""
   }
 }
 
+/**
+ * Once per page view: the key is the surface plus this history entry (react-router's `history.state.key`, else the path), kept OUTSIDE the
+ * component so the two /check-improve mounts (under the sample card, then under the title once it closes) send ONE sale_moment_shown.
+ */
+const shownOnce = new Set<string>();
+function pageViewKey(surface: string): string {
+  try {
+    const st = window.history.state as { key?: unknown } | null;
+    return `${surface}|${window.location.pathname}|${typeof st?.key === "string" ? st.key : ""}`;
+  } catch {
+    return surface;
+  }
+}
+/** Tests only. */
+export function __resetLandingOfferShownForTests(): void {
+  shownOnce.clear();
+}
+
 const SURFACE: Record<LandingOfferVariant, LandingOfferSurface> = {
   "practice-cbq": "landing-practice-cbq",
   check: "landing-check",
@@ -70,10 +88,11 @@ export default function LandingOfferCard({ variant }: { variant: LandingOfferVar
   const packs = isPacksEntryEnabled();
   const visible = signedOut && (variant === "check" || (packs && isCbqArrival()));
   const surface = SURFACE[variant];
-  const sent = useRef(false);
   useEffect(() => {
-    if (!visible || sent.current) return;
-    sent.current = true;
+    if (!visible) return;
+    const key = pageViewKey(surface);
+    if (shownOnce.has(key)) return;
+    shownOnce.add(key);
     trackSaleMoment("sale_moment_shown", { surface, offer: variant === "check" ? "board_pass" : "pack_cbq" });
   }, [visible, surface, variant]);
   if (!visible) return null;
@@ -102,14 +121,19 @@ export default function LandingOfferCard({ variant }: { variant: LandingOfferVar
       <div className="lt-lo__btns">
         {LANDING_SUBJECTS.map((s, i) => (
           <Link key={s} className="lt-lo__btn" to={cbqLandingBuyHref(s)} onClick={tap("pack_cbq", i + 1)} data-testid={`landing-offer-buy-${s}`}>
-            {cbqButtonLabel(s)}
+            {/* "Maths CBQ Pack ₹199"; phones hide " Pack" (CSS only; the full words stay in the markup). */}
+            {cbqButtonLabel(s).split(" Pack ")[0]}
+            <span className="lt-lo__long"> Pack</span> {cbqButtonLabel(s).split(" Pack ")[1]}
           </Link>
         ))}
       </div>
-      <PackSampleChoice sku="pack_cbq" surface="landing_cbq" buy={(s) => (s ? { href: `${cbqLandingBuyHref(s)}&from=sample` } : null)} />
-      <Link className="lt-lo__more" to={LANDING_BOARD_PASS_HREF} onClick={tap("board_pass", 3)} data-testid="landing-offer-board-pass">
-        {cbqBoardPassLine(price)}
-      </Link>
+      <div className="lt-lo__foot">
+        <PackSampleChoice sku="pack_cbq" surface="landing_cbq" buy={(s) => (s ? { href: `${cbqLandingBuyHref(s)}&from=sample` } : null)} />
+        <Link className="lt-lo__more" to={LANDING_BOARD_PASS_HREF} onClick={tap("board_pass", 3)} data-testid="landing-offer-board-pass">
+          {cbqBoardPassLine(price).split(" \u2014 ")[0]}
+          <span className="lt-lo__long">{` \u2014 ${cbqBoardPassLine(price).split(" \u2014 ")[1]}`}</span>
+        </Link>
+      </div>
     </section>
   );
 }
