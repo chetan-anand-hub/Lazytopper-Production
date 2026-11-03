@@ -1,3 +1,22 @@
+## 2026-11-03 (daily) - #1494 - #1512: PACK-NUDGE-1 ... TRIAL-SELL-1 - MERGED
+
+- DONE. `#1494` (`9f773d7`), `#1497` (`d83444c`), `#1498` (`b77e463`): pack-nudge email, buyers first under the daily cap, 08:00-21:00 IST send window. NEXT: `[FU-PACK-NUDGE-LIVE]`; owner decides when `PACK_NUDGE_ENABLED` goes on.
+- DONE. `#1495` (`899e536`): CBQ cover subject once; Bundle copy reads the constants. Closes the 2 Nov `[FU-CBQ-COVER-KICKER]` and `[FU-PACKS-BUNDLE-CHAPTERS]`.
+- DONE. `#1496` (`9b085fb`): returning phone number opens sign-in. NEXT: `[FU-GUEST-SIGNIN-RETURNING-LIVE]`.
+- DONE. `#1499` (`22f24a0`): one no-refund wording, "Cancellation Policy". NEXT: none.
+- DONE. `#1500` (`89512d1`): "My packs" in the desktop menu and on Me / Progress. NEXT: `[FU-MY-PACKS-LIVE]`.
+- DONE. `#1503` (`cc53587`): /cbq-class-10 reworded for Google Ads. NEXT: Wed 4 Nov expert call; `[FU-AD-LANDING-WORDING-SWEEP]`.
+- DONE. `#1504` (`7fedc56`), `#1505` (`177b5f5`): sign-in rescue; Google sign-in by redirect, live for everyone at about 12:20 IST. NEXT: `[FU-GOOGLE-REDIRECT-WATCH]`.
+- DONE. `#1507` (`0c2b6b9`), `#1512` (`b3e4f1d`): Pricing and PDF packs links on the landing page. Live-verified. NEXT: none.
+- DONE. `#1506` (`fbe4d8c`): testimonial and one primary button on /pricing and /packs. Live-verified. NEXT: `[FU-TESTIMONIAL-JSONLD]`.
+- DONE. `#1510` (`434d049`): buy-path fixes and pay-by-phone purchase events. Mostly live-verified. NEXT: `[FU-GUEST-PURCHASE-GA4-LIVE]`.
+- DONE. `#1508` (`d9935b8`): Byte and the CBQ hub match the CBQ ad. Hub live-verified. NEXT: `[FU-BYTE-CBQ-LIVE]`.
+- DONE (dark). `#1511` (`a5e340d`): abandoned-checkout email. NEXT: `[FU-CHECKOUT-NUDGE-LIVE]`, then the owner sets the flag.
+- DONE. `#1509` (`51aef1a`): desktop trial strip and parent-message proof. Live-verified. NEXT: `[FU-TRIAL-STRIP-ANALYTICS]`.
+- IN FLIGHT. PACKS-CONVERT-1 (/packs conversion, owner-approved). NEXT: review, merge, live-verify.
+- CORRECTION. Pay by phone (`#1488`, 2 Nov) is LIVE, not dark. NEXT: `[FU-GUEST-PURCHASE-GA4-LIVE]`.
+- NEXT (ads): Wed 4 Nov 11:30 IST expert call, then the ads review (see NEXT_ACTION).
+
 ## 2026-11-02 (daily) - #1479 - #1492: CBQ-TUTOR-GATE-1 ... COVER-CLEAN-1 - MERGED
 
 - DONE. `#1460` (`54e6017c`): dependency bumps.

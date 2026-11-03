@@ -1,3 +1,24 @@
+> **2026-11-03 (daily) - #1494 - #1512 (CLAUDE.md section 10, once a day).** Scope: landing page header, /pricing, /packs, the CBQ hub and chapter pages, Login and Google sign-in, desktop trial strip, the parent-pay message, Byte (Start-here guide), the desktop account menu, Me / Progress, student emails, and the legal pages. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Pay by phone (2 Nov row below) is LIVE, not dark.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Landing page (signed-out `/`, `Welcome.tsx`) | "Pricing" and "PDF packs" header links, "See plans & prices" hero link (`#1507`); Log in kept fully visible down to 320 px (`#1512`) | merged; live-verified 3 Nov at 360 / 1280 px [coordinator] | none |
+| /pricing | testimonial video under the Board Pass card, Pay the only primary button, waitlist folded (`#1506`); `#cbq` scroll fixed (`#1510`) | merged; live-verified | `[FU-TESTIMONIAL-JSONLD]` |
+| /packs | testimonial under the hero (`#1506`); Bundle tile first at 640 px and under (`#1510`); core no-refund sentence and "Cancellation Policy" link (`#1499`); CBQ cover and Bundle copy fixes (`#1495`) | merged; live-verified; the `#1510` sample-buy button not done | `[FU-PACK-SAMPLE-BUY-BUTTON]`, `[FU-AD-LANDING-WORDING-SWEEP]`; PACKS-CONVERT-1 in flight |
+| CBQ hub and chapter pages (`/cbq-class-10`) | reworded: step-by-step explanations, no "answers" or "solutions" (`#1503`); price line and Buy Maths / Science CBQ above the fold, one-tap links (`#1508`) | merged; hub live-verified | Wed 4 Nov expert call |
+| Login and Google sign-in | no false desktop timeout, phone first on phones, rescue after a failed Google attempt (`#1504`); Google by full-page redirect, LIVE for everyone about 12:20 IST (`#1505`); returning number opens sign-in (`#1496`); buy-intent line "Sign in to finish buying ..." (`#1510`); phone paste fix (`#1505`) | merged; redirect live | `[FU-GOOGLE-REDIRECT-WATCH]`, `[FU-GUEST-SIGNIN-RETURNING-LIVE]` |
+| Trial UI (desktop days 1-3) | new `TrialEarlyStrip` with Pay, Ask a parent to pay, Not today (`#1509`); trial length and start unchanged | merged; live-verified | `[FU-TRIAL-STRIP-ANALYTICS]` |
+| Parent-pay message | one real-results line from the student's own 30-day results when marks were lost (`#1509`) | merged; live-verified with an owner test account | none |
+| Pay buttons (download wall, trial-end screen, countdown bar, upgrade popup, fair-use panel) | Pay goes to `/pricing?buy=board_pass` (`#1510`) | merged | live check of each wall |
+| Phone pay sheet and guest pay routes | purchase events after server confirmation (`#1510`); existing-number path (`#1496`); **LIVE since the 2 Nov flags** | live | `[FU-GUEST-PURCHASE-GA4-LIVE]` |
+| Byte (Start-here guide) | CBQ intent from a `/cbq-class-10` landing or a "cbq" campaign; new `cbq_pack` option (`#1508`) | merged | `[FU-BYTE-CBQ-LIVE]` |
+| Student emails (nudges, trial-ending) | 08:00-21:00 IST window (`#1498`); pack nudge (`#1494`, flag off); buyers first under the cap (`#1497`); abandoned-checkout email (`#1511`, **dark**) | merged | `[FU-PACK-NUDGE-LIVE]`, `[FU-CHECKOUT-NUDGE-LIVE]`, `[FU-EMAIL-FLAGS-UNVERIFIED]` |
+| Desktop account menu and Me / Progress | "My packs" row and card, owners only (`#1500`) | merged | `[FU-MY-PACKS-LIVE]` |
+| Legal pages and footers (/legal/refund, /legal/terms) | "Cancellation Policy" label and one no-refund wording (`#1499`); Board Pass naming, Month Pass wording, pack-stamp text (`#1506`) | merged | none |
+| Answer Checker, Worksheet, Chapter Test, Full Mock, Quick Practice (grading) | unchanged | - | none |
+| PDF pack covers | `#1495` kicker fix only (subject named once); `[FU-CBQ-COVER-KICKER]` closed; moved, no cell change | merged | none |
+| Admin - Students, Tutor, Important Questions pages, Exam Trends | not touched today; no cell change | - | none |
+
 > **2026-11-02 (daily) - #1479 - #1492 (CLAUDE.md section 10, once a day).** Scope: the shared results scorecard (buying block), packs and pricing pages, Important Questions pages, PDF covers and samples, sign-in telemetry, first-action ladder, the CBQ tutor gate, the admin Students source column, and the pay-by-phone sheet. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a).** Surfaces that show the buying block received a presentation prop only. No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

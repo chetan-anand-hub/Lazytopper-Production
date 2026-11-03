@@ -1,3 +1,23 @@
+## 2026-11-03 (daily) - #1494 - #1512
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`51aef1a8`** [git].
+
+- **Done [git/gh]:** 17 product PRs (table in CURRENT_STATE), all CI-green. No grading behaviour changed. Google sign-in by redirect is live for everyone (rollback: `VITE_GOOGLE_SIGNIN_MODE=popup`). Pay by phone is LIVE (corrects the 2 Nov "dark" lines). **In flight at writing:** PACKS-CONVERT-1 (/packs conversion, owner-approved).
+- **NEXT, in order [coordinator]:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the 3 Nov section of OPEN_QUESTIONS_AND_FOLLOWUPS. Do not diagnose sales before reading DECISION_LOG (3 Nov lesson: the first diagnosis was wrong on three counts).
+  2. **Wed 4 Nov 11:30 IST: Google Ads expert call** (Shubham Rawat). Bring: the `/cbq-class-10` disapproval and the `#1503` reword, the "Enabling dishonest behavior" appeals, and the question whether "solutions" on /packs ("Every question. Worked solutions.") is safe on an ad landing page.
+  3. **Then the Wed 4 Nov ads review** (carried from 2 Nov): sign-in data now that redirect is live; demote the sign_up conversion to Secondary once first_graded records; PDF Packs spend against purchases; Navratri ad replace or pause; Science Important Qs purchases; is YouTube at Rs 4,000/day paying back; city comparison (both Search campaigns all-India and utm-tagged); YouTube CBQ ads land on `/practice-hub?cbq=1`, not on a page that sells the CBQ pack (ad change, decide here). Discuss with the owner before ANY ads change.
+  4. **PACKS-CONVERT-1** (in flight): review and merge when green; live-verify at 360 and 1280 px.
+  5. **Live-verify what is not yet verified** (list in the 3 Nov follow-ups): Byte showing the CBQ pack to a fresh sign-up from a CBQ landing (needs the unused owner test account); `#1511` abandoned-checkout email (flag off; test with a Rs 49 checkout abandoned on a test account, owner sets `ABANDONED_CHECKOUT_EMAIL_ENABLED=1`, one email in window, a second run sends none); a real Rs 49 pay-by-phone purchase reaching GA4 and Ads; `#1457`; the 2 Nov list. Two or more surfaces for anything that touches a grading path (CLAUDE.md section 4a).
+  6. Board Pass checkouts abandoned at the payment screen (15 of 25 orders had zero payment attempts) are the main money leak: next lane candidates are in the follow-ups; the app decision is deferred to the next session.
+  7. Carried over: Resend Pro; check Railway for `TRIAL_EMAIL_ENABLED`, `NUDGE_EMAIL_ENABLED`, `NUDGE_FOUNDING_EMAIL_ENABLED`, `PACK_NUDGE_ENABLED` (default off, state not verified); month pass for new accounts and the 1 Dec switch to Rs 2,499; city list v2; delete the old private Shorts.
+- **Owner items [coordinator]:**
+  - **Top up Google Ads by Thu 5 Nov** (funds were Rs 46.5k at about Rs 12.5k/day on 2 Nov).
+  - **Switch the repo to PRIVATE.**
+  - **Delete branches** `lane/mistake-calc-1`, `assets/cbq-ads-1nov`, `assets/ads-images-2nov`, and today's merged `lane/*` branches (the proxy blocks deletion from the container).
+  - WhatsApp Business number, then update Docs artifact NbJoDvrKhykEGqqoWgKknV.
+- **Standing for builders [coordinator]:** unchanged. lane-overlap is a required check. Fix the date-sensitive CI guard with `node lazytopper/scripts/testClock/dateSensitive.mjs --write`. On ad landing pages do not use answer(s), answer key, solutions, hack, trick, crack, leak (`#1503`). No refund wording anywhere (`#1499`). No test-account emails in the repo.
+
 ## 2026-11-02 (daily) - #1479 - #1492
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`179b6c52`** [git].
