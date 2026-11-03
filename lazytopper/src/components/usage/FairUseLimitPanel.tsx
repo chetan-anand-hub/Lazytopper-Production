@@ -154,7 +154,7 @@ export default function FairUseLimitPanel({
             {copy.showPlans ? (
               <PaywallActions
                 surface="usage_limit"
-                payTo={offers ? BOARD_PASS_BUY_PATH : PLANS_PATH}
+                payTo={BOARD_PASS_BUY_PATH}
                 fallback={
                   <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
                     See plans
@@ -233,7 +233,7 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__actions">
           <PaywallActions
             surface="usage_limit"
-            payTo={offers ? BOARD_PASS_BUY_PATH : PLANS_PATH}
+            payTo={BOARD_PASS_BUY_PATH}
             fallback={
               <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
                 See plans
