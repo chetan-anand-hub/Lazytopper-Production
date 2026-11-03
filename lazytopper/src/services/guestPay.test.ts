@@ -47,6 +47,9 @@ function deps(over: Partial<GuestBuyDeps> & { outcome?: "success" | "dismiss" } 
   return { d, seen: rz.seen };
 }
 
+// The claim path lazily mounts PackReadyToast; a unit test of guestPay must not render it (a late render after the
+// test's DOM is torn down raised "window is not defined" and failed random CI shards).
+vi.mock("../components/packs/PackReadyToast", () => ({ showPackReadyToast: vi.fn(), closePackReadyToastForTests: vi.fn() }));
 beforeEach(() => resetGuestClaimSessionForTests());
 afterEach(() => vi.unstubAllEnvs());
 
