@@ -134,6 +134,18 @@ const KNOWN_REMAINING = new Set<string>([
   "src/services/studentDataMap.ts :: Subscription/trial state: tier, plan, trialStartDate.",
 ]);
 
+/**
+ * PRICING-B-1 (owner-approved "Option B v3", 3 Nov 2026): two NEGATIONS that answer the parent who asked "what do we subscribe
+ * to?" - "One payment, not a subscription" (under Pay) and the FAQ question "Is it a subscription?" (answer: "No. You pay once.
+ * Nothing renews."). They say what OR-P7 says. A hit is allowed only if, with these exact phrases removed, no ban matches any more.
+ */
+const OWNER_APPROVED_NEGATIONS = [/\bnot a subscription\b/gi, /\bIs it a subscription\?/gi];
+function stillBanned(hit: string): boolean {
+  const text = hit.split(" :: ").slice(1).join(" :: ");
+  const rest = OWNER_APPROVED_NEGATIONS.reduce((t, r) => t.replace(r, " "), text);
+  return ALL_BANS.some((b) => b.test(rest));
+}
+
 const STATIC_TEXT_FILE = /\.(html|json|txt|xml|svg|webmanifest)$/;
 
 function walk(dir: string, keep: (file: string) => boolean, out: string[] = []): string[] {
@@ -192,11 +204,19 @@ describe("OR-P7 — REPO-WIDE: no subscription / cancel / '/month' wording a stu
       }
     }
 
-    const unexpected = [...new Set(hits)].filter((h) => !KNOWN_REMAINING.has(h));
+    const unexpected = [...new Set(hits)].filter((h) => !KNOWN_REMAINING.has(h) && stillBanned(h));
     expect(unexpected, `subscription wording on a student/crawler surface:\n${unexpected.join("\n")}`).toEqual([]);
     // COPY-2 · K7: a KNOWN_REMAINING entry must still be a real hit — a fixed one is removed.
     const stale = [...KNOWN_REMAINING].filter((k) => !hits.includes(k));
     expect(stale, `KNOWN_REMAINING entries that no longer hit — remove them:\n${stale.join("\n")}`).toEqual([]);
+  });
+
+  it("CONTROL — PRICING-B-1's two owner-approved negations pass; any other subscription wording beside them still fails", () => {
+    expect(stillBanned("x :: One payment, not a subscription · UPI, card or netbanking")).toBe(false);
+    expect(stillBanned("x :: Is it a subscription?")).toBe(false);
+    expect(stillBanned("x :: Is it a subscription? Cancel at any time.")).toBe(true);
+    expect(stillBanned("x :: Subscribe now, not a subscription")).toBe(true);
+    expect(stillBanned("x :: Your subscription renews monthly")).toBe(true);
   });
 
   it("CONTROL — the scanner sees the old sentences, the '/mo' span and a head, and ignores comments and keys", () => {

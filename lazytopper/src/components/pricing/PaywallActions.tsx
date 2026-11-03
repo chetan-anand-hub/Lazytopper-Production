@@ -37,6 +37,9 @@ export interface PaywallActionsLiveProps {
   askOnly?: boolean;
   /** PAY-RESCUE-1 - called once per tap on "Ask a parent to pay" (not on the panel's "Share" retry). */
   onAsk?: () => void;
+  /** PRICING-B-1 - a page's own wording for the two parent actions (same actions, same events). Default: the labels above. */
+  forwardLabel?: string;
+  qrLabel?: string;
 }
 
 export interface PaywallActionsProps extends Omit<PaywallActionsLiveProps, "showParent"> {
@@ -74,7 +77,7 @@ export function trackPricingPayTap(e: { target: EventTarget | null }): void {
 }
 
 /** The three paywall actions, or the surface's own control while payments are dark. */
-export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, fallback = null }: PaywallActionsProps) {
+export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, forwardLabel, qrLabel, fallback = null }: PaywallActionsProps) {
   if (!isPaymentsClientEnabled()) return <>{fallback}</>;
   return (
     <Suspense fallback={fallback}>
@@ -85,6 +88,8 @@ export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, 
         showParent={isParentPayClientEnabled()}
         askOnly={askOnly}
         onAsk={onAsk}
+        forwardLabel={forwardLabel}
+        qrLabel={qrLabel}
         fallback={fallback}
       />
     </Suspense>

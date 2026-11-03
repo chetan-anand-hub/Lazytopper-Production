@@ -659,8 +659,9 @@ describe("index.html + styles.css — fonts (LOW-END-1 L1)", () => {
     walk(srcRoot);
     expect(scanned).toBeGreaterThan(500);
     expect(hits).toEqual([]);
-    // The Pricing title, the one the owner named, now carries the Fraunces heading stack.
-    const pricing = readFileSync(resolve(srcRoot, "pages/PricingPage.tsx"), "utf-8");
+    // The Pricing title, the one the owner named, now carries the Fraunces heading stack (PRICING-B-1: the page's CSS string
+    // moved to components/pricing/pricingPageCss.ts).
+    const pricing = readFileSync(resolve(srcRoot, "components/pricing/pricingPageCss.ts"), "utf-8");
     expect(pricing).toMatch(/\.lt-pricing-title \{[^}]*font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;/);
   });
 

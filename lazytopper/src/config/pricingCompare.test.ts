@@ -152,11 +152,15 @@ function unbackedLimited(texts: readonly string[], source: string): string[] {
  * FAQ answer, which live in PricingPage.tsx. They are read from the source (this suite runs
  * in node); PricingPage.pricing.test.tsx pins the same strings as rendered. */
 const PAGE_SOURCE = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
+/** PRICING-B-1: the page's copy (incl. the Basic line) lives in components/pricing/pricingPlansCopy.ts. */
+const COPY_SOURCE = readFileSync(resolve(process.cwd(), "src/components/pricing/pricingPlansCopy.ts"), "utf8");
 
 const stripComments = (src: string) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, "");
 
-/** The Basic card's description paragraph, whitespace-collapsed. */
+/** The Basic line's description (PRICING-B-1: `BASIC_LINE_REST`), or the old Basic card paragraph in a fixture; whitespace-collapsed. */
 function basicDescriptionFrom(src: string): string {
+  const line = /export const BASIC_LINE_REST = "([^"]*)"/.exec(src);
+  if (line) return line[1].replace(/^,\s*/, "").replace(/\s+/g, " ").trim();
   const m = /lt-pricing-card--basic">[\s\S]*?<p className="lt-pricing-plan-desc">([\s\S]*?)<\/p>/.exec(src);
   if (!m) throw new Error("Basic description not found");
   return m[1].replace(/\s+/g, " ").trim();
@@ -169,9 +173,9 @@ function faqAnswersFrom(src: string): { questions: number; answers: string[] } {
   if (start < 0 || end < 0) throw new Error("FAQ_ITEMS not found");
   const block = stripComments(src.slice(start, end));
   const answers = [...block.matchAll(/\ba:\s*("(?:[^"\\]|\\.)*"|`[^`]*`)/g)].map((m) => m[1].slice(1, -1));
-  const on = /const FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON =\s*"([^"]*)"/.exec(src);
+  const on = /const FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON =\s*(?:"([^"]*)"|`([^`]*)`)/.exec(src);
   if (!on) throw new Error("FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON not found");
-  return { questions: (block.match(/\bq:\s*["`]/g) ?? []).length, answers: [...answers, on[1]] };
+  return { questions: (block.match(/\bq:\s*["`]/g) ?? []).length, answers: [...answers, on[1] ?? on[2]] };
 }
 
 describe("Owner ruling — 'Limited' on Basic only when backed by a constant", () => {
@@ -182,16 +186,16 @@ describe("Owner ruling — 'Limited' on Basic only when backed by a constant", (
   });
 
   it("neither does the Basic card description, nor ANY FAQ answer (owner ruling 2)", () => {
-    const desc = basicDescriptionFrom(PAGE_SOURCE);
+    const desc = basicDescriptionFrom(COPY_SOURCE);
     const { questions, answers } = faqAnswersFrom(PAGE_SOURCE);
     // CONTROL — the extractor really reads the page: the ruled strings, and one answer per question.
-    expect(desc).toBe("For browsing, revising and practising on your own.");
+    expect(desc).toBe("with notes, NCERT solutions and practice sets");
     expect(questions).toBeGreaterThanOrEqual(7);
     expect(answers).toHaveLength(questions + 1);
     expect(answers).toContain(
-      "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with Premium.",
+      "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with the ${BOARD_PASS_NAME}.",
     );
-    expect(unbackedLimited([desc, ...answers], PAGE_SOURCE + COMPARE_SOURCE)).toEqual([]);
+    expect(unbackedLimited([desc, ...answers], PAGE_SOURCE + COPY_SOURCE + COMPARE_SOURCE)).toEqual([]);
   });
 
   it("CONTROL — the guard catches the OLD wording of both strings", () => {

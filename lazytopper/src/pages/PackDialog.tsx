@@ -34,6 +34,8 @@ export interface PackDialogProps {
   sampleInBuy?: boolean;
   /** PACKS-TILE-BUY-1 - opened from "Choose chapter & buy": focus the chapter picker (Buy sits right under it). */
   focusPicker?: boolean;
+  /** PRICING-B-1 - list only this subject's chapters in the picker (null / absent: all 26, as before). Presentation only. */
+  pickerSubject?: PackSubject | null;
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
@@ -55,7 +57,8 @@ const SLIDE_COUNT = SLIDES.length + 1;
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 export default function PackDialog(props: PackDialogProps) {
-  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide, sampleInBuy = false, focusPicker = false } = props;
+  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide, sampleInBuy = false, focusPicker = false, pickerSubject = null } = props;
+  const pickerSlugs = pickerSubject ? PACK_CHAPTER_SLUGS.filter((slug) => subjectOfChapter(slug) === pickerSubject) : PACK_CHAPTER_SLUGS;
   const pickerRef = useRef<HTMLSelectElement | null>(null);
   useEffect(() => {
     if (!focusPicker || sku !== "pack_chapter") return undefined;
@@ -316,7 +319,7 @@ export default function PackDialog(props: PackDialogProps) {
                 Pick your chapter
                 <select ref={pickerRef} className="lt-pkd__select" value={chapter} onChange={(e) => onChapter(e.target.value)} data-testid="pack-chapter-select">
                   <option value="">Choose a chapter…</option>
-                  {PACK_CHAPTER_SLUGS.map((slug) => (
+                  {pickerSlugs.map((slug) => (
                     <option key={slug} value={slug}>{`${packChapterLabel(slug)} · ${subjectLabel(subjectOfChapter(slug) ?? "maths")}`}</option>
                   ))}
                 </select>

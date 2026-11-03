@@ -40,18 +40,16 @@ import PricingPage from "./PricingPage";
 import { BASIC_FREE_LABELS, FREE_FEATURES } from "../components/pricing/BasicFreeList";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../config/mockViewLimits";
 
-// ── OFF: today's copy (P1, P2, P3) ────────────────────────────────────────────
-const P1_OFF =
-  "Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows. Payment checkout is not automated yet.";
-const P2_OFF = "Not yet. Payment checkout is not connected in this build, so Premium activation stays manual.";
-const P3_OFF = "No credit card required. Premium is not activated automatically.";
+// ── OFF (PRICING-B-1: one product name, "Board Pass"; the page has no subtitle any more) ─────────────
+const MANUAL_OFF = "Manual activation during beta. Payment checkout coming soon. The Board Pass is not activated automatically.";
+const P2_OFF = "Not yet. Payment checkout is not connected in this build, so Board Pass activation stays manual.";
+const P3_OFF = "No credit card required. The Board Pass is not activated automatically.";
 
-// ── ON: owner rulings K1, K2, K3 (word for word) ──────────────────────────────
-const K1 =
-  "Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows — pay securely with UPI, card or netbanking.";
+// ── ON: owner rulings K2, K3 (K2 with the one product name) and the PRICING-B-1 pay line ──────────────
 const K2 =
-  "Yes. Tap Pay, finish in Razorpay's secure checkout (UPI, card or netbanking), and Premium turns on straight away.";
+  "Yes. Tap Pay, finish in Razorpay's secure checkout (UPI, card or netbanking), and the Board Pass turns on straight away.";
 const K3 = "No credit card needed for the trial. Passes are one-time payments and never renew automatically.";
+const PAY_LINE = "One payment, not a subscription · UPI, card or netbanking";
 
 afterEach(() => {
   cleanup();
@@ -96,48 +94,39 @@ function faqQuestions(root: HTMLElement): string[] {
   return Array.from(root.querySelectorAll(".lt-pricing-faq-q")).map(q => q.textContent ?? "");
 }
 
-/** The markup from the first `open` up to and including the next `close`. */
-function fragment(html: string, open: string, close: string): string {
-  const start = html.indexOf(open);
-  expect(start, `${open} not found`).toBeGreaterThanOrEqual(0);
-  const end = html.indexOf(close, start);
-  return html.slice(start, end + close.length);
-}
-
-describe("PAYCOPY-1 · K4 — payments OFF (VITE_PAYMENTS_ENABLED unset): today's copy, byte-identical", () => {
-  it("P1 subtitle, P2 pay answer and P3 fine print are exactly today's strings", () => {
+describe("PAYCOPY-1 · K4 — payments OFF (VITE_PAYMENTS_ENABLED unset)", () => {
+  it("the manual notice, the pay answer and the fine print; no pay line", () => {
     const inner = pricingDom("");
-    expect(textOf(inner, ".lt-pricing-subtitle")).toBe(P1_OFF);
+    expect(textOf(inner, '[data-testid="pricing-manual"]')).toBe(MANUAL_OFF);
     expect(faqAnswer(inner, "Can I pay here?")).toBe(P2_OFF);
     expect(textOf(inner, ".lt-pricing-fine-print")).toBe(P3_OFF);
+    expect(inner.querySelector('[data-testid="pricing-payline"]')).toBeNull();
   });
 
-  it("none of the K1 / K2 / K3 wording leaks into the dark page", () => {
+  it("none of the ON wording leaks into the dark page", () => {
     const html = staticPricing("");
-    for (const k of [K1, K3]) expect(html).not.toContain(k);
+    expect(html).not.toContain(K3);
     expect(html).not.toContain("Tap Pay, finish in Razorpay");
-    expect(html).not.toContain("pay securely with UPI");
+    expect(html).not.toContain(PAY_LINE);
     expect(html).not.toContain("never renew automatically");
   });
 
   it("explicit non-on values stay dark too", () => {
     for (const v of ["0", "false", "off", "no", "enabled"]) {
       const inner = pricingDom(v);
-      expect(textOf(inner, ".lt-pricing-subtitle"), v).toBe(P1_OFF);
       expect(faqAnswer(inner, "Can I pay here?"), v).toBe(P2_OFF);
       expect(textOf(inner, ".lt-pricing-fine-print"), v).toBe(P3_OFF);
     }
   });
-
 });
 
-describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for word", () => {
+describe("PAYCOPY-1 · K4 — payments ON: the owner's wording, word for word", () => {
   for (const flag of ["1", "true", "on", "yes", "TRUE"]) {
-    it(`VITE_PAYMENTS_ENABLED=${flag}: K1 subtitle, K2 pay answer, K3 fine print`, () => {
+    it(`VITE_PAYMENTS_ENABLED=${flag}: K2 pay answer, K3 fine print, the pay line`, () => {
       const inner = pricingDom(flag);
-      expect(textOf(inner, ".lt-pricing-subtitle")).toBe(K1);
       expect(faqAnswer(inner, "Can I pay here?")).toBe(K2);
       expect(textOf(inner, ".lt-pricing-fine-print")).toBe(K3);
+      expect(textOf(inner, '[data-testid="pricing-payline"]')).toBe(PAY_LINE);
     });
   }
 
@@ -145,47 +134,71 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
     const html = staticPricing("1");
     expect(html).not.toContain("Payment checkout is not automated yet.");
     expect(html).not.toContain("Payment checkout is not connected in this build");
+    expect(html).not.toContain("Manual activation during beta");
     expect(html).not.toContain(P3_OFF);
   });
 
   /**
-   * PRICING-LIGHT-1 · L6 — the prerender capture now builds with VITE_PAYMENTS_ENABLED=1,
-   * as production does, so the committed page carries the ON markup for all three. (Before
-   * this lane it pinned the OFF markup — which is exactly the live bug: the static page
-   * said checkout was not automated while the live page took payments.)
+   * PRICING-LIGHT-1 · L6 — the prerender capture builds with VITE_PAYMENTS_ENABLED=1, as production does, so the committed page
+   * carries the ON markup (and none of the OFF sentences).
    */
-  it("the committed prerendered/pricing.html carries the ON markup for all three", () => {
-    const baked = readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8");
-    const html = staticPricing("1");
-    const subtitle = fragment(html, '<p class="lt-pricing-subtitle">', "</p>");
-    const fine = fragment(html, '<p class="lt-pricing-fine-print">', "</p>");
-    const payFaq = fragment(html, '<div class="lt-pricing-faq-q">Can I pay here?</div>', "</div></div>");
-
-    expect(subtitle).toBe(`<p class="lt-pricing-subtitle">${K1}</p>`);
-    expect(fine).toBe(`<p class="lt-pricing-fine-print">${K3}</p>`);
-    expect(payFaq).toBe(
-      // React escapes the apostrophe in "Razorpay's" in static markup.
-      `<div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">${K2.replace(/'/g, "&#x27;")}</div></div>`,
-    );
-    // ...whereas the browser capture serialises it as a plain apostrophe.
-    for (const piece of [subtitle, fine, payFaq.replace(/&#x27;/g, "'")]) expect(baked).toContain(piece);
-    // CONTROL — none of the OFF sentences survived in the committed page.
-    for (const off of [P1_OFF, P2_OFF, P3_OFF]) expect(baked).not.toContain(off);
+  it("the committed prerendered/pricing.html is the PRICING-B-1 page with the ON markup", () => {
+    for (const rel of ["prerendered/pricing.html", "prerendered/__desktop/pricing.html"]) {
+      const baked = readFileSync(resolve(process.cwd(), rel), "utf8");
+      expect(baked, rel).toContain("Plans and packs for the 2027 boards");
+      expect(baked, rel).toContain(K3);
+      expect(baked, rel).toContain(PAY_LINE);
+      expect(baked, rel).toContain(K2);
+      expect(baked, rel).toContain("once till your boards");
+      expect(baked, rel).not.toContain("till-boards-figures");
+      for (const off of [MANUAL_OFF, P2_OFF, P3_OFF, "Payment checkout is not automated yet"]) expect(baked, rel).not.toContain(off);
+    }
   });
 
   it("only the pay answer changes — every FAQ question, their order, and the other answers are untouched", () => {
     const off = pricingDom("");
     const on = pricingDom("1");
-    expect(faqQuestions(on)).toEqual(faqQuestions(off));
+    expect(faqQuestions(on).filter(q => q !== "Can I pay for my child?")).toEqual(faqQuestions(off));
     for (const q of faqQuestions(off).filter(q => q !== "Can I pay here?")) {
       expect(faqAnswer(on, q), q).toBe(faqAnswer(off, q));
     }
   });
 
-  it("K1 keeps the em dash (U+2014) and K2 the ASCII apostrophe", () => {
+  it("K2 keeps the ASCII apostrophe", () => {
+    expect(faqAnswer(pricingDom("1"), "Can I pay here?")).toContain("Razorpay's");
+  });
+});
+
+/**
+ * PRICING-B-1 — the copy that follows a flag. The new "Who will use it?" checkout ships dark (lane CHECKOUT-WHO-1,
+ * VITE_CHECKOUT_WHO_ENABLED); paying with a phone number follows VITE_GUEST_PAY_ENABLED (with payments on). Each clause shows only
+ * while it is TRUE for the build.
+ */
+describe("PRICING-B-1 — the pay line and 'Can I pay for my child?' follow the flags", () => {
+  it("checkout-who OFF, guest pay OFF: the plain line; the child question only while parent pay is on", () => {
     const inner = pricingDom("1");
-    expect(textOf(inner, ".lt-pricing-subtitle")).toContain("workflows — pay");
-    expect(faqAnswer(inner, "Can I pay here?")).toContain("Razorpay's");
+    expect(textOf(inner, '[data-testid="pricing-payline"]')).toBe(PAY_LINE);
+    expect(faqQuestions(inner)).not.toContain("Can I pay for my child?");
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+    const withParent = pricingDom("1");
+    expect(faqAnswer(withParent, "Can I pay for my child?")).toBe(
+      'Yes. Your child taps "Forward link to parents" on this page and sends you the link. You pay from it, with no sign-in, and the Board Pass goes straight onto their account.',
+    );
+  });
+
+  it("checkout-who OFF, guest pay ON: '… · pay with just your phone number'", () => {
+    vi.stubEnv("VITE_GUEST_PAY_ENABLED", "1");
+    const inner = pricingDom("1");
+    expect(textOf(inner, '[data-testid="pricing-payline"]')).toBe(`${PAY_LINE} · pay with just your phone number`);
+  });
+
+  it("checkout-who ON: '… · pay for yourself or your child, no sign-up', and the new child answer", () => {
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    const inner = pricingDom("1");
+    expect(textOf(inner, '[data-testid="pricing-payline"]')).toBe(`${PAY_LINE} · pay for yourself or your child, no sign-up`);
+    expect(faqAnswer(inner, "Can I pay for my child?")).toBe(
+      "Yes. Tap any Pay or Buy button and enter the mobile number or email your child signs in with. No sign-up needed.",
+    );
   });
 });
 
@@ -201,37 +214,12 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
  *   "Solution Checker / Answer Checker" row stays;
  * - the payments-OFF copy is unchanged with the line present.
  */
-describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
-  // PRICING-LIGHT-1 · L4: the line is now Basic's fifth row, "Your first answer check free",
-  // under the SAME condition, keeping its test id and its /check-improve link.
-  const FREE_CHECK_LINE = "✓Your first answer check free";
-
-  function freeCheckLine(opts: { freeCheck: string; signedIn: boolean; authLoading?: boolean }): Element | null {
+describe("SEO-PAGES-1 (D) — the free check (PRICING-B-1: the Basic card is gone; the folded table's cell carries it)", () => {
+  /** The compare table's Basic answer-checking cell, visible text only. */
+  function tableFreeCheckCell(opts: { freeCheck: string; signedIn: boolean; authLoading?: boolean }): string {
     vi.stubEnv("VITE_FREE_CHECK_ENABLED", opts.freeCheck);
     auth.user = opts.signedIn ? { uid: "u1" } : null;
     auth.loading = opts.authLoading === true;
-    return pricingDom("").querySelector('[data-testid="pricing-free-check-line"]');
-  }
-
-  it("★ auth still loading ⇒ no line yet, so a signed-in student never sees it flash", () => {
-    // While auth loads, `user` is null for EVERY visitor, signed in or not.
-    expect(freeCheckLine({ freeCheck: "1", signedIn: false, authLoading: true })).toBeNull();
-    // CONTROL: the same render once auth has resolved signed-out shows the line.
-    expect(freeCheckLine({ freeCheck: "1", signedIn: false, authLoading: false })).not.toBeNull();
-  });
-
-  it("★ signed out, free check on ⇒ the line, in the Basic card, linking /check-improve", () => {
-    const el = freeCheckLine({ freeCheck: "1", signedIn: false });
-    expect(el?.textContent).toBe(FREE_CHECK_LINE);
-    expect(el?.querySelector("a")?.getAttribute("href")).toBe("/check-improve");
-    expect(el?.querySelector("a")?.textContent).toBe("answer check");
-    expect(el?.closest(".lt-pricing-card")?.querySelector(".lt-pricing-plan-label")?.textContent).toBe("Basic");
-  });
-
-  /** The compare table's Basic answer-checking cell, visible text only. */
-  function tableFreeCheckCell(opts: { freeCheck: string; signedIn: boolean }): string {
-    vi.stubEnv("VITE_FREE_CHECK_ENABLED", opts.freeCheck);
-    auth.user = opts.signedIn ? { uid: "u1" } : null;
     const row = Array.from(pricingDom("").querySelectorAll(".lt-pricing-compare-row")).find(
       tr => tr.querySelector("th")?.textContent === "Photograph your handwritten answer and get it marked",
     );
@@ -240,27 +228,11 @@ describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
     return cell?.textContent ?? "(missing)";
   }
 
-  it("PRICING-LIGHT-1 — the table's Basic answer-checking cell follows the SAME condition", () => {
+  it("signed out, free check on: 'First check free'; signed in, loading, or the free check off: a dash", () => {
     expect(tableFreeCheckCell({ freeCheck: "1", signedIn: false })).toBe("First check free");
-    // CONTROLS — signed in, or the free check off: a dash, never a promise they cannot use.
+    expect(tableFreeCheckCell({ freeCheck: "1", signedIn: false, authLoading: true })).toBe("—");
     expect(tableFreeCheckCell({ freeCheck: "1", signedIn: true })).toBe("—");
     expect(tableFreeCheckCell({ freeCheck: "", signedIn: false })).toBe("—");
-  });
-
-  it("CONTROL — a signed-in student does not see it", () => {
-    expect(freeCheckLine({ freeCheck: "1", signedIn: true })).toBeNull();
-  });
-
-  it("CONTROL — a build with the free check off does not see it", () => {
-    expect(freeCheckLine({ freeCheck: "", signedIn: false })).toBeNull();
-  });
-
-  it("CONTROL — the payments-OFF copy is unchanged with the line present", () => {
-    expect(freeCheckLine({ freeCheck: "1", signedIn: false })).not.toBeNull();
-    const inner = pricingDom("");
-    expect(textOf(inner, ".lt-pricing-subtitle")).toBe(P1_OFF);
-    expect(faqAnswer(inner, "Can I pay here?")).toBe(P2_OFF);
-    expect(textOf(inner, ".lt-pricing-fine-print")).toBe(P3_OFF);
   });
 
   it("CONTROL — FREE_FEATURES and BASIC_FREE_LABELS are unchanged; the free check is not a lock", () => {
@@ -282,19 +254,18 @@ describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
   });
 });
 
-// PRIVACY-DPDP-1 (owner item, 24 Oct 2026) — the Premium card links the public marking guide.
+// PRIVACY-DPDP-1 (owner item, 24 Oct 2026) — /pricing links the public marking guide.
 // Sentence written out here, NOT imported, so drift turns this red. Real <a href> for crawlers; >= 44px tap area.
 const MARK_GUIDE_SENTENCE =
   "Wondering how answers are marked? See how CBSE examiners mark Class 10 answers, with worked examples from past board papers.";
 
 describe("PRICING marking-guide link", () => {
-  it("sits directly after the Premium features list, with the owner's sentence and a real link", () => {
+  it("PRICING-B-1: kept inside 'More questions' (in the DOM and the prerender), with the owner's sentence and a real link", () => {
     const host = pricingDom("1");
     const p = host.querySelector<HTMLElement>("p.lt-pricing-mark-guide");
     expect(p).not.toBeNull();
     expect(p!.textContent).toBe(MARK_GUIDE_SENTENCE);
-    const list = host.querySelector('ul[aria-label="Premium plan features"]');
-    expect(list?.nextElementSibling).toBe(p);
+    expect(p!.closest('[data-testid="pricing-faq-more"]')).not.toBeNull();
     const a = p!.querySelector("a");
     expect(a?.getAttribute("href")).toBe("/check-your-answer");
     expect(a?.textContent).toBe("See how CBSE examiners mark Class 10 answers");
@@ -302,7 +273,7 @@ describe("PRICING marking-guide link", () => {
 
   it("renders once, and its link keeps 14px of vertical padding (>= 44px tap area)", () => {
     expect(pricingDom("1").querySelectorAll(".lt-pricing-mark-guide")).toHaveLength(1);
-    const src = readFileSync(resolve(__dirname, "PricingPage.tsx"), "utf8");
+    const src = readFileSync(resolve(__dirname, "../components/pricing/pricingPageCss.ts"), "utf8");
     const rule = /\.lt-pricing-mark-guide a \{([^}]*)\}/.exec(src);
     expect(rule, "the link rule").not.toBeNull();
     expect(rule![1]).toMatch(/padding:\s*14px 0/);

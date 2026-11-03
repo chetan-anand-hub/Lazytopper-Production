@@ -74,8 +74,9 @@ beforeEach(() => {
 });
 
 
+// PRICING-B-1: the one product name ("Board Pass") on /pricing; the paragraph is otherwise the same sentence.
 const MANUAL_PARAGRAPH =
-  '<p class="lt-pricing-plan-desc">Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.</p>';
+  '<p class="lt-pricing-manual" data-testid="pricing-manual">Manual activation during beta. Payment checkout coming soon. The Board Pass is not activated automatically.</p>';
 
 function checkoutScripts(): HTMLScriptElement[] {
   return Array.from(document.querySelectorAll("script")).filter((s) => s.src === CHECKOUT_SCRIPT_URL);
@@ -418,8 +419,8 @@ describe("buyPass", () => {
  */
 
 const PAGE_CSS = (() => {
-  const src = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
-  const m = /const PRICING_CSS = `([\s\S]*?)`;/.exec(src);
+  const src = readFileSync(resolve(process.cwd(), "src/components/pricing/pricingPageCss.ts"), "utf8");
+  const m = /export const PRICING_CSS = `([\s\S]*?)`;/.exec(src);
   if (!m) throw new Error("PRICING_CSS not found");
   return m[1].replace(/\/\*[\s\S]*?\*\//g, "");
 })();
@@ -480,33 +481,29 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
     expect(buttons[0].className).toContain("lt-pricing-pay--month");
   });
 
-  it("the page's CSS places every one of those classes (and makes the wrapper display: contents)", () => {
+  it("PRICING-B-1: the page's CSS lays the buy area out as one column (the wrapper is display: contents; notices above go first)", () => {
     expect(baseBlock(".lt-pricing-checkout")).toMatch(/display:\s*contents/);
-    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
-    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
-    expect(baseBlock(".lt-pricing-checkout-note--top")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*1/);
-    expect(baseBlock(".lt-pricing-checkout-note--bottom")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*4/);
+    expect(baseBlock(".lt-pricing-passes")).toMatch(/display:\s*flex;[\s\S]*flex-direction:\s*column/);
+    expect(baseBlock(".lt-pricing-checkout-note--top")).toMatch(/order:\s*-1/);
     // CONTROL — the reader finds nothing for a class the page does not style.
     expect(baseBlock(".lt-pricing-no-such-class")).toBe("");
   });
 
-  it("on the page (payments ON, NOT a month buyer) the grid holds the Board Pass tile and its button alone", () => {
+  it("on the page (payments ON, NOT a month buyer) the buy area holds the Board Pass Pay button alone", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     render(
       <MemoryRouter initialEntries={["/pricing"]}>
         <PricingPage />
       </MemoryRouter>,
     );
-    const grid = document.querySelector('[data-testid="pricing-passes"]');
-    expect(grid).not.toBeNull();
-    const order = Array.from(grid!.querySelectorAll(".lt-pricing-pass, .lt-pricing-pay")).map((el) =>
-      el.classList.contains("lt-pricing-pass--boards") ? "boards-tile" : el.classList.contains("lt-pricing-pay--boards") ? "boards-pay" : "other",
-    );
-    expect(order).toEqual(["boards-tile", "boards-pay"]);
-    expect(grid!.querySelector(".lt-pricing-pass--month, .lt-pricing-pay--month")).toBeNull();
+    const area = document.querySelector('[data-testid="pricing-passes"]');
+    expect(area).not.toBeNull();
+    expect(area!.querySelector(":scope > .lt-pricing-checkout")).not.toBeNull();
+    expect(Array.from(area!.querySelectorAll(".lt-pricing-pay")).map((b) => b.textContent)).toEqual([tillBoardsButtonLabel()]);
+    expect(area!.querySelector(".lt-pricing-month, .lt-pricing-pay--month")).toBeNull();
   });
 
-  it("on the page (payments ON, a month BUYER) the buy area sits INSIDE the tile grid, Month pass tile first (CHECKOUT-1)", () => {
+  it("on the page (payments ON, a month BUYER) the month pass price leads and both Pay buttons sit in the buy area (CHECKOUT-1)", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     mockMonth.buyer = true;
     render(
@@ -514,20 +511,12 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
         <PricingPage />
       </MemoryRouter>,
     );
-    const grid = document.querySelector('[data-testid="pricing-passes"]');
-    expect(grid).not.toBeNull();
-    expect(grid!.querySelector(":scope > .lt-pricing-checkout")).not.toBeNull();
-    const order = Array.from(grid!.querySelectorAll(".lt-pricing-pass, .lt-pricing-pay")).map((el) =>
-      el.classList.contains("lt-pricing-pass--month")
-        ? "month-tile"
-        : el.classList.contains("lt-pricing-pass--boards")
-          ? "boards-tile"
-          : el.classList.contains("lt-pricing-pay--month")
-            ? "month-pay"
-            : "boards-pay",
+    const area = document.querySelector('[data-testid="pricing-passes"]');
+    expect(area).not.toBeNull();
+    const order = Array.from(area!.querySelectorAll(".lt-pricing-month, .lt-pricing-pay")).map((el) =>
+      el.classList.contains("lt-pricing-month") ? "month-price" : el.classList.contains("lt-pricing-pay--month") ? "month-pay" : "boards-pay",
     );
-    expect(order).toEqual(["month-tile", "boards-tile", "month-pay", "boards-pay"]);
-    expect(grid!.querySelector(":scope > .lt-pricing-plan-desc")).toBeNull();
+    expect(order).toEqual(["month-price", "month-pay", "boards-pay"]);
   });
 });
 

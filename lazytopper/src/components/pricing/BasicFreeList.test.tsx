@@ -59,18 +59,18 @@ describe("one source", () => {
   });
 });
 
-describe("Pricing's Basic card reads the L4 list (signed out — the prerendered /pricing shape)", () => {
-  it("renders BASIC_INCLUDES (free check off in this build), and none of the lock-only rows", () => {
+describe("Pricing's Basic line (PRICING-B-1: the separate Basic card is gone; Basic is one line + the folded table)", () => {
+  it("renders the Basic line and none of the lock-only rows; BASIC_INCLUDES still feeds the compare module", () => {
     render(
       <MemoryRouter initialEntries={["/pricing"]}>
         <PricingPage />
       </MemoryRouter>,
     );
-    const list = screen.getByRole("list", { name: "Basic plan features" });
-    const rows = Array.from(list.querySelectorAll("li")).map((li) => li.textContent);
-    expect(rows).toEqual(BASIC_INCLUDES.filter((i) => !i.onlyWithFreeCheck).map((i) => `✓${i.label}`));
-    // The lock list's EXCLUDED rows were a Pricing-only device; the card no longer lists them.
-    for (const f of FREE_FEATURES.filter((x) => !x.included)) expect(list.textContent).not.toContain(f.label);
+    const line = screen.getByTestId("pricing-basic-line");
+    expect(line.textContent).toContain("Basic: free forever");
+    expect(screen.queryByRole("list", { name: "Basic plan features" })).toBeNull();
+    for (const f of FREE_FEATURES.filter((x) => !x.included)) expect(line.textContent).not.toContain(f.label);
+    expect(BASIC_INCLUDES.length).toBeGreaterThanOrEqual(5);
   });
 });
 
