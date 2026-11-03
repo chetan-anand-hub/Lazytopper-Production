@@ -14,6 +14,7 @@
  * react-router's in-memory navigation state only.
  */
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
+import { ALSO_SIGNIN_EVENT, type AlsoSignIn } from "./checkoutWhoFlag";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -252,13 +253,38 @@ export interface ClaimedPurchase {
 }
 
 /**
- * Attach every purchase paid with the signed-in account's VERIFIED phone number. Sends nothing but the ID token
+ * CHECKOUT-WHO-1 - a claim attached an order that ALSO named a phone this account does not sign in with: the server says so,
+ * MASKED (`alsoSignIn`), and Home offers the existing link-a-number step (LinkPhoneNudge -> LinkSignInMethodModal, SMS code).
+ * Fired on `window`; also kept (for THIS uid only) for a Home that mounts after the event. Never the full number.
+ */
+export { ALSO_SIGNIN_EVENT, type AlsoSignIn };
+let lastClaimAlso: AlsoSignIn | null = null;
+let pendingAlso: { uid: string; also: AlsoSignIn } | null = null;
+
+function parseAlso(raw: unknown): AlsoSignIn | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  return r.kind === "phone" && typeof r.masked === "string" && r.masked ? { kind: "phone", masked: r.masked } : null;
+}
+
+/** The pending "also sign in" for THIS account only, or null. */
+export function readAlsoSignIn(uid: string): AlsoSignIn | null {
+  return uid && pendingAlso && pendingAlso.uid === uid ? pendingAlso.also : null;
+}
+export function clearAlsoSignIn(): void {
+  pendingAlso = null;
+}
+
+/**
+ * Attach every purchase paid with the signed-in account's VERIFIED phone number (CHECKOUT-WHO-1: or its VERIFIED email,
+ * read by the server from the token). Sends nothing but the ID token
  * (empty body). Never throws: a failure returns null and the next sign-in tries again.
  */
 export async function claimGuestPurchases(): Promise<ClaimedPurchase[] | null> {
   try {
     const { authHeaders } = await import("./checkout");
     const json = await postJson(GUEST_CLAIM_ENDPOINT, {}, await authHeaders());
+    lastClaimAlso = parseAlso(json.alsoSignIn);
     const list = Array.isArray(json.claimed) ? json.claimed : [];
     return list
       .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
@@ -298,6 +324,17 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
   })()
     .then((claimed) => {
       if (claimed !== null) claimedThisSession.add(uid);
+      // CHECKOUT-WHO-1: remember / announce the masked "also sign in with" for THIS uid (absent on every old-flow claim).
+      const also = lastClaimAlso;
+      lastClaimAlso = null;
+      if (also) {
+        pendingAlso = { uid, also };
+        try {
+          window.dispatchEvent(new CustomEvent(ALSO_SIGNIN_EVENT, { detail: also }));
+        } catch {
+          /* no window (tests / SSR) */
+        }
+      }
       if (claimed && claimed.length > 0) {
         const items: ClaimedItem[] = claimed.map((c) => ({ kind: c.kind, sku: c.sku, target: c.target, name: claimedItemName(c.kind, c.sku, c.target) }));
         recentClaim = { uid, items, at: elapsedNow() };
@@ -328,6 +365,8 @@ export function resetGuestClaimSessionForTests(): void {
   claimedThisSession.clear();
   inFlight.clear();
   recentClaim = null;
+  lastClaimAlso = null;
+  pendingAlso = null;
 }
 
 /** Router state the sign-in page reads to open the phone step with this number (never a URL). */

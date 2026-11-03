@@ -167,3 +167,22 @@ describe("PAY-PHONE-1 review · phone payments that need the owner", () => {
     expect(screen.getByTestId("pu-at-row-e1").textContent).toContain("number erased");
   });
 });
+
+describe("CHECKOUT-WHO-1 · the recipient line", () => {
+  it("masked recipient, payer type, the uid it landed on and how, and the two-accounts note; nothing for other orders", async () => {
+    const { whoLine } = await import("./PurchasesCard");
+    expect(
+      whoLine({
+        recipient: { phoneMasked: "+91 98•••••948", emailMasked: "an••••@gmail.com" },
+        payerType: "signed_in_other",
+        claimedBy: "uKid",
+        claimedVia: "existing_account",
+        adminNote: "phone_and_email_on_different_accounts",
+      }),
+    ).toBe(
+      "For +91 98•••••948 / an••••@gmail.com · paid by a signed-in account for someone else · on uKid (existing account) · NOTE: phone and email are two different accounts; the first-entered one got it",
+    );
+    expect(whoLine({ recipient: { emailMasked: "an••••@gmail.com" }, payerType: "signed_out", claimedBy: null })).toBe("For an••••@gmail.com · paid signed out");
+    expect(whoLine({})).toBe("");
+  });
+});

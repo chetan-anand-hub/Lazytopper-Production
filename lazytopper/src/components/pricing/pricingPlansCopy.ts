@@ -22,6 +22,7 @@ import {
   PREBOARDS_PICK_BADGE,
   REDOWNLOAD_UNTIL,
 } from "../../lib/packs/packLabels";
+import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
 
 export { BOARD_PASS_NAME };
 
@@ -59,17 +60,12 @@ export const PAPER_TOO_ASK = "Prefer paper too?";
 export const PAPER_TOO_REST = "CBQ Packs and the Bundle put them in print";
 
 /**
- * VITE_CHECKOUT_WHO_ENABLED (lane CHECKOUT-WHO-1 ships the new "Who will use it?" checkout dark behind it). Read as a LITERAL
- * `import.meta.env.VITE_…` expression, so Vite and Vitest rewrite it. Only the COPY on this page follows it: every Pay / Buy here
- * already goes through the central buy paths (PassCheckout, the PacksShop buy), which the new checkout takes over by itself.
+ * VITE_CHECKOUT_WHO_ENABLED (lane CHECKOUT-WHO-1 ships the new "Who will use it?" checkout dark behind it). Only the COPY on
+ * this page follows it: every Pay / Buy here already goes through the central buy paths (PassCheckout, the PacksShop buy),
+ * which open the new checkout by themselves. ONE reader of the flag: the checkout's own (services/checkoutWho).
  */
 export function isCheckoutWhoCopyOn(): boolean {
-  try {
-    const raw: unknown = import.meta.env.VITE_CHECKOUT_WHO_ENABLED;
-    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
-  } catch {
-    return false;
-  }
+  return isCheckoutWhoClientEnabled();
 }
 
 /**

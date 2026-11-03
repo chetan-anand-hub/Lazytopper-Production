@@ -461,6 +461,28 @@ const guestPayRoutes = createGuestPayRoutes({
       throw e;
     }
   },
+  // CHECKOUT-WHO-1 (dark behind CHECKOUT_WHO_ENABLED): the account that already uses a recipient's phone / email, if any.
+  uidForPhone: async (e164) => {
+    if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
+    try {
+      const record = await firebaseAdmin.auth().getUserByPhoneNumber(e164);
+      return (record && record.uid) || null;
+    } catch (e) {
+      if (e && e.code === 'auth/user-not-found') return null;
+      throw e;
+    }
+  },
+  uidForEmail: async (email) => {
+    if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
+    try {
+      const record = await firebaseAdmin.auth().getUserByEmail(email);
+      // Only an account whose email Firebase has VERIFIED (the claim's own rule): an unconfirmed address could be anyone's.
+      return record && record.emailVerified === true ? record.uid || null : null;
+    } catch (e) {
+      if (e && e.code === 'auth/user-not-found') return null;
+      throw e;
+    }
+  },
 });
 const parentReportRoutes = createParentReportRoutes({
   sendJson,

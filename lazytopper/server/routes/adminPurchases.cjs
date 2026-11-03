@@ -19,7 +19,26 @@
 const { istDayKey } = require('../services/rateLimiter.cjs');
 const { istDayStartMs, addIstDays } = require('./adminStudents.cjs');
 // PAY-PHONE-1: guest (phone-number) payments nobody has claimed yet. Read-only; the phone is shown MASKED.
-const { maskIndianMobile, GUEST_STATUS } = require('../services/guestPay.cjs');
+const { maskIndianMobile, maskEmail, GUEST_STATUS } = require('../services/guestPay.cjs');
+
+/**
+ * CHECKOUT-WHO-1 - for an order bought through "Who will use it?": the recipient (MASKED), who paid (signed out / a
+ * signed-in account buying for someone else), the uid it landed on and how, and the two-accounts note. {} for any other
+ * order, so every existing row is exactly as before.
+ */
+function whoFields(v) {
+  if (!v || v.checkoutWho !== true) return {};
+  return {
+    recipient: {
+      ...(typeof v.guestPhone === 'string' && v.guestPhone ? { phoneMasked: maskIndianMobile(v.guestPhone) } : {}),
+      ...(typeof v.guestEmail === 'string' && v.guestEmail ? { emailMasked: maskEmail(v.guestEmail) } : {}),
+    },
+    payerType: typeof v.payerType === 'string' ? v.payerType : null,
+    claimedBy: typeof v.uid === 'string' && v.uid ? v.uid : null,
+    claimedVia: typeof v.claimedVia === 'string' ? v.claimedVia : null,
+    adminNote: typeof v.adminNote === 'string' ? v.adminNote : null,
+  };
+}
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const NO_STORE = Object.freeze({ 'Cache-Control': 'no-store' });
@@ -159,6 +178,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
           paidAtMs,
           ageHours: paidAtMs === null ? null : Math.max(0, Math.floor((nowMs - paidAtMs) / 3600000)),
+          ...whoFields(v),
         });
       });
       rows.sort((a, b) => (a.paidAtMs || 0) - (b.paidAtMs || 0));
@@ -196,6 +216,7 @@ function createAdminPurchasesRoutes(deps = {}) {
             kind: kindOf(v.passType),
             amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
             ageHours: atMs === null ? null : Math.max(0, Math.floor((nowMs - atMs) / 3600000)),
+            ...whoFields(v),
           });
         });
       }
@@ -232,6 +253,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           amountInr,
           channel: v.payer === 'parent' ? 'parent' : 'student',
           isAdminAccount: admins.has(v.uid),
+          ...whoFields(v),
         });
       });
       paid.sort((a, b) => b.paidAtMs - a.paidAtMs);

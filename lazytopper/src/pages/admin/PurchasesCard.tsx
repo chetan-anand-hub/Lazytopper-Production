@@ -14,7 +14,33 @@ import { fetchAdmin, formatIstDateTime } from "./studentsAdminModel";
 
 export const PURCHASES_URL = "/api/admin/purchases";
 
-export interface PurchaseItem {
+/**
+ * CHECKOUT-WHO-1 - present only on an order bought through "Who will use it?": the recipient as the payer typed it
+ * (MASKED), who paid, the uid it landed on (and how), and the note when phone and email were two different accounts.
+ */
+export interface WhoFields {
+  recipient?: { phoneMasked?: string; emailMasked?: string };
+  payerType?: "signed_out" | "signed_in_other" | string | null;
+  claimedBy?: string | null;
+  claimedVia?: string | null;
+  adminNote?: string | null;
+}
+
+export function whoLine(w: WhoFields): string {
+  if (!w.recipient) return "";
+  const ids = [w.recipient.phoneMasked, w.recipient.emailMasked].filter(Boolean).join(" / ");
+  const payer = w.payerType === "signed_in_other" ? "paid by a signed-in account for someone else" : "paid signed out";
+  const landed = w.claimedBy ? ` · on ${w.claimedBy}${w.claimedVia === "existing_account" ? " (existing account)" : w.claimedVia === "claim" ? " (claimed at sign-in)" : ""}` : "";
+  const note = w.adminNote === "phone_and_email_on_different_accounts" ? " · NOTE: phone and email are two different accounts; the first-entered one got it" : "";
+  return `For ${ids} · ${payer}${landed}${note}`;
+}
+
+function WhoRow({ w, id }: { w: WhoFields; id: string }) {
+  const line = whoLine(w);
+  return line ? <span className="pu-reason sa-muted" data-testid={`pu-who-${id}`}>{line}</span> : null;
+}
+
+export interface PurchaseItem extends WhoFields {
   orderId: string;
   paidAtMs: number;
   uid: string;
@@ -87,11 +113,12 @@ export function GuestAttentionList({ attention }: { attention: PurchasesResponse
           {attention.items.map((u) => (
             <li key={u.orderId} className="pu-row" data-testid={`pu-at-row-${u.orderId}`}>
               <span className="pu-date">{u.state}</span>
-              <span className="pu-who">{u.phoneMasked || "number erased"}</span>
+              <span className="pu-who">{u.phoneMasked || u.recipient?.emailMasked || "number erased"}</span>
               <span className="pu-product">{productLabel(u)}</span>
               <span className="pu-amount">{inr(u.amountInr)}</span>
               <span className="pu-channel sa-muted">{u.paymentId || ""}</span>
               <span className="pu-reason sa-muted">{u.reason || ""}</span>
+              <WhoRow w={u} id={u.orderId} />
             </li>
           ))}
         </ul>
@@ -101,7 +128,7 @@ export function GuestAttentionList({ attention }: { attention: PurchasesResponse
 }
 
 /** PAY-PHONE-1 - a payment made with a phone number that no sign-in has claimed yet. The phone arrives MASKED. */
-export interface UnclaimedGuestItem {
+export interface UnclaimedGuestItem extends WhoFields {
   orderId: string;
   paymentId: string | null;
   phoneMasked: string;
@@ -136,10 +163,11 @@ export function UnclaimedGuestList({ unclaimed }: { unclaimed: PurchasesResponse
           {unclaimed.items.map((u) => (
             <li key={u.orderId} className="pu-row" data-testid={`pu-uc-row-${u.orderId}`}>
               <span className="pu-date">{ageLabel(u.ageHours)}</span>
-              <span className="pu-who">{u.phoneMasked}</span>
+              <span className="pu-who">{u.phoneMasked || u.recipient?.emailMasked || ""}</span>
               <span className="pu-product">{productLabel(u)}</span>
               <span className="pu-amount">{inr(u.amountInr)}</span>
               <span className="pu-channel sa-muted">{u.paymentId || ""}</span>
+              <WhoRow w={u} id={u.orderId} />
             </li>
           ))}
         </ul>
@@ -300,6 +328,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
                       </span>
                     )}
                   </span>
+                  <WhoRow w={p} id={p.orderId} />
                 </li>
               ))}
             </ul>
