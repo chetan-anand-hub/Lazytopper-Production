@@ -65,7 +65,7 @@ import ParentReturnLink from "../components/parents/ParentReturnLink";
 import FounderBadge from "../components/brand/FounderBadge";
 import StickyPassBar from "../components/pricing/StickyPassBar";
 import { useMonthPassAvailable } from "../components/pricing/useMonthPassAvailable";
-import TestimonialVideo from "../components/marketing/TestimonialVideo";
+import PricingProof from "../components/marketing/PricingProof";
 
 // PACKS-CLIENT-1 — the PDF packs strip is below the fold: its own chunk, mounted after first paint so the
 // prerendered /pricing is unchanged. A failed chunk renders nothing.
@@ -1942,14 +1942,9 @@ function PricingPlansPage() {
             </div>
 
             {/* TRUST-1 — real student proof directly under the Board Pass card (not above the price). The facade
-                is click-to-play: nothing comes from YouTube until the tap. The half-mark sign is written as an escape:
-                PaywallActions.test.tsx keeps the literal character out of this file's source (a pay surface). */}
+                is click-to-play: nothing comes from YouTube until the tap. */}
             <section className="lt-pricing-video" aria-labelledby="pricing-video">
-              <TestimonialVideo
-                headingId="pricing-video"
-                heading={"Where did his \u00bd mark go?"}
-                lede={"A Class 10 student photographs his written answer and sees exactly where he lost \u00bd mark."}
-              />
+              <PricingProof />
             </section>
 
             {/* PRICING-LADDER-1 — the packs are the LADDER to Premium: directly after the Premium card,
