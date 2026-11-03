@@ -219,6 +219,18 @@ describe("TRIAL-SELL-1 - the parent's proof line, from real graded results only"
     ).toEqual({ answers: 3, marksLost: 1.5, group: null });
   });
 
+  it("'mostly' must be true: a group under half of the typed marks lost is not named (exactly half is)", () => {
+    const totals = { answers: 4, marksLost: 3 };
+    // careless 1.2 of 3 typed (40%) -> largest, but not "mostly": no parenthesis.
+    const under = parentProofFrom({ totals, byGroup: { knowledge: 0.9, technique: 0.9, careless: 1.2 }, namesWeakness: true });
+    expect(under).toEqual({ answers: 4, marksLost: 3, group: null });
+    expect(buildAskParentMessage({ ...base, lang: "en", checkedCount: 4, proof: under })).toContain("it found 3 marks I was losing.");
+    expect(buildAskParentMessage({ ...base, lang: "hi", checkedCount: 4, proof: under })).toContain("3 नंबर पकड़े जो मेरे कट रहे थे।");
+    expect(buildAskParentMessage({ ...base, lang: "en", checkedCount: 4, proof: under })).not.toContain("mostly");
+    // exactly half -> named.
+    expect(parentProofFrom({ totals, byGroup: { knowledge: 1.5, technique: 1, careless: 0.5 }, namesWeakness: true })?.group).toBe("knowledge");
+  });
+
   it("nothing real to say -> null (no totals, no answers, nothing lost, only not-attempted)", () => {
     expect(parentProofFrom(null)).toBeNull();
     expect(parentProofFrom({ totals: null, namesWeakness: true })).toBeNull();

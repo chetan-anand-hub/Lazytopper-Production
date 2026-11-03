@@ -88,7 +88,8 @@ export type ParentProofGroup = "knowledge" | "technique" | "careless";
  * TRIAL-SELL-1 - the parent's proof, from the student's REAL graded results in the last 30 days:
  * the measurable graded answers and the marks the grader found lost on them (marks lost to work
  * not attempted are left out - the grader found no mistake there). `group` is the biggest loss
- * group, set only when Me's weakness gate allows naming one. Built by `parentProofFrom`.
+ * group, set only when Me's weakness gate allows naming one AND it holds at least half of the typed
+ * marks lost (so "mostly" is true). Built by `parentProofFrom`.
  */
 export interface ParentProof {
   answers: number;
@@ -115,16 +116,21 @@ export function parentProofFrom(src: ParentProofSource | null | undefined): Pare
   if (!Number.isInteger(answers) || answers <= 0 || !Number.isFinite(lost)) return null;
   const marksLost = Math.round(lost * 10) / 10;
   if (marksLost <= 0) return null;
+  // "mostly" must be true: a group is named only when it holds at least HALF of the typed marks lost.
   let group: ParentProofGroup | null = null;
   if (src?.namesWeakness && src.byGroup) {
     let best = 0;
+    let typed = 0;
+    let top: ParentProofGroup | null = null;
     for (const k of PROOF_GROUP_ORDER) {
-      const v = Number(src.byGroup[k]) || 0;
+      const v = Math.max(0, Number(src.byGroup[k]) || 0);
+      typed += v;
       if (v > best) {
         best = v;
-        group = k;
+        top = k;
       }
     }
+    if (top && typed > 0 && best * 2 >= typed) group = top;
   }
   return { answers, marksLost, group };
 }

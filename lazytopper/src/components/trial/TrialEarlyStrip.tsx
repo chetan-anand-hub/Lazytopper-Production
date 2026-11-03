@@ -28,11 +28,8 @@ import "./trialEarlyStrip.css";
  */
 export const TRIAL_STRIP_HIDDEN_KEY_PREFIX = "lazytopper.trialEarlyStripHidden.";
 
-/**
- * The analytics surface for this strip's Pay / Ask taps. analytics.ts (outside this lane) has no
- * "trial_strip" member yet; the value is sent as-is so the taps are never counted as another surface.
- */
-export const TRIAL_STRIP_SURFACE = "trial_strip" as PaywallSurface;
+/** The analytics surface for this strip's Pay / Ask taps (its own, so they are never counted as another surface). */
+export const TRIAL_STRIP_SURFACE: PaywallSurface = "trial_strip";
 
 function readHidden(uid: string): string | null {
   try {
