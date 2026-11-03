@@ -19,6 +19,7 @@ import {
   type LoginMethod,
 } from "../utils/authSignal";
 import OfferStrip from "../components/auth/OfferStrip";
+import SigningInScreen from "../components/auth/SigningInScreen";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
 import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
@@ -1592,6 +1593,10 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [otp, setOtp] = useState("");
   // GOOGLE-REDIRECT-1 — back from Google: the buttons wait (disabled) for the redirect result.
   const [busy, setBusy] = useState(() => returnIntent !== null);
+  // SIGNIN-FLASH-1 — back from Google: the calm "Signing you in…" screen stands in for the door
+  // until the student is navigated on, or the redirect result settles without a sign-in (the
+  // release / fail path below gives the door back exactly as before, with the same timings).
+  const [redirectPending, setRedirectPending] = useState(() => returnIntent !== null);
   // Which Google flow the attempt in flight used (telemetry `flow` only).
   const googleFlowRef = useRef<GoogleFlow>(returnIntent ? "redirect" : "popup");
   // AUTH-SIGNAL-1 — the method of the attempt in flight, so the one successful-auth exit below
@@ -1869,6 +1874,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       clearSigninIntent();
       resetRedirectOutcome();
       setBusy(false);
+      setRedirectPending(false);
     };
     const fail = (err: unknown) => {
       if (settled || !mountedRef.current || signedInRef.current) return;
@@ -2293,6 +2299,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       {"<- All sign-in options"}
     </button>
   );
+
+  // SIGNIN-FLASH-1 — the return trip from Google: no form flash while the result resolves.
+  if (redirectPending) return <SigningInScreen />;
 
   return (
     <main
