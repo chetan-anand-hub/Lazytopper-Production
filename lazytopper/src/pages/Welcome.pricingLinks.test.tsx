@@ -28,7 +28,7 @@ describe("LANDING-PRICING-1 — pricing links on the landing page", () => {
     const hrefs = [...nav.querySelectorAll("a")].map((a) => [a.textContent, a.getAttribute("href")]);
     expect(hrefs).toEqual([
       ["Pricing", "/pricing"],
-      ["PDF packs", "/packs"],
+      ["PDF packs", "/pricing#packs"],
       ["Log in", expect.any(String)],
     ]);
   });
@@ -59,7 +59,7 @@ describe("LANDING-PRICING-2 — header PDF packs is hidden below 480px (rule tex
 
   it("the header PDF packs link carries the --packs class", () => {
     const { container } = renderWelcome();
-    expect(container.querySelector(".lt-landing-topnav a[href='/packs']")!.classList.contains("lt-landing-toplink--packs")).toBe(true);
+    expect(container.querySelector(".lt-landing-topnav a[href='/pricing#packs']")!.classList.contains("lt-landing-toplink--packs")).toBe(true);
   });
 
   it("the hide rule is more specific than the base display rule and comes after it; the show rule sits inside min-width:480px", () => {
