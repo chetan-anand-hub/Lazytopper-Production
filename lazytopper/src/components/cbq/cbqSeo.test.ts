@@ -5,9 +5,12 @@ import { resolve } from "node:path";
 
 import {
   CBQ_DESCRIPTION_CAP,
+  CBQ_HUB_H1,
+  CBQ_HUB_HEAD,
   CBQ_HUB_PATH,
   CBQ_SAMPLE_COUNT,
   CBQ_TITLE_CAP,
+  cbqChapterH1,
   cbqChapterPath,
   cbqChapterSlugs,
   cbqChapterTopics,
@@ -24,6 +27,8 @@ import { cbqPackRows, isCbqPackRow, loadChapter } from "../../lib/packs/packCont
 import { needsMissingFigure } from "../../lib/figureSafe";
 import { foldForCompare } from "../../../../scripts/src/syllabusGuard";
 import { PACK_CHAPTER_SLUGS } from "../../services/packs";
+import { CBQ_PREMIUM_BUTTON, CBQ_PREMIUM_HEADING } from "./CbqCtas";
+import { CBQ_HUB_FAQ } from "../seo/faqContent";
 
 const row = (id: string, format: string, marks = 1, steps: string[] | undefined = ["[1 mark] step"]): CbqSampleRow => ({
   id,
@@ -228,4 +233,34 @@ describe("CBQ-SEO-1 chapter selection on the real bank (all 26 chapters)", () =>
     }
     expect(total).toBeGreaterThan(100);
   }, 120_000);
+});
+
+// CBQ-PAGE-WORDING-1 — Google Ads flagged ads landing here as "Enabling dishonest behavior" (read
+// "2027 + answers/solutions" as selling exam answers). Titles, headings, meta and CTAs on the CBQ
+// pages must never carry these words (owner ruling 3 Nov 2026). Body text is out of this guard.
+describe("CBQ-PAGE-WORDING-1 · ad-landing wording guard", () => {
+  const BANNED = /\b(answers?|answer key|solutions?|hacks?|tricks?|crack(?:s|ed|ing)?|leak(?:s|ed|ing)?)\b/i;
+  const strings: Record<string, string> = {
+    "hub title": CBQ_HUB_HEAD.title,
+    "hub meta description": CBQ_HUB_HEAD.description,
+    "hub H1": CBQ_HUB_H1,
+    "premium CTA heading": CBQ_PREMIUM_HEADING,
+    "premium CTA button": CBQ_PREMIUM_BUTTON,
+    "hub FAQ questions": CBQ_HUB_FAQ.map((f) => f.question).join(" | "),
+  };
+  for (const [label, text] of Object.entries(strings)) {
+    it(`${label} has no answer/solution/hack/trick/crack/leak wording`, () => {
+      expect(text).not.toMatch(BANNED);
+    });
+  }
+  it("every chapter page title, meta description, H1 and JSON-LD name is clean", () => {
+    for (const topic of cbqChapterTopics()) {
+      const path = cbqChapterPath(topic.slug);
+      const head = cbqHeadForPath(path)!;
+      expect(head.title, path).not.toMatch(BANNED);
+      expect(head.description, path).not.toMatch(BANNED);
+      expect(cbqChapterH1(topic.name), path).not.toMatch(BANNED);
+      expect(JSON.stringify(cbqJsonLd(path, "")), path).not.toMatch(BANNED);
+    }
+  });
 });

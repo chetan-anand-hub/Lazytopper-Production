@@ -55,14 +55,14 @@ export const CBQ_HUB_FAQ: readonly FaqItem[] = [
       "CBSE's Class 10 paper pattern sets about 50% of the paper as competency-focused questions (CBSE Circular Acad-30/2024). That is why CBQs are worth practising in every chapter.",
   },
   {
-    question: "Do the CBQs come with solutions?",
+    question: "Is every CBQ explained step by step?",
     answer:
-      "Yes. Each chapter page shows sample CBQs with the step-wise solution and marks, so you can try a question on paper first and then see how the marks are earned.",
+      "Yes. Each chapter page shows sample CBQs with step-by-step explanations and marks, so you can try a question on paper first and then see how the marks are earned.",
   },
   {
     question: "Are the CBQs free?",
     answer:
-      "The chapter pages and CBQ practice are free to use. The CBQ Packs, printable question banks with worked solutions, are a paid one-time purchase.",
+      "The chapter pages and CBQ practice are free to use. The CBQ Packs, printable question banks with worked steps, are a paid one-time purchase.",
   },
   {
     question: "Which classes and subjects are covered?",

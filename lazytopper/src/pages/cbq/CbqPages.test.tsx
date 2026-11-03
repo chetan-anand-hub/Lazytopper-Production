@@ -32,7 +32,7 @@ const before = (a: Element, b: Element) => Boolean(a.compareDocumentPosition(b) 
 describe("CBQ-SEO-1 hub page", () => {
   it("has the H1, the CBSE-pattern explanation, counts from the pack constants and all 26 chapter links", () => {
     mountHub();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("CBSE Class 10 CBQs 2027 — competency-based questions with solutions");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("CBSE Class 10 CBQs 2027 — competency-based questions with step-by-step explanations");
     const body = document.body.textContent ?? "";
     expect(body).toContain("about 50%");
     expect(body).toContain("CBSE Circular");
@@ -66,7 +66,7 @@ describe("CBQ-SEO-1 hub page", () => {
 describe("CBQ-SEO-1 chapter page (real bank)", () => {
   it("shows five real CBQs with a collapsed step-wise solution each, then Premium, pack, practice, notes and Topic Hub", async () => {
     mountChapter("circles");
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Circles CBQs — CBSE Class 10 (2027) with step-wise solutions");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Circles CBQs — CBSE Class 10 (2027) with step-by-step explanations");
     const list = await screen.findByTestId("cbq-samples", undefined, { timeout: 20_000 });
     const items = within(list).getAllByRole("listitem", { hidden: true }).filter((li) => li.getAttribute("data-testid")?.startsWith("cbq-sample-"));
     expect(items.length).toBe(5);
@@ -74,7 +74,7 @@ describe("CBQ-SEO-1 chapter page (real bank)", () => {
       const details = li.querySelector("details");
       expect(details, "solution is a native <details>").not.toBeNull();
       expect(details!.hasAttribute("open")).toBe(false);
-      expect(details!.querySelector("summary")!.textContent).toBe("Show step-wise solution");
+      expect(details!.querySelector("summary")!.textContent).toBe("Show step-by-step explanation");
       expect(details!.querySelectorAll("ol > li").length).toBeGreaterThan(0);
       expect(li.textContent).toMatch(/\[\d+(\.\d+)? marks?\]|\[\d½? ?marks?\]|\[½ ?mark\]/);
     }

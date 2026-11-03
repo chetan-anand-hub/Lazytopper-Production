@@ -29,7 +29,7 @@ export default function CbqHubPage() {
           <p className="lt-cbqs__eyebrow">CBSE Class 10 · Maths and Science · 2026-27</p>
           <h1>{CBQ_HUB_H1}</h1>
           <p className="lt-cbqs__sub">
-            Pick a chapter to see real competency-based questions with the step-wise solution and marks for each.
+            Pick a chapter to see real competency-based questions with step-by-step explanations and marks for each.
           </p>
         </div>
       </header>

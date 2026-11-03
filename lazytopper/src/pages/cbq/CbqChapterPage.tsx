@@ -31,7 +31,7 @@ export default function CbqChapterPage() {
           <p className="lt-cbqs__eyebrow">CBSE Class 10 · {topic.subject} · 2026-27</p>
           <h1>{cbqChapterH1(topic.name)}</h1>
           <p className="lt-cbqs__sub">
-            Real competency-based questions on {topic.name}. Try each one on paper first, then open the solution to see
+            Real competency-based questions on {topic.name}. Try each one on paper first, then open the explanation to see
             how the marks are earned, step by step.
           </p>
         </div>
