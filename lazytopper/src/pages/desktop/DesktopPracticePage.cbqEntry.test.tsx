@@ -14,9 +14,17 @@ import { MemoryRouter, Route, Routes, useLocation, useParams } from "react-route
 import { setMatchMediaMatches } from "../../test/setup";
 
 const avail = vi.hoisted(() => ({ without: new Set<string>(), calls: [] as string[] }));
+const auth = vi.hoisted(() => ({ user: null as null | { uid: string }, loading: false }));
+const sale = vi.hoisted(() => ({ calls: [] as Array<[string, Record<string, unknown>]> }));
 
 vi.mock("../../context/AuthContext", () => ({
-  useAuth: () => ({ user: null, loading: false }),
+  useAuth: () => ({ user: auth.user, loading: auth.loading }),
+}));
+vi.mock("../../analytics/analytics", async (orig) => ({
+  ...(await orig<typeof import("../../analytics/analytics")>()),
+  trackSaleMoment: (name: string, slug: Record<string, unknown>) => {
+    sale.calls.push([name, slug]);
+  },
 }));
 vi.mock("../../services/mistakeLogService", () => ({
   getMistakeLogs: async () => [],
@@ -64,6 +72,9 @@ const card = () => screen.getByRole("button", { name: (name) => name.startsWith(
 beforeEach(() => {
   avail.without = new Set();
   avail.calls = [];
+  auth.user = null;
+  auth.loading = false;
+  sale.calls = [];
 });
 afterEach(cleanup);
 
@@ -94,16 +105,58 @@ describe("CBQ-ENTRY-1 (E1) — the card", () => {
   });
 });
 
-describe("CBQ-ENTRY-1 (E4) — the ad link", () => {
-  it("★ (e) /practice-hub?cbq=1 arrives with the chooser already open", () => {
+describe("CBQ-ENTRY-1 (E4) / CBQ-LANDING-1 — the ad link", () => {
+  it("★ signed-in: /practice-hub?cbq=1 still arrives with the chooser already open", () => {
+    auth.user = { uid: "u1" };
     setMatchMediaMatches(false);
     renderHub("/practice-hub?cbq=1");
     expect(screen.getByRole("dialog", { name: TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("cbq-try-free")).toBeNull();
   });
 
-  it("without cbq=1 it does not open", () => {
+  it("signed-in whose auth settles after the first render: opens once", () => {
+    auth.loading = true;
+    setMatchMediaMatches(false);
+    const r = renderHub("/practice-hub?cbq=1");
+    expect(screen.queryByRole("dialog", { name: TITLE })).toBeNull();
+    expect(screen.queryByTestId("cbq-try-free")).toBeNull(); // nothing flashes while auth loads
+    auth.loading = false;
+    auth.user = { uid: "u1" };
+    r.rerender(
+      <MemoryRouter initialEntries={["/practice-hub?cbq=1"]}>
+        <Routes>
+          <Route path="/practice-hub" element={<DesktopPracticePage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("dialog", { name: TITLE })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["390 (phone)", false],
+    ["1280 (desktop)", true],
+  ])("★ signed-out at %s: no chooser on load, the free-chapter button is there, a tap opens it and is counted", (_w, desktop) => {
+    setMatchMediaMatches(desktop);
+    renderHub("/practice-hub?cbq=1");
+    expect(screen.queryByRole("dialog", { name: TITLE })).toBeNull();
+    const btn = screen.getByTestId("cbq-try-free");
+    expect(btn).toHaveTextContent("Try CBQs free — pick a chapter");
+    fireEvent.click(btn);
+    expect(screen.getByRole("dialog", { name: TITLE })).toBeInTheDocument();
+    expect(sale.calls).toContainEqual(["sale_moment_tap", { surface: "landing-practice-cbq", offer: "cbq_free_picker" }]);
+  });
+
+  it("without cbq=1 it does not open and shows no free-chapter button", () => {
     setMatchMediaMatches(false);
     renderHub("/practice-hub?cbq=0");
+    expect(screen.queryByRole("dialog", { name: TITLE })).toBeNull();
+    expect(screen.queryByTestId("cbq-try-free")).toBeNull();
+  });
+
+  it("without any param, signed-in: unchanged (closed)", () => {
+    auth.user = { uid: "u1" };
+    setMatchMediaMatches(true);
+    renderHub("/practice-hub");
     expect(screen.queryByRole("dialog", { name: TITLE })).toBeNull();
   });
 });
@@ -112,6 +165,7 @@ describe("CBQ-ENTRY-1-FIX — the chooser opens on the viewport, not inside the 
   it("★ on a phone the overlay is portalled to document.body, outside the page's transformed <main>", () => {
     setMatchMediaMatches(false); // 390: MobileShell, whose <main class="animate-float-up"> keeps a transform
     const { container } = renderHub("/practice-hub?cbq=1");
+    fireEvent.click(screen.getByTestId("cbq-try-free"));
     // CONTROL — the trap is present in this tree: the card lives inside the transformed main.
     expect(card().closest("main.animate-float-up"), "the phone page no longer renders inside <main class=animate-float-up>").not.toBeNull();
     const overlay = screen.getByTestId("cbq-picker");
@@ -142,6 +196,7 @@ describe("CBQ-ENTRY-1 (E2) — the chooser", () => {
 
   it("Science chapters land on the Science route", async () => {
     setMatchMediaMatches(true);
+    auth.user = { uid: "u1" };
     renderHub("/practice-hub?cbq=1");
     const dialog = screen.getByRole("dialog", { name: TITLE });
     fireEvent.change(within(dialog).getByLabelText("Subject"), { target: { value: "Science" } });
@@ -155,6 +210,7 @@ describe("CBQ-ENTRY-1 (E2) — the chooser", () => {
   it("★ (d) a chapter with no real CBQs is listed 'coming soon' and cannot be opened", async () => {
     avail.without = new Set(["circles"]);
     setMatchMediaMatches(true);
+    auth.user = { uid: "u1" };
     renderHub("/practice-hub?cbq=1");
     const dialog = screen.getByRole("dialog", { name: TITLE });
     // The check ran for the subject on screen, from the bank (stubbed here).
@@ -173,6 +229,7 @@ describe("CBQ-ENTRY-1 (E2) — the chooser", () => {
 
   it("CONTROL — with every chapter available, nothing is marked 'coming soon'", async () => {
     setMatchMediaMatches(true);
+    auth.user = { uid: "u1" };
     renderHub("/practice-hub?cbq=1");
     const dialog = screen.getByRole("dialog", { name: TITLE });
     await waitFor(() => expect(avail.calls).toContain("Maths"));
