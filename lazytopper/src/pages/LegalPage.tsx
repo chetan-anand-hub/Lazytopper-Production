@@ -353,7 +353,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <p>A one-time payment covering Premium until your first board exam. No refund.</p>
         <h2>PDF Packs</h2>
         <p>A PDF pack is a digital download. The files are available to you straight away. No refund. If a file will not download or open, email us and we will fix it or send it to you.</p>
-        <p>If you buy the Board Pass within 7 days of buying a pack, the pack's price is taken off the Board Pass price.</p>
+        <p>Packs bought before 5 November 2026: if you buy the Board Pass within 7 days of buying such a pack, that pack's price is taken off the Board Pass. Packs bought from 5 November 2026 are separate purchases and do not change the Board Pass price.</p>
         <h2>Billing Errors</h2>
         <p>Charged twice or charged the wrong amount? Email <MailLink /> with your payment ID and we will sort it out.</p>
       </>

@@ -59,6 +59,8 @@ export type ExportOpts = {
   licensee?: { name: string; email: string; orderId: string };
   cover?: Pick<PrintCoverProps, "kicker" | "title" | "subtitle" | "stats" | "headline" | "types">;
   filename?: string;
+  /** PACK-TERMS-1: when the covering pack was paid (ms) - picks the re-download date printed on the cover. Absent -> the later (31 May 2027) date. */
+  paidAtMs?: number;
 };
 type ExportFn = (ws: PersistedWorksheet, mode: "questions" | "answers", code?: string, opts?: ExportOpts) => Promise<string>;
 
@@ -136,6 +138,12 @@ interface DocSpec {
   paper?: Omit<PackPaperReg, "paper">;
 }
 
+/** PACK-TERMS-1: the paid time of the owned pack whose order reference is `ref` (the one printed on the file); undefined when unknown. */
+function paidAtOf(owned: readonly OwnedPack[], ref: string): number | undefined {
+  const hit = ref ? owned.find((p) => (p.orderId || p.packId) === ref) : undefined;
+  return hit && typeof hit.paidAt === "number" && hit.paidAt > 0 ? hit.paidAt : undefined;
+}
+
 function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
   return {
     id: spec.id,
@@ -153,6 +161,7 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
         licensee: { name: ctx.licensee.name, email: licenseeContact(ctx.licensee), orderId: spec.orderRef },
         cover: spec.cover,
         filename: spec.filename,
+        paidAtMs: paidAtOf(ctx.owned, spec.orderRef),
       });
       // PACKS-GRADE-1: the PDF is out; now the EXISTING download path files the paper under its printed
       // code so the student can upload answers. Best-effort: it never blocks or fails the download.
