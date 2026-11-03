@@ -346,14 +346,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (location.hash === "#my-packs") myPacksRef.current?.scrollIntoView?.({ block: "start" });
   }, [location.hash, mine]);
 
-  async function handleBuy(sku: PackSku, target: string | undefined) {
+  async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
       // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
       // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
-      trackPackCheckout(packCheckoutDetails(sku, target), false);
+      trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false });
       // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the
       // visitor to sign-in first. Off: today's flow, unchanged.
       if (guestEnabled) {
@@ -371,7 +371,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setBuy({ key, phase: "busy" });
     const details = packCheckoutDetails(sku, target);
     const attemptId = newCheckoutAttemptId();
-    trackPackCheckout(details, true);
+    trackPackCheckout(details, { signedIn: true, resumed: opts.resumed === true });
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
@@ -449,7 +449,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setEntrySlide(0);
     setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
-    if (mine !== null) void handleBuyRef.current(want.sku, want.target);
+    if (mine !== null) void handleBuyRef.current(want.sku, want.target, { resumed: true });
   }, [authLoading, user, enabled, mine, mineError, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
   // PAY-PHONE-1 - a SIGNED-OUT visitor on a one-tap `?buy=` link (with paying-by-phone on): strip the params first, open the

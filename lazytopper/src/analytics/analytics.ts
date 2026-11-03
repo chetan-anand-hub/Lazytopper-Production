@@ -1073,10 +1073,12 @@ export function trackBeginCheckout(details: CheckoutDetails): void {
  * (Vercel + GA4 only; Meta keeps money only). A signed-out tap used to return to sign-in / pay-by-phone before
  * any event, so the funnel lost every signed-out start. A new helper: `trackBeginCheckout` is unchanged.
  */
-export function trackBeginCheckoutTap(details: CheckoutDetails, signedIn: boolean): void {
+export function trackBeginCheckoutTap(details: CheckoutDetails, signedIn: boolean, resumed = false): void {
   try {
     const p = checkoutParams(details);
-    const who = { signed_in: signedIn };
+    // `resumed: true` - the checkout was started AUTOMATICALLY (the one-tap link / the return from sign-in), not by a tap on this page;
+    // funnels can drop it so a sign-in-first visitor is not counted twice. Never suppressed.
+    const who = { signed_in: signedIn, ...(resumed ? { resumed: true } : {}) };
     send("event", { name: "begin_checkout", data: { ...p.vercel, ...who } }, { ga4: { ...p.ga4, ...who }, meta: p.meta });
   } catch {
     /* analytics must never break the page */

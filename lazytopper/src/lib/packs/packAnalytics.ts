@@ -93,12 +93,17 @@ export function trackPackSampleDownload(pack: string, surface: string): void {
  * `pack_checkout` at the Buy TAP. BUY-PATH-1: `signedIn` (when given) adds `signed_in` to the first-party / Vercel / GA4
  * data, so a signed-out tap (sent before the branch to sign-in or pay-by-phone) is told apart from a signed-in one.
  */
-export function trackPackCheckout(details: PackCheckoutDetails, signedIn?: boolean): void {
+export function trackPackCheckout(details: PackCheckoutDetails, ctx: { signedIn?: boolean; resumed?: boolean } = {}): void {
   try {
     const money = packMoney(details);
-    const who = typeof signedIn === "boolean" ? { signed_in: signedIn } : {};
+    // BUY-PATH-1 review: `resumed: true` marks a checkout started AUTOMATICALLY after sign-in (the ?buy= resume), so a funnel can
+    // drop it and not count the sign-in-first visitor twice. The event is never suppressed.
+    const who = {
+      ...(typeof ctx.signedIn === "boolean" ? { signed_in: ctx.signedIn } : {}),
+      ...(ctx.resumed ? { resumed: true } : {}),
+    };
     sendAnalyticsHit("event", { name: "pack_checkout", data: { ...money, sku: details.sku, ...who } }, { ga4: { ...money, sku: details.sku, ...who } });
-    sendGa4Only("begin_checkout", { ...money, items: [packItem(details)] });
+    sendGa4Only("begin_checkout", { ...money, items: [packItem(details)], ...who });
   } catch {
     /* analytics must never break the page */
   }

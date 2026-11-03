@@ -61,12 +61,12 @@ export const afterTrialRest = (): string => ` ${TRIAL_WORDING.afterLine}`;
  */
 export const TRIAL_LEAD = "7-day trial, then free Basic";
 
-/** The pack SKUs a `?buy=` sign-in return can name (mirrors services/packs PACK_SKUS, which is loaded lazily below). */
-const BUY_PACK_SKUS = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"] as const;
-type BuyPackSku = (typeof BUY_PACK_SKUS)[number];
-
-/** What the visitor was buying when sign-in interrupted them, read from the login page's own `?redirect=`. */
-export type BuyIntent = { kind: "pass" } | { kind: "pack"; sku: BuyPackSku; target: string | undefined };
+/**
+ * What the visitor was buying when sign-in interrupted them, read from the login page's own `?redirect=`. A pack `sku` is only
+ * SHAPE-checked here (`pack_<word>`); it is checked against the catalogue's own `PACK_SKUS` once services/packs has loaded
+ * (lazily - the login page is in the entry chunk), and anything not in it falls back to the trial line.
+ */
+export type BuyIntent = { kind: "pass" } | { kind: "pack"; sku: string; target: string | undefined };
 
 /**
  * BUY-PATH-1 - the buy intent a sign-in return carries: `/pricing?buy=board_pass` (the Board Pass one-tap link), or
@@ -83,8 +83,8 @@ export function readBuyIntent(rawRedirect: string | null | undefined): BuyIntent
     if (buys.length !== 1) return null;
     const buy = buys[0];
     if (buy === "board_pass") return url.pathname === "/pricing" ? { kind: "pass" } : null;
-    const sku = BUY_PACK_SKUS.find((s) => s === buy);
-    if (!sku) return null;
+    if (!/^pack_[a-z]{1,16}$/.test(buy)) return null;
+    const sku = buy;
     const ts = url.searchParams.getAll("t");
     if (ts.length > 1) return null;
     return { kind: "pack", sku, target: ts[0] || undefined };
@@ -112,14 +112,19 @@ function usePackOffer(intent: BuyIntent | null): PackOffer {
     void Promise.all([import("../../services/packs"), import("../../lib/packs/packLabels")])
       .then(([packs, labels]) => {
         if (!alive) return;
-        const t = sku === "pack_bundle" ? undefined : target;
-        if (sku !== "pack_bundle" && !packs.isValidPackTarget(sku, t)) {
+        const known = packs.PACK_SKUS.find((s) => s === sku);
+        if (!known) {
+          setOffer("invalid");
+          return;
+        }
+        const t = known === "pack_bundle" ? undefined : target;
+        if (known !== "pack_bundle" && !packs.isValidPackTarget(known, t)) {
           setOffer("invalid");
           return;
         }
         setOffer({
-          product: packs.packDescription(sku, t, sku === "pack_chapter" && t ? labels.packChapterLabel(t) : undefined),
-          price: packs.packPriceLabel(sku),
+          product: packs.packDescription(known, t, known === "pack_chapter" && t ? labels.packChapterLabel(t) : undefined),
+          price: packs.packPriceLabel(known),
         });
       })
       .catch(() => {

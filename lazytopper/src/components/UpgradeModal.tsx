@@ -89,7 +89,8 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
   // (handleUpgrade above) still browses /pricing.
   const handlePay = () => {
     onClose();
-    navigate(BOARD_PASS_BUY_PATH);
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    navigate(`${BOARD_PASS_BUY_PATH}&source=upgrade-modal&returnTo=${encodeURIComponent(returnTo)}`);
   };
 
   return (

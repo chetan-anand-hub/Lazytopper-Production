@@ -163,7 +163,9 @@ describe("upgrade popup (UpgradeModal)", () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId("paywall-pay"));
     });
-    expect(screen.getByTestId("where").textContent).toBe("/pricing?buy=board_pass");
+    expect(screen.getByTestId("where").textContent).toBe(
+      `/pricing?buy=board_pass&source=upgrade-modal&returnTo=${encodeURIComponent("/practice?topic=light")}`,
+    );
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -309,7 +311,8 @@ describe("BUY-PATH-1 · download / grade limit wall (DownloadLimitWall)", () => 
     await act(async () => {
       fireEvent.click(screen.getByTestId("paywall-pay"));
     });
-    expect(screen.getByTestId("where").textContent).toBe("/pricing?buy=board_pass");
+    // source / returnTo kept for attribution (PassCheckout strips only `buy`)
+    expect(screen.getByTestId("where").textContent).toBe(`/pricing?buy=board_pass&source=download-limit&returnTo=${encodeURIComponent("/papers?x=1")}`);
   });
 
   it("CONTROL — payments dark: 'See plans' still browses /pricing with its source and returnTo", async () => {

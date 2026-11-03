@@ -262,7 +262,7 @@ describe("BUY-PATH-1 · one-tap pay with payments on", () => {
     hydrate.mockResolvedValue(status("free"));
     renderAt("/practice?x=1");
     const pay = await screen.findByTestId("paywall-pay");
-    expect(pay).toHaveAttribute("href", "/pricing?buy=board_pass");
+    expect(pay).toHaveAttribute("href", "/pricing?buy=board_pass&source=trial-end&returnTo=" + encodeURIComponent("/practice?x=1"));
   });
 
   it("countdown bar: with payments on the bar opens the Board Pass checkout; CONTROL dark: plain /pricing (above)", async () => {
@@ -271,6 +271,6 @@ describe("BUY-PATH-1 · one-tap pay with payments on", () => {
     hydrate.mockResolvedValue(status("trial"));
     renderAt("/practice", <TrialCountdownBar />);
     await screen.findByTestId("trial-countdown-bar");
-    expect(screen.getByRole("link")).toHaveAttribute("href", "/pricing?buy=board_pass");
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/pricing?buy=board_pass&source=trial-bar");
   });
 });

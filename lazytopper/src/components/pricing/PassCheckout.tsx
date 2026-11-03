@@ -285,12 +285,12 @@ export function PassCheckoutView({
     setRecovery("confirming");
   }
 
-  async function handleBuy(passType: PassType) {
+  async function handleBuy(passType: PassType, opts: { resumed?: boolean } = {}) {
     if (busy || recovery !== null) return;
     const details = checkoutEventDetails(passType, offerOpen);
     // BUY-PATH-1: `begin_checkout` at the TAP, signed in or not (a signed-out tap used to return before any event).
     // ONE call per tap: the signed-in path below no longer sends its own.
-    trackBeginCheckoutTap(details, signedIn);
+    trackBeginCheckoutTap(details, signedIn, opts.resumed === true);
     if (!signedIn) {
       onSignIn();
       return;
@@ -352,7 +352,7 @@ export function PassCheckoutView({
   useEffect(() => {
     if (!autoStart || autoStarted.current) return;
     autoStarted.current = true;
-    void handleBuy("till_boards");
+    void handleBuy("till_boards", { resumed: true }); // the ?buy=board_pass auto-start, not a tap on this page
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
 

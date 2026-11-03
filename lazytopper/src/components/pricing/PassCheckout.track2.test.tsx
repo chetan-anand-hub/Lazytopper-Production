@@ -116,5 +116,6 @@ describe("TRACK-2 · PassCheckout events", () => {
     tapMonth(c);
     await waitFor(() => expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1));
     expect(track.trackBeginCheckoutTap.mock.calls[0][1]).toBe(true);
+    expect(track.trackBeginCheckoutTap.mock.calls[0][2]).toBe(false); // a real tap is not `resumed`
   });
 });

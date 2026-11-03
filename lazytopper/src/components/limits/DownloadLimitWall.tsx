@@ -90,8 +90,10 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
   }, [dismiss]);
 
   // BUY-PATH-1: "Pay" (payments on) opens the Board Pass checkout in one tap; "See plans" (payments dark) still browses /pricing.
-  const goPay = () => navigate(BOARD_PASS_BUY_PATH);
-  const goPlans = () => navigate(`/pricing?source=${flavor === "practice" ? "grade-limit" : "download-limit"}&returnTo=${encodeURIComponent(here)}`);
+  // The same `source` / `returnTo` as "See plans" ride along (PassCheckout strips only `buy`).
+  const planParams = `source=${flavor === "practice" ? "grade-limit" : "download-limit"}&returnTo=${encodeURIComponent(here)}`;
+  const goPay = () => navigate(`${BOARD_PASS_BUY_PATH}&${planParams}`);
+  const goPlans = () => navigate(`/pricing?${planParams}`);
 
   return (
     <div className="lt-limit-scrim" onClick={dismiss} data-testid="download-wall-scrim">

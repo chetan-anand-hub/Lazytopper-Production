@@ -103,7 +103,7 @@ export default function TrialCountdownBar() {
   return (
     <div className="lt-tcb" data-testid="trial-countdown-bar" role="region" aria-label="Your free week">
       <style>{BAR_CSS}</style>
-      <Link to={isPaymentsClientEnabled() ? BOARD_PASS_BUY_PATH : "/pricing?source=trial-bar"} className="lt-tcb__link" onClick={() => trackTrialBannerClick("plans")}>
+      <Link to={isPaymentsClientEnabled() ? `${BOARD_PASS_BUY_PATH}&source=trial-bar` : "/pricing?source=trial-bar"} className="lt-tcb__link" onClick={() => trackTrialBannerClick("plans")}>
         <span>{text}</span>
         <span className="lt-tcb__go" aria-hidden="true">→</span>
       </Link>

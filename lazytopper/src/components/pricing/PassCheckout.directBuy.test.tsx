@@ -99,6 +99,8 @@ describe("OFFERS-V2 A2 - /pricing?buy=board_pass", () => {
     expect(track.trackNamedEvent).toHaveBeenCalledTimes(1);
     expect(track.trackNamedEvent).toHaveBeenCalledWith("board_pass_direct_checkout");
     expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1);
+    // BUY-PATH-1 review: the auto-start is marked `resumed` (signed in) so funnels can drop it; never suppressed.
+    expect(track.trackBeginCheckoutTap.mock.calls[0].slice(1)).toEqual([true, true]);
     // A re-render of the same page never opens a second order.
     c.rerender(
       <MemoryRouter initialEntries={[where]}>
@@ -178,5 +180,13 @@ describe("OFFERS-V2 A2 - /pricing?buy=board_pass", () => {
     await act(async () => undefined);
     expect(checkout.buyPass).not.toHaveBeenCalled();
     expect(where).toBe("/pricing?buy=board_pass");
+  });
+});
+
+describe("BUY-PATH-1 review - the one-tap links keep source / returnTo", () => {
+  it("?buy=board_pass&source=trial-end&returnTo=... auto-starts once; only `buy` is stripped", async () => {
+    mount(`/pricing?buy=board_pass&source=trial-end&returnTo=${encodeURIComponent("/practice?x=1")}`);
+    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
+    expect(where).toBe(`/pricing?source=trial-end&returnTo=${encodeURIComponent("/practice?x=1")}`);
   });
 });

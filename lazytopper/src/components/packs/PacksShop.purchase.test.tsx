@@ -227,6 +227,8 @@ describe("BUY-PATH-1 · pack_checkout at the Buy tap, signed in or out", () => {
     expect(ga4("pack_checkout")).toHaveLength(1);
     expect(ga4("pack_checkout")[0]).toMatchObject({ sku: "pack_cbq", value: 199, currency: "INR", signed_in: false });
     expect(ga4("begin_checkout")).toHaveLength(1);
+    expect(ga4("begin_checkout")[0]).toMatchObject({ signed_in: false }); // GA4's standard funnel carries it too
+    expect(ga4("begin_checkout")[0]).not.toHaveProperty("resumed");
     expect(buyMock).not.toHaveBeenCalled();
     expect(ga4("purchase")).toHaveLength(0);
   });
@@ -240,5 +242,16 @@ describe("BUY-PATH-1 · pack_checkout at the Buy tap, signed in or out", () => {
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(ga4("pack_checkout")).toHaveLength(1);
     expect(ga4("pack_checkout")[0]).toMatchObject({ sku: "pack_cbq", signed_in: true });
+    expect(ga4("pack_checkout")[0]).not.toHaveProperty("resumed");
+    expect(ga4("begin_checkout")[0]).toMatchObject({ signed_in: true });
+  });
+
+  it("review: the AUTOMATIC resume after sign-in (?buy=&t=) still fires, marked resumed: true on pack_checkout and GA4 begin_checkout", async () => {
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    shop("/pricing?buy=pack_cbq&t=maths");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(ga4("pack_checkout")).toHaveLength(1);
+    expect(ga4("pack_checkout")[0]).toMatchObject({ signed_in: true, resumed: true });
+    expect(ga4("begin_checkout")[0]).toMatchObject({ signed_in: true, resumed: true });
   });
 });

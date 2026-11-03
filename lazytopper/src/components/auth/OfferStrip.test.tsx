@@ -374,7 +374,7 @@ describe("readBuyIntent", () => {
   it("CONTROL: anything else is no intent (other page, unknown sku, repeated param, unsafe redirect, none)", () => {
     expect(readBuyIntent("/dashboard?buy=board_pass")).toBeNull();
     expect(readBuyIntent("/packs?buy=board_pass")).toBeNull();
-    expect(readBuyIntent("/pricing?buy=pack_free")).toBeNull();
+    expect(readBuyIntent("/pricing?buy=not_a_pack")).toBeNull();
     expect(readBuyIntent("/pricing?buy=board_pass&buy=board_pass")).toBeNull();
     expect(readBuyIntent("https://evil.example/pricing?buy=board_pass")).toBeNull();
     expect(readBuyIntent("//evil.example/pricing?buy=board_pass")).toBeNull();
@@ -415,8 +415,11 @@ describe("OfferStrip lead line", () => {
     expect(await screen.findByText(buyIntentLine(packDescription("pack_bundle", undefined), packPriceLabel("pack_bundle")))).toBeTruthy();
   });
 
-  it("CONTROL: a pack intent with an invalid target falls back to the trial line", async () => {
+  it("CONTROL: a pack intent with an invalid target, or a sku not in PACK_SKUS, falls back to the trial line", async () => {
     loginWith("/packs?buy=pack_cbq&t=history");
+    expect(await screen.findByText(TRIAL_LEAD)).toBeTruthy();
+    cleanup();
+    loginWith("/packs?buy=pack_free&t=maths");
     expect(await screen.findByText(TRIAL_LEAD)).toBeTruthy();
   });
 });
