@@ -14,7 +14,7 @@ vi.mock("../../services/subscriptionService", () => ({
   },
 }));
 
-import PackPromoCard, { promoChips, showPackPromo } from "./PackPromoCard";
+import PackPromoCard, { promoChips, promoHref, showPackPromo } from "./PackPromoCard";
 
 describe("showPackPromo visibility rule", () => {
   it("signed-out yes", () => expect(showPackPromo("", null, false)).toBe(true));
@@ -53,5 +53,14 @@ describe("PackPromoCard render", () => {
     sub.status = { tier: "premium", trialStartDate: null };
     ui();
     expect(screen.queryByTestId("pack-promo-card")).toBeNull();
+  });
+});
+
+describe("promoHref (AD-LANDING-OFFER-1)", () => {
+  it("the two ad landings go one hop to /packs; the rest keep /pricing#packs", () => {
+    expect(promoHref("practice_hub")).toBe("/packs");
+    expect(promoHref("check_improve")).toBe("/packs");
+    expect(promoHref("home")).toBe("/pricing#packs");
+    expect(promoHref("quick_practice")).toBe("/pricing#packs");
   });
 });

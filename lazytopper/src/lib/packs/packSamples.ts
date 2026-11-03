@@ -65,7 +65,7 @@ export function packSampleHref(s: PackSampleSpec): string {
 }
 
 /** Where a sample link sits (the `surface` param of pack_sample_download). */
-export type PackSampleSurface = "packs_tile" | "packs_dialog" | "packs_cbq" | "pricing_tile" | "pricing_cbq" | "cbq_hub";
+export type PackSampleSurface = "packs_tile" | "packs_dialog" | "packs_cbq" | "pricing_tile" | "pricing_cbq" | "cbq_hub" | "landing_cbq";
 
 export const PACK_SAMPLE_LINK_TEXT = "Free sample page";
 
