@@ -1,3 +1,19 @@
+## 2026-11-04 (daily) - #1514 - #1531
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`dcbf3a54`** [git].
+
+- **Done [git/gh]:** 18 PRs merged (table in CURRENT_STATE), all CI-green. No grading behaviour changed. /pricing rebuilt (Option B v3); pack credit removed for packs paid from 2026-11-05 00:00 IST; checkout-who built DARK.
+- **NEXT, in order [coordinator]:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the 4 Nov section of OPEN_QUESTIONS_AND_FOLLOWUPS. Read DECISION_LOG before diagnosing sales.
+  2. **Wed 4 Nov 11:30 IST: Google Ads expert call.** Also top up the Google Ads balance ("Balance is running low"). Discuss with the owner before ANY ads change; only wording and link fixes were pre-approved, and none were needed.
+  3. **Fix CHECKOUT-WHO-2 before the flag flip** (blocking): email-link prompt, webhook delivery, enumeration hardening. Then the owner's Rs 49 live test of the new checkout in all three flows (signed out, signed in for self, signed in for someone else). Only after both, set `CHECKOUT_WHO_ENABLED=1` (Railway) and `VITE_CHECKOUT_WHO_ENABLED=1` (Vercel) and redeploy both.
+  4. **Live-verify** the "Your pack is ready" toast on a pay-by-phone purchase, the sample-to-buy button and the download-wall pack offer at 360 and 1280 px.
+  5. **Watch the two flags set 3 Nov:** after 08:00 IST check that the founding email and the abandoned-checkout email send inside the window and under the cap.
+  6. Owner confirms the Basic line now reads "practice sets" instead of "limited practice" (`#1525`).
+  7. Build lanes still waiting for a go: pack offers to Board Pass owners; post-payment cross-sell ("Your Board Pass is on. Now practise the paper half..."); one-payment add-on at checkout.
+  8. Before 31 March 2027: server-side enforcement of the re-download date. By 1 Dec: decide whether to rename "Board Pass" to a plan-style name (if yes, ship it with the Rs 2,499 change).
+- **Housekeeping:** repo back to PRIVATE (owner); delete merged lane branches.
+
 ## 2026-11-03 (daily) - #1494 - #1512
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`51aef1a8`** [git].
