@@ -76,6 +76,9 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   take(new RegExp(`class="lt-cbq__name">(${LABELS})</h3><p class="lt-cbq__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`(?:>|\\. |^)(${LABELS}) · ${AMT}<`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`(${LABELS}) ${AMT}(?: ·|\\.)`), (m) => m[1], (m) => packExp(m[1]));
+  // BYTE-CBQ-1: the one-tap "Buy Maths CBQ · ₹199" buttons (hub hero + every CBQ chapter page) and the hub hero's price line.
+  take(new RegExp(`Buy (Maths|Science) CBQ · ${AMT}<`), (m) => `${m[1]} CBQ Pack (one-tap button)`, (m) => packExp(`${m[1]} CBQ Pack`));
+  take(new RegExp(`CBQ Pack ${AMT} per subject`), () => "CBQ Pack (hub hero price line)", () => packExp("Maths CBQ Pack"));
   take(new RegExp(`One-time ${AMT} per pack`), () => "CBQ Pack (one-time line)", () => packExp("Maths CBQ Pack"));
 
   // Unclaimed rupee tokens in a page that carries priced markup: fail rather than ignore.
