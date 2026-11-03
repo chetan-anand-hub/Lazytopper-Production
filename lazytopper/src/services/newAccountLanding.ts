@@ -7,7 +7,7 @@
 // gave Byte no chance to introduce it. "Nothing asked for a destination" now also covers the
 // Me page (/me, /profile): a signed-out tap on Me sends a new account there, but a brand-new
 // account has no progress to show, so Home is the honest first stop. Any OTHER target (a
-// practice set, a paper, a free check, /pricing, the tutor) is the student's own and still wins,
+// practice set, a paper, a free check, /packs, the CBQ pages, the tutor) is the student's own and still wins,
 // so no work is lost. A RETURNING login is unchanged: it goes back where it came from, /me included.
 //
 // The "new" signal is EXACTLY the one the `sign_up` event uses (analytics.ts trackSignUpIfNew:
@@ -61,20 +61,30 @@ export function isMeTarget(target: string | null | undefined): boolean {
 }
 
 /**
- * ACT-FIRST-1 — browsing pages a student signs up FROM without having asked to buy: /pricing, /packs and
- * the Highly Probable pages. Landing a brand-new account back there gave it no first task at all (no Byte,
- * no ladder, no Start-here); Home is where the one obvious first action waits.
+ * ACT-FIRST-1 — browsing pages a student signs up FROM without having asked to buy: /pricing and the Highly
+ * Probable pages. Landing a brand-new account back there gave it no first task at all (no Byte, no ladder, no
+ * Start-here); Home is where the one obvious first action waits.
+ *
+ * PACKS-RETURN-1 (owner ruling, 3 Nov 2026 19:30 IST) — /packs is NO LONGER a browse target. A student who signs
+ * up from the PDF packs page (header "Log in", the pay-by-phone "Sign in with this number", any query or hash
+ * such as #cbq / #my-packs) came for the packs and goes BACK there; sending them Home lost a Search-ad packs
+ * visitor in a chapter test. The CBQ pages (/cbq-class-10 and its chapter pages) were never browse targets and
+ * return there too. And `#my-packs` on ANY page (the embedded shop on /pricing builds `/pricing#my-packs` after a
+ * pay-by-phone) is the student asking to see what they just bought, so it is never sent Home either.
  *
  * A PURCHASE INTENT stays exactly as it was: any `?buy=` (the signed-out Buy resume that auto-opens
  * checkout) and the pack entry links (`?pack=` / `?chapter=` / `?mock=` / `?view=`, which open a pack's
  * pop-up) are the student's own destination and win. utm_* and unknown params are not an intent. Only a NEW
  * account is ever redirected (Login's gate); a returning login still goes back where it came from.
  */
-const BROWSE_PATHS: ReadonlySet<string> = new Set(["/pricing", "/packs", "/highly-probable"]);
+const BROWSE_PATHS: ReadonlySet<string> = new Set(["/pricing", "/highly-probable"]);
 const PURCHASE_INTENT_PARAMS: readonly string[] = ["buy", "t", "pack", "chapter", "mock", "view"];
+/** PACKS-RETURN-1 — "show me the packs I just paid for" (PacksShop's pay-by-phone sign-in). */
+const MY_PACKS_HASH = "my-packs";
 export function isBrowseTarget(target: string | null | undefined): boolean {
   const raw = String(target ?? "").trim();
-  const [beforeHash] = raw.split("#");
+  const [beforeHash, hash = ""] = raw.split("#");
+  if (hash.toLowerCase() === MY_PACKS_HASH) return false;
   const [rawPath, query = ""] = beforeHash.split("?");
   const path = rawPath.replace(/\/+$/, "").toLowerCase();
   const browse = BROWSE_PATHS.has(path) || path.startsWith("/highly-probable/");
@@ -89,8 +99,8 @@ export function isBrowseTarget(target: string | null | undefined): boolean {
 
 /**
  * A NEW account with one of these targets lands on Home (NEW_ACCOUNT_LANDING_PATH): the default
- * Home targets, the Me page, and (ACT-FIRST-1) a /pricing, /packs or /highly-probable page with no
- * purchase intent. Any other target is the student's own.
+ * Home targets, the Me page, and (ACT-FIRST-1) a /pricing or /highly-probable page with no
+ * purchase intent. Any other target is the student's own — /packs and /cbq-class-10* included (PACKS-RETURN-1).
  */
 export function newAccountGoesHome(target: string | null | undefined): boolean {
   return isDefaultHomeTarget(target) || isMeTarget(target) || isBrowseTarget(target);
