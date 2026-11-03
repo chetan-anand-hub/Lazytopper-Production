@@ -19,6 +19,7 @@ import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
 import PackPromo from "../../components/packs/PackPromoLazy";
+import LandingOffer from "../../components/packs/LandingOfferLazy";
 import { RequirePremium } from "../../components/auth/RequireAuth";
 import { EquationInput, EquationRender } from "../../components/equation";
 import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLimits";
@@ -1829,6 +1830,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   // through the SAME builder the detect path uses (components/ciDemo/ladderGradeRequest.ts; its test asserts the grade
   // request is identical). Nothing is graded until the student taps Check.
   const [ladderTyped, setLadderTyped] = useState(false);
+  // AD-LANDING-OFFER-1: the ladder MCQ was tapped in this view, so its verdict carries the buying block; the landing line steps aside.
+  const [ladderAnsweredHere, setLadderAnsweredHere] = useState(false);
   const ladderGradedSent = useRef(false);
   // R4 — the typed answer was graded inside the ladder: one event, with the seconds since the ladder's tap step first showed.
   useEffect(() => {
@@ -1865,6 +1868,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   function ciLadderAnswered(a: LadderAnswer) {
     reportFirstActionTap("answer_checker");
     recordLadderTap(user, a);
+    setLadderAnsweredHere(true);
   }
 
   // FIVE-MORE-1 - "5 more like this": a ready Quick Practice set for the same chapter (signed out: via login, never a guest).
@@ -2923,6 +2927,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             onLadderMore={ciLadderMore}
           />
         )}
+        {/* AD-LANDING-OFFER-1 - signed-out only (the card checks): Board Pass first, then PDF packs, right under the one-tap try.
+            Hidden once the ladder is answered here (its verdict already shows the full buying block). */}
+        {!overlay && ciDemo.show && !ciMomentUid && !ladderAnsweredHere ? <LandingOffer variant="check" /> : null}
         {!overlay && !ciDemo.show && (
           <StartHereCard
             uid={user?.uid ?? null}
@@ -2954,6 +2961,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             </button>
           }
         />
+        {/* AD-LANDING-OFFER-1 - with no sample card on screen, the same compact line sits under the page title (signed-out only); never
+            after the ladder's tap or "type your answer" (the page has just scrolled to the answer box: no shift above it). */}
+        {!overlay && !ciDemo.show && !ciMomentUid && !ladderAnsweredHere && !ladderTyped ? <LandingOffer variant="check" /> : null}
         {/* MOMENTS-1 M9 — the signed-out free check (no sign-up by construction: free mode
             renders only for a signed-out visitor) opened from a shared link. */}
         {/* CI-SOFT-1: one Byte per screen: the shared-link moment waits while the sample card shows. */}

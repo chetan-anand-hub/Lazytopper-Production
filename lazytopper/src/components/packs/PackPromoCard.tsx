@@ -61,6 +61,14 @@ export function useKnownStatus(uid: string): [SubscriptionStatus | null, boolean
   return [status, known];
 }
 
+/**
+ * Where "See the packs →" goes. AD-LANDING-OFFER-1: the two YouTube ad landings (practice hub, Answer Checker) go straight to /packs
+ * (one hop to the buy tiles); the other surfaces keep the /pricing#packs strip.
+ */
+export function promoHref(surface: PackPromoSurface): string {
+  return surface === "practice_hub" || surface === "check_improve" ? "/packs" : "/pricing#packs";
+}
+
 export default function PackPromoCard({ surface }: { surface: PackPromoSurface }) {
   const uid = useOptionalUid();
   const [status, known] = useKnownStatus(uid);
@@ -84,9 +92,9 @@ export default function PackPromoCard({ surface }: { surface: PackPromoSurface }
         ))}
       </ul>
       {inRouter ? (
-        <Link className="lt-pp__btn" to="/pricing#packs" onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</Link>
+        <Link className="lt-pp__btn" to={promoHref(surface)} onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</Link>
       ) : (
-        <a className="lt-pp__btn" href="/pricing#packs" onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</a>
+        <a className="lt-pp__btn" href={promoHref(surface)} onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</a>
       )}
     </section>
   );

@@ -33,6 +33,7 @@ import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqCh
 import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
 import StartHereCard from "../../components/startHere/StartHereCard";
 import PackPromo from "../../components/packs/PackPromoLazy";
+import LandingOffer from "../../components/packs/LandingOfferLazy";
 import SurfaceHistory from "../../components/results/SurfaceHistory";
 import { buildQuickPracticeReviewHref } from "../tutor/tutorRoundTrip";
 import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
@@ -2350,6 +2351,8 @@ export default function DesktopPracticePage() {
             </span>
           </button>
         </div>
+        {/* AD-LANDING-OFFER-1 - signed-out CBQ ad arrivals only: the CBQ Pack buys right under the CBQ entry (lazy chunk). */}
+        {!isSignedIn ? <LandingOffer variant="practice-cbq" /> : null}
         <CbqChapterPicker open={cbqPickerOpen} onClose={() => setCbqPickerOpen(false)} />
         <ChapterTestPicker open={ctPickerOpen} onClose={() => setCtPickerOpen(false)} />
 
