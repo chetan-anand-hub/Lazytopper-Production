@@ -43,12 +43,12 @@ export const CBQ_TITLE_CAP = 60;
 /** The most characters a meta description may have (the site-wide cap). */
 export const CBQ_DESCRIPTION_CAP = 155;
 
-export const CBQ_HUB_H1 = "CBSE Class 10 CBQs 2027 — competency-based questions with solutions";
+export const CBQ_HUB_H1 = "CBSE Class 10 CBQs 2027 — competency-based questions with step-by-step explanations";
 
 export const CBQ_HUB_HEAD = {
-  title: "CBSE Class 10 CBQs 2027 with Solutions | LazyTopper",
+  title: "Class 10 CBQs 2027: Step-by-Step Explanations | LazyTopper",
   description:
-    "Competency-based questions (CBQs) for CBSE Class 10 Maths and Science 2027, chapter by chapter, with step-wise solutions and marks.",
+    "Competency-based questions (CBQs) for CBSE Class 10 Maths and Science 2027, chapter by chapter, with step-by-step explanations and marks.",
 } as const;
 
 /**
@@ -70,7 +70,7 @@ export function cbqChapterTitle(chapterName: string): string {
 
 export function cbqChapterDescription(chapterName: string, subject: string): string {
   const text =
-    `Real CBSE Class 10 ${subject} CBQs on ${chapterName} for 2027: sample questions with step-wise solutions and marks.`;
+    `Real CBSE Class 10 ${subject} CBQs on ${chapterName} for 2027: sample questions with step-by-step explanations and marks.`;
   if (text.length > CBQ_DESCRIPTION_CAP) {
     throw new Error(`cbqSeo: description for "${chapterName}" is ${text.length} characters, over ${CBQ_DESCRIPTION_CAP}.`);
   }
@@ -78,7 +78,7 @@ export function cbqChapterDescription(chapterName: string, subject: string): str
 }
 
 export function cbqChapterH1(chapterName: string): string {
-  return `${chapterName} CBQs — CBSE Class 10 (2027) with step-wise solutions`;
+  return `${chapterName} CBQs — CBSE Class 10 (2027) with step-by-step explanations`;
 }
 
 /** The head for any CBQ path, or null for a path that is not one. Used by writeStaticHeads. */
@@ -126,7 +126,7 @@ export function cbqJsonLd(path: string, basename: string): Record<string, unknow
       },
       {
         "@type": "LearningResource",
-        name: `${topic.name} — Class 10 CBQs with solutions`,
+        name: `${topic.name} — Class 10 CBQs with step-by-step explanations`,
         url,
         educationalLevel: "Class 10",
         learningResourceType: "Practice questions",

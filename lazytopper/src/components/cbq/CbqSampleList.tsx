@@ -30,7 +30,7 @@ function Sample({ q, index }: { q: CanonicalQuestion; index: number }) {
         </ul>
       )}
       <details className="lt-cbqs__sol">
-        <summary>Show step-wise solution</summary>
+        <summary>Show step-by-step explanation</summary>
         <ol className="lt-cbqs__steps">
           {steps.map((step, i) => (
             <li key={`${q.id}-s${i}`}>
