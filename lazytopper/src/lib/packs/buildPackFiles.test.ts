@@ -294,6 +294,14 @@ describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
       // COVER-CLEAN-1: chapter covers carry the pack facts from the constants; the intro page keeps the marking rules.
       const chapterCovers = covers.filter((c) => c.cover?.headline);
       expect(chapterCovers.length).toBe(files.length - 1);
+      // PACKS-POLISH-1: the cover kicker names the subject ONCE, in both modes.
+      const subjectWord = subject.toUpperCase();
+      for (const c of chapterCovers) {
+        const mode = seen.find((s) => s.file === c.file)!.mode;
+        const kicker = (c.cover as unknown as { kicker: string }).kicker;
+        expect(kicker).toBe(mode === "questions" ? `${subjectWord} CBQ PACK` : `${subjectWord} CBQ PACK \u00b7 ANSWER KEY`);
+        expect(kicker.split(subjectWord)).toHaveLength(2);
+      }
       for (const c of chapterCovers) {
         expect(c.cover!.headline!.value).toBe("1,400+");
         expect(c.cover!.stats).toEqual([
