@@ -367,8 +367,9 @@ describe("GUIDE-1 · the focused surface (guide arm)", () => {
       expect(window.localStorage.getItem(`${START_HERE_FOCUS_NOT_NOW_PREFIX}u1`)).toBeNull();
       expect(window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY)).toBe("1");
       // A route choice is not a dismissal either.
-      fireEvent.click(screen.getByTestId("guide-opt-worksheet"));
-      await waitFor(() => expect(location).toBe("/practice/worksheets"));
+      // BYTE-CBQ-1: the CBQ list is cbq, cbq_pack, quick, check_one, chapter_test (no worksheet); the pack is a route to one-tap checkout.
+      fireEvent.click(screen.getAllByTestId("guide-opt-cbq_pack")[0]);
+      await waitFor(() => expect(location).toBe("/packs?buy=pack_cbq&t=maths"));
       expect(calls("guide_dismissed")).toHaveLength(0);
       expect(window.sessionStorage.getItem(START_HERE_DISMISSED_KEY)).toBeNull();
     } finally {

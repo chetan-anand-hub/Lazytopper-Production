@@ -5,7 +5,9 @@
  * pinned by plain unit tests (intentMap.test.ts).
  *
  * Rules, FIRST MATCH WINS:
- *   1. CBQ     — utm_content contains "cbq", or the landing carried ?cbq=1 → CBQ practice first.
+ *   1. CBQ     — utm_content or utm_campaign contains "cbq", the landing carried ?cbq=1, or the first
+ *                landing was /cbq-class-10 or one of its chapter pages (BYTE-CBQ-1) → CBQ practice first,
+ *                then "Get the <Subject> CBQ pack · ₹199" (one-tap checkout).
  *   2. Chapter — landing /notes/<chapter> or /topic-hub/…/<chapter> → that chapter's 5 quick
  *                questions first, then important questions and that chapter's notes.
  *   3. Important — landing path is /highly-probable/… (the important-questions page) →
@@ -33,7 +35,7 @@
  *   chapter:   quick (that chapter), chapter_test (that chapter), important, notes, worksheet
  *   important: important, chapter_test, quick, check_one, worksheet
  *   papers:    full_mock, chapter_test, important, worksheet, check_one
- *   cbq:       cbq, quick, check_one, chapter_test, worksheet
+ *   cbq:       cbq, cbq_pack, quick, check_one, chapter_test
  *   packs:     packs, cbq, quick, chapter_test, check_one
  *   quick:     quick, cbq, check_one, chapter_test, worksheet
  * Any slot left (an option dropped because its route is missing, or it does not apply) fills
@@ -45,6 +47,9 @@
  *
  * ★ HONEST COPY: no counts, no promised score, nothing about the student that is not known.
  */
+
+import { buyHrefFor } from "../packs/offersModel";
+import { packPriceLabel } from "../../services/packs";
 
 export type GuideSubject = "Maths" | "Science";
 export type GuideSurface = "home" | "practice_hub" | "check_improve";
@@ -61,7 +66,8 @@ export type GuideOptionId =
   | "full_mock"
   | "chapter_test"
   | "worksheet"
-  | "packs";
+  | "packs"
+  | "cbq_pack";
 
 export interface IntentInput {
   /** The landing PATH of this visit (no query), when this tab still knows it. */
@@ -141,6 +147,8 @@ export const GUIDE_ROUTES: ReadonlyArray<{ pattern: RegExp; route: string }> = [
     route: "/practice-hub (App.tsx:1255; ?ct=1 opens ChapterTestPicker, DesktopPracticePage.tsx:1711)",
   },
   { pattern: /^\/packs$/, route: "/packs (App.tsx:1007; GUIDE-QP-1)" },
+  // BYTE-CBQ-1: the one-tap CBQ Pack checkout, the OFFERS-V2 link PacksShop readBuyResume accepts (sku pack_cbq, t = maths | science).
+  { pattern: /^\/packs\?buy=pack_cbq&t=(maths|science)$/, route: "/packs?buy=pack_cbq&t=<subject> (PacksShop readBuyResume; BYTE-CBQ-1)" },
   // PRICING-ONE-1: the packs now live on the pricing page; /pricing#packs is the strip (an in-page anchor of the existing /pricing route).
   { pattern: /^\/pricing#packs$/, route: "/pricing#packs (App.tsx /pricing; PacksStrip id=\"packs\")" },
   { pattern: /^\/practice\/worksheets$/, route: "/practice/worksheets (App.tsx:1269; the one responsive WorksheetGenerator)" },
@@ -148,6 +156,20 @@ export const GUIDE_ROUTES: ReadonlyArray<{ pattern: RegExp; route: string }> = [
 
 export function knownGuideRoute(path: string): boolean {
   return GUIDE_ROUTES.some((r) => r.pattern.test(path));
+}
+
+/**
+ * BYTE-CBQ-1 — the CBQ pages. A first landing on /cbq-class-10 or /cbq-class-10/<chapter> (the CBQ pack ad's
+ * landing and its chapter pages) is a CBQ intent, like utm_content "cbq" or ?cbq=1.
+ */
+export function isCbqLanding(landing: string | null): boolean {
+  return /^\/cbq-class-10(\/|$)/i.test(String(landing || ""));
+}
+
+/** The chapter slug of a /cbq-class-10/<slug> landing (its subject tells which CBQ pack), if any. */
+export function cbqChapterSlugFromLanding(landing: string | null): string | null {
+  const m = /^\/cbq-class-10\/([a-z0-9-]+)\/?$/i.exec(String(landing || ""));
+  return m ? m[1].toLowerCase() : null;
 }
 
 const lower = (s: string | null): string => String(s || "").toLowerCase();
@@ -176,7 +198,7 @@ function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; 
   const content = lower(input.utmContent);
   const landing = lower(input.landing);
   const campaign = lower(input.utmCampaign);
-  if (content.includes("cbq") || input.cbqLanding) return { intent: "cbq", chapter: null };
+  if (content.includes("cbq") || campaign.includes("cbq") || input.cbqLanding || isCbqLanding(input.landing)) return { intent: "cbq", chapter: null };
   const slug = chapterSlugFromLanding(input.landing);
   const chapter = slug ? deps.chapterBySlug(slug) : null;
   if (chapter) return { intent: "chapter", chapter };
@@ -206,7 +228,11 @@ function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; 
 /** Byte's options for this student, in order, plus his opening line. */
 export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan {
   const { intent, chapter } = classify(input, deps);
-  const subject: GuideSubject = chapter?.subject ?? subjectFromLanding(input.landing) ?? input.subjectHint ?? "Maths";
+  // BYTE-CBQ-1: a /cbq-class-10/<chapter> landing names its subject through the chapter registry.
+  const cbqSlug = cbqChapterSlugFromLanding(input.landing);
+  const cbqSubject = cbqSlug ? deps.chapterBySlug(cbqSlug)?.subject ?? null : null;
+  const knownSubject: GuideSubject | null = chapter?.subject ?? subjectFromLanding(input.landing) ?? cbqSubject ?? input.subjectHint;
+  const subject: GuideSubject = knownSubject ?? "Maths";
 
   const make = (id: GuideOptionId): GuideOption | null => {
     switch (id) {
@@ -235,6 +261,17 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           point: "Competency-based questions are a big part of the board paper. Practise here.",
           action: { kind: "route", path: "/practice-hub?cbq=1" },
         };
+      case "cbq_pack": {
+        // BYTE-CBQ-1: straight to one-tap checkout for the subject we KNOW; unknown subject -> the shop, which shows both CBQ packs.
+        const price = packPriceLabel("pack_cbq");
+        return {
+          id,
+          title: knownSubject ? `Get the ${knownSubject} CBQ pack · ${price}` : `Get the CBQ pack · ${price}`,
+          sub: "Printable PDF · every chapter · step-by-step explanations",
+          point: "Print every CBQ, write on paper like the real exam.",
+          action: { kind: "route", path: knownSubject ? buyHrefFor("pack_cbq", knownSubject.toLowerCase()) : "/packs" },
+        };
+      }
       case "packs":
         return {
           id,
@@ -316,7 +353,7 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
 
   const lead: GuideOptionId[] =
     intent === "cbq"
-      ? ["cbq", "quick", "check_one", "chapter_test", "worksheet"]
+      ? ["cbq", "cbq_pack", "quick", "check_one", "chapter_test"]
       : intent === "packs"
         ? ["packs", "cbq", "quick", "chapter_test", "check_one"]
         : intent === "quick"

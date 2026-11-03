@@ -58,8 +58,25 @@ describe("CBQ-SEO-1 hub page", () => {
     expect(pack.textContent).toContain(`Maths CBQ Pack`);
     expect(pack.textContent).toContain(`Science CBQ Pack`);
     expect(pack.textContent).toContain(`₹${PACK_PRICE_INR.pack_cbq}`);
-    expect(screen.getByTestId("cbq-cta-pack-maths").getAttribute("href")).toBe("/pricing#cbq");
-    expect(screen.getByTestId("cbq-cta-pack-science").getAttribute("href")).toBe("/pricing#cbq");
+    // BYTE-CBQ-1: the pack buttons go straight to one-tap checkout, not the /pricing#cbq anchor.
+    expect(screen.getByTestId("cbq-cta-pack-maths").getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
+    expect(screen.getByTestId("cbq-cta-pack-science").getAttribute("href")).toBe("/packs?buy=pack_cbq&t=science");
+  });
+
+  it("BYTE-CBQ-1: the first screen (inside the hero, under the H1) states the price and has both one-tap Buy buttons, with no banned ad words", () => {
+    mountHub();
+    const hero = screen.getByTestId("cbq-hero-buy");
+    expect(hero.closest("header")).not.toBeNull();
+    expect(hero.textContent).toContain(`₹${PACK_PRICE_INR.pack_cbq}`);
+    const maths = screen.getByTestId("cbq-hero-buy-maths");
+    const science = screen.getByTestId("cbq-hero-buy-science");
+    expect(maths.textContent).toBe(`Buy Maths CBQ · ₹${PACK_PRICE_INR.pack_cbq}`);
+    expect(science.textContent).toBe(`Buy Science CBQ · ₹${PACK_PRICE_INR.pack_cbq}`);
+    expect(maths.getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
+    expect(science.getAttribute("href")).toBe("/packs?buy=pack_cbq&t=science");
+    const h1 = screen.getByRole("heading", { level: 1 }).textContent ?? "";
+    const ctas = [h1, hero.textContent ?? "", ...["cbq-cta-premium-link", "cbq-cta-pack-maths", "cbq-cta-pack-science", "cbq-practice-link"].map((id) => screen.getByTestId(id).textContent ?? "")].join(" ");
+    expect(ctas).not.toMatch(/\b(answers?|solutions?|hacks?|tricks?|crack|leak)/i);
   });
 });
 
