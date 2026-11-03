@@ -43,8 +43,28 @@ export const PREBOARDS_PICK_BADGE = "Pre-boards pick";
 export const BUNDLE_CHAPTERS = ALL_NCERT_CHAPTERS - 1;
 export const PREBOARDS_PICK_LINE = `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} board mocks \u2014 ready before your pre-boards`;
 
-/** Owned packs stay downloadable until this date (copy only; My packs keeps working regardless of flags). */
-export const REDOWNLOAD_UNTIL = "31 May 2027";
+/**
+ * PACK-TERMS-1 (owner ruling 3 Nov 2026): owned packs stay downloadable until this date (copy only; My packs keeps working regardless of
+ * flags). Packs paid from PACK_TERMS_CUTOFF on: 31 March 2027 (CBSE's second board exam is in May; students who need May get a new offer then).
+ * Packs paid BEFORE the cut-off keep the "31 May 2027" already printed on their covers - a promise already made is never shortened.
+ */
+export const REDOWNLOAD_UNTIL = "31 March 2027";
+export const REDOWNLOAD_UNTIL_LEGACY = "31 May 2027";
+/** 5 Nov 2026 00:00 IST - the same instant as server/services/packCredit.cjs PACK_CREDIT_CUTOFF_MS (the two terms change together). */
+export const PACK_TERMS_CUTOFF = "2026-11-05T00:00:00+05:30";
+export const PACK_TERMS_CUTOFF_MS = Date.parse(PACK_TERMS_CUTOFF);
+/**
+ * The re-download date for a pack paid at `paidAtMs`. PURE. Paid time unknown / unusable (missing, 0, NaN, not a number) -> the LEGACY
+ * (later) date: never print an earlier date to someone who may have been promised May. Paid at or after the cut-off -> the new date.
+ */
+export function redownloadUntilFor(paidAtMs?: number | null): string {
+  if (typeof paidAtMs !== "number" || !Number.isFinite(paidAtMs) || paidAtMs <= 0) return REDOWNLOAD_UNTIL_LEGACY;
+  return paidAtMs >= PACK_TERMS_CUTOFF_MS ? REDOWNLOAD_UNTIL : REDOWNLOAD_UNTIL_LEGACY;
+}
+/** "Download again any time until <date>" for a pack paid at `paidAtMs` (cover line). */
+export function redownloadCopyFor(paidAtMs?: number | null): string {
+  return `Download again any time until ${redownloadUntilFor(paidAtMs)}`;
+}
 export const REDOWNLOAD_COPY = `Download again any time until ${REDOWNLOAD_UNTIL}`;
 /** The one-line terms under the tiles: "One-time payment · never renews · <this>". */
 export const REDOWNLOAD_SHORT = `download again till ${REDOWNLOAD_UNTIL}`;

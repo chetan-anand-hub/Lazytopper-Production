@@ -86,11 +86,12 @@ describe("/pricing packs - the same for every account", () => {
     expect(container.querySelector("#cbq")).not.toBeNull();
   });
 
-  it.each(STATES)("%s: the Board Pass credit line shows for everyone except paid Premium", (_n, user, tier) => {
+  it.each(STATES)("%s: PACK-TERMS-1 - the Board Pass credit line shows for nobody", (_n, user, tier) => {
     auth.user = user;
     sub.tier = tier;
     strip();
-    expect(screen.queryByTestId("pricing-pack-credit") !== null).toBe(tier !== "premium");
+    expect(screen.queryByTestId("pricing-pack-credit")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/pack price comes off/i);
   });
 
   it("PREBOARDS-BADGE-1: the Bundle tile carries the Pre-boards pick badge and line in season, none after 20 Dec 2026, and no other tile has it", () => {

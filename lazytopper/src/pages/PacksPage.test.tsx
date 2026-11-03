@@ -79,7 +79,7 @@ describe("PacksPage", () => {
     for (const id of ["chapter", "mock", "subject", "bundle"]) expect(screen.getByTestId(`packs-card-${id}`)).toBeTruthy();
     const text = document.body.textContent ?? "";
     for (const price of ["₹49", "₹99", "₹199", "₹299"]) expect(text).toContain(price);
-    expect(text).toContain("One-time payment · never renews · download again till 31 May 2027");
+    expect(text).toContain("One-time payment · never renews · download again till 31 March 2027");
     expect(text).toContain("The Board Pass adds what a PDF can");
     expect(text).toContain("Maths + Science");
     expect(text).toContain("All 26 chapters");
@@ -130,7 +130,7 @@ describe("PacksPage", () => {
     expect(band.textContent).not.toMatch(/for both|both subjects/i);
     expect(screen.getByTestId("cbq-card-maths").textContent).toContain("₹199");
     expect(screen.getByTestId("cbq-card-science").textContent).toContain("₹199");
-    for (const line of ["13 chapters", "MCQ · Assertion-Reason · Short answer · Case study · Long answer", "Your name on every page", "download till May 2027", "Made by an IITian (IIT Kanpur)"]) {
+    for (const line of ["13 chapters", "MCQ · Assertion-Reason · Short answer · Case study · Long answer", "Your name on every page", "download till 31 March 2027", "Made by an IITian (IIT Kanpur)"]) {
       expect(band.textContent, line).toContain(line);
     }
     // the claim is a static floor, visible without any interaction and without loading the bank

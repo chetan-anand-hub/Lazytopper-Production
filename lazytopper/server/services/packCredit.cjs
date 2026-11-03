@@ -11,6 +11,10 @@
 //   a positive whole-rupee price, a real past timestamp. A pack dated in the FUTURE is data we do not trust:
 //   not credited. (A duplicate payment never becomes a pack document at all - packGrant keeps the first
 //   entitlement - but the flags are excluded defensively should one ever be written.)
+// ★ PACK-TERMS-1 (owner ruling 3 Nov 2026): packs and the Board Pass are different products, so the credit is being
+//   WOUND DOWN. Only a pack paid BEFORE PACK_CREDIT_CUTOFF_MS (5 Nov 2026, 00:00 IST) is still honoured (the old promise,
+//   exactly as before: 7-day window from payment). A pack paid AT or AFTER the cut-off earns nothing. The old rule
+//   therefore dies by itself 7 days after the cut-off.
 // ★ ONLY the Board Pass (till_boards) earns a credit; the month pass earns none.
 // ★ The final amount never drops below RAZORPAY_MIN_INR (Razorpay's minimum order is Rs 1). Packs are
 //   consumed WHOLE, oldest first: a pack that would push the credit past the cap is left uncredited.
@@ -18,6 +22,8 @@
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
 
 const CREDIT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+/** PACK-TERMS-1: packs paid at or after this instant earn no Board Pass credit (2026-11-05T00:00:00+05:30). */
+const PACK_CREDIT_CUTOFF_MS = Date.parse('2026-11-05T00:00:00+05:30');
 const RAZORPAY_MIN_INR = 1;
 const BOARD_PASS_TYPE = 'till_boards';
 /** Razorpay caps a notes value at 256 characters; beyond this the ids stay on the stored order only. */
@@ -49,6 +55,7 @@ function isCreditable(pack, nowMs) {
   if (!Number.isInteger(pack.pricePaidInr) || pack.pricePaidInr <= 0) return false;
   const paidMs = paidAtMsOf(pack.paidAt);
   if (paidMs === null) return false;
+  if (paidMs >= PACK_CREDIT_CUTOFF_MS) return false; // PACK-TERMS-1: no credit for packs paid at/after the cut-off
   const age = nowMs - paidMs;
   return age >= 0 && age <= CREDIT_WINDOW_MS;
 }
@@ -159,6 +166,7 @@ module.exports = {
   parseCreditIds,
   isCreditable,
   CREDIT_WINDOW_MS,
+  PACK_CREDIT_CUTOFF_MS,
   RAZORPAY_MIN_INR,
   BOARD_PASS_TYPE,
 };
