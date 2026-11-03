@@ -11,7 +11,8 @@ import {
 } from "./trialEndScreenModel";
 import { trialEndFeedbackKey } from "../feedback/useTrialEndFeedback";
 
-const base = { plan: "trial_7day", uid: "u", hydrated: true, isTrialExpired: true, isPremium: false, trialStartDate: "2026-06-01T04:30:00.000Z", pathname: "/browse" };
+const base = { plan: "trial_7day", uid: "u", hydrated: true, isTrialExpired: true, isPremium: false, trialStartDate: "2026-06-01T04:30:00.000Z", pathname: "/browse", now: Date.parse("2026-06-09T04:30:00.000Z") };
+const DAY = 24 * 60 * 60 * 1000;
 
 beforeEach(() => {
   localStorage.clear();
@@ -28,6 +29,10 @@ describe("trialEndScreenKey", () => {
     expect(trialEndScreenKey({ ...base, trialStartDate: null })).toBeNull();
     expect(trialEndScreenKey({ ...base, pathname: "/pricing" })).toBeNull();
     expect(trialEndScreenKey({ ...base, plan: "pass_month" })).toBeNull(); // a paid pass that ran out
+    // TRIAL-CLOCK-1 — the week must have run by this device's clock, not tier "free" alone.
+    expect(trialEndScreenKey({ ...base, now: Date.parse(base.trialStartDate) - DAY })).toBeNull(); // phone a day slow, day 1
+    expect(trialEndScreenKey({ ...base, now: Date.parse(base.trialStartDate) + 6 * DAY })).toBeNull();
+    expect(trialEndScreenKey({ ...base, trialStartDate: "not-a-date" })).toBeNull();
     expect(trialEndScreenKey({ ...base, premiumSince: "2026-06-02T00:00:00Z" })).toBeNull();
     expect(trialEndScreenKey({ ...base, passEnd: "2026-07-02T00:00:00Z" })).toBeNull();
     expect(trialEndScreenKey({ ...base, plan: undefined })).toBeNull();
@@ -53,10 +58,11 @@ describe("seen + feedback deferral", () => {
     expect(feedbackShouldDeferToScreen(null, "k1")).toBe(false);
   });
   it("trialEndFeedbackKey honours deferToScreen and is unchanged without it", () => {
-    const i = { uid: "u", hydrated: true, isTrialExpired: true, isPremium: false, trialStartDate: "k" };
-    expect(trialEndFeedbackKey(i)).toBe("k");
+    const k = "2026-06-01T04:30:00.000Z";
+    const i = { uid: "u", hydrated: true, isTrialExpired: true, isPremium: false, trialStartDate: k, now: Date.parse(k) + 8 * DAY };
+    expect(trialEndFeedbackKey(i)).toBe(k);
     expect(trialEndFeedbackKey({ ...i, deferToScreen: true })).toBeNull();
-    expect(trialEndFeedbackKey({ ...i, deferToScreen: false })).toBe("k");
+    expect(trialEndFeedbackKey({ ...i, deferToScreen: false })).toBe(k);
   });
 });
 

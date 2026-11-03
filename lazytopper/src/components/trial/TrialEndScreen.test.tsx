@@ -1,6 +1,6 @@
 // ASK-FIX-1 - the trial-ended screen as a student meets it, and the countdown bar.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 const auth = vi.hoisted(() => ({ user: { uid: "u1" } as { uid: string; isLocalSession?: boolean } | null }));
@@ -57,6 +57,23 @@ const rec = (id: string, surface: SessionRecord["surface"], gradedAt: number) =>
 
 function renderAt(path: string, ui = <TrialEndScreen />) {
   return render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
+}
+
+/**
+ * TRIAL-CLOCK-1 — wait until the mount's hydration has LANDED and every effect it triggers has
+ * run, inside act. The old checks waited only for hydrate to be CALLED plus one microtask, so a
+ * "never shows" assertion could run before the screen had any chance to appear and pass falsely.
+ * Showing the screen always begins with the session-records read, so after this settles a
+ * "never shows" test asserts that read never started; a positive control below proves this
+ * helper does reach the read when the screen applies.
+ */
+async function settleHydration(): Promise<void> {
+  await waitFor(() => expect(hydrate).toHaveBeenCalled());
+  const pending = hydrate.mock.results.map((r) => r.value as Promise<unknown>);
+  await act(async () => {
+    await Promise.all(pending);
+    for (let i = 0; i < 5; i += 1) await Promise.resolve();
+  });
 }
 
 beforeEach(() => {
@@ -123,9 +140,9 @@ describe("TrialEndScreen", () => {
     first.unmount();
     __resetTrialEndScreenForTests(); // a new page load
     renderAt("/browse");
-    await waitFor(() => expect(hydrate).toHaveBeenCalled());
-    await Promise.resolve();
+    await settleHydration();
     expect(screen.queryByTestId("trial-end-screen")).toBeNull();
+    expect(readRecords).toHaveBeenCalledTimes(1); // the first mount's read only
     expect(trackScreen.mock.calls.filter(([k]) => k === "shown")).toHaveLength(1);
   });
 
@@ -135,16 +152,16 @@ describe("TrialEndScreen", () => {
   ])("never shows for %s", async (_n, tier) => {
     hydrate.mockResolvedValue(status(tier));
     renderAt("/browse");
-    await waitFor(() => expect(hydrate).toHaveBeenCalled());
-    await Promise.resolve();
+    await settleHydration();
+    expect(readRecords).not.toHaveBeenCalled();
     expect(screen.queryByTestId("trial-end-screen")).toBeNull();
   });
 
   it("never tells a student whose PAID pass ran out that their free week is over", async () => {
     hydrate.mockResolvedValue({ ...status("free"), plan: "pass_month", premiumSince: new Date(START).toISOString(), passEnd: new Date(START + 30 * 24 * HOUR).toISOString() } as unknown as SubscriptionStatus);
     renderAt("/browse");
-    await waitFor(() => expect(hydrate).toHaveBeenCalled());
-    await Promise.resolve();
+    await settleHydration();
+    expect(readRecords).not.toHaveBeenCalled();
     expect(screen.queryByTestId("trial-end-screen")).toBeNull();
   });
 
@@ -153,8 +170,8 @@ describe("TrialEndScreen", () => {
     async (path) => {
       hydrate.mockResolvedValue(status("free"));
       renderAt(path);
-      await waitFor(() => expect(hydrate).toHaveBeenCalled());
-      await Promise.resolve();
+      await settleHydration();
+      expect(readRecords).not.toHaveBeenCalled();
       expect(screen.queryByTestId("trial-end-screen")).toBeNull();
       expect(trialAskRouteAllowed(path)).toBe(false);
     },
@@ -178,10 +195,52 @@ describe("TrialEndScreen", () => {
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "See plans" }));
     fireEvent.keyDown(document, { key: "Tab", shiftKey: true }); // first -> wraps to last
     expect(document.activeElement).toBe(basic);
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    act(() => {
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
     await waitFor(() => expect(screen.queryByTestId("trial-end-screen")).toBeNull());
     expect(document.body.style.overflow).toBe("");
     expect(trackScreen).toHaveBeenCalledWith("basic");
+  });
+
+  it("positive control: settleHydration reaches the records read when the screen applies", async () => {
+    hydrate.mockResolvedValue(status("free"));
+    readRecords.mockReturnValue(new Promise(() => {})); // hold the screen at the read
+    renderAt("/browse");
+    await settleHydration();
+    expect(readRecords).toHaveBeenCalledTimes(1);
+  });
+
+  // TRIAL-CLOCK-1 — the live defect: a day-1 student on a phone whose clock runs slow. The
+  // record the client held was tier "free" over a server start "in the future"; tier alone
+  // must never put "Your free week is over" in front of them.
+  it.each([
+    ["a day behind", 24 * HOUR],
+    ["18 hours behind", 18 * HOUR],
+  ])("never shows on day 1 when the device clock is %s the server start", async (_n, behind) => {
+    vi.setSystemTime(START - behind);
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/browse");
+    await settleHydration();
+    expect(readRecords).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("trial-end-screen")).toBeNull();
+    expect(trackScreen).not.toHaveBeenCalled();
+  });
+
+  it("never shows on day 6 of 7 even if the tier reads free", async () => {
+    vi.setSystemTime(START + 6 * 24 * HOUR);
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/browse");
+    await settleHydration();
+    expect(readRecords).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("trial-end-screen")).toBeNull();
+  });
+
+  it("still shows for a genuinely ended trial (start 8 days ago)", async () => {
+    vi.setSystemTime(START + 8 * 24 * HOUR);
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/browse");
+    expect(await screen.findByTestId("trial-end-screen")).toBeInTheDocument();
   });
 
   it("never shows signed out, or on /pricing", async () => {
@@ -192,8 +251,8 @@ describe("TrialEndScreen", () => {
     cleanup();
     auth.user = { uid: "u1" };
     renderAt("/pricing");
-    await waitFor(() => expect(hydrate).toHaveBeenCalled());
-    await Promise.resolve();
+    await settleHydration();
+    expect(readRecords).not.toHaveBeenCalled();
     expect(screen.queryByTestId("trial-end-screen")).toBeNull();
   });
 });

@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import type { AuthUser } from "../context/AuthContext";
 
 const authState: { user: AuthUser | null } = { user: null };
@@ -56,9 +56,15 @@ const GOOGLE_USER = {
   emailVerified: true,
 } as AuthUser;
 
-function renderDoorAt(entry: string | { pathname: string; state: unknown }) {
+/** PACKS-RETURN-1 — prints the full landing URL (path + query + hash), so a dropped `#cbq` / `#my-packs` shows. */
+function Landed({ name }: { name: string }) {
+  const l = useLocation();
+  return <div>{`LANDED ON ${name} ${l.pathname}${l.search}${l.hash}`}</div>;
+}
+
+function renderDoorAt(entry: string | { pathname: string; search?: string; state: unknown }) {
   return render(
-    <MemoryRouter initialEntries={[entry]}>
+    <MemoryRouter initialEntries={[entry as never]}>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/check-improve" element={<div>LANDED ON CHECK AND IMPROVE</div>} />
@@ -68,6 +74,10 @@ function renderDoorAt(entry: string | { pathname: string; state: unknown }) {
         <Route path="/me" element={<div>LANDED ON ME</div>} />
         <Route path="/profile" element={<div>LANDED ON PROFILE</div>} />
         <Route path="/practice/:grade/:subject" element={<div>LANDED ON PRACTICE SET</div>} />
+        <Route path="/packs" element={<Landed name="PACKS" />} />
+        <Route path="/cbq-class-10" element={<Landed name="CBQ" />} />
+        <Route path="/cbq-class-10/:chapterSlug" element={<Landed name="CBQ" />} />
+        <Route path="/highly-probable/*" element={<div>LANDED ON HPQ</div>} />
         <Route path="/" element={<div>LANDED ON HOME</div>} />
       </Routes>
     </MemoryRouter>,
@@ -190,12 +200,10 @@ describe("LOGIN-HOME-1 · where a sign-in lands", () => {
   });
 });
 
-describe("ACT-FIRST-1 · a new account from /pricing, /packs or Highly Probable lands on Home (no purchase intent)", () => {
+describe("ACT-FIRST-1 · a new account from /pricing or Highly Probable lands on Home (no purchase intent)", () => {
   it.each([
     ["/pricing", "/login?reason=start-trial&redirect=%2Fpricing"],
     ["/pricing + utm", "/login?redirect=%2Fpricing%3Futm_source%3Dyt"],
-    ["/packs", "/login?redirect=%2Fpacks"],
-    ["/packs#cbq", "/login?redirect=%2Fpacks%23cbq"],
     ["/highly-probable", "/login?redirect=%2Fhighly-probable"],
     ["/highly-probable/maths/x", "/login?redirect=%2Fhighly-probable%2Fmaths%2Fx"],
   ])("a NEW account from %s lands on Home", async (_n, entry) => {
@@ -212,8 +220,72 @@ describe("ACT-FIRST-1 · a new account from /pricing, /packs or Highly Probable 
   });
 
   it("isBrowseTarget keeps every purchase intent and unrelated pages", () => {
-    for (const t of ["/pricing", "/pricing/", "/packs", "/packs?utm_source=x", "/packs#cbq", "/highly-probable", "/highly-probable/maths/abc", "/PRICING"]) expect(isBrowseTarget(t), t).toBe(true);
+    for (const t of ["/pricing", "/pricing/", "/pricing#cbq", "/pricing?utm_source=x", "/highly-probable", "/highly-probable/maths/abc", "/PRICING"]) expect(isBrowseTarget(t), t).toBe(true);
     for (const t of ["/pricing?buy=pack_cbq", "/pricing?buy=board_pass", "/packs?buy=pack_bundle&t=maths", "/packs?pack=cbq", "/packs?chapter=real-numbers", "/packs?mock=Maths", "/packs?view=sample", "/pricingx", "/packs-old", "/highly-probable-x", "/check-improve", "", null, undefined]) expect(isBrowseTarget(t), String(t)).toBe(false);
+  });
+});
+
+describe("PACKS-RETURN-1 · a new account from /packs or the CBQ pages goes BACK there (owner ruling 3 Nov 2026)", () => {
+  it.each([
+    ["/packs", "/login?redirect=%2Fpacks", "LANDED ON PACKS /packs"],
+    ["/packs#cbq (hash kept)", "/login?redirect=%2Fpacks%23cbq", "LANDED ON PACKS /packs#cbq"],
+    ["/packs?utm_source=google", "/login?redirect=%2Fpacks%3Futm_source%3Dgoogle%26utm_medium%3Dcpc", "LANDED ON PACKS /packs?utm_source=google&utm_medium=cpc"],
+    ["/packs?buy=pack_cbq&t=maths (intent, unchanged)", "/login?redirect=%2Fpacks%3Fbuy%3Dpack_cbq%26t%3Dmaths", "LANDED ON PACKS /packs?buy=pack_cbq&t=maths"],
+    ["/cbq-class-10", "/login?redirect=%2Fcbq-class-10", "LANDED ON CBQ /cbq-class-10"],
+    ["/cbq-class-10/electricity", "/login?redirect=%2Fcbq-class-10%2Felectricity", "LANDED ON CBQ /cbq-class-10/electricity"],
+  ])("a NEW account from %s lands back there", async (_n, entry, landed) => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt(entry);
+    expect(await screen.findByText(landed)).toBeTruthy();
+  });
+
+  it("★★ pay-by-phone, then 'Sign in with this number' (a NEW phone account) lands on /packs#my-packs, not Home", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER; // phoneNumber null: the claim import is not this file's subject (Login.guestPay.test.tsx pins it)
+    renderDoorAt({ pathname: "/login", search: "?redirect=%2Fpacks%23my-packs", state: { guestPayPhone: "9876543948" } });
+    expect(await screen.findByText("LANDED ON PACKS /packs#my-packs")).toBeTruthy();
+  });
+
+  it("★ the same from /pricing's embedded shop (/pricing#my-packs) keeps the buyer on Pricing's My packs", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt({ pathname: "/login", search: "?redirect=%2Fpricing%23my-packs", state: { guestPayPhone: "9876543948" } });
+    expect(await screen.findByText("LANDED ON PRICING")).toBeTruthy();
+  });
+
+  it("a RETURNING login from /packs#cbq returns there too", async () => {
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fpacks%23cbq");
+    expect(await screen.findByText("LANDED ON PACKS /packs#cbq")).toBeTruthy();
+  });
+
+  it("Home + Byte stays the landing for every other no-intent sign-up ('/', /browse, /me, /pricing, /highly-probable)", async () => {
+    for (const entry of ["/login?redirect=%2F", "/login?redirect=%2Fbrowse", "/login?redirect=%2Fme", "/login?redirect=%2Fpricing", "/login?redirect=%2Fhighly-probable"]) {
+      markNewAccountLanding();
+      authState.user = GOOGLE_USER;
+      renderDoorAt(entry);
+      expect(await screen.findByText("LANDED ON HOME"), entry).toBeTruthy();
+      cleanup();
+    }
+  });
+
+  it("an external target is still rejected (new account lands on Home)", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=https%3A%2F%2Fevil.example%2Fpacks%23my-packs");
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+    cleanup();
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2F%2Fevil.example%2Fpacks");
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+
+  it("isBrowseTarget: /packs (any query / hash), the CBQ pages and any #my-packs are never browse targets", () => {
+    for (const t of ["/packs", "/packs/", "/PACKS", "/packs#cbq", "/packs#my-packs", "/packs?utm_source=x", "/cbq-class-10", "/cbq-class-10/electricity", "/pricing#my-packs", "/pricing?utm_source=x#my-packs"]) {
+      expect(isBrowseTarget(t), t).toBe(false);
+    }
   });
 });
 

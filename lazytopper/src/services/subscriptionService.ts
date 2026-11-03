@@ -137,24 +137,94 @@ function isFirestoreTimestamp(value: unknown): boolean {
 const CLOCK_SKEW_TOLERANCE_MS = 5 * 60 * 1000;
 
 /**
+ * TRIAL-CLOCK-1 — how far AHEAD of the device clock a SERVER-PINNED start may sit and still
+ * be read as "the trial began just now on this device's clock".
+ *
+ * ★ THE DEFECT (live, 3 Nov 2026). A student whose phone clock ran about a day slow signed up,
+ * got a real server-pinned start (`request.time`), and on day 1 this module read that start
+ * as "in the future" (beyond CLOCK_SKEW_TOLERANCE_MS), failed it closed to FREE, showed the
+ * trial-ended screen, locked every client Premium gate — and hydration wrote `tier:"free"`
+ * back to Firestore. The server (entitlement.cjs deriveEffectiveTier) still said
+ * "Trial · 7 days left".
+ *
+ * ★ WHY THIS IS NOT A GRANT. It applies ONLY to a start that arrived from the CLOUD as a
+ * Firestore Timestamp (`startIsServerPinned`) — firestore.rules pin that field to
+ * `request.time` and refuse to move it, so a client cannot choose its value. The start is
+ * CLAMPED to the device's now, never trusted forward, so the window this client derives can
+ * run at most this many ms past the server's own end, and only for a device whose clock is
+ * set back. Server-metered features are decided by the server either way. Beyond the bound
+ * the start is unprovable and fails closed exactly as before.
+ *
+ * The local cache and any client-shaped (ISO string) start keep CLOCK_SKEW_TOLERANCE_MS,
+ * unchanged.
+ */
+const SERVER_PINNED_AHEAD_LIMIT_MS = 2 * DAY_MS;
+
+interface StartOptions {
+  /** True only for a start read from the cloud as a Firestore Timestamp. Never from the cache. */
+  serverPinned?: boolean;
+}
+
+function aheadLimitMs(opts: StartOptions): number {
+  return opts.serverPinned ? SERVER_PINNED_AHEAD_LIMIT_MS : CLOCK_SKEW_TOLERANCE_MS;
+}
+
+/**
  * The instant the trial began, or null if it cannot be established.
  *
- * A start beyond the skew tolerance is not a start — that is the shape a legacy forged
+ * A start beyond the ahead-limit is not a start — that is the shape a legacy forged
  * value takes, and honouring it would buy the forger extra days. Treated as unprovable,
  * i.e. expired.
  *
- * ★ Within the tolerance the value is CLAMPED to now rather than trusted forward. The
+ * ★ Within the limit the value is CLAMPED to now rather than trusted forward. The
  * clamp is what keeps the tolerance from being a grant: a start that is ahead of the
  * device can never extend the window past `now + TRIAL_MS`, so the loosened bound buys
  * a forger exactly zero extra time while a skewed clock costs a real student nothing.
  */
-function trialStartMs(status: SubscriptionStatus): number | null {
+function trialStartMs(status: SubscriptionStatus, opts: StartOptions = {}): number | null {
   if (!status.trialStartDate) return null;
   const ms = new Date(status.trialStartDate).getTime();
   if (!Number.isFinite(ms)) return null;
   const now = Date.now();
-  if (ms > now + CLOCK_SKEW_TOLERANCE_MS) return null;
+  if (ms > now + aheadLimitMs(opts)) return null;
   return Math.min(ms, now);
+}
+
+/**
+ * TRIAL-CLOCK-1 — is the recorded start AHEAD of the device clock by more than the limit?
+ * That is a statement about THIS DEVICE's clock, not evidence the trial ended, so a tier
+ * change made for this reason alone is never written to the cloud.
+ */
+function startAheadOfDevice(status: SubscriptionStatus, opts: StartOptions = {}): boolean {
+  if (!status.trialStartDate) return false;
+  const ms = new Date(status.trialStartDate).getTime();
+  return Number.isFinite(ms) && ms > Date.now() + aheadLimitMs(opts);
+}
+
+/**
+ * TRIAL-CLOCK-1 — a server-pinned start that is ahead of the device (within the limit) is
+ * stored in memory and in the cache as the device's NOW, so every later reader — the cache
+ * path, `getDaysLeftInTrial`, the trial-ended screen — sees a start that has happened. The
+ * cloud value is untouched (saveCloud never sends trialStartDate outside activation), and the
+ * next hydration re-reads the real pinned instant.
+ */
+function clampPinnedStartToDevice(status: SubscriptionStatus, serverPinned: boolean): SubscriptionStatus {
+  if (!serverPinned || !status.trialStartDate) return status;
+  const ms = new Date(status.trialStartDate).getTime();
+  const now = Date.now();
+  if (!Number.isFinite(ms) || ms <= now || ms > now + SERVER_PINNED_AHEAD_LIMIT_MS) return status;
+  return { ...status, trialStartDate: new Date(now).toISOString() };
+}
+
+/**
+ * TRIAL-CLOCK-1 — has the trial run its full TRIAL_DAYS by this device's clock? The
+ * trial-ended screen and the trial-end feedback card ask this, on top of `tier === "free"`:
+ * a start that is in the future or unreadable is NOT evidence that a week has passed.
+ */
+export function trialHasRunItsCourse(trialStartDate: string | null | undefined, now: number = Date.now()): boolean {
+  if (!trialStartDate) return false;
+  const ms = new Date(trialStartDate).getTime();
+  return Number.isFinite(ms) && ms + TRIAL_MS <= now;
 }
 
 /**
@@ -162,10 +232,10 @@ function trialStartMs(status: SubscriptionStatus): number | null {
  *
  * ★ Fails closed: a `trial` that cannot prove when it began has NOT begun.
  */
-function applyExpiry(status: SubscriptionStatus): SubscriptionStatus {
+function applyExpiry(status: SubscriptionStatus, opts: StartOptions = {}): SubscriptionStatus {
   if (status.tier === "premium") return applyPassExpiry(status);
   if (status.tier !== "trial") return status;
-  const start = trialStartMs(status);
+  const start = trialStartMs(status, opts);
   if (start === null) return { ...status, tier: "free" };
   if (start + TRIAL_MS < Date.now()) return { ...status, tier: "free" };
   return status;
@@ -228,7 +298,7 @@ function repairInterruptedTrial(
   if (status.tier !== "free") return status;
   if (status.plan !== "trial_7day") return status;
   if (status.premiumSince) return status;
-  const start = trialStartMs(status);
+  const start = trialStartMs(status, { serverPinned: true });
   if (start === null) return status;
   if (start + TRIAL_MS < Date.now()) return status;
   return { ...status, tier: "trial" };
@@ -369,7 +439,10 @@ export function loadSubscription(uid: string): SubscriptionStatus {
   if (!local) return defaultStatus();
   const resolved = applyExpiry(local);
   if (resolved.tier !== local.tier) {
-    saveSubscription(uid, resolved);
+    // TRIAL-CLOCK-1 — a cached start ahead of this device's clock proves nothing about the
+    // record; keep the downgrade local and let the cloud hydration on this mount decide.
+    if (startAheadOfDevice(local)) saveLocal(uid, resolved);
+    else saveSubscription(uid, resolved);
   }
   return resolved;
 }
@@ -420,9 +493,17 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
   const cloud = await loadCloud(uid);
 
   if (cloud.kind === "found") {
-    const resolved = applyExpiry(repairInterruptedTrial(cloud.data, cloud.startIsServerPinned));
+    const pinned = cloud.startIsServerPinned;
+    const resolved = clampPinnedStartToDevice(
+      applyExpiry(repairInterruptedTrial(cloud.data, pinned), { serverPinned: pinned }),
+      pinned,
+    );
     saveLocal(uid, resolved);
-    if (resolved.tier !== cloud.data.tier) {
+    // TRIAL-CLOCK-1 — a server-pinned start beyond even the pinned limit is THIS DEVICE's
+    // clock being wrong, not the trial ending: the local view fails closed, but that
+    // downgrade is never written over the server's record.
+    const deviceClockOnly = pinned && resolved.tier === "free" && startAheadOfDevice(cloud.data, { serverPinned: true });
+    if (resolved.tier !== cloud.data.tier && !deviceClockOnly) {
       // Persist the derived change — a downgrade, so the record stops claiming an ended
       // trial, or a repair, so the record stops denying a live one. The write omits
       // trialStartDate, so the merge preserves the pinned start either way.
