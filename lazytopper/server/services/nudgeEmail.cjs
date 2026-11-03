@@ -21,6 +21,10 @@
  *   signed up 2-30 days ago with ZERO activity (no session record of any kind), not premium/admin/@lazytopper.com. One study offer:
  *   5 board-style questions from one chapter, one button into a ready Quick Practice set. No price. Served LAST under the shared
  *   daily cap (after checkout_help, d1, d3 and founder_checkin), newest sign-ups first. Every rule below applies unchanged.
+ *   CHECKOUT-NUDGE-1 (owner approved 3 Nov 2026): `abandoned_<product>`, at most ONCE per student per product ever, behind
+ *   ABANDONED_CHECKOUT_EMAIL_ENABLED="1" (default off): a signed-in student's own Board Pass / PDF pack order, still
+ *   'created' 1-36 h after it was opened, with no payment for that product since. Served FIRST under the shared daily cap
+ *   (before checkout_help and the pack nudges). Pure rules + template: abandonedCheckout.cjs.
  *   Both need a reply-to (NUDGE_EMAIL_REPLY_TO) - without one they are skipped and logged. They share the daily
  *   cap with the rest; checkout_help is served first. Never premium, admin (ADMIN_FIREBASE_UIDS) or @lazytopper.com.
  *
@@ -91,6 +95,8 @@ const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
 const packNudge = require('./packNudge.cjs');
 const { resolveSendWindow } = require('./emailSendWindow.cjs'); // EMAIL-SEND-WINDOW-1
 const { packIdFor } = require('./packProducts.cjs');
+const abandoned = require('./abandonedCheckout.cjs'); // CHECKOUT-NUDGE-1
+const { listPacks } = require('./packGrant.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
 /** One doc per IST day holding ONLY a count (uid-free; listed in studentDataMap NON_STUDENT_COLLECTIONS). */
@@ -227,6 +233,8 @@ function resolveNudgeConfig(env = process.env) {
     comebackEnabled: isOnFlag(e.NUDGE_COMEBACK_ENABLED),
     // PACK-NUDGE-1: the "you have not opened your pack" emails have their OWN switch, default OFF, on top of NUDGE_EMAIL_ENABLED.
     packNudgeEnabled: isOnFlag(e.PACK_NUDGE_ENABLED),
+    // CHECKOUT-NUDGE-1: the abandoned-checkout email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
+    abandonedCheckoutEnabled: abandoned.abandonedCheckoutEnabled(e),
     // Never emailed: the admin allowlist (the same ADMIN_FIREBASE_UIDS the admin pages use).
     adminUids: new Set(str(e.ADMIN_FIREBASE_UIDS).split(',').map((x) => x.trim()).filter(Boolean)),
   };
@@ -762,6 +770,11 @@ function createNudgeEmailer(deps = {}) {
         skip('already-sent');
         continue;
       }
+      // CHECKOUT-NUDGE-1: the abandoned-checkout email already followed this student's checkout up; no second note.
+      if (kind === 'checkout_help' && abandoned.hasAbandonedEntry(ledger)) {
+        skip('abandoned-email-covers');
+        continue;
+      }
       if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
         skip(`marked-${ledger.skip.reason || 'skipped'}`);
         continue;
@@ -1083,6 +1096,206 @@ function createNudgeEmailer(deps = {}) {
   }
 
   /**
+   * CHECKOUT-NUDGE-1: one email to a signed-in student who opened a Board Pass / PDF pack checkout 1-36 h ago and has not
+   * paid for that product since. At most once per student per product, ever (ledger key `abandoned_<product>` in
+   * nudgeEmails/{uid}). Same rails as every other nudge: claim + durable daily cap + opt-out re-read in ONE transaction,
+   * 24 h spacing, trial-email overlap, verified email only, admin/@lazytopper.com never. Runs FIRST in the run.
+   * Logs one structured count line per run (no PII). Returns true when the daily cap is full.
+   */
+  async function runAbandonedCheckout({ summary, skip: skipAll, nowMs, day }) {
+    if (!config.abandonedCheckoutEnabled) return false;
+    const own = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {} };
+    const skip = (reason) => {
+      own.skipped[reason] = (own.skipped[reason] || 0) + 1;
+      skipAll(reason);
+    };
+    let capFull = false;
+    try {
+      let orders = [];
+      try {
+        const qs = await adminFirestore
+          .collection(PAY_ORDERS_COLLECTION)
+          .where('createdAt', '>=', timestampFromMillis(nowMs - abandoned.ABANDONED_MAX_AGE_MS))
+          .where('createdAt', '<', timestampFromMillis(nowMs - abandoned.ABANDONED_MIN_AGE_MS))
+          .orderBy('createdAt', 'desc')
+          .limit(abandoned.CAP_ABANDONED)
+          .get();
+        orders = qs.docs.map((d) => d.data() || {});
+      } catch {
+        skip('abandoned-orders-unavailable');
+        return false;
+      }
+      const candidates = abandoned.pickCandidates(orders, nowMs, skip);
+      // One decision per student per run: their newest product first; an older product is tried only when the newer
+      // one is already emailed, paid or owned (those outcomes say nothing about the student, only about that product).
+      const decided = new Set();
+      for (const c of candidates) {
+        const { uid, order, product } = c;
+        if (decided.has(uid)) continue;
+        decided.add(uid);
+        const kind = abandoned.abandonedKind(product);
+        own.candidates += 1;
+        summary.candidates += 1;
+        if (config.adminUids.has(uid)) {
+          skip('internal');
+          continue;
+        }
+        const ledgerSnap = await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).get();
+        const ledger = ledgerSnap.exists ? ledgerSnap.data() || {} : {};
+        if (ledger[kind]) {
+          skip('already-sent');
+          decided.delete(uid);
+          continue;
+        }
+        if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
+          skip(`marked-${ledger.skip.reason || 'skipped'}`);
+          continue;
+        }
+        const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+        const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+        if (trialRow.optedOut) {
+          skip('opted-out');
+          continue;
+        }
+        if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+          skip('spaced');
+          continue;
+        }
+        let sub = {};
+        try {
+          const ss = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+          sub = ss.exists ? ss.data() || {} : {};
+        } catch {
+          skip('subscription-unavailable');
+          continue;
+        }
+        const trialRecent = trialEmailRecentMs(trialRow);
+        if ((trialRecent !== null && nowMs - trialRecent < SPACING_MS) || decideCandidate(sub, nowMs).ok) {
+          skip('trial-email-covers');
+          continue;
+        }
+        // Paid since? Every order of this student (single-field uid query, the checkout_help pattern) and, for a pack,
+        // what they own now. A failed read skips: never email blind.
+        let late = null;
+        try {
+          const os = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('uid', '==', uid).get();
+          const uidOrders = os.docs.map((d) => d.data() || {});
+          const packs = product.kind === 'pack' ? await listPacks(adminFirestore, uid) : [];
+          const isPremium = deriveEffectiveTier(sub, nowMs).tier === 'premium';
+          late = abandoned.paidSinceReason({ product, order, uidOrders, packs, isPremium });
+        } catch {
+          late = 'recheck-unavailable';
+        }
+        if (late) {
+          skip(late);
+          if (late !== 'recheck-unavailable') decided.delete(uid);
+          continue;
+        }
+
+        let user = null;
+        try {
+          user = await firebaseAdmin.auth().getUser(uid);
+        } catch {
+          skip('no-account');
+          continue;
+        }
+        const who = emailEligibility(user);
+        if (!who.ok) {
+          skip(who.reason);
+          if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+            await writeSkipMarker(uid, who.reason, nowMs);
+          }
+          continue;
+        }
+        if (isInternalAccount(uid, who.email, config.adminUids)) {
+          skip('internal');
+          continue;
+        }
+
+        if (config.mode !== 'send') {
+          own.wouldSend += 1;
+          summary.wouldSend += 1;
+          summary.byKind[abandoned.METRIC] += 1;
+          const key = `${uid}:${kind}`;
+          if (!dryRunLogged.has(key)) {
+            dryRunLogged.add(key);
+            log(`[nudge-email] dry-run: would email kind=${abandoned.METRIC} product=${product.key} uid=${uid} to=${maskEmail(who.email)}`);
+          }
+          continue;
+        }
+
+        let claim;
+        try {
+          claim = await claimWithinCap(uid, kind, day, nowMs);
+        } catch (e) {
+          skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+          continue;
+        }
+        if (claim !== 'claimed') {
+          skip(claim);
+          if (claim === 'daily-cap') {
+            capFull = true;
+            break;
+          }
+          continue;
+        }
+
+        // The honest marks line: only from the student's real graded sessions; unreadable -> no line.
+        const records = await readRecords(uid, nowMs - 30 * DAY_MS);
+        const marksLine = records ? abandoned.marksLostLine(records, nowMs) : null;
+        const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
+        const message = abandoned.buildAbandonedCheckoutEmail({
+          product,
+          nowMs,
+          marksLine,
+          appUrl: config.appUrl,
+          unsubscribeUrl,
+          parentPayLive: config.paymentsLive,
+        });
+        const result =
+          fetchImpl && message
+            ? await sendViaResend({
+                fetchImpl,
+                apiKey: config.apiKey,
+                from: config.from,
+                replyTo: config.replyTo || packNudge.DEFAULT_REPLY_TO,
+                to: who.email,
+                subject: message.subject,
+                text: message.text,
+                html: message.html,
+                unsubscribeUrl,
+                idempotencyKey: `nudge-${kind}-${uid}`,
+                category: `nudge_${abandoned.METRIC}`,
+              })
+            : { ok: false, retryable: false, code: message ? 'no-fetch' : 'bad-product' };
+        try {
+          const ref = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
+          if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+          else if (result.retryable) await releaseClaim(uid, kind, day);
+          else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+        } catch {
+          /* the claim stays: at most once */
+        }
+        if (result.ok) {
+          own.sent += 1;
+          summary.sent += 1;
+          summary.byKind[abandoned.METRIC] += 1;
+          bump(`nudge_email_sent_${abandoned.METRIC}`);
+          log(`[nudge-email] nudge_email_sent kind=${abandoned.METRIC} uid=${uid}`);
+        } else {
+          own.failed += 1;
+          summary.failed += 1;
+          bump(`nudge_email_failed_${abandoned.METRIC}`);
+          log(`[nudge-email] send failed kind=${abandoned.METRIC} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+        }
+      }
+    } finally {
+      log(abandoned.runCountLine(own));
+    }
+    return capFull;
+  }
+
+  /**
    * PACK-NUDGE-1: email a student who BOUGHT a PDF pack and has not saved any file of it. Email 1 on day 2-4 after the
    * purchase, email 2 on day 5-7 (only after email 1 was sent, and only if still unopened). Same rails as every other
    * nudge: the claim + durable daily cap + opt-out re-read transaction, 24 h spacing (so a second email the same day is
@@ -1287,7 +1500,7 @@ function createNudgeEmailer(deps = {}) {
 
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
-    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0 } };
+    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0, abandoned_checkout: 0 } };
     const skip = (reason) => {
       summary.skipped[reason] = (summary.skipped[reason] || 0) + 1;
     };
@@ -1330,16 +1543,26 @@ function createNudgeEmailer(deps = {}) {
         { loMs: nowMs - D3_MAX_AGE_MS, hiMs: nowMs - D3_MIN_AGE_MS, cap: CAP_D3 },
       ];
       if (allowFounding) ranges.push({ loMs: nowMs - COHORT_MAX_AGE_MS, hiMs: nowMs + 1, cap: CAP_FOUNDING });
-      // EMAIL-CONCIERGE-1: checkout_help runs FIRST so the shared daily cap serves it before d1/d3/founding;
+      // CHECKOUT-NUDGE-1: the abandoned-checkout email runs FIRST of all, ahead of checkout_help and the pack nudges:
+      // its 1-36 h window is the shortest (a student skipped today is out of the window tomorrow), it is the one
+      // email tied to a purchase the student just tried to make, and it is at most once per product, so it cannot
+      // flood the cap. The pack nudges' 3-day windows survive a full day. A failure here must not abort the rest.
+      let capFull = false;
+      try {
+        capFull = await runAbandonedCheckout({ summary, skip, nowMs, day });
+      } catch (e) {
+        skip('abandoned-phase-error');
+        log(`[nudge-email] abandoned-checkout phase failed: ${e && e.message ? e.message : 'error'}`);
+      }
+      // EMAIL-CONCIERGE-1: checkout_help runs next so the shared daily cap serves it before d1/d3/founding;
       // founder_checkin runs after them.
       const conciergeState = { seen: new Set(), dead: new Set() };
-      await runConcierge({ summary, skip, nowMs, day, phase: 'checkout_help', state: conciergeState });
+      if (!capFull) await runConcierge({ summary, skip, nowMs, day, phase: 'checkout_help', state: conciergeState });
       // PACK-NUDGE-PRIORITY-1: a buyer who has not opened their pack is also served BEFORE d1/d3/founding, so a
       // morning of "Where you left off" mail cannot fill the shared daily cap and starve people who paid.
       // A failure inside the pack phase must not abort d1/d3 (review note): log it and carry on.
-      let capFull = false;
       try {
-        capFull = await runPackNudge({ summary, skip, nowMs, day });
+        if (!capFull) capFull = await runPackNudge({ summary, skip, nowMs, day });
       } catch (e) {
         skip('pack-phase-error');
         log(`[nudge-email] pack phase failed: ${e && e.message ? e.message : 'error'}`);
