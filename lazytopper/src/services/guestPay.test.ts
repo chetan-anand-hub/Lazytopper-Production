@@ -206,7 +206,14 @@ describe("PAY-PHONE-1 review fix 1 · the claim waits for the sign-up trial writ
     const order: string[] = [];
     let release: () => void = () => undefined;
     const write = new Promise<void>((r) => { release = r; });
-    vi.doMock("./subscriptionService", () => ({ whenTrialWriteSettled: () => write.then(() => { order.push("trial settled"); }) }));
+    vi.doMock("./subscriptionService", () => ({
+      whenTrialWriteSettled: () => write.then(() => { order.push("trial settled"); }),
+      // PACK-READY-1 (#1523): the lazily mounted PackReadyToast reads these; a partial mock made it throw
+      // an uncaught error that failed whichever CI shard this file landed in.
+      onSubscriptionHydrated: () => () => undefined,
+      isPaidPremium: () => false,
+      loadSubscription: async () => null,
+    }));
     vi.resetModules();
     const mod = await import("./guestPay");
     const p = mod.claimOncePerSession("u-new", { claim: async () => { order.push("claim"); return []; } });
