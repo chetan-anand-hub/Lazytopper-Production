@@ -201,6 +201,7 @@ const EVENT_LABELS: Record<string, string> = {
   pack_checkout: "Opened checkout for a PDF pack",
   pack_purchase: "Bought a PDF pack",
   pack_download: "Downloaded a PDF from a pack",
+  pack_ready_shown: "Saw \"Your pack is ready\"",
   pack_sample_download: "Downloaded a free pack sample page",
   // PACKS-ENTRY-1
   pack_entry_click: "Tapped a PDF packs link",

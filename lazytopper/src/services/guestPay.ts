@@ -21,6 +21,52 @@ export const GUEST_CLAIM_ENDPOINT = "/api/pay/guest/claim";
 /** Fired on `window` after a claim attached at least one purchase, so open pages re-read what the student owns. */
 export const GUEST_CLAIMED_EVENT = "lazytopper:guest-claimed";
 
+/**
+ * PACK-READY-1 - what a claim attached, for the "Your pack is ready" banner / toast. Names and SKUs only: never a phone number,
+ * an order id or a payment id. `name` is the display name ("Maths + Science Bundle", "Board Pass"); a chapter pack's chapter label is
+ * added by the screen that shows it (the slug is `target`).
+ */
+export interface ClaimedItem {
+  kind: "pack" | "pass";
+  sku: string;
+  target: string | null;
+  name: string;
+}
+export interface GuestClaimedDetail {
+  count: number;
+  items: ClaimedItem[];
+}
+
+/** The display name of a claimed purchase. PURE and import-free (this module stays tiny). */
+export function claimedItemName(kind: "pack" | "pass", sku: string, target: string | null): string {
+  if (kind === "pass") return "Board Pass";
+  const subject = target === "science" ? "Science" : "Maths";
+  switch (sku) {
+    case "pack_chapter":
+      return "Chapter Pack";
+    case "pack_mock":
+      return `Mock Pack \u00b7 ${subject}`;
+    case "pack_subject":
+      return `Subject Pack \u00b7 ${subject}`;
+    case "pack_cbq":
+      return `${subject} CBQ Pack`;
+    case "pack_bundle":
+      return "Maths + Science Bundle";
+    default:
+      return "PDF pack";
+  }
+}
+
+/** The most recent claim, kept so a page that mounts AFTER the event (the sign-in lands on /packs) can still say "ready". */
+let recentClaim: { uid: string; items: ClaimedItem[]; at: number } | null = null;
+const RECENT_CLAIM_MS = 10 * 60 * 1000;
+// performance.now(), not the wall clock: this is an elapsed-time window, and it keeps the clock-guard out of every test that mounts My packs.
+const elapsedNow = (): number => performance.now();
+/** Only for the SAME account that claimed: a different signed-in uid (shared device) never sees another buyer's claim. */
+export function readRecentClaim(uid: string, now: number = elapsedNow()): ClaimedItem[] {
+  return uid && recentClaim && recentClaim.uid === uid && now - recentClaim.at <= RECENT_CLAIM_MS ? recentClaim.items : [];
+}
+
 function readFlag(name: "payments" | "guest"): string {
   try {
     // Literal `import.meta.env.VITE_…` expressions, so Vite and Vitest both rewrite them.
@@ -253,11 +299,16 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
     .then((claimed) => {
       if (claimed !== null) claimedThisSession.add(uid);
       if (claimed && claimed.length > 0) {
+        const items: ClaimedItem[] = claimed.map((c) => ({ kind: c.kind, sku: c.sku, target: c.target, name: claimedItemName(c.kind, c.sku, c.target) }));
+        recentClaim = { uid, items, at: elapsedNow() };
         try {
-          window.dispatchEvent(new CustomEvent(GUEST_CLAIMED_EVENT, { detail: { count: claimed.length } }));
+          const detail: GuestClaimedDetail = { count: claimed.length, items };
+          window.dispatchEvent(new CustomEvent(GUEST_CLAIMED_EVENT, { detail }));
         } catch {
           /* no window (tests / SSR) */
         }
+        // PACK-READY-1 - tell the buyer on any page except /packs (its own banner) and the sign-in page. Lazy: not in the entry chunk.
+        void import("../components/packs/PackReadyToast").then((m) => m.showPackReadyToast(items, uid)).catch(() => undefined);
       }
       return claimed;
     })
@@ -270,6 +321,7 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
 export function resetGuestClaimSessionForTests(): void {
   claimedThisSession.clear();
   inFlight.clear();
+  recentClaim = null;
 }
 
 /** Router state the sign-in page reads to open the phone step with this number (never a URL). */
