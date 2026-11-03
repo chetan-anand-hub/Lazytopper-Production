@@ -2923,7 +2923,7 @@ const packTopicKey = useMemo(() => {
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const handleDownloadWorksheet = async () => {
     // The guard ignores a second tap while it is asking (its own in-flight latch), so a double tap is a no-op.
-    if (!(await guardDownload("practice-set", () => practiceSetPaperKey(filteredQuestions.map((q) => String(q.id)))))) return;
+    if (!(await guardDownload("practice-set", () => practiceSetPaperKey(filteredQuestions.map((q) => String(q.id))), undefined, { cbq: cbqMode, subject: subjectKey === "Science" ? "science" : "maths" }))) return;
     const scope = uiMarksToSectionScope(committedMarks);
     await downloadWorksheet({
       topicLabel: topicLabel || topicParam,

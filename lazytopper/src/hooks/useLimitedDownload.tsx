@@ -16,7 +16,7 @@
  * runtime is exactly what it was.
  */
 import { useCallback, useRef, useState, type ReactNode } from "react";
-import DownloadLimitWall, { type DownloadWallVariant } from "../components/limits/DownloadLimitWall";
+import DownloadLimitWall, { type DownloadPaperHint, type DownloadWallVariant } from "../components/limits/DownloadLimitWall";
 import { useAuth } from "../context/AuthContext";
 import { trackDownload, type DownloadKind } from "../analytics/analytics";
 import { isLimitsClientEnabled, mintDownload, type DownloadCover } from "../services/limitsClient";
@@ -29,13 +29,14 @@ interface WallState {
   tier: string | null;
   kind: DownloadKind;
   cover?: DownloadCover;
+  hint?: DownloadPaperHint;
 }
 
 export type PaperKeySource = string | (() => string);
 
 export interface LimitedDownload {
   /** Resolves true when the PDF may be built. False means a wall is showing (or a guard is already running). */
-  guard: (kind: DownloadKind, paperKey: PaperKeySource, cover?: DownloadCover) => Promise<boolean>;
+  guard: (kind: DownloadKind, paperKey: PaperKeySource, cover?: DownloadCover, hint?: DownloadPaperHint) => Promise<boolean>;
   /** Render this once, anywhere in the page. null when no wall is open. */
   wall: ReactNode;
 }
@@ -55,7 +56,7 @@ function useLimitedDownloadLive(): LimitedDownload {
   const inFlight = useRef(false);
 
   const guard = useCallback(
-    async (kind: DownloadKind, paperKey: PaperKeySource, cover?: DownloadCover): Promise<boolean> => {
+    async (kind: DownloadKind, paperKey: PaperKeySource, cover?: DownloadCover, hint?: DownloadPaperHint): Promise<boolean> => {
       if (paid) return true; // PAID premium only: trial and Basic ask the server, which decides
       if (inFlight.current) return false; // a second tap while the first is asking
       inFlight.current = true;
@@ -69,14 +70,14 @@ function useLimitedDownloadLive(): LimitedDownload {
           case "blocked":
             trackDownload(kind, "blocked");
             trackDownload(kind, "wall_shown");
-            setWallState({ variant: "blocked", resetAt: result.resetAt, tier: result.tier, kind, cover });
+            setWallState({ variant: "blocked", resetAt: result.resetAt, tier: result.tier, kind, cover, hint });
             return false;
           case "signed_out":
             trackDownload(kind, "wall_shown");
-            setWallState({ variant: "signed_out", resetAt: null, tier: null, kind, cover });
+            setWallState({ variant: "signed_out", resetAt: null, tier: null, kind, cover, hint });
             return false;
           case "offline":
-            setWallState({ variant: "offline", resetAt: null, tier: null, kind, cover });
+            setWallState({ variant: "offline", resetAt: null, tier: null, kind, cover, hint });
             return false;
           default:
             return true;
@@ -90,7 +91,7 @@ function useLimitedDownloadLive(): LimitedDownload {
 
   const close = useCallback(() => setWallState(null), []);
   const wall = wallState ? (
-    <DownloadLimitWall variant={wallState.variant} resetAt={wallState.resetAt} tier={wallState.tier} cover={wallState.cover} onClose={close} />
+    <DownloadLimitWall variant={wallState.variant} resetAt={wallState.resetAt} tier={wallState.tier} cover={wallState.cover} kind={wallState.kind} hint={wallState.hint} onClose={close} />
   ) : null;
 
   return { guard, wall };
