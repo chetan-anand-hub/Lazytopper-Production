@@ -6,8 +6,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-const track = vi.hoisted(() => ({ trackNamedEvent: vi.fn() }));
+const track = vi.hoisted(() => ({ trackNamedEvent: vi.fn(), trackPurchase: vi.fn(), newCheckoutAttemptId: vi.fn(() => "lt_attempt") }));
 vi.mock("../../analytics/analytics", () => track);
+const packTrack = vi.hoisted(() => ({ trackPackPurchase: vi.fn() }));
+vi.mock("../../lib/packs/packAnalytics", () => packTrack);
 
 import GuestPaySheet, { GUEST_PAY_ACCOUNT_EXISTS, GUEST_PAY_BOUGHT_BEFORE, GUEST_PAY_BAD_NUMBER, GUEST_PAY_GOOGLE_FIRST, GUEST_PAY_PHONE_CTA, GUEST_PAY_PHONE_FIRST, guestPaidLine } from "./GuestPaySheet";
 import type { GuestBuyOutcome, GuestItem } from "../../services/guestPay";
@@ -19,6 +21,8 @@ const INSTAGRAM = "Mozilla/5.0 (Linux; Android 14; wv) AppleWebKit/537.36 Chrome
 afterEach(() => {
   cleanup();
   track.trackNamedEvent.mockReset();
+  track.trackPurchase.mockReset();
+  packTrack.trackPackPurchase.mockReset();
 });
 
 function sheet(over: { ua?: string; buy?: (i: GuestItem, p: string) => Promise<GuestBuyOutcome>; item?: GuestItem } = {}) {
@@ -119,5 +123,57 @@ describe("PAY-PHONE-1 · GuestPaySheet", () => {
     fireEvent.click(screen.getByText(GUEST_PAY_PHONE_CTA));
     fireEvent.click(screen.getByTestId("guest-pay-bought-before"));
     expect(p.onSignInFirst).toHaveBeenCalledWith("phone", undefined, true);
+  });
+});
+
+describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => {
+  const PASS: GuestItem = { kind: "pass", sku: "till_boards", label: "Board Pass", description: "d" };
+  async function payWith(outcome: GuestBuyOutcome, item: GuestItem = PACK) {
+    sheet({ item, buy: vi.fn(async () => outcome) });
+    fireEvent.click(screen.getByText(GUEST_PAY_PHONE_CTA));
+    fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
+    fireEvent.click(screen.getByTestId("guest-pay-continue"));
+  }
+  const allArgs = () => JSON.stringify([...track.trackPurchase.mock.calls, ...packTrack.trackPackPurchase.mock.calls, ...track.trackNamedEvent.mock.calls]);
+
+  it("a server-verified PACK payment -> ONE pack_purchase: Razorpay payment id as transaction id, the server amount as value", async () => {
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_G1" });
+    await screen.findByTestId("guest-pay-paid");
+    expect(packTrack.trackPackPurchase).toHaveBeenCalledTimes(1);
+    expect(packTrack.trackPackPurchase.mock.calls[0][0]).toEqual({ sku: "pack_mock", itemName: "Mock Pack · Maths", valueInr: 99, transactionId: "pay_G1" });
+    expect(track.trackPurchase).not.toHaveBeenCalled();
+  });
+
+  it("a server-verified BOARD PASS payment -> ONE purchase (till_boards), same id / value rule", async () => {
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 1917, paymentId: "pay_G2" }, PASS);
+    await screen.findByTestId("guest-pay-paid");
+    expect(track.trackPurchase).toHaveBeenCalledTimes(1);
+    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ passType: "till_boards", valueInr: 1917, transactionId: "pay_G2" });
+    expect(packTrack.trackPackPurchase).not.toHaveBeenCalled();
+  });
+
+  it("no payment id -> the per-attempt id (as the signed-in paths fall back)", async () => {
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99 });
+    await screen.findByTestId("guest-pay-paid");
+    expect(packTrack.trackPackPurchase.mock.calls[0][0]).toMatchObject({ transactionId: "lt_attempt" });
+  });
+
+  it("CONTROL: unconfirmed (verify did not answer), dismissed, refused or failed -> no purchase event", async () => {
+    await payWith({ status: "paid", confirmed: false, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_X" });
+    await screen.findByTestId("guest-pay-paid");
+    cleanup();
+    for (const o of [{ status: "dismissed" }, { status: "failed" }, { status: "already_paid", phoneMasked: "m", phone: "+919876543948" }] as GuestBuyOutcome[]) {
+      await payWith(o);
+      await waitFor(() => expect(screen.queryByText("Opening payment…")).toBeNull());
+      cleanup();
+    }
+    expect(track.trackPurchase).not.toHaveBeenCalled();
+    expect(packTrack.trackPackPurchase).not.toHaveBeenCalled();
+  });
+
+  it("PRIVACY: the phone number is in no event argument", async () => {
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_G3" });
+    await screen.findByTestId("guest-pay-paid");
+    expect(allArgs()).not.toMatch(/9876543948|98•••••948/);
   });
 });

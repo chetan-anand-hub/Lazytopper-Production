@@ -15,7 +15,7 @@ vi.hoisted(() => {
 });
 
 const track = vi.hoisted(() => ({
-  trackBeginCheckout: vi.fn(),
+  trackBeginCheckoutTap: vi.fn(),
   trackPurchase: vi.fn(),
   newCheckoutAttemptId: vi.fn(() => "lt_attempt"),
 }));
@@ -188,9 +188,9 @@ describe("PAY-RECOVER-1 review fixes · the Pay buttons and the return-to-tab se
     await screen.findByTestId("pass-checkout-confirming");
     for (const b of payButtons()) expect(b).toBeDisabled();
     // a tap on a held button buys nothing
-    const before = track.trackBeginCheckout.mock.calls.length;
+    const before = track.trackBeginCheckoutTap.mock.calls.length;
     for (const b of payButtons()) fireEvent.click(b);
-    expect(track.trackBeginCheckout.mock.calls.length).toBe(before);
+    expect(track.trackBeginCheckoutTap.mock.calls.length).toBe(before);
   });
 
   it("the buttons come back only when the unresolved order is forgotten (the marker's life)", async () => {
