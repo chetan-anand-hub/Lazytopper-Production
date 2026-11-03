@@ -423,6 +423,8 @@ function createTrialEndingEmailer(deps = {}) {
   const telemetry = deps.telemetry || null;
   const setTimeoutFn = deps.setTimeoutFn || setTimeout;
   const setIntervalFn = deps.setIntervalFn || setInterval;
+  // EMAIL-SEND-WINDOW-1: the trial-ending batch only sends inside the IST window (default 08:00-21:00).
+  const sendWindow = require('./emailSendWindow.cjs').resolveSendWindow(deps.env || process.env, log);
 
   let running = false;
   const dryRunLogged = new Set();
@@ -548,6 +550,17 @@ function createTrialEndingEmailer(deps = {}) {
     if (!adminFirestore || !firebaseAdmin || typeof firebaseAdmin.auth !== 'function') {
       log('[trial-email] skipped - firebase-admin not initialised on this deploy.');
       return { ...summary, ran: false, reason: 'no-admin' };
+    }
+    {
+      const t = now();
+      if (!sendWindow.contains(t)) {
+        if (config.mode === 'send') {
+          log(`[trial-email] outside send window (${sendWindow.label}) - nothing sent, nothing written; next in-window run will send.`);
+          return { ...summary, ran: false, reason: 'outside-send-window' };
+        }
+        log(`[trial-email] outside send window (${sendWindow.label}) - dry run reports only what it WOULD send once inside the window.`);
+        summary.outsideWindow = true;
+      }
     }
     running = true;
     try {

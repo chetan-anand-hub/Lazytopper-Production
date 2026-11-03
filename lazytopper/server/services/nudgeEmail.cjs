@@ -89,6 +89,7 @@ const pricing = require('./passPricing.cjs');
 const { isPackProduct } = require('./packProducts.cjs');
 const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
 const packNudge = require('./packNudge.cjs');
+const { resolveSendWindow } = require('./emailSendWindow.cjs'); // EMAIL-SEND-WINDOW-1
 const { packIdFor } = require('./packProducts.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
@@ -506,6 +507,8 @@ function createNudgeEmailer(deps = {}) {
   const telemetry = deps.telemetry || null;
   const setTimeoutFn = deps.setTimeoutFn || setTimeout;
   const setIntervalFn = deps.setIntervalFn || setInterval;
+  // EMAIL-SEND-WINDOW-1: batch student emails go out only inside this IST clock window (default 08:00-21:00).
+  const sendWindow = resolveSendWindow(deps.env || process.env, log);
 
   let running = false;
   const dryRunLogged = new Set();
@@ -1293,6 +1296,20 @@ function createNudgeEmailer(deps = {}) {
     if (!adminFirestore || !firebaseAdmin || typeof firebaseAdmin.auth !== 'function') {
       log('[nudge-email] skipped - firebase-admin not initialised on this deploy.');
       return { ...summary, ran: false, reason: 'no-admin' };
+    }
+    // EMAIL-SEND-WINDOW-1: outside the window a real (send-mode) run returns BEFORE any read or write - no cap
+    // claim, no ledger row, no skip marker - and the hourly cadence picks it up at the next in-window tick.
+    // A dry run still reports what it would send (it already writes nothing) and says it is outside the window.
+    {
+      const t = now();
+      if (!sendWindow.contains(t)) {
+        if (config.mode === 'send') {
+          log(`[nudge-email] outside send window (${sendWindow.label}) - nothing sent, nothing written; next in-window run will send.`);
+          return { ...summary, ran: false, reason: 'outside-send-window' };
+        }
+        log(`[nudge-email] outside send window (${sendWindow.label}) - dry run reports only what it WOULD send once inside the window.`);
+        summary.outsideWindow = true;
+      }
     }
     running = true;
     try {

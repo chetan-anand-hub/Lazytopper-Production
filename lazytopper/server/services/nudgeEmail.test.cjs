@@ -976,3 +976,65 @@ test('comeback: waits 48 h after any other nudge (D1 day 1 is not followed by co
   s.db.docs.set('nudgeEmails/u1', { d1: { status: 'sent' }, lastClaimMs: NOW - 49 * HOUR });
   assert.equal((await s.make().runOnce()).byKind.comeback, 1);
 });
+
+// ── EMAIL-SEND-WINDOW-1: batch emails only 08:00-21:00 IST ───────────────────────────────────────
+test('send window: a send-mode run outside 08:00-21:00 IST sends nothing and writes nothing', async () => {
+  const lateNight = NOW + 15 * HOUR; // 01:00 IST next day
+  const s = setup({ now: lateNight, subs: { u1: sub(lateNight - 25 * HOUR) } });
+  const r = await s.make().runOnce();
+  assert.equal(r.ran, false);
+  assert.equal(r.reason, 'outside-send-window');
+  assert.equal(r.sent, 0);
+  assert.equal(s.calls.length, 0);
+  assert.equal(s.db.writes(), 0); // no cap claim, no ledger row, no skip marker
+  assert.equal(s.db.queries.length, 0);
+  assert.ok(s.logs.some((l) => /\[nudge-email\] outside send window/.test(l)));
+});
+
+test('send window: boundaries 07:59 / 08:00 / 20:59 / 21:00 IST through runOnce', async () => {
+  const at = (hhmm) => Date.parse(`2026-10-27T${hhmm}:00+05:30`);
+  for (const [hhmm, expectRan] of [['07:59', false], ['08:00', true], ['20:59', true], ['21:00', false]]) {
+    const t = at(hhmm);
+    const s = setup({ now: t, subs: { u1: sub(t - 25 * HOUR) } });
+    const r = await s.make().runOnce();
+    assert.equal(r.ran, expectRan, hhmm);
+    if (!expectRan) assert.equal(s.db.writes(), 0, hhmm);
+  }
+});
+
+test('send window: an in-window run still sends as before', async () => {
+  const s = setup({ subs: { u1: sub(NOW - 25 * HOUR) } }); // 10:00 IST
+  const r = await s.make().runOnce();
+  assert.equal(r.ran, true);
+  assert.equal(r.sent, 1);
+  assert.equal(s.calls.length, 1);
+});
+
+test('send window: dry run outside the window still reports what it would send, and says so', async () => {
+  const lateNight = NOW + 15 * HOUR;
+  const s = setup({ env: { NUDGE_EMAIL_ENABLED: '1' }, now: lateNight, subs: { u1: sub(lateNight - 25 * HOUR) } });
+  const r = await s.make().runOnce();
+  assert.equal(r.wouldSend, 1);
+  assert.equal(r.outsideWindow, true);
+  assert.equal(s.db.writes(), 0);
+  assert.equal(s.calls.length, 0);
+  assert.ok(s.logs.some((l) => /outside send window .*dry run/.test(l)));
+});
+
+test('send window: EMAIL_SEND_WINDOW_IST override is honoured; the hourly cadence is unchanged', async () => {
+  const logs = [];
+  const timers = [];
+  const make = (win) => createNudgeEmailer({
+    env: { EMAIL_SEND_WINDOW_IST: win },
+    config: resolveNudgeConfig({ ...ENV_SEND, PAYMENTS_ENABLED: '1', PARENT_PAY_ENABLED: '1' }),
+    adminFirestore: makeDb(), firebaseAdmin: makeAdmin({}), fetchImpl: async () => ({ ok: true, json: async () => ({}) }),
+    now: () => NOW, log: (l) => logs.push(l),
+    setTimeoutFn: (...a) => { timers.push(['t', ...a]); return {}; }, setIntervalFn: (...a) => { timers.push(['i', ...a]); return {}; },
+  });
+  assert.equal((await make('11-12').runOnce()).reason, 'outside-send-window'); // 10:00 IST
+  assert.notEqual((await make('9-12').runOnce()).reason, 'outside-send-window');
+  const e = make('bogus-x');
+  assert.notEqual((await e.runOnce()).reason, 'outside-send-window'); // invalid -> default, sending stays on
+  e.schedule();
+  assert.equal(timers.find((t) => t[0] === 'i')[2], e.config.intervalMs);
+});

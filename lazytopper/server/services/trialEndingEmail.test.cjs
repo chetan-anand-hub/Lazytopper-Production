@@ -512,9 +512,9 @@ test('FINDING 1: the cap is per IST day — the next IST day sends again', async
   db.docs.set(`trialEmailDaily/${istDayKeyOf(NOW)}`, { count: 1 });
   const s = setup({ db, env });
   assert.equal((await s.emailer.runOnce()).sent, 0);
-  // 12 hours later is the next IST day (10:00 am -> 10:00 pm is the same day; use +16 h).
-  const next = setup({ db, env, subs: { u2: trialDoc(NOW + 16 * HOUR - 5.5 * DAY) }, users: { u2: googleUser('b@example.com') }, now: () => NOW + 16 * HOUR });
-  assert.notEqual(istDayKeyOf(NOW + 16 * HOUR), istDayKeyOf(NOW));
+  // The same clock time one day later is the next IST day (+24 h keeps it inside the 08:00-21:00 send window).
+  const next = setup({ db, env, subs: { u2: trialDoc(NOW + 24 * HOUR - 5.5 * DAY) }, users: { u2: googleUser('b@example.com') }, now: () => NOW + 24 * HOUR });
+  assert.notEqual(istDayKeyOf(NOW + 24 * HOUR), istDayKeyOf(NOW));
   assert.equal((await next.emailer.runOnce()).sent, 1);
 });
 
@@ -728,4 +728,30 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
     assert.equal(urls.length, 2);
     for (const u of urls) assert.ok(!/uid|email=|@/.test(u));
   }
+});
+
+// ── EMAIL-SEND-WINDOW-1: the trial-ending batch only goes out 08:00-21:00 IST ────────────────────
+test('send window: out-of-window send-mode run sends nothing and writes nothing; in-window sends', async () => {
+  const lateNight = NOW + 15 * HOUR; // 01:00 IST
+  const out = setup({ now: () => lateNight, subs: { u1: trialDoc(lateNight - 5.5 * DAY) } });
+  const before = out.db.docs.size;
+  const r = await out.emailer.runOnce();
+  assert.equal(r.ran, false);
+  assert.equal(r.reason, 'outside-send-window');
+  assert.equal(out.fetchCalls.length, 0);
+  assert.equal(out.db.docs.size, before);
+  assert.ok(out.logs.some((l) => /\[trial-email\] outside send window/.test(l)));
+  const inn = setup({});
+  const r2 = await inn.emailer.runOnce();
+  assert.equal(r2.ran, true);
+  assert.equal(r2.sent, 1);
+});
+
+test('send window: trial dry run outside the window still reports, writes nothing', async () => {
+  const lateNight = NOW + 15 * HOUR;
+  const s = setup({ env: { TRIAL_EMAIL_ENABLED: '1' }, now: () => lateNight, subs: { u1: trialDoc(lateNight - 5.5 * DAY) } });
+  const r = await s.emailer.runOnce();
+  assert.equal(r.outsideWindow, true);
+  assert.equal(r.wouldSend, 1);
+  assert.equal(s.fetchCalls.length, 0);
 });
