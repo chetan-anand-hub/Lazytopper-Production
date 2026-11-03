@@ -18,6 +18,8 @@ import { buyHrefFor } from "../packs/offersModel";
 import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { PACK_CHAPTER_SLUGS, isAlreadyOwned, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../../services/packs";
 import type { DownloadCover } from "../../services/limitsClient";
+import type { DownloadPaperHint } from "./DownloadLimitWall";
+import type { DownloadKind } from "../../analytics/analytics";
 
 export interface WallPackOffer {
   sku: PackSku;
@@ -39,7 +41,15 @@ const CBQ_ADDRESS = /(?:^|[?&])(?:style=cbq|preset=comp|questionType=Competency)
  *   chapters (or unknown chapter slugs) of ONE known subject -> FALLBACK: that subject's Subject Pack
  *   nothing known (or chapters of both subjects)     -> null: the wall keeps its old "PDF packs from ₹49" link
  */
-export function wallPackOffer(ctx: { cover?: DownloadCover | null; chapter?: string | null; pathname?: string; search?: string }): WallPackOffer | null {
+export function wallPackOffer(ctx: {
+  cover?: DownloadCover | null;
+  chapter?: string | null;
+  pathname?: string;
+  search?: string;
+  /** WALL-KIND-1: what the download call site said it was (preferred over the page address, which stays the fallback). */
+  kind?: DownloadKind | null;
+  hint?: DownloadPaperHint | null;
+}): WallPackOffer | null {
   const fromAddress = !ctx.cover;
   const raw = ctx.cover ? ctx.cover.chapters ?? [] : [ctx.chapter ?? chapterFromLocation(ctx.pathname ?? "", ctx.search ?? "")].filter((c): c is string => typeof c === "string");
   const chapters = raw.filter((c) => PACK_CHAPTER_SLUGS.includes(c));
@@ -53,7 +63,8 @@ export function wallPackOffer(ctx: { cover?: DownloadCover | null; chapter?: str
       /* no subject */
     }
   }
-  const subject: PackSubject | null = ctx.cover?.subject ?? (subjects.size === 1 ? [...subjects][0] : null) ?? addrSubject;
+  const hintSubject: PackSubject | null = ctx.hint?.subject === "maths" || ctx.hint?.subject === "science" ? ctx.hint.subject : null;
+  const subject: PackSubject | null = ctx.cover?.subject ?? (subjects.size === 1 ? [...subjects][0] : null) ?? hintSubject ?? addrSubject;
   const offer = (sku: PackSku, target: string, name: string, fallback = false): WallPackOffer => ({
     sku,
     target,
@@ -61,10 +72,13 @@ export function wallPackOffer(ctx: { cover?: DownloadCover | null; chapter?: str
     href: buyHrefFor(sku, target),
     fallback,
   });
-  if (fromAddress && subject && CBQ_ADDRESS.test(ctx.search ?? "")) return offer("pack_cbq", subject, `${subjectLabel(subject)} CBQ Pack`);
+  // WALL-KIND-1: the call site's own word that this is a CBQ practice set beats reading the address.
+  const kindCbq = ctx.kind === "practice-set" && ctx.hint?.cbq === true;
+  if (fromAddress && subject && (kindCbq || CBQ_ADDRESS.test(ctx.search ?? ""))) return offer("pack_cbq", subject, `${subjectLabel(subject)} CBQ Pack`);
   if (raw.length === 1 && chapters.length === 1) return offer("pack_chapter", chapters[0], `${packChapterLabel(chapters[0])} Chapter Pack`);
   // Review fix 3: the Mock offer needs a paper with NO chapters at all (a raw empty cover), never chapters we could not read.
-  const mock = ctx.cover ? (raw.length === 0 ? ctx.cover.subject ?? null : null) : raw.length === 0 ? mockSubjectFromLocation(ctx.pathname ?? "", ctx.search ?? "") : null;
+  const mockFromKind = ctx.kind === "full-mock" && raw.length === 0 ? ctx.cover?.subject ?? hintSubject ?? addrSubject : null;
+  const mock = mockFromKind ?? (ctx.cover ? (raw.length === 0 ? ctx.cover.subject ?? null : null) : raw.length === 0 ? mockSubjectFromLocation(ctx.pathname ?? "", ctx.search ?? "") : null);
   if (mock) return offer("pack_mock", mock, `${subjectLabel(mock)} Mock Pack`);
   if (subject && subjects.size <= 1) return offer("pack_subject", subject, `${subjectLabel(subject)} Subject Pack`, true);
   return null;
@@ -73,11 +87,11 @@ export function wallPackOffer(ctx: { cover?: DownloadCover | null; chapter?: str
 export const WALL_OWNED_COPY = "You own this pack — open My packs";
 export const WALL_MY_PACKS_HREF = "/packs#my-packs";
 
-export default function WallPackBuy({ cover, chapter, light, fallback }: { cover: DownloadCover | null; chapter: string | null; light: boolean; fallback: ReactNode }) {
+export default function WallPackBuy({ cover, chapter, light, fallback, kind = null, hint = null }: { cover: DownloadCover | null; chapter: string | null; light: boolean; fallback: ReactNode; kind?: DownloadKind | null; hint?: DownloadPaperHint | null }) {
   const location = useLocation();
   const { user } = useAuth();
   const uid = user && !user.isLocalSession ? user.uid : "";
-  const offer = wallPackOffer({ cover, chapter, pathname: location.pathname, search: location.search });
+  const offer = wallPackOffer({ cover, chapter, pathname: location.pathname, search: location.search, kind, hint });
   const owned = useOwnedPacks(uid, Boolean(offer));
   if (!offer) return <>{fallback}</>;
   if (owned.phase === "loading") return null;
