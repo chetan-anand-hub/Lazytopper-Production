@@ -1,0 +1,11 @@
+/* TRUST-1 - the student testimonial on /packs, under the hero. Scoped to .lt-packs__proof. */
+.lt-packs__proof { padding: 20px 0 4px; }
+.lt-packs__proof .lt-packs__w { padding-top: 0; padding-bottom: 0; }
+.lt-packs__proof .lt-tv { background: #fff; border: 1px solid #dbe2ea; border-radius: 16px; padding: 18px 16px 20px; }
+.lt-packs__proof .lt-tv__title { font-size: 1.25rem; line-height: 1.25; }
+.lt-packs__proof .lt-tv__lede { font-size: 16px; line-height: 1.5; }
+@media (min-width: 1024px) {
+  .lt-packs__proof { padding: 40px 0 8px; }
+  .lt-packs__proof .lt-tv { padding: 24px 28px 28px; }
+  .lt-packs__proof .lt-tv__title { font-size: 1.5rem; }
+}

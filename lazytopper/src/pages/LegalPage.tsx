@@ -307,7 +307,8 @@ const PAGES: Record<LegalSlug, PageDef> = {
   terms: {
     title: "Terms of Service",
     // LEGAL-ENTITY-1 (L3, owner ruling 2026-10-14): the date and the first paragraph.
-    updated: "Last updated: October 2026",
+    // TRUST-1 (3 Nov 2026): the pack-file stamp wording below changed, so the date moved.
+    updated: "Last updated: 3 November 2026",
     body: (
       <>
         <h2>Acceptance of Terms</h2>
@@ -320,7 +321,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <p>You are responsible for maintaining the confidentiality of your account. You must be at least 13 years old to use LazyTopper. If you are under 18, you must have your parent or guardian's permission to use LazyTopper. By creating an account, you confirm that you have it.</p>
         <h2>Passes, Packs &amp; Payment</h2>
         <p>Free tier features are available without payment. Premium features require a pass at the listed prices. Passes are one-time payments and do not renew automatically.</p>
-        <p>PDF packs are one-time purchases of downloadable PDFs for your own personal study. Each file is stamped with the name and email of the buyer, and must not be shared or resold.</p>
+        <p>PDF packs are one-time purchases of downloadable PDFs for your own personal study. Each file is stamped with your name, or your email or masked phone number, and must not be shared or resold.</p>
         <h2>Intellectual Property</h2>
         <p>All content, including prediction algorithms, question banks, and AI-generated explanations, is the property of LazyTopper.</p>
       </>
@@ -338,7 +339,8 @@ const PAGES: Record<LegalSlug, PageDef> = {
     // "How to Contact Us" is the page's shared contact block below — its email
     // text is unchanged.
     title: "Cancellation Policy",
-    updated: "Last updated: October 2026",
+    // TRUST-1 (3 Nov 2026): Board Pass naming; the Month Pass is described for earlier buyers only.
+    updated: "Last updated: 3 November 2026",
     body: (
       <>
         <h2>All payments are final</h2>
@@ -346,8 +348,8 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <h2>Free Trial</h2>
         <p>LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial.</p>
         <h2>Month Pass</h2>
-        <p>A month pass gives you Premium for one month from the day you pay. It does not renew automatically. No refund.</p>
-        <h2>Till-Boards Plan</h2>
+        <p>A Month Pass bought before 1 Nov 2026 gives you Premium for one month from the day you paid. It does not renew automatically. No refund.</p>
+        <h2>Board Pass</h2>
         <p>A one-time payment covering Premium until your first board exam. No refund.</p>
         <h2>PDF Packs</h2>
         <p>A PDF pack is a digital download. The files are available to you straight away. No refund. If a file will not download or open, email us and we will fix it or send it to you.</p>
