@@ -254,7 +254,7 @@ describe("GUIDE-1 · intent map rules", () => {
     expect(ids(input({ landing: "/notes/electricity" }))).toEqual(["quick", "chapter_test", "important", "notes", "worksheet"]);
     expect(ids(input({ landing: "/highly-probable/10/Maths" }))).toEqual(["important", "chapter_test", "quick", "check_one", "worksheet"]);
     expect(ids(input({ utmContent: "sample_maths" }))).toEqual(["full_mock", "chapter_test", "important", "worksheet", "check_one"]);
-    expect(ids(input({ utmContent: "cbq_short" }))).toEqual(["cbq", "quick", "check_one", "chapter_test", "worksheet"]);
+    expect(ids(input({ utmContent: "cbq_short" }))).toEqual(["cbq", "cbq_pack", "quick", "check_one", "chapter_test"]);
   });
 
   it("GUIDE-OPTS-1 — CBQ practice and Exam trends stay reachable through the fill", () => {
@@ -346,5 +346,45 @@ describe("GUIDE-QP-1 · packs and quick intents", () => {
     expect(buildGuidePlan(input({ utmCampaign: "packs", utmContent: "quick" }), deps).intent).toBe("packs");
     expect(buildGuidePlan(input({ utmContent: "quick", landing: "/check-improve" }), deps).intent).toBe("quick");
     expect(buildGuidePlan(input({ surface: "check_improve", quickLanding: true }), deps).intent).toBe("quick");
+  });
+});
+
+describe("BYTE-CBQ-1 — CBQ landings and the CBQ pack option", () => {
+  const first = (i: Partial<IntentInput>) => buildGuidePlan(input(i), deps);
+
+  it("a first landing on /cbq-class-10 or a chapter page is the CBQ intent (no utm needed)", () => {
+    for (const landing of ["/cbq-class-10", "/cbq-class-10/", "/cbq-class-10/electricity", "/cbq-class-10/trigonometry"]) {
+      const p = first({ landing });
+      expect(p.intent, landing).toBe("cbq");
+      expect(p.options[0].id).toBe("cbq");
+    }
+    expect(first({ landing: "/cbq-classes" }).intent).not.toBe("cbq");
+  });
+
+  it("a utm_campaign containing cbq is the CBQ intent", () => {
+    expect(first({ utmCampaign: "yt_cbq_pack" }).intent).toBe("cbq");
+  });
+
+  it("free CBQ practice stays first; the CBQ pack is second and goes to one-tap checkout for the known subject", () => {
+    const sci = first({ landing: "/cbq-class-10/electricity" });
+    expect(sci.options.map((o) => o.id).slice(0, 3)).toEqual(["cbq", "cbq_pack", "quick"]);
+    expect(sci.options[1].title).toBe("Get the Science CBQ pack · ₹199");
+    expect(sci.options[1].action).toEqual({ kind: "route", path: "/packs?buy=pack_cbq&t=science" });
+    const maths = first({ landing: "/cbq-class-10/trigonometry" });
+    expect(maths.options[1].action).toEqual({ kind: "route", path: "/packs?buy=pack_cbq&t=maths" });
+    const hinted = first({ cbqLanding: true, subjectHint: "Maths" });
+    expect(hinted.options[1].title).toBe("Get the Maths CBQ pack · ₹199");
+    expect(sci.options.length).toBeLessThanOrEqual(GUIDE_MAX_OPTIONS);
+  });
+
+  it("an unknown subject says 'the CBQ pack' and opens the shop (both packs), never a guessed subject", () => {
+    const p = first({ utmContent: "cbq_short" });
+    expect(p.options[1].title).toBe("Get the CBQ pack · ₹199");
+    expect(p.options[1].action).toEqual({ kind: "route", path: "/packs" });
+  });
+
+  it("the one-tap URL is a known guide route", () => {
+    expect(knownGuideRoute("/packs?buy=pack_cbq&t=maths")).toBe(true);
+    expect(knownGuideRoute("/packs?buy=pack_cbq&t=history")).toBe(false);
   });
 });
