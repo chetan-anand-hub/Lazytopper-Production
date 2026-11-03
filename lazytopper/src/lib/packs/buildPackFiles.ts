@@ -447,7 +447,7 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
               mode,
               orderRef,
               cover: {
-                kicker: `${mode === "questions" ? `${kicker} CBQ PACK` : "CBQ ANSWER KEY"} \u00b7 ${kicker}`,
+                kicker: mode === "questions" ? `${kicker} CBQ PACK` : `${kicker} CBQ PACK \u00b7 ANSWER KEY`,
                 title,
                 subtitle: `${name} \u00b7 ${questions.length} ${questions.length === 1 ? "question" : "questions"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
                 // COVER-CLEAN-1: the pack's own facts, read from the same constants the pack page and pricing band use.

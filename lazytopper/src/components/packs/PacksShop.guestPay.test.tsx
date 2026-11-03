@@ -5,7 +5,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
@@ -13,9 +13,11 @@ vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 const flags = vi.hoisted(() => ({ guest: true }));
+const guestBuy = vi.hoisted(() => ({ buyAsGuest: vi.fn() }));
 vi.mock("../../services/guestPay", async (orig) => ({
   ...(await orig<typeof import("../../services/guestPay")>()),
   isGuestPayClientEnabled: () => flags.guest,
+  buyAsGuest: (...a: unknown[]) => guestBuy.buyAsGuest(...a),
 }));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
@@ -35,6 +37,12 @@ import * as packs from "../../services/packs";
 
 const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
 
+let loginState: unknown;
+function LoginProbe() {
+  loginState = useLocation().state;
+  return <p>LOGIN PAGE</p>;
+}
+
 function shop(url = "/packs") {
   return render(
     <MemoryRouter initialEntries={[url]}>
@@ -51,7 +59,7 @@ function shop(url = "/packs") {
             </PacksShop>
           }
         />
-        <Route path="/login" element={<p>LOGIN PAGE</p>} />
+        <Route path="/login" element={<LoginProbe />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -60,6 +68,8 @@ function shop(url = "/packs") {
 beforeEach(() => {
   auth.user = null;
   flags.guest = true;
+  loginState = undefined;
+  guestBuy.buyAsGuest.mockReset();
   buyMock.mockReset();
 });
 afterEach(() => cleanup());
@@ -138,5 +148,18 @@ describe("PAY-PHONE-1 · My packs for a phone-only account", () => {
     shop();
     expect(await screen.findByText(/Mock Pack · Maths/)).toBeTruthy();
     expect(screen.queryByTestId("pack-name-prompt")).toBeNull();
+  });
+
+  it("GUEST-SIGNIN-RETURNING-1: 'This number already has an account' -> sign in carries the existing-account flag (number in router state only)", async () => {
+    guestBuy.buyAsGuest.mockResolvedValue({ status: "account_exists", phoneMasked: "+91 98•••••948", phone: "+919876543948" });
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    fireEvent.click(await screen.findByTestId("packs-buy-pack_mock"));
+    fireEvent.click(await screen.findByText("Pay now with your phone number"));
+    fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
+    fireEvent.click(screen.getByTestId("guest-pay-continue"));
+    fireEvent.click(await screen.findByTestId("guest-pay-exists-signin"));
+    expect(await screen.findByText("LOGIN PAGE")).toBeTruthy();
+    expect(loginState).toEqual({ guestPayPhone: "9876543948", guestPayExisting: true });
   });
 });

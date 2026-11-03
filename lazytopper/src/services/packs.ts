@@ -15,6 +15,7 @@
  * Kept light on purpose: this module is imported by the pricing page's packs strip. The bank, jsPDF and
  * the PDF exporter live in src/lib/packs/** and are reached only through dynamic imports.
  */
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS } from "../lib/packs/packLabels";
 import { ACTIVITY_TOPIC_SLUGS } from "./activityPages";
 import {
   authHeaders,
@@ -331,7 +332,7 @@ export function packCheckoutDescription(sku: PackSku, target: string | undefined
     case "pack_cbq":
       return `${subject ? `${subject} ` : ""}CBQ Pack · chapter-wise competency questions, every type`;
     case "pack_bundle":
-      return "Maths + Science Bundle · all 26 chapters + 16 mocks";
+      return `Maths + Science Bundle · all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks`;
   }
 }
 
