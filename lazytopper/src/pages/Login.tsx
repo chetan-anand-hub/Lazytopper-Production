@@ -71,6 +71,15 @@ export function guestPayDigitsFrom(state: unknown): string {
   return typeof v === "string" && /^[6-9][0-9]{9}$/.test(v) ? v : "";
 }
 
+/**
+ * SIGNIN-FLASH-1 (review of #1521) — a post-sign-in target must be a safe internal path that is
+ * NOT the door itself (`/login`, `/login/…`, `/login?…`). Navigating a signed-in student to /login
+ * keeps this page mounted, which would strand the return-from-Google "Signing you in…" screen.
+ */
+export function isUsableSigninTarget(path: string | null | undefined): path is string {
+  return isSafeInternalPath(path) && !/^\/login(?:[/?#]|$)/i.test(path.trim());
+}
+
 /** TRIAL-CTA-1 — how long the trial-intent step waits for hydration before moving on. */
 export const TRIAL_INTENT_HYDRATION_WAIT_MS = 8000;
 
@@ -1553,12 +1562,12 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const nextPath = useMemo(() => {
     if (searchParams.has("redirect")) {
       const explicitRedirect = searchParams.get("redirect");
-      return isSafeInternalPath(explicitRedirect) ? explicitRedirect : "/";
+      return isUsableSigninTarget(explicitRedirect) ? explicitRedirect : "/";
     }
     const st = (location.state || {}) as LocationState;
-    if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
+    if (st.from) return isUsableSigninTarget(st.from) ? st.from : "/";
     // GOOGLE-REDIRECT-1 — back from Google: router state is gone; the intent kept the target.
-    if (returnIntent) return isSafeInternalPath(returnIntent.target) ? returnIntent.target : "/";
+    if (returnIntent) return isUsableSigninTarget(returnIntent.target) ? returnIntent.target : "/";
     // RETIREMENT PR-1: the fallback is now unconditionally "/" (RootEntry routes to the
     // live home per viewport). The /onboarding page is retired — a new signup lands on
     // the homepage, not the dark onboarding screen.
@@ -1911,6 +1920,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       clearSigninIntent();
       if (loginMethodRef.current === "google") loginMethodRef.current = null;
       setBusy(false);
+      setRedirectPending(false);
     };
     window.addEventListener("pageshow", onPageShow);
     return () => {

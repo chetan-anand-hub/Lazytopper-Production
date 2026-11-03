@@ -42,6 +42,7 @@
   font-size: 18px;
   font-weight: 600;
   line-height: 1.3;
+  min-height: 1.3em; /* the live region is filled after mount; no layout jump */
 }
 
 .lt-signing-in__sub {
