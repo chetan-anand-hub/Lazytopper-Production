@@ -121,7 +121,7 @@ export default function LandingOfferCard({ variant }: { variant: LandingOfferVar
       <div className="lt-lo__btns">
         {LANDING_SUBJECTS.map((s, i) => (
           <Link key={s} className="lt-lo__btn" to={cbqLandingBuyHref(s)} onClick={tap("pack_cbq", i + 1)} data-testid={`landing-offer-buy-${s}`}>
-            {/* "Maths CBQ Pack ₹199"; phones hide " Pack" (CSS only; the full words stay in the markup). */}
+            {/* The full pack name and price; phones hide " Pack" (CSS only; the full words stay in the markup). */}
             {cbqButtonLabel(s).split(" Pack ")[0]}
             <span className="lt-lo__long"> Pack</span> {cbqButtonLabel(s).split(" Pack ")[1]}
           </Link>
