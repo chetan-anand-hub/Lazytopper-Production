@@ -54,7 +54,7 @@ vi.mock("firebase/auth", () => ({
   EmailAuthProvider: { credential: vi.fn(() => ({})) },
 }));
 
-import Login, { REDIRECT_RESULT_WAIT_MS } from "./Login";
+import Login, { REDIRECT_RESULT_WAIT_MS, REDIRECT_START_GUARD_MS } from "./Login";
 import {
   REDIRECT_OPT_IN_KEY,
   SIGNIN_INTENT_KEY,
@@ -64,7 +64,7 @@ import {
   setRedirectOutcome,
   type SigninIntentInput,
 } from "../services/signinIntent";
-import { POPUP_CLOSED_MESSAGE } from "../utils/authSignal";
+import { GOOGLE_REDIRECT_NO_RESULT_MESSAGE, POPUP_CLOSED_MESSAGE } from "../utils/authSignal";
 
 const DESKTOP =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36";
@@ -88,6 +88,11 @@ function mount(entry: Entry = "/login", ua = DESKTOP) {
   vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(ua);
   const view = render(tree(entry));
   return { ...view, again: () => view.rerender(tree(entry)) };
+}
+/** A redirect mode with the authDomain switched to this host (the rollout's precondition). */
+function stubMode(mode: "redirect" | "redirect-test", authDomain: string = window.location.host) {
+  vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", mode);
+  vi.stubEnv("VITE_FIREBASE_AUTH_DOMAIN", authDomain);
 }
 const google = () => screen.getByRole("button", { name: /Continue with Google/ }) as HTMLButtonElement;
 const events = (name: string) => track.mock.calls.filter((c) => c[0] === name);
@@ -133,7 +138,7 @@ describe("choosing the flow", () => {
   });
 
   it("redirect-test without the opt-in is the popup", async () => {
-    vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", "redirect-test");
+    stubMode("redirect-test");
     mount("/login");
     await act(async () => fireEvent.click(google()));
     expect(signInWithGoogle.mock.calls).toEqual([[]]);
@@ -141,7 +146,7 @@ describe("choosing the flow", () => {
   });
 
   it("redirect-test with ?gsignin=redirect redirects, and the opt-in is kept for the tab", async () => {
-    vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", "redirect-test");
+    stubMode("redirect-test");
     mount("/login?gsignin=redirect&redirect=%2Fpacks");
     expect(sessionStorage.getItem(REDIRECT_OPT_IN_KEY)).toBe("1");
     await act(async () => fireEvent.click(google()));
@@ -153,7 +158,7 @@ describe("choosing the flow", () => {
   });
 
   it("redirect-test: the opt-in survives a later /login without the parameter (the return trip)", async () => {
-    vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", "redirect-test");
+    stubMode("redirect-test");
     sessionStorage.setItem(REDIRECT_OPT_IN_KEY, "1");
     mount("/login");
     await act(async () => fireEvent.click(google()));
@@ -164,14 +169,60 @@ describe("choosing the flow", () => {
     ["desktop", DESKTOP],
     ["Chrome Android", CHROME_ANDROID],
   ])("redirect mode, %s: redirect", async (_n, ua) => {
-    vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", "redirect");
+    stubMode("redirect");
     mount("/login", ua);
     await act(async () => fireEvent.click(google()));
     expect(signInWithGoogle.mock.calls).toEqual([[{ flow: "redirect" }]]);
   });
 
+  it("review of #1505: redirect mode but the authDomain is still another host -> the popup, no intent", async () => {
+    stubMode("redirect", "lazzyy-topper.firebaseapp.com");
+    mount("/login?gsignin=redirect");
+    await act(async () => fireEvent.click(google()));
+    expect(signInWithGoogle.mock.calls).toEqual([[]]);
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
+  });
+
+  it("the buttons come back if the page is somehow still here after the redirect started (intent kept)", async () => {
+    vi.useFakeTimers();
+    stubMode("redirect");
+    signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
+    mount("/login");
+    await act(async () => {
+      fireEvent.click(google());
+    });
+    expect(google().disabled).toBe(true);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(REDIRECT_START_GUARD_MS);
+    });
+    expect(google().disabled).toBe(false);
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).not.toBeNull();
+  });
+
+  it("bfcache Back from Google (pageshow persisted): buttons back, stale intent cleared, no error", async () => {
+    stubMode("redirect");
+    signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
+    mount("/login");
+    await act(async () => {
+      fireEvent.click(google());
+    });
+    expect(google().disabled).toBe(true);
+    // An ordinary pageshow (not from the cache) changes nothing.
+    act(() => {
+      window.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: false }));
+    });
+    expect(google().disabled).toBe(true);
+    act(() => {
+      window.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: true }));
+    });
+    expect(google().disabled).toBe(false);
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(events("login_error")).toHaveLength(0);
+  });
+
   it("redirect mode, YouTube in-app browser: no redirect — phone first, Open in Chrome, popup path", async () => {
-    vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", "redirect");
+    stubMode("redirect");
     mount("/login", YOUTUBE_APP);
     const banner = await screen.findByTestId("inapp-signin-banner");
     expect(banner.textContent).toContain("Google sign-in doesn't work inside the YouTube app. Use your phone number below, or open in Chrome.");
@@ -184,7 +235,7 @@ describe("choosing the flow", () => {
   });
 
   it("signInWithRedirect throwing before it navigates: the popup, once, and the intent is gone", async () => {
-    vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", "redirect");
+    stubMode("redirect");
     signInWithGoogle.mockImplementationOnce(async () => {
       throw Object.assign(new Error("no storage"), { code: "auth/web-storage-unsupported" });
     });
@@ -196,7 +247,7 @@ describe("choosing the flow", () => {
   });
 
   it("guest-pay: the intent records only a claim FLAG and the returning-account flag, never the number", async () => {
-    vi.stubEnv("VITE_GOOGLE_SIGNIN_MODE", "redirect");
+    stubMode("redirect");
     mount({ pathname: "/login", state: { guestPayPhone: "9714568948", guestPayExisting: true, from: "/packs" } });
     await act(async () => fireEvent.click(screen.getByRole("button", { name: /All sign-in options/ })));
     await act(async () => fireEvent.click(google()));
@@ -281,16 +332,24 @@ describe("the return trip", () => {
     expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
   });
 
-  it("Back on Google's page (no result): the door again, no error, intent cleared", async () => {
+  it("review of #1505: a fresh intent but NO result (Back without bfcache, or a partitioned result): login_error redirect-no-result once + phone rescue", async () => {
     saveSigninIntent(INTENT);
-    mount("/login");
+    const view = mount("/login");
     expect(google().disabled).toBe(true);
     act(() => setRedirectOutcome({ kind: "none" }));
-    expect(google().disabled).toBe(false);
-    expect(screen.queryByRole("alert")).toBeNull();
-    expect(events("login_error")).toHaveLength(0);
+    expect(events("login_error")).toEqual([
+      ["login_error", { method: "google", ua_class: "desktop", error_code: "redirect-no-result", flow: "redirect" }],
+    ]);
+    expect(document.body.textContent).toContain(GOOGLE_REDIRECT_NO_RESULT_MESSAGE);
+    expect(screen.getByRole("heading", { name: /Continue with phone/ })).toBeTruthy();
     expect(events("login_success")).toHaveLength(0);
     expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
+    // Once: a reload (no intent any more) reports nothing.
+    view.unmount();
+    resetRedirectOutcome();
+    mount("/login");
+    act(() => setRedirectOutcome({ kind: "none" }));
+    expect(events("login_error")).toHaveLength(1);
   });
 
   it("a result that never arrives gives the buttons back", async () => {
@@ -304,9 +363,15 @@ describe("the return trip", () => {
     expect(google().disabled).toBe(false);
   });
 
-  it("an expired intent is ignored: an ordinary door", () => {
-    saveSigninIntent(INTENT, Date.now() - 16 * 60 * 1000);
+  it("an intent within 30 minutes is still honoured; past 30 it is an ordinary door — and Login's read never deletes it", () => {
+    saveSigninIntent(INTENT, Date.now() - 25 * 60 * 1000);
+    const first = mount("/login");
+    expect(google().disabled).toBe(true);
+    first.unmount();
+    saveSigninIntent(INTENT, Date.now() - 31 * 60 * 1000);
     mount("/login");
     expect(google().disabled).toBe(false);
+    // Left for AuthContext, which decides on the raw record (review of #1505).
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).not.toBeNull();
   });
 });

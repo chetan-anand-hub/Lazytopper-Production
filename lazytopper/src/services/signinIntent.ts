@@ -18,7 +18,12 @@
  *   BOOLEAN ("force the claim after this sign-in"); the server reads the number from the verified
  *   ID token, never from the client (services/guestPay.ts).
  * ★ SAFE REDIRECTS. Every path stored or read back passes `isSafeInternalPath` (CLAUDE.md §5).
- * ★ EXPIRY. An intent older than 15 minutes is ignored (and removed).
+ * ★ EXPIRY. An intent older than 30 minutes is ignored by the Login page. Reading never deletes:
+ *   only AuthContext's redirect-result handler (and Login after use / on a dead return) clears it,
+ *   so a slow Google sign-in is never lost because the record aged out first.
+ * ★ SAME HOST. A redirect is chosen only when the configured authDomain IS this page's host
+ *   (the /__/auth reverse proxy is live). Otherwise Safari ITP / Chrome storage partitioning
+ *   makes getRedirectResult come back empty, so those visits keep the popup.
  *
  * The redirect RESULT is read once, by AuthContext, on app load when an intent is present
  * (never on a normal page load), and handed to the Login page through the small outcome
@@ -31,7 +36,7 @@ export type GoogleFlow = "popup" | "redirect";
 
 export const SIGNIN_INTENT_KEY = "lt.signinIntent";
 export const REDIRECT_OPT_IN_KEY = "lt.gsigninRedirect";
-export const SIGNIN_INTENT_TTL_MS = 15 * 60 * 1000;
+export const SIGNIN_INTENT_TTL_MS = 30 * 60 * 1000;
 
 /** The build flag, read defensively: anything but the two redirect values is the popup. */
 export function resolveGoogleSigninMode(raw: unknown): GoogleSigninMode {
@@ -79,9 +84,35 @@ export function hasRedirectOptIn(): boolean {
   }
 }
 
-/** Pure: which Google flow this tap uses. In-app browsers never redirect. */
-export function chooseGoogleFlow(input: { mode: GoogleSigninMode; optedIn: boolean; inApp: boolean }): GoogleFlow {
-  if (input.inApp) return "popup";
+/**
+ * Whether Firebase's authDomain is this page's own host — the precondition for a redirect that
+ * survives third-party-storage partitioning. Case-insensitive; an empty value never matches.
+ */
+export function authDomainIsThisHost(authDomain: unknown, host: unknown): boolean {
+  const a = typeof authDomain === "string" ? authDomain.trim().toLowerCase() : "";
+  const h = typeof host === "string" ? host.trim().toLowerCase() : "";
+  return a !== "" && a === h;
+}
+
+export function currentAuthDomainIsThisHost(): boolean {
+  try {
+    return authDomainIsThisHost(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, window.location.host);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Pure: which Google flow this tap uses. In-app browsers never redirect, and nor does a page
+ * whose authDomain is another host (`sameHost` false), where the result would be lost.
+ */
+export function chooseGoogleFlow(input: {
+  mode: GoogleSigninMode;
+  optedIn: boolean;
+  inApp: boolean;
+  sameHost: boolean;
+}): GoogleFlow {
+  if (input.inApp || !input.sameHost) return "popup";
   if (input.mode === "redirect") return "redirect";
   if (input.mode === "redirect-test" && input.optedIn) return "redirect";
   return "popup";
@@ -154,7 +185,11 @@ export function hasSigninIntent(): boolean {
   }
 }
 
-/** The intent if present, well-formed and under 15 minutes old; otherwise null (and removed). */
+/**
+ * The intent if present, well-formed and under 30 minutes old; otherwise null.
+ * ★ NEVER DELETES (review of #1505): Login reads this while rendering, BEFORE AuthContext's effect
+ * decides whether to read the redirect result; deleting here would lose that sign-in.
+ */
 export function readSigninIntent(nowMs?: number): SigninIntent | null {
   const store = session();
   if (!store) return null;
@@ -171,7 +206,6 @@ export function readSigninIntent(nowMs?: number): SigninIntent | null {
     const p = JSON.parse(raw) as Partial<SigninIntent> | null;
     const at = typeof p?.at === "number" ? p.at : NaN;
     if (!p || p.v !== 1 || p.method !== "google" || !Number.isFinite(at) || now - at > SIGNIN_INTENT_TTL_MS || at - now > 60_000) {
-      clearSigninIntent();
       return null;
     }
     return {
@@ -186,7 +220,6 @@ export function readSigninIntent(nowMs?: number): SigninIntent | null {
       at,
     };
   } catch {
-    clearSigninIntent();
     return null;
   }
 }

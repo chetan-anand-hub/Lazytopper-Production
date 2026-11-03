@@ -18,6 +18,13 @@ export type LoginMethod = "google" | "email" | "phone";
 export const GOOGLE_POPUP_TIMEOUT_MS = 45_000;
 /** Synthetic code (not a Firebase one) carried by the timeout rejection. */
 export const GOOGLE_POPUP_TIMEOUT_CODE = "lt/google-popup-timeout";
+/**
+ * GOOGLE-REDIRECT-1 — synthetic code: the student came back from Google's page with a fresh
+ * sign-in intent but getRedirectResult had no result. That is either Back on Google's page (no
+ * bfcache) or a result lost to storage partitioning; the two cannot be told apart, so it is
+ * treated as an error (telemetry + phone rescue), the safer of the two.
+ */
+export const GOOGLE_REDIRECT_NO_RESULT_CODE = "lt/redirect-no-result";
 
 export function authErrorCode(err: unknown): string {
   return typeof err === "object" && err !== null && "code" in err
@@ -51,6 +58,7 @@ export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 export function telemetryErrorCode(err: unknown): string {
   const raw = authErrorCode(err);
   if (raw === GOOGLE_POPUP_TIMEOUT_CODE) return "popup-timeout";
+  if (raw === GOOGLE_REDIRECT_NO_RESULT_CODE) return "redirect-no-result";
   const slug = raw
     .replace(/^auth\//, "")
     .toLowerCase()
@@ -104,6 +112,7 @@ export function shouldRescueToPhone(err: unknown): boolean {
   switch (authErrorCode(err)) {
     case "auth/popup-closed-by-user":
     case GOOGLE_POPUP_TIMEOUT_CODE:
+    case GOOGLE_REDIRECT_NO_RESULT_CODE:
     case "auth/popup-blocked":
     case "auth/operation-not-supported-in-this-environment":
       return true;
@@ -164,6 +173,8 @@ export const POPUP_CLOSED_MESSAGE = `The Google window closed before sign-in fin
 export const POPUP_BLOCKED_MESSAGE = `Your browser blocked the Google window. Allow pop-ups for this site and try again, or ${OTHER_WAYS}.`;
 export const UNSUPPORTED_ENVIRONMENT_MESSAGE =
   `Google sign-in can't run in this browser. Open lazytopper.com in Chrome or Safari, or ${OTHER_WAYS}.`;
+export const GOOGLE_REDIRECT_NO_RESULT_MESSAGE =
+  `Google sign-in didn't finish. Tap Google to try again, or ${OTHER_WAYS}.`;
 export const GOOGLE_TIMEOUT_MESSAGE =
   `Google sign-in is taking longer than usual. If a Google window is still open, finish there. Or ${OTHER_WAYS}.`;
 
@@ -176,6 +187,8 @@ export function describeAuthError(err: unknown): string {
       return POPUP_CLOSED_MESSAGE;
     case GOOGLE_POPUP_TIMEOUT_CODE:
       return GOOGLE_TIMEOUT_MESSAGE;
+    case GOOGLE_REDIRECT_NO_RESULT_CODE:
+      return GOOGLE_REDIRECT_NO_RESULT_MESSAGE;
     case "auth/operation-not-supported-in-this-environment":
     case "auth/web-storage-unsupported":
       return UNSUPPORTED_ENVIRONMENT_MESSAGE;

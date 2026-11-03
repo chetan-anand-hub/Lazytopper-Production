@@ -7,6 +7,7 @@ import {
   authErrorCode,
   describeAuthError,
   GOOGLE_POPUP_TIMEOUT_CODE,
+  GOOGLE_REDIRECT_NO_RESULT_CODE,
   GOOGLE_POPUP_TIMEOUT_MS,
   trackLoginAttempt,
   trackLoginError,
@@ -30,6 +31,7 @@ import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../utils/in
 import {
   chooseGoogleFlow,
   clearSigninIntent,
+  currentAuthDomainIsThisHost,
   currentGoogleSigninMode,
   hasRedirectOptIn,
   noteRedirectOptIn,
@@ -43,6 +45,11 @@ import {
 
 /** GOOGLE-REDIRECT-1 — how long the page waits for the redirect result before giving the buttons back. */
 export const REDIRECT_RESULT_WAIT_MS = 20_000;
+/**
+ * GOOGLE-REDIRECT-1 — if the page is somehow still here this long after signInWithRedirect was
+ * called, the buttons come back (the intent is kept: the navigation may still be on its way).
+ */
+export const REDIRECT_START_GUARD_MS = 10_000;
 
 // INAPP-SIGNIN-1 — the UA check, the note and its CSS all live in this lazy chunk.
 const InAppSignin = lazy(() => import("../components/auth/InAppSigninBanner"));
@@ -1845,7 +1852,10 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   // GOOGLE-REDIRECT-1 — the redirect result, as AuthContext read it (getRedirectResult runs there,
   // once, only when an intent exists). Success needs nothing here: auth state changes and the `user`
   // effect above navigates, reports login_success { flow: "redirect" } and clears the intent.
-  //   none  — the student came back without signing in (Back on Google's page): the door, no error.
+  //   none  — a FRESH intent but no result: Back on Google's page (without bfcache) or a result lost
+  //           to storage partitioning. They cannot be told apart, so it is the safer of the two:
+  //           login_error "redirect-no-result" (once — the intent is then cleared) + the phone step.
+  //           (A bfcache Back never reaches here: the pageshow handler below releases that page.)
   //   error — login_error with the code, the usual message, and SIGNIN-RESCUE-1's phone step.
   // A result that never arrives (Firebase unconfigured, a hung read) gives the buttons back.
   useEffect(() => {
@@ -1860,16 +1870,16 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       resetRedirectOutcome();
       setBusy(false);
     };
+    const fail = (err: unknown) => {
+      if (settled || !mountedRef.current || signedInRef.current) return;
+      trackLoginError("google", err, "redirect");
+      release();
+      goToStep("phone");
+      setError(describeAuthError(err) || describeAuthError(null));
+    };
     const unsubscribe = subscribeRedirectOutcome((o) => {
-      if (o.kind === "none") {
-        release();
-      } else if (o.kind === "error") {
-        if (settled || !mountedRef.current || signedInRef.current) return;
-        trackLoginError("google", o.error, "redirect");
-        release();
-        goToStep("phone");
-        setError(describeAuthError(o.error) || describeAuthError(null));
-      }
+      if (o.kind === "none") fail({ code: GOOGLE_REDIRECT_NO_RESULT_CODE });
+      else if (o.kind === "error") fail(o.error);
     });
     const timer = window.setTimeout(release, REDIRECT_RESULT_WAIT_MS);
     return () => {
@@ -1878,6 +1888,29 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     };
     // Mount-only: the intent is read once per mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // GOOGLE-REDIRECT-1 — Back from Google's page restored from the back/forward cache: no reload, no
+  // redirect result, and the page is exactly as it was when it left (buttons disabled). Give the
+  // buttons back and drop the intent, so a later reload does not read a sign-in that never happened.
+  const redirectGuardRef = useRef<number | null>(null);
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted || signedInRef.current) return;
+      if (redirectGuardRef.current !== null) {
+        window.clearTimeout(redirectGuardRef.current);
+        redirectGuardRef.current = null;
+      }
+      if (googleFlowRef.current !== "redirect") return;
+      clearSigninIntent();
+      if (loginMethodRef.current === "google") loginMethodRef.current = null;
+      setBusy(false);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      if (redirectGuardRef.current !== null) window.clearTimeout(redirectGuardRef.current);
+    };
   }, []);
 
   /**
@@ -1901,9 +1934,20 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     googleFlowRef.current = "redirect";
     trackLoginAttempt("google", "redirect");
     try {
+      // The guard is armed before the call: in the browser signInWithRedirect never settles.
+      if (redirectGuardRef.current !== null) window.clearTimeout(redirectGuardRef.current);
+      redirectGuardRef.current = window.setTimeout(() => {
+        redirectGuardRef.current = null;
+        if (!mountedRef.current || signedInRef.current) return;
+        setBusy(false);
+      }, REDIRECT_START_GUARD_MS);
       await signInWithGoogle({ flow: "redirect" });
       return true;
     } catch (err) {
+      if (redirectGuardRef.current !== null) {
+        window.clearTimeout(redirectGuardRef.current);
+        redirectGuardRef.current = null;
+      }
       clearSigninIntent();
       trackLoginError("google", err, "redirect");
       return false;
@@ -1920,6 +1964,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       mode: currentGoogleSigninMode(),
       optedIn: hasRedirectOptIn(),
       inApp: currentGooglePopupMayHang(),
+      // Review of #1505: a redirect only survives storage partitioning when the authDomain IS this
+      // host (the /__/auth proxy). Until VITE_FIREBASE_AUTH_DOMAIN is switched, everyone keeps the popup.
+      sameHost: currentAuthDomainIsThisHost(),
     });
     if (flow === "redirect" && (await startGoogleRedirect())) return;
     // The popup — today's path. Also the one-time fallback when the redirect could not start.

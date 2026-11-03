@@ -141,3 +141,13 @@ describe("login telemetry", () => {
     expect(() => trackLoginAttempt("email")).not.toThrow();
   });
 });
+
+describe("GOOGLE-REDIRECT-1 · redirect-no-result", () => {
+  it("has its own slug, message and the phone rescue", async () => {
+    const m = await import("./authSignal");
+    const err = { code: m.GOOGLE_REDIRECT_NO_RESULT_CODE };
+    expect(m.telemetryErrorCode(err)).toBe("redirect-no-result");
+    expect(m.describeAuthError(err)).toBe(m.GOOGLE_REDIRECT_NO_RESULT_MESSAGE);
+    expect(m.shouldRescueToPhone(err)).toBe(true);
+  });
+});

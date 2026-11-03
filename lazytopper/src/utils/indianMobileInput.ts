@@ -7,14 +7,19 @@
  * Firebase answered with auth/invalid-phone-number.
  *
  * Rule (same prefixes `normaliseIndianMobile` in services/guestPay.ts accepts, whose contract is
- * unchanged): a leading "+91" is the country code; otherwise 12 digits starting "91" drop the
- * "91" and 11 digits starting "0" drop the "0"; then at most 10 digits are kept. Pure; partial
- * input while typing passes through as digits.
+ * unchanged). A "91" country code is dropped only when it is UNMISTAKABLE:
+ *   - written as "+91", or as "91" followed by a separator ("91 97145 68948", "91-9714568948");
+ *   - or the cleaned input is EXACTLY 12 digits starting "91".
+ * A trunk "0" is dropped only when the cleaned input is EXACTLY 11 digits starting "0".
+ * Anything else keeps its first 10 digits, as the old field did (so "9198765432" followed by
+ * extra digits stays "9198765432" — a real number that starts with 91). Pure; partial input
+ * while typing passes through as digits.
  */
 export function normaliseTypedIndianMobile(raw: string | null | undefined): string {
   const text = typeof raw === "string" ? raw.trim() : "";
   let digits = text.replace(/\D/g, "");
-  if (/^\+\s*9\s*1/.test(text)) digits = digits.slice(2);
+  const explicitCountryCode = /^\+\s*91/.test(text) || /^91[\s\-.()/]/.test(text);
+  if (explicitCountryCode) digits = digits.slice(2);
   else if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
   else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
   return digits.slice(0, 10);

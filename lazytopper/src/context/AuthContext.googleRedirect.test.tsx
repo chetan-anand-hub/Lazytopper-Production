@@ -182,6 +182,19 @@ describe("getRedirectResult — only with an intent, only once", () => {
     expect(hasSigninIntent()).toBe(true);
   });
 
+  it("review of #1505: an intent past 30 minutes still completes the sign-in, then is cleared here", async () => {
+    H.redirectResult = { user: { uid: "slow" } };
+    saveSigninIntent(
+      { target: "/", explicitTarget: null, from: null, startTrial: false, guestPayClaim: false, guestPayExisting: false },
+      Date.now() - 45 * 60 * 1000,
+    );
+    mount();
+    await waitFor(() => expect(outcome()).toEqual({ kind: "success" }));
+    expect(fbAuth.getRedirectResult).toHaveBeenCalledTimes(1);
+    expect(H.startTrialIfNewAccount).toHaveBeenCalledTimes(1);
+    expect(hasSigninIntent()).toBe(false);
+  });
+
   it("a remount (StrictMode / provider remount) does not read the result twice", async () => {
     H.redirectResult = { user: { uid: "r1" } };
     writeIntent();

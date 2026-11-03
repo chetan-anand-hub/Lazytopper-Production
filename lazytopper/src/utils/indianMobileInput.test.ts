@@ -21,6 +21,18 @@ describe("PHONE-PASTE-1 · normaliseTypedIndianMobile", () => {
     expect(normaliseTypedIndianMobile("9123456789")).toBe("9123456789");
   });
 
+  it("review of #1505: more than 12 digits with no explicit country code keeps the first 10, as before", () => {
+    expect(normaliseTypedIndianMobile("9198765432123")).toBe("9198765432");
+    expect(normaliseTypedIndianMobile("919876543210123")).toBe("9198765432");
+    expect(normaliseTypedIndianMobile("097145689481")).toBe("0971456894");
+  });
+
+  it("an explicit +91 / 91-with-separator prefix is dropped even with extra digits", () => {
+    expect(normaliseTypedIndianMobile("+91 97145 68948 12")).toBe("9714568948");
+    expect(normaliseTypedIndianMobile("91 97145 68948")).toBe("9714568948");
+    expect(normaliseTypedIndianMobile("91-9714568948-55")).toBe("9714568948");
+  });
+
   it("never more than 10 digits", () => {
     expect(normaliseTypedIndianMobile("97145689481234")).toHaveLength(10);
   });

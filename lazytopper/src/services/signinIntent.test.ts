@@ -3,6 +3,7 @@ import {
   REDIRECT_OPT_IN_KEY,
   SIGNIN_INTENT_KEY,
   SIGNIN_INTENT_TTL_MS,
+  authDomainIsThisHost,
   chooseGoogleFlow,
   clearSigninIntent,
   hasRedirectOptIn,
@@ -41,16 +42,28 @@ describe("GOOGLE-REDIRECT-1 · the build flag", () => {
 
 describe("GOOGLE-REDIRECT-1 · which flow", () => {
   it("popup mode is always the popup", () => {
-    expect(chooseGoogleFlow({ mode: "popup", optedIn: true, inApp: false })).toBe("popup");
+    expect(chooseGoogleFlow({ mode: "popup", optedIn: true, inApp: false, sameHost: true })).toBe("popup");
   });
   it("redirect-test redirects only an opted-in tab", () => {
-    expect(chooseGoogleFlow({ mode: "redirect-test", optedIn: false, inApp: false })).toBe("popup");
-    expect(chooseGoogleFlow({ mode: "redirect-test", optedIn: true, inApp: false })).toBe("redirect");
+    expect(chooseGoogleFlow({ mode: "redirect-test", optedIn: false, inApp: false, sameHost: true })).toBe("popup");
+    expect(chooseGoogleFlow({ mode: "redirect-test", optedIn: true, inApp: false, sameHost: true })).toBe("redirect");
   });
   it("redirect mode redirects everyone except in-app browsers", () => {
-    expect(chooseGoogleFlow({ mode: "redirect", optedIn: false, inApp: false })).toBe("redirect");
-    expect(chooseGoogleFlow({ mode: "redirect", optedIn: false, inApp: true })).toBe("popup");
-    expect(chooseGoogleFlow({ mode: "redirect-test", optedIn: true, inApp: true })).toBe("popup");
+    expect(chooseGoogleFlow({ mode: "redirect", optedIn: false, inApp: false, sameHost: true })).toBe("redirect");
+    expect(chooseGoogleFlow({ mode: "redirect", optedIn: false, inApp: true, sameHost: true })).toBe("popup");
+    expect(chooseGoogleFlow({ mode: "redirect-test", optedIn: true, inApp: true, sameHost: true })).toBe("popup");
+  });
+  it("review of #1505: never redirects when the authDomain is another host (storage partitioning)", () => {
+    expect(chooseGoogleFlow({ mode: "redirect", optedIn: true, inApp: false, sameHost: false })).toBe("popup");
+    expect(chooseGoogleFlow({ mode: "redirect-test", optedIn: true, inApp: false, sameHost: false })).toBe("popup");
+  });
+  it("authDomainIsThisHost: exact host, case-insensitive; empty never matches", () => {
+    expect(authDomainIsThisHost("www.lazytopper.com", "www.lazytopper.com")).toBe(true);
+    expect(authDomainIsThisHost("WWW.LazyTopper.com", "www.lazytopper.com")).toBe(true);
+    expect(authDomainIsThisHost("lazzyy-topper.firebaseapp.com", "www.lazytopper.com")).toBe(false);
+    expect(authDomainIsThisHost("lazytopper.com", "www.lazytopper.com")).toBe(false);
+    expect(authDomainIsThisHost("", "")).toBe(false);
+    expect(authDomainIsThisHost(undefined, "www.lazytopper.com")).toBe(false);
   });
   it("?gsignin=redirect opts the tab in (sessionStorage); ?gsignin=popup opts it out; other searches change nothing", () => {
     noteRedirectOptIn("?redirect=%2Fme");
@@ -99,17 +112,18 @@ describe("GOOGLE-REDIRECT-1 · the sign-in intent", () => {
     expect(readSigninIntent(7)!.target).toBe("/");
   });
 
-  it("expires after 15 minutes (and the stale record is removed)", () => {
+  it("expires after 30 minutes — and reading NEVER deletes (AuthContext decides on the raw record)", () => {
+    expect(SIGNIN_INTENT_TTL_MS).toBe(30 * 60 * 1000);
     saveSigninIntent(BASE, 0);
     expect(readSigninIntent(SIGNIN_INTENT_TTL_MS)).not.toBeNull();
     expect(readSigninIntent(SIGNIN_INTENT_TTL_MS + 1)).toBeNull();
-    expect(hasSigninIntent()).toBe(false);
+    expect(hasSigninIntent()).toBe(true);
   });
 
-  it("garbage is ignored and removed", () => {
+  it("garbage is ignored, not deleted by a read", () => {
     sessionStorage.setItem(SIGNIN_INTENT_KEY, "{not json");
     expect(readSigninIntent()).toBeNull();
-    expect(hasSigninIntent()).toBe(false);
+    expect(hasSigninIntent()).toBe(true);
   });
 
   it("clears after use", () => {
