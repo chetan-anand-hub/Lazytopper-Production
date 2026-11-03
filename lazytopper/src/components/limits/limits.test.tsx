@@ -369,54 +369,67 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
         <DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} {...props} />
       </MemoryRouter>,
     );
-  it("flag on: Board Pass actions first, then the secondary pack button for the chapter; click fires download_wall", async () => {
+  // PACKS-CONVERT-1: the wall now offers the MATCHING pack as a one-tap buy (/packs?buy=&t=), under the Board Pass actions.
+  const buyLink = () => screen.getByTestId("wall-pack-buy").querySelector("a")!;
+  it("flag on: Board Pass actions first, then the one-tap buy of that chapter's pack; click fires download_wall", async () => {
     FLAG_ON();
     wall();
-    const link = await screen.findByRole("link", { name: "Chapter Pack ₹49 →" });
-    expect(link.getAttribute("href")).toBe("/pricing?chapter=triangles#packs");
+    const link = await screen.findByRole("link", { name: "Or get the Triangles Chapter Pack · ₹49" });
+    expect(link.getAttribute("href")).toBe("/packs?buy=pack_chapter&t=triangles");
     const acts = document.querySelector(".lt-limit-acts")!;
-    const line = await screen.findByTestId("wall-pack-link");
+    const line = screen.getByTestId("wall-pack-buy");
     expect(acts.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(link.className).toContain("lt-limit-btn--pack");
     expect(link.className).not.toContain("lt-limit-btn--primary");
+    expect(screen.queryByTestId("wall-pack-link")).toBeNull(); // one pack offer, never two
     fireEvent.click(link);
     expect(packTrack).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "download_wall" } });
   });
-  it("chapter unknown -> plain /packs; explicit chapter prop wins", async () => {
+  it("chapter unknown -> the old plain packs link; explicit chapter prop wins", async () => {
     FLAG_ON();
     wall({}, "/practice-hub");
-    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
+    expect((await screen.findByRole("link", { name: /PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
+    expect(screen.queryByTestId("wall-pack-buy")).toBeNull();
     cleanup();
     wall({ chapter: "circles" }, "/practice-hub");
-    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/pricing?chapter=circles#packs");
+    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_chapter&t=circles");
   });
-  it("Full Mock wall -> /packs?mock=<subject>; a multi-topic page -> plain /packs; the trial wall gets the lighter text-button", async () => {
+  it("Full Mock wall -> that subject's Mock Pack ₹99; a multi-topic page -> plain packs link; the trial wall gets the lighter text-button", async () => {
     FLAG_ON();
     wall({}, "/practice/10/maths/full-mock");
-    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/pricing?mock=maths#packs");
+    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_mock&t=maths");
+    expect(buyLink().textContent).toBe("Or get the Maths Mock Pack · ₹99");
     cleanup();
     wall({}, "/worksheet");
-    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
+    expect((await screen.findByRole("link", { name: /PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
     cleanup();
     wall({ tier: "trial" }, "/notes/triangles");
-    await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ });
-    expect(screen.getByTestId("wall-pack-link").className).toContain("lt-limit-pack--light");
+    expect(screen.getByTestId("wall-pack-buy").className).toContain("lt-limit-pack--light");
     cleanup();
     wall({ tier: "free" }, "/notes/triangles");
-    await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ });
-    expect(screen.getByTestId("wall-pack-link").className).not.toContain("--light");
+    expect(screen.getByTestId("wall-pack-buy").className).not.toContain("--light");
   });
-  it("PACK-LINKS-1: the guard's cover decides the pack link, not the page address", async () => {
+  it("PACK-LINKS-1: the guard's cover decides the pack, not the page address; several chapters of one subject fall back to the Subject Pack", async () => {
     FLAG_ON();
     wall({ cover: { chapters: ["circles"] } }, "/worksheet");
-    const a = await screen.findByRole("link", { name: "Chapter Pack ₹49 →" });
-    expect(a.getAttribute("href")).toBe("/pricing?chapter=circles#packs");
+    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_chapter&t=circles");
     cleanup();
     wall({ cover: { subject: "science" } }, "/practice-hub");
-    expect((await screen.findByRole("link", { name: "Mock Pack ₹99 →" })).getAttribute("href")).toBe("/pricing?mock=science#packs");
+    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_mock&t=science");
     cleanup();
     wall({ cover: { chapters: ["circles", "triangles"] } }, "/notes/triangles");
-    expect((await screen.findByRole("link", { name: "PDF packs from ₹49 →" })).getAttribute("href")).toBe("/pricing#packs");
+    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_subject&t=maths");
+    expect(screen.getByTestId("wall-pack-buy").getAttribute("data-fallback")).toBe("subject");
+    cleanup();
+    // chapters of BOTH subjects: no single matching pack -> the old plain packs link
+    wall({ cover: { chapters: ["circles", "light-reflection-and-refraction"] } }, "/worksheet");
+    expect((await screen.findByRole("link", { name: /PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
+  });
+  it("a CBQ practice set (no cover) -> that subject's CBQ Pack ₹199", () => {
+    FLAG_ON();
+    wall({}, "/practice?topic=triangles&style=cbq");
+    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
+    expect(buyLink().textContent).toBe("Or get the Maths CBQ Pack · ₹199");
   });
   it("flag off, signed-out and practice variants: absent", async () => {
     FLAG_OFF();

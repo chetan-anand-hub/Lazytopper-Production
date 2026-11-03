@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import { newCheckoutAttemptId } from "../../analytics/analytics";
-import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails } from "../../lib/packs/packAnalytics";
+import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails, type PackCheckoutFrom } from "../../lib/packs/packAnalytics";
 import {
   PACK_ALREADY_OWNED_COPY,
   PACK_CHAPTER_SLUGS,
@@ -178,15 +178,20 @@ export interface PacksShopApi {
    * ask-a-parent card have their place) and starts the SAME handleBuy as the pop-up's Buy: signed in -> Razorpay; signed
    * out -> the pay-with-phone sheet when that flag is on, else today's sign-in-then-pay resume.
    */
-  buyNow: (sku: PackSku, target?: string) => void;
+  buyNow: (sku: PackSku, target?: string, opts?: PackBuyOpts) => void;
   /** The Chapter Pack has no target yet: open its pop-up with the chapter picker focused and Buy right under it. */
-  chooseChapter: () => void;
+  chooseChapter: (opts?: PackBuyOpts) => void;
   /** True when the signed-in account already owns this pack (the tile then says "You own this"). */
   ownsPack: (sku: PackSku, target?: string) => boolean;
   /** False while packs are dark (no Buy buttons on tiles then; the pop-up already says "Opens soon"). */
   buyEnabled: boolean;
   /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
   blockedBy: (sku: PackSku, target?: string) => boolean;
+}
+
+/** PACKS-CONVERT-1: `from: "sample"` = the tap came from the "Liked the sample?" button; it rides on `pack_checkout`. */
+export interface PackBuyOpts {
+  from?: PackCheckoutFrom;
 }
 
 /** Review fix 2: shown under a Buy that waits for another pack's payment. */
@@ -221,6 +226,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [entrySlide, setEntrySlide] = useState(0);
   /** PACKS-TILE-BUY-1: the Chapter Pack pop-up opened from "Choose chapter & buy" focuses its picker. */
   const [focusPicker, setFocusPicker] = useState(false);
+  /** PACKS-CONVERT-1: the Chapter Pack pop-up opened from a sample's buy button; its Buy then reports `from: "sample"`. */
+  const sampleChapterBuy = useRef(false);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
   /** PAY-PHONE-1 - the pack a signed-out visitor is paying for with a phone number (the sheet is open), else null. */
   const [guest, setGuest] = useState<{ sku: PackSku; target: string | undefined } | null>(null);
@@ -296,12 +303,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (slug) requestCounts(slug);
   }
   function openPack(sku: PackSku) {
+    sampleChapterBuy.current = false;
     setEntrySlide(0);
     setFocusPicker(false);
     setOpenSku(sku);
     requestCounts(sku === "pack_chapter" && chapter ? chapter : undefined);
   }
   const closePack = useCallback(() => {
+    sampleChapterBuy.current = false;
     setOpenSku(null);
     setEntrySlide(0);
   }, []);
@@ -346,14 +355,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (location.hash === "#my-packs") myPacksRef.current?.scrollIntoView?.({ block: "start" });
   }, [location.hash, mine]);
 
-  async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean } = {}) {
+  async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
+    const from = opts.from ?? (sku === "pack_chapter" && sampleChapterBuy.current ? "sample" : undefined);
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
       // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
       // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
-      trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false });
+      trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
       // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the
       // visitor to sign-in first. Off: today's flow, unchanged.
       if (guestEnabled) {
@@ -371,7 +381,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setBuy({ key, phase: "busy" });
     const details = packCheckoutDetails(sku, target);
     const attemptId = newCheckoutAttemptId();
-    trackPackCheckout(details, { signedIn: true, resumed: opts.resumed === true });
+    trackPackCheckout(details, { signedIn: true, resumed: opts.resumed === true, ...(from ? { from } : {}) });
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
@@ -616,15 +626,16 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       setSubject(s);
       openPack("pack_cbq");
     },
-    buyNow: (sku, target) => {
+    buyNow: (sku, target, opts) => {
       if (sku === "pack_chapter" && target) setChapter(target);
       else if (target === "maths" || target === "science") setSubject(target);
       openPack(sku);
-      void handleBuy(sku, sku === "pack_bundle" ? undefined : target);
+      void handleBuy(sku, sku === "pack_bundle" ? undefined : target, opts?.from ? { from: opts.from } : {});
     },
-    chooseChapter: () => {
+    chooseChapter: (opts) => {
       openPack("pack_chapter");
       setFocusPicker(true);
+      sampleChapterBuy.current = opts?.from === "sample";
     },
     // Review fix 1: a pack just paid for, or still confirming, counts as owned (no second Buy on its tile).
     ownsPack: (sku, target) => signedIn && (isAlreadyOwned(owned, sku, target) || settling(packIdOf(sku, target))),

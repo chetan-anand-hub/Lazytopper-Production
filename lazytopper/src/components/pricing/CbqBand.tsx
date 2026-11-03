@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { PACK_PRICE_INR, chaptersOfSubject, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
-import PackSampleLink from "../packs/PackSampleLink";
+import PackSampleLink, { SampleBuyNext, type SampleBuy } from "../packs/PackSampleLink";
+import { buyHrefFor } from "../packs/offersModel";
 import type { PackSampleSurface } from "../../lib/packs/packSamples";
 import "./cbqBand.css";
 
@@ -19,10 +20,19 @@ export interface CbqBandProps {
   headingId: string;
   /** PACK-SAMPLE-1: which page the band is on; each card gets a "Free sample page" link under its action (secondary to the buy action). */
   sampleSurface: PackSampleSurface;
+  /**
+   * PACKS-CONVERT-1: the buy step shown under a card's sample link after the tap ("Liked the sample? Get the Maths CBQ Pack · ₹199").
+   * A page with the shop passes its one-tap buy; left out (the /cbq-class-10 hub), it is the one-tap checkout link `/packs?buy=`.
+   * Returning null shows nothing (owned, packs dark).
+   */
+  sampleBuy?: (subject: PackSubject) => SampleBuy | null;
 }
 
-export default function CbqBand({ action, headingId, sampleSurface }: CbqBandProps) {
+const hrefBuy = (s: PackSubject): SampleBuy => ({ href: buyHrefFor("pack_cbq", s) });
+
+export default function CbqBand({ action, headingId, sampleSurface, sampleBuy = hrefBuy }: CbqBandProps) {
   const price = packPriceLabel("pack_cbq");
+  const [tapped, setTapped] = useState<PackSubject | null>(null);
   return (
     <section
       className="lt-cbq"
@@ -50,8 +60,9 @@ export default function CbqBand({ action, headingId, sampleSurface }: CbqBandPro
               </ul>
               {action(s)}
               <div className="lt-cbq__sample">
-                <PackSampleLink sku="pack_cbq" target={s} surface={sampleSurface} tone="on-dark" />
+                <PackSampleLink sku="pack_cbq" target={s} surface={sampleSurface} tone="on-dark" onTapped={() => setTapped(s)} />
               </div>
+              {tapped === s && <SampleNext subject={s} buy={sampleBuy(s)} />}
             </div>
           );
         })}
@@ -59,4 +70,8 @@ export default function CbqBand({ action, headingId, sampleSurface }: CbqBandPro
       <p className="lt-cbq__foot">One-time {price} per pack, download till May 2027 · Made by an IITian (IIT Kanpur)</p>
     </section>
   );
+}
+
+function SampleNext({ subject, buy }: { subject: PackSubject; buy: SampleBuy | null }) {
+  return buy ? <SampleBuyNext sku="pack_cbq" subject={subject} buy={buy} tone="on-dark" /> : null;
 }

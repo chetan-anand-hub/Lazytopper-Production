@@ -8,7 +8,7 @@ import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import type { PacksQueryPack } from "../../lib/packs/packEntry";
 import CbqBand from "./CbqBand";
 import { PackSampleChoice } from "../packs/PackSampleLink";
-import PackTileBuy, { PackCbqBuy } from "../packs/PackTileBuy";
+import PackTileBuy, { PackCbqBuy, sampleBuyFor } from "../packs/PackTileBuy";
 import "./packsStrip.css";
 
 /**
@@ -109,6 +109,7 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
             headingId="pricing-cbq-h"
             sampleSurface="pricing_cbq"
             action={(s) => <PackCbqBuy subject={s} api={api} testPrefix="pricing-cbq" />}
+            sampleBuy={sampleBuyFor(api, "pack_cbq")}
           />
           <section id="packs" ref={ref} className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
             <ParentReturnLink testId="parent-return-packs" />
@@ -135,7 +136,7 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
                   {/* PACK-SAMPLE-1: a sibling of the tile button; Maths and Science links (the pop-up follows the chosen subject). */}
                   {/* PACKS-TILE-BUY-1: Buy right on the tile. */}
                   <PackTileBuy sku={i.sku} api={api} />
-                  <PackSampleChoice sku={i.sku} surface="pricing_tile" />
+                  <PackSampleChoice sku={i.sku} surface="pricing_tile" buy={sampleBuyFor(api, i.sku)} />
                 </li>
               ))}
             </ul>
