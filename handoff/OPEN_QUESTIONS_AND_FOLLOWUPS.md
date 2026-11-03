@@ -23,6 +23,60 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-03 (daily) - #1494 - #1512 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `51aef1a8`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff and afternoon session of 3 Nov **[coordinator]** and the PR bodies **[git/gh]**. No grading behaviour changed today (CLAUDE.md section 4a). Every ID below has its own heading and body (standing rule 1).*
+
+### [FU-PACK-NUDGE-LIVE]
+`#1494`, `#1497`, `#1498`. Flag `PACK_NUDGE_ENABLED` is off by default and the run stays a dry run until `NUDGE_EMAIL_DRY_RUN=0` and the Resend secrets are set; Railway state is not verified. When the owner turns it on: read the first dry-run log, confirm no send outside 08:00-21:00 IST, a buyer who saved a file gets nothing, a second pack-nudge never goes the same day. Email copy hardcodes mock counts: keep it in step with `packLabels.ts`.
+
+### [FU-GUEST-SIGNIN-RETURNING-LIVE]
+`#1496`. Live owner check at 360 px and desktop: /packs -> Buy -> pay with phone -> a number that already has an account -> "Sign in with this number" opens "Already have an account" with the number prefilled and no name field; a new number still opens "I'm new here". Auth round-trip, so one real run.
+
+### [FU-MY-PACKS-LIVE]
+`#1500`. An owner account: "My packs" row in the desktop account menu and the card on Me / Progress; a non-owner sees neither; Open My packs goes to `/packs#my-packs`.
+
+### [FU-AD-LANDING-WORDING-SWEEP]
+`#1503` changed only `/cbq-class-10` and its chapter pages. Other pages still use banned words on ad landings: /packs lede ("answer key with worked solutions"), `PackDialog.tsx`, `packManifest.ts`, `CbqBand.tsx` (shown on /pricing and /packs), `scripts/seo/writeStaticHeads.ts` /packs meta, `ParentPacksSection.tsx`, `buildPackFiles.ts` subtitles, `SolutionsPage.tsx`, /check-your-answer and its FAQ. /packs ads are currently approved, so change only if the owner wants. Raise the /packs hero "Every question. Worked solutions." at the Wed 4 Nov expert call.
+
+### [FU-GOOGLE-REDIRECT-WATCH]
+`#1504`, `#1505`. Redirect sign-in is live for everyone. Watch `login_error` (code `redirect-no-result`, `flow: redirect`) and tried / ok per `ua_class` against the 57 / 43 / 10 Google baseline; live-check desktop Chrome, Android Chrome and iPhone Safari (new account, returning, `?redirect=`, Back on Google's page) and the YouTube in-app browser (phone first, Open in Chrome). Rollback: `VITE_GOOGLE_SIGNIN_MODE=popup`, redeploy. Also verify PHONE-PASTE-1: paste "+91 97145 68948" and "09714568948" into the Login, pay-by-phone and link-phone fields. Known nits 5, 6 and 7 of the `#1505` review were left as-is by decision.
+
+### [FU-TESTIMONIAL-JSONLD]
+`#1506`. The testimonial video on /pricing and /packs has no VideoObject JSON-LD. Needs files under `scripts/seo`; not in that lane.
+
+### [FU-GUEST-PURCHASE-GA4-LIVE]
+`#1510`, `#1488`. Pay by phone is live, and `#1510` now fires `purchase` / `pack_purchase` and the Ads conversion after server confirmation. Not yet seen end to end. Needs one real Rs 49 phone payment by the owner: GA4 / Ads `purchase` with a `pay_...` transaction id and value 49, no phone number in the event. Board Pass by phone fires `purchase` `till_boards`.
+
+### [FU-PACK-SAMPLE-BUY-BUTTON]
+`#1510` item 6b not done: a "Liked the sample? Get the full <pack> . Rs <price>" button after a sample tap. Needs `PackSampleLink.tsx` and/or `PackTileBuy.tsx`, which that lane could not touch. Candidate for PACKS-CONVERT-1 or the next buy-path lane.
+
+### [FU-BYTE-CBQ-LIVE]
+`#1508`. Open `/cbq-class-10/electricity` in a fresh tab, sign up (needs the unused owner test account), reach Home: Byte shows CBQ practice then "Get the Science CBQ pack . Rs 199"; tap goes to `/packs?buy=pack_cbq&t=science`. Hub already live-verified. Also: a `utm_campaign` containing "cbq" routes to the CBQ intent, so a packs campaign whose name contains "cbq" would be routed there too: keep campaign names clear of the word unless intended.
+
+### [FU-YT-CBQ-LANDING]
+The YouTube CBQ ads land on `/practice-hub?cbq=1`, not on a page that sells the CBQ pack (the `/cbq-class-10` hub now does, `#1508`). Ad change: decide at the Wed 4 Nov review whether to point them at the hub.
+
+### [FU-CHECKOUT-NUDGE-LIVE]
+`#1511`. Flag `ABANDONED_CHECKOUT_EMAIL_ENABLED` is off. Test: abandon a Rs 49 checkout on an owner test account, owner sets the flag to exactly "1", one email arrives inside 08:00-21:00 IST with the right price and "Finish paying" link; a second run sends none; a student who then pays gets none; `checkout_help` skips a student already emailed.
+
+### [FU-BOARDPASS-CHECKOUT-LEAK]
+The main money leak: Board Pass checkouts abandoned at the payment screen (Razorpay 28 Oct - 3 Nov: 25 orders, 15 with zero payment attempts; Board Pass 12 opened, 1 paid). Lanes already shipped: trust (`#1506`), one-tap Pay (`#1510`), follow-up email (`#1511`, dark), trial selling (`#1509`). Rejected: a cheaper Rs 599 pass (see DECISION_LOG). Next ideas need data first: what the payment screen shows, which payment methods fail, parent-pay conversion.
+
+### [FU-TRIAL-STRIP-ANALYTICS]
+`#1509`. Pay and Ask taps use surface `trial_strip` through a cast because `analytics.ts` was outside that lane; add `"trial_strip"` to `PaywallSurface`. There is no "shown" event for the strip on purpose (keeps `trial_banner_shown` clean); decide whether one is wanted.
+
+### [FU-EMAIL-FLAGS-UNVERIFIED]
+Railway state of `TRIAL_EMAIL_ENABLED`, `NUDGE_EMAIL_ENABLED`, `NUDGE_FOUNDING_EMAIL_ENABLED`, `PACK_NUDGE_ENABLED` and `ABANDONED_CHECKOUT_EMAIL_ENABLED` (all default off) was not verified on 3 Nov. Read the variables before anyone says an email is or is not going out.
+
+### [FU-PAY-PHONE-LIVE-CORRECTION]
+The 2 Nov entry `[FU-PAY-PHONE-LIVE]` says "dark, after the owner sets the three flags". The flags are set and pay by phone is LIVE [coordinator]. The checklist in that entry still applies in full, except the purchase-event part, which is `[FU-GUEST-PURCHASE-GA4-LIVE]`. Also: `[FU-PAY-PHONE-LIVE]` mentions an owner Rs 49 test payment; one real payment is still wanted.
+
+### [FU-1457-STILL-UNVERIFIED]
+`#1457` (parent report, paid student hides buy asks) is still not live-verified; carried again.
+
+
+
 ## 2026-11-02 (daily) - #1479 - #1492 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `179b6c52`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff of 2 Nov **[coordinator]** and the PR bodies **[git/gh]** unless marked. No grading behaviour changed today (CLAUDE.md section 4a).*
