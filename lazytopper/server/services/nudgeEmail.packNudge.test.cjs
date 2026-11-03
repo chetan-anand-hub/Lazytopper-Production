@@ -328,3 +328,32 @@ test('copy per pack type, greeting by first name', () => {
   assert.equal(b(1, 'pack_bad:x'), null);
   assert.doesNotMatch(mock.html, /<script/);
 });
+
+test('PACK-NUDGE-PRIORITY-1: under a full daily cap, the pack_nudge_1 and checkout_help emails are sent and d3 fills the rest', async () => {
+  const CAP = 5;
+  const subs = { buyer: sub(NOW - 20 * DAY), payer: sub(NOW - 20 * DAY) };
+  const users = { buyer: gUser('buyer@gmail.com'), payer: gUser('payer@gmail.com') };
+  for (let i = 0; i < 9; i += 1) {
+    subs[`d3_${i}`] = sub(NOW - 3.2 * DAY - i * MIN);
+    users[`d3_${i}`] = gUser(`d3_${i}@gmail.com`);
+  }
+  const s = setup({
+    env: { ...ENV_ON, NUDGE_EMAIL_DAILY_CAP: String(CAP), NUDGE_CONCIERGE_ENABLED: '1', NUDGE_EMAIL_REPLY_TO: 'founder@example.com' },
+    subs,
+    users,
+  });
+  for (let i = 0; i < 9; i += 1) {
+    rec(s.db, `d3_${i}`, `r${i}`, NOW - 3 * DAY);
+    day(s.db, `d3_${i}`, '2026-10-24', { lastSeenMs: NOW - 50 * HOUR });
+  }
+  buy(s.db, 'buyer', 2.5);
+  s.db.docs.set('payOrders/o_payer', { uid: 'payer', passType: 'month', amountPaise: 59900, status: 'created', createdAt: ts(NOW - 5 * HOUR) });
+  const r = await run(s);
+  assert.equal(r.byKind.pack_nudge_1, 1, 'buyer email sent');
+  assert.equal(r.byKind.checkout_help, 1, 'payment-rescue email sent');
+  assert.equal(r.byKind.d3, CAP - 2, 'd3 fills only the remaining cap');
+  assert.equal(r.sent, CAP);
+  assert.ok(r.skipped['daily-cap'] >= 1);
+  assert.equal(s.db.docs.get('nudgeEmails/buyer')[P.packNudgeKind(1, PACK)].status, 'sent');
+  assert.equal(s.db.docs.get('nudgeEmails/payer').checkout_help.status, 'sent');
+});
