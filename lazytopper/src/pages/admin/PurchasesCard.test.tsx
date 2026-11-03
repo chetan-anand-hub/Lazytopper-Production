@@ -28,7 +28,7 @@ describe("PurchasesCard", () => {
     await waitFor(() => expect(screen.getByTestId("pu-list")).toBeTruthy());
     expect(screen.getByTestId("pu-totals").textContent).toMatch(/Last 7 days:.*Premium 1 \(₹599\).*Packs 2 \(₹248\)/);
     expect(screen.getByTestId("pu-totals").textContent).toMatch(/Excludes admin/);
-    expect(screen.getByTestId("pu-note").textContent).toMatch(/Refunds are not shown here/);
+    expect(screen.getByTestId("pu-note").textContent).toMatch(/LazyTopper gives no refunds/);
     expect(screen.queryByTestId("pu-admin-order_1")).toBeNull();
     // every row has the same cells (the flag cell is always rendered), so columns line up
     expect(screen.getByTestId("pu-row-order_1").children.length).toBe(screen.getByTestId("pu-row-order_2").children.length);

@@ -36,7 +36,7 @@ const DEFAULT_AT_PRICING: Record<string, string> = {
   "For parents": "/for-parents",
   Privacy: "/legal/privacy",
   Terms: "/legal/terms",
-  "Cancellation & Refunds": "/legal/refund",
+  "Cancellation Policy": "/legal/refund",
   Contact: "/contact",
 };
 
@@ -56,7 +56,7 @@ describe("PARENTS-NAV-1 — PublicLegalFooter fromParents", () => {
       "How CBSE marks answers": "/check-your-answer?from=for_parents",
       Privacy: "/legal/privacy?from=for_parents",
       Terms: "/legal/terms?from=for_parents",
-      "Cancellation & Refunds": "/legal/refund?from=for_parents",
+      "Cancellation Policy": "/legal/refund?from=for_parents",
       Contact: "/contact?from=for_parents",
     });
     // The self-link stays the plain canonical path; it is already the parents page.

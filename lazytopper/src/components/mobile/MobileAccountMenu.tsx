@@ -323,7 +323,7 @@ export function MobileAccountMenu() {
 const LEGAL_LINKS = [
   { label: "Privacy", slug: "privacy" },
   { label: "Terms", slug: "terms" },
-  { label: "Cancellation & Refunds", slug: "refund" },
+  { label: "Cancellation Policy", slug: "refund" },
 ] as const;
 
 const legalLinkStyle: CSSProperties = {

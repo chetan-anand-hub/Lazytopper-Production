@@ -6,7 +6,7 @@ import { WHATSAPP_DISPLAY_NUMBER, WHATSAPP_URL } from "../config/socialProfiles"
 import ParentReturnLink from "../components/parents/ParentReturnLink";
 
 /**
- * LegalPage (`/legal/:slug`) — Privacy, Terms and Refund policies.
+ * LegalPage (`/legal/:slug`) — Privacy, Terms and Cancellation policies.
  *
  * Standalone public surface (never DesktopShell-wrapped — see isDesktopShellRoute
  * in App.tsx). It owns its whole chrome: a sticky brand header, the policy content
@@ -337,28 +337,28 @@ const PAGES: Record<LegalSlug, PageDef> = {
     // auto-renew — with the owner's text word for word.
     // "How to Contact Us" is the page's shared contact block below — its email
     // text is unchanged.
-    title: "Cancellation & Refund Policy",
+    title: "Cancellation Policy",
     updated: "Last updated: October 2026",
     body: (
       <>
-        <h2>Payments are non-refundable</h2>
-        <p>All payments to LazyTopper are final and non-refundable, except for the billing errors listed below. Please use the free trial to decide before you pay.</p>
+        <h2>All payments are final</h2>
+        <p>All payments are final. LazyTopper does not give refunds. Please use the free trial to decide before you pay.</p>
         <h2>Free Trial</h2>
         <p>LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial.</p>
         <h2>Month Pass</h2>
-        <p>A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid.</p>
+        <p>A month pass gives you Premium for one month from the day you pay. It does not renew automatically. No refund.</p>
         <h2>Till-Boards Plan</h2>
-        <p>A one-time payment covering Premium until your first board exam. It is not refunded once paid.</p>
+        <p>A one-time payment covering Premium until your first board exam. No refund.</p>
         <h2>PDF Packs</h2>
-        <p>A PDF pack is a digital download. It is not refunded once paid, because the files are available to you straight away. If a file will not download or open, email us and we will fix it or send it to you.</p>
+        <p>A PDF pack is a digital download. The files are available to you straight away. No refund. If a file will not download or open, email us and we will fix it or send it to you.</p>
         <p>If you buy the Board Pass within 7 days of buying a pack, the pack's price is taken off the Board Pass price.</p>
         <h2>Billing Errors</h2>
-        <p>If you were charged twice or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.</p>
+        <p>Charged twice or charged the wrong amount? Email <MailLink /> with your payment ID and we will sort it out.</p>
       </>
     ),
     contact: (
       <p>
-        For refund requests or questions, email <MailLink />
+        For questions about a payment, email <MailLink />
       </p>
     ),
   },
@@ -377,7 +377,7 @@ export { LEGAL_SLUGS } from "./legalSlugs";
 const TABS: { slug: LegalSlug; label: string }[] = [
   { slug: "privacy", label: "Privacy Policy" },
   { slug: "terms", label: "Terms of Service" },
-  { slug: "refund", label: "Cancellation & Refunds" },
+  { slug: "refund", label: "Cancellation Policy" },
 ];
 
 // Sticky back-bar only — NO logo/wordmark. The global app navbar (App.tsx) already

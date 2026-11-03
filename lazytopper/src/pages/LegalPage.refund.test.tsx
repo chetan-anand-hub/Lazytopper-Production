@@ -20,15 +20,15 @@ import { STATIC_PAGE_HEADS, escapeAttr, escapeText } from "../../scripts/seo/wri
 
 afterEach(cleanup);
 
-const TITLE = "Cancellation & Refund Policy";
+const TITLE = "Cancellation Policy";
 // PACKS-LEGAL-1 (25 Oct 2026): the PDF Packs section was added, so the date moved.
 const UPDATED = "Last updated: October 2026";
 
 /** The owner's sections, in order, word for word. */
 const SECTIONS: Array<[string, string]> = [
   [
-    "Payments are non-refundable",
-    "All payments to LazyTopper are final and non-refundable, except for the billing errors listed below. Please use the free trial to decide before you pay.",
+    "All payments are final",
+    "All payments are final. LazyTopper does not give refunds. Please use the free trial to decide before you pay.",
   ],
   [
     "Free Trial",
@@ -37,22 +37,22 @@ const SECTIONS: Array<[string, string]> = [
   [
     // OR-P6 (owner, 2026-09-26): one-time passes only, no auto-renew.
     "Month Pass",
-    "A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid.",
+    "A month pass gives you Premium for one month from the day you pay. It does not renew automatically. No refund.",
   ],
   [
     "Till-Boards Plan",
-    "A one-time payment covering Premium until your first board exam. It is not refunded once paid.",
+    "A one-time payment covering Premium until your first board exam. No refund.",
   ],
   [
     // PACKS-LEGAL-1 (owner, 25 Oct 2026): a pack is a digital download, not refunded once paid.
     // The section's second paragraph (the Board Pass credit) is pinned in PACKS_CREDIT below.
     "PDF Packs",
-    "A PDF pack is a digital download. It is not refunded once paid, because the files are available to you straight away. If a file will not download or open, email us and we will fix it or send it to you.",
+    "A PDF pack is a digital download. The files are available to you straight away. No refund. If a file will not download or open, email us and we will fix it or send it to you.",
   ],
   [
     // OR-P7 (owner, 2026-09-26): no "charged after cancelling" — a pass is never cancelled.
     "Billing Errors",
-    "If you were charged twice or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.",
+    "Charged twice or charged the wrong amount? Email support@lazytopper.com with your payment ID and we will sort it out.",
   ],
 ];
 
@@ -115,7 +115,7 @@ describe("OR-P4 — the refund page, as rendered", () => {
     const card = renderRefund();
     const contact = card.querySelector(".lt-legal-contact");
     expect(flat(contact?.textContent)).toContain(
-      "For refund requests or questions, email support@lazytopper.com",
+      "For questions about a payment, email support@lazytopper.com",
     );
   });
 
@@ -125,7 +125,7 @@ describe("OR-P4 — the refund page, as rendered", () => {
       expect(text, `retired refund copy still rendered: ${retired}`).not.toMatch(retired);
     }
     // CONTROL — the same text does carry the new policy, so the absences mean something.
-    expect(text).toContain("final and non-refundable");
+    expect(text).toContain("All payments are final. LazyTopper does not give refunds.");
   });
 
   it("OR-P6 — says nothing that implies a renewing subscription", () => {
@@ -145,7 +145,7 @@ describe("OR-P4 — the refund page, as rendered", () => {
     const h2 = Array.from(card.querySelectorAll("h2")).find((h) => flat(h.textContent) === "Month Pass");
     expect(h2, "Month Pass heading").toBeDefined();
     expect(flat(h2?.nextElementSibling?.textContent)).toBe(
-      "A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid.",
+      "A month pass gives you Premium for one month from the day you pay. It does not renew automatically. No refund.",
     );
     expect(Array.from(card.querySelectorAll("h2")).map((h) => flat(h.textContent))).not.toContain("Monthly Plan");
   });
@@ -223,11 +223,11 @@ describe("OR-P4 — WHERE ELSE: no retired refund term on any student-facing sur
  * the `src/` walk above — still told crawlers "the 7-day refund window". The owner's
  * title, description and tab label are pinned here word for word.
  */
-const HEAD_TITLE = "Cancellation & Refund Policy | LazyTopper";
+const HEAD_TITLE = "Cancellation Policy | LazyTopper";
 // OR-P7 (owner, 2026-09-26): passes, not "a monthly plan" you cancel.
 const HEAD_DESCRIPTION =
-  "LazyTopper's cancellation and refund policy — the 7-day free trial, month and till-boards passes, and refunds for billing errors.";
-const TAB_LABEL = "Cancellation & Refunds";
+  "LazyTopper's cancellation policy — the 7-day free trial, month and till-boards passes. All payments are final; LazyTopper does not give refunds.";
+const TAB_LABEL = "Cancellation Policy";
 
 /** Decode exactly what `escapeAttr` / `escapeText` encode, ampersand LAST. */
 function decode(value: string): string {
@@ -244,7 +244,7 @@ describe("OR-P5 — the /legal/refund head and the refund tab label", () => {
 
   it("the emitted (escaped) head decodes back to the owner's exact strings", () => {
     const head = STATIC_PAGE_HEADS["/legal/refund"];
-    expect(escapeText(head.title)).toBe("Cancellation &amp; Refund Policy | LazyTopper");
+    expect(escapeText(head.title)).toBe("Cancellation Policy | LazyTopper");
     expect(decode(escapeText(head.title))).toBe(HEAD_TITLE);
     expect(decode(escapeAttr(head.title))).toBe(HEAD_TITLE);
     expect(decode(escapeAttr(head.description))).toBe(HEAD_DESCRIPTION);

@@ -48,7 +48,7 @@ afterEach(cleanup);
 const FOOTER_LINKS: [string, string][] = [
   ["Privacy", "/legal/privacy"],
   ["Terms", "/legal/terms"],
-  ["Cancellation & Refunds", "/legal/refund"], // COPY-2 · K6
+  ["Cancellation Policy", "/legal/refund"], // COPY-2 · K6
 ];
 
 describe("CONTROL — the link query used by this file can find a legal link that already exists", () => {
@@ -130,7 +130,7 @@ describe("the footer links to Exam Trends (the chapter index) on every public su
     ["PublicLegalFooter", () => <MemoryRouter><PublicLegalFooter /></MemoryRouter>, "/"],
   ];
 
-  it.each(surfaces)("%s: Chapters → /exam-trends, CBSE 2027 → /cbse/class-10 carrying this surface's returnTo, then Privacy, Terms, Cancellation & Refunds", (_name, ui, origin) => {
+  it.each(surfaces)("%s: Chapters → /exam-trends, CBSE 2027 → /cbse/class-10 carrying this surface's returnTo, then Privacy, Terms, Cancellation Policy", (_name, ui, origin) => {
     render(ui());
     const foot = screen.getByRole("contentinfo", { name: "Legal" });
     expect(within(foot).getByRole("link", { name: "Chapters" })).toHaveAttribute(

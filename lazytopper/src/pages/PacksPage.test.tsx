@@ -85,8 +85,8 @@ describe("PacksPage", () => {
     expect(text).toContain("All 26 chapters");
     expect(text).not.toMatch(/\b27 chapters/);
     expect(text).not.toMatch(/Complete Bundle|Stray/);
-    // Owner 2 Nov 2026 (no refunds): the visible text is "Cancellation policy"; the link target is unchanged.
-    expect(screen.getByRole("link", { name: "Cancellation policy" }).getAttribute("href")).toBe("/legal/refund");
+    // Owner 2 Nov 2026 (no refunds): the visible text is "Cancellation Policy"; the link target is unchanged.
+    expect(screen.getAllByRole("link", { name: "Cancellation Policy" })[0].getAttribute("href")).toBe("/legal/refund");
     expect(screen.queryByTestId("packs-mine")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.getByTestId("founder-badge").textContent).toBe("Made by an IITian (IIT Kanpur)");

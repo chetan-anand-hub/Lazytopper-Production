@@ -50,7 +50,7 @@ const LEGAL = [
   ["Privacy", "/legal/privacy"],
   ["Terms", "/legal/terms"],
   // COPY-2 · K6 (owner, 2026-09-27): matches the page tab and title.
-  ["Cancellation & Refunds", "/legal/refund"],
+  ["Cancellation Policy", "/legal/refund"],
 ] as const;
 
 describe("MobileAccountMenu — legal row (Lane C)", () => {

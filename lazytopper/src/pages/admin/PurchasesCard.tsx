@@ -278,7 +278,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
               <strong>Last 30 days:</strong> {line(state.data.totals.last30)}
             </p>
             <p className="sa-muted">Excludes admin / test accounts.{state.data.totals.complete ? "" : " May be incomplete: only the latest 300 paid orders were read."}</p>
-            <p className="sa-muted" data-testid="pu-note">Refunds are not shown here — a refunded order still counts as paid. Top-ups are counted separately.</p>
+            <p className="sa-muted" data-testid="pu-note">Every paid order counts as paid; LazyTopper gives no refunds. Top-ups are counted separately.</p>
           </div>
           {state.data.items.length === 0 ? (
             <p className="sa-empty" data-testid="pu-empty">

@@ -98,7 +98,7 @@ function navItemStyle(isActive: boolean): React.CSSProperties {
 const LEGAL_LINKS: { label: string; slug: string }[] = [
   { label: "Privacy", slug: "privacy" },
   { label: "Terms", slug: "terms" },
-  { label: "Cancellation & Refunds", slug: "refund" },
+  { label: "Cancellation Policy", slug: "refund" },
 ];
 
 const NAV_ITEMS: NavItem[] = [
