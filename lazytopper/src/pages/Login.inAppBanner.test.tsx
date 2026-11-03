@@ -90,7 +90,7 @@ describe("Login in an in-app browser", () => {
   it("Android Instagram: banner, Open in Chrome, phone first, event with app only", async () => {
     mount(IG_ANDROID);
     await screen.findByTestId("inapp-signin-banner");
-    expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside Instagram");
+    expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside the Instagram app");
     const chrome = screen.getByRole("link", { name: "Open in Chrome" });
     expect(chrome.getAttribute("href")).toMatch(/^intent:\/\/.+#Intent;scheme=http/);
     expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
@@ -108,7 +108,7 @@ describe("Login in an in-app browser", () => {
   it("AUTH-SIGNAL-1 · YouTube app (Android): banner names YouTube, Open in Chrome, event app=youtube", async () => {
     mount(YT_ANDROID);
     await screen.findByTestId("inapp-signin-banner");
-    expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside YouTube");
+    expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside the YouTube app");
     expect(screen.getByRole("link", { name: "Open in Chrome" })).toBeTruthy();
     await waitFor(() => expect(track).toHaveBeenCalledWith("inapp_signin_banner_shown", { app: "youtube" }));
   });

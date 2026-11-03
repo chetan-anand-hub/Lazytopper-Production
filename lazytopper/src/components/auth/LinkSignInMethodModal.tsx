@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { hasPhoneLinked } from "../../lib/signInMethods";
+import { normaliseTypedIndianMobile } from "../../utils/indianMobileInput";
 
 /**
  * LinkSignInMethodModal — add a phone number as a second way to sign in.
@@ -228,7 +229,7 @@ export default function LinkSignInMethodModal({
                     autoComplete="tel-national"
                     placeholder="10-digit number"
                     value={phone}
-                    onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    onChange={e => setPhone(normaliseTypedIndianMobile(e.target.value))}
                     style={fieldStyle}
                   />
                 </div>

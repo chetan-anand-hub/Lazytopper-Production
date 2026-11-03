@@ -121,29 +121,38 @@ export function currentUaClass(): UaClass {
   }
 }
 
-export function trackLoginAttempt(method: LoginMethod): void {
+/**
+ * GOOGLE-REDIRECT-1 — which Google flow an attempt used. Sent on Google events only (the caller
+ * passes it); email / phone events carry no `flow`, exactly as before.
+ */
+export type LoginFlow = "popup" | "redirect";
+
+function withFlow<T extends object>(params: T, flow: LoginFlow | undefined): T & { flow?: LoginFlow } {
+  return flow === "popup" || flow === "redirect" ? { ...params, flow } : params;
+}
+
+export function trackLoginAttempt(method: LoginMethod, flow?: LoginFlow): void {
   try {
-    trackOnboardingEvent("login_attempt", { method, ua_class: currentUaClass() });
+    trackOnboardingEvent("login_attempt", withFlow({ method, ua_class: currentUaClass() }, flow));
   } catch {
     /* analytics must never break a sign-in */
   }
 }
 
-export function trackLoginSuccess(method: LoginMethod): void {
+export function trackLoginSuccess(method: LoginMethod, flow?: LoginFlow): void {
   try {
-    trackOnboardingEvent("login_success", { method, ua_class: currentUaClass() });
+    trackOnboardingEvent("login_success", withFlow({ method, ua_class: currentUaClass() }, flow));
   } catch {
     /* analytics must never break a sign-in */
   }
 }
 
-export function trackLoginError(method: LoginMethod, err: unknown): void {
+export function trackLoginError(method: LoginMethod, err: unknown, flow?: LoginFlow): void {
   try {
-    trackOnboardingEvent("login_error", {
-      method,
-      ua_class: currentUaClass(),
-      error_code: telemetryErrorCode(err),
-    });
+    trackOnboardingEvent(
+      "login_error",
+      withFlow({ method, ua_class: currentUaClass(), error_code: telemetryErrorCode(err) }, flow),
+    );
   } catch {
     /* analytics must never break a sign-in */
   }

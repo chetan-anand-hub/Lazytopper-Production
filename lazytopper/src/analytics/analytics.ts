@@ -1989,14 +1989,15 @@ export interface OnboardingEventParams {
  *               chrome_android | desktop | other   (never the raw user agent)
  *   error_code  the Firebase code without "auth/" (e.g. popup-blocked), "popup-timeout" for the
  *               45 s Google wait, or "unknown". No email, phone, uid or name rides along.
+ *   flow        popup | redirect — GOOGLE-REDIRECT-1, Google events only (absent on email / phone).
  * GA4 / Vercel only: signed-out visitors are never in the first-party activity log, so none of
  * these is (or needs to be) on the activity allow-list.
  * ------------------------------------------------------------------------- */
 
 export interface OnboardingEventParams {
-  login_attempt: { method: "google" | "email" | "phone"; ua_class: string };
-  login_success: { method: "google" | "email" | "phone"; ua_class: string };
-  login_error: { method: "google" | "email" | "phone"; ua_class: string; error_code: string };
+  login_attempt: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" };
+  login_success: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" };
+  login_error: { method: "google" | "email" | "phone"; ua_class: string; error_code: string; flow?: "popup" | "redirect" };
 }
 
 /**

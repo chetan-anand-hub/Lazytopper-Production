@@ -108,11 +108,12 @@ describe("Google popup that never reports back", () => {
       fireEvent.click(screen.getByRole("button", { name: /All sign-in options/ }));
     });
     expect((screen.getByRole("button", { name: /Continue with Google/ }) as HTMLButtonElement).disabled).toBe(false);
-    expect(track).toHaveBeenCalledWith("login_attempt", { method: "google", ua_class: "inapp_youtube" });
+    expect(track).toHaveBeenCalledWith("login_attempt", { method: "google", ua_class: "inapp_youtube", flow: "popup" });
     expect(track).toHaveBeenCalledWith("login_error", {
       method: "google",
       ua_class: "inapp_youtube",
       error_code: "popup-timeout",
+      flow: "popup", // GOOGLE-REDIRECT-1
     });
   });
   it.each([["desktop", DESKTOP], ["normal mobile Chrome", CHROME]])(
@@ -193,6 +194,7 @@ describe("Google failure messages", () => {
       method: "google",
       ua_class: "chrome_android",
       error_code: telemetry,
+      flow: "popup", // GOOGLE-REDIRECT-1
     });
   });
 });
@@ -256,7 +258,7 @@ describe("login_success", () => {
       mount.rerender();
     });
     const successes = track.mock.calls.filter((c) => c[0] === "login_success");
-    expect(successes).toEqual([["login_success", { method: "google", ua_class: "chrome_android" }]]);
+    expect(successes).toEqual([["login_success", { method: "google", ua_class: "chrome_android", flow: "popup" }]]);
     expect(JSON.stringify(track.mock.calls)).not.toMatch(/a@b\.com|u1/);
   });
   it("an already signed-in visitor passing through /login reports nothing", async () => {
@@ -304,7 +306,7 @@ describe("late Google success after the 45 s timeout", () => {
     });
     expect(landed).toHaveBeenCalledTimes(1);
     expect(track.mock.calls.filter((c) => c[0] === "login_success")).toEqual([
-      ["login_success", { method: "google", ua_class: "inapp_youtube" }],
+      ["login_success", { method: "google", ua_class: "inapp_youtube", flow: "popup" }],
     ]);
     // No second error and no timeout event after success.
     expect(track.mock.calls.filter((c) => c[0] === "login_error")).toHaveLength(1);
