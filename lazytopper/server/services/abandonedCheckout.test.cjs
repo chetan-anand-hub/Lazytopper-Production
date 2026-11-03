@@ -198,7 +198,9 @@ test('a Board Pass checkout opened 3 h ago gets ONE email with the approved shap
   const b = s.calls[0].body;
   assert.deepEqual(b.to, ['one@gmail.com']);
   assert.equal(b.subject, 'Your Board Pass is waiting');
-  assert.match(b.text, /Board Pass: ₹1,917, one payment, till your boards\. This is the founding price until 30 Nov 2026; from 1 Dec it is ₹2,499\./);
+  assert.match(b.text, /Board Pass: ₹1,917, one payment till your boards\./);
+  assert.doesNotMatch(b.text + b.html, /2,499|2499/);
+  assert.doesNotMatch(b.text, /try again/); // no failed attempt on this order
   assert.match(b.text, /Finish paying: https:\/\/www\.lazytopper\.com\/pricing\?buy=board_pass&utm_source=email/);
   assert.match(b.text, /Send it to a parent: https:\/\/wa\.me\/\?text=/);
   assert.match(b.text, /Made by an IITian \(IIT Kanpur\)/);
@@ -224,6 +226,8 @@ test('a pack checkout: pack name, catalogue price, the OFFERS-V2 one-tap /packs?
   const s = setup();
   packOrder(s.db, 'u1', 5, 'pack_cbq', 'science', { amountPaise: 19900 });
   packOrder(s.db, 'u2', 5, 'pack_bundle', 'all', { amountPaise: 29900 });
+  // u3: a Board Pass order the server credited with packs (₹1,917 - ₹199 = ₹1,718) and a failed payment attempt.
+  order(s.db, 'u3', 4, { amountPaise: 171800, packCreditInr: 199, lastFailure: { code: 'BAD_REQUEST_ERROR', atMs: NOW - 4 * HOUR } });
   await s.run();
   const byTo = Object.fromEntries(s.calls.map((c) => [c.body.to[0], c.body]));
   assert.equal(byTo['one@gmail.com'].subject, 'Your Science CBQ Pack is waiting');
@@ -231,6 +235,24 @@ test('a pack checkout: pack name, catalogue price, the OFFERS-V2 one-tap /packs?
   assert.match(byTo['one@gmail.com'].text, /Finish paying: https:\/\/www\.lazytopper\.com\/packs\?buy=pack_cbq&t=science&utm_source=email/);
   assert.equal(byTo['two@gmail.com'].subject, 'Your Maths + Science Bundle is waiting');
   assert.match(byTo['two@gmail.com'].text, /Finish paying: https:\/\/www\.lazytopper\.com\/packs\?buy=pack_bundle&utm_source=email/);
+  assert.match(byTo['two@gmail.com'].text, /₹299, one-time payment/);
+  // The credited order shows ITS OWN amount, never the config price; the failed attempt gets the one retry line.
+  const t3 = byTo['three@gmail.com'].text;
+  assert.match(t3, /Board Pass: ₹1,718, one payment till your boards\./);
+  assert.doesNotMatch(t3, /1,917|2,499/);
+  assert.ok(t3.includes(A.RETRY_LINE));
+  assert.equal(A.RETRY_LINE, "If your payment didn't go through, you can simply try again — nothing extra is needed.");
+  assert.doesNotMatch(byTo['one@gmail.com'].text, /try again/);
+  for (const c of s.calls) assert.doesNotMatch(c.body.text + c.body.html, /2,499|2499/);
+});
+
+test('price (pure): from the order amount only; no usable amount -> no price line', () => {
+  const bp = A.productOf({ passType: 'till_boards' });
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }), 'Board Pass: ₹1,917, one payment till your boards.');
+  assert.equal(A.priceLine(bp, { amountPaise: 0 }), null);
+  assert.equal(A.priceLine(bp, {}), null);
+  assert.equal(A.hadFailedAttempt({ lastFailure: { code: 'x' } }), true);
+  assert.equal(A.hadFailedAttempt({}), false);
 });
 
 // ── paid since ──────────────────────────────────────────────────────────────────────────
@@ -446,7 +468,7 @@ test('no phone number in any rendered URL; the WhatsApp link names no number', (
     for (const product of products) {
       const m = A.buildAbandonedCheckoutEmail({
         product,
-        nowMs: NOW,
+        order: { amountPaise: 4900, lastFailure: { code: 'x' } },
         marksLine: null,
         appUrl: 'https://www.lazytopper.com',
         unsubscribeUrl: 'https://www.lazytopper.com/api/trial-email/unsubscribe?t=abc.def',
@@ -465,7 +487,4 @@ test('no phone number in any rendered URL; the WhatsApp link names no number', (
       assert.doesNotMatch(m.text + m.html, /refund/i);
     }
   }
-  // Board Pass after the founding deadline: the later price, and no founding sentence.
-  const late = A.priceLine(A.productOf({ passType: 'till_boards' }), Date.parse('2026-12-02T04:30:00.000Z'));
-  assert.equal(late, 'Board Pass: ₹2,499, one payment, till your boards.');
 });

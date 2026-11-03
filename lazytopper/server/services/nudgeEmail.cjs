@@ -1246,7 +1246,7 @@ function createNudgeEmailer(deps = {}) {
         const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
         const message = abandoned.buildAbandonedCheckoutEmail({
           product,
-          nowMs,
+          order,
           marksLine,
           appUrl: config.appUrl,
           unsubscribeUrl,

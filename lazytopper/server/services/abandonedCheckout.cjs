@@ -29,7 +29,7 @@
 
 const { escapeHtml } = require('./trialEndingEmail.cjs');
 const pricing = require('./passPricing.cjs');
-const { PACK_PRODUCTS, PACK_CHAPTERS, isPackProduct, packIdFor, parsePackId, isAlreadyOwned } = require('./packProducts.cjs');
+const { PACK_CHAPTERS, isPackProduct, packIdFor, parsePackId, isAlreadyOwned } = require('./packProducts.cjs');
 const { packDisplayName } = require('./packNudge.cjs');
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -247,6 +247,9 @@ const SUBJECT_LABEL = Object.freeze({ maths: 'Maths', science: 'Science' });
 /**
  * One line on what the product gives, from the existing product copy: the Board Pass "ladder" benefit
  * (src/components/packs/offersCopy.ts BOARD_PASS_BENEFIT.ladder) and the pack OFFER_LINES (offersModel.ts). PURE.
+ * ★ KEEP IN STEP: the mock counts ("16 mocks", "8 board-pattern mock papers") mirror MOCKS_PER_SUBJECT (8) and
+ *   BUNDLE_MOCKS (16) in src/lib/packs/packLabels.ts. The server has no copy of those constants (packProducts.cjs holds
+ *   prices and targets only), so a change there must be made here too.
  */
 function benefitLine(product) {
   if (product.kind === BOARD_PASS) return 'Get your written answers marked step by step, like a CBSE examiner, till your boards.';
@@ -264,18 +267,29 @@ function benefitLine(product) {
   }
 }
 
-/** The price line. Board Pass from the server pricing mirror (founding until 30 Nov 2026, then the later price). PURE. */
-function priceLine(product, nowMs) {
-  if (product.kind === BOARD_PASS) {
-    const now = rupee(pricing.tillBoardsPriceInr(nowMs));
-    if (pricing.foundingOfferOpen(nowMs)) {
-      return `Board Pass: ${now}, one payment, till your boards. This is the founding price until 30 Nov 2026; from 1 Dec it is ${rupee(pricing.TILL_BOARDS_AFTER_FOUNDING_INR)}.`;
-    }
-    return `Board Pass: ${now}, one payment, till your boards.`;
-  }
-  const p = PACK_PRODUCTS[product.sku];
-  return `${rupee(p.priceInr)}, one-time payment. It never renews.`;
+/**
+ * The rupee amount of the abandoned order itself: `amountPaise` as the SERVER set it when the order was created
+ * (payments.cjs handleOrder - it already carries the founding price and any pack credit). null when unusable. PURE.
+ * Never a config price: a founding student keeps the founding price, and a credited order shows its credited amount.
+ */
+function orderAmountInr(order) {
+  const p = order && order.amountPaise;
+  return Number.isInteger(p) && p > 0 ? p / 100 : null;
 }
+
+/** The price line, from the order's own amount; null (no line) when the order has no usable amount. PURE. */
+function priceLine(product, order) {
+  const inr = orderAmountInr(order);
+  if (inr === null) return null;
+  if (product.kind === BOARD_PASS) return `Board Pass: ${rupee(inr)}, one payment till your boards.`;
+  return `${rupee(inr)}, one-time payment. It never renews.`;
+}
+
+/** A payment was tried and failed (Razorpay's signed payment.failed left `lastFailure`, PAY-RESCUE-1). PURE. */
+function hadFailedAttempt(order) {
+  return !!(order && order.lastFailure && typeof order.lastFailure === 'object');
+}
+const RETRY_LINE = "If your payment didn't go through, you can simply try again — nothing extra is needed.";
 
 /** The product's name in the email. PURE. */
 function productName(product) {
@@ -288,15 +302,16 @@ function productName(product) {
  * sells passes, not packs); otherwise it is a WhatsApp share (no number) asking a parent to help.
  * @returns {{subject:string, text:string, html:string, links:{finish:string, parent:string}} | null}
  */
-function buildAbandonedCheckoutEmail({ product, nowMs, marksLine, appUrl, unsubscribeUrl, parentPayLive }) {
+function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubscribeUrl, parentPayLive }) {
   const name = productName(product);
   if (!name) return null;
   const finish = finishPayingUrl(appUrl, product);
-  const price = product.kind === BOARD_PASS ? rupee(pricing.tillBoardsPriceInr(nowMs)) : rupee(PACK_PRODUCTS[product.sku].priceInr);
+  const inr = orderAmountInr(order);
+  const price = inr === null ? '' : product.kind === BOARD_PASS ? ` (${rupee(inr)}, one payment till my boards)` : ` (${rupee(inr)}, one-time)`;
   const ask =
     product.kind === BOARD_PASS
-      ? `Hi, I want to get the LazyTopper Board Pass for my board exam prep (${price}, one payment, till my boards). Can you help me pay for it? ${appUrl}/pricing`
-      : `Hi, I want to get the LazyTopper ${name} for my board exam prep (${price}, one-time). Can you help me pay for it? ${appUrl}/packs`;
+      ? `Hi, I want to get the LazyTopper Board Pass for my board exam prep${price}. Can you help me pay for it? ${appUrl}/pricing`
+      : `Hi, I want to get the LazyTopper ${name} for my board exam prep${price}. Can you help me pay for it? ${appUrl}/packs`;
   const parent = product.kind === BOARD_PASS && parentPayLive ? parentPayPageUrl(appUrl) : whatsappShareUrl(ask);
   const parentNote =
     product.kind === BOARD_PASS && parentPayLive
@@ -307,9 +322,11 @@ function buildAbandonedCheckoutEmail({ product, nowMs, marksLine, appUrl, unsubs
   const paras = [
     { t: 'Hi,' },
     { t: `You opened the checkout for the ${name} on LazyTopper but did not finish paying. It is still here when you are ready.` },
-    { t: benefitLine(product) },
-    { t: priceLine(product, nowMs) },
   ];
+  if (hadFailedAttempt(order)) paras.push({ t: RETRY_LINE });
+  paras.push({ t: benefitLine(product) });
+  const pl = priceLine(product, order);
+  if (pl) paras.push({ t: pl });
   if (marksLine) paras.push({ t: marksLine });
   const buttons = [
     { label: 'Finish paying', url: finish },
@@ -366,6 +383,9 @@ module.exports = {
   whatsappShareUrl,
   benefitLine,
   priceLine,
+  orderAmountInr,
+  hadFailedAttempt,
+  RETRY_LINE,
   productName,
   buildAbandonedCheckoutEmail,
   runCountLine,
