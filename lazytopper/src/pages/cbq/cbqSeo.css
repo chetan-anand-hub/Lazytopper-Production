@@ -86,6 +86,22 @@
   max-width: 60ch;
 }
 
+/* BYTE-CBQ-1: price + the two buy buttons in the first screen */
+.lt-cbqs__herobuy {
+  margin-top: 14px;
+}
+.lt-cbqs__heroprice {
+  color: #eaf2fb;
+  font-size: 14px;
+  margin: 0 0 10px;
+  max-width: 60ch;
+}
+.lt-cbqs__herobtns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
 /* BODY */
 .lt-cbqs__body {
   padding-top: 22px;
@@ -284,5 +300,8 @@
   }
   .lt-cbqs__hero {
     padding: 30px 0 32px;
+  }
+  .lt-cbqs__herobtns {
+    grid-template-columns: repeat(2, minmax(0, max-content));
   }
 }

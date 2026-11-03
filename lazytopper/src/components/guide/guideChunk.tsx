@@ -45,6 +45,12 @@ const GLYPH: Record<GuideOptionId, ReactNode> = {
       <path d="M9 13h7M9 17h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </>
   ),
+  cbq_pack: (
+    <>
+      <path d="M6 3h9l4 4v14H6z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M9 11h7M9 15h4M9 19h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </>
+  ),
   cbq: (
     <>
       <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2" />

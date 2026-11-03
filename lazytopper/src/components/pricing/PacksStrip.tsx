@@ -41,6 +41,17 @@ const USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 /** The lowest pack price, for the sub line ("from ₹49"). */
 const FROM_PRICE = Math.min(...ITEMS.map((i) => PACK_PRICE_INR[i.sku]));
 
+/**
+ * BUY-PATH-1 - where `#cbq` lands: the wrapper above the CBQ band while it holds the parents' way back (it is visible then), else the
+ * CBQ band itself (`id="cbq"`, the element right after the wrapper). Never a hidden element.
+ */
+export function cbqTarget(top: HTMLElement | null): HTMLElement | null {
+  if (!top) return null;
+  if (top.childElementCount > 0) return top;
+  const next = top.nextElementSibling;
+  return next instanceof HTMLElement && next.id === "cbq" ? next : (document.getElementById("cbq") ?? top);
+}
+
 export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLive?: boolean } = {}) {
   // PACK-BASIC-ONLY-1 / PACK-ANCHOR-FIX-1 - the walls link to /pricing#packs. This strip mounts after first paint (lazy), so the
   // browser's own hash scroll has already missed it, and content above it (Premium card, founding offer, other lazy parts) can still
@@ -60,8 +71,9 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
     const assert = () => {
       if (stopped) return;
       // #packs -> the strip's top; #cbq -> the CBQ band (both mount after first paint, hence the re-assert).
-      // (#cbq lands on the wrapper above the band so the "Back to parents page" link, when shown, stays in view.)
-      const el = hash === "#cbq" ? topRef.current : ref.current;
+      // (#cbq lands on the wrapper above the band only when that wrapper HAS the "Back to parents page" link. BUY-PATH-1: empty,
+      // the wrapper is `display: none` (packsStrip.css), and scrolling a hidden element does nothing - /pricing#cbq never moved.)
+      const el = hash === "#cbq" ? cbqTarget(topRef.current) : ref.current;
       el?.scrollIntoView?.({ block: "start" });
     };
     const stop = () => {

@@ -127,7 +127,7 @@
     "test:server:signup-source": "node --test server/routes/signupSource.test.cjs",
     "test:server:trial-email": "node --test server/services/trialEndingEmail.test.cjs",
     "test:server:ops-report": "node --test server/services/opsReport.test.cjs",
-    "test:server:nudge-email": "node --test server/services/nudgeEmail.test.cjs server/services/emailSendWindow.test.cjs",
+    "test:server:nudge-email": "node --test server/services/nudgeEmail.test.cjs server/services/emailSendWindow.test.cjs server/services/abandonedCheckout.test.cjs",
     "test:server:pack-nudge": "node --test server/services/nudgeEmail.packNudge.test.cjs",
     "test:server:more-like-this": "node --test server/routes/moreLikeThis.route.test.cjs",
     "test:server:ai-questions": "node --test server/routes/aiQuestions.route.test.cjs",

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import CbqBand from "../../components/pricing/CbqBand";
-import { CbqPremiumCta, CBQ_PACK_TO } from "../../components/cbq/CbqCtas";
+import { CbqHeroBuy, CbqPremiumCta, cbqBuyHref } from "../../components/cbq/CbqCtas";
 import { CBQ_HUB_H1, cbqChapterPath, cbqChapterTopics } from "../../components/cbq/cbqSeo";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 import { subjectLabel, type PackSubject } from "../../services/packs";
@@ -31,6 +31,7 @@ export default function CbqHubPage() {
           <p className="lt-cbqs__sub">
             Pick a chapter to see real competency-based questions with step-by-step explanations and marks for each.
           </p>
+          <CbqHeroBuy />
         </div>
       </header>
 
@@ -77,8 +78,8 @@ export default function CbqHubPage() {
             headingId="cbqs-band"
             sampleSurface="cbq_hub"
             action={(subject: PackSubject) => (
-              <Link className="lt-cbq__btn" to={CBQ_PACK_TO} data-testid={`cbq-cta-pack-${subject}`}>
-                Get the {subjectLabel(subject)} CBQ Pack
+              <Link className="lt-cbq__btn" to={cbqBuyHref(subject)} data-testid={`cbq-cta-pack-${subject}`}>
+                Buy the {subjectLabel(subject)} CBQ Pack
               </Link>
             )}
           />

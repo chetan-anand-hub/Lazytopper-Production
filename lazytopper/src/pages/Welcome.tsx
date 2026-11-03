@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { sendAnalyticsHit } from "../analytics/analytics";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { BOARD_PASS_NAME, boardPassFoundingLabel, boardPassPriceLine, PRICE_FREE_DISPLAY } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
@@ -264,6 +265,36 @@ const CSS = `
   text-decoration:none;padding:10px 18px;border-radius:12px;display:inline-flex;align-items:center;min-height:44px}
 .lt-landing a.lt-landing-login:hover{background-color:var(--gd)}
 
+/* LANDING-PRICING-1 — Pricing / PDF packs beside Log in. Quiet navy text links (not buttons) so
+   Log in stays the one solid green control. 44px touch target, visible focus ring. */
+.lt-landing-topnav{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.lt-landing a.lt-landing-toplink{font-size:13.5px;font-weight:700;color:var(--navy);text-decoration:none;
+  padding:0 8px;min-height:44px;display:inline-flex;align-items:center;border-radius:10px;white-space:nowrap}
+.lt-landing a.lt-landing-toplink:hover{color:var(--gd)}
+.lt-landing a.lt-landing-toplink:focus-visible,.lt-landing a.lt-landing-plink:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+/* LANDING-PRICING-2 — these hide/show rules MUST outrank ".lt-landing a.lt-landing-toplink" (0,2,1), which sets
+   display:inline-flex; at (0,2,0) the hide rule lost and "PDF packs" pushed "Log in" off a 360px screen. */
+.lt-landing a.lt-landing-toplink.lt-landing-toplink--packs{display:none}
+.lt-landing a.lt-landing-plink{font-size:14px;font-weight:700;color:var(--gd);text-decoration:none;
+  border-bottom:1px solid var(--gl);padding:0 0 2px}
+.lt-landing a.lt-landing-plink:hover{border-color:var(--gd)}
+.lt-landing-hlinks{margin:14px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.lt-landing a.lt-landing-plink.lt-landing-plink--packs{display:inline}
+@media(min-width:480px){
+  .lt-landing-topnav{gap:8px}
+  .lt-landing a.lt-landing-toplink.lt-landing-toplink--packs{display:inline-flex}
+  .lt-landing a.lt-landing-plink.lt-landing-plink--packs{display:none}
+}
+/* Below 480px the header must fit brand + Pricing + the whole Log in button down to 320px. */
+@media(max-width:479px){
+  .lt-landing-top{gap:6px}
+  .lt-landing-brand{gap:8px;min-width:0}
+  .lt-landing-brand .fp{height:38px}
+  .lt-landing-topnav{gap:0}
+  .lt-landing a.lt-landing-toplink{padding:0 6px;font-size:13px}
+  .lt-landing a.lt-landing-login{padding:10px 14px}
+}
+
 .lt-landing-cls{display:flex;gap:6px;padding:0 var(--pad)}
 .lt-landing-cls button{font:inherit;font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;
   border:1px solid var(--line);background:var(--card);color:var(--ink2);cursor:pointer;min-height:44px}
@@ -434,6 +465,18 @@ export function PaidPlanHead() {
   );
 }
 
+/* LANDING-PRICING-1 — `landing_pricing_click` { where }. Vendor-only, like guide_public_arm_assigned: the name is
+   deliberately NOT in NamedAnalyticsEvent, because that union must equal activityClient's and the server's
+   ACTIVITY_EVENTS, and this page is for signed-out visitors, whom the first-party log never records. */
+function fireLandingPricingClick(where: "header" | "hero"): void {
+  try {
+    const data = { where };
+    sendAnalyticsHit("event", { name: "landing_pricing_click", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 export default function Welcome() {
   const { pathname } = useLocation();
 
@@ -599,9 +642,17 @@ export default function Welcome() {
               </picture>
             </span>
           </div>
-          <Link className="lt-landing-login" to={SIGN_IN_URL}>
-            Log in
-          </Link>
+          <nav className="lt-landing-topnav" aria-label="Site">
+            <Link className="lt-landing-toplink" to="/pricing" onClick={() => fireLandingPricingClick("header")}>
+              Pricing
+            </Link>
+            <Link className="lt-landing-toplink lt-landing-toplink--packs" to="/packs">
+              PDF packs
+            </Link>
+            <Link className="lt-landing-login" to={SIGN_IN_URL}>
+              Log in
+            </Link>
+          </nav>
         </div>
 
         <div className="lt-landing-cls" role="tablist" aria-label="Class">
@@ -644,6 +695,15 @@ export default function Welcome() {
               Practise CBQs
             </Link>
           </div>
+          <p className="lt-landing-hlinks">
+            <Link className="lt-landing-plink" to="/pricing" onClick={() => fireLandingPricingClick("hero")}>
+              See plans &amp; prices &rarr;
+            </Link>
+            {/* Narrow screens only: the header has no room for a second link at 360px. */}
+            <Link className="lt-landing-plink lt-landing-plink--packs" to="/packs">
+              PDF packs &rarr;
+            </Link>
+          </p>
           <p className="lt-landing-hnote">Free to start. One-tap sign-up, no card.</p>
           <p className="lt-landing-peek">
             {/* SEO-5 PR-4 — beside "Check my answer": how that marking works, on the

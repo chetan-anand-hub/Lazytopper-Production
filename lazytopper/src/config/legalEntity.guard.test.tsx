@@ -109,20 +109,20 @@ describe("LEGAL-ENTITY-1 L2 — every legal page names the operator in its conta
 });
 
 describe("LEGAL-ENTITY-1 L3 — the Terms", () => {
-  it("open with the owner's paragraph and say October 2026", () => {
+  it("open with the owner's paragraph and say 3 November 2026 (TRUST-1)", () => {
     const c = renderLegal("terms");
     const first = c.querySelector(".lt-legal-card h2 + p");
     expect(flat(first?.textContent)).toBe(TERMS_FIRST);
-    expect(flat(c.querySelector(".lt-legal-updated")?.textContent)).toBe("Last updated: October 2026");
+    expect(flat(c.querySelector(".lt-legal-updated")?.textContent)).toBe("Last updated: 3 November 2026");
   });
 
-  it("Privacy says October 2026 (DPDP-1); Refund says October 2026 (PACKS-LEGAL-1)", () => {
+  it("Privacy says October 2026 (DPDP-1); Refund says 3 November 2026 (TRUST-1)", () => {
     expect(flat(renderLegal("privacy").querySelector(".lt-legal-updated")?.textContent)).toBe(
       "Last updated: October 2026",
     );
     cleanup();
     expect(flat(renderLegal("refund").querySelector(".lt-legal-updated")?.textContent)).toBe(
-      "Last updated: October 2026",
+      "Last updated: 3 November 2026",
     );
   });
 });
