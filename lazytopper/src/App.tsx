@@ -432,7 +432,8 @@ export function isBareFullScreenRoute(pathname: string): boolean {
  * (MobileHome). If you add/rename a desktop nav destination, update BOTH.
  *
  * Visibility rules:
- *   Hidden on desktop (>=1024px), on /welcome, /pricing, and any /intent* path.
+ *   Hidden on desktop (>=1024px), on /welcome, /pricing, and any /intent* path, and
+ *   (signed-out only) on /packs and /cbq-class-10*.
  *   Shown on all other mobile routes.
  *
  * Active state covers the canonical routes plus their legacy aliases so the nav
@@ -441,10 +442,26 @@ export function isBareFullScreenRoute(pathname: string): boolean {
  * Exported for unit testing (the 5-tab/route/colour contract); App still renders
  * it internally — the export adds no runtime behaviour.
  */
+/**
+ * BUY-FOCUS-1 — signed-out BUY landing pages (/packs, /cbq-class-10 + chapter pages). The
+ * bottom tab bar there only gives an ad visitor ways to wander off the page they came to
+ * buy from, so it is hidden for signed-out visitors (signed-in users keep it). /pricing is
+ * already hidden for everyone by the main gate. Exported for unit testing.
+ */
+export function isSignedOutBuyRoute(path: string): boolean {
+  return (
+    path === "/packs" ||
+    path.startsWith("/packs/") ||
+    path === "/cbq-class-10" ||
+    path.startsWith("/cbq-class-10/")
+  );
+}
+
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
+  const { user } = useAuth();
 
   const current = location.pathname;
 
@@ -464,7 +481,8 @@ export function BottomNav() {
     current === "/welcome" ||
     current === "/pricing" ||
     current.startsWith("/intent") ||
-    isBareFullScreenRoute(current) // Chapter Test is bare full-screen — no bottom nav either.
+    isBareFullScreenRoute(current) || // Chapter Test is bare full-screen — no bottom nav either.
+    (!user && isSignedOutBuyRoute(current)) // BUY-FOCUS-1 (also while auth is loading: no flash).
   ) {
     return null;
   }
@@ -563,6 +581,7 @@ export function BottomNav() {
 
   return (
     <div
+      data-lt-bottomnav=""
       style={{
         position: "fixed",
         bottom: 0,
