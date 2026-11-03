@@ -92,7 +92,7 @@ function createVerifiedCaller(deps = {}) {
    * simply wrong. Only UNAVAILABLE may be treated as "serve anyway"; INVALID is a
    * rejection the client answers by refreshing its token and retrying.
    */
-  async function resolveVerifiedCaller(req) {
+  async function resolveVerifiedCallerFull(req) {
     try {
       const token = extractBearerToken(req);
       if (!token) return { uid: "", reason: REASON_NO_TOKEN };
@@ -128,7 +128,12 @@ function createVerifiedCaller(deps = {}) {
         ? decoded.firebase.identities.phone
         : [];
       const phoneNumber = claimed && phoneIds.includes(claimed) ? claimed : "";
-      if (uid) return { uid, reason: REASON_VERIFIED, ...(phoneNumber ? { phoneNumber } : {}) };
+      // CHECKOUT-WHO-1 - the VERIFIED token's own `email`, and whether Firebase says it is verified (`email_verified`, true
+      // for Google sign-in and for a confirmed email/password address). Additive: a claim by email reads it ONLY when
+      // `emailVerified` is exactly true.
+      const email = decoded && typeof decoded.email === "string" ? decoded.email.trim() : "";
+      const emailVerified = Boolean(email) && decoded.email_verified === true;
+      if (uid) return { uid, reason: REASON_VERIFIED, ...(phoneNumber ? { phoneNumber } : {}), ...(email ? { email, emailVerified } : {}) };
       emit(UNVERIFIED_EVENT);
       emit(INVALID_EVENT);
       return { uid: "", reason: REASON_INVALID };
@@ -143,6 +148,17 @@ function createVerifiedCaller(deps = {}) {
    * caller that only needs the uid (payments, account export/erasure, usage) and
    * already refuses "" — those are fail-closed and unchanged.
    */
+  /**
+   * The verified caller WITHOUT the CHECKOUT-WHO-1 email fields: every existing caller sees exactly the shape it always
+   * did ({ uid, reason, phoneNumber? }). Only resolveVerifiedIdentity (the guest-pay claim) reads the email.
+   */
+  async function resolveVerifiedCaller(req) {
+    const full = await resolveVerifiedCallerFull(req);
+    // eslint-disable-next-line no-unused-vars
+    const { email, emailVerified, ...rest } = full;
+    return rest;
+  }
+
   async function resolveVerifiedUid(req) {
     return (await resolveVerifiedCaller(req)).uid;
   }
@@ -152,8 +168,10 @@ function createVerifiedCaller(deps = {}) {
    * token firebase-admin verified; nothing from the request body or a header other than the bearer token.
    */
   async function resolveVerifiedIdentity(req) {
-    const caller = await resolveVerifiedCaller(req);
-    return caller.uid ? { uid: caller.uid, phoneNumber: caller.phoneNumber || "" } : { uid: "", phoneNumber: "" };
+    const caller = await resolveVerifiedCallerFull(req);
+    if (!caller.uid) return { uid: "", phoneNumber: "" };
+    // CHECKOUT-WHO-1: `email` / `emailVerified` only when the verified token carries an email (additive).
+    return { uid: caller.uid, phoneNumber: caller.phoneNumber || "", ...(caller.email ? { email: caller.email, emailVerified: caller.emailVerified === true } : {}) };
   }
 
   return { resolveVerifiedUid, resolveVerifiedCaller, resolveVerifiedIdentity };

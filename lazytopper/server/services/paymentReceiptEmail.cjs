@@ -25,7 +25,7 @@ const {
 } = require('./trialEndingEmail.cjs');
 const { senderOnVerifiedDomain } = require('./nudgeEmail.cjs');
 const { isPackProduct, validateTarget } = require('./packProducts.cjs');
-const { maskIndianMobile, GUEST_PAYER } = require('./guestPay.cjs');
+const { maskIndianMobile, maskEmail, GUEST_PAYER } = require('./guestPay.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const DEFAULT_FROM = 'LazyTopper <hello@mail.lazytopper.com>';
@@ -92,7 +92,7 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient }) {
   const item = itemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   const isPack = isPackProduct(passType);
@@ -103,7 +103,14 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
 
   let howText;
   let howHtml;
-  if (guestPhoneMasked) {
+  if (recipient && (recipient.phoneMasked || recipient.emailMasked)) {
+    // CHECKOUT-WHO-1: bought for a recipient (maybe someone else). Name ONLY the masked identifiers the payer typed.
+    const ids = [recipient.phoneMasked, recipient.emailMasked].filter(Boolean);
+    const lands = isPack ? 'the pack is in My packs' : 'the Board Pass is already there';
+    howText = `Sign in at lazytopper.com/login with ${ids.join(' or ')}, and ${lands}.\nUse exactly what was entered at checkout. Anything else will not find this purchase.`;
+    howHtml = `<p>Sign in at lazytopper.com/login with <strong>${ids.map(escapeHtml).join('</strong> or <strong>')}</strong>, and ${lands}.</p>
+<p>Use exactly what was entered at checkout. Anything else will not find this purchase.</p>`;
+  } else if (guestPhoneMasked) {
     const loginUrl = `${appUrl}/login?method=phone&redirect=${encodeURIComponent(where)}`;
     const lands = isPack ? 'your pack is in My packs' : 'your Premium is switched on';
     howText = `Sign in at lazytopper.com/login with your phone number ${guestPhoneMasked}, and ${lands}.\nSign in: ${loginUrl}\nUse the same number you paid with. A different number will not find this purchase.`;
@@ -135,6 +142,36 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
 <p><strong>How to get it</strong></p>
 ${howHtml}
 <p>Need help? Reply to this email, write to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>, or message us on WhatsApp: <a href="${SUPPORT_WHATSAPP_URL}">${SUPPORT_WHATSAPP_DISPLAY}</a>.</p>
+<p>LazyTopper</p>`;
+  return { subject, text, html };
+}
+
+/**
+ * CHECKOUT-WHO-1 - PURE. "Your Board Pass is ready" / "Your <pack> is ready" for the RECIPIENT's email address (the payer
+ * typed it at checkout). The sign-in instruction only: no price, no payer details, the phone masked.
+ */
+function buildRecipientReadyEmail({ passType, packTarget, phoneMasked, emailMasked, appUrl }) {
+  const item = itemLabel(passType, packTarget);
+  if (!item || passType === 'month') return null;
+  const isPack = isPackProduct(passType);
+  const name = isPack ? item : 'Board Pass';
+  const subject = `Your ${name} is ready`;
+  const where = isPack ? '/packs#my-packs' : '/';
+  const loginUrl = `${appUrl}/login?redirect=${encodeURIComponent(where)}`;
+  const ids = [emailMasked ? 'this email address' : '', phoneMasked || ''].filter(Boolean).join(' or ');
+  const lands = isPack ? 'and open My packs to download it' : 'and the Board Pass is already there';
+  const text = [
+    `Your ${name} on LazyTopper is paid for.`,
+    `Sign in at lazytopper.com/login with ${ids}, ${lands}.\nSign in: ${loginUrl}`,
+    'If you sign in with Google, use the Google account for this email address.',
+    `Need help? Reply to this email or write to ${SUPPORT_EMAIL}.`,
+    'LazyTopper',
+  ].join('\n\n');
+  const html = `<p>Your ${escapeHtml(name)} on LazyTopper is paid for.</p>
+<p>Sign in at lazytopper.com/login with ${escapeHtml(ids)}, ${lands}.</p>
+<p><a href="${escapeHtml(loginUrl)}">Sign in to LazyTopper</a></p>
+<p>If you sign in with Google, use the Google account for this email address.</p>
+<p>Need help? Reply to this email or write to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
 <p>LazyTopper</p>`;
   return { subject, text, html };
 }
@@ -187,6 +224,7 @@ function createPaymentReceiptEmailer(deps = {}) {
     const order = await claim(orderId, paymentId);
     if (!order) return { skipped: 'already_or_unpaid' };
     const guest = order.payer === GUEST_PAYER;
+    const who = guest && order.checkoutWho === true;
     const built = buildReceiptEmail({
       passType: order.passType,
       packTarget: order.packTarget,
@@ -196,6 +234,8 @@ function createPaymentReceiptEmailer(deps = {}) {
       guestPhoneMasked: guest ? maskIndianMobile(order.guestPhone) || null : null,
       appUrl: config.appUrl,
       payer: typeof order.payer === 'string' ? order.payer : null,
+      // CHECKOUT-WHO-1: a recipient order names the masked phone and/or email to sign in with.
+      ...(who ? { recipient: { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskEmail(order.guestEmail) || null } } : {}),
     });
     if (!built) {
       await settle(orderId, 'skipped');
@@ -235,17 +275,94 @@ function createPaymentReceiptEmailer(deps = {}) {
     return p;
   }
 
+  /**
+   * CHECKOUT-WHO-1 - "Your Board Pass is ready" to the recipient email typed at checkout. Same switch, same rail, same
+   * at-most-once fence (its own `recipientEmail` slot on the order, Resend idempotency key `recipient-ready-<paymentId>`).
+   * The address is read from the order (it is the claim key) and goes nowhere else. Never throws.
+   */
+  async function runRecipient({ orderId, paymentId }) {
+    if (config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
+    if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
+    const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+    const order = await adminFirestore.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const o = snap && snap.exists ? snap.data() || {} : null;
+      if (!o || o.checkoutWho !== true || typeof o.guestEmail !== 'string' || !o.guestEmail) return null;
+      if (!PAID_STATES.includes(o.status) || o.paymentId !== paymentId) return null;
+      const prior = o.recipientEmail && typeof o.recipientEmail === 'object' ? o.recipientEmail : null;
+      if (prior && prior.status !== 'failed') return null;
+      tx.set(ref, { recipientEmail: { status: 'sending', at: new Date(now()) } }, { merge: true });
+      return o;
+    });
+    if (!order) return { skipped: 'already_or_none' };
+    const mark = async (status) => {
+      try {
+        await ref.set({ recipientEmail: { status, at: new Date(now()) } }, { merge: true });
+      } catch {
+        /* at most once */
+      }
+    };
+    const to = order.guestEmail;
+    if (to.length > 254 || !EMAIL_PATTERN.test(to)) {
+      await mark('skipped');
+      return { skipped: 'no_address' };
+    }
+    const built = buildRecipientReadyEmail({
+      passType: order.passType,
+      packTarget: order.packTarget,
+      phoneMasked: maskIndianMobile(order.guestPhone) || null,
+      emailMasked: maskEmail(order.guestEmail) || null,
+      appUrl: config.appUrl,
+    });
+    if (!built) {
+      await mark('skipped');
+      return { skipped: 'not_receipted' };
+    }
+    const sent = await sendViaResend({
+      fetchImpl,
+      apiKey: config.apiKey,
+      from: config.from,
+      replyTo: config.replyTo,
+      to,
+      subject: built.subject,
+      text: built.text,
+      html: built.html,
+      idempotencyKey: `recipient-ready-${paymentId}`,
+      category: 'payment_recipient',
+    });
+    if (sent.ok) {
+      await mark('sent');
+      emit('payments.recipient_email.sent');
+      return { sent: true };
+    }
+    await mark(sent.retryable ? 'failed' : 'refused');
+    emit('payments.recipient_email.failed');
+    return { sent: false, code: sent.code };
+  }
+
+  function sendRecipientReady(input) {
+    const p = runRecipient(input || {}).catch((e) => {
+      emit('payments.recipient_email.error');
+      console.error('[payment-recipient] send failed:', e && e.message);
+      return { error: true };
+    });
+    inFlight.add(p);
+    p.finally(() => inFlight.delete(p));
+    return p;
+  }
+
   async function whenIdle() {
     while (inFlight.size) await Promise.all([...inFlight]);
   }
 
-  return { sendForPayment, whenIdle, config };
+  return { sendForPayment, sendRecipientReady, whenIdle, config };
 }
 
 module.exports = {
   createPaymentReceiptEmailer,
   resolveReceiptEmailConfig,
   buildReceiptEmail,
+  buildRecipientReadyEmail,
   itemLabel,
   chapterTitle,
   SUPPORT_WHATSAPP_URL,

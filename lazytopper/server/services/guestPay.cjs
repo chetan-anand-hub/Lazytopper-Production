@@ -18,6 +18,35 @@ function isGuestPayFlagOn(env = process.env) {
 }
 
 /**
+ * CHECKOUT-WHO-1 - the server switch for "Who will use it?" (a recipient phone and/or email on a guest order, signed-out
+ * payers and signed-in "someone else" payers alike). Same truthy grammar. Off -> the guest routes behave exactly as before.
+ */
+function isCheckoutWhoFlagOn(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.CHECKOUT_WHO_ENABLED) || '').trim());
+}
+
+/**
+ * CHECKOUT-WHO-1 - an email address as the claim key: trimmed, lower-cased, at most 254 characters, one `@`, a dotted
+ * domain with a 2+ letter TLD, no spaces / angle brackets / quotes. Anything else -> null. (Firebase compares sign-in
+ * emails case-insensitively; storing the lower-cased form makes the claim query an exact match.)
+ */
+const EMAIL_SHAPE = /^[^\s@<>()",;:]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
+function normaliseEmail(raw) {
+  if (typeof raw !== 'string') return null;
+  const e = raw.trim().toLowerCase();
+  if (!e || e.length > 254 || !EMAIL_SHAPE.test(e)) return null;
+  return e;
+}
+
+/** `an••••@gmail.com`: the first two characters of the local part, then dots, then the domain. Not an email -> ''. */
+function maskEmail(raw) {
+  const e = normaliseEmail(typeof raw === 'string' ? raw : '');
+  if (!e) return '';
+  const at = e.indexOf('@');
+  return `${e.slice(0, Math.min(2, at))}••••${e.slice(at)}`;
+}
+
+/**
  * An Indian mobile number as E.164 (`+91` + 10 digits starting 6-9), or null. Accepts the 10 digits alone, or with a
  * leading `+91` / `91` / `0`, and ignores spaces and dashes. Anything else (letters, other country codes, landlines,
  * 9 or 11 digits) is null.
@@ -77,6 +106,9 @@ module.exports = {
   GUEST_PAYER,
   GUEST_STATUS,
   isGuestPayFlagOn,
+  isCheckoutWhoFlagOn,
+  normaliseEmail,
+  maskEmail,
   normaliseIndianMobile,
   maskIndianMobile,
   markGuestOrderPaid,

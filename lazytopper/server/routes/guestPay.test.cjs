@@ -181,7 +181,7 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -190,14 +190,16 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
   const identityOf = (req) => {
     const h = String(req.headers.authorization || '');
     if (!h.startsWith('Bearer uid:')) return { uid: '', phoneNumber: '' };
-    const [uidPart, phonePart] = h.slice('Bearer uid:'.length).split('|phone:');
-    return { uid: uidPart, phoneNumber: phonePart || '' };
+    // CHECKOUT-WHO-1: optional `|email:<e>|ev:1` (ev:1 = Firebase says the email is verified).
+    const [uidPart, ...rest] = h.slice('Bearer uid:'.length).split('|');
+    const kv = Object.fromEntries(rest.map((x) => [x.slice(0, x.indexOf(':')), x.slice(x.indexOf(':') + 1)]));
+    return { uid: uidPart, phoneNumber: kv.phone || '', ...(kv.email ? { email: kv.email, emailVerified: kv.ev === '1' } : {}) };
   };
   const verifiedCaller = {
     async resolveVerifiedUid(req) { return identityOf(req).uid; },
     async resolveVerifiedIdentity(req) { return identityOf(req); },
   };
-  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone });
+  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail });
   const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer });
   const table = {
     [GUEST_ORDER_PATH]: guest.handleOrder,
