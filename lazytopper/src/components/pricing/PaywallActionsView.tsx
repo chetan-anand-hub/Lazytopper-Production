@@ -44,7 +44,9 @@ import {
   daysLeft,
   mintParentLink,
   parentPayUrl,
+  parentProofFrom,
   type MintedParentLink,
+  type ParentProof,
   type ParentPayLang,
 } from "../../services/parentPay";
 import { generateQRDataUrl } from "../../services/referralService";
@@ -69,6 +71,8 @@ export interface ParentShareDeps {
   mint: () => Promise<MintedParentLink>;
   /** Graded answers in the last 30 days, or null while unknown / unavailable. */
   loadCheckedCount: () => Promise<number | null>;
+  /** TRIAL-SELL-1 - the marks the grader found lost in the last 30 days, or null (then the count line stands). */
+  loadProof?: () => Promise<ParentProof | null>;
   makeQr: (url: string) => Promise<QrImage>;
   nav: ShareNavigator | undefined;
   origin: string;
@@ -94,7 +98,11 @@ export interface PaywallActionsViewProps {
   deps: ParentShareDeps;
 }
 
-type LinkState = { kind: "idle" } | { kind: "loading" } | { kind: "ready"; link: MintedParentLink; checked: number | null } | { kind: "failed" };
+type LinkState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "ready"; link: MintedParentLink; checked: number | null; proof: ParentProof | null }
+  | { kind: "failed" };
 type Panel = null | { kind: "qr"; qr: QrImage; retryNative: boolean } | { kind: "forward"; retryNative: boolean };
 
 function errorName(e: unknown): string {
@@ -116,8 +124,12 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
     setLink({ kind: "loading" });
     const p = (async (): Promise<LinkState> => {
       try {
-        const [minted, count] = await Promise.all([deps.mint(), deps.loadCheckedCount().catch(() => null)]);
-        const next: LinkState = { kind: "ready", link: minted, checked: count };
+        const [minted, count, proof] = await Promise.all([
+          deps.mint(),
+          deps.loadCheckedCount().catch(() => null),
+          deps.loadProof ? deps.loadProof().catch(() => null) : Promise.resolve(null),
+        ]);
+        const next: LinkState = { kind: "ready", link: minted, checked: count, proof };
         setLink(next);
         return next;
       } catch {
@@ -138,6 +150,7 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
       lang: l,
       prices: s.link.prices,
       checkedCount: s.checked,
+      proof: s.proof,
       url: urlOf(s),
       days: daysLeft(s.link.expiresAt, deps.now()),
     });
@@ -346,11 +359,30 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
 /* ── wiring ──────────────────────────────────────────────────────────────── */
 
 /** The signed-in student's graded answers in the last 30 days — the read model Me uses. */
-async function loadCheckedCountFor(uid: string): Promise<number | null> {
-  const { readStudyModel } = await import("../../services/progressReadModel");
-  const model = await readStudyModel(uid, { window: "month", mistakes: false, tutor: false });
-  const n = Number(model.progress.activity.gradedAnswers);
-  return Number.isInteger(n) && n >= 0 ? n : null;
+/**
+ * TRIAL-SELL-1 - ONE 30-day read of the student's own results serves both the count and the proof
+ * (the mistakes are read too, for the biggest-loss group; Me's weakness gate decides if it is named).
+ */
+function parentFactsReader(uid: string) {
+  let pending: Promise<{ checked: number | null; proof: ParentProof | null }> | null = null;
+  return () => {
+    if (!pending) {
+      pending = (async () => {
+        const { readStudyModel, modelNamesWeakness } = await import("../../services/progressReadModel");
+        const model = await readStudyModel(uid, { window: "month", tutor: false });
+        const n = Number(model.progress.activity.gradedAnswers);
+        let namesWeakness = false;
+        try {
+          namesWeakness = modelNamesWeakness(model);
+        } catch {
+          namesWeakness = false;
+        }
+        const proof = parentProofFrom({ totals: model.progress.totals, byGroup: model.mistakes.byGroup, namesWeakness });
+        return { checked: Number.isInteger(n) && n >= 0 ? n : null, proof };
+      })();
+    }
+    return pending;
+  };
 }
 
 /** A data: URL's bytes as a Blob (no fetch, so it works offline and in every browser). */
@@ -377,9 +409,11 @@ export default function PaywallActionsLive({ surface, onPay, payTo, showParent, 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   // A link is minted for THIS signed-in account only: no account, no parent actions.
   const parent = showParent && Boolean(uid) && Boolean(origin);
+  const facts = parentFactsReader(uid);
   const deps: ParentShareDeps = {
     mint: mintParentLink,
-    loadCheckedCount: () => loadCheckedCountFor(uid),
+    loadCheckedCount: () => facts().then((f) => f.checked),
+    loadProof: () => facts().then((f) => f.proof),
     makeQr: makeQrPng,
     nav: typeof navigator !== "undefined" ? (navigator as unknown as ShareNavigator) : undefined,
     origin,
