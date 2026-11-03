@@ -42,7 +42,8 @@ import PackSampleLink from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
 import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
-import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, type GuestSigninState } from "../../services/guestPay";
+import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, readRecentClaim, type ClaimedItem, type GuestClaimedDetail, type GuestSigninState } from "../../services/guestPay";
+import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -104,6 +105,9 @@ export function readBuyResume(search: string): { sku: PackSku; target: string | 
 function packCheckoutDetails(sku: PackSku, target: string | undefined): PackCheckoutDetails {
   return { sku, itemName: packDescription(sku, target, target ? packChapterLabel(target) : undefined), valueInr: PACK_PRICE_INR[sku] };
 }
+
+/** Student input that ends the #my-packs scroll re-assert: we never fight a deliberate scroll. */
+const MY_PACKS_USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 
 const PackDialog = lazy(() => import("../../pages/PackDialog"));
 
@@ -284,15 +288,45 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // PAY-PHONE-1 - a sign-in just attached a pack paid with this phone number: re-read My packs from the server.
   useEffect(() => {
     if (!user) return undefined;
-    const onClaimed = () => {
+    const onClaimed = (e: Event) => {
       resetOwnedPacksCache();
       void loadMine();
+      // PACK-READY-1: remember WHAT was attached so the banner can say "Your <pack> is ready".
+      const items = (e as CustomEvent<GuestClaimedDetail | undefined>).detail?.items;
+      if (Array.isArray(items) && items.length > 0) {
+        setClaimedItems(items);
+        setReadyDismissed(false);
+      }
     };
     window.addEventListener(GUEST_CLAIMED_EVENT, onClaimed);
     return () => window.removeEventListener(GUEST_CLAIMED_EVENT, onClaimed);
   }, [user, loadMine]);
 
   const owned = useMemo(() => mine?.packs ?? [], [mine]);
+
+  // PACK-READY-1: the claim may have fired BEFORE this page mounted (the sign-in lands here), so start from the recent one.
+  const [claimedItems, setClaimedItems] = useState<ClaimedItem[]>(() => readRecentClaim());
+  const [readyDismissed, setReadyDismissed] = useState(false);
+  /** The pack whose file list the banner button asked to open (`n` makes a repeat tap count). */
+  const [openReq, setOpenReq] = useState<{ packId: string; n: number } | null>(null);
+  const readyRows = useMemo<ReadyRow[]>(() => {
+    if (readyDismissed || !user || owned.length === 0 && !claimedItems.some((i) => i.kind === "pass")) return [];
+    const rows: ReadyRow[] = [];
+    for (const it of claimedItems) {
+      if (it.kind === "pass") {
+        if (!rows.some((r) => !r.packId)) rows.push({ key: "pass", sku: "board_pass", title: "Board Pass" });
+        continue;
+      }
+      const p = owned.find((o) => o.sku === it.sku && (o.target || "") === (it.target || ""));
+      if (p && !rows.some((r) => r.packId === p.packId)) rows.push({ key: p.packId, packId: p.packId, sku: p.sku, title: ownedPackTitle(p) });
+    }
+    if (rows.length === 0 && location.hash === "#my-packs" && owned.length > 0) {
+      // Arrived at #my-packs with packs but no claim in hand: point at the most recent purchase.
+      const latest = owned.reduce((a, b) => (b.paidAt > a.paidAt ? b : a));
+      rows.push({ key: latest.packId, packId: latest.packId, sku: latest.sku, title: ownedPackTitle(latest) });
+    }
+    return rows.slice(0, 3);
+  }, [claimedItems, owned, readyDismissed, user, location.hash]);
 
   const subjectTotal = useCallback(
     (s: PackSubject): number | null => {
@@ -360,9 +394,32 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   }, [location.hash, embedded]);
 
   // `#my-packs` scrolls to the My packs section once it exists.
+  // PACK-READY-1: My packs is lazy and mid-page, and the content above it can still grow after the first scroll, so re-assert on the
+  // next frames and at ~300 / ~900 ms (the PacksStrip pattern) - and stop the moment the student scrolls, touches or presses a key.
+  const myPacksMounted = Boolean(myPacksRef.current);
   useEffect(() => {
-    if (location.hash === "#my-packs") myPacksRef.current?.scrollIntoView?.({ block: "start" });
-  }, [location.hash, mine]);
+    if (location.hash !== "#my-packs") return undefined;
+    let stopped = false;
+    const timers: number[] = [];
+    const frames: number[] = [];
+    const assert = () => {
+      if (!stopped) myPacksRef.current?.scrollIntoView?.({ block: "start" });
+    };
+    const stop = () => {
+      stopped = true;
+      timers.forEach((t) => window.clearTimeout(t));
+      frames.forEach((f) => window.cancelAnimationFrame(f));
+      MY_PACKS_USER_EVENTS.forEach((ev) => window.removeEventListener(ev, stop));
+    };
+    MY_PACKS_USER_EVENTS.forEach((ev) => window.addEventListener(ev, stop, { passive: true }));
+    assert();
+    frames.push(window.requestAnimationFrame(() => {
+      assert();
+      frames.push(window.requestAnimationFrame(assert));
+    }));
+    timers.push(window.setTimeout(assert, 300), window.setTimeout(assert, 900), window.setTimeout(stop, 950));
+    return stop;
+  }, [location.hash, mine, myPacksMounted]);
 
   async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
@@ -586,6 +643,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         <section className="lt-packs__mine" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine">
           <div className="lt-packs__w">
             <h2 id="packs-mine-h">My packs</h2>
+            <PackReadyBanner rows={readyRows} onOpen={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} onDismiss={() => setReadyDismissed(true)} />
             {mineError && (
               <p className="lt-packs__note lt-packs__note--bad" role="alert">
                 {mineError === "details" ? PACK_DETAILS_UNAVAILABLE_COPY : <>We couldn&rsquo;t load your packs.</>}{" "}
@@ -598,6 +656,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                 <button type="button" className="lt-packs__link" onClick={() => void loadMine()}>Retry</button>
               </p>
             )}
+            {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
+            {/* PACK-READY-1: the name is offered AFTER the files, never in front of the first download (PDFs fall back to the masked phone). */}
             {askName && user && mine && (
               <PackNamePrompt
                 uid={user.uid}
@@ -608,7 +668,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                 }}
               />
             )}
-            {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} />)}
+
           </div>
         </section>
       )}
@@ -701,7 +761,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           }}
           onSignInWithNumber={(digits) => {
             const state: GuestSigninState = { guestPayPhone: digits };
-            navigate(withSigninRedirect("/login", `${returnPath}#my-packs`), { state });
+            // PACK-READY-1: from ANY surface (the pricing strip included) the buyer returns to /packs#my-packs, where the pack is ready to download.
+            navigate(withSigninRedirect("/login", `${PACKS_RETURN_PATH}#my-packs`), { state });
           }}
         />
       )}
@@ -715,7 +776,7 @@ type FilesState =
   | { phase: "error" }
   | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; build: () => Promise<void> }> }> };
 
-function OwnedPackCard({ pack, mine }: { pack: OwnedPack; mine: MyPacks }) {
+function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine: MyPacks; openRequest?: number }) {
   const { user } = useAuth();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -758,9 +819,20 @@ function OwnedPackCard({ pack, mine }: { pack: OwnedPack; mine: MyPacks }) {
     }
   }
 
+  // PACK-READY-1: the "Your pack is ready" banner asks for this card's files directly (one tap): open the list and bring it into view.
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const lastRequest = useRef(0);
+  useEffect(() => {
+    if (!openRequest || openRequest === lastRequest.current) return;
+    lastRequest.current = openRequest;
+    if (state.phase === "closed" || state.phase === "error") void open();
+    cardRef.current?.scrollIntoView?.({ block: "start", behavior: "smooth" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openRequest]);
+
   const when = paidDate(pack.paidAt);
   return (
-    <div className="lt-packs__own" data-testid="packs-owned">
+    <div className="lt-packs__own" data-testid="packs-owned" ref={cardRef}>
       <div className="lt-packs__own-head">
         <div>
           <h3>{ownedPackTitle(pack)}</h3>

@@ -231,6 +231,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'pack_checkout',
   'pack_purchase',
   'pack_download',
+  // PACK-READY-1 - the "Your pack is ready" banner / toast shown after a claim. Name only.
+  'pack_ready_shown',
   // PACK-SAMPLE-1 - the free sample page of a pack downloaded (no sign-up needed). Name only.
   'pack_sample_download',
   // PACKS-ENTRY-1 - a tap on a small PDF-packs link beside an ask. Name only.

@@ -1,0 +1,7 @@
+/* PACK-READY-1 - "Your <pack> is ready": the My packs banner and the global toast. Plain classes; works from 360 px up. */
+.lt-ready { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin: 0 0 14px; padding: 14px 16px; border: 1.5px solid #3fbf82; border-radius: 14px; background: #e6f4ec; color: #0f1b2d; }
+.lt-ready__text { flex: 1 1 200px; min-width: 0; margin: 0; font-weight: 700; font-size: 16px; line-height: 1.35; overflow-wrap: anywhere; }
+.lt-ready__btn { flex: 0 0 auto; min-height: 48px; min-width: 150px; border: 0; border-radius: 12px; background: #3fbf82; color: #0f1b2d; font: inherit; font-weight: 700; font-size: 15px; padding: 0 18px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.lt-ready__close { flex: 0 0 auto; min-width: 44px; min-height: 44px; border: 0; background: none; color: #1f6b4a; font: inherit; font-size: 20px; line-height: 1; cursor: pointer; }
+.lt-ready--toast { position: fixed; z-index: 2147483000; left: 16px; right: 16px; bottom: 16px; margin: 0 auto; max-width: 520px; box-shadow: 0 10px 30px rgba(15, 27, 45, 0.25); }
+@media (min-width: 640px) { .lt-ready--toast { left: auto; right: 24px; bottom: 24px; width: 480px; } }
