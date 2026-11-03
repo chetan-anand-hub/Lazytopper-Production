@@ -156,7 +156,7 @@ function close() {
 /** Show (or replace) the toast. Never throws. A new claim is a new claimId (its own analytics event). */
 export function showPackReadyToast(items: ClaimedItem[], uid: string): void {
   try {
-    if (!items.length || typeof document === "undefined") return;
+    if (!items.length || typeof document === "undefined" || typeof window === "undefined") return;
     wrapHistory();
     if (!host) {
       host = document.createElement("div");
