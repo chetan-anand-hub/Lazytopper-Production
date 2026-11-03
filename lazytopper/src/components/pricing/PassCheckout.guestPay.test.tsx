@@ -14,6 +14,7 @@ const mockSub = vi.hoisted(() => ({
 }));
 const checkout = vi.hoisted(() => ({ buyPass: vi.fn() }));
 const flags = vi.hoisted(() => ({ guest: true }));
+const guestBuy = vi.hoisted(() => ({ buyAsGuest: vi.fn() }));
 
 vi.mock("./useMonthPassAvailable", () => ({ useMonthPassAvailable: () => false, fetchMonthPassAvailable: vi.fn(async () => false), resetMonthPassAvailableForTests: () => undefined }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => mockAuth }));
@@ -37,15 +38,21 @@ vi.mock("../../services/checkout", async (importOriginal) => ({
 vi.mock("../../services/guestPay", async (orig) => ({
   ...(await orig<typeof import("../../services/guestPay")>()),
   isGuestPayClientEnabled: () => flags.guest,
+  buyAsGuest: (...a: unknown[]) => guestBuy.buyAsGuest(...a),
 }));
 
 import PassCheckout, { repayBoardPassLabel } from "./PassCheckout";
 
 let where = "";
+let loginState: unknown;
 function Probe() {
   const l = useLocation();
   where = `${l.pathname}${l.search}`;
   return null;
+}
+function LoginProbe() {
+  loginState = useLocation().state;
+  return <p>login</p>;
 }
 function mount(entry: string) {
   return render(
@@ -53,7 +60,7 @@ function mount(entry: string) {
       <Probe />
       <Routes>
         <Route path="/pricing" element={<PassCheckout />} />
-        <Route path="/login" element={<p>login</p>} />
+        <Route path="/login" element={<LoginProbe />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -65,6 +72,7 @@ beforeEach(() => {
   mockAuth.user = null;
   flags.guest = true;
   where = "";
+  loginState = undefined;
 });
 afterEach(() => {
   cleanup();
@@ -90,6 +98,19 @@ describe("PAY-PHONE-1 · Board Pass signed out", () => {
     mount("/pricing?buy=board_pass");
     expect(await screen.findByTestId("guest-pay-sheet")).toBeTruthy();
     await waitFor(() => expect(where).toBe("/pricing"));
+  });
+
+  it("GUEST-SIGNIN-RETURNING-1: 'This number already has an account' -> sign in carries the existing-account flag (number in router state only)", async () => {
+    guestBuy.buyAsGuest.mockResolvedValue({ status: "account_exists", phoneMasked: "+91 98•••••948", phone: "+919876543948" });
+    mount("/pricing");
+    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(await screen.findByText("Pay now with your phone number"));
+    fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
+    fireEvent.click(screen.getByTestId("guest-pay-continue"));
+    fireEvent.click(await screen.findByTestId("guest-pay-exists-signin"));
+    expect(await screen.findByText("login")).toBeTruthy();
+    expect(loginState).toEqual({ guestPayPhone: "9876543948", guestPayExisting: true });
+    expect(where).not.toContain("9876543948");
   });
 
   it("guest pay off: today's redirect to sign-in, unchanged", async () => {

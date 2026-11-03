@@ -33,6 +33,8 @@ type LocationState = {
   guestPayPhone?: string;
   /** PAY-PHONE-1 - "Sign in with phone first" from the pay sheet: open the phone step. */
   phoneFirst?: boolean;
+  /** GUEST-SIGNIN-RETURNING-1 - "this number already has an account": open the phone step on "Already have an account". */
+  guestPayExisting?: true;
 };
 
 /** PAY-PHONE-1 - a valid 10-digit Indian mobile from router state, else "". Never read from the URL. */
@@ -1577,7 +1579,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
    * ⚠ Still NOT tabs at the door. The three methods above remain equal and
    * unclassified — AUTH-3's ruling is untouched; this lives one level in.
    */
-  const [phoneMode, setPhoneMode] = useState<"new" | "returning">("new");
+  const [phoneMode, setPhoneMode] = useState<"new" | "returning">(
+    ((location.state || {}) as LocationState).guestPayExisting === true ? "returning" : "new",
+  );
 
   // Set once the verify gate reports success. Without it the `user` effect,
   // which still sees a context user carrying the STALE `emailVerified: false`

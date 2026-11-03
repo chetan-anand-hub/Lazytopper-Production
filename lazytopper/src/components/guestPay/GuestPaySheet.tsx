@@ -47,7 +47,8 @@ export interface GuestPaySheetProps {
    * Signed-in "first" options: the caller's existing sign-in navigation (Google flow unchanged), returning to the
    * purchase. `tenDigits` (phone only) prefills the number - used when this number already has an account.
    */
-  onSignInFirst: (method: "google" | "phone", tenDigits?: string) => void;
+  /** `existingAccount` (GUEST-SIGNIN-RETURNING-1): true when the student is already known to have an account (409 account_exists, or "bought before"), so /login opens on "Already have an account". */
+  onSignInFirst: (method: "google" | "phone", tenDigits?: string, existingAccount?: boolean) => void;
   /** After payment: open the existing phone sign-in with this 10-digit number prefilled. */
   onSignInWithNumber: (tenDigitNumber: string) => void;
   onClose: () => void;
@@ -171,7 +172,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
         </div>
         <p className="lt-gps__hint" id="lt-gps-hint">{GUEST_PAY_SAME_NUMBER}</p>
         <p className="lt-gps__fine">
-          <button type="button" className="lt-gps__textlink" onClick={() => onSignInFirst("phone")} disabled={busy} data-testid="guest-pay-bought-before">
+          <button type="button" className="lt-gps__textlink" onClick={() => onSignInFirst("phone", undefined, true)} disabled={busy} data-testid="guest-pay-bought-before">
             {GUEST_PAY_BOUGHT_BEFORE}
           </button>
         </p>
@@ -201,7 +202,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
     body = (
       <>
         <p className="lt-gps__line" role="status" data-testid="guest-pay-exists">{GUEST_PAY_ACCOUNT_EXISTS}</p>
-        <button type="button" className="lt-gps__primary" onClick={() => onSignInFirst("phone", tenDigits(step.phone))} data-testid="guest-pay-exists-signin">
+        <button type="button" className="lt-gps__primary" onClick={() => onSignInFirst("phone", tenDigits(step.phone), true)} data-testid="guest-pay-exists-signin">
           {GUEST_PAY_SIGNIN_CTA}
         </button>
       </>

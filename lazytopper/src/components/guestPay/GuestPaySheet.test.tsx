@@ -110,7 +110,7 @@ describe("PAY-PHONE-1 · GuestPaySheet", () => {
     expect(document.body.textContent).not.toMatch(/own|bought|refund/i);
     fireEvent.click(screen.getByTestId("guest-pay-exists-signin"));
     // Back to the SAME purchase after signing in (a Premium account still buys packs), number prefilled.
-    expect(p.onSignInFirst).toHaveBeenCalledWith("phone", "9876543948");
+    expect(p.onSignInFirst).toHaveBeenCalledWith("phone", "9876543948", true);
     expect(p.onSignInWithNumber).not.toHaveBeenCalled();
   });
 
@@ -118,6 +118,6 @@ describe("PAY-PHONE-1 · GuestPaySheet", () => {
     const p = sheet();
     fireEvent.click(screen.getByText(GUEST_PAY_PHONE_CTA));
     fireEvent.click(screen.getByTestId("guest-pay-bought-before"));
-    expect(p.onSignInFirst).toHaveBeenCalledWith("phone");
+    expect(p.onSignInFirst).toHaveBeenCalledWith("phone", undefined, true);
   });
 });
