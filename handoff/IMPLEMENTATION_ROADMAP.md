@@ -1,3 +1,19 @@
+## 2026-11-04 (daily) - #1514 - #1531: PACKS-CONVERT-1 ... CHECKOUT-WHO-1 - MERGED
+
+- DONE. `#1514` (`7f1334c`), `#1518` (`3925963`): /packs sample-to-buy, Bundle first, download wall offers the matching pack by kind. NEXT: live-verify at 360 and 1280.
+- DONE. `#1515` (`5b04b0b`): new accounts from /packs and /cbq-class-10 return there. NEXT: none.
+- DONE. `#1516` (`a7047e2`): slow phone clock no longer ends a day-1 trial. NEXT: none.
+- DONE. `#1517` (`c5eee9c`): no bottom menu for signed-out visitors on buy pages. NEXT: none.
+- DONE. `#1519` (`7853215`): founding-price email from 3 Nov. Railway flag set by the coordinator. NEXT: `[FU-FOUNDING-EMAIL-WATCH]`.
+- DONE. `#1520` (`97ade6c`), `#1524` (`2522556`): offers on the two YouTube ad landings; CBQ landing shows the offer before the free picker. NEXT: ads review.
+- DONE. `#1521` (`d998602`): "Signing you in..." screen. NEXT: `[FU-SIGNIN-FLASH-LIVE]`.
+- DONE. `#1522` (`792506e`): pack price no longer reduces the Board Pass from 2026-11-05 00:00 IST; re-download till 31 March 2027. NEXT: `[FU-REDOWNLOAD-DATE-SERVER]`, `[FU-PACKS-FAQ-LEGACY-DATE]`.
+- DONE. `#1523` (`918f153`), `#1526` (`2f4d54a`), `#1528` (`7d6144c`), `#1530` (`3b37152`): pack-ready toast and banner, plus three flake fixes. NEXT: `[FU-PACK-READY-LIVE]`.
+- DONE. `#1525` (`ab105cb`): /pricing rebuilt, Option B v3. NEXT: `[FU-PRICING-B-CLEANUP]`.
+- DONE. `#1527` (`86b7ffb`), `#1529` (`98e46c4`): links keep subject and chapter; home "PDF packs" to /pricing#packs. NEXT: none.
+- DONE (dark). `#1531` (`dcbf3a5`): checkout-who. NEXT: `[FU-CHECKOUT-WHO-2]` (blocking), then the owner's Rs 49 live test, then the flags.
+- NEXT (not built): pack offers to Board Pass owners; post-payment cross-sell; one-payment add-on.
+
 ## 2026-11-03 (daily) - #1494 - #1512: PACK-NUDGE-1 ... TRIAL-SELL-1 - MERGED
 
 - DONE. `#1494` (`9f773d7`), `#1497` (`d83444c`), `#1498` (`b77e463`): pack-nudge email, buyers first under the daily cap, 08:00-21:00 IST send window. NEXT: `[FU-PACK-NUDGE-LIVE]`; owner decides when `PACK_NUDGE_ENABLED` goes on.

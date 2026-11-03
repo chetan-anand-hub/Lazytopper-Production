@@ -23,6 +23,58 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-04 (daily) - #1514 - #1531 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `dcbf3a54`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator facts file **[coordinator]** and the PR bodies **[git/gh]**. No grading behaviour changed (CLAUDE.md section 4a). Every ID below has its own heading and body (standing rule 1).*
+
+### [FU-CHECKOUT-WHO-2]
+`#1531`. BLOCKING the flag flip. Review fixes owed: the email-link prompt, webhook delivery, and enumeration hardening. Residual: an "already has it" 409 cannot be fully hidden without risking a duplicate paid purchase (no refunds); the copy is generic. Flags `CHECKOUT_WHO_ENABLED` (Railway) and `VITE_CHECKOUT_WHO_ENABLED` (Vercel) stay unset until this is closed and the next item passes.
+
+### [FU-CHECKOUT-WHO-LIVE-TEST]
+`#1531`. The owner's Rs 49 live test of the new checkout in three flows: signed out, signed in for self, signed in for someone else (mobile and email recipient). Round-trip through payments, so one real run. Recipient email also needs `PAYMENT_EMAIL_ENABLED=1` and `RESEND_API_KEY`.
+
+### [FU-PACK-READY-LIVE]
+`#1523`. Live test of the "Your pack is ready" toast and the banner on a real pay-by-phone purchase ("Sign in with this number" returns to `/packs#my-packs`, "Download files" opens that pack's file list). The first real buyer did not reach the download, so this is the proof.
+
+### [FU-REDOWNLOAD-DATE-SERVER]
+`#1522`. The re-download date (31 March 2027 for new buyers, 31 May 2027 for earlier ones) is printed copy only. Server-side enforcement is owed before March 2027.
+
+### [FU-PACKS-FAQ-LEGACY-DATE]
+`#1522`. The /packs FAQ needs the clause "packs bought before 5 Nov keep 31 May 2027".
+
+### [FU-WORKSHEET-PDF-PAIDAT-TEST]
+`#1522`. `worksheetPdfExport` has no test for the `paidAtMs` cover date. Add one.
+
+### [FU-PRICING-META-PREMIUM]
+`#1525`. The /pricing meta description still says "Premium" (frozen in that PR). Align it to "Board Pass" with the prerender.
+
+### [FU-PRICING-B-CLEANUP]
+`#1525`. `pack_sample_download` from /pricing now reports surface `packs_dialog` (the `pricing_tile` and `pricing_cbq` surfaces are retired): update any dashboard that filters on them. The old `PacksStrip` is kept unmounted (allowed orphan): delete it later.
+
+### [FU-TEST-FLAKES-UNDER-LOAD]
+`TrialEndScreen.test` and the `UpgradeSheet.offers` / `ScorecardUpgradeLine` event tests flake under CI load; add `waitFor`. (`#1526`, `#1528`, `#1530` fixed the `#1523` flakes only.)
+
+### [FU-BOARD-PASS-PACK-OFFERS]
+Pack offers to Board Pass owners (payment-success screen once, download moments, after a graded Full Mock, a Me / Progress card; "Not now" hides for 1 day). Approved, NOT built.
+
+### [FU-POST-PAYMENT-CROSS-SELL]
+Approved idea, NOT built: "Your Board Pass is on. Now practise the paper half..." for both CBQ subjects. The one-payment add-on at checkout is approved for later.
+
+### [FU-BOARD-PASS-RENAME]
+Rename "Board Pass" to a plan-style name: undecided. Decide by 1 Dec; if renamed, ship it with the Rs 2,499 price change.
+
+### [FU-FOUNDING-EMAIL-WATCH]
+`#1519` and `#1511`. Flags `NUDGE_FOUNDING_EMAIL_ENABLED` and `ABANDONED_CHECKOUT_EMAIL_ENABLED` are ON since 3 Nov about 20:20 IST. The 20:28 abandoned-checkout run skipped its one candidate on the daily cap. After 08:00 IST on 4 Nov confirm both send inside 08:00-21:00 IST and that the shared cap of 80 does not starve pack nudges and buyer emails.
+
+### [FU-SIGNIN-FLASH-LIVE]
+`#1521`. Owner check on desktop Chrome, Android Chrome and iPhone Safari: Google sign-in lands with "Signing you in..." and no login-form flash; a failure still shows the door.
+
+### [FU-ADS-4NOV]
+Google Ads expert call Wed 4 Nov 11:30 IST. Top up the account balance ("Balance is running low"). Pending from before: the ads review of `/practice-hub?cbq=1` and `/check-improve` now carrying an offer (`#1520`, `#1524`).
+
+### [FU-HOUSEKEEPING-4NOV]
+Repo back to PRIVATE (owner). Delete merged lane branches. Pending from earlier lists: the `/pricing` Basic line "practice sets" wording needs the owner's confirmation (`#1525`).
+
 ## 2026-11-03 (daily) - #1494 - #1512 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `51aef1a8`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff and afternoon session of 3 Nov **[coordinator]** and the PR bodies **[git/gh]**. No grading behaviour changed today (CLAUDE.md section 4a). Every ID below has its own heading and body (standing rule 1).*

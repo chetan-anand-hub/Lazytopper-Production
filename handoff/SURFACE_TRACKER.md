@@ -1,3 +1,17 @@
+> **2026-11-04 (daily) - #1514 - #1531 (CLAUDE.md section 10, once a day).** Scope: /pricing, /practice-hub?cbq=1 and /check-improve ad landings (signed-out), /packs, home header links, checkout, Login, trial display, student emails. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Grading surfaces: none moved.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| /pricing (rebuilt) | Option B v3: Board Pass first, CBQ Packs right after, four prices up front, comparison Board Pass vs CBQ Pack vs Bundle, sticky bar reworked, one name "Board Pass" (`#1525`); pack links keep subject and chapter (`#1527`) | merged | `[FU-PRICING-B-CLEANUP]`, `[FU-PRICING-META-PREMIUM]`, owner confirms the "practice sets" Basic line |
+| /practice-hub?cbq=1 (landing) | signed-out sees the CBQ offer first, picker opens on tap (`#1524`); compact CBQ card (`#1520`) | merged | ads review |
+| /check-improve (signed-out landing) | one-line Board Pass-first offer (`#1520`) | merged | ads review |
+| Home header links (`Welcome.tsx`) | "PDF packs" links go to `/pricing#packs` (`#1529`, scoped owner-approved edit) | merged | none |
+| /packs | sample-to-buy button, Bundle then CBQ order, wall offers matching pack (`#1514`, `#1518`); credit copy removed, March 2027 date (`#1522`); no bottom menu signed out (`#1517`) | merged | `[FU-PACKS-FAQ-LEGACY-DATE]`, `[FU-REDOWNLOAD-DATE-SERVER]` |
+| /packs#my-packs | "Your <pack> is ready" banner and toast (`#1523`); new accounts return here (`#1515`) | merged | `[FU-PACK-READY-LIVE]` |
+| Checkout (every Pay / Buy button) | "Who will use it?" sheet (`#1531`) | merged DARK, both flags unset | `[FU-CHECKOUT-WHO-2]`, owner Rs 49 live test |
+| Login and trial display | "Signing you in..." screen (`#1521`); slow phone clock fix (`#1516`) | merged | `[FU-SIGNIN-FLASH-LIVE]` |
+| Student emails | founding email from 3 Nov (`#1519`); pack links to /pricing (`#1527`) | merged; flags on | `[FU-FOUNDING-EMAIL-WATCH]` |
+
 > **2026-11-03 (daily) - #1494 - #1512 (CLAUDE.md section 10, once a day).** Scope: landing page header, /pricing, /packs, the CBQ hub and chapter pages, Login and Google sign-in, desktop trial strip, the parent-pay message, Byte (Start-here guide), the desktop account menu, Me / Progress, student emails, and the legal pages. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Pay by phone (2 Nov row below) is LIVE, not dark.
 
 | surface | what moved (PR) | state | owed |
