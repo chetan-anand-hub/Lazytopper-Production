@@ -29,7 +29,7 @@ vi.mock("../context/AuthContext", () => ({
     signInWithEmailPassword: vi.fn(),
     signUpWithEmailPassword: vi.fn(),
     sendPasswordReset: vi.fn(),
-    initPhoneRecaptcha: vi.fn(),
+    initPhoneRecaptcha: vi.fn(async () => {}),
     sendPhoneOtp: vi.fn(),
     verifyPhoneOtp: vi.fn(),
     logout: vi.fn(),
@@ -57,6 +57,11 @@ import {
 const CHROME =
   "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36";
 
+const YOUTUBE_APP =
+  "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.02.34";
+const DESKTOP =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36";
+
 // A function, not a constant element: re-rendering the SAME element object is a React no-op.
 const tree = () => (
   <MemoryRouter initialEntries={["/login"]}>
@@ -64,8 +69,8 @@ const tree = () => (
   </MemoryRouter>
 );
 
-function mount() {
-  vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(CHROME);
+function mount(ua: string = CHROME) {
+  vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(ua);
   const view = render(tree());
   mount.rerender = () => view.rerender(tree());
   return screen.getByRole("button", { name: /Continue with Google/ }) as HTMLButtonElement;
@@ -86,7 +91,7 @@ describe("Google popup that never reports back", () => {
   it("re-enables the buttons after 45 s with a message offering phone / email", async () => {
     vi.useFakeTimers();
     signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
-    const google = mount();
+    const google = mount(YOUTUBE_APP);
     fireEvent.click(google);
     expect(google.disabled).toBe(true);
     await act(async () => {
@@ -96,14 +101,53 @@ describe("Google popup that never reports back", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1000);
     });
-    expect(google.disabled).toBe(false);
+    // The phone step has taken over the door (SIGNIN-RESCUE-1); the way back has live buttons.
     expect(document.body.textContent).toContain(GOOGLE_TIMEOUT_MESSAGE);
-    expect(track).toHaveBeenCalledWith("login_attempt", { method: "google", ua_class: "chrome_android" });
+    expect(screen.getByRole("heading", { name: /Continue with phone/ })).toBeTruthy();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /All sign-in options/ }));
+    });
+    expect((screen.getByRole("button", { name: /Continue with Google/ }) as HTMLButtonElement).disabled).toBe(false);
+    expect(track).toHaveBeenCalledWith("login_attempt", { method: "google", ua_class: "inapp_youtube" });
     expect(track).toHaveBeenCalledWith("login_error", {
       method: "google",
-      ua_class: "chrome_android",
+      ua_class: "inapp_youtube",
       error_code: "popup-timeout",
     });
+  });
+  it.each([["desktop", DESKTOP], ["normal mobile Chrome", CHROME]])(
+    "SIGNIN-RESCUE-1: %s arms NO timeout (no error even long past 45 s)",
+    async (_n, ua) => {
+      vi.useFakeTimers();
+      signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
+      const google = mount(ua);
+      fireEvent.click(google);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(GOOGLE_POPUP_TIMEOUT_MS * 4);
+      });
+      expect(google.disabled).toBe(true);
+      expect(document.body.textContent).not.toContain(GOOGLE_TIMEOUT_MESSAGE);
+      expect(track.mock.calls.filter((c) => c[0] === "login_error")).toHaveLength(0);
+    },
+  );
+});
+
+describe("SIGNIN-RESCUE-1 door order", () => {
+  const order = () => {
+    const btns = Array.from(document.querySelectorAll("button.lt-google, button.lt-method"));
+    return btns.map((b) => (/Google/.test(b.textContent || "") ? "google" : /phone/.test(b.textContent || "") ? "phone" : "email"));
+  };
+  it("phone UA: phone number button first and primary, Google second, email last", () => {
+    mount(CHROME);
+    expect(order()).toEqual(["phone", "google", "email"]);
+    const phone = screen.getByRole("button", { name: "Continue with phone number" });
+    expect(phone.className).toContain("lt-method--primary");
+    expect(screen.getByRole("button", { name: /Continue with Google/ }).className).toContain("lt-google--secondary");
+  });
+  it("desktop: Google first (unchanged), phone second, email last", () => {
+    mount(DESKTOP);
+    expect(order()).toEqual(["google", "phone", "email"]);
+    expect(screen.getByRole("button", { name: "Continue with phone" })).toBeTruthy();
   });
 });
 
@@ -140,12 +184,57 @@ describe("Google failure messages", () => {
       fireEvent.click(google);
     });
     expect(document.body.textContent).toContain(message);
-    expect(google.disabled).toBe(false);
+    // The door is gone (SIGNIN-RESCUE-1 opened the phone step); the way back restores enabled buttons.
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /All sign-in options/ }));
+    });
+    expect((screen.getByRole("button", { name: /Continue with Google/ }) as HTMLButtonElement).disabled).toBe(false);
     expect(track).toHaveBeenCalledWith("login_error", {
       method: "google",
       ua_class: "chrome_android",
       error_code: telemetry,
     });
+  });
+});
+
+describe("SIGNIN-RESCUE-1 phone rescue after a failed Google attempt", () => {
+  const fail = (code: string) =>
+    signInWithGoogle.mockImplementation(async () => {
+      throw Object.assign(new Error("x"), { code });
+    });
+  it.each([
+    ["auth/popup-closed-by-user", POPUP_CLOSED_MESSAGE],
+    ["auth/popup-blocked", POPUP_BLOCKED_MESSAGE],
+    ["auth/operation-not-supported-in-this-environment", UNSUPPORTED_ENVIRONMENT_MESSAGE],
+  ])("%s opens the phone step with the message kept", async (code, message) => {
+    fail(code);
+    const google = mount(DESKTOP);
+    await act(async () => {
+      fireEvent.click(google);
+    });
+    expect(screen.getByRole("heading", { name: /Continue with phone/ })).toBeTruthy();
+    expect(document.body.textContent).toContain(message);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /All sign-in options/ }));
+    });
+    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
+  });
+  it("cancelled-popup-request does NOT switch to the phone step", async () => {
+    fail("auth/cancelled-popup-request");
+    const google = mount(DESKTOP);
+    await act(async () => {
+      fireEvent.click(google);
+    });
+    expect(screen.queryByRole("heading", { name: /Continue with phone/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
+  });
+  it("an unrelated error does not switch either", async () => {
+    fail("auth/network-request-failed");
+    const google = mount(DESKTOP);
+    await act(async () => {
+      fireEvent.click(google);
+    });
+    expect(screen.queryByRole("heading", { name: /Continue with phone/ })).toBeNull();
   });
 });
 
@@ -191,7 +280,7 @@ describe("late Google success after the 45 s timeout", () => {
   );
   it("navigates exactly once and reports exactly one login_success (google)", async () => {
     vi.useFakeTimers();
-    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(CHROME);
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(YOUTUBE_APP);
     let finish: () => void = () => {};
     signInWithGoogle.mockImplementation(
       () =>
@@ -215,14 +304,14 @@ describe("late Google success after the 45 s timeout", () => {
     });
     expect(landed).toHaveBeenCalledTimes(1);
     expect(track.mock.calls.filter((c) => c[0] === "login_success")).toEqual([
-      ["login_success", { method: "google", ua_class: "chrome_android" }],
+      ["login_success", { method: "google", ua_class: "inapp_youtube" }],
     ]);
     // No second error and no timeout event after success.
     expect(track.mock.calls.filter((c) => c[0] === "login_error")).toHaveLength(1);
   });
   it("a timeout that fires after a successful sign-in reports nothing", async () => {
     vi.useFakeTimers();
-    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(CHROME);
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(YOUTUBE_APP);
     signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
     const view = render(routed());
     fireEvent.click(screen.getByRole("button", { name: /Continue with Google/ }));
@@ -238,7 +327,7 @@ describe("late Google success after the 45 s timeout", () => {
   });
   it("unmounting before the timeout reports nothing", async () => {
     vi.useFakeTimers();
-    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(CHROME);
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(YOUTUBE_APP);
     signInWithGoogle.mockImplementation(() => new Promise<void>(() => {}));
     render(routed());
     fireEvent.click(screen.getByRole("button", { name: /Continue with Google/ }));

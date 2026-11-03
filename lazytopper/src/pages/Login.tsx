@@ -12,6 +12,9 @@ import {
   trackLoginError,
   trackLoginSuccess,
   withTimeout,
+  currentGooglePopupMayHang,
+  isPhoneClient,
+  shouldRescueToPhone,
   type LoginMethod,
 } from "../utils/authSignal";
 import OfferStrip from "../components/auth/OfferStrip";
@@ -456,6 +459,38 @@ const LOGIN_CSS = `
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.16);
     color: #f8fafc;
+  }
+
+  /* SIGNIN-RESCUE-1 - on phones the phone-number door leads (filled) and Google is the secondary. */
+  .lt-method--primary {
+    margin-top: 0;
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    color: #071a3d;
+    box-shadow: 0 4px 14px rgba(22, 185, 106, 0.22);
+  }
+
+  .lt-method--primary:hover:not(:disabled) {
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    filter: brightness(1.05);
+  }
+
+  .lt-method--primary .lt-method-icon {
+    color: #071a3d;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-method--primary {
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    color: #071a3d;
+  }
+
+  .lt-google--secondary {
+    margin-top: 9px;
+    border-width: 1px;
+    border-color: #dbe3ee;
+    box-shadow: none;
   }
 
   .lt-method-icon {
@@ -1506,6 +1541,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     ((location.state || {}) as LocationState).phoneFirst === true ||
     searchParams.get("method") === "phone";
   const [step, setStep] = useState<DoorStep>(opensOnPhone ? "phone" : "choose");
+  // SIGNIN-RESCUE-1 - phones lead with the phone-number door (Google is the secondary there). Read once
+  // on mount; the Login page is client-rendered (createRoot), so there is no hydration to mismatch.
+  const [phoneFirstDoor] = useState<boolean>(() => isPhoneClient());
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -1772,7 +1810,11 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     // with a message pointing at phone / email. If the popup does finish later, auth state still
     // changes and the `user` effect navigates as usual; a late rejection finds the race already lost.
     try {
-      await withTimeout(signInWithGoogle(), GOOGLE_POPUP_TIMEOUT_MS);
+      // SIGNIN-RESCUE-1 - the cap is armed ONLY where a popup can truly hang (in-app browsers / webviews).
+      // Desktop and normal mobile browsers await the popup with no timeout, as before AUTH-SIGNAL-1.
+      await (currentGooglePopupMayHang()
+        ? withTimeout(signInWithGoogle(), GOOGLE_POPUP_TIMEOUT_MS)
+        : signInWithGoogle());
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
       // Already signed in, or this page is gone: a timeout / late rejection must not set state
@@ -1786,8 +1828,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         loginMethodRef.current = null;
       }
       trackLoginError("google", err);
-      setError(describeAuthError(err));
+      const message = describeAuthError(err);
       setBusy(false);
+      if (shouldRescueToPhone(err)) {
+        // SIGNIN-RESCUE-1 - open the phone step as if "Continue with phone number" was tapped, keeping the
+        // message visible (goToStep clears the error, so it is set after). Back link still works.
+        goToStep("phone");
+      }
+      setError(message);
     }
   };
 
@@ -2182,9 +2230,46 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   <InAppSignin />
                 </Suspense>
 
+                {phoneFirstDoor ? (
+                  <>
                 <button
                   type="button"
-                  className="lt-google"
+                  className={phoneFirstDoor ? "lt-method lt-method--primary" : "lt-method"}
+                  onClick={() => goToStep("phone")}
+                  disabled={busy}
+                >
+                  <span className="lt-method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="6" y="2" width="12" height="20" rx="2.5" />
+                      <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" />
+                    </svg>
+                  </span>
+                  {phoneFirstDoor ? "Continue with phone number" : "Continue with phone"}
+                </button>
+
+                <button
+                  type="button"
+                  className={phoneFirstDoor ? "lt-google lt-google--secondary" : "lt-google"}
+                  onClick={handleGoogle}
+                  disabled={busy}
+                >
+                  <span className="lt-gmark" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" width="18" height="18">
+                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                    </svg>
+                  </span>
+                  Continue with Google
+                </button>
+
+                  </>
+                ) : (
+                  <>
+                <button
+                  type="button"
+                  className={phoneFirstDoor ? "lt-google lt-google--secondary" : "lt-google"}
                   onClick={handleGoogle}
                   disabled={busy}
                 >
@@ -2201,7 +2286,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
                 <button
                   type="button"
-                  className="lt-method"
+                  className={phoneFirstDoor ? "lt-method lt-method--primary" : "lt-method"}
                   onClick={() => goToStep("phone")}
                   disabled={busy}
                 >
@@ -2211,8 +2296,11 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                       <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" />
                     </svg>
                   </span>
-                  Continue with phone
+                  {phoneFirstDoor ? "Continue with phone number" : "Continue with phone"}
                 </button>
+
+                  </>
+                )}
 
                 <button
                   type="button"
