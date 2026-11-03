@@ -272,16 +272,27 @@ const CSS = `
   padding:0 8px;min-height:44px;display:inline-flex;align-items:center;border-radius:10px;white-space:nowrap}
 .lt-landing a.lt-landing-toplink:hover{color:var(--gd)}
 .lt-landing a.lt-landing-toplink:focus-visible,.lt-landing a.lt-landing-plink:focus-visible{outline:3px solid var(--g);outline-offset:2px}
-.lt-landing-topnav .lt-landing-toplink--packs{display:none}
+/* LANDING-PRICING-2 — these hide/show rules MUST outrank ".lt-landing a.lt-landing-toplink" (0,2,1), which sets
+   display:inline-flex; at (0,2,0) the hide rule lost and "PDF packs" pushed "Log in" off a 360px screen. */
+.lt-landing a.lt-landing-toplink.lt-landing-toplink--packs{display:none}
 .lt-landing a.lt-landing-plink{font-size:14px;font-weight:700;color:var(--gd);text-decoration:none;
   border-bottom:1px solid var(--gl);padding:0 0 2px}
 .lt-landing a.lt-landing-plink:hover{border-color:var(--gd)}
 .lt-landing-hlinks{margin:14px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
-.lt-landing-hlinks .lt-landing-plink--packs{display:inline}
+.lt-landing a.lt-landing-plink.lt-landing-plink--packs{display:inline}
 @media(min-width:480px){
   .lt-landing-topnav{gap:8px}
-  .lt-landing-topnav .lt-landing-toplink--packs{display:inline-flex}
-  .lt-landing-hlinks .lt-landing-plink--packs{display:none}
+  .lt-landing a.lt-landing-toplink.lt-landing-toplink--packs{display:inline-flex}
+  .lt-landing a.lt-landing-plink.lt-landing-plink--packs{display:none}
+}
+/* Below 480px the header must fit brand + Pricing + the whole Log in button down to 320px. */
+@media(max-width:479px){
+  .lt-landing-top{gap:6px}
+  .lt-landing-brand{gap:8px;min-width:0}
+  .lt-landing-brand .fp{height:38px}
+  .lt-landing-topnav{gap:0}
+  .lt-landing a.lt-landing-toplink{padding:0 6px;font-size:13px}
+  .lt-landing a.lt-landing-login{padding:10px 14px}
 }
 
 .lt-landing-cls{display:flex;gap:6px;padding:0 var(--pad)}
