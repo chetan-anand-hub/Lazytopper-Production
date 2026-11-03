@@ -7,16 +7,34 @@
  * Honest by construction: the date comes from the server, the price from config/pricing.ts,
  * no countdown, no seat count. The student's work is never at risk here: the paper is on screen.
  */
-import { useCallback, useEffect, useRef } from "react";
+import { Component, Suspense, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
-import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { PacksEntry, isPacksEntryEnabled } from "../../lib/packs/packEntryLazy";
+import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { WallCoverContext } from "../../lib/packs/wallCover";
 import type { DownloadCover } from "../../services/limitsClient";
 import { blockedPracticeCopy, blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
+
+/**
+ * PACKS-CONVERT-1: the matching one-tap pack (and its ownership read) loads in its own chunk, only when a download wall shows, with
+ * the CHUNK-RESILIENCE-1 retry. If the chunk still cannot load (offline, a deploy mid-session), WallPackFallback shows the old
+ * generic packs link instead: a paywall never throws to the app's error boundary.
+ */
+const WallPackBuy = lazyWithRetry(() => import("./WallPackBuy"));
+
+class WallPackFallback extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
 
 export type DownloadWallVariant = "blocked" | "signed_out" | "offline";
 
@@ -95,6 +113,14 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
   const goPay = () => navigate(`${BOARD_PASS_BUY_PATH}&${planParams}`);
   const goPlans = () => navigate(`/pricing?${planParams}`);
 
+  // PACKS-ENTRY-1 (a): the old quiet pack link ("Chapter Pack ₹49 →" / "PDF packs from ₹49 →"). PACKS-CONVERT-1: it stays the
+  // fallback when no single matching pack can be offered (see WallPackBuy).
+  const packLink = (
+    <WallCoverContext.Provider value={cover ?? null}>
+      <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />
+    </WallCoverContext.Provider>
+  );
+
   return (
     <div className="lt-limit-scrim" onClick={dismiss} data-testid="download-wall-scrim">
       <div
@@ -139,11 +165,16 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
             {copy.keep}
           </button>
         </div>
-        {showPackLink && (
-          <WallCoverContext.Provider value={cover ?? null}>
-            <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />
-          </WallCoverContext.Provider>
-        )}
+        {showPackLink &&
+          (isPacksEntryEnabled() ? (
+            <WallPackFallback fallback={packLink}>
+              <Suspense fallback={null}>
+                <WallPackBuy cover={cover ?? null} chapter={chapter} light={tier === "trial"} fallback={packLink} />
+              </Suspense>
+            </WallPackFallback>
+          ) : (
+            packLink
+          ))}
       </div>
     </div>
   );

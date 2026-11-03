@@ -141,14 +141,6 @@
   .lt-packs__tiles { max-width: 640px; margin: 0 auto; }
 }
 
-/* Bundle -> CBQ cross-sell link under the tiles. */
-.lt-packs__cbqnote { padding: 10px 12px 0; text-align: center; }
-.lt-packs__cbqnote a { color: inherit; text-decoration: underline; }
-@media (min-width: 1024px) {
-  .lt-packs__cbqnote { padding: 14px 0 0; }
-  .lt-packs__cbqnote a { color: #6fe0a8; }
-}
-
 /* The CBQ band sits full-width at the top of the hero (CBQ-PACK-1). */
 .lt-packs__cbqwrap { padding: 0 12px; }
 .lt-packs__cbqwrap .lt-cbq { margin: 16px 0 0; }
@@ -162,9 +154,36 @@
 /* PRICING-ONE-1: My packs / status line when the shop sits inside /pricing (no full-page chrome). */
 .lt-packs.lt-packs--embedded { min-height: 0; padding-bottom: 0; background: transparent; max-width: 1040px; margin: 0 auto; width: 100%; }
 
-/* BUY-PATH-1: on a phone the Maths + Science Bundle (the "Pre-boards pick", the best-value tile) comes FIRST, above the
-   cheaper tiles - it used to sit last, below the fold. Order only: the DOM order (and so keyboard / screen-reader order) is
-   unchanged, and 641px+ keeps the original order. */
-@media (max-width: 640px) {
-  .lt-packs__tiles > .lt-packs__cell:has(> .lt-packs__tile--best) { order: -1; }
+/* PACKS-CONVERT-1 (owner, 3 Nov 2026) - the shelf order is the DOM order at every width: the Bundle ("Pre-boards pick") alone and
+   full width, then the CBQ band (Maths + Science CBQ packs), then Subject, Mock, Chapter. (Replaces BUY-PATH-1's phone-only
+   `order: -1` on the Bundle cell.) */
+.lt-packs__tiles--lead { grid-template-columns: minmax(0, 1fr); }
+.lt-packs__tiles--lead .lt-packs__tile { min-height: 0; }
+.lt-packs__more .lt-packs__tiles { padding-top: 16px; }
+/* three tiles in two columns: the last one takes the full row instead of sitting alone at half width */
+.lt-packs__tiles--rest > .lt-packs__cell:last-child:nth-child(odd) { grid-column: 1 / -1; }
+/* item 4: one line of what is inside, right above Buy */
+.lt-packs__tcontents { margin: 8px 2px 0; font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--pk-ink2); }
+
+@media (min-width: 1024px) {
+  .lt-packs__herogrid { padding: 36px 110px 56px; row-gap: 28px; align-items: start; }
+  .lt-packs__copy { align-self: center; }
+  .lt-packs__more { grid-column: 1 / -1; grid-row: 3; }
+  .lt-packs__more .lt-packs__tiles { padding-top: 0; }
+  .lt-packs__tiles--rest { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lt-packs__tiles--rest > .lt-packs__cell:last-child:nth-child(odd) { grid-column: auto; }
+  .lt-packs__tiles--lead .lt-packs__tile { min-height: 0; }
+  .lt-packs__tcontents { color: #dbe4f0; font-size: 15px; }
+  /* the CBQ band on /packs, desktop: heading block on the left, the two packs on the right, so both CBQ packs sit in the first
+     screen with the Bundle. The extra height of the cards goes into the last (1fr) row, never between the heading lines. */
+  .lt-packs__cbqwrap .lt-cbq {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); grid-template-rows: auto auto auto auto 1fr;
+    column-gap: 28px; row-gap: 10px; align-items: start;
+  }
+  .lt-packs__cbqwrap .lt-cbq > * { grid-column: 1; }
+  .lt-packs__cbqwrap .lt-cbq__badge { grid-row: 1; justify-self: start; }
+  .lt-packs__cbqwrap .lt-cbq__title { grid-row: 2; font-size: 30px; }
+  .lt-packs__cbqwrap .lt-cbq__sub { grid-row: 3; }
+  .lt-packs__cbqwrap .lt-cbq__foot { grid-row: 4; }
+  .lt-packs__cbqwrap .lt-cbq__grid { grid-column: 2; grid-row: 1 / -1; margin-top: 0; }
 }

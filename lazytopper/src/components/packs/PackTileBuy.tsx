@@ -1,5 +1,6 @@
 import { packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "./PacksShop";
+import type { SampleBuy } from "./PackSampleLink";
 import "./packTileBuy.css";
 
 /**
@@ -125,4 +126,22 @@ export function PackCbqBuy({ subject, api, testPrefix }: { subject: PackSubject;
       {see}
     </div>
   );
+}
+
+/**
+ * PACKS-CONVERT-1 - the "Liked the sample?" buy for a tile or CBQ card: the SAME action as that tile's Buy (one-tap buyNow, or the
+ * chapter picker for the Chapter Pack), sending `pack_checkout` with `from: "sample"`. null while packs are dark or when the
+ * account already owns that pack. `subject` is the sample that was tapped (null for the bundle).
+ */
+export function sampleBuyFor(api: PacksShopApi, sku: PackSku): (subject: PackSubject | null) => SampleBuy | null {
+  return (subject) => {
+    if (!api.buyEnabled) return null;
+    if (sku === "pack_chapter") return { onBuy: () => api.chooseChapter({ from: "sample" }), blocked: api.blockedBy(sku) };
+    if (sku === "pack_bundle") {
+      if (api.ownsPack(sku)) return null;
+      return { onBuy: () => api.buyNow(sku, undefined, { from: "sample" }), blocked: api.blockedBy(sku) };
+    }
+    if (!subject || api.ownsPack(sku, subject)) return null;
+    return { onBuy: () => api.buyNow(sku, subject, { from: "sample" }), blocked: api.blockedBy(sku, subject) };
+  };
 }

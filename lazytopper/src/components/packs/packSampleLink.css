@@ -12,3 +12,19 @@
 .lt-psl-pair .lt-psl { min-width: 44px; padding: 6px 6px; }
 .lt-psl-pair .lt-psl__icon { display: none; }
 .lt-psl-pair__dot { color: #6b7a90; }
+/* PACKS-CONVERT-1 - "Liked the sample? Get the <pack> · ₹<price>": appears right under the sample link after the tap. A filled
+   green button (the sale step), full width of its card, >= 44px, wraps on a 360px phone. */
+.lt-psb {
+  display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; margin-top: 6px; padding: 8px 12px;
+  border: 2px solid #136b43; border-radius: 12px; background: #3fbf82; color: #0f1b2d; font: inherit; font-size: 15px; font-weight: 800;
+  line-height: 1.25; text-align: center; text-decoration: none; cursor: pointer; box-sizing: border-box;
+  animation: lt-psb-in 180ms ease-out;
+}
+.lt-psb:hover { filter: brightness(1.05); }
+.lt-psb:focus-visible { outline: 3px solid #136b43; outline-offset: 2px; }
+.lt-psb:disabled { background: #d3dbe5; border-color: #9fb0c8; color: #3c4b60; cursor: not-allowed; filter: none; }
+.lt-psb--dark { border-color: #e8b94a; color: #07210f; }
+.lt-psb--dark:focus-visible { outline-color: #e8b94a; }
+a.lt-psb, a.lt-psb:visited { color: #0f1b2d; text-decoration: none; }
+@keyframes lt-psb-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lt-psb { animation: none; } }
