@@ -276,4 +276,6 @@ export function resetGuestClaimSessionForTests(): void {
 export interface GuestSigninState {
   guestPayPhone?: string;
   phoneFirst?: boolean;
+  /** GUEST-SIGNIN-RETURNING-1 - this sign-in follows a "this number already has an account" moment: open the phone step on "Already have an account". */
+  guestPayExisting?: true;
 }

@@ -552,8 +552,8 @@ function PassCheckoutConnected() {
       <GuestPaySheet
         item={{ kind: "pass", sku: "till_boards", label: "Board Pass", description: BOARD_PASS_CHECKOUT_DESCRIPTION }}
         onClose={() => setShowGuest(false)}
-        onSignInFirst={(method, digits) => {
-          const state: GuestSigninState | undefined = method === "phone" ? (digits ? { guestPayPhone: digits } : { phoneFirst: true }) : undefined;
+        onSignInFirst={(method, digits, existingAccount) => {
+          const state: GuestSigninState | undefined = method === "phone" ? { ...(digits ? { guestPayPhone: digits } : { phoneFirst: true }), ...(existingAccount ? { guestPayExisting: true as const } : {}) } : undefined;
           navigate(withSigninRedirect("/login", BOARD_PASS_BUY_PATH), state ? { state } : undefined);
         }}
         onSignInWithNumber={(digits) => {

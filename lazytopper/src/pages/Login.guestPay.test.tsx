@@ -82,6 +82,28 @@ describe("PAY-PHONE-1 · the sign-in after paying", () => {
     expect((screen.getByLabelText("Mobile number") as HTMLInputElement).value).toBe("9876543948");
   });
 
+  it("GUEST-SIGNIN-RETURNING-1: 'this number has an account' opens 'Already have an account', number prefilled, no name field", () => {
+    renderDoor({ pathname: "/login", state: { guestPayPhone: "9876543948", guestPayExisting: true } });
+    expect((screen.getByLabelText("Mobile number") as HTMLInputElement).value).toBe("9876543948");
+    expect(screen.getByRole("button", { name: "Already have an account" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "I'm new here" }).getAttribute("aria-pressed")).toBe("false");
+    expect(screen.queryByLabelText(/Your name/)).toBeNull();
+    expect(screen.queryByText("We'll create your account")).toBeNull();
+  });
+
+  it("GUEST-SIGNIN-RETURNING-1: 'Bought before?' (no number) also opens 'Already have an account'", () => {
+    renderDoor({ pathname: "/login", state: { phoneFirst: true, guestPayExisting: true } });
+    expect((screen.getByLabelText("Mobile number") as HTMLInputElement).value).toBe("");
+    expect(screen.getByRole("button", { name: "Already have an account" }).getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("GUEST-SIGNIN-RETURNING-1: the post-payment sign-in (no flag) keeps today's 'I'm new here' default with the name field", () => {
+    renderDoor({ pathname: "/login", state: { guestPayPhone: "9876543948" } });
+    expect(screen.getByRole("button", { name: "I'm new here" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Already have an account" }).getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByLabelText(/Your name/)).toBeTruthy();
+  });
+
   it("the receipt email link ?method=phone opens the phone step with NO number", () => {
     renderDoor("/login?method=phone");
     expect((screen.getByLabelText("Mobile number") as HTMLInputElement).value).toBe("");
