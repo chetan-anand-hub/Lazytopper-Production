@@ -57,11 +57,20 @@ describe("PrintCover", () => {
   it("shows the licensee box only when a line is given", () => {
     const line = "Licensed to A · a@b.in · Order o1 — personal use only";
     expect(render(<PrintCover {...base} licenseeLine={line} />).container.textContent).toContain(line);
-    expect(render(<PrintCover {...base} licenseeLine={line} />).container.textContent).toContain("Download again any time until 31 May 2027");
+    expect(render(<PrintCover {...base} licenseeLine={line} />).container.textContent).toContain("Download again any time until 31 May 2027"); // paid time unknown -> the later (legacy) date
     expect(render(<PrintCover {...base} licenseeLine={line} />).container.textContent).toContain("Please do not share or resell this file.");
     expect(render(<PrintCover {...base} licenseeLine="Licensed to Asha Rao · +91 98*****948 · Order o2 — personal use only" />).container.textContent).toContain("Asha Rao · +91 98*****948");
     cleanup();
     expect(render(<PrintCover {...base} />).container.querySelector(".lt-cover__lic")).toBeNull();
+  });
+  it("PACK-TERMS-1: the re-download date follows the paid time - before 5 Nov 2026 31 May 2027, from the cut-off 31 March 2027, unknown/bad -> the later date", () => {
+    const line = "Licensed to A · a@b.in · Order o1 — personal use only";
+    const cut = 1793817000000; // 2026-11-05T00:00:00+05:30
+    const text = (paidAtMs?: number) => render(<PrintCover {...base} licenseeLine={line} paidAtMs={paidAtMs} />).container.textContent;
+    expect(text(cut - 1)).toContain("Download again any time until 31 May 2027");
+    expect(text(cut)).toContain("Download again any time until 31 March 2027");
+    expect(text(cut + 86_400_000)).toContain("Download again any time until 31 March 2027");
+    for (const bad of [undefined, 0, Number.NaN, -5]) expect(text(bad)).toContain("Download again any time until 31 May 2027");
   });
   it("a long chapter title uses a smaller size class so it stays on the page", () => {
     const { container } = render(<PrintCover {...base} title="Electricity and the Magnetic Effects of Electric Current" />);
