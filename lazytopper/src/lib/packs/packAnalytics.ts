@@ -78,9 +78,9 @@ export function trackPackEvent(name: "pack_view" | "pack_download", sku?: PackSk
 
 /**
  * `pack_ready_shown` (PACK-READY-1): the "Your pack is ready" banner (My packs) or toast (any other page) was shown after a pay-by-phone
- * claim. `sku` is the pack kind (or `board_pass`), `surface` is `banner` | `toast`. Nothing about the person is attached.
+ * claim. `sku` is the pack kind (or `board_pass`), `surface` is `banner` | `toast` | `banner_return` (arrived at #my-packs with no claim in hand). Nothing about the person is attached.
  */
-export function trackPackReadyShown(sku: string, surface: "banner" | "toast"): void {
+export function trackPackReadyShown(sku: string, surface: "banner" | "toast" | "banner_return"): void {
   try {
     const data = { sku, surface };
     sendAnalyticsHit("event", { name: "pack_ready_shown", data }, { ga4: data });

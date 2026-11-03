@@ -58,12 +58,13 @@ export function claimedItemName(kind: "pack" | "pass", sku: string, target: stri
 }
 
 /** The most recent claim, kept so a page that mounts AFTER the event (the sign-in lands on /packs) can still say "ready". */
-let recentClaim: { items: ClaimedItem[]; at: number } | null = null;
+let recentClaim: { uid: string; items: ClaimedItem[]; at: number } | null = null;
 const RECENT_CLAIM_MS = 10 * 60 * 1000;
 // performance.now(), not the wall clock: this is an elapsed-time window, and it keeps the clock-guard out of every test that mounts My packs.
 const elapsedNow = (): number => performance.now();
-export function readRecentClaim(now: number = elapsedNow()): ClaimedItem[] {
-  return recentClaim && now - recentClaim.at <= RECENT_CLAIM_MS ? recentClaim.items : [];
+/** Only for the SAME account that claimed: a different signed-in uid (shared device) never sees another buyer's claim. */
+export function readRecentClaim(uid: string, now: number = elapsedNow()): ClaimedItem[] {
+  return uid && recentClaim && recentClaim.uid === uid && now - recentClaim.at <= RECENT_CLAIM_MS ? recentClaim.items : [];
 }
 
 function readFlag(name: "payments" | "guest"): string {
@@ -299,7 +300,7 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
       if (claimed !== null) claimedThisSession.add(uid);
       if (claimed && claimed.length > 0) {
         const items: ClaimedItem[] = claimed.map((c) => ({ kind: c.kind, sku: c.sku, target: c.target, name: claimedItemName(c.kind, c.sku, c.target) }));
-        recentClaim = { items, at: elapsedNow() };
+        recentClaim = { uid, items, at: elapsedNow() };
         try {
           const detail: GuestClaimedDetail = { count: claimed.length, items };
           window.dispatchEvent(new CustomEvent(GUEST_CLAIMED_EVENT, { detail }));
@@ -307,7 +308,7 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
           /* no window (tests / SSR) */
         }
         // PACK-READY-1 - tell the buyer on any page except /packs (its own banner) and the sign-in page. Lazy: not in the entry chunk.
-        void import("../components/packs/PackReadyToast").then((m) => m.showPackReadyToast(items)).catch(() => undefined);
+        void import("../components/packs/PackReadyToast").then((m) => m.showPackReadyToast(items, uid)).catch(() => undefined);
       }
       return claimed;
     })

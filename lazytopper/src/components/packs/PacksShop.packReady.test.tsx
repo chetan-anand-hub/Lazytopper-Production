@@ -32,6 +32,8 @@ vi.mock("../../lib/packs/buildPackFiles", () => ({
     return [...by].map(([group, fs]) => ({ group, files: fs }));
   },
 }));
+const paid = vi.hoisted(() => ({ premium: false }));
+vi.mock("../../lib/packs/usePaidPremium", () => ({ usePaidPremium: () => paid.premium }));
 const track = vi.hoisted(() => ({ ready: vi.fn() }));
 vi.mock("../../lib/packs/packAnalytics", async (orig) => ({
   ...(await orig<typeof import("../../lib/packs/packAnalytics")>()),
@@ -70,6 +72,7 @@ const claimedDetail = (items: Array<{ kind: "pack" | "pass"; sku: string; target
 
 beforeEach(() => {
   auth.user = { uid: "u1" };
+  paid.premium = false;
   where = "";
   resetGuestClaimSessionForTests();
   track.ready.mockReset();
@@ -111,8 +114,32 @@ describe("PACK-READY-1 · the banner", () => {
   it("arriving at #my-packs with owned packs (no claim in hand) points at the most recent one", async () => {
     fetchMine.mockResolvedValue({ packs: [mock, bundle], licensee: { name: "Asha", email: "a@b.in" }, boardPassCredit: null });
     shop("/packs#my-packs");
-    expect((await screen.findByTestId("pack-ready-row")).textContent).toContain("Your Maths + Science Bundle is ready");
+    const row = await screen.findByTestId("pack-ready-row");
+    // No claim in hand: neutral wording, its own surface, still one tap to the files.
+    expect(row.textContent).toContain("Your latest pack: Maths + Science Bundle");
+    expect(row.textContent).not.toContain("is ready");
+    expect(track.ready).toHaveBeenCalledWith("pack_bundle", "banner_return");
+    expect(track.ready).not.toHaveBeenCalledWith(expect.anything(), "banner");
     expect(screen.getAllByTestId("pack-ready-row")).toHaveLength(1);
+    fireEvent.click(screen.getByText("Download files"));
+    expect(await screen.findByText("Real Numbers")).toBeTruthy();
+  });
+
+  it("a recent claim by ANOTHER account (shared device) is never shown to this one", async () => {
+    const { claimOncePerSession } = await import("../../services/guestPay");
+    await claimOncePerSession("someone-else", { force: true, claim: async () => [{ orderId: "o", kind: "pack", sku: "pack_bundle", target: null }] });
+    shop("/packs");
+    await screen.findByText("Maths + Science Bundle");
+    expect(screen.queryByTestId("pack-ready-banner")).toBeNull();
+    expect(track.ready).not.toHaveBeenCalled();
+  });
+
+  it("no 'Download files' button while the owned cards are not shown (licensee details unavailable)", async () => {
+    fetchMine.mockResolvedValue({ packs: [bundle], licensee: { name: "", email: "", phone: "" }, boardPassCredit: null });
+    shop("/packs#my-packs");
+    await screen.findByTestId("packs-mine");
+    await waitFor(() => expect(screen.queryByTestId("packs-owned")).toBeNull());
+    expect(screen.queryByText("Download files")).toBeNull();
   });
 
   it("plain /packs with owned packs and no claim shows no banner; the banner can be dismissed", async () => {
@@ -125,7 +152,16 @@ describe("PACK-READY-1 · the banner", () => {
     await waitFor(() => expect(screen.queryByTestId("pack-ready-row")).toBeNull());
   });
 
-  it("a claimed Board Pass says 'Your Board Pass is on' (no file button)", async () => {
+  it("a claimed Board Pass says 'Your Board Pass is on' ONLY once the subscription confirms it (no file button)", async () => {
+    shop();
+    await screen.findByText("Maths + Science Bundle");
+    act(() => {
+      window.dispatchEvent(claimedDetail([{ kind: "pass", sku: "till_boards", target: null, name: "Board Pass" }]));
+    });
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByTestId("pack-ready-row")).toBeNull(); // claim list alone is not trusted
+    cleanup();
+    paid.premium = true;
     shop();
     await screen.findByText("Maths + Science Bundle");
     act(() => {
@@ -205,5 +241,20 @@ describe("PACK-READY-1 · 'Sign in with this number' returns to /packs#my-packs 
     shop("/pricing");
     await payThenSignIn();
     expect(redirectTo).toBe("/packs#my-packs");
+  });
+});
+
+describe("PACK-READY-1 · one message only: the toast yields to a mounted PacksShop banner", () => {
+  it("embedded on a non-/packs page, a claim shows the banner and NOT the toast", async () => {
+    const { claimOncePerSession } = await import("../../services/guestPay");
+    shop("/pricing#my-packs");
+    await screen.findByText("Maths + Science Bundle");
+    await act(async () => {
+      await claimOncePerSession("u1", { force: true, claim: async () => [{ orderId: "o", kind: "pack", sku: "pack_bundle", target: null }] });
+      await new Promise((r) => setTimeout(r, 50));
+    });
+    expect((await screen.findByTestId("pack-ready-row")).textContent).toContain("is ready");
+    expect(screen.queryByTestId("pack-ready-toast")).toBeNull();
+    expect(track.ready).not.toHaveBeenCalledWith(expect.anything(), "toast");
   });
 });

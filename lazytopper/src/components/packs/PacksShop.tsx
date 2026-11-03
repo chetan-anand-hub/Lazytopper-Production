@@ -43,6 +43,7 @@ import PackNamePrompt from "./PackNamePrompt";
 import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, readRecentClaim, type ClaimedItem, type GuestClaimedDetail, type GuestSigninState } from "../../services/guestPay";
+import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
 import "../../pages/packs.css";
 
@@ -294,7 +295,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       // PACK-READY-1: remember WHAT was attached so the banner can say "Your <pack> is ready".
       const items = (e as CustomEvent<GuestClaimedDetail | undefined>).detail?.items;
       if (Array.isArray(items) && items.length > 0) {
-        setClaimedItems(items);
+        setEventItems(items);
         setReadyDismissed(false);
       }
     };
@@ -305,28 +306,32 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const owned = useMemo(() => mine?.packs ?? [], [mine]);
 
   // PACK-READY-1: the claim may have fired BEFORE this page mounted (the sign-in lands here), so start from the recent one.
-  const [claimedItems, setClaimedItems] = useState<ClaimedItem[]>(() => readRecentClaim());
+  // Only THIS account's recent claim counts (readRecentClaim checks the uid); an event overrides it.
+  const [eventItems, setEventItems] = useState<ClaimedItem[] | null>(null);
+  const claimedItems = eventItems ?? (user ? readRecentClaim(user.uid) : []);
+  const paidPass = usePaidPremium();
   const [readyDismissed, setReadyDismissed] = useState(false);
   /** The pack whose file list the banner button asked to open (`n` makes a repeat tap count). */
   const [openReq, setOpenReq] = useState<{ packId: string; n: number } | null>(null);
   const readyRows = useMemo<ReadyRow[]>(() => {
-    if (readyDismissed || !user || owned.length === 0 && !claimedItems.some((i) => i.kind === "pass")) return [];
+    if (readyDismissed || !user || (owned.length === 0 && !(paidPass && claimedItems.some((i) => i.kind === "pass")))) return [];
     const rows: ReadyRow[] = [];
     for (const it of claimedItems) {
       if (it.kind === "pass") {
-        if (!rows.some((r) => !r.packId)) rows.push({ key: "pass", sku: "board_pass", title: "Board Pass" });
+        // "Is on" only when the server-backed subscription says paid; the claim list alone is not trusted.
+        if (paidPass && !rows.some((r) => !r.packId)) rows.push({ key: "pass", sku: "board_pass", title: "Board Pass" });
         continue;
       }
       const p = owned.find((o) => o.sku === it.sku && (o.target || "") === (it.target || ""));
       if (p && !rows.some((r) => r.packId === p.packId)) rows.push({ key: p.packId, packId: p.packId, sku: p.sku, title: ownedPackTitle(p) });
     }
     if (rows.length === 0 && location.hash === "#my-packs" && owned.length > 0) {
-      // Arrived at #my-packs with packs but no claim in hand: point at the most recent purchase.
+      // Arrived at #my-packs with packs but no claim in hand: neutral wording ("Your latest pack"), never "is ready".
       const latest = owned.reduce((a, b) => (b.paidAt > a.paidAt ? b : a));
-      rows.push({ key: latest.packId, packId: latest.packId, sku: latest.sku, title: ownedPackTitle(latest) });
+      rows.push({ key: latest.packId, packId: latest.packId, sku: latest.sku, title: ownedPackTitle(latest), variant: "return" });
     }
     return rows.slice(0, 3);
-  }, [claimedItems, owned, readyDismissed, user, location.hash]);
+  }, [claimedItems, owned, readyDismissed, user, location.hash, paidPass]);
 
   const subjectTotal = useCallback(
     (s: PackSubject): number | null => {
@@ -643,7 +648,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         <section className="lt-packs__mine" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine">
           <div className="lt-packs__w">
             <h2 id="packs-mine-h">My packs</h2>
-            <PackReadyBanner rows={readyRows} onOpen={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} onDismiss={() => setReadyDismissed(true)} />
+            <PackReadyBanner rows={readyRows} canOpen={Boolean(mine && hasLicenseeContact(mine.licensee))} onOpen={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} onDismiss={() => setReadyDismissed(true)} />
             {mineError && (
               <p className="lt-packs__note lt-packs__note--bad" role="alert">
                 {mineError === "details" ? PACK_DETAILS_UNAVAILABLE_COPY : <>We couldn&rsquo;t load your packs.</>}{" "}
