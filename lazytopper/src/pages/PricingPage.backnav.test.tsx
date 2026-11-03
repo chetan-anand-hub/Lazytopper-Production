@@ -193,7 +193,7 @@ describe("F3 — login → pricing → login keeps the redirect", () => {
     expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBe(String(pending.gradedAt));
   });
 
-  it("'Start free' and 'Start 7-day trial' pass it on too (the trial link's own /pricing is replaced)", async () => {
+  it("'Start free' and the trial link pass it on too (the trial link's own /pricing is replaced)", async () => {
     const pending = freeResultProducedInThisTab();
     const u = userEvent.setup({ delay: null });
     renderRoundTrip("/pricing?source=login&redirect=%2Fcheck-improve");
@@ -204,7 +204,7 @@ describe("F3 — login → pricing → login keeps the redirect", () => {
     window.sessionStorage.removeItem(FREE_CHECK_SIGNIN_INTENT_KEY);
 
     renderRoundTrip("/pricing?source=login&redirect=%2Fcheck-improve");
-    await u.click(screen.getByRole("button", { name: "Start 7-day trial" }));
+    await u.click(screen.getByRole("button", { name: "Try the Board Pass free for 7 days" }));
     const door = await screen.findByTestId("login-door");
     expect(door.textContent).toContain("redirect=/check-improve");
     expect(door.textContent).toContain("reason=start-trial");
@@ -225,7 +225,7 @@ describe("F3 — login → pricing → login keeps the redirect", () => {
     // And the trial button keeps its own /pricing return.
     cleanup();
     renderRoundTrip("/pricing?source=login");
-    await u.click(screen.getByRole("button", { name: "Start 7-day trial" }));
+    await u.click(screen.getByRole("button", { name: "Try the Board Pass free for 7 days" }));
     expect((await screen.findByTestId("login-door")).textContent).toContain("redirect=/pricing");
   });
 

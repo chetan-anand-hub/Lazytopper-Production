@@ -67,7 +67,7 @@ async function renderAs(sub: SubscriptionStatus) {
     );
   });
   await screen.findByTestId("pricing-passes");
-  return document.querySelector(".lt-pricing-card--premium") as HTMLElement;
+  return document.querySelector('[data-testid="pricing-board-pass"]') as HTMLElement;
 }
 
 beforeEach(() => {

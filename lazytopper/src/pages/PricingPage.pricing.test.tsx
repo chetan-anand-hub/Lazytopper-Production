@@ -6,11 +6,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-// TRIAL-CTA-1: the page reads the session for its state-aware trial button. These pins
-// are about the PUBLIC (signed-out) page, which is exactly what `user: null` renders.
+// The PUBLIC (signed-out) page, which is exactly what `user: null` renders.
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
-// PRICE-FIXED-1: the month pass shows ONLY for an account the server says has a PAID month order. The hook is the
-// browser's only source of that answer, so the suites drive it directly. The month-pass suites below run as a
+// PRICE-FIXED-1: the month pass shows ONLY for an account the server says has a PAID month order. The month-pass suites run as a
 // month BUYER (default true here); the "hidden from everyone else" suite flips it to false.
 const mockMonth = vi.hoisted(() => ({ buyer: true }));
 vi.mock("../components/pricing/useMonthPassAvailable", () => ({
@@ -19,57 +17,34 @@ vi.mock("../components/pricing/useMonthPassAvailable", () => ({
   resetMonthPassAvailableForTests: () => undefined,
 }));
 
-import PricingPage, { PremiumPriceHead, TillBoardsOffer } from "./PricingPage";
-import {
-  PRICE_FREE_DISPLAY,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
-  TILL_BOARDS_LINE,
-} from "../config/pricing";
+import PricingPage, { PremiumPriceHead, TillBoardsOffer, PRICING_MANUAL_PAYMENTS_OFF } from "./PricingPage";
+import { PRICE_FREE_DISPLAY, PRICE_MONTHLY_LIST_DISPLAY } from "../config/pricing";
 import { stripAuthChrome, countResidualAuthNodes } from "../../scripts/seo/captureStaticBodies";
 
-// PRICING-1 — the founding offer is read from the CALENDAR at render. These suites assert the
-// offer-OPEN page, so they run at a pinned instant (Date only; a test's own fake timers layer on
-// top) and pass at any real or shifted clock. The closed page is pinned explicitly where asserted.
+/**
+ * PricingPage — published price + packaging pins, rewritten for PRICING-B-1 ("Option B v3", 3 Nov 2026).
+ *
+ * This page publishes PRICES to the public, so the numbers are pinned harder than the copy:
+ *  - the Board Pass figure is clock-derived (founding ₹1,917 till 30 Nov, ₹2,499 from 1 Dec), written only after mount, inside the
+ *    ONE node the prerender capture strips;
+ *  - the month pass is shown ONLY to an account that already bought one (PRICE-FIXED-1);
+ *  - one product name ("Board Pass"), no refund wording, no unbacked "limited".
+ */
+
 beforeEach(() => {
   mockMonth.buyer = true;
   vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
 });
 
-
-/**
- * PricingPage — published price + packaging pins (Lane H-2, rewritten by PRICING-TB-1).
- *
- * This page publishes a PRICE to the public, so the numbers are pinned harder
- * than the copy. PRICING-TB-1 (owner ruling 2026-09-26) retired the fixed
- * board-year plan:
- *
- *  R1  the headline is the MONTHLY price — founding ₹599 for a month with the list
- *      ₹999 struck beside it while the offer is open; ₹999 alone once it closes.
- *  R3  "till boards" — one payment until the first board paper, 20% under
- *      monthly × months-left. Its figures depend on TODAY, so they are written
- *      only after mount.
- *  R4  and therefore never baked into the prerendered page: the capture strips
- *      the one node that holds them, leaving the number-free line.
- *  R6  the FAQ copy.
- *
- * The till-boards arithmetic itself is pinned in src/config/pricing.tillBoards.test.ts.
- */
-
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.unstubAllEnvs();
 });
 
 /** Collapse JSX line-wrapping so copy assertions are whitespace-insensitive. */
 function flat(el: Element | null | undefined): string {
   return (el?.textContent ?? "").replace(/\s+/g, " ").trim();
-}
-
-function parseRupees(text: string): number {
-  const m = text.match(/₹([\d,]+)/);
-  expect(m, `expected a ₹ amount in: ${JSON.stringify(text)}`).not.toBeNull();
-  return Number(m![1].replace(/,/g, ""));
 }
 
 /** Pin the clock (Date only — React's scheduler keeps real timers). */
@@ -86,40 +61,28 @@ function renderPricing() {
       <PricingPage />
     </MemoryRouter>,
   );
-  // `.lt-pricing-inner` deliberately EXCLUDES the sibling <style> block, whose
-  // textContent is the whole PRICING_CSS string and would pollute copy matches.
+  // `.lt-pricing-inner` EXCLUDES the sibling <style> block, whose textContent is the whole CSS string.
   const inner = utils.container.querySelector(".lt-pricing-inner");
   expect(inner).not.toBeNull();
-  const premium = utils.container.querySelector(".lt-pricing-card--premium");
-  expect(premium).not.toBeNull();
-  return { ...utils, inner: inner as Element, premium: premium as Element };
+  const pass = utils.container.querySelector('[data-testid="pricing-board-pass"]');
+  expect(pass).not.toBeNull();
+  return { ...utils, inner: inner as Element, pass: pass as Element };
 }
 
-/** Every rupee amount in a text, as displayed ("₹2,396"). */
 function rupeeAmounts(text: string): string[] {
   return text.match(/₹[\d,]+/g) ?? [];
 }
 
-/** The only figures the STATIC page may carry: free and the two monthly rates. */
-const STATIC_FIGURES = new Set([
-  PRICE_FREE_DISPLAY,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
-]);
-
-/* ── PRICING-LIGHT-1 · the shipped CSS, parsed ─────────────────────────────────
- * Read out of the page source (the template literal has no interpolation, so the
- * source text IS the runtime string — the L1 block proves it against the render).
- */
+/* ── The shipped CSS (components/pricing/pricingPageCss.ts), parsed ──────────── */
 const SHIPPED_CSS = (() => {
-  const src = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
-  const m = /const PRICING_CSS = `([\s\S]*?)`;/.exec(src);
-  if (!m) throw new Error("PRICING_CSS not found in PricingPage.tsx");
+  const src = readFileSync(resolve(process.cwd(), "src/components/pricing/pricingPageCss.ts"), "utf8");
+  const m = /export const PRICING_CSS = `([\s\S]*?)`;/.exec(src);
+  if (!m) throw new Error("PRICING_CSS not found in pricingPageCss.ts");
   return m[1];
 })();
 const SHIPPED_CSS_NO_COMMENTS = SHIPPED_CSS.replace(/\/\*[\s\S]*?\*\//g, "");
 
-/** The CSS with every @media block removed: the base (widest) rules only. */
+/** The CSS with every @media block removed: the base (phone-first) rules only. */
 function withoutMedia(css: string): string {
   let out = "";
   let i = 0;
@@ -152,7 +115,6 @@ const BASE_RULES: Map<string, Record<string, string>> = (() => {
   return rules;
 })();
 
-/** The base declarations for one exact selector (empty when the selector has no rule). */
 function rule(selector: string): Record<string, string> {
   return BASE_RULES.get(selector) ?? {};
 }
@@ -171,7 +133,6 @@ function resolveVars(value: string): string {
   return v;
 }
 
-/** The colour a selector paints for a property ("color", "background", "border", "border-color"). */
 function color(selector: string, prop: string): string {
   const raw = rule(selector)[prop];
   if (raw === undefined) throw new Error(`${selector} has no ${prop}`);
@@ -207,649 +168,362 @@ interface ContrastPair {
 }
 
 const c = (sel: string, prop: string) => () => color(sel, prop);
-const CARD_BG = c(".lt-pricing-card", "background");
-const MINT_BG = c(".lt-pricing-card--premium", "background");
-const TILE_BG = c(".lt-pricing-pass-bg", "background");
 const BAND_BG = c(".lt-pricing-band", "background");
-const TABLE_BG = c(".lt-pricing-compare-scroll", "background");
+const MINT_BG = c(".lt-pp-pass", "background");
+const AMBER_BG = c(".lt-pp-cbq", "background");
+const CARD_BG = c(".lt-pp-card", "background");
+const GROUND = c(".lt-pricing-page", "background");
+const WHITE = () => "#ffffff";
 
-/** Every L1 text and button pair on the page (PRICING-LIGHT-1 · L8). */
+/** Every text and button pair on the page (WCAG AA). */
 const CONTRAST_PAIRS: ContrastPair[] = [
-  // The navy band.
   { name: "H1 on the band", fg: c(".lt-pricing-title", "color"), bg: BAND_BG, min: 4.5 },
-  { name: "subtitle on the band", fg: c(".lt-pricing-subtitle", "color"), bg: BAND_BG, min: 4.5 },
-  { name: "back button on the band", fg: c(".lt-pricing-band .ux-return-bar__back", "color"), bg: BAND_BG, min: 4.5 },
-  // The light ground and the Basic card.
-  { name: "page ink on the ground", fg: c(".lt-pricing-page", "color"), bg: c(".lt-pricing-page", "background"), min: 4.5 },
-  { name: "list ink on the white card", fg: c(".lt-pricing-feature", "color"), bg: CARD_BG, min: 4.5 },
-  { name: "secondary text on the white card", fg: c(".lt-pricing-plan-desc", "color"), bg: CARD_BG, min: 4.5 },
-  { name: "Basic label on the white card", fg: c(".lt-pricing-plan-label", "color"), bg: CARD_BG, min: 4.5 },
-  { name: "tick on the white card", fg: c(".lt-pricing-feature-icon", "color"), bg: CARD_BG, min: 4.5 },
-  { name: "free-check link on the white card", fg: c(".lt-pricing-feature a", "color"), bg: CARD_BG, min: 4.5 },
-  { name: "Start free label", fg: c(".lt-pricing-cta--secondary", "color"), bg: c(".lt-pricing-cta--secondary", "background"), min: 4.5 },
-  { name: "Start free outline vs the white card", fg: c(".lt-pricing-cta--secondary", "border"), bg: CARD_BG, min: 3 },
-  // The mint Premium card.
-  { name: "Premium label on mint", fg: c(".lt-pricing-plan-label--premium", "color"), bg: MINT_BG, min: 4.5 },
-  { name: "tick on mint", fg: c(".lt-pricing-feature-icon", "color"), bg: MINT_BG, min: 4.5 },
-  { name: "list ink on mint", fg: c(".lt-pricing-feature", "color"), bg: MINT_BG, min: 4.5 },
-  { name: "footnote on mint", fg: c(".lt-pricing-card-foot", "color"), bg: MINT_BG, min: 4.5 },
-  { name: "founding lock line on mint", fg: c(".lt-pricing-founding-note", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "credential on the band", fg: c(".lt-pp-cred", "color"), bg: BAND_BG, min: 4.5 },
+  { name: "back button on the band", fg: c(".lt-pp-topbar .ux-return-bar__back", "color"), bg: BAND_BG, min: 4.5 },
+  { name: "Log in on the band", fg: c(".lt-pp-login", "color"), bg: BAND_BG, min: 4.5 },
+  { name: "page ink on the ground", fg: c(".lt-pricing-page", "color"), bg: GROUND, min: 4.5 },
+  { name: "Board Pass name on mint", fg: c(".lt-pp-pass__name", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "START HERE badge", fg: c(".lt-pp-badge", "color"), bg: c(".lt-pp-badge", "background"), min: 4.5 },
+  { name: "ticks on mint", fg: c(".lt-pp-tick", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "tick lines on mint", fg: c(".lt-pp-ticks", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "price on mint", fg: c(".lt-pricing-tillboards-amount", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "price meta on mint", fg: c(".lt-pricing-tillboards-meta", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "founding line on mint", fg: c(".lt-pricing-tillboards-deadline", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "Pay label", fg: c(".lt-pricing-pay", "color"), bg: c(".lt-pricing-pay", "background"), min: 4.5 },
+  { name: "Pay button vs mint", fg: c(".lt-pricing-pay", "background"), bg: MINT_BG, min: 3 },
+  { name: "pay line on mint", fg: c(".lt-pp-payline", "color"), bg: MINT_BG, min: 4.5 },
   { name: "checkout notice on mint", fg: c(".lt-pricing-checkout-note", "color"), bg: MINT_BG, min: 4.5 },
-  { name: "MOST POPULAR tag", fg: c(".lt-pricing-badge", "color"), bg: c(".lt-pricing-badge", "background"), min: 4.5 },
-  { name: "founding pill", fg: c(".lt-pricing-founding-flag", "color"), bg: c(".lt-pricing-founding-flag", "background"), min: 4.5 },
-  { name: "trial button label (outline)", fg: c(".lt-pricing-trial-slot .lt-pricing-cta--primary", "color"), bg: c(".lt-pricing-trial-slot .lt-pricing-cta--primary", "background"), min: 4.5 },
-  { name: "trial button outline vs mint", fg: c(".lt-pricing-trial-slot .lt-pricing-cta--primary", "border"), bg: MINT_BG, min: 3 },
-  // The pass tiles and the two Pay buttons.
-  { name: "pass name on the tile", fg: c(".lt-pricing-pass-name", "color"), bg: TILE_BG, min: 4.5 },
-  { name: "price on the tile", fg: c(".lt-pricing-amount", "color"), bg: TILE_BG, min: 4.5 },
-  { name: "struck list price on the tile", fg: c(".lt-pricing-was", "color"), bg: TILE_BG, min: 4.5 },
-  { name: "tile caption on the tile", fg: c(".lt-pricing-price-alt", "color"), bg: TILE_BG, min: 4.5 },
-  { name: "till-boards line on the tile", fg: c(".lt-pricing-tillboards-line", "color"), bg: TILE_BG, min: 4.5 },
-  { name: "SAVE tag", fg: c(".lt-pricing-save-tag", "color"), bg: c(".lt-pricing-save-tag", "background"), min: 4.5 },
-  { name: "Pay (Month pass) label", fg: c(".lt-pricing-pay--month", "color"), bg: c(".lt-pricing-pay--month", "background"), min: 4.5 },
-  { name: "Pay (Till boards) label", fg: c(".lt-pricing-pay--boards", "color"), bg: c(".lt-pricing-pay--boards", "background"), min: 4.5 },
-  { name: "Pay (Month pass) button vs its tile", fg: c(".lt-pricing-pay--month", "background"), bg: TILE_BG, min: 3 },
-  { name: "Pay (Till boards) button vs its tile", fg: c(".lt-pricing-pay--boards", "background"), bg: TILE_BG, min: 3 },
-  { name: "Start 7-day trial (payments-dark primary) label", fg: c(".lt-pricing-cta--primary", "color"), bg: c(".lt-pricing-cta--primary", "background"), min: 4.5 },
-  // The compare table and the fair-use box.
-  { name: "table header", fg: c(".lt-pricing-compare-table thead th", "color"), bg: c(".lt-pricing-compare-table thead th", "background"), min: 4.5 },
-  { name: "table Premium header", fg: c(".lt-pricing-compare-table .lt-pricing-compare-col-premium", "color"), bg: c(".lt-pricing-compare-table thead th", "background"), min: 4.5 },
-  { name: "table section row", fg: c(".lt-pricing-compare-section th", "color"), bg: c(".lt-pricing-compare-section th", "background"), min: 4.5 },
-  { name: "table row label", fg: c(".lt-pricing-compare-row th", "color"), bg: TABLE_BG, min: 4.5 },
-  { name: "table Basic cell", fg: c(".lt-pricing-compare-row td", "color"), bg: TABLE_BG, min: 4.5 },
-  { name: "table excluded dash", fg: c(".lt-pricing-compare-row td.lt-pricing-cell--no", "color"), bg: TABLE_BG, min: 4.5 },
-  { name: "table Premium cell", fg: c(".lt-pricing-compare-row td.lt-pricing-cell--premium", "color"), bg: TABLE_BG, min: 4.5 },
-  { name: "fair-use title", fg: c(".lt-pricing-fairuse-title", "color"), bg: c(".lt-pricing-fairuse", "background"), min: 4.5 },
-  { name: "fair-use text", fg: c(".lt-pricing-fairuse-text", "color"), bg: c(".lt-pricing-fairuse", "background"), min: 4.5 },
-  { name: "fine print on the ground", fg: c(".lt-pricing-fine-print", "color"), bg: c(".lt-pricing-page", "background"), min: 4.5 },
-  // FAQ, Coming soon, waitlist.
+  { name: "paper line on mint", fg: c(".lt-pp-paper", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "trial link on mint", fg: c(".lt-pp-trial", "color"), bg: MINT_BG, min: 4.5 },
+  { name: "trial (payments-dark primary) label", fg: c(".lt-pricing-cta--primary", "color"), bg: c(".lt-pricing-cta--primary", "background"), min: 4.5 },
+  { name: "CBQ kicker on amber", fg: c(".lt-pp-kicker", "color"), bg: AMBER_BG, min: 4.5 },
+  { name: "CBQ title on amber", fg: c(".lt-pp-cbq__title", "color"), bg: AMBER_BG, min: 4.5 },
+  { name: "CBQ body on amber", fg: c(".lt-pp-cbq__body", "color"), bg: AMBER_BG, min: 4.5 },
+  { name: "per subject on amber", fg: c(".lt-pp-per", "color"), bg: AMBER_BG, min: 4.5 },
+  { name: "Buy label", fg: c(".lt-pp-buy", "color"), bg: c(".lt-pp-buy", "background"), min: 4.5 },
+  { name: "Buy button vs amber", fg: c(".lt-pp-buy", "background"), bg: AMBER_BG, min: 3 },
+  { name: "See inside link on amber", fg: c(".lt-pp-see", "color"), bg: AMBER_BG, min: 4.5 },
+  { name: "outline Buy label", fg: c(".lt-pp-buy--outline", "color"), bg: c(".lt-pp-buy--outline", "background"), min: 4.5 },
+  { name: "outline Buy boundary vs white card", fg: c(".lt-pp-buy--outline", "border"), bg: CARD_BG, min: 3 },
+  { name: "card body on white", fg: c(".lt-pp-card__body", "color"), bg: CARD_BG, min: 4.5 },
+  { name: "Bundle pill", fg: c(".lt-pp-pill", "color"), bg: c(".lt-pp-pill", "background"), min: 4.5 },
+  { name: "packs sub on the ground", fg: c(".lt-pp-sub", "color"), bg: GROUND, min: 4.5 },
+  { name: "switch: chosen subject", fg: c('.lt-pp-switch button[aria-pressed="true"]', "color"), bg: c('.lt-pp-switch button[aria-pressed="true"]', "background"), min: 4.5 },
+  { name: "switch: other subject on the track", fg: c(".lt-pp-switch button", "color"), bg: c(".lt-pp-switch", "background"), min: 4.5 },
+  { name: "owned pill", fg: c(".lt-pp-owned", "color"), bg: c(".lt-pp-owned", "background"), min: 4.5 },
+  { name: "what-you-get header", fg: c(".lt-pp-table thead th", "color"), bg: c(".lt-pp-table thead th", "background"), min: 4.5 },
+  { name: "what-you-get tick", fg: c(".lt-pp-table .lt-pp-yes", "color"), bg: WHITE, min: 4.5 },
+  { name: "what-you-get dash", fg: c(".lt-pp-table .lt-pp-no", "color"), bg: WHITE, min: 4.5 },
+  { name: "Basic summary link", fg: c(".lt-pp-basic > summary", "color"), bg: WHITE, min: 4.5 },
+  { name: "compare table header", fg: c(".lt-pricing-compare-table thead th", "color"), bg: c(".lt-pricing-compare-table thead th", "background"), min: 4.5 },
+  { name: "compare section row", fg: c(".lt-pricing-compare-section th", "color"), bg: c(".lt-pricing-compare-section th", "background"), min: 4.5 },
+  { name: "compare excluded dash", fg: c(".lt-pricing-compare-row td.lt-pricing-cell--no", "color"), bg: WHITE, min: 4.5 },
+  { name: "compare Board Pass cell", fg: c(".lt-pricing-compare-row td.lt-pricing-cell--premium", "color"), bg: WHITE, min: 4.5 },
   { name: "FAQ question", fg: c(".lt-pricing-faq-q", "color"), bg: c(".lt-pricing-faq-item", "background"), min: 4.5 },
   { name: "FAQ answer", fg: c(".lt-pricing-faq-a", "color"), bg: c(".lt-pricing-faq-item", "background"), min: 4.5 },
-  { name: "section title", fg: c(".lt-pricing-faq-title", "color"), bg: c(".lt-pricing-faq", "background"), min: 4.5 },
-  { name: "section lede", fg: c(".lt-pricing-coming-lede", "color"), bg: c(".lt-pricing-coming", "background"), min: 4.5 },
-  { name: "Coming Soon chip", fg: c(".lt-pricing-coming-chip", "color"), bg: c(".lt-pricing-coming-chip", "background"), min: 4.5 },
+  { name: "Basic line on the ground", fg: c(".lt-pp-basicline", "color"), bg: GROUND, min: 4.5 },
+  { name: "Start free on the ground", fg: c(".lt-pp-startfree", "color"), bg: GROUND, min: 4.5 },
   { name: "waitlist input text", fg: c(".lt-pricing-waitlist-input", "color"), bg: c(".lt-pricing-waitlist-input", "background"), min: 4.5 },
-  { name: "waitlist placeholder", fg: c(".lt-pricing-waitlist-input::placeholder", "color"), bg: c(".lt-pricing-waitlist-input", "background"), min: 4.5 },
-  { name: "waitlist input boundary", fg: c(".lt-pricing-waitlist-input", "border"), bg: c(".lt-pricing-waitlist", "background"), min: 3 },
   { name: "Join Waitlist label", fg: c(".lt-pricing-waitlist-cta", "color"), bg: c(".lt-pricing-waitlist-cta", "background"), min: 4.5 },
-  { name: "Join Waitlist button vs its card", fg: c(".lt-pricing-waitlist-cta", "background"), bg: c(".lt-pricing-waitlist", "background"), min: 3 },
-  { name: "waitlist success title on mint", fg: c(".lt-pricing-waitlist-success-title", "color"), bg: c(".lt-pricing-waitlist-success", "background"), min: 4.5 },
-  { name: "waitlist success line on mint", fg: c(".lt-pricing-waitlist-success-sub", "color"), bg: c(".lt-pricing-waitlist-success", "background"), min: 4.5 },
 ];
 
-describe("PricingPage — R1 the monthly headline", () => {
-  it("shows the founder badge in the header, under the subtitle", () => {
+/* ── The header ─────────────────────────────────────────────────────────────── */
+describe("PRICING-B-1 — header", () => {
+  it("H1 and the credential line, word for word", () => {
     const { container } = renderPricing();
-    const badge = container.querySelector('.lt-pricing-header [data-testid="founder-badge"]');
-    expect(badge?.textContent).toBe("Made by an IITian (IIT Kanpur)");
-    expect(badge?.previousElementSibling?.className).toBe("lt-pricing-subtitle");
-  });
-
-  it("founding OPEN (as shipped): ₹599 for a month, with ₹999 struck beside it", () => {
-    const { premium } = renderPricing();
-    const head = premium.querySelector('[data-testid="pricing-monthly-price"]');
-
-    expect(flat(head?.querySelector(".lt-pricing-amount"))).toBe("₹599");
-    expect(flat(head?.querySelector(".lt-pricing-period"))).toBe("for a month");
-    // The LIST figure, and only the list figure, is struck — `<s>` specifically,
-    // so an edit that drops the strike leaves two live prices side by side.
-    expect(flat(head?.querySelector("s"))).toBe("₹999");
-    expect(flat(head?.querySelector(".lt-pricing-amount s"))).toBe("");
-  });
-
-  it("founding CLOSED: ₹999 for a month and nothing struck", () => {
-    const closed = render(<PremiumPriceHead offerOpen={false} />);
-    expect(flat(closed.container.querySelector(".lt-pricing-amount"))).toBe("₹999");
-    expect(flat(closed.container.querySelector(".lt-pricing-period"))).toBe("for a month");
-    expect(closed.container.querySelector("s")).toBeNull();
-    // CONTROL — the same query finds the strike when the offer is open.
-    cleanup();
-    const open = render(<PremiumPriceHead offerOpen />);
-    expect(open.container.querySelector("s")).not.toBeNull();
-  });
-
-  it("keeps the tuition anchor beside the monthly price", () => {
-    const { premium } = renderPricing();
-    expect(flat(premium.querySelector(".lt-pricing-price-alt"))).toBe(
-      "less than one tuition session",
-    );
-  });
-
-  it("every founding figure undercuts its list counterpart on the rendered page", () => {
-    const { premium } = renderPricing();
-    const head = premium.querySelector('[data-testid="pricing-monthly-price"]');
-    const founding = parseRupees(flat(head?.querySelector(".lt-pricing-amount")));
-    const list = parseRupees(flat(head?.querySelector("s")));
-    expect(founding).toBeLessThan(list);
+    expect(flat(container.querySelector("h1"))).toBe("Plans and packs for the 2027 boards");
+    expect(flat(container.querySelector('[data-testid="founder-badge"]'))).toBe("Made by an IITian (IIT Kanpur)");
   });
 });
 
-describe("PricingPage — R2 the board-year plan is gone", () => {
-  it("renders no ₹5,999, ₹8,999, ₹1,189 or '/ board year' anywhere on the page", () => {
-    pinToday(SEPT_26_IST);
-    const { inner } = renderPricing();
-    const page = flat(inner);
-
-    for (const retired of ["₹5,999", "₹8,999", "₹1,189", "board year", "save ₹"]) {
-      expect(page, `retired board-year copy still rendered: ${retired}`).not.toContain(retired);
-    }
-    // CONTROL — the same flattened text DOES carry the live prices.
-    expect(page).toContain("₹599");
-    expect(page).toContain("₹1,917");
+/* ── The Board Pass card ────────────────────────────────────────────────────── */
+describe("PRICING-B-1 — the Board Pass card", () => {
+  it("START HERE, then four ticks with the Answer Checker first", () => {
+    const { pass } = renderPricing();
+    expect(flat(pass.querySelector(".lt-pp-badge"))).toBe("START HERE");
+    expect(Array.from(pass.querySelectorAll(".lt-pp-ticks li")).map(li => flat(li))).toEqual([
+      "✓Answer Checker: handwritten answers marked step by step, like a CBSE examiner",
+      "✓Chapter tests, full mocks and worksheets graded",
+      "✓Mistake Intelligence and an AI tutor that knows your mistakes",
+      "✓Every question and solution, till your boards",
+    ]);
   });
 
-  it("no longer publishes the retired ₹2,999 / ₹250 figures anywhere on the page", () => {
-    const { inner } = renderPricing();
-    const page = flat(inner);
-
-    expect(page).not.toContain("₹2,999");
-    expect(page).not.toContain("₹250");
-  });
-});
-
-describe("PricingPage — R3 the till-boards card", () => {
-  it("after load: ₹1,917 one-time (fixed), till your boards (Feb 2027), no struck price and no saving claim", () => {
+  it("after load: ₹1,917 once · till your boards (Feb 2027), no strike, no saving claim", () => {
     pinToday(SEPT_26_IST);
-    const { premium } = renderPricing();
-    const card = premium.querySelector('[data-testid="till-boards"]');
-    const figures = premium.querySelector('[data-testid="till-boards-figures"]');
-    expect(card).not.toBeNull();
+    const { pass } = renderPricing();
+    const figures = pass.querySelector('[data-testid="till-boards-figures"]');
     expect(figures, "the figures render after mount").not.toBeNull();
-
     expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917");
+    expect(flat(figures?.querySelector(".lt-pricing-tillboards-meta"))).toBe("once · till your boards (Feb 2027)");
     expect(figures?.querySelector("s")).toBeNull();
-    expect(flat(figures)).toContain("one-time");
-    expect(flat(figures)).toContain("till your boards (Feb 2027)");
     expect(flat(figures)).not.toMatch(/save|%/i);
   });
 
-  it("before the deadline (23:59:59 IST 30 Nov): FOUNDING MEMBER OFFER label above ₹1,917, then the one deadline line - no strike, no saving claim", () => {
+  it("before the deadline (23:59:59 IST 30 Nov): the one founding line, offer name in bold", () => {
     pinToday("2026-11-30T23:59:59+05:30");
     const { container } = render(<TillBoardsOffer />);
     const figures = container.querySelector('[data-testid="till-boards-figures"]');
-    expect(flat(figures?.querySelector('[data-testid="till-boards-founding-label"]'))).toBe("Founding member offer");
     expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917");
-    expect(flat(figures?.querySelector('[data-testid="till-boards-deadline"]'))).toBe(
-      "Founding member offer ends 30 November. From 1 December: ₹2,499.",
-    );
-    // the label sits ABOVE the price
-    const label = figures!.querySelector('[data-testid="till-boards-founding-label"]')!;
-    const price = figures!.querySelector(".lt-pricing-tillboards-price")!;
-    expect(label.compareDocumentPosition(price) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(figures?.querySelector("s")).toBeNull();
+    const line = figures?.querySelector('[data-testid="till-boards-deadline"]');
+    expect(flat(line)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499.");
+    expect(flat(line?.querySelector("strong"))).toBe("Founding member offer");
     expect(flat(figures)).not.toMatch(/save|20%|shrink|off\b/i);
   });
 
-  it("from the deadline (00:00:00 IST 1 Dec): ₹2,499, and the label and the deadline line are GONE", () => {
+  it("from the deadline (00:00:00 IST 1 Dec): ₹2,499 and the founding line is GONE", () => {
     pinToday("2026-12-01T00:00:00+05:30");
     const { container } = render(<TillBoardsOffer />);
     const figures = container.querySelector('[data-testid="till-boards-figures"]');
     expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹2,499");
-    expect(figures?.querySelector('[data-testid="till-boards-founding-label"]')).toBeNull();
     expect(figures?.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
     expect(flat(figures)).not.toMatch(/founding|1 December/i);
   });
 
-  it("the FIRST render carries the number-free line and NO figure (nothing clock-derived in markup)", () => {
+  it("the FIRST render carries NO clock-derived figure (renderToStaticMarkup runs no effects)", () => {
     pinToday(SEPT_26_IST);
-    // renderToStaticMarkup runs no effects: this is exactly the markup before mount.
     const html = renderToStaticMarkup(
       <MemoryRouter>
         <PricingPage />
       </MemoryRouter>,
     );
-    expect(html).toContain(TILL_BOARDS_LINE);
     expect(html).not.toContain("till-boards-figures");
     expect(html).not.toContain("till your boards (");
-    // CONTROL — the mounted page does carry them, so these absences mean something.
+    // CONTROL — the mounted page does carry them.
     const { inner } = renderPricing();
     expect(flat(inner)).toContain("till your boards (Feb 2027)");
   });
+
+  it("the paper line jumps to #packs, and the trial is the owner's small link", () => {
+    const { pass } = renderPricing();
+    const paper = pass.querySelector('[data-testid="pricing-paper-link"]');
+    expect(paper?.getAttribute("href")).toBe("#packs");
+    expect(flat(paper)).toBe("Every question is here online. Prefer paper too? CBQ Packs and the Bundle put them in print ↓");
+    expect(flat(paper?.querySelector("strong"))).toBe("Prefer paper too?");
+    expect(flat(pass.querySelector('[data-testid="pricing-trial"]'))).toBe("Try the Board Pass free for 7 days");
+  });
 });
 
-describe("PricingPage — R4 the till-boards figures never reach the static page", () => {
-  /**
-   * ★ THIS DRIVES THE REAL CAPTURE STRIP. The prerender capture renders the page in
-   * a browser, waits for it to settle (so the effect HAS run), then calls
-   * `stripAuthChrome()` and `countResidualAuthNodes()` from
-   * scripts/seo/captureStaticBodies.ts. Doing the same here, on the mounted page,
-   * proves the whole pairing — every figure inside the one node, and the rule that
-   * removes that node — rather than either half alone.
-   */
-  it("after the capture strip: the number-free line stays, the clock-derived figures node and its lines do not survive", () => {
+describe("PRICING-B-1 — the Board Pass figures never reach the static page (the capture strip)", () => {
+  it("after the strip: no clock-derived node, no founding line, no until-label survives", () => {
     pinToday(SEPT_26_IST);
     const { container } = renderPricing();
-
-    // CONTROL - before the strip the figures node, the founding label and the deadline line ARE on the settled page.
     expect(countResidualAuthNodes(container)).toBeGreaterThan(0);
-    expect(container.querySelector('[data-testid="till-boards-founding-label"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="till-boards-deadline"]')).not.toBeNull();
-
     stripAuthChrome(container);
-
     expect(countResidualAuthNodes(container)).toBe(0);
     const text = flat(container.querySelector(".lt-pricing-inner"));
-    expect(text).toContain(TILL_BOARDS_LINE);
     expect(container.querySelector('[data-testid="till-boards-figures"]')).toBeNull();
-    expect(container.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
-    expect(container.querySelector('[data-testid="till-boards-founding-label"]')).toBeNull();
-    for (const label of ["till your boards (", "save 20%", "one-time", "ends 30 November"]) {
-      expect(text, `till-boards label survived the strip: ${label}`).not.toContain(label);
+    for (const label of ["till your boards (", "ends 30 November"]) {
+      expect(text, `figure survived the strip: ${label}`).not.toContain(label);
     }
-  });
-
-  it("the committed prerendered/pricing.html carries the number-free line and no clock-derived figures node", () => {
-    const html = readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8");
-    // CONTROL - it IS the pricing page.
-    expect(html).toContain("Simple, Student-Friendly Plans");
-    expect(html).toContain(TILL_BOARDS_LINE);
-
-    expect(html).not.toContain("till-boards-figures");
-    expect(html).not.toContain("till your boards (");
-    expect(html).not.toContain("save 20%");
-  });
-
-  /**
-   * PRICING-LIGHT-1 · L6 — the live bug. The capture used to build with payments OFF, so
-   * the static page (what crawlers read, and what shows before the app loads) said
-   * checkout was "not automated yet" while the live page took real money. The capture
-   * now builds with VITE_PAYMENTS_ENABLED=1, like production.
-   */
-  it("L6: both committed pricing captures are the payments-ON page, with no payments-OFF sentence", () => {
-    for (const rel of ["prerendered/pricing.html", "prerendered/__desktop/pricing.html"]) {
-      const html = readFileSync(resolve(process.cwd(), rel), "utf8");
-      for (const stale of [
-        "Not yet. Payment checkout",
-        "Payment checkout is not automated yet",
-        "Manual activation during beta",
-        "Payment checkout coming soon",
-      ]) {
-        expect(html, `${rel} still carries "${stale}"`).not.toContain(stale);
-      }
-      // CONTROL — the same file IS the payments-ON page: both Pay buttons, the ON copy.
-      expect(html, rel).toContain("once till your boards");
-      expect(html, rel).toContain("pay securely with UPI, card or netbanking");
-      // L3 holds in both: no clock-derived figures node was baked.
-      expect(html, rel).not.toContain("till-boards-figures");
-    }
+    // CONTROL — the card's static copy survives.
+    expect(text).toContain("Every question and solution, till your boards");
+    // No login link anywhere (a /login <a> would make the strip drop its whole <section>).
+    expect(container.querySelector('a[href*="/login"]')).toBeNull();
   });
 });
 
-describe("PricingPage — R6 FAQ copy", () => {
-  it("PRICE-FIXED-1: no 'pay monthly or till my boards' question, no 20% / shrinking-price wording anywhere in the FAQ", () => {
-    const { inner } = renderPricing();
-    const faq = flat(inner.querySelector(".lt-pricing-faq"));
-    expect(faq).not.toContain("Should I pay monthly or till my boards?");
-    expect(faq).not.toMatch(/20%|shrinks|less than paying monthly|save/i);
-    // CONTROL - the FAQ rendered real copy.
-    expect(faq).toContain("What is the Board Pass?");
-    expect(faq).toContain(
-      "The Board Pass is one payment that covers you until your first board paper. There are no renewals and nothing is charged automatically.",
-    );
+/* ── Month buyers (PRICE-FIXED-1) ───────────────────────────────────────────── */
+describe("PRICE-FIXED-1 — a month BUYER renews here", () => {
+  it("founding OPEN: ₹599 for a month with ₹999 struck, the tuition anchor and the lock promise", () => {
+    const { pass } = renderPricing();
+    const head = pass.querySelector('[data-testid="pricing-monthly-price"]');
+    expect(flat(head?.querySelector(".lt-pricing-amount"))).toBe("₹599");
+    expect(flat(head?.querySelector("s"))).toBe("₹999");
+    expect(flat(pass.querySelector(".lt-pricing-month"))).toContain("less than one tuition session");
+    expect(flat(pass.querySelector(".lt-pricing-founding-note"))).toBe("Your founding month price stays locked for every month pass you buy.");
   });
 
-  it("answers what happens when the founding offer ends: from 1 December ₹2,499, and a bought pass is never re-priced", () => {
-    const { inner } = renderPricing();
-    const faq = flat(inner.querySelector(".lt-pricing-faq"));
-    // PARENTS-CTA-1 (owner, 2026-10-19): the question carries NO seat count.
-    expect(faq).toContain("What happens when the founding offer ends?");
-    expect(faq).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
-    expect(faq).toContain("From 1 December the Board Pass is ₹2,499. A pass you have already bought is never re-priced.");
-    expect(faq).not.toMatch(/subscri/i);
+  it("founding CLOSED: ₹999 for a month and nothing struck", () => {
+    const closed = render(<PremiumPriceHead offerOpen={false} />);
+    expect(flat(closed.container.querySelector(".lt-pricing-amount"))).toBe("₹999");
+    expect(closed.container.querySelector("s")).toBeNull();
+    cleanup();
+    const open = render(<PremiumPriceHead offerOpen />);
+    expect(open.container.querySelector("s")).not.toBeNull();
+  });
+});
+
+describe("PRICE-FIXED-1 — everyone who is NOT a month buyer sees the Board Pass alone", () => {
+  beforeEach(() => {
+    mockMonth.buyer = false;
   });
 
-  it("the FAQ carries no month price and no rupee figure other than the after-founding Board Pass price", () => {
+  it.each(["2026-10-25T06:30:00.000Z", "2026-11-30T23:59:59+05:30", "2026-12-01T00:00:00+05:30", "2027-02-01T10:00:00+05:30"])(
+    "at %s: no 599, no 999, no 'for a month', no month block; the Board Pass price of the day",
+    (iso) => {
+      pinToday(iso);
+      const { container } = renderPricing();
+      const page = flat(container.querySelector(".lt-pricing-inner"));
+      expect(page).not.toMatch(/599|999|for a month/);
+      expect(container.querySelector(".lt-pricing-month")).toBeNull();
+      expect(container.querySelector(".lt-pricing-founding-note")).toBeNull();
+      expect(page).toContain(new Date(iso).getTime() < Date.parse("2026-12-01T00:00:00+05:30") ? "₹1,917" : "₹2,499");
+    },
+  );
+});
+
+/* ── One name, honest copy ──────────────────────────────────────────────────── */
+describe("PRICING-B-1 — one product name, honest copy", () => {
+  it("no visible 'Premium' anywhere on the signed-out page (payments dark and on)", () => {
+    for (const flag of ["", "1"]) {
+      vi.stubEnv("VITE_PAYMENTS_ENABLED", flag);
+      mockMonth.buyer = false;
+      const { inner } = renderPricing();
+      expect(flat(inner), `payments=${flag}`).not.toMatch(/\bPremium\b/);
+      cleanup();
+    }
+  });
+
+  it("no refund wording anywhere", () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    const { inner } = renderPricing();
+    expect(flat(inner)).not.toMatch(/refund/i);
+  });
+
+  it("retired figures never come back", () => {
     pinToday(SEPT_26_IST);
     const { inner } = renderPricing();
-    const faq = flat(inner.querySelector(".lt-pricing-faq"));
-    expect(rupeeAmounts(faq)).toEqual(["₹2,499"]);
-    expect(faq).not.toMatch(/599|999|for a month/);
+    const page = flat(inner);
+    for (const retired of ["₹5,999", "₹8,999", "₹1,189", "board year", "save ₹", "₹2,999", "₹250"]) {
+      expect(page, retired).not.toContain(retired);
+    }
+    expect(page).toContain("₹1,917");
   });
 
-  it("keeps the founding offer's load-bearing promises for a month BUYER: the badge and the month lock - and NO seat count", () => {
-    const { premium } = renderPricing();
-    const card = flat(premium);
-
-    expect(card).toContain("Your founding month price stays locked for every month pass you buy.");
-    // PARENTS-CTA-1 (owner, 2026-10-19): the badge reads exactly this, word for word.
-    expect(flat(premium.querySelector(".lt-pricing-founding-flag"))).toBe("Founding member offer");
-    expect(card).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
-    expect(card).not.toMatch(/\b200\b/);
-    expect(card.toLowerCase()).toContain("founding member");
-    expect(card).toContain("Start 7-day trial");
-    expect(card).toContain("Manual activation during beta.");
-  });
-
-  /**
-   * The promise must stay scoped to the student's OWN passes (OR-P7; formerly "an active subscription").
-   *
-   * "We do not raise anyone's price" is a claim about PUBLISHED prices, and the
-   * product cannot support it — a fixed board-year price moved between #539 and
-   * #548. A reader who saw the older figure would quote the broad sentence back.
-   */
-  it("makes no absolute claim about PUBLISHED prices anywhere on the page", () => {
+  it("makes no absolute claim about PUBLISHED prices", () => {
     const { inner } = renderPricing();
     const page = flat(inner).toLowerCase();
-
-    for (const overreach of [
-      "we do not raise anyone's price",
-      "we never raise anyone's price",
-      "we will never raise",
-      "price will never change",
-      "prices never change",
-      "price never rises",
-      "locked forever",
-      "lifetime price",
-    ]) {
-      expect(
-        page,
-        `overbroad price promise on the page: "${overreach}" — scope it to the student's own passes instead`,
-      ).not.toContain(overreach);
+    for (const overreach of ["we never raise", "price will never change", "prices never change", "locked forever", "lifetime price"]) {
+      expect(page).not.toContain(overreach);
     }
   });
 
-  it("keeps the Basic plan at ₹0 / forever", () => {
+  it("no pack-credit / 'comes off' promise is rendered (owner: the pack price no longer comes off the Board Pass)", () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    vi.stubEnv("VITE_PACKS_ENABLED", "1");
     const { inner } = renderPricing();
-    const basic = inner.querySelector(".lt-pricing-card--basic")!;
-
-    expect(flat(basic.querySelector(".lt-pricing-amount"))).toBe("₹0");
-    expect(flat(basic.querySelector(".lt-pricing-period"))).toBe("/ forever");
+    expect(flat(inner)).not.toMatch(/comes off|within 7 days|pack price/i);
   });
 
-  // Owner ruling on #1190 (Oct 2026): the two sentences that still said "limited" are
-  // reworded, word for word. Pinned as rendered; the guard in pricingCompare.test.ts keeps
-  // "limited" out of them for good.
-  it("the Basic description and the 'Is Basic really free?' answer, word for word", () => {
+  it("the Basic line, last, with Start free (a button, never a /login link)", () => {
     const { inner } = renderPricing();
-    const basic = inner.querySelector(".lt-pricing-card--basic")!;
-    expect(flat(basic.querySelector(".lt-pricing-plan-desc"))).toBe(
-      "For browsing, revising and practising on your own.",
-    );
-    const free = Array.from(inner.querySelectorAll(".lt-pricing-faq-item")).find(
-      i => flat(i.querySelector(".lt-pricing-faq-q")) === "Is Basic really free?",
-    );
-    expect(flat(free?.querySelector(".lt-pricing-faq-a"))).toBe(
-      "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with Premium.",
-    );
-    // CONTROL — no rendered FAQ answer or Basic description says "limited" any more.
-    const texts = [
-      flat(basic.querySelector(".lt-pricing-plan-desc")),
-      ...Array.from(inner.querySelectorAll(".lt-pricing-faq-a")).map(a => flat(a)),
-    ];
-    expect(texts.length).toBeGreaterThanOrEqual(8);
-    expect(texts.filter(t => /limited/i.test(t))).toEqual([]);
+    const line = inner.querySelector('[data-testid="pricing-basic-line"]');
+    expect(flat(line)).toBe("Basic: free forever, with notes, NCERT solutions and practice setsStart free");
+    expect(line?.querySelector("button")?.textContent).toBe("Start free");
+    expect(flat(line)).not.toMatch(/limited/i);
   });
 });
 
-describe("PricingPage — PRICING-LIGHT-1 · L4 the Premium card (owner ruling, Oct 2026)", () => {
-  /**
-   * The owner's L4 list, typed out: what a student reads. It SUPERSEDES the old six-row
-   * list that led with "Everything in Basic" — that reassurance is now the list's
-   * HEADING ("Everything in Basic, plus:"), and the rows say what Premium adds.
-   */
-  const PREMIUM_PLUS_ROWS = [
-    "Answer Checker — photograph your handwritten answer, marked step by step like a board examiner",
-    "Chapter tests, full mocks and worksheets graded, not just downloaded",
-    "Your AI tutor that knows your chapters, your mistakes, your pace",
-    "Mistake Intelligence — why you lose marks, not just where",
-    "Unlimited chapter tests and mocks to open or download",
-    "Progress that tells you what to fix next",
-  ];
-
-  function premiumLabels(): string[] {
+/* ── The FAQ ────────────────────────────────────────────────────────────────── */
+describe("PRICING-B-1 — Questions parents ask", () => {
+  it("Why both? and Is it a subscription? open, word for word; the old items folded under More questions", () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     const { inner } = renderPricing();
-    const list = inner.querySelector('ul[aria-label="Premium plan features"]');
-    expect(list).not.toBeNull();
-    return Array.from(list!.querySelectorAll("li")).map(li => flat(li));
-  }
-
-  it("renders exactly the six L4 rows, in order, each with a tick", () => {
-    expect(premiumLabels()).toEqual(PREMIUM_PLUS_ROWS.map(r => `✓${r}`));
-  });
-
-  it("heads the list 'Everything in Basic, plus:' and ends with the trial note", () => {
-    const { premium } = renderPricing();
-    const heads = Array.from(premium.querySelectorAll(".lt-pricing-list-head")).map(h => flat(h));
-    expect(heads).toEqual(["Everything in Basic, plus:"]);
-    expect(flat(premium.querySelector(".lt-pricing-card-foot"))).toBe(
-      "Not sure yet? Sign in and Premium is free for 7 days — no card needed.",
-    );
-  });
-
-  it("P5 is superseded: the usage-limits FAQ now states the limits (L5), word for word", () => {
-    const { inner } = renderPricing();
-    const items = Array.from(inner.querySelectorAll(".lt-pricing-faq-item"));
-    const usage = items.find(i => flat(i.querySelector(".lt-pricing-faq-q")) === "Are there any usage limits?");
-    expect(flat(usage?.querySelector(".lt-pricing-faq-a"))).toBe(
-      "Basic has daily limits on opening tests and mocks. Premium has generous fair use: your usage bars show what is left and when it resets. The 7-day trial has daily and weekly limits, listed above.",
-    );
-    // The card list itself still carries no quota wording.
-    expect(flat(inner.querySelector('ul[aria-label="Premium plan features"]'))).not.toMatch(/quota/i);
-  });
-});
-
-describe("PricingPage — PRICING-1 · Premium highlighted, Basic's restrictions stated", () => {
-  it("the Premium card is the recommended one: badge, and the highlight class is on Premium only", () => {
-    const { inner, premium } = renderPricing();
-    expect(flat(premium.querySelector(".lt-pricing-badge"))).toBe("Recommended");
-    const basic = inner.querySelector(".lt-pricing-card--basic")!;
-    expect(basic.querySelector(".lt-pricing-badge")).toBeNull();
-    // The accent border + ring is in the shipped CSS for the Premium card, not Basic.
-    expect(SHIPPED_CSS_NO_COMMENTS).toMatch(/\.lt-pricing-card--premium \{[^}]*border: 3px solid var\(--lt-green-deep\)/);
-    expect(SHIPPED_CSS_NO_COMMENTS).not.toMatch(/\.lt-pricing-card--basic \{[^}]*green-deep/);
-  });
-
-  it("Basic stays present and honest: the includes list, then 'Not on Basic:' with crosses, then the footnote", () => {
-    const { inner } = renderPricing();
-    const basic = inner.querySelector(".lt-pricing-card--basic")!;
-    const heads = Array.from(basic.querySelectorAll(".lt-pricing-list-head")).map(h => flat(h));
-    expect(heads).toEqual(["Basic includes:", "Not on Basic:"]);
-    const rows = Array.from(basic.querySelectorAll('ul[aria-label="What Basic does not include"] li')).map(li => flat(li));
-    expect(rows).toEqual([
-      "✕Chapter tests, full mocks and worksheets are not graded",
-      "✕No handwritten answer checking",
-      "✕No step marks the way a board examiner gives them",
-      "✕No AI tutor",
-      "✕No Mistake Intelligence — why you lose marks",
-      "✕No new questions like the one you got wrong",
+    const faq = inner.querySelector('[data-testid="pricing-faq"]')!;
+    const open = Array.from(faq.querySelectorAll(":scope > .lt-pricing-faq-list > .lt-pricing-faq-item")).map(i => [
+      flat(i.querySelector(".lt-pricing-faq-q")),
+      flat(i.querySelector(".lt-pricing-faq-a")),
     ]);
-    // Cards stay in DOM order Premium, Basic; each limit appears AFTER the includes list.
-    const list = basic.querySelector('ul[aria-label="Basic plan features"]')!;
-    const limits = basic.querySelector('ul[aria-label="What Basic does not include"]')!;
-    expect(list.compareDocumentPosition(limits) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  });
-
-  it("the Premium card carries the real end date beside the founding badge, in plain words", () => {
-    const { premium } = renderPricing();
-    expect(flat(premium.querySelector('[data-testid="pricing-founding-until"]'))).toBe(
-      "Founding price until 30 November. From 1 December, Premium is ₹999 for a month.",
-    );
-  });
-});
-
-describe("PricingPage — PRICING-LIGHT-1 · L4 the Basic card", () => {
-  it("signed out, free check OFF in this build: the five rows, in order, then the footnote", () => {
-    const { inner } = renderPricing();
-    const basic = inner.querySelector(".lt-pricing-card--basic")!;
-    expect(flat(basic.querySelector(".lt-pricing-list-head"))).toBe("Basic includes:");
-    const rows = Array.from(basic.querySelectorAll('ul[aria-label="Basic plan features"] li')).map(li => flat(li));
-    expect(rows).toEqual([
-      "✓Exam Trends — chapters ranked from ten years of papers",
-      "✓Notes, formulae, NCERT books and solutions",
-      "✓Practice sets and worksheet generation",
-      "✓Open or download 3 chapter tests or mocks a day (1 when signed out)",
-      "✓Basic topic insights",
+    expect(open.slice(0, 2)).toEqual([
+      ["Why both?", "They do different jobs. The Board Pass marks your child's written answers like a CBSE examiner. Packs are the same questions organised to print, for practice away from the screen."],
+      ["Is it a subscription?", "No. You pay once. Nothing renews."],
     ]);
-    expect(flat(basic.querySelector(".lt-pricing-card-foot"))).toBe(
-      "Written answers on tests and mocks are not checked on Basic.",
-    );
+    const more = faq.querySelector('[data-testid="pricing-faq-more"]') as HTMLDetailsElement;
+    expect(more.open).toBe(false);
+    expect(Array.from(more.querySelectorAll("details.lt-pricing-faq-item > summary")).map(s => flat(s))).toEqual([
+      "Is Basic really free?",
+      "What is the Board Pass?",
+      "What happens when the founding offer ends?",
+      "Are there any usage limits?",
+      "What happens after the trial ends?",
+      "Can I pay here?",
+      "Is this only for CBSE Class 10?",
+    ]);
   });
 
-  it("answer checking stays EXCLUDED from Basic: the table's Basic column shows a dash for step marks and grading", () => {
+  it("the founding-offer answer: from 1 December ₹2,499, and a bought pass is never re-priced; no other figure in the FAQ", () => {
+    pinToday(SEPT_26_IST);
     const { inner } = renderPricing();
-    const table = tableModel(inner);
-    expect(table.rowsByLabel["Step marks, CBSE keywords and units, the way examiners mark"]).toEqual(["✓", "—"]);
-    expect(table.rowsByLabel["Chapter tests, mocks and worksheets graded"]).toEqual(["✓", "—"]);
+    const faq = flat(inner.querySelector('[data-testid="pricing-faq"]'));
+    expect(faq).toContain("From 1 December the Board Pass is ₹2,499. A pass you have already bought is never re-priced.");
+    expect(rupeeAmounts(faq)).toEqual(["₹2,499"]);
+    expect(faq).not.toMatch(/599|999|for a month|20%|shrink|monthly/i);
+    expect(faq).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
+  });
+
+  it("payments dark: the honest manual notice, in place of Pay", () => {
+    const { inner, pass } = renderPricing();
+    expect(flat(pass.querySelector('[data-testid="pricing-manual"]'))).toBe(PRICING_MANUAL_PAYMENTS_OFF);
+    expect(pass.querySelector(".lt-pricing-pay")).toBeNull();
+    expect(flat(inner)).toContain("Payment checkout is not connected in this build, so Board Pass activation stays manual.");
   });
 });
 
-/* ── PRICING-LIGHT-1 · L4 the "Compare plans" table, pinned as the student reads it ── */
-
-/** The visible text of a cell: the screen-reader-only words removed. */
+/* ── What you get with each + the folded Basic table ────────────────────────── */
 function visibleText(el: Element): string {
   const clone = el.cloneNode(true) as Element;
   clone.querySelectorAll(".lt-pricing-sr").forEach(n => n.remove());
   return flat(clone);
 }
 
-function tableModel(root: Element) {
-  const table = root.querySelector('[data-testid="pricing-compare"]');
-  expect(table).not.toBeNull();
-  const headers = Array.from(table!.querySelectorAll("thead th")).map(th => flat(th));
-  const sections = Array.from(table!.querySelectorAll("tbody")).map(tb => ({
-    title: flat(tb.querySelector(".lt-pricing-compare-section th")),
-    rows: Array.from(tb.querySelectorAll(".lt-pricing-compare-row")).map(tr => [
-      flat(tr.querySelector("th")),
-      ...Array.from(tr.querySelectorAll("td")).map(visibleText),
-    ]),
-  }));
-  const rowsByLabel: Record<string, string[]> = {};
-  for (const s of sections) for (const [label, ...cells] of s.rows) rowsByLabel[label] = cells;
-  return { headers, sections, rowsByLabel };
-}
-
-const L4_TABLE = [
-  {
-    title: "Study",
-    rows: [
-      ["Exam Trends — chapters ranked from ten years of papers", "✓", "✓"],
-      ["Notes, formulae, NCERT books and solutions", "✓", "✓"],
-      ["CBSE 2027 papers and circulars", "✓", "✓"],
-    ],
-  },
-  {
-    title: "Practice",
-    rows: [
-      // Owner ruling on #1190: no unbacked "Limited" — P20 found no enforced free limit.
-      ["Practice sets with model answers", "✓", "✓"],
-      ["Worksheets built from your chosen topics", "✓", "✓"],
-      ["New questions like the one you got wrong", "✓", "—"],
-    ],
-  },
-  {
-    title: "Tests & papers",
-    rows: [
-      ["Open or download chapter tests and full mocks", "✓ Unlimited", "3 a day (1 signed out)"],
-      ["Chapter tests, mocks and worksheets graded", "✓", "—"],
-    ],
-  },
-  {
-    title: "Answer checking",
-    rows: [
-      // "First check free" only while the signed-out free check is on; this build has it off.
-      ["Photograph your handwritten answer and get it marked", "✓", "—"],
-      ["Step marks, CBSE keywords and units, the way examiners mark", "✓", "—"],
-      ["Read questions straight from your photo", "✓", "—"],
-    ],
-  },
-  {
-    title: "Coaching",
-    rows: [
-      ["AI tutor that knows your chapters and mistakes", "✓", "—"],
-      ["Mistake Intelligence — why you lose marks", "✓", "—"],
-      ["Progress and what to fix next", "✓ Full", "Basic insights"],
-    ],
-  },
-  {
-    title: "Limits",
-    rows: [["Fair use", "Usage bars · reset every 5 hours, day and week", "—"]],
-  },
-];
-
-describe("PricingPage — PRICING-LIGHT-1 · L4 Compare plans", () => {
-  it("headers are What you get | Premium · <the Board Pass price> till boards | Basic · ₹0, in that order (PRICE-FIXED-1)", () => {
+describe("PRICING-B-1 — What you get with each", () => {
+  it("Board Pass | CBQ Pack | Bundle, rows exactly as the prototype, prices from the config", () => {
+    pinToday(SEPT_26_IST);
     const { inner } = renderPricing();
-    expect(tableModel(inner).headers).toEqual([
-      "What you get",
-      "Premium · ₹1,917 till boards",
-      `Basic · ${PRICE_FREE_DISPLAY}`,
+    const table = inner.querySelector('[data-testid="pricing-what-table"]')!;
+    expect(Array.from(table.querySelectorAll("thead th")).map(visibleText)).toEqual(["", "Board Pass", "CBQ Pack", "Bundle"]);
+    expect(Array.from(table.querySelectorAll("tbody tr")).map(tr => Array.from(tr.children).map(visibleText))).toEqual([
+      ["Answers checked like a CBSE examiner", "✓", "—", "—"],
+      ["Graded tests, mocks, AI tutor", "✓", "—", "—"],
+      ["Practise on paper, offline", "—", "✓", "✓"],
+      ["What's inside", "Everything, online", "1,400+ CBQs, one subject", "26 chapters + 16 mocks"],
+      ["Price", "₹1,917", "₹199", "₹299"],
     ]);
   });
 
-  it("every section and row, word for word, Premium column then Basic column (PRICING-1)", () => {
-    const { inner } = renderPricing();
-    expect(tableModel(inner).sections).toEqual(L4_TABLE);
-  });
-
-  it("section titles render upper-case through CSS, so the DOM keeps readable words", () => {
-    expect(rule(".lt-pricing-compare-section th")["text-transform"]).toBe("uppercase");
-  });
-
-  it("the table sits in its OWN horizontal scroller (the page never scrolls sideways)", () => {
-    const { inner } = renderPricing();
-    const box = inner.querySelector(".lt-pricing-compare-scroll");
-    expect(box?.querySelector('[data-testid="pricing-compare"]')).not.toBeNull();
-    expect(rule(".lt-pricing-compare-scroll")["overflow-x"]).toBe("auto");
-    expect(rule(".lt-pricing-compare-table")["min-width"]).toBe("620px");
-  });
-
-  it("the fair-use box: title, then the sentence built from the trial numbers, and no rupee figure", () => {
-    const { inner } = renderPricing();
-    const box = inner.querySelector('[data-testid="pricing-fair-use"]');
-    expect(flat(box?.querySelector(".lt-pricing-fairuse-title"))).toBe("Fair use, shown not hidden");
-    const text = flat(box?.querySelector(".lt-pricing-fairuse-text"));
-    expect(text).toBe(
-      "Premium has generous fair-use limits so the service stays fast for everyone. Your usage bars show what is left and when each one resets — every 5 hours, every day and every week. The 7-day trial includes, each day: 5 answer checks, 1 chapter test and 15 tutor messages; and each week: 1 full mock and 1 worksheet grading.",
+  it("'What's free on Basic?' is closed by default, and every Board Pass vs Basic row is in the DOM (prerender)", () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter>
+        <PricingPage />
+      </MemoryRouter>,
     );
-    expect(text).not.toMatch(/₹|rupee|INR/i);
-  });
-});
-
-/* ── PRICING-LIGHT-1 · L2 order and structure ───────────────────────────────── */
-
-describe("PricingPage — PRICING-1 · Premium left and first, Basic right", () => {
-  it("Premium renders BEFORE Basic in DOM order (PRICING-LADDER-1: the packs ladder sits between them, so both cards are children of .lt-pricing-ladder)", () => {
-    const { inner } = renderPricing();
-    const cards = Array.from(inner.querySelectorAll(".lt-pricing-ladder > .lt-pricing-card"));
-    expect(cards.map(c => flat(c.querySelector(".lt-pricing-plan-label")))).toEqual(["Premium", "Basic"]);
-    expect(cards[0].compareDocumentPosition(cards[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    // Nothing reorders them visually: no `order` on a card or the ladder, in any rule.
-    for (const sel of [".lt-pricing-card", ".lt-pricing-card--premium", ".lt-pricing-card--basic", ".lt-pricing-ladder"]) {
-      expect(SHIPPED_CSS_NO_COMMENTS).not.toMatch(new RegExp(`\\${sel} \\{[^}]*\\border:`));
+    for (const row of [
+      "Exam Trends — chapters ranked from ten years of papers",
+      "Step marks, CBSE keywords and units, the way examiners mark",
+      "AI tutor that knows your chapters and mistakes",
+      "Fair use",
+    ]) {
+      expect(html).toContain(row);
     }
+    const { inner } = renderPricing();
+    const details = inner.querySelector('[data-testid="pricing-basic-details"]') as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(flat(details.querySelector("summary"))).toBe("What's free on Basic? ↓");
+    const headers = Array.from(details.querySelectorAll('[data-testid="pricing-compare"] thead th')).map(th => flat(th));
+    expect(headers).toEqual(["What you get", "Board Pass", `Basic · ${PRICE_FREE_DISPLAY}`]);
   });
 
-  it("the Premium card holds the two pass tiles, Month pass first (CHECKOUT-1), and the trial action BELOW them", () => {
-    const { premium } = renderPricing();
-    const passes = premium.querySelector('[data-testid="pricing-passes"]');
-    expect(passes).not.toBeNull();
-    const names = Array.from(passes!.querySelectorAll(".lt-pricing-pass-name")).map(n => flat(n));
-    expect(names).toEqual(["Month pass", "Board Pass"]);
-    const trial = premium.querySelector(".lt-pricing-trial-slot");
-    expect(trial).not.toBeNull();
-    expect(passes!.compareDocumentPosition(trial!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  it("answer checking stays EXCLUDED from Basic in the folded table", () => {
+    const { inner } = renderPricing();
+    const rows = Array.from(inner.querySelectorAll('[data-testid="pricing-compare"] .lt-pricing-compare-row'));
+    const byLabel = Object.fromEntries(rows.map(r => [flat(r.querySelector("th")), Array.from(r.querySelectorAll("td")).map(visibleText)]));
+    expect(byLabel["Step marks, CBSE keywords and units, the way examiners mark"]).toEqual(["✓", "—"]);
+    expect(byLabel["Chapter tests, mocks and worksheets graded"]).toEqual(["✓", "—"]);
   });
 
-  it("payments dark: the tiles carry the prices and the manual paragraph stands in for the Pay buttons", () => {
-    const { premium } = renderPricing();
-    const passes = premium.querySelector('[data-testid="pricing-passes"]');
-    expect(passes?.querySelector('[data-testid="pricing-monthly-price"]')).not.toBeNull();
-    expect(passes?.querySelector('[data-testid="till-boards"]')).not.toBeNull();
-    expect(flat(passes?.querySelector(":scope > .lt-pricing-plan-desc"))).toBe(
-      "Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.",
-    );
-    expect(passes?.querySelector(".lt-pricing-pay")).toBeNull();
+  it("the fair-use box keeps its sentence (one name) and no rupee figure; the table scrolls in its own box", () => {
+    const { inner } = renderPricing();
+    const text = flat(inner.querySelector('[data-testid="pricing-fair-use"] .lt-pricing-fairuse-text'));
+    expect(text.startsWith("Board Pass has generous fair-use limits")).toBe(true);
+    expect(text).not.toMatch(/₹|rupee|INR|Premium/i);
+    expect(rule(".lt-pricing-compare-scroll")["overflow-x"]).toBe("auto");
   });
 });
 
-/* ── PRICING-LIGHT-1 · L1 contrast, parsed from the SHIPPED CSS string ─────────
- * The CSS is read out of PricingPage.tsx and proven byte-identical to the <style> the
- * page renders, then every L1 text pair is held to 4.5:1 and every button boundary to
- * 3:1 (WCAG AA). CONTROL: the pre-lane pair (navy #071a3d Pay button on the #051733
- * page) fails the same check.
- */
-
-describe("PricingPage — PRICING-LIGHT-1 · L1 contrast (WCAG AA)", () => {
+/* ── Contrast, parsed from the SHIPPED CSS string ───────────────────────────── */
+describe("PRICING-B-1 — contrast (WCAG AA)", () => {
   it("the CSS this test reads IS the CSS the page ships", () => {
     const html = renderToStaticMarkup(
       <MemoryRouter>
@@ -869,115 +543,22 @@ describe("PricingPage — PRICING-LIGHT-1 · L1 contrast (WCAG AA)", () => {
     });
   }
 
-  it("the Pay buttons paint the L1 tokens: Month pass (the lead, CHECKOUT-1) deep green #0e7c47, Till boards navy #0b1b3a", () => {
-    expect(color(".lt-pricing-pay--month", "background")).toBe("#0e7c47");
-    expect(color(".lt-pricing-pay--boards", "background")).toBe("#0b1b3a");
-    expect(color(".lt-pricing-pay--month", "color")).toBe("#ffffff");
-    expect(color(".lt-pricing-pay--boards", "color")).toBe("#ffffff");
-    // The pre-lane navy token is gone from the page's CSS entirely.
-    expect(SHIPPED_CSS.toLowerCase()).not.toContain("#071a3d");
-    expect(SHIPPED_CSS).not.toContain("--lt-navy");
-  });
-
-  it("CONTROL — the old navy-on-navy pair fails both thresholds", () => {
-    expect(contrast("#071a3d", "#051733")).toBeLessThan(3);
-    expect(contrast("#071a3d", "#071a2d")).toBeLessThan(3);
-  });
-
-  it("CONTROL — the arithmetic matches the spec's reference values", () => {
+  it("CONTROL — the arithmetic matches reference values, and a known-bad pair fails", () => {
     expect(contrast("#ffffff", "#0e7c47")).toBeCloseTo(5.26, 1);
     expect(contrast("#4a5a73", "#ffffff")).toBeCloseTo(7.0, 0);
-    expect(contrast("#6b778a", "#ffffff")).toBeCloseTo(4.53, 1);
-    expect(contrast("#ffffff", "#0b1b3a")).toBeGreaterThan(16.5);
-  });
-});
-
-describe("PricingPage — honest manual-activation notice (test 4)", () => {
-  it("still states that checkout is not automated and activation stays manual", () => {
-    const { inner } = renderPricing();
-    const page = flat(inner);
-
-    expect(page).toContain("Payment checkout is not automated yet.");
-    expect(page).toContain(
-      "Payment checkout is not connected in this build, so Premium activation stays manual.",
-    );
-    expect(page).toContain("Premium is not activated automatically.");
-  });
-});
-
-// ─── COPY-2 · K5 (owner, 2026-09-27) ───────────────────────────────────────────
-// The founding chip and the end date render ONLY while the offer is open (PRICING-1: by date).
-// Real published figures throughout; nothing is mocked.
-describe("PricingPage — COPY-2 · K5 the founding chip and lock note follow the offer", () => {
-  afterEach(() => {
-    vi.useRealTimers();
+    expect(contrast("#071a3d", "#051733")).toBeLessThan(3);
   });
 
-  async function renderWithOffer(open: boolean) {
-    // PRICING-1: the offer is the calendar's answer at render. Pin Date to a real instant on
-    // the wanted side of the close (25 Oct 2026 open; 00:00 IST 1 Dec 2026 closed).
-    // (A fake clock is already installed by this file's beforeEach, so MOVE it; a second
-    // useFakeTimers would be a silent no-op.)
-    vi.setSystemTime(new Date(open ? "2026-10-25T06:30:00.000Z" : "2026-12-01T00:00:00+05:30"));
-    const { default: Page } = await import("./PricingPage");
-    const { container } = render(
-      <MemoryRouter>
-        <Page />
-      </MemoryRouter>,
-    );
-    const premium = container.querySelector(".lt-pricing-card--premium");
-    expect(premium).not.toBeNull();
-    return premium as Element;
-  }
-
-  it("offer CLOSED: no founding chip and no lock note", async () => {
-    const premium = await renderWithOffer(false);
-    expect(premium.querySelector(".lt-pricing-founding-flag")).toBeNull();
-    expect(premium.querySelector(".lt-pricing-founding-note")).toBeNull();
-    expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
-    const card = flat(premium);
-    expect(card).not.toContain("Your founding month price stays locked for every month pass you buy.");
-    expect(card).not.toContain("Founding member offer");
-    // CONTROL — the card still rendered, at the list price.
-    expect(card).toContain("Manual activation during beta.");
-    expect(flat(premium.querySelector(".lt-pricing-amount"))).toBe(PRICE_MONTHLY_LIST_DISPLAY);
+  it("every tap target is at least 44 px tall in the base (phone) rules", () => {
+    for (const sel of [".lt-pricing-cta", ".lt-pp-buy", ".lt-pp-see", ".lt-pp-trial", ".lt-pp-startfree", ".lt-pp-login", ".lt-pp-switch button", ".lt-pp-one__toggle"]) {
+      expect(parseInt(rule(sel)["min-height"] ?? "0", 10), sel).toBeGreaterThanOrEqual(44);
+    }
   });
 
-  it("CONTROL — offer OPEN: the same queries find the chip and the lock note", async () => {
-    const premium = await renderWithOffer(true);
-    expect(flat(premium.querySelector(".lt-pricing-founding-flag"))).toBe("Founding member offer");
-    expect(flat(premium.querySelector(".lt-pricing-founding-note"))).toBe(
-      "Your founding month price stays locked for every month pass you buy.",
-    );
-  });
-});
-
-/* ── PRICE-FIXED-1 · the month pass is hidden from everyone but an account with a PAID month order ───── */
-describe("PRICE-FIXED-1 · the page for everyone who is NOT a month buyer shows the Board Pass alone", () => {
-  beforeEach(() => {
-    mockMonth.buyer = false;
-  });
-
-  it.each(["2026-10-25T06:30:00.000Z", "2026-11-30T23:59:59+05:30", "2026-12-01T00:00:00+05:30", "2027-02-01T10:00:00+05:30"])(
-    "at %s: no 599, no 999, no 'for a month', no month tile, no founding badge for the month, no tuition anchor",
-    (iso) => {
-      pinToday(iso);
-      const { container, inner } = renderPricing();
-      const page = flat(container.querySelector(".lt-pricing-inner"));
-      expect(page).not.toMatch(/599|999|for a month/);
-      expect(container.querySelector(".lt-pricing-pass--month")).toBeNull();
-      expect(container.querySelector('[data-testid="pricing-monthly-price"]')).toBeNull();
-      expect(container.querySelector(".lt-pricing-founding-note")).toBeNull();
-      // CONTROL - the page did render the Board Pass.
-      expect(container.querySelector('[data-testid="till-boards"]')).not.toBeNull();
-      expect(page).toContain(new Date(iso).getTime() < Date.parse("2026-12-01T00:00:00+05:30") ? "₹1,917" : "₹2,499");
-      expect(inner).not.toBeNull();
-    },
-  );
-
-  it("the FAQ never mentions pay-monthly, 20% or a shrinking price", () => {
-    const { inner } = renderPricing();
-    const faq = flat(inner.querySelector(".lt-pricing-faq"));
-    expect(faq).not.toMatch(/monthly|20%|shrink|for a month/i);
+  it("CONTROL — offer CLOSED keeps the page rendering at the list month price for a month buyer", () => {
+    pinToday("2026-12-01T00:00:00+05:30");
+    const { pass } = renderPricing();
+    expect(flat(pass.querySelector(".lt-pricing-amount"))).toBe(PRICE_MONTHLY_LIST_DISPLAY);
+    expect(pass.querySelector(".lt-pricing-founding-note")).toBeNull();
   });
 });

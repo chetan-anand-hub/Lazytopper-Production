@@ -101,8 +101,11 @@ describe("PricingPage — Pay by QR code / Ask a parent to pay (PAYWALL-PAY-1)",
     // findBy* defaults to 1000 ms, but the FIRST test of the file pays the cold dynamic-import transform of
     // that chunk, which took >1 s on a loaded 4-worker CI runner (failed at 1959 ms, 30 Oct 2026). Same
     // assertion, a wait budgeted for a cold import; a missing button still fails, just after the budget.
-    expect(await screen.findByRole("button", { name: "Pay by QR code" }, { timeout: LAZY_CHUNK_MS })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Ask a parent to pay" })).toBeInTheDocument();
+    // PRICING-B-1: the same two actions, in the owner's wording for this page.
+    expect(await screen.findByRole("button", { name: "Share QR code" }, { timeout: LAZY_CHUNK_MS })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Forward link to parents" })).toBeInTheDocument();
+    // "Forward link to parents" comes first, beside the Board Pass Pay button, inside the buy area (Pay-tap analytics capture).
+    expect(screen.getByTestId("pricing-parent-share").closest('[data-testid="pricing-passes"]')).not.toBeNull();
     // "Pay" on /pricing is the pass tiles' own buttons — never a second, separate Pay.
     expect(screen.queryByTestId("paywall-pay")).toBeNull();
     expect(screen.getAllByRole("button", { name: /^Pay / }).length).toBeGreaterThan(0);
@@ -115,7 +118,7 @@ describe("PricingPage — Pay by QR code / Ask a parent to pay (PAYWALL-PAY-1)",
     authState.user = { uid: UID };
     cloudHolds(PREMIUM);
     await renderAt("/pricing");
-    await screen.findByText("Premium is active.");
+    await screen.findByText("Your Board Pass is active.");
     expect(screen.queryByTestId("pricing-parent-share")).toBeNull();
   });
 
@@ -128,9 +131,9 @@ describe("PricingPage — Pay by QR code / Ask a parent to pay (PAYWALL-PAY-1)",
     authState.user = { uid: UID };
     cloudHolds(FREE);
     await renderAt("/pricing");
-    await screen.findByRole("heading", { level: 1, name: "Simple, Student-Friendly Plans" });
+    await screen.findByRole("heading", { level: 1, name: "Plans and packs for the 2027 boards" });
     expect(screen.queryByTestId("pricing-parent-share")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Pay by QR code" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Share QR code" })).toBeNull();
   });
 });
 
@@ -139,16 +142,16 @@ describe("PricingPage — the parent's link", () => {
     flags(true);
     await renderAt(`/pricing#pp=${TOKEN}`);
     expect(await screen.findByRole("heading", { level: 1, name: "Pay for Aarav's LazyTopper Premium" })).toBeInTheDocument();
-    expect(screen.queryByText("Simple, Student-Friendly Plans")).toBeNull();
+    expect(screen.queryByText("Plans and packs for the 2027 boards")).toBeNull();
   });
 
   it("switched off, or a malformed token: the plans page exactly as before", async () => {
     flags(false);
     await renderAt(`/pricing#pp=${TOKEN}`);
-    expect(screen.getByRole("heading", { level: 1, name: "Simple, Student-Friendly Plans" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Plans and packs for the 2027 boards" })).toBeInTheDocument();
     cleanup();
     flags(true);
     await renderAt(`/pricing#pp=short`);
-    expect(screen.getByRole("heading", { level: 1, name: "Simple, Student-Friendly Plans" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Plans and packs for the 2027 boards" })).toBeInTheDocument();
   });
 });

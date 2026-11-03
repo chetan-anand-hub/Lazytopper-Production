@@ -1,6 +1,6 @@
 /**
- * PRICING-LADDER-1 - the ladder layout: daily anchor maths, Basic folded (not removed), the Premium card's mobile order, and the
- * packs ladder (tiles, the PACK_CREDIT_LIVE line in both states; PRICING-ONE-1: shown to paid Premium too).
+ * PRICING-LADDER-1 / PRICING-B-1 - the daily anchor maths, the /pricing order (Option B v3), the phone sticky bar, and the old
+ * PacksStrip component (no longer mounted on /pricing; kept for lane PACK-TERMS-1 and tested here until it is retired).
  */
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
@@ -12,7 +12,7 @@ vi.mock("../lib/packs/usePaidPremium", () => ({ usePaidPremium: () => paid.value
 
 import PricingPage, { boardPassPerDay } from "./PricingPage";
 import PacksStrip, { PACK_CREDIT_LIVE, PACK_CREDIT_LINE } from "../components/pricing/PacksStrip";
-import StickyPassBar from "../components/pricing/StickyPassBar";
+import StickyPassBar, { stickyMode } from "../components/pricing/StickyPassBar";
 
 beforeEach(() => {
   paid.value = false;
@@ -47,22 +47,21 @@ describe("boardPassPerDay", () => {
   });
 });
 
-describe("PricingPage - ladder layout", () => {
+describe("PricingPage - PRICING-B-1 layout", () => {
   const renderPage = () => render(<MemoryRouter><PricingPage /></MemoryRouter>);
 
-  it("renders the daily anchor after mount, inside the figures node, and not on the first static render", () => {
+  it("PRICING-B-1: no daily anchor line any more (the owner-approved card shows the price, its coverage and the founding line)", () => {
     const { container } = renderPage();
-    const line = container.querySelector('[data-testid="till-boards-per-day"]');
-    expect(line).not.toBeNull();
-    expect(flat(line)).toMatch(/^≈ ₹\d+ a day till your boards$/);
-    expect(line!.closest('[data-testid="till-boards-figures"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="till-boards-figures"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="till-boards-per-day"]')).toBeNull();
   });
 
-  it("PRICING-ONE-1: from=for_parents (with #packs or #cbq) shows the back-to-parents link near the top; not without it", () => {
+  it("PRICING-ONE-1: from=for_parents (with #packs or #cbq) shows the back-to-parents link near the top AND by the target; not without it", () => {
     for (const hash of ["#packs", "#cbq"]) {
       sessionStorage.clear();
       const { unmount } = render(<MemoryRouter initialEntries={[`/pricing?from=for_parents${hash}`]}><PricingPage /></MemoryRouter>);
       expect(screen.getByTestId("parent-return").getAttribute("href")).toBe("/for-parents");
+      expect(screen.getByTestId(hash === "#packs" ? "parent-return-packs" : "parent-return-cbq").getAttribute("href")).toBe("/for-parents");
       unmount();
     }
     sessionStorage.clear();
@@ -70,28 +69,34 @@ describe("PricingPage - ladder layout", () => {
     expect(screen.queryByTestId("parent-return")).toBeNull();
   });
 
-  it("Basic is folded, not removed: a closed <details> holding every include and limit", () => {
+  it("top to bottom: Board Pass card, CBQ Packs (#cbq), More printed practice (#packs), What you get with each, the proof (phone), FAQ, the Basic line", () => {
     const { container } = renderPage();
-    const details = container.querySelector('details[data-testid="pricing-basic-details"]') as HTMLDetailsElement;
-    expect(details).not.toBeNull();
-    expect(details.open).toBe(false);
-    expect(flat(details.querySelector("summary"))).toBe("See what's free, and what's not");
-    expect(details.querySelectorAll('ul[aria-label="Basic plan features"] li').length).toBeGreaterThanOrEqual(5);
-    expect(details.querySelectorAll('ul[aria-label="What Basic does not include"] li')).toHaveLength(6);
-    const basic = container.querySelector(".lt-pricing-card--basic")!;
-    expect(flat(basic.querySelector(".lt-pricing-basic-head"))).toBe("Just browsing? Basic is free forever");
-    expect(flat(basic.querySelector("button.lt-pricing-cta"))).toBe("Start free");
+    const order = [
+      '[data-testid="pricing-board-pass"]',
+      "#cbq",
+      "#packs",
+      '[data-testid="pricing-what-you-get"]',
+      '[data-testid="pricing-proof-phone"]',
+      '[data-testid="pricing-faq"]',
+      '[data-testid="pricing-basic-line"]',
+    ].map(sel => container.querySelector(sel)!);
+    order.forEach((el, i) => expect(el, String(i)).not.toBeNull());
+    for (let i = 1; i < order.length; i++) {
+      expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    // Removed from /pricing: the dark CBQ band's headline, the old strip grid, the separate Basic card, the credit line.
+    expect(container.querySelector(".lt-cbq, .lt-packoffer, .lt-pricing-card--basic")).toBeNull();
+    expect(flat(container.querySelector(".lt-pricing-inner"))).not.toMatch(/Half your board paper is competency-based|comes off/);
+    // No swipe shelf: nothing scrolls sideways except the folded compare table.
+    expect(container.querySelectorAll(".lt-pricing-compare-scroll")).toHaveLength(1);
   });
 
-  it("the Premium card reads passes -> trial -> features -> examiner link (PRICE-FIXED-1: no month founding note for a non-month buyer)", () => {
+  it("the Board Pass card reads ticks -> price -> Pay area -> paper line -> trial (DOM order = reading order)", () => {
     const { container } = renderPage();
-    const premium = container.querySelector(".lt-pricing-card--premium")!;
-    const order = [
-      '[data-testid="pricing-passes"]',
-      ".lt-pricing-trial-slot",
-      'ul[aria-label="Premium plan features"]',
-      ".lt-pricing-mark-guide",
-    ].map(sel => premium.querySelector(sel)!);
+    const pass = container.querySelector('[data-testid="pricing-board-pass"]')!;
+    const order = [".lt-pp-ticks", '[data-testid="till-boards"]', '[data-testid="pricing-passes"]', '[data-testid="pricing-paper-link"]', ".lt-pricing-trial-slot"].map(
+      sel => pass.querySelector(sel)!,
+    );
     order.forEach(el => expect(el).not.toBeNull());
     for (let i = 1; i < order.length; i++) {
       expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -139,34 +144,65 @@ describe("PacksStrip - the ladder", () => {
   });
 });
 
-describe("StickyPassBar", () => {
-  it("renders nothing on the first render and for a paid student", () => {
-    const { container } = render(<StickyPassBar watchTestId="x" targetId="y" hidden />);
-    expect(container.firstChild).toBeNull();
+describe("StickyPassBar (PRICING-B-1)", () => {
+  it("stickyMode: hidden while Pay is on screen or over the footer; the CBQ bar over #packs; the Board Pass bar elsewhere", () => {
+    const base = { payVisible: false, packsVisible: false, footerVisible: false, showPass: true, cbqAvailable: true };
+    expect(stickyMode({ ...base, payVisible: true })).toBe("none");
+    expect(stickyMode({ ...base, footerVisible: true, packsVisible: true })).toBe("none");
+    expect(stickyMode({ ...base, packsVisible: true })).toBe("cbq");
+    expect(stickyMode({ ...base, packsVisible: true, cbqAvailable: false })).toBe("pass");
+    expect(stickyMode(base)).toBe("pass");
+    expect(stickyMode({ ...base, showPass: false })).toBe("none");
+    expect(stickyMode({ ...base, showPass: false, packsVisible: true })).toBe("cbq");
   });
-  it("stays hidden until the watched element has scrolled out upward, then shows the month price (CHECKOUT-1) and hides again", async () => {
-    const callbacks: Array<(e: unknown[]) => void> = [];
+
+  it("renders nothing without IntersectionObserver (never in the prerender) and follows the observers once mounted", async () => {
+    const none = render(<StickyPassBar passWatchTestId="x" packsId="y" showPass onPass={() => undefined} cbq={null} />);
+    expect(none.container.firstChild).toBeNull();
+    none.unmount();
+
+    const observers: Array<{ cb: (e: unknown[]) => void; el: Element | null }> = [];
     class FakeIO {
-      constructor(cb: (e: unknown[]) => void) { callbacks.push(cb); }
-      observe() {}
+      cb: (e: unknown[]) => void;
+      constructor(cb: (e: unknown[]) => void) { this.cb = cb; }
+      observe(el: Element) { observers.push({ cb: this.cb, el }); }
       disconnect() {}
     }
     vi.stubGlobal("IntersectionObserver", FakeIO);
-    const watched = document.createElement("div");
-    watched.setAttribute("data-testid", "pricing-passes");
-    document.body.appendChild(watched);
+    const pay = document.createElement("div");
+    pay.setAttribute("data-testid", "pricing-passes");
+    const packs = document.createElement("section");
+    packs.id = "packs";
+    const footer = document.createElement("footer");
+    footer.className = "lt-public-legal";
+    document.body.append(pay, packs, footer);
+    const onPass = vi.fn();
+    const onBuy = vi.fn();
     const { act } = await import("@testing-library/react");
-    const { container } = render(<StickyPassBar watchTestId="pricing-passes" targetId="y" />);
+    const { container } = render(
+      <StickyPassBar passWatchTestId="pricing-passes" packsId="packs" showPass onPass={onPass} cbq={{ subject: "science", onBuy }} />,
+    );
+    const fire = (el: Element, isIntersecting: boolean) =>
+      act(() => observers.filter(o => o.el === el).forEach(o => o.cb([{ isIntersecting }])));
+    // Pay counts as visible until the observer reports: no bar on load.
     expect(container.querySelector('[data-testid="pricing-sticky-bar"]')).toBeNull();
-    act(() => callbacks[0]([{ isIntersecting: false, boundingClientRect: { bottom: -40 } }]));
-    const bar = container.querySelector('[data-testid="pricing-sticky-bar"]');
-    expect(bar).not.toBeNull();
-    expect(flat(bar)).toMatch(/^Board Pass ₹1,917 till boards Get it$/);
-    act(() => callbacks[0]([{ isIntersecting: false, boundingClientRect: { bottom: 900 } }])); // below the fold: still hidden
-    expect(container.querySelector('[data-testid="pricing-sticky-bar"]')).toBeNull();
-    act(() => callbacks[0]([{ isIntersecting: true, boundingClientRect: { bottom: 300 } }]));
-    expect(container.querySelector('[data-testid="pricing-sticky-bar"]')).toBeNull();
-    watched.remove();
+    fire(pay, false);
+    const bar = () => container.querySelector('[data-testid="pricing-sticky-bar"]');
+    expect(flat(bar())).toBe("Board Pass ₹1,917Pay ₹1,917");
+    (container.querySelector('[data-testid="sticky-pay-pass"]') as HTMLButtonElement).click();
+    expect(onPass).toHaveBeenCalledTimes(1);
+    fire(packs, true);
+    expect(flat(bar())).toBe("Science CBQ Pack ₹199Buy ₹199");
+    (container.querySelector('[data-testid="sticky-buy-cbq"]') as HTMLButtonElement).click();
+    expect(onBuy).toHaveBeenCalledTimes(1);
+    fire(footer, true);
+    expect(bar()).toBeNull();
+    fire(footer, false);
+    fire(pay, true);
+    expect(bar()).toBeNull();
+    pay.remove();
+    packs.remove();
+    footer.remove();
     vi.unstubAllGlobals();
   });
 });

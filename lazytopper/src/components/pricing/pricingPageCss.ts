@@ -1,0 +1,1591 @@
+/**
+ * PRICING-B-1 - the whole /pricing stylesheet ("Option B v3"). A STRING rendered in a <style> inside the page, not a .css import:
+ * /pricing is prerendered and its route CSS is not inlined by applyPrerendered, so a .css file would arrive only with the chunk and the
+ * static body would paint unstyled first (layout shift). PricingPage.pricing.test.tsx parses THIS string for the contrast pairs.
+ *
+ * Fluid from 320 px: one column (phone layout) below 1024 px, the desktop grid from 1024 px. Every tap target is >= 44 px.
+ * Fonts are the app's own (Fraunces, Inter); nothing new is loaded.
+ */
+export const PRICING_CSS = `
+  .lt-pricing-page,
+  .lt-pricing-page * {
+    box-sizing: border-box;
+  }
+
+  html:has(.lt-pricing-page),
+  body:has(.lt-pricing-page),
+  #root:has(.lt-pricing-page),
+  #root > div:has(.lt-pricing-page) {
+    background: #f7f9fc;
+  }
+
+  #root > div:has(.lt-pricing-page) {
+    padding-bottom: 0 !important;
+  }
+
+  #root:has(.lt-pricing-page) > div[style*="position: fixed"][style*="bottom: 0px"] {
+    display: none !important;
+  }
+
+  .lt-pricing-page {
+    --lt-ground: #f7f9fc;
+    --lt-surface: #ffffff;
+    --lt-ink: #0b1b3a;
+    --lt-ink-body: #22324d;
+    --lt-ink-2: #4a5a73;
+    --lt-ink-3: #5f6b7e;
+    --lt-line: #e1e7ef;
+    --lt-band-sub: #c9d6e6;
+    --lt-on-dark: #ffffff;
+    --lt-on-band-green: #dff5e9;
+    --lt-mint: #eef8f2;
+    --lt-mint-line: #16b96a;
+    --lt-tile-line: #cfe9da;
+    --lt-green-deep: #0e7c47;
+    --lt-green-dark: #0b5e36;
+    --lt-amber-bg: #fffbeb;
+    --lt-amber-line: #f59e0b;
+    --lt-amber-ink: #7a4a00;
+    --lt-switch: #e7ecf3;
+
+    min-height: 100svh;
+    width: 100%;
+    color: var(--lt-ink);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--lt-ground);
+    padding: 0;
+    overflow-x: clip;
+  }
+
+  .lt-pricing-page :focus-visible {
+    outline: 3px solid var(--lt-green-deep);
+    outline-offset: 2px;
+  }
+
+  .lt-pricing-page a {
+    color: var(--lt-green-deep);
+  }
+
+  .lt-pricing-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .lt-pp-serif {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+  }
+
+  /* ── Navy header ───────────────────────────────────────────────────────── */
+  .lt-pricing-band {
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    padding: 12px 16px 64px;
+  }
+
+  .lt-pricing-band-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .lt-pp-topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+
+  .lt-pp-topbar .ux-return-bar {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    justify-self: start;
+    min-width: 0;
+  }
+
+  .lt-pp-topbar .ux-return-bar__back {
+    min-height: 44px;
+    padding: 0;
+    color: var(--lt-band-sub);
+    background: transparent;
+    border: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .lt-pp-brand {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--lt-on-dark);
+  }
+
+  .lt-pp-login {
+    justify-self: end;
+    appearance: none;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--lt-band-sub);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .lt-pricing-band .lt-parent-return {
+    margin: 0;
+  }
+
+  .lt-pricing-title {
+    margin: 0;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 1.45rem;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--lt-on-dark);
+    overflow-wrap: anywhere;
+  }
+
+  .lt-pp-cred {
+    align-self: center;
+    margin: 0;
+    color: var(--lt-on-band-green);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  /* ── Body ──────────────────────────────────────────────────────────────── */
+  .lt-pricing-body {
+    position: relative;
+    max-width: 1120px;
+    margin: -48px auto 0;
+    padding: 0 16px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .lt-pricing-body .lt-packs--embedded:empty {
+    display: none;
+  }
+
+  .lt-pp-h2 {
+    margin: 0;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    line-height: 1.2;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    margin-top: 8px;
+  }
+
+  /* ── Board Pass card ───────────────────────────────────────────────────── */
+  .lt-pp-pass {
+    scroll-margin-top: 12px;
+    background: var(--lt-mint);
+    border: 2px solid var(--lt-mint-line);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(11, 27, 58, 0.1);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .lt-pp-pass__main {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .lt-pp-pass__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .lt-pp-pass__name {
+    margin: 0;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.15;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-badge {
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+
+  .lt-pp-ticks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-ticks li {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .lt-pp-tick {
+    color: var(--lt-green-deep);
+    font-weight: 700;
+  }
+
+  /* The price + founding line. The slot keeps the figures' height, so their arrival after mount moves nothing (CLS); every
+     clock-derived figure sits inside the one figures node that the prerender capture strips. */
+  .lt-pricing-tillboards-slot {
+    min-height: 4.6rem;
+  }
+
+  .lt-pp-price {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 4px 8px;
+    flex-wrap: wrap;
+  }
+
+  .lt-pricing-tillboards-amount {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 2.125rem;
+    line-height: 1.05;
+    color: var(--lt-ink);
+  }
+
+  .lt-pricing-tillboards-meta {
+    font-size: 0.8125rem;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pricing-tillboards-deadline {
+    margin: 6px 0 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--lt-ink);
+  }
+
+  /* PassCheckout's children are laid out here (its wrapper is display: contents). */
+  .lt-pricing-passes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .lt-pricing-checkout {
+    display: contents;
+  }
+
+  .lt-pricing-checkout-note {
+    margin: 0;
+    color: var(--lt-ink);
+    font-weight: 700;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-checkout-note--top {
+    order: -1;
+  }
+
+  .lt-pricing-month {
+    order: -1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-tile-line);
+  }
+
+  .lt-pricing-month__name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pricing-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 8px;
+  }
+
+  .lt-pricing-amount {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+  }
+
+  .lt-pricing-period,
+  .lt-pricing-was {
+    font-size: 0.85rem;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pricing-founding-note {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+  }
+
+  .lt-pack-credit-note {
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-tile-line);
+    color: var(--lt-green-deep);
+    font-size: 0.85rem;
+  }
+
+  /* ── Buttons ───────────────────────────────────────────────────────────── */
+  .lt-pricing-cta {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .lt-pricing-cta:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .lt-pricing-cta--primary,
+  .lt-pricing-pay {
+    color: var(--lt-on-dark);
+    background: var(--lt-green-deep);
+  }
+
+  .lt-pricing-cta--primary:not(:disabled):hover,
+  .lt-pricing-pay:not(:disabled):hover {
+    background: var(--lt-green-dark);
+  }
+
+  .lt-pricing-pay {
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .lt-pricing-pay--month {
+    color: var(--lt-ink);
+    background: var(--lt-surface);
+    border: 1.5px solid var(--lt-ink);
+  }
+
+  .lt-pricing-pay--month:not(:disabled):hover {
+    background: var(--lt-surface);
+  }
+
+  .lt-pricing-cta--secondary,
+  .lt-pp-outline {
+    color: var(--lt-ink);
+    background: var(--lt-surface);
+    border: 1.5px solid var(--lt-ink);
+  }
+
+  .lt-pp-payline {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--lt-ink-2);
+    text-align: center;
+  }
+
+  .lt-pricing-manual {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--lt-ink);
+  }
+
+  /* "Forward link to parents" + "Share QR code" (the shared paywall actions, restyled for this card). */
+  .lt-pp-parents .lt-paywall-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lt-pp-parents .lt-paywall-parent {
+    flex: 1 1 140px;
+    min-height: 44px;
+    border: 1.5px solid var(--lt-ink);
+    border-radius: 12px;
+    background: var(--lt-surface);
+    color: var(--lt-ink);
+    font: 600 0.84rem Inter, system-ui, sans-serif;
+    padding: 0 12px;
+  }
+
+  .lt-pp-parents .lt-paywall-parent[data-testid="paywall-forward"] {
+    order: -1;
+    flex: 2 1 180px;
+  }
+
+  .lt-pp-paper {
+    display: block;
+    padding-top: 9px;
+    border-top: 1px solid var(--lt-tile-line);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--lt-ink-body);
+    text-decoration: none;
+  }
+
+  .lt-pricing-page a.lt-pp-paper {
+    color: var(--lt-ink-body);
+  }
+
+  .lt-pp-paper__arrow {
+    color: var(--lt-green-deep);
+    font-weight: 700;
+  }
+
+  .lt-pricing-trial-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lt-pp-trial {
+    appearance: none;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 4px 8px;
+    border: 0;
+    background: transparent;
+    color: var(--lt-ink-2);
+    font: inherit;
+    font-size: 0.78rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .lt-pp-trial:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .lt-pricing-trial-slot .lt-pricing-cta--primary {
+    width: auto;
+    min-width: 200px;
+  }
+
+  .lt-pricing-trial-state-msg {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+    text-align: center;
+  }
+
+  .lt-pp-pass__proof {
+    display: none;
+  }
+
+  /* ── Testimonial (TestimonialVideo inside our boxes) ───────────────────── */
+  .lt-pp-proof .lt-tv__title {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  /* ── CBQ Packs card ────────────────────────────────────────────────────── */
+  .lt-pp-cbq {
+    scroll-margin-top: 12px;
+    background: var(--lt-amber-bg);
+    border: 2px solid var(--lt-amber-line);
+    border-radius: 18px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .lt-pp-cbq__copy,
+  .lt-pp-cbq__act {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .lt-pp-cbq__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .lt-pp-kicker {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--lt-amber-ink);
+  }
+
+  .lt-pp-cbq__price {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 1.375rem;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-per {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pp-cbq__title {
+    margin: 0;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    line-height: 1.2;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-cbq__head {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .lt-pp-cbq__body {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--lt-ink-body);
+  }
+
+  .lt-pp-pair {
+    display: flex;
+    gap: 8px;
+  }
+
+  .lt-pp-pair > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .lt-pp-cbq__one {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .lt-pp-cbq__one > .lt-pp-buy,
+  .lt-pp-cbq__one > .lt-pp-owned {
+    width: 100%;
+  }
+
+  .lt-pp-buy {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--lt-green-deep);
+    color: var(--lt-on-dark);
+    font: 700 0.9rem Inter, system-ui, sans-serif;
+    text-align: center;
+  }
+
+  .lt-pp-buy:not(:disabled):hover {
+    background: var(--lt-green-dark);
+  }
+
+  .lt-pp-buy:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .lt-pp-buy--outline {
+    background: var(--lt-surface);
+    color: var(--lt-green-deep);
+    border: 1.5px solid var(--lt-green-deep);
+  }
+
+  .lt-pp-buy--outline:not(:disabled):hover {
+    background: var(--lt-mint);
+  }
+
+  .lt-pp-buy--row {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 16px;
+  }
+
+  .lt-pp-owned {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 1.5px solid var(--lt-tile-line);
+    border-radius: 12px;
+    background: var(--lt-surface);
+    color: var(--lt-green-deep);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .lt-pp-busy {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pp-see {
+    appearance: none;
+    cursor: pointer;
+    align-self: center;
+    min-height: 44px;
+    padding: 0 8px;
+    border: 0;
+    background: transparent;
+    color: var(--lt-green-deep);
+    font: inherit;
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ── More printed practice ─────────────────────────────────────────────── */
+  .lt-pp-packs {
+    scroll-margin-top: 12px;
+    margin-top: 10px;
+  }
+
+  .lt-pp-packs__head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .lt-pp-sub {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .lt-pp-card {
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .lt-pp-card--bundle {
+    border: 2px solid var(--lt-ink);
+  }
+
+  .lt-pp-pill {
+    align-self: flex-start;
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+  }
+
+  .lt-pp-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .lt-pp-card__name {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.03rem;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-card__price {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-card__body {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pp-switch {
+    display: flex;
+    background: var(--lt-switch);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .lt-pp-switch button {
+    appearance: none;
+    cursor: pointer;
+    flex: 1 1 0;
+    min-height: 44px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--lt-ink-2);
+    font: 600 0.875rem Inter, system-ui, sans-serif;
+  }
+
+  .lt-pp-switch button[aria-pressed="true"] {
+    background: var(--lt-surface);
+    color: var(--lt-ink);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(11, 27, 58, 0.15);
+  }
+
+  .lt-pp-one {
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .lt-pp-one__toggle {
+    appearance: none;
+    cursor: pointer;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 0;
+    background: var(--lt-surface);
+    color: var(--lt-ink);
+    font: 600 0.875rem Inter, system-ui, sans-serif;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .lt-pp-one__prices {
+    color: var(--lt-ink-2);
+    font-weight: 500;
+  }
+
+  .lt-pp-one__title {
+    display: none;
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.03rem;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-one__body {
+    display: none;
+    padding: 0 14px 14px;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid var(--lt-line);
+  }
+
+  .lt-pp-one.is-open .lt-pp-one__body {
+    display: flex;
+  }
+
+  .lt-pp-one__for {
+    margin: 0;
+    padding-top: 10px;
+    font-size: 0.78rem;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .lt-pp-row__copy {
+    min-width: 0;
+  }
+
+  .lt-pp-row__name {
+    margin: 0;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--lt-ink);
+  }
+
+  .lt-pp-row__line {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pp-row__line--short {
+    display: none;
+  }
+
+  .lt-pp-row__act {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  /* ── What you get with each ────────────────────────────────────────────── */
+  .lt-pp-table-wrap {
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .lt-pp-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .lt-pp-table col.lt-pp-col-label {
+    width: 31%;
+  }
+
+  .lt-pp-table thead th {
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    font-weight: 700;
+    text-align: left;
+    padding: 10px 6px;
+  }
+
+  .lt-pp-table thead th:first-child,
+  .lt-pp-table tbody th {
+    padding-left: 10px;
+  }
+
+  .lt-pp-table tbody th,
+  .lt-pp-table tbody td {
+    padding: 10px 6px;
+    border-top: 1px solid var(--lt-line);
+    text-align: left;
+    vertical-align: top;
+    color: var(--lt-ink);
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .lt-pp-table tbody th {
+    font-weight: 400;
+  }
+
+  .lt-pp-table .lt-pp-yes {
+    color: var(--lt-green-deep);
+    font-weight: 700;
+  }
+
+  .lt-pp-table .lt-pp-no {
+    color: var(--lt-ink-3);
+  }
+
+  /* "What's free on Basic?" - the folded Board Pass vs Basic table (every row stays in the DOM and the prerender). */
+  .lt-pp-basic {
+    border-top: 1px solid var(--lt-line);
+  }
+
+  .lt-pp-basic > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 10px;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--lt-green-deep);
+  }
+
+  .lt-pp-basic > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lt-pp-basic[open] .lt-pp-basic__arrow {
+    display: inline-block;
+    transform: rotate(180deg);
+  }
+
+  .lt-pp-basic__body {
+    padding: 0 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lt-pricing-compare-scroll {
+    position: relative;
+    overflow-x: auto;
+    border: 1px solid var(--lt-line);
+    border-radius: 12px;
+  }
+
+  .lt-pricing-compare-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-compare-table thead th {
+    padding: 12px 14px;
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    text-align: left;
+    font-weight: 700;
+  }
+
+  .lt-pricing-compare-table .lt-pricing-compare-col-feature {
+    width: 46%;
+  }
+
+  .lt-pricing-compare-section th {
+    padding: 10px 14px;
+    background: #f1f5fa;
+    color: var(--lt-ink-2);
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .lt-pricing-compare-row {
+    border-top: 1px solid var(--lt-line);
+  }
+
+  .lt-pricing-compare-row th,
+  .lt-pricing-compare-row td {
+    padding: 10px 14px;
+    color: var(--lt-ink);
+    text-align: left;
+    font-weight: 400;
+  }
+
+  .lt-pricing-compare-row td.lt-pricing-cell--no {
+    color: var(--lt-ink-3);
+  }
+
+  .lt-pricing-compare-row td.lt-pricing-cell--premium {
+    color: var(--lt-green-deep);
+    font-weight: 600;
+  }
+
+  .lt-pricing-fairuse {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lt-pricing-fairuse-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+  }
+
+  .lt-pricing-fairuse-text,
+  .lt-pricing-fine-print {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--lt-ink-2);
+  }
+
+  /* ── FAQ ───────────────────────────────────────────────────────────────── */
+  .lt-pricing-faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .lt-pricing-faq-item {
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-faq-q {
+    margin: 0;
+    font-weight: 700;
+    color: var(--lt-ink);
+  }
+
+  .lt-pricing-faq-a {
+    margin: 0;
+    color: var(--lt-ink-body);
+  }
+
+  details.lt-pricing-faq-item {
+    padding: 0 14px;
+  }
+
+  details.lt-pricing-faq-item > summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  details.lt-pricing-faq-item[open] > .lt-pricing-faq-a {
+    padding-bottom: 14px;
+  }
+
+  .lt-pricing-mark-guide {
+    margin: 8px 0 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--lt-ink-body);
+    overflow-wrap: anywhere;
+  }
+
+  .lt-pricing-mark-guide a {
+    padding: 14px 0;
+    font-weight: 700;
+  }
+
+  .lt-pp-more > summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.84rem;
+    color: var(--lt-green-deep);
+  }
+
+  .lt-pp-more[open] > summary {
+    margin-bottom: 8px;
+  }
+
+  /* ── Basic, last line ──────────────────────────────────────────────────── */
+  .lt-pp-basicline {
+    margin-top: 10px;
+    padding: 6px 0;
+    border-top: 1px solid var(--lt-line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.8125rem;
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pp-basicline strong {
+    color: var(--lt-ink-body);
+  }
+
+  .lt-pp-startfree {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    color: var(--lt-green-deep);
+    font: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Other boards: folded away at the very bottom. */
+  .lt-pricing-otherboards {
+    text-align: center;
+  }
+
+  .lt-pricing-otherboards-summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    color: var(--lt-ink-2);
+    font-size: 0.84rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .lt-pricing-coming,
+  .lt-pricing-waitlist {
+    margin-top: 12px;
+    padding: 20px 16px;
+    border-radius: 16px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+  }
+
+  .lt-pricing-coming-title,
+  .lt-pricing-waitlist-title {
+    margin: 0 0 8px;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+  }
+
+  .lt-pricing-coming-lede,
+  .lt-pricing-waitlist-lede {
+    margin: 0 auto 14px;
+    max-width: 540px;
+    color: var(--lt-ink-2);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .lt-pricing-coming-chips {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lt-pricing-coming-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--lt-mint);
+    border: 1px solid var(--lt-tile-line);
+    color: var(--lt-ink);
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+
+  .lt-pricing-waitlist-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .lt-pricing-waitlist-input,
+  .lt-pricing-waitlist-select {
+    font-family: inherit;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-ink-3);
+    color: var(--lt-ink);
+    font-size: 0.9rem;
+  }
+
+  .lt-pricing-waitlist-cta {
+    appearance: none;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    font: inherit;
+    font-weight: 700;
+  }
+
+  .lt-pricing-waitlist-success {
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--lt-mint);
+    border: 1px solid var(--lt-tile-line);
+  }
+
+  .lt-pricing-waitlist-success-title {
+    margin: 0;
+    color: var(--lt-green-deep);
+    font-weight: 700;
+  }
+
+  .lt-pricing-waitlist-success-sub {
+    margin: 0;
+    color: var(--lt-ink-2);
+    font-size: 0.88rem;
+  }
+
+  /* ── Tablet: same single column, more air ──────────────────────────────── */
+  @media (min-width: 600px) {
+    .lt-pricing-band {
+      padding: 16px 24px 72px;
+    }
+    .lt-pricing-title {
+      font-size: 1.9rem;
+    }
+    .lt-pricing-body {
+      padding: 0 24px 56px;
+      max-width: 720px;
+    }
+    .lt-pp-pass,
+    .lt-pp-cbq {
+      padding: 20px;
+    }
+    .lt-pp-row__line--short {
+      display: none;
+    }
+  }
+
+  /* ── Desktop (1024 px and up): the Option B desktop grid ───────────────── */
+  @media (min-width: 1024px) {
+    .lt-pricing-band {
+      padding: 18px 32px 104px;
+    }
+    .lt-pp-topbar {
+      display: flex;
+      gap: 28px;
+    }
+    .lt-pp-brand {
+      order: -1;
+      margin-right: auto;
+      font-size: 1.375rem;
+    }
+    .lt-pp-topbar .ux-return-bar__back {
+      font-size: 0.875rem;
+    }
+    .lt-pp-login {
+      color: var(--lt-on-dark);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    .lt-pricing-title {
+      margin-top: 12px;
+      font-size: 2.5rem;
+    }
+    .lt-pp-cred {
+      border: 1px solid #2e5a4a;
+      background: #10302a;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.84rem;
+    }
+    .lt-pricing-body {
+      max-width: 1184px;
+      margin-top: -80px;
+      padding: 0 32px 64px;
+      gap: 24px;
+    }
+    .lt-pp-pass {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: 32px;
+      padding: 28px;
+      border-radius: 22px;
+      box-shadow: 0 12px 32px rgba(11, 27, 58, 0.12);
+    }
+    .lt-pp-pass__main {
+      gap: 12px;
+    }
+    .lt-pp-pass__head {
+      justify-content: flex-start;
+      gap: 12px;
+    }
+    .lt-pp-pass__name {
+      font-size: 2.125rem;
+    }
+    .lt-pp-ticks {
+      font-size: 0.97rem;
+      gap: 8px;
+    }
+    .lt-pricing-tillboards-amount {
+      font-size: 2.875rem;
+    }
+    .lt-pricing-tillboards-meta {
+      font-size: 0.94rem;
+    }
+    .lt-pricing-tillboards-deadline {
+      font-size: 0.875rem;
+    }
+    .lt-pricing-passes {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .lt-pricing-passes > .lt-pricing-checkout-note,
+    .lt-pricing-passes > .lt-pricing-month,
+    .lt-pricing-passes > .lt-pricing-manual,
+    .lt-pricing-passes .lt-pricing-checkout > .lt-pricing-checkout-note,
+    .lt-pricing-passes .lt-pricing-checkout > div {
+      flex: 1 1 100%;
+    }
+    .lt-pricing-pay {
+      width: auto;
+      flex: 0 0 auto;
+      min-width: 250px;
+      min-height: 54px;
+      font-size: 1.06rem;
+    }
+    .lt-pp-parents {
+      flex: 1 1 auto;
+    }
+    .lt-pp-parents .lt-paywall-parent {
+      min-height: 54px;
+      flex: 0 1 auto;
+      font-size: 0.94rem;
+      padding: 0 16px;
+    }
+    .lt-pp-payline {
+      text-align: left;
+      font-size: 0.8125rem;
+    }
+    .lt-pp-paper {
+      font-size: 0.875rem;
+      padding-top: 10px;
+    }
+    .lt-pricing-trial-slot {
+      align-items: flex-start;
+    }
+    .lt-pp-trial {
+      padding-left: 0;
+      font-size: 0.8125rem;
+    }
+    .lt-pp-pass__proof {
+      display: flex;
+      flex-direction: column;
+      background: var(--lt-ink);
+      color: var(--lt-on-dark);
+      border-radius: 16px;
+      padding: 18px;
+      align-self: start;
+    }
+    .lt-pp-pass__proof .lt-tv {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .lt-pp-pass__proof .lt-tv__frame {
+      order: -1;
+    }
+    .lt-pp-pass__proof .lt-tv__title {
+      margin: 0;
+      color: var(--lt-on-dark);
+      font-size: 1.3rem;
+    }
+    .lt-pp-pass__proof .lt-tv__lede {
+      margin: 0;
+      color: var(--lt-band-sub);
+    }
+    .lt-pp-pass__proof .lt-tv__transcript summary,
+    .lt-pp-pass__proof .lt-tv__transcript p {
+      color: var(--lt-band-sub);
+    }
+    .lt-pp-proof--phone {
+      display: none;
+    }
+    .lt-pp-cbq {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: 28px;
+      align-items: center;
+      padding: 22px 28px;
+      border-radius: 20px;
+    }
+    .lt-pp-cbq__head {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 14px;
+    }
+    .lt-pp-cbq__title {
+      font-size: 1.875rem;
+    }
+    .lt-pp-cbq__price {
+      font-size: 1.75rem;
+    }
+    .lt-pp-cbq__top {
+      justify-content: flex-start;
+    }
+    .lt-pp-cbq__body {
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+    .lt-pp-buy {
+      min-height: 52px;
+      font-size: 0.97rem;
+    }
+    .lt-pp-packs {
+      margin-top: 20px;
+    }
+    .lt-pp-packs .lt-pp-h2 {
+      font-size: 2rem;
+    }
+    .lt-pp-sub {
+      font-size: 0.94rem;
+    }
+    .lt-pp-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      align-items: stretch;
+    }
+    .lt-pp-card {
+      padding: 20px;
+      gap: 10px;
+      border-radius: 18px;
+    }
+    .lt-pp-card__name {
+      font-size: 1.125rem;
+    }
+    .lt-pp-card__price {
+      font-size: 1.875rem;
+    }
+    .lt-pp-card--bundle .lt-pp-card__body {
+      flex-grow: 1;
+    }
+    .lt-pp-card--chapter .lt-pp-buy {
+      margin-top: auto;
+    }
+    .lt-pp-one {
+      padding: 20px;
+      gap: 12px;
+    }
+    .lt-pp-one__toggle {
+      display: none;
+    }
+    .lt-pp-one__title {
+      display: block;
+    }
+    .lt-pp-one__body,
+    .lt-pp-one.is-open .lt-pp-one__body {
+      display: flex;
+      padding: 0;
+      border-top: 0;
+      gap: 12px;
+    }
+    .lt-pp-one__for {
+      padding-top: 0;
+    }
+    .lt-pp-row {
+      border-top: 1px solid var(--lt-line);
+      padding-top: 12px;
+    }
+    .lt-pp-row__line--long {
+      display: none;
+    }
+    .lt-pp-row__line--short {
+      display: block;
+    }
+    .lt-pp-lower {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 24px;
+      align-items: start;
+      margin-top: 20px;
+    }
+    .lt-pp-lower .lt-pp-h2 {
+      font-size: 1.625rem;
+    }
+    .lt-pp-table {
+      font-size: 0.875rem;
+    }
+    .lt-pp-table thead th,
+    .lt-pp-table tbody th,
+    .lt-pp-table tbody td {
+      padding: 12px 10px;
+    }
+    .lt-pp-table thead th:first-child,
+    .lt-pp-table tbody th {
+      padding-left: 18px;
+    }
+    .lt-pp-table col.lt-pp-col-label {
+      width: 40%;
+    }
+    .lt-pricing-faq-item {
+      font-size: 0.9rem;
+      padding: 16px;
+    }
+    .lt-pp-basicline {
+      font-size: 0.9rem;
+      padding: 12px 0;
+    }
+  }
+`;

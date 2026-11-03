@@ -86,12 +86,11 @@ function renderPricing() {
   );
 }
 
-/** The Premium card — the one whose features list is labelled "Premium plan features". */
+/** The Board Pass card (PRICING-B-1). */
 function premiumCard(): HTMLElement {
-  const list = screen.getByRole("list", { name: "Premium plan features" });
-  return list.closest(".lt-pricing-card") as HTMLElement;
+  return screen.getByTestId("pricing-board-pass");
 }
-const trialButton = () => screen.queryByRole("button", { name: "Start 7-day trial" });
+const trialButton = () => screen.queryByRole("button", { name: "Try the Board Pass free for 7 days" });
 /** The state sentence (the role=status paragraph — the sibling <style> is not text). */
 const trialMsg = () => screen.getByRole("status").textContent;
 const trialStarts = () => track.mock.calls.filter(([name]) => name === "trial_start").length;
@@ -116,9 +115,9 @@ describe("T2 · signed out — the render is unchanged", () => {
     renderPricing();
     const btn = trialButton();
     expect(btn).not.toBeNull();
-    // Byte-for-byte the pre-lane element: no disabled attribute, no wrapper, no state.
+    // PRICING-B-1: the owner's wording; the same action (payments dark in tests -> the primary style), no disabled attribute.
     expect(btn!.outerHTML).toBe(
-      '<button type="button" class="lt-pricing-cta lt-pricing-cta--primary">Start 7-day trial</button>',
+      '<button type="button" class="lt-pricing-cta lt-pricing-cta--primary" data-testid="pricing-trial">Try the Board Pass free for 7 days</button>',
     );
     expect(screen.queryByTestId("pricing-trial-state")).toBeNull();
 
@@ -217,13 +216,13 @@ describe("T2 · signed in", () => {
     expect(trialStarts()).toBe(0);
   });
 
-  it("premium → no button; \"Premium is active.\"", async () => {
+  it("premium → no button; \"Your Board Pass is active.\" (PRICING-B-1: one product name)", async () => {
     cloudHolds(PREMIUM);
     authState.user = { uid: UID };
     renderPricing();
     await act(async () => {});
     expect(trialButton()).toBeNull();
-    expect(trialMsg()).toBe("Premium is active.");
+    expect(trialMsg()).toBe("Your Board Pass is active.");
     expect(activate).not.toHaveBeenCalled();
   });
 });
