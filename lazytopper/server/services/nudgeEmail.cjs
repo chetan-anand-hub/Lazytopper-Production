@@ -1319,7 +1319,14 @@ function createNudgeEmailer(deps = {}) {
       await runConcierge({ summary, skip, nowMs, day, phase: 'checkout_help', state: conciergeState });
       // PACK-NUDGE-PRIORITY-1: a buyer who has not opened their pack is also served BEFORE d1/d3/founding, so a
       // morning of "Where you left off" mail cannot fill the shared daily cap and starve people who paid.
-      let capFull = await runPackNudge({ summary, skip, nowMs, day });
+      // A failure inside the pack phase must not abort d1/d3 (review note): log it and carry on.
+      let capFull = false;
+      try {
+        capFull = await runPackNudge({ summary, skip, nowMs, day });
+      } catch (e) {
+        skip('pack-phase-error');
+        log(`[nudge-email] pack phase failed: ${e && e.message ? e.message : 'error'}`);
+      }
       const cohort = new Map();
       for (const r of ranges) {
         const qs = await adminFirestore
