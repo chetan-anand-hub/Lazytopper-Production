@@ -6,6 +6,7 @@ import { trackNamedEvent, type NamedAnalyticsEvent } from "../analytics/analytic
 import { useReturnTicket } from "../components/navigation/ReturnTicket";
 import { MathText } from "../components/question/MathText";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import { pricingPacksHref } from "../lib/packs/packLinks";
 import { ncertCode, ncertPracticePath, ncertReadPath, ncertRowsForSlug } from "../config/ncertBooks";
 import {
   BOARD_PATTERN_HEADING,
@@ -391,7 +392,7 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           an independent platform and is not affiliated with CBSE or NCERT.
         </p>
       </div>
-      <PublicLegalFooter />
+      <PublicLegalFooter packsHref={pricingPacksHref({ chapter: bank, subject: ch.subject })} />
     </main>
   );
 }

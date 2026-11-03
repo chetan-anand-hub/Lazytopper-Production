@@ -109,12 +109,12 @@ describe("practice-cbq variant", () => {
 });
 
 describe("check variant", () => {
-  it("signed out: Board Pass first, then PDF packs -> /packs", () => {
+  it("signed out: Board Pass first, then PDF packs -> /pricing#packs", () => {
     setSearch("");
     ui("check");
     const links = screen.getByTestId("landing-offer").querySelectorAll("a");
     expect(links[0].getAttribute("href")).toBe(BOARD_PASS_BUY_PATH);
-    expect(links[1].getAttribute("href")).toBe("/packs");
+    expect(links[1].getAttribute("href")).toBe("/pricing#packs");
     expect(links[1].textContent).toContain("from ₹49");
     expect(track).toHaveBeenCalledWith("sale_moment_shown", { surface: "landing-check", offer: "board_pass" });
   });

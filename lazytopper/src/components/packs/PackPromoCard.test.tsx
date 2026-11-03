@@ -57,9 +57,9 @@ describe("PackPromoCard render", () => {
 });
 
 describe("promoHref (AD-LANDING-OFFER-1)", () => {
-  it("the two ad landings go one hop to /packs; the rest keep /pricing#packs", () => {
-    expect(promoHref("practice_hub")).toBe("/packs");
-    expect(promoHref("check_improve")).toBe("/packs");
+  it("every surface goes to /pricing#packs (LINKS-1)", () => {
+    expect(promoHref("practice_hub")).toBe("/pricing#packs");
+    expect(promoHref("check_improve")).toBe("/pricing#packs");
     expect(promoHref("home")).toBe("/pricing#packs");
     expect(promoHref("quick_practice")).toBe("/pricing#packs");
   });

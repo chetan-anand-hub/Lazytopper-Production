@@ -417,8 +417,8 @@ function activityLine(counts) {
 
 /** One short PDF-packs line for the d1 / d3 nudges. UTM only; no uid, email or other student data in the URL. */
 function packsPara(appUrl, campaign) {
-  const label = 'Want printed practice? Chapter packs from ₹49 → lazytopper.com/packs';
-  return { t: label, links: [{ label, url: `${appUrl}/packs?utm_source=email&utm_medium=email&utm_campaign=${campaign}&utm_content=packs` }] };
+  const label = 'Want printed practice? Chapter packs from ₹49 → lazytopper.com/pricing';
+  return { t: label, links: [{ label, url: `${appUrl}/pricing?utm_source=email&utm_medium=email&utm_campaign=${campaign}&utm_content=packs#packs` }] };
 }
 
 /**

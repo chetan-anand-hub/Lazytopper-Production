@@ -4,6 +4,7 @@ import { CbqPackCta, CbqPremiumCta } from "../../components/cbq/CbqCtas";
 import { CBQ_HUB_PATH, cbqChapterH1, cbqTopicBySlug } from "../../components/cbq/cbqSeo";
 import { useCbqSamples } from "../../components/cbq/useCbqSamples";
 import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
+import { pricingPacksHref } from "../../lib/packs/packLinks";
 import "./cbqSeo.css";
 
 /** The existing CBQ practice entry: the Practice Hub with its CBQ chapter chooser open (`?cbq=1`, DesktopPracticePage CBQ_HUB_PARAM). */
@@ -71,7 +72,7 @@ export default function CbqChapterPage() {
 
         <p className="lt-cbqs__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>
       </div>
-      <PublicLegalFooter />
+      <PublicLegalFooter packsHref={pricingPacksHref({ chapter: topic.slug, subject })} />
     </main>
   );
 }

@@ -98,7 +98,7 @@ const FOOTER_CSS = `
  *                  parents page), and the external social links are untouched. Unset (every
  *                  other page) the footer renders exactly as before.
  */
-export default function PublicLegalFooter({ className, fromParents = false }: { className?: string; fromParents?: boolean }) {
+export default function PublicLegalFooter({ className, fromParents = false, packsHref = "/pricing#packs" }: { className?: string; fromParents?: boolean; packsHref?: string }) {
   // CBSE-PAGE-1 — the return ticket for the CBSE link below. This footer renders on
   // three different surfaces, so the origin is read, never assumed. No backLabel is
   // passed: a site-wide row cannot honestly name where it was clicked from, and the
@@ -126,7 +126,7 @@ export default function PublicLegalFooter({ className, fromParents = false }: { 
       {/* PARENTS-1 — the parent landing page, same crawl-path reason as the guide above. */}
       <Link to="/for-parents">For parents</Link>
       {/* PACKS-ENTRY-1 (c) — a quiet link to the PDF packs, beside the legal links (this footer has no Pricing link). Flag off: absent. */}
-      <PacksEntry kind="footer-link" href={to("/pricing#packs")} />
+      <PacksEntry kind="footer-link" href={to(packsHref)} />
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={to(`/legal/${slug}`)}>
           {label}

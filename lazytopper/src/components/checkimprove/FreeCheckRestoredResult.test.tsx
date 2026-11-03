@@ -96,14 +96,14 @@ describe("FreeCheckRestoredResult", () => {
     expect(track.mock.calls.filter(([n]) => n === "free_check_result_restored")).toHaveLength(1);
   });
 
-  it("purchase line: Board Pass to /pricing, CBQ Pack to /packs?pack=cbq, prices from config, tap fires the event", () => {
+  it("purchase line: Board Pass to /pricing, CBQ Pack to the one-tap checkout of THIS result's subject, prices from config, tap fires the event", () => {
     const { container } = mount(SINGLE);
     const buy = freeCheckBuyCopy(Date.now(), true);
     expect(buy.boardPassLink).toContain(boardPassPriceDisplay());
     expect(buy.packLink).toContain("199");
     expect(screen.getByTestId("free-check-restored-buy-pass").getAttribute("href")).toBe("/pricing");
     const pack = screen.getByTestId("free-check-restored-buy-pack");
-    expect(pack.getAttribute("href")).toBe("/packs?pack=cbq");
+    expect(pack.getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths"); // LINKS-1: SINGLE is a Maths result
     expect(screen.getByTestId("free-check-restored-buy").textContent).not.toMatch(/599|999|save \d+%/i);
     fireEvent.click(pack);
     expect(track).toHaveBeenCalledWith("free_check_result_restored_buy_click");

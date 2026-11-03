@@ -18,6 +18,7 @@ import {
 import { EquationRender } from "../equation";
 import { StepAnnotation } from "../results/StepAnnotation";
 import { isPacksEntryEnabled } from "../../lib/packs/packEntry";
+import { cbqPackHref } from "../../lib/packs/packLinks";
 
 /**
  * ACT-FREECHECK-1 — a signed-out visitor's free answer was graded, they signed up "to keep
@@ -201,7 +202,7 @@ function OneQuestion({
   );
 }
 
-function BuyLine() {
+function BuyLine({ subject }: { subject: string | null | undefined }) {
   const copy = freeCheckBuyCopy();
   const onTap = () => trackNamedEvent("free_check_result_restored_buy_click");
   return (
@@ -213,7 +214,7 @@ function BuyLine() {
       {copy.packLine && copy.packLink && (
         <>
           <p className="lt-fr__buyline">{copy.packLine}</p>
-          <Link className="lt-fr__buylink" to="/packs?pack=cbq" onClick={onTap} data-testid="free-check-restored-buy-pack">
+          <Link className="lt-fr__buylink" to={cbqPackHref(subject)} onClick={onTap} data-testid="free-check-restored-buy-pack">
             {copy.packLink}
           </Link>
         </>
@@ -262,7 +263,7 @@ export function FreeCheckRestoredResult({ result, showBuy }: { result: PendingFr
           ))}
         </>
       )}
-      {showBuy && <BuyLine />}
+      {showBuy && <BuyLine subject={result?.subject} />}
     </div>
   );
 }
