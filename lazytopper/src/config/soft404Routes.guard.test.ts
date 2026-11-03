@@ -275,13 +275,18 @@ describe("SOFT404-1 — everything except the shell rules is exactly as it was",
       { source: `${RETIRED}/:path((?!assets/).*)`, destination: "/:path", permanent: true },
     ]);
     const RAILWAY = "https://lazytopper-production-production.up.railway.app";
-    expect(vercel.rewrites.slice(0, 4)).toEqual([
+    // GOOGLE-REDIRECT-1 — the Firebase auth handler served from our own domain (reverse proxy,
+    // Firebase "Best practices for using signInWithRedirect"), BEFORE every shell rule.
+    const FIREBASE_HOSTING = "https://lazzyy-topper.firebaseapp.com";
+    expect(vercel.rewrites.slice(0, 6)).toEqual([
       { source: "/api/:path*", destination: `${RAILWAY}/api/:path*` },
       { source: "/shared-api/:path*", destination: `${RAILWAY}/shared-api/:path*` },
       { source: `${RETIRED}/assets/:path(.*)`, destination: "/__asset-not-found__" },
       { source: "/assets/:path(.*)", destination: "/__asset-not-found__" },
+      { source: "/__/auth/:path*", destination: `${FIREBASE_HOSTING}/__/auth/:path*` },
+      { source: "/__/firebase/:path*", destination: `${FIREBASE_HOSTING}/__/firebase/:path*` },
     ]);
-    expect(vercel.rewrites.length).toBe(4 + shellRules.length);
+    expect(vercel.rewrites.length).toBe(6 + shellRules.length);
     expect(vercel.headers).toEqual([
       { source: "/__shell.html", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
       {

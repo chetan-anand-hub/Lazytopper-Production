@@ -11,6 +11,8 @@ import {
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -39,6 +41,13 @@ import { sendVisitSourceIfNewUser, sendVisitSourceOnSignUp } from "../analytics/
 import { startTrialForNewAccount, startTrialIfNewAccount } from "../services/newAccountTrial";
 import { startOutboxSync } from "../services/sessionRecordsOutbox";
 import SaveStatusToast from "../components/common/SaveStatusToast";
+import {
+  clearSigninIntent,
+  hasSigninIntent,
+  readSigninIntent,
+  setRedirectOutcome,
+  type GoogleFlow,
+} from "../services/signinIntent";
 
 export type AuthUser = {
   uid: string;
@@ -91,7 +100,12 @@ type AuthContextType = {
   phoneRecaptchaStatus: PhoneRecaptchaStatus;
   mistakeLogsHydrated: number;
   getToken: () => Promise<string | null>;
-  signInWithGoogle: () => Promise<void>;
+  /**
+   * GOOGLE-REDIRECT-1 — `flow` is a PARAMETER, not a new context key (the key set is pinned by
+   * exact equality; ~25 suites mock this module with full factories). Omitted = the popup,
+   * exactly as before. "redirect" leaves the page (the returned promise does not settle).
+   */
+  signInWithGoogle: (options?: { flow?: GoogleFlow }) => Promise<void>;
   signInWithEmailPassword: (email: string, password: string) => Promise<void>;
   signUpWithEmailPassword: (
     email: string,
@@ -194,6 +208,17 @@ function mapFirebaseUser(fbUser: FirebaseUser): AuthUser {
 // ("No <name> export is defined on the mock"). A helper exported from here is
 // therefore un-importable by any component those suites render.
 
+/**
+ * GOOGLE-REDIRECT-1 — read the redirect result at most ONCE per page load (module flag, so a
+ * StrictMode double-mount or a provider remount cannot read it twice).
+ */
+let redirectResultRead = false;
+
+/** Test seam only. */
+export function __resetRedirectResultReadForTests(): void {
+  redirectResultRead = false;
+}
+
 async function signOutOfFirebase(): Promise<void> {
   if (!authClient) return;
   try {
@@ -281,6 +306,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setFirebaseLoaded(true);
     });
     return () => unsubscribe();
+  }, []);
+
+  // GOOGLE-REDIRECT-1 — finish a Google sign-in that left the page by full-page redirect.
+  //
+  // Runs ONLY when the Login page wrote a sign-in intent just before leaving (services/
+  // signinIntent.ts), so a normal page load never loads the redirect resolver (LOW-END-1 L5).
+  // Here, at the provider, because the credential-level steps live here and must run exactly as
+  // they do for the popup: sign_up count, visit source, TRIAL-ON-SIGNUP-1 (isNewUser-gated, so a
+  // returning login never starts a trial) and the new-account landing mark. The outcome goes to
+  // the Login page through the signinIntent channel; Login owns navigation and telemetry.
+  // The decision is made on the RAW record (hasSigninIntent), before anything can delete it: Login's
+  // read never deletes, so even an intent past its 30-minute window still completes the sign-in.
+  // The intent is cleared here on error and on "no result"; on success the Login page clears it once
+  // it has used it, so a reload after success reads nothing.
+  useEffect(() => {
+    if (redirectResultRead) return;
+    if (!firebaseConfigured || !authClient || !hasSigninIntent()) return;
+    redirectResultRead = true;
+    const client = authClient;
+    setRedirectOutcome({ kind: "pending" });
+    void (async () => {
+      try {
+        const credential = await getRedirectResult(client, getPopupRedirectResolver());
+        if (!credential) {
+          clearSigninIntent();
+          setRedirectOutcome({ kind: "none" });
+          return;
+        }
+        trackSignUpIfNew(credential);
+        sendVisitSourceIfNewUser(credential);
+        startTrialIfNewAccount(credential);
+        markNewAccountLandingIfNew(credential);
+        // A record too old (or malformed) for the Login page to use is cleared here; a usable one
+        // is left for Login, which clears it once it has navigated.
+        if (!readSigninIntent()) clearSigninIntent();
+        setRedirectOutcome({ kind: "success" });
+      } catch (error) {
+        clearSigninIntent();
+        setRedirectOutcome({ kind: "error", error });
+      }
+    })();
   }, []);
 
   const user = firebaseUser || localUser;
@@ -372,10 +438,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = useCallback(async (options?: { flow?: GoogleFlow }) => {
     if (!authClient) throw new Error("Firebase Auth is not configured");
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
+    if (options?.flow === "redirect") {
+      // GOOGLE-REDIRECT-1 — the page navigates to Google; the credential steps below run for this
+      // sign-in in the getRedirectResult effect above, when Google sends the student back.
+      // A throw here (e.g. storage unavailable) reaches the caller, which falls back to the popup.
+      await signInWithRedirect(authClient, provider, getPopupRedirectResolver());
+      return;
+    }
     // LOW-END-1 (L5) — the popup resolver is no longer installed at Auth start-up (see
     // firebaseClient.ts), so it is passed here, the one call that needs it.
     const credential = await signInWithPopup(authClient, provider, getPopupRedirectResolver());

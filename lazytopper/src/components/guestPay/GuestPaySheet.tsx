@@ -16,6 +16,7 @@ import { trackNamedEvent } from "../../analytics/analytics";
 import { inAppBrowser } from "../../utils/inAppBrowser";
 import { buyAsGuest, maskIndianMobile, normaliseIndianMobile, tenDigits, type GuestBuyOutcome, type GuestItem } from "../../services/guestPay";
 import "./guestPaySheet.css";
+import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../../utils/indianMobileInput";
 
 export const GUEST_PAY_TITLE = "How do you want to pay?";
 export const GUEST_PAY_PHONE_CTA = "Pay now with your phone number";
@@ -162,10 +163,10 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
             type="tel"
             inputMode="numeric"
             autoComplete="tel-national"
-            maxLength={10}
+            maxLength={TYPED_MOBILE_MAX_LENGTH}
             value={digits}
             disabled={busy}
-            onChange={(e) => setDigits(e.target.value.replace(/\D/g, "").slice(0, 10))}
+            onChange={(e) => setDigits(normaliseTypedIndianMobile(e.target.value))}
             aria-describedby="lt-gps-hint"
             data-testid="guest-pay-input"
           />

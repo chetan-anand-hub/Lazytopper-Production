@@ -7,6 +7,7 @@ import {
   authErrorCode,
   describeAuthError,
   GOOGLE_POPUP_TIMEOUT_CODE,
+  GOOGLE_REDIRECT_NO_RESULT_CODE,
   GOOGLE_POPUP_TIMEOUT_MS,
   trackLoginAttempt,
   trackLoginError,
@@ -26,6 +27,29 @@ import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, newAccountGoesHome, takeNewAccountLanding } from "../services/newAccountLanding";
 import { BRAND_MARK_SRC } from "../config/brandMark";
+import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../utils/indianMobileInput";
+import {
+  chooseGoogleFlow,
+  clearSigninIntent,
+  currentAuthDomainIsThisHost,
+  currentGoogleSigninMode,
+  hasRedirectOptIn,
+  noteRedirectOptIn,
+  readSigninIntent,
+  resetRedirectOutcome,
+  saveSigninIntent,
+  subscribeRedirectOutcome,
+  type GoogleFlow,
+  type SigninIntent,
+} from "../services/signinIntent";
+
+/** GOOGLE-REDIRECT-1 — how long the page waits for the redirect result before giving the buttons back. */
+export const REDIRECT_RESULT_WAIT_MS = 20_000;
+/**
+ * GOOGLE-REDIRECT-1 — if the page is somehow still here this long after signInWithRedirect was
+ * called, the buttons come back (the intent is kept: the navigation may still be on its way).
+ */
+export const REDIRECT_START_GUARD_MS = 10_000;
 
 // INAPP-SIGNIN-1 — the UA check, the note and its CSS all live in this lazy chunk.
 const InAppSignin = lazy(() => import("../components/auth/InAppSigninBanner"));
@@ -1508,8 +1532,22 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     return () => observer.disconnect();
   }, []);
 
+  // GOOGLE-REDIRECT-1 — `/login?gsignin=redirect` opts this tab into the redirect test (dark unless
+  // VITE_GOOGLE_SIGNIN_MODE says so). Recorded once per mount; never throws.
+  useEffect(() => {
+    noteRedirectOptIn(location.search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // GOOGLE-REDIRECT-1 — the return trip from Google's page. The intent (written just before the
+  // redirect, services/signinIntent.ts) restores what the full-page navigation threw away: the
+  // target, the trial intent and the guest-pay flags (never a phone number). Null on every
+  // ordinary visit, and after use it is cleared, so a reload reports nothing twice.
+  const [returnIntent] = useState<SigninIntent | null>(() => readSigninIntent());
+  const returnIntentUsedRef = useRef(false);
+
   const reason = searchParams.get("reason");
-  const isStartTrial = reason === "start-trial";
+  const isStartTrial = reason === "start-trial" || returnIntent?.startTrial === true;
 
   const nextPath = useMemo(() => {
     if (searchParams.has("redirect")) {
@@ -1518,6 +1556,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     }
     const st = (location.state || {}) as LocationState;
     if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
+    // GOOGLE-REDIRECT-1 — back from Google: router state is gone; the intent kept the target.
+    if (returnIntent) return isSafeInternalPath(returnIntent.target) ? returnIntent.target : "/";
     // RETIREMENT PR-1: the fallback is now unconditionally "/" (RootEntry routes to the
     // live home per viewport). The /onboarding page is retired — a new signup lands on
     // the homepage, not the dark onboarding screen.
@@ -1531,7 +1571,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     // ?redirect= / state.from remain isSafeInternalPath-guarded above; a stale severed
     // target still resolves via the catch-all to "/", never stranding the user.
     return "/";
-  }, [location.state, searchParams]);
+  }, [location.state, searchParams, returnIntent]);
 
   // PAY-PHONE-1 - straight to the phone step (number prefilled) after paying with a phone number, after "Sign in with
   // phone first", or from the receipt email's `?method=phone` link. The number only ever comes from router state.
@@ -1550,11 +1590,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [phone, setPhone] = useState(guestPayDigits);
   const [phoneStep, setPhoneStep] = useState<"number" | "otp">("number");
   const [otp, setOtp] = useState("");
-  const [busy, setBusy] = useState(false);
+  // GOOGLE-REDIRECT-1 — back from Google: the buttons wait (disabled) for the redirect result.
+  const [busy, setBusy] = useState(() => returnIntent !== null);
+  // Which Google flow the attempt in flight used (telemetry `flow` only).
+  const googleFlowRef = useRef<GoogleFlow>(returnIntent ? "redirect" : "popup");
   // AUTH-SIGNAL-1 — the method of the attempt in flight, so the one successful-auth exit below
   // can report login_success for it. Null when no attempt was made on this page (an already
   // signed-in visitor passing through /login reports nothing).
-  const loginMethodRef = useRef<LoginMethod | null>(null);
+  const loginMethodRef = useRef<LoginMethod | null>(returnIntent ? "google" : null);
   // A Google attempt that timed out but may still finish. Kept apart from loginMethodRef so a
   // later email / phone attempt is never reported as Google (nor Google as email / phone).
   const lateGoogleRef = useRef(false);
@@ -1618,7 +1661,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
    * unclassified — AUTH-3's ruling is untouched; this lives one level in.
    */
   const [phoneMode, setPhoneMode] = useState<"new" | "returning">(
-    ((location.state || {}) as LocationState).guestPayExisting === true ? "returning" : "new",
+    ((location.state || {}) as LocationState).guestPayExisting === true || returnIntent?.guestPayExisting === true
+      ? "returning"
+      : "new",
   );
 
   // Set once the verify gate reports success. Without it the `user` effect,
@@ -1680,8 +1725,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     // Exactly one method is reported. If a timed-out Google attempt and a newer email / phone
     // attempt are both open, which one finished is unknowable, so nothing is reported.
     const method = loginMethodRef.current;
-    if (method && !lateGoogleRef.current) trackLoginSuccess(method);
-    else if (!method && lateGoogleRef.current) trackLoginSuccess("google");
+    if (method && !lateGoogleRef.current) trackLoginSuccess(method, method === "google" ? googleFlowRef.current : undefined);
+    else if (!method && lateGoogleRef.current) trackLoginSuccess("google", "popup");
     loginMethodRef.current = null;
     lateGoogleRef.current = false;
     // ACTIVATION-1 · L1 — verification no longer BLOCKS. The wall held a new email account
@@ -1706,7 +1751,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     // PAY-PHONE-1 - signed in right after paying with this number: attach the purchase now (AuthContext also does it
     // once per session; the claim is idempotent and de-duplicated while in flight).
     // Loaded on demand: the guest-pay client must stay out of the entry chunk (PERF-3 budget).
-    if (guestPayDigits && user.phoneNumber) {
+    if ((guestPayDigits || (returnIntent?.guestPayClaim === true && !returnIntentUsedRef.current)) && user.phoneNumber) {
       const uid = user.uid;
       void import("../services/guestPay").then((m) => m.claimOncePerSession(uid, { force: true })).catch(() => undefined);
     }
@@ -1730,7 +1775,13 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     const isNewAccount = takeNewAccountLanding();
     const explicitTarget = searchParams.has("redirect")
       ? searchParams.get("redirect")
-      : (((location.state || {}) as LocationState).from ?? null);
+      : (((location.state || {}) as LocationState).from ?? (returnIntent ? returnIntent.explicitTarget : null));
+    // GOOGLE-REDIRECT-1 — the intent has done its job; a reload or a later visit must not reuse it.
+    if (returnIntent && !returnIntentUsedRef.current) {
+      returnIntentUsedRef.current = true;
+      clearSigninIntent();
+      resetRedirectOutcome();
+    }
     navigate(isNewAccount && newAccountGoesHome(explicitTarget) ? NEW_ACCOUNT_LANDING_PATH : nextPath, { replace: true });
     // `subscription` is read when the effect runs; `awaitingTrialHydration` flipping
     // is what re-runs it once this uid's record has hydrated.
@@ -1798,13 +1849,129 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     setStep(next);
   };
 
+  // GOOGLE-REDIRECT-1 — the redirect result, as AuthContext read it (getRedirectResult runs there,
+  // once, only when an intent exists). Success needs nothing here: auth state changes and the `user`
+  // effect above navigates, reports login_success { flow: "redirect" } and clears the intent.
+  //   none  — a FRESH intent but no result: Back on Google's page (without bfcache) or a result lost
+  //           to storage partitioning. They cannot be told apart, so it is the safer of the two:
+  //           login_error "redirect-no-result" (once — the intent is then cleared) + the phone step.
+  //           (A bfcache Back never reaches here: the pageshow handler below releases that page.)
+  //   error — login_error with the code, the usual message, and SIGNIN-RESCUE-1's phone step.
+  // A result that never arrives (Firebase unconfigured, a hung read) gives the buttons back.
+  useEffect(() => {
+    if (!returnIntent) return;
+    let settled = false;
+    const release = () => {
+      if (settled || !mountedRef.current || signedInRef.current) return;
+      settled = true;
+      if (loginMethodRef.current === "google") loginMethodRef.current = null;
+      returnIntentUsedRef.current = true;
+      clearSigninIntent();
+      resetRedirectOutcome();
+      setBusy(false);
+    };
+    const fail = (err: unknown) => {
+      if (settled || !mountedRef.current || signedInRef.current) return;
+      trackLoginError("google", err, "redirect");
+      release();
+      goToStep("phone");
+      setError(describeAuthError(err) || describeAuthError(null));
+    };
+    const unsubscribe = subscribeRedirectOutcome((o) => {
+      if (o.kind === "none") fail({ code: GOOGLE_REDIRECT_NO_RESULT_CODE });
+      else if (o.kind === "error") fail(o.error);
+    });
+    const timer = window.setTimeout(release, REDIRECT_RESULT_WAIT_MS);
+    return () => {
+      unsubscribe();
+      window.clearTimeout(timer);
+    };
+    // Mount-only: the intent is read once per mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // GOOGLE-REDIRECT-1 — Back from Google's page restored from the back/forward cache: no reload, no
+  // redirect result, and the page is exactly as it was when it left (buttons disabled). Give the
+  // buttons back and drop the intent, so a later reload does not read a sign-in that never happened.
+  const redirectGuardRef = useRef<number | null>(null);
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted || signedInRef.current) return;
+      if (redirectGuardRef.current !== null) {
+        window.clearTimeout(redirectGuardRef.current);
+        redirectGuardRef.current = null;
+      }
+      if (googleFlowRef.current !== "redirect") return;
+      clearSigninIntent();
+      if (loginMethodRef.current === "google") loginMethodRef.current = null;
+      setBusy(false);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      if (redirectGuardRef.current !== null) window.clearTimeout(redirectGuardRef.current);
+    };
+  }, []);
+
+  /**
+   * GOOGLE-REDIRECT-1 — the full-page redirect. Returns true if the page is leaving for Google
+   * (the caller does nothing more), false if the redirect could not start: no intent could be
+   * written, or signInWithRedirect threw before navigating. The caller then uses the popup, once.
+   */
+  const startGoogleRedirect = async (): Promise<boolean> => {
+    const st = (location.state || {}) as LocationState;
+    const explicit = searchParams.has("redirect") ? searchParams.get("redirect") : (st.from ?? null);
+    const saved = saveSigninIntent({
+      target: nextPath,
+      explicitTarget: explicit,
+      from: st.from ?? null,
+      startTrial: isStartTrial,
+      // A FLAG only — the number stays in router state and is never written (guestPay.ts privacy note).
+      guestPayClaim: guestPayDigits !== "",
+      guestPayExisting: st.guestPayExisting === true,
+    });
+    if (!saved) return false;
+    googleFlowRef.current = "redirect";
+    trackLoginAttempt("google", "redirect");
+    try {
+      // The guard is armed before the call: in the browser signInWithRedirect never settles.
+      if (redirectGuardRef.current !== null) window.clearTimeout(redirectGuardRef.current);
+      redirectGuardRef.current = window.setTimeout(() => {
+        redirectGuardRef.current = null;
+        if (!mountedRef.current || signedInRef.current) return;
+        setBusy(false);
+      }, REDIRECT_START_GUARD_MS);
+      await signInWithGoogle({ flow: "redirect" });
+      return true;
+    } catch (err) {
+      if (redirectGuardRef.current !== null) {
+        window.clearTimeout(redirectGuardRef.current);
+        redirectGuardRef.current = null;
+      }
+      clearSigninIntent();
+      trackLoginError("google", err, "redirect");
+      return false;
+    }
+  };
+
   const handleGoogle = async () => {
     if (busy) return;
     setError(null);
     setBusy(true);
     loginMethodRef.current = "google";
     lateGoogleRef.current = false;
-    trackLoginAttempt("google");
+    const flow = chooseGoogleFlow({
+      mode: currentGoogleSigninMode(),
+      optedIn: hasRedirectOptIn(),
+      inApp: currentGooglePopupMayHang(),
+      // Review of #1505: a redirect only survives storage partitioning when the authDomain IS this
+      // host (the /__/auth proxy). Until VITE_FIREBASE_AUTH_DOMAIN is switched, everyone keeps the popup.
+      sameHost: currentAuthDomainIsThisHost(),
+    });
+    if (flow === "redirect" && (await startGoogleRedirect())) return;
+    // The popup — today's path. Also the one-time fallback when the redirect could not start.
+    googleFlowRef.current = "popup";
+    trackLoginAttempt("google", "popup");
     // AUTH-SIGNAL-1 — a popup that never reports back (some in-app browsers and custom tabs)
     // must not leave every button disabled. After GOOGLE_POPUP_TIMEOUT_MS the buttons come back
     // with a message pointing at phone / email. If the popup does finish later, auth state still
@@ -1827,7 +1994,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       } else if (loginMethodRef.current === "google") {
         loginMethodRef.current = null;
       }
-      trackLoginError("google", err);
+      trackLoginError("google", err, "popup");
       const message = describeAuthError(err);
       setBusy(false);
       if (shouldRescueToPhone(err)) {
@@ -2684,10 +2851,10 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                           type="tel"
                           inputMode="numeric"
                           autoComplete="tel-national"
-                          maxLength={10}
+                          maxLength={TYPED_MOBILE_MAX_LENGTH}
                           placeholder="10-digit mobile number"
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          onChange={(e) => setPhone(normaliseTypedIndianMobile(e.target.value))}
                         />
                       </div>
                       <p className="lt-login-note">

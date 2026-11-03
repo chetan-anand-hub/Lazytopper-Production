@@ -31,12 +31,19 @@ export default function InAppSignin() {
   const ios = !android && isIosUserAgent(ua);
   const intent = android ? chromeIntentUrl(href) : null;
   const name = APP_NAME[app];
+  // GOOGLE-REDIRECT-1 — phone first, then the way out of the app. Google is never redirected
+  // from here: the redirect flow skips in-app browsers, which keep this note and phone-first.
+  const where = app === "other-webview" ? name : `the ${name} app`;
+  const wayOut = android
+    ? "or open in Chrome."
+    : ios
+      ? "or tap ⋯ → Open in Safari."
+      : "or tap ⋯ → Open in browser.";
 
   return (
     <div className="lt-inapp lt-inapp-banner" role="note" data-testid="inapp-signin-banner">
       <p className="lt-inapp-text">
-        Google sign-in doesn't work inside {name}.{" "}
-        {ios ? "Tap ⋯ → Open in Safari, or use your phone number below." : "Tap ⋯ → Open in browser, or use your phone number below."}
+        Google sign-in doesn't work inside {where}. Use your phone number below, {wayOut}
       </p>
       {intent ? (
         <a className="lt-inapp-btn" href={intent}>

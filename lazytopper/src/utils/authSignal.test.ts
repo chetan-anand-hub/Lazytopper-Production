@@ -118,10 +118,36 @@ describe("login telemetry", () => {
       ["login_error", { method: "google", ua_class: "inapp_youtube", error_code: "popup-blocked" }],
     ]);
   });
+  it("GOOGLE-REDIRECT-1: a Google flow rides along as `flow` when given; nothing else changes", () => {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+    );
+    track.mockClear();
+    trackLoginAttempt("google", "redirect");
+    trackLoginSuccess("google", "popup");
+    trackLoginError("google", { code: "auth/network-request-failed" }, "redirect");
+    trackLoginAttempt("email");
+    expect(track.mock.calls).toEqual([
+      ["login_attempt", { method: "google", ua_class: "desktop", flow: "redirect" }],
+      ["login_success", { method: "google", ua_class: "desktop", flow: "popup" }],
+      ["login_error", { method: "google", ua_class: "desktop", error_code: "network-request-failed", flow: "redirect" }],
+      ["login_attempt", { method: "email", ua_class: "desktop" }],
+    ]);
+  });
   it("a failing sender never throws into the sign-in", () => {
     track.mockImplementationOnce(() => {
       throw new Error("analytics down");
     });
     expect(() => trackLoginAttempt("email")).not.toThrow();
+  });
+});
+
+describe("GOOGLE-REDIRECT-1 · redirect-no-result", () => {
+  it("has its own slug, message and the phone rescue", async () => {
+    const m = await import("./authSignal");
+    const err = { code: m.GOOGLE_REDIRECT_NO_RESULT_CODE };
+    expect(m.telemetryErrorCode(err)).toBe("redirect-no-result");
+    expect(m.describeAuthError(err)).toBe(m.GOOGLE_REDIRECT_NO_RESULT_MESSAGE);
+    expect(m.shouldRescueToPhone(err)).toBe(true);
   });
 });
