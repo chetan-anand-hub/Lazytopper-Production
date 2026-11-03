@@ -40,7 +40,8 @@ export interface TrialEndScreenInput extends TrialEndFeedbackInput {
 /**
  * The trial key (its server-set start) when the screen applies to this state, else null. Same
  * conditions as the feedback card — a signed-in student, hydrated cloud record, trial ended, not
- * paid, trial identifiable — plus an allowed route.
+ * paid, trial identifiable, and (TRIAL-CLOCK-1) its start at least TRIAL_DAYS behind this
+ * device's clock, never `tier === "free"` alone — plus an allowed route.
  */
 export function trialEndScreenKey(input: TrialEndScreenInput): string | null {
   if (!trialEndScreenPathAllowed(input.pathname)) return null;
