@@ -965,8 +965,12 @@ export type NamedAnalyticsEvent =
   | "guest_pay_paid"
   | "guest_pay_claimed";
 
-export function trackNamedEvent(name: NamedAnalyticsEvent): void {
-  send("event", { name });
+/**
+ * CHECKOUT-WHO-1 - an optional `recipient: "self" | "other"` (who the purchase is for: the signed-in buyer themselves, or a
+ * recipient typed into "Who will use it?"). The ONLY param a named event may carry here; no data -> the call is unchanged.
+ */
+export function trackNamedEvent(name: NamedAnalyticsEvent, data?: { recipient: "self" | "other" }): void {
+  send("event", data ? { name, data: { recipient: data.recipient } } : { name });
 }
 
 /**

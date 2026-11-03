@@ -12,7 +12,7 @@
  * ★ SIGNED-OUT -> SIGN IN FIRST (Z3), returning to a FIXED internal path (/pricing) —
  * no caller-supplied destination ever reaches the redirect.
  */
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -33,7 +33,24 @@ import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
-import { isGuestPayClientEnabled, type GuestSigninState } from "../../services/guestPay";
+import { isGuestPayClientEnabled, maskIndianMobile, type GuestSigninState } from "../../services/guestPay";
+import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
+import { maskEmail } from "../../services/checkoutWho";
+
+/** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Pay is tapped. */
+const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
+
+/**
+ * CHECKOUT-WHO-1 - set ONLY while VITE_CHECKOUT_WHO_ENABLED is on. Then the Board Pass Pay (and the ?buy= one-tap start) opens
+ * the shared "Who will use it?" sheet first: signed in, its "Pay" runs the unchanged checkout below; signed out / someone else,
+ * the sheet pays as a recipient purchase. Absent (flag off): every path below is exactly as before.
+ */
+export interface PassWhoWiring {
+  selfMasked: string | null;
+  onSignIn: () => void;
+  onSignInWithNumber: (tenDigitNumber: string) => void;
+  onSignInWithEmail: () => void;
+}
 import "./passCheckoutRepay.css";
 import {
   newCheckoutAttemptId,
@@ -165,6 +182,8 @@ export interface PassCheckoutViewProps {
    * hydrated, non-Premium student who arrived on /pricing?buy=board_pass (and has already removed that param). Never repeats on re-render.
    */
   autoStart?: boolean;
+  /** CHECKOUT-WHO-1 - see PassWhoWiring. Undefined = today's flow. */
+  who?: PassWhoWiring;
 }
 
 /**
@@ -191,7 +210,10 @@ export function PassCheckoutView({
   pendingHoldMs = PAY_PENDING_TTL_MS,
   packCredit = null,
   autoStart = false,
+  who,
 }: PassCheckoutViewProps) {
+  /** CHECKOUT-WHO-1 - the "Who will use it?" sheet is open (only ever with `who`). */
+  const [whoOpen, setWhoOpen] = useState(false);
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -285,12 +307,18 @@ export function PassCheckoutView({
     setRecovery("confirming");
   }
 
-  async function handleBuy(passType: PassType, opts: { resumed?: boolean } = {}) {
+  async function handleBuy(passType: PassType, opts: { resumed?: boolean; fromWho?: boolean } = {}) {
     if (busy || recovery !== null) return;
     const details = checkoutEventDetails(passType, offerOpen);
     // BUY-PATH-1: `begin_checkout` at the TAP, signed in or not (a signed-out tap used to return before any event).
-    // ONE call per tap: the signed-in path below no longer sends its own.
-    trackBeginCheckoutTap(details, signedIn, opts.resumed === true);
+    // ONE call per tap: the signed-in path below no longer sends its own. (CHECKOUT-WHO-1: the sheet's own "Pay" is the
+    // same tap continuing, so it sends none.)
+    if (!opts.fromWho) trackBeginCheckoutTap(details, signedIn, opts.resumed === true);
+    // CHECKOUT-WHO-1 - flag on: the Board Pass Pay opens "Who will use it?" first (the month renewal stays as it was).
+    if (who && passType === "till_boards" && !opts.fromWho) {
+      setWhoOpen(true);
+      return;
+    }
     if (!signedIn) {
       onSignIn();
       return;
@@ -457,6 +485,21 @@ export function PassCheckoutView({
           </button>
         </div>
       )}
+      {who && whoOpen && (
+        <Suspense fallback={null}>
+          <CheckoutSheet
+            item={{ kind: "pass", sku: "till_boards", label: "Board Pass", description: BOARD_PASS_CHECKOUT_DESCRIPTION, priceDisplay: boardPassPriceDisplay() }}
+            signedIn={signedIn}
+            selfMasked={who.selfMasked}
+            {...(signedIn && packCredit ? { selfPriceDisplay: `₹${packCredit.payInr.toLocaleString("en-IN")}` } : {})}
+            onPaySelf={() => void handleBuy("till_boards", { fromWho: true })}
+            onSignIn={who.onSignIn}
+            onSignInWithNumber={who.onSignInWithNumber}
+            onSignInWithEmail={who.onSignInWithEmail}
+            onClose={() => setWhoOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
@@ -477,11 +520,22 @@ function PassCheckoutConnected() {
   // PAY-PHONE-1 - "How do you want to pay?" for a signed-out visitor (only while paying-by-phone is on).
   const guestEnabled = isGuestPayClientEnabled();
   const [showGuest, setShowGuest] = useState(false);
+  // CHECKOUT-WHO-1 - "Who will use it?" (dark unless VITE_CHECKOUT_WHO_ENABLED).
+  const whoEnabled = isCheckoutWhoClientEnabled();
   const buyHandled = useRef(false);
   useEffect(() => {
     if (buyHandled.current || authLoading || !readBoardPassBuy(location.search)) return;
     if (!user || user.isLocalSession) {
       buyHandled.current = true;
+      if (whoEnabled) {
+        // CHECKOUT-WHO-1: strip the param first, then the shared sheet ("Who will use it?") opens through the Pay path.
+        const rest = new URLSearchParams(location.search);
+        rest.delete(BOARD_PASS_BUY_PARAM);
+        const search = rest.toString();
+        navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
+        setAutoStart(true);
+        return;
+      }
       if (guestEnabled) {
         // Strip the param first (reload / Back never re-open it), then ask how they want to pay.
         const rest = new URLSearchParams(location.search);
@@ -503,7 +557,7 @@ function PassCheckoutConnected() {
     if (status.tier === "premium") return;
     trackNamedEvent("board_pass_direct_checkout");
     setAutoStart(true);
-  }, [authLoading, user, hydrated, status.tier, location.search, location.pathname, location.hash, navigate, guestEnabled]);
+  }, [authLoading, user, hydrated, status.tier, location.search, location.pathname, location.hash, navigate, guestEnabled, whoEnabled]);
 
   // PACK-CREDIT-1: the server's credit for this student. A failed read is simply no credit line.
   const [packCredit, setPackCredit] = useState<BoardPassCredit | null>(null);
@@ -536,6 +590,19 @@ function PassCheckoutConnected() {
       activePassEnd={activePassEnd}
       packCredit={packCredit}
       autoStart={autoStart}
+      {...(whoEnabled
+        ? {
+            who: {
+              selfMasked: uid ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null,
+              onSignIn: () => navigate(withSigninRedirect("/login", BOARD_PASS_BUY_PATH)),
+              onSignInWithNumber: (digits: string) => {
+                const state: GuestSigninState = { guestPayPhone: digits };
+                navigate(withSigninRedirect("/login", "/"), { state });
+              },
+              onSignInWithEmail: () => navigate(withSigninRedirect("/login", "/")),
+            },
+          }
+        : {})}
       onSignIn={() => (guestEnabled ? setShowGuest(true) : navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH)))}
       onBuy={async (passType) => {
         const outcome = await buyPass(passType);

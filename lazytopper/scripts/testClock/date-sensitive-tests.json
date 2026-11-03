@@ -433,6 +433,7 @@
     "src/components/pricing/BoardPassLine.test.tsx",
     "src/components/pricing/PacksStrip.hash.test.tsx",
     "src/components/pricing/PacksStrip.parity.test.tsx",
+    "src/components/pricing/PassCheckout.checkoutWho.test.tsx",
     "src/components/pricing/PassCheckout.directBuy.test.tsx",
     "src/components/pricing/PassCheckout.guestPay.test.tsx",
     "src/components/pricing/PassCheckout.recover.test.tsx",

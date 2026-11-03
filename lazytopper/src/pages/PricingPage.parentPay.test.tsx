@@ -155,3 +155,15 @@ describe("PricingPage — the parent's link", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Plans and packs for the 2027 boards" })).toBeInTheDocument();
   });
 });
+
+describe("CHECKOUT-WHO-1 — the parent's link is unchanged with 'Who will use it?' on", () => {
+  it("/pricing#pp=<token>: the parent's page (recipient fixed to the student by the token), no recipient box, no plans", async () => {
+    flags(true);
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    await renderAt(`/pricing#pp=${TOKEN}`);
+    expect(await screen.findByRole("heading", { level: 1, name: "Pay for Aarav's LazyTopper Premium" })).toBeInTheDocument();
+    expect(screen.queryByText("Who will use it?")).toBeNull();
+    expect(screen.queryByTestId("who-first")).toBeNull();
+    expect(screen.queryByText("Plans and packs for the 2027 boards")).toBeNull();
+  });
+});

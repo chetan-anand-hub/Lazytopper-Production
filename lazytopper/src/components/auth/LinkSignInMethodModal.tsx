@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { hasPhoneLinked } from "../../lib/signInMethods";
 import { normaliseTypedIndianMobile } from "../../utils/indianMobileInput";
+import { alsoSignInLine } from "../../services/checkoutWhoFlag";
 
 /**
  * LinkSignInMethodModal — add a phone number as a second way to sign in.
@@ -100,9 +101,15 @@ function describeLinkError(err: unknown): { text: string; tone: Tone } {
 export default function LinkSignInMethodModal({
   open,
   onClose,
+  alsoMasked,
 }: {
   open: boolean;
   onClose: () => void;
+  /**
+   * CHECKOUT-WHO-1 - opened after a claim of a purchase that also named this (MASKED) number: one line asks to add it.
+   * Linking still needs its SMS code below; nothing is linked without it.
+   */
+  alsoMasked?: string;
 }) {
   const { user, sendLinkPhoneOtp, confirmLinkPhoneOtp } = useAuth();
   const [step, setStep] = useState<"number" | "otp">("number");
@@ -207,6 +214,11 @@ export default function LinkSignInMethodModal({
                 ruling stands — linking must never imply an account is
                 incomplete without it. It is the "works exactly the same
                 without it" clause that goes, never the optionality. */}
+            {alsoMasked && (
+              <p style={ledeStyle} data-testid="link-also-signin">
+                {alsoSignInLine(alsoMasked)}
+              </p>
+            )}
             <p style={ledeStyle}>
               Add your number and you can sign in with either — both bring you
               to this account, with everything you&apos;ve done. Optional, and

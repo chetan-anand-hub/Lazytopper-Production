@@ -225,3 +225,29 @@ describe("PAY-PHONE-1 review fix 1 · the claim waits for the sign-up trial writ
     vi.doUnmock("./subscriptionService");
   });
 });
+
+describe("CHECKOUT-WHO-1 · a claim that also named a phone", () => {
+  it("keeps the MASKED 'also sign in' for THAT uid only and fires the event; an old-flow claim (no alsoSignIn) keeps nothing", async () => {
+    vi.doMock("./checkout", async (orig) => ({ ...(await orig<typeof import("./checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+    const mod = await import("./guestPay");
+    const { ALSO_SIGNIN_EVENT } = await import("./checkoutWhoFlag");
+    const seen: unknown[] = [];
+    const onAlso = (e: Event) => seen.push((e as CustomEvent).detail);
+    window.addEventListener(ALSO_SIGNIN_EVENT, onAlso);
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ok: true, claimed: [{ orderId: "o1", kind: "pack", sku: "pack_cbq", target: "maths" }], alsoSignIn: { kind: "phone", masked: "+91 98•••••948" } }), { status: 200 }),
+    );
+    await mod.claimOncePerSession("uKid");
+    expect(seen).toEqual([{ kind: "phone", masked: "+91 98•••••948" }]);
+    expect(mod.readAlsoSignIn("uKid")).toEqual({ kind: "phone", masked: "+91 98•••••948" });
+    expect(mod.readAlsoSignIn("uOther")).toBeNull();
+    mod.clearAlsoSignIn();
+    fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [] }), { status: 200 }));
+    await mod.claimOncePerSession("uOld", { force: true });
+    expect(mod.readAlsoSignIn("uOld")).toBeNull();
+    expect(seen).toHaveLength(1);
+    window.removeEventListener(ALSO_SIGNIN_EVENT, onAlso);
+    fetchSpy.mockRestore();
+    vi.doUnmock("./checkout");
+  });
+});

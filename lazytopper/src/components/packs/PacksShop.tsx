@@ -43,7 +43,12 @@ import PackSampleLink from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
 import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
-import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, readRecentClaim, type ClaimedItem, type GuestClaimedDetail, type GuestSigninState } from "../../services/guestPay";
+import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, maskIndianMobile, readRecentClaim, type ClaimedItem, type GuestClaimedDetail, type GuestSigninState } from "../../services/guestPay";
+import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
+import { maskEmail } from "../../services/checkoutWho";
+
+/** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
+const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
 import "../../pages/packs.css";
@@ -55,6 +60,8 @@ export const PACKS_RETURN_PATH = "/packs";
 export const PACK_SIGNIN_NOTE = "Quick sign-in (Google, 1 tap), then payment opens.";
 /** PAY-PHONE-1 - the same line while paying with a phone number is on. */
 export const PACK_GUEST_NOTE = "Pay with your phone number, or sign in first.";
+/** CHECKOUT-WHO-1 - the same note while "Who will use it?" is on: pay with a mobile number or an email, no sign-up. */
+export const PACK_WHO_NOTE = "Pay with a mobile number or email, no sign-up needed.";
 
 /** The single value of a query param, or null when absent or repeated. */
 function onlyOne(q: URLSearchParams, key: string): string | null {
@@ -254,6 +261,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   /** PAY-PHONE-1 - the pack a signed-out visitor is paying for with a phone number (the sheet is open), else null. */
   const [guest, setGuest] = useState<{ sku: PackSku; target: string | undefined } | null>(null);
   const guestEnabled = enabled && isGuestPayClientEnabled();
+  /**
+   * CHECKOUT-WHO-1 - with VITE_CHECKOUT_WHO_ENABLED on, every Buy opens the shared "Who will use it?" sheet (signed in: "For:
+   * you" + one-tap Pay into the unchanged checkout below; signed out / someone else: a recipient purchase). Off: as before.
+   */
+  const whoEnabled = enabled && isCheckoutWhoClientEnabled();
+  const [who, setWho] = useState<{ sku: PackSku; target: string | undefined; resumed?: boolean; from?: PackCheckoutFrom } | null>(null);
   /** Review fix 6: a local (non-cloud) session cannot pay or own anything - it is treated as signed out (as PassCheckout does). */
   const signedIn = Boolean(user) && !user?.isLocalSession;
   const mounted = useRef(true);
@@ -435,7 +448,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return stop;
   }, [location.hash, mine, myPacksMounted]);
 
-  async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom } = {}) {
+  async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom; fromWho?: boolean } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
     const from = opts.from ?? (sku === "pack_chapter" && sampleChapterBuy.current ? "sample" : undefined);
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
@@ -444,6 +457,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
       // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
       trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
+      // CHECKOUT-WHO-1 - flag on: "Who will use it?" (before pay-by-phone, which it replaces while on).
+      if (whoEnabled) {
+        setWho({ sku, target });
+        return;
+      }
       // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the
       // visitor to sign-in first. Off: today's flow, unchanged.
       if (guestEnabled) {
@@ -456,6 +474,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const key = packIdOf(sku, target);
     if (isAlreadyOwned(owned, sku, target)) {
       setBuy({ key, phase: "owned" });
+      return;
+    }
+    // CHECKOUT-WHO-1 - signed in, flag on: the sheet first ("For: you"); its Pay comes back here with `fromWho` and runs the
+    // unchanged checkout (the same events, sent once, at that Pay).
+    if (whoEnabled && !opts.fromWho) {
+      setWho({ sku, target, ...(opts.resumed ? { resumed: true } : {}), ...(from ? { from } : {}) });
       return;
     }
     setBuy({ key, phase: "busy" });
@@ -548,7 +572,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // pack's pop-up and the "How do you want to pay?" sheet, once. Signed in, the resume effect above handles it as before.
   const guestResumeDone = useRef(false);
   useEffect(() => {
-    if (guestResumeDone.current || authLoading || signedIn || !guestEnabled) return;
+    if (guestResumeDone.current || authLoading || signedIn || !(guestEnabled || whoEnabled)) return;
     const want = readBuyResume(location.search);
     if (!want) return;
     guestResumeDone.current = true;
@@ -565,10 +589,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setEntrySlide(0);
     setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
-    setGuest({ sku: want.sku, target: want.target });
+    // CHECKOUT-WHO-1: the shared sheet while its flag is on; else pay-by-phone as before.
+    if (whoEnabled) setWho({ sku: want.sku, target: want.target });
+    else setGuest({ sku: want.sku, target: want.target });
     // Review fix 2: a sample's one-tap link (/cbq-class-10) sends its ONE checkout event here (the link itself sends none).
     if (from) trackPackCheckout(packCheckoutDetails(want.sku, want.target), { signedIn: false, from });
-  }, [authLoading, user, guestEnabled, location.search, location.pathname, location.hash, navigate, requestCounts]);
+  }, [authLoading, user, guestEnabled, whoEnabled, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
   const mathsTotal = subjectTotal("maths");
   const scienceTotal = subjectTotal("science");
@@ -612,7 +638,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           {label}
         </button>
         {blocked && <p className={`${prefix}__note`} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
-        {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{guestEnabled ? PACK_GUEST_NOTE : PACK_SIGNIN_NOTE}</p>}
+        {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{whoEnabled ? PACK_WHO_NOTE : guestEnabled ? PACK_GUEST_NOTE : PACK_SIGNIN_NOTE}</p>}
         {dismissed && (
           <div className={`${prefix}__sample`} data-testid="packs-dismissed-sample">
             <PackSampleLink sku={sku} target={target ?? null} surface="packs_dialog" />
@@ -764,6 +790,35 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           </Suspense>,
           document.body,
         )}
+
+      {who && (
+        <Suspense fallback={null}>
+          <CheckoutSheet
+            item={{
+              kind: "pack",
+              sku: who.sku,
+              ...(who.target ? { target: who.target } : {}),
+              label: packDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
+              description: packCheckoutDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
+              priceDisplay: packPriceLabel(who.sku),
+            }}
+            signedIn={signedIn}
+            selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
+            onPaySelf={() => {
+              const w = who;
+              void handleBuy(w.sku, w.target, { fromWho: true, ...(w.resumed ? { resumed: true } : {}), ...(w.from ? { from: w.from } : {}) });
+            }}
+            onClose={() => setWho(null)}
+            onSignIn={() => navigate(withSigninRedirect("/login", packsResumePath(who.sku, who.target, location.search, returnPath)))}
+            onSignInWithNumber={(digits) => {
+              const state: GuestSigninState = { guestPayPhone: digits };
+              // PACK-READY-1: the buyer returns to /packs#my-packs, where the pack is ready to download.
+              navigate(withSigninRedirect("/login", `${PACKS_RETURN_PATH}#my-packs`), { state });
+            }}
+            onSignInWithEmail={() => navigate(withSigninRedirect("/login", `${PACKS_RETURN_PATH}#my-packs`))}
+          />
+        </Suspense>
+      )}
 
       {guest && (
         <GuestPaySheet

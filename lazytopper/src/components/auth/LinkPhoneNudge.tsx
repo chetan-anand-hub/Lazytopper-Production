@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { hasPhoneLinked } from "../../lib/signInMethods";
 import LinkSignInMethodModal from "./LinkSignInMethodModal";
+import { ALSO_SIGNIN_EVENT, isCheckoutWhoClientEnabled, type AlsoSignIn } from "../../services/checkoutWhoFlag";
 
 /**
  * LinkPhoneNudge — the one-time, dismissible prompt asking a returning student
@@ -216,6 +217,31 @@ export default function LinkPhoneNudge({ spaced = false }: { spaced?: boolean } 
   const [visits, setVisits] = useState(0);
   const [dismissed, setDismissed] = useState<boolean>(() => isNudgeDismissed());
   const [modalOpen, setModalOpen] = useState(false);
+  /**
+   * CHECKOUT-WHO-1 (dark unless VITE_CHECKOUT_WHO_ENABLED) - a claim just attached a purchase that ALSO named a number this
+   * account does not sign in with: open the same link step at once, with "Also sign in with <masked>?". Not gated on the
+   * returning-visit count or the dismissal (it answers what the buyer asked for). Linking still needs the SMS code.
+   */
+  const [alsoMasked, setAlsoMasked] = useState<string | null>(null);
+  const uid = user?.uid || "";
+  const phoneLinked = hasPhoneLinked(user);
+  useEffect(() => {
+    if (!eligibleAccount || phoneLinked || !isCheckoutWhoClientEnabled()) return undefined;
+    let cancelled = false;
+    const open = (also: AlsoSignIn | null) => {
+      if (cancelled || !also) return;
+      setAlsoMasked(also.masked);
+      setModalOpen(true);
+    };
+    // The claim may have run before Home mounted (the sign-in lands here): start from the pending one for THIS uid.
+    void import("../../services/guestPay").then((m) => open(m.readAlsoSignIn(uid))).catch(() => undefined);
+    const onAlso = (e: Event) => open((e as CustomEvent<AlsoSignIn | undefined>).detail ?? null);
+    window.addEventListener(ALSO_SIGNIN_EVENT, onAlso);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(ALSO_SIGNIN_EVENT, onAlso);
+    };
+  }, [eligibleAccount, phoneLinked, uid]);
 
   useEffect(() => {
     if (!eligibleAccount) return;
@@ -294,7 +320,17 @@ export default function LinkPhoneNudge({ spaced = false }: { spaced?: boolean } 
           </div>
         </section>
       )}
-      <LinkSignInMethodModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <LinkSignInMethodModal
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          if (alsoMasked) {
+            setAlsoMasked(null);
+            void import("../../services/guestPay").then((m) => m.clearAlsoSignIn()).catch(() => undefined);
+          }
+        }}
+        {...(alsoMasked ? { alsoMasked } : {})}
+      />
     </>
   );
 }
