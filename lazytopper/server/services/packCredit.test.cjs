@@ -12,6 +12,8 @@ const {
   creditOrderFields,
   parseCreditIds,
   CREDIT_WINDOW_MS,
+  PACK_CREDIT_CUTOFF_MS,
+  isCreditable,
 } = require('./packCredit.cjs');
 
 const NOW = Date.parse('2026-10-28T06:30:00.000Z');
@@ -163,4 +165,32 @@ test('parseCreditIds: comma list back to unique clean ids', () => {
   assert.deepEqual(parseCreditIds(''), []);
   assert.deepEqual(parseCreditIds(undefined), []);
   assert.deepEqual(parseCreditIds(7), []);
+});
+
+// PACK-TERMS-1 (owner ruling 3 Nov 2026): the credit is wound down. Packs paid before 2026-11-05T00:00+05:30 keep the old
+// 7-day promise exactly; a pack paid at or after the cut-off earns nothing.
+test('PACK-TERMS-1 · the cut-off is 5 Nov 2026 00:00 IST', () => {
+  assert.equal(PACK_CREDIT_CUTOFF_MS, Date.parse('2026-11-04T18:30:00.000Z'));
+});
+
+test('PACK-TERMS-1 · boundary: paid 1 ms before the cut-off is credited; exactly at the cut-off, and after, is not', () => {
+  const at = PACK_CREDIT_CUTOFF_MS + 60 * 1000; // an order a minute after the cut-off
+  assert.equal(packCreditFor([pack('a:1', 49, PACK_CREDIT_CUTOFF_MS - 1)], at).creditInr, 49, '1 ms before');
+  assert.equal(packCreditFor([pack('a:1', 49, PACK_CREDIT_CUTOFF_MS)], at).creditInr, 0, 'exactly at');
+  assert.equal(packCreditFor([pack('a:1', 49, PACK_CREDIT_CUTOFF_MS + 1)], at).creditInr, 0, '1 ms after');
+  assert.equal(isCreditable(pack('a:1', 49, PACK_CREDIT_CUTOFF_MS - 1), PACK_CREDIT_CUTOFF_MS), true);
+  assert.equal(isCreditable(pack('a:1', 49, PACK_CREDIT_CUTOFF_MS), PACK_CREDIT_CUTOFF_MS), false);
+});
+
+test('PACK-TERMS-1 · a pack paid after the cut-off earns 0 however fresh, and does not poison a pre-cut-off pack beside it', () => {
+  const late = PACK_CREDIT_CUTOFF_MS + 3600 * 1000;
+  assert.deepEqual(packCreditFor([pack('a:1', 199, late - 1000)], late), { creditInr: 0, packIds: [], expiresAtMs: null });
+  const r = packCreditFor([pack('old:1', 49, PACK_CREDIT_CUTOFF_MS - 1000), pack('new:1', 199, late - 1000)], late);
+  assert.deepEqual(r, { creditInr: 49, packIds: ['old:1'], expiresAtMs: PACK_CREDIT_CUTOFF_MS - 1000 + CREDIT_WINDOW_MS });
+});
+
+test('PACK-TERMS-1 · the 7-day window is unchanged for pre-cut-off packs (and so the old rule dies 7 days after the cut-off)', () => {
+  const paid = PACK_CREDIT_CUTOFF_MS - 1000;
+  assert.equal(packCreditFor([pack('a:1', 49, paid)], paid + CREDIT_WINDOW_MS).creditInr, 49, 'exactly 7 days');
+  assert.equal(packCreditFor([pack('a:1', 49, paid)], paid + CREDIT_WINDOW_MS + 1).creditInr, 0, '7 days + 1 ms');
 });

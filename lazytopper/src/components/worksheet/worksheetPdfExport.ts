@@ -160,6 +160,8 @@ export interface WorksheetPdfOptions {
   licensee?: { name: string; email: string; orderId: string };
   /** A navy cover page, page 1 of the file. */
   cover?: Pick<PrintCoverProps, "kicker" | "title" | "subtitle" | "stats" | "headline" | "types">;
+  /** PACK-TERMS-1: when the pack was paid (ms); the cover prints the matching re-download date (absent: 31 May 2027). */
+  paidAtMs?: number;
   /** Overrides the default saved file name. */
   filename?: string;
   /**
@@ -451,6 +453,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       ...cover,
       licenseeLine: opts.licensee ? licenseeLine(opts.licensee) : undefined,
       edition: opts.edition,
+      paidAtMs: opts.paidAtMs,
     }), async (coverHost) => {
       const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
       return c.toDataURL("image/jpeg", 0.95);

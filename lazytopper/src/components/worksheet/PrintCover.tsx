@@ -1,5 +1,5 @@
 import { BRAND_MARK_SRC } from "../../config/brandMark";
-import { REDOWNLOAD_COPY } from "../../lib/packs/packLabels";
+import { redownloadCopyFor } from "../../lib/packs/packLabels";
 
 /** The CBSE Class 10 board exam this edition is for (the 2026-27 session sits its boards in 2027). There is no synchronous
  *  helper for this: services/cbseExamDate.ts is a network fetch. Bump it when the next session's packs are issued. */
@@ -36,6 +36,11 @@ export interface PrintCoverProps {
   types?: readonly string[];
   /** "Licensed to <name> · <email> · Order <id> — personal use only"; the box is left out when absent. */
   licenseeLine?: string;
+  /**
+   * PACK-TERMS-1: when the owned pack was paid (ms). Picks the re-download date on the cover (before 5 Nov 2026: 31 May 2027; from then on: 31 March 2027).
+   * Absent / unknown -> the later (31 May 2027) date, never an earlier one than a buyer may have been promised.
+   */
+  paidAtMs?: number;
   /** Printed bottom right as "Edition <date>", e.g. "25 Oct 2026"; left out when empty. */
   edition?: string;
 }
@@ -53,7 +58,7 @@ const HOW_STEPS: ReadonlyArray<{ title: string; text: string }> = [
   { title: "Mark", text: "Upload your answers to the Answer Checker for CBSE step marking." },
 ];
 
-export function PrintCover({ kicker, title, subtitle, stats, headline, types, licenseeLine, edition }: PrintCoverProps) {
+export function PrintCover({ kicker, title, subtitle, stats, headline, types, licenseeLine, edition, paidAtMs }: PrintCoverProps) {
   const big = headline ?? (stats[0] ? { value: stats[0].value, label: stats[0].label } : undefined);
   const rest = (headline ? stats : stats.slice(1)).slice(0, 4);
   const typeList = (types ?? []).filter(Boolean);
@@ -136,7 +141,7 @@ export function PrintCover({ kicker, title, subtitle, stats, headline, types, li
           <div>
             <b className="lt-cover__licl">{licenseeLine}</b>
             <div>Please do not share or resell this file.</div>
-            <div>{REDOWNLOAD_COPY}.</div>
+            <div>{redownloadCopyFor(paidAtMs)}.</div>
           </div>
           <span className="lt-cover__k">Your copy</span>
         </div>

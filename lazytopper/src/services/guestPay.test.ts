@@ -145,6 +145,38 @@ describe("PAY-PHONE-1 · claim once per session", () => {
     window.removeEventListener(GUEST_CLAIMED_EVENT, onClaimed);
   });
 
+  it("PACK-READY-1: the event detail names what was claimed (kind, sku, target, display name) and carries no phone / order / payment id", async () => {
+    const heard: unknown[] = [];
+    const onClaimed = (e: Event) => heard.push((e as CustomEvent).detail);
+    window.addEventListener(GUEST_CLAIMED_EVENT, onClaimed);
+    await claimOncePerSession("u-ready", {
+      claim: async () => [
+        { orderId: "order_SECRET", kind: "pack" as const, sku: "pack_bundle", target: null },
+        { orderId: "order_SECRET2", kind: "pass" as const, sku: "till_boards", target: null },
+      ],
+    });
+    window.removeEventListener(GUEST_CLAIMED_EVENT, onClaimed);
+    expect(heard).toEqual([
+      {
+        count: 2,
+        items: [
+          { kind: "pack", sku: "pack_bundle", target: null, name: "Maths + Science Bundle" },
+          { kind: "pass", sku: "till_boards", target: null, name: "Board Pass" },
+        ],
+      },
+    ]);
+    expect(JSON.stringify(heard)).not.toMatch(/order_|pay_|\+91|\d{10}/);
+  });
+
+  it("PACK-READY-1: claimedItemName covers every pack sku", async () => {
+    const { claimedItemName } = await import("./guestPay");
+    expect(claimedItemName("pack", "pack_mock", "science")).toBe("Mock Pack \u00b7 Science");
+    expect(claimedItemName("pack", "pack_cbq", "maths")).toBe("Maths CBQ Pack");
+    expect(claimedItemName("pack", "pack_subject", "maths")).toBe("Subject Pack \u00b7 Maths");
+    expect(claimedItemName("pack", "pack_chapter", "trigonometry")).toBe("Chapter Pack");
+    expect(claimedItemName("pack", "pack_x", null)).toBe("PDF pack");
+  });
+
   it("parallel calls share one request", async () => {
     let resolve: (v: []) => void = () => undefined;
     const slow = vi.fn(() => new Promise<[]>((r) => { resolve = r; }));

@@ -1729,11 +1729,11 @@ test('EXISTING-BUYERS (3) · admin grants are not gated: the owner can still gra
   assert.ok(!/monthPassAvailableFor|hasPaidMonthOrder|monthPassRetired/.test(grantFn), 'grantPass consults the month gate');
 });
 
-test('EXISTING-BUYERS (3) · pack credit is unchanged: a Board Pass order is still credited with a pack bought in the last 7 days, now off the fixed 1917', async (t) => {
+test('EXISTING-BUYERS (3) · PACK-TERMS-1: a pack paid BEFORE the 5 Nov cut-off is still credited (7-day window); a pack paid on/after it earns nothing, now off the fixed 1917', async (t) => {
   const db = memoryFirestore({
-    'packEntitlements/pc1/packs/pk1': { packId: 'pk1', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: istNoon('2026-11-09'), creditedToPass: false },
+    'packEntitlements/pc1/packs/pk1': { packId: 'pk1', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: istNoon('2026-11-04'), creditedToPass: false },
   });
-  const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  const srv = await startRoutes({ db, now: () => istNoon('2026-11-05'), calendarOffer: true });
   t.after(srv.close);
   const out = await createOrder(srv, 'pc1', 'till_boards');
   assert.equal(out.amountPaise, (1917 - 49) * 100);
@@ -1741,6 +1741,15 @@ test('EXISTING-BUYERS (3) · pack credit is unchanged: a Board Pass order is sti
   assert.equal(stored.packCreditInr, 49);
   // The pack is NOT marked credited until the payment is granted (unchanged behaviour).
   assert.equal(db.read('packEntitlements/pc1/packs/pk1').creditedToPass, false);
+  // PACK-TERMS-1: the same order for a pack paid AFTER the cut-off is charged the full fixed price, no credit stored.
+  const ldb = memoryFirestore({
+    'packEntitlements/pc2/packs/pk3': { packId: 'pk3', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: istNoon('2026-11-05'), creditedToPass: false },
+  });
+  const lsrv = await startRoutes({ db: ldb, now: () => istNoon('2026-11-06'), calendarOffer: true });
+  t.after(lsrv.close);
+  const late = await createOrder(lsrv, 'pc2', 'till_boards');
+  assert.equal(late.amountPaise, 1917 * 100, 'no credit for a pack paid on/after the cut-off');
+  assert.equal(ldb.read(`payOrders/${late.orderId}`).packCreditInr, undefined);
   // And a month order earns no credit (unchanged), for a month buyer.
   const mdb = memoryFirestore({ ...monthBuyerSeed(), 'packEntitlements/mb1/packs/pk2': { packId: 'pk2', sku: 'pack_chapter', target: 'x', pricePaidInr: 49, paidAt: istNoon('2026-11-19'), creditedToPass: false } });
   const msrv = await startRoutes({ db: mdb, now: () => istNoon('2026-11-20'), calendarOffer: true });

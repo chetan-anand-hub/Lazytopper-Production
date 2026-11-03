@@ -103,9 +103,9 @@ export default function PacksPage() {
               </p>
             </details>
             <details>
-              <summary>How does the Board Pass credit work?</summary>
+              <summary>How is a pack different from the Board Pass?</summary>
               <p>
-                Packs are one-time and never renew. If you take the Board Pass within 7 days of buying a pack, the pack price comes off the Board Pass. The
+                Packs are one-time and never renew. The
                 Board Pass adds what a PDF can&rsquo;t: your answers marked step by step, Mistake Intelligence, the tutor for doubts and online timed
                 tests. <Link to="/pricing">Compare with the Board Pass</Link>.
               </p>
