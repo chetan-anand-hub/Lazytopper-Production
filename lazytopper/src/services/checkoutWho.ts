@@ -14,6 +14,7 @@
  * their own for the receipt).
  */
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
+import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
 
 export { isCheckoutWhoClientEnabled } from "./checkoutWhoFlag";
@@ -31,7 +32,11 @@ export const WHO_BAD_MOBILE = "Enter a 10-digit Indian mobile number.";
 export const WHO_FAILED = "We couldn't start the payment. You have not been charged. Please try again.";
 export const WHO_CLOSED = "Payment window closed. Tap Pay to try again.";
 /** Generic on purpose: the same words whatever the reason (nothing says whether a purchase exists for it). */
-export const WHO_UNAVAILABLE = "We couldn't start a payment for this. If it was paid for before, sign in with it to get the purchase.";
+/**
+ * CHECKOUT-WHO-2 - ONE generic line for every "cannot sell this to that recipient right now" (already covered, or a payment
+ * already waiting for them): it never says whether an account exists (owner-reviewed wording).
+ */
+export const WHO_UNAVAILABLE = "This can't be bought for that number or email right now. If the student already has it, they can sign in to check.";
 export const WHO_EMAILED = "We've emailed this to them too.";
 export const WHO_HAVE_ACCOUNT = "Have an account? Sign in first";
 
@@ -52,29 +57,14 @@ export function paidLine(kind: GuestItem["kind"], ids: readonly string[]): strin
   return kind === "pack" ? `Sign in with ${who} and open My packs to download.` : `Sign in with ${who} — the Board Pass is already there.`;
 }
 
-/** "That account already has the Board Pass till the boards." — says nothing beyond what the payer typed. */
-export function alreadyCoveredLine(kind: GuestItem["kind"]): string {
-  return kind === "pack" ? "The account for this already has this pack. Nothing to pay." : "The account for this already has the Board Pass till the boards. Nothing to pay.";
+/** CHECKOUT-WHO-2: kept for callers; the same generic line as WHO_UNAVAILABLE (nothing account-revealing). */
+export function alreadyCoveredLine(_kind: GuestItem["kind"]): string {
+  return WHO_UNAVAILABLE;
 }
 
 /* ── detection / normalisation (mirrors server/services/guestPay.cjs) ─────────── */
 
-const EMAIL_SHAPE = /^[^\s@<>()",;:]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
-
-/** An email as the claim key (trimmed, lower-cased), or null. */
-export function normaliseEmail(raw: string | null | undefined): string | null {
-  if (typeof raw !== "string") return null;
-  const e = raw.trim().toLowerCase();
-  return e && e.length <= 254 && EMAIL_SHAPE.test(e) ? e : null;
-}
-
-/** `an••••@gmail.com`; not an email -> "". */
-export function maskEmail(raw: string | null | undefined): string {
-  const e = normaliseEmail(raw);
-  if (!e) return "";
-  const at = e.indexOf("@");
-  return `${e.slice(0, Math.min(2, at))}••••${e.slice(at)}`;
-}
+export { maskEmail, normaliseEmail };
 
 export type IdKind = "phone" | "email";
 

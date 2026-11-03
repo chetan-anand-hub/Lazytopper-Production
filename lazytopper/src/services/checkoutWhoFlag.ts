@@ -14,16 +14,42 @@ export function isCheckoutWhoClientEnabled(): boolean {
 }
 
 /**
- * After a claim (Home's link-a-number step): "Also sign in with +91 98•••••948? Confirm it once with an SMS code, then either
- * works." Kept here (import-free) so Home does not pull checkout code. `masked` is the server's masked echo.
+ * After a claim (Home's link step): "Also sign in with <masked>? Confirm it once …, then either works." `kind` names what the
+ * step verifies with (an SMS code for a phone; the email link or Google for an email). Kept here (import-free) so Home does
+ * not pull checkout code. `masked` is the server's masked echo.
  */
-export function alsoSignInLine(masked: string): string {
-  return `Also sign in with ${masked}? Confirm it once with an SMS code, then either works.`;
+export function alsoSignInLine(masked: string, kind: "phone" | "email" = "phone"): string {
+  return kind === "email"
+    ? `Also sign in with ${masked}? Confirm it once from that inbox (or with Google), then either works.`
+    : `Also sign in with ${masked}? Confirm it once with an SMS code, then either works.`;
 }
 
-/** Fired on `window` (detail: AlsoSignIn) when a claim attached an order that also named a phone this account lacks. MASKED. */
+/**
+ * Fired on `window` (detail: AlsoSignIn) when a claim attached (or earlier delivered) an order that also named a phone or an
+ * email this account does not sign in with. MASKED only.
+ */
 export const ALSO_SIGNIN_EVENT = "lazytopper:also-signin";
 export interface AlsoSignIn {
-  kind: "phone";
+  kind: "phone" | "email";
   masked: string;
+}
+
+/* ── email helpers (CHECKOUT-WHO-2: here, import-free, so host chunks such as PassCheckout / PacksShop do not pull the
+ *    checkout or guest-pay services just to mask the signed-in student's own email) ── */
+
+const EMAIL_SHAPE = /^[^\s@<>()",;:]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
+
+/** An email as the claim key (trimmed, lower-cased), or null. Mirrors server/services/guestPay.cjs normaliseEmail. */
+export function normaliseEmail(raw: string | null | undefined): string | null {
+  if (typeof raw !== "string") return null;
+  const e = raw.trim().toLowerCase();
+  return e && e.length <= 254 && EMAIL_SHAPE.test(e) ? e : null;
+}
+
+/** `an••••@gmail.com`; not an email -> "". */
+export function maskEmail(raw: string | null | undefined): string {
+  const e = normaliseEmail(raw);
+  if (!e) return "";
+  const at = e.indexOf("@");
+  return `${e.slice(0, Math.min(2, at))}••••${e.slice(at)}`;
 }

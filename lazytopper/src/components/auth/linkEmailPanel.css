@@ -1,0 +1,16 @@
+/* CHECKOUT-WHO-2 - the "add an email" step inside LinkSignInMethodModal. Uses the modal's tokens (var(--bg-card) etc.). */
+.lt-lep { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.lt-lep__lede { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-secondary, #3c4b60); }
+.lt-lep__label { font-size: 13px; font-weight: 600; }
+.lt-lep__input {
+  width: 100%; box-sizing: border-box; height: 46px; padding: 0 12px; border-radius: 12px; font: inherit; font-size: 16px;
+  border: 1.5px solid var(--bg-card-border, #c9d3df); background: transparent; color: inherit;
+}
+.lt-lep__primary, .lt-lep__secondary {
+  width: 100%; min-height: 46px; border-radius: 12px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; padding: 0 14px;
+}
+.lt-lep__primary { border: 0; background: hsl(152, 45%, 32%); color: #fff; }
+.lt-lep__primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.lt-lep__secondary { border: 1.5px solid var(--bg-card-border, #c9d3df); background: transparent; color: inherit; }
+.lt-lep__error { margin: 0; font-size: 13.5px; color: #b42318; }
+.lt-lep__done { margin: 0; font-size: 14px; font-weight: 600; color: hsl(152, 45%, 30%); }

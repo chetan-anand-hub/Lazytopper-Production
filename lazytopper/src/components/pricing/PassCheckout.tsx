@@ -35,7 +35,7 @@ import PayRescueCard from "../payRescue/PayRescueCard";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { isGuestPayClientEnabled, maskIndianMobile, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
-import { maskEmail } from "../../services/checkoutWho";
+import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Pay is tapped. */
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));

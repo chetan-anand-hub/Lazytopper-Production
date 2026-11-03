@@ -45,7 +45,7 @@ import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, maskIndianMobile, readRecentClaim, type ClaimedItem, type GuestClaimedDetail, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
-import { maskEmail } from "../../services/checkoutWho";
+import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));

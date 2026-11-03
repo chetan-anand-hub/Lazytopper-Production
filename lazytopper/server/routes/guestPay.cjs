@@ -42,7 +42,8 @@
  *    email on two DIFFERENT accounts -> the FIRST-entered identifier's account, plus an admin note (never a merge); no
  *    account -> the order waits `paid_unclaimed`. A claim takes orders whose recipient matches the token's verified
  *    `phone_number`, or its `email` ONLY when `email_verified` is true. A recipient account already covered (Board Pass
- *    till the boards / the pack already owned) is refused at the order with one generic `already_covered`.
+ *    till the boards / the pack already owned) is refused at the order with the SAME generic 409 `payment_unavailable` as
+ *    "already paid, not yet claimed" (CHECKOUT-WHO-2), after the SAME coverage read whether or not an account was found.
  *    Switch off: an order body's `recipient` is ignored and every route answers exactly as before.
  *
  * ★ PRIVACY. The phone number is stored on the order (it is the claim key) and goes to Razorpay's checkout as the
@@ -60,7 +61,7 @@ const {
   PAY_ORDERS_COLLECTION,
   RAZORPAY_API_BASE,
 } = require('./payments.cjs');
-const { grantPass, isStaleFoundingOrder, PassGrantInputError } = require('../services/passGrant.cjs');
+const { grantPass, isStaleFoundingOrder, PassGrantInputError, PAYMENT_SEGMENTS } = require('../services/passGrant.cjs');
 const { grantPack, PackGrantInputError } = require('../services/packGrant.cjs');
 const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor } = require('../services/packProducts.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
@@ -109,6 +110,12 @@ const ID_PATTERN = /^[A-Za-z0-9_]{1,64}$/;
 const HEX_PATTERN = /^[a-fA-F0-9]{1,256}$/;
 const NOT_FOUND_BODY = Object.freeze({ error: 'Not Found' });
 const ERASED_UID = 'erased';
+/**
+ * CHECKOUT-WHO-2 - the account id whose coverage is read when NO account was found for a recipient, so an order for nobody
+ * does the same reads as an order for an existing account (timing must not reveal whether an account exists). Never a real
+ * Firebase uid (those are 28 chars of [A-Za-z0-9]); nothing is ever written under it.
+ */
+const NO_ACCOUNT_COVERAGE_ID = '__checkout_who_no_account__';
 
 function isGuestPayEnabled(env = process.env) {
   return isPaymentsEnabled(env) && isGuestPayFlagOn(env);
@@ -553,9 +560,12 @@ function createGuestPayRoutes(deps = {}) {
     // lookup runs for every order (so an order for nobody costs the same work). A lookup that cannot tell fails CLOSED.
     try {
       const target = await resolveRecipientAccount(recipient);
-      if (target.uid && (await recipientCovered(target.uid, sku, packTarget))) {
+      // CHECKOUT-WHO-2: ALWAYS the coverage read (a fixed dummy id when no account), so timing does not tell.
+      const covered = await recipientCovered(target.uid || NO_ACCOUNT_COVERAGE_ID, sku, packTarget);
+      if (target.uid && covered) {
         emit('payments.guest.order.recipient_covered');
-        return sendJson(res, 409, { ok: false, error: 'already_covered' });
+        // CHECKOUT-WHO-2: the SAME answer as "already paid, not yet claimed" below - nothing says an account exists.
+        return sendJson(res, 409, { ok: false, error: 'payment_unavailable' });
       }
     } catch (e) {
       emit('payments.guest.order.account_lookup_failed');
@@ -695,10 +705,7 @@ function createGuestPayRoutes(deps = {}) {
     // CHECKOUT-WHO-1: after the response, a recipient who already has an account gets it now; an email recipient is told.
     const afterPaid = async () => {
       if (order.checkoutWho !== true) return;
-      await deliverToExistingAccount(orderId);
-      if (receiptEmailer && typeof receiptEmailer.sendRecipientReady === 'function') {
-        await receiptEmailer.sendRecipientReady({ orderId, paymentId });
-      }
+      await afterRecipientPaid({ orderId, paymentId });
     };
 
     // Already recorded for THIS payment (a retry, or the webhook got there first): nothing to ask Razorpay.
@@ -747,6 +754,28 @@ function createGuestPayRoutes(deps = {}) {
   }
 
   /**
+   * CHECKOUT-WHO-2 - the ONE post-payment step for a recipient order, run by verify AND by the payment webhook (routes/
+   * payments.cjs, via index.cjs): attach to an existing recipient account, then "Your … is ready" to the recipient email.
+   * Idempotent: delivery acts only on a `paid_unclaimed` order; the email is at most once per payment. Never throws.
+   */
+  async function afterRecipientPaid({ orderId, paymentId } = {}) {
+    if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId || !adminFirestore) return;
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      const o = snap && snap.exists ? snap.data() || {} : null;
+      if (!o || o.payer !== GUEST_PAYER || o.checkoutWho !== true || o.paymentId !== paymentId) return;
+    } catch (e) {
+      emit('payments.guest.deliver.failed');
+      console.error('[pay/guest/deliver] could not read the order:', e && e.message);
+      return;
+    }
+    await deliverToExistingAccount(orderId);
+    if (receiptEmailer && typeof receiptEmailer.sendRecipientReady === 'function') {
+      await receiptEmailer.sendRecipientReady({ orderId, paymentId });
+    }
+  }
+
+  /**
    * CHECKOUT-WHO-1 - a paid recipient order whose phone or email already belongs to a Firebase account is attached to
    * that account NOW, through the SAME take + grant as a claim. Two different accounts: the first-entered identifier's
    * account, and an admin note on the order (accounts are never merged). No account, or a lookup that cannot tell: the
@@ -771,7 +800,14 @@ function createGuestPayRoutes(deps = {}) {
           .set({ adminNote: target.note.note, otherAccountUid: target.note.otherUid }, { merge: true });
       }
       const outcome = await attachOrder(orderId, target.uid, (o) => o.checkoutWho === true, 'existing_account');
-      if (outcome && outcome.claimed) emit('payments.guest.deliver.granted');
+      if (outcome && outcome.claimed) {
+        emit('payments.guest.deliver.granted');
+        // CHECKOUT-WHO-2: the account was not signed in here, so the "Also sign in with <masked>?" offer waits on the order
+        // for that account's next claim (its next session). Only when the order named BOTH identifiers.
+        if (typeof order.guestPhone === 'string' && order.guestPhone && typeof order.guestEmail === 'string' && order.guestEmail) {
+          await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ alsoSignInPending: true }, { merge: true });
+        }
+      }
     } catch (e) {
       emit('payments.guest.deliver.failed');
       console.error('[pay/guest/deliver] could not attach to an existing account:', e && e.message);
@@ -833,7 +869,13 @@ function createGuestPayRoutes(deps = {}) {
         // the order is labelled a duplicate purchase. (A shorter running pass is extended by the grant as usual.)
         const subSnap = await adminFirestore.collection('subscriptions').doc(uid).get();
         const stored = subSnap && subSnap.exists ? subSnap.data() || {} : {};
-        if (order.passType === GUEST_PASS_SKU && coveredTillBoards(stored, now())) {
+        // CHECKOUT-WHO-2: THIS payment already on the account (a concurrent claim / delivery granted it first) is a replay,
+        // not a duplicate purchase: skip the covered check and let grantPass replay it (it writes nothing new).
+        // The per-payment record grantPass keeps under the subscription (subscriptions/{uid}/payments/{paymentRef}).
+        const subRef = adminFirestore.collection('subscriptions').doc(uid);
+        const paidHere = await subRef.collection(PAYMENT_SEGMENTS.payments).doc(paymentRef).get();
+        const alreadyRecorded = !!(paidHere && paidHere.exists) || stored.lastPaymentRef === paymentRef;
+        if (!alreadyRecorded && order.passType === GUEST_PASS_SKU && coveredTillBoards(stored, now())) {
           emit('payments.guest.claim.already_covered');
           await orderRef.set({ status: DUPLICATE_PURCHASE, duplicateReason: 'already_premium_till_boards' }, { merge: true });
           return { duplicate: true };
@@ -861,6 +903,18 @@ function createGuestPayRoutes(deps = {}) {
       }
       return { failed: true };
     }
+  }
+
+  /**
+   * CHECKOUT-WHO-1/2 - the "Also sign in with <masked>?" offer for a recipient order this account now holds: the order's
+   * phone when the account does not sign in with a phone; else its email when the account has no VERIFIED email. MASKED.
+   * Linking itself happens in the browser and always needs its own verification (SMS code / email link / Google).
+   */
+  function alsoSignInFor(o, phone, email) {
+    if (!o || o.checkoutWho !== true) return null;
+    if (!phone && typeof o.guestPhone === 'string' && o.guestPhone) return { kind: 'phone', masked: maskIndianMobile(o.guestPhone) };
+    if (!email && typeof o.guestEmail === 'string' && o.guestEmail) return { kind: 'email', masked: maskEmail(o.guestEmail) };
+    return null;
   }
 
   /* ── POST /api/pay/guest/claim — the verified phone (or verified email) takes its paid orders ── */
@@ -924,11 +978,26 @@ function createGuestPayRoutes(deps = {}) {
         claimed.push(outcome.claimed);
         // CHECKOUT-WHO-1: the order also named a phone this account does not sign in with -> offer the existing
         // link-a-number step (masked; linking still needs its own SMS code).
-        const o = outcome.order || {};
-        if (!alsoSignIn && o.checkoutWho === true && !phone && typeof o.guestPhone === 'string' && o.guestPhone) {
-          alsoSignIn = { kind: 'phone', masked: maskIndianMobile(o.guestPhone) };
-        }
+        if (!alsoSignIn) alsoSignIn = alsoSignInFor(outcome.order || {}, phone, email);
       }
+    }
+    // CHECKOUT-WHO-2: purchases delivered at payment time to THIS existing account that named a second identifier: offer
+    // it now, once (the flag is cleared whatever the outcome). A read failure only loses the offer, never the claim.
+    try {
+      const pending = await adminFirestore
+        .collection(PAY_ORDERS_COLLECTION)
+        .where('uid', '==', uid)
+        .where('alsoSignInPending', '==', true)
+        .limit(MAX_ORDERS_PER_CLAIM)
+        .get();
+      for (const d of pending && Array.isArray(pending.docs) ? pending.docs : []) {
+        const o = typeof d.data === 'function' ? d.data() || {} : {};
+        if (!alsoSignIn) alsoSignIn = alsoSignInFor(o, phone, email);
+        await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(d.id).set({ alsoSignInPending: false }, { merge: true });
+      }
+    } catch (e) {
+      emit('payments.guest.claim.pending_prompt_failed');
+      console.error('[pay/guest/claim] pending prompt read failed:', e && e.message);
     }
     return sendJson(res, 200, {
       ok: true,
@@ -939,7 +1008,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleClaim, afterRecipientPaid, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {
@@ -948,6 +1017,7 @@ module.exports = {
   isGuestPayEnabled,
   isCheckoutWhoEnabled,
   readRecipient,
+  NO_ACCOUNT_COVERAGE_ID,
   phoneKey,
   emailKey,
   PAYER_TYPE,

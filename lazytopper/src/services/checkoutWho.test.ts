@@ -18,9 +18,10 @@ import {
   readRecipient,
   selfLine,
   whoPrefill,
+  WHO_UNAVAILABLE,
   type WhoBuyDeps,
 } from "./checkoutWho";
-import { alsoSignInLine } from "./checkoutWhoFlag";
+import { alsoSignInLine, maskEmail as flagMaskEmail } from "./checkoutWhoFlag";
 import { isCheckoutWhoCopyOn } from "../components/pricing/pricingPlansCopy";
 import type { GuestItem } from "./guestPay";
 
@@ -84,7 +85,10 @@ describe("copy", () => {
     expect(paidLine("pack", ["an••••@gmail.com"])).toBe("Sign in with an••••@gmail.com and open My packs to download.");
     expect(selfLine("an••••@gmail.com")).toBe("For: you · an••••@gmail.com");
     expect(selfLine(null)).toBe("For: you");
-    expect(alreadyCoveredLine("pass")).not.toMatch(/@|\d{5}/);
+    expect(alreadyCoveredLine("pass")).toBe(WHO_UNAVAILABLE);
+    expect(alreadyCoveredLine("pack")).toBe(WHO_UNAVAILABLE);
+    expect(WHO_UNAVAILABLE).toBe("This can't be bought for that number or email right now. If the student already has it, they can sign in to check.");
+    expect(alsoSignInLine("an••••@gmail.com", "email")).toBe("Also sign in with an••••@gmail.com? Confirm it once from that inbox (or with Google), then either works.");
     expect(alsoSignInLine("+91 98•••••210")).toBe("Also sign in with +91 98•••••210? Confirm it once with an SMS code, then either works.");
   });
 });
@@ -155,5 +159,12 @@ describe("the order body and the Razorpay prefill", () => {
       const out = await buyForRecipient(PASS, { phone: "+919876543210", first: "phone" }, false, { ...deps().d, createOrder: createWhoOrder });
       expect(out).toEqual({ status: want });
     }
+  });
+});
+
+describe("CHECKOUT-WHO-2 · email helpers live in the import-free flag module", () => {
+  it("checkoutWho re-exports the SAME maskEmail", () => {
+    expect(maskEmail).toBe(flagMaskEmail);
+    expect(flagMaskEmail("Anaya.K@Gmail.com")).toBe("an••••@gmail.com");
   });
 });

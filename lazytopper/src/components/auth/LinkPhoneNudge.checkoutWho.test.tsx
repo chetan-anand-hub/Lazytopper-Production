@@ -11,6 +11,15 @@ vi.mock("../../context/AuthContext", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../context/AuthContext")>()),
   useAuth: () => ({ user: H.user, sendLinkPhoneOtp: vi.fn(), confirmLinkPhoneOtp: vi.fn() }),
 }));
+const linkSvc = vi.hoisted(() => ({ isEmailLinkReturn: vi.fn(() => true) }));
+vi.mock("../../services/linkSignInEmail", () => ({
+  ...linkSvc,
+  linkGoogleToCurrentAccount: vi.fn(),
+  sendEmailLinkForLinking: vi.fn(),
+  completeEmailLink: vi.fn(),
+  clearEmailLinkFromUrl: vi.fn(),
+  describeEmailLinkError: vi.fn(() => ""),
+}));
 vi.mock("../../services/checkoutWhoFlag", async (orig) => ({
   ...(await orig<typeof import("../../services/checkoutWhoFlag")>()),
   isCheckoutWhoClientEnabled: () => H.who,
@@ -61,5 +70,33 @@ describe("CHECKOUT-WHO-1 · Also sign in with <masked>?", () => {
     await act(async () => {});
     fire();
     expect(screen.queryByTestId("link-also-signin")).toBeNull();
+  });
+});
+
+describe("CHECKOUT-WHO-2 · an email to add", () => {
+  it("an email 'also sign in' opens the email step (Google or a link), even for an account WITH a phone linked", async () => {
+    H.user = { uid: "PH", email: null, phoneNumber: "+919876543948", displayName: "A", providerIds: ["phone"] };
+    render(<LinkPhoneNudge />);
+    await act(async () => {});
+    act(() => {
+      window.dispatchEvent(new CustomEvent(ALSO_SIGNIN_EVENT, { detail: { kind: "email", masked: "an••••@gmail.com" } }));
+    });
+    expect(await screen.findByTestId("link-email-panel")).toBeTruthy();
+    expect(screen.getByTestId("link-also-signin").textContent).toBe(
+      "Also sign in with an••••@gmail.com? Confirm it once from that inbox (or with Google), then either works.",
+    );
+    expect(screen.getByTestId("link-email-google")).toBeTruthy();
+  });
+
+  it("back from the email link (one-time code in the URL): the finish step opens; flag off: nothing", async () => {
+    window.history.replaceState(null, "", "/?apiKey=k&oobCode=abc&mode=signIn");
+    render(<LinkPhoneNudge />);
+    expect(await screen.findByText("Confirm the email you opened the link from")).toBeTruthy();
+    cleanup();
+    H.who = false;
+    render(<LinkPhoneNudge />);
+    await act(async () => {});
+    expect(screen.queryByTestId("link-email-panel")).toBeNull();
+    window.history.replaceState(null, "", "/");
   });
 });

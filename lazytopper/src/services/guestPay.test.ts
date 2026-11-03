@@ -254,3 +254,21 @@ describe("CHECKOUT-WHO-1 · a claim that also named a phone", () => {
     vi.doUnmock("./checkout");
   });
 });
+
+describe("CHECKOUT-WHO-2 · an email 'also sign in' is accepted too", () => {
+  it("kind email, masked, for that uid only", async () => {
+    vi.doMock("./checkout", async (orig) => ({ ...(await orig<typeof import("./checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+    const mod = await import("./guestPay");
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ok: true, claimed: [], alsoSignIn: { kind: "email", masked: "an••••@gmail.com" } }), { status: 200 }),
+    );
+    await mod.claimOncePerSession("uPhone", { force: true });
+    expect(mod.readAlsoSignIn("uPhone")).toEqual({ kind: "email", masked: "an••••@gmail.com" });
+    fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [], alsoSignIn: { kind: "sms", masked: "x" } }), { status: 200 }));
+    mod.clearAlsoSignIn();
+    await mod.claimOncePerSession("uPhone", { force: true });
+    expect(mod.readAlsoSignIn("uPhone")).toBeNull();
+    fetchSpy.mockRestore();
+    vi.doUnmock("./checkout");
+  });
+});

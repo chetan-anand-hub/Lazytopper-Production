@@ -200,7 +200,8 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     async resolveVerifiedIdentity(req) { return identityOf(req); },
   };
   const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail });
-  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer });
+  // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery, wired exactly as index.cjs does.
+  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, afterGuestPaid: (x) => guest.afterRecipientPaid(x) });
   const table = {
     [GUEST_ORDER_PATH]: guest.handleOrder,
     [GUEST_VERIFY_PATH]: guest.handleVerify,
@@ -1058,11 +1059,12 @@ test('WHO · an already-covered recipient account is refused at the order with o
   t.after(srv.close);
   const r = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
   assert.equal(r.status, 409);
-  assert.deepEqual(r.json, { ok: false, error: 'already_covered' });
+  // CHECKOUT-WHO-2: the SAME generic answer as "already paid, not yet claimed" - nothing says an account exists.
+  assert.deepEqual(r.json, { ok: false, error: 'payment_unavailable' });
   assert.equal(srv.rzp.calls.length, 0);
   // An owned pack is the same answer; a lookup that cannot tell fails closed.
   await db.collection('packEntitlements').doc('uCovered').collection('packs').doc('pack_cbq:maths').set({ packId: 'pack_cbq:maths' });
-  assert.deepEqual((await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } })).json, { ok: false, error: 'already_covered' });
+  assert.deepEqual((await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } })).json, { ok: false, error: 'payment_unavailable' });
   const down = await startRoutes({ env: WHO_ENV, uidForPhone: async () => { throw new Error('auth down'); } });
   t.after(down.close);
   assert.equal((await whoOrder(down, { sku: 'till_boards', recipient: { phone: PHONE } })).status, 500);
@@ -1076,7 +1078,9 @@ test('WHO · claim by the VERIFIED phone attaches an order that named a phone (a
   const c = await claim(srv, whoAuth('uKid', { phone: PHONE }));
   assert.equal(c.status, 200, c.text);
   assert.equal(c.json.claimed.length, 1);
-  assert.equal(c.json.alsoSignIn, undefined, 'the account already signs in with the phone');
+  // CHECKOUT-WHO-2: the account signs in with the phone but has no verified email: offer the order's email, MASKED.
+  assert.deepEqual(c.json.alsoSignIn, { kind: 'email', masked: 'an••••@gmail.com' });
+  assert.ok(!c.text.includes(EMAIL));
   assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uKid');
   assert.equal(srv.db.read(`payOrders/${orderId}`).claimedVia, 'claim');
 });
@@ -1164,4 +1168,135 @@ test('WHO · the recipient email copy: pack says My packs; month is never sent',
   assert.ok(pack.text.includes('open My packs to download it'));
   assert.ok(pack.text.includes('%2Fpacks%23my-packs'));
   assert.equal(buildRecipientReadyEmail({ passType: 'month', appUrl: 'x' }), null);
+});
+
+/* ══ WHO-2 · CHECKOUT-WHO-2 (review follow-ups before the flags flip) ═════════════════════════════════════════════
+ *
+ * ★ MUTATIONS (run against THIS file only, each shown red, each restored):
+ *   M6 payments.cjs handleGuestCaptured drops the `afterGuestPaid` call
+ *        -> "WHO-2 · webhook only: the SAME delivery + recipient email as verify" red
+ *   M7 guestPay.cjs handleWhoOrder skips the coverage read when no account was found (no dummy id)
+ *        -> "WHO-2 · the coverage read runs for an order for NOBODY too" red
+ */
+const { NO_ACCOUNT_COVERAGE_ID } = require('./guestPay.cjs');
+
+/** Records every `<collection>/<doc>` touched through collection().doc() (reads and writes alike). */
+function spyDocs(db) {
+  const touched = [];
+  const orig = db.collection.bind(db);
+  db.collection = (name) => {
+    const c = orig(name);
+    const doc = c.doc.bind(c);
+    c.doc = (id) => {
+      touched.push(`${name}/${id}`);
+      return doc(id);
+    };
+    return c;
+  };
+  return touched;
+}
+
+test('WHO-2 · the coverage read runs for an order for NOBODY too (fixed dummy id), and nothing is written under it', async (t) => {
+  const db = memoryFirestore();
+  const touched = spyDocs(db);
+  const srv = await startRoutes({ env: WHO_ENV, db, uidForPhone: async () => null, uidForEmail: async () => null });
+  t.after(srv.close);
+  assert.equal((await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } })).status, 200);
+  assert.ok(touched.includes(`subscriptions/${NO_ACCOUNT_COVERAGE_ID}`), touched.join(','));
+  assert.equal((await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { email: EMAIL } })).status, 200);
+  assert.ok(touched.includes(`packEntitlements/${NO_ACCOUNT_COVERAGE_ID}`), touched.join(','));
+  assert.deepEqual(db.keys(`subscriptions/${NO_ACCOUNT_COVERAGE_ID}`), []);
+  assert.deepEqual(db.keys(`packEntitlements/${NO_ACCOUNT_COVERAGE_ID}`), []);
+});
+
+test('WHO-2 · covered recipient and pending purchase answer the SAME generic 409', async (t) => {
+  const db = memoryFirestore();
+  await db.collection('subscriptions').doc('uCovered').set(COVERED_SUB);
+  const srv = await startRoutes({ env: WHO_ENV, db, uidForPhone: async (p) => (p === PHONE ? 'uCovered' : null), uidForEmail: async () => null });
+  t.after(srv.close);
+  const covered = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
+  await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: OTHER_PHONE } });
+  const pending = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: OTHER_PHONE } });
+  assert.equal(covered.status, 409);
+  assert.equal(pending.status, 409);
+  assert.deepEqual(covered.json, pending.json);
+});
+
+test('WHO-2 · claim: an email prompt when the account has no VERIFIED email; none when it has', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  await paidWhoOrder(srv, { sku: 'pack_mock', target: 'maths', recipient: { phone: PHONE, email: EMAIL } });
+  await paidWhoOrder(srv, { sku: 'pack_mock', target: 'science', recipient: { phone: OTHER_PHONE, email: EMAIL } });
+  const unverified = await claim(srv, whoAuth('uA', { phone: PHONE, email: EMAIL, ev: false }));
+  assert.deepEqual(unverified.json.alsoSignIn, { kind: 'email', masked: 'an••••@gmail.com' });
+  const verified = await claim(srv, whoAuth('uB', { phone: OTHER_PHONE, email: 'other@x.in', ev: true }));
+  assert.equal(verified.json.claimed.length, 1);
+  assert.equal(verified.json.alsoSignIn, undefined, 'it already has a verified email');
+});
+
+test('WHO-2 · delivered at payment time to an EXISTING account: the "also sign in" offer waits for its next session, once', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV, uidForPhone: async (p) => (p === PHONE ? 'uExisting' : null), uidForEmail: async () => null });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+  assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uExisting');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).alsoSignInPending, true);
+  const next = await claim(srv, whoAuth('uExisting', { phone: PHONE }));
+  assert.deepEqual(next.json.claimed, []);
+  assert.deepEqual(next.json.alsoSignIn, { kind: 'email', masked: 'an••••@gmail.com' });
+  assert.equal(srv.db.read(`payOrders/${orderId}`).alsoSignInPending, false);
+  assert.equal((await claim(srv, whoAuth('uExisting', { phone: PHONE }))).json.alsoSignIn, undefined, 'once');
+  // Another account never sees it.
+  const other = await startRoutes({ env: WHO_ENV, uidForPhone: async () => 'uExisting2', uidForEmail: async () => null });
+  t.after(other.close);
+  await paidWhoOrder(other, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+  assert.equal((await claim(other, whoAuth('uStranger', { phone: OTHER_PHONE }))).json.alsoSignIn, undefined);
+  // One identifier only: nothing to offer, no marker.
+  const single = await startRoutes({ env: WHO_ENV, uidForPhone: async () => 'uSolo', uidForEmail: async () => null });
+  t.after(single.close);
+  const s1 = await paidWhoOrder(single, { sku: 'till_boards', recipient: { phone: PHONE } });
+  assert.equal(single.db.read(`payOrders/${s1.orderId}`).alsoSignInPending, undefined);
+});
+
+test('WHO-2 · webhook only (no verify): the SAME delivery + recipient email as verify, once; old guest orders untouched', async (t) => {
+  const { db, resend, receiptEmailer } = emailHarness();
+  const srv = await startRoutes({ env: { ...WHO_ENV, GUEST_PAY_ENABLED: '1' }, db, receiptEmailer, uidForPhone: async () => null, uidForEmail: async (e) => (e === EMAIL ? 'uEmail' : null) });
+  t.after(srv.close);
+  const o = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL } });
+  const p = srv.rzp.pay(o.json.orderId);
+  const w = await sendWebhook(srv, { ...srv.rzp.payments.get(p.id) });
+  assert.equal(w.status, 200, w.text);
+  await srv.idle();
+  await receiptEmailer.whenIdle();
+  assert.equal(db.read(`payOrders/${o.json.orderId}`).uid, 'uEmail');
+  assert.equal(db.read(`payOrders/${o.json.orderId}`).claimedVia, 'existing_account');
+  assert.equal(db.read('subscriptions/uEmail').tier, 'premium');
+  // A later verify / webhook replay adds nothing.
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id)).status, 200);
+  assert.equal((await sendWebhook(srv, { ...srv.rzp.payments.get(p.id) })).status, 200);
+  await srv.idle();
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.filter((m) => m.body.to.includes(EMAIL)).length, 1);
+  // A plain pay-by-phone order through the webhook: paid_unclaimed, exactly as before.
+  const old = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: OTHER_PHONE });
+  const op = srv.rzp.pay(old.json.orderId);
+  await sendWebhook(srv, { ...srv.rzp.payments.get(op.id) });
+  await srv.idle();
+  assert.equal(db.read(`payOrders/${old.json.orderId}`).status, 'paid_unclaimed');
+});
+
+test('WHO-2 · a payment ALREADY recorded on the account is a replay, never labelled a duplicate purchase (race)', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  const { orderId, paymentId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
+  // A concurrent delivery took the order and granted THIS payment, and the account now runs to the boards.
+  await srv.db.collection('payOrders').doc(orderId).set({ uid: 'uK', status: 'claimed', claimAttempts: 1 }, { merge: true });
+  await srv.db.collection('subscriptions').doc('uK').set({ ...COVERED_SUB, lastPaymentRef: paymentId });
+  await srv.db.collection('subscriptions').doc('uK').collection('payments').doc(paymentId).set({ paymentRef: paymentId });
+  await claim(srv, whoAuth('uK', { phone: PHONE }));
+  assert.notEqual(srv.db.read(`payOrders/${orderId}`).status, 'duplicate_purchase');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).duplicateReason, undefined);
+  // CONTROL: a DIFFERENT payment for an account already covered is still a duplicate purchase.
+  const second = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: OTHER_PHONE } });
+  await claim(srv, whoAuth('uK', { phone: OTHER_PHONE }));
+  assert.equal(srv.db.read(`payOrders/${second.orderId}`).status, 'duplicate_purchase');
 });

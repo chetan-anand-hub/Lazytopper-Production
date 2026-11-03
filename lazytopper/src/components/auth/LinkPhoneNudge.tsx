@@ -222,19 +222,32 @@ export default function LinkPhoneNudge({ spaced = false }: { spaced?: boolean } 
    * account does not sign in with: open the same link step at once, with "Also sign in with <masked>?". Not gated on the
    * returning-visit count or the dismissal (it answers what the buyer asked for). Linking still needs the SMS code.
    */
-  const [alsoMasked, setAlsoMasked] = useState<string | null>(null);
+  const [also, setAlso] = useState<AlsoSignIn | null>(null);
+  /** CHECKOUT-WHO-2 - this page load is the return from the "add an email" link: finish it in the same step. */
+  const [emailLinkReturn, setEmailLinkReturn] = useState(false);
   const uid = user?.uid || "";
   const phoneLinked = hasPhoneLinked(user);
   useEffect(() => {
-    if (!eligibleAccount || phoneLinked || !isCheckoutWhoClientEnabled()) return undefined;
+    if (!eligibleAccount || !isCheckoutWhoClientEnabled()) return undefined;
     let cancelled = false;
-    const open = (also: AlsoSignIn | null) => {
-      if (cancelled || !also) return;
-      setAlsoMasked(also.masked);
+    const open = (a: AlsoSignIn | null) => {
+      if (cancelled || !a) return;
+      if (a.kind === "phone" && phoneLinked) return; // already signs in with a phone
+      setAlso(a);
       setModalOpen(true);
     };
     // The claim may have run before Home mounted (the sign-in lands here): start from the pending one for THIS uid.
     void import("../../services/guestPay").then((m) => open(m.readAlsoSignIn(uid))).catch(() => undefined);
+    // CHECKOUT-WHO-2: back from the email link (Firebase's one-time code is in the URL) -> finish adding the email.
+    if (typeof window !== "undefined" && /[?&]oobCode=/.test(window.location.search)) {
+      void import("../../services/linkSignInEmail")
+        .then((m) => {
+          if (cancelled || !m.isEmailLinkReturn()) return;
+          setEmailLinkReturn(true);
+          setModalOpen(true);
+        })
+        .catch(() => undefined);
+    }
     const onAlso = (e: Event) => open((e as CustomEvent<AlsoSignIn | undefined>).detail ?? null);
     window.addEventListener(ALSO_SIGNIN_EVENT, onAlso);
     return () => {
@@ -324,12 +337,14 @@ export default function LinkPhoneNudge({ spaced = false }: { spaced?: boolean } 
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
-          if (alsoMasked) {
-            setAlsoMasked(null);
+          setEmailLinkReturn(false);
+          if (also) {
+            setAlso(null);
             void import("../../services/guestPay").then((m) => m.clearAlsoSignIn()).catch(() => undefined);
           }
         }}
-        {...(alsoMasked ? { alsoMasked } : {})}
+        {...(also ? { alsoMasked: also.masked, alsoKind: also.kind } : {})}
+        {...(emailLinkReturn ? { emailLinkReturn: true } : {})}
       />
     </>
   );
