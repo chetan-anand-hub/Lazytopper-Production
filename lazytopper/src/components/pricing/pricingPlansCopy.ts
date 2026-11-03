@@ -265,7 +265,13 @@ export function subjectFromReferrer(referrer: string, origin: string): PackSubje
   }
   if (url.origin !== origin) return null;
   for (const seg of url.pathname.split("/").filter(Boolean)) {
-    const s = asSubject(decodeURIComponent(seg));
+    let decoded = seg;
+    try {
+      decoded = decodeURIComponent(seg);
+    } catch {
+      continue; // a malformed %-escape is not a subject
+    }
+    const s = asSubject(decoded);
     if (s) return s;
   }
   return null;

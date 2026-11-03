@@ -29,6 +29,7 @@ import {
   packIdOf,
   packPriceLabel,
   packCheckoutDescription,
+  subjectOfChapter,
   type MyPacks,
   type OwnedPack,
   type PackSku,
@@ -206,6 +207,11 @@ export interface PacksShopApi {
 /** PACKS-CONVERT-1: `from: "sample"` = the tap came from the "Liked the sample?" button; it rides on `pack_checkout`. */
 export interface PackBuyOpts {
   from?: PackCheckoutFrom;
+  /**
+   * PRICING-B-1 (chooseChapter only): the subject the page's switch shows. The picker then lists only that subject's chapters, and a
+   * preselected chapter of the OTHER subject is cleared (never bought by mistake). Presentation only: the buy path is unchanged.
+   */
+  subject?: PackSubject;
 }
 
 /** Review fix 2: shown under a Buy that waits for another pack's payment. */
@@ -237,6 +243,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [chapter, setChapter] = useState("");
   const [subject, setSubject] = useState<PackSubject>("maths");
   const [openSku, setOpenSku] = useState<PackSku | null>(null);
+  /** PRICING-B-1: the subject the Chapter Pack picker is limited to (set by chooseChapter({ subject })), else null = all chapters. */
+  const [pickerSubject, setPickerSubject] = useState<PackSubject | null>(null);
   const [entrySlide, setEntrySlide] = useState(0);
   /** PACKS-TILE-BUY-1: the Chapter Pack pop-up opened from "Choose chapter & buy" focuses its picker. */
   const [focusPicker, setFocusPicker] = useState(false);
@@ -352,6 +360,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   }
   function openPack(sku: PackSku) {
     sampleChapterBuy.current = false;
+    setPickerSubject(null);
     setEntrySlide(0);
     setFocusPicker(false);
     setOpenSku(sku);
@@ -714,6 +723,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     },
     chooseChapter: (opts) => {
       openPack("pack_chapter");
+      if (opts?.subject) {
+        setPickerSubject(opts.subject);
+        setSubject(opts.subject);
+        if (chapter && subjectOfChapter(chapter) !== opts.subject) setChapter("");
+      }
       setFocusPicker(true);
       sampleChapterBuy.current = opts?.from === "sample";
     },
@@ -743,6 +757,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               buy={buyArea(openSku, dialogTarget, openSku !== "pack_chapter" || Boolean(chapter))}
               sampleInBuy={buy.phase === "dismissed" && buy.key === packIdOf(openSku, dialogTarget)}
               focusPicker={focusPicker}
+              pickerSubject={openSku === "pack_chapter" ? pickerSubject : null}
               onClose={closePack}
               initialSlide={entrySlide}
             />

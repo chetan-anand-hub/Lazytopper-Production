@@ -42,19 +42,22 @@ vi.mock("../lib/packs/packAnalytics", async (orig) => {
 });
 vi.mock("../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
 // The pop-up, reduced to what the buy path needs: its sku, the chapter picker and the shop's own buy area.
-vi.mock("./PackDialog", () => ({
-  default: (p: { sku: string; subject: string; chapter: string; onChapter: (s: string) => void; buy: unknown }) => (
-    <div role="dialog" data-testid="pack-dialog" data-sku={p.sku} data-subject={p.subject}>
-      <select data-testid="pack-chapter-select" value={p.chapter} onChange={(e) => p.onChapter(e.target.value)}>
-        <option value="">Choose…</option>
-        <option value="real-numbers">Real Numbers</option>
-        <option value="triangles">Triangles</option>
-        <option value="electricity">Electricity</option>
-      </select>
-      {p.buy as never}
-    </div>
-  ),
-}));
+vi.mock("./PackDialog", async () => {
+  const { PACK_CHAPTER_SLUGS, subjectOfChapter } = await import("../services/packs");
+  return {
+    default: (p: { sku: string; subject: string; chapter: string; pickerSubject?: string | null; onChapter: (s: string) => void; buy: unknown }) => (
+      <div role="dialog" data-testid="pack-dialog" data-sku={p.sku} data-subject={p.subject} data-picker-subject={p.pickerSubject ?? ""}>
+        <select data-testid="pack-chapter-select" value={p.chapter} onChange={(e) => p.onChapter(e.target.value)}>
+          <option value="">Choose…</option>
+          {PACK_CHAPTER_SLUGS.filter((slug) => !p.pickerSubject || subjectOfChapter(slug) === p.pickerSubject).map((slug) => (
+            <option key={slug} value={slug}>{slug}</option>
+          ))}
+        </select>
+        {p.buy as never}
+      </div>
+    ),
+  };
+});
 
 import PricingPage from "./PricingPage";
 import { subjectFromReferrer, subjectFromSearch, subjectFromStored } from "../components/pricing/pricingPlansCopy";
@@ -124,6 +127,8 @@ describe("the subject the packs follow — pure helpers", () => {
     expect(subjectFromReferrer(`${o}/for-parents`, o)).toBeNull();
     expect(subjectFromReferrer("https://evil.example/science", o)).toBeNull();
     expect(subjectFromReferrer("not a url", o)).toBeNull();
+    expect(subjectFromReferrer(`${o}/%E0%A4%A/science`, o)).toBe("science"); // a malformed escape never throws
+    expect(subjectFromReferrer(`${o}/%E0%A4%A`, o)).toBeNull();
   });
 
   it("stored context: the app's own key, read only", () => {
@@ -227,6 +232,9 @@ describe("checkout receives the right SKU + target — signed out (sign-in resum
     fireEvent.click(sku("pricing-choose-chapter"));
     fireEvent.click(sku("pricing-subject-science"));
     expect(sku("pricing-choose-chapter").textContent).toBe("Choose a Science chapter · ₹49");
+    // The picker re-opens on the newly chosen subject (it is modal on the real page; the switch sits behind it).
+    fireEvent.click(sku("pricing-choose-chapter"));
+    expect((await screen.findByTestId("pack-dialog")).getAttribute("data-picker-subject")).toBe("science");
     fireEvent.change(await screen.findByTestId("pack-chapter-select"), { target: { value: "electricity" } });
     fireEvent.click(screen.getByTestId("packs-buy-pack_chapter"));
     await waitFor(() => expect(buyPack).toHaveBeenCalledTimes(1));
@@ -240,6 +248,51 @@ describe("checkout receives the right SKU + target — signed out (sign-in resum
     fireEvent.click(sku("pricing-buy-pack_subject"));
     await waitFor(() => expect(buyPack).toHaveBeenCalledTimes(1));
     expect(buyPack.mock.calls[0].slice(0, 2)).toEqual(["pack_subject", "maths"]);
+  });
+});
+
+describe("review blocker: a deep-linked chapter never leaks into the other subject's picker", () => {
+  it("/pricing?chapter=triangles -> Science -> picker: only Science chapters, nothing preselected; the checkout target is a Science chapter", async () => {
+    auth.user = { uid: "u1" };
+    renderAt("/pricing?chapter=triangles#packs");
+    await settle();
+    const first = await screen.findByTestId("pack-dialog");
+    expect((screen.getByTestId("pack-chapter-select") as HTMLSelectElement).value).toBe("triangles");
+    expect(first).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    fireEvent.click(sku("pricing-subject-science"));
+    fireEvent.click(sku("pricing-choose-chapter"));
+    const dlg = await screen.findByTestId("pack-dialog");
+    expect(dlg.getAttribute("data-picker-subject")).toBe("science");
+    const select = screen.getByTestId("pack-chapter-select") as HTMLSelectElement;
+    expect(select.value).toBe("");
+    const offered = Array.from(select.options).map((o) => o.value).filter(Boolean);
+    expect(offered.length).toBeGreaterThan(0);
+    expect(offered.every((slug) => subjectOfChapter(slug) === "science")).toBe(true);
+    expect(offered).not.toContain("triangles");
+    fireEvent.change(select, { target: { value: "electricity" } });
+    fireEvent.click(screen.getByTestId("packs-buy-pack_chapter"));
+    await waitFor(() => expect(buyPack).toHaveBeenCalledTimes(1));
+    expect(buyPack.mock.calls[0][0]).toBe("pack_chapter");
+    expect(subjectOfChapter(buyPack.mock.calls[0][1] as string)).toBe("science");
+  });
+
+  it("same subject: a deep-linked Maths chapter stays preselected in the Maths-only picker", async () => {
+    renderAt("/pricing?chapter=triangles#packs");
+    await screen.findByTestId("pack-dialog");
+    fireEvent.click(sku("pricing-choose-chapter"));
+    const select = screen.getByTestId("pack-chapter-select") as HTMLSelectElement;
+    expect(select.value).toBe("triangles");
+    expect(Array.from(select.options).map((o) => o.value).filter(Boolean).every((slug) => subjectOfChapter(slug) === "maths")).toBe(true);
+  });
+
+  it("'Start free' is for visitors only: a signed-in student (already on Basic) does not get a sign-in button", async () => {
+    renderAt("/pricing");
+    expect(screen.getByTestId("pricing-basic-line").querySelector("button")?.textContent).toBe("Start free");
+    cleanup();
+    auth.user = { uid: "u1" };
+    renderAt("/pricing");
+    expect(screen.getByTestId("pricing-basic-line").querySelector("button")).toBeNull();
   });
 });
 

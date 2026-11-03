@@ -677,13 +677,16 @@ function PricingPlansPage() {
                       <strong>{BASIC_LINE_STRONG}</strong>
                       {BASIC_LINE_REST}
                     </span>
-                    <button
-                      type="button"
-                      className="lt-pp-startfree"
-                      onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}
-                    >
-                      {START_FREE_LABEL}
-                    </button>
+                    {/* A signed-in student already has Basic: no sign-in button for them. */}
+                    {!user && (
+                      <button
+                        type="button"
+                        className="lt-pp-startfree"
+                        onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}
+                      >
+                        {START_FREE_LABEL}
+                      </button>
+                    )}
                   </div>
 
                   {/* TRUST-1 — other boards are not what a buyer came for: folded away at the very bottom. */}

@@ -87,7 +87,7 @@ export const PRICING_CSS = `
   .lt-pricing-band {
     background: var(--lt-ink);
     color: var(--lt-on-dark);
-    padding: 12px 16px 64px;
+    padding: 4px 16px 30px;
   }
 
   .lt-pricing-band-inner {
@@ -173,11 +173,11 @@ export const PRICING_CSS = `
   .lt-pricing-body {
     position: relative;
     max-width: 1120px;
-    margin: -48px auto 0;
+    margin: -20px auto 0;
     padding: 0 16px 48px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
   }
 
   .lt-pricing-body .lt-packs--embedded:empty {
@@ -207,7 +207,7 @@ export const PRICING_CSS = `
     background: var(--lt-mint);
     border: 2px solid var(--lt-mint-line);
     border-radius: 18px;
-    padding: 16px;
+    padding: 14px;
     box-shadow: 0 8px 24px rgba(11, 27, 58, 0.1);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -217,7 +217,7 @@ export const PRICING_CSS = `
   .lt-pp-pass__main {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 7px;
     min-width: 0;
   }
 
@@ -254,9 +254,9 @@ export const PRICING_CSS = `
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 0.875rem;
-    line-height: 1.35;
+    gap: 4px;
+    font-size: 0.84rem;
+    line-height: 1.32;
     color: var(--lt-ink);
   }
 
@@ -274,7 +274,7 @@ export const PRICING_CSS = `
   /* The price + founding line. The slot keeps the figures' height, so their arrival after mount moves nothing (CLS); every
      clock-derived figure sits inside the one figures node that the prerender capture strips. */
   .lt-pricing-tillboards-slot {
-    min-height: 4.6rem;
+    min-height: 4.2rem;
   }
 
   .lt-pp-price {
@@ -299,7 +299,7 @@ export const PRICING_CSS = `
   }
 
   .lt-pricing-tillboards-deadline {
-    margin: 6px 0 0;
+    margin: 4px 0 0;
     font-size: 0.78rem;
     line-height: 1.4;
     color: var(--lt-ink);
@@ -370,15 +370,6 @@ export const PRICING_CSS = `
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--lt-ink);
-  }
-
-  .lt-pack-credit-note {
-    padding: 8px 10px;
-    border-radius: 10px;
-    background: var(--lt-surface);
-    border: 1px solid var(--lt-tile-line);
-    color: var(--lt-green-deep);
-    font-size: 0.85rem;
   }
 
   /* ── Buttons ───────────────────────────────────────────────────────────── */
@@ -479,7 +470,7 @@ export const PRICING_CSS = `
 
   .lt-pp-paper {
     display: block;
-    padding-top: 9px;
+    padding-top: 7px;
     border-top: 1px solid var(--lt-tile-line);
     font-size: 0.8125rem;
     line-height: 1.4;
@@ -506,7 +497,7 @@ export const PRICING_CSS = `
     appearance: none;
     cursor: pointer;
     min-height: 44px;
-    padding: 4px 8px;
+    padding: 0 8px;
     border: 0;
     background: transparent;
     color: var(--lt-ink-2);
@@ -551,17 +542,17 @@ export const PRICING_CSS = `
     background: var(--lt-amber-bg);
     border: 2px solid var(--lt-amber-line);
     border-radius: 18px;
-    padding: 16px;
+    padding: 12px 16px 14px;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 9px;
+    gap: 8px;
   }
 
   .lt-pp-cbq__copy,
   .lt-pp-cbq__act {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 6px;
     min-width: 0;
   }
 
@@ -606,7 +597,7 @@ export const PRICING_CSS = `
   .lt-pp-cbq__head {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 6px;
   }
 
   .lt-pp-cbq__body {

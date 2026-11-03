@@ -274,7 +274,7 @@ export function PacksSection({
             className="lt-pp-buy lt-pp-buy--outline"
             aria-haspopup="dialog"
             disabled={api.buyEnabled && api.blockedBy("pack_chapter")}
-            onClick={() => (api.buyEnabled ? api.chooseChapter() : api.openPack("pack_chapter"))}
+            onClick={() => (api.buyEnabled ? api.chooseChapter({ subject }) : api.openPack("pack_chapter"))}
             data-testid="pricing-choose-chapter"
             data-subject={subject}
           >
