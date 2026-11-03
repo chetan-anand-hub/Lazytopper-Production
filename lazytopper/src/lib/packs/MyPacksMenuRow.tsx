@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { firePackEntryClick, packsHref } from "./packEntry";
 import { useOwnsAnyPack } from "./myPacksCache";
 
-export default function MyPacksMenuRow({ uid, onDone }: { uid: string; onDone: () => void }) {
+export default function MyPacksMenuRow({ uid, onDone, variant = "mobile" }: { uid: string; onDone: () => void; variant?: "mobile" | "desktop" }) {
   const navigate = useNavigate();
   const owns = useOwnsAnyPack(uid, true);
   if (!owns) return null;
@@ -17,9 +17,9 @@ export default function MyPacksMenuRow({ uid, onDone }: { uid: string; onDone: (
       <button
         type="button"
         role="menuitem"
-        className="lt-packs-row"
+        className={variant === "desktop" ? "lt-packs-row lt-packs-row--desktop" : "lt-packs-row"}
         onClick={() => {
-          firePackEntryClick("account");
+          firePackEntryClick(variant === "desktop" ? "account-desktop" : "account");
           onDone();
           navigate(packsHref({ hash: "my-packs" }));
         }}
@@ -38,4 +38,6 @@ export default function MyPacksMenuRow({ uid, onDone }: { uid: string; onDone: (
 
 const ROW_CSS = `
 .lt-packs-row { display: flex; align-items: center; gap: 8px; box-sizing: border-box; min-height: 44px; padding: 9px 8px; border: none; border-radius: 6px; background: transparent; color: var(--mob-fg); font-weight: 600; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lt-packs-row--desktop { color: hsl(220, 45%, 14%); }
+.lt-packs-row--desktop:hover { background: hsl(220, 20%, 96%); }
 `;

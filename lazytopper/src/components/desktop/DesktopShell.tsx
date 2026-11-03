@@ -670,6 +670,10 @@ export function DesktopShell({ children }: DesktopShellProps) {
                         >
                           Me / Progress
                         </button>
+                        {/* MY-PACKS-VISIBLE-1 — only for a student who owns a pack (scoped addition). */}
+                        {accountOpen && user && (
+                          <PacksEntry kind="account-row" variant="desktop" uid={user.uid} onDone={() => setAccountOpen(false)} />
+                        )}
                         {/* SETTINGS-1: pass, sign-in methods, mascots and "Your data" live in
                             ONE Settings window, identical on phone and desktop. Closes the
                             dropdown first so the modal is not rendered under an open menu. */}

@@ -17,7 +17,7 @@ const PacksEntryPoint = lazy(() => import("./PacksEntryPoint"));
 /**
  * Every pack entry the eager chrome shows, behind the flag and in ONE lazy chunk (each extra `import()` costs entry
  * bytes for its preload map). `kind`: "footer-link" (public footer), "footer-menu" (desktop dropdown legal row),
- * "account-row" (mobile menu row), "wall" (download-wall button). Flag off: renders nothing and loads nothing.
+ * "account-row" (mobile menu row; variant="desktop" = the desktop dropdown row), "me-card" (Me / Progress card), "wall" (download-wall button). Flag off: renders nothing and loads nothing.
  */
 export function PacksEntry(props: PacksEntryProps) {
   return isPacksEntryEnabled() ? (

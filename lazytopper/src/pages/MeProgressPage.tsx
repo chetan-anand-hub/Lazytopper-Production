@@ -70,6 +70,7 @@ import {
 import { conceptSetClick, type ConceptSetContext } from "../lib/desktop/conceptSetPath";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 // SETTINGS-USAGE-1: the fair-use card moved to Settings; an old /me#usage link opens it there.
+import { PacksEntry } from "../lib/packs/packEntryLazy";
 import { requestOpenSettings } from "../components/account/settingsDoor";
 import ShareWithParentsButton from "../components/parentReport/ShareWithParentsButton";
 
@@ -872,6 +873,9 @@ export default function MeProgressPage() {
           </div>
         )}
       </header>
+
+      {/* MY-PACKS-VISIBLE-1 — owners only; renders nothing otherwise. Lives in the lazy pack-entry chunk. */}
+      {realUid && <PacksEntry kind="me-card" uid={realUid} />}
 
       <div className="lt-me__windows" role="group" aria-label="Progress window">
         {WINDOWS.map((w) => (
