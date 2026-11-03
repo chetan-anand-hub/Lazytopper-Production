@@ -492,3 +492,57 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
   });
 });
 
+
+describe("WALL-KIND-1: the download kind beats the page address", () => {
+  const FLAG_ON = () => vi.stubEnv("VITE_PACKS_ENABLED", "1");
+  const wallK = (props: Partial<React.ComponentProps<typeof DownloadLimitWall>>, at: string) =>
+    render(
+      <MemoryRouter initialEntries={[at]}>
+        <DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} {...props} />
+      </MemoryRouter>,
+    );
+  const link = async () => (await screen.findByTestId("wall-pack-buy")).querySelector("a")!;
+  beforeEach(() => {
+    ownedState.packs = [];
+    ownedState.fail = false;
+    resetOwnedPacksCache();
+  });
+  it("a CBQ set whose address has no cbq params still gets the CBQ Pack when the kind says CBQ", async () => {
+    FLAG_ON();
+    wallK({ kind: "practice-set", hint: { cbq: true, subject: "maths" } }, "/practice?topic=triangles");
+    expect((await link()).getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
+    cleanup();
+    wallK({ kind: "practice-set", hint: { cbq: true, subject: "science" } }, "/practice");
+    expect((await link()).getAttribute("href")).toBe("/packs?buy=pack_cbq&t=science");
+  });
+  it("a non-CBQ practice set is not offered the CBQ Pack; the address still works as fallback", async () => {
+    FLAG_ON();
+    wallK({ kind: "practice-set", hint: { cbq: false, subject: "maths" } }, "/practice?topic=triangles");
+    expect((await link()).getAttribute("href")).toBe("/packs?buy=pack_chapter&t=triangles");
+    cleanup();
+    resetOwnedPacksCache();
+    wallK({}, "/practice?topic=triangles&style=cbq");
+    expect((await link()).getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
+  });
+  it("full mock -> Mock Pack from the kind and subject even when the address says nothing", async () => {
+    FLAG_ON();
+    wallK({ kind: "full-mock", hint: { subject: "science" } }, "/somewhere");
+    expect((await link()).getAttribute("href")).toBe("/packs?buy=pack_mock&t=science");
+    cleanup();
+    resetOwnedPacksCache();
+    wallK({ kind: "full-mock", cover: { subject: "maths" } }, "/somewhere");
+    expect((await link()).getAttribute("href")).toBe("/packs?buy=pack_mock&t=maths");
+  });
+  it("the hook hands the kind and hint to the wall; PracticePage passes the CBQ flag", async () => {
+    vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+    const f = vi.fn().mockResolvedValue(jsonRes(409, { error: "download_limit", resetAt: "2026-11-07T10:40:00Z", limit: 2, tier: "free" }));
+    vi.stubGlobal("fetch", f);
+    const { result } = renderHook(() => useLimitedDownload(), { wrapper: ({ children }: { children: React.ReactNode }) => <MemoryRouter initialEntries={["/practice"]}>{children}</MemoryRouter> });
+    await act(async () => { await result.current.guard("practice-set", "k", undefined, { cbq: true, subject: "maths" }); });
+    const w = result.current.wall as React.ReactElement<{ kind: string; hint: unknown }>;
+    expect(w.props.kind).toBe("practice-set");
+    expect(w.props.hint).toEqual({ cbq: true, subject: "maths" });
+    const src = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "pages/PracticePage.tsx"), "utf8");
+    expect(src).toMatch(/guardDownload\("practice-set",[^\n]*\{ cbq: cbqMode,/);
+  });
+});
