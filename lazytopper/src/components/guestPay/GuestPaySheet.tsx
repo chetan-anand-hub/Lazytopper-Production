@@ -12,7 +12,8 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { trackNamedEvent } from "../../analytics/analytics";
+import { newCheckoutAttemptId, trackNamedEvent, trackPurchase } from "../../analytics/analytics";
+import { trackPackPurchase, type PackSkuName } from "../../lib/packs/packAnalytics";
 import { inAppBrowser } from "../../utils/inAppBrowser";
 import { buyAsGuest, maskIndianMobile, normaliseIndianMobile, tenDigits, type GuestBuyOutcome, type GuestItem } from "../../services/guestPay";
 import "./guestPaySheet.css";
@@ -40,6 +41,27 @@ export function guestPaidLine(kind: GuestItem["kind"], phoneMasked: string): str
 
 export function formatRupees(inr: number | undefined): string {
   return typeof inr === "number" && Number.isFinite(inr) && inr > 0 ? `₹${inr.toLocaleString("en-IN")}` : "";
+}
+
+const PACK_SKU_NAMES: readonly PackSkuName[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
+
+/**
+ * BUY-PATH-1 - a pay-by-phone purchase counts as a sale in the funnel, exactly like a signed-in one: `purchase` (Board Pass) or
+ * `pack_purchase` (a pack), each with its GA4 `purchase` and the Google Ads conversion, through the SAME once-per-transaction
+ * helpers. Called ONLY for a SERVER-verified paid outcome (`confirmed`); the Razorpay payment id is the transaction id (else a
+ * per-attempt id, as the signed-in paths fall back), the server order's rupee amount the value. NOTHING about the phone number
+ * is passed: the event carries the sku, the item name, the amount and the id only.
+ */
+export function trackGuestPurchase(item: GuestItem, outcome: { amountInr?: number; paymentId?: string }, attemptId: string): void {
+  const transactionId = outcome.paymentId || attemptId;
+  const valueInr = typeof outcome.amountInr === "number" && Number.isFinite(outcome.amountInr) && outcome.amountInr > 0 ? outcome.amountInr : null;
+  if (item.kind === "pass") {
+    trackPurchase({ passType: "till_boards", itemName: "Premium pass till your boards", valueInr, transactionId });
+    return;
+  }
+  const sku = PACK_SKU_NAMES.find((s) => s === item.sku);
+  if (!sku) return;
+  trackPackPurchase({ sku, itemName: item.label, valueInr, transactionId });
 }
 
 export interface GuestPaySheetProps {
@@ -109,9 +131,13 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
     }
     trackNamedEvent("guest_pay_start");
     setStep({ name: "busy" });
+    const attemptId = newCheckoutAttemptId();
     const outcome = await buy(item, digits);
     if (outcome.status === "paid") {
       trackNamedEvent("guest_pay_paid");
+      // BUY-PATH-1: the sale itself, only once the SERVER verified it (an unconfirmed success is recorded by the webhook,
+      // and is not counted here).
+      if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
       setStep({ name: "paid", phoneMasked: outcome.phoneMasked, phone: outcome.phone, amountInr: outcome.amountInr, confirmed: outcome.confirmed });
     } else if (outcome.status === "already_paid") {
       setStep({ name: "already", phoneMasked: outcome.phoneMasked, phone: outcome.phone });

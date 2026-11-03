@@ -22,7 +22,7 @@ vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => mockSub }
 vi.mock("../../services/subscriptionService", () => ({ hydrateSubscriptionFromCloud: vi.fn(async () => ({})) }));
 vi.mock("../../analytics/analytics", () => ({
   trackNamedEvent: vi.fn(),
-  trackBeginCheckout: vi.fn(),
+  trackBeginCheckoutTap: vi.fn(),
   trackPurchase: vi.fn(),
   newCheckoutAttemptId: vi.fn(() => "lt_attempt"),
 }));
