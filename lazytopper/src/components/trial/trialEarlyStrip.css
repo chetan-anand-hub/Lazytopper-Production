@@ -1,0 +1,102 @@
+/* TRIAL-SELL-1 - the desktop trial strip (trial days 1-3). Same navy band as the day-4 countdown bar. */
+.lt-tes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  min-width: 0;
+  padding: 4px 4px 4px 16px;
+  background: hsl(214, 60%, 19%);
+  color: #eaf2fb;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.lt-tes__text {
+  flex: 1 1 320px;
+  min-width: 0;
+  margin: 0;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.lt-tes__sep {
+  margin: 0 6px;
+  color: #b9d0e8;
+}
+
+.lt-tes__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.lt-tes__pay {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 14px;
+  border-radius: 8px;
+  background: hsl(152, 60%, 42%);
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.lt-tes__pay:hover {
+  background: hsl(152, 60%, 36%);
+}
+
+/* "Ask a parent to pay" (PaywallActions askOnly) - shown as a quiet link inside the strip. */
+.lt-tes__ask .lt-paywall-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+}
+
+.lt-tes__ask .lt-paywall-parent,
+.lt-tes__ask .lt-paywall-parent--primary {
+  appearance: none;
+  width: auto;
+  min-height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: hsl(152, 60%, 70%);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lt-tes__ask .lt-parent-share-note {
+  color: #d6e4f3;
+}
+
+.lt-tes__close {
+  flex: 0 0 auto;
+  min-width: 44px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: none;
+  background: transparent;
+  color: #b9d0e8;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lt-tes__pay:focus-visible,
+.lt-tes__close:focus-visible,
+.lt-tes__ask .lt-paywall-parent:focus-visible {
+  outline: 2px solid hsl(152, 55%, 55%);
+  outline-offset: 2px;
+}

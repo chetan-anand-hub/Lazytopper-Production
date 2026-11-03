@@ -466,6 +466,7 @@
     "src/components/subscription/UpgradeSheet.feedback.test.tsx",
     "src/components/subscription/UpgradeSheet.offers.test.tsx",
     "src/components/subscription/UpgradeSheet.test.tsx",
+    "src/components/trial/TrialEarlyStrip.test.tsx",
     "src/components/trial/TrialEndBanner.test.tsx",
     "src/components/trial/TrialEndScreen.test.tsx",
     "src/components/trial/trialEndBannerModel.test.ts",

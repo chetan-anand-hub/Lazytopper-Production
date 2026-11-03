@@ -6,6 +6,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildAskParentMessage,
+  parentProofFrom,
+  parentProofLine,
   buyPassAsParent,
   daysLeft,
   isParentPayClientEnabled,
@@ -202,5 +204,64 @@ describe("the parent's purchase", () => {
     expect(await buyPassAsParent(TOKEN, "month", deps({ createOrder: async () => { throw new ParentLinkError("used"); } }))).toEqual({ status: "failed", reason: "used" });
     // PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success is pending, never failed.
     expect(await buyPassAsParent(TOKEN, "month", deps({ verify: async () => { throw new Error("x"); } }))).toEqual({ status: "pending" });
+  });
+});
+
+describe("TRIAL-SELL-1 - the parent's proof line, from real graded results only", () => {
+  const base = { prices: { month: null, till_boards: 1917 }, url: `https://www.lazytopper.com/pricing#pp=${TOKEN}`, days: 3 };
+
+  it("projects the 30-day totals: marks lost to not-attempted work are left out; the group is named only above Me's gate", () => {
+    expect(
+      parentProofFrom({ totals: { answers: 3, marksLost: 2.5, marksNotAttempted: 1 }, byGroup: { knowledge: 0.5, technique: 0, careless: 1 }, namesWeakness: true }),
+    ).toEqual({ answers: 3, marksLost: 1.5, group: "careless" });
+    expect(
+      parentProofFrom({ totals: { answers: 3, marksLost: 2.5, marksNotAttempted: 1 }, byGroup: { knowledge: 0.5, technique: 0, careless: 1 }, namesWeakness: false }),
+    ).toEqual({ answers: 3, marksLost: 1.5, group: null });
+  });
+
+  it("'mostly' must be true: a group under half of the typed marks lost is not named (exactly half is)", () => {
+    const totals = { answers: 4, marksLost: 3 };
+    // careless 1.2 of 3 typed (40%) -> largest, but not "mostly": no parenthesis.
+    const under = parentProofFrom({ totals, byGroup: { knowledge: 0.9, technique: 0.9, careless: 1.2 }, namesWeakness: true });
+    expect(under).toEqual({ answers: 4, marksLost: 3, group: null });
+    expect(buildAskParentMessage({ ...base, lang: "en", checkedCount: 4, proof: under })).toContain("it found 3 marks I was losing.");
+    expect(buildAskParentMessage({ ...base, lang: "hi", checkedCount: 4, proof: under })).toContain("3 नंबर पकड़े जो मेरे कट रहे थे।");
+    expect(buildAskParentMessage({ ...base, lang: "en", checkedCount: 4, proof: under })).not.toContain("mostly");
+    // exactly half -> named.
+    expect(parentProofFrom({ totals, byGroup: { knowledge: 1.5, technique: 1, careless: 0.5 }, namesWeakness: true })?.group).toBe("knowledge");
+  });
+
+  it("nothing real to say -> null (no totals, no answers, nothing lost, only not-attempted)", () => {
+    expect(parentProofFrom(null)).toBeNull();
+    expect(parentProofFrom({ totals: null, namesWeakness: true })).toBeNull();
+    expect(parentProofFrom({ totals: { answers: 0, marksLost: 0 }, namesWeakness: true })).toBeNull();
+    expect(parentProofFrom({ totals: { answers: 4, marksLost: 0 }, namesWeakness: true })).toBeNull();
+    expect(parentProofFrom({ totals: { answers: 4, marksLost: 2, marksNotAttempted: 2 }, namesWeakness: true })).toBeNull();
+  });
+
+  it("English: ONE proof line replaces the count line; the rest of the message is unchanged", () => {
+    const text = buildAskParentMessage({ ...base, lang: "en", checkedCount: 3, proof: { answers: 3, marksLost: 1.5, group: "careless" } });
+    expect(text).toContain("In the 3 answers it checked for me in the last 30 days, it found 1.5 marks I was losing (mostly careless slips).");
+    expect(text).not.toMatch(/I've had 3 answers checked/);
+    expect(text).toContain("₹1,917 once");
+    expect(text).toContain(base.url);
+    expect(buildAskParentMessage({ ...base, lang: "en", checkedCount: 1, proof: { answers: 1, marksLost: 1, group: null } })).toContain(
+      "In the 1 answer it checked for me in the last 30 days, it found 1 mark I was losing.",
+    );
+  });
+
+  it("no proof (null, absent, or invalid) -> today's text exactly", () => {
+    const today = buildAskParentMessage({ ...base, lang: "en", checkedCount: 2 });
+    expect(today).toContain("I've had 2 answers checked on it in the last 30 days.");
+    for (const proof of [null, undefined, { answers: 0, marksLost: 2, group: null }, { answers: 2, marksLost: 0, group: null }, { answers: 2, marksLost: Number.NaN, group: null }]) {
+      expect(buildAskParentMessage({ ...base, lang: "en", checkedCount: 2, proof })).toBe(today);
+    }
+  });
+
+  it("Hindi carries the same proof", () => {
+    const text = buildAskParentMessage({ ...base, lang: "hi", checkedCount: 3, proof: { answers: 3, marksLost: 1.5, group: "careless" } });
+    expect(text).toContain("पिछले 30 दिनों में इसने मेरे 3 उत्तर जाँचे और 1.5 नंबर पकड़े जो मेरे कट रहे थे (ज़्यादातर लापरवाही की गलतियाँ)।");
+    expect(text).not.toContain("उत्तर जाँचे गए हैं");
+    expect(parentProofLine({ answers: 2, marksLost: 3, group: null }, "hi")).toBe("पिछले 30 दिनों में इसने मेरे 2 उत्तर जाँचे और 3 नंबर पकड़े जो मेरे कट रहे थे।");
   });
 });

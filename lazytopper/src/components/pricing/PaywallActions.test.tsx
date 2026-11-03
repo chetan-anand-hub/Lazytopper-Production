@@ -282,6 +282,24 @@ describe("Ask a parent to pay", () => {
     expect(screen.getByTestId("parent-share-message").textContent).toContain("4 उत्तर");
   });
 
+  it("TRIAL-SELL-1: a real proof (marks the grader found lost) replaces the count line, in both languages", async () => {
+    const d = deps({ loadProof: vi.fn(async () => ({ answers: 3, marksLost: 1.5, group: "careless" as const })) });
+    view(d);
+    await tap(FORWARD_LABEL);
+    const msg = () => screen.getByTestId("parent-share-message").textContent ?? "";
+    expect(msg()).toContain("it found 1.5 marks I was losing (mostly careless slips).");
+    expect(msg()).not.toContain("I've had 4 answers checked");
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(msg()).toContain("1.5 नंबर पकड़े");
+  });
+
+  it("TRIAL-SELL-1: a failed proof read keeps today's message", async () => {
+    const d = deps({ loadProof: vi.fn(async () => Promise.reject(new Error("offline"))) });
+    view(d);
+    await tap(FORWARD_LABEL);
+    expect(screen.getByTestId("parent-share-message").textContent).toContain("I've had 4 answers checked");
+  });
+
   it("QR then Forward reuse ONE minted link", async () => {
     const d = deps();
     view(d);

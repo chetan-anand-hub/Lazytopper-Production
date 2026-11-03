@@ -1621,7 +1621,9 @@ export type PaywallSurface =
   | "grade_limit"
   | "scorecard_lock"
   // PAY-RESCUE-1 - the "Can't pay yourself?" card shown after a closed or failed checkout.
-  | "pay_rescue";
+  | "pay_rescue"
+  // TRIAL-SELL-1 - the desktop trial strip (trial days 1-3).
+  | "trial_strip";
 
 const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
