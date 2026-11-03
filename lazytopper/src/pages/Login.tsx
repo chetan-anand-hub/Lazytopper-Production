@@ -19,6 +19,7 @@ import {
   type LoginMethod,
 } from "../utils/authSignal";
 import OfferStrip from "../components/auth/OfferStrip";
+import SigningInScreen from "../components/auth/SigningInScreen";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
 import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
@@ -68,6 +69,15 @@ type LocationState = {
 export function guestPayDigitsFrom(state: unknown): string {
   const v = state && typeof state === "object" ? (state as LocationState).guestPayPhone : undefined;
   return typeof v === "string" && /^[6-9][0-9]{9}$/.test(v) ? v : "";
+}
+
+/**
+ * SIGNIN-FLASH-1 (review of #1521) — a post-sign-in target must be a safe internal path that is
+ * NOT the door itself (`/login`, `/login/…`, `/login?…`). Navigating a signed-in student to /login
+ * keeps this page mounted, which would strand the return-from-Google "Signing you in…" screen.
+ */
+export function isUsableSigninTarget(path: string | null | undefined): path is string {
+  return isSafeInternalPath(path) && !/^\/login(?:[/?#]|$)/i.test(path.trim());
 }
 
 /** TRIAL-CTA-1 — how long the trial-intent step waits for hydration before moving on. */
@@ -1552,12 +1562,12 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const nextPath = useMemo(() => {
     if (searchParams.has("redirect")) {
       const explicitRedirect = searchParams.get("redirect");
-      return isSafeInternalPath(explicitRedirect) ? explicitRedirect : "/";
+      return isUsableSigninTarget(explicitRedirect) ? explicitRedirect : "/";
     }
     const st = (location.state || {}) as LocationState;
-    if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
+    if (st.from) return isUsableSigninTarget(st.from) ? st.from : "/";
     // GOOGLE-REDIRECT-1 — back from Google: router state is gone; the intent kept the target.
-    if (returnIntent) return isSafeInternalPath(returnIntent.target) ? returnIntent.target : "/";
+    if (returnIntent) return isUsableSigninTarget(returnIntent.target) ? returnIntent.target : "/";
     // RETIREMENT PR-1: the fallback is now unconditionally "/" (RootEntry routes to the
     // live home per viewport). The /onboarding page is retired — a new signup lands on
     // the homepage, not the dark onboarding screen.
@@ -1592,6 +1602,10 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [otp, setOtp] = useState("");
   // GOOGLE-REDIRECT-1 — back from Google: the buttons wait (disabled) for the redirect result.
   const [busy, setBusy] = useState(() => returnIntent !== null);
+  // SIGNIN-FLASH-1 — back from Google: the calm "Signing you in…" screen stands in for the door
+  // until the student is navigated on, or the redirect result settles without a sign-in (the
+  // release / fail path below gives the door back exactly as before, with the same timings).
+  const [redirectPending, setRedirectPending] = useState(() => returnIntent !== null);
   // Which Google flow the attempt in flight used (telemetry `flow` only).
   const googleFlowRef = useRef<GoogleFlow>(returnIntent ? "redirect" : "popup");
   // AUTH-SIGNAL-1 — the method of the attempt in flight, so the one successful-auth exit below
@@ -1869,6 +1883,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       clearSigninIntent();
       resetRedirectOutcome();
       setBusy(false);
+      setRedirectPending(false);
     };
     const fail = (err: unknown) => {
       if (settled || !mountedRef.current || signedInRef.current) return;
@@ -1905,6 +1920,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       clearSigninIntent();
       if (loginMethodRef.current === "google") loginMethodRef.current = null;
       setBusy(false);
+      setRedirectPending(false);
     };
     window.addEventListener("pageshow", onPageShow);
     return () => {
@@ -2293,6 +2309,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       {"<- All sign-in options"}
     </button>
   );
+
+  // SIGNIN-FLASH-1 — the return trip from Google: no form flash while the result resolves.
+  if (redirectPending) return <SigningInScreen />;
 
   return (
     <main

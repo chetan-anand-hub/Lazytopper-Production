@@ -95,6 +95,13 @@ function stubMode(mode: "redirect" | "redirect-test", authDomain: string = windo
   vi.stubEnv("VITE_FIREBASE_AUTH_DOMAIN", authDomain);
 }
 const google = () => screen.getByRole("button", { name: /Continue with Google/ }) as HTMLButtonElement;
+/** SIGNIN-FLASH-1 — the return trip shows "Signing you in…", never the door's form. */
+const expectSigningIn = () => {
+  expect(screen.getByText("Signing you in…")).toBeTruthy();
+  expect(screen.queryByRole("button", { name: /Continue with Google/ })).toBeNull();
+  expect(screen.queryByRole("button", { name: /phone/i })).toBeNull();
+  expect(document.querySelector("form")).toBeNull();
+};
 const events = (name: string) => track.mock.calls.filter((c) => c[0] === name);
 
 const GOOGLE_USER: AuthUser = { uid: "g1", email: "s@x.com", phoneNumber: null, displayName: "S", providerIds: ["google.com"], emailVerified: true };
@@ -261,7 +268,7 @@ describe("the return trip", () => {
   it("success: the popup path's target (?redirect=), login_success once with flow redirect, intent cleared", async () => {
     saveSigninIntent(INTENT);
     const view = mount("/login?redirect=%2Fpacks");
-    expect(google().disabled).toBe(true);
+    expectSigningIn();
     act(() => setRedirectOutcome({ kind: "pending" }));
     authState.user = GOOGLE_USER;
     act(() => setRedirectOutcome({ kind: "success" }));
@@ -335,7 +342,7 @@ describe("the return trip", () => {
   it("review of #1505: a fresh intent but NO result (Back without bfcache, or a partitioned result): login_error redirect-no-result once + phone rescue", async () => {
     saveSigninIntent(INTENT);
     const view = mount("/login");
-    expect(google().disabled).toBe(true);
+    expectSigningIn();
     act(() => setRedirectOutcome({ kind: "none" }));
     expect(events("login_error")).toEqual([
       ["login_error", { method: "google", ua_class: "desktop", error_code: "redirect-no-result", flow: "redirect" }],
@@ -356,22 +363,128 @@ describe("the return trip", () => {
     vi.useFakeTimers();
     saveSigninIntent(INTENT);
     mount("/login");
-    expect(google().disabled).toBe(true);
+    expectSigningIn();
+    // Still the calm state just before the existing bound…
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(REDIRECT_RESULT_WAIT_MS);
+      await vi.advanceTimersByTimeAsync(REDIRECT_RESULT_WAIT_MS - 1);
     });
+    expectSigningIn();
+    // …and the door, buttons enabled, once it passes.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    expect(screen.queryByText("Signing you in…")).toBeNull();
     expect(google().disabled).toBe(false);
   });
 
   it("an intent within 30 minutes is still honoured; past 30 it is an ordinary door — and Login's read never deletes it", () => {
     saveSigninIntent(INTENT, Date.now() - 25 * 60 * 1000);
     const first = mount("/login");
-    expect(google().disabled).toBe(true);
+    expectSigningIn();
     first.unmount();
     saveSigninIntent(INTENT, Date.now() - 31 * 60 * 1000);
     mount("/login");
+    expect(screen.queryByText("Signing you in…")).toBeNull();
     expect(google().disabled).toBe(false);
     // Left for AuthContext, which decides on the raw record (review of #1505).
     expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).not.toBeNull();
+  });
+});
+
+describe("SIGNIN-FLASH-1 — no login-form flash on the return from Google", () => {
+  it("no intent: the ordinary door renders immediately, never the signing-in state", () => {
+    mount("/login");
+    expect(screen.queryByText("Signing you in…")).toBeNull();
+    expect(google().disabled).toBe(false);
+  });
+
+  it("a return from Google renders the signing-in state (status role, no form, no offer) until navigation", async () => {
+    saveSigninIntent(INTENT);
+    const view = mount("/login");
+    expectSigningIn();
+    expect(screen.getByRole("status").textContent).toContain("Signing you in…");
+    expect(document.body.textContent).not.toMatch(/trial/i);
+    act(() => setRedirectOutcome({ kind: "pending" }));
+    expectSigningIn();
+    authState.user = GOOGLE_USER;
+    act(() => setRedirectOutcome({ kind: "success" }));
+    view.again();
+    await screen.findByText("LANDED ON PACKS");
+    expect(screen.queryByText("Signing you in…")).toBeNull();
+  });
+
+  it("a returning user already resolved goes straight on: the door's form is never rendered", async () => {
+    saveSigninIntent(INTENT);
+    authState.user = GOOGLE_USER;
+    mount("/login");
+    expect(screen.queryByRole("button", { name: /Continue with Google/ })).toBeNull();
+    await screen.findByText("LANDED ON PACKS");
+  });
+
+  it("redirect-no-result falls back to the existing behaviour: the door on the phone step with the message", () => {
+    saveSigninIntent(INTENT);
+    mount("/login");
+    expectSigningIn();
+    act(() => setRedirectOutcome({ kind: "none" }));
+    expect(screen.queryByText("Signing you in…")).toBeNull();
+    expect(document.body.textContent).toContain(GOOGLE_REDIRECT_NO_RESULT_MESSAGE);
+    expect(screen.getByRole("heading", { name: /Continue with phone/ })).toBeTruthy();
+  });
+
+  it("a redirect error gives the door back with the error, as before", () => {
+    saveSigninIntent(INTENT);
+    mount("/login");
+    act(() =>
+      setRedirectOutcome({ kind: "error", error: Object.assign(new Error("x"), { code: "auth/popup-closed-by-user" }) }),
+    );
+    expect(screen.queryByText("Signing you in…")).toBeNull();
+    expect(document.body.textContent).toContain(POPUP_CLOSED_MESSAGE);
+  });
+
+  it("review of #1521: the 20 s result timer is cleared on unmount (no late release clears a live intent)", async () => {
+    vi.useFakeTimers();
+    saveSigninIntent(INTENT);
+    const view = mount("/login");
+    expectSigningIn();
+    view.unmount();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(REDIRECT_RESULT_WAIT_MS * 2);
+    });
+    expect(vi.getTimerCount()).toBe(0);
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).not.toBeNull();
+    expect(events("login_error")).toHaveLength(0);
+  });
+
+  it("review of #1521: a bfcache-restored page (pageshow persisted) drops the spinner and gives the door back", () => {
+    saveSigninIntent(INTENT);
+    mount("/login");
+    expectSigningIn();
+    act(() => {
+      window.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: true }));
+    });
+    expect(screen.queryByText("Signing you in…")).toBeNull();
+    expect(google().disabled).toBe(false);
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
+  });
+
+  it("review of #1521: a saved /login* target never strands the spinner — the student lands on Home", async () => {
+    for (const target of ["/login", "/login?redirect=%2Fpacks", "/login/extra", "/LOGIN"]) {
+      cleanup();
+      sessionStorage.clear();
+      resetRedirectOutcome();
+      saveSigninIntent({ ...INTENT, target, explicitTarget: target });
+      authState.user = GOOGLE_USER;
+      mount("/login");
+      await screen.findByText("LANDED ON HOME");
+      expect(screen.queryByText("Signing you in…")).toBeNull();
+      authState.user = null;
+    }
+  });
+
+  it("review of #1521: ?redirect=/login is not a usable post-sign-in target either", async () => {
+    saveSigninIntent(INTENT);
+    authState.user = GOOGLE_USER;
+    mount("/login?redirect=%2Flogin");
+    await screen.findByText("LANDED ON HOME");
   });
 });
