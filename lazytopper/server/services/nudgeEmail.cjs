@@ -1317,6 +1317,16 @@ function createNudgeEmailer(deps = {}) {
       // founder_checkin runs after them.
       const conciergeState = { seen: new Set(), dead: new Set() };
       await runConcierge({ summary, skip, nowMs, day, phase: 'checkout_help', state: conciergeState });
+      // PACK-NUDGE-PRIORITY-1: a buyer who has not opened their pack is also served BEFORE d1/d3/founding, so a
+      // morning of "Where you left off" mail cannot fill the shared daily cap and starve people who paid.
+      // A failure inside the pack phase must not abort d1/d3 (review note): log it and carry on.
+      let capFull = false;
+      try {
+        capFull = await runPackNudge({ summary, skip, nowMs, day });
+      } catch (e) {
+        skip('pack-phase-error');
+        log(`[nudge-email] pack phase failed: ${e && e.message ? e.message : 'error'}`);
+      }
       const cohort = new Map();
       for (const r of ranges) {
         const qs = await adminFirestore
@@ -1498,8 +1508,6 @@ function createNudgeEmailer(deps = {}) {
           log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
         }
       }
-      // PACK-NUDGE-1: a buyer who has not opened their pack is served before the founder note and the comeback.
-      let capFull = await runPackNudge({ summary, skip, nowMs, day });
       if (!capFull) capFull = await runConcierge({ summary, skip, nowMs, day, phase: 'founder_checkin', state: conciergeState });
       if (!capFull) await runComeback({ summary, skip, nowMs, day });
       if (foundingGate) log(`[nudge-email] founding email not running: ${foundingGate}`);
