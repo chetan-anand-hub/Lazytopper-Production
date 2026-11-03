@@ -264,7 +264,8 @@ let pendingAlso: { uid: string; also: AlsoSignIn } | null = null;
 function parseAlso(raw: unknown): AlsoSignIn | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
-  return r.kind === "phone" && typeof r.masked === "string" && r.masked ? { kind: "phone", masked: r.masked } : null;
+  // CHECKOUT-WHO-2: a missing phone OR a missing (verified) email.
+  return (r.kind === "phone" || r.kind === "email") && typeof r.masked === "string" && r.masked ? { kind: r.kind, masked: r.masked } : null;
 }
 
 /** The pending "also sign in" for THIS account only, or null. */

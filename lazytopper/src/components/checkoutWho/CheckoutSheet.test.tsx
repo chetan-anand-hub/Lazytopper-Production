@@ -139,7 +139,10 @@ describe("signed out", () => {
     mount({ buy });
     type("who-first", "9876543210");
     fireEvent.click(screen.getByTestId("who-pay"));
-    expect((await screen.findByTestId("who-covered")).textContent).toBe("The account for this already has the Board Pass till the boards. Nothing to pay.");
+    // CHECKOUT-WHO-2: the owner-reviewed generic line - nothing says an account exists.
+    expect((await screen.findByTestId("who-covered")).textContent).toBe(
+      "This can't be bought for that number or email right now. If the student already has it, they can sign in to check.",
+    );
     cleanup();
     mount({ buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "dismissed" })) });
     type("who-first", "9876543210");
@@ -153,5 +156,16 @@ describe("signed out", () => {
     const p = mount();
     fireEvent.click(screen.getByTestId("who-sign-in-first"));
     expect(p.onSignIn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("CHECKOUT-WHO-2 · one generic line for 'covered' and 'already pending'", () => {
+  it("the server's generic 409 shows the same words as covered", async () => {
+    mount({ buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "unavailable" })) });
+    type("who-first", "anaya.k@gmail.com");
+    fireEvent.click(screen.getByTestId("who-pay"));
+    const line = (await screen.findByTestId("who-unavailable")).textContent;
+    expect(line).toBe("This can't be bought for that number or email right now. If the student already has it, they can sign in to check.");
+    expect(line).not.toMatch(/account|anaya/i);
   });
 });

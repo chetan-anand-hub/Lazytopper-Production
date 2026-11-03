@@ -230,6 +230,12 @@ function createPaymentRoutes(deps = {}) {
     foundingOfferOpen,
     topupBonus, // test seam only: { percent, endsIso }; production passes nothing (the constants decide)
     receiptEmailer, // PAY-PHONE-1 (A): optional; absent -> no receipt email (it is off by default anyway)
+    /**
+     * CHECKOUT-WHO-2 - optional async ({ orderId, paymentId }) => void: the guest routes' post-payment step for a
+     * "Who will use it?" order (attach to an existing recipient account + the recipient email), the SAME one verify runs.
+     * Idempotent and never throws. Absent -> a webhook-only recipient order simply waits for the recipient's sign-in.
+     */
+    afterGuestPaid,
   } = deps;
 
   /**
@@ -790,7 +796,18 @@ function createPaymentRoutes(deps = {}) {
       emit(marked.changed ? 'payments.webhook.guest_paid_unclaimed' : 'payments.webhook.guest_replayed');
       if (marked.reason === 'other_payment') emit('payments.webhook.guest_duplicate_payment');
       else sendReceipt(orderId, paymentId, entity, order.passType);
-      return sendJson(res, 200, { ok: true, guest: true, status: marked.status || null });
+      const answered = sendJson(res, 200, { ok: true, guest: true, status: marked.status || null });
+      // CHECKOUT-WHO-2: a recipient order paid with no verify (closed tab) gets the same delivery + email as verify, AFTER
+      // the answer. Only for THIS payment (never the duplicate one) and only for a checkoutWho order.
+      if (order.checkoutWho === true && marked.reason !== 'other_payment' && typeof afterGuestPaid === 'function') {
+        try {
+          await afterGuestPaid({ orderId, paymentId });
+        } catch (e) {
+          emit('payments.webhook.guest_deliver_failed');
+          console.error('[pay/webhook] recipient delivery failed:', e && e.message);
+        }
+      }
+      return answered;
     } catch (e) {
       emit('payments.webhook.store_write_failed');
       console.error('[pay/webhook] guest order write failed:', e && e.message);

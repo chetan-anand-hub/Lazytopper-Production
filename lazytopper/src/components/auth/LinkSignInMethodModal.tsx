@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { hasPhoneLinked } from "../../lib/signInMethods";
 import { normaliseTypedIndianMobile } from "../../utils/indianMobileInput";
 import { alsoSignInLine } from "../../services/checkoutWhoFlag";
+import LinkEmailPanel from "./LinkEmailPanel";
 
 /**
  * LinkSignInMethodModal — add a phone number as a second way to sign in.
@@ -102,6 +103,8 @@ export default function LinkSignInMethodModal({
   open,
   onClose,
   alsoMasked,
+  alsoKind = "phone",
+  emailLinkReturn = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -110,6 +113,13 @@ export default function LinkSignInMethodModal({
    * Linking still needs its SMS code below; nothing is linked without it.
    */
   alsoMasked?: string;
+  /**
+   * CHECKOUT-WHO-2 - what `alsoMasked` is: a phone (the SMS-code form below) or an email (LinkEmailPanel: Google, or an
+   * email link opened from that inbox). Default phone.
+   */
+  alsoKind?: "phone" | "email";
+  /** CHECKOUT-WHO-2 - this page load is the return from the email link: finish adding the email. */
+  emailLinkReturn?: boolean;
 }) {
   const { user, sendLinkPhoneOtp, confirmLinkPhoneOtp } = useAuth();
   const [step, setStep] = useState<"number" | "otp">("number");
@@ -200,7 +210,9 @@ export default function LinkSignInMethodModal({
           )}
         </ul>
 
-        {phoneLinked ? (
+        {alsoKind === "email" || emailLinkReturn ? (
+          <LinkEmailPanel {...(alsoMasked && alsoKind === "email" ? { alsoMasked } : {})} returning={emailLinkReturn} />
+        ) : phoneLinked ? (
           <p style={doneStyle} role="status">
             Your phone number is linked. You can sign in with it or with your
             other method — either works.

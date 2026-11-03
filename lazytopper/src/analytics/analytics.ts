@@ -966,8 +966,11 @@ export type NamedAnalyticsEvent =
   | "guest_pay_claimed";
 
 /**
- * CHECKOUT-WHO-1 - an optional `recipient: "self" | "other"` (who the purchase is for: the signed-in buyer themselves, or a
- * recipient typed into "Who will use it?"). The ONLY param a named event may carry here; no data -> the call is unchanged.
+ * CHECKOUT-WHO-1 - an optional `recipient: "self" | "other"`, the ONLY param a named event may carry here (no data -> the call
+ * is unchanged). It says HOW the buyer was identified, not who they are (CHECKOUT-WHO-2, review item 6):
+ *   "self"  - a SIGNED-IN student paying for their own account through "For: you" (the existing checkout);
+ *   "other" - a recipient TYPED into "Who will use it?" (signed out, or "Buying for someone else?"). A signed-out student
+ *             typing their OWN number is also "other": the browser cannot know, so read it as "typed", never "a gift".
  */
 export function trackNamedEvent(name: NamedAnalyticsEvent, data?: { recipient: "self" | "other" }): void {
   send("event", data ? { name, data: { recipient: data.recipient } } : { name });

@@ -416,7 +416,15 @@ const accountExportRoutes = createAccountExportRoutes({
 
 // PAY-PHONE-1 (A): one receipt email per verified payment. OFF unless PAYMENT_EMAIL_ENABLED + RESEND_API_KEY.
 const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({ adminFirestore, telemetry });
-const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry, receiptEmailer: paymentReceiptEmailer });
+const paymentRoutes = createPaymentRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  receiptEmailer: paymentReceiptEmailer,
+  // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery too (late-bound: guestPayRoutes is built below).
+  afterGuestPaid: (input) => guestPayRoutes.afterRecipientPaid(input),
+});
 // PACKS-SERVER-1: the packs a verified student owns. Not behind PACKS_ENABLED (owned packs stay downloadable).
 const packRoutes = createPackRoutes({
   sendJson,
