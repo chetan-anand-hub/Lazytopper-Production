@@ -16,6 +16,7 @@ import { PacksEntry, isPacksEntryEnabled } from "../../lib/packs/packEntryLazy";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { WallCoverContext } from "../../lib/packs/wallCover";
 import type { DownloadCover } from "../../services/limitsClient";
+import type { DownloadKind } from "../../analytics/analytics";
 import { blockedPracticeCopy, blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
 
@@ -38,6 +39,12 @@ class WallPackFallback extends Component<{ fallback: ReactNode; children: ReactN
 
 export type DownloadWallVariant = "blocked" | "signed_out" | "offline";
 
+/** WALL-KIND-1: what a call site knows about the paper, for the wall's pack offer ONLY (never sent to the server, never counted). */
+export interface DownloadPaperHint {
+  cbq?: boolean;
+  subject?: "maths" | "science";
+}
+
 export interface DownloadLimitWallProps {
   variant: DownloadWallVariant;
   /** "practice" = the daily graded Quick Practice limit (LIMITS-1 PR-2). Default: the download limit. */
@@ -49,10 +56,13 @@ export interface DownloadLimitWallProps {
   chapter?: string | null;
   /** PACK-LINKS-1: the cover the paper's guard() resolved (chapters / subject). When given, the pack link is built from it, not from the page address. */
   cover?: DownloadCover;
+  /** WALL-KIND-1: the download kind and paper hint from the call site; preferred over the page address for the pack offer. */
+  kind?: DownloadKind | null;
+  hint?: DownloadPaperHint | null;
   onClose: () => void;
 }
 
-export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, chapter = null, cover, onClose }: DownloadLimitWallProps) {
+export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, chapter = null, cover, kind = null, hint = null, onClose }: DownloadLimitWallProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const ref = useRef<HTMLDivElement>(null);
@@ -169,7 +179,7 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
           (isPacksEntryEnabled() ? (
             <WallPackFallback fallback={packLink}>
               <Suspense fallback={null}>
-                <WallPackBuy cover={cover ?? null} chapter={chapter} light={tier === "trial"} fallback={packLink} />
+                <WallPackBuy cover={cover ?? null} chapter={chapter} kind={kind} hint={hint} light={tier === "trial"} fallback={packLink} />
               </Suspense>
             </WallPackFallback>
           ) : (

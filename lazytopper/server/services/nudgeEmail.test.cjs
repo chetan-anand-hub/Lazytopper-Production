@@ -203,7 +203,7 @@ test('dry run logs who would be emailed (masked), writes nothing, sends nothing'
 });
 
 // ── windows ────────────────────────────────────────────────────────────────────────────
-test('window selection by age; founding only 10 Nov - 30 Nov IST', () => {
+test('window selection by age; founding only 3 Nov - 30 Nov IST', () => {
   assert.deepEqual(kindsInWindow(19 * HOUR, NOW), []);
   assert.deepEqual(kindsInWindow(20 * HOUR, NOW), ['d1']);
   assert.deepEqual(kindsInWindow(30 * HOUR, NOW), []);
@@ -213,6 +213,7 @@ test('window selection by age; founding only 10 Nov - 30 Nov IST', () => {
   assert.deepEqual(kindsInWindow(20 * DAY, NOW_NOV), ['founding']);
   assert.deepEqual(kindsInWindow(20 * DAY, FOUNDING_FROM_MS - 1), []);
   assert.deepEqual(kindsInWindow(20 * DAY, FOUNDING_FROM_MS), ['founding']);
+  assert.equal(FOUNDING_FROM_MS, Date.parse('2026-11-03T00:00:00.000+05:30')); // owner ruling 3 Nov 2026: starts now
   assert.deepEqual(kindsInWindow(20 * DAY, FOUNDING_UNTIL_MS - 1), ['founding']);
   assert.deepEqual(kindsInWindow(20 * DAY, FOUNDING_UNTIL_MS), []);
 });

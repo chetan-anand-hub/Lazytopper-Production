@@ -195,7 +195,9 @@ const EVENT_LABELS: Record<string, string> = {
   engaged_10min: "Stayed 10 minutes (in one day)",
   engaged_5min: "Stayed 5 minutes (in one day)",
   // PACKS-CLIENT-1 — the printable PDF packs.
-  pack_view: "Opened the PDF packs page",
+  // PACKS-RETURN-1 — pack_view fires on /packs AND on /pricing's embedded packs strip (surface "packs" / "pricing").
+  // The recorded name carries no surface, so a bare count cannot say which; the day's FEED can (see orderedFeed).
+  pack_view: "Saw the PDF packs (packs page or Pricing)",
   pack_checkout: "Opened checkout for a PDF pack",
   pack_purchase: "Bought a PDF pack",
   pack_download: "Downloaded a PDF from a pack",
@@ -309,9 +311,27 @@ export function activityEventLabel(name: string, uid?: string): string {
   return EVENT_LABELS[name] ?? name;
 }
 
+/**
+ * PACKS-RETURN-1 — `pack_view` in the feed, by the page it happened on. The event is sent once per mount of the packs
+ * shop, which lives on /packs and (embedded) on /pricing; the page view of that route is recorded first (RouteAnalytics
+ * sits before <App /> in main.tsx, so its effect runs first), so the nearest EARLIER page entry names the surface.
+ */
+export const PACK_VIEW_FEED_LABELS = {
+  pricing: "Saw the packs on Pricing",
+  packs: "Opened the PDF packs page",
+} as const;
+
+/** A feed entry as the admin feed lists it; `onPage` (pack_view only) is the page key it happened on, when known. */
+export type LabelledFeedItem = ActivityFeedItem & { onPage?: string };
+
 /** One feed line: "Opened Notes → Trigonometry" or "Checked an answer". */
-export function feedItemLabel(item: ActivityFeedItem, uid?: string): string {
-  return item.k === "page" ? `Opened ${pageLabel(item.n)}` : activityEventLabel(item.n, uid);
+export function feedItemLabel(item: LabelledFeedItem, uid?: string): string {
+  if (item.k === "page") return `Opened ${pageLabel(item.n)}`;
+  if (item.n === "pack_view" && item.onPage) {
+    const page = decodePageKey(item.onPage);
+    if (page === "pricing" || page === "packs") return PACK_VIEW_FEED_LABELS[page];
+  }
+  return activityEventLabel(item.n, uid);
 }
 
 /** The "Pages visited" rows: most visits first; ties in label order. */
@@ -323,9 +343,14 @@ export function pageRows(pages: Record<string, number>): { key: string; label: s
 }
 
 /** The feed in time order. Stable: entries with the same time keep their stored order. */
-export function orderedFeed(feed: ActivityFeedItem[]): ActivityFeedItem[] {
+export function orderedFeed(feed: ActivityFeedItem[]): LabelledFeedItem[] {
+  let lastPage: string | null = null;
   return feed
     .map((item, i) => ({ item, i }))
     .sort((a, b) => a.item.t - b.item.t || a.i - b.i)
-    .map(({ item }) => item);
+    .map(({ item }): LabelledFeedItem => {
+      if (item.k === "page") lastPage = item.n;
+      // PACKS-RETURN-1 — tag only pack_view, with the page it followed (see feedItemLabel).
+      return item.k === "event" && item.n === "pack_view" && lastPage !== null ? { ...item, onPage: lastPage } : item;
+    });
 }

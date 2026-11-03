@@ -1,10 +1,19 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "./test/setup";
-import { BottomNav, isMobileSelfChromedRoute, isBareFullScreenRoute } from "./App";
+import { BottomNav, isMobileSelfChromedRoute, isBareFullScreenRoute, isSignedOutBuyRoute } from "./App";
 
-afterEach(cleanup);
+const auth = vi.hoisted(() => ({ user: { uid: "u1" } as null | { uid: string } }));
+vi.mock("./context/AuthContext", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./context/AuthContext")>();
+  return { ...actual, useAuth: () => ({ user: auth.user, loading: false }) as unknown as ReturnType<typeof actual.useAuth> };
+});
+
+afterEach(() => {
+  cleanup();
+  auth.user = { uid: "u1" };
+});
 
 /** Probe that surfaces the current pathname so tab navigation is assertable. */
 function LocationProbe() {
@@ -213,5 +222,47 @@ describe("isBareFullScreenRoute (bare full-screen chrome-suppression gate — CT
     // "/u" is a very short prefix — prove it cannot swallow unrelated routes.
     expect(isBareFullScreenRoute("/upload")).toBe(false);
     expect(isBareFullScreenRoute("/users")).toBe(false);
+  });
+});
+
+describe("BUY-FOCUS-1 — bottom nav hidden for signed-out visitors on BUY landing pages", () => {
+  const BUY = ["/packs", "/cbq-class-10", "/cbq-class-10/electricity", "/pricing"];
+
+  it("is hidden when signed out on /packs, /cbq-class-10, a CBQ chapter page and /pricing", () => {
+    setMatchMediaMatches(false);
+    auth.user = null;
+    for (const path of BUY) {
+      cleanup();
+      renderNav(path);
+      expect(screen.queryByText("Practice"), path).toBeNull();
+      expect(document.querySelector("[data-lt-bottomnav]"), path).toBeNull();
+    }
+  });
+
+  it("stays shown when signed in on /packs and the CBQ pages", () => {
+    setMatchMediaMatches(false);
+    for (const path of ["/packs", "/cbq-class-10", "/cbq-class-10/electricity"]) {
+      cleanup();
+      renderNav(path);
+      expect(screen.getByText("Practice"), path).toBeInTheDocument();
+      expect(document.querySelector("[data-lt-bottomnav]"), path).not.toBeNull();
+    }
+  });
+
+  it("is unchanged (still shown) for signed-out visitors on other mobile routes", () => {
+    setMatchMediaMatches(false);
+    auth.user = null;
+    for (const path of ["/practice-hub", "/browse", "/exam-trends", "/packsy", "/cbq-class-100"]) {
+      cleanup();
+      renderNav(path);
+      expect(screen.getByText("Practice"), path).toBeInTheDocument();
+    }
+  });
+
+  it("isSignedOutBuyRoute matches the packs/CBQ families only", () => {
+    expect(isSignedOutBuyRoute("/packs")).toBe(true);
+    expect(isSignedOutBuyRoute("/cbq-class-10/electricity")).toBe(true);
+    expect(isSignedOutBuyRoute("/packsy")).toBe(false);
+    expect(isSignedOutBuyRoute("/practice-hub")).toBe(false);
   });
 });

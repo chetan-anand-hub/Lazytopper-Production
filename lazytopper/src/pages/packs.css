@@ -26,6 +26,8 @@
   -webkit-font-smoothing: antialiased;
   padding-bottom: 88px; /* clear the mobile bottom nav */
 }
+/* BUY-FOCUS-1 — no bottom nav mounted (signed-out visitors, desktop): drop the nav clearance. */
+body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 .lt-packs * { box-sizing: border-box; }
 .lt-packs h1, .lt-packs h2, .lt-packs h3, .lt-packs h4 { font-family: var(--pk-serif); letter-spacing: -0.01em; margin: 0; }
 .lt-packs a { color: var(--pk-gt); }

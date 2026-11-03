@@ -8,7 +8,7 @@
  *   D3       "come back"    signed up 3-14 days ago, has done something, not active for 48 h:
  *                            what they did (real counts, zero said as zero) + one next step.
  *   founding "founding"     engaged (>= 15 active minutes, OR opened /pricing, OR >= 2 graded),
- *                            not premium, 10 Nov - 30 Nov 2026 (IST): one factual price line and a
+ *                            not premium, 3 Nov - 30 Nov 2026 (IST): one factual price line and a
  *                            pointer to the Plans page, where the existing "forward link to
  *                            parents" action lives. Behind its OWN flag NUDGE_FOUNDING_EMAIL_ENABLED (default off) and dark until payments + parent pay are live.
  *
@@ -168,9 +168,9 @@ const IDLE_GAP_MS = 5 * MINUTE_MS;
 const ENGAGED_ACTIVE_MINUTES = 15;
 const ENGAGED_GRADED = 2;
 
-/** The founding-price email: 10 Nov 2026 00:00 IST up to (not including) 1 Dec 2026 00:00 IST. */
+/** The founding-price email: 3 Nov 2026 00:00 IST (owner ruling 3 Nov 2026: start now, not 10 Nov) up to (not including) 1 Dec 2026 00:00 IST. */
 const FOUNDING_LAST_DAY_IST = '2026-11-30';
-const FOUNDING_FROM_MS = Date.parse('2026-11-10T00:00:00.000+05:30');
+const FOUNDING_FROM_MS = Date.parse('2026-11-03T00:00:00.000+05:30');
 const FOUNDING_UNTIL_MS = Date.parse('2026-12-01T00:00:00.000+05:30');
 
 const DEFAULT_INTERVAL_MS = HOUR_MS;
