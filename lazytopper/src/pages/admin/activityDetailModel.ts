@@ -63,7 +63,7 @@ const VALUE_LABELS: Record<string, string> = {
   science: "Science",
   privacy: "Privacy Policy",
   terms: "Terms of Service",
-  refund: "Cancellation & Refunds",
+  refund: "Cancellation Policy",
   other: "(another page)",
 };
 

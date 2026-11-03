@@ -67,7 +67,7 @@ const LEGAL = [
   ["Privacy", "/legal/privacy"],
   ["Terms", "/legal/terms"],
   // COPY-2 · K6 (owner, 2026-09-27): matches the page tab and title.
-  ["Cancellation & Refunds", "/legal/refund"],
+  ["Cancellation Policy", "/legal/refund"],
 ] as const;
 
 describe("DesktopShell account dropdown — legal row (Lane C)", () => {
@@ -152,7 +152,7 @@ describe("PACKS-ENTRY-1 (c) — desktop account dropdown", () => {
     render(<MemoryRouter initialEntries={["/practice-hub"]}><DesktopShell><div /></DesktopShell><LocationProbe /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
     const btn = await screen.findByRole("button", { name: "PDF packs" }, { timeout: 8000 });
-    expect(btn.previousElementSibling?.textContent).toBe("Cancellation & Refunds");
+    expect(btn.previousElementSibling?.textContent).toBe("Cancellation Policy");
     fireEvent.click(btn);
     expect(screen.getByTestId("pathname").textContent).toBe("/pricing");
     expect(packTrack).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "footer" } });

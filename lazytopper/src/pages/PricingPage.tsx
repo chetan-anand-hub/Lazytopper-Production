@@ -2073,7 +2073,7 @@ function PricingPlansPage() {
 
       {/* [FU-LEGAL-FOOTER-LINK] — /pricing is a public route with the global navbar
           suppressed (isPublicLandingRoute), so it had no route to the policies. A
-          pricing surface in particular must reach Refunds and Terms. */}
+          pricing surface in particular must reach the Cancellation Policy and Terms. */}
       <PublicLegalFooter />
     </main>
   );

@@ -22,7 +22,7 @@ export default function PacksFooterLink({
       </Link>
     );
   }
-  // The desktop dropdown's legal row: the same quiet button as its neighbours (Privacy · Terms · Cancellation & Refunds).
+  // The desktop dropdown's legal row: the same quiet button as its neighbours (Privacy · Terms · Cancellation Policy).
   return (
     <>
       <button

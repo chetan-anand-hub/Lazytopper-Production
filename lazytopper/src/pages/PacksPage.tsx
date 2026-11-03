@@ -118,7 +118,7 @@ export default function PacksPage() {
             <details>
               <summary>Can I cancel after buying?</summary>
               <p>
-                Read the <Link to="/legal/refund">Cancellation policy</Link> before you buy.
+                All payments are final. LazyTopper does not give refunds. Read the <Link to="/legal/refund">Cancellation Policy</Link> before you buy.
               </p>
             </details>
           </div>
