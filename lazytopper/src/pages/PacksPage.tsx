@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
-import { BUNDLE_NAME, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
 import { packPriceLabel, type PackSku } from "../services/packs";
 import { PackSampleChoice } from "../components/packs/PackSampleLink";
 import CbqBand from "../components/pricing/CbqBand";
@@ -133,5 +133,5 @@ const TILES: ReadonlyArray<{ sku: PackSku; id: string; kicker: string; name: str
   { sku: "pack_chapter", id: "chapter", kicker: "One chapter", name: "Chapter Pack", lineLong: "Important questions for one chapter, with CBSE step-marking key", lineShort: "Important questions + step-marking key" },
   { sku: "pack_mock", id: "mock", kicker: "Board papers", name: "Mock Pack", lineLong: "8 board-pattern mock papers for 2027, with step-marking keys", lineShort: "8 board-pattern mocks for 2027 + keys" },
   { sku: "pack_subject", id: "subject", kicker: "Whole subject", name: "Subject Pack", lineLong: "Every chapter of Maths or Science — chapter-wise question bank 2026-27", lineShort: "Every chapter, Maths or Science, 2026-27" },
-  { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: "Maths + Science: all 26 chapters + 16 mocks — the whole year at one price", lineShort: "All 26 chapters + 16 mocks, one price", best: true },
+  { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: `Maths + Science: all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks — the whole year at one price`, lineShort: `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks, one price`, best: true },
 ];
