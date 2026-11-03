@@ -245,3 +245,28 @@ test('PAY-PHONE-1 review · guestAttention: claimed+grant failed, duplicate purc
   assert.equal(rows[2].paymentId, 'pay_e1');
   assert.ok(!JSON.stringify(res.body).includes('9876543948'));
 });
+
+test('CHECKOUT-WHO-1 · a recipient order shows recipient (MASKED), payer type, claimed-by uid and the two-accounts note; others unchanged', async () => {
+  const HOUR = 3600000;
+  const orders = [
+    { id: 'w1', data: { uid: null, payer: 'guest', checkoutWho: true, guestPhone: '+919876543948', guestEmail: 'anaya.k@gmail.com', payerType: 'signed_out', passType: 'till_boards', amountPaise: 191700, status: 'paid_unclaimed', paymentId: 'pay_w1', guestPaidAt: new Date(NOW - 3 * HOUR) } },
+    paid('w2', 'uKid', 'till_boards', 1917, HOUR, { payer: 'guest', checkoutWho: true, guestEmail: 'anaya.k@gmail.com', payerType: 'signed_in_other', claimedVia: 'existing_account', adminNote: 'phone_and_email_on_different_accounts' }),
+    paid('p1', 'u2', 'month', 599, 2 * HOUR),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  const [w1] = res.body.unclaimedGuest.items;
+  assert.deepEqual(w1.recipient, { phoneMasked: '+91 98•••••948', emailMasked: 'an••••@gmail.com' });
+  assert.equal(w1.payerType, 'signed_out');
+  assert.equal(w1.claimedBy, null);
+  const w2 = res.body.items.find((i) => i.orderId === 'w2');
+  assert.deepEqual(w2.recipient, { emailMasked: 'an••••@gmail.com' });
+  assert.equal(w2.payerType, 'signed_in_other');
+  assert.equal(w2.claimedBy, 'uKid');
+  assert.equal(w2.claimedVia, 'existing_account');
+  assert.equal(w2.adminNote, 'phone_and_email_on_different_accounts');
+  const p1 = res.body.items.find((i) => i.orderId === 'p1');
+  assert.equal(p1.recipient, undefined, 'an ordinary order has no new fields');
+  assert.ok(!JSON.stringify(res.body).includes('9876543948') && !JSON.stringify(res.body).includes('anaya.k@'));
+});

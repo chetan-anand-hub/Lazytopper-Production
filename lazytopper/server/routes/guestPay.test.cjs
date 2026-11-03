@@ -209,14 +209,22 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     [PAY_VERIFY_PATH]: pay.handleVerify,
     [PAY_WEBHOOK_PATH]: pay.handleWebhook,
   };
+  // CHECKOUT-WHO-1: a handler may keep working AFTER its response (delivery to an existing account); `idle()` waits for it.
+  const pending = new Set();
   const server = http.createServer((req, res) => {
     const h = req.method === 'POST' ? table[String(req.url).split('?')[0]] : null;
     if (!h) return sendJson(res, 404, { error: 'Not Found' });
-    return Promise.resolve(h(req, res)).catch((e) => sendJson(res, 500, { error: e.message }));
+    const p = Promise.resolve(h(req, res)).catch((e) => sendJson(res, 500, { error: e.message }));
+    pending.add(p);
+    p.finally(() => pending.delete(p));
+    return p;
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const { port } = server.address();
-  return { port, db, rzp, events, close: () => new Promise((r) => server.close(r)) };
+  const idle = async () => {
+    while (pending.size) await Promise.all([...pending]);
+  };
+  return { port, db, rzp, events, idle, close: () => new Promise((r) => server.close(r)) };
 }
 
 let ipSeq = 0;
@@ -847,4 +855,313 @@ test('OWNER · the account check counts against the per-phone limit, and a looku
   const r = await guestOrder(down, { sku: 'till_boards', phone: PHONE });
   assert.equal(r.status, 500);
   assert.equal(down.rzp.calls.length, 0);
+});
+
+/* ══ WHO · CHECKOUT-WHO-1 "Who will use it?" (dark behind CHECKOUT_WHO_ENABLED) ══════════════════════════════════
+ *
+ * ★ MUTATIONS (run against THIS file only, each shown red, each restored):
+ *   M4 guestPay.cjs handleWhoOrder prices from `body.amountPaise` when present
+ *        -> "WHO · the amount is the server's for a recipient order (body amount ignored)" red
+ *   M5 guestPay.cjs handleClaim reads the token email WITHOUT the `emailVerified === true` guard
+ *        -> "WHO · claim by email: email_verified false claims NOTHING; true claims" red
+ */
+
+const { readRecipient, isCheckoutWhoEnabled, TWO_ACCOUNTS_NOTE } = require('./guestPay.cjs');
+const { normaliseEmail, maskEmail } = require('../services/guestPay.cjs');
+const { buildRecipientReadyEmail } = require('../services/paymentReceiptEmail.cjs');
+
+const WHO_ENV = { ...ENV_ON, GUEST_PAY_ENABLED: '', CHECKOUT_WHO_ENABLED: '1' };
+const EMAIL = 'anaya.k@gmail.com';
+const whoAuth = (uid, { phone, email, ev } = {}) => ({
+  Authorization: `Bearer uid:${uid}${phone ? `|phone:${phone}` : ''}${email ? `|email:${email}|ev:${ev ? '1' : '0'}` : ''}`,
+});
+const whoOrder = (srv, body, headers = {}) => request(srv.port, GUEST_ORDER_PATH, { body, headers });
+async function paidWhoOrder(srv, body, headers = {}) {
+  const o = await whoOrder(srv, body, headers);
+  assert.equal(o.status, 200, o.text);
+  const p = srv.rzp.pay(o.json.orderId);
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  await srv.idle();
+  return { orderId: o.json.orderId, paymentId: p.id, order: o.json, verify: v.json };
+}
+const COVERED_SUB = { tier: 'premium', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')), lastPaymentRef: 'pay_first' };
+
+test('WHO · the switch needs PAYMENTS_ENABLED and CHECKOUT_WHO_ENABLED', () => {
+  assert.equal(isCheckoutWhoEnabled({ PAYMENTS_ENABLED: '1', CHECKOUT_WHO_ENABLED: '1' }), true);
+  assert.equal(isCheckoutWhoEnabled({ CHECKOUT_WHO_ENABLED: '1' }), false);
+  assert.equal(isCheckoutWhoEnabled({ PAYMENTS_ENABLED: '1' }), false);
+  assert.equal(isCheckoutWhoEnabled({}), false);
+});
+
+test('WHO · recipient detection / normalisation: Indian mobile or email, one or both, first-entered kept; anything bad -> null', () => {
+  assert.deepEqual(readRecipient({ phone: '98765 43948' }), { phone: PHONE, email: null, first: 'phone' });
+  assert.deepEqual(readRecipient({ phone: '+91 98765-43948' }), { phone: PHONE, email: null, first: 'phone' });
+  assert.deepEqual(readRecipient({ phone: '09876543948' }), { phone: PHONE, email: null, first: 'phone' });
+  assert.deepEqual(readRecipient({ email: '  Anaya.K@Gmail.com ' }), { phone: null, email: EMAIL, first: 'email' });
+  assert.deepEqual(readRecipient({ phone: '9876543948', email: EMAIL }), { phone: PHONE, email: EMAIL, first: 'phone' });
+  assert.deepEqual(readRecipient({ phone: '9876543948', email: EMAIL, first: 'email' }), { phone: PHONE, email: EMAIL, first: 'email' });
+  for (const bad of [null, [], 'x', {}, { phone: '' }, { phone: '12345' }, { email: 'not-an-email' }, { phone: '9876543948', email: 'bad@' }, { email: 'a@b' }, { email: '<a@b.com>' }]) {
+    assert.equal(readRecipient(bad), null, JSON.stringify(bad));
+  }
+  assert.equal(normaliseEmail('A@B.CO'), 'a@b.co');
+  assert.equal(maskEmail(EMAIL), 'an••••@gmail.com');
+  assert.equal(maskEmail('x'), '');
+});
+
+test('WHO · flag OFF: a `recipient` in the body is ignored and the order route answers exactly as before', async (t) => {
+  // Guest pay on, checkout-who off: the old phone flow, recipient ignored (no checkoutWho fields stored).
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const r = await whoOrder(srv, { sku: 'till_boards', phone: PHONE, recipient: { email: EMAIL } });
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(Object.keys(r.json).sort(), ['amountPaise', 'keyId', 'ok', 'orderId', 'phoneMasked']);
+  const stored = srv.db.read(`payOrders/${r.json.orderId}`);
+  assert.equal(stored.checkoutWho, undefined);
+  assert.equal(stored.guestEmail, undefined);
+  // A recipient-only body is the old "invalid_phone" refusal.
+  const only = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL } });
+  assert.equal(only.status, 400);
+  assert.equal(only.json.reason, 'invalid_phone');
+  // Both switches off: 404, nothing touched.
+  const dark = await startRoutes({ env: { ...ENV_ON, GUEST_PAY_ENABLED: '' } });
+  t.after(dark.close);
+  const d = await whoOrder(dark, { sku: 'till_boards', recipient: { phone: PHONE } });
+  assert.equal(d.status, 404);
+  assert.equal(dark.rzp.calls.length, 0);
+});
+
+test('WHO · checkout-who on, guest pay off: the old phone-only body stays 404; a recipient order works', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  assert.equal((await whoOrder(srv, { sku: 'till_boards', phone: PHONE })).status, 404);
+  assert.equal((await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } })).status, 200);
+});
+
+test('WHO · guest phone-only, email-only and both: stored as claim keys, echoed MASKED only, never in Razorpay notes', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  const phoneOnly = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: '98765 43948' } });
+  const emailOnly = await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { email: 'Anaya.K@gmail.com' } });
+  const both = await whoOrder(srv, { sku: 'pack_mock', target: 'science', recipient: { phone: OTHER_PHONE, email: EMAIL, first: 'email' } });
+  for (const r of [phoneOnly, emailOnly, both]) assert.equal(r.status, 200, r.text);
+  assert.equal(phoneOnly.json.phoneMasked, '+91 98•••••948');
+  assert.equal(phoneOnly.json.emailMasked, undefined);
+  assert.equal(emailOnly.json.emailMasked, 'an••••@gmail.com');
+  assert.equal(emailOnly.json.phoneMasked, undefined);
+  assert.equal(both.json.phoneMasked, '+91 70•••••678');
+  assert.equal(both.json.emailMasked, 'an••••@gmail.com');
+  for (const r of [phoneOnly, emailOnly, both]) {
+    assert.ok(!r.text.includes('9876543948') && !r.text.includes('7012345678') && !r.text.includes(EMAIL), 'masked echoes only');
+  }
+  const s1 = srv.db.read(`payOrders/${phoneOnly.json.orderId}`);
+  assert.equal(s1.guestPhone, PHONE);
+  assert.equal(s1.guestEmail, undefined);
+  assert.equal(s1.checkoutWho, true);
+  assert.equal(s1.payerType, 'signed_out');
+  assert.equal(s1.uid, null);
+  const s2 = srv.db.read(`payOrders/${emailOnly.json.orderId}`);
+  assert.equal(s2.guestEmail, EMAIL);
+  assert.equal(s2.guestPhone, undefined);
+  assert.equal(s2.recipientFirst, 'email');
+  const s3 = srv.db.read(`payOrders/${both.json.orderId}`);
+  assert.equal(s3.recipientFirst, 'email');
+  for (const c of srv.rzp.calls.filter((x) => x.url.endsWith('/orders'))) {
+    const all = JSON.stringify(c.body);
+    assert.ok(!all.includes('9876543948') && !all.includes('7012345678') && !all.includes('anaya'), all);
+  }
+  // Invalid recipient -> 400 before Razorpay; month is not sold this way.
+  const before = srv.rzp.calls.length;
+  assert.equal((await whoOrder(srv, { sku: 'till_boards', recipient: { email: 'bad' } })).json.reason, 'invalid_recipient');
+  assert.equal((await whoOrder(srv, { sku: 'month', recipient: { phone: PHONE } })).json.reason, 'invalid_sku');
+  assert.equal(srv.rzp.calls.length, before);
+});
+
+test("WHO · the amount is the server's for a recipient order (body amount ignored)", async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  const pack = await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', amountPaise: 100, amount: 1, recipient: { email: EMAIL } });
+  assert.equal(pack.status, 200, pack.text);
+  assert.equal(pack.json.amountPaise, 19900);
+  const pass = await whoOrder(srv, { sku: 'till_boards', amountPaise: 100, recipient: { phone: PHONE } });
+  const fresh = quotePass({}, 'till_boards', NOW, { foundingOfferOpen: true });
+  assert.equal(pass.json.amountPaise, fresh.amountPaise);
+  assert.deepEqual(srv.rzp.calls.filter((c) => c.url.endsWith('/orders')).map((c) => c.body.amount), [19900, fresh.amountPaise]);
+  assert.equal(srv.db.read(`payOrders/${pass.json.orderId}`).amountPaise, fresh.amountPaise);
+});
+
+test('WHO · no account for the recipient: verify -> paid_unclaimed, nothing granted', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV, uidForPhone: async () => null, uidForEmail: async () => null });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid_unclaimed');
+  assert.deepEqual(subsDocs(srv.db), []);
+});
+
+test('WHO · an existing account by EMAIL gets the Board Pass immediately after verify', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV, uidForPhone: async () => null, uidForEmail: async (e) => (e === EMAIL ? 'uEmail' : null) });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL } });
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.uid, 'uEmail');
+  assert.equal(stored.claimedVia, 'existing_account');
+  assert.equal(stored.status, 'paid');
+  assert.equal(srv.db.read('subscriptions/uEmail').tier, 'premium');
+});
+
+test('WHO · an existing account by PHONE gets a pack immediately after verify', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV, uidForPhone: async (p) => (p === PHONE ? 'uPhone' : null), uidForEmail: async () => null });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'science', recipient: { phone: '9876543948' } });
+  assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uPhone');
+  assert.ok(srv.db.read('packEntitlements/uPhone/packs/pack_cbq:science'));
+});
+
+test('WHO · phone and email on two DIFFERENT accounts: the FIRST-entered wins, an admin note, never merged', async (t) => {
+  for (const [first, winner, other] of [['phone', 'uPhone', 'uEmail'], ['email', 'uEmail', 'uPhone']]) {
+    const srv = await startRoutes({ env: WHO_ENV, uidForPhone: async () => 'uPhone', uidForEmail: async () => 'uEmail' });
+    t.after(srv.close);
+    const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL, first } });
+    const stored = srv.db.read(`payOrders/${orderId}`);
+    assert.equal(stored.uid, winner, first);
+    assert.equal(stored.adminNote, TWO_ACCOUNTS_NOTE);
+    assert.equal(stored.otherAccountUid, other);
+    assert.ok(srv.db.read(`subscriptions/${winner}`));
+    assert.equal(srv.db.read(`subscriptions/${other}`), undefined, 'the other account gets nothing');
+    assert.ok(srv.events.includes('payments.guest.deliver.two_accounts'));
+  }
+});
+
+test('WHO · no enumeration: order and verify answer the SAME shape whether or not an account exists', async (t) => {
+  const shapes = [];
+  for (const lookup of [async () => null, async () => 'uExisting']) {
+    const srv = await startRoutes({ env: WHO_ENV, uidForPhone: lookup, uidForEmail: lookup });
+    t.after(srv.close);
+    const o = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+    assert.equal(o.status, 200, o.text);
+    const p = srv.rzp.pay(o.json.orderId);
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    await srv.idle();
+    const strip = ({ orderId, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    shapes.push({ order: { http: o.status, ...strip(o.json) }, verify: { http: v.status, ...strip(v.json) } });
+  }
+  assert.deepEqual(shapes[0], shapes[1]);
+  assert.equal(shapes[0].verify.http, 200);
+  assert.equal(shapes[0].verify.status, 'paid_unclaimed', 'the answer says nothing about delivery');
+  assert.equal(shapes[0].verify.emailMasked, 'an••••@gmail.com');
+});
+
+test('WHO · an already-covered recipient account is refused at the order with one generic answer, nothing charged', async (t) => {
+  const db = memoryFirestore();
+  await db.collection('subscriptions').doc('uCovered').set(COVERED_SUB);
+  const srv = await startRoutes({ env: WHO_ENV, db, uidForPhone: async () => 'uCovered', uidForEmail: async () => null });
+  t.after(srv.close);
+  const r = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
+  assert.equal(r.status, 409);
+  assert.deepEqual(r.json, { ok: false, error: 'already_covered' });
+  assert.equal(srv.rzp.calls.length, 0);
+  // An owned pack is the same answer; a lookup that cannot tell fails closed.
+  await db.collection('packEntitlements').doc('uCovered').collection('packs').doc('pack_cbq:maths').set({ packId: 'pack_cbq:maths' });
+  assert.deepEqual((await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } })).json, { ok: false, error: 'already_covered' });
+  const down = await startRoutes({ env: WHO_ENV, uidForPhone: async () => { throw new Error('auth down'); } });
+  t.after(down.close);
+  assert.equal((await whoOrder(down, { sku: 'till_boards', recipient: { phone: PHONE } })).status, 500);
+  assert.equal(down.rzp.calls.length, 0);
+});
+
+test('WHO · claim by the VERIFIED phone attaches an order that named a phone (and an email)', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+  const c = await claim(srv, whoAuth('uKid', { phone: PHONE }));
+  assert.equal(c.status, 200, c.text);
+  assert.equal(c.json.claimed.length, 1);
+  assert.equal(c.json.alsoSignIn, undefined, 'the account already signs in with the phone');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uKid');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).claimedVia, 'claim');
+});
+
+test('WHO · claim by email: email_verified false claims NOTHING; true claims', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { email: EMAIL, phone: PHONE, first: 'email' } });
+  const unverified = await claim(srv, whoAuth('uSquat', { email: EMAIL, ev: false }));
+  assert.equal(unverified.status, 200);
+  assert.deepEqual(unverified.json.claimed, []);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid_unclaimed');
+  assert.equal(srv.db.read('packEntitlements/uSquat/packs/pack_cbq:maths'), undefined);
+  const verified = await claim(srv, whoAuth('uKid', { email: 'ANAYA.K@gmail.com', ev: true }));
+  assert.equal(verified.json.claimed.length, 1);
+  assert.equal(verified.json.claimed[0].kind, 'pack');
+  assert.ok(srv.db.read('packEntitlements/uKid/packs/pack_cbq:maths'));
+  // The order also named a phone this account does not sign in with: offer the link step, MASKED.
+  assert.deepEqual(verified.json.alsoSignIn, { kind: 'phone', masked: '+91 98•••••948' });
+  assert.ok(!verified.text.includes('9876543948'));
+  // A second claim finds nothing.
+  assert.deepEqual((await claim(srv, whoAuth('uKid', { email: EMAIL, ev: true }))).json.claimed, []);
+});
+
+test('WHO · a signed-in payer buying for someone else: payer recorded, the grant goes to the RECIPIENT only', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV, uidForPhone: async () => null, uidForEmail: async () => null });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: OTHER_PHONE } }, whoAuth('uParent', { email: 'p@x.com', ev: true }));
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.payerType, 'signed_in_other');
+  assert.equal(stored.payerUid, 'uParent');
+  assert.equal(stored.uid, null);
+  assert.equal(srv.db.read('subscriptions/uParent'), undefined);
+  assert.equal((await claim(srv, whoAuth('uParent', { email: 'p@x.com', ev: true }))).json.claimed.length, 0);
+  assert.equal((await claim(srv, whoAuth('uSibling', { phone: OTHER_PHONE }))).json.claimed.length, 1);
+});
+
+test('WHO · the old phone order and its claim are unchanged with checkout-who ON (no alsoSignIn, no checkoutWho fields)', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, CHECKOUT_WHO_ENABLED: '1' } });
+  t.after(srv.close);
+  const { orderId } = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  assert.equal(srv.db.read(`payOrders/${orderId}`).checkoutWho, undefined);
+  const c = await claim(srv, signedIn('uOld', PHONE));
+  assert.deepEqual(Object.keys(c.json).sort(), ['claimed', 'ok']);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).claimedVia, undefined);
+});
+
+test('WHO · email: the recipient gets "Your Board Pass is ready" once (Resend, behind its flag); no price, phone masked', async (t) => {
+  const { db, resend, receiptEmailer } = emailHarness();
+  const srv = await startRoutes({ env: WHO_ENV, db, receiptEmailer, uidForPhone: async () => null, uidForEmail: async () => null });
+  t.after(srv.close);
+  const o = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+  const p = srv.rzp.pay(o.json.orderId);
+  srv.rzp.payments.get(p.id).email = 'payer@example.com';
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id)).status, 200);
+  await srv.idle();
+  await receiptEmailer.whenIdle();
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id)).status, 200);
+  await srv.idle();
+  await receiptEmailer.whenIdle();
+  const toRecipient = resend.sent.filter((m) => m.body.to.includes(EMAIL));
+  assert.equal(toRecipient.length, 1, 'once');
+  const [mail] = toRecipient;
+  assert.equal(mail.body.subject, 'Your Board Pass is ready');
+  assert.equal(mail.headers['Idempotency-Key'], `recipient-ready-${p.id}`);
+  assert.ok(mail.body.text.includes('+91 98•••••948'));
+  assert.ok(mail.body.text.includes('the Board Pass is already there'));
+  assert.ok(!JSON.stringify(mail.body).includes('9876543948'));
+  assert.ok(!/₹/.test(mail.body.text), 'no price to the recipient');
+  // The payer's receipt names the masked recipient identifiers.
+  const receipt = resend.sent.find((m) => m.body.to.includes('payer@example.com'));
+  assert.ok(receipt && receipt.body.text.includes('an••••@gmail.com'));
+  // Email switch off: nothing to the recipient.
+  const off = emailHarness({});
+  const srv2 = await startRoutes({ env: WHO_ENV, db: off.db, receiptEmailer: off.receiptEmailer });
+  t.after(srv2.close);
+  await paidWhoOrder(srv2, { sku: 'till_boards', recipient: { email: EMAIL } });
+  await off.receiptEmailer.whenIdle();
+  assert.equal(off.resend.sent.length, 0);
+});
+
+test('WHO · the recipient email copy: pack says My packs; month is never sent', () => {
+  const pack = buildRecipientReadyEmail({ passType: 'pack_cbq', packTarget: 'maths', phoneMasked: null, emailMasked: 'an••••@gmail.com', appUrl: 'https://lazytopper.com' });
+  assert.ok(pack.subject.startsWith('Your ') && pack.subject.endsWith(' is ready'));
+  assert.ok(pack.text.includes('open My packs to download it'));
+  assert.ok(pack.text.includes('%2Fpacks%23my-packs'));
+  assert.equal(buildRecipientReadyEmail({ passType: 'month', appUrl: 'x' }), null);
 });

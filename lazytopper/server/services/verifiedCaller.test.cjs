@@ -327,3 +327,17 @@ test("resolveVerifiedIdentity: phone_number from the VERIFIED token; headers nev
   // The older shape is unchanged for a token without a phone.
   assert.deepEqual(await resolveVerifiedCaller(bearer("google-token")), { uid: "uid-google", reason: REASON_VERIFIED });
 });
+
+test("CHECKOUT-WHO-1: resolveVerifiedIdentity adds the token's email + email_verified; resolveVerifiedCaller's shape is unchanged", async () => {
+  const admin = (decoded) => ({ auth: () => ({ verifyIdToken: async () => decoded }) });
+  const verifiedEmail = createVerifiedCaller({ firebaseAdmin: admin({ uid: "u1", email: "a@b.com", email_verified: true }) });
+  assert.deepEqual(await verifiedEmail.resolveVerifiedIdentity(bearer("t")), { uid: "u1", phoneNumber: "", email: "a@b.com", emailVerified: true });
+  assert.deepEqual(await verifiedEmail.resolveVerifiedCaller(bearer("t")), { uid: "u1", reason: REASON_VERIFIED });
+  // email_verified anything but exactly true -> false.
+  for (const ev of [false, "true", 1, undefined]) {
+    const c = createVerifiedCaller({ firebaseAdmin: admin({ uid: "u1", email: "a@b.com", email_verified: ev }) });
+    assert.equal((await c.resolveVerifiedIdentity(bearer("t"))).emailVerified, false, String(ev));
+  }
+  const noEmail = createVerifiedCaller({ firebaseAdmin: admin({ uid: "u1" }) });
+  assert.deepEqual(await noEmail.resolveVerifiedIdentity(bearer("t")), { uid: "u1", phoneNumber: "" });
+});
