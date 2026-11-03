@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { boardPassFoundingLabel, boardPassPriceLine } from "../../config/pricing";
+import { BOARD_PASS_NAME, boardPassFoundingLabel, boardPassPriceDisplay, boardPassPriceLine } from "../../config/pricing";
 import { safeSigninRedirect, withSigninRedirect } from "../../services/freeCheckClient";
 import { TRIAL_WORDING } from "../pricing/BasicFreeList";
 
@@ -54,6 +55,100 @@ import { TRIAL_WORDING } from "../pricing/BasicFreeList";
 export const AFTER_TRIAL_LEAD = TRIAL_WORDING.tryLine;
 /** A FUNCTION (PRICING-1): the after-trial price follows the founding offer's date, read at render. */
 export const afterTrialRest = (): string => ` ${TRIAL_WORDING.afterLine}`;
+
+/**
+ * BUY-PATH-1 - the trial lead without the word "full": the trial is metered (fair-use caps), so "full" over-promised.
+ */
+export const TRIAL_LEAD = "7-day trial, then free Basic";
+
+/**
+ * What the visitor was buying when sign-in interrupted them, read from the login page's own `?redirect=`. A pack `sku` is only
+ * SHAPE-checked here (`pack_<word>`); it is checked against the catalogue's own `PACK_SKUS` once services/packs has loaded
+ * (lazily - the login page is in the entry chunk), and anything not in it falls back to the trial line.
+ */
+export type BuyIntent = { kind: "pass" } | { kind: "pack"; sku: string; target: string | undefined };
+
+/**
+ * BUY-PATH-1 - the buy intent a sign-in return carries: `/pricing?buy=board_pass` (the Board Pass one-tap link), or
+ * `/packs?buy=<sku>&t=<target>` / `/pricing?buy=<sku>&t=<target>` (the signed-out pack Buy resume). Anything else, a repeated
+ * param or an unsafe redirect -> null (the ordinary trial copy shows).
+ */
+export function readBuyIntent(rawRedirect: string | null | undefined): BuyIntent | null {
+  const safe = safeSigninRedirect(rawRedirect);
+  if (!safe) return null;
+  try {
+    const url = new URL(safe, "https://lazytopper.invalid");
+    if (url.pathname !== "/pricing" && url.pathname !== "/packs") return null;
+    const buys = url.searchParams.getAll("buy");
+    if (buys.length !== 1) return null;
+    const buy = buys[0];
+    if (buy === "board_pass") return url.pathname === "/pricing" ? { kind: "pass" } : null;
+    if (!/^pack_[a-z]{1,16}$/.test(buy)) return null;
+    const sku = buy;
+    const ts = url.searchParams.getAll("t");
+    if (ts.length > 1) return null;
+    return { kind: "pack", sku, target: ts[0] || undefined };
+  } catch {
+    return null;
+  }
+}
+
+/** "Sign in to finish buying Board Pass · ₹…" - every figure from the price constants / the pack catalogue. */
+export function buyIntentLine(product: string, price: string): string {
+  return `Sign in to finish buying ${product}${price ? ` · ${price}` : ""}`;
+}
+
+/** A pack's name and display price, from the existing catalogue (services/packs, loaded only when a pack intent is present). */
+type PackOffer = { product: string; price: string } | "invalid" | null;
+
+function usePackOffer(intent: BuyIntent | null): PackOffer {
+  const sku = intent && intent.kind === "pack" ? intent.sku : null;
+  const target = intent && intent.kind === "pack" ? intent.target : undefined;
+  const [offer, setOffer] = useState<PackOffer>(null);
+  useEffect(() => {
+    setOffer(null);
+    if (!sku) return undefined;
+    let alive = true;
+    void Promise.all([import("../../services/packs"), import("../../lib/packs/packLabels")])
+      .then(([packs, labels]) => {
+        if (!alive) return;
+        const known = packs.PACK_SKUS.find((s) => s === sku);
+        if (!known) {
+          setOffer("invalid");
+          return;
+        }
+        const t = known === "pack_bundle" ? undefined : target;
+        if (known !== "pack_bundle" && !packs.isValidPackTarget(known, t)) {
+          setOffer("invalid");
+          return;
+        }
+        setOffer({
+          product: packs.packDescription(known, t, known === "pack_chapter" && t ? labels.packChapterLabel(t) : undefined),
+          price: packs.packPriceLabel(known),
+        });
+      })
+      .catch(() => {
+        if (alive) setOffer("invalid");
+      });
+    return () => {
+      alive = false;
+    };
+  }, [sku, target]);
+  return offer;
+}
+
+/** The strip's lead line: the buy line when sign-in interrupted a purchase, else the trial line. */
+function useLeadLine(rawRedirect: string | null): { text: string; buying: boolean } {
+  const intent = readBuyIntent(rawRedirect);
+  const pack = usePackOffer(intent);
+  if (intent?.kind === "pass") return { text: buyIntentLine(BOARD_PASS_NAME, boardPassPriceDisplay()), buying: true };
+  if (intent?.kind === "pack") {
+    if (pack === "invalid") return { text: TRIAL_LEAD, buying: false };
+    if (pack) return { text: buyIntentLine(pack.product, pack.price), buying: true };
+    return { text: "Sign in to finish buying your pack", buying: true };
+  }
+  return { text: TRIAL_LEAD, buying: false };
+}
 
 const OFFER_STRIP_CSS = `
   .lt-offer-strip {
@@ -310,6 +405,8 @@ export default function OfferStrip({
   // it back to /login, so a student who checks the plans mid-sign-in still lands where
   // they were going (FU-SIGNIN-REDIRECT-EXITS). Only a safe internal path is carried.
   const [searchParams] = useSearchParams();
+  // BUY-PATH-1: a sign-in that interrupted a purchase says so (product and price), instead of the trial line.
+  const lead = useLeadLine(searchParams.get("redirect"));
   const pricingTo = withSigninRedirect(
     "/pricing?source=login",
     safeSigninRedirect(searchParams.get("redirect")),
@@ -322,7 +419,7 @@ export default function OfferStrip({
         aria-label="What you are joining"
       >
         <style dangerouslySetInnerHTML={{ __html: OFFER_STRIP_CSS }} />
-        <p className="lt-offer-strip-lead">7-day full trial, then free Basic</p>
+        <p className="lt-offer-strip-lead" data-testid="lt-offer-lead" data-buying={lead.buying ? "true" : undefined}>{lead.text}</p>
         <AfterTrialLine variant="mobile" />
         <Link className="lt-offer-strip-link" to={pricingTo}>
           {"See plans →"}
@@ -339,7 +436,7 @@ export default function OfferStrip({
     >
       <style dangerouslySetInnerHTML={{ __html: OFFER_STRIP_CSS }} />
 
-      <p className="lt-offer-strip-lead">7-day full trial, then free Basic</p>
+      <p className="lt-offer-strip-lead" data-testid="lt-offer-lead" data-buying={lead.buying ? "true" : undefined}>{lead.text}</p>
 
       <AfterTrialLine variant="panel" />
 

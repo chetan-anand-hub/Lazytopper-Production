@@ -611,6 +611,7 @@
     "src/pages/PricingPage.paycopy.test.tsx",
     "src/pages/PricingPage.pricing.test.tsx",
     "src/pages/PricingPage.trialCta.test.tsx",
+    "src/pages/PricingPage.trust.test.tsx",
     "src/pages/QrAnswerUploadPage.crop.test.tsx",
     "src/pages/SignUpPage.name.test.tsx",
     "src/pages/SignUpPage.phone.test.tsx",

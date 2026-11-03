@@ -481,3 +481,23 @@ describe("PacksPage", () => {
     expect(screen.queryByTestId("packs-mine")).toBeNull();
   });
 });
+
+describe("TRUST-1 - /packs testimonial and stamp wording", () => {
+  it("carries the click-to-play testimonial under the hero, with no YouTube request before the tap", () => {
+    const { container } = page();
+    const hero = container.querySelector(".lt-packs__hero")!;
+    const proof = container.querySelector(".lt-packs__proof")!;
+    expect(proof).not.toBeNull();
+    expect(hero.compareDocumentPosition(proof) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Where did his ½ mark go?" })).toBeTruthy();
+    expect(proof.querySelector('[data-testid="testimonial-video"]')).not.toBeNull();
+    expect(container.querySelector("iframe")).toBeNull();
+    const srcs = Array.from(container.querySelectorAll("[src]")).map((e) => e.getAttribute("src") ?? "");
+    expect(srcs.filter((v) => /youtube|ytimg|google/i.test(v))).toEqual([]);
+  });
+
+  it("says each PDF carries the name, or the email or masked phone number", () => {
+    page();
+    expect(document.body.textContent).toContain("each PDF carries your name, or your email or masked phone number, on every page");
+  });
+});

@@ -22,7 +22,7 @@ afterEach(cleanup);
 
 const TITLE = "Cancellation Policy";
 // PACKS-LEGAL-1 (25 Oct 2026): the PDF Packs section was added, so the date moved.
-const UPDATED = "Last updated: October 2026";
+const UPDATED = "Last updated: 3 November 2026";
 
 /** The owner's sections, in order, word for word. */
 const SECTIONS: Array<[string, string]> = [
@@ -37,10 +37,10 @@ const SECTIONS: Array<[string, string]> = [
   [
     // OR-P6 (owner, 2026-09-26): one-time passes only, no auto-renew.
     "Month Pass",
-    "A month pass gives you Premium for one month from the day you pay. It does not renew automatically. No refund.",
+    "A Month Pass bought before 1 Nov 2026 gives you Premium for one month from the day you paid. It does not renew automatically. No refund.",
   ],
   [
-    "Till-Boards Plan",
+    "Board Pass",
     "A one-time payment covering Premium until your first board exam. No refund.",
   ],
   [
@@ -145,7 +145,7 @@ describe("OR-P4 — the refund page, as rendered", () => {
     const h2 = Array.from(card.querySelectorAll("h2")).find((h) => flat(h.textContent) === "Month Pass");
     expect(h2, "Month Pass heading").toBeDefined();
     expect(flat(h2?.nextElementSibling?.textContent)).toBe(
-      "A month pass gives you Premium for one month from the day you pay. It does not renew automatically. No refund.",
+      "A Month Pass bought before 1 Nov 2026 gives you Premium for one month from the day you paid. It does not renew automatically. No refund.",
     );
     expect(Array.from(card.querySelectorAll("h2")).map((h) => flat(h.textContent))).not.toContain("Monthly Plan");
   });
