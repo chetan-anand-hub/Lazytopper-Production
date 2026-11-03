@@ -8,6 +8,8 @@ import { PackSampleChoice } from "../components/packs/PackSampleLink";
 import CbqBand from "../components/pricing/CbqBand";
 import PackTileBuy, { PackCbqBuy } from "../components/packs/PackTileBuy";
 import "./packs.css";
+import "./packsTrust.css";
+import TestimonialVideo from "../components/marketing/TestimonialVideo";
 
 /** PRICING-ONE-1: the shop (My packs, pop-ups, Buy, buy-resume) moved to components/packs/PacksShop; these names stay importable from here. */
 export { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume };
@@ -69,6 +71,16 @@ export default function PacksPage() {
           </div>
         </div>
       </section>
+      {/* TRUST-1: real student proof near the top, under the hero. Click-to-play; nothing loads from YouTube before the tap. */}
+      <section className="lt-packs__proof" aria-labelledby="packs-video">
+        <div className="lt-packs__w">
+          <TestimonialVideo
+            headingId="packs-video"
+            heading="Where did his ½ mark go?"
+            lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
+          />
+        </div>
+      </section>
           </>
         )}
       </PacksShop>
@@ -91,7 +103,7 @@ export default function PacksPage() {
               <summary>Can I download again later?</summary>
               <p>
                 Yes. {REDOWNLOAD_COPY}: sign in, open My packs at the top of this page and download any file as often as you like. Packs are for your own
-                use; each PDF carries your name and email on every page, so please don&rsquo;t share the files.
+                use; each PDF carries your name, or your email or masked phone number, on every page, so please don&rsquo;t share the files.
               </p>
             </details>
             <details>
