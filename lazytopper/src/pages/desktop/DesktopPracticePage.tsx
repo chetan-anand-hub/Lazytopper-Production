@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES, isHabitOnlyEntry } from "../../lib/mistakeDisplay";
 import type { TypeMarks } from "../../services/meHomeSummary";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { trackSaleMoment } from "../../analytics/analytics";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
@@ -1716,7 +1717,20 @@ export default function DesktopPracticePage() {
   const subtopicHintParam = (params.get("subtopicHint") || "").trim();
   // CBQ-ENTRY-1 — the "Competency-based questions" card's chooser. `?cbq=1` (the ad
   // link, and the landing's "Practise CBQs") arrives with it already open (E4).
-  const [cbqPickerOpen, setCbqPickerOpen] = useState(() => params.get(CBQ_HUB_PARAM) === "1");
+  // CBQ-LANDING-1: only a SIGNED-IN student arrives with it open. A signed-out ad visitor sees the
+  // CBQ offer card first and opens the picker with the "Try CBQs free" button (it used to cover the offer).
+  const cbqArrival = params.get(CBQ_HUB_PARAM) === "1";
+  const { loading: authLoading } = useAuth();
+  const signedInStudent = !!user;
+  const [cbqPickerOpen, setCbqPickerOpen] = useState(() => cbqArrival && signedInStudent);
+  const cbqAutoOpenedRef = useRef(cbqArrival && signedInStudent);
+  useEffect(() => {
+    // Auth that settles AFTER the first render (a signed-in student on a cold load): same auto-open, once.
+    if (!cbqArrival || !signedInStudent || cbqAutoOpenedRef.current) return;
+    cbqAutoOpenedRef.current = true;
+    setCbqPickerOpen(true);
+  }, [cbqArrival, signedInStudent]);
+  const showCbqTryFree = cbqArrival && !authLoading && !signedInStudent;
   // `?cbq=1` (the ad landing) wins over `?ct=1`: never two dialogs stacked.
   const [ctPickerOpen, setCtPickerOpen] = useState(
     () => params.get(CT_HUB_PARAM) === "1" && params.get(CBQ_HUB_PARAM) !== "1",
@@ -2353,6 +2367,20 @@ export default function DesktopPracticePage() {
         </div>
         {/* AD-LANDING-OFFER-1 - signed-out CBQ ad arrivals only: the CBQ Pack buys right under the CBQ entry (lazy chunk). */}
         {!isSignedIn ? <LandingOffer variant="practice-cbq" /> : null}
+        {showCbqTryFree ? (
+          <button
+            type="button"
+            className="lt-cbq-tryfree"
+            data-testid="cbq-try-free"
+            aria-haspopup="dialog"
+            onClick={() => {
+              trackSaleMoment("sale_moment_tap", { surface: "landing-practice-cbq", offer: "cbq_free_picker" });
+              setCbqPickerOpen(true);
+            }}
+          >
+            Try CBQs free — pick a chapter
+          </button>
+        ) : null}
         <CbqChapterPicker open={cbqPickerOpen} onClose={() => setCbqPickerOpen(false)} />
         <ChapterTestPicker open={ctPickerOpen} onClose={() => setCtPickerOpen(false)} />
 
@@ -3216,6 +3244,26 @@ export default function DesktopPracticePage() {
             outline: 2px solid hsl(152, 55%, 45%);
             outline-offset: 2px;
           }
+          .lt-cbq-tryfree {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 48px;
+            margin: 8px 0 4px;
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 14px;
+            background: hsl(152, 55%, 42%);
+            color: #fff;
+            font: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+          }
+          .lt-cbq-tryfree:hover { background: hsl(152, 57%, 37%); }
+          .lt-cbq-tryfree:focus-visible { outline: 2px solid hsl(222, 47%, 24%); outline-offset: 2px; }
           .lt-cbq-spine {
             position: absolute;
             top: 0;
