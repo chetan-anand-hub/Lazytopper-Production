@@ -1,5 +1,5 @@
 import { trackOnboardingEvent } from "../analytics/analytics";
-import { uaClass, type UaClass } from "./inAppBrowser";
+import { inAppBrowser, uaClass, type UaClass } from "./inAppBrowser";
 
 /**
  * AUTH-SIGNAL-1 — measure and bound sign-in, and say something useful when it fails.
@@ -58,6 +58,58 @@ export function telemetryErrorCode(err: unknown): string {
     .replace(/^[^a-z0-9]+/, "")
     .slice(0, 64);
   return slug || "unknown";
+}
+
+/**
+ * SIGNIN-RESCUE-1 — only an in-app browser / webview can truly hang on the Google popup (it opens
+ * a window that never reports back). On desktop and in normal mobile Chrome/Safari a slow popup is
+ * a student still choosing an account, so no timeout is armed there: the 45 s cap used to fire on
+ * those and re-enabled the buttons under a student who was mid-sign-in.
+ */
+export function googlePopupMayHang(userAgent: string | null | undefined, standalone = false): boolean {
+  return inAppBrowser(userAgent, standalone) !== null;
+}
+
+export function currentGooglePopupMayHang(): boolean {
+  try {
+    const nav = typeof navigator !== "undefined" ? (navigator as Navigator & { standalone?: boolean }) : null;
+    return nav ? googlePopupMayHang(nav.userAgent, nav.standalone === true) : false;
+  } catch {
+    return false;
+  }
+}
+
+/** The Login page's layout breakpoint (its mobile layout is `max-width: 1023px`). */
+export const LOGIN_MOBILE_MAX_WIDTH_PX = 1023;
+
+/** A phone client: a phone user agent, or the viewport is at the Login page's mobile layout width. */
+export function isPhoneClient(): boolean {
+  try {
+    if (typeof navigator !== "undefined" && /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent || "")) return true;
+    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+      return window.matchMedia(`(max-width: ${LOGIN_MOBILE_MAX_WIDTH_PX}px)`).matches;
+    }
+  } catch {
+    /* fall through */
+  }
+  return false;
+}
+
+/**
+ * SIGNIN-RESCUE-1 — a Google failure after which the phone step should open by itself: the popup was
+ * closed / blocked / never answered, or this browser cannot run it. NOT a cancelled-popup-request (a
+ * newer attempt is live) and not any other error.
+ */
+export function shouldRescueToPhone(err: unknown): boolean {
+  switch (authErrorCode(err)) {
+    case "auth/popup-closed-by-user":
+    case GOOGLE_POPUP_TIMEOUT_CODE:
+    case "auth/popup-blocked":
+    case "auth/operation-not-supported-in-this-environment":
+      return true;
+    default:
+      return false;
+  }
 }
 
 export function currentUaClass(): UaClass {
