@@ -65,6 +65,7 @@ import ParentReturnLink from "../components/parents/ParentReturnLink";
 import FounderBadge from "../components/brand/FounderBadge";
 import StickyPassBar from "../components/pricing/StickyPassBar";
 import { useMonthPassAvailable } from "../components/pricing/useMonthPassAvailable";
+import TestimonialVideo from "../components/marketing/TestimonialVideo";
 
 // PACKS-CLIENT-1 — the PDF packs strip is below the fold: its own chunk, mounted after first paint so the
 // prerendered /pricing is unchanged. A failed chunk renders nothing.
@@ -507,6 +508,58 @@ const PRICING_CSS = `
     color: var(--lt-ink);
     background: var(--lt-surface);
     border: 1.5px solid var(--lt-ink);
+  }
+
+  /* TRUST-1 - with payments on, Pay is the ONLY primary action: the trial is a text-style
+     button (same destination), underlined, no fill, still a 44px+ touch target. */
+  .lt-pricing-trial-slot .lt-pricing-cta--text {
+    min-height: 48px;
+    color: var(--lt-ink);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 700;
+  }
+  .lt-pricing-trial-slot .lt-pricing-cta--text:not(:disabled):hover {
+    transform: none;
+    box-shadow: none;
+    text-decoration-thickness: 2px;
+  }
+
+  /* TRUST-1 - the testimonial card under the Board Pass card. */
+  .lt-pricing-video {
+    padding: 28px 24px;
+    border-radius: 22px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+  }
+  .lt-pricing-video .lt-tv__title {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.4rem;
+    line-height: 1.2;
+  }
+
+  /* TRUST-1 - the other-boards waitlist is folded away at the very bottom. */
+  .lt-pricing-otherboards {
+    text-align: center;
+  }
+  .lt-pricing-otherboards-summary {
+    display: inline-block;
+    cursor: pointer;
+    padding: 12px 8px;
+    color: var(--lt-ink);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .lt-pricing-otherboards[open] > .lt-pricing-otherboards-summary {
+    margin-bottom: 16px;
+  }
+  .lt-pricing-otherboards > section + section {
+    margin-top: 28px;
   }
 
   /* ── The two pass tiles (P23) ───────────────────────────────────────────
@@ -1699,7 +1752,7 @@ function PricingPlansPage() {
   const startTrialButton = (
     <button
       type="button"
-      className="lt-pricing-cta lt-pricing-cta--primary"
+      className={paymentsOn ? "lt-pricing-cta lt-pricing-cta--text" : "lt-pricing-cta lt-pricing-cta--primary"}
       onClick={handleStartTrial}
       disabled={Boolean(user) && !subscription.hydrated}
     >
@@ -1888,6 +1941,16 @@ function PricingPlansPage() {
               </div>
             </div>
 
+            {/* TRUST-1 — real student proof directly under the Board Pass card (not above the price). The facade
+                is click-to-play: nothing comes from YouTube until the tap. */}
+            <section className="lt-pricing-video" aria-labelledby="pricing-video">
+              <TestimonialVideo
+                headingId="pricing-video"
+                heading="Where did his ½ mark go?"
+                lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
+              />
+            </section>
+
             {/* PRICING-LADDER-1 — the packs are the LADDER to Premium: directly after the Premium card,
                 before Basic. Mounted after first paint (lazy), so the prerendered page is unchanged. */}
             {showPacksStrip && (
@@ -1998,6 +2061,10 @@ function PricingPlansPage() {
             </div>
           </section>
 
+          {/* TRUST-1 — other boards are not what a buyer came for: folded away at the very bottom
+              (owner can restore by removing this wrapper). */}
+          <details className="lt-pricing-otherboards" data-testid="pricing-otherboards">
+          <summary className="lt-pricing-otherboards-summary">Other boards? Join the waitlist</summary>
           <section className="lt-pricing-coming" aria-label="Boards and classes coming soon">
             <h2 className="lt-pricing-coming-title">Coming Soon</h2>
             <p className="lt-pricing-coming-lede">
@@ -2058,6 +2125,7 @@ function PricingPlansPage() {
               </>
             )}
           </section>
+          </details>
         </div>
       </div>
 
