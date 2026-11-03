@@ -50,6 +50,7 @@
 
 import { buyHrefFor } from "../packs/offersModel";
 import { packPriceLabel } from "../../services/packs";
+import { CBQ_BOTH_SUBJECTS_HREF } from "../../lib/packs/packLinks";
 
 export type GuideSubject = "Maths" | "Science";
 export type GuideSurface = "home" | "practice_hub" | "check_improve";
@@ -150,6 +151,8 @@ export const GUIDE_ROUTES: ReadonlyArray<{ pattern: RegExp; route: string }> = [
   // BYTE-CBQ-1: the one-tap CBQ Pack checkout, the OFFERS-V2 link PacksShop readBuyResume accepts (sku pack_cbq, t = maths | science).
   { pattern: /^\/packs\?buy=pack_cbq&t=(maths|science)$/, route: "/packs?buy=pack_cbq&t=<subject> (PacksShop readBuyResume; BYTE-CBQ-1)" },
   // PRICING-ONE-1: the packs now live on the pricing page; /pricing#packs is the strip (an in-page anchor of the existing /pricing route).
+  // LINKS-1: the CBQ band (both subjects) - Byte's cbq_pack with an unknown subject.
+  { pattern: /^\/pricing#cbq$/, route: "/pricing#cbq (App.tsx /pricing; CbqBand id=\"cbq\")" },
   { pattern: /^\/pricing#packs$/, route: "/pricing#packs (App.tsx /pricing; PacksStrip id=\"packs\")" },
   { pattern: /^\/practice\/worksheets$/, route: "/practice/worksheets (App.tsx:1269; the one responsive WorksheetGenerator)" },
 ];
@@ -262,14 +265,14 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           action: { kind: "route", path: "/practice-hub?cbq=1" },
         };
       case "cbq_pack": {
-        // BYTE-CBQ-1: straight to one-tap checkout for the subject we KNOW; unknown subject -> the shop, which shows both CBQ packs.
+        // BYTE-CBQ-1: straight to one-tap checkout for the subject we KNOW; unknown subject -> /pricing#cbq (LINKS-1), which shows both CBQ packs.
         const price = packPriceLabel("pack_cbq");
         return {
           id,
           title: knownSubject ? `Get the ${knownSubject} CBQ pack · ${price}` : `Get the CBQ pack · ${price}`,
           sub: "Printable PDF · every chapter · step-by-step explanations",
           point: "Print every CBQ, write on paper like the real exam.",
-          action: { kind: "route", path: knownSubject ? buyHrefFor("pack_cbq", knownSubject.toLowerCase()) : "/packs" },
+          action: { kind: "route", path: knownSubject ? buyHrefFor("pack_cbq", knownSubject.toLowerCase()) : CBQ_BOTH_SUBJECTS_HREF },
         };
       }
       case "packs":

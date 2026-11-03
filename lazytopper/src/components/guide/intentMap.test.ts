@@ -377,14 +377,34 @@ describe("BYTE-CBQ-1 — CBQ landings and the CBQ pack option", () => {
     expect(sci.options.length).toBeLessThanOrEqual(GUIDE_MAX_OPTIONS);
   });
 
-  it("an unknown subject says 'the CBQ pack' and opens the shop (both packs), never a guessed subject", () => {
+  it("an unknown subject says 'the CBQ pack' and opens /pricing#cbq (both packs), never a guessed subject", () => {
     const p = first({ utmContent: "cbq_short" });
     expect(p.options[1].title).toBe("Get the CBQ pack · ₹199");
-    expect(p.options[1].action).toEqual({ kind: "route", path: "/packs" });
+    expect(p.options[1].action).toEqual({ kind: "route", path: "/pricing#cbq" });
   });
 
   it("the one-tap URL is a known guide route", () => {
     expect(knownGuideRoute("/packs?buy=pack_cbq&t=maths")).toBe(true);
     expect(knownGuideRoute("/packs?buy=pack_cbq&t=history")).toBe(false);
+  });
+});
+
+describe("LINKS-1 - Byte's allow-list accepts every href the intents produce", () => {
+  it("every route path any intent asks about is a known guide route", () => {
+    const asked = new Set<string>();
+    const spy: IntentDeps = { ...deps, routeExists: (x) => { asked.add(x); return true; } };
+    const landings = [undefined, "/", "/packs", "/pricing", "/cbq-class-10", "/notes/trigonometry", "/highly-probable/10/Maths", "/check-improve"];
+    const campaigns = [undefined, "packs_search", "cbq", "mock"];
+    const contents = [undefined, "cbq_short", "pack_ad", "quick", "mock"];
+    for (const landing of landings) {
+      for (const utmCampaign of campaigns) {
+        for (const utmContent of contents) {
+          buildGuidePlan(input({ landing, utmCampaign, utmContent } as Partial<IntentInput>), spy);
+        }
+      }
+    }
+    expect(asked.size).toBeGreaterThan(0);
+    for (const path of asked) expect(knownGuideRoute(path), path).toBe(true);
+    expect(knownGuideRoute("/pricing#cbq")).toBe(true);
   });
 });

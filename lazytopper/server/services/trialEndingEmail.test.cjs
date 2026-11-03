@@ -722,7 +722,7 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
   assert.ok(!closed.text.includes('Founding price'));
   assert.ok(!closed.html.includes('Founding price'));
   for (const m of [open, closed]) {
-    assert.ok(m.text.includes('Prefer printed practice? PDF packs from ₹49: https://www.lazytopper.com/packs?utm_source=email&utm_medium=email&utm_campaign=trial_ending&utm_content=packs'));
+    assert.ok(m.text.includes('Prefer printed practice? PDF packs from ₹49: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending&utm_content=packs#packs'));
     assert.ok(!m.text.includes('See plans'));
     const urls = (m.text.match(/https:\/\/www\.lazytopper\.com\S*/g) || []).filter((u) => /pricing|packs/.test(u));
     assert.equal(urls.length, 2);

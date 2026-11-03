@@ -14,7 +14,7 @@ describe("pickSaleOffer", () => {
     ["a Full Mock beats its weak chapter", { mock: true, subject: "maths" as const, chapterSlug: "trigonometry" }, "pack_mock", "maths", "/packs?mock=maths"],
     ["a competency question, subject known", { cbq: true, subject: "maths" as const }, "pack_cbq", "maths", "/packs?pack=cbq&subject=maths"],
     ["a competency question, subject from its chapter", { cbq: true, chapterSlug: "light-reflection-and-refraction" }, "pack_cbq", "science", "/packs?pack=cbq&subject=science"],
-    ["a competency question, nothing else known", { cbq: true }, "pack_cbq", "", "/packs?pack=cbq"],
+    ["a competency question, nothing else known", { cbq: true }, "pack_cbq", "", "/pricing#cbq"],
     ["a named chapter", { chapterSlug: "trigonometry", subject: "maths" as const }, "pack_chapter", "trigonometry", "/packs?chapter=trigonometry"],
     ["a subject only", { subject: "science" as const }, "pack_subject", "science", "/packs?pack=subject&subject=science"],
   ])("%s", (_name, hint, sku, target, href) => {

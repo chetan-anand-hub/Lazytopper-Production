@@ -38,8 +38,8 @@ export function cbqLandingBuyHref(subject: PackSubject): string {
 
 /** The Board Pass one-tap checkout. */
 export const LANDING_BOARD_PASS_HREF = BOARD_PASS_BUY_PATH;
-/** The one-hop packs page (not /pricing#packs). */
-export const LANDING_PACKS_HREF = "/packs";
+/** LINKS-1: every generic "PDF packs" link leads to the one pricing page (owner ruling 29 Oct 2026). */
+export const LANDING_PACKS_HREF = "/pricing#packs";
 
 /** "or the Board Pass ₹1,917 - step marking till boards" (no figure when none can be quoted). */
 export function cbqBoardPassLine(price: string | null): string {

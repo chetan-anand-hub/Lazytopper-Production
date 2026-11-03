@@ -188,7 +188,7 @@ describe("ParentResultPage — Mummy", () => {
     expect(primary.getAttribute("href")).toMatch(/^\/pricing\?/);
     const secondary = screen.getByTestId("pr-cta-secondary") as HTMLAnchorElement;
     expect(secondary.textContent).toBe(parentSecondaryCtaLabel());
-    expect(secondary.getAttribute("href")).toMatch(/^\/packs\?/);
+    expect(secondary.getAttribute("href")).toMatch(/^\/pricing\?.*#packs$/);
     expect(screen.getByTestId("pr-trust").textContent).toBe("Secure payment via Razorpay \u00b7 Made by an IITian (IIT Kanpur)");
     expect(screen.getByTestId("pr-bar")).toBeTruthy();
     expect(screen.getByTestId("pr-fix-first").textContent).toContain("Quadratic Equations");

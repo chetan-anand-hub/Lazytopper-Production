@@ -532,7 +532,7 @@ test('copy: study-led, no urgency words, no name, no tracking, unsubscribe in ev
     assert.ok(m.html.includes(unsub), kind);
     assert.doesNotMatch(m.html, /<img|pixel|track/i, kind);
     // SELL-1: UTM tags are allowed only on the PDF-packs link.
-    for (const h of m.html.match(/href="[^"]*utm_[^"]*"/g) || []) assert.match(h, /\/packs\?/, kind);
+    for (const h of m.html.match(/href="[^"]*utm_[^"]*"/g) || []) assert.match(h, /\/pricing\?.*#packs/, kind);
     assert.match(m.text, /^Hi,\n/, kind);
     assert.ok(m.text.includes('https://www.lazytopper.com/'), kind);
   }
@@ -868,8 +868,8 @@ test('SELL-1: d1 and d3 end with one packs line, UTM only, no student data in th
   const d1 = buildNudgeEmail('d1', base);
   const d3 = buildNudgeEmail('d3', { ...base, counts: { checks: 0, tests: 0, practiceSets: 0 } });
   for (const [m, c] of [[d1, 'nudge_d1'], [d3, 'nudge_d3']]) {
-    const url = `https://www.lazytopper.com/packs?utm_source=email&utm_medium=email&utm_campaign=${c}&utm_content=packs`;
-    assert.ok(m.text.includes(`Want printed practice? Chapter packs from ₹49 → lazytopper.com/packs: ${url}`));
+    const url = `https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=${c}&utm_content=packs#packs`;
+    assert.ok(m.text.includes(`Want printed practice? Chapter packs from ₹49 → lazytopper.com/pricing: ${url}`));
     assert.ok(m.html.includes(url.replace(/&/g, '&amp;')));
     assert.ok(!/uid|email=/.test(url));
   }

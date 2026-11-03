@@ -269,7 +269,7 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
   const activity = counts ? trialActivityLine(counts) : null;
   const utm = (content) => `utm_source=email&utm_medium=email&utm_campaign=trial_ending${content ? `&utm_content=${content}` : ''}`;
   const plansUrl = `${appUrl}/pricing?${utm('')}`;
-  const packsUrl = `${appUrl}/packs?${utm('packs')}`;
+  const packsUrl = `${appUrl}/pricing?${utm('packs')}#packs`;
   // Board Pass price at the SEND time, from the server pricing mirror (never a literal).
   const quote = passPricing.tillBoardsQuote(nowMs, passPricing.predictBoardDateIso(nowMs));
   const ctaLabel = quote ? `Get the Board Pass - ₹${quote.priceInr.toLocaleString('en-IN')} till your boards` : 'Get the Board Pass';

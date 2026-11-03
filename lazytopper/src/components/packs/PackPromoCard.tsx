@@ -62,11 +62,12 @@ export function useKnownStatus(uid: string): [SubscriptionStatus | null, boolean
 }
 
 /**
- * Where "See the packs →" goes. AD-LANDING-OFFER-1: the two YouTube ad landings (practice hub, Answer Checker) go straight to /packs
- * (one hop to the buy tiles); the other surfaces keep the /pricing#packs strip.
+ * Where "See the packs →" goes: /pricing#packs on every surface (LINKS-1, owner ruling 29 Oct 2026: every price link leads to the
+ * one pricing page; it was /packs on the two ad landings).
  */
-export function promoHref(surface: PackPromoSurface): string {
-  return surface === "practice_hub" || surface === "check_improve" ? "/packs" : "/pricing#packs";
+export function promoHref(_surface: PackPromoSurface): string {
+  // LINKS-1: one destination for "See the packs" on every surface (the pricing page's packs strip).
+  return "/pricing#packs";
 }
 
 export default function PackPromoCard({ surface }: { surface: PackPromoSurface }) {

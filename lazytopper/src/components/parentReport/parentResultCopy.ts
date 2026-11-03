@@ -46,7 +46,7 @@ export function resultDateLabel(ms: number): string {
 
 /** PARENT-CARD-2 - the two pay buttons. Prices are read from the pricing config / packs catalogue at render. */
 export const PARENT_PRICING_HREF = "/pricing?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report";
-export const PARENT_PACKS_HREF = "/packs?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report";
+export const PARENT_PACKS_HREF = "/pricing?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report#packs";
 
 /** "Give Aarav full board prep — ₹1,917 till boards" (PRICE-FIXED-1: the Board Pass, a fixed price; the month price is hidden). */
 export function parentPrimaryCtaLabel(firstName: string, _now: number = Date.now()): string {

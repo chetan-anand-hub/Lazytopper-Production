@@ -15,6 +15,7 @@
  */
 import { chapterFromLocation } from "../../lib/packs/packEntry";
 import { MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
+import { CBQ_BOTH_SUBJECTS_HREF } from "../../lib/packs/packLinks";
 import {
   PACK_PRICE_INR,
   isAlreadyOwned,
@@ -61,8 +62,9 @@ export function pickSaleOffer(hint: SaleMomentHint): SaleOffer | null {
     return { sku: "pack_mock", target: subject, href: `/packs?mock=${subject}`, price: packPriceLabel("pack_mock") };
   }
   if (hint.cbq) {
-    const href = subject ? `/packs?pack=cbq&subject=${subject}` : "/packs?pack=cbq";
-    // The CBQ Pack is per subject. Without a known subject the pop-up asks, so the offer carries no target to test.
+    // LINKS-1: without a known subject, /pricing#cbq shows BOTH subjects' CBQ cards (never a guessed one).
+    const href = subject ? `/packs?pack=cbq&subject=${subject}` : CBQ_BOTH_SUBJECTS_HREF;
+    // The CBQ Pack is per subject. Without a known subject /pricing#cbq shows both, so the offer carries no target to test.
     return { sku: "pack_cbq", target: subject ?? "", href, price: packPriceLabel("pack_cbq") };
   }
   if (hint.chapterSlug && isValidPackTarget("pack_chapter", hint.chapterSlug)) {
