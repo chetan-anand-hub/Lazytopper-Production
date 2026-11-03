@@ -646,7 +646,7 @@ export default function Welcome() {
             <Link className="lt-landing-toplink" to="/pricing" onClick={() => fireLandingPricingClick("header")}>
               Pricing
             </Link>
-            <Link className="lt-landing-toplink lt-landing-toplink--packs" to="/packs">
+            <Link className="lt-landing-toplink lt-landing-toplink--packs" to="/pricing#packs">
               PDF packs
             </Link>
             <Link className="lt-landing-login" to={SIGN_IN_URL}>
@@ -700,7 +700,7 @@ export default function Welcome() {
               See plans &amp; prices &rarr;
             </Link>
             {/* Narrow screens only: the header has no room for a second link at 360px. */}
-            <Link className="lt-landing-plink lt-landing-plink--packs" to="/packs">
+            <Link className="lt-landing-plink lt-landing-plink--packs" to="/pricing#packs">
               PDF packs &rarr;
             </Link>
           </p>
