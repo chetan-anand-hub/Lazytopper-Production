@@ -76,6 +76,15 @@ export function packsResumePath(sku: PackSku, target: string | undefined, search
   return `${returnPath}?${out.toString()}`;
 }
 
+/** Review fix 2: `?from=sample` on a one-tap link (the /cbq-class-10 sample's buy) - the resumed checkout reports it. */
+export function readResumeFrom(search: string): PackCheckoutFrom | undefined {
+  try {
+    return onlyOne(new URLSearchParams(search), "from") === "sample" ? "sample" : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Reads `?buy=&t=` and returns a whitelisted { sku, target }, or null (anything unknown, repeated or mistargeted). */
 export function readBuyResume(search: string): { sku: PackSku; target: string | undefined } | null {
   try {
@@ -448,9 +457,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (!want) return;
     if (mine === null && mineError === false) return; // My packs still loading
     resumeDone.current = true;
+    const from = readResumeFrom(location.search);
     const rest = new URLSearchParams(location.search);
     rest.delete("buy");
     rest.delete("t");
+    if (from) rest.delete("from");
     const search = rest.toString();
     navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
     entryDone.current = true;
@@ -459,7 +470,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setEntrySlide(0);
     setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
-    if (mine !== null) void handleBuyRef.current(want.sku, want.target, { resumed: true });
+    if (mine !== null) void handleBuyRef.current(want.sku, want.target, { resumed: true, ...(from ? { from } : {}) });
   }, [authLoading, user, enabled, mine, mineError, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
   // PAY-PHONE-1 - a SIGNED-OUT visitor on a one-tap `?buy=` link (with paying-by-phone on): strip the params first, open the
@@ -470,9 +481,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const want = readBuyResume(location.search);
     if (!want) return;
     guestResumeDone.current = true;
+    const from = readResumeFrom(location.search);
     const rest = new URLSearchParams(location.search);
     rest.delete("buy");
     rest.delete("t");
+    if (from) rest.delete("from");
     const search = rest.toString();
     navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
     entryDone.current = true;
@@ -482,6 +495,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
     setGuest({ sku: want.sku, target: want.target });
+    // Review fix 2: a sample's one-tap link (/cbq-class-10) sends its ONE checkout event here (the link itself sends none).
+    if (from) trackPackCheckout(packCheckoutDetails(want.sku, want.target), { signedIn: false, from });
   }, [authLoading, user, guestEnabled, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
   const mathsTotal = subjectTotal("maths");

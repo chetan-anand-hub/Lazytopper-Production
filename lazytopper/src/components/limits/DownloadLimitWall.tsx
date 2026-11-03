@@ -7,20 +7,19 @@
  * Honest by construction: the date comes from the server, the price from config/pricing.ts,
  * no countdown, no seat count. The student's work is never at risk here: the paper is on screen.
  */
-import { useCallback, useEffect, useRef } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { PacksEntry, isPacksEntryEnabled } from "../../lib/packs/packEntryLazy";
-import { chapterFromLocation, firePackEntryClick, mockSubjectFromLocation } from "../../lib/packs/packEntry";
-import { packChapterLabel } from "../../lib/packs/packLabels";
-import { buyHrefFor } from "../packs/offersModel";
-import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../../services/packs";
 import { WallCoverContext } from "../../lib/packs/wallCover";
 import type { DownloadCover } from "../../services/limitsClient";
 import { blockedPracticeCopy, blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
+
+/** PACKS-CONVERT-1: the matching one-tap pack (and its ownership read) loads in its own chunk, only when a download wall shows. */
+const WallPackBuy = lazy(() => import("./WallPackBuy"));
 
 export type DownloadWallVariant = "blocked" | "signed_out" | "offline";
 
@@ -38,60 +37,6 @@ export interface DownloadLimitWallProps {
   onClose: () => void;
 }
 
-/**
- * PACKS-CONVERT-1 (owner, 3 Nov 2026: 31 students met this wall in 30 days, a ready buying moment) - the pack that MATCHES the
- * refused paper, as a one-tap buy (`/packs?buy=<sku>&t=<target>`: signed in -> Razorpay opens straight away), shown under the
- * Board Pass actions (the Board Pass stays first). PURE. What the wall knows: the guard's cover (one chapter, a subject, or
- * several chapters) and, for a practice set (no cover), the page address.
- *   CBQ practice set (style=cbq / preset=comp / questionType=Competency) with a known subject -> that subject's CBQ Pack ₹199
- *   one chapter                                     -> that chapter's Chapter Pack ₹49
- *   a subject and no chapter (a Full Mock)          -> that subject's Mock Pack ₹99
- *   several chapters of ONE subject, or only a subject known from the address -> FALLBACK: that subject's Subject Pack ₹199
- *   nothing known (or chapters of both subjects)    -> null: the wall keeps the old "PDF packs from ₹49" link
- * Owning a pack still makes its chapters' downloads not count: that is the server's mint (packOwned), untouched here.
- */
-export interface WallPackBuy {
-  sku: PackSku;
-  target: string;
-  label: string;
-  href: string;
-  /** true when the paper's exact pack was not knowable and the subject's pack is offered instead. */
-  fallback: boolean;
-}
-
-const CBQ_ADDRESS = /(?:^|[?&])(?:style=cbq|preset=comp|questionType=Competency)(?:&|$)/i;
-
-export function wallPackBuy(ctx: { cover?: DownloadCover | null; chapter?: string | null; pathname?: string; search?: string }): WallPackBuy | null {
-  const fromAddress = !ctx.cover;
-  const chapters = (ctx.cover ? ctx.cover.chapters ?? [] : [ctx.chapter ?? chapterFromLocation(ctx.pathname ?? "", ctx.search ?? "")]).filter(
-    (c): c is string => typeof c === "string" && PACK_CHAPTER_SLUGS.includes(c),
-  );
-  const subjects = new Set(chapters.map((c) => subjectOfChapter(c)).filter((x): x is PackSubject => x !== null));
-  let addrSubject: PackSubject | null = null;
-  if (fromAddress) {
-    try {
-      const v = new URLSearchParams(ctx.search ?? "").get("subject")?.toLowerCase();
-      if (v === "maths" || v === "science") addrSubject = v;
-    } catch {
-      /* no subject */
-    }
-  }
-  const subject: PackSubject | null = ctx.cover?.subject ?? (subjects.size === 1 ? [...subjects][0] : null) ?? addrSubject;
-  const offer = (sku: PackSku, target: string, name: string, fallback = false): WallPackBuy => ({
-    sku,
-    target,
-    label: `Or get the ${name} \u00b7 ${packPriceLabel(sku)}`,
-    href: buyHrefFor(sku, target),
-    fallback,
-  });
-  if (fromAddress && subject && CBQ_ADDRESS.test(ctx.search ?? "")) return offer("pack_cbq", subject, `${subjectLabel(subject)} CBQ Pack`);
-  if (chapters.length === 1) return offer("pack_chapter", chapters[0], `${packChapterLabel(chapters[0])} Chapter Pack`);
-  const mock = ctx.cover ? (chapters.length === 0 ? ctx.cover.subject ?? null : null) : chapters.length === 0 ? mockSubjectFromLocation(ctx.pathname ?? "", ctx.search ?? "") : null;
-  if (mock) return offer("pack_mock", mock, `${subjectLabel(mock)} Mock Pack`);
-  if (subject && subjects.size <= 1) return offer("pack_subject", subject, `${subjectLabel(subject)} Subject Pack`, true);
-  return null;
-}
-
 export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, chapter = null, cover, onClose }: DownloadLimitWallProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -104,7 +49,6 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
   const here = `${location.pathname}${location.search}`;
   // PACKS-ENTRY-1 (a): a quiet second line under the Board Pass actions, only for the download wall.
   const showPackLink = variant === "blocked" && flavor === "download";
-  const packBuy = showPackLink && isPacksEntryEnabled() ? wallPackBuy({ cover, chapter, pathname: location.pathname, search: location.search }) : null;
 
   const dismiss = useCallback(() => {
     onClose();
@@ -154,6 +98,14 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
   const goPay = () => navigate(`${BOARD_PASS_BUY_PATH}&${planParams}`);
   const goPlans = () => navigate(`/pricing?${planParams}`);
 
+  // PACKS-ENTRY-1 (a): the old quiet pack link ("Chapter Pack ₹49 →" / "PDF packs from ₹49 →"). PACKS-CONVERT-1: it stays the
+  // fallback when no single matching pack can be offered (see WallPackBuy).
+  const packLink = (
+    <WallCoverContext.Provider value={cover ?? null}>
+      <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />
+    </WallCoverContext.Provider>
+  );
+
   return (
     <div className="lt-limit-scrim" onClick={dismiss} data-testid="download-wall-scrim">
       <div
@@ -198,17 +150,14 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
             {copy.keep}
           </button>
         </div>
-        {packBuy ? (
-          <div className={tier === "trial" ? "lt-limit-pack lt-limit-pack--light" : "lt-limit-pack"} data-testid="wall-pack-buy" data-sku={packBuy.sku} data-fallback={packBuy.fallback ? "subject" : undefined}>
-            <Link className="lt-limit-btn lt-limit-btn--pack" to={packBuy.href} onClick={() => firePackEntryClick("download_wall")}>
-              {packBuy.label}
-            </Link>
-          </div>
-        ) : showPackLink && (
-          <WallCoverContext.Provider value={cover ?? null}>
-            <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />
-          </WallCoverContext.Provider>
-        )}
+        {showPackLink &&
+          (isPacksEntryEnabled() ? (
+            <Suspense fallback={null}>
+              <WallPackBuy cover={cover ?? null} chapter={chapter} light={tier === "trial"} fallback={packLink} />
+            </Suspense>
+          ) : (
+            packLink
+          ))}
       </div>
     </div>
   );

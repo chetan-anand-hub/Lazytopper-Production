@@ -22,13 +22,14 @@ export interface CbqBandProps {
   sampleSurface: PackSampleSurface;
   /**
    * PACKS-CONVERT-1: the buy step shown under a card's sample link after the tap ("Liked the sample? Get the Maths CBQ Pack · ₹199").
-   * A page with the shop passes its one-tap buy; left out (the /cbq-class-10 hub), it is the one-tap checkout link `/packs?buy=`.
-   * Returning null shows nothing (owned, packs dark).
+   * A page with the shop passes its one-tap buy (hidden when owned / packs dark); left out (the /cbq-class-10 hub, which has no shop
+   * and no ownership read), it is always the one-tap checkout link `/packs?buy=…&from=sample` - /packs then handles an owned pack.
    */
   sampleBuy?: (subject: PackSubject) => SampleBuy | null;
 }
 
-const hrefBuy = (s: PackSubject): SampleBuy => ({ href: buyHrefFor("pack_cbq", s) });
+/** Review fix 2: `from=sample` rides on the one-tap link; /packs adds it to the ONE pack_checkout it sends on that resume. */
+const hrefBuy = (s: PackSubject): SampleBuy => ({ href: `${buyHrefFor("pack_cbq", s)}&from=sample` });
 
 export default function CbqBand({ action, headingId, sampleSurface, sampleBuy = hrefBuy }: CbqBandProps) {
   const price = packPriceLabel("pack_cbq");

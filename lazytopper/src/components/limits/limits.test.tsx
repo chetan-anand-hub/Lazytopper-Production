@@ -17,6 +17,15 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 const authState: { user: { uid: string } | null } = { user: { uid: "stu-1" } };
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: authState.user, loading: false }) }));
 const subState = { isPremium: false, tier: "free", touched: 0 };
+// PACKS-CONVERT-1 review fix 1: the wall's matching pack reads the student's owned packs (server) before offering one.
+const ownedState = vi.hoisted(() => ({ packs: [] as Array<{ packId: string; sku: string; target: string }>, fail: false }));
+vi.mock("../../services/packs", async (orig) => ({
+  ...(await orig<typeof import("../../services/packs")>()),
+  fetchMyPacks: async () => {
+    if (ownedState.fail) throw new Error("down");
+    return { packs: ownedState.packs, licensee: null, boardPassCredit: null };
+  },
+}));
 vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => { subState.touched += 1; const tier = subState.isPremium ? "premium" : subState.tier; return { isPremium: tier === "premium" || tier === "trial", status: { tier } }; } }));
 vi.mock("../../ai/paidCallHeaders", () => ({
   paidJsonHeaders: async () => (authState.user ? { "Content-Type": "application/json", "X-Lazytopper-Uid": authState.user.uid, Authorization: "Bearer t" } : { "Content-Type": "application/json" }),
@@ -33,6 +42,7 @@ import {
   resetLimitsSummaryForTests,
 } from "../../services/limitsClient";
 import DownloadLimitWall from "./DownloadLimitWall";
+import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
 import LimitChip from "./LimitChip";
 import { blockedWallCopy, chipText, FIRST_FREE_CHIP, SIGNED_OUT_CHIP, wallOfferLines } from "./limitsCopy";
 
@@ -369,8 +379,15 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
         <DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} {...props} />
       </MemoryRouter>,
     );
-  // PACKS-CONVERT-1: the wall now offers the MATCHING pack as a one-tap buy (/packs?buy=&t=), under the Board Pass actions.
-  const buyLink = () => screen.getByTestId("wall-pack-buy").querySelector("a")!;
+  // PACKS-CONVERT-1: the wall now offers the MATCHING pack as a one-tap buy (/packs?buy=&t=), under the Board Pass actions, after
+  // reading what the student already owns (lazy chunk: every assertion waits for it).
+  beforeEach(() => {
+    ownedState.packs = [];
+    ownedState.fail = false;
+    resetOwnedPacksCache();
+  });
+  const buyLink = async () => (await screen.findByTestId("wall-pack-buy")).querySelector("a")!;
+  const own = (sku: string, target: string) => ({ packId: `${sku}:${target}`, sku, target });
   it("flag on: Board Pass actions first, then the one-tap buy of that chapter's pack; click fires download_wall", async () => {
     FLAG_ON();
     wall();
@@ -392,44 +409,71 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
     expect(screen.queryByTestId("wall-pack-buy")).toBeNull();
     cleanup();
     wall({ chapter: "circles" }, "/practice-hub");
-    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_chapter&t=circles");
+    expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_chapter&t=circles");
   });
   it("Full Mock wall -> that subject's Mock Pack ₹99; a multi-topic page -> plain packs link; the trial wall gets the lighter text-button", async () => {
     FLAG_ON();
     wall({}, "/practice/10/maths/full-mock");
-    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_mock&t=maths");
-    expect(buyLink().textContent).toBe("Or get the Maths Mock Pack · ₹99");
+    expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_mock&t=maths");
+    expect((await buyLink()).textContent).toBe("Or get the Maths Mock Pack · ₹99");
     cleanup();
     wall({}, "/worksheet");
     expect((await screen.findByRole("link", { name: /PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
     cleanup();
     wall({ tier: "trial" }, "/notes/triangles");
-    expect(screen.getByTestId("wall-pack-buy").className).toContain("lt-limit-pack--light");
+    expect((await screen.findByTestId("wall-pack-buy")).className).toContain("lt-limit-pack--light");
     cleanup();
     wall({ tier: "free" }, "/notes/triangles");
-    expect(screen.getByTestId("wall-pack-buy").className).not.toContain("--light");
+    expect((await screen.findByTestId("wall-pack-buy")).className).not.toContain("--light");
   });
   it("PACK-LINKS-1: the guard's cover decides the pack, not the page address; several chapters of one subject fall back to the Subject Pack", async () => {
     FLAG_ON();
     wall({ cover: { chapters: ["circles"] } }, "/worksheet");
-    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_chapter&t=circles");
+    expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_chapter&t=circles");
     cleanup();
     wall({ cover: { subject: "science" } }, "/practice-hub");
-    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_mock&t=science");
+    expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_mock&t=science");
     cleanup();
     wall({ cover: { chapters: ["circles", "triangles"] } }, "/notes/triangles");
-    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_subject&t=maths");
+    expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_subject&t=maths");
     expect(screen.getByTestId("wall-pack-buy").getAttribute("data-fallback")).toBe("subject");
     cleanup();
     // chapters of BOTH subjects: no single matching pack -> the old plain packs link
     wall({ cover: { chapters: ["circles", "light-reflection-and-refraction"] } }, "/worksheet");
     expect((await screen.findByRole("link", { name: /PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
   });
-  it("a CBQ practice set (no cover) -> that subject's CBQ Pack ₹199", () => {
+  it("review fix 3: a chapter paper whose chapter slugs are unknown is never offered the Mock Pack (subject pack instead)", async () => {
+    FLAG_ON();
+    wall({ cover: { chapters: ["not-a-chapter"], subject: "maths" } }, "/worksheet");
+    expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_subject&t=maths");
+  });
+  it("a CBQ practice set (no cover) -> that subject's CBQ Pack ₹199", async () => {
     FLAG_ON();
     wall({}, "/practice?topic=triangles&style=cbq");
-    expect(buyLink().getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
-    expect(buyLink().textContent).toBe("Or get the Maths CBQ Pack · ₹199");
+    expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
+    expect((await buyLink()).textContent).toBe("Or get the Maths CBQ Pack · ₹199");
+  });
+  it("review fix 1: an owned match is never sold again - owned CBQ on a CBQ set; a chapter owned through the Bundle -> 'open My packs'", async () => {
+    FLAG_ON();
+    ownedState.packs = [own("pack_cbq", "maths")];
+    wall({}, "/practice?topic=triangles&style=cbq");
+    const owned = await screen.findByTestId("wall-pack-owned");
+    expect(owned.querySelector("a")!.getAttribute("href")).toBe("/packs#my-packs");
+    expect(owned.textContent).toBe("You own this pack — open My packs");
+    expect(screen.queryByTestId("wall-pack-buy")).toBeNull();
+    cleanup();
+    resetOwnedPacksCache();
+    ownedState.packs = [own("pack_bundle", "all")];
+    wall({ cover: { chapters: ["circles"] } }, "/worksheet");
+    expect((await screen.findByTestId("wall-pack-owned")).getAttribute("data-sku")).toBe("pack_chapter");
+    expect(screen.queryByTestId("wall-pack-buy")).toBeNull();
+  });
+  it("review fix 1: when the ownership read fails, no specific pack is sold - the old generic link shows", async () => {
+    FLAG_ON();
+    ownedState.fail = true;
+    wall();
+    await screen.findByTestId("wall-pack-link");
+    expect(screen.queryByTestId("wall-pack-buy")).toBeNull();
   });
   it("flag off, signed-out and practice variants: absent", async () => {
     FLAG_OFF();

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { packSampleFor, packSampleHref, PACK_SAMPLE_LINK_TEXT, type PackSampleSurface } from "../../lib/packs/packSamples";
-import { trackPackCheckout, trackPackSampleDownload } from "../../lib/packs/packAnalytics";
+import { trackPackSampleDownload } from "../../lib/packs/packAnalytics";
 import { BUNDLE_NAME } from "../../lib/packs/packLabels";
-import { PACK_PRICE_INR, packDescription, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import "./packSampleLink.css";
 
 /**
@@ -55,8 +55,8 @@ export default function PackSampleLink({ sku, target, surface, tone = "light", l
  * PACKS-CONVERT-1 (owner, 3 Nov 2026: 42 sample downloads -> 13 checkouts) - the buy step right after a free sample. Where the
  * shop is on the page (/packs, /pricing) it is `{ onBuy }`: the SAME one-tap buy as the tile's Buy (PacksShopApi.buyNow /
  * chooseChapter, which send `pack_checkout` with `from: "sample"`). Where it is not (/cbq-class-10) it is `{ href }`: the
- * one-tap checkout link (`/packs?buy=`), and `pack_checkout` { from: "sample" } is sent here at the tap. null = nothing to sell
- * (owned, packs dark). Names and prices only from the pack constants.
+ * one-tap checkout link (`/packs?buy=…&from=sample`); NO event here - /packs sends the one `pack_checkout` { from: "sample" } when it
+ * resumes that link (review fix 2: one tap, one event). null = nothing to sell. Names and prices only from the pack constants.
  */
 export type SampleBuy = { onBuy: () => void; blocked?: boolean } | { href: string };
 
@@ -86,14 +86,8 @@ export function SampleBuyNext({ sku, subject, buy, tone = "light" }: { sku: Pack
   const label = sampleBuyLabel(sku, subject);
   const testId = `sample-buy-${sku}${subject && sku !== "pack_bundle" ? `-${subject}` : ""}`;
   if ("href" in buy) {
-    const target = sku === "pack_bundle" ? undefined : subject ?? undefined;
     return (
-      <Link
-        className={cls}
-        to={buy.href}
-        data-testid={testId}
-        onClick={() => trackPackCheckout({ sku, itemName: packDescription(sku, target), valueInr: PACK_PRICE_INR[sku] }, { from: "sample" })}
-      >
+      <Link className={cls} to={buy.href} data-testid={testId}>
         {label}
       </Link>
     );

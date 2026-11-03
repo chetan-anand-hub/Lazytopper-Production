@@ -177,7 +177,7 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     expect(screen.queryByTestId("sample-buy-pack_mock-science")).toBeNull();
   });
 
-  it("CbqBand without a shop (/cbq-class-10): the sample's buy is the one-tap checkout link, pack_checkout from: sample at the tap", async () => {
+  it("CbqBand without a shop (/cbq-class-10): the sample's buy is the one-tap link with from=sample, and the tap itself sends NO checkout", async () => {
     render(
       <MemoryRouter initialEntries={["/cbq-class-10"]}>
         <Where />
@@ -188,9 +188,43 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     );
     fireEvent.click(sampleLink("cbq-maths"));
     const link = await screen.findByTestId("sample-buy-pack_cbq-maths");
-    expect(link.getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
+    expect(link.getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths&from=sample");
     fireEvent.click(link);
-    expect(track.checkout).toHaveBeenCalledWith({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: P.pack_cbq }, { from: "sample" });
-    expect(screen.getByTestId("where").textContent).toBe("/packs?buy=pack_cbq&t=maths");
+    expect(track.checkout).not.toHaveBeenCalled();
+    expect(screen.getByTestId("where").textContent).toBe("/packs?buy=pack_cbq&t=maths&from=sample");
+  });
+
+  const at = (url: string) =>
+    render(
+      <MemoryRouter initialEntries={[url]}>
+        <Where />
+        <Routes>
+          <Route path="/packs" element={<PacksPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+  it("review fix 2: that link lands on /packs signed in -> exactly ONE pack_checkout (resumed, from: sample); from is stripped", async () => {
+    at("/packs?buy=pack_cbq&t=maths&from=sample");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(track.checkout).toHaveBeenCalledTimes(1);
+    expect(track.checkout).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq" }), expect.objectContaining({ signedIn: true, resumed: true, from: "sample" }));
+    await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/packs"));
+  });
+
+  it("review fix 2: signed out (pay-by-phone on) -> the chooser opens and exactly ONE pack_checkout (signed_in false, from: sample)", async () => {
+    auth.user = null;
+    flags.guest = true;
+    at("/packs?buy=pack_cbq&t=science&from=sample");
+    expect((await screen.findByTestId("guest-sheet")).getAttribute("data-target")).toBe("science");
+    expect(track.checkout).toHaveBeenCalledTimes(1);
+    expect(track.checkout).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq" }), { signedIn: false, from: "sample" });
+    await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/packs"));
+  });
+
+  it("a plain one-tap link (no from=sample) keeps today's events: none on the guest resume, no from on the signed-in one", async () => {
+    at("/packs?buy=pack_cbq&t=maths");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(track.checkout.mock.calls[0][1]).not.toHaveProperty("from");
   });
 });
