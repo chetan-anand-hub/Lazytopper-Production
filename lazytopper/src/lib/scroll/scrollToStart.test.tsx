@@ -84,8 +84,16 @@ describe("route-change hook", () => {
   it("CONTROL: leaves scroll alone on a query-only change", () => {
     expect(run("/a?topic=x").scrollTop).toBe(2000);
   });
-  it("skips a hash route (/pricing#packs keeps its own anchor scroll)", () => {
-    expect(run("/b#packs").scrollTop).toBe(2000);
+  it("skips a hash route whose target is already on the page (it keeps its own anchor scroll)", () => {
+    document.body.innerHTML = `<main id="m"></main><section id="packs"></section>`;
+    const main = document.getElementById("m") as HTMLElement;
+    main.scrollTop = 2000;
+    function Go() { const nav = useNavigate(); useEffect(() => { nav("/b#packs"); }, [nav]); return null; }
+    render(<MemoryRouter initialEntries={["/a"]}><Probe /><Go /></MemoryRouter>, { container: document.body.appendChild(document.createElement("div")) });
+    expect(main.scrollTop).toBe(2000);
+  });
+  it("BUY-PATH-1: a hash route whose target mounts LATER (/pricing#cbq, the lazy strip) starts at the top", () => {
+    expect(run("/b#cbq").scrollTop).toBe(0);
   });
   it("skips when navigation state asks to preserve scroll", () => {
     expect(run("/b", { preserveScroll: true }).scrollTop).toBe(2000);

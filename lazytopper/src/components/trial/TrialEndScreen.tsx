@@ -8,6 +8,8 @@ import { trackPaywallAction, trackTrialEndScreen } from "../../analytics/analyti
 import { requestFeedbackPrompt } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
 import { premiumOffer, type PremiumOffer } from "../pricing/boardPassOffer";
+// BUY-PATH-1: "Pay" opens the Board Pass checkout in one tap; the payments-dark "See plans" link still browses /pricing.
+import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { safeSigninRedirect } from "../../services/freeCheckClient";
 import { countTrialActivity, type TrialActivityCounts } from "./trialEndBannerModel";
@@ -267,7 +269,7 @@ export default function TrialEndScreen() {
       actions={
         <PaywallActions
           surface="trial_end"
-          payTo={payHref}
+          payTo={BOARD_PASS_BUY_PATH}
           fallback={
             <Link
               to={payHref}

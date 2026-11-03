@@ -204,3 +204,41 @@ describe("PURCHASE-EVENT-1 · pack purchase", () => {
     expect(fetchMine.mock.calls.length).toBeGreaterThan(afterBuy);
   });
 });
+
+describe("BUY-PATH-1 · pack_checkout at the Buy tap, signed in or out", () => {
+  function tapShop() {
+    return render(
+      <MemoryRouter initialEntries={["/packs"]}>
+        <PacksShop>
+          {(api) => (
+            <button type="button" data-testid="tile-buy" onClick={() => api.buyNow("pack_cbq", "science")}>
+              Buy
+            </button>
+          )}
+        </PacksShop>
+      </MemoryRouter>,
+    );
+  }
+
+  it("signed out (pay-by-phone off): ONE pack_checkout with signed_in false, sent at the tap, then sign-in; no order, no purchase", async () => {
+    auth.user = null;
+    tapShop();
+    fireEvent.click(screen.getByTestId("tile-buy"));
+    expect(ga4("pack_checkout")).toHaveLength(1);
+    expect(ga4("pack_checkout")[0]).toMatchObject({ sku: "pack_cbq", value: 199, currency: "INR", signed_in: false });
+    expect(ga4("begin_checkout")).toHaveLength(1);
+    expect(buyMock).not.toHaveBeenCalled();
+    expect(ga4("purchase")).toHaveLength(0);
+  });
+
+  it("signed in: exactly ONE pack_checkout (signed_in true) for the tap - no double fire", async () => {
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    tapShop();
+    await waitFor(() => expect(screen.getByTestId("tile-buy")).toBeTruthy());
+    await new Promise((r) => setTimeout(r, 20)); // My packs loaded
+    fireEvent.click(screen.getByTestId("tile-buy"));
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(ga4("pack_checkout")).toHaveLength(1);
+    expect(ga4("pack_checkout")[0]).toMatchObject({ sku: "pack_cbq", signed_in: true });
+  });
+});

@@ -161,3 +161,10 @@
 
 /* PRICING-ONE-1: My packs / status line when the shop sits inside /pricing (no full-page chrome). */
 .lt-packs.lt-packs--embedded { min-height: 0; padding-bottom: 0; background: transparent; max-width: 1040px; margin: 0 auto; width: 100%; }
+
+/* BUY-PATH-1: on a phone the Maths + Science Bundle (the "Pre-boards pick", the best-value tile) comes FIRST, above the
+   cheaper tiles - it used to sit last, below the fold. Order only: the DOM order (and so keyboard / screen-reader order) is
+   unchanged, and 641px+ keeps the original order. */
+@media (max-width: 640px) {
+  .lt-packs__tiles > .lt-packs__cell:has(> .lt-packs__tile--best) { order: -1; }
+}

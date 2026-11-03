@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
+import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { WallCoverContext } from "../../lib/packs/wallCover";
 import type { DownloadCover } from "../../services/limitsClient";
@@ -88,6 +89,8 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
     };
   }, [dismiss]);
 
+  // BUY-PATH-1: "Pay" (payments on) opens the Board Pass checkout in one tap; "See plans" (payments dark) still browses /pricing.
+  const goPay = () => navigate(BOARD_PASS_BUY_PATH);
   const goPlans = () => navigate(`/pricing?source=${flavor === "practice" ? "grade-limit" : "download-limit"}&returnTo=${encodeURIComponent(here)}`);
 
   return (
@@ -117,7 +120,7 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
           {variant === "blocked" && (
             <PaywallActions
               surface={flavor === "practice" ? "grade_limit" : "download_limit"}
-              onPay={goPlans}
+              onPay={goPay}
               fallback={
                 <button type="button" className="lt-limit-btn lt-limit-btn--primary" onClick={goPlans}>
                   See plans

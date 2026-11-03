@@ -6,7 +6,7 @@ import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
  * server-verified `paid` branch; `begin_checkout` fires on the pay tap.
  */
 const track = vi.hoisted(() => ({
-  trackBeginCheckout: vi.fn(),
+  trackBeginCheckoutTap: vi.fn(),
   trackPurchase: vi.fn(),
   newCheckoutAttemptId: vi.fn(() => "lt_attempt"),
 }));
@@ -33,8 +33,8 @@ describe("TRACK-2 · PassCheckout events", () => {
     let finish: (o: BuyOutcome) => void = () => undefined;
     const c = view(() => new Promise<BuyOutcome>((r) => (finish = r)));
     tapMonth(c);
-    expect(track.trackBeginCheckout).toHaveBeenCalledTimes(1);
-    expect(track.trackBeginCheckout.mock.calls[0][0]).toMatchObject({ passType: "month", valueInr: PRICE_MONTHLY_FOUNDING_INR });
+    expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1);
+    expect(track.trackBeginCheckoutTap.mock.calls[0][0]).toMatchObject({ passType: "month", valueInr: PRICE_MONTHLY_FOUNDING_INR });
     expect(track.trackPurchase).not.toHaveBeenCalled();
     finish({ status: "dismissed" });
   });
@@ -42,7 +42,7 @@ describe("TRACK-2 · PassCheckout events", () => {
   it("the list price is sent when the founding offer is closed", () => {
     const c = view(async () => ({ status: "dismissed" }), false);
     tapMonth(c);
-    expect(track.trackBeginCheckout.mock.calls[0][0]).toMatchObject({ valueInr: PRICE_MONTHLY_LIST_INR });
+    expect(track.trackBeginCheckoutTap.mock.calls[0][0]).toMatchObject({ valueInr: PRICE_MONTHLY_LIST_INR });
   });
 
   it("purchase fires once on paid, with value and transaction id", async () => {
@@ -84,7 +84,7 @@ describe("TRACK-2 · PassCheckout events", () => {
   ])("purchase never fires on %s", async (_n, outcome) => {
     const c = view(async () => outcome);
     tapMonth(c);
-    await waitFor(() => expect(track.trackBeginCheckout).toHaveBeenCalled());
+    await waitFor(() => expect(track.trackBeginCheckoutTap).toHaveBeenCalled());
     await new Promise((r) => setTimeout(r, 0));
     expect(track.trackPurchase).not.toHaveBeenCalled();
   });
@@ -92,16 +92,29 @@ describe("TRACK-2 · PassCheckout events", () => {
   it("purchase never fires for an already-active pass that is only displayed", () => {
     view(async () => PAID, true, "2099-01-01T00:00:00.000Z");
     expect(track.trackPurchase).not.toHaveBeenCalled();
-    expect(track.trackBeginCheckout).not.toHaveBeenCalled();
+    expect(track.trackBeginCheckoutTap).not.toHaveBeenCalled();
   });
 
-  it("a signed-out tap goes to sign-in and fires neither event", () => {
+  it("BUY-PATH-1: a signed-out tap fires begin_checkout ONCE with signed_in false, then goes to sign-in; no purchase", () => {
     const onSignIn = vi.fn();
+    const onBuy = vi.fn(async () => PAID);
     const c = render(
-      <PassCheckoutView signedIn={false} showMonth offerOpen activePassEnd={null} onSignIn={onSignIn} onBuy={async () => PAID} />,
+      <PassCheckoutView signedIn={false} showMonth offerOpen activePassEnd={null} onSignIn={onSignIn} onBuy={onBuy} />,
     );
-    fireEvent.click(c.getByRole("button", { name: /for a month/i }));
-    expect(onSignIn).toHaveBeenCalled();
-    expect(track.trackBeginCheckout).not.toHaveBeenCalled();
+    fireEvent.click(c.getByRole("button", { name: /once till your boards/i }));
+    expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1);
+    expect(track.trackBeginCheckoutTap.mock.calls[0][0]).toMatchObject({ passType: "till_boards" });
+    expect(track.trackBeginCheckoutTap.mock.calls[0][1]).toBe(false);
+    // the event is sent BEFORE the branch to sign-in
+    expect(track.trackBeginCheckoutTap.mock.invocationCallOrder[0]).toBeLessThan(onSignIn.mock.invocationCallOrder[0]);
+    expect(onBuy).not.toHaveBeenCalled();
+    expect(track.trackPurchase).not.toHaveBeenCalled();
+  });
+
+  it("BUY-PATH-1: a signed-in tap fires begin_checkout exactly ONCE, with signed_in true (no double fire)", async () => {
+    const c = view(async () => ({ status: "dismissed" }));
+    tapMonth(c);
+    await waitFor(() => expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1));
+    expect(track.trackBeginCheckoutTap.mock.calls[0][1]).toBe(true);
   });
 });

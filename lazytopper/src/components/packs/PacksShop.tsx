@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import { newCheckoutAttemptId } from "../../analytics/analytics";
-import { trackPackCheckout, trackPackEvent, trackPackPurchase } from "../../lib/packs/packAnalytics";
+import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails } from "../../lib/packs/packAnalytics";
 import {
   PACK_ALREADY_OWNED_COPY,
   PACK_CHAPTER_SLUGS,
@@ -89,6 +89,11 @@ export function readBuyResume(search: string): { sku: PackSku; target: string | 
   } catch {
     return null;
   }
+}
+
+/** What the pack checkout / purchase events say was bought: the sku, its name and the display price (the server charges). */
+function packCheckoutDetails(sku: PackSku, target: string | undefined): PackCheckoutDetails {
+  return { sku, itemName: packDescription(sku, target, target ? packChapterLabel(target) : undefined), valueInr: PACK_PRICE_INR[sku] };
 }
 
 const PackDialog = lazy(() => import("../../pages/PackDialog"));
@@ -346,6 +351,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
+      // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
+      // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
+      trackPackCheckout(packCheckoutDetails(sku, target), false);
       // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the
       // visitor to sign-in first. Off: today's flow, unchanged.
       if (guestEnabled) {
@@ -361,9 +369,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       return;
     }
     setBuy({ key, phase: "busy" });
-    const details = { sku, itemName: packDescription(sku, target, target ? chapterLabel(target) : undefined), valueInr: PACK_PRICE_INR[sku] };
+    const details = packCheckoutDetails(sku, target);
     const attemptId = newCheckoutAttemptId();
-    trackPackCheckout(details);
+    trackPackCheckout(details, true);
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.

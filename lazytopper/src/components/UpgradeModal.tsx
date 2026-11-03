@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { BasicFreeList } from "./pricing/BasicFreeList";
 import { notifyPaywallDismissed } from "./feedback/feedbackPromptHost";
 import PaywallActions from "./pricing/PaywallActions";
+import { BOARD_PASS_BUY_PATH } from "./pricing/boardPassBuy";
 
 /**
  * FRICTION-FIX-1 · F3 (FU-UPGRADE-MODAL-NO-BASIC-EXIT) — the modal had ONE exit that was
@@ -82,6 +83,13 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
     onClose();
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
     navigate(`/pricing?source=upgrade-modal&returnTo=${encodeURIComponent(returnTo)}`);
+  };
+
+  // BUY-PATH-1: "Pay" (payments on) opens the Board Pass checkout in one tap. The payments-dark "View / Choose Plan" button
+  // (handleUpgrade above) still browses /pricing.
+  const handlePay = () => {
+    onClose();
+    navigate(BOARD_PASS_BUY_PATH);
   };
 
   return (
@@ -178,7 +186,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
             existing plans button, unchanged. */}
         <PaywallActions
           surface="upgrade_modal"
-          onPay={handleUpgrade}
+          onPay={handlePay}
           fallback={
             <button
               type="button"

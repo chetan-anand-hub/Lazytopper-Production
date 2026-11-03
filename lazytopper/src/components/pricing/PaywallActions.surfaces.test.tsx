@@ -41,6 +41,7 @@ import { RequirePremium } from "../auth/RequireAuth";
 import { UpgradeModal } from "../UpgradeModal";
 import { UpgradeSheet } from "../subscription/UpgradeSheet";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import DownloadLimitWall from "../limits/DownloadLimitWall";
 import TrialPaperNote from "../usage/TrialPaperNote";
 import TutorErrorView from "../../pages/tutor/TutorErrorView";
 import * as analytics from "../../analytics/analytics";
@@ -154,6 +155,18 @@ describe("upgrade popup (UpgradeModal)", () => {
     expect(screen.getByTestId("upgrade-modal-keep-basic")).toBeInTheDocument();
   });
 
+  it("BUY-PATH-1: switched on, Pay opens the Board Pass checkout (/pricing?buy=board_pass) and closes the popup", async () => {
+    flags(true);
+    const onClose = vi.fn();
+    at(<UpgradeModal open onClose={onClose} featureLabel="Full mock" />, "/practice?topic=light");
+    await expectThree();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("paywall-pay"));
+    });
+    expect(screen.getByTestId("where").textContent).toBe("/pricing?buy=board_pass");
+    expect(onClose).toHaveBeenCalled();
+  });
+
   it("CONTROL — payments dark: 'Choose Plan', nothing new", () => {
     flags(false);
     at(<UpgradeModal open onClose={vi.fn()} featureLabel="Full mock" />);
@@ -195,7 +208,8 @@ describe("usage / limit panel (FairUseLimitPanel)", () => {
     await expectThree();
     expect(screen.queryByTestId("fair-use-see-plans")).toBeNull();
     expect(screen.getByRole("button", { name: "OK" })).toBeInTheDocument();
-    expect(screen.getByTestId("paywall-pay")).toHaveAttribute("href", "/pricing");
+    // BUY-PATH-1: Pay opens the Board Pass checkout in one tap (it was plain /pricing when the panel had no offer rows).
+    expect(screen.getByTestId("paywall-pay")).toHaveAttribute("href", "/pricing?buy=board_pass");
   });
 
   it.each([
@@ -284,5 +298,24 @@ describe("trial-paper note (TrialPaperNote)", () => {
     at(note);
     expect(screen.getByTestId("trial-paper-see-plans")).toHaveTextContent("See plans");
     expectNone();
+  });
+});
+
+describe("BUY-PATH-1 · download / grade limit wall (DownloadLimitWall)", () => {
+  it("switched on: Pay opens the Board Pass checkout (/pricing?buy=board_pass)", async () => {
+    flags(true);
+    at(<DownloadLimitWall variant="blocked" resetAt="2026-11-07T10:40:00Z" onClose={vi.fn()} />, "/papers?x=1");
+    await expectThree();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("paywall-pay"));
+    });
+    expect(screen.getByTestId("where").textContent).toBe("/pricing?buy=board_pass");
+  });
+
+  it("CONTROL — payments dark: 'See plans' still browses /pricing with its source and returnTo", async () => {
+    flags(false);
+    at(<DownloadLimitWall variant="blocked" resetAt="2026-11-07T10:40:00Z" onClose={vi.fn()} />, "/papers?x=1");
+    fireEvent.click(screen.getByRole("button", { name: "See plans" }));
+    expect(screen.getByTestId("where").textContent).toBe(`/pricing?source=download-limit&returnTo=${encodeURIComponent("/papers?x=1")}`);
   });
 });

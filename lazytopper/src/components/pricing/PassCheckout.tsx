@@ -37,7 +37,7 @@ import { isGuestPayClientEnabled, type GuestSigninState } from "../../services/g
 import "./passCheckoutRepay.css";
 import {
   newCheckoutAttemptId,
-  trackBeginCheckout,
+  trackBeginCheckoutTap,
   trackNamedEvent,
   trackPurchase,
   type CheckoutDetails,
@@ -287,6 +287,10 @@ export function PassCheckoutView({
 
   async function handleBuy(passType: PassType) {
     if (busy || recovery !== null) return;
+    const details = checkoutEventDetails(passType, offerOpen);
+    // BUY-PATH-1: `begin_checkout` at the TAP, signed in or not (a signed-out tap used to return before any event).
+    // ONE call per tap: the signed-in path below no longer sends its own.
+    trackBeginCheckoutTap(details, signedIn);
     if (!signedIn) {
       onSignIn();
       return;
@@ -298,9 +302,7 @@ export function PassCheckoutView({
     setRecovery(null);
     pendingRef.current = null;
     clearHold();
-    const details = checkoutEventDetails(passType, offerOpen);
     const attemptId = newCheckoutAttemptId();
-    trackBeginCheckout(details);
     const outcome = await onBuy(passType);
     setBusy(null);
     if (outcome.status === "paid") {

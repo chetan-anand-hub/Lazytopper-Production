@@ -5,6 +5,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { trackTrialBannerClick, trackTrialBannerShown } from "../../analytics/analytics";
 import { premiumOffer, premiumShortLine } from "../pricing/boardPassOffer";
+// BUY-PATH-1: the bar names the Board Pass and its price, so with payments on a tap opens that checkout (one tap), not plain /pricing.
+import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
+import { isPaymentsClientEnabled } from "../../services/checkout";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { trialAskRouteAllowed } from "./trialAskRoutes";
 import { TRIAL_BANNER_FIRST_DAY, TRIAL_BAR_FIRST_DAY, istDayKeyOf, trialBannerTiming } from "./trialEndBannerModel";
@@ -100,7 +103,7 @@ export default function TrialCountdownBar() {
   return (
     <div className="lt-tcb" data-testid="trial-countdown-bar" role="region" aria-label="Your free week">
       <style>{BAR_CSS}</style>
-      <Link to="/pricing?source=trial-bar" className="lt-tcb__link" onClick={() => trackTrialBannerClick("plans")}>
+      <Link to={isPaymentsClientEnabled() ? BOARD_PASS_BUY_PATH : "/pricing?source=trial-bar"} className="lt-tcb__link" onClick={() => trackTrialBannerClick("plans")}>
         <span>{text}</span>
         <span className="lt-tcb__go" aria-hidden="true">→</span>
       </Link>

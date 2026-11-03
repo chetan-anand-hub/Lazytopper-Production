@@ -253,3 +253,24 @@ describe("TrialCountdownBar", () => {
     }
   });
 });
+
+describe("BUY-PATH-1 · one-tap pay with payments on", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("trial-end screen: Pay opens the Board Pass checkout (/pricing?buy=board_pass), not plain /pricing", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/practice?x=1");
+    const pay = await screen.findByTestId("paywall-pay");
+    expect(pay).toHaveAttribute("href", "/pricing?buy=board_pass");
+  });
+
+  it("countdown bar: with payments on the bar opens the Board Pass checkout; CONTROL dark: plain /pricing (above)", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    vi.setSystemTime(ist(2026, 6, 4, 12));
+    hydrate.mockResolvedValue(status("trial"));
+    renderAt("/practice", <TrialCountdownBar />);
+    await screen.findByTestId("trial-countdown-bar");
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/pricing?buy=board_pass");
+  });
+});
