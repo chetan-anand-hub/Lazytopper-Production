@@ -17,7 +17,7 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
-import { formatResetIst, limitCopy, trialComeBackLine, type LimitState } from "./fairUseGate";
+import { limitCopy, limitResetWhen, trialComeBackLine, type LimitState } from "./fairUseGate";
 // PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Pay by QR code / Forward link
 // to parents ("Pay" goes to the same plans page). Payments dark: "See plans", unchanged.
 import PaywallActions from "../pricing/PaywallActions";
@@ -105,7 +105,7 @@ export default function FairUseLimitPanel({
   offers?: PaperOffers | null;
 }) {
   const copy = limitCopy(limit);
-  const when = limit.resetAt ? formatResetIst(limit.resetAt) : "";
+  const when = limitResetWhen(limit);
   const asDialog = isTrialDailyChecks(limit, when);
 
   // Dialog state. A NEW refusal (a new limit object) opens it again.

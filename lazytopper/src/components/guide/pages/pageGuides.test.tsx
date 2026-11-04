@@ -169,7 +169,7 @@ describe("GUIDE-PAGES-1 M7 · Byte's lines come from the panel's own data", () =
 
   it("premium → its window", () => {
     const l = m7Lines({ tier: "premium", scope: "checks", resetAt: "2026-10-22T10:00:00.000Z", window: "fiveHour" }, "3:30 pm", THU_9PM_IST);
-    expect(l.hit).toBe("You've reached Premium's 5-hour fair-use limit. It comes back at 3:30 pm.");
+    expect(l.hit).toBe("You've reached this 5-hour fair-use limit. It comes back at 3:30 pm.");
   });
 });
 

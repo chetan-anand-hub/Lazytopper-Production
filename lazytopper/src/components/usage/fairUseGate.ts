@@ -59,6 +59,17 @@ export function formatResetIst(resetAt: string, nowMs: number = Date.now()): str
   return `${time} on ${DAYS[ist.getUTCDay()]} ${ist.getUTCDate()} ${MONTHS[ist.getUTCMonth()]}`;
 }
 
+/**
+ * PURE. FAIRUSE-MONTHLY-1 — a calendar date in IST, "Thu 12 Nov": when the monthly window frees room
+ * the student needs the DAY, not a clock time. Hand-formatted in IST like formatResetIst.
+ */
+export function formatResetDateIst(resetAt: string): string {
+  const ms = Date.parse(resetAt);
+  if (Number.isNaN(ms)) return "";
+  const ist = new Date(ms + IST_OFFSET_MS);
+  return `${DAYS[ist.getUTCDay()]} ${ist.getUTCDate()} ${MONTHS[ist.getUTCMonth()]}`;
+}
+
 /* ── Copy (owner rulings UI1 / UI2, word for word where the spec gives it) ── */
 
 export const PREMIUM_WINDOW_LABEL: Record<PremiumWindow, string> = {
@@ -68,6 +79,25 @@ export const PREMIUM_WINDOW_LABEL: Record<PremiumWindow, string> = {
   // CAP-30DAY: only ever sent when the server has the optional 30-day cap switched on.
   thirtyDay: "30-day",
 };
+
+/**
+ * FAIRUSE-MONTHLY-1 — the possessive a Board Pass refusal reads: "You've reached {phrase} fair-use limit."
+ * Board Pass is a month (30-day window) with a daily safety ceiling; the 5-hour and week phrases remain
+ * for a server that still sends them. Never "Premium", never rupees.
+ */
+export const PREMIUM_LIMIT_PHRASE: Record<PremiumWindow, string> = {
+  fiveHour: "this 5-hour",
+  day: "today's",
+  week: "this week's",
+  thirtyDay: "this month's",
+};
+
+/** PURE. The reset time a premium limit names: a DATE for the monthly window, a time for the others. */
+export function limitResetWhen(limit: LimitState, nowMs: number = Date.now()): string {
+  if (!limit.resetAt) return "";
+  if (limit.tier === "premium" && limit.window === "thirtyDay") return formatResetDateIst(limit.resetAt);
+  return formatResetIst(limit.resetAt, nowMs);
+}
 
 /** ALL-AI-METERING-1 — owner copy (owner approves later), word for word. Trial only: a Premium
  *  refusal on this scope reads the existing Premium window copy (a week cap is not "today's"). */
@@ -127,10 +157,11 @@ export interface LimitCopy {
 /** PURE. The panel's sentences. ★ No codes, no rupees — only these strings render. */
 export function limitCopy(limit: LimitState): LimitCopy {
   if (limit.tier === "premium") {
-    const label = PREMIUM_WINDOW_LABEL[limit.window ?? "day"];
+    const window = limit.window ?? "day";
     return {
-      lead: `You've reached this ${label} fair-use limit.`,
-      resetPrefix: limit.resetAt ? "It resets at" : null,
+      lead: `You've reached ${PREMIUM_LIMIT_PHRASE[window]} fair-use limit.`,
+      // FAIRUSE-MONTHLY-1: the month names a DATE ("It resets on Thu 12 Nov."), the daily ceiling a time.
+      resetPrefix: limit.resetAt ? (window === "thirtyDay" ? "It resets on" : "It resets at") : null,
       tail: null,
       showPlans: false,
     };
@@ -157,7 +188,7 @@ export function limitCopy(limit: LimitState): LimitCopy {
  */
 export function tutorLimitMessage(limit: LimitState, nowMs: number = Date.now()): string {
   const copy = limitCopy(limit);
-  const when = copy.resetPrefix && limit.resetAt ? formatResetIst(limit.resetAt, nowMs) : "";
+  const when = copy.resetPrefix && limit.resetAt ? limitResetWhen(limit, nowMs) : "";
   return when ? `${copy.lead} ${copy.resetPrefix} ${when}.` : copy.lead;
 }
 
@@ -197,9 +228,9 @@ export function fullPremiumWindow(snapshot: UsageSnapshot): PremiumWindow | null
   const p = snapshot.premium;
   if (!p) return null;
   if (p.thirtyDayPct !== null && p.thirtyDayPct >= 100) return "thirtyDay";
-  if (p.weekPct >= 100) return "week";
-  if (p.dayPct >= 100) return "day";
-  if (p.fiveHourPct >= 100) return "fiveHour";
+  if (p.weekPct !== null && p.weekPct >= 100) return "week";
+  if (p.dayPct !== null && p.dayPct >= 100) return "day";
+  if (p.fiveHourPct !== null && p.fiveHourPct >= 100) return "fiveHour";
   return null;
 }
 

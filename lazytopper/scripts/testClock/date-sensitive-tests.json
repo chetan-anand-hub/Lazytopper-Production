@@ -505,6 +505,7 @@
     "src/components/usage/fairUseLimitDialog.test.tsx",
     "src/components/usage/trialPaperNote.test.tsx",
     "src/components/usage/usageCard.anchor.test.tsx",
+    "src/components/usage/usageCard.monthly.test.tsx",
     "src/components/usage/usageWarning.surfaces.test.tsx",
     "src/components/usage/usageWarning.test.tsx",
     "src/components/usage/usageWarning.thirtyDay.test.ts",

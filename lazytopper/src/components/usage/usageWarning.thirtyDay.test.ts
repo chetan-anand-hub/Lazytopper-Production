@@ -21,7 +21,7 @@ describe("usageWarning · thirtyDay window", () => {
     const w = usageWarning(snap({ fiveHourPct: 5, dayPct: 5, weekPct: 10, thirtyDayPct: 80 }), NOW, "tutor");
     expect(w).toMatchObject({ tier: "premium", level: 75, window: "thirtyDay", resetAt: FUTURE });
     expect(warningBannerCopy(w!, NOW)).toMatch(/80%|75%/);
-    expect(warningBannerCopy(w!, NOW)).toContain("your 30-day");
+    expect(warningBannerCopy(w!, NOW)).toContain("this month's");
   });
 
   it("★★ a tie goes to the LONGER window (thirtyDay outranks week)", () => {

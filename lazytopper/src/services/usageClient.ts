@@ -66,9 +66,14 @@ export interface TrialUsage {
 }
 
 export interface PremiumUsage {
-  fiveHourPct: number;
-  dayPct: number;
-  weekPct: number;
+  /**
+   * FAIRUSE-MONTHLY-1 — a window the server switched OFF (env "off") is simply absent from
+   * /api/usage/me: null here, no bar, never a guessed 0. Board Pass runs on the 30-day window
+   * plus a daily safety ceiling; the 5-hour and week windows are off.
+   */
+  fiveHourPct: number | null;
+  dayPct: number | null;
+  weekPct: number | null;
   /**
    * CAP-30DAY — the rolling 30-IST-day window, in the same shape as the others. Null when
    * the server did not send it (an older server, or a malformed field): no bar is shown,
@@ -129,15 +134,25 @@ function parseTrial(raw: unknown): TrialUsage | null {
 function parsePremium(raw: unknown): PremiumUsage | null {
   const p = obj(raw);
   if (!p) return null;
-  const { fiveHourPct, dayPct, weekPct } = p;
-  if (!isPct(fiveHourPct) || !isPct(dayPct) || !isPct(weekPct)) return null;
+  // FAIRUSE-MONTHLY-1: every window is optional — an OFF window is not sent (absent / null -> null here).
+  // A window that IS present but malformed is still not repaired: the whole view is null (empty state).
+  const absent = (v: unknown) => v === undefined || v === null;
+  for (const v of [p.fiveHourPct, p.dayPct, p.weekPct]) {
+    if (!absent(v) && !isPct(v)) return null;
+  }
+  const fiveHourPct = isPct(p.fiveHourPct) ? p.fiveHourPct : null;
+  const dayPct = isPct(p.dayPct) ? p.dayPct : null;
+  const weekPct = isPct(p.weekPct) ? p.weekPct : null;
+  const thirtyDayPct = isPct(p.thirtyDayPct) ? p.thirtyDayPct : null;
+  // No usable window at all = the numbers did not arrive.
+  if (fiveHourPct === null && dayPct === null && weekPct === null && thirtyDayPct === null) return null;
   const r = obj(p.resets) ?? {};
   return {
     fiveHourPct,
     dayPct,
     weekPct,
     // CAP-30DAY: optional, so a server without it still parses exactly as before.
-    thirtyDayPct: isPct(p.thirtyDayPct) ? p.thirtyDayPct : null,
+    thirtyDayPct,
     resets: {
       fiveHour: isoOrNull(r.fiveHour),
       day: isoOrNull(r.day),
