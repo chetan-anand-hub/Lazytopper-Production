@@ -56,7 +56,7 @@ import { CbqCard, PacksSection, WhatYouGet, useHashLanding } from "../components
 import { PRICING_CSS } from "../components/pricing/pricingPageCss";
 import {
   BASIC_COMPARE_SUMMARY,
-  BASIC_LINE_REST,
+  basicLineRest,
   BASIC_LINE_STRONG,
   BOARD_PASS_ONCE,
   BOARD_PASS_TICKS,
@@ -675,7 +675,7 @@ function PricingPlansPage() {
                   <div className="lt-pp-basicline" data-testid="pricing-basic-line">
                     <span>
                       <strong>{BASIC_LINE_STRONG}</strong>
-                      {BASIC_LINE_REST}
+                      {basicLineRest()}
                     </span>
                     {/* A signed-in student already has Basic: no sign-in button for them. */}
                     {!user && (
