@@ -71,6 +71,7 @@ import { conceptSetClick, type ConceptSetContext } from "../lib/desktop/conceptS
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 // SETTINGS-USAGE-1: the fair-use card moved to Settings; an old /me#usage link opens it there.
 import { PacksEntry } from "../lib/packs/packEntryLazy";
+import PassOwnerOfferLazy from "../components/passOwnerOffers/PassOwnerOfferLazy";
 import { requestOpenSettings } from "../components/account/settingsDoor";
 import ShareWithParentsButton from "../components/parentReport/ShareWithParentsButton";
 
@@ -1394,6 +1395,10 @@ export default function MeProgressPage() {
           mascots switch and the DPDP controls (download my data / delete my account)
           moved to Settings in the avatar menu (components/account/SettingsModal.tsx), and
           so did the fair-use "Your limits" card (SETTINGS-USAGE-1). */}
+
+      {/* PASS-OWNER-PACKS-1 — ONE small pack card for a Board Pass owner, at the END of the page (never above the progress).
+          Renders nothing for anyone else, for an owned pack, while the owned list loads, or for a day after "Not now". */}
+      {realUid && !booting && <PassOwnerOfferLazy placement="pass_me" />}
 
       <p className="lt-me__footer">
         Every number here comes from your saved attempts and graded answers. An empty card

@@ -121,7 +121,7 @@ function fakeRazorpay() {
   return { fetchImpl, orders, payments, calls, pay };
 }
 
-async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), licensees = {}, throwLicensee = false } = {}) {
+async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), licensees = {}, throwLicensee = false, nowMs = NOW } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -131,9 +131,9 @@ async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(
       return h.startsWith('Bearer uid:') ? h.slice('Bearer uid:'.length) : '';
     },
   };
-  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now: () => NOW, foundingOfferOpen: true });
+  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now: () => nowMs, foundingOfferOpen: true });
   const packs = createPackRoutes({
-    sendJson, verifiedCaller, adminFirestore: db, telemetry, now: () => NOW, foundingOfferOpen: true,
+    sendJson, verifiedCaller, adminFirestore: db, telemetry, now: () => nowMs, foundingOfferOpen: true,
     getLicensee: async (uid) => { if (throwLicensee) throw new Error('auth down'); return licensees[uid] || { name: '', email: '' }; },
   });
   const server = http.createServer((req, res) => {
@@ -841,4 +841,48 @@ test('OWNER 2 Nov · packs are not part of Premium: a Premium uid (pass till the
   assert.equal(r.status, 200, r.text);
   assert.equal(r.json.amountPaise, 19900);
   assert.equal(db.read(`payOrders/${r.json.orderId}`).uid, 'prem1');
+});
+
+/* ── PASS-OWNER-PACKS-1 · a Board Pass OWNER buys packs: the pack is granted, the subscription is never touched ─────── */
+test('PASS-OWNER · a Board Pass owner buys EVERY pack kind (signed in): granted to them, the subscription doc is byte-for-byte untouched, no credit fields', async (t) => {
+  const AFTER_CUTOFF = Date.parse('2026-11-06T06:30:00.000Z'); // packs never reduce anything after 5 Nov
+  for (const [sku, extra, paise, packId, target] of CASES) {
+    const db = memoryFirestore();
+    const SUB = {
+      tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(Date.parse('2027-02-17T00:00:00Z')),
+      pricePaidInr: 1917, lastPaymentRef: 'pay_pass', foundingMember: true,
+      trialStartDate: new Date(Date.parse('2026-10-20T00:00:00Z')), trialEndDate: null, premiumSince: new Date(Date.parse('2026-10-25T00:00:00Z')),
+    };
+    await db.collection('subscriptions').doc('owner1').set(SUB);
+    const before = { data: db.read('subscriptions/owner1'), version: db.version('subscriptions/owner1') };
+    const srv = await start({ db, nowMs: AFTER_CUTOFF, licensees: { owner1: { name: 'Riya', email: 'riya@example.com' } } });
+    t.after(srv.close);
+    const o = await orderOk(srv, 'owner1', sku, extra);
+    assert.equal(o.amountPaise, paise, `${sku}: the pack price, never reduced for a Board Pass owner`);
+    const stored = db.read(`payOrders/${o.orderId}`);
+    assert.equal(stored.uid, 'owner1');
+    assert.equal(stored.packCreditInr, undefined);
+    const p = srv.rzp.pay(o.orderId);
+    const v = await verify(srv, 'owner1', o.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(v.json.kind, 'pack');
+    assert.equal(v.json.packId, packId);
+    assert.equal('passEnd' in v.json, false);
+    assert.deepEqual(db.read(`packEntitlements/owner1/packs/${packId}`), {
+      packId, sku, target, pricePaidInr: paise / 100, paidAt: AFTER_CUTOFF, orderId: o.orderId, paymentRef: p.id, creditedToPass: false,
+    });
+    // ★ tier, passEnd, trial, price paid - every field and the write version of the subscription are unchanged.
+    assert.deepEqual(db.read('subscriptions/owner1'), before.data, `${sku}: subscription untouched`);
+    assert.equal(db.version('subscriptions/owner1'), before.version, `${sku}: subscription never written`);
+    assert.equal(db.keys('usageCredits/').length, 0);
+    // My packs shows it at once, and no Board Pass credit is reported for it.
+    const mine = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('owner1') });
+    assert.equal(mine.status, 200, mine.text);
+    assert.deepEqual(mine.json.packs.map((x) => x.packId), [packId]);
+    assert.deepEqual(mine.json.boardPassCredit, { creditInr: 0, expiresAtMs: null, payInr: null });
+    // A second Buy of the same pack is refused before any charge.
+    const again = await order(srv, 'owner1', sku, extra);
+    assert.equal(again.status, 409);
+    assert.equal(again.json.error, 'already_owned');
+  }
 });

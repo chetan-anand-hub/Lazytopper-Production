@@ -91,6 +91,7 @@ import {
   recordPaperDownload,
 } from "../components/papers/paperDownloadRecord";
 import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
+import PassOwnerOfferLazy from "../components/passOwnerOffers/PassOwnerOfferLazy";
 import SectionAPicker from "../components/papers/SectionAPicker";
 // BANK-LEAN-1 (C3): the chapter-test variants join to the question bank (by-concept
 // lens), so they live in scorecardBankLenses — scorecardVariants stays bank-free.
@@ -1274,6 +1275,13 @@ export default function ChapterTestPage() {
                         label={topicName}
                         path={location.pathname}
                         surface="chapter_test"
+                      />
+                    )}
+                    {/* PASS-OWNER-PACKS-1: a Board Pass owner who just downloaded this test - ONE quiet line, this chapter's Chapter Pack. */}
+                    {downloadedNote && isSignedIn && (
+                      <PassOwnerOfferLazy
+                        placement="pass_download"
+                        hint={{ chapterSlug: chapterCover(topicKey)?.chapters[0] ?? null, chapterName: topicName, subject: sessionSubject }}
                       />
                     )}
 
