@@ -14,7 +14,7 @@
  */
 
 import type { PremiumUsage, PremiumWindow, UsageSnapshot } from "../../services/usageClient";
-import { formatResetIst } from "./fairUseGate";
+import { formatResetDateIst, formatResetIst } from "./fairUseGate";
 
 export type WarnLevel = 75 | 90;
 
@@ -38,7 +38,7 @@ interface PremiumWindowDef {
   rank: number;
   /** "{phrase} AI use allowance". */
   phrase: string;
-  pct: (p: PremiumUsage) => number;
+  pct: (p: PremiumUsage) => number | null;
   resetAt: (p: PremiumUsage) => string | null;
 }
 
@@ -47,8 +47,9 @@ export const PREMIUM_WARN_WINDOWS: readonly PremiumWindowDef[] = [
   { key: "fiveHour", rank: 1, phrase: "your 5-hour", pct: (p) => p.fiveHourPct, resetAt: (p) => p.resets.fiveHour },
   { key: "day", rank: 2, phrase: "today's", pct: (p) => p.dayPct, resetAt: (p) => p.resets.day },
   { key: "week", rank: 3, phrase: "this week's", pct: (p) => p.weekPct, resetAt: (p) => p.resets.week },
-  // CAP-30DAY [FU-30DAY-WARN-BANNER]: null (the server has no 30-day value set) reads as 0 -> never the warning.
-  { key: "thirtyDay", rank: 4, phrase: "your 30-day", pct: (p) => p.thirtyDayPct ?? 0, resetAt: (p) => p.resets.thirtyDay },
+  // CAP-30DAY [FU-30DAY-WARN-BANNER]: null (the server has no 30-day value set) -> never the warning.
+  // FAIRUSE-MONTHLY-1: any window the server switched off is null and is skipped the same way.
+  { key: "thirtyDay", rank: 4, phrase: "this month's", pct: (p) => p.thirtyDayPct, resetAt: (p) => p.resets.thirtyDay },
 ];
 
 export type UsageWarningState =
@@ -81,11 +82,17 @@ export function usageWarning(
     const p = snapshot.premium;
     if (!p) return null;
     let best: PremiumWindowDef | null = null;
+    let bestPct = -1;
     for (const w of PREMIUM_WARN_WINDOWS) {
-      if (!best || w.pct(p) > best.pct(p) || (w.pct(p) === best.pct(p) && w.rank > best.rank)) best = w;
+      const v = w.pct(p);
+      if (v === null) continue;
+      if (!best || v > bestPct || (v === bestPct && w.rank > best.rank)) {
+        best = w;
+        bestPct = v;
+      }
     }
     if (!best) return null;
-    const level = warnLevel(best.pct(p));
+    const level = warnLevel(bestPct);
     const resetAt = best.resetAt(p);
     if (level === null || stale(resetAt, nowMs)) return null;
     return { tier: "premium", level, window: best.key, resetAt };
@@ -112,8 +119,9 @@ export function usageWarning(
  *  detect, grading; more-like-this until MLT-RETIRE-1 retired it), so the true word is "AI use", not "marking". */
 export const PREMIUM_NOUN = "AI use";
 
-function resetWhen(resetAt: string | null, nowMs: number): string {
-  return resetAt ? formatResetIst(resetAt, nowMs) : "";
+function resetWhen(resetAt: string | null, nowMs: number, monthly = false): string {
+  if (!resetAt) return "";
+  return monthly ? formatResetDateIst(resetAt) : formatResetIst(resetAt, nowMs);
 }
 
 /** PURE. The banner's sentence. */
@@ -122,9 +130,10 @@ export function warningBannerCopy(w: UsageWarningState, nowMs: number): string {
     return `You've used ${w.used} of today's ${w.limit} answer checks. They reset at midnight.`;
   }
   const def = PREMIUM_WARN_WINDOWS.find((d) => d.key === w.window);
-  const when = resetWhen(w.resetAt, nowMs);
+  const monthly = w.window === "thirtyDay";
+  const when = resetWhen(w.resetAt, nowMs, monthly);
   const lead = `You've used ${w.level}% of ${def ? def.phrase : "your"} ${PREMIUM_NOUN} allowance.`;
-  return when ? `${lead} It resets at ${when}.` : lead;
+  return when ? `${lead} It resets ${monthly ? "on" : "at"} ${when}.` : lead;
 }
 
 /** PURE. The banner's action: Premium → open Settings at "Your limits" (SETTINGS-USAGE-1; it was
@@ -136,7 +145,7 @@ export function warningLink(w: UsageWarningState): WarningLink {
 
 /** PURE. The muted note under an AI action. */
 export function warningNoteCopy(w: UsageWarningState, nowMs: number): string {
-  const when = resetWhen(w.resetAt, nowMs);
+  const when = resetWhen(w.resetAt, nowMs, w.tier === "premium" && w.window === "thirtyDay");
   return when ? `${w.level}% used · resets ${when}` : `${w.level}% used`;
 }
 

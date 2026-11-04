@@ -39,7 +39,7 @@ describe("CAP-30DAY 27d · client knows the thirtyDay window", () => {
     expect(limit?.window).toBe("thirtyDay");
     expect(limit?.resetAt).toBe("2026-11-01T00:00:00.000Z"); // from the snapshot's resets.thirtyDay
     const copy = limitCopy(limit!);
-    expect(copy.lead).toBe("You've reached this 30-day fair-use limit.");
+    expect(copy.lead).toBe("You've reached this month's fair-use limit.");
     expect(copy.showPlans).toBe(false);
     expect(readFairUseLimit({ name: "FairUseLimitError", kind: "usage_limit", window: "century" })?.window).toBeNull();
   });

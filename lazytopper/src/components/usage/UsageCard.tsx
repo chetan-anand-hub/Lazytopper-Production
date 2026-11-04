@@ -9,22 +9,29 @@
  * week, each with the server's reset time. Premium: bars for 5-hour, day, week and
  * (CAP-30DAY) 30-day, as PERCENTAGES — the server sends no rupee figure and none is shown.
  * The 30-day bar appears only when the server sent its percentage (an older server: no bar).
+ * FAIRUSE-MONTHLY-1 (Board Pass): when the server sent the 30-day percentage the card shows ONE bar,
+ * "This month", with its reset DATE, and — only at 75% or more of the daily safety ceiling — a small
+ * line "Today: heavy use — resets at <time>". The 5-hour / week windows are off on the server and
+ * absent from the payload; any window the server did not send is simply not drawn.
  * Honest-or-silent: a tier whose numbers did not arrive gets an empty-state sentence,
  * never a made-up count; a tier fair use does not apply to (free) renders nothing.
  */
 
 import { useEffect, useState } from "react";
 import { fetchUsageMe, type UsageSnapshot } from "../../services/usageClient";
-import { formatResetIst } from "./fairUseGate";
+import { formatResetDateIst, formatResetIst } from "./fairUseGate";
+
+/** The daily safety ceiling shows only from this share of it (FAIRUSE-MONTHLY-1). */
+export const DAILY_HEAVY_PCT = 75;
 import "./usage.css";
 
-function ResetNote({ at, now }: { at: string | null; now: number }) {
+function ResetNote({ at, now, date = false }: { at: string | null; now: number; date?: boolean }) {
   if (!at) return null;
-  const when = formatResetIst(at, now);
+  const when = date ? formatResetDateIst(at) : formatResetIst(at, now);
   if (!when) return null;
   return (
     <span className="lt-usage__row-note">
-      Resets at <time dateTime={at}>{when}</time>
+      Resets {date ? "on" : "at"} <time dateTime={at}>{when}</time>
     </span>
   );
 }
@@ -95,35 +102,47 @@ export function UsageCardView({
   }
 
   const p = snapshot.premium;
-  const bars: { key: string; label: string; pct: number; at: string | null }[] = p
-    ? [
-        { key: "fiveHour", label: "Last 5 hours", pct: p.fiveHourPct, at: p.resets.fiveHour },
-        { key: "day", label: "Today", pct: p.dayPct, at: p.resets.day },
-        { key: "week", label: "This week", pct: p.weekPct, at: p.resets.week },
-        ...(p.thirtyDayPct !== null
-          ? [{ key: "thirtyDay", label: "Last 30 days", pct: p.thirtyDayPct, at: p.resets.thirtyDay }]
-          : []),
-      ]
-    : [];
+  // FAIRUSE-MONTHLY-1: the monthly window present -> ONE bar + the daily line. Otherwise (an older
+  // server with no 30-day value) the windows the server did send, each as before.
+  const monthly = p !== null && p.thirtyDayPct !== null;
+  const bars: { key: string; label: string; pct: number; at: string | null; date?: boolean }[] = [];
+  if (p) {
+    if (monthly) {
+      bars.push({ key: "thirtyDay", label: "This month", pct: p.thirtyDayPct as number, at: p.resets.thirtyDay, date: true });
+    } else {
+      if (p.fiveHourPct !== null) bars.push({ key: "fiveHour", label: "Last 5 hours", pct: p.fiveHourPct, at: p.resets.fiveHour });
+      if (p.dayPct !== null) bars.push({ key: "day", label: "Today", pct: p.dayPct, at: p.resets.day });
+      if (p.weekPct !== null) bars.push({ key: "week", label: "This week", pct: p.weekPct, at: p.resets.week });
+    }
+  }
+  const heavyToday = monthly && p !== null && p.dayPct !== null && p.dayPct >= DAILY_HEAVY_PCT;
+  const todayWhen = heavyToday && p && p.resets.day ? formatResetIst(p.resets.day, nowMs) : "";
   return (
     <section id="usage" className="lt-usage lt-usage--card" aria-label="Your limits" data-testid="usage-card">
       {heading}
-      {p ? (
-        <ul className="lt-usage__rows">
-          {bars.map((b) => (
-            <li className="lt-usage__row" key={b.key} data-testid={`usage-bar-${b.key}`}>
-              <span className="lt-usage__row-name">{b.label}</span>
-              <span className="lt-usage__row-value">{b.pct}% used</span>
-              <progress
-                className="lt-usage__bar"
-                max={100}
-                value={b.pct}
-                aria-label={`${b.label}: ${b.pct}% of the fair-use limit used`}
-              />
-              <ResetNote at={b.at} now={nowMs} />
-            </li>
-          ))}
-        </ul>
+      {p && bars.length > 0 ? (
+        <>
+          <ul className="lt-usage__rows">
+            {bars.map((b) => (
+              <li className="lt-usage__row" key={b.key} data-testid={`usage-bar-${b.key}`}>
+                <span className="lt-usage__row-name">{b.label}</span>
+                <span className="lt-usage__row-value">{b.pct}% used</span>
+                <progress
+                  className="lt-usage__bar"
+                  max={100}
+                  value={b.pct}
+                  aria-label={`${b.label}: ${b.pct}% of the fair-use limit used`}
+                />
+                <ResetNote at={b.at} now={nowMs} date={b.date} />
+              </li>
+            ))}
+          </ul>
+          {heavyToday ? (
+            <p className="lt-usage__body lt-usage__today" data-testid="usage-today-heavy">
+              Today: heavy use{todayWhen ? <> — resets at <time dateTime={p?.resets.day ?? undefined}>{todayWhen}</time></> : null}
+            </p>
+          ) : null}
+        </>
       ) : (
         <p className="lt-usage__body" data-testid="usage-empty">
           We can&rsquo;t show your limits right now. Nothing is wrong with your account.

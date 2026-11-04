@@ -10,7 +10,7 @@
  * /api/more-like-this is retired (410, MLT-RETIRE-1) and is no longer an AI_ROUTES entry. Notes, Topic Hub, Exam Trends and the NCERT pages call none of them.
  * Worksheets are NOT named: a worksheet's GRADE is metered.
  */
-import { PREMIUM_WINDOW_LABEL, isMidnightIst, type LimitScope, type LimitState } from "../../usage/fairUseGate";
+import { PREMIUM_LIMIT_PHRASE, isMidnightIst, type LimitScope, type LimitState } from "../../usage/fairUseGate";
 
 /* ── COPY TABLE 1 — M7, Byte on the limit panel ───────────────────────────────────────────── */
 
@@ -23,12 +23,14 @@ export const M7_COPY = {
     worksheet: "Your worksheet allowance for this week is used up.",
     tutor: "Your Tutor messages for today are used up.",
   } satisfies Record<LimitScope, string>,
-  /** A Premium student at a fair-use window: {window} is the panel's own window label. */
-  premiumHit: "You've reached Premium's {window} fair-use limit.",
+  /** A Board Pass student at a fair-use window: {window} is the panel's own possessive ("this month's", "today's"). */
+  premiumHit: "You've reached {window} fair-use limit.",
   /** Only when the reset is the NEXT midnight (under 24 hours away). */
   resetMidnight: "It comes back after midnight.",
   /** Any other reset: the panel's own formatted time, which names the day when it isn't today. */
   resetAt: "It comes back at {when}.",
+  /** FAIRUSE-MONTHLY-1: the monthly window names a DATE, so "on", not "at". */
+  resetOn: "It comes back on {when}.",
   /** Inline panel only (the trial-day dialog already says what still works). */
   still: "Notes, Topic Hub, Exam Trends and NCERT solutions still work. Reading them never uses your limit.",
   // NO Premium line of Byte's: the panel's own lead (fairUseGate limitCopy / TRIAL_PREMIUM_LINE)
@@ -73,11 +75,14 @@ export function m7Lines(
 ): { hit: string; still: string } {
   const head =
     limit.tier === "premium"
-      ? M7_COPY.premiumHit.replace("{window}", PREMIUM_WINDOW_LABEL[limit.window ?? "day"])
+      ? M7_COPY.premiumHit.replace("{window}", PREMIUM_LIMIT_PHRASE[limit.window ?? "day"])
       : M7_COPY.trialHit[limit.scope];
   let reset = "";
   if (limit.resetAt && isNextMidnight(limit.resetAt, nowMs)) reset = M7_COPY.resetMidnight;
-  else if (limit.resetAt && when) reset = M7_COPY.resetAt.replace("{when}", when);
+  else if (limit.resetAt && when) {
+    const monthly = limit.tier === "premium" && limit.window === "thirtyDay";
+    reset = (monthly ? M7_COPY.resetOn : M7_COPY.resetAt).replace("{when}", when);
+  }
   return {
     hit: reset ? `${head} ${reset}` : head,
     still: M7_COPY.still,
