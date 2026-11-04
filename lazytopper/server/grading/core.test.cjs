@@ -2482,3 +2482,140 @@ test('§MCQ-EXTRACT-1.7 previous positives still read as the letter when they st
   for (const r of await fbBoth(['(a) (x+1)(x-2)'], { options: ['(x+1)(x-2)', '(x-1)(x+2)', '(x+1)(x+2)', '(x-1)(x-2)'], answer: '(x+1)(x-2)' }))
     assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
 });
+
+/* ══ §MCQ-PICK-1 · A HANDWRITTEN MCQ ANSWER WITH THE OPTION'S FULL SENTENCE IS READ AS THAT OPTION ══
+   Owner, 4 Nov: "many students not only write the options, as in a/b/c/d, but they also write the
+   full sentences under those options". (2b) read the letter only when the sentence was an EXACT
+   copy on ONE line; a near copy (spelling, punctuation, a missing word), a sentence wrapped over
+   several lines, or a letter on one line with the sentence under it came back with no pick and the
+   mark fell to the model's verdict. Every ★ test below fails on trunk f86becde; tests marked CONTROL
+   pin behaviour trunk already had. */
+
+const PK_MIRROR = [
+  'The image formed is real, inverted and enlarged.',
+  'The image formed is virtual, erect and diminished.',
+  'The image formed is virtual, erect and enlarged.',
+  'The image formed is real, inverted and diminished.',
+];
+const PK_LONG = [ // Science options of 50–90 characters
+  'Rusting of iron is a slow oxidation reaction that needs both air and moisture.',
+  'Rusting of iron is a fast reduction reaction that needs only dry air to occur.',
+  'Rusting of iron is a displacement reaction in which zinc replaces iron from salt.',
+  'Rusting of iron is a decomposition reaction that happens only on strong heating.',
+];
+const PK_AR = [
+  'Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).',
+  'Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).',
+  'Assertion (A) is true but Reason (R) is false.',
+  'Assertion (A) is false but Reason (R) is true.',
+];
+const PK = (works, opts) => O.extractOptionPick(works.map((w) => ({ studentWork: w })), opts);
+
+test('§MCQ-PICK-1.1 ★ near-exact: a typo, missing punctuation, a dropped word, "&" — read as the letter; both endpoints grade it', async () => {
+  for (const w of [
+    '(b) The image formd is virtual erect and diminshed',
+    '(b) image formed is virtual, erect & diminished',
+    'b) The image formed is virtual erect and diminished',
+    '(b) The image formed is virtual, erect and diminished',
+  ]) assert.equal(PK([w], PK_MIRROR).pick, 'b', w);
+  for (const r of await fbBoth(['(b) The image formd is virtual erect and diminshed'], { options: PK_MIRROR, answer: PK_MIRROR[1] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // the key decides, never the model: same line, key (c), model says correct → 0, resolved
+  for (const r of await fbBoth(['(b) The image formd is virtual erect and diminshed'], { options: PK_MIRROR, answer: PK_MIRROR[2], raw: { finalAnswerCorrect: true } }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+});
+
+test('§MCQ-PICK-1.2 ★ a sentence WRAPPED over three lines (one step, or one step per line) is one declaration', async () => {
+  const wrapped = ['(b) The image formed is virtual,', 'erect and', 'diminished.'];
+  assert.deepEqual(PK([wrapped.join('\n')], PK_MIRROR), { pick: 'b', stepIndex: 0 });
+  assert.deepEqual(PK(wrapped, PK_MIRROR), { pick: 'b', stepIndex: 0 }, 'across steps; the answer step is the letter\'s');
+  for (const r of await fbBoth(wrapped, { options: PK_MIRROR, answer: PK_MIRROR[1] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  for (const r of await fbBoth(wrapped, { options: PK_MIRROR, answer: PK_MIRROR[3] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+  // a long Science option, wrapped
+  const longW = ['(a) Rusting of iron is a slow oxidation', 'reaction that needs both air and moisture'];
+  assert.equal(PK(longW, PK_LONG).pick, 'a');
+  for (const r of await fbBoth(longW, { options: PK_LONG, answer: PK_LONG[0] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+test('§MCQ-PICK-1.3 letter on one line, the sentence on the next line(s) — the same declaration (CONTROL: trunk already lands on the same option)', async () => {
+  // Trunk read these through the bare letter (or the exact option text, last-wins) — the SAME
+  // option. They are pinned so the letter block never changes that. The ★ G3 change is the
+  // contradiction ("(b)" over option (c)'s sentence), pinned in §MCQ-PICK-1.4.
+  const ix = (works, opts) => O.resolveOptionIndex(PK(works, opts).pick, opts);
+  assert.equal(ix(['(b)\nThe image formed is virtual, erect and diminished.'], PK_MIRROR), 1);
+  assert.equal(ix(['(a)', 'Rusting of iron is a slow oxidation reaction', 'that needs both air and moisture'], PK_LONG), 0);
+  assert.deepEqual(PK(['(a)', 'Rusting of iron is slow oxidation reaction', 'that needs both air and moisture'], PK_LONG), { pick: 'a', stepIndex: 0 });
+  for (const r of await fbBoth(['(a)', 'Rusting of iron is slow oxidation reaction', 'that needs both air and moisture'], { options: PK_LONG, answer: PK_LONG[0] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+test('§MCQ-PICK-1.4 ★ CONTRADICTION: letter (b) with option (c)\'s sentence → no pick, unresolved by the key, model verdict decides, flagged for admin', async () => {
+  const w = ['(b) The image formed is virtual, erect and enlarged.'];
+  assert.deepEqual(PK(w, PK_MIRROR), { pick: '', stepIndex: -1 });
+  assert.equal(O.isContradictoryPick(w.map((x) => ({ studentWork: x })), PK_MIRROR), true);
+  // the letter under which ANOTHER option's sentence is written (trunk: last-wins read option c's TEXT)
+  const under = ['(b)', 'The image formed is virtual, erect and enlarged.'];
+  assert.equal(PK(under, PK_MIRROR).pick, '');
+  assert.equal(O.isContradictoryPick(under.map((x) => ({ studentWork: x })), PK_MIRROR), true);
+  // clamp: the key is not used; the model's stated verdict decides, and the verdict carries the flag
+  const st = (ws) => ws.map((x) => ({ studentWork: x, status: 'correct', marksAwarded: 1 }));
+  assert.deepEqual(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR }, st(w), 1, true),
+    { marksAwarded: 1, correct: true, resolved: true, pickContradiction: true });
+  assert.deepEqual(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR }, st(w), 1, false),
+    { marksAwarded: 0, correct: false, resolved: true, pickContradiction: true });
+  assert.deepEqual(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR }, st(w), 1),
+    { marksAwarded: 0, correct: false, resolved: false, pickContradiction: true });
+  // both endpoints: no model verdict → honestly unresolved; model verdict → it decides
+  for (const r of await fbBoth(w, { options: PK_MIRROR, answer: PK_MIRROR[1] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  for (const r of await fbBoth(under, { options: PK_MIRROR, answer: PK_MIRROR[2], raw: { finalAnswerCorrect: false } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+  // a recorded UI pick (Quick Practice) is never second-guessed: no flag
+  assert.equal(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR, pickedOption: 'b' }, st(w), 1).pickContradiction, undefined);
+});
+
+test('§MCQ-PICK-1.5 ★ Assertion-Reason written with "A"/"R": the "not" decides; a sentence equally close to two options is never guessed', async () => {
+  assert.equal(PK(['(b) Both A and R are true but R is not the correct explanation of A'], PK_AR).pick, 'b');
+  assert.equal(PK(['(a) Both A and R are true and R is the correct explanation of A.'], PK_AR).pick, 'a');
+  assert.equal(PK(['(c) Assertion is true but reason is false'], PK_AR).pick, 'c');
+  assert.equal(PK(['(d) A is true but R is false'], PK_AR).pick, '', 'letter d with option c\'s sentence: contradiction');
+  // "not" dropped: equally close to (a) and (b) → not read (the model decides)
+  assert.equal(PK(['(b) Both A and R are true but R is correct explanation of A'], PK_AR).pick, '');
+  assert.equal(O.isContradictoryPick([{ studentWork: '(b) Both A and R are true but R is correct explanation of A' }], PK_AR), false);
+  for (const r of await fbBoth(['(b) Both A and R are true but R is not the correct explanation of A'], { options: PK_AR, answer: PK_AR[1] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+test('§MCQ-PICK-1.6 ★ G4 — NO OPTIONS (Answer Checker): "(b) <sentence>" is read as b, only as a fallback', async () => {
+  assert.equal(PK(['(b) The image is virtual, erect and diminished'], []).pick, 'b');
+  assert.equal(PK(['b) The image is virtual, erect and diminished'], null).pick, 'b');
+  for (const r of await fbBoth(['(b) The image is virtual, erect and diminished'], { options: [], answer: 'b' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  for (const r of await fbBoth(['(b) The image is virtual, erect and diminished'], { options: [], answer: 'c' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+  // CONTROLS: an ordinary declaration outranks it; a rejection, a joined second letter, two letters → no pick
+  assert.equal(PK(['(b) The image is virtual', 'Answer: (c)'], []).pick, 'c');
+  assert.equal(PK(['(b) is wrong because the image is real'], []).pick, '');
+  assert.equal(PK(['(a) and (b) both'], []).pick, '');
+  assert.equal(PK(['(a) or (c)'], []).pick, '');
+  assert.equal(PK(['(a) The image is real', '(c) The image is virtual'], []).pick, '');
+  assert.equal(PK(['a: 2'], []).pick, '', 'a letter variable is never a pick');
+});
+
+test('§MCQ-PICK-1.7 CONTROLS — working, negation, self-correction, two different letter+sentence lines: unchanged', async () => {
+  // working line "(b) 4" after "(c)" is still only a fallback
+  assert.equal(PK(['(c)', '(b) 4'], FB_OPTS).pick, 'c');
+  assert.equal(PK(['(b) 4x'], FB_OPTS).pick, '', 'a short option needs a one-for-one match');
+  // prose after a letter is working, not a pick; trailing reasoning after a sentence does not hide it
+  assert.equal(PK(['(b) because a convex mirror always diverges the light rays'], PK_MIRROR).pick, '');
+  assert.equal(PK(['(b) The image formed is virtual erect and diminished', 'since a convex mirror always diverges rays'], PK_MIRROR).pick, 'b');
+  // a negated mention is not a declaration
+  assert.equal(PK(['option (b) is wrong because the image is real', '(c)'], PK_MIRROR).pick, 'c');
+  assert.equal(PK(['option (b) is wrong because the image is real'], PK_MIRROR).pick, '');
+  // self-correction: last wins
+  assert.equal(PK(['(c) The image formed is virtual erect and enlarged', 'no wait, (b)'], PK_MIRROR).pick, 'b');
+  assert.equal(PK(['(c)', 'no wait, (b)'], PK_MIRROR).pick, 'b');
+  // two DIFFERENT letter+sentence lines → unresolved, never a guess
+  const two = ['(b) The image formd is virtual erect and diminished', '(c) The image formd is virtual erect and enlarged'];
+  assert.equal(PK(two, PK_MIRROR).pick, '');
+  for (const r of await fbBoth(two, { options: PK_MIRROR, answer: PK_MIRROR[1] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // options that differ only by case: no fuzzy token agreement
+  assert.equal(O.optionMatchingText('TTww', GENOTYPES), GENOTYPES.indexOf('TTww'));
+  assert.equal(O.optionMatchingText('TTwW', GENOTYPES), -1);
+});
