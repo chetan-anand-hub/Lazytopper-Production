@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { findPaperCodes, resolveOwnPaper, type OwnPaperMatch } from "./paperCodeMatch";
 import { readPdfPaperText } from "./pdfPaperText";
+import { decodePaperCodeFromImage } from "./decodePaperCode";
 
 export interface PaperCodeRouteBannerProps {
   uid: string | null | undefined;
@@ -37,13 +38,23 @@ export default function PaperCodeRouteBanner({ uid, texts, files }: PaperCodeRou
   const [pdfTexts, setPdfTexts] = useState<string[]>([]);
   const fileKey = (files ?? []).map((f) => (f?.base64 ? `${f.mime}:${f.base64.length}:${f.base64.slice(0, 32)}` : "")).join("|");
 
-  // A3 - the PDF's own Title/Subject + first-page text (deterministic; survives a renamed file).
+  // A3/B3 - the PDF's own Title/Subject + first-page text, or an image's footer QR (deterministic; survives a renamed file).
   useEffect(() => {
     let live = true;
     setPdfTexts([]);
-    const pdfs = (files ?? []).filter((f): f is { base64: string; mime: string } => !!f?.base64 && f.mime === "application/pdf");
-    if (!uid || pdfs.length === 0) return;
-    void Promise.all(pdfs.map((f) => readPdfPaperText(f.base64, f.mime))).then((all) => {
+    const present = (files ?? []).filter((f): f is { base64: string; mime: string } => !!f?.base64);
+    if (!uid || present.length === 0) return;
+    // A PDF: its metadata + first-page text. An image/scan: the footer QR, decoded in the browser (B3).
+    void Promise.all(
+      present.map(async (f) => {
+        if (f.mime === "application/pdf") return readPdfPaperText(f.base64, f.mime);
+        if (f.mime.startsWith("image/")) {
+          const t = await decodePaperCodeFromImage({ base64: f.base64, mime: f.mime });
+          return t ? [t] : [];
+        }
+        return [];
+      }),
+    ).then((all) => {
       if (live) setPdfTexts(all.flat());
     });
     return () => {

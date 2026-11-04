@@ -3,8 +3,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-const H = vi.hoisted(() => ({ local: [] as Array<{ surface: string }>, cloud: vi.fn(), pdf: vi.fn(), track: vi.fn() }));
+const H = vi.hoisted(() => ({ local: [] as Array<{ surface: string }>, cloud: vi.fn(), pdf: vi.fn(), qr: vi.fn(), track: vi.fn() }));
 vi.mock("../../services/progressStore", () => ({ getSurfaceHistory: (surface: string) => H.local.filter((r) => r.surface === surface) }));
+vi.mock("./decodePaperCode", () => ({ decodePaperCodeFromImage: (...a: unknown[]) => H.qr(...a) }));
 vi.mock("./pdfPaperText", () => ({ readPdfPaperText: (...a: unknown[]) => H.pdf(...a) }));
 vi.mock("../../analytics/analytics", () => ({ trackNamedEvent: (...a: unknown[]) => H.track(...a) }));
 vi.mock("../../services/sessionRecords", () => ({ getSessionRecordsFromCloud: (...a: unknown[]) => H.cloud(...a) }));
@@ -23,6 +24,8 @@ beforeEach(() => {
   H.local = [];
   H.cloud.mockReset();
   H.cloud.mockResolvedValue([]);
+  H.qr.mockReset();
+  H.qr.mockResolvedValue(null);
   H.pdf.mockReset();
   H.pdf.mockResolvedValue([]);
   H.track.mockReset();
@@ -96,11 +99,20 @@ describe("PaperCodeRouteBanner", () => {
     expect(H.pdf).toHaveBeenCalledWith("JVBERi0=", "application/pdf");
   });
 
-  it("A3: an image is not sent to the PDF reader's loader path (no PDF read), and an unreadable PDF shows nothing", async () => {
+  it("B3: an image upload's footer QR is decoded in the browser and matched (PDF reader not used)", async () => {
+    H.local = [rec("WS-M-MIX-02")];
+    H.qr.mockResolvedValue("WS-M-MIX-02");
+    view(["IMG_2041.jpg"], "u1", [{ base64: "/9j/", mime: "image/jpeg" }]);
+    expect(await screen.findByTestId(BANNER)).toBeTruthy();
+    expect(H.qr).toHaveBeenCalledWith({ base64: "/9j/", mime: "image/jpeg" });
+    expect(H.pdf).not.toHaveBeenCalled();
+  });
+
+  it("B3: an image with no readable QR shows nothing", async () => {
     H.local = [rec("WS-M-MIX-02")];
     view(["x.jpg"], "u1", [{ base64: "/9j/", mime: "image/jpeg" }]);
+    await waitFor(() => expect(H.qr).toHaveBeenCalled());
     await Promise.resolve();
-    expect(H.pdf).not.toHaveBeenCalled();
     expect(screen.queryByTestId(BANNER)).toBeNull();
   });
 
