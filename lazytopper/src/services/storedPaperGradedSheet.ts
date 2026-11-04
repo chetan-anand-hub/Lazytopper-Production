@@ -86,10 +86,15 @@ export async function downloadStoredPaperGradedSheet(
     createdAt: new Date(record.gradedAt).toISOString(),
   });
   if (!sheet) return;
+  // The scorecard's own paper total (stored with the grade, else on the record): the header and the
+  // pending line must agree with it even when rows are unattempted or ungraded.
+  const storedTotal = Number(response.worksheetTotalMarks) || Number(record.marksTotal) || 0;
+  const ws = storedTotal > 0 ? { ...sheet.ws, totalMarks: storedTotal } : sheet.ws;
+  const printedResponse = storedTotal > 0 ? { ...sheet.response, worksheetTotalMarks: storedTotal } : sheet.response;
   const { exportGradedWorksheetPdf } = await import("../components/worksheet/worksheetPdfExport");
   await exportGradedWorksheetPdf({
-    ws: sheet.ws,
-    response: sheet.response,
+    ws,
+    response: printedResponse,
     name: sheet.name,
     code: sheet.code,
     // The live Chapter Test / Full Mock download prints the shared coaching line of the response.

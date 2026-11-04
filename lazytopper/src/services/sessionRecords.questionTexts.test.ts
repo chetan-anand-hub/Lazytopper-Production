@@ -19,7 +19,7 @@ describe("boundedQuestionTexts", () => {
     expect(boundedQuestionTexts([])).toBeUndefined();
     expect(boundedQuestionTexts(["", undefined, "  "])).toBeUndefined();
     expect(boundedQuestionTexts([" a ", undefined, "b"])).toEqual(["a", "", "b"]);
-    expect(boundedQuestionTexts(["x".repeat(5000)])?.[0]).toHaveLength(1500);
+    expect(boundedQuestionTexts(["x".repeat(6000)])?.[0]).toHaveLength(4000);
   });
 });
 

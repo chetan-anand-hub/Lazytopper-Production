@@ -263,7 +263,7 @@ export interface SessionPerQuestionPayload {
 }
 
 /** Bounds for `questionTexts`: a payload doc stays small however long the detected paper is. */
-const QUESTION_TEXT_MAX_CHARS = 1500;
+const QUESTION_TEXT_MAX_CHARS = 4000;
 const QUESTION_TEXT_MAX_COUNT = 60;
 
 /** Pure: normalise detected question texts (one per result row) into the stored shape; undefined when none. */
