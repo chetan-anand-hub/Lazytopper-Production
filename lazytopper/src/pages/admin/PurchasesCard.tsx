@@ -30,8 +30,24 @@ export function whoLine(w: WhoFields): string {
   if (!w.recipient) return "";
   const ids = [w.recipient.phoneMasked, w.recipient.emailMasked].filter(Boolean).join(" / ");
   const payer = w.payerType === "signed_in_other" ? "paid by a signed-in account for someone else" : "paid signed out";
-  const landed = w.claimedBy ? ` · on ${w.claimedBy}${w.claimedVia === "existing_account" ? " (existing account)" : w.claimedVia === "claim" ? " (claimed at sign-in)" : ""}` : "";
-  const note = w.adminNote === "phone_and_email_on_different_accounts" ? " · NOTE: phone and email are two different accounts; the first-entered one got it" : "";
+  // PAY-ACCOUNT-1: "account created at payment" vs "existing account" vs "account not created (waiting)".
+  const how =
+    w.claimedVia === "account_created"
+      ? " (account created at payment)"
+      : w.claimedVia === "existing_account"
+        ? " (existing account)"
+        : w.claimedVia === "claim"
+          ? " (claimed at sign-in)"
+          : "";
+  const landed = w.claimedBy ? ` · on ${w.claimedBy}${how}` : "";
+  const note =
+    w.adminNote === "phone_and_email_on_different_accounts"
+      ? " · NOTE: phone and email are two different accounts; the first-entered one got it"
+      : w.adminNote === "second_identifier_not_linked"
+        ? " · NOTE: only one of phone / email had an account; the other was NOT linked to it (the student can link it after verifying)"
+        : w.adminNote === "account_not_created" && !w.claimedBy
+          ? " · account not created (waiting for the student's sign-in)"
+          : "";
   return `For ${ids} · ${payer}${landed}${note}`;
 }
 

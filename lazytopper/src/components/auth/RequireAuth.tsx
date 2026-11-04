@@ -1,14 +1,18 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import PaywallActions from "../pricing/PaywallActions";
 import { trackNamedEvent } from "../../analytics/analytics";
-import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
-import BoardPassLine from "../pricing/BoardPassLine";
+import { TRIAL_WORDING } from "../pricing/BasicFreeList";
+import BoardPassLockCard, { LockCredential } from "../lock/BoardPassLockCard";
+import { CONTINUE_WITH_BASIC, LOCK_TRIAL_LINE, lockHeadline } from "../lock/lockCopy";
+import "../lock/lockPage.css";
 import { isSafeInternalPath } from "../../utils/safeInternalPath";
 import { CBQ_GATE_WAIT_MS, useCbqTutorAllowance } from "../../hooks/useCbqTutorAllowance";
+import { cbqTutorBonusUsedLine, getCbqTutorBonus } from "../../ai/cbqTutorBonus";
+import PackOwnerSlot from "../packOwner/PackOwnerSlot";
 
 /** CBQ-TUTOR-GATE-1 - the one gate label (set in App.tsx) that a CBQ Pack owner's bonus questions may open. */
 export const TUTOR_GATE_LABEL = "Ask the tutor";
@@ -56,6 +60,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
   const { user, loading } = useAuth();
   const { isPremium, isTrialExpired, startTrial, hydrated, status } = useSubscription();
   const location = useLocation();
+  const navigate = useNavigate();
   const [showUpgrade, setShowUpgrade] = useState(false);
   // CBQ-TUTOR-GATE-1 - only the tutor gate, only a signed-in non-Premium student, only once the plan is known.
   const cbqAllowance = useCbqTutorAllowance(
@@ -110,104 +115,89 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
     // NOT — otherwise they restart the 7-day trial forever, so they get the plans path only.
     const neverTrialled = !isTrialExpired;
     // PAYWALL-PAY-1 — "Pay" goes where the old plans path went: /pricing's Pay buttons.
+    // PACK-OWNER-GATES-1 - only the tutor gate, only the server's own count (seeded by useCbqTutorAllowance).
+    const cbqUsedLine = featureLabel === TUTOR_GATE_LABEL ? cbqTutorBonusUsedLine(getCbqTutorBonus(user.uid)) : null;
     const lockPayTo = `/pricing?source=lock&returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
+    // LOCK-SELL-1 - the one quiet way out: back where the student came from inside the app, else Home (never off-site).
+    const continueWithBasic = () => {
+      const idx = (window.history.state as { idx?: unknown } | null)?.idx;
+      if (typeof idx === "number" && idx > 0) navigate(-1);
+      else navigate("/", { replace: true });
+    };
+    const fromScorecard = !neverTrialled && new URLSearchParams(location.search).get("source") === "scorecard";
+    // START-HERE-1 / FOLLOWUPS-1 A3 - copy only. `passEnd` is server-written and set only for a PAID pass.
+    const subLine = fromScorecard ? (status.passEnd ? SCORECARD_LOCK_COPY_PAID : SCORECARD_LOCK_COPY) : neverTrialled ? LOCK_TRIAL_LINE : null;
     return (
-      <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
-        <div style={{ fontSize: "3rem", marginBottom: 12 }}>🔒</div>
-        <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
-          Premium Feature
-        </h2>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
-          {/* START-HERE-1 (spec 2.5) — the lock is the conversion moment for a student who tapped
-              "Ask the tutor" on a scorecard whose free week has ended. Copy only: the gate above
-              is unchanged. */}
-          {!neverTrialled && new URLSearchParams(location.search).get("source") === "scorecard"
-            ? // FOLLOWUPS-1 A3 — copy only. `passEnd` is server-written (rules refuse client
-              // writes) and set only for a PAID pass, so a non-premium status that carries one
-              // held a pass that has lapsed; without it the lapsed entitlement was the trial.
-              status.passEnd
-              ? SCORECARD_LOCK_COPY_PAID
-              : SCORECARD_LOCK_COPY
-            : <>{featureLabel || "This feature"} is part of Premium.</>}
-          {neverTrialled ? (
-            <>
-              <br />Try Premium free for 7 days.
-            </>
+      <div className="lt-page">
+        {/* LOCK-SELL-1 (owner, 4 Nov 2026) - the lock sells the Board Pass and its star features; Basic is one quiet link. */}
+        <div className="lt-lock" data-testid="premium-lock">
+          <div className="lt-lock__icon" aria-hidden="true">🔒</div>
+          {/* PACK-OWNER-GATES-1 - CBQ-TUTOR-GATE-1's owner whose 3 bonus questions are spent (server count 0) is told so first. */}
+          {cbqUsedLine ? (
+            <p className="lt-packowner__pre" data-testid="cbq-bonus-used">
+              {cbqUsedLine}
+            </p>
           ) : null}
-        </p>
-        {/* TRIAL-ON-SIGNUP-1 · T4 — under the lock's message: what stays free on Basic,
-            from the one list Pricing renders. */}
-        <BasicFreeList />
-        {/* FIRST-OFFER-1 - the Board Pass with its real price, above the trial lead and the pay actions. */}
-        <BoardPassLine />
-        {neverTrialled ? (
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                // TRIAL-CTA-1 — the existing rule, guarded at the call site (see
-                // PricingPage): hydrated, not premium, never trialled.
-                // Only a call that takes effect is counted as trial_start.
-                if (!hydrated || status.tier === "premium" || status.trialStartDate) {
-                  return;
-                }
-                startTrial();
-                trackNamedEvent("trial_start");
-              }}
-              style={{
-                border: "none", borderRadius: 12, padding: "14px 28px",
-                background: "var(--primary)", color: "#fff",
-                fontSize: "1rem", fontWeight: 700, cursor: "pointer",
-                width: "100%", maxWidth: 300,
-              }}
-            >
-              Start my free 7-day trial
-            </button>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 9 }}>
-              {TRIAL_WORDING.shortFragment}
-            </div>
-            {/* PAYWALL-PAY-1 — under the trial (which stays first): Pay, Pay by QR code,
-                Forward link to parents. Payments dark: the old "See plans instead". */}
-            <PaywallActions
-              surface="lock"
-              payTo={lockPayTo}
-              fallback={
+          {/* PACK-OWNER-GATES-1 - a student who bought a PDF pack is spoken to as a customer, on top. Unknown / none: nothing. */}
+          <PackOwnerSlot enabled={hydrated} uid={user.uid} heading="p" center tone="inherit" />
+          <h2 className="lt-lock__title" data-testid="lock-title">
+            {lockHeadline(featureLabel)}
+          </h2>
+          {subLine ? (
+            <p className="lt-lock__sub" data-testid="lock-sub">
+              {subLine}
+            </p>
+          ) : null}
+          <BoardPassLockCard>
+            {neverTrialled ? (
+              <>
+                {/* The trial stays first where it shows today (explicit tap only); the paywall actions follow. */}
                 <button
                   type="button"
-                  onClick={() => setShowUpgrade(true)}
-                  style={{
-                    display: "block", margin: "16px auto 0", background: "none",
-                    border: "none", color: "var(--text)", fontSize: 13, fontWeight: 600,
-                    textDecoration: "underline", cursor: "pointer",
+                  className="lt-lock__primary"
+                  onClick={() => {
+                    // TRIAL-CTA-1 — the existing rule, guarded at the call site (see
+                    // PricingPage): hydrated, not premium, never trialled.
+                    // Only a call that takes effect is counted as trial_start.
+                    if (!hydrated || status.tier === "premium" || status.trialStartDate) {
+                      return;
+                    }
+                    startTrial();
+                    trackNamedEvent("trial_start");
                   }}
                 >
-                  See plans instead
+                  Start my free 7-day trial
                 </button>
-              }
-            />
-          </>
-        ) : (
-          // Expired trial: the paywall actions (PAYWALL-PAY-1). Payments dark: the plans
-          // path only, the existing button kept verbatim (not restyled).
-          <PaywallActions
-            surface="lock"
-            payTo={lockPayTo}
-            fallback={
-              <button
-                type="button"
-                onClick={() => setShowUpgrade(true)}
-                style={{
-                  border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-                  padding: "14px 28px", background: "#58cc02", color: "var(--text)",
-                  fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-                  textTransform: "uppercase",
-                }}
-              >
-                Unlock Full Access
-              </button>
-            }
-          />
-        )}
+                <p className="lt-lock__trial-note">{TRIAL_WORDING.shortFragment}</p>
+                {/* PAYWALL-PAY-1 — Pay, Pay by QR code, Ask a parent to pay. Payments dark: "See plans instead". */}
+                <PaywallActions
+                  surface="lock"
+                  payTo={lockPayTo}
+                  fallback={
+                    <button type="button" className="lt-lock__plans" onClick={() => setShowUpgrade(true)}>
+                      See plans instead
+                    </button>
+                  }
+                />
+              </>
+            ) : (
+              // Expired trial: the paywall actions (PAYWALL-PAY-1). Payments dark: the plans path only.
+              <PaywallActions
+                surface="lock"
+                payTo={lockPayTo}
+                fallback={
+                  <button type="button" className="lt-lock__primary" onClick={() => setShowUpgrade(true)}>
+                    Unlock Full Access
+                  </button>
+                }
+              />
+            )}
+          </BoardPassLockCard>
+          <LockCredential />
+          <button type="button" className="lt-lock__basic" data-testid="lock-continue-basic" onClick={continueWithBasic}>
+            {CONTINUE_WITH_BASIC}
+          </button>
+        </div>
         <UpgradeModal
           open={showUpgrade}
           onClose={() => setShowUpgrade(false)}

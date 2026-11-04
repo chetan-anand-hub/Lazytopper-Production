@@ -43,7 +43,7 @@ function modal() {
 
 describe("UpgradeSheet — paywall moment", () => {
   it.each([
-    ["Keep using Basic", () => fireEvent.click(screen.getByRole("button", { name: "Keep using Basic" }))],
+    ["Continue with Basic", () => fireEvent.click(screen.getByRole("button", { name: "Continue with Basic" }))],
     ["the backdrop", () => fireEvent.click(screen.getByTestId("upgrade-sheet-scrim"))],
     ["Escape", () => fireEvent.keyDown(document, { key: "Escape" })],
   ])("%s closes first, then asks once", (_l, act1) => {

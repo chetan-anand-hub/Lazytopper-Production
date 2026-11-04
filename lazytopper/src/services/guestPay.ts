@@ -259,6 +259,10 @@ export interface ClaimedPurchase {
  */
 export { ALSO_SIGNIN_EVENT, type AlsoSignIn };
 let lastClaimAlso: AlsoSignIn | null = null;
+/** PAY-ACCOUNT-1: the server said THIS claim is the first sign-in of an account made at payment (its sign-up). */
+let lastClaimFirstSignIn: { trialStarted: boolean } | null = null;
+/** ...kept for THIS uid until AuthContext takes it (to count the sign-up, once). */
+let pendingFirstSignIn: { uid: string; trialStarted: boolean } | null = null;
 let pendingAlso: { uid: string; also: AlsoSignIn } | null = null;
 
 function parseAlso(raw: unknown): AlsoSignIn | null {
@@ -286,6 +290,7 @@ export async function claimGuestPurchases(): Promise<ClaimedPurchase[] | null> {
     const { authHeaders } = await import("./checkout");
     const json = await postJson(GUEST_CLAIM_ENDPOINT, {}, await authHeaders());
     lastClaimAlso = parseAlso(json.alsoSignIn);
+    lastClaimFirstSignIn = json.firstSignIn === true ? { trialStarted: json.trialStarted === true } : null;
     const list = Array.isArray(json.claimed) ? json.claimed : [];
     return list
       .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
@@ -328,6 +333,16 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
       // CHECKOUT-WHO-1: remember / announce the masked "also sign in with" for THIS uid (absent on every old-flow claim).
       const also = lastClaimAlso;
       lastClaimAlso = null;
+      // PAY-ACCOUNT-1 - the account was made at payment, so THIS first sign-in is its sign-up. The server said so ONCE
+      // (transaction-marked: never on a reload or a later sign-in, never for a client-made account) and, in that same
+      // transaction, started the sign-up trial by activateTrial's rules (review LOW 5: a lost response cannot lose it).
+      // Here: re-read the subscription so the trial shows, and keep the sign-up for AuthContext to count (once).
+      const firstSignIn = lastClaimFirstSignIn;
+      lastClaimFirstSignIn = null;
+      if (firstSignIn) {
+        pendingFirstSignIn = { uid, trialStarted: firstSignIn.trialStarted };
+        if (firstSignIn.trialStarted) void showServerTrial(uid);
+      }
       if (also) {
         pendingAlso = { uid, also };
         try {
@@ -361,12 +376,37 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
   return p;
 }
 
+/** PAY-ACCOUNT-1 - the server started this account's sign-up trial: re-read it so it shows, and count it. Never throws. */
+async function showServerTrial(uid: string): Promise<void> {
+  try {
+    const sub = await import("./subscriptionService");
+    await sub.hydrateSubscriptionFromCloud(uid);
+    const { trackNamedEvent } = await import("../analytics/analytics");
+    trackNamedEvent("trial_start");
+  } catch {
+    /* the next hydration shows it */
+  }
+}
+
+/**
+ * PAY-ACCOUNT-1 - the first sign-in of an account made at payment, for THIS uid, ONCE (taking it clears it). AuthContext
+ * counts it as the sign-up (sign_up, the visit source, the new-account landing), as a normal sign-up would.
+ */
+export function takeFirstSignIn(uid: string): { trialStarted: boolean } | null {
+  if (!uid || !pendingFirstSignIn || pendingFirstSignIn.uid !== uid) return null;
+  const taken = { trialStarted: pendingFirstSignIn.trialStarted };
+  pendingFirstSignIn = null;
+  return taken;
+}
+
 /** Test seam. */
 export function resetGuestClaimSessionForTests(): void {
   claimedThisSession.clear();
   inFlight.clear();
   recentClaim = null;
   lastClaimAlso = null;
+  lastClaimFirstSignIn = null;
+  pendingFirstSignIn = null;
   pendingAlso = null;
 }
 

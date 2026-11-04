@@ -97,7 +97,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     renderGate();
     await screen.findByText("Checking your session...");
     expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
-    expect(screen.queryByText("Premium Feature")).toBeNull();
+    expect(screen.queryByText(/comes with the Board Pass/)).toBeNull();
     expect(activate).not.toHaveBeenCalled();
     expect(track).not.toHaveBeenCalled();
   });
@@ -112,7 +112,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(CBQ_GATE_WAIT_MS + 100);
       });
-      expect(screen.getByText("Premium Feature")).toBeInTheDocument();
+      expect(screen.getByText(/comes with the Board Pass/)).toBeInTheDocument();
       expect(activate).not.toHaveBeenCalled();
     } finally {
       vi.useRealTimers();

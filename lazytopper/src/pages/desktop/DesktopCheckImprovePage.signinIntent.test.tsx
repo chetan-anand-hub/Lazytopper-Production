@@ -233,7 +233,7 @@ describe("OR-18 — a sign-in WITHOUT the marker saves nothing and offers nothin
     expect(container.textContent).not.toContain("Your answer is saved.");
     expect(container.textContent).not.toContain("Saving your answer");
     expect(screen.queryByRole("button", { name: "Start my free trial" })).toBeNull();
-    expect(container.textContent).toContain("Premium Feature"); // the lock, exactly as today
+    expect(container.textContent).toContain("Answer Checker comes with the Board Pass"); // the lock, exactly as today
     expect(H.track).not.toContainEqual(["free_check_signup"]);
     // Left on the device to expire (2h), not claimed.
     expect(window.localStorage.getItem(FREE_CHECK_PENDING_KEY)).not.toBeNull();

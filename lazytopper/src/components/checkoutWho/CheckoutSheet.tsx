@@ -12,7 +12,7 @@
  *
  * Nothing here grants anything. What the payer typed never goes into a URL, storage or an analytics event.
  */
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics";
 import { trackGuestPurchase } from "../guestPay/GuestPaySheet";
@@ -26,14 +26,18 @@ import {
   WHO_CLOSED,
   WHO_EMAILED,
   WHO_FAILED,
+  WHO_FIELD_HELP,
   WHO_FIELD_LABEL,
   WHO_HAVE_ACCOUNT,
+  WHO_SECOND_EMAIL_LABEL,
+  WHO_SECOND_MOBILE_LABEL,
   WHO_SOMEONE_ELSE,
   WHO_TITLE,
   WHO_UNAVAILABLE,
   alreadyCoveredLine,
   buyForRecipient,
   detectIdentifier,
+  isPayAutoAccountClientEnabled,
   maskedIds,
   paidLine,
   payReadBack,
@@ -46,6 +50,9 @@ import "../guestPay/guestPaySheet.css";
 import "./checkoutSheet.css";
 
 export type CheckoutSheetItem = GuestItem & { priceDisplay: string };
+
+/** PAY-ACCOUNT-1: the "account is ready" thank-you screen, lazy (it pulls the auth context's phone sign-in). */
+const AccountReadyPanel = lazy(() => import("./AccountReadyPanel"));
 
 export interface CheckoutSheetProps {
   item: CheckoutSheetItem;
@@ -181,6 +188,7 @@ export default function CheckoutSheet({
         }}
       >
         <label className="lt-gps__label" htmlFor="lt-who-first">{WHO_FIELD_LABEL}</label>
+        <p className="lt-gps__fine lt-who__help" id="lt-who-help" data-testid="who-help">{WHO_FIELD_HELP}</p>
         <div className="lt-gps__field">
           <input
             id="lt-who-first"
@@ -196,6 +204,7 @@ export default function CheckoutSheet({
             onChange={(e) => setFirst(e.target.value)}
             onBlur={() => setTouched(true)}
             aria-invalid={firstError ? true : undefined}
+            aria-describedby="lt-who-help"
             data-testid="who-first"
           />
         </div>
@@ -208,7 +217,7 @@ export default function CheckoutSheet({
         ) : (
           <>
           <label className="lt-gps__label" htmlFor="lt-who-second" data-testid="who-second-label">
-            {otherKind === "email" ? "Their email (optional)" : "Their mobile number (optional)"}
+            {otherKind === "email" ? WHO_SECOND_EMAIL_LABEL : WHO_SECOND_MOBILE_LABEL}
           </label>
           <div className="lt-gps__field">
             <input
@@ -220,7 +229,7 @@ export default function CheckoutSheet({
               autoCapitalize="none"
               spellCheck={false}
               maxLength={254}
-              placeholder={otherKind === "email" ? "Their email (optional)" : "Their mobile (optional)"}
+              placeholder={otherKind === "email" ? WHO_SECOND_EMAIL_LABEL : WHO_SECOND_MOBILE_LABEL}
               value={second}
               disabled={busy}
               onChange={(e) => setSecond(e.target.value)}
@@ -241,6 +250,13 @@ export default function CheckoutSheet({
           </button>
         )}
       </form>
+    );
+  } else if (step.name === "paid" && step.confirmed && isPayAutoAccountClientEnabled()) {
+    // PAY-ACCOUNT-1: the account is made at payment -> open it now, or send it to the child. (Unconfirmed: the screen below.)
+    body = (
+      <Suspense fallback={<p className="lt-gps__ok" role="status" data-testid="who-paid">Payment received ✓ {item.label}</p>}>
+        <AccountReadyPanel item={item} recipient={step.recipient} payerSignedIn={signedIn} onClose={onClose} />
+      </Suspense>
     );
   } else if (step.name === "paid") {
     const ids = maskedIds(step.recipient);

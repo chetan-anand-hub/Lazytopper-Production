@@ -7,6 +7,7 @@ import UpgradeSheet from "../subscription/UpgradeSheet";
 import { START_TRIAL_LABEL } from "../pricing/trialCta";
 import { boardPassCtaLabel, boardPassPriceNow } from "../pricing/boardPassOffer";
 import OffersBlock from "../packs/OffersBlock";
+import PackOwnerSlot from "../packOwner/PackOwnerSlot";
 import { BOARD_PASS_BENEFIT } from "../packs/offersCopy";
 import { saleHintFromTarget } from "../packs/saleMomentModel";
 import { formatScoreNumber } from "./scoreNumber";
@@ -202,11 +203,15 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
     />
   ) : null;
   const headline = scorecardHeadline(variant);
+  // PACK-OWNER-GATES-1 - a Basic student (record known; never a trial or paid student) who bought a PDF pack is spoken to as a customer,
+  // above the ask. Packs unknown or none: nothing is added. The ask itself is unchanged.
+  const packOwner = <PackOwnerSlot enabled={statusKnown && status.tier === "free"} uid={uid} tone="inherit" />;
   if (block && headline) {
     // OFFERS-V2: a Full Mock offers its own subject's rows; every other surface reads the chapter / subject its practice route names.
     const subject = variant.saleMockSubject ?? saleHint.subject ?? null;
     return (
       <>
+        {packOwner}
         <OffersBlock
           surface={variant.surface}
           ctx={{ kind: variant.surface, subject, chapterSlug: variant.saleMockSubject ? null : saleHint.chapterSlug, chapterName: variant.guideTarget?.chapter ?? null }}
@@ -224,6 +229,7 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
   return (
     <>
       <style>{LINE_CSS}</style>
+      {packOwner}
       {leadButton}
       <button
         type="button"

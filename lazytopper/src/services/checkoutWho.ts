@@ -17,12 +17,16 @@ import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type 
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
 
-export { isCheckoutWhoClientEnabled } from "./checkoutWhoFlag";
+export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled } from "./checkoutWhoFlag";
 
 /* ── copy (owner prototype Checkout-Flow, 3 Nov 2026) ─────────────────────────── */
 
 export const WHO_TITLE = "Who will use it?";
-export const WHO_FIELD_LABEL = "Mobile number or email they sign in with";
+// PAY-ACCOUNT-1 addendum B (owner 4 Nov 2026): so a parent does not type their OWN details.
+export const WHO_FIELD_LABEL = "Student's mobile number or email";
+export const WHO_FIELD_HELP = "The one your child will log in with \u2014 not yours. Razorpay asks for your own details for the receipt.";
+export const WHO_SECOND_EMAIL_LABEL = "Student's email (optional)";
+export const WHO_SECOND_MOBILE_LABEL = "Student's mobile number (optional)";
 export const WHO_ADD_EMAIL = "+ Add their email too (optional)";
 export const WHO_ADD_MOBILE = "+ Add their mobile too (optional)";
 export const WHO_SOMEONE_ELSE = "Buying for someone else?";
@@ -60,6 +64,44 @@ export function paidLine(kind: GuestItem["kind"], ids: readonly string[]): strin
 /** CHECKOUT-WHO-2: kept for callers; the same generic line as WHO_UNAVAILABLE (nothing account-revealing). */
 export function alreadyCoveredLine(_kind: GuestItem["kind"]): string {
   return WHO_UNAVAILABLE;
+}
+
+/* ── PAY-ACCOUNT-1: the thank-you screen (the account is made at payment) ─────────── */
+
+/**
+ * Review MED 4 + re-review A/B: the thank-you line claims nothing the browser cannot know. It does not name an identifier:
+ * the purchase may land on the account of the SECOND identifier (the first has none), and the verify answer is identical
+ * either way on purpose (no enumeration), so the browser cannot tell which. "It's for me" therefore stays on the
+ * first-entered identifier (accepted by review).
+ */
+export const ACCOUNT_LINE = "It goes onto the student's LazyTopper account.";
+export const OPEN_FOR_ME = "It's for me \u2014 open it now";
+export const SEND_TO_CHILD = "Send it to my child";
+export const SEND_ME_LINK = "Send me the sign-in link";
+export const CHECK_INBOX = "Check your inbox and tap the link to open LazyTopper.";
+export const COPY_MESSAGE = "Copy message";
+export const MESSAGE_COPIED = "Message copied";
+/** The ONLY address the child is sent to: the plain sign-in page (never a number, an email or a token in it). */
+export const CHILD_LOGIN_URL = "https://www.lazytopper.com/login";
+
+/** Where the buyer lands once signed in: My packs for a pack, Home for the Board Pass. Fixed internal paths. */
+export function landingPath(kind: GuestItem["kind"]): string {
+  return kind === "pack" ? "/packs#my-packs" : "/";
+}
+
+/**
+ * The message the payer sends the child. Names WHAT to sign in with ("your mobile number" / "your email"), never the value:
+ * the child knows their own number, and nothing typed at checkout travels in a share.
+ */
+export function childShareText(product: string, recipient: Pick<Recipient, "phone" | "email" | "first">): string {
+  const viaPhone = recipient.phone && (recipient.first === "phone" || !recipient.email);
+  const how = viaPhone ? "your mobile number" : "your email";
+  return `I've bought you ${product} on LazyTopper. Open ${CHILD_LOGIN_URL} and sign in with ${how} \u2014 it's already in your account.`;
+}
+
+/** WhatsApp share fallback: ONLY the message text (no phone number in the URL - doctrine; WhatsApp asks whom to send it to). */
+export function whatsappShareUrl(text: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }
 
 /* ── detection / normalisation (mirrors server/services/guestPay.cjs) ─────────── */

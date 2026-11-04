@@ -178,7 +178,7 @@ describe("flag OFF — Check & Improve behaves exactly as today (N12)", () => {
     flagOff();
     H.auth = { user: SIGNED_IN, loading: false };
     const { container } = renderPage();
-    expect(container.textContent).toContain("Premium Feature");
+    expect(container.textContent).toContain("Answer Checker comes with the Board Pass");
     expect(container.textContent).toMatch(/Start my free 7-day trial/);
     expect(screen.queryByRole("button", { name: /Read the question/ })).toBeNull();
   });
@@ -189,7 +189,7 @@ describe("flag OFF — Check & Improve behaves exactly as today (N12)", () => {
     H.phase = "saved";
     const { container } = renderPage();
     expect(container.textContent).not.toContain("Your answer is saved.");
-    expect(container.textContent).toContain("Premium Feature");
+    expect(container.textContent).toContain("Answer Checker comes with the Board Pass");
   });
 });
 
@@ -204,7 +204,7 @@ describe("flag ON — the tutor overlay is untouched (the free branch is direct-
     flagOn();
     H.auth = { user: SIGNED_IN, loading: false };
     const { container } = renderPage();
-    expect(container.textContent).toContain("Premium Feature");
+    expect(container.textContent).toContain("Answer Checker comes with the Board Pass");
   });
 });
 
@@ -435,7 +435,7 @@ describe("R9 — the trial offer (signed in, a free result saved)", () => {
     H.phase = "saving";
     const { container } = renderPage();
     expect(container.textContent).toContain("Saving your answer…");
-    expect(container.textContent).not.toContain("Premium Feature");
+    expect(container.textContent).not.toContain("Answer Checker comes with the Board Pass");
   });
 
   it("saved but the subscription NOT hydrated yet → no offer", () => {
@@ -477,7 +477,7 @@ describe("R9 — the trial offer (signed in, a free result saved)", () => {
     expect(H.sub.startTrial).not.toHaveBeenCalled();
     expect(await screen.findByTestId("home-probe")).toBeInTheDocument();
     expect(container.textContent).not.toContain("Your answer is saved.");
-    expect(container.textContent).not.toContain("Premium Feature");
+    expect(container.textContent).not.toContain("Answer Checker comes with the Board Pass");
   });
 
   it("a PREMIUM student is never offered a trial", () => {

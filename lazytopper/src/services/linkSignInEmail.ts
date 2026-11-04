@@ -24,6 +24,7 @@ import {
   linkWithCredential,
   linkWithPopup,
   sendSignInLinkToEmail,
+  signInWithEmailLink,
 } from "firebase/auth";
 import { authClient, getPopupRedirectResolver } from "./firebaseClient";
 import { normaliseEmail } from "./checkoutWhoFlag";
@@ -69,6 +70,32 @@ export async function completeEmailLink(rawEmail: string, href: string = window.
   const email = normaliseEmail(rawEmail);
   if (!email) throw Object.assign(new Error("invalid email"), { code: "auth/invalid-email" });
   await linkWithCredential(current, EmailAuthProvider.credentialWithLink(email, href));
+}
+
+/**
+ * PAY-ACCOUNT-1 - SIGN IN (not link) with an email link: "Send me the sign-in link" on the thank-you screen, for the account
+ * made at payment. The link returns to /login's finish step (`?finish=link&redirect=<landing>`), with a FIXED landing (My
+ * packs / Home), never caller-supplied text and never the address. The address is not stored anywhere (owner rule: no email
+ * in localStorage): the finish step asks the student to confirm it.
+ */
+export const SIGN_IN_LANDINGS = Object.freeze(["/packs#my-packs", "/"]);
+export function emailLinkFinishUrl(origin: string, landing: string): string {
+  const safe = SIGN_IN_LANDINGS.includes(landing) ? landing : "/";
+  return `${origin}/login?finish=link&redirect=${encodeURIComponent(safe)}`;
+}
+export async function sendSignInLinkForEmail(rawEmail: string, landing: string, origin: string = window.location.origin): Promise<void> {
+  const email = normaliseEmail(rawEmail);
+  if (!email) throw Object.assign(new Error("invalid email"), { code: "auth/invalid-email" });
+  if (!authClient) throw new Error("Firebase Auth is not configured");
+  await sendSignInLinkToEmail(authClient, email, { url: emailLinkFinishUrl(origin, landing), handleCodeInApp: true });
+}
+
+/** PAY-ACCOUNT-1 - on return from that link (signed out): the address typed again + the link's one-time code -> signed in. */
+export async function completeSignInWithEmailLink(rawEmail: string, href: string = window.location.href): Promise<void> {
+  const email = normaliseEmail(rawEmail);
+  if (!email) throw Object.assign(new Error("invalid email"), { code: "auth/invalid-email" });
+  if (!authClient) throw new Error("Firebase Auth is not configured");
+  await signInWithEmailLink(authClient, email, href);
 }
 
 /** Drop the one-time code from the address bar once it is used (or refused), keeping the path. */

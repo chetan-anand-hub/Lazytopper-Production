@@ -17,8 +17,9 @@
  *
  *  2. IT HAD ONE EXIT. "Choose Plan", and nothing else. ★ A paywall with one exit
  *     teaches a student the product is over. Two exits teach them what they still
- *     have — so "Keep using Basic" is a real, equally-weighted button, not a
- *     subdued dismissal link. [FU-UPGRADE-MODAL-NO-BASIC-EXIT]
+ *     have. (LOCK-SELL-1, owner 4 Nov 2026: that exit is now ONE quiet "Continue with
+ *     Basic" link under the Board Pass - still an exit, no longer a rival button.)
+ *     [FU-UPGRADE-MODAL-NO-BASIC-EXIT]
  *
  *  3. IT READ AS AN ERROR. The old modal puts "Your free trial has ended" in red
  *     on pink, and GATE-1's (correct, kind) server copy landed in SolutionChecker's
@@ -56,6 +57,7 @@ import { trackPaywallAction } from "../../analytics/analytics";
 import OffersBlock from "../packs/OffersBlock";
 import { paperWallCopy } from "../packs/offersCopy";
 import type { OfferKind } from "../packs/offersModel";
+import PackOwnerSlot from "../packOwner/PackOwnerSlot";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -77,7 +79,7 @@ export interface UpgradeSheetProps {
    * ("Not now" on a trial limit, "Continue with Basic (free)" for Basic). Replaces `pack`. Absent -> the sheet is exactly as before.
    */
   offers?: { kind: OfferKind; subject?: "maths" | "science" | null; chapterSlug?: string | null; chapterName?: string | null } | null;
-  /** "Keep using Basic", the backdrop, Escape, and the close control all land here. */
+  /** "Continue with Basic", the backdrop, Escape, and the close control all land here. */
   onClose: () => void;
 }
 
@@ -155,8 +157,7 @@ const UPGRADE_SHEET_CSS = `
     font-size: 0.86rem;
   }
   .lt-upsheet__tick { font-weight: 800; }
-  .lt-upsheet__cta,
-  .lt-upsheet__basic {
+  .lt-upsheet__cta {
     width: 100%;
     border-radius: 14px;
     padding: 13px 16px;
@@ -171,14 +172,6 @@ const UPGRADE_SHEET_CSS = `
     color: #ffffff;
     margin-bottom: 14px;
   }
-  /* ★ "Keep using Basic" is a REAL CHOICE, not a dismissal. Full width, real
-     button, same weight and padding as the paid CTA — only the fill differs, so
-     it reads as the second of two options rather than as "no thanks". */
-  .lt-upsheet__basic {
-    background: var(--lt-surface, #ffffff);
-    border: 1.5px solid rgba(73, 98, 127, 0.35);
-    color: var(--lt-ink, #0f2743);
-  }
   .lt-upsheet__pack {
     margin: -4px 0 12px;
     font-size: 0.8rem;
@@ -186,17 +179,6 @@ const UPGRADE_SHEET_CSS = `
     text-align: center;
   }
   .lt-upsheet__pack a { color: var(--lt-ink, #0f2743); font-weight: 700; }
-  .lt-upsheet__keep {
-    border-radius: 14px;
-    padding: 12px 14px;
-    background: rgba(73, 98, 127, 0.07);
-    border: 1px solid rgba(73, 98, 127, 0.16);
-    font-size: 0.84rem;
-    color: var(--lt-muted, #49627f);
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-  .lt-upsheet__keep strong { color: var(--lt-ink, #0f2743); }
   /* OFFERS-V2 paper wall: the buying block inside the sheet, and the small grey way out at the very bottom. */
   .lt-upsheet--offers { color: var(--lt-ink, #0f2743); }
   .lt-upsheet--offers .lt-upsheet__trial { margin: 0 0 4px; }
@@ -225,7 +207,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
   // SALE-MOMENT-2 - the matching pack's words (null = the plain /packs link: keep the generic line).
   const packParts = pack ? paperPackLineParts(pack) : null;
 
-  // FEEDBACK-1 — every way of closing WITHOUT going to plans ("Keep using Basic", the
+  // FEEDBACK-1 — every way of closing WITHOUT going to plans ("Continue with Basic", the
   // backdrop, Escape) is the paywall moment: close first, then ask the host for the
   // gentle prompt (at most once per student per 7 days; never blocks; see
   // components/feedback). "See plans" is not a dismissal and does not call this.
@@ -234,7 +216,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
     notifyPaywallDismissed();
   }, [onClose]);
 
-  // Escape closes, exactly like "Keep using Basic" — same call, so the two exits
+  // Escape closes, exactly like "Continue with Basic" — same call, so the two exits
   // cannot drift apart.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -259,6 +241,8 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
   // [FU-TRIAL-CTA-ON-ASK] - a signed-out visitor, or an account that never had a trial. The record
   // must be known (hydrated) for an account; the server still decides.
   const trialEligible = !uid || isTrialEligible(hydrated, subscription);
+  // PACK-OWNER-GATES-1 - a Basic student (record known, not on a running trial, not paid) who owns a PDF pack is spoken to as a customer.
+  const packOwnerEnabled = Boolean(uid) && hydrated && subscription?.tier === "free";
 
   const handleSeePlans = () => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
@@ -285,7 +269,14 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
         >
           <div className="lt-upsheet__grip" />
           <h2 className="lt-upsheet__title">{wall.title}</h2>
-          {wall.body ? <p className="lt-upsheet__trial" data-testid="upgrade-sheet-wall-body">{wall.body}</p> : null}
+          {/* PACK-OWNER-GATES-1 (fix 3) - a pack owner never reads "Written answers are marked with the Board Pass" as a stranger: the
+              pack this paper comes from (or their latest pack) is named instead. Unknown / none: today's body, unchanged. */}
+          <PackOwnerSlot
+            enabled={packOwnerEnabled && !onTrial}
+            uid={uid}
+            paper={{ kind: offers.kind, subject: offers.subject ?? null, chapterSlug: offers.chapterSlug ?? null }}
+            fallback={wall.body ? <p className="lt-upsheet__trial" data-testid="upgrade-sheet-wall-body">{wall.body}</p> : null}
+          />
           <OffersBlock
             surface={`wall-${offers.kind}`}
             ctx={{ kind: offers.kind, subject: offers.subject ?? null, chapterSlug: offers.chapterSlug ?? null, chapterName: offers.chapterName ?? null }}
@@ -332,7 +323,8 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
 
         {/* ★ Names the feature the student was actually blocked on — passed in by the
             caller, never one hardcoded string for every surface. */}
-        <h2 className="lt-upsheet__title">{title}</h2>
+        {/* PACK-OWNER-GATES-1 - a pack owner reads the pack-owner line in the title's place; every button below is unchanged. */}
+        <PackOwnerSlot enabled={packOwnerEnabled} uid={uid} heading="h2" fallback={<h2 className="lt-upsheet__title">{title}</h2>} />
 
         {/* ASK-COPY-1 - the free week leads where it can still be started; the Board Pass is second. */}
         {trialEligible && (
@@ -393,16 +385,10 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
           </p>
         )}
 
-        {/* ★ NAME WHAT BASIC KEEPS, not what Premium withholds. And "Nothing you've
-            done is locked" stays — a student's real fear at a paywall is losing
-            their own work, and it is the sentence that answers it. */}
-        <div className="lt-upsheet__keep">
-          You keep <strong>Basic free, always</strong> — Exam Trends, the full question
-          bank, Practice, and your progress. Nothing you&rsquo;ve done is locked.
-        </div>
-
-        <button type="button" className="lt-upsheet__basic" onClick={dismiss}>
-          Keep using Basic
+        {/* LOCK-SELL-1 (owner, 4 Nov 2026) - the sheet already leads with the Board Pass; Basic is now one quiet
+            "Continue with Basic" at the bottom (the same dismiss as the backdrop and Escape), not a second full button. */}
+        <button type="button" className="lt-upsheet__dismiss" data-testid="upgrade-sheet-basic" onClick={dismiss}>
+          Continue with Basic
         </button>
       </div>
     </div>
@@ -437,11 +423,22 @@ const PREMIUM_FEATURE_LABELS: Record<string, string> = {
   check_solution: "Checking your answer",
   mentor: "The AI tutor",
   step_solution: "Step-by-step solutions",
+  // PACK-OWNER-GATES-1 (fix 2) - the ids the SERVER actually sends in a 402 (entitlement.cjs GATED_ROUTES, AI_TIER_GATED_ROUTES and
+  // STEP_SOLUTION_FEATURE). Before this, every one of them fell through to "This is a Premium feature". Both spellings are accepted.
+  "check-solution": "Checking your answer",
+  tutor: "The AI tutor",
+  "grade-worksheet": "Grading your worksheet",
+  grade_worksheet: "Grading your worksheet",
+  "detect-question": "Reading questions from your photo",
+  detect_question: "Reading questions from your photo",
+  "step-solution-generation": "Step-by-step solutions",
+  step_solution_generation: "Step-by-step solutions",
+  "step-solution": "Step-by-step solutions",
 };
 
 export function labelForFeature(code: string | undefined | null): string {
   if (!code) return "This";
-  return PREMIUM_FEATURE_LABELS[code] || "This";
+  return Object.prototype.hasOwnProperty.call(PREMIUM_FEATURE_LABELS, code) ? PREMIUM_FEATURE_LABELS[code] : "This";
 }
 
 export default UpgradeSheet;

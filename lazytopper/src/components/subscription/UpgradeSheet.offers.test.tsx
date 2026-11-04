@@ -109,14 +109,15 @@ describe("Basic (trial over) at a paper wall", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(S.dismissed).toHaveBeenCalledTimes(1); // the feedback prompt hook still hears the dismissal
   });
-  it("control: without `offers` the sheet is exactly as before (keep paragraph and 'Keep using Basic')", () => {
+  // LOCK-SELL-1: without `offers` the sheet keeps its Board Pass offer; its Basic exit is now the quiet "Continue with Basic".
+  it("control: without `offers` the sheet keeps its own Board Pass offer and the quiet 'Continue with Basic'", () => {
     render(
       <MemoryRouter>
         <UpgradeSheet featureLabel="Checking your answer" onClose={() => {}} />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/Basic free, always/)).toBeInTheDocument();
-    expect(screen.getByText("Keep using Basic")).toBeInTheDocument();
+    expect(screen.getByTestId("upgrade-sheet-board-pass")).toBeInTheDocument();
+    expect(screen.getByTestId("upgrade-sheet-basic")).toHaveTextContent("Continue with Basic");
     expect(screen.queryByTestId("offers-block")).toBeNull();
   });
 });
@@ -192,8 +193,12 @@ describe("events and honest copy", () => {
   it("surface is wall-<kind>; the card is rank 1 and the rows follow", async () => {
     wall(MOCK);
     await screen.findByTestId("offers-packs");
-    expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "board_pass", rank: 1 });
-    expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "pack_mock", rank: 4 });
+    // PACK-OWNER-GATES-1: the rows' "shown" fires in a passive effect after the rows paint; under CI load (the sheet now also loads the
+    // pack-owner chunk) that effect can land a tick after findByTestId resolves, so wait for it rather than racing it.
+    await waitFor(() => {
+      expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "board_pass", rank: 1 });
+      expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "pack_mock", rank: 4 });
+    });
     fireEvent.click(screen.getByTestId("offers-pay"));
     expect(S.track).toHaveBeenLastCalledWith("sale_moment_tap", { surface: "wall-full-mock", offer: "board_pass", rank: 1 });
   });

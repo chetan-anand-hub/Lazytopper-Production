@@ -186,3 +186,20 @@ describe("CHECKOUT-WHO-1 · the recipient line", () => {
     expect(whoLine({})).toBe("");
   });
 });
+
+describe("PAY-ACCOUNT-1 · how the purchase landed", () => {
+  it("'account created at payment' vs 'existing account' vs 'account not created (waiting)', and the second-identifier note", async () => {
+    const { whoLine } = await import("./PurchasesCard");
+    const r = { recipient: { phoneMasked: "+91 98•••••948" }, payerType: "signed_out" as const };
+    expect(whoLine({ ...r, claimedBy: "pay-0123456789abcdef01234567", claimedVia: "account_created", adminNote: null })).toBe(
+      "For +91 98•••••948 · paid signed out · on pay-0123456789abcdef01234567 (account created at payment)",
+    );
+    expect(whoLine({ ...r, claimedBy: "uKid", claimedVia: "existing_account" })).toBe("For +91 98•••••948 · paid signed out · on uKid (existing account)");
+    expect(whoLine({ ...r, claimedBy: null, adminNote: "account_not_created" })).toBe(
+      "For +91 98•••••948 · paid signed out · account not created (waiting for the student's sign-in)",
+    );
+    expect(whoLine({ ...r, claimedBy: "uKid", claimedVia: "existing_account", adminNote: "second_identifier_not_linked" })).toContain(
+      "the other was NOT linked to it",
+    );
+  });
+});
