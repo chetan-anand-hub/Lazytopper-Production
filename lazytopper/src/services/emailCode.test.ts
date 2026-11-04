@@ -1,10 +1,10 @@
 /**
  * EMAIL-CODE-1 - the browser half: send posts only the normalised email; verify posts email + digits, then
- * signInWithEmailLink(email, the server's one-time link); server refusals map to clear student words.
+ * signInWithCustomToken(the server's token); server refusals map to clear student words.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const fb = vi.hoisted(() => ({ signInWithEmailLink: vi.fn(async () => undefined) }));
+const fb = vi.hoisted(() => ({ signInWithCustomToken: vi.fn(async () => undefined) }));
 vi.mock("firebase/auth", () => fb);
 vi.mock("./firebaseClient", () => ({ authClient: { name: "auth" } }));
 
@@ -27,7 +27,7 @@ function stubFetch(status: number, body: unknown) {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
-  fb.signInWithEmailLink.mockClear();
+  fb.signInWithCustomToken.mockClear();
 });
 
 describe("emailCode client", () => {
@@ -48,13 +48,13 @@ describe("emailCode client", () => {
     await expect(sendEmailCode("nope")).rejects.toMatchObject({ kind: "invalid_email" });
   });
 
-  it("verify: POST {email, code} -> signInWithEmailLink(email, the server's one-time link)", async () => {
-    const f = stubFetch(200, { ok: true, link: "https://www.lazytopper.com/__/auth/action?mode=signIn&oobCode=X" });
+  it("verify: POST {email, code} -> signInWithCustomToken(the server's token)", async () => {
+    const f = stubFetch(200, { ok: true, token: "tok" });
     await signInWithEmailCode("asha@gmail.com", "123 456");
     const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe(EMAIL_CODE_VERIFY_ENDPOINT);
     expect(JSON.parse(String(init.body))).toEqual({ email: "asha@gmail.com", code: "123456" });
-    expect(fb.signInWithEmailLink).toHaveBeenCalledWith({ name: "auth" }, "asha@gmail.com", "https://www.lazytopper.com/__/auth/action?mode=signIn&oobCode=X");
+    expect(fb.signInWithCustomToken).toHaveBeenCalledWith({ name: "auth" }, "tok");
   });
 
   it("refusals map to clear words (tries left, expired, locked, no account, unavailable)", async () => {
@@ -70,7 +70,7 @@ describe("emailCode client", () => {
     expect(describeEmailCodeError(await sendEmailCode("a@gmail.com").catch((x) => x))).toMatch(/aren't available/);
     stubFetch(500, { weird: true });
     expect((await sendEmailCode("a@gmail.com").catch((x) => x)).kind).toBe("failed");
-    expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
+    expect(fb.signInWithCustomToken).not.toHaveBeenCalled();
   });
 
   it("cleanCode keeps digits only, at most 6", () => {

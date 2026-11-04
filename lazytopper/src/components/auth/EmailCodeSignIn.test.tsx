@@ -7,7 +7,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import EmailCodeSignIn, { EMAIL_CODE_RESEND_SEC } from "./EmailCodeSignIn";
 import { EmailCodeError, describeEmailCodeError } from "../../services/emailCode";
 
-vi.mock("firebase/auth", () => ({ signInWithEmailLink: vi.fn(async () => undefined) }));
+vi.mock("firebase/auth", () => ({ signInWithCustomToken: vi.fn(async () => undefined) }));
 vi.mock("../../services/firebaseClient", () => ({ authClient: {} }));
 
 afterEach(() => {

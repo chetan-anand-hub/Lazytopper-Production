@@ -2,18 +2,14 @@
  * emailCode — the browser half of EMAIL-CODE-1: "sign in with a 6-digit code from your email", right there on the screen.
  *
  *   sendEmailCode(email)              POST /api/auth/email-code/send    -> the same "sent" answer for every address
- *   signInWithEmailCode(email, code)  POST /api/auth/email-code/verify  -> a one-time Firebase email sign-in link for the
- *                                     account that OWNS that email (the server decides) -> signInWithEmailLink, redeemed
- *                                     at once, never shown, stored or put in the address bar
- *
- * Why a link and not a custom token: firebase/auth sits in the ENTRY chunk, so importing signInWithCustomToken anywhere
- * adds it to the entry and breaks the PERF-3 budget; signInWithEmailLink is already there (the existing link sign-in).
+ *   signInWithEmailCode(email, code)  POST /api/auth/email-code/verify  -> a Firebase custom token for the account that
+ *                                     OWNS that email (the server decides the uid) -> signInWithCustomToken
  *
  * After the sign-in, onAuthStateChanged runs the EXISTING paths unchanged (AuthContext's claim and the pay-first
  * first sign-in / trial). The email and the code are never stored, never in a URL and never in an analytics event; the
- * link is used once and dropped. Lazy-imported by EmailCodeSignIn, so none of this is in the entry chunk.
+ * token is used once and dropped. Lazy-imported by EmailCodeSignIn, so none of this is in the entry chunk.
  */
-import { signInWithEmailLink } from "firebase/auth";
+import { signInWithCustomToken } from "firebase/auth";
 import { authClient } from "./firebaseClient";
 import { normaliseEmail } from "./checkoutWhoFlag";
 
@@ -80,16 +76,16 @@ export function cleanCode(raw: string): string {
   return String(raw || "").replace(/\D/g, "").slice(0, 6);
 }
 
-/** Step 2: the code -> signed in (a one-time email sign-in link for the email's own account, redeemed here). */
+/** Step 2: the code -> signed in (a Firebase custom token for the email's own account). */
 export async function signInWithEmailCode(rawEmail: string, rawCode: string): Promise<void> {
   const email = normaliseEmail(rawEmail);
   if (!email) throw new EmailCodeError("invalid_email");
   const code = cleanCode(rawCode);
   if (code.length !== 6) throw new EmailCodeError("invalid_code");
   const json = await post(EMAIL_CODE_VERIFY_ENDPOINT, { email, code });
-  const link = typeof json.link === "string" ? json.link : "";
-  if (!link || !authClient) throw new EmailCodeError("failed");
-  await signInWithEmailLink(authClient, email, link);
+  const token = typeof json.token === "string" ? json.token : "";
+  if (!token || !authClient) throw new EmailCodeError("failed");
+  await signInWithCustomToken(authClient, token);
 }
 
 /** Student-facing words for each failure. Never says whether an address has an account before the code is right. */
