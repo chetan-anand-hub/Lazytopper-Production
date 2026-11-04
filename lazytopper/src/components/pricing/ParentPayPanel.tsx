@@ -57,6 +57,8 @@ interface Copy {
    * a neutral heading, never the Board Pass title (a used Chapter Pack link read "Pay for your child's LazyTopper Board Pass").
    */
   refusedTitle: Record<Reason, string>;
+  /** PACK-DIALOG-1 - while the link is loading (its product not yet known): neutral, never the Board Pass title. */
+  linkTitle: string;
   intro: (name: string) => string;
   month: (price: string) => string;
   boards: (price: string) => string;
@@ -91,6 +93,7 @@ const COPY: Record<ParentPayLang, Copy> = {
       owned: "LazyTopper payment link",
       failed: "LazyTopper payment link",
     },
+    linkTitle: "LazyTopper payment link",
     intro: (name) =>
       `${name || "Your child"} sent you this link. LazyTopper checks CBSE Class 10 answers step by step, the way a board examiner marks them, and shows where marks are lost.`,
     month: (price) => `Pay ${price} for a month`,
@@ -135,6 +138,7 @@ const COPY: Record<ParentPayLang, Copy> = {
       owned: "LazyTopper भुगतान लिंक",
       failed: "LazyTopper भुगतान लिंक",
     },
+    linkTitle: "LazyTopper भुगतान लिंक",
     intro: (name) =>
       `${name || "आपके बच्चे"} ने आपको यह लिंक भेजा है। LazyTopper CBSE कक्षा 10 के उत्तरों को बोर्ड परीक्षक की तरह स्टेप-बाय-स्टेप जाँचता है और बताता है कि नंबर कहाँ कटते हैं।`,
     month: (price) => `एक महीने के लिए ${price} दें`,
@@ -317,13 +321,21 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
   const knownPack = known?.pack ?? null;
   const knownPackName = knownPack ? packNameOf(knownPack) : "";
   const heading =
-    state.kind === "refused" && !known
+    state.kind === "loading"
+      ? t.linkTitle
+      : state.kind === "refused" && !known
       ? t.refusedTitle[state.reason]
       : knownPack
         ? t.packTitle(name, knownPackName)
         : t.title(name);
   const label =
-    state.kind === "refused" && !known ? t.refusedTitle[state.reason] : knownPack ? t.packTitle("", knownPackName) : t.title("");
+    state.kind === "loading"
+      ? t.linkTitle
+      : state.kind === "refused" && !known
+        ? t.refusedTitle[state.reason]
+        : knownPack
+          ? t.packTitle("", knownPackName)
+          : t.title("");
 
   return (
     <main className="lt-parent-pay" aria-label={label} lang={lang}>

@@ -364,4 +364,19 @@ describe("PACK-DIALOG-1 · the heading of a used / expired link", () => {
     hindi();
     expect(h1()).toBe("Aarav के LazyTopper Board Pass का भुगतान करें");
   });
+
+  it("while the link is loading: a neutral heading, never 'Board Pass' (en + hi)", async () => {
+    let release: (v: ParentLinkView) => void = () => undefined;
+    const view = vi.fn(() => new Promise<ParentLinkView>((res) => { release = res; }));
+    await renderPanel({ view });
+    expect(h1()).toBe("LazyTopper payment link");
+    expect(screen.getByRole("main").getAttribute("aria-label")).toBe("LazyTopper payment link");
+    expect(document.body.textContent).not.toMatch(/board pass/i);
+    hindi();
+    expect(h1()).toBe("LazyTopper भुगतान लिंक");
+    await act(async () => {
+      release(TRIANGLES);
+    });
+    expect(h1()).toBe("Aarav के Triangles Chapter Pack का भुगतान करें");
+  });
 });

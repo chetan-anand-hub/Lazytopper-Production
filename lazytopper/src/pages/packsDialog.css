@@ -125,6 +125,46 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
   .lt-pkd__plain { font-size: 17px; }
   .lt-pkd__btn { font-size: 19px; }
 }
+.lt-pkd__cardprice { display: none; }
+
+/*
+ * PACK-DIALOG-1 (coordinator review): from 900px a TWO-COLUMN dialog. Left: head + slides + caption. Right (300px): the buy card,
+ * in normal flow at the TOP of its column, so "Buy" is in view without scrolling at 1280x632 and up. An opened parent / QR panel
+ * (.lt-pkd__share) spans both columns below them. Order inside the card (CSS only, the buy area keeps its DOM): price, picker or
+ * Maths/Science toggle, Buy + notes + the parent actions, then a note line (CBQ tutor questions / Bundle), then the free sample.
+ */
+@media (min-width: 900px) {
+  .lt-pkd__panel {
+    display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-rows: auto auto auto auto 1fr;
+    column-gap: 28px; row-gap: 14px; align-content: start;
+    width: min(1040px, 100%); padding: 24px 28px 0;
+    --pkd-slide-w: 236px; --pkd-slide-h: clamp(200px, calc(100dvh - 330px), 320px);
+  }
+  .lt-pkd__head { grid-column: 1; grid-row: 1; }
+  .lt-pkd__stage { grid-column: 1; grid-row: 2; }
+  .lt-pkd__dots { grid-column: 1; grid-row: 3; }
+  .lt-pkd__samplecap { grid-column: 1; grid-row: 4; margin: 0; }
+  .lt-pkd__title { font-size: 28px; padding-right: 0; }
+  .lt-pkd__x { position: absolute; top: 18px; right: 18px; }
+  .lt-pkd__foot {
+    grid-column: 2; grid-row: 1 / span 5; align-self: start; flex-direction: column; align-items: stretch; gap: 10px;
+    margin-top: 52px; padding: 18px; border: 1px solid #dbe2ea; border-radius: 18px; background: #f6f9fb;
+  }
+  .lt-pkd__cardprice { display: block; margin: 0; font-size: 15px; color: #2f3e55; }
+  .lt-pkd__cardprice b { font-family: Fraunces, Georgia, serif; font-size: 26px; color: #0f1b2d; margin-right: 4px; }
+  .lt-pkd__pick { flex: 0 0 auto; order: 1; }
+  .lt-pkd__pick--note { order: 3; }
+  .lt-pkd__buy { display: contents; }
+  .lt-pkd__buy > * { order: 2; }
+  .lt-pkd__buy > .lt-pkd__sample { order: 4; }
+  .lt-pkd__buy .lt-paywall-actions { margin: 0; max-width: none; }
+  .lt-pkd__plain { font-size: 15.5px; text-align: center; }
+  .lt-pkd__share { grid-column: 1 / -1; margin-top: 4px; padding: 0 0 28px; }
+  .lt-pkd__btn { height: 54px; }
+}
+@media (min-width: 900px) and (max-height: 700px) {
+  .lt-pkd__line { font-size: 15.5px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .lt-pkd__track { scroll-behavior: auto; }
   .lt-pkd__dots span { transition: none; }

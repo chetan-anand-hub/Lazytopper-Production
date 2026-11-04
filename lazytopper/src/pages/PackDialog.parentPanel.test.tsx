@@ -152,6 +152,14 @@ describe("PACK-DIALOG-1 · the parent panel leaves the sticky footer", () => {
     expect(panel.textContent).toContain("LazyTopper never sees or stores their number.");
   });
 
+  it("the buy card carries the price, then the picker, Buy and the parent actions", () => {
+    dialog("pack_chapter", "polynomials");
+    const card = screen.getByTestId("pack-buy-card");
+    expect(card.querySelector(".lt-pkd__cardprice")?.textContent).toContain("one-time");
+    expect(card.contains(screen.getByTestId("pack-chapter-select"))).toBe(true);
+    expect(card.contains(screen.getByRole("button", { name: FORWARD_LABEL }))).toBe(true);
+  });
+
   it("the Chapter Pack (picker on the left) behaves the same", async () => {
     dialog("pack_chapter", "polynomials");
     await tap(FORWARD_LABEL);
@@ -190,6 +198,14 @@ describe("PACK-DIALOG-1 · the CSS: nothing sticky over the content", () => {
     const stickyRules = css.match(/[^{}]+\{[^}]*position:\s*sticky[^}]*\}/g) ?? [];
     expect(stickyRules.map((r) => r.slice(0, r.indexOf("{")).trim())).toEqual([".lt-pkd__foot"]);
     expect(css).not.toMatch(/\.lt-pkd__share[^{]*\{[^}]*sticky/);
+  });
+
+  it(">= 900px: two columns - slides left, the buy card right (top of its column), the parent panel across both", () => {
+    const wide = css.slice(css.indexOf("@media (min-width: 900px)"));
+    expect(wide).toMatch(/\.lt-pkd__panel\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 300px;/);
+    expect(wide).toMatch(/\.lt-pkd__foot\s*\{[^}]*grid-column:\s*2;[^}]*align-self:\s*start;/);
+    expect(wide).toMatch(/\.lt-pkd__share\s*\{[^}]*grid-column:\s*1 \/ -1;/);
+    expect(wide).not.toMatch(/sticky/);
   });
 
   it("on desktop the footer is not sticky", () => {

@@ -325,8 +325,13 @@ export default function PackDialog(props: PackDialogProps) {
         <p className="lt-pkd__samplecap" data-testid="pack-preview-caption">{PREVIEW_CAPTION}</p>
         <p className="lt-pkd__sr" role="status">{`Slide ${slide + 1} of ${SLIDE_COUNT}`}</p>
 
-        <div className="lt-pkd__foot">
-          <div className="lt-pkd__pick">
+        {/* PACK-DIALOG-1: from 900px the foot is the right-hand BUY CARD (price, picker, Buy, parent actions, sample) beside the
+            slides; below 900px it is the row / sticky phone footer it always was. The price line shows only in the card. */}
+        <div className="lt-pkd__foot" data-testid="pack-buy-card">
+          <p className="lt-pkd__cardprice" aria-hidden="true">
+            <b>{packPriceLabel(sku)}</b> one-time
+          </p>
+          <div className={sku === "pack_bundle" || sku === "pack_cbq" ? "lt-pkd__pick lt-pkd__pick--note" : "lt-pkd__pick"}>
             {sku === "pack_chapter" && (
               <label className="lt-pkd__label">
                 Pick your chapter
