@@ -82,17 +82,6 @@ const SPINE_CSS = `
   margin: 0 auto;
   padding: 24px clamp(16px, 4vw, 32px) 64px;
 }
-.lt-spine__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: hsl(220, 15%, 42%);
-  text-decoration: none;
-  margin-bottom: 14px;
-}
-.lt-spine__back:hover { color: hsl(220, 25%, 12%); }
 .lt-spine__title {
   margin: 0;
   font-family: var(--font-display, "Fraunces", Georgia, serif);
@@ -447,10 +436,6 @@ const SPINE_CSS = `
 export interface ConceptSpineProps {
   topic: DesktopTopicSummary;
   actionable: ActionableTopicHubContent;
-  /** Safe in-app href for the in-page back button. */
-  backHref: string;
-  /** Label for the back button (e.g. "Back to Exam Trends"). */
-  backLabel: string;
   /** Existing whole-topic practice route — powers "Practise this topic" in the band. */
   practiceAllHref: string;
   /** Existing Chapter Test route for this topic — powers "Chapter test" in the band (PR-E1). */
@@ -484,8 +469,6 @@ export interface ConceptSpineProps {
 export function ConceptSpine({
   topic,
   actionable,
-  backHref,
-  backLabel,
   practiceAllHref,
   chapterTestHref,
   worksheetHref,
@@ -550,11 +533,7 @@ export function ConceptSpine({
     <div className="lt-spine">
       <style>{SPINE_CSS}</style>
 
-      {/* In-page back button (top-left) */}
-      <Link to={backHref} className="lt-spine__back">
-        <span aria-hidden="true">←</span>
-        <span>{backLabel}</span>
-      </Link>
+      {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
 
       {/* Topic card: title + stat strip + Examiner's tips + Notes */}
       <Card padding={18}>

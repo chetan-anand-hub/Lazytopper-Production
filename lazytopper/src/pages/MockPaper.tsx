@@ -1,7 +1,7 @@
 // src/pages/MockPaper.tsx
 
 import React from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import {
   predictedQuestions as predictedMathQuestions,
@@ -40,8 +40,6 @@ function toMathSectionBlueprint(sectionMarks: Record<SectionKey, number>) {
 
 const MockPaperPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const params = useParams<{ slug?: string }>();
 
   // 1️⃣ Which predictive paper are we showing? (slug from URL)
@@ -190,10 +188,6 @@ const MockPaperPage: React.FC = () => {
     setScoreSaved(true);
   };
 
-  const handleBack = () => {
-    navigate(navState?.back || "/predictive-papers");
-  };
-
   const handlePrint = () => {
     window.print();
   };
@@ -277,21 +271,7 @@ const MockPaperPage: React.FC = () => {
                 alignItems: "flex-end",
               }}
             >
-              <button
-                type="button"
-                onClick={handleBack}
-                style={{
-                  borderRadius: 999,
-                  padding: "6px 14px",
-                  border: "1px solid var(--bg-card-border)",
-                  background: "#58cc02",
-                  color: "var(--text-muted)",
-                  fontSize: "0.8rem",
-                  cursor: "pointer",
-                }}
-              >
-                ← {navState?.backLabel || "Back to Predictive Papers hub"}
-              </button>
+              {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
 
               {/* Print / Download PDF button */}
               <button

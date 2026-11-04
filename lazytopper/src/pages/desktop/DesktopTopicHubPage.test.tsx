@@ -188,26 +188,18 @@ describe("DesktopTopicHubPage — the existing params still work (shared parsing
     expect(marked[0].textContent).toContain(target);
   });
 
-  it("?returnTo= + ?source=hpq still drive the back link", () => {
-    renderAt(
-      `/topic-hub/10/Maths/${TOPIC_SLUG}?source=hpq&returnTo=${encodeURIComponent(
-        "/highly-probable",
-      )}&concept=${encodeURIComponent(conceptNames[0])}`,
-    );
-    const back = screen.getByText("Back to Important Questions").closest("a");
-    expect(back?.getAttribute("href")).toBe("/highly-probable");
-  });
-
-  it("an EXTERNAL returnTo is still rejected (safe-redirect doctrine)", () => {
-    renderAt(
-      `/topic-hub/10/Maths/${TOPIC_SLUG}?returnTo=${encodeURIComponent(
-        "https://evil.example.com",
-      )}`,
-    );
-    const back = screen
-      .getByText(/Back to .*Exam Trends|Back to Maths on Exam Trends/)
-      .closest("a");
-    expect(back?.getAttribute("href")).toBe("/exam-trends");
+  // NAV-FIX-1: the hub draws no page-level back link any more — the NAV-1 header row owns Back (history, else
+  // "← Exam Trends"). ?returnTo= / ?source= are inert for navigation; an external returnTo can never become a link.
+  it("NAV-FIX-1: no page-level back link, with ?source=hpq&returnTo= or with an external returnTo", () => {
+    for (const q of [
+      `?source=hpq&returnTo=${encodeURIComponent("/highly-probable")}&concept=${encodeURIComponent(conceptNames[0])}`,
+      `?returnTo=${encodeURIComponent("https://evil.example.com")}`,
+    ]) {
+      const { container } = renderAt(`/topic-hub/10/Maths/${TOPIC_SLUG}${q}`);
+      expect(screen.queryByText(/Back to Important Questions|Back to .*Exam Trends/), q).toBeNull();
+      expect(container.querySelector('a[href^="https://evil"]'), q).toBeNull();
+      cleanup();
+    }
   });
 
   it("bare entry with no topic anywhere still redirects to Exam Trends", () => {

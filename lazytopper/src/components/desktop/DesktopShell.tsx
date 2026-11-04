@@ -6,6 +6,7 @@ import { subscribeSettingsRequest, type SettingsSection } from "../account/setti
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { deriveAccountStatus } from "../../utils/accountStatus";
 import { MistakeIntelCard } from "./MistakeIntelCard";
 import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
 import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
@@ -229,7 +230,7 @@ interface DesktopShellProps {
 
 export function DesktopShell({ children }: DesktopShellProps) {
   const { user, logout } = useAuth();
-  const { tier, isTrialActive, isTrialExpired, daysLeftInTrial } = useSubscription();
+  const { tier, isTrialActive, isTrialExpired, daysLeftInTrial, status: subscription } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
   const [accountOpen, setAccountOpen] = useState(false);
@@ -278,33 +279,23 @@ export function DesktopShell({ children }: DesktopShellProps) {
   const homePath = user ? "/" : "/browse";
   const signedOutLoginUrl = `/login?reason=login&redirect=${encodeURIComponent(returnTo || "/")}`;
 
-  let accountStatusLabel = "Free account";
-  let accountStatusDetail = "No active trial is recorded for this account.";
-  let accountStatusColor = "hsl(220, 15%, 45%)";
-  let accountStatusBg = "hsl(215, 28%, 95%)";
-  let accountStatusBorder = "hsl(215, 25%, 90%)";
-
-  if (tier === "premium") {
-    accountStatusLabel = "Premium active";
-    accountStatusDetail = "Full access is active on this account.";
-    accountStatusColor = "hsl(152, 55%, 28%)";
-    accountStatusBg = "hsla(152,55%,45%,0.12)";
-    accountStatusBorder = "hsla(152,55%,45%,0.25)";
-  } else if (isTrialActive) {
-    accountStatusLabel = daysLeftInTrial <= 1
-      ? "Trial ends today"
-      : `Trial active - ${daysLeftInTrial} days left`;
-    accountStatusDetail = "Your 7-day trial is tied to this account.";
-    accountStatusColor = daysLeftInTrial <= 2 ? "hsl(32, 95%, 38%)" : "hsl(152, 55%, 30%)";
-    accountStatusBg = daysLeftInTrial <= 2 ? "hsla(32,95%,50%,0.12)" : "hsla(152,55%,45%,0.12)";
-    accountStatusBorder = daysLeftInTrial <= 2 ? "hsla(32,95%,50%,0.28)" : "hsla(152,55%,45%,0.25)";
-  } else if (isTrialExpired) {
-    accountStatusLabel = "Trial ended - Choose plan";
-    accountStatusDetail = "Choose a plan to continue premium tools.";
-    accountStatusColor = "hsl(0, 72%, 45%)";
-    accountStatusBg = "hsla(0,72%,50%,0.10)";
-    accountStatusBorder = "hsla(0,72%,50%,0.22)";
-  }
+  // NAV-FIX-1 (owner-approved edit, account menu only): the status chip comes from the shared
+  // helper, so the desktop menu reads exactly like the mobile one ("Board Pass", "Month pass ·
+  // till 30 Nov", trial, Free) and never "Premium". Same useSubscription() read — no new reads.
+  const {
+    label: accountStatusLabel,
+    detail: accountStatusDetail,
+    color: accountStatusColor,
+    bg: accountStatusBg,
+    border: accountStatusBorder,
+  } = deriveAccountStatus({
+    tier,
+    isTrialActive,
+    isTrialExpired,
+    daysLeftInTrial,
+    plan: subscription?.plan,
+    passEnd: subscription?.passEnd,
+  });
 
   useEffect(() => {
     if (!accountOpen) return;

@@ -150,14 +150,6 @@ const SECTION_NAME: Record<SectionId, string> = {
 };
 const DIFFICULTIES: DifficultyChoice[] = ["All", "Easy", "Medium", "Hard"];
 
-/** Reject any non-relative / protocol-bearing redirect (safe-redirect doctrine). */
-function safeInternalReturnTo(value: string | null | undefined): string | null {
-  if (!value) return null;
-  if (!value.startsWith("/") || value.startsWith("//")) return null;
-  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return null;
-  return value;
-}
-
 /** Round a fraction (0..1) to a 5%-step width for the class-driven section bar. */
 function widthStep(fraction: number): number {
   return Math.max(0, Math.min(100, Math.round(fraction * 20) * 5));
@@ -276,13 +268,6 @@ function WorksheetGeneratorInner() {
   const [focus] = useState(
     () => (new URLSearchParams(location.search).get("focus") ?? "").trim() || undefined,
   );
-
-  // Origin-aware back navigation (validated returnTo; default practice hub).
-  const backHref = useMemo(() => {
-    const rt = new URLSearchParams(location.search).get("returnTo");
-    return safeInternalReturnTo(rt) ?? "/practice-hub";
-  }, [location.search]);
-  const backLabel = backHref === "/practice-hub" ? "Back to Practice" : "Back";
 
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const loginHref = `/login?reason=mistake-aware&redirect=${encodeURIComponent(
@@ -1072,12 +1057,7 @@ function WorksheetGeneratorInner() {
           <span aria-hidden="true">←</span>
           <span>Back to builder</span>
         </button>
-      ) : (
-        <Link to={backHref} className="lt-ws__back">
-          <span aria-hidden="true">←</span>
-          <span>{backLabel}</span>
-        </Link>
-      )}
+      ) : null /* NAV-FIX-1: the build view's own "Back to Practice" is gone — the NAV-1 header row owns Back. */}
 
       {uploadNotice && (
         <div className="lt-ws__note lt-ws__note--err" role="alert">{uploadNotice}</div>

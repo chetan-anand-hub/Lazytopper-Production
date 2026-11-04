@@ -165,8 +165,6 @@ export default function TeacherDashboardPage() {
     return (
       <div className="dark-page">
         <div style={{ maxWidth: 700, margin: "0 auto", padding: "16px 16px 100px" }}>
-          <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />
-
           <section
             style={{
               marginTop: 20,
@@ -275,8 +273,6 @@ export default function TeacherDashboardPage() {
     <div className="dark-page">
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "16px 16px 100px" }}>
         <ReturnContextBar
-          backTo="/dashboard"
-          backLabel="Back to Dashboard"
           quickLinks={[
             { label: "All Classes", to: "/teacher" },
             { label: "Trends", to: "/trends/10/Maths" },

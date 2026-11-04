@@ -256,14 +256,6 @@ function IconCheck({ size = 11 }: { size?: number }) {
     </svg>
   );
 }
-function IconArrowLeft({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-  );
-}
 function IconArrowRight({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
@@ -353,55 +345,6 @@ function topMistakeTopic(entries: MistakeLogEntry[]): string | null {
   return best?.topic ?? null;
 }
 
-// ── Static labels for back-nav resolver ───────────────────────────────────
-const SOURCE_LABEL: Record<DesktopActionSource, string> = {
-  home: "Back to Home",
-  practice: "Back to Practice",
-  trends: "Back to Exam Trends",
-  topicHub: "Back to Topic Hub",
-  worksheet: "Back to Worksheet",
-  check: "Back to Answer Checker",
-  me: "Back to Me",
-  "full-mock": "Back to Full Mock",
-};
-
-interface BackInfo {
-  to: string;
-  label: string;
-}
-
-function resolveBack(returnTo: string | null, source: string | null): BackInfo {
-  // Whitelist returnTo so we never follow off-site URLs.
-  if (
-    returnTo &&
-    returnTo.startsWith("/") &&
-    !returnTo.startsWith("//") &&
-    !returnTo.startsWith("/\\") &&
-    !returnTo.startsWith("\\") &&
-    !/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(returnTo)
-  ) {
-    const key = (source ?? "home") as DesktopActionSource;
-    return {
-      to: returnTo,
-      label: SOURCE_LABEL[key] ?? "Back",
-    };
-  }
-  if (source && source in SOURCE_LABEL) {
-    const key = source as DesktopActionSource;
-    const fallbackPath: Record<DesktopActionSource, string> = {
-      home: "/",
-      practice: "/practice-hub",
-      trends: "/exam-trends",
-      topicHub: "/topic-hub",
-      worksheet: "/practice/worksheets",
-      check: "/check-improve",
-      me: "/me",
-      "full-mock": "/full-mock/10/Maths",
-    };
-    return { to: fallbackPath[key], label: SOURCE_LABEL[key] };
-  }
-  return { to: "/", label: "Back to Home" };
-}
 
 // ── TopicDropdown (page-local) ────────────────────────────────────────────
 // ONE dropdown pattern for BOTH scopes — single-select (radio) and
@@ -1080,30 +1023,6 @@ function PracticeScopeBuilder({
   );
 }
 
-// ── BackToParent (PR-C2) ──────────────────────────────────────────────────
-function BackToParent() {
-  const [params] = useSearchParams();
-  const back = useMemo(
-    () => resolveBack(params.get("returnTo"), params.get("source")),
-    [params],
-  );
-  return (
-    <Link
-      to={back.to}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        fontSize: "0.78rem",
-        color: TEXT_MUTED,
-        textDecoration: "none",
-        marginBottom: 4,
-      }}
-    >
-      <IconArrowLeft /> {back.label}
-    </Link>
-  );
-}
 
 
 // ── Mistake trend (real data — same getMistakeLogs history the buckets use) ─
@@ -2279,7 +2198,6 @@ export default function DesktopPracticePage() {
         }}
       >
         <ParentReturnLink />
-        <BackToParent />
 
         <div>
           <div
