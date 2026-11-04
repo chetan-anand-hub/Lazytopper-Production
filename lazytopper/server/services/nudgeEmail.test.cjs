@@ -386,7 +386,11 @@ test('spacing: one nudge per 24 h; none beside a trial-ending email (sent, or ab
   assert.equal(c.calls.length, 0);
 });
 
-test('founding is dark until payments + parent pay are on, and in-window it sends once with the price line', async () => {
+test('founding is dark until payments + parent pay are on, and in-window it sends once with the price line', async (t) => {
+  // FLAKY-1: the emailer is handed now() = NOW_NOV, but the price line reads the process clock (foundingPriceLine ->
+  // Date.now()). Pin that clock to the same instant, or the nightly 2030 / IST-midnight runs (and any real run from
+  // 1 Dec 2026) send a founding email that quotes ₹2,499 (issues #1535/#1536).
+  t.mock.timers.enable({ apis: ['Date'], now: NOW_NOV });
   const subs = { u1: sub(NOW_NOV - 20 * DAY) };
   const dark = setup({ now: NOW_NOV, subs });
   day(dark.db, 'u1', '2026-11-01', { lastSeenMs: NOW_NOV - 10 * DAY, sections: { pricing: 1 } });
@@ -551,10 +555,15 @@ test('copy: D3 says zero as zero and counts as counts; D1 offers Check & Improve
   assert.match(d1.text, /\/practice-hub/);
 });
 
-test('the price line is read from the pricing mirror', () => {
+test('the price line is read from the pricing mirror', (t) => {
   const p = require('./passPricing.cjs');
+  // FLAKY-1: the line reads the process clock; pin it inside the founding window (it failed every nightly clock run),
+  // then step past the deadline and require the after-founding price, so both halves of the mirror are held.
+  t.mock.timers.enable({ apis: ['Date'], now: NOW_NOV });
   const line = foundingPriceLine();
   assert.ok(line.includes('₹1,917') && p.TILL_BOARDS_FOUNDING_INR === 1917 && p.tillBoardsPriceInr(Date.now()) === (Date.now() < p.FOUNDING_OFFER_CLOSES_AT_MS ? 1917 : 2499));
+  t.mock.timers.setTime(p.FOUNDING_OFFER_CLOSES_AT_MS);
+  assert.ok(foundingPriceLine().includes('₹2,499') && p.TILL_BOARDS_AFTER_FOUNDING_INR === 2499, 'after the deadline the line quotes the after-founding price');
   assert.ok(!line.includes(String(p.PRICE_MONTHLY_FOUNDING_INR)) && !line.includes(String(p.PRICE_MONTHLY_LIST_INR)), 'a month price in the email');
 });
 

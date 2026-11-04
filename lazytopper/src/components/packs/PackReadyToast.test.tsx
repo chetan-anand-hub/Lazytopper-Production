@@ -50,7 +50,9 @@ describe("PACK-READY-1 · toast for a silent signed-in claim", () => {
     expect(toast.textContent).toContain("Your Maths + Science Bundle is ready");
     const link = screen.getByText("Open My packs") as HTMLAnchorElement;
     expect(link.getAttribute("href")).toBe("/packs#my-packs");
-    expect(track.ready).toHaveBeenCalledTimes(1);
+    // FLAKY-1: the toast lives in its own createRoot (outside act), and "shown" is a passive effect of the paint findByTestId
+    // resolved on, so it can land a tick later under CI load. Wait for it, then hold the exact count.
+    await waitFor(() => expect(track.ready).toHaveBeenCalledTimes(1));
     expect(track.ready).toHaveBeenCalledWith("pack_bundle", "toast");
     expect(JSON.stringify(track.ready.mock.calls)).not.toMatch(/order_|\+91|\d{10}/);
   });
@@ -85,7 +87,7 @@ describe("PACK-READY-1 · toast for a silent signed-in claim", () => {
     const toast = await screen.findByTestId("pack-ready-toast");
     expect(toast.textContent).toContain("Your Board Pass is on");
     expect(screen.queryByText("Open My packs")).toBeNull();
-    expect(track.ready).toHaveBeenCalledWith("board_pass", "toast");
+    await waitFor(() => expect(track.ready).toHaveBeenCalledWith("board_pass", "toast")); // FLAKY-1: passive effect, see above
   });
 
   it("nothing claimed -> no toast; on /packs the page's own banner is used (no toast)", async () => {
@@ -103,7 +105,7 @@ describe("PACK-READY-1 · toast for a silent signed-in claim", () => {
   it("reaching /packs by in-app navigation closes the toast and leaks no root; fired once per claim", async () => {
     await claimOncePerSession("u1", { claim: bundle });
     await screen.findByTestId("pack-ready-toast");
-    expect(track.ready).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(track.ready).toHaveBeenCalledTimes(1)); // FLAKY-1: passive effect, see the first test
     act(() => {
       window.history.pushState({}, "", "/practice");
     });
@@ -119,7 +121,7 @@ describe("PACK-READY-1 · toast for a silent signed-in claim", () => {
   it("hides while a PacksShop banner is mounted and comes back (without a second analytics event) when it goes", async () => {
     await claimOncePerSession("u1", { claim: bundle });
     await screen.findByTestId("pack-ready-toast");
-    expect(track.ready).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(track.ready).toHaveBeenCalledTimes(1)); // FLAKY-1: passive effect, see the first test
     let off: () => void = () => undefined;
     act(() => {
       off = registerReadyBanner();

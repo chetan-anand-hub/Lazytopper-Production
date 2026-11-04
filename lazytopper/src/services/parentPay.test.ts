@@ -5,9 +5,6 @@
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  buildAskParentMessage,
-  parentProofFrom,
-  parentProofLine,
   buyPassAsParent,
   daysLeft,
   isParentPayClientEnabled,
@@ -20,6 +17,8 @@ import {
   type ParentBuyDeps,
 } from "./parentPay";
 import type { RazorpayConstructor, RazorpaySuccess } from "./checkout";
+import { buildAskParentMessage, parentProofFrom, parentProofLine } from "./parentPayMessage";
+import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
 
 const TOKEN = "A".repeat(20) + "b-_9" + "c".repeat(19);
 
@@ -263,5 +262,132 @@ describe("TRIAL-SELL-1 - the parent's proof line, from real graded results only"
     expect(text).toContain("पिछले 30 दिनों में इसने मेरे 3 उत्तर जाँचे और 1.5 नंबर पकड़े जो मेरे कट रहे थे (ज़्यादातर लापरवाही की गलतियाँ)।");
     expect(text).not.toContain("उत्तर जाँचे गए हैं");
     expect(parentProofLine({ answers: 2, marksLost: 3, group: null }, "hi")).toBe("पिछले 30 दिनों में इसने मेरे 2 उत्तर जाँचे और 3 नंबर पकड़े जो मेरे कट रहे थे।");
+  });
+});
+
+
+describe("PARENT-PACKS-1 - a link that carries one pack", () => {
+  const url = `https://www.lazytopper.com/pricing#pp=${TOKEN}`;
+
+  it("the Board Pass message says 'Board Pass', never 'Premium' (en + hi)", () => {
+    for (const lang of ["en", "hi"] as const) {
+      const text = buildAskParentMessage({ lang, prices: { month: 599, till_boards: 1917 }, checkedCount: 3, url, days: 3 });
+      expect(text).toContain("Board Pass");
+      expect(text).toContain("₹1,917");
+      expect(text).not.toMatch(/premium/i);
+    }
+    expect(buildAskParentMessage({ lang: "en", prices: { month: null, till_boards: 1917 }, checkedCount: null, url, days: 3 })).toContain(
+      "The Board Pass is ₹1,917 once for everything till my boards.",
+    );
+  });
+
+  it("the pack message names the pack and the SERVER price, once; no Board Pass line, no proof line (en)", () => {
+    const text = buildAskParentPackMessage({ lang: "en", name: "Maths CBQ Pack", priceInr: 199, url, days: 3 });
+    expect(text).toContain("can you get me the Maths CBQ Pack on LazyTopper? It's ₹199, one time");
+    expect(text).toContain(url);
+    expect(text).toContain("(The link works for 3 days.)");
+    expect(text).toContain("don't need to sign up or share any password");
+    expect(text).not.toMatch(/Board Pass|premium|1,917|checked|marks/i);
+  });
+
+  it("the pack message in Hindi carries the same facts", () => {
+    const text = buildAskParentPackMessage({ lang: "hi", name: "Polynomials Chapter Pack", priceInr: 49, url, days: 1 });
+    expect(text).toContain("Polynomials Chapter Pack");
+    expect(text).toContain("₹49");
+    expect(text).toContain(url);
+    expect(text).toContain("1 दिन");
+    expect(text).not.toMatch(/Board Pass|premium|उत्तर जाँचे/i);
+  });
+
+  it("pack names", () => {
+    expect(parentPackName("pack_cbq", "maths")).toBe("Maths CBQ Pack");
+    expect(parentPackName("pack_cbq", "science")).toBe("Science CBQ Pack");
+    expect(parentPackName("pack_subject", "science")).toBe("Science Subject Pack");
+    expect(parentPackName("pack_mock", "maths")).toBe("Maths Mock Pack");
+    expect(parentPackName("pack_chapter", "polynomials", "Polynomials")).toBe("Polynomials Chapter Pack");
+    expect(parentPackName("pack_bundle", undefined)).toBe("Maths + Science Bundle");
+  });
+
+  it("mint for a pack sends ONLY its sku + target with the child's token, and trusts the server's echoed price", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ ok: true, token: TOKEN, expiresAt: "2026-11-07T10:00:00.000Z", pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } }),
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+    const out = await mintParentPackLink({ sku: "pack_cbq", target: "maths" });
+    expect(out.pack).toEqual({ sku: "pack_cbq", target: "maths", priceInr: 199 });
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ pack: { sku: "pack_cbq", target: "maths" } });
+    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer child-id-token");
+  });
+
+  it("a pack mint the server answers WITHOUT the pack (or with another one) is a failure, never a priceless message", async () => {
+    // Review L3: a different echoed TARGET is refused too.
+    for (const pack of [undefined, { sku: "pack_bundle", target: "all", priceInr: 299 }, { sku: "pack_cbq", target: "maths", priceInr: 0 }, { sku: "pack_cbq", target: "science", priceInr: 199 }]) {
+      vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, token: TOKEN, expiresAt: "x", pack }) })));
+      await expect(mintParentPackLink({ sku: "pack_cbq", target: "maths" })).rejects.toBeInstanceOf(ParentLinkError);
+    }
+  });
+
+  it("the parent's pack order sends the token and `product: pack` only — no sku, target, uid or amount", async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, orderId: "order_P1", keyId: "rzp", amountPaise: 19900 }) }));
+    vi.stubGlobal("fetch", fetchMock);
+    await createParentPackOrder(TOKEN);
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ token: TOKEN, product: "pack" });
+    expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
+  });
+
+  it("verify: a pack grant is believed only with the server's `kind: pack`; duplicate passes through; 'owned' is a reason", async () => {
+    const ok = { razorpay_order_id: "o", razorpay_payment_id: "p", razorpay_signature: "ab" };
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, kind: "pack", firstName: "Aarav" }) })));
+    expect(await verifyParentPackPayment(TOKEN, ok)).toEqual({ firstName: "Aarav", duplicate: false });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, kind: "pack", firstName: "Aarav", duplicate: true }) })));
+    expect(await verifyParentPackPayment(TOKEN, ok)).toEqual({ firstName: "Aarav", duplicate: true });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, passEnd: "2027-01-01", firstName: "Aarav" }) })));
+    await expect(verifyParentPackPayment(TOKEN, ok)).rejects.toBeInstanceOf(ParentLinkError);
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 410, json: async () => ({ ok: false, reason: "owned" }) })));
+    await expect(viewParentLink(TOKEN)).rejects.toMatchObject({ reason: "owned" });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, firstName: "A", expiresAt: "x", pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } }) })));
+    expect((await viewParentLinkWithPack(TOKEN)).pack).toEqual({ sku: "pack_cbq", target: "maths", priceInr: 199 });
+  });
+
+  it("buyPackAsParent: order -> Razorpay (pack name on the sheet) -> verify; duplicate and pending pass through; never throws", async () => {
+    const success = { razorpay_order_id: "order_P", razorpay_payment_id: "pay_P", razorpay_signature: "ab" };
+    const opened: Array<Record<string, unknown>> = [];
+    const ctor = class {
+      o: { handler: (r: unknown) => void } & Record<string, unknown>;
+      constructor(o: { handler: (r: unknown) => void } & Record<string, unknown>) { this.o = o; opened.push(o); }
+      open() { this.o.handler(success); }
+      on() { /* payment.failed listener */ }
+    } as never;
+    const deps = (verify: () => Promise<{ firstName: string; duplicate: boolean }>) => ({
+      createOrder: vi.fn(async () => ({ orderId: "order_P", keyId: "rzp", amountPaise: 19900 })),
+      loadScript: async () => ctor,
+      verify,
+    });
+    expect(await buyPackAsParent(TOKEN, "Maths CBQ Pack", deps(async () => ({ firstName: "Aarav", duplicate: false })))).toEqual({
+      status: "paid", passEnd: "", firstName: "Aarav", paymentId: "pay_P", amountInr: 199,
+    });
+    expect(opened[0].description).toBe("Maths CBQ Pack (for your child)");
+    expect(await buyPackAsParent(TOKEN, "X", deps(async () => ({ firstName: "Aarav", duplicate: true })))).toMatchObject({ status: "paid", duplicate: true });
+    expect(await buyPackAsParent(TOKEN, "X", deps(async () => { throw new Error("x"); }))).toEqual({ status: "pending" });
+  });
+});
+
+describe("PARENT-PACKS-1 review - the Bundle's echoed target", () => {
+  it("a Bundle link is accepted with the server's target 'all'", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, token: TOKEN, expiresAt: "x", pack: { sku: "pack_bundle", target: "all", priceInr: 299 } }) })));
+    expect((await mintParentPackLink({ sku: "pack_bundle" })).pack).toEqual({ sku: "pack_bundle", target: "all", priceInr: 299 });
+  });
+});
+
+describe("PARENT-PACKS-1 · the parent page keeps a server pack only when it is well formed", () => {
+  it("withValidPack drops a malformed pack", () => {
+    const base = { firstName: "A", prices: { month: null, till_boards: null }, expiresAt: "x" };
+    expect(withValidPack({ ...base, pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } }).pack).toEqual({ sku: "pack_cbq", target: "maths", priceInr: 199 });
+    expect(withValidPack({ ...base, pack: { sku: "evil", target: "maths", priceInr: 1 } as never }).pack).toBeUndefined();
+    expect(withValidPack({ ...base, pack: { sku: "pack_cbq", target: "maths", priceInr: 0 } }).pack).toBeUndefined();
   });
 });

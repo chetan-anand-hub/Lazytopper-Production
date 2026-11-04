@@ -965,3 +965,71 @@ test('PASS-OWNER · a Board Pass owner buying a pack for someone else: the recip
   assert.equal(db.version('subscriptions/uOwner'), before.version, "the payer's subscription is never written");
   assert.equal(db.read('subscriptions/uFriend'), undefined, 'a pack never writes a pass for the recipient either');
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   REDOWNLOAD-ENFORCE-1 - GET /api/packs/mine stops serving a pack after its re-download date (SERVER clock):
+   paid from 5 Nov 2026 00:00 IST -> until 31 Mar 2027; before (or unknown) -> until 31 May 2027. End of day IST.
+   MUTATION: return `owned` as `packs` again -> every "day after" assertion goes RED.
+   ══════════════════════════════════════════════════════════════════════════════ */
+const istAt = (s) => Date.parse(`${s}+05:30`);
+const PAID_POST = istAt('2026-11-05T00:00:00'); // exactly the cut-off: new terms
+const PAID_PRE = istAt('2026-11-04T23:59:59');
+function redownloadDb() {
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'circles', { paidAt: PAID_PRE, pricePaidInr: 49 });
+  seedPack(db, 'u1', 'pack_mock', 'maths', { paidAt: PAID_POST, pricePaidInr: 99 });
+  seedPack(db, 'u1', 'pack_cbq', 'science', { paidAt: undefined, pricePaidInr: 199 }); // paid time unknown -> 31 May
+  return db;
+}
+async function mineAt(t, nowMs, db = redownloadDb()) {
+  const srv = await start({ db, nowMs, licensees: { u1: { name: 'Asha', email: 'a@example.com' } } });
+  t.after(srv.close);
+  const r = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u1') });
+  assert.equal(r.status, 200, r.text);
+  return { r, srv, db };
+}
+const ids = (list) => (list || []).map((p) => p.packId);
+
+test('REDOWNLOAD · before every date (30 Mar and all of 31 Mar 2027 IST) the response is exactly today\'s: all packs, no endedPacks key', async (t) => {
+  // Reference: the same data served on a day long before any date, past the 7-day pack credit (today's behaviour).
+  const { r: ref } = await mineAt(t, istAt('2026-12-01T10:00:00'));
+  for (const now of [istAt('2027-03-30T12:00:00'), istAt('2027-03-31T23:59:59.999')]) {
+    const { r } = await mineAt(t, now);
+    assert.deepEqual(r.json.packs, ref.json.packs);
+    assert.equal('endedPacks' in r.json, false);
+    assert.equal(r.text, ref.text, 'byte-identical body');
+  }
+  assert.deepEqual(ids(ref.json.packs).sort(), ['pack_cbq:science', 'pack_chapter:circles', 'pack_mock:maths']);
+});
+
+test('REDOWNLOAD · the day after 31 Mar 2027 (1 Apr IST): the post-5-Nov pack leaves `packs` and is reported ended with its date; pre-5-Nov and unknown stay', async (t) => {
+  const { r, srv, db } = await mineAt(t, istAt('2027-04-01T00:00:00'));
+  assert.deepEqual(ids(r.json.packs).sort(), ['pack_cbq:science', 'pack_chapter:circles']);
+  assert.deepEqual(r.json.endedPacks, [
+    { packId: 'pack_mock:maths', sku: 'pack_mock', target: 'maths', paidAt: PAID_POST, redownloadUntil: '31 March 2027', endedAtMs: istAt('2027-03-31T23:59:59.999') },
+  ]);
+  assert.ok(srv.events.includes('packs.mine.redownload_ended'));
+  assert.ok(db.read('packEntitlements/u1/packs/pack_mock:maths'), 'the entitlement document is NOT deleted');
+  assert.equal(JSON.stringify(r.json).includes('p_seed'), false, 'the payment reference stays server-side');
+});
+
+test('REDOWNLOAD · 31 May 2027 (the day) keeps the pre-5-Nov and unknown packs; 1 Jun (the day after) ends them too, entitlements intact', async (t) => {
+  const { r: day } = await mineAt(t, istAt('2027-05-31T23:59:59.999'));
+  assert.deepEqual(ids(day.json.packs).sort(), ['pack_cbq:science', 'pack_chapter:circles']);
+  assert.deepEqual(ids(day.json.endedPacks), ['pack_mock:maths']);
+  const { r: after, db } = await mineAt(t, istAt('2027-06-01T00:00:00'));
+  assert.deepEqual(after.json.packs, []);
+  assert.deepEqual(after.json.endedPacks.map((e) => [e.packId, e.redownloadUntil]).sort(), [
+    ['pack_cbq:science', '31 May 2027'],
+    ['pack_chapter:circles', '31 May 2027'],
+    ['pack_mock:maths', '31 March 2027'],
+  ]);
+  assert.equal(db.keys('packEntitlements/u1').length >= 3, true, 'nothing removed');
+});
+
+test('REDOWNLOAD · the server clock decides: a client-sent date header / query is ignored', async (t) => {
+  const srv = await start({ db: redownloadDb(), nowMs: istAt('2027-04-02T10:00:00'), licensees: { u1: { name: '', email: 'a@example.com' } } });
+  t.after(srv.close);
+  const r = await call(srv.port, 'GET', `${PACKS_MINE_PATH}?now=2026-11-10`, { headers: { ...asUid('u1'), Date: 'Tue, 10 Nov 2026 10:00:00 GMT', 'X-Client-Now': '1762750000000' } });
+  assert.deepEqual(ids(r.json.endedPacks), ['pack_mock:maths']);
+});

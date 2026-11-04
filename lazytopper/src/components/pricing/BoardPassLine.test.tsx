@@ -33,9 +33,9 @@ describe("BoardPassLine and the label helpers", () => {
     expect(screen.getByText(/Try the Board Pass free for 7 days/)).toBeInTheDocument();
     expect(screen.queryByText(/Try everything free/)).toBeNull();
   });
-  it("the upgrade modal shows it", () => {
+  it("the upgrade modal shows it", async () => {
     render(<MemoryRouter><UpgradeModal open onClose={() => {}} featureLabel="X" /></MemoryRouter>);
-    expect(screen.getByTestId("board-pass-line")).toHaveTextContent("Board Pass ₹");
+    expect(await screen.findByTestId("board-pass-line")).toHaveTextContent("Board Pass ₹");
   });
   it("the locked-detail button names the Board Pass price", () => {
     render(<MemoryRouter><LockedDetail scoreLine="7 of 10" /></MemoryRouter>);

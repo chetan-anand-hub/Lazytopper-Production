@@ -1,4 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../services/subscriptionService";
+import { formatPassDate } from "../services/checkout";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
@@ -15,6 +19,52 @@ import TestimonialVideo from "../components/marketing/TestimonialVideo";
 /** PRICING-ONE-1: the shop (My packs, pop-ups, Buy, buy-resume) moved to components/packs/PacksShop; these names stay importable from here. */
 export { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume };
 
+/** PARENT-PACKS-1 (owner, from #1540's report) - the one line a Board Pass (till boards) owner sees at the top of /packs. */
+export const packsBoardPassLine = (dateLabel: string): string => `Your Board Pass is active until ${dateLabel}.`;
+
+/** The running Board Pass's end date label, or null. PURE (the clock is an argument). */
+export function boardPassOwnerLabel(status: SubscriptionStatus | null | undefined, nowMs: number): string | null {
+  if (!status || status.tier !== "premium" || status.plan !== "pass_till_boards") return null;
+  const end = status.passEnd ? Date.parse(status.passEnd) : NaN;
+  if (!Number.isFinite(end) || end <= nowMs) return null;
+  return formatPassDate(status.passEnd);
+}
+
+/**
+ * The cached subscription (as usePaidPremium reads it: no network, no trial side effects), followed on hydration. Signed out -> null,
+ * so the signed-out page (and the prerender) renders nothing here.
+ */
+function useBoardPassOwnerLabel(): string | null {
+  const { user } = useAuth();
+  const uid = user?.uid || "";
+  const [label, setLabel] = useState<string | null>(null);
+  useEffect(() => {
+    if (!uid) {
+      setLabel(null);
+      return undefined;
+    }
+    try {
+      setLabel(boardPassOwnerLabel(loadSubscription(uid), Date.now()));
+    } catch {
+      setLabel(null);
+    }
+    return onSubscriptionHydrated((u, status) => {
+      if (u === uid) setLabel(boardPassOwnerLabel(status, Date.now()));
+    });
+  }, [uid]);
+  return label;
+}
+
+function BoardPassOwnerLine() {
+  const label = useBoardPassOwnerLabel();
+  if (!label) return null;
+  return (
+    <p className="lt-packs__terms lt-packs__terms--hero" role="status" data-testid="packs-board-pass-active">
+      {packsBoardPassLine(label)}
+    </p>
+  );
+}
+
 export default function PacksPage() {
   return (
     <main className="lt-packs" aria-label="LazyTopper PDF packs">
@@ -26,6 +76,7 @@ export default function PacksPage() {
           <div className="lt-packs__copy">
             <p className="lt-packs__kicker">PDF packs · CBSE Board Exam 2027</p>
             <FounderBadge tone="dark" />
+            <BoardPassOwnerLine />
             <h1 id="packs-h1">Every question. Worked solutions.</h1>
             <p className="lt-packs__lede">
               <span className="lt-packs__lede--long">Printable Class 10 Maths and Science question banks. Solve with a pen, then check your work against the worked solutions.</span>

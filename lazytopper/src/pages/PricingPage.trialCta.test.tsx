@@ -216,13 +216,14 @@ describe("T2 · signed in", () => {
     expect(trialStarts()).toBe(0);
   });
 
-  it("premium → no button; \"Your Board Pass is active.\" (PRICING-B-1: one product name)", async () => {
+  // PARENT-PACKS-1 (owner live check 4 Nov): the trial block shows NOTHING for a paid plan (its old line was false for a month pass).
+  it("premium → no trial button and no trial-state line", async () => {
     cloudHolds(PREMIUM);
     authState.user = { uid: UID };
     renderPricing();
     await act(async () => {});
     expect(trialButton()).toBeNull();
-    expect(trialMsg()).toBe("Your Board Pass is active.");
+    expect(screen.queryByTestId("pricing-trial-state")).toBeNull();
     expect(activate).not.toHaveBeenCalled();
   });
 });

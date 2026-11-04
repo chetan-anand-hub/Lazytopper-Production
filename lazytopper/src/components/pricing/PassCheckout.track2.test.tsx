@@ -65,7 +65,7 @@ describe("TRACK-2 · PassCheckout events", () => {
       valueInr: 499,
       transactionId: "pay_ABC123",
     });
-    expect(c.getByText(/Premium is active until/)).toBeTruthy();
+    expect(c.getByText(/Your monthly pass is active until/)).toBeTruthy();
   });
 
   it("FOLLOWUPS-1 A4: paid with paymentId only -> transaction_id = paymentId, value stays the config quote", async () => {

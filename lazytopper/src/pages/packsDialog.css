@@ -60,7 +60,24 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
 
 .lt-pkd__foot { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #eef2f6; padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; }
 .lt-pkd__label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; color: #2f3e55; }
-.lt-pkd__select { height: 50px; width: 100%; border: 1px solid #c5cfdb; border-radius: 12px; padding: 0 12px; font: inherit; font-size: 17px; font-weight: 400; color: #0f1b2d; background: #fff; }
+/* PARENT-PACKS-1 (owner 4 Nov): the chapter picker reads as a DROPDOWN - product-green border, a CSS chevron, ink text, hover and
+   focus states, and a soft green ring + tint until a chapter is chosen. Native <select> (keyboard / screen-reader as before). */
+.lt-pkd__selwrap { position: relative; display: block; border-radius: 12px; }
+.lt-pkd__selwrap::after {
+  content: ""; position: absolute; right: 16px; top: 50%; width: 10px; height: 10px; margin-top: -7px; pointer-events: none;
+  border-right: 2.5px solid #0e7c47; border-bottom: 2.5px solid #0e7c47; transform: rotate(45deg);
+}
+.lt-pkd__select {
+  height: 50px; width: 100%; border: 2px solid #0e7c47; border-radius: 12px; padding: 0 44px 0 12px; font: inherit; font-size: 17px;
+  font-weight: 600; color: #0f1b2d; background: #fff; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+}
+.lt-pkd__select:hover { background: #f3faf6; }
+.lt-pkd__select:focus-visible { outline: 3px solid #0e7c47; outline-offset: 2px; }
+.lt-pkd__selwrap.is-empty .lt-pkd__select { background: #eef8f2; box-shadow: 0 0 0 4px rgba(14, 124, 71, 0.18); }
+.lt-pkd__selwrap.is-empty .lt-pkd__select:hover { background: #e3f4ea; }
+@media (prefers-reduced-motion: no-preference) {
+  .lt-pkd__select { transition: background-color 0.15s ease, box-shadow 0.15s ease; }
+}
 .lt-pkd__seg { display: grid; grid-template-columns: 1fr 1fr; background: #eef2f6; border-radius: 12px; padding: 4px; gap: 4px; }
 .lt-pkd__seg button { height: 44px; border: 0; border-radius: 9px; background: transparent; color: #0f1b2d; font: inherit; font-weight: 600; font-size: 16px; cursor: pointer; }
 .lt-pkd__seg button.is-on { background: #15233a; color: #fff; }

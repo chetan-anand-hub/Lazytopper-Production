@@ -40,7 +40,7 @@ import { PacksEntry } from "../../lib/packs/packEntryLazy";
  */
 export function MobileAccountMenu() {
   const { user, logout } = useAuth();
-  const { tier, isTrialActive, isTrialExpired, daysLeftInTrial } = useSubscription();
+  const { tier, isTrialActive, isTrialExpired, daysLeftInTrial, status: subscription } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -110,7 +110,14 @@ export function MobileAccountMenu() {
   const identitySubLabel = user.email || user.phoneNumber || "Signed in account";
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
   const manageSubscriptionUrl = `/pricing?source=account-menu&returnTo=${encodeURIComponent(returnTo)}`;
-  const status = deriveAccountStatus({ tier, isTrialActive, isTrialExpired, daysLeftInTrial });
+  const status = deriveAccountStatus({
+    tier,
+    isTrialActive,
+    isTrialExpired,
+    daysLeftInTrial,
+    plan: subscription?.plan,
+    passEnd: subscription?.passEnd,
+  });
 
   const handleLogout = async () => {
     setOpen(false);

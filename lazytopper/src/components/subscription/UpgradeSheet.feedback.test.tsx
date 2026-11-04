@@ -31,13 +31,15 @@ function sheet() {
   return { onClose, order };
 }
 
-function modal() {
+// PERF-TRIM-1: UpgradeModal is a slot that fetches its sheet on first open; wait for it.
+async function modal() {
   const onClose = vi.fn();
   render(
     <MemoryRouter>
       <UpgradeModal open onClose={onClose} featureLabel="Full Access" />
     </MemoryRouter>,
   );
+  await screen.findByTestId("upgrade-modal-keep-basic");
   return { onClose };
 }
 
@@ -62,21 +64,21 @@ describe("UpgradeSheet — paywall moment", () => {
 });
 
 describe("UpgradeModal — paywall moment", () => {
-  it("Keep using Basic, the corner close and the backdrop each close and ask once", () => {
-    const { onClose } = modal();
+  it("Keep using Basic, the corner close and the backdrop each close and ask once", async () => {
+    const { onClose } = await modal();
     fireEvent.click(screen.getByTestId("upgrade-modal-keep-basic"));
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(notifyPaywallDismissed).toHaveBeenCalledTimes(1);
     cleanup();
     notifyPaywallDismissed.mockClear();
-    const m2 = modal();
+    const m2 = await modal();
     fireEvent.click(screen.getByText("✕"));
     expect(m2.onClose).toHaveBeenCalledTimes(1);
     expect(notifyPaywallDismissed).toHaveBeenCalledTimes(1);
   });
 
-  it("Choose Plan is not a dismissal: no ask", () => {
-    modal();
+  it("Choose Plan is not a dismissal: no ask", async () => {
+    await modal();
     fireEvent.click(screen.getByRole("button", { name: /choose plan|view plans/i }));
     expect(notifyPaywallDismissed).not.toHaveBeenCalled();
   });

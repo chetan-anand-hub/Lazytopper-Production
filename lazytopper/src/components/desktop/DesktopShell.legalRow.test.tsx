@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { act, render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach, beforeAll } from "vitest";
+import { act, render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
 /**
@@ -35,6 +35,12 @@ vi.mock("./MistakeIntelCard", () => ({
 
 import * as analytics from "../../analytics/analytics";
 import { DesktopShell } from "./DesktopShell";
+
+// FLAKY-1: warm the lazy chunk(s) once, before the first test, so no test's findBy* window pays the cold transform + import
+// (under parallel load that alone ran past the 5 s findBy budget). The component still loads them through its own lazy().
+beforeAll(async () => {
+  await import("../account/SettingsModal");
+}, 60_000);
 
 afterEach(() => {
   cleanup();
@@ -116,14 +122,16 @@ describe("DesktopShell account dropdown — SETTINGS-1 · one Settings entry" , 
     await screen.findByRole("dialog", { name: "Settings" });
     fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
     expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
-    expect(screen.getByRole("dialog", { name: "Sign-in methods" })).toBeTruthy();
+    expect(await screen.findByRole("dialog", { name: "Sign-in methods" })).toBeTruthy(); // PERF-TRIM-1: lazy sheet
   });
 
   it("closing Settings returns focus to the avatar and restores page scroll", async () => {
     signInAndOpenMenu();
     fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
     await screen.findByRole("dialog", { name: "Settings" });
-    expect(document.body.style.overflow).toBe("hidden");
+    // FLAKY-1: the lazy Settings window locks scroll and binds Escape in passive effects of the paint findByRole resolved on;
+    // wait for the lock (the same commit's effects) before pressing Escape, rather than race them.
+    await waitFor(() => expect(document.body.style.overflow).toBe("hidden"));
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Open account menu" }));

@@ -219,7 +219,8 @@ describe("LinkPhoneNudge — the CTA", () => {
 
     await userEvent.click(screen.getByTestId("link-phone-nudge-cta"));
 
-    // The modal is a dialog; its presence is the assertion, not its copy.
-    expect(screen.getByRole("dialog")).toBeTruthy();
+    // The modal is a dialog; its presence is the assertion, not its copy. PERF-TRIM-1: the
+    // modal's body is fetched on first open, so wait for it.
+    expect(await screen.findByRole("dialog")).toBeTruthy();
   });
 });
