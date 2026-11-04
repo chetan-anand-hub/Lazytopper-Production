@@ -6,8 +6,7 @@ import { UpgradeModal } from "../UpgradeModal";
 import PaywallActions from "../pricing/PaywallActions";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { TRIAL_WORDING } from "../pricing/BasicFreeList";
-import FounderBadge from "../brand/FounderBadge";
-import BoardPassLockCard from "../lock/BoardPassLockCard";
+import BoardPassLockCard, { LockCredential } from "../lock/BoardPassLockCard";
 import { CONTINUE_WITH_BASIC, LOCK_TRIAL_LINE, lockHeadline } from "../lock/lockCopy";
 import "../lock/lockPage.css";
 import { isSafeInternalPath } from "../../utils/safeInternalPath";
@@ -194,7 +193,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
               />
             )}
           </BoardPassLockCard>
-          <FounderBadge tone="dark" />
+          <LockCredential />
           <button type="button" className="lt-lock__basic" data-testid="lock-continue-basic" onClick={continueWithBasic}>
             {CONTINUE_WITH_BASIC}
           </button>

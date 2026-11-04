@@ -260,8 +260,8 @@ describe("T4 / P10 — every lock a signed-in Basic student meets on Check & Imp
     expect(container.textContent).not.toContain("Free on Basic");
     for (const label of BASIC_FREE_LABELS) expect(container.textContent).not.toContain(label);
     expect(FREE_FEATURES.length).toBeGreaterThan(0);
-    const ticks = screen.getByTestId("lock-ticks").querySelectorAll("li");
-    expect(ticks[0].textContent).toContain("Answer Checker");
+    // The card's ticks load in their own chunk; their order is pinned in components/lock/RequirePremiumLock.test.tsx.
+    expect(screen.getByTestId("lock-board-pass-card")).toBeInTheDocument();
     expect(screen.getByTestId("lock-continue-basic").textContent).toBe("Continue with Basic");
   }
 

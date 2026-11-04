@@ -8,7 +8,8 @@
  * ★ The tutor tick does not use the word "ask": PaywallActions.surfaces.test pins that no "ask ... parent" phrase appears on a lock
  *   other than the action's own label.
  * ★ NO REFUND WORDING, ever. One product name in visible copy: the Board Pass.
- * ★ PURE: no React, no services - RequireAuth sits near the entry chunk.
+ * ★ PURE: no React, no services - RequireAuth sits in the entry chunk (PERF-3 budget). The card's ticks live in lockTicks.ts, which
+ *   only the lazy card details import.
  */
 import { BOARD_PASS_NAME } from "../../config/pricing";
 
@@ -28,20 +29,8 @@ export function lockHeadline(featureLabel?: string): string {
   return `${lockFeatureName(featureLabel)} comes with the ${BOARD_PASS_NAME}`;
 }
 
-/** The Board Pass's star features, Answer Checker FIRST. The name before the dash is bold (`strong`). */
-export const LOCK_TICKS: ReadonlyArray<{ id: string; strong?: string; text: string }> = [
-  { id: "checker", strong: "Answer Checker", text: " — every written answer marked step by step, like a CBSE examiner" },
-  { id: "mi", strong: "Mistake Intelligence", text: " — see exactly why you lose marks, topic by topic" },
-  { id: "tutor", strong: "AI tutor", text: " — clears your doubts on any question, any time" },
-  { id: "graded", text: "Chapter tests, worksheets and full board mocks graded, not just downloaded" },
-  { id: "papers", text: "Unlimited chapter tests and mocks to open or download" },
-];
-
 /** The card's name. */
 export const LOCK_CARD_TITLE = BOARD_PASS_NAME;
-
-/** The word in front of "till your boards (Feb 2027)" beside the price (the same word /pricing uses). */
-export const LOCK_ONCE = "once";
 
 /** Under the headline, only for a student who can still start the free week (the trial button shows below, as before). */
 export const LOCK_TRIAL_LINE = `Try the ${BOARD_PASS_NAME} free for 7 days.`;

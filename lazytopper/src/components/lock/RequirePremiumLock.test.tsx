@@ -46,7 +46,8 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 import { RequirePremium } from "../auth/RequireAuth";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
 import { boardPassFoundingLabel, boardPassFromLine, boardPassPriceDisplay } from "../../config/pricing";
-import { CONTINUE_WITH_BASIC, LOCK_TICKS, lockHeadline } from "./lockCopy";
+import { CONTINUE_WITH_BASIC, lockHeadline } from "./lockCopy";
+import { LOCK_TICKS } from "./lockTicks";
 
 function Where() {
   const l = useLocation();
@@ -74,6 +75,9 @@ async function mount(featureLabel: string, entries: string[] = ["/check-improve?
       await new Promise((r) => setTimeout(r, 0));
     });
   }
+  // The card's details and the credential line load in their own chunk (PERF-3); a cold first import can take a while.
+  await screen.findByTestId("lock-ticks", undefined, { timeout: 10_000 });
+  await screen.findByTestId("founder-badge", undefined, { timeout: 10_000 });
   return utils;
 }
 

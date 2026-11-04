@@ -127,3 +127,5 @@
   .lt-lock__title { font-size: 1.6rem; }
   .lt-lock__card { padding: 22px 22px 18px; }
 }
+/* While the card's details chunk loads, hold roughly their height so the actions do not jump. */
+.lt-lock__details-slot { min-height: 300px; }
