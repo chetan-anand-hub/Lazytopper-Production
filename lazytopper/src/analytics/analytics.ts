@@ -812,6 +812,8 @@ export type NamedAnalyticsEvent =
   | "tutor_from_scorecard"
   // TUTOR-FIX-2 T13 — the first message a student sends in a tutor thread (once per thread).
   | "tutor_first_message"
+  // SMALL-FIXES-1 — a worksheet's save-for-later failed (reason class only). Names only.
+  | "worksheet_save_failed"
   // TRIAL-END-1 — the trial-ending Home banner (trial days 5 to 7): shown (once per tab per IST
   // day) and a tap on one of its actions (a two-value cta, never an id or a count).
   | "trial_banner_shown"
@@ -1213,6 +1215,9 @@ export type ScorecardSurface = "quick_practice" | "check_improve" | "chapter_tes
 export type PendingUploadSurface = "worksheet" | "chapter_test" | "full_mock" | "quick_practice";
 /** HOME-PENDING-1 — where the pending list was: the Home action strip or the header bell. */
 export type PendingPlacement = "strip" | "bell";
+/** SMALL-FIXES-1 — why a worksheet's save-for-later did not happen: the write failed, the student was
+ *  not signed in (nothing can be stored), or every freshly minted code collided. */
+export type WorksheetSaveFailReason = "write_failed" | "signed_out" | "code_collision";
 
 /** ACTIVATION-2 A — which focused first-run surface was shown: absent = the practice picker
  *  (every page before), "check_one" = Check & Improve's "Check one answer" takeover. */
@@ -1235,6 +1240,9 @@ export interface OnboardingEventParams {
   tutor_from_scorecard: { surface: ScorecardSurface };
   /** TUTOR-FIX-2 T13 — once per tutor thread: the subject and the board chapter slug only. */
   tutor_first_message: { subject: string; chapter: string };
+  /** SMALL-FIXES-1 — a worksheet's save-for-later (pending card + saved copy) did not happen. A closed
+   *  reason class only: no code, no id, no text. */
+  worksheet_save_failed: { reason: WorksheetSaveFailReason };
 }
 
 export type OnboardingEvent = keyof OnboardingEventParams;

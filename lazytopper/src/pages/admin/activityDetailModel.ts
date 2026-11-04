@@ -144,6 +144,7 @@ const EVENT_LABELS: Record<string, string> = {
   tutor_from_scorecard: "Opened the tutor from a scorecard",
   // TUTOR-FIX-2 T13.
   tutor_first_message: "Sent a first tutor message",
+  worksheet_save_failed: "A worksheet could not be saved for later",
   trial_banner_shown: "Saw the trial-ending banner",
   trial_banner_click: "Tapped the trial-ending banner",
   trial_end_screen_shown: "Saw the trial-ended screen",
