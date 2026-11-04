@@ -26,10 +26,11 @@ describe("BoardPassLine and the label helpers", () => {
     expect(boardPassCtaLabel()).toBe(`Board Pass ${price} →`);
     expect(boardPassCtaLabel(null)).toBe("Board Pass →");
   });
-  it("the Premium lock shows it, says 'Try Premium free', and not 'everything'", () => {
+  // LOCK-SELL-1: the lock's Board Pass card carries the price now (the one-line BoardPassLine left the lock).
+  it("the Premium lock shows the Board Pass price, says 'Try the Board Pass free', and not 'everything'", async () => {
     render(<MemoryRouter><RequirePremium featureLabel="Tutor"><div>in</div></RequirePremium></MemoryRouter>);
-    expect(screen.getByTestId("board-pass-line")).toBeInTheDocument();
-    expect(screen.getByText(/Try Premium free for 7 days/)).toBeInTheDocument();
+    expect(await screen.findByTestId("lock-amount")).toHaveTextContent(boardPassPriceNow()!);
+    expect(screen.getByText(/Try the Board Pass free for 7 days/)).toBeInTheDocument();
     expect(screen.queryByText(/Try everything free/)).toBeNull();
   });
   it("the upgrade modal shows it", () => {

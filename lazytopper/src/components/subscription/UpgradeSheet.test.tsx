@@ -162,8 +162,8 @@ function LocationProbe() {
 }
 
 describe("UpgradeSheet — two exits, and only one of them navigates", () => {
-  /** ★ ASSERTION 5. MUTATION: delete the "Keep using Basic" button ⇒ RED. */
-  it("'Keep using Basic' closes the sheet and does NOT navigate", () => {
+  /** ★ ASSERTION 5. MUTATION: delete the "Continue with Basic" exit ⇒ RED. */
+  it("'Continue with Basic' closes the sheet and does NOT navigate", () => {
     const onClose = vi.fn();
     render(
       <MemoryRouter initialEntries={["/practice?topic=light"]}>
@@ -171,17 +171,20 @@ describe("UpgradeSheet — two exits, and only one of them navigates", () => {
         <LocationProbe />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Keep using Basic" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue with Basic" }));
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("loc")).toHaveTextContent("/practice?topic=light");
   });
 
-  /** ★ It is a real BUTTON, equally weighted — not a subdued dismissal link. */
-  it("'Keep using Basic' is a real button, not a text link", () => {
+  /** LOCK-SELL-1 (owner, 4 Nov 2026): Basic is ONE quiet way out at the bottom, after the Board Pass - not a rival button. */
+  it("'Continue with Basic' is the quiet dismiss, the last control in the sheet", () => {
     renderSheet();
-    const basic = screen.getByRole("button", { name: "Keep using Basic" });
+    const basic = screen.getByRole("button", { name: "Continue with Basic" });
     expect(basic.tagName).toBe("BUTTON");
-    expect(basic).toHaveClass("lt-upsheet__basic");
+    expect(basic).toHaveClass("lt-upsheet__dismiss");
+    expect(screen.queryByRole("button", { name: "Keep using Basic" })).toBeNull();
+    const buttons = screen.getByTestId("upgrade-sheet").querySelectorAll("button");
+    expect(buttons[buttons.length - 1]).toBe(basic);
   });
 
   /** ASSERTION 6 — the CONTROL for the negative above: this exit DOES navigate. */
@@ -205,7 +208,7 @@ describe("UpgradeSheet — two exits, and only one of them navigates", () => {
     );
   });
 
-  it("the backdrop is the same exit as 'Keep using Basic'", () => {
+  it("the backdrop is the same exit as 'Continue with Basic'", () => {
     const { onClose } = renderSheet();
     fireEvent.click(screen.getByTestId("upgrade-sheet-scrim"));
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -257,14 +260,11 @@ describe("UpgradeSheet — copy, price and treatment", () => {
     expect(screen.getByText("Checking your answer is a Premium feature")).toBeInTheDocument();
   });
 
-  it("★ keeps 'Nothing you've done is locked' — the sentence that answers the real fear", () => {
+  // LOCK-SELL-1 (owner, 4 Nov 2026): the sheet no longer markets Basic - the "You keep Basic free, always ..." box is gone.
+  it("does not list what Basic keeps (the Board Pass leads; Basic is the quiet exit only)", () => {
     renderSheet();
-    expect(screen.getByText(/Nothing you.{0,3}ve done is locked/)).toBeInTheDocument();
-  });
-
-  it("names what Basic KEEPS", () => {
-    renderSheet();
-    expect(screen.getByText(/Basic free, always/)).toBeInTheDocument();
+    expect(screen.queryByText(/Basic free, always/)).toBeNull();
+    expect(screen.getByTestId("upgrade-sheet-board-pass")).toBeInTheDocument();
   });
 
   /** §2d — a date only when known. */

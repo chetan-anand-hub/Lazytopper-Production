@@ -49,14 +49,14 @@ describe("RequirePremium tutor gate - CBQ Pack bonus (CBQ-TUTOR-GATE-1)", () => 
     fetchMyPacks.mockResolvedValue(packs({ used: 1, left: 2, limit: 3 }));
     gate();
     await screen.findByText("TUTOR_CHILD");
-    expect(screen.queryByText("Premium Feature")).toBeNull();
+    expect(screen.queryByText(/comes with the Board Pass/)).toBeNull();
   });
 
   it("pack owner with 0 left sees the lock", async () => {
     hydrate.mockResolvedValue(FREE);
     fetchMyPacks.mockResolvedValue(packs({ used: 3, left: 0, limit: 3 }));
     gate();
-    await screen.findByText("Premium Feature");
+    await screen.findByText(/comes with the Board Pass/);
     expect(screen.queryByText("TUTOR_CHILD")).toBeNull();
   });
 
@@ -64,7 +64,7 @@ describe("RequirePremium tutor gate - CBQ Pack bonus (CBQ-TUTOR-GATE-1)", () => 
     hydrate.mockResolvedValue(FREE);
     fetchMyPacks.mockResolvedValue(packs());
     gate();
-    await screen.findByText("Premium Feature");
+    await screen.findByText(/comes with the Board Pass/);
     expect(screen.queryByText("TUTOR_CHILD")).toBeNull();
   });
 
@@ -72,7 +72,7 @@ describe("RequirePremium tutor gate - CBQ Pack bonus (CBQ-TUTOR-GATE-1)", () => 
     hydrate.mockResolvedValue(FREE);
     fetchMyPacks.mockRejectedValue(new Error("boom"));
     gate();
-    await screen.findByText("Premium Feature");
+    await screen.findByText(/comes with the Board Pass/);
   });
 
   it("premium reaches the tutor and makes no pack request", async () => {
@@ -88,7 +88,7 @@ describe("RequirePremium tutor gate - CBQ Pack bonus (CBQ-TUTOR-GATE-1)", () => 
     gate();
     await screen.findByText("Checking your session...");
     await waitFor(() => expect(fetchMyPacks).toHaveBeenCalled());
-    expect(screen.queryByText("Premium Feature")).toBeNull();
+    expect(screen.queryByText(/comes with the Board Pass/)).toBeNull();
     expect(screen.queryByText("TUTOR_CHILD")).toBeNull();
   });
 
@@ -105,7 +105,7 @@ describe("RequirePremium tutor gate - CBQ Pack bonus (CBQ-TUTOR-GATE-1)", () => 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(CBQ_GATE_WAIT_MS + 100);
       });
-      expect(screen.getByText("Premium Feature")).toBeInTheDocument();
+      expect(screen.getByText(/comes with the Board Pass/)).toBeInTheDocument();
       expect(screen.queryByText("TUTOR_CHILD")).toBeNull();
     } finally {
       vi.useRealTimers();
@@ -116,7 +116,7 @@ describe("RequirePremium tutor gate - CBQ Pack bonus (CBQ-TUTOR-GATE-1)", () => 
     hydrate.mockResolvedValue(FREE);
     fetchMyPacks.mockResolvedValue(packs({ used: 0, left: 3, limit: 3 }));
     gate("Weak Area Practice");
-    await screen.findByText("Premium Feature");
+    await screen.findByText(/comes with the Board Pass/);
     expect(fetchMyPacks).not.toHaveBeenCalled();
     expect(screen.queryByText("TUTOR_CHILD")).toBeNull();
   });

@@ -299,8 +299,8 @@ describe("GATE-3 - the locked CTA is information, not a dead end", () => {
     // `labelForFeature` from the SAME feature code the server sends in its 402 body -
     // so the pre-emptive path and the refusal path cannot explain one boundary two ways.
     expect(within(sheet).getByText("Checking your answer is a Premium feature")).toBeInTheDocument();
-    // ★ Two exits. "Keep using Basic" is a real choice, not a dismissal.
-    expect(within(sheet).getByRole("button", { name: "Keep using Basic" })).toBeInTheDocument();
+    // ★ Two exits. LOCK-SELL-1: Basic's is the quiet "Continue with Basic".
+    expect(within(sheet).getByRole("button", { name: "Continue with Basic" })).toBeInTheDocument();
   });
 
   it("tapping it does NOT navigate - the sheet never leaves the page the work is on", () => {

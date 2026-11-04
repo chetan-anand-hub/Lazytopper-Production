@@ -1,7 +1,6 @@
 /**
  * TRIAL-ON-SIGNUP-1 · T4 — the Basic list is ONE source, Pricing's wording is unchanged,
- * and the RequirePremium lock (every route that uses it) shows "Free on Basic:" under its
- * current message.
+ * and (LOCK-SELL-1) the RequirePremium lock no longer shows the "Free on Basic:" list.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
@@ -74,9 +73,10 @@ describe("Pricing's Basic line (PRICING-B-1: the separate Basic card is gone; Ba
   });
 });
 
-describe("RequirePremium — 'Free on Basic:' under the current message, on every gated feature", () => {
+// LOCK-SELL-1 (owner, 4 Nov 2026): the full-page lock sells the Board Pass; it no longer lists what is free on Basic.
+describe("RequirePremium — no 'Free on Basic:' list, on every gated feature (LOCK-SELL-1)", () => {
   for (const featureLabel of ["Answer Checker", "Ask the tutor", "Exam Simulation", undefined]) {
-    it(`${featureLabel ?? "(no label)"}: the message stays, the Basic list follows it`, async () => {
+    it(`${featureLabel ?? "(no label)"}: the Board Pass headline, no Basic list, one quiet 'Continue with Basic'`, async () => {
       H.user = { uid: "u1" };
       const { container } = render(
         <MemoryRouter>
@@ -85,17 +85,12 @@ describe("RequirePremium — 'Free on Basic:' under the current message, on ever
           </RequirePremium>
         </MemoryRouter>,
       );
-      // The tutor gate holds on "Checking your session" for a tick; wait for the lock, then assert as before.
-      await waitFor(() => expect(container.textContent).toContain(`${featureLabel || "This feature"} is part of Premium.`));
+      await waitFor(() => expect(screen.getByTestId("lock-title").textContent).toMatch(/comes with the Board Pass$/));
       expect(container.textContent).not.toContain("premium content");
-      const list = screen.getByTestId("basic-free-list");
-      expect(list.textContent).toContain("Free on Basic:");
-      for (const label of BASIC_FREE_LABELS) expect(list.textContent).toContain(label);
-      // only what is free — never a Premium row
-      for (const f of FREE_FEATURES.filter((x) => !x.included)) expect(list.textContent).not.toContain(f.label);
-      // order: the message paragraph comes BEFORE the list
-      const msg = Array.from(container.querySelectorAll("p")).find((p) => p.textContent?.includes("is part of Premium"));
-      expect(msg!.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(screen.queryByTestId("basic-free-list")).toBeNull();
+      expect(container.textContent).not.toContain("Free on Basic");
+      for (const label of BASIC_FREE_LABELS) expect(container.textContent).not.toContain(label);
+      expect(screen.getByTestId("lock-continue-basic").textContent).toBe("Continue with Basic");
     });
   }
 
