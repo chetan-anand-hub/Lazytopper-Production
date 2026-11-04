@@ -144,6 +144,7 @@ const EVENT_LABELS: Record<string, string> = {
   tutor_from_scorecard: "Opened the tutor from a scorecard",
   // TUTOR-FIX-2 T13.
   tutor_first_message: "Sent a first tutor message",
+  worksheet_save_failed: "A worksheet could not be saved for later",
   trial_banner_shown: "Saw the trial-ending banner",
   trial_banner_click: "Tapped the trial-ending banner",
   trial_end_screen_shown: "Saw the trial-ended screen",
@@ -170,6 +171,8 @@ const EVENT_LABELS: Record<string, string> = {
   download_start: "Started a paper download",
   download_blocked: "Was stopped by the weekly download limit",
   download_wall_shown: "Saw the download limit screen",
+  grade_route_offer_shown: "Answer Checker offered to grade their own paper on its own page",
+  grade_route_offer_accepted: "Took the offer to grade their own paper on its own page",
   grade_blocked: "Was stopped by the daily graded-practice limit",
   scorecard_lock_shown: "Saw the locked answer-by-answer breakdown",
   parent_report_shared: "Shared a result link with parents",

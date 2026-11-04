@@ -957,6 +957,33 @@ export default function FullMockPage() {
     })();
   }, [reviewParam, authLoading, reviewUid, location.pathname, location.search, location.state, navigate, openStored]);
 
+  // GRADE-ROUTE-1 - `?upload=<code>` opens THAT pending mock's upload, exactly like the pending banner's
+  // Upload button (`openPendingUpload`: attaches to the EXISTING record, never a new one). Used by Home, the
+  // bell and the Answer Checker's "grade it on its own page" offer. Consumed once and stripped with `replace`.
+  // Signed out (kept for after login) / unknown / not this student's / already graded -> the normal page.
+  const uploadParam = sp.get("upload");
+  const uploadConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!uploadParam || authLoading || !reviewUid) return;
+    if (uploadConsumedRef.current === uploadParam) return;
+    uploadConsumedRef.current = uploadParam;
+    const rest = new URLSearchParams(location.search);
+    rest.delete("upload");
+    const q = rest.toString();
+    navigate({ pathname: location.pathname, search: q ? `?${q}` : "" }, { replace: true, state: location.state });
+    void (async () => {
+      try {
+        const own = (r: SessionRecord) =>
+          r.id === uploadParam && r.surface === "full-mock" && r.status !== "graded" && recordBelongsToUid(r, reviewUid);
+        const record = (await getSessionRecordsFromCloud(reviewUid)).find(own);
+        if (record) await openPendingUpload(record);
+      } catch {
+        /* honest fallback: the plain page */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadParam, authLoading, reviewUid]);
+
   // The live (just graded) mock's saved record — only once it is in the student's store and holds
   // THIS grade (same graded marks), and only while the paper on screen is the record's paper.
   const liveRecord = useMemo(

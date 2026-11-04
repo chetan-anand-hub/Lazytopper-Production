@@ -114,6 +114,8 @@ export const ACTIVITY_EVENTS = [
   "tutor_from_scorecard",
   // TUTOR-FIX-2 T13 — once per tutor thread. Additive.
   "tutor_first_message",
+  // SMALL-FIXES-1 — a worksheet's save-for-later failed (reason class only). Additive.
+  "worksheet_save_failed",
   // TRIAL-END-1 — the trial-ending Home banner. Additive.
   "trial_banner_shown",
   "trial_banner_click",
@@ -189,6 +191,8 @@ export const ACTIVITY_EVENTS = [
   "download_start",
   "download_blocked",
   "download_wall_shown",
+  "grade_route_offer_shown",
+  "grade_route_offer_accepted",
   "grade_blocked",
   "scorecard_lock_shown",
   // PARENT-REPORT-1 — the student shared a link to one result with a parent. Additive.

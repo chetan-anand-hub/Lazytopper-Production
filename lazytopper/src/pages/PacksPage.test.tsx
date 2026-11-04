@@ -164,9 +164,9 @@ describe("PacksPage", () => {
     expect(slides[0].textContent).toContain("What you get");
     expect(slides[0].textContent).toContain("Standard (041)");
     expect(slides.slice(1).map((s) => s.querySelector("img")?.getAttribute("src"))).toEqual([
-      "/packs/pack-cover-480.webp",
-      "/packs/pack-questions-480.webp",
-      "/packs/pack-answer-key-480.webp",
+      "/packs/previews/mock-maths-cover-480.webp",
+      "/packs/previews/mock-maths-questions-480.webp",
+      "/packs/previews/mock-maths-answer-key-480.webp",
     ]);
     expect(slides[1].querySelector("img")?.getAttribute("srcset")).toContain("827w");
     expect(slides[1].querySelector("img")?.getAttribute("width")).toBe("827");

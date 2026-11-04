@@ -829,6 +829,7 @@ async function handleRequest(req, res) {
     return accountExportRoutes.handleExport(req, res);
   }
   if (req.method === 'POST' && reqPath === '/api/activity') return require('./routes/studentActivity.cjs').handleStudentActivity(req, res, { sendJson, firebaseAdmin, adminFirestore }); // STUDENT-ACTIVITY-1: signed-in students' section/event counts (first-party, admin-only; see the module)
+  if (req.method === 'POST' && reqPath === '/api/trial/ensure-signup') return require('./routes/trialEnsure.cjs').handleEnsureSignupTrialRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // TRIAL-SAVE-1: restores a NEW (<24h) account's sign-up trial whose browser write was lost; create-only transaction, verified uid, never for an older account (see the module)
   if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
   if ((req.method === 'GET' || req.method === 'POST') && reqPath === TRIAL_EMAIL_UNSUBSCRIBE_PATH) return trialEndingEmailer.handleUnsubscribe(req, res, reqUrlRaw); // TRIAL-END-1: the trial email's unsubscribe link (HMAC token; GET confirms, POST records; see services/trialEndingEmail.cjs)
 
