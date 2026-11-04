@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, ty
 import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../services/packs";
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel } from "../lib/packs/packLabels";
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
+import { PREVIEW_FALLBACK_CAPTION, PREVIEW_H, PREVIEW_W, packPreviewFor, previewCaption, previewImage, previewShows, type PreviewPage } from "../lib/packs/packPreviews";
 import PackSampleLink from "../components/packs/PackSampleLink";
 import "./packsDialog.css";
 
@@ -46,19 +47,11 @@ const TITLES: Record<PackSku, { name: string; line: string }> = {
   pack_cbq: { name: "CBQ Pack", line: "About half your 2027 paper is competency-based. Curated CBQs, chapter-wise and topic-wise — MCQ, assertion-reason, short, case study and long answer, Sections A to E." },
 };
 
-const IMG_BASE = "/packs";
-const SLIDES: ReadonlyArray<{ file: string; alt: string; num: string; bold: string; rest: string }> = [
-  { file: "pack-cover", alt: "The PDF cover page with the buyer's name", num: "2", bold: "Your cover", rest: ", your name on every page" },
-  { file: "pack-questions", alt: "A question page in board order", num: "3", bold: "Questions", rest: ", board order, A to E" },
-  { file: "pack-answer-key", alt: "An answer-key page with worked solutions", num: "4", bold: "Answer key", rest: " with worked solutions" },
+const SLIDES: ReadonlyArray<{ page: PreviewPage; alt: string; num: string; bold: string; rest: string }> = [
+  { page: "cover", alt: "The PDF cover page with the buyer's name", num: "2", bold: "Your cover", rest: ", your name on every page" },
+  { page: "questions", alt: "A question page in board order", num: "3", bold: "Questions", rest: ", board order, A to E" },
+  { page: "answer-key", alt: "An answer-key page with worked solutions", num: "4", bold: "Answer key", rest: " with worked solutions" },
 ];
-const SLIDE_COUNT = SLIDES.length + 1;
-
-/**
- * PACK-DIALOG-1 - the three preview pages are from a Maths Chapter Pack (Real Numbers) and are shown for every pack: say so.
- * [FU-PACK-PREVIEW-PER-SUBJECT] - real per-pack images.
- */
-export const PREVIEW_CAPTION = "Sample pages from a Maths Chapter Pack — your pack has the same layout";
 
 /** PARENT-PACKS-1 - the picker's empty option (the chevron is drawn by CSS beside it). */
 export const CHAPTER_PLACEHOLDER = "Choose a chapter";
@@ -78,6 +71,10 @@ export default function PackDialog(props: PackDialogProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
+  // PACK-PREVIEW-1: the preview pages of THIS pack's kind and subject (a chapter pack follows its picked chapter's subject).
+  const preview = packPreviewFor(sku, subject, chapter);
+  const slides = preview ? SLIDES : [];
+  const SLIDE_COUNT = slides.length + 1;
   const startSlide = Math.max(0, Math.min(SLIDE_COUNT - 1, Number.isInteger(initialSlide) ? (initialSlide as number) : 0));
   const [slide, setSlide] = useState(startSlide);
   const pushed = useRef(false);
@@ -294,15 +291,15 @@ export default function PackDialog(props: PackDialogProps) {
                 </details>
               )}
             </section>
-            {SLIDES.map((s, i) => (
-              <figure key={s.file} className="lt-pkd__slide lt-pkd__fig" aria-label={`${i + 2} of 4`}>
+            {preview && slides.map((s, i) => (
+              <figure key={s.page} className="lt-pkd__slide lt-pkd__fig" aria-label={`${i + 2} of 4`}>
                 <img
-                  src={`${IMG_BASE}/${s.file}-480.webp`}
-                  srcSet={`${IMG_BASE}/${s.file}-480.webp 480w, ${IMG_BASE}/${s.file}-827.webp 827w`}
+                  src={previewImage(preview, s.page, 480)}
+                  srcSet={`${previewImage(preview, s.page, 480)} 480w, ${previewImage(preview, s.page, 827)} 827w`}
                   sizes="270px"
-                  width={827}
-                  height={1170}
-                  alt={s.alt}
+                  width={PREVIEW_W}
+                  height={PREVIEW_H}
+                  alt={`${s.alt} (${previewShows(preview)})`}
                   loading={i === 0 ? "eager" : "lazy"}
                   decoding="async"
                 />
@@ -322,7 +319,7 @@ export default function PackDialog(props: PackDialogProps) {
             <span key={i} className={i === slide ? "is-on" : undefined} />
           ))}
         </div>
-        <p className="lt-pkd__samplecap" data-testid="pack-preview-caption">{PREVIEW_CAPTION}</p>
+        <p className="lt-pkd__samplecap" data-testid="pack-preview-caption">{preview ? previewCaption(preview) : PREVIEW_FALLBACK_CAPTION}</p>
         <p className="lt-pkd__sr" role="status">{`Slide ${slide + 1} of ${SLIDE_COUNT}`}</p>
 
         {/* PACK-DIALOG-1: from 900px the foot is the right-hand BUY CARD (price, picker, Buy, parent actions, sample) beside the
