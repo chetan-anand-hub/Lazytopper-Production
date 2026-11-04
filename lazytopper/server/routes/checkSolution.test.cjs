@@ -3282,3 +3282,25 @@ test('§GM.14 ★ S1 detect (opted in) returns offersOptions by the SAME test as
   assert.equal(hm.body().results[0].totalMarks, 5, 'keeps its 5 marks');
   assert.ok(![0, 5].includes(hm.body().results[0].marksAwarded), 'step-marked, not clamped 0/full: ' + hm.body().results[0].marksAwarded);
 });
+
+test('§GM.15 ★★ H1 long-option Science MCQs (each option 50–90 chars) ARE option lists; the §13 guard and the lock reach them', async () => {
+  const PP = require('../grading/postprocess.cjs');
+  const LONG = ["Which type of reaction is shown when iron nails are kept in copper sulphate solution? (a) A combination reaction in which two substances join to form one product (b) A decomposition reaction in which one compound splits into simpler substances (c) A displacement reaction in which iron displaces copper from its salt solution (d) A double displacement reaction in which two compounds exchange their ions", "A ray of light passes obliquely through a rectangular glass slab. Which statement is correct? (a) The emergent ray is parallel to the incident ray but laterally displaced from it (b) The emergent ray bends towards the normal and meets the incident ray at the slab (c) The emergent ray travels along the same straight line as the incident ray (d) The emergent ray is perpendicular to the incident ray at the second face", "Which is the correct sequence of events after pollination in a flowering plant? (a) Pollen tube growth, fertilisation, formation of the zygote, development of the seed (b) Fertilisation, pollen tube growth, formation of the seed, development of the zygote (c) Formation of the zygote, pollen tube growth, fertilisation, development of the fruit (d) Development of the seed, fertilisation, pollen tube growth, formation of the zygote"];
+  for (const q of LONG) {
+    assert.equal(PP.objectiveOffersOptions({ questionText: q }), true, q.slice(0, 50));
+    const opts = q.split(/\(\s*[a-d]\s*\)/).slice(1).map((o) => o.trim().length);
+    assert.ok(opts.every((n) => n >= 50 && n <= 90), 'the fixture really has 50–90-char options: ' + opts);
+  }
+  // still true / still false
+  assert.equal(PP.objectiveOffersOptions({ questionText: 'The value of k is (1) 2 (2) 3 (3) 4 (4) 5' }), true);
+  assert.equal(PP.objectiveOffersOptions({ questionText: 'Which is even? a. 4 b. 6 c. 8 d. 10' }), true);
+  // detect locks it, and a 3-mark send is still graded 0 or full out of 1
+  const h = buildRoute({ replies: [{ detectedMarks: 1, marksSource: 'stated', detectedObjective: true, sectionHeaders: [], questions: [{ questionNumber: 1, questionText: LONG[0], marks: 1, objective: true }] }] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  assert.equal(h.body().questions[0].offersOptions, true);
+  const raw = { annotatedSteps: [{ description: 'Option', studentWork: '(c)', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 3, questionText: LONG[1], objective: true }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 1);
+  assert.ok([0, 1].includes(hm.body().results[0].marksAwarded));
+});

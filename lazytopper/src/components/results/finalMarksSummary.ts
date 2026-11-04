@@ -56,8 +56,10 @@ const COUNT_CUE = /\b(?:mcqs?|objective|questions?|answers?|right|correct(?:ly)?
 
 /** S6 · claims with no number to find: "All 10 MCQs correct", "you answered all the MCQs correctly",
  *  "Full marks for Q3", "you got full marks". Tested on the sentence as written (before Q-refs are stripped). */
-const ALL_CLAIM = new RegExp(`\\ball\\s+(?:(?:the|your|these|${COUNT_NUMBER})\\s+)*(?:mcqs?|objective|questions?|answers?)\\b`, "i");
-const VERDICT = /\b(?:right|correct(?:ly)?|wrong)\b/i;
+// "all [the|your|N] MCQs / objective questions / questions" + a RIGHT/CORRECT verdict. Not "answers"/"wrong":
+// "Check all your answers for wrong units." is advice, not a score.
+const ALL_CLAIM = new RegExp(`\\ball\\s+(?:(?:the|your|these|${COUNT_NUMBER})\\s+)*(?:mcqs?|objective(?:\\s+questions?)?|questions?)\\b`, "i");
+const VERDICT = /\b(?:right|correct(?:ly)?)\b/i;
 const FULL_MARKS_CLAIM = /\bfull marks?\s+(?:for|on|in)\s+(?:Q|Question)\s*\.?\s*\d+|\b(?:got|scored|earned|secured|awarded)\s+full marks?\b/i;
 
 /** A question or section REFERENCE ("Q3", "Question 20", "Section C") is not a quantity. */

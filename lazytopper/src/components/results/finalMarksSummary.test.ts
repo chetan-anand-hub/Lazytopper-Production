@@ -104,6 +104,9 @@ describe("finalMarksSummary", () => {
       expect(claimsAScore(c), c).toBe(true);
     }
     expect(claimsAScore("Aim to write every step so full working is visible.")).toBe(false);
+    expect(claimsAScore("Check all your answers for wrong units.")).toBe(false); // L1: advice, no score
+    expect(claimsAScore("Check all the questions for units.")).toBe(false);
+    expect(claimsAScore("All the objective questions were right.")).toBe(true);
     const out = finalMarksSummary({ summary: "All 13 MCQs correct. Keep it up.", results: RESULTS, gradedMarksAwarded: 13, gradedMarksTotal: 21 });
     expect(out).toContain("On the objective questions: 7 out of 13 marks.");
     expect(out).not.toContain("All 13 MCQs correct");
