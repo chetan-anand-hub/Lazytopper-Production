@@ -128,6 +128,7 @@ import {
   searchWithoutReview,
   withScorecardReviewParam,
 } from "./tutor/tutorRoundTrip";
+import { getSurfaceHistory } from "../services/progressStore";
 import { bankRowMeta } from "../data/bankChapters/bankIdIndex";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 // BANK-LEAN-1 (C3): the stored re-open chapter join reads the question bank, so it
@@ -975,7 +976,15 @@ export default function FullMockPage() {
       try {
         const own = (r: SessionRecord) =>
           r.id === uploadParam && r.surface === "full-mock" && r.status !== "graded" && recordBelongsToUid(r, reviewUid);
-        const record = (await getSessionRecordsFromCloud(reviewUid)).find(own);
+        // This device's records first (a mock the Answer Checker found only locally), then the cloud list.
+        let record = getSurfaceHistory("full-mock", reviewUid).find(own);
+        if (!record) {
+          try {
+            record = (await getSessionRecordsFromCloud(reviewUid)).find(own);
+          } catch {
+            /* offline: nothing more to look at */
+          }
+        }
         if (record) await openPendingUpload(record);
       } catch {
         /* honest fallback: the plain page */

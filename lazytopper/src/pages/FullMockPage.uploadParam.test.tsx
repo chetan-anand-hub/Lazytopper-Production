@@ -146,6 +146,17 @@ describe("GRADE-ROUTE-1 A2 - /full-mock/10/<Subject>?upload=<code>", () => {
     expect(new Set(recordWrites().map((w) => w.path))).toEqual(new Set([`sessionRecords/student-1/records/${CODE}`]));
   }, 90000);
 
+  it("a mock found only on THIS device (cloud list empty) still opens its upload", async () => {
+    window.localStorage.setItem(
+      "lazytopper.user.student-1.sessionRecords.v1",
+      JSON.stringify([pendingRecord()]),
+    );
+    seedPending();
+    records.list = []; // the cloud copy is missing
+    mount(`?upload=${CODE}`);
+    await screen.findByTestId("section-a-picker", {}, { timeout: 60000 });
+  }, 90000);
+
   it("unknown code, or a GRADED mock: the normal page (no upload step opens)", async () => {
     seedPending();
     mount("?upload=FM-M-99");
