@@ -142,6 +142,40 @@ const DETECT_RESPONSE_SCHEMA_KEY_SOURCE = (() => {
   return deepFreeze(s);
 })();
 
+// GRADE-MARKS-1 · the detect schema for a request that opts in with `sectionMarks: true` (the paid
+// Answer Checker read): the request's schema (with or without answerSource) plus ADDITIVE, NULLABLE
+// fields — the paper's section headers and the marks each states, and per question its section and
+// the mark printed ON it. A deterministic post-step (grading/detect.cjs assignSectionMarks) turns
+// them into marks. A request without the flag uses its schema unchanged.
+function withSectionMarksSchema(base) {
+  const s = JSON.parse(JSON.stringify(base));
+  s.properties.sectionHeaders = {
+    type: 'ARRAY',
+    nullable: true,
+    items: {
+      type: 'OBJECT',
+      properties: { section: { type: 'STRING' }, marksEach: { type: 'NUMBER', nullable: true } },
+      propertyOrdering: ['section', 'marksEach'],
+      required: ['section'],
+    },
+  };
+  s.propertyOrdering.splice(s.propertyOrdering.indexOf('questions'), 0, 'sectionHeaders');
+  const item = s.properties.questions.items;
+  item.properties.section = { type: 'STRING', nullable: true };
+  item.properties.printedMarks = { type: 'NUMBER', nullable: true };
+  item.propertyOrdering.splice(item.propertyOrdering.indexOf('questionText'), 0, 'section');
+  item.propertyOrdering.splice(item.propertyOrdering.indexOf('marks') + 1, 0, 'printedMarks');
+  return deepFreeze(s);
+}
+const DETECT_RESPONSE_SCHEMA_SECTION_MARKS = withSectionMarksSchema(DETECT_RESPONSE_SCHEMA);
+const DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS = withSectionMarksSchema(DETECT_RESPONSE_SCHEMA_KEY_SOURCE);
+
+/** GRADE-MARKS-1 · the one prompt line an opted-in detect request adds (right after the marks rule). */
+const DETECT_SECTION_MARKS_RULE =
+  '- SECTIONS AND MARKS: many papers print marks ONLY in a section header (e.g. "SECTION C — this section has 6 questions of 3 marks each"). List every section header you see in "sectionHeaders" as { "section": "<its letter>", "marksEach": <the marks per question it states, or null if it states none> }. ' +
+  'For EACH question give "section": the letter of the section it is printed under — a section continues across page breaks until the next section header, so a question on a page with no header belongs to the last section header before it — or null if the paper has no sections. ' +
+  'Give "printedMarks": the mark printed ON or beside THAT question itself (e.g. "[3]", "(2 marks)"; for a question with parts, the TOTAL of its printed part-marks), or null when no mark is printed on the question. A section-header mark is NOT a printed mark for this field.\n';
+
 // MCQ-KEY-TRUST-1 · the provenance of an objective answer key on a grade request: "printed"
 // (in the document) or "derived" (worked out by the detect step). Anything else = absent (null),
 // which keeps today's key precedence (bank surfaces, old clients) — and then the field is not
@@ -481,6 +515,10 @@ function createCheckSolutionRoute(deps) {
     // for, and given, each key's `answerSource`. Without it the prompt, schema and response are
     // exactly as before.
     const wantsKeySource = payload.keySource === true;
+    // GRADE-MARKS-1 · opt-in the same way: only a client that sends `sectionMarks: true` (the paid Answer
+    // Checker read) is asked for section headers + printed marks and has its marks assigned by rule.
+    // Without it the prompt, schema and response are exactly as before.
+    const wantsSectionMarks = payload.sectionMarks === true;
     const question = String(payload.question || '').trim();
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
@@ -548,6 +586,7 @@ function createCheckSolutionRoute(deps) {
       (layerText ? D.textLayerBlock(layerText, nonce, fence) : '') +
       '\nDETERMINE:\n' +
       '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never override a clearly-printed value, and never blindly default to 3.\n' +
+      (wantsSectionMarks ? DETECT_SECTION_MARKS_RULE : '') +
       '- detectedSubject: "Maths" or "Science".\n' +
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
       '- objective: true ONLY if the question is a multiple-choice question (lettered options like (a)/(b)/(c)/(d)) or an assertion-reason question; false for any question that needs written working, a derivation, a proof, or step-by-step reasoning. Apply this per question.\n' +
@@ -585,7 +624,9 @@ function createCheckSolutionRoute(deps) {
         // handler's own parser, which is far looser than the grader's: a bare `{}` is an
         // accepted parse. (Until PR-3 detect was the one path with no retry; it now retries
         // ONCE, bounded — see below.)
-        responseSchema: wantsKeySource ? DETECT_RESPONSE_SCHEMA_KEY_SOURCE : DETECT_RESPONSE_SCHEMA,
+        responseSchema: wantsSectionMarks
+          ? (wantsKeySource ? DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS : DETECT_RESPONSE_SCHEMA_SECTION_MARKS)
+          : (wantsKeySource ? DETECT_RESPONSE_SCHEMA_KEY_SOURCE : DETECT_RESPONSE_SCHEMA),
         // gemini-2.5-flash is a thinking model and thinking tokens count against
         // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
         // leaving 1-5 tokens for the JSON → truncated → "couldn't read the question".
@@ -660,6 +701,8 @@ function createCheckSolutionRoute(deps) {
             detectedObjective: pre.detectedObjective != null ? pre.detectedObjective : q0.objective,
             detectedAnswer: pre.detectedAnswer != null ? pre.detectedAnswer : q0.answer,
             questions: best.questions,
+            // GRADE-MARKS-1 · the headers precede the questions in the reply, so a cut-off read still has them.
+            ...(wantsSectionMarks && Array.isArray(pre.sectionHeaders) ? { sectionHeaders: pre.sectionHeaders } : {}),
           };
           partialRead = true;
         } else {
@@ -730,7 +773,14 @@ function createCheckSolutionRoute(deps) {
         acceptsV2,
         vocabulary: topicVocabulary,
         sources: [question, layerText].filter(Boolean),
+        ...(wantsSectionMarks ? { sectionMarks: true, sectionHeaders: parsed.sectionHeaders } : {}),
       });
+      // GRADE-MARKS-1 · the top-level mark mirrors the first question (backward compatibility, as the
+      // prompt asks) when the rule set it: a printed or section mark is a mark the paper states.
+      if (wantsSectionMarks && questions.length > 0 && (questions[0].marksSource === 'printed' || questions[0].marksSource === 'section')) {
+        detectedMarks = questions[0].marks;
+        marksSource = 'stated';
+      }
 
       // MCQ-KEY-TRUST-1 · each returned key carries `answerSource`. "printed" ONLY when every model
       // entry with that question number and that exact key said "printed"; a missing or any
@@ -1135,6 +1185,8 @@ module.exports = {
   WORKSHEET_RESPONSE_SCHEMA,
   DETECT_RESPONSE_SCHEMA,
   DETECT_RESPONSE_SCHEMA_KEY_SOURCE,
+  DETECT_RESPONSE_SCHEMA_SECTION_MARKS,
+  DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS,
   STEP_STATUS_VALUES,
   MAX_BATCH_UPLOADS,
   // The server-produced departure sentences (golden T05 imports the historic two names).

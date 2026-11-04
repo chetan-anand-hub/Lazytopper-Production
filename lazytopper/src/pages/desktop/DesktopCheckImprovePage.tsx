@@ -168,6 +168,8 @@ import {
 } from "../../services/freeCheckClient";
 import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
+import PaperMarksEditor from "../../components/checkimprove/PaperMarksEditor";
+import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
 import {
   FreeCheckRefusalPanel,
@@ -1936,6 +1938,10 @@ const DesktopCheckImprovePageInner: React.FC<{
         // it worked out never overrides the grader (detectedKeyFields). Paid reads only: the free
         // check never sends a key, and its request shape is fixed [FU-B15-FREECHECK-V2].
         ...(freeCallOpts ? {} : { keySource: true }),
+        // GRADE-MARKS-1 — a question with no printed mark takes its section header's mark (carried
+        // across page breaks) before any guess. Paid reads only, like keySource: the free check's
+        // request shape is fixed.
+        ...(freeCallOpts ? {} : { sectionMarks: true }),
       };
       const d = await detectQuestion(detectReq, freeCallOpts);
       if (!d || d.ok === false) {
@@ -2001,6 +2007,13 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
   function correctMarks(m: number) {
     setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
+  }
+  // GRADE-MARKS-1 — the whole-paper confirm step: a student's correction of one question's marks.
+  // `detectedQuestions` IS what the grade request sends (q.marks), so the edit is what is graded.
+  function correctPaperMarks(index: number, marks: number) {
+    setDetectedQuestions((qs) =>
+      qs ? qs.map((q, i) => (i === index ? { ...q, marks, marksSource: "user" as const } : q)) : qs,
+    );
   }
 
   function resetToInput() {
@@ -3408,13 +3421,8 @@ const DesktopCheckImprovePageInner: React.FC<{
                 >
                   <strong>{detectedQuestions.length} questions detected</strong> · each question&rsquo;s
                   subject and chapter are read when it is graded
-                  <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, display: "flex", flexWrap: "wrap", gap: "0 16px" }}>
-                    {detectedQuestions.map((q, qi) => (
-                      <span key={`${q.questionNumber}-${qi}`}>
-                        Q{q.questionNumber} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
-                      </span>
-                    ))}
-                  </div>
+                  {/* GRADE-MARKS-1 — each question's marks, editable before grading; guesses flagged. */}
+                  <PaperMarksEditor questions={detectedQuestions} onMarksChange={correctPaperMarks} />
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4 }}>
                     Upload your answer sheet (image or PDF) below to grade all {detectedQuestions.length}.
                   </div>
@@ -3970,6 +3978,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     const paperCut = detectedQuestions ? trialPaperCut(detectedQuestions.length, ciPaperLimit) : null;
     const paperAllowance = fairUse.snapshot?.trial?.limits.checksPerDay ?? null;
     const paperNote = paperCut ? trialPaperNoteCopy(paperCut, paperAllowance) : null;
+    const finalSummary = finalMarksSummary(ws);
     return withChrome(
       <div
         style={{
@@ -4078,9 +4087,10 @@ const DesktopCheckImprovePageInner: React.FC<{
               labels={detectedQuestions.map((q) => `Q${q.questionNumber}`)}
             />
           ) : null}
-          {ws.summary && (
+          {/* GRADE-MARKS-1 — the model's summary never states a score that disagrees with the final marks. */}
+          {finalSummary && (
             <p style={{ margin: "12px 0 0", fontSize: 13.5, color: TEXT_FG, lineHeight: 1.6 }}>
-              <EquationRender text={ws.summary} />
+              <EquationRender text={finalSummary} />
             </p>
           )}
         </div>

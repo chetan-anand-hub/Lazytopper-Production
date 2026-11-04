@@ -246,6 +246,9 @@ describe("the free check, end to end (single question)", () => {
     const { container } = renderPage();
     await readQuestion();
     expect(H.detectQuestion.mock.calls[0][1]).toEqual({ freeCheck: true });
+    // GRADE-MARKS-1 / MCQ-KEY-TRUST-1 — the free check's detect request shape is unchanged (no opt-ins).
+    expect(H.detectQuestion.mock.calls[0][0]).not.toHaveProperty("sectionMarks");
+    expect(H.detectQuestion.mock.calls[0][0]).not.toHaveProperty("keySource");
 
     await gradeTypedAnswer();
     await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));

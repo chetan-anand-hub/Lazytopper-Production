@@ -800,7 +800,13 @@ export interface DetectedQuestion {
   questionNumber: number;
   questionText: string;
   marks: number;
-  marksSource: "stated" | "inferred";
+  /** "stated"/"inferred" on a legacy read. GRADE-MARKS-1 — a read sent with `sectionMarks: true`
+   *  reports how the mark was set: "printed" (on the question), "section" (its section header,
+   *  or the CBSE section map), or "inferred" (a guess the student is asked to check). "user" =
+   *  the student corrected it on the confirm step (client-side only). */
+  marksSource: "stated" | "inferred" | "printed" | "section" | "fallback" | "user";
+  /** GRADE-MARKS-1 — the section letter ("A"–"E") detect placed the question in (opt-in read only). */
+  section?: string | null;
   /** True for a multiple-choice / assertion-reason question. Forwarded to the grade
    *  call so a keyless objective question is clamped to 0/full (≤1-mark rail). */
   objective?: boolean;
@@ -835,6 +841,10 @@ export async function detectQuestion(req: {
   imageBase64?: string;
   imageMimeType?: string;
   topicVocabulary?: CheckSolutionTopicVocab[];
+  /** MCQ-KEY-TRUST-1 — paid Answer Checker read only: label each key "printed" | "derived". */
+  keySource?: boolean;
+  /** GRADE-MARKS-1 — paid Answer Checker read only: marks by section header before any guess. */
+  sectionMarks?: boolean;
 }, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
   const res = await sendWithTokenRefresh(
     opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),

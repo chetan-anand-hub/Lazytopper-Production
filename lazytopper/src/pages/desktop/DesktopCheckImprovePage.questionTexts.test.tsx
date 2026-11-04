@@ -191,3 +191,72 @@ describe("TUTOR-RETURN-SHEET-1 - the persisted Answer Checker payload carries th
     });
   });
 });
+
+/* GRADE-MARKS-1 - the Answer Checker whole paper: the paid read asks detect for section marks, the
+   confirm step lets the student correct each question's marks BEFORE grading (the edit is what the
+   grade request sends), a guessed mark is flagged, and the paper summary states the FINAL marks.
+   (Kept in this file: it grades on the same real page with the same mocks.) */
+// Q19 / Q20 / Q21 of a sectioned paper: Q20 sits on a page with no header and its mark was guessed.
+const GM_PAPER = {
+  ok: true,
+  detectedMarks: 3,
+  detectedSubject: "Maths",
+  detectedTopic: "real-numbers",
+  marksSource: "stated",
+  questions: [
+    { questionNumber: 1, questionText: "Q1 MCQ", marks: 1, marksSource: "section", section: "A", objective: true },
+    { questionNumber: 2, questionText: "Q2 MCQ", marks: 1, marksSource: "section", section: "A", objective: true },
+    { questionNumber: 20, questionText: "Prove that root 5 is irrational.", marks: 5, marksSource: "inferred", section: "C" },
+  ],
+};
+const gmRow = (qNumber: number, marksAwarded: number, totalMarks: number, objective = false) => ({
+  qNumber, couldNotRead: false, ok: true, totalMarks, marksAwarded, percentage: 0, objective,
+  annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+});
+// The final (clamped) rows: both MCQs right (2/2), Q20 2/3. The model's own summary says "1 out of 2".
+const GM_GRADED = {
+  ok: true,
+  results: [gmRow(1, 1, 1, true), gmRow(2, 1, 1, true), gmRow(20, 2, 3)],
+  totalQuestions: 3, gradedCount: 3, pendingCount: 0,
+  gradedMarksAwarded: 4, gradedMarksTotal: 5, worksheetTotalMarks: 5,
+  summary: "You scored 1 out of 2 marks on these objective questions. Always state the assumption first in a proof.",
+};
+
+describe("GRADE-MARKS-1 - Answer Checker paper marks", () => {
+  beforeEach(() => {
+    H.detectQuestion.mockReset().mockImplementation(async (req: { question?: string }) =>
+      req.question === "Whole paper" ? GM_PAPER : { ok: true, detectedTopic: null, detectedSubject: null },
+    );
+    H.gradeWorksheet.mockReset().mockResolvedValue(GM_GRADED);
+  });
+
+  it("asks for section marks, flags the guess, sends the student's corrected marks, and the summary states the final marks", async () => {
+    const { container } = render(page());
+    fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: "Whole paper" } });
+    fireEvent.click(screen.getByRole("button", { name: /(Re-read|Read) the question/ }));
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    await act(async () => {});
+    expect(H.detectQuestion.mock.calls[0][0]).toMatchObject({ sectionMarks: true, keySource: true });
+
+    expect(await screen.findByText("Check: we guessed 5")).toBeTruthy();
+    expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 7 marks");
+    fireEvent.change(screen.getByLabelText("Marks for Q20"), { target: { value: "3" } });
+    expect(screen.queryByText(/Check: we guessed/)).toBeNull();
+    expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 5 marks");
+
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    const grade = await screen.findByRole("button", { name: /Grade my answer|Retry grading/ });
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    const sent = H.gradeWorksheet.mock.calls[0][0] as { questions: Array<{ qNumber: number; marks: number }> };
+    expect(sent.questions.map((q) => [q.qNumber, q.marks])).toEqual([[1, 1], [2, 1], [20, 3]]);
+    // The request carries no new field: the section letter is display-only (never a grading signal).
+    for (const q of sent.questions) expect(q).not.toHaveProperty("section");
+
+    await waitFor(() => expect(screen.getByText(/On the objective questions: 2 out of 2 marks\./)).toBeTruthy());
+    expect(document.body.textContent).not.toContain("1 out of 2 marks on these objective questions");
+    expect(document.body.textContent).toContain("Always state the assumption first in a proof.");
+  });
+});

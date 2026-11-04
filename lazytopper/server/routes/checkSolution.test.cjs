@@ -3019,3 +3019,138 @@ test('§MKT.10 ★ detect WITHOUT keySource (free check, topic reads, old client
   const line = '- answerSource: for each question whose answer you set, "printed" ONLY when that correct option is printed or marked in the document itself (an answer key, a ticked or marked answer); otherwise "derived". null when answer is null.\n';
   assert.equal(textOfCall(h2).replace(line, ''), textOfCall(h), 'exactly one additive prompt line');
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §GM · GRADE-MARKS-1 — A QUESTION WITH NO PRINTED MARK TAKES ITS SECTION HEADER'S MARK
+
+   Live 4 Nov 2026 (owner's account, production, Answer Checker multi, WS-M-MIX-02): the worksheet
+   prints marks ONLY in its section headers ("Section C … 3 marks each"). Q20/Q21 (Section C) sit on a
+   page with no header, and detect returned them as 5 marks ("5 for a proof", reported "stated") in
+   2 of 3 runs, so the paper totalled 55 instead of 51. With the opt-in `sectionMarks: true` (the paid
+   Answer Checker read) detect reports each question's section and the header marks it saw, and a
+   deterministic post-step assigns the section's mark before any guess (carried across page breaks).
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const GM_D = require('../grading/detect.cjs');
+const { DETECT_RESPONSE_SCHEMA_KEY_SOURCE: GM_KEY_SCHEMA } = require('./checkSolution.cjs');
+// A paper shaped like WS-M-MIX-02 (marks only in section headers, total 51, Q20/Q21 in Section C):
+// A Q1–Q10 ×1 = 10 · B Q11–Q15 ×2 = 10 · C Q16–Q21 ×3 = 18 · D Q22 ×5 = 5 · E Q23–Q24 ×4 = 8 → 51.
+const GM_SECTIONS = [['A', 1, 10], ['B', 2, 5], ['C', 3, 6], ['D', 5, 1], ['E', 4, 2]];
+function gmReply({ q20Section = null, q21Section = null, headers = GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: m })) } = {}) {
+  const questions = [];
+  let n = 1;
+  for (const [letter, marks, count] of GM_SECTIONS) {
+    for (let i = 0; i < count; i += 1, n += 1) {
+      // Only the FIRST question of each section is on the page with the header; the model labels
+      // the rest of the page, and Q20/Q21 (a page with no header) come back unlabelled and as 5 "stated".
+      const isQ20 = n === 20;
+      const isQ21 = n === 21;
+      questions.push({
+        questionNumber: n,
+        section: isQ20 ? q20Section : isQ21 ? q21Section : letter,
+        questionText: 'Question ' + n + ' text',
+        marks: isQ20 || isQ21 ? 5 : marks,
+        printedMarks: null,
+        marksSource: isQ20 || isQ21 ? 'stated' : 'inferred',
+        objective: letter === 'A',
+        answer: null,
+      });
+    }
+  }
+  return { detectedMarks: 1, marksSource: 'inferred', detectedSubject: 'Maths', detectedTopic: null,
+    detectedObjective: true, detectedAnswer: null, sectionHeaders: headers, questions };
+}
+const gmSum = (qs) => qs.reduce((s, q) => s + q.marks, 0);
+
+test('§GM.1 ★★ the WS-M-MIX-02 shape: Q20/Q21 on a header-less page take Section C\'s 3 marks; the paper totals 51 (today 55)', async () => {
+  const h = buildRoute({ replies: [gmReply()] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const qs = h.body().questions;
+  assert.equal(qs.length, 24);
+  const q20 = qs.find((q) => q.questionNumber === 20);
+  const q21 = qs.find((q) => q.questionNumber === 21);
+  assert.deepEqual([q20.marks, q20.marksSource, q20.section], [3, 'section', 'C'], 'carried across the page break');
+  assert.deepEqual([q21.marks, q21.marksSource, q21.section], [3, 'section', 'C']);
+  assert.equal(gmSum(qs), 51, '★ the paper total is the printed 51, not 55');
+  assert.ok(qs.every((q) => q.marksSource === 'section'), 'every mark came from a header, none was guessed');
+});
+
+test('§GM.2 ★ a mark printed ON the question still wins over its section header', async () => {
+  const reply = gmReply();
+  reply.questions[19].printedMarks = 4; // Q20 prints "[4]" itself
+  reply.questions[19].marks = 4;
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const q20 = h.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20.marks, q20.marksSource], [4, 'printed']);
+});
+
+test('§GM.3 the CBSE section map is used only when the paper\'s headers follow it; otherwise the model\'s mark stays, flagged "inferred"', async () => {
+  // Headers printed for A, B and D only (all CBSE values) — C has no header mark: the CBSE map gives 3.
+  const cbse = gmReply({ q20Section: 'C', q21Section: 'C',
+    headers: [{ section: 'A', marksEach: 1 }, { section: 'B', marksEach: 2 }, { section: 'C', marksEach: null }, { section: 'D', marksEach: 5 }] });
+  const h = buildRoute({ replies: [cbse] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const q20 = h.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20.marks, q20.marksSource], [3, 'section'], 'CBSE map C=3');
+  // A paper whose headers do NOT follow the CBSE map: no map is applied; a question with no section
+  // mark keeps the model's value, and a mark the model did not read is flagged for the student.
+  const own = gmReply({ headers: [{ section: 'A', marksEach: 2 }, { section: 'B', marksEach: 2 }] });
+  own.questions[19].section = 'C';
+  own.questions[19].marksSource = 'inferred';
+  const h2 = buildRoute({ replies: [own] });
+  await h2.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const q20b = h2.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20b.marks, q20b.marksSource], [5, 'inferred'], 'no rule ⇒ the guess is kept AND flagged');
+  const q21b = h2.body().questions.find((q) => q.questionNumber === 21);
+  assert.deepEqual([q21b.marks, q21b.marksSource], [5, 'printed'], 'the model said it read it ⇒ printed, as today');
+});
+
+test('§GM.4 the post-step (pure): carry-forward, conflicting headers, leading unsectioned questions', () => {
+  const e = (section, printedMarks = null) => ({ section, printedMarks });
+  assert.deepEqual(GM_D.assignSectionMarks([e(null), e('B'), e(null), e('C'), e(null, 2)], [{ section: 'Section B', marksEach: 2 }, { section: 'c', marksEach: 3 }]),
+    [{ marks: null, source: null, section: null }, { marks: 2, source: 'section', section: 'B' }, { marks: 2, source: 'section', section: 'B' },
+      { marks: 3, source: 'section', section: 'C' }, { marks: 2, source: 'printed', section: 'C' }]);
+  // Two headers for one letter with different marks: that letter is unknown (never a coin-flip).
+  assert.deepEqual(GM_D.assignSectionMarks([e('B')], [{ section: 'B', marksEach: 2 }, { section: 'B', marksEach: 3 }]),
+    [{ marks: null, source: null, section: 'B' }]);
+  assert.equal(GM_D.sectionLetterOf('SECTION - D'), 'D');
+  assert.equal(GM_D.sectionLetterOf('Part II'), null);
+});
+
+test('§GM.5 ★ the single-question read mirrors a rule-set first mark at the top level', async () => {
+  const h = buildRoute({ replies: [{ detectedMarks: 5, marksSource: 'stated', detectedObjective: false,
+    sectionHeaders: [{ section: 'C', marksEach: 3 }],
+    questions: [{ questionNumber: 20, section: 'C', questionText: 'Prove that root 5 is irrational.', marks: 5, printedMarks: null, marksSource: 'stated', objective: false }] }] });
+  await h.route.handleDetectQuestion({ question: 'Prove that root 5 is irrational.', keySource: true, sectionMarks: true }, {});
+  assert.equal(h.body().detectedMarks, 3);
+  assert.equal(h.body().marksSource, 'stated');
+  assert.equal(h.body().questions[0].marks, 3);
+});
+
+test('§GM.6 ★ detect WITHOUT sectionMarks (free check, topic reads, golden replays) is byte-identical: no prompt line, the request\'s schema, no section/marks rule', async () => {
+  const reply = gmReply();
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.equal(h.calls[0].genConfig.responseSchema, GM_KEY_SCHEMA, 'the unchanged keySource schema object');
+  assert.equal(Object.prototype.hasOwnProperty.call(GM_KEY_SCHEMA.properties, 'sectionHeaders'), false);
+  assert.doesNotMatch(textOfCall(h), /sectionHeaders|printedMarks/, 'the prompt does not mention them');
+  const q20 = h.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20.marks, q20.marksSource], [5, 'stated'], 'today\'s behaviour, unchanged without the opt-in');
+  assert.equal(Object.prototype.hasOwnProperty.call(q20, 'section'), false, 'no new field');
+  assert.equal(gmSum(h.body().questions), 55);
+  // CONTROL — the same reply WITH the opt-in: the prompt differs by exactly the one rule; the schema is the variant.
+  const h2 = buildRoute({ replies: [reply] });
+  await h2.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const CS = require('./checkSolution.cjs');
+  assert.equal(h2.calls[0].genConfig.responseSchema, CS.DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS);
+  const rule = textOfCall(h2).match(/- SECTIONS AND MARKS:[^\n]*\n/)[0];
+  assert.equal(textOfCall(h2).replace(rule, ''), textOfCall(h), 'exactly one additive prompt line');
+  // Without keySource but with sectionMarks: the base schema + the section fields (no answerSource).
+  const h3 = buildRoute({ replies: [reply] });
+  await h3.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const sch = h3.calls[0].genConfig.responseSchema;
+  assert.equal(sch, CS.DETECT_RESPONSE_SCHEMA_SECTION_MARKS);
+  assert.equal(Object.prototype.hasOwnProperty.call(sch.properties.questions.items.properties, 'answerSource'), false);
+  assert.deepEqual(sch.properties.questions.items.properties.section, { type: 'STRING', nullable: true });
+});

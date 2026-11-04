@@ -139,6 +139,9 @@ function normaliseDetectedQuestions(rawQuestions, o) {
       answer: q && q.answer != null && String(q.answer).trim() && String(q.answer).trim().toLowerCase() !== 'null' ? String(q.answer).trim() : null,
       subject: q ? q.subject : null,
       chapter: q ? q.chapter : null,
+      // GRADE-MARKS-1 · read only when the request opted in (o.sectionMarks); ignored otherwise.
+      section: sectionLetterOf(q && q.section),
+      printedMarks: marksInRange(q && q.printedMarks),
     };
   }).filter((e) => e.text.length > 0);
 
@@ -155,6 +158,8 @@ function normaliseDetectedQuestions(rawQuestions, o) {
         prev.stated = prev.stated && e.stated;
         prev.objective = false;
         prev.answer = null;
+        prev.section = prev.section || e.section;
+        prev.printedMarks = prev.printedMarks !== null && e.printedMarks !== null ? prev.printedMarks + e.printedMarks : null;
         continue;
       }
     }
@@ -173,6 +178,11 @@ function normaliseDetectedQuestions(rawQuestions, o) {
     e.numberAssigned = true;
   });
 
+  // 3b · GRADE-MARKS-1 (opt-in): each question's marks by RULE before any guess — printed on
+  //      the question, else its section header's mark (carried across page breaks), else the
+  //      CBSE section map when the paper's headers follow it. Without the flag: nothing here runs.
+  const bySection = o.sectionMarks === true ? assignSectionMarks(entries, o.sectionHeaders) : null;
+
   // 4 · the response entries
   return entries.map((e, i) => {
     const inRange = e.marks !== null && e.marks >= 1 && e.marks <= 6;
@@ -184,6 +194,18 @@ function normaliseDetectedQuestions(rawQuestions, o) {
       objective: e.objective,
       answer: e.answer,
     };
+    if (bySection) {
+      const ruled = bySection[i];
+      if (ruled.marks !== null) {
+        out.marks = ruled.marks;
+        out.marksSource = ruled.source;
+      } else {
+        // No printed or section mark: the model's own value, as before. A model that says it read
+        // the mark ("stated") is kept as printed; anything else is a guess the student is asked to check.
+        out.marksSource = e.stated && inRange ? 'printed' : 'inferred';
+      }
+      out.section = ruled.section;
+    }
     if (o.acceptsV2 === true) {
       const chapter = e.chapter != null && vocab.has(String(e.chapter).trim()) ? String(e.chapter).trim() : null;
       const subj = chapter ? vocab.get(chapter) : String(e.subject || '');
@@ -192,9 +214,62 @@ function normaliseDetectedQuestions(rawQuestions, o) {
         subject: /sci/i.test(subj) ? 'Science' : /math/i.test(subj) ? 'Maths' : null,
         chapter,
       });
-      if (!inRange) out.marksSource = 'fallback';
+      if (!inRange && !(bySection && bySection[i].marks !== null)) out.marksSource = 'fallback';
     }
     return out;
+  });
+}
+
+/* ── GRADE-MARKS-1 · section marks by rule ──────────────────────────────── */
+
+/** The CBSE Class 10 board-paper section pattern (2026-27): marks per question in each section. */
+const CBSE_SECTION_MARKS = Object.freeze({ A: 1, B: 2, C: 3, D: 5, E: 4 });
+
+/** "C", "c", "Section C", "SECTION - C" → "C"; anything else → null. */
+function sectionLetterOf(v) {
+  if (v == null) return null;
+  const m = /^\s*(?:section\s*[-–—:]?\s*)?([A-Ea-e])\s*$/i.exec(String(v));
+  return m ? m[1].toUpperCase() : null;
+}
+
+/** A mark value in the detect range (1–6), rounded; else null. */
+function marksInRange(v) {
+  if (v == null || v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 1 && n <= 6 ? Math.round(n) : null;
+}
+
+/**
+ * The marks every question gets by RULE, in order (pure, deterministic). For each entry:
+ *   1. a mark printed ON the question (`printedMarks`)          → source "printed";
+ *   2. its section's header mark ("Section C … 3 marks each")   → source "section";
+ *   3. the CBSE section map (A=1, B=2, C=3, D=5, E=4), only when the paper's headers follow it
+ *      (two or more header marks, every one equal to the map)  → source "section";
+ *   4. otherwise `marks: null` — the caller keeps the model's own value.
+ * A question with no section continues the section of the question before it: a section runs
+ * across page breaks until the next header, so Q20 on a page with no header stays in Section C.
+ * @param {Array<{section: string|null, printedMarks: number|null}>} entries  in paper order
+ * @param {Array<{section?: unknown, marksEach?: unknown}>|undefined} headers  the model's sectionHeaders
+ * @returns {Array<{marks: number|null, source: 'printed'|'section'|null, section: string|null}>}
+ */
+function assignSectionMarks(entries, headers) {
+  const headerMarks = new Map(); // letter → marks; a letter with two different marks is unknown (null)
+  for (const h of Array.isArray(headers) ? headers : []) {
+    const letter = sectionLetterOf(h && h.section);
+    const marks = marksInRange(h && h.marksEach);
+    if (!letter || marks === null) continue;
+    headerMarks.set(letter, headerMarks.has(letter) && headerMarks.get(letter) !== marks ? null : marks);
+  }
+  const known = [...headerMarks.entries()].filter(([, m]) => m !== null);
+  const cbsePattern = known.length >= 2 && known.every(([l, m]) => CBSE_SECTION_MARKS[l] === m);
+  let carried = null;
+  return entries.map((e) => {
+    const section = e.section || carried;
+    if (section) carried = section;
+    if (e.printedMarks !== null) return { marks: e.printedMarks, source: 'printed', section };
+    if (section && headerMarks.get(section) != null) return { marks: headerMarks.get(section), source: 'section', section };
+    if (section && cbsePattern && !headerMarks.has(section)) return { marks: CBSE_SECTION_MARKS[section], source: 'section', section };
+    return { marks: null, source: null, section };
   });
 }
 
@@ -321,6 +396,9 @@ module.exports = {
   textLayerBlock,
   restoreSymbols,
   normaliseDetectedQuestions,
+  assignSectionMarks,
+  sectionLetterOf,
+  CBSE_SECTION_MARKS,
   isDetectRetryableError,
   salvageDetectQuestions,
   DETECT_LONG_PAPER_MESSAGE,
