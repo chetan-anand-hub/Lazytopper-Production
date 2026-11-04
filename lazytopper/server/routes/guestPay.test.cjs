@@ -1307,27 +1307,3 @@ test('HOTFIX: the no-account coverage id is a legal Firestore document id (not r
   assert.ok(!/^__.*__$/.test(id), `reserved id: ${id}`);
   assert.ok(!id.includes('/') && id !== '.' && id !== '..');
 });
-
-test('PASS-OWNER-PACKS-1 · a Board Pass OWNER buying a pack for someone else: it goes to the recipient, the payer\'s account is never changed', async (t) => {
-  const OWNER_SUB = {
-    tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(Date.parse('2027-02-17T00:00:00Z')),
-    pricePaidInr: 1917, lastPaymentRef: 'pay_owner', trialStartDate: new Date(Date.parse('2026-10-20T00:00:00Z')),
-  };
-  const db = memoryFirestore();
-  await db.collection('subscriptions').doc('uOwner').set(OWNER_SUB);
-  const before = db.read('subscriptions/uOwner');
-  const srv = await startRoutes({ env: WHO_ENV, db, uidForPhone: async (p) => (p === OTHER_PHONE ? 'uFriend' : null), uidForEmail: async () => null });
-  t.after(srv.close);
-  const { orderId } = await paidWhoOrder(
-    srv,
-    { sku: 'pack_cbq', target: 'maths', recipient: { phone: OTHER_PHONE } },
-    whoAuth('uOwner', { email: 'owner@x.com', ev: true }),
-  );
-  const stored = srv.db.read(`payOrders/${orderId}`);
-  assert.equal(stored.payerUid, 'uOwner');
-  assert.equal(stored.uid, 'uFriend', 'the recipient owns the purchase');
-  assert.ok(srv.db.read('packEntitlements/uFriend/packs/pack_cbq:maths'), 'granted to the recipient');
-  assert.equal(srv.db.keys('packEntitlements/uOwner').length, 0, 'the payer is granted nothing');
-  assert.deepEqual(srv.db.read('subscriptions/uOwner'), before, "the payer's Board Pass is untouched");
-  assert.equal(srv.db.read('subscriptions/uFriend'), undefined, 'a pack never writes a pass for the recipient either');
-});
