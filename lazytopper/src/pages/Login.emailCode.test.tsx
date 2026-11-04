@@ -91,9 +91,9 @@ describe("EMAIL-CODE-1 · /login 'Sign in with email code'", () => {
     const view = render(door("/login?redirect=%2Fpacks"));
     expect(screen.getByRole("button", { name: /Continue with phone/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Continue with email/ })).toBeTruthy();
-    fireEvent.click(screen.getByTestId("lt-email-code-door"));
-    expect(await screen.findByText("Sign in with email code")).toBeTruthy();
-    fireEvent.change(screen.getByTestId("email-code-email"), { target: { value: "asha@gmail.com" } });
+    fireEvent.click(await screen.findByTestId("lt-email-code-door"));
+    expect(await screen.findByRole("dialog", { name: "Sign in with email code" })).toBeTruthy();
+    fireEvent.change(await screen.findByTestId("email-code-email"), { target: { value: "asha@gmail.com" } });
     fireEvent.click(screen.getByTestId("email-code-send"));
     await screen.findByTestId("email-code-sent");
     expect(codes.sendEmailCode).toHaveBeenCalledWith("asha@gmail.com");
@@ -106,14 +106,17 @@ describe("EMAIL-CODE-1 · /login 'Sign in with email code'", () => {
 
   it("'Sign in another way' gives the door back", async () => {
     render(door("/login"));
-    fireEvent.click(screen.getByTestId("lt-email-code-door"));
+    fireEvent.click(await screen.findByTestId("lt-email-code-door"));
     fireEvent.click(await screen.findByTestId("email-code-other"));
+    expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.getByRole("button", { name: /Continue with phone/ })).toBeTruthy();
   });
 
-  it("flag off: no email-code button, the door exactly as before", () => {
+  it("flag off: no email-code button, the door exactly as before", async () => {
     vi.stubEnv("VITE_EMAIL_CODE_SIGNIN_ENABLED", "");
     render(door("/login"));
+    // Let the lazy door resolve: it renders nothing while off.
+    await new Promise((r) => setTimeout(r, 50));
     expect(screen.queryByTestId("lt-email-code-door")).toBeNull();
     expect(screen.queryByText(/email code/i)).toBeNull();
   });

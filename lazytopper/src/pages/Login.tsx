@@ -23,7 +23,6 @@ import SigningInScreen from "../components/auth/SigningInScreen";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
 import { isPayAutoAccountClientEnabled } from "../services/checkoutWhoFlag";
-import { isEmailCodeSigninClientEnabled } from "../services/emailCodeFlag";
 import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
@@ -75,8 +74,8 @@ export function guestPayDigitsFrom(state: unknown): string {
 
 /** PAY-ACCOUNT-1 - the passwordless email-link finish step (lazy: never in the entry chunk). */
 const EmailLinkFinish = lazy(() => import("../components/checkoutWho/EmailLinkFinish"));
-/** EMAIL-CODE-1 - "Sign in with email code" (lazy: never in the entry chunk; dark unless VITE_EMAIL_CODE_SIGNIN_ENABLED). */
-const EmailCodeSignIn = lazy(() => import("../components/auth/EmailCodeSignIn"));
+/** EMAIL-CODE-1 - "Sign in with email code" (lazy and self-gating on VITE_EMAIL_CODE_SIGNIN_ENABLED: renders nothing while off). */
+const EmailCodeDoor = lazy(() => import("../components/auth/EmailCodeDoor"));
 
 /**
  * PAY-ACCOUNT-1 - this visit is the return from a passwordless sign-in link (`?finish=link` + Firebase's one-time code),
@@ -1608,9 +1607,6 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [step, setStep] = useState<DoorStep>(opensOnPhone ? "phone" : "choose");
   // PAY-ACCOUNT-1 - back from a passwordless sign-in link (signed out): confirm the email, then signed in.
   const [finishLink, setFinishLink] = useState<boolean>(() => isEmailLinkFinish(searchParams));
-  // EMAIL-CODE-1 - the email-code step (a 6-digit code from the inbox, typed here). Login's signed-in exit takes over after.
-  const [emailCodeOpen, setEmailCodeOpen] = useState(false);
-  const [emailCodeOn] = useState<boolean>(() => isEmailCodeSigninClientEnabled());
   // SIGNIN-RESCUE-1 - phones lead with the phone-number door (Google is the secondary there). Read once
   // on mount; the Login page is client-rendered (createRoot), so there is no hydration to mismatch.
   const [phoneFirstDoor] = useState<boolean>(() => isPhoneClient());
@@ -2414,10 +2410,6 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
               <Suspense fallback={null}>
                 <EmailLinkFinish onCancel={() => setFinishLink(false)} />
               </Suspense>
-            ) : emailCodeOpen && !user ? (
-              <Suspense fallback={null}>
-                <EmailCodeSignIn showHeading onCancel={() => setEmailCodeOpen(false)} />
-              </Suspense>
             ) : step === "verify" ? (
               <VerifyEmailGate
                 email={user?.email ?? trimmedEmail}
@@ -2530,23 +2522,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   </span>
                   Continue with email
                 </button>
-                {emailCodeOn ? (
-                  <button
-                    type="button"
-                    className="lt-method"
-                    onClick={() => setEmailCodeOpen(true)}
-                    disabled={busy}
-                    data-testid="lt-email-code-door"
-                  >
-                    <span className="lt-method-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
-                        <path d="M7 12h1M11 12h1M15 12h1" />
-                      </svg>
-                    </span>
-                    Sign in with email code
-                  </button>
-                ) : null}
+                <Suspense fallback={null}>
+                  <EmailCodeDoor />
+                </Suspense>
                 </div>
 
                 {error ? (

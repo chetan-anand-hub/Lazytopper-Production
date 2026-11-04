@@ -34,6 +34,8 @@ export interface EmailCodeSignInProps {
   verify?: (email: string, code: string) => Promise<void>;
   describe?: (err: unknown) => string;
   resendAfterSec?: number;
+  /** Render inside a modal sheet over the page (Login's EmailCodeDoor). */
+  asSheet?: boolean;
 }
 
 async function defaultSend(email: string): Promise<void> {
@@ -56,7 +58,7 @@ function needsNewCode(err: unknown): boolean {
   return kind === "code_expired" || kind === "too_many_tries";
 }
 
-export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false, onSignedIn, onCancel, showHeading = false, send = defaultSend, verify = defaultVerify, describe, resendAfterSec = EMAIL_CODE_RESEND_SEC }: EmailCodeSignInProps) {
+export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false, onSignedIn, onCancel, showHeading = false, send = defaultSend, verify = defaultVerify, describe, resendAfterSec = EMAIL_CODE_RESEND_SEC, asSheet = false }: EmailCodeSignInProps) {
   const [typedEmail, setTypedEmail] = useState("");
   const email = fixedEmail ?? typedEmail;
   const [phase, setPhase] = useState<Phase>(fixedEmail && sendOnMount ? "sending" : "email");
@@ -142,7 +144,7 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
   const digits = code.split("");
   const masked = maskEmail(email);
 
-  return (
+  const body = (
     <div className="lt-lep" data-testid="email-code">
       {showHeading && <h2 className="lt-login-stephead">Sign in with email code</h2>}
       {phase === "email" || (phase === "sending" && !hasSent) ? (
@@ -238,6 +240,12 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
           Sign in another way
         </button>
       )}
+    </div>
+  );
+  if (!asSheet) return body;
+  return (
+    <div className="lt-ecs__sheet" role="dialog" aria-modal="true" aria-label="Sign in with email code">
+      <div className="lt-ecs__card">{body}</div>
     </div>
   );
 }

@@ -25,3 +25,15 @@
   .lt-ecs__boxes { gap: 4px; }
   .lt-ecs__box { height: 44px; font-size: 19px; }
 }
+/* The /login sheet (EmailCodeDoor): over the door, centred; full-width card on a phone. */
+.lt-ecs__sheet {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  padding: 16px; box-sizing: border-box; background: rgba(8, 18, 38, 0.55); overflow-y: auto;
+}
+.lt-ecs__card {
+  width: 100%; max-width: 420px; box-sizing: border-box; padding: 20px 18px; border-radius: 16px;
+  background: var(--bg-card, #ffffff); color: var(--text-primary, #0f1b2d); box-shadow: 0 18px 50px rgba(8, 18, 38, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+  .lt-ecs__card { background: var(--bg-card, #111c30); color: var(--text-primary, #eef2f8); }
+}
