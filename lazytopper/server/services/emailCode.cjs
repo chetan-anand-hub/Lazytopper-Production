@@ -2,7 +2,7 @@
 /**
  * emailCode.cjs — EMAIL-CODE-1 (owner 4 Nov 2026 11:39): the pieces behind "sign in with a 6-digit code from your email",
  * typed right there on the screen (like the phone OTP). Firebase has no email OTP, so the server issues the code and, once
- * it matches, mints a Firebase custom token for the account that OWNS that email (routes/emailCode.cjs).
+ * it matches, returns a one-time Firebase email sign-in link for the account that OWNS that email (routes/emailCode.cjs).
  *
  * ★★ ONLY A HASH IS KEPT. The 6-digit code (crypto.randomInt) is HMAC-SHA256'd with a server secret together with the
  *    (hashed) email it was issued for; the plain code exists only in memory long enough to be emailed. The email itself is

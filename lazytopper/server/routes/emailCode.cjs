@@ -15,9 +15,14 @@
  *    ever sees that code. So `verify` behaves identically for both kinds of address too (wrong code -> tries left, 5 ->
  *    locked, 10 min -> expired). The per-email and per-IP limits count REQUESTS, never eligibility.
  *
- * ★★ THE CUSTOM TOKEN IS ONLY EVER FOR THE ACCOUNT THAT OWNS THE EMAIL. After a matching code, the uid comes from
- *    firebase-admin getUserByEmail(<the normalised email the code was issued for>) and from nothing else: the body
- *    carries no uid, and none is read. A disabled account gets nothing. No account yet but a pay-first order waiting for
+ * ★★ THE SIGN-IN IS ONLY EVER INTO THE ACCOUNT THAT OWNS THE EMAIL. After a matching code, the account is
+ *    firebase-admin getUserByEmail(<the normalised email the code was issued for>) and nothing else: the body carries
+ *    no uid, and none is read. The credential returned is a one-time Firebase EMAIL SIGN-IN LINK for that email
+ *    (Admin generateSignInWithEmailLink — the same credential the "Send me the sign-in link" email carries), which the
+ *    browser redeems with signInWithEmailLink: Firebase signs in the account that owns that email.
+ *    WHY NOT A CUSTOM TOKEN (the brief's first design): firebase/auth lives in the ENTRY chunk, so ANY use of
+ *    signInWithCustomToken anywhere adds it to the entry (measured +311 B raw / +73 B gz) and breaks the PERF-3 budget
+ *    (32 B headroom at trunk with the CI capture flags). signInWithEmailLink is already in the entry: zero cost. A disabled account gets nothing. No account yet but a pay-first order waiting for
  *    this email -> the EXISTING pay-first delivery (guestPay afterRecipientPaid: findOrCreate under its first-identifier
  *    rules, then the same take + grant) runs, and the account it made is looked up again by email. Never a merge: an
  *    email belongs to at most one Firebase account, and that one is used.
@@ -27,7 +32,7 @@
  *   stranger who registered the address with a password before its owner would lose that session); see the PR note.
  *
  * ★ PRIVACY. The code is never logged, counted, put in a URL or echoed back; neither is the email. Telemetry names are
- *   fixed strings. The token travels only in this response body (Cache-Control: no-store).
+ *   fixed strings. The sign-in link travels only in this response body (Cache-Control: no-store).
  */
 
 const {
@@ -62,7 +67,7 @@ function createEmailCodeRoutes(deps = {}) {
     now = () => Date.now(),
     /**
      * firebase-admin, wired in index.cjs: { getUserByEmail(email) -> record | null, updateUser(uid, props),
-     * createCustomToken(uid) -> string, revokeRefreshTokens(uid) }.
+     * createSignInLink(email) -> string (generateSignInWithEmailLink), revokeRefreshTokens(uid) }.
      */
     authAccounts,
     /** { ready() -> boolean, send({ to, code }) -> { ok } } (services/emailCodeEmail.cjs). */
@@ -200,7 +205,7 @@ function createEmailCodeRoutes(deps = {}) {
     if (!email) return sendJson(res, 400, { ok: false, error: 'invalid_email' });
     const code = typeof body.code === 'string' || typeof body.code === 'number' ? String(body.code).replace(/\s/g, '') : '';
     if (!/^\d{6}$/.test(code)) return sendJson(res, 400, { ok: false, error: 'invalid_code' });
-    if (!ready() || typeof authAccounts.createCustomToken !== 'function') {
+    if (!ready() || typeof authAccounts.createSignInLink !== 'function') {
       emit('auth.email_code.unavailable');
       return sendJson(res, 503, { ok: false, error: 'unavailable' });
     }
@@ -240,11 +245,13 @@ function createEmailCodeRoutes(deps = {}) {
         await authAccounts.updateUser(rec.uid, { emailVerified: true });
         emit('auth.email_code.verify.email_verified');
       }
-      const token = await authAccounts.createCustomToken(rec.uid);
+      // For the OWNER's address only (the record's own email, normalised - equal to the one the code was issued for).
+      const link = await authAccounts.createSignInLink(email);
+      if (typeof link !== 'string' || !link) throw Object.assign(new Error('no link'), { code: 'no_link' });
       emit('auth.email_code.verify.signed_in');
       const headers = { 'Cache-Control': 'no-store' };
-      if (typeof sendJsonWithHeaders === 'function') return sendJsonWithHeaders(res, 200, { ok: true, token }, headers);
-      return sendJson(res, 200, { ok: true, token });
+      if (typeof sendJsonWithHeaders === 'function') return sendJsonWithHeaders(res, 200, { ok: true, link }, headers);
+      return sendJson(res, 200, { ok: true, link });
     } catch (e) {
       emit('auth.email_code.verify.failed');
       console.error('[auth/email-code/verify] sign-in failed:', e && e.code ? e.code : 'error');

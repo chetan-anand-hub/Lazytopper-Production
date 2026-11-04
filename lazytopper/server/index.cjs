@@ -520,7 +520,7 @@ const guestPayRoutes = createGuestPayRoutes({
   },
   authAccounts: payAuthAccounts,
 });
-// EMAIL-CODE-1: the uid of a custom token comes ONLY from firebase-admin's own getUserByEmail (never from a request).
+// EMAIL-CODE-1: the account comes ONLY from firebase-admin's own getUserByEmail (never from a request).
 const emailCodeRoutes = createEmailCodeRoutes({
   sendJson,
   sendJsonWithHeaders,
@@ -533,10 +533,12 @@ const emailCodeRoutes = createEmailCodeRoutes({
       if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
       return firebaseAdmin.auth().updateUser(uid, props);
     },
-    createCustomToken: async (uid) => {
-      if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
-      return firebaseAdmin.auth().createCustomToken(uid);
-    },
+    // A one-time email sign-in link for THAT address (continue URL: our own /login; the browser redeems it at once).
+    createSignInLink: (email) =>
+      payEmailSignInLink(
+        email,
+        `${require('./services/trialEndingEmail.cjs').normaliseAppUrl(process.env.PAYMENT_EMAIL_APP_URL || process.env.TRIAL_EMAIL_APP_URL)}/login`,
+      ),
     revokeRefreshTokens: async (uid) => {
       if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
       return firebaseAdmin.auth().revokeRefreshTokens(uid);

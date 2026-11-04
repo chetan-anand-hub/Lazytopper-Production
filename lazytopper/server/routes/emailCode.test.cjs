@@ -2,7 +2,7 @@
 /**
  * EMAIL-CODE-1 — sign in with a 6-digit email code. Pins: dark switch, send/verify happy path, wrong code x5 lockout,
  * expiry (server clock), single use, no enumeration (same answer and the same code-state behaviour for an address with
- * no account), per-email + per-IP limits, custom-token uid = the email's owner (never the body's), unverified email
+ * no account), per-email + per-IP limits, the sign-in link is for the email's owner (never a body uid), unverified email
  * marked verified (and password sessions revoked), a pay-first order waiting for the email -> the existing delivery
  * makes the account, the code never in logs / telemetry / responses.
  */
@@ -41,7 +41,7 @@ function harness({ env = ON, accounts = {}, orders = {}, mailerReady = true, pay
   const now = () => t;
   const sent = [];
   const events = [];
-  const calls = { updateUser: [], createCustomToken: [], revoke: [], deliver: [] };
+  const calls = { updateUser: [], createSignInLink: [], revoke: [], deliver: [] };
   const responses = [];
   const res = {};
   const sendJson = (_res, status, body) => responses.push({ status, body, headers: {} });
@@ -73,9 +73,11 @@ function harness({ env = ON, accounts = {}, orders = {}, mailerReady = true, pay
       calls.updateUser.push({ uid, props });
       for (const a of Object.values(accounts)) if (a.uid === uid) Object.assign(a, props);
     },
-    createCustomToken: async (uid) => {
-      calls.createCustomToken.push(uid);
-      return `token-for-${uid}`;
+    // The link is minted for an EMAIL; tests read back which account owned it at that moment.
+    createSignInLink: async (email) => {
+      const owner = accounts[email];
+      calls.createSignInLink.push({ email, uid: owner ? owner.uid : null });
+      return `https://www.lazytopper.com/__/auth/action?mode=signIn&oobCode=X&continueUrl=%2Flogin#${owner ? owner.uid : 'none'}`;
     },
     revokeRefreshTokens: async (uid) => calls.revoke.push(uid),
   };
@@ -135,7 +137,7 @@ test('paths', () => {
   assert.equal(EMAIL_CODE_VERIFY_PATH, '/api/auth/email-code/verify');
 });
 
-test('happy path: send emails a 6-digit code to the owner; verify returns a custom token for the owner (no-store)', async () => {
+test('happy path: send emails a 6-digit code to the owner; verify returns a one-time sign-in link for that email (no-store)', async () => {
   const h = harness({ accounts: STUDENT() });
   const r = await h.send('  Asha@Gmail.com ');
   assert.deepEqual(r.body, { ok: true });
@@ -144,18 +146,21 @@ test('happy path: send emails a 6-digit code to the owner; verify returns a cust
   assert.match(h.sent[0].code, /^\d{6}$/);
   const v = await h.verify('asha@gmail.com', h.sent[0].code);
   assert.equal(v.status, 200);
-  assert.deepEqual(v.body, { ok: true, token: 'token-for-uidAsha' });
+  assert.equal(v.body.ok, true);
+  assert.match(v.body.link, /oobCode=/);
+  assert.deepEqual(Object.keys(v.body).sort(), ['link', 'ok']);
   assert.equal(v.headers['Cache-Control'], 'no-store');
-  assert.deepEqual(h.calls.createCustomToken, ['uidAsha']);
+  assert.deepEqual(h.calls.createSignInLink.map((c) => c.uid), ['uidAsha']);
   assert.equal(h.calls.updateUser.length, 0, 'already verified: nothing written');
 });
 
-test('the token uid is ALWAYS the email owner: a uid in the body is ignored', async () => {
+test('the sign-in is ALWAYS into the email owner: a uid in the body is ignored, the link is for the code\'s email', async () => {
   const h = harness({ accounts: STUDENT() });
   await h.send('asha@gmail.com');
-  const v = await h.verify('asha@gmail.com', h.sent[0].code, undefined, { uid: 'attackerUid' });
-  assert.equal(v.body.token, 'token-for-uidAsha');
-  assert.deepEqual(h.calls.createCustomToken, ['uidAsha']);
+  const v = await h.verify('asha@gmail.com', h.sent[0].code, undefined, { uid: 'attackerUid', email2: 'x@evil.com' });
+  assert.ok(v.body.link.endsWith('#uidAsha'), 'the link signs in the email owner');
+  assert.deepEqual(h.calls.createSignInLink.map((c) => c.email), ['asha@gmail.com']);
+  assert.deepEqual(h.calls.createSignInLink.map((c) => c.uid), ['uidAsha']);
 });
 
 test('a right code for ONE email never signs in another email', async () => {
@@ -165,7 +170,7 @@ test('a right code for ONE email never signs in another email', async () => {
   await h.send('ravi@gmail.com');
   const v = await h.verify('ravi@gmail.com', '111111');
   assert.equal(v.body.error, 'code_mismatch');
-  assert.equal(h.calls.createCustomToken.length, 0);
+  assert.equal(h.calls.createSignInLink.length, 0);
 });
 
 test('wrong code x5 -> locked ("send a new one"); even the right code is refused after; a new code unlocks', async () => {
@@ -176,7 +181,7 @@ test('wrong code x5 -> locked ("send a new one"); even the right code is refused
   assert.deepEqual(left, [4, 3, 2, 1]);
   assert.deepEqual((await h.verify('asha@gmail.com', '000000')).body, { ok: false, error: 'too_many_tries' });
   assert.deepEqual((await h.verify('asha@gmail.com', '424242')).body, { ok: false, error: 'too_many_tries' });
-  assert.equal(h.calls.createCustomToken.length, 0);
+  assert.equal(h.calls.createSignInLink.length, 0);
   h.advance(31 * 1000);
   await h.send('asha@gmail.com');
   assert.equal((await h.verify('asha@gmail.com', '737373')).body.ok, true);
@@ -187,7 +192,7 @@ test('expiry on the server clock: 10 minutes', async () => {
   await h.send('asha@gmail.com');
   h.advance(CODE_TTL_MS + 1);
   assert.deepEqual((await h.verify('asha@gmail.com', '555555')).body, { ok: false, error: 'code_expired' });
-  assert.equal(h.calls.createCustomToken.length, 0);
+  assert.equal(h.calls.createSignInLink.length, 0);
   await h.send('asha@gmail.com');
   h.advance(CODE_TTL_MS - 1000);
   assert.equal((await h.verify('asha@gmail.com', '666666')).body.ok, true);
@@ -199,7 +204,7 @@ test('single use: a code that signed in once never signs in again', async () => 
   const code = h.sent[0].code;
   assert.equal((await h.verify('asha@gmail.com', code)).body.ok, true);
   assert.deepEqual((await h.verify('asha@gmail.com', code)).body, { ok: false, error: 'code_expired' });
-  assert.equal(h.calls.createCustomToken.length, 1);
+  assert.equal(h.calls.createSignInLink.length, 1);
 });
 
 test('a NEW code replaces the old one (the old one stops working)', async () => {
@@ -237,7 +242,7 @@ test('NO ENUMERATION: the send answer is written BEFORE the address is looked up
         order.push('lookup');
         return null;
       },
-      createCustomToken: async () => 't',
+      createSignInLink: async () => 'l',
     },
     mailer: { ready: () => true, send: async () => ({ ok: true }) },
   });
@@ -303,17 +308,17 @@ test('an UNVERIFIED email on an existing account: the code proves it -> marked v
   const h = harness({ accounts });
   await h.send('meera@gmail.com');
   const v = await h.verify('meera@gmail.com', h.sent[0].code);
-  assert.equal(v.body.token, 'token-for-uidMeera');
+  assert.ok(v.body.link.endsWith('#uidMeera'), 'the link signs in the email owner');
   assert.deepEqual(h.calls.updateUser, [{ uid: 'uidMeera', props: { emailVerified: true } }]);
   assert.deepEqual(h.calls.revoke, ['uidMeera']);
 });
 
-test('a pay-first account (pay- uid, email unverified, no password): verified, no revoke, token for it', async () => {
+test('a pay-first account (pay- uid, email unverified, no password): verified, no revoke, the link signs it in', async () => {
   const accounts = { 'kid@gmail.com': { uid: 'pay-0123456789abcdef01234567', email: 'kid@gmail.com', emailVerified: false, providerData: [] } };
   const h = harness({ accounts });
   await h.send('kid@gmail.com');
   const v = await h.verify('kid@gmail.com', h.sent[0].code);
-  assert.equal(v.body.token, 'token-for-pay-0123456789abcdef01234567');
+  assert.ok(v.body.link.endsWith('#pay-0123456789abcdef01234567'), 'the link signs in the email owner');
   assert.equal(h.calls.revoke.length, 0);
 });
 
@@ -323,7 +328,7 @@ test('a disabled account is never emailed nor signed in', async () => {
   await h.send('off@gmail.com');
   assert.equal(h.sent.length, 0);
   assert.deepEqual((await h.verify('off@gmail.com', '999999')).body, { ok: false, error: 'no_account' });
-  assert.equal(h.calls.createCustomToken.length, 0);
+  assert.equal(h.calls.createSignInLink.length, 0);
 });
 
 const WAITING = (extra = {}) => ({
@@ -345,7 +350,7 @@ test('pay-first order waiting (PAY_AUTO_ACCOUNT on): the code is emailed; verify
   assert.equal(h.sent.length, 1);
   const v = await h.verify('new@gmail.com', h.sent[0].code);
   assert.deepEqual(h.calls.deliver, [{ orderId: 'ord1', paymentId: 'pay_1' }]);
-  assert.equal(v.body.token, 'token-for-pay-aaaaaaaaaaaaaaaaaaaaaaaa');
+  assert.ok(v.body.link.endsWith('#pay-aaaaaaaaaaaaaaaaaaaaaaaa'), 'the link signs in the email owner');
   assert.deepEqual(h.calls.updateUser, [{ uid: 'pay-aaaaaaaaaaaaaaaaaaaaaaaa', props: { emailVerified: true } }]);
 });
 

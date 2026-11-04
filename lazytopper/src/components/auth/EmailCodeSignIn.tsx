@@ -6,7 +6,7 @@
  *   email -> "Send code" -> six boxes (ONE numeric input, autocomplete="one-time-code") -> signed in.
  *   "Send a new code" after 30 s. Clear errors: "That code didn't match — 4 tries left", "Code expired — send a new one".
  *
- * Signed in = Firebase signInWithCustomToken; every existing after-sign-in path (Login's safe redirect, AuthContext's claim,
+ * Signed in = Firebase signInWithEmailLink with the server's one-time link (services/emailCode); every existing after-sign-in path (Login's safe redirect, AuthContext's claim,
  * the pay-first first sign-in) runs unchanged. The email and the code live in this component's memory only.
  */
 import { useEffect, useRef, useState, type FormEvent } from "react";
