@@ -2,7 +2,11 @@
  * GRADE-ROUTE-1 - a calm offer on the Answer Checker confirm step: "This looks like your worksheet WS-M-MIX-02.
  * Grading it on its worksheet page uses the official answer key and marks."
  *
- * Shows ONLY when the uploaded paper's text carries a worksheet code that is in THIS student's own records.
+ * Shows ONLY when the uploaded paper's text carries a worksheet code that is in THIS student's own records AND
+ * (GRADE-ROUTE-3) the upload IS the paper stored under that code: its first questions are found in what the page has
+ * read (the PDF's first-page text, or the read questions once "Read the question" ran). A code that matches a
+ * DIFFERENT paper (pre-#1556 codes could repeat), a stored paper without question texts, or nothing to compare yet
+ * -> no offer.
  * Unknown / someone else's code, signed out, or a read failure -> renders nothing and the page is unchanged.
  * "Grade here anyway" only hides the banner: the grade request is the page's own, byte-identical. Never grades.
  * Lazy-loaded by the page (own chunk). Class-based styling (scoped <style>, the FreeCheckPanels convention).
@@ -10,7 +14,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
-import { findPaperCodes, resolveOwnPaper, type OwnPaperMatch } from "./paperCodeMatch";
+import { findPaperCodes, isSamePaper, resolveOwnPaper, type OwnPaperMatch } from "./paperCodeMatch";
 import { readPdfPaperText } from "./pdfPaperText";
 import { decodePaperCodeFromImage } from "./decodePaperCode";
 
@@ -65,15 +69,15 @@ export default function PaperCodeRouteBanner({ uid, texts, files }: PaperCodeRou
 
   const codes = useMemo(() => findPaperCodes([...texts, ...pdfTexts]), [texts, pdfTexts]);
   const codeKey = codes.join("|");
-  const [match, setMatch] = useState<OwnPaperMatch | null>(null);
+  const [candidate, setCandidate] = useState<OwnPaperMatch | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     let live = true;
-    setMatch(null);
+    setCandidate(null);
     if (!uid || codes.length === 0) return;
     void resolveOwnPaper(codes, uid).then((m) => {
-      if (live) setMatch(m);
+      if (live) setCandidate(m);
     });
     return () => {
       live = false;
@@ -81,6 +85,11 @@ export default function PaperCodeRouteBanner({ uid, texts, files }: PaperCodeRou
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, codeKey]);
 
+  // GRADE-ROUTE-3 - the code is not enough: offer only when the upload IS the stored paper.
+  const match = useMemo(
+    () => (candidate && isSamePaper(candidate.storedQuestions, [...texts, ...pdfTexts]) ? candidate : null),
+    [candidate, texts, pdfTexts],
+  );
   const shownFor = match?.code ?? null;
   // Fired in the SAME commit that puts the banner on screen (layout effect), not on a later passive-effect tick:
   // "shown" is true exactly when the banner is in the DOM.
