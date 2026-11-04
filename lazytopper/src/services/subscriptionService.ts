@@ -509,17 +509,19 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
     // browser: rules accept only request.time) is asked to restore the sign-up trial, once
     // per call and capped per page session. It refuses an older account and never touches an
     // existing document, so an account older than a day, or one with any record, cannot get
-    // a trial from here. If the server cannot be reached, the local trial is kept (as for an
-    // unreadable cloud) rather than wiped, and the next load tries again.
+    // a trial from here. ONLY a transient failure (network, timeout, 5xx, 429) keeps the local
+    // trial for the next load; a refusal (401/403/409) or a still-absent re-read wipes it.
     const local = loadLocal(uid);
     if (local && local.tier !== "premium" && !local.passEnd && local.trialStartDate && (await isSignedInNewAccount(uid))) {
       const ensured = await ensureSignupTrial(uid);
+      if (ensured === "transient") return applyExpiry(local);
       if (ensured === "ok") {
         const again = await loadCloud(uid);
         if (again.kind === "found") cloud = again;
-      } else {
-        return applyExpiry(local);
+        else if (again.kind === "error") return applyExpiry(local);
+        // still absent after a 200: fall through to the free default, exactly as trunk did
       }
+      // "refused" (401/403/409 ...): fall through - a local-only trial is wiped as on trunk
     }
   }
 
@@ -622,8 +624,16 @@ async function saveTrialWithRetry(uid: string, status: SubscriptionStatus): Prom
 const ENSURE_SIGNUP_ENDPOINT = "/api/trial/ensure-signup";
 const ENSURE_MAX_ATTEMPTS_PER_UID = 3;
 const NEW_ACCOUNT_WINDOW_MS = DAY_MS;
+const ENSURE_TIMEOUT_MS = 8000;
 const ensureAttempts = new Map<string, number>();
-const ensureInflight = new Map<string, Promise<"ok" | "failed">>();
+const ensureInflight = new Map<string, Promise<EnsureOutcome>>();
+
+/**
+ * "ok" = the document exists afterwards. "transient" = could not be decided (network error,
+ * timeout, 5xx, 429, no token): keep what we have and try again later. "refused" = the server
+ * (or the Auth state) said no (401/403/409 ...): the account is not entitled to a restore.
+ */
+type EnsureOutcome = "ok" | "transient" | "refused";
 
 /**
  * Ask the server to create THIS signed-in student's sign-up trial if, and only if, the account
@@ -631,26 +641,33 @@ const ensureInflight = new Map<string, Promise<"ok" | "failed">>();
  * is trusted). "ok" = the document exists afterwards (created now, or already there).
  * Single-flight per uid and at most ENSURE_MAX_ATTEMPTS_PER_UID calls per page session.
  */
-function ensureSignupTrial(uid: string): Promise<"ok" | "failed"> {
+function ensureSignupTrial(uid: string): Promise<EnsureOutcome> {
   const running = ensureInflight.get(uid);
   if (running) return running;
   const used = ensureAttempts.get(uid) ?? 0;
-  if (used >= ENSURE_MAX_ATTEMPTS_PER_UID) return Promise.resolve("failed");
+  if (used >= ENSURE_MAX_ATTEMPTS_PER_UID) return Promise.resolve("transient");
   ensureAttempts.set(uid, used + 1);
-  const run = (async (): Promise<"ok" | "failed"> => {
+  const run = (async (): Promise<EnsureOutcome> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       const { authClient } = await import("./firebaseClient");
       const current = authClient?.currentUser ?? null;
-      if (!current || current.uid !== uid) return "failed";
+      if (!current || current.uid !== uid) return "refused";
       const token = await current.getIdToken().catch(() => null);
-      if (!token) return "failed";
+      if (!token) return "transient";
+      const controller = new AbortController();
+      timer = setTimeout(() => controller.abort(), ENSURE_TIMEOUT_MS);
       const res = await fetch(ENSURE_SIGNUP_ENDPOINT, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal,
       });
-      return res.ok ? "ok" : "failed";
+      if (res.ok) return "ok";
+      return res.status >= 500 || res.status === 429 ? "transient" : "refused";
     } catch {
-      return "failed";
+      return "transient";
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
     }
   })().finally(() => {
     ensureInflight.delete(uid);
@@ -679,7 +696,16 @@ const pendingTrialWrites = new Map<string, Promise<void>>();
 /** Resolves once this uid's sign-up trial write (if any is in flight) has settled. Never rejects. */
 export function whenTrialWriteSettled(uid: string): Promise<void> {
   const p = pendingTrialWrites.get(uid);
-  return p ? p.then(() => undefined, () => undefined) : Promise.resolve();
+  if (!p) return Promise.resolve();
+  // TRIAL-SAVE-1: never make a purchase claim wait longer than the server-restore timeout.
+  return new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, ENSURE_TIMEOUT_MS);
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    p.then(done, done);
+  });
 }
 
 export function activatePremium(uid: string): SubscriptionStatus {

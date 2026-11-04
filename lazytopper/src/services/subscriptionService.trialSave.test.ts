@@ -57,6 +57,9 @@ let cloudDoc: Record<string, Record<string, unknown> | null> = {};
 let fetchMock: ReturnType<typeof vi.fn>;
 let serverCreationMs: Record<string, number> = {};
 let serverReachable = true;
+let forcedStatus: number | null = null; // the server answers this status and writes nothing
+let fetchHangs = false; // the server never answers (the request is only ended by the abort signal)
+let ok200NoCreate = false; // a 200 that (impossibly) leaves the doc absent
 
 function signIn(uid: string, ageMs: number) {
   const created = Date.now() - ageMs;
@@ -80,6 +83,9 @@ beforeEach(() => {
   cloudDoc = {};
   serverCreationMs = {};
   serverReachable = true;
+  forcedStatus = null;
+  fetchHangs = false;
+  ok200NoCreate = false;
   authState.currentUser = null;
   getDocMock.mockReset();
   setDocMock.mockReset();
@@ -90,7 +96,14 @@ beforeEach(() => {
     return Promise.resolve(snapOf(String(args[args.length - 1])));
   });
   // A faithful miniature of the server route: create-only, < 24 h, start = creationTime.
-  fetchMock = vi.fn((url: string, init: { headers: Record<string, string> }) => {
+  fetchMock = vi.fn((url: string, init: { headers: Record<string, string>; signal?: AbortSignal }) => {
+    if (fetchHangs) {
+      return new Promise((_resolve, reject) => {
+        init.signal?.addEventListener("abort", () => reject(new Error("aborted")));
+      });
+    }
+    if (forcedStatus !== null) return Promise.resolve({ ok: forcedStatus < 400, status: forcedStatus });
+    if (ok200NoCreate) return Promise.resolve({ ok: true, status: 200 });
     if (!serverReachable) return Promise.reject(new Error("network"));
     const uid = String(init.headers.Authorization).replace("Bearer tok-", "");
     expect(url).toBe("/api/trial/ensure-signup");
@@ -310,4 +323,95 @@ it("T11 a signed-out / mismatched Auth user can never reach the server restore",
   await activateAndSettle(uid);
 
   expect(fetchMock).not.toHaveBeenCalled();
+});
+
+// ===========================================================================
+// T12-T16 - review fixes: ONLY a transient failure keeps a local-only trial
+// ===========================================================================
+const handWrittenTrial = (uid: string) =>
+  localStorage.setItem(
+    keyFor(uid),
+    JSON.stringify({ tier: "trial", plan: "trial_7day", trialStartDate: new Date().toISOString(), trialEndDate: null, premiumSince: null }),
+  );
+
+it("T12 the server says 409 (account too old) though the device clock says new: the local trial is wiped -> Basic", async () => {
+  const uid = "t12-409";
+  signIn(uid, HOUR); // device clock: a 1 h old account (clock set back)
+  serverCreationMs[uid] = Date.now() - 30 * HOUR; // the server knows better
+  handWrittenTrial(uid);
+
+  const resolved = await hydrateSubscriptionFromCloud(uid);
+
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(resolved.tier).toBe("free");
+  expect(readCache(uid)?.tier).toBe("free");
+  expect(cloudDoc[uid]).toBeUndefined();
+});
+
+it("T13 401 / 403 -> Basic, local trial wiped", async () => {
+  for (const status of [401, 403]) {
+    const uid = `t13-${status}`;
+    signIn(uid, HOUR);
+    handWrittenTrial(uid);
+    forcedStatus = status;
+    const resolved = await hydrateSubscriptionFromCloud(uid);
+    expect(resolved.tier).toBe("free");
+    expect(readCache(uid)?.tier).toBe("free");
+  }
+});
+
+it("T14 5xx / 429 are transient: the local trial is kept (and nothing uploaded)", async () => {
+  for (const status of [500, 503, 429]) {
+    const uid = `t14-${status}`;
+    signIn(uid, HOUR);
+    handWrittenTrial(uid);
+    forcedStatus = status;
+    const resolved = await hydrateSubscriptionFromCloud(uid);
+    expect(resolved.tier).toBe("trial");
+    expect(readCache(uid)?.tier).toBe("trial");
+  }
+  expect(setDocMock).not.toHaveBeenCalled();
+});
+
+it("T15 a 200 whose re-read is still absent falls through to the free default", async () => {
+  const uid = "t15-still-absent";
+  signIn(uid, HOUR);
+  handWrittenTrial(uid);
+  ok200NoCreate = true;
+
+  const resolved = await hydrateSubscriptionFromCloud(uid);
+
+  expect(resolved.tier).toBe("free");
+  expect(readCache(uid)?.tier).toBe("free");
+});
+
+it("T16 the server call is aborted after 8 s (transient: local kept) and a purchase claim never waits longer", async () => {
+  const uid = "t16-timeout";
+  signIn(uid, HOUR);
+  handWrittenTrial(uid);
+  fetchHangs = true;
+
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  const pending = hydrateSubscriptionFromCloud(uid);
+  await vi.advanceTimersByTimeAsync(7900);
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(false);
+  await vi.advanceTimersByTimeAsync(200);
+  const resolved = await pending;
+  expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
+  expect(resolved.tier).toBe("trial");
+
+  // whenTrialWriteSettled is bounded even if the cloud write itself never settles (offline).
+  const uid2 = "t16-claim";
+  signIn(uid2, 60 * 1000);
+  setDocMock.mockReturnValue(new Promise<void>(() => undefined));
+  activateTrial(uid2);
+  let settled = false;
+  void whenTrialWriteSettled(uid2).then(() => {
+    settled = true;
+  });
+  await vi.advanceTimersByTimeAsync(7900);
+  expect(settled).toBe(false);
+  await vi.advanceTimersByTimeAsync(200);
+  expect(settled).toBe(true);
 });

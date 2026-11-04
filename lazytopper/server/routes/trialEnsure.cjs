@@ -20,7 +20,15 @@
  *     `{created:false}`. An existing trial is never moved or recreated;
  *   - the start is the account's own `creationTime` (clamped to now), i.e. the sign-up
  *     instant the browser would have pinned, so retrying cannot buy extra days;
- *   - 5 calls / 10 min / uid.
+ *   - 5 calls / 10 min / uid (in-memory, per server process: a restart or a second instance
+ *     resets it; the create-only transaction is what makes repeats harmless).
+ *
+ * KNOWN RESIDUAL (erasure ordering): accountErasure deletes Firestore BEFORE the Auth account
+ * and writes no in-progress marker. A call that lands between the two deletes sees a live Auth
+ * account and could create a doc after erasure cleared Firestore; the post-write re-check only
+ * catches an Auth account already gone. The window is milliseconds, needs the student to call
+ * this endpoint during their own erasure, and the doc holds only a tier/plan/start (no
+ * profile data). Closing it needs an erasure marker, which does not exist today.
  *
  * Document shape = exactly what the browser's activation write produces
  * ({tier:'trial', plan:'trial_7day', premiumSince:null, trialStartDate:<Timestamp>,
