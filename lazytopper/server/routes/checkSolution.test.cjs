@@ -3412,3 +3412,24 @@ test('§GS.6 ★ schema/prompt: firstQuestion is an additive nullable header fie
   assert.match(textOfCall(h2), /"firstQuestion"/);
   assert.match(textOfCall(h2), /ABOVE a header on the same page belongs to the section BEFORE/);
 });
+
+test('§GS.7 ★ review F1: an UNLABELLED question whose carried section disagrees with the order is flagged, not silently "section"', () => {
+  // Headers A1 B14 C22 D23 E24 (C placed wrongly); Q18 labelled C, Q19–21 unlabelled (carried C).
+  const hs = [['A', 1, 1], ['B', 2, 14], ['C', 3, 22], ['D', 5, 23], ['E', 4, 24]].map(([section, marksEach, firstQuestion]) => ({ section, marksEach, firstQuestion }));
+  const r = GM_D.assignSectionMarks([18, 19, 20, 21].map((n) => ({ n, section: n === 18 ? 'C' : null, printedMarks: null })), hs);
+  assert.deepEqual(r.map((x) => [x.marks, x.source, x.section]), [[2, 'inferred', 'B'], [2, 'inferred', 'B'], [2, 'inferred', 'B'], [2, 'inferred', 'B']]);
+});
+
+test('§GS.8 review F3: a General Instructions duplicate header (no firstQuestion) is dropped when the real header has one', async () => {
+  const reply = gsReply({ q20q21Label: 'C' });
+  reply.sectionHeaders = [...GS_TRUTH.map(([l, m]) => ({ section: l, marksEach: m, firstQuestion: null })), ...reply.sectionHeaders];
+  const qs = await gsDetect(reply);
+  assert.ok(qs.every((q) => q.marksSource === 'section'), 'nothing flagged by the instruction lines');
+  assert.equal(qs.reduce((s, q) => s + q.marks, 0), 51);
+  // and the WS-M-MIX-02 disagreement is still caught with the instruction lines present
+  const r2 = gsReply();
+  r2.sectionHeaders = [{ section: 'D', marksEach: 5, firstQuestion: null }, ...r2.sectionHeaders];
+  const q2 = await gsDetect(r2);
+  assert.deepEqual([gsQ(q2, 20).marks, gsQ(q2, 20).marksSource], [3, 'inferred']);
+  assert.equal(q2.reduce((s, q) => s + q.marks, 0), 51);
+});

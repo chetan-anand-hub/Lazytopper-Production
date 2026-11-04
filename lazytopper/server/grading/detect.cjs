@@ -285,6 +285,10 @@ function assignSectionMarks(entries, headers) {
   }
   const known = [...headerMarks.entries()].filter(([, m]) => m !== null);
   const cbsePattern = known.length >= 2 && known.every(([l, m]) => CBSE_SECTION_MARKS[l] === m);
+  // GRADE-SECTION-1 · a General Instructions line ("Section A has 20 MCQs of 1 mark each") listed as a
+  // header has no firstQuestion: drop it when the same letter's real header has one.
+  const placed = new Set(ordered.filter((h) => h.first !== null).map((h) => h.letter));
+  for (let i = ordered.length - 1; i >= 0; i -= 1) if (ordered[i].first === null && placed.has(ordered[i].letter)) ordered.splice(i, 1);
   // GRADE-SECTION-1 · the ranges are established only when every header has a firstQuestion and they
   // increase in header order. Otherwise: the sections whose range is open (own or next start unknown).
   const byOrder = ordered.length > 0 && ordered.every((h, i) => h.first !== null && (i === 0 || h.first > ordered[i - 1].first));
@@ -302,16 +306,19 @@ function assignSectionMarks(entries, headers) {
   };
   let carried = null;
   return entries.map((e) => {
-    let section = e.section || carried;
+    // labelSection: the section GRADE-MARKS-1 used (the model's label, else carried from the last label).
+    const labelSection = e.section || carried;
+    if (labelSection) carried = labelSection;
+    let section = labelSection;
     let disagrees = false;
     if (byOrder && Number.isFinite(e.n) && e.numberAssigned !== true) {
       const bySeq = sectionByOrder(e.n);
       if (bySeq) {
-        disagrees = e.section !== null && e.section !== undefined && e.section !== bySeq;
+        // any disagreement with the label-or-carried section is flagged (an unlabelled question too)
+        disagrees = labelSection !== null && labelSection !== undefined && labelSection !== bySeq;
         section = bySeq;
       }
     }
-    if (section) carried = section;
     const unsure = disagrees || (section !== null && openSections.has(section));
     const ruled = ruleFor(e, section, headerMarks, cbsePattern);
     if (unsure && ruled.source === 'section') ruled.source = 'inferred';
