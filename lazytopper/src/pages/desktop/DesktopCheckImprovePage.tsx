@@ -215,6 +215,8 @@ prefetchKatexWhenIdle();
 // BANK-SPLIT-1 PR-2 (T3): the "Your checked papers" panel is its own chunk, fetched the
 // first time the student opens it (it renders only while `panelOpen`).
 const CheckImproveHistoryPanel = lazy(() => import("../../components/checkimprove/CheckImproveHistoryPanel"));
+// GRADE-ROUTE-1 - offer to grade the student's OWN worksheet on its worksheet page (own chunk; renders nothing otherwise).
+const PaperCodeRouteBanner = lazy(() => import("../../components/checkimprove/PaperCodeRouteBanner"));
 
 /**
  * DesktopCheckImprovePage — real desktop Check & Improve workflow.
@@ -3370,6 +3372,15 @@ const DesktopCheckImprovePageInner: React.FC<{
               {questionFileError && (
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{questionFileError}</div>
               )}
+
+              {confirmed && user?.uid && !user.isLocalSession ? (
+                <Suspense fallback={null}>
+                  <PaperCodeRouteBanner
+                    uid={user.uid}
+                    texts={[question, qImageName, imageName, ...(detectedQuestions ?? []).map((q) => q.questionText)]}
+                  />
+                </Suspense>
+              ) : null}
 
               {/* UPLOAD-READ-1 — the read was CUT OFF: say how many questions we got and what to do.
                   Same note style as the sibling chips; shown for one question or many. */}
