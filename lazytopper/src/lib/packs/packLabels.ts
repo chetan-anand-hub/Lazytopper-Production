@@ -61,6 +61,17 @@ export function redownloadUntilFor(paidAtMs?: number | null): string {
   if (typeof paidAtMs !== "number" || !Number.isFinite(paidAtMs) || paidAtMs <= 0) return REDOWNLOAD_UNTIL_LEGACY;
   return paidAtMs >= PACK_TERMS_CUTOFF_MS ? REDOWNLOAD_UNTIL : REDOWNLOAD_UNTIL_LEGACY;
 }
+/**
+ * REDOWNLOAD-ENFORCE-1: the LAST instant (end of the day, IST) each date allows a download. The SERVER enforces it
+ * (server/services/packTerms.cjs, on its own clock); these are the client copy, pinned to the server's by
+ * packTerms.serverParity.test.ts.
+ */
+export const REDOWNLOAD_ENDS_AT = "2027-03-31T23:59:59.999+05:30";
+export const REDOWNLOAD_ENDS_AT_LEGACY = "2027-05-31T23:59:59.999+05:30";
+/** The last ms a pack paid at `paidAtMs` may be downloaded (same rule as redownloadUntilFor). PURE. */
+export function redownloadEndsMsFor(paidAtMs?: number | null): number {
+  return Date.parse(redownloadUntilFor(paidAtMs) === REDOWNLOAD_UNTIL ? REDOWNLOAD_ENDS_AT : REDOWNLOAD_ENDS_AT_LEGACY);
+}
 /** "Download again any time until <date>" for a pack paid at `paidAtMs` (cover line). */
 export function redownloadCopyFor(paidAtMs?: number | null): string {
   return `Download again any time until ${redownloadUntilFor(paidAtMs)}`;

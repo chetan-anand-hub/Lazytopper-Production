@@ -22,8 +22,11 @@
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
 
 const CREDIT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-/** PACK-TERMS-1: packs paid at or after this instant earn no Board Pass credit (2026-11-05T00:00:00+05:30). */
-const PACK_CREDIT_CUTOFF_MS = Date.parse('2026-11-05T00:00:00+05:30');
+/**
+ * PACK-TERMS-1: packs paid at or after this instant earn no Board Pass credit (2026-11-05T00:00:00+05:30). REDOWNLOAD-ENFORCE-1: read from
+ * packTerms.cjs, the one place the server keeps the pack-terms cut-off (the re-download date changes at the same instant).
+ */
+const PACK_CREDIT_CUTOFF_MS = require('./packTerms.cjs').PACK_TERMS_CUTOFF_MS;
 const RAZORPAY_MIN_INR = 1;
 const BOARD_PASS_TYPE = 'till_boards';
 /** Razorpay caps a notes value at 256 characters; beyond this the ids stay on the stored order only. */
