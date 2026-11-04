@@ -168,3 +168,28 @@ describe("CHECKOUT-WHO-2 · email helpers live in the import-free flag module", 
     expect(flagMaskEmail("Anaya.K@Gmail.com")).toBe("an••••@gmail.com");
   });
 });
+
+describe("PAY-ACCOUNT-1 · client switch and share helpers", () => {
+  it("VITE_PAY_AUTO_ACCOUNT_ENABLED needs CHECKOUT-WHO on too; default off", async () => {
+    const { isPayAutoAccountClientEnabled } = await import("./checkoutWhoFlag");
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "");
+    vi.stubEnv("VITE_PAY_AUTO_ACCOUNT_ENABLED", "");
+    expect(isPayAutoAccountClientEnabled()).toBe(false);
+    vi.stubEnv("VITE_PAY_AUTO_ACCOUNT_ENABLED", "1");
+    expect(isPayAutoAccountClientEnabled()).toBe(false);
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    expect(isPayAutoAccountClientEnabled()).toBe(true);
+    vi.unstubAllEnvs();
+  });
+
+  it("the child's message names WHAT to sign in with (first-entered), never the value; WhatsApp carries only the text", async () => {
+    const { childShareText, whatsappShareUrl, landingPath } = await import("./checkoutWho");
+    const both = childShareText("Board Pass", { phone: "+919876543210", email: "a@b.in", first: "email" });
+    expect(both).toContain("sign in with your email");
+    expect(childShareText("Board Pass", { phone: "+919876543210", first: "phone" })).toContain("sign in with your mobile number");
+    for (const t of [both]) expect(t).not.toMatch(/98765|a@b\.in/);
+    expect(whatsappShareUrl("hi there")).toBe("https://wa.me/?text=hi%20there");
+    expect(landingPath("pack")).toBe("/packs#my-packs");
+    expect(landingPath("pass")).toBe("/");
+  });
+});

@@ -415,7 +415,32 @@ const accountExportRoutes = createAccountExportRoutes({
 });
 
 // PAY-PHONE-1 (A): one receipt email per verified payment. OFF unless PAYMENT_EMAIL_ENABLED + RESEND_API_KEY.
-const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({ adminFirestore, telemetry });
+// PAY-ACCOUNT-1: firebase-admin's own records for "pay first, the account is made for them" (dark behind
+// PAY_AUTO_ACCOUNT_ENABLED). Lookups answer a record or null (ANY account); createUser throws firebase-admin's error.
+const authRecordOrNull = async (fn) => {
+  if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
+  try {
+    return await fn(firebaseAdmin.auth());
+  } catch (e) {
+    if (e && e.code === 'auth/user-not-found') return null;
+    throw e;
+  }
+};
+const payAuthAccounts = {
+  createUser: async (input) => {
+    if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
+    return firebaseAdmin.auth().createUser(input);
+  },
+  getUser: (uid) => authRecordOrNull((a) => a.getUser(uid)),
+  getUserByPhone: (e164) => authRecordOrNull((a) => a.getUserByPhoneNumber(e164)),
+  getUserByEmail: (email) => authRecordOrNull((a) => a.getUserByEmail(email)),
+};
+// PAY-ACCOUNT-1: the one-tap passwordless sign-in link in the "account is ready" email (continue URL: our own app only).
+const payEmailSignInLink = async (email, continueUrl) => {
+  if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
+  return firebaseAdmin.auth().generateSignInWithEmailLink(email, { url: continueUrl, handleCodeInApp: true });
+};
+const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({ adminFirestore, telemetry, emailSignInLink: payEmailSignInLink });
 const paymentRoutes = createPaymentRoutes({
   sendJson,
   verifiedCaller,
@@ -491,6 +516,7 @@ const guestPayRoutes = createGuestPayRoutes({
       throw e;
     }
   },
+  authAccounts: payAuthAccounts,
 });
 const parentReportRoutes = createParentReportRoutes({
   sendJson,

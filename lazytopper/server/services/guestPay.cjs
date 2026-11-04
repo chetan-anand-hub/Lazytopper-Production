@@ -26,6 +26,15 @@ function isCheckoutWhoFlagOn(env = process.env) {
 }
 
 /**
+ * PAY-ACCOUNT-1 - the server switch for "pay first, the account is made for them": after a VERIFIED recipient payment for
+ * someone with no account, the server creates the Firebase account and grants to it. Same truthy grammar. Off -> exactly
+ * CHECKOUT-WHO's behaviour (the order waits `paid_unclaimed` for a claim).
+ */
+function isPayAutoAccountFlagOn(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.PAY_AUTO_ACCOUNT_ENABLED) || '').trim());
+}
+
+/**
  * CHECKOUT-WHO-1 - an email address as the claim key: trimmed, lower-cased, at most 254 characters, one `@`, a dotted
  * domain with a 2+ letter TLD, no spaces / angle brackets / quotes. Anything else -> null. (Firebase compares sign-in
  * emails case-insensitively; storing the lower-cased form makes the claim query an exact match.)
@@ -107,6 +116,7 @@ module.exports = {
   GUEST_STATUS,
   isGuestPayFlagOn,
   isCheckoutWhoFlagOn,
+  isPayAutoAccountFlagOn,
   normaliseEmail,
   maskEmail,
   normaliseIndianMobile,

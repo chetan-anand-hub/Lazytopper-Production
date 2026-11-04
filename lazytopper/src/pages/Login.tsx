@@ -22,6 +22,7 @@ import OfferStrip from "../components/auth/OfferStrip";
 import SigningInScreen from "../components/auth/SigningInScreen";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
+import { isPayAutoAccountClientEnabled } from "../services/checkoutWhoFlag";
 import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
@@ -69,6 +70,17 @@ type LocationState = {
 export function guestPayDigitsFrom(state: unknown): string {
   const v = state && typeof state === "object" ? (state as LocationState).guestPayPhone : undefined;
   return typeof v === "string" && /^[6-9][0-9]{9}$/.test(v) ? v : "";
+}
+
+/** PAY-ACCOUNT-1 - the passwordless email-link finish step (lazy: never in the entry chunk). */
+const EmailLinkFinish = lazy(() => import("../components/checkoutWho/EmailLinkFinish"));
+
+/**
+ * PAY-ACCOUNT-1 - this visit is the return from a passwordless sign-in link (`?finish=link` + Firebase's one-time code),
+ * while the pay-first switch is on. Only markers are read from the URL; never an email.
+ */
+export function isEmailLinkFinish(search: URLSearchParams): boolean {
+  return isPayAutoAccountClientEnabled() && search.get("finish") === "link" && search.get("mode") === "signIn" && search.has("oobCode");
 }
 
 /**
@@ -1591,6 +1603,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     ((location.state || {}) as LocationState).phoneFirst === true ||
     searchParams.get("method") === "phone";
   const [step, setStep] = useState<DoorStep>(opensOnPhone ? "phone" : "choose");
+  // PAY-ACCOUNT-1 - back from a passwordless sign-in link (signed out): confirm the email, then signed in.
+  const [finishLink, setFinishLink] = useState<boolean>(() => isEmailLinkFinish(searchParams));
   // SIGNIN-RESCUE-1 - phones lead with the phone-number door (Google is the secondary there). Read once
   // on mount; the Login page is client-rendered (createRoot), so there is no hydration to mismatch.
   const [phoneFirstDoor] = useState<boolean>(() => isPhoneClient());
@@ -2390,7 +2404,11 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
           </Link>
 
           <div className="lt-login-frame">
-            {step === "verify" ? (
+            {finishLink && !user ? (
+              <Suspense fallback={null}>
+                <EmailLinkFinish onCancel={() => setFinishLink(false)} />
+              </Suspense>
+            ) : step === "verify" ? (
               <VerifyEmailGate
                 email={user?.email ?? trimmedEmail}
                 knownPassword={password || undefined}

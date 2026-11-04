@@ -285,8 +285,9 @@ describe("AuthContext call sites", () => {
     const src = readFileSync(path.join(__dirname, "..", "context", "AuthContext.tsx"), "utf8");
     const signUps = (src.match(/^\s*trackSignUp(IfNew)?\(/gm) ?? []).length;
     const sends = (src.match(/^\s*sendVisitSource(IfNewUser|OnSignUp)\(/gm) ?? []).length;
-    // 4 doors: popup, email sign-up, phone OTP, and GOOGLE-REDIRECT-1's getRedirectResult.
-    expect(signUps).toBe(4);
+    // 5 doors: popup, email sign-up, phone OTP, GOOGLE-REDIRECT-1's getRedirectResult, and PAY-ACCOUNT-1's first sign-in
+    // of an account made at payment (the server's once-only firstSignIn).
+    expect(signUps).toBe(5);
     expect(sends).toBe(signUps);
     const login = readFileSync(path.join(__dirname, "..", "pages", "Login.tsx"), "utf8");
     expect(login).not.toMatch(/visitSource/);

@@ -46,6 +46,20 @@
  *    "already paid, not yet claimed" (CHECKOUT-WHO-2), after the SAME coverage read whether or not an account was found.
  *    Switch off: an order body's `recipient` is ignored and every route answers exactly as before.
  *
+ * ★★ PAY-ACCOUNT-1 (owner 4 Nov 2026) - "pay first, the account is made for them", DARK behind PAY_AUTO_ACCOUNT_ENABLED
+ *    (on top of CHECKOUT_WHO). After a VERIFIED recipient payment for which NO account exists, the server creates the
+ *    Firebase account (Admin SDK createUser, the FIRST-entered phone or email only; an email unverified) under a uid DERIVED from the order
+ *    id (`pay-<hash>`: the client SDK never makes a uid with a hyphen, so `pay-` marks an account made here, and verify +
+ *    webhook racing on the same order create ONE user - the loser gets uid-already-exists and uses it), then grants through
+ *    the SAME take + grant. Existing rules stand. Owner addendum A (security): when ONE identifier already has an account
+ *    and the other is new, the purchase goes to the EXISTING account and the other identifier is NEVER added to it, and no
+ *    second account is made for it (admin note `second_identifier_not_linked`; the student can link it later through the
+ *    verified "also sign in with" step) - else paying ₹49 with a victim's email and your own phone would hand you their
+ *    account. Creation failure -> the order stays `paid_unclaimed` (today's claim still rescues it), admin note
+ *    `account_not_created`. A NEW account carries ONLY the first-entered identifier (review HIGH 1). Nothing is written to
+ *    Firestore for it at payment (sign-up writes no users doc either); its trial starts at its FIRST SIGN-IN (its
+ *    sign-up), inside the claim's transaction, and the claim reports `firstSignIn` ONCE. Switch off: not one byte runs.
+ *
  * ★ PRIVACY. The phone number is stored on the order (it is the claim key) and goes to Razorpay's checkout as the
  *    read-only contact. It is never in a URL, a Razorpay order note, a telemetry name or an analytics event; responses
  *    carry it MASKED (`+91 98•••••948`). The per-phone limiter keys on its SHA-256, not the number.
@@ -72,6 +86,7 @@ const {
   GUEST_STATUS,
   isGuestPayFlagOn,
   isCheckoutWhoFlagOn,
+  isPayAutoAccountFlagOn,
   normaliseEmail,
   maskEmail,
   normaliseIndianMobile,
@@ -127,6 +142,26 @@ function isGuestPayEnabled(env = process.env) {
 function isCheckoutWhoEnabled(env = process.env) {
   return isPaymentsEnabled(env) && isCheckoutWhoFlagOn(env);
 }
+
+/** PAY-ACCOUNT-1: CHECKOUT-WHO (both its switches) AND PAY_AUTO_ACCOUNT_ENABLED. */
+function isPayAutoAccountEnabled(env = process.env) {
+  return isCheckoutWhoEnabled(env) && isPayAutoAccountFlagOn(env);
+}
+
+/** PAY-ACCOUNT-1 - the prefix of a uid this server created at payment. The client SDK's uids are [A-Za-z0-9] only. */
+const AUTO_ACCOUNT_UID_PREFIX = 'pay-';
+/** PAY-ACCOUNT-1 - the uid of the account created for a paid order: derived from the order id, so a race makes ONE user. */
+function autoAccountUid(orderId) {
+  return `${AUTO_ACCOUNT_UID_PREFIX}${crypto.createHash('sha256').update(`lazytopper-pay-account:${orderId}`).digest('hex').slice(0, 24)}`;
+}
+function isAutoAccountUid(uid) {
+  return typeof uid === 'string' && /^pay-[0-9a-f]{24}$/.test(uid);
+}
+/** PAY-ACCOUNT-1 admin notes (shown on the admin Purchases rows). */
+const SECOND_NOT_LINKED_NOTE = 'second_identifier_not_linked';
+const ACCOUNT_NOT_CREATED_NOTE = 'account_not_created';
+/** PAY-ACCOUNT-1 `claimedVia` for an order granted to an account made at payment. */
+const VIA_ACCOUNT_CREATED = 'account_created';
 
 /** CHECKOUT-WHO-1 payer types (admin view): who paid for an order that names a recipient. */
 const PAYER_TYPE = Object.freeze({ signedOut: 'signed_out', signedInOther: 'signed_in_other' });
@@ -231,6 +266,12 @@ function createGuestPayRoutes(deps = {}) {
      */
     uidForPhone,
     uidForEmail,
+    /**
+     * PAY-ACCOUNT-1 (firebase-admin, wired in index.cjs): { createUser({ uid, phoneNumber?, email?, emailVerified }),
+     * getUser(uid), getUserByPhone(e164), getUserByEmail(email) } - the lookups answer a record ({ uid }) or null, ANY
+     * account (verified email or not); createUser throws firebase-admin's error (with `.code`). Absent -> nothing is created.
+     */
+    authAccounts,
   } = deps;
   const limiters = deps.limiters || createGuestPayLimiters({ telemetry, now });
 
@@ -502,7 +543,7 @@ function createGuestPayRoutes(deps = {}) {
     const secondary = first === 'email' ? p : e;
     const uid = primary || secondary || null;
     const note = p && e && p !== e ? { note: TWO_ACCOUNTS_NOTE, otherUid: uid === p ? e : p } : null;
-    return { uid, note };
+    return { uid, note, byPhone: p, byEmail: e };
   }
 
   /** CHECKOUT-WHO-1 - does this account already have what is being bought (Board Pass to the boards / this pack)? */
@@ -793,7 +834,23 @@ function createGuestPayRoutes(deps = {}) {
         email: typeof order.guestEmail === 'string' ? order.guestEmail : null,
         first: order.recipientFirst === 'email' ? 'email' : 'phone',
       });
-      if (!target.uid) return;
+      const auto = isPayAutoAccountEnabled(env) && !!authAccounts && typeof authAccounts.createUser === 'function';
+      // PAY-ACCOUNT-1: nobody has this phone / email yet - the account is made now (switch off: the order waits). Review
+      // MED 2: the account found may be THIS order's own (a concurrent run made it a moment ago) - still "created at
+      // payment", through the same path (its labels, its sign-in email, its first sign-in).
+      if (!target.uid || (auto && target.uid === autoAccountUid(orderId))) {
+        if (auto) await deliverToNewAccount(orderId, order);
+        return;
+      }
+      // PAY-ACCOUNT-1 addendum A: one identifier on an account, the other on none -> the existing account gets it and the
+      // other identifier is NOT added to it (and no second account is made). Recorded for the admin; switch off: nothing.
+      let existingExtra;
+      if (auto && !target.note && order.guestPhone && order.guestEmail && !(target.byPhone && target.byEmail)) {
+        emit('payments.guest.deliver.second_not_linked');
+        await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ adminNote: SECOND_NOT_LINKED_NOTE }, { merge: true });
+        // What the recipient email may say: the account signs in with the identifier that FOUND it, never the other.
+        existingExtra = target.uid === target.byEmail ? { accountSignInWith: 'email', accountHasEmail: true } : { accountSignInWith: 'phone' };
+      }
       if (target.note) {
         emit('payments.guest.deliver.two_accounts');
         await adminFirestore
@@ -801,7 +858,7 @@ function createGuestPayRoutes(deps = {}) {
           .doc(orderId)
           .set({ adminNote: target.note.note, otherAccountUid: target.note.otherUid }, { merge: true });
       }
-      const outcome = await attachOrder(orderId, target.uid, (o) => o.checkoutWho === true, 'existing_account');
+      const outcome = await attachOrder(orderId, target.uid, (o) => o.checkoutWho === true, 'existing_account', existingExtra);
       if (outcome && outcome.claimed) {
         emit('payments.guest.deliver.granted');
         // CHECKOUT-WHO-2: the account was not signed in here, so the "Also sign in with <masked>?" offer waits on the order
@@ -817,10 +874,97 @@ function createGuestPayRoutes(deps = {}) {
   }
 
   /**
+   * PAY-ACCOUNT-1 - find (an account this server made at an earlier payment) or create the recipient's account. Returns
+   * { uid, created, hasEmail, secondNotLinked } or { uid: null, reason }.
+   * ★★ Review HIGH 1 (pre-staging takeover): a NEW account carries ONLY the FIRST-entered identifier, never both. Two
+   *    unverified identifiers on one account would let a payer stage an account with a victim's phone and their own email
+   *    (or the reverse), open it by the identifier they control, and have the victim sign into it later. The second
+   *    identifier is never put on any account here; the student adds it later through the verified "also sign in with"
+   *    step. And (addendum A) an identifier already used by ANY account never goes on a new one.
+   */
+  async function findOrCreateAccount(orderId, { phone, email, first }) {
+    const lookup = async (fn, v) => (v && typeof fn === 'function' ? fn(v) : null);
+    const phoneRec = await lookup(authAccounts.getUserByPhone, phone);
+    const emailRec = await lookup(authAccounts.getUserByEmail, email);
+    const idOf = (r) => (r && typeof r.uid === 'string' && r.uid ? r.uid : null);
+    const own = autoAccountUid(orderId);
+    const both = !!phone && !!email;
+    // An existing account: one with the phone (SMS-verified - a sign-up raced the payment), or one THIS server made.
+    const firstRec = first === 'email' ? emailRec : phoneRec;
+    const otherRec = first === 'email' ? phoneRec : emailRec;
+    for (const rec of [firstRec, otherRec]) {
+      const id = idOf(rec);
+      if (!id || !(rec === phoneRec || isAutoAccountUid(id))) continue;
+      const hasPhone = idOf(phoneRec) === id;
+      const hasEmail = idOf(emailRec) === id;
+      // THIS order's own account (a concurrent run created it a moment ago) is still "created at payment".
+      return { uid: id, created: id === own, hasEmail, signInWith: hasEmail && !hasPhone ? 'email' : hasPhone ? 'phone' : 'email', secondNotLinked: both && !(hasPhone && hasEmail) };
+    }
+    // The new account: the first-entered identifier ONLY, and only while no account of any kind uses it.
+    const firstValue = first === 'email' ? email : phone;
+    const firstFree = !!firstValue && !idOf(firstRec);
+    if (!firstFree) return { uid: null, reason: first === 'email' ? 'email_in_use' : 'phone_in_use' };
+    const input = { uid: own, emailVerified: false, ...(first === 'email' ? { email } : { phoneNumber: phone }) };
+    try {
+      await authAccounts.createUser(input);
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'auth/uid-already-exists') {
+        // verify + webhook raced on THIS order: the other run made it. Use it.
+        const rec = typeof authAccounts.getUser === 'function' ? await authAccounts.getUser(own) : null;
+        if (!idOf(rec)) return { uid: null, reason: 'create_failed' };
+      } else if (code === 'auth/phone-number-already-exists' || code === 'auth/email-already-exists') {
+        // A sign-up took the identifier between the lookup and the create: re-resolve by the existing rules, else wait.
+        const again = await resolveRecipientAccount({ phone, email, first });
+        if (again.uid) {
+          const hasEmail = again.uid === again.byEmail;
+          return { uid: again.uid, created: false, hasEmail, signInWith: hasEmail && again.uid !== again.byPhone ? 'email' : 'phone', secondNotLinked: both && !(again.byPhone && again.byEmail) };
+        }
+        return { uid: null, reason: 'identifier_taken' };
+      } else {
+        return { uid: null, reason: 'create_failed' };
+      }
+    }
+    return { uid: own, created: true, hasEmail: first === 'email', signInWith: first === 'email' ? 'email' : 'phone', secondNotLinked: both };
+  }
+
+  /** PAY-ACCOUNT-1 - a paid recipient order with NO account: make it, then the SAME take + grant. Never throws. */
+  async function deliverToNewAccount(orderId, order) {
+    const orderRef = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+    let made;
+    try {
+      made = await findOrCreateAccount(orderId, {
+        phone: typeof order.guestPhone === 'string' && order.guestPhone ? order.guestPhone : null,
+        email: typeof order.guestEmail === 'string' && order.guestEmail ? order.guestEmail : null,
+        first: order.recipientFirst === 'email' ? 'email' : 'phone',
+      });
+    } catch (e) {
+      made = { uid: null, reason: 'create_failed' };
+      console.error('[pay/guest/deliver] account lookup / create failed:', e && e.code);
+    }
+    if (!made.uid) {
+      // Never lose a paid order: it stays paid_unclaimed for today's claim; the owner sees "account not created".
+      emit('payments.guest.deliver.account_not_created');
+      await orderRef.set({ adminNote: ACCOUNT_NOT_CREATED_NOTE, accountCreateError: made.reason || 'create_failed' }, { merge: true });
+      return;
+    }
+    if (made.created) emit('payments.guest.deliver.account_created');
+    if (made.secondNotLinked) emit('payments.guest.deliver.second_not_linked');
+    const extra = {
+      ...(made.hasEmail ? { accountHasEmail: true } : {}),
+      accountSignInWith: made.signInWith,
+      adminNote: made.secondNotLinked ? SECOND_NOT_LINKED_NOTE : null,
+      accountCreateError: null,
+    };
+    const outcome = await attachOrder(orderId, made.uid, (o) => o.checkoutWho === true, made.created ? VIA_ACCOUNT_CREATED : 'existing_account', extra);
+    if (outcome && outcome.claimed) emit('payments.guest.deliver.granted');
+  }
+
+  /**
    * ONE TRANSACTION: re-read the order and take it for `uid`. Returns the order to grant, or null when it is not this
    * caller's to take (another phone, not paid, already someone else's, erased).
    */
-  async function takeOrder(orderId, uid, matches, via) {
+  async function takeOrder(orderId, uid, matches, via, extra) {
     const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
     return adminFirestore.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
@@ -829,7 +973,7 @@ function createGuestPayRoutes(deps = {}) {
       if (!order || order.payer !== GUEST_PAYER || !matches(order)) return null;
       if (typeof order.paymentId !== 'string' || !order.paymentId) return null;
       if (order.status === GUEST_STATUS.paidUnclaimed && (order.uid === null || order.uid === undefined)) {
-        tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()), claimAttempts: 1, ...(via && order.checkoutWho === true ? { claimedVia: via } : {}) }, { merge: true });
+        tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()), claimAttempts: 1, ...(via && order.checkoutWho === true ? { claimedVia: via } : {}), ...(extra || {}) }, { merge: true });
         return { ...order, uid, status: GUEST_STATUS.claimed };
       }
       // A claim interrupted after this step (or whose grant failed): only the SAME uid may finish it, and only while
@@ -849,9 +993,9 @@ function createGuestPayRoutes(deps = {}) {
    * delivery to an existing account, so there is one copy of the take, the duplicate rules and the grant.
    * Returns { claimed } | { duplicate: true } | { failed: true } | null (not this caller's to take).
    */
-  async function attachOrder(orderId, uid, matches, via) {
+  async function attachOrder(orderId, uid, matches, via, extra) {
     try {
-      const order = await takeOrder(orderId, uid, matches, via);
+      const order = await takeOrder(orderId, uid, matches, via, extra);
       if (!order) return null;
       const paymentRef = order.paymentId;
       const orderRef = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
@@ -1001,9 +1145,54 @@ function createGuestPayRoutes(deps = {}) {
       emit('payments.guest.claim.pending_prompt_failed');
       console.error('[pay/guest/claim] pending prompt read failed:', e && e.message);
     }
+    // PAY-ACCOUNT-1: the FIRST sign-in of an account made at payment is its sign-up. Said ONCE (the orders are marked in a
+    // transaction) so the client can count the sign-up. Review LOW 5: the sign-up TRIAL starts HERE, in that same
+    // transaction, so a lost response cannot lose it - with activateTrial's own rules: never over premium, a pass or a
+    // trial already started, and never for a Board Pass account (covered anyway). Only for a `pay-` uid; switch off: never.
+    let firstSignIn = false;
+    let trialStarted = false;
+    if (isPayAutoAccountEnabled(env) && isAutoAccountUid(uid)) {
+      try {
+        const made = await adminFirestore
+          .collection(PAY_ORDERS_COLLECTION)
+          .where('uid', '==', uid)
+          .where('claimedVia', '==', VIA_ACCOUNT_CREATED)
+          .limit(MAX_ORDERS_PER_CLAIM)
+          .get();
+        const refs = (made && Array.isArray(made.docs) ? made.docs : []).map((d) => adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(d.id));
+        if (refs.length) {
+          const subRef = adminFirestore.collection('subscriptions').doc(uid);
+          const out = await adminFirestore.runTransaction(async (tx) => {
+            const orders = [];
+            for (const ref of refs) {
+              const snap = await tx.get(ref);
+              orders.push({ ref, o: snap && snap.exists ? snap.data() || {} : null });
+            }
+            const subSnap = await tx.get(subRef);
+            const sub = subSnap && subSnap.exists ? subSnap.data() || {} : {};
+            const fresh = orders.filter(({ o }) => o && o.uid === uid && !o.firstSignInAt);
+            if (!fresh.length) return { first: false, trial: false };
+            const at = new Date(now());
+            for (const { ref } of fresh) tx.set(ref, { firstSignInAt: at }, { merge: true });
+            const covered = sub.tier === 'premium' || !!sub.passEnd || !!sub.passType || !!sub.trialStartDate;
+            if (covered) return { first: true, trial: false };
+            // The same record the client's activateTrial writes at sign-up (the start pinned to the server's clock).
+            tx.set(subRef, { tier: 'trial', plan: 'trial_7day', premiumSince: null, trialStartDate: at, updatedAt: at.toISOString() }, { merge: true });
+            return { first: true, trial: true };
+          });
+          firstSignIn = out.first;
+          trialStarted = out.trial;
+          if (trialStarted) emit('payments.guest.claim.first_signin_trial');
+        }
+      } catch (e) {
+        emit('payments.guest.claim.first_signin_failed');
+        console.error('[pay/guest/claim] first sign-in failed:', e && e.message);
+      }
+    }
     return sendJson(res, 200, {
       ok: true,
       claimed,
+      ...(firstSignIn ? { firstSignIn: true, trialStarted } : {}),
       ...(failed ? { failed } : {}),
       ...(duplicates ? { duplicates } : {}),
       ...(alsoSignIn ? { alsoSignIn } : {}),
@@ -1018,6 +1207,12 @@ module.exports = {
   createGuestPayLimiters,
   isGuestPayEnabled,
   isCheckoutWhoEnabled,
+  isPayAutoAccountEnabled,
+  autoAccountUid,
+  isAutoAccountUid,
+  SECOND_NOT_LINKED_NOTE,
+  ACCOUNT_NOT_CREATED_NOTE,
+  VIA_ACCOUNT_CREATED,
   readRecipient,
   NO_ACCOUNT_COVERAGE_ID,
   phoneKey,
