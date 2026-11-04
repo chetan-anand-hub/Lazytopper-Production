@@ -1,6 +1,8 @@
 import { type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { MobileAccountMenu } from "./MobileAccountMenu";
+import RouteNav from "../nav/RouteNav";
+import { useShellNavSlot } from "../nav/routeNavSlot";
 
 interface MobileShellProps {
   /** Page title shown in sticky header. Omit to hide header entirely. */
@@ -54,6 +56,8 @@ export function MobileShell({
   };
 
   const hasHeader = Boolean(title || showBack || rightSlot);
+  // NAV-1 — while this header is mounted it owns the Back/Home row (App's row steps aside before paint).
+  useShellNavSlot(hasHeader);
 
   return (
     <div
@@ -157,6 +161,8 @@ export function MobileShell({
         </header>
       )}
 
+      {/* NAV-1 — "← <parent>" + Home under the page header (App's own row steps aside meanwhile). */}
+      {hasHeader && <RouteNav placement="shell" />}
       <main
         className="animate-float-up"
         style={{

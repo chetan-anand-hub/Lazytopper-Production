@@ -26,7 +26,7 @@ import { useIsDesktop } from "./hooks/useIsDesktop";
 import { DesktopShell } from "./components/desktop/DesktopShell";
 import MobileShell from "./components/mobile/MobileShell";
 // NAV-1 — "← <parent>" + Home on every non-Home page (one route→parent map in lib/nav/routeParents.ts).
-import RouteNavBar from "./components/nav/RouteNavBar";
+import RouteNav from "./components/nav/RouteNav";
 
 // Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
 const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
@@ -1396,12 +1396,12 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
         if (shouldUseDesktopShell) {
           return (
             <DesktopShell onOpenSearch={() => setPaletteOpen(true)}>
-              <RouteNavBar />
+              <RouteNav />
               {routesEl}
             </DesktopShell>
           );
         }
-        return <div style={{ paddingBottom: '60px' }}><RouteNavBar />{routesEl}</div>;
+        return <div style={{ paddingBottom: '60px' }}><RouteNav />{routesEl}</div>;
       })()}
       </ErrorBoundary>
       <BottomNav />

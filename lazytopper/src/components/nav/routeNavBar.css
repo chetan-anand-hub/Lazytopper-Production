@@ -54,3 +54,11 @@
     padding: 12px 24px 4px;
   }
 }
+/* Under a MobileShell header: the content column already has its own side gutter rhythm. */
+.lt-routenav.lt-routenav--shell {
+  padding: 10px clamp(12px, calc(100vw - 468px), 20px) 0;
+}
+/* The placeholder row while the row's chunk loads: the same box, empty. */
+.lt-routenav .lt-routenav__row--ghost {
+  min-height: 44px;
+}

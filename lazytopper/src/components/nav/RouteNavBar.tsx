@@ -2,7 +2,6 @@ import { type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { readHistoryIdx, resolveBackTarget } from "../../lib/nav/routeParents";
-import "./routeNavBar.css";
 
 /**
  * RouteNavBar - NAV-1 (owner, 4 Nov 2026): a "← <parent>" Back control and a Home control at the top of every page
@@ -13,9 +12,12 @@ import "./routeNavBar.css";
  * from the ONE route map (lib/nav/routeParents.ts), "← Pricing", "← Topic Hub", ... Both controls are real links to
  * internal paths, so they work with the keyboard, with a modifier-click into a new tab, and without JS.
  *
+ * Loaded LAZILY by RouteNav (the eager wrapper, which decides visibility and reserves the row's height meanwhile), so
+ * the route map stays out of the entry chunk (PERF-3 budget). Styles: routeNavBar.css, imported by RouteNav.
+ *
  * NAVIGATION ONLY: nothing here touches grading, pricing, payment or the trial.
  */
-export default function RouteNavBar() {
+export default function RouteNavBar({ placement = "page" }: { placement?: "page" | "shell" } = {}) {
   const location = useLocation();
   const navigate = useNavigate();
   const target = resolveBackTarget(location.pathname, readHistoryIdx());
@@ -29,7 +31,7 @@ export default function RouteNavBar() {
   const backAria = target.kind === "history" ? "Back to the previous page" : `Back to ${target.label}`;
 
   return (
-    <nav className="lt-routenav" aria-label="Page navigation" data-testid="route-nav">
+    <nav className={`lt-routenav lt-routenav--${placement}`} aria-label="Page navigation" data-testid="route-nav">
       <div className="lt-routenav__row">
         <Link
           className="lt-routenav__btn lt-routenav__btn--back"

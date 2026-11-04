@@ -56,8 +56,12 @@ export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
  *  2026-10-25 PACKS-CLIENT-1: +446 B gz (272,950 -> 273,396, flag ON) for the /packs route, activity events and Meta map (owner revenue priority);
  *  reduction lane [FU-PERF3-BUDGET] queued.
  *  2026-10-25 PACKS-UX-1: +~125 B (grouped pack pending row on Home + packs labels); reduction lane [FU-PERF3-BUDGET] queued.
- *  2026-10-25 PACKS-ENTRY-1: +~200 B (lazy entry-point wrappers, pack_entry_click event); reduction lane [FU-PERF3-BUDGET] queued. */
-export const MEASURED_ENTRY_GZ = 249110;
+ *  2026-10-25 PACKS-ENTRY-1: +~200 B (lazy entry-point wrappers, pack_entry_click event); reduction lane [FU-PERF3-BUDGET] queued.
+ *  2026-11-04 NAV-1: +~330 B gz (trunk 273,928 -> 274,25x; the budget had 93 B left) for the owner's Back/Home row on every
+ *  page. Only the eager wrapper (hidden-route regex, one-row slot, placeholder) and the pass-name chip labels are in the
+ *  entry; the route map and the row itself load lazily. MEASURED raised 249,110 -> 249,420 (budget 274,021 -> 274,362).
+ *  reduction lane [FU-PERF3-BUDGET] still queued. */
+export const MEASURED_ENTRY_GZ = 249420;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */

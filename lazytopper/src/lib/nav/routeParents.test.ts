@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { isRouteNavHidden } from "./routeNavHidden";
 import { ROUTE_PARENTS, findRouteEntry, isInternalNavPath, resolveBackTarget, targetLabel } from "./routeParents";
 
 const APP = readFileSync(resolve(__dirname, "../../App.tsx"), "utf8");
@@ -30,6 +31,17 @@ describe("NAV-1 route -> parent map", () => {
       if (pattern === "*") continue;
       expect(findRouteEntry(sample(pattern)), pattern).toBe(entry);
     }
+  });
+
+  it("the eager hidden-check (entry chunk) agrees with the map on every route", () => {
+    const sample = (p: string) => p.replace(/:([A-Za-z]+)/g, "x-$1").replace(/\/\*$/, "/deep");
+    for (const [pattern] of ROUTE_PARENTS) {
+      if (pattern === "*") continue;
+      const path = sample(pattern);
+      expect(isRouteNavHidden(path), pattern).toBe(resolveBackTarget(path, 0) === null);
+    }
+    expect(isRouteNavHidden("/loginx")).toBe(false);
+    expect(isRouteNavHidden("/u")).toBe(false);
   });
 
   it("every parent is an internal path and the map has no external URL", () => {

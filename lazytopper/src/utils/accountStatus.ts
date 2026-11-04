@@ -32,14 +32,8 @@ export interface AccountStatusInput {
 
 /** "30 Nov" in India time; null when the ISO string does not parse. */
 export function formatPassEndShort(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return null;
-  try {
-    return new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
-  } catch {
-    return null;
-  }
+  const t = Date.parse(iso || "");
+  return Number.isNaN(t) ? null : new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
 }
 
 /**
