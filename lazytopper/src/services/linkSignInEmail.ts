@@ -24,6 +24,7 @@ import {
   linkWithCredential,
   linkWithPopup,
   sendSignInLinkToEmail,
+  signInWithEmailLink,
 } from "firebase/auth";
 import { authClient, getPopupRedirectResolver } from "./firebaseClient";
 import { normaliseEmail } from "./checkoutWhoFlag";
@@ -69,6 +70,28 @@ export async function completeEmailLink(rawEmail: string, href: string = window.
   const email = normaliseEmail(rawEmail);
   if (!email) throw Object.assign(new Error("invalid email"), { code: "auth/invalid-email" });
   await linkWithCredential(current, EmailAuthProvider.credentialWithLink(email, href));
+}
+
+/**
+ * PAY-ACCOUNT-1 - SIGN IN (not link) with an email link: "Send me the sign-in link" on the thank-you screen, for the account
+ * made at payment. The return path is a FIXED internal one (My packs / Home), never caller-supplied text. The address is
+ * not stored anywhere (no localStorage): finishing on return asks for it again, as the link step above does.
+ */
+export const SIGN_IN_RETURN_PATHS = Object.freeze(["/packs", "/"]);
+export async function sendSignInLinkForEmail(rawEmail: string, returnPath: string, origin: string = window.location.origin): Promise<void> {
+  const email = normaliseEmail(rawEmail);
+  if (!email) throw Object.assign(new Error("invalid email"), { code: "auth/invalid-email" });
+  if (!authClient) throw new Error("Firebase Auth is not configured");
+  const path = SIGN_IN_RETURN_PATHS.includes(returnPath) ? returnPath : "/";
+  await sendSignInLinkToEmail(authClient, email, { url: `${origin}${path}`, handleCodeInApp: true });
+}
+
+/** PAY-ACCOUNT-1 - on return from that link (signed out): the address typed again + the link's one-time code -> signed in. */
+export async function completeSignInWithEmailLink(rawEmail: string, href: string = window.location.href): Promise<void> {
+  const email = normaliseEmail(rawEmail);
+  if (!email) throw Object.assign(new Error("invalid email"), { code: "auth/invalid-email" });
+  if (!authClient) throw new Error("Firebase Auth is not configured");
+  await signInWithEmailLink(authClient, email, href);
 }
 
 /** Drop the one-time code from the address bar once it is used (or refused), keeping the path. */

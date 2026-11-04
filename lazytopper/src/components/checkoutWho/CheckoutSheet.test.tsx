@@ -76,7 +76,8 @@ describe("signed out", () => {
   it("phone only: detected, read back, paid, then sign in with that number", async () => {
     const p = mount();
     expect(screen.getByText("Who will use it?")).toBeTruthy();
-    expect(screen.getByText("Mobile number or email they sign in with")).toBeTruthy();
+    // PAY-ACCOUNT-1 addendum B: the student's details, not the parent's.
+    expect(screen.getByText("Student's mobile number or email")).toBeTruthy();
     expect((screen.getByTestId("who-pay") as HTMLButtonElement).disabled).toBe(true);
     type("who-first", "98765 43210");
     expect(screen.getByTestId("who-kind").textContent).toBe("✓ Mobile number");
@@ -113,8 +114,8 @@ describe("signed out", () => {
     type("who-first", "9876543210");
     fireEvent.click(screen.getByTestId("who-add-second"));
     // Owner test 4 Nov: the second box has its OWN visible label, so "✓ Mobile number" (about box 1) can't read as its heading.
-    expect(screen.getByTestId("who-second-label").textContent).toBe("Their email (optional)");
-    expect(screen.getByLabelText("Their email (optional)")).toBe(screen.getByTestId("who-second"));
+    expect(screen.getByTestId("who-second-label").textContent).toBe("Student's email (optional)");
+    expect(screen.getByLabelText("Student's email (optional)")).toBe(screen.getByTestId("who-second"));
     type("who-second", "anaya@");
     expect(screen.getByTestId("who-second-error").textContent).toBe("Enter a full email address, like name@gmail.com.");
     expect((screen.getByTestId("who-pay") as HTMLButtonElement).disabled).toBe(true);
@@ -170,5 +171,53 @@ describe("CHECKOUT-WHO-2 · one generic line for 'covered' and 'already pending'
     const line = (await screen.findByTestId("who-unavailable")).textContent;
     expect(line).toBe("This can't be bought for that number or email right now. If the student already has it, they can sign in to check.");
     expect(line).not.toMatch(/account|anaya/i);
+  });
+});
+
+describe("PAY-ACCOUNT-1 addendum B · copy so a parent does not type their OWN details", () => {
+  const HELP = "The one your child will log in with \u2014 not yours. Razorpay asks for your own details for the receipt.";
+
+  it("signed out: the student's field label, the helper line under it, the student's second-box labels; Pay keeps the read-back", () => {
+    mount({ item: CBQ });
+    expect(screen.getByLabelText("Student's mobile number or email")).toBe(screen.getByTestId("who-first"));
+    expect(screen.getByTestId("who-help").textContent).toBe(HELP);
+    expect(screen.getByTestId("who-first").getAttribute("aria-describedby")).toBe("lt-who-help");
+    type("who-first", "84049 44410");
+    expect(screen.getByTestId("who-pay").textContent).toBe("Pay \u20b9199 for 84049 44410");
+    fireEvent.click(screen.getByTestId("who-add-second"));
+    expect(screen.getByTestId("who-second-label").textContent).toBe("Student's email (optional)");
+    cleanup();
+    mount();
+    type("who-first", "anaya@gmail.com");
+    fireEvent.click(screen.getByTestId("who-add-second"));
+    expect(screen.getByTestId("who-second-label").textContent).toBe("Student's mobile number (optional)");
+  });
+
+  it("signed in, 'Buying for someone else?' uses the same copy", () => {
+    mount({ signedIn: true, selfMasked: "an\u2022\u2022\u2022\u2022@gmail.com" });
+    fireEvent.click(screen.getByTestId("who-someone-else"));
+    expect(screen.getByText("Student's mobile number or email")).toBeTruthy();
+    expect(screen.getByTestId("who-help").textContent).toBe(HELP);
+  });
+
+  it("the constants are the owner's words", async () => {
+    const c = await import("../../services/checkoutWho");
+    expect(c.WHO_FIELD_LABEL).toBe("Student's mobile number or email");
+    expect(c.WHO_FIELD_HELP).toBe(HELP);
+    expect(c.WHO_SECOND_EMAIL_LABEL).toBe("Student's email (optional)");
+    expect(c.WHO_SECOND_MOBILE_LABEL).toBe("Student's mobile number (optional)");
+  });
+});
+
+describe("PAY-ACCOUNT-1 · flag off: the thank-you screen is exactly CHECKOUT-WHO's", () => {
+  it("no 'account is ready', no 'open it now', no share; the old Sign in button", async () => {
+    mount();
+    type("who-first", "9876543210");
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(screen.queryByTestId("who-account-ready")).toBeNull();
+    expect(screen.queryByTestId("who-open-me")).toBeNull();
+    expect(screen.queryByTestId("who-send-child")).toBeNull();
+    expect(screen.getByTestId("who-signin")).toBeTruthy();
   });
 });

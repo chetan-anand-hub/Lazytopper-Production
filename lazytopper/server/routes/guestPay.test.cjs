@@ -181,7 +181,7 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -199,7 +199,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     async resolveVerifiedUid(req) { return identityOf(req).uid; },
     async resolveVerifiedIdentity(req) { return identityOf(req); },
   };
-  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail });
+  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts });
   // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery, wired exactly as index.cjs does.
   const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, afterGuestPaid: (x) => guest.afterRecipientPaid(x) });
   const table = {
@@ -1306,4 +1306,339 @@ test('HOTFIX: the no-account coverage id is a legal Firestore document id (not r
   assert.ok(typeof id === 'string' && id.length > 0 && id.length <= 1500);
   assert.ok(!/^__.*__$/.test(id), `reserved id: ${id}`);
   assert.ok(!id.includes('/') && id !== '.' && id !== '..');
+});
+
+/* ══ AUTO · PAY-ACCOUNT-1 "pay first, the account is made for them" (dark behind PAY_AUTO_ACCOUNT_ENABLED) ═══════════
+ *
+ * ★ MUTATIONS (run against THIS file only, each shown red, each restored):
+ *   M6 guestPay.cjs findOrCreateAccount puts every typed identifier on the new account (drops the `phoneFree` /
+ *      `emailFree` guards) -> "AUTO · an email on a stranger's UNVERIFIED account never goes on the new one ..." red
+ *   M7 guestPay.cjs autoAccountUid uses a random suffix instead of the order-id hash
+ *        -> "AUTO · verify + webhook racing on one order: ONE user, ONE grant ..." red
+ *   M8 guestPay.cjs handleClaim drops the `o.firstSignInAt` check
+ *        -> "AUTO · first sign-in with the phone: the product is there, firstSignIn is said ONCE ..." red
+ */
+
+const {
+  autoAccountUid,
+  isAutoAccountUid,
+  isPayAutoAccountEnabled,
+  SECOND_NOT_LINKED_NOTE,
+  ACCOUNT_NOT_CREATED_NOTE,
+} = require('./guestPay.cjs');
+const { buildAccountReadyEmail } = require('../services/paymentReceiptEmail.cjs');
+
+const AUTO_ENV = { ...WHO_ENV, PAY_AUTO_ACCOUNT_ENABLED: '1' };
+const VICTIM_EMAIL = 'victim@gmail.com';
+
+/** firebase-admin's user store, in memory: the SAME lookups index.cjs wires (uidForEmail = VERIFIED email only). */
+function fakeAuth({ users = [], failCreate = null } = {}) {
+  const byUid = new Map(users.map((u) => [u.uid, { ...u }]));
+  const created = [];
+  const find = (f) => [...byUid.values()].find(f) || null;
+  const authAccounts = {
+    async createUser(input) {
+      await new Promise((r) => setImmediate(r));
+      if (failCreate) throw Object.assign(new Error('boom'), { code: failCreate });
+      const err = (code) => Object.assign(new Error(code), { code });
+      if (byUid.has(input.uid)) throw err('auth/uid-already-exists');
+      if (input.phoneNumber && find((u) => u.phoneNumber === input.phoneNumber)) throw err('auth/phone-number-already-exists');
+      if (input.email && find((u) => u.email === input.email)) throw err('auth/email-already-exists');
+      byUid.set(input.uid, { ...input });
+      created.push({ ...input });
+      return { ...input };
+    },
+    async getUser(uid) { return byUid.get(uid) ? { ...byUid.get(uid) } : null; },
+    async getUserByPhone(p) { return find((u) => u.phoneNumber === p); },
+    async getUserByEmail(e) { return find((u) => u.email === e); },
+  };
+  return {
+    byUid,
+    created,
+    authAccounts,
+    uidForPhone: async (p) => (find((u) => u.phoneNumber === p) || {}).uid || null,
+    uidForEmail: async (e) => {
+      const r = find((u) => u.email === e);
+      return r && r.emailVerified === true ? r.uid : null;
+    },
+  };
+}
+async function autoRoutes({ env = AUTO_ENV, auth = fakeAuth(), ...rest } = {}) {
+  const srv = await startRoutes({ env, authAccounts: auth.authAccounts, uidForPhone: auth.uidForPhone, uidForEmail: auth.uidForEmail, ...rest });
+  return { srv, auth };
+}
+
+test('AUTO · the switch needs CHECKOUT-WHO (both) AND PAY_AUTO_ACCOUNT_ENABLED; the uid is derived from the order and marked `pay-`', () => {
+  assert.equal(isPayAutoAccountEnabled(AUTO_ENV), true);
+  assert.equal(isPayAutoAccountEnabled(WHO_ENV), false);
+  assert.equal(isPayAutoAccountEnabled({ PAY_AUTO_ACCOUNT_ENABLED: '1', CHECKOUT_WHO_ENABLED: '1' }), false);
+  const u = autoAccountUid('order_P1');
+  assert.equal(u, autoAccountUid('order_P1'), 'deterministic');
+  assert.notEqual(u, autoAccountUid('order_P2'));
+  assert.match(u, /^pay-[0-9a-f]{24}$/);
+  assert.equal(u.length, 28);
+  assert.equal(isAutoAccountUid(u), true);
+  for (const client of ['aZ09aZ09aZ09aZ09aZ09aZ09aZ09', 'payabcdef0123456789abcdef01', 'uPhone', '']) assert.equal(isAutoAccountUid(client), false);
+});
+
+test('AUTO · new phone only: ONE account with that phone is created at payment and the pack is granted to it', async (t) => {
+  const { srv, auth } = await autoRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: '98765 43948' } });
+  const uid = autoAccountUid(orderId);
+  assert.deepEqual(auth.created, [{ uid, emailVerified: false, phoneNumber: PHONE }]);
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.uid, uid);
+  assert.equal(stored.status, 'paid');
+  assert.equal(stored.claimedVia, 'account_created');
+  assert.equal(stored.adminNote, null);
+  assert.equal(stored.accountHasEmail, undefined);
+  assert.ok(srv.db.read(`packEntitlements/${uid}/packs/pack_cbq:maths`));
+  assert.ok(srv.events.includes('payments.guest.deliver.account_created'));
+  assert.deepEqual(srv.db.keys('users/'), [], 'no users doc: sign-up writes none either');
+  assert.equal(srv.db.read(`subscriptions/${uid}`), undefined, 'no trial is started at payment');
+});
+
+test('AUTO · new email only: ONE account with that email, UNVERIFIED, gets the Board Pass', async (t) => {
+  const { srv, auth } = await autoRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { email: 'Anaya.K@gmail.com' } });
+  const uid = autoAccountUid(orderId);
+  assert.deepEqual(auth.created, [{ uid, emailVerified: false, email: EMAIL }]);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).accountHasEmail, true);
+  assert.equal(srv.db.read(`subscriptions/${uid}`).tier, 'premium');
+});
+
+test('AUTO · new phone + new email: ONE account carrying both', async (t) => {
+  const { srv, auth } = await autoRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_mock', target: 'science', recipient: { phone: PHONE, email: EMAIL, first: 'email' } });
+  assert.deepEqual(auth.created, [{ uid: autoAccountUid(orderId), emailVerified: false, phoneNumber: PHONE, email: EMAIL }]);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).adminNote, null);
+});
+
+test('AUTO · phone EXISTING + email new: the existing account gets it, the email is NOT linked, no second account, admin note', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uPhone', phoneNumber: PHONE }] });
+  const { srv } = await autoRoutes({ auth });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'science', recipient: { phone: PHONE, email: EMAIL } });
+  assert.deepEqual(auth.created, []);
+  assert.deepEqual(auth.byUid.get('uPhone'), { uid: 'uPhone', phoneNumber: PHONE }, 'nothing added to the existing account');
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.uid, 'uPhone');
+  assert.equal(stored.claimedVia, 'existing_account');
+  assert.equal(stored.adminNote, SECOND_NOT_LINKED_NOTE);
+  // The verified "also sign in with" offer still waits for that account's own session (linking needs its own proof).
+  assert.equal(stored.alsoSignInPending, true);
+});
+
+test('AUTO · TAKEOVER: victim\'s email + attacker\'s new phone -> the VICTIM\'s account gets it; nothing linked; no account for the attacker', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uVictim', email: VICTIM_EMAIL, emailVerified: true }] });
+  const { srv } = await autoRoutes({ auth });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_chapter', target: 'real-numbers', recipient: { phone: OTHER_PHONE, email: VICTIM_EMAIL } });
+  assert.deepEqual(auth.created, [], 'no account for the attacker phone');
+  assert.deepEqual(auth.byUid.get('uVictim'), { uid: 'uVictim', email: VICTIM_EMAIL, emailVerified: true }, 'the attacker phone is NOT on the victim account');
+  assert.equal(await auth.uidForPhone(OTHER_PHONE), null);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uVictim');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).adminNote, SECOND_NOT_LINKED_NOTE);
+  // The attacker signing in with their phone gets NOTHING (the order is the victim's) and no way into the victim account.
+  const atk = await claim(srv, whoAuth('uAttacker', { phone: OTHER_PHONE }));
+  assert.deepEqual(atk.json.claimed, []);
+  assert.equal(atk.json.firstSignIn, undefined);
+  // Mirror: the attacker's EXISTING phone + the victim's NEW email -> the attacker's account, the email never added, no
+  // account is made for the victim's email.
+  const auth2 = fakeAuth({ users: [{ uid: 'uAttacker', phoneNumber: OTHER_PHONE }] });
+  const { srv: srv2 } = await autoRoutes({ auth: auth2 });
+  t.after(srv2.close);
+  const second = await paidWhoOrder(srv2, { sku: 'pack_cbq', target: 'maths', recipient: { phone: OTHER_PHONE, email: VICTIM_EMAIL } });
+  assert.deepEqual(auth2.created, []);
+  assert.deepEqual(auth2.byUid.get('uAttacker'), { uid: 'uAttacker', phoneNumber: OTHER_PHONE });
+  assert.equal(srv2.db.read(`payOrders/${second.orderId}`).adminNote, SECOND_NOT_LINKED_NOTE);
+});
+
+test('AUTO · an email on a stranger\'s UNVERIFIED account never goes on the new one: phone-only account + note; email-only waits', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uStranger', email: EMAIL, emailVerified: false }] });
+  const { srv } = await autoRoutes({ auth });
+  t.after(srv.close);
+  const withPhone = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE, email: EMAIL } });
+  assert.deepEqual(auth.created, [{ uid: autoAccountUid(withPhone.orderId), emailVerified: false, phoneNumber: PHONE }]);
+  assert.equal(srv.db.read(`payOrders/${withPhone.orderId}`).adminNote, SECOND_NOT_LINKED_NOTE);
+  assert.equal(srv.db.read(`payOrders/${withPhone.orderId}`).accountHasEmail, undefined);
+  const emailOnly = await paidWhoOrder(srv, { sku: 'pack_mock', target: 'maths', recipient: { email: EMAIL } });
+  const stored = srv.db.read(`payOrders/${emailOnly.orderId}`);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.adminNote, ACCOUNT_NOT_CREATED_NOTE);
+  assert.equal(stored.accountCreateError, 'email_in_use');
+  assert.equal(auth.byUid.get('uStranger').phoneNumber, undefined);
+});
+
+test('AUTO · phone and email on two DIFFERENT accounts: first-entered wins + two-accounts note, nothing created', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uPhone', phoneNumber: PHONE }, { uid: 'uEmail', email: EMAIL, emailVerified: true }] });
+  const { srv } = await autoRoutes({ auth });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL, first: 'email' } });
+  assert.deepEqual(auth.created, []);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uEmail');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).adminNote, TWO_ACCOUNTS_NOTE);
+});
+
+test('AUTO · a recipient who already owns it is refused BEFORE payment (generic 409): no Razorpay order, nothing created', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uOwner', phoneNumber: PHONE }] });
+  const db = memoryFirestore();
+  await db.collection('packEntitlements').doc('uOwner').collection('packs').doc('pack_cbq:maths').set({ packId: 'pack_cbq:maths' });
+  const { srv } = await autoRoutes({ auth, db });
+  t.after(srv.close);
+  const r = await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } });
+  assert.equal(r.status, 409);
+  assert.equal(r.json.error, 'payment_unavailable');
+  assert.equal(srv.rzp.calls.length, 0);
+  assert.deepEqual(auth.created, []);
+});
+
+test('AUTO · verify + webhook racing on one order (verify twice, webhook first, both at once): ONE user, ONE grant', async (t) => {
+  for (const mode of ['verify-twice', 'webhook-first', 'concurrent']) {
+    const { srv, auth } = await autoRoutes();
+    t.after(srv.close);
+    const o = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+    const p = srv.rzp.pay(o.json.orderId);
+    const pay = { ...srv.rzp.payments.get(p.id) };
+    if (mode === 'verify-twice') {
+      await guestVerify(srv, o.json.orderId, p.id);
+      await guestVerify(srv, o.json.orderId, p.id);
+    } else if (mode === 'webhook-first') {
+      await sendWebhook(srv, pay);
+      await srv.idle();
+      await guestVerify(srv, o.json.orderId, p.id);
+    } else {
+      await Promise.all([guestVerify(srv, o.json.orderId, p.id), sendWebhook(srv, pay), guestVerify(srv, o.json.orderId, p.id)]);
+    }
+    await srv.idle();
+    const uid = autoAccountUid(o.json.orderId);
+    assert.equal(auth.byUid.size, 1, `${mode}: one user`);
+    assert.ok(auth.byUid.has(uid), mode);
+    const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+    assert.equal(stored.uid, uid, mode);
+    assert.equal(stored.status, 'paid', mode);
+    assert.equal(stored.claimedVia, 'account_created', mode);
+    assert.deepEqual(srv.db.keys(`subscriptions/${uid}/payments/`), [`subscriptions/${uid}/payments/${p.id}`], `${mode}: one grant`);
+  }
+});
+
+test('AUTO · createUser fails: the order stays paid_unclaimed with "account not created"; a later sign-in claim still attaches it', async (t) => {
+  const auth = fakeAuth({ failCreate: 'auth/internal-error' });
+  const { srv } = await autoRoutes({ auth });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'science', recipient: { phone: PHONE } });
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.uid, null);
+  assert.equal(stored.adminNote, ACCOUNT_NOT_CREATED_NOTE);
+  assert.equal(stored.accountCreateError, 'create_failed');
+  assert.ok(srv.events.includes('payments.guest.deliver.account_not_created'));
+  const c = await claim(srv, whoAuth('uLater', { phone: PHONE }));
+  assert.equal(c.json.claimed.length, 1);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uLater');
+  assert.ok(srv.db.read('packEntitlements/uLater/packs/pack_cbq:science'));
+});
+
+test('AUTO · first sign-in with the phone: the product is there, firstSignIn is said ONCE (trial rule); never for other accounts', async (t) => {
+  const { srv } = await autoRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } });
+  const uid = autoAccountUid(orderId);
+  const first = await claim(srv, whoAuth(uid, { phone: PHONE }));
+  assert.equal(first.status, 200);
+  assert.deepEqual(first.json.claimed, [], 'already attached at payment');
+  assert.equal(first.json.firstSignIn, true);
+  assert.ok(srv.db.read(`packEntitlements/${uid}/packs/pack_cbq:maths`), 'the product is there');
+  assert.equal((await claim(srv, whoAuth(uid, { phone: PHONE }))).json.firstSignIn, undefined, 'once');
+  // A normal (client-made) account never gets it; nor does anything with the switch off.
+  assert.equal((await claim(srv, whoAuth('uNormal', { phone: OTHER_PHONE }))).json.firstSignIn, undefined);
+});
+
+test('AUTO · a signed-in payer buying for someone else: the account is made for the RECIPIENT, nothing for the payer', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uPayer', email: 'parent@x.in', emailVerified: true }] });
+  const { srv } = await autoRoutes({ auth });
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } }, whoAuth('uPayer', { email: 'parent@x.in', ev: true }));
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.payerUid, 'uPayer');
+  assert.equal(stored.uid, autoAccountUid(orderId));
+  assert.equal(srv.db.read('subscriptions/uPayer'), undefined);
+});
+
+test('AUTO · payment cancelled (order opened, never paid): nothing is created', async (t) => {
+  const { srv, auth } = await autoRoutes();
+  t.after(srv.close);
+  const o = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE, email: EMAIL } });
+  assert.equal(o.status, 200);
+  await srv.idle();
+  assert.deepEqual(auth.created, []);
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+});
+
+test('AUTO · switch OFF: identical to CHECKOUT-WHO - nothing created, paid_unclaimed, the same stored order', async (t) => {
+  const snapshots = [];
+  for (const env of [WHO_ENV, { ...AUTO_ENV, PAY_AUTO_ACCOUNT_ENABLED: '' }]) {
+    const auth = fakeAuth({ users: [{ uid: 'uPhone', phoneNumber: OTHER_PHONE }] });
+    const { srv } = await autoRoutes({ env, auth });
+    t.after(srv.close);
+    const fresh = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE, email: EMAIL } });
+    const half = await paidWhoOrder(srv, { sku: 'pack_mock', target: 'maths', recipient: { phone: OTHER_PHONE, email: EMAIL } });
+    assert.deepEqual(auth.created, []);
+    const a = srv.db.read(`payOrders/${fresh.orderId}`);
+    const b = srv.db.read(`payOrders/${half.orderId}`);
+    assert.equal(a.status, 'paid_unclaimed');
+    assert.equal(b.adminNote, undefined, 'no second-identifier note with the switch off');
+    const strip = (o) => Object.keys(o).sort();
+    snapshots.push([strip(a), strip(b), (await claim(srv, whoAuth(autoAccountUid('x'), { phone: '+919000000001' }))).json]);
+  }
+  assert.deepEqual(snapshots[0], snapshots[1]);
+});
+
+test('AUTO · email: "Your LazyTopper account is ready" with ONE one-tap sign-in link (continue URL = our app); fallbacks', async (t) => {
+  const links = [];
+  const db = memoryFirestore();
+  const resend = resendRecorder();
+  const emailSignInLink = async (email, url) => {
+    links.push({ email, url });
+    return `https://lazytopper.firebaseapp.com/__/auth/action?mode=signIn&oobCode=CODE_${links.length}&continueUrl=${encodeURIComponent(url)}`;
+  };
+  const receiptEmailer = createPaymentReceiptEmailer({ env: EMAIL_ENV, adminFirestore: db, fetchImpl: resend.fetchImpl, now: () => NOW, emailSignInLink });
+  const { srv } = await autoRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  const pack = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { email: EMAIL } });
+  await receiptEmailer.whenIdle();
+  const pass = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { email: 'riya@x.in', phone: PHONE } });
+  await receiptEmailer.whenIdle();
+  assert.deepEqual(links.map((l) => l.email), [EMAIL, 'riya@x.in']);
+  assert.ok(links[0].url.endsWith('/packs'), links[0].url);
+  assert.ok(/^https:\/\/www\.lazytopper\.com\/?$/.test(links[1].url), links[1].url);
+  const toPack = resend.sent.filter((m) => m.body.to.includes(EMAIL));
+  assert.equal(toPack.length, 1);
+  assert.equal(toPack[0].body.subject, 'Your LazyTopper account is ready');
+  assert.ok(toPack[0].body.html.includes('>Open LazyTopper</a>'));
+  assert.ok(toPack[0].body.html.includes('CODE_1'));
+  assert.ok(toPack[0].body.text.includes('Maths CBQ Pack'));
+  assert.ok(toPack[0].body.text.includes('sign in any time'));
+  const toPass = resend.sent.filter((m) => m.body.to.includes('riya@x.in'));
+  assert.ok(toPass[0].body.text.includes('Board Pass'));
+  assert.ok(!toPass[0].body.text.includes('9876543948'), 'never the full phone');
+  assert.ok(!JSON.stringify(resend.sent).includes('₹'), 'no price to the recipient');
+  // Pure builder: no https link -> null (falls back).
+  assert.equal(buildAccountReadyEmail({ passType: 'pack_cbq', packTarget: 'maths', signInLink: 'javascript:x', newAccount: true, appUrl: 'https://www.lazytopper.com' }), null);
+  assert.ok(pack && pass);
+});
+
+test('AUTO · email fallbacks: a link that cannot be made, or a phone-only account, gets the plain "is ready" email', async (t) => {
+  const db = memoryFirestore();
+  const resend = resendRecorder();
+  const receiptEmailer = createPaymentReceiptEmailer({ env: EMAIL_ENV, adminFirestore: db, fetchImpl: resend.fetchImpl, now: () => NOW, emailSignInLink: async () => { throw Object.assign(new Error('x'), { code: 'auth/unauthorized-continue-uri' }); } });
+  const { srv } = await autoRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { email: EMAIL } });
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 1);
+  assert.equal(resend.sent[0].body.subject, 'Your Maths CBQ Pack is ready');
 });

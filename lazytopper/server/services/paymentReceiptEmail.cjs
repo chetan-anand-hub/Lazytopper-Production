@@ -176,6 +176,37 @@ function buildRecipientReadyEmail({ passType, packTarget, phoneMasked, emailMask
   return { subject, text, html };
 }
 
+/**
+ * PAY-ACCOUNT-1 - PURE. The recipient email when the purchase sits on an account that signs in with THIS email (made at
+ * payment): "Your LazyTopper account is ready", the product, and ONE "Open LazyTopper" button that is a one-tap
+ * passwordless sign-in link for this address (firebase-admin generateSignInWithEmailLink; Firebase sets its expiry), plus
+ * "or sign in any time with this email". No price, no payer details, the phone masked. The link is never logged or stored.
+ */
+function buildAccountReadyEmail({ passType, packTarget, signInLink, newAccount, appUrl }) {
+  const item = itemLabel(passType, packTarget);
+  if (!item || passType === 'month' || typeof signInLink !== 'string' || !/^https:\/\//.test(signInLink)) return null;
+  const isPack = isPackProduct(passType);
+  const name = isPack ? item : 'Board Pass';
+  const subject = newAccount ? 'Your LazyTopper account is ready' : `Your ${name} is ready`;
+  const lands = isPack ? 'It is in My packs, ready to download.' : 'The Board Pass is already on it.';
+  const loginUrl = `${appUrl}/login`;
+  const text = [
+    newAccount ? `Your LazyTopper account is ready, with ${name}.` : `Your ${name} on LazyTopper is ready.`,
+    lands,
+    `Open LazyTopper (signs you in, no password): ${signInLink}`,
+    `This button works for a limited time. Or sign in any time at ${loginUrl} with this email address.`,
+    `Need help? Reply to this email or write to ${SUPPORT_EMAIL}.`,
+    'LazyTopper',
+  ].join('\n\n');
+  const html = `<p>${newAccount ? `Your LazyTopper account is ready, with <strong>${escapeHtml(name)}</strong>.` : `Your <strong>${escapeHtml(name)}</strong> on LazyTopper is ready.`}</p>
+<p>${lands}</p>
+<p><a href="${escapeHtml(signInLink)}">Open LazyTopper</a></p>
+<p>This button signs you in without a password and works for a limited time. Or sign in any time at <a href="${escapeHtml(loginUrl)}">lazytopper.com/login</a> with this email address.</p>
+<p>Need help? Reply to this email or write to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
+<p>LazyTopper</p>`;
+  return { subject, text, html };
+}
+
 function createPaymentReceiptEmailer(deps = {}) {
   const config = deps.config || resolveReceiptEmailConfig(deps.env || process.env);
   const { adminFirestore, telemetry } = deps;
@@ -307,7 +338,26 @@ function createPaymentReceiptEmailer(deps = {}) {
       await mark('skipped');
       return { skipped: 'no_address' };
     }
-    const built = buildRecipientReadyEmail({
+    // PAY-ACCOUNT-1: the purchase is on an account that signs in with THIS email -> a one-tap sign-in link. A link that
+    // cannot be made falls back to the plain "is ready" email below.
+    let accountReady = null;
+    if (order.accountHasEmail === true && typeof deps.emailSignInLink === 'function') {
+      try {
+        const where = isPackProduct(order.passType) ? '/packs' : '/';
+        const link = await deps.emailSignInLink(to, `${config.appUrl}${where}`);
+        accountReady = buildAccountReadyEmail({
+          passType: order.passType,
+          packTarget: order.packTarget,
+          signInLink: link,
+          newAccount: order.claimedVia === 'account_created',
+          appUrl: config.appUrl,
+        });
+      } catch (e) {
+        emit('payments.recipient_email.link_failed');
+        console.error('[payment-recipient] sign-in link failed:', e && e.code);
+      }
+    }
+    const built = accountReady || buildRecipientReadyEmail({
       passType: order.passType,
       packTarget: order.packTarget,
       phoneMasked: maskIndianMobile(order.guestPhone) || null,
@@ -359,6 +409,7 @@ function createPaymentReceiptEmailer(deps = {}) {
 }
 
 module.exports = {
+  buildAccountReadyEmail,
   createPaymentReceiptEmailer,
   resolveReceiptEmailConfig,
   buildReceiptEmail,

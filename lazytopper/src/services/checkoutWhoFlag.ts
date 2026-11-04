@@ -14,6 +14,20 @@ export function isCheckoutWhoClientEnabled(): boolean {
 }
 
 /**
+ * PAY-ACCOUNT-1 - the client switch VITE_PAY_AUTO_ACCOUNT_ENABLED ("pay first, the account is made for them": the thank-you
+ * screen opens the account or sends it to the child). Needs CHECKOUT-WHO on too. The server has its own switch
+ * (PAY_AUTO_ACCOUNT_ENABLED); BOTH are needed. Off -> the CHECKOUT-WHO thank-you screen, unchanged.
+ */
+export function isPayAutoAccountClientEnabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_PAY_AUTO_ACCOUNT_ENABLED;
+    return isCheckoutWhoClientEnabled() && /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+
+/**
  * After a claim (Home's link step): "Also sign in with <masked>? Confirm it once …, then either works." `kind` names what the
  * step verifies with (an SMS code for a phone; the email link or Google for an email). Kept here (import-free) so Home does
  * not pull checkout code. `masked` is the server's masked echo.
