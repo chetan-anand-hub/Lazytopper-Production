@@ -41,6 +41,10 @@ vi.mock("../context/AuthContext", () => ({
   }),
 }));
 vi.mock("../services/referralService", () => ({ creditPendingReferral: vi.fn() }));
+// The door's offer strip reads the clock (founding label); this suite is about the link step, not the offer, so it is
+// stubbed and the suite stays clock-free (not a date-sensitive test).
+vi.mock("../components/auth/OfferStrip", () => ({ default: () => null }));
+vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
 vi.mock("firebase/auth", () => ({
   sendEmailVerification: vi.fn(async () => {}),
   reload: vi.fn(async () => {}),
