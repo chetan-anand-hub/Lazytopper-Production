@@ -306,3 +306,34 @@ test('ERASURE RACE: a lookup failure other than user-not-found after the write l
   assert.equal(res.statusCode, 204);
   assert.equal(store.has('u1'), true, 'a blip must not delete a good source');
 });
+
+test('★ ATTRIB-1 old client payload (no gbraid / wbraid) is still accepted and its doc keeps the old shape', async () => {
+  const w = makeWorld();
+  assert.equal((await call(w, GOOD)).statusCode, 204);
+  const doc = w.store.get('signupSources/u1');
+  assert.equal('gbraid' in doc, false);
+  assert.equal('wbraid' in doc, false);
+});
+
+test('★ ATTRIB-1 new client payload with gbraid / wbraid true is accepted and stored as booleans', async () => {
+  const w = makeWorld();
+  assert.equal((await call(w, { ...GOOD, gbraid: true, wbraid: true })).statusCode, 204);
+  const doc = w.store.get('signupSources/u1');
+  assert.equal(doc.gbraid, true);
+  assert.equal(doc.wbraid, true);
+});
+
+test('★ ATTRIB-1 a gbraid / wbraid VALUE (string) or non-boolean is 400; false is accepted but not stored', async () => {
+  const w = makeWorld();
+  assert.equal((await call(w, { ...GOOD, gbraid: '0AAAAAVALUE' })).statusCode, 400);
+  assert.equal((await call(w, { ...GOOD, wbraid: 'CjkVALUE' })).statusCode, 400);
+  assert.equal((await call(w, { ...GOOD, wbraid: 1 })).statusCode, 400);
+  assert.equal(w.writes.length, 0);
+  assert.equal((await call(w, { ...GOOD, gbraid: false })).statusCode, 204);
+  assert.equal('gbraid' in w.store.get('signupSources/u1'), false);
+});
+
+test('ATTRIB-1 validateSource: unknown keys are still refused next to the new ones', () => {
+  assert.equal(validateSource({ ...GOOD, gbraid: true, email: 'a@b.c' }).ok, false);
+  assert.equal(validateSource({ ...GOOD, gbraid: true }).ok, true);
+});
