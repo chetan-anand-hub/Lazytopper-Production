@@ -1685,7 +1685,10 @@ function WorksheetGeneratorInner() {
               by accident without moving this element. */}
           {generated && (
             <section className="lt-ws__card" ref={gradeSectionRef} id="ws-upload-section">
-              {user && isSignedIn && !gateOk ? (
+              {user ? (
+                /* Signed in: the EXISTING premium path, unchanged. A free student gets
+                   the trial/plans block `RequirePremium` already renders. */
+                isSignedIn && !gateOk ? (
                 <div className="lt-ws__note" role="status" data-testid="ws-code-gate">
                   {codeGate?.status === "unknown" ? (
                     <>
@@ -1696,9 +1699,7 @@ function WorksheetGeneratorInner() {
                     "Checking your saved papers…"
                   )}
                 </div>
-              ) : user ? (
-                /* Signed in: the EXISTING premium path, unchanged. A free student gets
-                   the trial/plans block `RequirePremium` already renders. */
+                ) : (
                 <RequirePremium featureLabel="Worksheet marking">
                   <WorksheetGradePanel
                     ws={generated}
@@ -1706,6 +1707,7 @@ function WorksheetGeneratorInner() {
                     tutorAskFor={wsTutorAskFor}
                   />
                 </RequirePremium>
+                )
               ) : (
                 /* ★ SIGNED OUT: AN INLINE OFFER, NEVER `RequirePremium`.
                    `RequirePremium` answers `!user` with `<Navigate to="/login">` — a
