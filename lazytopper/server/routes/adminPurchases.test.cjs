@@ -270,3 +270,19 @@ test('CHECKOUT-WHO-1 · a recipient order shows recipient (MASKED), payer type, 
   assert.equal(p1.recipient, undefined, 'an ordinary order has no new fields');
   assert.ok(!JSON.stringify(res.body).includes('9876543948') && !JSON.stringify(res.body).includes('anaya.k@'));
 });
+
+test('PARENT-PACKS-1 M2: a paid pack order the student already had is flagged "duplicate — check with the payer" (facts only)', async () => {
+  const orders = [
+    paid('d', 'u1', 'pack_chapter', 49, 1000, { packTarget: 'polynomials', payer: 'parent', duplicate: true }),
+    paid('e', 'u2', 'pack_cbq', 199, 2000, { packTarget: 'maths' }),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  const [d, e] = res.body.items;
+  assert.equal(d.duplicate, true);
+  assert.equal(d.flag, 'duplicate — check with the payer');
+  assert.equal(d.channel, 'parent');
+  assert.equal(e.duplicate, undefined);
+  assert.equal(e.flag, undefined);
+  assert.doesNotMatch(JSON.stringify(res.body), /refund/i);
+});

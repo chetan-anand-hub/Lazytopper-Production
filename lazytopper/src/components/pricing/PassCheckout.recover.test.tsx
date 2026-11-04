@@ -80,7 +80,7 @@ describe("PAY-RECOVER-1 · PassCheckout pending", () => {
       .mockResolvedValueOnce(SERVER_PAID);
     view(status);
     tapMonth();
-    expect(await screen.findByTestId("pass-checkout-paid")).toHaveTextContent(/Premium is active until 1 January 2027/);
+    expect(await screen.findByTestId("pass-checkout-paid")).toHaveTextContent(/Your monthly pass is active until 1 January 2027/);
     expect(status).toHaveBeenCalledTimes(2);
     expect(track.trackPurchase).toHaveBeenCalledTimes(1);
     expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ passType: "month", valueInr: 599, transactionId: "pay_SERVER" });
@@ -229,7 +229,7 @@ describe("PAY-RECOVER-1 review fixes · the Pay buttons and the return-to-tab se
         post: async () => ({ ok: true, state: "paid", passEnd: "2027-01-01T00:00:00.000Z", paymentId: "pay_FOCUS", amountInr: 599 }),
       });
     });
-    expect(screen.getByTestId("pass-checkout-paid")).toHaveTextContent(/Premium is active until 1 January 2027/);
+    expect(screen.getByTestId("pass-checkout-paid")).toHaveTextContent(/Your monthly pass is active until 1 January 2027/);
     expect(screen.queryByTestId("pass-checkout-confirming")).toBeNull();
     expect(track.trackPurchase).toHaveBeenCalledTimes(1);
     expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ valueInr: 599, transactionId: "pay_FOCUS" });

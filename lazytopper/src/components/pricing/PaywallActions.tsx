@@ -13,6 +13,7 @@ import { importWithRetry } from "../../lib/lazyWithRetry";
 import { trackPaywallAction, type PaywallSurface } from "../../analytics/analytics";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { isParentPayClientEnabled } from "../../services/parentPay";
+import type { ParentPayPackProduct } from "../../services/parentPayPack";
 
 export const PAY_LABEL = "Pay";
 export const QR_LABEL = "Pay by QR code";
@@ -40,6 +41,13 @@ export interface PaywallActionsLiveProps {
   /** PRICING-B-1 - a page's own wording for the two parent actions (same actions, same events). Default: the labels above. */
   forwardLabel?: string;
   qrLabel?: string;
+  /**
+   * PARENT-PACKS-1 - the link carries this PDF pack instead of the Board Pass (fixed when the link is minted; the server
+   * prices it). Absent -> the Board Pass link, exactly as before.
+   */
+  product?: ParentPayPackProduct;
+  /** PARENT-PACKS-1 - only "Ask a parent to pay" (no QR button), as a secondary button: for a tight card (/pricing CBQ). */
+  noQr?: boolean;
 }
 
 export interface PaywallActionsProps extends Omit<PaywallActionsLiveProps, "showParent"> {
@@ -77,7 +85,7 @@ export function trackPricingPayTap(e: { target: EventTarget | null }): void {
 }
 
 /** The three paywall actions, or the surface's own control while payments are dark. */
-export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, forwardLabel, qrLabel, fallback = null }: PaywallActionsProps) {
+export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, forwardLabel, qrLabel, product, noQr, fallback = null }: PaywallActionsProps) {
   if (!isPaymentsClientEnabled()) return <>{fallback}</>;
   return (
     <Suspense fallback={fallback}>
@@ -90,6 +98,8 @@ export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, 
         onAsk={onAsk}
         forwardLabel={forwardLabel}
         qrLabel={qrLabel}
+        product={product}
+        noQr={noQr}
         fallback={fallback}
       />
     </Suspense>

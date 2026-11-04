@@ -96,7 +96,8 @@ describe("PACK-READY-1 · the banner", () => {
     });
     const row = await screen.findByTestId("pack-ready-row");
     expect(row.textContent).toContain("Your Maths + Science Bundle is ready");
-    expect(track.ready).toHaveBeenCalledWith("pack_bundle", "banner");
+    // FLAKY-1: PackReadyBanner sends "shown" from a passive effect after the row paints; wait for it rather than race it.
+    await waitFor(() => expect(track.ready).toHaveBeenCalledWith("pack_bundle", "banner"));
     fireEvent.click(screen.getByText("Download files"));
     expect(await screen.findByText("Real Numbers")).toBeTruthy();
     expect(screen.getAllByText("Download").length).toBeGreaterThan(0);
@@ -118,7 +119,7 @@ describe("PACK-READY-1 · the banner", () => {
     // No claim in hand: neutral wording, its own surface, still one tap to the files.
     expect(row.textContent).toContain("Your latest pack: Maths + Science Bundle");
     expect(row.textContent).not.toContain("is ready");
-    expect(track.ready).toHaveBeenCalledWith("pack_bundle", "banner_return");
+    await waitFor(() => expect(track.ready).toHaveBeenCalledWith("pack_bundle", "banner_return")); // FLAKY-1: passive effect, see above
     expect(track.ready).not.toHaveBeenCalledWith(expect.anything(), "banner");
     expect(screen.getAllByTestId("pack-ready-row")).toHaveLength(1);
     fireEvent.click(screen.getByText("Download files"));

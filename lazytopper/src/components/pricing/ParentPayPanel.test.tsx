@@ -6,6 +6,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
+vi.mock("../../lib/packs/packAnalytics", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../lib/packs/packAnalytics")>();
+  return { ...actual, trackPackCheckout: vi.fn(), trackPackPurchase: vi.fn() };
+});
+
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
   return { ...actual, trackBeginCheckout: vi.fn(), trackPurchase: vi.fn(), trackParentPayPageView: vi.fn() };
@@ -13,11 +18,14 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 
 import { ParentPayPanelView } from "./ParentPayPanel";
 import * as analytics from "../../analytics/analytics";
+import * as packAnalytics from "../../lib/packs/packAnalytics";
 import { ParentLinkError, type ParentBuyOutcome, type ParentLinkView } from "../../services/parentPay";
 
 const begin = analytics.trackBeginCheckout as unknown as ReturnType<typeof vi.fn>;
 const purchase = analytics.trackPurchase as unknown as ReturnType<typeof vi.fn>;
 const pageView = analytics.trackParentPayPageView as unknown as ReturnType<typeof vi.fn>;
+const packBegin = packAnalytics.trackPackCheckout as unknown as ReturnType<typeof vi.fn>;
+const packPurchase = packAnalytics.trackPackPurchase as unknown as ReturnType<typeof vi.fn>;
 
 const TOKEN = "P".repeat(43);
 const VIEW: ParentLinkView = { firstName: "Aarav", prices: { month: 599, till_boards: 2396 }, expiresAt: "2026-10-21T10:00:00.000Z" };
@@ -40,6 +48,8 @@ beforeEach(() => {
   begin.mockClear();
   purchase.mockClear();
   pageView.mockClear();
+  packBegin.mockClear();
+  packPurchase.mockClear();
 });
 afterEach(cleanup);
 
@@ -47,7 +57,7 @@ describe("ParentPayPanel", () => {
   it("a live link: the child's FIRST name, the server's prices, who the pass is for, what Razorpay sees", async () => {
     const p = await renderPanel();
     expect(p.view).toHaveBeenCalledWith(TOKEN);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for Aarav's LazyTopper Premium");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for Aarav's LazyTopper Board Pass");
     expect(screen.getByRole("button", { name: "Pay ₹599 for a month" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" })).toBeEnabled();
     const page = document.body.textContent || "";
@@ -60,7 +70,7 @@ describe("ParentPayPanel", () => {
 
   it("no name on the account: it says 'your child', never an invented name", async () => {
     await renderPanel({ view: vi.fn(async () => ({ ...VIEW, firstName: "" })) });
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for your child's LazyTopper Premium");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for your child's LazyTopper Board Pass");
   });
 
   it.each([
@@ -116,7 +126,7 @@ describe("ParentPayPanel", () => {
     expect(order).toEqual(["scrub", "buy"]);
     expect(scrubAddress).toHaveBeenCalledTimes(1);
     expect(buy).toHaveBeenCalledWith(TOKEN, "month");
-    expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Aarav's Premium is active until 18 November 2026");
+    expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Aarav's monthly pass is active until 18 November 2026");
     expect(begin).toHaveBeenCalledWith(expect.objectContaining({ passType: "month", valueInr: 599, payer: "parent" }));
     expect(purchase).toHaveBeenCalledTimes(1);
     expect(purchase).toHaveBeenCalledWith(expect.objectContaining({ payer: "parent", transactionId: "pay_9", valueInr: 599 }));
@@ -146,7 +156,7 @@ describe("ParentPayPanel", () => {
       fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
     });
     expect(screen.getByTestId("parent-pay-confirming")).toHaveTextContent(
-      "We're still confirming your payment with your bank. If money left your account, Premium turns on automatically — you won't be charged twice.",
+      "We're still confirming your payment with your bank. If money left your account, the Board Pass turns on automatically — you won't be charged twice.",
     );
     expect(screen.queryByTestId("parent-pay-failed")).toBeNull();
     expect(document.body.textContent).not.toContain("didn't go through");
@@ -187,7 +197,7 @@ describe("ParentPayPanel", () => {
   it("हिंदी: the whole page switches, same prices", async () => {
     await renderPanel();
     fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Aarav के LazyTopper Premium का भुगतान करें");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Aarav के LazyTopper Board Pass का भुगतान करें");
     expect(screen.getByRole("button", { name: "एक महीने के लिए ₹599 दें" })).toBeInTheDocument();
   });
 
@@ -195,5 +205,107 @@ describe("ParentPayPanel", () => {
     await renderPanel({ view: vi.fn(async () => ({ ...VIEW, prices: { month: 599, till_boards: null } })) });
     expect(screen.queryByRole("button", { name: /till the boards/ })).toBeNull();
     expect(screen.getByRole("button", { name: "Pay ₹599 for a month" })).toBeInTheDocument();
+  });
+
+  it("PARENT-PACKS-1: a Board Pass purchase says 'Board Pass is active until', and no state of the page says 'Premium' (en + hi)", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "paid", passEnd: "2027-02-17T06:30:00.000Z", firstName: "Aarav" }));
+    await renderPanel({ buy });
+    const seen = [document.body.textContent || ""];
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    seen.push(document.body.textContent || "");
+    fireEvent.click(screen.getByRole("button", { name: "English" }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" }));
+    });
+    expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Aarav's Board Pass is active until 17 February 2027");
+    seen.push(document.body.textContent || "");
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Board Pass");
+    seen.push(document.body.textContent || "");
+    for (const reason of ["covered", "owned", "expired", "used", "invalid", "failed"] as const) {
+      cleanup();
+      await renderPanel({ view: vi.fn(async () => { throw new ParentLinkError(reason); }) });
+      seen.push(document.body.textContent || "");
+      fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+      seen.push(document.body.textContent || "");
+    }
+    for (const text of seen) expect(text).not.toMatch(/premium/i);
+  });
+});
+
+describe("PARENT-PACKS-1 · a pack link", () => {
+  const PACK_VIEW: ParentLinkView = { ...VIEW, prices: { month: null, till_boards: null }, pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } };
+
+  it("names the pack and the SERVER price, ONE Pay button, no pass buttons", async () => {
+    await renderPanel({ view: vi.fn(async () => PACK_VIEW) });
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for Aarav's Maths CBQ Pack");
+    expect(screen.getByRole("button", { name: "Pay ₹199 once" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: /for a month|till the boards/ })).toBeNull();
+    const page = document.body.textContent || "";
+    expect(page).toContain("for the Maths CBQ Pack on LazyTopper");
+    expect(page).toContain("The Maths CBQ Pack goes to Aarav's account, not yours");
+    expect(page).not.toMatch(/premium/i);
+  });
+
+  it("a Chapter Pack is named by its chapter", async () => {
+    await renderPanel({ view: vi.fn(async () => ({ ...PACK_VIEW, pack: { sku: "pack_chapter" as const, target: "polynomials", priceInr: 49 } })) });
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for Aarav's Polynomials Chapter Pack");
+    expect(screen.getByRole("button", { name: "Pay ₹49 once" })).toBeInTheDocument();
+  });
+
+  it("pay: the order names no pack (the token only); 'in Aarav's account' only after the server's verify; pack events, not pass events", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "paid", passEnd: "", firstName: "Aarav", paymentId: "pay_P1", amountInr: 199 }));
+    await renderPanel({ view: vi.fn(async () => PACK_VIEW), buy });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹199 once" }));
+    });
+    expect(buy).toHaveBeenCalledWith(TOKEN, "pack", "Maths CBQ Pack");
+    expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Done — the Maths CBQ Pack is in Aarav's LazyTopper account.");
+    expect(packBegin).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", valueInr: 199 }), { signedIn: false });
+    expect(packPurchase).toHaveBeenCalledTimes(1);
+    expect(packPurchase).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", transactionId: "pay_P1", valueInr: 199 }));
+    expect(begin).not.toHaveBeenCalled();
+    expect(purchase).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Maths CBQ Pack Aarav के LazyTopper अकाउंट में आ गया है");
+  });
+
+  it("pending -> 'the pack is added automatically', no purchase; failed -> the failure line", async () => {
+    await renderPanel({ view: vi.fn(async () => PACK_VIEW), buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "pending" })) });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹199 once" }));
+    });
+    expect(screen.getByTestId("parent-pay-confirming")).toHaveTextContent("the pack is added automatically");
+    expect(screen.getByRole("button", { name: "Pay ₹199 once" })).toBeDisabled();
+    expect(packPurchase).not.toHaveBeenCalled();
+    cleanup();
+    await renderPanel({ view: vi.fn(async () => PACK_VIEW), buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "failed", reason: "owned" })) });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹199 once" }));
+    });
+    expect(screen.getByTestId("parent-pay-refused")).toHaveTextContent("already has this pack");
+  });
+
+  it("Hindi: the pack page switches, same price, and never says Premium", async () => {
+    await renderPanel({ view: vi.fn(async () => PACK_VIEW) });
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Aarav के Maths CBQ Pack का भुगतान करें");
+    expect(screen.getByRole("button", { name: "एक बार ₹199 दें" })).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/premium/i);
+  });
+
+  it("review M2: the server says the child already had it -> a true, neutral line; never refund wording (en + hi)", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "paid", passEnd: "", firstName: "Aarav", paymentId: "pay_D", amountInr: 199, duplicate: true }));
+    await renderPanel({ view: vi.fn(async () => PACK_VIEW), buy });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹199 once" }));
+    });
+    expect(screen.getByTestId("parent-pay-paid").textContent).toBe("Aarav already had this pack, so nothing new was added.");
+    // Review F3: a duplicate payment is not a conversion - no purchase event at all.
+    expect(packPurchase).not.toHaveBeenCalled();
+    expect(purchase).not.toHaveBeenCalled();
+    expect(document.body.textContent).not.toMatch(/refund|money back/i);
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(screen.getByTestId("parent-pay-paid").textContent).toBe("Aarav के पास यह पैक पहले से था, इसलिए कुछ नया नहीं जोड़ा गया।");
   });
 });

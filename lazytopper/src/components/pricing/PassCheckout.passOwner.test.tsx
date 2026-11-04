@@ -57,10 +57,12 @@ describe("a Board Pass owner on /pricing", () => {
     expect(document.body.textContent).not.toMatch(/₹|Try free|Pay /);
     expect(screen.queryByTestId("pass-checkout-pack-credit")).toBeNull();
   });
-  it("a running MONTH pass keeps today's view: the notice, and the Board Pass upgrade one tap away", () => {
+  it("a running MONTH pass: 'Your month pass is active until …', the Board Pass upsell, one Board Pass Pay", () => {
     view({ activePassEnd: "2026-11-30T00:00:00.000Z", activePlan: "pass_month" });
-    expect(screen.getByTestId("pass-checkout-already-active").textContent).toBe("Premium is already active until 30 November 2026.");
+    expect(screen.getByTestId("pass-checkout-already-active").textContent).toBe("Your month pass is active until 30 November 2026.");
+    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered till your boards: Board Pass ₹[\d,]+ once$/);
     expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/premium/i);
   });
   it("no running pass: the plan alone changes nothing", () => {
     view({ activePlan: "pass_till_boards" });
@@ -73,7 +75,7 @@ describe("the Board Pass payment-success screen", () => {
     vi.stubEnv("VITE_PACKS_ENABLED", "1");
     view({ onBuy: vi.fn(async () => ({ status: "paid" as const, passEnd: "2027-02-17T00:00:00.000Z" })) });
     fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
-    expect((await screen.findByTestId("pass-checkout-paid")).textContent).toBe("Premium is active until 17 February 2027");
+    expect((await screen.findByTestId("pass-checkout-paid")).textContent).toBe("Your Board Pass is active until 17 February 2027.");
     const offer = await screen.findByTestId("pass-offer-pass_success");
     expect(offer.textContent).toContain("Your Board Pass is on. Prefer practising on paper too? The CBQ Packs put the case-based questions in print");
     expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe("Maths ₹199");

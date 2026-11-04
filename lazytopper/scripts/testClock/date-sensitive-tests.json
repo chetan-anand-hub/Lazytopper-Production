@@ -626,6 +626,7 @@
     "src/pages/PracticePage.weakAreaDirect.test.tsx",
     "src/pages/PracticePage.workingAfter.test.tsx",
     "src/pages/PricingPage.backnav.test.tsx",
+    "src/pages/PricingPage.boardPassOwner.test.tsx",
     "src/pages/PricingPage.founderAfterClose.test.tsx",
     "src/pages/PricingPage.ladder.test.tsx",
     "src/pages/PricingPage.packs.test.tsx",

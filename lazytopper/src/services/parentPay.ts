@@ -13,12 +13,19 @@
  *     child from the token, prices the order from the child's record, and grants the pass
  *     to the child after verifying Razorpay's signed result. No uid is ever sent from here.
  *
+ * PARENT-PACKS-1 (owner, 4 Nov 2026): a link may carry ONE PDF pack instead of the Board Pass. The CHILD fixes
+ * the pack when the link is minted (parentPayPack `mintParentPackLink`); the server stores it on the link and
+ * returns its price from the server table. The parent's page sends only the token (`product: "pack"`): it can
+ * never pick a different pack, target, account or amount. Every parent-facing line names the "Board Pass" (or
+ * the pack), never "Premium".
+ *
  * ★ THE TOKEN TRAVELS IN THE URL FRAGMENT (`/pricing#pp=<token>`): a fragment is never sent
  * to a server, never appears in a Referer, and no analytics vendor receives it (GA4 and
  * Vercel get a redacted path; Meta sends nothing from an address with a hash).
  */
 import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
-import { formatInr } from "../config/pricing";
+// PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
+import type { ParentPackRef } from "./parentPayPack";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
 export const PARENT_VIEW_ENDPOINT = "/api/pay/parent/view";
@@ -81,151 +88,12 @@ export function daysLeft(expiresAtIso: string, nowMs: number): number {
   return Math.max(1, Math.round((exp - nowMs) / (24 * 60 * 60 * 1000)));
 }
 
-/** TRIAL-SELL-1 - the mistake groups the proof line may name (lib/mistakeDisplay's keys; no import, the entry stays light). */
-export type ParentProofGroup = "knowledge" | "technique" | "careless";
-
-/**
- * TRIAL-SELL-1 - the parent's proof, from the student's REAL graded results in the last 30 days:
- * the measurable graded answers and the marks the grader found lost on them (marks lost to work
- * not attempted are left out - the grader found no mistake there). `group` is the biggest loss
- * group, set only when Me's weakness gate allows naming one AND it holds at least half of the typed
- * marks lost (so "mostly" is true). Built by `parentProofFrom`.
- */
-export interface ParentProof {
-  answers: number;
-  marksLost: number;
-  group: ParentProofGroup | null;
-}
-
-/** The read-model facts the proof is projected from (progressReadModel's shapes, structurally). */
-export interface ParentProofSource {
-  totals: { answers: number; marksLost: number; marksNotAttempted?: number } | null | undefined;
-  byGroup?: Partial<Record<ParentProofGroup, number>> | null;
-  /** `modelNamesWeakness` - false names no group. */
-  namesWeakness: boolean;
-}
-
-const PROOF_GROUP_ORDER: readonly ParentProofGroup[] = ["knowledge", "technique", "careless"];
-
-/** The proof, or null when there is nothing real to say (no graded answers, or no marks found lost). */
-export function parentProofFrom(src: ParentProofSource | null | undefined): ParentProof | null {
-  const t = src?.totals;
-  if (!t) return null;
-  const answers = Number(t.answers);
-  const lost = (Number(t.marksLost) || 0) - Math.max(0, Number(t.marksNotAttempted) || 0);
-  if (!Number.isInteger(answers) || answers <= 0 || !Number.isFinite(lost)) return null;
-  const marksLost = Math.round(lost * 10) / 10;
-  if (marksLost <= 0) return null;
-  // "mostly" must be true: a group is named only when it holds at least HALF of the typed marks lost.
-  let group: ParentProofGroup | null = null;
-  if (src?.namesWeakness && src.byGroup) {
-    let best = 0;
-    let typed = 0;
-    let top: ParentProofGroup | null = null;
-    for (const k of PROOF_GROUP_ORDER) {
-      const v = Math.max(0, Number(src.byGroup[k]) || 0);
-      typed += v;
-      if (v > best) {
-        best = v;
-        top = k;
-      }
-    }
-    if (top && typed > 0 && best * 2 >= typed) group = top;
-  }
-  return { answers, marksLost, group };
-}
-
-function validProof(p: ParentProof | null | undefined): ParentProof | null {
-  if (!p) return null;
-  if (!Number.isInteger(p.answers) || p.answers <= 0) return null;
-  if (typeof p.marksLost !== "number" || !Number.isFinite(p.marksLost) || p.marksLost <= 0) return null;
-  return p;
-}
-
-function marksText(n: number): string {
-  return Number.isInteger(n) ? String(n) : n.toFixed(1);
-}
-
-const PROOF_GROUP_EN: Record<ParentProofGroup, string> = {
-  knowledge: "concept gaps",
-  technique: "exam-technique slips",
-  careless: "careless slips",
-};
-const PROOF_GROUP_HI: Record<ParentProofGroup, string> = {
-  knowledge: "कॉन्सेप्ट की कमी",
-  technique: "लिखने के तरीके की गलतियाँ",
-  careless: "लापरवाही की गलतियाँ",
-};
-
-/** "In the 3 answers it checked for me in the last 30 days, it found 1.5 marks I was losing (mostly careless slips)." */
-export function parentProofLine(proof: ParentProof, lang: ParentPayLang): string {
-  const m = marksText(proof.marksLost);
-  if (lang === "hi") {
-    const why = proof.group ? ` (ज़्यादातर ${PROOF_GROUP_HI[proof.group]})` : "";
-    return `पिछले 30 दिनों में इसने मेरे ${proof.answers} उत्तर जाँचे और ${m} नंबर पकड़े जो मेरे कट रहे थे${why}।`;
-  }
-  const why = proof.group ? ` (mostly ${PROOF_GROUP_EN[proof.group]})` : "";
-  return `In the ${proof.answers} ${proof.answers === 1 ? "answer" : "answers"} it checked for me in the last 30 days, it found ${m} ${
-    proof.marksLost === 1 ? "mark" : "marks"
-  } I was losing${why}.`;
-}
-
-export interface AskParentMessageInput {
-  lang: ParentPayLang;
-  prices: ParentPrices;
-  /** Answers graded in the last 30 days. 0 / null -> the line is LEFT OUT, never invented. */
-  checkedCount: number | null;
-  /**
-   * TRIAL-SELL-1 - the marks the grader found lost (`parentProofFrom`). When present it REPLACES the
-   * plain count line (one line, the message stays WhatsApp-short); null / absent -> today's text.
-   */
-  proof?: ParentProof | null;
-  url: string;
-  days: number;
-}
-
-/**
- * The child's WhatsApp message to a parent. Honest and short: what LazyTopper is, a real
- * count only if there is one, the SERVER prices (a price the server could not quote is left
- * out), and the link. No pressure language, no fake urgency, no claims about results.
- */
-export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, days }: AskParentMessageInput): string {
-  const shown = validProof(proof);
-  const n = typeof checkedCount === "number" && Number.isInteger(checkedCount) && checkedCount > 0 ? checkedCount : 0;
-  const boards = typeof prices.till_boards === "number" && prices.till_boards > 0 ? formatInr(prices.till_boards) : null;
-
-  if (lang === "hi") {
-    const lines = [
-      "मम्मी/पापा, मैं CBSE कक्षा 10 बोर्ड की तैयारी के लिए LazyTopper इस्तेमाल करता/करती हूँ। यह मेरे लिखे उत्तरों को CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचता है और बताता है कि मेरे नंबर कहाँ कटते हैं।",
-    ];
-    if (shown) lines.push(parentProofLine(shown, "hi"));
-    else if (n > 0) lines.push(`पिछले 30 दिनों में इस पर मेरे ${n} उत्तर जाँचे गए हैं।`);
-    // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
-    if (boards) lines.push(`Premium बोर्ड परीक्षा तक के लिए एक बार ${boards} है।`);
-    lines.push(
-      "क्या आप इसका भुगतान कर देंगे? यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
-    );
-    lines.push(url);
-    lines.push(`(यह लिंक ${days} दिन तक चलेगा।)`);
-    return lines.join("\n\n");
-  }
-
-  const lines = [
-    "Hi Mummy/Papa, I'm using LazyTopper for my CBSE Class 10 board prep. It checks my written answers step by step, the way a CBSE examiner marks them, and shows me exactly where I lose marks.",
-  ];
-  if (shown) lines.push(parentProofLine(shown, "en"));
-  else if (n > 0) lines.push(`I've had ${n} ${n === 1 ? "answer" : "answers"} checked on it in the last 30 days.`);
-  // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
-  if (boards) lines.push(`Premium is ${boards} once for everything till my boards.`);
-  lines.push("Could you pay for it? This link is only for my account — you don't need to sign up or share any password:");
-  lines.push(url);
-  lines.push(`(The link works for ${days} ${days === 1 ? "day" : "days"}.)`);
-  return lines.join("\n\n");
-}
+/* The parent MESSAGE (buildAskParentMessage, the TRIAL-SELL-1 proof) lives in ./parentPayMessage (PARENT-PACKS-1): this
+   module rides on the light paywall gate (entry chunk) and the message is needed only by the lazy share sheet. */
 
 /* ── network ─────────────────────────────────────────────────────────────── */
 
-async function childAuthHeaders(): Promise<Record<string, string>> {
+export async function childAuthHeaders(): Promise<Record<string, string>> {
   const { authClient } = await import("./firebaseClient");
   const current = authClient?.currentUser ?? null;
   if (!current) throw new Error("signed-out");
@@ -234,7 +102,8 @@ async function childAuthHeaders(): Promise<Record<string, string>> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export type ParentLinkReason = "invalid" | "expired" | "used" | "covered" | "failed";
+/** PARENT-PACKS-1: "owned" = the child already owns the link's pack (directly or through a Subject Pack / the Bundle). */
+export type ParentLinkReason = "invalid" | "expired" | "used" | "covered" | "owned" | "failed";
 
 export class ParentLinkError extends Error {
   readonly reason: ParentLinkReason;
@@ -245,7 +114,7 @@ export class ParentLinkError extends Error {
   }
 }
 
-async function postJson(url: string, body: unknown, headers: Record<string, string> = {}): Promise<Record<string, unknown>> {
+export async function postJson(url: string, body: unknown, headers: Record<string, string> = {}): Promise<Record<string, unknown>> {
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
@@ -259,11 +128,11 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
   }
   if (res.ok && parsed && parsed.ok === true) return parsed;
   const reason = parsed && typeof parsed.reason === "string" ? parsed.reason : "";
-  if (reason === "invalid" || reason === "expired" || reason === "used" || reason === "covered") throw new ParentLinkError(reason);
+  if (reason === "invalid" || reason === "expired" || reason === "used" || reason === "covered" || reason === "owned") throw new ParentLinkError(reason);
   throw new ParentLinkError("failed");
 }
 
-function readPrices(v: unknown): ParentPrices {
+export function readPrices(v: unknown): ParentPrices {
   const o = v && typeof v === "object" ? (v as Record<string, unknown>) : {};
   const num = (x: unknown) => (typeof x === "number" && Number.isFinite(x) && x > 0 ? x : null);
   return { month: num(o.month), till_boards: num(o.till_boards) };
@@ -273,9 +142,11 @@ export interface MintedParentLink {
   token: string;
   expiresAt: string;
   prices: ParentPrices;
+  /** PARENT-PACKS-1 - present on a pack link: the pack and its SERVER price. */
+  pack?: ParentPackRef;
 }
 
-/** The signed-in child mints a link. Sends NOTHING but the child's own ID token. */
+/** The signed-in child mints a link. Sends NOTHING but the child's own ID token. (A pack link: parentPayPack.) */
 export async function mintParentLink(): Promise<MintedParentLink> {
   const json = await postJson(PARENT_LINK_ENDPOINT, {}, await childAuthHeaders());
   if (typeof json.token !== "string" || !PARENT_TOKEN_PATTERN.test(json.token) || typeof json.expiresAt !== "string") {
@@ -288,6 +159,8 @@ export interface ParentLinkView {
   firstName: string;
   prices: ParentPrices;
   expiresAt: string;
+  /** PARENT-PACKS-1 - a pack link: the pack and its SERVER price (then `prices` is empty). */
+  pack?: ParentPackRef;
 }
 
 /** The parent's page: is the link live, whose first name, what the server charges. */
@@ -301,7 +174,8 @@ export async function viewParentLink(token: string): Promise<ParentLinkView> {
 }
 
 export type ParentBuyOutcome =
-  | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number }
+  /** `duplicate` (PARENT-PACKS-1, pack links only - parentPayPack): the child already had the pack; nothing new was added. */
+  | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number; duplicate?: boolean }
   | { status: "dismissed" }
   /** PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success. Never shown as a failure. */
   | { status: "pending" }
@@ -357,7 +231,7 @@ export async function buyPassAsParent(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: passType === "month" ? "Premium pass for a month (for your child)" : "Premium pass till boards (for your child)",
+        description: `${passType === "month" ? "Monthly pass" : "Board Pass"} (for your child)`,
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

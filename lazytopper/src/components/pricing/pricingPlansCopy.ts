@@ -171,6 +171,9 @@ export function whatYouGetRows(boardPassPrice: string): ReadonlyArray<{ label: s
   ];
 }
 
+/** PARENT-PACKS-1 (owner, 4 Nov 2026) - the Board Pass price cell of "What you get with each" for a Board Pass owner. */
+export const BOARD_PASS_OWNED_CELL = "You have it";
+
 export const BASIC_COMPARE_SUMMARY = "What's free on Basic?";
 /** The folded Board Pass vs Basic table's plan column header (never "Premium"). */
 export const COMPARE_BOARD_PASS_HEADER = BOARD_PASS_NAME;

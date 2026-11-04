@@ -232,6 +232,9 @@ describe("MI-VOICE-1 · guide arm — each state's pose and line, above the card
 
       // One character at a time; the drawing lands lazily in the fixed slot.
       const blob = await screen.findByTestId(`blob-${c.kind}`, {}, { timeout: 8000 });
+      // FLAKY-1: the host <span> paints first; the Rig draws its <svg> (bag number included) in BlobCharacter's mount effect,
+      // which under CI load can run after findByTestId resolves (seen: 0 bag digits for "8"). Wait for the drawing itself.
+      await waitFor(() => expect(blob.querySelector("svg.lt-gr-svg")).not.toBeNull());
       expect(blob.getAttribute("data-pose")).toBe(c.pose);
       expect(container.querySelectorAll("[data-testid^='blob-']")).toHaveLength(1);
       expect(screen.getByTestId("mi-voice-slot").contains(blob)).toBe(true);
