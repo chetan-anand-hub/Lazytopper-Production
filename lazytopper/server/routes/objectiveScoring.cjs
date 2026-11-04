@@ -282,21 +282,42 @@ function optionMatchingText(text, opts, { sentenceOnly = false } = {}) {
   return scored[0].idx;
 }
 
+// Review H1/H2 · the near match never reads a line that NAMES ANOTHER LETTER ("… or (c)", "… / (c)",
+// "…, or c", "so (c)") — a hedge or a later declaration stays exactly as on trunk — nor a line that
+// REJECTS what it copies ("… is wrong", "… ✗", "cannot be"): a negation word the option itself does
+// not contain makes the text a rejection, not a declaration ("not" is part of an A-R option).
+const NAMES_A_LETTER = /\(\s*[a-h]\s*\)|(?:\bor\b|\/|&|\bso\b|\bhence\b|\bthus\b|\btherefore\b|\banswer\b|\bans\b|\boption\b)\s*[,:=\-]?\s*\(?\s*[a-h]\s*\)?\s*[.)]?\s*$/i;
+function namesALetter(text) {
+  return NAMES_A_LETTER.test(String(text == null ? '' : text).replace(/\(\s*[AR]\s*\)/g, ' '));
+}
+const NEGATION_WORDS = /\b(?:not|no|wrong|incorrect|cannot|cant|never|false|eliminat\w*|reject\w*|ruled?)\b|[✗✘×]/g;
+function negationCounts(s) {
+  const out = {};
+  for (const m of String(s == null ? '' : s).toLowerCase().replace(/'/g, '').match(NEGATION_WORDS) || []) {
+    const k = m.startsWith('eliminat') ? 'eliminat' : m.startsWith('reject') ? 'reject' : m.startsWith('rule') ? 'rule' : m;
+    out[k] = (out[k] || 0) + 1;
+  }
+  return out;
+}
+/** True when `text` carries a negation that `option` does not (so it rejects rather than copies). */
+function negatesBeyond(text, option) {
+  const t = negationCounts(text);
+  const o = negationCounts(option);
+  return Object.keys(t).some((k) => t[k] > (o[k] || 0));
+}
+
 /** A letter + text read against the options: { pick } | { contradiction } | null. */
 function letterWithText(letter, text, opts, o) {
   const x = letter.toLowerCase().charCodeAt(0) - 97;
   if (x < 0 || x >= opts.length) return null;
+  // On an Assertion-Reason question "(A) is true but …" is the ASSERTION label, not option (a).
+  if (letter === 'A' && opts.some((op) => /\bassertion\b|\(\s*A\s*\)/i.test(String(op)))) return null;
+  if (namesALetter(text)) return null;
   const y = optionMatchingText(text, opts, o);
   if (y < 0) return null;
+  if (negatesBeyond(text, opts[y])) return null;
   return y === x ? { pick: letter.toLowerCase() } : { contradiction: true, pick: '' };
 }
-
-// G4 · NO OPTIONS (an Answer Checker upload: detect returns no option list). "(b) The image is
-// virtual" can only be read by its letter. It is read — as a FALLBACK — only when the line starts
-// with a CLOSED letter "(b)" / "b)", the rest does not join a second letter ("(a) and (b) both",
-// "(a), (c)") and does not reject the letter ("(b) is wrong because…").
-const NO_OPTIONS_JOINED = /^\s*(?:or|and|&|\/|,|\+)/i;
-const NO_OPTIONS_REJECTS = /^\s*(?:(?:is|was|are)\s+)?(?:not\b|wrong\b|incorrect\b|false\b|eliminat|rule[sd]?\s+out\b|reject)/i;
 
 // A line that STARTS a letter block (and so ends a continuation): a letter-led line, a hedge,
 // or an ordinary declaration.
@@ -334,10 +355,6 @@ function declarationOn(line, opts) {
     // MCQ-PICK-1 · a near copy of an option's text (see letterWithText). Still a FALLBACK.
     const near = letterWithText(lt[1], lt[2], opts);
     if (near) return { ...near, fallback: true };
-    // MCQ-PICK-1 G4 · no options to compare against: the closed letter alone is the (fallback) pick.
-    if (opts.length === 0 && !NO_OPTIONS_JOINED.test(lt[2]) && !NO_OPTIONS_REJECTS.test(lt[2])) {
-      return { pick: lt[1].toLowerCase(), fallback: true };
-    }
   }
   const sc = SELF_CORRECTION.exec(w);
   if (sc) return { pick: String(sc[1] || sc[2]).toLowerCase() };
@@ -384,6 +401,9 @@ function letterBlockAt(lines, i, opts) {
   const cont = [];
   for (let j = i + 1; j < lines.length && !startsDeclaration(lines[j].text); j += 1) cont.push(lines[j].text.trim());
   if (cont.length === 0) return null;
+  // Review H1/H2 · a continuation line that names another letter or rejects (a negation no option
+  // carries) ends the reading: the block is not read and every line is read on its own, as on trunk.
+  if (cont.some((c) => namesALetter(c) || opts.every((op) => negatesBeyond(c, op)))) return null;
   for (let k = cont.length; k >= 1; k -= 1) {
     const text = [lt ? lt[2] : '', ...cont.slice(0, k)].join(' ').trim();
     const d = letterWithText(letter, text, opts, { sentenceOnly: true });
@@ -404,7 +424,7 @@ function lastDeclaration(steps, options) {
   let last = null;
   let lastFallback = null;
   let fallbackConflict = false;
-  let fallbackContradiction = false;
+  let contradiction = false;
   for (let n = 0; n < lines.length; n += 1) {
     const block = letterBlockAt(lines, n, opts);
     const d = block ? block.decl : declarationOn(lines[n].text, opts);
@@ -412,18 +432,21 @@ function lastDeclaration(steps, options) {
     if (block) n += block.consumed;
     if (!d) continue;
     if (d.fallback) {
-      if (d.contradiction) fallbackContradiction = true;
+      if (d.contradiction) contradiction = true;
       else {
         if (lastFallback && lastFallback.pick !== d.pick) fallbackConflict = true;
         lastFallback = { pick: d.pick, stepIndex: at };
       }
     } else {
-      last = d.contradiction ? { contradiction: true, pick: '', stepIndex: -1 } : { ...d, stepIndex: at };
+      if (d.contradiction) contradiction = true;
+      else last = { ...d, stepIndex: at };
     }
   }
+  // Review H3 · a contradiction counts ONLY when nothing else in the answer declares an option:
+  // "(a) 3" (option b is "3") is a working line beside a clean "(c) 4", never a reason to drop it.
   if (last) return last;
-  if (fallbackContradiction) return { contradiction: true, pick: '', stepIndex: -1 };
-  if (lastFallback && !fallbackConflict) return lastFallback;
+  if (lastFallback) return fallbackConflict ? null : lastFallback;
+  if (contradiction) return { contradiction: true, pick: '', stepIndex: -1 };
   return null;
 }
 
