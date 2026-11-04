@@ -1,3 +1,17 @@
+> **2026-11-04 (daily, second) - #1533 - #1548 (CLAUDE.md section 10).** Scope: checkout ("Who will use it?"), payment thank-you / account creation, sign-in (/login and thank-you email code), every page header (NAV-1), Premium lock pages and gates, /pricing, /packs and My packs, parent pay page, pack offers to Board Pass owners. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a). Grading surfaces: NONE moved.** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Checkout (every Pay / Buy button) | review fixes, enumeration hardening (`#1533`); no-account hotfix (`#1537`); second-box label (`#1538`); Board Pass owners pay for packs on "For: you" (`#1540`) | merged; `CHECKOUT_WHO` flags ON | owner T3-T6 |
+| Payment thank-you / account at payment | account created at payment, "It's for me" / "Send it to my child" (`#1539`); email case gets a 6-digit code (`#1545`) | merged; LIVE (pay-first 08:50 IST, email code 14:32 IST) | `[FU-CODE-SENT-NAMES-TARGET]`, `[FU-RAZORPAY-CONTACT-OPTIONAL]` |
+| Sign-in (/login) | "Sign in with email code" door (`#1545`); email-link finish (`#1539`) | merged; LIVE | `[FU-CODE-SENT-NAMES-TARGET]` |
+| Every page header (NAV-1) | "← <parent>" + "⌂ Home" row, logo goes Home, paid chip never "Premium" (`#1546`) | merged | `[FU-NAV1-DUPLICATE-BACK-LINKS]`, `[FU-DESKTOP-ACCOUNT-MENU-SHARE]` |
+| Premium lock pages (Answer Checker, Worksheet marking, AI tutor) and UpgradeSheet | Board Pass card leads, "Continue with Basic" (`#1543`); pack-owner line, 402 titles, CBQ bonus spent (`#1541`) | merged | live-verify 360/1280 |
+| /pricing | Basic line "limited practice" with real caps (`#1534`); no Board Pass price or pay button for a running till-boards owner (`#1540`, `#1542`) | merged | `[FU-PRICING-META-PREMIUM]` (carried) |
+| /packs and My packs | "Your Board Pass is active until" line (`#1542`); parent ask/QR in every pack pop-up (`#1542`); server re-download enforcement, ended pack leaves My packs (`#1544`) | merged | `[FU-ENDED-PACKS-NOTE-MOUNT]` |
+| Parent pay page | pays for one specific pack; "Board Pass" naming (`#1542`) | merged | live-verify |
+| Pack offers to Board Pass owners | success screen, download moments, graded Full Mock, Me / Progress; 1-day "Not now" (`#1540`) | merged | live-verify |
+
 > **2026-11-04 (daily) - #1514 - #1531 (CLAUDE.md section 10, once a day).** Scope: /pricing, /practice-hub?cbq=1 and /check-improve ad landings (signed-out), /packs, home header links, checkout, Login, trial display, student emails. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Grading surfaces: none moved.
 
 | surface | what moved (PR) | state | owed |

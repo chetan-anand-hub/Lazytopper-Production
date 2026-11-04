@@ -1,3 +1,19 @@
+## 2026-11-04 (daily, second) - #1533 - #1548
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`e0c2517b`** [git].
+
+- **Done [git/gh]:** 14 PRs merged (table in CURRENT_STATE), all CI-green. No grading behaviour changed. Pay-first account creation and the 6-digit email code are built AND switched on [coordinator]; NAV-1 adds Back + Home to every page; the Premium lock now sells the Board Pass; the server enforces the pack re-download date.
+- **Closed today:** `[FU-CHECKOUT-WHO-2]` (`#1533`), `[FU-CHECKOUT-WHO-LIVE-TEST]` (superseded by owner tests T1-T6: T1, T2 passed, T3-T6 pending; `#1537`/`#1538` fixed what the first test found), `[FU-REDOWNLOAD-DATE-SERVER]` (`#1544`, mount still owed: `[FU-ENDED-PACKS-NOTE-MOUNT]`), `[FU-TEST-FLAKES-UNDER-LOAD]` (`#1547`), `[FU-BOARD-PASS-PACK-OFFERS]` (`#1540`).
+- **NEXT, in order [coordinator]:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the "4 Nov (second)" section of OPEN_QUESTIONS_AND_FOLLOWUPS. Read DECISION_LOG before diagnosing sales.
+  2. **Owner tests T3-T6** (pay-first and email code are live; T1, T2 and EMAIL-CODE-1 passed). Watch Railway logs and admin Purchases for `account_not_created` notes. Rollback for pay-first = Railway `PAY_AUTO_ACCOUNT_ENABLED` off (+ Vercel var off + redeploy).
+  3. **"Code sent" message** names the masked email/phone and offers "Change it" (owner 14:42) - `[FU-CODE-SENT-NAMES-TARGET]`.
+  4. **Abandoned-checkout emails missing in Resend** - diagnose (`[FU-ABANDONED-CHECKOUT-NOT-IN-RESEND]`); keep the Resend Pro decision in view (`[FU-RESEND-PRO]`).
+  5. Small owner-gated follow-ups: DesktopShell "Premium active" (needs owner permission for the forbidden file), duplicate page-level back links after NAV-1, mount `EndedPacksNote` + "May re-exam" pack decision before March, Razorpay contact field optional (owner/Ayush), founding email "Premium" wording + `foundingPriceLine` clock.
+  6. Not built: the one-payment add-on (`ADDON-1`, dark when built). Thu 5 Nov: Google Ads expert call.
+  7. By 1 Dec: Board Pass rename decision (`[FU-BOARD-PASS-RENAME]`), with the Rs 2,499 change.
+- **Housekeeping:** mark the owner-identified test account (named in the coordinator handoff) as a test account in admin/analytics (`[FU-TEST-ACCOUNT-MARKING-4NOV]`); WhatsApp Business number; repo back to PRIVATE (owner); delete merged lane branches.
+
 ## 2026-11-04 (daily) - #1514 - #1531
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`dcbf3a54`** [git].

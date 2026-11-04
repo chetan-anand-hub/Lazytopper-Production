@@ -23,6 +23,53 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-04 (daily, second) - #1533 - #1548 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `e0c2517b`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's 4 Nov facts **[coordinator]** (source: project doc `claude/HANDOFF_COFOUNDER_SESSION_2026-11-04.md`, section 0 items 3-10 and section 7, cross-checked by the coordinator) and the PR bodies **[gh]**. No grading behaviour changed (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*
+
+**Closed or superseded by this window (not re-headed):** `[FU-CHECKOUT-WHO-2]` closed by `#1533`. `[FU-CHECKOUT-WHO-LIVE-TEST]` superseded by owner tests T1-T6 (`[FU-OWNER-TESTS-T3-T6]`); the first run found `#1537`/`#1538`, then T1 and T2 passed and the flags went on. `[FU-REDOWNLOAD-DATE-SERVER]` closed by `#1544` (UI mount still owed: `[FU-ENDED-PACKS-NOTE-MOUNT]`). `[FU-TEST-FLAKES-UNDER-LOAD]` closed by `#1547`. `[FU-BOARD-PASS-PACK-OFFERS]` closed by `#1540`. The 4 Nov (first) Basic-line confirmation in `[FU-HOUSEKEEPING-4NOV]` is answered: "limited practice" (`#1534`).
+
+**Carried, not duplicated:** `[FU-WHATSAPP-BUSINESS-NUMBER]` (still pending; parents use WhatsApp share meanwhile), `[FU-BOARD-PASS-RENAME]` (decide by 1 Dec), `[FU-RESEND-PRO]` (more volume now: account-ready emails and email codes share the Resend rail), `[FU-PRICING-META-PREMIUM]`.
+
+### [FU-OWNER-TESTS-T3-T6]
+Pay-first (`#1539`) and the email code (`#1545`) are LIVE. Owner tests T1 (new mobile, pay-first), T2 (new email + Google, same account) and EMAIL-CODE-1 PASSED **[coordinator]**. T3-T6 are pending (steps in the coordinator handoff, section 6). Watch admin Purchases for "account not created (waiting...)" and Railway for `account_not_created`. Rollback: Railway `PAY_AUTO_ACCOUNT_ENABLED` off (+ Vercel `VITE_PAY_AUTO_ACCOUNT_ENABLED` off + redeploy without cache).
+
+### [FU-CODE-SENT-NAMES-TARGET]
+Owner, 4 Nov 14:42 **[coordinator]**: the "code sent" message (email code and phone OTP) must name the masked email/phone it went to and offer a "Change it" link. Not built. Keep it masked; never put the address or number in a URL or analytics.
+
+### [FU-ABANDONED-CHECKOUT-NOT-IN-RESEND]
+**[coordinator]** Abandoned-checkout emails (`ABANDONED_CHECKOUT_EMAIL_ENABLED=1` since 3 Nov) do not appear in Resend. Diagnose: cap (shared 80 per IST day), send window, eligibility, or the run itself. Relates to `[FU-FOUNDING-EMAIL-WATCH]`.
+
+### [FU-ENDED-PACKS-NOTE-MOUNT]
+`#1544`. `EndedPacksNote` is built but not mounted: needs `PacksShop.tsx` + a one-line pass-through of `endedPacks` in `services/packs.ts` `fetchMyPacks`. Until then an ended pack simply disappears from My packs. Also an owner call: a "May re-exam" pack (or other offer) to sell before March, since `payments.cjs` still refuses re-buying an ended pack (409). Due before 31 Mar 2027.
+
+### [FU-NAV1-DUPLICATE-BACK-LINKS]
+`#1546`. NAV-1 adds a Back + Home row to every page; pages that already draw their own back link (e.g. /pricing "Back to home", the CBSE page `returnTo` link, `/for-parents` arrivals) now show two. Decide per page which one stays. Absorbs the older `[FU-PARENTS-DOUBLE-BACKLINK]`.
+
+### [FU-DESKTOP-ACCOUNT-MENU-SHARE] (update, 4 Nov)
+Still open, now user-visible: after `#1546` the mobile menu and Settings say "Board Pass", but the desktop account dropdown in `DesktopShell.tsx` still says "Premium active". Exact change is in the `#1546` body (replace the inline block with `deriveAccountStatus(...)`). Needs the owner's permission to edit the globally forbidden file.
+
+### [FU-RAZORPAY-CONTACT-OPTIONAL]
+**[coordinator]** Make the Razorpay checkout contact field optional (the student/parent has already given a mobile or email in "Who will use it?"). Owner to confirm with the Razorpay consultant (Ayush) before any change.
+
+### [FU-FOUNDING-EMAIL-PREMIUM-WORDING]
+**[coordinator]** The founding-offer email still says "Premium" (should be "Board Pass"), and `foundingPriceLine` reads a clock that needs checking against the 30 Nov / 1 Dec switch. Fix together.
+
+### [FU-FOLLOWUPS-1]
+**[coordinator]** A small-items lane (FOLLOWUPS-1) listed in the coordinator handoff, section 7. Run as one lane next session.
+
+### [FU-ADDON-1]
+**[coordinator]** The one-payment add-on at checkout (pack added to the Board Pass payment). Approved, NOT built; build DARK.
+
+### [FU-TEST-ACCOUNT-MARKING-4NOV]
+**[coordinator]** One of the owner's test accounts (named in the coordinator handoff; not repeated here) is not marked as a test account, so it counts in admin and analytics. Mark it. Related, older: `[FU-ANALYTICS-TEST-ACCOUNT]`.
+
+### [FU-PAY-FIRST-EMAIL-LINK-BEARER]
+`#1539` privacy note **[gh]**: the one-tap sign-in link in the "account is ready" email is a bearer link; it sits in Resend's stored copy and the mailbox until Firebase expires it. Owner to decide whether to drop the link now that the email code (`#1545`) exists.
+
+### [FU-VERCEL-REDEPLOY-NO-CACHE]
+**[coordinator]** Gotcha recorded for every `VITE_*` flag: save the Vercel env var, THEN redeploy without build cache, then confirm the live bundle. EMAIL-CODE-1 did not turn on until this was done.
+
 ## 2026-11-04 (daily) - #1514 - #1531 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `dcbf3a54`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator facts file **[coordinator]** and the PR bodies **[git/gh]**. No grading behaviour changed (CLAUDE.md section 4a). Every ID below has its own heading and body (standing rule 1).*

@@ -1,3 +1,16 @@
+## 2026-11-04 (daily, second) - #1533 - #1548: CHECKOUT-WHO-2 ... PERF-TRIM-1 - MERGED
+
+- DONE. `#1533` (`fd9b8f0`), `#1537` (`d326609`), `#1538` (`7a34595`): checkout-who review fixes, no-account hotfix, second-box label. Flags ON [coordinator]. NEXT: none.
+- DONE. `#1539` (`ddb1be3`): pay first, account created at payment; thank-you opens it or sends it to the child. LIVE since 4 Nov 08:50 IST [coordinator]. NEXT: owner tests T3-T6.
+- DONE. `#1545` (`e0c2517`): 6-digit email code sign-in. LIVE since 4 Nov 14:32 IST [coordinator]. NEXT: `[FU-CODE-SENT-NAMES-TARGET]`.
+- DONE. `#1534` (`4c50bc0`): /pricing Basic line says "limited practice" with real caps. NEXT: none.
+- DONE. `#1540` (`b4a36e7`), `#1541` (`67ef5cd`), `#1542` (`25660e7`): Board Pass owners buy packs and see four gentle offers; gates speak to pack owners; parents pay for packs by link/QR. NEXT: live-verify at 360 and 1280.
+- DONE. `#1543` (`e5f92c8`): the Premium lock sells the Board Pass; "Continue with Basic". NEXT: none.
+- DONE. `#1544` (`91a6ea2`): server enforces the re-download date. NEXT: `[FU-ENDED-PACKS-NOTE-MOUNT]` before 31 Mar 2027.
+- DONE. `#1546` (`705f7c3`): Back + Home on every page. NEXT: `[FU-NAV1-DUPLICATE-BACK-LINKS]`, `[FU-DESKTOP-ACCOUNT-MENU-SHARE]`.
+- DONE. `#1547` (`a13a52c`), `#1548` (`66a343a`): flaky tests fixed; entry chunk -10 KB gz. NEXT: none.
+- NEXT (not built): `ADDON-1` one-payment add-on (dark); `[FU-FOLLOWUPS-1]` small items.
+
 ## 2026-11-04 (daily) - #1514 - #1531: PACKS-CONVERT-1 ... CHECKOUT-WHO-1 - MERGED
 
 - DONE. `#1514` (`7f1334c`), `#1518` (`3925963`): /packs sample-to-buy, Bundle first, download wall offers the matching pack by kind. NEXT: live-verify at 360 and 1280.

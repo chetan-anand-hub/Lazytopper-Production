@@ -1,3 +1,21 @@
+## 2026-11-04 (daily, second) - #1533 - #1548: pay first goes live, sign in with an email code, Back + Home everywhere, the lock sells the Board Pass (trunk `e0c2517b`)
+
+**PROVENANCE.** *(Second daily handoff for 4 Nov 2026, CLAUDE.md section 10. Covers the 14 merges #1533-#1548 after docs PR `#1532` (`05d6726`); `#1535`/`#1536` are nightly clock-run issues, not PRs. **No grading behaviour changed (CLAUDE.md section 4a): marks, mistake types, departure rules, the objective clamp and prompt rules untouched on all six surfaces.** Facts marked **[coordinator]** come from the coordinator's 4 Nov facts for this PR; PR facts **[gh]** from each PR body via `gh api`; trunk **[git]**.)*
+
+**How the day went [coordinator; gh].**
+- **Small hours (IST).** `#1533` closed the checkout-who review items; `#1534` made the /pricing Basic line say "limited practice" (owner ruling 05:42).
+- **Morning.** The owner's live test of checkout-who (06:34) failed for a recipient with no account: a reserved Firestore id (`#1537`, no money taken); the second box got its own label (`#1538`). Then `#1540` (Board Pass owners buy packs; four gentle offers), `#1541` (gates speak to pack owners), `#1539` (pay first: the account is made at payment), `#1543` (lock page sells the Board Pass), `#1544` (server enforces the re-download date), `#1547` (flaky tests), `#1542` (parents pay for packs by link/QR).
+- **Flags.** Pay-first switched ON at 08:50 IST (Railway `PAY_AUTO_ACCOUNT_ENABLED=1`, Vercel `VITE_PAY_AUTO_ACCOUNT_ENABLED=1`); `CHECKOUT_WHO` flags ON both sides. Owner tests T1 (new mobile) and T2 (new email + Google, same account) passed.
+- **Midday.** After testing pay-first, the owner asked for a code instead of an email link (11:39): `#1545`. `#1548` freed 10 KB gz of entry chunk so it fitted. The owner asked for Back + Home on every page (12:04): `#1546`. EMAIL-CODE-1 switched ON at 14:32 IST (`EMAIL_CODE_TRUSTED_PROXY_HOPS=2`; owner set `EMAIL_CODE_SECRET` at 14:42); owner test passed.
+
+**LESSON: a Vercel env var is baked in at build [coordinator].** Saving `VITE_EMAIL_CODE_SIGNIN_ENABLED` did nothing until Vercel was redeployed without build cache. Every `VITE_*` flip needs: save, then redeploy with the cache off, then check the live bundle.
+
+**LESSON: the owner's first live test finds what the gates cannot [gh].** `#1531`/`#1533` were green and reviewed; the first real run with a brand-new recipient hit Firestore's reserved `__.*__` id rule (`#1537`). Every server constant used as a document id now needs a test that it is legal.
+
+**Live checks.** Owner: T1, T2, EMAIL-CODE-1 passed. Owed: T3-T6; 360/1280 checks for `#1540`-`#1543` and `#1546`. See the "4 Nov (second)" section of OPEN_QUESTIONS_AND_FOLLOWUPS.
+
+**Surfaces named for CLAUDE.md section 4a.** None of the six grading surfaces' grading code was touched. `#1541`/`#1543` changed gate copy in front of the Answer Checker, Worksheet marking and the tutor; no mark, mistake type or prompt changed.
+
 ## 2026-11-04 (daily) - #1514 - #1531: sell both products, /pricing rebuilt, packs separated from the Board Pass, checkout-who built dark (trunk `dcbf3a54`)
 
 **PROVENANCE.** *(Daily handoff for 4 Nov 2026, CLAUDE.md section 10. Covers the 18 merges #1514-#1531 after the 3 Nov docs PR `#1513` (`4b3a00f`). **No grading behaviour changed (CLAUDE.md section 4a): marks, mistake types, departure rules, the objective clamp and prompt rules untouched on all six surfaces.** Facts marked **[coordinator]** come from the coordinator facts file for this PR; PR facts from the PR bodies via gh REST; merge SHAs and the trunk tip from gh and git.)* Trunk at writing: **`dcbf3a54`** (= `#1531`). The full PR table with merge SHAs is the 4 Nov block of CURRENT_STATE. No buyer names, phones or emails are recorded.
