@@ -45,6 +45,7 @@ import { recordAttempt } from "./practiceInsights";
 import {
   buildChapterTestSessionRecord,
   writeSessionRecordResolved,
+  currentCodeForPaper,
   writeSessionPerQuestion,
   type SessionSubject,
 } from "./sessionRecords";
@@ -278,7 +279,9 @@ export async function gradeChapterTestUpload(args: {
   /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
   job?: GradingJobOptions;
 }): Promise<ChapterTestGradeOutcome> {
-  const { user, paper, code, subject, topicKey, objective, subjectiveQuestions, upload } = args;
+  const { user, paper, subject, topicKey, objective, subjectiveQuestions, upload } = args;
+  // RECORD-SAFE-1: resolve the paper by identity - its record may have moved to a free code while no page was open
+  const code = currentCodeForPaper(user, paper.worksheetId, "chapter-test", args.code);
 
   const qByNumber = new Map(subjectiveQuestions.map((q) => [q.qNumber, q]));
   const miOutcomes: ChapterTestMiOutcome[] = [];

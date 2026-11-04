@@ -44,7 +44,7 @@ export interface OutboxEntry {
 }
 
 /** What `sessionRecords.ts` reports for a re-send. Every outcome but a throw settles the entry. */
-export type ResendOutcome = "sent" | "cloud-newer" | "no-local-copy" | "no-cloud" | "superseded";
+export type ResendOutcome = "sent" | "cloud-newer" | "no-local-copy" | "no-cloud" | "superseded" | "stale";
 
 export type SavePhase = "idle" | "saving" | "saved" | "device-only" | "keep-open" | "device-only-manual";
 export interface SaveStatusSnapshot {
@@ -283,7 +283,7 @@ export function trackCloudWrite(
           unpersisted.add(key);
           failedAcknowledged = false;
         }
-        const sentNothing = value === "no-local-copy" || value === "no-cloud" || value === "superseded" || opts.quiet === true;
+        const sentNothing = value === "no-local-copy" || value === "no-cloud" || value === "superseded" || value === "stale" || opts.quiet === true;
         // "all done" is about the writes the student is told about: a quiet download in flight, or a
         // quiet failure, must not silence the tick for a graded result that really landed
         const loudLeft = (s: Iterable<string>) => Array.from(s).some((k) => !quiet.has(k));

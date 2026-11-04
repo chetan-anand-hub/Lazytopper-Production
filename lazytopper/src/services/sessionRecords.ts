@@ -550,10 +550,18 @@ interface SettleEntry {
   current: Deferred;
 }
 const recordSettles = new Map<string, SettleEntry>();
+/** Records whose write was refused as stale (a newer / graded copy stands): their payload must not be written either. */
+const staleKeys = new Set<string>();
 /** Where a paper's record finally landed when that was NOT the code it asked for - sticky (bounded),
  *  so a payload written after the record landed still goes to the right ref. */
 const redirects = new Map<string, LandedRecord>();
 const REDIRECT_CAP = 100;
+/** Test seam: forget in-memory relocation state (redirects, in-flight settles, stale marks). */
+export function __resetRecordSafeForTests(): void {
+  redirects.clear();
+  recordSettles.clear();
+  staleKeys.clear();
+}
 function settleKey(uid: string, record: Pick<SessionRecord, "id" | "worksheetId">): string {
   return `${uid}|${record.id}|${record.worksheetId}`;
 }
@@ -566,6 +574,7 @@ function addRedirect(uid: string, original: SessionRecord, landed: LandedRecord)
 }
 function openRecordSettle(uid: string, record: SessionRecord): SettleEntry {
   const key = settleKey(uid, record);
+  staleKeys.delete(key); // a fresh write for this paper/code starts clean
   const prior = recordSettles.get(key);
   if (prior) prior.current.reject(new Error("record write superseded"));
   const entry: SettleEntry = { current: newDeferred() };
@@ -574,13 +583,35 @@ function openRecordSettle(uid: string, record: SessionRecord): SettleEntry {
   return entry;
 }
 
-/** Move the device mirror's entry for a relocated grade to its new code. */
+/**
+ * The code this paper's record CURRENTLY has on this device (it may have moved to a free code while no page was
+ * open), else `code`. An upload-later grade resolves the paper by identity, not by the code it was drawn with.
+ */
+export function currentCodeForPaper(
+  user: AuthUser | null | undefined,
+  worksheetId: string,
+  surface: SessionSurface,
+  code: string,
+): string {
+  const uid = user && user.uid && !user.isLocalSession ? user.uid : null;
+  if (!uid || !worksheetId) return code;
+  const own = loadLocalSessionRecords(uid).filter((r) => r.worksheetId === worksheetId && r.surface === surface);
+  return own.some((r) => r.id === code) ? code : own[0]?.id ?? code;
+}
+
+/**
+ * Move the device mirror's entry for a relocated grade to its new code. This paper's own copies at any other code
+ * are dropped (one record per paper); a DIFFERENT paper's queued entry already sitting at the landed code is KEPT -
+ * it is displaced to the next free code on the device (its own outbox entry settles its final code at send time).
+ */
 function relocateMirror(uid: string, original: SessionRecord, landed: LandedRecord): void {
   try {
     const moved = relocateRecord(original, landed.id);
-    const list = loadLocalSessionRecords(uid).filter(
-      (r) => !(r.id === original.id && r.worksheetId === original.worksheetId) && r.id !== landed.id,
-    );
+    const all = loadLocalSessionRecords(uid);
+    const rest = all.filter((r) => r.worksheetId !== original.worksheetId);
+    const taken = new Set(all.map((r) => r.id));
+    taken.add(landed.id);
+    const list = rest.map((r) => (r.id === landed.id ? relocateRecord(r, freshCodeNotIn(r.id, taken)) : r));
     writeLocalSessionRecords(uid, [moved, ...list]);
   } catch {
     /* best-effort mirror */
@@ -613,6 +644,7 @@ async function setRecordGuarded(
   original: SessionRecord,
   queuedAt: string,
   firstSnap?: { exists: () => boolean; data: () => unknown; metadata?: { fromCache?: boolean } },
+  isResend = false,
 ): Promise<LandedRecord> {
   let candidate = original;
   const taken = new Set<string>();
@@ -628,7 +660,10 @@ async function setRecordGuarded(
       const incomingDone = attempt.status === "graded";
       const stale =
         !!cur &&
-        ((cur.status === "graded" && !incomingDone) || (typeof cur.updatedAt === "string" && cur.updatedAt > queuedAt));
+        ((cur.status === "graded" && !incomingDone) ||
+          // the device clock is only trusted for a RE-SEND (trunk's rule): a first-attempt re-grade from a device whose
+          // clock is behind must not be dropped as "older"
+          (isResend && typeof cur.updatedAt === "string" && cur.updatedAt > queuedAt));
       const landed: LandedRecord = { id: attempt.id, perQuestionRef: attempt.perQuestionRef, ...(stale ? { stale: true } : {}) };
       if (!stale) {
         const data = stripUndefined({ ...attempt, updatedAt: queuedAt });
@@ -828,18 +863,26 @@ function writeSessionRecordCore(
   const mirror = loadLocalSessionRecords(uid);
   const clash = mirror.find((r) => r.id === record.id);
   if (clash && !recordsAreSamePaper(clash, record)) {
+    // F1: THIS paper's own record may already live at another code (it was moved while no page was open): REUSE it
+    // before minting anything, or the grade would land as a second record and the first stay pending forever.
+    const own = mirror.find((r) => r.worksheetId === record.worksheetId && r.surface === record.surface && r.id !== record.id);
     const taken = new Set(mirror.map((r) => r.id));
-    const moved = relocateRecord(record, freshCodeNotIn(record.id, taken));
+    const moved = relocateRecord(record, own ? own.id : freshCodeNotIn(record.id, taken));
     noteRecordRelocated(clash.id, moved.id, record.worksheetId);
-    // F1: the per-question payload must follow the record from the very first call (registered synchronously)
+    // the per-question payload must follow the record from the very first call (registered synchronously)
     addRedirect(uid, record, { id: moved.id, perQuestionRef: moved.perQuestionRef });
     record = moved;
   }
+  // F3: the device copy follows the cloud's rule - a graded record of this paper is not replaced by a partial/pending one
+  const heldHere = mirror.find((r) => r.id === record.id);
+  const keepMirror = !!heldHere && recordsAreSamePaper(heldHere, record) && heldHere.status === "graded" && record.status !== "graded";
 
   // localStorage mirror — idempotent by id (replace, newest-first).
   try {
-    const list = mirror.filter((r) => r.id !== record.id);
-    writeLocalSessionRecords(uid, [record, ...list]);
+    if (!keepMirror) {
+      const list = mirror.filter((r) => r.id !== record.id);
+      writeLocalSessionRecords(uid, [record, ...list]);
+    }
   } catch {
     /* best-effort */
   }
@@ -868,9 +911,14 @@ function writeSessionRecordCore(
           .then(
             (landed) => {
               settle.current.resolve(landed);
+              if (landed.stale) {
+                staleKeys.add(skey);
+                staleKeys.add(settleKey(uid, { id: landed.id, worksheetId: original.worksheetId }));
+                while (staleKeys.size > REDIRECT_CAP) staleKeys.delete(staleKeys.values().next().value as string);
+              }
               if (recordSettles.get(skey) === settle) recordSettles.delete(skey);
               if (landed.id !== original.id && !landed.stale) relocateMirror(uid, original, landed);
-              return landed;
+              return landed.stale ? ("stale" as const) : landed; // stale: nothing was written - never claim "saved"
             },
             (error) => {
               // F3: this attempt failed - a payload waiting on it fails too (and retries on its own chain)
@@ -1000,8 +1048,11 @@ export function writeSessionPerQuestion(
         // The payload follows its record: wait for an in-flight record write (a failed attempt rejects this,
         // and this chain retries), else use where it already landed.
         const entry = recordSettles.get(settleKey(uid, { id: payload.code, worksheetId: payload.worksheetId })) ?? recordSettles.get(wsKey);
+        if (!entry && (staleKeys.has(wsKey) || staleKeys.has(settleKey(uid, { id: payload.code, worksheetId: payload.worksheetId })))) return "stale" as const;
         const first = entry ? await entry.current.promise : undefined;
         // a payload whose record moved TWICE goes to the FINAL key
+        // F2: the record write was refused as stale (a newer/graded copy stands): the payload is not written over it
+        if (first?.stale) return "stale" as const;
         const landed = chase(uid, first?.id ?? payload.code, payload.worksheetId) ?? first;
         const target = followRedirect(payload, landed);
         if (target !== payload || !localWritten) putLocalPayload(uid, target, payload.ref);
@@ -1073,9 +1124,9 @@ export async function resendOutboxEntry(
   if (typeof cloudAt === "string" && cloudAt > entry.queuedAt && recordsAreSamePaper(existing.data() as Partial<SessionRecord>, body as SessionRecord)) return "cloud-newer";
   // a re-grade of this id may have been queued while we awaited the read: its chain owns the id now
   if (!isCurrent()) return "superseded";
-  const landed = await setRecordGuarded(uid, body as SessionRecord, entry.queuedAt, existing);
+  const landed = await setRecordGuarded(uid, body as SessionRecord, entry.queuedAt, existing, true);
   if (landed.id !== entry.id && !landed.stale) relocateMirror(uid, body as SessionRecord, landed);
-  return "sent";
+  return landed.stale ? "stale" : "sent";
 }
 
 /** Read a stored per-question payload by ref — local-first, then cloud (§1b reader). */

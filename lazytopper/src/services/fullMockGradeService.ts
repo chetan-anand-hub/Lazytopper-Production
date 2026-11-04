@@ -44,6 +44,7 @@ import {
 import {
   buildFullMockSessionRecord,
   writeSessionRecordResolved,
+  currentCodeForPaper,
   writeSessionPerQuestion,
   type SessionFocusAggregates,
   type SessionSubject,
@@ -160,7 +161,9 @@ export async function gradeFullMockUpload(args: {
   /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
   job?: GradingJobOptions;
 }): Promise<FullMockGradeOutcome> {
-  const { user, paper, code, subject, objective, subjectiveQuestions, upload, focus } = args;
+  const { user, paper, subject, objective, subjectiveQuestions, upload, focus } = args;
+  // RECORD-SAFE-1: resolve the paper by identity - its record may have moved to a free code while no page was open
+  const code = currentCodeForPaper(user, paper.worksheetId, "full-mock", args.code);
 
   const qByNumber = new Map(subjectiveQuestions.map((q) => [q.qNumber, q]));
   const miOutcomes: FullMockMiOutcome[] = [];

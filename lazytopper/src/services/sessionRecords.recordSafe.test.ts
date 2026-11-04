@@ -49,6 +49,8 @@ import {
   mintUniqueFullMockNomenclature,
   recordsAreSamePaper,
   onRecordRelocated,
+  currentCodeForPaper,
+  __resetRecordSafeForTests,
   loadLocalSessionRecords,
   RecordCodeCheckError,
   type SessionRecord,
@@ -94,6 +96,7 @@ beforeEach(() => {
   h.deleted.length = 0;
   localStorage.clear();
   __resetOutboxForTests();
+  __resetRecordSafeForTests();
 });
 afterEach(() => {
   __resetOutboxForTests();
@@ -334,14 +337,74 @@ describe("RECORD-SAFE-1 - the July case with a SEEDED MIRROR: record and payload
     expect(loadLocalSessionRecords(UID).find((r) => r.id === "WS-M-MIX-03")).toBeUndefined(); // and the device copy is not dragged over it either
   });
 
-  it("B: a same-paper doc whose updatedAt is NEWER than the queued entry is left alone", async () => {
-    const newer = { ...rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 5 }), updatedAt: "2999-01-01T00:00:00.000Z" };
-    h.store.set(recPath("WS-M-MIX-02"), newer);
+  it("F2: a real re-grade from a device whose clock is BEHIND is not dropped as 'older' - record AND payload land, and the status is saved", async () => {
+    const skewed = { ...rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 5 }), updatedAt: "2999-01-01T00:00:00.000Z" };
+    h.store.set(recPath("WS-M-MIX-02"), skewed);
     writeSessionRecord(user, rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 2 }));
+    writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
     await flush();
-    expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(newer);
+    expect(h.store.get(recPath("WS-M-MIX-02"))).toMatchObject({ marksAwarded: 2 });
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toMatchObject({ worksheetId: "ws-new" });
   });
 
+  it("F2: a record refused as stale takes its payload with it - the old payload stands and the status never says saved", async () => {
+    const graded = { ...rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 5 }), updatedAt: "2026-11-04T10:00:00.000Z" };
+    const oldPayload = { ref: "ws:WS-M-MIX-02", code: "WS-M-MIX-02", worksheetId: "ws-new", surface: "worksheet", gradedAt: 1000, response: { ok: true, old: true } };
+    h.store.set(recPath("WS-M-MIX-02"), graded);
+    h.store.set(payloadPath("ws:WS-M-MIX-02"), oldPayload);
+    writeSessionRecord(user, rec({ worksheetId: "ws-new", status: "partial", marksAwarded: 1 }));
+    writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
+    await flush();
+    expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(graded);
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(oldPayload);
+    expect(getSaveStatus().phase).not.toBe("saved");
+  });
+
+  it("F3: the device copy follows the cloud's rule - a graded record is not replaced by a partial one on the device either", async () => {
+    const graded = rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 5 });
+    localStorage.setItem(mirrorKey, JSON.stringify([graded]));
+    writeSessionRecord(user, rec({ worksheetId: "ws-new", status: "partial", marksAwarded: 1 }));
+    await flush();
+    expect(loadLocalSessionRecords(UID).find((r) => r.id === "WS-M-MIX-02")).toMatchObject({ status: "graded", marksAwarded: 5 });
+  });
+
+  it("F1: submitted at X (another paper's), moved to X+1 with no page open, then upload-later grades at X - ONE record, graded at X+1, nothing pending forever", async () => {
+    const other = rec({ id: "CT-M-RN-02", surface: "chapter-test", worksheetId: "ct-other" });
+    const ownPartial = rec({ id: "CT-M-RN-03", surface: "chapter-test", worksheetId: "ct-mine", status: "partial", perQuestionRef: "ct:CT-M-RN-03", dedupKey: `${UID}::CT-M-RN-03` });
+    h.store.set(recPath("CT-M-RN-02"), other);
+    h.store.set(recPath("CT-M-RN-03"), ownPartial);
+    localStorage.setItem(mirrorKey, JSON.stringify([other, ownPartial]));
+    expect(currentCodeForPaper(user, "ct-mine", "chapter-test", "CT-M-RN-02")).toBe("CT-M-RN-03"); // the paper's identity -> its current code
+    writeSessionRecord(user, rec({ id: "CT-M-RN-02", surface: "chapter-test", worksheetId: "ct-mine", status: "graded", marksAwarded: 7, perQuestionRef: "ct:CT-M-RN-02", dedupKey: `${UID}::CT-M-RN-02` }));
+    await flush();
+    expect(h.store.has(recPath("CT-M-RN-04"))).toBe(false); // no second record
+    expect(h.store.get(recPath("CT-M-RN-03"))).toMatchObject({ worksheetId: "ct-mine", status: "graded", marksAwarded: 7 });
+    expect(h.store.get(recPath("CT-M-RN-02"))).toEqual(other);
+    const mine = loadLocalSessionRecords(UID).filter((r) => r.worksheetId === "ct-mine");
+    expect(mine).toHaveLength(1);
+    expect(mine[0]).toMatchObject({ id: "CT-M-RN-03", status: "graded" });
+  });
+
+  it("F1: the same with an EMPTY device list - the cloud walk finds the paper's own record at X+1 and lands there", async () => {
+    h.store.set(recPath("CT-M-RN-02"), rec({ id: "CT-M-RN-02", surface: "chapter-test", worksheetId: "ct-other" }));
+    h.store.set(recPath("CT-M-RN-03"), rec({ id: "CT-M-RN-03", surface: "chapter-test", worksheetId: "ct-mine", status: "partial" }));
+    writeSessionRecord(user, rec({ id: "CT-M-RN-02", surface: "chapter-test", worksheetId: "ct-mine", status: "graded", marksAwarded: 7, perQuestionRef: "ct:CT-M-RN-02", dedupKey: `${UID}::CT-M-RN-02` }));
+    await flush();
+    expect(h.store.has(recPath("CT-M-RN-04"))).toBe(false);
+    expect(h.store.get(recPath("CT-M-RN-03"))).toMatchObject({ status: "graded", marksAwarded: 7 });
+  });
+
+  it("F4: a different paper's queued device entry at the landed code is KEPT (displaced), not dropped", async () => {
+    h.store.set(recPath("WS-M-MIX-02"), rec({ worksheetId: "ws-july" }));
+    const queuedOther = rec({ id: "WS-M-MIX-03", worksheetId: "ws-other", status: "pending-upload", perQuestionRef: "ws:WS-M-MIX-03", dedupKey: `${UID}::WS-M-MIX-03` });
+    localStorage.setItem(mirrorKey, JSON.stringify([queuedOther]));
+    writeSessionRecord(user, rec({ worksheetId: "ws-new" })); // cloud-detected: lands on MIX-03
+    await flush();
+    const local = loadLocalSessionRecords(UID);
+    expect(local.find((r) => r.worksheetId === "ws-new")?.id).toBe("WS-M-MIX-03");
+    expect(local.find((r) => r.worksheetId === "ws-other")).toBeDefined();
+    expect(new Set(local.map((r) => r.id)).size).toBe(local.length); // no id collisions on the device
+  });
   it("D: a record that moves TWICE (device mirror, then cloud) - record and payload end on the FINAL key", async () => {
     const q = rec({ worksheetId: "ws-q" });
     localStorage.setItem(mirrorKey, JSON.stringify([q]));
