@@ -25,6 +25,10 @@
  *   ABANDONED_CHECKOUT_EMAIL_ENABLED="1" (default off): a signed-in student's own Board Pass / PDF pack order, still
  *   'created' 1-36 h after it was opened, with no payment for that product since. Served FIRST under the shared daily cap
  *   (before checkout_help and the pack nudges). Pure rules + template: abandonedCheckout.cjs.
+ *   SAMPLE-FOLLOWUP-1 (owner approved 4 Nov 2026): `samplefu_<pack>`, at most ONCE per student per pack ever, behind
+ *   SAMPLE_FOLLOWUP_EMAIL_ENABLED="1" (default off): a SIGNED-IN student who saved a pack's free sample 24-72 h ago and does not
+ *   own that pack (or one that includes it) nor a paid Board Pass. The "sample saved" marker is written by routes/packSampleSeen.cjs
+ *   into `nudgeEmails/{uid}.sampleSeenAt_<pack>`. Runs after the pack nudges, before d1/d3. Pure rules + template: sampleFollowup.cjs.
  *   Both need a reply-to (NUDGE_EMAIL_REPLY_TO) - without one they are skipped and logged. They share the daily
  *   cap with the rest; checkout_help is served first. Never premium, admin (ADMIN_FIREBASE_UIDS) or @lazytopper.com.
  *
@@ -96,6 +100,7 @@ const packNudge = require('./packNudge.cjs');
 const { resolveSendWindow } = require('./emailSendWindow.cjs'); // EMAIL-SEND-WINDOW-1
 const { packIdFor } = require('./packProducts.cjs');
 const abandoned = require('./abandonedCheckout.cjs'); // CHECKOUT-NUDGE-1
+const sampleFu = require('./sampleFollowup.cjs'); // SAMPLE-FOLLOWUP-1
 const { listPacks } = require('./packGrant.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
@@ -235,6 +240,8 @@ function resolveNudgeConfig(env = process.env) {
     packNudgeEnabled: isOnFlag(e.PACK_NUDGE_ENABLED),
     // CHECKOUT-NUDGE-1: the abandoned-checkout email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
     abandonedCheckoutEnabled: abandoned.abandonedCheckoutEnabled(e),
+    // SAMPLE-FOLLOWUP-1: the free-sample follow-up email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
+    sampleFollowupEnabled: sampleFu.sampleFollowupEnabled(e),
     // Never emailed: the admin allowlist (the same ADMIN_FIREBASE_UIDS the admin pages use).
     adminUids: new Set(str(e.ADMIN_FIREBASE_UIDS).split(',').map((x) => x.trim()).filter(Boolean)),
   };
@@ -1498,9 +1505,196 @@ function createNudgeEmailer(deps = {}) {
     return false;
   }
 
+  /**
+   * SAMPLE-FOLLOWUP-1: one email to a SIGNED-IN student who saved a pack's free sample page 24-72 h ago and does not own that
+   * pack (or a pack that includes it) nor hold a paid Board Pass. At most once per student per pack, ever (ledger key
+   * `samplefu_<pack>` in nudgeEmails/{uid}). The marker (`sampleSeenAt_<pack>` = first-save ms) is written by
+   * routes/packSampleSeen.cjs from a verified ID token, so a signed-out visitor is never a candidate. Same rails as every other
+   * nudge: claim + durable daily cap + opt-out re-read in ONE transaction, 24 h spacing, trial-email overlap, verified email
+   * only, admin / @lazytopper.com never. Logs one count line per run (no PII). Returns true when the daily cap is full.
+   */
+  async function runSampleFollowup({ summary, skip: skipAll, nowMs, day }) {
+    if (!config.sampleFollowupEnabled) return false;
+    const own = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {} };
+    const skip = (reason) => {
+      own.skipped[reason] = (own.skipped[reason] || 0) + 1;
+      skipAll(reason);
+    };
+    try {
+      // One single-field range query PER PACK on that pack's own first-save time, so a later sample of another pack can never
+      // push an earlier pack out of its 24-72 h window. A student with two packs due is one candidate per pack, oldest first.
+      const found = [];
+      for (const key of sampleFu.SAMPLE_KEYS) {
+        const field = sampleFu.seenField(key);
+        try {
+          const qs = await adminFirestore
+            .collection(NUDGE_EMAILS_COLLECTION)
+            .where(field, '>=', nowMs - sampleFu.SAMPLE_FOLLOWUP_MAX_AGE_MS)
+            .where(field, '<', nowMs - sampleFu.SAMPLE_FOLLOWUP_MIN_AGE_MS + 1)
+            .orderBy(field, 'desc')
+            .limit(sampleFu.CAP_SAMPLE_FOLLOWUP)
+            .get();
+          for (const d of qs.docs) found.push({ uid: d.id, ledger: d.data() || {}, packKey: key, at: d.data()[field] });
+        } catch {
+          skip('sample-rows-unavailable');
+        }
+      }
+      found.sort((x, y) => x.at - y.at);
+      const handled = new Set();
+      for (const { uid, ledger, packKey } of found) {
+        const kind = sampleFu.sampleFollowupKind(packKey);
+        if (ledger[kind]) {
+          skip('already-sent');
+          continue;
+        }
+        // One email a day per student: the oldest due pack that passes every check is served; another due pack waits for a later run.
+        if (handled.has(uid)) {
+          skip('spaced');
+          continue;
+        }
+        own.candidates += 1;
+        summary.candidates += 1;
+        if (config.adminUids.has(uid)) {
+          skip('internal');
+          continue;
+        }
+        if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
+          skip(`marked-${ledger.skip.reason || 'skipped'}`);
+          continue;
+        }
+        const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+        const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+        if (trialRow.optedOut) {
+          skip('opted-out');
+          continue;
+        }
+        if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+          skip('spaced');
+          continue;
+        }
+        let sub = {};
+        try {
+          const ss = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+          sub = ss.exists ? ss.data() || {} : {};
+        } catch {
+          skip('subscription-unavailable');
+          continue;
+        }
+        const trialRecent = trialEmailRecentMs(trialRow);
+        if ((trialRecent !== null && nowMs - trialRecent < SPACING_MS) || decideCandidate(sub, nowMs).ok) {
+          skip('trial-email-covers');
+          continue;
+        }
+        // Bought since? A paid Board Pass (tier 'premium'; a free trial is 'trial' and still gets the email) or what they own now.
+        // A failed read skips: never email blind.
+        let owned = false;
+        try {
+          if (deriveEffectiveTier(sub, nowMs).tier === 'premium') owned = true;
+          else owned = sampleFu.sampleOwned(await listPacks(adminFirestore, uid), packKey);
+        } catch {
+          skip('recheck-unavailable');
+          continue;
+        }
+        if (owned) {
+          skip('already-owned');
+          continue;
+        }
+
+        let user = null;
+        try {
+          user = await firebaseAdmin.auth().getUser(uid);
+        } catch {
+          skip('no-account');
+          continue;
+        }
+        const who = emailEligibility(user);
+        if (!who.ok) {
+          skip(who.reason);
+          if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+            await writeSkipMarker(uid, who.reason, nowMs);
+          }
+          continue;
+        }
+        if (isInternalAccount(uid, who.email, config.adminUids)) {
+          skip('internal');
+          continue;
+        }
+
+        if (config.mode !== 'send') {
+          handled.add(uid);
+          own.wouldSend += 1;
+          summary.wouldSend += 1;
+          summary.byKind[sampleFu.METRIC] += 1;
+          const key = `${uid}:${kind}`;
+          if (!dryRunLogged.has(key)) {
+            dryRunLogged.add(key);
+            log(`[nudge-email] dry-run: would email kind=${sampleFu.METRIC} pack=${packKey} uid=${uid} to=${maskEmail(who.email)}`);
+          }
+          continue;
+        }
+
+        let claim;
+        try {
+          claim = await claimWithinCap(uid, kind, day, nowMs);
+        } catch (e) {
+          skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+          continue;
+        }
+        if (claim !== 'claimed') {
+          skip(claim);
+          if (claim === 'daily-cap') return true;
+          continue;
+        }
+
+        handled.add(uid);
+        const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
+        const message = sampleFu.buildSampleFollowupEmail({ packKey, displayName: user && user.displayName, appUrl: config.appUrl, unsubscribeUrl });
+        const result =
+          fetchImpl && message
+            ? await sendViaResend({
+                fetchImpl,
+                apiKey: config.apiKey,
+                from: config.from,
+                replyTo: config.replyTo || packNudge.DEFAULT_REPLY_TO,
+                to: who.email,
+                subject: message.subject,
+                text: message.text,
+                html: message.html,
+                unsubscribeUrl,
+                idempotencyKey: `nudge-${kind}-${uid}`,
+                category: 'nudge_sample_followup',
+              })
+            : { ok: false, retryable: false, code: message ? 'no-fetch' : 'bad-pack' };
+        try {
+          const ref = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
+          if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+          else if (result.retryable) await releaseClaim(uid, kind, day);
+          else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+        } catch {
+          /* the claim stays: at most once */
+        }
+        if (result.ok) {
+          own.sent += 1;
+          summary.sent += 1;
+          summary.byKind[sampleFu.METRIC] += 1;
+          bump(`nudge_email_sent_${sampleFu.METRIC}`);
+          log(`[nudge-email] nudge_email_sent kind=${sampleFu.METRIC} uid=${uid}`);
+        } else {
+          own.failed += 1;
+          summary.failed += 1;
+          bump(`nudge_email_failed_${sampleFu.METRIC}`);
+          log(`[nudge-email] send failed kind=${sampleFu.METRIC} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+        }
+      }
+    } finally {
+      log(sampleFu.runCountLine(own));
+    }
+    return false;
+  }
+
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
-    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0, abandoned_checkout: 0 } };
+    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0, abandoned_checkout: 0, sample_followup: 0 } };
     const skip = (reason) => {
       summary.skipped[reason] = (summary.skipped[reason] || 0) + 1;
     };
@@ -1566,6 +1760,14 @@ function createNudgeEmailer(deps = {}) {
       } catch (e) {
         skip('pack-phase-error');
         log(`[nudge-email] pack phase failed: ${e && e.message ? e.message : 'error'}`);
+      }
+      // SAMPLE-FOLLOWUP-1: a signed-in student's free-sample follow-up is served after the pack nudges and before d1/d3 (a 3-day
+      // window; one email, at most once per pack). A failure here must not abort d1/d3.
+      try {
+        if (!capFull) capFull = await runSampleFollowup({ summary, skip, nowMs, day });
+      } catch (e) {
+        skip('sample-phase-error');
+        log(`[nudge-email] sample-followup phase failed: ${e && e.message ? e.message : 'error'}`);
       }
       const cohort = new Map();
       for (const r of ranges) {

@@ -753,14 +753,17 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "sent to this student: for each, its state (claimed, sent or failed), when, and the email " +
       "provider's message id; plus when the last one was claimed, and — if the account cannot " +
       "be emailed — a skip marker with the reason (no email address, not an email sign-in, or an " +
-      "unverified address) and when to look again. Opting out is recorded on `trialEmails`, " +
+      "unverified address) and when to look again. For a signed-in student who saved a pack's free " +
+      "sample page, which sample and when (first save only), so one follow-up email can be " +
+      "considered a day later. Opting out is recorded on `trialEmails`, " +
       "once for all emails. Never the email address or the email's text.",
     mechanism: "admin-sdk-required",
     exportable: true,
     notes:
       "★★ Written ONLY by server/services/nudgeEmail.cjs through the Admin SDK: a transactional " +
       "claim BEFORE sending (so a restart or a second instance can never send an email twice), " +
-      "then the outcome, or a skip marker. Off unless the owner sets NUDGE_EMAIL_ENABLED. NOT " +
+      "then the outcome, or a skip marker (and, for the free-sample marker, by server/routes/packSampleSeen.cjs " +
+      "from a verified sign-in, first save only). Off unless the owner sets NUDGE_EMAIL_ENABLED. NOT " +
       "declared in firestore.rules — browsers fall through to the deny-all catch-all. Erased with " +
       "the account and included in the export.",
   },

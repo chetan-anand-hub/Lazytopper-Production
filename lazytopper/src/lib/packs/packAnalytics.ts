@@ -24,6 +24,7 @@ import {
   sendAnalyticsHit,
   sendGa4Hit,
 } from "../../analytics/analytics";
+import { reportPackSampleSeen, signedInHint } from "./packSampleSeen";
 
 export type PackSkuName = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq";
 
@@ -97,12 +98,16 @@ export function trackPackReadyShown(sku: string, surface: "banner" | "toast" | "
 
 /**
  * `pack_sample_download` (PACK-SAMPLE-1): a visitor tapped "Free sample page". `pack` is `<sku>:<target>` (e.g. `pack_cbq:science`),
- * `surface` says where the link was. Sent for signed-out visitors too: nothing about the person is attached.
+ * `surface` says where the link was; `signed_in` (SAMPLE-FOLLOWUP-1) says whether a signed-in student tapped. Sent for signed-out visitors too: nothing about the person is attached.
  */
 export function trackPackSampleDownload(pack: string, surface: string): void {
   try {
-    const data = { pack, surface };
+    // SAMPLE-FOLLOWUP-1: `signed_in` (true / false, never who) is added once Firebase Auth is known, so signed-in and signed-out
+    // sample downloads can be counted apart. A signed-in tap also tells our server which pack, for the one follow-up email.
+    const signedIn = signedInHint();
+    const data = { pack, surface, ...(typeof signedIn === "boolean" ? { signed_in: signedIn } : {}) };
     sendAnalyticsHit("event", { name: "pack_sample_download", data }, { ga4: data });
+    reportPackSampleSeen(pack);
   } catch {
     /* analytics must never break the page */
   }
