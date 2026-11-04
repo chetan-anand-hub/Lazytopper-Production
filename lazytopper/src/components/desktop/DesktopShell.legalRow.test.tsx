@@ -122,7 +122,7 @@ describe("DesktopShell account dropdown — SETTINGS-1 · one Settings entry" , 
     await screen.findByRole("dialog", { name: "Settings" });
     fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
     expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
-    expect(screen.getByRole("dialog", { name: "Sign-in methods" })).toBeTruthy();
+    expect(await screen.findByRole("dialog", { name: "Sign-in methods" })).toBeTruthy(); // PERF-TRIM-1: lazy sheet
   });
 
   it("closing Settings returns focus to the avatar and restores page scroll", async () => {

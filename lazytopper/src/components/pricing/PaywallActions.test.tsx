@@ -371,6 +371,7 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     "components/pricing/BasicFreeList.tsx",
     "components/pricing/parentShare.css",
     "components/UpgradeModal.tsx",
+    "components/UpgradeModalSheet.tsx", // PERF-TRIM-1: the modal's body (UpgradeModal.tsx is its lazy slot)
     "components/subscription/UpgradeSheet.tsx",
     "components/usage/FairUseLimitPanel.tsx",
     "components/usage/fairUseGate.ts",
