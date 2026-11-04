@@ -56,7 +56,7 @@ export default function SettingsModal({
   section,
 }: SettingsModalProps) {
   const { user } = useAuth();
-  const { tier, isTrialActive, isTrialExpired, daysLeftInTrial } = useSubscription();
+  const { tier, isTrialActive, isTrialExpired, daysLeftInTrial, status: subscription } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
   const titleId = useId();
@@ -125,7 +125,14 @@ export default function SettingsModal({
 
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
   const manageSubscriptionUrl = `/pricing?source=account-menu&returnTo=${encodeURIComponent(returnTo)}`;
-  const status = deriveAccountStatus({ tier, isTrialActive, isTrialExpired, daysLeftInTrial });
+  const status = deriveAccountStatus({
+    tier,
+    isTrialActive,
+    isTrialExpired,
+    daysLeftInTrial,
+    plan: subscription?.plan,
+    passEnd: subscription?.passEnd,
+  });
 
   return createPortal(
     <div
