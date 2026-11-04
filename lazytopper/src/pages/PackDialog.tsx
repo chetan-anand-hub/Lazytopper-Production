@@ -54,6 +54,12 @@ const SLIDES: ReadonlyArray<{ file: string; alt: string; num: string; bold: stri
 ];
 const SLIDE_COUNT = SLIDES.length + 1;
 
+/**
+ * PACK-DIALOG-1 - the three preview pages are from a Maths Chapter Pack (Real Numbers) and are shown for every pack: say so.
+ * [FU-PACK-PREVIEW-PER-SUBJECT] - real per-pack images.
+ */
+export const PREVIEW_CAPTION = "Sample pages from a Maths Chapter Pack — your pack has the same layout";
+
 /** PARENT-PACKS-1 - the picker's empty option (the chevron is drawn by CSS beside it). */
 export const CHAPTER_PLACEHOLDER = "Choose a chapter";
 
@@ -233,6 +239,9 @@ export default function PackDialog(props: PackDialogProps) {
         ref={dialogRef}
         onKeyDown={onKeyDown}
         data-testid="pack-dialog"
+        // PACK-DIALOG-1: an opened "Ask a parent to pay" / "Pay by QR code" panel renders in the full-width slot below the
+        // footer (PaywallActionsView looks for this host), never inside the narrow buy column or the phone's sticky footer.
+        data-parent-share-host=""
       >
         <span className="lt-pkd__grab" aria-hidden="true" />
         <div className="lt-pkd__head">
@@ -313,6 +322,7 @@ export default function PackDialog(props: PackDialogProps) {
             <span key={i} className={i === slide ? "is-on" : undefined} />
           ))}
         </div>
+        <p className="lt-pkd__samplecap" data-testid="pack-preview-caption">{PREVIEW_CAPTION}</p>
         <p className="lt-pkd__sr" role="status">{`Slide ${slide + 1} of ${SLIDE_COUNT}`}</p>
 
         <div className="lt-pkd__foot">
@@ -361,6 +371,7 @@ export default function PackDialog(props: PackDialogProps) {
             )}
           </div>
         </div>
+        <div className="lt-pkd__share" data-parent-share-slot="" data-testid="pack-parent-share-slot" />
       </div>
     </div>
   );

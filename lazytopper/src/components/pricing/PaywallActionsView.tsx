@@ -35,7 +35,8 @@
  * for a real count above zero. Nothing is minted until the student taps. No phone number is
  * asked for, sent or stored: the student picks the contact in their own share sheet.
  */
-import { useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { trackPaywallAction, type PaywallSurface } from "../../analytics/analytics";
@@ -58,6 +59,14 @@ export const PARENT_SHARE_PRIVACY_NOTE =
   "You choose who to send it to. LazyTopper never sees or stores their number.";
 export const PARENT_LINK_FAILED = "Couldn't create a link right now. Please try again.";
 export const PARENT_WA_BLOCKED = "WhatsApp didn't open. Copy the link and send it yourself.";
+/**
+ * PACK-DIALOG-1 - a host (the pack pop-up) can give the open parent panel a FULL-WIDTH place of its own: an element marked
+ * `data-parent-share-host` holding an element marked `data-parent-share-slot`. The panel then renders there (in normal flow,
+ * never inside the host's sticky footer), gets this heading, and takes focus. No host: the panel stays where it always was.
+ */
+export const PARENT_SHARE_HOST_ATTR = "data-parent-share-host";
+export const PARENT_SHARE_SLOT_ATTR = "data-parent-share-slot";
+export const PARENT_SHARE_HEADING = "Pay link for your parents";
 export const QR_FILENAME = "lazytopper-parents-pay-qr.png";
 export const QR_ALT = "QR code: your parents scan it to pay for your Board Pass";
 /** PARENT-PACKS-1 - the QR's alt text on a pack link. */
@@ -125,6 +134,15 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const minting = useRef<Promise<LinkState> | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const headRef = useRef<HTMLHeadingElement | null>(null);
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+
+  // PACK-DIALOG-1: find the host's slot once mounted (none on every other surface -> unchanged).
+  useLayoutEffect(() => {
+    const host = rootRef.current?.closest(`[${PARENT_SHARE_HOST_ATTR}]`);
+    setSlot(host?.querySelector<HTMLElement>(`[${PARENT_SHARE_SLOT_ATTR}]`) ?? null);
+  }, []);
 
   /** The link for THIS account, minted on the first tap and reused after. */
   function ensureLink(): Promise<LinkState> {
@@ -276,9 +294,32 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
   ) : null;
 
   const ready = link.kind === "ready" ? link : null;
+  /** The panel in place, or (PACK-DIALOG-1) in the host's full-width slot. */
+  const wrapPanel = (node: ReactElement) => (slot ? createPortal(node, slot) : node);
+  const panelOpen = Boolean(ready && panel);
+  const panelKind = panel?.kind ?? null;
+
+  // PACK-DIALOG-1: in a host's slot, the opened panel takes focus on its heading (which also brings it into view).
+  useEffect(() => {
+    if (!slot || !panelOpen) return;
+    const h = headRef.current;
+    if (!h) return;
+    if (typeof h.scrollIntoView !== "function") {
+      h.focus();
+      return;
+    }
+    let reduce = false;
+    try {
+      reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch {
+      reduce = false;
+    }
+    h.focus({ preventScroll: true });
+    h.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+  }, [slot, panelOpen, panelKind]);
 
   return (
-    <div className="lt-paywall-actions" data-testid="paywall-actions" data-surface={surface}>
+    <div className="lt-paywall-actions" data-testid="paywall-actions" data-surface={surface} ref={rootRef}>
       {!askOnly && payAction}
       {showParent && (
         <>
@@ -306,8 +347,18 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
               {PARENT_LINK_FAILED}
             </p>
           )}
-          {ready && panel && (
-            <div className="lt-parent-share-sheet" role="region" aria-label="Pay link for your parents" data-testid="parent-share-panel">
+          {ready && panel && wrapPanel(
+            <div
+              className={slot ? "lt-parent-share-sheet lt-parent-share-sheet--wide" : "lt-parent-share-sheet"}
+              role="region"
+              aria-label={PARENT_SHARE_HEADING}
+              data-testid="parent-share-panel"
+            >
+              {slot && (
+                <h3 className="lt-parent-share-title" tabIndex={-1} ref={headRef} data-testid="parent-share-heading">
+                  {PARENT_SHARE_HEADING}
+                </h3>
+              )}
               <div className="lt-parent-share-lang" role="group" aria-label="Message language">
                 <button type="button" aria-pressed={lang === "en"} onClick={() => setLang("en")}>
                   English
@@ -359,8 +410,8 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
                   {notice}
                 </p>
               )}
-              <p className="lt-parent-share-note">{PARENT_SHARE_PRIVACY_NOTE}</p>
-            </div>
+              <p className="lt-parent-share-note lt-parent-share-privacy">{PARENT_SHARE_PRIVACY_NOTE}</p>
+            </div>,
           )}
         </>
       )}

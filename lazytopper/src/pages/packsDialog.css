@@ -56,9 +56,15 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
 .lt-pkd__dots { display: flex; gap: 6px; justify-content: center; }
 .lt-pkd__dots span { width: 6px; height: 6px; border-radius: 3px; background: #c5cfdb; transition: width 150ms ease, background 150ms ease; }
 .lt-pkd__dots span.is-on { width: 18px; background: #15233a; }
+/* PACK-DIALOG-1: the preview pages are from a Maths Chapter Pack - said plainly under the strip. */
+.lt-pkd__samplecap { margin: -4px 18px 0; font-size: 13.5px; line-height: 1.4; color: #4a5a73; text-align: center; }
 .lt-pkd__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; white-space: nowrap; }
 
+/* Phone: the Buy row stays reachable (sticky). An opened parent / QR panel is NEVER in here - it renders in .lt-pkd__share. */
 .lt-pkd__foot { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #eef2f6; padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; }
+/* PACK-DIALOG-1: the full-width slot for the opened "Ask a parent to pay" / "Pay by QR code" panel (normal flow, below the foot). */
+.lt-pkd__share { padding: 0 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
+.lt-pkd__share:empty { display: none; }
 .lt-pkd__label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; color: #2f3e55; }
 /* PARENT-PACKS-1 (owner 4 Nov): the chapter picker reads as a DROPDOWN - product-green border, a CSS chevron, ink text, hover and
    focus states, and a soft green ring + tint until a chapter is chosen. Native <select> (keyboard / screen-reader as before). */
@@ -95,7 +101,9 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
   .lt-pkd { align-items: center; padding: 24px; }
   .lt-pkd__panel {
     width: min(980px, 100%); max-height: calc(100dvh - 48px); border-radius: 24px; padding: 28px 32px 0; gap: 18px;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4); --pkd-slide-w: 270px; --pkd-slide-h: 340px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4); --pkd-slide-w: 270px;
+    /* PACK-DIALOG-1: on a short desktop window the slides shrink so the whole strip (and its captions) fits in view. */
+    --pkd-slide-h: clamp(220px, calc(100dvh - 330px), 340px);
   }
   .lt-pkd__grab { display: none; }
   .lt-pkd__head { padding: 0; }
@@ -106,7 +114,10 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
   .lt-pkd__track { gap: 18px; padding: 2px 0 4px; scroll-padding-left: 0; }
   .lt-pkd__fig figcaption { font-size: 16px; }
   .lt-pkd__num { display: none; }
-  .lt-pkd__foot { flex-direction: row; align-items: flex-end; gap: 14px; padding: 14px 0 28px; border-top: 0; }
+  /* PACK-DIALOG-1: not sticky on desktop - the dialog scrolls, and nothing may sit over the title or the slides. */
+  .lt-pkd__foot { position: static; flex-direction: row; align-items: flex-end; gap: 14px; padding: 14px 0 28px; border-top: 0; }
+  .lt-pkd__samplecap { margin: -8px 0 0; font-size: 14px; }
+  .lt-pkd__share { margin-top: -18px; padding: 0 0 28px; }
   .lt-pkd__pick { flex: 1 1 auto; min-width: 0; }
   .lt-pkd__buy { flex: 0 0 280px; }
   .lt-pkd__select { height: 54px; font-size: 18px; }

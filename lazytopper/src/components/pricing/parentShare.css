@@ -90,6 +90,59 @@
   overflow-y: auto;
 }
 
+/* PACK-DIALOG-1 - the panel in a host's full-width slot (the pack pop-up): a heading, the whole message (no inner scrollbar),
+   then the language toggle and the send actions on one row, the privacy line under them. Visual order only (`order`). */
+.lt-parent-share-sheet--wide {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  padding: 16px;
+}
+
+.lt-parent-share-title {
+  order: 0;
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--lt-ink, #0b1b3a);
+}
+
+.lt-parent-share-sheet--wide > .lt-parent-share-preview,
+.lt-parent-share-sheet--wide > .lt-parent-share-qr {
+  order: 1;
+}
+
+.lt-parent-share-sheet--wide > .lt-parent-share-preview {
+  flex: 1 1 100%;
+  max-height: none;
+  overflow: visible;
+  font-size: 0.95rem;
+}
+
+.lt-parent-share-sheet--wide > .lt-parent-share-qr {
+  flex: 0 0 auto;
+  margin: 0 auto;
+}
+
+.lt-parent-share-sheet--wide > .lt-parent-share-lang {
+  order: 2;
+  align-self: center;
+  flex: 0 0 auto;
+}
+
+.lt-parent-share-sheet--wide > .lt-parent-share-actions {
+  order: 3;
+  flex: 1 1 320px;
+}
+
+.lt-parent-share-sheet--wide > .lt-parent-share-note {
+  order: 4;
+  flex: 1 1 100%;
+}
+
 .lt-parent-share-actions {
   display: flex;
   flex-wrap: wrap;
@@ -318,7 +371,8 @@
   cursor: pointer;
 }
 
-.lt-parent-pay-buy--month {
+.lt-parent-pay-buy--month,
+.lt-parent-pay-buy--primary {
   border: 0;
   background: var(--pp-green);
   color: #ffffff;

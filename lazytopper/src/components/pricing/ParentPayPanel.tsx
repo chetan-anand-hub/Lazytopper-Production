@@ -333,7 +333,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
             <p className="lt-parent-pay-text">{t.packIntro(name, packName)}</p>
             <button
               type="button"
-              className="lt-parent-pay-buy lt-parent-pay-buy--boards"
+              className="lt-parent-pay-buy lt-parent-pay-buy--primary"
               data-testid="parent-pay-pack"
               disabled={busy !== null || confirming}
               onClick={() => void handleBuyPack(pack, packName)}

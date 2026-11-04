@@ -240,6 +240,8 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     await renderPanel({ view: vi.fn(async () => PACK_VIEW) });
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for Aarav's Maths CBQ Pack");
     expect(screen.getByRole("button", { name: "Pay ₹199 once" })).toBeEnabled();
+    // PACK-DIALOG-1: "Pay ₹N once" is the primary action - solid green, like every other Pay button (not the outline style).
+    expect(screen.getByRole("button", { name: "Pay ₹199 once" }).className).toBe("lt-parent-pay-buy lt-parent-pay-buy--primary");
     expect(screen.queryByRole("button", { name: /for a month|till the boards/ })).toBeNull();
     const page = document.body.textContent || "";
     expect(page).toContain("for the Maths CBQ Pack on LazyTopper");
