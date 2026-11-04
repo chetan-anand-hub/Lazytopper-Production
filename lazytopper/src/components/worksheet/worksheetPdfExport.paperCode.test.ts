@@ -144,7 +144,7 @@ describe("GRADE-ROUTE-2 - PDF metadata + footer QR", () => {
     expect((propsMock.mock.calls[0][0] as { subject: string }).subject).toBe("CT-M-RN-02");
   });
 
-  it("B2: the questions sheet prints a QR of the code only, inside the page, in the footer band, on every page", async () => {
+  it("B2: the questions sheet prints a QR (18 mm, level Q) of the code only, inside the page, in the footer band, on every page", async () => {
     await exportWorksheetPdf(ws, "questions", "FM-M-04");
     const modules = rectMock.mock.calls.filter((c) => c[4] === "F");
     expect(modules.length).toBeGreaterThan(40); // white plate + dark modules, per page
@@ -153,9 +153,9 @@ describe("GRADE-ROUTE-2 - PDF metadata + footer QR", () => {
     const [x, y, w, h] = white as number[];
     expect(x).toBeGreaterThanOrEqual(12);
     expect(x + w).toBeLessThan(120); // clear of the right-hand trust line
-    expect(y).toBeGreaterThanOrEqual(281); // below the footer rule (280) ...
-    expect(y + h).toBeLessThanOrEqual(293.5); // ... and off the printer's unprintable edge
-    expect(PAPER_QR_MM).toBeGreaterThanOrEqual(11); // print-legible
+    expect(y).toBeGreaterThan(272); // below the footer rule (272) ...
+    expect(y + h).toBeLessThanOrEqual(292); // ... and off the printer's unprintable edge
+    expect(PAPER_QR_MM).toBeGreaterThanOrEqual(18); // print-legible
     // one plate per body page
     const pages = rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM).length;
     expect(pages).toBe(addPageMock.mock.calls.length + 1);

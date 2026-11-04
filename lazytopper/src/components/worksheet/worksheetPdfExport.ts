@@ -27,6 +27,8 @@ import {
   type CheckImproveGradedPrintDocProps,
 } from "../checkimprove/CheckImproveGradedPrintDoc";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
+import { buildPaperQrMatrix, drawPaperQr, PAPER_QR_MM } from "./paperQr";
+export { buildPaperQrMatrix, PAPER_QR_MM };
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { PrintCoverProps } from "./PrintCover";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
@@ -231,8 +233,11 @@ interface PageGeometry {
 }
 const SCREEN_GEOMETRY: PageGeometry = { top: MARGIN_TOP, footerH: FOOTER_H, bar: true, headerImgY: 3.6, headerTextY: 8.5, headerRuleY: 11.5, footLineY: PAGE_H - 17, licY: PAGE_H - 12.5, pageY: PAGE_H - 6.5 };
 export const PRINT_GEOMETRY: PageGeometry = { top: 22, footerH: 27, bar: false, headerImgY: 10.6, headerTextY: 15.5, headerRuleY: 18.5, footLineY: PAGE_H - 25, licY: PAGE_H - 20.5, pageY: PAGE_H - 14 };
-export function pageGeometry(opts: { licensee?: unknown; sample?: unknown }): PageGeometry {
-  return opts.licensee && !opts.sample ? PRINT_GEOMETRY : SCREEN_GEOMETRY;
+/** GRADE-ROUTE-2 - a taller footer band (27 mm) for the sheets that print the 18 mm paper QR; everything else unchanged. */
+const QR_GEOMETRY: PageGeometry = { ...SCREEN_GEOMETRY, footerH: 27, footLineY: PAGE_H - 25 };
+export function pageGeometry(opts: { licensee?: unknown; sample?: unknown; paperQr?: unknown }): PageGeometry {
+  if (opts.licensee && !opts.sample) return PRINT_GEOMETRY;
+  return opts.paperQr && !opts.sample ? QR_GEOMETRY : SCREEN_GEOMETRY;
 }
 const ACCENT_RGB: [number, number, number] = [63, 191, 130];
 const NAVY_RGB: [number, number, number] = [21, 35, 58];
@@ -351,43 +356,6 @@ function drawSampleChrome(pdf: Doc, innerW: number, line: ReturnType<typeof rend
   }
 }
 
-/** GRADE-ROUTE-2 - the QR's dark modules for `code` (the code ONLY, nothing personal), or null if it cannot be built. */
-export async function buildPaperQrMatrix(code: string): Promise<boolean[][] | null> {
-  try {
-    const QR = await import("qrcode");
-    const q = QR.create(String(code), { errorCorrectionLevel: "M" });
-    const n = q.modules.size;
-    const rows: boolean[][] = [];
-    for (let r = 0; r < n; r += 1) {
-      const row: boolean[] = [];
-      for (let c = 0; c < n; c += 1) row.push(q.modules.get(r, c) === 1);
-      rows.push(row);
-    }
-    return rows;
-  } catch {
-    return null; // honest: the PDF is still produced, just without the QR
-  }
-}
-
-/** Footer QR: 11.5 mm square incl. a 2-module quiet zone (about 0.46 mm per module for a v1 code), left of the footer,
- *  between "Page N of M" and the right-hand trust line, below the footer rule and above the page edge. */
-export const PAPER_QR_MM = 11.5;
-const PAPER_QR_QUIET = 2;
-function drawPaperQr(pdf: Doc, rows: boolean[][]): void {
-  const n = rows.length;
-  const mod = PAPER_QR_MM / (n + PAPER_QR_QUIET * 2);
-  const x0 = MARGIN_X + 30;
-  const y0 = PAGE_H - 16;
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(x0, y0, PAPER_QR_MM, PAPER_QR_MM, "F");
-  pdf.setFillColor(0, 0, 0);
-  for (let r = 0; r < n; r += 1) {
-    for (let c = 0; c < n; c += 1) {
-      if (rows[r][c]) pdf.rect(x0 + (c + PAPER_QR_QUIET) * mod, y0 + (r + PAPER_QR_QUIET) * mod, mod, mod, "F");
-    }
-  }
-}
-
 function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null, qr: boolean[][] | null = null): void {
   const innerW = PAGE_W - MARGIN_X * 2;
   const g = pageGeometry(opts);
@@ -441,7 +409,7 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
     drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, PAGE_H - 10);
-    if (qr) drawPaperQr(pdf, qr);
+    if (qr) drawPaperQr(pdf, qr, MARGIN_X + 30, PAGE_H - 23.5);
   }
 }
 
