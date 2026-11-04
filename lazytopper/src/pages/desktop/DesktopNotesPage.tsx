@@ -2,7 +2,6 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { Card } from "../../components/grammar/Card";
 import PublicPeek from "../../components/guide/public/PublicPeek";
-import { useReturnTicket } from "../../components/navigation/ReturnTicket";
 import { Note, type NoteInitialTab } from "../../components/notes/Note";
 import { useNoteSpec } from "../../components/notes/noteSpecRegistry";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
@@ -20,9 +19,9 @@ import { prevNext, related } from "../../seo/notesLinks";
  * is re-implemented here.
  *
  * LANDING-FOLLOWUP-1 — this page, not <Note>, reads the URL: `?tab=questions`
- * opens the questions tab, and `?returnTo=&backLabel=` (via `useReturnTicket`)
- * points the back-link at wherever the reader came from. Both are absent in the
- * prerender capture, so the captured body is unchanged.
+ * opens the questions tab. NAV-FIX-1: the page no longer draws its own back link — the
+ * NAV-1 header row does ("← Back" after an in-app arrival, else "← Topic Hub", the
+ * chapter's own Topic Hub via ROUTE_PARENTS), so a `?returnTo=` ticket is no longer read.
  *
  * Chrome comes from the route layer, exactly as for `/topic-hub/:topicName`:
  * DesktopShell at desktop width (isDesktopShellRoute) and MobileSelfChrome below it.
@@ -32,7 +31,7 @@ import { prevNext, related } from "../../seo/notesLinks";
  *
  * LOW-END-1 (L4) — the spec is this chapter's own chunk, awaited here (useNoteSpec,
  * BANK-SPLIT-1's await-at-the-boundary pattern). While it is in flight the page shows its
- * header (back link, title, CBSE link) and no note; it never flashes "not found" for a
+ * header (title, CBSE link) and no note; it never flashes "not found" for a
  * chapter that has one. Once loaded the page is exactly what it was — the prerender
  * capture waits for the body to stop changing, so the captured body is unchanged.
  */
@@ -49,17 +48,6 @@ const NOTES_PAGE_CSS = `
 @media (max-width: 480px) {
   .lt-notes-page { padding-left: 0; padding-right: 0; }
 }
-.lt-notes-page__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: hsl(152, 55%, 32%);
-  text-decoration: none;
-}
-.lt-notes-page__back:hover { text-decoration: underline; }
 .lt-notes-page__title {
   margin: 0 0 14px;
   font-family: "Fraunces", Georgia, serif;
@@ -190,11 +178,6 @@ function NotesNav({ slug }: { slug: string }) {
 export default function DesktopNotesPage() {
   const { topicSlug = "" } = useParams<{ topicSlug?: string }>();
   const [params] = useSearchParams();
-  // The return ticket, if the entry point supplied a safe one — validated by
-  // `safeInternalReturnTo` inside the hook, exactly as /cbse/class-10 does. With no
-  // ticket (a crawler, a shared link, the capture) the back-link is today's Topic
-  // Hub link, unchanged.
-  const ticket = useReturnTicket();
   const topic = topicSlug ? desktopTopicBySlug(topicSlug) : undefined;
   const { spec, ready, error } = useNoteSpec(topic?.slug);
 
@@ -202,15 +185,12 @@ export default function DesktopNotesPage() {
     return (
       <div className="lt-notes-page">
         <style>{NOTES_PAGE_CSS}</style>
-        <Link to="/exam-trends" className="lt-notes-page__back">
-          <span aria-hidden="true">←</span>
-          <span>Back to Exam Trends</span>
-        </Link>
         <Card padding={24}>
           <h1 className="lt-notes-page__nf-title">Notes not found</h1>
           <p className="lt-notes-page__nf-body">
-            We couldn&rsquo;t find chapter notes at this address. Use Exam Trends to
-            browse every chapter and open its notes from the Topic Hub.
+            We couldn&rsquo;t find chapter notes at this address. Use{" "}
+            <Link to="/exam-trends">Exam Trends</Link> to browse every chapter and open
+            its notes from the Topic Hub.
           </p>
         </Card>
       </div>
@@ -220,10 +200,6 @@ export default function DesktopNotesPage() {
   return (
     <div className="lt-notes-page">
       <style>{NOTES_PAGE_CSS}</style>
-      <Link to={ticket?.path ?? `/topic-hub/${topic.slug}`} className="lt-notes-page__back">
-        <span aria-hidden="true">←</span>
-        <span>{ticket?.label ?? `${topic.name} Topic Hub`}</span>
-      </Link>
       <h1 className="lt-notes-page__title">{topic.name} — Class 10 Notes</h1>
       <Link
         to={`/cbse/class-10?returnTo=${encodeURIComponent(`/notes/${topic.slug}`)}`

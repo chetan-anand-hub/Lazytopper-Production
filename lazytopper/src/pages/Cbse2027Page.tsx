@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
-import { useReturnTicket } from "../components/navigation/ReturnTicket";
 import {
   cbseCircularFeed,
   cbsePaperLink,
@@ -89,20 +88,11 @@ import ParentReturnLink from "../components/parents/ParentReturnLink";
  * no sidebar, so without a back link all eight inbound links are dead ends — which
  * the owner hit from both the chapter test and the full mock.
  *
- * ★ IT USES THE APP'S EXISTING RETURN-TICKET CONVENTION, NOT A NEW ONE.
- * `?returnTo=<internal path>` + optional `?backLabel=<text>`, read through
- * `useReturnTicket()`, which delegates validation to the app's exported
- * `safeInternalReturnTo` — so an attacker-supplied `returnTo` cannot send a student
- * off-site (absolute URLs, protocol-relative `//evil.com` and any `scheme:` are all
- * rejected, and the value is never decoded twice).
- *
- * ⚠ THE READER IS REUSED, THE STRIP IS NOT. `ReturnTicketStrip` renders NOTHING
- * without a ticket ("no ticket, no change") — correct for the surfaces it was built
- * for, wrong here: a crawler, a shared link and a footer click all arrive with no
- * ticket, and an absent back link on a page with no chrome is the very defect being
- * fixed. So the ticket is READ through the shared hook and rendered as this page's own
- * `<Link>`, with "← Home" as the honest default. A `<Link>` rather than the strip's
- * button also keeps the exit crawlable.
+ * ★ NAV-FIX-1 (4 Nov 2026): that exit is now the NAV-1 header row, drawn on this route at every
+ * width ("← Back" after an in-app arrival, so a chapter test or full mock gets its student back;
+ * "← Home" on a cold arrival; real `<a href>`s, so still crawlable). The page's own ticket-driven
+ * back link was the same exit drawn twice and is gone; `?returnTo=` on inbound links is now inert.
+ * The parents' "← Back to parents page" (ParentReturnLink, `from=for_parents`) stays.
  *
  * ★ THE SIX TRAP CARDS ARE `<details>`, NEVER A CONDITIONAL RENDER. Content stays
  * in the DOM when closed, so a crawler with no JavaScript reads all six answers.
@@ -144,13 +134,6 @@ const CBSE_CSS = `
 .lt-cbse :focus-visible{outline:2px solid var(--g);outline-offset:2px;border-radius:4px}
 .lt-cbse h1,.lt-cbse h2,.lt-cbse h3{font-family:var(--serif);letter-spacing:-.015em;margin:0}
 .lt-cbse__w{padding:0 var(--pad) 72px}
-
-/* BACK LINK — the exit every entry point needs. Same shape as
-   .lt-notes-page__back: an arrow, then the destination named where we know it. */
-.lt-cbse__back{display:inline-flex;align-items:center;gap:6px;
-  margin:14px 0 4px;font-size:13px;font-weight:600;color:var(--ink2);
-  text-decoration:none;min-height:44px}
-.lt-cbse__back:hover{color:var(--ink)}
 
 /* HERO */
 .lt-cbse__hero{background:var(--navy);color:#eaf2fb;margin:0 calc(var(--pad)*-1) 22px;
@@ -374,12 +357,6 @@ export default function Cbse2027Page() {
     CBSE_SUBJECTS.flatMap((subject) => subject.papers),
   );
 
-  // The return ticket, if the entry point supplied a safe one. When it did not —
-  // a crawler, a shared link, a footer click from a page that passed nothing — fall
-  // back to Home rather than to nothing. `/` serves the landing at every width.
-  const ticket = useReturnTicket();
-  const backHref = ticket?.path ?? "/";
-  const backLabel = ticket?.label ?? "Home";
 
   const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
@@ -397,10 +374,7 @@ export default function Cbse2027Page() {
 
       <div className="lt-cbse__w">
         <ParentReturnLink />
-        <Link to={backHref} className="lt-cbse__back">
-          <span aria-hidden="true">←</span>
-          <span>{backLabel}</span>
-        </Link>
+        {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
 
         <div className="lt-cbse__hero">
           <p className="lt-cbse__eyebrow">LazyTopper &middot; CBSE Class 10</p>

@@ -48,8 +48,6 @@ export default function WorksheetReady() {
   return (
     <MobileShell
       title="Worksheet Ready"
-      showBack
-      onBack={() => navigate("/practice/worksheets")}
       showNav
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 32 }}>
@@ -183,20 +181,7 @@ export default function WorksheetReady() {
           Practice with this worksheet
         </button>
 
-        <button
-          onClick={() => navigate("/practice/worksheets")}
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--mob-fg-muted)",
-            fontSize: "0.82rem",
-            cursor: "pointer",
-            textDecoration: "underline",
-            padding: "4px 0",
-          }}
-        >
-          Back to generator
-        </button>
+        {/* NAV-FIX-1: no page-level "Back to generator" — the NAV-1 row under this header says "← Worksheets". */}
       </div>
     </MobileShell>
   );

@@ -178,7 +178,9 @@ const RETURN_TARGETS: Record<string, { backTo: string; backLabel: string }> = {
   login: { backTo: "/login", backLabel: "Back to sign in" },
 };
 
-const DEFAULT_RETURN = { backTo: "/", backLabel: "Back to home" };
+// NAV-FIX-1: no `source` -> no page-level back link. The NAV-1 header row already gives "← Home" (or "← Back" after an
+// in-app arrival), so the old "<- Back to home" here was the same link twice. Only the sign-in round trip keeps its own
+// link, because it goes somewhere the header does not (/login WITH the carried redirect).
 
 /**
  * PRICING-TB-1 · R1 — the month pass price, shown ONLY to an account the server says already bought a month pass (it renews here).
@@ -376,14 +378,14 @@ function PricingPlansPage() {
   const paymentsOn = isPaymentsClientEnabled();
   const checkoutWho = isCheckoutWhoCopyOn();
   const [searchParams] = useSearchParams();
-  const returnTarget =
-    RETURN_TARGETS[(searchParams.get("source") || "").trim().toLowerCase()] ?? DEFAULT_RETURN;
+  const returnTarget: { backTo: string; backLabel: string } | null =
+    RETURN_TARGETS[(searchParams.get("source") || "").trim().toLowerCase()] ?? null;
   // FREECHECK-2 · F3 — the sign-in door's `?redirect=`: only handed BACK to /login, and only as a safe internal path.
   const carriedRedirect = safeSigninRedirect(searchParams.get("redirect"));
   const backTo =
-    returnTarget.backTo === "/login"
+    returnTarget?.backTo === "/login"
       ? withSigninRedirect("/login", carriedRedirect)
-      : returnTarget.backTo;
+      : returnTarget?.backTo ?? "/";
   const toLogin = (path: string) => {
     if (carriedRedirect) markFreeCheckSigninIntent();
     navigate(path);
@@ -529,13 +531,13 @@ function PricingPlansPage() {
         <div className="lt-pricing-band">
           <div className="lt-pricing-band-inner">
             <div className="lt-pp-topbar">
-              {carriedRedirect && backTo !== returnTarget.backTo ? (
+              {returnTarget && (carriedRedirect && backTo !== returnTarget.backTo ? (
                 <div className="lt-pricing-return" onClickCapture={markFreeCheckSigninIntent}>
                   <ReturnContextBar backTo={backTo} backLabel={returnTarget.backLabel} />
                 </div>
               ) : (
                 <ReturnContextBar backTo={returnTarget.backTo} backLabel={returnTarget.backLabel} />
-              )}
+              ))}
               <span className="lt-pp-brand" aria-hidden="true">{PRICING_BRAND}</span>
               {!authLoading && !user && (
                 <button type="button" className="lt-pp-login" onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}>

@@ -13,9 +13,13 @@ function isChipActive(chipTo: string, currentPath: string): boolean {
   return current === chipBase || current.startsWith(chipBase + "/");
 }
 
+/**
+ * NAV-FIX-1: `backTo` / `backLabel` are optional. The NAV-1 header row (RouteNavBar) owns Back on every page, so a page
+ * that only wants the quick-link chips passes neither and no second back button is drawn.
+ */
 export default function ReturnContextBar(props: {
-  backTo: string;
-  backLabel: string;
+  backTo?: string;
+  backLabel?: string;
   quickLinks?: QuickLink[];
   currentLabel?: string;
 }) {
@@ -25,20 +29,23 @@ export default function ReturnContextBar(props: {
 
   return (
     <div className="ux-return-bar" data-testid="ux-return-context">
-      <button
-        type="button"
-        className="ux-return-bar__back"
-        onClick={() => {
-          if (props.backTo === "/") {
-            window.location.href = "/";
-          } else {
-            navigate(props.backTo);
-          }
-        }}
-        aria-label={props.backLabel}
-      >
-        {"<-"} {props.backLabel}
-      </button>
+      {props.backTo && props.backLabel ? (
+        <button
+          type="button"
+          className="ux-return-bar__back"
+          onClick={() => {
+            const to = props.backTo as string;
+            if (to === "/") {
+              window.location.href = "/";
+            } else {
+              navigate(to);
+            }
+          }}
+          aria-label={props.backLabel}
+        >
+          {"<-"} {props.backLabel}
+        </button>
+      ) : null}
       {(quickLinks.length > 0 || props.currentLabel) ? (
         <div className="ux-return-bar__chips" aria-label="Quick navigation">
           {props.currentLabel && (

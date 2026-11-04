@@ -16,8 +16,8 @@ import ParentReturnLink from "../components/parents/ParentReturnLink";
  * page reads identically regardless of the ambient app theme.
  *
  * Inbound links land here from the Login footer (signed-out) and the account-menu
- * legal row (signed-in). "<- Back" returns to the origin surface via router history
- * (never a hard reload); each navigation lands at the top of the page.
+ * legal row (signed-in). NAV-FIX-1: Back is the NAV-1 header row ("← Back" via router history after an
+ * in-app arrival, else "← Home"); the page's own "<- Back" bar is gone. Each navigation lands at the top.
  */
 const SUPPORT_EMAIL = "support@lazytopper.com";
 
@@ -48,32 +48,6 @@ const LEGAL_CSS = `
   }
   .lt-legal-page * {
     box-sizing: border-box;
-  }
-
-  .lt-legal-top {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 12px 20px;
-    background: #fff;
-    border-bottom: 1px solid var(--lt-legal-line);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .lt-legal-back {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--lt-legal-green-d);
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-family: inherit;
-    padding: 6px 11px;
-    border-radius: 8px;
-  }
-  .lt-legal-back:hover {
-    background: var(--lt-legal-green-t);
   }
 
   .lt-legal-wrap {
@@ -382,18 +356,6 @@ const TABS: { slug: LegalSlug; label: string }[] = [
   { slug: "refund", label: "Cancellation Policy" },
 ];
 
-// Sticky back-bar only — NO logo/wordmark. The global app navbar (App.tsx) already
-// brands every /legal view for both signed-in and signed-out visitors, so a second
-// brand header here would double-stack. This bar carries the return affordance the
-// global navbar does not provide (origin surface via router history, never a reload).
-const BackBar = ({ onBack }: { onBack: () => void }) => (
-  <div className="lt-legal-top">
-    <button type="button" className="lt-legal-back" onClick={onBack}>
-      {"<- Back"}
-    </button>
-  </div>
-);
-
 const LegalPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -412,21 +374,10 @@ const LegalPage = () => {
     window.scrollTo(0, 0);
   }, [slug]);
 
-  // Return to the origin surface via router history (login -> login, app -> app);
-  // fall back to home on a cold deep-link with no history. Never a hard reload.
-  const goBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/");
-    }
-  };
-
   if (!page) {
     return (
       <div className="lt-legal-page">
         <style>{LEGAL_CSS}</style>
-        <BackBar onBack={goBack} />
         <div className="lt-legal-wrap">
           <div className="lt-legal-card is-notfound">
             <div className="lt-legal-eyebrow">Legal</div>
@@ -444,7 +395,6 @@ const LegalPage = () => {
   return (
     <div className="lt-legal-page">
       <style>{LEGAL_CSS}</style>
-      <BackBar onBack={goBack} />
       <div className="lt-legal-wrap">
         <ParentReturnLink />
         <nav className="lt-legal-tabs" aria-label="Policies">

@@ -88,11 +88,6 @@ function renderPage(search = "") {
   );
 }
 
-/** The back affordance, or null. */
-function backLink(): HTMLAnchorElement | null {
-  return document.querySelector("a.lt-cbse__back");
-}
-
 afterEach(cleanup);
 
 describe("ruling (a) — one component at every width, no width hook", () => {
@@ -462,8 +457,9 @@ describe("★ nothing clock-dependent reaches the prerendered body", () => {
   });
 
   it("★ CONTROL — the byte-equality check can FAIL, so its passing means something", () => {
-    // Same page, different URL state: the back link changes, so the HTML must differ.
-    const { container: a } = renderPage("?returnTo=%2Fexam-trends&backLabel=Back+to+Exam+Trends");
+    // Same page, different URL state: the selected subject changes, so the HTML must differ.
+    // (NAV-FIX-1: this used ?returnTo=, which no longer changes the page — the header row owns Back.)
+    const { container: a } = renderPage("?subject=maths");
     const first = a.innerHTML;
     cleanup();
     const { container: b } = renderPage();

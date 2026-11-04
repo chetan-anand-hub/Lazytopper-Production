@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   ME_DEFAULT_WINDOW,
@@ -573,8 +573,6 @@ function ReviewCard({ card }: { card: SRConceptCard }) {
 
 export default function WeakAreaPracticePage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const [tab, setTab] = useState<ViewTab>("weak-areas");
   const [subjectFilter, setSubjectFilter] = useState<"All" | "Maths" | "Science">("All");
   const [learningPath, setLearningPath] = useState<LearningPath | null>(null);
@@ -707,22 +705,7 @@ export default function WeakAreaPracticePage() {
 
   return (
     <div className="lt-page" style={{ paddingTop: 8 }}>
-      <button
-        /* SEVER PR: back-default re-pointed off the retired /dashboard to live /practice-hub. */
-        onClick={() => navigate(navState?.back || "/practice-hub")}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#1cb0f6",
-          fontWeight: 700,
-          fontSize: 14,
-          cursor: "pointer",
-          marginBottom: 8,
-          padding: 0,
-        }}
-      >
-        &larr; {navState?.backLabel || "Back"}
-      </button>
+      {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
 
       <h2 style={{ fontWeight: 900, fontSize: 22, marginBottom: 4 }}>Fix My Weak Areas</h2>
       <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 16 }}>

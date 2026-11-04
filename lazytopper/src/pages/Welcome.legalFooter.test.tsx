@@ -299,11 +299,15 @@ describe("Welcome — the questions link round-trips through the notes page", ()
     return <output data-testid="where">{pathname + search}</output>;
   }
 
-  it("landing → questions tab → back-link → landing", async () => {
+  // NAV-FIX-1: the notes page no longer draws its own back link; Back is the NAV-1 header row (RouteNavBar),
+  // mounted here exactly as App mounts it once above the routes.
+  it("landing → questions tab → header Back → landing", async () => {
     const { default: DesktopNotesPage } = await import("./desktop/DesktopNotesPage");
+    const { default: RouteNavBar } = await import("../components/nav/RouteNavBar");
     render(
       <MemoryRouter initialEntries={["/"]}>
         <Where />
+        <RouteNavBar />
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/notes/:topicSlug" element={<DesktopNotesPage />} />
@@ -312,6 +316,9 @@ describe("Welcome — the questions link round-trips through the notes page", ()
     );
     // Hop 1 — start on the landing, and prove it.
     expect(screen.getByTestId("where")).toHaveTextContent(/^\/$/);
+    // RouteNavBar reads the BROWSER router's history idx; under MemoryRouter we state the in-app step explicitly
+    // (as RouteNavBar.test does) — the click below then pops the MemoryRouter's real two-entry stack.
+    window.history.replaceState({ idx: 1 }, "");
     fireEvent.click(screen.getByRole("link", { name: /competency-based questions, marked step by step/i }));
 
     // Hop 2 — on the notes page, on the questions tab.
@@ -322,26 +329,32 @@ describe("Welcome — the questions link round-trips through the notes page", ()
     const selected = (await screen.findAllByRole("tab")).find((t) => t.getAttribute("aria-selected") === "true");
     expect(selected).toHaveTextContent("Competency-based questions");
 
-    // Hop 3 — the back-link is named for the landing and lands there.
-    fireEvent.click(screen.getByRole("link", { name: /Back to LazyTopper/ }));
+    // Hop 3 — one Back on the page (the header's, history kind) and it lands on the landing.
+    expect(screen.queryByRole("link", { name: /Back to LazyTopper/ })).toBeNull();
+    const back = await screen.findByTestId("route-nav-back");
+    expect(back.getAttribute("data-back-kind")).toBe("history");
+    fireEvent.click(back);
+    window.history.replaceState(null, "");
     expect(screen.getByTestId("where").textContent).toBe("/");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Full marks/);
   });
 
-  it("★ CONTROL — the notes page's default back-link does NOT go to the landing", async () => {
-    // Without the ticket the same click lands on the Topic Hub, so hop 3 above is
-    // proving the ticket, not a back-link that happened to point at "/" anyway.
+  it("★ CONTROL — on a direct arrival the header Back does NOT go to the landing", async () => {
+    // With no in-app history the same click lands on the chapter's Topic Hub, so hop 3 above is
+    // proving the history step, not a Back that happened to point at "/" anyway.
     const { default: DesktopNotesPage } = await import("./desktop/DesktopNotesPage");
+    const { default: RouteNavBar } = await import("../components/nav/RouteNavBar");
     render(
       <MemoryRouter initialEntries={["/notes/trigonometry?tab=questions"]}>
         <Where />
+        <RouteNavBar />
         <Routes>
           <Route path="/notes/:topicSlug" element={<DesktopNotesPage />} />
           <Route path="*" element={<p>elsewhere</p>} />
         </Routes>
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByRole("link", { name: /Trigonometry Topic Hub/ }));
+    fireEvent.click(await screen.findByTestId("route-nav-back"));
     expect(screen.getByTestId("where").textContent).toBe("/topic-hub/trigonometry");
   });
 });

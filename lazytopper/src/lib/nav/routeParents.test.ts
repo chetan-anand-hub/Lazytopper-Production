@@ -69,7 +69,8 @@ describe("NAV-1 Back target - arrived directly (no in-app history)", () => {
     expect(parent("/practice/worksheets")).toMatchObject({ to: "/practice-hub", label: "Practice" });
     expect(parent("/practice/worksheets/ready")).toMatchObject({ to: "/practice/worksheets", label: "Worksheets" });
     expect(parent("/highly-probable/10/Science")).toMatchObject({ to: "/practice-hub" });
-    expect(parent("/topic-hub/10/Maths/triangles")).toMatchObject({ to: "/topic-hub/10/Maths", label: "Topic Hub" });
+    // NAV-FIX-1: straight to Exam Trends (the bare /topic-hub/10/Maths only redirects there).
+    expect(parent("/topic-hub/10/Maths/triangles")).toMatchObject({ to: "/exam-trends", label: "Exam Trends" });
     expect(parent("/admin/funnel")).toMatchObject({ to: "/admin/students", label: "Students" });
   });
 

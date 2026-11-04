@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 import NcertChapterReader from "../components/ncert/NcertChapterReader";
-import { useReturnTicket } from "../components/navigation/ReturnTicket";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
   NCERT_CLASS10_CHAPTERS,
@@ -42,8 +41,8 @@ function solutionsRowLink(row: NcertBookChapter) {
  * and always beside it the chapter's Notes, Formulae, Practice and Check my answer.
  *
  * ★ PRODUCT CHROME (1b). The route sits in the desktop shell (blue sidebar, where "NCERT Books"
- * is a rail item) and is self-chromed on mobile, the same treatment as `/cbse/class-10`. A back
- * link (return ticket, else Home) is the exit at every width.
+ * is a rail item) and is self-chromed on mobile, the same treatment as `/cbse/class-10`. The exit at
+ * every width is the NAV-1 header row ("← Back" / "← Home"); NAV-FIX-1 removed the page's own copy.
  *
  * ★ SUBJECT TOGGLE (1b). Maths | Science is a `role="tablist"`, the CBSE page's grammar.
  * `?subject=science` (or the old `#science` jump link) preselects it. BOTH panels stay mounted
@@ -132,9 +131,6 @@ export default function NcertBooksPage() {
     setSubject(ncertSubjectFrom(params.get("subject"), hash));
   }, [params, hash]);
 
-  const ticket = useReturnTicket();
-  const backHref = ticket?.path ?? "/";
-  const backLabel = ticket?.label ?? "Home";
 
   const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
@@ -148,10 +144,7 @@ export default function NcertBooksPage() {
     <main className="lt-nb" data-testid="ncert-books-page">
       <header className="lt-nb__hero">
         <div className="lt-nb__w">
-          <Link to={backHref} className="lt-nb__back">
-            <span aria-hidden="true">←</span>
-            <span>{backLabel}</span>
-          </Link>
+          {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
           <p className="lt-nb__eyebrow">CBSE Class 10 · Boards 2027 · NCERT 2026-27 edition</p>
           <h1>NCERT Class 10 Maths and Science Books, Chapter-wise</h1>
           <p className="lt-nb__sub">

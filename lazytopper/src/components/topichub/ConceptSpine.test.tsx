@@ -98,7 +98,7 @@ const previewContent = buildActionableDesktopTopicHubContent(previewTopic)!;
 function renderSpine(
   topic = trig,
   actionable = trigContent,
-  backLabel = "Back to Exam Trends",
+  _backLabel = "", // NAV-FIX-1: the spine no longer draws a back link; kept so call sites keep their arity.
   worksheetHref?: string,
 ) {
   return render(
@@ -106,8 +106,6 @@ function renderSpine(
       <ConceptSpine
         topic={topic}
         actionable={actionable}
-        backHref="/exam-trends"
-        backLabel={backLabel}
         practiceAllHref="/practice-hub?scope=topic"
         chapterTestHref="/chapter-test/10/Maths/trigonometry?source=topicHub"
         worksheetHref={worksheetHref}
@@ -160,10 +158,10 @@ describe("ConceptSpine — learn-first concept rows", () => {
     expect(screen.getByText("teach yourself first, then practise each")).toBeInTheDocument();
   });
 
-  it("renders the in-page back button with the given label + href", () => {
-    renderSpine(trig, trigContent, "Back to Maths on Exam Trends");
-    const back = screen.getByRole("link", { name: /Back to Maths on Exam Trends/ });
-    expect(back).toHaveAttribute("href", "/exam-trends");
+  it("NAV-FIX-1: draws NO in-page back link (the NAV-1 header row owns Back)", () => {
+    const { container } = renderSpine();
+    expect(container.querySelector(".lt-spine__back")).toBeNull();
+    expect(screen.queryByRole("link", { name: /Back to .*Exam Trends/ })).toBeNull();
   });
 });
 
@@ -272,8 +270,6 @@ describe("ConceptSpine — Notes anchor (crawlable href, click still opens the p
                 <ConceptSpine
                   topic={trig}
                   actionable={trigContent}
-                  backHref="/exam-trends"
-                  backLabel="Back to Exam Trends"
                   practiceAllHref="/practice-hub?scope=topic"
                   chapterTestHref="/chapter-test/10/Maths/trigonometry"
                   practiceHrefForConcept={() => "/practice/10/Maths"}
@@ -624,8 +620,6 @@ describe("ConceptSpine — arrival concept marker (?concept= lands here)", () =>
         <ConceptSpine
           topic={trig}
           actionable={trigContent}
-          backHref="/exam-trends"
-          backLabel="Back to Exam Trends"
           practiceAllHref="/practice-hub?scope=topic"
           chapterTestHref="/chapter-test/10/Maths/trigonometry?source=topicHub"
           practiceHrefForConcept={(c) =>
@@ -714,8 +708,6 @@ describe("ConceptSpine — a concept with too few questions shows an honest note
         <ConceptSpine
           topic={trig}
           actionable={trigContent}
-          backHref="/exam-trends"
-          backLabel="Back"
           practiceAllHref="/practice-hub"
           chapterTestHref="/chapter-test/10/Maths/trigonometry"
           practiceHrefForConcept={(c) => (c.name === names[0] ? null : "/practice/10/Maths")}
