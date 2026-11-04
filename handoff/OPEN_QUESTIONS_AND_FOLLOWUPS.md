@@ -23,6 +23,62 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-04 (daily, third) - #1550 - #1571 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `1fee3557`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's 4 Nov night handoff, sections 5 and 6 **[coordinator]**, and the PR bodies **[gh]**. Grading behaviour changed in `#1558`, `#1559`, `#1570`, `#1567` (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*
+
+**Closed or superseded by this window (not re-headed):** `[FU-CODE-SENT-NAMES-TARGET]` closed by `#1550`. `[FU-DESKTOP-ACCOUNT-MENU-SHARE]` and `[FU-NAV1-DUPLICATE-BACK-LINKS]` closed by `#1552`. `[FU-PACK-PREVIEW-PER-SUBJECT]` (preview images were a Maths Chapter Pack for every pack) closed by `#1569`. The coordinator-handoff items CT-FM-CODE-UNIQUE-1 and WS-GRADE-CODE-1 (Chapter Test / Full Mock code collisions; the grade-time full-replace) are closed by `#1562`; GRADE-ROUTE-1 by `#1561`, `#1563`, `#1571`; GRADE-MARKS-1 by `#1559`, `#1570`; the worksheet "save failed" analytics event by `#1566`. The Resend-filter note under `[FU-ABANDONED-CHECKOUT-NOT-IN-RESEND]`: the code path is identical to the nudges (`sendViaResend`, tag `nudge_abandoned_checkout`), so check Resend's filter by that tag around 08:50 IST on 4 Nov.
+
+**Carried, not duplicated:** `[FU-ABANDONED-CHECKOUT-NOT-IN-RESEND]`, `[FU-ENDED-PACKS-NOTE-MOUNT]`, `[FU-RAZORPAY-CONTACT-OPTIONAL]`, `[FU-FOUNDING-EMAIL-PREMIUM-WORDING]`, `[FU-FOLLOWUPS-1]`, `[FU-BOARD-PASS-RENAME]`, `[FU-RESEND-PRO]`, `[FU-GRADER-2027-PRICE]` (by 15 Dec), `[FU-PRICING-GST-TREATMENT]`, `[FU-ACTIVATION-ONE-MINUTE]`, `[FU-TRIAL-HAS-NO-ACTIVATION-PATH]`, `[FU-OWNER-TESTS-T3-T6]` (T4 / T5 / T6 still pending).
+
+### [FU-GST-REVIEW-ITEMS]
+`#1560` (open, unmerged). Follow-ups from its reviews **[coordinator]**: the price-confirm dialog should compare the server total with the total the button showed, not only the clock; a test for nudgeEmail -> the finish-paying quote; `llms.txt` line 27 grammar ("breakdown is Board Pass"). Rollout steps and the cutoff-constant warning are in NEXT_ACTION.
+
+### [FU-GST-INVOICE-1]
+We issue our OWN GST tax invoice (owner ruling, option 2, not Razorpay Invoices). Blocked on the CA team's answers **[coordinator]**: SAC codes, place of supply (CGST + SGST vs IGST), treatment of the 16 Sep to 4 Nov GST-inclusive sales, the invoice series (`LT/26-27/000001`). Footer uses support@lazytopper.com and +91 97145 68948. Receipts carry no GSTIN yet (`#1560` added a GST line only).
+
+### [FU-ADS-DEFERRED-4NOV]
+Owner deferred the ad-account changes to the next session **[coordinator]**: Google Ads price assets to "+ GST" (after `#1560`), the PDF Packs bid switch (Maximize clicks -> Maximize conversion value, no target, Rs 6,000 a day unchanged), the YouTube / Demand Gen Final URL suffix (`utm_source=youtube&utm_medium=paid&utm_campaign={campaignid}`), Meta copy via Pallabi, YouTube descriptions. Ask the owner first (ads rule). Cost per result on 4 Nov: Packs Rs 2,369 per purchase, Sign-ups v2 Rs 551 per sign-up, YouTube Rs 92 per sign-up; no raise of the PDF Packs click cap or the Sign-ups v2 budget (owner ruling).
+
+### [FU-EARLY-UPGRADE-FRESH-TRIAL]
+Owner, 4 Nov 22:59 **[coordinator]**. A student who signed up at 21:27 (Google, trial started correctly) tapped Pay on a paywall on Me / Progress within her first minute, opened the Board Pass checkout ("Who will use it?" and "Pay now with your phone number") and left without paying (no Razorpay order). Find which Me / Progress paywall shows to a brand-new trial student and stop it. Payment path: strict review.
+
+### [FU-SIMPLER-SIGNED-IN-CHECKOUT]
+Owner, 4 Nov 22:59 **[coordinator]**. For a signed-in student the primary button is "Pay Rs ..." for self; "someone else / phone number" becomes a secondary link. Payment path: strict review; GST-neutral, but sequence after `#1560`.
+
+### [FU-PACK-DELETED-SYLLABUS-ITEMS]
+CONTENT, doctrine section 5. `#1569`'s syllabus scan flagged deleted-syllabus items ("Solar Energy", "Biogas", Sources of Energy) inside PAID packs **[coordinator]**: Science Full Mock 1 and 8, Maths Full Mock 6 (unconfirmed), the Science CBQ chapter 1 file. Verify against `scripts/src/syllabusGuard.ts` (re-read the exact banned keywords; the guard matches `subtopic:` values, not chapters), remove or replace, regenerate the packs and previews.
+
+### [FU-PICK-CONTRADICTION-NOT-SURFACED]
+`#1567`. The `pickContradiction` flag stops at `objectiveScoring`; it is not carried to the result or the admin view (needs `postprocess` / `checkSolution`). Surface it before relying on it.
+
+### [FU-GRADE-SECTION-RESIDUAL]
+`#1570`. If the model returns a consistently wrong `firstQuestion` AND matching labels, the section is still unflagged. Detect still reads WS-M-MIX-02's sections from the model, so watch the "Check: we guessed" flags on real papers.
+
+### [FU-GRADE-ROUTE-3-NO-COUNT]
+`#1571`. The same-paper check compares only the first three questions; it does not compare the question count (that needs an edit to `DesktopCheckImprovePage`). A different paper with the same opening three questions would still be offered.
+
+### [FU-RECORD-SAFE-TWO-TAB-RACE]
+`#1562` residuals **[gh]**. (1) The cloud write is read-then-write, not a transaction: two tabs or devices writing the SAME code for DIFFERENT papers within milliseconds can still overwrite each other. (2) Known gap: if a paper's record was moved to X+2, X+1 was later freed, and a device with an empty list grades at X, the grade lands on the free X+1 and X+2 stays pending; finding the own record needs a query by `worksheetId`, which the outbox's plain get / set contract lacks (todo test recorded in the PR).
+
+### [FU-AC-MCQ-MISTAKE-LABEL]
+The Answer Checker scorecard shows "Marks lost, reason not recorded" (7.5 in the owner's regrade) for wrong MCQs answered without working. Consider an MCQ mistake label **[coordinator]**. Also watch in the golden set: Q20 rationale-less full marks and Q22 "Concept gap" for a slip (grader judgement, not the key bug).
+
+### [FU-TRIAL-SAVE-EMPTY-CACHE]
+`#1564` limit. A new account whose device cache is already empty is not recovered: the server path needs the local trial to restore **[coordinator]**.
+
+### [FU-ADMIN-TRIAL-GAP-3NOV]
+One 3 Nov 5:09 pm sign-up (a YouTube ad) shows Basic with no trial in admin: investigate **[coordinator]**. Related: about half of YouTube sign-ups were "untagged" (`#1568` is the code-side fix; the ad suffix is `[FU-ADS-DEFERRED-4NOV]`) and the activation gap (42 sign-ups in 24 h, about 3 graded) stays under `[FU-ACTIVATION-ONE-MINUTE]`.
+
+### [FU-ADMIN-EXTEND-PREMIUM-WORDING]
+The admin "Extend Premium (free)" panel wording says "Premium" (owner-only UI). Rename to Board Pass when that file is next touched **[coordinator]**.
+
+### [FU-FAIR-USE-REVISIT-AFTER-GST]
+Revisit the fair-use caps (30-day Rs 350, day Rs 150, 5-hour and week off) once GST-exclusive buyers dominate and before 1 Jan, when the Gemini price doubles (`[FU-GRADER-2027-PRICE]`) **[coordinator]**.
+
+### [FU-OWNER-LIVE-CHECKS-4NOV-NIGHT]
+The live checks still owed (second surface for the grader PRs, banner on a fresh worksheet, `#1562` round trip, pack previews, sample button and email, trial-save, attribution label, Settings fair-use bar) are listed in CURRENT_STATE "Live checks". Per section 4a the grader lanes stay PARTIAL until a second surface is verified.
+
 ## 2026-11-04 (daily, second) - #1533 - #1548 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `e0c2517b`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's 4 Nov facts **[coordinator]** (source: project doc `claude/HANDOFF_COFOUNDER_SESSION_2026-11-04.md`, section 0 items 3-10 and section 7, cross-checked by the coordinator) and the PR bodies **[gh]**. No grading behaviour changed (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*
