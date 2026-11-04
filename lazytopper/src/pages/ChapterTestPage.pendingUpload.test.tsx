@@ -154,6 +154,9 @@ describe("PENDING-UPLOAD-1 · Chapter Test pending card -> upload step", () => {
     const { getDoc } = await import("firebase/firestore");
     records.list = [submittedRecord()];
     await mount();
+    // RECORD-SAFE-1: the mount mints its code against the student's documents (a few reads); let them finish first.
+    await waitFor(() => expect(vi.mocked(getDoc).mock.calls.length).toBeGreaterThan(0));
+    await new Promise((r) => setTimeout(r, 50));
     const calls = vi.mocked(getDoc).mock.calls.length;
     fireEvent.click(await screen.findByText(/Awaiting sheet/));
     await waitFor(() => expect(screen.queryByRole("button", { name: "Done" })).not.toBeNull());

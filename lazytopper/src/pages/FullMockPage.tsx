@@ -40,8 +40,9 @@ import type { PersistedWorksheet } from "../services/worksheetSessionStore";
 import {
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
-  fullMockSequence,
-  fullMockNomenclature,
+  mintUniqueFullMockNomenclature,
+  RecordCodeCheckError,
+  RECORD_CODE_CHECK_FAILED_LINE,
   buildFullMockSessionRecord,
   type SessionRecord,
   type SessionSubject,
@@ -241,6 +242,9 @@ export default function FullMockPage() {
   // ── Records (history panel · pending banner · durable #NN) ──────────────────
   const [records, setRecords] = useState<SessionRecord[]>([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
+  // RECORD-SAFE-1: the code could not be checked against the student's saved papers; mintNonce retries.
+  const [codeCheckFailed, setCodeCheckFailed] = useState(false);
+  const [mintNonce, setMintNonce] = useState(0);
   const loadRecords = useCallback(async () => {
     try {
       const all = await getSessionRecordsFromCloud(user?.uid);
@@ -277,9 +281,20 @@ export default function FullMockPage() {
       setRecordsLoading(true);
       const all = await loadRecords();
       if (!live) return;
-      const seq = fullMockSequence(all, sessionSubject);
-      const nm = fullMockNomenclature(sessionSubject, seq);
-      snapshotFresh(all, seq);
+      // RECORD-SAFE-1: checked against the student's real records and saved papers; unknown -> mint nothing.
+      let nm: Awaited<ReturnType<typeof mintUniqueFullMockNomenclature>>;
+      try {
+        nm = await mintUniqueFullMockNomenclature(sessionSubject, all, user);
+      } catch (error) {
+        if (!(error instanceof RecordCodeCheckError)) console.warn("[FullMockPage] code mint failed", error);
+        if (!live) return;
+        setCodeCheckFailed(true);
+        setRecordsLoading(false);
+        return;
+      }
+      if (!live) return;
+      setCodeCheckFailed(false);
+      snapshotFresh(all, nm.sequence);
       setNomen({ code: nm.code, name: nm.name });
       setRecordsLoading(false);
     })();
@@ -287,7 +302,7 @@ export default function FullMockPage() {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, sessionSubject]);
+  }, [user?.uid, sessionSubject, mintNonce]);
 
   const mockRecords = useMemo(
     () => records.filter((r) => r.surface === "full-mock").sort((a, b) => b.gradedAt - a.gradedAt),
@@ -572,11 +587,16 @@ export default function FullMockPage() {
       // Re-mint the NEXT mock's nomenclature off the fresh records (this mock's
       // record now exists) — otherwise a same-visit second mock would reuse this
       // code and overwrite this record.
-      void loadRecords().then((all) => {
-        const seq = fullMockSequence(all, sessionSubject);
-        const nm = fullMockNomenclature(sessionSubject, seq);
-        snapshotFresh(all, seq);
-        setNomen({ code: nm.code, name: nm.name });
+      void loadRecords().then(async (all) => {
+        try {
+          const nm = await mintUniqueFullMockNomenclature(sessionSubject, all, user);
+          snapshotFresh(all, nm.sequence);
+          setNomen({ code: nm.code, name: nm.name });
+        } catch {
+          // Unknown -> no new code is minted; the page asks the student to retry (the submitted mock is safe).
+          setNomen(null);
+          setCodeCheckFailed(true);
+        }
       });
     },
     [user, sessionSubject, sessionUid, subject, grade, loadRecords],
@@ -1418,6 +1438,13 @@ export default function FullMockPage() {
                 {!draw && bank.error ? (
                   <div className="lt-ct__empty">
                     We couldn’t load the {subject} questions. Check your connection and reload the page.
+                  </div>
+                ) : !draw && codeCheckFailed ? (
+                  <div className="lt-ct__empty" role="alert">
+                    {RECORD_CODE_CHECK_FAILED_LINE}{" "}
+                    <button type="button" className="lt-ct__btn" onClick={() => setMintNonce((n) => n + 1)}>
+                      Try again
+                    </button>
                   </div>
                 ) : !draw ? (
                   <div className="lt-ct__empty">Building your mock…</div>

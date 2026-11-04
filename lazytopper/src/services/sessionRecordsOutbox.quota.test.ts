@@ -103,6 +103,7 @@ describe("FU-SAVE-SYNC-QUOTA — the cap", () => {
     h.mode = "hang";
     const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
     for (let i = 0; i < 6; i++) writeSessionRecord(user, mk(i, pad));
+    await flush(); // RECORD-SAFE-1: each first attempt reads the doc before it writes
     expect(readOutbox(UID)[0].body).toBeUndefined();
     __resetOutboxForTests();
     h.mode = "ok";
@@ -197,6 +198,7 @@ describe("FU-SAVE-SYNC-QUOTA — a result that could not be queued is never sile
     h.mode = "hang";
     const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
     for (let i = 0; i < 6; i++) writeSessionRecord(user, mk(i, pad));
+    await flush(); // RECORD-SAFE-1: each first attempt reads the doc before it writes
     expect(readOutbox(UID)[0].body).toBeUndefined();
     // the mirror now holds an OLDER grade of record 0 (as a cloud-wins read would leave it)
     const key = `lazytopper.user.${UID}.sessionRecords.v1`;
@@ -215,6 +217,7 @@ describe("FU-SAVE-SYNC-QUOTA — a result that could not be queued is never sile
     h.mode = "hang";
     const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
     for (let i = 0; i < 6; i++) writeSessionRecord(user, mk(i, pad));
+    await flush(); // RECORD-SAFE-1: each first attempt reads the doc before it writes
     __resetOutboxForTests();
     h.mode = "ok";
     h.sends.length = 0;
@@ -237,6 +240,7 @@ describe("FU-SAVE-SYNC-QUOTA — a result that could not be queued is never sile
     h.mode = "hang";
     const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
     for (let i = 0; i < 6; i++) writeSessionRecord(user, mk(i, pad));
+    await flush(); // RECORD-SAFE-1: each first attempt reads the doc before it writes
     expect(readOutbox(UID)[0].body).toBeUndefined();
     const stamp = readOutbox(UID)[0].gradedAt;
     expect(stamp).toBe(mk(0).gradedAt); // stamped when the body was stripped

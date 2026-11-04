@@ -37,8 +37,9 @@ import {
 import {
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
-  chapterTestSequence,
-  chapterTestNomenclature,
+  mintUniqueChapterTestNomenclature,
+  RecordCodeCheckError,
+  RECORD_CODE_CHECK_FAILED_LINE,
   buildChapterTestSessionRecord,
   type SessionRecord,
   type SessionSubject,
@@ -236,6 +237,9 @@ export default function ChapterTestPage() {
   const [freshInputs, setFreshInputs] = useState<{ servedAt: ServedAt; seed: number } | null>(null);
   const [records, setRecords] = useState<SessionRecord[]>([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
+  // RECORD-SAFE-1: the code could not be checked against the student's saved papers; mintNonce retries.
+  const [codeCheckFailed, setCodeCheckFailed] = useState(false);
+  const [mintNonce, setMintNonce] = useState(0);
   const [drawNonce] = useState(0);
 
   const loadRecords = useCallback(async () => {
@@ -257,8 +261,21 @@ export default function ChapterTestPage() {
       setRecordsLoading(true);
       const all = await loadRecords();
       if (!live) return;
-      const seq = chapterTestSequence(all, sessionSubject, topicKey);
-      const nm = chapterTestNomenclature(sessionSubject, topicKey, topicName, seq);
+      // RECORD-SAFE-1: the code is checked against the student's real records and saved papers before it is
+      // used; a check that cannot be completed mints nothing and the page says so (with a retry).
+      let nm: Awaited<ReturnType<typeof mintUniqueChapterTestNomenclature>>;
+      try {
+        nm = await mintUniqueChapterTestNomenclature(sessionSubject, topicKey, topicName, all, user);
+      } catch (error) {
+        if (!(error instanceof RecordCodeCheckError)) console.warn("[ChapterTestPage] code mint failed", error);
+        if (!live) return;
+        setCodeCheckFailed(true);
+        setRecordsLoading(false);
+        return;
+      }
+      if (!live) return;
+      setCodeCheckFailed(false);
+      const seq = nm.sequence;
       const owner = servedOwner(isSignedIn ? user?.uid : null);
       const log = loadServedLog(owner);
       const scope = resolveCanonicalSlug(topicKey) || topicKey;
@@ -278,7 +295,7 @@ export default function ChapterTestPage() {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, topicKey, sessionSubject]);
+  }, [user?.uid, topicKey, sessionSubject, mintNonce]);
 
   // BANK-SPLIT-1 PR-2 (L4): the draw reads this chapter from the per-chapter cache, so it
   // waits until the chapter chunk has loaded (the "Building your test…" state covers it).
@@ -1179,6 +1196,13 @@ export default function ChapterTestPage() {
                 {!shownFacts && bank.error ? (
                   <div className="lt-ct__empty">
                     We couldn’t load the {topicName} questions. Check your connection and reload the page.
+                  </div>
+                ) : !shownFacts && codeCheckFailed ? (
+                  <div className="lt-ct__empty" role="alert">
+                    {RECORD_CODE_CHECK_FAILED_LINE}{" "}
+                    <button type="button" className="lt-ct__btn" onClick={() => setMintNonce((n) => n + 1)}>
+                      Try again
+                    </button>
                   </div>
                 ) : !shownFacts ? (
                   <div className="lt-ct__empty">Building your test…</div>

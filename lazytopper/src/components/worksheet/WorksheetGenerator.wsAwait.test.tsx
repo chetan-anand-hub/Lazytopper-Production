@@ -134,7 +134,8 @@ describe("WS-AWAIT-1 - the pending save is reliable", () => {
     fs.recordReadFailures = 1;
     const out = await recordWorksheetDownload(USER as never, p, { code: p.code!, name: p.name! }, FAST);
     expect(out).toBe("saved");
-    expect(fs.readCalls).toBe(2);
+    // two for the pending-card check (one failed, one retried) + one from RECORD-SAFE-1's write guard
+    expect(fs.readCalls).toBe(3);
     expect(loadLocalSessionRecords("student-1").find((r) => r.id === p.code)?.status).toBe("pending-upload");
     expect(snapshotWrites()).toHaveLength(1);
   });
@@ -311,7 +312,7 @@ describe("WS-AWAIT-1 - a code collision never skips, never grades into the old r
   const oldPaper = () => ({ ...paper("ws-old-july", "WS-M-MIX-02"), title: "Real Numbers — Custom filters" });
   // one earlier MIX worksheet in the count => the naive mint is WS-M-MIX-02
   const prevMix = [{ worksheetId: "ws-prev", subject: "Maths", createdAt: "2026-10-01", title: "Mix", topicKeys: ["real-numbers", "polynomials"] }];
-  function seedOldGraded() {
+  async function seedOldGraded() {
     const old = oldPaper();
     const rec = buildWorksheetSessionRecord(old, gradedResponse(old) as never, { code: "WS-M-MIX-02" }, "student-1") as SessionRecord;
     fs.docs["sessionRecords/student-1/records/WS-M-MIX-02"] = rec;
@@ -319,12 +320,13 @@ describe("WS-AWAIT-1 - a code collision never skips, never grades into the old r
     // an earlier genuine MIX worksheet in the student's records => the count-based mint is MIX-02
     const prev = { ...mixPaper(), worksheetId: "ws-prev", title: "Mix", createdAt: "2026-10-01", code: "WS-M-MIX-01" };
     writeSessionRecord(USER as never, buildWorksheetSessionRecord(prev, gradedResponse(prev) as never, { code: "WS-M-MIX-01" }, "student-1") as SessionRecord);
+    await new Promise((r) => setTimeout(r, 0)); // RECORD-SAFE-1: the seeding writes read the doc first, so they land a tick later
     fs.writes = [];
     return rec;
   }
 
   it("the naive mint is WS-M-MIX-02 (guards the scenario), the unique mint is the next free code", async () => {
-    seedOldGraded();
+    await seedOldGraded();
     const { worksheetNomenclature } = await import("./worksheetNaming");
     expect(worksheetNomenclature(mixPaper() as never, prevMix).code).toBe("WS-M-MIX-02");
     saveWorksheetSession(mixPaper());
@@ -338,7 +340,7 @@ describe("WS-AWAIT-1 - a code collision never skips, never grades into the old r
   });
 
   it("a pending record is written under the NEW code and the old graded record is untouched", async () => {
-    const oldRec = seedOldGraded();
+    const oldRec = await seedOldGraded();
     saveWorksheetSession(mixPaper());
     const nomen = await mintUniqueWorksheetCode(mixPaper(), USER as never, prevMix);
     expect(await recordWorksheetDownload(USER as never, mixPaper(), nomen, FAST)).toBe("saved");
@@ -353,14 +355,14 @@ describe("WS-AWAIT-1 - a code collision never skips, never grades into the old r
   });
 
   it("backstop: a colliding code handed straight to the save is refused, never 'kept'", async () => {
-    seedOldGraded();
+    await seedOldGraded();
     const out = await recordWorksheetDownload(USER as never, mixPaper(), { code: "WS-M-MIX-02", name: "n" }, FAST);
     expect(out).toBe("collision");
     expect(fs.writes).toHaveLength(0);
   });
 
   it("a paper opened with an already-colliding frozen code is re-coded on the ready screen", async () => {
-    seedOldGraded();
+    await seedOldGraded();
     const stale = { ...mixPaper(), code: "WS-M-MIX-02", name: "Maths Mixed · Worksheet 2" };
     const rec = buildWorksheetSessionRecord(stale, gradedResponse(stale) as never, { code: "WS-M-MIX-02" }, "student-1") as SessionRecord;
     // no record for the new paper exists (that is the owner's state); open it from the device copy
