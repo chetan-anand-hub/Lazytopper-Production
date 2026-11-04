@@ -10,6 +10,9 @@ import {
   sectionScopeLabel,
 } from "../../components/practice/worksheetGenerator";
 import type { WorksheetOptions } from "../../components/practice/worksheetGenerator";
+import PassOwnerOfferLazy from "../../components/passOwnerOffers/PassOwnerOfferLazy";
+import { singleChapterSlug } from "../../components/passOwnerOffers/passOwnerOffersModel";
+import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 
 export default function WorksheetReady() {
   const navigate = useNavigate();
@@ -19,6 +22,8 @@ export default function WorksheetReady() {
   const opts: WorksheetOptions | undefined = (location.state as { opts?: WorksheetOptions })?.opts;
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  // PASS-OWNER-PACKS-1: the worksheet PDF was saved (a Board Pass owner may then see ONE quiet pack line under the download).
+  const [downloaded, setDownloaded] = useState(false);
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED).
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
 
@@ -32,6 +37,7 @@ export default function WorksheetReady() {
     }
     try {
       await downloadWorksheet(opts);
+      setDownloaded(true);
     } catch {
       setDownloadError("Download failed — please try again.");
     } finally {
@@ -149,6 +155,15 @@ export default function WorksheetReady() {
         </button>
         <LimitChip />
         {downloadWall}
+        {downloaded && opts && (
+          <PassOwnerOfferLazy
+            placement="pass_download"
+            hint={{
+              chapterSlug: singleChapterSlug(opts.questions.map((q) => resolveCanonicalSlug(String(q.topicKey ?? "")))),
+              subject: String(opts.subjectKey).toLowerCase() === "science" ? "science" : String(opts.subjectKey).toLowerCase() === "maths" ? "maths" : null,
+            }}
+          />
+        )}
 
         <button
           onClick={() => navigate(`/practice/10/${subject}`)}

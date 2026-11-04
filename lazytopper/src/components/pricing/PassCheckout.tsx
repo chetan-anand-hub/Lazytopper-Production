@@ -52,6 +52,7 @@ export interface PassWhoWiring {
   onSignInWithEmail: () => void;
 }
 import "./passCheckoutRepay.css";
+import PassOwnerOfferLazy from "../passOwnerOffers/PassOwnerOfferLazy";
 import {
   newCheckoutAttemptId,
   trackBeginCheckoutTap,
@@ -91,6 +92,9 @@ export function monthButtonLabel(offerOpen: boolean): string {
 /** A function: the price follows the founding deadline, so the label is read at RENDER time. */
 export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPriceDisplay()} once till your boards`;
 /** PAY-PHONE-1 (C) - the button that stays at the top after the Board Pass checkout was closed without paying. */
+/** PASS-OWNER-PACKS-1: what a Board Pass owner reads where the Pay button would be. */
+export const boardPassActiveUntilCopy = (dateLabel: string): string => `Your Board Pass is active until ${dateLabel}.`;
+
 export const repayBoardPassLabel = (): string => `Pay ${boardPassPriceDisplay()}`;
 
 /**
@@ -163,6 +167,12 @@ export interface PassCheckoutViewProps {
   showMonth?: boolean;
   /** The SERVER-written `passEnd` of a pass that is still running, else null. */
   activePassEnd: string | null;
+  /**
+   * PASS-OWNER-PACKS-1: the server-written plan of that running pass. "pass_till_boards" = a Board Pass owner: the buy area then
+   * says only "Your Board Pass is active until …" (no Pay button, no Board Pass price - there is nothing left to buy). Any other
+   * running plan (a month pass, an admin grant) keeps today's view, so the upgrade to the Board Pass stays one tap away.
+   */
+  activePlan?: string | null;
   onSignIn: () => void;
   onBuy: (passType: PassType) => Promise<BuyOutcome>;
   /** PAY-RECOVER-1 — query the server about an order Razorpay signed as paid. Never throws. */
@@ -203,6 +213,7 @@ export function PassCheckoutView({
   offerOpen,
   showMonth = false,
   activePassEnd,
+  activePlan = null,
   onSignIn,
   onBuy,
   onCheckStatus = checkPayStatus,
@@ -394,6 +405,19 @@ export function PassCheckoutView({
       <div className="lt-pricing-checkout" data-testid="pass-checkout">
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-paid">
           {premiumActiveUntilCopy(paidUntil)}
+        </p>
+        {/* PASS-OWNER-PACKS-1 (owner 3 Nov): once, on the payment-success screen - the CBQ Packs, both subjects. Its own lazy chunk. */}
+        <PassOwnerOfferLazy placement="pass_success" assumePaid />
+      </div>
+    );
+  }
+
+  // PASS-OWNER-PACKS-1: a Board Pass owner is told it is on, and is offered nothing to pay for here.
+  if (activeLabel && activePlan === "pass_till_boards") {
+    return (
+      <div className="lt-pricing-checkout" data-testid="pass-checkout">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-board-pass-active">
+          {boardPassActiveUntilCopy(activeLabel)}
         </p>
       </div>
     );
@@ -588,6 +612,7 @@ function PassCheckoutConnected() {
       offerOpen={foundingRateApplies(Date.now(), status.foundingMember)}
       showMonth={showMonth}
       activePassEnd={activePassEnd}
+      activePlan={activePassEnd ? status.plan : null}
       packCredit={packCredit}
       autoStart={autoStart}
       {...(whoEnabled

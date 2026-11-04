@@ -34,8 +34,28 @@ function memoryFirestore(seed = {}) {
     docs.set(key, { data: { ...base, ...data }, version: (prev ? prev.version : 0) + 1 });
     stats.writes.push(key);
   }
+  // PASS-OWNER-PACKS-1: chainable equality query (`where().where().limit().get()`) over the documents directly under `key`.
+  function query(key, filters = [], max = Infinity) {
+    return {
+      where(field, op, value) {
+        assert.equal(op, '==');
+        return query(key, [...filters, [field, value]], max);
+      },
+      limit: (n) => query(key, filters, n),
+      async get() {
+        await yieldNow();
+        const out = [];
+        for (const [k, e] of docs) {
+          if (!k.startsWith(`${key}/`) || k.slice(key.length + 1).includes('/')) continue;
+          if (filters.every(([f, v]) => e.data[f] === v) && out.length < max) out.push({ id: k.slice(key.length + 1), data: () => ({ ...e.data }) });
+        }
+        return { docs: out, empty: out.length === 0, size: out.length };
+      },
+    };
+  }
   function coll(key) {
     return {
+      where: (field, op, value) => query(key).where(field, op, value),
       doc: (id) => ref(`${key}/${id}`),
       async get() {
         await yieldNow();
@@ -121,7 +141,7 @@ function fakeRazorpay() {
   return { fetchImpl, orders, payments, calls, pay };
 }
 
-async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), licensees = {}, throwLicensee = false } = {}) {
+async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), licensees = {}, throwLicensee = false, nowMs = NOW } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -131,9 +151,9 @@ async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(
       return h.startsWith('Bearer uid:') ? h.slice('Bearer uid:'.length) : '';
     },
   };
-  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now: () => NOW, foundingOfferOpen: true });
+  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now: () => nowMs, foundingOfferOpen: true });
   const packs = createPackRoutes({
-    sendJson, verifiedCaller, adminFirestore: db, telemetry, now: () => NOW, foundingOfferOpen: true,
+    sendJson, verifiedCaller, adminFirestore: db, telemetry, now: () => nowMs, foundingOfferOpen: true,
     getLicensee: async (uid) => { if (throwLicensee) throw new Error('auth down'); return licensees[uid] || { name: '', email: '' }; },
   });
   const server = http.createServer((req, res) => {
@@ -841,4 +861,107 @@ test('OWNER 2 Nov · packs are not part of Premium: a Premium uid (pass till the
   assert.equal(r.status, 200, r.text);
   assert.equal(r.json.amountPaise, 19900);
   assert.equal(db.read(`payOrders/${r.json.orderId}`).uid, 'prem1');
+});
+
+/* ── PASS-OWNER-PACKS-1 · a Board Pass OWNER buys packs: the pack is granted, the subscription is never touched ─────── */
+test('PASS-OWNER · a Board Pass owner buys EVERY pack kind (signed in): granted to them, the subscription doc is byte-for-byte untouched, no credit fields', async (t) => {
+  const AFTER_CUTOFF = Date.parse('2026-11-06T06:30:00.000Z'); // packs never reduce anything after 5 Nov
+  for (const [sku, extra, paise, packId, target] of CASES) {
+    const db = memoryFirestore();
+    const SUB = {
+      tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(Date.parse('2027-02-17T00:00:00Z')),
+      pricePaidInr: 1917, lastPaymentRef: 'pay_pass', foundingMember: true,
+      trialStartDate: new Date(Date.parse('2026-10-20T00:00:00Z')), trialEndDate: null, premiumSince: new Date(Date.parse('2026-10-25T00:00:00Z')),
+    };
+    await db.collection('subscriptions').doc('owner1').set(SUB);
+    const before = { data: db.read('subscriptions/owner1'), version: db.version('subscriptions/owner1') };
+    const srv = await start({ db, nowMs: AFTER_CUTOFF, licensees: { owner1: { name: 'Riya', email: 'riya@example.com' } } });
+    t.after(srv.close);
+    const o = await orderOk(srv, 'owner1', sku, extra);
+    assert.equal(o.amountPaise, paise, `${sku}: the pack price, never reduced for a Board Pass owner`);
+    const stored = db.read(`payOrders/${o.orderId}`);
+    assert.equal(stored.uid, 'owner1');
+    assert.equal(stored.packCreditInr, undefined);
+    const p = srv.rzp.pay(o.orderId);
+    const v = await verify(srv, 'owner1', o.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(v.json.kind, 'pack');
+    assert.equal(v.json.packId, packId);
+    assert.equal('passEnd' in v.json, false);
+    assert.deepEqual(db.read(`packEntitlements/owner1/packs/${packId}`), {
+      packId, sku, target, pricePaidInr: paise / 100, paidAt: AFTER_CUTOFF, orderId: o.orderId, paymentRef: p.id, creditedToPass: false,
+    });
+    // ★ tier, passEnd, trial, price paid - every field and the write version of the subscription are unchanged.
+    assert.deepEqual(db.read('subscriptions/owner1'), before.data, `${sku}: subscription untouched`);
+    assert.equal(db.version('subscriptions/owner1'), before.version, `${sku}: subscription never written`);
+    assert.equal(db.keys('usageCredits/').length, 0);
+    // My packs shows it at once, and no Board Pass credit is reported for it.
+    const mine = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('owner1') });
+    assert.equal(mine.status, 200, mine.text);
+    assert.deepEqual(mine.json.packs.map((x) => x.packId), [packId]);
+    assert.deepEqual(mine.json.boardPassCredit, { creditInr: 0, expiresAtMs: null, payInr: null });
+    // A second Buy of the same pack is refused before any charge.
+    const again = await order(srv, 'owner1', sku, extra);
+    assert.equal(again.status, 409);
+    assert.equal(again.json.error, 'already_owned');
+  }
+});
+
+/* ── PASS-OWNER-PACKS-1 · a Board Pass OWNER buying a pack for SOMEONE ELSE (the "Who will use it?" recipient path) ─── */
+test('PASS-OWNER · a Board Pass owner buying a pack for someone else: the recipient gets it, the payer\'s account is never changed', async (t) => {
+  const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH } = require('./guestPay.cjs');
+  const { sendJson } = createHttpUtils('*');
+  const db = memoryFirestore();
+  const OWNER_SUB = {
+    tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(Date.parse('2027-02-17T00:00:00Z')),
+    pricePaidInr: 1917, lastPaymentRef: 'pay_owner', trialStartDate: new Date(Date.parse('2026-10-20T00:00:00Z')),
+  };
+  await db.collection('subscriptions').doc('uOwner').set(OWNER_SUB);
+  const before = { data: db.read('subscriptions/uOwner'), version: db.version('subscriptions/uOwner') };
+  const rzp = fakeRazorpay();
+  const FRIEND_PHONE = '+917012345678';
+  const identity = (req) => {
+    const h = String(req.headers.authorization || '');
+    return h === 'Bearer owner' ? { uid: 'uOwner', phoneNumber: '', email: 'owner@x.com', emailVerified: true } : { uid: '', phoneNumber: '' };
+  };
+  const guest = createGuestPayRoutes({
+    sendJson,
+    verifiedCaller: { async resolveVerifiedUid(req) { return identity(req).uid; }, async resolveVerifiedIdentity(req) { return identity(req); } },
+    adminFirestore: db, telemetry: { increment: () => undefined },
+    env: { ...ENV_ON, CHECKOUT_WHO_ENABLED: '1' }, fetchImpl: rzp.fetchImpl, now: () => NOW, foundingOfferOpen: true,
+    uidForPhone: async (p) => (p === FRIEND_PHONE ? 'uFriend' : null), uidForEmail: async () => null,
+  });
+  const pending = new Set();
+  const server = http.createServer((req, res) => {
+    const p = String(req.url).split('?')[0];
+    const h = p === GUEST_ORDER_PATH ? guest.handleOrder : p === GUEST_VERIFY_PATH ? guest.handleVerify : null;
+    if (!h) return sendJson(res, 404, { error: 'Not Found' });
+    const run = Promise.resolve(h(req, res)).catch((e) => sendJson(res, 500, { error: e.message }));
+    pending.add(run);
+    run.finally(() => pending.delete(run));
+    return run;
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  t.after(() => new Promise((r) => server.close(r)));
+  const port = server.address().port;
+
+  const o = await post(port, GUEST_ORDER_PATH, {
+    body: { sku: 'pack_cbq', target: 'maths', recipient: { phone: FRIEND_PHONE } },
+    headers: { Authorization: 'Bearer owner', 'X-Forwarded-For': '198.51.100.7' },
+  });
+  assert.equal(o.status, 200, o.text);
+  assert.equal(o.json.amountPaise, 19900, 'the pack price, never reduced for a Board Pass owner');
+  const pay = rzp.pay(o.json.orderId);
+  const v = await post(port, GUEST_VERIFY_PATH, { body: { orderId: o.json.orderId, paymentId: pay.id, signature: checkoutSig(o.json.orderId, pay.id) } });
+  assert.equal(v.status, 200, v.text);
+  while (pending.size) await Promise.all([...pending]);
+
+  const stored = db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.payerUid, 'uOwner');
+  assert.equal(stored.uid, 'uFriend', 'the recipient owns the purchase');
+  assert.ok(db.read('packEntitlements/uFriend/packs/pack_cbq:maths'), 'granted to the recipient');
+  assert.equal(db.keys('packEntitlements/uOwner').length, 0, 'the payer is granted nothing');
+  assert.deepEqual(db.read('subscriptions/uOwner'), before.data, "the payer's Board Pass is untouched");
+  assert.equal(db.version('subscriptions/uOwner'), before.version, "the payer's subscription is never written");
+  assert.equal(db.read('subscriptions/uFriend'), undefined, 'a pack never writes a pass for the recipient either');
 });

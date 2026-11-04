@@ -68,6 +68,7 @@ import {
   recordPaperDownload,
 } from "../components/papers/paperDownloadRecord";
 import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
+import PassOwnerOfferLazy from "../components/passOwnerOffers/PassOwnerOfferLazy";
 import SectionAPicker from "../components/papers/SectionAPicker";
 import {
   FM_DURATION_MS,
@@ -1473,6 +1474,10 @@ export default function FullMockPage() {
                         surface="full_mock"
                       />
                     )}
+                    {/* PASS-OWNER-PACKS-1: a Board Pass owner who just downloaded this paper - ONE quiet line, this subject's Mock Pack. */}
+                    {downloadedNote && isSignedIn && (
+                      <PassOwnerOfferLazy placement="pass_download" hint={{ subject: sessionSubject }} />
+                    )}
 
                     {/* CBSE-PAGE-1 — a real <Link>, deliberately OUTSIDE
                         .lt-ct__startrow (that rule gives buttons inside it flex:1,
@@ -1848,6 +1853,8 @@ export default function FullMockPage() {
                   </span>
                 </div>
               </div>
+              {/* PASS-OWNER-PACKS-1: a fully graded mock - ONE card under the result, this subject's Mock Pack (Board Pass owners only). */}
+              <PassOwnerOfferLazy placement="pass_mock" hint={{ subject: sessionSubject }} />
             </div>
           )}
 
