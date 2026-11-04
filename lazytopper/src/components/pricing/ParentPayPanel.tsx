@@ -35,16 +35,16 @@ import { trackPackCheckout, trackPackPurchase, type PackCheckoutDetails } from "
 import { packChapterLabel } from "../../lib/packs/packLabels";
 import {
   buyPassAsParent,
-  viewParentLink,
   ParentLinkError,
-  type ParentBuyItem,
-  type ParentPackRef,
   type ParentBuyOutcome,
   type ParentLinkReason,
   type ParentLinkView,
   type ParentPayLang,
 } from "../../services/parentPay";
-import { parentPackName } from "../../services/parentPayPack";
+import { buyPackAsParent, parentPackName, viewParentLinkWithPack, type ParentPackRef } from "../../services/parentPayPack";
+
+/** PARENT-PACKS-1 - what a parent buys from a link: a pass type (Board Pass link) or the link's own pack. */
+type ParentBuyItem = PassType | "pack";
 import "./parentShare.css";
 
 type Reason = ParentLinkReason;
@@ -414,8 +414,8 @@ export default function ParentPayPanel({ token }: { token: string }) {
   return (
     <ParentPayPanelView
       token={token}
-      view={viewParentLink}
-      buy={(t, item, packName) => buyPassAsParent(t, item, undefined, packName)}
+      view={viewParentLinkWithPack}
+      buy={(t, item, packName) => (item === "pack" ? buyPackAsParent(t, packName || "") : buyPassAsParent(t, item))}
       scrubAddress={scrubParentToken}
     />
   );

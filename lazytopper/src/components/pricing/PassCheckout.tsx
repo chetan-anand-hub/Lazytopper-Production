@@ -73,7 +73,6 @@ import {
   PAYMENT_FAILED_COPY,
   ORDER_EXPIRED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
-  premiumAlreadyActiveCopy,
   type BuyOutcome,
   type PassType,
   type PayStatusResult,
@@ -94,6 +93,20 @@ export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPriceDisplay(
 /** PAY-PHONE-1 (C) - the button that stays at the top after the Board Pass checkout was closed without paying. */
 /** PASS-OWNER-PACKS-1: what a Board Pass owner reads where the Pay button would be. */
 export const boardPassActiveUntilCopy = (dateLabel: string): string => `Your Board Pass is active until ${dateLabel}.`;
+
+/**
+ * PARENT-PACKS-1 (owner live check, 4 Nov 2026) - a RUNNING pass that is not the Board Pass. Never "Premium" in visible copy.
+ * A month pass: "Your month pass is active until …", then the Board Pass upsell with ONE primary Pay; "Renew month pass" only in
+ * the last RENEW_WINDOW_DAYS before it ends (owner ruling: existing monthly buyers keep monthly renewals). Any other running plan
+ * (an admin grant with an end date): "Full access is active until …".
+ */
+export const RENEW_WINDOW_DAYS = 7;
+export const monthPassActiveUntilCopy = (dateLabel: string): string => `Your month pass is active until ${dateLabel}.`;
+export const fullAccessActiveUntilCopy = (dateLabel: string): string => `Full access is active until ${dateLabel}.`;
+export const boardPassUpsellCopy = (): string => `Stay covered till your boards: Board Pass ${boardPassPriceDisplay()} once`;
+export const renewMonthLabel = (offerOpen: boolean): string =>
+  `Renew month pass · ${offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY}`;
+const MONTH_PLANS: readonly string[] = ["pass_month", "premium_monthly"];
 
 /**
  * PARENT-PACKS-1 (owner, 4 Nov 2026) - the success line after a verified payment names WHAT was bought, never "Premium":
@@ -432,6 +445,13 @@ export function PassCheckoutView({
     );
   }
 
+  // PARENT-PACKS-1: a running month pass (or another running plan) - what it is, until when; the month button only to RENEW,
+  // and only in its last RENEW_WINDOW_DAYS.
+  const runningMonth = Boolean(activeLabel) && MONTH_PLANS.includes(activePlan || "");
+  const endMs = activePassEnd ? Date.parse(activePassEnd) : NaN;
+  const inRenewWindow = runningMonth && Number.isFinite(endMs) && endMs - Date.now() <= RENEW_WINDOW_DAYS * 86_400_000;
+  const monthButton = showMonth && (!activeLabel || inRenewWindow);
+
   // PACK-CREDIT-1: signed in, no running Premium, nothing else in the notice slot (they share one grid row).
   const creditLine =
     signedIn && !activeLabel && packCredit && !failed && !expired && !recovery ? packCreditLine(packCredit) : null;
@@ -440,7 +460,12 @@ export function PassCheckoutView({
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
       {activeLabel && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" data-testid="pass-checkout-already-active">
-          {premiumAlreadyActiveCopy(activeLabel)}
+          {runningMonth ? monthPassActiveUntilCopy(activeLabel) : fullAccessActiveUntilCopy(activeLabel)}
+        </p>
+      )}
+      {activeLabel && (
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" data-testid="pass-checkout-upsell">
+          {boardPassUpsellCopy()}
         </p>
       )}
       {rescue === "till_boards" && !recovery && !activeLabel && (
@@ -459,7 +484,7 @@ export function PassCheckoutView({
           </button>
         </div>
       )}
-      {showMonth && (
+      {monthButton && !activeLabel && (
         <button
           type="button"
           className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
@@ -477,6 +502,17 @@ export function PassCheckoutView({
       >
         {tillBoardsButtonLabel()}
       </button>
+      {monthButton && Boolean(activeLabel) && (
+        <button
+          type="button"
+          className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
+          disabled={busy !== null || recovery !== null}
+          onClick={() => void handleBuy("month")}
+          data-testid="pass-checkout-renew-month"
+        >
+          {renewMonthLabel(offerOpen)}
+        </button>
+      )}
       {creditLine && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-pack-credit">
           {creditLine}

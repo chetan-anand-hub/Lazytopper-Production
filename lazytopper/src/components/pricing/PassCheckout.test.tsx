@@ -296,13 +296,12 @@ describe("Z6 · after the purchase", () => {
 });
 
 describe("Z10 · buying over an active pass", () => {
-  it("announces the running pass first, and still offers both passes", () => {
+  it("announces the running pass first (never 'Premium'), and offers the Board Pass; a month buy only to renew, in the last 7 days", () => {
     view({ activePassEnd: "2026-10-27T06:30:00.000Z" });
-    expect(screen.getByTestId("pass-checkout-already-active").textContent).toBe(
-      "Premium is already active until 27 October 2026.",
-    );
-    expect(screen.getByRole("button", { name: monthButtonLabel(true) })).toBeTruthy();
+    expect(screen.getByTestId("pass-checkout-already-active").textContent).toBe("Full access is active until 27 October 2026.");
+    expect(screen.queryByRole("button", { name: monthButtonLabel(true) })).toBeNull();
     expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/premium/i);
   });
 
   it("the connected component reads the notice ONLY from a hydrated, unexpired, server-written passEnd", () => {

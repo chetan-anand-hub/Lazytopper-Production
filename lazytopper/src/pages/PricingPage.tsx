@@ -456,7 +456,8 @@ function PricingPlansPage() {
       true,
     );
   } else if (subscription.status.tier === "premium") {
-    premiumTrialAction = trialState(`Your ${BOARD_PASS_NAME} is active.`, false);
+    // PARENT-PACKS-1 (owner live check): nothing here for ANY paid plan - the pass card's own line says which pass, until when.
+    premiumTrialAction = null;
   } else if (subscription.isTrialActive) {
     const n = subscription.daysLeftInTrial;
     premiumTrialAction = trialState(`Your trial is active — ${n} ${n === 1 ? "day" : "days"} left.`, true);
@@ -497,6 +498,16 @@ function PricingPlansPage() {
     subscription.status.plan === "pass_till_boards" &&
     Number.isFinite(passEndMs) &&
     passEndMs > nowMs;
+  // A running pass hides the month price block: a Board Pass owner, or a month pass outside its last 7 days (its renewal
+  // button carries the price inside that window).
+  const runningPassHidesMonth =
+    boardPassOwner ||
+    (Boolean(user) &&
+      subscription.hydrated &&
+      subscription.status.tier === "premium" &&
+      Number.isFinite(passEndMs) &&
+      passEndMs > nowMs &&
+      passEndMs - nowMs > 7 * 86_400_000);
 
   /** The sticky bar's "Pay": the hero Pay button itself (PassCheckout + its tap event), else a scroll to the card. */
   const payFromSticky = () => {
@@ -561,7 +572,7 @@ function PricingPlansPage() {
 
               {/* PAYWALL-PAY-1 — a tap on Pay is the "pay" paywall action (capture phase; PassCheckout is untouched). */}
               <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
-                {monthBuyer && (
+                {monthBuyer && !runningPassHidesMonth && (
                   <div className="lt-pricing-month">
                     <span className="lt-pricing-month__name">Month pass</span>
                     <PremiumPriceHead offerOpen={foundingRate} />

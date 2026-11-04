@@ -378,6 +378,8 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     "components/feedback/feedbackPromptModel.ts",
     "pages/PricingPage.tsx",
     "services/parentPay.ts",
+    "services/parentPayMessage.ts",
+    "services/parentPayPack.ts",
     "config/pricing.ts",
     "config/pricingCompare.ts",
     // PARENT-PACKS-1: the pack Buy surfaces that now carry the parent actions.

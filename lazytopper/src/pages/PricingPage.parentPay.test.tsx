@@ -28,6 +28,13 @@ vi.mock("../services/subscriptionService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../services/subscriptionService")>();
   return { ...actual, hydrateSubscriptionFromCloud: vi.fn() };
 });
+vi.mock("../services/parentPayPack", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../services/parentPayPack")>();
+  return {
+    ...actual,
+    viewParentLinkWithPack: vi.fn(async () => ({ firstName: "Aarav", prices: { month: 599, till_boards: 2396 }, expiresAt: "2026-10-21T10:00:00.000Z" })),
+  };
+});
 vi.mock("../services/parentPay", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../services/parentPay")>();
   return {
@@ -118,7 +125,8 @@ describe("PricingPage — Pay by QR code / Ask a parent to pay (PAYWALL-PAY-1)",
     authState.user = { uid: UID };
     cloudHolds(PREMIUM);
     await renderAt("/pricing");
-    await screen.findByText("Your Board Pass is active.");
+    await screen.findByTestId("pricing-board-pass");
+    await act(async () => {});
     expect(screen.queryByTestId("pricing-parent-share")).toBeNull();
   });
 

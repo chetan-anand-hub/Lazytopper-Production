@@ -12,7 +12,8 @@ import { lazy, Suspense, type ComponentType, type ReactNode } from "react";
 import { importWithRetry } from "../../lib/lazyWithRetry";
 import { trackPaywallAction, type PaywallSurface } from "../../analytics/analytics";
 import { isPaymentsClientEnabled } from "../../services/checkout";
-import { isParentPayClientEnabled, type ParentPayPackProduct } from "../../services/parentPay";
+import { isParentPayClientEnabled } from "../../services/parentPay";
+import type { ParentPayPackProduct } from "../../services/parentPayPack";
 
 export const PAY_LABEL = "Pay";
 export const QR_LABEL = "Pay by QR code";

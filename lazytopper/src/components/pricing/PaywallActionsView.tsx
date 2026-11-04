@@ -40,18 +40,15 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { trackPaywallAction, type PaywallSurface } from "../../analytics/analytics";
 import {
-  buildAskParentMessage,
   daysLeft,
   mintParentLink,
   parentPayUrl,
-  parentProofFrom,
   type MintedParentLink,
-  type ParentPayPackProduct,
-  type ParentProof,
   type ParentPayLang,
 } from "../../services/parentPay";
 import { generateQRDataUrl } from "../../services/referralService";
-import { buildAskParentPackMessage } from "../../services/parentPayPack";
+import { buildAskParentMessage, parentProofFrom, type ParentProof } from "../../services/parentPayMessage";
+import { buildAskParentPackMessage, mintParentPackLink, type ParentPayPackProduct } from "../../services/parentPayPack";
 import { downloadBlob, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "../results/share/shareScore";
 import { whatsAppShareUrl } from "../results/share/shareCardModel";
 import { ASK_PARENT_LABEL, PAY_LABEL, QR_LABEL, type PaywallActionsLiveProps } from "./PaywallActions";
@@ -457,7 +454,7 @@ export default function PaywallActionsLive({ surface, onPay, payTo, showParent, 
     // PARENT-PACKS-1: a pack link fixes the pack at mint time (the server validates it and prices it).
     mint: () =>
       product
-        ? mintPackLinkOnce(uid, product, () => mintParentLink({ sku: product.sku, ...(product.target ? { target: product.target } : {}) }), Date.now())
+        ? mintPackLinkOnce(uid, product, () => mintParentPackLink({ sku: product.sku, ...(product.target ? { target: product.target } : {}) }), Date.now())
         : mintParentLink(),
     loadCheckedCount: () => facts().then((f) => f.checked),
     loadProof: () => facts().then((f) => f.proof),

@@ -17,6 +17,8 @@ vi.hoisted(() => {
 const authState: { user: { uid: string } | null } = { user: null };
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: authState.user, loading: false }) }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
+const monthBuyer = vi.hoisted(() => ({ on: false }));
+vi.mock("../components/pricing/useMonthPassAvailable", () => ({ useMonthPassAvailable: () => monthBuyer.on }));
 vi.mock("../services/subscriptionService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../services/subscriptionService")>();
   return { ...actual, hydrateSubscriptionFromCloud: vi.fn() };
@@ -70,6 +72,7 @@ beforeEach(() => {
   localStorage.clear();
   authState.user = null;
   hydrate.mockReset();
+  monthBuyer.on = false;
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
 });
 afterEach(() => {
@@ -152,5 +155,82 @@ describe("PARENT-PACKS-1 (owner screenshot 4 Nov) · no empty-looking controls, 
     const line = packCreditLine({ creditInr: 49, payInr: 1868, expiresAtMs: Date.parse("2026-11-10T15:50:00Z") });
     expect(line).toContain("₹49 off — Board Pass ₹1,868 for you");
     expect(line).not.toMatch(/₹\d{4}/);
+  });
+});
+
+describe("PARENT-PACKS-1 (owner live check, month-pass account) · one truthful view per account state", () => {
+  const TRIAL = status({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - DAY).toISOString() });
+  const TRIAL_ENDED = status({ tier: "free", plan: "none", trialStartDate: new Date(Date.now() - 20 * DAY).toISOString() });
+  const MONTH_LATE = status({ tier: "premium", plan: "pass_month", premiumSince: new Date(Date.now() - 25 * DAY).toISOString(), passEnd: new Date(Date.now() + 5 * DAY).toISOString() });
+  const ADMIN = status({ tier: "premium", plan: "premium_yearly", premiumSince: new Date(Date.now() - DAY).toISOString(), passEnd: new Date(Date.now() + 60 * DAY).toISOString() });
+  const BP_PAY = /^Pay ₹[\d,]+ once till your boards$/;
+  const card = () => screen.getByTestId("pricing-board-pass");
+  const buttons = () => within(card()).queryAllByRole("button").map((b) => b.textContent);
+
+  async function at(sub: SubscriptionStatus | null, month = false) {
+    authState.user = sub ? { uid: UID } : null;
+    if (sub) holds(sub);
+    monthBuyer.on = month;
+    await renderPricing();
+    await screen.findByTestId("pass-checkout");
+    await act(async () => {});
+  }
+
+  it("signed out: the Board Pass Pay, the trial link; no 'active' claim", async () => {
+    await at(null);
+    expect(buttons().some((t) => BP_PAY.test(t || ""))).toBe(true);
+    expect(card().textContent).not.toMatch(/is active|premium/i);
+  });
+
+  it("trial: the trial line, the Board Pass Pay, never a pass claim", async () => {
+    await at(TRIAL);
+    expect(card().textContent).toMatch(/Your trial is active — \d+ days? left\./);
+    expect(card().textContent).not.toMatch(/pass is active|premium/i);
+  });
+
+  it("trial ended: 'You've used your free trial.' and the Board Pass Pay", async () => {
+    await at(TRIAL_ENDED);
+    expect(card().textContent).toContain("You've used your free trial.");
+    expect(buttons().some((t) => BP_PAY.test(t || ""))).toBe(true);
+  });
+
+  it("month pass, more than 7 days left: ONE line, the upsell, ONE Pay (Board Pass); no renew, no month price, no trial line", async () => {
+    await at(MONTH, true);
+    expect(screen.getByTestId("pass-checkout-already-active").textContent).toMatch(/^Your month pass is active until \d{1,2} [A-Z][a-z]+ \d{4}\.$/);
+    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered till your boards: Board Pass ₹[\d,]+ once$/);
+    expect(buttons().filter((t) => /^Pay |^Renew/.test(t || ""))).toHaveLength(1);
+    expect(buttons().some((t) => BP_PAY.test(t || ""))).toBe(true);
+    expect(screen.queryByTestId("pass-checkout-renew-month")).toBeNull();
+    expect(screen.queryByTestId("pricing-monthly-price")).toBeNull();
+    expect(screen.queryByTestId("pricing-trial-state")).toBeNull();
+    expect(card().textContent).not.toMatch(/premium|Board Pass is active/i);
+    expect(priceRow()[0]).toMatch(/^₹[\d,]+$/);
+  });
+
+  it("month pass, 7 days or fewer left: the Board Pass Pay first, then 'Renew month pass · ₹…' as the secondary button", async () => {
+    await at(MONTH_LATE, true);
+    const renew = screen.getByTestId("pass-checkout-renew-month");
+    expect(renew.textContent).toMatch(/^Renew month pass · ₹[\d,]+$/);
+    expect(renew.className).toContain("lt-pricing-pay--month");
+    const pays = buttons().filter((t) => /^Pay |^Renew/.test(t || ""));
+    expect(pays).toHaveLength(2);
+    expect(BP_PAY.test(pays[0] || "")).toBe(true);
+    expect(card().textContent).not.toMatch(/premium/i);
+  });
+
+  it("Board Pass (till boards): 'Your Board Pass is active until …', no Pay, no trial line, table 'You have it'", async () => {
+    await at(BOARD_PASS, true);
+    expect(screen.getByTestId("pass-checkout-board-pass-active").textContent).toContain("Your Board Pass is active until");
+    expect(buttons().filter((t) => /^Pay |^Renew/.test(t || ""))).toHaveLength(0);
+    expect(screen.queryByTestId("pricing-monthly-price")).toBeNull();
+    expect(screen.queryByTestId("pricing-trial-state")).toBeNull();
+    expect(priceRow()[0]).toBe("You have it");
+  });
+
+  it("admin grant (another running plan): 'Full access is active until …', the Board Pass Pay; never 'Premium'", async () => {
+    await at(ADMIN);
+    expect(screen.getByTestId("pass-checkout-already-active").textContent).toMatch(/^Full access is active until /);
+    expect(screen.queryByTestId("pricing-trial-state")).toBeNull();
+    expect(card().textContent).not.toMatch(/premium/i);
   });
 });
