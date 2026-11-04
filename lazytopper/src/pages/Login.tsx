@@ -76,6 +76,8 @@ export function guestPayDigitsFrom(state: unknown): string {
 const EmailLinkFinish = lazy(() => import("../components/checkoutWho/EmailLinkFinish"));
 /** EMAIL-CODE-1 - "Sign in with email code" (lazy and self-gating on VITE_EMAIL_CODE_SIGNIN_ENABLED: renders nothing while off). */
 const EmailCodeDoor = lazy(() => import("../components/auth/EmailCodeDoor"));
+/** CODE-WHERE-1 - "We've sent a code by SMS to +91 98•••••210. Wrong number? Change it" (lazy: kept out of the entry chunk). */
+const CodeSentTo = lazy(() => import("../components/auth/CodeSentTo"));
 
 /**
  * PAY-ACCOUNT-1 - this visit is the return from a passwordless sign-in link (`?finish=link` + Firebase's one-time code),
@@ -1616,6 +1618,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [phone, setPhone] = useState(guestPayDigits);
   const [phoneStep, setPhoneStep] = useState<"number" | "otp">("number");
   const [otp, setOtp] = useState("");
+  /** CODE-WHERE-1: "Wrong number? Change it" returns to the number box (kept) and focuses it. */
+  const phoneInputRef = useRef<HTMLInputElement | null>(null);
+  const focusPhoneNext = useRef(false);
   // GOOGLE-REDIRECT-1 — back from Google: the buttons wait (disabled) for the redirect result.
   const [busy, setBusy] = useState(() => returnIntent !== null);
   // SIGNIN-FLASH-1 — back from Google: the calm "Signing you in…" screen stands in for the door
@@ -2262,8 +2267,15 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     if (busy) return;
     setError(null);
     setOtp("");
+    focusPhoneNext.current = true;
     setPhoneStep("number");
   };
+
+  useEffect(() => {
+    if (phoneStep !== "number" || !focusPhoneNext.current) return;
+    focusPhoneNext.current = false;
+    phoneInputRef.current?.focus();
+  }, [phoneStep]);
 
   // Warm the invisible reCAPTCHA when the phone step opens so the first "Send
   // OTP" doesn't pay the Google script-load latency. Warming is what makes the
@@ -2889,6 +2901,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                       <div className="lt-field">
                         <span className="lt-prefix">+91</span>
                         <input
+                          ref={phoneInputRef}
                           id="lt-login-phone"
                           type="tel"
                           inputMode="numeric"
@@ -2930,17 +2943,16 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                           onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                         />
                       </div>
-                      <p className="lt-login-note">
-                        Code sent to +91 {phone}.{" "}
-                        <button
-                          type="button"
-                          className="lt-login-linkbtn"
-                          onClick={handleChangeNumber}
-                          disabled={busy}
-                        >
-                          Change number
-                        </button>
-                      </p>
+                      <div className="lt-login-note">
+                        <Suspense fallback={<span role="status">We've sent a code by SMS.</span>}>
+                          <CodeSentTo
+                            kind="phone"
+                            to={`+91${phone}`}
+                            onChange={handleChangeNumber}
+                            changeDisabled={busy}
+                          />
+                        </Suspense>
+                      </div>
                       {error ? (
                         <p className="lt-login-error" role="alert">
                           {error}

@@ -107,7 +107,12 @@ describe("the thank-you screen (flag on)", () => {
     render(<AccountReadyPanel item={CBQ} recipient={{ email: "anaya.k@gmail.com", first: "email" }} payerSignedIn={false} onClose={vi.fn()} sendEmailLink={sendEmailLink} />);
     expect(screen.getByTestId("who-open-me").textContent).toBe("Send me the sign-in link");
     fireEvent.click(screen.getByTestId("who-open-me"));
-    expect((await screen.findByTestId("who-link-sent")).textContent).toBe("Check your inbox and tap the link to open LazyTopper.");
+    // CODE-WHERE-1: names where the link went (masked), with no "Change it" (the payment is recorded against it).
+    expect((await screen.findByTestId("who-link-sent")).textContent).toBe(
+      "We've sent a link to an••••@gmail.com — check your inbox (and Promotions/Spam).Tap the link in it to open LazyTopper.",
+    );
+    expect(screen.queryByTestId("code-sent-change")).toBeNull();
+    expect(document.body.textContent).not.toContain("anaya.k@gmail.com");
     expect(sendEmailLink).toHaveBeenCalledWith("anaya.k@gmail.com", "/packs#my-packs");
     expect(auth.sendPhoneOtp).not.toHaveBeenCalled();
   });

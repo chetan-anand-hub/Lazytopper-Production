@@ -15,6 +15,7 @@
  */
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { ALSO_SIGNIN_EVENT, type AlsoSignIn } from "./checkoutWhoFlag";
+import { maskIndianMobile, normaliseIndianMobile } from "../lib/maskContact";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -83,30 +84,9 @@ export function isGuestPayClientEnabled(): boolean {
   return on(readFlag("payments")) && on(readFlag("guest"));
 }
 
-/** Mirror of server/services/guestPay.cjs normaliseIndianMobile: an Indian mobile as `+91XXXXXXXXXX`, or null. */
-export function normaliseIndianMobile(raw: string | null | undefined): string | null {
-  if (typeof raw !== "string") return null;
-  const trimmed = raw.trim();
-  if (!trimmed || trimmed.length > 20 || /[^0-9+\s-]/.test(trimmed)) return null;
-  let digits = trimmed.replace(/[\s-]/g, "");
-  if (digits.startsWith("+")) {
-    if (!digits.startsWith("+91")) return null;
-    digits = digits.slice(3);
-  } else if (digits.length === 12 && digits.startsWith("91")) {
-    digits = digits.slice(2);
-  } else if (digits.length === 11 && digits.startsWith("0")) {
-    digits = digits.slice(1);
-  }
-  return /^[6-9][0-9]{9}$/.test(digits) ? `+91${digits}` : null;
-}
-
-/** `+91 98•••••948`. Anything that is not an Indian mobile -> "". */
-export function maskIndianMobile(raw: string | null | undefined): string {
-  const n = normaliseIndianMobile(raw);
-  if (!n) return "";
-  const d = n.slice(3);
-  return `+91 ${d.slice(0, 2)}•••••${d.slice(7)}`;
-}
+/* CODE-WHERE-1: normaliseIndianMobile + maskIndianMobile moved to lib/maskContact (import-free, so the sign-in screens can
+ * show where a code went without pulling this module); re-exported here so every existing import keeps working. */
+export { maskIndianMobile, normaliseIndianMobile };
 
 /** The 10 digits the sign-in page's +91 field takes, or "". */
 export function tenDigits(raw: string | null | undefined): string {

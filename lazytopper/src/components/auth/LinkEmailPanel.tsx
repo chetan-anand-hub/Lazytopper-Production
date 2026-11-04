@@ -6,9 +6,10 @@
  * BEFORE anything is linked (services/linkSignInEmail): Google (Google proves the address) or an email link opened from
  * that inbox. The typed address is held in memory only — never stored, never in a URL we build.
  */
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { alsoSignInLine } from "../../services/checkoutWhoFlag";
 import "./linkEmailPanel.css";
+import CodeSentTo from "./CodeSentTo";
 
 type Step = "choose" | "email" | "sent" | "finish" | "done";
 
@@ -17,6 +18,14 @@ export default function LinkEmailPanel({ alsoMasked, returning = false }: { also
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** CODE-WHERE-1: "Wrong email? Change it" -> back to the email box (kept), focused. */
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const focusEmailNext = useRef(false);
+  useEffect(() => {
+    if (step !== "email" || !focusEmailNext.current) return;
+    focusEmailNext.current = false;
+    emailRef.current?.focus();
+  }, [step]);
 
   async function run(work: (m: typeof import("../../services/linkSignInEmail")) => Promise<void>, next: Step) {
     if (busy) return;
@@ -70,6 +79,7 @@ export default function LinkEmailPanel({ alsoMasked, returning = false }: { also
             {step === "finish" ? "Confirm the email you opened the link from" : "Your email address"}
           </label>
           <input
+            ref={emailRef}
             id="lt-lep-email"
             className="lt-lep__input"
             type="email"
@@ -88,9 +98,19 @@ export default function LinkEmailPanel({ alsoMasked, returning = false }: { also
         </form>
       )}
       {step === "sent" && (
-        <p className="lt-lep__lede" role="status" data-testid="link-email-sent">
-          Link sent. Open it from that inbox on this device to finish. Nothing is added until you do.
-        </p>
+        <div data-testid="link-email-sent">
+          <CodeSentTo
+            kind="email"
+            what="link"
+            to={email}
+            onChange={() => {
+              setError(null);
+              focusEmailNext.current = true;
+              setStep("email");
+            }}
+          />
+          <p className="lt-lep__lede">Open it from that inbox on this device to finish. Nothing is added until you do.</p>
+        </div>
       )}
       {step === "done" && (
         <p className="lt-lep__done" role="status" data-testid="link-email-done">
