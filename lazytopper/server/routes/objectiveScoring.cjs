@@ -205,10 +205,9 @@ const NEGATED_MENTION = /\b(?:is|was|are)\s+(?:wrong|incorrect|not)\b|\bnot\b|\b
 //     one distinguishing word, e.g. the "not" of an Assertion-Reason option, in ~13), else the line
 //     is not read at all — a text equally close to two options is never guessed;
 //   • Assertion-Reason: "(A)"/"(R)" labels are dropped and "Assertion"/"Reason" read as "A"/"R".
-// The matched option decides: the letter's OWN option → that letter; ANOTHER option → a
-// CONTRADICTION (letter X, sentence of Y): no pick, the model's verdict decides, and the clamp
-// verdict carries `pickContradiction: true` for admin. The letter+text form stays a FALLBACK
-// exactly like (2b): an ordinary declaration anywhere outranks it.
+// The matched option decides: the letter's OWN option → that letter, read ONLY where trunk reads no
+// declaration at all (see nearCopyScan); ANOTHER option → a CONTRADICTION (letter X, sentence of Y),
+// which changes nothing trunk reads and only adds `pickContradiction: true` for admin.
 const SENTENCE_MIN_TOKENS = 3;
 const MATCH_COVERAGE = 0.8;
 const MATCH_PRECISION = 0.6;
@@ -233,8 +232,17 @@ function editDistanceWithin(a, b, max) {
 // Assertion-Reason: "Assertion (A)" / "Reason (R)" are written by students as "A" / "R", so the
 // bracketed capital labels are dropped and the two words read as their letters.
 const AR_ALIAS = { assertion: 'a', reason: 'r' };
+// "doesn't" / "doesnt" / "cannot" / "won't" … read as "does not" / "can not" / "will not", with or
+// without the apostrophe, so a student's contraction matches the option's "does not".
+function expandContractions(s) {
+  return String(s == null ? '' : s).replace(/[\u2018\u2019`]/g, "'")
+    .replace(/\bwon'?t\b/gi, 'will not')
+    .replace(/\b(?:dosen'?t|dosent|dosnt|doesnot)\b/gi, 'does not')
+    .replace(/\bcan'?t\b|\bcannot\b/gi, 'can not')
+    .replace(/\b(does|do|did|is|are|was|were|has|have|had|could|should|would)(?:n'?t|'nt)\b/gi, '$1 not');
+}
 function matchTokens(s, N) {
-  const raw = String(s == null ? '' : s).replace(/\(\s*[AR]\s*\)/g, ' ');
+  const raw = expandContractions(s).replace(/\(\s*[AR]\s*\)/g, ' ');
   return N(raw).replace(/(\d)([a-zA-Z])/g, '$1 $2').replace(/([a-zA-Z])(\d)/g, '$1 $2')
     .split(' ').filter((t) => t && t.toLowerCase() !== 'the')
     .map((t) => AR_ALIAS[t.toLowerCase()] || t);
@@ -290,10 +298,10 @@ const NAMES_A_LETTER = /\(\s*[a-h]\s*\)|(?:\bor\b|\/|&|\bso\b|\bhence\b|\bthus\b
 function namesALetter(text) {
   return NAMES_A_LETTER.test(String(text == null ? '' : text).replace(/\(\s*[AR]\s*\)/g, ' '));
 }
-const NEGATION_WORDS = /\b(?:not|no|wrong|incorrect|cannot|cant|never|false|eliminat\w*|reject\w*|ruled?)\b|[✗✘×]/g;
+const NEGATION_WORDS = /\b(?:not|no|never|wrong|incorrect|false|eliminat\w*|reject\w*|ruled?)\b|[\u2717\u2718\u00d7]/g;
 function negationCounts(s) {
   const out = {};
-  for (const m of String(s == null ? '' : s).toLowerCase().replace(/'/g, '').match(NEGATION_WORDS) || []) {
+  for (const m of expandContractions(s).toLowerCase().match(NEGATION_WORDS) || []) {
     const k = m.startsWith('eliminat') ? 'eliminat' : m.startsWith('reject') ? 'reject' : m.startsWith('rule') ? 'rule' : m;
     out[k] = (out[k] || 0) + 1;
   }
@@ -305,6 +313,10 @@ function negatesBeyond(text, option) {
   const o = negationCounts(option);
   return Object.keys(t).some((k) => t[k] > (o[k] || 0));
 }
+/** Third review (MED) · a near copy must carry EXACTLY the option's negations — no more, no fewer. */
+function negationsAgree(text, option) {
+  return !negatesBeyond(text, option) && !negatesBeyond(option, text);
+}
 
 /** A letter + text read against the options: { pick } | { contradiction } | null. */
 function letterWithText(letter, text, opts, o) {
@@ -315,7 +327,7 @@ function letterWithText(letter, text, opts, o) {
   if (namesALetter(text)) return null;
   const y = optionMatchingText(text, opts, o);
   if (y < 0) return null;
-  if (negatesBeyond(text, opts[y])) return null;
+  if (!negationsAgree(text, opts[y])) return null;
   return y === x ? { pick: letter.toLowerCase() } : { contradiction: true, pick: '' };
 }
 
@@ -352,9 +364,6 @@ function declarationOn(line, opts) {
   if (lt) {
     const idx = lt[1].toLowerCase().charCodeAt(0) - 97;
     if (idx < opts.length && N(lt[2]) && N(lt[2]) === N(opts[idx])) return { pick: lt[1].toLowerCase(), fallback: true };
-    // MCQ-PICK-1 · a near copy of an option's text (see letterWithText). Still a FALLBACK.
-    const near = letterWithText(lt[1], lt[2], opts);
-    if (near) return { ...near, fallback: true };
   }
   const sc = SELF_CORRECTION.exec(w);
   if (sc) return { pick: String(sc[1] || sc[2]).toLowerCase() };
@@ -382,76 +391,97 @@ function declarationOn(line, opts) {
 // fallback lines name DIFFERENT options and nothing else declares, the answer is left
 // UNRESOLVED (null): we never guess which of two working-shaped lines was the answer.
 //
-// MCQ-PICK-1 · A LETTER BLOCK. A sentence option is often WRAPPED ("(b) The image formed is
-// virtual," / "erect and diminished.") or written UNDER its letter ("(b)" / "The image formed is
-// …"). So a letter-led line takes the lines after it — across steps, until a blank line or the
-// next letter / declaration — and the joined text is matched against the SENTENCE options
-// (longest block first, then shorter). A decisive match consumes those lines as ONE declaration:
-// a bare letter keeps its ordinary rank, "(b) text…" stays a fallback. No decisive match → every
-// line is read on its own exactly as before. A contradiction (letter X, sentence of option Y) is
-// never a pick: the answer is left to the model's verdict and flagged (`pickContradiction`).
+// MCQ-PICK-1 · NEAR COPIES, READ ONLY WHERE TRUNK READS NOTHING (third review: narrow scope).
+// The trunk reading above (`trunkDeclaration`) is unchanged and always wins. ONLY when it finds NO
+// declaration at all does the near-copy scan run, and it can only supply a letter whose OWN option
+// the student copied: "(b) The image formd is virtual erect and diminshed", a sentence WRAPPED over
+// lines ("(b) The image formed is virtual," / "erect and diminished."), or written under the letter.
+// A letter with ANOTHER option's text (a contradiction) never changes any pick or resolution — it
+// only raises the admin flag `pickContradiction`. If the scan finds a contradiction, or two
+// different letters, it reads nothing (exactly trunk's "no declaration").
+//
+// A letter-led line takes the lines after it, across steps, until a blank line, the next letter, or
+// a line that declares on its own (re-review); a block whose continuation names another letter or
+// rejects (a negation no option carries) is not read (review H1/H2).
 const BARE_LETTER_LINE = /^\s*\(?\s*([a-hA-H])\s*[).]?\s*$/;
-function letterBlockAt(lines, i, opts) {
-  if (opts.length === 0) return null;
+function nearCopyAt(lines, i, opts) {
   const head = lines[i].text.trim();
   const bare = BARE_LETTER_LINE.exec(head);
   const lt = bare ? null : LETTER_THEN_TEXT.exec(head);
   if (!bare && !lt) return null;
   const letter = (bare || lt)[1];
   const cont = [];
-  // Re-review HIGH · a line that DECLARES on its own (exact option text, "Answer: <text>", a bare
-  // letter, any declaration) ends the block and is read as trunk reads it: it is never swallowed
-  // into a contradiction. A contradiction comes only from text that declares nothing by itself.
   for (let j = i + 1; j < lines.length && !startsDeclaration(lines[j].text) && !declarationOn(lines[j].text, opts); j += 1) {
     cont.push(lines[j].text.trim());
   }
-  if (cont.length === 0) return null;
-  // Review H1/H2 · a continuation line that names another letter or rejects (a negation no option
-  // carries) ends the reading: the block is not read and every line is read on its own, as on trunk.
-  if (cont.some((c) => namesALetter(c) || opts.every((op) => negatesBeyond(c, op)))) return null;
-  for (let k = cont.length; k >= 1; k -= 1) {
-    const text = [lt ? lt[2] : '', ...cont.slice(0, k)].join(' ').trim();
-    const d = letterWithText(letter, text, opts, { sentenceOnly: true });
-    if (d) return { decl: bare ? d : { ...d, fallback: true }, consumed: k };
+  const contOk = cont.length > 0 && !cont.some((c) => namesALetter(c) || opts.every((op) => negatesBeyond(c, op)));
+  if (contOk) {
+    for (let k = cont.length; k >= 1; k -= 1) {
+      const text = [lt ? lt[2] : '', ...cont.slice(0, k)].join(' ').trim();
+      const d = letterWithText(letter, text, opts, { sentenceOnly: true });
+      if (d) return { d, consumed: k };
+    }
+  }
+  if (lt) {
+    const d = letterWithText(lt[1], lt[2], opts);
+    if (d) return { d, consumed: 0 };
   }
   return null;
 }
 
-function lastDeclaration(steps, options) {
+/** The near-copy scan: { pick, stepIndex } when exactly one letter is near-copied and nothing contradicts. */
+function nearCopyScan(lines, opts) {
+  const found = { pick: null, stepIndex: -1, conflict: false, contradiction: false };
+  if (opts.length === 0) return found;
+  for (let n = 0; n < lines.length; n += 1) {
+    const r = nearCopyAt(lines, n, opts);
+    if (!r) continue;
+    if (r.d.contradiction) found.contradiction = true;
+    else if (found.pick && found.pick !== r.d.pick) found.conflict = true;
+    else if (!found.pick) { found.pick = r.d.pick; found.stepIndex = lines[n].stepIndex; }
+    n += r.consumed;
+  }
+  return found;
+}
+
+function linesOf(steps) {
   const list = Array.isArray(steps) ? steps : [];
-  const opts = Array.isArray(options) ? options : [];
   const lines = [];
   for (let i = 0; i < list.length; i += 1) {
     const s = list[i];
     const w = s && s.studentWork != null ? String(s.studentWork) : '';
     for (const text of w.split(/\n/)) lines.push({ text, stepIndex: i });
   }
+  return lines;
+}
+
+// The trunk reading, byte-for-byte in behaviour.
+function trunkDeclaration(lines, opts) {
   let last = null;
   let lastFallback = null;
   let fallbackConflict = false;
-  let contradiction = false;
-  for (let n = 0; n < lines.length; n += 1) {
-    const block = letterBlockAt(lines, n, opts);
-    const d = block ? block.decl : declarationOn(lines[n].text, opts);
-    const at = lines[n].stepIndex;
-    if (block) n += block.consumed;
+  for (const { text, stepIndex } of lines) {
+    const d = declarationOn(text, opts);
     if (!d) continue;
     if (d.fallback) {
-      if (d.contradiction) contradiction = true;
-      else {
-        if (lastFallback && lastFallback.pick !== d.pick) fallbackConflict = true;
-        lastFallback = { pick: d.pick, stepIndex: at };
-      }
+      if (lastFallback && lastFallback.pick !== d.pick) fallbackConflict = true;
+      lastFallback = { pick: d.pick, stepIndex };
     } else {
-      if (d.contradiction) contradiction = true;
-      else last = { ...d, stepIndex: at };
+      last = { ...d, stepIndex };
     }
   }
-  // Review H3 · a contradiction counts ONLY when nothing else in the answer declares an option:
-  // "(a) 3" (option b is "3") is a working line beside a clean "(c) 4", never a reason to drop it.
   if (last) return last;
-  if (lastFallback) return fallbackConflict ? null : lastFallback;
-  if (contradiction) return { contradiction: true, pick: '', stepIndex: -1 };
+  if (lastFallback && !fallbackConflict) return lastFallback;
+  return null;
+}
+
+function lastDeclaration(steps, options) {
+  const opts = Array.isArray(options) ? options : [];
+  const lines = linesOf(steps);
+  const trunk = trunkDeclaration(lines, opts);
+  if (trunk) return trunk;
+  const near = nearCopyScan(lines, opts);
+  if (near.pick && !near.conflict && !near.contradiction) return { pick: near.pick, stepIndex: near.stepIndex };
   return null;
 }
 
@@ -469,10 +499,11 @@ function isHedgedPick(steps, options) {
   return Boolean(last && last.hedge);
 }
 
-/** MCQ-PICK-1 · True when the answer pairs a letter with ANOTHER option's sentence (no pick read). */
+/** MCQ-PICK-1 · True when the answer pairs a letter with ANOTHER option's sentence. */
+// Admin flag only: it never changes a pick or a resolution.
 function isContradictoryPick(steps, options) {
-  const last = lastDeclaration(steps, options);
-  return Boolean(last && last.contradiction);
+  const opts = Array.isArray(options) ? options : [];
+  return nearCopyScan(linesOf(steps), opts).contradiction;
 }
 
 // modelStatedAnswerCorrect(v): the model's OWN stated verdict on the student's final
@@ -548,7 +579,7 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
   const recorded = q.pickedOption != null ? String(q.pickedOption).trim() : '';
   const studentPick = recorded || extracted.pick;
   const hedge = !recorded && isHedgedPick(steps, q.options);
-  // MCQ-PICK-1 · letter X written with option Y's sentence: no pick, the model's verdict decides.
+  // MCQ-PICK-1 · letter X written with option Y's sentence: an admin flag only (marks as trunk).
   const pickContradiction = !recorded && isContradictoryPick(steps, q.options);
 
   let correct = false;
