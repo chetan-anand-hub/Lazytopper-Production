@@ -6,6 +6,8 @@ import { render, screen, cleanup, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 // MUMMY-1 (f): the first-party activity log is not this suite's subject (the share-click test sends a real event).
+// PARENTS-PAY-1: the page mounts the shared pack shop, which reads the auth context (signed out here).
+vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
 import ForParentsPage, { CBSE_PAGE_TO, PAY_HELP_HREF, FREE_CHECK_TO, PARENT_SHARE_HREF, PRICING_LABEL, PRICING_TO } from "../pages/ForParentsPage";
@@ -194,7 +196,7 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
         "the way a CBSE examiner marks it. " +
         "https://www.lazytopper.com/check-improve?utm_source=parent_share&utm_medium=whatsapp",
     );
-    expect(html).toContain("The first answer check is free, without an account. A new account gets a 7-day Premium trial.");
+    expect(html).toContain("The first answer check is free, without an account. A new account gets a free 7-day trial.");
     expect(html).toContain("Not yet. A weekly parent summary is planned.");
     expect(html).toContain("15–20 minutes a day, on the phone or the laptop, up to the February 2027 boards.");
     expect((html.match(/<details>/g) ?? []).length).toBe(5);
@@ -323,7 +325,7 @@ describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /p
     expect(pricingHrefs(html)).toEqual([PRICING_HREF]);
     const cost = html.slice(html.indexOf("<summary>What does it cost?</summary>"));
     const answer = cost.slice(0, cost.indexOf("</details>"));
-    expect(answer).toContain("The first answer check is free, without an account. A new account gets a 7-day Premium trial.");
+    expect(answer).toContain("The first answer check is free, without an account. A new account gets a free 7-day trial.");
     expect(pricingHrefs(answer)).toEqual([PRICING_HREF]);
     expect(copyProblems(html)).toEqual([]);
   });
@@ -468,7 +470,8 @@ describe("PARENTS-NAV-1 (g) — a visible price link, and every link leads back"
 
   it("no 'Ask', no seat count or deadline on the page (a price IS shown since PARENTS-PAY-1)", () => {
     expect(copyProblems(html)).toEqual([]);
-    const words = html.replace(/<[^>]+>/g, " ");
+    // PARENTS-PAY-1 (owner wording): the secondary WhatsApp link reads "Questions? Ask us on WhatsApp" - the only "Ask" allowed.
+    const words = html.replace(/<[^>]+>/g, " ").replace("Questions? Ask us on WhatsApp", "");
     expect(words).not.toMatch(/\bAsk\b/);
     expect(words).not.toMatch(/\bseats?\b/i);
     expect(words).not.toMatch(/\b(?:offer ends|last date|deadline|only \d+ left)\b/i);

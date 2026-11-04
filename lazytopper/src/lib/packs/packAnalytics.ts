@@ -69,7 +69,7 @@ function sendGa4Only(name: string, params: Record<string, unknown>): void {
 export type PassOwnerOfferSurface = "pass_success" | "pass_download" | "pass_mock" | "pass_me";
 
 /** Where a `pack_view` happened (PRICING-ONE-1): the /packs page or the packs section of /pricing; or a Board Pass owner's offer. */
-export type PackViewSurface = "packs" | "pricing" | PassOwnerOfferSurface;
+export type PackViewSurface = "packs" | "pricing" | "for_parents" | PassOwnerOfferSurface;
 
 /** `pack_view` (page opened) and `pack_download` (a file saved). `sku` is the pack kind, never an id. `surface` (pack_view only) says which page. */
 export function trackPackEvent(name: "pack_view" | "pack_download", sku?: PackSkuName, surface?: PackViewSurface): void {
@@ -109,7 +109,7 @@ export function trackPackSampleDownload(pack: string, surface: string): void {
 }
 
 /** PACKS-CONVERT-1: where a checkout tap came from, when it is not a plain Buy. */
-export type PackCheckoutFrom = "sample" | PassOwnerOfferSurface;
+export type PackCheckoutFrom = "sample" | "for_parents" | PassOwnerOfferSurface;
 
 /**
  * `pack_checkout` at the Buy TAP. BUY-PATH-1: `signedIn` (when given) adds `signed_in` to the first-party / Vercel / GA4

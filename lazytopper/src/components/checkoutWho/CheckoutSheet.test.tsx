@@ -221,3 +221,31 @@ describe("PAY-ACCOUNT-1 · flag off: the thank-you screen is exactly CHECKOUT-WH
     expect(screen.getByTestId("who-signin")).toBeTruthy();
   });
 });
+
+describe("PARENTS-PAY-1 - audience=\"parent\" (opened from /for-parents)", () => {
+  it("default: the student-side label and hint, unchanged, and no surface on the events", () => {
+    mount();
+    expect(screen.getByText("Student's mobile number or email")).toBeTruthy();
+    expect(screen.getByTestId("who-help").textContent).toBe(
+      "The one your child will log in with — not yours. Razorpay asks for your own details for the receipt.",
+    );
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_option_shown", { recipient: "other" });
+  });
+
+  it("parent: any number or email works; the events carry surface for_parents and nothing typed", async () => {
+    const p = mount({ audience: "parent" });
+    expect(screen.getByText("Mobile number or email your child will sign in with")).toBeTruthy();
+    expect(screen.getByTestId("who-help").textContent).toBe(
+      "It can be your own number if your child uses your phone — they sign in with it. Or use an email.",
+    );
+    expect(screen.queryByText("Student's mobile number or email")).toBeNull();
+    type("who-first", "98765 43210");
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(p.buy).toHaveBeenCalledTimes(1);
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_option_shown", { recipient: "other", surface: "for_parents" });
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_start", { recipient: "other", surface: "for_parents" });
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_paid", { recipient: "other", surface: "for_parents" });
+    expect(JSON.stringify(analytics.trackNamedEvent.mock.calls)).not.toMatch(/9876|5432/);
+  });
+});

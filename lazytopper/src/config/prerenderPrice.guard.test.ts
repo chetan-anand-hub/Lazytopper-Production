@@ -60,6 +60,8 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   const packExp = (label: string) => formatInr(PACK_PRICE_INR[PACK_BY_LABEL[label]]);
   // /for-parents Board Pass (ForParentsPage: <span class="lt-fp__price-amt">). PRICE-FIXED-1: there is no Month pass line.
   take(new RegExp(`class="lt-fp__price-amt">${AMT}`), () => "Board Pass", () => model?.boardPassDisplay ?? null);
+  // PARENTS-PAY-1: the two "Pay for my child · ₹N" buttons (hero + price section) carry the Board Pass price (boardPassPriceDisplay, read after mount).
+  take(new RegExp(`data-testid="fp-pay-(?:hero|price)"[^>]*>Pay for my child · ${AMT}<`), () => "Board Pass (Pay button)", () => model?.boardPassDisplay ?? null);
   // /for-parents packs (ParentPacksSection): name span, then the price span in the same <li>.
   for (const li of html.matchAll(/<li class="lt-fpk__item">([\s\S]*?)<\/li>/g)) {
     const name = /class="lt-fpk__name">([^<]+)/.exec(li[1])?.[1]?.trim() ?? "";
@@ -124,6 +126,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       const of = (f: string) => scan.found.filter((x) => x.file === `${dir}${f}`);
       const fp = of("for-parents.html").map((x) => x.product);
       expect(fp).toContain("Board Pass");
+      expect(fp).toContain("Board Pass (Pay button)");
       expect(fp).not.toContain("Month pass");
       for (const l of ["Maths CBQ Pack", "Science CBQ Pack", "Mock Pack", "Chapter Pack", "Maths + Science Bundle"]) expect(fp).toContain(l);
       expect(of("for-parents.html").length).toBeGreaterThanOrEqual(7);

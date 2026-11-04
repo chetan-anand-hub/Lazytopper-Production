@@ -3,10 +3,12 @@
  * the owner's exact words, in the page's HTML, beside the page's OWN free-check link; "Hide mascots"
  * on this device hides the whole moment; the parent copy never says "Ask" and names no price.
  */
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
+// PARENTS-PAY-1: the page mounts the shared pack shop, which reads the auth context (signed out here).
+vi.mock("../../../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 import ForParentsPage, { FREE_CHECK_TO } from "../../../pages/ForParentsPage";
 import { MUMMY_CHECK_LINE } from "./MummyCheckNudge";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, mascotsHidden } from "../mascotsMute";
