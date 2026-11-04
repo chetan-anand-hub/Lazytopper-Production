@@ -8,6 +8,10 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { isEmailCodeSigninClientEnabled } from "../../services/emailCodeFlag";
 
+// Re-exported for AccountReadyPanel: with ONE importer chunk the flag module is bundled INTO this chunk, so Login's lazy
+// reference has no extra preload dependency (each one is a file name in the entry chunk - PERF-3 budget).
+export { isEmailCodeSigninClientEnabled };
+
 const EmailCodeSignIn = lazy(() => import("./EmailCodeSignIn"));
 
 export default function EmailCodeDoor() {

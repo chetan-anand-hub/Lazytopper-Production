@@ -20,7 +20,8 @@
  */
 import { Suspense, lazy, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { isEmailCodeSigninClientEnabled } from "../../services/emailCodeFlag";
+// EMAIL-CODE-1: the flag through EmailCodeDoor (keeps the flag module out of a shared chunk; see EmailCodeDoor).
+import { isEmailCodeSigninClientEnabled } from "../auth/EmailCodeDoor";
 import {
   CHECK_INBOX,
   COPY_MESSAGE,
