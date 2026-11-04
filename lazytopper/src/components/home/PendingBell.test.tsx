@@ -139,7 +139,7 @@ describe("PendingBell", () => {
     expect(pop.getAttribute("id")).toBe(bell.getAttribute("aria-controls"));
     expect(screen.getAllByTestId("pending-paper-row")).toHaveLength(1);
     expect(screen.getByTestId("pending-paper-upload").getAttribute("href")).toBe(
-      "/practice/worksheets?review=WS-1&source=home&returnTo=%2F",
+      "/practice/worksheets?subject=Maths&scope=full-subject&upload=WS-1&source=home&returnTo=%2F",
     );
     screen.getByTestId("pending-paper-upload").focus();
     fireEvent.keyDown(document, { key: "Escape" });

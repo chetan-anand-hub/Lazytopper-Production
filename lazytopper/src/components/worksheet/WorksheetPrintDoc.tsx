@@ -207,7 +207,7 @@ export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, waterm
           <p className="lt-wsp__instr">
             <b>Instructions:</b> Solve on this sheet or separate paper.{" "}
             <b>Label each answer with its question number (Q1, Q2 &hellip;).</b> When done, upload one PDF of
-            all your answers on LazyTopper to get it graded with full solutions.
+            all your answers to get it graded with full solutions. Upload your answers at lazytopper.com &rarr; Worksheets &rarr; Upload answers{code ? <> (code {code})</> : null}.
           </p>
         )}
 
