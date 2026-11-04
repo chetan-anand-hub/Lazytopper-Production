@@ -28,7 +28,6 @@ import {
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
 import {
-  ensureWorksheetSessionCode,
   getSessionPerQuestion,
   getSessionRecordsFromCloud,
   type SessionRecord,
@@ -73,11 +72,15 @@ import WorksheetGradePanel, { type WorksheetReopenGrade } from "./WorksheetGrade
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import {
   recordWorksheetDownload,
+  mintUniqueWorksheetCode,
+  type WorksheetDownloadSave,
   fetchWorksheetPaperSnapshot,
   reapGradedWorksheetSnapshots,
 } from "../../services/worksheetPaperStore";
 import { loadWorksheetRebuild, worksheetQuestionFromBankRow } from "../../services/paperRebuild";
 import WorksheetPendingBanner from "./WorksheetPendingBanner";
+import PaperReminderActions from "../papers/PaperReminderActions";
+import "../papers/papers.css";
 // FAIR-USE-UI-1 (UI3) — dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import UsageWarning from "../usage/UsageWarning";
@@ -251,6 +254,20 @@ function parseEntryContext(search: string): EntryContext {
   return { subject, stream, scope, singleTopic, multiTopics, hasContext };
 }
 
+/** WS-AWAIT-1 — the deep link that opens a pending worksheet's upload. */
+export const UPLOAD_PARAM = "upload";
+/** The reminder's link: this page (with its subject + scope, which the builder needs) plus `upload=<code>`. */
+export function uploadReminderPath(pathname: string, search: string, code: string): string {
+  const sp = new URLSearchParams(search);
+  sp.delete("source");
+  sp.delete("returnTo");
+  sp.delete("review");
+  sp.set(UPLOAD_PARAM, code);
+  return `${pathname}?${sp.toString()}`;
+}
+const AUTH_WAIT_STEP_MS = 100;
+const AUTH_WAIT_MAX_MS = 5000;
+
 function WorksheetGeneratorInner() {
   const { user, loading: authLoading } = useAuth();
   const fairUse = useFairUse("worksheet", !!user?.uid && !user?.isLocalSession);
@@ -338,6 +355,16 @@ function WorksheetGeneratorInner() {
   const [historyPendingOnly, setHistoryPendingOnly] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
+  // WS-AWAIT-1 — what the last questions-PDF download did to the pending card: saved (code card +
+  // reminders), failed (honest line, keep the code) or signed-out (one honest line). Tied to the
+  // worksheet it was made for so it never shows on another paper.
+  const [paperNote, setPaperNote] = useState<
+    { worksheetId: string; code: string; name: string; status: "saved" | "failed" | "signedout" } | null
+  >(null);
+  const gradeSectionRef = useRef<HTMLElement | null>(null);
+  // The latest auth, readable from inside an async download (a stale closure would still see `loading`).
+  const authRef = useRef({ user, loading: authLoading });
+  authRef.current = { user, loading: authLoading };
   const [historyNonce, setHistoryNonce] = useState(0);
 
   // Keep the selection valid when the visible catalogue changes via an IN-APP subject /
@@ -835,20 +862,36 @@ function WorksheetGeneratorInner() {
       return;
     }
     try {
+      // WS-AWAIT-1: a tap that lands while auth is still resolving used to save NOTHING, silently
+      // (no user yet). Wait (bounded) for auth to settle, then use the resolved user.
+      for (let waited = 0; authRef.current.loading && waited < AUTH_WAIT_MAX_MS; waited += AUTH_WAIT_STEP_MS) {
+        await new Promise((r) => setTimeout(r, AUTH_WAIT_STEP_MS));
+      }
+      const liveUser = authRef.current.user;
       // Mint (once) the DURABLE session code and print it on the sheet, so each
       // solved worksheet carries the same ID it will later be graded under.
       // Best-effort: a code-mint miss must never block the download.
       let code: string | undefined;
       try {
-        const nomen = await ensureWorksheetSessionCode(generated, user, listStoredWorksheetsLite());
+        const nomen = await mintUniqueWorksheetCode(generated, liveUser, listStoredWorksheetsLite());
         code = nomen.code;
         // PENDING-UPLOAD-1: the downloaded paper becomes a pending card + a saved copy, so
         // "Upload later" can come back to it (this device or another). Never blocks the PDF.
         if (kind === "questions") {
-          void recordWorksheetDownload(user, generated, nomen)
-            .then(() => setHistoryNonce((n) => n + 1))
+          const paperId = generated.worksheetId;
+          const signedInNow = !!liveUser?.uid && !liveUser?.isLocalSession;
+          if (!signedInNow) {
+            setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "signedout" });
+          }
+          void recordWorksheetDownload(liveUser, generated, nomen)
+            .then((outcome: WorksheetDownloadSave) => {
+              setHistoryNonce((n) => n + 1);
+              if (outcome === "saved") setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "saved" });
+              else if (outcome === "failed" || outcome === "collision") setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "failed" });
+              // "kept" (already graded) and "skipped" (signed out - already noted) change nothing.
+            })
             .catch(() => {
-              /* best-effort */
+              setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "failed" });
             });
         }
       } catch {
@@ -996,6 +1039,61 @@ function WorksheetGeneratorInner() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reviewParam, authLoading, reviewUid]);
+
+  // ── WS-AWAIT-1 — `?upload=<code>` opens THAT worksheet's upload (Home strip, bell, reminders) ──
+  // Same road as the History "Upload" button: this device's record, else the cloud list, then the
+  // EXISTING `openUploadFor`. Consumed once and stripped with `replace`. Never grades or records.
+  const uploadParam = new URLSearchParams(location.search).get(UPLOAD_PARAM);
+  const uploadConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!uploadParam || authLoading) return;
+    if (uploadConsumedRef.current === uploadParam) return;
+    uploadConsumedRef.current = uploadParam;
+    const sp = new URLSearchParams(location.search);
+    sp.delete(UPLOAD_PARAM);
+    const rest = sp.toString();
+    navigate({ pathname: location.pathname, search: rest ? `?${rest}` : "" }, { replace: true, state: location.state });
+    if (!reviewUid) return;
+    void (async () => {
+      try {
+        const own = (r: SessionRecord) => r.id === uploadParam && r.surface === "worksheet" && recordBelongsToUid(r, reviewUid);
+        let record = getSurfaceHistory("worksheet", reviewUid).find(own);
+        if (!record) record = (await getSessionRecordsFromCloud(reviewUid)).find(own);
+        if (!record) {
+          setUploadNotice("We couldn’t find that worksheet in your list. Open Worksheets → History to see your papers.");
+          return;
+        }
+        const handled = await openUploadFor(record);
+        if (!handled) openHistory(true);
+      } catch {
+        /* honest fallback: the plain page */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadParam, authLoading, reviewUid]);
+
+  // WS-AWAIT-1 - a paper on the ready screen holds a code no OTHER worksheet of this student holds,
+  // frozen BEFORE anything is printed or graded. A paper opened with a colliding code (minted before
+  // this fix) is re-coded here, so an upload can never grade into, overwrite or merge an old record.
+  const readyId = generated?.worksheetId ?? null;
+  useEffect(() => {
+    if (!readyId || authLoading || !generated) return;
+    const live = authRef.current.user;
+    if (!live?.uid || live.isLocalSession) return;
+    let cancelled = false;
+    void mintUniqueWorksheetCode(generated, live, listStoredWorksheetsLite())
+      .then((nomen) => {
+        if (cancelled) return;
+        setGenerated((g) => (g && g.worksheetId === readyId && g.code !== nomen.code ? { ...g, code: nomen.code, name: nomen.name, sequence: nomen.sequence } : g));
+      })
+      .catch(() => {
+        /* best-effort: the download path re-checks */
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readyId, authLoading, user?.uid]);
 
   // ── Generated-state derived breakdowns (real counts) ──────────────────────
   const genSectionRows = useMemo(() => {
@@ -1465,7 +1563,7 @@ function WorksheetGeneratorInner() {
           <section className="lt-ws__card">
             <div className="lt-ws__gtick" aria-hidden="true">✓</div>
             <h1 className="lt-ws__title">Your {generated?.title} worksheet is ready</h1>
-            <p className="lt-ws__lead">{generated?.questions.length} questions · {generated?.totalMarks} marks · {generated?.sectionFilter}. Download, solve on paper, then check against the answer key.</p>
+            <p className="lt-ws__lead">{generated?.questions.length} questions · {generated?.totalMarks} marks · {generated?.sectionFilter}. Download, solve on paper, then upload your answers here for step-by-step marking.</p>
 
             {generated && readyShortfallText(generated.questions.length, askedCount) && (
               <div className="lt-ws__note lt-ws__note--warn" data-testid="ws-ready-shortfall">
@@ -1490,10 +1588,47 @@ function WorksheetGeneratorInner() {
                 <span className="lt-ws__dlt">{downloading === "answers" ? "Preparing PDF…" : "↓ Answer key + solutions"}</span>
                 <span className="lt-ws__dld">Step-by-step solutions with CBSE mark weights. Open after you attempt.</span>
               </button>
+              <button
+              type="button"
+              className="lt-ws__uploadjump"
+              data-testid="ws-upload-jump"
+              onClick={() => gradeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            >
+              ↑ Solved it? Upload your answers
+            </button>
             </div>
             <LimitChip />
             {downloadError && <div className="lt-ws__note lt-ws__note--err" role="alert">{downloadError}</div>}
             {downloadWall}
+            {paperNote && generated && paperNote.worksheetId === generated.worksheetId && (
+              <>
+                {paperNote.status === "saved" && (
+                  <div className="lt-paper-dl" role="status" data-testid="ws-paper-note">
+                    <p className="lt-paper-dl__p">
+                      Your paper: <span className="lt-paper-dl__code">{paperNote.code}</span>. Write this code on top of
+                      your answer sheet. Upload your answers here when done.
+                    </p>
+                    <PaperReminderActions
+                      code={paperNote.code}
+                      label={generated.title}
+                      path={uploadReminderPath(location.pathname, location.search, paperNote.code)}
+                      surface="worksheet"
+                    />
+                  </div>
+                )}
+                {paperNote.status === "failed" && (
+                  <div className="lt-paper-dl lt-paper-dl--signedout" role="alert" data-testid="ws-paper-save-failed">
+                    We couldn’t save this paper to your list — keep the code {paperNote.code}; upload it from Worksheets →
+                    History.
+                  </div>
+                )}
+                {paperNote.status === "signedout" && (
+                  <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="ws-paper-signedout">
+                    Sign in to keep this paper and upload your answers later.
+                  </div>
+                )}
+              </>
+            )}
           </section>
 
           {/* ── The entitlement boundary (AUTH-GATE-MOVE-1) ──────────────────
@@ -1510,7 +1645,7 @@ function WorksheetGeneratorInner() {
               download buttons are siblings above, so no future edit can gate a download
               by accident without moving this element. */}
           {generated && (
-            <section className="lt-ws__card">
+            <section className="lt-ws__card" ref={gradeSectionRef} id="ws-upload-section">
               {user ? (
                 /* Signed in: the EXISTING premium path, unchanged. A free student gets
                    the trial/plans block `RequirePremium` already renders. */
@@ -1770,6 +1905,8 @@ const WS_CSS = `
 .lt-ws__gsecs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 14px; }
 .lt-ws__pvsec { font-size: 12px; color: var(--ws-muted); }
 .lt-ws__dlgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lt-ws__uploadjump { appearance: none; display: block; width: 100%; grid-column: 1 / -1; min-height: 44px; padding: 10px 14px; border: 1px solid var(--ws-line); border-radius: 12px; background: var(--ws-surface); color: var(--ws-fg); font-size: 14px; font-weight: 700; font-family: var(--ws-fb); cursor: pointer; }
+.lt-ws__uploadjump:focus-visible { outline: 2px solid #16b96a; outline-offset: 2px; }
 .lt-ws__dl { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--ws-line); border-radius: 10px; padding: 15px; cursor: pointer; background: var(--ws-surface); text-align: left; font-family: var(--ws-fb); }
 .lt-ws__dl--primary { border-color: var(--ws-green-b); background: var(--ws-green-soft); }
 .lt-ws__dlt { font-size: 14px; font-weight: 600; color: var(--ws-fg); }
@@ -1819,6 +1956,8 @@ const WS_CSS = `
   .lt-ws__pvactions { flex-direction: column; }
   .lt-ws__pvactions .lt-ws__gen, .lt-ws__pvactions .lt-ws__btnt { width: 100%; flex: none; }
   .lt-ws__dlgrid { grid-template-columns: 1fr; }
+  .lt-ws__uploadjump { order: 2; }
+  .lt-ws__dlgrid > .lt-ws__dl:not(.lt-ws__dl--primary) { order: 3; }
   .lt-ws__seg { display: flex; width: 100%; }
   .lt-ws__segbtn { flex: 1; padding: 9px 6px; }
   /* Shorten the count chip at mobile width via pure CSS (no JS width branch). */

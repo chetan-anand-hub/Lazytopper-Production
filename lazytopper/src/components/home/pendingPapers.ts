@@ -80,7 +80,7 @@ function subjectSegment(subject: SessionSubject): "Maths" | "Science" {
 /**
  * The deep link that opens THIS paper's upload, per surface (each is the surface's own existing
  * entry — nothing new is routed):
- *   • Worksheet — `/practice/worksheets?review=<code>`: the generator reopens the paper in its
+ *   • Worksheet — `/practice/worksheets?subject=<S>&scope=full-subject&upload=<code>`: the generator reopens the paper in its
  *     generated view, whose grade panel is the upload step (WorksheetGenerator `openUploadFor`).
  *   • Chapter Test — `/chapter-test/10/<Subject>/<chapter>?review=<code>`: `openStored` sends a
  *     pending record straight to `openPendingUpload` (the upload step).
@@ -97,7 +97,9 @@ export function pendingPaperHref(
 ): string {
   const subject = subjectSegment(paper.subject);
   if (surface === "worksheet") {
-    return withHomeSource(withScorecardReviewParam("/practice/worksheets", paper.code));
+    // The builder redirects to the hub when the URL names no subject + scope (FIX-1), so the
+    // link carries the subject and the whole-subject scope: that is what lets `upload=` be read.
+    return withHomeSource(`/practice/worksheets?subject=${subject}&scope=full-subject&upload=${encodeURIComponent(paper.code)}`);
   }
   if (surface === "chapter-test") {
     const chapter = (paper.topicKeys || []).find((k) => !!k && !k.startsWith("mixed:"));

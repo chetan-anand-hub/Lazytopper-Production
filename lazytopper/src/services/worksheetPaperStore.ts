@@ -19,8 +19,10 @@
 import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import type { AuthUser } from "../context/AuthContext";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
-import type { PersistedWorksheet } from "./worksheetSessionStore";
+import { getWorksheetSession, saveWorksheetSession, type PersistedWorksheet } from "./worksheetSessionStore";
+import type { WorksheetNomenclature } from "../components/worksheet/worksheetNaming";
 import {
+  ensureWorksheetSessionCode,
   buildWorksheetSessionRecord,
   loadLocalSessionRecords,
   writeSessionRecord,
@@ -101,6 +103,32 @@ function awaitingResponse(paper: PersistedWorksheet): WorksheetGradeResponse {
   };
 }
 
+/** Pause between the first attempt and its single retry (WS-AWAIT-1). */
+export const SAVE_RETRY_DELAY_MS = 400;
+
+function pause(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** One awaited server write of the snapshot, with ONE retry. True when it landed. */
+async function writeSnapshotDoc(
+  uid: string,
+  snapshot: Omit<WorksheetPaperSnapshot, "savedAt">,
+  retryDelayMs: number,
+): Promise<boolean> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const data = stripUndefined({ ...snapshot, savedAt: Date.now() });
+      await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "worksheetPapers", snapshot.code), data));
+      return true;
+    } catch (error) {
+      console.warn("[worksheetPaperStore] snapshot write failed", error);
+      if (attempt === 0) await pause(retryDelayMs);
+    }
+  }
+  return false;
+}
+
 /** Persist the paper server-side; fire-and-forget, signed-in only. */
 export function saveWorksheetPaperSnapshot(
   user: AuthUser | null | undefined,
@@ -111,15 +139,7 @@ export function saveWorksheetPaperSnapshot(
   const codes = readCodes(uid);
   if (!codes.includes(snapshot.code)) writeCodes(uid, [snapshot.code, ...codes]);
   if (!isFirestoreEnabled()) return;
-  try {
-    const data = stripUndefined({ ...snapshot, savedAt: Date.now() });
-    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "worksheetPapers", snapshot.code), data))
-      .catch((error) => {
-        console.warn("[worksheetPaperStore] snapshot write failed", error);
-      });
-  } catch (error) {
-    console.warn("[worksheetPaperStore] snapshot write failed", error);
-  }
+  void writeSnapshotDoc(uid, snapshot, SAVE_RETRY_DELAY_MS);
 }
 
 /** The stored paper for a pending worksheet, or null. */
@@ -166,37 +186,129 @@ export function reapGradedWorksheetSnapshots(
   for (const code of readCodes(uid)) if (graded.has(code)) deleteWorksheetPaperSnapshot(user, code);
 }
 
+/** What a download-time save did: the pending card exists, was left alone, or could not be written. */
+export type WorksheetDownloadSave = "saved" | "kept" | "failed" | "skipped" | "collision";
+
 /**
  * At download: write the pending record + the server snapshot. Never replaces a record that
- * already carries a grade (a re-download of a graded worksheet changes nothing). Best-effort:
- * a miss never blocks the PDF.
+ * already carries a grade (a re-download of a graded worksheet changes nothing). A re-download of
+ * a paper whose pending record is missing CREATES it. Best-effort: a miss never blocks the PDF,
+ * but WS-AWAIT-1: it is no longer silent - the read and the snapshot write are each retried once,
+ * and a save that still did not land returns "failed" so the ready screen can say so honestly.
+ * "skipped" = no signed-in cloud user (nothing to save; the caller says to sign in).
  */
 export async function recordWorksheetDownload(
   user: AuthUser | null | undefined,
   paper: PersistedWorksheet,
   nomen: { code: string; name: string },
-): Promise<void> {
+  opts: { retryDelayMs?: number } = {},
+): Promise<WorksheetDownloadSave> {
   const uid = cloudUid(user);
-  if (!uid || !nomen.code) return;
+  if (!uid || !nomen.code) return "skipped";
+  const retryDelayMs = opts.retryDelayMs ?? SAVE_RETRY_DELAY_MS;
   // Read THIS record's own document, never the local mirror: a stale mirror must not let a
-  // pending write replace a grade made on another device. A read we cannot complete writes
-  // nothing (the download still works; the pending card appears on the next successful one).
+  // pending write replace a grade made on another device. A read we cannot complete (failed, or a
+  // cache-only answer that cannot prove another device has not graded it) is retried once; if it
+  // still cannot, nothing is written and the caller is told.
   let existing: SessionRecord | undefined;
   if (isFirestoreEnabled()) {
-    try {
-      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "records", nomen.code.replace(/[/.#$[\]\s]/g, "_"))));
-      // A cache-only answer (offline) cannot prove another device has not graded it: write nothing.
-      if (snap.metadata && snap.metadata.fromCache) return;
-      existing = snap.exists() ? (snap.data() as SessionRecord) : undefined;
-    } catch (error) {
-      console.warn("[worksheetPaperStore] record read failed; pending record not written", error);
-      return;
+    let read = false;
+    for (let attempt = 0; attempt < 2 && !read; attempt++) {
+      try {
+        const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "records", nomen.code.replace(/[/.#$[\]\s]/g, "_"))));
+        if (snap.metadata && snap.metadata.fromCache) {
+          if (attempt === 0) await pause(retryDelayMs);
+          continue;
+        }
+        existing = snap.exists() ? (snap.data() as SessionRecord) : undefined;
+        read = true;
+      } catch (error) {
+        console.warn("[worksheetPaperStore] record read failed", error);
+        if (attempt === 0) await pause(retryDelayMs);
+      }
     }
+    if (!read) return "failed";
   } else {
     existing = loadLocalSessionRecords(uid).find((r) => r.id === nomen.code);
   }
-  if (existing && existing.status !== "pending-upload") return;
+  // WS-AWAIT-1: a record under this code that belongs to a DIFFERENT worksheet is a code COLLISION,
+  // never "already graded, nothing to do" (that silent skip lost the owner's WS-M-MIX-02 paper). The
+  // code is minted collision-free before the PDF (mintUniqueWorksheetCode); this is the backstop.
+  if (existing && existing.worksheetId && existing.worksheetId !== paper.worksheetId) return "collision";
+  if (existing && existing.status !== "pending-upload") return "kept";
   const withCode: PersistedWorksheet = { ...paper, code: nomen.code, name: nomen.name };
   writeSessionRecord(user, buildWorksheetSessionRecord(withCode, awaitingResponse(withCode), { code: nomen.code }, uid));
-  saveWorksheetPaperSnapshot(user, { code: nomen.code, name: nomen.name, paper: withCode });
+  const codes = readCodes(uid);
+  if (!codes.includes(nomen.code)) writeCodes(uid, [nomen.code, ...codes]);
+  if (!isFirestoreEnabled()) return "saved";
+  const landed = await writeSnapshotDoc(uid, { code: nomen.code, name: nomen.name, paper: withCode }, retryDelayMs);
+  return landed ? "saved" : "failed";
+}
+
+// ── WS-AWAIT-1: a worksheet code is unique against everything the student already owns ──────────
+//
+// ROOT CAUSE (proven on production data, 4 Nov): `worksheetNomenclature` (worksheetNaming.ts:138-145)
+// numbers a worksheet as 1 + the COUNT of stored worksheets in its title/topic "group", and the
+// durable list is rebuilt from each record's title + topicKeys (sessionRecords.ts:627-640). A record
+// whose title/topicKeys group differently from its own code token ("Real Numbers - Custom filters"
+// holding WS-M-MIX-02) is not counted, so a new Board-exam-mix worksheet was minted WS-M-MIX-02 too.
+// The pending save then took the `existing && status !== "pending-upload"` branch and wrote nothing.
+// So: after the count-based mint, bump the sequence until NO record / saved paper of ANOTHER
+// worksheet holds the code, and freeze that code before it is printed on the PDF.
+
+function codeBase(code: string): { prefix: string; n: number } | null {
+  const m = /^(.*-)(\d+)$/.exec(code);
+  return m ? { prefix: m[1], n: Number(m[2]) } : null;
+}
+
+/** Who already holds `code` for this student: another worksheet's id, or null when it is free. */
+async function ownerOfCode(uid: string, code: string): Promise<string | null> {
+  const id = code.replace(/[/.#$[\]\s]/g, "_");
+  const local = loadLocalSessionRecords(uid).find((r) => r.id === code || r.id === id);
+  if (local?.worksheetId) return local.worksheetId;
+  if (!isFirestoreEnabled()) return null;
+  for (const path of [["records", id], ["worksheetPapers", code]]) {
+    try {
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, path[0], path[1])));
+      if (!snap.exists()) continue;
+      const d = snap.data() as { worksheetId?: string; paper?: { worksheetId?: string } };
+      const owner = d?.worksheetId ?? d?.paper?.worksheetId;
+      if (owner) return owner;
+    } catch (error) {
+      console.warn("[worksheetPaperStore] code check read failed", error);
+    }
+  }
+  return null;
+}
+
+/**
+ * The worksheet's durable code, guaranteed not to belong to any OTHER worksheet of this student
+ * (their records or saved papers). Same worksheet re-asking gets the same code (idempotent). A
+ * collision mints the next free sequence and freezes it onto the stored worksheet, so the code on
+ * the PDF, the pending record and the later grade are all the same one.
+ */
+export async function mintUniqueWorksheetCode(
+  ws: PersistedWorksheet,
+  user: AuthUser | null | undefined,
+  fallback: Parameters<typeof ensureWorksheetSessionCode>[2] = [],
+): Promise<WorksheetNomenclature> {
+  const nomen = await ensureWorksheetSessionCode(ws, user, fallback);
+  const uid = cloudUid(user);
+  const base = codeBase(nomen.code);
+  if (!uid || !base) return nomen;
+  let n = base.n;
+  for (let i = 0; i < 200; i++) {
+    const code = `${base.prefix}${String(n).padStart(2, "0")}`;
+    const owner = await ownerOfCode(uid, code);
+    if (!owner || owner === ws.worksheetId) {
+      if (n === base.n) return nomen;
+      const nameBase = /^(.*?)(\d+)$/.exec(nomen.name);
+      const name = nameBase ? `${nameBase[1]}${n}` : nomen.name;
+      const stored = getWorksheetSession(ws.worksheetId) ?? ws;
+      saveWorksheetSession({ ...stored, code, name, sequence: n });
+      return { ...nomen, code, name, sequence: n };
+    }
+    n += 1;
+  }
+  return nomen;
 }

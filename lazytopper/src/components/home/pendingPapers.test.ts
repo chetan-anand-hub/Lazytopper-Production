@@ -147,7 +147,7 @@ describe("which papers are waiting", () => {
 describe("deep links — each surface's own existing entry", () => {
   it("Worksheet: the generator with review=<code> (reopens the paper on its upload step)", () => {
     expect(pendingPaperHref("worksheet", { code: "WS-M-TRI-01", subject: "maths" })).toBe(
-      "/practice/worksheets?review=WS-M-TRI-01&source=home&returnTo=%2F",
+      "/practice/worksheets?subject=Maths&scope=full-subject&upload=WS-M-TRI-01&source=home&returnTo=%2F",
     );
   });
   it("Chapter Test: the chapter's test page with review=<code> (openStored -> openPendingUpload)", () => {
