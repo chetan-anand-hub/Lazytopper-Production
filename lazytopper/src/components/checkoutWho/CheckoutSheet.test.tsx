@@ -79,7 +79,7 @@ describe("signed out", () => {
     expect(screen.getByText("Mobile number or email they sign in with")).toBeTruthy();
     expect((screen.getByTestId("who-pay") as HTMLButtonElement).disabled).toBe(true);
     type("who-first", "98765 43210");
-    expect(screen.getByTestId("who-kind").textContent).toBe("Mobile number");
+    expect(screen.getByTestId("who-kind").textContent).toBe("✓ Mobile number");
     expect(screen.getByTestId("who-add-second").textContent).toBe("+ Add their email too (optional)");
     fireEvent.click(screen.getByTestId("who-pay"));
     await screen.findByTestId("who-paid");
@@ -95,7 +95,7 @@ describe("signed out", () => {
   it("email only (a pack): 'Add their mobile too', read back, My packs line, emailed note, sign in by email", async () => {
     const p = mount({ item: CBQ, buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: true, amountInr: 199, paymentId: "pay_2" })) });
     type("who-first", "Anaya.K@gmail.com");
-    expect(screen.getByTestId("who-kind").textContent).toBe("Email");
+    expect(screen.getByTestId("who-kind").textContent).toBe("✓ Email");
     expect(screen.getByTestId("who-add-second").textContent).toBe("+ Add their mobile too (optional)");
     expect(screen.getByTestId("who-pay").textContent).toBe("Pay ₹199 for Anaya.K@gmail.com");
     fireEvent.click(screen.getByTestId("who-pay"));
@@ -112,6 +112,9 @@ describe("signed out", () => {
     const p = mount();
     type("who-first", "9876543210");
     fireEvent.click(screen.getByTestId("who-add-second"));
+    // Owner test 4 Nov: the second box has its OWN visible label, so "✓ Mobile number" (about box 1) can't read as its heading.
+    expect(screen.getByTestId("who-second-label").textContent).toBe("Their email (optional)");
+    expect(screen.getByLabelText("Their email (optional)")).toBe(screen.getByTestId("who-second"));
     type("who-second", "anaya@");
     expect(screen.getByTestId("who-second-error").textContent).toBe("Enter a full email address, like name@gmail.com.");
     expect((screen.getByTestId("who-pay") as HTMLButtonElement).disabled).toBe(true);

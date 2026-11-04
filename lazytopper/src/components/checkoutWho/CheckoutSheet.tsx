@@ -199,15 +199,20 @@ export default function CheckoutSheet({
             data-testid="who-first"
           />
         </div>
-        {a.kind && <p className="lt-gps__fine" data-testid="who-kind">{a.kind === "phone" ? "Mobile number" : "Email"}</p>}
+        {a.kind && <p className="lt-gps__fine" data-testid="who-kind">{a.kind === "phone" ? "✓ Mobile number" : "✓ Email"}</p>}
         {firstError && <p className="lt-gps__error" role="alert" data-testid="who-first-error">{firstError}</p>}
         {!showSecond ? (
           <button type="button" className="lt-gps__textlink" disabled={busy} onClick={() => setShowSecond(true)} data-testid="who-add-second">
             {a.kind === "email" ? WHO_ADD_MOBILE : WHO_ADD_EMAIL}
           </button>
         ) : (
+          <>
+          <label className="lt-gps__label" htmlFor="lt-who-second" data-testid="who-second-label">
+            {otherKind === "email" ? "Their email (optional)" : "Their mobile number (optional)"}
+          </label>
           <div className="lt-gps__field">
             <input
+              id="lt-who-second"
               className="lt-gps__input lt-who__input"
               type={otherKind === "email" ? "email" : "tel"}
               inputMode={otherKind === "email" ? "email" : "numeric"}
@@ -215,7 +220,6 @@ export default function CheckoutSheet({
               autoCapitalize="none"
               spellCheck={false}
               maxLength={254}
-              aria-label={otherKind === "email" ? "Their email (optional)" : "Their mobile number (optional)"}
               placeholder={otherKind === "email" ? "Their email (optional)" : "Their mobile (optional)"}
               value={second}
               disabled={busy}
@@ -223,6 +227,7 @@ export default function CheckoutSheet({
               data-testid="who-second"
             />
           </div>
+          </>
         )}
         {secondError && <p className="lt-gps__error" role="alert" data-testid="who-second-error">{secondError}</p>}
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
