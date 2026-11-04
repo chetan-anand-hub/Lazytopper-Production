@@ -74,6 +74,8 @@ export function guestPayDigitsFrom(state: unknown): string {
 
 /** PAY-ACCOUNT-1 - the passwordless email-link finish step (lazy: never in the entry chunk). */
 const EmailLinkFinish = lazy(() => import("../components/checkoutWho/EmailLinkFinish"));
+/** EMAIL-CODE-1 - "Sign in with email code" (lazy and self-gating on VITE_EMAIL_CODE_SIGNIN_ENABLED: renders nothing while off). */
+const EmailCodeDoor = lazy(() => import("../components/auth/EmailCodeDoor"));
 
 /**
  * PAY-ACCOUNT-1 - this visit is the return from a passwordless sign-in link (`?finish=link` + Firebase's one-time code),
@@ -2520,6 +2522,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   </span>
                   Continue with email
                 </button>
+                <Suspense fallback={null}>
+                  <EmailCodeDoor />
+                </Suspense>
                 </div>
 
                 {error ? (

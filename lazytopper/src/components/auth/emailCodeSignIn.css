@@ -1,0 +1,39 @@
+/* EMAIL-CODE-1 - the 6-digit email code step (Login + the thank-you screen). Builds on linkEmailPanel.css (.lt-lep*). */
+.lt-ecs__sent { margin: 0; font-size: 14px; line-height: 1.5; }
+.lt-ecs__boxes { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 336px; }
+.lt-ecs__box {
+  height: 50px; border-radius: 10px; border: 1.5px solid var(--bg-card-border, #c9d3df);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.lt-ecs__box--active { border-color: hsl(152, 45%, 38%); box-shadow: 0 0 0 2px hsla(152, 45%, 38%, 0.25); }
+/* The ONE real input sits over the six boxes: it takes typing, paste and the OS "one-time code" autofill. */
+.lt-ecs__input {
+  position: absolute; inset: 0; width: 100%; height: 100%; box-sizing: border-box; border: 0; padding: 0; margin: 0;
+  background: transparent; color: transparent; caret-color: transparent; font-size: 16px; opacity: 0.01;
+}
+.lt-ecs__input:focus { outline: none; }
+.lt-ecs__boxes:focus-within .lt-ecs__box--active { border-color: hsl(152, 45%, 38%); }
+.lt-ecs__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.lt-ecs__link {
+  background: none; border: 0; padding: 4px 0; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  color: hsl(152, 45%, 30%); text-decoration: underline;
+}
+.lt-ecs__link:disabled { color: var(--text-secondary, #5b6b80); text-decoration: none; cursor: default; }
+.lt-ecs__fine { margin: 0; font-size: 13px; color: var(--text-secondary, #5b6b80); }
+@media (max-width: 380px) {
+  .lt-ecs__boxes { gap: 4px; }
+  .lt-ecs__box { height: 44px; font-size: 19px; }
+}
+/* The /login sheet (EmailCodeDoor -> EmailCodeSignIn asSheet): centred; full-width card on a phone. */
+.lt-ecs__sheet {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  padding: 16px; box-sizing: border-box; background: rgba(8, 18, 38, 0.55); overflow-y: auto;
+}
+.lt-ecs__card {
+  width: 100%; max-width: 420px; box-sizing: border-box; padding: 20px 18px; border-radius: 16px;
+  background: var(--bg-card, #ffffff); color: var(--text-primary, #0f1b2d); box-shadow: 0 18px 50px rgba(8, 18, 38, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+  .lt-ecs__card { background: var(--bg-card, #111c30); color: var(--text-primary, #eef2f8); }
+}

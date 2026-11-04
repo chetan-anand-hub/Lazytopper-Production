@@ -13,10 +13,14 @@
  *   b. "Send it to my child": the Web Share API with a message that names WHAT to sign in with, never the value; fallback a
  *      WhatsApp share of ONLY that text (no number in any URL) + "Copy message".
  *
+ * EMAIL-CODE-1 (dark behind VITE_EMAIL_CODE_SIGNIN_ENABLED): the email case becomes "It's for me — get a code" -> a 6-digit
+ *   code from that inbox, typed right here (EmailCodeSignIn) -> signed in -> My packs / Home. Flag off: the link, as above.
+ *
  * What the payer typed lives in memory only: never a URL, storage or an analytics event.
  */
-import { useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { isEmailCodeSigninClientEnabled } from "../../services/emailCodeFlag";
 import {
   CHECK_INBOX,
   COPY_MESSAGE,
@@ -33,6 +37,9 @@ import {
 import type { GuestItem } from "../../services/guestPay";
 
 const RECAPTCHA_ID = "lt-who-recaptcha";
+/** EMAIL-CODE-1: the email case's button while the email-code switch is on. */
+export const GET_A_CODE = "It's for me — get a code";
+const EmailCodeSignIn = lazy(() => import("../auth/EmailCodeSignIn"));
 
 export interface AccountReadyPanelProps {
   item: GuestItem & { label: string };
@@ -43,16 +50,18 @@ export interface AccountReadyPanelProps {
   /** Test seams. */
   go?: (path: string) => void;
   sendEmailLink?: (email: string, landing: string) => Promise<void>;
+  /** EMAIL-CODE-1 test seam: the email-code switch (default: VITE_EMAIL_CODE_SIGNIN_ENABLED). */
+  emailCodeEnabled?: boolean;
 }
 
-type Me = { phase: "idle" } | { phase: "sending" } | { phase: "code"; error?: string } | { phase: "verifying" } | { phase: "link-sent" } | { phase: "error"; message: string };
+type Me = { phase: "idle" } | { phase: "sending" } | { phase: "code"; error?: string } | { phase: "verifying" } | { phase: "link-sent" } | { phase: "email-code" } | { phase: "error"; message: string };
 
 async function defaultSendEmailLink(email: string, landing: string): Promise<void> {
   const m = await import("../../services/linkSignInEmail");
   await m.sendSignInLinkForEmail(email, landing);
 }
 
-export default function AccountReadyPanel({ item, recipient, payerSignedIn, onClose, go, sendEmailLink = defaultSendEmailLink }: AccountReadyPanelProps) {
+export default function AccountReadyPanel({ item, recipient, payerSignedIn, onClose, go, sendEmailLink = defaultSendEmailLink, emailCodeEnabled }: AccountReadyPanelProps) {
   const { sendPhoneOtp, verifyPhoneOtp } = useAuth();
   const [me, setMe] = useState<Me>({ phase: "idle" });
   const [code, setCode] = useState("");
@@ -61,6 +70,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
   const shareText = childShareText(item.label, recipient);
   const viaPhone = !!recipient.phone && (recipient.first === "phone" || !recipient.email);
   const navigate = go || ((path: string) => window.location.assign(path));
+  const byCode = !viaPhone && !!recipient.email && (emailCodeEnabled ?? isEmailCodeSigninClientEnabled());
 
   async function openForMe() {
     if (viaPhone && recipient.phone) {
@@ -71,6 +81,11 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
       } catch {
         setMe({ phase: "error", message: "We couldn't send the code just now. Please try again." });
       }
+      return;
+    }
+    if (recipient.email && byCode) {
+      // EMAIL-CODE-1: EmailCodeSignIn sends the code as it mounts and takes the six digits.
+      setMe({ phase: "email-code" });
       return;
     }
     if (recipient.email) {
@@ -157,16 +172,24 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
             {me.phase === "verifying" ? "Opening…" : "Open LazyTopper"}
           </button>
         </form>
+      ) : me.phase === "email-code" && recipient.email ? (
+        <Suspense fallback={<p className="lt-gps__line" role="status">Please wait…</p>}>
+          <EmailCodeSignIn email={recipient.email} sendOnMount onSignedIn={() => navigate(landingPath(item.kind))} />
+        </Suspense>
       ) : me.phase === "link-sent" ? (
         <p className="lt-gps__line" role="status" data-testid="who-link-sent">{CHECK_INBOX}</p>
       ) : (
         !payerSignedIn && (
           <button type="button" className="lt-gps__primary" disabled={busy} onClick={() => void openForMe()} data-testid="who-open-me">
-            {busy ? "Please wait…" : viaPhone ? OPEN_FOR_ME : SEND_ME_LINK}
+            {busy ? "Please wait…" : viaPhone ? OPEN_FOR_ME : byCode ? GET_A_CODE : SEND_ME_LINK}
           </button>
         )
       )}
-      {!payerSignedIn && !viaPhone && me.phase === "idle" && <p className="lt-gps__fine">For you? We email a one-tap sign-in link to that address.</p>}
+      {!payerSignedIn && !viaPhone && me.phase === "idle" && (
+        <p className="lt-gps__fine">
+          {byCode ? "For you? We email a 6-digit code to that address. Type it here to open your account." : "For you? We email a one-tap sign-in link to that address."}
+        </p>
+      )}
       {me.phase === "error" && <p className="lt-gps__error" role="alert">{me.message}</p>}
 
       <button type="button" className={payerSignedIn ? "lt-gps__primary" : "lt-who__secondary"} onClick={() => void sendToChild()} data-testid="who-send-child">
