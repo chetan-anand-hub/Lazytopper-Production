@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { getUxTelemetryEvents } from "../services/uxTelemetry";
 
 const FUNNEL_STEPS = [
@@ -40,7 +39,6 @@ export default function FunnelPage() {
   return (
     <div className="dark-page">
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "16px 16px 100px" }}>
-        <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />
 
         <h1 className="font-display" style={{ fontSize: "1.4rem", fontWeight: 900, color: "var(--text)", marginTop: 20, marginBottom: 8 }}>
           Onboarding Funnel

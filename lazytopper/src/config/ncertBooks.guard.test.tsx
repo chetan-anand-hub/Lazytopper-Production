@@ -279,10 +279,10 @@ describe("NCERT-BOOKS-1b (e) — the product chrome: shell, sidebar item, toggle
     expect(ncertSubjectFrom(null, "#maths")).toBe("maths");
   });
 
-  it("a back link: Home by default, the return ticket when one is supplied", () => {
-    expect(renderedPage()).toMatch(/<a[^>]*class="lt-nb__back"[^>]*href="\/"[^>]*>.*?Home/);
-    expect(renderedPage("/ncert-class-10?returnTo=%2Fnotes%2Fcircles&backLabel=Circles notes")).toMatch(
-      /<a[^>]*class="lt-nb__back"[^>]*href="\/notes\/circles"[^>]*>.*?Circles notes/,
+  it("NAV-FIX-1: no page-level back link (the NAV-1 header row owns Back), with or without a return ticket", () => {
+    expect(renderedPage()).not.toMatch(/class="lt-nb__back"/);
+    expect(renderedPage("/ncert-class-10?returnTo=%2Fnotes%2Fcircles&backLabel=Circles notes")).not.toMatch(
+      /Circles notes|class="lt-nb__back"/,
     );
   });
 });

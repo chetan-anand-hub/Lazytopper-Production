@@ -3,7 +3,6 @@ import { stripAnswerLetter } from "../lib/answerLetterSuffix";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
 import { trackNamedEvent, type NamedAnalyticsEvent } from "../analytics/analytics";
-import { useReturnTicket } from "../components/navigation/ReturnTicket";
 import { MathText } from "../components/question/MathText";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { pricingPacksHref } from "../lib/packs/packLinks";
@@ -298,9 +297,6 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
   const sibling: SolutionsBook = book === "ncert" ? "exemplar" : "ncert";
   const BOOK_NAME = { ncert: solutionsBookName("ncert"), exemplar: solutionsBookName("exemplar") };
 
-  const ticket = useReturnTicket();
-  const backHref = ticket?.path ?? "/";
-  const backLabel = ticket?.label ?? "Home";
 
   return (
     <main className="lt-ncs" data-testid="ncert-solutions-page" data-book={book}>
@@ -309,10 +305,7 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
       <SolutionsMoment freeCheckOn={isFreeCheckClientEnabled() && !hasUsedFreeCheck()} />
       <header className="lt-ncs__hero">
         <div className="lt-ncs__w">
-          <Link to={backHref} className="lt-ncs__back">
-            <span aria-hidden="true">←</span>
-            <span>{backLabel}</span>
-          </Link>
+          {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
           <p className="lt-ncs__eyebrow">CBSE Class 10 · Boards 2027 · NCERT 2026-27 syllabus</p>
           <h1>{solutionsH1(book, ch)}</h1>
           <p className="lt-ncs__sub">

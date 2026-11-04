@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import ReturnContextBar from "../components/ux/ReturnContextBar";
 
 import type { CanonicalQuestion } from "../data/predictionTypes";
 
@@ -217,7 +216,6 @@ export default function DifficultyBreakdownPage() {
         fontFamily: "'Inter', sans-serif",
       }}
     >
-      <ReturnContextBar backLabel="Admin" backTo="/admin/cache-stats" />
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px 60px" }}>
         <div style={{ marginBottom: 28 }}>

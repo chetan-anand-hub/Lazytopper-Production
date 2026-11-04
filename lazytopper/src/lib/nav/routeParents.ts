@@ -78,7 +78,9 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   ["/mock-builder/:grade/:subject", { parent: "/practice-hub" }],
   ["/topic-hub", { parent: "/exam-trends" }],
   ["/topic-hub/:grade/:subject", { parent: "/exam-trends" }],
-  ["/topic-hub/:grade/:subject/:topicKey", { parent: (p) => `/topic-hub/${p.grade ?? ""}/${p.subject ?? ""}` }],
+  // NAV-FIX-1: "/topic-hub/:grade/:subject" has no page of its own (it redirects to Exam Trends), and the hub's own old
+  // back link went to Exam Trends — so Back goes straight there instead of through the redirect.
+  ["/topic-hub/:grade/:subject/:topicKey", { parent: "/exam-trends" }],
   ["/topic-hub/:topicName", { parent: "/exam-trends" }],
   // There is no "/notes" index route: a chapter's notes belong to that chapter's Topic Hub (the page's own back link).
   ["/notes/:topicSlug", { parent: (p) => `/topic-hub/${p.topicSlug ?? ""}` }],

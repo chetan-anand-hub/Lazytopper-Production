@@ -73,35 +73,28 @@ describe("BACKNAV-1 — the return target follows the source", () => {
     expect(await screen.findByText("LANDED ON THE SIGN-IN DOOR")).toBeTruthy();
   });
 
-  it("★ THE OTHER DIRECTION — no source still means Home, exactly as before", async () => {
+  it("★ THE OTHER DIRECTION — no source: no page-level back link (NAV-FIX-1: the NAV-1 header row owns '← Home')", () => {
     // Without this, a page that hardcoded "/login" would pass the test above and
     // strand every student who arrived from anywhere else.
-    const u = userEvent.setup({ delay: null });
     renderPricing("");
 
-    expect(backButton().textContent).toMatch(/Back to home/i);
-    await u.click(backButton());
-
-    // CONTROL — the router did NOT go to the door. ("/" is a hard reload, which
-    // jsdom does not perform, so the pricing page stays mounted.)
+    expect(screen.queryByRole("button", { name: /Back to/i })).toBeNull();
     expect(screen.queryByText("LANDED ON THE SIGN-IN DOOR")).toBeNull();
   });
 
-  it("an UNRECOGNISED source falls back to Home rather than guessing", () => {
+  it("an UNRECOGNISED source gets no page-level back link rather than guessing", () => {
     renderPricing("?source=somewhere-else");
-    expect(backButton().textContent).toMatch(/Back to home/i);
+    expect(screen.queryByRole("button", { name: /Back to/i })).toBeNull();
   });
 
   it("★★ the parameter is an ALLOWLIST KEY, never the destination itself", () => {
     // ⚠ /pricing is a public page anyone can link to. If `source` were passed
     // through to `backTo`, this would be an open redirect — the exact class of
     // hole Login.tsx's isSafeInternalPath exists to close. It is matched against
-    // known keys and mapped to a hardcoded path instead.
+    // known keys and mapped to a hardcoded path instead — an unknown key gets no link at all.
     for (const hostile of ["https://evil.example.com/steal", "//evil.example.com", "/admin"]) {
       renderPricing(`?source=${encodeURIComponent(hostile)}`);
-      expect(backButton().textContent, `hostile source leaked: ${hostile}`).toMatch(
-        /Back to home/i,
-      );
+      expect(screen.queryByRole("button", { name: /Back to/i }), `hostile source leaked: ${hostile}`).toBeNull();
       cleanup();
     }
   });

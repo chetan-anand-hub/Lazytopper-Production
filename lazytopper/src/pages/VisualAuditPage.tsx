@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { canonicalQuestionBank } from "../data/canonicalQuestionBank";
 import { findVisualForQuestionWithScore } from "../data/visualConceptRegistry";
-import ReturnContextBar from "../components/ux/ReturnContextBar";
 
 interface AuditRow {
   questionId: string;
@@ -92,7 +91,6 @@ function VisualAuditPageInner() {
         fontFamily: "'Inter', sans-serif",
       }}
     >
-      <ReturnContextBar backTo="/dashboard" backLabel="Dashboard" />
 
       <div style={{ maxWidth: 980, margin: "0 auto", padding: "24px 16px" }}>
         <div style={{ marginBottom: 24 }}>

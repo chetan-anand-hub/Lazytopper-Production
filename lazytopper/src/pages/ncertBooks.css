@@ -71,22 +71,6 @@
   color: #c9d9ea;
   max-width: 640px;
 }
-/* BACK LINK — the CBSE page's shape (.lt-cbse__back), on the navy hero. */
-.lt-nb__hero .lt-nb__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: -10px 0 8px;
-  min-height: 44px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #c9d9ea;
-  text-decoration: none;
-}
-.lt-nb__hero .lt-nb__back:hover {
-  color: #fff;
-}
-
 /* BODY */
 .lt-nb__body {
   padding-top: 18px;

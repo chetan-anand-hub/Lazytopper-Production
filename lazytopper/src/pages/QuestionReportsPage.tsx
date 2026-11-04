@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { useAuth } from "../context/AuthContext";
 
 interface QuestionReport {
@@ -73,7 +72,6 @@ export default function QuestionReportsPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'Inter', sans-serif" }}>
-      <ReturnContextBar backTo="/dashboard" backLabel="Dashboard" />
       <div style={{ maxWidth: 860, margin: "0 auto", padding: "24px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
