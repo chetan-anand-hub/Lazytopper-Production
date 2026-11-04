@@ -143,7 +143,7 @@ describe("T2 — a NEW account: the confirmation replaces the offer", () => {
     // not the offer, not a lock
     expect(container.textContent).not.toContain("Your answer is saved.");
     expect(container.textContent).not.toMatch(/Start my free trial/);
-    expect(container.textContent).not.toContain("Premium Feature");
+    expect(container.textContent).not.toContain("Answer Checker comes with the Board Pass");
     await act(async () => {});
     expect(H.sub.startTrial).not.toHaveBeenCalled();
     expect(H.track.mock.calls.filter(([n]) => n === "trial_start")).toHaveLength(0);
@@ -239,7 +239,7 @@ describe("T2 — an EXISTING account keeps today's behaviour, except 'Maybe late
     const { container } = renderPage();
     fireEvent.click(screen.getByRole("button", { name: "Maybe later" }));
     expect(await screen.findByTestId("home-probe")).toBeInTheDocument();
-    expect(container.textContent).not.toContain("Premium Feature");
+    expect(container.textContent).not.toContain("Answer Checker comes with the Board Pass");
     expect(H.sub.startTrial).not.toHaveBeenCalled();
   });
 
@@ -252,16 +252,17 @@ describe("T2 — an EXISTING account keeps today's behaviour, except 'Maybe late
 });
 
 describe("T4 / P10 — every lock a signed-in Basic student meets on Check & Improve lists what is free on Basic", () => {
+  // LOCK-SELL-1 (owner, 4 Nov 2026): the lock now sells the Board Pass; the "Free on Basic:" list is gone from it and Basic is
+  // one quiet "Continue with Basic". The function keeps its name so the matrix below reads as before.
   function expectBasicList(container: HTMLElement) {
-    expect(container.textContent).toContain("Premium Feature");
-    const list = screen.getByTestId("basic-free-list");
-    expect(list.textContent).toContain("Free on Basic:");
-    const items = Array.from(list.querySelectorAll("li")).map((li) => li.textContent?.replace(/^✓/, "").trim());
-    expect(items).toEqual([...BASIC_FREE_LABELS]);
-    // exactly the Pricing rows marked included, in Pricing's order
-    expect(items).toEqual(FREE_FEATURES.filter((f) => f.included).map((f) => f.label));
-    // the lock's current message is still there, above the list
-    expect(container.textContent).toContain("Answer Checker is part of Premium.");
+    expect(screen.getByTestId("lock-title").textContent).toBe("Answer Checker comes with the Board Pass");
+    expect(screen.queryByTestId("basic-free-list")).toBeNull();
+    expect(container.textContent).not.toContain("Free on Basic");
+    for (const label of BASIC_FREE_LABELS) expect(container.textContent).not.toContain(label);
+    expect(FREE_FEATURES.length).toBeGreaterThan(0);
+    const ticks = screen.getByTestId("lock-ticks").querySelectorAll("li");
+    expect(ticks[0].textContent).toContain("Answer Checker");
+    expect(screen.getByTestId("lock-continue-basic").textContent).toBe("Continue with Basic");
   }
 
   for (const width of ["desktop", "mobile"] as const) {

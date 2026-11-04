@@ -109,14 +109,15 @@ describe("Basic (trial over) at a paper wall", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(S.dismissed).toHaveBeenCalledTimes(1); // the feedback prompt hook still hears the dismissal
   });
-  it("control: without `offers` the sheet is exactly as before (keep paragraph and 'Keep using Basic')", () => {
+  // LOCK-SELL-1: without `offers` the sheet keeps its Board Pass offer; its Basic exit is now the quiet "Continue with Basic".
+  it("control: without `offers` the sheet keeps its own Board Pass offer and the quiet 'Continue with Basic'", () => {
     render(
       <MemoryRouter>
         <UpgradeSheet featureLabel="Checking your answer" onClose={() => {}} />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/Basic free, always/)).toBeInTheDocument();
-    expect(screen.getByText("Keep using Basic")).toBeInTheDocument();
+    expect(screen.getByTestId("upgrade-sheet-board-pass")).toBeInTheDocument();
+    expect(screen.getByTestId("upgrade-sheet-basic")).toHaveTextContent("Continue with Basic");
     expect(screen.queryByTestId("offers-block")).toBeNull();
   });
 });

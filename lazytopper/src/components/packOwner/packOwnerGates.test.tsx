@@ -109,8 +109,8 @@ const GATES: GateCase[] = [
       </RequirePremium>
     ),
     todays: () => {
-      expect(screen.getByText("Premium Feature")).toBeTruthy();
-      expect(screen.getByText(/Answer Checker is part of Premium\./)).toBeTruthy();
+      // LOCK-SELL-1: the lock's headline names the feature and the Board Pass.
+      expect(screen.getByText("Answer Checker comes with the Board Pass")).toBeTruthy();
     },
   },
   {
@@ -224,7 +224,7 @@ describe("PACK-OWNER-GATES-1 - gate x packs x trial matrix", () => {
     S.packs = "chapter";
     await mount(GATES[0].el());
     expect(screen.getByText("CHILD")).toBeTruthy();
-    expect(screen.queryByText("Premium Feature")).toBeNull();
+    expect(screen.queryByText("Answer Checker comes with the Board Pass")).toBeNull();
     cleanup();
     await mount(GATES[1].el());
     expect(screen.queryByTestId("pack-owner-line")).toBeNull();
