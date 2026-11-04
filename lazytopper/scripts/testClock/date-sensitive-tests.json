@@ -556,7 +556,6 @@
     "src/lib/packs/packEntry.test.tsx",
     "src/lib/packs/packPaperRecord.test.ts",
     "src/lib/packs/packSamples.test.tsx",
-    "src/lib/packs/packTerms.serverParity.test.tsx",
     "src/lib/tutorSticky/dailyFix.test.ts",
     "src/lib/tutorSticky/trialSummary.test.ts",
     "src/pages/Cbse2027Page.guard.test.tsx",

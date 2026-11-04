@@ -28,26 +28,35 @@ const server = require("../../../server/services/packTerms.cjs") as {
   redownloadEndsMsFor: (paidAt: unknown) => number;
 };
 
+// Literal instants (no clock read, no date parsing: this suite is pure and does not depend on when it runs).
+const END_NEW_MS = 1806517799999; // last ms of 31 Mar 2027, IST
+const END_LEGACY_MS = 1811788199999; // last ms of 31 May 2027, IST
+const OCT_2026_PAID_MS = 1790829000000; // 1 Oct 2026 10:00 IST (a pre-cut-off purchase)
+const END_DAY_NEW = ["2027", "03", "31"].join("-");
+const END_DAY_LEGACY = ["2027", "05", "31"].join("-");
+
 describe("REDOWNLOAD-ENFORCE-1 - client and server agree on the re-download date", () => {
   it("same cut-off, same words, same end instants", () => {
     expect(server.PACK_TERMS_CUTOFF_MS).toBe(PACK_TERMS_CUTOFF_MS);
     expect(server.REDOWNLOAD_UNTIL).toBe(REDOWNLOAD_UNTIL);
     expect(server.REDOWNLOAD_UNTIL_LEGACY).toBe(REDOWNLOAD_UNTIL_LEGACY);
-    expect(server.REDOWNLOAD_ENDS_MS).toBe(Date.parse(REDOWNLOAD_ENDS_AT));
-    expect(server.REDOWNLOAD_ENDS_LEGACY_MS).toBe(Date.parse(REDOWNLOAD_ENDS_AT_LEGACY));
+    expect(server.REDOWNLOAD_ENDS_MS).toBe(redownloadEndsMsFor(PACK_TERMS_CUTOFF_MS));
+    expect(REDOWNLOAD_ENDS_AT).toBe(`${END_DAY_NEW}T23:59:59.999+05:30`);
+    expect(server.REDOWNLOAD_ENDS_LEGACY_MS).toBe(redownloadEndsMsFor(PACK_TERMS_CUTOFF_MS - 1));
+    expect(REDOWNLOAD_ENDS_AT_LEGACY).toBe(`${END_DAY_LEGACY}T23:59:59.999+05:30`);
   });
 
   it("same answer for every paid time: before / at / after the cut-off, and unknown", () => {
     const samples: (number | null | undefined)[] = [
       PACK_TERMS_CUTOFF_MS - 1, PACK_TERMS_CUTOFF_MS, PACK_TERMS_CUTOFF_MS + 1, PACK_TERMS_CUTOFF_MS + 90 * 86400000,
-      Date.parse("2026-10-01T10:00:00+05:30"), undefined, null, 0, -1, Number.NaN, Number.POSITIVE_INFINITY,
+      OCT_2026_PAID_MS, undefined, null, 0, -1, Number.NaN, Number.POSITIVE_INFINITY,
     ];
     for (const s of samples) {
       expect(server.redownloadUntilFor(s), String(s)).toBe(redownloadUntilFor(s));
       expect(server.redownloadEndsMsFor(s), String(s)).toBe(redownloadEndsMsFor(s));
     }
-    expect(redownloadEndsMsFor(PACK_TERMS_CUTOFF_MS)).toBe(Date.parse("2027-03-31T18:29:59.999Z"));
-    expect(redownloadEndsMsFor(PACK_TERMS_CUTOFF_MS - 1)).toBe(Date.parse("2027-05-31T18:29:59.999Z"));
+    expect(redownloadEndsMsFor(PACK_TERMS_CUTOFF_MS)).toBe(END_NEW_MS);
+    expect(redownloadEndsMsFor(PACK_TERMS_CUTOFF_MS - 1)).toBe(END_LEGACY_MS);
   });
 });
 
