@@ -19,7 +19,8 @@ import { UpgradeModal } from "./UpgradeModal";
 import { PREMIUM_PLUS } from "../config/pricingCompare";
 import { BASIC_FREE_LABELS } from "./pricing/BasicFreeList";
 
-function mount(onClose = vi.fn()) {
+// PERF-TRIM-1: UpgradeModal is a slot that fetches its sheet on first open; wait for it.
+async function mount(onClose = vi.fn()) {
   window.history.pushState({}, "", "/base/practice");
   const utils = render(
     <BrowserRouter basename="/base">
@@ -29,6 +30,7 @@ function mount(onClose = vi.fn()) {
       </Routes>
     </BrowserRouter>,
   );
+  await screen.findByRole("button", { name: "Keep using Basic" });
   return { ...utils, onClose };
 }
 
@@ -39,8 +41,8 @@ afterEach(() => {
 });
 
 describe("F3 — 'Keep using Basic'", () => {
-  it("is a button that closes the modal and navigates nowhere", () => {
-    const { onClose } = mount();
+  it("is a button that closes the modal and navigates nowhere", async () => {
+    const { onClose } = await mount();
     const keep = screen.getByRole("button", { name: "Keep using Basic" });
     fireEvent.click(keep);
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -48,31 +50,31 @@ describe("F3 — 'Keep using Basic'", () => {
     expect(screen.queryByText("PRICING PAGE")).toBeNull();
   });
 
-  it("CONTROL — the plan button still goes to /pricing (so the close above is a real difference)", () => {
-    const { onClose } = mount();
+  it("CONTROL — the plan button still goes to /pricing (so the close above is a real difference)", async () => {
+    const { onClose } = await mount();
     fireEvent.click(screen.getByRole("button", { name: "View Plans" }));
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(window.location.pathname).toBe("/base/pricing");
   });
 
-  it("an expired trial still sees 'Choose Plan' AND 'Keep using Basic'", () => {
+  it("an expired trial still sees 'Choose Plan' AND 'Keep using Basic'", async () => {
     H.sub = { isTrialExpired: true, daysLeftInTrial: 0, isTrialActive: false, tier: "free" };
-    mount();
+    await mount();
     expect(screen.getByRole("button", { name: "Choose Plan" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Keep using Basic" })).toBeInTheDocument();
   });
 });
 
 describe("F3 — the shared Basic list, under the Premium list", () => {
-  it("shows 'Free on Basic:' with every included Basic row", () => {
-    mount();
+  it("shows 'Free on Basic:' with every included Basic row", async () => {
+    await mount();
     const list = screen.getByTestId("basic-free-list");
     expect(list.textContent).toContain("Free on Basic:");
     for (const label of BASIC_FREE_LABELS) expect(within(list).getByText(label)).toBeInTheDocument();
   });
 
-  it("the Premium list is the upgrade sheet's PREMIUM_PLUS and comes BEFORE the Basic list", () => {
-    const { container } = mount();
+  it("the Premium list is the upgrade sheet's PREMIUM_PLUS and comes BEFORE the Basic list", async () => {
+    const { container } = await mount();
     const premiumHeading = screen.getByText("Premium includes:");
     const premiumList = premiumHeading.nextElementSibling as HTMLElement;
     const rows = Array.from(premiumList.querySelectorAll("li")).map((li) => li.textContent);
@@ -84,8 +86,8 @@ describe("F3 — the shared Basic list, under the Premium list", () => {
     expect(basic.compareDocumentPosition(plan) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("the Basic list inside the always-light modal re-declares the light tokens", () => {
-    const { container } = mount();
+  it("the Basic list inside the always-light modal re-declares the light tokens", async () => {
+    const { container } = await mount();
     const css = Array.from(container.querySelectorAll("style")).map((s) => s.textContent).join("\n");
     expect(css).toMatch(/\.lt-upgrade__basic\s*\{[^}]*--text:\s*#1e293b/);
     expect(screen.getByTestId("basic-free-list").closest(".lt-upgrade__basic")).not.toBeNull();

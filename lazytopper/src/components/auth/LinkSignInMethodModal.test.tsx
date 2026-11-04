@@ -32,7 +32,10 @@ vi.mock("../../context/AuthContext", async (importOriginal) => {
   };
 });
 
-import LinkSignInMethodModal from "./LinkSignInMethodModal";
+// PERF-TRIM-1: the modal's body is LinkSignInMethodModalSheet (LinkSignInMethodModal.tsx is now the
+// lazy slot that fetches it on open — covered in LinkSignInMethodModal.slot.test.tsx). These
+// tests exercise the body directly, synchronously, as before.
+import LinkSignInMethodModal from "./LinkSignInMethodModalSheet";
 
 beforeEach(() => {
   H.user = {

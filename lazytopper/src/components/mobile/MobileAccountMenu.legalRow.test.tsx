@@ -98,7 +98,7 @@ describe("MobileAccountMenu account dropdown — SETTINGS-1 · one Settings entr
     await screen.findByRole("dialog", { name: "Settings" });
     fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
     expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
-    expect(screen.getByRole("dialog", { name: "Sign-in methods" })).toBeTruthy();
+    expect(await screen.findByRole("dialog", { name: "Sign-in methods" })).toBeTruthy(); // PERF-TRIM-1: lazy sheet
   });
 });
 
