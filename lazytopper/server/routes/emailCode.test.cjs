@@ -14,6 +14,9 @@ const { createEmailCodeRoutes, EMAIL_CODE_SEND_PATH, EMAIL_CODE_VERIFY_PATH } = 
 const {
   createCodeStore,
   createWindowLimiter,
+  clientIp,
+  clientKey,
+  resolveTrustedHops,
   generateCode,
   isEmailCodeSigninEnabled,
   resolveSecret,
@@ -36,12 +39,12 @@ function req(body, ip = '1.2.3.4') {
   return r;
 }
 
-function harness({ env = ON, accounts = {}, orders = {}, mailerReady = true, payAuto = false, deliver, codes } = {}) {
+function harness({ env = ON, accounts = {}, orders = {}, mailerReady = true, payAuto = false, deliver, codes, maxKeys, dailySendCap } = {}) {
   let t = 1_000_000;
   const now = () => t;
   const sent = [];
   const events = [];
-  const calls = { updateUser: [], createSignInLink: [], revoke: [], deliver: [] };
+  const calls = { updateUser: [], createSignInLink: [], revoke: [], deliver: [], order: [] };
   const responses = [];
   const res = {};
   const sendJson = (_res, status, body) => responses.push({ status, body, headers: {} });
@@ -71,6 +74,7 @@ function harness({ env = ON, accounts = {}, orders = {}, mailerReady = true, pay
     getUserByEmail: async (email) => accounts[email] || null,
     updateUser: async (uid, props) => {
       calls.updateUser.push({ uid, props });
+      calls.order.push(props.providersToUnlink ? 'unlink' : 'update');
       for (const a of Object.values(accounts)) if (a.uid === uid) Object.assign(a, props);
     },
     // The link is minted for an EMAIL; tests read back which account owned it at that moment.
@@ -79,7 +83,10 @@ function harness({ env = ON, accounts = {}, orders = {}, mailerReady = true, pay
       calls.createSignInLink.push({ email, uid: owner ? owner.uid : null });
       return `https://www.lazytopper.com/__/auth/action?mode=signIn&oobCode=X&continueUrl=%2Flogin#${owner ? owner.uid : 'none'}`;
     },
-    revokeRefreshTokens: async (uid) => calls.revoke.push(uid),
+    revokeRefreshTokens: async (uid) => {
+      calls.revoke.push(uid);
+      calls.order.push('revoke');
+    },
   };
   const routes = createEmailCodeRoutes({
     sendJson,
@@ -89,7 +96,8 @@ function harness({ env = ON, accounts = {}, orders = {}, mailerReady = true, pay
     env,
     now,
     store,
-    limiter: createWindowLimiter({ now }),
+    ...(maxKeys ? { maxKeys } : {}),
+    ...(dailySendCap ? { dailySendCap } : {}),
     authAccounts,
     mailer: { ready: () => mailerReady, send: async (m) => (sent.push(m), { ok: true }) },
     deliverWaitingOrder:
@@ -236,7 +244,6 @@ test('NO ENUMERATION: the send answer is written BEFORE the address is looked up
     sendJson: () => order.push('responded'),
     env: ON,
     store: createCodeStore({ secret: SECRET }),
-    limiter: createWindowLimiter(),
     authAccounts: {
       getUserByEmail: async () => {
         order.push('lookup');
@@ -280,8 +287,14 @@ test('per-email limits: 30 s apart, 3 per 15 min, 10 per day - counted for EVERY
 test('per-IP limits on send and verify', async () => {
   const h = harness({ accounts: STUDENT() });
   let last;
-  for (let i = 0; i < 21; i += 1) last = await h.send(`s${i}@gmail.com`, '9.9.9.9');
+  // 10 different emails twice (31 s apart) = 20 sends: all admitted; the 21st inside 15 min is the IP limit.
+  for (let round = 0; round < 2; round += 1) {
+    for (let i = 0; i < 10; i += 1) assert.equal((await h.send(`s${i}@gmail.com`, '9.9.9.9')).status, 200);
+    h.advance(31 * 1000);
+  }
+  last = await h.send('s0@gmail.com', '9.9.9.9');
   assert.equal(last.status, 429);
+  assert.ok(h.events.includes('auth.email_code.send.rate_limited_ip'));
   assert.equal((await h.send('other@gmail.com', '8.8.8.8')).status, 200, 'another IP is not affected');
   for (let i = 0; i < 41; i += 1) last = await h.verify(`v${i}@gmail.com`, '123456', '7.7.7.7');
   assert.equal(last.status, 429);
@@ -303,14 +316,102 @@ test('mailer not configured -> 503 for every address alike (nothing issued)', as
   assert.deepEqual((await h.send('nobody@gmail.com')).body, { ok: false, error: 'unavailable' });
 });
 
-test('an UNVERIFIED email on an existing account: the code proves it -> marked verified; password sessions revoked first', async () => {
+test('H1: an UNVERIFIED email + a PASSWORD: the password is removed and its sessions revoked BEFORE the email is marked verified', async () => {
   const accounts = { 'meera@gmail.com': { uid: 'uidMeera', email: 'meera@gmail.com', emailVerified: false, providerData: [{ providerId: 'password' }] } };
   const h = harness({ accounts });
   await h.send('meera@gmail.com');
   const v = await h.verify('meera@gmail.com', h.sent[0].code);
   assert.ok(v.body.link.endsWith('#uidMeera'), 'the link signs in the email owner');
-  assert.deepEqual(h.calls.updateUser, [{ uid: 'uidMeera', props: { emailVerified: true } }]);
+  assert.deepEqual(h.calls.updateUser, [
+    { uid: 'uidMeera', props: { providersToUnlink: ['password'] } },
+    { uid: 'uidMeera', props: { emailVerified: true } },
+  ]);
   assert.deepEqual(h.calls.revoke, ['uidMeera']);
+  assert.deepEqual(h.calls.order, ['unlink', 'revoke', 'update'], 'password gone and sessions revoked first');
+  assert.ok(h.events.includes('auth.email_code.verify.password_removed'));
+});
+
+test('H1: a VERIFIED account with a password keeps its password (nothing to take over)', async () => {
+  const accounts = { 'ok@gmail.com': { uid: 'uidOk', email: 'ok@gmail.com', emailVerified: true, providerData: [{ providerId: 'password' }] } };
+  const h = harness({ accounts });
+  await h.send('ok@gmail.com');
+  assert.equal((await h.verify('ok@gmail.com', h.sent[0].code)).body.ok, true);
+  assert.equal(h.calls.updateUser.length, 0);
+  assert.equal(h.calls.revoke.length, 0);
+});
+
+test('M1: a flood of fresh addresses fails CLOSED and never resets a victim\'s limits or drops the victim\'s code', async () => {
+  const h = harness({ accounts: STUDENT(), maxKeys: 30 });
+  // The victim's address: one code sent (its per-email window is now running).
+  assert.equal((await h.send('asha@gmail.com', '1.1.1.1')).status, 200);
+  const victimCode = h.sent[0].code;
+  // 6 attacker IPs x 10 different addresses = 60 new keys into maps that hold 30.
+  const statuses = [];
+  for (let ip = 0; ip < 6; ip += 1) for (let i = 0; i < 10; i += 1) statuses.push((await h.send(`flood${ip}-${i}@gmail.com`, `10.0.0.${ip}`)).status);
+  assert.ok(statuses.includes(503), 'full -> refused (generic unavailable), not evicted');
+  assert.ok(statuses.filter((x) => x === 200).length < 30);
+  assert.ok(h.events.includes('auth.email_code.send.full'));
+  // The victim's per-email limit still holds (no reset), and the victim's code still works (not dropped).
+  assert.equal((await h.send('asha@gmail.com', '1.1.1.1')).status, 429);
+  assert.equal((await h.verify('asha@gmail.com', victimCode, '1.1.1.1')).body.ok, true);
+});
+
+test('M1 unit: a full window limiter refuses NEW keys and keeps old ones; expired keys make room', () => {
+  let t = 0;
+  const lim = createWindowLimiter({ now: () => t, maxKeys: 2, longestMs: 1000 });
+  const rules = [{ windowMs: 1000, max: 1 }];
+  assert.equal(lim.hit('a', rules).allowed, true);
+  assert.equal(lim.hit('b', rules).allowed, true);
+  assert.deepEqual(lim.hit('c', rules).full, true);
+  assert.equal(lim.hit('a', rules).allowed, false, 'a is still limited (not evicted)');
+  t = 2000;
+  assert.equal(lim.hit('c', rules).allowed, true, 'expired keys are pruned, then there is room');
+  const store = createCodeStore({ secret: SECRET, now: () => t, maxEntries: 1, codeFn: () => '111111' });
+  assert.equal(store.issue('x@gmail.com'), '111111');
+  assert.equal(store.issue('y@gmail.com'), null, 'full store refuses a new email');
+  assert.equal(store.issue('x@gmail.com'), '111111', 'the same email may get a new code');
+  assert.equal(store.check('x@gmail.com', '111111').status, 'ok');
+});
+
+test('M2: the client IP is the trusted proxy\'s RIGHT-MOST hop; a spoofed X-Forwarded-For never changes the key', async () => {
+  const mk = (xff) => ({ headers: { 'x-forwarded-for': xff }, socket: { remoteAddress: '127.0.0.1' } });
+  assert.equal(clientIp(mk('1.2.3.4')), '1.2.3.4');
+  assert.equal(clientIp(mk('6.6.6.6, 1.2.3.4')), '1.2.3.4');
+  assert.equal(clientKey(mk('6.6.6.6, 1.2.3.4')), clientKey(mk('7.7.7.7, 8.8.8.8, 1.2.3.4')));
+  assert.equal(clientIp(mk('9.9.9.9, 5.5.5.5, 1.2.3.4'), 2), '5.5.5.5', 'two trusted hops: step in from the right');
+  assert.equal(clientIp({ headers: {}, socket: { remoteAddress: '4.4.4.4' } }), '4.4.4.4');
+  assert.equal(resolveTrustedHops({}), 1);
+  assert.equal(resolveTrustedHops({ EMAIL_CODE_TRUSTED_PROXY_HOPS: '2' }), 2);
+  assert.equal(resolveTrustedHops({ EMAIL_CODE_TRUSTED_PROXY_HOPS: 'x' }), 1);
+  // Route level: rotating the client-supplied left part does not escape the per-IP limit.
+  const h = harness({ accounts: STUDENT() });
+  let last;
+  for (let i = 0; i < 41; i += 1) last = await h.verify(`v${i}@gmail.com`, '123456', `${i}.0.0.1, 3.3.3.3`);
+  assert.equal(last.status, 429);
+});
+
+test('M3: one IP may ask codes for at most 10 DIFFERENT emails a day (repeats do not count)', async () => {
+  const h = harness({ accounts: STUDENT() });
+  for (let i = 0; i < 10; i += 1) assert.equal((await h.send(`d${i}@gmail.com`, '2.2.2.2')).status, 200);
+  const eleventh = await h.send('d10@gmail.com', '2.2.2.2');
+  assert.equal(eleventh.status, 429);
+  assert.equal(eleventh.body.error, 'too_many');
+  assert.ok(h.events.includes('auth.email_code.send.rate_limited_ip_emails'));
+  h.advance(31 * 1000);
+  assert.equal((await h.send('d0@gmail.com', '2.2.2.2')).status, 200, 'an address already asked for is not a new one');
+  assert.equal((await h.send('d10@gmail.com', '3.3.3.3')).status, 200, 'another IP is not affected');
+});
+
+test('M3: past the day\'s email ceiling no code is made (same "sent" answer), and the admin counter fires', async () => {
+  const accounts = { ...STUDENT(), 'ravi@gmail.com': { uid: 'uidRavi', email: 'ravi@gmail.com', emailVerified: true } };
+  const h = harness({ accounts, dailySendCap: 1, codes: ['111111', '222222'] });
+  assert.deepEqual((await h.send('asha@gmail.com')).body, { ok: true });
+  assert.equal(h.sent.length, 1);
+  assert.deepEqual((await h.send('ravi@gmail.com', '5.5.5.5')).body, { ok: true }, 'same answer');
+  assert.equal(h.sent.length, 1, 'nothing emailed');
+  assert.ok(h.events.includes('auth.email_code.send.daily_cap'));
+  // No code was made for ravi: even the next queued code value cannot sign in.
+  assert.deepEqual((await h.verify('ravi@gmail.com', '222222', '5.5.5.5')).body, { ok: false, error: 'code_expired' });
 });
 
 test('a pay-first account (pay- uid, email unverified, no password): verified, no revoke, the link signs it in', async () => {

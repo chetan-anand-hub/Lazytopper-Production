@@ -28,8 +28,8 @@
  *    email belongs to at most one Firebase account, and that one is used.
  *
  * ★ An UNVERIFIED email on that account is marked verified: typing the code proves the student reads that inbox (the same
- *   proof an email sign-in link gives). If the account also has a password, its other sessions are revoked first (a
- *   stranger who registered the address with a password before its owner would lose that session); see the PR note.
+ *   proof an email sign-in link gives). If the account also has a PASSWORD, that password is removed and its sessions
+ *   revoked FIRST (review H1): a stranger who registered the address with a password before its owner loses all access.
  *
  * ★ PRIVACY. The code is never logged, counted, put in a URL or echoed back; neither is the email. Telemetry names are
  *   fixed strings. The sign-in link travels only in this response body (Cache-Control: no-store).
@@ -39,7 +39,10 @@ const {
   isEmailCodeSigninEnabled,
   resolveSecret,
   clientKey,
+  resolveTrustedHops,
   createWindowLimiter,
+  createDistinctLimiter,
+  createDailyCounter,
   createCodeStore,
   PER_EMAIL_SEND_RULES,
   PER_IP_SEND_RULES,
@@ -77,12 +80,21 @@ function createEmailCodeRoutes(deps = {}) {
     /** () => boolean - guestPay's isPayAutoAccountEnabled(env). Optional (absent -> no waiting-order path). */
     payAutoAccountEnabled,
   } = deps;
-  const store = deps.store || createCodeStore({ secret: resolveSecret(env), now });
-  const limiter = deps.limiter || createWindowLimiter({ now });
+  const maxKeys = Number.isInteger(deps.maxKeys) && deps.maxKeys > 0 ? deps.maxKeys : undefined;
+  const store = deps.store || createCodeStore({ secret: resolveSecret(env), now, ...(maxKeys ? { maxEntries: maxKeys } : {}) });
   const dailyCap = Number.isInteger(deps.dailySendCap) ? deps.dailySendCap : (() => {
     const n = Number(env.EMAIL_CODE_DAILY_CAP);
     return Number.isInteger(n) && n > 0 ? n : DEFAULT_DAILY_SEND_CAP;
   })();
+  // Review M1: one map per KIND of key (a flood of one kind can never crowd out another), each failing closed when full.
+  const lim = {
+    email: createWindowLimiter({ now, maxKeys }),
+    ipSend: createWindowLimiter({ now, maxKeys }),
+    ipVerify: createWindowLimiter({ now, maxKeys }),
+    distinct: createDistinctLimiter({ now, maxKeys }),
+    daily: createDailyCounter({ now, cap: dailyCap }),
+  };
+  const trustedHops = resolveTrustedHops(env);
   const pending = new Set();
 
   function emit(event) {
@@ -107,6 +119,12 @@ function createEmailCodeRoutes(deps = {}) {
       sendJson(res, 400, { ok: false, error: 'invalid_request' });
       return null;
     }
+  }
+
+  /** Review M1: a limiter / the store is full of live keys -> fail CLOSED with the generic answer (same for every address). */
+  function full(res, scope) {
+    emit(`auth.email_code.${scope}.full`);
+    return sendJson(res, 503, { ok: false, error: 'unavailable' });
   }
 
   function tooMany(res, verdict) {
@@ -150,7 +168,7 @@ function createEmailCodeRoutes(deps = {}) {
         emit('auth.email_code.send.no_account');
         return;
       }
-      if (!limiter.hit('global:send', [{ windowMs: 24 * 60 * 60 * 1000, max: dailyCap }]).allowed) {
+      if (!lim.daily.take()) {
         emit('auth.email_code.send.daily_cap');
         return;
       }
@@ -165,7 +183,9 @@ function createEmailCodeRoutes(deps = {}) {
   /* ── POST /api/auth/email-code/send ───────────────────────────────────────── */
   async function handleSend(req, res) {
     if (!isEmailCodeSigninEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
-    const ipVerdict = limiter.hit(`send:${clientKey(req)}`, PER_IP_SEND_RULES);
+    const ipKey = clientKey(req, trustedHops);
+    const ipVerdict = lim.ipSend.hit(ipKey, PER_IP_SEND_RULES);
+    if (ipVerdict.full) return full(res, 'send');
     if (!ipVerdict.allowed) {
       emit('auth.email_code.send.rate_limited_ip');
       return tooMany(res, ipVerdict);
@@ -178,12 +198,27 @@ function createEmailCodeRoutes(deps = {}) {
       emit('auth.email_code.unavailable');
       return sendJson(res, 503, { ok: false, error: 'unavailable' });
     }
-    const emailVerdict = limiter.hit(`send:email:${store.idFor(email)}`, PER_EMAIL_SEND_RULES);
+    const emailId = store.idFor(email);
+    const emailVerdict = lim.email.hit(emailId, PER_EMAIL_SEND_RULES);
+    if (emailVerdict.full) return full(res, 'send');
     if (!emailVerdict.allowed) {
       emit('auth.email_code.send.rate_limited_email');
       return tooMany(res, emailVerdict);
     }
+    // Review M3: one IP, at most 10 DIFFERENT emails a day (counted for every address alike).
+    const distinct = lim.distinct.hit(ipKey, emailId);
+    if (distinct.full) return full(res, 'send');
+    if (!distinct.allowed) {
+      emit('auth.email_code.send.rate_limited_ip_emails');
+      return sendJson(res, 429, { ok: false, error: 'too_many' });
+    }
+    // Review M3: past the day's ceiling no code is even made (the answer is the same "sent"; the admin sees the counter).
+    if (lim.daily.reached()) {
+      emit('auth.email_code.send.daily_cap');
+      return sendJson(res, 200, { ok: true });
+    }
     const code = store.issue(email);
+    if (code === null) return full(res, 'send');
     emit('auth.email_code.send.accepted');
     sendJson(res, 200, { ok: true });
     const p = deliver(email, code).finally(() => pending.delete(p));
@@ -194,7 +229,8 @@ function createEmailCodeRoutes(deps = {}) {
   /* ── POST /api/auth/email-code/verify ─────────────────────────────────────── */
   async function handleVerify(req, res) {
     if (!isEmailCodeSigninEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
-    const ipVerdict = limiter.hit(`verify:${clientKey(req)}`, PER_IP_VERIFY_RULES);
+    const ipVerdict = lim.ipVerify.hit(clientKey(req, trustedHops), PER_IP_VERIFY_RULES);
+    if (ipVerdict.full) return full(res, 'verify');
     if (!ipVerdict.allowed) {
       emit('auth.email_code.verify.rate_limited_ip');
       return tooMany(res, ipVerdict);
@@ -237,10 +273,15 @@ function createEmailCodeRoutes(deps = {}) {
         return sendJson(res, 200, { ok: false, error: 'no_account' });
       }
       if (rec.emailVerified !== true) {
+        // Review H1 (pre-registration takeover): someone may have registered this address with a PASSWORD before its
+        // owner. The code proves the owner reads this inbox, so that password is REMOVED (and its sessions revoked)
+        // BEFORE the address is marked verified - the pre-registrant keeps no way in. The owner signs in by this code /
+        // the email link, and can set a password again later through "Forgot password".
         const hasPassword = Array.isArray(rec.providerData) && rec.providerData.some((p) => p && p.providerId === 'password');
-        if (hasPassword && typeof authAccounts.revokeRefreshTokens === 'function') {
-          await authAccounts.revokeRefreshTokens(rec.uid);
-          emit('auth.email_code.verify.revoked_password_sessions');
+        if (hasPassword) {
+          await authAccounts.updateUser(rec.uid, { providersToUnlink: ['password'] });
+          if (typeof authAccounts.revokeRefreshTokens === 'function') await authAccounts.revokeRefreshTokens(rec.uid);
+          emit('auth.email_code.verify.password_removed');
         }
         await authAccounts.updateUser(rec.uid, { emailVerified: true });
         emit('auth.email_code.verify.email_verified');
