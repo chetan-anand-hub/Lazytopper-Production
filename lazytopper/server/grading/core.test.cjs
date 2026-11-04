@@ -2299,6 +2299,18 @@ test('§MCQ-TYPE-2.5 ★ (b) a RIGHT 1-mark FILL-IN (no options) with flawed wor
 });
 
 
+test('§MCQ-TYPE-2.6 ★ GRADE-MARKS-1 H1: a RIGHT long-option Science MCQ (options only in the TEXT, each a sentence) keeps its habit, as on trunk', async () => {
+  const q = "Which type of reaction is shown when iron nails are kept in copper sulphate solution? (a) A combination reaction in which two substances join to form one product (b) A decomposition reaction in which one compound splits into simpler substances (c) A displacement reaction in which iron displaces copper from its salt solution (d) A double displacement reaction in which two compounds exchange their ions";
+  const textMcq = { question: q, questionText: q, marks: 1, section: 'A', format: '', answer: 'c', options: undefined, textAnswer: 'Iron is more reactive so it combines with copper\n(c)' };
+  const tSteps = [
+    S({ description: 'Reason given', studentWork: 'Iron is more reactive so it combines with copper', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' }),
+    S({ description: 'Option chosen', studentWork: '(c)', status: 'correct', marksAwarded: 1 }),
+  ];
+  const c = (await harness({ replies: [REPLY(R(1, tSteps, { finalAnswerCorrect: true }))] }).single({ subject: 'Science', topic: TOPIC, acceptsV2: true, ...textMcq })).body;
+  assert.equal(c.marksAwarded, 1);
+  assert.deepEqual(c.annotatedSteps.map((s) => s.mistakeType), ['conceptual', null], 'long lettered options in the text → the habit stands');
+});
+
 test('§MCQ-TYPE-1.6 ★ HONESTY: lines that only DECLARE the option are not working — a restated tap stays UNTYPED on both endpoints', async () => {
   const K_OPTS = ['k', '3k', '7k', 'k^3'];
   const cases = [
