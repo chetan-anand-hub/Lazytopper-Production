@@ -268,7 +268,7 @@ function ParentPriceSection({ onPay }: { onPay: (placement: PayPlacement) => voi
 export default function ForParentsPage() {
   // The shop is the one /packs and /pricing sell packs through (its checkout sheet is lazy, its "Who will use it?" says any number or email).
   return (
-    <PacksShop embedded surface="for_parents" checkoutAudience="parent" returnPath="/for-parents">
+    <PacksShop embedded surface="for_parents" checkoutAudience="parent" hideMyPacks returnPath="/for-parents">
       {(api) => <ForParentsBody api={api} />}
     </PacksShop>
   );

@@ -244,6 +244,8 @@ export interface PacksShopProps {
   surface?: "for_parents";
   /** PARENTS-PAY-1: "parent" = the "Who will use it?" sheet says any number or email works (opened from /for-parents). */
   checkoutAudience?: "parent";
+  /** PARENTS-PAY-1: no "My packs" block above the page (a parent's ad landing page keeps its hero first); ownership still marks the Buy buttons. */
+  hideMyPacks?: boolean;
   /** The catalogue (CBQ band, pack tiles) drawn by the page, wired to this shop's pop-up. */
   children: (api: PacksShopApi) => ReactNode;
 }
@@ -253,7 +255,7 @@ export interface PacksShopProps {
  * My packs, the paid / confirming status line, the entry-query pop-ups, the signed-out Buy -> sign-in -> resume loop (#1412),
  * handleBuy and the pack pop-up. Only the catalogue markup is the caller's (`children`).
  */
-export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, surface, checkoutAudience, children }: PacksShopProps) {
+export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, surface, checkoutAudience, hideMyPacks = false, children }: PacksShopProps) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -701,7 +703,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const dialogTarget = openSku === "pack_chapter" ? chapter || undefined : openSku === "pack_mock" || openSku === "pack_subject" || openSku === "pack_cbq" ? subject : undefined;
   const dialogQuestions =
     openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
-  const showMine = Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
+  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
   // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
   const [namePromptDone, setNamePromptDone] = useState(false);
   const askName =
