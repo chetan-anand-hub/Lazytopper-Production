@@ -99,7 +99,9 @@ describe("public/llms.txt states the same limits (a static file, kept in step by
     expect(llms).toContain(basicDownloadLine());
     expect(llms).toContain(basicQuickPracticeLine());
     expect(llms).not.toMatch(/first graded|first of each kind/i);
-    expect(llms).toContain(BASIC_RESULT_LINE);
+    // GST-EXCL-1 review G6: llms.txt never says "Premium" - it carries the line exactly as /pricing renders it
+    // (pricingPlansCopy.asBoardPass: Premium -> Board Pass; mirrored here so this test reads no clock).
+    expect(llms).toContain(BASIC_RESULT_LINE.replace(/\bPremium\b/g, "Board Pass"));
     expect(llms).toContain(`The 7-day trial includes ${trialLimitsSentence()}.`);
   });
 });
