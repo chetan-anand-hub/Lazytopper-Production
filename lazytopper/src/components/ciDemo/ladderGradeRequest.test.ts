@@ -9,7 +9,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildConfirmedDetection } from "../../utils/checkImproveDetection";
 import { CI_DEMO_SAMPLES } from "./ciDemoSamples";
-import { buildSingleGradeRequest, seedConfirmedFromBank } from "./ladderGradeRequest";
+import { buildSingleGradeRequest, detectedKeyFields, seedConfirmedFromBank } from "./ladderGradeRequest";
 
 const TYPED = "Step 1: use the formula. Step 2: substitute. Step 3: the answer is 5 cm.";
 
@@ -52,11 +52,18 @@ describe("ladder grade request equals the detect-confirmed one", () => {
     expect(free).toEqual(paid);
   });
 
-  it("an objective detect still adds its flag and key exactly as before (unchanged behaviour of the moved code)", () => {
+  it("an objective detect adds its flag and key, now WITH the key's source (MCQ-KEY-TRUST-1)", () => {
     const confirmed = { subject: "Science" as const, topicName: "Electricity", marks: 1 };
+    // An unlabelled detect key (a read from before MCQ-KEY-TRUST-1) is sent as "derived".
     const d = { objective: true, answer: "(b)" };
     expect(buildSingleGradeRequest({ question: "q", confirmed, firstDetected: d, freeCall: false, answerPart: { textAnswer: "b" } })).toEqual({
-      question: "q", subject: "Science", topic: "Electricity", marks: 1, objective: true, answer: "(b)", textAnswer: "b",
+      question: "q", subject: "Science", topic: "Electricity", marks: 1, objective: true, answer: "(b)", answerSource: "derived", textAnswer: "b",
+    });
+    expect(buildSingleGradeRequest({ question: "q", confirmed, firstDetected: { ...d, answerSource: "printed" as const }, freeCall: false, answerPart: { textAnswer: "b" } })).toEqual({
+      question: "q", subject: "Science", topic: "Electricity", marks: 1, objective: true, answer: "(b)", answerSource: "printed", textAnswer: "b",
+    });
+    expect(buildSingleGradeRequest({ question: "q", confirmed, firstDetected: { ...d, answerSource: "derived" as const }, freeCall: false, answerPart: { textAnswer: "b" } })).toEqual({
+      question: "q", subject: "Science", topic: "Electricity", marks: 1, objective: true, answer: "(b)", answerSource: "derived", textAnswer: "b",
     });
     expect(buildSingleGradeRequest({ question: "q", confirmed, firstDetected: d, freeCall: true, answerPart: { textAnswer: "b" } })).toEqual({
       question: "q", subject: "Science", topic: "Electricity", marks: 1, objective: true, textAnswer: "b",
@@ -67,5 +74,20 @@ describe("ladder grade request equals the detect-confirmed one", () => {
     const page = readFileSync(resolve(__dirname, "../../pages/desktop/DesktopCheckImprovePage.tsx"), "utf8");
     expect(page).toContain("buildSingleGradeRequest({");
     expect(page).toContain("seedConfirmedFromBank(");
+  });
+
+  it("MCQ-KEY-TRUST-1: the multi-question path sends detect keys through the SAME helper (no second copy)", () => {
+    const page = readFileSync(resolve(__dirname, "../../pages/desktop/DesktopCheckImprovePage.tsx"), "utf8");
+    expect(page).toContain("...detectedKeyFields(q, Boolean(freeCallOpts)),");
+    expect(page).not.toContain("? { answer: q.answer } : {}");
+  });
+
+  it("MCQ-KEY-TRUST-1: detectedKeyFields sends no key on a free call, a non-objective, or a keyless read", () => {
+    expect(detectedKeyFields({ objective: true, answer: "c", answerSource: "derived" }, true)).toEqual({});
+    expect(detectedKeyFields({ objective: false, answer: "c" }, false)).toEqual({});
+    expect(detectedKeyFields({ objective: true, answer: null }, false)).toEqual({});
+    expect(detectedKeyFields(undefined, false)).toEqual({});
+    expect(detectedKeyFields({ objective: true, answer: "c", answerSource: "printed" }, false)).toEqual({ answer: "c", answerSource: "printed" });
+    expect(detectedKeyFields({ objective: true, answer: "c" }, false)).toEqual({ answer: "c", answerSource: "derived" });
   });
 });

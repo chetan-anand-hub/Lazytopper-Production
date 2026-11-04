@@ -337,6 +337,14 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
 
   let correct = false;
   let resolved = false;
+  const stated = modelStatedAnswerCorrect(modelFinalAnswerCorrect);
+  // MCQ-KEY-TRUST-1 · A KEY THE DETECT STEP WORKED OUT (answerSource "derived": not printed on
+  // the paper, solved with thinking off) NEVER OVERRIDES THE GRADER'S STATED VERDICT. It is used
+  // only when the grader stated none. Bank keys, printed keys and a request with no
+  // answerSource keep the order below exactly. Live 4 Nov: derived keys b/c/a/a against true
+  // key d scored three right answers 0 and one wrong answer 1.
+  const keyIsDerived = Boolean(q.answer != null && String(q.answer).trim()) && q.answerSource === 'derived';
+  let derivedKeyDisagreed = false;
 
   // 0. A hedge ("(a) or (c)") is a resolved WRONG answer: 0, never the first letter's mark.
   if (hedge) {
@@ -348,14 +356,18 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
   if (!resolved && answerKey && studentPick) {
     const scored = scoreObjective({ answerKey, studentPick, options: q.options, totalMarks: full });
     if (scored.resolved) {
-      correct = scored.correct;
-      resolved = true;
+      if (keyIsDerived && stated !== null) {
+        // Not used for the mark; only recorded (for admin) when it disagrees with the grader.
+        if (scored.correct !== stated) derivedKeyDisagreed = true;
+      } else {
+        correct = scored.correct;
+        resolved = true;
+      }
     }
   }
 
   // 2. The model's own stated final-answer verdict. Tri-state: absent leaves us unresolved.
   if (!resolved) {
-    const stated = modelStatedAnswerCorrect(modelFinalAnswerCorrect);
     if (stated !== null) {
       correct = stated;
       resolved = true;
@@ -387,7 +399,10 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
   // can say so rather than presenting a derived 0 as a graded one.
   if (!resolved) return { marksAwarded: 0, correct: false, resolved: false };
 
-  return { marksAwarded: correct ? full : 0, correct, resolved: true };
+  const verdict = { marksAwarded: correct ? full : 0, correct, resolved: true };
+  // Present ONLY when true, so every other verdict is byte-identical to before.
+  if (derivedKeyDisagreed) verdict.derivedKeyDisagreed = true;
+  return verdict;
 }
 
 // objectiveHasWorking(studentWork, options): does the objective answer carry actual

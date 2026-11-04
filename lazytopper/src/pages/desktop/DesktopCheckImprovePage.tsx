@@ -143,7 +143,7 @@ import { launchMoreLikeThis } from "../../components/ciDemo/ladderMore";
 import { recordLadderTap } from "../../components/ciDemo/ladderAttempt";
 import { useCiDemoAudience } from "../../components/ciDemo/ciDemoModel";
 import { reportFirstActionShown, reportFirstActionTap } from "../../components/startHere/firstAction";
-import { buildSingleGradeRequest, seedConfirmedFromBank } from "../../components/ciDemo/ladderGradeRequest";
+import { buildSingleGradeRequest, detectedKeyFields, seedConfirmedFromBank } from "../../components/ciDemo/ladderGradeRequest";
 import { typeFirstAnswerMode, useZeroGraded } from "../../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
 import {
@@ -1926,13 +1926,18 @@ const DesktopCheckImprovePageInner: React.FC<{
     setDetectPartialCount(null);
     setDetectLimit(null);
     try {
-      const d = await detectQuestion({
+      const detectReq = {
         question: q || undefined,
         ...(questionTab === "upload" && qImageBase64
           ? { imageBase64: qImageBase64, imageMimeType: qImageMime }
           : {}),
         topicVocabulary: CANONICAL_TOPIC_VOCAB,
-      }, freeCallOpts);
+        // MCQ-KEY-TRUST-1 — ask detect where each MCQ key came from ("printed" | "derived"), so a key
+        // it worked out never overrides the grader (detectedKeyFields). Paid reads only: the free
+        // check never sends a key, and its request shape is fixed [FU-B15-FREECHECK-V2].
+        ...(freeCallOpts ? {} : { keySource: true }),
+      };
+      const d = await detectQuestion(detectReq, freeCallOpts);
       if (!d || d.ok === false) {
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
@@ -2367,7 +2372,8 @@ const DesktopCheckImprovePageInner: React.FC<{
           // PR-2 (B9) — the answer key detect read for an objective question (#704) is forwarded,
           // so the MCQ is scored on the option alone. Never on the signed-out free check, whose
           // request shape is fixed (spec §1). [FU-B15-FREECHECK-V2]
-          ...(!freeCallOpts && q.objective === true && q.answer ? { answer: q.answer } : {}),
+          // MCQ-KEY-TRUST-1 — with its source: a "derived" key never overrides the grader's verdict.
+          ...detectedKeyFields(q, Boolean(freeCallOpts)),
         })),
         imageBase64: imageBase64 ?? "",
         imageMimeType: imageMime,
