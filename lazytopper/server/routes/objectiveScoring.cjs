@@ -399,7 +399,12 @@ function letterBlockAt(lines, i, opts) {
   if (!bare && !lt) return null;
   const letter = (bare || lt)[1];
   const cont = [];
-  for (let j = i + 1; j < lines.length && !startsDeclaration(lines[j].text); j += 1) cont.push(lines[j].text.trim());
+  // Re-review HIGH · a line that DECLARES on its own (exact option text, "Answer: <text>", a bare
+  // letter, any declaration) ends the block and is read as trunk reads it: it is never swallowed
+  // into a contradiction. A contradiction comes only from text that declares nothing by itself.
+  for (let j = i + 1; j < lines.length && !startsDeclaration(lines[j].text) && !declarationOn(lines[j].text, opts); j += 1) {
+    cont.push(lines[j].text.trim());
+  }
   if (cont.length === 0) return null;
   // Review H1/H2 · a continuation line that names another letter or rejects (a negation no option
   // carries) ends the reading: the block is not read and every line is read on its own, as on trunk.
