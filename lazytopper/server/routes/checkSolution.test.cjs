@@ -3103,7 +3103,7 @@ test('§GM.3 the CBSE section map is used only when the paper\'s headers follow 
   const q20b = h2.body().questions.find((q) => q.questionNumber === 20);
   assert.deepEqual([q20b.marks, q20b.marksSource], [5, 'inferred'], 'no rule ⇒ the guess is kept AND flagged');
   const q21b = h2.body().questions.find((q) => q.questionNumber === 21);
-  assert.deepEqual([q21b.marks, q21b.marksSource], [5, 'printed'], 'the model said it read it ⇒ printed, as today');
+  assert.deepEqual([q21b.marks, q21b.marksSource], [5, 'inferred'], 'F2: no rule set it ⇒ flagged, even when the model said "stated"');
 });
 
 test('§GM.4 the post-step (pure): carry-forward, conflicting headers, leading unsectioned questions', () => {
@@ -3153,4 +3153,51 @@ test('§GM.6 ★ detect WITHOUT sectionMarks (free check, topic reads, golden re
   assert.equal(sch, CS.DETECT_RESPONSE_SCHEMA_SECTION_MARKS);
   assert.equal(Object.prototype.hasOwnProperty.call(sch.properties.questions.items.properties, 'answerSource'), false);
   assert.deepEqual(sch.properties.questions.items.properties.section, { type: 'STRING', nullable: true });
+});
+
+test('§GM.7 ★★ F1 (§13) the section rule never gives an OBJECTIVE question more than 1 mark', () => {
+  const r = GM_D.assignSectionMarks(
+    [{ section: 'B', printedMarks: null, objective: true }, { section: 'B', printedMarks: null, objective: false },
+      { section: 'A', printedMarks: null, objective: true }, { section: 'B', printedMarks: 2, objective: true }],
+    [{ section: 'A', marksEach: 1 }, { section: 'B', marksEach: 2 }]);
+  assert.deepEqual(r.map((x) => x.marks), [null, 2, 1, null], 'an MCQ under a 2-mark header keeps the model value; a 1-mark rule is fine');
+});
+
+test('§GM.8 F5 a header mark that is neither the CBSE value nor a factor of a printed "a × b" is assigned but flagged', () => {
+  const e = [{ section: 'C', printedMarks: null }];
+  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: 'Section C 4 × 3' }])[0].source, 'section', '× form, a factor');
+  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: '4 marks each' }])[0].source, 'inferred', 'not CBSE C=3, no × form ⇒ flagged');
+  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 3, text: null }])[0].source, 'section', 'the CBSE value');
+  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: '6 × 3 = 18' }])[0].source, 'inferred', '× form, but 4 is not a factor');
+  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: '4 marks each' }])[0].marks, 4, 'still assigned — the student checks it');
+});
+
+test('§GM.9 ★★★ F1 (§13) a 1-mark MCQ SENT with marks 3 is still scored 0 or full, on BOTH paths, with no step marks', async () => {
+  // Grader says correct and awards 2 partial step marks on a "3-mark" MCQ; the student chose d (key c derived).
+  const step = (ok, m) => ({ description: 'Option', studentWork: 'Option d', status: ok ? 'correct' : 'partial', marksAwarded: m, marksDeducted: 3 - m, teacherAnnotation: 'x', mistakeType: ok ? null : 'conceptual', correctedWorking: null });
+  const raw = { annotatedSteps: [step(false, 2)], finalAnswerCorrect: false, addressesQuestion: 'yes', teacherNote: 'x' };
+  for (const v2 of [true, false]) {
+    const hs = buildRoute({ replies: [raw] });
+    await hs.route.handleCheckSolution({ question: MKT_Q3, subject: 'Maths', topic: 'Polynomials', marks: 3, objective: true,
+      imageBase64: 'BASE64', imageMimeType: 'image/jpeg', acceptsV2: v2 }, {});
+    assert.equal(hs.body().totalMarks, 1, 'single: graded as the 1-mark question it is');
+    assert.ok([0, 1].includes(hs.body().marksAwarded), 'single: 0 or full, never a step mark: ' + hs.body().marksAwarded);
+    const hm = buildRoute({ replies: [{ results: [{ qNumber: 3, ...raw }] }] });
+    await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 3, marks: 3, questionText: MKT_Q3, topic: 'Polynomials', objective: true }]), acceptsV2: v2 }, {});
+    const r = hm.body().results[0];
+    assert.equal(r.totalMarks, 1, 'multi: graded as 1 mark');
+    assert.ok([0, 1].includes(r.marksAwarded), 'multi: 0 or full: ' + r.marksAwarded);
+    assert.equal(hm.body().gradedMarksTotal, 1);
+  }
+});
+
+test('§GM.10 F1 guard CONTROL: a mis-flagged SUBJECTIVE (no options) keeps its marks and step marking; a bank MCQ is untouched', async () => {
+  const raw = { annotatedSteps: [{ description: 'Setup', studentWork: 'x', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'calculation', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 4, ...raw }] }] });
+  await hm.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 4, marks: 3, questionText: 'Prove that root 5 is irrational.', objective: true }]), {});
+  assert.equal(hm.body().results[0].totalMarks, 3, 'no options in the text ⇒ the ≤1 rail\'s purpose: not forced');
+  assert.equal(hm.body().results[0].marksAwarded, 2);
+  const hb = buildRoute({ replies: [{ results: [{ qNumber: 1, annotatedSteps: [{ description: 'Option', studentWork: '(b)', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'x', mistakeType: null, correctedWorking: null }] }] }] });
+  await hb.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { marks: 2, section: 'A', format: 'mcq', qType: 'mcq', answer: 'x', options: ['w', 'x'] })]), {});
+  assert.equal(hb.body().results[0].totalMarks, 2, 'a bank-objective item keeps its marks (clamped whatever its marks, as before)');
 });

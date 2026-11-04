@@ -1459,6 +1459,8 @@ function pendingNote(q, modelNote) {
 
 module.exports = {
   normaliseQuestionResult,
+  // GRADE-MARKS-1 · read by the grade routes' objective-marks guard (routes/checkSolution.cjs).
+  objectiveOffersOptions,
   copiesScheme,
   gramContainment,
   stripAnswerLabel,

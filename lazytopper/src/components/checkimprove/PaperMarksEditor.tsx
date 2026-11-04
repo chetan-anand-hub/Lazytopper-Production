@@ -5,6 +5,9 @@
  * read guessed (no printed or section-header mark) is flagged "Check: we guessed N" so the student
  * compares it with the paper. Display + the student's own correction only — never a grade.
  *
+ * ★ §13: an OBJECTIVE question (MCQ / Assertion-Reason) is read-only — it is a 1-mark, 0-or-full
+ * question, and the grader keeps that clamp only while its marks are ≤ 1.
+ *
  * Styling is class-based (a scoped <style> block, the FreeCheckPanels convention) — no inline
  * style objects (CLAUDE.md §7). Wraps to any width from 360 px up.
  */
@@ -15,8 +18,14 @@ import type { DetectedQuestion } from "../../ai/aiClient";
 export const PAPER_MARKS_MIN = 1;
 export const PAPER_MARKS_MAX = 10;
 
+/** True for an MCQ / Assertion-Reason question: its marks are not editable (§13). */
+export function isLockedObjective(q: Pick<DetectedQuestion, "objective">): boolean {
+  return q.objective === true;
+}
+
 /** True when the read GUESSED this question's marks (nothing printed on it or in its section header). */
-export function isGuessedMarks(q: Pick<DetectedQuestion, "marksSource">): boolean {
+export function isGuessedMarks(q: Pick<DetectedQuestion, "marksSource" | "objective">): boolean {
+  if (isLockedObjective(q)) return false; // nothing for the student to check or change
   return q.marksSource === "inferred" || q.marksSource === "fallback";
 }
 
@@ -46,6 +55,7 @@ const PME_CSS = `
   font: inherit; font-size: 13px; color: hsl(220, 25%, 12%);
 }
 .lt-pme__input:focus { outline: 2px solid hsl(152, 55%, 45%); outline-offset: 1px; }
+.lt-pme__fixed { display: inline-block; width: 52px; font-size: 13px; color: hsl(220, 25%, 12%); }
 .lt-pme__unit { font-size: 12px; color: hsl(220, 15%, 42%); }
 .lt-pme__flag { flex-basis: 100%; font-size: 11.5px; font-weight: 600; color: hsl(32, 80%, 32%); }
 .lt-pme__total { margin: 8px 0 0; font-size: 12.5px; color: hsl(220, 25%, 12%); }
@@ -75,6 +85,14 @@ export default function PaperMarksEditor({ questions, onMarksChange }: PaperMark
           const id = `lt-pme-${qi}`;
           return (
             <li key={`${q.questionNumber}-${qi}`} className={guess ? "lt-pme__row lt-pme__row--guess" : "lt-pme__row"}>
+              {isLockedObjective(q) ? (
+                <>
+                  <span className="lt-pme__q">Q{q.questionNumber}</span>
+                  <span className="lt-pme__fixed" data-testid={`paper-marks-fixed-${qi}`}>{q.marks}</span>
+                  <span className="lt-pme__unit">{q.marks === 1 ? "mark" : "marks"} · MCQ</span>
+                </>
+              ) : (
+              <>
               <label className="lt-pme__q" htmlFor={id}>Q{q.questionNumber}</label>
               <input
                 id={id}
@@ -101,6 +119,8 @@ export default function PaperMarksEditor({ questions, onMarksChange }: PaperMark
                 }
               />
               <span className="lt-pme__unit">{q.marks === 1 ? "mark" : "marks"}</span>
+              </>
+              )}
               {guess ? <span className="lt-pme__flag">Check: we guessed {q.marks}</span> : null}
             </li>
           );

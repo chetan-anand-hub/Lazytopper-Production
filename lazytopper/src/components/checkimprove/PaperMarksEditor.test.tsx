@@ -34,4 +34,14 @@ describe("PaperMarksEditor", () => {
     expect(parsePaperMarks("10")).toBe(10);
     expect(parsePaperMarks("1")).toBe(1);
   });
+
+  it("F1 (§13) · an objective (MCQ) row is read-only: no input, no guess flag, nothing to commit", () => {
+    const onChange = vi.fn();
+    const mcq: DetectedQuestion = { questionNumber: 1, questionText: "MCQ (a) 1 (b) 2", marks: 1, marksSource: "inferred", objective: true };
+    render(<PaperMarksEditor questions={[mcq, ...QS]} onMarksChange={onChange} />);
+    expect(screen.queryByLabelText("Marks for Q1")).toBeNull();
+    expect(screen.getByTestId("paper-marks-fixed-0").textContent).toBe("1");
+    expect(screen.queryByText("Check: we guessed 1")).toBeNull();
+    expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 13 marks");
+  });
 });

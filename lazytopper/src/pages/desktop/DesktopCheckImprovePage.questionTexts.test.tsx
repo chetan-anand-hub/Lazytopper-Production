@@ -239,6 +239,8 @@ describe("GRADE-MARKS-1 - Answer Checker paper marks", () => {
     expect(H.detectQuestion.mock.calls[0][0]).toMatchObject({ sectionMarks: true, keySource: true });
 
     expect(await screen.findByText("Check: we guessed 5")).toBeTruthy();
+    // §13: the MCQs are read-only (a 1-mark, 0-or-full question is never re-marked).
+    expect(screen.queryByLabelText("Marks for Q1")).toBeNull();
     expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 7 marks");
     fireEvent.change(screen.getByLabelText("Marks for Q20"), { target: { value: "3" } });
     expect(screen.queryByText(/Check: we guessed/)).toBeNull();

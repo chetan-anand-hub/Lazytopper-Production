@@ -154,8 +154,8 @@ function withSectionMarksSchema(base) {
     nullable: true,
     items: {
       type: 'OBJECT',
-      properties: { section: { type: 'STRING' }, marksEach: { type: 'NUMBER', nullable: true } },
-      propertyOrdering: ['section', 'marksEach'],
+      properties: { section: { type: 'STRING' }, text: { type: 'STRING', nullable: true }, marksEach: { type: 'NUMBER', nullable: true } },
+      propertyOrdering: ['section', 'text', 'marksEach'],
       required: ['section'],
     },
   };
@@ -172,7 +172,7 @@ const DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS = withSectionMarksSchema(D
 
 /** GRADE-MARKS-1 · the one prompt line an opted-in detect request adds (right after the marks rule). */
 const DETECT_SECTION_MARKS_RULE =
-  '- SECTIONS AND MARKS: many papers print marks ONLY in a section header (e.g. "SECTION C — this section has 6 questions of 3 marks each"). List every section header you see in "sectionHeaders" as { "section": "<its letter>", "marksEach": <the marks per question it states, or null if it states none> }. ' +
+  '- SECTIONS AND MARKS: many papers print marks ONLY in a section header (e.g. "SECTION C — this section has 6 questions of 3 marks each"). List every section header you see in "sectionHeaders" as { "section": "<its letter>", "text": "<the header\'s marks wording exactly as printed, e.g. \"6 questions of 3 marks each\" or \"6 × 3 = 18\">", "marksEach": <the marks per question it states, or null if it states none> }. ' +
   'For EACH question give "section": the letter of the section it is printed under — a section continues across page breaks until the next section header, so a question on a page with no header belongs to the last section header before it — or null if the paper has no sections. ' +
   'Give "printedMarks": the mark printed ON or beside THAT question itself (e.g. "[3]", "(2 marks)"; for a question with parts, the TOTAL of its printed part-marks), or null when no mark is printed on the question. A section-header mark is NOT a printed mark for this field.\n';
 
@@ -180,6 +180,23 @@ const DETECT_SECTION_MARKS_RULE =
 // (in the document) or "derived" (worked out by the detect step). Anything else = absent (null),
 // which keeps today's key precedence (bank surfaces, old clients) — and then the field is not
 // added to the question at all, so those requests are byte-identical to before.
+/**
+ * GRADE-MARKS-1 · §13 OBJECTIVE INVARIANT GUARD (both grade routes, one helper — §4a).
+ * A detect-flagged objective question is scored 0-or-full only while its marks are ≤ 1
+ * (postprocess normaliseQuestionResult: `q.objective === true && totalMarks <= 1`). A student's mark
+ * edit, or any mis-read, that sends an MCQ / Assertion-Reason item with marks > 1 would silently drop
+ * that clamp and step-mark it. So such an item is graded as the 1-mark question it is: its marks are
+ * FORCED TO 1 — chosen over "clamp 0/full at the larger total", which would award an MCQ 3 marks.
+ * Only when the question really OFFERS OPTIONS (options / format / "(a) (b)" / Assertion-Reason in its
+ * text): a multi-mark subjective that detect mis-flagged objective keeps its marks and its step
+ * marking — the ≤ 1 rail's original purpose. Bank-objective items (section/format) are untouched:
+ * they are clamped whatever their marks, exactly as before.
+ */
+function guardedObjectiveMarks(q, marks) {
+  if (q && q.objective === true && Number(marks) > 1 && !isObjective(q) && grading.objectiveOffersOptions(q)) return 1;
+  return marks;
+}
+
 function answerSourceOf(v) {
   return v === 'printed' || v === 'derived' ? v : null;
 }
@@ -381,7 +398,7 @@ function createCheckSolutionRoute(deps) {
       // answer makes it a typed-only set. Exactly the fields the set grader would carry.
       const one = {
         qNumber: 1,
-        marks,
+        marks: guardedObjectiveMarks({ ...objectiveMeta, objective: detectedObjective, questionText: question }, marks),
         questionText: question,
         subject,
         topic,
@@ -992,6 +1009,8 @@ function createCheckSolutionRoute(deps) {
         chapter: String((q && q.chapter) || '').trim(),
       }))
       .map((q) => (q.topic || q.topicLabel || !q.chapter ? q : { ...q, topicLabel: q.chapter }))
+      // GRADE-MARKS-1 · §13: an MCQ sent with marks > 1 is graded as its 1 mark (see guardedObjectiveMarks).
+      .map((q) => { const m = guardedObjectiveMarks(q, q.marks); return m === q.marks ? q : { ...q, marks: m }; })
       .filter((q) => q.qNumber > 0 && q.questionText);
 
     if (questions.length === 0) {

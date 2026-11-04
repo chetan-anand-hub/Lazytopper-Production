@@ -200,9 +200,9 @@ function normaliseDetectedQuestions(rawQuestions, o) {
         out.marks = ruled.marks;
         out.marksSource = ruled.source;
       } else {
-        // No printed or section mark: the model's own value, as before. A model that says it read
-        // the mark ("stated") is kept as printed; anything else is a guess the student is asked to check.
-        out.marksSource = e.stated && inRange ? 'printed' : 'inferred';
+        // No rule set it: the model's own value, as before — flagged as a guess for the student to
+        // check (the model's own "stated" is not trusted: it said "stated" for Q20's guessed 5).
+        out.marksSource = 'inferred';
       }
       out.section = ruled.section;
     }
@@ -242,23 +242,33 @@ function marksInRange(v) {
 /**
  * The marks every question gets by RULE, in order (pure, deterministic). For each entry:
  *   1. a mark printed ON the question (`printedMarks`)          → source "printed";
- *   2. its section's header mark ("Section C … 3 marks each")   → source "section";
+ *   2. its section's header mark ("Section C … 3 marks each")   → source "section" — but
+ *      "inferred" (assigned, flagged for the student to check) when that single number is not the
+ *      CBSE value for the section and the header did not print it in a "6 × 3" form whose factor
+ *      it is (catches a "4 × 3" header misread as 4 marks each);
  *   3. the CBSE section map (A=1, B=2, C=3, D=5, E=4), only when the paper's headers follow it
  *      (two or more header marks, every one equal to the map)  → source "section";
  *   4. otherwise `marks: null` — the caller keeps the model's own value.
+ * ★ §13 objective invariant: an OBJECTIVE question (MCQ / A-R) is scored 0-or-full only while its
+ * marks are ≤ 1 (postprocess normaliseQuestionResult). So a rule never gives an objective question
+ * more than 1 mark: a rule mark above 1 is skipped and the model's own value stands.
  * A question with no section continues the section of the question before it: a section runs
  * across page breaks until the next header, so Q20 on a page with no header stays in Section C.
- * @param {Array<{section: string|null, printedMarks: number|null}>} entries  in paper order
- * @param {Array<{section?: unknown, marksEach?: unknown}>|undefined} headers  the model's sectionHeaders
- * @returns {Array<{marks: number|null, source: 'printed'|'section'|null, section: string|null}>}
+ * @param {Array<{section: string|null, printedMarks: number|null, objective?: boolean}>} entries  in paper order
+ * @param {Array<{section?: unknown, marksEach?: unknown, text?: unknown}>|undefined} headers  the model's sectionHeaders
+ * @returns {Array<{marks: number|null, source: 'printed'|'section'|'inferred'|null, section: string|null}>}
  */
 function assignSectionMarks(entries, headers) {
   const headerMarks = new Map(); // letter → marks; a letter with two different marks is unknown (null)
+  const headerTrusted = new Map(); // letter → the header's number is the CBSE value or a factor of its printed "a × b"
   for (const h of Array.isArray(headers) ? headers : []) {
     const letter = sectionLetterOf(h && h.section);
     const marks = marksInRange(h && h.marksEach);
     if (!letter || marks === null) continue;
     headerMarks.set(letter, headerMarks.has(letter) && headerMarks.get(letter) !== marks ? null : marks);
+    const times = /(\d+(?:\.\d+)?)\s*[×xX*]\s*(\d+(?:\.\d+)?)/.exec(String((h && h.text) || ''));
+    const trusted = CBSE_SECTION_MARKS[letter] === marks || Boolean(times && (Number(times[1]) === marks || Number(times[2]) === marks));
+    headerTrusted.set(letter, (headerTrusted.has(letter) ? headerTrusted.get(letter) : true) && trusted);
   }
   const known = [...headerMarks.entries()].filter(([, m]) => m !== null);
   const cbsePattern = known.length >= 2 && known.every(([l, m]) => CBSE_SECTION_MARKS[l] === m);
@@ -266,10 +276,14 @@ function assignSectionMarks(entries, headers) {
   return entries.map((e) => {
     const section = e.section || carried;
     if (section) carried = section;
-    if (e.printedMarks !== null) return { marks: e.printedMarks, source: 'printed', section };
-    if (section && headerMarks.get(section) != null) return { marks: headerMarks.get(section), source: 'section', section };
-    if (section && cbsePattern && !headerMarks.has(section)) return { marks: CBSE_SECTION_MARKS[section], source: 'section', section };
-    return { marks: null, source: null, section };
+    let ruled = { marks: null, source: null, section };
+    if (e.printedMarks !== null) ruled = { marks: e.printedMarks, source: 'printed', section };
+    else if (section && headerMarks.get(section) != null) {
+      ruled = { marks: headerMarks.get(section), source: headerTrusted.get(section) ? 'section' : 'inferred', section };
+    } else if (section && cbsePattern && !headerMarks.has(section)) ruled = { marks: CBSE_SECTION_MARKS[section], source: 'section', section };
+    // §13: never more than 1 mark for an objective question by rule (the 0/full clamp needs ≤ 1).
+    if (e.objective === true && ruled.marks !== null && ruled.marks > 1) return { marks: null, source: null, section };
+    return ruled;
   });
 }
 

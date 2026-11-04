@@ -31,20 +31,40 @@ export interface FinalMarksSummaryInput {
 
 const NUMBER_WORD =
   "zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|half|all|none|both";
+/** A digit — Latin or Devanagari (a Hindi-medium summary writes ७ में से ४ अंक). */
+const DIGIT = "[\\d\u0966-\u096F]";
 /** A quantity: a digit, or a number word. */
-const QUANTITY = new RegExp(`\\d|\\b(?:${NUMBER_WORD})\\b`, "i");
-/** A score or count cue. */
-const SCORE_CUE =
-  /\b(?:marks?|scored?|scoring|out of|points?|percent|correct(?:ly)?|right|wrong|got|lost|earned|secured|full)\b|%|\d\s*\/\s*\d/i;
+const QUANTITY = new RegExp(`${DIGIT}|\\b(?:${NUMBER_WORD})\\b`, "i");
+/** Cues that make a quantity a SCORE on their own. */
+const STRONG_CUES: RegExp[] = [
+  /\b(?:scored|scoring|earned|secured|lost|awarded)\b/i,
+  new RegExp(`${DIGIT}\\s*\\/\\s*${DIGIT}`),
+  /%|\bpercent\b/i,
+  /\u0905\u0902\u0915|\u092E\u0947\u0902 \u0938\u0947/, // "अंक" (marks) · "में से" (out of)
+  new RegExp(`${DIGIT}+(?:\\.\\d+)?\\s*marks?\\b`, "i"), // "3 marks" — not "2 more marks"
+  new RegExp(`\\b(?:${NUMBER_WORD})\\s+marks?\\b`, "i"), // "three marks"
+  new RegExp(`\\bout of\\s*${DIGIT}+(?:\\.\\d+)?\\s*(?:marks?\\b|[.,;:!?)]|$)`, "i"), // "4 out of 7" — not "out of 5 chapters"
+];
+/** Cues that are a score only beside "out of", "/", "marks" or "%". */
+const WEAK_CUE = /\b(?:right|wrong|correct(?:ly)?|got|full)\b/i;
+const WEAK_CONTEXT = /\bout of\b|\/|\bmarks?\b|%/i;
 
-/** True when a sentence claims a score or a count (a number together with a score cue). */
-export function claimsAScore(sentence: string): boolean {
-  return QUANTITY.test(sentence) && SCORE_CUE.test(sentence);
+/** A question or section REFERENCE ("Q3", "Question 20", "Section C") is not a quantity. */
+function withoutReferences(sentence: string): string {
+  return sentence.replace(/\b(?:Q|Question)\s*\.?\s*\d+\b/gi, " ").replace(/\bSection\s+[A-E]\b/gi, " ");
 }
 
-/** Split into sentences, keeping each sentence's own end punctuation. */
+/** True when a sentence claims a score: a quantity with a strong cue, or a weak cue in a marks context. */
+export function claimsAScore(sentence: string): boolean {
+  const s = withoutReferences(sentence);
+  if (!QUANTITY.test(s)) return false;
+  if (STRONG_CUES.some((re) => re.test(s))) return true;
+  return WEAK_CUE.test(s) && WEAK_CONTEXT.test(s);
+}
+
+/** Split into sentences at end punctuation followed by space, so a decimal (9.8) is never split. */
 function sentencesOf(text: string): string[] {
-  return text.match(/[^.!?]+(?:[.!?]+|$)/g)?.map((s) => s.trim()).filter(Boolean) ?? [];
+  return text.split(/(?<=[.!?\u0964])\s+/).map((s) => s.trim()).filter(Boolean);
 }
 
 const fmt = (n: number) => String(Math.round(n * 2) / 2);

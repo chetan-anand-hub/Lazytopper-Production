@@ -2012,7 +2012,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   // `detectedQuestions` IS what the grade request sends (q.marks), so the edit is what is graded.
   function correctPaperMarks(index: number, marks: number) {
     setDetectedQuestions((qs) =>
-      qs ? qs.map((q, i) => (i === index ? { ...q, marks, marksSource: "user" as const } : q)) : qs,
+      // §13: an objective (MCQ / A-R) question is never re-marked here (the editor shows it read-only).
+      qs ? qs.map((q, i) => (i === index && q.objective !== true ? { ...q, marks, marksSource: "user" as const } : q)) : qs,
     );
   }
 
