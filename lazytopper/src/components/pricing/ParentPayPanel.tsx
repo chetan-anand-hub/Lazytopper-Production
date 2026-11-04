@@ -52,6 +52,11 @@ type Reason = ParentLinkReason;
 interface Copy {
   brand: string;
   title: (name: string) => string;
+  /**
+   * PACK-DIALOG-1 (owner, 4 Nov) - a refused link whose product is NOT known on this page (the server's refusal names no product):
+   * a neutral heading, never the Board Pass title (a used Chapter Pack link read "Pay for your child's LazyTopper Board Pass").
+   */
+  refusedTitle: Record<Reason, string>;
   intro: (name: string) => string;
   month: (price: string) => string;
   boards: (price: string) => string;
@@ -78,6 +83,14 @@ const COPY: Record<ParentPayLang, Copy> = {
   en: {
     brand: "LazyTopper",
     title: (name) => (name ? `Pay for ${name}'s LazyTopper Board Pass` : "Pay for your child's LazyTopper Board Pass"),
+    refusedTitle: {
+      used: "This payment link has already been used",
+      expired: "This payment link has expired",
+      invalid: "LazyTopper payment link",
+      covered: "LazyTopper payment link",
+      owned: "LazyTopper payment link",
+      failed: "LazyTopper payment link",
+    },
     intro: (name) =>
       `${name || "Your child"} sent you this link. LazyTopper checks CBSE Class 10 answers step by step, the way a board examiner marks them, and shows where marks are lost.`,
     month: (price) => `Pay ${price} for a month`,
@@ -114,6 +127,14 @@ const COPY: Record<ParentPayLang, Copy> = {
   hi: {
     brand: "LazyTopper",
     title: (name) => (name ? `${name} के LazyTopper Board Pass का भुगतान करें` : "अपने बच्चे के LazyTopper Board Pass का भुगतान करें"),
+    refusedTitle: {
+      used: "इस भुगतान लिंक का इस्तेमाल हो चुका है",
+      expired: "इस भुगतान लिंक की समय-सीमा खत्म हो गई है",
+      invalid: "LazyTopper भुगतान लिंक",
+      covered: "LazyTopper भुगतान लिंक",
+      owned: "LazyTopper भुगतान लिंक",
+      failed: "LazyTopper भुगतान लिंक",
+    },
     intro: (name) =>
       `${name || "आपके बच्चे"} ने आपको यह लिंक भेजा है। LazyTopper CBSE कक्षा 10 के उत्तरों को बोर्ड परीक्षक की तरह स्टेप-बाय-स्टेप जाँचता है और बताता है कि नंबर कहाँ कटते हैं।`,
     month: (price) => `एक महीने के लिए ${price} दें`,
@@ -164,7 +185,7 @@ export interface ParentPayPanelViewProps {
   pendingHoldMs?: number;
 }
 
-type ViewState = { kind: "loading" } | { kind: "ready"; data: ParentLinkView } | { kind: "refused"; reason: Reason };
+type ViewState = { kind: "loading" } | { kind: "ready"; data: ParentLinkView } | { kind: "refused"; reason: Reason; data?: ParentLinkView };
 
 export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHoldMs = PAY_PENDING_TTL_MS }: ParentPayPanelViewProps) {
   const [lang, setLang] = useState<ParentPayLang>("en");
@@ -217,7 +238,14 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
     };
   }, [token, view]);
 
-  const name = state.kind === "ready" ? state.data.firstName : "";
+  /** The link's own view when this page has it (ready, or refused AFTER it was viewed - e.g. paid from another tab). */
+  const known = state.kind === "ready" || state.kind === "refused" ? state.data ?? null : null;
+  const name = known ? known.firstName : "";
+
+  /** PACK-DIALOG-1 - a refusal after the link was viewed keeps what the page knows (the product and the child's name). */
+  function refuse(reason: Reason) {
+    setState((s) => (s.kind === "ready" ? { kind: "refused", reason, data: s.data } : { kind: "refused", reason }));
+  }
 
   async function handleBuy(passType: PassType, priceInr: number) {
     if (busy || confirming) return;
@@ -249,7 +277,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
       // PAY-RECOVER-1 — no `purchase` here: the server has not confirmed this payment.
       setConfirming(true);
     } else if (outcome.status === "failed") {
-      if (outcome.reason) setState({ kind: "refused", reason: outcome.reason });
+      if (outcome.reason) refuse(outcome.reason);
       else setFailed(true);
     }
   }
@@ -277,7 +305,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
     } else if (outcome.status === "pending") {
       setConfirming(true);
     } else if (outcome.status === "failed") {
-      if (outcome.reason) setState({ kind: "refused", reason: outcome.reason });
+      if (outcome.reason) refuse(outcome.reason);
       else setFailed(true);
     }
   }
@@ -285,13 +313,24 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
   const prices = state.kind === "ready" && !state.data.pack ? state.data.prices : null;
   const pack = state.kind === "ready" && state.data.pack ? state.data.pack : null;
   const packName = pack ? packNameOf(pack) : "";
+  // The heading names the product only when the page KNOWS it; a refusal with no view is neutral (PACK-DIALOG-1).
+  const knownPack = known?.pack ?? null;
+  const knownPackName = knownPack ? packNameOf(knownPack) : "";
+  const heading =
+    state.kind === "refused" && !known
+      ? t.refusedTitle[state.reason]
+      : knownPack
+        ? t.packTitle(name, knownPackName)
+        : t.title(name);
+  const label =
+    state.kind === "refused" && !known ? t.refusedTitle[state.reason] : knownPack ? t.packTitle("", knownPackName) : t.title("");
 
   return (
-    <main className="lt-parent-pay" aria-label={pack ? t.packTitle("", packName) : t.title("")} lang={lang}>
+    <main className="lt-parent-pay" aria-label={label} lang={lang}>
       <div className="lt-parent-pay-band">
         <div className="lt-parent-pay-band-inner">
           <p className="lt-parent-pay-brand">{t.brand}</p>
-          <h1 className="lt-parent-pay-title">{pack ? t.packTitle(name, packName) : t.title(name)}</h1>
+          <h1 className="lt-parent-pay-title">{heading}</h1>
         </div>
       </div>
       <div className="lt-parent-pay-card">

@@ -311,3 +311,57 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     expect(screen.getByTestId("parent-pay-paid").textContent).toBe("Aarav के पास यह पैक पहले से था, इसलिए कुछ नया नहीं जोड़ा गया।");
   });
 });
+
+/**
+ * PACK-DIALOG-1 (owner live test, 4 Nov 15:21) - a paid Triangles Chapter Pack link, re-opened, read "Pay for your child's
+ * LazyTopper Board Pass". A refusal from the server names no product, so the heading is neutral; when the page already viewed
+ * the link (refused AFTER the view), it keeps the product and the child's name.
+ */
+describe("PACK-DIALOG-1 · the heading of a used / expired link", () => {
+  const TRIANGLES: ParentLinkView = { ...VIEW, prices: { month: null, till_boards: null }, pack: { sku: "pack_chapter", target: "triangles", priceInr: 49 } };
+  const refusedView = (reason: "used" | "expired") => vi.fn(async (): Promise<ParentLinkView> => Promise.reject(new ParentLinkError(reason)));
+  const h1 = () => screen.getByRole("heading", { level: 1 }).textContent;
+  const hindi = () => fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+
+  it("a used link (pack OR Board Pass - the refusal does not say): neutral heading, never 'Board Pass' (en + hi)", async () => {
+    await renderPanel({ view: refusedView("used") });
+    expect(h1()).toBe("This payment link has already been used");
+    expect(screen.getByRole("main").getAttribute("aria-label")).toBe("This payment link has already been used");
+    expect(screen.getByTestId("parent-pay-refused")).toHaveTextContent("already been used");
+    expect(document.body.textContent).not.toMatch(/board pass|premium/i);
+    hindi();
+    expect(h1()).toBe("इस भुगतान लिंक का इस्तेमाल हो चुका है");
+    expect(document.body.textContent).not.toMatch(/board pass|premium/i);
+  });
+
+  it("an expired link: neutral heading (en + hi)", async () => {
+    await renderPanel({ view: refusedView("expired") });
+    expect(h1()).toBe("This payment link has expired");
+    expect(document.body.textContent).not.toMatch(/board pass|premium/i);
+    hindi();
+    expect(h1()).toBe("इस भुगतान लिंक की समय-सीमा खत्म हो गई है");
+    expect(document.body.textContent).not.toMatch(/board pass|premium/i);
+  });
+
+  it("a PACK link used while the page was open keeps its pack title and the child's name (en + hi)", async () => {
+    await renderPanel({ view: vi.fn(async () => TRIANGLES), buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "failed", reason: "used" })) });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹49 once" }));
+    });
+    expect(screen.getByTestId("parent-pay-refused")).toHaveTextContent("already been used");
+    expect(h1()).toBe("Pay for Aarav's Triangles Chapter Pack");
+    expect(document.body.textContent).not.toMatch(/board pass/i);
+    hindi();
+    expect(h1()).toBe("Aarav के Triangles Chapter Pack का भुगतान करें");
+  });
+
+  it("a BOARD PASS link used while the page was open keeps the Board Pass title and the name (en + hi)", async () => {
+    await renderPanel({ buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "failed", reason: "used" })) });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
+    });
+    expect(h1()).toBe("Pay for Aarav's LazyTopper Board Pass");
+    hindi();
+    expect(h1()).toBe("Aarav के LazyTopper Board Pass का भुगतान करें");
+  });
+});
