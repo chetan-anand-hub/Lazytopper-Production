@@ -59,6 +59,7 @@ import type {
   WorksheetGradeResponse,
   WorksheetQuestionGrade,
 } from "../../ai/aiClient";
+import { finalMarksSummary } from "../results/finalMarksSummary";
 
 /**
  * WorksheetGradePanel — PR-E2b: the one-PDF structured grade loop on the
@@ -710,8 +711,9 @@ export default function WorksheetGradePanel({
           )}
 
           {/* Summary — suppressed when it is model meta-prose (§A6, display-only) */}
+          {/* GRADE-MARKS-1 — never a model-written score that disagrees with the final marks. */}
           {!isLeakySummary(response.summary, response.gradedCount) && (
-            <div className="lt-wg__summary"><MathText text={response.summary ?? ""} /></div>
+            <div className="lt-wg__summary"><MathText text={finalMarksSummary(response)} /></div>
           )}
 
           {/* Tap-to-reveal per-section question list (LIMITS-1 PR-2: held back while the breakdown is locked) */}

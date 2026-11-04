@@ -793,10 +793,50 @@ function objectiveOffersOptions(q) {
   const t = String(q.format || q.qType || '').toLowerCase();
   if (t === 'mcq' || t === 'ar' || t === 'assertionreason' || t === 'assertion-reason') return true;
   const text = String(q.questionText || q.question || '');
-  if (/\bassertion\b/i.test(text) && /\breason\b/i.test(text)) return true;
-  const letters = new Set();
-  for (const m of text.matchAll(/\(\s*([a-dA-D])\s*\)/g)) letters.add(m[1].toLowerCase());
-  return letters.size >= 2;
+  // GRADE-MARKS-1 (S2) · read from the TEXT only when it really is a printed option list:
+  //   Assertion-Reason needs BOTH "Assertion (A)" and "Reason (R)" ("give a reason for the assertion
+  //   that …" is a written question);
+  //   otherwise ONE label style printed as an option list:
+  //   · letters "(a)", "a)", "a."/"A." — all FOUR, a b c d, in order (a CBSE MCQ prints four; "Prove
+  //     that a) … and b) …" has two), the first not an instruction ("a) Find the HCF … b) Hence …" is
+  //     sub-parts). NO length cap: a Science MCQ's options are often full sentences;
+  //   · "(i)" / "(1)" — at least three in order, each TERSE (≤ 40 chars) and none an instruction
+  //     ("(i) Find the distance. (ii) Find the angle." is a case study's parts).
+  if (/\bassertion\s*\(\s*a\s*\)/i.test(text) && /\breason\s*\(\s*r\s*\)/i.test(text)) return true;
+  return OPTION_LIST_STYLES.some((style) => isOptionList(text, style));
+}
+
+const OPTION_INSTRUCTION = /^(?:find|prove|show|state|define|explain|calculate|hence|give|write|draw|name|determine|evaluate|solve|derive|justify|describe|list|compare|verify|construct)\b/i;
+const ROMAN_INDEX = { i: 0, ii: 1, iii: 2, iv: 3 };
+/** Each label style: its marker pattern (group 1 = the label) and the label's position (0 = first option). */
+const LETTER = (l) => 'abcd'.indexOf(l.toLowerCase());
+const OPTION_LIST_STYLES = [
+  { re: /\(\s*([a-d])\s*\)/gi, index: LETTER, letters: true },
+  { re: /(?:^|[\s:;,?])([a-d])\)(?=\s)/gi, index: LETTER, letters: true },
+  { re: /(?:^|[\s:;,?])([a-d])\.(?=\s)/gi, index: LETTER, letters: true },
+  { re: /\(\s*(i{1,3}|iv)\s*\)/gi, index: (l) => ROMAN_INDEX[l.toLowerCase()], letters: false },
+  { re: /\(\s*([1-4])\s*\)/g, index: (l) => Number(l) - 1, letters: false },
+];
+
+/** True when `text` holds an option list in this one label style (see objectiveOffersOptions). */
+function isOptionList(text, style) {
+  const marks = [...text.matchAll(style.re)].map((m) => ({ i: style.index(m[1]), start: m.index, end: m.index + m[0].length }));
+  const need = style.letters ? 4 : 3;
+  if (marks.length < need) return false;
+  // the first markers, in order, label the first, second, third (and, for letters, fourth) option
+  for (let k = 0; k < need; k += 1) if (marks[k].i !== k) return false;
+  const optionText = (k) => text.slice(marks[k].end, k + 1 < marks.length ? marks[k + 1].start : text.length)
+    .replace(/\[\s*\d+\s*\]\s*$/, '').trim();
+  if (style.letters) {
+    // no length cap (a Science option is often a sentence); the FIRST option must not be an instruction
+    const first = optionText(0);
+    return Boolean(first) && !OPTION_INSTRUCTION.test(first);
+  }
+  for (let k = 0; k < marks.length; k += 1) {
+    const opt = optionText(k);
+    if (!opt || opt.length > 40 || OPTION_INSTRUCTION.test(opt)) return false;
+  }
+  return true;
 }
 
 function normaliseQuestionResult(q, raw, ctx = {}) {
@@ -1459,6 +1499,8 @@ function pendingNote(q, modelNote) {
 
 module.exports = {
   normaliseQuestionResult,
+  // GRADE-MARKS-1 · read by the grade routes' objective-marks guard (routes/checkSolution.cjs).
+  objectiveOffersOptions,
   copiesScheme,
   gramContainment,
   stripAnswerLabel,

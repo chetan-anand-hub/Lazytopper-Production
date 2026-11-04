@@ -191,3 +191,123 @@ describe("TUTOR-RETURN-SHEET-1 - the persisted Answer Checker payload carries th
     });
   });
 });
+
+/* GRADE-MARKS-1 - the Answer Checker whole paper: the paid read asks detect for section marks, the
+   confirm step lets the student correct each question's marks BEFORE grading (the edit is what the
+   grade request sends), a guessed mark is flagged, and the paper summary states the FINAL marks.
+   (Kept in this file: it grades on the same real page with the same mocks.) */
+// Q19 / Q20 / Q21 of a sectioned paper: Q20 sits on a page with no header and its mark was guessed.
+const GM_PAPER = {
+  ok: true,
+  detectedMarks: 3,
+  detectedSubject: "Maths",
+  detectedTopic: "real-numbers",
+  marksSource: "stated",
+  questions: [
+    { questionNumber: 1, questionText: "Q1 MCQ", marks: 1, marksSource: "section", section: "A", objective: true, offersOptions: true },
+    { questionNumber: 2, questionText: "Q2 MCQ", marks: 1, marksSource: "section", section: "A", objective: true, offersOptions: true },
+    { questionNumber: 20, questionText: "Prove that root 5 is irrational.", marks: 5, marksSource: "inferred", section: "C" },
+  ],
+};
+const gmRow = (qNumber: number, marksAwarded: number, totalMarks: number, objective = false) => ({
+  qNumber, couldNotRead: false, ok: true, totalMarks, marksAwarded, percentage: 0, objective,
+  annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+});
+// The final (clamped) rows: both MCQs right (2/2), Q20 2/3. The model's own summary says "1 out of 2".
+const GM_GRADED = {
+  ok: true,
+  results: [gmRow(1, 1, 1, true), gmRow(2, 1, 1, true), gmRow(20, 2, 3)],
+  totalQuestions: 3, gradedCount: 3, pendingCount: 0,
+  gradedMarksAwarded: 4, gradedMarksTotal: 5, worksheetTotalMarks: 5,
+  summary: "You scored 1 out of 2 marks on these objective questions. Always state the assumption first in a proof.",
+};
+
+describe("GRADE-MARKS-1 - Answer Checker paper marks", () => {
+  beforeEach(() => {
+    H.detectQuestion.mockReset().mockImplementation(async (req: { question?: string }) =>
+      req.question === "Whole paper" ? GM_PAPER : { ok: true, detectedTopic: null, detectedSubject: null },
+    );
+    H.gradeWorksheet.mockReset().mockResolvedValue(GM_GRADED);
+  });
+
+  it("asks for section marks, flags the guess, sends the student's corrected marks, and the summary states the final marks", async () => {
+    const { container } = render(page());
+    fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: "Whole paper" } });
+    fireEvent.click(screen.getByRole("button", { name: /(Re-read|Read) the question/ }));
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    await act(async () => {});
+    expect(H.detectQuestion.mock.calls[0][0]).toMatchObject({ sectionMarks: true, keySource: true });
+
+    expect(await screen.findByText("Check: we guessed 5")).toBeTruthy();
+    // §13: the MCQs are read-only (a 1-mark, 0-or-full question is never re-marked).
+    expect(screen.queryByLabelText("Marks for Q1")).toBeNull();
+    expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 7 marks");
+    fireEvent.change(screen.getByLabelText("Marks for Q20"), { target: { value: "3" } });
+    expect(screen.queryByText(/Check: we guessed/)).toBeNull();
+    expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 5 marks");
+
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    const grade = await screen.findByRole("button", { name: /Grade my answer|Retry grading/ });
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    const sent = H.gradeWorksheet.mock.calls[0][0] as { questions: Array<{ qNumber: number; marks: number }> };
+    expect(sent.questions.map((q) => [q.qNumber, q.marks])).toEqual([[1, 1], [2, 1], [20, 3]]);
+    // The request carries no new field: the section letter is display-only (never a grading signal).
+    for (const q of sent.questions) expect(q).not.toHaveProperty("section");
+
+    await waitFor(() => expect(screen.getByText(/On the objective questions: 2 out of 2 marks\./)).toBeTruthy());
+    expect(document.body.textContent).not.toContain("1 out of 2 marks on these objective questions");
+    expect(document.body.textContent).toContain("Always state the assumption first in a proof.");
+  });
+});
+
+describe("GRADE-MARKS-1 R4 - the single-question marks chip is locked at 1 for a detect-objective question", () => {
+  it("an MCQ read as 2 marks is shown and SENT as 1; the 1-6 chip is not offered", async () => {
+    H.detectQuestion.mockReset().mockResolvedValue({
+      ok: true, detectedMarks: 2, detectedSubject: "Maths", detectedTopic: "polynomials", marksSource: "inferred", detectedObjective: true,
+      questions: [{ questionNumber: 1, questionText: "Which is a zero of x^2 - 5x + 6? a) 1 b) 2 c) 4 d) 5", marks: 2, marksSource: "inferred", objective: true, offersOptions: true }],
+    });
+    render(page());
+    await typeAndReadQuestion("Which is a zero of x^2 - 5x + 6? a) 1 b) 2 c) 4 d) 5");
+    expect(document.body.textContent).toContain("1 mark");
+    fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    expect(screen.getByTestId("ci-marks-locked")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "3" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    typeAnswer("My answer is option b) 2");
+    await clickGrade();
+    await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));
+    expect((H.checkSolutionImage.mock.calls[0][0] as { marks: number }).marks).toBe(1);
+  });
+});
+
+describe("GRADE-MARKS-1 S1 - a detect-objective question WITHOUT an option list stays editable", () => {
+  it("a wrongly-flagged 5-mark proof keeps 5, is editable, and is sent as a WRITTEN question (objective false)", async () => {
+    H.detectQuestion.mockReset().mockImplementation(async (req: { question?: string }) =>
+      req.question === "Whole paper"
+        ? { ok: true, detectedMarks: 1, detectedSubject: "Maths", detectedTopic: "real-numbers", marksSource: "stated",
+            questions: [
+              { questionNumber: 1, questionText: "Q1 MCQ", marks: 1, marksSource: "section", objective: true, offersOptions: true },
+              { questionNumber: 22, questionText: "Prove that root 5 is irrational.", marks: 5, marksSource: "section", objective: true, offersOptions: false },
+            ] }
+        : { ok: true, detectedTopic: null, detectedSubject: null },
+    );
+    H.gradeWorksheet.mockReset().mockResolvedValue({ ok: true, results: [gmRow(1, 1, 1, true), gmRow(22, 3, 5)], totalQuestions: 2, gradedCount: 2, pendingCount: 0, gradedMarksAwarded: 4, gradedMarksTotal: 6, worksheetTotalMarks: 6, summary: "" });
+    const { container } = render(page());
+    fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: "Whole paper" } });
+    fireEvent.click(screen.getByRole("button", { name: /(Re-read|Read) the question/ }));
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    await act(async () => {});
+    expect((screen.getByLabelText("Marks for Q22") as HTMLInputElement).value).toBe("5");
+    expect(screen.queryByLabelText("Marks for Q1")).toBeNull();
+    expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 6 marks");
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    await clickGrade();
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    const sent = (H.gradeWorksheet.mock.calls[0][0] as { questions: Array<{ qNumber: number; marks: number; objective: boolean }> }).questions;
+    expect(sent.map((q) => [q.qNumber, q.marks, q.objective])).toEqual([[1, 1, true], [22, 5, false]]);
+  });
+});

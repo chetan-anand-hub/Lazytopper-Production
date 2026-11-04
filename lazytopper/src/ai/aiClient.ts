@@ -800,7 +800,17 @@ export interface DetectedQuestion {
   questionNumber: number;
   questionText: string;
   marks: number;
-  marksSource: "stated" | "inferred";
+  /** "stated"/"inferred" on a legacy read. GRADE-MARKS-1 — a read sent with `sectionMarks: true`
+   *  reports how the mark was set: "printed" (on the question), "section" (its section header,
+   *  or the CBSE section map), or "inferred" (a guess the student is asked to check). "user" =
+   *  the student corrected it on the confirm step (client-side only). */
+  marksSource: "stated" | "inferred" | "printed" | "section" | "fallback" | "user";
+  /** GRADE-MARKS-1 — the section letter ("A"–"E") detect placed the question in (opt-in read only). */
+  section?: string | null;
+  /** GRADE-MARKS-1 (S1) — an objective question whose text prints an option list (MCQ) or is an
+   *  Assertion-Reason item, by the server's own test (opt-in read only). Only such a question is
+   *  locked at 1 mark; the grade routes force exactly these to 1 (§13). */
+  offersOptions?: boolean;
   /** True for a multiple-choice / assertion-reason question. Forwarded to the grade
    *  call so a keyless objective question is clamped to 0/full (≤1-mark rail). */
   objective?: boolean;
@@ -835,6 +845,10 @@ export async function detectQuestion(req: {
   imageBase64?: string;
   imageMimeType?: string;
   topicVocabulary?: CheckSolutionTopicVocab[];
+  /** MCQ-KEY-TRUST-1 — paid Answer Checker read only: label each key "printed" | "derived". */
+  keySource?: boolean;
+  /** GRADE-MARKS-1 — paid Answer Checker read only: marks by section header before any guess. */
+  sectionMarks?: boolean;
 }, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
   const res = await sendWithTokenRefresh(
     opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),

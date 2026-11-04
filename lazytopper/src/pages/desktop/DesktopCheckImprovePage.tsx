@@ -168,6 +168,8 @@ import {
 } from "../../services/freeCheckClient";
 import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
+import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
+import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
 import {
   FreeCheckRefusalPanel,
@@ -1659,6 +1661,8 @@ const DesktopCheckImprovePageInner: React.FC<{
     questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   // Two or more questions were read from the upload → grade the whole paper.
   const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
+  // GRADE-MARKS-1 (§13) — the single question is a detect-objective one: its marks chip is locked at 1.
+  const singleObjectiveLocked = !isMultiQuestion && Boolean(detectedQuestions?.[0] && isLockedObjective(detectedQuestions[0]));
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
   // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
@@ -1936,13 +1940,23 @@ const DesktopCheckImprovePageInner: React.FC<{
         // it worked out never overrides the grader (detectedKeyFields). Paid reads only: the free
         // check never sends a key, and its request shape is fixed [FU-B15-FREECHECK-V2].
         ...(freeCallOpts ? {} : { keySource: true }),
+        // GRADE-MARKS-1 — a question with no printed mark takes its section header's mark (carried
+        // across page breaks) before any guess. Paid reads only, like keySource: the free check's
+        // request shape is fixed.
+        ...(freeCallOpts ? {} : { sectionMarks: true }),
       };
       const d = await detectQuestion(detectReq, freeCallOpts);
       if (!d || d.ok === false) {
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
       }
-      const cd = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
+      // GRADE-MARKS-1 (§13, S1) — an objective question that PRINTS its options (detect's
+      // `offersOptions`, the server's own test) is a 1-mark, 0-or-full question: shown, totalled and SENT
+      // as 1 on the single chip and the whole-paper editor alike (the server forces the same). Any other
+      // detect-objective question keeps its read marks and stays editable (sendAsObjective).
+      const readQs = d.questions?.map((x) => (isLockedObjective(x) && x.marks !== 1 ? { ...x, marks: 1 } : x));
+      const cd0 = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
+      const cd = (readQs?.length ?? 0) <= 1 && readQs?.[0] && isLockedObjective(readQs[0]) ? { ...cd0, marks: 1 } : cd0;
       setDetected(cd);
       setConfirmed(cd);
       const image = questionTab === "upload" ? qImageBase64 : null;
@@ -1956,7 +1970,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setTopicTouched(false);
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
-      setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
+      setDetectedQuestions(readQs && readQs.length > 0 ? readQs : null);
       // FU-CI-TYPEFIRST-MULTI: a WHOLE PAPER grades from the answer PHOTO, so a type-first default
       // (SHW-2) moves to "Upload image" - never when the student picked a tab or typed an answer.
       if ((d.questions?.length ?? 0) > 1 && tab === "type" && !ciAnswerTouchedRef.current && textAnswer.trim().length === 0) {
@@ -2000,7 +2014,16 @@ const DesktopCheckImprovePageInner: React.FC<{
     setTopicTouched(true); // provenance tag: confirmed/corrected by the student (C&I PR-1)
   }
   function correctMarks(m: number) {
+    if (singleObjectiveLocked) return; // §13: an MCQ that prints its options stays at 1 mark
     setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
+  }
+  // GRADE-MARKS-1 — the whole-paper confirm step: a student's correction of one question's marks.
+  // `detectedQuestions` IS what the grade request sends (q.marks), so the edit is what is graded.
+  function correctPaperMarks(index: number, marks: number) {
+    setDetectedQuestions((qs) =>
+      // §13: an MCQ that prints its options is never re-marked here (the editor shows it read-only).
+      qs ? qs.map((q, i) => (i === index && !isLockedObjective(q) ? { ...q, marks, marksSource: "user" as const } : q)) : qs,
+    );
   }
 
   function resetToInput() {
@@ -2360,7 +2383,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       const response = await gradeWorksheet({
         worksheetId: `ci:${sessionCode}`,
         subject: confirmed.subject,
-        questions: questionsToGrade.map((q) => ({
+        // GRADE-MARKS-1 (S1): an objective read the student raised above 1 mark is graded as written.
+        questions: questionsToGrade.map((q0) => sendAsObjective(q0) ? q0 : { ...q0, objective: false }).map((q) => ({
           qNumber: q.questionNumber,
           marks: q.marks,
           topic: confirmed.topicName || undefined,
@@ -2658,7 +2682,10 @@ const DesktopCheckImprovePageInner: React.FC<{
       const graded = await checkSolutionImage(buildSingleGradeRequest({
         question: trimmedQuestion,
         confirmed,
-        firstDetected: detectedQuestions?.[0],
+        // GRADE-MARKS-1 (S1): a single objective read the student raised above 1 mark is graded as written.
+        firstDetected: detectedQuestions?.[0] && confirmed.marks > 1 && !sendAsObjective({ ...detectedQuestions[0], marks: confirmed.marks })
+          ? { ...detectedQuestions[0], objective: false }
+          : detectedQuestions?.[0],
         freeCall: Boolean(freeCallOpts),
         answerPart,
       }), { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
@@ -3408,13 +3435,8 @@ const DesktopCheckImprovePageInner: React.FC<{
                 >
                   <strong>{detectedQuestions.length} questions detected</strong> · each question&rsquo;s
                   subject and chapter are read when it is graded
-                  <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, display: "flex", flexWrap: "wrap", gap: "0 16px" }}>
-                    {detectedQuestions.map((q, qi) => (
-                      <span key={`${q.questionNumber}-${qi}`}>
-                        Q{q.questionNumber} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
-                      </span>
-                    ))}
-                  </div>
+                  {/* GRADE-MARKS-1 — each question's marks, editable before grading; guesses flagged. */}
+                  <PaperMarksEditor questions={detectedQuestions} onMarksChange={correctPaperMarks} />
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4 }}>
                     Upload your answer sheet (image or PDF) below to grade all {detectedQuestions.length}.
                   </div>
@@ -3492,6 +3514,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                           <option key={t.slug} value={t.slug}>{t.name}</option>
                         ))}
                       </select>
+                      {singleObjectiveLocked ? (
+                        <LockedMarksNote />
+                      ) : (
                       <div style={{ display: "flex", gap: 6 }}>
                         {[1, 2, 3, 4, 5, 6].map((m) => {
                           const active = confirmed.marks === m;
@@ -3513,6 +3538,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                           );
                         })}
                       </div>
+                      )}
                       <button
                         type="button"
                         onClick={() => setEditing(false)}
@@ -3970,6 +3996,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     const paperCut = detectedQuestions ? trialPaperCut(detectedQuestions.length, ciPaperLimit) : null;
     const paperAllowance = fairUse.snapshot?.trial?.limits.checksPerDay ?? null;
     const paperNote = paperCut ? trialPaperNoteCopy(paperCut, paperAllowance) : null;
+    const finalSummary = finalMarksSummary(ws);
     return withChrome(
       <div
         style={{
@@ -4078,9 +4105,10 @@ const DesktopCheckImprovePageInner: React.FC<{
               labels={detectedQuestions.map((q) => `Q${q.questionNumber}`)}
             />
           ) : null}
-          {ws.summary && (
+          {/* GRADE-MARKS-1 — the model's summary never states a score that disagrees with the final marks. */}
+          {finalSummary && (
             <p style={{ margin: "12px 0 0", fontSize: 13.5, color: TEXT_FG, lineHeight: 1.6 }}>
-              <EquationRender text={ws.summary} />
+              <EquationRender text={finalSummary} />
             </p>
           )}
         </div>
