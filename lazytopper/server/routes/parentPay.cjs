@@ -78,6 +78,7 @@ const {
   quotePass,
   tableQuote,
   gstOrderFields,
+  gstResponseFields,
   readRawBody,
   PAY_ORDERS_COLLECTION,
   RAZORPAY_API_BASE,
@@ -804,7 +805,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 
   /**
@@ -883,7 +884,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.pack_created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise, ...gstResponseFields(packQuote, 0) });
   }
 
   /* ── POST /api/pay/parent/verify — every check, then the CHILD's grant ────── */

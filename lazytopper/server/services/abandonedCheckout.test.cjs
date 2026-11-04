@@ -503,3 +503,41 @@ test('no phone number in any rendered URL; the WhatsApp link names no number', (
     }
   }
 });
+
+// ── GST-EXCL-1 (review G3): the email states EXACTLY what "Finish paying" charges, via the same server quote ─────────
+function tinyDb(docs) {
+  const node = (path) => ({
+    get: async () => {
+      if (docs[path] !== undefined) return { exists: true, data: () => docs[path] };
+      const prefix = `${path}/`;
+      const kids = Object.keys(docs).filter((k) => k.startsWith(prefix) && !k.slice(prefix.length).includes('/'));
+      return { exists: false, data: () => undefined, docs: kids.map((k) => ({ id: k.slice(prefix.length), data: () => docs[k] })) };
+    },
+    doc: (id) => node(`${path}/${id}`),
+    collection: (name) => node(`${path}/${name}`),
+  });
+  return { collection: (name) => node(name) };
+}
+
+test('GST-EXCL-1 G3 · a credited Board Pass emailed after the cut-off states the finish-paying charge (2262 less 49 = 2213), not a recomputation of the old order', async () => {
+  const NOW = Date.parse('2026-11-05T10:00:00+05:30');
+  const db = tinyDb({
+    'subscriptions/u1': {},
+    'packEntitlements/u1/packs/pack_chapter:triangles': { packId: 'pack_chapter:triangles', sku: 'pack_chapter', pricePaidInr: 49, paidAt: Date.parse('2026-11-04T12:00:00+05:30'), creditedToPass: false },
+  });
+  const bp = A.productOf({ passType: 'till_boards' });
+  const q = await A.finishPayingQuote(db, 'u1', bp, NOW);
+  assert.equal(q.amountPaise, 221300);
+  // The abandoned order itself was a pre-cut-off credited order of 1868: the email must NOT say 1868 + GST = 2204.
+  const line = A.priceLine(bp, { amountPaise: 186800, packCreditInr: 49 }, NOW, q);
+  assert.equal(line, 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment till your boards.');
+  assert.equal(require('../routes/payments.cjs').quotePass({}, 'till_boards', NOW).amountPaise - 4900, q.amountPaise, 'the same quote the order route uses');
+  // A pack: the table quote.
+  const pk = A.productOf({ passType: 'pack_mock', packTarget: 'maths' });
+  const pq = await A.finishPayingQuote(db, 'u1', pk, NOW);
+  assert.equal(A.priceLine(pk, { amountPaise: 9900 }, NOW, pq), '₹99 + ₹18 GST (18%) = ₹117, one-time payment. It never renews.');
+  // An unreadable quote after the cut-off: no price line at all (never a guess).
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW, null), null);
+  // Before the cut-off nothing changes (the quote is not even consulted).
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW - 86400000, null), 'Board Pass: ₹1,917, one payment till your boards.');
+});

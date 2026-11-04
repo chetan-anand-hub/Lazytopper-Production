@@ -1254,6 +1254,8 @@ function createNudgeEmailer(deps = {}) {
           unsubscribeUrl,
           parentPayLive: config.paymentsLive,
           nowMs,
+          // GST-EXCL-1 (G3): from the cut-off, the price is the SAME quote "Finish paying" gets.
+          ...(pricing.boardPassGstExclusive(nowMs) ? { finishQuote: await abandoned.finishPayingQuote(adminFirestore, uid, product, nowMs) } : {}),
         });
         const result =
           fetchImpl && message

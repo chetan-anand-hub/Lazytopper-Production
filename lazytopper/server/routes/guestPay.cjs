@@ -72,6 +72,7 @@ const {
   quotePass,
   tableQuote,
   gstOrderFields,
+  gstResponseFields,
   readRawBody,
   paymentMismatch,
   PAY_ORDERS_COLLECTION,
@@ -526,6 +527,7 @@ function createGuestPayRoutes(deps = {}) {
       orderId: order.id,
       keyId: keys.keyId,
       amountPaise: quote.amountPaise,
+      ...gstResponseFields(quote, 0),
       // Review fix 6: never the number itself (the browser already has what it typed); only its masked form.
       phoneMasked: maskIndianMobile(phone),
     });
@@ -700,7 +702,7 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     emit('payments.guest.order.created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...recipientMasked(stored) });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, 0), ...recipientMasked(stored) });
   }
 
   /* ── POST /api/pay/guest/verify — every check, then paid_unclaimed (no grant) ── */

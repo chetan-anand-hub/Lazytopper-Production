@@ -26,6 +26,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 // PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
 import type { ParentPackRef } from "./parentPayPack";
+import { confirmServerPrice, serverPriceFields } from "./priceConfirm";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
 export const PARENT_VIEW_ENDPOINT = "/api/pay/parent/view";
@@ -212,7 +213,7 @@ async function createParentOrder(token: string, passType: PassType) {
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new ParentLinkError("failed");
   }
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 async function verifyParentPayment(token: string, success: RazorpaySuccess) {
@@ -243,6 +244,8 @@ export async function buyPassAsParent(
 ): Promise<ParentBuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(token, passType), deps.loadScript()]);
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,

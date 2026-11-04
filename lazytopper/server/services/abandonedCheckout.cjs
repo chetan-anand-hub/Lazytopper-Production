@@ -278,14 +278,51 @@ function orderAmountInr(order) {
 }
 
 /**
+ * GST-EXCL-1 (review G3) - what "Finish paying" will charge RIGHT NOW: the SAME server quote a new order gets
+ * (routes/payments.cjs quotePass + the pack credit for a Board Pass; tableQuote for a pack). Returns
+ * { amountPaise, gst?, packCreditInr } or null when anything cannot be read (then the email states no price at all
+ * after the cut-off, rather than a guess). Required lazily: the routes module is not loaded by the email job otherwise.
+ */
+async function finishPayingQuote(db, uid, product, nowMs) {
+  try {
+    const { quotePass, tableQuote } = require('../routes/payments.cjs');
+    if (product.kind === BOARD_PASS) {
+      const { boardPassCreditFor, applyCreditToQuote } = require('./packCredit.cjs');
+      const snap = await db.collection('subscriptions').doc(uid).get();
+      const stored = snap && snap.exists ? snap.data() || {} : {};
+      const base = quotePass(stored, 'till_boards', nowMs);
+      const credit = await boardPassCreditFor(db, uid, 'till_boards', base.pricePaidInr, nowMs);
+      const applied = applyCreditToQuote(base, credit);
+      return { amountPaise: applied.quote.amountPaise, gst: applied.quote.gst, packCreditInr: applied.packCreditInr };
+    }
+    const { PACK_PRODUCTS } = require('./packProducts.cjs');
+    const q = tableQuote(PACK_PRODUCTS[product.sku].priceInr, nowMs);
+    return { amountPaise: q.amountPaise, gst: q.gst, packCreditInr: 0 };
+  } catch {
+    return null;
+  }
+}
+
+/** The price text of a finish-paying quote ("₹1,917 + ₹345 GST (18%) = ₹2,262", a credit named). PURE. */
+function quotePriceText(q) {
+  if (!q || !Number.isInteger(q.amountPaise) || q.amountPaise <= 0) return null;
+  const charged = rupee(q.amountPaise / 100);
+  if (!q.gst) return charged;
+  const head = pricing.gstBreakdownFor(q.gst.baseInr, pricing.GST_EXCLUSIVE_FROM_MS);
+  return q.packCreditInr > 0 ? `${head}, less pack credit ${rupee(q.packCreditInr)}: ${charged}` : head;
+}
+
+/**
  * GST-EXCL-1 - the order's price as the email states it. An order created at/after the GST cut-off stored its breakup:
  * "₹1,917 + ₹345 GST (18%) = ₹2,262". An all-in order created BEFORE it, emailed AFTER it, would understate what "Finish
  * paying" now charges (a new order is base + GST), so its amount is shown as the base it was with GST added at `nowMs`.
  * Before the cut-off: the plain rupee amount, byte-identical to before. Null when the order has no usable amount. PURE.
  */
-function orderPriceText(order, nowMs) {
+function orderPriceText(order, nowMs, finishQuote) {
   const inr = orderAmountInr(order);
   if (inr === null) return null;
+  // G3: from the cut-off the email states EXACTLY what "Finish paying" charges now (the same quote), or no price.
+  if (Number.isFinite(nowMs) && pricing.boardPassGstExclusive(nowMs) && finishQuote !== undefined) return quotePriceText(finishQuote);
   const stored = pricing.orderGstBreakdown(order);
   if (stored) {
     const credit = Number.isInteger(order.packCreditInr) && order.packCreditInr > 0 ? order.packCreditInr : 0;
@@ -297,8 +334,8 @@ function orderPriceText(order, nowMs) {
 }
 
 /** The price line, from the order's own amount; null (no line) when the order has no usable amount. PURE. */
-function priceLine(product, order, nowMs) {
-  const text = orderPriceText(order, nowMs);
+function priceLine(product, order, nowMs, finishQuote) {
+  const text = orderPriceText(order, nowMs, finishQuote);
   if (text === null) return null;
   if (product.kind === BOARD_PASS) return `Board Pass: ${text}, one payment till your boards.`;
   return `${text}, one-time payment. It never renews.`;
@@ -321,11 +358,11 @@ function productName(product) {
  * sells passes, not packs); otherwise it is a WhatsApp share (no number) asking a parent to help.
  * @returns {{subject:string, text:string, html:string, links:{finish:string, parent:string}} | null}
  */
-function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubscribeUrl, parentPayLive, nowMs }) {
+function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubscribeUrl, parentPayLive, nowMs, finishQuote }) {
   const name = productName(product);
   if (!name) return null;
   const finish = finishPayingUrl(appUrl, product);
-  const priceText = orderPriceText(order, nowMs);
+  const priceText = orderPriceText(order, nowMs, finishQuote);
   const price = priceText === null ? '' : product.kind === BOARD_PASS ? ` (${priceText}, one payment till my boards)` : ` (${priceText}, one-time)`;
   const ask =
     product.kind === BOARD_PASS
@@ -344,7 +381,7 @@ function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubs
   ];
   if (hadFailedAttempt(order)) paras.push({ t: RETRY_LINE });
   paras.push({ t: benefitLine(product) });
-  const pl = priceLine(product, order, nowMs);
+  const pl = priceLine(product, order, nowMs, finishQuote);
   if (pl) paras.push({ t: pl });
   if (marksLine) paras.push({ t: marksLine });
   const buttons = [
@@ -402,6 +439,8 @@ module.exports = {
   whatsappShareUrl,
   benefitLine,
   priceLine,
+  finishPayingQuote,
+  quotePriceText,
   orderAmountInr,
   hadFailedAttempt,
   RETRY_LINE,

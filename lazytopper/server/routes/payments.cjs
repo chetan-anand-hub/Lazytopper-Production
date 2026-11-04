@@ -257,6 +257,17 @@ function gstOrderFields(quote) {
   return { baseInr: g.baseInr, gstInr: g.gstInr, totalInr: g.totalInr, gstRate: g.gstRate };
 }
 
+/**
+ * GST-EXCL-1 (review G2) - what the ORDER response tells the browser about the price it is about to pay: the server's own
+ * breakup, so a tab rendered before the cut-off (or a phone with a wrong clock) can show the corrected total and ask
+ * before Razorpay opens. Nothing for a pre-cut-off order: the response is byte-identical to before.
+ */
+function gstResponseFields(quote, packCreditInr) {
+  const g = gstOrderFields(quote);
+  if (!('baseInr' in g)) return {};
+  return { gst: { baseInr: g.baseInr, gstInr: g.gstInr, totalInr: g.totalInr }, ...(packCreditInr > 0 ? { packCreditInr } : {}) };
+}
+
 function createPaymentRoutes(deps = {}) {
   const {
     sendJson,
@@ -525,7 +536,7 @@ function createPaymentRoutes(deps = {}) {
     }
 
     emit('payments.order.created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 
   /**
@@ -1022,6 +1033,7 @@ module.exports = {
   quotePass,
   tableQuote,
   gstOrderFields,
+  gstResponseFields,
   readRawBody,
   paymentMismatch,
   PAY_ORDER_PATH,

@@ -17,6 +17,7 @@ import { trackPackPurchase, type PackSkuName } from "../../lib/packs/packAnalyti
 import { inAppBrowser } from "../../utils/inAppBrowser";
 import { buyAsGuest, maskIndianMobile, normaliseIndianMobile, tenDigits, type GuestBuyOutcome, type GuestItem } from "../../services/guestPay";
 import { boardPassGstBreakdown } from "../../config/pricing";
+import { PACK_SKUS, packGstBreakdown, type PackSku } from "../../services/packs";
 import "./guestPaySheet.css";
 import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../../utils/indianMobileInput";
 
@@ -250,8 +251,9 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
 
   const title = step.name === "paid" ? "Thank you" : step.name === "choose" ? GUEST_PAY_TITLE : "Pay with your phone number";
 
-  // GST-EXCL-1: the Board Pass breakup before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null for a pack / before 5 Nov.
-  const gstBreakdown = item.kind === "pass" ? boardPassGstBreakdown() : null;
+  // GST-EXCL-1: the breakup before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null before 5 Nov.
+  // Review G4: packs too - the breakup of the pack the sheet is selling.
+  const gstBreakdown = item.kind === "pass" ? boardPassGstBreakdown() : (PACK_SKUS as readonly string[]).includes(item.sku) ? packGstBreakdown(item.sku as PackSku) : null;
   return createPortal(
     <div className="lt-gps" data-testid="guest-pay-sheet" onClick={(e) => e.target === e.currentTarget && !busy && onClose()}>
       <div className="lt-gps__panel" role="dialog" aria-modal="true" aria-labelledby="lt-gps-title" tabIndex={-1} ref={panelRef}>

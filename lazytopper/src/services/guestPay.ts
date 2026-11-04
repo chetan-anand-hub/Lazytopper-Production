@@ -16,6 +16,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { ALSO_SIGNIN_EVENT, type AlsoSignIn } from "./checkoutWhoFlag";
 import { maskIndianMobile, normaliseIndianMobile } from "../lib/maskContact";
+import { confirmServerPrice, serverPriceFields } from "./priceConfirm";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -150,7 +151,7 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new GuestPayError("failed");
   }
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 async function verifyGuestPayment(success: RazorpaySuccess): Promise<void> {
@@ -182,6 +183,8 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
   const phoneMasked = maskIndianMobile(phone);
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, phone), deps.loadScript()]);
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,

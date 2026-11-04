@@ -36,6 +36,7 @@ import {
   type RazorpayConstructor,
   type RazorpaySuccess,
 } from "./checkout";
+import { confirmServerPrice } from "./priceConfirm";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
@@ -398,6 +399,8 @@ export async function buyPack(
       deps.prefill ? deps.prefill().catch((): CheckoutPrefill => ({})) : Promise.resolve<CheckoutPrefill>({}),
     ]);
     let sawFailure = false;
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,

@@ -1825,8 +1825,11 @@ test('GST-EXCL-1 · Board Pass: an order before the cut-off is byte-identical (1
   for (const k of ['baseInr', 'gstInr', 'totalInr', 'gstRate']) assert.equal(k in storedBefore, false, `${k} on a pre-cut-off order`);
   assert.deepEqual(quotePass({}, 'till_boards', GST_CUT - 1), { pricePaidInr: 1917, amountPaise: 191700, offerKey: 'founding' });
   clock = GST_CUT;
+  assert.equal('gst' in before, false, 'a pre-cut-off order response is byte-identical');
   const after = await createOrder(srv, 'u_post', 'till_boards');
   assert.equal(after.amountPaise, 226200);
+  // Review G2: the response carries the server breakup so the browser can confirm a price it did not show.
+  assert.deepEqual(after.gst, { baseInr: 1917, gstInr: 345, totalInr: 2262 });
   const sent = srv.rzp.calls.filter((c) => c.method === 'POST' && c.url.endsWith('/v1/orders')).pop();
   assert.equal(sent.body.amount, 226200, 'Razorpay is asked for the total');
   const stored = srv.db.read(`payOrders/${after.orderId}`);
@@ -1887,5 +1890,8 @@ test('GST-EXCL-1 · top-ups follow the same rule: 49 -> 58 and 149 -> 176 after 
   assert.equal(srv.db.read(`payOrders/${a.orderId}`).amountPaise, 5800);
   assert.equal(srv.db.read(`payOrders/${a.orderId}`).baseInr, 49);
   assert.equal(srv.db.read('usageCredits/u1').balanceMicroInr, 25 * MICRO);
+  // Review G5: the grant record carries base, GST and the total charged, like the order.
+  const g = srv.db.read(`usageCredits/u1/grants/${a.p.id}`);
+  assert.deepEqual([g.priceInr, g.baseInr, g.gstInr, g.totalInr], [49, 49, 9, 58]);
   assert.equal(pricing.priceWithGst(149, GST_CUT), 176);
 });

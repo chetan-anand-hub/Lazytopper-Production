@@ -29,6 +29,7 @@ import {
   type ParentPayLang,
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
+import { confirmServerPrice, serverPriceFields } from "./priceConfirm";
 
 /** The pack a link carries, as the SERVER reports it (its price is the server table's). */
 export interface ParentPackRef {
@@ -113,7 +114,7 @@ export async function createParentPackOrder(token: string) {
   const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack" });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new ParentLinkError("failed");
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 /** Believed only when the server says `kind: "pack"`; `duplicate` = the child already had it (review M2). */
@@ -134,6 +135,8 @@ const PACK_DEPS: ParentPackBuyDeps = { createOrder: createParentPackOrder, loadS
 export async function buyPackAsParent(token: string, packName: string, deps: ParentPackBuyDeps = PACK_DEPS): Promise<ParentBuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(token), deps.loadScript()]);
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,

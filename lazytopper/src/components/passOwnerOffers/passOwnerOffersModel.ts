@@ -74,7 +74,8 @@ const MOCK_BUNDLE_LEAD = `Sit the next one on paper: the ${BUNDLE_NAME} has ${BU
 function cbqItem(s: PackSubject): PassOfferItem {
   return { sku: "pack_cbq", target: s, label: `${subjectLabel(s)} ${packPayLabel("pack_cbq")}` };
 }
-const BUNDLE_ITEM: PassOfferItem = { sku: "pack_bundle", target: undefined, label: `${BUNDLE_NAME} ${packPayLabel("pack_bundle")}` };
+/** GST-EXCL-1 (review G2): built at RENDER time, never at module load, so a tab open across 00:00 IST 5 Nov shows today's charge. */
+const bundleItem = (): PassOfferItem => ({ sku: "pack_bundle", target: undefined, label: `${BUNDLE_NAME} ${packPayLabel("pack_bundle")}` });
 
 function subjectOf(hint: PassOfferHint): PackSubject | null {
   if (hint.subject === "maths" || hint.subject === "science") return hint.subject;
@@ -99,7 +100,7 @@ export function pickPassOwnerOffer(placement: PassOfferPlacement, hint: PassOffe
     case "pass_me": {
       const items = unownedCbq(owned);
       if (items.length) return { placement, lead: PASS_ME_CBQ_LEAD, items };
-      return isAlreadyOwned(owned, "pack_bundle") ? null : { placement, lead: PASS_ME_BUNDLE_LEAD, items: [BUNDLE_ITEM] };
+      return isAlreadyOwned(owned, "pack_bundle") ? null : { placement, lead: PASS_ME_BUNDLE_LEAD, items: [bundleItem()] };
     }
     case "pass_mock": {
       const s = subjectOf(hint);
@@ -107,7 +108,7 @@ export function pickPassOwnerOffer(placement: PassOfferPlacement, hint: PassOffe
         if (isAlreadyOwned(owned, "pack_mock", s)) return null;
         return { placement, lead: mockLead(s), items: [{ sku: "pack_mock", target: s, label: `${subjectLabel(s)} Mock Pack ${packPayLabel("pack_mock")}` }] };
       }
-      return isAlreadyOwned(owned, "pack_bundle") ? null : { placement, lead: MOCK_BUNDLE_LEAD, items: [BUNDLE_ITEM] };
+      return isAlreadyOwned(owned, "pack_bundle") ? null : { placement, lead: MOCK_BUNDLE_LEAD, items: [bundleItem()] };
     }
     case "pass_download": {
       const slug = hint.chapterSlug && isValidPackTarget("pack_chapter", hint.chapterSlug) ? hint.chapterSlug : null;

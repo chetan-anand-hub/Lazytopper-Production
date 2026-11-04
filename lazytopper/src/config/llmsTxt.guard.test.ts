@@ -111,7 +111,7 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
   // LLMS-MARKETING-1 (owner, 30 Oct 2026) - the file must market Premium first, then the CBQ Packs and the other packs.
   it("(f) llms.txt offers Premium first, then the CBQ Packs, then the other packs, each linked to the Pricing page", () => {
     const txt = readFileSync(LLMS_TXT, "utf8");
-    const premium = txt.indexOf("1. Premium");
+    const premium = txt.indexOf("1. The Board Pass"); // GST-EXCL-1 review G6: never "Premium" in copy
     const cbq = txt.indexOf("2. CBQ Packs");
     const packs = txt.indexOf("3. Other PDF packs");
     expect(premium, "no Premium offer line").toBeGreaterThan(-1);
@@ -148,6 +148,7 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     expect(txt).not.toContain(String(PRICE_MONTHLY_FOUNDING_INR));
     expect(txt).not.toContain(String(PRICE_MONTHLY_LIST_INR));
     expect(txt).not.toMatch(/less than paying monthly|for a month/i);
-    expect(txt).toContain("7-day Premium trial");
+    expect(txt).toContain("7-day free trial");
+    expect(txt).not.toMatch(/Premium|refunds/); // GST-EXCL-1 review G6
   });
 });

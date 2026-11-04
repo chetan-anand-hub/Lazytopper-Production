@@ -862,6 +862,7 @@
     "src/services/practiceInsights.durable.test.ts",
     "src/services/practiceInsights.loopclose.test.ts",
     "src/services/practiceInsights.uidOnly.test.ts",
+    "src/services/priceConfirm.test.ts",
     "src/services/progressReadModel.briefGate.test.tsx",
     "src/services/progressReadModel.chapterBrief.test.ts",
     "src/services/progressReadModel.conceptRows.test.tsx",
