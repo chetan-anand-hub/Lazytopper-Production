@@ -27,6 +27,8 @@ const H = vi.hoisted(() => ({
   },
   detectQuestion: vi.fn(),
   cloud: [] as unknown[],
+  // GRADE-ROUTE-3 - the paper stored on this device for a worksheet record (by its worksheetId).
+  storedWs: null as null | { worksheetId: string; questions: Array<{ qNumber: number; questionText: string }> },
 }));
 
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => H.auth }));
@@ -47,6 +49,11 @@ vi.mock("../../services/practiceInsights", async (importOriginal) => {
 vi.mock("../../services/sessionRecords", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/sessionRecords")>();
   return { ...actual, getSessionRecordsFromCloud: () => Promise.resolve(H.cloud) };
+});
+
+vi.mock("../../services/worksheetSessionStore", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/worksheetSessionStore")>();
+  return { ...actual, getWorksheetSession: (id: string) => (H.storedWs && H.storedWs.worksheetId === id ? H.storedWs : null) };
 });
 
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
@@ -88,6 +95,7 @@ beforeEach(() => {
   H.auth = { user: SIGNED_IN, loading: false };
   H.detectQuestion.mockReset();
   H.cloud = [];
+  H.storedWs = null;
   vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
   vi.spyOn(console, "warn").mockImplementation(() => {});
 });
@@ -100,7 +108,9 @@ afterEach(() => {
 
 describe("GRADE-ROUTE-1 - the offer on the Answer Checker confirm step", () => {
   it("own worksheet code in the question: banner with the upload link; 'Grade here anyway' hides it", async () => {
-    H.cloud = [{ id: "WS-M-MIX-02", surface: "worksheet", subject: "maths", status: "pending-upload", dedupKey: "u1::WS-M-MIX-02" }];
+    H.cloud = [{ id: "WS-M-MIX-02", surface: "worksheet", subject: "maths", status: "pending-upload", dedupKey: "u1::WS-M-MIX-02", worksheetId: "ws-1", questionIds: ["q1"] }];
+    // GRADE-ROUTE-3: the paper stored under the code IS the paper just read.
+    H.storedWs = { worksheetId: "ws-1", questions: [{ qNumber: 1, questionText: "Question 1 text" }] };
     H.detectQuestion.mockResolvedValue(READ_OK(1));
     render(page());
     await readQuestion();
@@ -109,6 +119,17 @@ describe("GRADE-ROUTE-1 - the offer on the Answer Checker confirm step", () => {
     fireEvent.click(screen.getByTestId("paper-code-route-skip"));
     expect(screen.queryByTestId("paper-code-route-banner")).toBeNull();
     expect(screen.getByLabelText("Type the question")).toBeTruthy();
+  });
+
+  it("GRADE-ROUTE-3 CONTROL: own code, but the paper stored under it is a DIFFERENT paper: no banner", async () => {
+    H.cloud = [{ id: "WS-M-MIX-02", surface: "worksheet", subject: "maths", status: "graded", dedupKey: "u1::WS-M-MIX-02", worksheetId: "ws-july", questionIds: ["q1"] }];
+    H.storedWs = { worksheetId: "ws-july", questions: [{ qNumber: 1, questionText: "Find the 10th term of the AP 2, 7, 12 and so on." }] };
+    H.detectQuestion.mockResolvedValue(READ_OK(1));
+    render(page());
+    await readQuestion();
+    await act(async () => {});
+    await act(async () => {});
+    expect(screen.queryByTestId("paper-code-route-banner")).toBeNull();
   });
 
   it("CONTROL: a code that is not this student's own shows no banner", async () => {
