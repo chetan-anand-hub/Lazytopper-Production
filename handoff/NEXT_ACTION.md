@@ -1,3 +1,20 @@
+## 2026-11-04 (daily, third) - #1550 - #1571
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`1fee3557`** [git].
+
+- **Done [git/gh]:** 21 PRs merged (table in CURRENT_STATE), all CI-green; `#1560` GST-EXCL-1 is open and unmerged on purpose. Grading behaviour changed in `#1558`, `#1559`, `#1570`, `#1567` (see CURRENT_STATE for the per-surface table); the second-surface live checks are still owed, so those lanes are PARTIAL until done.
+- **Closed today:** `[FU-CODE-SENT-NAMES-TARGET]` (`#1550`), `[FU-DESKTOP-ACCOUNT-MENU-SHARE]` and `[FU-NAV1-DUPLICATE-BACK-LINKS]` (`#1552`), `[FU-PACK-PREVIEW-PER-SUBJECT]` (`#1569`), the Chapter Test / Full Mock code collision and the grade-time overwrite (`#1562`, with `#1556` for worksheets), the paper-routing offer (`#1561`, `#1563`, `#1571`).
+- **NEXT, in order [coordinator]:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the "4 Nov (third)" section of OPEN_QUESTIONS_AND_FOLLOWUPS.
+  2. **GST-EXCL-1 (`#1560`) - owner deferred the "+ GST" rollout (4 Nov 21:29 IST: "we won't roll out new prices tonight").** Ask the owner for the rollout moment first. Its cutoff constant is already in the past, so it switches ON the moment it deploys: for a future moment change `GST_EXCLUSIVE_FROM_MS` (server `passPricing.cjs` and client `config/pricing.ts`, parity test) and re-run the clock tests. Update the branch (behind trunk; expect small additive conflicts in `nudgeEmail.cjs`, `PackSampleLink.tsx`, `PacksPage.test.tsx`, `date-sensitive-tests.json`). Right after it deploys: re-capture the prerendered snapshots (PR from trunk with an empty commit and `[ci-full]` in the title -> the `capture` job uploads `prerendered-<PR>` -> `rm -rf lazytopper/prerendered`, unzip into `lazytopper/`, commit `lazytopper/prerendered/**` and `public/sitemap.xml` if changed), then open a checkout WITHOUT paying and confirm the Razorpay amount equals the total (Board Pass Rs 2,262; packs Rs 58 / 117 / 235 / 353; top-ups Rs 58 / 176). Review follow-ups: `[FU-GST-REVIEW-ITEMS]`.
+  3. **Then, with the owner:** Google Ads price assets -> "+ GST" (disabled scheduled task `trig_01N4REzF5uAn5Cui5BBm1bdd` holds the exact instructions), Meta copy via Pallabi (the owner sends it), YouTube descriptions (Shorts with on-screen prices cannot be edited).
+  4. **PDF Packs bid switch** (owner deferred 21:35): "Search | PDF Packs" Maximize clicks -> Maximize conversion value, NO target, Rs 6,000 a day unchanged; verify the goal is purchase only first; screenshots. Disabled scheduled task `trig_01VuGKwUH3fUsV2tfZsjVX7A` holds the instructions. Evening is when purchases happen (owner wanted about 11 pm). Ads rule: ask the owner first.
+  5. **YouTube / Demand Gen ad URL suffix** (code side merged in `#1568`): set Final URL suffix `utm_source=youtube&utm_medium=paid&utm_campaign={campaignid}` (no leading "?", not also in the tracking template). Ask the owner first.
+  6. **Live verifications owed (section 4a)**: the list in CURRENT_STATE "Live checks", especially the second surface for `#1559` / `#1570` / `#1567`.
+  7. **New product items the owner asked to add (4 Nov 22:59)**: `[FU-EARLY-UPGRADE-FRESH-TRIAL]` and `[FU-SIMPLER-SIGNED-IN-CHECKOUT]` (payment path: strict review; sequence after `#1560`).
+  8. **Content (doctrine section 5)**: `[FU-PACK-DELETED-SYLLABUS-ITEMS]` - verify against `scripts/src/syllabusGuard.ts` and remove / replace in the paid packs, then regenerate.
+- **Housekeeping:** the invoice work (`[FU-GST-INVOICE-1]`) waits on the CA team; repo back to PRIVATE (owner) at session end; delete merged lane branches; `[FU-GRADER-2027-PRICE]` by 15 Dec.
+
 ## 2026-11-04 (daily, second) - #1533 - #1548
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`e0c2517b`** [git].

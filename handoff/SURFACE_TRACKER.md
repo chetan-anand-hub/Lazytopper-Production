@@ -1,3 +1,23 @@
+> **2026-11-04 (daily, third) - #1550 - #1571 (CLAUDE.md section 10).** Scope: Answer Checker (detect read, marks, sections, MCQ reading, banner), Worksheet (MCQ reading, codes, upload later), Chapter Test and Full Mock (code uniqueness, record saving), packs (previews, sample), Settings fair-use card, /for-parents, navigation, trial-end screen, sign-up trial and attribution. **GRADING BEHAVIOUR MOVED on the Answer Checker (`#1558`, `#1559`, `#1570`) and the Worksheet (`#1567`); Chapter Test, Full Mock and Quick Practice did not move (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (single question) | derived keys never override the grader (`#1558`); section marks by rule, chip locked at 1 for an objective question, server guard (`#1559`); section order (`#1570`); answer source only on check-improve requests (`#1566`) | merged; regrade of WS-M-MIX-02 verified on the owner account (41/51, then 51 total) | second-surface live check: a single-question MCQ upload |
+| Answer Checker (multi-question upload) | as above, plus `PaperMarksEditor` before grading and summary rebuilt from final marks (`#1559`) | merged; live-verified on the owner account | second surface (Worksheet) |
+| Answer Checker banner "grade on its own page" | offer for own WS- / CT- / FM- paper (`#1561`); code in PDF title and QR decode (`#1563`); shown only for the same paper (`#1571`) | merged; 3 Nov WS-M-MIX-02 PDF shows no banner (verified 23:20) | fresh worksheet shows the banner at 360 / 1280; `[FU-GRADE-ROUTE-3-NO-COUNT]` |
+| Worksheet | MCQ near-copy / wrapped / Assertion-Reason reading (`#1567`); unique codes, upload later, reminders (`#1556`); QR and title code (`#1563`); save-failed event (`#1566`) | merged | Worksheet upload with bank keys and a "(b) <near copy>" answer |
+| Chapter Test | unique code mint, record never overwrites a different paper, page follows a move (`#1562`); graded-sheet download survives the tutor (`#1555`) | merged | live round trip incl. offline submit; `[FU-RECORD-SAFE-TWO-TAB-RACE]` |
+| Full Mock | as Chapter Test (`#1562`, `#1555`); `?upload=<code>` deep link (`#1561`) | merged | as Chapter Test |
+| Quick Practice | none (saves still work under `#1562`'s identity rule) | unchanged | none |
+| Packs (window, previews, sample) | window layout (`#1551`); own previews, 54 images (`#1569`); "Free sample" second button and one follow-up email (`#1565`) | merged | previews at 360 / 1280; `[FU-PACK-DELETED-SYLLABUS-ITEMS]` |
+| Settings > Your limits / fair-use | one monthly bar, daily line from 75 % (`#1557`) | merged; Railway 5-hour / week windows off | check at 360 / 1280 |
+| /for-parents | real Pay for the Board Pass and Buy on all six packs (`#1554`) | merged | live-verify |
+| Navigation and account menu | desktop menu says Board Pass, duplicate back links removed (`#1552`) | merged | none |
+| Trial-end screen and sign-up trial | trial-end offer with real deadline (`#1553`); sign-up trial retried and restorable (`#1564`) | merged | one real sign-up incl. Firestore blocked |
+| Sign-up attribution (admin) | `gbraid` / `wbraid`, tagged beats untagged, label "Google Ads (YouTube/Demand Gen)" (`#1568`) | merged | ad-side URL suffix (`[FU-ADS-DEFERRED-4NOV]`) |
+| "Code sent" messages | masked target and "Change it" (`#1550`) | merged | none |
+| Pricing, packs and checkout ("+ GST") | `#1560` built and reviewed | **OPEN, not merged** (owner deferred 21:29 IST) | rollout moment, then prerender re-capture and a Razorpay amount check |
+
 > **2026-11-04 (daily, second) - #1533 - #1548 (CLAUDE.md section 10).** Scope: checkout ("Who will use it?"), payment thank-you / account creation, sign-in (/login and thank-you email code), every page header (NAV-1), Premium lock pages and gates, /pricing, /packs and My packs, parent pay page, pack offers to Board Pass owners. **The Answer Checker's grading and the other five grading surfaces are unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed (CLAUDE.md section 4a). Grading surfaces: NONE moved.** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

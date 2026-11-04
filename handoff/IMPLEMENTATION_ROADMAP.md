@@ -1,3 +1,15 @@
+## 2026-11-04 (daily, third) - #1550 - #1571: CODE-WHERE-1 ... RECORD-SAFE-1 - MERGED (GST-EXCL-1 OPEN)
+
+- DONE. `#1558` (`8ee422b`), `#1559` (`9937a26`), `#1570` (`a342017`), `#1567` (`2b3ea47`): grader reads derived keys, section marks, section order and handwritten MCQ sentences better. NEXT: second-surface live checks (a Worksheet upload and a Worksheet "(b) <near copy>" answer; an Answer Checker single MCQ).
+- DONE. `#1561` (`d3e58028`), `#1563` (`0cca2a2`), `#1571` (`4d42ad5`): a student's own paper is offered its own page; code and QR in new PDFs; same-paper check. NEXT: a freshly downloaded worksheet shows the banner (360 / 1280).
+- DONE. `#1562` (`1fee355`): Chapter Test / Full Mock codes unique; a grade never overwrites a different paper. NEXT: live Chapter Test and Full Mock round trip; `[FU-RECORD-SAFE-TWO-TAB-RACE]`.
+- DONE. `#1557` (`f86becd`): one monthly fair-use bar. Railway 5-hour and week windows set to off. NEXT: check Settings at 360 / 1280.
+- DONE. `#1564` (`cb09d28`): sign-up trial never lost to a failed save. NEXT: one real sign-up with Firestore blocked.
+- DONE. `#1552` (`aadbde4`), `#1553` (`ee2cd1a`), `#1550` (`6a88512`), `#1551` (`9187626`), `#1554` (`d385dc2`), `#1555` (`e326281`), `#1556` (`7391c6e`): navigation and menu naming, trial-end offer, code-sent message, pack window, parents pay, tutor round trip, worksheet codes. NEXT: live-verify at 360 and 1280.
+- DONE. `#1565` (`030bac0`), `#1566` (`77496c6`), `#1568` (`6fbafe6`), `#1569` (`57dcd1c`): sample follow-up, small fixes, attribution, pack previews. NEXT: Google Ads URL suffix (owner), pack previews at 360 / 1280.
+- OPEN, NOT BUILT TO PRODUCTION. `#1560` GST-EXCL-1: reviewed, held by the owner. NEXT: ask for the rollout moment, update branch, merge, re-capture prerender, check the Razorpay amount.
+- NEXT (not built): `[FU-EARLY-UPGRADE-FRESH-TRIAL]`, `[FU-SIMPLER-SIGNED-IN-CHECKOUT]`, `[FU-GST-INVOICE-1]`.
+
 ## 2026-11-04 (daily, second) - #1533 - #1548: CHECKOUT-WHO-2 ... PERF-TRIM-1 - MERGED
 
 - DONE. `#1533` (`fd9b8f0`), `#1537` (`d326609`), `#1538` (`7a34595`): checkout-who review fixes, no-account hotfix, second-box label. Flags ON [coordinator]. NEXT: none.
