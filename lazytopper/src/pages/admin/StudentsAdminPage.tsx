@@ -152,6 +152,9 @@ interface RowSource {
   utm_content: string | null;
   landing: string | null;
   gclid: boolean;
+  /** ATTRIB-1: iOS app-campaign click ids; present only when the server sends them. */
+  gbraid?: boolean;
+  wbraid?: boolean;
   fbclid: boolean;
 }
 
@@ -182,7 +185,8 @@ const META_PLACEMENT: Record<string, string> = {
  * Facebook and Instagram add `fbclid` to every outbound link, so `fbclid` alone is not an ad.
  */
 function sourceLabel(source: RowSource | null | undefined): string {
-  if (!source) return "—";
+  // ATTRIB-1: no signupSources doc (or a failed read) is "No source recorded" — NOT "Direct", which means a doc with no tags.
+  if (!source) return "No source recorded";
   const src = (source.utm_source ?? "").toLowerCase();
   const medium = (source.utm_medium ?? "").toLowerCase();
   // own keys only: a crafted utm_source such as "constructor" must not read as a platform
@@ -196,6 +200,7 @@ function sourceLabel(source: RowSource | null | undefined): string {
   else if (platform && medium !== "organic") label = `${platform} (untagged)`;
   else if ((source.ref ?? "").toLowerCase() === "syndicatedsearch.goog") label = "Google ad (search partner)";
   else if (source.gclid) label = "Google ad"; // gclid is set only by Google Ads auto-tagging
+  else if (source.gbraid || source.wbraid) label = "Google Ads (YouTube/Demand Gen)"; // ATTRIB-1: app-campaign / iOS click ids
   else if (!src && source.fbclid) label = "Facebook/Instagram (untagged)";
   else if (source.ref) label = `From ${source.ref}`;
   else label = "Direct";
@@ -213,6 +218,7 @@ function sourceTitle(source: RowSource | null | undefined): string | undefined {
     source.ref && `referrer: ${source.ref}`,
     source.landing && `landed on: ${source.landing}`,
     source.gclid && "Google Ads click (gclid)",
+    (source.gbraid || source.wbraid) && "Google Ads app-campaign click (gbraid/wbraid)",
     source.fbclid && "Meta click (fbclid)",
   ].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : undefined;

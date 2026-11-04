@@ -565,6 +565,21 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(w.fs.writes).toEqual([]); // still read-only
     });
 
+    it("★ ATTRIB-1: gbraid / wbraid pass through as true; absent otherwise; a string value never does", async () => {
+      const world = listWorld();
+      world.store["signupSources/stu000"] = { utm_source: null, landing: "/", gclid: false, fbclid: false, gbraid: true, wbraid: "VALUE" };
+      world.store["signupSources/stu001"] = { utm_source: "youtube", landing: "/", gclid: false, fbclid: false, wbraid: true };
+      const w = buildRoutes(world);
+      const r = await w.get("/api/admin/students", "admin-token");
+      const a = r.body.rows.find((x: { uid: string }) => x.uid === "stu000");
+      const b = r.body.rows.find((x: { uid: string }) => x.uid === "stu001");
+      expect(a.source.gbraid).toBe(true);
+      expect("wbraid" in a.source).toBe(false);
+      expect(b.source.wbraid).toBe(true);
+      expect("gbraid" in b.source).toBe(false);
+      expect(JSON.stringify(r.body)).not.toContain("VALUE");
+    });
+
     it("★ HONEST DATA: a student who signed up before activityLog existed is 'partial', never a bare 0", async () => {
       const w = buildRoutes(listWorld());
       const r = await w.get("/api/admin/students?page=2", "admin-token");
