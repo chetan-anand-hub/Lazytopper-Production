@@ -425,7 +425,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!cancelled && guestPay.takeFirstSignIn(uid)) {
           trackSignUp();
           const current = authClient?.currentUser;
-          if (current) sendVisitSourceOnSignUp(() => current.getIdToken());
+          if (current) {
+            sendVisitSourceOnSignUp(() => current.getIdToken()); // SOURCE-1: this visit's source, once, to our server
+          }
           markNewAccountLanding();
         }
         if (!claimed || claimed.length === 0) return;
