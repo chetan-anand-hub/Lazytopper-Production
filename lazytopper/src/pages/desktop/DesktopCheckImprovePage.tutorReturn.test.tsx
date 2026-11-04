@@ -29,6 +29,9 @@ const H = vi.hoisted(() => ({
   detectQuestion: vi.fn(),
   checkSolutionImage: vi.fn(),
   records: [] as unknown[],
+  payload: null as null | Record<string, unknown>,
+  lock: "open" as "open" | "locked",
+  exportCi: vi.fn(async () => "x.pdf"),
   onboarding: vi.fn(),
   url: "",
   pushes: 0,
@@ -67,7 +70,7 @@ vi.mock("../../services/sessionRecords", async (importOriginal) => {
       return Promise.resolve({ code: "CI-M-REAL-02", name: "Real Numbers · Paper #2", sequence: 2 });
     },
     getSessionRecordsFromCloud: () => Promise.resolve(H.records),
-    getSessionPerQuestion: () => Promise.resolve(null),
+    getSessionPerQuestion: () => Promise.resolve(H.payload),
   };
 });
 vi.mock("../../services/checkImproveGradeService", async (importOriginal) => {
@@ -78,6 +81,13 @@ vi.mock("../../services/checkImproveGradeService", async (importOriginal) => {
       args.user?.uid ? "recorded" : actual.persistCheckImproveSession(args as never),
   };
 });
+
+// TUTOR-RETURN-SHEET-1 - the exporter is observed, never run; the detail lock is steerable.
+vi.mock("../../components/worksheet/worksheetPdfExport", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../components/worksheet/worksheetPdfExport")>()),
+  exportGradedCheckImprovePdf: (...a: unknown[]) => (H.exportCi as (...b: unknown[]) => unknown)(...a),
+}));
+vi.mock("../../components/results/useDetailLock", () => ({ useDetailLock: () => H.lock }));
 
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
 
@@ -149,6 +159,9 @@ beforeEach(() => {
   window.localStorage.clear();
   H.auth = { user: SIGNED_IN, loading: false };
   H.records = [];
+  H.payload = null;
+  H.lock = "open";
+  H.exportCi.mockClear();
   H.url = "";
   H.pushes = 0;
   H.onboarding.mockReset();
@@ -206,5 +219,65 @@ describe("QP-SCORECARD-2 C · Check & Improve — the tutor returns to the SAVED
       expect(screen.getByLabelText("Type the question")).toBeInTheDocument();
       cleanup();
     }
+  });
+
+  describe("TUTOR-RETURN-SHEET-1 · the restored Answer Checker card keeps its graded-sheet download", () => {
+    const g = (qNumber: number, totalMarks: number, marksAwarded: number) => ({
+      qNumber, couldNotRead: false, ok: true, totalMarks, marksAwarded, percentage: Math.round((marksAwarded / totalMarks) * 100),
+      annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+    });
+    const response = (rows: ReturnType<typeof g>[]) => ({
+      ok: true,
+      results: rows,
+      gradedMarksAwarded: rows.reduce((a, r) => a + r.marksAwarded, 0),
+      gradedMarksTotal: rows.reduce((a, r) => a + r.totalMarks, 0),
+      gradedCount: rows.length,
+      totalQuestions: rows.length,
+      pendingCount: 0,
+      worksheetTotalMarks: rows.reduce((a, r) => a + r.totalMarks, 0),
+    });
+    const DL = /Download graded solution/;
+    const open = async () => {
+      H.records = [ciRecord("CI-M-REAL-07", "u1")];
+      render(page("/check-improve?review=CI-M-REAL-07"));
+      await screen.findByText(/CI-M-REAL-07 · graded/);
+    };
+    const printed = () => (H.exportCi.mock.calls[0] as unknown as [{ code: string; questions: Array<{ qNumber?: number; questionText?: string }> }])[0];
+
+    it("★ single question: the download prints the SAVED question text", async () => {
+      H.payload = { response: response([g(1, 3, 2)]), questionTexts: ["Prove that root 2 is irrational."] };
+      await open();
+      fireEvent.click(await screen.findByRole("button", { name: DL }));
+      await waitFor(() => expect(H.exportCi).toHaveBeenCalledTimes(1));
+      expect(printed().code).toBe("CI-M-REAL-07");
+      expect(printed().questions).toHaveLength(1);
+      expect(printed().questions[0].questionText).toBe("Prove that root 2 is irrational.");
+      expect(printed().questions[0].qNumber).toBeUndefined();
+    });
+
+    it("★ multi question: one saved text per question, in order", async () => {
+      H.payload = { response: response([g(1, 3, 2), g(2, 2, 2)]), questionTexts: ["First question", "Second question"] };
+      await open();
+      fireEvent.click(await screen.findByRole("button", { name: DL }));
+      await waitFor(() => expect(H.exportCi).toHaveBeenCalledTimes(1));
+      expect(printed().questions.map((q) => [q.qNumber, q.questionText])).toEqual([[1, "First question"], [2, "Second question"]]);
+    });
+
+    it("★ an older paper (no saved texts) prints the honest line, never invented text", async () => {
+      H.payload = { response: response([g(1, 3, 2), g(2, 2, 2)]) };
+      await open();
+      fireEvent.click(await screen.findByRole("button", { name: DL }));
+      await waitFor(() => expect(H.exportCi).toHaveBeenCalledTimes(1));
+      for (const q of printed().questions) expect(q.questionText).toBe("Question text not saved for this older paper");
+    });
+
+    it("★ a LOCKED card, or one with nothing graded, offers no download", async () => {
+      H.payload = { response: response([g(1, 3, 2)]) };
+      H.lock = "locked";
+      await open();
+      await screen.findByRole("button", { name: "Done" });
+      await act(async () => {});
+      expect(screen.queryByRole("button", { name: DL })).toBeNull();
+    });
   });
 });
