@@ -16,13 +16,49 @@
 //   payment: its marker is recorded and its order marked paid, the existing entitlement is kept untouched
 //   (paidAt / paymentRef of the first stay), and the result says `duplicate: true` so it can be refunded.
 
-const { PACK_PRODUCTS, isPackProduct, validateTarget, packIdFor } = require('./packProducts.cjs');
+const {
+  PACK_PRODUCTS,
+  PACK_CHAPTERS,
+  PACK_SUBJECTS,
+  BUNDLE_TARGET,
+  isPackProduct,
+  validateTarget,
+  packIdFor,
+  chaptersOf,
+  isAlreadyOwned,
+} = require('./packProducts.cjs');
+//
+// PARENT-PACKS-1 review M1 (4 Nov 2026):
+// ★ COVERED == DUPLICATE. A payment for a pack whose contents the student already holds through ANOTHER pack (a Chapter
+//   Pack after the Subject Pack / Bundle; a Mock Pack after the Subject Pack ...) is the same thing as paying twice: inside
+//   the SAME transaction the covering entitlements are read and `isAlreadyOwned` decides. Nothing new is granted, the
+//   payment's marker and order carry `duplicate: true` (exactly the exact-repeat path above).
+// ★ After any pack grant, the student's OPEN parent-pay PACK links whose pack is now covered are closed (`status: "owned"`),
+//   so a parent opening one sees "already has it" instead of a Pay button (closeCoveredParentPackLinks; best effort).
 
 const ENTITLEMENTS_COLLECTION = 'packEntitlements';
 // Subcollection names live in an object (the usageCredit.cjs CREDIT_SEGMENTS convention): they are children of
 // `packEntitlements/{uid}`, declared as subcollections in studentDataMap, not top-level collections.
 const PACK_SEGMENTS = Object.freeze({ packs: 'packs', grants: 'grants' });
 const PAY_ORDERS_COLLECTION = 'payOrders';
+/** routes/parentPay.cjs PARENT_PAY_LINKS_COLLECTION (the same top-level collection; constant for the studentDataMap guard). */
+const PARENT_PAY_LINKS_COLLECTION = 'parentPayLinks';
+/** The link status a covered pack link is closed with (routes/parentPay.cjs answers it as reason "owned"). */
+const LINK_OWNED_STATUS = 'owned';
+
+/**
+ * Every packId whose ownership can make (sku, target) "already owned" (packProducts.isAlreadyOwned) - read inside the grant
+ * transaction. At most 31 documents (the Bundle). PURE.
+ */
+function coveringPackIds(sku, target) {
+  const bundle = `pack_bundle:${BUNDLE_TARGET}`;
+  const subjectIds = (s) => [`pack_subject:${s}`, `pack_mock:${s}`, ...chaptersOf(s).map((c) => `pack_chapter:${c}`)];
+  if (sku === 'pack_chapter') return [`pack_chapter:${target}`, `pack_subject:${PACK_CHAPTERS[target]}`, bundle];
+  if (sku === 'pack_mock') return [`pack_mock:${target}`, `pack_subject:${target}`, bundle];
+  if (sku === 'pack_cbq') return [`pack_cbq:${target}`];
+  if (sku === 'pack_subject') return [...subjectIds(target), bundle];
+  return [bundle, ...PACK_SUBJECTS.flatMap(subjectIds)];
+}
 
 class PackGrantInputError extends Error {
   constructor(message) {
@@ -49,6 +85,56 @@ function publicPack(p) {
  * @returns {Promise<{ replayed: boolean, duplicate: boolean, pack: object }>}
  */
 async function grantPack(input) {
+  const result = await grantPackInTransaction(input);
+  // M1 (a): best effort, AFTER the grant committed - a failure here never fails a paid grant.
+  try {
+    await closeCoveredParentPackLinks(input.db, docId(input.uid), docId(input.order && input.order.orderId));
+  } catch (_e) {
+    /* the order route re-checks ownership anyway */
+  }
+  return result;
+}
+
+/**
+ * PARENT-PACKS-1 review M1 (a): close this student's OPEN parent-pay PACK links whose pack is now covered by what the student
+ * owns. Single-field query (uid) + in-code filter, like account export / erasure. Returns how many links were closed.
+ * A link's in-flight order is still honoured by verify / the webhook (they do not require an open link); the grant then
+ * reports `duplicate`.
+ */
+async function closeCoveredParentPackLinks(db, uid, exceptOrderId = '') {
+  if (!db || !uid || typeof db.collection !== 'function') return 0;
+  const linksSnap = await db.collection(PARENT_PAY_LINKS_COLLECTION).where('uid', '==', uid).get();
+  const open = (linksSnap && Array.isArray(linksSnap.docs) ? linksSnap.docs : []).filter((d) => {
+    const v = typeof d.data === 'function' ? d.data() || {} : {};
+    // The link that created THIS order is not "covered" - it is being paid (verify / the webhook spends it as `paid`).
+    if (exceptOrderId && Array.isArray(v.orderIds) && v.orderIds.includes(exceptOrderId)) return false;
+    return v.status === 'open' && v.product === 'pack' && isPackProduct(v.packSku);
+  });
+  if (open.length === 0) return 0;
+  const owned = await listPacks(db, uid);
+  let closed = 0;
+  for (const d of open) {
+    const v = d.data() || {};
+    if (!isAlreadyOwned(owned, v.packSku, v.packTarget)) continue;
+    // Review F1: a link with a PAID order is spent ("used"), never "owned" - whatever its own status field says yet.
+    const paidSnap = await db.collection(PAY_ORDERS_COLLECTION).where('parentLinkId', '==', d.id).get();
+    const paid = (paidSnap && Array.isArray(paidSnap.docs) ? paidSnap.docs : []).some((o) => (typeof o.data === 'function' ? o.data() || {} : {}).status === 'paid');
+    if (paid) continue;
+    // Review F2: written ONLY while the link is still open (never over "paid"), in one transaction.
+    const ref = db.collection(PARENT_PAY_LINKS_COLLECTION).doc(d.id);
+    const wrote = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const cur = snap && snap.exists ? snap.data() || {} : null;
+      if (!cur || cur.status !== 'open') return false;
+      tx.set(ref, { status: LINK_OWNED_STATUS }, { merge: true });
+      return true;
+    });
+    if (wrote) closed += 1;
+  }
+  return closed;
+}
+
+async function grantPackInTransaction(input) {
   const i = input && typeof input === 'object' ? input : {};
   const db = i.db;
   const uid = docId(i.uid);
@@ -108,17 +194,32 @@ async function grantPack(input) {
     const packRef = userRef.collection(PACK_SEGMENTS.packs).doc(packId);
     const packSnap = await tx.get(packRef);
     const held = packSnap && packSnap.exists ? packSnap.data() || {} : null;
+    // M1 (b): covered through ANOTHER pack the student holds (read in this transaction).
+    let coveredBy = null;
+    if (!held) {
+      const owned = [];
+      for (const id of coveringPackIds(sku, target)) {
+        if (id === packId) continue;
+        const snap = await tx.get(userRef.collection(PACK_SEGMENTS.packs).doc(id));
+        if (snap && snap.exists) owned.push({ ...(snap.data() || {}), packId: id });
+      }
+      if (owned.length > 0 && isAlreadyOwned(owned, sku, target)) coveredBy = owned;
+    }
 
     // The parent document exists so the account export / erase (which walk the map) find the student's packs.
     tx.set(userRef, { updatedAt: new Date(nowMs) }, { merge: true });
     // A payment for a pack the student already holds is real money: flag it on BOTH records (same
     // transaction) so refund candidates can be queried: grants where duplicate == true, payOrders likewise.
-    const isDuplicate = !!held;
+    const isDuplicate = !!held || !!coveredBy;
     tx.set(grantRef, { paymentRef, packId, orderId, grantedAt: new Date(nowMs), ...(isDuplicate ? { duplicate: true } : {}) });
     markOrderPaid(isDuplicate ? { duplicate: true } : undefined);
     if (held) {
       // Already owned through an earlier payment: keep that entitlement, record this payment for refund.
       return { replayed: false, duplicate: true, pack: publicPack(held) };
+    }
+    if (coveredBy) {
+      // Already covered by another pack: nothing new is granted (no second entitlement); the payment is flagged above.
+      return { replayed: false, duplicate: true, pack: { packId, sku, target, pricePaidInr: priceInr, paidAt: nowMs, orderId } };
     }
     const pack = {
       packId,
@@ -157,6 +258,9 @@ async function listPacks(db, uid) {
 
 module.exports = {
   grantPack,
+  closeCoveredParentPackLinks,
+  coveringPackIds,
+  LINK_OWNED_STATUS,
   listPacks,
   PackGrantInputError,
   ENTITLEMENTS_COLLECTION,

@@ -141,6 +141,8 @@ export function CbqCard({ api, subject }: { api: PacksShopApi; subject: PackSubj
                 testId={`pricing-buy-pack_cbq-${s}`}
                 ownedLabel={`${subjectLabel(s)} CBQ`}
               />
+              {/* PARENT-PACKS-1: a link that carries THIS subject's CBQ Pack only (signed in; nothing otherwise). */}
+              {api.parentAsk("pack_cbq", s, { noQr: true })}
             </div>
           ))}
         </div>
@@ -257,6 +259,8 @@ export function PacksSection({
           </div>
           <p className="lt-pp-card__body">{BUNDLE_BODY}</p>
           <PackBuy api={api} sku="pack_bundle" className="lt-pp-buy" label={BUNDLE_BUY_LABEL} testId="pricing-buy-pack_bundle" />
+          {/* PARENT-PACKS-1: "Ask a parent to pay" + QR for the Bundle (signed in; nothing otherwise). */}
+          {api.parentAsk("pack_bundle")}
           <button type="button" className="lt-pp-see" aria-haspopup="dialog" onClick={() => api.openPack("pack_bundle")} data-testid="pricing-see-bundle">
             {SEE_INSIDE_LABEL}
           </button>

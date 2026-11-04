@@ -38,6 +38,7 @@ const {
   LINK_TTL_MS,
   MAX_ORDERS_PER_LINK,
   MAX_LINKS_PER_UID_PER_DAY,
+  MAX_PACK_LINKS_PER_UID_PER_DAY,
   MAX_PARENT_CALLS_PER_CLIENT_PER_DAY,
   TOKEN_PATTERN,
   createParentPayLimiter,
@@ -974,4 +975,365 @@ test('PRICE-FIXED-1 · parent link: a child WITH a prior paid month order keeps 
   const ok = await parentOrder(srv, token, 'month');
   assert.equal(ok.status, 200, ok.text);
   assert.equal(ok.json.amountPaise, 59900);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PARENT-PACKS-1 — a link may carry ONE PDF pack, fixed by the child at mint time
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const ENV_PACKS = { ...ENV_ON, PACKS_ENABLED: '1' };
+async function mintPack(srv, pack, uid = 'child1') {
+  return request(srv.port, PARENT_LINK_PATH, { body: { pack }, headers: asUid(uid) });
+}
+const ownPack = (db, uid, packId) => {
+  const [sku, target] = packId.split(':');
+  db.docs.set(`packEntitlements/${uid}/packs/${packId}`, { data: { packId, sku, target, pricePaidInr: 1, paidAt: NOW - 1000, orderId: 'order_old' }, version: 1 });
+};
+
+test('PARENT-PACKS-1 · mint: the pack is validated and stored ON THE LINK; the response names it at the SERVER price, no pass prices', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const r = await mintPack(srv, { sku: 'pack_cbq', target: 'maths', priceInr: 1 });
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(Object.keys(r.json).sort(), ['expiresAt', 'ok', 'pack', 'token']);
+  assert.deepEqual(r.json.pack, { sku: 'pack_cbq', target: 'maths', priceInr: 199 });
+  const link = srv.db.read(`parentPayLinks/${linkIdOf(r.json.token)}`);
+  assert.deepEqual(Object.keys(link).sort(), ['createdAt', 'expiresAt', 'firstName', 'orderIds', 'orderSlots', 'packSku', 'packTarget', 'product', 'status', 'uid']);
+  assert.equal(link.uid, 'child1');
+  assert.equal(link.product, 'pack');
+  assert.equal(link.packSku, 'pack_cbq');
+  assert.equal(link.packTarget, 'maths');
+  assert.ok(!('priceInr' in link), 'a price from the request is never stored');
+  // The bundle's target is always "all"; a bad sku / target is refused and stores nothing.
+  const b = await mintPack(srv, { sku: 'pack_bundle', target: 'anything' });
+  assert.deepEqual(b.json.pack, { sku: 'pack_bundle', target: 'all', priceInr: 299 });
+  const before = srv.db.keys('parentPayLinks/').length;
+  for (const bad of [{ sku: 'pack_chapter', target: 'not-a-chapter' }, { sku: 'pack_cbq', target: 'english' }, { sku: 'till_boards' }, { sku: 'topup_x' }]) {
+    const x = await mintPack(srv, bad);
+    assert.equal(x.status, 400, JSON.stringify(bad));
+    assert.equal(x.json.error, 'invalid_pack_target');
+  }
+  assert.equal(srv.db.keys('parentPayLinks/').length, before);
+});
+
+test('PARENT-PACKS-1 · mint: packs switched off -> 409 packs_unavailable; already owned (directly or via Subject / Bundle) -> 409 already_owned', async (t) => {
+  const off = await startRoutes();
+  t.after(off.close);
+  const r = await mintPack(off, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal(r.status, 409);
+  assert.equal(r.json.error, 'packs_unavailable');
+  assert.equal(off.db.keys('parentPayLinks/').length, 0);
+
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  ownPack(srv.db, 'child1', 'pack_subject:maths');
+  for (const pack of [{ sku: 'pack_subject', target: 'maths' }, { sku: 'pack_mock', target: 'maths' }, { sku: 'pack_chapter', target: 'polynomials' }]) {
+    const x = await mintPack(srv, pack);
+    assert.equal(x.status, 409, JSON.stringify(pack));
+    assert.equal(x.json.error, 'already_owned');
+  }
+  // A Subject Pack does not include CBQs (CBQ-PACK-1): that link is fine.
+  assert.equal((await mintPack(srv, { sku: 'pack_cbq', target: 'maths' })).status, 200);
+  assert.equal(srv.db.keys('parentPayLinks/').length, 1);
+});
+
+test('PARENT-PACKS-1 · view: first name + the pack at the server price, nothing about passes', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  const r = await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.token } });
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(Object.keys(r.json).sort(), ['expiresAt', 'firstName', 'ok', 'pack']);
+  assert.equal(r.json.firstName, 'Aarav');
+  assert.deepEqual(r.json.pack, { sku: 'pack_chapter', target: 'polynomials', priceInr: 49 });
+  assert.ok(!r.text.includes('child1'));
+});
+
+test('PARENT-PACKS-1 · order -> verify: the parent body cannot change sku / target / uid / amount; the pack lands on the CHILD; link spent', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, {
+    body: { token: m.token, product: 'pack', passType: 'pack_bundle', sku: 'pack_bundle', packTarget: 'science', target: 'science', uid: 'evil', amountPaise: 100 },
+    headers: asUid('parentOwnAccount'),
+  });
+  assert.equal(o.status, 200, o.text);
+  assert.equal(o.json.amountPaise, 19900);
+  const rz = srv.rzp.calls.find((c) => c.method === 'POST' && c.url.endsWith('/orders'));
+  assert.equal(rz.body.amount, 19900);
+  assert.deepEqual(rz.body.notes, { uid: 'child1', passType: 'pack_cbq', packTarget: 'maths', payer: 'parent' });
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.uid, 'child1');
+  assert.equal(stored.passType, 'pack_cbq');
+  assert.equal(stored.packTarget, 'maths');
+  assert.equal(stored.amountPaise, 19900);
+  assert.equal(stored.payer, 'parent');
+  assert.equal(stored.parentLinkId, linkIdOf(m.token));
+  assert.ok(!('packCreditInr' in stored), 'no pack credit logic on a pack order');
+
+  const p = srv.rzp.pay(o.json.orderId);
+  const v = await parentVerify(srv, m.token, o.json.orderId, p.id, asUid('parentOwnAccount'));
+  assert.equal(v.status, 200, v.text);
+  assert.deepEqual(Object.keys(v.json).sort(), ['amountPaise', 'firstName', 'kind', 'ok', 'pack', 'replayed']);
+  assert.equal(v.json.kind, 'pack');
+  assert.deepEqual(v.json.pack, { sku: 'pack_cbq', target: 'maths', priceInr: 199 });
+  assert.equal(v.json.replayed, false);
+  const owned = srv.db.read('packEntitlements/child1/packs/pack_cbq:maths');
+  assert.equal(owned.sku, 'pack_cbq');
+  assert.equal(owned.orderId, o.json.orderId);
+  assert.equal(owned.paymentRef, p.id);
+  assert.equal(srv.db.keys('packEntitlements/parentOwnAccount').length, 0, 'the PARENT got a pack');
+  assert.equal(srv.db.keys('packEntitlements/evil').length, 0);
+  assert.equal(srv.db.read('subscriptions/child1'), undefined, 'a pack never reaches grantPass');
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'paid');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'paid');
+  // Single use: the spent link refuses to view or order; a replayed verify grants nothing new.
+  for (const path of [PARENT_VIEW_PATH, PARENT_ORDER_PATH]) {
+    const again = await request(srv.port, path, { body: { token: m.token, product: 'pack' } });
+    assert.equal(again.status, 410, path);
+    assert.equal(again.json.reason, 'used');
+  }
+  const replay = await parentVerify(srv, m.token, o.json.orderId, p.id);
+  assert.equal(replay.json.replayed, true);
+});
+
+test('PARENT-PACKS-1 · W: the parent closes the tab before verify; the UNCHANGED webhook grants the pack to the CHILD; the link is spent', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_bundle' });
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.orderId);
+  const raw = webhookBody(p);
+  const hook = await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.equal(hook.status, 200, hook.text);
+  assert.equal(hook.json.kind, 'pack');
+  assert.equal(srv.db.read('packEntitlements/child1/packs/pack_bundle:all').sku, 'pack_bundle');
+  const again = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  assert.equal(again.status, 410);
+  assert.equal(again.json.reason, 'used');
+  const late = await parentVerify(srv, m.token, o.orderId, p.id);
+  assert.equal(late.status, 200, late.text);
+  assert.equal(late.json.replayed, true);
+});
+
+test('PARENT-PACKS-1 · owned after mint (the child bought it, or the Bundle) -> view and order refuse `owned`, nothing reaches Razorpay', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  ownPack(srv.db, 'child1', 'pack_bundle:all');
+  for (const path of [PARENT_VIEW_PATH, PARENT_ORDER_PATH]) {
+    const r = await request(srv.port, path, { body: { token: m.token, product: 'pack' } });
+    assert.equal(r.status, 410, path);
+    assert.equal(r.json.reason, 'owned');
+  }
+  assert.equal(srv.rzp.calls.length, 0);
+});
+
+test('PARENT-PACKS-1 · a pack link never sells a pass, and a Board Pass link never sells a pack', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_cbq', target: 'science' });
+  for (const passType of ['till_boards', 'month']) {
+    const r = await parentOrder(srv, m.token, passType);
+    assert.equal(r.status, 400, passType);
+    assert.equal(r.json.reason, 'pack_link');
+  }
+  const board = await mint(srv);
+  const r = await request(srv.port, PARENT_ORDER_PATH, { body: { token: board.token, product: 'pack', sku: 'pack_bundle' } });
+  assert.equal(r.status, 400);
+  assert.equal(r.json.reason, 'not_pack_link');
+  assert.equal(srv.rzp.calls.length, 0);
+  // A pack order verified against ANOTHER link (here: the Board Pass link) is refused.
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.orderId);
+  const v = await parentVerify(srv, board.token, o.orderId, p.id);
+  assert.equal(v.status, 400);
+  assert.equal(v.json.reason, 'link_mismatch');
+  assert.equal(srv.db.keys('packEntitlements/').length, 0);
+});
+
+test('PARENT-PACKS-1 · Board Pass links are unchanged: an empty or pack-less mint body is a Board Pass link with prices', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  for (const opts of [{}, { raw: '' }, { body: { other: 1 } }]) {
+    const r = await request(srv.port, PARENT_LINK_PATH, { ...opts, headers: asUid('child1') });
+    assert.equal(r.status, 200, r.text);
+    assert.deepEqual(Object.keys(r.json).sort(), ['expiresAt', 'ok', 'prices', 'token']);
+    const link = srv.db.read(`parentPayLinks/${linkIdOf(r.json.token)}`);
+    assert.deepEqual(Object.keys(link).sort(), ['createdAt', 'expiresAt', 'firstName', 'orderIds', 'orderSlots', 'status', 'uid']);
+  }
+});
+
+/* ── PARENT-PACKS-1 review round (independent review, 4 Nov) ───────────────────── */
+
+const { grantPack } = require('../services/packGrant.cjs');
+/** The child buys a pack themselves (any path ends in grantPack): a stored order, then the grant. */
+async function childBuys(db, packId, orderId = `order_child_${packId.replace(':', '_')}`) {
+  const [sku, packTarget] = packId.split(':');
+  const { PACK_PRODUCTS } = require('../services/packProducts.cjs');
+  db.docs.set(`payOrders/${orderId}`, { data: { uid: 'child1', passType: sku, packTarget, amountPaise: PACK_PRODUCTS[sku].priceInr * 100, status: 'created' }, version: 1 });
+  return grantPack({ db, uid: 'child1', order: { orderId }, paymentRef: `pay_${orderId}`, nowMs: NOW });
+}
+
+test('PARENT-PACKS-1 · L1: a mint body that does not parse, or a `pack` that is not an object, is 400 — never a silent Board Pass link', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  for (const opts of [{ raw: 'not json' }, { raw: '[1]' }, { raw: '{"pack":' }, { body: { pack: null } }, { body: { pack: 'pack_cbq' } }, { body: { pack: ['pack_cbq'] } }]) {
+    const r = await request(srv.port, PARENT_LINK_PATH, { ...opts, headers: asUid('child1') });
+    assert.equal(r.status, 400, JSON.stringify(opts));
+  }
+  assert.equal(srv.db.keys('parentPayLinks/').length, 0);
+});
+
+test('PARENT-PACKS-1 · L2: pack links have their OWN daily quota — a used-up Board Pass quota does not block them, and they cap separately', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  for (let i = 0; i < MAX_LINKS_PER_UID_PER_DAY; i += 1) await mint(srv);
+  assert.equal((await request(srv.port, PARENT_LINK_PATH, { headers: asUid('child1') })).status, 429);
+  for (let i = 0; i < MAX_PACK_LINKS_PER_UID_PER_DAY; i += 1) {
+    const r = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+    assert.equal(r.status, 200, `pack link ${i + 1}`);
+  }
+  const over = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal(over.status, 429);
+});
+
+test('PARENT-PACKS-1 · a pack link can start at most MAX_ORDERS_PER_LINK orders', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_mock', target: 'science' });
+  for (let i = 0; i < MAX_ORDERS_PER_LINK; i += 1) {
+    const r = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+    assert.equal(r.status, 200, `order ${i + 1}`);
+  }
+  const over = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  assert.equal(over.status, 429);
+  assert.equal(over.json.reason, 'too_many_orders');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/orders')).length, MAX_ORDERS_PER_LINK);
+});
+
+test('PARENT-PACKS-1 · M1 race (a): the child gets a COVERING pack after the link was sent -> the link closes; the parent sees "owned", no Pay', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: chapter } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  const { json: cbq } = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await request(srv.port, PARENT_VIEW_PATH, { body: { token: chapter.token } })).status, 200);
+  await childBuys(srv.db, 'pack_subject:maths');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(chapter.token)}`).status, 'owned');
+  for (const path of [PARENT_VIEW_PATH, PARENT_ORDER_PATH]) {
+    const r = await request(srv.port, path, { body: { token: chapter.token, product: 'pack' } });
+    assert.equal(r.status, 410, path);
+    assert.equal(r.json.reason, 'owned');
+  }
+  // A pack the Subject Pack does NOT cover (CBQ) keeps its link open.
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(cbq.token)}`).status, 'open');
+  assert.equal(srv.rzp.calls.length, 0);
+});
+
+test('PARENT-PACKS-1 · M1 race (b): the parent ordered BEFORE the covering pack landed -> the payment is honoured but flagged duplicate; nothing new granted; the parent is told so', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  await childBuys(srv.db, 'pack_bundle:all');
+  const p = srv.rzp.pay(o.orderId);
+  const v = await parentVerify(srv, m.token, o.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  assert.equal(v.json.kind, 'pack');
+  assert.equal(v.json.duplicate, true);
+  assert.doesNotMatch(v.text, /refund/i);
+  assert.equal(srv.db.read('packEntitlements/child1/packs/pack_chapter:polynomials'), undefined, 'a second entitlement was written');
+  const order = srv.db.read(`payOrders/${o.orderId}`);
+  assert.equal(order.status, 'paid');
+  assert.equal(order.duplicate, true);
+  assert.equal(srv.db.read(`packEntitlements/child1/grants/${p.id}`).duplicate, true);
+});
+
+test('PARENT-PACKS-1 · M1 (b) via the WEBHOOK: same flag, the link is spent', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_mock', target: 'maths' });
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  await childBuys(srv.db, 'pack_subject:maths');
+  const p = srv.rzp.pay(o.orderId);
+  const raw = webhookBody(p);
+  const hook = await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.equal(hook.status, 200, hook.text);
+  assert.equal(srv.db.read(`payOrders/${o.orderId}`).duplicate, true);
+  assert.equal(srv.db.read('packEntitlements/child1/packs/pack_mock:maths'), undefined);
+  const again = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  assert.equal(again.status, 410);
+});
+
+test('PARENT-PACKS-1 · the link that is being PAID is never closed as "owned" by its own grant; a normal grant is not a duplicate', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_subject', target: 'science' });
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.orderId);
+  const raw = webhookBody(p);
+  await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.notEqual(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'owned');
+  const again = await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.token } });
+  assert.equal(again.json.reason, 'used');
+  assert.equal(srv.db.read(`payOrders/${o.orderId}`).duplicate, undefined);
+  assert.ok(srv.db.read('packEntitlements/child1/packs/pack_subject:science'));
+});
+
+/* ── PARENT-PACKS-1 re-review (F1 / F2 / coverage) ─────────────────────────────── */
+
+const { closeCoveredParentPackLinks } = require('../services/packGrant.cjs');
+
+test('PARENT-PACKS-1 · closing never touches Board Pass links', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const board = await mint(srv);
+  await childBuys(srv.db, 'pack_bundle:all');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(board.token)}`).status, 'open');
+  assert.equal((await request(srv.port, PARENT_VIEW_PATH, { body: { token: board.token } })).status, 200);
+});
+
+test('PARENT-PACKS-1 · a Chapter Pack when the OTHER subject\'s Subject Pack is owned is granted (not a duplicate); its link stays open', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  await childBuys(srv.db, 'pack_subject:science');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'open');
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.orderId);
+  const v = await parentVerify(srv, m.token, o.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  assert.equal(v.json.duplicate, undefined);
+  assert.ok(srv.db.read('packEntitlements/child1/packs/pack_chapter:polynomials'));
+  assert.equal(srv.db.read(`payOrders/${o.orderId}`).duplicate, undefined);
+});
+
+test('PARENT-PACKS-1 · F1: a link whose order was PAID (webhook, link doc still open) is never closed as owned; the parent sees "used"', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.orderId);
+  const raw = webhookBody(p);
+  await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'open');
+  await childBuys(srv.db, 'pack_subject:maths');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'open', 'a paid link was marked owned');
+  const r = await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.token } });
+  assert.equal(r.json.reason, 'used');
+  // ...and even a link already marked owned answers "used" once it has a paid order.
+  srv.db.docs.get(`parentPayLinks/${linkIdOf(m.token)}`).data.status = 'owned';
+  assert.equal((await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.token } })).json.reason, 'used');
+});
+
+test('PARENT-PACKS-1 · F2: the close writes "owned" only while the link is still open — never over "paid"', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: a } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  const { json: b } = await mintPack(srv, { sku: 'pack_mock', target: 'maths' });
+  srv.db.docs.get(`parentPayLinks/${linkIdOf(a.token)}`).data.status = 'paid';
+  await childBuys(srv.db, 'pack_subject:maths');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(a.token)}`).status, 'paid');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(b.token)}`).status, 'owned');
+  assert.equal(await closeCoveredParentPackLinks(srv.db, 'child1'), 0, 'a second pass closes nothing more');
 });
