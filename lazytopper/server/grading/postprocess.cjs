@@ -796,7 +796,26 @@ function objectiveOffersOptions(q) {
   if (/\bassertion\b/i.test(text) && /\breason\b/i.test(text)) return true;
   const letters = new Set();
   for (const m of text.matchAll(/\(\s*([a-dA-D])\s*\)/g)) letters.add(m[1].toLowerCase());
-  return letters.size >= 2;
+  if (letters.size >= 2) return true;
+  // GRADE-MARKS-1 (R4) · the other printed option-list forms. Each needs an "a" AND a "b" option, so
+  // ordinary text with one "a)" or a stray "A." is never an option list.
+  //   "a) … b)"  — a letter + ")" at the start or after a space/punctuation;
+  //   "A. … B."  — a CAPITAL letter + "." + space at the start or after a space;
+  //   "(i) … (ii)" — roman options, only when every option is short (≤ 80 chars): a case study's
+  //                  "(i) … (ii) …" sub-questions are long sentences, not options.
+  const has = (re) => {
+    const seen = new Set();
+    for (const m of text.matchAll(re)) seen.add(m[1].toLowerCase());
+    return seen.has('a') && seen.has('b');
+  };
+  if (has(/(?:^|[\s:;,])([a-dA-D])\)\s/g) || has(/(?:^|\s)([A-D])\.\s/g)) return true;
+  const roman = [...text.matchAll(/\(\s*(i{1,3}|iv)\s*\)/gi)];
+  const romanSeen = new Set(roman.map((m) => m[1].toLowerCase()));
+  if (romanSeen.has('i') && romanSeen.has('ii')) {
+    const segs = text.split(/\(\s*(?:i{1,3}|iv)\s*\)/i).slice(1);
+    if (segs.length >= 2 && segs.every((t) => t.trim().length > 0 && t.trim().length <= 80)) return true;
+  }
+  return false;
 }
 
 function normaliseQuestionResult(q, raw, ctx = {}) {

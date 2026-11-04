@@ -262,3 +262,23 @@ describe("GRADE-MARKS-1 - Answer Checker paper marks", () => {
     expect(document.body.textContent).toContain("Always state the assumption first in a proof.");
   });
 });
+
+describe("GRADE-MARKS-1 R4 - the single-question marks chip is locked at 1 for a detect-objective question", () => {
+  it("an MCQ read as 2 marks is shown and SENT as 1; the 1-6 chip is not offered", async () => {
+    H.detectQuestion.mockReset().mockResolvedValue({
+      ok: true, detectedMarks: 2, detectedSubject: "Maths", detectedTopic: "polynomials", marksSource: "inferred", detectedObjective: true,
+      questions: [{ questionNumber: 1, questionText: "Which is a zero of x^2 - 5x + 6? a) 1 b) 2 c) 4 d) 5", marks: 2, marksSource: "inferred", objective: true }],
+    });
+    render(page());
+    await typeAndReadQuestion("Which is a zero of x^2 - 5x + 6? a) 1 b) 2 c) 4 d) 5");
+    expect(document.body.textContent).toContain("1 mark");
+    fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    expect(screen.getByTestId("ci-marks-locked")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "3" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    typeAnswer("My answer is option b) 2");
+    await clickGrade();
+    await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));
+    expect((H.checkSolutionImage.mock.calls[0][0] as { marks: number }).marks).toBe(1);
+  });
+});

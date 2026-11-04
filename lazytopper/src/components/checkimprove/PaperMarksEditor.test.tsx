@@ -44,4 +44,11 @@ describe("PaperMarksEditor", () => {
     expect(screen.queryByText("Check: we guessed 1")).toBeNull();
     expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 13 marks");
   });
+
+  it("R5 · an objective row DISPLAYS 1 and totals 1 even if the read said 2 (what the server grades)", () => {
+    const mcq: DetectedQuestion = { questionNumber: 1, questionText: "MCQ a) 1 b) 2", marks: 2, marksSource: "section", objective: true };
+    render(<PaperMarksEditor questions={[mcq, ...QS]} onMarksChange={vi.fn()} />);
+    expect(screen.getByTestId("paper-marks-fixed-0").textContent).toBe("1");
+    expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 13 marks");
+  });
 });

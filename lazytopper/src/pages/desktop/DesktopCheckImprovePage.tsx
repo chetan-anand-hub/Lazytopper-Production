@@ -1661,6 +1661,8 @@ const DesktopCheckImprovePageInner: React.FC<{
     questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   // Two or more questions were read from the upload → grade the whole paper.
   const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
+  // GRADE-MARKS-1 (§13) — the single question is a detect-objective one: its marks chip is locked at 1.
+  const singleObjectiveLocked = !isMultiQuestion && detectedQuestions?.[0]?.objective === true;
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
   // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
@@ -1948,7 +1950,12 @@ const DesktopCheckImprovePageInner: React.FC<{
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
       }
-      const cd = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
+      // GRADE-MARKS-1 (§13) — a detect-objective question (MCQ / A-R) is a 1-mark, 0-or-full question:
+      // it is shown, totalled and SENT as 1, on the single chip and the whole-paper editor alike, so
+      // the confirm step shows exactly what the grader grades (the server forces the same, guardedObjectiveMarks).
+      const readQs = d.questions?.map((x) => (x.objective === true && x.marks !== 1 ? { ...x, marks: 1 } : x));
+      const cd0 = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
+      const cd = (readQs?.length ?? 0) <= 1 && readQs?.[0]?.objective === true ? { ...cd0, marks: 1 } : cd0;
       setDetected(cd);
       setConfirmed(cd);
       const image = questionTab === "upload" ? qImageBase64 : null;
@@ -1962,7 +1969,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setTopicTouched(false);
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
-      setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
+      setDetectedQuestions(readQs && readQs.length > 0 ? readQs : null);
       // FU-CI-TYPEFIRST-MULTI: a WHOLE PAPER grades from the answer PHOTO, so a type-first default
       // (SHW-2) moves to "Upload image" - never when the student picked a tab or typed an answer.
       if ((d.questions?.length ?? 0) > 1 && tab === "type" && !ciAnswerTouchedRef.current && textAnswer.trim().length === 0) {
@@ -2006,6 +2013,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     setTopicTouched(true); // provenance tag: confirmed/corrected by the student (C&I PR-1)
   }
   function correctMarks(m: number) {
+    if (singleObjectiveLocked) return; // §13: a detect-objective question stays at 1 mark
     setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
   }
   // GRADE-MARKS-1 — the whole-paper confirm step: a student's correction of one question's marks.
@@ -3501,6 +3509,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                           <option key={t.slug} value={t.slug}>{t.name}</option>
                         ))}
                       </select>
+                      {singleObjectiveLocked ? (
+                        <div style={{ fontSize: 12.5, color: TEXT_MUTED }} data-testid="ci-marks-locked">
+                          1 mark · an MCQ is marked right or wrong (0 or 1)
+                        </div>
+                      ) : (
                       <div style={{ display: "flex", gap: 6 }}>
                         {[1, 2, 3, 4, 5, 6].map((m) => {
                           const active = confirmed.marks === m;
@@ -3522,6 +3535,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                           );
                         })}
                       </div>
+                      )}
                       <button
                         type="button"
                         onClick={() => setEditing(false)}

@@ -242,10 +242,11 @@ function marksInRange(v) {
 /**
  * The marks every question gets by RULE, in order (pure, deterministic). For each entry:
  *   1. a mark printed ON the question (`printedMarks`)          → source "printed";
- *   2. its section's header mark ("Section C … 3 marks each")   → source "section" — but
- *      "inferred" (assigned, flagged for the student to check) when that single number is not the
- *      CBSE value for the section and the header did not print it in a "6 × 3" form whose factor
- *      it is (catches a "4 × 3" header misread as 4 marks each);
+ *   2. its section's header mark ("Section C … 3 marks each")   → source "section" — trusted ONLY
+ *      when it equals the CBSE value for that section (A=1, B=2, C=3, D=5, E=4). Any other header
+ *      number may be a misread ("6 × 3 = 18" read as 6 each, "4 × 3" read as 4), so the question
+ *      gets the CBSE value for its section instead, labelled "inferred" — flagged for the student
+ *      to check and edit on the confirm step;
  *   3. the CBSE section map (A=1, B=2, C=3, D=5, E=4), only when the paper's headers follow it
  *      (two or more header marks, every one equal to the map)  → source "section";
  *   4. otherwise `marks: null` — the caller keeps the model's own value.
@@ -255,20 +256,16 @@ function marksInRange(v) {
  * A question with no section continues the section of the question before it: a section runs
  * across page breaks until the next header, so Q20 on a page with no header stays in Section C.
  * @param {Array<{section: string|null, printedMarks: number|null, objective?: boolean}>} entries  in paper order
- * @param {Array<{section?: unknown, marksEach?: unknown, text?: unknown}>|undefined} headers  the model's sectionHeaders
+ * @param {Array<{section?: unknown, marksEach?: unknown}>|undefined} headers  the model's sectionHeaders
  * @returns {Array<{marks: number|null, source: 'printed'|'section'|'inferred'|null, section: string|null}>}
  */
 function assignSectionMarks(entries, headers) {
   const headerMarks = new Map(); // letter → marks; a letter with two different marks is unknown (null)
-  const headerTrusted = new Map(); // letter → the header's number is the CBSE value or a factor of its printed "a × b"
   for (const h of Array.isArray(headers) ? headers : []) {
     const letter = sectionLetterOf(h && h.section);
     const marks = marksInRange(h && h.marksEach);
     if (!letter || marks === null) continue;
     headerMarks.set(letter, headerMarks.has(letter) && headerMarks.get(letter) !== marks ? null : marks);
-    const times = /(\d+(?:\.\d+)?)\s*[×xX*]\s*(\d+(?:\.\d+)?)/.exec(String((h && h.text) || ''));
-    const trusted = CBSE_SECTION_MARKS[letter] === marks || Boolean(times && (Number(times[1]) === marks || Number(times[2]) === marks));
-    headerTrusted.set(letter, (headerTrusted.has(letter) ? headerTrusted.get(letter) : true) && trusted);
   }
   const known = [...headerMarks.entries()].filter(([, m]) => m !== null);
   const cbsePattern = known.length >= 2 && known.every(([l, m]) => CBSE_SECTION_MARKS[l] === m);
@@ -279,7 +276,9 @@ function assignSectionMarks(entries, headers) {
     let ruled = { marks: null, source: null, section };
     if (e.printedMarks !== null) ruled = { marks: e.printedMarks, source: 'printed', section };
     else if (section && headerMarks.get(section) != null) {
-      ruled = { marks: headerMarks.get(section), source: headerTrusted.get(section) ? 'section' : 'inferred', section };
+      ruled = headerMarks.get(section) === CBSE_SECTION_MARKS[section]
+        ? { marks: headerMarks.get(section), source: 'section', section }
+        : { marks: CBSE_SECTION_MARKS[section], source: 'inferred', section }; // a non-CBSE header number: never trusted
     } else if (section && cbsePattern && !headerMarks.has(section)) ruled = { marks: CBSE_SECTION_MARKS[section], source: 'section', section };
     // §13: never more than 1 mark for an objective question by rule (the 0/full clamp needs ≤ 1).
     if (e.objective === true && ruled.marks !== null && ruled.marks > 1) return { marks: null, source: null, section };

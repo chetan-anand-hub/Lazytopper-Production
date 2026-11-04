@@ -45,9 +45,14 @@ const STRONG_CUES: RegExp[] = [
   new RegExp(`\\b(?:${NUMBER_WORD})\\s+marks?\\b`, "i"), // "three marks"
   new RegExp(`\\bout of\\s*${DIGIT}+(?:\\.\\d+)?\\s*(?:marks?\\b|[.,;:!?)]|$)`, "i"), // "4 out of 7" — not "out of 5 chapters"
 ];
-/** Cues that are a score only beside "out of", "/", "marks" or "%". */
+/** Cues that are a score only beside "out of", a "N/M" ratio, "marks" or "%" — never a unit's "/" (m/s). */
 const WEAK_CUE = /\b(?:right|wrong|correct(?:ly)?|got|full)\b/i;
-const WEAK_CONTEXT = /\bout of\b|\/|\bmarks?\b|%/i;
+const WEAK_CONTEXT = new RegExp(`\\bout of\\b|${DIGIT}\\s*\\/\\s*${DIGIT}|\\bmarks?\\b|%`, "i");
+/** A COUNT claim: "4 of 7", "3 of the 5", "three of your four", "4 out of 7" (digits or number words)… */
+const COUNT_NUMBER = `(?:${DIGIT}+|(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty))`;
+const COUNT = new RegExp(`\\b${COUNT_NUMBER}\\s+(?:of|out of)\\s+(?:(?:the|your|these|those|all)\\s+)?${COUNT_NUMBER}\\b`, "i");
+/** …about questions or answers: "4 of 7 objective questions right" — but not "3 out of 5 chapters". */
+const COUNT_CUE = /\b(?:mcqs?|objective|questions?|answers?|right|correct(?:ly)?|wrong)\b/i;
 
 /** A question or section REFERENCE ("Q3", "Question 20", "Section C") is not a quantity. */
 function withoutReferences(sentence: string): string {
@@ -59,6 +64,7 @@ export function claimsAScore(sentence: string): boolean {
   const s = withoutReferences(sentence);
   if (!QUANTITY.test(s)) return false;
   if (STRONG_CUES.some((re) => re.test(s))) return true;
+  if (COUNT.test(s) && COUNT_CUE.test(s)) return true;
   return WEAK_CUE.test(s) && WEAK_CONTEXT.test(s);
 }
 

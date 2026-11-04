@@ -77,4 +77,25 @@ describe("finalMarksSummary", () => {
     expect(hi).toContain("You scored 2 out of 3 marks on the questions we graded.");
     expect(hi).toContain("इकाई लिखना याद रखें।");
   });
+
+  it("R2 · COUNT claims about questions are replaced by the final marks", () => {
+    const counts = [
+      "You got 4 of 7 objective questions right.",
+      "You answered 3 of the 5 MCQs correctly.",
+      "Three of your four MCQs were right.",
+    ];
+    for (const c of counts) {
+      expect(claimsAScore(c), c).toBe(true);
+      const out = finalMarksSummary({ summary: c + " Keep writing the steps.", results: RESULTS, gradedMarksAwarded: 13, gradedMarksTotal: 21 });
+      expect(out, c).not.toContain(c);
+      expect(out).toContain("On the objective questions: 7 out of 13 marks.");
+      expect(out).toContain("Keep writing the steps.");
+    }
+  });
+
+  it("R3 · a unit's '/' is not a marks context: a correct speed sentence is kept", () => {
+    const s = "Your speed was 9.8 m/s² which is correct.";
+    expect(claimsAScore(s)).toBe(false);
+    expect(finalMarksSummary({ summary: s, results: RESULTS, gradedMarksAwarded: 13, gradedMarksTotal: 21 })).toBe(s);
+  });
 });

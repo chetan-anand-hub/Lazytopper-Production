@@ -3163,13 +3163,26 @@ test('§GM.7 ★★ F1 (§13) the section rule never gives an OBJECTIVE question
   assert.deepEqual(r.map((x) => x.marks), [null, 2, 1, null], 'an MCQ under a 2-mark header keeps the model value; a 1-mark rule is fine');
 });
 
-test('§GM.8 F5 a header mark that is neither the CBSE value nor a factor of a printed "a × b" is assigned but flagged', () => {
-  const e = [{ section: 'C', printedMarks: null }];
-  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: 'Section C 4 × 3' }])[0].source, 'section', '× form, a factor');
-  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: '4 marks each' }])[0].source, 'inferred', 'not CBSE C=3, no × form ⇒ flagged');
-  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 3, text: null }])[0].source, 'section', 'the CBSE value');
-  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: '6 × 3 = 18' }])[0].source, 'inferred', '× form, but 4 is not a factor');
-  assert.equal(GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 4, text: '4 marks each' }])[0].marks, 4, 'still assigned — the student checks it');
+test('§GM.8 R1 a header mark is trusted ONLY at the CBSE value; any other number gets the CBSE value, flagged "inferred"', async () => {
+  const e = [{ section: 'C', printedMarks: null }, { section: null, printedMarks: null }];
+  const ok = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 3 }]);
+  assert.deepEqual(ok.map((x) => [x.marks, x.source]), [[3, 'section'], [3, 'section']], 'the CBSE value is trusted (and carried)');
+  // "6 × 3 = 18" read as 6 each, "4 × 3" read as 4: never trusted, never carried as 6 / 4.
+  for (const misread of [6, 4]) {
+    const r = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: misread }]);
+    assert.deepEqual(r.map((x) => [x.marks, x.source]), [[3, 'inferred'], [3, 'inferred']], 'C misread as ' + misread);
+  }
+  // End to end: Section C header misread as 6 → header-less Q20/Q21 are 3, flagged; the paper is still 51.
+  const reply = gmReply({ headers: GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: l === 'C' ? 6 : m })) });
+  reply.questions[19].section = 'C'; reply.questions[20].section = null;
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const qs = h.body().questions;
+  for (const n of [16, 20, 21]) {
+    const q = qs.find((x) => x.questionNumber === n);
+    assert.deepEqual([q.marks, q.marksSource], [3, 'inferred'], 'Q' + n);
+  }
+  assert.equal(gmSum(qs), 51);
 });
 
 test('§GM.9 ★★★ F1 (§13) a 1-mark MCQ SENT with marks 3 is still scored 0 or full, on BOTH paths, with no step marks', async () => {
@@ -3200,4 +3213,30 @@ test('§GM.10 F1 guard CONTROL: a mis-flagged SUBJECTIVE (no options) keeps its 
   const hb = buildRoute({ replies: [{ results: [{ qNumber: 1, annotatedSteps: [{ description: 'Option', studentWork: '(b)', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'x', mistakeType: null, correctedWorking: null }] }] }] });
   await hb.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { marks: 2, section: 'A', format: 'mcq', qType: 'mcq', answer: 'x', options: ['w', 'x'] })]), {});
   assert.equal(hb.body().results[0].totalMarks, 2, 'a bank-objective item keeps its marks (clamped whatever its marks, as before)');
+});
+
+test('§GM.11 R4 objectiveOffersOptions reads every printed option-list form, never one stray "a)"', () => {
+  const PP = require('../grading/postprocess.cjs');
+  const t = (questionText) => PP.objectiveOffersOptions({ questionText });
+  assert.equal(t('Which is prime? (a) 4 (b) 6 (c) 7 (d) 9'), true, '(a) form, as before');
+  assert.equal(t('Which is prime? a) 4 b) 6 c) 7 d) 9'), true, 'a) form');
+  assert.equal(t('Which is prime? A. 4 B. 6 C. 7 D. 9'), true, 'A. form');
+  assert.equal(t('Which is prime? (i) 4 (ii) 6 (iii) 7 (iv) 9'), true, '(i) form, short options');
+  assert.equal(t('Find the value of a) when x = 2 and show your working.'), false, 'one "a)" in ordinary text');
+  assert.equal(t('Point A. B is the midpoint of PQ.'), false, 'a stray "A." is not a list');
+  assert.equal(t('Read the case. (i) Find the length of the rope DE when the park sides are 20 m and 30 m in a right triangle. (ii) Find the area enclosed by the rope and the two walls given in the figure above.'), false,
+    'a case study\'s long (i)/(ii) sub-questions are not options');
+});
+
+test('§GM.12 R4 the §13 guard reaches an "a) … b)" MCQ sent with marks 3, on BOTH paths', async () => {
+  const mcq = 'Which of these is a zero of x² − 5x + 6? a) 1 b) 2 c) 4 d) 5';
+  const raw = { annotatedSteps: [{ description: 'Option', studentWork: 'b) 2', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution({ question: mcq, subject: 'Maths', marks: 3, objective: true, textAnswer: 'b) 2', acceptsV2: true }, {});
+  assert.equal(hs.body().totalMarks, 1);
+  assert.ok([0, 1].includes(hs.body().marksAwarded));
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 3, questionText: mcq, objective: true }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 1);
+  assert.ok([0, 1].includes(hm.body().results[0].marksAwarded));
 });

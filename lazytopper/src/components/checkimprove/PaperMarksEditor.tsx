@@ -23,6 +23,11 @@ export function isLockedObjective(q: Pick<DetectedQuestion, "objective">): boole
   return q.objective === true;
 }
 
+/** The marks this row is graded at: 1 for an objective question (what the server grades), else its own. */
+export function gradedMarksOf(q: Pick<DetectedQuestion, "objective" | "marks">): number {
+  return isLockedObjective(q) ? 1 : Number(q.marks) || 0;
+}
+
 /** True when the read GUESSED this question's marks (nothing printed on it or in its section header). */
 export function isGuessedMarks(q: Pick<DetectedQuestion, "marksSource" | "objective">): boolean {
   if (isLockedObjective(q)) return false; // nothing for the student to check or change
@@ -70,7 +75,7 @@ export interface PaperMarksEditorProps {
 export default function PaperMarksEditor({ questions, onMarksChange }: PaperMarksEditorProps) {
   // What the student is typing, per row, until it is a valid mark (then it is committed upward).
   const [drafts, setDrafts] = useState<Record<number, string>>({});
-  const total = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
+  const total = questions.reduce((s, q) => s + gradedMarksOf(q), 0);
   const guessed = questions.filter(isGuessedMarks).length;
   return (
     <div className="lt-pme" data-testid="paper-marks-editor">
@@ -88,8 +93,8 @@ export default function PaperMarksEditor({ questions, onMarksChange }: PaperMark
               {isLockedObjective(q) ? (
                 <>
                   <span className="lt-pme__q">Q{q.questionNumber}</span>
-                  <span className="lt-pme__fixed" data-testid={`paper-marks-fixed-${qi}`}>{q.marks}</span>
-                  <span className="lt-pme__unit">{q.marks === 1 ? "mark" : "marks"} · MCQ</span>
+                  <span className="lt-pme__fixed" data-testid={`paper-marks-fixed-${qi}`}>1</span>
+                  <span className="lt-pme__unit">mark · MCQ</span>
                 </>
               ) : (
               <>

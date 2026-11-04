@@ -154,8 +154,8 @@ function withSectionMarksSchema(base) {
     nullable: true,
     items: {
       type: 'OBJECT',
-      properties: { section: { type: 'STRING' }, text: { type: 'STRING', nullable: true }, marksEach: { type: 'NUMBER', nullable: true } },
-      propertyOrdering: ['section', 'text', 'marksEach'],
+      properties: { section: { type: 'STRING' }, marksEach: { type: 'NUMBER', nullable: true } },
+      propertyOrdering: ['section', 'marksEach'],
       required: ['section'],
     },
   };
@@ -172,7 +172,7 @@ const DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS = withSectionMarksSchema(D
 
 /** GRADE-MARKS-1 · the one prompt line an opted-in detect request adds (right after the marks rule). */
 const DETECT_SECTION_MARKS_RULE =
-  '- SECTIONS AND MARKS: many papers print marks ONLY in a section header (e.g. "SECTION C — this section has 6 questions of 3 marks each"). List every section header you see in "sectionHeaders" as { "section": "<its letter>", "text": "<the header\'s marks wording exactly as printed, e.g. \"6 questions of 3 marks each\" or \"6 × 3 = 18\">", "marksEach": <the marks per question it states, or null if it states none> }. ' +
+  '- SECTIONS AND MARKS: many papers print marks ONLY in a section header (e.g. "SECTION C — this section has 6 questions of 3 marks each"). List every section header you see in "sectionHeaders" as { "section": "<its letter>", "marksEach": <the marks per question it states, or null if it states none> }. ' +
   'For EACH question give "section": the letter of the section it is printed under — a section continues across page breaks until the next section header, so a question on a page with no header belongs to the last section header before it — or null if the paper has no sections. ' +
   'Give "printedMarks": the mark printed ON or beside THAT question itself (e.g. "[3]", "(2 marks)"; for a question with parts, the TOTAL of its printed part-marks), or null when no mark is printed on the question. A section-header mark is NOT a printed mark for this field.\n';
 
