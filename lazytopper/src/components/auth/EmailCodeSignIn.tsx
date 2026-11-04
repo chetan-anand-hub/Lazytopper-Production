@@ -1,13 +1,15 @@
 /**
  * EmailCodeSignIn — EMAIL-CODE-1 (owner 4 Nov 2026): sign in with a 6-digit code from email, typed on the same screen
- * (like the phone OTP). Used by /login ("Sign in with email code") and by the pay-first thank-you screen
- * (AccountReadyPanel: "It's for me — get a code"). Shown only while VITE_EMAIL_CODE_SIGNIN_ENABLED is on.
+ * (like the phone OTP). Used by the pay-first thank-you screen (AccountReadyPanel: "It's for me — get a code"); a /login
+ * door is designed but not mounted (PERF-3 entry budget, see the EMAIL-CODE-1 PR). Only while
+ * VITE_EMAIL_CODE_SIGNIN_ENABLED is on.
  *
  *   email -> "Send code" -> six boxes (ONE numeric input, autocomplete="one-time-code") -> signed in.
  *   "Send a new code" after 30 s. Clear errors: "That code didn't match — 4 tries left", "Code expired — send a new one".
  *
- * Signed in = Firebase signInWithEmailLink with the server's one-time link (services/emailCode); every existing after-sign-in path (Login's safe redirect, AuthContext's claim,
- * the pay-first first sign-in) runs unchanged. The email and the code live in this component's memory only.
+ * Signed in = Firebase signInWithEmailLink with the server's one-time link (services/emailCode); every existing
+ * after-sign-in path (AuthContext's claim, the pay-first first sign-in, Login's safe redirect) runs unchanged. The
+ * email and the code live in this component's memory only.
  */
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { maskEmail } from "../../services/checkoutWhoFlag";
@@ -34,7 +36,7 @@ export interface EmailCodeSignInProps {
   verify?: (email: string, code: string) => Promise<void>;
   describe?: (err: unknown) => string;
   resendAfterSec?: number;
-  /** Render inside a modal sheet over the page (Login's EmailCodeDoor). */
+  /** Render inside a modal sheet over the page (for the future /login door; see the EMAIL-CODE-1 PR). */
   asSheet?: boolean;
 }
 

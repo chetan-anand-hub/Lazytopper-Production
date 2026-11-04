@@ -25,7 +25,7 @@
   .lt-ecs__boxes { gap: 4px; }
   .lt-ecs__box { height: 44px; font-size: 19px; }
 }
-/* The /login sheet (EmailCodeDoor): over the door, centred; full-width card on a phone. */
+/* The sheet (EmailCodeSignIn asSheet, for a future /login door): centred; full-width card on a phone. */
 .lt-ecs__sheet {
   position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
   padding: 16px; box-sizing: border-box; background: rgba(8, 18, 38, 0.55); overflow-y: auto;
