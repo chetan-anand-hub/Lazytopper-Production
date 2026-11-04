@@ -110,4 +110,32 @@ describe("Login phone OTP — where the code went", () => {
     }
     expect(window.location.href).not.toContain(NUMBER);
   });
+
+  it("Change it, type a NEW number, Send: the code goes to the new number and the new masked number is shown", async () => {
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const u = userEvent.setup({ delay: null });
+    await u.click(screen.getByRole("button", { name: /Continue with phone/ }));
+    const nameBox = screen.queryByLabelText("Your name");
+    if (nameBox) await u.type(nameBox, "Ritika");
+    await u.type(screen.getByLabelText("Mobile number"), NUMBER);
+    await u.click(screen.getByRole("button", { name: /Send OTP/ }));
+    await screen.findByTestId("code-sent-to");
+
+    await u.click(screen.getByRole("button", { name: "Wrong number? Change it" }));
+    const box = await screen.findByLabelText("Mobile number");
+    await u.clear(box);
+    await u.type(box, "8123456789");
+    await u.click(screen.getByRole("button", { name: /Send OTP/ }));
+
+    await waitFor(() => expect(sendPhoneOtp).toHaveBeenCalledTimes(2));
+    expect(sendPhoneOtp.mock.calls[1][0]).toBe("+918123456789");
+    expect((await screen.findByTestId("code-sent-to")).textContent).toContain("+91 81•••••789");
+    expect(document.body.textContent).not.toContain("8123456789");
+  });
 });

@@ -22,7 +22,6 @@ import { Suspense, lazy, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { isEmailCodeSigninClientEnabled } from "../../services/emailCodeFlag";
 import {
-  CHECK_INBOX,
   COPY_MESSAGE,
   MESSAGE_COPIED,
   OPEN_FOR_ME,
@@ -155,7 +154,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
         >
           {/* CODE-WHERE-1: where the SMS went. No "Change it" here: the payment is already recorded against this number. */}
           {recipient.phone && <CodeSentTo kind="phone" to={recipient.phone} testId="who-code-sent-to" />}
-          <label className="lt-gps__label" htmlFor="lt-who-otp">Enter the 6-digit code we sent by SMS</label>
+          <label className="lt-gps__label" htmlFor="lt-who-otp">Enter the 6-digit code</label>
           <div className="lt-gps__field">
             <input
               id="lt-who-otp"
@@ -180,7 +179,13 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
           <EmailCodeSignIn email={recipient.email} sendOnMount onSignedIn={() => navigate(landingPath(item.kind))} />
         </Suspense>
       ) : me.phase === "link-sent" ? (
-        <p className="lt-gps__line" role="status" data-testid="who-link-sent">{CHECK_INBOX}</p>
+        recipient.email && (
+          <div data-testid="who-link-sent">
+            {/* CODE-WHERE-1: name where the link went; no "Change it" (the payment is recorded against this address). */}
+            <CodeSentTo kind="email" what="link" to={recipient.email} testId="who-link-sent-to" />
+            <p className="lt-gps__fine">Tap the link in it to open LazyTopper.</p>
+          </div>
+        )
       ) : (
         !payerSignedIn && (
           <button type="button" className="lt-gps__primary" disabled={busy} onClick={() => void openForMe()} data-testid="who-open-me">

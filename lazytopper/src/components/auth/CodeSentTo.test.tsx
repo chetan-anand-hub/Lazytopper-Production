@@ -130,6 +130,26 @@ describe("EmailCodeSignIn (Login email-code door / thank-you screen)", () => {
     expectNoLeak([EMAIL, "rahul.verma"]);
   });
 
+  it("Change it, then the SAME email inside the wait: back to the code step, no second send; a DIFFERENT email sends", async () => {
+    const send = vi.fn(async (_e: string) => undefined);
+    render(<EmailCodeSignIn send={send} verify={vi.fn(async () => undefined)} describe={() => "x"} />);
+    fireEvent.change(screen.getByTestId("email-code-email"), { target: { value: EMAIL } });
+    fireEvent.click(screen.getByTestId("email-code-send"));
+    await screen.findByTestId("email-code-sent");
+
+    fireEvent.click(screen.getByRole("button", { name: "Wrong email? Change it" }));
+    fireEvent.click(await screen.findByTestId("email-code-send"));
+    expect((await screen.findByTestId("email-code-sent")).textContent).toContain(EMAIL_MASKED);
+    expect(send).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Wrong email? Change it" }));
+    fireEvent.change(await screen.findByTestId("email-code-email"), { target: { value: "priya.s@yahoo.in" } });
+    fireEvent.click(screen.getByTestId("email-code-send"));
+    await waitFor(() => expect(screen.getByTestId("email-code-sent").textContent).toContain("pr••••@yahoo.in"));
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(send).toHaveBeenLastCalledWith("priya.s@yahoo.in");
+  });
+
   it("a FIXED address (thank-you screen): where it went, but no 'Change it'", async () => {
     render(<EmailCodeSignIn email={EMAIL} sendOnMount send={vi.fn(async () => undefined)} verify={vi.fn(async () => undefined)} describe={() => "x"} />);
     const sent = await screen.findByTestId("email-code-sent");
@@ -192,6 +212,7 @@ describe("AccountReadyPanel (thank-you screen, phone)", () => {
     const sent = await screen.findByTestId("who-code-sent-to");
     expect(sent.textContent).toContain(`by SMS to ${PHONE_MASKED}`);
     expect(screen.queryByTestId("code-sent-change")).toBeNull();
+    expect(screen.getByLabelText("Enter the 6-digit code")).toBeTruthy();
     expect(document.body.textContent).not.toContain(DIGITS);
     expectNoLeak([DIGITS]);
   });

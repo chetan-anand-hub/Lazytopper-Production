@@ -16,14 +16,14 @@
   margin: 0;
   font: inherit;
   font-weight: 600;
-  color: hsl(152, 45%, 30%);
+  /* The surrounding text's own colour (readable on every host: Login navy or light, the thank-you sheet, the modal),
+     underlined and bold so it reads as a link. No theme-dependent green: Login's theme is not the OS theme. */
+  color: inherit;
   text-decoration: underline;
+  text-underline-offset: 2px;
   cursor: pointer;
 }
-.lt-codesent__change:disabled { color: var(--text-secondary, #5b6b80); text-decoration: none; cursor: default; }
-@media (prefers-color-scheme: dark) {
-  .lt-codesent__change { color: hsl(152, 55%, 62%); }
-}
+.lt-codesent__change:disabled { opacity: 0.55; text-decoration: none; cursor: default; }
 /* Inside the "Sign-in methods" modal (LinkSignInMethodModalSheet), under the code box. */
-.lt-link-sent { margin: 8px 0 0; color: var(--text-muted); }
+.lt-link-sent { margin: 8px 0 0; color: var(--text); }
 .lt-link-sent .lt-codesent { font-size: 0.85rem; }

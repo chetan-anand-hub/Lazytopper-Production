@@ -73,6 +73,8 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
   /** CODE-WHERE-1: "Wrong email? Change it" -> back to the email box, value kept, box focused. */
   const emailRef = useRef<HTMLInputElement | null>(null);
   const focusEmail = useRef(false);
+  /** The address the last code went to (memory only): re-submitting it inside the resend wait returns to the code step. */
+  const lastSentTo = useRef<string | null>(null);
 
   async function say(err: unknown) {
     const fn = describe || (await loadDescribe());
@@ -81,9 +83,16 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
 
   async function requestCode() {
     setError(null);
+    // CODE-WHERE-1: "Change it" then the SAME address inside the wait -> back to the code step, no second send.
+    if (lastSentTo.current !== null && lastSentTo.current === email.trim().toLowerCase() && wait > 0) {
+      setHasSent(true);
+      setPhase("code");
+      return;
+    }
     setPhase("sending");
     try {
       await send(email);
+      lastSentTo.current = email.trim().toLowerCase();
       setCode("");
       setWait(resendAfterSec);
       setHasSent(true);
@@ -100,6 +109,7 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
       void (async () => {
         try {
           await send(fixedEmail);
+          lastSentTo.current = fixedEmail.trim().toLowerCase();
           setWait(resendAfterSec);
           setHasSent(true);
           setPhase("code");

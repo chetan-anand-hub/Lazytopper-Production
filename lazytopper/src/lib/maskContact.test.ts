@@ -12,8 +12,9 @@ describe("maskEmail", () => {
     expect(maskEmail("rahul.verma@gmail.com")).toBe("ra••••@gmail.com");
     expect(maskEmail("  Rahul.Verma@Gmail.com ")).toBe("ra••••@gmail.com");
   });
-  it("short local parts never reveal more than they have", () => {
-    expect(maskEmail("ab@x.co")).toBe("ab••••@x.co");
+  it("short local parts never reveal the whole local part: at most max(1, len-1) characters", () => {
+    expect(maskEmail("abc@x.co")).toBe("ab••••@x.co");
+    expect(maskEmail("ab@x.co")).toBe("a••••@x.co");
     expect(maskEmail("a@x.co")).toBe("a••••@x.co");
   });
   it("plus-addresses: the tag is hidden with the rest", () => {
@@ -40,6 +41,11 @@ describe("maskPhone", () => {
     expect(maskPhone("+971501234567")).toBe("+97•••••••567");
     expect(maskPhone("+447911123456")).not.toContain("7911123");
   });
+  it("non-+91 numbers under 10 digits: the last 3 only (10+ keep the first 2)", () => {
+    expect(maskPhone("+6591234567")).toBe("+65•••••567");
+    expect(maskPhone("+659 123 456")).toBe("+••••••456");
+    expect(maskPhone("+35312345")).toBe("+•••••345");
+  });
   it("garbage -> empty", () => {
     expect(maskPhone("")).toBe("");
     expect(maskPhone("12345")).toBe("");
@@ -54,7 +60,10 @@ describe("one helper, not three", () => {
     expect(guestPay.maskIndianMobile).toBe(maskIndianMobile);
     expect(guestPay.normaliseIndianMobile).toBe(normaliseIndianMobile);
   });
-  it("the email masker is checkoutWhoFlag's", () => {
-    expect(maskEmail).toBe(checkoutWhoFlag.maskEmail);
+  it("the email masker builds on checkoutWhoFlag's normaliser and agrees with its maskEmail on ordinary addresses", () => {
+    for (const e of ["anaya.k@gmail.com", " Rahul.Verma@Gmail.com ", "ra+lt@x.in", "abc@x.co"]) {
+      expect(maskEmail(e)).toBe(checkoutWhoFlag.maskEmail(e));
+    }
+    expect(maskEmail("not an email")).toBe(checkoutWhoFlag.maskEmail("not an email"));
   });
 });
