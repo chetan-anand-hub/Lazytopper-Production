@@ -14,10 +14,9 @@ import type { SubscriptionPlan, SubscriptionTier } from "../services/subscriptio
  * both surfaces render an identical status chip. The translucent tints read on
  * both the light desktop card and the dark mobile card.
  *
- * NOTE — the desktop shell (`components/desktop/DesktopShell.tsx`) still holds an
- * inline copy of this exact derivation today; migrating it onto this helper is the
- * tracked follow-up [FU-DESKTOP-ACCOUNT-MENU-SHARE] (DesktopShell is a locked
- * sacred file, out of scope for this chrome PR).
+ * NAV-FIX-1 (4 Nov 2026): the desktop shell (`components/desktop/DesktopShell.tsx`)
+ * now reads this helper too — its inline copy (which still said "Premium active") is
+ * gone, closing [FU-DESKTOP-ACCOUNT-MENU-SHARE].
  */
 export interface AccountStatusInput {
   tier: SubscriptionTier;
@@ -100,7 +99,7 @@ export function deriveAccountStatus({
   if (isTrialExpired) {
     return {
       label: "Trial ended - Choose plan",
-      detail: "Choose a plan to continue premium tools.",
+      detail: "Choose a plan to keep using the full tools.",
       color: "hsl(0, 72%, 45%)",
       bg: "hsla(0,72%,50%,0.10)",
       border: "hsla(0,72%,50%,0.22)",

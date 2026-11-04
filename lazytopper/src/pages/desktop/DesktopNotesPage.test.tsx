@@ -70,10 +70,9 @@ describe("DesktopNotesPage", () => {
     const { container } = renderAt("/notes/does-not-exist");
     expect(screen.getByText("Notes not found")).toBeInTheDocument();
     expect(container.querySelector(".lt-note")).toBeNull();
-    expect(screen.getByRole("link", { name: /Back to Exam Trends/ })).toHaveAttribute(
-      "href",
-      "/exam-trends",
-    );
+    // NAV-FIX-1: the recovery link is inline in the copy (the header row owns Back).
+    expect(screen.getByRole("link", { name: "Exam Trends" })).toHaveAttribute("href", "/exam-trends");
+    expect(screen.queryByRole("link", { name: /^←|Back to/ })).toBeNull();
   });
 
   it("every advertised /notes/ URL resolves to a real note", { timeout: 120_000 }, () => {
@@ -156,27 +155,19 @@ describe("DesktopNotesPage — deep link to the questions tab", () => {
   });
 });
 
-describe("DesktopNotesPage — the return ticket", () => {
-  function backLink() {
-    return screen.getAllByRole("link")[0];
-  }
-
-  it("a safe ticket points the back-link at the origin, with its label", () => {
-    renderAt("/notes/trigonometry?tab=questions&returnTo=%2F&backLabel=Back+to+LazyTopper");
-    expect(backLink()).toHaveAttribute("href", "/");
-    expect(backLink()).toHaveTextContent("Back to LazyTopper");
-  });
-
-  it("★ CONTROL — no ticket keeps today's Topic Hub back-link", () => {
-    renderAt("/notes/trigonometry");
-    expect(backLink()).toHaveAttribute("href", "/topic-hub/trigonometry");
-    expect(backLink()).toHaveTextContent("Trigonometry Topic Hub");
-  });
-
-  it("★ CONTROL — an external returnTo is rejected, falling back to the Topic Hub", () => {
-    for (const evil of ["https%3A%2F%2Fevil.com", "%2F%2Fevil.com", "javascript%3Aalert(1)"]) {
-      renderAt(`/notes/trigonometry?returnTo=${evil}&backLabel=Back`);
-      expect(backLink(), evil).toHaveAttribute("href", "/topic-hub/trigonometry");
+describe("DesktopNotesPage — NAV-FIX-1: one Back per page", () => {
+  // The NAV-1 header row (RouteNavBar) owns Back on /notes/:slug ("← Topic Hub" -> /topic-hub/:slug, or one step
+  // back after an in-app arrival). The page itself draws no back link, with or without a ticket.
+  it("no page-level back link — bare path, safe ticket, or hostile ticket", () => {
+    for (const path of [
+      "/notes/trigonometry",
+      "/notes/trigonometry?tab=questions&returnTo=%2F&backLabel=Back+to+LazyTopper",
+      "/notes/trigonometry?returnTo=https%3A%2F%2Fevil.com&backLabel=Back",
+    ]) {
+      const { container } = renderAt(path);
+      expect(container.querySelector(".lt-notes-page__back"), path).toBeNull();
+      expect(screen.queryByRole("link", { name: /Topic Hub|Back to LazyTopper/ }), path).toBeNull();
+      expect(screen.queryByRole("link", { name: "https://evil.com" }), path).toBeNull();
       cleanup();
     }
   });

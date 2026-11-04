@@ -49,11 +49,10 @@ describe("LegalPage — reachable, on-grammar (Lane C)", () => {
     expect(screen.getAllByRole("link", { name: "Cancellation Policy" })[0]).toHaveAttribute("href", "/legal/refund");
   });
 
-  it("Back is a button (router history), not a hard-reload anchor", () => {
+  it("NAV-FIX-1: no page-level Back (the NAV-1 header row owns it, via router history)", () => {
     renderAt("/legal/terms");
-    const back = screen.getByRole("button", { name: /Back/ });
-    expect(back.tagName).toBe("BUTTON");
-    expect(back).not.toHaveAttribute("href");
+    expect(screen.queryByRole("button", { name: /Back/ })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^(<-|←)?\s*Back/ })).toBeNull();
   });
 
   it("drops the legacy palette (no #58cc02, no Nunito)", () => {

@@ -7,7 +7,6 @@ import {
   buildDesktopPracticePath,
   buildDesktopWorksheetPath,
   type DesktopRouteContext,
-  type DesktopSubject,
 } from "../../lib/desktop/navigation";
 import {
   desktopTopicBySlug,
@@ -50,18 +49,6 @@ function prettify(slug: string): string {
     .join(" ");
 }
 
-function isValidSubject(value: string | undefined): value is DesktopSubject {
-  return value === "Maths" || value === "Science";
-}
-
-/** Reject any non-relative / protocol-bearing redirect (safe-redirect doctrine). */
-function safeInternalReturnTo(value: string | null): string | null {
-  if (!value) return null;
-  if (!value.startsWith("/") || value.startsWith("//")) return null;
-  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return null;
-  return value;
-}
-
 function resolveTopicSlug(args: {
   pathTopicKey?: string;
   pathTopicName?: string;
@@ -79,16 +66,6 @@ const NOT_FOUND_CSS = `
   max-width: 760px;
   margin: 0 auto;
   padding: 32px clamp(16px, 4vw, 32px) 64px;
-}
-.lt-hub-notfound__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: hsl(220, 15%, 42%);
-  text-decoration: none;
-  margin-bottom: 16px;
 }
 .lt-hub-notfound__title {
   margin: 0 0 10px;
@@ -110,15 +87,11 @@ function TopicNotFound({ rawSlug }: { rawSlug: string }) {
   return (
     <div className="lt-hub-notfound">
       <style>{NOT_FOUND_CSS}</style>
-      <Link to="/exam-trends" className="lt-hub-notfound__back">
-        <span aria-hidden="true">←</span>
-        <span>Back to Exam Trends</span>
-      </Link>
       <Card padding={24}>
         <h1 className="lt-hub-notfound__title">Topic not found</h1>
         <p className="lt-hub-notfound__body">
           We couldn&rsquo;t find a desktop Topic Hub entry for{" "}
-          <strong>{display}</strong>. Use Exam Trends to browse the full board
+          <strong>{display}</strong>. Use <Link to="/exam-trends">Exam Trends</Link> to browse the full board
           topic list and pick one that has a hub.
         </p>
       </Card>
@@ -139,8 +112,6 @@ export default function DesktopTopicHubPage() {
     () => new URLSearchParams(location.search),
     [location.search],
   );
-  const navState =
-    (location.state as { back?: string; backLabel?: string } | null) || {};
 
   const topicSlug = useMemo(
     () =>
@@ -204,21 +175,8 @@ export default function DesktopTopicHubPage() {
     return actionable.boardEssentials.find((c) => c.conceptKeys?.includes(raw))?.name ?? null;
   }, [queryParams, actionable]);
 
-  // In-page back button: honour an explicit (safe) returnTo, else go to Exam Trends.
-  const querySource = queryParams.get("source");
-  const safeReturnTo = safeInternalReturnTo(
-    queryParams.get("returnTo") || navState.back || null,
-  );
-  const backSubject: DesktopSubject | undefined = isValidSubject(params.subject)
-    ? params.subject
-    : topic?.subject;
-  const backHref = safeReturnTo || "/exam-trends";
-  const backLabel = safeReturnTo
-    ? navState.backLabel ||
-      (querySource === "hpq" ? "Back to Important Questions" : "Back")
-    : backSubject
-      ? `Back to ${backSubject} on Exam Trends`
-      : "Back to Exam Trends";
+  // NAV-FIX-1: no in-page back button — the NAV-1 header row owns Back ("← Back" after an in-app arrival, else
+  // "← Exam Trends" via ROUTE_PARENTS), so the old returnTo/source-derived back link here was a second copy.
 
   // Bare entry (no topic anywhere) → Exam Trends is the topic picker in the new
   // Learn flow, so send the student there rather than an unhelpful "not found".
@@ -311,8 +269,6 @@ export default function DesktopTopicHubPage() {
     <ConceptSpine
       topic={topic}
       actionable={actionable}
-      backHref={backHref}
-      backLabel={backLabel}
       practiceAllHref={practiceAllHref}
       chapterTestHref={chapterTestHref}
       worksheetHref={worksheetHref}
