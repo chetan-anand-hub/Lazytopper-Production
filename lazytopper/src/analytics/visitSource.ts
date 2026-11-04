@@ -75,14 +75,43 @@ const HOST_CHARSET = /^[a-z0-9.-]{1,253}$/;
 // it would be refused 400 and the account's whole source silently lost, so it falls back to "/".
 const LANDING_CHARSET = /^\/[A-Za-z0-9_\-./:]*$/;
 
+/**
+ * ATTRIB-1 (M1, PII): an Indian-mobile-shaped run (10 digits starting 6-9, optionally +91 / 91) is
+ * never kept — a parent who pastes a phone number into a tag or a path must not have it persist
+ * for 7 days. Digit-bounded, so a 10-11 digit campaign id starting 1-5 is untouched.
+ */
+const MOBILE_SHAPE = /(?<!\d)(?:\+?91[\s-]?)?[6-9]\d{9}(?!\d)/;
+
+/** Test seam + shared guard: does this text contain a mobile-number-shaped run? */
+export function looksLikeMobile(text: string): boolean {
+  return MOBILE_SHAPE.test(text);
+}
+
 function cleanUtm(raw: string | null): string | null {
   if (raw === null) return null;
   const value = raw.trim().slice(0, UTM_MAX);
-  return value.length > 0 && UTM_CHARSET.test(value) ? value : null;
+  if (value.length === 0 || !UTM_CHARSET.test(value) || looksLikeMobile(value)) return null;
+  return value;
+}
+
+/** A path segment shaped like a phone number becomes ":id" (the rest of the path is kept). */
+function redactPhoneSegments(path: string): string {
+  return path
+    .split("/")
+    .map((seg) => {
+      let decoded = seg;
+      try {
+        decoded = decodeURIComponent(seg);
+      } catch {
+        /* keep the raw segment */
+      }
+      return looksLikeMobile(decoded) || looksLikeMobile(seg) ? ":id" : seg;
+    })
+    .join("/");
 }
 
 function cleanLanding(pathname: string): string {
-  const path = normalisePath(pathname);
+  const path = redactPhoneSegments(normalisePath(pathname));
   return LANDING_CHARSET.test(path) ? path : "/";
 }
 
@@ -196,7 +225,9 @@ function sanitiseStored(v: unknown): VisitSource | null {
     utm_medium: cleanUtm(str(o.utm_medium)),
     utm_campaign: cleanUtm(str(o.utm_campaign)),
     utm_content: cleanUtm(str(o.utm_content)),
-    landing: landing !== null && landing.length <= 200 && LANDING_CHARSET.test(landing) ? landing : "/",
+    landing: landing !== null && landing.length <= 200 && LANDING_CHARSET.test(landing)
+        ? redactPhoneSegments(landing)
+        : "/",
     gclid: o.gclid === true,
     fbclid: o.fbclid === true,
     ...(o.gbraid === true ? { gbraid: true } : {}),

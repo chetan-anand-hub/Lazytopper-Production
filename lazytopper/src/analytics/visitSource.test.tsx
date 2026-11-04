@@ -206,6 +206,48 @@ describe("★ ATTRIB-1 — gbraid / wbraid", () => {
   });
 });
 
+describe("★ ATTRIB-1 M1 — phone-shaped values are never kept", () => {
+  const cap = (search: string, pathname = "/") => captureVisitSource({ pathname, search }, "", OWN);
+
+  it("utm_source / medium / content shaped like a mobile number are dropped (plain, +91, 91 prefixes)", () => {
+    for (const v of ["9876543210", "919876543210", "91-9876543210", "6000000000", "x9876543210y", "%2B919876543210"]) {
+      const got = cap(`?utm_source=${v}&utm_medium=${v}&utm_content=${v}`);
+      expect(got?.utm_source, v).toBeNull();
+      expect(got?.utm_medium, v).toBeNull();
+      expect(got?.utm_content, v).toBeNull();
+    }
+  });
+
+  it("utm_campaign: a mobile-shaped value is dropped; a numeric Google campaign id is kept", () => {
+    expect(cap("?utm_campaign=9876543210")?.utm_campaign).toBeNull();
+    for (const id of ["23456789012", "2345678901", "12345678901", "16123456789", "{campaignid}"]) {
+      expect(cap(`?utm_campaign=${id}`)?.utm_campaign, id).toBe(id);
+    }
+  });
+
+  it("a phone-shaped path segment becomes :id, the rest of the path is kept", () => {
+    expect(cap("?utm_source=a", "/notes/9876543210")?.landing).toBe("/notes/:id");
+    expect(cap("?utm_source=a", "/notes/9876543210/x")?.landing).toBe("/notes/:id/x");
+    expect(cap("?utm_source=a", "/notes/light")?.landing).toBe("/notes/light");
+  });
+
+  it("a phone-shaped value in the 7-day copy is scrubbed on read, and never persisted at capture", async () => {
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=9876543210&utm_medium=paid" }, "", OWN);
+    expect(window.localStorage.getItem(LONG_KEEP_KEY) as string).not.toMatch(/9876543210/);
+    window.sessionStorage.clear();
+    window.localStorage.setItem(
+      LONG_KEEP_KEY,
+      JSON.stringify({ v: { utm_source: "9876543210", utm_medium: "paid", landing: "/p/9876543210" }, exp: Date.now() + 1000 }),
+    );
+    const fetchImpl = vi.fn().mockResolvedValue({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", fetchImpl, 0);
+    await flush();
+    const body = fetchImpl.mock.calls[0][1].body as string;
+    expect(body).not.toMatch(/9876543210/);
+    expect(JSON.parse(body)).toMatchObject({ utm_source: null, utm_medium: "paid", landing: "/p/:id" });
+  });
+});
+
 describe("★ ATTRIB-1 — tagged beats untagged", () => {
   const stored = () => JSON.parse(window.sessionStorage.getItem(VISIT_SOURCE_KEY) as string);
 
