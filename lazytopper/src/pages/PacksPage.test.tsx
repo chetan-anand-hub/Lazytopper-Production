@@ -217,7 +217,7 @@ describe("PacksPage", () => {
     tap("chapter");
     const b = () => screen.getByTestId("packs-buy-pack_chapter") as HTMLButtonElement;
     expect(b().disabled).toBe(true);
-    expect(b().textContent).toBe("Choose a chapter first");
+    expect(b().textContent).toBe("Choose a chapter first ↑");
     fireEvent.change(screen.getByLabelText("Pick your chapter"), { target: { value: "real-numbers" } });
     await waitFor(() => expect(screen.getByTestId("pack-slides").textContent).toMatch(/120 questions/));
     expect(b().disabled).toBe(false);
@@ -531,5 +531,20 @@ describe("PARENT-PACKS-1 · /packs for a Board Pass owner", () => {
     page();
     await new Promise((r) => setTimeout(r, 10));
     expect(screen.queryByTestId("packs-board-pass-active")).toBeNull();
+  });
+});
+
+describe("PARENT-PACKS-1 (owner 4 Nov) · the chapter picker reads as a dropdown", () => {
+  it("a native select in a ringed wrapper until a chapter is picked; ink placeholder; the Buy points up at it", async () => {
+    flag.on = true;
+    page("/packs?pack=chapter");
+    const select = (await screen.findByTestId("pack-chapter-select")) as HTMLSelectElement;
+    expect(select.tagName).toBe("SELECT");
+    expect(select.options[0].textContent).toBe("Choose a chapter");
+    const wrap = screen.getByTestId("pack-chapter-selwrap");
+    expect(wrap.className).toContain("is-empty");
+    expect(screen.getByTestId("packs-buy-pack_chapter").textContent).toBe("Choose a chapter first ↑");
+    fireEvent.change(select, { target: { value: select.options[1].value } });
+    await waitFor(() => expect(screen.getByTestId("pack-chapter-selwrap").className).not.toContain("is-empty"));
   });
 });

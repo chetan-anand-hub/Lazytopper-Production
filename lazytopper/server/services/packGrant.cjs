@@ -116,8 +116,20 @@ async function closeCoveredParentPackLinks(db, uid, exceptOrderId = '') {
   for (const d of open) {
     const v = d.data() || {};
     if (!isAlreadyOwned(owned, v.packSku, v.packTarget)) continue;
-    await db.collection(PARENT_PAY_LINKS_COLLECTION).doc(d.id).set({ status: LINK_OWNED_STATUS }, { merge: true });
-    closed += 1;
+    // Review F1: a link with a PAID order is spent ("used"), never "owned" - whatever its own status field says yet.
+    const paidSnap = await db.collection(PAY_ORDERS_COLLECTION).where('parentLinkId', '==', d.id).get();
+    const paid = (paidSnap && Array.isArray(paidSnap.docs) ? paidSnap.docs : []).some((o) => (typeof o.data === 'function' ? o.data() || {} : {}).status === 'paid');
+    if (paid) continue;
+    // Review F2: written ONLY while the link is still open (never over "paid"), in one transaction.
+    const ref = db.collection(PARENT_PAY_LINKS_COLLECTION).doc(d.id);
+    const wrote = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const cur = snap && snap.exists ? snap.data() || {} : null;
+      if (!cur || cur.status !== 'open') return false;
+      tx.set(ref, { status: LINK_OWNED_STATUS }, { merge: true });
+      return true;
+    });
+    if (wrote) closed += 1;
   }
   return closed;
 }

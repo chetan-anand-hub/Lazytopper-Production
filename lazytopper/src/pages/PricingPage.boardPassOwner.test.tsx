@@ -25,6 +25,8 @@ vi.mock("../services/subscriptionService", async (importOriginal) => {
 import PricingPage from "./PricingPage";
 import * as svc from "../services/subscriptionService";
 import { BOARD_PASS_OWNED_CELL } from "../components/pricing/pricingPlansCopy";
+import { PRICING_CSS } from "../components/pricing/pricingPageCss";
+import { packCreditLine } from "../components/pricing/PassCheckout";
 
 const hydrate = svc.hydrateSubscriptionFromCloud as unknown as ReturnType<typeof vi.fn>;
 const UID = "uid-board-pass-owner";
@@ -103,5 +105,52 @@ describe("PARENT-PACKS-1 · /pricing for a Board Pass owner", () => {
     expect(await screen.findByTestId("till-boards-figures")).toHaveTextContent("₹1,917");
     expect(screen.getByTestId("pricing-payline")).toBeInTheDocument();
     expect(priceRow()[0]).toBe("₹1,917");
+  });
+});
+
+describe("PARENT-PACKS-1 (owner screenshot 4 Nov) · no empty-looking controls, prices formatted", () => {
+  const TRIAL = status({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - DAY).toISOString() });
+  /** Every visible control has words a reader can see (or an aria-label). */
+  function emptyControls(): string[] {
+    return Array.from(document.querySelectorAll("button, a"))
+      .filter((e) => !(e.textContent || "").trim() && !e.getAttribute("aria-label"))
+      .map((e) => e.outerHTML.slice(0, 120));
+  }
+
+  it.each([
+    ["signed out", null, null],
+    ["Basic", { uid: UID }, FREE],
+    ["an active trial", { uid: UID }, TRIAL],
+    ["a month pass", { uid: UID }, MONTH],
+    ["a Board Pass owner", { uid: UID }, BOARD_PASS],
+  ] as const)("%s: no button or link without text", async (_l, user, sub) => {
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+    authState.user = user ? { ...user } : null;
+    if (sub) holds(sub);
+    await renderPricing();
+    await screen.findByTestId("pricing-board-pass");
+    expect(emptyControls()).toEqual([]);
+  });
+
+  it("an active trial: the truthful line, and its 'Start practising' link keeps LIGHT text on the green button", async () => {
+    authState.user = { uid: UID };
+    holds(TRIAL);
+    await renderPricing();
+    expect(await screen.findByText(/Your trial is active — \d+ days left\./)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start practising" }).className).toContain("lt-pricing-cta--primary");
+    // The page's link colour (green) must not reach a primary CTA link (green on green = no visible text).
+    expect(PRICING_CSS).toMatch(/\.lt-pricing-page a\.lt-pricing-cta--primary\s*\{\s*color:\s*var\(--lt-on-dark\)/);
+  });
+
+  it("the parent actions on the Board Pass card lay out in a ROW (a column turned their flex-basis into a 180px height)", () => {
+    const rule = /\.lt-pp-parents \.lt-paywall-actions\s*\{([^}]*)\}/.exec(PRICING_CSS);
+    expect(rule).not.toBeNull();
+    expect(rule![1]).toMatch(/flex-direction:\s*row/);
+  });
+
+  it("the pack credit line formats rupees like every other price (₹1,868)", () => {
+    const line = packCreditLine({ creditInr: 49, payInr: 1868, expiresAtMs: Date.parse("2026-11-10T15:50:00Z") });
+    expect(line).toContain("₹49 off — Board Pass ₹1,868 for you");
+    expect(line).not.toMatch(/₹\d{4}/);
   });
 });

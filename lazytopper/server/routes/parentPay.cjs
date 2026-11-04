@@ -435,7 +435,8 @@ function createParentPayRoutes(deps = {}) {
     if (!link || typeof link.uid !== 'string' || !link.uid || link.uid === ERASED_UID) return { reason: 'invalid' };
     if (requireOpen) {
       // PARENT-PACKS-1 review M1: a pack link closed because the child came to own the pack another way.
-      if (link.status === OWNED_REASON) return { reason: OWNED_REASON };
+      // Review F1: a link that was PAID is "used" first, even if it was later marked owned.
+      if (link.status === OWNED_REASON) return { reason: (await linkAlreadyPaid(linkId)) ? 'used' : OWNED_REASON };
       if (link.status !== 'open') return { reason: 'used' };
       const exp = toMillis(link.expiresAt);
       if (exp === null || exp <= now()) return { reason: 'expired' };

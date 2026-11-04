@@ -301,6 +301,9 @@ describe("PARENT-PACKS-1 · a pack link", () => {
       fireEvent.click(screen.getByRole("button", { name: "Pay ₹199 once" }));
     });
     expect(screen.getByTestId("parent-pay-paid").textContent).toBe("Aarav already had this pack, so nothing new was added.");
+    // Review F3: a duplicate payment is not a conversion - no purchase event at all.
+    expect(packPurchase).not.toHaveBeenCalled();
+    expect(purchase).not.toHaveBeenCalled();
     expect(document.body.textContent).not.toMatch(/refund|money back/i);
     fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
     expect(screen.getByTestId("parent-pay-paid").textContent).toBe("Aarav के पास यह पैक पहले से था, इसलिए कुछ नया नहीं जोड़ा गया।");

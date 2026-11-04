@@ -54,6 +54,9 @@ const SLIDES: ReadonlyArray<{ file: string; alt: string; num: string; bold: stri
 ];
 const SLIDE_COUNT = SLIDES.length + 1;
 
+/** PARENT-PACKS-1 - the picker's empty option (the chevron is drawn by CSS beside it). */
+export const CHAPTER_PLACEHOLDER = "Choose a chapter";
+
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 export default function PackDialog(props: PackDialogProps) {
@@ -317,12 +320,16 @@ export default function PackDialog(props: PackDialogProps) {
             {sku === "pack_chapter" && (
               <label className="lt-pkd__label">
                 Pick your chapter
-                <select ref={pickerRef} className="lt-pkd__select" value={chapter} onChange={(e) => onChapter(e.target.value)} data-testid="pack-chapter-select">
-                  <option value="">Choose a chapter…</option>
-                  {pickerSlugs.map((slug) => (
-                    <option key={slug} value={slug}>{`${packChapterLabel(slug)} · ${subjectLabel(subjectOfChapter(slug) ?? "maths")}`}</option>
-                  ))}
-                </select>
+                {/* PARENT-PACKS-1 (owner 4 Nov): unmistakably a dropdown - green border, a CSS chevron (the wrapper's ::after),
+                    ink placeholder, and a soft green ring until a chapter is picked. Still the native <select>. */}
+                <span className={chapter ? "lt-pkd__selwrap" : "lt-pkd__selwrap is-empty"} data-testid="pack-chapter-selwrap">
+                  <select ref={pickerRef} className="lt-pkd__select" value={chapter} onChange={(e) => onChapter(e.target.value)} data-testid="pack-chapter-select">
+                    <option value="">{CHAPTER_PLACEHOLDER}</option>
+                    {pickerSlugs.map((slug) => (
+                      <option key={slug} value={slug}>{`${packChapterLabel(slug)} · ${subjectLabel(subjectOfChapter(slug) ?? "maths")}`}</option>
+                    ))}
+                  </select>
+                </span>
               </label>
             )}
             {(sku === "pack_mock" || sku === "pack_subject") && (

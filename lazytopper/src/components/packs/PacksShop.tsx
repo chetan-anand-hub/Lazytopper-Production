@@ -229,6 +229,9 @@ export interface PackBuyOpts {
   subject?: PackSubject;
 }
 
+/** PARENT-PACKS-1 (owner 4 Nov): the disabled Chapter Pack Buy points UP at the chapter picker. */
+export const CHOOSE_CHAPTER_FIRST = "Choose a chapter first \u2191";
+
 /** Review fix 2: shown under a Buy that waits for another pack's payment. */
 export const OTHER_PAYMENT_BUSY_COPY = "Finishing your other payment…";
 
@@ -646,7 +649,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const blocked = ready && otherBusy(key);
     let label = `Buy for ${packPriceLabel(sku)}`;
     if (!enabled) label = "Opens soon";
-    else if (!ready) label = "Choose a chapter first";
+    else if (!ready) label = CHOOSE_CHAPTER_FIRST;
     else if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
     else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";

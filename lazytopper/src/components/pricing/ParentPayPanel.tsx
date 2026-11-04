@@ -266,8 +266,9 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
     const outcome = await buy(token, "pack", packName);
     setBusy(null);
     if (outcome.status === "paid") {
-      // The ONLY parent pack `purchase` call site — the server has verified this payment.
-      trackPackPurchase({
+      // The ONLY parent pack `purchase` call site — the server has verified this payment. Review F3: a payment the server
+      // flagged `duplicate` (the child already had the pack) is NOT a conversion: no purchase event at all.
+      if (!outcome.duplicate) trackPackPurchase({
         ...details,
         ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
         transactionId: outcome.paymentId || attemptId,

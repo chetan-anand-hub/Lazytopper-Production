@@ -21,6 +21,7 @@ import { withSigninRedirect } from "../../services/freeCheckClient";
 import {
   boardPassPriceDisplay,
   foundingRateApplies,
+  formatInr,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_DISPLAY,
@@ -121,7 +122,8 @@ export const CHECK_AGAIN_LABEL = "Check again";
 export function packCreditLine(credit: BoardPassCredit): string | null {
   const till = formatCreditDeadline(credit.expiresAtMs);
   if (!till) return null;
-  return `Your pack credit: ₹${credit.creditInr} off — Board Pass ₹${credit.payInr} for you, till ${till}`;
+  // PARENT-PACKS-1 (owner, 4 Nov): rupees formatted like every other price on the page (₹1,868, not ₹1868).
+  return `Your pack credit: ${formatInr(credit.creditInr)} off — Board Pass ${formatInr(credit.payInr)} for you, till ${till}`;
 }
 
 /** "1 Nov, 9:20 pm IST" — the exact instant the credit lapses, in IST. */

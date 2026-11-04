@@ -1279,3 +1279,61 @@ test('PARENT-PACKS-1 · the link that is being PAID is never closed as "owned" b
   assert.equal(srv.db.read(`payOrders/${o.orderId}`).duplicate, undefined);
   assert.ok(srv.db.read('packEntitlements/child1/packs/pack_subject:science'));
 });
+
+/* ── PARENT-PACKS-1 re-review (F1 / F2 / coverage) ─────────────────────────────── */
+
+const { closeCoveredParentPackLinks } = require('../services/packGrant.cjs');
+
+test('PARENT-PACKS-1 · closing never touches Board Pass links', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const board = await mint(srv);
+  await childBuys(srv.db, 'pack_bundle:all');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(board.token)}`).status, 'open');
+  assert.equal((await request(srv.port, PARENT_VIEW_PATH, { body: { token: board.token } })).status, 200);
+});
+
+test('PARENT-PACKS-1 · a Chapter Pack when the OTHER subject\'s Subject Pack is owned is granted (not a duplicate); its link stays open', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  await childBuys(srv.db, 'pack_subject:science');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'open');
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.orderId);
+  const v = await parentVerify(srv, m.token, o.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  assert.equal(v.json.duplicate, undefined);
+  assert.ok(srv.db.read('packEntitlements/child1/packs/pack_chapter:polynomials'));
+  assert.equal(srv.db.read(`payOrders/${o.orderId}`).duplicate, undefined);
+});
+
+test('PARENT-PACKS-1 · F1: a link whose order was PAID (webhook, link doc still open) is never closed as owned; the parent sees "used"', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  const { json: o } = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.orderId);
+  const raw = webhookBody(p);
+  await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'open');
+  await childBuys(srv.db, 'pack_subject:maths');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.token)}`).status, 'open', 'a paid link was marked owned');
+  const r = await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.token } });
+  assert.equal(r.json.reason, 'used');
+  // ...and even a link already marked owned answers "used" once it has a paid order.
+  srv.db.docs.get(`parentPayLinks/${linkIdOf(m.token)}`).data.status = 'owned';
+  assert.equal((await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.token } })).json.reason, 'used');
+});
+
+test('PARENT-PACKS-1 · F2: the close writes "owned" only while the link is still open — never over "paid"', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: a } = await mintPack(srv, { sku: 'pack_chapter', target: 'polynomials' });
+  const { json: b } = await mintPack(srv, { sku: 'pack_mock', target: 'maths' });
+  srv.db.docs.get(`parentPayLinks/${linkIdOf(a.token)}`).data.status = 'paid';
+  await childBuys(srv.db, 'pack_subject:maths');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(a.token)}`).status, 'paid');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(b.token)}`).status, 'owned');
+  assert.equal(await closeCoveredParentPackLinks(srv.db, 'child1'), 0, 'a second pass closes nothing more');
+});
