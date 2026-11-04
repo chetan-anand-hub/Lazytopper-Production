@@ -116,12 +116,59 @@ describe("TrialEndScreen", () => {
     expect(feedback).not.toHaveBeenCalled(); // the feedback card waits for "Continue with Basic"
   });
 
-  it("says zero as zero", async () => {
+  it("TRIAL-END-OFFER-1: with nothing real to report there is NO activity line (no invented or negative stats)", async () => {
     hydrate.mockResolvedValue(status("free"));
     renderAt("/browse");
-    expect(await screen.findByTestId("trial-end-screen-activity")).toHaveTextContent(
-      "In your free week you didn't check an answer or take a test.",
-    );
+    await screen.findByTestId("trial-end-screen");
+    expect(screen.queryByTestId("trial-end-screen-activity")).toBeNull();
+    cleanup();
+    __resetTrialEndScreenForTests();
+    localStorage.clear();
+    readRecords.mockRejectedValue(new Error("offline")); // unreadable records: also no line
+    renderAt("/browse");
+    await screen.findByTestId("trial-end-screen");
+    expect(screen.queryByTestId("trial-end-screen-activity")).toBeNull();
+  });
+
+  it("TRIAL-END-OFFER-1: sells the Board Pass - founding line, whole days left, the shared star features, packs line, no 'Premium'", async () => {
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/browse");
+    await screen.findByTestId("trial-end-screen");
+    // 9 Jun 2026 (the test clock) is inside the founding window: 30 Nov is a long way off, so the count is a plain integer.
+    expect(screen.getByTestId("trial-end-screen-deadline")).toHaveTextContent("Founding price ₹1,917 till 30 Nov — ₹2,499 from 1 Dec");
+    expect(screen.getByTestId("trial-end-screen-days")).toHaveTextContent(/^\d+ days left at this price$/);
+    const ticks = screen.getByTestId("trial-end-screen-ticks");
+    expect(ticks).toHaveTextContent("Answer Checker");
+    expect(ticks).toHaveTextContent("Mistake Intelligence");
+    expect(ticks).toHaveTextContent("AI tutor");
+    expect(ticks).toHaveTextContent("graded");
+    expect(screen.getByTestId("trial-end-screen-packs")).toHaveAttribute("href", "/pricing#packs");
+    expect(screen.getByTestId("trial-end-screen-packs")).toHaveTextContent(/PDF packs from ₹49/);
+    const text = screen.getByTestId("trial-end-screen").textContent ?? "";
+    expect(text).not.toMatch(/premium/i);
+    expect(text).not.toMatch(/refund/i);
+    // Continue with Basic is the last, smallest control.
+    const controls = Array.from(screen.getByTestId("trial-end-screen").querySelectorAll("a[href], button"));
+    expect(controls[controls.length - 1]).toBe(screen.getByTestId("trial-end-screen-basic"));
+  });
+
+  it("TRIAL-END-OFFER-1: after the founding deadline the founding line and the day count are gone; the current price stays", async () => {
+    vi.setSystemTime(ist(2026, 12, 2, 12));
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/browse");
+    await screen.findByTestId("trial-end-screen");
+    expect(screen.queryByTestId("trial-end-screen-deadline")).toBeNull();
+    expect(screen.queryByTestId("trial-end-screen-days")).toBeNull();
+    expect(screen.queryByTestId("trial-end-screen-founding-label")).toBeNull();
+    expect(screen.getByTestId("trial-end-screen-lead")).toHaveTextContent("₹2,499");
+  });
+
+  it("TRIAL-END-OFFER-1: on 30 November it says 1 day left", async () => {
+    vi.setSystemTime(ist(2026, 11, 30, 20));
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/browse");
+    await screen.findByTestId("trial-end-screen");
+    expect(screen.getByTestId("trial-end-screen-days")).toHaveTextContent("1 day left at this price");
   });
 
   it("Continue with Basic closes it, counts it, and asks the feedback card to follow", async () => {
@@ -324,8 +371,23 @@ describe("BUY-PATH-1 · one-tap pay with payments on", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     hydrate.mockResolvedValue(status("free"));
     renderAt("/practice?x=1");
-    const pay = await screen.findByTestId("paywall-pay");
+    const pay = await screen.findByTestId("trial-end-screen-buy");
     expect(pay).toHaveAttribute("href", "/pricing?buy=board_pass&source=trial-end&returnTo=" + encodeURIComponent("/practice?x=1"));
+    // TRIAL-END-OFFER-1: the primary action names the Board Pass and its price, and counts as the same "pay" tap as before.
+    expect(pay).toHaveTextContent("Get the Board Pass · ₹1,917");
+    fireEvent.click(pay);
+    expect(analytics.trackPaywallAction).toHaveBeenCalledWith("pay", "trial_end");
+  });
+
+  it("TRIAL-END-OFFER-1: with payments and parent-pay on, 'Ask a parent to pay' sits under the primary action (no QR button)", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/practice");
+    expect(await screen.findByTestId("paywall-forward")).toHaveTextContent("Ask a parent to pay");
+    expect(screen.queryByTestId("paywall-qr")).toBeNull();
+    expect(screen.queryByTestId("paywall-pay")).toBeNull(); // the screen's own primary button is the only buy button
+    expect(screen.getByTestId("trial-end-screen-buy")).toBeInTheDocument();
   });
 
   it("countdown bar: with payments on the bar opens the Board Pass checkout; CONTROL dark: plain /pricing (above)", async () => {

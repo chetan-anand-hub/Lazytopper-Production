@@ -3,7 +3,10 @@ import {
   __resetTrialEndScreenForTests,
   feedbackShouldDeferToScreen,
   markTrialEndScreenShownThisLoad,
+  foundingDaysLeft,
+  foundingDaysLeftLine,
   trialEndActivityLine,
+  trialEndFoundingLine,
   trialEndScreenKey,
   trialEndScreenPathAllowed,
   trialEndScreenSeen,
@@ -67,13 +70,42 @@ describe("seen + feedback deferral", () => {
 });
 
 describe("trialEndActivityLine", () => {
-  it("real counts, plural-aware; zero said as zero; unreadable says nothing", () => {
+  it("real counts, plural-aware; nothing real to say (zero or unreadable) means NO line", () => {
     expect(trialEndActivityLine({ checks: 3, tests: 1, practiceSets: 2 })).toBe(
       "In your free week: 3 answers checked, 1 test taken, 2 practice sets finished.",
     );
-    expect(trialEndActivityLine({ checks: 0, tests: 0, practiceSets: 0 })).toBe(
-      "In your free week you didn't check an answer or take a test.",
-    );
+    expect(trialEndActivityLine({ checks: 1, tests: 0, practiceSets: 0 })).toBe("In your free week: 1 answer checked.");
+    expect(trialEndActivityLine({ checks: 0, tests: 0, practiceSets: 0 })).toBeNull();
     expect(trialEndActivityLine(null)).toBeNull();
+  });
+});
+
+// TRIAL-END-OFFER-1 - the founding line and the whole-day count, against the IST midnight the offer closes at.
+describe("founding line and days left (TRIAL-END-OFFER-1)", () => {
+  const IST_H = 60 * 60 * 1000;
+  const ist = (mo: number, d: number, h = 0, mi = 0) => Date.UTC(2026, mo - 1, d, h, mi) - 5.5 * IST_H;
+  const LINE = "Founding price \u20b91,917 till 30 Nov \u2014 \u20b92,499 from 1 Dec";
+
+  it("shows the real deadline before, and on, 30 November; hides it from 1 December 00:00 IST", () => {
+    expect(trialEndFoundingLine(ist(11, 4, 12))).toBe(LINE);
+    expect(trialEndFoundingLine(ist(11, 30, 23, 59))).toBe(LINE);
+    expect(trialEndFoundingLine(ist(12, 1, 0, 0))).toBeNull();
+    expect(trialEndFoundingLine(ist(12, 20, 12))).toBeNull();
+    expect(trialEndFoundingLine(Number.NaN)).toBeNull();
+  });
+
+  it("counts whole IST days, today included, with no off-by-one at midnight", () => {
+    expect(foundingDaysLeft(ist(11, 30, 23, 59))).toBe(1); // the last minute
+    expect(foundingDaysLeft(ist(11, 30, 0, 0))).toBe(1); // 30 Nov, first minute
+    expect(foundingDaysLeft(ist(11, 29, 23, 59))).toBe(2); // 29 Nov, last minute
+    expect(foundingDaysLeft(ist(11, 29, 0, 0))).toBe(2);
+    expect(foundingDaysLeft(ist(11, 4, 15, 55))).toBe(27); // 4 Nov .. 30 Nov inclusive
+    expect(foundingDaysLeft(ist(12, 1, 0, 0))).toBeNull();
+  });
+
+  it("words it plainly, singular and plural, and says nothing once the offer has closed", () => {
+    expect(foundingDaysLeftLine(ist(11, 4, 12))).toBe("27 days left at this price");
+    expect(foundingDaysLeftLine(ist(11, 30, 9))).toBe("1 day left at this price");
+    expect(foundingDaysLeftLine(ist(12, 1, 9))).toBeNull();
   });
 });
