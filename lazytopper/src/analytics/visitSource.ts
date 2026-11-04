@@ -205,10 +205,11 @@ function sanitiseStored(v: unknown): VisitSource | null {
 }
 
 /** The unexpired 7-day copy, or null. Never throws. Expired entries are removed. */
-function readLongKeep(nowMs: number): VisitSource | null {
+function readLongKeep(): VisitSource | null {
   try {
     const raw = window.localStorage.getItem(LONG_KEEP_KEY);
-    if (raw === null) return null;
+    if (raw === null) return null; // no clock read unless a copy exists
+    const nowMs = Date.now();
     const entry = JSON.parse(raw) as { v?: unknown; exp?: unknown } | null;
     const exp = entry && typeof entry.exp === "number" ? entry.exp : 0;
     if (!entry || exp <= nowMs || exp > nowMs + LONG_KEEP_MS + 60_000) {
@@ -226,8 +227,8 @@ function readLongKeep(nowMs: number): VisitSource | null {
 function rememberLongKeep(captured: VisitSource): void {
   try {
     if (!isTaggedSource(captured)) return;
+    if (readLongKeep()) return;
     const nowMs = Date.now();
-    if (readLongKeep(nowMs)) return;
     window.localStorage.setItem(LONG_KEEP_KEY, JSON.stringify({ v: captured, exp: nowMs + LONG_KEEP_MS }));
   } catch {
     /* blocked storage: the tab copy still works */
@@ -328,7 +329,7 @@ function takeStoredVisitSource(): string | null {
   }
   // ATTRIB-1: the tab has nothing TAGGED (empty, or an untagged Direct from the return trip) ->
   // fall back to the 7-day copy. Either way the long copy is consumed with the sign-up.
-  const long = readLongKeep(Date.now());
+  const long = readLongKeep();
   clearLongKeep();
   if (long && !isTaggedSource(parseStored(raw))) return JSON.stringify(long);
   return raw;
