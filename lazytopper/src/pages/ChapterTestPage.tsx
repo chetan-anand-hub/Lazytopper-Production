@@ -38,6 +38,7 @@ import {
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
   mintUniqueChapterTestNomenclature,
+  nameForCode,
   RecordCodeCheckError,
   RECORD_CODE_CHECK_FAILED_LINE,
   buildChapterTestSessionRecord,
@@ -231,7 +232,25 @@ export default function ChapterTestPage() {
   const backLabel = navState?.backLabel || `Back to ${topicName} · Topic Hub`;
 
   // ── Durable identity + the fresh draw ────────────────────────────────────────
-  const [nomen, setNomen] = useState<{ code: string; name: string } | null>(null);
+  const [mintedNomen, setMintedNomen] = useState<{ code: string; name: string } | null>(null);
+  // RECORD-SAFE-1: the code a record was FINALLY saved under, when that differs from the minted one (the minted
+  // one belonged to another paper). Everything the student sees (scorecard, graded sheet, detail lock, delta
+  // line, downloads) reads the effective `nomen`; the DRAW stays keyed on the minted one so the paper never changes.
+  const [codeOverride, setCodeOverride] = useState<{ code: string; name: string } | null>(null);
+  const nomen = codeOverride ?? mintedNomen;
+  const setNomen = useCallback((n: { code: string; name: string } | null) => {
+    setCodeOverride(null);
+    setMintedNomen(n);
+  }, []);
+  const adoptSavedCode = useCallback(
+    (savedCode: string | undefined, current: { code: string; name: string }): { code: string; name: string } => {
+      if (!savedCode || savedCode === current.code) return current;
+      const next = { code: savedCode, name: nameForCode(current.name, savedCode) };
+      setCodeOverride(next);
+      return next;
+    },
+    [],
+  );
   // FRESH-SET-TESTS — the served history + seed, snapshotted ONCE with the nomenclature so the
   // drawn paper never changes under the student (a later records reload must not redraw it).
   const [freshInputs, setFreshInputs] = useState<{ servedAt: ServedAt; seed: number } | null>(null);
@@ -302,21 +321,21 @@ export default function ChapterTestPage() {
   const bank = useBankChapters([topicKey]);
 
   const draw: DrawnChapterTest | null = useMemo(() => {
-    if (!nomen || !bank.ready) return null;
+    if (!mintedNomen || !bank.ready) return null;
     return drawChapterTest({
       subject,
       topicKey,
       topicLabel: topicName,
       grade,
       worksheetId: mintChapterTestId(),
-      code: nomen.code,
-      name: nomen.name,
+      code: mintedNomen.code,
+      name: mintedNomen.name,
       // FRESH-SET-TESTS — unseen questions first; seeded, never Math.random.
       seed: freshInputs?.seed,
       servedAt: freshInputs?.servedAt,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nomen, bank.ready, subject, topicKey, grade, drawNonce]);
+  }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce]);
 
   /** FRESH-SET-TESTS — log this paper as served on this device (start / download). */
   const markServed = useCallback((p: PersistedWorksheet | null) => {
@@ -531,24 +550,30 @@ export default function ChapterTestPage() {
       subjectiveQuestions: subjectiveQs,
       subjectiveResponse: null,
     });
-    writeChapterTestPartialRecord({
-      user,
-      paper,
-      code: nomen.code,
-      subject: sessionSubject,
-      topicKey,
-      response: partialResponse,
-    });
-    // PENDING-UPLOAD-1: keep the SAME paper + frozen objective so "Upload later" can come
-    // back to it, on this device or any other signed-in one (text only, never an image).
-    saveChapterTestPaper(user, {
-      code: nomen.code,
-      name: nomen.name,
-      subject,
-      topicKey,
-      paper,
-      objective: obj,
-    });
+    const submitted = nomen;
+    // RECORD-SAFE-1: resolve the final code, write the record under it, THEN save the paper under that same
+    // code (the results screen is already up; the scorecard follows the code if it had to move).
+    void (async () => {
+      const savedCode = await writeChapterTestPartialRecord({
+        user,
+        paper,
+        code: submitted.code,
+        subject: sessionSubject,
+        topicKey,
+        response: partialResponse,
+      });
+      const eff = adoptSavedCode(savedCode, submitted);
+      // PENDING-UPLOAD-1: keep the SAME paper + frozen objective so "Upload later" can come
+      // back to it, on this device or any other signed-in one (text only, never an image).
+      saveChapterTestPaper(user, {
+        code: eff.code,
+        name: eff.name,
+        subject,
+        topicKey,
+        paper,
+        objective: obj,
+      });
+    })();
     if (progressKey && typeof window !== "undefined") {
       try {
         window.sessionStorage.removeItem(progressKey);
@@ -560,7 +585,7 @@ export default function ChapterTestPage() {
     setScorecardOpen(true);
     setPhase("results");
     void loadRecords();
-  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords]);
+  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords, adoptSavedCode]);
 
   // Keep a LIVE ref to the latest finishToPartial so the timer's auto-submit scores
   // with CURRENT answers — the interval effect must NOT re-subscribe on every keystroke
@@ -728,7 +753,12 @@ export default function ChapterTestPage() {
           setScorecardOpen(true);
           fairUse.noteGraded();
           // Fully graded: the record + per-question payload are the durable copy now.
-          if (outcome.response.pendingCount === 0) deleteChapterTestPaper(user, nomen.code);
+          const gradedAs = adoptSavedCode(outcome.savedCode, nomen);
+          if (outcome.response.pendingCount === 0) {
+            // only THIS paper's saved copy (by identity), under the code it was saved under and the one it was graded as
+            deleteChapterTestPaper(user, nomen.code, paper.worksheetId);
+            if (gradedAs.code !== nomen.code) deleteChapterTestPaper(user, gradedAs.code, paper.worksheetId);
+          }
           trackUxEvent("chapter_test_complete", "ChapterTestPage", {
             topicKey,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -755,7 +785,7 @@ export default function ChapterTestPage() {
         setGrading(false);
       }
     },
-    [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords, jobStore, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+    [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords, jobStore, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal, adoptSavedCode],
   );
 
   // J2 — resume after a reload. Once the durable records have loaded (so the mount effect has
@@ -864,7 +894,7 @@ export default function ChapterTestPage() {
       }
       setPaperNotice(null);
       const obj = scoreObjectiveSection(objectiveQuestions(p.paper), picks);
-      writeChapterTestPartialRecord({
+      const savedCode = await writeChapterTestPartialRecord({
         user,
         paper: p.paper,
         code: p.code,
@@ -877,9 +907,10 @@ export default function ChapterTestPage() {
           subjectiveResponse: null,
         }),
       });
+      const fin = savedCode && savedCode !== p.code ? { code: savedCode, name: nameForCode(p.name, savedCode) } : { code: p.code, name: p.name };
       saveChapterTestPaper(user, {
-        code: p.code,
-        name: p.name,
+        code: fin.code,
+        name: fin.name,
         subject: p.subject,
         topicKey: p.topicKey,
         paper: p.paper,
@@ -889,8 +920,8 @@ export default function ChapterTestPage() {
       setPickPaper(null);
       setFullResponse(null);
       setGradeError(null);
-      setResumedCt({ paper: p.paper, objective: obj, code: p.code, name: p.name });
-      setNomen({ code: p.code, name: p.name });
+      setResumedCt({ paper: p.paper, objective: obj, code: fin.code, name: fin.name });
+      setNomen({ code: fin.code, name: fin.name });
       setObjective(obj);
       setResultsPhase("partial");
       setScorecardOpen(false);

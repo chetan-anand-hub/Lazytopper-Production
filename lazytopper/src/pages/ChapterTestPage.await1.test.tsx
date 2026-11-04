@@ -256,6 +256,7 @@ describe("AWAIT-1 · Upload on a downloaded Chapter Test", () => {
     saveChapterTestPaper(auth.user as never, {
       code: CODE, name: paper.name!, subject: "Maths", topicKey: "real-numbers", paper, objective: null, downloaded: true,
     });
+    await new Promise((r) => setTimeout(r, 0)); // RECORD-SAFE-1: that save reads the doc first, so it lands a tick later
     // The server: the other device entered Section A (partial) and saved the paper with it.
     fs.docs[`sessionRecords/student-1/records/${CODE}`] = { ...pendingRecord(), status: "partial", marksAwarded: 2, marksTotal: 2 };
     fs.docs[`sessionRecords/student-1/chapterTestPapers/${CODE}`] = {

@@ -11,6 +11,8 @@ const h = vi.hoisted(() => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   store: new Map<string, any>(),
   readMode: "ok" as "ok" | "throw" | "cache",
+  writeMode: "ok" as "ok" | "fail",
+  deleted: [] as string[],
   sends: [] as string[],
 }));
 
@@ -28,14 +30,20 @@ vi.mock("firebase/firestore", () => ({
       metadata: { fromCache: h.readMode === "cache" },
     };
   },
+  deleteDoc: async (ref: { path: string }) => {
+    h.deleted.push(ref.path);
+    h.store.delete(ref.path);
+  },
   setDoc: async (ref: { path: string }, data: Record<string, unknown>) => {
     h.sends.push(ref.path);
+    if (h.writeMode === "fail") throw new Error("offline");
     h.store.set(ref.path, { ...data });
   },
 }));
 
 import {
   writeSessionRecord,
+  writeSessionRecordResolved,
   writeSessionPerQuestion,
   mintUniqueChapterTestNomenclature,
   mintUniqueFullMockNomenclature,
@@ -46,7 +54,9 @@ import {
   type SessionRecord,
   type SessionPerQuestionPayload,
 } from "./sessionRecords";
-import { __resetOutboxForTests } from "./sessionRecordsOutbox";
+import { __resetOutboxForTests, drainOutbox, getSaveStatus, readOutbox } from "./sessionRecordsOutbox";
+import { deleteChapterTestPaper } from "./chapterTestPaperStore";
+import { writeChapterTestPartialRecord } from "./chapterTestGradeService";
 
 const UID = "u-rs1";
 const user = { uid: UID, isLocalSession: false } as never;
@@ -80,6 +90,8 @@ beforeEach(() => {
   h.store.clear();
   h.sends.length = 0;
   h.readMode = "ok";
+  h.writeMode = "ok";
+  h.deleted.length = 0;
   localStorage.clear();
   __resetOutboxForTests();
 });
@@ -99,7 +111,7 @@ describe("RECORD-SAFE-1 - Chapter Test / Full Mock codes are unique per student"
 
   it("a Chapter Test code held only by a saved paper is skipped too, and several taken codes are walked past", async () => {
     h.store.set(recPath("CT-M-RN-01"), rec({ id: "CT-M-RN-01", worksheetId: "a" }));
-    h.store.set(`sessionRecords/${UID}/worksheetPapers/CT-M-RN-02`, { code: "CT-M-RN-02" });
+    h.store.set(`sessionRecords/${UID}/chapterTestPapers/CT-M-RN-02`, { code: "CT-M-RN-02" });
     const nm = await mintUniqueChapterTestNomenclature("maths", "real-numbers", "Real Numbers", [], user);
     expect(nm.code).toBe("CT-M-RN-03");
   });
@@ -232,5 +244,135 @@ describe("RECORD-SAFE-1 - a grade never overwrites a different paper's record", 
     await flush();
     expect(h.store.get(`sessionRecords/${UID}/perQuestion/ws:WS-M-MIX-02`)).toEqual(oldPayload);
     expect(h.store.get(`sessionRecords/${UID}/perQuestion/ws:WS-M-MIX-03`)).toMatchObject({ worksheetId: "ws-new", code: "WS-M-MIX-03" });
+  });
+});
+
+
+// ── RECORD-SAFE-1 review round: resolve the FINAL code once; record AND payload land under it ──────────────────
+const mirrorKey = `lazytopper.user.${UID}.sessionRecords.v1`;
+const payloadKey = `lazytopper.user.${UID}.sessionPerQuestion.v1`;
+const payloadPath = (ref: string) => `sessionRecords/${UID}/perQuestion/${ref}`;
+function seedJuly() {
+  const july = rec({ worksheetId: "ws-july", marksAwarded: 3, gradedAt: 1000 });
+  const julyPayload = { ref: "ws:WS-M-MIX-02", code: "WS-M-MIX-02", worksheetId: "ws-july", surface: "worksheet", gradedAt: 1000, response: { ok: true, july: true } };
+  h.store.set(recPath("WS-M-MIX-02"), july);
+  h.store.set(payloadPath("ws:WS-M-MIX-02"), julyPayload);
+  localStorage.setItem(mirrorKey, JSON.stringify([july]));
+  localStorage.setItem(payloadKey, JSON.stringify({ "ws:WS-M-MIX-02": julyPayload }));
+  return { july, julyPayload, localRecord: localStorage.getItem(mirrorKey)!, localPayloads: localStorage.getItem(payloadKey)! };
+}
+const newPayload = (code: string, ref: string): SessionPerQuestionPayload =>
+  ({ ref, code, worksheetId: "ws-new", surface: "worksheet", gradedAt: 2000, response: { ok: true, fresh: true } as never }) as SessionPerQuestionPayload;
+
+describe("RECORD-SAFE-1 - the July case with a SEEDED MIRROR: record and payload land under the new code", () => {
+  it("writeSessionRecordResolved returns the new code; record AND perQuestion land there; the July paper is byte-identical (cloud + device)", async () => {
+    const seed = seedJuly();
+    const out = await writeSessionRecordResolved(user, rec({ worksheetId: "ws-new" }));
+    expect(out.code).toBe("WS-M-MIX-03");
+    expect(out.resolved).toBe(true);
+    writeSessionPerQuestion(user, newPayload(out.code, out.record.perQuestionRef));
+    await flush();
+    expect(h.store.get(recPath("WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new", id: "WS-M-MIX-03", perQuestionRef: "ws:WS-M-MIX-03" });
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new", code: "WS-M-MIX-03" });
+    expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(seed.july);
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(seed.julyPayload);
+    const localPayloads = JSON.parse(localStorage.getItem(payloadKey)!) as Record<string, { worksheetId: string }>;
+    expect(localPayloads["ws:WS-M-MIX-02"]).toEqual(seed.julyPayload); // the July paper's device copy is untouched
+    expect(localPayloads["ws:WS-M-MIX-03"].worksheetId).toBe("ws-new");
+    const local = loadLocalSessionRecords(UID);
+    expect(local.find((r) => r.id === "WS-M-MIX-02")).toEqual(seed.july);
+    expect(local.find((r) => r.id === "WS-M-MIX-03")?.worksheetId).toBe("ws-new");
+    expect(getSaveStatus().phase).not.toBe("failed");
+  });
+
+  it("a caller that still holds the OLD code (writeSessionRecord + payload on the old ref) is redirected too - the other paper's payload is never touched", async () => {
+    const seed = seedJuly();
+    writeSessionRecord(user, rec({ worksheetId: "ws-new" })); // mirror-detected relocation
+    writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02")); // old ref, as before
+    await flush();
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(seed.julyPayload);
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new" });
+    expect(JSON.parse(localStorage.getItem(payloadKey)!)["ws:WS-M-MIX-02"]).toEqual(seed.julyPayload);
+  });
+
+  it("an unreadable check writes nothing blind: the record is queued (mirror + outbox entry) under the requested code, resolved=false", async () => {
+    h.readMode = "throw";
+    const out = await writeSessionRecordResolved(user, rec({ worksheetId: "ws-new" }), { retryDelayMs: 0 });
+    await flush();
+    expect(out.resolved).toBe(false);
+    expect(out.code).toBe("WS-M-MIX-02");
+    expect(h.sends).toEqual([]);
+    expect(readOutbox(UID).map((e) => `${e.kind}:${e.id}`)).toEqual(["record:WS-M-MIX-02"]);
+    expect(loadLocalSessionRecords(UID)).toHaveLength(1);
+  });
+
+  it("the partial writers return the resolved code (what the page adopts)", async () => {
+    seedJuly();
+    h.store.set(recPath("CT-M-RN-01"), rec({ id: "CT-M-RN-01", surface: "chapter-test", worksheetId: "ct-other" }));
+    const paper = { worksheetId: "ct-mine", createdAt: "x", title: "T", subject: "Maths", grade: "10", sectionFilter: "All", totalMarks: 1, questions: [] } as never;
+    const response = { ok: true, results: [], totalQuestions: 0, gradedCount: 1, pendingCount: 1, gradedMarksAwarded: 0, gradedMarksTotal: 0, worksheetTotalMarks: 0 } as never;
+    const code = await writeChapterTestPartialRecord({ user, paper, code: "CT-M-RN-01", subject: "maths", topicKey: "real-numbers", response });
+    expect(code).toBe("CT-M-RN-02");
+    expect(h.store.get(recPath("CT-M-RN-01"))).toMatchObject({ worksheetId: "ct-other" });
+  });
+});
+
+describe("RECORD-SAFE-1 - resend and failure", () => {
+  it("offline at first (cloud collision, nothing landed): the re-send after reload lands the record AND the payload under the NEW code", async () => {
+    vi.useFakeTimers();
+    try {
+      const seed = seedJuly();
+      localStorage.removeItem(mirrorKey); // the collision is only in the cloud: found at send time
+      localStorage.removeItem(payloadKey);
+      h.writeMode = "fail";
+      writeSessionRecord(user, rec({ worksheetId: "ws-new" }));
+      writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
+      await vi.advanceTimersByTimeAsync(50);
+      expect(readOutbox(UID).length).toBe(2); // both queued before any send
+      __resetOutboxForTests(); // "reload"
+      h.writeMode = "ok";
+      await drainOutbox(UID);
+      await vi.advanceTimersByTimeAsync(20000);
+      expect(h.store.get(recPath("WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new" });
+      expect(h.store.get(payloadPath("ws:WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new", code: "WS-M-MIX-03" });
+      expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(seed.july);
+      expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(seed.julyPayload);
+      expect(readOutbox(UID)).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("the record write fails for good: the payload settles FAILED too (not stuck 'saving'), and nothing is written over the other paper", async () => {
+    vi.useFakeTimers();
+    try {
+      const seed = seedJuly();
+      h.writeMode = "fail";
+      writeSessionRecord(user, rec({ worksheetId: "ws-new" }));
+      writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
+      await vi.advanceTimersByTimeAsync(120000);
+      expect(getSaveStatus().phase).not.toBe("saving");
+      expect(getSaveStatus().phase).not.toBe("saved");
+      expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(seed.julyPayload);
+      expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(seed.july);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe("RECORD-SAFE-1 - a paper's cleanup touches only its own saved copy", () => {
+  it("deleteChapterTestPaper(code, worksheetId) leaves a DIFFERENT paper saved under that code alone (device + server)", async () => {
+    const other = { code: "CT-M-RN-02", name: "n", subject: "Maths", topicKey: "real-numbers", paper: { worksheetId: "ct-other", questions: [] }, objective: { results: [], awarded: 0, total: 0, answeredCount: 0, totalQuestions: 0 }, savedAt: 1 };
+    h.store.set(`sessionRecords/${UID}/chapterTestPapers/CT-M-RN-02`, other);
+    localStorage.setItem(`lazytopper.ct.papers.v1.${UID}`, JSON.stringify([other]));
+    deleteChapterTestPaper(user, "CT-M-RN-02", "ct-mine");
+    await flush();
+    expect(h.store.get(`sessionRecords/${UID}/chapterTestPapers/CT-M-RN-02`)).toEqual(other);
+    expect(JSON.parse(localStorage.getItem(`lazytopper.ct.papers.v1.${UID}`)!)).toHaveLength(1);
+    deleteChapterTestPaper(user, "CT-M-RN-02", "ct-other"); // its own: deleted
+    await flush();
+    expect(h.store.has(`sessionRecords/${UID}/chapterTestPapers/CT-M-RN-02`)).toBe(false);
+    expect(JSON.parse(localStorage.getItem(`lazytopper.ct.papers.v1.${UID}`)!)).toHaveLength(0);
   });
 });

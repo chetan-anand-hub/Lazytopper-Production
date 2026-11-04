@@ -41,6 +41,7 @@ import {
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
   mintUniqueFullMockNomenclature,
+  nameForCode,
   RecordCodeCheckError,
   RECORD_CODE_CHECK_FAILED_LINE,
   buildFullMockSessionRecord,
@@ -337,6 +338,15 @@ export default function FullMockPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   useScrollTopOnChange(phase); // SCROLL-TOP-1 — each phase/view opens at the top
   const [activeMock, setActiveMock] = useState<ActiveMock | null>(null);
+  // RECORD-SAFE-1: when a record had to be saved under a different code than the paper was drawn with (that code
+  // belonged to another paper), the sitting follows it - scorecard, graded sheet, detail lock, delta line and
+  // downloads all read `activeMock.code`.
+  const adoptFmCode = useCallback((savedCode: string | undefined, a: { code: string; name: string; paper: PersistedWorksheet }): { code: string; name: string } => {
+    if (!savedCode || savedCode === a.code) return { code: a.code, name: a.name };
+    const next = { code: savedCode, name: nameForCode(a.name, savedCode) };
+    setActiveMock((m) => (m && m.paper.worksheetId === a.paper.worksheetId ? { ...m, ...next } : m));
+    return next;
+  }, []);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [flags, setFlags] = useState<Set<number>>(new Set());
   const [currentQNumber, setCurrentQNumber] = useState(1);
@@ -530,50 +540,56 @@ export default function FullMockPage() {
         subjectiveQuestions: subjQs,
         subjectiveResponse: null,
       });
-      writeFullMockPartialRecord({
-        user,
-        paper: a.paper,
-        code: a.code,
-        subject: sessionSubject,
-        response: partialResponse,
-        focus,
-      });
-      // Keep the paper + frozen objective for a later upload on THIS device.
-      saveFullMockSession(sessionUid, {
-        code: a.code,
-        name: a.name,
-        subject,
-        grade,
-        paper: a.paper,
-        startedAt: a.startedAt,
-        durationMs: a.durationMs,
-        answers: currentAnswers,
-        flags: [...flagsRef.current],
-        currentQNumber: currentQRef.current,
-        focus,
-        phase: "awaiting-upload",
-        objective: obj,
-        pyqCount: a.pyqCount,
-        freshCount: a.freshCount,
-        updatedAt: Date.now(),
-      });
-      // …and persist the SAME paper server-side (text only — never an answer
-      // image, not even the typed answers) so a later upload from ANY signed-in
-      // device re-grades the REAL paper [FU-FM-CROSS-DEVICE-UPLOAD]. Best-effort:
-      // a miss keeps the device-local path and the honest cross-device fallback.
-      saveFullMockPaperSnapshot(user, {
-        code: a.code,
-        name: a.name,
-        subject,
-        grade,
-        paper: a.paper,
-        startedAt: a.startedAt,
-        durationMs: a.durationMs,
-        objective: obj,
-        focus,
-        pyqCount: a.pyqCount,
-        freshCount: a.freshCount,
-      });
+      // RECORD-SAFE-1: resolve the final code, write the record under it, THEN keep the paper (device + server)
+      // under that same code; the scorecard follows the code if it had to move (results are already up).
+      const submitted = { code: a.code, name: a.name };
+      const written = (async () => {
+        const savedCode = await writeFullMockPartialRecord({
+          user,
+          paper: a.paper,
+          code: submitted.code,
+          subject: sessionSubject,
+          response: partialResponse,
+          focus,
+        });
+        const eff = adoptFmCode(savedCode, a);
+        // Keep the paper + frozen objective for a later upload on THIS device.
+        saveFullMockSession(sessionUid, {
+          code: eff.code,
+          name: eff.name,
+          subject,
+          grade,
+          paper: a.paper,
+          startedAt: a.startedAt,
+          durationMs: a.durationMs,
+          answers: currentAnswers,
+          flags: [...flagsRef.current],
+          currentQNumber: currentQRef.current,
+          focus,
+          phase: "awaiting-upload",
+          objective: obj,
+          pyqCount: a.pyqCount,
+          freshCount: a.freshCount,
+          updatedAt: Date.now(),
+        });
+        // …and persist the SAME paper server-side (text only — never an answer
+        // image, not even the typed answers) so a later upload from ANY signed-in
+        // device re-grades the REAL paper [FU-FM-CROSS-DEVICE-UPLOAD]. Best-effort:
+        // a miss keeps the device-local path and the honest cross-device fallback.
+        saveFullMockPaperSnapshot(user, {
+          code: eff.code,
+          name: eff.name,
+          subject,
+          grade,
+          paper: a.paper,
+          startedAt: a.startedAt,
+          durationMs: a.durationMs,
+          objective: obj,
+          focus,
+          pyqCount: a.pyqCount,
+          freshCount: a.freshCount,
+        });
+      })();
       focusRef.current = focus;
       setObjective(obj);
       setResultsPhase("partial");
@@ -587,7 +603,7 @@ export default function FullMockPage() {
       // Re-mint the NEXT mock's nomenclature off the fresh records (this mock's
       // record now exists) — otherwise a same-visit second mock would reuse this
       // code and overwrite this record.
-      void loadRecords().then(async (all) => {
+      void written.then(() => loadRecords()).then(async (all) => {
         try {
           const nm = await mintUniqueFullMockNomenclature(sessionSubject, all, user);
           snapshotFresh(all, nm.sequence);
@@ -599,7 +615,7 @@ export default function FullMockPage() {
         }
       });
     },
-    [user, sessionSubject, sessionUid, subject, grade, loadRecords],
+    [user, sessionSubject, sessionUid, subject, grade, loadRecords, adoptFmCode],
   );
 
   const finishToPartial = useCallback(() => {
@@ -754,10 +770,12 @@ export default function FullMockPage() {
           setResultsPhase("full");
           setScorecardOpen(true);
           fairUse.noteGraded();
+          const gradedAs = adoptFmCode(outcome.savedCode, a);
           clearFullMockSession(sessionUid, a.code);
           // Fully graded — the durable record + perQuestion payload exist; the
-          // cross-device paper snapshot has done its job.
-          deleteFullMockPaperSnapshot(user, a.code);
+          // cross-device paper snapshot has done its job. Only THIS paper's copy (by identity).
+          deleteFullMockPaperSnapshot(user, a.code, a.paper.worksheetId);
+          if (gradedAs.code !== a.code) deleteFullMockPaperSnapshot(user, gradedAs.code, a.paper.worksheetId);
           trackUxEvent("full_mock_complete", "FullMockPage", {
             subject,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -784,7 +802,7 @@ export default function FullMockPage() {
         setGrading(false);
       }
     },
-    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal, adoptFmCode],
   );
 
   // J2 — resume after a reload: an awaiting-upload mock on this device with a background grade
@@ -1140,7 +1158,7 @@ export default function FullMockPage() {
       }
       setPaperNotice(null);
       const obj = scoreObjectiveSection(fullMockObjectiveQuestions(snap.paper), picks);
-      writeFullMockPartialRecord({
+      const savedCode = await writeFullMockPartialRecord({
         user,
         paper: snap.paper,
         code: snap.code,
@@ -1152,9 +1170,10 @@ export default function FullMockPage() {
           subjectiveResponse: null,
         }),
       });
+      const fin = savedCode && savedCode !== snap.code ? { code: savedCode, name: nameForCode(snap.name, savedCode) } : { code: snap.code, name: snap.name };
       saveFullMockSession(sessionUid, {
-        code: snap.code,
-        name: snap.name,
+        code: fin.code,
+        name: fin.name,
         subject: snap.subject,
         grade: snap.grade,
         paper: snap.paper,
@@ -1172,8 +1191,8 @@ export default function FullMockPage() {
         updatedAt: Date.now(),
       });
       saveFullMockPaperSnapshot(user, {
-        code: snap.code,
-        name: snap.name,
+        code: fin.code,
+        name: fin.name,
         subject: snap.subject,
         grade: snap.grade,
         paper: snap.paper,
@@ -1186,8 +1205,8 @@ export default function FullMockPage() {
       });
       const a: ActiveMock = {
         paper: snap.paper,
-        code: snap.code,
-        name: snap.name,
+        code: fin.code,
+        name: fin.name,
         startedAt: snap.startedAt,
         durationMs: snap.durationMs,
         pyqCount: snap.pyqCount,
