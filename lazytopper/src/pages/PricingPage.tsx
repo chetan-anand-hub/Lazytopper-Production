@@ -59,6 +59,7 @@ import {
   basicLineRest,
   BASIC_LINE_STRONG,
   BOARD_PASS_ONCE,
+  BOARD_PASS_OWNED_CELL,
   BOARD_PASS_TICKS,
   COMPARE_BOARD_PASS_HEADER,
   FAQ_MORE_SUMMARY,
@@ -486,6 +487,16 @@ function PricingPlansPage() {
   // or the parent-pay link a student forwards.
   const payForChild = paymentsOn && (checkoutWho || isParentPayClientEnabled()) ? payForChildAnswer(checkoutWho) : null;
   const boardPassPrice = boardPassPriceDisplay(nowMs);
+  // PARENT-PACKS-1 (owner, from #1540's report) - a signed-in Board Pass (till boards) owner whose pass is running is shown no
+  // Board Pass price, no pay line, and "You have it" in the table. Signed out (and so the prerender) this is false: unchanged.
+  const passEndMs = subscription.status.passEnd ? Date.parse(subscription.status.passEnd) : NaN;
+  const boardPassOwner =
+    Boolean(user) &&
+    subscription.hydrated &&
+    subscription.status.tier === "premium" &&
+    subscription.status.plan === "pass_till_boards" &&
+    Number.isFinite(passEndMs) &&
+    passEndMs > nowMs;
 
   /** The sticky bar's "Pay": the hero Pay button itself (PassCheckout + its tap event), else a scroll to the card. */
   const payFromSticky = () => {
@@ -546,7 +557,7 @@ function PricingPlansPage() {
                   </li>
                 ))}
               </ul>
-              <TillBoardsOffer />
+              {!boardPassOwner && <TillBoardsOffer />}
 
               {/* PAYWALL-PAY-1 — a tap on Pay is the "pay" paywall action (capture phase; PassCheckout is untouched). */}
               <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
@@ -570,7 +581,7 @@ function PricingPlansPage() {
                   </div>
                 )}
               </div>
-              {paymentsOn && (
+              {paymentsOn && !boardPassOwner && (
                 <p className="lt-pp-payline" data-testid="pricing-payline">
                   {payLine({ checkoutWho, guestPay: isGuestPayClientEnabled() })}
                 </p>
@@ -597,7 +608,7 @@ function PricingPlansPage() {
                   <PacksSection api={api} subject={subject} onSubject={setSubject} desktop={desktop} />
 
                   <div className="lt-pp-lower">
-                    <WhatYouGet boardPassPrice={boardPassPrice}>
+                    <WhatYouGet boardPassPrice={boardPassOwner ? BOARD_PASS_OWNED_CELL : boardPassPrice}>
                       <details className="lt-pp-basic" data-testid="pricing-basic-details">
                         <summary>
                           {BASIC_COMPARE_SUMMARY}&nbsp;<span className="lt-pp-basic__arrow" aria-hidden="true">↓</span>

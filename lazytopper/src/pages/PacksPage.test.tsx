@@ -501,3 +501,35 @@ describe("TRUST-1 - /packs testimonial and stamp wording", () => {
     expect(document.body.textContent).toContain("each PDF carries your name, or your email or masked phone number, on every page");
   });
 });
+
+describe("PARENT-PACKS-1 · /packs for a Board Pass owner", () => {
+  const KEY = (uid: string) => `lazytopper.subscription.v1:${uid}`;
+  afterEach(() => localStorage.clear());
+
+  it("one line at the top: 'Your Board Pass is active until <date>.' - no price, no trial", async () => {
+    auth.user = { uid: "owner-1" };
+    const passEnd = new Date(Date.now() + 90 * 24 * 3600e3).toISOString();
+    localStorage.setItem(KEY("owner-1"), JSON.stringify({ tier: "premium", plan: "pass_till_boards", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd }));
+    page();
+    const line = await screen.findByTestId("packs-board-pass-active");
+    expect(line.textContent).toMatch(/^Your Board Pass is active until \d{1,2} [A-Z][a-z]+ \d{4}\.$/);
+    expect(line.textContent).not.toMatch(/₹|try|free/i);
+  });
+
+  it("nothing for a signed-out visitor, a month pass, or an expired Board Pass", async () => {
+    page();
+    expect(screen.queryByTestId("packs-board-pass-active")).toBeNull();
+    cleanup();
+    auth.user = { uid: "m-1" };
+    localStorage.setItem(KEY("m-1"), JSON.stringify({ tier: "premium", plan: "pass_month", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: new Date(Date.now() + 9 * 24 * 3600e3).toISOString() }));
+    page();
+    await new Promise((r) => setTimeout(r, 10));
+    expect(screen.queryByTestId("packs-board-pass-active")).toBeNull();
+    cleanup();
+    auth.user = { uid: "x-1" };
+    localStorage.setItem(KEY("x-1"), JSON.stringify({ tier: "premium", plan: "pass_till_boards", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: new Date(Date.now() - 1000).toISOString() }));
+    page();
+    await new Promise((r) => setTimeout(r, 10));
+    expect(screen.queryByTestId("packs-board-pass-active")).toBeNull();
+  });
+});

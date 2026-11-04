@@ -50,6 +50,20 @@
  * (bought by the child, or through another link), view and order refuse with `covered` —
  * a parent is never asked to pay for nothing.
  *
+ * PARENT-PACKS-1 (owner, 4 Nov 2026) — A LINK MAY CARRY ONE PDF PACK INSTEAD OF THE BOARD PASS.
+ *   POST /api/pay/parent-link  { pack: { sku, target } }   the child fixes the pack AT MINT TIME
+ * The sku + target are validated (packProducts.cjs) and stored ON THE LINK DOCUMENT (`product: "pack"`,
+ * `packSku`, `packTarget`). Nothing the parent sends can change them: a pack link is ordered ONLY through
+ * `{ token, product: "pack" }` (every other body field is ignored), the amount is PACK_PRODUCTS (server table),
+ * and a Board Pass order on a pack link — or a pack order on a Board Pass link — is refused. The stored
+ * `payOrders` document has exactly the shape of the child's own pack order (`passType: <sku>`, `packTarget`)
+ * plus `payer: "parent"` + `parentLinkId`, so verify grants through the EXISTING `grantPack` (to the order's
+ * uid = the link's child) and the UNCHANGED webhook grants it the same way (payments.cjs grantAndRespond
+ * branches on the stored passType). A child who already owns the pack (itself, or through a Subject Pack /
+ * the Bundle — packProducts.isAlreadyOwned) gets `owned` from mint, view and order. Single use, TTL and the
+ * order cap are the same code as a Board Pass link. No pack credit: a pack is never credited to anything here.
+ * A Board Pass link (no `pack` in the mint body) is stored, viewed, ordered and verified exactly as before.
+ *
  * ★ PRIVACY. The URL carries only the opaque token, in the FRAGMENT (`/pricing#pp=…`), so it
  * never reaches a server log, a Referer or an analytics vendor. A parent sees the child's
  * FIRST name only (the first word of the account's display name, letters only), and never
@@ -71,6 +85,9 @@ const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.
 const pricing = require('../services/passPricing.cjs');
 // PACK-CREDIT-1: the child's recent pack purchases credit a Board Pass order made through a parent link too.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
+// PARENT-PACKS-1: a link may carry one PDF pack. The catalogue, price table and ownership rule are the server's own.
+const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, isAlreadyOwned } = require('../services/packProducts.cjs');
+const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -98,6 +115,10 @@ const MAX_PARENT_CALLS_PER_CLIENT_PER_DAY = 300;
 const PARENT_LINK_CLASS = 'parentLink';
 /** Refusal reason when the child's pass already runs to the boards. */
 const COVERED_REASON = 'covered';
+/** PARENT-PACKS-1: refusal reason when the child already owns the link's pack (directly or via Subject Pack / Bundle). */
+const OWNED_REASON = 'owned';
+/** PARENT-PACKS-1: the link document's product marker for a pack link (a Board Pass link has no `product`). */
+const PACK_PRODUCT = 'pack';
 
 const RAZORPAY_TIMEOUT_MS = 15000;
 const CURRENCY = 'INR';
@@ -191,6 +212,21 @@ function coveredTillBoards(storedSubscription, nowMs) {
   if (endMs === null || endMs <= nowMs) return false;
   const boardEndMs = pricing.endOfIstDayMs(pricing.predictBoardDateIso(nowMs));
   return boardEndMs !== null && endMs >= boardEndMs;
+}
+
+/** PARENT-PACKS-1: the pack a link carries, or null for a Board Pass link. Re-validated on every read. */
+function linkPack(link) {
+  if (!link || link.product !== PACK_PRODUCT) return null;
+  const sku = link.packSku;
+  if (!isPackProduct(sku)) return { invalid: true };
+  const target = validateTarget(sku, link.packTarget);
+  if (target === null) return { invalid: true };
+  return { sku, target, priceInr: PACK_PRODUCTS[sku].priceInr };
+}
+
+/** PARENT-PACKS-1: what a response says about a pack (never more). */
+function publicPack(pack) {
+  return { sku: pack.sku, target: pack.target, priceInr: pack.priceInr };
 }
 
 class OrderCapError extends Error {}
@@ -319,6 +355,26 @@ function createParentPayRoutes(deps = {}) {
       sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
       return null;
     }
+  }
+
+  /**
+   * PARENT-PACKS-1: the mint body is OPTIONAL (a Board Pass link sends `{}` or nothing, exactly as before).
+   * Anything unreadable is treated as "no pack" — the Board Pass mint is never refused for its body.
+   */
+  async function readOptionalJson(req) {
+    try {
+      const buf = await readRawBody(req, MAX_JSON_BYTES);
+      const parsed = JSON.parse(buf.length ? buf.toString('utf8') : '{}');
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  /** PARENT-PACKS-1: does the CHILD already own everything this pack would grant? Throws if the read fails. */
+  async function childOwnsPack(uid, pack) {
+    const owned = await listPacks(adminFirestore, uid);
+    return isAlreadyOwned(owned, pack.sku, pack.target);
   }
 
   /** The child's stored subscription (the server's own record). */
@@ -450,6 +506,11 @@ function createParentPayRoutes(deps = {}) {
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret || !adminFirestore) return unavailable(res);
 
+    // PARENT-PACKS-1: the child may fix ONE pack on this link. Absent -> the Board Pass link, exactly as before.
+    const mintBody = await readOptionalJson(req);
+    const wanted = mintBody.pack && typeof mintBody.pack === 'object' && !Array.isArray(mintBody.pack) ? mintBody.pack : null;
+    if (wanted) return mintPackLink(res, uid, wanted);
+
     let prices;
     try {
       prices = await quotesFor(uid);
@@ -489,6 +550,64 @@ function createParentPayRoutes(deps = {}) {
     return sendJson(res, 200, { ok: true, token, expiresAt: new Date(expiresMs).toISOString(), prices });
   }
 
+  /** PARENT-PACKS-1: the pack link. The sku + target are validated here and stored; the parent can never change them. */
+  async function mintPackLink(res, uid, wanted) {
+    if (!packsEnabled(env)) {
+      emit('payments.parent.link.packs_unavailable');
+      return sendJson(res, 409, { ok: false, error: 'packs_unavailable' });
+    }
+    const sku = wanted.sku;
+    const target = isPackProduct(sku) ? validateTarget(sku, wanted.target) : null;
+    if (target === null) {
+      emit('payments.parent.link.pack_bad_target');
+      return sendJson(res, 400, { ok: false, error: 'invalid_pack_target' });
+    }
+    const pack = { sku, target, priceInr: PACK_PRODUCTS[sku].priceInr };
+    try {
+      if (await childOwnsPack(uid, pack)) {
+        emit('payments.parent.link.pack_already_owned');
+        return sendJson(res, 409, { ok: false, error: 'already_owned' });
+      }
+    } catch (e) {
+      // Fail CLOSED: without the ownership read we cannot promise a parent is not paying for nothing.
+      emit('payments.parent.link.pack_owned_read_failed');
+      console.error('[pay/parent-link] pack ownership read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not price this pack.' });
+    }
+
+    let firstName = '';
+    try {
+      firstName = firstNameOf(await getDisplayName(uid));
+    } catch {
+      firstName = '';
+    }
+
+    const token = tokenFactory();
+    if (!TOKEN_PATTERN.test(token)) return sendJson(res, 500, { ok: false, error: 'Could not create a link.' });
+    const createdMs = now();
+    const expiresMs = createdMs + LINK_TTL_MS;
+    try {
+      await adminFirestore.collection(PARENT_PAY_LINKS_COLLECTION).doc(linkIdOf(token)).set({
+        uid,
+        firstName,
+        status: 'open',
+        createdAt: new Date(createdMs),
+        expiresAt: new Date(expiresMs),
+        orderIds: [],
+        orderSlots: 0,
+        product: PACK_PRODUCT,
+        packSku: pack.sku,
+        packTarget: pack.target,
+      });
+    } catch (e) {
+      emit('payments.parent.link.store_failed');
+      console.error('[pay/parent-link] could not store the link:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not create a link.' });
+    }
+    emit('payments.parent.link.pack_created');
+    return sendJson(res, 200, { ok: true, token, expiresAt: new Date(expiresMs).toISOString(), pack: publicPack(pack) });
+  }
+
   /* ── POST /api/pay/parent/view — what the parent's page shows ─────────────── */
   async function handleView(req, res) {
     if (!admitParentCall(req, res, 'view', PARENT_VIEW_PATH)) return undefined;
@@ -503,6 +622,20 @@ function createParentPayRoutes(deps = {}) {
       if (paidOrder) {
         await resolved.ref.set({ status: 'paid', paidOrderId: paidOrder }, { merge: true });
         return linkRefused(res, 'view', 'used');
+      }
+      // PARENT-PACKS-1: a pack link shows its pack and price (server table), or refuses when the child already owns it.
+      const pack = linkPack(resolved.link);
+      if (pack) {
+        if (pack.invalid) return linkRefused(res, 'view', 'invalid');
+        if (!packsEnabled(env)) return unavailable(res);
+        if (await childOwnsPack(resolved.link.uid, pack)) return linkRefused(res, 'view', OWNED_REASON);
+        emit('payments.parent.view.ok');
+        return sendJson(res, 200, {
+          ok: true,
+          firstName: firstNameOf(resolved.link.firstName),
+          pack: publicPack(pack),
+          expiresAt: new Date(toMillis(resolved.link.expiresAt)).toISOString(),
+        });
       }
       const stored = await readSubscription(resolved.link.uid);
       // Already covered till the boards (by the child, or through another link): nothing to sell.
@@ -529,6 +662,8 @@ function createParentPayRoutes(deps = {}) {
     if (!keys.keyId || !keys.keySecret) return unavailable(res);
     const body = await readJsonBody(req, res);
     if (!body) return undefined;
+    // PARENT-PACKS-1: a pack link's order. The pack comes from the LINK; every other body field is ignored.
+    if (body.product === PACK_PRODUCT) return handlePackOrder(res, keys, body.token);
     const passType = body.passType;
     if (!Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
       return sendJson(res, 400, { ok: false, error: 'passType must be "month" or "till_boards"' });
@@ -544,6 +679,8 @@ function createParentPayRoutes(deps = {}) {
         await resolved.ref.set({ status: 'paid', paidOrderId: paidOrder }, { merge: true });
         return linkRefused(res, 'order', 'used');
       }
+      // PARENT-PACKS-1: a pack link sells its pack only — never a pass the child did not choose.
+      if (resolved.link.product === PACK_PRODUCT) return reject(res, 'order', 'pack_link');
       const stored = await readSubscription(resolved.link.uid);
       if (coveredTillBoards(stored, now())) return linkRefused(res, 'order', COVERED_REASON);
       // PRICE-FIXED-1 - same gate as payments.cjs handleOrder, for the CHILD's uid (never the parent's).
@@ -631,6 +768,82 @@ function createParentPayRoutes(deps = {}) {
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise });
   }
 
+  /**
+   * PARENT-PACKS-1 — POST /api/pay/parent/order { token, product: "pack" }. The sku, target and child come from the
+   * LINK document; the amount from PACK_PRODUCTS. Same single-use / expiry / slot-cap transaction as a pass order.
+   */
+  async function handlePackOrder(res, keys, token) {
+    let resolved;
+    let pack;
+    try {
+      resolved = await resolveLink(token, { requireOpen: true });
+      if (resolved.reason) return linkRefused(res, 'order', resolved.reason);
+      const paidOrder = await linkAlreadyPaid(resolved.linkId);
+      if (paidOrder) {
+        await resolved.ref.set({ status: 'paid', paidOrderId: paidOrder }, { merge: true });
+        return linkRefused(res, 'order', 'used');
+      }
+      pack = linkPack(resolved.link);
+      if (!pack) return reject(res, 'order', 'not_pack_link');
+      if (pack.invalid) return linkRefused(res, 'order', 'invalid');
+      if (!packsEnabled(env)) return unavailable(res);
+      if (await childOwnsPack(resolved.link.uid, pack)) return linkRefused(res, 'order', OWNED_REASON);
+      await reserveOrderSlot(resolved.ref);
+    } catch (e) {
+      if (e instanceof OrderCapError) return reject(res, 'order', 'too_many_orders', 429);
+      if (e instanceof LinkClosedError) return linkRefused(res, 'order', e.reason);
+      emit('payments.parent.order.prepare_failed');
+      console.error('[pay/parent/order] could not prepare the pack order:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not price this pack.' });
+    }
+    const { linkId, ref, link } = resolved;
+    const uid = link.uid;
+    const amountPaise = pack.priceInr * 100;
+
+    let created;
+    try {
+      created = await razorpay(keys, 'POST', '/orders', {
+        amount: amountPaise,
+        currency: CURRENCY,
+        notes: { uid, passType: pack.sku, packTarget: pack.target, payer: PARENT_PAYER },
+      });
+    } catch (e) {
+      emit('payments.parent.order.razorpay_unreachable');
+      console.error('[pay/parent/order] razorpay unreachable:', e && e.message);
+      return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
+    }
+    const order = created.json || {};
+    if (!created.ok || typeof order.id !== 'string' || !ID_PATTERN.test(order.id) || order.amount !== amountPaise || order.currency !== CURRENCY) {
+      emit('payments.parent.order.razorpay_refused');
+      console.error('[pay/parent/order] razorpay refused the pack order, status', created.status);
+      return sendJson(res, 502, { ok: false, error: 'Payment provider refused the order.' });
+    }
+
+    try {
+      // The child's own pack-order shape (payments.cjs handleOrder) + the parent markers, stored BEFORE the browser
+      // gets the order id: grantPack (verify AND the unchanged webhook) re-reads sku / target / amount from here.
+      await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(order.id).set({
+        uid,
+        passType: pack.sku,
+        amountPaise,
+        packTarget: pack.target,
+        offerKey: null,
+        status: 'created',
+        createdAt: new Date(now()),
+        payer: PARENT_PAYER,
+        parentLinkId: linkId,
+      });
+      await appendOrderId(ref, order.id);
+    } catch (e) {
+      emit('payments.parent.order.store_failed');
+      console.error('[pay/parent/order] could not store the pack order:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not record the order.' });
+    }
+
+    emit('payments.parent.order.pack_created');
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise });
+  }
+
   /* ── POST /api/pay/parent/verify — every check, then the CHILD's grant ────── */
   async function handleVerify(req, res) {
     if (!admitParentCall(req, res, 'verify', PARENT_VERIFY_PATH)) return undefined;
@@ -689,6 +902,39 @@ function createParentPayRoutes(deps = {}) {
     if (payment.currency !== CURRENCY) return reject(res, 'verify', 'currency_mismatch');
     if (payment.amount !== order.amountPaise) return reject(res, 'verify', 'amount_mismatch');
     if (payment.status !== 'captured') return reject(res, 'verify', 'not_captured');
+
+    // PARENT-PACKS-1: a pack order is granted through the EXISTING pack grant (never grantPass), to the ORDER's
+    // uid (the link's child); it must be the pack the link carries.
+    if (isPackProduct(order.passType)) {
+      const pack = linkPack(resolved.link);
+      if (!pack || pack.invalid || pack.sku !== order.passType || pack.target !== validateTarget(order.passType, order.packTarget)) {
+        return reject(res, 'verify', 'link_mismatch');
+      }
+      let packGranted;
+      try {
+        packGranted = await grantPack({ db: adminFirestore, uid: order.uid, order: { orderId }, paymentRef: paymentId, nowMs: now() });
+      } catch (e) {
+        if (e instanceof PackGrantInputError) return reject(res, 'verify', 'grant_refused');
+        emit('payments.parent.verify.grant_failed');
+        console.error('[pay/parent/verify] pack grant failed:', e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Pack grant failed' });
+      }
+      emit(packGranted.replayed ? 'payments.parent.verify.pack_replayed' : 'payments.parent.verify.pack_granted');
+      if (packGranted.duplicate) emit('payments.parent.verify.pack_duplicate_payment');
+      try {
+        await resolved.ref.set({ status: 'paid', paidOrderId: orderId, paidAt: new Date(now()) }, { merge: true });
+      } catch {
+        emit('payments.parent.verify.link_close_failed');
+      }
+      return sendJson(res, 200, {
+        ok: true,
+        kind: 'pack',
+        replayed: packGranted.replayed,
+        pack: publicPack(pack),
+        firstName: firstNameOf(resolved.link.firstName),
+        amountPaise: order.amountPaise,
+      });
+    }
 
     // 4. The grant — to the ORDER's uid (the child's), idempotent, order paid in the same
     //    transaction. grantPass refuses an order whose uid is not the uid granted.
@@ -749,4 +995,5 @@ module.exports = {
   TOKEN_PATTERN,
   createParentPayLimiter,
   coveredTillBoards,
+  OWNED_REASON,
 };

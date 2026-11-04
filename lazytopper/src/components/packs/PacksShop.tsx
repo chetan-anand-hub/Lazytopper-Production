@@ -50,6 +50,9 @@ import { maskEmail } from "../../services/checkoutWhoFlag";
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
+// PARENT-PACKS-1: "Ask a parent to pay" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
+import PaywallActions from "../pricing/PaywallActions";
+import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
 import "../../pages/packs.css";
 
@@ -209,6 +212,11 @@ export interface PacksShopApi {
   buyEnabled: boolean;
   /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
   blockedBy: (sku: PackSku, target?: string) => boolean;
+  /**
+   * PARENT-PACKS-1 - "Ask a parent to pay" (+ "Pay by QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
+   * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
+   */
+  parentAsk: (sku: PackSku, target?: string, opts?: { noQr?: boolean }) => ReactNode;
 }
 
 /** PACKS-CONVERT-1: `from: "sample"` = the tap came from the "Liked the sample?" button; it rides on `pack_checkout`. */
@@ -605,6 +613,28 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (buy.phase === "paid") setOpenSku(null);
   }, [buy.phase]);
 
+  /**
+   * PARENT-PACKS-1 - the parent hand-off for ONE pack, next to its Buy: signed in, packs on, a real target, not owned, and not
+   * while this pack's own checkout is open / settling (the rescue card owns the closed-sheet moment). Payments / parent pay dark:
+   * PaywallActions renders nothing at all.
+   */
+  function parentAskFor(sku: PackSku, target: string | undefined, opts: { noQr?: boolean } = {}): ReactNode {
+    const t = sku === "pack_bundle" ? undefined : target;
+    if (!enabled || !signedIn || !isValidPackTarget(sku, t)) return null;
+    const key = packIdOf(sku, t);
+    if (isAlreadyOwned(owned, sku, t) || settling(key)) return null;
+    if (buy.key === key && buy.phase !== "idle" && buy.phase !== "failed" && buy.phase !== "expired") return null;
+    const name = parentPackName(sku, t, sku === "pack_chapter" && t ? chapterLabel(t) : undefined);
+    return (
+      <PaywallActions
+        key={key}
+        surface="pricing"
+        product={{ kind: "pack", sku, ...(t ? { target: t } : {}), name }}
+        noQr={opts.noQr}
+      />
+    );
+  }
+
   /** The buy button (and its status notes) for one SKU. `prefix` picks the pop-up's or the page's class set. */
   function buyArea(sku: PackSku, target: string | undefined, ready: boolean, prefix: "lt-pkd" | "lt-packs" = "lt-pkd") {
     const key = packIdOf(sku, target);
@@ -648,6 +678,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         {mine_ && buy.phase === "failed" && <p className={`${prefix}__note ${prefix}__note--bad`} role="alert">{PACK_FAILED_COPY}</p>}
         {mine_ && buy.phase === "expired" && <p className={`${prefix}__note`} role="alert">{PACK_EXPIRED_COPY}</p>}
         {mine_ && buy.phase === "owned" && <p className={`${prefix}__note`} role="status">{PACK_ALREADY_OWNED_COPY}</p>}
+        {ready && !blocked && parentAskFor(sku, target)}
         {mine_ && buy.phase === "dismissed" && (
           <PayRescueCard
             kind="pack"
@@ -762,6 +793,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     buyEnabled: enabled,
     // Review fix 2: another pack's checkout is open or being checked - every other Buy waits.
     blockedBy: (sku, target) => otherBusy(sku === "pack_chapter" && !target ? "" : packIdOf(sku, target)),
+    parentAsk: (sku, target, opts) => parentAskFor(sku, target, opts),
   };
 
   return (

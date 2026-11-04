@@ -73,7 +73,7 @@ describe("the Board Pass payment-success screen", () => {
     vi.stubEnv("VITE_PACKS_ENABLED", "1");
     view({ onBuy: vi.fn(async () => ({ status: "paid" as const, passEnd: "2027-02-17T00:00:00.000Z" })) });
     fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
-    expect((await screen.findByTestId("pass-checkout-paid")).textContent).toBe("Premium is active until 17 February 2027");
+    expect((await screen.findByTestId("pass-checkout-paid")).textContent).toBe("Your Board Pass is active until 17 February 2027.");
     const offer = await screen.findByTestId("pass-offer-pass_success");
     expect(offer.textContent).toContain("Your Board Pass is on. Prefer practising on paper too? The CBQ Packs put the case-based questions in print");
     expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe("Maths ₹199");

@@ -13,12 +13,19 @@
  *     child from the token, prices the order from the child's record, and grants the pass
  *     to the child after verifying Razorpay's signed result. No uid is ever sent from here.
  *
+ * PARENT-PACKS-1 (owner, 4 Nov 2026): a link may carry ONE PDF pack instead of the Board Pass. The CHILD fixes
+ * the pack when the link is minted (`mintParentLink({ sku, target })`); the server stores it on the link and
+ * returns its price from the server table. The parent's page sends only the token (`product: "pack"`): it can
+ * never pick a different pack, target, account or amount. Every parent-facing line names the "Board Pass" (or
+ * the pack), never "Premium".
+ *
  * ★ THE TOKEN TRAVELS IN THE URL FRAGMENT (`/pricing#pp=<token>`): a fragment is never sent
  * to a server, never appears in a Referer, and no analytics vendor receives it (GA4 and
  * Vercel get a redacted path; Meta sends nothing from an address with a hash).
  */
 import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { formatInr } from "../config/pricing";
+import type { PackSku } from "./packs";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
 export const PARENT_VIEW_ENDPOINT = "/api/pay/parent/view";
@@ -36,6 +43,33 @@ export type ParentPayLang = "en" | "hi";
 export interface ParentPrices {
   month: number | null;
   till_boards: number | null;
+}
+
+/** PARENT-PACKS-1 - the pack a link carries, as the SERVER reports it (its price is the server table's). */
+export interface ParentPackRef {
+  sku: PackSku;
+  target: string;
+  priceInr: number;
+}
+
+/** PARENT-PACKS-1 - the pack a child asks a parent to pay for (the share button's product). `name` is for display only. */
+export interface ParentPayPackProduct {
+  kind: "pack";
+  sku: PackSku;
+  /** The chapter slug / subject; absent for the Bundle. */
+  target?: string;
+  /** "Maths CBQ Pack", "Polynomials Chapter Pack", ... (parentPackName). */
+  name: string;
+}
+
+const PARENT_PACK_SKUS: readonly string[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
+
+function readPack(v: unknown): ParentPackRef | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const o = v as Record<string, unknown>;
+  if (typeof o.sku !== "string" || !PARENT_PACK_SKUS.includes(o.sku)) return undefined;
+  if (typeof o.target !== "string" || typeof o.priceInr !== "number" || !Number.isFinite(o.priceInr) || o.priceInr <= 0) return undefined;
+  return { sku: o.sku as PackSku, target: o.target, priceInr: o.priceInr };
 }
 
 function readFlag(name: "payments" | "parent"): string {
@@ -201,7 +235,8 @@ export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, 
     if (shown) lines.push(parentProofLine(shown, "hi"));
     else if (n > 0) lines.push(`पिछले 30 दिनों में इस पर मेरे ${n} उत्तर जाँचे गए हैं।`);
     // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
-    if (boards) lines.push(`Premium बोर्ड परीक्षा तक के लिए एक बार ${boards} है।`);
+    // PARENT-PACKS-1: the product is named "Board Pass", never "Premium".
+    if (boards) lines.push(`Board Pass बोर्ड परीक्षा तक के लिए एक बार ${boards} है।`);
     lines.push(
       "क्या आप इसका भुगतान कर देंगे? यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
     );
@@ -216,7 +251,7 @@ export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, 
   if (shown) lines.push(parentProofLine(shown, "en"));
   else if (n > 0) lines.push(`I've had ${n} ${n === 1 ? "answer" : "answers"} checked on it in the last 30 days.`);
   // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
-  if (boards) lines.push(`Premium is ${boards} once for everything till my boards.`);
+  if (boards) lines.push(`The Board Pass is ${boards} once for everything till my boards.`);
   lines.push("Could you pay for it? This link is only for my account — you don't need to sign up or share any password:");
   lines.push(url);
   lines.push(`(The link works for ${days} ${days === 1 ? "day" : "days"}.)`);
@@ -234,7 +269,8 @@ async function childAuthHeaders(): Promise<Record<string, string>> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export type ParentLinkReason = "invalid" | "expired" | "used" | "covered" | "failed";
+/** PARENT-PACKS-1: "owned" = the child already owns the link's pack (directly or through a Subject Pack / the Bundle). */
+export type ParentLinkReason = "invalid" | "expired" | "used" | "covered" | "owned" | "failed";
 
 export class ParentLinkError extends Error {
   readonly reason: ParentLinkReason;
@@ -259,7 +295,7 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
   }
   if (res.ok && parsed && parsed.ok === true) return parsed;
   const reason = parsed && typeof parsed.reason === "string" ? parsed.reason : "";
-  if (reason === "invalid" || reason === "expired" || reason === "used" || reason === "covered") throw new ParentLinkError(reason);
+  if (reason === "invalid" || reason === "expired" || reason === "used" || reason === "covered" || reason === "owned") throw new ParentLinkError(reason);
   throw new ParentLinkError("failed");
 }
 
@@ -273,32 +309,52 @@ export interface MintedParentLink {
   token: string;
   expiresAt: string;
   prices: ParentPrices;
+  /** PARENT-PACKS-1 - present on a pack link: the pack and its SERVER price. */
+  pack?: ParentPackRef;
 }
 
-/** The signed-in child mints a link. Sends NOTHING but the child's own ID token. */
-export async function mintParentLink(): Promise<MintedParentLink> {
-  const json = await postJson(PARENT_LINK_ENDPOINT, {}, await childAuthHeaders());
+/**
+ * The signed-in child mints a link. Sends NOTHING but the child's own ID token — plus, for a pack link
+ * (PARENT-PACKS-1), the pack's sku + target, which the server validates and fixes on the link.
+ */
+export async function mintParentLink(pack?: { sku: PackSku; target?: string }): Promise<MintedParentLink> {
+  const body = pack ? { pack: { sku: pack.sku, ...(pack.target ? { target: pack.target } : {}) } } : {};
+  const json = await postJson(PARENT_LINK_ENDPOINT, body, await childAuthHeaders());
   if (typeof json.token !== "string" || !PARENT_TOKEN_PATTERN.test(json.token) || typeof json.expiresAt !== "string") {
     throw new ParentLinkError("failed");
   }
-  return { token: json.token, expiresAt: json.expiresAt, prices: readPrices(json.prices) };
+  const minted: MintedParentLink = { token: json.token, expiresAt: json.expiresAt, prices: readPrices(json.prices) };
+  if (pack) {
+    const ref = readPack(json.pack);
+    // A pack link whose pack the server did not echo is not trusted: no message can quote a price for it.
+    if (!ref || ref.sku !== pack.sku) throw new ParentLinkError("failed");
+    minted.pack = ref;
+  }
+  return minted;
 }
 
 export interface ParentLinkView {
   firstName: string;
   prices: ParentPrices;
   expiresAt: string;
+  /** PARENT-PACKS-1 - a pack link: the pack and its SERVER price (then `prices` is empty). */
+  pack?: ParentPackRef;
 }
 
 /** The parent's page: is the link live, whose first name, what the server charges. */
 export async function viewParentLink(token: string): Promise<ParentLinkView> {
   const json = await postJson(PARENT_VIEW_ENDPOINT, { token });
+  const pack = readPack(json.pack);
   return {
     firstName: typeof json.firstName === "string" ? json.firstName : "",
     prices: readPrices(json.prices),
     expiresAt: typeof json.expiresAt === "string" ? json.expiresAt : "",
+    ...(pack ? { pack } : {}),
   };
 }
+
+/** PARENT-PACKS-1 - what a parent buys from a link: a pass type (Board Pass link) or the link's own pack. */
+export type ParentBuyItem = PassType | "pack";
 
 export type ParentBuyOutcome =
   | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number }
@@ -308,13 +364,14 @@ export type ParentBuyOutcome =
   | { status: "failed"; reason?: Exclude<ParentLinkReason, "failed"> };
 
 export interface ParentBuyDeps {
-  createOrder: (token: string, passType: PassType) => Promise<{ orderId: string; keyId: string; amountPaise: number }>;
+  createOrder: (token: string, item: ParentBuyItem) => Promise<{ orderId: string; keyId: string; amountPaise: number }>;
   loadScript: () => Promise<RazorpayConstructor>;
   verify: (token: string, success: RazorpaySuccess) => Promise<{ passEnd: string; firstName: string }>;
 }
 
-async function createParentOrder(token: string, passType: PassType) {
-  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, passType });
+export async function createParentOrder(token: string, item: ParentBuyItem) {
+  // PARENT-PACKS-1: a pack link's order names no pack at all — the server takes it from the link.
+  const json = await postJson(PARENT_ORDER_ENDPOINT, item === "pack" ? { token, product: "pack" } : { token, passType: item });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new ParentLinkError("failed");
@@ -322,15 +379,18 @@ async function createParentOrder(token: string, passType: PassType) {
   return { orderId, keyId, amountPaise };
 }
 
-async function verifyParentPayment(token: string, success: RazorpaySuccess) {
+export async function verifyParentPayment(token: string, success: RazorpaySuccess) {
   const json = await postJson(PARENT_VERIFY_ENDPOINT, {
     token,
     orderId: success.razorpay_order_id,
     paymentId: success.razorpay_payment_id,
     signature: success.razorpay_signature,
   });
+  const firstName = typeof json.firstName === "string" ? json.firstName : "";
+  // PARENT-PACKS-1: a pack grant has no pass end; it is believed only when the server says `kind: "pack"`.
+  if (json.kind === "pack") return { passEnd: "", firstName };
   if (typeof json.passEnd !== "string") throw new ParentLinkError("failed");
-  return { passEnd: json.passEnd, firstName: typeof json.firstName === "string" ? json.firstName : "" };
+  return { passEnd: json.passEnd, firstName };
 }
 
 const DEFAULT_DEPS: ParentBuyDeps = {
@@ -345,8 +405,10 @@ const DEFAULT_DEPS: ParentBuyDeps = {
  */
 export async function buyPassAsParent(
   token: string,
-  passType: PassType,
+  passType: ParentBuyItem,
   deps: ParentBuyDeps = DEFAULT_DEPS,
+  /** PARENT-PACKS-1 - the pack's name for Razorpay's sheet (pack links only). */
+  packName?: string,
 ): Promise<ParentBuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(token, passType), deps.loadScript()]);
@@ -357,7 +419,12 @@ export async function buyPassAsParent(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: passType === "month" ? "Premium pass for a month (for your child)" : "Premium pass till boards (for your child)",
+        description:
+          passType === "pack"
+            ? `${packName || "PDF pack"} (for your child)`
+            : passType === "month"
+              ? "Monthly pass (for your child)"
+              : "Board Pass till the boards (for your child)",
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

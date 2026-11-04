@@ -72,7 +72,6 @@ import {
   PAYMENT_FAILED_COPY,
   ORDER_EXPIRED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
-  premiumActiveUntilCopy,
   premiumAlreadyActiveCopy,
   type BuyOutcome,
   type PassType,
@@ -94,6 +93,13 @@ export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPriceDisplay(
 /** PAY-PHONE-1 (C) - the button that stays at the top after the Board Pass checkout was closed without paying. */
 /** PASS-OWNER-PACKS-1: what a Board Pass owner reads where the Pay button would be. */
 export const boardPassActiveUntilCopy = (dateLabel: string): string => `Your Board Pass is active until ${dateLabel}.`;
+
+/**
+ * PARENT-PACKS-1 (owner, 4 Nov 2026) - the success line after a verified payment names WHAT was bought, never "Premium":
+ * the Board Pass (till boards) -> "Your Board Pass is active until …"; a month pass -> "Your monthly pass is active until …".
+ */
+export const paidUntilCopy = (passType: PassType, dateLabel: string): string =>
+  passType === "month" ? `Your monthly pass is active until ${dateLabel}.` : boardPassActiveUntilCopy(dateLabel);
 
 export const repayBoardPassLabel = (): string => `Pay ${boardPassPriceDisplay()}`;
 
@@ -226,7 +232,8 @@ export function PassCheckoutView({
   /** CHECKOUT-WHO-1 - the "Who will use it?" sheet is open (only ever with `who`). */
   const [whoOpen, setWhoOpen] = useState(false);
   const [busy, setBusy] = useState<PassType | null>(null);
-  const [paidUntil, setPaidUntil] = useState<string | null>(null);
+  const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType } | null>(null);
+  const setPaidUntil = (label: string, passType: PassType) => setPaidUntilState({ label, passType });
   const [failed, setFailed] = useState(false);
   /** PRICING-1 — the server refused the order as expired: "start again", never the pending copy. */
   const [expired, setExpired] = useState(false);
@@ -283,7 +290,7 @@ export function PassCheckoutView({
     setRecovery(null);
     const label = formatPassDate(result.passEnd);
     // An unreadable server date: no active copy is invented; the hydrated pass shows instead.
-    if (label) setPaidUntil(label);
+    if (label) setPaidUntil(label, pending.details.passType);
   }
 
   settleRef.current = settlePaid;
@@ -354,7 +361,7 @@ export function PassCheckoutView({
         transactionId: outcome.paymentId || attemptId,
       });
       const label = formatPassDate(outcome.passEnd);
-      if (label) setPaidUntil(label);
+      if (label) setPaidUntil(label, passType);
       else setFailed(true);
     } else if (outcome.status === "pending") {
       // PAY-RECOVER-1 — Razorpay signed a success; never the failure sentence from here on.
@@ -404,7 +411,7 @@ export function PassCheckoutView({
     return (
       <div className="lt-pricing-checkout" data-testid="pass-checkout">
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-paid">
-          {premiumActiveUntilCopy(paidUntil)}
+          {paidUntilCopy(paidUntil.passType, paidUntil.label)}
         </p>
         {/* PASS-OWNER-PACKS-1 (owner 3 Nov): once, on the payment-success screen - the CBQ Packs, both subjects. Its own lazy chunk. */}
         <PassOwnerOfferLazy placement="pass_success" assumePaid />

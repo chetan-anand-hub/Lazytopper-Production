@@ -46,10 +46,12 @@ import {
   parentPayUrl,
   parentProofFrom,
   type MintedParentLink,
+  type ParentPayPackProduct,
   type ParentProof,
   type ParentPayLang,
 } from "../../services/parentPay";
 import { generateQRDataUrl } from "../../services/referralService";
+import { buildAskParentPackMessage } from "../../services/parentPayPack";
 import { downloadBlob, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "../results/share/shareScore";
 import { whatsAppShareUrl } from "../results/share/shareCardModel";
 import { ASK_PARENT_LABEL, PAY_LABEL, QR_LABEL, type PaywallActionsLiveProps } from "./PaywallActions";
@@ -60,7 +62,11 @@ export const PARENT_SHARE_PRIVACY_NOTE =
 export const PARENT_LINK_FAILED = "Couldn't create a link right now. Please try again.";
 export const PARENT_WA_BLOCKED = "WhatsApp didn't open. Copy the link and send it yourself.";
 export const QR_FILENAME = "lazytopper-parents-pay-qr.png";
-export const QR_ALT = "QR code: your parents scan it to pay for your Premium";
+export const QR_ALT = "QR code: your parents scan it to pay for your Board Pass";
+/** PARENT-PACKS-1 - the QR's alt text on a pack link. */
+export function qrAltFor(product?: ParentPayPackProduct): string {
+  return product ? `QR code: your parents scan it to pay for your ${product.name}` : QR_ALT;
+}
 
 export interface QrImage {
   blob: Blob;
@@ -97,6 +103,10 @@ export interface PaywallActionsViewProps {
   onAsk?: () => void;
   forwardLabel?: string;
   qrLabel?: string;
+  /** PARENT-PACKS-1 - a pack link (the deps' `mint` mints it for this pack); the message names the pack. */
+  product?: ParentPayPackProduct;
+  /** PARENT-PACKS-1 - no "Pay by QR code" button (a tight card); the text share stays. */
+  noQr?: boolean;
   deps: ParentShareDeps;
 }
 
@@ -111,7 +121,7 @@ function errorName(e: unknown): string {
   return e && typeof e === "object" && "name" in e ? String((e as { name: unknown }).name) : "";
 }
 
-export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly = false, onAsk, forwardLabel = ASK_PARENT_LABEL, qrLabel = QR_LABEL, deps }: PaywallActionsViewProps) {
+export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly = false, onAsk, forwardLabel = ASK_PARENT_LABEL, qrLabel = QR_LABEL, product, noQr = false, deps }: PaywallActionsViewProps) {
   const [link, setLink] = useState<LinkState>({ kind: "idle" });
   const [lang, setLang] = useState<ParentPayLang>("en");
   const [panel, setPanel] = useState<Panel>(null);
@@ -148,7 +158,10 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
 
   const urlOf = (s: Extract<LinkState, { kind: "ready" }>) => parentPayUrl(s.link.token, deps.origin, deps.base);
   const messageOf = (s: Extract<LinkState, { kind: "ready" }>, l: ParentPayLang) =>
-    buildAskParentMessage({
+    // PARENT-PACKS-1: a pack link's message names the pack at the SERVER's price (from the mint), never a typed figure.
+    product && s.link.pack
+      ? buildAskParentPackMessage({ lang: l, name: product.name, priceInr: s.link.pack.priceInr, url: urlOf(s), days: daysLeft(s.link.expiresAt, deps.now()) })
+      : buildAskParentMessage({
       lang: l,
       prices: s.link.prices,
       checkedCount: s.checked,
@@ -272,7 +285,7 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
       {!askOnly && payAction}
       {showParent && (
         <>
-          {!askOnly && (
+          {!askOnly && !noQr && (
             <button type="button" className="lt-paywall-parent" data-testid="paywall-qr" onClick={() => void handleQr()} disabled={busy}>
               {qrLabel}
             </button>
@@ -307,7 +320,7 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
                 </button>
               </div>
               {panel.kind === "qr" ? (
-                <img className="lt-parent-share-qr" src={panel.qr.dataUrl} alt={QR_ALT} width={200} height={200} data-testid="parent-share-qr" />
+                <img className="lt-parent-share-qr" src={panel.qr.dataUrl} alt={qrAltFor(product)} width={200} height={200} data-testid="parent-share-qr" />
               ) : (
                 <pre className="lt-parent-share-preview" lang={lang} data-testid="parent-share-message">
                   {messageOf(ready, lang)}
@@ -405,7 +418,7 @@ async function makeQrPng(url: string): Promise<QrImage> {
 }
 
 /** The live actions: Pay always (when given); the parent pair only for a signed-in account. */
-export default function PaywallActionsLive({ surface, onPay, payTo, showParent, askOnly, onAsk, forwardLabel, qrLabel }: PaywallActionsLiveProps) {
+export default function PaywallActionsLive({ surface, onPay, payTo, showParent, askOnly, onAsk, forwardLabel, qrLabel, product, noQr }: PaywallActionsLiveProps) {
   const { user } = useAuth();
   const uid = user?.uid ?? "";
   const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -413,7 +426,8 @@ export default function PaywallActionsLive({ surface, onPay, payTo, showParent, 
   const parent = showParent && Boolean(uid) && Boolean(origin);
   const facts = parentFactsReader(uid);
   const deps: ParentShareDeps = {
-    mint: mintParentLink,
+    // PARENT-PACKS-1: a pack link fixes the pack at mint time (the server validates it and prices it).
+    mint: () => mintParentLink(product ? { sku: product.sku, ...(product.target ? { target: product.target } : {}) } : undefined),
     loadCheckedCount: () => facts().then((f) => f.checked),
     loadProof: () => facts().then((f) => f.proof),
     makeQr: makeQrPng,
@@ -436,6 +450,8 @@ export default function PaywallActionsLive({ surface, onPay, payTo, showParent, 
       onAsk={onAsk}
       forwardLabel={forwardLabel}
       qrLabel={qrLabel}
+      product={product}
+      noQr={noQr}
       deps={deps}
     />
   );

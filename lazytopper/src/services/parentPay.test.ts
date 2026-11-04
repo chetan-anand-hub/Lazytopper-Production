@@ -9,7 +9,9 @@ import {
   parentProofFrom,
   parentProofLine,
   buyPassAsParent,
+  createParentOrder,
   daysLeft,
+  verifyParentPayment,
   isParentPayClientEnabled,
   mintParentLink,
   parentPayUrl,
@@ -20,6 +22,7 @@ import {
   type ParentBuyDeps,
 } from "./parentPay";
 import type { RazorpayConstructor, RazorpaySuccess } from "./checkout";
+import { buildAskParentPackMessage, parentPackName } from "./parentPayPack";
 
 const TOKEN = "A".repeat(20) + "b-_9" + "c".repeat(19);
 
@@ -263,5 +266,91 @@ describe("TRIAL-SELL-1 - the parent's proof line, from real graded results only"
     expect(text).toContain("पिछले 30 दिनों में इसने मेरे 3 उत्तर जाँचे और 1.5 नंबर पकड़े जो मेरे कट रहे थे (ज़्यादातर लापरवाही की गलतियाँ)।");
     expect(text).not.toContain("उत्तर जाँचे गए हैं");
     expect(parentProofLine({ answers: 2, marksLost: 3, group: null }, "hi")).toBe("पिछले 30 दिनों में इसने मेरे 2 उत्तर जाँचे और 3 नंबर पकड़े जो मेरे कट रहे थे।");
+  });
+});
+
+
+describe("PARENT-PACKS-1 - a link that carries one pack", () => {
+  const url = `https://www.lazytopper.com/pricing#pp=${TOKEN}`;
+
+  it("the Board Pass message says 'Board Pass', never 'Premium' (en + hi)", () => {
+    for (const lang of ["en", "hi"] as const) {
+      const text = buildAskParentMessage({ lang, prices: { month: 599, till_boards: 1917 }, checkedCount: 3, url, days: 3 });
+      expect(text).toContain("Board Pass");
+      expect(text).toContain("₹1,917");
+      expect(text).not.toMatch(/premium/i);
+    }
+    expect(buildAskParentMessage({ lang: "en", prices: { month: null, till_boards: 1917 }, checkedCount: null, url, days: 3 })).toContain(
+      "The Board Pass is ₹1,917 once for everything till my boards.",
+    );
+  });
+
+  it("the pack message names the pack and the SERVER price, once; no Board Pass line, no proof line (en)", () => {
+    const text = buildAskParentPackMessage({ lang: "en", name: "Maths CBQ Pack", priceInr: 199, url, days: 3 });
+    expect(text).toContain("can you get me the Maths CBQ Pack on LazyTopper? It's ₹199, one time");
+    expect(text).toContain(url);
+    expect(text).toContain("(The link works for 3 days.)");
+    expect(text).toContain("don't need to sign up or share any password");
+    expect(text).not.toMatch(/Board Pass|premium|1,917|checked|marks/i);
+  });
+
+  it("the pack message in Hindi carries the same facts", () => {
+    const text = buildAskParentPackMessage({ lang: "hi", name: "Polynomials Chapter Pack", priceInr: 49, url, days: 1 });
+    expect(text).toContain("Polynomials Chapter Pack");
+    expect(text).toContain("₹49");
+    expect(text).toContain(url);
+    expect(text).toContain("1 दिन");
+    expect(text).not.toMatch(/Board Pass|premium|उत्तर जाँचे/i);
+  });
+
+  it("pack names", () => {
+    expect(parentPackName("pack_cbq", "maths")).toBe("Maths CBQ Pack");
+    expect(parentPackName("pack_cbq", "science")).toBe("Science CBQ Pack");
+    expect(parentPackName("pack_subject", "science")).toBe("Science Subject Pack");
+    expect(parentPackName("pack_mock", "maths")).toBe("Maths Mock Pack");
+    expect(parentPackName("pack_chapter", "polynomials", "Polynomials")).toBe("Polynomials Chapter Pack");
+    expect(parentPackName("pack_bundle", undefined)).toBe("Maths + Science Bundle");
+  });
+
+  it("mint for a pack sends ONLY its sku + target with the child's token, and trusts the server's echoed price", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ ok: true, token: TOKEN, expiresAt: "2026-11-07T10:00:00.000Z", pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } }),
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+    const out = await mintParentLink({ sku: "pack_cbq", target: "maths" });
+    expect(out.pack).toEqual({ sku: "pack_cbq", target: "maths", priceInr: 199 });
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ pack: { sku: "pack_cbq", target: "maths" } });
+    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer child-id-token");
+  });
+
+  it("a pack mint the server answers WITHOUT the pack (or with another one) is a failure, never a priceless message", async () => {
+    for (const pack of [undefined, { sku: "pack_bundle", target: "all", priceInr: 299 }, { sku: "pack_cbq", target: "maths", priceInr: 0 }]) {
+      vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, token: TOKEN, expiresAt: "x", pack }) })));
+      await expect(mintParentLink({ sku: "pack_cbq", target: "maths" })).rejects.toBeInstanceOf(ParentLinkError);
+    }
+  });
+
+  it("the parent's pack order sends the token and `product: pack` only — no sku, target, uid or amount", async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, orderId: "order_P1", keyId: "rzp", amountPaise: 19900 }) }));
+    vi.stubGlobal("fetch", fetchMock);
+    await createParentOrder(TOKEN, "pack");
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ token: TOKEN, product: "pack" });
+    expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
+    await createParentOrder(TOKEN, "till_boards");
+    const [, init2] = fetchMock.mock.calls[1] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init2.body))).toEqual({ token: TOKEN, passType: "till_boards" });
+  });
+
+  it("verify: a pack grant is believed only with the server's `kind: pack`; 'owned' is a reason", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, kind: "pack", firstName: "Aarav", pack: {} }) })));
+    expect(await verifyParentPayment(TOKEN, { razorpay_order_id: "o", razorpay_payment_id: "p", razorpay_signature: "ab" })).toEqual({ passEnd: "", firstName: "Aarav" });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, firstName: "Aarav" }) })));
+    await expect(verifyParentPayment(TOKEN, { razorpay_order_id: "o", razorpay_payment_id: "p", razorpay_signature: "ab" })).rejects.toBeInstanceOf(ParentLinkError);
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 410, json: async () => ({ ok: false, reason: "owned" }) })));
+    await expect(viewParentLink(TOKEN)).rejects.toMatchObject({ reason: "owned" });
   });
 });

@@ -141,7 +141,7 @@ describe("PricingPage — the parent's link", () => {
   it("/pricing#pp=<token> with the switch on: the parent's page, not the plans", async () => {
     flags(true);
     await renderAt(`/pricing#pp=${TOKEN}`);
-    expect(await screen.findByRole("heading", { level: 1, name: "Pay for Aarav's LazyTopper Premium" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: "Pay for Aarav's LazyTopper Board Pass" })).toBeInTheDocument();
     expect(screen.queryByText("Plans and packs for the 2027 boards")).toBeNull();
   });
 
@@ -161,7 +161,7 @@ describe("CHECKOUT-WHO-1 — the parent's link is unchanged with 'Who will use i
     flags(true);
     vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
     await renderAt(`/pricing#pp=${TOKEN}`);
-    expect(await screen.findByRole("heading", { level: 1, name: "Pay for Aarav's LazyTopper Premium" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: "Pay for Aarav's LazyTopper Board Pass" })).toBeInTheDocument();
     expect(screen.queryByText("Who will use it?")).toBeNull();
     expect(screen.queryByTestId("who-first")).toBeNull();
     expect(screen.queryByText("Plans and packs for the 2027 boards")).toBeNull();

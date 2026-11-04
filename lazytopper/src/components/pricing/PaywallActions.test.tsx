@@ -378,6 +378,9 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     "services/parentPay.ts",
     "config/pricing.ts",
     "config/pricingCompare.ts",
+    // PARENT-PACKS-1: the pack Buy surfaces that now carry the parent actions.
+    "components/packs/PacksShop.tsx",
+    "components/pricing/PricingPacks.tsx",
   ];
 
   /** The source minus comments: what can reach a student (strings, JSX text). */
@@ -429,5 +432,54 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     await tap(FORWARD_LABEL);
     expect((screen.getByTestId("parent-share-whatsapp") as HTMLAnchorElement).href).toMatch(/^https:\/\/wa\.me\//);
     expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument();
+  });
+});
+
+describe("PARENT-PACKS-1 · a pack link", () => {
+  const PACK = { kind: "pack" as const, sku: "pack_cbq" as const, target: "maths", name: "Maths CBQ Pack" };
+  const PACK_MINTED: MintedParentLink = { ...MINTED, prices: { month: null, till_boards: null }, pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } };
+
+  function packView(d: ParentShareDeps, noQr = false) {
+    render(
+      <MemoryRouter>
+        <PaywallActionsView surface="pricing" showParent product={PACK} noQr={noQr} deps={d} />
+      </MemoryRouter>,
+    );
+  }
+
+  it("the message names the pack at the SERVER's price (en + hi), never the Board Pass or Premium; no Pay button", async () => {
+    packView(deps({ mint: vi.fn(async () => PACK_MINTED) }));
+    expect(screen.queryByTestId("paywall-pay")).toBeNull();
+    await tap(FORWARD_LABEL);
+    const en = screen.getByTestId("parent-share-message").textContent || "";
+    expect(en).toContain("can you get me the Maths CBQ Pack on LazyTopper? It's ₹199, one time");
+    expect(en).toContain(LINK);
+    expect(en).toContain("(The link works for 3 days.)");
+    expect(en).not.toMatch(/premium|board pass/i);
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    const hi = screen.getByTestId("parent-share-message").textContent || "";
+    expect(hi).toContain("Maths CBQ Pack");
+    expect(hi).toContain("₹199");
+    expect(hi).not.toMatch(/premium|board pass/i);
+    expect(withoutSanctioned(document.body.textContent || "")).not.toMatch(ASK_PARENT);
+  });
+
+  it("the QR names the pack; noQr leaves only the text share", async () => {
+    packView(deps({ mint: vi.fn(async () => PACK_MINTED) }));
+    await tap(QR_LABEL);
+    expect(screen.getByTestId("parent-share-qr").getAttribute("alt")).toBe("QR code: your parents scan it to pay for your Maths CBQ Pack");
+    cleanup();
+    packView(deps({ mint: vi.fn(async () => PACK_MINTED) }), true);
+    expect(screen.queryByTestId("paywall-qr")).toBeNull();
+    expect(screen.getByTestId("paywall-forward").textContent).toBe(FORWARD_LABEL);
+  });
+
+  it("the Board Pass link's QR and message say Board Pass, not Premium", async () => {
+    expect(QR_ALT).toBe("QR code: your parents scan it to pay for your Board Pass");
+    view(deps());
+    await tap(FORWARD_LABEL);
+    const text = screen.getByTestId("parent-share-message").textContent || "";
+    expect(text).toContain("The Board Pass is ₹2,396 once");
+    expect(text).not.toMatch(/premium/i);
   });
 });
