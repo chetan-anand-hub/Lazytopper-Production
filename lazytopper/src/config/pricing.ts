@@ -159,6 +159,82 @@ export function tillBoardsPriceInr(now: Date | number = Date.now()): number {
 }
 
 /**
+ * GST-EXCL-1 (owner ruling, 4 Nov 2026, 18:12-18:20 IST): the company is GST-registered and the Board Pass is priced
+ * TAX-EXCLUSIVE from 00:00 IST on 5 Nov 2026 - "actual price plus GST, which will be deducted during Razorpay payment".
+ * The base prices above do not change; from this instant the amount CHARGED is base + 18% GST, rounded to the rupee
+ * (₹1,917 -> ₹2,262 founding; ₹2,499 -> ₹2,949 from 1 Dec). Before it, every figure is byte-identical to today's.
+ * Board Pass ONLY: PDF packs stay all-in. The SERVER mirrors these in `server/services/passPricing.cjs` and decides
+ * what is charged on its own clock; `passPricing.parity.test.ts` proves the two agree.
+ * ★ CONSUMER LAW (E-Commerce Rules 2020, CCPA dark-pattern guidelines 2023): the TOTAL incl. tax is shown before Razorpay
+ * opens. Owner (4 Nov 18:20 IST): price tags read only "₹1,917 + GST"; every Pay button names the TOTAL ("Pay ₹2,262");
+ * the checkout step shows the breakup "₹1,917 + ₹345 GST (18%) = ₹2,262". Never a base price alone on a Pay button.
+ */
+export const GST_RATE_PERCENT = 18;
+export const GST_RATE = GST_RATE_PERCENT / 100;
+export const GST_EXCLUSIVE_FROM_ISO = "2026-11-05T00:00:00+05:30";
+export const GST_EXCLUSIVE_FROM_MS = Date.parse(GST_EXCLUSIVE_FROM_ISO);
+
+/** Is the Board Pass priced "+ GST" at the instant `now`? PURE: the clock is an argument. */
+export function boardPassGstExclusive(now: Date | number = Date.now()): boolean {
+  const ms = now instanceof Date ? now.getTime() : now;
+  return Number.isFinite(ms) && ms >= GST_EXCLUSIVE_FROM_MS;
+}
+
+/** base + 18% GST, rounded to the rupee. Integer arithmetic (1917 * 118 / 100), so no binary-fraction drift. */
+export function withGstInr(baseInr: number): number {
+  return Math.round((baseInr * (100 + GST_RATE_PERCENT)) / 100);
+}
+
+/** What one Board Pass costs at `now`: the base price, the GST on it, and the TOTAL the student is charged. */
+export interface BoardPassCharge {
+  baseInr: number;
+  /** 0 before the GST cut-off (the price was all-in). */
+  gstInr: number;
+  /** What Razorpay is asked for (before any server-side pack credit). */
+  totalInr: number;
+  /** 0.18 from the cut-off, 0 before it. */
+  gstRate: number;
+  gstExclusive: boolean;
+}
+
+/**
+ * THE ONE RULE for EVERY paid product (owner scope, 4 Nov 18:23 IST: the Board Pass, every PDF pack incl. CBQ, top-ups):
+ * the charge for an item whose BASE price is `baseInr` at `now`. PURE. Mirrored by passPricing.cjs `chargeFor`.
+ */
+export function chargeFor(baseInr: number, now: Date | number = Date.now()): BoardPassCharge {
+  if (!boardPassGstExclusive(now)) return { baseInr, gstInr: 0, totalInr: baseInr, gstRate: 0, gstExclusive: false };
+  const totalInr = withGstInr(baseInr);
+  return { baseInr, gstInr: totalInr - baseInr, totalInr, gstRate: GST_RATE, gstExclusive: true };
+}
+/** The rupees CHARGED for a base price at `now` (base before the cut-off; base + 18% GST from it). */
+export function priceWithGst(baseInr: number, now: Date | number = Date.now()): number {
+  return chargeFor(baseInr, now).totalInr;
+}
+/** A base price as a price TAG at `now`: "₹49" before the cut-off; "₹49 + GST" from it. Never on a Pay/Buy button. */
+export function displayPlusGst(baseInr: number, now: Date | number = Date.now()): string {
+  return boardPassGstExclusive(now) ? `${formatInr(baseInr)} + GST` : formatInr(baseInr);
+}
+/** What a Pay/Buy button names for a base price at `now`: the amount CHARGED ("₹58" for ₹49 from the cut-off). */
+export function payDisplay(baseInr: number, now: Date | number = Date.now()): string {
+  return formatInr(priceWithGst(baseInr, now));
+}
+/** The checkout-step breakup for a base price at `now`: "₹49 + ₹9 GST (18%) = ₹58". Null before the cut-off. */
+export function gstBreakdownFor(baseInr: number, now: Date | number = Date.now()): string | null {
+  const c = chargeFor(baseInr, now);
+  return c.gstExclusive ? `${formatInr(c.baseInr)} + ${formatInr(c.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(c.totalInr)}` : null;
+}
+
+/** The Board Pass charge at `now`. PURE. */
+export function boardPassCharge(now: Date | number = Date.now()): BoardPassCharge {
+  return chargeFor(tillBoardsPriceInr(now), now);
+}
+
+/** The rupees the student is CHARGED for a Board Pass at `now` (base + GST from the cut-off). */
+export function boardPassTotalInr(now: Date | number = Date.now()): number {
+  return boardPassCharge(now).totalInr;
+}
+
+/**
  * PRICE-FIXED-1 (owner ruling, 31 Oct 2026): from this instant the MONTH pass is no longer sold to an account that
  * has never bought one ("from tomorrow, remove the option of per month"). A fixed UTC+05:30 instant. The SERVER
  * enforces it on its own clock and from its own records; the client only decides what to SHOW.
@@ -233,11 +309,33 @@ export function monthlyInline(foundingRate: boolean = foundingOfferOpen(Date.now
  * the page mounts in a browser. See `tillBoardsQuote()`.
  */
 export const BOARD_PASS_NAME = "Board Pass";
-/** The Board Pass price at `now`, formatted ("₹1,917" until the founding deadline, then "₹2,499"). Read at RENDER time. */
-export function boardPassPriceDisplay(now: Date | number = Date.now()): string {
-  return formatInr(tillBoardsPriceInr(now));
+/** A Board Pass base price as a price TAG at `now`: "₹2,499", or "₹2,499 + GST" from the GST cut-off (GST-EXCL-1). */
+export function boardPassTagFor(baseInr: number, now: Date | number = Date.now()): string {
+  return displayPlusGst(baseInr, now);
 }
-/** "₹1,917 \u2014 one payment till your boards" - the ONE price line every surface shows (PRICE-FIXED-1). */
+/**
+ * The Board Pass price at `now`, as a price TAG ("₹1,917" until the GST cut-off; "₹1,917 + GST" from it; "₹2,499 + GST"
+ * from 1 Dec). Read at RENDER time. ⚠ NEVER on a Pay button - a button names what is CHARGED: `boardPassPayDisplay`.
+ */
+export function boardPassPriceDisplay(now: Date | number = Date.now()): string {
+  return boardPassTagFor(tillBoardsPriceInr(now), now);
+}
+/** GST-EXCL-1 - the amount CHARGED, formatted ("₹1,917" before the cut-off; "₹2,262" from it). Every Pay button reads this. */
+export function boardPassPayDisplay(now: Date | number = Date.now()): string {
+  return formatInr(boardPassTotalInr(now));
+}
+/**
+ * GST-EXCL-1 - the breakup a checkout sheet shows before Razorpay opens: "₹1,917 + ₹345 GST (18%) = ₹2,262".
+ * Null before the cut-off.
+ */
+export function boardPassGstBreakdown(now: Date | number = Date.now()): string | null {
+  return gstBreakdownFor(tillBoardsPriceInr(now), now);
+}
+/**
+ * "₹1,917 \u2014 one payment till your boards" - the ONE price line every surface shows (PRICE-FIXED-1). From the GST
+ * cut-off: "₹1,917 + GST \u2014 one payment till your boards" (owner, 4 Nov 18:20 IST: the TOTAL appears only at the
+ * checkout step and on Pay buttons - boardPassGstBreakdown / boardPassPayDisplay).
+ */
 export function boardPassPriceLine(now: Date | number = Date.now()): string {
   return `${boardPassPriceDisplay(now)} \u2014 one payment till your boards`;
 }
@@ -256,7 +354,7 @@ export function boardPassFoundingLabel(now: Date | number = Date.now()): string 
  */
 export function boardPassDeadlineLine(now: Date | number = Date.now()): string | null {
   if (!foundingOfferOpen(now)) return null;
-  return `${FOUNDING_OFFER_BADGE} ends ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}: ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)}.`;
+  return `${FOUNDING_OFFER_BADGE} ends ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}: ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}.`;
 }
 /**
  * OFFERS-V2 - the short line under a Pay button: "One payment · ₹2,499 from 1 Dec" while the founding offer is open. DERIVED from the same
@@ -266,7 +364,7 @@ export function boardPassDeadlineLine(now: Date | number = Date.now()): string |
 export function boardPassFromLine(now: Date | number = Date.now()): string {
   if (!boardPassDeadlineLine(now)) return "One payment, no renewals";
   const [day = "", month = ""] = FOUNDING_OFFER_LIST_FROM_LABEL.split(" ");
-  return `One payment \u00b7 ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} from ${day} ${month.slice(0, 3)}`;
+  return `One payment \u00b7 ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)} from ${day} ${month.slice(0, 3)}`;
 }
 /** The Board Pass LEADS (PRICING-1). Number-free so it may sit in static markup; no "saving" claim against a monthly price (PRICE-FIXED-1). */
 export const TILL_BOARDS_LINE = "One payment, till your board exam.";
@@ -407,9 +505,14 @@ const TILL_BOARDS_MAX_MONTHS = 36;
 export interface TillBoardsQuote {
   /** Smallest k >= 1 with (today in IST) + k calendar months >= the board date. Informational only. */
   monthsLeft: number;
-  /** The fixed one-time price (PRICE-FIXED-1) - the same on every date. */
+  /** The fixed one-time BASE price (PRICE-FIXED-1). GST-EXCL-1: from the GST cut-off GST is added on top - see totalInr. */
   priceInr: number;
+  /** The price TAG ("₹1,917", or "₹1,917 + GST" from the GST cut-off). Never on a Pay button. */
   priceDisplay: string;
+  /** GST-EXCL-1 - the amount CHARGED (base + GST from the cut-off; = priceInr before it). */
+  totalInr: number;
+  /** "₹2,262" - what a Pay button names. */
+  totalDisplay: string;
   /** "till your boards (Feb 2027)" — the month and year of the board date. */
   untilLabel: string;
 }
@@ -452,6 +555,8 @@ export function tillBoardsQuote(
     monthsLeft,
     priceInr: tillBoardsPriceInr(now),
     priceDisplay: boardPassPriceDisplay(now),
+    totalInr: boardPassTotalInr(now),
+    totalDisplay: boardPassPayDisplay(now),
     untilLabel: `till your boards (${MONTH_SHORT[board.m]} ${board.y})`,
   };
 }

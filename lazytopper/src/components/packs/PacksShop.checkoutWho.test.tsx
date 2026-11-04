@@ -35,6 +35,8 @@ vi.mock("../../pages/PackDialog", () => ({ default: (p: { buy?: unknown }) => (p
 
 import PacksShop, { PACK_WHO_NOTE } from "./PacksShop";
 import * as packs from "../../services/packs";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
 
@@ -76,7 +78,7 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
     fireEvent.click(screen.getByTestId("packs-buy-pack_mock"));
     expect(await screen.findByText("Who will use it?")).toBeTruthy();
     fireEvent.change(screen.getByTestId("who-first"), { target: { value: "anaya.k@gmail.com" } });
-    expect(screen.getByTestId("who-pay").textContent).toBe("Pay ₹99 for anaya.k@gmail.com");
+    expect(screen.getByTestId("who-pay").textContent).toBe(`Pay ${packPayLabel("pack_mock")} for anaya.k@gmail.com`);
     expect(screen.queryByTestId("guest-pay-sheet")).toBeNull();
     expect(screen.queryByText("LOGIN PAGE")).toBeNull();
   });

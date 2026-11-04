@@ -16,6 +16,7 @@ import { newCheckoutAttemptId, trackNamedEvent, trackPurchase } from "../../anal
 import { trackPackPurchase, type PackSkuName } from "../../lib/packs/packAnalytics";
 import { inAppBrowser } from "../../utils/inAppBrowser";
 import { buyAsGuest, maskIndianMobile, normaliseIndianMobile, tenDigits, type GuestBuyOutcome, type GuestItem } from "../../services/guestPay";
+import { boardPassGstBreakdown } from "../../config/pricing";
 import "./guestPaySheet.css";
 import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../../utils/indianMobileInput";
 
@@ -249,6 +250,8 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
 
   const title = step.name === "paid" ? "Thank you" : step.name === "choose" ? GUEST_PAY_TITLE : "Pay with your phone number";
 
+  // GST-EXCL-1: the Board Pass breakup before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null for a pack / before 5 Nov.
+  const gstBreakdown = item.kind === "pass" ? boardPassGstBreakdown() : null;
   return createPortal(
     <div className="lt-gps" data-testid="guest-pay-sheet" onClick={(e) => e.target === e.currentTarget && !busy && onClose()}>
       <div className="lt-gps__panel" role="dialog" aria-modal="true" aria-labelledby="lt-gps-title" tabIndex={-1} ref={panelRef}>
@@ -256,6 +259,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
           <div>
             <h2 className="lt-gps__title" id="lt-gps-title">{title}</h2>
             {step.name !== "paid" && <p className="lt-gps__item">{item.label}</p>}
+            {step.name !== "paid" && gstBreakdown && <p className="lt-gps__fine" data-testid="guest-pay-gst">{gstBreakdown}</p>}
           </div>
           <button type="button" className="lt-gps__close" onClick={onClose} disabled={busy} aria-label="Close">
             &times;

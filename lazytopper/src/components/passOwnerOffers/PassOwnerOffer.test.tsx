@@ -28,6 +28,8 @@ vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackEvent: track.view, tr
 import PassOwnerOffer from "./PassOwnerOffer";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
 import { PASS_OFFERS_SNOOZE_KEY } from "./passOwnerOffersModel";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 function Where() {
   const l = useLocation();
@@ -62,8 +64,8 @@ describe("PassOwnerOffer - who sees it", () => {
     ui({ placement: "pass_me" });
     expect(await screen.findByTestId("pass-offer-pass_me")).toBeTruthy();
     expect(screen.getAllByRole("complementary")).toHaveLength(1);
-    expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe("Maths ₹199");
-    expect(screen.getByTestId("pass-offer-buy-pack_cbq-science").textContent).toBe("Science ₹199");
+    expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe(`Maths ${packPayLabel("pack_cbq")}`);
+    expect(screen.getByTestId("pass-offer-buy-pack_cbq-science").textContent).toBe(`Science ${packPayLabel("pack_cbq")}`);
     expect(screen.getByTestId("pass-offer-not-now")).toBeTruthy();
     await waitFor(() => expect(track.view).toHaveBeenCalledWith("pack_view", "pack_cbq", "pass_me"));
     expect(track.view).toHaveBeenCalledTimes(1);

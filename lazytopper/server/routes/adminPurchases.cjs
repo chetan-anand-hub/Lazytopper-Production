@@ -22,6 +22,14 @@ const { istDayStartMs, addIstDays } = require('./adminStudents.cjs');
 const { maskIndianMobile, maskEmail, GUEST_STATUS } = require('../services/guestPay.cjs');
 
 /**
+ * GST-EXCL-1 - an order created at/after the GST cut-off (5 Nov 2026) stores its breakup; the admin rows carry base and GST
+ * beside the total charged (`amountInr`). Nothing for an older order.
+ */
+function gstFieldsOf(v) {
+  return Number.isInteger(v && v.baseInr) && Number.isInteger(v && v.gstInr) && v.gstInr > 0 ? { baseInr: v.baseInr, gstInr: v.gstInr } : {};
+}
+
+/**
  * CHECKOUT-WHO-1 - for an order bought through "Who will use it?": the recipient (MASKED), who paid (signed out / a
  * signed-in account buying for someone else), the uid it landed on and how, and the two-accounts note. {} for any other
  * order, so every existing row is exactly as before.
@@ -137,7 +145,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           passType: typeof v.passType === 'string' ? v.passType : '',
           packTarget: typeof v.packTarget === 'string' ? v.packTarget : null,
           kind: kindOf(v.passType),
-          amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
+          amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null, ...gstFieldsOf(v),
           channel: v.payer === 'parent' ? 'parent' : 'student',
           isAdminAccount: admins.has(v.uid),
           ...failureFields(v.lastFailure),
@@ -177,7 +185,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           passType: typeof v.passType === 'string' ? v.passType : '',
           packTarget: typeof v.packTarget === 'string' ? v.packTarget : null,
           kind: kindOf(v.passType),
-          amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
+          amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null, ...gstFieldsOf(v),
           paidAtMs,
           ageHours: paidAtMs === null ? null : Math.max(0, Math.floor((nowMs - paidAtMs) / 3600000)),
           ...whoFields(v),
@@ -216,7 +224,7 @@ function createAdminPurchasesRoutes(deps = {}) {
             passType: typeof v.passType === 'string' ? v.passType : '',
             packTarget: typeof v.packTarget === 'string' ? v.packTarget : null,
             kind: kindOf(v.passType),
-            amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null,
+            amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null, ...gstFieldsOf(v),
             ageHours: atMs === null ? null : Math.max(0, Math.floor((nowMs - atMs) / 3600000)),
             ...whoFields(v),
           });
@@ -253,6 +261,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           packTarget: typeof v.packTarget === 'string' ? v.packTarget : null,
           kind: kindOf(v.passType),
           amountInr,
+          ...gstFieldsOf(v),
           channel: v.payer === 'parent' ? 'parent' : 'student',
           isAdminAccount: admins.has(v.uid),
           ...whoFields(v),

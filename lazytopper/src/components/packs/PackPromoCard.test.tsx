@@ -15,6 +15,8 @@ vi.mock("../../services/subscriptionService", () => ({
 }));
 
 import PackPromoCard, { promoChips, promoHref, showPackPromo } from "./PackPromoCard";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { displayPlusGst } from "../../config/pricing";
 
 describe("showPackPromo visibility rule", () => {
   it("signed-out yes", () => expect(showPackPromo("", null, false)).toBe(true));
@@ -29,10 +31,10 @@ describe("showPackPromo visibility rule", () => {
 
 describe("promoChips", () => {
   it("omits the CBQ chip without a pack_cbq SKU and uses the cheapest price", () => {
-    expect(promoChips({ pack_chapter: 49, pack_mock: 99 })).toEqual(["Chapter tests & mock papers", "From ₹49"]);
+    expect(promoChips({ pack_chapter: 49, pack_mock: 99 })).toEqual(["Chapter tests & mock papers", `From ${displayPlusGst(49)}`]);
   });
   it("adds the CBQ chip when the SKU exists", () => {
-    expect(promoChips({ pack_chapter: 49, pack_cbq: 199 })).toContain("Board CBQ Pack ₹199");
+    expect(promoChips({ pack_chapter: 49, pack_cbq: 199 })).toContain(`Board CBQ Pack ${displayPlusGst(199)}`);
   });
 });
 

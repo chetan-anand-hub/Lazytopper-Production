@@ -17,7 +17,7 @@ import { join, resolve, relative } from "node:path";
 import { parentPriceModel } from "../pages/ForParentsPage";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { PACK_PRICE_INR, type PackSku } from "../services/packs";
-import { formatInr } from "./pricing";
+import { boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay } from "./pricing";
 
 const ROOT = resolve(__dirname, "../../prerendered");
 
@@ -32,7 +32,9 @@ const PACK_BY_LABEL: Record<string, PackSku> = {
   "Maths + Science Bundle": "pack_bundle",
 };
 const LABELS = Object.keys(PACK_BY_LABEL).map((l) => l.replace(/[+]/g, "\\+")).join("|");
-const AMT = "₹([\\d,]+)";
+// GST-EXCL-1: a price TAG may carry " + GST" (from 5 Nov 2026); the captured group is the WHOLE shown figure, so a snapshot
+// that drops or adds the suffix is a mismatch exactly like a changed number.
+const AMT = "₹([\\d,]+(?: \\+ GST)?)";
 
 function listHtml(dir: string): string[] {
   const out: string[] = [];
@@ -57,15 +59,17 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
       found.push({ file, product: product(m as RegExpExecArray), shown: `₹${m[m.length - 1]}`, expected: exp ?? "(unquotable)" });
     }
   };
-  const packExp = (label: string) => formatInr(PACK_PRICE_INR[PACK_BY_LABEL[label]]);
+  // GST-EXCL-1 (owner scope, 4 Nov 18:23 IST): a TAG is "₹49 + GST" from the cut-off; a Buy/Pay BUTTON names the amount CHARGED.
+  const packExp = (label: string) => displayPlusGst(PACK_PRICE_INR[PACK_BY_LABEL[label]], now);
+  const packPay = (label: string) => payDisplay(PACK_PRICE_INR[PACK_BY_LABEL[label]], now);
   // /for-parents Board Pass (ForParentsPage: <span class="lt-fp__price-amt">). PRICE-FIXED-1: there is no Month pass line.
   take(new RegExp(`class="lt-fp__price-amt">${AMT}`), () => "Board Pass", () => model?.boardPassDisplay ?? null);
   // PARENTS-PAY-1: the two "Pay for my child · ₹N" buttons (hero + price section) carry the Board Pass price (boardPassPriceDisplay, read after mount).
-  take(new RegExp(`data-testid="fp-pay-(?:hero|price)"[^>]*>Pay for my child · ${AMT}<`), () => "Board Pass (Pay button)", () => model?.boardPassDisplay ?? null);
+  take(new RegExp(`data-testid="fp-pay-(?:hero|price)"[^>]*>Pay for my child · ${AMT}<`), () => "Board Pass (Pay button)", () => model?.boardPassPayDisplay ?? null);
   // /for-parents packs (ParentPacksSection): name span, then the price span in the same <li>.
   for (const li of html.matchAll(/<li class="lt-fpk__item">([\s\S]*?)<\/li>/g)) {
     const name = /class="lt-fpk__name">([^<]+)/.exec(li[1])?.[1]?.trim() ?? "";
-    const p = new RegExp(`data-testid="fp-packs-price">${AMT}`).exec(li[1]);
+    const p = new RegExp(`data-testid="fp-packs-price">${AMT}<`).exec(li[1]);
     if (!p) continue;
     claimed.add(li.index! + li[0].indexOf(p[0]) + p[0].indexOf("₹"));
     found.push({ file, product: name, shown: `₹${p[1]}`, expected: PACK_BY_LABEL[name] ? packExp(name) : "(unknown pack label)" });
@@ -79,7 +83,7 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   take(new RegExp(`(?:>|\\. |^)(${LABELS}) · ${AMT}<`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`(${LABELS}) ${AMT}(?: ·|\\.)`), (m) => m[1], (m) => packExp(m[1]));
   // BYTE-CBQ-1: the one-tap "Buy Maths CBQ · ₹199" buttons (hub hero + every CBQ chapter page) and the hub hero's price line.
-  take(new RegExp(`Buy (Maths|Science) CBQ · ${AMT}<`), (m) => `${m[1]} CBQ Pack (one-tap button)`, (m) => packExp(`${m[1]} CBQ Pack`));
+  take(new RegExp(`Buy (Maths|Science) CBQ · ${AMT}<`), (m) => `${m[1]} CBQ Pack (one-tap button)`, (m) => packPay(`${m[1]} CBQ Pack`));
   take(new RegExp(`CBQ Pack ${AMT} per subject`), () => "CBQ Pack (hub hero price line)", () => packExp("Maths CBQ Pack"));
   take(new RegExp(`One-time ${AMT} per pack`), () => "CBQ Pack (one-time line)", () => packExp("Maths CBQ Pack"));
 
@@ -146,9 +150,18 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
   // pass) legitimately differ from the snapshot (that is what the 2026-11-18 MUTATION PROOF below pins), but
   // pack and bundle prices do not move with the clock, so those are still asserted exactly. At the real clock
   // (every PR run) the assertion is the full, unchanged one.
+  // GST-EXCL-1: pack prices now move ONCE with the clock (the 5 Nov 2026 GST cut-off). Under a shifted clock they are still
+  // asserted EXACTLY, against the live price on the same side of that cut-off as the snapshot was captured (a snapshot that
+  // carries any "+ GST" tag was captured after it). At the real clock the full, unchanged assertion runs.
   it("every saved price equals the live price as of the clock", () => {
-    const msgs = mismatchMessages(scan.found);
-    expect(SHIFTED ? msgs.filter((m) => /Pack|Bundle/.test(m)) : msgs).toEqual([]);
+    if (!SHIFTED) {
+      expect(mismatchMessages(scan.found)).toEqual([]);
+      return;
+    }
+    const capturedAfterCut = scan.found.some((f) => f.shown.endsWith(" + GST"));
+    const side = capturedAfterCut === boardPassGstExclusive(now) ? now : new Date(capturedAfterCut ? GST_EXCLUSIVE_FROM_MS : GST_EXCLUSIVE_FROM_MS - 1);
+    const sided = scanAll(side, predictCbseExamDate("10"));
+    expect(mismatchMessages(sided.found).filter((m) => /Pack|Bundle/.test(m))).toEqual([]);
   });
 
   it("MUTATION PROOF: a stale Board Pass price in a snapshot is caught (PRICE-FIXED-1: the live price no longer moves with the date)", () => {
@@ -156,16 +169,20 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     const pinned = new Date("2026-11-18T10:00:00+05:30");
     const r = scanSnapshot("for-parents.html", stale, pinned, predictCbseExamDate("10"));
     expect(mismatchMessages(r.found)).toEqual([
-      "for-parents.html: snapshot shows ₹2,396 for Board Pass, live price is ₹1,917 — re-capture the prerender (capture job artifact flow)",
+      "for-parents.html: snapshot shows ₹2,396 for Board Pass, live price is ₹1,917 + GST — re-capture the prerender (capture job artifact flow)",
     ]);
     // ...and the live price steps to 2,499 at the founding deadline.
-    expect(parentPriceModel(new Date("2026-11-30T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
-    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹2,499");
+    // ...and the live price steps to "+ GST" at the GST cut-off and to 2,499 at the founding deadline (GST-EXCL-1).
+    expect(parentPriceModel(new Date("2026-11-04T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
+    expect(parentPriceModel(new Date("2026-11-30T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917 + GST");
+    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹2,499 + GST");
+    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassPayDisplay).toBe("₹2,949");
   });
 
   it("MUTATION PROOF: a changed pack price is caught", () => {
     const html = `<li class="lt-fpk__item"><span class="lt-fpk__name">Mock Pack</span><span class="lt-fpk__price" data-testid="fp-packs-price">₹${PACK_PRICE_INR.pack_mock + 1}</span></li>`;
-    const r = scanSnapshot("x.html", html, now, predictCbseExamDate("10"));
+    const pre = new Date(GST_EXCLUSIVE_FROM_MS - 1);
+    const r = scanSnapshot("x.html", html, pre, predictCbseExamDate("10"));
     expect(mismatchMessages(r.found)).toEqual([
       `x.html: snapshot shows ₹${PACK_PRICE_INR.pack_mock + 1} for Mock Pack, live price is ₹${PACK_PRICE_INR.pack_mock} — re-capture the prerender (capture job artifact flow)`,
     ]);
@@ -173,9 +190,33 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
 
   it("MUTATION PROOF: a changed band price and a changed hero 'from' price are caught", () => {
     const html = `<a>PDF question banks · from ₹${PACK_PRICE_INR.pack_chapter + 1}</a><li>Mock Pack<span class="lt-fpk-band__price" data-testid="fp-band-price">₹${PACK_PRICE_INR.pack_mock + 1}</span></li>`;
-    const r = scanSnapshot("x.html", html, now, predictCbseExamDate("10"));
+    const r = scanSnapshot("x.html", html, new Date(GST_EXCLUSIVE_FROM_MS - 1), predictCbseExamDate("10"));
     expect(r.unclaimed).toEqual([]);
     expect(mismatchMessages(r.found)).toHaveLength(2);
+  });
+
+  it("GST-EXCL-1 MUTATION PROOF: after the cut-off a tag WITHOUT \"+ GST\" and a Pay button showing the BASE are both caught; the right ones pass", () => {
+    const after = new Date(GST_EXCLUSIVE_FROM_MS + 3_600_000);
+    const board = predictCbseExamDate("10");
+    const stale =
+      `<li class="lt-fpk__item"><span class="lt-fpk__name">Mock Pack</span><span class="lt-fpk__price" data-testid="fp-packs-price">₹${PACK_PRICE_INR.pack_mock}</span></li>` +
+      `<button data-testid="fp-pay-hero">Pay for my child · ₹1,917</button>` +
+      `<a>Buy Maths CBQ · ₹${PACK_PRICE_INR.pack_cbq}</a>`;
+    const bad = scanSnapshot("x.html", stale, after, board);
+    expect(bad.unclaimed).toEqual([]);
+    expect(mismatchMessages(bad.found).sort()).toEqual([
+      `x.html: snapshot shows ₹${PACK_PRICE_INR.pack_mock} for Mock Pack, live price is ₹${PACK_PRICE_INR.pack_mock} + GST — re-capture the prerender (capture job artifact flow)`,
+      "x.html: snapshot shows ₹1,917 for Board Pass (Pay button), live price is ₹2,262 — re-capture the prerender (capture job artifact flow)",
+      `x.html: snapshot shows ₹${PACK_PRICE_INR.pack_cbq} for Maths CBQ Pack (one-tap button), live price is ${payDisplay(PACK_PRICE_INR.pack_cbq, after)} — re-capture the prerender (capture job artifact flow)`,
+    ].sort());
+    const fresh =
+      `<li class="lt-fpk__item"><span class="lt-fpk__name">Mock Pack</span><span class="lt-fpk__price" data-testid="fp-packs-price">₹${PACK_PRICE_INR.pack_mock} + GST</span></li>` +
+      `<button data-testid="fp-pay-hero">Pay for my child · ₹2,262</button>` +
+      `<a>Buy Maths CBQ · ${payDisplay(PACK_PRICE_INR.pack_cbq, after)}</a>`;
+    const good = scanSnapshot("x.html", fresh, after, board);
+    expect(good.unclaimed).toEqual([]);
+    expect(mismatchMessages(good.found)).toEqual([]);
+    expect(good.found).toHaveLength(3);
   });
 
   it("no saved snapshot carries a month-pass line (the month price is hidden: PRICE-FIXED-1)", () => {

@@ -404,7 +404,8 @@ test('founding is dark until payments + parent pay are on, and in-window it send
   day(live.db, 'u1', '2026-11-01', { lastSeenMs: NOW_NOV - 10 * DAY, sections: { pricing: 1 } });
   const r = await live.make().runOnce();
   assert.equal(r.byKind.founding, 1);
-  assert.match(live.calls[0].body.text, /Board Pass: ₹1,917, one payment/);
+  // GST-EXCL-1: NOW_NOV is after the 5 Nov GST cut-off - the price is the base "+ GST" tag.
+  assert.match(live.calls[0].body.text, /Board Pass: ₹1,917 \+ GST, one payment/);
   assert.doesNotMatch(live.calls[0].body.text, /599|999/);
   assert.match(live.calls[0].body.text, /\/pricing/);
   assert.equal(live.db.docs.get('nudgeEmails/u1').founding.status, 'sent');
@@ -872,7 +873,18 @@ test('ONEADAY: a trial email older than 24 h does not block a nudge; the nudge l
   assert.equal(typeof s.db.docs.get('nudgeEmails/u1').lastClaimMs, 'number'); // what the trial emailer's transaction reads
 });
 
-test('SELL-1: d1 and d3 end with one packs line, UTM only, no student data in the link; founding kind unchanged', () => {
+test('GST-EXCL-1: from 00:00 IST 5 Nov 2026 the packs line and the Board Pass line say "+ GST"; before it, unchanged', (t) => {
+  const base = { appUrl: 'https://www.lazytopper.com', unsubscribeUrl: 'https://x/u?t=tok' };
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-11-04T23:59:59+05:30') });
+  assert.ok(buildNudgeEmail('d1', base).text.includes('Want printed practice? Chapter packs from ₹49 → lazytopper.com/pricing'));
+  t.mock.timers.setTime(Date.parse('2026-11-05T00:00:00+05:30'));
+  assert.ok(buildNudgeEmail('d1', base).text.includes('Want printed practice? Chapter packs from ₹49 + GST → lazytopper.com/pricing'));
+});
+
+test('SELL-1: d1 and d3 end with one packs line, UTM only, no student data in the link; founding kind unchanged', (t) => {
+  // GST-EXCL-1: the packs line reads the clock (the "+ GST" tag from 5 Nov 2026) - pin it BEFORE the cut-off here (the
+  // line is then exactly as before); the "+ GST" form is asserted in the GST-EXCL-1 test below.
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-11-04T12:00:00+05:30') });
   const base = { appUrl: 'https://www.lazytopper.com', unsubscribeUrl: 'https://x/u?t=tok' };
   const d1 = buildNudgeEmail('d1', base);
   const d3 = buildNudgeEmail('d3', { ...base, counts: { checks: 0, tests: 0, practiceSets: 0 } });

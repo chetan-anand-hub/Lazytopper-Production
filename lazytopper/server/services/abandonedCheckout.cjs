@@ -277,12 +277,31 @@ function orderAmountInr(order) {
   return Number.isInteger(p) && p > 0 ? p / 100 : null;
 }
 
-/** The price line, from the order's own amount; null (no line) when the order has no usable amount. PURE. */
-function priceLine(product, order) {
+/**
+ * GST-EXCL-1 - the order's price as the email states it. An order created at/after the GST cut-off stored its breakup:
+ * "₹1,917 + ₹345 GST (18%) = ₹2,262". An all-in order created BEFORE it, emailed AFTER it, would understate what "Finish
+ * paying" now charges (a new order is base + GST), so its amount is shown as the base it was with GST added at `nowMs`.
+ * Before the cut-off: the plain rupee amount, byte-identical to before. Null when the order has no usable amount. PURE.
+ */
+function orderPriceText(order, nowMs) {
   const inr = orderAmountInr(order);
   if (inr === null) return null;
-  if (product.kind === BOARD_PASS) return `Board Pass: ${rupee(inr)}, one payment till your boards.`;
-  return `${rupee(inr)}, one-time payment. It never renews.`;
+  const stored = pricing.orderGstBreakdown(order);
+  if (stored) {
+    const credit = Number.isInteger(order.packCreditInr) && order.packCreditInr > 0 ? order.packCreditInr : 0;
+    return credit > 0 ? `${stored}, less pack credit ${rupee(credit)}: ${rupee(inr)}` : stored;
+  }
+  const now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const later = pricing.gstBreakdownFor(inr, now);
+  return later || rupee(inr);
+}
+
+/** The price line, from the order's own amount; null (no line) when the order has no usable amount. PURE. */
+function priceLine(product, order, nowMs) {
+  const text = orderPriceText(order, nowMs);
+  if (text === null) return null;
+  if (product.kind === BOARD_PASS) return `Board Pass: ${text}, one payment till your boards.`;
+  return `${text}, one-time payment. It never renews.`;
 }
 
 /** A payment was tried and failed (Razorpay's signed payment.failed left `lastFailure`, PAY-RESCUE-1). PURE. */
@@ -302,12 +321,12 @@ function productName(product) {
  * sells passes, not packs); otherwise it is a WhatsApp share (no number) asking a parent to help.
  * @returns {{subject:string, text:string, html:string, links:{finish:string, parent:string}} | null}
  */
-function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubscribeUrl, parentPayLive }) {
+function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubscribeUrl, parentPayLive, nowMs }) {
   const name = productName(product);
   if (!name) return null;
   const finish = finishPayingUrl(appUrl, product);
-  const inr = orderAmountInr(order);
-  const price = inr === null ? '' : product.kind === BOARD_PASS ? ` (${rupee(inr)}, one payment till my boards)` : ` (${rupee(inr)}, one-time)`;
+  const priceText = orderPriceText(order, nowMs);
+  const price = priceText === null ? '' : product.kind === BOARD_PASS ? ` (${priceText}, one payment till my boards)` : ` (${priceText}, one-time)`;
   const ask =
     product.kind === BOARD_PASS
       ? `Hi, I want to get the LazyTopper Board Pass for my board exam prep${price}. Can you help me pay for it? ${appUrl}/pricing`
@@ -325,7 +344,7 @@ function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubs
   ];
   if (hadFailedAttempt(order)) paras.push({ t: RETRY_LINE });
   paras.push({ t: benefitLine(product) });
-  const pl = priceLine(product, order);
+  const pl = priceLine(product, order, nowMs);
   if (pl) paras.push({ t: pl });
   if (marksLine) paras.push({ t: marksLine });
   const buttons = [

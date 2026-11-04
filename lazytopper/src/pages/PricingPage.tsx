@@ -13,9 +13,9 @@ import {
 } from "../services/freeCheckClient";
 import {
   boardPassDeadlineLine,
+  formatInr,
   boardPassFoundingLabel,
   boardPassPriceDisplay,
-  formatInr,
   FOUNDING_LOCK_COPY,
   FOUNDING_OFFER_BADGE,
   FOUNDING_OFFER_LIST_FROM_LABEL,
@@ -133,7 +133,7 @@ const FAQ_ITEMS = [
   {
     // PRICE-FIXED-1 (owner, 21:12 IST 31 Oct 2026): both figures imported from the pricing config (never typed); true on every date.
     q: "What happens when the founding offer ends?",
-    a: `From ${FOUNDING_OFFER_LIST_FROM_LABEL} the Board Pass is ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)}. A pass you have already bought is never re-priced.`,
+    a: `From ${FOUNDING_OFFER_LIST_FROM_LABEL} the Board Pass is ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} + GST. A pass you have already bought is never re-priced.`,
   },
   {
     q: "Are there any usage limits?",

@@ -11,6 +11,8 @@ vi.mock("../../hooks/useSubscription", () => ({
 
 import { MockViewGate } from "./MockViewGate";
 import { SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPriceLabel } from "../../services/packs";
 
 const gate = (path: string) => (
   <MemoryRouter initialEntries={[path]}>
@@ -45,7 +47,7 @@ describe.each([
   it("Board Pass price first (no month pass: hidden), Mock Pack link last on a Full Mock", async () => {
     trialExpired = expired;
     const ask = await wallAt("/full-mock/10/maths");
-    const pack = await screen.findByRole("link", { name: "Mock Pack ₹99 →" }, SLOW);
+    const pack = await screen.findByRole("link", { name: `Mock Pack ${packPriceLabel("pack_mock")} →` }, SLOW);
     const links = Array.from(ask.querySelectorAll("a"));
     expect(links[0].getAttribute("data-testid")).toBe("paper-cap-boardpass");
     expect(links[0].textContent).toMatch(/^Board Pass/);
@@ -59,10 +61,10 @@ describe.each([
   it("Chapter Test -> Chapter Pack of that chapter; other route -> plain /packs", async () => {
     trialExpired = expired;
     await wallAt("/chapter-test/10/maths/triangles");
-    expect((await screen.findByRole("link", { name: "Chapter Pack ₹49 →" }, SLOW)).getAttribute("href")).toBe("/pricing?chapter=triangles#packs");
+    expect((await screen.findByRole("link", { name: `Chapter Pack ${packPriceLabel("pack_chapter")} →` }, SLOW)).getAttribute("href")).toBe("/pricing?chapter=triangles#packs");
     cleanup();
     localStorage.clear();
     await wallAt("/mock-paper/some-paper");
-    expect((await screen.findByRole("link", { name: "PDF packs from ₹49 →" }, SLOW)).getAttribute("href")).toBe("/pricing#packs");
+    expect((await screen.findByRole("link", { name: `PDF packs from ${packPriceLabel("pack_chapter")} →` }, SLOW)).getAttribute("href")).toBe("/pricing#packs");
   });
 });

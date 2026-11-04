@@ -21,6 +21,7 @@ import {
   PARENT_VIEW_ENDPOINT,
   postJson,
   readPrices,
+  readBoardPassGst,
   type MintedParentLink,
   type ParentBuyOutcome,
   type ParentLinkReason,
@@ -34,6 +35,9 @@ export interface ParentPackRef {
   sku: PackSku;
   target: string;
   priceInr: number;
+  /** GST-EXCL-1: what the server CHARGES (base + 18% GST) and the GST, from 5 Nov 2026; absent before. */
+  totalInr?: number;
+  gstInr?: number;
 }
 
 /** The pack a child asks a parent to pay for (the share button's product). `name` is for display only. */
@@ -54,7 +58,13 @@ export function readPack(v: unknown): ParentPackRef | undefined {
   const o = v as Record<string, unknown>;
   if (typeof o.sku !== "string" || !PARENT_PACK_SKUS.includes(o.sku)) return undefined;
   if (typeof o.target !== "string" || typeof o.priceInr !== "number" || !Number.isFinite(o.priceInr) || o.priceInr <= 0) return undefined;
-  return { sku: o.sku as PackSku, target: o.target, priceInr: o.priceInr };
+  // GST-EXCL-1: from the cut-off the server adds what it CHARGES (base + GST) and the GST; kept only when they add up.
+  const gst =
+    typeof o.totalInr === "number" && typeof o.gstInr === "number" && Number.isInteger(o.totalInr) && Number.isInteger(o.gstInr) &&
+    o.gstInr > 0 && o.priceInr + o.gstInr === o.totalInr
+      ? { totalInr: o.totalInr, gstInr: o.gstInr }
+      : {};
+  return { sku: o.sku as PackSku, target: o.target, priceInr: o.priceInr, ...gst };
 }
 
 /**
@@ -88,6 +98,7 @@ export async function viewParentLinkWithPack(token: string): Promise<ParentLinkV
     prices: readPrices(json.prices),
     expiresAt: typeof json.expiresAt === "string" ? json.expiresAt : "",
     ...(pack ? { pack } : {}),
+    ...(readBoardPassGst(json.boardPassGst) ? { boardPassGst: readBoardPassGst(json.boardPassGst) } : {}),
   };
 }
 

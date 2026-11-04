@@ -27,7 +27,8 @@ import {
   isValidPackTarget,
   packDescription,
   packIdOf,
-  packPriceLabel,
+  packGstBreakdown,
+  packPayLabel,
   packCheckoutDescription,
   subjectOfChapter,
   type MyPacks,
@@ -653,15 +654,16 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const confirming = ready && mine_ && buy.phase === "confirming";
     const dismissed = mine_ && buy.phase === "dismissed";
     const blocked = ready && otherBusy(key);
-    let label = `Buy for ${packPriceLabel(sku)}`;
+    // GST-EXCL-1: every Buy/Pay label names the amount CHARGED (base + GST from 5 Nov 2026).
+    let label = `Buy for ${packPayLabel(sku)}`;
     if (!enabled) label = "Opens soon";
     else if (!ready) label = CHOOSE_CHAPTER_FIRST;
     else if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
     else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
-    else if (!signedIn && !authLoading) label = `Buy · ${packPriceLabel(sku)}`;
+    else if (!signedIn && !authLoading) label = `Buy · ${packPayLabel(sku)}`;
     // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
-    else if (dismissed) label = `Pay ${packPriceLabel(sku)}`;
+    else if (dismissed) label = `Pay ${packPayLabel(sku)}`;
     const showSigninNote = enabled && ready && !isOwned && !busy && !blocked && !signedIn && !authLoading;
     const off = !enabled || !ready || isOwned || busy || confirming || blocked;
     return (
@@ -847,7 +849,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               ...(who.target ? { target: who.target } : {}),
               label: packDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
               description: packCheckoutDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
-              priceDisplay: packPriceLabel(who.sku),
+              priceDisplay: packPayLabel(who.sku),
+              priceBreakdown: packGstBreakdown(who.sku),
             }}
             {...(checkoutAudience ? { audience: checkoutAudience } : {})}
             signedIn={signedIn}

@@ -26,6 +26,7 @@ const {
 const { senderOnVerifiedDomain } = require('./nudgeEmail.cjs');
 const { isPackProduct, validateTarget } = require('./packProducts.cjs');
 const { maskIndianMobile, maskEmail, GUEST_PAYER } = require('./guestPay.cjs');
+const { GST_RATE_PERCENT } = require('./passPricing.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const DEFAULT_FROM = 'LazyTopper <hello@mail.lazytopper.com>';
@@ -81,6 +82,20 @@ function itemLabel(passType, packTarget) {
   }
 }
 
+/**
+ * GST-EXCL-1 - the receipt's GST line from the order's STORED breakup: "₹1,917 + ₹345 GST (18%) = ₹2,262 paid", or with a pack
+ * credit "... = ₹2,262, less pack credit ₹199: ₹2,063 paid". Null when the order carries no breakup or it does not add up.
+ */
+function receiptGstLine(gst, amountPaise) {
+  if (!gst || !Number.isInteger(gst.baseInr) || !Number.isInteger(gst.gstInr) || !(gst.gstInr > 0)) return null;
+  const total = gst.baseInr + gst.gstInr;
+  const paid = amountPaise / 100;
+  const credit = Number.isInteger(gst.packCreditInr) && gst.packCreditInr > 0 ? gst.packCreditInr : 0;
+  if (total - credit !== paid) return null;
+  const head = `${formatInr(gst.baseInr)} + ${formatInr(gst.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(total)}`;
+  return credit > 0 ? `${head}, less pack credit ${formatInr(credit)}: ${formatInr(paid)} paid` : `${head} paid`;
+}
+
 function formatInr(inr) {
   return `₹${Number(inr).toLocaleString('en-IN')}`;
 }
@@ -92,12 +107,15 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst }) {
   const item = itemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   const isPack = isPackProduct(passType);
   const amount = formatInr(amountPaise / 100);
   const date = formatIstDay(paidAtMs);
+  // GST-EXCL-1: an order created at/after 5 Nov 2026 stored its breakup; the receipt shows it ("₹1,917 + ₹345 GST (18%) =
+  // ₹2,262 paid"; a credited Board Pass adds "less pack credit"). An older order (all-in) gets no GST line: byte-identical.
+  const gstLine = receiptGstLine(gst, amountPaise);
   const where = isPack ? '/packs#my-packs' : '/';
   const subject = `Payment received: ${item} (${amount})`;
 
@@ -132,13 +150,13 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   const supportText = `Need help? Reply to this email, write to ${SUPPORT_EMAIL}, or message us on WhatsApp: ${SUPPORT_WHATSAPP_DISPLAY} (${SUPPORT_WHATSAPP_URL}).`;
   const text = [
     'Thank you. We have received your payment.',
-    `Item: ${item}\nAmount: ${amount}\nRazorpay payment ID: ${paymentId}\nDate: ${date}`,
+    `Item: ${item}\nAmount: ${amount}${gstLine ? `\nGST: ${gstLine}` : ''}\nRazorpay payment ID: ${paymentId}\nDate: ${date}`,
     `How to get it\n${howText}`,
     supportText,
     'LazyTopper',
   ].join('\n\n');
   const html = `<p>Thank you. We have received your payment.</p>
-<p>Item: ${escapeHtml(item)}<br>Amount: ${escapeHtml(amount)}<br>Razorpay payment ID: ${escapeHtml(paymentId)}<br>Date: ${escapeHtml(date)}</p>
+<p>Item: ${escapeHtml(item)}<br>Amount: ${escapeHtml(amount)}${gstLine ? `<br>GST: ${escapeHtml(gstLine)}` : ''}<br>Razorpay payment ID: ${escapeHtml(paymentId)}<br>Date: ${escapeHtml(date)}</p>
 <p><strong>How to get it</strong></p>
 ${howHtml}
 <p>Need help? Reply to this email, write to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>, or message us on WhatsApp: <a href="${SUPPORT_WHATSAPP_URL}">${SUPPORT_WHATSAPP_DISPLAY}</a>.</p>
@@ -283,6 +301,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       guestPhoneMasked: guest ? maskIndianMobile(order.guestPhone) || null : null,
       appUrl: config.appUrl,
       payer: typeof order.payer === 'string' ? order.payer : null,
+      gst: { baseInr: order.baseInr, gstInr: order.gstInr, packCreditInr: order.packCreditInr },
       // CHECKOUT-WHO-1: a recipient order names the masked phone and/or email to sign in with.
       ...(who ? { recipient: { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskEmail(order.guestEmail) || null } } : {}),
     });

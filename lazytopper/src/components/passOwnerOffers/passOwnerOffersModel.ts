@@ -17,7 +17,7 @@ import {
   PACK_SUBJECTS,
   isAlreadyOwned,
   isValidPackTarget,
-  packPriceLabel,
+  packPayLabel,
   subjectLabel,
   subjectOfChapter,
   type PackSku,
@@ -72,9 +72,9 @@ function mockLead(s: PackSubject): string {
 const MOCK_BUNDLE_LEAD = `Sit the next one on paper: the ${BUNDLE_NAME} has ${BUNDLE_MOCKS} full board mocks and all ${BUNDLE_CHAPTERS} chapters in print —`;
 
 function cbqItem(s: PackSubject): PassOfferItem {
-  return { sku: "pack_cbq", target: s, label: `${subjectLabel(s)} ${packPriceLabel("pack_cbq")}` };
+  return { sku: "pack_cbq", target: s, label: `${subjectLabel(s)} ${packPayLabel("pack_cbq")}` };
 }
-const BUNDLE_ITEM: PassOfferItem = { sku: "pack_bundle", target: undefined, label: `${BUNDLE_NAME} ${packPriceLabel("pack_bundle")}` };
+const BUNDLE_ITEM: PassOfferItem = { sku: "pack_bundle", target: undefined, label: `${BUNDLE_NAME} ${packPayLabel("pack_bundle")}` };
 
 function subjectOf(hint: PassOfferHint): PackSubject | null {
   if (hint.subject === "maths" || hint.subject === "science") return hint.subject;
@@ -105,7 +105,7 @@ export function pickPassOwnerOffer(placement: PassOfferPlacement, hint: PassOffe
       const s = subjectOf(hint);
       if (s) {
         if (isAlreadyOwned(owned, "pack_mock", s)) return null;
-        return { placement, lead: mockLead(s), items: [{ sku: "pack_mock", target: s, label: `${subjectLabel(s)} Mock Pack ${packPriceLabel("pack_mock")}` }] };
+        return { placement, lead: mockLead(s), items: [{ sku: "pack_mock", target: s, label: `${subjectLabel(s)} Mock Pack ${packPayLabel("pack_mock")}` }] };
       }
       return isAlreadyOwned(owned, "pack_bundle") ? null : { placement, lead: MOCK_BUNDLE_LEAD, items: [BUNDLE_ITEM] };
     }
@@ -117,12 +117,12 @@ export function pickPassOwnerOffer(placement: PassOfferPlacement, hint: PassOffe
         return {
           placement,
           lead: chapterLead(hint.chapterName),
-          items: [{ sku: "pack_chapter", target: slug, label: `Chapter Pack ${packPriceLabel("pack_chapter")}` }],
+          items: [{ sku: "pack_chapter", target: slug, label: `Chapter Pack ${packPayLabel("pack_chapter")}` }],
         };
       }
       const s = subjectOf(hint);
       if (!s || isAlreadyOwned(owned, "pack_subject", s)) return null;
-      return { placement, lead: subjectLead(s), items: [{ sku: "pack_subject", target: s, label: `${subjectLabel(s)} Subject Pack ${packPriceLabel("pack_subject")}` }] };
+      return { placement, lead: subjectLead(s), items: [{ sku: "pack_subject", target: s, label: `${subjectLabel(s)} Subject Pack ${packPayLabel("pack_subject")}` }] };
     }
   }
 }

@@ -43,6 +43,8 @@ import CbqHubPage from "../../pages/cbq/CbqHubPage";
 import PackSampleLink from "../../components/packs/PackSampleLink";
 import { PACK_CHAPTER_SLUGS, PACK_PRICE_INR, PACK_SKUS, subjectOfChapter } from "../../services/packs";
 import { PACK_SAMPLES, packSampleFor, packSampleHref, sampleLine, sampleMeta, skusWithoutSample } from "./packSamples";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPriceLabel } from "../../services/packs";
 
 Element.prototype.scrollIntoView = vi.fn();
 const SAMPLES_DIR = path.resolve(__dirname, "../../../public/samples");
@@ -87,11 +89,11 @@ describe("the sample catalogue", () => {
   });
 
   it("the last line is the pack's name, its catalogue price and the buy address", () => {
-    expect(sampleLine("pack_chapter", "maths")).toBe(`Chapter Pack ₹${PACK_PRICE_INR.pack_chapter} · Get the full pack at lazytopper.com/packs`);
+    expect(sampleLine("pack_chapter", "maths")).toBe(`Chapter Pack ${packPriceLabel("pack_chapter")} · Get the full pack at lazytopper.com/packs`);
     expect(sampleLine("pack_mock", "science")).toContain(`₹${PACK_PRICE_INR.pack_mock}`);
     expect(sampleLine("pack_subject", "maths")).toContain(`₹${PACK_PRICE_INR.pack_subject}`);
-    expect(sampleLine("pack_bundle", "all")).toBe(`Maths + Science Bundle ₹${PACK_PRICE_INR.pack_bundle} · Get the full pack at lazytopper.com/packs`);
-    expect(sampleLine("pack_cbq", "science")).toBe(`Science CBQ Pack ₹${PACK_PRICE_INR.pack_cbq} · Get the full pack at lazytopper.com/packs`);
+    expect(sampleLine("pack_bundle", "all")).toBe(`Maths + Science Bundle ${packPriceLabel("pack_bundle")} · Get the full pack at lazytopper.com/packs`);
+    expect(sampleLine("pack_cbq", "science")).toBe(`Science CBQ Pack ${packPriceLabel("pack_cbq")} · Get the full pack at lazytopper.com/packs`);
     for (const s of PACK_SAMPLES) expect(sampleLine(s.sku, s.target)).toMatch(/lazytopper\.com\/packs$/);
   });
 

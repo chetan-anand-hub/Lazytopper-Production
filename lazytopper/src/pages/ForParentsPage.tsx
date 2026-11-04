@@ -13,7 +13,7 @@ import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
 import { BOARD_PASS_BUY_PATH } from "../components/pricing/boardPassBuy";
 import { withParentFlag } from "../lib/parentReturn";
 import FounderBadge from "../components/brand/FounderBadge";
-import { BOARD_PASS_NAME, boardPassPriceDisplay, formatInr, tillBoardsPriceInr, tillBoardsQuote } from "../config/pricing";
+import { BOARD_PASS_NAME, boardPassGstExclusive, boardPassPayDisplay, formatInr, tillBoardsPriceInr, tillBoardsQuote } from "../config/pricing";
 import { WHATSAPP_URL } from "../config/socialProfiles";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import ParentPacksSection, { ParentPacksBand, ParentPacksHeroLink } from "../components/parents/ParentPacksSection";
@@ -185,7 +185,10 @@ function daysToBoards(now: Date, boardIso: string): number | null {
 }
 
 export interface ParentPriceModel {
+  /** The price TAG ("₹1,917", or "₹1,917 + GST" from 5 Nov 2026). */
   boardPassDisplay: string;
+  /** GST-EXCL-1: the amount CHARGED - what the Pay buttons name ("₹2,262" from 5 Nov 2026). */
+  boardPassPayDisplay: string;
   /** "≈ ₹N a day till the boards", or null when the date or price cannot be trusted. */
   perDayLine: string | null;
   untilLabel: string;
@@ -198,9 +201,13 @@ export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel 
   if (!quote) return null;
   const days = daysToBoards(now, boardIso);
   const perDay = days ? Math.ceil(quote.priceInr / days) : NaN;
+  // GST-EXCL-1 (owner, 4 Nov 18:20 IST): from the GST cut-off the per-day line is REMOVED (never computed from a base price
+  // that understates the charge). Before it, unchanged.
+  const gst = boardPassGstExclusive(now);
   return {
     boardPassDisplay: quote.priceDisplay,
-    perDayLine: Number.isFinite(perDay) && perDay > 0 ? `≈ ${formatInr(perDay)} a day till the boards` : null,
+    boardPassPayDisplay: quote.totalDisplay,
+    perDayLine: !gst && Number.isFinite(perDay) && perDay > 0 ? `≈ ${formatInr(perDay)} a day till the boards` : null,
     untilLabel: quote.untilLabel,
   };
 }
@@ -221,12 +228,12 @@ function useMounted(): boolean {
   return mounted;
 }
 
-/** "Pay for my child · ₹1,917": the figure is read AFTER mount (founding/regular logic of /pricing), so the prerender has none. */
+/** "Pay for my child · ₹1,917" (GST-EXCL-1: the amount CHARGED, ₹2,262 from 5 Nov 2026): the figure is read AFTER mount (founding/regular logic of /pricing), so the prerender has none. */
 function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
   const mounted = useMounted();
   return (
     <button type="button" className="lt-fp__cta lt-fp__cta--primary" onClick={() => onPay(placement)} aria-haspopup="dialog" data-testid={`fp-pay-${placement}`}>
-      {mounted ? `${PAY_LABEL} \u00b7 ${boardPassPriceDisplay()}` : PAY_LABEL}
+      {mounted ? `${PAY_LABEL} \u00b7 ${boardPassPayDisplay()}` : PAY_LABEL}
     </button>
   );
 }

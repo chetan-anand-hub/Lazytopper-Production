@@ -36,7 +36,9 @@ vi.mock("../analytics/analytics", async (importOriginal) => {
 
 import HighlyProbableQuestions from "./HighlyProbableQuestions";
 import { resetOwnedPacksCache } from "../components/packs/useOwnedPacks";
-import { PACK_PRICE_INR, packIdOf } from "../services/packs";
+import { packIdOf } from "../services/packs";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPayLabel } from "../services/packs";
 
 function renderAt(path: string) {
   return render(
@@ -78,7 +80,7 @@ describe("Important Questions page buying block", () => {
       expect(b.querySelector("[data-testid='offers-pay']")).toHaveAttribute("href", "/pricing?buy=board_pass");
       expect(rowIds(b)).toEqual(["offers-row-pack_bundle", "offers-row-pack_subject", "offers-row-pack_cbq", "offers-row-pack_mock"]);
       expect(b.querySelector("[data-testid='offers-buy-pack_cbq']")).toHaveAttribute("href", "/packs?buy=pack_cbq&t=science");
-      expect(b.querySelector("[data-testid='offers-buy-pack_bundle']")).toHaveTextContent(`₹${PACK_PRICE_INR.pack_bundle}`);
+      expect(b.querySelector("[data-testid='offers-buy-pack_bundle']")).toHaveTextContent(packPayLabel("pack_bundle"));
     }
     // the block sits before the "Question stacks" heading, and the end block after it
     const heading = screen.getByText("Question stacks");

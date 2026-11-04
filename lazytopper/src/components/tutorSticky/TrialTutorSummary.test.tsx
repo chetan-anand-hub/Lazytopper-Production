@@ -78,10 +78,11 @@ describe("TrialTutorSummary", () => {
     const line = await screen.findByTestId("trial-tutor-summary-line");
     expect(line.textContent).toBe("During your trial the tutor helped you with 3 questions across 2 chapters.");
     const plans = screen.getByTestId("trial-tutor-summary-plans");
-    expect(plans.textContent).toMatch(/^Board Pass ₹[\d,]+ →$/);
+    // GST-EXCL-1: day 6 (6 Nov) is after the 5 Nov 2026 GST cut-off - the tag reads "+ GST".
+    expect(plans.textContent).toMatch(/^Board Pass ₹[\d,]+ \+ GST →$/);
     expect(plans.getAttribute("href")).toBe("/pricing?source=tutor-trial-summary");
-    expect(screen.getByText(/Founding member offer ends 30 November\. From 1 December: ₹2,499\./)).toBeTruthy();
-    expect(screen.getByText(/₹1,917 once, till your boards/)).toBeTruthy();
+    expect(screen.getByText(/Founding member offer ends 30 November\. From 1 December: ₹2,499 \+ GST\./)).toBeTruthy();
+    expect(screen.getByText(/₹1,917 \+ GST once, till your boards/)).toBeTruthy();
     expect(track).toHaveBeenCalledWith("trial_summary_shown", { surface: "home" }, expect.any(String));
     fireEvent.click(plans);
     expect(track).toHaveBeenCalledWith("trial_summary_tap", { surface: "home", cta: "plans" });

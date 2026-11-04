@@ -20,12 +20,12 @@
  */
 import {
   FOUNDING_OFFER_CLOSES_AT_MS,
+  displayPlusGst,
   FOUNDING_OFFER_LAST_DAY_LABEL,
   FOUNDING_OFFER_LIST_FROM_LABEL,
   TILL_BOARDS_AFTER_FOUNDING_INR,
   TILL_BOARDS_FOUNDING_INR,
   foundingOfferOpen,
-  formatInr,
 } from "../../config/pricing";
 import { trialEndFeedbackKey, type TrialEndFeedbackInput } from "../feedback/useTrialEndFeedback";
 import { trialAskRouteAllowed } from "./trialAskRoutes";
@@ -155,7 +155,8 @@ function shortDate(label: string): string {
  */
 export function trialEndFoundingLine(nowMs: number): string | null {
   if (!foundingOfferOpen(nowMs)) return null;
-  return `Founding price ${formatInr(TILL_BOARDS_FOUNDING_INR)} till ${shortDate(FOUNDING_OFFER_LAST_DAY_LABEL)} \u2014 ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} from ${shortDate(FOUNDING_OFFER_LIST_FROM_LABEL)}`;
+  // GST-EXCL-1: "Founding price ₹1,917 + GST till 30 Nov — ₹2,499 + GST from 1 Dec" from 00:00 IST 5 Nov 2026.
+  return `Founding price ${displayPlusGst(TILL_BOARDS_FOUNDING_INR, nowMs)} till ${shortDate(FOUNDING_OFFER_LAST_DAY_LABEL)} \u2014 ${displayPlusGst(TILL_BOARDS_AFTER_FOUNDING_INR, nowMs)} from ${shortDate(FOUNDING_OFFER_LIST_FROM_LABEL)}`;
 }
 
 /**

@@ -66,6 +66,9 @@ export interface PurchaseItem extends WhoFields {
   packTarget: string | null;
   kind: "premium" | "pack" | "topup" | "other";
   amountInr: number | null;
+  /** GST-EXCL-1: present for an order created at/after 5 Nov 2026 (base + GST = amountInr before any pack credit). */
+  baseInr?: number;
+  gstInr?: number;
   channel: "student" | "parent";
   isAdminAccount: boolean;
 }
@@ -80,6 +83,9 @@ export interface AbandonedItem {
   packTarget: string | null;
   kind: "premium" | "pack" | "topup" | "other";
   amountInr: number | null;
+  /** GST-EXCL-1: present for an order created at/after 5 Nov 2026 (base + GST = amountInr before any pack credit). */
+  baseInr?: number;
+  gstInr?: number;
   channel: "student" | "parent";
   isAdminAccount: boolean;
   /** PAY-RESCUE-1: absent on an older server. True only when Razorpay's `payment.failed` left a note on the order. */
@@ -131,7 +137,7 @@ export function GuestAttentionList({ attention }: { attention: PurchasesResponse
               <span className="pu-date">{u.state}</span>
               <span className="pu-who">{u.phoneMasked || u.recipient?.emailMasked || "number erased"}</span>
               <span className="pu-product">{productLabel(u)}</span>
-              <span className="pu-amount">{inr(u.amountInr)}</span>
+              <span className="pu-amount">{amountWithGst(u)}</span>
               <span className="pu-channel sa-muted">{u.paymentId || ""}</span>
               <span className="pu-reason sa-muted">{u.reason || ""}</span>
               <WhoRow w={u} id={u.orderId} />
@@ -152,6 +158,9 @@ export interface UnclaimedGuestItem extends WhoFields {
   packTarget: string | null;
   kind: "premium" | "pack" | "topup" | "other";
   amountInr: number | null;
+  /** GST-EXCL-1: present for an order created at/after 5 Nov 2026 (base + GST = amountInr before any pack credit). */
+  baseInr?: number;
+  gstInr?: number;
   paidAtMs: number | null;
   ageHours: number | null;
 }
@@ -181,7 +190,7 @@ export function UnclaimedGuestList({ unclaimed }: { unclaimed: PurchasesResponse
               <span className="pu-date">{ageLabel(u.ageHours)}</span>
               <span className="pu-who">{u.phoneMasked || u.recipient?.emailMasked || ""}</span>
               <span className="pu-product">{productLabel(u)}</span>
-              <span className="pu-amount">{inr(u.amountInr)}</span>
+              <span className="pu-amount">{amountWithGst(u)}</span>
               <span className="pu-channel sa-muted">{u.paymentId || ""}</span>
               <WhoRow w={u} id={u.orderId} />
             </li>
@@ -227,6 +236,11 @@ export function productLabel(p: Pick<PurchaseItem, "passType" | "packTarget">): 
 }
 
 const inr = (n: number | null) => (n === null ? "—" : `₹${n.toLocaleString("en-IN")}`);
+/** GST-EXCL-1: the total charged, with "(₹1,917 base + ₹345 GST)" for an order that stored its breakup. */
+const amountWithGst = (r: { amountInr: number | null; baseInr?: number; gstInr?: number }): string =>
+  typeof r.baseInr === "number" && typeof r.gstInr === "number" && r.gstInr > 0
+    ? `${inr(r.amountInr)} (${inr(r.baseInr)} base + ${inr(r.gstInr)} GST)`
+    : inr(r.amountInr);
 const line = (w: WindowTotals) =>
   `Premium ${w.premium.count} (${inr(w.premium.inr)}) · Packs ${w.packs.count} (${inr(w.packs.inr)})` +
   (w.topups.count ? ` · Top-ups ${w.topups.count} (${inr(w.topups.inr)})` : "");
@@ -261,7 +275,7 @@ export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["aba
               <span className="pu-date">{formatIstDateTime(a.createdAtMs)}</span>
               <span className="pu-who">{a.email || a.name || a.uid}</span>
               <span className="pu-product">{productLabel(a)}</span>
-              <span className="pu-amount">{inr(a.amountInr)}</span>
+              <span className="pu-amount">{amountWithGst(a)}</span>
               <span className="pu-channel sa-muted">{a.channel === "parent" ? "Parent pay link" : "Student checkout"}</span>
               <span className="pu-flag">
                 {a.isAdminAccount && (
@@ -335,7 +349,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
                   <span className="pu-date">{formatIstDateTime(p.paidAtMs)}</span>
                   <span className="pu-who">{p.email || p.name || p.uid}</span>
                   <span className="pu-product">{productLabel(p)}</span>
-                  <span className="pu-amount">{inr(p.amountInr)}</span>
+                  <span className="pu-amount">{amountWithGst(p)}</span>
                   <span className="pu-channel sa-muted">{p.channel === "parent" ? "Parent pay link" : "Student checkout"}</span>
                   <span className="pu-flag">
                     {p.isAdminAccount && (

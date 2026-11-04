@@ -70,6 +70,8 @@ const {
   isPaymentsEnabled,
   isCheckoutSignatureValid,
   quotePass,
+  tableQuote,
+  gstOrderFields,
   readRawBody,
   paymentMismatch,
   PAY_ORDERS_COLLECTION,
@@ -449,8 +451,7 @@ function createGuestPayRoutes(deps = {}) {
     let quote;
     try {
       if (isPack) {
-        const price = PACK_PRODUCTS[sku].priceInr;
-        quote = { pricePaidInr: price, amountPaise: price * 100, offerKey: null };
+        quote = tableQuote(PACK_PRODUCTS[sku].priceInr, now());
       } else {
         quote = quotePass({}, GUEST_PASS_SKU, now(), { foundingOfferOpen });
       }
@@ -508,6 +509,7 @@ function createGuestPayRoutes(deps = {}) {
         passType: sku,
         ...(isPack ? { packTarget } : {}),
         amountPaise: quote.amountPaise,
+        ...gstOrderFields(quote),
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -620,8 +622,7 @@ function createGuestPayRoutes(deps = {}) {
     let quote;
     try {
       if (isPack) {
-        const price = PACK_PRODUCTS[sku].priceInr;
-        quote = { pricePaidInr: price, amountPaise: price * 100, offerKey: null };
+        quote = tableQuote(PACK_PRODUCTS[sku].priceInr, now());
       } else {
         quote = quotePass({}, GUEST_PASS_SKU, now(), { foundingOfferOpen });
       }
@@ -685,6 +686,7 @@ function createGuestPayRoutes(deps = {}) {
       passType: sku,
       ...(isPack ? { packTarget } : {}),
       amountPaise: quote.amountPaise,
+      ...gstOrderFields(quote),
       offerKey: quote.offerKey,
       status: GUEST_STATUS.created,
       createdAt: new Date(now()),

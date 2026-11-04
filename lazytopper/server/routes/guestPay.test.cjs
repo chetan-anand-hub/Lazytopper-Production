@@ -181,11 +181,11 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, nowMs = NOW } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
-  const now = () => NOW;
+  const now = () => nowMs; // GST-EXCL-1: a test may move the clock past the 5 Nov GST cut-off
   // `Bearer uid:<uid>` or `Bearer uid:<uid>|phone:<e164>` — the test stand-in for a token firebase-admin verified.
   const identityOf = (req) => {
     const h = String(req.headers.authorization || '');
@@ -1734,4 +1734,62 @@ test('AUTO · email fallbacks: a link that cannot be made, or a phone-only accou
   await receiptEmailer.whenIdle();
   assert.equal(resend.sent.length, 1);
   assert.equal(resend.sent[0].body.subject, 'Your Maths CBQ Pack is ready');
+});
+
+/* ══ GST-EXCL-1 · pay-by-phone and "Who will use it?" charge base + 18% GST from 00:00 IST 5 Nov 2026 ══════════════ */
+const GST_AFTER = Date.parse('2026-11-05T09:00:00+05:30');
+
+test('GST-EXCL-1 · pay-by-phone: the Board Pass and a pack are charged base + GST after the cut-off, with the breakup stored; claim grants them', async (t) => {
+  const srv = await startRoutes({ nowMs: GST_AFTER });
+  t.after(srv.close);
+  const bp = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const bpOrder = srv.db.read(`payOrders/${bp.orderId}`);
+  assert.equal(bpOrder.amountPaise, 226200);
+  assert.deepEqual([bpOrder.baseInr, bpOrder.gstInr, bpOrder.totalInr], [1917, 345, 2262]);
+  assert.equal(bpOrder.amountPaise, quotePass({}, 'till_boards', GST_AFTER, { foundingOfferOpen: true }).amountPaise, 'the same quote as a signed-in order');
+  const pk = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const pkOrder = srv.db.read(`payOrders/${pk.orderId}`);
+  assert.equal(pkOrder.amountPaise, 11700);
+  assert.deepEqual([pkOrder.baseInr, pkOrder.gstInr, pkOrder.totalInr], [99, 18, 117]);
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.equal(c.json.claimed.length, 2, c.text);
+  assert.ok(srv.db.read('packEntitlements/u1/packs/pack_mock:maths'));
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+});
+
+test('GST-EXCL-1 · pay-by-phone BEFORE the cut-off is byte-identical (1917, no GST fields)', async (t) => {
+  const srv = await startRoutes({ nowMs: Date.parse('2026-11-04T23:59:59+05:30') });
+  t.after(srv.close);
+  const bp = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const o = srv.db.read(`payOrders/${bp.orderId}`);
+  assert.equal(o.amountPaise, 191700);
+  assert.equal('gstInr' in o, false);
+});
+
+test('GST-EXCL-1 · "Who will use it?": the Board Pass and a CBQ pack are charged base + GST after the cut-off and land on the recipient', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV, nowMs: GST_AFTER, uidForPhone: async (p) => (p === PHONE ? 'uPhone' : null), uidForEmail: async () => null });
+  t.after(srv.close);
+  const pk = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'science', recipient: { phone: '9876543948' } });
+  const o = srv.db.read(`payOrders/${pk.orderId}`);
+  assert.equal(o.amountPaise, 23500);
+  assert.deepEqual([o.baseInr, o.gstInr, o.totalInr], [199, 36, 235]);
+  assert.ok(srv.db.read('packEntitlements/uPhone/packs/pack_cbq:science'));
+  const bp = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL } });
+  assert.equal(srv.db.read(`payOrders/${bp.orderId}`).amountPaise, 226200);
+});
+
+test('GST-EXCL-1 · receipt: an order with a stored breakup shows "₹1,917 + ₹345 GST (18%) = ₹2,262 paid" (credit named); an older order has no GST line', () => {
+  const base = { passType: 'till_boards', paymentId: 'pay_g', paidAtMs: GST_AFTER, appUrl: 'https://www.lazytopper.com' };
+  const m = buildReceiptEmail({ ...base, amountPaise: 226200, gst: { baseInr: 1917, gstInr: 345 } });
+  assert.ok(m.text.includes('Amount: ₹2,262\nGST: ₹1,917 + ₹345 GST (18%) = ₹2,262 paid\n'), m.text);
+  assert.ok(m.html.includes('GST: ₹1,917 + ₹345 GST (18%) = ₹2,262 paid'));
+  const credited = buildReceiptEmail({ ...base, amountPaise: 221300, gst: { baseInr: 1917, gstInr: 345, packCreditInr: 49 } });
+  assert.ok(credited.text.includes('GST: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213 paid'));
+  const pack = buildReceiptEmail({ ...base, passType: 'pack_chapter', packTarget: 'triangles', amountPaise: 5800, gst: { baseInr: 49, gstInr: 9 } });
+  assert.ok(pack.text.includes('GST: ₹49 + ₹9 GST (18%) = ₹58 paid'));
+  const old = buildReceiptEmail({ ...base, amountPaise: 191700 });
+  assert.ok(!/GST/.test(old.text + old.html));
+  // A breakup that does not add up to the amount charged is never printed.
+  const wrong = buildReceiptEmail({ ...base, amountPaise: 191700, gst: { baseInr: 1917, gstInr: 345 } });
+  assert.ok(!/GST/.test(wrong.text));
 });

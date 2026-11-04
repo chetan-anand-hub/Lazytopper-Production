@@ -1,4 +1,4 @@
-import { packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "./PacksShop";
 import type { SampleBuy } from "./PackSampleLink";
 import "./packTileBuy.css";
@@ -51,7 +51,8 @@ function BusyNote({ show }: { show: boolean }) {
 
 export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku; api: PacksShopApi; tone?: "light" | "on-dark" }) {
   if (!api.buyEnabled) return null;
-  const price = packPriceLabel(sku);
+  // GST-EXCL-1: a Buy button names the amount CHARGED (base + GST from 5 Nov 2026).
+  const price = packPayLabel(sku);
   const cls = tone === "on-dark" ? "lt-ptb lt-ptb--dark" : "lt-ptb";
 
   if (sku === "pack_chapter") {
@@ -119,7 +120,7 @@ export function PackCbqBuy({ subject, api, testPrefix }: { subject: PackSubject;
           onClick={() => api.buyNow("pack_cbq", subject)}
           testId={`tile-buy-pack_cbq-${subject}`}
         >
-          {`Buy ${subjectLabel(subject)} CBQ · ${packPriceLabel("pack_cbq")}`}
+          {`Buy ${subjectLabel(subject)} CBQ · ${packPayLabel("pack_cbq")}`}
         </BuyButton>
       )}
       <BusyNote show={!api.ownsPack("pack_cbq", subject) && api.blockedBy("pack_cbq", subject)} />

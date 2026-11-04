@@ -41,6 +41,8 @@
 
 const crypto = require('crypto');
 const passPricing = require('./passPricing.cjs');
+// GST-EXCL-1: the Chapter Pack price for the packs line, from the server table (never typed).
+const CHAPTER_PACK_PRICE_INR = require('./packProducts.cjs').PACK_PRODUCTS.pack_chapter.priceInr;
 const { deriveEffectiveTier, isServerPinnedStart, TRIAL_MS } = require('./entitlement.cjs');
 
 const TRIAL_EMAILS_COLLECTION = 'trialEmails';
@@ -272,10 +274,11 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
   const packsUrl = `${appUrl}/pricing?${utm('packs')}#packs`;
   // Board Pass price at the SEND time, from the server pricing mirror (never a literal).
   const quote = passPricing.tillBoardsQuote(nowMs, passPricing.predictBoardDateIso(nowMs));
-  const ctaLabel = quote ? `Get the Board Pass - ₹${quote.priceInr.toLocaleString('en-IN')} till your boards` : 'Get the Board Pass';
+  // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 5 Nov 2026 (the shared tag); before it, byte-identical.
+  const ctaLabel = quote ? `Get the Board Pass - ${passPricing.displayPlusGst(quote.priceInr, nowMs)} till your boards` : 'Get the Board Pass';
   // PRICE-FIXED-1: no founding/month line - the Board Pass is a fixed price and the month pass is not advertised.
   const foundingLine = null;
-  const packsLabel = 'Prefer printed practice? PDF packs from ₹49';
+  const packsLabel = `Prefer printed practice? PDF packs from ${passPricing.displayPlusGst(CHAPTER_PACK_PRICE_INR, nowMs)}`;
   const checkUrl = `${appUrl}/check-improve`;
   const lines = [
     'Hi,',

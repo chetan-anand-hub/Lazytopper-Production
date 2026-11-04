@@ -51,7 +51,12 @@ import {
 import "../guestPay/guestPaySheet.css";
 import "./checkoutSheet.css";
 
-export type CheckoutSheetItem = GuestItem & { priceDisplay: string };
+/**
+ * `priceDisplay` is the amount CHARGED (it is what the Pay button names). GST-EXCL-1: `priceBreakdown` is the GST breakup shown
+ * on the sheet before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null/absent = nothing to break up (a pack, or
+ * before 5 Nov 2026).
+ */
+export type CheckoutSheetItem = GuestItem & { priceDisplay: string; priceBreakdown?: string | null };
 
 /** PAY-ACCOUNT-1: the "account is ready" thank-you screen, lazy (it pulls the auth context's phone sign-in). */
 const AccountReadyPanel = lazy(() => import("./AccountReadyPanel"));
@@ -64,6 +69,8 @@ export interface CheckoutSheetProps {
   selfMasked: string | null;
   /** The price the signed-in buyer pays for themselves, when it differs from a new account's (a server credit); else item.priceDisplay. */
   selfPriceDisplay?: string;
+  /** GST-EXCL-1: the breakup for `selfPriceDisplay` (base + GST less the credit), shown on the "self" step. */
+  selfPriceNote?: string | null;
   /** Signed in, for themselves: run the caller's existing checkout (the sheet closes first). */
   onPaySelf: () => void;
   /** Signed out: "Have an account? Sign in first" (the caller's existing sign-in, returning to the purchase). */
@@ -95,6 +102,7 @@ export default function CheckoutSheet({
   signedIn,
   selfMasked,
   selfPriceDisplay,
+  selfPriceNote,
   onPaySelf,
   onSignIn,
   onSignInWithNumber,
@@ -320,6 +328,11 @@ export default function CheckoutSheet({
               </p>
             )}
             {step.name === "self" && <p className="lt-gps__item">{selfPriceDisplay || item.priceDisplay}</p>}
+            {step.name !== "paid" && (step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown) && (
+              <p className="lt-gps__fine" data-testid="who-gst-breakdown">
+                {step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown}
+              </p>
+            )}
           </div>
           <button type="button" className="lt-gps__close" onClick={onClose} disabled={busy} aria-label="Close">
             &times;

@@ -6,6 +6,8 @@ import { readPacksQuery } from "../../lib/packs/packEntry";
 import { PACK_PRICE_INR } from "../../services/packs";
 import { singleChapterPracticeTarget } from "../results/scorecardVariants";
 import { offerIsOwned, pickSaleOffer, saleHintFromTarget, saleOfferText } from "./saleMomentModel";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPriceLabel } from "../../services/packs";
 
 describe("pickSaleOffer", () => {
   it.each([
@@ -20,7 +22,7 @@ describe("pickSaleOffer", () => {
   ])("%s", (_name, hint, sku, target, href) => {
     const o = pickSaleOffer(hint);
     expect(o).toMatchObject({ sku, target, href });
-    expect(o?.price).toBe(`₹${PACK_PRICE_INR[sku as keyof typeof PACK_PRICE_INR]}`);
+    expect(o?.price).toBe(packPriceLabel(sku as keyof typeof PACK_PRICE_INR));
   });
   it("names nothing it does not know: an unknown slug or an empty hint gives no specific offer", () => {
     expect(pickSaleOffer({})).toBeNull();
@@ -50,11 +52,11 @@ describe("saleOfferText", () => {
       saleOfferText(pickSaleOffer({ subject: "science" })!),
       saleOfferText(pickSaleOffer({ mock: true, subject: "maths" })!),
     ];
-    expect(texts[0]).toBe(`Trigonometry Chapter Pack ₹${PACK_PRICE_INR.pack_chapter} — printed questions with answer keys →`);
+    expect(texts[0]).toBe(`Trigonometry Chapter Pack ${packPriceLabel("pack_chapter")} — printed questions with answer keys →`);
     expect(texts[1]).toContain("This chapter's Chapter Pack");
-    expect(texts[2]).toContain(`Board CBQ Pack ₹${PACK_PRICE_INR.pack_cbq}`);
-    expect(texts[3]).toContain(`Science Subject Pack ₹${PACK_PRICE_INR.pack_subject}`);
-    expect(texts[4]).toBe(`Maths Mock Pack ₹${PACK_PRICE_INR.pack_mock} \u2014 8 full board mocks, printed with answer keys \u2192`);
+    expect(texts[2]).toContain(`Board CBQ Pack ${packPriceLabel("pack_cbq")}`);
+    expect(texts[3]).toContain(`Science Subject Pack ${packPriceLabel("pack_subject")}`);
+    expect(texts[4]).toBe(`Maths Mock Pack ${packPriceLabel("pack_mock")} \u2014 8 full board mocks, printed with answer keys \u2192`);
     for (const t of texts) expect(t).not.toMatch(/599|999|save|%|off\b/i);
   });
 });

@@ -264,9 +264,10 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     pinToday("2026-11-30T23:59:59+05:30");
     const { container } = render(<TillBoardsOffer />);
     const figures = container.querySelector('[data-testid="till-boards-figures"]');
-    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917");
+    // GST-EXCL-1: 30 Nov is after the 5 Nov GST cut-off - every tag says "+ GST" (the total is at checkout).
+    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917 + GST");
     const line = figures?.querySelector('[data-testid="till-boards-deadline"]');
-    expect(flat(line)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499.");
+    expect(flat(line)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.");
     expect(flat(line?.querySelector("strong"))).toBe("Founding member offer");
     expect(flat(figures)).not.toMatch(/save|20%|shrink|off\b/i);
   });
@@ -275,7 +276,7 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     pinToday("2026-12-01T00:00:00+05:30");
     const { container } = render(<TillBoardsOffer />);
     const figures = container.querySelector('[data-testid="till-boards-figures"]');
-    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹2,499");
+    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹2,499 + GST");
     expect(figures?.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
     expect(flat(figures)).not.toMatch(/founding|1 December/i);
   });
@@ -456,7 +457,7 @@ describe("PRICING-B-1 — Questions parents ask", () => {
     pinToday(SEPT_26_IST);
     const { inner } = renderPricing();
     const faq = flat(inner.querySelector('[data-testid="pricing-faq"]'));
-    expect(faq).toContain("From 1 December the Board Pass is ₹2,499. A pass you have already bought is never re-priced.");
+    expect(faq).toContain("From 1 December the Board Pass is ₹2,499 + GST. A pass you have already bought is never re-priced."); // GST-EXCL-1
     expect(rupeeAmounts(faq)).toEqual(["₹2,499"]);
     expect(faq).not.toMatch(/599|999|for a month|20%|shrink|monthly/i);
     expect(faq).not.toMatch(/\bfirst\s+\d+\s+students\b/i);

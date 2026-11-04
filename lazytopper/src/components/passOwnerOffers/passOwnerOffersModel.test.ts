@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
 
-import { PACK_CHAPTER_SLUGS, PACK_PRICE_INR, chaptersOfSubject } from "../../services/packs";
+import { PACK_CHAPTER_SLUGS, chaptersOfSubject } from "../../services/packs";
 import {
   PASS_OFFERS_SNOOZE_KEY,
   PASS_OFFERS_SNOOZE_MS,
@@ -13,6 +13,8 @@ import {
   snoozePassOffers,
 } from "./passOwnerOffersModel";
 import { readBuyResume } from "../packs/PacksShop";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 const ids = (...xs: string[]) => xs.map((packId) => ({ packId }));
 const MATHS_CH = chaptersOfSubject("maths")[0];
@@ -24,7 +26,7 @@ describe("pass_success - the CBQ Packs, both subjects, worded as essential", () 
     const o = pickPassOwnerOffer("pass_success", {}, [])!;
     expect(o.lead).toBe(PASS_SUCCESS_LEAD);
     expect(o.lead).toContain("Your Board Pass is on. Prefer practising on paper too? The CBQ Packs put the case-based questions in print");
-    expect(o.items.map((i) => i.label)).toEqual([`Maths ₹${PACK_PRICE_INR.pack_cbq}`, `Science ₹${PACK_PRICE_INR.pack_cbq}`]);
+    expect(o.items.map((i) => i.label)).toEqual([`Maths ${packPayLabel("pack_cbq")}`, `Science ${packPayLabel("pack_cbq")}`]);
     expect(o.lead.toLowerCase()).not.toContain("optional");
   });
   it("never an owned pack: one subject owned -> only the other; both owned -> nothing", () => {
@@ -36,7 +38,7 @@ describe("pass_success - the CBQ Packs, both subjects, worded as essential", () 
 describe("pass_download - the matching pack for that chapter / subject", () => {
   it("a known chapter -> its Chapter Pack (₹49)", () => {
     const o = pickPassOwnerOffer("pass_download", { chapterSlug: MATHS_CH, chapterName: "Real Numbers" }, [])!;
-    expect(o.items).toEqual([{ sku: "pack_chapter", target: MATHS_CH, label: `Chapter Pack ₹${PACK_PRICE_INR.pack_chapter}` }]);
+    expect(o.items).toEqual([{ sku: "pack_chapter", target: MATHS_CH, label: `Chapter Pack ${packPayLabel("pack_chapter")}` }]);
     expect(o.lead).toContain("Real Numbers Chapter Pack");
   });
   it("covered by the chapter, its Subject Pack or the Bundle -> nothing", () => {
@@ -61,7 +63,7 @@ describe("pass_download - the matching pack for that chapter / subject", () => {
 describe("pass_mock - the Mock Pack of that subject (the Bundle when the subject is unknown)", () => {
   it("Mock Pack ₹99 for the subject", () => {
     expect(pickPassOwnerOffer("pass_mock", { subject: "maths" }, [])!.items).toEqual([
-      { sku: "pack_mock", target: "maths", label: `Maths Mock Pack ₹${PACK_PRICE_INR.pack_mock}` },
+      { sku: "pack_mock", target: "maths", label: `Maths Mock Pack ${packPayLabel("pack_mock")}` },
     ]);
   });
   it("owned (or covered by the Subject Pack / Bundle) -> nothing", () => {
@@ -78,7 +80,7 @@ describe("pass_me - one small card", () => {
   it("the CBQ Packs first, then the Bundle, then nothing", () => {
     expect(pickPassOwnerOffer("pass_me", {}, [])!.items.map((i) => i.sku)).toEqual(["pack_cbq", "pack_cbq"]);
     const both = ids("pack_cbq:maths", "pack_cbq:science");
-    expect(pickPassOwnerOffer("pass_me", {}, both)!.items).toEqual([{ sku: "pack_bundle", target: undefined, label: `Maths + Science Bundle ₹${PACK_PRICE_INR.pack_bundle}` }]);
+    expect(pickPassOwnerOffer("pass_me", {}, both)!.items).toEqual([{ sku: "pack_bundle", target: undefined, label: `Maths + Science Bundle ${packPayLabel("pack_bundle")}` }]);
     expect(pickPassOwnerOffer("pass_me", {}, [...both, ...ids("pack_mock:maths", "pack_mock:science", ...ALL_CHAPTERS)])).toBeNull();
   });
 });

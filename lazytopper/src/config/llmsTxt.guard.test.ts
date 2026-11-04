@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { sitemapUrls } from "./sitemapUrls";
 import { CBQ_SUBJECT_CLAIM } from "../lib/packs/packLabels";
 import { PACK_PRICE_INR } from "../services/packs";
-import { formatInr, PRICE_MONTHLY_FOUNDING_INR, PRICE_MONTHLY_LIST_INR, TILL_BOARDS_AFTER_FOUNDING_INR, TILL_BOARDS_FOUNDING_INR } from "./pricing";
+import { chargeFor, formatInr, GST_EXCLUSIVE_FROM_MS, PRICE_MONTHLY_FOUNDING_INR, PRICE_MONTHLY_LIST_INR, TILL_BOARDS_AFTER_FOUNDING_INR, TILL_BOARDS_FOUNDING_INR } from "./pricing";
 
 /**
  * GUARD — every URL `public/llms.txt` advertises is a URL the sitemap advertises.
@@ -133,8 +133,18 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     expect(txt).toContain(`Subject pack ₹${PACK_PRICE_INR.pack_subject}`);
     expect(txt).toContain(`Bundle ₹${PACK_PRICE_INR.pack_bundle}`);
     // PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass is one fixed price and the month price is hidden.
-    expect(txt).toContain(`${formatInr(TILL_BOARDS_FOUNDING_INR)} as the Founding member offer until 30 November 2026`);
-    expect(txt).toContain(`${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} from 1 December 2026`);
+    expect(txt).toContain(`${formatInr(TILL_BOARDS_FOUNDING_INR)} + GST as the Founding member offer until 30 November 2026`);
+    expect(txt).toContain(`${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} + GST from 1 December 2026`);
+    // GST-EXCL-1 (owner, 4 Nov 2026): every price is "+ GST" and the example totals are the code's own arithmetic.
+    for (const n of [PACK_PRICE_INR.pack_cbq, PACK_PRICE_INR.pack_chapter, PACK_PRICE_INR.pack_mock, PACK_PRICE_INR.pack_subject, PACK_PRICE_INR.pack_bundle, TILL_BOARDS_FOUNDING_INR, TILL_BOARDS_AFTER_FOUNDING_INR]) {
+      expect(txt).toContain(`${formatInr(n)} + GST`);
+    }
+    const cut = GST_EXCLUSIVE_FROM_MS;
+    const bp = chargeFor(TILL_BOARDS_FOUNDING_INR, cut);
+    const ch = chargeFor(PACK_PRICE_INR.pack_chapter, cut);
+    expect(txt).toContain(`${formatInr(bp.baseInr)} + ${formatInr(bp.gstInr)} GST = ${formatInr(bp.totalInr)}`);
+    expect(txt).toContain(`${formatInr(ch.baseInr)} + ${formatInr(ch.gstInr)} GST = ${formatInr(ch.totalInr)}`);
+    expect(txt).toContain("From 5 November 2026 every price is plus 18% GST");
     expect(txt).not.toContain(String(PRICE_MONTHLY_FOUNDING_INR));
     expect(txt).not.toContain(String(PRICE_MONTHLY_LIST_INR));
     expect(txt).not.toMatch(/less than paying monthly|for a month/i);

@@ -9,6 +9,8 @@ const fire = vi.hoisted(() => vi.fn());
 vi.mock("../../lib/packs/packEntry", () => ({ firePackEntryClick: fire }));
 
 import ParentPacksSection, { PACKS_ALL_TO, PACKS_CBQ_TO, ParentPacksBand, ParentPacksHeroLink } from "./ParentPacksSection";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { displayPlusGst } from "../../config/pricing";
 
 afterEach(() => { cleanup(); paidMock.paid = false; fire.mockClear(); });
 const wrap = () => <MemoryRouter><ParentPacksSection /></MemoryRouter>;
@@ -26,7 +28,7 @@ describe("PARENTS-PACKS-1", () => {
   it("after mount shows prices from the catalogue and fires pack_entry_click with for_parents", async () => {
     render(wrap());
     await act(async () => {});
-    expect(screen.getAllByTestId("fp-packs-price").map((e) => e.textContent)).toEqual(["₹199", "₹199", "₹199", "₹99", "₹49", "₹299"]);
+    expect(screen.getAllByTestId("fp-packs-price").map((e) => e.textContent)).toEqual([199, 199, 199, 99, 49, 299].map((n) => displayPlusGst(n)));
     expect((screen.getByTestId("fp-packs-cbq") as HTMLAnchorElement).getAttribute("href")).toBe(PACKS_CBQ_TO);
     expect((screen.getByTestId("fp-packs-all") as HTMLAnchorElement).getAttribute("href")).toBe(PACKS_ALL_TO);
     screen.getByTestId("fp-packs-cbq").click();
@@ -43,8 +45,8 @@ describe("PARENTS-PACKS-1", () => {
     render(both);
     await act(async () => {});
     const hero = screen.getByTestId("fp-packs-hero");
-    expect(hero.textContent).toBe("PDF question banks \u00b7 from ₹49");
-    expect(screen.getAllByTestId("fp-band-price").map((e) => e.textContent)).toEqual(["₹49", "₹99", "₹199", "₹299", "₹199", "₹199"]);
+    expect(hero.textContent).toBe(`PDF question banks \u00b7 from ${displayPlusGst(49)}`);
+    expect(screen.getAllByTestId("fp-band-price").map((e) => e.textContent)).toEqual([49, 99, 199, 299, 199, 199].map((n) => displayPlusGst(n)));
     hero.click();
     expect(fire).toHaveBeenCalledWith("for_parents");
     paidMock.paid = true;

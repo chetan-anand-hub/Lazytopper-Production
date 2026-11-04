@@ -19,6 +19,9 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { hydrateSubscriptionFromCloud } from "../../services/subscriptionService";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import {
+  boardPassGstBreakdown,
+  boardPassGstExclusive,
+  boardPassPayDisplay,
   boardPassPriceDisplay,
   foundingRateApplies,
   formatInr,
@@ -89,7 +92,8 @@ export function monthButtonLabel(offerOpen: boolean): string {
 }
 
 /** A function: the price follows the founding deadline, so the label is read at RENDER time. */
-export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPriceDisplay()} once till your boards`;
+/** GST-EXCL-1: a Pay button names the amount CHARGED (base + GST from 5 Nov 2026) - never the "+ GST" tag. */
+export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPayDisplay()} once till your boards`;
 /** PAY-PHONE-1 (C) - the button that stays at the top after the Board Pass checkout was closed without paying. */
 /** PASS-OWNER-PACKS-1: what a Board Pass owner reads where the Pay button would be. */
 export const boardPassActiveUntilCopy = (dateLabel: string): string => `Your Board Pass is active until ${dateLabel}.`;
@@ -115,7 +119,7 @@ const MONTH_PLANS: readonly string[] = ["pass_month", "premium_monthly"];
 export const paidUntilCopy = (passType: PassType, dateLabel: string): string =>
   passType === "month" ? `Your monthly pass is active until ${dateLabel}.` : boardPassActiveUntilCopy(dateLabel);
 
-export const repayBoardPassLabel = (): string => `Pay ${boardPassPriceDisplay()}`;
+export const repayBoardPassLabel = (): string => `Pay ${boardPassPayDisplay()}`;
 
 /**
  * PAY-RECOVER-1 — when (ms after the pending outcome) the server is asked about the order.
@@ -136,7 +140,18 @@ export function packCreditLine(credit: BoardPassCredit): string | null {
   const till = formatCreditDeadline(credit.expiresAtMs);
   if (!till) return null;
   // PARENT-PACKS-1 (owner, 4 Nov): rupees formatted like every other price on the page (₹1,868, not ₹1868).
-  return `Your pack credit: ${formatInr(credit.creditInr)} off — Board Pass ${formatInr(credit.payInr)} for you, till ${till}`;
+  // GST-EXCL-1: from the GST cut-off the server's payInr is (base + GST) less the credit - say so.
+  const gst = boardPassGstExclusive(Date.now()) ? " incl. GST" : "";
+  return `Your pack credit: ${formatInr(credit.creditInr)} off — Board Pass ${formatInr(credit.payInr)}${gst} for you, till ${till}`;
+}
+
+/**
+ * GST-EXCL-1 - the breakup a credited buyer reads on the checkout step before Razorpay opens:
+ * "₹1,917 + ₹345 GST (18%) = ₹2,262, less your pack credit ₹199: you pay ₹2,063". Null before the GST cut-off.
+ */
+export function packCreditBreakdown(credit: BoardPassCredit): string | null {
+  const b = boardPassGstBreakdown(Date.now());
+  return b ? `${b}, less your pack credit ${formatInr(credit.creditInr)}: you pay ${formatInr(credit.payInr)}` : null;
 }
 
 /** "1 Nov, 9:20 pm IST" — the exact instant the credit lapses, in IST. */
@@ -455,6 +470,8 @@ export function PassCheckoutView({
   // PACK-CREDIT-1: signed in, no running Premium, nothing else in the notice slot (they share one grid row).
   const creditLine =
     signedIn && !activeLabel && packCredit && !failed && !expired && !recovery ? packCreditLine(packCredit) : null;
+  // GST-EXCL-1: the breakup beside the Pay button, before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"). Null before 5 Nov.
+  const gstBreakdown = boardPassGstBreakdown(Date.now());
 
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
@@ -502,6 +519,11 @@ export function PassCheckoutView({
       >
         {tillBoardsButtonLabel()}
       </button>
+      {gstBreakdown && !activeLabel && (
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-gst">
+          {gstBreakdown}
+        </p>
+      )}
       {monthButton && Boolean(activeLabel) && (
         <button
           type="button"
@@ -557,10 +579,10 @@ export function PassCheckoutView({
       {who && whoOpen && (
         <Suspense fallback={null}>
           <CheckoutSheet
-            item={{ kind: "pass", sku: "till_boards", label: "Board Pass", description: BOARD_PASS_CHECKOUT_DESCRIPTION, priceDisplay: boardPassPriceDisplay() }}
+            item={{ kind: "pass", sku: "till_boards", label: "Board Pass", description: BOARD_PASS_CHECKOUT_DESCRIPTION, priceDisplay: boardPassPayDisplay(), priceBreakdown: boardPassGstBreakdown() }}
             signedIn={signedIn}
             selfMasked={who.selfMasked}
-            {...(signedIn && packCredit ? { selfPriceDisplay: `₹${packCredit.payInr.toLocaleString("en-IN")}` } : {})}
+            {...(signedIn && packCredit ? { selfPriceDisplay: `₹${packCredit.payInr.toLocaleString("en-IN")}`, selfPriceNote: packCreditBreakdown(packCredit) } : {})}
             onPaySelf={() => void handleBuy("till_boards", { fromWho: true })}
             onSignIn={who.onSignIn}
             onSignInWithNumber={who.onSignInWithNumber}

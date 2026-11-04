@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { boardPassPriceDisplay } from "../../config/pricing";
+import { boardPassPayDisplay, boardPassPriceDisplay } from "../../config/pricing";
 import type { PackSubject } from "../../services/packs";
 import { stickyCbqCopy, stickyPassCopy } from "./pricingPlansCopy";
 import "./stickyPassBar.css";
@@ -65,9 +65,11 @@ export default function StickyPassBar({
   cbq: { subject: PackSubject; onBuy: () => void; blocked?: boolean } | null;
 }) {
   const [price, setPrice] = useState<string | null>(null);
+  const [payPrice, setPayPrice] = useState<string | null>(null);
   const [io, setIo] = useState(false);
   useEffect(() => {
     setPrice(boardPassPriceDisplay());
+    setPayPrice(boardPassPayDisplay());
     setIo(typeof IntersectionObserver !== "undefined");
   }, []);
   // Until the observers have reported, the hero Pay counts as visible (no bar), so nothing flashes on load.
@@ -79,7 +81,7 @@ export default function StickyPassBar({
   const mode = stickyMode({ payVisible, packsVisible, footerVisible, showPass, cbqAvailable: cbq !== null });
   if (mode === "none") return null;
 
-  const copy = mode === "cbq" && cbq ? stickyCbqCopy(cbq.subject) : stickyPassCopy(price);
+  const copy = mode === "cbq" && cbq ? stickyCbqCopy(cbq.subject) : stickyPassCopy(price, payPrice ?? price);
   const act = mode === "cbq" && cbq ? cbq.onBuy : onPass;
   return (
     <div className="lt-stickybar" data-testid="pricing-sticky-bar" data-mode={mode} role="region" aria-label={mode === "cbq" ? "CBQ Pack shortcut" : "Board Pass shortcut"}>

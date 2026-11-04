@@ -11,7 +11,7 @@
  * ★ PURE: no React, no services that pull checkout code - the page, its tests and the sticky bar all import it.
  */
 import { BOARD_PASS_NAME } from "../../config/pricing";
-import { chaptersOfSubject, packPriceLabel, subjectLabel, subjectOfChapter, type PackSubject } from "../../services/packs";
+import { chaptersOfSubject, packPayLabel, packPriceLabel, subjectLabel, subjectOfChapter, type PackSubject } from "../../services/packs";
 import {
   BUNDLE_CHAPTERS,
   BUNDLE_MOCKS,
@@ -91,7 +91,8 @@ export const CBQ_NOT_IN_BUNDLE = "Not in the Bundle.";
 export const SEE_INSIDE_LABEL = "See inside + free sample page";
 
 export function cbqBuyLabel(s: PackSubject): string {
-  return `${subjectLabel(s)} CBQ · ${packPriceLabel("pack_cbq")}`;
+  // GST-EXCL-1: a buy button names the amount CHARGED (base + GST from 5 Nov 2026).
+  return `${subjectLabel(s)} CBQ · ${packPayLabel("pack_cbq")}`;
 }
 
 /* ── More printed practice (#packs) ──────────────────────────────────────── */
@@ -104,13 +105,13 @@ export function bundleBadge(now: Date | number = Date.now()): string {
   return isPreboardsSeason(now) ? `${PREBOARDS_PICK_BADGE} · both subjects` : "Both subjects";
 }
 export const BUNDLE_BODY = `Both Subject Packs: all ${BUNDLE_CHAPTERS} chapters of chapter-wise questions + all ${BUNDLE_MOCKS} board mock papers. CBQ Packs are separate.`;
-export const BUNDLE_BUY_LABEL = `Buy the Bundle · ${packPriceLabel("pack_bundle")}`;
+export const BUNDLE_BUY_LABEL = `Buy the Bundle · ${packPayLabel("pack_bundle")}`;
 export { BUNDLE_NAME };
 
 export const CHAPTER_TITLE = "Chapter Pack";
 export const CHAPTER_BODY = "One weak chapter: its important questions with the marking key.";
 export function chapterBuyLabel(s: PackSubject): string {
-  return `Choose a ${subjectLabel(s)} chapter · ${packPriceLabel("pack_chapter")}`;
+  return `Choose a ${subjectLabel(s)} chapter · ${packPayLabel("pack_chapter")}`;
 }
 
 export const ONE_SUBJECT_TITLE = "Only need one subject?";
@@ -220,11 +221,12 @@ export const START_FREE_LABEL = "Start free";
 
 /* ── Sticky bar (phones) ─────────────────────────────────────────────────── */
 
-export function stickyPassCopy(price: string): { label: string; button: string } {
-  return { label: `${BOARD_PASS_NAME} ${price}`, button: `Pay ${price}` };
+/** `price` is the price TAG ("₹1,917 + GST"); `payPrice` the amount CHARGED the Pay button names (GST-EXCL-1). */
+export function stickyPassCopy(price: string, payPrice: string = price): { label: string; button: string } {
+  return { label: `${BOARD_PASS_NAME} ${price}`, button: `Pay ${payPrice}` };
 }
 export function stickyCbqCopy(s: PackSubject): { label: string; button: string } {
-  return { label: `${subjectLabel(s)} CBQ Pack ${packPriceLabel("pack_cbq")}`, button: `Buy ${packPriceLabel("pack_cbq")}` };
+  return { label: `${subjectLabel(s)} CBQ Pack ${packPriceLabel("pack_cbq")}`, button: `Buy ${packPayLabel("pack_cbq")}` };
 }
 
 /* ── The subject the packs follow ────────────────────────────────────────── */

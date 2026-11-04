@@ -90,7 +90,7 @@ const {
 } = require('./trialEndingEmail.cjs');
 const { deriveEffectiveTier, isServerPinnedStart } = require('./entitlement.cjs');
 const pricing = require('./passPricing.cjs');
-const { isPackProduct } = require('./packProducts.cjs');
+const { isPackProduct, PACK_PRODUCTS } = require('./packProducts.cjs');
 const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
 const packNudge = require('./packNudge.cjs');
 const { resolveSendWindow } = require('./emailSendWindow.cjs'); // EMAIL-SEND-WINDOW-1
@@ -402,8 +402,9 @@ function recheckAtMs(kind, reason, facts, startMs) {
  * Kept under its old export name so callers and the test seam do not move. PURE.
  */
 function foundingPriceLine() {
-  const rupee = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
-  return `Board Pass: ${rupee(pricing.tillBoardsPriceInr(Date.now()))}, one payment, and you are covered till your boards.`;
+  // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 5 Nov 2026 (the shared tag); before it, unchanged.
+  const nowMs = Date.now();
+  return `Board Pass: ${pricing.displayPlusGst(pricing.tillBoardsPriceInr(nowMs), nowMs)}, one payment, and you are covered till your boards.`;
 }
 
 function activityLine(counts) {
@@ -417,7 +418,8 @@ function activityLine(counts) {
 
 /** One short PDF-packs line for the d1 / d3 nudges. UTM only; no uid, email or other student data in the URL. */
 function packsPara(appUrl, campaign) {
-  const label = 'Want printed practice? Chapter packs from ₹49 → lazytopper.com/pricing';
+  // GST-EXCL-1: the Chapter Pack price from the server table, "+ GST" from the cut-off (never typed).
+  const label = `Want printed practice? Chapter packs from ${pricing.displayPlusGst(PACK_PRODUCTS.pack_chapter.priceInr, Date.now())} → lazytopper.com/pricing`;
   return { t: label, links: [{ label, url: `${appUrl}/pricing?utm_source=email&utm_medium=email&utm_campaign=${campaign}&utm_content=packs#packs` }] };
 }
 
@@ -1251,6 +1253,7 @@ function createNudgeEmailer(deps = {}) {
           appUrl: config.appUrl,
           unsubscribeUrl,
           parentPayLive: config.paymentsLive,
+          nowMs,
         });
         const result =
           fetchImpl && message

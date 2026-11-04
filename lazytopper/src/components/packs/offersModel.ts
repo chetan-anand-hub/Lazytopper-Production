@@ -15,6 +15,7 @@ import {
   PACK_PRICE_INR,
   isAlreadyOwned,
   isValidPackTarget,
+  packPayLabel,
   packPriceLabel,
   subjectLabel,
   subjectOfChapter,
@@ -42,6 +43,8 @@ export interface OfferRow {
   line: string;
   /** "₹299" etc. */
   price: string;
+  /** GST-EXCL-1: what the Buy button names - the amount CHARGED (base + GST from 5 Nov 2026). */
+  payPrice: string;
   priceInr: number;
   /** "BEST VALUE" (in the pre-boards season "PRE-BOARDS PICK") on the Bundle only. */
   badge: string | null;
@@ -96,6 +99,7 @@ function row(sku: PackSku, target: string, name: string, line: string, badge: st
     name,
     line,
     price: packPriceLabel(sku),
+    payPrice: packPayLabel(sku),
     priceInr: PACK_PRICE_INR[sku],
     badge,
     buyHref: buyHrefFor(sku, target),

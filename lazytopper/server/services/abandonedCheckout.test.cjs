@@ -248,7 +248,22 @@ test('a pack checkout: pack name, catalogue price, the OFFERS-V2 one-tap /packs?
 
 test('price (pure): from the order amount only; no usable amount -> no price line', () => {
   const bp = A.productOf({ passType: 'till_boards' });
-  assert.equal(A.priceLine(bp, { amountPaise: 191700 }), 'Board Pass: ₹1,917, one payment till your boards.');
+  const PRE = Date.parse('2026-11-04T23:59:59+05:30');
+  const POST = Date.parse('2026-11-05T00:00:00+05:30');
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, PRE), 'Board Pass: ₹1,917, one payment till your boards.');
+  // GST-EXCL-1: an order that stored its breakup states it; an all-in order emailed after the cut-off never understates
+  // what "Finish paying" now charges (base + GST); a credited order names its credit.
+  assert.equal(
+    A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, POST),
+    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.',
+  );
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, POST), 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.');
+  assert.equal(
+    A.priceLine(bp, { amountPaise: 221300, baseInr: 1917, gstInr: 345, totalInr: 2262, packCreditInr: 49 }, POST),
+    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment till your boards.',
+  );
+  const pk = A.productOf({ passType: 'pack_chapter', packTarget: 'triangles' });
+  assert.equal(A.priceLine(pk, { amountPaise: 5800, baseInr: 49, gstInr: 9, totalInr: 58 }, POST), '₹49 + ₹9 GST (18%) = ₹58, one-time payment. It never renews.');
   assert.equal(A.priceLine(bp, { amountPaise: 0 }), null);
   assert.equal(A.priceLine(bp, {}), null);
   assert.equal(A.hadFailedAttempt({ lastFailure: { code: 'x' } }), true);

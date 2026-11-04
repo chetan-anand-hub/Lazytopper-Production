@@ -55,6 +55,75 @@ function toMsLoose(now) {
   return now instanceof Date ? now.getTime() : now;
 }
 /**
+ * Mirror of pricing.ts GST_RATE_PERCENT / GST_EXCLUSIVE_FROM_ISO / boardPassGstExclusive / withGstInr / boardPassCharge
+ * (GST-EXCL-1, owner ruling 4 Nov 2026): from 00:00 IST on 5 Nov 2026 the Board Pass is priced "+ 18% GST" and the
+ * amount CHARGED is base + GST rounded to the rupee (1917 -> 2262; 2499 -> 2949). The SERVER evaluates the cut-off on
+ * ITS OWN clock when an order is created; an order created before it keeps its all-in amount. Board Pass only.
+ */
+const GST_RATE_PERCENT = 18;
+const GST_RATE = GST_RATE_PERCENT / 100;
+const GST_EXCLUSIVE_FROM_ISO = '2026-11-05T00:00:00+05:30';
+const GST_EXCLUSIVE_FROM_MS = Date.parse(GST_EXCLUSIVE_FROM_ISO);
+/** Is the Board Pass priced "+ GST" at `now`? PURE. */
+function boardPassGstExclusive(now) {
+  const ms = toMsLoose(now);
+  return typeof ms === 'number' && Number.isFinite(ms) && ms >= GST_EXCLUSIVE_FROM_MS;
+}
+/** base + 18% GST, rounded to the rupee (integer arithmetic). */
+function withGstInr(baseInr) {
+  return Math.round((baseInr * (100 + GST_RATE_PERCENT)) / 100);
+}
+/**
+ * Mirror of pricing.ts chargeFor(base, now) - the ONE rule for EVERY paid product (owner scope, 4 Nov 18:23 IST: Board Pass,
+ * every PDF pack, top-ups). The charge for an item whose BASE price is `baseInr`, for an order created at `now`:
+ * { baseInr, gstInr, totalInr, gstRate, gstExclusive }. Before the cut-off: gstInr 0, totalInr = baseInr, gstRate 0.
+ */
+function chargeFor(baseInr, now) {
+  if (!boardPassGstExclusive(now)) return { baseInr, gstInr: 0, totalInr: baseInr, gstRate: 0, gstExclusive: false };
+  const totalInr = withGstInr(baseInr);
+  return { baseInr, gstInr: totalInr - baseInr, totalInr, gstRate: GST_RATE, gstExclusive: true };
+}
+/** Mirror of pricing.ts priceWithGst(base, now): the rupees CHARGED for a base price at `now`. */
+function priceWithGst(baseInr, now) {
+  return chargeFor(baseInr, now).totalInr;
+}
+const boardPassChargeFor = chargeFor;
+/** Mirror of pricing.ts formatInr: "₹1,917" with Indian grouping, independent of the host's ICU. */
+function formatInr(amount) {
+  const rounded = Math.round(Math.abs(amount));
+  const digits = rounded.toString();
+  const last3 = digits.slice(-3);
+  const rest = digits.slice(0, -3);
+  const grouped = rest ? `${rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',')},${last3}` : last3;
+  return `${amount < 0 ? '-' : ''}₹${grouped}`;
+}
+/** Mirror of pricing.ts displayPlusGst: a price TAG ("₹49"; "₹49 + GST" from the cut-off). For email copy. */
+function displayPlusGst(baseInr, now) {
+  return boardPassGstExclusive(now) ? `${formatInr(baseInr)} + GST` : formatInr(baseInr);
+}
+/** Mirror of pricing.ts gstBreakdownFor: "₹49 + ₹9 GST (18%) = ₹58" from the cut-off; null before it. */
+function gstBreakdownFor(baseInr, now) {
+  const c = chargeFor(baseInr, now);
+  return c.gstExclusive ? `${formatInr(c.baseInr)} + ${formatInr(c.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(c.totalInr)}` : null;
+}
+/** The breakup a STORED order carries ({ baseInr, gstInr, amountPaise }), or null for an order created before the cut-off. */
+function orderGstBreakdown(order) {
+  if (!order || !Number.isInteger(order.baseInr) || !Number.isInteger(order.gstInr) || !(order.gstInr > 0)) return null;
+  const total = Number.isInteger(order.totalInr) ? order.totalInr : order.baseInr + order.gstInr;
+  return `${formatInr(order.baseInr)} + ${formatInr(order.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(total)}`;
+}
+/** Does a stored order's amount equal `baseInr` as charged when it was created (all-in before the cut-off, + GST after)? */
+function orderAmountMatchesBase(order, baseInr) {
+  if (!order || !Number.isInteger(order.amountPaise) || !Number.isInteger(baseInr)) return false;
+  if (order.amountPaise === baseInr * 100) return true; // an order created before the cut-off
+  return order.baseInr === baseInr && Number.isInteger(order.gstInr) && order.amountPaise === withGstInr(baseInr) * 100
+    && order.gstInr === withGstInr(baseInr) - baseInr;
+}
+/** Mirror of pricing.ts boardPassCharge(now): the charge for the Board Pass price at `now`. */
+function boardPassCharge(now) {
+  return boardPassChargeFor(tillBoardsPriceInr(now), now);
+}
+/**
  * Mirror of pricing.ts MONTH_PASS_RETIRED_AT_ISO (PRICE-FIXED-1): from this instant the month pass is no
  * longer sold to an account that has never bought one. The SERVER evaluates it against its OWN clock.
  */
@@ -370,6 +439,21 @@ module.exports = {
   TILL_BOARDS_FOUNDING_INR,
   TILL_BOARDS_AFTER_FOUNDING_INR,
   tillBoardsPriceInr,
+  GST_RATE_PERCENT,
+  GST_RATE,
+  GST_EXCLUSIVE_FROM_ISO,
+  GST_EXCLUSIVE_FROM_MS,
+  boardPassGstExclusive,
+  withGstInr,
+  boardPassChargeFor,
+  boardPassCharge,
+  chargeFor,
+  priceWithGst,
+  formatInr,
+  displayPlusGst,
+  gstBreakdownFor,
+  orderGstBreakdown,
+  orderAmountMatchesBase,
   MONTH_PASS_RETIRED_AT_ISO,
   MONTH_PASS_RETIRED_AT_MS,
   monthPassRetired,

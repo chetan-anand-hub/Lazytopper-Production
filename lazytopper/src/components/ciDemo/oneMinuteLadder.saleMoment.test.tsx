@@ -29,8 +29,9 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 
 import OneMinuteLadder from "./OneMinuteLadder";
 import { ONE_MINUTE_STARTERS } from "./oneMinuteStarters";
-import { PACK_PRICE_INR } from "../../services/packs";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 function ladder() {
   return render(
@@ -70,7 +71,7 @@ describe("ladder verdict", () => {
     const href = chapterBuy.getAttribute("href") ?? "";
     expect(href.startsWith("/packs?buy=pack_chapter&t=")).toBe(true);
     expect(slugs).toContain(decodeURIComponent(href.replace("/packs?buy=pack_chapter&t=", "")));
-    expect(chapterBuy).toHaveTextContent(`₹${PACK_PRICE_INR.pack_chapter}`);
+    expect(chapterBuy).toHaveTextContent(packPayLabel("pack_chapter"));
     expect(Array.from(document.querySelectorAll("[data-testid^='offers-row-']")).map((n) => n.getAttribute("data-testid"))).toEqual([
       "offers-row-pack_bundle",
       "offers-row-pack_cbq",

@@ -62,6 +62,8 @@ vi.mock("./PackDialog", async () => {
 import PricingPage from "./PricingPage";
 import { subjectFromReferrer, subjectFromSearch, subjectFromStored } from "../components/pricing/pricingPlansCopy";
 import { subjectOfChapter } from "../services/packs";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+import { packPayLabel } from "../services/packs";
 
 function Where() {
   const l = useLocation();
@@ -142,11 +144,11 @@ describe("default subject on the page", () => {
   it("Maths with no hint; ?t=science preselects Science everywhere it shows", async () => {
     renderAt("/pricing");
     expect(sku("pricing-subject-maths").getAttribute("aria-pressed")).toBe("true");
-    expect(sku("pricing-choose-chapter").textContent).toBe("Choose a Maths chapter · ₹49");
+    expect(sku("pricing-choose-chapter").textContent).toBe(`Choose a Maths chapter · ${packPayLabel("pack_chapter")}`);
     cleanup();
     renderAt("/pricing?t=science#packs");
     expect(sku("pricing-subject-science").getAttribute("aria-pressed")).toBe("true");
-    expect(sku("pricing-choose-chapter").textContent).toBe("Choose a Science chapter · ₹49");
+    expect(sku("pricing-choose-chapter").textContent).toBe(`Choose a Science chapter · ${packPayLabel("pack_chapter")}`);
     expect(screen.getByTestId("pricing-row-pack_subject").textContent).toContain("Science Subject Pack · ₹199");
     expect(screen.getByTestId("pricing-row-pack_mock").textContent).toContain("Science Mock Pack · ₹99");
   });
@@ -231,7 +233,7 @@ describe("checkout receives the right SKU + target — signed out (sign-in resum
     await settle();
     fireEvent.click(sku("pricing-choose-chapter"));
     fireEvent.click(sku("pricing-subject-science"));
-    expect(sku("pricing-choose-chapter").textContent).toBe("Choose a Science chapter · ₹49");
+    expect(sku("pricing-choose-chapter").textContent).toBe(`Choose a Science chapter · ${packPayLabel("pack_chapter")}`);
     // The picker re-opens on the newly chosen subject (it is modal on the real page; the switch sits behind it).
     fireEvent.click(sku("pricing-choose-chapter"));
     expect((await screen.findByTestId("pack-dialog")).getAttribute("data-picker-subject")).toBe("science");

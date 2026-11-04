@@ -58,14 +58,14 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
   it("every tile has its Buy, priced from PACK_PRICE_INR only", async () => {
     page();
     const P = packs.PACK_PRICE_INR;
-    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ₹${P.pack_bundle}`);
-    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy Maths ₹${P.pack_mock}`);
-    expect(screen.getByTestId("tile-buy-pack_mock-science").textContent).toBe(`Buy Science ₹${P.pack_mock}`);
-    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy Maths ₹${P.pack_subject}`);
-    expect(screen.getByTestId("tile-buy-pack_subject-science").textContent).toBe(`Buy Science ₹${P.pack_subject}`);
-    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe(`Choose chapter & buy · ₹${P.pack_chapter}`);
-    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ₹${P.pack_cbq}`);
-    expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe(`Buy Science CBQ · ₹${P.pack_cbq}`);
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ${packs.packPayLabel("pack_bundle")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe(`Choose chapter & buy · ${packs.packPayLabel("pack_chapter")}`);
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ${packs.packPayLabel("pack_cbq")}`);
+    expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe(`Buy Science CBQ · ${packs.packPayLabel("pack_cbq")}`);
     // "See inside" and the samples stay.
     expect(screen.getByTestId("packs-card-mock").textContent).toContain("See inside");
     expect(screen.getByTestId("packs-card-cbq-maths").textContent).toBe("See inside →");

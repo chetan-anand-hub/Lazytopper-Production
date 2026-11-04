@@ -31,7 +31,18 @@ import {
   TILL_BOARDS_FOUNDING_INR,
   tillBoardsPriceInr,
   tillBoardsQuote,
+  boardPassGstBreakdown,
+  boardPassTotalInr,
+  chargeFor,
+  displayPlusGst,
+  formatInr,
+  GST_EXCLUSIVE_FROM_ISO,
+  GST_EXCLUSIVE_FROM_MS,
+  GST_RATE_PERCENT,
+  gstBreakdownFor,
+  priceWithGst,
 } from "./pricing";
+import { PACK_PRICE_INR } from "../services/packs";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 
 const require = createRequire(import.meta.url);
@@ -202,5 +213,76 @@ describe("P16 — server pass pricing mirrors pricing.ts exactly", () => {
       tillBoardsQuote(now, "2027-02-17")?.monthsLeft,
     );
     expect(server.tillBoardsQuote(now, "2027-03-17")?.priceInr).toBe(1917);
+  });
+});
+
+// ── GST-EXCL-1 (owner, 4 Nov 2026): EVERY paid product is priced "+ 18% GST" from 00:00 IST 5 Nov 2026. The server
+// charges `chargeFor(base, orderTime)`; the client shows `chargeFor(base, now)`. They are the same rule or this is red.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const gstServer = require("../../server/services/passPricing.cjs") as {
+  GST_RATE_PERCENT: number;
+  GST_EXCLUSIVE_FROM_ISO: string;
+  GST_EXCLUSIVE_FROM_MS: number;
+  chargeFor: (base: number, now: number) => { baseInr: number; gstInr: number; totalInr: number; gstRate: number; gstExclusive: boolean };
+  priceWithGst: (base: number, now: number) => number;
+  displayPlusGst: (base: number, now: number) => string;
+  gstBreakdownFor: (base: number, now: number) => string | null;
+  formatInr: (n: number) => string;
+};
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const serverPacks = require("../../server/services/packProducts.cjs") as { PACK_PRODUCTS: Record<string, { priceInr: number }> };
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const serverTopups = (require("../../server/services/passPricing.cjs") as { TOPUP_PRODUCTS: Record<string, { priceInr: number }> }).TOPUP_PRODUCTS;
+
+describe("GST-EXCL-1 — the GST rule is ONE rule, server and client, for the Board Pass, every pack and top-ups", () => {
+  const CUT = GST_EXCLUSIVE_FROM_MS;
+  const INSTANTS: number[] = [CUT - 86_400_000, CUT - 1, CUT, CUT + 1, +istNoon("2026-11-30"), FOUNDING_OFFER_CLOSES_AT_MS - 1, FOUNDING_OFFER_CLOSES_AT_MS, +istNoon("2027-02-01")];
+  const BASES = [
+    TILL_BOARDS_FOUNDING_INR,
+    TILL_BOARDS_AFTER_FOUNDING_INR,
+    ...Object.values(PACK_PRICE_INR),
+    ...Object.values(serverPacks.PACK_PRODUCTS).map((p) => p.priceInr),
+    ...Object.values(serverTopups).map((p) => p.priceInr),
+  ];
+
+  it("the constants are identical: 18%, from 2026-11-05T00:00:00+05:30", () => {
+    expect(GST_RATE_PERCENT).toBe(18);
+    expect(gstServer.GST_RATE_PERCENT).toBe(GST_RATE_PERCENT);
+    expect(GST_EXCLUSIVE_FROM_ISO).toBe("2026-11-05T00:00:00+05:30");
+    expect(gstServer.GST_EXCLUSIVE_FROM_ISO).toBe(GST_EXCLUSIVE_FROM_ISO);
+    expect(gstServer.GST_EXCLUSIVE_FROM_MS).toBe(GST_EXCLUSIVE_FROM_MS);
+  });
+
+  it("the client pack table equals the server pack table (the base every pack's GST is computed on)", () => {
+    for (const [sku, p] of Object.entries(serverPacks.PACK_PRODUCTS)) expect(PACK_PRICE_INR[sku as keyof typeof PACK_PRICE_INR]).toBe(p.priceInr);
+  });
+
+  it("charge, tag and breakup agree on every base at every instant (before, at and after the cut-off; across 1 Dec)", () => {
+    for (const now of INSTANTS) {
+      for (const base of BASES) {
+        expect(gstServer.chargeFor(base, now)).toEqual(chargeFor(base, now));
+        expect(gstServer.priceWithGst(base, now)).toBe(priceWithGst(base, now));
+        expect(gstServer.displayPlusGst(base, now)).toBe(displayPlusGst(base, now));
+        expect(gstServer.gstBreakdownFor(base, now)).toBe(gstBreakdownFor(base, now));
+        expect(gstServer.formatInr(base)).toBe(formatInr(base));
+      }
+    }
+  });
+
+  it("the Board Pass: what the client shows on the Pay button is what the server charges, on both sides of both switches", () => {
+    for (const now of INSTANTS) {
+      expect(gstServer.priceWithGst(server.tillBoardsPriceInr(now), now)).toBe(boardPassTotalInr(now));
+    }
+    // The owner's published totals (computed here, never typed in product code).
+    expect([1917, 2499, 49, 99, 199, 299].map((b) => priceWithGst(b, CUT))).toEqual([2262, 2949, 58, 117, 235, 353]);
+    expect(boardPassTotalInr(CUT - 1)).toBe(1917);
+    expect(boardPassTotalInr(CUT)).toBe(2262);
+    expect(boardPassTotalInr(FOUNDING_OFFER_CLOSES_AT_MS)).toBe(2949);
+    expect(boardPassGstBreakdown(CUT)).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262");
+    expect(boardPassGstBreakdown(CUT - 1)).toBeNull();
+  });
+
+  it("CONTROL — the comparison can fail: one ms before the cut-off differs from the cut-off", () => {
+    expect(chargeFor(1917, CUT - 1)).not.toEqual(chargeFor(1917, CUT));
   });
 });

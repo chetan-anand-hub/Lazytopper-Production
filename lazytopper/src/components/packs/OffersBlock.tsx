@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, type ReactNode } from "react";
 
 import { trackSaleMoment } from "../../analytics/analytics";
-import { boardPassFoundingLabel, boardPassFromLine } from "../../config/pricing";
+import { boardPassFoundingLabel, boardPassFromLine, boardPassPayDisplay } from "../../config/pricing";
 import { isPacksEntryEnabled } from "../../lib/packs/packEntryLazy";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
@@ -48,9 +48,10 @@ export interface OffersBlockProps {
 }
 
 /** The Pay button's words. Payments dark: no "Pay" promise - the link then only shows the plan on /pricing. */
-export function payLabel(verb: "Pay" | "Get it for", price: string | null, paymentsOn: boolean): string {
+export function payLabel(verb: "Pay" | "Get it for", price: string | null, paymentsOn: boolean, payPrice: string | null = price): string {
   if (!paymentsOn) return price ? `See Board Pass ${price}` : "See the Board Pass";
-  return price ? `${verb} ${price}` : "Get the Board Pass";
+  // GST-EXCL-1: a Pay button names the amount CHARGED (base + GST from 5 Nov 2026), never the "+ GST" tag.
+  return payPrice ? `${verb} ${payPrice}` : "Get the Board Pass";
 }
 
 export default function OffersBlock({ surface, ctx, uid, showCard = true, showPacks, headline, lead, benefit, payVerb = "Pay", whatYouGet = true, cardExtras, onPayTap }: OffersBlockProps) {
@@ -100,7 +101,7 @@ export default function OffersBlock({ surface, ctx, uid, showCard = true, showPa
               onPayTap?.();
             }}
           >
-            {payLabel(payVerb, price, paymentsOn)}
+            {payLabel(payVerb, price, paymentsOn, price ? boardPassPayDisplay() : null)}
           </OfferLink>
           <div className="lt-offers__fine">
             <span data-testid="offers-from-line">{boardPassFromLine()}</span>

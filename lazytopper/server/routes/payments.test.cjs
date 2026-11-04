@@ -1440,13 +1440,17 @@ test('PRICE-FIXED-1 · the retirement instant is exactly 2026-11-01T00:00:00+05:
 });
 
 test('PRICE-FIXED-1 · till_boards is 1917 until the founding deadline and 2499 from it: 31 Oct, 30 Nov 23:59:59 IST -> 1917; 1 Dec 00:00:00 IST, 2 Dec, 1 Feb -> 2499 (the SERVER clock decides)', async (t) => {
+  // GST-EXCL-1: from 00:00 IST 5 Nov 2026 the order is the base + 18% GST (1917 -> 2262, 2499 -> 2949); the founding ->
+  // regular switch at 1 Dec still happens, now on the GST-inclusive total.
   const cases = [
     [Date.parse('2026-10-31T10:00:00+05:30'), 191700],
-    [Date.parse('2026-11-15T10:00:00+05:30'), 191700],
-    [Date.parse('2026-11-30T23:59:59+05:30'), 191700],
-    [Date.parse('2026-12-01T00:00:00+05:30'), 249900],
-    [Date.parse('2026-12-02T10:00:00+05:30'), 249900],
-    [Date.parse('2027-02-01T10:00:00+05:30'), 249900],
+    [Date.parse('2026-11-04T23:59:59.999+05:30'), 191700],
+    [Date.parse('2026-11-05T00:00:00+05:30'), 226200],
+    [Date.parse('2026-11-15T10:00:00+05:30'), 226200],
+    [Date.parse('2026-11-30T23:59:59+05:30'), 226200],
+    [Date.parse('2026-12-01T00:00:00+05:30'), 294900],
+    [Date.parse('2026-12-02T10:00:00+05:30'), 294900],
+    [Date.parse('2027-02-01T10:00:00+05:30'), 294900],
   ];
   for (const [nowMs, paise] of cases) {
     const label = new Date(nowMs).toISOString();
@@ -1544,9 +1548,9 @@ test('PRICE-FIXED-1 · only a PAID MONTH order counts: an unpaid month order, an
   t.after(srv.close);
   const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: asUid('u_c') });
   assert.equal(r.status, 409);
-  // ...and the Board Pass is of course still sold to the same account.
+  // ...and the Board Pass is of course still sold to the same account (GST-EXCL-1: 1917 + GST on 10 Nov).
   const ok = await createOrder(srv, 'u_c', 'till_boards');
-  assert.equal(ok.amountPaise, 191700);
+  assert.equal(ok.amountPaise, 226200);
 });
 
 test('PRICE-FIXED-1 · a read failure while deriving the history FAILS CLOSED (no order, no Razorpay call)', async (t) => {
@@ -1644,9 +1648,9 @@ test('EXISTING-BUYERS (1) · a till_boards buyer: their stored pass is byte-iden
   assert.equal(refused.status, 409);
   assert.equal(snapshotDocs(db), before, 'a read-only/refused call rewrote a stored document');
 
-  // A new Board Pass order: priced at the fixed 1917; the ONLY new document is the new payOrders order.
+  // A new Board Pass order: priced at the fixed 1917 + 18% GST (GST-EXCL-1, 10 Nov); the ONLY new document is the new payOrders order.
   const ok = await createOrder(srv, 'tb1', 'till_boards');
-  assert.equal(ok.amountPaise, 191700);
+  assert.equal(ok.amountPaise, 226200);
   const after = new Map(db.docs);
   const added = [...after.keys()].filter((k) => !JSON.parse(before).some(([bk]) => bk === k));
   assert.deepEqual(added, [`payOrders/${ok.orderId}`]);
@@ -1736,9 +1740,11 @@ test('EXISTING-BUYERS (3) · PACK-TERMS-1: a pack paid BEFORE the 5 Nov cut-off 
   const srv = await startRoutes({ db, now: () => istNoon('2026-11-05'), calendarOffer: true });
   t.after(srv.close);
   const out = await createOrder(srv, 'pc1', 'till_boards');
-  assert.equal(out.amountPaise, (1917 - 49) * 100);
+  // GST-EXCL-1: on 5 Nov the Board Pass is 1917 + 345 GST = 2262; the old pack credit comes off that total.
+  assert.equal(out.amountPaise, (2262 - 49) * 100);
   const stored = db.read(`payOrders/${out.orderId}`);
   assert.equal(stored.packCreditInr, 49);
+  assert.deepEqual([stored.baseInr, stored.gstInr, stored.totalInr, stored.gstRate], [1917, 345, 2262, 0.18]);
   // The pack is NOT marked credited until the payment is granted (unchanged behaviour).
   assert.equal(db.read('packEntitlements/pc1/packs/pk1').creditedToPass, false);
   // PACK-TERMS-1: the same order for a pack paid AFTER the cut-off is charged the full fixed price, no credit stored.
@@ -1748,7 +1754,7 @@ test('EXISTING-BUYERS (3) · PACK-TERMS-1: a pack paid BEFORE the 5 Nov cut-off 
   const lsrv = await startRoutes({ db: ldb, now: () => istNoon('2026-11-06'), calendarOffer: true });
   t.after(lsrv.close);
   const late = await createOrder(lsrv, 'pc2', 'till_boards');
-  assert.equal(late.amountPaise, 1917 * 100, 'no credit for a pack paid on/after the cut-off');
+  assert.equal(late.amountPaise, 2262 * 100, 'no credit for a pack paid on/after the cut-off (1917 + GST)');
   assert.equal(ldb.read(`payOrders/${late.orderId}`).packCreditInr, undefined);
   // And a month order earns no credit (unchanged), for a month buyer.
   const mdb = memoryFirestore({ ...monthBuyerSeed(), 'packEntitlements/mb1/packs/pk2': { packId: 'pk2', sku: 'pack_chapter', target: 'x', pricePaidInr: 49, paidAt: istNoon('2026-11-19'), creditedToPass: false } });
@@ -1786,4 +1792,100 @@ test('EXISTING-BUYERS (4) · NO new write path: the month-history helpers are re
   assert.ok(!/collection\(SUBSCRIPTIONS_COLLECTION\)[^;]*\.(set|update)\(/.test(paymentsSrc), 'payments.cjs writes a subscription');
   const parentSrc = fs.readFileSync(path.join(__dirname, 'parentPay.cjs'), 'utf8');
   assert.ok(!/collection\(SUBSCRIPTIONS_COLLECTION\)[^;]*\.(set|update)\(/.test(parentSrc), 'parentPay.cjs writes a subscription');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GST-EXCL-1 — every paid product is priced "+ 18% GST" from 00:00 IST 5 Nov 2026 (server clock, at ORDER time)
+   ══════════════════════════════════════════════════════════════════════════ */
+const GST_CUT = Date.parse('2026-11-05T00:00:00+05:30');
+
+test('GST-EXCL-1 · the shared rule: totals = round(base x 1.18), from the cut-off only, mirrored by the constant', () => {
+  assert.equal(pricing.GST_EXCLUSIVE_FROM_MS, GST_CUT);
+  assert.equal(pricing.GST_RATE_PERCENT, 18);
+  const want = { 49: 58, 99: 117, 199: 235, 299: 353, 1917: 2262, 2499: 2949 };
+  for (const [base, total] of Object.entries(want)) {
+    assert.equal(pricing.priceWithGst(Number(base), GST_CUT), total, `${base} at the cut-off`);
+    assert.equal(pricing.priceWithGst(Number(base), GST_CUT - 1), Number(base), `${base} one ms before`);
+    const c = pricing.chargeFor(Number(base), GST_CUT);
+    assert.equal(c.baseInr + c.gstInr, c.totalInr);
+  }
+  assert.equal(pricing.gstBreakdownFor(1917, GST_CUT), '₹1,917 + ₹345 GST (18%) = ₹2,262');
+  assert.equal(pricing.gstBreakdownFor(1917, GST_CUT - 1), null);
+  assert.equal(pricing.displayPlusGst(49, GST_CUT), '₹49 + GST');
+  assert.equal(pricing.displayPlusGst(49, GST_CUT - 1), '₹49');
+});
+
+test('GST-EXCL-1 · Board Pass: an order before the cut-off is byte-identical (1917, no GST fields); at/after it Razorpay is asked for 2262 and the order stores { baseInr, gstInr, totalInr, gstRate }', async (t) => {
+  let clock = GST_CUT - 1;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const before = await createOrder(srv, 'u_pre', 'till_boards');
+  assert.equal(before.amountPaise, 191700);
+  const storedBefore = srv.db.read(`payOrders/${before.orderId}`);
+  for (const k of ['baseInr', 'gstInr', 'totalInr', 'gstRate']) assert.equal(k in storedBefore, false, `${k} on a pre-cut-off order`);
+  assert.deepEqual(quotePass({}, 'till_boards', GST_CUT - 1), { pricePaidInr: 1917, amountPaise: 191700, offerKey: 'founding' });
+  clock = GST_CUT;
+  const after = await createOrder(srv, 'u_post', 'till_boards');
+  assert.equal(after.amountPaise, 226200);
+  const sent = srv.rzp.calls.filter((c) => c.method === 'POST' && c.url.endsWith('/v1/orders')).pop();
+  assert.equal(sent.body.amount, 226200, 'Razorpay is asked for the total');
+  const stored = srv.db.read(`payOrders/${after.orderId}`);
+  assert.equal(stored.amountPaise, 226200);
+  assert.deepEqual([stored.baseInr, stored.gstInr, stored.totalInr, stored.gstRate], [1917, 345, 2262, 0.18]);
+});
+
+test('GST-EXCL-1 · an order created BEFORE the cut-off and verified AFTER it keeps its amount (1917) and grants exactly as before; a new order after it grants on 2262', async (t) => {
+  let clock = GST_CUT - 60_000;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const old = await createOrder(srv, 'u1', 'till_boards');
+  assert.equal(old.amountPaise, 191700);
+  clock = GST_CUT + 60_000;
+  const p = srv.rzp.pay(old.orderId);
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: old.orderId, paymentId: p.id, signature: checkoutSig(old.orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 1917, 'the older order is honoured at its own amount');
+  assert.equal(srv.db.read(`payOrders/${old.orderId}`).amountPaise, 191700);
+  // A brand-new order after the cut-off: the total, verified and granted (the grant records what was charged).
+  const fresh = await createOrder(srv, 'u2', 'till_boards');
+  assert.equal(fresh.amountPaise, 226200);
+  const p2 = srv.rzp.pay(fresh.orderId);
+  const r2 = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: fresh.orderId, paymentId: p2.id, signature: checkoutSig(fresh.orderId, p2.id) }, headers: asUid('u2') });
+  assert.equal(r2.status, 200, JSON.stringify(r2.json));
+  const sub = srv.db.read('subscriptions/u2');
+  assert.equal(sub.tier, 'premium');
+  assert.equal(sub.pricePaidInr, 2262);
+  assert.equal(ms(sub.passEnd), ms(srv.db.read('subscriptions/u1').passEnd), 'the pass itself (end date) is unchanged by GST');
+  // A payment of the OLD amount against the new order is still refused (Z4).
+  const fresh2 = await createOrder(srv, 'u3', 'till_boards');
+  const short = srv.rzp.pay(fresh2.orderId, { amount: 191700 });
+  const r3 = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: fresh2.orderId, paymentId: short.id, signature: checkoutSig(fresh2.orderId, short.id) }, headers: asUid('u3') });
+  assert.equal(r3.status, 400);
+  assert.equal(r3.json.reason, 'amount_mismatch');
+});
+
+test('GST-EXCL-1 · webhook: a captured payment of a post-cut-off order (2262) grants; the order amount is the check', async (t) => {
+  const srv = await startRoutes({ now: () => GST_CUT + DAY, calendarOffer: true });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'till_boards');
+  const p = srv.rzp.pay(orderId);
+  const raw = webhookBody({ ...p });
+  const r = await sendWebhook(srv, raw);
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 2262);
+});
+
+test('GST-EXCL-1 · top-ups follow the same rule: 49 -> 58 and 149 -> 176 after the cut-off; the credit bought is unchanged', async (t) => {
+  const db = memoryFirestore({
+    'subscriptions/u1': { tier: 'premium', plan: 'month', premiumSince: new Date(GST_CUT - DAY).toISOString(), passEnd: new Date(GST_CUT + 10 * DAY).toISOString() },
+  });
+  const srv = await startRoutes({ env: ENV_TOPUP, db, now: () => GST_CUT + DAY });
+  t.after(srv.close);
+  const a = await payTopup(srv, 'topup_49');
+  assert.equal(a.r.status, 200, JSON.stringify(a.r.json));
+  assert.equal(srv.db.read(`payOrders/${a.orderId}`).amountPaise, 5800);
+  assert.equal(srv.db.read(`payOrders/${a.orderId}`).baseInr, 49);
+  assert.equal(srv.db.read('usageCredits/u1').balanceMicroInr, 25 * MICRO);
+  assert.equal(pricing.priceWithGst(149, GST_CUT), 176);
 });

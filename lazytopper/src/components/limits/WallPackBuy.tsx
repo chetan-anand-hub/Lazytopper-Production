@@ -16,7 +16,7 @@ import { chapterFromLocation, firePackEntryClick, mockSubjectFromLocation } from
 import { packChapterLabel } from "../../lib/packs/packLabels";
 import { buyHrefFor } from "../packs/offersModel";
 import { useOwnedPacks } from "../packs/useOwnedPacks";
-import { PACK_CHAPTER_SLUGS, isAlreadyOwned, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../../services/packs";
+import { PACK_CHAPTER_SLUGS, isAlreadyOwned, packPayLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../../services/packs";
 import type { DownloadCover } from "../../services/limitsClient";
 import type { DownloadPaperHint } from "./DownloadLimitWall";
 import type { DownloadKind } from "../../analytics/analytics";
@@ -68,7 +68,8 @@ export function wallPackOffer(ctx: {
   const offer = (sku: PackSku, target: string, name: string, fallback = false): WallPackOffer => ({
     sku,
     target,
-    label: `Or get the ${name} · ${packPriceLabel(sku)}`,
+    // GST-EXCL-1: a one-tap buy link names the amount CHARGED (base + GST from 5 Nov 2026).
+    label: `Or get the ${name} · ${packPayLabel(sku)}`,
     href: buyHrefFor(sku, target),
     fallback,
   });
