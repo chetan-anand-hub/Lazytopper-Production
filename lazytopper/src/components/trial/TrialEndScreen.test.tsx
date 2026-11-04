@@ -188,7 +188,10 @@ describe("TrialEndScreen", () => {
     hydrate.mockResolvedValue(status("free"));
     renderAt("/browse");
     await screen.findByTestId("trial-end-screen");
-    expect(document.body.style.overflow).toBe("hidden");
+    // FLAKY-1: the scroll lock, the Tab trap and the back-button listener are all passive effects of the commit that paints the
+    // screen. findByTestId can resolve on that paint before React flushes them (seen under CI load: overflow was still ''), so
+    // wait for the lock itself; once it is set, every effect of that commit has run.
+    await waitFor(() => expect(document.body.style.overflow).toBe("hidden"));
     const basic = screen.getByRole("button", { name: "Continue with Basic" });
     basic.focus();
     fireEvent.keyDown(document, { key: "Tab" }); // last control -> wraps to the first
@@ -272,7 +275,8 @@ describe("TrialCountdownBar", () => {
     const bar = await screen.findByTestId("trial-countdown-bar");
     expect(bar).toHaveTextContent(/4 days left of your free week · Board Pass ₹1,917 till boards/);
     expect(screen.getByRole("link")).toHaveAttribute("href", "/pricing?source=trial-bar");
-    expect(trackShown).toHaveBeenCalled();
+    // FLAKY-1: "shown" is a passive effect of the paint findByTestId just saw; wait for it rather than race it.
+    await waitFor(() => expect(trackShown).toHaveBeenCalled());
   });
 
   it("not before day 4", async () => {

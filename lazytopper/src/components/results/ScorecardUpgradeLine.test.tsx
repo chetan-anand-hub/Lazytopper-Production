@@ -1,5 +1,5 @@
 // ASK-FIX-1 / OFFERS-V2 - the scorecard's upgrade line and (on a fresh result) the one buying block: real marks only, never for Premium, on all six surfaces.
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -44,6 +44,12 @@ const marks = (awarded: number, total: number) => ({ kind: "marks" as const, awa
 const variantFor = (surface: ScorecardSurface, score: ScorecardVariant["score"]): ScorecardVariant =>
   ({ surface, title: "T", subtitle: "S", score, actions: [] }) as unknown as ScorecardVariant;
 const SURFACES: ScorecardSurface[] = ["check-improve", "worksheet", "chapter-test", "full-mock", "quick-practice"];
+
+// FLAKY-1: warm the lazy chunk(s) once, before the first test, so no test's findBy* window pays the cold transform + import
+// (under parallel load that alone ran past the 5 s findBy budget). The component still loads them through its own lazy().
+beforeAll(async () => {
+  await import("../packs/OfferRows");
+}, 60_000);
 
 beforeEach(() => {
   vi.stubEnv("VITE_PACKS_ENABLED", "1"); // SALE-MOMENT-1: the pack line is behind the packs switch
@@ -382,13 +388,17 @@ describe("OFFERS-V2: the pack rows, per surface, highest price first", () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
     show(withTarget("chapter-test", "/practice/10/maths?topic=triangles", "Triangles"));
     await screen.findByTestId("offers-packs");
-    const shown = spy.mock.calls.filter((c) => c[0] === "sale_moment_shown").map((c) => c[1]);
-    expect(shown).toEqual([
-      { surface: "chapter-test", offer: "board_pass", rank: 1 },
-      { surface: "chapter-test", offer: "pack_bundle", rank: 2 },
-      { surface: "chapter-test", offer: "pack_cbq", rank: 3 },
-      { surface: "chapter-test", offer: "pack_chapter", rank: 4 },
-    ]);
+    // FLAKY-1: the rows' "shown" events fire in OfferRows' passive effect, after the paint findByTestId resolves on (under CI load
+    // only the card's rank-1 event had landed). Wait for the exact, complete list; any extra or missing event still fails.
+    const shown = () => spy.mock.calls.filter((c) => c[0] === "sale_moment_shown").map((c) => c[1]);
+    await waitFor(() =>
+      expect(shown()).toEqual([
+        { surface: "chapter-test", offer: "board_pass", rank: 1 },
+        { surface: "chapter-test", offer: "pack_bundle", rank: 2 },
+        { surface: "chapter-test", offer: "pack_cbq", rank: 3 },
+        { surface: "chapter-test", offer: "pack_chapter", rank: 4 },
+      ]),
+    );
     fireEvent.click(screen.getByTestId("offers-buy-pack_cbq"));
     expect(spy).toHaveBeenLastCalledWith("sale_moment_tap", { surface: "chapter-test", offer: "pack_cbq", rank: 3 });
     fireEvent.click(screen.getByTestId("offers-inside-pack_chapter"));

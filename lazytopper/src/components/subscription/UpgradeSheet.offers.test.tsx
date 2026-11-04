@@ -3,7 +3,7 @@
  * Trial AND Basic see the packs (owner, 28 Oct + 2 Nov); paid Premium never; the way out is a small grey link at the bottom;
  * the "You keep Basic free, always ..." paragraph is gone from a paper wall. Each negative has a positive control.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -54,6 +54,12 @@ function wall(offers: Offers, props: Partial<React.ComponentProps<typeof Upgrade
   return { onClose };
 }
 const rows = () => Array.from(document.querySelectorAll("[data-testid^='offers-row-']")).map((n) => n.getAttribute("data-testid")!.replace("offers-row-", ""));
+
+// FLAKY-1: warm the lazy chunk(s) once, before the first test, so no test's findBy* window pays the cold transform + import
+// (under parallel load that alone ran past the 5 s findBy budget). The component still loads them through its own lazy().
+beforeAll(async () => {
+  await Promise.all([import("../packs/OfferRows"), import("../packOwner/PackOwnerLine")]);
+}, 60_000);
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date("2026-11-02T06:30:00.000Z"), toFake: ["Date"] }); // the Board Pass price follows the founding deadline
