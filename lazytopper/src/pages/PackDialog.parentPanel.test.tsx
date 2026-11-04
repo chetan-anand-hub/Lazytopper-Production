@@ -196,7 +196,8 @@ describe("PACK-DIALOG-1 · the CSS: nothing sticky over the content", () => {
 
   it("only the phone footer is sticky; the share slot never is", () => {
     const stickyRules = css.match(/[^{}]+\{[^}]*position:\s*sticky[^}]*\}/g) ?? [];
-    expect(stickyRules.map((r) => r.slice(0, r.indexOf("{")).trim())).toEqual([".lt-pkd__foot"]);
+    // The phone footer (Buy row), and from 900px only the small close button - never anything holding the parent panel.
+    expect(stickyRules.map((r) => r.slice(0, r.indexOf("{")).trim())).toEqual([".lt-pkd__foot", ".lt-pkd__x"]);
     expect(css).not.toMatch(/\.lt-pkd__share[^{]*\{[^}]*sticky/);
   });
 
@@ -205,7 +206,8 @@ describe("PACK-DIALOG-1 · the CSS: nothing sticky over the content", () => {
     expect(wide).toMatch(/\.lt-pkd__panel\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 300px;/);
     expect(wide).toMatch(/\.lt-pkd__foot\s*\{[^}]*grid-column:\s*2;[^}]*align-self:\s*start;/);
     expect(wide).toMatch(/\.lt-pkd__share\s*\{[^}]*grid-column:\s*1 \/ -1;/);
-    expect(wide).not.toMatch(/sticky/);
+    expect(wide.match(/[^{}]+\{[^}]*sticky[^}]*\}/g)?.map((r) => r.slice(0, r.indexOf("{")).trim())).toEqual([".lt-pkd__x"]);
+    expect(wide).toMatch(/\.lt-pkd__foot\s*\{[^}]*min-width:\s*0;/);
   });
 
   it("on desktop the footer is not sticky", () => {

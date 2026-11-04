@@ -140,14 +140,21 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
     width: min(1040px, 100%); padding: 24px 28px 0;
     --pkd-slide-w: 236px; --pkd-slide-h: clamp(200px, calc(100dvh - 330px), 320px);
   }
-  .lt-pkd__head { grid-column: 1; grid-row: 1; }
+  /* The head's two parts become grid items: the title block on the left, the close button in the right column (below). */
+  .lt-pkd__head { display: contents; }
+  .lt-pkd__head > div { grid-column: 1; grid-row: 1; }
   .lt-pkd__stage { grid-column: 1; grid-row: 2; }
   .lt-pkd__dots { grid-column: 1; grid-row: 3; }
   .lt-pkd__samplecap { grid-column: 1; grid-row: 4; margin: 0; }
   .lt-pkd__title { font-size: 28px; padding-right: 0; }
-  .lt-pkd__x { position: absolute; top: 18px; right: 18px; }
+  /* Review: the close button stays in view while the dialog scrolls (e.g. after the parent panel's heading is scrolled to):
+     sticky at the top of the panel's scroll area, over the right column and the parent panel's rows. */
+  .lt-pkd__x {
+    grid-column: 2; grid-row: 1 / 7; align-self: start; justify-self: end; position: sticky; top: 0; z-index: 2;
+    margin: -6px -10px 0 0; box-shadow: 0 2px 8px rgba(15, 27, 45, 0.12);
+  }
   .lt-pkd__foot {
-    grid-column: 2; grid-row: 1 / span 5; align-self: start; flex-direction: column; align-items: stretch; gap: 10px;
+    grid-column: 2; grid-row: 1 / span 5; align-self: start; min-width: 0; flex-direction: column; align-items: stretch; gap: 10px;
     margin-top: 52px; padding: 18px; border: 1px solid #dbe2ea; border-radius: 18px; background: #f6f9fb;
   }
   .lt-pkd__cardprice { display: block; margin: 0; font-size: 15px; color: #2f3e55; }
@@ -159,7 +166,7 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
   .lt-pkd__buy > .lt-pkd__sample { order: 4; }
   .lt-pkd__buy .lt-paywall-actions { margin: 0; max-width: none; }
   .lt-pkd__plain { font-size: 15.5px; text-align: center; }
-  .lt-pkd__share { grid-column: 1 / -1; margin-top: 4px; padding: 0 0 28px; }
+  .lt-pkd__share { grid-column: 1 / -1; grid-row: 6; margin-top: 4px; padding: 0 0 28px; }
   .lt-pkd__btn { height: 54px; }
 }
 @media (min-width: 900px) and (max-height: 700px) {
