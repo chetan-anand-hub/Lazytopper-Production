@@ -704,6 +704,29 @@ test('PACKS-LIMIT-1: bad cover is ignored and counted as today (and the packs ar
   assert.equal(parseCover(undefined), null);
 });
 
+// REDOWNLOAD-ENFORCE-1: a pack covers papers only until its re-download date, on the SERVER clock (the limits `now`).
+// MUTATION: pass the raw pack list to coverIsOwned again -> the "day after" assertions go RED.
+const istMs = (s) => Date.parse(`${s}+05:30`);
+const coverAt = async (paidAt, nowMs) => {
+  const r = rig({ listPacks: async () => [{ packId: 'pack_chapter:triangles', paidAt }] });
+  r.clock.now = nowMs;
+  const a = await mint(r, { kind: 'worksheet', paperKey: `p-${nowMs}`, cover: { chapters: ['triangles'] } });
+  return a.body.packOwned === true;
+};
+test('REDOWNLOAD-ENFORCE-1: a post-5-Nov pack covers through 31 Mar 2027 IST and stops covering on 1 Apr', async () => {
+  const paid = istMs('2026-11-05T09:00:00');
+  assert.equal(await coverAt(paid, istMs('2027-03-30T12:00:00')), true, 'day before');
+  assert.equal(await coverAt(paid, istMs('2027-03-31T23:59:59.999')), true, 'the day');
+  assert.equal(await coverAt(paid, istMs('2027-04-01T00:00:00')), false, 'day after: counted as an ordinary paper');
+});
+test('REDOWNLOAD-ENFORCE-1: a pre-5-Nov pack, or one with no paid time, covers through 31 May 2027 IST', async () => {
+  for (const paid of [istMs('2026-11-04T23:59:59'), undefined]) {
+    assert.equal(await coverAt(paid, istMs('2027-04-01T12:00:00')), true, `${paid}: past the new date`);
+    assert.equal(await coverAt(paid, istMs('2027-05-31T23:59:59.999')), true, `${paid}: the day`);
+    assert.equal(await coverAt(paid, istMs('2027-06-01T00:00:00')), false, `${paid}: day after`);
+  }
+});
+
 test('PACKS-LIMIT-1: a packs read that throws, rejects or hangs counts as today - no 500, no refusal, no fail-open change', async () => {
   for (const listPacks of [
     async () => { throw new Error('firestore down'); },

@@ -47,6 +47,7 @@ const crypto = require('node:crypto');
 const { LIMITS_CONFIG } = require('./limitsConfig.cjs');
 const { chargeableCountOf } = require('../grading/charge.cjs');
 const { PACK_CHAPTERS, PACK_SUBJECTS, ownsChapter, ownsMocks } = require('./packProducts.cjs');
+const { splitByRedownload } = require('./packTerms.cjs');
 
 const USAGE_LEDGER_COLLECTION = 'usageLedger';
 // An object member (not a bare constant) on purpose, like usageLedger.cjs LEDGER_SEGMENTS: this is a
@@ -489,7 +490,8 @@ function createLimits(deps = {}) {
         Promise.resolve().then(() => readPacks(uid)),
         new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('packs_timeout')), PACKS_READ_TIMEOUT_MS); }),
       ]);
-      return coverIsOwned(kind, cover, packs);
+      // REDOWNLOAD-ENFORCE-1: a pack past its re-download date (SERVER clock) no longer covers a paper; before it, unchanged.
+      return coverIsOwned(kind, cover, splitByRedownload(packs, now()).open);
     } catch {
       emit('limits.download.pack_read_failed');
       return false;

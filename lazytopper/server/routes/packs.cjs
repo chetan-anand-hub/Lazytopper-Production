@@ -8,6 +8,8 @@
 
 const { listPacks } = require('../services/packGrant.cjs');
 const { boardPassCreditFor } = require('../services/packCredit.cjs');
+// REDOWNLOAD-ENFORCE-1: the pack re-download date (31 Mar 2027 from 5 Nov 2026; 31 May 2027 before), on the SERVER clock.
+const { splitByRedownload } = require('../services/packTerms.cjs');
 const { quotePass } = require('./payments.cjs');
 // PAY-PHONE-1: a phone-only account is licensed by its MASKED verified number (never the full number).
 const { maskIndianMobile } = require('../services/guestPay.cjs');
@@ -55,14 +57,20 @@ function createPackRoutes(deps = {}) {
       emit('packs.mine.licensee_unavailable');
       return sendJson(res, 503, { ok: false, error: 'licensee_unavailable' });
     }
-    let packs;
+    let owned;
     try {
-      packs = await listPacks(adminFirestore, uid);
+      owned = await listPacks(adminFirestore, uid);
     } catch (e) {
       emit('packs.mine.read_failed');
       console.error('[packs/mine] read failed:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not read your packs.' });
     }
+    // REDOWNLOAD-ENFORCE-1: a pack whose re-download date has passed (SERVER clock) is no longer served - it leaves `packs`
+    // (the list the client builds PDFs from, so no Download button can appear for it) and is reported in `endedPacks` with
+    // its date, so My packs can say so honestly. The entitlement document is NOT touched. Before the date `packs` is the
+    // same list as before and `endedPacks` is absent: the response is byte-identical to today's.
+    const { open: packs, ended } = splitByRedownload(owned, now());
+    if (ended.length > 0) emit('packs.mine.redownload_ended');
     // PACK-CREDIT-1: what the student's recent packs take off a Board Pass right now, and what the server says
     // the student would then pay (payInr = the server's Board Pass quote less the credit). READ ONLY. A failed
     // or doubtful read is credit 0 (the packs themselves are still returned). The order route decides the
@@ -85,14 +93,14 @@ function createPackRoutes(deps = {}) {
     // for a student who owns a CBQ Pack (the client shows its banner from it, and only to a non-Premium student).
     let tutorTaste;
     try {
-      if (packs.some((p) => p.sku === 'pack_cbq') && cbqTutorTaste && typeof cbqTutorTaste.status === 'function') {
+      if (owned.some((p) => p.sku === 'pack_cbq') && cbqTutorTaste && typeof cbqTutorTaste.status === 'function') {
         const t = await cbqTutorTaste.status(uid);
         if (t && t.owned) tutorTaste = { used: t.used, left: t.left, limit: t.limit };
       }
     } catch {
       tutorTaste = undefined;
     }
-    return sendJson(res, 200, { packs, licensee, boardPassCredit, ...(tutorTaste ? { tutorTaste } : {}) });
+    return sendJson(res, 200, { packs, licensee, boardPassCredit, ...(tutorTaste ? { tutorTaste } : {}), ...(ended.length > 0 ? { endedPacks: ended } : {}) });
   }
 
   return { handleMine };

@@ -44,6 +44,8 @@ export const ALLOWED_ORPHANS: Record<string, string> = {
   "src/services/weakAreaAggregator.ts": "orphaned by ME-CONCEPT-1 PR-B (no live importer; tests + ops guards still read it); retire with [FU-WEAKAREA-AGGREGATOR-RETIRE]",
   "src/services/attemptOutcome.ts": "its only live importer was weakAreaAggregator (orphaned by ME-CONCEPT-1 PR-B); retire with [FU-WEAKAREA-AGGREGATOR-RETIRE]",
   "src/components/pricing/PacksStrip.tsx": "PRICING-B-1 (3 Nov 2026): /pricing no longer mounts the old packs strip (Option B shows the CBQ card + #packs itself); kept only so lane PACK-TERMS-1's open edit to it applies cleanly and its tests keep running; delete with [FU-PACKSSTRIP-RETIRE]",
+  "src/lib/packs/EndedPacksNote.tsx": "REDOWNLOAD-ENFORCE-1 (4 Nov 2026): My packs' 're-download window ended' line, built and tested ahead of its mount; My packs lives in PacksShop.tsx (lane PARENT-PACKS-1 #1542 holds it). Mount it and drop this entry with [FU-REDOWNLOAD-ENDED-MOUNT] (before 31 Mar 2027)",
+  "src/lib/packs/packEnded.ts": "REDOWNLOAD-ENFORCE-1: the parser/wording for the server's endedPacks; its only importer is EndedPacksNote (above); goes live with [FU-REDOWNLOAD-ENDED-MOUNT]",
   "src/components/startHere/startHereAvailabilitySource.ts": "QP-SCORECARD-2 D3: build-time source of startHereAvailability.generated.ts - read only by scripts/generateStartHereAvailability.mjs and the drift guard in startHereBank.test.ts; the live app imports the generated file",
 };
 
