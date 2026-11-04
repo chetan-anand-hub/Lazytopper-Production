@@ -73,6 +73,8 @@ import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import {
   recordWorksheetDownload,
   mintUniqueWorksheetCode,
+  WorksheetCodeCheckError,
+  CODE_CHECK_FAILED_LINE,
   type WorksheetDownloadSave,
   fetchWorksheetPaperSnapshot,
   reapGradedWorksheetSnapshots,
@@ -361,6 +363,9 @@ function WorksheetGeneratorInner() {
   const [paperNote, setPaperNote] = useState<
     { worksheetId: string; code: string; name: string; status: "saved" | "failed" | "signedout" } | null
   >(null);
+  // The ready screen's code check: a signed-in paper is only marked once its code is verified unique.
+  const [codeGate, setCodeGate] = useState<{ worksheetId: string; status: "checking" | "ok" | "unknown" } | null>(null);
+  const [gateNonce, setGateNonce] = useState(0);
   const gradeSectionRef = useRef<HTMLElement | null>(null);
   // The latest auth, readable from inside an async download (a stale closure would still see `loading`).
   const authRef = useRef({ user, loading: authLoading });
@@ -868,36 +873,62 @@ function WorksheetGeneratorInner() {
         await new Promise((r) => setTimeout(r, AUTH_WAIT_STEP_MS));
       }
       const liveUser = authRef.current.user;
-      // Mint (once) the DURABLE session code and print it on the sheet, so each
-      // solved worksheet carries the same ID it will later be graded under.
-      // Best-effort: a code-mint miss must never block the download.
-      let code: string | undefined;
+      const paperId = generated.worksheetId;
+      const signedInNow = !!liveUser?.uid && !liveUser?.isLocalSession;
+      // The DURABLE session code, CHECKED against this student's saved papers before it is frozen,
+      // stored or printed. If the check cannot be completed nothing is printed or stored: the student
+      // retries (the button stays live). Any other mint miss must never block the download.
+      let paperNow: PersistedWorksheet = generated;
+      type Nomen = Awaited<ReturnType<typeof mintUniqueWorksheetCode>>;
+      const held: { n: Nomen | null } = { n: null };
+      const adopt = (n: Nomen) => {
+        held.n = n;
+        paperNow = { ...paperNow, code: n.code, name: n.name, sequence: n.sequence };
+        // The grade panel reads THIS state: a bumped code must reach it, or an upload would grade onto the stale code.
+        setGenerated((g) => (g && g.worksheetId === paperId ? { ...g, code: n.code, name: n.name, sequence: n.sequence } : g));
+        setCodeGate({ worksheetId: paperId, status: "ok" });
+      };
       try {
-        const nomen = await mintUniqueWorksheetCode(generated, liveUser, listStoredWorksheetsLite());
-        code = nomen.code;
-        // PENDING-UPLOAD-1: the downloaded paper becomes a pending card + a saved copy, so
-        // "Upload later" can come back to it (this device or another). Never blocks the PDF.
-        if (kind === "questions") {
-          const paperId = generated.worksheetId;
-          const signedInNow = !!liveUser?.uid && !liveUser?.isLocalSession;
-          if (!signedInNow) {
-            setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "signedout" });
-          }
-          void recordWorksheetDownload(liveUser, generated, nomen)
-            .then((outcome: WorksheetDownloadSave) => {
-              setHistoryNonce((n) => n + 1);
-              if (outcome === "saved") setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "saved" });
-              else if (outcome === "failed" || outcome === "collision") setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "failed" });
-              // "kept" (already graded) and "skipped" (signed out - already noted) change nothing.
-            })
-            .catch(() => {
-              setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "failed" });
-            });
+        adopt(await mintUniqueWorksheetCode(generated, liveUser, listStoredWorksheetsLite()));
+      } catch (error) {
+        if (error instanceof WorksheetCodeCheckError) {
+          setDownloadError(CODE_CHECK_FAILED_LINE);
+          return;
         }
-      } catch {
         /* keep downloading without a code rather than fail the PDF */
       }
-      await exportWorksheetPdf(generated, kind, code);
+      const nomen = held.n;
+      if (nomen && kind === "questions") {
+        // PENDING-UPLOAD-1: the downloaded paper becomes a pending card + a saved copy, so "Upload later"
+        // can come back to it (this device or another). WS-AWAIT-1: written BEFORE the PDF, so the printed
+        // code is always the stored one; a collision re-mints the next free code and tries again.
+        if (!signedInNow) {
+          setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "signedout" });
+        } else {
+          const taken = new Set<string>();
+          let outcome: WorksheetDownloadSave = await recordWorksheetDownload(liveUser, paperNow, nomen).catch(() => "failed" as const);
+          for (let i = 0; outcome === "collision" && i < 3; i++) {
+            taken.add(held.n!.code);
+            try {
+              adopt(await mintUniqueWorksheetCode(paperNow, liveUser, listStoredWorksheetsLite(), { avoid: taken }));
+            } catch {
+              setDownloadError(CODE_CHECK_FAILED_LINE);
+              return;
+            }
+            outcome = await recordWorksheetDownload(liveUser, paperNow, held.n!).catch(() => "failed" as const);
+          }
+          if (outcome === "collision") {
+            setDownloadError(CODE_CHECK_FAILED_LINE);
+            return;
+          }
+          setHistoryNonce((n) => n + 1);
+          const done = held.n!;
+          if (outcome === "saved") setPaperNote({ worksheetId: paperId, code: done.code, name: done.name, status: "saved" });
+          else if (outcome === "failed") setPaperNote({ worksheetId: paperId, code: done.code, name: done.name, status: "failed" });
+          // "kept" (this same paper is already graded) and "skipped" change nothing.
+        }
+      }
+      await exportWorksheetPdf(paperNow, kind, held.n?.code);
     } catch {
       setDownloadError("Couldn’t build the PDF — please try again.");
     } finally {
@@ -1048,12 +1079,13 @@ function WorksheetGeneratorInner() {
   useEffect(() => {
     if (!uploadParam || authLoading) return;
     if (uploadConsumedRef.current === uploadParam) return;
+    // Signed out: keep the link as it is, so it survives the trip through login.
+    if (!reviewUid) return;
     uploadConsumedRef.current = uploadParam;
     const sp = new URLSearchParams(location.search);
     sp.delete(UPLOAD_PARAM);
     const rest = sp.toString();
     navigate({ pathname: location.pathname, search: rest ? `?${rest}` : "" }, { replace: true, state: location.state });
-    if (!reviewUid) return;
     void (async () => {
       try {
         const own = (r: SessionRecord) => r.id === uploadParam && r.surface === "worksheet" && recordBelongsToUid(r, reviewUid);
@@ -1079,21 +1111,28 @@ function WorksheetGeneratorInner() {
   useEffect(() => {
     if (!readyId || authLoading || !generated) return;
     const live = authRef.current.user;
-    if (!live?.uid || live.isLocalSession) return;
+    if (!live?.uid || live.isLocalSession) {
+      setCodeGate({ worksheetId: readyId, status: "ok" });
+      return;
+    }
     let cancelled = false;
+    setCodeGate({ worksheetId: readyId, status: "checking" });
     void mintUniqueWorksheetCode(generated, live, listStoredWorksheetsLite())
       .then((nomen) => {
         if (cancelled) return;
         setGenerated((g) => (g && g.worksheetId === readyId && g.code !== nomen.code ? { ...g, code: nomen.code, name: nomen.name, sequence: nomen.sequence } : g));
+        setCodeGate({ worksheetId: readyId, status: "ok" });
       })
       .catch(() => {
-        /* best-effort: the download path re-checks */
+        // Could not check: nothing is frozen, and marking waits (an old graded record is never at risk).
+        if (!cancelled) setCodeGate({ worksheetId: readyId, status: "unknown" });
       });
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [readyId, authLoading, user?.uid]);
+  }, [readyId, authLoading, user?.uid, gateNonce]);
+  const gateOk = !isSignedIn || (codeGate?.worksheetId === readyId && codeGate?.status === "ok");
 
   // ── Generated-state derived breakdowns (real counts) ──────────────────────
   const genSectionRows = useMemo(() => {
@@ -1646,7 +1685,18 @@ function WorksheetGeneratorInner() {
               by accident without moving this element. */}
           {generated && (
             <section className="lt-ws__card" ref={gradeSectionRef} id="ws-upload-section">
-              {user ? (
+              {user && isSignedIn && !gateOk ? (
+                <div className="lt-ws__note" role="status" data-testid="ws-code-gate">
+                  {codeGate?.status === "unknown" ? (
+                    <>
+                      {CODE_CHECK_FAILED_LINE} We won’t mark this paper until we can, so an earlier result is never overwritten.{" "}
+                      <button type="button" className="lt-ws__btnt" onClick={() => setGateNonce((n) => n + 1)}>Try again</button>
+                    </>
+                  ) : (
+                    "Checking your saved papers…"
+                  )}
+                </div>
+              ) : user ? (
                 /* Signed in: the EXISTING premium path, unchanged. A free student gets
                    the trial/plans block `RequirePremium` already renders. */
                 <RequirePremium featureLabel="Worksheet marking">
