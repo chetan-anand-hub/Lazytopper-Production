@@ -894,7 +894,8 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
       {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && !mobileSelfChromed && !isBareFullScreen && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* NAV-1 — the logo also goes Home (a bonus: the RouteNavBar below is the visible way). */}
-        <Link to="/" aria-label="LazyTopper Home" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+        {/* PARENTS-NAV-1 — on /for-parents every in-app link carries from=for_parents. */}
+        <Link to={location.pathname === "/for-parents" ? "/?from=for_parents" : "/"} aria-label="LazyTopper Home" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
           <img src={BRAND_MARK_SRC} width={32} height={32} alt="" aria-hidden="true" style={{ borderRadius: 10, display: "block" }} />
           <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text)", fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif" }}>LazyTopper</span>
         </Link>

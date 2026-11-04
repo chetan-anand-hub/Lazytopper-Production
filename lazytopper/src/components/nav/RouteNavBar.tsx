@@ -2,6 +2,7 @@ import { type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { readHistoryIdx, resolveBackTarget } from "../../lib/nav/routeParents";
+import { withParentFlag } from "../../lib/parentReturn";
 
 /**
  * RouteNavBar - NAV-1 (owner, 4 Nov 2026): a "← <parent>" Back control and a Home control at the top of every page
@@ -28,6 +29,8 @@ export default function RouteNavBar({ placement = "page" }: { placement?: "page"
     e.preventDefault();
     navigate(-1);
   };
+  // PARENTS-NAV-1 — every in-app link on /for-parents carries from=for_parents (the parent journey keeps its way back).
+  const tag = (to: string) => (location.pathname === "/for-parents" ? withParentFlag(to) : to);
   const backAria = target.kind === "history" ? "Back to the previous page" : `Back to ${target.label}`;
 
   return (
@@ -35,7 +38,7 @@ export default function RouteNavBar({ placement = "page" }: { placement?: "page"
       <div className="lt-routenav__row">
         <Link
           className="lt-routenav__btn lt-routenav__btn--back"
-          to={target.to}
+          to={tag(target.to)}
           onClick={onBack}
           aria-label={backAria}
           data-testid="route-nav-back"
@@ -45,7 +48,7 @@ export default function RouteNavBar({ placement = "page" }: { placement?: "page"
           <span>{target.label}</span>
         </Link>
         {target.showHome && (
-          <Link className="lt-routenav__btn" to="/" aria-label="Go to Home" data-testid="route-nav-home">
+          <Link className="lt-routenav__btn" to={tag("/")} aria-label="Go to Home" data-testid="route-nav-home">
             <svg
               className="lt-routenav__icon"
               aria-hidden="true"

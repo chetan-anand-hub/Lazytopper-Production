@@ -73,6 +73,16 @@ describe("NAV-1 RouteNavBar", () => {
     }
   });
 
+  it("on /for-parents both links carry from=for_parents (PARENTS-NAV-1)", () => {
+    mount(["/for-parents"]);
+    expect(screen.getByTestId("route-nav-back").getAttribute("href")).toBe("/?from=for_parents");
+    cleanup();
+    window.history.replaceState({ idx: 2 }, "");
+    mount(["/packs", "/for-parents"], 1);
+    expect(screen.getByTestId("route-nav-back").getAttribute("href")).toBe("/?from=for_parents");
+    expect(screen.getByTestId("route-nav-home").getAttribute("href")).toBe("/?from=for_parents");
+  });
+
   it("uses CSS classes only (no inline style objects)", () => {
     const { container } = mount(["/packs"]);
     expect(container.querySelector("nav [style]")).toBeNull();
