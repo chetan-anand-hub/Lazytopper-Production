@@ -1,0 +1,29 @@
+/* CODE-WHERE-1 - "We've sent a code to <masked>" + "Wrong email? Change it" (CodeSentTo.tsx). The masked address may
+   wrap at 360 px; it never overflows its card. */
+.lt-codesent {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.lt-codesent__to { font-weight: 700; }
+.lt-codesent__change {
+  display: inline;
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  color: hsl(152, 45%, 30%);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.lt-codesent__change:disabled { color: var(--text-secondary, #5b6b80); text-decoration: none; cursor: default; }
+@media (prefers-color-scheme: dark) {
+  .lt-codesent__change { color: hsl(152, 55%, 62%); }
+}
+/* Inside the "Sign-in methods" modal (LinkSignInMethodModalSheet), under the code box. */
+.lt-link-sent { margin: 8px 0 0; color: var(--text-muted); }
+.lt-link-sent .lt-codesent { font-size: 0.85rem; }

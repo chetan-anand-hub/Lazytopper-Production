@@ -1,9 +1,10 @@
-import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { hasPhoneLinked } from "../../lib/signInMethods";
 import { normaliseTypedIndianMobile } from "../../utils/indianMobileInput";
 import { alsoSignInLine } from "../../services/checkoutWhoFlag";
 import LinkEmailPanel from "./LinkEmailPanel";
+import CodeSentTo from "./CodeSentTo";
 
 /**
  * LinkSignInMethodModal — add a phone number as a second way to sign in.
@@ -130,6 +131,15 @@ export default function LinkSignInMethodModalSheet({
   const [otp, setOtp] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ text: string; tone: Tone } | null>(null);
+  /** CODE-WHERE-1: "Wrong number? Change it" -> back to the number box (kept), focused. */
+  const phoneInputRef = useRef<HTMLInputElement | null>(null);
+  const focusPhoneNext = useRef(false);
+
+  useEffect(() => {
+    if (step !== "number" || !focusPhoneNext.current) return;
+    focusPhoneNext.current = false;
+    phoneInputRef.current?.focus();
+  }, [step]);
 
   const phoneLinked = hasPhoneLinked(user);
 
@@ -145,6 +155,14 @@ export default function LinkSignInMethodModalSheet({
   }, [open]);
 
   if (!open || !user) return null;
+
+  const changeNumber = () => {
+    if (busy) return;
+    setError(null);
+    setOtp("");
+    focusPhoneNext.current = true;
+    setStep("number");
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -250,6 +268,7 @@ export default function LinkSignInMethodModalSheet({
                     +91
                   </span>
                   <input
+                    ref={phoneInputRef}
                     id="lt-link-phone"
                     type="tel"
                     inputMode="numeric"
@@ -276,7 +295,9 @@ export default function LinkSignInMethodModalSheet({
                   onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   style={fieldStyle}
                 />
-                <p style={sentStyle}>{`Sent to +91${phone}`}</p>
+                <div className="lt-link-sent">
+                  <CodeSentTo kind="phone" to={`+91${phone}`} onChange={changeNumber} changeDisabled={busy} />
+                </div>
               </>
             )}
 
@@ -407,12 +428,6 @@ const fieldStyle: CSSProperties = {
   outline: "none",
   display: "inline-flex",
   alignItems: "center",
-};
-
-const sentStyle: CSSProperties = {
-  margin: "8px 0 0",
-  fontSize: "0.8rem",
-  color: "var(--text-muted)",
 };
 
 const errorStyle: CSSProperties = {

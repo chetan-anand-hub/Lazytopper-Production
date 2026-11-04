@@ -11,7 +11,8 @@
  * email and the code live in this component's memory only.
  */
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { maskEmail } from "../../services/checkoutWhoFlag";
+import { maskEmail } from "../../lib/maskContact";
+import CodeSentTo from "./CodeSentTo";
 import "./linkEmailPanel.css";
 import "./emailCodeSignIn.css";
 
@@ -69,6 +70,9 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
   const [hasSent, setHasSent] = useState(false);
   const sentOnce = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  /** CODE-WHERE-1: "Wrong email? Change it" -> back to the email box, value kept, box focused. */
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const focusEmail = useRef(false);
 
   async function say(err: unknown) {
     const fn = describe || (await loadDescribe());
@@ -118,7 +122,20 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
 
   useEffect(() => {
     if (phase === "code") inputRef.current?.focus();
+    if (phase === "email" && focusEmail.current) {
+      focusEmail.current = false;
+      emailRef.current?.focus();
+    }
   }, [phase]);
+
+  /** CODE-WHERE-1: back to the typed email (kept). Nothing is cancelled server-side; sending again is the normal path. */
+  function changeEmail() {
+    setError(null);
+    setCode("");
+    setHasSent(false);
+    focusEmail.current = true;
+    setPhase("email");
+  }
 
   async function submitCode(value: string) {
     if (value.length !== 6 || phase === "verifying") return;
@@ -162,6 +179,7 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
           <form className="lt-lep" onSubmit={onEmailSubmit} noValidate>
             <label className="lt-lep__label" htmlFor="lt-ecs-email">Your email</label>
             <input
+              ref={emailRef}
               id="lt-ecs-email"
               className="lt-lep__input"
               type="email"
@@ -191,9 +209,13 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
             void submitCode(code);
           }}
         >
-          <p className="lt-ecs__sent" role="status" data-testid="email-code-sent">
-            We sent a 6-digit code to <strong>{masked}</strong>. It is valid for 10 minutes.
-          </p>
+          <CodeSentTo
+            kind="email"
+            to={email}
+            testId="email-code-sent"
+            {...(fixedEmail ? {} : { onChange: changeEmail, changeDisabled: phase === "verifying" })}
+          />
+          <p className="lt-ecs__fine">The code is valid for 10 minutes.</p>
           <label className="lt-lep__label" htmlFor="lt-ecs-code">Enter the code</label>
           <div className="lt-ecs__boxes">
             {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -228,7 +250,6 @@ export default function EmailCodeSignIn({ email: fixedEmail, sendOnMount = false
               {wait > 0 ? `Send a new code in ${wait}s` : "Send a new code"}
             </button>
           </div>
-          <p className="lt-ecs__fine">Not in your inbox? Check Spam or Promotions.</p>
         </form>
       )}
       {error && (

@@ -264,7 +264,7 @@ describe("the typed name survives the step transition", () => {
     await u.type(screen.getByLabelText("Mobile number"), NUMBER);
     await u.click(screen.getByRole("button", { name: /Send OTP/ }));
 
-    await u.click(await screen.findByRole("button", { name: /Change number/ }));
+    await u.click(await screen.findByRole("button", { name: /Wrong number\? Change it/ }));
 
     // Back on the number step, and the student is not made to retype it.
     expect(screen.getByLabelText("Your name")).toHaveProperty("value", REAL_NAME);

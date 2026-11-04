@@ -35,6 +35,7 @@ import {
   type Recipient,
 } from "../../services/checkoutWho";
 import type { GuestItem } from "../../services/guestPay";
+import CodeSentTo from "../auth/CodeSentTo";
 
 const RECAPTCHA_ID = "lt-who-recaptcha";
 /** EMAIL-CODE-1: the email case's button while the email-code switch is on. */
@@ -152,6 +153,8 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
             void verify();
           }}
         >
+          {/* CODE-WHERE-1: where the SMS went. No "Change it" here: the payment is already recorded against this number. */}
+          {recipient.phone && <CodeSentTo kind="phone" to={recipient.phone} testId="who-code-sent-to" />}
           <label className="lt-gps__label" htmlFor="lt-who-otp">Enter the 6-digit code we sent by SMS</label>
           <div className="lt-gps__field">
             <input
