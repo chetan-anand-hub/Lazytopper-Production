@@ -84,13 +84,29 @@ export function ParentPacksBand() {
  * PARENTS-PAY-1: the Buy on a pack card. Each opens the SAME checkout /packs opens (the shop's `buyNow` / `chooseChapter`): the
  * CBQ cards buy their own subject, Subject / Mock ask Maths or Science, Chapter opens the chapter picker, the Bundle buys at once.
  */
+/** An owned pack: a pill that says so and links to the downloads (the My packs block is hidden on this page). */
+function OwnedLink() {
+  return (
+    <Link className="lt-fpk__owned" to="/packs#my-packs" data-testid="fp-owned-link">
+      Owned &middot; Open My packs
+    </Link>
+  );
+}
+function OwnedPill() {
+  return (
+    <div className="lt-fpk__buy">
+      <OwnedLink />
+    </div>
+  );
+}
+
 function CardBuy({ it, api: shop }: { it: (typeof ITEMS)[number]; api: PacksShopApi }) {
   if (!shop.buyEnabled) return null;
   // Every Buy here reports `from: "for_parents"` on `pack_checkout` (no PII); the checkout itself is the shop's, unchanged.
   const api: PacksShopApi = { ...shop, buyNow: (sku, target, opts) => shop.buyNow(sku, target, { from: "for_parents", ...opts }) };
   if (it.sku === "pack_cbq" && it.subject) {
     const subject = it.subject;
-    if (api.ownsPack("pack_cbq", subject)) return null;
+    if (api.ownsPack("pack_cbq", subject)) return <OwnedPill />;
     return (
       <div className="lt-fpk__buy">
         <div className="lt-ptb">
@@ -107,8 +123,11 @@ function CardBuy({ it, api: shop }: { it: (typeof ITEMS)[number]; api: PacksShop
       </div>
     );
   }
+  // Any pack already owned (Subject / Mock for one subject, Bundle): PackTileBuy marks it "You own this"; add the way to the files.
+  const anyOwned = it.sku === "pack_bundle" ? api.ownsPack(it.sku) : (["maths", "science"] as const).some((s) => api.ownsPack(it.sku, s));
   return (
     <div className="lt-fpk__buy" data-testid={`fp-buy-${it.sku}`}>
+      {anyOwned && <OwnedLink />}
       <PackTileBuy sku={it.sku} api={api} />
     </div>
   );

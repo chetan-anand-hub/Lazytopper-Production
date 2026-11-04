@@ -57,3 +57,4 @@
   .lt-fpk__buy .lt-ptb--pair { flex-direction: row; }
   .lt-fpk__buy .lt-ptb { max-width: 460px; }
 }
+.lt-fpk__owned { display: inline-block; margin-top: 4px; font-size: 14px; font-weight: 700; color: var(--fp-gt); text-decoration: underline; min-height: 44px; line-height: 44px; }

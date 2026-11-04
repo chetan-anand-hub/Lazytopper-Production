@@ -1,7 +1,7 @@
 import { Suspense, lazy, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
 import { createPortal } from "react-dom";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import { newCheckoutAttemptId } from "../../analytics/analytics";
@@ -761,6 +761,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               <span data-testid="packs-status-cbq-tutor"> Includes 3 tutor questions.</span>
             )}
           </p>
+          {/* PARENTS-PAY-1: the My packs block is hidden on /for-parents, so the downloads are one clear link away. */}
+          {hideMyPacks && signedIn && (
+            <p className="lt-packs__status">
+              <Link to={`${PACKS_RETURN_PATH}#my-packs`} data-testid="packs-open-my-packs">Open My packs &rarr;</Link>
+            </p>
+          )}
         </div>
       )}
     </>

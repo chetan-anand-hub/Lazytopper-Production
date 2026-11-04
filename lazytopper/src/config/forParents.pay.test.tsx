@@ -12,6 +12,7 @@ vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string; email?: string } }));
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 const flags = vi.hoisted(() => ({ who: true }));
+const shop = vi.hoisted(() => ({ owned: [] as { packId: string; sku: string; target: string; pricePaidInr: number; paidAt: number }[] }));
 vi.mock("../services/checkoutWhoFlag", async (orig) => ({
   ...(await orig<typeof import("../services/checkoutWhoFlag")>()),
   isCheckoutWhoClientEnabled: () => flags.who,
@@ -19,8 +20,8 @@ vi.mock("../services/checkoutWhoFlag", async (orig) => ({
 vi.mock("../services/packs", async (orig) => ({
   ...(await orig<typeof import("../services/packs")>()),
   isPacksClientEnabled: () => true,
-  fetchMyPacks: vi.fn(async () => ({ packs: [], licensee: { name: "", email: "" } })),
-  buyPack: vi.fn(),
+  fetchMyPacks: vi.fn(async () => ({ packs: shop.owned, licensee: { name: "Asha", email: "a@b.in" } })),
+  buyPack: vi.fn(async () => ({ status: "paid", grant: { sku: "pack_cbq" }, paymentId: "pay_x", amountInr: 199 })),
   checkPackOrder: vi.fn(),
 }));
 vi.mock("../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
@@ -34,6 +35,7 @@ afterEach(() => {
   cleanup();
   auth.user = null;
   flags.who = true;
+  shop.owned = [];
 });
 
 function Where() {
@@ -124,5 +126,28 @@ describe("PARENTS-PAY-1 - every pack card has a Buy", () => {
     fireEvent.click(await screen.findByTestId("tile-buy-pack_bundle"));
     const sheet = await screen.findByTestId("who-sheet");
     expect(sheet.textContent).toMatch(/Bundle|Maths \+ Science/);
+  });
+});
+
+describe("PARENTS-PAY-1 review - owned and paid packs point to the downloads (My packs is hidden on this page)", () => {
+  it("an owned CBQ pack shows 'Owned · Open My packs' linking /packs#my-packs, never a silent gap", async () => {
+    auth.user = { uid: "u1", email: "p@example.com" };
+    shop.owned = [{ packId: "pack_cbq:maths", sku: "pack_cbq", target: "maths", pricePaidInr: 199, paidAt: 1 }];
+    page();
+    const link = (await screen.findByTestId("fp-owned-link")) as HTMLAnchorElement;
+    expect(link.textContent).toMatch(/Owned/);
+    expect(link.getAttribute("href")).toBe("/packs#my-packs");
+    expect(screen.queryByTestId("fp-buy-pack_cbq-maths")).toBeNull();
+    expect(screen.getByTestId("fp-buy-pack_cbq-science")).toBeTruthy();
+  });
+
+  it("after a signed-in payment the status line is followed by 'Open My packs' to /packs#my-packs", async () => {
+    auth.user = { uid: "u1", email: "p@example.com" };
+    page();
+    fireEvent.click(await screen.findByTestId("fp-buy-pack_cbq-science"));
+    fireEvent.click(await screen.findByTestId("who-pay-self"));
+    const open = (await screen.findByTestId("packs-open-my-packs")) as HTMLAnchorElement;
+    expect(open.getAttribute("href")).toBe("/packs#my-packs");
+    expect(screen.getByTestId("packs-status")).toBeTruthy();
   });
 });

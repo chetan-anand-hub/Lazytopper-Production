@@ -26,6 +26,8 @@ describe("one sheet behind every Pay / Buy", () => {
   it("PassCheckout and PacksShop lazy-load the SAME CheckoutSheet module", () => {
     expect(read("components/pricing/PassCheckout.tsx")).toMatch(SHEET_IMPORT);
     expect(read("components/packs/PacksShop.tsx")).toMatch(SHEET_IMPORT);
+    // PARENTS-PAY-1: the /for-parents host lazy-loads the same module too.
+    expect(read("components/parents/ParentBoardPassSheet.tsx")).toMatch(SHEET_IMPORT);
   });
 
   it("PassCheckout: the Board Pass Pay opens the sheet before any checkout", () => {
