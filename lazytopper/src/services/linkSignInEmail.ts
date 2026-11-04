@@ -74,16 +74,20 @@ export async function completeEmailLink(rawEmail: string, href: string = window.
 
 /**
  * PAY-ACCOUNT-1 - SIGN IN (not link) with an email link: "Send me the sign-in link" on the thank-you screen, for the account
- * made at payment. The return path is a FIXED internal one (My packs / Home), never caller-supplied text. The address is
- * not stored anywhere (no localStorage): finishing on return asks for it again, as the link step above does.
+ * made at payment. The link returns to /login's finish step (`?finish=link&redirect=<landing>`), with a FIXED landing (My
+ * packs / Home), never caller-supplied text and never the address. The address is not stored anywhere (owner rule: no email
+ * in localStorage): the finish step asks the student to confirm it.
  */
-export const SIGN_IN_RETURN_PATHS = Object.freeze(["/packs", "/"]);
-export async function sendSignInLinkForEmail(rawEmail: string, returnPath: string, origin: string = window.location.origin): Promise<void> {
+export const SIGN_IN_LANDINGS = Object.freeze(["/packs#my-packs", "/"]);
+export function emailLinkFinishUrl(origin: string, landing: string): string {
+  const safe = SIGN_IN_LANDINGS.includes(landing) ? landing : "/";
+  return `${origin}/login?finish=link&redirect=${encodeURIComponent(safe)}`;
+}
+export async function sendSignInLinkForEmail(rawEmail: string, landing: string, origin: string = window.location.origin): Promise<void> {
   const email = normaliseEmail(rawEmail);
   if (!email) throw Object.assign(new Error("invalid email"), { code: "auth/invalid-email" });
   if (!authClient) throw new Error("Firebase Auth is not configured");
-  const path = SIGN_IN_RETURN_PATHS.includes(returnPath) ? returnPath : "/";
-  await sendSignInLinkToEmail(authClient, email, { url: `${origin}${path}`, handleCodeInApp: true });
+  await sendSignInLinkToEmail(authClient, email, { url: emailLinkFinishUrl(origin, landing), handleCodeInApp: true });
 }
 
 /** PAY-ACCOUNT-1 - on return from that link (signed out): the address typed again + the link's one-time code -> signed in. */

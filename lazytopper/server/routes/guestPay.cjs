@@ -1154,6 +1154,12 @@ function createGuestPayRoutes(deps = {}) {
           });
           if (marked) firstSignIn = true;
         }
+        // A Board Pass account needs no trial ("covered anyway"): the first sign-in is still marked, the trial not offered.
+        if (firstSignIn) {
+          const sub = await adminFirestore.collection('subscriptions').doc(uid).get();
+          const stored = sub && sub.exists ? sub.data() || {} : {};
+          if (stored.tier === 'premium' || stored.passEnd || stored.passType) firstSignIn = false;
+        }
       } catch (e) {
         emit('payments.guest.claim.first_signin_failed');
         console.error('[pay/guest/claim] first sign-in read failed:', e && e.message);

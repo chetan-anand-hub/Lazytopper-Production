@@ -272,3 +272,61 @@ describe("CHECKOUT-WHO-2 · an email 'also sign in' is accepted too", () => {
     vi.doUnmock("./checkout");
   });
 });
+
+describe("PAY-ACCOUNT-1 · the trial at the first sign-in of an account made at payment", () => {
+  it("firstSignIn:true -> the EXISTING startTrialForNewAccount, once; not when absent / false, not on a later claim (reload)", async () => {
+    vi.doMock("./checkout", async (orig) => ({ ...(await orig<typeof import("./checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+    const trial = { startTrialForNewAccount: vi.fn((_uid: string) => true) };
+    vi.doMock("./newAccountTrial", () => trial);
+    const sub = { whenTrialWriteSettled: vi.fn(async () => undefined), hydrateSubscriptionFromCloud: vi.fn(async () => ({})) };
+    vi.doMock("./subscriptionService", () => sub);
+    const mod = await import("./guestPay");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    // An existing (client-made) account: the server sends no firstSignIn -> no trial.
+    fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [] }), { status: 200 }));
+    await mod.claimOncePerSession("uExisting");
+    // firstSignIn false -> no trial either.
+    fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [], firstSignIn: false }), { status: 200 }));
+    await mod.claimOncePerSession("uFalse");
+    await new Promise((r) => setTimeout(r, 0));
+    expect(trial.startTrialForNewAccount).not.toHaveBeenCalled();
+
+    // The account made at payment, first sign-in: the trial starts for THAT uid, then the record is re-read.
+    fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [], firstSignIn: true }), { status: 200 }));
+    await mod.claimOncePerSession("pay-0123456789abcdef01234567");
+    await vi.waitFor(() => expect(sub.hydrateSubscriptionFromCloud).toHaveBeenCalledWith("pay-0123456789abcdef01234567"));
+    expect(trial.startTrialForNewAccount).toHaveBeenCalledTimes(1);
+    expect(trial.startTrialForNewAccount).toHaveBeenCalledWith("pay-0123456789abcdef01234567");
+
+    // A reload / later sign-in: the server already marked it, so it says nothing -> no second call.
+    fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [] }), { status: 200 }));
+    resetGuestClaimSessionForTests();
+    await mod.claimOncePerSession("pay-0123456789abcdef01234567");
+    await new Promise((r) => setTimeout(r, 0));
+    expect(trial.startTrialForNewAccount).toHaveBeenCalledTimes(1);
+
+    fetchSpy.mockRestore();
+    vi.doUnmock("./checkout");
+    vi.doUnmock("./newAccountTrial");
+    vi.doUnmock("./subscriptionService");
+  });
+
+  it("the trial is never started from the claim's own data: a refused activateTrial (premium / pass) re-reads nothing", async () => {
+    vi.doMock("./checkout", async (orig) => ({ ...(await orig<typeof import("./checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+    const trial = { startTrialForNewAccount: vi.fn((_uid: string) => false) };
+    vi.doMock("./newAccountTrial", () => trial);
+    const sub = { whenTrialWriteSettled: vi.fn(async () => undefined), hydrateSubscriptionFromCloud: vi.fn(async () => ({})) };
+    vi.doMock("./subscriptionService", () => sub);
+    const mod = await import("./guestPay");
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [], firstSignIn: true }), { status: 200 }));
+    await mod.claimOncePerSession("pay-aaaaaaaaaaaaaaaaaaaaaaaa");
+    await vi.waitFor(() => expect(trial.startTrialForNewAccount).toHaveBeenCalledTimes(1));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(sub.hydrateSubscriptionFromCloud).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+    vi.doUnmock("./checkout");
+    vi.doUnmock("./newAccountTrial");
+    vi.doUnmock("./subscriptionService");
+  });
+});

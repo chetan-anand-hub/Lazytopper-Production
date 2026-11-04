@@ -105,7 +105,7 @@ describe("the thank-you screen (flag on)", () => {
     expect(screen.getByTestId("who-open-me").textContent).toBe("Send me the sign-in link");
     fireEvent.click(screen.getByTestId("who-open-me"));
     expect((await screen.findByTestId("who-link-sent")).textContent).toBe("Check your inbox and tap the link to open LazyTopper.");
-    expect(sendEmailLink).toHaveBeenCalledWith("anaya.k@gmail.com", "/packs");
+    expect(sendEmailLink).toHaveBeenCalledWith("anaya.k@gmail.com", "/packs#my-packs");
     expect(auth.sendPhoneOtp).not.toHaveBeenCalled();
   });
 

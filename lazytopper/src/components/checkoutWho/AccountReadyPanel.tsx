@@ -41,14 +41,14 @@ export interface AccountReadyPanelProps {
   onClose: () => void;
   /** Test seams. */
   go?: (path: string) => void;
-  sendEmailLink?: (email: string, returnPath: string) => Promise<void>;
+  sendEmailLink?: (email: string, landing: string) => Promise<void>;
 }
 
 type Me = { phase: "idle" } | { phase: "sending" } | { phase: "code"; error?: string } | { phase: "verifying" } | { phase: "link-sent" } | { phase: "error"; message: string };
 
-async function defaultSendEmailLink(email: string, returnPath: string): Promise<void> {
+async function defaultSendEmailLink(email: string, landing: string): Promise<void> {
   const m = await import("../../services/linkSignInEmail");
-  await m.sendSignInLinkForEmail(email, returnPath);
+  await m.sendSignInLinkForEmail(email, landing);
 }
 
 export default function AccountReadyPanel({ item, recipient, payerSignedIn, onClose, go, sendEmailLink = defaultSendEmailLink }: AccountReadyPanelProps) {
@@ -75,7 +75,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
     if (recipient.email) {
       setMe({ phase: "sending" });
       try {
-        await sendEmailLink(recipient.email, item.kind === "pack" ? "/packs" : "/");
+        await sendEmailLink(recipient.email, landingPath(item.kind));
         setMe({ phase: "link-sent" });
       } catch {
         setMe({ phase: "error", message: "We couldn't send the link just now. Please try again." });

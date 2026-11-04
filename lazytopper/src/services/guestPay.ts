@@ -259,6 +259,8 @@ export interface ClaimedPurchase {
  */
 export { ALSO_SIGNIN_EVENT, type AlsoSignIn };
 let lastClaimAlso: AlsoSignIn | null = null;
+/** PAY-ACCOUNT-1: the server said THIS claim is the first sign-in of an account made at payment (its sign-up). */
+let lastClaimFirstSignIn = false;
 let pendingAlso: { uid: string; also: AlsoSignIn } | null = null;
 
 function parseAlso(raw: unknown): AlsoSignIn | null {
@@ -286,6 +288,7 @@ export async function claimGuestPurchases(): Promise<ClaimedPurchase[] | null> {
     const { authHeaders } = await import("./checkout");
     const json = await postJson(GUEST_CLAIM_ENDPOINT, {}, await authHeaders());
     lastClaimAlso = parseAlso(json.alsoSignIn);
+    lastClaimFirstSignIn = json.firstSignIn === true;
     const list = Array.isArray(json.claimed) ? json.claimed : [];
     return list
       .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
@@ -328,6 +331,13 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
       // CHECKOUT-WHO-1: remember / announce the masked "also sign in with" for THIS uid (absent on every old-flow claim).
       const also = lastClaimAlso;
       lastClaimAlso = null;
+      // PAY-ACCOUNT-1 - the account was made at payment, so THIS first sign-in is its sign-up: the EXISTING new-account
+      // trial path runs now (doctrine: a trial starts at sign-up). The server says it ONCE per account (transaction-marked,
+      // never on a reload or a later sign-in, never for a client-made or Board Pass account); startTrialForNewAccount is
+      // itself once per uid and activateTrial refuses a premium / pass / already-trialled record.
+      const firstSignIn = lastClaimFirstSignIn;
+      lastClaimFirstSignIn = false;
+      if (firstSignIn) void startTrialAtFirstSignIn(uid);
       if (also) {
         pendingAlso = { uid, also };
         try {
@@ -361,12 +371,27 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
   return p;
 }
 
+/** PAY-ACCOUNT-1 - the sign-up trial for an account made at payment, then a re-read so the trial shows. Never throws. */
+async function startTrialAtFirstSignIn(uid: string): Promise<boolean> {
+  try {
+    const { startTrialForNewAccount } = await import("./newAccountTrial");
+    if (!startTrialForNewAccount(uid)) return false;
+    const sub = await import("./subscriptionService");
+    await sub.whenTrialWriteSettled(uid);
+    await sub.hydrateSubscriptionFromCloud(uid).catch(() => undefined);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Test seam. */
 export function resetGuestClaimSessionForTests(): void {
   claimedThisSession.clear();
   inFlight.clear();
   recentClaim = null;
   lastClaimAlso = null;
+  lastClaimFirstSignIn = false;
   pendingAlso = null;
 }
 

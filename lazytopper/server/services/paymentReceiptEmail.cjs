@@ -343,8 +343,9 @@ function createPaymentReceiptEmailer(deps = {}) {
     let accountReady = null;
     if (order.accountHasEmail === true && typeof deps.emailSignInLink === 'function') {
       try {
-        const where = isPackProduct(order.passType) ? '/packs' : '/';
-        const link = await deps.emailSignInLink(to, `${config.appUrl}${where}`);
+        // Back to /login's finish step (markers only, never the address), then the safe landing: My packs / Home.
+        const where = isPackProduct(order.passType) ? '/packs#my-packs' : '/';
+        const link = await deps.emailSignInLink(to, `${config.appUrl}/login?finish=link&redirect=${encodeURIComponent(where)}`);
         accountReady = buildAccountReadyEmail({
           passType: order.passType,
           packTarget: order.packTarget,

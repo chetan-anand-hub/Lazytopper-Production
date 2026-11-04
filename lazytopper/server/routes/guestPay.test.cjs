@@ -1557,6 +1557,16 @@ test('AUTO · first sign-in with the phone: the product is there, firstSignIn is
   assert.equal((await claim(srv, whoAuth('uNormal', { phone: OTHER_PHONE }))).json.firstSignIn, undefined);
 });
 
+test('AUTO · a Board Pass account made at payment: first sign-in is marked but no trial is offered (covered anyway)', async (t) => {
+  const { srv } = await autoRoutes();
+  t.after(srv.close);
+  const { orderId } = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
+  const uid = autoAccountUid(orderId);
+  const first = await claim(srv, whoAuth(uid, { phone: PHONE }));
+  assert.equal(first.json.firstSignIn, undefined);
+  assert.ok(srv.db.read(`payOrders/${orderId}`).firstSignInAt, 'marked');
+});
+
 test('AUTO · a signed-in payer buying for someone else: the account is made for the RECIPIENT, nothing for the payer', async (t) => {
   const auth = fakeAuth({ users: [{ uid: 'uPayer', email: 'parent@x.in', emailVerified: true }] });
   const { srv } = await autoRoutes({ auth });
@@ -1613,8 +1623,9 @@ test('AUTO · email: "Your LazyTopper account is ready" with ONE one-tap sign-in
   const pass = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { email: 'riya@x.in', phone: PHONE } });
   await receiptEmailer.whenIdle();
   assert.deepEqual(links.map((l) => l.email), [EMAIL, 'riya@x.in']);
-  assert.ok(links[0].url.endsWith('/packs'), links[0].url);
-  assert.ok(/^https:\/\/www\.lazytopper\.com\/?$/.test(links[1].url), links[1].url);
+  assert.equal(links[0].url, 'https://www.lazytopper.com/login?finish=link&redirect=%2Fpacks%23my-packs');
+  assert.equal(links[1].url, 'https://www.lazytopper.com/login?finish=link&redirect=%2F');
+  for (const l of links) assert.ok(!l.url.includes('@') && !l.url.includes('9876543948'), 'no email / phone in the continue URL');
   const toPack = resend.sent.filter((m) => m.body.to.includes(EMAIL));
   assert.equal(toPack.length, 1);
   assert.equal(toPack[0].body.subject, 'Your LazyTopper account is ready');
