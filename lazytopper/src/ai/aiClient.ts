@@ -807,6 +807,10 @@ export interface DetectedQuestion {
   marksSource: "stated" | "inferred" | "printed" | "section" | "fallback" | "user";
   /** GRADE-MARKS-1 — the section letter ("A"–"E") detect placed the question in (opt-in read only). */
   section?: string | null;
+  /** GRADE-MARKS-1 (S1) — an objective question whose text prints an option list (MCQ) or is an
+   *  Assertion-Reason item, by the server's own test (opt-in read only). Only such a question is
+   *  locked at 1 mark; the grade routes force exactly these to 1 (§13). */
+  offersOptions?: boolean;
   /** True for a multiple-choice / assertion-reason question. Forwarded to the grade
    *  call so a keyless objective question is clamped to 0/full (≤1-mark rail). */
   objective?: boolean;

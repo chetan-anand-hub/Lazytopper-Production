@@ -168,7 +168,7 @@ import {
 } from "../../services/freeCheckClient";
 import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
-import PaperMarksEditor from "../../components/checkimprove/PaperMarksEditor";
+import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
 import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
 import {
@@ -1662,7 +1662,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Two or more questions were read from the upload → grade the whole paper.
   const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
   // GRADE-MARKS-1 (§13) — the single question is a detect-objective one: its marks chip is locked at 1.
-  const singleObjectiveLocked = !isMultiQuestion && detectedQuestions?.[0]?.objective === true;
+  const singleObjectiveLocked = !isMultiQuestion && Boolean(detectedQuestions?.[0] && isLockedObjective(detectedQuestions[0]));
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
   // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
@@ -1950,12 +1950,13 @@ const DesktopCheckImprovePageInner: React.FC<{
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
       }
-      // GRADE-MARKS-1 (§13) — a detect-objective question (MCQ / A-R) is a 1-mark, 0-or-full question:
-      // it is shown, totalled and SENT as 1, on the single chip and the whole-paper editor alike, so
-      // the confirm step shows exactly what the grader grades (the server forces the same, guardedObjectiveMarks).
-      const readQs = d.questions?.map((x) => (x.objective === true && x.marks !== 1 ? { ...x, marks: 1 } : x));
+      // GRADE-MARKS-1 (§13, S1) — an objective question that PRINTS its options (detect's
+      // `offersOptions`, the server's own test) is a 1-mark, 0-or-full question: shown, totalled and SENT
+      // as 1 on the single chip and the whole-paper editor alike (the server forces the same). Any other
+      // detect-objective question keeps its read marks and stays editable (sendAsObjective).
+      const readQs = d.questions?.map((x) => (isLockedObjective(x) && x.marks !== 1 ? { ...x, marks: 1 } : x));
       const cd0 = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
-      const cd = (readQs?.length ?? 0) <= 1 && readQs?.[0]?.objective === true ? { ...cd0, marks: 1 } : cd0;
+      const cd = (readQs?.length ?? 0) <= 1 && readQs?.[0] && isLockedObjective(readQs[0]) ? { ...cd0, marks: 1 } : cd0;
       setDetected(cd);
       setConfirmed(cd);
       const image = questionTab === "upload" ? qImageBase64 : null;
@@ -2013,15 +2014,15 @@ const DesktopCheckImprovePageInner: React.FC<{
     setTopicTouched(true); // provenance tag: confirmed/corrected by the student (C&I PR-1)
   }
   function correctMarks(m: number) {
-    if (singleObjectiveLocked) return; // §13: a detect-objective question stays at 1 mark
+    if (singleObjectiveLocked) return; // §13: an MCQ that prints its options stays at 1 mark
     setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
   }
   // GRADE-MARKS-1 — the whole-paper confirm step: a student's correction of one question's marks.
   // `detectedQuestions` IS what the grade request sends (q.marks), so the edit is what is graded.
   function correctPaperMarks(index: number, marks: number) {
     setDetectedQuestions((qs) =>
-      // §13: an objective (MCQ / A-R) question is never re-marked here (the editor shows it read-only).
-      qs ? qs.map((q, i) => (i === index && q.objective !== true ? { ...q, marks, marksSource: "user" as const } : q)) : qs,
+      // §13: an MCQ that prints its options is never re-marked here (the editor shows it read-only).
+      qs ? qs.map((q, i) => (i === index && !isLockedObjective(q) ? { ...q, marks, marksSource: "user" as const } : q)) : qs,
     );
   }
 
@@ -2382,7 +2383,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       const response = await gradeWorksheet({
         worksheetId: `ci:${sessionCode}`,
         subject: confirmed.subject,
-        questions: questionsToGrade.map((q) => ({
+        // GRADE-MARKS-1 (S1): an objective read the student raised above 1 mark is graded as written.
+        questions: questionsToGrade.map((q0) => sendAsObjective(q0) ? q0 : { ...q0, objective: false }).map((q) => ({
           qNumber: q.questionNumber,
           marks: q.marks,
           topic: confirmed.topicName || undefined,
@@ -2680,7 +2682,10 @@ const DesktopCheckImprovePageInner: React.FC<{
       const graded = await checkSolutionImage(buildSingleGradeRequest({
         question: trimmedQuestion,
         confirmed,
-        firstDetected: detectedQuestions?.[0],
+        // GRADE-MARKS-1 (S1): a single objective read the student raised above 1 mark is graded as written.
+        firstDetected: detectedQuestions?.[0] && confirmed.marks > 1 && !sendAsObjective({ ...detectedQuestions[0], marks: confirmed.marks })
+          ? { ...detectedQuestions[0], objective: false }
+          : detectedQuestions?.[0],
         freeCall: Boolean(freeCallOpts),
         answerPart,
       }), { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
@@ -3510,9 +3515,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                         ))}
                       </select>
                       {singleObjectiveLocked ? (
-                        <div style={{ fontSize: 12.5, color: TEXT_MUTED }} data-testid="ci-marks-locked">
-                          1 mark · an MCQ is marked right or wrong (0 or 1)
-                        </div>
+                        <LockedMarksNote />
                       ) : (
                       <div style={{ display: "flex", gap: 6 }}>
                         {[1, 2, 3, 4, 5, 6].map((m) => {

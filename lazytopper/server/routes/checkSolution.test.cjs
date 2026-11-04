@@ -3240,3 +3240,45 @@ test('§GM.12 R4 the §13 guard reaches an "a) … b)" MCQ sent with marks 3, on
   assert.equal(hm.body().results[0].totalMarks, 1);
   assert.ok([0, 1].includes(hm.body().results[0].marksAwarded));
 });
+
+test('§GM.13 ★ S2 option lists: sub-parts, two-item lists, stray letters and a "reason for the assertion" are NOT options; real MCQs are', () => {
+  const PP = require('../grading/postprocess.cjs');
+  const t = (questionText) => PP.objectiveOffersOptions({ questionText });
+  for (const no of [
+    'Case study: a park. (i) Find the distance. (ii) Find the angle.',
+    'a) Find the HCF of 12 and 18 b) Hence find the LCM',
+    'Prove that a) x is even and b) y is odd',
+    'Given: A. Ray AB meets B.',
+    'Give a reason for the assertion that metals conduct electricity.',
+  ]) assert.equal(t(no), false, no);
+  for (const yes of [
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9',
+    'Which is prime? a) 4 b) 6 c) 7 d) 9',
+    'Which is prime? a. 4 b. 6 c. 7 d. 9',
+    'Which is prime? A. 4 B. 6 C. 7 D. 9',
+    'The value of k is (1) 2 (2) 3 (3) 4 (4) 5',
+    'Find the value of k if 2 is a zero of x² + kx + 4. (A) −8 (B) 8 (C) −4 (D) 4',
+    'Assertion (A): √2 is irrational. Reason (R): the square root of every prime is irrational.',
+  ]) assert.equal(t(yes), true, yes);
+});
+
+test('§GM.14 ★ S1 detect (opted in) returns offersOptions by the SAME test as the §13 guard; the legacy shape has no such field', async () => {
+  const reply = { detectedMarks: 1, marksSource: 'stated', detectedObjective: true, sectionHeaders: [],
+    questions: [
+      { questionNumber: 1, questionText: 'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9', marks: 1, objective: true },
+      { questionNumber: 2, questionText: 'Prove that root 5 is irrational.', marks: 5, objective: true },
+      { questionNumber: 3, questionText: 'Find the HCF of 12 and 18.', marks: 2, objective: false },
+    ] };
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  assert.deepEqual(h.body().questions.map((q) => q.offersOptions), [true, false, false]);
+  const h2 = buildRoute({ replies: [reply] });
+  await h2.route.handleDetectQuestion({ question: 'paper' }, {});
+  assert.ok(h2.body().questions.every((q) => !Object.prototype.hasOwnProperty.call(q, 'offersOptions')));
+  // and the mis-flagged 5-mark proof sent as objective with marks 5 keeps 5, step-marked (guard leaves it)
+  const raw = { annotatedSteps: [{ description: 'Assume rational', studentWork: 'x', status: 'partial', marksAwarded: 3, marksDeducted: 2, teacherAnnotation: 'x', mistakeType: 'presentation', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 2, ...raw }] }] });
+  await hm.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 2, marks: 5, questionText: 'Prove that root 5 is irrational.', objective: true }]), {});
+  assert.equal(hm.body().results[0].totalMarks, 5, 'keeps its 5 marks');
+  assert.ok(![0, 5].includes(hm.body().results[0].marksAwarded), 'step-marked, not clamped 0/full: ' + hm.body().results[0].marksAwarded);
+});

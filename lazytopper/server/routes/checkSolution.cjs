@@ -794,6 +794,12 @@ function createCheckSolutionRoute(deps) {
       });
       // GRADE-MARKS-1 · the top-level mark mirrors the first question (backward compatibility, as the
       // prompt asks) when the rule set it: a printed or section mark is a mark the paper states.
+      // GRADE-MARKS-1 (S1) · whether each objective question OFFERS OPTIONS (an MCQ / A-R), by the SAME
+      // test the grade routes' §13 guard uses (guardedObjectiveMarks): the client locks a question at 1
+      // mark exactly when the server would force it to 1. Opted-in reads only (the legacy shape is pinned).
+      if (wantsSectionMarks) {
+        for (const q of questions) q.offersOptions = q.objective === true && grading.objectiveOffersOptions({ questionText: q.questionText });
+      }
       if (wantsSectionMarks && questions.length > 0 && (questions[0].marksSource === 'printed' || questions[0].marksSource === 'section')) {
         detectedMarks = questions[0].marks;
         marksSource = 'stated';

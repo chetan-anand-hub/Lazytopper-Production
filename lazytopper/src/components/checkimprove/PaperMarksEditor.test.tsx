@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import PaperMarksEditor, { parsePaperMarks } from "./PaperMarksEditor";
+import PaperMarksEditor, { parsePaperMarks, sendAsObjective } from "./PaperMarksEditor";
 import type { DetectedQuestion } from "../../ai/aiClient";
 
 afterEach(() => cleanup());
@@ -37,7 +37,7 @@ describe("PaperMarksEditor", () => {
 
   it("F1 (§13) · an objective (MCQ) row is read-only: no input, no guess flag, nothing to commit", () => {
     const onChange = vi.fn();
-    const mcq: DetectedQuestion = { questionNumber: 1, questionText: "MCQ (a) 1 (b) 2", marks: 1, marksSource: "inferred", objective: true };
+    const mcq: DetectedQuestion = { questionNumber: 1, questionText: "MCQ (a) 1 (b) 2", marks: 1, marksSource: "inferred", objective: true, offersOptions: true };
     render(<PaperMarksEditor questions={[mcq, ...QS]} onMarksChange={onChange} />);
     expect(screen.queryByLabelText("Marks for Q1")).toBeNull();
     expect(screen.getByTestId("paper-marks-fixed-0").textContent).toBe("1");
@@ -46,9 +46,20 @@ describe("PaperMarksEditor", () => {
   });
 
   it("R5 · an objective row DISPLAYS 1 and totals 1 even if the read said 2 (what the server grades)", () => {
-    const mcq: DetectedQuestion = { questionNumber: 1, questionText: "MCQ a) 1 b) 2", marks: 2, marksSource: "section", objective: true };
+    const mcq: DetectedQuestion = { questionNumber: 1, questionText: "MCQ a) 1 b) 2", marks: 2, marksSource: "section", objective: true, offersOptions: true };
     render(<PaperMarksEditor questions={[mcq, ...QS]} onMarksChange={vi.fn()} />);
     expect(screen.getByTestId("paper-marks-fixed-0").textContent).toBe("1");
     expect(screen.getByTestId("paper-marks-editor").textContent).toContain("Total: 13 marks");
+  });
+
+  it("S1 · an objective question WITHOUT an option list is editable at its read marks", () => {
+    const onChange = vi.fn();
+    const proof: DetectedQuestion = { questionNumber: 22, questionText: "Prove that root 5 is irrational.", marks: 5, marksSource: "section", objective: true, offersOptions: false };
+    render(<PaperMarksEditor questions={[proof]} onMarksChange={onChange} />);
+    expect((screen.getByLabelText("Marks for Q22") as HTMLInputElement).value).toBe("5");
+    fireEvent.change(screen.getByLabelText("Marks for Q22"), { target: { value: "4" } });
+    expect(onChange).toHaveBeenCalledWith(0, 4);
+    expect(sendAsObjective(proof)).toBe(false);
+    expect(sendAsObjective({ ...proof, marks: 1 })).toBe(true);
   });
 });

@@ -54,6 +54,12 @@ const COUNT = new RegExp(`\\b${COUNT_NUMBER}\\s+(?:of|out of)\\s+(?:(?:the|your|
 /** …about questions or answers: "4 of 7 objective questions right" — but not "3 out of 5 chapters". */
 const COUNT_CUE = /\b(?:mcqs?|objective|questions?|answers?|right|correct(?:ly)?|wrong)\b/i;
 
+/** S6 · claims with no number to find: "All 10 MCQs correct", "you answered all the MCQs correctly",
+ *  "Full marks for Q3", "you got full marks". Tested on the sentence as written (before Q-refs are stripped). */
+const ALL_CLAIM = new RegExp(`\\ball\\s+(?:(?:the|your|these|${COUNT_NUMBER})\\s+)*(?:mcqs?|objective|questions?|answers?)\\b`, "i");
+const VERDICT = /\b(?:right|correct(?:ly)?|wrong)\b/i;
+const FULL_MARKS_CLAIM = /\bfull marks?\s+(?:for|on|in)\s+(?:Q|Question)\s*\.?\s*\d+|\b(?:got|scored|earned|secured|awarded)\s+full marks?\b/i;
+
 /** A question or section REFERENCE ("Q3", "Question 20", "Section C") is not a quantity. */
 function withoutReferences(sentence: string): string {
   return sentence.replace(/\b(?:Q|Question)\s*\.?\s*\d+\b/gi, " ").replace(/\bSection\s+[A-E]\b/gi, " ");
@@ -61,6 +67,7 @@ function withoutReferences(sentence: string): string {
 
 /** True when a sentence claims a score: a quantity with a strong cue, or a weak cue in a marks context. */
 export function claimsAScore(sentence: string): boolean {
+  if (FULL_MARKS_CLAIM.test(sentence) || (ALL_CLAIM.test(sentence) && VERDICT.test(sentence))) return true;
   const s = withoutReferences(sentence);
   if (!QUANTITY.test(s)) return false;
   if (STRONG_CUES.some((re) => re.test(s))) return true;

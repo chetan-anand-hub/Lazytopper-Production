@@ -18,18 +18,36 @@ import type { DetectedQuestion } from "../../ai/aiClient";
 export const PAPER_MARKS_MIN = 1;
 export const PAPER_MARKS_MAX = 10;
 
-/** True for an MCQ / Assertion-Reason question: its marks are not editable (§13). */
-export function isLockedObjective(q: Pick<DetectedQuestion, "objective">): boolean {
-  return q.objective === true;
+/** True for an MCQ / Assertion-Reason question that PRINTS its options (the server's test,
+ *  `offersOptions`): it is graded at 1 mark, 0 or full, so its marks are not editable (§13). A question
+ *  detect called objective WITHOUT an option list stays editable — it may be a mis-flagged written answer. */
+export function isLockedObjective(q: Pick<DetectedQuestion, "objective" | "offersOptions">): boolean {
+  return q.objective === true && q.offersOptions === true;
+}
+
+/** Whether to send this question to the grader as objective: an objective read the student has not
+ *  raised above 1 mark. Set it to more than 1 and it is graded as a written answer (step marking). */
+export function sendAsObjective(q: Pick<DetectedQuestion, "objective" | "marks">): boolean {
+  return q.objective === true && Number(q.marks) <= 1;
+}
+
+/** The single-question chip's locked line (an MCQ that prints its options): 1 mark, 0 or full. */
+export function LockedMarksNote() {
+  return (
+    <div className="lt-pme-lock" data-testid="ci-marks-locked">
+      <style>{".lt-pme-lock { font-size: 12.5px; color: hsl(220, 15%, 42%); }"}</style>
+      1 mark · an MCQ is marked right or wrong (0 or 1)
+    </div>
+  );
 }
 
 /** The marks this row is graded at: 1 for an objective question (what the server grades), else its own. */
-export function gradedMarksOf(q: Pick<DetectedQuestion, "objective" | "marks">): number {
+export function gradedMarksOf(q: Pick<DetectedQuestion, "objective" | "offersOptions" | "marks">): number {
   return isLockedObjective(q) ? 1 : Number(q.marks) || 0;
 }
 
 /** True when the read GUESSED this question's marks (nothing printed on it or in its section header). */
-export function isGuessedMarks(q: Pick<DetectedQuestion, "marksSource" | "objective">): boolean {
+export function isGuessedMarks(q: Pick<DetectedQuestion, "marksSource" | "objective" | "offersOptions">): boolean {
   if (isLockedObjective(q)) return false; // nothing for the student to check or change
   return q.marksSource === "inferred" || q.marksSource === "fallback";
 }

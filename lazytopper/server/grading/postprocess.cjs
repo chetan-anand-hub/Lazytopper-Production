@@ -793,29 +793,40 @@ function objectiveOffersOptions(q) {
   const t = String(q.format || q.qType || '').toLowerCase();
   if (t === 'mcq' || t === 'ar' || t === 'assertionreason' || t === 'assertion-reason') return true;
   const text = String(q.questionText || q.question || '');
-  if (/\bassertion\b/i.test(text) && /\breason\b/i.test(text)) return true;
-  const letters = new Set();
-  for (const m of text.matchAll(/\(\s*([a-dA-D])\s*\)/g)) letters.add(m[1].toLowerCase());
-  if (letters.size >= 2) return true;
-  // GRADE-MARKS-1 (R4) · the other printed option-list forms. Each needs an "a" AND a "b" option, so
-  // ordinary text with one "a)" or a stray "A." is never an option list.
-  //   "a) … b)"  — a letter + ")" at the start or after a space/punctuation;
-  //   "A. … B."  — a CAPITAL letter + "." + space at the start or after a space;
-  //   "(i) … (ii)" — roman options, only when every option is short (≤ 80 chars): a case study's
-  //                  "(i) … (ii) …" sub-questions are long sentences, not options.
-  const has = (re) => {
-    const seen = new Set();
-    for (const m of text.matchAll(re)) seen.add(m[1].toLowerCase());
-    return seen.has('a') && seen.has('b');
-  };
-  if (has(/(?:^|[\s:;,])([a-dA-D])\)\s/g) || has(/(?:^|\s)([A-D])\.\s/g)) return true;
-  const roman = [...text.matchAll(/\(\s*(i{1,3}|iv)\s*\)/gi)];
-  const romanSeen = new Set(roman.map((m) => m[1].toLowerCase()));
-  if (romanSeen.has('i') && romanSeen.has('ii')) {
-    const segs = text.split(/\(\s*(?:i{1,3}|iv)\s*\)/i).slice(1);
-    if (segs.length >= 2 && segs.every((t) => t.trim().length > 0 && t.trim().length <= 80)) return true;
+  // GRADE-MARKS-1 (S2) · read from the TEXT only when it really is a printed option list:
+  //   Assertion-Reason needs BOTH "Assertion (A)" and "Reason (R)" ("give a reason for the assertion
+  //   that …" is a written question);
+  //   otherwise one label style — "(a)", "a)", "a."/"A.", "(i)", "(1)" — with at least THREE options
+  //   labelled first, second, third in order (a CBSE MCQ prints four; "Prove that a) … and b) …" has
+  //   two), each option TERSE (≤ 40 chars) and not an instruction ("(i) Find the distance",
+  //   "a) Find the HCF … b) Hence find the LCM" are sub-parts, not options).
+  if (/\bassertion\s*\(\s*a\s*\)/i.test(text) && /\breason\s*\(\s*r\s*\)/i.test(text)) return true;
+  return OPTION_LIST_STYLES.some((style) => isOptionList(text, style));
+}
+
+const OPTION_INSTRUCTION = /^(?:find|prove|show|state|define|explain|calculate|hence|give|write|draw|name|determine|evaluate|solve|derive|justify|describe|list|compare|verify|construct)\b/i;
+const ROMAN_INDEX = { i: 0, ii: 1, iii: 2, iv: 3 };
+/** Each label style: its marker pattern (group 1 = the label) and the label's position (0 = first option). */
+const OPTION_LIST_STYLES = [
+  { re: /\(\s*([a-d])\s*\)/gi, index: (l) => 'abcd'.indexOf(l.toLowerCase()) },
+  { re: /(?:^|[\s:;,?])([a-d])\)(?=\s)/gi, index: (l) => 'abcd'.indexOf(l.toLowerCase()) },
+  { re: /(?:^|[\s:;,?])([a-d])\.(?=\s)/gi, index: (l) => 'abcd'.indexOf(l.toLowerCase()) },
+  { re: /\(\s*(i{1,3}|iv)\s*\)/gi, index: (l) => ROMAN_INDEX[l.toLowerCase()] },
+  { re: /\(\s*([1-4])\s*\)/g, index: (l) => Number(l) - 1 },
+];
+
+/** True when `text` holds an option list in this one label style (see objectiveOffersOptions). */
+function isOptionList(text, style) {
+  const marks = [...text.matchAll(style.re)].map((m) => ({ i: style.index(m[1]), start: m.index, end: m.index + m[0].length }));
+  if (marks.length < 3) return false;
+  // the first three markers, in order, label the first, second and third option
+  if (marks[0].i !== 0 || marks[1].i !== 1 || marks[2].i !== 2) return false;
+  for (let k = 0; k < marks.length; k += 1) {
+    const opt = text.slice(marks[k].end, k + 1 < marks.length ? marks[k + 1].start : text.length)
+      .replace(/\[\s*\d+\s*\]\s*$/, '').trim();
+    if (!opt || opt.length > 40 || OPTION_INSTRUCTION.test(opt)) return false;
   }
-  return false;
+  return true;
 }
 
 function normaliseQuestionResult(q, raw, ctx = {}) {

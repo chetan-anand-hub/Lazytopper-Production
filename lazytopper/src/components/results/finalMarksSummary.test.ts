@@ -98,4 +98,14 @@ describe("finalMarksSummary", () => {
     expect(claimsAScore(s)).toBe(false);
     expect(finalMarksSummary({ summary: s, results: RESULTS, gradedMarksAwarded: 13, gradedMarksTotal: 21 })).toBe(s);
   });
+
+  it("S6 · 'All N MCQs correct' and 'Full marks for Qn' are score claims", () => {
+    for (const c of ["All 10 MCQs correct.", "You answered all the MCQs correctly.", "Full marks for Q20.", "You got full marks on the proof."]) {
+      expect(claimsAScore(c), c).toBe(true);
+    }
+    expect(claimsAScore("Aim to write every step so full working is visible.")).toBe(false);
+    const out = finalMarksSummary({ summary: "All 13 MCQs correct. Keep it up.", results: RESULTS, gradedMarksAwarded: 13, gradedMarksTotal: 21 });
+    expect(out).toContain("On the objective questions: 7 out of 13 marks.");
+    expect(out).not.toContain("All 13 MCQs correct");
+  });
 });
