@@ -972,8 +972,8 @@ export type NamedAnalyticsEvent =
  *   "other" - a recipient TYPED into "Who will use it?" (signed out, or "Buying for someone else?"). A signed-out student
  *             typing their OWN number is also "other": the browser cannot know, so read it as "typed", never "a gift".
  */
-export function trackNamedEvent(name: NamedAnalyticsEvent, data?: { recipient: "self" | "other" }): void {
-  send("event", data ? { name, data: { recipient: data.recipient } } : { name });
+export function trackNamedEvent(name: NamedAnalyticsEvent, data?: { recipient: "self" | "other"; surface?: "for_parents" }): void {
+  send("event", data ? { name, data: { recipient: data.recipient, ...(data.surface ? { surface: data.surface } : {}) } } : { name });
 }
 
 /**
@@ -1053,6 +1053,8 @@ export interface CheckoutDetails {
    * `payer: "parent"` to the Vercel and GA4 params (never to Meta, which gets money only).
    */
   payer?: "parent";
+  /** PARENTS-PAY-1 - the page the checkout was started from. Absent (every pre-existing call site) = payload byte-for-byte as before. */
+  surface?: "for_parents";
 }
 
 const CHECKOUT_CURRENCY = "INR";
@@ -1060,7 +1062,10 @@ const CHECKOUT_CURRENCY = "INR";
 function checkoutParams(d: CheckoutDetails): { vercel: Record<string, unknown>; ga4: Record<string, unknown>; meta: Record<string, unknown> } {
   const value = typeof d.valueInr === "number" && Number.isFinite(d.valueInr) && d.valueInr > 0 ? d.valueInr : null;
   const money: Record<string, unknown> = value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
-  const payer: Record<string, unknown> = d.payer === "parent" ? { payer: "parent" } : {};
+  const payer: Record<string, unknown> = {
+    ...(d.payer === "parent" ? { payer: "parent" } : {}),
+    ...(d.surface === "for_parents" ? { surface: "for_parents" } : {}),
+  };
   return {
     vercel: { ...money, pass: d.passType, ...payer },
     ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName, ...(value === null ? {} : { price: value }), quantity: 1 }], ...payer },

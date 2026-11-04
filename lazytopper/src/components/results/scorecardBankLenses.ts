@@ -279,6 +279,8 @@ export function storedChapterTestScorecardVariant(
   if (onDownloadGraded && response) {
     actions.push({
       label: "Download graded answer sheet",
+      // TUTOR-RETURN-SHEET-1 - the per-answer sheet is detail: a LIMITS-locked card drops it.
+      detail: true,
       tone: "primary",
       onClick: onDownloadGraded,
       disabled: downloading,
@@ -405,6 +407,8 @@ export function storedFullMockScorecardVariant(
   if (onDownloadGraded && response) {
     actions.push({
       label: "Download graded answer sheet",
+      // TUTOR-RETURN-SHEET-1 - the per-answer sheet is detail: a LIMITS-locked card drops it.
+      detail: true,
       tone: "primary",
       onClick: onDownloadGraded,
       disabled: downloading,

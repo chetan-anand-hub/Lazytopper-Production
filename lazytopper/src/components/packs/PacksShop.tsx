@@ -1,7 +1,7 @@
 import { Suspense, lazy, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
 import { createPortal } from "react-dom";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import { newCheckoutAttemptId } from "../../analytics/analytics";
@@ -240,6 +240,12 @@ export interface PacksShopProps {
   returnPath?: string;
   /** Inside /pricing (no page chrome around My packs / the status line; no `pack_view` hit). */
   embedded?: boolean;
+  /** PARENTS-PAY-1: the page the shop is mounted on when it is not /packs or /pricing; rides on `pack_view`. */
+  surface?: "for_parents";
+  /** PARENTS-PAY-1: "parent" = the "Who will use it?" sheet says any number or email works (opened from /for-parents). */
+  checkoutAudience?: "parent";
+  /** PARENTS-PAY-1: no "My packs" block above the page (a parent's ad landing page keeps its hero first); ownership still marks the Buy buttons. */
+  hideMyPacks?: boolean;
   /** The catalogue (CBQ band, pack tiles) drawn by the page, wired to this shop's pop-up. */
   children: (api: PacksShopApi) => ReactNode;
 }
@@ -249,7 +255,7 @@ export interface PacksShopProps {
  * My packs, the paid / confirming status line, the entry-query pop-ups, the signed-out Buy -> sign-in -> resume loop (#1412),
  * handleBuy and the pack pop-up. Only the catalogue markup is the caller's (`children`).
  */
-export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, children }: PacksShopProps) {
+export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, surface, checkoutAudience, hideMyPacks = false, children }: PacksShopProps) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -289,12 +295,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // PRICING-ONE-1: the same pack_view event on both pages, told apart by `surface`; once per mount (a ref survives StrictMode's re-run).
     if (!viewSent.current) {
       viewSent.current = true;
-      trackPackEvent("pack_view", undefined, embedded ? "pricing" : "packs");
+      trackPackEvent("pack_view", undefined, surface ?? (embedded ? "pricing" : "packs"));
     }
     return () => {
       mounted.current = false;
     };
-  }, [embedded]);
+  }, [embedded, surface]);
 
   const loadMine = useCallback(async () => {
     try {
@@ -697,7 +703,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const dialogTarget = openSku === "pack_chapter" ? chapter || undefined : openSku === "pack_mock" || openSku === "pack_subject" || openSku === "pack_cbq" ? subject : undefined;
   const dialogQuestions =
     openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
-  const showMine = Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
+  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
   // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
   const [namePromptDone, setNamePromptDone] = useState(false);
   const askName =
@@ -755,6 +761,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               <span data-testid="packs-status-cbq-tutor"> Includes 3 tutor questions.</span>
             )}
           </p>
+          {/* PARENTS-PAY-1: the My packs block is hidden on /for-parents, so the downloads are one clear link away. */}
+          {hideMyPacks && signedIn && (
+            <p className="lt-packs__status">
+              <Link to={`${PACKS_RETURN_PATH}#my-packs`} data-testid="packs-open-my-packs">Open My packs &rarr;</Link>
+            </p>
+          )}
         </div>
       )}
     </>
@@ -837,6 +849,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               description: packCheckoutDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
               priceDisplay: packPriceLabel(who.sku),
             }}
+            {...(checkoutAudience ? { audience: checkoutAudience } : {})}
             signedIn={signedIn}
             selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
             onPaySelf={() => {

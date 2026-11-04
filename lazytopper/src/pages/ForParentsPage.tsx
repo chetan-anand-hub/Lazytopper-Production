@@ -1,19 +1,26 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import MummyJourney from "../components/guide/mummy/MummyJourney";
 // MOMENTS-1 M11b — Mummy's "one written answer" line, beside the page's own free-check action.
 import MummyCheckNudge from "../components/guide/mummy/MummyCheckNudge";
-import { trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
+import { trackBeginCheckoutTap, trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
+import { useAuth } from "../context/AuthContext";
+import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
+import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
+import { BOARD_PASS_BUY_PATH } from "../components/pricing/boardPassBuy";
 import { withParentFlag } from "../lib/parentReturn";
 import FounderBadge from "../components/brand/FounderBadge";
-import { BOARD_PASS_NAME, formatInr, tillBoardsQuote } from "../config/pricing";
+import { BOARD_PASS_NAME, boardPassPriceDisplay, formatInr, tillBoardsPriceInr, tillBoardsQuote } from "../config/pricing";
 import { WHATSAPP_URL } from "../config/socialProfiles";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import ParentPacksSection, { ParentPacksBand, ParentPacksHeroLink } from "../components/parents/ParentPacksSection";
 import "./forParents.css";
+
+/** PARENTS-PAY-1 (4 Nov 2026): the Board Pass checkout ("Who will use it?"), lazy: loaded only when a Pay is tapped. */
+const ParentBoardPassSheet = lazy(() => import("../components/parents/ParentBoardPassSheet"));
 
 /**
  * ★ PARENTS-PAY-1 (owner ruling 28 Oct 2026, 07:51 IST) SUPERSEDES the "no price figure" rulings above:
@@ -23,6 +30,15 @@ import "./forParents.css";
  * go stale; the number-free steps are static. A parent cannot start a payment without the child's
  * account: the server prices the order from the child's record (`ParentPayPanel`), so there is NO
  * checkout here, only the true flow and the WhatsApp contact for help.
+ */
+
+/**
+ * ★ PARENTS-PAY-1 (owner, 4 Nov 2026) SUPERSEDES the "there is NO checkout here" note above: a parent now pays ON this page. The
+ * primary "Pay for my child" opens the same "Who will use it?" checkout /pricing opens for the Board Pass (the box says any mobile
+ * number or email works - many children have no phone), and every pack card has its own Buy through the shared pack shop
+ * (`PacksShop`, the one /packs and /pricing use). The old three-step "child taps Forward link to parents" block and the "opens
+ * WhatsApp, no payment on this page" note are gone; WhatsApp is a secondary "Questions?" link. The price figure still arrives after
+ * mount, so the prerendered HTML carries no rupee figure.
  */
 
 /**
@@ -137,11 +153,11 @@ function PricingLink({ placement }: { placement: "hero" | "footer" }) {
   );
 }
 
-function ShareButton({ placement }: { placement: ParentSharePlacement }) {
+function ShareButton({ placement, secondary = false }: { placement: ParentSharePlacement; secondary?: boolean }) {
   const onClick = () => trackParentShareClick(placement);
   return (
     <a
-      className="lt-fp__cta"
+      className={secondary ? "lt-fp__cta lt-fp__cta--alt" : "lt-fp__cta"}
       href={PARENT_SHARE_HREF}
       target="_blank"
       rel="noopener noreferrer"
@@ -189,13 +205,34 @@ export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel 
   };
 }
 
-export const PAY_HELP_LABEL = "Pay for my child";
-export const PAY_HELP_HREF = `${WHATSAPP_URL}?text=${encodeURIComponent(
-  "Hi, I am a parent. I would like to pay for my child LazyTopper Board Pass. Can you help?",
-)}`;
+export const PAY_LABEL = "Pay for my child";
+export const PAY_HELP_LABEL = "Questions? Ask us on WhatsApp";
+export const PAY_HELP_HREF = `${WHATSAPP_URL}?text=${encodeURIComponent("Hi, I am a parent. I have a question about the LazyTopper Board Pass.")}`;
+/** The one line that replaces the old three steps (owner wording, 4 Nov 2026). */
+export const PAY_ONE_LINE =
+  "Type the mobile number or email your child will sign in with, pay on Razorpay, and it\u2019s on their account. You don\u2019t need an account.";
+
+/** The Pay opener the page passes to its two Pay buttons (hero + price section). */
+type PayPlacement = "hero" | "price";
+
+function useMounted(): boolean {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted;
+}
+
+/** "Pay for my child · ₹1,917": the figure is read AFTER mount (founding/regular logic of /pricing), so the prerender has none. */
+function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
+  const mounted = useMounted();
+  return (
+    <button type="button" className="lt-fp__cta lt-fp__cta--primary" onClick={() => onPay(placement)} aria-haspopup="dialog" data-testid={`fp-pay-${placement}`}>
+      {mounted ? `${PAY_LABEL} \u00b7 ${boardPassPriceDisplay()}` : PAY_LABEL}
+    </button>
+  );
+}
 
 /** PARENTS-PAY-1 — the price and the real way a parent pays. Figures arrive after mount (see above). */
-function ParentPriceSection() {
+function ParentPriceSection({ onPay }: { onPay: (placement: PayPlacement) => void }) {
   const [model, setModel] = useState<ParentPriceModel | null>(null);
   useEffect(() => {
     setModel(parentPriceModel(new Date(), predictCbseExamDate("10")));
@@ -217,21 +254,44 @@ function ParentPriceSection() {
         )}
       </div>
       <FounderBadge tone="light" />
-      <h3>How to pay for your child</h3>
-      <ol className="lt-fp__price-steps" data-testid="fp-pay-steps">
-        <li>Your child opens LazyTopper on their phone, goes to the price page and taps “Pay by QR code” or “Forward link to parents”.</li>
-        <li>You get a secure link on WhatsApp. It works once and expires in 72 hours.</li>
-        <li>Open it and pay on Razorpay. You need no account and no password; the pass goes to your child’s account.</li>
-      </ol>
-      <a className="lt-fp__cta lt-fp__cta--pay" href={PAY_HELP_HREF} target="_blank" rel="noopener noreferrer" data-testid="fp-pay-help">
-        {PAY_HELP_LABEL}
-      </a>
-      <p className="lt-fp__price-note">This opens WhatsApp so we can help. There is no payment on this page.</p>
+      <p className="lt-fp__price-line" data-testid="fp-pay-line">{PAY_ONE_LINE}</p>
+      <div className="lt-fp__price-actions">
+        <PayButton placement="price" onPay={onPay} />
+        <a className="lt-fp__help" href={PAY_HELP_HREF} target="_blank" rel="noopener noreferrer" data-testid="fp-pay-help">
+          {PAY_HELP_LABEL}
+        </a>
+      </div>
     </section>
   );
 }
 
 export default function ForParentsPage() {
+  // The shop is the one /packs and /pricing sell packs through (its checkout sheet is lazy, its "Who will use it?" says any number or email).
+  return (
+    <PacksShop embedded surface="for_parents" checkoutAudience="parent" hideMyPacks returnPath="/for-parents">
+      {(api) => <ForParentsBody api={api} />}
+    </PacksShop>
+  );
+}
+
+function ForParentsBody({ api }: { api: PacksShopApi }) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const signedIn = Boolean(user) && !user?.isLocalSession;
+  const [payOpen, setPayOpen] = useState(false);
+  const onPay = () => {
+    // `begin_checkout` at the TAP (no PII), tagged `surface: "for_parents"`; the checkout itself is /pricing's, unchanged.
+    trackBeginCheckoutTap(
+      { passType: "till_boards", itemName: "Premium pass till your boards", valueInr: tillBoardsPriceInr(), surface: "for_parents" },
+      signedIn,
+    );
+    // Flag off: the existing one-tap Board Pass start on /pricing (the same entry every other Pay button uses).
+    if (!isCheckoutWhoClientEnabled()) {
+      navigate(BOARD_PASS_BUY_PATH);
+      return;
+    }
+    setPayOpen(true);
+  };
   return (
     <main className="lt-fp" data-testid="for-parents-page">
       <header className="lt-fp__hero">
@@ -243,7 +303,8 @@ export default function ForParentsPage() {
             examiner does, and shows what to fix.
           </p>
           <div className="lt-fp__actions">
-            <ShareButton placement="hero" />
+            <PayButton placement="hero" onPay={onPay} />
+            <ShareButton placement="hero" secondary />
             <ParentPacksHeroLink />
             <FreeCheckLink placement="hero" />
             <PricingLink placement="hero" />
@@ -255,9 +316,9 @@ export default function ForParentsPage() {
         <ParentPacksBand />
         <MummyJourney actions={<><ShareButton placement="journey" /><FreeCheckLink placement="journey" /></>} />
         <MummyCheckNudge action={<FreeCheckLink placement="mummy_check" />} />
-        <ParentPriceSection />
+        <ParentPriceSection onPay={onPay} />
 
-        <ParentPacksSection />
+        <ParentPacksSection api={api} />
 
         <section aria-labelledby="fp-video">
           <TestimonialVideo
@@ -306,7 +367,7 @@ export default function ForParentsPage() {
           <details>
             <summary>What does it cost?</summary>
             <p>
-              The first answer check is free, without an account. A new account gets a 7-day Premium trial.{" "}
+              The first answer check is free, without an account. A new account gets a free 7-day trial.{" "}
               <Link to={PRICING_TO}>See pricing</Link>
             </p>
           </details>
@@ -329,6 +390,11 @@ export default function ForParentsPage() {
         <p className="lt-fp__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>
       </div>
       <PublicLegalFooter fromParents />
+      {payOpen && (
+        <Suspense fallback={null}>
+          <ParentBoardPassSheet onClose={() => setPayOpen(false)} />
+        </Suspense>
+      )}
     </main>
   );
 }

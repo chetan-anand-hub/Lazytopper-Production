@@ -5,6 +5,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 const trackOnboardingEvent = vi.hoisted(() => vi.fn());
+// PARENTS-PAY-1: the page mounts the shared pack shop, which reads the auth context (signed out here).
+vi.mock("../../../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 vi.mock("../../../analytics/analytics", () => ({ trackOnboardingEvent, trackGuideVariantAssigned: vi.fn() }));
 // The rig needs a real layout engine; a stub that shows the pose it was given is what this suite
 // needs (the rig's own drawing is covered by rig.test.ts / rigCast.test.ts).
