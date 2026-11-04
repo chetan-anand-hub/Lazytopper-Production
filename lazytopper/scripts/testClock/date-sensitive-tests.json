@@ -514,6 +514,7 @@
     "src/components/worksheet/WorksheetGenerator.mi.test.tsx",
     "src/components/worksheet/WorksheetGenerator.pendingUpload.test.tsx",
     "src/components/worksheet/WorksheetGenerator.tutorReturn.test.tsx",
+    "src/components/worksheet/WorksheetGenerator.wsAwait.test.tsx",
     "src/components/worksheet/WorksheetGradePanel.detailLock.test.tsx",
     "src/components/worksheet/WorksheetGradePanel.jobs.test.tsx",
     "src/components/worksheet/worksheetDraw.guard.test.ts",
