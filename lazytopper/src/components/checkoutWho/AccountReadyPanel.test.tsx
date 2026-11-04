@@ -56,12 +56,14 @@ afterEach(() => {
 });
 
 describe("the thank-you screen (flag on)", () => {
-  it("every product: 'Payment received ✓ <product>. Their LazyTopper account is ready.' + the two buttons", async () => {
+  it("every product: 'Payment received ✓ <product>.' + 'It goes onto the account for <masked first>' (true whatever happened) + the two buttons", async () => {
     for (const item of [CBQ, PASS]) {
       mountSheet({ item });
       await payFor("98765 43210");
       expect(screen.getByTestId("who-paid").textContent).toBe(`Payment received ✓ ${item.label}`);
-      expect(screen.getByTestId("who-account-ready").textContent).toBe("Their LazyTopper account is ready.");
+      // Review MED 4: nothing unverified ("account is ready") - the same words whether created, existing or waiting.
+      expect(screen.getByTestId("who-account-ready").textContent).toBe("It goes onto the account for +91 98\u2022\u2022\u2022\u2022\u2022210.");
+      expect(document.body.textContent).not.toMatch(/account is ready/i);
       expect(screen.getByTestId("who-open-me").textContent).toBe("It's for me — open it now");
       expect(screen.getByTestId("who-send-child").textContent).toBe("Send it to my child");
       expect(screen.queryByTestId("who-signin")).toBeNull();
@@ -171,5 +173,17 @@ describe("the thank-you screen (flag on)", () => {
     expect(JSON.stringify(analytics.trackNamedEvent.mock.calls)).not.toMatch(PHONE_DIGITS);
     expect(JSON.stringify(setItem.mock.calls)).not.toMatch(PHONE_DIGITS);
     setItem.mockRestore();
+  });
+});
+
+describe("the masked FIRST identifier names the account", () => {
+  it("email typed first, then a mobile: the line names the email (the account carries only it)", async () => {
+    mountSheet();
+    fireEvent.change(screen.getByTestId("who-first"), { target: { value: "anaya.k@gmail.com" } });
+    fireEvent.click(screen.getByTestId("who-add-second"));
+    fireEvent.change(screen.getByTestId("who-second"), { target: { value: "9876543210" } });
+    fireEvent.click(screen.getByTestId("who-pay"));
+    expect((await screen.findByTestId("who-account-ready")).textContent).toBe("It goes onto the account for an\u2022\u2022\u2022\u2022@gmail.com.");
+    expect(screen.getByTestId("who-open-me").textContent).toBe("Send me the sign-in link");
   });
 });

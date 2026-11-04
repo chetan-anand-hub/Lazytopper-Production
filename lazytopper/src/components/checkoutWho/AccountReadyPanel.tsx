@@ -4,7 +4,8 @@
  * Shown by CheckoutSheet after a CONFIRMED recipient payment while VITE_PAY_AUTO_ACCOUNT_ENABLED is on (the server made the
  * recipient's account at payment, or it already existed - the screen is the same either way: nothing here says which).
  *
- *   "Payment received ✓ <product>. Their LazyTopper account is ready."
+ *   "Payment received ✓ <product>." + "It goes onto the account for <masked first identifier>." (review MED 4: the same
+ *   true words whether the account was made, already existed, or is still waiting)
  *   a. "It's for me — open it now" (signed-out payer only):
  *        mobile -> the EXISTING phone OTP sign-in (AuthContext sendPhoneOtp / verifyPhoneOtp), number already filled in:
  *                  only the code to type; then My packs (pack) / Home (Board Pass).
@@ -17,15 +18,16 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
-  ACCOUNT_READY_LINE,
   CHECK_INBOX,
   COPY_MESSAGE,
   MESSAGE_COPIED,
   OPEN_FOR_ME,
   SEND_ME_LINK,
   SEND_TO_CHILD,
+  accountForLine,
   childShareText,
   landingPath,
+  maskedIds,
   whatsappShareUrl,
   type Recipient,
 } from "../../services/checkoutWho";
@@ -125,7 +127,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
   return (
     <>
       <p className="lt-gps__ok" role="status" data-testid="who-paid">Payment received ✓ {item.label}</p>
-      <p className="lt-gps__line" data-testid="who-account-ready">{ACCOUNT_READY_LINE}</p>
+      <p className="lt-gps__line" data-testid="who-account-ready">{accountForLine(maskedIds(recipient)[0] || "")}</p>
 
       {me.phase === "code" || me.phase === "verifying" ? (
         <form

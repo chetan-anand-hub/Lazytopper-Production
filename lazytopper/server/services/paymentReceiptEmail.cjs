@@ -207,6 +207,24 @@ function buildAccountReadyEmail({ passType, packTarget, signInLink, newAccount, 
   return { subject, text, html };
 }
 
+/**
+ * PAY-ACCOUNT-1 review HIGH 1 - PURE. The email typed at checkout is NOT on the account (the account signs in with the
+ * MOBILE NUMBER it was bought for): a plain notice with NO sign-in link of any kind (a link for an address that is not on
+ * the account must never be sent) and no number in it.
+ */
+function buildPhoneAccountNoticeEmail({ passType, packTarget }) {
+  const item = itemLabel(passType, packTarget);
+  if (!item || passType === 'month') return null;
+  const name = isPackProduct(passType) ? item : 'Board Pass';
+  const line = `${name} was bought for you on LazyTopper \u2014 sign in with the mobile number it was bought for; it's already in your account.`;
+  const subject = `${name} was bought for you on LazyTopper`;
+  const text = [line, `Need help? Reply to this email or write to ${SUPPORT_EMAIL}.`, 'LazyTopper'].join('\n\n');
+  const html = `<p>${escapeHtml(line)}</p>
+<p>Need help? Reply to this email or write to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
+<p>LazyTopper</p>`;
+  return { subject, text, html };
+}
+
 function createPaymentReceiptEmailer(deps = {}) {
   const config = deps.config || resolveReceiptEmailConfig(deps.env || process.env);
   const { adminFirestore, telemetry } = deps;
@@ -341,7 +359,10 @@ function createPaymentReceiptEmailer(deps = {}) {
     // PAY-ACCOUNT-1: the purchase is on an account that signs in with THIS email -> a one-tap sign-in link. A link that
     // cannot be made falls back to the plain "is ready" email below.
     let accountReady = null;
-    if (order.accountHasEmail === true && typeof deps.emailSignInLink === 'function') {
+    if (order.accountSignInWith === 'phone') {
+      // The account signs in with the mobile number only: a plain notice, never a link for this address.
+      accountReady = buildPhoneAccountNoticeEmail({ passType: order.passType, packTarget: order.packTarget });
+    } else if (order.accountHasEmail === true && typeof deps.emailSignInLink === 'function') {
       try {
         // Back to /login's finish step (markers only, never the address), then the safe landing: My packs / Home.
         const where = isPackProduct(order.passType) ? '/packs#my-packs' : '/';
@@ -411,6 +432,7 @@ function createPaymentReceiptEmailer(deps = {}) {
 
 module.exports = {
   buildAccountReadyEmail,
+  buildPhoneAccountNoticeEmail,
   createPaymentReceiptEmailer,
   resolveReceiptEmailConfig,
   buildReceiptEmail,

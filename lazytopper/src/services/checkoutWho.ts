@@ -68,7 +68,13 @@ export function alreadyCoveredLine(_kind: GuestItem["kind"]): string {
 
 /* ── PAY-ACCOUNT-1: the thank-you screen (the account is made at payment) ─────────── */
 
-export const ACCOUNT_READY_LINE = "Their LazyTopper account is ready.";
+/**
+ * Review MED 4: the thank-you line claims nothing the browser cannot know (created, existing or still waiting - the same
+ * words): only where the purchase goes. `masked` is the FIRST-entered identifier, masked.
+ */
+export function accountForLine(masked: string): string {
+  return `It goes onto the account for ${masked}.`;
+}
 export const OPEN_FOR_ME = "It's for me \u2014 open it now";
 export const SEND_TO_CHILD = "Send it to my child";
 export const SEND_ME_LINK = "Send me the sign-in link";

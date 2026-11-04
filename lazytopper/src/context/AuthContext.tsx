@@ -419,6 +419,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const guestPay = await import("../services/guestPay");
         if (cancelled || !(guestPay.isGuestPayClientEnabled() || isCheckoutWhoClientEnabled())) return;
         const claimed = await guestPay.claimOncePerSession(uid);
+        // PAY-ACCOUNT-1 (dark unless the pay-first flags): the account was made at payment and THIS is its first sign-in -
+        // its sign-up. Counted exactly as a sign-up is (sign_up, the visit source, the new-account landing), once: the
+        // server says it once per account and taking it clears it. Its trial was started by the server at that moment.
+        if (!cancelled && guestPay.takeFirstSignIn(uid)) {
+          trackSignUp();
+          const current = authClient?.currentUser;
+          if (current) sendVisitSourceOnSignUp(() => current.getIdToken());
+          markNewAccountLanding();
+        }
         if (!claimed || claimed.length === 0) return;
         // A claimed Board Pass wrote the server pass: re-read it so Premium shows without a reload.
         void hydrateSubscriptionFromCloud(uid).catch(() => undefined);

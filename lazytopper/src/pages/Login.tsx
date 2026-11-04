@@ -72,11 +72,6 @@ export function guestPayDigitsFrom(state: unknown): string {
   return typeof v === "string" && /^[6-9][0-9]{9}$/.test(v) ? v : "";
 }
 
-/**
- * SIGNIN-FLASH-1 (review of #1521) — a post-sign-in target must be a safe internal path that is
- * NOT the door itself (`/login`, `/login/…`, `/login?…`). Navigating a signed-in student to /login
- * keeps this page mounted, which would strand the return-from-Google "Signing you in…" screen.
- */
 /** PAY-ACCOUNT-1 - the passwordless email-link finish step (lazy: never in the entry chunk). */
 const EmailLinkFinish = lazy(() => import("../components/checkoutWho/EmailLinkFinish"));
 
@@ -88,6 +83,11 @@ export function isEmailLinkFinish(search: URLSearchParams): boolean {
   return isPayAutoAccountClientEnabled() && search.get("finish") === "link" && search.get("mode") === "signIn" && search.has("oobCode");
 }
 
+/**
+ * SIGNIN-FLASH-1 (review of #1521) — a post-sign-in target must be a safe internal path that is
+ * NOT the door itself (`/login`, `/login/…`, `/login?…`). Navigating a signed-in student to /login
+ * keeps this page mounted, which would strand the return-from-Google "Signing you in…" screen.
+ */
 export function isUsableSigninTarget(path: string | null | undefined): path is string {
   return isSafeInternalPath(path) && !/^\/login(?:[/?#]|$)/i.test(path.trim());
 }

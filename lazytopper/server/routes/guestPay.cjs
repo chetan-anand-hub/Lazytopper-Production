@@ -48,7 +48,7 @@
  *
  * ★★ PAY-ACCOUNT-1 (owner 4 Nov 2026) - "pay first, the account is made for them", DARK behind PAY_AUTO_ACCOUNT_ENABLED
  *    (on top of CHECKOUT_WHO). After a VERIFIED recipient payment for which NO account exists, the server creates the
- *    Firebase account (Admin SDK createUser, phone and/or email; the email unverified) under a uid DERIVED from the order
+ *    Firebase account (Admin SDK createUser, the FIRST-entered phone or email only; an email unverified) under a uid DERIVED from the order
  *    id (`pay-<hash>`: the client SDK never makes a uid with a hyphen, so `pay-` marks an account made here, and verify +
  *    webhook racing on the same order create ONE user - the loser gets uid-already-exists and uses it), then grants through
  *    the SAME take + grant. Existing rules stand. Owner addendum A (security): when ONE identifier already has an account
@@ -56,9 +56,9 @@
  *    second account is made for it (admin note `second_identifier_not_linked`; the student can link it later through the
  *    verified "also sign in with" step) - else paying ₹49 with a victim's email and your own phone would hand you their
  *    account. Creation failure -> the order stays `paid_unclaimed` (today's claim still rescues it), admin note
- *    `account_not_created`. Nothing is written to Firestore for the new account (sign-up writes no users doc either); its
- *    trial is NOT started here - the claim reports `firstSignIn` ONCE for such an account (doctrine: a trial starts at
- *    sign-up, and for this account sign-up is its first sign-in). Switch off: not one byte of this runs.
+ *    `account_not_created`. A NEW account carries ONLY the first-entered identifier (review HIGH 1). Nothing is written to
+ *    Firestore for it at payment (sign-up writes no users doc either); its trial starts at its FIRST SIGN-IN (its
+ *    sign-up), inside the claim's transaction, and the claim reports `firstSignIn` ONCE. Switch off: not one byte runs.
  *
  * ★ PRIVACY. The phone number is stored on the order (it is the claim key) and goes to Razorpay's checkout as the
  *    read-only contact. It is never in a URL, a Razorpay order note, a telemetry name or an analytics event; responses
@@ -835,16 +835,21 @@ function createGuestPayRoutes(deps = {}) {
         first: order.recipientFirst === 'email' ? 'email' : 'phone',
       });
       const auto = isPayAutoAccountEnabled(env) && !!authAccounts && typeof authAccounts.createUser === 'function';
-      if (!target.uid) {
-        // PAY-ACCOUNT-1: nobody has this phone / email yet - the account is made now (switch off: the order waits).
+      // PAY-ACCOUNT-1: nobody has this phone / email yet - the account is made now (switch off: the order waits). Review
+      // MED 2: the account found may be THIS order's own (a concurrent run made it a moment ago) - still "created at
+      // payment", through the same path (its labels, its sign-in email, its first sign-in).
+      if (!target.uid || (auto && target.uid === autoAccountUid(orderId))) {
         if (auto) await deliverToNewAccount(orderId, order);
         return;
       }
       // PAY-ACCOUNT-1 addendum A: one identifier on an account, the other on none -> the existing account gets it and the
       // other identifier is NOT added to it (and no second account is made). Recorded for the admin; switch off: nothing.
+      let existingExtra;
       if (auto && !target.note && order.guestPhone && order.guestEmail && !(target.byPhone && target.byEmail)) {
         emit('payments.guest.deliver.second_not_linked');
         await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ adminNote: SECOND_NOT_LINKED_NOTE }, { merge: true });
+        // What the recipient email may say: the account signs in with the identifier that FOUND it, never the other.
+        existingExtra = target.uid === target.byEmail ? { accountSignInWith: 'email', accountHasEmail: true } : { accountSignInWith: 'phone' };
       }
       if (target.note) {
         emit('payments.guest.deliver.two_accounts');
@@ -853,7 +858,7 @@ function createGuestPayRoutes(deps = {}) {
           .doc(orderId)
           .set({ adminNote: target.note.note, otherAccountUid: target.note.otherUid }, { merge: true });
       }
-      const outcome = await attachOrder(orderId, target.uid, (o) => o.checkoutWho === true, 'existing_account');
+      const outcome = await attachOrder(orderId, target.uid, (o) => o.checkoutWho === true, 'existing_account', existingExtra);
       if (outcome && outcome.claimed) {
         emit('payments.guest.deliver.granted');
         // CHECKOUT-WHO-2: the account was not signed in here, so the "Also sign in with <masked>?" offer waits on the order
@@ -870,50 +875,57 @@ function createGuestPayRoutes(deps = {}) {
 
   /**
    * PAY-ACCOUNT-1 - find (an account this server made at an earlier payment) or create the recipient's account. Returns
-   * { uid, created, hasEmail, secondNotLinked } or { uid: null, reason }. Never links an identifier to an account that
-   * someone else may hold (addendum A): an identifier already used by ANY account never goes on the new one.
+   * { uid, created, hasEmail, secondNotLinked } or { uid: null, reason }.
+   * ★★ Review HIGH 1 (pre-staging takeover): a NEW account carries ONLY the FIRST-entered identifier, never both. Two
+   *    unverified identifiers on one account would let a payer stage an account with a victim's phone and their own email
+   *    (or the reverse), open it by the identifier they control, and have the victim sign into it later. The second
+   *    identifier is never put on any account here; the student adds it later through the verified "also sign in with"
+   *    step. And (addendum A) an identifier already used by ANY account never goes on a new one.
    */
   async function findOrCreateAccount(orderId, { phone, email, first }) {
     const lookup = async (fn, v) => (v && typeof fn === 'function' ? fn(v) : null);
     const phoneRec = await lookup(authAccounts.getUserByPhone, phone);
     const emailRec = await lookup(authAccounts.getUserByEmail, email);
     const idOf = (r) => (r && typeof r.uid === 'string' && r.uid ? r.uid : null);
-    // A phone account appeared since the lookup (a sign-up raced the payment): SMS-verified, it is that student's.
+    const own = autoAccountUid(orderId);
+    const both = !!phone && !!email;
+    // An existing account: one with the phone (SMS-verified - a sign-up raced the payment), or one THIS server made.
     const firstRec = first === 'email' ? emailRec : phoneRec;
     const otherRec = first === 'email' ? phoneRec : emailRec;
     for (const rec of [firstRec, otherRec]) {
       const id = idOf(rec);
-      if (!id) continue;
-      if (rec === phoneRec || isAutoAccountUid(id)) {
-        const both = !!phone && !!email;
-        // THIS order's own account (a concurrent run created it a moment ago) is still "created at payment".
-        return { uid: id, created: id === autoAccountUid(orderId), hasEmail: idOf(emailRec) === id, secondNotLinked: both && !(idOf(phoneRec) && idOf(emailRec)) };
-      }
+      if (!id || !(rec === phoneRec || isAutoAccountUid(id))) continue;
+      const hasPhone = idOf(phoneRec) === id;
+      const hasEmail = idOf(emailRec) === id;
+      // THIS order's own account (a concurrent run created it a moment ago) is still "created at payment".
+      return { uid: id, created: id === own, hasEmail, signInWith: hasEmail && !hasPhone ? 'email' : hasPhone ? 'phone' : 'email', secondNotLinked: both && !(hasPhone && hasEmail) };
     }
-    // The email is on an account nobody has verified and we did not make: it can go on no new account.
-    const emailFree = !!email && !idOf(emailRec);
-    const phoneFree = !!phone && !idOf(phoneRec);
-    if (!phoneFree && !emailFree) return { uid: null, reason: 'email_in_use' };
-    const uid = autoAccountUid(orderId);
-    const input = { uid, emailVerified: false, ...(phoneFree ? { phoneNumber: phone } : {}), ...(emailFree ? { email } : {}) };
+    // The new account: the first-entered identifier ONLY, and only while no account of any kind uses it.
+    const firstValue = first === 'email' ? email : phone;
+    const firstFree = !!firstValue && !idOf(firstRec);
+    if (!firstFree) return { uid: null, reason: first === 'email' ? 'email_in_use' : 'phone_in_use' };
+    const input = { uid: own, emailVerified: false, ...(first === 'email' ? { email } : { phoneNumber: phone }) };
     try {
       await authAccounts.createUser(input);
     } catch (e) {
       const code = e && e.code;
       if (code === 'auth/uid-already-exists') {
         // verify + webhook raced on THIS order: the other run made it. Use it.
-        const rec = typeof authAccounts.getUser === 'function' ? await authAccounts.getUser(uid) : null;
+        const rec = typeof authAccounts.getUser === 'function' ? await authAccounts.getUser(own) : null;
         if (!idOf(rec)) return { uid: null, reason: 'create_failed' };
       } else if (code === 'auth/phone-number-already-exists' || code === 'auth/email-already-exists') {
-        // A sign-up took an identifier between the lookup and the create: re-resolve by the existing rules, else wait.
+        // A sign-up took the identifier between the lookup and the create: re-resolve by the existing rules, else wait.
         const again = await resolveRecipientAccount({ phone, email, first });
-        if (again.uid) return { uid: again.uid, created: false, hasEmail: again.uid === again.byEmail, secondNotLinked: !!phone && !!email && !(again.byPhone && again.byEmail) };
+        if (again.uid) {
+          const hasEmail = again.uid === again.byEmail;
+          return { uid: again.uid, created: false, hasEmail, signInWith: hasEmail && again.uid !== again.byPhone ? 'email' : 'phone', secondNotLinked: both && !(again.byPhone && again.byEmail) };
+        }
         return { uid: null, reason: 'identifier_taken' };
       } else {
         return { uid: null, reason: 'create_failed' };
       }
     }
-    return { uid, created: true, hasEmail: emailFree, secondNotLinked: !!phone && !!email && !(phoneFree && emailFree) };
+    return { uid: own, created: true, hasEmail: first === 'email', signInWith: first === 'email' ? 'email' : 'phone', secondNotLinked: both };
   }
 
   /** PAY-ACCOUNT-1 - a paid recipient order with NO account: make it, then the SAME take + grant. Never throws. */
@@ -940,6 +952,7 @@ function createGuestPayRoutes(deps = {}) {
     if (made.secondNotLinked) emit('payments.guest.deliver.second_not_linked');
     const extra = {
       ...(made.hasEmail ? { accountHasEmail: true } : {}),
+      accountSignInWith: made.signInWith,
       adminNote: made.secondNotLinked ? SECOND_NOT_LINKED_NOTE : null,
       accountCreateError: null,
     };
@@ -1132,9 +1145,12 @@ function createGuestPayRoutes(deps = {}) {
       emit('payments.guest.claim.pending_prompt_failed');
       console.error('[pay/guest/claim] pending prompt read failed:', e && e.message);
     }
-    // PAY-ACCOUNT-1: the FIRST sign-in of an account made at payment is its sign-up - said ONCE (the order marks it in a
-    // transaction), so the existing new-account trial path can run then. Only for a `pay-` uid; switch off: never.
+    // PAY-ACCOUNT-1: the FIRST sign-in of an account made at payment is its sign-up. Said ONCE (the orders are marked in a
+    // transaction) so the client can count the sign-up. Review LOW 5: the sign-up TRIAL starts HERE, in that same
+    // transaction, so a lost response cannot lose it - with activateTrial's own rules: never over premium, a pass or a
+    // trial already started, and never for a Board Pass account (covered anyway). Only for a `pay-` uid; switch off: never.
     let firstSignIn = false;
+    let trialStarted = false;
     if (isPayAutoAccountEnabled(env) && isAutoAccountUid(uid)) {
       try {
         const made = await adminFirestore
@@ -1143,32 +1159,40 @@ function createGuestPayRoutes(deps = {}) {
           .where('claimedVia', '==', VIA_ACCOUNT_CREATED)
           .limit(MAX_ORDERS_PER_CLAIM)
           .get();
-        for (const d of made && Array.isArray(made.docs) ? made.docs : []) {
-          const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(d.id);
-          const marked = await adminFirestore.runTransaction(async (tx) => {
-            const snap = await tx.get(ref);
-            const o = snap && snap.exists ? snap.data() || {} : null;
-            if (!o || o.uid !== uid || o.firstSignInAt) return false;
-            tx.set(ref, { firstSignInAt: new Date(now()) }, { merge: true });
-            return true;
+        const refs = (made && Array.isArray(made.docs) ? made.docs : []).map((d) => adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(d.id));
+        if (refs.length) {
+          const subRef = adminFirestore.collection('subscriptions').doc(uid);
+          const out = await adminFirestore.runTransaction(async (tx) => {
+            const orders = [];
+            for (const ref of refs) {
+              const snap = await tx.get(ref);
+              orders.push({ ref, o: snap && snap.exists ? snap.data() || {} : null });
+            }
+            const subSnap = await tx.get(subRef);
+            const sub = subSnap && subSnap.exists ? subSnap.data() || {} : {};
+            const fresh = orders.filter(({ o }) => o && o.uid === uid && !o.firstSignInAt);
+            if (!fresh.length) return { first: false, trial: false };
+            const at = new Date(now());
+            for (const { ref } of fresh) tx.set(ref, { firstSignInAt: at }, { merge: true });
+            const covered = sub.tier === 'premium' || !!sub.passEnd || !!sub.passType || !!sub.trialStartDate;
+            if (covered) return { first: true, trial: false };
+            // The same record the client's activateTrial writes at sign-up (the start pinned to the server's clock).
+            tx.set(subRef, { tier: 'trial', plan: 'trial_7day', premiumSince: null, trialStartDate: at, updatedAt: at.toISOString() }, { merge: true });
+            return { first: true, trial: true };
           });
-          if (marked) firstSignIn = true;
-        }
-        // A Board Pass account needs no trial ("covered anyway"): the first sign-in is still marked, the trial not offered.
-        if (firstSignIn) {
-          const sub = await adminFirestore.collection('subscriptions').doc(uid).get();
-          const stored = sub && sub.exists ? sub.data() || {} : {};
-          if (stored.tier === 'premium' || stored.passEnd || stored.passType) firstSignIn = false;
+          firstSignIn = out.first;
+          trialStarted = out.trial;
+          if (trialStarted) emit('payments.guest.claim.first_signin_trial');
         }
       } catch (e) {
         emit('payments.guest.claim.first_signin_failed');
-        console.error('[pay/guest/claim] first sign-in read failed:', e && e.message);
+        console.error('[pay/guest/claim] first sign-in failed:', e && e.message);
       }
     }
     return sendJson(res, 200, {
       ok: true,
       claimed,
-      ...(firstSignIn ? { firstSignIn: true } : {}),
+      ...(firstSignIn ? { firstSignIn: true, trialStarted } : {}),
       ...(failed ? { failed } : {}),
       ...(duplicates ? { duplicates } : {}),
       ...(alsoSignIn ? { alsoSignIn } : {}),
