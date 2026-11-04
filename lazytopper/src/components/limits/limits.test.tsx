@@ -459,13 +459,18 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
     wall({}, "/practice?topic=triangles&style=cbq");
     const owned = await screen.findByTestId("wall-pack-owned");
     expect(owned.querySelector("a")!.getAttribute("href")).toBe("/packs#my-packs");
-    expect(owned.textContent).toBe("You own this pack — open My packs");
+    // PACK-OWNER-GATES-1 (fix 5): the owned CBQ Pack on a CBQ set says why it helps, as the primary action.
+    expect(owned.textContent).toBe("Your Maths CBQ Pack has these questions — open My packs");
+    expect(owned.querySelector("a")!.className).toContain("lt-limit-btn--primary");
     expect(screen.queryByTestId("wall-pack-buy")).toBeNull();
     cleanup();
     resetOwnedPacksCache();
     ownedState.packs = [own("pack_bundle", "all")];
     wall({ cover: { chapters: ["circles"] } }, "/worksheet");
-    expect((await screen.findByTestId("wall-pack-owned")).getAttribute("data-sku")).toBe("pack_chapter");
+    const chapterOwned = await screen.findByTestId("wall-pack-owned");
+    expect(chapterOwned.getAttribute("data-sku")).toBe("pack_chapter");
+    // A non-CBQ owned match keeps today's words.
+    expect(chapterOwned.textContent).toBe("You own this pack — open My packs");
     expect(screen.queryByTestId("wall-pack-buy")).toBeNull();
   });
   it("review fix 1: when the ownership read fails, no specific pack is sold - the old generic link shows", async () => {

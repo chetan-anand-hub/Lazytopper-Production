@@ -56,6 +56,7 @@ import { trackPaywallAction } from "../../analytics/analytics";
 import OffersBlock from "../packs/OffersBlock";
 import { paperWallCopy } from "../packs/offersCopy";
 import type { OfferKind } from "../packs/offersModel";
+import PackOwnerSlot from "../packOwner/PackOwnerSlot";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -259,6 +260,8 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
   // [FU-TRIAL-CTA-ON-ASK] - a signed-out visitor, or an account that never had a trial. The record
   // must be known (hydrated) for an account; the server still decides.
   const trialEligible = !uid || isTrialEligible(hydrated, subscription);
+  // PACK-OWNER-GATES-1 - a Basic student (record known, not on a running trial, not paid) who owns a PDF pack is spoken to as a customer.
+  const packOwnerEnabled = Boolean(uid) && hydrated && subscription?.tier === "free";
 
   const handleSeePlans = () => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
@@ -285,7 +288,14 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
         >
           <div className="lt-upsheet__grip" />
           <h2 className="lt-upsheet__title">{wall.title}</h2>
-          {wall.body ? <p className="lt-upsheet__trial" data-testid="upgrade-sheet-wall-body">{wall.body}</p> : null}
+          {/* PACK-OWNER-GATES-1 (fix 3) - a pack owner never reads "Written answers are marked with the Board Pass" as a stranger: the
+              pack this paper comes from (or their latest pack) is named instead. Unknown / none: today's body, unchanged. */}
+          <PackOwnerSlot
+            enabled={packOwnerEnabled && !onTrial}
+            uid={uid}
+            paper={{ kind: offers.kind, subject: offers.subject ?? null, chapterSlug: offers.chapterSlug ?? null }}
+            fallback={wall.body ? <p className="lt-upsheet__trial" data-testid="upgrade-sheet-wall-body">{wall.body}</p> : null}
+          />
           <OffersBlock
             surface={`wall-${offers.kind}`}
             ctx={{ kind: offers.kind, subject: offers.subject ?? null, chapterSlug: offers.chapterSlug ?? null, chapterName: offers.chapterName ?? null }}
@@ -332,7 +342,8 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
 
         {/* ★ Names the feature the student was actually blocked on — passed in by the
             caller, never one hardcoded string for every surface. */}
-        <h2 className="lt-upsheet__title">{title}</h2>
+        {/* PACK-OWNER-GATES-1 - a pack owner reads the pack-owner line in the title's place; every button below is unchanged. */}
+        <PackOwnerSlot enabled={packOwnerEnabled} uid={uid} heading="h2" fallback={<h2 className="lt-upsheet__title">{title}</h2>} />
 
         {/* ASK-COPY-1 - the free week leads where it can still be started; the Board Pass is second. */}
         {trialEligible && (
@@ -437,11 +448,22 @@ const PREMIUM_FEATURE_LABELS: Record<string, string> = {
   check_solution: "Checking your answer",
   mentor: "The AI tutor",
   step_solution: "Step-by-step solutions",
+  // PACK-OWNER-GATES-1 (fix 2) - the ids the SERVER actually sends in a 402 (entitlement.cjs GATED_ROUTES, AI_TIER_GATED_ROUTES and
+  // STEP_SOLUTION_FEATURE). Before this, every one of them fell through to "This is a Premium feature". Both spellings are accepted.
+  "check-solution": "Checking your answer",
+  tutor: "The AI tutor",
+  "grade-worksheet": "Grading your worksheet",
+  grade_worksheet: "Grading your worksheet",
+  "detect-question": "Reading questions from your photo",
+  detect_question: "Reading questions from your photo",
+  "step-solution-generation": "Step-by-step solutions",
+  step_solution_generation: "Step-by-step solutions",
+  "step-solution": "Step-by-step solutions",
 };
 
 export function labelForFeature(code: string | undefined | null): string {
   if (!code) return "This";
-  return PREMIUM_FEATURE_LABELS[code] || "This";
+  return Object.prototype.hasOwnProperty.call(PREMIUM_FEATURE_LABELS, code) ? PREMIUM_FEATURE_LABELS[code] : "This";
 }
 
 export default UpgradeSheet;

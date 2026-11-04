@@ -39,6 +39,15 @@ export function cbqTutorBonusLine(left: number, limit: number = CBQ_TUTOR_BONUS_
   return `CBQ Pack bonus: ${left} of ${limit} tutor questions left`;
 }
 
+/**
+ * PACK-OWNER-GATES-1 - the tutor lock's line for a CBQ Pack owner whose bonus is spent (the banner above renders nothing at 0, so without
+ * this the student met a bare Premium lock with no word about the questions they had used). Null unless the SERVER's count says 0 left.
+ */
+export function cbqTutorBonusUsedLine(bonus: Pick<CbqTutorBonus, "left" | "limit"> | null | undefined): string | null {
+  if (!bonus || bonus.left !== 0 || !(bonus.limit > 0)) return null;
+  return `You've used your ${bonus.limit} free CBQ Pack tutor questions.`;
+}
+
 export function setCbqTutorBonus(next: CbqTutorBonus | null): void {
   current = next;
   listeners.forEach((fn) => fn());

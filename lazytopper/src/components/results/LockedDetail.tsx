@@ -11,6 +11,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import PaywallActions from "../pricing/PaywallActions";
 import { boardPassPriceNow } from "../pricing/boardPassOffer";
 import { trackNamedEvent } from "../../analytics/analytics";
+import PackOwnerSlot from "../packOwner/PackOwnerSlot";
+import { useOptionalUid } from "../pricing/trialCta";
 import "./LockedDetail.css";
 
 export interface LockedDetailProps {
@@ -21,6 +23,7 @@ export interface LockedDetailProps {
 export default function LockedDetail({ scoreLine }: LockedDetailProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const uid = useOptionalUid();
   const here = `${location.pathname}${location.search}`;
 
   useEffect(() => {
@@ -34,10 +37,18 @@ export default function LockedDetail({ scoreLine }: LockedDetailProps) {
   return (
     <section className="lt-lockd" data-testid="scorecard-locked-detail" aria-label="Answer-by-answer breakdown">
       <h3 className="lt-lockd__title">You got {scoreLine}. See exactly where the rest went.</h3>
-      <p className="lt-lockd__body">
-        Premium opens every answer step by step, with the kind of mistake behind each lost mark. The mistake
-        pattern above, and on your Progress page, stays free.
-      </p>
+      {/* PACK-OWNER-GATES-1 - the breakdown is locked only for a Basic student; one who bought a PDF pack is spoken to as a customer.
+          Packs unknown or none: today's body, unchanged. The score line above and the actions below are untouched. */}
+      <PackOwnerSlot
+        enabled={Boolean(uid)}
+        uid={uid}
+        fallback={
+          <p className="lt-lockd__body">
+            Premium opens every answer step by step, with the kind of mistake behind each lost mark. The mistake
+            pattern above, and on your Progress page, stays free.
+          </p>
+        }
+      />
       <div className="lt-lockd__acts">
         <PaywallActions
           surface="scorecard_lock"

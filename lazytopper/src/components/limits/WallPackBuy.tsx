@@ -85,6 +85,15 @@ export function wallPackOffer(ctx: {
 }
 
 export const WALL_OWNED_COPY = "You own this pack — open My packs";
+
+/**
+ * PACK-OWNER-GATES-1 (fix 5) - a CBQ practice set is not a pack product to the server (limits.cjs coverIsOwned: practice-set never
+ * sends a cover), so a CBQ Pack owner can still meet this week's download limit on one. The bare "You own this pack" next to "you've used
+ * this week's free download" read as a contradiction; this says why it helps, and is the wall's primary action for that student.
+ */
+export function wallCbqOwnedCopy(subject: PackSubject): string {
+  return `Your ${subjectLabel(subject)} CBQ Pack has these questions — open My packs`;
+}
 export const WALL_MY_PACKS_HREF = "/packs#my-packs";
 
 export default function WallPackBuy({ cover, chapter, light, fallback, kind = null, hint = null }: { cover: DownloadCover | null; chapter: string | null; light: boolean; fallback: ReactNode; kind?: DownloadKind | null; hint?: DownloadPaperHint | null }) {
@@ -98,6 +107,15 @@ export default function WallPackBuy({ cover, chapter, light, fallback, kind = nu
   if (owned.phase === "error") return <>{fallback}</>;
   const cls = light ? "lt-limit-pack lt-limit-pack--light" : "lt-limit-pack";
   if (isAlreadyOwned(owned.packs, offer.sku, offer.target)) {
+    if (offer.sku === "pack_cbq" && (offer.target === "maths" || offer.target === "science")) {
+      return (
+        <div className={cls} data-testid="wall-pack-owned" data-sku={offer.sku} data-cbq-owned="1">
+          <Link className="lt-limit-btn lt-limit-btn--primary" to={WALL_MY_PACKS_HREF}>
+            {wallCbqOwnedCopy(offer.target)}
+          </Link>
+        </div>
+      );
+    }
     return (
       <div className={cls} data-testid="wall-pack-owned" data-sku={offer.sku}>
         <Link className="lt-limit-btn lt-limit-btn--pack" to={WALL_MY_PACKS_HREF}>
