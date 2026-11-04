@@ -552,6 +552,18 @@ interface SettleEntry {
 const recordSettles = new Map<string, SettleEntry>();
 /** Records whose write was refused as stale (a newer / graded copy stands): their payload must not be written either. */
 const staleKeys = new Set<string>();
+/** Records whose DEVICE copy kept a graded record against an incoming partial/pending one: the payload's device copy must not replace it either. */
+const deviceKept = new Set<string>();
+function markStale(uid: string, original: SessionRecord, landed: LandedRecord): void {
+  staleKeys.add(settleKey(uid, original));
+  staleKeys.add(settleKey(uid, { id: landed.id, worksheetId: original.worksheetId }));
+  while (staleKeys.size > REDIRECT_CAP) staleKeys.delete(staleKeys.values().next().value as string);
+}
+/** A payload written by a partial / pending save (nothing subjective graded yet). */
+function payloadIsPartial(p: SessionPerQuestionPayload): boolean {
+  const r = p.response as { pendingCount?: number; gradedCount?: number } | undefined;
+  return !!r && ((Number(r.pendingCount) || 0) > 0 || r.gradedCount === 0);
+}
 /** Where a paper's record finally landed when that was NOT the code it asked for - sticky (bounded),
  *  so a payload written after the record landed still goes to the right ref. */
 const redirects = new Map<string, LandedRecord>();
@@ -561,6 +573,7 @@ export function __resetRecordSafeForTests(): void {
   redirects.clear();
   recordSettles.clear();
   staleKeys.clear();
+  deviceKept.clear();
 }
 function settleKey(uid: string, record: Pick<SessionRecord, "id" | "worksheetId">): string {
   return `${uid}|${record.id}|${record.worksheetId}`;
@@ -876,6 +889,8 @@ function writeSessionRecordCore(
   // F3: the device copy follows the cloud's rule - a graded record of this paper is not replaced by a partial/pending one
   const heldHere = mirror.find((r) => r.id === record.id);
   const keepMirror = !!heldHere && recordsAreSamePaper(heldHere, record) && heldHere.status === "graded" && record.status !== "graded";
+  if (keepMirror) deviceKept.add(settleKey(uid, record));
+  else deviceKept.delete(settleKey(uid, record));
 
   // localStorage mirror — idempotent by id (replace, newest-first).
   try {
@@ -911,11 +926,7 @@ function writeSessionRecordCore(
           .then(
             (landed) => {
               settle.current.resolve(landed);
-              if (landed.stale) {
-                staleKeys.add(skey);
-                staleKeys.add(settleKey(uid, { id: landed.id, worksheetId: original.worksheetId }));
-                while (staleKeys.size > REDIRECT_CAP) staleKeys.delete(staleKeys.values().next().value as string);
-              }
+              if (landed.stale) markStale(uid, original, landed);
               if (recordSettles.get(skey) === settle) recordSettles.delete(skey);
               if (landed.id !== original.id && !landed.stale) relocateMirror(uid, original, landed);
               return landed.stale ? ("stale" as const) : landed; // stale: nothing was written - never claim "saved"
@@ -1032,7 +1043,8 @@ export function writeSessionPerQuestion(
 
   // Device copy now - unless the ref holds ANOTHER paper's payload (a record write may be relocating this one;
   // the cloud step below writes the device copy once it knows where the record landed).
-  const localWritten = putLocalPayload(uid, payload);
+  // F2b: a partial/pending payload never replaces the device payload of a record the device kept GRADED
+  const localWritten = deviceKept.has(settleKey(uid, { id: payload.code, worksheetId: payload.worksheetId })) ? true : putLocalPayload(uid, payload);
 
   if (isFirestoreEnabled() && uid !== "anonymous") {
     // N5 — the same full replace for the payload a re-grade rewrites (Firestore merges nested maps,
@@ -1055,7 +1067,7 @@ export function writeSessionPerQuestion(
         if (first?.stale) return "stale" as const;
         const landed = chase(uid, first?.id ?? payload.code, payload.worksheetId) ?? first;
         const target = followRedirect(payload, landed);
-        if (target !== payload || !localWritten) putLocalPayload(uid, target, payload.ref);
+        if ((target !== payload || !localWritten) && !deviceKept.has(settleKey(uid, { id: target.code, worksheetId: target.worksheetId }))) putLocalPayload(uid, target, payload.ref);
         const result = await setPayloadGuarded(uid, target, queuedAt).finally(noteStudyDataChanged); // MI-CONSISTENCY-1
         // "kept" = the target ref holds another paper's payload and nothing says where ours should go:
         // never replace it, never claim saved - fail so the chain retries and finally shows failed.
@@ -1109,6 +1121,16 @@ export async function resendOutboxEntry(
       ? undefined
       : loadLocalSessionRecords(uid).find((r) => r.worksheetId === pb.worksheetId && r.perQuestionRef && r.perQuestionRef !== pb.ref && r.surface === pb.surface);
     const target = followRedirect(pb, redirected ?? (rec ? { id: rec.id, perQuestionRef: rec.perQuestionRef } : undefined));
+    // F2a: never replace a graded paper's payload with a partial/pending one. The record's refusal is remembered for
+    // this session; across a reload it is re-derived by reading the record itself.
+    if (staleKeys.has(settleKey(uid, { id: pb.code, worksheetId: pb.worksheetId })) || staleKeys.has(settleKey(uid, { id: target.code, worksheetId: pb.worksheetId }))) return "stale";
+    if (payloadIsPartial(pb)) {
+      const recSnap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "records", sanitizeDocId(target.code))));
+      if (trustedExists(recSnap)) {
+        const r = recSnap.data() as Partial<SessionRecord>;
+        if (r.worksheetId === pb.worksheetId && r.status === "graded") return "stale";
+      }
+    }
     const cur = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "perQuestion", sanitizeDocId(target.ref))));
     const curAt = cur.exists() ? (cur.data() as { updatedAt?: unknown } | undefined)?.updatedAt : undefined;
     if (cur.exists() && (cur.data() as { worksheetId?: string } | undefined)?.worksheetId === target.worksheetId && typeof curAt === "string" && curAt > entry.queuedAt) return "cloud-newer";
@@ -1126,6 +1148,7 @@ export async function resendOutboxEntry(
   if (!isCurrent()) return "superseded";
   const landed = await setRecordGuarded(uid, body as SessionRecord, entry.queuedAt, existing, true);
   if (landed.id !== entry.id && !landed.stale) relocateMirror(uid, body as SessionRecord, landed);
+  if (landed.stale) markStale(uid, body as SessionRecord, landed);
   return landed.stale ? "stale" : "sent";
 }
 

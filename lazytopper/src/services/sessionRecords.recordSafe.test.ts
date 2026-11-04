@@ -504,3 +504,69 @@ describe("RECORD-SAFE-1 - a paper's cleanup touches only its own saved copy", ()
     expect(JSON.parse(localStorage.getItem(`lazytopper.ct.papers.v1.${UID}`)!)).toHaveLength(0);
   });
 });
+
+
+describe("RECORD-SAFE-1 fourth review: a stale partial never reaches a graded paper's payload", () => {
+  const graded = { ...rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 5 }), updatedAt: "2026-11-04T10:00:00.000Z" };
+  const oldPayload = { ref: "ws:WS-M-MIX-02", code: "WS-M-MIX-02", worksheetId: "ws-new", surface: "worksheet", gradedAt: 1000, updatedAt: "2026-11-04T10:00:00.000Z", response: { ok: true, old: true } };
+
+  it("P1: a partial re-grade queued offline, re-sent after a reload (record refused as stale) - the cloud payload stays the graded one", async () => {
+    vi.useFakeTimers();
+    try {
+      h.writeMode = "fail";
+      writeSessionRecord(user, rec({ worksheetId: "ws-new", status: "partial", marksAwarded: 1 }));
+      writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
+      await vi.advanceTimersByTimeAsync(50);
+      __resetOutboxForTests();
+      __resetRecordSafeForTests(); // reload: every in-memory mark is gone
+      h.store.set(recPath("WS-M-MIX-02"), graded);
+      h.store.set(payloadPath("ws:WS-M-MIX-02"), oldPayload);
+      h.writeMode = "ok";
+      await drainOutbox(UID);
+      await vi.advanceTimersByTimeAsync(30000);
+      expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(graded);
+      expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(oldPayload);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("P1b: the payload alone is re-sent after a reload (its record is long settled) - it re-reads the record and is refused", async () => {
+    vi.useFakeTimers();
+    try {
+      h.store.set(recPath("WS-M-MIX-02"), graded);
+      h.store.set(payloadPath("ws:WS-M-MIX-02"), oldPayload);
+      h.writeMode = "fail";
+      const partialPayload = { ...newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"), response: { ok: true, gradedCount: 1, pendingCount: 2 } as never };
+      writeSessionPerQuestion(user, partialPayload as SessionPerQuestionPayload);
+      await vi.advanceTimersByTimeAsync(50);
+      __resetOutboxForTests();
+      __resetRecordSafeForTests();
+      h.writeMode = "ok";
+      await drainOutbox(UID);
+      await vi.advanceTimersByTimeAsync(30000);
+      expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(oldPayload);
+      expect(readOutbox(UID)).toEqual([]); // settled, not stuck
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("P2: stale in-session - the device record AND the device payload both stay the graded ones", async () => {
+    h.store.set(recPath("WS-M-MIX-02"), graded);
+    h.store.set(payloadPath("ws:WS-M-MIX-02"), oldPayload);
+    localStorage.setItem(mirrorKey, JSON.stringify([graded]));
+    localStorage.setItem(payloadKey, JSON.stringify({ "ws:WS-M-MIX-02": oldPayload }));
+    writeSessionRecord(user, rec({ worksheetId: "ws-new", status: "partial", marksAwarded: 1 }));
+    writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
+    await flush();
+    expect(loadLocalSessionRecords(UID).find((r) => r.id === "WS-M-MIX-02")).toMatchObject({ status: "graded", marksAwarded: 5 });
+    expect(JSON.parse(localStorage.getItem(payloadKey)!)["ws:WS-M-MIX-02"]).toEqual(oldPayload);
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(oldPayload);
+  });
+
+  // Known gap (documented in the PR body): own record moved to X+2, X+1 later freed, a device with no list grades at X
+  // and lands on the free X+1, leaving X+2 pending. Finding the own record needs a query by worksheetId, which the
+  // outbox's plain get/set contract does not have.
+  it.todo("P5: own record at X+2 with X+1 freed - a list-less device grading at X finds it (needs a worksheetId query)");
+});
