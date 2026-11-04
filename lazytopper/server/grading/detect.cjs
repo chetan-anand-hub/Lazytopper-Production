@@ -255,35 +255,89 @@ function marksInRange(v) {
  * more than 1 mark: a rule mark above 1 is skipped and the model's own value stands.
  * A question with no section continues the section of the question before it: a section runs
  * across page breaks until the next header, so Q20 on a page with no header stays in Section C.
- * @param {Array<{section: string|null, printedMarks: number|null, objective?: boolean}>} entries  in paper order
- * @param {Array<{section?: unknown, marksEach?: unknown}>|undefined} headers  the model's sectionHeaders
+ *
+ * GRADE-SECTION-1 · section membership by ORDER, not by the model's per-question label. Live 4 Nov
+ * (WS-M-MIX-02): page 6 prints Q20, Q21, THEN the "Section D" header, then Q22; the model labelled
+ * Q20/Q21 "D" (the header LATER on the same page) → 5 marks each, total 55, marked "section". Each
+ * header now carries `firstQuestion` (the number of the first question printed after it), and a
+ * numbered question N belongs to the header with the greatest firstQuestion ≤ N (question numbers
+ * are in reading order). A question before the first header keeps the label/carry rule above.
+ *   · the model's own label DISAGREES with the order → the order wins, and the mark is "inferred"
+ *     (flagged for the student to check) — never silently "section";
+ *   · a header's firstQuestion is missing (or the readable ones are not increasing in header order)
+ *     → the label/carry rule above, but every question of a section whose range cannot be
+ *     established (its own header's or the NEXT header's firstQuestion is missing) is "inferred".
+ * @param {Array<{n?: number|null, numberAssigned?: boolean, section: string|null, printedMarks: number|null, objective?: boolean}>} entries  in paper order
+ * @param {Array<{section?: unknown, marksEach?: unknown, firstQuestion?: unknown}>|undefined} headers  the model's sectionHeaders
  * @returns {Array<{marks: number|null, source: 'printed'|'section'|'inferred'|null, section: string|null}>}
  */
 function assignSectionMarks(entries, headers) {
   const headerMarks = new Map(); // letter → marks; a letter with two different marks is unknown (null)
+  const ordered = []; // GRADE-SECTION-1 · every lettered header, in the model's (reading) order
   for (const h of Array.isArray(headers) ? headers : []) {
     const letter = sectionLetterOf(h && h.section);
+    if (!letter) continue;
+    const fq = Number(h && h.firstQuestion);
+    ordered.push({ letter, first: h && h.firstQuestion != null && h.firstQuestion !== '' && Number.isFinite(fq) && fq >= 1 ? Math.round(fq) : null });
     const marks = marksInRange(h && h.marksEach);
-    if (!letter || marks === null) continue;
+    if (marks === null) continue;
     headerMarks.set(letter, headerMarks.has(letter) && headerMarks.get(letter) !== marks ? null : marks);
   }
   const known = [...headerMarks.entries()].filter(([, m]) => m !== null);
   const cbsePattern = known.length >= 2 && known.every(([l, m]) => CBSE_SECTION_MARKS[l] === m);
+  // GRADE-SECTION-1 · a General Instructions line ("Section A has 20 MCQs of 1 mark each") listed as a
+  // header has no firstQuestion: drop it when the same letter's real header has one.
+  const placed = new Set(ordered.filter((h) => h.first !== null).map((h) => h.letter));
+  for (let i = ordered.length - 1; i >= 0; i -= 1) if (ordered[i].first === null && placed.has(ordered[i].letter)) ordered.splice(i, 1);
+  // GRADE-SECTION-1 · the ranges are established only when every header has a firstQuestion and they
+  // increase in header order. Otherwise: the sections whose range is open (own or next start unknown).
+  const byOrder = ordered.length > 0 && ordered.every((h, i) => h.first !== null && (i === 0 || h.first > ordered[i - 1].first));
+  const openSections = new Set();
+  if (!byOrder) {
+    const anyUnordered = ordered.some((h, i) => h.first !== null && i > 0 && ordered[i - 1].first !== null && h.first <= ordered[i - 1].first);
+    ordered.forEach((h, i) => {
+      if (anyUnordered || h.first === null || (i + 1 < ordered.length && ordered[i + 1].first === null)) openSections.add(h.letter);
+    });
+  }
+  const sectionByOrder = (n) => {
+    let hit = null;
+    for (const h of ordered) if (h.first <= n) hit = h.letter;
+    return hit;
+  };
   let carried = null;
   return entries.map((e) => {
-    const section = e.section || carried;
-    if (section) carried = section;
-    let ruled = { marks: null, source: null, section };
-    if (e.printedMarks !== null) ruled = { marks: e.printedMarks, source: 'printed', section };
-    else if (section && headerMarks.get(section) != null) {
-      ruled = headerMarks.get(section) === CBSE_SECTION_MARKS[section]
-        ? { marks: headerMarks.get(section), source: 'section', section }
-        : { marks: CBSE_SECTION_MARKS[section], source: 'inferred', section }; // a non-CBSE header number: never trusted
-    } else if (section && cbsePattern && !headerMarks.has(section)) ruled = { marks: CBSE_SECTION_MARKS[section], source: 'section', section };
-    // §13: never more than 1 mark for an objective question by rule (the 0/full clamp needs ≤ 1).
-    if (e.objective === true && ruled.marks !== null && ruled.marks > 1) return { marks: null, source: null, section };
+    // labelSection: the section GRADE-MARKS-1 used (the model's label, else carried from the last label).
+    const labelSection = e.section || carried;
+    if (labelSection) carried = labelSection;
+    let section = labelSection;
+    let disagrees = false;
+    if (byOrder && Number.isFinite(e.n) && e.numberAssigned !== true) {
+      const bySeq = sectionByOrder(e.n);
+      if (bySeq) {
+        // any disagreement with the label-or-carried section is flagged (an unlabelled question too)
+        disagrees = labelSection !== null && labelSection !== undefined && labelSection !== bySeq;
+        section = bySeq;
+      }
+    }
+    const unsure = disagrees || (section !== null && openSections.has(section));
+    const ruled = ruleFor(e, section, headerMarks, cbsePattern);
+    if (unsure && ruled.source === 'section') ruled.source = 'inferred';
     return ruled;
   });
+}
+
+/** The rule mark for one entry in a known section (GRADE-MARKS-1, unchanged). */
+function ruleFor(e, section, headerMarks, cbsePattern) {
+  let ruled = { marks: null, source: null, section };
+  if (e.printedMarks !== null) ruled = { marks: e.printedMarks, source: 'printed', section };
+  else if (section && headerMarks.get(section) != null) {
+    ruled = headerMarks.get(section) === CBSE_SECTION_MARKS[section]
+      ? { marks: headerMarks.get(section), source: 'section', section }
+      : { marks: CBSE_SECTION_MARKS[section], source: 'inferred', section }; // a non-CBSE header number: never trusted
+  } else if (section && cbsePattern && !headerMarks.has(section)) ruled = { marks: CBSE_SECTION_MARKS[section], source: 'section', section };
+  // §13: never more than 1 mark for an objective question by rule (the 0/full clamp needs ≤ 1).
+  if (e.objective === true && ruled.marks !== null && ruled.marks > 1) return { marks: null, source: null, section };
+  return ruled;
 }
 
 /** One retry for detection: a parse miss, a 429, a 5xx other than a timeout, or a network

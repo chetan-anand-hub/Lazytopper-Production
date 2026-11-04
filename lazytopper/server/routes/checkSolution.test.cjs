@@ -3036,7 +3036,9 @@ const { DETECT_RESPONSE_SCHEMA_KEY_SOURCE: GM_KEY_SCHEMA } = require('./checkSol
 // A paper shaped like WS-M-MIX-02 (marks only in section headers, total 51, Q20/Q21 in Section C):
 // A Q1–Q10 ×1 = 10 · B Q11–Q15 ×2 = 10 · C Q16–Q21 ×3 = 18 · D Q22 ×5 = 5 · E Q23–Q24 ×4 = 8 → 51.
 const GM_SECTIONS = [['A', 1, 10], ['B', 2, 5], ['C', 3, 6], ['D', 5, 1], ['E', 4, 2]];
-function gmReply({ q20Section = null, q21Section = null, headers = GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: m })) } = {}) {
+// GRADE-SECTION-1 · each header's firstQuestion (the first question printed after it): 1/11/16/22/23.
+const GM_FIRST = { A: 1, B: 11, C: 16, D: 22, E: 23 };
+function gmReply({ q20Section = null, q21Section = null, headers = GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: m, firstQuestion: GM_FIRST[l] })) } = {}) {
   const questions = [];
   let n = 1;
   for (const [letter, marks, count] of GM_SECTIONS) {
@@ -3088,7 +3090,7 @@ test('§GM.2 ★ a mark printed ON the question still wins over its section head
 test('§GM.3 the CBSE section map is used only when the paper\'s headers follow it; otherwise the model\'s mark stays, flagged "inferred"', async () => {
   // Headers printed for A, B and D only (all CBSE values) — C has no header mark: the CBSE map gives 3.
   const cbse = gmReply({ q20Section: 'C', q21Section: 'C',
-    headers: [{ section: 'A', marksEach: 1 }, { section: 'B', marksEach: 2 }, { section: 'C', marksEach: null }, { section: 'D', marksEach: 5 }] });
+    headers: [{ section: 'A', marksEach: 1, firstQuestion: 1 }, { section: 'B', marksEach: 2, firstQuestion: 11 }, { section: 'C', marksEach: null, firstQuestion: 16 }, { section: 'D', marksEach: 5, firstQuestion: 22 }] });
   const h = buildRoute({ replies: [cbse] });
   await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
   const q20 = h.body().questions.find((q) => q.questionNumber === 20);
@@ -3107,12 +3109,12 @@ test('§GM.3 the CBSE section map is used only when the paper\'s headers follow 
 });
 
 test('§GM.4 the post-step (pure): carry-forward, conflicting headers, leading unsectioned questions', () => {
-  const e = (section, printedMarks = null) => ({ section, printedMarks });
-  assert.deepEqual(GM_D.assignSectionMarks([e(null), e('B'), e(null), e('C'), e(null, 2)], [{ section: 'Section B', marksEach: 2 }, { section: 'c', marksEach: 3 }]),
+  const e = (section, printedMarks = null, n = null) => ({ section, printedMarks, n });
+  assert.deepEqual(GM_D.assignSectionMarks([e(null, null, 1), e('B', null, 2), e(null, null, 3), e('C', null, 4), e(null, 2, 5)], [{ section: 'Section B', marksEach: 2, firstQuestion: 2 }, { section: 'c', marksEach: 3, firstQuestion: 4 }]),
     [{ marks: null, source: null, section: null }, { marks: 2, source: 'section', section: 'B' }, { marks: 2, source: 'section', section: 'B' },
       { marks: 3, source: 'section', section: 'C' }, { marks: 2, source: 'printed', section: 'C' }]);
   // Two headers for one letter with different marks: that letter is unknown (never a coin-flip).
-  assert.deepEqual(GM_D.assignSectionMarks([e('B')], [{ section: 'B', marksEach: 2 }, { section: 'B', marksEach: 3 }]),
+  assert.deepEqual(GM_D.assignSectionMarks([e('B', null, 1)], [{ section: 'B', marksEach: 2, firstQuestion: 1 }, { section: 'B', marksEach: 3, firstQuestion: 5 }]),
     [{ marks: null, source: null, section: 'B' }]);
   assert.equal(GM_D.sectionLetterOf('SECTION - D'), 'D');
   assert.equal(GM_D.sectionLetterOf('Part II'), null);
@@ -3120,7 +3122,7 @@ test('§GM.4 the post-step (pure): carry-forward, conflicting headers, leading u
 
 test('§GM.5 ★ the single-question read mirrors a rule-set first mark at the top level', async () => {
   const h = buildRoute({ replies: [{ detectedMarks: 5, marksSource: 'stated', detectedObjective: false,
-    sectionHeaders: [{ section: 'C', marksEach: 3 }],
+    sectionHeaders: [{ section: 'C', marksEach: 3, firstQuestion: 20 }],
     questions: [{ questionNumber: 20, section: 'C', questionText: 'Prove that root 5 is irrational.', marks: 5, printedMarks: null, marksSource: 'stated', objective: false }] }] });
   await h.route.handleDetectQuestion({ question: 'Prove that root 5 is irrational.', keySource: true, sectionMarks: true }, {});
   assert.equal(h.body().detectedMarks, 3);
@@ -3165,15 +3167,15 @@ test('§GM.7 ★★ F1 (§13) the section rule never gives an OBJECTIVE question
 
 test('§GM.8 R1 a header mark is trusted ONLY at the CBSE value; any other number gets the CBSE value, flagged "inferred"', async () => {
   const e = [{ section: 'C', printedMarks: null }, { section: null, printedMarks: null }];
-  const ok = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 3 }]);
+  const ok = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 3, firstQuestion: 1 }]);
   assert.deepEqual(ok.map((x) => [x.marks, x.source]), [[3, 'section'], [3, 'section']], 'the CBSE value is trusted (and carried)');
   // "6 × 3 = 18" read as 6 each, "4 × 3" read as 4: never trusted, never carried as 6 / 4.
   for (const misread of [6, 4]) {
-    const r = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: misread }]);
+    const r = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: misread, firstQuestion: 1 }]);
     assert.deepEqual(r.map((x) => [x.marks, x.source]), [[3, 'inferred'], [3, 'inferred']], 'C misread as ' + misread);
   }
   // End to end: Section C header misread as 6 → header-less Q20/Q21 are 3, flagged; the paper is still 51.
-  const reply = gmReply({ headers: GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: l === 'C' ? 6 : m })) });
+  const reply = gmReply({ headers: GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: l === 'C' ? 6 : m, firstQuestion: GM_FIRST[l] })) });
   reply.questions[19].section = 'C'; reply.questions[20].section = null;
   const h = buildRoute({ replies: [reply] });
   await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
@@ -3303,4 +3305,131 @@ test('§GM.15 ★★ H1 long-option Science MCQs (each option 50–90 chars) ARE
   await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 3, questionText: LONG[1], objective: true }]), acceptsV2: true }, {});
   assert.equal(hm.body().results[0].totalMarks, 1);
   assert.ok([0, 1].includes(hm.body().results[0].marksAwarded));
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §GS · GRADE-SECTION-1 — A QUESTION BELONGS TO THE SECTION HEADER ABOVE IT, NOT THE NEXT ONE ON THE PAGE
+
+   Live 4 Nov 2026 ~23:05 IST (production, owner account, WS-M-MIX-02, detect with sectionMarks): the
+   model labelled Q20/Q21 "D". Truth (the PDF): page 5 has the Section C header, Q18, Q19; page 6 starts
+   with Q20, Q21 (no header), THEN the "Section D · 5 marks each" header, then Q22, Q23. So Q20/Q21 are
+   Section C (3 marks) and the paper is 51, not 55 — and the 55 came back as marksSource "section",
+   unflagged. Each header now carries firstQuestion; membership is derived by ORDER.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// The exact WS-M-MIX-02 layout: A Q1–13 ×1 · B Q14–17 ×2 · C Q18–21 ×3 · D Q22–23 ×5 · E Q24–25 ×4 = 51.
+const GS_TRUTH = [['A', 1, 1, 13], ['B', 2, 14, 17], ['C', 3, 18, 21], ['D', 5, 22, 23], ['E', 4, 24, 25]];
+function gsReply({ q20q21Label = 'D', firstOf = (l, f) => f } = {}) {
+  const questions = [];
+  for (const [letter, marks, from, to] of GS_TRUTH) {
+    for (let n = from; n <= to; n += 1) {
+      const wrong = n === 20 || n === 21;
+      const label = wrong ? q20q21Label : letter;
+      questions.push({
+        questionNumber: n, section: label,
+        questionText: letter === 'A' ? 'Question ' + n + ': which is prime? (a) 4 (b) 6 (c) 7 (d) 9' : 'Question ' + n + ' text',
+        marks: wrong && label === 'D' ? 5 : marks, printedMarks: null, marksSource: 'stated', objective: letter === 'A', answer: null,
+      });
+    }
+  }
+  return { detectedMarks: 1, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null, detectedObjective: true, detectedAnswer: null,
+    sectionHeaders: GS_TRUTH.map(([l, m, f]) => ({ section: l, marksEach: m, firstQuestion: firstOf(l, f) })), questions };
+}
+async function gsDetect(reply) {
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  return h.body().questions;
+}
+const gsQ = (qs, n) => qs.find((q) => q.questionNumber === n);
+
+test('§GS.1 ★★★ WS-M-MIX-02: Q20/Q21 labelled "D" but printed before the D header (firstQuestion 22) are Section C, 3 marks, FLAGGED; total 51', async () => {
+  const qs = await gsDetect(gsReply());
+  assert.equal(qs.length, 25);
+  for (const n of [20, 21]) assert.deepEqual([gsQ(qs, n).marks, gsQ(qs, n).marksSource, gsQ(qs, n).section], [3, 'inferred', 'C'], 'Q' + n + ': order wins, never silently "section"');
+  for (const n of [18, 19]) assert.deepEqual([gsQ(qs, n).marks, gsQ(qs, n).marksSource], [3, 'section'], 'Q' + n);
+  for (const n of [22, 23]) assert.deepEqual([gsQ(qs, n).marks, gsQ(qs, n).marksSource, gsQ(qs, n).section], [5, 'section', 'D'], 'Q' + n);
+  assert.equal(qs.reduce((s, q) => s + q.marks, 0), 51, '★ 51, not 55');
+  assert.equal(qs.filter((q) => q.marksSource === 'inferred').length, 2, 'exactly the two disputed questions are flagged');
+});
+
+test('§GS.2 ★ agreement: the model labels Q20/Q21 "C" too → unchanged: every mark "section", total 51', async () => {
+  const qs = await gsDetect(gsReply({ q20q21Label: 'C' }));
+  assert.ok(qs.every((q) => q.marksSource === 'section'), 'nothing flagged when label and order agree');
+  assert.equal(qs.reduce((s, q) => s + q.marks, 0), 51);
+});
+
+test('§GS.3 ★★ a header\'s firstQuestion missing → today\'s label rule, but every question of a section whose range is open is flagged', async () => {
+  // D's firstQuestion unreadable: C's end and D's start are unknown → C and D flagged (incl. Q20/Q21 labelled D).
+  const qs = await gsDetect(gsReply({ firstOf: (l, f) => (l === 'D' ? null : f) }));
+  for (const n of [18, 19, 20, 21, 22, 23]) assert.equal(gsQ(qs, n).marksSource, 'inferred', 'Q' + n + ' flagged');
+  for (const n of [1, 14, 24]) assert.equal(gsQ(qs, n).marksSource, 'section', 'Q' + n + ' (range established) not flagged');
+  // no firstQuestion at all (model omitted the field) → nothing silently "section"
+  const none = await gsDetect(gsReply({ firstOf: () => null }));
+  assert.ok(none.every((q) => q.marksSource !== 'section'), 'every header-derived mark flagged');
+  // firstQuestion values not increasing in header order (unreliable) → treated as open, flagged
+  const bad = await gsDetect(gsReply({ firstOf: (l, f) => (l === 'D' ? 15 : f) }));
+  assert.ok(bad.every((q) => q.marksSource !== 'section'));
+});
+
+test('§GS.4 ★ a mark printed ON the question still wins over the order-derived section', async () => {
+  const reply = gsReply();
+  const q20 = reply.questions.find((q) => q.questionNumber === 20);
+  q20.printedMarks = 5;
+  const qs = await gsDetect(reply);
+  assert.deepEqual([gsQ(qs, 20).marks, gsQ(qs, 20).marksSource, gsQ(qs, 20).section], [5, 'printed', 'C']);
+  assert.deepEqual([gsQ(qs, 21).marks, gsQ(qs, 21).marksSource], [3, 'inferred']);
+});
+
+test('§GS.5 (pure) questions before the first header keep the label rule; §13 objective rule unchanged; an invented number is not ordered', () => {
+  const hs = [{ section: 'B', marksEach: 2, firstQuestion: 3 }, { section: 'C', marksEach: 3, firstQuestion: 5 }];
+  const r = GM_D.assignSectionMarks([
+    { n: 1, section: 'A', printedMarks: null }, // before the first header: label rule (no A header; headers follow CBSE ⇒ A=1)
+    { n: 2, section: null, printedMarks: null },
+    { n: 3, section: 'C', printedMarks: null, objective: true }, // order says B (2 marks) — objective ⇒ no rule mark > 1
+    { n: 5, section: 'B', printedMarks: null }, // order says C, label B ⇒ 3, inferred
+    { n: 9, numberAssigned: true, section: 'B', printedMarks: null }, // invented number: label rule
+  ], hs);
+  assert.deepEqual(r, [
+    { marks: 1, source: 'section', section: 'A' },
+    { marks: 1, source: 'section', section: 'A' },
+    { marks: null, source: null, section: 'B' },
+    { marks: 3, source: 'inferred', section: 'C' },
+    { marks: 2, source: 'section', section: 'B' },
+  ]);
+});
+
+test('§GS.6 ★ schema/prompt: firstQuestion is an additive nullable header field on the opt-in path only', async () => {
+  const CS = require('./checkSolution.cjs');
+  for (const sch of [CS.DETECT_RESPONSE_SCHEMA_SECTION_MARKS, CS.DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS]) {
+    assert.deepEqual(sch.properties.sectionHeaders.items.properties.firstQuestion, { type: 'NUMBER', nullable: true });
+    assert.deepEqual(sch.properties.sectionHeaders.items.required, ['section']);
+  }
+  const h = buildRoute({ replies: [gsReply()] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.doesNotMatch(textOfCall(h), /firstQuestion/, 'no opt-in → prompt unchanged');
+  const h2 = buildRoute({ replies: [gsReply()] });
+  await h2.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  assert.match(textOfCall(h2), /"firstQuestion"/);
+  assert.match(textOfCall(h2), /ABOVE a header on the same page belongs to the section BEFORE/);
+});
+
+test('§GS.7 ★ review F1: an UNLABELLED question whose carried section disagrees with the order is flagged, not silently "section"', () => {
+  // Headers A1 B14 C22 D23 E24 (C placed wrongly); Q18 labelled C, Q19–21 unlabelled (carried C).
+  const hs = [['A', 1, 1], ['B', 2, 14], ['C', 3, 22], ['D', 5, 23], ['E', 4, 24]].map(([section, marksEach, firstQuestion]) => ({ section, marksEach, firstQuestion }));
+  const r = GM_D.assignSectionMarks([18, 19, 20, 21].map((n) => ({ n, section: n === 18 ? 'C' : null, printedMarks: null })), hs);
+  assert.deepEqual(r.map((x) => [x.marks, x.source, x.section]), [[2, 'inferred', 'B'], [2, 'inferred', 'B'], [2, 'inferred', 'B'], [2, 'inferred', 'B']]);
+});
+
+test('§GS.8 review F3: a General Instructions duplicate header (no firstQuestion) is dropped when the real header has one', async () => {
+  const reply = gsReply({ q20q21Label: 'C' });
+  reply.sectionHeaders = [...GS_TRUTH.map(([l, m]) => ({ section: l, marksEach: m, firstQuestion: null })), ...reply.sectionHeaders];
+  const qs = await gsDetect(reply);
+  assert.ok(qs.every((q) => q.marksSource === 'section'), 'nothing flagged by the instruction lines');
+  assert.equal(qs.reduce((s, q) => s + q.marks, 0), 51);
+  // and the WS-M-MIX-02 disagreement is still caught with the instruction lines present
+  const r2 = gsReply();
+  r2.sectionHeaders = [{ section: 'D', marksEach: 5, firstQuestion: null }, ...r2.sectionHeaders];
+  const q2 = await gsDetect(r2);
+  assert.deepEqual([gsQ(q2, 20).marks, gsQ(q2, 20).marksSource], [3, 'inferred']);
+  assert.equal(q2.reduce((s, q) => s + q.marks, 0), 51);
 });
