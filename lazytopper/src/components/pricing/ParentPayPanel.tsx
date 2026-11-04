@@ -70,6 +70,8 @@ interface Copy {
   packFine: (name: string, pack: string) => string;
   packPaid: (name: string, pack: string) => string;
   packStillConfirming: string;
+  /** Review M2 — the child already had this pack (or one covering it): a true, neutral line. Never refund wording. */
+  packDuplicate: (name: string) => string;
 }
 
 const COPY: Record<ParentPayLang, Copy> = {
@@ -107,6 +109,7 @@ const COPY: Record<ParentPayLang, Copy> = {
     packPaid: (name, pack) => `Done — the ${pack} is in ${name ? `${name}'s` : "your child's"} LazyTopper account. Thank you!`,
     packStillConfirming:
       "We're still confirming your payment with your bank. If money left your account, the pack is added automatically — you won't be charged twice.",
+    packDuplicate: (name) => `${name || "Your child"} already had this pack, so nothing new was added.`,
   },
   hi: {
     brand: "LazyTopper",
@@ -142,6 +145,7 @@ const COPY: Record<ParentPayLang, Copy> = {
     packPaid: (name, pack) => `हो गया — ${pack} ${name ? `${name} के` : "आपके बच्चे के"} LazyTopper अकाउंट में आ गया है। धन्यवाद!`,
     packStillConfirming:
       "हम अभी आपके बैंक से आपके भुगतान की पुष्टि कर रहे हैं। अगर आपके खाते से पैसे कट गए हैं, तो पैक अपने-आप जुड़ जाएगा — आपसे दो बार पैसे नहीं कटेंगे।",
+    packDuplicate: (name) => `${name || "आपके बच्चे"} के पास यह पैक पहले से था, इसलिए कुछ नया नहीं जोड़ा गया।`,
   },
 };
 
@@ -168,7 +172,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
   const [busy, setBusy] = useState<ParentBuyItem | null>(null);
   const [paidUntil, setPaidUntil] = useState<{ name: string; date: string; passType: PassType } | null>(null);
   /** PARENT-PACKS-1 — the pack link's purchase was verified by the server (`kind: "pack"`). */
-  const [packPaid, setPackPaid] = useState<{ name: string } | null>(null);
+  const [packPaid, setPackPaid] = useState<{ name: string; duplicate: boolean } | null>(null);
   const [failed, setFailed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const scrubbed = useRef(false);
@@ -268,7 +272,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
         ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
         transactionId: outcome.paymentId || attemptId,
       });
-      setPackPaid({ name: outcome.firstName || name });
+      setPackPaid({ name: outcome.firstName || name, duplicate: outcome.duplicate === true });
     } else if (outcome.status === "pending") {
       setConfirming(true);
     } else if (outcome.status === "failed") {
@@ -319,7 +323,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
 
         {state.kind === "ready" && pack && packPaid && (
           <p className="lt-parent-pay-status lt-parent-pay-status--ok" role="status" data-testid="parent-pay-paid">
-            {t.packPaid(packPaid.name, packName)}
+            {packPaid.duplicate ? t.packDuplicate(packPaid.name) : t.packPaid(packPaid.name, packName)}
           </p>
         )}
 

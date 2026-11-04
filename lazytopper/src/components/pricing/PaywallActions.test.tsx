@@ -28,6 +28,8 @@ import {
   QR_ALT,
   QR_FILENAME,
   dataUrlToBlob,
+  mintPackLinkOnce,
+  resetPackLinkCacheForTests,
   type ParentShareDeps,
   type QrImage,
 } from "./PaywallActionsView";
@@ -481,5 +483,23 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     const text = screen.getByTestId("parent-share-message").textContent || "";
     expect(text).toContain("The Board Pass is ₹2,396 once");
     expect(text).not.toMatch(/premium/i);
+  });
+});
+
+describe("PARENT-PACKS-1 review L2 · a pack link is reused for the same child + pack", () => {
+  const P = { kind: "pack" as const, sku: "pack_cbq" as const, target: "maths", name: "Maths CBQ Pack" };
+  it("one mint per child + pack while a day or more is left; another pack, child or a nearly-expired link mints again", async () => {
+    resetPackLinkCacheForTests();
+    const link = (ms: number): MintedParentLink => ({ ...MINTED, expiresAt: new Date(NOW + ms).toISOString(), pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } });
+    const mint = vi.fn(async () => link(72 * 3600e3));
+    const a = await mintPackLinkOnce("u1", P, mint, NOW);
+    expect(await mintPackLinkOnce("u1", P, mint, NOW + 3600e3)).toBe(a);
+    expect(mint).toHaveBeenCalledTimes(1);
+    await mintPackLinkOnce("u2", P, mint, NOW);
+    await mintPackLinkOnce("u1", { ...P, target: "science", name: "Science CBQ Pack" }, mint, NOW);
+    expect(mint).toHaveBeenCalledTimes(3);
+    await mintPackLinkOnce("u1", P, mint, NOW + 49 * 3600e3);
+    expect(mint).toHaveBeenCalledTimes(4);
+    resetPackLinkCacheForTests();
   });
 });

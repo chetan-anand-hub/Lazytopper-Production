@@ -41,6 +41,8 @@ function whoFields(v) {
 }
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
+/** PARENT-PACKS-1 review M2: the admin note on a paid order whose pack the student already had. */
+const DUPLICATE_FLAG = 'duplicate — check with the payer';
 const NO_STORE = Object.freeze({ 'Cache-Control': 'no-store' });
 const READ_CAP = 300;
 const SHOWN_CAP = 100;
@@ -254,6 +256,8 @@ function createAdminPurchasesRoutes(deps = {}) {
           channel: v.payer === 'parent' ? 'parent' : 'student',
           isAdminAccount: admins.has(v.uid),
           ...whoFields(v),
+          // PARENT-PACKS-1 review M2: a paid pack order whose pack the student already had (packGrant `duplicate`). Facts only.
+          ...(v.duplicate === true ? { duplicate: true, flag: DUPLICATE_FLAG } : {}),
         });
       });
       paid.sort((a, b) => b.paidAtMs - a.paidAtMs);
@@ -299,4 +303,4 @@ function handleAdminPurchases(req, res, deps) {
   return mounted.list(req, res);
 }
 
-module.exports = { createAdminPurchasesRoutes, handleAdminPurchases };
+module.exports = { createAdminPurchasesRoutes, handleAdminPurchases, DUPLICATE_FLAG };

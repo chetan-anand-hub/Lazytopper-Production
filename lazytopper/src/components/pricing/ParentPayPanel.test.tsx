@@ -293,4 +293,16 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     expect(screen.getByRole("button", { name: "एक बार ₹199 दें" })).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/premium/i);
   });
+
+  it("review M2: the server says the child already had it -> a true, neutral line; never refund wording (en + hi)", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "paid", passEnd: "", firstName: "Aarav", paymentId: "pay_D", amountInr: 199, duplicate: true }));
+    await renderPanel({ view: vi.fn(async () => PACK_VIEW), buy });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹199 once" }));
+    });
+    expect(screen.getByTestId("parent-pay-paid").textContent).toBe("Aarav already had this pack, so nothing new was added.");
+    expect(document.body.textContent).not.toMatch(/refund|money back/i);
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(screen.getByTestId("parent-pay-paid").textContent).toBe("Aarav के पास यह पैक पहले से था, इसलिए कुछ नया नहीं जोड़ा गया।");
+  });
 });

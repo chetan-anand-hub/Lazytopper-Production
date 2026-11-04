@@ -327,7 +327,9 @@ export async function mintParentLink(pack?: { sku: PackSku; target?: string }): 
   if (pack) {
     const ref = readPack(json.pack);
     // A pack link whose pack the server did not echo is not trusted: no message can quote a price for it.
-    if (!ref || ref.sku !== pack.sku) throw new ParentLinkError("failed");
+    // Review L3: the echoed TARGET must be the one asked for too (the Bundle's is always "all").
+    const wantTarget = pack.sku === "pack_bundle" ? "all" : pack.target;
+    if (!ref || ref.sku !== pack.sku || ref.target !== wantTarget) throw new ParentLinkError("failed");
     minted.pack = ref;
   }
   return minted;
@@ -357,7 +359,8 @@ export async function viewParentLink(token: string): Promise<ParentLinkView> {
 export type ParentBuyItem = PassType | "pack";
 
 export type ParentBuyOutcome =
-  | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number }
+  /** `duplicate` (pack links, review M2): the server says the child already had this pack, so nothing new was added. */
+  | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number; duplicate?: boolean }
   | { status: "dismissed" }
   /** PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success. Never shown as a failure. */
   | { status: "pending" }
@@ -366,7 +369,7 @@ export type ParentBuyOutcome =
 export interface ParentBuyDeps {
   createOrder: (token: string, item: ParentBuyItem) => Promise<{ orderId: string; keyId: string; amountPaise: number }>;
   loadScript: () => Promise<RazorpayConstructor>;
-  verify: (token: string, success: RazorpaySuccess) => Promise<{ passEnd: string; firstName: string }>;
+  verify: (token: string, success: RazorpaySuccess) => Promise<{ passEnd: string; firstName: string; duplicate?: boolean }>;
 }
 
 export async function createParentOrder(token: string, item: ParentBuyItem) {
@@ -388,7 +391,7 @@ export async function verifyParentPayment(token: string, success: RazorpaySucces
   });
   const firstName = typeof json.firstName === "string" ? json.firstName : "";
   // PARENT-PACKS-1: a pack grant has no pass end; it is believed only when the server says `kind: "pack"`.
-  if (json.kind === "pack") return { passEnd: "", firstName };
+  if (json.kind === "pack") return { passEnd: "", firstName, ...(json.duplicate === true ? { duplicate: true } : {}) };
   if (typeof json.passEnd !== "string") throw new ParentLinkError("failed");
   return { passEnd: json.passEnd, firstName };
 }
@@ -434,7 +437,7 @@ export async function buyPassAsParent(
       checkout.open();
     });
     if (!success) return { status: "dismissed" };
-    let verified: { passEnd: string; firstName: string };
+    let verified: { passEnd: string; firstName: string; duplicate?: boolean };
     try {
       verified = await deps.verify(token, success);
     } catch {
@@ -451,6 +454,7 @@ export async function buyPassAsParent(
       firstName,
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
+      ...(verified.duplicate ? { duplicate: true } : {}),
     };
   } catch (e) {
     if (e instanceof ParentLinkError && e.reason !== "failed") return { status: "failed", reason: e.reason };

@@ -105,6 +105,14 @@ const MAX_ORDERS_PER_LINK = 5;
 /** Links one child may mint per IST day. */
 const MAX_LINKS_PER_UID_PER_DAY = 10;
 /**
+ * PARENT-PACKS-1 review L2: PACK links have their OWN daily quota (a student browsing packs never uses up the Board Pass
+ * link's), keyed on the child's verified uid by the same limiter under a separate class.
+ */
+const MAX_PACK_LINKS_PER_UID_PER_DAY = 20;
+/** The limiter key + class for pack mints (a key, not a route: the HTTP path is PARENT_LINK_PATH). */
+const PARENT_PACK_LINK_KEY = '/api/pay/parent-link#pack';
+const PARENT_PACK_LINK_CLASS = 'parentPackLink';
+/**
  * Parent-route calls per client per IST day (view + order + verify together). Counted by
  * the product's ONE limiter (rateLimiter.cjs), keyed exactly as it keys every signed-out
  * caller — the same client-IP rule, the same daily reset (which is also its only memory
@@ -191,12 +199,14 @@ function createParentPayLimiter({ telemetry, now } = {}) {
     now,
     paidEndpoints: {
       [PARENT_LINK_PATH]: PARENT_LINK_CLASS,
+      [PARENT_PACK_LINK_KEY]: PARENT_PACK_LINK_CLASS,
       [PARENT_VIEW_PATH]: 'parentPay',
       [PARENT_ORDER_PATH]: 'parentPay',
       [PARENT_VERIFY_PATH]: 'parentPay',
     },
     limits: {
       [PARENT_LINK_CLASS]: { soft: Math.ceil(MAX_LINKS_PER_UID_PER_DAY / 2), hard: MAX_LINKS_PER_UID_PER_DAY },
+      [PARENT_PACK_LINK_CLASS]: { soft: Math.ceil(MAX_PACK_LINKS_PER_UID_PER_DAY / 2), hard: MAX_PACK_LINKS_PER_UID_PER_DAY },
       [ANONYMOUS_CLASS]: { soft: Math.ceil(MAX_PARENT_CALLS_PER_CLIENT_PER_DAY / 2), hard: MAX_PARENT_CALLS_PER_CLIENT_PER_DAY },
     },
   });
@@ -358,16 +368,18 @@ function createParentPayRoutes(deps = {}) {
   }
 
   /**
-   * PARENT-PACKS-1: the mint body is OPTIONAL (a Board Pass link sends `{}` or nothing, exactly as before).
-   * Anything unreadable is treated as "no pack" — the Board Pass mint is never refused for its body.
+   * PARENT-PACKS-1: the mint body. Empty (or `{}`) is the Board Pass link, exactly as the client has always sent it.
+   * Review L1: a body that does not parse as a JSON object is REFUSED (null) — never silently turned into a Board Pass link.
    */
-  async function readOptionalJson(req) {
+  async function readMintBody(req) {
     try {
       const buf = await readRawBody(req, MAX_JSON_BYTES);
-      const parsed = JSON.parse(buf.length ? buf.toString('utf8') : '{}');
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+      const text = buf.length ? buf.toString('utf8') : '';
+      if (!text.trim()) return {};
+      const parsed = JSON.parse(text);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
     } catch {
-      return {};
+      return null;
     }
   }
 
@@ -422,6 +434,8 @@ function createParentPayRoutes(deps = {}) {
     const link = snap && snap.exists ? snap.data() || {} : null;
     if (!link || typeof link.uid !== 'string' || !link.uid || link.uid === ERASED_UID) return { reason: 'invalid' };
     if (requireOpen) {
+      // PARENT-PACKS-1 review M1: a pack link closed because the child came to own the pack another way.
+      if (link.status === OWNED_REASON) return { reason: OWNED_REASON };
       if (link.status !== 'open') return { reason: 'used' };
       const exp = toMillis(link.expiresAt);
       if (exp === null || exp <= now()) return { reason: 'expired' };
@@ -454,6 +468,7 @@ function createParentPayRoutes(deps = {}) {
     await adminFirestore.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
       const link = snap && snap.exists ? snap.data() || {} : null;
+      if (link && link.status === OWNED_REASON) throw new LinkClosedError(OWNED_REASON);
       if (!link || link.status !== 'open') throw new LinkClosedError('used');
       const exp = toMillis(link.expiresAt);
       if (exp === null || exp <= now()) throw new LinkClosedError('expired');
@@ -498,18 +513,25 @@ function createParentPayRoutes(deps = {}) {
     if (!isParentPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
     const uid = await verifiedCaller.resolveVerifiedUid(req);
     if (!uid) return sendJson(res, 401, { ok: false, error: 'unauthenticated' });
-    const verdict = rateLimiter.check(req, PARENT_LINK_PATH, uid);
+    // PARENT-PACKS-1: the child may fix ONE pack on this link. No `pack` -> the Board Pass link, exactly as before.
+    const mintBody = await readMintBody(req);
+    if (mintBody === null) {
+      emit('payments.parent.link.bad_body');
+      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
+    }
+    const hasPack = mintBody.pack !== undefined;
+    if (hasPack && (!mintBody.pack || typeof mintBody.pack !== 'object' || Array.isArray(mintBody.pack))) {
+      emit('payments.parent.link.pack_bad_target');
+      return sendJson(res, 400, { ok: false, error: 'invalid_pack_target' });
+    }
+    const verdict = rateLimiter.check(req, hasPack ? PARENT_PACK_LINK_KEY : PARENT_LINK_PATH, uid);
     if (!verdict.allowed) {
-      emit('payments.parent.link.rate_limited');
+      emit(hasPack ? 'payments.parent.link.pack_rate_limited' : 'payments.parent.link.rate_limited');
       return sendJson(res, 429, { ok: false, error: 'Too many links today. Please try again tomorrow.' });
     }
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret || !adminFirestore) return unavailable(res);
-
-    // PARENT-PACKS-1: the child may fix ONE pack on this link. Absent -> the Board Pass link, exactly as before.
-    const mintBody = await readOptionalJson(req);
-    const wanted = mintBody.pack && typeof mintBody.pack === 'object' && !Array.isArray(mintBody.pack) ? mintBody.pack : null;
-    if (wanted) return mintPackLink(res, uid, wanted);
+    if (hasPack) return mintPackLink(res, uid, mintBody.pack);
 
     let prices;
     try {
@@ -930,6 +952,8 @@ function createParentPayRoutes(deps = {}) {
         ok: true,
         kind: 'pack',
         replayed: packGranted.replayed,
+        // Review M2: the child already had this pack (or a pack covering it): nothing new was added. Facts only.
+        ...(packGranted.duplicate ? { duplicate: true } : {}),
         pack: publicPack(pack),
         firstName: firstNameOf(resolved.link.firstName),
         amountPaise: order.amountPaise,
@@ -991,6 +1015,8 @@ module.exports = {
   LINK_TTL_MS,
   MAX_ORDERS_PER_LINK,
   MAX_LINKS_PER_UID_PER_DAY,
+  MAX_PACK_LINKS_PER_UID_PER_DAY,
+  PARENT_PACK_LINK_KEY,
   MAX_PARENT_CALLS_PER_CLIENT_PER_DAY,
   TOKEN_PATTERN,
   createParentPayLimiter,

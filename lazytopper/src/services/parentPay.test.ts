@@ -327,7 +327,8 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
   });
 
   it("a pack mint the server answers WITHOUT the pack (or with another one) is a failure, never a priceless message", async () => {
-    for (const pack of [undefined, { sku: "pack_bundle", target: "all", priceInr: 299 }, { sku: "pack_cbq", target: "maths", priceInr: 0 }]) {
+    // Review L3: a different echoed TARGET is refused too.
+    for (const pack of [undefined, { sku: "pack_bundle", target: "all", priceInr: 299 }, { sku: "pack_cbq", target: "maths", priceInr: 0 }, { sku: "pack_cbq", target: "science", priceInr: 199 }]) {
       vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, token: TOKEN, expiresAt: "x", pack }) })));
       await expect(mintParentLink({ sku: "pack_cbq", target: "maths" })).rejects.toBeInstanceOf(ParentLinkError);
     }
@@ -348,9 +349,18 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
   it("verify: a pack grant is believed only with the server's `kind: pack`; 'owned' is a reason", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, kind: "pack", firstName: "Aarav", pack: {} }) })));
     expect(await verifyParentPayment(TOKEN, { razorpay_order_id: "o", razorpay_payment_id: "p", razorpay_signature: "ab" })).toEqual({ passEnd: "", firstName: "Aarav" });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, kind: "pack", firstName: "Aarav", duplicate: true }) })));
+    expect(await verifyParentPayment(TOKEN, { razorpay_order_id: "o", razorpay_payment_id: "p", razorpay_signature: "ab" })).toEqual({ passEnd: "", firstName: "Aarav", duplicate: true });
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, firstName: "Aarav" }) })));
     await expect(verifyParentPayment(TOKEN, { razorpay_order_id: "o", razorpay_payment_id: "p", razorpay_signature: "ab" })).rejects.toBeInstanceOf(ParentLinkError);
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 410, json: async () => ({ ok: false, reason: "owned" }) })));
     await expect(viewParentLink(TOKEN)).rejects.toMatchObject({ reason: "owned" });
+  });
+});
+
+describe("PARENT-PACKS-1 review - the Bundle's echoed target", () => {
+  it("a Bundle link is accepted with the server's target 'all'", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, token: TOKEN, expiresAt: "x", pack: { sku: "pack_bundle", target: "all", priceInr: 299 } }) })));
+    expect((await mintParentLink({ sku: "pack_bundle" })).pack).toEqual({ sku: "pack_bundle", target: "all", priceInr: 299 });
   });
 });
