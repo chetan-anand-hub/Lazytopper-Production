@@ -94,7 +94,16 @@ export function saveFullMockPaperSnapshot(
   if (!uid || !isFirestoreEnabled()) return;
   try {
     const data = stripUndefined({ ...snapshot, savedAt: Date.now() });
-    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "fullMockPapers", snapshot.code), data))
+    // RECORD-SAFE-1: never replace a DIFFERENT paper's saved copy under the same code.
+    void withFirestore(async ({ fs, db }) => {
+      const ref = fs.doc(db, "sessionRecords", uid, "fullMockPapers", snapshot.code);
+      const snap = await fs.getDoc(ref);
+      if (snap.metadata && snap.metadata.fromCache) throw new Error("cache-only snapshot read");
+      if (snap.exists() && (snap.data() as { paper?: { worksheetId?: string } })?.paper?.worksheetId !== snapshot.paper.worksheetId) {
+        throw new Error("code already holds a different paper");
+      }
+      await fs.setDoc(ref, data);
+    })
       .catch((error) => {
         console.warn("[fullMockPaperStore] snapshot write failed", error);
       });
@@ -121,18 +130,25 @@ export async function fetchFullMockPaperSnapshot(
   }
 }
 
-/** Best-effort cleanup once the mock is fully graded. */
+/** Best-effort cleanup once the mock is fully graded; with `worksheetId`, only THAT paper's copy (RECORD-SAFE-1). */
 export function deleteFullMockPaperSnapshot(
   user: AuthUser | null | undefined,
   code: string,
+  worksheetId?: string,
 ): void {
   const uid = cloudUid(user);
   if (!uid || !isFirestoreEnabled()) return;
   try {
-    void withFirestore(({ fs, db }) => fs.deleteDoc(fs.doc(db, "sessionRecords", uid, "fullMockPapers", code)))
-      .catch(() => {
-        /* best-effort */
-      });
+    void withFirestore(async ({ fs, db }) => {
+      const ref = fs.doc(db, "sessionRecords", uid, "fullMockPapers", code);
+      if (worksheetId) {
+        const snap = await fs.getDoc(ref);
+        if (!snap.exists() || (snap.data() as { paper?: { worksheetId?: string } })?.paper?.worksheetId !== worksheetId) return;
+      }
+      await fs.deleteDoc(ref);
+    }).catch(() => {
+      /* best-effort */
+    });
   } catch {
     /* best-effort */
   }

@@ -119,7 +119,8 @@ describe("SAVE-SYNC-1 — the outbox", () => {
     writeSessionRecord(user, rec);
     expect(readOutbox(UID).map((e) => `${e.kind}:${e.id}`)).toEqual(["record:CT-M-REAL-01"]);
     expect(getSaveStatus().phase).toBe("saving");
-    expect(h.sends).toEqual([REC_PATH]); // the first attempt is synchronous, as before
+    await flush(); // RECORD-SAFE-1: the first attempt now reads the doc (never replaces another paper's) before it writes
+    expect(h.sends).toEqual([REC_PATH]);
 
     __resetOutboxForTests();
     localStorage.clear();
@@ -210,6 +211,7 @@ describe("SAVE-SYNC-1 — the outbox", () => {
   it("(e) no double write: a drain skips an id with a live attempt chain, and two drains send once", async () => {
     h.mode = "hang";
     writeSessionRecord(user, rec);
+    await flush(); // RECORD-SAFE-1: read-then-write
     const before = h.sends.length;
     await drainOutbox(UID); // the chain is live → nothing re-sent
     await flush();
@@ -239,6 +241,7 @@ describe("SAVE-SYNC-1 — the outbox", () => {
   it("(f) an older local copy never overwrites a newer cloud copy; the entry is settled", async () => {
     h.mode = "hang";
     writeSessionRecord(user, rec);
+    await flush(); // RECORD-SAFE-1: read-then-write
     const queuedAt = readOutbox(UID)[0].queuedAt;
     h.store.set(REC_PATH, { id: "CT-M-REAL-01", marksAwarded: 10, updatedAt: new Date(Date.parse(queuedAt) + 60_000).toISOString() });
     __resetOutboxForTests();
@@ -349,9 +352,11 @@ describe("SAVE-SYNC-1 — the outbox", () => {
   it("(l) a re-grade queued while the re-send awaits its cloud read supersedes it: the older body is never written", async () => {
     h.mode = "hang";
     writeSessionRecord(user, { ...rec, marksAwarded: 3 });
+    await flush(); // RECORD-SAFE-1: read-then-write
     __resetOutboxForTests();
     h.mode = "ok";
     h.sends.length = 0;
+    h.getDocCalls = 0;
     let open!: () => void;
     h.gate = new Promise<void>((r) => (open = r));
     const draining = drainOutbox(UID); // its getDoc now waits on the gate

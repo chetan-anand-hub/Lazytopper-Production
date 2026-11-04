@@ -155,8 +155,12 @@ describe("wiring — every graded surface's persist seam reports, with its own s
     ["services/quickPracticeSessionService.ts", "quick_practice", 1],
   ] as const)("%s: each writeSessionRecord is followed by noteFirstGraded(..., %s)", (file, surface, n) => {
     const src = read(file);
-    const re = new RegExp(`writeSessionRecord\\(user, (\\w+)\\);\\s*noteFirstGraded\\(uid, \\1, "${surface}"\\);`, "g");
-    expect(src.match(/writeSessionRecord\(/g)?.length).toBe(n);
+    // RECORD-SAFE-1: Chapter Test / Full Mock resolve the final code first, then report the record AS WRITTEN.
+    const resolved = surface === "chapter_test" || surface === "full_mock";
+    const re = resolved
+      ? new RegExp(`writeSessionRecordResolved\\(user, \\w+\\);(?:\\s*savedCode = written\\.code;)?\\s*noteFirstGraded\\(uid, written\\.record, "${surface}"\\);`, "g")
+      : new RegExp(`writeSessionRecord\\(user, (\\w+)\\);\\s*noteFirstGraded\\(uid, \\1, "${surface}"\\);`, "g");
+    expect(src.match(resolved ? /writeSessionRecordResolved\(/g : /writeSessionRecord\(/g)?.length).toBe(n);
     expect(src.match(re)?.length).toBe(n);
   });
 
