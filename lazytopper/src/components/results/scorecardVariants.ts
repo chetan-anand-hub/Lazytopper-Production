@@ -1945,6 +1945,10 @@ export interface StoredCheckImproveVariantInput {
    *  enables the by-topic lens on RE-OPEN. Absent → the lens is omitted (honest); the
    *  counted "N topics" head still shows from the record's stored topicCount. */
   response?: WorksheetGradeResponse | null;
+  /** TUTOR-RETURN-SHEET-1 - download the graded sheet of the restored card. Present ONLY when the host
+   *  can print it (something graded, detail lock open); flagged `detail` so a locked card drops it. */
+  onDownloadGraded?: () => void;
+  downloading?: boolean;
 }
 
 /**
@@ -1990,7 +1994,21 @@ export function storedCheckImproveScorecardVariant(
     marksLost: input.response ? aggregateMarksLost(input.response) : null,
     pending: null,
     allPending: null,
-    actions: [{ label: "Done", tone: "ghost", onClick: input.onDone }],
+    actions: [
+      ...(input.onDownloadGraded
+        ? [{
+            label: "Download graded solution (PDF)",
+            detail: true,
+            tag: "Graded",
+            tone: "secondary" as const,
+            onClick: input.onDownloadGraded,
+            disabled: Boolean(input.downloading),
+            busy: Boolean(input.downloading),
+            busyLabel: "Preparing PDF…",
+          }]
+        : []),
+      { label: "Done", tone: "ghost" as const, onClick: input.onDone },
+    ],
   };
 }
 

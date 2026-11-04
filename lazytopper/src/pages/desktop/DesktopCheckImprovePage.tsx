@@ -106,6 +106,8 @@ import {
   ensureCheckImproveSessionCode,
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
+  boundedQuestionTexts,
+  noteSessionQuestionTexts,
   type SessionRecord,
   type SessionTopicSource,
 } from "../../services/sessionRecords";
@@ -1520,6 +1522,15 @@ const DesktopCheckImprovePageInner: React.FC<{
   // arrives, and `storedCheckImproveScorecardVariant` omits the lens when it is
   // absent rather than inventing one.
   const [reopenResponse, setReopenResponse] = useState<WorksheetGradeResponse | null>(null);
+  // TUTOR-RETURN-SHEET-1 - the stored question texts (absent on an older payload) and the restored
+  // card's graded-sheet download, gated by the same server lock as the card.
+  const [reopenTexts, setReopenTexts] = useState<string[] | null>(null);
+  const [reopenDownloading, setReopenDownloading] = useState(false);
+  const reopenSheetOpen =
+    useDetailLock(
+      reopen ? { kind: "check-improve", resultKey: reopen.id } : undefined,
+      Boolean(reopen && reopenResponse && reopenResponse.results.some(isGradedQuestion)),
+    ) === "open";
 
   const loadCiRecords = useCallback(async () => {
     try {
@@ -2099,6 +2110,62 @@ const DesktopCheckImprovePageInner: React.FC<{
     };
   }
 
+  // TUTOR-RETURN-SHEET-1 - the graded sheet of a RESTORED card (after a tutor trip), from the stored
+  // record + payload only. A snapshot of the stored grade, never a re-grade. A paper saved before the
+  // question texts were stored prints each question as "Question text not saved for this older paper".
+  function buildReopenPrintProps(): CheckImproveGradedPrintDocProps | null {
+    if (!reopen || !reopenResponse || !reopenResponse.results.some(isGradedQuestion)) return null;
+    const ws = reopenResponse;
+    const single = ws.results.length === 1;
+    const questions: CiGradedQuestion[] = ws.results.map((g, gi) => ({
+      ...(single ? {} : { qNumber: g.qNumber }),
+      questionText: reopenTexts?.[gi]?.trim() || "Question text not saved for this older paper",
+      totalMarks: g.totalMarks,
+      marksAwarded: g.marksAwarded,
+      couldNotRead: g.couldNotRead,
+      annotatedSteps: g.annotatedSteps,
+      mistakeSummary: g.mistakeSummary,
+      teacherNote: g.teacherNote,
+      objective: g.objective,
+      ...v2GradeFields(g),
+    }));
+    const pm = paperMarksLost(ws.results);
+    return {
+      code: reopen.id,
+      name: reopen.title,
+      metaLine: single
+        ? `Answer Checker · ${ws.results[0].totalMarks} mark${ws.results[0].totalMarks === 1 ? "" : "s"}`
+        : `Answer Checker · ${ws.totalQuestions} question${ws.totalQuestions === 1 ? "" : "s"} · ${ws.worksheetTotalMarks} marks`,
+      questions,
+      gradedMarksAwarded: ws.gradedMarksAwarded,
+      gradedMarksTotal: ws.gradedMarksTotal,
+      pendingCount: ws.pendingCount,
+      coaching: buildCiCoaching({
+        gradedMarksAwarded: ws.gradedMarksAwarded,
+        gradedMarksTotal: ws.gradedMarksTotal,
+        counts: effectivePaperCounts(ws.results),
+        ...(pm ? { marks: pm.byType } : {}),
+        notAttemptedCount: ws.results.filter((g) => isQuestionNotAttempted(g)).length,
+        mismatchCount: ws.results.filter((g) => gradeStateOf(g) === "answer-mismatch").length,
+        notGradedCount: pendingBreakdown(ws.results, ws.pendingCount).notGraded,
+        pendingCount: ws.pendingCount,
+      }),
+    };
+  }
+  async function downloadReopenSheet() {
+    const props = buildReopenPrintProps();
+    if (!props || reopenDownloading) return;
+    setReopenDownloading(true);
+    try {
+      const { exportGradedCheckImprovePdf } = await import("../../components/worksheet/worksheetPdfExport");
+      await exportGradedCheckImprovePdf(props);
+    } catch {
+      /* best-effort, as the live download */
+    } finally {
+      setReopenDownloading(false);
+    }
+  }
+
   // Download the branded graded-solution PDF. Never blocks the shown grade: a
   // failure only surfaces a small inline notice.
   async function downloadGraded(props: CheckImproveGradedPrintDocProps | null) {
@@ -2410,6 +2477,11 @@ const DesktopCheckImprovePageInner: React.FC<{
       // its real mix ("Maths + Science · 10 chapters") and fed to no single chapter's progress.
       const topicSource = paperMixed ? "mixed" : deriveTopicSource(confirmed.topicSlug, topicTouched);
       setCiTopicSource(topicSource);
+      // TUTOR-RETURN-SHEET-1 - the detected question texts ride the SAME payload write (additive field).
+      noteSessionQuestionTexts(
+        `ci:${sessionCode}`,
+        boundedQuestionTexts(shown.results.map((_, gi) => detectedTextForResult(detectedQuestions, shown.results, gi))),
+      );
       const persistOutcome = persistCheckImproveSession({
         user,
         code: sessionCode,
@@ -2683,6 +2755,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // one-question response shape the record store + stored scorecard consume.
       const topicSource = deriveTopicSource(confirmed.topicSlug, topicTouched);
       setCiTopicSource(topicSource);
+      noteSessionQuestionTexts(`ci:${sessionCode}`, boundedQuestionTexts([ctx.question]));
       const persistOutcome = persistCheckImproveSession({
         user,
         code: sessionCode,
@@ -2841,9 +2914,11 @@ const DesktopCheckImprovePageInner: React.FC<{
     setPanelOpen(false);
     setReopen(r);
     setReopenResponse(null);
+    setReopenTexts(null);
     try {
       const payload = await getSessionPerQuestion(user?.uid, r.perQuestionRef);
       setReopenResponse(payload?.response ?? null);
+      setReopenTexts(Array.isArray(payload?.questionTexts) ? payload.questionTexts : null);
     } catch {
       setReopenResponse(null);
     }
@@ -2998,6 +3073,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                 setReopenResponse(null);
               },
               response: reopenResponse,
+              ...(reopenSheetOpen && buildReopenPrintProps()
+                ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
+                : {}),
             })}
             onClose={() => {
               setReopen(null);

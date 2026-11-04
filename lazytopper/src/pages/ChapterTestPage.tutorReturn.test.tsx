@@ -47,6 +47,13 @@ vi.mock("../services/chapterTestGradeService", async (importOriginal) => ({
   gradeChapterTestUpload: writes.grade,
 }));
 
+// TUTOR-RETURN-SHEET-1 - the shared graded-sheet exporter is observed, never run; the detail lock is steerable.
+const sheet = vi.hoisted(() => ({ exportGraded: vi.fn(async () => "x.pdf"), lock: "open" as "open" | "locked" }));
+vi.mock("../components/worksheet/worksheetPdfExport", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../components/worksheet/worksheetPdfExport")>()),
+  exportGradedWorksheetPdf: sheet.exportGraded,
+}));
+vi.mock("../components/results/useDetailLock", () => ({ useDetailLock: () => sheet.lock }));
 import ChapterTestPage from "./ChapterTestPage";
 
 const CODE = "CT-M-REALNUMBERS-07";
@@ -195,4 +202,24 @@ describe("FOLLOWUPS-1 B · Chapter Test scorecard -> tutor -> the SAME scorecard
     expect(askButtons()).toHaveLength(0);
     expect(document.body.textContent).not.toContain("Where marks slipped");
   });
+
+  it("★★ TUTOR-RETURN-SHEET-1: the restored scorecard still offers the graded-sheet download (same sheet), and a LOCKED card does not", async () => {
+    sheet.exportGraded.mockClear();
+    sheet.lock = "open";
+    mount(`${PAGE}?review=${CODE}`);
+    const dl = await screen.findByRole("button", { name: /Download graded answer sheet/ }, { timeout: 60000 });
+    fireEvent.click(dl);
+    await waitFor(() => expect(sheet.exportGraded).toHaveBeenCalledTimes(1), { timeout: 60000 });
+    const arg = (sheet.exportGraded.mock.calls[0] as unknown as [{ ws: { questions: unknown[]; }; response: unknown; code: string; name: string }])[0];
+    expect(arg.code).toBe(CODE);
+    expect(arg.response).toMatchObject(RESPONSE);
+    expect(arg.ws.questions).toHaveLength(RESPONSE.results.length);
+    noRecordingCalls();
+    cleanup();
+    sheet.lock = "locked";
+    mount(`${PAGE}?review=${CODE}`);
+    await screen.findByRole("button", { name: "Done" }, { timeout: 60000 });
+    expect(screen.queryByRole("button", { name: /Download graded answer sheet/ })).toBeNull();
+    sheet.lock = "open";
+  }, 120000);
 });

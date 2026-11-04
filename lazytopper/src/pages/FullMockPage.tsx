@@ -138,6 +138,7 @@ import {
 } from "../components/results/scorecardBankLenses";
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
 import { useDetailLock } from "../components/results/useDetailLock";
+import { downloadStoredPaperGradedSheet, hasStoredPaperSheet } from "../services/storedPaperGradedSheet";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
@@ -426,6 +427,27 @@ export default function FullMockPage() {
     /** PAPER-REBUILD-1 (D103a): the paper lookup failed; the scorecard offers "Start a new test". */
     noPaper?: boolean;
   } | null>(null);
+
+  // TUTOR-RETURN-SHEET-1 - the restored card's graded-sheet download (the page re-mounted on the
+  // tutor trip, so the live paper is gone: the sheet is rebuilt from the stored payload + the
+  // record's bank ids). Offered only when something was graded and the detail lock is open.
+  const [reopenDownloading, setReopenDownloading] = useState(false);
+  const reopenSheetOpen =
+    useDetailLock(
+      reopen ? { kind: "full-mock", resultKey: reopen.record.id } : undefined,
+      Boolean(reopen && hasStoredPaperSheet(reopen.response)),
+    ) === "open";
+  const downloadReopenSheet = useCallback(async () => {
+    if (!reopen || reopenDownloading) return;
+    setReopenDownloading(true);
+    try {
+      await downloadStoredPaperGradedSheet(reopen.record, reopen.response);
+    } catch {
+      /* best-effort, as the live download */
+    } finally {
+      setReopenDownloading(false);
+    }
+  }, [reopen, reopenDownloading]);
 
   // ── History panel + banner ───────────────────────────────────────────────────
   const [panelOpen, setPanelOpen] = useState(false);
@@ -1255,6 +1277,9 @@ export default function FullMockPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
+            ...(reopenSheetOpen && hasStoredPaperSheet(reopen.response)
+              ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
+              : {}),
             onDone: () => setReopen(null),
             // PAPER-REBUILD-1 (D103a): the no-paper state's way forward, through the setup's own start.
             onStartNew: reopen.noPaper

@@ -255,6 +255,30 @@ export interface SessionPerQuestionPayload {
   gradedAt: number;
   /** The full grade response — the per-question results, not just the total. */
   response: WorksheetGradeResponse;
+  /** TUTOR-RETURN-SHEET-1 (additive, optional) - the Answer Checker's detected question texts, ONE per
+   *  `response.results` row in the same order ("" when none), so the graded sheet can be printed again
+   *  after a trip to the tutor. Absent on every older payload (and every other surface): the sheet then
+   *  says the text was not saved. */
+  questionTexts?: string[];
+}
+
+/** Bounds for `questionTexts`: a payload doc stays small however long the detected paper is. */
+const QUESTION_TEXT_MAX_CHARS = 1500;
+const QUESTION_TEXT_MAX_COUNT = 60;
+
+/** Pure: normalise detected question texts (one per result row) into the stored shape; undefined when none. */
+export function boundedQuestionTexts(texts: ReadonlyArray<string | null | undefined>): string[] | undefined {
+  const out = texts.slice(0, QUESTION_TEXT_MAX_COUNT).map((t) => (typeof t === "string" ? t.trim().slice(0, QUESTION_TEXT_MAX_CHARS) : ""));
+  return out.some(Boolean) ? out : undefined;
+}
+
+// The page hands the texts over by payload ref just before the persist call, and the SAME
+// `writeSessionPerQuestion` write carries them (one write, no second document).
+const pendingQuestionTexts = new Map<string, string[]>();
+export function noteSessionQuestionTexts(ref: string, texts: string[] | undefined): void {
+  if (!ref) return;
+  if (texts) pendingQuestionTexts.set(ref, texts);
+  else pendingQuestionTexts.delete(ref);
 }
 
 export type WriteSessionOutcome =
@@ -484,10 +508,13 @@ function readLocalPayloads(uid: string): Record<string, SessionPerQuestionPayloa
  */
 export function writeSessionPerQuestion(
   user: AuthUser | null | undefined,
-  payload: SessionPerQuestionPayload,
+  payloadIn: SessionPerQuestionPayload,
 ): void {
-  if (!user || !user.uid || user.isLocalSession || !payload.ref) return;
+  if (!user || !user.uid || user.isLocalSession || !payloadIn.ref) return;
   const uid = user.uid;
+  const stashed = pendingQuestionTexts.get(payloadIn.ref);
+  pendingQuestionTexts.delete(payloadIn.ref);
+  const payload: SessionPerQuestionPayload = stashed && !payloadIn.questionTexts ? { ...payloadIn, questionTexts: stashed } : payloadIn;
 
   try {
     const map = readLocalPayloads(uid);

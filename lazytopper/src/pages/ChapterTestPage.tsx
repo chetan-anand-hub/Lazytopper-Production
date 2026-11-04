@@ -101,6 +101,7 @@ import {
 } from "../components/results/scorecardBankLenses";
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
 import { useDetailLock } from "../components/results/useDetailLock";
+import { downloadStoredPaperGradedSheet, hasStoredPaperSheet } from "../services/storedPaperGradedSheet";
 // FOLLOWUPS-1 B — the scorecard's tutor hop + the tutor's return to THIS saved scorecard.
 import {
   chapterTestDeltaLine,
@@ -374,6 +375,27 @@ export default function ChapterTestPage() {
     /** PAPER-REBUILD-1 (D102): the paper lookup already failed, so the modal offers no upload action. */
     noPaper?: boolean;
   } | null>(null);
+
+  // TUTOR-RETURN-SHEET-1 - the restored card's graded-sheet download (the page re-mounted on the
+  // tutor trip, so the live paper is gone: the sheet is rebuilt from the stored payload + the
+  // record's bank ids). Offered only when something was graded and the detail lock is open.
+  const [reopenDownloading, setReopenDownloading] = useState(false);
+  const reopenSheetOpen =
+    useDetailLock(
+      reopen ? { kind: "chapter-test", resultKey: reopen.record.id } : undefined,
+      Boolean(reopen && hasStoredPaperSheet(reopen.response)),
+    ) === "open";
+  const downloadReopenSheet = useCallback(async () => {
+    if (!reopen || reopenDownloading) return;
+    setReopenDownloading(true);
+    try {
+      await downloadStoredPaperGradedSheet(reopen.record, reopen.response);
+    } catch {
+      /* best-effort, as the live download */
+    } finally {
+      setReopenDownloading(false);
+    }
+  }, [reopen, reopenDownloading]);
 
   // GRADING-JOBS-1 J2 — a background grade of this chapter's test survives a reload: the paper,
   // its frozen objective score and its code are stored WITH the job (the answers were already
@@ -1102,6 +1124,9 @@ export default function ChapterTestPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
+            ...(reopenSheetOpen && hasStoredPaperSheet(reopen.response)
+              ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
+              : {}),
             // Awaiting-sheet records offer "Upload answer sheet" — never after the lookup just failed
             // (PAPER-REBUILD-1, D102: re-running it was the owner's dead loop).
             onUploadSheet:
