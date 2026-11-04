@@ -48,6 +48,7 @@ describe("one sheet behind every Pay / Buy", () => {
       .filter((f) => /<CheckoutSheet\b/.test(readFileSync(f, "utf8")))
       .map((f) => f.slice(SRC.length + 1).split("\\").join("/"))
       .sort();
-    expect(hosts).toEqual(["components/packs/PacksShop.tsx", "components/pricing/PassCheckout.tsx"]);
+    // PARENTS-PAY-1: /for-parents mounts the SAME sheet for the Board Pass (audience="parent"); still one sheet component, three hosts.
+    expect(hosts).toEqual(["components/packs/PacksShop.tsx", "components/parents/ParentBoardPassSheet.tsx", "components/pricing/PassCheckout.tsx"]);
   });
 });

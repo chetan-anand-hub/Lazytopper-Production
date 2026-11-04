@@ -240,6 +240,10 @@ export interface PacksShopProps {
   returnPath?: string;
   /** Inside /pricing (no page chrome around My packs / the status line; no `pack_view` hit). */
   embedded?: boolean;
+  /** PARENTS-PAY-1: the page the shop is mounted on when it is not /packs or /pricing; rides on `pack_view`. */
+  surface?: "for_parents";
+  /** PARENTS-PAY-1: "parent" = the "Who will use it?" sheet says any number or email works (opened from /for-parents). */
+  checkoutAudience?: "parent";
   /** The catalogue (CBQ band, pack tiles) drawn by the page, wired to this shop's pop-up. */
   children: (api: PacksShopApi) => ReactNode;
 }
@@ -249,7 +253,7 @@ export interface PacksShopProps {
  * My packs, the paid / confirming status line, the entry-query pop-ups, the signed-out Buy -> sign-in -> resume loop (#1412),
  * handleBuy and the pack pop-up. Only the catalogue markup is the caller's (`children`).
  */
-export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, children }: PacksShopProps) {
+export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, surface, checkoutAudience, children }: PacksShopProps) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -289,12 +293,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // PRICING-ONE-1: the same pack_view event on both pages, told apart by `surface`; once per mount (a ref survives StrictMode's re-run).
     if (!viewSent.current) {
       viewSent.current = true;
-      trackPackEvent("pack_view", undefined, embedded ? "pricing" : "packs");
+      trackPackEvent("pack_view", undefined, surface ?? (embedded ? "pricing" : "packs"));
     }
     return () => {
       mounted.current = false;
     };
-  }, [embedded]);
+  }, [embedded, surface]);
 
   const loadMine = useCallback(async () => {
     try {
@@ -837,6 +841,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               description: packCheckoutDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
               priceDisplay: packPriceLabel(who.sku),
             }}
+            {...(checkoutAudience ? { audience: checkoutAudience } : {})}
             signedIn={signedIn}
             selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
             onPaySelf={() => {

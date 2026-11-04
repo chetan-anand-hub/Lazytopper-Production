@@ -25,6 +25,9 @@ export const WHO_TITLE = "Who will use it?";
 // PAY-ACCOUNT-1 addendum B (owner 4 Nov 2026): so a parent does not type their OWN details.
 export const WHO_FIELD_LABEL = "Student's mobile number or email";
 export const WHO_FIELD_HELP = "The one your child will log in with \u2014 not yours. Razorpay asks for your own details for the receipt.";
+// PARENTS-PAY-1 (owner 4 Nov 2026): opened FROM /for-parents only. Many children have no phone, so any number or email works.
+export const WHO_PARENT_FIELD_LABEL = "Mobile number or email your child will sign in with";
+export const WHO_PARENT_FIELD_HELP = "It can be your own number if your child uses your phone \u2014 they sign in with it. Or use an email.";
 export const WHO_SECOND_EMAIL_LABEL = "Student's email (optional)";
 export const WHO_SECOND_MOBILE_LABEL = "Student's mobile number (optional)";
 export const WHO_ADD_EMAIL = "+ Add their email too (optional)";

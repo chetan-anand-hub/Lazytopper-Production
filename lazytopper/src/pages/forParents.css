@@ -341,28 +341,8 @@
   margin: 0 0 4px;
   color: var(--fp-ink2);
 }
-.lt-fp__price h3 {
-  font-size: 18px;
-  margin: 14px 0 8px;
-}
-.lt-fp__price-steps {
-  margin: 0 0 14px;
-  padding-left: 20px;
-  color: var(--fp-ink2);
-}
-.lt-fp__price-steps li {
-  margin-bottom: 6px;
-}
 .lt-fp .lt-fp__price .lt-founder-badge {
   margin: 10px 0 0;
-}
-.lt-fp .lt-fp__cta--pay {
-  width: 100%;
-}
-.lt-fp .lt-fp__price-note {
-  margin: 8px 0 0;
-  font-size: 13px;
-  color: var(--fp-ink3);
 }
 @media (min-width: 760px) {
   .lt-fp .lt-fp__price {
@@ -371,7 +351,47 @@
   .lt-fp__price-slot {
     min-height: 104px;
   }
-  .lt-fp .lt-fp__cta--pay {
+}
+
+/* PARENTS-PAY-1 - the Pay button (a <button> styled as the page's primary CTA), the outlined hero Share, and the price block's one line + WhatsApp help. */
+.lt-fp button.lt-fp__cta {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+}
+.lt-fp .lt-fp__cta--alt {
+  background: transparent;
+  border: 1.5px solid #b9d0e8;
+  color: #fff;
+}
+.lt-fp .lt-fp__cta--alt:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.lt-fp .lt-fp__price-line {
+  margin: 12px 0 14px;
+  color: var(--fp-ink2);
+}
+.lt-fp__price-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lt-fp .lt-fp__help {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  font-weight: 600;
+  color: var(--fp-gt);
+}
+@media (min-width: 760px) {
+  .lt-fp button.lt-fp__cta {
     width: auto;
+  }
+  .lt-fp__price-actions {
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
   }
 }

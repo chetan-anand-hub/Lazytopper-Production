@@ -49,3 +49,11 @@
 .lt-fpk-band__new { margin-left: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 1px 6px; border-radius: 999px; background: #f6e7b4; color: #6b4a00; }
 .lt-fpk-band__price { margin-left: 6px; color: var(--fp-gt); min-width: 3ch; display: inline-block; }
 .lt-fp .lt-fpk-band__btn { display: flex; align-items: center; justify-content: center; min-height: 48px; }
+
+/* PARENTS-PAY-1 - the Buy button on a pack card sits on its own row under the name / what / price. */
+.lt-fpk__buy { grid-column: 1 / -1; margin-top: 4px; }
+.lt-fpk__buy .lt-ptb { margin-top: 4px; }
+@media (min-width: 640px) {
+  .lt-fpk__buy .lt-ptb--pair { flex-direction: row; }
+  .lt-fpk__buy .lt-ptb { max-width: 460px; }
+}

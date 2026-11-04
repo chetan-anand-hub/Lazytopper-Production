@@ -29,6 +29,8 @@ import {
   WHO_FIELD_HELP,
   WHO_FIELD_LABEL,
   WHO_HAVE_ACCOUNT,
+  WHO_PARENT_FIELD_HELP,
+  WHO_PARENT_FIELD_LABEL,
   WHO_SECOND_EMAIL_LABEL,
   WHO_SECOND_MOBILE_LABEL,
   WHO_SOMEONE_ELSE,
@@ -71,6 +73,11 @@ export interface CheckoutSheetProps {
   /** After a signed-out payment that named only an email: the sign-in page. */
   onSignInWithEmail: () => void;
   onClose: () => void;
+  /**
+   * PARENTS-PAY-1: "parent" = opened FROM /for-parents: the box says any number or email works (many children have no phone of their
+   * own) and the guest events carry `surface: "for_parents"`. Absent = the student-side copy, byte-identical to before.
+   */
+  audience?: "parent";
   /** Test seam. */
   buy?: (item: GuestItem, recipient: Recipient, signedIn: boolean) => Promise<WhoBuyOutcome>;
 }
@@ -93,8 +100,10 @@ export default function CheckoutSheet({
   onSignInWithNumber,
   onSignInWithEmail,
   onClose,
+  audience,
   buy = buyForRecipient,
 }: CheckoutSheetProps) {
+  const surfaceData = audience === "parent" ? ({ surface: "for_parents" } as const) : {};
   const [step, setStep] = useState<Step>(signedIn ? { name: "self" } : { name: "form" });
   const [first, setFirst] = useState("");
   const [second, setSecond] = useState("");
@@ -106,7 +115,7 @@ export default function CheckoutSheet({
   useEffect(() => {
     if (shown.current) return;
     shown.current = true;
-    trackNamedEvent("guest_pay_option_shown", { recipient: signedIn ? "self" : "other" });
+    trackNamedEvent("guest_pay_option_shown", { recipient: signedIn ? "self" : "other", ...surfaceData });
   }, [signedIn]);
 
   useEffect(() => {
@@ -133,12 +142,12 @@ export default function CheckoutSheet({
   async function pay() {
     setTouched(true);
     if (!recipient || busy) return;
-    trackNamedEvent("guest_pay_start", { recipient: "other" });
+    trackNamedEvent("guest_pay_start", { recipient: "other", ...surfaceData });
     setStep({ name: "busy" });
     const attemptId = newCheckoutAttemptId();
     const outcome = await buy(item, recipient, signedIn);
     if (outcome.status === "paid") {
-      trackNamedEvent("guest_pay_paid", { recipient: "other" });
+      trackNamedEvent("guest_pay_paid", { recipient: "other", ...surfaceData });
       // The sale itself, only once the SERVER verified it (the same helper and event names as pay-by-phone).
       if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
       setStep({ name: "paid", recipient, confirmed: outcome.confirmed });
@@ -187,8 +196,8 @@ export default function CheckoutSheet({
           void pay();
         }}
       >
-        <label className="lt-gps__label" htmlFor="lt-who-first">{WHO_FIELD_LABEL}</label>
-        <p className="lt-gps__fine lt-who__help" id="lt-who-help" data-testid="who-help">{WHO_FIELD_HELP}</p>
+        <label className="lt-gps__label" htmlFor="lt-who-first">{audience === "parent" ? WHO_PARENT_FIELD_LABEL : WHO_FIELD_LABEL}</label>
+        <p className="lt-gps__fine lt-who__help" id="lt-who-help" data-testid="who-help">{audience === "parent" ? WHO_PARENT_FIELD_HELP : WHO_FIELD_HELP}</p>
         <div className="lt-gps__field">
           <input
             id="lt-who-first"
