@@ -18,6 +18,15 @@
  * not inventing a server flag. The localStorage value is DISMISSAL state only — never trial or
  * premium state (CLAUDE.md §7).
  */
+import {
+  FOUNDING_OFFER_CLOSES_AT_MS,
+  FOUNDING_OFFER_LAST_DAY_LABEL,
+  FOUNDING_OFFER_LIST_FROM_LABEL,
+  TILL_BOARDS_AFTER_FOUNDING_INR,
+  TILL_BOARDS_FOUNDING_INR,
+  foundingOfferOpen,
+  formatInr,
+} from "../../config/pricing";
 import { trialEndFeedbackKey, type TrialEndFeedbackInput } from "../feedback/useTrialEndFeedback";
 import { trialAskRouteAllowed } from "./trialAskRoutes";
 import type { TrialActivityCounts } from "./trialEndBannerModel";
@@ -118,8 +127,9 @@ function plural(n: number, one: string, many: string): string {
 }
 
 /**
- * What the student did in the free week, as one sentence. Real counts; a zero is said as zero.
- * `null` counts (the records could not be read) return null: say nothing rather than a number.
+ * What the student did in the free week, as one sentence. Real counts only (TRIAL-END-OFFER-1): when the records could not be
+ * read, or the week held no check, test or practice set, there is NO line (honest empty state - the offer screen never tells a
+ * student what they did not do).
  */
 export function trialEndActivityLine(counts: TrialActivityCounts | null): string | null {
   if (!counts) return null;
@@ -127,6 +137,40 @@ export function trialEndActivityLine(counts: TrialActivityCounts | null): string
   if (counts.checks > 0) parts.push(plural(counts.checks, "answer checked", "answers checked"));
   if (counts.tests > 0) parts.push(plural(counts.tests, "test taken", "tests taken"));
   if (counts.practiceSets > 0) parts.push(plural(counts.practiceSets, "practice set finished", "practice sets finished"));
-  if (parts.length === 0) return "In your free week you didn't check an answer or take a test.";
+  if (parts.length === 0) return null;
   return `In your free week: ${parts.join(", ")}.`;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** "30 November" -> "30 Nov" (the same short form boardPassFromLine uses). */
+function shortDate(label: string): string {
+  const [day = "", month = ""] = label.split(" ");
+  return `${day} ${month.slice(0, 3)}`.trim();
+}
+
+/**
+ * TRIAL-END-OFFER-1 - "Founding price \u20b91,917 till 30 Nov \u2014 \u20b92,499 from 1 Dec" while the founding offer is open, else null.
+ * Every figure and date comes from config/pricing.ts; the clock is an argument (never read here).
+ */
+export function trialEndFoundingLine(nowMs: number): string | null {
+  if (!foundingOfferOpen(nowMs)) return null;
+  return `Founding price ${formatInr(TILL_BOARDS_FOUNDING_INR)} till ${shortDate(FOUNDING_OFFER_LAST_DAY_LABEL)} \u2014 ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} from ${shortDate(FOUNDING_OFFER_LIST_FROM_LABEL)}`;
+}
+
+/**
+ * Whole IST calendar days left at the founding price, today included (the offer closes at an IST midnight, so the ceiling of the
+ * distance IS the day count: 30 Nov at any hour -> 1, 29 Nov -> 2). null once the offer has closed. Not a timer - recomputed
+ * only when the screen renders.
+ */
+export function foundingDaysLeft(nowMs: number): number | null {
+  if (!foundingOfferOpen(nowMs)) return null;
+  return Math.max(1, Math.ceil((FOUNDING_OFFER_CLOSES_AT_MS - nowMs) / DAY_MS));
+}
+
+/** "12 days left at this price" / "1 day left at this price"; null once the offer has closed. */
+export function foundingDaysLeftLine(nowMs: number): string | null {
+  const n = foundingDaysLeft(nowMs);
+  if (n === null) return null;
+  return `${plural(n, "day", "days")} left at this price`;
 }

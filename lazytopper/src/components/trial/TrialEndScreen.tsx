@@ -10,23 +10,28 @@ import PaywallActions from "../pricing/PaywallActions";
 import { premiumOffer, type PremiumOffer } from "../pricing/boardPassOffer";
 // BUY-PATH-1: "Pay" opens the Board Pass checkout in one tap; the payments-dark "See plans" link still browses /pricing.
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
+import { isPaymentsClientEnabled } from "../../services/checkout";
+import { LOCK_TICKS } from "../lock/lockTicks";
+import { LANDING_PACKS_HREF, checkPacksLine } from "../packs/landingOfferModel";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { safeSigninRedirect } from "../../services/freeCheckClient";
 import { countTrialActivity, type TrialActivityCounts } from "./trialEndBannerModel";
 import {
   markTrialEndScreenShownThisLoad,
+  foundingDaysLeftLine,
   trialEndActivityLine,
+  trialEndFoundingLine,
   trialEndScreenKey,
   trialEndScreenSeen,
   writeTrialEndScreen,
 } from "./trialEndScreenModel";
 
 /**
- * TrialEndScreen — ASK-FIX-1. "Your free week is over": on the first visit after the 7-day trial
- * has ended, a full-screen sheet on a phone / a centred card on desktop, with what the student
- * really did, the month pass as the lead offer (CHECKOUT-1, 31 Oct 2026 - it was the Board Pass), the Board Pass second, Pay + "Send to parent
- * to pay" (PaywallActions) and "Continue with Basic". The why-not-upgrading feedback card follows
- * "Continue with Basic" - it no longer fires on its own first.
+ * TrialEndScreen — ASK-FIX-1, reworked by TRIAL-END-OFFER-1. "Your free week is over": on the first visit after the 7-day trial
+ * has ended, a full-screen sheet on a phone / a centred card on desktop. In order: what the student really did (only when there is
+ * something real to say), the Board Pass with its founding price, the real deadline and whole days left, the Board Pass star
+ * features (the LOCK-SELL-1 list), "Get the Board Pass" (one tap to the existing checkout), "Ask a parent to pay", a quiet PDF-pack
+ * line, and - smallest - "Continue with Basic". The why-not-upgrading feedback card follows "Continue with Basic".
  *
  * Everything that decides WHETHER it shows is in ./trialEndScreenModel.ts. Reads trial state,
  * never writes it. Prices come from config/pricing.ts (../pricing/boardPassOffer.ts).
@@ -63,39 +68,55 @@ const SCREEN_CSS = `
 .lt-tes__full { margin-left: 8px; font-size: 1rem; font-weight: 500; text-decoration: line-through; color: #b9d0e8; font-family: Inter, system-ui, sans-serif; }
 .lt-tes__detail { margin: 6px 0 0; font-size: 0.9rem; line-height: 1.4; color: #cfe0f2; }
 .lt-tes__second {
-  margin: 0 0 16px; padding: 12px 16px; border-radius: 14px;
+  margin: 0 0 14px; padding: 10px 16px; border-radius: 14px;
   border: 1.5px solid hsla(214, 30%, 40%, 0.3); background: #ffffff;
   font-size: 0.95rem; font-weight: 600;
 }
-.lt-tes__actions { margin-bottom: 14px; }
+.lt-tes__founding { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid hsla(0, 0%, 100%, 0.18); font-size: 0.95rem; font-weight: 700; line-height: 1.35; color: #ffffff; }
+.lt-tes__days { margin: 2px 0 0; font-size: 0.88rem; color: hsl(152, 60%, 74%); font-weight: 600; }
+.lt-tes__ticks { margin: 0 0 12px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.lt-tes__tick { position: relative; padding-left: 24px; font-size: 0.92rem; line-height: 1.4; }
+.lt-tes__tick::before { content: "\\2713"; position: absolute; left: 0; top: 0; font-weight: 800; color: hsl(152, 55%, 34%); }
+.lt-tes__actions { margin-bottom: 12px; display: grid; gap: 10px; }
 .lt-tes__pay {
-  display: flex; align-items: center; justify-content: center;
-  min-height: 48px; border-radius: 14px; text-decoration: none;
-  background: hsl(152, 55%, 38%); color: #ffffff; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  min-height: 52px; padding: 8px 14px; border-radius: 14px; text-decoration: none;
+  background: hsl(152, 55%, 34%); color: #ffffff; font-weight: 700; font-size: 1.02rem;
 }
-.lt-tes__keep { margin: 0 0 14px; font-size: 0.88rem; line-height: 1.5; color: hsl(214, 30%, 32%); }
+.lt-tes__packs { display: block; margin: 0 0 14px; text-align: center; font-size: 0.86rem; line-height: 1.4; color: hsl(214, 30%, 32%); text-decoration: underline; text-underline-offset: 2px; }
+.lt-tes__keep { margin: 0 0 6px; text-align: center; font-size: 0.82rem; line-height: 1.45; color: hsl(214, 30%, 38%); }
 .lt-tes__basic {
-  display: block; width: 100%; min-height: 48px; border-radius: 14px; cursor: pointer;
-  background: #ffffff; color: hsl(214, 60%, 16%);
-  border: 1.5px solid hsla(214, 30%, 40%, 0.4); font: inherit; font-weight: 700; font-size: 1rem;
+  display: block; margin: 0 auto; min-height: 44px; padding: 8px 14px; cursor: pointer;
+  background: transparent; color: hsl(214, 30%, 32%); border: 0;
+  font: inherit; font-weight: 600; font-size: 0.88rem; text-decoration: underline; text-underline-offset: 3px;
 }
-.lt-tes__pay:focus-visible, .lt-tes__basic:focus-visible { outline: 3px solid hsl(152, 55%, 45%); outline-offset: 2px; }
+.lt-tes__pay:focus-visible, .lt-tes__basic:focus-visible, .lt-tes__packs:focus-visible { outline: 3px solid hsl(152, 55%, 45%); outline-offset: 2px; }
 @media (min-width: 1024px) {
-  .lt-tes__scrim { align-items: center; background: hsla(214, 60%, 10%, 0.62); }
-  .lt-tes { min-height: 0; max-width: 520px; border-radius: 22px; padding: 32px 30px; }
+  /* margin:auto centres a card that fits and keeps the TOP reachable when it is taller than the viewport (align-items:center clips it). */
+  .lt-tes__scrim { background: hsla(214, 60%, 10%, 0.62); }
+  .lt-tes { min-height: 0; max-width: 520px; margin: auto; border-radius: 22px; padding: 28px 30px; }
 }
 `;
+
+/** The star features LOCK-SELL-1 sells (Answer Checker first), minus the "papers" tick: the paid-for four. Shared list, no copy. */
+const BOARD_PASS_TICKS = LOCK_TICKS.filter((t) => t.id !== "papers");
 
 export interface TrialEndScreenViewProps {
   offer: PremiumOffer;
   /** One honest sentence about the free week, or null when the counts could not be read. */
   activityLine: string | null;
+  /** "Founding price ₹… till 30 Nov — ₹… from 1 Dec", or null once the founding offer has closed. */
+  foundingLine?: string | null;
+  /** "N days left at this price" (whole days), or null once the founding offer has closed. */
+  daysLine?: string | null;
+  /** The quiet PDF-pack line ("Prefer practising on paper? PDF packs from ₹49 →"). */
+  packsLine?: string | null;
   onBasic: () => void;
-  /** The Pay / parent actions, or the plain "See plans" link while payments are dark. */
+  /** The buy / parent actions. */
   actions: ReactNode;
 }
 
-export function TrialEndScreenView({ offer, activityLine, onBasic, actions }: TrialEndScreenViewProps) {
+export function TrialEndScreenView({ offer, activityLine, foundingLine = null, daysLine = null, packsLine = null, onBasic, actions }: TrialEndScreenViewProps) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     ref.current?.focus();
@@ -144,10 +165,22 @@ export function TrialEndScreenView({ offer, activityLine, onBasic, actions }: Tr
           <p className="lt-tes__tag">{offer.title}</p>
           <p className="lt-tes__price">{offer.priceDisplay}</p>
           <p className="lt-tes__detail">{offer.detail}</p>
+          {foundingLine ? <p className="lt-tes__founding" data-testid="trial-end-screen-deadline">{foundingLine}</p> : null}
+          {foundingLine && daysLine ? <p className="lt-tes__days" data-testid="trial-end-screen-days">{daysLine}</p> : null}
         </div>
+        <ul className="lt-tes__ticks" data-testid="trial-end-screen-ticks">
+          {BOARD_PASS_TICKS.map((t) => (
+            <li className="lt-tes__tick" key={t.id}>
+              {t.strong ? <strong>{t.strong}</strong> : null}
+              {t.text}
+            </li>
+          ))}
+        </ul>
         <p className="lt-tes__second" data-testid="trial-end-screen-second">{offer.second}</p>
-        {offer.deadline ? <p className="lt-tes__second" data-testid="trial-end-screen-deadline">{offer.deadline}</p> : null}
         <div className="lt-tes__actions">{actions}</div>
+        {packsLine ? (
+          <Link to={LANDING_PACKS_HREF} className="lt-tes__packs" data-testid="trial-end-screen-packs">{packsLine}</Link>
+        ) : null}
         <p className="lt-tes__keep">
           You keep <strong>Basic free, always</strong> - Exam Trends, the full question bank, Practice and your progress.
         </p>
@@ -254,6 +287,8 @@ export default function TrialEndScreen() {
   // BUY-PATH-1: one-tap checkout, keeping the same source / returnTo (PassCheckout strips only `buy`).
   const buyHref = `${BOARD_PASS_BUY_PATH}&${payHref.slice(payHref.indexOf("?") + 1)}`;
 
+  const offer = premiumOffer(new Date(), predictCbseExamDate("10"));
+
   const close = () => {
     trackTrialEndScreen("basic");
     setShown(null);
@@ -261,29 +296,35 @@ export default function TrialEndScreen() {
     void requestFeedbackPrompt("trial_end", { uid, trialKey: key });
   };
 
+  const now = Date.now();
+  const payments = isPaymentsClientEnabled();
+  const buyLabel = payments ? `Get the Board Pass \u00b7 ${offer.priceDisplay}` : "See plans";
+
   return (
     <>
       <DialogBehaviour onBack={close} />
       <TrialEndScreenView
-      offer={premiumOffer(new Date(), predictCbseExamDate("10"))}
-      activityLine={shown.line}
-      onBasic={close}
-      actions={
-        <PaywallActions
-          surface="trial_end"
-          payTo={buyHref}
-          fallback={
+        offer={offer}
+        activityLine={shown.line}
+        foundingLine={trialEndFoundingLine(now)}
+        daysLine={foundingDaysLeftLine(now)}
+        packsLine={checkPacksLine()}
+        onBasic={close}
+        actions={
+          <>
             <Link
-              to={payHref}
+              to={payments ? buyHref : payHref}
               className="lt-tes__pay"
+              data-testid="trial-end-screen-buy"
               onClick={() => trackPaywallAction("pay", "trial_end")}
             >
-              See plans
+              {buyLabel}
             </Link>
-          }
-        />
-      }
-    />
+            {/* "Ask a parent to pay" only (no QR button): renders nothing while payments are dark. */}
+            <PaywallActions surface="trial_end" noQr />
+          </>
+        }
+      />
     </>
   );
 }
