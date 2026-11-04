@@ -894,6 +894,9 @@ export type NamedAnalyticsEvent =
   | "download_start"
   | "download_blocked"
   | "download_wall_shown"
+  // GRADE-ROUTE-1 - the Answer Checker offered to grade a student's own paper on its own page / the offer was taken. Names only.
+  | "grade_route_offer_shown"
+  | "grade_route_offer_accepted"
   // LIMITS-1 PR-2 — a graded Quick Practice set was refused by the daily limit, or a Basic student saw
   // the locked per-answer breakdown. Names only.
   | "grade_blocked"

@@ -3373,11 +3373,12 @@ const DesktopCheckImprovePageInner: React.FC<{
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{questionFileError}</div>
               )}
 
-              {confirmed && user?.uid && !user.isLocalSession ? (
+              {(confirmed || qImageBase64 || imageBase64) && user?.uid && !user.isLocalSession ? (
                 <Suspense fallback={null}>
                   <PaperCodeRouteBanner
                     uid={user.uid}
                     texts={[question, qImageName, imageName, ...(detectedQuestions ?? []).map((q) => q.questionText)]}
+                    files={[{ base64: qImageBase64, mime: qImageMime }, { base64: imageBase64, mime: imageMime }]}
                   />
                 </Suspense>
               ) : null}

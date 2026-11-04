@@ -195,6 +195,9 @@ const ACTIVITY_EVENTS = Object.freeze([
   'download_start',
   'download_blocked',
   'download_wall_shown',
+  // GRADE-ROUTE-1 - the Answer Checker offer to grade the student's own paper on its own page: shown / taken. Names only. Additive only.
+  'grade_route_offer_shown',
+  'grade_route_offer_accepted',
   'grade_blocked',
   'scorecard_lock_shown',
   // PARENT-REPORT-1 - the student shared a link to one result with a parent. Additive only.

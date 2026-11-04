@@ -331,6 +331,15 @@ test('ACTIVATION-1 · practice_graded is an accepted event name (a graded practi
   assert.deepEqual(t.db.docs.get(dayPath('u1', '2030-06-15')).events, { practice_graded: 1 });
 });
 
+test('GRADE-ROUTE-1 · the Answer Checker offer events are accepted, recorded as bare names (no code, no uid beyond the key)', async () => {
+  assert.ok(ACTIVITY_EVENTS.includes('grade_route_offer_shown'));
+  assert.ok(ACTIVITY_EVENTS.includes('grade_route_offer_accepted'));
+  const t = makeRoutes();
+  const r = await t.post({ token: 'tok-u1', body: { events: { grade_route_offer_shown: 1, grade_route_offer_accepted: 1 } } });
+  assert.equal(r.status, 200);
+  assert.deepEqual(t.db.docs.get(dayPath('u1', '2030-06-15')).events, { grade_route_offer_shown: 1, grade_route_offer_accepted: 1 });
+});
+
 test('GUIDE-1 · guide_variant_assigned is an accepted event name, recorded as a bare name (no variant value)', async () => {
   assert.ok(ACTIVITY_EVENTS.includes('guide_variant_assigned'));
   const t = makeRoutes();

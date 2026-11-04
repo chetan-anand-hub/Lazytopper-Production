@@ -170,6 +170,8 @@ const EVENT_LABELS: Record<string, string> = {
   download_start: "Started a paper download",
   download_blocked: "Was stopped by the weekly download limit",
   download_wall_shown: "Saw the download limit screen",
+  grade_route_offer_shown: "Answer Checker offered to grade their own paper on its own page",
+  grade_route_offer_accepted: "Took the offer to grade their own paper on its own page",
   grade_blocked: "Was stopped by the daily graded-practice limit",
   scorecard_lock_shown: "Saw the locked answer-by-answer breakdown",
   parent_report_shared: "Shared a result link with parents",
