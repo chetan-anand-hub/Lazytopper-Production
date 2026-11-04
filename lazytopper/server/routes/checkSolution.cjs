@@ -129,6 +129,27 @@ const DETECT_RESPONSE_SCHEMA = deepFreeze({
 });
 
 
+// MCQ-KEY-TRUST-1 · the detect schema for a request that opts in with `keySource: true` (the paid
+// Answer Checker read): the SAME schema plus one ADDITIVE, NULLABLE per-question field saying where
+// `answer` came from. Only "printed" (an answer key / marked answer in the document) keeps the key's
+// precedence over the grader's verdict; anything else is treated as "derived". A request without
+// the flag uses DETECT_RESPONSE_SCHEMA unchanged.
+const DETECT_RESPONSE_SCHEMA_KEY_SOURCE = (() => {
+  const s = JSON.parse(JSON.stringify(DETECT_RESPONSE_SCHEMA));
+  const item = s.properties.questions.items;
+  item.properties.answerSource = { type: 'STRING', enum: ['printed', 'derived'], nullable: true };
+  item.propertyOrdering.splice(item.propertyOrdering.indexOf('answer') + 1, 0, 'answerSource');
+  return deepFreeze(s);
+})();
+
+// MCQ-KEY-TRUST-1 · the provenance of an objective answer key on a grade request: "printed"
+// (in the document) or "derived" (worked out by the detect step). Anything else = absent (null),
+// which keeps today's key precedence (bank surfaces, old clients) — and then the field is not
+// added to the question at all, so those requests are byte-identical to before.
+function answerSourceOf(v) {
+  return v === 'printed' || v === 'derived' ? v : null;
+}
+
 function createCheckSolutionRoute(deps) {
   const {
     sendJson,
@@ -280,6 +301,9 @@ function createCheckSolutionRoute(deps) {
       answer: payload.answer != null ? String(payload.answer).trim() : null,
       options: Array.isArray(payload.options) ? payload.options.map(String) : null,
       correctOption: payload.correctOption ? String(payload.correctOption).trim() : null,
+      // MCQ-KEY-TRUST-1: "derived" = a key the detect step worked out — used only when the grader
+      // states no verdict (objectiveScoring.clampObjectiveResult). Absent = today's behaviour.
+      ...(answerSourceOf(payload.answerSource) ? { answerSource: answerSourceOf(payload.answerSource) } : {}),
     };
     const detectedObjective = payload.objective === true || payload.objective === 'true';
 
@@ -414,6 +438,8 @@ function createCheckSolutionRoute(deps) {
         ...detected,
         provider: ACTIVE_PROVIDER,
         model: graded.modelUsed,
+        // MCQ-KEY-TRUST-1 · admin observability only; present only when true.
+        ...(r.derivedKeyDisagreed === true ? { derivedKeyDisagreed: true } : {}),
       };
       if (acceptsV2) {
         Object.assign(body, {
@@ -451,6 +477,10 @@ function createCheckSolutionRoute(deps) {
     }
 
     const acceptsV2 = payload.acceptsV2 === true;
+    // MCQ-KEY-TRUST-1 · opt-in (C7 pattern): only a client that sends `keySource: true` is asked
+    // for, and given, each key's `answerSource`. Without it the prompt, schema and response are
+    // exactly as before.
+    const wantsKeySource = payload.keySource === true;
     const question = String(payload.question || '').trim();
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
@@ -522,6 +552,7 @@ function createCheckSolutionRoute(deps) {
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
       '- objective: true ONLY if the question is a multiple-choice question (lettered options like (a)/(b)/(c)/(d)) or an assertion-reason question; false for any question that needs written working, a derivation, a proof, or step-by-step reasoning. Apply this per question.\n' +
       '- answer: for an OBJECTIVE question ONLY, the CORRECT option - its letter ("a"/"b"/"c"/"d") or its exact printed option text. Set it ONLY when the correct option is printed in the document (an answer key, a marked answer) or is unambiguously determinable from the question itself. If you are not certain, set it to null. NEVER guess: a wrong key is worse than no key, because it is used to mark the student. Set null for every non-objective question.\n' +
+      (wantsKeySource ? '- answerSource: for each question whose answer you set, "printed" ONLY when that correct option is printed or marked in the document itself (an answer key, a ticked or marked answer); otherwise "derived". null when answer is null.\n' : '') +
       D.DETECT_SYMBOL_RULE +
       D.DETECT_SUBPART_RULE +
       topicListBlock +
@@ -554,7 +585,7 @@ function createCheckSolutionRoute(deps) {
         // handler's own parser, which is far looser than the grader's: a bare `{}` is an
         // accepted parse. (Until PR-3 detect was the one path with no retry; it now retries
         // ONCE, bounded — see below.)
-        responseSchema: DETECT_RESPONSE_SCHEMA,
+        responseSchema: wantsKeySource ? DETECT_RESPONSE_SCHEMA_KEY_SOURCE : DETECT_RESPONSE_SCHEMA,
         // gemini-2.5-flash is a thinking model and thinking tokens count against
         // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
         // leaving 1-5 tokens for the JSON → truncated → "couldn't read the question".
@@ -700,6 +731,23 @@ function createCheckSolutionRoute(deps) {
         vocabulary: topicVocabulary,
         sources: [question, layerText].filter(Boolean),
       });
+
+      // MCQ-KEY-TRUST-1 · each returned key carries `answerSource`. "printed" ONLY when every model
+      // entry with that question number and that exact key said "printed"; a missing or any
+      // other label is "derived" (the safe side: the grader's verdict then decides).
+      // (grading/detect.cjs whitelists entry fields, so the label is matched back here by number + key.)
+      const printedVotes = new Map();
+      for (const rq of wantsKeySource && Array.isArray(parsed.questions) ? parsed.questions : []) {
+        const n = Number(rq && rq.questionNumber);
+        const a = rq && rq.answer != null ? String(rq.answer).trim() : '';
+        if (!Number.isFinite(n) || n < 1 || !a || a.toLowerCase() === 'null' || !String((rq && rq.questionText) || '').trim()) continue;
+        const k = Math.round(n) + '\u0000' + a;
+        const printed = rq.answerSource === 'printed';
+        printedVotes.set(k, printedVotes.has(k) ? printedVotes.get(k) && printed : printed);
+      }
+      if (wantsKeySource) for (const q of questions) {
+        if (q.answer) q.answerSource = printedVotes.get(q.questionNumber + '\u0000' + q.answer) === true ? 'printed' : 'derived';
+      }
 
       // UPLOAD-READ-1 · a salvaged read that normalised to nothing is no read at all.
       if (partialRead && questions.length === 0) {
@@ -874,6 +922,8 @@ function createCheckSolutionRoute(deps) {
         format: String((q && q.format) || '').trim(),
         qType: String((q && q.qType) || '').trim(),
         answer: q && q.answer != null ? String(q.answer).trim() : null,
+        // MCQ-KEY-TRUST-1: the SAME provenance field as the single path (see objectiveMeta).
+        ...(answerSourceOf(q && q.answerSource) ? { answerSource: answerSourceOf(q.answerSource) } : {}),
         options: Array.isArray(q && q.options) ? q.options.map(String) : null,
         // A keyless detect step's objective flag (clamped only for a ≤1-mark item).
         objective: q && (q.objective === true || q.objective === 'true') ? true : false,
@@ -1084,6 +1134,7 @@ module.exports = {
   GRADING_RESPONSE_SCHEMA,
   WORKSHEET_RESPONSE_SCHEMA,
   DETECT_RESPONSE_SCHEMA,
+  DETECT_RESPONSE_SCHEMA_KEY_SOURCE,
   STEP_STATUS_VALUES,
   MAX_BATCH_UPLOADS,
   // The server-produced departure sentences (golden T05 imports the historic two names).

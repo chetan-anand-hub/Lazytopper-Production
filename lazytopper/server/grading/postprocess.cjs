@@ -1431,6 +1431,10 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       notGraded: null,
     });
   }
+  // MCQ-KEY-TRUST-1 · observability only (admin; never a mark, never shown to a student): a key
+  // detect worked out disagreed with the grader's stated verdict, which decided the mark.
+  // Present only when true, so every other result is byte-identical.
+  if (objectiveVerdict && objectiveVerdict.derivedKeyDisagreed === true) out.derivedKeyDisagreed = true;
   Object.defineProperty(out, '_graded', { value: true });
   Object.defineProperty(out, '_reason', { value: 'graded' });
   // PR-3 (C9): a legacy client keeps today's 0 for an MCQ whose pick could not be read (the

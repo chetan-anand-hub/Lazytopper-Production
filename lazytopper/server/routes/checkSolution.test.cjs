@@ -2850,3 +2850,172 @@ test('§23.6 ★ (D141 F2) the phone upload checks its slot BEFORE it reads the 
 // branch, the job runner, the poll route and the deferred fair-use commit (grading/jobs.suite.cjs:
 // a *.suite.cjs run from here, so it is part of test:server:check-solution in CI).
 require('../grading/jobs.suite.cjs');
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §MKT · MCQ-KEY-TRUST-1 — A KEY THE DETECT STEP GUESSED NEVER OVERRIDES THE GRADER
+
+   Live 4 Nov 2026 (owner's account, production, Answer Checker multi): detect returned keys
+   Q1 "b", Q3 "c", Q8 "a", Q9 "a" (true key "d" for all four). The clamp compared the pick to
+   that key BEFORE the grader's stated verdict, so Q1/Q3/Q9 (student chose d) scored 0 under
+   "Correct option chosen" and Q8 (student chose a) scored 1 under "Incorrect option chosen".
+   A key detect worked out (answerSource "derived") is now used only when the grader states
+   no verdict. Bank keys, printed keys and requests with no answerSource are unchanged.
+   Fixtures are the repro shapes (GRADE-INVESTIGATE-1): no options[], answer = detect's key.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const { DETECT_RESPONSE_SCHEMA: MKT_BASE_SCHEMA } = require('./checkSolution.cjs');
+const MKT_Q3 = "A quiz app checks a student's answer by forming a quadratic polynomial whose zeroes are the ages of two siblings. The sum of their ages is 9 years and the product is 20. Which of the following is an acceptable answer?(a) 2x² + 18x + 40(b) x² - 20x + 9(c) 2x² - 9x + 20(d) 2x² - 18x + 40";
+const MKT_Q8 = 'In a triangular park ABC ... Assertion (A): The rope DE is about 33.3 m long. Reason (R): ... (a) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.(b) ...(c) ...(d) Assertion is false but Reason is true.';
+const MKT_STEP = (work, ok, ann) => ({ description: 'Selection of the correct option', studentWork: work,
+  status: ok ? 'correct' : 'incorrect', marksAwarded: ok ? 1 : 0, marksDeducted: ok ? 0 : 1,
+  teacherAnnotation: ann, mistakeType: ok ? null : 'conceptual', correctedWorking: null });
+// The grader's reply: Q3 the student chose d, the grader says correct; Q8 the student chose a, the grader says incorrect.
+const MKT_RAW = {
+  3: (fac = true) => ({ annotatedSteps: [MKT_STEP('Option d - 2x² -18x + 40', true, 'Correct option chosen')], finalAnswerCorrect: fac, addressesQuestion: 'yes', teacherNote: 'x' }),
+  8: (fac = false) => ({ annotatedSteps: [MKT_STEP('Option a - Both A and R are true and R is the correct exploration of A.', false, 'Incorrect option chosen. DE = 20 m, so Assertion is false.')], finalAnswerCorrect: fac, addressesQuestion: 'yes', teacherNote: 'x' }),
+};
+const MKT_TEXT = { 3: MKT_Q3, 8: MKT_Q8 };
+
+// SINGLE path: handleCheckSolution, exactly the ladderGradeRequest shape (objective + answer [+ answerSource]).
+async function mktSingle(n, keyFields, raw, acceptsV2 = true) {
+  const h = buildRoute({ replies: [raw] });
+  await h.route.handleCheckSolution({ question: MKT_TEXT[n], subject: 'Maths', topic: 'Polynomials', marks: 1,
+    objective: true, ...keyFields, imageBase64: 'BASE64', imageMimeType: 'image/jpeg', acceptsV2 }, {});
+  return h.body();
+}
+// MULTI path: handleGradeWorksheet, exactly the DesktopCheckImprovePage.gradeMultiQuestion shape.
+async function mktMulti(n, keyFields, raw, acceptsV2 = true) {
+  const h = buildRoute({ replies: [{ results: [{ qNumber: n, ...raw }] }] });
+  await h.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: n, marks: 1, questionText: MKT_TEXT[n],
+    topic: 'Polynomials', topicLabel: 'Polynomials', objective: true, ...keyFields }]), acceptsV2 }, {});
+  return h.body().results[0];
+}
+const MKT_PATHS = [['single (handleCheckSolution)', mktSingle], ['multi (handleGradeWorksheet)', mktMulti]];
+
+for (const [label, grade] of MKT_PATHS) {
+  for (const v2 of [true, false]) {
+    const tag = label + (v2 ? ' v2' : ' legacy');
+
+    test(`§MKT.1 ★★ Q3: derived key "c", student chose d, grader says correct ⇒ 1/1, step correct — ${tag}`, async () => {
+      const r = await grade(3, { answer: 'c', answerSource: 'derived' }, MKT_RAW[3](), v2);
+      assert.equal(r.marksAwarded, 1, '★ the guessed key no longer overrides the grader');
+      assert.equal(r.annotatedSteps[0].status, 'correct', 'the pill agrees with "Correct option chosen"');
+      assert.equal(r.derivedKeyDisagreed, true, 'the disagreement is recorded for admin');
+    });
+
+    test(`§MKT.2 ★★ Q8: derived key "a", student chose a, grader says incorrect ⇒ 0/1 — ${tag}`, async () => {
+      const r = await grade(8, { answer: 'a', answerSource: 'derived' }, MKT_RAW[8](), v2);
+      assert.equal(r.marksAwarded, 0, '★ a wrong answer is not rescued by a guessed key');
+      assert.equal(r.annotatedSteps[0].status, 'incorrect');
+      assert.equal(r.derivedKeyDisagreed, true);
+    });
+
+    test(`§MKT.3 a derived key with NO grader verdict is still used (today's fallback) — ${tag}`, async () => {
+      const raw3 = MKT_RAW[3](); delete raw3.finalAnswerCorrect;
+      const r = await grade(3, { answer: 'c', answerSource: 'derived' }, raw3, v2);
+      assert.equal(r.marksAwarded, 0, 'no stated verdict ⇒ the key decides, exactly as before');
+      assert.equal(r.derivedKeyDisagreed, undefined, 'nothing to disagree with');
+      const raw3b = MKT_RAW[3](); delete raw3b.finalAnswerCorrect;
+      const ok = await grade(3, { answer: 'd', answerSource: 'derived' }, raw3b, v2);
+      assert.equal(ok.marksAwarded, 1, 'CONTROL — the fallback key can award as well');
+    });
+
+    test(`§MKT.4 a derived key that AGREES with the grader changes nothing and records nothing — ${tag}`, async () => {
+      const r = await grade(3, { answer: 'd', answerSource: 'derived' }, MKT_RAW[3](), v2);
+      assert.equal(r.marksAwarded, 1);
+      assert.equal(Object.prototype.hasOwnProperty.call(r, 'derivedKeyDisagreed'), false, 'absent, not false');
+    });
+
+    test(`§MKT.5 ★ a PRINTED key and a key with NO answerSource keep today's precedence (key over verdict) — ${tag}`, async () => {
+      for (const keyFields of [{ answer: 'c', answerSource: 'printed' }, { answer: 'c' }, { answer: 'c', answerSource: 'bogus' }]) {
+        const r = await grade(3, keyFields, MKT_RAW[3](), v2);
+        assert.equal(r.marksAwarded, 0, 'today: the key compare is authoritative — ' + JSON.stringify(keyFields));
+        assert.equal(Object.prototype.hasOwnProperty.call(r, 'derivedKeyDisagreed'), false);
+        const r8 = await grade(8, { ...keyFields, answer: 'a' }, MKT_RAW[8](), v2);
+        assert.equal(r8.marksAwarded, 1, 'today: the key compare is authoritative — ' + JSON.stringify(keyFields));
+      }
+    });
+  }
+}
+
+test('§MKT.6 ★★ BANK keys (Worksheet / CT / FM / QP shape: answer + options, no answerSource) win over a disagreeing grader, on BOTH paths', async () => {
+  const options = ['b^2 + 4ac', 'b^2 - 4ac', '2a', '-b/2a'];
+  // The grader says WRONG; the student wrote the bank's correct option.
+  const raw = { annotatedSteps: [{ description: 'Option chosen', studentWork: 'Answer: (b)', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: null, correctedWorking: null }], finalAnswerCorrect: false };
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution(MCQ_REQ({ textAnswer: '', imageBase64: 'BASE64', imageMimeType: 'image/jpeg' }), {});
+  assert.equal(hs.body().marksAwarded, 1, 'single: the bank key decides, exactly as before');
+  assert.equal(Object.prototype.hasOwnProperty.call(hs.body(), 'derivedKeyDisagreed'), false);
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { section: 'A', format: 'mcq', qType: 'mcq', answer: 'b^2 - 4ac', options })]), {});
+  assert.equal(hm.body().results[0].marksAwarded, 1, 'multi: the bank key decides, exactly as before');
+  assert.equal(Object.prototype.hasOwnProperty.call(hm.body().results[0], 'derivedKeyDisagreed'), false);
+});
+
+test('§MKT.7 the pure clamp: derived key yields to a stated verdict; every other verdict shape is unchanged', () => {
+  const st = (w, s) => [{ description: 'a', studentWork: w, status: s, marksAwarded: 0, marksDeducted: 0 }];
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c', answerSource: 'derived' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 1, correct: true, resolved: true, derivedKeyDisagreed: true });
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c', answerSource: 'derived' }, st('(d)', 'correct'), 1),
+    { marksAwarded: 0, correct: false, resolved: true }, 'no verdict ⇒ the derived key is used');
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c', answerSource: 'printed' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true }, 'printed ⇒ key first, as today');
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true }, 'no answerSource ⇒ key first, as today');
+  // A derived label on an EMPTY answer cannot make a correctOption (bank fallback) key derived.
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: '', correctOption: 'c', answerSource: 'derived' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true }, 'correctOption keeps its precedence');
+  // A hedge stays a resolved 0 whatever the key's source.
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'd', answerSource: 'derived' }, st('(a) or (d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true });
+});
+
+test('§MKT.8 detect (opted in with keySource) labels each key: "printed" only when the model said so, everything else "derived"', async () => {
+  const h = buildRoute({ replies: [{
+    detectedMarks: 1, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null, detectedObjective: true, detectedAnswer: 'd',
+    questions: [
+      { questionNumber: 1, questionText: 'Q1 text', marks: 1, marksSource: 'stated', objective: true, answer: 'd', answerSource: 'printed' },
+      { questionNumber: 2, questionText: 'Q2 text', marks: 1, marksSource: 'stated', objective: true, answer: 'b', answerSource: 'derived' },
+      { questionNumber: 3, questionText: 'Q3 text', marks: 1, marksSource: 'stated', objective: true, answer: 'c' },
+      { questionNumber: 4, questionText: 'Q4 text', marks: 1, marksSource: 'stated', objective: true, answer: 'a', answerSource: 'nonsense' },
+      { questionNumber: 5, questionText: 'Q5 text', marks: 3, marksSource: 'stated', objective: false, answer: null },
+    ],
+  }] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  const qs = h.body().questions;
+  assert.deepEqual(qs.map((q) => q.answerSource), ['printed', 'derived', 'derived', 'derived', undefined]);
+  assert.equal(Object.prototype.hasOwnProperty.call(qs[4], 'answerSource'), false, 'a keyless question gets no label');
+  const schema = h.calls[0].genConfig.responseSchema;
+  assert.deepEqual(schema.properties.questions.items.properties.answerSource, { type: 'STRING', enum: ['printed', 'derived'], nullable: true });
+  assert.match(textOfCall(h), /- answerSource: for each question whose answer you set, "printed" ONLY when/);
+});
+
+test('§MKT.9 detect: a repeated question with conflicting labels is "derived" (printed needs every entry to agree)', async () => {
+  const h = buildRoute({ replies: [{
+    detectedMarks: 1, marksSource: 'stated', detectedObjective: true,
+    questions: [
+      { questionNumber: 1, questionText: 'Q1 text', marks: 1, objective: true, answer: 'd', answerSource: 'printed' },
+      { questionNumber: 1, questionText: 'Q1 text', marks: 1, objective: true, answer: 'd', answerSource: 'derived' },
+    ],
+  }] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.equal(h.body().questions.length, 1, 'the repeat is dropped (grading/detect.cjs)');
+  assert.equal(h.body().questions[0].answerSource, 'derived');
+});
+
+test('§MKT.10 ★ detect WITHOUT keySource (free check, topic reads, old clients, golden replays) is byte-identical: no prompt line, base schema, no label', async () => {
+  const reply = { detectedMarks: 1, marksSource: 'stated', detectedObjective: true, detectedAnswer: 'd',
+    questions: [{ questionNumber: 1, questionText: 'Q1 text', marks: 1, objective: true, answer: 'd', answerSource: 'printed' }] };
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper' }, {});
+  assert.equal(Object.prototype.hasOwnProperty.call(h.body().questions[0], 'answerSource'), false, 'no label without the opt-in');
+  assert.equal(h.calls[0].genConfig.responseSchema, MKT_BASE_SCHEMA, 'the unchanged base schema object');
+  assert.equal(Object.prototype.hasOwnProperty.call(MKT_BASE_SCHEMA.properties.questions.items.properties, 'answerSource'), false);
+  assert.doesNotMatch(textOfCall(h), /answerSource/, 'the prompt does not mention it');
+  // CONTROL — the same reply WITH the opt-in is labelled, and the prompt differs by exactly the one line.
+  const h2 = buildRoute({ replies: [reply] });
+  await h2.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.equal(h2.body().questions[0].answerSource, 'printed');
+  const line = '- answerSource: for each question whose answer you set, "printed" ONLY when that correct option is printed or marked in the document itself (an answer key, a ticked or marked answer); otherwise "derived". null when answer is null.\n';
+  assert.equal(textOfCall(h2).replace(line, ''), textOfCall(h), 'exactly one additive prompt line');
+});

@@ -19,6 +19,23 @@ export interface GradeAnswerPart {
 export interface DetectedObjective {
   objective?: boolean;
   answer?: string | null;
+  /** MCQ-KEY-TRUST-1 — where detect's key came from: "printed" in the document, or "derived". */
+  answerSource?: "printed" | "derived" | null;
+}
+
+/**
+ * MCQ-KEY-TRUST-1 — the detect key fields of a grade request, shared by BOTH Answer Checker paths
+ * (single: buildSingleGradeRequest; multi: DesktopCheckImprovePage.gradeMultiQuestion). A key is
+ * sent only for an objective question on a paid call (unchanged, #940 B9), and now always WITH its
+ * source. A detect key with no label (a read from before this change) is sent as "derived": only a
+ * key printed in the document may override the grader's verdict (server objectiveScoring).
+ */
+export function detectedKeyFields(
+  q: DetectedObjective | null | undefined,
+  freeCall: boolean,
+): { answer?: string; answerSource?: "printed" | "derived" } {
+  if (freeCall || q?.objective !== true || !q?.answer) return {};
+  return { answer: q.answer, answerSource: q.answerSource === "printed" ? "printed" : "derived" };
 }
 
 export function buildSingleGradeRequest(args: {
@@ -40,8 +57,9 @@ export function buildSingleGradeRequest(args: {
     // objective question to 0/full off the model's binary verdict (never a
     // fraction). Omitted (non-objective) → grading is byte-identical to before.
     ...(firstDetected?.objective === true ? { objective: true } : {}),
-    // PR-2 (B9) — the detected answer key for an objective question (paid calls only).
-    ...(!freeCall && firstDetected?.objective === true && firstDetected?.answer ? { answer: firstDetected.answer } : {}),
+    // PR-2 (B9) — the detected answer key for an objective question (paid calls only), with its
+    // source (MCQ-KEY-TRUST-1: a "derived" key never overrides the grader's verdict).
+    ...detectedKeyFields(firstDetected, freeCall),
     ...answerPart,
   };
 }
