@@ -7,7 +7,7 @@
  * "Grade here anyway" only hides the banner: the grade request is the page's own, byte-identical. Never grades.
  * Lazy-loaded by the page (own chunk). Class-based styling (scoped <style>, the FreeCheckPanels convention).
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { findPaperCodes, resolveOwnPaper, type OwnPaperMatch } from "./paperCodeMatch";
@@ -82,7 +82,9 @@ export default function PaperCodeRouteBanner({ uid, texts, files }: PaperCodeRou
   }, [uid, codeKey]);
 
   const shownFor = match?.code ?? null;
-  useEffect(() => {
+  // Fired in the SAME commit that puts the banner on screen (layout effect), not on a later passive-effect tick:
+  // "shown" is true exactly when the banner is in the DOM.
+  useLayoutEffect(() => {
     if (shownFor && !dismissed) trackNamedEvent("grade_route_offer_shown");
   }, [shownFor, dismissed]);
 

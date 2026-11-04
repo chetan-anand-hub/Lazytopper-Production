@@ -47,7 +47,7 @@ describe("PaperCodeRouteBanner", () => {
     view(["Name ____ WS-M-MIX-02"]);
     expect(await screen.findByTestId(BANNER)).toBeTruthy();
     expect(screen.getByText("This looks like your worksheet WS-M-MIX-02.")).toBeTruthy();
-    expect(H.track).toHaveBeenCalledWith("grade_route_offer_shown");
+    await waitFor(() => expect(H.track).toHaveBeenCalledWith("grade_route_offer_shown"));
     expect(screen.getByTestId("paper-code-route-go").getAttribute("href"))
       .toBe("/practice/worksheets?subject=Maths&scope=full-subject&upload=WS-M-MIX-02");
     expect(document.body.textContent).not.toMatch(/Premium|Check & Improve/);
