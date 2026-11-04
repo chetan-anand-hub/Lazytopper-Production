@@ -269,7 +269,6 @@ describe("RECORD-SAFE-1 - the July case with a SEEDED MIRROR: record and payload
     const seed = seedJuly();
     const out = await writeSessionRecordResolved(user, rec({ worksheetId: "ws-new" }));
     expect(out.code).toBe("WS-M-MIX-03");
-    expect(out.resolved).toBe(true);
     writeSessionPerQuestion(user, newPayload(out.code, out.record.perQuestionRef));
     await flush();
     expect(h.store.get(recPath("WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new", id: "WS-M-MIX-03", perQuestionRef: "ws:WS-M-MIX-03" });
@@ -295,25 +294,68 @@ describe("RECORD-SAFE-1 - the July case with a SEEDED MIRROR: record and payload
     expect(JSON.parse(localStorage.getItem(payloadKey)!)["ws:WS-M-MIX-02"]).toEqual(seed.julyPayload);
   });
 
-  it("an unreadable check writes nothing blind: the record is queued (mirror + outbox entry) under the requested code, resolved=false", async () => {
+  it("A: nothing waits on a cloud read - with every read failing, the device copy and the outbox entry are in place at once, under the requested code", async () => {
     h.readMode = "throw";
-    const out = await writeSessionRecordResolved(user, rec({ worksheetId: "ws-new" }), { retryDelayMs: 0 });
-    await flush();
-    expect(out.resolved).toBe(false);
+    const out = await writeSessionRecordResolved(user, rec({ worksheetId: "ws-new" }));
     expect(out.code).toBe("WS-M-MIX-02");
-    expect(h.sends).toEqual([]);
-    expect(readOutbox(UID).map((e) => `${e.kind}:${e.id}`)).toEqual(["record:WS-M-MIX-02"]);
+    expect(out.resolved).toBe(false);
     expect(loadLocalSessionRecords(UID)).toHaveLength(1);
+    expect(readOutbox(UID).map((e) => `${e.kind}:${e.id}`)).toEqual(["record:WS-M-MIX-02"]);
+    await flush();
+    expect(h.sends).toEqual([]); // and nothing is written blind while the reads fail
   });
 
-  it("the partial writers return the resolved code (what the page adopts)", async () => {
-    seedJuly();
+  it("A: a cloud-only collision is moved AFTER the fact: the partial writer answers at once, the record lands on the next code, listeners hear which paper moved", async () => {
     h.store.set(recPath("CT-M-RN-01"), rec({ id: "CT-M-RN-01", surface: "chapter-test", worksheetId: "ct-other" }));
     const paper = { worksheetId: "ct-mine", createdAt: "x", title: "T", subject: "Maths", grade: "10", sectionFilter: "All", totalMarks: 1, questions: [] } as never;
     const response = { ok: true, results: [], totalQuestions: 0, gradedCount: 1, pendingCount: 1, gradedMarksAwarded: 0, gradedMarksTotal: 0, worksheetTotalMarks: 0 } as never;
+    const heard: Array<[string, string, string]> = [];
+    const off = onRecordRelocated((a, b, w) => heard.push([a, b, w]));
     const code = await writeChapterTestPartialRecord({ user, paper, code: "CT-M-RN-01", subject: "maths", topicKey: "real-numbers", response });
-    expect(code).toBe("CT-M-RN-02");
+    expect(code).toBe("CT-M-RN-01"); // immediate: the requested code
+    expect(loadLocalSessionRecords(UID).some((r) => r.id === "CT-M-RN-01")).toBe(true);
+    await flush();
+    off();
+    expect(heard).toEqual([["CT-M-RN-01", "CT-M-RN-02", "ct-mine"]]);
     expect(h.store.get(recPath("CT-M-RN-01"))).toMatchObject({ worksheetId: "ct-other" });
+    expect(h.store.get(recPath("CT-M-RN-02"))).toMatchObject({ worksheetId: "ct-mine" });
+    expect(loadLocalSessionRecords(UID).find((r) => r.worksheetId === "ct-mine")?.id).toBe("CT-M-RN-02"); // the device copy moved too
+  });
+
+  it("B: the walk X -> X+1 - a stale PARTIAL of a paper never overwrites that paper's GRADED record at X+1", async () => {
+    h.store.set(recPath("WS-M-MIX-02"), rec({ worksheetId: "ws-july" }));
+    const graded = { ...rec({ id: "WS-M-MIX-03", worksheetId: "ws-new", status: "graded", marksAwarded: 5 }), updatedAt: "2026-11-04T10:00:00.000Z" };
+    h.store.set(recPath("WS-M-MIX-03"), graded);
+    // an old outbox entry for the same paper, still on the original code, partial
+    writeSessionRecord(user, rec({ worksheetId: "ws-new", status: "partial", marksAwarded: 1 }));
+    await flush();
+    expect(h.store.get(recPath("WS-M-MIX-03"))).toEqual(graded); // untouched: still graded
+    expect(h.store.get(recPath("WS-M-MIX-02"))).toMatchObject({ worksheetId: "ws-july" });
+    expect(loadLocalSessionRecords(UID).find((r) => r.id === "WS-M-MIX-03")).toBeUndefined(); // and the device copy is not dragged over it either
+  });
+
+  it("B: a same-paper doc whose updatedAt is NEWER than the queued entry is left alone", async () => {
+    const newer = { ...rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 5 }), updatedAt: "2999-01-01T00:00:00.000Z" };
+    h.store.set(recPath("WS-M-MIX-02"), newer);
+    writeSessionRecord(user, rec({ worksheetId: "ws-new", status: "graded", marksAwarded: 2 }));
+    await flush();
+    expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(newer);
+  });
+
+  it("D: a record that moves TWICE (device mirror, then cloud) - record and payload end on the FINAL key", async () => {
+    const q = rec({ worksheetId: "ws-q" });
+    localStorage.setItem(mirrorKey, JSON.stringify([q]));
+    h.store.set(recPath("WS-M-MIX-02"), q);
+    h.store.set(recPath("WS-M-MIX-03"), rec({ id: "WS-M-MIX-03", worksheetId: "ws-r" }));
+    h.store.set(payloadPath("ws:WS-M-MIX-02"), { ref: "ws:WS-M-MIX-02", worksheetId: "ws-q" });
+    h.store.set(payloadPath("ws:WS-M-MIX-03"), { ref: "ws:WS-M-MIX-03", worksheetId: "ws-r" });
+    writeSessionRecord(user, rec({ worksheetId: "ws-new" }));
+    writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
+    await flush();
+    expect(h.store.get(recPath("WS-M-MIX-04"))).toMatchObject({ worksheetId: "ws-new" });
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-04"))).toMatchObject({ worksheetId: "ws-new", code: "WS-M-MIX-04" });
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toMatchObject({ worksheetId: "ws-q" });
+    expect(h.store.get(payloadPath("ws:WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-r" });
   });
 });
 
@@ -338,6 +380,29 @@ describe("RECORD-SAFE-1 - resend and failure", () => {
       expect(h.store.get(recPath("WS-M-MIX-02"))).toEqual(seed.july);
       expect(h.store.get(payloadPath("ws:WS-M-MIX-02"))).toEqual(seed.julyPayload);
       expect(readOutbox(UID)).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("C: after a reload the payload waits for its own record - it never lands on the other paper's slot while the record is still queued", async () => {
+    vi.useFakeTimers();
+    try {
+      // the July RECORD is in the cloud but its payload slot is EMPTY: a payload racing ahead would happily take it
+      h.store.set(recPath("WS-M-MIX-02"), rec({ worksheetId: "ws-july" }));
+      h.writeMode = "fail";
+      writeSessionRecord(user, rec({ worksheetId: "ws-new" }));
+      writeSessionPerQuestion(user, newPayload("WS-M-MIX-02", "ws:WS-M-MIX-02"));
+      await vi.advanceTimersByTimeAsync(50);
+      __resetOutboxForTests(); // reload
+      localStorage.removeItem(mirrorKey); // and the device list has not caught up either
+      h.writeMode = "ok";
+      h.sends.length = 0;
+      await drainOutbox(UID);
+      await vi.advanceTimersByTimeAsync(30000);
+      expect(h.sends).not.toContain(payloadPath("ws:WS-M-MIX-02"));
+      expect(h.store.get(payloadPath("ws:WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new", code: "WS-M-MIX-03" });
+      expect(h.store.get(recPath("WS-M-MIX-03"))).toMatchObject({ worksheetId: "ws-new" });
     } finally {
       vi.useRealTimers();
     }

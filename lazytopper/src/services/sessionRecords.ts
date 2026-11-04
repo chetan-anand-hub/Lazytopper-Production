@@ -44,7 +44,7 @@
 // SAME single instance (D32), loaded on the first call. Only HOW this module reaches the SDK
 // changed; every path, id, record shape and write is byte-identical.
 import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
-import { trackCloudWrite, type OutboxEntry, type ResendOutcome } from "./sessionRecordsOutbox";
+import { trackCloudWrite, readOutbox, type OutboxEntry, type ResendOutcome } from "./sessionRecordsOutbox";
 import { getActiveProgressUser } from "./studentProgressStore";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import type { AuthUser } from "../context/AuthContext";
@@ -501,19 +501,20 @@ function relocateRecord(record: SessionRecord, newId: string): SessionRecord {
   };
 }
 
-type RelocationListener = (from: string, to: string) => void;
+/** `worksheetId` is the moved paper's identity, so a page can tell whether the move is ITS paper's. */
+type RelocationListener = (from: string, to: string, worksheetId: string) => void;
 const relocationListeners = new Set<RelocationListener>();
 /** A grade that was saved under a fresh code because its own code belonged to another paper. */
 export function onRecordRelocated(fn: RelocationListener): () => void {
   relocationListeners.add(fn);
   return () => relocationListeners.delete(fn);
 }
-function noteRecordRelocated(from: string, to: string): void {
+function noteRecordRelocated(from: string, to: string, worksheetId: string): void {
   // Codes only - no uid, no answers, nothing personal.
   console.warn("[sessionRecords] a grade would have replaced another paper's record; saved under a new code", { from, to });
   for (const fn of Array.from(relocationListeners)) {
     try {
-      fn(from, to);
+      fn(from, to, worksheetId);
     } catch {
       /* a listener must never break a save */
     }
@@ -524,6 +525,8 @@ function noteRecordRelocated(from: string, to: string): void {
 export interface LandedRecord {
   id: string;
   perQuestionRef: string;
+  /** The cloud already held this paper's record in a newer / more complete state: nothing was written. */
+  stale?: boolean;
 }
 interface Deferred {
   promise: Promise<LandedRecord>;
@@ -591,14 +594,19 @@ function trustedExists(snap: { exists: () => boolean; metadata?: { fromCache?: b
 }
 
 /**
- * The cloud write: READ the doc, then write only if it is absent or the SAME paper's. A different paper's
- * doc under the id -> try the next free code. A read we cannot trust (error, or a cache-only answer) THROWS
- * and nothing is written - the outbox retries; it never writes blind. Same read-then-write guarantee as
- * #1556's worksheet save. RACE WINDOW (honest): the read and the setDoc are two calls, not a transaction (the
- * outbox contract is a plain setDoc), so a different paper written into the same id in the few milliseconds
- * between them could still be replaced; the codes are minted unique per student, so reaching that window needs
- * two devices grading different papers that were minted the same code at the same instant.
- * `firstSnap` lets a caller that already read the doc for the first candidate reuse that read.
+ * The cloud write: READ the doc, then write only if it is absent or the SAME paper's - and never a stale copy over
+ * a newer one. A different paper's doc under the id -> try the next free code. A read we cannot trust (error, or a
+ * cache-only answer) THROWS and nothing is written - the outbox retries; it never writes blind. Same
+ * read-then-write guarantee as #1556's worksheet save.
+ *
+ * STALE (B): the same paper's doc is left alone (nothing written, `stale: true`) when it is already GRADED and the
+ * incoming copy is a partial / pending one, or when its `updatedAt` is newer than this entry's queued time. That is
+ * what an old outbox entry re-sent after the walk X -> X+1 would otherwise do to the graded record at X+1.
+ *
+ * RACE WINDOW (honest): the read and the setDoc are two calls, NOT a transaction (the outbox contract is a plain
+ * setDoc), so a different paper - or a newer grade - written into the same id in the few milliseconds between them
+ * could still be replaced. Codes are minted unique per student, so reaching it needs two tabs/devices writing the
+ * same code at the same instant. `firstSnap` lets a caller that already read the doc reuse that read.
  */
 async function setRecordGuarded(
   uid: string,
@@ -615,12 +623,19 @@ async function setRecordGuarded(
         ? firstSnap
         : await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "records", sanitizeDocId(attempt.id))));
     const exists = trustedExists(snap);
-    if (!exists || recordsAreSamePaper(snap.data() as Partial<SessionRecord>, attempt)) {
-      const data = stripUndefined({ ...attempt, updatedAt: queuedAt });
-      await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "records", sanitizeDocId(attempt.id)), data));
-      const landed: LandedRecord = { id: attempt.id, perQuestionRef: attempt.perQuestionRef };
+    const cur = exists ? (snap.data() as Partial<SessionRecord> & { updatedAt?: unknown }) : undefined;
+    if (!exists || recordsAreSamePaper(cur, attempt)) {
+      const incomingDone = attempt.status === "graded";
+      const stale =
+        !!cur &&
+        ((cur.status === "graded" && !incomingDone) || (typeof cur.updatedAt === "string" && cur.updatedAt > queuedAt));
+      const landed: LandedRecord = { id: attempt.id, perQuestionRef: attempt.perQuestionRef, ...(stale ? { stale: true } : {}) };
+      if (!stale) {
+        const data = stripUndefined({ ...attempt, updatedAt: queuedAt });
+        await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "records", sanitizeDocId(attempt.id)), data));
+      }
       if (attempt.id !== original.id) {
-        noteRecordRelocated(original.id, attempt.id);
+        noteRecordRelocated(original.id, attempt.id, original.worksheetId);
         addRedirect(uid, original, landed);
       }
       return landed;
@@ -675,58 +690,20 @@ async function readDocState(uid: string, sub: string, id: string, retryMs: numbe
 function paperStoreFor(code: string): string {
   return code.startsWith("CT-") ? "chapterTestPapers" : code.startsWith("FM-") ? "fullMockPapers" : "worksheetPapers";
 }
-function paperDocWorksheetId(d: Record<string, unknown> | undefined): string {
-  const paper = d?.paper as { worksheetId?: string } | undefined;
-  return paper?.worksheetId ?? (d?.worksheetId as string | undefined) ?? "";
-}
 
 /**
- * Is `code` free for the paper `forWorksheetId`? (undefined = a NEW paper: anything under the code is taken.)
- * The device list, the record doc AND the saved-paper doc must all say free or "this paper's own".
+ * Is `code` free for a NEW paper? The device list, the record doc AND the saved-paper doc must all say free
+ * (anything under the code means taken). A read that cannot be trusted is "unknown".
  */
-async function codeState(
-  uid: string,
-  code: string,
-  known: ReadonlySet<string>,
-  retryMs: number,
-  forWorksheetId?: string,
-): Promise<CodeState> {
+async function codeState(uid: string, code: string, known: ReadonlySet<string>, retryMs: number): Promise<CodeState> {
   const id = sanitizeDocId(code);
   if (known.has(code) || known.has(id)) return "taken";
-  const mine = (otherId: string | undefined) => forWorksheetId !== undefined && !!otherId && otherId === forWorksheetId;
-  const local = loadLocalSessionRecords(uid).find((r) => r.id === code || r.id === id);
-  if (local && !(forWorksheetId !== undefined && recordsAreSamePaper(local, { worksheetId: forWorksheetId }))) return "taken";
+  if (loadLocalSessionRecords(uid).some((r) => r.id === code || r.id === id)) return "taken";
   if (!isFirestoreEnabled()) return "free";
   const rec = await readDocState(uid, "records", id, retryMs);
-  if (rec.state === "unknown") return "unknown";
-  if (rec.state === "taken" && !(forWorksheetId !== undefined && recordsAreSamePaper(rec.data as Partial<SessionRecord>, { worksheetId: forWorksheetId }))) return "taken";
+  if (rec.state !== "free") return rec.state;
   const paper = await readDocState(uid, paperStoreFor(code), code, retryMs);
-  if (paper.state === "unknown") return "unknown";
-  if (paper.state === "taken" && !mine(paperDocWorksheetId(paper.data))) return "taken";
-  return "free";
-}
-
-/**
- * RECORD-SAFE-1 - the FINAL code for a record, resolved ONCE before any write. Same code when it is free or
- * already this paper's own (re-grade); otherwise the next free code (same walk as the mint). A read that cannot
- * be trusted THROWS RecordCodeCheckError: nothing is decided and nothing is written blind.
- */
-export async function resolveWriteCode(
-  uid: string,
-  record: Pick<SessionRecord, "id" | "worksheetId">,
-  opts: { retryDelayMs?: number } = {},
-): Promise<string> {
-  const retryMs = opts.retryDelayMs ?? RECORD_CODE_RETRY_MS;
-  const taken = new Set<string>();
-  let code = record.id;
-  for (let i = 0; i < 200; i++) {
-    const st = await codeState(uid, code, new Set(), retryMs, record.worksheetId);
-    if (st === "unknown") throw new RecordCodeCheckError();
-    if (st === "free") return code;
-    taken.add(code);
-    code = freshCodeNotIn(code, taken);
-  }
-  throw new RecordCodeCheckError();
+  return paper.state;
 }
 
 async function firstFreeSequence(
@@ -814,41 +791,25 @@ export interface ResolvedWrite {
   code: string;
   /** The record as written (id / perQuestionRef / dedupKey follow `code`). */
   record: SessionRecord;
-  /** false = the cloud check could not be completed: the write was queued under the requested code and the
-   *  outbox write re-checks at send time (it may still land on a later code; the per-question payload follows). */
+  /** false = the cloud has not been asked yet: the write is queued under `code` and the send re-checks the stored
+   *  doc (it may still land on a later code - listen with `onRecordRelocated`; the payload follows). */
   resolved: boolean;
 }
 
 /**
- * RECORD-SAFE-1 - resolve the FINAL code once (cloud record, device mirror, saved-paper store), then write the
- * record under it. The caller writes the per-question payload under `result.record.perQuestionRef` / `.code`,
- * and the outbox entry carries the resolved record, so a re-send never re-targets the old id. An unreadable
- * check writes nothing blind: the record is queued (device mirror + outbox entry first) and checked again at send.
+ * RECORD-SAFE-1 - write the record NOW, with no network wait: the device copy and the outbox entry go in
+ * immediately under the requested code (the device mirror may already move it to a free code; that code is
+ * returned). The cloud write then checks the stored doc and, if the code belongs to ANOTHER paper, saves the grade
+ * under the next free code, MOVES the device + outbox entries to it, and notifies `onRecordRelocated` listeners
+ * (the Chapter Test / Full Mock pages follow it). The per-question payload follows through the same redirect.
+ * Nothing waits on a read, so closing the tab right after submit loses nothing.
  */
 export async function writeSessionRecordResolved(
   user: AuthUser | null | undefined,
   record: SessionRecord,
-  opts: { retryDelayMs?: number } = {},
 ): Promise<ResolvedWrite> {
-  const uid = user && user.uid && !user.isLocalSession ? user.uid : null;
-  let final = record;
-  let resolved = false;
-  if (uid && record.id && isFirestoreEnabled() && uid !== "anonymous") {
-    try {
-      const code = await resolveWriteCode(uid, record, opts);
-      resolved = true;
-      if (code !== record.id) {
-        final = relocateRecord(record, code);
-        noteRecordRelocated(record.id, code);
-        addRedirect(uid, record, { id: code, perQuestionRef: final.perQuestionRef });
-      }
-    } catch (error) {
-      if (!(error instanceof RecordCodeCheckError)) console.warn("[sessionRecords] code resolve failed", error);
-    }
-  }
-  const core = writeSessionRecordCore(user, final);
-  if (uid && !resolved && !isFirestoreEnabled()) resolved = true; // device-only: the mirror check IS the check
-  return { outcome: core.outcome, code: core.record.id, record: core.record, resolved };
+  const core = writeSessionRecordCore(user, record);
+  return { outcome: core.outcome, code: core.record.id, record: core.record, resolved: !isFirestoreEnabled() };
 }
 
 function writeSessionRecordCore(
@@ -862,14 +823,14 @@ function writeSessionRecordCore(
   const uid = user.uid;
 
   // RECORD-SAFE-1: a record may only replace a record of the SAME paper. The mirror is checked
-  // here (so a device-only session is protected too); the cloud doc is checked inside a transaction
+  // here (so a device-only session is protected too); the cloud doc is read before the write
   // below. A different paper's record under this id means the grade is saved under a fresh code.
   const mirror = loadLocalSessionRecords(uid);
   const clash = mirror.find((r) => r.id === record.id);
   if (clash && !recordsAreSamePaper(clash, record)) {
     const taken = new Set(mirror.map((r) => r.id));
     const moved = relocateRecord(record, freshCodeNotIn(record.id, taken));
-    noteRecordRelocated(clash.id, moved.id);
+    noteRecordRelocated(clash.id, moved.id, record.worksheetId);
     // F1: the per-question payload must follow the record from the very first call (registered synchronously)
     addRedirect(uid, record, { id: moved.id, perQuestionRef: moved.perQuestionRef });
     record = moved;
@@ -892,7 +853,7 @@ function writeSessionRecordCore(
     // SAVE-SYNC-1 (D190): the same full-replace write, but TRACKED — queued in the per-uid outbox
     // first, retried with backoff, re-sent on the next load / `online` if the tab closed or the
     // network stayed down. The first attempt still runs synchronously, as before.
-    // RECORD-SAFE-1: the write is a transaction that refuses to replace a DIFFERENT paper's record.
+    // RECORD-SAFE-1: read-then-write (setRecordGuarded) that refuses to replace a DIFFERENT paper's record or a newer grade.
     const queuedAt = new Date().toISOString();
     const original = record;
     const settle = openRecordSettle(uid, original);
@@ -908,7 +869,7 @@ function writeSessionRecordCore(
             (landed) => {
               settle.current.resolve(landed);
               if (recordSettles.get(skey) === settle) recordSettles.delete(skey);
-              if (landed.id !== original.id) relocateMirror(uid, original, landed);
+              if (landed.id !== original.id && !landed.stale) relocateMirror(uid, original, landed);
               return landed;
             },
             (error) => {
@@ -964,6 +925,19 @@ function putLocalPayload(uid: string, payload: SessionPerQuestionPayload, remove
   }
 }
 
+/** Follow the sticky redirects from `code` to where the paper's record finally is (a record can move twice). */
+function chase(uid: string, code: string, worksheetId: string): LandedRecord | undefined {
+  let last: LandedRecord | undefined;
+  let cur = code;
+  for (let i = 0; i < 8; i++) {
+    const next = redirects.get(settleKey(uid, { id: cur, worksheetId }));
+    if (!next || next.id === cur) break;
+    last = next;
+    cur = next.id;
+  }
+  return last;
+}
+
 function followRedirect(payload: SessionPerQuestionPayload, landed: LandedRecord | undefined): SessionPerQuestionPayload {
   return landed && landed.perQuestionRef && landed.perQuestionRef !== payload.ref
     ? { ...payload, ref: landed.perQuestionRef, code: landed.id }
@@ -1002,7 +976,7 @@ export function writeSessionPerQuestion(
   if (!user || !user.uid || user.isLocalSession || !payloadIn.ref) return;
   const uid = user.uid;
   const wsKey = settleKey(uid, { id: payloadIn.code, worksheetId: payloadIn.worksheetId });
-  const known = followRedirect(payloadIn, redirects.get(wsKey));
+  const known = followRedirect(payloadIn, chase(uid, payloadIn.code, payloadIn.worksheetId));
   const stashed = pendingQuestionTexts.get(payloadIn.ref) ?? pendingQuestionTexts.get(known.ref);
   pendingQuestionTexts.delete(payloadIn.ref);
   pendingQuestionTexts.delete(known.ref);
@@ -1025,8 +999,10 @@ export function writeSessionPerQuestion(
       async () => {
         // The payload follows its record: wait for an in-flight record write (a failed attempt rejects this,
         // and this chain retries), else use where it already landed.
-        const entry = recordSettles.get(wsKey);
-        const landed = entry ? await entry.current.promise : redirects.get(wsKey);
+        const entry = recordSettles.get(settleKey(uid, { id: payload.code, worksheetId: payload.worksheetId })) ?? recordSettles.get(wsKey);
+        const first = entry ? await entry.current.promise : undefined;
+        // a payload whose record moved TWICE goes to the FINAL key
+        const landed = chase(uid, first?.id ?? payload.code, payload.worksheetId) ?? first;
         const target = followRedirect(payload, landed);
         if (target !== payload || !localWritten) putLocalPayload(uid, target, payload.ref);
         const result = await setPayloadGuarded(uid, target, queuedAt).finally(noteStudyDataChanged); // MI-CONSISTENCY-1
@@ -1071,7 +1047,13 @@ export async function resendOutboxEntry(
   // never written over another paper's payload.
   if (entry.kind === "perQuestion") {
     const pb = body as SessionPerQuestionPayload;
-    const redirected = redirects.get(settleKey(uid, { id: pb.code, worksheetId: pb.worksheetId }));
+    // C: after a reload the payload must NOT race ahead of its own record. While the same paper's record entry is
+    // still queued, its final code is not known: wait (this throws, the chain retries) and then use the resolved code.
+    const recordStillQueued = readOutbox(uid).some(
+      (e) => e.kind === "record" && (e.id === pb.code || (e.body as { worksheetId?: string } | undefined)?.worksheetId === pb.worksheetId),
+    );
+    if (recordStillQueued) throw new Error("this paper's record is still being saved");
+    const redirected = chase(uid, pb.code, pb.worksheetId);
     const rec = redirected
       ? undefined
       : loadLocalSessionRecords(uid).find((r) => r.worksheetId === pb.worksheetId && r.perQuestionRef && r.perQuestionRef !== pb.ref && r.surface === pb.surface);
@@ -1092,7 +1074,7 @@ export async function resendOutboxEntry(
   // a re-grade of this id may have been queued while we awaited the read: its chain owns the id now
   if (!isCurrent()) return "superseded";
   const landed = await setRecordGuarded(uid, body as SessionRecord, entry.queuedAt, existing);
-  if (landed.id !== entry.id) relocateMirror(uid, body as SessionRecord, landed);
+  if (landed.id !== entry.id && !landed.stale) relocateMirror(uid, body as SessionRecord, landed);
   return "sent";
 }
 

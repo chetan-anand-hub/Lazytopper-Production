@@ -39,6 +39,7 @@ import {
   getSessionPerQuestion,
   mintUniqueChapterTestNomenclature,
   nameForCode,
+  onRecordRelocated,
   RecordCodeCheckError,
   RECORD_CODE_CHECK_FAILED_LINE,
   buildChapterTestSessionRecord,
@@ -538,6 +539,27 @@ export default function ChapterTestPage() {
 
   const unansweredObjective = objectiveQs.filter((q) => !(answers[q.qNumber] && answers[q.qNumber] !== "")).length;
 
+  // RECORD-SAFE-1 (D): a record that had to move to a free code takes the page and the saved paper copy with it.
+  const moveCtPaper = useCallback(
+    (from: { code: string; name: string }, to: string, p: PersistedWorksheet, obj: ObjectiveScore) => {
+      const eff = adoptSavedCode(to, from);
+      saveChapterTestPaper(user, { code: eff.code, name: eff.name, subject, topicKey, paper: p, objective: obj });
+      deleteChapterTestPaper(user, from.code, p.worksheetId);
+    },
+    [adoptSavedCode, user, subject, topicKey],
+  );
+  const relocRef = useRef<{ paper: PersistedWorksheet | null; nomen: { code: string; name: string } | null; objective: ObjectiveScore | null }>({ paper: null, nomen: null, objective: null });
+  relocRef.current = { paper, nomen, objective };
+  useEffect(
+    () =>
+      onRecordRelocated((_from, to, worksheetId) => {
+        const { paper: p, nomen: cur, objective: obj } = relocRef.current;
+        if (!p || !cur || !obj || p.worksheetId !== worksheetId || cur.code === to) return;
+        moveCtPaper(cur, to, p, obj);
+      }),
+    [moveCtPaper],
+  );
+
   // ── Submit → partial ─────────────────────────────────────────────────────────
   const finishToPartial = useCallback(() => {
     if (!paper || !nomen) return;
@@ -551,29 +573,31 @@ export default function ChapterTestPage() {
       subjectiveResponse: null,
     });
     const submitted = nomen;
-    // RECORD-SAFE-1: resolve the final code, write the record under it, THEN save the paper under that same
-    // code (the results screen is already up; the scorecard follows the code if it had to move).
-    void (async () => {
-      const savedCode = await writeChapterTestPartialRecord({
-        user,
-        paper,
-        code: submitted.code,
-        subject: sessionSubject,
-        topicKey,
-        response: partialResponse,
-      });
-      const eff = adoptSavedCode(savedCode, submitted);
-      // PENDING-UPLOAD-1: keep the SAME paper + frozen objective so "Upload later" can come
-      // back to it, on this device or any other signed-in one (text only, never an image).
-      saveChapterTestPaper(user, {
-        code: eff.code,
-        name: eff.name,
-        subject,
-        topicKey,
-        paper,
-        objective: obj,
-      });
-    })();
+    // RECORD-SAFE-1: the partial record and the paper copy are written NOW, under the requested code, with no wait on
+    // any cloud read (as before). If that code turns out to belong to another paper, the cloud write saves it under a
+    // free code and onRecordRelocated moves the page + the paper copy to it.
+    const wrote = writeChapterTestPartialRecord({
+      user,
+      paper,
+      code: submitted.code,
+      subject: sessionSubject,
+      topicKey,
+      response: partialResponse,
+    });
+    // PENDING-UPLOAD-1: keep the SAME paper + frozen objective so "Upload later" can come
+    // back to it, on this device or any other signed-in one (text only, never an image).
+    saveChapterTestPaper(user, {
+      code: submitted.code,
+      name: submitted.name,
+      subject,
+      topicKey,
+      paper,
+      objective: obj,
+    });
+    // the device mirror may already have moved the record to a free code: follow it
+    void wrote.then((savedCode) => {
+      if (savedCode && savedCode !== submitted.code) moveCtPaper(submitted, savedCode, paper, obj);
+    });
     if (progressKey && typeof window !== "undefined") {
       try {
         window.sessionStorage.removeItem(progressKey);
@@ -585,7 +609,7 @@ export default function ChapterTestPage() {
     setScorecardOpen(true);
     setPhase("results");
     void loadRecords();
-  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords, adoptSavedCode]);
+  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords, moveCtPaper]);
 
   // Keep a LIVE ref to the latest finishToPartial so the timer's auto-submit scores
   // with CURRENT answers — the interval effect must NOT re-subscribe on every keystroke

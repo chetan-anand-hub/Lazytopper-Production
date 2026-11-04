@@ -42,6 +42,7 @@ import {
   getSessionPerQuestion,
   mintUniqueFullMockNomenclature,
   nameForCode,
+  onRecordRelocated,
   RecordCodeCheckError,
   RECORD_CODE_CHECK_FAILED_LINE,
   buildFullMockSessionRecord,
@@ -357,6 +358,33 @@ export default function FullMockPage() {
 
   // Latest values for the autosave writer (avoids stale closures in callbacks).
   const answersRef = useRef(answers);
+  // RECORD-SAFE-1 (D): a record that had to move to a free code takes the page, the device session and the server
+  // paper copy with it. Called with the code the page holds NOW, so a record that moves twice ends on the final one.
+  const moveFmPaper = useCallback(
+    (from: string, to: string, a: ActiveMock, obj: ObjectiveScore, focus: SessionFocusAggregates) => {
+      const eff = adoptFmCode(to, a);
+      const sess = loadFullMockSession(sessionUid, from);
+      if (sess) {
+        saveFullMockSession(sessionUid, { ...sess, code: eff.code, name: eff.name });
+        clearFullMockSession(sessionUid, from);
+      }
+      saveFullMockPaperSnapshot(user, {
+        code: eff.code,
+        name: eff.name,
+        subject,
+        grade,
+        paper: a.paper,
+        startedAt: a.startedAt,
+        durationMs: a.durationMs,
+        objective: obj,
+        focus,
+        pyqCount: a.pyqCount,
+        freshCount: a.freshCount,
+      });
+      deleteFullMockPaperSnapshot(user, from, a.paper.worksheetId);
+    },
+    [adoptFmCode, sessionUid, user, subject, grade],
+  );
   const flagsRef = useRef(flags);
   const currentQRef = useRef(currentQNumber);
   const focusRef = useRef<SessionFocusAggregates>(EMPTY_FOCUS);
@@ -426,6 +454,18 @@ export default function FullMockPage() {
 
   // ── Results state (two-phase) ────────────────────────────────────────────────
   const [objective, setObjective] = useState<ObjectiveScore | null>(null);
+  const objectiveRef = useRef<ObjectiveScore | null>(null);
+  objectiveRef.current = objective;
+  useEffect(
+    () =>
+      onRecordRelocated((_from, to, worksheetId) => {
+        const a = activeRef.current;
+        const obj = objectiveRef.current;
+        if (!a || !obj || a.paper.worksheetId !== worksheetId || a.code === to) return;
+        moveFmPaper(a.code, to, a, obj, focusRef.current);
+      }),
+    [moveFmPaper],
+  );
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
@@ -540,56 +580,57 @@ export default function FullMockPage() {
         subjectiveQuestions: subjQs,
         subjectiveResponse: null,
       });
-      // RECORD-SAFE-1: resolve the final code, write the record under it, THEN keep the paper (device + server)
-      // under that same code; the scorecard follows the code if it had to move (results are already up).
-      const submitted = { code: a.code, name: a.name };
-      const written = (async () => {
-        const savedCode = await writeFullMockPartialRecord({
-          user,
-          paper: a.paper,
-          code: submitted.code,
-          subject: sessionSubject,
-          response: partialResponse,
-          focus,
-        });
-        const eff = adoptFmCode(savedCode, a);
-        // Keep the paper + frozen objective for a later upload on THIS device.
-        saveFullMockSession(sessionUid, {
-          code: eff.code,
-          name: eff.name,
-          subject,
-          grade,
-          paper: a.paper,
-          startedAt: a.startedAt,
-          durationMs: a.durationMs,
-          answers: currentAnswers,
-          flags: [...flagsRef.current],
-          currentQNumber: currentQRef.current,
-          focus,
-          phase: "awaiting-upload",
-          objective: obj,
-          pyqCount: a.pyqCount,
-          freshCount: a.freshCount,
-          updatedAt: Date.now(),
-        });
-        // …and persist the SAME paper server-side (text only — never an answer
-        // image, not even the typed answers) so a later upload from ANY signed-in
-        // device re-grades the REAL paper [FU-FM-CROSS-DEVICE-UPLOAD]. Best-effort:
-        // a miss keeps the device-local path and the honest cross-device fallback.
-        saveFullMockPaperSnapshot(user, {
-          code: eff.code,
-          name: eff.name,
-          subject,
-          grade,
-          paper: a.paper,
-          startedAt: a.startedAt,
-          durationMs: a.durationMs,
-          objective: obj,
-          focus,
-          pyqCount: a.pyqCount,
-          freshCount: a.freshCount,
-        });
-      })();
+      // RECORD-SAFE-1: the partial record, the device session and the server paper copy are written NOW, under the
+      // requested code, with no wait on any cloud read (as before). If that code turns out to belong to another paper
+      // the cloud write saves it under a free code and onRecordRelocated moves the page + these copies to it.
+      const wrote = writeFullMockPartialRecord({
+        user,
+        paper: a.paper,
+        code: a.code,
+        subject: sessionSubject,
+        response: partialResponse,
+        focus,
+      });
+      // Keep the paper + frozen objective for a later upload on THIS device.
+      saveFullMockSession(sessionUid, {
+        code: a.code,
+        name: a.name,
+        subject,
+        grade,
+        paper: a.paper,
+        startedAt: a.startedAt,
+        durationMs: a.durationMs,
+        answers: currentAnswers,
+        flags: [...flagsRef.current],
+        currentQNumber: currentQRef.current,
+        focus,
+        phase: "awaiting-upload",
+        objective: obj,
+        pyqCount: a.pyqCount,
+        freshCount: a.freshCount,
+        updatedAt: Date.now(),
+      });
+      // …and persist the SAME paper server-side (text only — never an answer
+      // image, not even the typed answers) so a later upload from ANY signed-in
+      // device re-grades the REAL paper [FU-FM-CROSS-DEVICE-UPLOAD]. Best-effort:
+      // a miss keeps the device-local path and the honest cross-device fallback.
+      saveFullMockPaperSnapshot(user, {
+        code: a.code,
+        name: a.name,
+        subject,
+        grade,
+        paper: a.paper,
+        startedAt: a.startedAt,
+        durationMs: a.durationMs,
+        objective: obj,
+        focus,
+        pyqCount: a.pyqCount,
+        freshCount: a.freshCount,
+      });
+      // the device mirror may already have moved the record to a free code: follow it
+      const written = wrote.then((savedCode) => {
+        if (savedCode && savedCode !== a.code) moveFmPaper(a.code, savedCode, a, obj, focus);
+      });
       focusRef.current = focus;
       setObjective(obj);
       setResultsPhase("partial");
@@ -615,7 +656,7 @@ export default function FullMockPage() {
         }
       });
     },
-    [user, sessionSubject, sessionUid, subject, grade, loadRecords, adoptFmCode],
+    [user, sessionSubject, sessionUid, subject, grade, loadRecords, moveFmPaper],
   );
 
   const finishToPartial = useCallback(() => {
