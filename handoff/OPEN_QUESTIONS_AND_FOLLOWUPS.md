@@ -25,7 +25,7 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ## 2026-11-04 (daily, second) - #1533 - #1548 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
-*Readings are at trunk `e0c2517b`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's 4 Nov facts **[coordinator]** (source: project doc `claude/HANDOFF_COFOUNDER_SESSION_2026-11-04.md`, section 0 items 3-10 and section 7, which this lane could not open; the coordinator should cross-check) and the PR bodies **[gh]**. No grading behaviour changed (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*
+*Readings are at trunk `e0c2517b`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's 4 Nov facts **[coordinator]** (source: project doc `claude/HANDOFF_COFOUNDER_SESSION_2026-11-04.md`, section 0 items 3-10 and section 7, cross-checked by the coordinator) and the PR bodies **[gh]**. No grading behaviour changed (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*
 
 **Closed or superseded by this window (not re-headed):** `[FU-CHECKOUT-WHO-2]` closed by `#1533`. `[FU-CHECKOUT-WHO-LIVE-TEST]` superseded by owner tests T1-T6 (`[FU-OWNER-TESTS-T3-T6]`); the first run found `#1537`/`#1538`, then T1 and T2 passed and the flags went on. `[FU-REDOWNLOAD-DATE-SERVER]` closed by `#1544` (UI mount still owed: `[FU-ENDED-PACKS-NOTE-MOUNT]`). `[FU-TEST-FLAKES-UNDER-LOAD]` closed by `#1547`. `[FU-BOARD-PASS-PACK-OFFERS]` closed by `#1540`. The 4 Nov (first) Basic-line confirmation in `[FU-HOUSEKEEPING-4NOV]` is answered: "limited practice" (`#1534`).
 

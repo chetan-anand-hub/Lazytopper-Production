@@ -1,6 +1,6 @@
 ## 2026-11-04 (daily, second) - #1533 - #1548: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
-> **SCOPE.** No D number is minted here. Rulings of 4 Nov 2026 by the owner **[owner]**, as quoted in the PR bodies **[gh]** or relayed by the coordinator **[coordinator]**, each with its reason. **Provenance gap:** the docs builder could not open the coordinator's handoff (project doc `claude/HANDOFF_COFOUNDER_SESSION_2026-11-04.md`, section 4, rulings 1-13) from its lane, so the rows below are built from the PR bodies and the coordinator's brief; the coordinator should check them against that section and add any ruling missing here. **Correction first:** the 4 Nov (first) row "Basic line says 'practice sets' instead of 'limited practice' (`#1525`)" is superseded by the owner ruling of 4 Nov 05:42 IST (`#1534`). Old rows are left as written (standing rule 3). No buyer or test-account names, phones or emails.
+> **SCOPE.** No D number is minted here. Rulings of 4 Nov 2026 by the owner **[owner]**, as quoted in the PR bodies **[gh]** or relayed by the coordinator **[coordinator]**, each with its reason. Cross-checked by the coordinator against the 4 Nov handoff, section 4, rulings 1-13 (project doc `claude/HANDOFF_COFOUNDER_SESSION_2026-11-04.md`).
 
 | decision | what it says | the reason |
 |---|---|---|
@@ -21,6 +21,9 @@
 | "Premium" never names the paid plan to a student (`#1542`, `#1546`) | parent page and the account chip say "Board Pass" / "Month pass" / "Full access" | standing naming rule; DesktopShell's copy needs owner permission (`[FU-DESKTOP-ACCOUNT-MENU-SHARE]`). |
 | Flags switched on 4 Nov [coordinator] | pay-first (Railway 08:50 IST + Vercel), `CHECKOUT_WHO` both sides, email code (14:32 IST, `EMAIL_CODE_TRUSTED_PROXY_HOPS=2`) | each built dark, reviewed and passed the owner's live test first (T1, T2, EMAIL-CODE-1). Rollback for pay-first is the Railway var off. |
 | Small follow-ups and the one-payment add-on go to the next session [owner] | `ADDON-1` built dark when started | a fresh session is cheaper than a long chat. |
+| Sell BOTH products; never word packs "optional" or "not needed" [owner] | the Board Pass and the PDF packs are offered side by side; no copy plays one down | packs are a separate product that sells on its own; "optional" talks a buyer out of a sale. |
+| Recipient copy speaks to the parent [owner] | label "Student's mobile number or email" + "The one your child will log in with - not yours" | parents were typing their own number, so the pack landed on the wrong account. |
+| Packs are a separate product (recorded 3-4 Nov, `#1522`/`#1544`) [owner] | no pack credit toward the Board Pass from 5 Nov (earlier buyers honoured); re-download till 31 Mar 2027 for new buyers, 31 May 2027 for earlier ones | packs and the Board Pass are different products; the May re-exam is a future sales moment. |
 | Board Pass rename: decide by 1 Dec [owner] | unchanged from 4 Nov (first) | ship any rename with the Rs 2,499 change. |
 
 ## 2026-11-04 (daily) - #1514 - #1531: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
