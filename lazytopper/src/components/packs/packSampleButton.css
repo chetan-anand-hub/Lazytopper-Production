@@ -1,0 +1,11 @@
+/* PackSampleButton (SAMPLE-FOLLOWUP-1): the pack window's second choice - outlined, full width, >= 48px, wraps at 360px; Buy stays the filled one. */
+.lt-psbtn {
+  display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; width: 100%; min-height: 48px; padding: 10px 14px;
+  border: 2px solid #136b43; border-radius: 14px; background: #fff; color: #0e5a36; font: inherit; font-size: 16px; font-weight: 700; line-height: 1.25;
+  text-align: center; text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.lt-psbtn:hover { background: #eef8f2; }
+.lt-psbtn:focus-visible { outline: 3px solid #136b43; outline-offset: 2px; }
+a.lt-psbtn, a.lt-psbtn:visited { color: #0e5a36; text-decoration: none; }
+.lt-psbtn__icon { font-size: 18px; line-height: 1; }
+.lt-psbtn__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; white-space: nowrap; }

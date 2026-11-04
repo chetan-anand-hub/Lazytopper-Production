@@ -3,7 +3,7 @@ import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, typ
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel } from "../lib/packs/packLabels";
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
 import { PREVIEW_FALLBACK_CAPTION, PREVIEW_H, PREVIEW_W, packPreviewFor, previewCaption, previewImage, previewShows, type PreviewPage } from "../lib/packs/packPreviews";
-import PackSampleLink from "../components/packs/PackSampleLink";
+import PackSampleButton from "../components/packs/PackSampleButton";
 import "./packsDialog.css";
 
 /**
@@ -365,10 +365,10 @@ export default function PackDialog(props: PackDialogProps) {
           </div>
           <div className="lt-pkd__buy">
             {buy}
-            {/* PACK-SAMPLE-1: secondary to Buy; follows the chosen chapter / subject (the bundle has one sample). */}
+            {/* PACK-SAMPLE-1 / SAMPLE-FOLLOWUP-1: a clear second button, secondary to Buy; follows the chosen chapter / subject (the bundle has one sample). */}
             {!sampleInBuy && (
               <div className="lt-pkd__sample">
-                <PackSampleLink sku={sku} target={sku === "pack_chapter" ? chapter : subject} surface="packs_dialog" />
+                <PackSampleButton sku={sku} target={sku === "pack_chapter" ? chapter : subject} surface="packs_dialog" />
               </div>
             )}
           </div>

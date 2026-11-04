@@ -17,7 +17,7 @@ vi.mock("../analytics/analytics", async (importOriginal) => {
   return { ...actual, trackPaywallAction: vi.fn() };
 });
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" }, loading: false }) }));
-vi.mock("../components/packs/PackSampleLink", () => ({ default: () => <a href="/sample">See a free sample</a> }));
+vi.mock("../components/packs/PackSampleButton", () => ({ default: () => <a href="/sample">See a free sample</a> }));
 
 import PackDialog from "./PackDialog";
 import { PACK_PREVIEWS, previewCaption } from "../lib/packs/packPreviews";
