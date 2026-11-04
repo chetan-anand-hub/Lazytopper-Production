@@ -294,6 +294,8 @@ function thirtyDayOn(limits) {
   return typeof cap === 'number' && cap > 0;
 }
 
+let dayOffWarned = false;
+
 /** The limits in force, from `env` ONLY. Rupee caps are returned in micro-rupees (the ledger's unit). */
 function resolveLimits(env) {
   const e = env || {};
@@ -303,6 +305,18 @@ function resolveLimits(env) {
     const v = envWindowInr(e, LIMIT_ENV[key], DEFAULT_LIMITS[key]);
     return v === null ? null : Math.round(v * 1e6);
   };
+  // SAFETY NET: the DAY window may be "off" only while a valid 30-day cap is set. Otherwise Premium spend
+  // would be uncapped, so DAY keeps its default and one boot warning says so.
+  const dayMicro = inrOrOff('premiumDayInr');
+  const monthlyOk = thirtyDayMicroInrFrom(e) !== null;
+  let dayMicroInr = dayMicro;
+  if (dayMicro === null && !monthlyOk) {
+    dayMicroInr = Math.round(DEFAULT_LIMITS.premiumDayInr * 1e6);
+    if (!dayOffWarned) {
+      dayOffWarned = true;
+      console.warn('[fairUse] FAIR_USE_PREMIUM_DAY_INR=off ignored: FAIR_USE_PREMIUM_30DAY_INR is unset or invalid, so the day cap stays at its default to keep Premium spend capped.');
+    }
+  }
   return {
     trial: {
       checksPerDay: int('trialChecksPerDay'),
@@ -312,7 +326,7 @@ function resolveLimits(env) {
     },
     premium: {
       weekMicroInr: inrOrOff('premiumWeekInr'),
-      dayMicroInr: inrOrOff('premiumDayInr'),
+      dayMicroInr,
       fiveHourMicroInr: inrOrOff('premiumFiveHourInr'),
       // CAP-30DAY: null = no 30-day limit (env unset / empty / invalid). Never a default.
       thirtyDayMicroInr: thirtyDayMicroInrFrom(e),

@@ -81,8 +81,36 @@ test('FAIRUSE-MONTHLY-1 · the view carries only 30-day + day; off windows are o
   assert.doesNotMatch(JSON.stringify(view), /fiveHour|week|inr|micro|rupee|₹/i);
 });
 
-test('FAIRUSE-MONTHLY-1 · the day window can also be "off"; with every window off nothing refuses', () => {
-  const env = { ...LIVE, FAIR_USE_PREMIUM_DAY_INR: 'off', FAIR_USE_PREMIUM_30DAY_INR: '' };
-  assert.equal(run(ledger({ 0: 5000 }), env).allowed, true);
-  assert.deepEqual(Object.keys(premiumState(ledger({ 0: 5 }), NOW, resolveLimits(env)).view), ['resets']);
+test('FAIRUSE-MONTHLY-1 · DAY may be "off" only while a valid 30-day cap is set', () => {
+  // With a valid month: DAY off is honoured.
+  const ok = { ...LIVE, FAIR_USE_PREMIUM_DAY_INR: 'off' };
+  assert.equal(resolveLimits(ok).premium.dayMicroInr, null);
+  assert.equal(run(ledger({ 0: 5000 }), { ...ok, FAIR_USE_PREMIUM_30DAY_INR: '999999' }).allowed, true);
+  // 30-day unset or invalid: DAY keeps its default (38) and still refuses.
+  const warns = [];
+  const orig = console.warn;
+  console.warn = (m) => warns.push(String(m));
+  try {
+    for (const m of [undefined, '', 'junk', '0', '-5', 'off']) {
+      const env = { ...ok };
+      if (m === undefined) delete env.FAIR_USE_PREMIUM_30DAY_INR;
+      else env.FAIR_USE_PREMIUM_30DAY_INR = m;
+      assert.equal(resolveLimits(env).premium.dayMicroInr, 38 * INR, `30DAY=${JSON.stringify(m)}`);
+      const d = run(ledger({ 0: 38 }), env);
+      assert.equal(d.allowed, false);
+      assert.equal(d.body.window, 'day');
+    }
+  } finally {
+    console.warn = orig;
+  }
+  assert.ok(warns.length <= 1, 'one boot warning, not one per call');
+});
+
+test('FAIRUSE-MONTHLY-1 · 0, empty, "offf" and negative on 5h / week / day keep the defaults (25 / 84 / 38) and still refuse', () => {
+  for (const bad of ['0', '', '   ', 'offf', '-5', 'NaN']) {
+    const p = resolveLimits({ ...LIVE, FAIR_USE_PREMIUM_FIVE_HOUR_INR: bad, FAIR_USE_PREMIUM_WEEK_INR: bad, FAIR_USE_PREMIUM_DAY_INR: bad }).premium;
+    assert.deepEqual([p.fiveHourMicroInr, p.weekMicroInr, p.dayMicroInr], [25 * INR, 84 * INR, 38 * INR], JSON.stringify(bad));
+    const d = run(ledger({ 0: 38 }), { ...LIVE, FAIR_USE_PREMIUM_FIVE_HOUR_INR: bad, FAIR_USE_PREMIUM_WEEK_INR: bad, FAIR_USE_PREMIUM_DAY_INR: bad });
+    assert.equal(d.allowed, false, JSON.stringify(bad));
+  }
 });
