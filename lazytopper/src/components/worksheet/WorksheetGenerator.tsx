@@ -904,6 +904,7 @@ function WorksheetGeneratorInner() {
         // code is always the stored one; a collision re-mints the next free code and tries again.
         if (!signedInNow) {
           setPaperNote({ worksheetId: paperId, code: nomen.code, name: nomen.name, status: "signedout" });
+          trackOnboardingEvent("worksheet_save_failed", { reason: "signed_out" });
         } else {
           const taken = new Set<string>();
           let outcome: WorksheetDownloadSave = await recordWorksheetDownload(liveUser, paperNow, nomen).catch(() => "failed" as const);
@@ -918,13 +919,17 @@ function WorksheetGeneratorInner() {
             outcome = await recordWorksheetDownload(liveUser, paperNow, held.n!).catch(() => "failed" as const);
           }
           if (outcome === "collision") {
+            trackOnboardingEvent("worksheet_save_failed", { reason: "code_collision" });
             setDownloadError(CODE_CHECK_FAILED_LINE);
             return;
           }
           setHistoryNonce((n) => n + 1);
           const done = held.n!;
           if (outcome === "saved") setPaperNote({ worksheetId: paperId, code: done.code, name: done.name, status: "saved" });
-          else if (outcome === "failed") setPaperNote({ worksheetId: paperId, code: done.code, name: done.name, status: "failed" });
+          else if (outcome === "failed") {
+            setPaperNote({ worksheetId: paperId, code: done.code, name: done.name, status: "failed" });
+            trackOnboardingEvent("worksheet_save_failed", { reason: "write_failed" });
+          }
           // "kept" (this same paper is already graded) and "skipped" change nothing.
         }
       }

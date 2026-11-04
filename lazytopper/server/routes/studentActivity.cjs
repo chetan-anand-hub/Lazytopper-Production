@@ -120,6 +120,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'tutor_from_scorecard',
   // TUTOR-FIX-2 T13 - once per tutor thread. Additive only.
   'tutor_first_message',
+  // SMALL-FIXES-1 - a worksheet's save-for-later failed (reason class only, no code/id). Additive only.
+  'worksheet_save_failed',
   // TRIAL-END-1 - the trial-ending Home banner (shown / an action tapped). Additive only.
   'trial_banner_shown',
   'trial_banner_click',

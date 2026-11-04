@@ -291,6 +291,20 @@ function modelStatedAnswerCorrect(v) {
   return null;
 }
 
+// SMALL-FIXES-1 · counter `grading.objective_no_verdict.<source>` (closed set, no PII), read by the
+// admin telemetry endpoint: printed | derived (detect's key) | bank (any other key) | none.
+function noVerdictSourceOf(q, answerKey) {
+  if (!answerKey) return 'none';
+  if (q && q.answerSource === 'derived') return 'derived';
+  if (q && q.answerSource === 'printed') return 'printed';
+  return 'bank';
+}
+function recordNoVerdict(q, answerKey) {
+  try {
+    require('../telemetry.cjs').increment('grading.objective_no_verdict.' + noVerdictSourceOf(q, answerKey), 1);
+  } catch { /* telemetry never changes a grade */ }
+}
+
 // clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorrect)
 //   -> { marksAwarded, correct, resolved }
 // THE deterministic post-model clamp (defense-in-depth; independent of the prompt).
@@ -345,6 +359,9 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
   // key d scored three right answers 0 and one wrong answer 1.
   const keyIsDerived = Boolean(q.answer != null && String(q.answer).trim()) && q.answerSource === 'derived';
   let derivedKeyDisagreed = false;
+  // SMALL-FIXES-1 · observability only (no mark, no branch below reads it): how often the grader
+  // states NO final-answer verdict on an objective question, by where the key came from.
+  if (stated === null) recordNoVerdict(q, answerKey);
 
   // 0. A hedge ("(a) or (c)") is a resolved WRONG answer: 0, never the first letter's mark.
   if (hedge) {

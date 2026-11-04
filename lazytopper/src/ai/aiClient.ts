@@ -723,6 +723,9 @@ export interface CheckSolutionResponse extends GradeV2Fields {
   annotatedSteps: CheckSolutionAnnotatedStep[];
   mistakeSummary: CheckSolutionMistakeSummary;
   teacherNote: string;
+  /** MCQ-KEY-TRUST-1 — admin observability only, present only when true: a derived key disagreed
+   *  with the grader's stated verdict (which decided the mark). Never rendered. */
+  derivedKeyDisagreed?: boolean;
   /** The grader's objective verdict for this question (additive echo of
    *  `bankObjective || flaggedObjective`). When true, the clamp intentionally zeroed
    *  every per-step mark — the whole mark lives at answer level (PR-348) — so a step's
@@ -775,6 +778,8 @@ export async function checkSolutionImage(req: {
   section?: string;
   format?: string;
   answer?: string;
+  /** MCQ-KEY-TRUST-1 — Answer Checker only (the server drops it on any other surface). */
+  answerSource?: "printed" | "derived";
   options?: string[];
   objective?: boolean;
 }, opts?: PaidCallOptions): Promise<CheckSolutionResponse> {
@@ -808,6 +813,10 @@ export interface DetectedQuestion {
    *  not be determined (never a guess). SCORECARD-MI-1 PR-2 (B9) forwards it to the grade call
    *  as the answer key, so the MCQ is scored on the option alone. */
   answer?: string | null;
+  /** MCQ-KEY-TRUST-1 — where `answer` came from: "printed" in the document, or "derived" (worked
+   *  out by the detect step). Present only on a read that sent `keySource: true` (paid Answer
+   *  Checker); absent = treat the key as "derived". */
+  answerSource?: "printed" | "derived" | null;
 }
 
 export interface DetectQuestionResponse {
@@ -864,6 +873,9 @@ export interface WorksheetGradeQuestionInput {
    *  grader scores the MCQ deterministically (0 or full) instead of relying on model
    *  judgment. Absent for subjective questions. */
   answer?: string;
+  /** MCQ-KEY-TRUST-1 — Answer Checker only: "derived" = a key the detect step worked out. The
+   *  server drops it unless the request carries the check-improve surface. */
+  answerSource?: "printed" | "derived";
   /** The MCQ option list, so the grader can bridge a letter pick ("(b)") to the
    *  option text `answer` compares against. */
   options?: string[];
@@ -933,6 +945,8 @@ export interface WorksheetQuestionGrade extends GradeV2Fields {
   annotatedSteps?: CheckSolutionAnnotatedStep[];
   mistakeSummary?: CheckSolutionMistakeSummary;
   teacherNote?: string;
+  /** MCQ-KEY-TRUST-1 — admin observability only, present only when true (see CheckSolutionResponse). */
+  derivedKeyDisagreed?: boolean;
   /** The grader's objective verdict (additive echo — same field the single-question
    *  CheckSolutionResponse carries). True → per-step marks were zeroed by design; the
    *  worksheet / C&I views suppress the misleading per-step chip. Flows through the
