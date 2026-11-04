@@ -204,7 +204,7 @@ describe("PendingPapersStrip — one compact row", () => {
     const links = screen.getAllByTestId("pending-paper-upload").map((a) => a.getAttribute("href"));
     expect(links).toEqual([
       "/chapter-test/10/Maths/trigonometry?review=CT-M-TRI-03&source=home&returnTo=%2F",
-      "/full-mock/10/Science?source=home&returnTo=%2F",
+      "/full-mock/10/Science?upload=FM-S-02&source=home&returnTo=%2F",
     ]);
   });
 
