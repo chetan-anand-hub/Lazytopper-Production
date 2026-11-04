@@ -440,7 +440,12 @@
   /* "Forward link to parents" + "Share QR code" (the shared paywall actions, restyled for this card). */
   .lt-pp-parents .lt-paywall-actions {
     display: flex;
+    /* PARENT-PACKS-1 (owner screenshot 4 Nov): ROW, said here. The shared actions' own stylesheet (parentShare.css, a lazy chunk)
+       makes the wrapper a COLUMN; in a column the buttons' flex-basis (180px / 140px below) became their HEIGHT - the huge
+       "Forward link to parents" box. */
+    flex-direction: row;
     flex-wrap: wrap;
+    align-items: stretch;
     gap: 8px;
   }
 
@@ -468,6 +473,12 @@
     line-height: 1.4;
     color: var(--lt-ink-body);
     text-decoration: none;
+  }
+
+  /* PARENT-PACKS-1 (owner screenshot 4 Nov): the page's link colour (green) also hit the green "Start practising" link,
+     painting its text green on green - a button with no visible text. A primary CTA link keeps light text. */
+  .lt-pricing-page a.lt-pricing-cta--primary {
+    color: var(--lt-on-dark);
   }
 
   .lt-pricing-page a.lt-pp-paper {
