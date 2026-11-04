@@ -1300,3 +1300,10 @@ test('WHO-2 · a payment ALREADY recorded on the account is a replay, never labe
   await claim(srv, whoAuth('uK', { phone: OTHER_PHONE }));
   assert.equal(srv.db.read(`payOrders/${second.orderId}`).status, 'duplicate_purchase');
 });
+
+test('HOTFIX: the no-account coverage id is a legal Firestore document id (not reserved __.*__)', () => {
+  const { NO_ACCOUNT_COVERAGE_ID: id } = require('./guestPay.cjs');
+  assert.ok(typeof id === 'string' && id.length > 0 && id.length <= 1500);
+  assert.ok(!/^__.*__$/.test(id), `reserved id: ${id}`);
+  assert.ok(!id.includes('/') && id !== '.' && id !== '..');
+});

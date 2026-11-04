@@ -115,7 +115,9 @@ const ERASED_UID = 'erased';
  * does the same reads as an order for an existing account (timing must not reveal whether an account exists). Never a real
  * Firebase uid (those are 28 chars of [A-Za-z0-9]); nothing is ever written under it.
  */
-const NO_ACCOUNT_COVERAGE_ID = '__checkout_who_no_account__';
+// HOTFIX 4 Nov: Firestore REJECTS document ids matching __.*__ ("reserved") - the old '__checkout_who_no_account__' made
+// every order for a recipient with NO account fail (500). Plain id; a real Firebase uid never contains '-no-account'.
+const NO_ACCOUNT_COVERAGE_ID = 'checkout-who-no-account';
 
 function isGuestPayEnabled(env = process.env) {
   return isPaymentsEnabled(env) && isGuestPayFlagOn(env);
