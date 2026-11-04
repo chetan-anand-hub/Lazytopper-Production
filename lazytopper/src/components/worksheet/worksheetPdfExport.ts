@@ -177,6 +177,10 @@ interface CoreOptions extends WorksheetPdfOptions {
   edition?: string;
   /** Right-hand text of the running header drawn on every page after the first body page. */
   runningHeader?: string;
+  /** GRADE-ROUTE-2 - the paper's own code (WS-/CT-/FM-): written into the PDF's Title/Subject/Keywords. */
+  paperCode?: string;
+  /** GRADE-ROUTE-2 - print a small QR of `paperCode` (code only) in every page footer. Questions sheets only. */
+  paperQr?: boolean;
 }
 
 const BRAND_WORDMARK_SRC = BRAND_MARK_SRC.replace(/[^/]+$/, "lazytopper-wordmark.png");
@@ -347,7 +351,44 @@ function drawSampleChrome(pdf: Doc, innerW: number, line: ReturnType<typeof rend
   }
 }
 
-function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null): void {
+/** GRADE-ROUTE-2 - the QR's dark modules for `code` (the code ONLY, nothing personal), or null if it cannot be built. */
+export async function buildPaperQrMatrix(code: string): Promise<boolean[][] | null> {
+  try {
+    const QR = await import("qrcode");
+    const q = QR.create(String(code), { errorCorrectionLevel: "M" });
+    const n = q.modules.size;
+    const rows: boolean[][] = [];
+    for (let r = 0; r < n; r += 1) {
+      const row: boolean[] = [];
+      for (let c = 0; c < n; c += 1) row.push(q.modules.get(r, c) === 1);
+      rows.push(row);
+    }
+    return rows;
+  } catch {
+    return null; // honest: the PDF is still produced, just without the QR
+  }
+}
+
+/** Footer QR: 11.5 mm square incl. a 2-module quiet zone (about 0.46 mm per module for a v1 code), left of the footer,
+ *  between "Page N of M" and the right-hand trust line, below the footer rule and above the page edge. */
+export const PAPER_QR_MM = 11.5;
+const PAPER_QR_QUIET = 2;
+function drawPaperQr(pdf: Doc, rows: boolean[][]): void {
+  const n = rows.length;
+  const mod = PAPER_QR_MM / (n + PAPER_QR_QUIET * 2);
+  const x0 = MARGIN_X + 30;
+  const y0 = PAGE_H - 16;
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(x0, y0, PAPER_QR_MM, PAPER_QR_MM, "F");
+  pdf.setFillColor(0, 0, 0);
+  for (let r = 0; r < n; r += 1) {
+    for (let c = 0; c < n; c += 1) {
+      if (rows[r][c]) pdf.rect(x0 + (c + PAPER_QR_QUIET) * mod, y0 + (r + PAPER_QR_QUIET) * mod, mod, mod, "F");
+    }
+  }
+}
+
+function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null, qr: boolean[][] | null = null): void {
   const innerW = PAGE_W - MARGIN_X * 2;
   const g = pageGeometry(opts);
   if (g.bar) {
@@ -400,6 +441,7 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
     drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, PAGE_H - 10);
+    if (qr) drawPaperQr(pdf, qr);
   }
 }
 
@@ -487,6 +529,13 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     // PACK-SAMPLE-1: the sample's pack + price travel in the PDF's Subject field (the price line itself is an image).
     if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
+    // GRADE-ROUTE-2 - the paper's code travels in the file itself (Title/Subject/Keywords), so a renamed file still
+    // names its paper; the Answer Checker reads it back in the browser. Code only, nothing personal.
+    if (opts.paperCode && !opts.sample && typeof pdf.setProperties === "function") {
+      const code = latin1(opts.paperCode);
+      pdf.setProperties({ title: latin1(`${code} - ${opts.runningHeader ?? "LazyTopper paper"}`), subject: code, keywords: code, author: "LazyTopper" });
+    }
+    const qrRows = opts.paperQr && opts.paperCode && !opts.sample && !opts.licensee ? await buildPaperQrMatrix(opts.paperCode) : null;
     const imgW = PAGE_W - MARGIN_X * 2;
     const geom = pageGeometry(opts);
     const usableH = PAGE_H - geom.top - geom.footerH;
@@ -522,7 +571,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       }
       if (page > 0 || coverJpeg) pdf.addPage();
       pdf.addImage(slice.toDataURL("image/jpeg", opts.sample ? 0.78 : 0.95), "JPEG", MARGIN_X, geom.top, imgW, hPx / pxPerMm);
-      drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand);
+      drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand, qrRows);
     }
 
     pdf.save(filename);
@@ -561,7 +610,14 @@ export async function exportWorksheetPdf(
   return renderElementToPdf(
     createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee }),
     filename,
-    { ...opts, edition: editionOf(ws.createdAt), runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}` },
+    {
+      ...opts,
+      edition: editionOf(ws.createdAt),
+      runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}`,
+      // GRADE-ROUTE-2: every newly generated Worksheet / Chapter Test / Full Mock PDF names its paper in its metadata;
+      // the questions sheet (the one that is written on and uploaded) also carries a small QR. Packs/samples: untouched.
+      ...(code && !opts?.licensee && !opts?.sample ? { paperCode: code, paperQr: kind === "questions" } : {}),
+    },
   );
 }
 
