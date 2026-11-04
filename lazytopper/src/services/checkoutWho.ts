@@ -69,12 +69,12 @@ export function alreadyCoveredLine(_kind: GuestItem["kind"]): string {
 /* ── PAY-ACCOUNT-1: the thank-you screen (the account is made at payment) ─────────── */
 
 /**
- * Review MED 4: the thank-you line claims nothing the browser cannot know (created, existing or still waiting - the same
- * words): only where the purchase goes. `masked` is the FIRST-entered identifier, masked.
+ * Review MED 4 + re-review A/B: the thank-you line claims nothing the browser cannot know. It does not name an identifier:
+ * the purchase may land on the account of the SECOND identifier (the first has none), and the verify answer is identical
+ * either way on purpose (no enumeration), so the browser cannot tell which. "It's for me" therefore stays on the
+ * first-entered identifier (accepted by review).
  */
-export function accountForLine(masked: string): string {
-  return `It goes onto the account for ${masked}.`;
-}
+export const ACCOUNT_LINE = "It goes onto the student's LazyTopper account.";
 export const OPEN_FOR_ME = "It's for me \u2014 open it now";
 export const SEND_TO_CHILD = "Send it to my child";
 export const SEND_ME_LINK = "Send me the sign-in link";
