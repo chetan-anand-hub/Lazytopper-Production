@@ -1,5 +1,5 @@
 import type React from "react";
-import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
+import { Routes, Route, Link, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
 import Login from "./pages/Login";
 import { isSafeInternalPath } from "./utils/safeInternalPath";
 import SignUpPage from "./pages/SignUpPage";
@@ -25,6 +25,8 @@ import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/
 import { useIsDesktop } from "./hooks/useIsDesktop";
 import { DesktopShell } from "./components/desktop/DesktopShell";
 import MobileShell from "./components/mobile/MobileShell";
+// NAV-1 — "← <parent>" + Home on every non-Home page (one route→parent map in lib/nav/routeParents.ts).
+import RouteNavBar from "./components/nav/RouteNavBar";
 
 // Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
 const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
@@ -891,10 +893,11 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           (≥1024px). DesktopShell provides its own top utility/search bar. */}
       {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && !mobileSelfChromed && !isBareFullScreen && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {/* NAV-1 — the logo also goes Home (a bonus: the RouteNavBar below is the visible way). */}
+        <Link to="/" aria-label="LazyTopper Home" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
           <img src={BRAND_MARK_SRC} width={32} height={32} alt="" aria-hidden="true" style={{ borderRadius: 10, display: "block" }} />
           <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text)", fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif" }}>LazyTopper</span>
-        </div>
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {user && isTrialActive && (
             <div
@@ -1393,11 +1396,12 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
         if (shouldUseDesktopShell) {
           return (
             <DesktopShell onOpenSearch={() => setPaletteOpen(true)}>
+              <RouteNavBar />
               {routesEl}
             </DesktopShell>
           );
         }
-        return <div style={{ paddingBottom: '60px' }}>{routesEl}</div>;
+        return <div style={{ paddingBottom: '60px' }}><RouteNavBar />{routesEl}</div>;
       })()}
       </ErrorBoundary>
       <BottomNav />

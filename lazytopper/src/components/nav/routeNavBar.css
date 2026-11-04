@@ -1,0 +1,56 @@
+/*
+ * NAV-1 - the "← <parent>" / "Home" row at the top of every non-Home page (components/nav/RouteNavBar).
+ * Calm cockpit grammar: soft-white pills, navy text, green focus ring. Scoped class names only: this file is global.
+ */
+.lt-routenav {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 16px 4px;
+}
+.lt-routenav .lt-routenav__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.lt-routenav .lt-routenav__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 14px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1px solid var(--mob-card-border, rgba(26, 58, 92, 0.14));
+  background: var(--mob-card, #ffffff);
+  color: var(--mob-primary, #1a3a5c);
+  font-family: var(--font-body, Inter, system-ui, sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.lt-routenav .lt-routenav__btn:hover {
+  border-color: hsla(152, 55%, 45%, 0.55);
+}
+.lt-routenav .lt-routenav__btn:focus-visible {
+  outline: 2px solid var(--mob-accent-hover, #16a34a);
+  outline-offset: 2px;
+}
+.lt-routenav .lt-routenav__arrow {
+  font-size: 16px;
+}
+.lt-routenav .lt-routenav__icon {
+  display: block;
+  flex: none;
+}
+@media (min-width: 1024px) {
+  .lt-routenav {
+    padding: 12px 24px 4px;
+  }
+}
