@@ -13,6 +13,8 @@ import { boardPassOffer } from "../../components/pricing/boardPassOffer";
 import { isTrialEligible, useOptionalUid } from "../../components/pricing/trialCta";
 import { useSubscription } from "../../hooks/useSubscription";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
+import { cbqTutorBonusUsedLine, getCbqTutorBonus } from "../../ai/cbqTutorBonus";
+import PackOwnerSlot from "../../components/packOwner/PackOwnerSlot";
 
 /**
  * ASK-COPY-1 - the tutor's 402 card, owner-approved wording (25 Oct 2026, FU-TUTOR-PREMIUM-CARD-COPY).
@@ -28,14 +30,31 @@ function PremiumCard({ selfHref, onRetry }: { selfHref: string; onRetry: () => v
   const [sheetOpen, setSheetOpen] = useState(false);
   const price = boardPassOffer(new Date(), predictCbseExamDate("10")).priceDisplay;
   const eligible = Boolean(uid) && isTrialEligible(hydrated, status);
+  const cbqUsedLine = uid ? cbqTutorBonusUsedLine(getCbqTutorBonus(uid)) : null;
   return (
     <div className="lt-tutor__upgrade" role="status" data-testid="tutor-error-premium">
-      <p className="lt-tutor__upgrade-h">Want to know why you lost this mark?</p>
-      <p className="lt-tutor__upgrade-p">
-        {`The tutor walks you through this exact question, step by step. It comes with the Board Pass: ${
-          price ? `${price} once, ` : ""
-        }till your boards.`}
-      </p>
+      {/* PACK-OWNER-GATES-1 - a CBQ Pack owner whose bonus questions are spent (the server's count, 0) is told so first; a pack owner
+          then reads the pack-owner line in place of the card's words. Unknown / none: today's words. The buttons are unchanged. */}
+      {cbqUsedLine ? (
+        <p className="lt-packowner__pre" data-testid="cbq-bonus-used">
+          {cbqUsedLine}
+        </p>
+      ) : null}
+      <PackOwnerSlot
+        enabled={Boolean(uid) && hydrated && status.tier === "free"}
+        uid={uid}
+        tone="inherit"
+        fallback={
+          <>
+            <p className="lt-tutor__upgrade-h">Want to know why you lost this mark?</p>
+            <p className="lt-tutor__upgrade-p">
+              {`The tutor walks you through this exact question, step by step. It comes with the Board Pass: ${
+                price ? `${price} once, ` : ""
+              }till your boards.`}
+            </p>
+          </>
+        }
+      />
       {eligible && <TrialStartButton uid={uid} returnTo={selfHref} className="lt-tutor__action" onStarted={onRetry} />}
       <button type="button" className="lt-tutor__action" data-testid="tutor-see-board-pass" onClick={() => setSheetOpen(true)}>
         See the Board Pass

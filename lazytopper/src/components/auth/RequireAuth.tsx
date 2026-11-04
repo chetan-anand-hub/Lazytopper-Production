@@ -9,6 +9,8 @@ import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
 import BoardPassLine from "../pricing/BoardPassLine";
 import { isSafeInternalPath } from "../../utils/safeInternalPath";
 import { CBQ_GATE_WAIT_MS, useCbqTutorAllowance } from "../../hooks/useCbqTutorAllowance";
+import { cbqTutorBonusUsedLine, getCbqTutorBonus } from "../../ai/cbqTutorBonus";
+import PackOwnerSlot from "../packOwner/PackOwnerSlot";
 
 /** CBQ-TUTOR-GATE-1 - the one gate label (set in App.tsx) that a CBQ Pack owner's bonus questions may open. */
 export const TUTOR_GATE_LABEL = "Ask the tutor";
@@ -110,31 +112,52 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
     // NOT — otherwise they restart the 7-day trial forever, so they get the plans path only.
     const neverTrialled = !isTrialExpired;
     // PAYWALL-PAY-1 — "Pay" goes where the old plans path went: /pricing's Pay buttons.
+    // PACK-OWNER-GATES-1 - only the tutor gate, only the server's own count (seeded by useCbqTutorAllowance).
+    const cbqUsedLine = featureLabel === TUTOR_GATE_LABEL ? cbqTutorBonusUsedLine(getCbqTutorBonus(user.uid)) : null;
     const lockPayTo = `/pricing?source=lock&returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
         <div style={{ fontSize: "3rem", marginBottom: 12 }}>🔒</div>
-        <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
-          Premium Feature
-        </h2>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
-          {/* START-HERE-1 (spec 2.5) — the lock is the conversion moment for a student who tapped
-              "Ask the tutor" on a scorecard whose free week has ended. Copy only: the gate above
-              is unchanged. */}
-          {!neverTrialled && new URLSearchParams(location.search).get("source") === "scorecard"
-            ? // FOLLOWUPS-1 A3 — copy only. `passEnd` is server-written (rules refuse client
-              // writes) and set only for a PAID pass, so a non-premium status that carries one
-              // held a pass that has lapsed; without it the lapsed entitlement was the trial.
-              status.passEnd
-              ? SCORECARD_LOCK_COPY_PAID
-              : SCORECARD_LOCK_COPY
-            : <>{featureLabel || "This feature"} is part of Premium.</>}
-          {neverTrialled ? (
+        {/* PACK-OWNER-GATES-1 - CBQ-TUTOR-GATE-1's owner whose 3 bonus questions are spent (server count 0) is told so first. */}
+        {cbqUsedLine ? (
+          <p className="lt-packowner__pre" data-testid="cbq-bonus-used">
+            {cbqUsedLine}
+          </p>
+        ) : null}
+        {/* PACK-OWNER-GATES-1 - a student who bought a PDF pack is spoken to as a customer; the buttons below are unchanged. Packs
+            unknown (loading / failed) or none: today's title and message, unchanged. */}
+        <PackOwnerSlot
+          enabled={hydrated}
+          uid={user.uid}
+          heading="h2"
+          center
+          tone="inherit"
+          fallback={
             <>
-              <br />Try Premium free for 7 days.
+              <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
+                Premium Feature
+              </h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
+                {/* START-HERE-1 (spec 2.5) — the lock is the conversion moment for a student who tapped
+                    "Ask the tutor" on a scorecard whose free week has ended. Copy only: the gate above
+                    is unchanged. */}
+                {!neverTrialled && new URLSearchParams(location.search).get("source") === "scorecard"
+                  ? // FOLLOWUPS-1 A3 — copy only. `passEnd` is server-written (rules refuse client
+                    // writes) and set only for a PAID pass, so a non-premium status that carries one
+                    // held a pass that has lapsed; without it the lapsed entitlement was the trial.
+                    status.passEnd
+                    ? SCORECARD_LOCK_COPY_PAID
+                    : SCORECARD_LOCK_COPY
+                  : <>{featureLabel || "This feature"} is part of Premium.</>}
+                {neverTrialled ? (
+                  <>
+                    <br />Try Premium free for 7 days.
+                  </>
+                ) : null}
+              </p>
             </>
-          ) : null}
-        </p>
+          }
+        />
         {/* TRIAL-ON-SIGNUP-1 · T4 — under the lock's message: what stays free on Basic,
             from the one list Pricing renders. */}
         <BasicFreeList />

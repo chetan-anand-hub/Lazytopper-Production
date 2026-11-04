@@ -14,6 +14,8 @@ import PaywallActions from "../pricing/PaywallActions";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { PacksEntry, isPacksEntryEnabled } from "../../lib/packs/packEntryLazy";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
+import PackOwnerSlot from "../packOwner/PackOwnerSlot";
+import { useOptionalUid } from "../pricing/trialCta";
 import { WallCoverContext } from "../../lib/packs/wallCover";
 import type { DownloadCover } from "../../services/limitsClient";
 import type { DownloadKind } from "../../analytics/analytics";
@@ -65,6 +67,7 @@ export interface DownloadLimitWallProps {
 export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, chapter = null, cover, kind = null, hint = null, onClose }: DownloadLimitWallProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const uid = useOptionalUid();
   const ref = useRef<HTMLDivElement>(null);
   const copy =
     variant === "blocked"
@@ -148,6 +151,9 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
         <div className="lt-limit-grip" aria-hidden="true" />
         <h2 className="lt-limit-title">{copy.title}</h2>
         <p className="lt-limit-body">{copy.body}</p>
+        {/* PACK-OWNER-GATES-1 - a Basic student (the server's tier, never trial) who bought a PDF pack is spoken to as a customer, under
+            the limit's own facts. Packs unknown or none: nothing is added. The actions below are unchanged. */}
+        <PackOwnerSlot enabled={variant === "blocked" && tier !== "trial" && tier !== "premium"} uid={uid} />
         {offer && (
           <div className="lt-limit-offer" data-testid="wall-offer">
             {/* PRICE-FIXED-1 (31 Oct 2026): the Board Pass is the only plan named; the month price is hidden. */}

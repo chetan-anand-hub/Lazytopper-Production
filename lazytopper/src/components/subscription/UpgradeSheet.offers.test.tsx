@@ -192,8 +192,12 @@ describe("events and honest copy", () => {
   it("surface is wall-<kind>; the card is rank 1 and the rows follow", async () => {
     wall(MOCK);
     await screen.findByTestId("offers-packs");
-    expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "board_pass", rank: 1 });
-    expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "pack_mock", rank: 4 });
+    // PACK-OWNER-GATES-1: the rows' "shown" fires in a passive effect after the rows paint; under CI load (the sheet now also loads the
+    // pack-owner chunk) that effect can land a tick after findByTestId resolves, so wait for it rather than racing it.
+    await waitFor(() => {
+      expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "board_pass", rank: 1 });
+      expect(S.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "wall-full-mock", offer: "pack_mock", rank: 4 });
+    });
     fireEvent.click(screen.getByTestId("offers-pay"));
     expect(S.track).toHaveBeenLastCalledWith("sale_moment_tap", { surface: "wall-full-mock", offer: "board_pass", rank: 1 });
   });
