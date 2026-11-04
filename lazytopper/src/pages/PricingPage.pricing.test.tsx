@@ -412,7 +412,16 @@ describe("PRICING-B-1 — one product name, honest copy", () => {
     const line = inner.querySelector('[data-testid="pricing-basic-line"]');
     expect(flat(line)).toBe("Basic: free forever, with notes, NCERT solutions and practice setsStart free");
     expect(line?.querySelector("button")?.textContent).toBe("Start free");
-    expect(flat(line)).not.toMatch(/limited/i);
+    expect(flat(line)).not.toMatch(/limited/i); // limits off: nothing is capped, so no "limited"
+  });
+
+  it("BASIC-LINE-1 — limits on: the line says limited practice with the real Basic caps (the compare table's figures)", () => {
+    vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+    const { inner } = renderPricing();
+    const line = inner.querySelector('[data-testid="pricing-basic-line"]');
+    expect(flat(line)).toBe(
+      "Basic: free forever, with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)Start free",
+    );
   });
 });
 

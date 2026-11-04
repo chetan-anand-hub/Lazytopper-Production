@@ -26,6 +26,9 @@ import {
   compareSections,
 } from "./pricingCompare";
 import { PRICE_FREE_DISPLAY } from "./pricing";
+import { LIMITS_CONFIG } from "./limitsConfig";
+import { basicDownloadCell, basicQuickPracticeCell } from "./limitsPlanCopy";
+import { basicLineRest } from "../components/pricing/pricingPlansCopy";
 
 describe("L4 · the Basic card", () => {
   it("'Basic includes:' then the six rows, in order", () => {
@@ -196,6 +199,27 @@ describe("Owner ruling — 'Limited' on Basic only when backed by a constant", (
       "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with the ${BOARD_PASS_NAME}.",
     );
     expect(unbackedLimited([desc, ...answers], PAGE_SOURCE + COPY_SOURCE + COMPARE_SOURCE)).toEqual([]);
+  });
+
+  it("BASIC-LINE-1 — with the limits on, the last line says 'limited practice' and the guard accepts it only via its constants", () => {
+    // The template lives in pricingPlansCopy.ts (COPY_SOURCE, scanned); render it exactly as the page does.
+    const m = /export const BASIC_LINE_REST_LIMITED = `([^`]*)`/.exec(COPY_SOURCE);
+    expect(m, "BASIC_LINE_REST_LIMITED template not found").not.toBeNull();
+    expect(m![1]).toMatch(/\$\{[A-Z][A-Z0-9_]*\}/);
+    expect(basicLineRest(true).replace(/^,\s*/, "")).toBe(
+      "with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)",
+    );
+    // The figures are the very ones the compare table's Basic cells show.
+    expect(basicQuickPracticeCell()).toMatch(/^1 a day/);
+    expect(basicDownloadCell()).toMatch(/^1 a week/);
+    expect(LIMITS_CONFIG.basic.quickPracticeGradedPerDay).toBe(1); // "1 graded set a day" is singular: a change here needs a copy review
+    expect(LIMITS_CONFIG.basic.downloadsPerWeek).toBe(1);
+    expect(unbackedLimited([basicLineRest(true)], COPY_SOURCE)).toEqual([]); // the template as rendered, leading comma included
+    // CONTROL — the same words with the digits typed (not interpolated) are caught.
+    const typed = "const R = `, with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)`;";
+    expect(unbackedLimited(["with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)"], typed)).toHaveLength(1);
+    // Limits off: nothing is capped, so no "limited".
+    expect(basicLineRest(false)).not.toMatch(/limited/i);
   });
 
   it("CONTROL — the guard catches the OLD wording of both strings", () => {

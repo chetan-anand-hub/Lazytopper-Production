@@ -22,6 +22,8 @@ import {
   PREBOARDS_PICK_BADGE,
   REDOWNLOAD_UNTIL,
 } from "../../lib/packs/packLabels";
+import { LIMITS_CONFIG } from "../../config/limitsConfig";
+import { limitsCopyOn } from "../../config/limitsPlanCopy";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
 
 export { BOARD_PASS_NAME };
@@ -198,11 +200,19 @@ export function payForChildAnswer(checkoutWho: boolean): string {
 
 export const BASIC_LINE_STRONG = "Basic: free forever";
 /**
- * The prototype read "… and limited practice". Not shipped as typed: Basic's practice sets and worksheets are NOT limited (the
- * folded table on this page ticks them for Basic, and owner ruling #1190 bans an unbacked "limited" - pricingCompare.test.ts).
- * Flagged to the owner in the PR.
+ * The last line's description. Basic DOES have limited practice (owner ruling 4 Nov 2026): it can read every question, but graded
+ * practice and downloads are capped. With the limits ON the line says so, and BOTH figures come from the same constants the compare
+ * table's Basic cells read (limitsPlanCopy: basicQuickPracticeCell / basicDownloadCell) - never typed here. That is what the #1190
+ * guard (config/pricingCompare.test.ts) demands of any "limited" on Basic: a number interpolated from a CONSTANT, in a template
+ * literal in a file the guard scans (this one). With the limits OFF nothing is capped, so the line keeps its old, unlimited wording.
  */
 export const BASIC_LINE_REST = ", with notes, NCERT solutions and practice sets";
+const BASIC_GRADED_SETS_PER_DAY = LIMITS_CONFIG.basic.quickPracticeGradedPerDay;
+const BASIC_DOWNLOADS_PER_WEEK = LIMITS_CONFIG.basic.downloadsPerWeek;
+export const BASIC_LINE_REST_LIMITED = `, with notes, NCERT solutions and limited practice (${BASIC_GRADED_SETS_PER_DAY} graded set a day, ${BASIC_DOWNLOADS_PER_WEEK} download a week)`;
+export function basicLineRest(limitsOn: boolean = limitsCopyOn()): string {
+  return limitsOn ? BASIC_LINE_REST_LIMITED : BASIC_LINE_REST;
+}
 export const START_FREE_LABEL = "Start free";
 
 /* ── Sticky bar (phones) ─────────────────────────────────────────────────── */
