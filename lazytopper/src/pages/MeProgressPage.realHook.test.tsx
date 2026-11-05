@@ -77,6 +77,12 @@ vi.mock("../components/subscription/UpgradeSheet", () => ({
 }));
 
 
+// Pass-through gate stub (entitlementGating blast-radius guard); the REAL useSubscription is what this test exercises.
+vi.mock("../components/auth/RequireAuth", () => ({
+  RequireAuth: ({ children }: { children: unknown }) => children,
+  RequirePremium: ({ children }: { children: unknown }) => children,
+}));
+
 vi.mock("../services/subscriptionService", async (importOriginal) => {
   const real = await importOriginal<typeof import("../services/subscriptionService")>();
   return {
