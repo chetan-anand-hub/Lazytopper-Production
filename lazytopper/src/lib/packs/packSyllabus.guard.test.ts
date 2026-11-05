@@ -128,6 +128,16 @@ const REVIEWED_INCIDENTAL: Readonly<Record<string, string>> = (() => {
     ["BX-HER-D-009", "LTG-S-HERED-301"],
   );
   add(
+    "KEPT by owner ruling 5 Nov 2026 (as HE2-064): CBSE-authored competency question on C4/CAM photosynthesis (Life Processes, IN); 'believed to have evolved as an adaptation to conserve water' is descriptive wording, not an Evolution question. In graded PK-S-LP-CT1 and PK-S-FULL-M2, no paper change.",
+    "lens:evolution-terms",
+    ["CFPQ-S-LIFE-012"],
+  );
+  add(
+    "Incidental wording, sub-topic IN: LPSD-021 (Life Processes, diffusion/transport: 'multicellular organisms evolve large-surface exchange organs'), PYQ-S-2025-CTRL-007 (real CBSE 2025 Control and Coordination question, 'why have reflex arcs evolved', answered by the reflex arc's speed), OESE-012 (Our Environment food web: 'introducing a new species' into a lake). Sheets only.",
+    "lens:evolution-terms",
+    ["LPSD-021", "PYQ-S-2025-CTRL-007", "OESE-012"],
+  );
+  add(
     "KEPT by owner ruling 5 Nov 2026: CBSE-authored Class 10 competency-focused question using the remainder / factor idea on a quadratic or a graph; the remainder theorem is not a deleted Class 10 item (only polynomial long division and the cubic relations are).",
     "lens:remainder-theorem",
     ["CFPQ-M-POLY-001", "CFPQ-M-POLY-002", "CFPQ-M-POLY-009", "CFPQ-M-POLY-017"],
@@ -308,6 +318,11 @@ describe("the content lenses, on synthetic twins", () => {
     ["plain x3, factorise fully", poly("x - 2 is a factor of x3 - 3x2 + 4, factorise fully.")],
     ["x^3", poly("One zero of f(x) = x^3 - 3x^2 + 4 is 2. Find the remaining zeroes.")],
     ["cubic by name, quotient in the key", poly("A cubic polynomial p(x) is divisible by (x - 1). Find its other zeroes.", ["The quotient is a quadratic."])],
+    ["'one of its zeroes ... remaining two'", poly("p(x) = 2x³ + x² - 5x + 2 has -2 as one of its zeroes. Determine the remaining two.")],
+    ["p(1) = 0, three linear factors", poly("p(x) = x³ - 6x² + 11x - 6. If p(1) = 0, express p(x) as a product of three linear factors.")],
+    ["find beta and gamma", poly("1 is a zero of 2x³ - 3x² - 3x + 2 and the other zeroes are β and γ. Find β and γ.")],
+    ["degree 4, two zeroes given", poly("Obtain all other zeroes of 3x⁴ + 6x³ - 2x² - 10x - 5, if two of its zeroes are √(5/3) and -√(5/3).")],
+    ["'x cubed minus 27', find its zeroes", poly("Consider x cubed minus 27. Find its zeroes.")],
     ["CFPQ-M-POLY-014 wording", poly("One zero of f(x) = x³ - 3x² + 4 is 2. At how many points will the graph of f(x) intersect the x-axis? Show your steps.", ["Divide by (x - 2) and compare coefficients."])],
   ])("cubic lens: catches %s", (_n, q) => {
     expect(cubicRemainingZeroes(q)).toBe(true);
@@ -325,6 +340,10 @@ describe("the content lenses, on synthetic twins", () => {
     expect(cubicRemainingZeroes(q)).toBe(false);
   });
 
+  it("the acquired-traits lens covers Lamarck's 'acquired characters'", () => {
+    expect(lensHits({ topicKey: "heredity", questionText: "Lamarck said acquired characters are inherited." })).toContain("acquired-traits");
+  });
+
   it("the cubic lens is a Polynomials lens (a cubic equation elsewhere is not a hit)", () => {
     expect(cubicRemainingZeroes({ topicKey: "quadratic-equations", questionText: "x = 2 is a root of x³ - 3x² + 4 = 0. Find the other roots." })).toBe(false);
   });
@@ -335,6 +354,11 @@ describe("the content lenses, on synthetic twins", () => {
     "Fossils show how organisms changed over time.",
     "Homologous organs show a common ancestor.",
     "Variation is the basis of evolution.",
+    "Describe how the eye evolved in stages.",
+    "Geographical isolation leading to a new species.",
+    "Lamarck said acquired characters are passed on.",
+    "Genetic drift changes gene frequency.",
+    "Where did humans originate?",
     "Darwin proposed the theory of evolution.",
     "Wings of a bird and a bat are analogous organs.",
     "The evolutionary tree of the elephant.",
@@ -350,17 +374,22 @@ describe("the content lenses, on synthetic twins", () => {
     "Gas evolution is one sign of a chemical change.",
     "Burning fossil fuels releases SO₂.",
     "Which pair are homologous series members?",
+    "The hydrogen evolved is tested with a burning splinter.",
+    "Heat is evolved in the reaction.",
+    "The gas evolved turns lime water milky.",
+    "The salt on heating evolved brown fumes.",
   ])("evolution lens: ignores %s", (t) => {
     expect(evolutionTerms(bio(t, "chemical-reactions-and-equations"))).toBe(false);
   });
 });
 
 describe("graded pack papers are pinned to their code", () => {
-  it("each graded paper (Chapter Test, Worksheet, Full Mock) keeps its question ids under its code, or gets a new -V<n> code", () => {
+  it("each graded paper (Chapter Test, Worksheet, Full Mock) keeps its questions and answers under its code, or gets a new -V<n> code", () => {
     const now: Record<string, string> = {};
     for (const { ws, code } of sinkWithCodes) {
       if (!code || ws.questions.length === 0) continue;
-      const h = `${ws.questions.length}:${hashSeed(ws.questions.map((q) => q.id).join(","))}`;
+      // id + stem + options + correct answer: an edit to any of them under an unchanged code changes the hash.
+      const h = `${ws.questions.length}:${hashSeed(ws.questions.map((q) => [q.id, q.questionText, (q.options ?? []).join("¦"), q.finalAnswer ?? "", q.answer ?? ""].join("\u0001")).join("\u0002"))}`;
       if (code in now && now[code] !== h) throw new Error(`${code} is built two different ways in one run`);
       now[code] = h;
     }
@@ -372,8 +401,8 @@ describe("graded pack papers are pinned to their code", () => {
     const changed = Object.keys(pinned).filter((c) => c in now && now[c] !== pinned[c]);
     const unpinned = Object.keys(now).filter((c) => !(c in pinned));
     const message = (list: string[]) =>
-      `Graded pack paper(s) ${list.join(", ")}: the question ids changed but the code did not. A student who downloaded the old PDF is graded against their saved copy under that code, and a re-download would overwrite it. ` +
-      `Add a -V<n> entry for each in REVISED_PACK_PAPER_CODES (packPaperCode.ts; old code -> "<old>-V2", or -V3 after a -V2), then regenerate this pin: UPDATE_PACK_PAPER_SNAPSHOT=1 npx vitest run src/lib/packs/packSyllabus.guard.test.ts`;
+      `Graded pack paper(s) ${list.join(", ")}: the question ids, stems, options or answers changed but the code did not. A student who downloaded the old PDF is graded against their saved copy under that code, and a re-download would overwrite it. ` +
+      `Add a -V<n> entry for each in REVISED_PACK_PAPER_CODES (packPaperCode.ts; old code -> "<old>-V2", or -V3 after a -V2). A key-only correction may intentionally KEEP the code: then say so in the comment above REVISED_PACK_PAPER_CODES (name the paper and why) and regenerate this pin: UPDATE_PACK_PAPER_SNAPSHOT=1 npx vitest run src/lib/packs/packSyllabus.guard.test.ts`;
     expect(changed, message(changed)).toEqual([]);
     expect(unpinned, `New graded pack paper code(s) ${unpinned.join(", ")} are not pinned yet. Regenerate the pin: UPDATE_PACK_PAPER_SNAPSHOT=1 npx vitest run src/lib/packs/packSyllabus.guard.test.ts`).toEqual([]);
     // a retired code (an old code replaced by its -V<n>) may stay pinned: students still hold papers under it
