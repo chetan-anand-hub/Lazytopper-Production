@@ -1083,11 +1083,15 @@ function rubricStatesValue(point, rightRaw) {
        the model's verdict stands (ruling B: enforce a demanded form);
      - no departure, no fudged step and no arithmetic flag in the question (a value reached through a broken
        line is not "equal by another method");
-     - the final step (the last one with the student's work) lost marks, was not zeroed, and its loss is
-       not a unit, conclusion, label, reason or language deduction, nor typed "conceptual"; when typed
-       "calculation"/"silly", its work is ONE line (so the loss can only be about that final value);
+     - the final step (the last one with the student's work) lost marks, was not zeroed, is NOT typed
+       "presentation" or "conceptual", and its annotation complains about the form, the rounding or the final
+       value (VALUE_COMPLAINT) — never about stating, rejecting, justifying or working (NOT_A_VALUE_COMPLAINT),
+       a unit, a label or the language; when typed "calculation"/"silly", its work is ONE line;
      - the step's final value AND the model's quoted studentFinalAnswer (when given) are each EQUAL to the key
-       (verify.cjs equivalentFinalValue: exact, or within the rounding of the less precise decimal and 1%).
+       (verify.cjs equivalentFinalValue: exact, or within the rounding of the less precise decimal and 1%;
+       a one-line key; the same variable), AND the student's own working on that line gives the key's value
+       (requireWorking: "900/200 = 4.5 A" is a wrong substitution, never given back for 4.54 A).
+   A presentation-typed "simplify" loss is left to the prompt rule (EQUIVALENT ANSWERS), not this guard.
    Then that step earns what it could earn, untyped, with one true comment, and the final answer counts as
    correct (the "wrong final answer" cap no longer applies). Where the final step lost NOTHING and only the
    model's "final answer wrong" verdict stands against it, that verdict is overruled only on a question
@@ -1095,7 +1099,17 @@ function rubricStatesValue(point, rightRaw) {
    in full (so that verdict alone held the mark down).
    No stored key → no guard: the Answer Checker (single and multi) sends none, so there the prompt rule
    alone decides (rulings.surfaces.suite.cjs pins which surfaces carry a key). */
-const FORM_DEMANDED = /\bsimplif(?:y|ied|ication)\b|\blowest terms?\b|\bsimplest form\b|\bcorrect(?:ed)?\s+(?:up\s*)?to\b|\bdecimal places?\b|\bsignificant (?:figures?|digits?)\b|\b\d+\s*(?:d\.\s*p|s\.\s*f)\b|\bnearest\b|\bin terms of\b|\bin the form\b|\bexpress\w*\b[^.?]*\b(?:as|in)\b|\bas an? (?:decimal|fraction|mixed (?:number|fraction)|percentage|whole number|integer)\b|\brationali[sz]/i;
+const FORM_DEMANDED = new RegExp([
+  /\bsimplif(?:y|ied|ication)\b/, /\blowest terms?\b/, /\b(?:simplest|reduced|standard|surd|fraction(?:al)?|decimal|exponential|scientific|rational(?:ised|ized)?|lowest)\s+form\b/,
+  /\bcorrect(?:ed)?\s+(?:up\s*)?to\b/, /\bup\s*to\s+(?:\w+\s+)?(?:decimal|place|significant)/, /\bround(?:ed|ing)?(?:\s+off)?\b/, /\bdecimals?\b/, /\bplaces?\s+of\s+decimals?\b/,
+  /\bsignificant\s+(?:figures?|digits?)\b/, /\b\d+\s*(?:d\.\s*p|s\.\s*f)\b/, /\bnearest\b/, /\bin terms of\b/, /\bin the form\b/,
+  /\bexpress\w*\b[^.?]*\b(?:as|in)\b/, /\bas an? (?:fraction|mixed (?:number|fraction)|percentage|whole number|integer)\b/, /\brationali[sz]/,
+].map((r) => r.source).join('|'), 'i');
+// Review round 1 (#1583, item 2): the guard gives back ONLY a loss whose complaint is about the FORM, the ROUNDING
+// or the final VALUE itself — never a presentation-typed loss (units, format, working: not this guard's business),
+// and never a complaint about stating / rejecting / justifying (a word problem's "say which root fits").
+const VALUE_COMPLAINT = /\b(?:simplif\w*|lowest terms|simplest|reduc\w*|round\w*|decimal|fraction|approximat\w*|precision|final (?:answer|value)|answer (?:is|should)|should (?:be|have been))\b|\d/i;
+const NOT_A_VALUE_COMPLAINT = /\b(?:state[sd]?|stating|reject\w*|which root|context|fits?|natural number|justif\w*|reason\w*|conclu\w*|explain\w*|working|steps?|shown?|method)\b/i;
 const EQUIVALENT_FORM_NOTE_CLAIM = /\b(?:simplif\w*|lowest terms|simplest form|round(?:ed|ing)?|decimal places?)\b|\bfinal answer\b[^.]*\b(?:incorrect|wrong|not (?:correct|right)|does not match)\b/i;
 function restoreEquivalentFinalAnswer(steps, { q, raw, zeroedBy, finalAnswerCorrect }) {
   if (!q || !String(q.finalAnswer || '').trim()) return null;
@@ -1114,12 +1128,13 @@ function restoreEquivalentFinalAnswer(steps, { q, raw, zeroedBy, finalAnswerCorr
   if (!lostHere && (steps.some((t) => t.part != null) || SUB_PART_MARKER.test(String(q.questionText || q.question || ''))
     || !steps.every((t) => t.status === 'withdrawn' || t.marksAwarded >= t._available))) return null;
   if (!['correct', 'partial', 'incorrect'].includes(s.status) || s._flagged || s._ecf) return null;
-  if (s.mistakeType === 'conceptual') return null;
+  if (s.mistakeType === 'conceptual' || s.mistakeType === 'presentation') return null;
   const why = [s.teacherAnnotation, s.correctedWorking].join(' . ');
   if (UNIT_LOSS.test(why) || /\bwrite the unit\b/i.test(why) || OTHER_FORMAT_FAULT.test(why) || LANGUAGE_LOSS.test(why) || TERMINOLOGY_LOSS.test(why)) return null;
+  if (lostHere && (!VALUE_COMPLAINT.test(String(s.teacherAnnotation || '')) || NOT_A_VALUE_COMPLAINT.test(String(s.teacherAnnotation || '')))) return null;
   if ((s.mistakeType === 'calculation' || s.mistakeType === 'silly') && /\n/.test(String(s.studentWork).trim())) return null;
   if (falseEqualities(s.studentWork, { quoted: true, source: q.textAnswer }).length) return null;
-  if (equivalentFinalValue(s.studentWork, q.finalAnswer) !== 'equivalent') return null;
+  if (equivalentFinalValue(s.studentWork, q.finalAnswer, { requireWorking: true }) !== 'equivalent') return null;
   const quoted = String((raw && raw.studentFinalAnswer) || '').trim();
   if (quoted && equivalentFinalValue(quoted, q.finalAnswer) !== 'equivalent') return null;
   if (lostHere) {

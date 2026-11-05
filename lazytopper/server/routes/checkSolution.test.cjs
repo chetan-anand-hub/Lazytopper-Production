@@ -945,6 +945,9 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // or precision is enforced) — plus pointers to them from READING FIDELITY, the word-problem partial-credit line,
 // VALUE POINTS ARE EARNED OR NOT and case law 12. Rule TEXT only.
 //   PREVIOUS f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c
+// GRADER-CREDIT-1 review round 1 (same pin, rebased onto GRADER-BALANCE-1): SEPARATE VALUES says which items it
+// covers (non-objective, incl. a 1-mark item or case-study part; never an objective item) and that answer-only
+// separable values share the final-answer mark; FINAL ANSWER's single-mark sentence names the same exception.
 const NO_UPLOADS_CONTENTS_SHA256 = 'f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c';
 
 const PINNED_REQ = () => ({

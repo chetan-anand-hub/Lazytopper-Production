@@ -590,22 +590,67 @@ function finalValueParsed(text) {
   if (value === null) return null;
   return { value, exact, decimals: exact ? Infinity : decimalsOf(rest), unit };
 }
+/** The label a line's value is assigned to ("x", "I", "AB", "R₁"), or null. */
+function valueLabelOf(text) {
+  const lines = String(text == null ? '' : text).split(/\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return null;
+  const parts = lines[lines.length - 1].split(/=|≈/);
+  if (parts.length < 2) return null;
+  const m = /^([A-Za-z][A-Za-z0-9₀-₉']{0,3})$/.exec(parts[0].trim());
+  return m ? m[1] : null;
+}
+/* Review round 1 (#1583, item 1): the WORKING before the final value must itself give the key's value, so the
+   only difference is the FORM or ROUNDING of the final number — "I = 900/200 = 4.5 A" (a wrong substitution)
+   or "1000/222 = 4.5 A" is never given back for key 4.54 A, while "1000/220 = 4.5 A" is. Every side of the
+   last line before the final value that holds a number must evaluate (unit set aside) and agree with the key:
+   exactly for an exact key, within ONE unit of the key's last decimal place for a rounded key (a scheme's
+   4·54 is 1000/220 = 4.545… truncated). A first-side label ("I", "P(E)") is passed over; no numeric side at all, or
+   one that cannot be evaluated, is 'skip'. */
+function workingGivesKey(studentText, k) {
+  const lines = String(studentText == null ? '' : studentText).split(/\n/).map((l) => l.trim()).filter(Boolean);
+  // the FIRST side may be a label ("I", "P(a 2digit no.)") when it is not plain arithmetic; it is passed over
+  const all = lines[lines.length - 1].split(/=|≈/).slice(0, -1).map((x) => x.trim());
+  const sides = all.filter((x, i) => /\d/.test(x) && !(i === 0 && /[A-Za-z]/.test(x.replace(/π|\bpi\b/gi, ''))));
+  if (!sides.length) return 'skip';
+  const tol = k.exact ? 1e-9 * Math.max(1, Math.abs(k.value)) : Math.pow(10, -k.decimals) + 1e-12;
+  for (const side of sides) {
+    const { rest } = eqUnitOf(side);
+    const t = rest.trim();
+    if (/[A-Za-z]/.test(t.replace(/π|\bpi\b/gi, ''))) return 'skip';
+    const v = evaluate(normaliseExpr(t.replace(/π|\bpi\b/gi, '(' + Math.PI + ')')));
+    if (v === null) return 'skip';
+    if (Math.abs(v - k.value) > tol) return 'different';
+  }
+  return 'equivalent';
+}
 /**
+ * @param {{ requireWorking?: boolean }} [opts] requireWorking: the student's own working on the final line must
+ *   give the key's value too (workingGivesKey) — used for the step the guard gives back.
  * @returns {'equivalent'|'different'|'skip'}
  */
-function equivalentFinalValue(studentText, keyText) {
+function equivalentFinalValue(studentText, keyText, opts = {}) {
+  // Review round 1 (item 4): a key of more than one line ("x = 4\nx = −4") is several values — never one.
+  if (String(keyText == null ? '' : keyText).split(/\n/).filter((l) => l.trim()).length !== 1) return 'skip';
   const s = finalValueParsed(studentText);
   const k = finalValueParsed(keyText);
   if (!s || !k) return 'skip';
   if (k.unit && s.unit !== k.unit) return 'skip';
   if (s.unit && k.unit && s.unit !== k.unit) return 'skip';
+  // Review round 1 (item 5): "y = 2" is not the key's "x = 2" — where both name the variable, it must be the same one.
+  const sl = valueLabelOf(studentText);
+  const kl = valueLabelOf(keyText);
+  if (sl && kl && sl !== kl) return 'skip';
   const diff = Math.abs(s.value - k.value);
-  if (diff <= 1e-9 * Math.max(1, Math.abs(k.value))) return 'equivalent';
-  if (s.exact && k.exact) return 'different';
-  const d = Math.min(s.decimals, k.decimals);
-  const tol = 0.5 * Math.pow(10, -d) + 1e-12;
-  if (diff <= tol && diff <= 0.01 * Math.abs(k.value)) return 'equivalent';
-  return 'different';
+  let verdict;
+  if (diff <= 1e-9 * Math.max(1, Math.abs(k.value))) verdict = 'equivalent';
+  else if (s.exact && k.exact) verdict = 'different';
+  else {
+    const d = Math.min(s.decimals, k.decimals);
+    const tol = 0.5 * Math.pow(10, -d) + 1e-12;
+    verdict = diff <= tol && diff <= 0.01 * Math.abs(k.value) ? 'equivalent' : 'different';
+  }
+  if (verdict !== 'equivalent' || !opts.requireWorking) return verdict;
+  return workingGivesKey(studentText, k);
 }
 
 module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn, fudgedFactorisation, parseQuadratic, parseFactorised, equivalentFinalValue };

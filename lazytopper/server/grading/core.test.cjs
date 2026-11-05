@@ -3472,11 +3472,68 @@ test('§GC1.3 the guard gives back an equal final answer — and only that (neve
 
 test('§GC1.4 the "final answer wrong" verdict alone is overruled only on a question WITHOUT parts', () => {
   const steps = [{ description: 'a', studentWork: 'x = 1', status: 'correct', _available: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', part: null },
-    { description: 'b', studentWork: 'P = 45/48', status: 'correct', _available: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', part: null }];
+    { description: 'b', studentWork: 'P = 90/96 = 45/48', status: 'correct', _available: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', part: null }];
   const args = { q: { finalAnswer: '15/16', questionText: 'Find P.' }, raw: {}, zeroedBy: new Map(), finalAnswerCorrect: false };
   assert.deepEqual(restoreEquivalentFinalAnswer(JSON.parse(JSON.stringify(steps)), args), { index: 1, stepRestored: false });
   const parts = steps.map((s, i) => ({ ...s, part: i ? '(ii)' : '(i)' }));
   assert.equal(restoreEquivalentFinalAnswer(parts, args), null);
   assert.equal(nqr({ qNumber: 1, marks: 2, questionText: 'Find P.', finalAnswer: '15/16' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: steps.map((s) => ({ ...s, marksAvailable: 1 })) }, { acceptsV2: true }).marksAwarded, 2,
     'on trunk the model\'s verdict alone capped this at 1.5');
+});
+
+/* ── GRADER-CREDIT-1 review round 1 (#1583, coordinator 5 Nov): the reviewer's adversarial set ─────────── */
+test('§GC1.5 ★ BLOCKING 1+2 — a wrong substitution, a rejected-root ½ and a presentation loss are NEVER given back; the right forms still are', () => {
+  const run = (studentWork, last = {}, q = {}) => nqr(gcQ(q), gcRaw({ studentWork, ...last }), { acceptsV2: true }).marksAwarded;
+  // (1) the working must give the key's value — only the final number's FORM / ROUNDING may differ
+  assert.equal(run('I = 900/200 = 4.5 A', { mistakeType: 'silly', teacherAnnotation: '× You used 900 W; 1000/220 = 4.54 A.' }), 1, '900 W substituted: stays');
+  assert.equal(run('I = 1000/222 = 4.5 A', { teacherAnnotation: '× 1000/220 = 4.54 A, not 4.5 A.' }), 1, '222 V substituted: stays');
+  assert.equal(run('I = 4.5 A', { teacherAnnotation: '× 4.54 A.' }), 1, 'no working on the line: not evaluable here, stays');
+  assert.equal(run('I = 1000/220 = 4.5 A'), 2, 'CONTROL: the right working, rounded: given back');
+  // (2) a word problem's "state which root is rejected" ½ — and ANY presentation-typed loss — stays
+  const wp = { qNumber: 1, marks: 3, questionText: 'The product of two consecutive natural numbers is 72. Find the smaller number N.', finalAnswer: '8' };
+  const wpRaw = (ann, type) => ({ addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Equation', studentWork: 'N(N + 1) = 72 ⇒ N² + N − 72 = 0 ⇒ (N + 9)(N − 8) = 0', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Answer', studentWork: 'N = 8', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: ann, mistakeType: type }] });
+  for (const [ann, type] of [['½ Say why N = −9 is rejected.', 'presentation'], ['½ You did not state which root fits.', 'presentation'], ['½ You did not state which root fits.', 'calculation'], ['½ Reject −9: N must be a natural number.', null]]) {
+    assert.equal(nqr(wp, wpRaw(ann, type), { acceptsV2: true }).marksAwarded, 2.5, ann + ' / ' + type);
+  }
+  // a presentation-typed "simplify" loss is the PROMPT's business (EQUIVALENT ANSWERS), never this guard's
+  const pres = nqr({ qNumber: 1, marks: 1, questionText: 'Find the probability that the card is a 2-digit number.', finalAnswer: '15/16' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Counts', studentWork: 'Total = 96, favourable = 90', status: 'correct', marksAvailable: 0.5, marksAwarded: 0.5, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Probability', studentWork: 'P = 90/96 = 45/48', status: 'incorrect', marksAvailable: 0.5, marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: '× Simplify the fraction fully: 15/16.', mistakeType: 'presentation' }] }, { acceptsV2: true });
+  assert.equal(pres.marksAwarded, 0.5);
+});
+
+test('§GC1.6 ★ BLOCKING 3 — FORM_DEMANDED recognises every way a form or a precision is demanded', () => {
+  for (const t of ['Find x, rounding off to two places of decimal.', 'Give the answer up to 2 decimals.', 'Give it to one decimal.', 'Write the answer in fractional form.', 'Write it in decimal form.',
+    'Give the ratio in the reduced form.', 'Write the number in standard form.', 'correct to 3 significant figures', 'to the nearest whole number', 'to the nearest tenth', 'to the nearest hundredth',
+    'Write the answer in simplest form.', 'Leave it in surd form.', 'in terms of π', 'Round off to the nearest integer.']) assert.ok(FORM_DEMANDED.test(t), t);
+  for (const t of ['Find the probability that the number is a 2-digit number.', 'Find the current drawn by the iron.', 'Find the height of the tower.']) assert.ok(!FORM_DEMANDED.test(t), t);
+});
+
+test('§GC1.7 SHOULD-FIX 4+5 and the owner calls — multi-line keys and another variable are never one value; 0.14 for 5/36 and 10√3 = 17.3 m are', () => {
+  const eqW = (a, b) => equivalentFinalValue(a, b, { requireWorking: true });
+  assert.equal(equivalentFinalValue('x = −4', 'x = 4\nx = −4'), 'skip', 'a two-line key is two values');
+  assert.equal(equivalentFinalValue('y = 2', 'x = 2'), 'skip', 'another variable');
+  assert.equal(equivalentFinalValue('x = 2', 'x = 2'), 'equivalent');
+  assert.equal(eqW('P = 5/36 = 0.14', '5/36'), 'equivalent', 'owner call: 0.14 for 5/36 when no precision is demanded');
+  assert.equal(eqW('h = 10√3 = 17.3 m', 'h = 17.3 m'), 'equivalent', 'owner call: 10√3 m for 17.3 m');
+  assert.equal(eqW('P = 5/36 = 0.13', '5/36'), 'different');
+  // safe direction, by owner call: a mixed number and 22/7 vs π may stay "different"/"skip"
+  assert.notEqual(eqW('A = 22/7 × 49 = 154', '49π'), 'equivalent');
+});
+
+test('§GC1.8 SHOULD-FIX 6+7 — the 1-mark split is for NON-objective items only (objective stays 0/full); answer-only separable values share the final-answer mark', () => {
+  const p = require('./prompt.cjs').rulesText({ transport: 'typedOnly', hasAnyTyped: true, anyScheme: false, subjectMode: 'maths' });
+  assert.ok(p.includes('INCLUDING a 1-mark item or a 1-mark part of a case study that asks for two separable values') && p.includes('NEVER an OBJECTIVE item'), 'SEPARATE VALUES');
+  assert.ok(p.includes('EXCEPT a NON-objective 1-mark item or part that asks for TWO OR MORE SEPARABLE values') && p.includes('an OBJECTIVE item — MCQ, Assertion-Reason, or a 1-mark item with printed options — NEVER does'), 'FINAL ANSWER');
+  assert.ok(p.includes('separable values in the FINAL ANSWER share the final-answer mark EVEN WITHOUT WORKING') && p.includes('"x = 4, 5" where the roots are 4 and −5'), 'answer only');
+  // deterministic: a NON-objective 1-mark item keeps the model's ½; an OBJECTIVE 1-mark MCQ is 0 or full
+  const half = nqr({ qNumber: 1, marks: 1, questionText: 'Write the zeroes of x² + x − 20.' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Zeroes', studentWork: 'x = 4, 5', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½ 4 is right; the other zero is −5.', mistakeType: 'calculation' }] }, { acceptsV2: true });
+  assert.equal(half.marksAwarded, 0.5, 'answer-only, non-objective: the share is kept');
+  const mcq = nqr({ qNumber: 1, marks: 1, objective: true, questionText: 'The zeroes of x² + x − 20 are (a) 4, 5 (b) 4, −5 (c) −4, 5 (d) −4, −5', options: ['4, 5', '4, −5', '−4, 5', '−4, −5'], correctOption: 'b' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Option', studentWork: '(a)', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½', mistakeType: null }] }, { acceptsV2: true });
+  assert.ok(mcq.marksAwarded === 0 || mcq.marksAwarded === 1, 'objective invariant: never ½ (got ' + mcq.marksAwarded + ')');
+  assert.equal(mcq.marksAwarded, 0, 'a wrong option is 0');
 });
