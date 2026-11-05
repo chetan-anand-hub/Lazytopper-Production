@@ -204,14 +204,18 @@ function guardedObjectiveMarks(q, marks) {
  * A question with NO bank metadata (no section / format / qType / options / correctOption — i.e. one
  * the detect step read, on Answer Checker) whose TEXT prints an MCQ option list or an Assertion–Reason
  * item (grading/detect.cjs printedOptionsObjective — the SAME rule detect applies) is objective even
- * when the request says otherwise; guardedObjectiveMarks then grades it at 1 mark, 0 or full. Upgrade
- * only, and never on a bank question: the bank already knows its own objectivity.
+ * when the request does not say so — but ONLY while its marks are ≤ 1 (or unset). A question sent with
+ * marks > 1 and objective:false is the student's GRADE-MARKS-1 override ("graded as written",
+ * PaperMarksEditor sendAsObjective) or a multi-mark question: it is never upgraded. Upgrade only, and
+ * never on a bank question: the bank already knows its own objectivity.
  */
 function hasBankObjectiveMeta(q) {
   return Boolean(q && (q.section || q.format || q.qType || q.correctOption
     || (Array.isArray(q.options) && q.options.some((o) => o != null && String(o).trim()))));
 }
-function printedOptionsUpgrade(q, questionText) {
+function printedOptionsUpgrade(q, questionText, sentMarks) {
+  const m = Number(sentMarks);
+  if (sentMarks != null && sentMarks !== '' && Number.isFinite(m) && m > 1) return false;
   return !hasBankObjectiveMeta(q) && D.printedOptionsObjective(questionText);
 }
 
@@ -376,7 +380,7 @@ function createCheckSolutionRoute(deps) {
     };
     // DETECT-OBJECTIVE-STABILITY-1 · a detect-read question that prints its options is objective here too.
     const detectedObjective = payload.objective === true || payload.objective === 'true'
-      || printedOptionsUpgrade(objectiveMeta, question);
+      || printedOptionsUpgrade(objectiveMeta, question, payload.marks);
 
     // Claim-2 auto-detect (no live client sends it since #246; kept, see the P17 table): the
     // grader determines marks/subject/topic itself; `marks`/`subject`/`topic` are hints.
@@ -822,7 +826,7 @@ function createCheckSolutionRoute(deps) {
       }
       // DETECT-OBJECTIVE-STABILITY-1 · a single-question read whose text prints its options: the top-level
       // fields agree with the question (objective, 1 mark) — detect.cjs already set questions[0].
-      if (questions.length === 1 && D.printedOptionsObjective(questions[0].questionText)) {
+      if (questions.length === 1 && questions[0]._printedOptions === true) {
         detectedObjective = true;
         detectedMarks = 1;
       }
@@ -1042,7 +1046,8 @@ function createCheckSolutionRoute(deps) {
       }))
       .map((q) => (q.topic || q.topicLabel || !q.chapter ? q : { ...q, topicLabel: q.chapter }))
       // DETECT-OBJECTIVE-STABILITY-1 · a detect-read question that prints its options is objective (upgrade only).
-      .map((q) => (q.objective !== true && printedOptionsUpgrade(q, q.questionText) ? { ...q, objective: true } : q))
+      //   Only at marks ≤ 1: an objective:false question sent with marks > 1 is the student's override.
+      .map((q) => (q.objective !== true && printedOptionsUpgrade(q, q.questionText, q.marks) ? { ...q, objective: true } : q))
       // GRADE-MARKS-1 · §13: an MCQ sent with marks > 1 is graded as its 1 mark (see guardedObjectiveMarks).
       .map((q) => { const m = guardedObjectiveMarks(q, q.marks); return m === q.marks ? q : { ...q, marks: m }; })
       .filter((q) => q.qNumber > 0 && q.questionText);

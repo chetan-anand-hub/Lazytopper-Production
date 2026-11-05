@@ -116,130 +116,124 @@ function restoreSymbols(modelText, sources) {
 
 // Live 5 Nov 2026: detect (gemini-2.5-flash, thinkingBudget 0) flagged the same printed (a)–(d) MCQs
 // objective on one read and not on the next, so their marks stayed editable and they risked step
-// marking. Whether a question PRINTS an option list is read here from the text detect transcribed —
-// deterministically. It only ever UPGRADES (a model-flagged objective stays objective), and where the
-// shape is ambiguous it says NO: the fail-safe is today's behaviour (the model's own flag).
+// marking. Whether a question PRINTS an MCQ is read here from the text detect transcribed —
+// deterministically — but ONLY on strong POSITIVE evidence: an Assertion–Reason item, or four short
+// answer options after a stem that carries an MCQ cue. Anything else is NOT upgraded and the model's
+// own flag stands (fail safe = the behaviour before this lane). It never downgrades.
+//
+// Why positive evidence and not a list of "sub-part" words: school papers on Answer Checker print
+// "Simplify: (a) … (d)", "Factorise: (a) … (d)", "Match the following: (a) … (d)", "Fill in the
+// blanks: (a) … (d)", "Rationalise the denominators of (a) … (d)" — four labels after an instruction.
+// No blacklist of instruction verbs is ever complete; an MCQ CUE in the stem is what an MCQ has.
 
-// Instruction and question words: a part that STARTS with one is a sub-part, never a choice.
-const IMPERATIVES = 'label|translate|mark|convert|indicate|find|prove|show|state|define|explain|calculate|hence|give|write|draw|name|determine|evaluate|solve|derive|justify|describe|list|compare|verify|construct|identify|arrange|mention|predict|suggest|classify|distinguish|differentiate|illustrate|discuss|express|obtain|check|represent|plot|complete|balance|account';
-const QUESTION_WORDS = 'what|why|how|which|when|where|who|whom|whose|if|also|using|use|is|are|does|do|can|will|would|should';
-const QUESTION_LEAD = new RegExp('^(?:' + QUESTION_WORDS + ')\\b', 'i');
-// A capitalised question or instruction word INSIDE a part (case-sensitive): a new sentence run on.
-const RUN_ON_PART = new RegExp('\\s(?:' + (IMPERATIVES + '|' + QUESTION_WORDS).split('|').map((w) => w[0].toUpperCase() + w.slice(1)).join('|') + ')\\b');
-const SUBPART_LEAD = new RegExp('^(?:' + IMPERATIVES + '|' + QUESTION_WORDS + ')\\b', 'i');
-// A printed mark allocation (same forms as MARKS_TOKEN) — captured value.
+// The stem's LAST clause must carry one of these:
+//   · it ends with "?";
+//   · it holds a blank ("____", "……", "....");
+//   · it ends (optionally with ":" / "–") on a copula an MCQ answer completes: "is", "are", "equals",
+//     "is equal to", "will be", "lies in", "called", "known as", "=" ("… then the value of k is :
+//     (A) −8 …") — and only when that clause does not INSTRUCT (find / write / simplify …);
+//   · it says "which of the following", "which one", "the correct option / statement / answer",
+//     "choose", "select the".
+const MCQ_STEM_END = /(?:\bis|\bare|\bequals|\bequal\s+to|\bwill\s+be|\blies\s+in|\bcalled|\bknown\s+as|\btermed|=)\s*[:\-–—]?$/i;
+// A copula cue does not count when the clause INSTRUCTS ("Find the probability that the sum is: (i) 10
+// (ii) …" is a four-part long answer).
+const INSTRUCTION_IN_CLAUSE = /\b(?:find|calculate|determine|write|state|show|prove|evaluate|compute|simplify|draw|name|give|explain|list|express|verify|solve|factori[sz]e|expand|rationali[sz]e|match|fill|complete)\b/i;
+// A clause that asks about EACH item, or to classify / explain each, lists parts even when it ends "?":
+// "In each of the following situations what happens …?", "Which among the following changes are
+// exothermic or endothermic?", "what would happen if following changes are made?".
+const ASKS_ABOUT_EACH = /\beach\b|\bfollowing\b[^?]*\bor\b|\bwhat\s+(?:would\s+|will\s+)?happens?\b/i;
+const MCQ_STEM_PHRASE = /\bwhich\s+(?:one\s+)?of\s+the\s+following\b|\bwhich\s+one\b|\b(?:in)?correct\s+(?:option|statement|answer|alternative|choice)s?\b|\bchoose\b|\bselect\s+the\b/i;
+const MCQ_BLANK = /_{2,}|…{1,}|\.{4,}/;
+// A part that starts like an instruction or a question is a sub-part, never a choice (a second
+// check, behind the cue; the cue is the gate).
+const SUBPART_LEAD = /^(?:find|prove|show|state|define|explain|calculate|hence|give|write|draw|name|determine|evaluate|solve|derive|justify|describe|list|compare|verify|construct|identify|simplify|factori[sz]e|expand|rationali[sz]e|match|fill|complete|what|why|how|which|when|where|who|is|are|does|do|can)\b/i;
 const MARKS_VALUE = /\[\s*(\d+)\s*\]|\(\s*(\d+)\s*marks?\s*\)/gi;
-const OPTION_MAX_CHARS = 160; // a Science option is often a sentence (50–90 chars); a sub-part runs longer
+const OPTION_MAX_CHARS = 120; // a Science MCQ's option is often a sentence (50–90 chars)
 const ROMAN_MAX_CHARS = 40;
 const LETTERS4 = (l) => 'abcd'.indexOf(String(l).toLowerCase());
 const ROMAN4 = (l) => ({ i: 0, ii: 1, iii: 2, iv: 3 })[String(l).toLowerCase()];
 const PRINTED_OPTION_STYLES = [
-  // letters: "(a)", "a)", "a." / "A." — exactly four, a b c d, in order
+  // letters "(a)", "a)", "a." / "A." — exactly four, a b c d, in order ("(e)" counts, and rejects)
   { re: /\(\s*([a-e])\s*\)/gi, index: LETTERS4, letters: true },
   { re: /(?:^|[\s:;,?])([a-e])\)(?=\s)/gi, index: LETTERS4, letters: true },
   { re: /(?:^|[\s:;,?])([a-e])\.(?=\s)/gi, index: LETTERS4, letters: true },
-  // "(i)"–"(iv)" / "(1)"–"(4)" — options ONLY when clearly so (see below)
+  // "(i)"–"(iv)" / "(1)"–"(4)": terse, and no (a)-style labels anywhere
   { re: /\(\s*(i{1,3}|iv|v|vi)\s*\)/gi, index: ROMAN4, letters: false },
   { re: /\(\s*([1-6])\s*\)/g, index: (l) => Number(l) - 1, letters: false },
 ];
 const PAREN_LETTER = /\(\s*[a-d]\s*\)/i;
 
-// An instruction that asks for the right CHOICE is an MCQ stem ("Identify the correct statement:").
-const ASKS_FOR_CHOICE = /\b(?:correct|incorrect|true|false|best|most appropriate|suitable)\s+(?:option|statement|answer|choice|alternative|one|pair|match|sequence|order|combination|set|explanation|reason)s?\b|\boptions?\b/i;
-const IMPERATIVE_ANYWHERE = new RegExp('\\b(?:' + IMPERATIVES + ')\\b', 'i');
-
-/**
- * Does the stem INTRODUCE a list of parts rather than ask one question? The labels then complete an
- * instruction: "Translate the following statements … (a) …", "Name the substrates for the following
- * enzymes: (a) Trypsin …", "In each of the following situations … (a) Cloudy days …", "Find the
- * following: (a) volume …". A finished instruction sentence that does not point at "the following"
- * ("Find the value of k if 2 is a zero of x² + kx + 4. (A) −8 …") is an MCQ stem, and so is any stem
- * that asks for the right CHOICE ("Identify the correct statement: (a) …").
- */
-function stemIntroducesParts(stem) {
-  const last = stem.split(/(?<=[.?!])\s+/).pop() || '';
-  if (ASKS_FOR_CHOICE.test(last)) return false;
-  if (/\beach\b/i.test(last)) return true;
-  // "Which among the following changes are exothermic OR endothermic?" (classify each),
-  // "what would happen if following changes are made?" (explain each)
-  if (/\bfollowing\b/i.test(last) && (/\bor\b/i.test(last) || /\bwhat\s+(?:would\s+|will\s+)?happens?\b/i.test(last))) return true;
-  if (!IMPERATIVE_ANYWHERE.test(last)) return false;
-  if (/\?$/.test(stem)) return false;
-  // a finished instruction sentence that does not point at "the following" is one question
-  // ("Find the value of k if 2 is a zero of x² + kx + 4. (A) −8 …"); any other instruction — "Solve:
-  // x² − 9 = 0 (a) …", "Find the probability that the sum is: (i) 10 …", "Give reasons: (a) …" —
-  // is NOT upgraded: the bank shows real long-answer questions in exactly that shape, so the model's
-  // own flag stands (fail-safe).
-  return !(/\.$/.test(stem) && !/\bfollowing\b/i.test(last));
+/** The stem's last clause (after its last sentence break), e.g. "Which of the following are APs? If
+ *  they form an AP, find d." → "If they form an AP, find d." — so a question that goes on to ask the
+ *  student to ACT on each item has no cue at its end. */
+function lastClause(stem) {
+  return stem.split(/(?<=[.?!])\s+/).pop() || '';
 }
 
-/**
- * Does one labelled part read as a sub-part rather than a choice? Too long; empty or only "and" /
- * punctuation ("Label the parts (a), (b), (c) and (d)"); a question ("?"); a sentence in it starting
- * with a question word ("What is …", "Which …") — or with an instruction ("Find …", "Prove …"),
- * except after a stem that is itself one question ending "?" (then "(a) Add the equations (b) Express
- * one variable …" are the choices of "what is the first step?"); or a new capitalised question or
- * instruction run on inside it ("(d) 40 cm Which position of the object will produce: …").
- */
-function optionLooksLikeSubpart(opt, maxChars, stemAsks) {
-  if (!opt || opt.length > maxChars) return true;
-  if (!/[^\s.,;:()\-–—]/.test(opt.replace(/^(?:and|or)\b/i, ''))) return true;
-  if (/\?/.test(opt)) return true; // a choice is not a question
-  if (RUN_ON_PART.test(opt)) return true;
-  const lead = stemAsks ? QUESTION_LEAD : SUBPART_LEAD;
-  // every sentence in the option, not only the first ("4. Justify your answer.")
-  return opt.split(/[.;!]\s+/).some((s) => lead.test(s.trim()));
+/** Does the stem carry an MCQ cue at its END (see MCQ_STEM_END / MCQ_STEM_PHRASE / MCQ_BLANK)? */
+function stemHasMcqCue(stem) {
+  const last = lastClause(stem);
+  if (ASKS_ABOUT_EACH.test(last)) return false;
+  if (MCQ_STEM_PHRASE.test(last)) return true;
+  if (/\?$/.test(stem)) return true;
+  if (INSTRUCTION_IN_CLAUSE.test(last)) return false;
+  return MCQ_BLANK.test(last) || MCQ_STEM_END.test(stem);
 }
 
-/** True when `text` prints an option list in this one label style, by the strict detect rule. */
+/** One labelled part reads as an ANSWER VALUE (not an instruction, a question or a run-on). */
+function isAnswerValue(opt, maxChars) {
+  if (!opt || opt.length > maxChars) return false;
+  if (!/[^\s.,;:()\-–—]/.test(opt.replace(/^(?:and|or)\b/i, ''))) return false; // "(c) and (d)"
+  if (/[?]/.test(opt)) return false;
+  if (/[_]{2,}/.test(opt)) return false; // a blank to fill
+  return !opt.split(/[.;!]\s+/).some((s) => SUBPART_LEAD.test(s.trim()));
+}
+
+/** True when `text` prints exactly four options in this one label style after an MCQ stem. */
 function strictOptionList(text, style) {
   const marks = [...text.matchAll(style.re)].map((m) => ({ i: style.index(m[1]), start: m.index, end: m.index + m[0].length }));
-  // exactly four labels, the first four positions in order — a fifth label ("(e)", "(v)") is a list of parts
   if (marks.length !== 4) return false;
   for (let k = 0; k < 4; k += 1) if (marks[k].i !== k) return false;
   const stem = text.slice(0, marks[0].start).trim();
-  if (!/[A-Za-z0-9]/.test(stem)) return false; // an MCQ has a stem; "(a) Prove … (b) …" starts with its label
-  if (stemIntroducesParts(stem)) return false;
-  const opts = marks.map((m, k) => text.slice(m.end, k + 1 < marks.length ? marks[k + 1].start : text.length)
-    .replace(/\[\s*1\s*\]\s*$|\(\s*1\s*marks?\s*\)\s*$/i, '').trim());
-  const stemAsks = /\?$/.test(stem);
-  if (style.letters) return opts.every((o) => !optionLooksLikeSubpart(o, OPTION_MAX_CHARS, stemAsks));
-  // roman / numbered: only when CLEARLY options — terse, after a stem that asks (ends "?" or ":" or
-  // holds a blank), and no "(a)"-style labels elsewhere (those make (i)…(iv) a case study's parts).
+  // A statement-list MCQ ("Which of the following are true? (i) … (iv) … (a) (i) and (iv) …") carries its
+  // cue BEFORE its (i)–(iv) statements.
+  const cueStem = style.letters && /\(\s*i\s*\)/i.test(stem) ? stem.replace(/\(\s*i\s*\)[\s\S]*$/i, '').trim() : stem;
+  if (!/[A-Za-z0-9]/.test(cueStem) || !stemHasMcqCue(cueStem)) return false;
+  const opts = marks.map((m, k) => text.slice(m.end, k + 1 < marks.length ? marks[k + 1].start : text.length).trim());
+  if (style.letters) return opts.every((o) => isAnswerValue(o, OPTION_MAX_CHARS));
   if (PAREN_LETTER.test(text)) return false;
-  if (!/[?:]$/.test(stem) && !/_{2,}|\.{4,}|…/.test(stem)) return false;
-  return opts.every((o) => !optionLooksLikeSubpart(o, ROMAN_MAX_CHARS, stemAsks));
+  return opts.every((o) => isAnswerValue(o, ROMAN_MAX_CHARS));
 }
 
 /**
- * Does this transcribed question text PRINT an MCQ option list or an Assertion–Reason item? (pure)
- *   · Assertion–Reason: "Assertion (A)" … then "Reason (R)" — both labels, in that order;
- *   · letters (a)/(b)/(c)/(d) — also A/B/C/D, "a)" and "a." forms, any spacing or line breaks —
- *     EXACTLY four in order after a stem, each option ≤ 160 chars, none a question ("?") and none
- *     starting with an instruction or question word (find / prove / what / why …);
- *   · (i)–(iv) or (1)–(4) — the same, and ≤ 40 chars each, after a stem ending "?" / ":" / a blank,
- *     with no (a)-style labels in the text;
- *   · never when a part carries more than 1 printed mark, or the text has an internal choice ("OR").
- * Anything else — two or three labels, five, a sub-part that asks or instructs — is NOT, and the
- * model's own flag stands. printedOptionsObjective ANDs this with postprocess objectiveOffersOptions
- * (the §13 guard's own test), so a question upgraded here is always locked and forced to 1.
+ * Does this transcribed question text PRINT an MCQ or an Assertion–Reason item? (pure) Positive
+ * evidence only:
+ *   · Assertion–Reason: "Assertion (A)" … then "Reason (R)";
+ *   · four options a–d ((a) / a) / a. / A–D, any spacing, one line or many) — or (i)–(iv) / (1)–(4)
+ *     of ≤ 40 chars with no (a)-labels — after a stem whose END carries an MCQ cue, each option an
+ *     answer value (≤ 120 chars, no "?", no blank, not an instruction or a question).
+ * Never when the text carries an internal choice ("OR"), any printed mark above 1, or more than one
+ * printed mark (per-part marks: "(a) … [1] (b) … [1]" is a case study's parts).
  * @param {string} text
  * @returns {boolean}
  */
 function printsOptionList(text) {
   const t = String(text || '').replace(/\s+/g, ' ').trim();
   if (!t) return false;
-  if (/\bOR\b/.test(t)) return false; // an internal choice: a long-answer question's alternatives
-  for (const m of t.matchAll(MARKS_VALUE)) if (Number(m[1] || m[2]) > 1) return false;
+  if (/\bOR\b/.test(t)) return false;
+  const printed = [...t.matchAll(MARKS_VALUE)].map((m) => Number(m[1] || m[2]));
+  if (printed.length > 1 || printed.some((n) => n > 1)) return false;
   const a = /\bassertion\s*\(\s*a\s*\)/i.exec(t);
   const r = /\breason\s*\(\s*r\s*\)/i.exec(t);
   if (a && r && a.index < r.index) return true;
-  return PRINTED_OPTION_STYLES.some((style) => strictOptionList(t, style));
+  const body = t.replace(/\s*(?:\[\s*1\s*\]|\(\s*1\s*marks?\s*\))\s*$/i, '');
+  return PRINTED_OPTION_STYLES.some((style) => strictOptionList(body, style));
 }
 
-/** The §13 decision detect applies to every question: objective with options when the text PRINTS
- *  them (printsOptionList) AND the grade routes' guard test agrees (postprocess objectiveOffersOptions),
- *  so the client's lock and the server's force-to-1 can never disagree with this upgrade. */
+/** The text half of the §13 decision: printsOptionList AND the grade routes' own guard test
+ *  (postprocess objectiveOffersOptions), so the client's lock and the server's force-to-1 can never
+ *  disagree with an upgrade. The MARKS half (a printed / section mark above 1 blocks it) is applied
+ *  by the callers: normaliseDetectedQuestions and the grade routes. */
 function printedOptionsObjective(text) {
   if (!printsOptionList(text)) return false;
   // lazily required: postprocess pulls the whole grading module graph
@@ -301,13 +295,9 @@ function normaliseDetectedQuestions(rawQuestions, o) {
   }
   entries = merged;
 
-  // 2b · DETECT-OBJECTIVE-STABILITY-1 · a question that PRINTS its options (MCQ / A-R) is objective
-  //      whatever the model said — read from its text, deterministically. Upgrade only: a
-  //      model-flagged objective is never cleared here. Runs before 3b so no section rule gives it > 1.
-  for (const e of entries) {
-    e.printedOptions = printedOptionsObjective(e.text);
-    if (e.printedOptions) e.objective = true;
-  }
+  // 2b · DETECT-OBJECTIVE-STABILITY-1 · does the TEXT print an MCQ / A-R (decided at 3c, after the
+  //      section rule, because a mark above 1 blocks it)?
+  for (const e of entries) e.textOptions = printedOptionsObjective(e.text);
 
   // 3 · numbers: printed ones kept; a missing one never collides with a printed one
   const used = new Set(entries.filter((e) => e.n !== null).map((e) => e.n));
@@ -324,6 +314,19 @@ function normaliseDetectedQuestions(rawQuestions, o) {
   //      the question, else its section header's mark (carried across page breaks), else the
   //      CBSE section map when the paper's headers follow it. Without the flag: nothing here runs.
   const bySection = o.sectionMarks === true ? assignSectionMarks(entries, o.sectionHeaders) : null;
+
+  // 3c · DETECT-OBJECTIVE-STABILITY-1 · a question whose text prints its options is objective whatever
+  //      the model said — UNLESS a mark above 1 says otherwise: printed on the question, or its section
+  //      (B–E; GRADE-MARKS-1's rule or the model's label). Then nothing changes (fail safe = before).
+  //      Upgrade only: a model-flagged objective is never cleared here.
+  entries.forEach((e, i) => {
+    const ruled = bySection ? bySection[i] : null;
+    const multiMark = (e.printedMarks !== null && e.printedMarks > 1)
+      || /^[B-E]$/.test(e.section || '')
+      || Boolean(ruled && ((ruled.marks !== null && ruled.marks > 1) || /^[B-E]$/.test(ruled.section || '')));
+    e.printedOptions = e.textOptions && !multiMark;
+    if (e.printedOptions) e.objective = true;
+  });
 
   // 4 · the response entries
   return entries.map((e, i) => {
@@ -348,9 +351,13 @@ function normaliseDetectedQuestions(rawQuestions, o) {
       }
       out.section = ruled.section;
     }
-    // DETECT-OBJECTIVE-STABILITY-1 · §13: a question that prints its options is a 1-mark, 0-or-full
-    // item (the client locks it at 1 and the grade routes force 1) — so detect reports 1, on every read.
-    if (e.printedOptions) out.marks = 1;
+    // DETECT-OBJECTIVE-STABILITY-1 · §13: a question that prints its options (and has no mark above 1
+    // by any rule — see 3c) is a 1-mark, 0-or-full item: detect reports 1, on every read.
+    if (e.printedOptions) {
+      out.marks = 1;
+      // for the route's single-question mirror; non-enumerable, so never in the response body
+      Object.defineProperty(out, '_printedOptions', { value: true, enumerable: false });
+    }
     if (o.acceptsV2 === true) {
       const chapter = e.chapter != null && vocab.has(String(e.chapter).trim()) ? String(e.chapter).trim() : null;
       const subj = chapter ? vocab.get(chapter) : String(e.subject || '');
