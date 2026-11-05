@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { UnitDeductionNote } from "../results/UnitDeductionNote";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
@@ -164,7 +165,7 @@ function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; object
           </span>
         )}
       </div>
-      {step.teacherAnnotation && <div className="lt-wg__stepnote"><MathText text={step.teacherAnnotation} /></div>}
+      {step.teacherAnnotation && <div className="lt-wg__stepnote"><MathText text={step.teacherAnnotation} /><UnitDeductionNote annotation={step.teacherAnnotation} /></div>}
       {step.correctedWorking && (
         <div className="lt-wg__stepfix">Should be: <MathText text={step.correctedWorking} /></div>
       )}

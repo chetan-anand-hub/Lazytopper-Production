@@ -124,6 +124,7 @@ import ResultsScorecard from "../../components/results/ResultsScorecard";
 import LockedDetailLazy from "../../components/results/LockedDetailLazy";
 import { useDetailLock } from "../../components/results/useDetailLock";
 import { StepAnnotation } from "../../components/results/StepAnnotation";
+import { UnitDeductionNote } from "../../components/results/UnitDeductionNote";
 import {
   checkImproveScorecardVariant,
   withGuideTarget,
@@ -824,7 +825,7 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?:
       )}
 
       {step.teacherAnnotation && (
-        <StepAnnotation tone={display.tone} consequentialOf={step.consequentialOf} className="lt-stann--screen">
+        <StepAnnotation tone={display.tone} consequentialOf={step.consequentialOf} annotation={step.teacherAnnotation} className="lt-stann--screen">
           <EquationRender text={step.teacherAnnotation} />
         </StepAnnotation>
       )}
@@ -4951,6 +4952,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                     {s.marksDeducted > 0 && stepDisplay(s.status, s.mistakeType).showDeduction && (
                       <span style={{ color: DANGER_FG }}> · −{s.marksDeducted}</span>
                     )}
+                    <UnitDeductionNote annotation={s.teacherAnnotation} />
                   </li>
                 ))}
               </ul>

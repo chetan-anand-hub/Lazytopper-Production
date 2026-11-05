@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import "./solutionCheckerSaved.css";
+import { UnitDeductionNote } from "../results/UnitDeductionNote";
 import { Link, useLocation } from "react-router-dom";
 import {
   checkSolutionImage,
@@ -427,6 +428,7 @@ function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["a
             fontWeight: 600, marginBottom: step.correctedWorking ? 6 : 0,
           }}>
             <EquationRender text={step.teacherAnnotation} />
+            <UnitDeductionNote annotation={step.teacherAnnotation} />
           </div>
         )}
 

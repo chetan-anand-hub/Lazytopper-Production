@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import "./stepAnnotation.css";
+import { UnitDeductionNote } from "./UnitDeductionNote";
 
 /**
  * GRADER-CONSEQUENTIAL-1 (D242) — the ONE teacher-annotation line of a graded step.
@@ -25,6 +26,9 @@ export interface StepAnnotationProps {
   consequentialOf?: number | null;
   /** An extra class of the call site (its own size / background); never a style object. */
   className?: string;
+  /** UNIT-LABEL-1 - the raw annotation text; when it is the grader's unit-deduction comment the
+   *  honest "LazyTopper deducts ½ ..." note is drawn under it. Optional: omitted = no note. */
+  annotation?: string | null;
   children: ReactNode;
 }
 
@@ -35,7 +39,7 @@ export function followsFromStep(consequentialOf: unknown): number | null {
     : null;
 }
 
-export function StepAnnotation({ tone, consequentialOf, className, children }: StepAnnotationProps) {
+export function StepAnnotation({ tone, consequentialOf, className, annotation, children }: StepAnnotationProps) {
   const follows = followsFromStep(consequentialOf);
   return (
     <div className={`lt-stann lt-stann--${tone}${className ? ` ${className}` : ""}`}>
@@ -51,6 +55,7 @@ export function StepAnnotation({ tone, consequentialOf, className, children }: S
       </svg>
       <span className="lt-stann__body">
         <span className="lt-stann__text">{children}</span>
+        <UnitDeductionNote annotation={annotation} />
         {follows !== null && <span className="lt-stann__follows">follows from step {follows}</span>}
       </span>
     </div>

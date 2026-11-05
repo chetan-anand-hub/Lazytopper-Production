@@ -135,7 +135,7 @@ function StepRows({ grade }: { grade: CheckSolutionResponse | WorksheetQuestionG
               </div>
             )}
             {step.teacherAnnotation && (
-              <StepAnnotation tone={display.tone} consequentialOf={step.consequentialOf} className="lt-stann--screen">
+              <StepAnnotation tone={display.tone} consequentialOf={step.consequentialOf} annotation={step.teacherAnnotation} className="lt-stann--screen">
                 <EquationRender text={step.teacherAnnotation} />
               </StepAnnotation>
             )}

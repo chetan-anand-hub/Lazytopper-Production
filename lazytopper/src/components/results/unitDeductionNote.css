@@ -1,0 +1,18 @@
+/* UNIT-LABEL-1 - the honest note beside a unit deduction (UnitDeductionNote.tsx).
+   Theme-neutral on purpose: it inherits the host's text colour (dark scorecard, light cards,
+   the printed PDF) and only dims it, with a calm green rule on the left. */
+.lt-unitnote {
+  display: block;
+  margin-top: 4px;
+  padding-left: 8px;
+  border-left: 2px solid hsl(152, 45%, 42%);
+  font-size: 0.86em;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.45;
+  color: inherit;
+  opacity: 0.82;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  box-sizing: border-box;
+}
