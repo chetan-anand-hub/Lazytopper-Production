@@ -47,7 +47,7 @@ export default function SectionTypeLens({ kind, heading, rows, note }: SectionTy
             <tr key={r.id} data-row={r.id} data-lost={r.lost} className={r.lost > 0 ? "lt-stl__r lt-stl__r--lost" : "lt-stl__r"}>
               <th scope="row" className="lt-stl__c lt-stl__c--lbl">
                 {r.label}
-                {r.check && <span className="lt-stl__chk" title="Worked out from the order of the questions - check it against your paper">check</span>}
+                {r.check && <span className="lt-stl__chk" title="The read wasn't sure of this section, so check it against your paper">check</span>}
               </th>
               <td className="lt-stl__c lt-stl__c--num">{r.awarded}</td>
               <td className="lt-stl__c lt-stl__c--num">{r.total}</td>

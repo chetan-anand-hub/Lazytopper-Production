@@ -8,6 +8,7 @@ import {
   stampLens,
   typeKeyOf,
   readTypeOf,
+  sectionBasisOfRead,
 } from "./sectionTypeLens";
 
 const row = (qNumber: number, total: number, awarded: number, extra: Partial<WorksheetQuestionGrade> = {}): WorksheetQuestionGrade => ({
@@ -141,5 +142,17 @@ describe("stampLens / stampFromPaper", () => {
     expect(strict.results[1].section).toBeUndefined();
     const loose = stampFromPaper(base, qs, { blueprintFallback: true });
     expect(loose.results[1].section).toBe("D");
+  });
+});
+
+describe("sectionBasisOfRead", () => {
+  it("only a sure read is 'read'; inferred, fallback, user (an edited mark) and unknown are 'check'", () => {
+    for (const sure of ["printed", "section", "stated"]) expect(sectionBasisOfRead(sure)).toBe("read");
+    for (const unsure of ["inferred", "fallback", "user", null, undefined, ""]) expect(sectionBasisOfRead(unsure)).toBe("check");
+  });
+  it("the check note says the read was not sure (not that it was worked out from the order)", () => {
+    const lens = deriveSectionLens(resp([row(1, 3, 2, { section: "C", sectionBasis: "check" })]))!;
+    expect(lens.note).toContain("The read wasn't sure of the rows marked");
+    expect(lens.note).not.toContain("order of the questions");
   });
 });

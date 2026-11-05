@@ -453,4 +453,22 @@ describe("SCORECARD-SECTION-TYPE-1 · the headline leads with option picks when 
   it("a card with no option-only bucket is unchanged (the old 'untyped' step)", () => {
     expect(scoreGuidePlan(base({ marksLost: marks({ untyped: 8 }) }))!.byteStep).toBe("untyped");
   });
+
+  it("the 'Option only' row and the remaining 'reason not recorded' are compared as SEPARATE rows (lead wording)", () => {
+    // untyped 6 = 3 option picks + 3 other; presentation 4 is the largest single row -> "Biggest loss", not "Most marks lost"
+    const pm = { ...marks({ untyped: 6, presentation: 4 }), optionOnly: 3 } as PaperMarksLost;
+    const p = scoreGuidePlan(base({ marksLost: pm }))!;
+    expect(p.byteStep).toBe("presentation");
+    expect(p.byte.text).toContain(SCORE_GUIDE_LINES.lead.biggest);
+    // without the split the same card read as untyped 6 > presentation 4 -> "Most marks lost to a mistake"
+    const unsplit = scoreGuidePlan(base({ marksLost: marks({ untyped: 6, presentation: 4 }) }))!;
+    expect(unsplit.byte.text).toContain(SCORE_GUIDE_LINES.lead.mostMistake);
+  });
+
+  it("blanks are compared against the option row and the remainder separately", () => {
+    // unattempted 4 vs untyped 6 (3 option + 3 other): blanks are the largest single row
+    const pm = { ...marks({ untyped: 6, unattempted: 4 }), optionOnly: 3 } as PaperMarksLost;
+    expect(scoreGuidePlan(base({ marksLost: pm }))!.byteStep).toBe("blank");
+    expect(scoreGuidePlan(base({ marksLost: marks({ untyped: 6, unattempted: 4 }) }))!.byteStep).not.toBe("blank");
+  });
 });

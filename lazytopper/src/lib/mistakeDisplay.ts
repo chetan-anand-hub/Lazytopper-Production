@@ -550,6 +550,8 @@ export interface StepLike {
   mistakeType?: string | null;
   marksDeducted?: number | null;
   marksAwarded?: number | null;
+  /** The student's own line for this step (SCORECARD-SECTION-TYPE-1 reads it only to tell a bare option pick from worked answer). */
+  studentWork?: string | null;
 }
 
 /** Marks lost on one question (total − awarded, never negative). Zero for a question that was
@@ -662,6 +664,17 @@ export function isOptionPickQuestion(q: { objective?: boolean | null; format?: s
   return f === "mcq" || f === "objective" || f === "assertion-reasoning" || f === "assertion-reason";
 }
 
+/** SCORECARD-SECTION-TYPE-1 - the student showed working: more than one annotated step carries their own
+ *  words. A bare option pick yields one step ("Selected option (b)"); two or more written lines is working. */
+export function hasStudentWorking(q: { annotatedSteps?: ReadonlyArray<StepLike> | null } | null | undefined): boolean {
+  return (q?.annotatedSteps ?? []).filter((s) => String(s?.studentWork ?? "").trim()).length > 1;
+}
+
+/** "Option only - no working to diagnose" applies to an option pick that had NO working. */
+export function isOptionOnlyQuestion(q: { objective?: boolean | null; format?: string | null; annotatedSteps?: ReadonlyArray<StepLike> | null } | null | undefined): boolean {
+  return isOptionPickQuestion(q) && !hasStudentWorking(q);
+}
+
 export interface PaperMarksLost {
   /** SCORECARD-SECTION-TYPE-1 - the part of `byType.untyped` that is wrong option picks (MCQ /
    *  Assertion-Reason) with no working typed: "Option only - no working to diagnose". Absent/0 when
@@ -696,11 +709,11 @@ export function paperMarksLost(questions: ReadonlyArray<GradedQuestionLike> | nu
     if (m) {
       any = true;
       byType = addMarksLost(byType, m);
-      if (m.untyped > 0 && isOptionPickQuestion(q)) optionOnly = roundMarks(optionOnly + m.untyped);
+      if (m.untyped > 0 && isOptionOnlyQuestion(q)) optionOnly = roundMarks(optionOnly + m.untyped);
     } else if (qLost > 0) {
       unsplitCount += 1;
       byType = { ...byType, untyped: roundMarks(byType.untyped + qLost) };
-      if (isOptionPickQuestion(q)) optionOnly = roundMarks(optionOnly + qLost);
+      if (isOptionOnlyQuestion(q)) optionOnly = roundMarks(optionOnly + qLost);
     }
   }
   return any ? { byType, lost, unsplitCount, ...(optionOnly > 0 ? { optionOnly: Math.min(optionOnly, byType.untyped) } : {}) } : null;

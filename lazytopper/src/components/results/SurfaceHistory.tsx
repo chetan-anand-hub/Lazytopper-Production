@@ -197,7 +197,11 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
     if (!reopen || reopen.status === "pending-upload") return;
     let live = true;
     const cached = getWorksheetGrade<WorksheetGradeResponse>(reopen.worksheetId);
-    if (cached && cached.ok) setReopenGrade({ id: reopen.id, response: cached });
+    // The device cache is keyed by worksheet id, so it can hold a DIFFERENT (older / re-graded) grade than this
+    // record: use it only when its totals match the record's.
+    if (cached && cached.ok && cached.gradedMarksAwarded === reopen.marksAwarded && cached.gradedMarksTotal === reopen.marksTotal) {
+      setReopenGrade({ id: reopen.id, response: cached });
+    }
     void getSessionPerQuestion(uid, reopen.perQuestionRef)
       .then((p) => {
         if (live && p?.response?.ok) setReopenGrade({ id: reopen.id, response: p.response });

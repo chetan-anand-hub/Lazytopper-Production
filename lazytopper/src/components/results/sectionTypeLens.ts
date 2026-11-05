@@ -169,7 +169,7 @@ export function deriveSectionLens(response: Pick<WorksheetGradeResponse, "result
   if (rows.length === 0) return null;
   const parts: string[] = [];
   if (sawRead) parts.push("Sections as read from your paper.");
-  if (sawCheck) parts.push("Rows marked “check” were worked out from the order of the questions, so check them against your paper.");
+  if (sawCheck) parts.push("The read wasn't sure of the rows marked “check”, so check those sections against your paper.");
   if (unplaced > 0) {
     parts.push(
       `${plural(unplaced, "question has", "questions have")} no section on record, so ${unplaced === 1 ? "it is" : "they are"} in your total but not in this table.`,
@@ -302,6 +302,13 @@ export function stampFromPaper(
     const section = normaliseSectionLetter(q.bankSection) ?? (opts.blueprintFallback ? normaliseSectionLetter(q.section) : null);
     return { section, sectionBasis: "bank", format: q.format ?? null };
   });
+}
+
+/** The basis of a section the paid read found, from the source the READ reported for the question's marks
+ *  (detect has no per-question section source yet: see the follow-up). Only a read that was SURE
+ *  (printed / section / stated) is "read"; inferred, fallback, user or unknown are "check". */
+export function sectionBasisOfRead(readSource: string | null | undefined): "read" | "check" {
+  return readSource === "printed" || readSource === "section" || readSource === "stated" ? "read" : "check";
 }
 
 /** The two honest values the Answer Checker's paper read can report for a question's type. */

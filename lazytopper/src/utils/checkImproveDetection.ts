@@ -55,6 +55,8 @@ export interface ConfirmedDetection {
   topicSlug: string;
   topicName: string;
   marksSource: DetectionMarksSource | null;
+  /** The source the read reported, kept when the student edits the marks (client-side only). */
+  readMarksSource?: DetectionMarksSource | null;
 }
 
 /** Clamp a detected/edited mark to the CBSE single-question range [1,6]; a

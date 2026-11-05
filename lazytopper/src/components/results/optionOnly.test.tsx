@@ -3,7 +3,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { WorksheetQuestionGrade } from "../../ai/aiClient";
-import { OPTION_ONLY_LABEL, UNTYPED_MARKS_LABEL, isOptionPickQuestion, paperMarksLost } from "../../lib/mistakeDisplay";
+import { OPTION_ONLY_LABEL, UNTYPED_MARKS_LABEL, hasStudentWorking, isOptionOnlyQuestion, isOptionPickQuestion, paperMarksLost } from "../../lib/mistakeDisplay";
 import ResultsScorecard from "./ResultsScorecard";
 import { aggregateMarksLost, type ScorecardVariant } from "./scorecardVariants";
 
@@ -37,6 +37,24 @@ describe("paperMarksLost.optionOnly", () => {
   it("absent when no option pick lost marks untyped, or when the rows carry no objective flag (nothing is guessed)", () => {
     expect(paperMarksLost([q(1, 1, 0, { untyped: 1 })])!.optionOnly).toBeUndefined();
     expect(paperMarksLost([q(1, 1, 0, { conceptual: 1 }, { objective: true })])!.optionOnly).toBeUndefined();
+  });
+
+  it("an objective, untyped answer that HAD working (two worked steps) is NOT 'option only': it keeps 'reason not recorded'", () => {
+    const worked = [
+      { stepNumber: 1, studentWork: "AC^2 = CD x BC", status: "correct" },
+      { stepNumber: 2, studentWork: "AC = 6", status: "wrong" },
+    ] as never;
+    const bare = [{ stepNumber: 1, studentWork: "(b)", status: "wrong" }] as never;
+    const pm = paperMarksLost([
+      q(1, 1, 0, { untyped: 1 }, { objective: true, annotatedSteps: worked }),
+      q(2, 1, 0, { untyped: 1 }, { objective: true, annotatedSteps: bare }),
+    ])!;
+    expect(pm.byType.untyped).toBe(2);
+    expect(pm.optionOnly).toBe(1); // only the bare pick
+    expect(hasStudentWorking({ annotatedSteps: worked })).toBe(true);
+    expect(hasStudentWorking({ annotatedSteps: bare })).toBe(false);
+    expect(isOptionOnlyQuestion({ objective: true, annotatedSteps: worked })).toBe(false);
+    expect(paperMarksLost([q(3, 1, 0, { untyped: 1 }, { objective: true, annotatedSteps: worked })])!.optionOnly).toBeUndefined();
   });
 
   it("an option pick with a typed loss is not 'option only'", () => {

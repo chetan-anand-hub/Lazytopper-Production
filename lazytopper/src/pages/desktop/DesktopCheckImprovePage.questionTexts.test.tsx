@@ -313,6 +313,36 @@ describe("GRADE-MARKS-1 - Answer Checker paper marks", () => {
   });
 });
 
+describe("SCORECARD-SECTION-TYPE-1 - a marks edit never turns an inferred section into a sure one", () => {
+  it("Q20's section was inferred; the student corrects its marks; the persisted row is still 'check' (and the sure ones stay 'read')", async () => {
+    H.detectQuestion.mockReset().mockImplementation(async (req: { question?: string }) =>
+      req.question === "Whole paper" ? GM_PAPER : { ok: true, detectedTopic: null, detectedSubject: null },
+    );
+    H.gradeWorksheet.mockReset().mockResolvedValue(GM_GRADED);
+    const { container } = render(page());
+    fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: "Whole paper" } });
+    fireEvent.click(screen.getByRole("button", { name: /(Re-read|Read) the question/ }));
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    await act(async () => {});
+    await screen.findByText("Check: we guessed 5");
+    fireEvent.change(screen.getByLabelText("Marks for Q20"), { target: { value: "3" } }); // the edit overwrites marksSource with "user"
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    await clickGrade();
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    let payload: Awaited<ReturnType<typeof getSessionPerQuestion>> = null;
+    await waitFor(async () => {
+      payload = await getSessionPerQuestion("u1", "ci:CI-M-REAL-02");
+      expect(payload?.response.results).toHaveLength(3);
+    });
+    expect(payload!.response.results.map((r) => [r.qNumber, r.section, r.sectionBasis])).toEqual([
+      [1, "A", "read"],
+      [2, "A", "read"],
+      [20, "C", "check"],
+    ]);
+  });
+});
+
 describe("GRADE-MARKS-1 R4 - the single-question marks chip is locked at 1 for a detect-objective question", () => {
   it("an MCQ read as 2 marks is shown and SENT as 1; the 1-6 chip is not offered", async () => {
     H.detectQuestion.mockReset().mockResolvedValue({

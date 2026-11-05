@@ -27,6 +27,7 @@ import type { SessionRecord } from "../../services/sessionRecords";
 // served row, no question content) instead of the bank, so this module leaves the bank graph.
 import { bankIndexEntries, bankRowMeta } from "../../data/bankChapters/bankIdIndex";
 import { stampFromPaper, stampLens } from "./sectionTypeLens";
+import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 import {
   aggregateFourType,
   aggregateMarksLost,
@@ -473,13 +474,22 @@ export function storedFullMockScorecardVariant(
     fourType: record.fourType,
     // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
     marksLost: input.response ? aggregateMarksLost(input.response) : null,
+    // SCORECARD-SECTION-TYPE-1 - row stamps, then the bank id index, then (FULL MOCK REOPEN ONLY, coordinator
+    // ruling 5 Nov) the mark slot, which is exact for a mock paper (1->A, 2->B, 3->C, 5->D, 4->E). A Chapter
+    // Test keeps no such fallback: its slots are bands, not the bank's section.
     ...(response
       ? sectionTypeLensFields(
-          stampSectionFromBankIndex(
-            response,
-            Array.isArray(record.questionIds) && record.questionIds.length === response.results.length
-              ? record.questionIds.map((id, i) => ({ qNumber: i + 1, id }))
-              : null,
+          stampLens(
+            stampSectionFromBankIndex(
+              response,
+              Array.isArray(record.questionIds) && record.questionIds.length === response.results.length
+                ? record.questionIds.map((id, i) => ({ qNumber: i + 1, id }))
+                : null,
+            ),
+            (r) => {
+              const slot = sectionFromTotalMarks(r.totalMarks);
+              return slot ? { section: slot, sectionBasis: "bank" } : null;
+            },
           ),
         )
       : {}),

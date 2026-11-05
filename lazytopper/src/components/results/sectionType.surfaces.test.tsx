@@ -209,13 +209,33 @@ describe("Full Mock (live and restored)", () => {
     expect(lensOf(stored)).toEqual(lensOf(live));
   });
 
-  it("restored with NO persisted section and no bank id: the mark value is never used to guess (no lens)", () => {
-    const response = resp([row(1, 1, 1), row(2, 2, 2), row(3, 5, 3)]);
-    const stored = storedFullMockScorecardVariant(record({ surface: "full-mock", questionIds: [], marksAwarded: 6, marksTotal: 8 }), {
+  it("restored with NO persisted section and no bank id: falls back to the mark slot, exact for a mock (1 A, 2 B, 3 C, 5 D, 4 E)", () => {
+    const response = resp([row(1, 1, 1), row(2, 2, 1), row(3, 3, 3), row(4, 5, 3), row(5, 4, 2), row(6, 6, 0)]);
+    const stored = storedFullMockScorecardVariant(record({ surface: "full-mock", questionIds: [], marksAwarded: 10, marksTotal: 21 }), {
       gradedDateLabel: "1 Nov",
       response,
       onDone: noop,
     });
+    expect(stored.sectionLens!.map((r) => [r.section, r.awarded, r.total, r.lost])).toEqual([
+      ["A", 1, 1, 0],
+      ["B", 1, 2, 1],
+      ["C", 3, 3, 0],
+      ["D", 3, 5, 2],
+      ["E", 2, 4, 2],
+    ]);
+    // the 6-mark row maps to no slot: out of the table, said in the note, never forced into a section
+    expect(stored.sectionLensNote).toContain("1 question has no section on record");
+  });
+
+  it("a stamped row or a bank-index section beats the slot (the slot only fills gaps)", () => {
+    const stamped = resp([row(1, 4, 4, { section: "D", sectionBasis: "bank" })]);
+    const stored = storedFullMockScorecardVariant(record({ surface: "full-mock", questionIds: [], marksAwarded: 4, marksTotal: 4 }), { gradedDateLabel: "1 Nov", response: stamped, onDone: noop });
+    expect(stored.sectionLens!.map((r) => r.section)).toEqual(["D"]);
+  });
+
+  it("Chapter Test keeps NO slot fallback on reopen (its slots are bands)", () => {
+    const response = resp([row(1, 1, 1), row(2, 4, 2)]);
+    const stored = storedChapterTestScorecardVariant(record({ surface: "chapter-test", questionIds: [], marksAwarded: 3, marksTotal: 5 }), { gradedDateLabel: "1 Nov", response, onDone: noop });
     expect(stored.sectionLens ?? null).toBeNull();
   });
 });

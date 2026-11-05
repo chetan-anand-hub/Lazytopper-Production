@@ -810,6 +810,9 @@ export interface DetectedQuestion {
    *  or the CBSE section map), or "inferred" (a guess the student is asked to check). "user" =
    *  the student corrected it on the confirm step (client-side only). */
   marksSource: "stated" | "inferred" | "printed" | "section" | "fallback" | "user";
+  /** SCORECARD-SECTION-TYPE-1 — the source the READ reported, kept when the student edits the marks (which
+   *  overwrites `marksSource` with "user"). Client-side only; never sent. Absent until an edit. */
+  readMarksSource?: "stated" | "inferred" | "printed" | "section" | "fallback" | "user";
   /** GRADE-MARKS-1 — the section letter ("A"–"E") detect placed the question in (opt-in read only). */
   section?: string | null;
   /** GRADE-MARKS-1 (S1) — an objective question whose text prints an option list (MCQ) or is an

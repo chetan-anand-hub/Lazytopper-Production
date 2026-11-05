@@ -267,6 +267,22 @@ type MiType = (typeof MI_ORDER)[number];
 /** Every lost-marks row "Where your marks went" can print (MarksLostByType's six buckets). */
 const LOST_ROWS = ["conceptual", "calculation", "silly", "presentation", "unattempted", "untyped"] as const;
 
+/** The lost-marks rows the card PRINTS, as separate numbers: "reason not recorded" is the untyped marks LESS
+ *  the "Option only" row (SCORECARD-SECTION-TYPE-1 prints those apart), so each is compared on its own. */
+function printedLostRows(pm: NonNullable<ScorecardVariant["marksLost"]>): Record<(typeof LOST_ROWS)[number] | "optionOnly", number> {
+  const by = pm.byType;
+  const option = Math.min(Number(pm.optionOnly) || 0, Number(by.untyped) || 0);
+  return {
+    conceptual: Number(by.conceptual) || 0,
+    calculation: Number(by.calculation) || 0,
+    silly: Number(by.silly) || 0,
+    presentation: Number(by.presentation) || 0,
+    unattempted: Number(by.unattempted) || 0,
+    untyped: Math.max(0, (Number(by.untyped) || 0) - option),
+    optionOnly: option,
+  };
+}
+
 /** FNV-1a, 32-bit — a stable, tiny hash for the template pick. */
 export function seedHash(s: string): number {
   let h = 0x811c9dc5;
@@ -328,7 +344,8 @@ function printedBiggestLoss(v: ScorecardVariant): { type: MiType; text: string; 
     const top = by[best];
     // "Biggest loss" only when no other lost-marks row (Not attempted, reason not recorded, the
     // other types) is larger; a tie still makes it (one of) the biggest.
-    const dominant = LOST_ROWS.every((k) => k === best || !((Number(by[k]) || 0) > top));
+    const rows = printedLostRows(v.marksLost);
+    const dominant = rows.optionOnly <= top && LOST_ROWS.every((k) => k === best || !(rows[k] > top));
     return { type: best, text: marksWithUnit(top), lead: dominant ? L.biggest : L.mostMistake };
   }
   if (v.fourType) {
@@ -353,7 +370,7 @@ function printedOptionLead(v: ScorecardVariant): { marks: number; text: string }
   const by = pm.byType;
   if (MI_ORDER.some((t) => !(option > (Number(by[t]) || 0)))) return null;
   if (option < (Number(by.unattempted) || 0)) return null;
-  if (option < Math.max(0, (Number(by.untyped) || 0) - option)) return null;
+  if (option < printedLostRows(pm).untyped) return null;
   return { marks: option, text: marksWithUnit(option) };
 }
 
@@ -363,7 +380,8 @@ function printedBlankDominant(v: ScorecardVariant): boolean {
   const by = v.marksLost.byType;
   const blank = Number(by.unattempted) || 0;
   if (!(blank > 0)) return false;
-  return LOST_ROWS.every((k) => k === "unattempted" || !((Number(by[k]) || 0) > blank));
+  const rows = printedLostRows(v.marksLost);
+  return rows.optionOnly <= blank && LOST_ROWS.every((k) => k === "unattempted" || !(rows[k] > blank));
 }
 
 /** The card's own printed improvement ("▲ 9 marks vs …" on Full Mock, "▲ 4 marks since your last

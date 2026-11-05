@@ -66,7 +66,7 @@ import {
   WITHDRAWN_LABEL,
   UNTYPED_MARKS_LABEL,
   OPTION_ONLY_LABEL,
-  isOptionPickQuestion,
+  isOptionOnlyQuestion,
   effectivePaperCounts,
   gradeStateOf,
   pendingBreakdown,
@@ -210,7 +210,7 @@ import { limitFromAiRefusal, type LimitState } from "../../components/usage/fair
 import { readFairUseLimit } from "../../services/usageClient";
 // TRIAL-PAPER-1 - a trial paper graded only up to today's checks: the rest listed as
 // not graded, with an honest upgrade note.
-import { readTypeOf, stampLens } from "../../components/results/sectionTypeLens";
+import { readTypeOf, sectionBasisOfRead, stampLens } from "../../components/results/sectionTypeLens";
 import TrialPaperNote from "../../components/usage/TrialPaperNote";
 import { trialPaperCut, trialPaperNoteCopy } from "../../components/usage/fairUseGate";
 import { prefetchKatexWhenIdle } from "../../components/question/MathText";
@@ -2055,14 +2055,14 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
   function correctMarks(m: number) {
     if (singleObjectiveLocked) return; // §13: an MCQ that prints its options stays at 1 mark
-    setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
+    setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user", readMarksSource: c.readMarksSource ?? c.marksSource } : c));
   }
   // GRADE-MARKS-1 — the whole-paper confirm step: a student's correction of one question's marks.
   // `detectedQuestions` IS what the grade request sends (q.marks), so the edit is what is graded.
   function correctPaperMarks(index: number, marks: number) {
     setDetectedQuestions((qs) =>
       // §13: an MCQ that prints its options is never re-marked here (the editor shows it read-only).
-      qs ? qs.map((q, i) => (i === index && !isLockedObjective(q) ? { ...q, marks, marksSource: "user" as const } : q)) : qs,
+      qs ? qs.map((q, i) => (i === index && !isLockedObjective(q) ? { ...q, marks, marksSource: "user" as const, readMarksSource: q.readMarksSource ?? q.marksSource } : q)) : qs,
     );
   }
 
@@ -2538,7 +2538,9 @@ const DesktopCheckImprovePageInner: React.FC<{
         if (!d) return null;
         return {
           section: d.section ?? null,
-          sectionBasis: d.marksSource === "inferred" ? "check" : "read",
+          // Only a section the read was SURE of is "read"; inferred, fallback and a student-edited mark
+          // (which hides the read's own source) all stay "check" (no per-question sectionSource yet).
+          sectionBasis: sectionBasisOfRead(d.readMarksSource ?? d.marksSource),
           format: readTypeOf(d.objective),
         };
       });
@@ -4333,7 +4335,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       )}
                       {qMarks && qMarks.untyped > 0 && (
                         <span data-group="untyped" data-marks={qMarks.untyped} style={{ ...chipBase, color: TEXT_MUTED }}>
-                          {isOptionPickQuestion(g) ? OPTION_ONLY_LABEL : UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
+                          {isOptionOnlyQuestion(g) ? OPTION_ONLY_LABEL : UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
                         </span>
                       )}
                       {!qMarks && chips.map(({ group, count }) => (
