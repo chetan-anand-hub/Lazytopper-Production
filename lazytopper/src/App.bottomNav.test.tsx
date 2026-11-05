@@ -32,7 +32,8 @@ function renderNav(path: string) {
   );
 }
 
-const TABS = ["Home", "Exam Trends", "Practice", "Check", "Me"];
+// NAV-PRICING-1: the 5th tab is Pricing for everyone but a Board Pass holder (see App.bottomNav.pricing.test.tsx).
+const TABS = ["Home", "Exam Trends", "Practice", "Check", "Pricing"];
 
 describe("BottomNav (mobile tab bar — PR D)", () => {
   it("renders all five tabs in order on a mobile route", () => {
@@ -50,7 +51,7 @@ describe("BottomNav (mobile tab bar — PR D)", () => {
       "Exam Trends": "/exam-trends",
       Practice: "/practice-hub",
       Check: "/check-improve",
-      Me: "/me",
+      Pricing: "/pricing",
     };
     for (const [label, route] of Object.entries(expected)) {
       cleanup();

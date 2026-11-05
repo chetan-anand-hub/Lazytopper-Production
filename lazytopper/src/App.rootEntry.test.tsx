@@ -176,7 +176,8 @@ describe("RootEntry — a signed-out visitor stays on '/' with the landing", () 
 /* The mobile BottomNav must not sit over the public landing now that signed-out mobile stays on
    "/" (owner grant, App.tsx BottomNav gate). Identified by its five tab labels. The CONTROL proves
    the probe can see a BottomNav at all: it renders on an app route for a signed-in student. */
-const TABS = ["Home", "Exam Trends", "Practice", "Check", "Me"];
+// NAV-PRICING-1: the 5th tab is Pricing for a student who does not hold the Board Pass (this control is a Basic student).
+const TABS = ["Home", "Exam Trends", "Practice", "Check", "Pricing"];
 const bottomNavTabs = () =>
   screen.queryAllByRole("button").filter((b) => TABS.includes((b.textContent ?? "").trim()));
 

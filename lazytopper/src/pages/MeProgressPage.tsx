@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
+import { markMeSeen } from "../lib/nav/meSeen";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useIsDesktop } from "../hooks/useIsDesktop";
@@ -512,6 +513,11 @@ export default function MeProgressPage() {
   }, [location.hash, location.pathname, location.search, location.state, navigate]);
   const isDesktop = useIsDesktop();
   const { user, loading } = useAuth();
+  // NAV-PRICING-1 — opening Me marks any graded paper seen (clears the phone avatar's "new" dot).
+  const meUid = user?.uid;
+  useEffect(() => {
+    markMeSeen(meUid);
+  }, [meUid]);
   // EARLY-PAYWALL-1 — `hydrated` = this uid's cloud entitlement has been read. Until then a free-looking
   // status is UNKNOWN (a brand-new trial student's cache can still read free), never "Basic".
   const { isPremium, hydrated } = useSubscription();

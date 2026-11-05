@@ -1575,6 +1575,21 @@ export function trackTrialBannerClick(cta: TrialBannerCta): void {
 }
 
 /**
+ * NAV-PRICING-1 — `nav_pricing_tap { surface }`: the "Pricing" entry in the phone bottom bar or the desktop
+ * panel was tapped. The vendors get the name plus ONE coarse slug; no uid, no path, no state. Not in the
+ * first-party activity log (no activity name passed), so it adds nothing to that allow-list.
+ */
+export type NavPricingSurface = "bottom_nav" | "sidebar";
+
+export function trackNavPricingTap(surface: NavPricingSurface): void {
+  try {
+    send("event", { name: "nav_pricing_tap", data: { surface } }, { ga4: { surface } });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
  * TUTOR-STICKY-1 — the six events of the daily-return loop. The vendors get the name plus ONE coarse
  * slug (`surface` / `cta`: never an id, a chapter, a count or text); the first-party log gets the bare
  * name. A "shown" event is sent at most once per tab per IST day per surface (a re-render or a reload

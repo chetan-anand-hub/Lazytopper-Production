@@ -18,6 +18,8 @@ import { MockViewGate } from "./components/auth/MockViewGate";
 import RouteCanonical from "./components/seo/RouteCanonical";
 import { TrialBanner } from "./components/ux/TrialBanner";
 import { useAuth } from "./context/AuthContext";
+import { useHoldsBoardPass } from "./lib/nav/boardPass";
+import { trackNavPricingTap } from "./analytics/analytics";
 import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
@@ -418,7 +420,7 @@ export function isBareFullScreenRoute(pathname: string): boolean {
 }
 
 /**
- * BottomNav — mobile tab bar: Home / Exam Trends / Practice / Check / Me.
+ * BottomNav — mobile tab bar: Home / Exam Trends / Practice / Check / Pricing (or Me, for a Board Pass holder).
  *
  * Recoloured to the app's light grammar (PR D): white surface, soft border,
  * green active / muted-slate inactive — replacing the old near-black band and
@@ -427,11 +429,18 @@ export function isBareFullScreenRoute(pathname: string): boolean {
  *
  * DURABLE RULE (SEVER PR 2026-06-08): the mobile nav targets DERIVE FROM / MUST
  * MATCH the desktop nav set (components/desktop/DesktopShell.tsx NAV_ITEMS:
- * Home / Exam Trends / Practice / Check & Improve / Me). They must NOT diverge
+ * Home / Exam Trends / Practice / Answer Checker / Me). They must NOT diverge
  * again — divergence is what created the two-contradictory-homes bug (mobile "/"
  * landed on the old Dashboard while the Home tab went to /browse). Home is the
  * only intentional split: desktop "/" (DesktopHome) vs mobile "/browse"
  * (MobileHome). If you add/rename a desktop nav destination, update BOTH.
+ *
+ * NAV-PRICING-1 (owner, 5 Nov 2026: "I want visitors to have direct access to the pricing page") —
+ * the second DELIBERATE, OWNER-APPROVED divergence: the 5th slot is "Pricing" (/pricing?source=bottom-nav)
+ * for everyone who does not hold the Board Pass (signed out, Basic, trial, month pass) and "Me" for a
+ * Board Pass holder (lib/nav/boardPass.ts). The desktop sidebar keeps "Me / Progress" for EVERYONE and
+ * gains "Pricing" (after Answer Checker) for non-holders. On the phone, Me / Progress stays one tap
+ * away as the first row of the avatar menu (MobileAccountMenu). Do not "fix" this back to a match.
  *
  * Visibility rules:
  *   Hidden on desktop (>=1024px), on /welcome, /pricing, and any /intent* path, and
@@ -464,6 +473,8 @@ export function BottomNav() {
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
   const { user } = useAuth();
+  // NAV-PRICING-1 — above every early return (hook order). False when signed out / not yet hydrated.
+  const holdsBoardPass = useHoldsBoardPass();
 
   const current = location.pathname;
 
@@ -567,18 +578,34 @@ export function BottomNav() {
       active: isCheckActive,
       onClick: () => go("/check-improve"),
     },
-    {
-      label: "Me",
-      // User icon
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-      ),
-      active: isMeActive,
-      onClick: () => go("/me"),
-    },
+    holdsBoardPass
+      ? {
+          label: "Me",
+          // User icon
+          icon: (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          ),
+          active: isMeActive,
+          onClick: () => go("/me"),
+        }
+      : {
+          label: "Pricing",
+          // Price-tag icon. Never active: the bar is hidden on /pricing.
+          icon: (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2H2v10l9.29 9.29a2.5 2.5 0 0 0 3.42 0l6.58-6.58a2.5 2.5 0 0 0 0-3.42Z"/>
+              <path d="M7 7h.01"/>
+            </svg>
+          ),
+          active: false,
+          onClick: () => {
+            trackNavPricingTap("bottom_nav");
+            go("/pricing?source=bottom-nav");
+          },
+        },
   ];
 
   return (
@@ -614,6 +641,7 @@ export function BottomNav() {
             fontSize: "0.6rem",
             letterSpacing: "0.02em",
             textTransform: "uppercase",
+            whiteSpace: "nowrap",
             padding: "4px 6px",
             borderRadius: 8,
             transition: "color 0.15s ease",
