@@ -45,6 +45,7 @@ import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, maskIndianMobile, readRecentClaim, type ClaimedItem, type GuestClaimedDetail, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
+import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
@@ -493,9 +494,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       setBuy({ key, phase: "owned" });
       return;
     }
-    // CHECKOUT-WHO-1 - signed in, flag on: the sheet first ("For: you"); its Pay comes back here with `fromWho` and runs the
-    // unchanged checkout (the same events, sent once, at that Pay).
-    if (whoEnabled && !opts.fromWho) {
+    // CHECKOUT-SELF-1: a signed-in student's Buy / Pay goes straight to checkout for their own account (one tap); someone else /
+    // a mobile number is the secondary link under the button. Only the /for-parents audience keeps the sheet's "For: you" step.
+    if (whoEnabled && checkoutAudience && !opts.fromWho) {
       setWho({ sku, target, ...(opts.resumed ? { resumed: true } : {}), ...(from ? { from } : {}) });
       return;
     }
@@ -676,6 +677,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         >
           {label}
         </button>
+        {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
+          <SomeoneElseLink testId={`packs-someone-else-${sku}`} onOpen={() => setWho({ sku, target })} />
+        )}
         {blocked && <p className={`${prefix}__note`} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{whoEnabled ? PACK_WHO_NOTE : guestEnabled ? PACK_GUEST_NOTE : PACK_SIGNIN_NOTE}</p>}
         {dismissed && (
@@ -850,6 +854,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               priceDisplay: packPriceLabel(who.sku),
             }}
             {...(checkoutAudience ? { audience: checkoutAudience } : {})}
+            {...(signedIn && !checkoutAudience ? { startAt: "other" as const } : {})}
             signedIn={signedIn}
             selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
             onPaySelf={() => {

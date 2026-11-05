@@ -36,15 +36,16 @@ import PayRescueCard from "../payRescue/PayRescueCard";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { isGuestPayClientEnabled, maskIndianMobile, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
+import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Pay is tapped. */
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 
 /**
- * CHECKOUT-WHO-1 - set ONLY while VITE_CHECKOUT_WHO_ENABLED is on. Then the Board Pass Pay (and the ?buy= one-tap start) opens
- * the shared "Who will use it?" sheet first: signed in, its "Pay" runs the unchanged checkout below; signed out / someone else,
- * the sheet pays as a recipient purchase. Absent (flag off): every path below is exactly as before.
+ * CHECKOUT-WHO-1 - set ONLY while VITE_CHECKOUT_WHO_ENABLED is on. Signed out, the Board Pass Pay (and the ?buy= one-tap start) opens
+ * the shared "Who will use it?" sheet. CHECKOUT-SELF-1: signed in, the Pay button runs the unchanged checkout for the account itself,
+ * and a secondary link opens the same sheet at the someone-else / mobile-or-email box (the sheet pays as a recipient purchase). Absent (flag off): every path below is exactly as before.
  */
 export interface PassWhoWiring {
   selfMasked: string | null;
@@ -348,7 +349,9 @@ export function PassCheckoutView({
     // same tap continuing, so it sends none.)
     if (!opts.fromWho) trackBeginCheckoutTap(details, signedIn, opts.resumed === true);
     // CHECKOUT-WHO-1 - flag on: the Board Pass Pay opens "Who will use it?" first (the month renewal stays as it was).
-    if (who && passType === "till_boards" && !opts.fromWho) {
+    // CHECKOUT-SELF-1: only a SIGNED-OUT tap opens the sheet; a signed-in student's Pay buys for their own account in one tap
+    // (someone else / a mobile number is the secondary link below the button).
+    if (who && passType === "till_boards" && !opts.fromWho && !signedIn) {
       setWhoOpen(true);
       return;
     }
@@ -456,6 +459,10 @@ export function PassCheckoutView({
   const creditLine =
     signedIn && !activeLabel && packCredit && !failed && !expired && !recovery ? packCreditLine(packCredit) : null;
 
+  // CHECKOUT-SELF-1: a signed-in student with a pack credit pays the server's credited total - the one Pay button names exactly that.
+  const boardsLabel =
+    who && signedIn && packCredit ? `Pay \u20B9${packCredit.payInr.toLocaleString("en-IN")} once till your boards` : tillBoardsButtonLabel();
+
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
       {activeLabel && (
@@ -500,7 +507,7 @@ export function PassCheckoutView({
         disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("till_boards")}
       >
-        {tillBoardsButtonLabel()}
+        {boardsLabel}
       </button>
       {monthButton && Boolean(activeLabel) && (
         <button
@@ -512,6 +519,9 @@ export function PassCheckoutView({
         >
           {renewMonthLabel(offerOpen)}
         </button>
+      )}
+      {who && signedIn && !activeLabel && (
+        <SomeoneElseLink disabled={busy !== null || recovery !== null} onOpen={() => setWhoOpen(true)} />
       )}
       {creditLine && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-pack-credit">
@@ -566,6 +576,7 @@ export function PassCheckoutView({
             onSignInWithNumber={who.onSignInWithNumber}
             onSignInWithEmail={who.onSignInWithEmail}
             onClose={() => setWhoOpen(false)}
+            {...(signedIn ? { startAt: "other" as const } : {})}
           />
         </Suspense>
       )}
