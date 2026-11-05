@@ -217,10 +217,30 @@ function strictOptionList(text, style) {
  * @param {string} text
  * @returns {boolean}
  */
+/**
+ * PR #1582 round 2 (R2-1) · an INSTRUCTION anywhere in the text disqualifies it — in the stem, inside
+ * the last option, or after it. Detect transcripts collapse newlines and often drop the full stop, so
+ * "(d) 93 Explain your answer." arrives as one option; no sentence split can be trusted. Read BEFORE
+ * any cue ("Identify the correct statements and correct the false ones" is an instruction first).
+ *   · a CAPITALISED instruction verb starting a clause anywhere ("Justify …", "Give reasons …",
+ *     "Explain …", "Identify …") — case-sensitive, so "the solid state" or "explanation" never count;
+ *   · "If …, find / write / …" and "… and correct / justify / explain / give …" in any case.
+ */
+const INSTRUCTION_VERBS = ['justify', 'give', 'explain', 'show', 'prove', 'find', 'calculate', 'correct', 'write', 'draw',
+  'state', 'name', 'identify', 'classify', 'compare', 'differentiate', 'describe', 'define', 'simplify', 'factorise',
+  'factorize', 'solve', 'evaluate', 'determine', 'verify', 'list', 'mention', 'express', 'construct', 'derive',
+  'predict', 'suggest', 'account', 'rationalise', 'rationalize', 'expand', 'match', 'fill', 'complete', 'label', 'translate', 'convert'];
+const CAPITALISED_INSTRUCTION = new RegExp('(?:^|[^A-Za-z])(?:' + INSTRUCTION_VERBS.map((w) => w[0].toUpperCase() + w.slice(1)).join('|') + ')\\b');
+const LOWERCASE_INSTRUCTION = new RegExp('\\bif\\b[^?]*?,\\s*(?:' + INSTRUCTION_VERBS.join('|') + ')\\b|\\b(?:and|then|also|hence)\\s+(?:' + INSTRUCTION_VERBS.join('|') + ')\\b', 'i');
+function carriesInstruction(t) {
+  return CAPITALISED_INSTRUCTION.test(t) || LOWERCASE_INSTRUCTION.test(t);
+}
+
 function printsOptionList(text) {
   const t = String(text || '').replace(/\s+/g, ' ').trim();
   if (!t) return false;
   if (/\bOR\b/.test(t)) return false;
+  if (carriesInstruction(t)) return false;
   const printed = [...t.matchAll(MARKS_VALUE)].map((m) => Number(m[1] || m[2]));
   if (printed.length > 1 || printed.some((n) => n > 1)) return false;
   const a = /\bassertion\s*\(\s*a\s*\)/i.exec(t);
@@ -321,10 +341,14 @@ function normaliseDetectedQuestions(rawQuestions, o) {
   //      Upgrade only: a model-flagged objective is never cleared here.
   entries.forEach((e, i) => {
     const ruled = bySection ? bySection[i] : null;
-    const multiMark = (e.printedMarks !== null && e.printedMarks > 1)
+    // R2-2 · the model's OWN mark (or the read's fallback) above 1 blocks it too: every mark signal must say ≤ 1.
+    const modelMarks = e.marks !== null ? e.marks : o.detectedMarks;
+    const multiMark = (Number(modelMarks) > 1)
+      || (e.printedMarks !== null && e.printedMarks > 1)
       || /^[B-E]$/.test(e.section || '')
       || Boolean(ruled && ((ruled.marks !== null && ruled.marks > 1) || /^[B-E]$/.test(ruled.section || '')));
     e.printedOptions = e.textOptions && !multiMark;
+    e.upgradedByText = e.printedOptions && e.objective !== true; // the model had NOT flagged it
     if (e.printedOptions) e.objective = true;
   });
 
@@ -355,6 +379,10 @@ function normaliseDetectedQuestions(rawQuestions, o) {
     // by any rule — see 3c) is a 1-mark, 0-or-full item: detect reports 1, on every read.
     if (e.printedOptions) {
       out.marks = 1;
+      // R2-2 · a question THIS rule upgraded never claims its mark was "stated" unless one is printed on
+      // it ("[1]" / "(1 mark)"); a rule source (printed / section) stands. A question the model itself
+      // flagged objective keeps the model's read byte-for-byte (the golden replay pins it).
+      if (e.upgradedByText && out.marksSource === 'stated' && !new RegExp(MARKS_TOKEN.source, 'i').test(e.text)) out.marksSource = 'inferred';
       // for the route's single-question mirror; non-enumerable, so never in the response body
       Object.defineProperty(out, '_printedOptions', { value: true, enumerable: false });
     }

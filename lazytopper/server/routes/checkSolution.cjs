@@ -829,6 +829,8 @@ function createCheckSolutionRoute(deps) {
       if (questions.length === 1 && questions[0]._printedOptions === true) {
         detectedObjective = true;
         detectedMarks = 1;
+        // R2-2 · "stated" only when the question itself says so (detect.cjs never leaves a false "stated")
+        marksSource = questions[0].marksSource === 'stated' ? 'stated' : 'inferred';
       }
       if (wantsSectionMarks && questions.length > 0 && (questions[0].marksSource === 'printed' || questions[0].marksSource === 'section')) {
         detectedMarks = questions[0].marks;

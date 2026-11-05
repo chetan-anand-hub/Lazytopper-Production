@@ -3474,6 +3474,13 @@ const DO_REVIEW_D1 = [
   'Draw the electron dot structures for (a) NaCl (b) MgO (c) CaO (d) H₂O',
   'Electron dot structures for (a) NaCl (b) MgO (c) CaO (d) H₂O',
   'Read the passage. Three resistors of 2 Ω, 3 Ω and 6 Ω are connected in parallel to a 6 V battery. (a) equivalent resistance [1] (b) total current [1] (c) current through the 6 Ω resistor [1] (d) power [1]',
+  // round 2 (R2-1) — an instruction after (d), inside it, or in the stem, newline / full stop or not
+  'Which of the following statements are correct?\n(a) Every integer is rational\n(b) Every rational is an integer\n(c) √2 is rational\n(d) π is irrational\nJustify your answer.',
+  'Which of the following are physical changes?\n(a) melting of ice\n(b) burning of paper\n(c) rusting of iron\n(d) dissolving sugar in water\nGive reasons for your answer.',
+  'Which of the following are APs? (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2 If they form an AP, find d.',
+  'Which of the following are APs? (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2 if they form an AP, find d',
+  'Which one of these is a prime? (a) 91 (b) 87 (c) 97 (d) 93 Explain your answer.',
+  'Identify the correct statements and correct the false ones: (a) Every integer is rational (b) Every rational is an integer (c) √2 is rational (d) π is irrational',
 ];
 
 test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or separate lines, OCR spacing, A/B/C/D, "a)" / "A.", long Science options, statement-list MCQs, (i)–(iv) after a question, the golden transcripts', () => {
@@ -3491,7 +3498,7 @@ test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or 
     'An electrical appliance rated 1000 W is operated at 250 V. What current does it draw?(A) 0.25 A (B) 4 A (C) 2.5 A (D) 0.4 A',
     'sec 0° is equal to: (a) 0 (b) 1 (c) Not defined (d) ∞',
     'An event that cannot happen is called: (a) Certain event (b) Impossible event (c) Complementary event (d) Sure event',
-    'Identify the correct statement: (a) Zinc is less reactive than copper (b) Copper displaces zinc (c) Zinc displaces copper from copper sulphate (d) None of these',
+    'Which of the following cannot be the probability of an event? (a) 2/3 (b) −1.5 (c) 15% (d) 0.7',
     'Which type of reaction is shown when iron nails are kept in copper sulphate solution? (a) A combination reaction in which two substances join to form one product (b) A decomposition reaction in which one compound splits into simpler substances (c) A displacement reaction in which iron displaces copper from its salt solution (d) A double displacement reaction in which two compounds exchange their ions',
     'Which of the following are true?\n(i) 2 is prime\n(ii) 9 is prime\n(iii) 1 is prime\n(iv) 0 is even\n(a) (i) and (iv) (b) (ii) only (c) (iii) only (d) (i) only',
     'The value of 2³ is: (i) 6 (ii) 8 (iii) 9 (iv) 5',
@@ -3531,6 +3538,8 @@ test('§DO.3 ambiguous shapes FAIL SAFE (no upgrade — the model\'s own flag st
     'Solve: x² − 9 = 0 (a) ±3 (b) 3 only (c) −3 only (d) ±9',
     'Two dice are rolled simultaneously. The probability of getting number less than 4 on each die is: (A) 1/4 (B) 1/9 (C) 1/36 (D) 1/6',
     'In yeast, asexual reproduction takes place mainly by: (a) budding (b) binary fission (c) fragmentation (d) spore formation',
+    // an instruction verb anywhere disqualifies, even one that asks for the right choice (R2-1)
+    'Identify the correct statement: (a) Zinc is less reactive than copper (b) Copper displaces zinc (c) Zinc displaces copper from copper sulphate (d) None of these',
     // "P(E)" reads as a fifth letter label to the §13 guard's own test, which this rule must agree with
     'If P(E) = 0.05, what is P(not E)? (a) 0.95 (b) 0.05 (c) 1 (d) 0',
   ]) assert.equal(D.printedOptionsObjective(t), false, t.slice(0, 60));
@@ -3539,7 +3548,7 @@ test('§DO.3 ambiguous shapes FAIL SAFE (no upgrade — the model\'s own flag st
 test('§DO.4 normaliseDetectedQuestions: printed MCQs UPGRADE to objective at 1 mark; review D1 shapes stay as the model read them; a model-flagged objective is never downgraded; the result does not depend on the model\'s flag', () => {
   const D = require('../grading/detect.cjs');
   const read = (flags) => D.normaliseDetectedQuestions([
-    { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 2, objective: flags[0] },
+    { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 1, objective: flags[0] },
     { questionNumber: 2, questionText: DO_MCQ_Q2, marks: 1, objective: flags[1] },
     { questionNumber: 3, questionText: 'Find the HCF of 12 and 18 by prime factorisation.', marks: 1, objective: flags[2] },
     { questionNumber: 4, questionText: DO_SUBPART_5, marks: 5, objective: false },
@@ -3571,7 +3580,7 @@ test('§DO.5 ★ review D2: a printed MCQ shape never overrides a mark above 1 (
 test('§DO.6 ★ integration: objective:false on printed (a)–(d) MCQs → locked (objective + offersOptions, 1 mark) at detect; a stale client sending objective:false at 1 mark is still graded 0 or full on BOTH routes', async () => {
   const reply = { detectedMarks: 1, marksSource: 'stated', detectedObjective: false, sectionHeaders: [],
     questions: [
-      { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 2, objective: false },
+      { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 1, objective: false },
       { questionNumber: 2, questionText: DO_MCQ_Q2, marks: 1, objective: false },
       { questionNumber: 3, questionText: DO_SUBPART_5, marks: 5, objective: false },
     ] };
@@ -3635,4 +3644,29 @@ test('§DO.8 ★ review D1 on BOTH grade routes: an objective:false question in 
   const hb = buildRoute({ replies: [{ results: [{ qNumber: 2, ...r5 }] }] });
   await hb.route.handleGradeWorksheet(WORKSHEET_REQ([Q(2, { marks: 1, section: 'C', format: 'sa', questionText: DO_MCQ_Q1 })]), {});
   assert.ok(!hb.body().results[0].objective, 'bank metadata wins');
+});
+
+test('§DO.9 ★ review R2-2: the model\'s own marks > 1 BLOCK the upgrade (no section, nothing printed) — not locked, not "stated"; a printed MCQ the model read at 1 mark still upgrades', async () => {
+  const D = require('../grading/detect.cjs');
+  const JUST = 'Which of the following are chemical changes? (a) rusting of iron (b) melting of ice (c) boiling of water (d) freezing of water';
+  const PROB = 'Which of the following cannot be the probability of an event? (a) 2/3 (b) −1.5 (c) 15% (d) 0.7';
+  assert.equal(D.printedOptionsObjective(JUST), true, 'the text alone would qualify');
+  const qs = D.normaliseDetectedQuestions([
+    { questionNumber: 1, questionText: JUST, marks: 3, marksSource: 'stated', objective: false },
+    { questionNumber: 2, questionText: PROB, marks: 1, marksSource: 'stated', objective: false },
+  ], { detectedMarks: 3 });
+  assert.deepEqual([qs[0].objective, qs[0].marks, qs[0].marksSource], [false, 3, 'stated'], 'model marks 3: the model\'s read stands, untouched');
+  assert.deepEqual([qs[1].objective, qs[1].marks], [true, 1], 'model marks 1: upgraded');
+  assert.equal(qs[1].marksSource, 'inferred', 'upgraded with nothing printed: never "stated"');
+  // through the route, opted in: the 3-mark read is NOT locked (offersOptions false), marksSource not "stated"
+  const h = buildRoute({ replies: [{ detectedMarks: 3, marksSource: 'stated', detectedObjective: false, sectionHeaders: [],
+    questions: [{ questionNumber: 1, questionText: JUST, marks: 3, marksSource: 'stated', objective: false }, { questionNumber: 2, questionText: PROB, marks: 1, marksSource: 'stated', objective: false }] }] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const b = h.body().questions;
+  assert.deepEqual(b.map((q) => [q.objective, q.offersOptions, q.marks]), [[false, false, 3], [true, true, 1]]);
+  assert.ok(b.every((q) => q.marksSource !== 'stated'), 'no false "stated": ' + b.map((q) => q.marksSource));
+  // single read with a model "stated" 1 and nothing printed: the top level is not "stated" either
+  const h1 = buildRoute({ replies: [{ detectedMarks: 1, marksSource: 'stated', detectedObjective: false, questions: [{ questionNumber: 1, questionText: PROB, marks: 1, marksSource: 'stated', objective: false }] }] });
+  await h1.route.handleDetectQuestion({ question: PROB }, {});
+  assert.deepEqual([h1.body().detectedObjective, h1.body().detectedMarks, h1.body().marksSource], [true, 1, 'inferred']);
 });
