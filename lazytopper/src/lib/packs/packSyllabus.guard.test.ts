@@ -34,7 +34,8 @@ import { sciencePredictedQuestions } from "../../data/predictedQuestionsScience"
 import { PACK_SUBJECTS, packIdOf, type PackSku } from "../../services/packs";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
-import { PACK_SYLLABUS_EXCLUDED, SYLLABUS_EXCLUDED_AT, drawAvoidingExcluded, drawPackWorksheetRowsSafe } from "./packContent";
+import { PACK_SYLLABUS_EXCLUDED, SYLLABUS_EXCLUDED_AT, drawAvoidingExcluded, drawPackWorksheetRows, drawPackWorksheetRowsSafe } from "./packContent";
+import { REVISED_PACK_PAPER_CODES, packPaperCode } from "./packPaperCode";
 
 /**
  * Reviewed INCIDENTAL hits: a banned phrase that appears in a question whose SUB-TOPIC is in the 2026-27 syllabus and which does
@@ -83,8 +84,81 @@ const REVIEWED_INCIDENTAL: Readonly<Record<string, string>> = (() => {
     "Solar Energy",
     ["APQ-S-ENV-001", "CBE-S-ENVI-A-002", "OEX-A-009", "OEX-A-026", "OEX-A-034", "PYQ-S-2025-ENV-002", "OE2-029", "OE-D04", "OE2-032", "OESE-002", "OESE-014"],
   );
+  add(
+    "A generator is just a machine in an HCF, probability or power word problem (standby generators serviced on cycles; a plant with two generators; a bulb on a 220 V generator). Nothing about how a generator works is asked.",
+    "lens:motor-generator-principle",
+    ["RNSE-008", "Z3-PR-003", "ELEC-NCERT-11-SA-026"],
+  );
+  add(
+    "Electricity: an electric motor is the load whose power P = V x I is computed; its working is not asked (same row as the phrase entry above).",
+    "lens:motor-generator-principle",
+    ["ELEC-NCERT-11-LA-009"],
+  );
+  add(
+    "Oersted's experiment (IN). The 3-mark key ends 'led to development of electromagnets, motors, generators' as history; the marks are for the compass deflection and the conclusion.",
+    "lens:motor-generator-principle",
+    ["ME-H08"],
+  );
+  add(
+    "KEPT by owner ruling 5 Nov 2026: 'acquired traits' appears inside an in-syllabus Heredity answer (DNA as genetic material; somatic changes are not inherited). Incidental to the answer, not an Evolution question.",
+    "lens:acquired-traits",
+    ["HE2-064"],
+  );
+  add(
+    "KEPT by owner ruling 5 Nov 2026: retained NCERT 8.1 wording in a Heredity variation MCQ; the key tests the false statement 'all variations have equal chance of survival', not the evolution option.",
+    "lens:evolutionary",
+    ["HERED-EXMPLR-8-MCQ-010"],
+  );
+  add(
+    "'Evolutionary' / 'evolution' is a closing remark in the CBSE-style key (brain size; copying errors give variation); the sub-topic (Brain Structure, DNA Copying) is IN and the marks are not for evolution.",
+    "lens:evolutionary",
+    ["CNC2-007", "REPR-NCERT-7-SA-007"],
+  );
+  add(
+    "KEPT by owner ruling 5 Nov 2026: CBSE-authored Class 10 competency-focused question using the remainder / factor idea on a quadratic or a graph; the remainder theorem is not a deleted Class 10 item (only polynomial long division and the cubic relations are).",
+    "lens:remainder-theorem",
+    ["CFPQ-M-POLY-001", "CFPQ-M-POLY-002", "CFPQ-M-POLY-009", "CFPQ-M-POLY-017"],
+  );
+  add(
+    "KEPT by owner ruling 5 Nov 2026: a zero is given and the unknowns are found by substituting it (p(a) = 0); no division and no remaining zeroes of a cubic are asked.",
+    "lens:cubic-remaining-zeroes",
+    ["POLY-H05", "PL2-033"],
+  );
   return t;
 })();
+
+/** Test seam: treat `id` as excluded for the duration of `fn` (the map is read live by isSyllabusExcludedFromPacks). */
+function PACK_SYLLABUS_EXCLUDED_FOR_TEST(id: string, fn: () => void): void {
+  (PACK_SYLLABUS_EXCLUDED as Map<string, string>).set(id, "test");
+  try {
+    fn();
+  } finally {
+    (PACK_SYLLABUS_EXCLUDED as Map<string, string>).delete(id);
+  }
+}
+
+/**
+ * CONTENT lenses (owner ruling 5 Nov 2026): classes of deleted content caught by what the question SAYS, so a new row is stopped
+ * even if nobody lists its id. A hit needs a reviewed `<id>|lens:<name>` entry below. `chapter` narrows a lens to one chapter.
+ */
+const CONTENT_LENSES: ReadonlyArray<{ name: string; re: RegExp; chapter?: string }> = [
+  { name: "induced-current", re: /induced\s+(current|e\.?\s?m\.?\s?f\.?|voltage|potential)/i },
+  { name: "electromagnetic-induction", re: /electro-?\s?magnetic\s+induction|magnetic\s+induction|faraday/i },
+  { name: "motor-generator-principle", re: /\b(electric|d\.?c\.?|a\.?c\.?|simple)\s+(motor|generator)s?\b|\bmotor\s+(principle|effect)\b|\bgenerators?\b|\bdynamo\b|\bsplit[- ]ring\b|\bcommutator\b|\barmature\b/i },
+  { name: "acquired-traits", re: /acquired\s+(and\s+inherited\s+)?traits?/i },
+  { name: "evolutionary", re: /\bevolutionary\b/i },
+  { name: "remainder-theorem", re: /remainder|divisible\s+by|is\s+divided\s+by|on\s+dividing/i, chapter: "polynomials" },
+];
+
+/** A cubic with one zero / factor GIVEN whose remaining zeroes are found by dividing it out or comparing coefficients. */
+function cubicRemainingZeroes(q: { topicKey: string; questionText: string; options?: string[]; solutionSteps?: string[]; finalAnswer?: string; answer?: string }): boolean {
+  if (q.topicKey !== "polynomials") return false;
+  const text = [q.questionText, ...(q.solutionSteps ?? []), q.finalAnswer ?? "", q.answer ?? ""].join(" \n ");
+  const cubic = /x\s*³|x\^3|\bcubic\b|degree\s*(3|three)/i.test(text);
+  const given = /(one|a|the)\s+zeroe?s?\s+(of|is|are)|\bis\s+a\s+zero|zero\s+of\s+[a-z]\(x\)\s+is|is\s+a\s+factor|are\s+factors|divisible\s+by|divided\s+by\s*\(|no\s+remainder|one\s+zero/i.test(text);
+  const remaining = /quotient|remaining\s+zeroe?s?|other\s+(two\s+)?zeroe?s?|find\s+(all\s+)?the\s+zeroe?s?|comparing\s+coefficients|dividing\s+(out|f|p)|long\s+division|factorisable/i.test(text);
+  return cubic && given && remaining;
+}
 
 const MATCHER = buildSyllabusMatcher(SYLLABUS_2026_27 as never);
 
@@ -153,6 +227,15 @@ describe("every sellable pack goes through the syllabus guard", () => {
         ["finalAnswer", q.finalAnswer ?? ""],
         ["answer", q.answer ?? ""],
       ];
+      const whole = fields.map(([, t]) => t).join(" \n ");
+      for (const lens of CONTENT_LENSES) {
+        if (lens.chapter && lens.chapter !== q.topicKey) continue;
+        const key = `${id}|lens:${lens.name}`;
+        if (lens.re.test(whole) && !(key in REVIEWED_INCIDENTAL)) problems.push(`${key} (${q.topicKey}, "${sub}"): ${q.questionText.slice(0, 110).replace(/\s+/g, " ")}`);
+      }
+      if (cubicRemainingZeroes(q) && !(`${id}|lens:cubic-remaining-zeroes` in REVIEWED_INCIDENTAL)) {
+        problems.push(`${id}|lens:cubic-remaining-zeroes (${q.topicKey}, "${sub}"): ${q.questionText.slice(0, 110).replace(/\s+/g, " ")}`);
+      }
       for (const [field, text] of fields) {
         if (!text) continue;
         for (const h of matchFreeText(text, MATCHER, q.topicKey)) {
@@ -176,9 +259,18 @@ describe("every sellable pack goes through the syllabus guard", () => {
 });
 
 describe("the syllabus exclusions", () => {
-  it("pin the five rows judged on 5 Nov 2026 (a row leaves this list only by an owner ruling)", () => {
+  it("pin the eight rows judged on 5 Nov 2026 (a row leaves this list only by an owner ruling)", () => {
     expect([...PACK_SYLLABUS_EXCLUDED.keys()].sort()).toEqual(
-      ["BX-PLE-D-038", "CFPQ-M-POLY-013", "SAV-N-EXEM2-12-MCQ-003", "SAV-N-EXMPLR-12-MCQ-001", "SAV-N-EXMPLR-12-MCQ-003"].sort(),
+      [
+        "BX-PLE-D-038",
+        "CFPQ-M-POLY-013",
+        "CFPQ-M-POLY-014",
+        "ME2-004",
+        "ME2-030",
+        "SAV-N-EXEM2-12-MCQ-003",
+        "SAV-N-EXMPLR-12-MCQ-001",
+        "SAV-N-EXMPLR-12-MCQ-003",
+      ].sort(),
     );
     for (const [id, why] of PACK_SYLLABUS_EXCLUDED) expect(why.length, id).toBeGreaterThan(40);
   });
@@ -203,15 +295,43 @@ describe("paper draws steer clear of an excluded row", () => {
     expect(got.paper.questions.map((q) => q.id)).toEqual(["A"]);
   });
 
-  it("the worksheet keeps its own draw unless that draw printed an excluded row", () => {
+  it("the worksheet swaps an excluded row for the next row of its section and moves nothing else", () => {
     const row = (id: string, section: string) => ({ id, section, marks: 1 }) as unknown as CanonicalQuestion;
-    const draw = Array.from({ length: 8 }, (_, i) => row(`R${i}`, "A"));
-    const first = drawPackWorksheetRowsSafe(draw, draw, 7);
-    expect(first.map((q) => q.id)).toEqual(drawPackWorksheetRowsSafe(draw, draw.slice(0, 8), 7).map((q) => q.id));
-    const bad = [...draw, row("CFPQ-M-POLY-013", "A")];
-    const clean = bad.filter((q) => q.id !== "CFPQ-M-POLY-013");
-    const got = drawPackWorksheetRowsSafe(bad, clean, 3);
-    expect(got.some((q) => q.id === "CFPQ-M-POLY-013")).toBe(false);
+    const pool = Array.from({ length: 12 }, (_, i) => row(`R${i}`, "A"));
+    const plain = drawPackWorksheetRows(pool, 7).map((q) => q.id);
+    expect(drawPackWorksheetRowsSafe(pool, 7).map((q) => q.id)).toEqual(plain);
+    const victim = plain[0];
+    PACK_SYLLABUS_EXCLUDED_FOR_TEST(victim, () => {
+      const swapped = drawPackWorksheetRowsSafe(pool, 7).map((q) => q.id);
+      expect(swapped).not.toContain(victim);
+      expect(swapped.filter((id) => plain.includes(id))).toHaveLength(plain.length - 1);
+    });
+  });
+});
+
+describe("re-coded graded papers", () => {
+  it("exactly the three papers whose questions changed print a -V2 code; every other code is unchanged", () => {
+    expect([...REVISED_PACK_PAPER_CODES.entries()]).toEqual([
+      ["PK-M-PO-WS", "PK-M-PO-WS-V2"],
+      ["PK-S-FULL-M5", "PK-S-FULL-M5-V2"],
+      ["PK-S-MEOE-WS", "PK-S-MEOE-WS-V2"],
+    ]);
+    expect(packPaperCode({ kind: "ws", chapter: "polynomials" })).toBe("PK-M-PO-WS-V2");
+    expect(packPaperCode({ kind: "mock", subject: "science", n: 5 })).toBe("PK-S-FULL-M5-V2");
+    expect(packPaperCode({ kind: "ws", chapter: "magnetic-effects-of-electric-current" })).toBe("PK-S-MEOE-WS-V2");
+    expect(packPaperCode({ kind: "ws", chapter: "triangles" })).toBe("PK-M-TRI-WS");
+    expect(packPaperCode({ kind: "ct1", chapter: "polynomials" })).toBe("PK-M-PO-CT1");
+    expect(packPaperCode({ kind: "mock", subject: "science", n: 4 })).toBe("PK-S-FULL-M4");
+  });
+
+  it("a -V2 code is shaped like every other pack code, so every consumer that treats a code as an opaque id takes it", () => {
+    for (const code of REVISED_PACK_PAPER_CODES.values()) {
+      expect(code).toMatch(/^PK-[MS]-[A-Z0-9]+(?:-[A-Z0-9]+)*$/);
+      expect(code.startsWith("PK-")).toBe(true);
+      expect(code).not.toMatch(/^(WS|CT|FM)-/);
+    }
+    expect(new Set([...REVISED_PACK_PAPER_CODES.values()]).size).toBe(3);
+    for (const old of REVISED_PACK_PAPER_CODES.keys()) expect(REVISED_PACK_PAPER_CODES.has(`${old}-V2`)).toBe(false);
   });
 });
 

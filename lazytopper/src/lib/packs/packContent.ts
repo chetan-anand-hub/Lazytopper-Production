@@ -69,6 +69,18 @@ export const PACK_SYLLABUS_EXCLUDED: ReadonlyMap<string, string> = new Map([
     "CFPQ-M-POLY-013",
     "Polynomials: a cubic f(x), (x + 1) is a factor, find the other zeroes by dividing it out. The reference lists \"Division algorithm for polynomials (long division, finding remaining zeros by division)\" and the cubic as OUT for 2026-27.",
   ],
+  [
+    "CFPQ-M-POLY-014",
+    "Polynomials: a cubic f(x) = x^3 - 3x^2 + 4 with one zero given (2); the other zeroes are found by dividing out (x - 2) / comparing coefficients. Same reason as CFPQ-M-POLY-013: 'finding remaining zeros by division' and the cubic are OUT for 2026-27.",
+  ],
+  [
+    "ME2-004",
+    "Magnetic Effects: options 'Direction of induced current' / 'Magnitude of induced EMF'. Electromagnetic induction is OUT / FORMATIVE in src/config/syllabus2026-27.ts; the deleted item is printed to the student as an option (same rule as the frustum options).",
+  ],
+  [
+    "ME2-030",
+    "Magnetic Effects: options 'Direction of induced current' / 'Direction of force on a current-carrying conductor'. Electromagnetic induction is OUT / FORMATIVE in src/config/syllabus2026-27.ts; the deleted item is printed to the student as an option.",
+  ],
   ["SAV-N-EXEM2-12-MCQ-003", "Surface areas and volumes: 'frustum of a cone' (deleted: Frustum of Cone) is printed as an answer option."],
   ["SAV-N-EXMPLR-12-MCQ-001", "Surface areas and volumes: 'frustum of a cone and a cylinder' (deleted: Frustum of Cone) is printed as an answer option."],
   ["SAV-N-EXMPLR-12-MCQ-003", "Surface areas and volumes: 'frustum of a cone and a cylinder' (deleted: Frustum of Cone) is printed as an answer option."],
@@ -277,24 +289,25 @@ export const WORKSHEET_SECTION_TAKE: Readonly<Record<PackSection, number>> = { A
  * The pack Worksheet: a seeded sample of the chapter's rows, a few per section, in board order. Same seed,
  * same ids. Uses the app's seeded PRNG, never Math.random.
  */
-export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
+export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: number, skip?: (q: CanonicalQuestion) => boolean): CanonicalQuestion[] {
   const out: CanonicalQuestion[] = [];
   for (const [sec, list] of groupBySection(rows)) {
     // Step-marked questions are taken first; the others only when the section has too few (a stable partition after the seeded shuffle).
     const shuffled = stepMarkedFirst(seededShuffle(list, mulberry32(seed ^ hashSeed(`ws:${sec}`))));
-    out.push(...shuffled.slice(0, WORKSHEET_SECTION_TAKE[sec]).sort((a, b) => (a.id < b.id ? -1 : 1)));
+    // `skip` drops a row from the ORDER the draw walks, so the row after it takes its place and everything else stays put.
+    const pick = skip ? shuffled.filter((q) => !skip(q)) : shuffled;
+    out.push(...pick.slice(0, WORKSHEET_SECTION_TAKE[sec]).sort((a, b) => (a.id < b.id ? -1 : 1)));
   }
   return out;
 }
 
 /**
- * The pack Worksheet's rows with the syllabus exclusions applied: the seeded draw over `drawRows` (the list the draw has always
- * used, so a worksheet that holds no excluded row is unchanged), and, only when that draw printed an excluded row, the same seed over
- * `rows` (the sheet list, exclusions applied).
+ * The pack Worksheet's rows with the syllabus exclusions applied as a SWAP: the same seeded walk over `drawRows` (the list the draw has
+ * always used), skipping an excluded row, so the next row of that section takes its slot (same section, same marks bucket) and every
+ * other question stays where it was. A worksheet that holds no excluded row is unchanged.
  */
-export function drawPackWorksheetRowsSafe(drawRows: readonly CanonicalQuestion[], rows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
-  const first = drawPackWorksheetRows(drawRows, seed);
-  return first.some(isSyllabusExcludedFromPacks) ? drawPackWorksheetRows(rows, seed) : first;
+export function drawPackWorksheetRowsSafe(drawRows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
+  return drawPackWorksheetRows(drawRows, seed, isSyllabusExcludedFromPacks);
 }
 
 /** The exact number of questions in a chapter pack (page copy). The chapter must be loaded. */

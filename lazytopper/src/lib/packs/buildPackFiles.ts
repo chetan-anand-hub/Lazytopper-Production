@@ -298,7 +298,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   }
 
   // 3. Worksheet (paper + key).
-  const wsRows = drawPackWorksheetRowsSafe(drawRows, rows, hashSeed(`pack-paper:${slug}:ws1`));
+  const wsRows = drawPackWorksheetRowsSafe(drawRows, hashSeed(`pack-paper:${slug}:ws1`));
   if (wsRows.length > 0) {
     const questions = wsRows.map((q, i) => toWorksheetQuestion(q, i + 1, name));
     const marks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
