@@ -78,6 +78,11 @@ export interface CheckoutSheetProps {
    * own) and the guest events carry `surface: "for_parents"`. Absent = the student-side copy, byte-identical to before.
    */
   audience?: "parent";
+  /**
+   * CHECKOUT-SELF-1: "other" = open straight at the someone-else / mobile-or-email box even when signed in (the secondary link under
+   * a signed-in student's one Pay button). Absent = as before (signed in -> the "For: you" step).
+   */
+  startAt?: "other";
   /** Test seam. */
   buy?: (item: GuestItem, recipient: Recipient, signedIn: boolean) => Promise<WhoBuyOutcome>;
 }
@@ -101,10 +106,11 @@ export default function CheckoutSheet({
   onSignInWithEmail,
   onClose,
   audience,
+  startAt,
   buy = buyForRecipient,
 }: CheckoutSheetProps) {
   const surfaceData = audience === "parent" ? ({ surface: "for_parents" } as const) : {};
-  const [step, setStep] = useState<Step>(signedIn ? { name: "self" } : { name: "form" });
+  const [step, setStep] = useState<Step>(signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
   const [first, setFirst] = useState("");
   const [second, setSecond] = useState("");
   const [showSecond, setShowSecond] = useState(false);
@@ -115,7 +121,8 @@ export default function CheckoutSheet({
   useEffect(() => {
     if (shown.current) return;
     shown.current = true;
-    trackNamedEvent("guest_pay_option_shown", { recipient: signedIn ? "self" : "other", ...surfaceData });
+    trackNamedEvent("guest_pay_option_shown", { recipient: signedIn && startAt !== "other" ? "self" : "other", ...surfaceData });
+  // `startAt` is a mount-time choice (the sheet is mounted fresh per open); it must not re-fire the once-only event.
   }, [signedIn]);
 
   useEffect(() => {

@@ -87,19 +87,47 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
     expect(screen.getAllByText(/Science CBQ Pack/).length).toBeGreaterThan(0);
   });
 
-  it("signed in: 'For: you' and ONE tap into the existing buyPack", async () => {
+  it("signed in: ONE Buy tap goes straight into buyPack for the account - no 'Who will use it?'", async () => {
     auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
     buyMock.mockResolvedValue({ status: "dismissed" });
     shop();
     fireEvent.click(screen.getByText("open mock"));
     const btn = await screen.findByTestId("packs-buy-pack_mock");
     await waitFor(() => expect((btn as HTMLButtonElement).disabled).toBe(false));
+    expect(btn.textContent).toMatch(/^Buy for ₹[\d,]+/); // the amount comes from the shop's own label source
     fireEvent.click(btn);
-    expect((await screen.findByTestId("who-self")).textContent).toBe("For: you · an••••@gmail.com");
-    expect(buyMock).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("who-pay-self"));
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0][0]).toBe("pack_mock");
+    expect(screen.queryByTestId("who-sheet")).toBeNull();
+  });
+
+  it("signed in, flag on: a /packs?buy= return starts buyPack once with no sheet", async () => {
+    auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    shop("/packs?buy=pack_cbq&t=science");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("pack_cbq");
+    expect(screen.queryByTestId("who-sheet")).toBeNull();
+  });
+
+  it("signed in: the secondary link opens the someone-else box (no purchase started)", async () => {
+    auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    const link = await screen.findByTestId("packs-someone-else-pack_mock");
+    await waitFor(() => expect((screen.getByTestId("packs-buy-pack_mock") as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(link);
+    expect(await screen.findByText("Who will use it?")).toBeTruthy();
+    expect(screen.getByTestId("who-first")).toBeTruthy();
+    expect(screen.queryByTestId("who-self")).toBeNull();
+    expect(buyMock).not.toHaveBeenCalled();
+  });
+
+  it("signed out: no secondary link (the sheet is the primary path)", async () => {
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    await screen.findByTestId("packs-buy-pack_mock");
+    expect(screen.queryByTestId("packs-someone-else-pack_mock")).toBeNull();
   });
 });
 
