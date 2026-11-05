@@ -202,6 +202,9 @@ const NEXT_QUESTION = /\bQ\.?\s*\d+\b|(?:^|\s)\d{1,2}\s*[.)]\s+[A-Z]/;
 function lastOptionIsAnswerValue(opts) {
   const last = opts[3];
   if (!last || INSTRUCTION_OR_QUESTION_WORD.test(last) || TRAILING_QUESTION_WORD.test(last) || NEXT_QUESTION.test(last)) return false;
+  // R5-1 · a reason request without a verb ("… along with reasons in brief", "— reasons please"), and a
+  // dash starting a new clause inside (d). (The A-R "Reason (R)" label never reaches here: A-R returns earlier.)
+  if (/\breason(?:s|ing)?\b/i.test(last) || /\s(?:—|–|--)|\s-\s+[A-Za-z]/.test(last)) return false;
   if (MCQ_CLOSER.test(last)) return true;
   const words = (o) => o.split(/\s+/).filter(Boolean).length;
   const others = opts.slice(0, 3);

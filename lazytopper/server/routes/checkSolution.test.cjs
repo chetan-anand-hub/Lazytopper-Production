@@ -3494,6 +3494,9 @@ const DO_REVIEW_D1 = [
   ...['(d) 93 why', '(d) 93 explain', '(d) 93 prove', '(d) 93 justify', '\n(d) 93 justify', '(d) 93 (2)', '(d) 93 [3]']
     .map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 ' + tail),
   'Which of the following are physical changes? (a) melting of ice (b) burning of paper (c) rusting of iron (d) dissolving sugar justify',
+  // final delta (R5-1) — a reason request without a verb, or a dash clause, after (d)
+  ...[' along with reasons in brief', ' and the reasons for the same', ' — reasons please']
+    .map((tail) => 'Which of the following are physical changes? (a) melting of ice (b) burning of paper (c) rusting of iron (d) dissolving sugar in water' + tail),
 ];
 
 test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or separate lines, OCR spacing, A/B/C/D, "a)" / "A.", long Science options, statement-list MCQs, (i)–(iv) after a question, the golden transcripts', () => {
