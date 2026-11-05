@@ -341,7 +341,8 @@ const countsTowardCap = (s) => !s._balancing && !(FIGURE_VALUE_POINT.test([s.tea
 function examTechniqueCap(totalMarks) { return Number(totalMarks) <= 1 ? 0.5 : 1; }
 function capExamTechnique(steps, totalMarks) {
   const cap = examTechniqueCap(totalMarks);
-  const et = (s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s);
+  // MISSING-TYPE-1 (owner ruling 5 Nov 2026, 14:04): working not shown is never capped — its marks are lost as an examiner takes them.
+  const et = (s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s) && !s._workingNotShown;
   const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
   let excess = half(steps.filter(et).reduce((a, s) => a + lostOf(s), 0) - cap);
   if (!(excess > 0)) return 0;
@@ -603,6 +604,24 @@ function nonAttemptText(s) {
     .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
   return t && NON_ATTEMPT_PHRASES.has(t) ? 'phrase' : null;
 }
+/* MISSING-TYPE-1 review item 3 — a MODEL PLACEHOLDER for absent work ("Not shown", "(no working shown)", "Working not
+   shown", "Not written", "—") is BLANK, exactly like an empty string. One helper for every blank-step check of #1575
+   and MISSING-TYPE-1. It is never a STUDENT'S non-attempt ("Don't know", "DK", "no idea"): those stay ruling 7's. */
+const ABSENT_WORK = new Set([
+  'not shown', 'no working shown', 'working not shown', 'working is not shown', 'steps not shown', 'step not shown', 'not written',
+  'no working', 'no work', 'no work shown', 'nothing written', 'blank', 'left blank', 'not provided', 'not given', 'omitted',
+  'missing', 'not attempted', 'unattempted', 'not answered', 'no answer', 'empty', 'null', 'none', 'n a', 'na', 'not done',
+]);
+// Review round 2: the placeholder words are read ONLY on a step the MODEL reported absent ("missing" / "unattempted").
+// On any other step they may be the student's own answer (a wrong "None" on a working step): only truly empty is blank.
+const PLACEHOLDER_STATUSES = new Set(['missing', 'unattempted']);
+function isBlankWork(text, status) {
+  if (nonAttemptText(text) === 'empty') return true;
+  if (!PLACEHOLDER_STATUSES.has(status)) return false;
+  const t = String(text == null ? '' : text).normalize('NFKC').toLowerCase()
+    .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
+  return !t || ABSENT_WORK.has(t);
+}
 function toUnattempted(s) {
   s.status = 'unattempted';
   s.marksAwarded = 0;
@@ -677,6 +696,23 @@ const JUSTIFICATION_STEP = /\b(?:reason\w*|justif\w*|verif\w*|inequalit\w*|condi
 // The owner ruling's own words — a blank REASON / JUSTIFICATION / VERIFICATION step the model typed itself.
 const KNOWLEDGE_STEP = /\b(?:reason\w*|justif\w*|verif\w*)\b/i;
 const ATTEMPTED_STATUSES = new Set(['correct', 'partial', 'incorrect']);
+/* MISSING-TYPE-1 review items 1–2 — an item the QUESTION ASKS FOR is a deliverable, whatever the step is called:
+   "State the formula for the nth term … and find the 10th term" makes a blank "State the formula" step an asked
+   deliverable (Not attempted), not working not shown; "Solve … and verify your answer" makes a blank "Verify by
+   substitution" step one, even between two right lines. Read from the question's own instruction clauses
+   (state / write / name / give / define / draw / verify / justify / mention / list …) against the step's description. */
+const ASK_CLAUSE = /\b(?:state|write(?:\s+down)?|name|give|giving|define|draw|mention|list|verify|justify|prove|show\s+that)\b[^.?;!]*/gi;
+const DELIVERABLE_NOUNS = [
+  ['formula', /\bformula/i], ['definition', /\bdefin/i], ['law', /\blaws?\b/i], ['rule', /\brules?\b/i], ['theorem', /\btheorem/i],
+  ['principle', /\bprinciple/i], ['statement', /\bstat(?:e|ement)\b/i], ['reason', /\breason/i], ['verify', /\bverif/i],
+  ['justify', /\bjustif/i], ['diagram', /\b(?:diagram|figure|graph|sketch)/i], ['ratio', /\bratios?\b/i], ['equation', /\bequation/i],
+];
+function askedByQuestion(description, questionText) {
+  const desc = String(description || '');
+  const clauses = String(questionText || '').match(ASK_CLAUSE) || [];
+  if (!clauses.length) return false;
+  return DELIVERABLE_NOUNS.some(([noun, re]) => re.test(desc) && clauses.some((c) => re.test(c) && (noun !== 'statement' || /\bstatement\b/i.test(c))));
+}
 const ENFORCE_EVIDENCE_ON_MODEL_TYPING = true;
 const normEvidence = (t) => String(t == null ? '' : t).normalize('NFKC').toLowerCase().replace(/[−–—]/g, '-').replace(/\s+/g, ' ').trim();
 // A skipped diagram / figure / graph is a deliverable of its own, never "working not shown" (delta review nit).
@@ -701,7 +737,7 @@ function knowledgeProven(u, live, questionText) {
     && (partKey(s.part) !== partKey(u.part) || live.indexOf(s) > at)
     && normEvidence(s.studentWork).includes(ev));
 }
-function omissionsInAttemptedWork(steps, { q, totalMarks }) {
+function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
   let n = 0;
   const live = steps.filter((s) => s.status !== 'withdrawn');
   const anyLabelled = live.some(hasPartLabel);
@@ -720,29 +756,37 @@ function omissionsInAttemptedWork(steps, { q, totalMarks }) {
   // ON (owner approval, option B): on the stored golden replies it fires on GS-M22-a only (a blank "verify your
   // answer", typed presentation by the model; the examiner key says no type). truth.cjs C05 exempts the
   // step-level fourth state; the PR2-accept PARM7 bodies are re-baselined under g-knowledge-evidence-1.
-  if (ENFORCE_EVIDENCE_ON_MODEL_TYPING) for (const s of live) {
-    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || nonAttemptText(s.studentWork) !== 'empty') continue;
+  // MISSING-TYPE-1: `only` (a Set) re-runs the flip below for the steps settleUntypedLosses just made
+  // "unattempted" — the model-typing pass already ran, so it is skipped.
+  if (ENFORCE_EVIDENCE_ON_MODEL_TYPING && !only) for (const s of live) {
+    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || !isBlankWork(s.studentWork, s.status)) continue;
     // delta review item 2 (the MINIMUM fix): a step still holding marks — the model's own, or given back by the
     // exam-technique cap (capExamTechnique, step 5, runs BEFORE this) — keeps the model's typing, as on trunk, so
     // an "unattempted" step never holds marks. (Deciding the evidence before the cap would LOWER marks: owner
     // follow-up GRADER-EVIDENCE-BEFORE-CAP, not built.)
     if (s.marksAwarded !== 0 || s._etCapped) continue;
-    if (!KNOWLEDGE_STEP.test(String(s.description || ''))) continue;
+    // MISSING-TYPE-1 review item 1: an item the QUESTION ASKS FOR ("State the formula …") needs the same proof as a reason.
+    if (!KNOWLEDGE_STEP.test(String(s.description || '')) && !askedByQuestion(s.description, questionText)) continue;
     const { before, after } = sides(s);
-    if (before && after) continue;
+    // MISSING-TYPE-1 review item 2: a gap exempts it only when the question did not ASK for it.
+    if (before && after && !askedByQuestion(s.description, questionText)) continue;
     // no proof → the fourth state, as the examiner key GS-M22-a reads it ("a requested sub-task left wholly
     // unattempted → no mistake type"): `unattempted`, untyped. Marks are untouched (they are final here).
     if (!knowledgeProven(s, live, questionText)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
   }
   for (const u of live) {
-    if (u.status !== 'unattempted' || u.marksAwarded > 0 || nonAttemptText(u.studentWork) !== 'empty') continue;
+    if (only && !only.has(u)) continue;
+    if (u.status !== 'unattempted' || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status)) continue;
     if (PART_NAMED.test(String(u.description || '')) || DIAGRAM_STEP.test(String(u.description || ''))) continue;
     if (partKey(u.part) === '' && (anyLabelled || !realQuestion || SUB_PART_MARKER.test(questionText))) continue;
     const { group, before, after } = sides(u);
     const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && knowledgeProven(u, live, questionText);
-    if (!before || !(after || proven)) continue;
+    // MISSING-TYPE-1 review item 2: the gap rule (working not shown) is never applied to an item the question ASKS for;
+    // only #1575's proof of knowledge can make such a blank exam technique.
+    const gap = after && !askedByQuestion(u.description, questionText);
+    if (!before || !(gap || proven)) continue;
     if (group.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType))) continue;
-    const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s))
+    const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s) && !s._workingNotShown)
       .reduce((a, s) => a + lostOf(s), 0));
     if (half(etLost + lostOf(u)) > cap) continue;
     u.status = 'missing';
@@ -926,6 +970,117 @@ function applyBalancingRuling(steps, { q, siblings, subject } = {}) {
     }
   }
   return out;
+}
+
+/* ── MISSING-TYPE-1 — NO LOST MARK LEAVES THE GRADER WITHOUT A REASON IT CAN NAME ──────────────
+   Live 5 Nov 2026 (production after #1575): (1) Answer Checker multi, WS-M-MIX-02 Q25(i) — the asked-for
+   reason left blank came back "missing", untyped, 0/½, and the scorecard said "Marks lost, reason not
+   recorded" while the SAME shape in Q24(i) said "Not attempted"; (2) Answer Checker single, typed — "Which
+   term of the AP 5, 8, 11, 14, … is 47? Show your working." answered "47 is the 15th term.": the two working
+   steps came back blank and untyped, the step rows said "Not attempted" (lib/mistakeDisplay.ts stepDisplay
+   shows an untyped "missing" step so) and "Where your marks went" said "reason not recorded · 1½". The SERVER
+   was the cause on both paths: an untyped "missing" deduction lands in marksLostByType.untyped.
+
+   OWNER RULING 5 Nov 2026 (14:04) — WORKING NOT SHOWN. When the answer is attempted and a LATER step of the
+   same part is right, an intermediate WORKING step left blank is "missing", typed exam technique
+   ("presentation": show your working), and its marks are lost as a CBSE examiner would take them. It is
+   EXCLUDED from the A17 ruling-B exam-technique cap (the cap stays for format slips: units, labels, state
+   symbols, the medium) — the cap never gives back marks for working not shown. Both shapes: the gap
+   (#1575's Q15: attempted work before AND a right step after) and "final answer only" (nothing attempted
+   before the blank; the blank's description names WORKING — owner key owner-anomaly-02 row 5: "47" only,
+   no working → presentation). UNCHANGED: a separately ASKED deliverable left blank — a reason /
+   justification / verification without #1575's proof of knowledge, a diagram, a named part — and a blank
+   whole answer stay "unattempted" (GQ1-WS02-Q24, GS-M22-a, OA2 Q22 keys). Objective items: untouched. */
+const WORKING_STEP = /\b(?:formula\w*|relation(?:ship)?s?|substitut\w*|solv\w*|simplif\w*|calculat\w*|comput\w*|working|method|deriv\w*|expan(?:d|sion)\w*|factori[sz]\w*|eliminat\w*|rearrang\w*|set(?:ting)? up)\b|\bidentif\w*\s+(?:of\s+)?(?:a\b|d\b|values?\b|the values?\b|the given\b)/i;
+/** The blank WORKING steps of a subjective answer (owner ruling 5 Nov 2026, 14:04), by the rules above. Every
+ *  condition must hold: the step's own work is EMPTY and it earned nothing; it is "missing" or "unattempted",
+ *  untyped or typed exam technique; its description names no reason / justification / verification, no
+ *  diagram and no part; a LATER step of the same part is CORRECT with work in it; and EITHER attempted work of
+ *  the part comes before it (the gap) OR its description names working (WORKING_STEP). Unlabelled steps are
+ *  one group only where no step carries a part label and the question text shows no sub-parts; a question
+ *  that exists only in the photo needs WORKING_STEP even for a gap. */
+function workingNotShown(steps, q, { preCap = false } = {}) {
+  const out = new Set();
+  const live = steps.filter((s) => s.status !== 'withdrawn');
+  const anyLabelled = live.some(hasPartLabel);
+  const questionText = String((q && (q.questionText || q.question)) || '');
+  const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
+  // #1583 (GRADER-CREDIT-1) gives an equal final answer in another form its mark back AFTER the cap (step 6). Before the
+  // cap (`preCap`), a final answer that equals the stored key the way restoreEquivalentFinalAnswer reads it counts as
+  // right, so the cap never gives back marks for working not shown that 7d will then type; 7d re-decides on final state.
+  const lastWorked = [...live].reverse().find((s) => String(s.studentWork || '').trim()) || null;
+  const answerEqualsKey = Boolean(preCap && lastWorked && q && String(q.finalAnswer || '').trim()
+    && equivalentFinalValue(lastWorked.studentWork, q.finalAnswer, { requireWorking: true }) === 'equivalent');
+  for (const u of live) {
+    // review (lower priority): a blank step the model judged "incorrect" is handled like missing / unattempted here —
+    // a correct step after it shows the answer was reached, so it is not a bare wrong answer (§4.1).
+    if (!['missing', 'unattempted', 'incorrect'].includes(u.status) || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status)) continue;
+    if (u.mistakeType && u.mistakeType !== 'presentation') continue;
+    const desc = String(u.description || '');
+    if (KNOWLEDGE_STEP.test(desc) || DIAGRAM_STEP.test(desc) || PART_NAMED.test(desc) || askedByQuestion(desc, questionText)) continue;
+    if (partKey(u.part) === '' && (anyLabelled || SUB_PART_MARKER.test(questionText))) continue;
+    const at = live.indexOf(u);
+    const group = live.filter((s) => s !== u && partKey(s.part) === partKey(u.part));
+    const laterRight = group.some((s) => live.indexOf(s) > at && nonAttemptText(s.studentWork) === null && !isBlankWork(s.studentWork, s.status)
+      && (s.status === 'correct' || (preCap && s === lastWorked && answerEqualsKey)));
+    if (!laterRight) continue;
+    const before = group.some((s) => live.indexOf(s) < at && ATTEMPTED_STATUSES.has(s.status));
+    if (!(WORKING_STEP.test(desc) || (before && realQuestion))) continue;
+    out.add(u);
+  }
+  return out;
+}
+const tagWorkingNotShown = (s) => Object.defineProperty(s, '_workingNotShown', { value: true, writable: true, enumerable: false, configurable: true });
+
+/** GRADER-CONSEQUENTIAL-1 (D242, D248 ruling 1), moved verbatim out of step 10 so MISSING-TYPE-1 can see which
+ *  untyped loss already follows an earlier typed error: a deducting step with no type inherits the type of the
+ *  NEAREST EARLIER typed step of the same part that lost marks (`_consequentialOrigin`). No mark, status or type
+ *  changes. 'presentation' is never an origin. */
+const isTypedOrigin = (zeroedBy) => (t, j) => Boolean(t.mistakeType) && t.mistakeType !== 'presentation' && t.marksDeducted > 0 && !zeroedBy.has(j) && !t._ecf
+  && t.status !== 'unattempted' && t.status !== 'withdrawn';
+function assignConsequentialOrigins(steps, zeroedBy) {
+  const origin = isTypedOrigin(zeroedBy);
+  steps.forEach((s, i) => {
+    if (zeroedBy.has(i) || s._ecf || s.mistakeType || !(s.marksDeducted > 0) || s.status === 'unattempted' || s.status === 'withdrawn') return;
+    // D248 ruling 1: an omitted line (`missing`) follows an earlier error ONLY if no fully-credited step of the part lies
+    // between them - an omission after correct working is a separate loss. Lost working steps keep the nearest-earlier rule.
+    let creditedBetween = false;
+    for (let j = i - 1; j >= 0; j -= 1) {
+      if (partKey(steps[j].part) !== partKey(s.part)) continue;
+      if (origin(steps[j], j)) { if (!(s.status === 'missing' && creditedBetween)) s._consequentialOrigin = steps[j]; break; }
+      if (steps[j].status === 'correct' && steps[j]._available > 0 && steps[j].marksAwarded >= steps[j]._available) creditedBetween = true;
+    }
+  });
+}
+
+/** MISSING-TYPE-1 · the untyped exits left after every other rule (marks are final; types and statuses only):
+ *   - a BLANK step that earned nothing (a separately asked deliverable not written — Q25's reason) becomes
+ *     `unattempted`, as GQ1-WS02-Q24 is; #1575's omissionsInAttemptedWork then decides it again (`only`), so a
+ *     blank reason WITH proof of knowledge is still exam technique — #1575 takes precedence;
+ *   - any other untyped loss (a step WITH work, or a blank one the model judged "incorrect") is NOT given a guessed type (CLAUDE.md 13: no deterministic signal
+ *     exists beyond the arithmetic check and GRADER-CONSEQUENTIAL-1, which have already run): it stays in
+ *     `untyped` — the codebase's honest default ("Marks lost, reason not recorded") — and is COUNTED for admin
+ *     (`grading.untyped_loss.kept_untyped`, routes/adminTelemetry.cjs `untypedLoss`).
+ *  Skips: a departure's zeroed work and ECF steps (charged on the departure), a loss that already follows a typed
+ *  error (`_consequentialOrigin`), a departure step itself. Returns the counts. */
+function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
+  const blank = [];
+  let keptUntyped = 0;
+  steps.forEach((s, i) => {
+    if (zeroedBy.has(i) || s._ecf || s.mistakeType || s._consequentialOrigin || s.isDeparture || !(s.marksDeducted > 0)
+      || s.status === 'unattempted' || s.status === 'withdrawn') return;
+    // only a "missing" step: a blank "incorrect" one stays as the model judged it (a bare wrong answer it did not
+    // quote is still an attempt — markGenuinelyUnattempted, checkSolution.test.cjs §4.1).
+    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status))) { s.status = 'unattempted'; blank.push(s); }
+    else keptUntyped += 1;
+  });
+  if (blank.length) omissionsInAttemptedWork(steps, { q, totalMarks, only: new Set(blank) });
+  const toExamTechnique = blank.filter((s) => s.mistakeType === 'presentation').length;
+  return { toUnattempted: blank.length - toExamTechnique, toExamTechnique, keptUntyped };
+}
+function countUntyped(kind, n) {
+  if (!(n > 0)) return;
+  try { require('../telemetry.cjs').increment('grading.untyped_loss.' + kind, n); } catch { /* telemetry never changes a grade */ }
 }
 
 /* ── rubric (C7) ─────────────────────────────────────────────────────────── */
@@ -1404,6 +1559,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // one fixed comment; no other language deduction stands (applyMediumRuling).
   const mediumRuling = questionIsObjective ? { medium: null, charged: 0, restored: 0 } : applyMediumRuling(steps, q, raw);
   // A17 owner ruling B: all exam-technique (presentation) deductions of one answer ≤ 1 (½ on a 1-mark answer).
+  // MISSING-TYPE-1: blank WORKING steps (owner ruling 5 Nov 2026, 14:04) are marked first, so the cap leaves them out.
+  if (!questionIsObjective) for (const s of workingNotShown(steps, q, { preCap: true })) tagWorkingNotShown(s);
   if (!questionIsObjective) capExamTechnique(steps, totalMarks);
   const languageRestored = mediumRuling.restored;
 
@@ -1699,6 +1856,26 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   //      exam technique where it fits), never "unattempted". After every mark is final: types only.
   if (!questionIsObjective) omissionsInAttemptedWork(steps, { q, totalMarks });
 
+  // 7d · MISSING-TYPE-1 (owner ruling 5 Nov 2026, 14:04): a blank WORKING step before a right step is "missing",
+  //      typed exam technique, its marks lost (never capped). After every mark is final: status and type only.
+  // 7e · MISSING-TYPE-1: the untyped exits left — a blank deliverable is "unattempted" (#1575 decides it again);
+  //      untyped work stays "reason not recorded" and is counted for admin. GRADER-CONSEQUENTIAL-1's origins are
+  //      assigned between the two (moved here from step 10, unchanged) so a loss that follows a typed error keeps it.
+  let untypedSettled = { toUnattempted: 0, toExamTechnique: 0, keptUntyped: 0 };
+  let workingFlipped = 0;
+  if (!questionIsObjective) {
+    const wns = workingNotShown(steps, q);
+    // review (lower priority): a step tagged before the cap that later processing took out of the shape loses the tag.
+    for (const s of steps) if (s._workingNotShown && !wns.has(s)) s._workingNotShown = false;
+    for (const s of wns) {
+      if (s.status !== 'missing' || s.mistakeType !== 'presentation') workingFlipped += 1;
+      s.status = 'missing'; s.mistakeType = 'presentation';
+      tagWorkingNotShown(s);
+    }
+    assignConsequentialOrigins(steps, zeroedBy);
+    untypedSettled = settleUntypedLosses(steps, { q, totalMarks, zeroedBy });
+  }
+
   // 8 · comments made true
   const primaryDeparture = departures[0] || null;
   for (const s of steps) {
@@ -1781,19 +1958,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     // entries (built from steps that carry a type) are exactly what they were: one per error.
     // 'presentation' is never an origin: a format slip cannot make LATER working wrong (CLAUDE.md 13: anything that changes
     // whether the maths is right is not presentation) and A17 ruling B caps all presentation losses of one answer at 1.
-    const isTypedOrigin = (t, j) => Boolean(t.mistakeType) && t.mistakeType !== 'presentation' && t.marksDeducted > 0 && !zeroedBy.has(j) && !t._ecf
-      && t.status !== 'unattempted' && t.status !== 'withdrawn';
-    steps.forEach((s, i) => {
-      if (zeroedBy.has(i) || s._ecf || s.mistakeType || !(s.marksDeducted > 0) || s.status === 'unattempted' || s.status === 'withdrawn') return;
-      // D248 ruling 1: an omitted line (`missing`) follows an earlier error ONLY if no fully-credited step of the part lies
-      // between them - an omission after correct working is a separate loss. Lost working steps keep the nearest-earlier rule.
-      let creditedBetween = false;
-      for (let j = i - 1; j >= 0; j -= 1) {
-        if (partKey(steps[j].part) !== partKey(s.part)) continue;
-        if (isTypedOrigin(steps[j], j)) { if (!(s.status === 'missing' && creditedBetween)) s._consequentialOrigin = steps[j]; break; }
-        if (steps[j].status === 'correct' && steps[j]._available > 0 && steps[j].marksAwarded >= steps[j]._available) creditedBetween = true;
-      }
-    });
+    // GRADER-CONSEQUENTIAL-1's origins (`_consequentialOrigin`) are assigned at 7d-7e (assignConsequentialOrigins).
     steps.forEach((s, i) => {
       if (zeroedBy.has(i)) {
         const dep = steps[zeroedBy.get(i)];
@@ -1806,9 +1971,17 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     // a remainder with no step to carry it goes to the question's typed origin when the question has
     // exactly one such type; with none (or with several different ones: ambiguous) it stays untyped
     if (left > 0) {
-      const originTypes = [...new Set(steps.filter(isTypedOrigin).map((t) => t.mistakeType))];
+      const originTypes = [...new Set(steps.filter(isTypedOrigin(zeroedBy)).map((t) => t.mistakeType))];
       put(originTypes.length === 1 ? originTypes[0] : 'untyped', left);
     }
+  }
+  // MISSING-TYPE-1 · admin counters (closed set, no PII; routes/adminTelemetry.cjs `untypedLoss`). Observability only.
+  if (!questionIsObjective) {
+    countUntyped('working_not_shown', workingFlipped);
+    countUntyped('blank_to_unattempted', untypedSettled.toUnattempted);
+    countUntyped('blank_to_exam_technique', untypedSettled.toExamTechnique);
+    countUntyped('kept_untyped', untypedSettled.keptUntyped);
+    if (marksLostByType.untyped > 0) countUntyped('subjective_questions', 1);
   }
   const lostSum = half(Object.values(marksLostByType).reduce((a, b) => a + b, 0));
   if (Math.abs(lostSum - lost) > 1e-9) {

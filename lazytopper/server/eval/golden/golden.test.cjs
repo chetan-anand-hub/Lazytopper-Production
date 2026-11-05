@@ -308,13 +308,13 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     // A17 owner rulings 1 and 2 (GRADING-JOBS-1 J0) add two declared classes: the one fixed unit comment,
     // and a subjective non-attempt that is now NOT ATTEMPTED instead of a graded 0; ruling 3 as changed by the
     // owner 2026-10-06 adds the medium class (a Hinglish answer: ½ once, one fixed comment).
-    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1', 'g-mcq-habit-1', 'g-knowledge-evidence-1', 'g-balancing-1'];
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1', 'g-mcq-habit-1', 'g-knowledge-evidence-1', 'g-balancing-1', 'g-missing-type-1'];
     assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
     // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
     // slot → unattempted) or an A17 owner ruling (1: the unit comment; 2: not attempted); the v2 field
     // and the detect restore never touch one.
     // MCQ-TYPE-2 (owner ruling 2026-10-23) adds g-mcq-habit-1: a RIGHT MCQ with flawed working keeps its type at 0 marks.
-    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-|g-mcq-habit-1$|g-knowledge-evidence-1$|g-balancing-1$)/.test(c))), 'a legacy body changes only under D38, an A17 ruling, the MCQ-TYPE-2 ruling, the GRADER-QUALITY-1 knowledge-evidence ruling or the GRADER-BALANCE-1 balancing ruling');
+    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-|g-mcq-habit-1$|g-knowledge-evidence-1$|g-balancing-1$|g-missing-type-1$)/.test(c))), 'a legacy body changes only under D38, an A17 ruling, the MCQ-TYPE-2 ruling, the GRADER-QUALITY-1 knowledge-evidence ruling, the GRADER-BALANCE-1 balancing ruling or the MISSING-TYPE-1 ruling');
     const ok = await evaluateRun(runDir);
     assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
     // CONTROL 1: one tampered `to` → that body counts as changed again.
@@ -346,7 +346,7 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     const R = loadRun(runDir);
     const rb = R.rebaseline;
     const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
-    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq || rb.entries[k].habit || rb.entries[k].balance);
+    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq || rb.entries[k].habit || rb.entries[k].balance || rb.entries[k].mtype);
     assert.ok(keys.length > 0, 'CONTROL: there are A17 entries to verify');
     const byKey = {};
     for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
@@ -366,6 +366,17 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
         continue;
       }
       assert.ok(!e.balance, k + ': a g-balancing-1 change on top of another class needs its own peel here (none exists today)');
+      if (e.class === 'g-missing-type-1') {
+        // MISSING-TYPE-1 (owner ruling 2026-11-05 14:04): a g-missing-type-1-ONLY entry replays to the pinned digest,
+        // undoing the delta lands on mtype.base (the stored body), and the rules hold
+        const repM = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
+        assert.strictEqual(digest(repM.body), e.to, k + ': the replayed body is the pinned one');
+        const priorM = undoDelta(repM.body, e.mtype.delta);
+        assert.ok(priorM && digest(priorM) === e.mtype.base && e.mtype.base === e.from, k + ': undoing the g-missing-type-1 delta must land exactly on mtype.base (the stored body)');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').mtypeViolations(e.mtype.delta, repM.body), [], k + ' (g-missing-type-1)');
+        checked += 1;
+        continue;
+      }
       if (!/(^|\+)a17-/.test(e.class) && e.habit && !e.conseq) {
         // MCQ-TYPE-2: a g-mcq-habit-1-ONLY entry replays to the pinned digest, undoing the delta lands on habit.base, the rules hold
         const repH = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });

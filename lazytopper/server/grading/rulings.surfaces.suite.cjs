@@ -523,7 +523,14 @@ for (const s of SURFACES) {
     const gap = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), acceptsV2: true, targetSteps: () => {
       const st = verifySteps({})(); st[1].marksAvailable = 0.25; return [st[0], st[2], { ...st[1], marksAvailable: 0.5 }];
     } });
-    assert.equal(gap.result.annotatedSteps[1].mistakeType, 'presentation', s.id + ': a gap in the working is working not shown');
+    // MISSING-TYPE-1 review item 2 (coordinator, 5 Nov 2026): the question ASKS "verify your answer", so a blank
+    // verification is an asked deliverable even between two written lines — Not attempted, never working not shown.
+    assert.deepEqual([gap.result.annotatedSteps[1].status, gap.result.annotatedSteps[1].mistakeType], ['unattempted', null], s.id + ': an ASKED verification in a gap is Not attempted');
+    // the gap exemption still holds where the question did not ask for the step
+    const gapNotAsked = await drive(s, { mutateTarget: withMarks(2, 'Solve 7x − 2y = 5 and 8x + 7y = 15.'), acceptsV2: true, targetSteps: () => {
+      const st = verifySteps({})(); st[1].marksAvailable = 0.25; return [st[0], st[2], { ...st[1], marksAvailable: 0.5 }];
+    } });
+    assert.equal(gapNotAsked.result.annotatedSteps[1].mistakeType, 'presentation', s.id + ': a gap in the working the question did not ask for is working not shown');
     // not blank: a conclusion LINE missing after a written check is a format element (rules.cjs PRESENTATION)
     const line = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), acceptsV2: true, targetSteps: verifySteps({ studentWork: 'LHS = 7 − 2 = 5 = RHS', status: 'partial', marksAwarded: 0, teacherAnnotation: '× "Hence verified" line missing.' }) });
     assert.equal(line.result.annotatedSteps[2].mistakeType, 'presentation', s.id + ': a written check keeps its format deduction');
@@ -601,7 +608,6 @@ for (const s of SURFACES) {
     }, 1, 1],
     ['item 5: justification word only in the annotation', unlabelled(PLAIN_TEXT), () => threeSteps({ teacherAnnotation: '× Give the reason why' })().slice(0, 2), 1, 1],
     ['item 7: beside a calculation slip', withMarks(2, Q15_TEXT), () => { const st = q15Steps(); st[2] = { ...st[2], studentWork: 'a12 = 4500 - 11 x 350 = 750', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5, mistakeType: 'calculation' }; return st; }, 1, 0.5],
-    ['item 7: 2-mark gap on a 3-mark answer', withMarks(3, Q15_TEXT), () => { const st = q15Steps(); st[1] = { ...st[1], marksAvailable: 2, marksDeducted: 2 }; return st; }, 1, 1],
     ['item 8: a 5-mark answer missing a 2-mark justification', withMarks(5, Q15_TEXT), () => {
       const st = q15Steps();
       st[0] = { ...st[0], marksAvailable: 1.5, marksAwarded: 1.5 };
@@ -750,5 +756,165 @@ for (const s of SURFACES) {
     const plain = GC1['GC1-DP-VIOLATED'].questionText.replace(' correct to two decimal places', '');
     const c = await drive(s, { mutateTarget: gcTarget('GC1-DP-VIOLATED', plain), targetSteps: gcSteps('GC1-DP-VIOLATED'), targetExtra: gcExtra('GC1-DP-VIOLATED'), acceptsV2: true });
     assert.equal(c.result.marksAwarded, carriesKey(s) ? 2 : 1.5, s.id + ': 44.0 m is 43.98 m to one place');
+  });
+}
+
+/* ── MISSING-TYPE-1 (5 Nov 2026) — no lost mark leaves the grader without a reason it can name ──────────────
+   (1) WS-M-MIX-02 Q25(i): a blank asked-for reason came back "missing", untyped → "reason not recorded" (Q24's
+   identical shape said "Not attempted"). (2) Answer Checker single, "Which term of the AP … is 47?" answered
+   "47 is the 15th term.": blank working steps → "reason not recorded · 1½". OWNER RULING 5 Nov 2026 14:04: working
+   not shown before a right step is exam technique ("missing", presentation), its marks lost, NEVER given back by
+   the A17 ruling-B cap; an asked-for deliverable left blank stays "unattempted". Every surface, both paths. */
+const telemetry = require('../telemetry.cjs');
+const zeroLostOf = require('./postprocess.cjs').zeroLost;
+const counterOf = (k) => Number(telemetry.snapshot()['grading.untyped_loss.' + k]) || 0;
+const Q25_TEXT = GQ1['GQ1-WS02-Q25'].questionText;
+const AP = GQ1['MT1-AP-47-SINGLE'];
+const apAs = (status, mistakeType) => () => fixtureSteps('MT1-AP-47-SINGLE')().map((st, i) => (i < 2 ? { ...st, status, mistakeType } : st));
+const apTarget = (view, req) => { withMarks(2, AP.questionText)(view, req); view.textAnswer = AP.textAnswer; };
+
+for (const s of SURFACES) {
+  test('MISSING-TYPE-1 — ' + s.id + ': Q25 shape (book page 9) — a blank asked-for REASON, untyped "missing", is NOT ATTEMPTED like Q24, never "reason not recorded"; marks unchanged', async () => {
+    const X = GQ1['GQ1-WS02-Q25'];
+    for (const acceptsV2 of [false, true]) {
+      const r = await drive(s, { mutateTarget: withMarks(4, Q25_TEXT), targetSteps: fixtureSteps('GQ1-WS02-Q25'), acceptsV2 });
+      assert.equal(r.result.marksAwarded, X.expected.marksAwarded, s.id + ' v2=' + acceptsV2);
+      if (!acceptsV2) { assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['missing', null], s.id + ': the legacy shape shows the fourth state as "missing"'); continue; }
+      assert.deepEqual(typesOf(r.result), X.expected.steps, s.id);
+      assert.deepEqual(r.result.marksLostByType, { ...zeroLostOf(), unattempted: 0.5 }, s.id + ': Not attempted ½, untyped 0');
+    }
+    // the SAME label as the real Q24 (i) — same shape, one label
+    const q24 = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), targetSteps: q24RealSteps, acceptsV2: true });
+    assert.deepEqual(typesOf(q24.result), GQ1['GQ1-WS02-Q24'].expected.steps, s.id + ': Q24 unchanged');
+    assert.equal(q24.result.marksLostByType.unattempted, 0.5, s.id);
+  });
+
+  test('MISSING-TYPE-1 — ' + s.id + ': SYNTHETIC Q25 — #1575 takes precedence: a blank reason WITH proof of knowledge in (ii) is exam technique ½, not Not attempted', async () => {
+    const X = GQ1['GQ1-SYNTH-Q25-EVIDENCE'];
+    assert.equal(X.synthetic, true);
+    const r = await drive(s, { mutateTarget: withMarks(4, Q25_TEXT), targetSteps: fixtureSteps('GQ1-SYNTH-Q25-EVIDENCE'), acceptsV2: true });
+    assert.equal(r.result.marksAwarded, X.expected.marksAwarded, s.id);
+    assert.deepEqual(typesOf(r.result), X.expected.steps, s.id);
+    assert.deepEqual(r.result.marksLostByType, { ...zeroLostOf(), presentation: 0.5 }, s.id);
+  });
+
+  test('MISSING-TYPE-1 — ' + s.id + ': AP "47 is the 15th term." (live, single path) — blank working steps are exam technique 1½, 0.5/2 NOT raised by the cap, whether the model said unattempted, missing or missing + presentation (owner ruling 14:04)', async () => {
+    // [status the model gave steps 1–2, its type] — on trunk: unattempted → Not attempted 1½ (and "reason not recorded" in the
+    // live summary), missing/null → untyped 1½, missing/presentation → the A17 cap gave ½ back (1/2). Now all read the same.
+    for (const [status, type] of [['unattempted', null], ['missing', null], ['missing', 'presentation']]) {
+      for (const acceptsV2 of [false, true]) {
+        const r = await drive(s, { mutateTarget: apTarget, targetSteps: apAs(status, type), acceptsV2 });
+        const tag = s.id + ' ' + status + '/' + type + ' v2=' + acceptsV2;
+        assert.equal(r.result.marksAwarded, AP.expected.marksAwarded, tag + ': 0.5 of 2 — the cap never gives back marks for working not shown');
+        assert.deepEqual(typesOf(r.result), AP.expected.steps, tag);
+        assert.equal(r.result.mistakeSummary.presentation, 2, tag + ': two exam-technique MI entries');
+        if (acceptsV2) assert.deepEqual(r.result.marksLostByType, { ...zeroLostOf(), presentation: 1.5 }, tag + ': "Exam technique 1½" — no "reason not recorded", no Not attempted');
+      }
+    }
+  });
+
+  test('MISSING-TYPE-1 — ' + s.id + ': owner ruling 14:04 — the GAP shape beyond the cap (a 2-mark working step on a 3-mark answer, #1575\'s former "item 7" control) is now exam technique, uncapped; marks unchanged', async () => {
+    const r = await drive(s, { mutateTarget: withMarks(3, Q15_TEXT), acceptsV2: true, targetSteps: () => { const st = q15Steps(); st[1] = { ...st[1], marksAvailable: 2, marksDeducted: 2 }; return st; } });
+    assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['missing', 'presentation'], s.id);
+    assert.equal(r.result.marksAwarded, 1, s.id + ': marks as on trunk');
+    assert.equal(r.result.marksLostByType.presentation, 2, s.id + ': working not shown is not held to the 1-mark cap');
+  });
+
+  test('MISSING-TYPE-1 — ' + s.id + ': a step WITH work the model left untyped gets no guessed type — it stays "reason not recorded" and is COUNTED for admin', async () => {
+    const before = counterOf('kept_untyped');
+    const r = await drive(s, { mutateTarget: withMarks(3, PLAIN_TEXT), acceptsV2: true, targetSteps: () => [
+      { description: 'First value', studentWork: 'x = 4', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Second value', studentWork: 'y = 5', status: 'incorrect', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '× y = 7', mistakeType: null },
+    ] });
+    assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['incorrect', null], s.id + ': no invented type');
+    assert.equal(r.result.marksLostByType.untyped, 2, s.id);
+    assert.ok(counterOf('kept_untyped') > before, s.id + ': grading.untyped_loss.kept_untyped counted');
+  });
+}
+
+/* MISSING-TYPE-1 review round 1 (coordinator, 5 Nov 2026, at 50dcaa10) — three labelling defects, one test per repro. */
+const ASKED_FORMULA_TEXT = 'State the formula for the nth term of an AP and find the 10th term of 2, 5, 8, …';
+const SOLVE_VERIFY_TEXT = 'Solve 2x + 3 = 11 and verify your answer.';
+const rv = (description, studentWork, status, marksAvailable, marksAwarded, mistakeType = null) => ({ description, studentWork, status, marksAvailable, marksAwarded, marksDeducted: marksAvailable - marksAwarded, teacherAnnotation: status === 'correct' ? '✓' : '×', mistakeType });
+const apWith = (work, status, type) => () => [rv('Identify a, d and the nth-term formula', work, status, 0.5, 0, type), rv('Substitute and solve for n', work, status, 1, 0, type), rv('Final answer', '47 is the 15th term.', 'correct', 0.5, 0.5)];
+for (const s of SURFACES) {
+  test('MISSING-TYPE-1 review 1 — ' + s.id + ': a blank step the QUESTION ASKS FOR ("State the formula …") is NOT ATTEMPTED, never working not shown', async () => {
+    for (const [status, type] of [['missing', null], ['unattempted', null], ['missing', 'presentation']]) {
+      const r = await drive(s, { mutateTarget: withMarks(2, ASKED_FORMULA_TEXT), acceptsV2: true, targetSteps: () => [rv('State the formula for nth term', '', status, 0.5, 0, type), rv('10th term', 'a10 = 2 + 9 × 3 = 29', 'correct', 1.5, 1.5)] });
+      const tag = s.id + ' ' + status + '/' + type;
+      assert.deepEqual([r.result.annotatedSteps[0].status, r.result.annotatedSteps[0].mistakeType], ['unattempted', null], tag);
+      assert.deepEqual([r.result.marksAwarded, r.result.marksLostByType.unattempted, r.result.marksLostByType.presentation, r.result.marksLostByType.untyped], [1.5, 0.5, 0, 0], tag);
+    }
+  });
+  test('MISSING-TYPE-1 review 2 — ' + s.id + ': "… and verify your answer" — a blank VERIFY step between two right lines is NOT ATTEMPTED (the gap rule never takes an asked item), and so is one in last place', async () => {
+    for (const order of ['middle', 'last']) {
+      const steps = [rv('Subtract 3 from both sides', '2x = 8', 'correct', 1, 1), rv('Verify by substitution', '', 'missing', 1, 0), rv('Solve for x', 'x = 4', 'correct', 1, 1)];
+      if (order === 'last') steps.push(steps.splice(1, 1)[0]);
+      const r = await drive(s, { mutateTarget: withMarks(3, SOLVE_VERIFY_TEXT), acceptsV2: true, targetSteps: () => steps });
+      const v = r.result.annotatedSteps.find((st) => st.description === 'Verify by substitution');
+      assert.deepEqual([v.status, v.mistakeType], ['unattempted', null], s.id + ' ' + order);
+      assert.deepEqual([r.result.marksAwarded, r.result.marksLostByType.unattempted, r.result.marksLostByType.presentation], [2, 1, 0], s.id + ' ' + order);
+    }
+  });
+  test('MISSING-TYPE-1 review 3 — ' + s.id + ': a MODEL PLACEHOLDER ("Not shown", "(no working shown)", "Working not shown", "No working", "Not attempted") is blank work: AP stays 0.5/2, exam technique 1½, for every reading', async () => {
+    for (const ph of ['Not shown', '(no working shown)', 'Working not shown', 'No working', 'Not attempted']) {
+      for (const [status, type] of [['unattempted', null], ['missing', null], ['missing', 'presentation']]) {
+        const r = await drive(s, { mutateTarget: apTarget, targetSteps: apWith(ph, status, type), acceptsV2: true });
+        const tag = s.id + ' "' + ph + '" ' + status + '/' + type;
+        assert.equal(r.result.marksAwarded, 0.5, tag + ': never 1/2 (the cap) and never a whole Not attempted');
+        assert.deepEqual(r.result.annotatedSteps.map((st) => [st.status, st.mistakeType]), [['missing', 'presentation'], ['missing', 'presentation'], ['correct', null]], tag);
+        assert.deepEqual(r.result.marksLostByType, { ...zeroLostOf(), presentation: 1.5 }, tag);
+      }
+    }
+    // CONTROL: a STUDENT'S "Don't know" stays ruling 7's — Not attempted, never exam technique
+    const dk = await drive(s, { mutateTarget: apTarget, targetSteps: () => { const st = apWith('', 'missing', null)(); st[0].studentWork = "Don't know"; return st; }, acceptsV2: true });
+    assert.deepEqual([dk.result.annotatedSteps[0].status, dk.result.annotatedSteps[0].mistakeType], ['unattempted', null], s.id + ': "Don\'t know" is the student\'s non-attempt');
+  });
+  test('MISSING-TYPE-1 review (lower) — ' + s.id + ': a BLANK working step the model judged "incorrect" before a right answer is handled like missing: exam technique, 0.5/2', async () => {
+    const r = await drive(s, { mutateTarget: apTarget, targetSteps: apWith('', 'incorrect', null), acceptsV2: true });
+    assert.equal(r.result.marksAwarded, 0.5, s.id);
+    assert.deepEqual(r.result.marksLostByType, { ...zeroLostOf(), presentation: 1.5 }, s.id);
+  });
+}
+
+/* MISSING-TYPE-1 review round 2 (coordinator, at 1fb17753): placeholder words are blank only on a step the model
+   reported absent — a student's own wrong "None" / "NA" / "missing" on a step judged "incorrect" is an attempt. */
+for (const s of SURFACES) {
+  test('MISSING-TYPE-1 review 2b — ' + s.id + ': a student\'s own wrong "None" on an INCORRECT working step stays as the model judged it (never exam technique); "Not shown" on a missing step is still blank', async () => {
+    for (const word of ['None', 'NA', 'missing']) {
+      const r = await drive(s, { mutateTarget: apTarget, acceptsV2: true, targetSteps: () => [
+        rv('Identify a, d and the nth-term formula', word, 'incorrect', 0.5, 0), rv('Substitute and solve for n', '47 = 5 + (n − 1)3, n = 15', 'correct', 1, 1), rv('Final answer', '47 is the 15th term.', 'correct', 0.5, 0.5)] });
+      assert.deepEqual([r.result.annotatedSteps[0].status, r.result.annotatedSteps[0].mistakeType], ['incorrect', null], s.id + ' "' + word + '"');
+      assert.equal(r.result.marksLostByType.presentation, 0, s.id + ' "' + word + '": no exam technique invented');
+      assert.equal(r.result.marksAwarded, 1.5, s.id);
+    }
+    const ph = await drive(s, { mutateTarget: apTarget, acceptsV2: true, targetSteps: apWith('None', 'missing', null) });
+    assert.deepEqual(ph.result.marksLostByType, { ...zeroLostOf(), presentation: 1.5 }, s.id + ': the same word on a step the MODEL reported missing is a placeholder');
+  });
+}
+
+/* MISSING-TYPE-1 × GRADER-CREDIT-1 (#1583) — rebase check (coordinator, 5 Nov 2026): #1583 gives an EQUAL final answer in
+   another form its mark back AFTER the cap. Blank working before it must still be exam technique, never given back by
+   the cap, and the tag must follow the final state. GC1-EQ-4-5A ("4.5 A" for the key "4.54 A") with its working blank. */
+const eqBlankWorking = (status, mistakeType) => () => [
+  rv('Relation between power, voltage and current', '', status, 1, 0, mistakeType),
+  rv('Substitution of P and V', '', status, 1, 0, mistakeType),
+  { ...GC1['GC1-EQ-4-5A'].modelReply[1] },
+];
+for (const s of SURFACES) {
+  test('MISSING-TYPE-1 × #1583 — ' + s.id + ': "4.5 A" for the key "4.54 A" with the working blank — the equal answer keeps its mark, the working is exam technique 2 (never given back by the cap), whatever the model\'s reading', async () => {
+    for (const [status, type] of [['missing', 'presentation'], ['missing', null], ['unattempted', null]]) {
+      const r = await drive(s, { mutateTarget: (view, req) => { gcTarget('GC1-EQ-4-5A')(view, req); view.marks = 3; }, targetSteps: eqBlankWorking(status, type), targetExtra: gcExtra('GC1-EQ-4-5A'), acceptsV2: true });
+      const tag = s.id + ' ' + status + '/' + type;
+      if (carriesKey(s)) {
+        assert.deepEqual(typesOf(r.result), [['missing', 0, 'presentation'], ['missing', 0, 'presentation'], ['correct', 1, null]], tag);
+        assert.deepEqual([r.result.marksAwarded, r.result.marksLostByType.presentation, r.result.marksLostByType.untyped], [1, 2, 0], tag + ': 1/3 — the cap gives nothing back for working not shown');
+      } else {
+        // no key on this surface: #1583's guard does not fire, the final answer stays as the model judged it (wrong),
+        // so the working is not "before a right answer" — nothing is typed working-not-shown on its account
+        assert.equal(r.result.annotatedSteps[2].status, 'incorrect', tag);
+        assert.equal(r.result.marksLostByType.untyped, 0, tag + ': still never "reason not recorded"');
+      }
+    }
   });
 }

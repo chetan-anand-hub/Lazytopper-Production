@@ -431,6 +431,255 @@
         "server/eval/golden/owner-anomaly-02/expected-key.md row 22: genotypic not written = unattempted PART (owner key)",
         "the stored reply 2026-10-06.PR3-combined-flash38 V2.W.OA2.MULTI Q22 is this shape; the trunk-vs-branch differential found it"
       ]
+    },
+    {
+      "id": "GQ1-WS02-Q25",
+      "defect": "MISSING-TYPE-1",
+      "deterministic": true,
+      "subject": "Maths",
+      "chapter": "real-numbers",
+      "marks": 4,
+      "questionText": "Anjali is planning a birthday party but does not yet know how many guests will come; it could be any number from 1 to 10. She wants to buy a number of chocolates that can be shared equally among the guests, with none left over, whatever the number of guests turns out to be. Based on the above information, answer the following questions: (i) Which is the highest power of 2 and the highest power of 3 that must divide the number of chocolates? Give a reason. [1 mark] (ii) Find the least number of chocolates she must buy. [1 mark] (iii) The shop sold her one chocolate more than a number that can be shared equally among any 1 to 10 guests, and the total was between 6000 and 8000. How many chocolates did she buy? [2 marks]",
+      "questionTextNote": "Copied from the printed worksheet WS-M-MIX-02 (questions PDF, page 7).",
+      "modelReply": [
+        {
+          "description": "Highest powers of 2 and 3",
+          "studentWork": "2³ = 8\n3² = 9",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.0,
+          "teacherAnnotation": "✓ 2³ and 3²",
+          "mistakeType": null
+        },
+        {
+          "description": "Giving reason for highest power of 2 and 3 among 1 to 10",
+          "studentWork": "",
+          "status": "missing",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "× Reason not given: 8 = 2³ and 9 = 3² are the highest powers among 1 to 10",
+          "mistakeType": null
+        },
+        {
+          "description": "Least number of chocolates (LCM of 1 to 10)",
+          "studentWork": "LCM(1,2,3,4,...,10) = 2³ × 3² × 5 × 7 = 8 × 9 × 35 = 2520",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ LCM = 2520",
+          "mistakeType": null
+        },
+        {
+          "description": "Number between 6000 and 8000, one more than a multiple of 2520",
+          "studentWork": "2520 × 3 = 7560\nNo. of chocolates bought = 7560 + 1 = 7561",
+          "status": "correct",
+          "marksAvailable": 2,
+          "marksAwarded": 2,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ 7561",
+          "mistakeType": null
+        }
+      ],
+      "modelReplyNote": "The reason step (description, empty studentWork, status missing, mistakeType null, 0/0.5) is the shape the coordinator reported from the live 5 Nov run (production after #1575). The other three steps are RECONSTRUCTED from the student's page; their marks are assumed in full. No part labels, as in Q24's 4 Nov graded PDF.",
+      "expected": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "unattempted",
+            0,
+            null
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "unattempted": 0.5,
+          "untyped": 0,
+          "presentation": 0
+        }
+      },
+      "rulings": [
+        "MISSING-TYPE-1 (5 Nov 2026): the same shape as GQ1-WS02-Q24 (an asked-for reason left blank, no proof of knowledge) gets the same label, Not attempted; never \"Marks lost, reason not recorded\"."
+      ],
+      "studentWritten": {
+        "page": 9,
+        "text": "25) i) → 2³ = 8\n → 3² = 9\nii) LCM(1,2,3,4,...,10) = 2³×3²×5×7\n = 8×9×35 = 2520\niii) 2520×3 = 7560\n∴ No. of chocolates bought = 7560+1 = 7561"
+      }
+    },
+    {
+      "id": "GQ1-SYNTH-Q25-EVIDENCE",
+      "synthetic": true,
+      "syntheticNote": "SYNTHETIC — NOT from the student's paper. Q25 with part labels and a constructed (ii) that WRITES the highest-powers idea, so #1575's proof-of-knowledge rule still takes precedence over MISSING-TYPE-1's blank → unattempted. Never present it as student work.",
+      "defect": "MISSING-TYPE-1",
+      "deterministic": true,
+      "subject": "Maths",
+      "chapter": "real-numbers",
+      "marks": 4,
+      "questionText": "Anjali is planning a birthday party but does not yet know how many guests will come; it could be any number from 1 to 10. She wants to buy a number of chocolates that can be shared equally among the guests, with none left over, whatever the number of guests turns out to be. Based on the above information, answer the following questions: (i) Which is the highest power of 2 and the highest power of 3 that must divide the number of chocolates? Give a reason. [1 mark] (ii) Find the least number of chocolates she must buy. [1 mark] (iii) The shop sold her one chocolate more than a number that can be shared equally among any 1 to 10 guests, and the total was between 6000 and 8000. How many chocolates did she buy? [2 marks]",
+      "modelReply": [
+        {
+          "description": "Highest powers of 2 and 3",
+          "studentWork": "2³ = 8\n3² = 9",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.0,
+          "teacherAnnotation": "✓ 2³ and 3²",
+          "mistakeType": null,
+          "part": "(i)"
+        },
+        {
+          "description": "Giving reason for highest power of 2 and 3 among 1 to 10",
+          "studentWork": "",
+          "status": "missing",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "× Reason not given: 8 = 2³ and 9 = 3² are the highest powers among 1 to 10",
+          "mistakeType": null,
+          "part": "(i)",
+          "knowledgeEvidence": "LCM = product of the highest powers of the primes"
+        },
+        {
+          "description": "Least number of chocolates (LCM of 1 to 10)",
+          "studentWork": "LCM = product of the highest powers of the primes = 2³ × 3² × 5 × 7 = 2520",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ LCM = 2520",
+          "mistakeType": null,
+          "part": "(ii)"
+        },
+        {
+          "description": "Number between 6000 and 8000, one more than a multiple of 2520",
+          "studentWork": "2520 × 3 = 7560\nNo. of chocolates bought = 7560 + 1 = 7561",
+          "status": "correct",
+          "marksAvailable": 2,
+          "marksAwarded": 2,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ 7561",
+          "mistakeType": null,
+          "part": "(iii)"
+        }
+      ],
+      "expected": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "missing",
+            0,
+            "presentation"
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "unattempted": 0,
+          "untyped": 0,
+          "presentation": 0.5
+        }
+      }
+    },
+    {
+      "id": "MT1-AP-47-SINGLE",
+      "defect": "MISSING-TYPE-1",
+      "deterministic": true,
+      "subject": "Maths",
+      "chapter": "arithmetic-progression",
+      "marks": 2,
+      "questionText": "Which term of the AP 5, 8, 11, 14, ... is 47? Show your working.",
+      "textAnswer": "47 is the 15th term.",
+      "modelReplyNote": "Answer Checker single, typed question + typed answer, live 5 Nov 2026 (production after #1575): the coordinator's report — steps 1–2 blank 0/0.5 and 0/1, step 3 correct 0.5. The tests also replay steps 1–2 as \"missing\" untyped and as \"missing\" typed presentation (the shape the A17 cap used to give ½ back on).",
+      "modelReply": [
+        {
+          "description": "Identify a, d and the nth-term formula",
+          "studentWork": "",
+          "status": "unattempted",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "× a = 5, d = 3 and aₙ = a + (n − 1)d not shown",
+          "mistakeType": null
+        },
+        {
+          "description": "Substitute and solve for n",
+          "studentWork": "",
+          "status": "unattempted",
+          "marksAvailable": 1,
+          "marksAwarded": 0,
+          "marksDeducted": 1,
+          "teacherAnnotation": "× 47 = 5 + (n − 1)3 not shown",
+          "mistakeType": null
+        },
+        {
+          "description": "Final answer",
+          "studentWork": "47 is the 15th term.",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.0,
+          "teacherAnnotation": "✓ 15th term",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 0.5,
+        "steps": [
+          [
+            "missing",
+            0,
+            "presentation"
+          ],
+          [
+            "missing",
+            0,
+            "presentation"
+          ],
+          [
+            "correct",
+            0.5,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "presentation": 1.5,
+          "unattempted": 0,
+          "untyped": 0
+        }
+      },
+      "rulings": [
+        "OWNER RULING 5 Nov 2026 14:04: working not shown before a right answer is exam technique (missing, presentation), its marks lost as an examiner takes them, EXCLUDED from the A17 ruling-B cap. Golden precedent owner-anomaly-02 row 5: \"47\" only, no working → presentation."
+      ]
     }
   ]
 }
