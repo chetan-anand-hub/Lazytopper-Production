@@ -417,7 +417,7 @@ const TrendDownGlyph = () => (
 /**
  * LockedCta - the GATE-3 (#602) locked treatment, matched not re-derived: a visibly
  * disabled control that stays FOCUSABLE and is announced as unavailable
- * (`aria-disabled`, never the `disabled` attribute), with the Premium badge adjacent,
+ * (`aria-disabled`, never the `disabled` attribute), with the Board Pass badge adjacent,
  * and TAPPING IT OPENS THE UPGRADE SHEET rather than doing nothing.
  */
 const LockedCta = ({
@@ -440,7 +440,7 @@ const LockedCta = ({
       <LockGlyph />
     </span>
     <span>{label}</span>
-    <span className="lt-me__badge">Premium</span>
+    <span className="lt-me__badge">Board Pass</span>
   </button>
 );
 
@@ -1181,7 +1181,15 @@ export default function MeProgressPage() {
                               onOpenPremium={() => openPremium("Topic Hub")}
                               testId={`me-cta-learn-locked-${c.key}`}
                             />
-                          ) : null}
+                          ) : (
+                            // EARLY-PAYWALL-1 — entitlement still loading: hold the Learn button's space (no lock,
+                            // no link) so Practise does not jump when hydration lands.
+                            <span
+                              className="lt-me__cta lt-me__cta--ghost"
+                              aria-hidden="true"
+                              data-testid={`me-cta-learn-pending-${c.key}`}
+                            />
+                          )}
                           <NavCta
                             to={practisePath}
                             label="Practise"
@@ -1920,6 +1928,7 @@ const ME_CSS = `
 }
 .lt-me__cta--accent { background: var(--me-navy); border-color: var(--me-navy); color: #fff; }
 .lt-me__cta--locked { background: hsl(220, 20%, 96%); border-color: var(--me-border); color: var(--me-muted); }
+.lt-me__cta--ghost { visibility: hidden; pointer-events: none; min-width: 150px; }
 .lt-me__lock-icon { display: inline-flex; flex-shrink: 0; }
 .lt-me__badge {
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;

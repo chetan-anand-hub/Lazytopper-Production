@@ -69,6 +69,15 @@ export function trialBannerTiming(
   return { dayOfTrial, daysLeft, endMs, startMs };
 }
 
+/**
+ * EARLY-PAYWALL-1 (owner ruling 5 Nov 2026, "Hide on day 1"; supersedes TRIAL-SELL-1's day-1 Pay placement):
+ * true when `nowMs` falls on the FIRST IST calendar day of the trial, when no Pay / Board Pass ask may show.
+ * Same IST day model as trialBannerTiming, so the desktop strip and the phone banner agree.
+ */
+export function trialDayOneNoPayAsk(trialStartIso: string | null | undefined, nowMs: number): boolean {
+  return trialBannerTiming(trialStartIso, nowMs, 1)?.dayOfTrial === 1;
+}
+
 /** "YYYY-MM-DD" of the IST calendar day containing `ms` — the dismissal and shown-once key. */
 export function istDayKeyOf(ms: number): string {
   return new Date(istDayStartMs(ms) + IST_OFFSET_MS).toISOString().slice(0, 10);

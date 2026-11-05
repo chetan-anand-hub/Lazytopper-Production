@@ -9,7 +9,7 @@ import { isPaymentsClientEnabled } from "../../services/checkout";
 import PaywallActions, { PAY_LABEL } from "../pricing/PaywallActions";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { trialAskRouteAllowed } from "./trialAskRoutes";
-import { istDayKeyOf } from "./trialEndBannerModel";
+import { istDayKeyOf, trialDayOneNoPayAsk } from "./trialEndBannerModel";
 import { trialEarlyStripDay, trialEarlyStripDayText, trialEarlyStripOfferText } from "./trialEarlyStripModel";
 import "./trialEarlyStrip.css";
 
@@ -64,29 +64,39 @@ export default function TrialEarlyStrip() {
   }, [uid]);
 
   if (!uid || !day || hiddenDay === dayKey || !trialAskRouteAllowed(pathname)) return null;
+  // EARLY-PAYWALL-1 (owner 5 Nov 2026, "Hide on day 1"): on the first IST day of the trial the strip says only the day.
+  const dayOne = trialDayOneNoPayAsk(sub.status?.trialStartDate, nowMs);
   const payTo = isPaymentsClientEnabled() ? BOARD_PASS_BUY_PATH : "/pricing";
 
   return (
     <div className="lt-tes" data-testid="trial-early-strip" role="region" aria-label="Your free trial">
       <p className="lt-tes__text">
         <span>{trialEarlyStripDayText(day)}</span>
-        <span className="lt-tes__sep" aria-hidden="true">
-          ·
-        </span>
-        <span>{trialEarlyStripOfferText(nowMs)}</span>
+        {dayOne ? null : (
+          <>
+            <span className="lt-tes__sep" aria-hidden="true">
+              ·
+            </span>
+            <span>{trialEarlyStripOfferText(nowMs)}</span>
+          </>
+        )}
       </p>
       <div className="lt-tes__actions">
-        <Link
-          to={payTo}
-          className="lt-tes__pay"
-          data-testid="trial-early-strip-pay"
-          onClick={() => trackPaywallAction("pay", TRIAL_STRIP_SURFACE)}
-        >
-          {PAY_LABEL}
-        </Link>
-        <div className="lt-tes__ask">
-          <PaywallActions surface={TRIAL_STRIP_SURFACE} askOnly />
-        </div>
+        {dayOne ? null : (
+          <>
+            <Link
+              to={payTo}
+              className="lt-tes__pay"
+              data-testid="trial-early-strip-pay"
+              onClick={() => trackPaywallAction("pay", TRIAL_STRIP_SURFACE)}
+            >
+              {PAY_LABEL}
+            </Link>
+            <div className="lt-tes__ask">
+              <PaywallActions surface={TRIAL_STRIP_SURFACE} askOnly />
+            </div>
+          </>
+        )}
       </div>
       <button
         type="button"

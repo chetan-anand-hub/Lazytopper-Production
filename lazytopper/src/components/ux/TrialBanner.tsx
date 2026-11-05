@@ -4,6 +4,7 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import TrialAsk from "../trial/TrialAsk";
 import { boardPassCtaLabel } from "../pricing/boardPassOffer";
+import { trialDayOneNoPayAsk } from "../trial/trialEndBannerModel";
 
 const TRIAL_DAYS = 7;
 
@@ -23,7 +24,7 @@ export function TrialBanner() {
 
 function LegacyTrialBanner() {
   const { user } = useAuth();
-  const { isTrialExpired, daysLeftInTrial, tier } = useSubscription();
+  const { isTrialExpired, daysLeftInTrial, tier, status } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -92,6 +93,8 @@ function LegacyTrialBanner() {
     ? "rgba(245,158,11,0.15)"
     : "rgba(34,197,94,0.08)";
   const isUrgent = isLastDay || isDay6;
+  // EARLY-PAYWALL-1 (owner 5 Nov 2026, "Hide on day 1"): no Board Pass link on the first IST day of the trial.
+  const dayOne = trialDayOneNoPayAsk(status?.trialStartDate, Date.now());
 
   let message: string;
   let subMessage: string | null = null;
@@ -142,7 +145,7 @@ function LegacyTrialBanner() {
           )}
         </div>
 
-        {isUrgent ? (
+        {dayOne ? null : isUrgent ? (
           <button
             type="button"
             onClick={() => setShowUpgrade(true)}
