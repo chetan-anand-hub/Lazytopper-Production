@@ -186,13 +186,11 @@ const SPACED_NUMBERS = /\d\s+(?=[\d.])/;
    — and the model quoted the second rows as ONE line, "2 = 2 −24 = −24". Guard (1) above splits a join
    only where the next column starts with a DIGIT; here it starts with a SIGN, so "2 −24" was evaluated as
    2 − 24 and a correct step lost ½ with "2 is not 2 −24". (1b) In the MODEL'S QUOTE of a photographed /
-   uploaded answer (opts.quoted, no typed source) a line boundary is also a space before a number that has
-   a sign GLUED to it (-, −, –) and is followed at once by "=": the line is SPLIT there and each column is
-   checked on its own — "2 = 2" and "−24 = −24" are true; "3 + 4 = 8 −2 = −2" still charges "3 + 4 is not
-   8". Never on the student's TYPED words, never on the model's own corrected working.
-   Accepted cost (core.test.cjs §GQ.2): a real slip quoted with a glued sign ("5 -3 = 3") is read as two
-   lines, "5" and "-3 = 3", neither of them arithmetic, so it is not charged; spaced ("5 − 3 = 3") or typed,
-   it is. */
+   uploaded answer (opts.quoted, no typed source) the line is ALSO read split before a number with a sign
+   GLUED to it (-, −, –) that is followed at once by "=", and it is charged only when BOTH readings find it
+   false (falseEqualities) — never on the student's TYPED words, never on the model's own corrected working.
+   Accepted cost (core.test.cjs §GQ.2): a real slip quoted with a glued sign ("5 -3 = 3") is true when
+   split, so it is not charged; spaced ("5 − 3 = 3") or typed, it is. */
 const SIGNED_LINE_JOIN = /(?<=\d)\s+(?=[-−–]?\d+(?:\.\d+)?\s*[=≈])/;
 function mixedValue(side) {
   const m = MIXED_NUMBER.exec(String(side == null ? '' : side));
@@ -237,13 +235,31 @@ function spansSourceLines(leftRaw, rightRaw, source) {
  * @returns {Array<{ left: string, right: string, leftValue: number, rightValue: number }>}
  */
 function falseEqualities(text, opts = {}) {
-  const out = [];
   // Review 2 (#1207): with the student's TYPED words known, spaced numbers are the student's own
   // writing ("1 000 + 500 = 1600" is charged) — only the line check (guard 3) applies there; the
   // line-boundary split and the spaced-number skip (guards 1–2) are for photo/OCR quotes only.
   const typedSource = String(opts.source == null ? '' : opts.source).trim().length > 0;
-  const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i)
-    .flatMap((c) => (typedSource ? [c] : c.split(opts.quoted === true ? SIGNED_LINE_JOIN : LINE_JOIN)));
+  const lines = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i);
+  if (typedSource) return falseEqualitiesIn(lines, opts, typedSource);
+  if (opts.quoted !== true) return falseEqualitiesIn(lines.flatMap((c) => c.split(LINE_JOIN)), opts, typedSource);
+  // (1b) GRADER-QUALITY-1, delta review: a photo quote is read BOTH ways — as trunk reads it (guard (1)) and
+  // split before a glued sign — and a line is charged ONLY when BOTH readings find it false (the split
+  // reading's text is reported). So the split can only REMOVE a charge: "2 = 2 −24 = −24" (Q21) is true
+  // when split; "D = 7² − 4 × 3 × 2 = 49 −24 = 25" and "x = (12 + 4)/2 = 16 −8 = 8" are true unsplit;
+  // "3 + 4 = 8 −2 = −2" is false both ways and is charged "3 + 4 is not 8".
+  const out = [];
+  for (const line of lines) {
+    const trunkReading = falseEqualitiesIn(line.split(LINE_JOIN), opts, typedSource);
+    if (!trunkReading.length) continue;
+    const splitReading = falseEqualitiesIn(line.split(SIGNED_LINE_JOIN), opts, typedSource);
+    for (const e of splitReading) if (!out.some((o) => o.left === e.left && o.right === e.right)) out.push(e);
+  }
+  return out;
+}
+
+/** Every FALSE plain numeric equality among already-split clauses (the body of falseEqualities). */
+function falseEqualitiesIn(clauses, opts, typedSource) {
+  const out = [];
   for (const clause of clauses) {
     if (!/[=≈]/.test(clause)) continue;
     if (/[,:%±∓°<>≤≥≠]/.test(clause)) continue; // lists, ratios, percentages, inequalities: not plain

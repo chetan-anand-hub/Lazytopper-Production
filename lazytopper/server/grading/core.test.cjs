@@ -3385,9 +3385,24 @@ test('§GQ.8 (B) eval gate: knowlViolations accepts ONLY the knowledge-evidence 
   // C05 — every lost mark has a type — except the step-level fourth state
   const res = (st) => ({ totalMarks: 2, marksAwarded: 1.5, objective: false, mistakeSummary: {}, annotatedSteps: [{ status: 'correct', marksAwarded: 1.5, marksDeducted: 0, mistakeType: null, studentWork: 'x = 1' }, { marksAwarded: 0, marksDeducted: 0.5, mistakeType: null, ...st }] });
   const c05 = (r, v2) => consistencyFailures(r, { v2 }).some((f) => f.id === 'C05-every-lost-mark-has-a-type');
-  assert.equal(c05(res({ status: 'unattempted', description: 'Answer', studentWork: '' }), true), false, 'v2 step-level unattempted: exempt');
+  assert.equal(c05(res({ status: 'unattempted', description: 'Verification of the values', studentWork: '' }), true), false, 'v2 step-level unattempted blank reason/verification: exempt');
+  // delta review item 5: the v2 half is as narrow as the legacy half
+  assert.equal(c05(res({ status: 'unattempted', description: 'Answer', studentWork: '' }), true), true, 'CONTROL: any other step-level unattempted still fails C05');
   assert.equal(c05(res({ status: 'missing', description: 'Verification of values', studentWork: '' }), false), false, 'legacy: a blank untyped verification "missing" step is the same state');
   assert.equal(c05(res({ status: 'missing', description: 'Solving for y', studentWork: '' }), false), true, 'CONTROL: any other blank untyped missing step still fails C05 (narrow variant)');
   assert.equal(c05(res({ status: 'missing', description: 'Verification of values', studentWork: '' }), true), true, 'CONTROL: in v2 an untyped "missing" step still fails C05');
   assert.equal(c05(res({ status: 'incorrect', description: 'Verification', studentWork: 'LHS = 6' }), false), true, 'CONTROL: an untyped wrong step still fails C05');
+});
+
+test('§GQ.9 D3 delta review item 1: on a photo quote a line is charged only when BOTH readings (trunk\'s and the glued-sign split) find it false — correct glued-minus chains are never charged', () => {
+  for (const t of ['D = 7² − 4 × 3 × 2 = 49 −24 = 25', 'x = (12 + 4)/2 = 16 −8 = 8', '2 × 3 = 7 -1 = 6', 'D = 7² − 4 × 3 × 2 = 49 –24 = 25']) {
+    assert.deepEqual(falseEqualities(t, { quoted: true }), [], t);
+  }
+  // still charged (false both ways), reported in the split reading's words
+  assert.deepEqual(falseEqualities('3 + 4 = 8 −2 = −2', { quoted: true }).map((e) => [e.left, e.right]), [['3 + 4', '8']]);
+  assert.deepEqual(falseEqualities('2 = 2 −24 = −24', { quoted: true }), [], 'Q21');
+  assert.deepEqual(falseEqualities('5 -3 = 3', { quoted: true }), [], 'the accepted cost, unchanged');
+  // CONTROL: unquoted text and typed source read exactly as on trunk
+  assert.equal(falseEqualities('D = 7² − 4 × 3 × 2 = 49 −24 = 25').length, 0);
+  assert.equal(falseEqualities('2 = 2 -24 = -24').length, 2);
 });

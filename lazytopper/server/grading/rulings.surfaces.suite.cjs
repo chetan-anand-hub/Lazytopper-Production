@@ -406,7 +406,9 @@ const fixtureSteps = (id) => () => JSON.parse(JSON.stringify(GQ1[id].modelReply)
 const Q15_TEXT = GQ1['GQ1-WS02-Q15'].questionText;
 const q15Steps = fixtureSteps('GQ1-WS02-Q15');
 const Q24_TEXT = GQ1['GQ1-WS02-Q24'].questionText;
-const q24Steps = fixtureSteps('GQ1-WS02-Q24');
+// The REAL paper's Q24 (transcribed, book page 8) and a SYNTHETIC answer that writes the equal-tangent sums.
+const q24RealSteps = fixtureSteps('GQ1-WS02-Q24');
+const q24Steps = fixtureSteps('GQ1-SYNTH-Q24-EVIDENCE');
 const OA2_Q22_TEXT = GQ1['GQ1-OA2-Q22-CONTROL'].questionText;
 const oa2q22Steps = fixtureSteps('GQ1-OA2-Q22-CONTROL');
 const Q21_TEXT = GQ1['GQ1-WS02-Q21'].questionText;
@@ -442,13 +444,27 @@ for (const s of SURFACES) {
     }
   });
 
-  test('GRADER-QUALITY-1 D1 — ' + s.id + ': Q24(i) shape — a blank asked-for REASON is exam technique ½ ONLY with proof of knowledge (owner ruling 5 Nov 2026): the model quotes (iii) "AB + CD = BC + DA"', async () => {
+  test('GRADER-QUALITY-1 D1 — ' + s.id + ': SYNTHETIC Q24 (not the student\'s paper) — a blank asked-for REASON is exam technique ½ ONLY with proof: (ii) writes "CD = CR + DR = 12 + 6" (owner ruling 5 Nov 2026)', async () => {
+    const X = GQ1['GQ1-SYNTH-Q24-EVIDENCE'];
+    assert.equal(X.synthetic, true);
     const r = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), targetSteps: q24Steps, acceptsV2: true });
-    assert.equal(r.result.marksAwarded, GQ1['GQ1-WS02-Q24'].expected.marksAwarded, s.id);
-    assert.deepEqual(typesOf(r.result), GQ1['GQ1-WS02-Q24'].expected.steps, s.id);
+    assert.equal(r.result.marksAwarded, X.expected.marksAwarded, s.id);
+    assert.deepEqual(typesOf(r.result), X.expected.steps, s.id);
     assert.equal(r.result.marksLostByType.presentation, 0.5, s.id);
     assert.equal(r.result.marksLostByType.unattempted, 0, s.id);
     assert.ok(!('knowledgeEvidence' in r.result.annotatedSteps[1]) && !('_knowledgeEvidence' in r.result.annotatedSteps[1]), s.id + ': internal only — the response shape is unchanged');
+  });
+
+  test('GRADER-QUALITY-1 D1 — ' + s.id + ': the REAL paper\'s Q24 (book page 8) — "AB + CD = BC + DA" is the question\'s own "Show that …", not proof: (i)\'s blank reason stays as trunk, unlabelled AND labelled', async () => {
+    const X = GQ1['GQ1-WS02-Q24'];
+    const real = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), targetSteps: q24RealSteps, acceptsV2: true });
+    assert.equal(real.result.marksAwarded, X.expected.marksAwarded, s.id);
+    assert.deepEqual(typesOf(real.result), X.expected.steps, s.id);
+    // the same reply with part labels, so ONLY the question-text rule stands between it and a flip
+    const labelled = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), acceptsV2: true, targetSteps: () => {
+      const st = q24RealSteps(); ['(i)', '(i)', '(ii)', '(iii)', '(iii)'].forEach((p, i) => { st[i].part = p; }); st[2] = { ...st[2], status: 'correct', marksAwarded: 1, marksDeducted: 0, mistakeType: null }; return st;
+    } });
+    assert.deepEqual([labelled.result.annotatedSteps[1].status, labelled.result.annotatedSteps[1].mistakeType], ['unattempted', null], s.id + ': evidence that is the question text is rejected (delta item 3)');
   });
 
   // OWNER RULING 5 Nov 2026: no proof, no exam technique — each stays EXACTLY as on trunk (unattempted, untyped).
@@ -457,7 +473,11 @@ for (const s of SURFACES) {
     ['knowledgeEvidence null', (st) => { st[1].knowledgeEvidence = null; }],
     ['a FABRICATED quote, in no step of the student\'s work', (st) => { st[1].knowledgeEvidence = 'tangents from an external point are equal'; }],
     ['the quote found only in the SAME step', (st) => { st[1].knowledgeEvidence = 'BP and CQ are tangents'; st[1].studentWork = ''; st[1].teacherAnnotation = 'BP and CQ are tangents'; }],
-    ['the quote found only in an INCORRECT step', (st) => { st[1].knowledgeEvidence = 'AB + CD = BC + DA'; st[3] = { ...st[3], studentWork: 'AB + CD = BC + DA so 36 = 34', status: 'incorrect', marksAwarded: 0, marksDeducted: 2, mistakeType: 'calculation' }; st[2] = { ...st[2], studentWork: 'CD = 18 m, DA = 14 m' }; }],
+    ['the quote found only in an INCORRECT step', (st) => { st[2] = { ...st[2], studentWork: 'CD = CR + DR = 12 + 6 = 20 m', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' }; }],
+    ['delta item 3: the quote is in the QUESTION TEXT ("Show that AB + CD = BC + DA")', (st) => { st[1].knowledgeEvidence = 'AB + CD = BC + DA'; st[3] = { ...st[3], studentWork: 'AB + CD = BC + DA, LHS = 36, RHS = 36, hence proved' }; }],
+    ['delta item 3: a BARE VALUE ("DA = 14 m"), written in (ii)', (st) => { st[1].knowledgeEvidence = 'DA = 14 m'; st[2] = { ...st[2], studentWork: st[2].studentWork + ', so DA = 14 m' }; }],
+    ['delta item 3: a bare value with a long name ("perimeter = 72 m")', (st) => { st[1].knowledgeEvidence = 'perimeter = 72 m'; st[3] = { ...st[3], studentWork: st[3].studentWork + ', perimeter = 72 m' }; }],
+    ['delta item 3: found only in an EARLIER step of the same part (the answer the reason justifies)', (st) => { st[1].knowledgeEvidence = 'BP = 10 m, CQ = 12 m'; }],
     ['a trivially short quote ("= 3")', (st) => { st[1].knowledgeEvidence = '= 3'; }],
   ];
   for (const [label, mutate] of NO_PROOF) {
@@ -487,8 +507,11 @@ for (const s of SURFACES) {
   });
   test('GRADER-QUALITY-1 D1 evidence (B) CONTROL — ' + s.id + ': the model\'s exam-technique typing STANDS with proof, as working not shown (a gap), or when the step is not blank', async () => {
     // proof: the student verified the same way elsewhere — quoted, and found in a correct step
-    const proven = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), acceptsV2: true, targetSteps: () => {
-      const st = verifySteps({ knowledgeEvidence: '7 − 2y = 5' })(); return st;
+    // (another PART of the question shows the student substitutes back and checks: delta item 3 — not an earlier step)
+    const proven = await drive(s, { mutateTarget: withMarks(3, VERIFY_TEXT), acceptsV2: true, targetSteps: () => {
+      const st = verifySteps({ knowledgeEvidence: 'x = 1 and y = 1 satisfy 8x + 7y = 15' })().map((x) => ({ ...x, part: '(a)' }));
+      st.push({ part: '(b)', description: 'Second check', studentWork: 'x = 1 and y = 1 satisfy 8x + 7y = 15 as 8 + 7 = 15', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null });
+      return st;
     } });
     assert.deepEqual([proven.result.annotatedSteps[2].status, proven.result.annotatedSteps[2].mistakeType], ['missing', 'presentation'], s.id + ': proven');
     // a gap: attempted work before AND after the blank verification
@@ -499,6 +522,38 @@ for (const s of SURFACES) {
     // not blank: a conclusion LINE missing after a written check is a format element (rules.cjs PRESENTATION)
     const line = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), acceptsV2: true, targetSteps: verifySteps({ studentWork: 'LHS = 7 − 2 = 5 = RHS', status: 'partial', marksAwarded: 0, teacherAnnotation: '× "Hence verified" line missing.' }) });
     assert.equal(line.result.annotatedSteps[2].mistakeType, 'presentation', s.id + ': a written check keeps its format deduction');
+  });
+
+  // DELTA REVIEW item 2 (minimum fix): a model-typed blank reason step that still HOLDS marks (its own, or given
+  // back by the exam-technique cap before the withdrawal runs) keeps the model's typing — marks AND type as on trunk.
+  const HOLDING = [
+    ['a 2-mark blank justification the cap gives 1 back to (4-mark answer)', 4, () => [
+      { description: 'Solving', studentWork: 'x = 4', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Justification of the method', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '× Justification missing.', mistakeType: 'presentation' },
+    ], 1, 3],
+    ['a single blank-reason step, 1 of 2 after the cap', 2, () => [
+      { description: 'Reason for the answer', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '× Reason missing.', mistakeType: 'presentation' },
+    ], 0, 1],
+    ['a blank verification step the model left holding ½', 2, () => [
+      { description: 'Solving', studentWork: 'x = 1, y = 1', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Verification of the values', studentWork: '', status: 'missing', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½ Verification incomplete.', mistakeType: 'presentation' },
+    ], 1, 1.5],
+  ];
+  for (const [label, marks, targetSteps, idx, total] of HOLDING) {
+    test('GRADER-QUALITY-1 D1 evidence (B) — ' + s.id + ': delta item 2: ' + label + ' — keeps the model\'s typing; marks as on trunk; never an "unattempted" step holding marks', async () => {
+      for (const acceptsV2 of [false, true]) {
+        const r = await drive(s, { mutateTarget: withMarks(marks, PLAIN_TEXT), targetSteps, acceptsV2 });
+        assert.equal(r.result.marksAwarded, total, s.id + ' v2=' + acceptsV2 + ': marks as on trunk');
+        assert.deepEqual([r.result.annotatedSteps[idx].status, r.result.annotatedSteps[idx].mistakeType], ['missing', 'presentation'], s.id + ' v2=' + acceptsV2);
+        assert.ok(r.result.annotatedSteps.every((st) => st.status !== 'unattempted' || st.marksAwarded === 0), s.id + ': no unattempted step holds marks');
+      }
+    });
+  }
+
+  test('GRADER-QUALITY-1 D1 CONTROL — ' + s.id + ': delta nit: a skipped DIAGRAM between written lines is a deliverable, never "working not shown" — stays NOT ATTEMPTED', async () => {
+    const r = await drive(s, { mutateTarget: unlabelled(PLAIN_TEXT), acceptsV2: true, targetSteps: threeSteps({ description: 'Labelled ray diagram' }) });
+    assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['unattempted', null], s.id);
+    assert.equal(r.result.marksAwarded, 2, s.id);
   });
 
   test('GRADER-QUALITY-1 D1 evidence — ' + s.id + ': (c) a WRONG reason actually written is untouched (the model\'s type stands); the objective clamp is untouched', async () => {
@@ -575,7 +630,9 @@ for (const s of SURFACES) {
 
   test('GRADER-QUALITY-1 D3 — ' + s.id + ': Q21 shape — a two-column check quoted as one row from a PHOTO is never charged; each column is still checked on its own', async () => {
     const photoQ21 = (view, req) => { withMarks(3, Q21_TEXT)(view, req); asPhoto(view, req); };
-    for (const quote of [GQ1['GQ1-WS02-Q21'].photoQuote, '-4 + 6 = 2 6 x -4 = -24\n2 = 2 -24 = -24', '2 = 2 –24 = –24']) {
+    for (const quote of [GQ1['GQ1-WS02-Q21'].photoQuote, '-4 + 6 = 2 6 x -4 = -24\n2 = 2 -24 = -24', '2 = 2 –24 = –24',
+      // delta review item 1: CORRECT glued-minus chains are never charged by the split
+      'D = 7² − 4 × 3 × 2 = 49 −24 = 25', 'x = (12 + 4)/2 = 16 −8 = 8', '2 × 3 = 7 -1 = 6']) {
       const r = await drive(s, { mutateTarget: photoQ21, targetSteps: q21Steps(quote), acceptsV2: true });
       assert.equal(r.result.marksAwarded, 3, s.id + ': ' + JSON.stringify(quote));
       assert.ok(!r.result.annotatedSteps.some((st) => /Check the arithmetic/.test(st.teacherAnnotation || '')), s.id + ': no false arithmetic comment');

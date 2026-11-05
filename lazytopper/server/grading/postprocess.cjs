@@ -678,11 +678,27 @@ const KNOWLEDGE_STEP = /\b(?:reason\w*|justif\w*|verif\w*)\b/i;
 const ATTEMPTED_STATUSES = new Set(['correct', 'partial', 'incorrect']);
 const ENFORCE_EVIDENCE_ON_MODEL_TYPING = true;
 const normEvidence = (t) => String(t == null ? '' : t).normalize('NFKC').toLowerCase().replace(/[−–—]/g, '-').replace(/\s+/g, ' ').trim();
-/** The model's knowledgeEvidence is a real quote of ANOTHER correct/partial step of this question. */
-function knowledgeProven(u, live) {
+// A skipped diagram / figure / graph is a deliverable of its own, never "working not shown" (delta review nit).
+const DIAGRAM_STEP = /\b(?:diagram|figure|graph|sketch)s?\b/i;
+// "BP = 10 m": a bare value — it shows a result, not that the student knows the idea behind it.
+const BARE_VALUE = /^[a-z][a-z0-9 ]* ?= ?-?[\d.]+ ?(?:[a-z]{1,3}\d?)?$/;
+/** The model's knowledgeEvidence PROVES the student knows the blank step's idea (owner ruling 5 Nov 2026), ALL of:
+ *  at least 10 normalised characters; not a bare value; at least one word (4+ letters) or a relation between
+ *  two or more named quantities ("CD = CR + DR"); NOT found in the question text (a restated "Show that …" is the
+ *  question, not the student's knowledge); and found VERBATIM (normalised) in a correct/partial step that is in
+ *  ANOTHER part, or LATER in the same part — never the step itself, nor the same part's earlier steps (the
+ *  answer the reason justifies). */
+function knowledgeProven(u, live, questionText) {
   const ev = normEvidence(u._knowledgeEvidence);
-  if (ev.replace(/[\s.,;:]/g, '').length < 6) return false;
-  return live.some((s) => s !== u && (s.status === 'correct' || s.status === 'partial') && normEvidence(s.studentWork).includes(ev));
+  if (ev.replace(/\s/g, '').length < 10 || BARE_VALUE.test(ev)) return false;
+  const names = ev.match(/[a-z]+/g) || [];
+  if (!(names.some((w) => w.length >= 4) || (names.length >= 3 && /[=<>≤≥]/.test(ev)))) return false;
+  const nq = normEvidence(questionText);
+  if (nq && (nq.includes(ev) || nq.replace(/\s/g, '').includes(ev.replace(/\s/g, '')))) return false;
+  const at = live.indexOf(u);
+  return live.some((s) => s !== u && (s.status === 'correct' || s.status === 'partial')
+    && (partKey(s.part) !== partKey(u.part) || live.indexOf(s) > at)
+    && normEvidence(s.studentWork).includes(ev));
 }
 function omissionsInAttemptedWork(steps, { q, totalMarks }) {
   let n = 0;
@@ -705,19 +721,24 @@ function omissionsInAttemptedWork(steps, { q, totalMarks }) {
   // step-level fourth state; the PR2-accept PARM7 bodies are re-baselined under g-knowledge-evidence-1.
   if (ENFORCE_EVIDENCE_ON_MODEL_TYPING) for (const s of live) {
     if (s.status !== 'missing' || s.mistakeType !== 'presentation' || nonAttemptText(s.studentWork) !== 'empty') continue;
+    // delta review item 2 (the MINIMUM fix): a step still holding marks — the model's own, or given back by the
+    // exam-technique cap (capExamTechnique, step 5, runs BEFORE this) — keeps the model's typing, as on trunk, so
+    // an "unattempted" step never holds marks. (Deciding the evidence before the cap would LOWER marks: owner
+    // follow-up GRADER-EVIDENCE-BEFORE-CAP, not built.)
+    if (s.marksAwarded !== 0 || s._etCapped) continue;
     if (!KNOWLEDGE_STEP.test(String(s.description || ''))) continue;
     const { before, after } = sides(s);
     if (before && after) continue;
     // no proof → the fourth state, as the examiner key GS-M22-a reads it ("a requested sub-task left wholly
     // unattempted → no mistake type"): `unattempted`, untyped. Marks are untouched (they are final here).
-    if (!knowledgeProven(s, live)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
+    if (!knowledgeProven(s, live, questionText)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
   }
   for (const u of live) {
     if (u.status !== 'unattempted' || u.marksAwarded > 0 || nonAttemptText(u.studentWork) !== 'empty') continue;
-    if (PART_NAMED.test(String(u.description || ''))) continue;
+    if (PART_NAMED.test(String(u.description || '')) || DIAGRAM_STEP.test(String(u.description || ''))) continue;
     if (partKey(u.part) === '' && (anyLabelled || !realQuestion || SUB_PART_MARKER.test(questionText))) continue;
     const { group, before, after } = sides(u);
-    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && knowledgeProven(u, live);
+    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && knowledgeProven(u, live, questionText);
     if (!before || !(after || proven)) continue;
     if (group.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType))) continue;
     const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s))
