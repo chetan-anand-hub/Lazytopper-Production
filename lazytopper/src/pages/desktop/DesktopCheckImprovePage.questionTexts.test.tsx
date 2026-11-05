@@ -242,6 +242,48 @@ describe("SCORECARD-SECTION-TYPE-1 - the detected section persists with the Answ
   });
 });
 
+/* SCORECARD-SECTION-TYPE-1 - the per-question chip. "Option only - no working to diagnose" is for a bare option
+   pick; an objective, untyped answer that HAD working keeps "Marks lost, reason not recorded". */
+describe("SCORECARD-SECTION-TYPE-1 - the Answer Checker per-question untyped chip", () => {
+  const step = (n: number, work: string) => ({
+    stepNumber: n, description: `Step ${n}`, studentWork: work, status: "wrong",
+    marksAwarded: 0, marksDeducted: 0, teacherAnnotation: "", mistakeType: null, correctedWorking: null,
+  });
+  const untypedRow = (qNumber: number, steps: unknown[]) => ({
+    qNumber, couldNotRead: false, ok: true, objective: true, totalMarks: 1, marksAwarded: 0, percentage: 0,
+    annotatedSteps: steps, mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+    marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 1 },
+  });
+
+  it("two worked steps -> 'Marks lost, reason not recorded'; a bare pick -> 'Option only'", async () => {
+    H.detectQuestion.mockImplementation(async (req: { question?: string }) =>
+      req.question === "Q-A" || req.question === "Q-B"
+        ? { ok: true, detectedTopic: null, detectedSubject: null }
+        : { ...TWO_QUESTIONS, questions: [
+            { questionNumber: 1, questionText: "Q-A", marks: 1, marksSource: "section", objective: true },
+            { questionNumber: 2, questionText: "Q-B", marks: 1, marksSource: "section", objective: true },
+          ] },
+    );
+    H.gradeWorksheet.mockResolvedValue({
+      ok: true,
+      results: [untypedRow(1, [step(1, "AC^2 = CD x BC"), step(2, "AC = 6, so (b)")]), untypedRow(2, [step(1, "(c)")])],
+      totalQuestions: 2, gradedCount: 2, pendingCount: 0, gradedMarksAwarded: 0, gradedMarksTotal: 2, worksheetTotalMarks: 2,
+    });
+    const { container } = render(page());
+    await typeAndReadQuestion("Two questions");
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    await clickGrade();
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(document.querySelectorAll('span[data-group="untyped"]').length).toBe(2));
+    const chips = Array.from(document.querySelectorAll('span[data-group="untyped"]')).map((c) => c.textContent);
+    expect(chips[0]).toContain("Marks lost, reason not recorded");
+    expect(chips[0]).not.toContain("Option only");
+    expect(chips[1]).toContain("Option only");
+    expect(chips[1]).not.toContain("reason not recorded");
+  });
+});
+
 /* GRADE-MARKS-1 - the Answer Checker whole paper: the paid read asks detect for section marks, the
    confirm step lets the student correct each question's marks BEFORE grading (the edit is what the
    grade request sends), a guessed mark is flagged, and the paper summary states the FINAL marks.
