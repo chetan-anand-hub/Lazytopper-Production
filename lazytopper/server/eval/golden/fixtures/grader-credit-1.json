@@ -153,7 +153,7 @@
           "marksAvailable": 0.5,
           "marksAwarded": 0,
           "marksDeducted": 0.5,
-          "teacherAnnotation": "× The probability is 15/16.",
+          "teacherAnnotation": "× Reduce the fraction: 45/48 = 15/16.",
           "mistakeType": "calculation",
           "correctedWorking": "P = 90/96 = 15/16"
         }
@@ -214,7 +214,7 @@
           "marksAvailable": 1,
           "marksAwarded": 0,
           "marksDeducted": 1,
-          "teacherAnnotation": "× 1000/220 = 4.54 A, not 4.5 A.",
+          "teacherAnnotation": "× Round 1000/220 correctly: 4.54 A.",
           "mistakeType": "calculation",
           "correctedWorking": "I = 1000/220 = 4.54 A"
         }
@@ -239,7 +239,8 @@
           "calculation": 0
         }
       },
-      "trunk": "1/2, calculation 1."
+      "trunk": "1/2, calculation 1.",
+      "methodComplaintVariant": "Delta review (#1583): an annotation that complains about the VALUE or METHOD ('× 1000/220 = 4.54 A, not 4.5 A') is NOT given back by the deterministic guard; only a form/rounding complaint is. The prompt rule EQUIVALENT ANSWERS is what moves the rest (live golden run)."
     },
     {
       "id": "GC1-DP-VIOLATED",

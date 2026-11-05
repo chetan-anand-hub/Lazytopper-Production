@@ -1102,14 +1102,17 @@ function rubricStatesValue(point, rightRaw) {
 const FORM_DEMANDED = new RegExp([
   /\bsimplif(?:y|ied|ication)\b/, /\blowest terms?\b/, /\b(?:simplest|reduced|standard|surd|fraction(?:al)?|decimal|exponential|scientific|rational(?:ised|ized)?|lowest)\s+form\b/,
   /\bcorrect(?:ed)?\s+(?:up\s*)?to\b/, /\bup\s*to\s+(?:\w+\s+)?(?:decimal|place|significant)/, /\bround(?:ed|ing)?(?:\s+off)?\b/, /\bdecimals?\b/, /\bplaces?\s+of\s+decimals?\b/,
-  /\bsignificant\s+(?:figures?|digits?)\b/, /\b\d+\s*(?:d\.\s*p|s\.\s*f)\b/, /\bnearest\b/, /\bin terms of\b/, /\bin the form\b/,
+  /\bsignificant\s+(?:figures?|digits?)\b/, /\bapprox\w*/, /\b(?:\d+|one|two|three|four)\s+places?\b/, /\b\d+\s*(?:d\.\s*p|s\.\s*f)\b/, /\bnearest\b/, /\bin terms of\b/, /\bin the form\b/,
   /\bexpress\w*\b[^.?]*\b(?:as|in)\b/, /\bas an? (?:fraction|mixed (?:number|fraction)|percentage|whole number|integer)\b/, /\brationali[sz]/,
 ].map((r) => r.source).join('|'), 'i');
 // Review round 1 (#1583, item 2): the guard gives back ONLY a loss whose complaint is about the FORM, the ROUNDING
 // or the final VALUE itself — never a presentation-typed loss (units, format, working: not this guard's business),
 // and never a complaint about stating / rejecting / justifying (a word problem's "say which root fits").
-const VALUE_COMPLAINT = /\b(?:simplif\w*|lowest terms|simplest|reduc\w*|round\w*|decimal|fraction|approximat\w*|precision|final (?:answer|value)|answer (?:is|should)|should (?:be|have been))\b|\d/i;
-const NOT_A_VALUE_COMPLAINT = /\b(?:state[sd]?|stating|reject\w*|which root|context|fits?|natural number|justif\w*|reason\w*|conclu\w*|explain\w*|working|steps?|shown?|method)\b/i;
+// Delta review (#1583, a7efcb2b): ONLY a complaint about the FORM of a right value — simplification, rounding,
+// decimals, fractions, approximation, an equivalent form. A digit is not a complaint ("side = √16 = 4 cm, not
+// 16/4" is a METHOD complaint), and any method word blocks the give-back.
+const VALUE_COMPLAINT = /\b(?:simplif\w*|unsimplified|lowest terms|simplest|reduc\w*|round\w*|decimals?|fraction\w*|approximat\w*|equivalent|places?)\b/i;
+const NOT_A_VALUE_COMPLAINT = /\b(?:state[sd]?|stating|reject\w*|which root|context|fits?|natural number|justif\w*|reason\w*|conclu\w*|explain\w*|working|steps?|shown?|method|not|instead|formula|wrong|should|incorrect)\b|√/i;
 const EQUIVALENT_FORM_NOTE_CLAIM = /\b(?:simplif\w*|lowest terms|simplest form|round(?:ed|ing)?|decimal places?)\b|\bfinal answer\b[^.]*\b(?:incorrect|wrong|not (?:correct|right)|does not match)\b/i;
 function restoreEquivalentFinalAnswer(steps, { q, raw, zeroedBy, finalAnswerCorrect }) {
   if (!q || !String(q.finalAnswer || '').trim()) return null;

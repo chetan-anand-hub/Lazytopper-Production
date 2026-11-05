@@ -3449,7 +3449,8 @@ const gcRaw = (last, over = {}) => ({ addressesQuestion: 'yes', finalAnswerCorre
 ], ...over });
 
 test('§GC1.3 the guard gives back an equal final answer — and only that (never lowers, never acts beside a unit, a format loss, a concept, a departure, an arithmetic flag)', () => {
-  assert.equal(nqr(gcQ(), gcRaw({}), { acceptsV2: true }).marksAwarded, 2, '4.5 A for 4.54 A: full');
+  assert.equal(nqr(gcQ(), gcRaw({ teacherAnnotation: '× Round correctly: 4.54 A.' }), { acceptsV2: true }).marksAwarded, 2, '4.5 A for 4.54 A, a rounding complaint: full');
+  assert.equal(nqr(gcQ(), gcRaw({}), { acceptsV2: true }).marksAwarded, 1, 'a VALUE complaint ("× 1000/220 = 4.54 A.") is the prompt\'s business, not the guard\'s');
   assert.equal(nqr(gcQ({ finalAnswer: null }), gcRaw({}), { acceptsV2: true }).marksAwarded, 1, 'no key: the model decides (trunk)');
   assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220 = 4.0 A' }), { acceptsV2: true }).marksAwarded, 1, 'a wrong value stays wrong');
   assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220 = 4.5' }), { acceptsV2: true }).marksAwarded, 1, 'no unit: the guard does not act');
@@ -3486,9 +3487,9 @@ test('§GC1.5 ★ BLOCKING 1+2 — a wrong substitution, a rejected-root ½ and 
   const run = (studentWork, last = {}, q = {}) => nqr(gcQ(q), gcRaw({ studentWork, ...last }), { acceptsV2: true }).marksAwarded;
   // (1) the working must give the key's value — only the final number's FORM / ROUNDING may differ
   assert.equal(run('I = 900/200 = 4.5 A', { mistakeType: 'silly', teacherAnnotation: '× You used 900 W; 1000/220 = 4.54 A.' }), 1, '900 W substituted: stays');
-  assert.equal(run('I = 1000/222 = 4.5 A', { teacherAnnotation: '× 1000/220 = 4.54 A, not 4.5 A.' }), 1, '222 V substituted: stays');
+  assert.equal(run('I = 1000/222 = 4.5 A', { teacherAnnotation: '× Round correctly: 4.54 A.' }), 1, '222 V substituted: stays even with a rounding complaint');
   assert.equal(run('I = 4.5 A', { teacherAnnotation: '× 4.54 A.' }), 1, 'no working on the line: not evaluable here, stays');
-  assert.equal(run('I = 1000/220 = 4.5 A'), 2, 'CONTROL: the right working, rounded: given back');
+  assert.equal(run('I = 1000/220 = 4.5 A', { teacherAnnotation: '× Round correctly: 4.54 A.' }), 2, 'CONTROL: the right working, rounded: given back');
   // (2) a word problem's "state which root is rejected" ½ — and ANY presentation-typed loss — stays
   const wp = { qNumber: 1, marks: 3, questionText: 'The product of two consecutive natural numbers is 72. Find the smaller number N.', finalAnswer: '8' };
   const wpRaw = (ann, type) => ({ addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
@@ -3498,6 +3499,14 @@ test('§GC1.5 ★ BLOCKING 1+2 — a wrong substitution, a rejected-root ½ and 
     assert.equal(nqr(wp, wpRaw(ann, type), { acceptsV2: true }).marksAwarded, 2.5, ann + ' / ' + type);
   }
   // a presentation-typed "simplify" loss is the PROMPT's business (EQUIVALENT ANSWERS), never this guard's
+  // delta review: a METHOD complaint carrying digits is never a form complaint
+  const sq = { qNumber: 1, marks: 2, questionText: 'The area of a square is 16 cm². Find its side x.', finalAnswer: 'x = 4 cm' };
+  const sqRaw = (work, ann) => ({ addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Area relation', studentWork: 'x² = 16', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Side', studentWork: work, status: 'incorrect', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: ann, mistakeType: 'calculation' }] });
+  assert.equal(nqr(sq, sqRaw('x = 16/4 = 4 cm', '× side = √16 = 4 cm, not 16/4'), { acceptsV2: true }).marksAwarded, 1, '16/4: a wrong method, stays');
+  const sq2 = { qNumber: 1, marks: 2, questionText: 'Solve x² = 4 for the positive root.', finalAnswer: 'x = 2' };
+  assert.equal(nqr(sq2, sqRaw('x = 4/2 = 2', '× x = √4 = 2, not 4/2.'), { acceptsV2: true }).marksAwarded, 1, 'x² = 4 → x = 4/2 = 2: stays');
   const pres = nqr({ qNumber: 1, marks: 1, questionText: 'Find the probability that the card is a 2-digit number.', finalAnswer: '15/16' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
     { description: 'Counts', studentWork: 'Total = 96, favourable = 90', status: 'correct', marksAvailable: 0.5, marksAwarded: 0.5, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
     { description: 'Probability', studentWork: 'P = 90/96 = 45/48', status: 'incorrect', marksAvailable: 0.5, marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: '× Simplify the fraction fully: 15/16.', mistakeType: 'presentation' }] }, { acceptsV2: true });
@@ -3507,7 +3516,7 @@ test('§GC1.5 ★ BLOCKING 1+2 — a wrong substitution, a rejected-root ½ and 
 test('§GC1.6 ★ BLOCKING 3 — FORM_DEMANDED recognises every way a form or a precision is demanded', () => {
   for (const t of ['Find x, rounding off to two places of decimal.', 'Give the answer up to 2 decimals.', 'Give it to one decimal.', 'Write the answer in fractional form.', 'Write it in decimal form.',
     'Give the ratio in the reduced form.', 'Write the number in standard form.', 'correct to 3 significant figures', 'to the nearest whole number', 'to the nearest tenth', 'to the nearest hundredth',
-    'Write the answer in simplest form.', 'Leave it in surd form.', 'in terms of π', 'Round off to the nearest integer.']) assert.ok(FORM_DEMANDED.test(t), t);
+    'Write the answer in simplest form.', 'Leave it in surd form.', 'in terms of π', 'Round off to the nearest integer.', 'Find it approximately to 2 places.', 'Give it to two places.']) assert.ok(FORM_DEMANDED.test(t), t);
   for (const t of ['Find the probability that the number is a 2-digit number.', 'Find the current drawn by the iron.', 'Find the height of the tower.']) assert.ok(!FORM_DEMANDED.test(t), t);
 });
 
@@ -3536,4 +3545,12 @@ test('§GC1.8 SHOULD-FIX 6+7 — the 1-mark split is for NON-objective items onl
     { description: 'Option', studentWork: '(a)', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½', mistakeType: null }] }, { acceptsV2: true });
   assert.ok(mcq.marksAwarded === 0 || mcq.marksAwarded === 1, 'objective invariant: never ½ (got ' + mcq.marksAwarded + ')');
   assert.equal(mcq.marksAwarded, 0, 'a wrong option is 0');
+});
+
+test('§GC1.9 delta review — a form demand is read from the QUESTION TEXT the request carries; no paper-level instruction reaches the grader (follow-up FU-GRADER-PAPER-LEVEL-FORM-DEMAND)', () => {
+  const raw = () => gcRaw({ teacherAnnotation: '× Round correctly: 4.54 A.' });
+  // inside the question text (how a printed instruction reaches the grader today): enforced
+  assert.equal(nqr(gcQ({ questionText: 'General instruction: give every answer correct to two decimal places. An electric iron of 1 kW runs on 220 V. Find the current drawn.' }), raw(), { acceptsV2: true }).marksAwarded, 1);
+  // a paper-level field is NOT read (no such field exists on any request today) — pinned so the gap is visible
+  assert.equal(nqr(gcQ({ instructions: 'Give every answer correct to two decimal places.' }), raw(), { acceptsV2: true }).marksAwarded, 2);
 });
