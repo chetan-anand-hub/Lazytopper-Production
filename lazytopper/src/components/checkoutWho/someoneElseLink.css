@@ -5,3 +5,7 @@
 }
 .lt-else-link:disabled { color: #6b7a90; cursor: default; }
 .lt-else-link:focus-visible { outline: 2px solid #136b43; outline-offset: 2px; border-radius: 4px; }
+/* >=1024px the passes row is a flex row: the link takes its own full line, left-aligned under the Pay button. */
+@media (min-width: 1024px) {
+  .lt-pricing-passes .lt-else-link { flex: 1 1 100%; text-align: left; width: auto; }
+}

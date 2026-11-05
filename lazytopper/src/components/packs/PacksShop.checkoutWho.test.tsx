@@ -101,6 +101,15 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
     expect(screen.queryByTestId("who-sheet")).toBeNull();
   });
 
+  it("signed in, flag on: a /packs?buy= return starts buyPack once with no sheet", async () => {
+    auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    shop("/packs?buy=pack_cbq&t=science");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("pack_cbq");
+    expect(screen.queryByTestId("who-sheet")).toBeNull();
+  });
+
   it("signed in: the secondary link opens the someone-else box (no purchase started)", async () => {
     auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
     shop();

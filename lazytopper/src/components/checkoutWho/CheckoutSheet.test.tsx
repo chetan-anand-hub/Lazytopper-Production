@@ -263,3 +263,11 @@ describe("CHECKOUT-SELF-1 · startAt=other", () => {
     expect(screen.getByTestId("who-pay-self")).toBeTruthy();
   });
 });
+
+describe("CHECKOUT-SELF-1 · link wording", () => {
+  it("the link reads exactly the sheet's own 'Buying for someone else?' (no 'phone number' wording)", async () => {
+    const { SOMEONE_ELSE_LINK } = await import("./SomeoneElseLink");
+    const { WHO_SOMEONE_ELSE } = await import("../../services/checkoutWho");
+    expect(SOMEONE_ELSE_LINK).toBe(WHO_SOMEONE_ELSE);
+  });
+});

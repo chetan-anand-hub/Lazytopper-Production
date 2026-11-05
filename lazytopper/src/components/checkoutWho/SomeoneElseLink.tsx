@@ -5,8 +5,12 @@
  */
 import "./someoneElseLink.css";
 
-/** Honest, plain: it names both things the link does. */
-export const SOMEONE_ELSE_LINK = "Buying for someone else, or paying with a phone number?";
+/**
+ * Short on purpose (reviewer, 5 Nov): "paying with a phone number" read as "pay with MY phone" and a student typed their own unlinked
+ * number (full price, no pack credit, the pass on a different account). The sheet it opens still takes a parent's or friend's number or email.
+ */
+// Same words as WHO_SOMEONE_ELSE (services/checkoutWho.ts); a literal here so host chunks do not import the checkout service. A test pins them equal.
+export const SOMEONE_ELSE_LINK = "Buying for someone else?";
 
 export default function SomeoneElseLink({ onOpen, disabled = false, testId = "checkout-someone-else" }: { onOpen: () => void; disabled?: boolean; testId?: string }) {
   return (

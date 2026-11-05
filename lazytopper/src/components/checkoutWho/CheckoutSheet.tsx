@@ -122,6 +122,7 @@ export default function CheckoutSheet({
     if (shown.current) return;
     shown.current = true;
     trackNamedEvent("guest_pay_option_shown", { recipient: signedIn && startAt !== "other" ? "self" : "other", ...surfaceData });
+  // `startAt` is a mount-time choice (the sheet is mounted fresh per open); it must not re-fire the once-only event.
   }, [signedIn]);
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 /**
  * CHECKOUT-WHO-1 / CHECKOUT-SELF-1 - the Board Pass Pay with VITE_CHECKOUT_WHO_ENABLED on: signed in, ONE tap runs the unchanged
- * checkout for the account (buyPass, one begin_checkout, one purchase) and a secondary link opens the someone-else box; signed out: signed out (Pay or ?buy=board_pass) the recipient box. Flag
+ * checkout for the account (buyPass, one begin_checkout, one purchase) and a secondary link opens the someone-else box; signed out (Pay or ?buy=board_pass) the recipient box. Flag
  * OFF: the old flows exactly (signed in -> straight to Razorpay; signed out -> pay-by-phone sheet / sign-in), no sheet.
  */
 const mockAuth = vi.hoisted(() => ({ user: null as null | { uid: string; email?: string; phoneNumber?: string; isLocalSession?: boolean }, loading: false }));
@@ -45,6 +45,7 @@ vi.mock("../../services/checkoutWhoFlag", async (orig) => ({
 }));
 
 import PassCheckout, { tillBoardsButtonLabel } from "./PassCheckout";
+import * as packsSvc from "../../services/packs";
 
 let where = "";
 function Probe() {
@@ -111,6 +112,18 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
     expect(checkout.buyPass).not.toHaveBeenCalled();
     expect(analytics.trackBeginCheckoutTap).not.toHaveBeenCalled();
     expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_option_shown", { recipient: "other" });
+  });
+
+  it("signed in with a pack credit: the one button names the credited total; one tap -> buyPass once, no sheet", async () => {
+    mockAuth.user = { uid: "u1", email: "anaya.k@gmail.com" };
+    (packsSvc.fetchMyPacks as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      packs: [], licensee: { name: "", email: "" }, boardPassCredit: { creditInr: 199, payInr: 1718, expiresAtMs: Date.parse("2026-11-20T00:00:00Z") },
+    });
+    mount("/pricing");
+    const btn = await screen.findByText(`Pay ₹${(1718).toLocaleString("en-IN")} once till your boards`);
+    fireEvent.click(btn);
+    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
+    expect(screen.queryByTestId("who-sheet")).toBeNull();
   });
 
   it("signed in: the link is not offered while a payment is running", async () => {
