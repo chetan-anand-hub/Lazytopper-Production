@@ -948,7 +948,7 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // GRADER-CREDIT-1 review round 1 (same pin, rebased onto GRADER-BALANCE-1): SEPARATE VALUES says which items it
 // covers (non-objective, incl. a 1-mark item or case-study part; never an objective item) and that answer-only
 // separable values share the final-answer mark; FINAL ANSWER's single-mark sentence names the same exception.
-const NO_UPLOADS_CONTENTS_SHA256 = 'f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c';
+const NO_UPLOADS_CONTENTS_SHA256 = 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
