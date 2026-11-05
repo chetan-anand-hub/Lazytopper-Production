@@ -7,6 +7,8 @@ import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { deriveAccountStatus } from "../../utils/accountStatus";
+import { holdsBoardPass } from "../../lib/nav/boardPass";
+import { trackNavPricingTap } from "../../analytics/analytics";
 import { MistakeIntelCard } from "./MistakeIntelCard";
 import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
 import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
@@ -61,6 +63,10 @@ interface NavLinkItem {
    * middle-click / new-tab / Ctrl-click open the page), and a plain left click opens the picker.
    */
   picker?: "ncert";
+  /** NAV-PRICING-1 — hidden for a Board Pass holder (the Pricing entry). */
+  hideForBoardPass?: boolean;
+  /** NAV-PRICING-1 — fires `nav_pricing_tap { surface: "sidebar" }` on a tap. */
+  trackPricing?: boolean;
 }
 
 interface NavActionItem {
@@ -182,6 +188,21 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
         <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
         <path d="M7 12h10" />
+      </svg>
+    ),
+  },
+  {
+    // NAV-PRICING-1 (owner, 5 Nov 2026): visitors get direct access to the pricing page. A Board Pass
+    // holder has nothing to buy here, so the entry is hidden for them (hideForBoardPass).
+    to: "/pricing?source=sidebar",
+    label: "Pricing",
+    hideForBoardPass: true,
+    trackPricing: true,
+    // Tag
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 2H2v10l9.29 9.29a2.5 2.5 0 0 0 3.42 0l6.58-6.58a2.5 2.5 0 0 0 0-3.42Z" />
+        <path d="M7 7h.01" />
       </svg>
     ),
   },
@@ -389,7 +410,9 @@ export function DesktopShell({ children }: DesktopShellProps) {
 
         {/* Nav */}
         <nav style={{ padding: "0 12px", marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
-          {NAV_ITEMS.map((n) =>
+          {NAV_ITEMS.filter(
+            (n) => !("hideForBoardPass" in n && n.hideForBoardPass && holdsBoardPass({ tier, plan: subscription?.plan ?? "none" })),
+          ).map((n) =>
             "action" in n ? (
               /* The Tutor entry has no route, so it has no NavLink `isActive`.
                  It reads as active ONLY while its picker is open: the rail's
@@ -436,6 +459,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
                       },
                     }
                   : {})}
+                {...(n.trackPricing ? { onClick: () => trackNavPricingTap("sidebar") } : {})}
               >
                 {n.icon}
                 <span>{n.label}</span>
