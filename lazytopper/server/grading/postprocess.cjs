@@ -26,7 +26,7 @@ const {
   applyObjectiveMistakeGuard,
 } = require('../routes/objectiveScoring.cjs');
 const R = require('./rules.cjs');
-const { falseEqualities, compareFinalAnswer, fudgedFactorisation } = require('./verify.cjs');
+const { falseEqualities, compareFinalAnswer, fudgedFactorisation, equivalentFinalValue } = require('./verify.cjs');
 const { readEquations, atomsOf } = require('./chemEquation.cjs');
 
 const TYPES = R.MISTAKE_TYPES;
@@ -1073,6 +1073,84 @@ function rubricStatesValue(point, rightRaw) {
   return new RegExp('(?<![\\d./])' + esc + '(?![\\d./])').test(String(point || '').replace(/[−–—]/g, '-'));
 }
 
+/* ── GRADER-CREDIT-1 · AN EQUAL FINAL ANSWER IN ANOTHER FORM KEEPS ITS MARK (owner ruling B, 5 Nov 2026) ──
+   CBSE ticks an answer EQUAL to the key in another form: 45/48 for 15/16 (2025 Maths 30/6/2 Q22, model answer
+   book p.7), 4.5 A for 4.54 A (2025 Science 31/1/3 Q37(b), p.28). The prompt says so (rules.cjs
+   EQUIVALENT_ANSWERS_PROMPT); this guard makes it hold where the model still marks such a final answer wrong.
+   It can ONLY GIVE BACK — it never lowers a mark, a status or a type — and it fires only when ALL hold:
+     - a stored key exists (q.finalAnswer) and the question does NOT demand a form (FORM_DEMANDED: simplify,
+       lowest terms, "correct to N decimal places", nearest, "in terms of π", "express as" …) — where it does,
+       the model's verdict stands (ruling B: enforce a demanded form);
+     - no departure, no fudged step and no arithmetic flag in the question (a value reached through a broken
+       line is not "equal by another method");
+     - the final step (the last one with the student's work) lost marks, was not zeroed, is NOT typed
+       "presentation" or "conceptual", and its annotation complains about the form, the rounding or the final
+       value (VALUE_COMPLAINT) — never about stating, rejecting, justifying or working (NOT_A_VALUE_COMPLAINT),
+       a unit, a label or the language; when typed "calculation"/"silly", its work is ONE line;
+     - the step's final value AND the model's quoted studentFinalAnswer (when given) are each EQUAL to the key
+       (verify.cjs equivalentFinalValue: exact, or within the rounding of the less precise decimal and 1%;
+       a one-line key; the same variable), AND the student's own working on that line gives the key's value
+       (requireWorking: "900/200 = 4.5 A" is a wrong substitution, never given back for 4.54 A).
+   A presentation-typed "simplify" loss is left to the prompt rule (EQUIVALENT ANSWERS), not this guard.
+   Then that step earns what it could earn, untyped, with one true comment, and the final answer counts as
+   correct (the "wrong final answer" cap no longer applies). Where the final step lost NOTHING and only the
+   model's "final answer wrong" verdict stands against it, that verdict is overruled only on a question
+   without parts (in a multi-part question it may be about another part's answer) whose every step earned
+   in full (so that verdict alone held the mark down).
+   No stored key → no guard: the Answer Checker (single and multi) sends none, so there the prompt rule
+   alone decides (rulings.surfaces.suite.cjs pins which surfaces carry a key). */
+const FORM_DEMANDED = new RegExp([
+  /\bsimplif(?:y|ied|ication)\b/, /\blowest terms?\b/, /\b(?:simplest|reduced|standard|surd|fraction(?:al)?|decimal|exponential|scientific|rational(?:ised|ized)?|lowest)\s+form\b/,
+  /\bcorrect(?:ed)?\s+(?:up\s*)?to\b/, /\bup\s*to\s+(?:\w+\s+)?(?:decimal|place|significant)/, /\bround(?:ed|ing)?(?:\s+off)?\b/, /\bdecimals?\b/, /\bplaces?\s+of\s+decimals?\b/,
+  /\bsignificant\s+(?:figures?|digits?)\b/, /\bapprox\w*/, /\b(?:\d+|one|two|three|four)\s+places?\b/, /\b\d+\s*(?:d\.\s*p|s\.\s*f)\b/, /\bnearest\b/, /\bin terms of\b/, /\bin the form\b/,
+  /\bexpress\w*\b[^.?]*\b(?:as|in)\b/, /\bas an? (?:fraction|mixed (?:number|fraction)|percentage|whole number|integer)\b/, /\brationali[sz]/,
+].map((r) => r.source).join('|'), 'i');
+// Review round 1 (#1583, item 2): the guard gives back ONLY a loss whose complaint is about the FORM, the ROUNDING
+// or the final VALUE itself — never a presentation-typed loss (units, format, working: not this guard's business),
+// and never a complaint about stating / rejecting / justifying (a word problem's "say which root fits").
+// Delta review (#1583, a7efcb2b): ONLY a complaint about the FORM of a right value — simplification, rounding,
+// decimals, fractions, approximation, an equivalent form. A digit is not a complaint ("side = √16 = 4 cm, not
+// 16/4" is a METHOD complaint), and any method word blocks the give-back.
+const VALUE_COMPLAINT = /\b(?:simplif\w*|unsimplified|lowest terms|simplest|reduc\w*|round\w*|decimals?|fraction\w*|approximat\w*|equivalent|places?)\b/i;
+const NOT_A_VALUE_COMPLAINT = /\b(?:state[sd]?|stating|reject\w*|which root|context|fits?|natural number|justif\w*|reason\w*|conclu\w*|explain\w*|working|steps?|shown?|method|not|instead|formula|wrong|should|incorrect)\b|√/i;
+const EQUIVALENT_FORM_NOTE_CLAIM = /\b(?:simplif\w*|lowest terms|simplest form|round(?:ed|ing)?|decimal places?)\b|\bfinal answer\b[^.]*\b(?:incorrect|wrong|not (?:correct|right)|does not match)\b/i;
+function restoreEquivalentFinalAnswer(steps, { q, raw, zeroedBy, finalAnswerCorrect }) {
+  if (!q || !String(q.finalAnswer || '').trim()) return null;
+  if (FORM_DEMANDED.test(String(q.questionText || q.question || ''))) return null;
+  let at = -1;
+  for (let i = steps.length - 1; i >= 0; i -= 1) {
+    if (steps[i].status !== 'withdrawn' && String(steps[i].studentWork || '').trim()) { at = i; break; }
+  }
+  if (at < 0 || zeroedBy.has(at)) return null;
+  const s = steps[at];
+  const lostHere = half(s._available - s.marksAwarded) > 0;
+  if (!lostHere && finalAnswerCorrect !== false) return null;
+  // Nothing to give back on the step itself: the model's "final answer wrong" verdict is overruled only for a
+  // question WITHOUT parts (none labelled, none printed) — in a multi-part question that verdict may be about
+  // another part's answer — and only where every step earned in full, so that verdict alone held the mark down.
+  if (!lostHere && (steps.some((t) => t.part != null) || SUB_PART_MARKER.test(String(q.questionText || q.question || ''))
+    || !steps.every((t) => t.status === 'withdrawn' || t.marksAwarded >= t._available))) return null;
+  if (!['correct', 'partial', 'incorrect'].includes(s.status) || s._flagged || s._ecf) return null;
+  if (s.mistakeType === 'conceptual' || s.mistakeType === 'presentation') return null;
+  const why = [s.teacherAnnotation, s.correctedWorking].join(' . ');
+  if (UNIT_LOSS.test(why) || /\bwrite the unit\b/i.test(why) || OTHER_FORMAT_FAULT.test(why) || LANGUAGE_LOSS.test(why) || TERMINOLOGY_LOSS.test(why)) return null;
+  if (lostHere && (!VALUE_COMPLAINT.test(String(s.teacherAnnotation || '')) || NOT_A_VALUE_COMPLAINT.test(String(s.teacherAnnotation || '')))) return null;
+  if ((s.mistakeType === 'calculation' || s.mistakeType === 'silly') && /\n/.test(String(s.studentWork).trim())) return null;
+  if (falseEqualities(s.studentWork, { quoted: true, source: q.textAnswer }).length) return null;
+  if (equivalentFinalValue(s.studentWork, q.finalAnswer, { requireWorking: true }) !== 'equivalent') return null;
+  const quoted = String((raw && raw.studentFinalAnswer) || '').trim();
+  if (quoted && equivalentFinalValue(quoted, q.finalAnswer) !== 'equivalent') return null;
+  if (lostHere) {
+    s.marksAwarded = s._available;
+    s.marksDeducted = 0;
+    s.status = 'correct';
+    s.mistakeType = null;
+    s.correctedWorking = null;
+    s.teacherAnnotation = '✓ ' + R.EQUIVALENT_FINAL_ANSWER_ANNOTATION;
+  }
+  return { index: at, stepRestored: lostHere };
+}
+
 /* ── the one normaliser ────────────────────────────────────────────────────── */
 
 /**
@@ -1486,6 +1564,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   else if (raw.finalAnswerCorrect === false || raw.finalAnswerCorrect === 'false') finalAnswerCorrect = false;
   else finalAnswerCorrect = steps.length ? steps[steps.length - 1].status === 'correct' : false;
 
+  // GRADER-CREDIT-1 (owner ruling B, 5 Nov 2026): a final answer EQUAL to the stored key in another form
+  // (45/48 for 15/16; 4.5 A for 4.54 A) keeps its mark where no form was demanded. Only ever gives back.
+  let equivalentRestored = null;
+  if (!questionIsObjective && departures.length === 0 && !fudged && arithmeticFlags === 0) {
+    equivalentRestored = restoreEquivalentFinalAnswer(steps, { q, raw, zeroedBy, finalAnswerCorrect });
+    if (equivalentRestored) finalAnswerCorrect = true;
+  }
+
   let marksAwarded;
   let keyCheck = 'skip';
   if (questionIsObjective) {
@@ -1640,6 +1726,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // not get full marks (live 2026-10-05, owner-anomaly-02 Q13: "Full marks … completely accurate"
   // beside 2/3). Such sentences go; a negated one ("not full marks") stays.
   if (marksAwarded < totalMarks) note = scrubSentences(note, FULL_MARKS_CLAIM);
+  // GRADER-CREDIT-1: once an equal final answer keeps its mark, a note calling it wrong / unsimplified / badly
+  // rounded is false — that sentence goes.
+  if (equivalentRestored) note = scrubSentences(note, EQUIVALENT_FORM_NOTE_CLAIM);
   if (languageRestored > 0) note = scrubSentences(note, LANGUAGE_ADVICE);
   // A17 ruling 1: a unit deduction given back in full (a pure number / an unnamed unit) leaves no
   // note sentence claiming it.
@@ -1791,6 +1880,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   Object.defineProperty(out, '_finalAnswerCorrect', { value: finalAnswerCorrect });
   Object.defineProperty(out, '_keyCheck', { value: keyCheck });
   Object.defineProperty(out, '_arithmeticFlags', { value: arithmeticFlags });
+  Object.defineProperty(out, '_equivalentRestored', { value: Boolean(equivalentRestored) });
   return out;
 }
 
@@ -1818,6 +1908,8 @@ module.exports = {
   markGenuinelyUnattempted,
   omissionsInAttemptedWork,
   applyBalancingRuling,
+  restoreEquivalentFinalAnswer,
+  FORM_DEMANDED,
   nonAttemptText,
   isRealQuestionText,
   acceptedDepartures,

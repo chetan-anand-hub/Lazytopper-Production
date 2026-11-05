@@ -75,7 +75,7 @@ function surfaceRequest(s, mutateTarget) {
 }
 
 /** One request through the real handler, inside a bound student request (for the meter). */
-async function drive(s, { mutateTarget, targetSteps, otherSteps, acceptsV2 = false, uid = 'stu-a17' } = {}) {
+async function drive(s, { mutateTarget, targetSteps, otherSteps, acceptsV2 = false, uid = 'stu-a17', targetExtra = null } = {}) {
   const { req, single, targetQ, targetMarks, handler } = surfaceRequest(s, mutateTarget);
   if (acceptsV2) req.acceptsV2 = true;
   const writes = [];
@@ -91,7 +91,9 @@ async function drive(s, { mutateTarget, targetSteps, otherSteps, acceptsV2 = fal
   const calls = [];
   const resultFor = (n, marks) => {
     const steps = Number(n) === Number(targetQ) ? targetSteps(marks) : (otherSteps ? otherSteps(marks) : [{ description: 'Answer', studentWork: 'worked answer', status: 'correct', marksAwarded: marks, marksDeducted: 0, teacherAnnotation: '✓ Correct.', mistakeType: null }]);
-    return { qNumber: Number(n), couldNotRead: false, addressesQuestion: 'yes', annotatedSteps: steps, finalAnswerCorrect: true, teacherNote: 'Note.' };
+    // GRADER-CREDIT-1: a test may set the target's own verdict fields (finalAnswerCorrect, studentFinalAnswer, teacherNote).
+    const extra = Number(n) === Number(targetQ) && targetExtra ? targetExtra : {};
+    return { qNumber: Number(n), couldNotRead: false, addressesQuestion: 'yes', annotatedSteps: steps, finalAnswerCorrect: true, teacherNote: 'Note.', ...extra };
   };
   const marksOf = (n) => (single ? targetMarks : Number((req.questions.find((q) => Number(q.qNumber) === Number(n)) || {}).marks) || 1);
   let captured = null;
@@ -657,5 +659,96 @@ for (const s of SURFACES) {
     assert.ok(p.includes('BIGGER omission is reported exactly as before') && p.includes('NEVER typed "presentation"'), s.id + ': D1 is bounded by the cap (item 8)');
     assert.ok(p.includes('The ONE exception is an omitted value point of its own worth no more than the cap'), s.id + ': the presentation-vs-missing rule reconciled with D1');
     assert.ok(p.includes('SIDE-BY-SIDE WORK IS READ COLUMN BY COLUMN'), s.id + ': D3');
+  });
+}
+
+/* ── GRADER-CREDIT-1 (owner rulings A and B, 5 Nov 2026) — on EVERY grading surface ─────────────────────
+   (A) shared credit for separately required values: PROMPT (the model awards the share); the server must keep
+       a ½ the model gives on such a step (never floored, never re-typed).
+   (B) equal forms: PROMPT everywhere + a give-back-only guard (postprocess.cjs restoreEquivalentFinalAnswer)
+       that fires only where the request carries a stored key — the surfaces whose live request has a
+       `finalAnswer` field (HPQ, Worksheets, Chapter Test, Full Mock, Quick Practice). The Answer Checker
+       (single and multi) sends no key: there the prompt rule alone decides, and the test proves the guard
+       never fires (the model's reply stands, exactly as on trunk). */
+const GC1 = Object.fromEntries(require('../eval/golden/fixtures/grader-credit-1.json').cases.map((c) => [c.id, c]));
+const gcSteps = (id) => () => JSON.parse(JSON.stringify(GC1[id].modelReply));
+const gcExtra = (id, over = {}) => ({ finalAnswerCorrect: GC1[id].finalAnswerCorrect, ...(GC1[id].studentFinalAnswer ? { studentFinalAnswer: GC1[id].studentFinalAnswer } : {}), ...over });
+/** The fixture's question on this surface; its key only where the surface's live request carries the field. */
+const gcTarget = (id, text) => (view, req) => {
+  view.marks = GC1[id].marks;
+  view.questionText = text || GC1[id].questionText;
+  if (req.questions) { if ('finalAnswer' in view) view.finalAnswer = GC1[id].finalAnswer; } else if ('finalAnswer' in req) req.finalAnswer = GC1[id].finalAnswer;
+};
+const carriesKey = (s) => {
+  const job = PLAN[s.job];
+  if (job.handler === 'handleCheckSolution') return 'finalAnswer' in job.request;
+  const q = (job.request.questions || []).find((x) => !(x.objective === true) && !/^a$/i.test(String(x.section || '')) && !(Array.isArray(x.options) && x.options.length));
+  return Boolean(q) && 'finalAnswer' in q;
+};
+const modelSum = (id) => GC1[id].modelReply.reduce((a, st) => a + st.marksAwarded, 0);
+
+test('GRADER-CREDIT-1 §4a — which surfaces carry a stored key (the deterministic guard reaches exactly these; the prompt reaches all)', () => {
+  const withKey = SURFACES.filter(carriesKey).map((s) => s.id).sort();
+  assert.deepEqual(withKey, ['chapter-test', 'full-mock', 'hpq-solution-checker', 'quick-practice-batch', 'worksheets']);
+});
+
+for (const s of SURFACES) {
+  test('GRADER-CREDIT-1 (A)+(B) — ' + s.id + ': both rulings reach THIS surface\'s prompt, each with the limits that tell the readings apart', async () => {
+    const p = (await drive(s, { targetSteps: unitSteps })).calls[0].prompt;
+    assert.ok(p.includes(R.SEPARATE_VALUES_PROMPT), s.id + ': (A) shared credit');
+    assert.ok(p.includes(R.EQUIVALENT_ANSWERS_PROMPT), s.id + ': (B) equivalent answers');
+    // (A) the share — AND its limits: never a single indivisible result / a count (case law 12), never a wrong method
+    assert.ok(p.includes('½ of a 1-mark point for one root of two') && p.includes('NEVER split a SINGLE indivisible result') && p.includes('earns NOTHING'), s.id);
+    assert.ok(p.includes('INCOMPLETE LIST OR COUNT IS A WRONG VALUE') && p.includes('a COUNT is one value; TWO SEPARATELY ASKED values are not'), s.id + ': case law 12 kept, and told apart');
+    assert.ok(p.includes('VALUE POINTS ARE EARNED OR NOT') && p.includes('is shared between them (see SEPARATE VALUES)'), s.id + ': the old rule now points at the exception');
+    // (B) accept equal forms — AND enforce a demanded form / a stated precision; units unchanged
+    assert.ok(p.includes('45/48 or 90/96 for 15/16') && p.includes('4.5 A for 4.54 A'), s.id);
+    assert.ok(p.includes('"correct to two decimal places" means exactly two places') && p.includes('EXPLICITLY asks to SIMPLIFY'), s.id);
+    assert.ok(p.includes('still loses the ½ for the unit'), s.id + ': units rule untouched');
+    assert.ok(p.includes('A different but EQUAL form of the same value'), s.id + ': READING FIDELITY re-derives by value');
+  });
+
+  test('GRADER-CREDIT-1 (A) — ' + s.id + ': one of two roots right (WS-M-MIX-05 Q2 shape): the model\'s ½ on the roots step is KEPT, typed by the ruler', async () => {
+    for (const acceptsV2 of [false, true]) {
+      const r = await drive(s, { mutateTarget: gcTarget('GC1-ROOTS-HALF'), targetSteps: gcSteps('GC1-ROOTS-HALF'), targetExtra: gcExtra('GC1-ROOTS-HALF'), acceptsV2 });
+      const want = GC1['GC1-ROOTS-HALF'].expected;
+      assert.equal(r.result.marksAwarded, want.marksAwarded, s.id + ' v2=' + acceptsV2);
+      assert.deepEqual(typesOf(r.result), want.steps, s.id + ' v2=' + acceptsV2);
+      if (acceptsV2) assert.equal(r.result.marksLostByType.silly, 0.5, s.id);
+    }
+    const t = await drive(s, { mutateTarget: gcTarget('GC1-REASONS-HALF'), targetSteps: gcSteps('GC1-REASONS-HALF'), targetExtra: gcExtra('GC1-REASONS-HALF'), acceptsV2: true });
+    assert.equal(t.result.marksAwarded, GC1['GC1-REASONS-HALF'].expected.marksAwarded, s.id + ': two reasons, one given');
+    assert.deepEqual(typesOf(t.result), GC1['GC1-REASONS-HALF'].expected.steps, s.id);
+  });
+
+  test('GRADER-CREDIT-1 (B) — ' + s.id + ': an EQUAL final answer (45/48 for 15/16; 4.5 A for 4.54 A) keeps its mark where a key is sent; the model\'s reply stands where none is', async () => {
+    for (const id of ['GC1-EQ-45-48', 'GC1-EQ-4-5A']) {
+      for (const acceptsV2 of [false, true]) {
+        const r = await drive(s, { mutateTarget: gcTarget(id), targetSteps: gcSteps(id), targetExtra: gcExtra(id, { teacherNote: 'Good work. Your final answer is not simplified.' }), acceptsV2 });
+        if (carriesKey(s)) {
+          assert.equal(r.result.marksAwarded, GC1[id].expected.marksAwarded, s.id + ' ' + id + ' v2=' + acceptsV2);
+          assert.deepEqual(typesOf(r.result), GC1[id].expected.steps, s.id + ' ' + id);
+          const last = r.result.annotatedSteps[r.result.annotatedSteps.length - 1];
+          assert.equal(last.teacherAnnotation, '✓ ' + R.EQUIVALENT_FINAL_ANSWER_ANNOTATION, s.id + ': one true comment');
+          assert.equal(last.correctedWorking, null, s.id);
+          assert.ok(!/simplif/i.test(r.result.teacherNote), s.id + ': the false note sentence goes');
+          if (acceptsV2) assert.deepEqual(Object.values(r.result.marksLostByType).reduce((a, b) => a + b, 0), 0, s.id);
+        } else {
+          assert.equal(r.result.marksAwarded, modelSum(id), s.id + ' ' + id + ': no key on this surface — the model decides, as on trunk');
+        }
+      }
+    }
+  });
+
+  test('GRADER-CREDIT-1 (B) — ' + s.id + ': a DEMANDED form or precision is enforced (lowest terms asked; "correct to two decimal places") — never given back; without the demand the same reply is', async () => {
+    for (const id of ['GC1-SIMPLIFY-ASKED', 'GC1-DP-VIOLATED']) {
+      const r = await drive(s, { mutateTarget: gcTarget(id), targetSteps: gcSteps(id), targetExtra: gcExtra(id), acceptsV2: true });
+      assert.equal(r.result.marksAwarded, GC1[id].expected.marksAwarded, s.id + ' ' + id);
+      assert.deepEqual(typesOf(r.result), GC1[id].expected.steps, s.id + ' ' + id);
+    }
+    // CONTROL — the very same reply, the demand taken out of the question: given back where a key is sent
+    const plain = GC1['GC1-DP-VIOLATED'].questionText.replace(' correct to two decimal places', '');
+    const c = await drive(s, { mutateTarget: gcTarget('GC1-DP-VIOLATED', plain), targetSteps: gcSteps('GC1-DP-VIOLATED'), targetExtra: gcExtra('GC1-DP-VIOLATED'), acceptsV2: true });
+    assert.equal(c.result.marksAwarded, carriesKey(s) ? 2 : 1.5, s.id + ': 44.0 m is 43.98 m to one place');
   });
 }

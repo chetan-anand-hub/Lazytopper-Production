@@ -148,6 +148,10 @@ function rulesText({ transport, hasAnyTyped, anyScheme, subjectMode, nonce, docM
     R.WORD_PROBLEM_FINAL_ANSWER_PROMPT,
     R.OBJECTIVE_PROMPT,
     R.FINAL_ANSWER_PROMPT,
+    // GRADER-CREDIT-1 (owner rulings A and B, 5 Nov 2026) — in the ONE rulebook, so every transport and both
+    // entry points (handleCheckSolution and gradeStructuredSet, via core.gradeSet) carry them.
+    R.SEPARATE_VALUES_PROMPT,
+    R.EQUIVALENT_ANSWERS_PROMPT,
     R.SCHEME_CORROBORATION_PROMPT,
     ...(anyScheme ? [R.SCHEME_ASSESSMENT_DIRECTIVES] : []),
     R.CBSE_GENERAL_INSTRUCTIONS_PROMPT,
