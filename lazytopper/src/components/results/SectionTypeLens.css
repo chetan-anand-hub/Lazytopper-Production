@@ -1,0 +1,23 @@
+/* SCORECARD-SECTION-TYPE-1 - the by-section / by-type table (navy scorecard body). Class-driven only. */
+.lt-stl { margin: 0 0 24px; }
+.lt-stl__h { font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #8294ad; margin-bottom: 10px; }
+.lt-stl__tbl { width: 100%; table-layout: fixed; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.lt-stl__c { padding: 7px 0; text-align: right; font-size: 13.5px; color: #cfd7e2; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-weight: 400; }
+.lt-stl__c--lbl { text-align: left; width: auto; overflow-wrap: anywhere; padding-right: 8px; }
+.lt-stl__c--num { width: 3.6rem; }
+thead .lt-stl__c { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8294ad; padding-top: 0; }
+tbody .lt-stl__c--num { color: #fff; font-weight: 700; font-size: 15px; }
+tbody .lt-stl__c--lbl { color: #cfd7e2; font-weight: 400; }
+.lt-stl__lost { color: #8294ad; }
+.lt-stl__r--lost .lt-stl__lost { color: #f0a0ac; }
+.lt-stl__chk {
+  display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 99px; font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: #f0cf9a; background: rgba(232, 183, 101, 0.16);
+}
+.lt-stl__note { margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: #9fb0c6; }
+.lt-stl__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 420px) {
+  .lt-stl__c--num { width: 2.9rem; }
+  .lt-stl__c { font-size: 13px; }
+  tbody .lt-stl__c--num { font-size: 14px; }
+}

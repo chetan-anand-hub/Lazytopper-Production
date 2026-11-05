@@ -622,6 +622,7 @@ export default function WorksheetGradePanel({
                 name: nomen.name,
                 code: nomen.code,
                 response,
+                questions: ws.questions, // SCORECARD-SECTION-TYPE-1 - fills section / type for a grade stamped before this lane
                 downloading,
                 onRead: () => setScorecardOpen(false),
                 onDownload: () => {

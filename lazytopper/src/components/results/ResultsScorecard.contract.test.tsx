@@ -334,7 +334,7 @@ describe("honest states — nothing is invented, nothing is deflated to 0", () =
    4 · THE OPTIONAL BLOCKS — rendered when given, absent when not.
    ════════════════════════════════════════════════════════════════════════════ */
 describe("optional blocks render from their data and are absent without it", () => {
-  it("section / concept / chapter lenses and the four-type block", () => {
+  it("section / concept / chapter lenses and the four-type block", async () => {
     render(
       <ResultsScorecard
         variant={variant({
@@ -347,7 +347,8 @@ describe("optional blocks render from their data and are absent without it", () 
         onClose={() => {}}
       />,
     );
-    expect(screen.getByText("By section")).toBeInTheDocument();
+    // SCORECARD-SECTION-TYPE-1 - the section table is a lazy chunk: wait for it.
+    expect(await screen.findByText("By section")).toBeInTheDocument();
     expect(screen.getByText("Section A")).toBeInTheDocument();
     expect(screen.getByText("By concept")).toBeInTheDocument();
     expect(screen.getByText("Trigonometry")).toBeInTheDocument();

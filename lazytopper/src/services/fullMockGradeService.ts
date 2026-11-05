@@ -31,6 +31,7 @@ import {
   type WorksheetGradeResponse,
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
+import { stampFromPaper } from "../components/results/sectionTypeLens";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import { saveWorksheetGrade } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
@@ -68,7 +69,9 @@ export function buildFullMockResponse(args: {
   subjectiveQuestions: PersistedWorksheetQuestion[];
   subjectiveResponse: WorksheetGradeResponse | null;
 }): WorksheetGradeResponse {
-  return buildChapterTestResponse(args);
+  // SCORECARD-SECTION-TYPE-1 - the CT builder stamps each row from the paper's bank fields; a Full Mock
+  // paper drawn before those fields existed falls back to its blueprint slot (exact for a mock).
+  return stampFromPaper(buildChapterTestResponse(args), args.paper.questions, { blueprintFallback: true });
 }
 
 /** Adapt one legible per-question grade into the CheckSolutionResponse shape the

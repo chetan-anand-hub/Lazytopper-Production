@@ -129,6 +129,10 @@ export const MARKS_HEADING = "Where your marks went";
 /** Lost marks the grader gave no reason for — shown honestly, never assigned to a type. */
 export const UNTYPED_MARKS_LABEL = "Marks lost, reason not recorded";
 
+/** SCORECARD-SECTION-TYPE-1 (owner copy ruling, 5 Nov 2026) - a wrong MCQ / Assertion-Reason with no
+ *  working has nothing to diagnose; say so instead of "reason not recorded". Display copy only. */
+export const OPTION_ONLY_LABEL = "Option only \u2014 no working to diagnose";
+
 /* ── honest states (PR-2 B8 + owner addendum 2026-10-05) — the owner's words, verbatim ── */
 
 /** couldNotRead — the answer was not graded. */
@@ -391,6 +395,9 @@ export interface GradedQuestionLike {
   mistakeSummary?: CountsLike;
   annotatedSteps?: ReadonlyArray<StepLike> | null;
   objective?: boolean | null;
+  /** SCORECARD-SECTION-TYPE-1 - the stamped question type ("MCQ", "Assertion-Reasoning", "objective"...);
+   *  read ONLY to tell an option pick from a written answer in the display copy. */
+  format?: string | null;
   /** v2 · true = NOT graded (the answer does not address the question); null = undecided →
    *  graded normally, no message. */
   answerMismatch?: boolean | null;
@@ -543,6 +550,8 @@ export interface StepLike {
   mistakeType?: string | null;
   marksDeducted?: number | null;
   marksAwarded?: number | null;
+  /** The student's own line for this step (SCORECARD-SECTION-TYPE-1 reads it only to tell a bare option pick from worked answer). */
+  studentWork?: string | null;
 }
 
 /** Marks lost on one question (total − awarded, never negative). Zero for a question that was
@@ -646,7 +655,31 @@ export function questionMarksLost(q: GradedQuestionLike | null | undefined): Mar
   return sum < lost - 1e-9 ? { ...raw, untyped: roundMarks(raw.untyped + (lost - sum)) } : { ...raw };
 }
 
+/** SCORECARD-SECTION-TYPE-1 - an answer picked from options (MCQ / Assertion-Reason): the grader's
+ *  objective echo, or a stamped objective type. Display copy only; it never touches a mark. */
+export function isOptionPickQuestion(q: { objective?: boolean | null; format?: string | null } | null | undefined): boolean {
+  if (!q) return false;
+  if (q.objective === true) return true;
+  const f = typeof q.format === "string" ? q.format.trim().toLowerCase() : "";
+  return f === "mcq" || f === "objective" || f === "assertion-reasoning" || f === "assertion-reason";
+}
+
+/** SCORECARD-SECTION-TYPE-1 - the student showed working: more than one annotated step carries their own
+ *  words. A bare option pick yields one step ("Selected option (b)"); two or more written lines is working. */
+export function hasStudentWorking(q: { annotatedSteps?: ReadonlyArray<StepLike> | null } | null | undefined): boolean {
+  return (q?.annotatedSteps ?? []).filter((s) => String(s?.studentWork ?? "").trim()).length > 1;
+}
+
+/** "Option only - no working to diagnose" applies to an option pick that had NO working. */
+export function isOptionOnlyQuestion(q: { objective?: boolean | null; format?: string | null; annotatedSteps?: ReadonlyArray<StepLike> | null } | null | undefined): boolean {
+  return isOptionPickQuestion(q) && !hasStudentWorking(q);
+}
+
 export interface PaperMarksLost {
+  /** SCORECARD-SECTION-TYPE-1 - the part of `byType.untyped` that is wrong option picks (MCQ /
+   *  Assertion-Reason) with no working typed: "Option only - no working to diagnose". Absent/0 when
+   *  none (or when the rows carry no objective flag). Never exceeds `byType.untyped`. */
+  optionOnly?: number;
   /** Per bucket, over the GRADED questions only. Sums to `lost`. */
   byType: MarksLostByType;
   /** total − awarded over the graded questions. */
@@ -666,6 +699,7 @@ export function paperMarksLost(questions: ReadonlyArray<GradedQuestionLike> | nu
   let byType = zeroMarksLost();
   let lost = 0;
   let unsplitCount = 0;
+  let optionOnly = 0;
   let any = false;
   for (const q of questions ?? []) {
     if (!isGradedQuestion(q)) continue;
@@ -675,12 +709,14 @@ export function paperMarksLost(questions: ReadonlyArray<GradedQuestionLike> | nu
     if (m) {
       any = true;
       byType = addMarksLost(byType, m);
+      if (m.untyped > 0 && isOptionOnlyQuestion(q)) optionOnly = roundMarks(optionOnly + m.untyped);
     } else if (qLost > 0) {
       unsplitCount += 1;
       byType = { ...byType, untyped: roundMarks(byType.untyped + qLost) };
+      if (isOptionOnlyQuestion(q)) optionOnly = roundMarks(optionOnly + qLost);
     }
   }
-  return any ? { byType, lost, unsplitCount } : null;
+  return any ? { byType, lost, unsplitCount, ...(optionOnly > 0 ? { optionOnly: Math.min(optionOnly, byType.untyped) } : {}) } : null;
 }
 
 /** A paper's honest totals over its GRADED questions only (a question that was not graded is

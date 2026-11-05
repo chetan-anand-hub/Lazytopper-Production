@@ -197,6 +197,10 @@ export interface FMPoolQuestion extends FMCbqFlag {
   pyqYear?: string;
   isPYQ?: boolean;
   source: "canonical" | "predicted";
+  /** SCORECARD-SECTION-TYPE-1 - the source row's OWN section and format, copied verbatim (display only;
+   *  the blueprint section on the paper question is the slot the row was drawn into). */
+  bankSection?: string;
+  format?: string;
 }
 
 const norm = (s: string): string => String(s || "").trim().toLowerCase();
@@ -216,6 +220,8 @@ function fromCanonical(q: CanonicalQuestion): FMPoolQuestion {
     pyqYear: q.sourceOverride === "others" ? undefined : q.pyqYear,
     ...cbqFlagOf(q),
     source: "canonical",
+    bankSection: typeof q.section === "string" && q.section ? q.section : undefined,
+    format: q.format,
   };
 }
 
@@ -234,6 +240,8 @@ function fromPredicted(q: PredictedQuestion | SciencePredictedQuestion): FMPoolQ
     // under the shipped isPYQQuestion matcher (authored, not past-year-tagged).
     ...cbqFlagOf(q),
     source: "predicted",
+    bankSection: q.section,
+    format: q.kind,
   };
 }
 
@@ -680,6 +688,8 @@ export function drawFullMock(args: {
         solutionSteps: q.solutionSteps,
         finalAnswer: q.finalAnswer,
         answer: q.answer,
+        ...(q.bankSection ? { bankSection: q.bankSection } : {}),
+        ...(q.format ? { format: q.format } : {}),
       });
     }
   }

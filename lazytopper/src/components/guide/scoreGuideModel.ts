@@ -15,6 +15,8 @@
  *   {lead}         "Biggest loss" ONLY when that type's marks are ≥ every other lost-marks row
  *                  (Not attempted and reason-not-recorded included); else "Most marks lost to a
  *                  mistake"; on a count-only grade "Most common mistake";
+ *   {option}       the marks on the card's "Option only — no working to diagnose" row (wrong MCQ / A-R picks),
+ *                  used only when that row is the biggest loss the card prints;
  *   {pending}      the "N questions couldn't be read" strip;
  *   {delta}        the card's own "▲ N marks …" line (Full Mock vs an earlier mock; Chapter Test
  *                  since the last same-total test of the chapter) — nothing is fetched for this.
@@ -46,6 +48,7 @@ export type ByteStep =
   | "calculation"
   | "silly"
   | "presentation"
+  | "optionPicks"
   | "clean"
   | "untyped"
   | "objective"
@@ -124,6 +127,13 @@ export const SCORE_GUIDE_LINES = {
     presentation: [
       { pose: "technique", text: "{lead}: Presentation, {loss}. Write units, labels and a clear final answer, the way CBSE marks it." },
       { pose: "explain", text: "{lead}: Presentation ({loss}). Add units, labels and a neat final line every time." },
+    ],
+    // SCORECARD-SECTION-TYPE-1 (owner ruling 5 Nov 2026): when wrong MCQ / Assertion-Reason picks with no
+    // working are the biggest loss, lead with THEM, in honest words. {option} is the marks the card
+    // prints on its "Option only" row.
+    optionPicks: [
+      { pose: "explain", text: "{option} went on option picks (MCQ / A-R). No working to diagnose. Add working to one and I'll find why." },
+      { pose: "think", text: "{option} went on option picks (MCQ / A-R), with no working. Save working on one and I'll check your method." },
     ],
     // MOMENTS-3 (great result): Byte cheers, plus one stretch tip.
     clean: [
@@ -257,6 +267,22 @@ type MiType = (typeof MI_ORDER)[number];
 /** Every lost-marks row "Where your marks went" can print (MarksLostByType's six buckets). */
 const LOST_ROWS = ["conceptual", "calculation", "silly", "presentation", "unattempted", "untyped"] as const;
 
+/** The lost-marks rows the card PRINTS, as separate numbers: "reason not recorded" is the untyped marks LESS
+ *  the "Option only" row (SCORECARD-SECTION-TYPE-1 prints those apart), so each is compared on its own. */
+function printedLostRows(pm: NonNullable<ScorecardVariant["marksLost"]>): Record<(typeof LOST_ROWS)[number] | "optionOnly", number> {
+  const by = pm.byType;
+  const option = Math.min(Number(pm.optionOnly) || 0, Number(by.untyped) || 0);
+  return {
+    conceptual: Number(by.conceptual) || 0,
+    calculation: Number(by.calculation) || 0,
+    silly: Number(by.silly) || 0,
+    presentation: Number(by.presentation) || 0,
+    unattempted: Number(by.unattempted) || 0,
+    untyped: Math.max(0, (Number(by.untyped) || 0) - option),
+    optionOnly: option,
+  };
+}
+
 /** FNV-1a, 32-bit — a stable, tiny hash for the template pick. */
 export function seedHash(s: string): number {
   let h = 0x811c9dc5;
@@ -318,7 +344,8 @@ function printedBiggestLoss(v: ScorecardVariant): { type: MiType; text: string; 
     const top = by[best];
     // "Biggest loss" only when no other lost-marks row (Not attempted, reason not recorded, the
     // other types) is larger; a tie still makes it (one of) the biggest.
-    const dominant = LOST_ROWS.every((k) => k === best || !((Number(by[k]) || 0) > top));
+    const rows = printedLostRows(v.marksLost);
+    const dominant = rows.optionOnly <= top && LOST_ROWS.every((k) => k === best || !(rows[k] > top));
     return { type: best, text: marksWithUnit(top), lead: dominant ? L.biggest : L.mostMistake };
   }
   if (v.fourType) {
@@ -333,13 +360,28 @@ function printedBiggestLoss(v: ScorecardVariant): { type: MiType; text: string; 
   return null;
 }
 
+/** SCORECARD-SECTION-TYPE-1 - the marks of wrong option picks (the card's "Option only" row) when that row is the
+ *  biggest loss the card prints: strictly more than every typed bucket, and at least every other row. Else null. */
+function printedOptionLead(v: ScorecardVariant): { marks: number; text: string } | null {
+  const pm = v.marksLost;
+  if (!pm || !(pm.lost > 0)) return null;
+  const option = Number(pm.optionOnly) || 0;
+  if (!(option > 0)) return null;
+  const by = pm.byType;
+  if (MI_ORDER.some((t) => !(option > (Number(by[t]) || 0)))) return null;
+  if (option < (Number(by.unattempted) || 0)) return null;
+  if (option < printedLostRows(pm).untyped) return null;
+  return { marks: option, text: marksWithUnit(option) };
+}
+
 /** "Not attempted" is the largest lost-marks row the card PRINTS in "Where your marks went" (a tie counts). */
 function printedBlankDominant(v: ScorecardVariant): boolean {
   if (!v.marksLost || !(v.marksLost.lost > 0)) return false;
   const by = v.marksLost.byType;
   const blank = Number(by.unattempted) || 0;
   if (!(blank > 0)) return false;
-  return LOST_ROWS.every((k) => k === "unattempted" || !((Number(by[k]) || 0) > blank));
+  const rows = printedLostRows(v.marksLost);
+  return rows.optionOnly <= blank && LOST_ROWS.every((k) => k === "unattempted" || !(rows[k] > blank));
 }
 
 /** The card's own printed improvement ("▲ 9 marks vs …" on Full Mock, "▲ 4 marks since your last
@@ -498,6 +540,10 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     }
   } else if (blankDominant) {
     byteStep = "blank";
+    cta = practise;
+  } else if (printedOptionLead(v)) {
+    byteStep = "optionPicks";
+    vals.option = printedOptionLead(v)!.text;
     cta = practise;
   } else if (biggest) {
     byteStep = biggest.type;

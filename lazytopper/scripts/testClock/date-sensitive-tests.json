@@ -484,6 +484,7 @@
     "src/components/results/ResultsScorecard.sidebarStage.test.tsx",
     "src/components/results/ResultsScorecard.ziggy.test.tsx",
     "src/components/results/ScorecardUpgradeLine.test.tsx",
+    "src/components/results/SurfaceHistory.lens.test.tsx",
     "src/components/results/SurfaceHistory.marks.test.tsx",
     "src/components/startHere/StartHereCard.checkOne.test.tsx",
     "src/components/startHere/StartHereCard.chunkGate.test.tsx",

@@ -192,6 +192,98 @@ describe("TUTOR-RETURN-SHEET-1 - the persisted Answer Checker payload carries th
   });
 });
 
+/* SCORECARD-SECTION-TYPE-1 - the paid read's detected SECTION and objective flag ride the saved response
+   (stamped on each row, "as read from your paper"), through the real persist path, and the stored card
+   restores the same lens. They are display only: NOT sent to the grader, no mark moves. */
+describe("SCORECARD-SECTION-TYPE-1 - the detected section persists with the Answer Checker paper", () => {
+  it("stamps section / basis / read type on the persisted rows, keeps the grader's marks, and the restored card shows the lens", async () => {
+    H.detectQuestion.mockImplementation(async (req: { question?: string }) =>
+      req.question === "Q-A" || req.question === "Q-B"
+        ? { ok: true, detectedTopic: null, detectedSubject: null }
+        : {
+            ...TWO_QUESTIONS,
+            questions: [
+              { questionNumber: 1, questionText: "Q-A", marks: 1, marksSource: "section", section: "A", objective: true },
+              { questionNumber: 2, questionText: "Q-B", marks: 3, marksSource: "inferred", section: "C", objective: false },
+            ],
+          },
+    );
+    const { container } = render(page());
+    await typeAndReadQuestion("Two questions");
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    await clickGrade();
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    // display only: the grade request carries no section from the read
+    const sent = H.gradeWorksheet.mock.calls[0][0] as { questions: Array<{ section?: string }> };
+    expect(sent.questions.map((q) => q.section)).toEqual([undefined, undefined]);
+    let payload: Awaited<ReturnType<typeof getSessionPerQuestion>> = null;
+    await waitFor(async () => {
+      payload = await getSessionPerQuestion("u1", "ci:CI-M-REAL-02");
+      expect(payload?.response.results).toHaveLength(2);
+    });
+    const rows = payload!.response.results;
+    expect(rows.map((r) => [r.section, r.sectionBasis, r.format])).toEqual([
+      ["A", "read", "objective"],
+      ["C", "check", "written"],
+    ]);
+    // the grader's marks and mistake data are untouched
+    expect(rows.map((r) => r.marksAwarded)).toEqual([1, 3]);
+    expect(rows[0].mistakeSummary).toEqual(PAPER_GRADED.results[0].mistakeSummary);
+    // the restored card carries the lens
+    const { storedCheckImproveScorecardVariant } = await import("../../components/results/scorecardVariants");
+    const restored = storedCheckImproveScorecardVariant(
+      { id: "CI-M-REAL-02", surface: "check-improve", marksAwarded: 4, marksTotal: 5, status: "graded", topicSource: "inferred", title: "T", fourType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 } } as never,
+      { gradedDateLabel: "x", response: payload!.response, onDone: () => {} },
+    );
+    expect(restored.sectionLens!.map((r) => [r.section, r.check])).toEqual([["A", false], ["C", true]]);
+    expect(restored.sectionLensNote).toContain("as read from your paper");
+    expect(restored.typeLens!.map((r) => r.label)).toEqual(["MCQ / Assertion-Reason", "Written"]);
+  });
+});
+
+/* SCORECARD-SECTION-TYPE-1 - the per-question chip. "Option only - no working to diagnose" is for a bare option
+   pick; an objective, untyped answer that HAD working keeps "Marks lost, reason not recorded". */
+describe("SCORECARD-SECTION-TYPE-1 - the Answer Checker per-question untyped chip", () => {
+  const step = (n: number, work: string) => ({
+    stepNumber: n, description: `Step ${n}`, studentWork: work, status: "wrong",
+    marksAwarded: 0, marksDeducted: 0, teacherAnnotation: "", mistakeType: null, correctedWorking: null,
+  });
+  const untypedRow = (qNumber: number, steps: unknown[]) => ({
+    qNumber, couldNotRead: false, ok: true, objective: true, totalMarks: 1, marksAwarded: 0, percentage: 0,
+    annotatedSteps: steps, mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+    marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 1 },
+  });
+
+  it("two worked steps -> 'Marks lost, reason not recorded'; a bare pick -> 'Option only'", async () => {
+    H.detectQuestion.mockImplementation(async (req: { question?: string }) =>
+      req.question === "Q-A" || req.question === "Q-B"
+        ? { ok: true, detectedTopic: null, detectedSubject: null }
+        : { ...TWO_QUESTIONS, questions: [
+            { questionNumber: 1, questionText: "Q-A", marks: 1, marksSource: "section", objective: true },
+            { questionNumber: 2, questionText: "Q-B", marks: 1, marksSource: "section", objective: true },
+          ] },
+    );
+    H.gradeWorksheet.mockResolvedValue({
+      ok: true,
+      results: [untypedRow(1, [step(1, "AC^2 = CD x BC"), step(2, "AC = 6, so (b)")]), untypedRow(2, [step(1, "(c)")])],
+      totalQuestions: 2, gradedCount: 2, pendingCount: 0, gradedMarksAwarded: 0, gradedMarksTotal: 2, worksheetTotalMarks: 2,
+    });
+    const { container } = render(page());
+    await typeAndReadQuestion("Two questions");
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    await clickGrade();
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(document.querySelectorAll('span[data-group="untyped"]').length).toBe(2));
+    const chips = Array.from(document.querySelectorAll('span[data-group="untyped"]')).map((c) => c.textContent);
+    expect(chips[0]).toContain("Marks lost, reason not recorded");
+    expect(chips[0]).not.toContain("Option only");
+    expect(chips[1]).toContain("Option only");
+    expect(chips[1]).not.toContain("reason not recorded");
+  });
+});
+
 /* GRADE-MARKS-1 - the Answer Checker whole paper: the paid read asks detect for section marks, the
    confirm step lets the student correct each question's marks BEFORE grading (the edit is what the
    grade request sends), a guessed mark is flagged, and the paper summary states the FINAL marks.
@@ -260,6 +352,36 @@ describe("GRADE-MARKS-1 - Answer Checker paper marks", () => {
     await waitFor(() => expect(screen.getByText(/On the objective questions: 2 out of 2 marks\./)).toBeTruthy());
     expect(document.body.textContent).not.toContain("1 out of 2 marks on these objective questions");
     expect(document.body.textContent).toContain("Always state the assumption first in a proof.");
+  });
+});
+
+describe("SCORECARD-SECTION-TYPE-1 - a marks edit never turns an inferred section into a sure one", () => {
+  it("Q20's section was inferred; the student corrects its marks; the persisted row is still 'check' (and the sure ones stay 'read')", async () => {
+    H.detectQuestion.mockReset().mockImplementation(async (req: { question?: string }) =>
+      req.question === "Whole paper" ? GM_PAPER : { ok: true, detectedTopic: null, detectedSubject: null },
+    );
+    H.gradeWorksheet.mockReset().mockResolvedValue(GM_GRADED);
+    const { container } = render(page());
+    fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: "Whole paper" } });
+    fireEvent.click(screen.getByRole("button", { name: /(Re-read|Read) the question/ }));
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    await act(async () => {});
+    await screen.findByText("Check: we guessed 5");
+    fireEvent.change(screen.getByLabelText("Marks for Q20"), { target: { value: "3" } }); // the edit overwrites marksSource with "user"
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, { target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] } });
+    await clickGrade();
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    let payload: Awaited<ReturnType<typeof getSessionPerQuestion>> = null;
+    await waitFor(async () => {
+      payload = await getSessionPerQuestion("u1", "ci:CI-M-REAL-02");
+      expect(payload?.response.results).toHaveLength(3);
+    });
+    expect(payload!.response.results.map((r) => [r.qNumber, r.section, r.sectionBasis])).toEqual([
+      [1, "A", "read"],
+      [2, "A", "read"],
+      [20, "C", "check"],
+    ]);
   });
 });
 

@@ -100,7 +100,7 @@ afterEach(() => cleanup());
    1 · THE SET SCORECARD — total marks, section breakdown, MCQ/written split.
    ════════════════════════════════════════════════════════════════════════════ */
 describe("the set scorecard renders from a fixture", () => {
-  it("marks hero, the graded count, the section breakdown and the split", () => {
+  it("marks hero, the graded count, the section breakdown and the split", async () => {
     render(
       <ResultsScorecard
         variant={variant({
@@ -123,7 +123,7 @@ describe("the set scorecard renders from a fixture", () => {
     expect(document.querySelector(".lt-sc__big")?.textContent).toContain("9");
     expect(document.querySelector(".lt-sc__big")?.textContent).toContain("/ 14");
     expect(document.querySelector(".lt-sc__desc")?.textContent).toContain("across 7 of 8");
-    expect(screen.getByText("Section A")).toBeInTheDocument();
+    expect(await screen.findByText("Section A")).toBeInTheDocument();
     expect(screen.getByText("Section C")).toBeInTheDocument();
     // ★ The prototype's two split headings, verbatim.
     expect(screen.getByText("Marked now · free")).toBeInTheDocument();

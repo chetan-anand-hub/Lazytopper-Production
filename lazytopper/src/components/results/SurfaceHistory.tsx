@@ -6,6 +6,7 @@ import {
 } from "../../services/progressStore";
 import {
   getSessionRecordsFromCloud,
+  getSessionPerQuestion,
   type SessionRecord,
   type SessionSurface,
   type SessionSubject,
@@ -188,6 +189,28 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
   const [downloading, setDownloading] = useState(false);
   const downloadingRef = useRef(false);
+  // SCORECARD-SECTION-TYPE-1 - the re-opened record's stored per-question grade, so the restored card
+  // shows the SAME section / type lenses the live card showed. The device's cached grade answers at once;
+  // the durable payload (cross-device) fills in after. Absent -> no lens, as before.
+  const [reopenGrade, setReopenGrade] = useState<{ id: string; response: WorksheetGradeResponse } | null>(null);
+  useEffect(() => {
+    if (!reopen || reopen.status === "pending-upload") return;
+    let live = true;
+    const cached = getWorksheetGrade<WorksheetGradeResponse>(reopen.worksheetId);
+    // The device cache is keyed by worksheet id, so it can hold a DIFFERENT (older / re-graded) grade than this
+    // record: use it only when its totals match the record's.
+    if (cached && cached.ok && cached.gradedMarksAwarded === reopen.marksAwarded && cached.gradedMarksTotal === reopen.marksTotal) {
+      setReopenGrade({ id: reopen.id, response: cached });
+    }
+    void getSessionPerQuestion(uid, reopen.perQuestionRef)
+      .then((p) => {
+        if (live && p?.response?.ok) setReopenGrade({ id: reopen.id, response: p.response });
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [reopen, uid]);
   // Bumped once the cloud read has refreshed the local mirror (`cloud` only).
   const [cloudNonce, setCloudNonce] = useState(0);
   useEffect(() => {
@@ -346,6 +369,8 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
             onDone: closeReopen,
             onDownload: gradedSheetHandler(reopen),
             downloading,
+            response: reopenGrade && reopenGrade.id === reopen.id ? reopenGrade.response : null,
+            questions: getWorksheetSession(reopen.worksheetId)?.questions,
             onUploadSheet:
               onUpload && reopen.status !== "graded"
                 ? () => {

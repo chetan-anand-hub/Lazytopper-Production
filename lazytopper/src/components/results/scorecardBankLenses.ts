@@ -25,14 +25,15 @@ import { buildGradedAnswersFromWorksheetResponse } from "../../services/gradedAn
 import type { SessionRecord } from "../../services/sessionRecords";
 // BANK-SPLIT-1 PR-2 (L2): both lookups read the generated id index (ids + tags of every
 // served row, no question content) instead of the bank, so this module leaves the bank graph.
-import { bankIndexEntries } from "../../data/bankChapters/bankIdIndex";
+import { bankIndexEntries, bankRowMeta } from "../../data/bankChapters/bankIdIndex";
+import { stampFromPaper, stampLens } from "./sectionTypeLens";
+import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 import {
   aggregateFourType,
   aggregateMarksLost,
   pendingStrip,
-  deriveChapterTestSectionLens,
   deriveFullMockChapterLens,
-  deriveFullMockSectionLens,
+  sectionTypeLensFields,
   fullMockChapterLensNote,
   fullMockFocusLine,
   type ChapterTestVariantInput,
@@ -106,6 +107,35 @@ export function deriveChapterTestConceptLens(
   // Marks lost, worst first; ties → larger section first, then A→Z for a stable order.
   rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
   return rows;
+}
+
+
+/**
+ * SCORECARD-SECTION-TYPE-1 - fill any row that still has no section from the bank's id index, joined
+ * on the question id (`{qNumber, id}` from the live paper, or the record's qNumber-ordered
+ * `questionIds`). Only fills GAPS: a row stamped at grading time, or by the paper's own bank section,
+ * keeps it. A predicted-sourced id has no bank row -> no section (honest, never a marks-band guess).
+ */
+export function stampSectionFromBankIndex(
+  response: WorksheetGradeResponse,
+  questions: ReadonlyArray<{ qNumber: number; id: string }> | null | undefined,
+): WorksheetGradeResponse {
+  if (!questions || questions.length === 0) return response;
+  const idByQ = new Map<number, string>();
+  for (const q of questions) if (q.id) idByQ.set(q.qNumber, q.id);
+  return stampLens(response, (r) => {
+    const id = idByQ.get(r.qNumber);
+    const section = id ? bankRowMeta(id)?.section : null;
+    return section ? { section, sectionBasis: "bank" } : null;
+  });
+}
+
+/** The live Chapter Test / stored lens response: row stamps, then the paper's bank fields, then the id index. */
+function chapterTestLensResponse(
+  response: WorksheetGradeResponse,
+  questions: ReadonlyArray<ConceptLensQuestion> | null | undefined,
+): WorksheetGradeResponse {
+  return stampSectionFromBankIndex(stampFromPaper(response, questions, { blueprintFallback: false }), questions);
 }
 
 /**
@@ -214,7 +244,8 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     },
     fourType: aggregateFourType(response),
     marksLost: aggregateMarksLost(response),
-    sectionLens: deriveChapterTestSectionLens(response),
+    // SCORECARD-SECTION-TYPE-1 - the bank row's REAL section (A-E, E no longer folded into D) and type.
+    ...sectionTypeLensFields(chapterTestLensResponse(response, input.questions)),
     conceptLens: input.questions ? deriveChapterTestConceptLens(response, input.questions) : null,
     // GRADED-STEP-BLOCK - the per-answer sheet, with the student's own per-step working.
     // Before this lane the chapter test emitted NO gradedAnswers at all, so the shell's
@@ -318,7 +349,7 @@ export function storedChapterTestScorecardVariant(
     fourType: record.fourType,
     // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
     marksLost: input.response ? aggregateMarksLost(input.response) : null,
-    sectionLens: response ? deriveChapterTestSectionLens(response) : null,
+    ...(response ? sectionTypeLensFields(chapterTestLensResponse(response, conceptQuestions)) : {}),
     conceptLens: conceptQuestions ? deriveChapterTestConceptLens(response!, conceptQuestions) : null,
     pending: null,
     allPending: null,
@@ -443,7 +474,25 @@ export function storedFullMockScorecardVariant(
     fourType: record.fourType,
     // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
     marksLost: input.response ? aggregateMarksLost(input.response) : null,
-    sectionLens: response ? deriveFullMockSectionLens(response) : null,
+    // SCORECARD-SECTION-TYPE-1 - row stamps, then the bank id index, then (FULL MOCK REOPEN ONLY, coordinator
+    // ruling 5 Nov) the mark slot, which is exact for a mock paper (1->A, 2->B, 3->C, 5->D, 4->E). A Chapter
+    // Test keeps no such fallback: its slots are bands, not the bank's section.
+    ...(response
+      ? sectionTypeLensFields(
+          stampLens(
+            stampSectionFromBankIndex(
+              response,
+              Array.isArray(record.questionIds) && record.questionIds.length === response.results.length
+                ? record.questionIds.map((id, i) => ({ qNumber: i + 1, id }))
+                : null,
+            ),
+            (r) => {
+              const slot = sectionFromTotalMarks(r.totalMarks);
+              return slot ? { section: slot, sectionBasis: "bank" } : null;
+            },
+          ),
+        )
+      : {}),
     chapterLens,
     chapterLensNote: fullMockChapterLensNote(chapterLens),
     pending: null,

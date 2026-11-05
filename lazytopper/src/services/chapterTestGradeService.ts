@@ -32,6 +32,7 @@ import {
   type WorksheetGradeResponse,
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
+import { stampFromPaper } from "../components/results/sectionTypeLens";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import { saveWorksheetGrade } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
@@ -174,7 +175,7 @@ export function buildChapterTestResponse(args: {
   const legible = rows.filter((r) => isGradedQuestion(r));
   const gradedMarksAwarded = legible.reduce((s, r) => s + (Number(r.marksAwarded) || 0), 0);
   const gradedMarksTotal = legible.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
-  return {
+  const built: WorksheetGradeResponse = {
     ok: true,
     worksheetId: paper.worksheetId,
     results: rows,
@@ -186,6 +187,10 @@ export function buildChapterTestResponse(args: {
     worksheetTotalMarks: Number(paper.totalMarks) || gradedMarksTotal,
     summary: subjectiveResponse?.summary,
   };
+  // SCORECARD-SECTION-TYPE-1 - stamp each row with its bank section and question type (display only), so
+  // the live card, the device cache and the stored payload all carry the SAME lens data. A Chapter Test
+  // slot is a marks band, so there is no blueprint fallback: only the bank row's own section counts.
+  return stampFromPaper(built, paper.questions, { blueprintFallback: false });
 }
 
 /** Adapt one legible per-question grade into the CheckSolutionResponse shape the MI
