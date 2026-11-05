@@ -189,6 +189,35 @@ function isAnswerValue(opt, maxChars) {
   return !opt.split(/[.;!]\s+/).some((s) => SUBPART_LEAD.test(s.trim()));
 }
 
+// R4 · the LAST option runs to the end of the text, so anything a transcript ran on after it lands in it.
+// A standard MCQ closer is an answer value whatever its length ("None of these", "Both (a) and (b)",
+// "All of the above", "Cannot be determined from the given data").
+const MCQ_CLOSER = /^(?:(?:none|both|all|neither|either)\b.*\b(?:these|those|them|above|below|[a-d]\s*(?:,|and|or|nor|&)\s*[a-d])\b|cannot\s+be\s+(?:determined|found|said|predicted)|can'?t\s+be\s+determined|data\s+(?:is\s+)?(?:insufficient|inadequate)|insufficient\s+data)/i;
+// No instruction or question WORD anywhere in it, in any case ("(d) 93 why", "(d) dissolving sugar justify").
+const INSTRUCTION_OR_QUESTION_WORD = new RegExp('\\b(?:' + 'justify|give|explain|show|prove|find|calculate|correct|write|draw|state|name|identify|classify|compare|differentiate|describe|define|simplify|factorise|factorize|solve|evaluate|determine|verify|list|mention|express|construct|derive|predict|suggest|account|rationalise|rationalize|expand|match|fill|complete|label|translate|convert|support|provide|reason|illustrate|put|tick|mark|discuss|comment|elaborate|check|tell|answer' + ')\\b', 'i');
+// A question word ENDING (d) ("(d) 93 why"); inside a sentence option ("… in which two compounds …") it is a relative clause.
+const TRAILING_QUESTION_WORD = /\b(?:why|how|what|which|when|where|who|whom|whose)\W*$/i;
+// A next question run on ("(d) 93 Q2. Find …", "(d) 93 2. The …").
+const NEXT_QUESTION = /\bQ\.?\s*\d+\b|(?:^|\s)\d{1,2}\s*[.)]\s+[A-Z]/;
+function lastOptionIsAnswerValue(opts) {
+  const last = opts[3];
+  if (!last || INSTRUCTION_OR_QUESTION_WORD.test(last) || TRAILING_QUESTION_WORD.test(last) || NEXT_QUESTION.test(last)) return false;
+  if (MCQ_CLOSER.test(last)) return true;
+  const words = (o) => o.split(/\s+/).filter(Boolean).length;
+  const others = opts.slice(0, 3);
+  const maxWords = Math.max(...others.map(words));
+  // short-answer options (numbers, symbols, one or two words): (d) at most one word longer
+  // ("(d) 93 kaaran batao" is not an answer value)
+  if (maxWords <= 2) return words(last) <= maxWords + 1;
+  // sentence options: a character budget comparable to the others
+  return last.length <= Math.max(60, 2 * Math.max(...others.map((o) => o.length)));
+}
+// "(d) Both (a) and (b)" / "All of (a), (b) and (c)": labels REFERRED TO inside an option are not labels.
+const REFERRED_LABELS = /\b(both|either|neither|all\s+of|only)\s+\(\s*[a-d]\s*\)(?:\s*(?:,|and|or|nor|&)\s*\(\s*[a-d]\s*\))+/gi;
+function unwrapReferredLabels(text) {
+  return text.replace(REFERRED_LABELS, (m) => m.replace(/\(\s*([a-d])\s*\)/gi, '$1'));
+}
+
 /** True when `text` prints exactly four options in this one label style after an MCQ stem. */
 function strictOptionList(text, style) {
   const marks = [...text.matchAll(style.re)].map((m) => ({ i: style.index(m[1]), start: m.index, end: m.index + m[0].length }));
@@ -200,11 +229,7 @@ function strictOptionList(text, style) {
   const cueStem = style.letters && /\(\s*i\s*\)/i.test(stem) ? stem.replace(/\(\s*i\s*\)[\s\S]*$/i, '').trim() : stem;
   if (!/[A-Za-z0-9]/.test(cueStem) || !stemHasMcqCue(cueStem)) return false;
   const opts = marks.map((m, k) => text.slice(m.end, k + 1 < marks.length ? marks[k + 1].start : text.length).trim());
-  // R3-1 · the LAST option runs to the end of the text, so anything a transcript ran on after it
-  // ("(d) 93 justify your answer", "(d) 93 kaaran batao") lands in it: it may be at most ONE word longer
-  // than the longest of the other three, or it is not an answer value.
-  const words = (o) => o.split(/\s+/).filter(Boolean).length;
-  if (words(opts[3]) > Math.max(words(opts[0]), words(opts[1]), words(opts[2])) + 1) return false;
+  if (!lastOptionIsAnswerValue(opts)) return false;
   if (style.letters) return opts.every((o) => isAnswerValue(o, OPTION_MAX_CHARS));
   if (PAREN_LETTER.test(text)) return false;
   return opts.every((o) => isAnswerValue(o, ROMAN_MAX_CHARS));
@@ -274,7 +299,9 @@ function printsOptionList(text) {
   const a = /\bassertion\s*\(\s*a\s*\)/i.exec(t);
   const r = /\breason\s*\(\s*r\s*\)/i.exec(t);
   if (a && r && a.index < r.index) return true;
-  const body = t.replace(TRAILING_MARK_TAG, '');
+  // R4-2 · only a 1-mark tag may end the text: "(d) 93 (2)" / "[3]" is a mark above 1
+  if (/[[(]\s*(\d+)\s*[\])]\s*$/.test(t) && Number(/[[(]\s*(\d+)\s*[\])]\s*$/.exec(t)[1]) > 1) return false;
+  const body = unwrapReferredLabels(t.replace(TRAILING_MARK_TAG, ''));
   return PRINTED_OPTION_STYLES.some((style) => strictOptionList(body, style));
 }
 

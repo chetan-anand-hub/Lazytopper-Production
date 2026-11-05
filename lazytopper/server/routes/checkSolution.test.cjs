@@ -3490,6 +3490,10 @@ const DO_REVIEW_D1 = [
   ].map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93' + tail),
   'Which of the following are chemical changes?\n(a) rusting of iron\n(b) melting of ice\n(c) burning of paper\n(d) boiling of water\nwrite equations for the chemical ones',
   'Put a tick against the correct statements: (a) 2 is prime (b) 9 is prime (c) 1 is prime (d) 0 is even',
+  // round 4 (R4-1 / R4-2) — an instruction or question word inside (d); a mark above 1 after (d)
+  ...['(d) 93 why', '(d) 93 explain', '(d) 93 prove', '(d) 93 justify', '\n(d) 93 justify', '(d) 93 (2)', '(d) 93 [3]']
+    .map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 ' + tail),
+  'Which of the following are physical changes? (a) melting of ice (b) burning of paper (c) rusting of iron (d) dissolving sugar justify',
 ];
 
 test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or separate lines, OCR spacing, A/B/C/D, "a)" / "A.", long Science options, statement-list MCQs, (i)–(iv) after a question, the golden transcripts', () => {
@@ -3502,6 +3506,11 @@ test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or 
     'Which is prime? A. 4 B. 6 C. 7 D. 9',
     'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9 [1]',
     'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93\n[1]',
+    // round 4 — standard MCQ closers and a long Science option (d) are answer values
+    ...['None of these', 'Both (a) and (b)', 'All of the above', 'None of the above', '93 (1)']
+      .map((d) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) ' + d),
+    'If x + y = 10, then x is equal to: (a) 2 (b) 5 (c) 8 (d) cannot be determined from the given data',
+    'Which of the following correctly states a fact about respiration in plants? (a) It takes place only at night in the leaves (b) It takes place only in the presence of sunlight (c) It needs chlorophyll in every cell of the plant (d) It occurs in all living cells of the plant at all times of the day and night',
     'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 (1 mark)',
     'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 1 mark',
     // golden transcripts (server/eval/golden runs, real detect reads)
