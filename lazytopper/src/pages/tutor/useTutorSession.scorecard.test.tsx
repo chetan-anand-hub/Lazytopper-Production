@@ -139,3 +139,50 @@ describe("START-HERE-1 · the tutor opens on the question from the scorecard", (
     expect(opener(r)).toHaveLength(0);
   });
 });
+
+const ci = (over: Record<string, unknown> = {}) => record({ id: "CI-1", questionIds: [], dedupKey: "u1::CI-1", perQuestionRef: "ci:CI-1", surface: "check-improve", ...over });
+const lost = (qNumber: number) => ({ qNumber, couldNotRead: false, ok: true, totalMarks: 3, marksAwarded: 1, percentage: 33, annotatedSteps: [] });
+
+describe("CI-TUTOR-RETURN-1 - Answer Checker question text reaches the tutor", () => {
+  beforeEach(() => {
+    getRecords.mockResolvedValue([ci()]);
+    getPayload.mockResolvedValue({ ref: "ci:CI-1", response: { results: [lost(1), lost(3)] }, questionTexts: ["First saved question", "Third saved question"] });
+    selectBank.mockReturnValue([]);
+  });
+
+  it("★★ qn:3 -> the SAVED text of the third result row (by position in the saved rows) is the one-shot question", async () => {
+    const r = render({ from: "CI-1", q: "qn:3" });
+    await waitFor(() => expect(opener(r)).toHaveLength(1));
+    act(() => r.result.current.send("Why did I lose it?"));
+    await waitFor(() => expect(callTutor).toHaveBeenCalled());
+    expect(callTutor.mock.calls[0][0].returnedWork.question).toBe("Third saved question");
+    expect(callTutor.mock.calls[0][0].anchorQuestion).toBeNull(); // no bank row, never a key
+  });
+
+  it("★ the opener is honest that the student's own question has no official key", async () => {
+    const r = render({ from: "CI-1", q: "qn:1" });
+    await waitFor(() => expect(opener(r)).toHaveLength(1));
+    expect(opener(r)[0].content).toMatch(/no official key/);
+    expect(opener(r)[0].content).not.toMatch(/why the right answer is right/);
+  });
+
+  it("★ an older paper with no saved text opens without inventing a question", async () => {
+    getPayload.mockResolvedValue({ ref: "ci:CI-1", response: { results: [lost(1), lost(3)] } });
+    const r = render({ from: "CI-1", q: "qn:3" });
+    await waitFor(() => expect(opener(r)).toHaveLength(1));
+    act(() => r.result.current.send("Why?"));
+    await waitFor(() => expect(callTutor).toHaveBeenCalled());
+    expect(callTutor.mock.calls[0][0].returnedWork?.question).toBeUndefined();
+  });
+
+  it("a bank question (not qn:) still reads the bank text, unchanged", async () => {
+    getRecords.mockResolvedValue([record()]);
+    getPayload.mockResolvedValue({ ref: "qp:QP-1", response: { results: [mcqLost] } });
+    selectBank.mockReturnValue([{ id: "q-b", questionText: "Bank question B text" }]);
+    const r = render({ from: "QP-1", q: "q-b" });
+    await waitFor(() => expect(opener(r)).toHaveLength(1));
+    act(() => r.result.current.send("x"));
+    await waitFor(() => expect(callTutor).toHaveBeenCalled());
+    expect(callTutor.mock.calls[0][0].returnedWork).toEqual({ question: "Bank question B text" });
+  });
+});

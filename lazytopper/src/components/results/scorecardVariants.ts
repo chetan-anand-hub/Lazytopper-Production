@@ -205,6 +205,9 @@ export interface ScorecardSplit {
  *  the button, and only on a question that lost marks. */
 export interface ScorecardTutorAsk {
   onAsk: () => void;
+  /** CI-TUTOR-RETURN-1 (optional, additive): the student already asked the tutor about this question
+   *  (this browser session). The button stays tappable and only its label changes. */
+  asked?: boolean;
 }
 
 /** START-HERE-1 · one MCQ the student got wrong. `yourAnswer` / `correctAnswer` are the option
@@ -1949,6 +1952,10 @@ export interface StoredCheckImproveVariantInput {
    *  can print it (something graded, detail lock open); flagged `detail` so a locked card drops it. */
   onDownloadGraded?: () => void;
   downloading?: boolean;
+  /** CI-TUTOR-RETURN-1 - the tutor hop for a question of the restored paper (built by the host from the
+   *  SAVED record, as the live card's is). With a resolved `response` it yields the same "Where marks
+   *  slipped" rows the live card shows. Omitted -> no rows, byte-identical to before. */
+  tutorAskFor?: (qNumber: number) => ScorecardTutorAsk | null;
 }
 
 /**
@@ -1994,6 +2001,8 @@ export function storedCheckImproveScorecardVariant(
     marksLost: input.response ? aggregateMarksLost(input.response) : null,
     pending: null,
     allPending: null,
+    // CI-TUTOR-RETURN-1 - the live card's per-question tutor rows, rebuilt from the saved record.
+    wrongAnswers: input.response ? ciTutorRows(input.response, input.tutorAskFor) : null,
     actions: [
       ...(input.onDownloadGraded
         ? [{

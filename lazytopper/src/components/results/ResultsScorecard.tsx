@@ -434,10 +434,12 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
 
 /** START-HERE-1 — "Ask the tutor why I lost this mark". The host owns the hop. */
 export const TUTOR_ASK_LABEL = "Ask the tutor why I lost this mark";
+/** CI-TUTOR-RETURN-1 - a question already asked about: still tappable, label says so. */
+export const TUTOR_ASKED_LABEL = "Asked the tutor \u2713 \u00b7 ask again";
 function TutorAskButton({ ask }: { ask: ScorecardTutorAsk }) {
   return (
-    <button type="button" className="lt-sc__tutorask" data-testid="sc-tutor-ask" onClick={ask.onAsk}>
-      {TUTOR_ASK_LABEL}
+    <button type="button" className="lt-sc__tutorask" data-testid="sc-tutor-ask" onClick={ask.onAsk} data-asked={ask.asked ? "true" : undefined}>
+      {ask.asked ? TUTOR_ASKED_LABEL : TUTOR_ASK_LABEL}
     </button>
   );
 }

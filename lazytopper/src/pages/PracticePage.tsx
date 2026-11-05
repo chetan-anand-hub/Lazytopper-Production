@@ -5068,6 +5068,7 @@ const packTopicKey = useMemo(() => {
         ? {
             onAsk: () => {
               trackOnboardingEvent("tutor_from_scorecard", { surface: "quick_practice" });
+              navigate(withScorecardReviewParam(here, record.id), { replace: true });
               navigate(
                 buildTutorPath({
                   subject: recSubject,

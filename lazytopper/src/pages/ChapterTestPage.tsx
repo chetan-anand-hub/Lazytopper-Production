@@ -1102,6 +1102,8 @@ export default function ChapterTestPage() {
         return {
           onAsk: () => {
             trackOnboardingEvent("tutor_from_scorecard", { surface: "chapter_test" });
+            // CI-TUTOR-RETURN-1 - name THIS saved paper on the entry we leave, so browser Back (not just the tutor's arrow) reopens it.
+            navigate(withScorecardReviewParam(location.pathname + searchWithoutReview(location.search), record.id), { replace: true });
             navigate(
               buildTutorPath({
                 subject,

@@ -8,8 +8,8 @@
 //   D  signed out / another account's record / misaligned ids -> no button / no reopen.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import type { SessionRecord } from "../services/sessionRecords";
 
 const auth = vi.hoisted(() => ({ user: { uid: "student-1", isLocalSession: false, email: "s@x.com" } as unknown }));
@@ -97,9 +97,12 @@ function record(over: Partial<SessionRecord> = {}): SessionRecord {
 }
 
 let lastLocation = "";
+let goBack: () => void = () => {};
 function Probe() {
   const l = useLocation();
   lastLocation = l.pathname + l.search;
+  const nav = useNavigate();
+  goBack = () => nav(-1);
   return null;
 }
 function mount(at = PAGE) {
@@ -222,4 +225,19 @@ describe("FOLLOWUPS-1 B · Chapter Test scorecard -> tutor -> the SAME scorecard
     expect(screen.queryByRole("button", { name: /Download graded answer sheet/ })).toBeNull();
     sheet.lock = "open";
   }, 120000);
+});
+
+
+describe("CI-TUTOR-RETURN-1 · Chapter Test - browser Back from the tutor reopens the SAME saved test", () => {
+  it("★★ ask from the reopened test, then browser Back: the scorecard and its button are back", async () => {
+    mount(`${PAGE}?review=${CODE}`);
+    await screen.findByRole("button", { name: "Done" });
+    await waitFor(() => expect(askButtons()).toHaveLength(1));
+    fireEvent.click(askButtons()[0]);
+    await waitFor(() => expect(lastLocation).toMatch(/^\/tutor\//));
+    act(() => goBack());
+    await screen.findByRole("button", { name: "Done" });
+    expect(document.body.textContent).toContain("Real Numbers · Test #7");
+    await waitFor(() => expect(askButtons()).toHaveLength(1));
+  });
 });

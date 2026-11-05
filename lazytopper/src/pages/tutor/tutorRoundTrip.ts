@@ -692,6 +692,9 @@ export function findScorecardQuestion(
 /** The positional hop id of a question on a paper with no bank identity (Check & Improve). */
 export const positionalQuestionId = (qNumber: number): string => `qn:${qNumber}`;
 
+/** True for a positional (`qn:<n>`) hop id - the student's own upload, with no bank row and no official key. */
+export const isPositionalQuestionId = (questionId: string): boolean => /^qn:\d{1,3}$/.test(questionId);
+
 /** The reframed opener for ONE question the student asked the tutor about. Marks come from
  *  the stored result; a quoted step is the grader's own annotation (`shortAnnotation`
  *  truncates, never rewords). A bare MCQ click has no steps, so it is NOT dressed up. */
@@ -715,6 +718,7 @@ export function composeScorecardQuestionOpener(
   qNumber: number,
   result: WorksheetQuestionGrade | null,
   topicLabel: string,
+  opts?: { ownUpload?: boolean },
 ): ReturnOpener {
   const gradedResult = result && isGradedQuestion(result) ? result : null;
   const total = gradedResult ? Number(gradedResult.totalMarks) || 0 : 0;
@@ -744,6 +748,13 @@ export function composeScorecardQuestionOpener(
         label: "Go through that step",
         send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
       },
+    };
+  }
+  // CI-TUTOR-RETURN-1 - the student's own question has no official key, so the opener does not promise one.
+  if (opts?.ownUpload) {
+    return {
+      text: `Q${qNumber} on ${thatRef(topicLabel, "set")} cost you ${marks}. This is your own question, so I have no official key for it — I can walk through your working and where the marks went. Want to start there?`,
+      follow: { label: "Where did I lose it?", send: `Let's go through Q${qNumber}: where did I lose the marks?` },
     };
   }
   return {

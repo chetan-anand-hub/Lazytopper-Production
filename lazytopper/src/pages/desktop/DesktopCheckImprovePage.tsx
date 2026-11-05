@@ -190,8 +190,11 @@ import {
   buildCheckImproveReviewHref,
   positionalQuestionId,
   recordBelongsToUid,
+  searchWithoutReview,
+  withScorecardReviewParam,
 } from "../tutor/tutorRoundTrip";
 import type { ScorecardTutorAsk } from "../../components/results/scorecardVariants";
+import { askedQuestionsOf, markQuestionAsked } from "../tutor/scorecardAsked";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
@@ -1005,7 +1008,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     () => (returnTicket ? { label: returnTicket.label, onReturn: () => navigate(returnTicket.path) } : undefined),
     [returnTicket, navigate],
   );
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── FREE-CHECK-1b: the signed-out free check (inert unless the wrapper says so) ──
@@ -1582,19 +1585,50 @@ const DesktopCheckImprovePageInner: React.FC<{
   const ciSharedMoment = usePublicMomentAudience(isFreeMode && !overlay && ciSharedVisit, true);
   const ciReviewCode = overlay ? null : new URLSearchParams(ciLocation.search).get(SCORECARD_REVIEW_PARAM);
   const ciReviewConsumedRef = useRef<string | null>(null);
+  // CI-TUTOR-RETURN-1 - the tutor's way back must not give up early. The old effect marked the code
+  // consumed and STRIPPED `?review` before it knew the paper existed, and it did not wait for sign-in: on
+  // the remount `user` is still null for a moment, the records read comes back empty, and the miss was
+  // silent and final (empty upload form, query gone). Now: wait for auth AND the records read, strip only
+  // once the paper is found (or is honestly not findable), retry the read ONCE, and say so when it cannot
+  // be reopened.
+  const ciReviewRetryRef = useRef<string | null>(null);
+  const [ciReviewRetried, setCiReviewRetried] = useState<string | null>(null);
+  const [ciReviewMissed, setCiReviewMissed] = useState(false);
   useEffect(() => {
-    if (!ciReviewCode || ciRecordsLoading) return;
+    if (!ciReviewCode || authLoading || ciRecordsLoading) return;
     if (ciReviewConsumedRef.current === ciReviewCode) return;
-    ciReviewConsumedRef.current = ciReviewCode;
-    const sp = new URLSearchParams(ciLocation.search);
-    sp.delete(SCORECARD_REVIEW_PARAM);
-    const search = sp.toString();
-    navigate({ pathname: ciLocation.pathname, search: search ? `?${search}` : "" }, { replace: true, state: ciLocation.state });
+    const stripReview = () => {
+      const sp = new URLSearchParams(ciLocation.search);
+      sp.delete(SCORECARD_REVIEW_PARAM);
+      const search = sp.toString();
+      navigate({ pathname: ciLocation.pathname, search: search ? `?${search}` : "" }, { replace: true, state: ciLocation.state });
+    };
     const uid = user?.uid && !user.isLocalSession ? user.uid : null;
-    const record = uid ? ciRecords.find((r) => r.id === ciReviewCode && recordBelongsToUid(r, uid)) : undefined;
-    if (record) void openReopen(record);
+    if (!uid) {
+      // Signed out (auth has settled): nothing of theirs to reopen - the plain page, silently.
+      ciReviewConsumedRef.current = ciReviewCode;
+      stripReview();
+      return;
+    }
+    const record = ciRecords.find((r) => r.id === ciReviewCode && recordBelongsToUid(r, uid));
+    if (record) {
+      ciReviewConsumedRef.current = ciReviewCode;
+      stripReview();
+      void openReopen(record);
+      return;
+    }
+    if (ciReviewRetryRef.current !== ciReviewCode) {
+      // Not there yet (the just-graded record may not have reached this read): read once more.
+      ciReviewRetryRef.current = ciReviewCode;
+      void loadCiRecords().finally(() => setCiReviewRetried(ciReviewCode));
+      return;
+    }
+    if (ciReviewRetried !== ciReviewCode) return; // the retry read is still in flight
+    ciReviewConsumedRef.current = ciReviewCode;
+    stripReview();
+    setCiReviewMissed(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ciReviewCode, ciRecordsLoading, ciRecords, user?.uid, user?.isLocalSession]);
+  }, [ciReviewCode, authLoading, ciRecordsLoading, ciRecords, ciReviewRetried, user?.uid, user?.isLocalSession]);
 
   // QP-SCORECARD-2 E2 — the student has something in progress here, so the Start-here FOCUSED
   // surface is not offered (the inline card is unaffected): a return-path / deep-link ticket, the
@@ -2497,6 +2531,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setWsResult(shown);
       trackFunnelStep("check_graded");
       setStatus("ready");
+      setCiReviewMissed(false);
       setSaveStatus("saving");
       fairUse.noteGraded();
 
@@ -2774,6 +2809,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       trackFunnelStep("check_graded");
       setResultCtx(ctx);
       setStatus("ready");
+      setCiReviewMissed(false);
       fairUse.noteGraded();
       // PR-2 (B8 + owner addendum) — a single answer that was NOT graded (could not be read,
       // option unread, answer does not match the question) records NOTHING: no MI entry, no
@@ -2871,9 +2907,28 @@ const DesktopCheckImprovePageInner: React.FC<{
   // tutor's own overlay, and only when a single chapter is known for that question.
   function ciTutorAsk(subject: DesktopSubject, topicSlug: string | null | undefined, qNumber: number): ScorecardTutorAsk | null {
     if (overlay || !ciSaved || !ciCode || !topicSlug) return null;
+    const liveUid = user?.uid && !user.isLocalSession ? user.uid : null;
+    return ciTutorHop(liveUid, ciCode, subject, topicSlug, qNumber);
+  }
+  // CI-TUTOR-RETURN-1 - the ONE hop to the tutor, shared by the live card and the card restored from a
+  // saved record. Two things make "come back and ask about another mistake" work:
+  //   1. BEFORE leaving, THIS history entry is replaced with `?review=<code>`. The tutor's back arrow
+  //      already pushed that URL, but the browser's Back button returns to the entry we left - which
+  //      had no query (the live result is gone after the remount) and so showed an empty form.
+  //   2. The question's number is remembered (sessionStorage, numbers only) so the returned card can
+  //      mark it "Asked the tutor - ask again". The button stays tappable.
+  function ciTutorHop(uid: string | null, code: string, subject: DesktopSubject, topicSlug: string, qNumber: number): ScorecardTutorAsk {
+    const reviewHref = buildCheckImproveReviewHref(code);
     return {
+      asked: askedQuestionsOf(uid, code).includes(qNumber),
       onAsk: () => {
         trackOnboardingEvent("tutor_from_scorecard", { surface: "check_improve" });
+        markQuestionAsked(uid, code, qNumber);
+        // Keep the rest of the URL and the router state (returnTo / backLabel), add only `review`.
+        navigate(withScorecardReviewParam(ciLocation.pathname + searchWithoutReview(ciLocation.search), code), {
+          replace: true,
+          state: ciLocation.state,
+        });
         navigate(
           buildTutorPath({
             subject,
@@ -2881,12 +2936,29 @@ const DesktopCheckImprovePageInner: React.FC<{
             source: "scorecard",
             // QP-SCORECARD-2 C — the back arrow reopens THIS saved paper (was "/check-improve":
             // a fresh upload page, the graded paper gone).
-            returnTo: buildCheckImproveReviewHref(ciCode),
+            returnTo: reviewHref,
             questionId: positionalQuestionId(qNumber),
-            from: ciCode,
+            from: code,
           }),
         );
       },
+    };
+  }
+  // CI-TUTOR-RETURN-1 - the restored card's tutor hop, from the SAVED record + payload only (never the
+  // live `ciSaved` / `ciCode`, which are fresh after the remount). Each question uses its own resolved
+  // chapter, else the record's single chapter; no chapter -> no button (never a guess).
+  function ciTutorAskForRecord(record: SessionRecord, response: WorksheetGradeResponse | null) {
+    if (overlay || !response) return undefined;
+    const uid = user?.uid && !user.isLocalSession ? user.uid : null;
+    if (!uid || !recordBelongsToUid(record, uid)) return undefined;
+    const single = record.topicKeys.filter((k) => k && !k.startsWith("mixed:"));
+    const recordTopic = record.topicSource !== "mixed" && single.length === 1 ? single[0] : null;
+    const recordSubject: DesktopSubject = record.subject === "science" ? "Science" : "Maths";
+    return (qNumber: number): ScorecardTutorAsk | null => {
+      const r = response.results.find((x) => x.qNumber === qNumber);
+      const slug = r?.topicSlug || recordTopic;
+      if (!slug) return null;
+      return ciTutorHop(uid, record.id, r?.topicSubject ?? recordSubject, slug, qNumber);
     };
   }
   // GUIDE-SCORE-1 — ONE topic-worksheet route: the scorecard's "Practise {topic}" action and
@@ -2946,6 +3018,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // arrives, and honestly ABSENT if the fetch fails. Absorbed verbatim in behaviour
   // from the retired mobile twin, which was ahead of this file here.
   async function openReopen(r: SessionRecord) {
+    setCiReviewMissed(false);
     setPanelOpen(false);
     setReopen(r);
     setReopenResponse(null);
@@ -3093,6 +3166,21 @@ const DesktopCheckImprovePageInner: React.FC<{
             />
           </Suspense>
         )}
+        {ciReviewMissed && !reopen && (
+          <div role="status" data-testid="ci-review-missed" style={{ ...cardStyle, marginBottom: 16 }}>
+            We couldn’t reopen that paper.{" "}
+            <button
+              type="button"
+              style={buttonOutline}
+              onClick={() => {
+                setCiReviewMissed(false);
+                setPanelOpen(true);
+              }}
+            >
+              Open Your papers
+            </button>
+          </div>
+        )}
         {reopen && (
           <ResultsScorecard
             limitKey={{ kind: "check-improve", resultKey: reopen.id }} // LIMITS-1 PR-2 — stored re-open
@@ -3108,6 +3196,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                 setReopenResponse(null);
               },
               response: reopenResponse,
+              tutorAskFor: ciTutorAskForRecord(reopen, reopenResponse),
               ...(reopenSheetOpen && buildReopenPrintProps()
                 ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
                 : {}),

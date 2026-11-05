@@ -9,8 +9,8 @@
 //   D  another account's record is never reopened.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import type { SessionRecord } from "../services/sessionRecords";
 import { bankIndexEntries } from "../data/bankChapters/bankIdIndex";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -105,9 +105,12 @@ function record(over: Partial<SessionRecord> = {}): SessionRecord {
 }
 
 let lastLocation = "";
+let goBack: () => void = () => {};
 function Probe() {
   const l = useLocation();
   lastLocation = l.pathname + l.search;
+  const nav = useNavigate();
+  goBack = () => nav(-1);
   return null;
 }
 function mount(at: string) {
@@ -199,5 +202,20 @@ describe("FOLLOWUPS-1 B · Full Mock scorecard -> tutor -> the SAME scorecard", 
     await screen.findByRole("button", { name: "Done" }, { timeout: 60000 });
     expect(screen.queryByRole("button", { name: /Download graded answer sheet/ })).toBeNull();
     sheet.lock = "open";
+  }, 120000);
+});
+
+
+describe("CI-TUTOR-RETURN-1 · Full Mock - browser Back from the tutor reopens the SAME saved mock", () => {
+  it("★★ ask from the reopened mock, then browser Back: the scorecard and its button are back", async () => {
+    mount(`${PAGE}?review=${CODE}`);
+    await screen.findByRole("button", { name: "Done" }, { timeout: 60000 });
+    await waitFor(() => expect(askButtons()).toHaveLength(1));
+    fireEvent.click(askButtons()[0]);
+    await waitFor(() => expect(lastLocation).toMatch(/^\/tutor\//));
+    act(() => goBack());
+    await screen.findByRole("button", { name: "Done" }, { timeout: 60000 });
+    expect(document.body.textContent).toContain("Maths · Mock #2");
+    await waitFor(() => expect(askButtons()).toHaveLength(1));
   }, 120000);
 });

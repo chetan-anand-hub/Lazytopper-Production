@@ -66,7 +66,7 @@ import { anchorTargetOf, buildAnchorQuestion, returnedWorkForAnchor } from "./tu
 // own chapter label, and the once-per-thread first-message event.
 import { classifyTutorError, type TutorErrorState } from "./tutorErrorState";
 import { practiceCountForThread } from "./tutorIntent";
-import { returnedRecordLabel } from "./tutorRoundTrip";
+import { returnedRecordLabel, isPositionalQuestionId } from "./tutorRoundTrip";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { trackOnboardingEvent } from "../../analytics/analytics";
 
@@ -447,19 +447,29 @@ export function useTutorSession({
         const hit = findScorecardQuestion(record, payload, fromQuestionId);
         if (!live || !hit) return;
         let questionText = "";
-        try {
-          await ensureBankChapters([topicKey]);
-          const row = selectBankQuestions({
-            subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
-            topicKeys: [topicKey],
-          }).find((q) => String((q as { id?: unknown }).id ?? "") === fromQuestionId);
-          questionText = row ? String(row.questionText || "") : "";
-        } catch {
-          /* no bank text: the opener and the digest still stand on the record */
+        // CI-TUTOR-RETURN-1 - an Answer Checker question (`qn:<n>`) is the student's OWN upload: no bank row.
+        // Its words are the text saved with the paper (one per result row, in order), so the tutor opens
+        // anchored on THAT question. An older paper without saved text stays empty - never invented.
+        const ownUpload = isPositionalQuestionId(fromQuestionId);
+        if (ownUpload) {
+          const at = hit.result ? (payload?.response?.results || []).indexOf(hit.result) : -1;
+          const saved = at >= 0 && Array.isArray(payload?.questionTexts) ? payload.questionTexts[at] : "";
+          questionText = typeof saved === "string" ? saved.trim() : "";
+        } else {
+          try {
+            await ensureBankChapters([topicKey]);
+            const row = selectBankQuestions({
+              subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
+              topicKeys: [topicKey],
+            }).find((q) => String((q as { id?: unknown }).id ?? "") === fromQuestionId);
+            questionText = row ? String(row.questionText || "") : "";
+          } catch {
+            /* no bank text: the opener and the digest still stand on the record */
+          }
         }
         if (!live) return;
         returnedWorkRef.current = buildScorecardReturnedWork(questionText, hit.result);
-        const opener = composeScorecardQuestionOpener(hit.qNumber, hit.result, recordLabel(record));
+        const opener = composeScorecardQuestionOpener(hit.qNumber, hit.result, recordLabel(record), { ownUpload });
         const pickMeta = scorecardPickOf(hit.result);
         updatePending(null);
         setMessages((prev) => {
