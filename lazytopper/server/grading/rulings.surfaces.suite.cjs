@@ -129,6 +129,9 @@ async function drive(s, { mutateTarget, targetSteps, otherSteps, acceptsV2 = fal
   return { body, result, res, calls, writes: meterWrites, spendWritten, costWritten, single, targetQ, targetMarks, total: single ? 1 : req.questions.length };
 }
 
+// GRADER-BALANCE-1: the balancing suite (balancing.surfaces.suite.cjs) drives the SAME surfaces the same way.
+module.exports = { SURFACES, drive };
+
 // A bank question's stored final answer is compared on its own (verify.cjs compareFinalAnswer) and can cap
 // the mark independently of units; the unit tests take it out of play (the field stays, null).
 const noKey = (q) => { if (Object.getOwnPropertyDescriptor(q, 'finalAnswer') || 'finalAnswer' in q) q.finalAnswer = null; };

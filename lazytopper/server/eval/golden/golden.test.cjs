@@ -216,9 +216,13 @@ test('§6 owner rulings — applied once, guarded, and the contested cases they 
   assert.strictEqual(G.casesById['GS-M15-a'].expected.totalMarks, 2, 'ruling (3): GS-M15-a re-pinned 0.5 -> 2');
   assert.strictEqual(G.casesById['GS-M15-a'].expected.departureFlagRequired, false);
   // Controller decision D33 (PR-2b): the student ATTEMPTED (correct skeletal equations), so it is not
-  // unattempted; balancing not attempted where asked = conceptual (S4a) — the verified value stands.
-  assert.strictEqual(G.casesById['GS-S12-a'].expected.mistakeType, 'conceptual', 'D33: an unbalanced equation when a balanced one was asked = conceptual');
-  for (const id of ['GS-M07-a', 'GS-SUP-03', 'GS-SUP-02', 'GS-M22-a', 'GS-M04-b', 'GS-M09-b', 'GS-M15-a', 'GS-S12-a']) {
+  // unattempted. SUPERSEDED in its type by owner ruling BAL-1 (5 Nov 2026, GRADER-BALANCE-1): skeletal with
+  // correct species and no failed balancing attempt on the page = exam technique (presentation), ½ per equation.
+  assert.strictEqual(G.casesById['GS-S12-a'].expected.mistakeType, 'presentation', 'BAL-1: a skeletal equation with no evidence of inability = presentation');
+  assert.strictEqual(G.casesById['GS-S12-a'].expected.totalMarks, 1, 'BAL-1: marks unchanged, ½ per unbalanced equation');
+  assert.strictEqual(G.casesById['GS-S13-a'].expected.mistakeType, 'presentation', 'BAL-1: (c)(i) balances correctly — evidence of ability, never of inability');
+  assert.strictEqual(G.casesById['GS-S12-b'].expected.mistakeType, 'calculation', 'BAL-1: coefficients written but wrong = calculation (unchanged)');
+  for (const id of ['GS-M07-a', 'GS-SUP-03', 'GS-SUP-02', 'GS-M22-a', 'GS-M04-b', 'GS-M09-b', 'GS-M15-a', 'GS-S12-a', 'GS-S13-a']) {
     assert.strictEqual(G.casesById[id].expected.contested, false, id + ' should be settled by a ruling');
   }
   assert.strictEqual(G.casesById['GS-M07-a'].expected.totalMarks, 1.5, 'ruling (2): miscopy penalised once');
@@ -304,13 +308,13 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     // A17 owner rulings 1 and 2 (GRADING-JOBS-1 J0) add two declared classes: the one fixed unit comment,
     // and a subjective non-attempt that is now NOT ATTEMPTED instead of a graded 0; ruling 3 as changed by the
     // owner 2026-10-06 adds the medium class (a Hinglish answer: ½ once, one fixed comment).
-    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1', 'g-mcq-habit-1', 'g-knowledge-evidence-1'];
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1', 'g-mcq-habit-1', 'g-knowledge-evidence-1', 'g-balancing-1'];
     assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
     // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
     // slot → unattempted) or an A17 owner ruling (1: the unit comment; 2: not attempted); the v2 field
     // and the detect restore never touch one.
     // MCQ-TYPE-2 (owner ruling 2026-10-23) adds g-mcq-habit-1: a RIGHT MCQ with flawed working keeps its type at 0 marks.
-    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-|g-mcq-habit-1$|g-knowledge-evidence-1$)/.test(c))), 'a legacy body changes only under D38, an A17 ruling, the MCQ-TYPE-2 ruling or the GRADER-QUALITY-1 knowledge-evidence ruling');
+    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-|g-mcq-habit-1$|g-knowledge-evidence-1$|g-balancing-1$)/.test(c))), 'a legacy body changes only under D38, an A17 ruling, the MCQ-TYPE-2 ruling, the GRADER-QUALITY-1 knowledge-evidence ruling or the GRADER-BALANCE-1 balancing ruling');
     const ok = await evaluateRun(runDir);
     assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
     // CONTROL 1: one tampered `to` → that body counts as changed again.
@@ -342,7 +346,7 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     const R = loadRun(runDir);
     const rb = R.rebaseline;
     const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
-    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq || rb.entries[k].habit);
+    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq || rb.entries[k].habit || rb.entries[k].balance);
     assert.ok(keys.length > 0, 'CONTROL: there are A17 entries to verify');
     const byKey = {};
     for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
@@ -350,6 +354,18 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     let sample = null;
     for (const k of keys) {
       const e = rb.entries[k];
+      if (e.class === 'g-balancing-1') {
+        // GRADER-BALANCE-1 (owner ruling 2026-11-05): a g-balancing-1-ONLY entry replays to the pinned digest, undoing the
+        // delta lands on balance.base (the stored body), and the class rules hold (lib/rebaselineClasses.cjs balanceViolations)
+        const repB = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
+        assert.strictEqual(digest(repB.body), e.to, k + ': the replayed body is the pinned one');
+        const priorB = undoDelta(repB.body, e.balance.delta);
+        assert.ok(priorB && digest(priorB) === e.balance.base && e.balance.base === e.from, k + ': undoing the g-balancing-1 delta must land exactly on balance.base (the stored body)');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').balanceViolations(e.balance.delta, repB.body, priorB), [], k + ' (g-balancing-1)');
+        checked += 1;
+        continue;
+      }
+      assert.ok(!e.balance, k + ': a g-balancing-1 change on top of another class needs its own peel here (none exists today)');
       if (!/(^|\+)a17-/.test(e.class) && e.habit && !e.conseq) {
         // MCQ-TYPE-2: a g-mcq-habit-1-ONLY entry replays to the pinned digest, undoing the delta lands on habit.base, the rules hold
         const repH = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
@@ -511,6 +527,44 @@ test('§11c ★ g-conseq-1 accepts exactly the consequential change and REFUSES 
   assert.ok(mut((d) => { d.push([['results', 3, 'marksAwarded'], 2, 3]); }).some((v) => /outside the g-conseq-1 rules/.test(v)), 'any other node is refused');
   // D248: the bucket that gained must be the pointed-to step's type (here conceptual); moving the gain to silly is refused
   assert.ok(mut((d) => { d[bucketIdx][0] = d[bucketIdx][0].slice(0, -1).concat(['silly']); }).length > 0, 'a gain in a bucket other than the pointed-to step type is refused');
+});
+
+// ── §11e GRADER-BALANCE-1: the g-balancing-1 class can FAIL ─────────────────
+test('§11e ★ g-balancing-1 accepts exactly the balancing ruling (type read from the page, ½ per equation) and REFUSES anything else', async () => {
+  const { balanceViolations, undoDelta } = require('./lib/rebaselineClasses.cjs');
+  const rb = JSON.parse(fs.readFileSync(path.join(GOLDEN, 'runs', floor.runId, 'rebaseline.json'), 'utf8'));
+  const keys = Object.keys(rb.entries).filter((k) => rb.entries[k].balance);
+  assert.ok(keys.length > 0, 'CONTROL: GS-S12-a / GS-S13-a (skeletal equations) are re-baselined under g-balancing-1');
+  const { loadRun, replayJob } = require('./lib/replay.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const R = loadRun(path.join(GOLDEN, 'runs', floor.runId));
+  const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
+  const k = keys.find((x) => /:S\.CI\.GS-S12-a$/.test(x));
+  assert.ok(k, 'CONTROL: the GS-S12-a single-question entry');
+  const rec = R.runs[k.match(/^run(\d+):/)[1]].find((r) => r.jobKey === k.replace(/^run\d+:/, ''));
+  const quiet = { warn: console.warn, error: console.error };
+  console.warn = () => {}; console.error = () => {};
+  let body;
+  try { body = (await replayJob(plan[rec.jobKey], rec, { config: R.manifest && R.manifest.config })).body; } finally { console.warn = quiet.warn; console.error = quiet.error; }
+  const delta = rb.entries[k].balance.delta;
+  const before = undoDelta(body, delta);
+  assert.deepStrictEqual(balanceViolations(delta, body, before), [], 'the real delta is accepted');
+  const typed = delta.find((d) => d[0][d[0].length - 1] === 'mistakeType');
+  const at = typed[0].slice(0, -1);
+  const withType = (t) => { const b = JSON.parse(JSON.stringify(body)); at.reduce((x, kk) => x[kk], b).mistakeType = t; return b; };
+  // the old S4a reading (conceptual) is refused: a stored reply carries no evidence of inability
+  assert.ok(balanceViolations(delta.map((d) => (d === typed ? [d[0], d[1], 'conceptual'] : d)), withType('conceptual'), before).some((v) => /the page says presentation/.test(v)), 'conceptual without evidence is refused');
+  // calculation on a skeletal equation (no coefficients on the page) is refused
+  assert.ok(balanceViolations(delta.map((d) => (d === typed ? [d[0], d[1], 'calculation'] : d)), withType('calculation'), before).some((v) => /the page says presentation/.test(v)), 'calculation on a skeletal equation is refused');
+  // a type move on a step with no unbalanced equation on the page is refused
+  const noEq = JSON.parse(JSON.stringify(body));
+  for (const st of noEq.annotatedSteps) st.studentWork = 'The reaction is a double displacement.';
+  assert.ok(balanceViolations(delta, noEq, before).some((v) => /no unbalanced equation/.test(v)), 'a step with no equation on the page is refused');
+  // a mark moved without the cap sentence is refused, and a summary that does not follow the steps is refused
+  assert.ok(balanceViolations(delta.concat([[['marksAwarded'], 1, 1.5]]), body, before).some((v) => /the mark moved/.test(v)), 'a mark moved by no step is refused');
+  assert.ok(balanceViolations(delta.filter((d) => d[0][0] !== 'mistakeSummary'), body, before).some((v) => /summary moved 0/.test(v)), 'a step type with no summary move is refused');
+  assert.ok(balanceViolations(delta.concat([[['teacherNote'], 'a', 'b']]), body, before).some((v) => /the note changed but the mark did not/.test(v)), 'a note change without a mark change is refused');
+  assert.ok(balanceViolations(delta.concat([[['rubric'], null, []]]), body, before).some((v) => /outside the g-balancing-1 rules/.test(v)), 'any other field is refused');
 });
 
 // ── §11d MCQ-TYPE-2: the g-mcq-habit-1 class can FAIL ─────────────────────────

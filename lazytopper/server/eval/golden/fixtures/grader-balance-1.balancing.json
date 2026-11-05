@@ -1,0 +1,419 @@
+{
+ "about": "GRADER-BALANCE-1 golden fixtures for the owner's chemical-equation balancing ruling. ALL SYNTHETIC: CBSE-style questions (NCERT Class 10 Ch. 1 reactions) with typed answers composed for this lane, and the model reply each one is graded from (the step shape the stored golden replies show, plus the new optional equationFault / balancingEvidence fields). 'expected' is the result under the ruling; 'trunk' what d05e67a2 returned for the same reply. Driven on all nine surface rows by grading/balancing.surfaces.suite.cjs.",
+ "synthetic": true,
+ "ruling": "Owner ruling 5 Nov 2026 (GRADER-BALANCE-1, BAL-1): grade a little stricter than a CBSE examiner. An equation with the right species that is not balanced loses exactly 1/2, once per equation, never more for balancing alone. Type by what the student wrote: (1) wrong species or a formula/subscript changed to force a balance = conceptual (species mark follows the scheme); (2) coefficients written but wrong = calculation; (3) correct species left skeletal = presentation by default, conceptual only with a verbatim balancingEvidence quote of a failed balancing attempt elsewhere on the paper.",
+ "cases": [
+  {
+   "id": "GB1-SKELETAL",
+   "reading": "(3) correct species, no coefficients: presentation, -1/2",
+   "question": "Translate the following statement into a chemical equation and then balance it: aluminium metal reacts with steam to give aluminium oxide and hydrogen gas.",
+   "marks": 2,
+   "studentWritten": "Al + H₂O → Al₂O₃ + H₂",
+   "modelReply": [
+    {
+     "description": "Correct species",
+     "studentWork": "Al + H₂O → Al₂O₃ + H₂",
+     "status": "correct",
+     "marksAvailable": 1,
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formulae of reactants and products.",
+     "mistakeType": null
+    },
+    {
+     "description": "Balancing",
+     "studentWork": "Al + H₂O → Al₂O₃ + H₂",
+     "status": "incorrect",
+     "marksAvailable": 1,
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× The equation is not balanced.",
+     "mistakeType": "conceptual",
+     "equationFault": "not-balanced"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 1.5,
+    "steps": [
+     [
+      "correct",
+      1,
+      null
+     ],
+     [
+      "partial",
+      0.5,
+      "presentation"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 1,
+    "steps": [
+     [
+      "correct",
+      1,
+      null
+     ],
+     [
+      "incorrect",
+      0,
+      "conceptual"
+     ]
+    ]
+   },
+   "synthetic": true
+  },
+  {
+   "id": "GB1-SUBSCRIPT",
+   "reading": "(1) a subscript changed to force a balance: conceptual, species mark per the scheme",
+   "question": "Write the balanced chemical equation for the formation of water from hydrogen and oxygen.",
+   "marks": 2,
+   "studentWritten": "H₂ + O₂ → H₂O₂",
+   "modelReply": [
+    {
+     "description": "Balanced equation",
+     "studentWork": "H₂ + O₂ → H₂O₂",
+     "status": "incorrect",
+     "marksAvailable": 2,
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "× H₂O₂ is hydrogen peroxide, not water: the product's formula was changed to make the atoms balance.",
+     "mistakeType": "calculation",
+     "equationFault": "formula-changed"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 0,
+    "steps": [
+     [
+      "incorrect",
+      0,
+      "conceptual"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 0,
+    "steps": [
+     [
+      "incorrect",
+      0,
+      "calculation"
+     ]
+    ]
+   },
+   "synthetic": true
+  },
+  {
+   "id": "GB1-COEFFICIENTS",
+   "reading": "(2) coefficients written but wrong: calculation, -1/2 (read from the page even when the model tags it not-balanced)",
+   "question": "Translate the following statement into a chemical equation and then balance it: aluminium metal reacts with steam to give aluminium oxide and hydrogen gas.",
+   "marks": 2,
+   "studentWritten": "2Al + 3H₂O → Al₂O₃ + 2H₂",
+   "modelReply": [
+    {
+     "description": "Correct species",
+     "studentWork": "2Al + 3H₂O → Al₂O₃ + 2H₂",
+     "status": "correct",
+     "marksAvailable": 1,
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formulae.",
+     "mistakeType": null
+    },
+    {
+     "description": "Balancing",
+     "studentWork": "2Al + 3H₂O → Al₂O₃ + 2H₂",
+     "status": "incorrect",
+     "marksAvailable": 1,
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Hydrogen is unbalanced: 6 H on the left, 4 H on the right.",
+     "mistakeType": "conceptual",
+     "equationFault": "not-balanced"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 1.5,
+    "steps": [
+     [
+      "correct",
+      1,
+      null
+     ],
+     [
+      "partial",
+      0.5,
+      "calculation"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 1,
+    "steps": [
+     [
+      "correct",
+      1,
+      null
+     ],
+     [
+      "incorrect",
+      0,
+      "conceptual"
+     ]
+    ]
+   },
+   "synthetic": true
+  },
+  {
+   "id": "GB1-EVIDENCE",
+   "reading": "(3) with on-paper evidence of inability: conceptual, still -1/2; (i) prints its own skeletal equation, so its scheme mark stands",
+   "question": "(i) Balance the following equation: Fe + H₂O → Fe₃O₄ + H₂ [1] (ii) Write the balanced chemical equation for the reaction of zinc with dilute hydrochloric acid [2]",
+   "marks": 3,
+   "studentWritten": "(i) Fe + 2H₂O → Fe₃O₄ + 2H₂\n(ii) Zn + HCl → ZnCl₂ + H₂",
+   "modelReply": [
+    {
+     "description": "Balancing the given equation",
+     "studentWork": "Fe + 2H₂O → Fe₃O₄ + 2H₂",
+     "status": "incorrect",
+     "marksAvailable": 1,
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Fe and H do not balance; it should be 3Fe + 4H₂O → Fe₃O₄ + 4H₂.",
+     "mistakeType": "calculation",
+     "part": "(i)",
+     "equationFault": "wrong-coefficients"
+    },
+    {
+     "description": "Correct species",
+     "studentWork": "Zn + HCl → ZnCl₂ + H₂",
+     "status": "correct",
+     "marksAvailable": 1,
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formulae.",
+     "mistakeType": null,
+     "part": "(ii)"
+    },
+    {
+     "description": "Balancing",
+     "studentWork": "Zn + HCl → ZnCl₂ + H₂",
+     "status": "incorrect",
+     "marksAvailable": 1,
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Not balanced: 2HCl is needed.",
+     "mistakeType": "conceptual",
+     "part": "(ii)",
+     "equationFault": "not-balanced",
+     "balancingEvidence": "Fe + 2H₂O → Fe₃O₄ + 2H₂"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 1.5,
+    "steps": [
+     [
+      "incorrect",
+      0,
+      "calculation"
+     ],
+     [
+      "correct",
+      1,
+      null
+     ],
+     [
+      "partial",
+      0.5,
+      "conceptual"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 1,
+    "steps": [
+     [
+      "incorrect",
+      0,
+      "calculation"
+     ],
+     [
+      "correct",
+      1,
+      null
+     ],
+     [
+      "incorrect",
+      0,
+      "conceptual"
+     ]
+    ]
+   },
+   "synthetic": true
+  },
+  {
+   "id": "GB1-SPECIES-ZNCL",
+   "reading": "(1) wrong formula (ZnCl) and unbalanced: conceptual, marks as the model gave (no cap) - the stored OA2-Q17 shape",
+   "question": "Write the balanced chemical equation for the reaction of zinc with dilute hydrochloric acid.",
+   "marks": 2,
+   "studentWritten": "Zn + HCl → ZnCl + H₂",
+   "modelReply": [
+    {
+     "description": "Balanced chemical equation",
+     "studentWork": "Zn + HCl → ZnCl + H₂",
+     "status": "incorrect",
+     "marksAvailable": 2,
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "× Zinc chloride formula is ZnCl₂ and the reaction is not balanced",
+     "mistakeType": "conceptual"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 0,
+    "steps": [
+     [
+      "incorrect",
+      0,
+      "conceptual"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 0,
+    "steps": [
+     [
+      "incorrect",
+      0,
+      "conceptual"
+     ]
+    ]
+   },
+   "synthetic": true
+  },
+  {
+   "id": "GB1-TWO-EQUATIONS",
+   "reading": "1/2 PER EQUATION: two skeletal equations in one step lose 1 (not 1/2 per step, not the whole step)",
+   "question": "Write balanced chemical equations for (a) the reaction of sodium with water and (b) the burning of methane in air.",
+   "marks": 2,
+   "studentWritten": "Na + H₂O → NaOH + H₂\nCH₄ + O₂ → CO₂ + H₂O",
+   "modelReply": [
+    {
+     "description": "Both equations",
+     "studentWork": "Na + H₂O → NaOH + H₂\nCH₄ + O₂ → CO₂ + H₂O",
+     "status": "incorrect",
+     "marksAvailable": 2,
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "× Correct species, but neither equation is balanced.",
+     "mistakeType": "conceptual",
+     "equationFault": "not-balanced"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 1,
+    "steps": [
+     [
+      "partial",
+      1,
+      "presentation"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 0,
+    "steps": [
+     [
+      "incorrect",
+      0,
+      "conceptual"
+     ]
+    ]
+   },
+   "synthetic": true
+  },
+  {
+   "id": "GB1-UNCHARGED",
+   "reading": "a flagged balancing fault the model left uncharged, on an equation the page shows unbalanced: -1/2",
+   "question": "Write the balanced chemical equation for the reaction of sodium with water.",
+   "marks": 2,
+   "studentWritten": "Na + H₂O → NaOH + H₂",
+   "modelReply": [
+    {
+     "description": "Balanced equation",
+     "studentWork": "Na + H₂O → NaOH + H₂",
+     "status": "correct",
+     "marksAvailable": 2,
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct reactants and products; the equation is not balanced.",
+     "mistakeType": null,
+     "equationFault": "not-balanced"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 1.5,
+    "steps": [
+     [
+      "partial",
+      1.5,
+      "presentation"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 2,
+    "steps": [
+     [
+      "correct",
+      2,
+      null
+     ]
+    ]
+   },
+   "synthetic": true
+  },
+  {
+   "id": "GB1-PAGE-BALANCED",
+   "reading": "the page shows the equation balanced: the guard never acts on the model's word alone",
+   "question": "Write the balanced chemical equation for the formation of water from hydrogen and oxygen.",
+   "marks": 2,
+   "studentWritten": "2H₂ + O₂ → 2H₂O",
+   "modelReply": [
+    {
+     "description": "Balanced equation",
+     "studentWork": "2H₂ + O₂ → 2H₂O",
+     "status": "partial",
+     "marksAvailable": 2,
+     "marksAwarded": 1,
+     "marksDeducted": 1,
+     "teacherAnnotation": "½ The equation is not balanced.",
+     "mistakeType": "conceptual",
+     "equationFault": "not-balanced"
+    }
+   ],
+   "expected": {
+    "marksAwarded": 1,
+    "steps": [
+     [
+      "partial",
+      1,
+      "conceptual"
+     ]
+    ]
+   },
+   "trunk": {
+    "marksAwarded": 1,
+    "steps": [
+     [
+      "partial",
+      1,
+      "conceptual"
+     ]
+    ]
+   },
+   "synthetic": true
+  }
+ ]
+}
