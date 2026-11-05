@@ -22,6 +22,7 @@ import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import PackPromo from "../../components/packs/PackPromoLazy";
+import BrowseVisitorCard from "../../components/browse/BrowseVisitorCardLazy";
 // TUTOR-STICKY-1 — the daily "Fix 3 lost marks" card and the trial-ending tutor summary (lazy; real data only).
 import { DailyFixHome, TrialTutorSummaryHome } from "../../components/tutorSticky/TutorStickyHome";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
@@ -576,6 +577,9 @@ export default function MobileHome() {
 
       {/* 96px bottom padding clears App.tsx's 60px BottomNav. */}
       <div style={{ padding: "15px 14px 96px", maxWidth: "100%" }}>
+        {/* BROWSE-VISITOR-CARD-1 - signed-out visitors only (the mount renders nothing while auth loads or for any signed-in user). */}
+        <BrowseVisitorCard />
+
         {/* CBSE news strip (CBSE-AUTO-1 C12). Renders null unless the mirror's
             manifest flags a recent circular important and it is not dismissed;
             `spaced` is its own margin, so a null leaves the layout unchanged. */}

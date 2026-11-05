@@ -376,6 +376,7 @@
     "src/components/auth/RequireAuth.trialCta.test.tsx",
     "src/components/auth/VerifyEmailGate.test.tsx",
     "src/components/auth/entitlementGating.render.test.tsx",
+    "src/components/browse/BrowseVisitorCard.test.tsx",
     "src/components/cbse/CbseBanner.test.tsx",
     "src/components/chaptertest/chapterTestBlueprint.test.ts",
     "src/components/checkimprove/FreeCheckPanels.friction.test.tsx",
