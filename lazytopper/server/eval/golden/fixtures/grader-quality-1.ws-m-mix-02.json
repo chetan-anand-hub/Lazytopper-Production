@@ -1,5 +1,5 @@
 {
-  "_about": "GRADER-QUALITY-1 (5 Nov 2026) golden fixtures. Shapes from LazyTopper's own bank worksheet WS-M-MIX-02 (Real Numbers, Polynomials + 4 more), answered by the owner's student on 3 Nov 2026 and graded live on the Answer Checker (multi-question) on 4 Nov (41/51) and 5 Nov (41.5/51, code CI-M-SURF-06). PROVENANCE, case by case: `studentWritten` is a TRANSCRIPTION of the student's notebook ('Book 3 Nov 2026.pdf', page cited; read from a render of that page — spelling and spacing normalised, nothing added); `modelReply` is the grader-reply SHAPE the live run returned (descriptions, statuses and annotations as printed in the 4 Nov graded PDF; studentWork as the model quoted it), used by the deterministic tests in server/grading/rulings.surfaces.suite.cjs. A case marked `synthetic: true` is NOT from the student's paper and says so. No image and no name are committed. `deterministic: false` marks a shape only the prompt can move (D2): it needs the live golden run (>= 3 runs, stable marks AND types).",
+  "_about": "GRADER-QUALITY-1 (5 Nov 2026) golden fixtures. Shapes from LazyTopper's own bank worksheet WS-M-MIX-02 (Real Numbers, Polynomials + 4 more), answered by the owner's student on 3 Nov 2026 and graded live on the Answer Checker (multi-question) on 4 Nov (41/51) and 5 Nov (41.5/51, code CI-M-SURF-06). PROVENANCE, case by case: `studentWritten` is a TRANSCRIPTION of the student's notebook ('Book 3 Nov 2026.pdf', page cited; read from a render of that page — spelling and spacing normalised, nothing added); `modelReply` is the grader-reply SHAPE the live run returned, used by the deterministic tests in server/grading/rulings.surfaces.suite.cjs: every `description`, `studentWork` and `teacherAnnotation` marked `pdfVerbatim` on its case is copied VERBATIM from the 4 Nov graded PDF ('WS-M-MIX-02-graded-answer-checker-41-of-51.pdf', page cited); where a case keeps fewer steps or different marks per step than the PDF, it says `shortenedShape` and what was left out. `questionTextParaphrased: true` marks a question text that is a paraphrase of the printed question. A case marked `synthetic: true` is NOT from the student's paper and says so. No image and no name are committed. `deterministic: false` marks a shape only the prompt can move (D2): it needs the live golden run (>= 3 runs, stable marks AND types).",
   "source": {
     "worksheet": "WS-M-MIX-02",
     "student": "owner's student (not named)",
@@ -21,7 +21,7 @@
       "modelReply": [
         {
           "description": "Identifying a and d of the AP",
-          "studentWork": "a = 4500, d = -350",
+          "studentWork": "AP = 4500, 4150, 3800\na = 4500, d = -350",
           "status": "correct",
           "marksAvailable": 0.5,
           "marksAwarded": 0.5,
@@ -36,12 +36,12 @@
           "marksAvailable": 1,
           "marksAwarded": 0,
           "marksDeducted": 1,
-          "teacherAnnotation": "× Missing algebraic setup/inequality to find n",
+          "teacherAnnotation": "× Missing algebraic setup/inequality to find n (e.g. 4500 + (n-1)(-350) < 1000)",
           "mistakeType": null
         },
         {
           "description": "Verifying and stating the final week",
-          "studentWork": "a12 = 4500 - 11 x 350 = 650, so the 12th week",
+          "studentWork": "At the end of the 12th week the balance would fall below ₹1000\na12 = a + (n-1)d\n= 4500 - 11 × 350\n= 4500 - 3850\n= ₹ 650",
           "status": "correct",
           "marksAvailable": 0.5,
           "marksAwarded": 0.5,
@@ -81,6 +81,12 @@
       "studentWritten": {
         "page": 3,
         "text": "AP = 4500, 4150, 3800\na = 4500, d = -350\nAt the end of the 12th week the balance would fall below Rs 1000\na12 = a + (n-1)d\n= 4500 - 11 x 350\n= 4500 - 3850\n= Rs 650"
+      },
+      "questionTextParaphrased": true,
+      "questionTextNote": "PARAPHRASE. The printed question (PDF page 7): \"At the end of week 1, a student's prepaid canteen card has a balance of ₹4500, and exactly ₹350 is spent from it every week after that, so the balances at the end of weeks 1, 2, 3, ... are ₹4500, ₹4150, ₹3800, .... At the end of which week will the balance first fall below ₹1000?\"",
+      "pdfVerbatim": {
+        "page": 7,
+        "fields": "steps 1-3: description, studentWork, teacherAnnotation; statuses and marks (+0.5, Not attempted, +0.5) as printed"
       }
     },
     {
@@ -290,21 +296,21 @@
       "chapter": "polynomials",
       "marks": 3,
       "questionText": "Find the zeroes of x² − 2x − 24 and verify the relationship between the zeroes and the coefficients.",
-      "photoQuote": "−4 + 6 = 2   6 × −4 = −24\n2 = 2 −24 = −24\nHence verified",
+      "photoQuote": "Relationship of the zeroes & the coefficients.\nα + β = -b/a      αβ = c/a\n-4 + 6 = 2        6 × -4 = -24\n2 = 2      -24 = -24\n(Hence verified.)",
       "modelReply": [
         {
-          "description": "Factorising and finding the zeroes",
-          "studentWork": "x² − 6x + 4x − 24 = (x − 6)(x + 4), x = 6, x = −4",
+          "description": "Factorisation of polynomial and finding zeroes",
+          "studentWork": "p(x) = x² - 2x - 24   (ax² + bx + c)\nx² - 2x - 24 = 0\nx² - 6x + 4x - 24 = 0\nx(x - 6) + 4(x - 6) = 0\n(x + 4)(x - 6)\nLet the zeroes of p(x) be α & β respectively.\nα = -4, β = 6",
           "status": "correct",
           "marksAvailable": 2,
           "marksAwarded": 2,
           "marksDeducted": 0,
-          "teacherAnnotation": "✓",
+          "teacherAnnotation": "✓ Zeroes correctly found: α = -4, β = 6",
           "mistakeType": null
         },
         {
-          "description": "Verifying sum and product",
-          "studentWork": "−4 + 6 = 2   6 × −4 = −24\n2 = 2 −24 = −24\nHence verified",
+          "description": "Verification of relationships between zeroes and coefficients",
+          "studentWork": "Relationship of the zeroes & the coefficients.\nα + β = -b/a      αβ = c/a\n-4 + 6 = 2        6 × -4 = -24\n2 = 2      -24 = -24\n(Hence verified.)",
           "status": "correct",
           "marksAvailable": 1,
           "marksAwarded": 1,
@@ -315,7 +321,7 @@
       ],
       "trunk": {
         "marksAwarded": 2.5,
-        "annotation": "½ Check the arithmetic here: 2 is not 2 −24."
+        "annotation": "½ Check the arithmetic here: 2 is not 2 -24."
       },
       "expected": {
         "marksAwarded": 3,
@@ -332,7 +338,14 @@
         "page": 5,
         "text": "Relationship of the zeroes & the coefficients.\n[left column] α+β = −b/a ; −4+6 = 2 ; 2 = 2\n[right column] αβ = c/a ; 6×−4 = −24 ; −24 = −24\n(Hence verified)"
       },
-      "photoQuoteNote": "photoQuote is the model's one-line quote of the two columns, RECONSTRUCTED from the live annotation \"Check the arithmetic here: 2 is not 2 −24\" (which only that join produces); the student wrote the two columns above."
+      "photoQuoteNote": "photoQuote is the model's quote of the student's two columns, copied from the 4 Nov graded PDF page 11 (STEP 3, \"Verification of relationships between zeroes and coefficients\"); the run of spaces between the columns is as rendered there (the PDF does not preserve its exact count). The student's own two columns are transcribed in studentWritten.",
+      "questionTextParaphrased": true,
+      "questionTextNote": "PARAPHRASE. The printed question (PDF page 11): \"Two villages lie along a straight highway on opposite sides of a junction. Taking east of the junction as positive, their positions in km are the zeroes of the polynomial x² - 2x - 24. Find the positions of the villages, verify the relationship between the zeroes and the coefficients, and find the position of a bus stop exactly midway between them.\"",
+      "shortenedShape": "The PDF (page 11) has FOUR steps: 1 factorisation +0.5, 2 \"Interpreting positions of the villages\" +0.5, 3 verification (Partial, Calculation slip, +0.5 −0.5), 4 \"Finding midpoint and position of the bus stop\" +1. This case keeps steps 1 and 3 only, as a 3-mark shape (step 1 worth 2, the verification worth 1); steps 2 and 4 carry no D3 shape.",
+      "pdfVerbatim": {
+        "page": 11,
+        "fields": "step 1 description, studentWork and teacherAnnotation; step 3 (here step 2) description and photoQuote; the trunk annotation"
+      }
     },
     {
       "id": "GQ1-WS02-Q22",
