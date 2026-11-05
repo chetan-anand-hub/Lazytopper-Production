@@ -48,6 +48,10 @@
 //                         entry carries `habit: { base, delta }`). A RIGHT objective answer with flawed
 //                         working keeps its type as a 0-mark habit: on a full-mark objective question ONE
 //                         step's type goes null → a type and its summary count goes up by one. Nothing else.
+//
+//   g-missing-type-1      (MISSING-TYPE-1, owner ruling 2026-11-05 14:04; checked on its own, `mtype: { base, delta }`).
+//                         A BLANK step that lost marks untyped is settled: missing → unattempted (an asked-for
+//                         deliverable) or null → presentation (working not shown); its marks leave "untyped". No mark moves.
 
 const R = require('../../../grading/rules.cjs');
 
@@ -276,6 +280,52 @@ function balanceViolations(delta, toBody, fromBody) {
   return out;
 }
 
+const MTYPE_CLASS = 'g-missing-type-1';
+/** g-missing-type-1 (MISSING-TYPE-1, owner ruling 5 Nov 2026 14:04) rule violations for ONE delta. A BLANK step that
+ *  lost marks with no type is settled. ONLY, per question, on steps whose studentWork is empty:
+ *    (a) status "missing" → "unattempted" with no type (a blank asked-for deliverable; v2 shape only — the legacy shape
+ *        shows the fourth state as "missing", so nothing moves there), or
+ *    (b) mistakeType null → "presentation" (status "missing", or "unattempted" → "missing": working not shown);
+ *  mistakeSummary.presentation goes UP by exactly the number of (b) steps; marksLostByType: "untyped" goes DOWN and
+ *  only "unattempted" / "presentation" go up, the total unchanged. No mark, note, annotation or other field moves. */
+function mtypeViolations(delta, toBody) {
+  const out = [];
+  const perResult = new Map();
+  for (const [p, from, to] of delta) {
+    const at = p[0] === 'results' && Number.isInteger(p[1]) ? { prefix: p.slice(0, 2), rest: p.slice(2) } : { prefix: [], rest: p };
+    const key = JSON.stringify(at.prefix);
+    if (!perResult.has(key)) perResult.set(key, { result: getAt(toBody, at.prefix), steps: new Map(), summary: 0, lost: {} });
+    const pr = perResult.get(key);
+    const r = at.rest;
+    if (r.length === 3 && r[0] === 'annotatedSteps' && Number.isInteger(r[1]) && (r[2] === 'status' || r[2] === 'mistakeType')) {
+      const ok = r[2] === 'status' ? ((from === 'missing' && to === 'unattempted') || (from === 'unattempted' && to === 'missing'))
+        : (from === null && to === 'presentation');
+      if (!ok) { out.push(p.join('.') + ': only missing ↔ unattempted and null → presentation'); continue; }
+      const st = pr.steps.get(r[1]) || {}; st[r[2]] = to; pr.steps.set(r[1], st);
+      continue;
+    }
+    if (r.length === 2 && r[0] === 'mistakeSummary' && r[1] === 'presentation') { pr.summary = (Number(to) || 0) - (Number(from) || 0); continue; }
+    if (r.length === 2 && r[0] === 'marksLostByType' && ['presentation', 'unattempted', 'untyped'].includes(r[1])) { pr.lost[r[1]] = (Number(to) || 0) - (Number(from) || 0); continue; }
+    out.push(p.join('.') + ': outside the ' + MTYPE_CLASS + ' rules');
+  }
+  for (const [key, pr] of perResult) {
+    const steps = (isObj(pr.result) && Array.isArray(pr.result.annotatedSteps)) ? pr.result.annotatedSteps : [];
+    let typed = 0;
+    for (const [k, st] of pr.steps) {
+      const step = steps[k] || {};
+      if (String(step.studentWork || '').trim() !== '') out.push(key + ': step ' + k + ' is not blank');
+      if (st.mistakeType === 'presentation') { typed += 1; if (step.status !== 'missing') out.push(key + ': step ' + k + ' typed presentation must be "missing"'); }
+      else if (st.status === 'unattempted') { if (step.mistakeType !== null) out.push(key + ': step ' + k + ' made unattempted must carry no type'); }
+      else out.push(key + ': step ' + k + ' moved without becoming unattempted or exam technique');
+    }
+    if (pr.summary !== typed) out.push(key + ': presentation summary moved ' + pr.summary + ' for ' + typed + ' typed steps');
+    const moves = ['presentation', 'unattempted', 'untyped'].map((b) => pr.lost[b] || 0);
+    if (Math.abs(moves.reduce((a, b) => a + b, 0)) > 1e-9) out.push(key + ': marksLostByType total moved');
+    if ((pr.lost.untyped || 0) > 1e-9 || (pr.lost.presentation || 0) < -1e-9 || (pr.lost.unattempted || 0) < -1e-9) out.push(key + ': only "untyped" may go down');
+  }
+  return out;
+}
+
 /** Rule violations of `classes` (array) for one entry's delta; [] = accepted. */
 function classViolations(classes, delta, toBody) {
   const cls = new Set(classes);
@@ -340,4 +390,4 @@ function classesFor(delta, toBody) {
   return null;
 }
 
-module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations, HABIT_CLASS, habitViolations, KNOWL_CLASS, knowlViolations, BALANCE_CLASS, balanceViolations };
+module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations, HABIT_CLASS, habitViolations, KNOWL_CLASS, knowlViolations, BALANCE_CLASS, balanceViolations, MTYPE_CLASS, mtypeViolations };

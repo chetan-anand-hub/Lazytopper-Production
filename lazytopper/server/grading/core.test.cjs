@@ -502,7 +502,9 @@ test('§D29.1 genuinely UNATTEMPTED work is status "unattempted" (bucket unattem
     R(2, [S({ part: '(i)', marksAwarded: 2, marksAvailable: 2 }), S({ part: '(ii)', studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1 }), S({ part: '(ii)', studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1, mistakeType: 'conceptual' })]),
     // CONTROL (c): a missing CONCLUSION in attempted work, typed presentation — stays "missing" + presentation
     R(3, [S({ marksAwarded: 3, marksAvailable: 3 }), S({ studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1, mistakeType: 'presentation' })], { finalAnswerCorrect: true }),
-    // CONTROL (d): an untyped missing intermediate step inside attempted work stays "missing" (August §13.9)
+    // CONTROL (d): an untyped missing intermediate step inside attempted work stays "missing" (August §13.9) —
+    // and, by OWNER RULING 5 Nov 2026 14:04 (MISSING-TYPE-1), a blank WORKING step between attempted lines before a
+    // right step is exam technique: "missing" + presentation, its mark lost (never given back by the cap)
     R(4, [S({ marksAwarded: 2, marksAvailable: 2 }), S({ studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1 }), S({ marksAwarded: 1, marksAvailable: 1 })], { finalAnswerCorrect: true }),
   );
   const b = (await harness({ replies: [reply] }).sheet(sheet([q4(1), q4(2), q4(3), q4(4)], { acceptsV2: true }))).body;
@@ -514,7 +516,8 @@ test('§D29.1 genuinely UNATTEMPTED work is status "unattempted" (bucket unattem
   assert.deepEqual(concl.annotatedSteps.map((s) => [s.status, s.mistakeType]), [['correct', null], ['missing', 'presentation']], 'CONTROL: exam-technique missing stays missing + presentation');
   assert.deepEqual(concl.marksLostByType, { ...grading.zeroLost(), presentation: 1 });
   assert.deepEqual(mid.annotatedSteps.map((s) => s.status), ['correct', 'missing', 'correct'], 'CONTROL: a missing step inside attempted work is not unattempted');
-  assert.deepEqual(mid.marksLostByType, { ...grading.zeroLost(), untyped: 1 });
+  assert.deepEqual(mid.annotatedSteps[1].mistakeType, 'presentation', 'owner ruling 5 Nov 2026 14:04: working not shown is exam technique');
+  assert.deepEqual([mid.marksAwarded, mid.marksLostByType], [3, { ...grading.zeroLost(), presentation: 1 }], 'the mark is unchanged; the loss leaves "untyped"');
   // legacy: the same fixture maps "unattempted" to "missing", and the blank part loses its invented type
   const lg = (await harness({ replies: [reply] }).sheet(sheet([q4(1), q4(2), q4(3), q4(4)]))).body;
   assert.deepEqual(lg.results[1].annotatedSteps.map((s) => [s.status, s.mistakeType]), [['correct', null], ['missing', null], ['missing', null]]);
@@ -1967,10 +1970,13 @@ test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step
   const omitted = S({ description: 'Omitted line', studentWork: '', status: 'missing', marksAwarded: 0, marksDeducted: 1 });
   const lostWorking = S({ description: 'Lost working', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 });
   const run = async (steps) => (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 3, acceptsV2: true }))).body;
-  // [error][correct][omitted]: a separate loss - NOT consequential
+  // [error][correct][omitted]: a separate loss - NOT consequential. MISSING-TYPE-1 (5 Nov 2026): a BLANK trailing
+  // line with nothing right after it is an asked-for deliverable not written — "unattempted" (as GQ1-WS02-Q24),
+  // never "reason not recorded"; it is still not filed under conceptual (D248 unchanged).
   const a = await run([origin, credited, omitted]);
   assert.equal(a.annotatedSteps[2].consequentialOf, undefined);
-  assert.equal(a.marksLostByType.untyped, 1, 'stays untyped (honest), not filed under conceptual');
+  assert.equal(a.annotatedSteps[2].status, 'unattempted');
+  assert.deepEqual([a.marksLostByType.untyped, a.marksLostByType.unattempted, a.marksLostByType.conceptual], [0, 1, 0.5], 'not attempted, not conceptual, not untyped');
   // CONTROL: [error][omitted] with nothing credited between: consequential
   const b = await run([origin, S({ ...omitted, marksDeducted: 1 })]);
   assert.equal(b.annotatedSteps[1].consequentialOf, 1);
@@ -1979,6 +1985,18 @@ test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step
   const c = await run([origin, credited, lostWorking]);
   assert.equal(c.annotatedSteps[2].consequentialOf, 1);
   assert.equal(c.marksLostByType.untyped, 0);
+});
+
+test('§MT1.1 MISSING-TYPE-1 — OBJECTIVE items are untouched: a wrong pick with no working keeps its honest untyped loss ("Option only"), a blank extra step is never re-labelled; both paths', async () => {
+  const steps = [S({ studentWork: '(b)', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 }), S({ description: 'Reason', studentWork: '', status: 'missing', marksAwarded: 0, marksDeducted: 0 })];
+  const set = (await harness({ replies: [REPLY(R(1, steps))] }).sheet(sheet([LETTER_MCQ({ textAnswer: '(b)' })], { acceptsV2: true }))).body.results[0];
+  const one = (await harness({ replies: [REPLY(R(1, steps))] }).single({ question: 'Which option? (a) Parallel (b) Intersecting (c) Coincident (d) None', marks: 1, subject: 'Maths', topic: TOPIC, objective: true, textAnswer: '(b)', acceptsV2: true })).body;
+  for (const [tag, r] of [['set', set], ['single', one]]) {
+    assert.equal(r.objective, true, tag);
+    assert.ok(!r.annotatedSteps.some((st) => st.status === 'unattempted' || st.mistakeType === 'presentation'), tag + ': no MISSING-TYPE-1 rule touched an objective item');
+    assert.equal(r.marksLostByType.unattempted, 0, tag);
+    assert.equal(r.marksLostByType.presentation, 0, tag);
+  }
 });
 
 /* ══ A17 OWNER RULINGS 1-5 ON EVERY GRADING SURFACE (GRADING-JOBS-1 J0) ══════════════

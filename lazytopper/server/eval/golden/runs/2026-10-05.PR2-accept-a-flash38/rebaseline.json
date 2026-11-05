@@ -4037,6 +4037,111 @@
      ]
     ]
    }
+  },
+  "run1:V2.S.CI.GS-M22-a": {
+   "from": "c0fbfeb1de2f41abcc6952f1d99a1e0a77ca643d740d4d4c3f765dd37d161a8a",
+   "to": "0381a2f4760a2beaf49a00da80e08232b3723d8ff72a1b5ef3fe71979c76c44b",
+   "class": "g-missing-type-1",
+   "mtype": {
+    "base": "c0fbfeb1de2f41abcc6952f1d99a1e0a77ca643d740d4d4c3f765dd37d161a8a",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "status"
+      ],
+      "missing",
+      "unattempted"
+     ],
+     [
+      [
+       "marksLostByType",
+       "unattempted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "marksLostByType",
+       "untyped"
+      ],
+      0.5,
+      0
+     ]
+    ]
+   }
+  },
+  "run2:V2.S.CI.GS-M22-a": {
+   "from": "8538b620308e9e38040584ab0f36b5154ce2c7d63e14e78b59d0f16b8a712cf3",
+   "to": "22833f5222220b5aca4345ed86c176b3289ca1664b53f7d8d6b80b8b36270c2c",
+   "class": "g-missing-type-1",
+   "mtype": {
+    "base": "8538b620308e9e38040584ab0f36b5154ce2c7d63e14e78b59d0f16b8a712cf3",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "status"
+      ],
+      "missing",
+      "unattempted"
+     ],
+     [
+      [
+       "marksLostByType",
+       "unattempted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "marksLostByType",
+       "untyped"
+      ],
+      0.5,
+      0
+     ]
+    ]
+   }
+  },
+  "run3:V2.S.CI.GS-M22-a": {
+   "from": "1defc45727be5f256ac694f7a771409aa809895e4cbda2e1636874dc6653936e",
+   "to": "5482eedde8341fa62ac7e64af2151d8fe3d02e3ed5a0010e7f901961080902c5",
+   "class": "g-missing-type-1",
+   "mtype": {
+    "base": "1defc45727be5f256ac694f7a771409aa809895e4cbda2e1636874dc6653936e",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "status"
+      ],
+      "missing",
+      "unattempted"
+     ],
+     [
+      [
+       "marksLostByType",
+       "unattempted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "marksLostByType",
+       "untyped"
+      ],
+      0.5,
+      0
+     ]
+    ]
+   }
   }
  },
  "a17": {
@@ -4072,5 +4177,11 @@
   "generator": "server/eval/golden/goldenRebaselineBalance.cjs",
   "count": 18,
   "about": "g-balancing-1: an equation with the right species that is not balanced loses exactly 1/2 per equation, typed presentation (skeletal) or calculation (coefficients written), read from the page; marks only given back to the cap (lib/rebaselineClasses.cjs balanceViolations)."
+ },
+ "mtype": {
+  "pr": "MISSING-TYPE-1 (owner ruling 2026-11-05 14:04)",
+  "generator": "server/eval/golden/goldenRebaselineMissingType.cjs",
+  "count": 3,
+  "about": "g-missing-type-1: a BLANK step that lost marks with no type is settled — an asked-for deliverable becomes unattempted (untyped), a working step before a right step becomes missing + presentation — and its marks leave \"untyped\". No mark, note or annotation changes (lib/rebaselineClasses.cjs mtypeViolations)."
  }
 }

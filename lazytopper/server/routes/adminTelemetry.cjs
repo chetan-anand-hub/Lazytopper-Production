@@ -575,6 +575,19 @@ function createAdminTelemetryRoutes(deps) {
         note: 'Objective questions graded with no stated final-answer verdict, by key source. '
           + 'Cumulative for this server process.',
       },
+      // MISSING-TYPE-1: subjective steps that lost marks with no type from the grader, by how the server
+      // settled them (grading/postprocess.cjs settleUntypedLosses). keptUntyped = still shown to the
+      // student as "Marks lost, reason not recorded"; subjectiveQuestions = answers still carrying any.
+      untypedLoss: {
+        workingNotShown: Number(counters['grading.untyped_loss.working_not_shown']) || 0,
+        blankToUnattempted: Number(counters['grading.untyped_loss.blank_to_unattempted']) || 0,
+        blankToExamTechnique: Number(counters['grading.untyped_loss.blank_to_exam_technique']) || 0,
+        keptUntyped: Number(counters['grading.untyped_loss.kept_untyped']) || 0,
+        subjectiveQuestions: Number(counters['grading.untyped_loss.subjective_questions']) || 0,
+        note: 'Subjective grading steps with a lost mark the grader did not type, by how the server settled '
+          + 'them (steps; subjectiveQuestions counts answers still showing "reason not recorded"). '
+          + 'Cumulative for this server process.',
+      },
       byCallClass,
       totals: sumRows(byCallClass),
       // ── The workload axis (TELEMETRY-1) ──────────────────────────────────
