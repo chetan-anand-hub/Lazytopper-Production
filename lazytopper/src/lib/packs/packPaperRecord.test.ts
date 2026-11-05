@@ -41,12 +41,19 @@ describe("packPaperCode", () => {
     for (const slug of PACK_CHAPTER_SLUGS) {
       for (const kind of ["ct1", "ct2", "ws"] as const) {
         const c = packPaperCode({ kind, chapter: slug });
-        expect(c).toMatch(/^PK-[MS]-[A-Z0-9]+-(CT1|CT2|WS)$/);
+        expect(c).toMatch(/^PK-[MS]-[A-Z0-9]+-(CT1|CT2|WS)(-V2)?$/);
         codes.add(c);
       }
     }
     expect(codes.size).toBe(PACK_CHAPTER_SLUGS.length * 3);
     expect(packPaperCode({ kind: "mock", subject: "science", n: 3 })).toBe("PK-S-FULL-M3");
+  });
+
+  it("only the three corrected graded papers carry a -V2 suffix", () => {
+    const v2: string[] = [];
+    for (const slug of PACK_CHAPTER_SLUGS) for (const kind of ["ct1", "ct2", "ws"] as const) if (packPaperCode({ kind, chapter: slug }).endsWith("-V2")) v2.push(packPaperCode({ kind, chapter: slug }));
+    for (const subject of ["maths", "science"] as const) for (let n = 1; n <= 8; n += 1) if (packPaperCode({ kind: "mock", subject, n }).endsWith("-V2")) v2.push(packPaperCode({ kind: "mock", subject, n }));
+    expect(v2.sort()).toEqual(["PK-M-PO-WS-V2", "PK-S-FULL-M5-V2", "PK-S-MEOE-WS-V2"]);
   });
 });
 
@@ -151,5 +158,36 @@ describe("pack papers join the existing download -> pending -> upload path", () 
     await ct.build();
     expect(ex2).toHaveBeenCalledTimes(1);
     expect(loadLocalSessionRecords("u1")).toHaveLength(0);
+  });
+
+  // PACK-SYLLABUS-1 (owner ruling 5 Nov 2026): the three corrected graded papers print `<old code>-V2`. A student holding the OLD
+  // PDF keeps grading against the copy saved under the OLD code; a re-download of the corrected paper files a separate record.
+  it.each([
+    ["pack_chapter:polynomials", "Worksheet · Questions", "PK-M-PO-WS", "worksheet"],
+    ["pack_chapter:magnetic-effects-of-electric-current", "Worksheet · Questions", "PK-S-MEOE-WS", "worksheet"],
+    ["pack_mock:science", "Mock 5 · Questions", "PK-S-FULL-M5", "full-mock"],
+  ] as const)("%s %s: the corrected paper files under %s-V2 and leaves the old-code record alone", async (packId, label, oldCode, surface) => {
+    const pack = owned(packId);
+    const { ctx, exportPdf } = mk(pack);
+    const f = (await buildPackFiles(ref(pack), ctx)).find((x) => x.label === label)!;
+    expect(f.code).toBe(`${oldCode}-V2`);
+    await f.build();
+    expect(exportPdf.mock.calls[0][2]).toBe(`${oldCode}-V2`);
+    // The student's existing paper under the OLD code, already graded (modelled on the record just filed).
+    const filed = loadLocalSessionRecords("u1").find((r) => r.id === `${oldCode}-V2`)!;
+    writeSessionRecord(user, { ...filed, id: oldCode, status: "graded", marksAwarded: 11, marksTotal: 20, questionIds: ["OLD-1", "OLD-2"] } as SessionRecord);
+    await f.build(); // a re-download of the corrected paper
+    const recs = loadLocalSessionRecords("u1");
+    const old = recs.find((r) => r.id === oldCode)!;
+    expect(old.status).toBe("graded");
+    expect(old.marksAwarded).toBe(11);
+    expect(old.questionIds).toEqual(["OLD-1", "OLD-2"]);
+    const fresh = recs.find((r) => r.id === `${oldCode}-V2`)!;
+    expect(fresh.status).toBe("pending-upload");
+    expect(fresh.surface).toBe(surface);
+    const row = pendingFromSessionRecords(recs).find((p) => p.code === `${oldCode}-V2`)!;
+    expect(row).toBeTruthy();
+    expect(row.code.startsWith("PK-")).toBe(true);
+    expect(row.href).toContain(`${oldCode}-V2`);
   });
 });

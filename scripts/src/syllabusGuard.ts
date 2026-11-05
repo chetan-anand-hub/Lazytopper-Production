@@ -212,6 +212,15 @@ const RULES: BannedSubtopicRule[] = [
   },
 ];
 
+/**
+ * The question-bank banned sub-topics of one subject, read from the SAME `RULES` the bank scan uses (PACK-SYLLABUS-1: the pack
+ * guard test compares each pack question's sub-topic to this list, so there is one list, not a copy). Exact full-string match
+ * through `foldForCompare`, exactly as `scanFile` does.
+ */
+export function bannedSubtopicsFor(subject: "Maths" | "Science"): readonly string[] {
+  return RULES.find((r) => r.subject === subject)?.bannedSubtopics ?? [];
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // BOARD-PREP SURFACE scan (PART C)
 //
