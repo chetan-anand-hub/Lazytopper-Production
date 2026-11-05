@@ -231,18 +231,23 @@ function balanceViolations(delta, toBody, fromBody) {
     out.push(p.join('.') + ': outside the ' + BALANCE_CLASS + ' rules');
   }
   let questionMoves = 0;
+  const rkey = (e) => [...e.left].sort().join('+') + '>' + [...e.right].sort().join('+');
   for (const [key, pr] of perResult) {
     const steps = isObj(pr.result) && Array.isArray(pr.result.annotatedSteps) ? pr.result.annotatedSteps : [];
     const typeMoves = {};
     let stepMarks = 0;
+    // the page's verdict over the WHOLE answer: a reaction balanced anywhere is balanced work (review repro 1)
+    const stepEqs = steps.map((st) => (st && st.status !== 'withdrawn' ? readEquations(st.studentWork) : []));
+    const balancedKeys = new Set(stepEqs.flat().filter((e) => e.balanced).map(rkey));
+    const attemptedKeys = new Set(stepEqs.flat().filter((e) => e.coefficientsWritten).map(rkey));
     for (const [k, ch] of pr.steps) {
       const step = steps[k] || {};
       // the equation, read from the PAGE: this step's work, else the nearest earlier step that holds one
-      let eqs = readEquations(step.studentWork);
-      for (let j = k - 1; eqs.length === 0 && j >= 0; j -= 1) eqs = readEquations((steps[j] || {}).studentWork);
-      const unbalanced = eqs.filter((e) => !e.balanced);
-      if (unbalanced.length === 0) { out.push(key + ': step ' + k + ' holds no unbalanced equation the reader can read'); continue; }
-      const want = unbalanced.some((e) => e.coefficientsWritten) ? 'calculation' : 'presentation';
+      let eqs = stepEqs[k] || [];
+      for (let j = k - 1; eqs.length === 0 && j >= 0; j -= 1) eqs = stepEqs[j] || [];
+      const unbalanced = eqs.filter((e) => !e.balanced && !balancedKeys.has(rkey(e)));
+      if (unbalanced.length === 0 || unbalanced.length !== eqs.length) { out.push(key + ': step ' + k + ' holds no unbalanced equation the reader can read'); continue; }
+      const want = unbalanced.some((e) => attemptedKeys.has(rkey(e))) ? 'calculation' : 'presentation';
       if (step.mistakeType !== want) out.push(key + ': step ' + k + ' ends ' + step.mistakeType + ' but the page says ' + want);
       if (ch.mistakeType) {
         typeMoves[ch.mistakeType[1]] = (typeMoves[ch.mistakeType[1]] || 0) + 1;
@@ -252,7 +257,10 @@ function balanceViolations(delta, toBody, fromBody) {
         const up = ch.marksAwarded ? Number(ch.marksAwarded[1]) - Number(ch.marksAwarded[0]) : 0;
         if (!(up > 0)) out.push(key + ': step ' + k + ' changed its ledger without gaining marks');
         if (!String(step.teacherAnnotation || '').endsWith(R.BALANCING_CAP_ANNOTATION)) out.push(key + ': step ' + k + ' gained marks without the fixed cap sentence');
-        if (Math.abs(Number(step.marksDeducted) - 0.5 * Math.max(1, readEquations(step.studentWork).filter((e) => !e.balanced).length)) > 1e-9) out.push(key + ': step ' + k + ' does not end at ½ per unbalanced equation');
+        // ½ per REACTION across every step that holds it (review repro 2: never ½ per step)
+        const mine = new Set(unbalanced.map(rkey));
+        const reactionLost = steps.reduce((a, st, j) => a + ((stepEqs[j] || []).some((e) => mine.has(rkey(e))) || j === k ? (Number(st.marksDeducted) || 0) : 0), 0);
+        if (Math.abs(reactionLost - 0.5 * mine.size) > 1e-9) out.push(key + ': step ' + k + ' does not end at ½ per reaction (' + reactionLost + ' across its steps)');
         if (ch.status && !(ch.status[0] === 'incorrect' && ch.status[1] === 'partial')) out.push(key + ': step ' + k + ' status may only go incorrect → partial');
         stepMarks += up;
       }

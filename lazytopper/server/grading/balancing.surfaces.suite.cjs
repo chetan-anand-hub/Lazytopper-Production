@@ -32,14 +32,19 @@ const FIX = require('../eval/golden/fixtures/grader-balance-1.balancing.json');
 
 const CASES = Object.fromEntries(FIX.cases.map((c) => [c.id, c]));
 const clone = (x) => JSON.parse(JSON.stringify(x));
-const withQ = (marks, text) => (view, req) => {
+// a SCIENCE question (the guard is Science only): the request's subject on a one-question surface, the
+// question's own subject on a paper (core.cjs normCtx subjectHint)
+const withQ = (marks, text, subject = 'Science') => (view, req) => {
   view.marks = marks;
   view.questionText = text;
+  if (req.questions) view.subject = subject; else req.subject = subject;
+  // a Science PAPER: every question Science, so the chunk planner keeps them in ONE model reply (siblings)
+  if (req.questions && subject === 'Science-paper') { view.subject = 'Science'; for (const q of req.questions) q.subject = 'Science'; }
   if (req.questions) { if ('finalAnswer' in view) view.finalAnswer = null; } else if ('finalAnswer' in req) req.finalAnswer = null;
 };
 const typesOf = (out) => out.annotatedSteps.map((st) => [st.status, st.marksAwarded, st.mistakeType]);
-const run = (s, c, { steps, acceptsV2 = true, otherSteps } = {}) => drive(s, {
-  mutateTarget: withQ(c.marks, c.question), targetSteps: () => clone(steps || c.modelReply), acceptsV2, otherSteps,
+const run = (s, c, { steps, acceptsV2 = true, otherSteps, subject } = {}) => drive(s, {
+  mutateTarget: withQ(c.marks, c.question, subject), targetSteps: () => clone(steps || c.modelReply), acceptsV2, otherSteps,
 });
 const MULTI = new Set(['ci-multi', 'quick-practice-batch', 'chapter-test', 'full-mock', 'worksheets', 'free-check-paper']);
 
@@ -114,103 +119,155 @@ for (const s of SURFACES) {
     }
   });
 
-  test('GRADER-BALANCE-1 evidence — ' + s.id + ': a failed attempt in ANOTHER QUESTION of the same paper proves inability (paper surfaces); a one-question request has no other question', async () => {
+  test('GRADER-BALANCE-1 evidence — ' + s.id + ': a failed attempt at a DIFFERENT reaction in ANOTHER QUESTION of the same paper proves inability (paper surfaces); a one-question request has no other question', async () => {
     const c = CASES['GB1-SKELETAL'];
     const steps = clone(c.modelReply);
-    steps[1].balancingEvidence = '2Al + 2H₂O → Al₂O₃ + 2H₂';
-    const other = (marks) => [{ description: 'Balanced equation', studentWork: '2Al + 2H₂O → Al₂O₃ + 2H₂', status: 'incorrect', marksAvailable: marks, marksAwarded: 0, marksDeducted: marks,
-      teacherAnnotation: '× Oxygen and hydrogen do not balance.', mistakeType: 'calculation', equationFault: 'wrong-coefficients' }];
-    const r = await run(s, c, { steps, otherSteps: other });
-    const want = MULTI.has(s.id) ? 'conceptual' : 'presentation';
-    assert.deepEqual(typesOf(r.result)[1], ['partial', 0.5, want], s.id);
-    // CONTROL: the other question balanced it correctly → evidence of ability, never of inability
-    const good = (marks) => [{ description: 'Balanced equation', studentWork: '2Al + 3H₂O → Al₂O₃ + 3H₂', status: 'correct', marksAvailable: marks, marksAwarded: marks, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null }];
-    const steps2 = clone(c.modelReply); steps2[1].balancingEvidence = '2Al + 3H₂O → Al₂O₃ + 3H₂';
-    const r2 = await run(s, c, { steps: steps2, otherSteps: good });
-    assert.deepEqual(typesOf(r2.result)[1], ['partial', 0.5, 'presentation'], s.id + ': CONTROL');
+    steps[1].balancingEvidence = '2Mg + 2O₂ → 2MgO';
+    const other = (marks) => [{ description: 'Balanced equation', studentWork: '2Mg + 2O₂ → 2MgO', status: 'incorrect', marksAvailable: marks, marksAwarded: 0, marksDeducted: marks,
+      teacherAnnotation: '× Oxygen does not balance.', mistakeType: 'calculation' }];
+    const r = await run(s, c, { steps, otherSteps: other, subject: 'Science-paper' });
+    assert.deepEqual(typesOf(r.result)[1], ['partial', 0.5, MULTI.has(s.id) ? 'conceptual' : 'presentation'], s.id);
+    // CONTROLS: the other question's attempt is at the SAME reaction; or the other question balanced it correctly
+    for (const [why, work] of [['same reaction', '2Al + 2H₂O → Al₂O₃ + 2H₂'], ['balanced', '2Mg + O₂ → 2MgO']]) {
+      const st2 = clone(c.modelReply); st2[1].balancingEvidence = work;
+      const r2 = await run(s, c, { steps: st2, subject: 'Science-paper', otherSteps: (marks) => [{ ...other(marks)[0], studentWork: work, equationFault: 'wrong-coefficients' }] });
+      assert.deepEqual(typesOf(r2.result)[1], ['partial', 0.5, 'presentation'], s.id + ': CONTROL ' + why);
+    }
   });
 
   test('GRADER-BALANCE-1 prompt — ' + s.id + ': the ruling reaches THIS surface\'s prompt, and the superseded S4a / mark-size rules do not', async () => {
     const r = await run(s, CASES['GB1-SKELETAL']);
     const p = r.calls[0].prompt;
     assert.ok(p.includes('(3) CORRECT SPECIES LEFT SKELETAL — NO coefficients attempted'), s.id);
-    assert.ok(p.includes('loses EXACTLY ½, ONCE PER EQUATION, and never more for balancing alone'), s.id);
+    assert.ok(p.includes('loses EXACTLY ½, ONCE PER REACTION in the whole answer'), s.id);
+    assert.ok(p.includes('This ½ is NOT part of the exam-technique cap'), s.id + ': outside the cap');
     assert.ok(p.includes('"' + R.BALANCING_EVIDENCE_FIELD + '"') && p.includes('"' + R.EQUATION_FAULT_FIELD + '"'), s.id + ': the two fields are named');
     assert.ok(!p.includes('MARK-SIZE SANITY CHECK') && !p.includes('S4a. UNBALANCED when the question ASKED'), s.id + ': superseded');
   });
 }
 
-// ── §GB unit level: the reader, and the guard on the shapes the STORED golden replies show ─────────────────
+// ── §GB unit level: the reader, the guard on the STORED reply shapes, and every strict-review repro (#1584) ───
 const { readEquation } = require('./chemEquation.cjs');
 const { normaliseQuestionResult, applyBalancingRuling } = require('./postprocess.cjs');
-const Q = (text, marks) => ({ qNumber: 1, marks, questionText: text, subject: 'Science' });
+const Q = (text, marks, subject = 'Science') => ({ qNumber: 1, marks, questionText: text, subject });
 const grade = (q, steps, ctx = {}) => normaliseQuestionResult(q, { annotatedSteps: clone(steps), finalAnswerCorrect: true, teacherNote: 'N.', addressesQuestion: 'yes' }, { acceptsV2: true, ...ctx });
 const S = (o) => ({ description: 'Equation', status: 'incorrect', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual', teacherAnnotation: '×', ...o });
+const OK = (o) => ({ description: 'Species', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', ...o });
+const AL = 'Translate into a balanced chemical equation: aluminium reacts with steam to give aluminium oxide and hydrogen.';
 
-test('§GB.1 the reader counts atoms as written: balanced, coefficients written, or not an equation (null) — and never reads a maths line', () => {
+test('§GB.1 the reader counts atoms as written: balanced, coefficients written, or NO VERDICT (null) — never a maths line, an ionic equation or "H20"', () => {
   const r = (t) => { const e = readEquation(t); return e && [e.balanced, e.coefficientsWritten]; };
   assert.deepEqual(r('(i) BaCl₂ + Al₂(SO₄)₃ → BaSO₄ + AlCl₃'), [false, false], 'skeletal');
   assert.deepEqual(r('(i) 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃'), [true, true]);
   assert.deepEqual(r('(ii) 2Al + 3H₂O → Al₂O₃ + 2H₂'), [false, true], 'miscounted');
   assert.deepEqual(r('H2 + O2 → H2O2'), [true, false], 'a changed subscript BALANCES — only the model can see the species are wrong');
   assert.deepEqual(r('(b) 6CO₂ + 12H₂O ⎯⎯(sunlight, chlorophyll)⎯⎯→ C₆H₁₂O₆ + 6O₂ + 6H₂O'), [true, true], 'a condition on the arrow');
-  assert.deepEqual(r('Decomposition: CaCO₃ → CaO + CO₂ on heating (calcium carbonate → calcium oxide + carbon dioxide)'), [true, false], 'a label before, a remark after');
-  assert.deepEqual(r('2NaHCO₃ → Na₂CO₃ + H₂O + CO₂ (on heating)'), [true, true]);
+  assert.deepEqual(r('Decomposition: CaCO₃ → CaO + CO₂ on heating (calcium carbonate → calcium oxide + carbon dioxide)'), [true, false]);
   assert.deepEqual(r('CuSO4·5H2O → CuSO4 + 5H2O'), [true, true], 'water of crystallisation');
   assert.deepEqual(r('2Pb(NO3)2 → 2PbO + 4NO2 + O2 ↑'), [true, true]);
-  for (const t of ['x = 5', 'AB + CD = BC + DA', 'BC = DA', '(balanced)', 'Stomata are pores', 'Step 1: CH3CH2OH --conc. H2SO4, 170 °C--> CH2=CH2 + H2O']) assert.equal(readEquation(t), null, t);
+  for (const t of ['x = 5', '2x = 11 + 3', 'x² − 5x + 6 = 0', 'AB + CD = BC + DA', '(balanced)', 'Fe3+ + OH- → Fe(OH)3', '2H2 + O2 → 2H20', 'Na + H20 → NaOH + H2',
+    'Step 1: CH3CH2OH --conc. H2SO4, 170 °C--> CH2=CH2 + H2O']) assert.equal(readEquation(t), null, t);
 });
 
-test('§GB.2 the stored OA2-Q15 shapes: one step, or a "(balanced)" step split from its species step — ½ lost, presentation, either way', () => {
+test('§GB.2 the stored OA2-Q15 shapes: one equation-only step → ½, presentation; a split "(balanced)" step acts ONLY when TAGGED (comment text never triggers)', () => {
   const q = Q('Write the balanced chemical equation for the reaction of sodium with water and name the type of reaction.', 2);
-  const one = grade(q, [S({ studentWork: 'Na + H2O → NaOH + H2 (balanced)', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½ Correct reactants and products, but the equation is unbalanced' }),
-    { description: 'Type', studentWork: 'It is a displacement reaction.', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓' }]);
+  const type = { description: 'Type', studentWork: 'It is a displacement reaction.', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓' };
+  const one = grade(q, [S({ studentWork: 'Na + H2O → NaOH + H2 (balanced)', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½ Correct reactants and products, but the equation is unbalanced' }), type]);
   assert.deepEqual(typesOf(one), [['partial', 0.5, 'presentation'], ['correct', 1, null]]);
-  const split = grade(q, [{ description: 'Species', studentWork: 'Na + H2O → NaOH + H2', status: 'correct', marksAvailable: 0.5, marksAwarded: 0.5, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓ Correct species written' },
-    S({ description: 'Balancing the chemical equation', studentWork: '(balanced)', marksAvailable: 0.5, marksDeducted: 0.5, teacherAnnotation: '× Equation is not balanced (LHS has 2 H atoms, RHS has 3 H atoms)' }),
-    { description: 'Type', studentWork: 'It is a displacement reaction.', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓' }]);
-  assert.deepEqual(typesOf(split), [['correct', 0.5, null], ['incorrect', 0, 'presentation'], ['correct', 1, null]], 'the equation is read from the step before');
+  const split = (tag) => grade(q, [OK({ studentWork: 'Na + H2O → NaOH + H2', marksAvailable: 0.5, marksAwarded: 0.5 }),
+    S({ description: 'Balancing', studentWork: '(balanced)', marksAvailable: 0.5, marksDeducted: 0.5, teacherAnnotation: '× Equation is not balanced', ...(tag ? { equationFault: 'not-balanced' } : {}) }), type]);
+  assert.deepEqual(typesOf(split(false)), [['correct', 0.5, null], ['incorrect', 0, 'conceptual'], ['correct', 1, null]], 'untagged: the model\'s grade stands');
+  assert.deepEqual(typesOf(split(true)), [['correct', 0.5, null], ['incorrect', 0, 'presentation'], ['correct', 1, null]], 'tagged: read from the step before');
 });
 
-test('§GB.3 the stored OA2-Q17 shapes: a WRONG FORMULA (ZnCl) blocks the balancing guard — in the same step, or in a separate formula step of the same equation', () => {
+test('§GB.3 OA2-Q17: a WRONG FORMULA (ZnCl) blocks the guard — in the same step, or in a separate formula step of the same reaction', () => {
   const q = Q('Write the balanced chemical equation for the reaction of zinc with dilute hydrochloric acid.', 2);
   for (const ann of ['× Zinc chloride formula is ZnCl₂ and the reaction is not balanced', '× Incorrect formula ZnCl (zinc chloride is ZnCl₂, not ZnCl) and equation is not balanced.']) {
-    const r = grade(q, [S({ studentWork: 'Zn + HCl → ZnCl + H2', marksAvailable: 2, marksDeducted: 2, teacherAnnotation: ann })]);
-    assert.deepEqual(typesOf(r), [['incorrect', 0, 'conceptual']], ann);
+    assert.deepEqual(typesOf(grade(q, [S({ studentWork: 'Zn + HCl → ZnCl + H2', marksAvailable: 2, marksDeducted: 2, teacherAnnotation: ann })])), [['incorrect', 0, 'conceptual']], ann);
   }
   const split = grade(q, [S({ description: 'Formulae', studentWork: 'Zn + HCl → ZnCl + H2', teacherAnnotation: '× Zinc chloride has the chemical formula ZnCl₂, not ZnCl.' }),
-    S({ description: 'Balancing the chemical equation', studentWork: 'Zn + HCl → ZnCl + H2', teacherAnnotation: '× Equation left unbalanced (1 H on LHS vs 2 H on RHS).' })]);
-  assert.deepEqual(typesOf(split), [['incorrect', 0, 'conceptual'], ['incorrect', 0, 'conceptual']], 'no ½ given back on an equation whose species are wrong');
-  // CONTROL: the same split with the formula step CORRECT is a balancing fault — ½, presentation
-  const ok = grade(q, [{ description: 'Formulae', studentWork: 'Zn + HCl → ZnCl2 + H2', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓' },
-    S({ description: 'Balancing the chemical equation', studentWork: 'Zn + HCl → ZnCl2 + H2', teacherAnnotation: '× Equation left unbalanced.' })]);
-  assert.deepEqual(typesOf(ok), [['correct', 1, null], ['partial', 0.5, 'presentation']]);
+    S({ description: 'Balancing', studentWork: 'Zn + HCl → ZnCl + H2', teacherAnnotation: '× Equation left unbalanced.', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(split), [['incorrect', 0, 'conceptual'], ['incorrect', 0, 'conceptual']]);
 });
 
-test('§GB.4 a question that PRINTS the skeletal equation ("Balance: …") keeps its scheme mark: balancing is the whole task, so no ½ cap; copied back unbalanced it is not case (3) at all', () => {
-  const printed = grade(Q('Balance the following chemical equation: Fe + H₂O → Fe₃O₄ + H₂', 1), [S({ studentWork: 'Fe + H2O → Fe3O4 + H2', teacherAnnotation: '× Not balanced.', equationFault: 'not-balanced' })]);
-  assert.deepEqual(typesOf(printed), [['incorrect', 0, 'conceptual']], 'no ½ for copying the question, and no exam-technique type (the cap would hand ½ back): the model\'s grade stands');
-  const tried = grade(Q('Balance the following chemical equation: Fe + H₂O → Fe₃O₄ + H₂', 1), [S({ studentWork: 'Fe + 2H2O → Fe3O4 + 2H2', teacherAnnotation: '× Not balanced.', equationFault: 'not-balanced' })]);
-  assert.deepEqual(typesOf(tried), [['incorrect', 0, 'calculation']]);
-  // CONTROL: the question names the reaction in words — the ½ cap applies
-  const words = grade(Q('Write the balanced chemical equation for the reaction of iron with steam.', 1), [S({ studentWork: 'Fe + H2O → Fe3O4 + H2', teacherAnnotation: '× Not balanced.', equationFault: 'not-balanced' })]);
-  assert.deepEqual(typesOf(words), [['partial', 0.5, 'presentation']]);
+test('§GB.4 a question that PRINTS the skeletal equation: the scheme mark stands (no cap); copied back unbalanced → UNATTEMPTED (coordinator ruling 3); wrong coefficients → calculation', () => {
+  const q = Q('Balance the following chemical equation: Fe + H₂O → Fe₃O₄ + H₂', 1);
+  const copied = grade(q, [S({ studentWork: 'Fe + H2O → Fe3O4 + H2', teacherAnnotation: '× Not balanced.', equationFault: 'not-balanced' })]);
+  assert.deepEqual(copied.annotatedSteps.map((st) => [st.status, st.marksAwarded, st.mistakeType]), [['unattempted', 0, null]]);
+  assert.equal(copied.marksLostByType.unattempted, 1);
+  const tried = grade(q, [S({ studentWork: 'Fe + 2H2O → Fe3O4 + 2H2', teacherAnnotation: '× Not balanced.', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(tried), [['incorrect', 0, 'calculation']], 'no ½ given back');
+  const words = grade(Q('Write the balanced chemical equation for the reaction of iron with steam.', 1), [S({ studentWork: 'Fe + H2O → Fe3O4 + H2', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(words), [['partial', 0.5, 'presentation']], 'CONTROL: named in words → the ½ cap');
 });
 
-test('§GB.5 the exam-technique cap (owner ruling B, 1 mark per answer) still bounds balancing typed presentation: three skeletal equations cost 1, not 1½ — OWNER QUESTION recorded in the PR', () => {
+test('§GB.5 balancing is OUTSIDE the exam-technique cap (coordinator ruling 1): three skeletal reactions cost 1½; a unit ½ beside them still counts on its own', () => {
   const q = Q('Write balanced chemical equations for the three reactions described above.', 3);
-  const r = grade(q, ['Na + H2O → NaOH + H2', 'Mg + O2 → MgO', 'Al + O2 → Al2O3'].map((w) => S({ studentWork: w, teacherAnnotation: '× Not balanced.', equationFault: 'not-balanced' })));
-  assert.equal(r.marksAwarded, 2, 'BAL-1 alone would give 1.5; ruling B caps exam technique at 1');
-  assert.equal(r.marksLostByType.presentation, 1);
+  const r = grade(q, ['Na + H2O → NaOH + H2', 'Mg + O2 → MgO', 'Al + O2 → Al2O3'].map((w) => S({ studentWork: w, equationFault: 'not-balanced' })));
+  assert.equal(r.marksAwarded, 1.5);
+  assert.equal(r.marksLostByType.presentation, 1.5);
 });
 
-test('§GB.6 applyBalancingRuling never touches: a step that lost nothing and was not flagged, a withdrawn or unattempted step, a correct balanced equation', () => {
+test('§GB.6 REPRO 1 — a skeletal line followed by its BALANCED version (same step or next step) is working: nothing is charged or retyped', () => {
+  const q = Q(AL, 2);
+  const two = grade(q, [OK({ studentWork: 'Al + H₂O → Al₂O₃ + H₂', teacherAnnotation: '✓ Skeletal equation, unbalanced at this stage.' }),
+    OK({ description: 'Balanced', studentWork: '2Al + 3H₂O → Al₂O₃ + 3H₂', equationFault: 'not-balanced' })]);
+  assert.equal(two.marksAwarded, 2);
+  const one = grade(q, [OK({ studentWork: 'Al + H₂O → Al₂O₃ + H₂\n2Al + 3H₂O → Al₂O₃ + 3H₂', marksAvailable: 2, marksAwarded: 2, equationFault: 'not-balanced' })]);
+  assert.equal(one.marksAwarded, 2);
+});
+
+test('§GB.7 REPRO 2 — ½ per REACTION across steps: a species step + a balancing step, or a skeletal line + a wrong attempt, of the SAME reaction lose ½ in all', () => {
+  const q = Q(AL, 2);
+  const split = grade(q, [S({ description: 'Species', studentWork: 'Al + H₂O → Al₂O₃ + H₂', equationFault: 'not-balanced', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓ Correct species; not balanced.' }),
+    S({ description: 'Balancing', studentWork: 'Al + H₂O → Al₂O₃ + H₂', equationFault: 'not-balanced', marksDeducted: 1 })]);
+  assert.equal(split.marksAwarded, 1.5, 'not 1, not ½');
+  const tries = grade(q, [S({ description: 'Skeletal', studentWork: 'Al + H₂O → Al₂O₃ + H₂', equationFault: 'not-balanced' }),
+    S({ description: 'Attempt', studentWork: '2Al + 3H₂O → Al₂O₃ + 2H₂', equationFault: 'wrong-coefficients' })]);
+  assert.equal(tries.marksAwarded, 1.5, 'one reaction, ½');
+  assert.deepEqual(tries.annotatedSteps.map((st) => st.mistakeType).filter(Boolean), ['calculation'], 'coefficients were attempted: calculation');
+});
+
+test('§GB.8 REPRO 3 — Maths, and equations the reader gives NO verdict on, are never touched — tag or no tag', () => {
+  const maths = grade(Q('Solve 2x − 3 = 11.', 1, 'Maths'), [S({ studentWork: '2x = 11 + 3', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(maths), [['incorrect', 0, 'conceptual']]);
+  const quad = grade(Q('Find the roots of x² − 5x + 6 = 0.', 2, 'Maths'), [S({ studentWork: 'x² − 5x + 6 = 0', marksAvailable: 2, marksDeducted: 2, equationFault: 'wrong-coefficients' })]);
+  assert.equal(quad.marksAwarded, 0);
+  const ionic = grade(Q('Write the ionic equation for the precipitation of iron(III) hydroxide.', 1), [S({ studentWork: 'Fe3+ + OH- → Fe(OH)3', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(ionic), [['incorrect', 0, 'conceptual']], 'no verdict: no give-back, no retype');
+  const sciNoSubject = grade({ qNumber: 1, marks: 1, questionText: AL }, [S({ studentWork: 'Al + H₂O → Al₂O₃ + H₂', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(sciNoSubject), [['incorrect', 0, 'conceptual']], 'subject unknown: not Science, nothing moves');
+});
+
+test('§GB.9 REPRO 4 — comment text never triggers: "✓ Balanced; no atom miscounted" with "H20" (digit zero) loses nothing', () => {
+  const r = grade(Q('Write the balanced equation for the formation of water.', 2), [OK({ studentWork: '2H2 + O2 → 2H20', marksAvailable: 2, marksAwarded: 2, teacherAnnotation: '✓ Balanced; no atom miscounted.' })]);
+  assert.equal(r.marksAwarded, 2);
+  const unb = grade(Q('Write the balanced equation for the formation of water.', 2), [OK({ studentWork: 'H2 + O2 → H2O', marksAvailable: 2, marksAwarded: 2, teacherAnnotation: '✓ Correct; the equation is unbalanced.' })]);
+  assert.equal(unb.marksAwarded, 2, 'an untagged comment saying "unbalanced" takes nothing (decision 4: a charge needs the model\'s TAG)');
+});
+
+test('§GB.10 REPRO 5 — evidence must be a DIFFERENT reaction the reader confirms as a failed attempt; the same reaction, or a tag on a balanced line, is not', () => {
+  const q = Q('(i) Write the balanced equation for magnesium burning in air. (ii) Write the balanced equation for aluminium with steam.', 3);
+  const base = (ev, first) => [first, OK({ part: '(ii)', studentWork: 'Al + H₂O → Al₂O₃ + H₂' }), S({ part: '(ii)', description: 'Balancing', studentWork: 'Al + H₂O → Al₂O₃ + H₂', equationFault: 'not-balanced', balancingEvidence: ev })];
+  const failedMg = S({ part: '(i)', studentWork: '2Mg + 2O₂ → 2MgO', equationFault: 'wrong-coefficients' });
+  assert.equal(grade(q, base('2Mg + 2O₂ → 2MgO', failedMg)).annotatedSteps[2].mistakeType, 'conceptual', 'a different reaction, confirmed failed: conceptual');
+  const sameReaction = [OK({ part: '(i)', studentWork: '2Mg + O₂ → 2MgO' }), OK({ part: '(ii)', studentWork: 'Al + H₂O → Al₂O₃ + H₂' }),
+    S({ part: '(ii)', description: 'Balancing', studentWork: '2Al + 3H₂O → Al₂O₃ + 2H₂', equationFault: 'wrong-coefficients', balancingEvidence: '2Al + 3H₂O → Al₂O₃ + 2H₂' })];
+  assert.deepEqual(grade(q, sameReaction).annotatedSteps.map((st) => st.mistakeType).filter(Boolean), ['calculation'], 'its own wrong attempt at the SAME reaction: calculation, never conceptual on top');
+  const taggedButBalanced = S({ part: '(i)', studentWork: '2Mg + O₂ → 2MgO', equationFault: 'wrong-coefficients' });
+  assert.equal(grade(q, base('2Mg + O₂ → 2MgO', taggedButBalanced)).annotatedSteps[2].mistakeType, 'presentation', 'the model\'s tag on a line the page shows balanced is not evidence');
+  const laterFixed = S({ part: '(i)', studentWork: '2Mg + 2O₂ → 2MgO\n2Mg + O₂ → 2MgO', equationFault: 'wrong-coefficients' });
+  assert.equal(grade(q, base('2Mg + 2O₂ → 2MgO', laterFixed)).annotatedSteps[2].mistakeType, 'presentation', 'an attempt the student then balanced is working, not inability');
+});
+
+test('§GB.11 applyBalancingRuling never touches a step that lost nothing and is untagged, a withdrawn or unattempted step, or a correct balanced equation', () => {
   const st = [
     { part: null, description: 'E', studentWork: '2H2 + O2 → 2H2O', status: 'correct', marksAwarded: 1, marksDeducted: 0, _available: 1, teacherAnnotation: '✓ Balanced.', mistakeType: null },
     { part: null, description: 'W', studentWork: 'Fe + 4H2O -> Fe3O4 + 4H2', status: 'withdrawn', marksAwarded: 0, marksDeducted: 0, _available: 0, teacherAnnotation: '', mistakeType: null },
     { part: null, description: 'U', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1, _available: 1, teacherAnnotation: '', mistakeType: null },
+    { part: null, description: 'S', studentWork: 'Na + H2O → NaOH + H2', status: 'correct', marksAwarded: 1, marksDeducted: 0, _available: 1, teacherAnnotation: '✓ unbalanced', mistakeType: null },
   ];
   const before = JSON.stringify(st);
-  assert.deepEqual(applyBalancingRuling(st, { q: Q('Write equations.', 2) }), { capped: 0, charged: 0, retyped: 0 });
+  assert.deepEqual(applyBalancingRuling(st, { q: Q('Write equations.', 2), subject: 'Science' }), { capped: 0, charged: 0, retyped: 0, unattempted: 0 });
   assert.equal(JSON.stringify(st), before);
 });

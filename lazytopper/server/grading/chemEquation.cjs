@@ -52,6 +52,7 @@ function groupAtoms(s) {
       const g = stack.pop();
       i += 1;
       const m = s.slice(i).match(/^\d+/);
+      if (m && /0$/.test(m[0])) return null; // "…)20": a digit 0 where the letter O is likely meant — no verdict
       const n = m ? Number(m[0]) : 1;
       if (m) i += m[0].length;
       const top = stack[stack.length - 1];
@@ -66,6 +67,9 @@ function groupAtoms(s) {
       // "Co" vs "C" + "o": a lowercase letter that does not make an element is not a formula.
       return null;
     }
+    // "H20" for H2O: a count ending in the digit 0 is far likelier a typed/OCR'd letter O than 10, 20, 30 atoms —
+    // no verdict (strict review of #1584). Class 10 equations carry no such counts.
+    if (/0$/.test(m[2])) return null;
     const n = m[2] ? Number(m[2]) : 1;
     const top = stack[stack.length - 1];
     top[el] = (top[el] || 0) + n;
@@ -109,6 +113,10 @@ function readEquation(line) {
   t = t.replace(STATE_SYMBOL, '').replace(UP_DOWN, '');
   // A parenthetical with no capital letter is a remark ("(on heating)", "(balanced)"), not a formula.
   t = t.replace(/\([^()A-Z]*\)/g, ' ');
+  // A structural formula ("CH2=CH2", "CH3-CH3", "HC≡CH") is not read: its bonds would be cut as separators
+  // (review of #1584: "CH₂=CH₂ + H₂O → CH₃CH₂OH" was read as "CH2 + H2O → …").
+  if (/[A-Za-z0-9)]\s*[=≡]\s*[A-Z(]/.test(t) && /→|⟶|⇌|->|[—–―⎯]>/.test(t)) return null;
+  if (/[a-z0-9)]-[A-Z(]/.test(t)) return null;
   let m = t.match(ARROW_WITH_LABEL);
   let left;
   let right;

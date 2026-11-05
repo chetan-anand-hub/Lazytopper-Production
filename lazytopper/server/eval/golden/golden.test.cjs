@@ -565,6 +565,21 @@ test('§11e ★ g-balancing-1 accepts exactly the balancing ruling (type read fr
   assert.ok(balanceViolations(delta.filter((d) => d[0][0] !== 'mistakeSummary'), body, before).some((v) => /summary moved 0/.test(v)), 'a step type with no summary move is refused');
   assert.ok(balanceViolations(delta.concat([[['teacherNote'], 'a', 'b']]), body, before).some((v) => /the note changed but the mark did not/.test(v)), 'a note change without a mark change is refused');
   assert.ok(balanceViolations(delta.concat([[['rubric'], null, []]]), body, before).some((v) => /outside the g-balancing-1 rules/.test(v)), 'any other field is refused');
+  // strict review of #1584: "H20" (digit zero) gives NO verdict — a type move on it is refused
+  const h20 = JSON.parse(JSON.stringify(body));
+  for (const st of h20.annotatedSteps) st.studentWork = 'Al + H20 → Al2O3 + H2';
+  assert.ok(balanceViolations(delta, h20, before).some((v) => /no unbalanced equation/.test(v)), 'an "H20" line is no verdict');
+  // a skeletal line whose BALANCED version is elsewhere in the answer is working — a type move on it is refused
+  const fixedLater = JSON.parse(JSON.stringify(body));
+  fixedLater.annotatedSteps.push({ ...fixedLater.annotatedSteps[0], studentWork: '3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃' }, { ...fixedLater.annotatedSteps[0], studentWork: '2Al + 3H₂O → Al₂O₃ + 3H₂' });
+  assert.ok(balanceViolations(delta, fixedLater, before).some((v) => /no unbalanced equation/.test(v)), 'balanced later: refused');
+  // the cross-step DOUBLE CHARGE: two steps of the SAME reaction each left at ½ when marks were given back
+  const dbl = JSON.parse(JSON.stringify(body));
+  const R0 = require('../../grading/rules.cjs');
+  dbl.annotatedSteps[0] = { ...dbl.annotatedSteps[0], studentWork: 'Al + H₂O → Al₂O₃ + H₂', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation' };
+  dbl.annotatedSteps[1] = { ...dbl.annotatedSteps[1], studentWork: 'Al + H₂O → Al₂O₃ + H₂', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', status: 'partial', teacherAnnotation: '½ x. ' + R0.BALANCING_CAP_ANNOTATION };
+  const dblDelta = [[['annotatedSteps', 1, 'marksAwarded'], 0, 0.5], [['marksAwarded'], 0.5, 1]];
+  assert.ok(balanceViolations(dblDelta, dbl, before).some((v) => /½ per reaction/.test(v)), 'two ½ charges on ONE reaction are refused');
 });
 
 // ── §11d MCQ-TYPE-2: the g-mcq-habit-1 class can FAIL ─────────────────────────

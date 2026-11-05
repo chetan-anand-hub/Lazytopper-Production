@@ -935,7 +935,11 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // (rules.cjs). Rule TEXT only; every transport moved together. The schema's two new optional step fields
 // (equationFault, balancingEvidence) are not in this digest.
 //   PREVIOUS 3281f1c90c7183368ad1e461b13c8eb9fbaebe392713d6dec4f0f735673d95d4
-const NO_UPLOADS_CONTENTS_SHA256 = 'b97ae3a29aa889d4a90016f349d97d1ac43091c0a573ae260a52cfd45f1c29f7';
+// Review round 1 (b97ae3a2… → below): ½ once per REACTION in the answer (a skeletal line then its balanced
+// version is working, not a fault), outside the exam-technique cap, and a printed skeletal equation copied back
+// unbalanced is "unattempted" (coordinator rulings 5 Nov 2026). Rule TEXT only.
+//   PREVIOUS b97ae3a29aa889d4a90016f349d97d1ac43091c0a573ae260a52cfd45f1c29f7
+const NO_UPLOADS_CONTENTS_SHA256 = 'f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

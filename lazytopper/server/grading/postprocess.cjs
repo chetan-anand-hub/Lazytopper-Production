@@ -337,7 +337,7 @@ function applyMediumRuling(steps, q, raw) {
 // figure is its own CBSE value point ("the figure mark is LOST"), not a format nicety (verified key
 // GS-S05-b: "draw the ray diagram" answered in words = 0). Arrows/labels on a drawn figure still count.
 const FIGURE_VALUE_POINT = /\b(?:diagram|figure|graph)\b[^.;]*\b(?:not drawn|absent|missing|not shown|not marked)\b|\b(?:not drawn|no|without|missing)\s+(?:a\s+|the\s+|any\s+)?(?:labelled\s+)?(?:ray\s+)?(?:diagram|figure|graph)\b|\b(?:marked|drawn|shown)\s+(?:on|in)\s+(?:a|the)\s+(?:ray\s+)?(?:diagram|figure)\b/i;
-const countsTowardCap = (s) => !(FIGURE_VALUE_POINT.test([s.teacherAnnotation, s.description].join(' . ')) && !/\barrow/i.test(String(s.teacherAnnotation || '')));
+const countsTowardCap = (s) => !s._balancing && !(FIGURE_VALUE_POINT.test([s.teacherAnnotation, s.description].join(' . ')) && !/\barrow/i.test(String(s.teacherAnnotation || '')));
 function examTechniqueCap(totalMarks) { return Number(totalMarks) <= 1 ? 0.5 : 1; }
 function capExamTechnique(steps, totalMarks) {
   const cap = examTechniqueCap(totalMarks);
@@ -754,38 +754,34 @@ function omissionsInAttemptedWork(steps, { q, totalMarks }) {
 
 /* ── GRADER-BALANCE-1 · OWNER RULING 5 NOV 2026 · CHEMICAL-EQUATION BALANCING ─────────────────────
    "Grade a little stricter than a CBSE examiner": CBSE schemes give balancing at most ½ per equation
-   (often 0), so an equation with the RIGHT species that is not balanced loses EXACTLY ½, ONCE per
-   equation, never more for balancing alone. The TYPE follows what the student WROTE:
-     (1) wrong species, or a formula / subscript changed to force a balance ⇒ conceptual (the
-         species mark follows the scheme — marks untouched here);
+   (often 0), so a REACTION written with the right species and never balanced loses EXACTLY ½, ONCE per
+   reaction across the whole answer, never more for balancing alone — and OUTSIDE the exam-technique cap
+   (coordinator ruling, 5 Nov 2026). The TYPE follows what the student WROTE:
+     (1) wrong species, or a formula / subscript changed to force a balance ⇒ conceptual (the species mark
+         follows the scheme — marks untouched here);
      (2) coefficients written but wrong ⇒ calculation;
      (3) correct species left skeletal ⇒ presentation BY DEFAULT; conceptual ONLY when the model quotes
-         (balancingEvidence) a FAILED balancing attempt found elsewhere on the paper — this question's
-         other steps, or another question of the same model reply (ctx.siblings).
-   Supersedes trunk's S4a ("unbalanced when asked ⇒ conceptual") and the MARK-SIZE SANITY CHECK.
-   Deterministic where the page decides it: whether an equation balances and whether coefficients were
-   written are counted by chemEquation.cjs, never read from the model's prose. A step is a balancing step
-   when the model tags it (equationFault "wrong-coefficients" / "not-balanced") or — for a reply without the
-   tag (every stored reply) — when its own annotation says the equation is unbalanced AND the reader
-   confirms an unbalanced equation in it (or, for a split "balancing" step, in the step before it).
-   It NEVER acts when a species fault sits on the same equation (case (1) governs), when the page shows
-   the equation balanced (the model contradicts the page). It GIVES marks back down to the ½-per-equation
-   cap; it TAKES a mark only up to that same ½ per equation, and only where the model itself flagged the
-   balancing fault AND the reader confirms the equation unbalanced (a flagged fault left uncharged). */
+         (balancingEvidence) a DIFFERENT reaction elsewhere on the paper that the reader CONFIRMS the student
+         tried and failed to balance (coefficients written, unbalanced, never balanced anywhere).
+   A question that PRINTS the skeletal equation ("Balance: …"): the scheme's balancing mark stands (no cap);
+   copied back with no coefficients the task was not done ⇒ the step is unattempted (Not attempted).
+   EVERY ACTION NEEDS THE PAGE'S VERDICT (strict review of #1584): Science only; a reaction is acted on only
+   when chemEquation.cjs READS it and reads EVERY occurrence of that species set in the answer unbalanced (a
+   skeletal line followed by its balanced version is balanced work); the model's comment text is never a
+   trigger (only a BLOCKER: a species fault named on the same reaction stops the guard). A step is acted on
+   when its own work holds the reaction and is equation-only, or when the model TAGGED it (equationFault).
+   Steps sharing reactions are one group, charged ½ per reaction in the group: marks are given back down to
+   that, and — only where the model tagged the fault but left it uncharged — taken up to it. */
 const BALANCING_FAULTS = new Set(['wrong-coefficients', 'not-balanced']);
 const SPECIES_FAULTS = new Set(['wrong-species', 'formula-changed']);
 function equationFaultOf(v) {
   const t = String(v == null ? '' : v).trim().toLowerCase();
   return R.EQUATION_FAULTS.includes(t) ? t : null;
 }
-// The model says THIS equation is not balanced (its own words, on a step that lost marks).
-const BALANCE_FAULT = /\bneither\b[^.;]*\bbalanced\b|\b(?:un-?balanced|not\s+(?:been\s+|properly\s+|correctly\s+)?balanced|(?:does|do|did)\s+not\s+balance|is\s*n['’]t\s+balanced|(?:wrongly|incorrectly)\s+balanced|wrong\s+coefficients?|coefficients?\s+(?:are\s+|is\s+)?(?:wrong|incorrect)|miscount\w*)\b/i;
-// The model says a SPECIES / formula is wrong (case (1) — then the balancing guard keeps out).
+// BLOCKERS only: the model says a SPECIES / formula is wrong (case (1) — the balancing guard keeps out).
 const SPECIES_FAULT = /\b(?:incorrect|wrong|invalid)\s+(?:chemical\s+|product\s+|reactant\s+)?(?:formula|formulae|formulas|species|reactants?|products?|valency|symbols?)\b|\b(?:formula|formulae|species)\b[^.;,]*\b(?:incorrect|wrong|should\s+be)\b|\bvalency\s+error\b|\binstead\s+of\b|\b(?:subscript|formula)\s+(?:was\s+|is\s+)?(?:changed|altered)\b/i;
 const SUBSCRIPT_DIGITS = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9' };
-/** The model's comment NAMES a formula the student did not write ("Zinc chloride formula is ZnCl₂", "ZnCl₂, not
- *  ZnCl"): a compound (2+ atoms) that reads as a formula of real elements and is in none of the student's equations
- *  of that part. The page-side half of the species check — the model's wording varies, the formula does not. */
+/** The model's comment NAMES a compound the student did not write ("Zinc chloride formula is ZnCl₂"). */
 function namesOtherFormula(text, studentFormulas) {
   if (!studentFormulas || studentFormulas.size === 0) return false;
   const tokens = String(text == null ? '' : text).normalize('NFKC').replace(/[₀-₉]/g, (d) => SUBSCRIPT_DIGITS[d] || d)
@@ -795,109 +791,130 @@ function namesOtherFormula(text, studentFormulas) {
     return atoms && Object.values(atoms).reduce((a, b) => a + b, 0) >= 2 && !studentFormulas.has(t);
   });
 }
-const EVIDENCE_EQUATION = /→|⟶|->|=|⇌|>/;
-const formulaSet = (eqs) => new Set(eqs.flatMap((e) => e.left.concat(e.right)));
-const sameSpecies = (a, b) => [...a.left].sort().join('+') === [...b.left].sort().join('+') && [...a.right].sort().join('+') === [...b.right].sort().join('+');
-function failedBalancingAttempt(step) {
-  if (!step || !['incorrect', 'partial'].includes(step.status)) return false;
-  if (step.equationFault === 'wrong-coefficients' || step.equationFault === 'formula-changed') return true;
-  return readEquations(step.studentWork).some((e) => !e.balanced && e.coefficientsWritten);
+const SCIENCE_SUBJECT = /\b(?:science|chemistry|physics|biology)\b/i;
+const reactionKey = (e) => [...e.left].sort().join('+') + '>' + [...e.right].sort().join('+');
+// A step whose work is the equation(s) alone (a label, a short remark or "(balanced)" around it): its loss is the
+// equation's. A step that also carries prose may have lost marks for that prose — acted on only when TAGGED.
+function equationOnly(work) {
+  const rest = String(work || '').replace(/\([^()]*\)/g, ' ').replace(/[A-Z][A-Za-z0-9()[\]·.]*/g, ' ');
+  return (rest.match(/[a-z]{4,}/g) || []).length <= 3;
 }
-/** The model's balancingEvidence PROVES the student cannot balance (case (3) → conceptual), ALL of: at least 10
- *  normalised characters, not a bare value, an equation (an arrow or "="), NOT in the question text, NOT in this
- *  step's own work, and found VERBATIM (normalised) in ANOTHER step — of this question or of another question of
- *  the same reply — that is a FAILED balancing attempt (incorrect/partial, and tagged wrong-coefficients /
- *  formula-changed or read as an unbalanced equation WITH coefficients). A skeletal equation elsewhere is not
- *  an attempt, and a balanced one proves the opposite. */
-function inabilityProven(s, live, siblings, questionText) {
-  const ev = normEvidence(s._balancingEvidence);
-  if (ev.replace(/\s/g, '').length < 10 || BARE_VALUE.test(ev) || !EVIDENCE_EQUATION.test(ev)) return false;
+/** balancingEvidence PROVES inability (case (3) → conceptual), ALL of: ≥10 normalised characters, not a bare value,
+ *  not in the question text, not in this group's own work; the reader reads the QUOTE as ONE equation of a DIFFERENT
+ *  reaction, unbalanced WITH coefficients written; that reaction is balanced NOWHERE in the student's work; and the
+ *  quote is found verbatim in another step of this question or of another question of the same reply. The model's
+ *  tags are never evidence. */
+function inabilityProven(ev0, groupKeys, groupWork, allWork, questionText) {
+  const ev = normEvidence(ev0);
+  if (ev.replace(/\s/g, '').length < 10 || BARE_VALUE.test(ev)) return false;
   const nq = normEvidence(questionText);
   if (nq && nq.replace(/\s/g, '').includes(ev.replace(/\s/g, ''))) return false;
-  if (normEvidence(s.studentWork).includes(ev)) return false;
-  const others = live.filter((t) => t !== s).map((t) => ({ status: t.status, studentWork: t.studentWork, equationFault: t._equationFault }))
-    .concat(Array.isArray(siblings) ? siblings : []);
-  return others.some((t) => normEvidence(t.studentWork).includes(ev) && failedBalancingAttempt(t));
+  if (groupWork.some((w) => normEvidence(w).includes(ev))) return false;
+  const eqs = readEquations(ev0);
+  if (eqs.length !== 1 || eqs[0].balanced || !eqs[0].coefficientsWritten || groupKeys.has(reactionKey(eqs[0]))) return false;
+  const k = reactionKey(eqs[0]);
+  if (allWork.some((w) => readEquations(w).some((e) => e.balanced && reactionKey(e) === k))) return false;
+  return allWork.some((w) => normEvidence(w).includes(ev));
 }
-function applyBalancingRuling(steps, { q, siblings } = {}) {
-  const out = { capped: 0, charged: 0, retyped: 0 };
+function applyBalancingRuling(steps, { q, siblings, subject } = {}) {
+  const out = { capped: 0, charged: 0, retyped: 0, unattempted: 0 };
+  if (!SCIENCE_SUBJECT.test(String(subject || ''))) return out;
   const live = steps.filter((s) => s.status !== 'withdrawn' && s.status !== 'unattempted');
   const questionText = String((q && (q.questionText || q.question)) || '');
   const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
-  const eqsOf = (s) => readEquations(s.studentWork);
-  const questionEqs = readEquations(questionText.replace(/[:;,]\s*/g, '\n'));
-  // the student's own formulae, per part (every readable equation of that part)
-  const partFormulas = new Map();
-  for (const t of live) {
-    const k = partKey(t.part);
-    if (!partFormulas.has(k)) partFormulas.set(k, new Set());
-    for (const f of formulaSet(eqsOf(t))) partFormulas.get(k).add(f);
-  }
-  const speciesWords = (t) => {
-    const why = [t.teacherAnnotation, t.correctedWorking].join(' . ');
-    return SPECIES_FAULT.test(why) || namesOtherFormula(t.teacherAnnotation, partFormulas.get(partKey(t.part)));
-  };
-  const speciesFault = (t) => SPECIES_FAULTS.has(t._equationFault) || (t.status !== 'correct' && speciesWords(t));
+  const eqsOf = new Map(live.map((s) => [s, readEquations(s.studentWork)]));
+  const printedKeys = new Set(readEquations(questionText.replace(/[:;,]\s*/g, '\n')).map(reactionKey));
+  // every reading of each reaction in the answer, and whether ANY of them balances
+  const balancedKeys = new Set();
+  const attemptedKeys = new Set();
+  for (const [, eqs] of eqsOf) for (const e of eqs) { if (e.balanced) balancedKeys.add(reactionKey(e)); if (e.coefficientsWritten) attemptedKeys.add(reactionKey(e)); }
+  const studentFormulas = new Set([...eqsOf.values()].flat().flatMap((e) => e.left.concat(e.right)));
+  const speciesBlocked = (t) => SPECIES_FAULTS.has(t._equationFault)
+    || (t.status !== 'correct' && (SPECIES_FAULT.test([t.teacherAnnotation, t.correctedWorking].join(' . ')) || namesOtherFormula(t.teacherAnnotation, studentFormulas)));
+  // case (1) by the model's tag, on a step whose own work the reader reads: conceptual (marks untouched)
   for (const s of live) {
-    const fault = s._equationFault;
-    const lost = lostOf(s);
-    if (!(lost > 0) && !BALANCING_FAULTS.has(fault) && !BALANCE_FAULT.test(String(s.teacherAnnotation || ''))) continue;
-    if (SPECIES_FAULTS.has(fault)) {
-      if (!(lost > 0)) continue;
-      // case (1): the type is conceptual; the species mark follows the scheme (untouched).
-      if (s.mistakeType !== 'conceptual') { s.mistakeType = 'conceptual'; out.retyped += 1; }
-      continue;
-    }
-    const tagged = BALANCING_FAULTS.has(fault);
-    if (!tagged && (fault || !BALANCE_FAULT.test(String(s.teacherAnnotation || '')))) continue;
-    if (speciesWords(s)) continue;
-    // the equation itself: in this step, or — a split "balancing" step quoting only "(balanced)" — in the
-    // nearest earlier step of the same part that holds one
-    let eqs = eqsOf(s);
-    if (eqs.length === 0) {
-      const at = live.indexOf(s);
+    if (SPECIES_FAULTS.has(s._equationFault) && lostOf(s) > 0 && eqsOf.get(s).length && s.mistakeType !== 'conceptual') { s.mistakeType = 'conceptual'; out.retyped += 1; }
+  }
+  // the reactions each step stands for: its own (equation-only, or tagged), or — a TAGGED split "balancing" step
+  // with no equation of its own — the nearest earlier step of the same part that holds one
+  const keysOf = new Map();
+  live.forEach((s, at) => {
+    if (SPECIES_FAULTS.has(s._equationFault)) return;
+    const tagged = BALANCING_FAULTS.has(s._equationFault);
+    let eqs = eqsOf.get(s);
+    if (eqs.length && !tagged && !equationOnly(s.studentWork)) return;
+    if (!eqs.length && tagged) {
       for (let j = at - 1; j >= 0; j -= 1) {
         if (partKey(live[j].part) !== partKey(s.part)) continue;
-        const e = eqsOf(live[j]);
-        if (e.length) { eqs = e; break; }
+        if (eqsOf.get(live[j]).length) { eqs = eqsOf.get(live[j]); break; }
       }
     }
-    const unbalanced = eqs.filter((e) => !e.balanced);
-    if (eqs.length > 0 && unbalanced.length === 0) continue; // the page shows it balanced
-    if (!tagged && unbalanced.length === 0) continue; // untagged: only on the page's own evidence
-    // case (1) on the same equation (a separate "formula" step, or the same step's annotation) governs
-    const mine = formulaSet(unbalanced);
-    const blocked = live.some((t) => t !== s && partKey(t.part) === partKey(s.part) && speciesFault(t)
-      && (mine.size === 0 || eqsOf(t).length === 0 || [...formulaSet(eqsOf(t))].some((f) => mine.has(f))));
-    if (blocked) continue;
-    const attempted = unbalanced.length ? unbalanced.some((e) => e.coefficientsWritten) : fault === 'wrong-coefficients';
-    // the mark: ½ per unbalanced equation, never more for balancing alone — EXCEPT where the QUESTION itself prints
-    // that skeletal equation ("Balance: Fe + H2O → Fe3O4 + H2"): there balancing IS the whole task and the species are
-    // the question's, so the scheme's mark stands (a cap would pay ½ for copying the question). Copied back with NO
-    // coefficients, the student wrote nothing of their own: not case (3) at all — the model's grade stands untouched.
-    const cap = half(0.5 * Math.max(1, unbalanced.length));
-    const printed = unbalanced.length > 0 && unbalanced.every((e) => questionEqs.some((qe) => sameSpecies(qe, e)));
-    if (printed && !attempted) continue;
-    if (printed) { /* the scheme's balancing mark stands */ } else if (lost > cap && giveBack(s, lost - cap) > 0) {
-      s.teacherAnnotation = (String(s.teacherAnnotation || '').replace(/^\s*(?:✓|✔|×|✗|✘)\s*/, '½ ').replace(/\s*$/, '') + ' ' + R.BALANCING_CAP_ANNOTATION).trim();
-      out.capped += 1;
-    } else if (lost < cap && unbalanced.length > 0) {
-      // a balancing fault the model flagged but did not charge (or under-charged), on an equation the page shows
-      // unbalanced: charged up to ½ per equation, from this step only, never below 0
-      const take = Math.min(half(cap - lost), half(s.marksAwarded));
-      if (take > 0) {
-        s.marksAwarded = half(s.marksAwarded - take);
-        s.marksDeducted = half(Math.max(0, (s._available || 0) - s.marksAwarded));
-        s.teacherAnnotation = (String(s.teacherAnnotation || '').replace(/^\s*(?:✓|✔)\s*/, '').replace(/\s*$/, '') + ' ' + R.BALANCING_CHARGE_ANNOTATION).trim();
-        out.charged += 1;
+    if (eqs.length) keysOf.set(s, new Set(eqs.map(reactionKey)));
+  });
+  // groups: steps joined by a shared reaction
+  const groups = [];
+  for (const [s, keys] of keysOf) {
+    const hit = groups.filter((g) => [...keys].some((k) => g.keys.has(k)));
+    const g = { keys: new Set(keys), steps: [s] };
+    for (const h of hit) { h.keys.forEach((k) => g.keys.add(k)); g.steps.push(...h.steps); groups.splice(groups.indexOf(h), 1); }
+    groups.push(g);
+  }
+  const allWork = live.map((t) => t.studentWork).concat((Array.isArray(siblings) ? siblings : []).map((t) => t.studentWork));
+  for (const g of groups) {
+    const keys = [...g.keys];
+    // the page's verdict: every reaction of the group read UNBALANCED everywhere, no species fault on it
+    if (keys.some((k) => balancedKeys.has(k))) continue;
+    if (g.steps.some(speciesBlocked)) continue;
+    const gs = live.filter((t) => g.steps.includes(t)); // page order
+    const printed = keys.every((k) => printedKeys.has(k));
+    if (!printed && keys.some((k) => printedKeys.has(k))) continue; // a mix: not decidable here
+    const attempted = keys.some((k) => attemptedKeys.has(k));
+    if (printed && !attempted) {
+      // the printed equation copied back unbalanced: the task was not done — Not attempted (never a type)
+      for (const t of gs) {
+        if (!(lostOf(t) > 0) || t.marksAwarded !== 0) continue;
+        t.status = 'unattempted'; t.mistakeType = null; t.marksDeducted = half(t._available || 0); out.unattempted += 1;
+      }
+      continue;
+    }
+    if (!printed) {
+      const cap = half(0.5 * keys.length);
+      let lost = half(gs.reduce((a, t) => a + lostOf(t), 0));
+      if (lost > cap) {
+        // give back from the largest losses first, down to ½ per reaction
+        for (const t of [...gs].sort((a, b) => lostOf(b) - lostOf(a))) {
+          if (!(lost > cap)) break;
+          const back = giveBack(t, Math.min(half(lost - cap), lostOf(t)));
+          if (!(back > 0)) continue;
+          lost = half(lost - back);
+          t.teacherAnnotation = (String(t.teacherAnnotation || '').replace(/^\s*(?:✓|✔|×|✗|✘)\s*/, t.marksAwarded > 0 ? '½ ' : '× ').replace(/\s*$/, '') + ' ' + R.BALANCING_CAP_ANNOTATION).trim();
+          out.capped += 1;
+        }
+      } else if (lost < cap) {
+        // a fault the model TAGGED but left uncharged (or under-charged): up to ½ per reaction, tagged steps only
+        for (const t of gs) {
+          if (!(lost < cap) || !BALANCING_FAULTS.has(t._equationFault)) continue;
+          const take = Math.min(half(cap - lost), half(t.marksAwarded));
+          if (!(take > 0)) continue;
+          t.marksAwarded = half(t.marksAwarded - take);
+          t.marksDeducted = half(Math.max(0, (t._available || 0) - t.marksAwarded));
+          lost = half(lost + take);
+          t.teacherAnnotation = (String(t.teacherAnnotation || '').replace(/^\s*(?:✓|✔)\s*/, '').replace(/\s*$/, '') + ' ' + R.BALANCING_CHARGE_ANNOTATION).trim();
+          out.charged += 1;
+        }
       }
     }
-    if (!(lostOf(s) > 0)) continue;
-    if (s.status === 'incorrect' && s.marksAwarded > 0) s.status = 'partial';
-    // the type: by what was written, and by evidence only
-    const type = attempted ? 'calculation' : (inabilityProven(s, live, siblings, questionText) ? 'conceptual' : 'presentation');
-    if (s.mistakeType !== type) { s.mistakeType = type; out.retyped += 1; }
-    if (s.status === 'correct') s.status = s.marksAwarded > 0 ? 'partial' : 'incorrect';
+    // the type, by what was written and by evidence only
+    const proven = !attempted && gs.some((t) => t._balancingEvidence && inabilityProven(t._balancingEvidence, g.keys, gs.map((x) => x.studentWork), allWork, questionText));
+    const type = attempted ? 'calculation' : (proven ? 'conceptual' : 'presentation');
+    for (const t of gs) {
+      if (!(lostOf(t) > 0)) continue;
+      if (t.mistakeType !== type) { t.mistakeType = type; out.retyped += 1; }
+      if (t.status === 'correct') t.status = t.marksAwarded > 0 ? 'partial' : 'incorrect';
+      else if (t.status === 'incorrect' && t.marksAwarded > 0) t.status = 'partial';
+      // BAL-1 is outside the exam-technique cap (capExamTechnique / countsTowardCap)
+      if (!printed) t._balancing = true;
+    }
   }
   return out;
 }
@@ -1292,7 +1309,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   applyObjectiveMistakeGuard(steps, { objective: questionIsObjective, options: q.options, typedAnswer: q.textAnswer });
   // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): ½ per unbalanced equation, typed by what the student wrote
   // (applyBalancingRuling). Before the units / medium rulings and the exam-technique cap, which then count it.
-  if (!questionIsObjective) applyBalancingRuling(steps, { q, siblings: ctx.siblings });
+  if (!questionIsObjective) applyBalancingRuling(steps, { q, siblings: ctx.siblings, subject: ctx.subjectHint || raw.subject || q.subject });
   // A17 ruling 1, deterministic: a missing/wrong unit costs exactly ½ once per question, in Maths
   // AND Science, never on a pure number, and says so in one fixed comment (applyUnitRuling).
   const unitRuling = questionIsObjective ? { charged: 0, restored: 0 } : applyUnitRuling(steps, q);
