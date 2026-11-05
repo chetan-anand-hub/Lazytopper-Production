@@ -512,7 +512,9 @@ export default function MeProgressPage() {
   }, [location.hash, location.pathname, location.search, location.state, navigate]);
   const isDesktop = useIsDesktop();
   const { user, loading } = useAuth();
-  const { isPremium } = useSubscription();
+  // EARLY-PAYWALL-1 — `hydrated` = this uid's cloud entitlement has been read. Until then a free-looking
+  // status is UNKNOWN (a brand-new trial student's cache can still read free), never "Basic".
+  const { isPremium, hydrated } = useSubscription();
 
   // The cross-device reads need a REAL account. A local/browse session has no
   // server-side progress, and we say so rather than inventing one.
@@ -1173,13 +1175,13 @@ export default function MeProgressPage() {
                               label="Learn"
                               testId={`me-cta-learn-${c.key}`}
                             />
-                          ) : (
+                          ) : hydrated ? (
                             <LockedCta
                               label="Learn"
                               onOpenPremium={() => openPremium("Topic Hub")}
                               testId={`me-cta-learn-locked-${c.key}`}
                             />
-                          )}
+                          ) : null}
                           <NavCta
                             to={practisePath}
                             label="Practise"
