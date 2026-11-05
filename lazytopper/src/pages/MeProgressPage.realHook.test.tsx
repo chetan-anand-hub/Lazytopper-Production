@@ -76,11 +76,6 @@ vi.mock("../components/subscription/UpgradeSheet", () => ({
   ),
 }));
 
-let mockIsDesktop = true;
-vi.mock("../hooks/useIsDesktop", () => ({
-  useIsDesktop: () => mockIsDesktop,
-}));
-
 
 vi.mock("../services/subscriptionService", async (importOriginal) => {
   const real = await importOriginal<typeof import("../services/subscriptionService")>();

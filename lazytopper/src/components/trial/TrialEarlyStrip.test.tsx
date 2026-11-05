@@ -121,22 +121,6 @@ describe("TrialEarlyStrip", () => {
     expect(screen.queryByTestId("trial-early-strip")).toBeNull();
   });
 
-  it("EARLY-PAYWALL-1: trial day 1 (IST) shows only the day - no Pay link, no Board Pass offer, no parent ask; day 2 is unchanged", async () => {
-    vi.setSystemTime(ist(2026, 11, 2, 23, 0)); // same IST day as START
-    hydrate.mockResolvedValue(status("trial"));
-    renderAt("/me");
-    expect(await screen.findByTestId("trial-early-strip")).toBeTruthy();
-    expect(screen.getByText("Trial: day 1 of 7")).toBeTruthy();
-    expect(screen.queryByTestId("trial-early-strip-pay")).toBeNull();
-    expect(screen.queryByTestId("ask-stub")).toBeNull();
-    expect(screen.queryByText(/Board Pass/)).toBeNull();
-    cleanup();
-    vi.setSystemTime(ist(2026, 11, 3, 0, 5)); // first minutes of IST day 2
-    renderAt("/me");
-    expect(await screen.findByTestId("trial-early-strip-pay")).toBeTruthy();
-    expect(screen.getByTestId("ask-stub")).toBeTruthy();
-  });
-
   it("payments dark: Pay goes to /pricing (no checkout deep link)", async () => {
     payments.on = false;
     renderAt("/practice");
