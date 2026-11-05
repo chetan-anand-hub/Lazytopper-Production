@@ -914,7 +914,13 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // Hinglish (a clause or more is), and all exam-technique deductions of an answer are capped at 1 (½ on a
 // 1-mark answer). Rule TEXT only.
 //   PREVIOUS bba8045764c14b359a0d4186578a1e826bd6b910ba2c965f8bbb620b1cea447c
-const NO_UPLOADS_CONTENTS_SHA256 = '72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8';
+// GRADER-QUALITY-1 (5 Nov 2026; 72113f2d… → below): three rule-TEXT additions, every transport moved
+// together (one rulebook, grading/prompt.cjs rulesText): the CLAUDE.md §13 tell-tale on "conceptual"
+// (later steps that carry out the method prove it is known), an omission inside an ATTEMPTED answer is
+// "missing" (typed presentation where the answer is right), never "unattempted", and side-by-side work
+// is read and quoted column by column (WS-M-MIX-02 Q21/Q22/Q15/Q24).
+//   PREVIOUS 72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8
+const NO_UPLOADS_CONTENTS_SHA256 = '0bfbc85bf5acc2c99f883ec9f41b729a79c17339ec46f5fb876ac968f28a553f';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

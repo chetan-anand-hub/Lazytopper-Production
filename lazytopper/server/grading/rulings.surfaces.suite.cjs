@@ -375,3 +375,115 @@ test('A17 ruling 5 — a chunk RETRY and a scheme-cache GENERATION follow the sa
   assert.equal(meterWrites.length, 0, 'the first attempt, the retry and the cache generation all record 0 for a not-attempted question');
   assert.equal(writes.reduce((a, w) => a + (Number(w[ledgerLib.LEDGER_SPEND_FIELD]) || 0), 0), CALL_COST * 3, 'the REAL spend of all three calls is still recorded');
 });
+
+/* ── GRADER-QUALITY-1 (5 Nov 2026) — proven on EVERY surface, with each surface's own request ─────────
+   Shapes from WS-M-MIX-02 (the owner's student, answers of 3 Nov; graded live on the Answer Checker 4 and
+   5 Nov): Q15 (an inequality step left out between attempted lines, final answer right), Q24(i) (BP, CQ
+   written, the reason left out), Q21 (a two-column verification quoted as one line), plus the controls.
+   D1 runs after every mark is final: a TYPE/STATUS change only, the marks are asserted unchanged. */
+const PHOTO_B64 = 'UEhPVE8=';
+/** Make the target a PHOTO answer on every surface (D3's check exempts typed words, which are the student's own). */
+const asPhoto = (view, req) => {
+  if (req.questions) {
+    const t = req.questions.find((q) => Number(q.qNumber) === Number(view.qNumber));
+    if (t) {
+      delete t.textAnswer;
+      if (!req.document) {
+        req.uploads = (req.uploads || []).filter((u) => Number(u.qNumber) !== Number(t.qNumber));
+        req.uploads.push({ qNumber: t.qNumber, imageBase64: PHOTO_B64, imageMimeType: 'image/jpeg' });
+      }
+    }
+  } else {
+    delete req.textAnswer;
+    req.imageBase64 = PHOTO_B64;
+    req.imageMimeType = 'image/jpeg';
+  }
+};
+const withMarks = (m, text) => (view, req) => { view.marks = m; if (text) view.questionText = text; if ('finalAnswer' in (req.questions ? view : req)) { if (req.questions) view.finalAnswer = null; else req.finalAnswer = null; } };
+// The fixtures (and their provenance) are the golden file — one source for these tests and the live eval.
+const GQ1 = Object.fromEntries(require('../eval/golden/fixtures/grader-quality-1.ws-m-mix-02.json').cases.map((c) => [c.id, c]));
+const fixtureSteps = (id) => () => JSON.parse(JSON.stringify(GQ1[id].modelReply));
+const Q15_TEXT = GQ1['GQ1-WS02-Q15'].questionText;
+const q15Steps = fixtureSteps('GQ1-WS02-Q15');
+const Q24_TEXT = GQ1['GQ1-WS02-Q24'].questionText;
+const q24Steps = fixtureSteps('GQ1-WS02-Q24');
+const OA2_Q22_TEXT = GQ1['GQ1-OA2-Q22-CONTROL'].questionText;
+const oa2q22Steps = fixtureSteps('GQ1-OA2-Q22-CONTROL');
+const Q21_TEXT = GQ1['GQ1-WS02-Q21'].questionText;
+const q21Steps = (verify) => () => { const st = JSON.parse(JSON.stringify(GQ1['GQ1-WS02-Q21'].modelReply)); st[1].studentWork = verify; return st; };
+const typesOf = (out) => out.annotatedSteps.map((st) => [st.status, st.marksAwarded, st.mistakeType]);
+
+for (const s of SURFACES) {
+  test('GRADER-QUALITY-1 D1 — ' + s.id + ': Q15 shape — an inequality step left out BETWEEN attempted lines is "missing", typed exam technique; marks unchanged', async () => {
+    for (const acceptsV2 of [false, true]) {
+      const r = await drive(s, { mutateTarget: withMarks(2, Q15_TEXT), targetSteps: q15Steps, acceptsV2 });
+      const out = r.result;
+      assert.equal(out.marksAwarded, GQ1['GQ1-WS02-Q15'].expected.marksAwarded, s.id + ' v2=' + acceptsV2 + ': 1 of 2, exactly as before');
+      assert.deepEqual(typesOf(out), GQ1['GQ1-WS02-Q15'].expected.steps, s.id + ' v2=' + acceptsV2);
+      assert.equal(out.mistakeSummary.presentation, 1, s.id + ': an MI exam-technique entry (R1)');
+      assert.notEqual(out.teacherNote, R.NOT_ATTEMPTED_NOTE, s.id);
+      if (acceptsV2) assert.deepEqual(out.marksLostByType, { conceptual: 0, calculation: 0, silly: 0, presentation: 1, unattempted: 0, untyped: 0 }, s.id);
+    }
+  });
+
+  test('GRADER-QUALITY-1 D1 — ' + s.id + ': Q24(i) shape — a labelled part\'s omitted REASON is exam technique ½; marks unchanged', async () => {
+    const r = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), targetSteps: q24Steps, acceptsV2: true });
+    assert.equal(r.result.marksAwarded, GQ1['GQ1-WS02-Q24'].expected.marksAwarded, s.id);
+    assert.deepEqual(typesOf(r.result), GQ1['GQ1-WS02-Q24'].expected.steps, s.id);
+    assert.equal(r.result.marksLostByType.presentation, 0.5, s.id);
+    assert.equal(r.result.marksLostByType.unattempted, 0, s.id);
+  });
+
+  // CONTROLS — these hold on trunk too, by design: the guard must never reach them.
+  test('GRADER-QUALITY-1 D1 CONTROLS — ' + s.id + ': a genuinely skipped deliverable (owner key OA2 Q22), a skipped labelled part and a "Don\'t know" stay NOT ATTEMPTED', async () => {
+    // owner key owner-anomaly-02 Q22: the genotypic ratio, asked and never written, is an UNATTEMPTED PART
+    const oa = await drive(s, { mutateTarget: withMarks(3, OA2_Q22_TEXT), targetSteps: oa2q22Steps, acceptsV2: true });
+    assert.equal(oa.result.marksAwarded, GQ1['GQ1-OA2-Q22-CONTROL'].expected.marksAwarded, s.id);
+    assert.deepEqual(typesOf(oa.result), GQ1['GQ1-OA2-Q22-CONTROL'].expected.steps, s.id + ': OA2 Q22 stays unattempted');
+    assert.equal(oa.result.marksLostByType.unattempted, 1.5, s.id);
+    // a labelled part (ii) with nothing in it stays unattempted, even with a justification word in it
+    const part = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), acceptsV2: true, targetSteps: () => {
+      const st = q24Steps(); st[1] = { ...st[1], status: 'correct', studentWork: 'tangents from an external point are equal', marksAwarded: 0.5, marksDeducted: 0, mistakeType: null };
+      st[2] = { ...st[2], description: 'Reason and lengths of CD and DA', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1 };
+      return st;
+    } });
+    assert.equal(part.result.marksAwarded, 3, s.id);
+    assert.equal(part.result.annotatedSteps[2].status, 'unattempted', s.id + ': a skipped labelled part is never an omission');
+    // "Don't know" written for the middle step stays unattempted (ruling 7)
+    const dk = await drive(s, { mutateTarget: withMarks(2, Q15_TEXT), acceptsV2: true, targetSteps: () => { const st = q15Steps(); st[1] = { ...st[1], studentWork: "Don't know" }; return st; } });
+    assert.equal(dk.result.annotatedSteps[1].status, 'unattempted', s.id);
+  });
+
+  test('GRADER-QUALITY-1 D1 — ' + s.id + ': an omission over the exam-technique cap, or beside a real error, is "missing" with NO type (never exam technique, never Not attempted); marks unchanged', async () => {
+    // the same Q15 shape on a 3-mark answer: the omission (2 marks) is over the exam-technique cap → missing, NO type
+    const big = await drive(s, { mutateTarget: withMarks(3, Q15_TEXT), acceptsV2: true, targetSteps: () => { const st = q15Steps(); st[1] = { ...st[1], marksAvailable: 2, marksDeducted: 2 }; return st; } });
+    assert.equal(big.result.marksAwarded, 1, s.id);
+    assert.deepEqual([big.result.annotatedSteps[1].status, big.result.annotatedSteps[1].mistakeType], ['missing', null], s.id);
+    assert.equal(big.result.marksLostByType.unattempted, 0, s.id);
+    // a part already holding a calculation slip: the omission is missing, NO type (never exam technique beside a real error)
+    const slip = await drive(s, { mutateTarget: withMarks(2, Q15_TEXT), acceptsV2: true, targetSteps: () => { const st = q15Steps(); st[2] = { ...st[2], studentWork: 'a12 = 4500 - 11 x 350 = 750', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5, mistakeType: 'calculation' }; return st; } });
+    assert.equal(slip.result.annotatedSteps[1].status, 'missing', s.id);
+    assert.equal(slip.result.annotatedSteps[1].mistakeType, null, s.id);
+  });
+
+  test('GRADER-QUALITY-1 D3 — ' + s.id + ': Q21 shape — a two-column check quoted as one row ("2 = 2 −24 = −24") from a PHOTO is never charged; a spaced "2 − 24" still is', async () => {
+    const photoQ21 = (view, req) => { withMarks(3, Q21_TEXT)(view, req); asPhoto(view, req); };
+    for (const quote of [GQ1['GQ1-WS02-Q21'].photoQuote, '-4 + 6 = 2 6 x -4 = -24\n2 = 2 -24 = -24']) {
+      const r = await drive(s, { mutateTarget: photoQ21, targetSteps: q21Steps(quote), acceptsV2: true });
+      assert.equal(r.result.marksAwarded, 3, s.id + ': ' + JSON.stringify(quote));
+      assert.ok(!r.result.annotatedSteps.some((st) => /Check the arithmetic/.test(st.teacherAnnotation || '')), s.id + ': no false arithmetic comment');
+      assert.equal(r.result.marksLostByType.calculation, 0, s.id);
+    }
+    // CONTROL: the check is LIVE on this surface — a real false equality with a spaced minus is charged ½
+    const c = await drive(s, { mutateTarget: photoQ21, targetSteps: q21Steps('2 = 2 − 24'), acceptsV2: true });
+    assert.equal(c.result.marksAwarded, 2.5, s.id + ': the arithmetic check still runs here');
+  });
+
+  test('GRADER-QUALITY-1 D1/D2/D3 — ' + s.id + ': the three rules reach THIS surface\'s prompt', async () => {
+    const p = (await drive(s, { targetSteps: unitSteps })).calls[0].prompt;
+    const conceptual = p.slice(p.indexOf('"conceptual" = METHOD MISUNDERSTOOD'), p.indexOf('"presentation" = CBSE FORMAT ONLY'));
+    assert.ok(conceptual.includes('IF THE STUDENT\'S LATER STEPS PROVE THEY KNOW THE METHOD, IT IS NOT CONCEPTUAL'), s.id + ': D2 tell-tale in the conceptual definition');
+    assert.ok(p.includes('AN OMISSION INSIDE AN ATTEMPTED ANSWER IS NEVER "unattempted"'), s.id + ': D1');
+    assert.ok(p.includes('SIDE-BY-SIDE WORK IS READ COLUMN BY COLUMN'), s.id + ': D3');
+  });
+}

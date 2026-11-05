@@ -181,6 +181,16 @@ function quotedInSource(leftRaw, rightRaw, source) {
 const LINE_JOIN = /(?<=\d)\s+(?=\d+(?:\.\d+)?\s*[=≈])/;
 const MIXED_NUMBER = /^\s*(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)\s*$/;
 const SPACED_NUMBERS = /\d\s+(?=[\d.])/;
+/* GRADER-QUALITY-1 (D3), live 4 Nov 2026 (Answer Checker multi, WS-M-MIX-02 Q21, owner's student, 3 Nov):
+   the student verified the zeroes in TWO COLUMNS — "−4 + 6 = 2 / 2 = 2" beside "6 × −4 = −24 / −24 = −24"
+   — and the model quoted the second rows as ONE line, "2 = 2 −24 = −24". Guard (1) above splits a
+   join only where the next column starts with a DIGIT; here it starts with a SIGN, so "2 −24" was
+   evaluated as 2 − 24 and a correct step lost ½ with "2 is not 2 −24". (4) a side holding a number,
+   whitespace, then a sign GLUED to a digit ("2 −24", "3 -5") in a photo/OCR quote is a joined line:
+   skipped, never charged. Like (1)–(2) it can only REMOVE a charge. Accepted cost (pinned in
+   core.test.cjs): a real slip quoted with a glued sign ("5 -3 = 3") is no longer charged by this
+   check; a spaced minus ("5 - 3 = 3", "2 − 24") and every TYPED answer are charged as before. */
+const SIGNED_COLUMN_JOIN = /\d\s+[-−](?=\d)/;
 function mixedValue(side) {
   const m = MIXED_NUMBER.exec(String(side == null ? '' : side));
   if (!m || Number(m[4]) === 0 || Number(m[3]) >= Number(m[4])) return null;
@@ -247,6 +257,7 @@ function falseEqualities(text, opts = {}) {
       const ma = mixedValue(na);
       const mb = mixedValue(nb);
       if (!typedSource && ((ma === null && SPACED_NUMBERS.test(na)) || (mb === null && SPACED_NUMBERS.test(nb)))) continue;
+      if (!typedSource && (SIGNED_COLUMN_JOIN.test(a.raw) || SIGNED_COLUMN_JOIN.test(b.raw))) continue;
       if (!hasOperator(na) && !hasOperator(nb)) continue; // "8 = 8" — nothing computed
       // A RADICAL WITHOUT BRACKETS beside a + or − has an unknowable scope: the student's
       // vinculum over "196 + 110.25" is quoted as "√196 + 110.25" (live, 2026-10-05, CP03-Q08).

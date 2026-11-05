@@ -634,6 +634,64 @@ function markGenuinelyUnattempted(steps) {
   return n;
 }
 
+/* ── GRADER-QUALITY-1 (D1) — AN OMISSION INSIDE AN ATTEMPTED ANSWER IS NOT "NOT ATTEMPTED" ──
+   Live 4 and 5 Nov 2026 (Answer Checker multi, WS-M-MIX-02, the owner's student's paper of 3 Nov):
+   Q15 ("12th week" stated and verified, the inequality aₙ < 1000 not shown) and Q24(i) (BP, CQ written,
+   the reason "tangents from an external point are equal" left out) came back with that step
+   "unattempted" — on BOTH runs — so the scorecard said "Not attempted" for an answered question and
+   MI lost the exam-technique signal. "unattempted" is a question or PART with NO attempt
+   (rules.cjs UNATTEMPTED; owner, 5 Oct 2026, DECISION_LOG "Not attempted its own state, never a
+   mistake"); a step left out of attempted work is "missing" (rules.cjs MISSING), and R1 (5 Oct 2026):
+   "a 'missing' step the grader TYPED keeps its type + MI entry (a CBSE exam-technique deduction)";
+   rules.cjs PRESENTATION: "Right answer with weak or no justification → presentation".
+   RUNS AFTER EVERY MARK IS FINAL (after 7b), so it moves NO mark — it changes a status and a type only.
+   Conservative by construction (a genuinely skipped part is never touched):
+     - only a SUBJECTIVE question; only a step the model returned "unattempted" whose own work is not a
+       non-attempt phrase ("Don't know" stays unattempted — ruling 7);
+     - its PART must hold attempted work (a step that earned marks, or real written work). A labelled
+       step is grouped by its label; an unlabelled step only when NO step carries a part label AND the
+       question text shows no (i)/(ii)/(a)/(b) sub-parts — otherwise left alone;
+     - and there must be POSITIVE EVIDENCE that the step is an omission inside the answer, not a separately
+       asked deliverable left out: EITHER attempted work of the same part comes AFTER it (a gap in the
+       middle of the working — Q15: the inequality step between "a = 4500, d = −350" and "a₁₂ = 650"),
+       OR the step is a JUSTIFICATION (its description or annotation names a reason, justification,
+       verification, inequality, condition, theorem or property — Q24(i): "Geometric reason for equal
+       tangent lengths"). Without either it is left "unattempted": owner key owner-anomaly-02 Q22 ("State
+       the F2 phenotypic and genotypic ratio", genotypic not written) is an UNATTEMPTED PART (expected-key.md
+       row 22) — the differential vs trunk on the stored runs found exactly that case;
+     - it becomes "missing", typed "presentation" ONLY when no other step of the part is wrong or carries
+       a mistake of method/arithmetic/copying, AND the answer's exam-technique loss including it stays
+       within the A17 ruling B cap (1 mark; ½ on a 1-mark answer) — a bigger omission is not a format
+       nicety (rules.cjs MARK-SIZE SANITY CHECK): it stays "missing" with no type (honestly "reason not
+       recorded"; D248 ruling 1 then attributes it as for any omitted line). */
+const SUB_PART_MARKER = /\(\s*(?:i{1,3}|iv|v|vi|a|b|c|d)\s*\)/i;
+const JUSTIFICATION_STEP = /\b(?:reason\w*|justif\w*|because|why|verif\w*|inequalit\w*|conditions?|theorem|propert(?:y|ies))\b/i;
+function omissionsInAttemptedWork(steps, { questionText, totalMarks }) {
+  let n = 0;
+  const live = steps.filter((s) => s.status !== 'withdrawn');
+  const anyLabelled = live.some((s) => partKey(s.part) !== '');
+  const attempted = (s) => s.status !== 'unattempted' && (s.marksAwarded > 0 || nonAttemptText(s.studentWork) === null);
+  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
+  const cap = examTechniqueCap(totalMarks);
+  for (const u of live) {
+    if (u.status !== 'unattempted' || u.marksAwarded > 0 || nonAttemptText(u.studentWork) === 'phrase') continue;
+    const k = partKey(u.part);
+    if (k === '' && (anyLabelled || SUB_PART_MARKER.test(String(questionText || '')))) continue;
+    const group = live.filter((s) => s !== u && partKey(s.part) === k);
+    if (!group.some(attempted)) continue;
+    const gapInWork = group.some((s) => live.indexOf(s) > live.indexOf(u) && attempted(s));
+    const justification = JUSTIFICATION_STEP.test([u.description, u.teacherAnnotation].join(' . '));
+    if (!gapInWork && !justification) continue;
+    const clean = !group.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType));
+    const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s))
+      .reduce((a, s) => a + lostOf(s), 0));
+    u.status = 'missing';
+    u.mistakeType = clean && half(etLost + lostOf(u)) <= cap ? 'presentation' : null;
+    n += 1;
+  }
+  return n;
+}
+
 /* ── rubric (C7) ─────────────────────────────────────────────────────────── */
 
 function validRubric(raw, total) {
@@ -1305,6 +1363,10 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     });
   }
 
+  // 7c · GRADER-QUALITY-1 (D1): an omitted step inside attempted work is "missing" (typed
+  //      exam technique where it fits), never "unattempted". After every mark is final: types only.
+  if (!questionIsObjective) omissionsInAttemptedWork(steps, { questionText: q.questionText || q.question, totalMarks });
+
   // 8 · comments made true
   const primaryDeparture = departures[0] || null;
   for (const s of steps) {
@@ -1508,6 +1570,7 @@ module.exports = {
   inventoryVerdict,
   inventoryStable,
   markGenuinelyUnattempted,
+  omissionsInAttemptedWork,
   nonAttemptText,
   isRealQuestionText,
   acceptedDepartures,
