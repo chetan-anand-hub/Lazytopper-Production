@@ -734,6 +734,34 @@ export function trackFirstGraded(surface: FirstGradedSurface): void {
 }
 
 /**
+ * BROWSE-VISITOR-CARD-1 - the signed-out visitor card on /browse. Two events, vendors only (neither is in
+ * `NamedAnalyticsEvent`, and the card is for signed-out visitors, so the first-party log has nothing to record):
+ * `browse_visitor_card_shown` (bare name, once per session - the caller enforces that) and `browse_visitor_card_tap`
+ * with ONE closed-set field, `{ action }`. No identifier, no path, no price.
+ */
+export type BrowseVisitorCardAction = "signup" | "pricing" | "about" | "dismiss";
+
+const BROWSE_VISITOR_CARD_ACTIONS: ReadonlySet<string> = new Set<BrowseVisitorCardAction>(["signup", "pricing", "about", "dismiss"]);
+
+export function trackBrowseVisitorCardShown(): void {
+  try {
+    send("event", { name: "browse_visitor_card_shown" });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+export function trackBrowseVisitorCardTap(action: BrowseVisitorCardAction): void {
+  try {
+    if (!BROWSE_VISITOR_CARD_ACTIONS.has(action)) return;
+    const data = { action };
+    send("event", { name: "browse_visitor_card_tap", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
  * §2.5 — SIGNUPS, AND WHY THIS TAKES NO ARGUMENTS.
  *
  * The caller has a Firebase credential in hand at this point and it is tempting to pass

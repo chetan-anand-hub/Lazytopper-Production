@@ -27,6 +27,7 @@ import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import PackPromo from "../../components/packs/PackPromoLazy";
+import BrowseVisitorCard from "../../components/browse/BrowseVisitorCardLazy";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
@@ -361,6 +362,9 @@ export default function DesktopHome() {
             product already knows what it is) and the "Signed in" pill (the
             header avatar already says so). Trial/premium state remains
             truthfully stated by the shell's own account chip. */}
+
+        {/* BROWSE-VISITOR-CARD-1 - signed-out visitors only (the mount renders nothing while auth loads or for any signed-in user). */}
+        <BrowseVisitorCard />
 
         {/* ── One-time phone-linking nudge ──────────────────────
             Renders null unless the student is signed in with a real account,
