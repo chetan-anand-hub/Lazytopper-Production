@@ -3257,6 +3257,10 @@ test('§GQ.1 D3 ★ the WS-M-MIX-02 Q21 quote: a two-column check joined into on
   assert.equal(falseEqualities('1232/308 = 8', { quoted: true }).length, 1, 'GS-M12-a still charged');
   assert.equal(falseEqualities('50 − 16 = 36', { quoted: true }).length, 1, 'CP02-Q08 still charged');
   assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true }), [], 'guard (1) unchanged');
+  // review round 1, item 10: the joined line is SPLIT, not skipped — each column is still checked on its own
+  assert.deepEqual(falseEqualities('2 = 2 –24 = –24', { quoted: true }), [], 'en dash');
+  assert.deepEqual(falseEqualities('3 + 4 = 8 −2 = −2', { quoted: true }).map((e) => [e.left, e.right]), [['3 + 4', '8']], 'a false FIRST column is still charged');
+  assert.deepEqual(falseEqualities('3 + 4 = 8 -2 = -2', { quoted: true }).map((e) => [e.left, e.right]), [['3 + 4', '8']]);
   // a TYPED answer is the student's own words: a glued sign there is charged, as before
   assert.equal(falseEqualities('2 = 2 -24', { quoted: true, source: '2 = 2 -24' }).length, 1, 'typed source: charged');
 });
@@ -3283,13 +3287,13 @@ test('§GQ.3 D1 ★ the guard NEVER moves a mark: over an enumeration of step sh
       _available: 1, marksAwarded: status === 'correct' ? 1 : status === 'partial' ? 0.5 : 0, marksDeducted: status === 'correct' ? 0 : status === 'partial' ? 0.5 : 1, mistakeType: type, teacherAnnotation: 'a' });
     const steps = [mk(a, ta, 0), mk(b, null, 1), mk('correct', null, 2)];
     const before = JSON.parse(JSON.stringify(steps));
-    omissionsInAttemptedWork(steps, { questionText: 'Find x.', totalMarks: total });
+    omissionsInAttemptedWork(steps, { q: { questionText: 'Find the value of x, y and z from the data given.' }, totalMarks: total });
     steps.forEach((s, i) => {
       for (const k of Object.keys(before[i])) if (k !== 'status' && k !== 'mistakeType') assert.deepEqual(s[k], before[i][k], k + ' moved');
       if (s.status !== before[i].status) {
         changed += 1;
         assert.deepEqual([before[i].status, s.status], ['unattempted', 'missing'], 'the only status move');
-        assert.ok(s.mistakeType === null || s.mistakeType === 'presentation');
+        assert.equal(s.mistakeType, 'presentation', 'a flip is ALWAYS typed exam technique — never an untyped missing (review item 7)');
       }
     });
     n += 1;
@@ -3309,26 +3313,22 @@ test('§GQ.4 D1 OBJECTIVE INVARIANT: an MCQ with an "unattempted" working step i
   }
 });
 
-test('§GQ.5 D1 + D248 ruling 1: an omission the guard leaves UNTYPED follows an earlier error only when no fully credited step lies between', async () => {
+test('§GQ.5 D1 review item 7: beside a real error the omission is NOT flipped — it stays "unattempted" with trunk\'s ledger (never an untyped "missing", which the client shows as Not attempted AND counts as a new MI entry)', async () => {
   const run = async (steps) => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] })
-    .sheet(sheet([sq(1, { marks: 3, questionText: 'Find x and give a reason.', finalAnswer: null })], { acceptsV2: true }))).body.results[0];
+    .sheet(sheet([sq(1, { marks: 3, questionText: 'Find the value of x and give a reason for it.', finalAnswer: null })], { acceptsV2: true }))).body.results[0];
   const slip = S({ description: 'Solves', studentWork: '2x = 9, x = 4', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' });
   const ok = S({ description: 'Substitutes', studentWork: 'x + 1 = 5', status: 'correct', marksAwarded: 1, marksDeducted: 0 });
   const omitted = S({ description: 'Reason for the value of x', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1, mistakeType: null });
-  // slip directly before the omission → the loss follows the slip (calculation bucket); the step itself stays untyped
-  const a = await run([ok, slip, omitted]);
-  assert.deepEqual([a.annotatedSteps[2].status, a.annotatedSteps[2].mistakeType], ['missing', null]);
-  assert.equal(a.marksAwarded, 1);
-  assert.deepEqual(a.marksLostByType, { ...grading.zeroLost(), calculation: 2 });
-  // a fully credited step between → a separate loss (untyped, "reason not recorded"), never "Not attempted"
-  const b = await run([slip, ok, omitted]);
-  assert.deepEqual([b.annotatedSteps[2].status, b.annotatedSteps[2].mistakeType], ['missing', null]);
-  assert.equal(b.marksAwarded, 1);
-  assert.deepEqual(b.marksLostByType, { ...grading.zeroLost(), calculation: 1, untyped: 1 });
+  for (const order of [[ok, slip, omitted], [slip, ok, omitted]]) {
+    const r = await run(order);
+    assert.deepEqual([r.annotatedSteps[2].status, r.annotatedSteps[2].mistakeType], ['unattempted', null]);
+    assert.equal(r.marksAwarded, 1);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), calculation: 1, unattempted: 1 });
+  }
 });
 
 test('§GQ.6 D1 ADVERSARIAL: the model fights the rule — "unattempted" for an omitted middle step, even with a TYPE — the guard still decides; a whole-question blank stays Not attempted', async () => {
-  const run = async (steps, marks = 2, qt = 'Find n.') => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] })
+  const run = async (steps, marks = 2, qt = 'Find the week n in which the balance first falls below Rs 1000.') => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] })
     .sheet(sheet([sq(1, { marks, questionText: qt, finalAnswer: null })], { acceptsV2: true }))).body.results[0];
   const first = S({ description: 'a and d', studentWork: 'a = 4500, d = -350', status: 'correct', marksAwarded: 0.5, marksDeducted: 0 });
   const last = S({ description: 'Final week', studentWork: 'n = 12', status: 'correct', marksAwarded: 0.5, marksDeducted: 0 });
@@ -3341,9 +3341,26 @@ test('§GQ.6 D1 ADVERSARIAL: the model fights the rule — "unattempted" for an 
   assert.equal(blank.marksAwarded, 0);
   assert.ok(blank.annotatedSteps.every((s) => s.status === 'unattempted'));
   // sub-part markers in the question and no step labels → left alone (cannot tell a part from a step)
-  const marked = await run([first, mid, last], 2, 'Find n. (i) Write a and d. (ii) Find the week.');
+  const marked = await run([first, mid, last], 2, 'For the AP 4500, 4150, … (i) Write a and d. (ii) Find the week.');
   assert.equal(marked.annotatedSteps[1].status, 'unattempted');
   // the last step, no justification word, nothing after it → a separately asked deliverable: left alone
   const tail = await run([first, last, S({ description: 'Second ratio', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1 })], 2);
   assert.equal(tail.annotatedSteps[2].status, 'unattempted');
+  // the FIRST step, answered work only after it → a skipped first deliverable: left alone (review item 1)
+  const head = await run([S({ description: 'Gas evolved', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1 }), last], 2, 'Name the gas evolved and the type of reaction when zinc reacts with dilute sulphuric acid.');
+  assert.equal(head.annotatedSteps[0].status, 'unattempted');
+  // a justification FIRST, its answer after it → still no attempted work before it: left alone
+  const why = await run([S({ description: 'Reason for the value', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1 }), last], 2);
+  assert.equal(why.annotatedSteps[0].status, 'unattempted');
+});
+
+test('§GQ.7 D3 review item 9: the column split reaches ONLY the model\'s quote of a photographed answer — never the model\'s own corrected working, which is read exactly as on trunk (and still nulled when false)', async () => {
+  assert.equal(falseEqualities('2 = 2 -24 = -24').length, 2, 'unquoted text: as trunk');
+  assert.equal(falseEqualities('3 + 4 = 8 −2 = −2').length, 2, 'unquoted text: as trunk');
+  // through the handler: a photo answer whose step carries a FALSE corrected working of the glued shape — trunk drops it
+  const r = (await harness({ replies: [REPLY(R(1, [
+    S({ description: 'Finds the zeroes', studentWork: 'x = 6, x = −4', marksAwarded: 2 }),
+    S({ description: 'Verifies', studentWork: 'Sum = 6 + (−4) = 3', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation', correctedWorking: '2 = 2 -24 = -24' }),
+  ]))] }).sheet(sheet([sq(1, { marks: 3, textAnswer: undefined, finalAnswer: null })], { uploads: [{ qNumber: 1, ...PHOTO }], acceptsV2: true }))).body.results[0];
+  assert.equal(r.annotatedSteps[1].correctedWorking, null, 'a corrected working that is false as written is never shown to the student');
 });

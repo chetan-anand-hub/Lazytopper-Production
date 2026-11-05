@@ -920,7 +920,14 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // "missing" (typed presentation where the answer is right), never "unattempted", and side-by-side work
 // is read and quoted column by column (WS-M-MIX-02 Q21/Q22/Q15/Q24).
 //   PREVIOUS 72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8
-const NO_UPLOADS_CONTENTS_SHA256 = '0bfbc85bf5acc2c99f883ec9f41b729a79c17339ec46f5fb876ac968f28a553f';
+// GRADER-QUALITY-1 review round 1 (0bfbc85b… → below): the D1 rule is bounded by the exam-technique cap (a
+// bigger omission stays "missing", untyped, as before), reconciled with PRESENTATION vs MISSING, and the
+// asked-for-reason case follows the owner ruling of 5 Nov 2026; the D2 sentence is limited to wording /
+// variable names. Then the OWNER RULING of 5 Nov 2026 (~08:45): a blank reason / justification / verification
+// is exam technique only with proof of knowledge — the model returns a verbatim `knowledgeEvidence` quote
+// (rules.cjs (b); schema.cjs adds the optional field). Rule TEXT only; the schema object is not in this digest.
+//   PREVIOUS 0bfbc85bf5acc2c99f883ec9f41b729a79c17339ec46f5fb876ac968f28a553f
+const NO_UPLOADS_CONTENTS_SHA256 = '3281f1c90c7183368ad1e461b13c8eb9fbaebe392713d6dec4f0f735673d95d4';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

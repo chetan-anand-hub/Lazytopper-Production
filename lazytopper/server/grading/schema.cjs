@@ -43,6 +43,9 @@ function stepSchema() {
       marksDeducted: { type: 'NUMBER', nullable: true },
       teacherAnnotation: { type: 'STRING', nullable: true },
       mistakeType: { type: 'STRING', nullable: true },
+      // GRADER-QUALITY-1 (owner ruling 5 Nov 2026): optional, additive — a VERBATIM quote of the student's own
+      // correct use, elsewhere in the question, of the idea a BLANK reason step left out (rules.cjs (b)).
+      knowledgeEvidence: { type: 'STRING', nullable: true },
       correctedWorking: { type: 'STRING', nullable: true },
       isDeparture: { type: 'BOOLEAN', nullable: true },
       departureKind: { type: 'STRING', nullable: true },
@@ -51,7 +54,7 @@ function stepSchema() {
     // Ordering hint only: the model QUOTES and DESCRIBES a step before it judges it.
     propertyOrdering: [
       'stepNumber', 'part', 'description', 'studentWork', 'status', 'marksAvailable',
-      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'correctedWorking',
+      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'knowledgeEvidence', 'correctedWorking',
       'isDeparture', 'departureKind', 'isReturn',
     ],
     required: ['description'],

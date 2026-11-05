@@ -573,6 +573,9 @@ function inventoryStable(inventory, raw) {
   return lines.some((l) => firstLineInWork(l, work));
 }
 
+/** A step carries a part label (the SAME test in markGenuinelyUnattempted and omissionsInAttemptedWork). */
+const hasPartLabel = (s) => s.part != null;
+
 /* ── D29 (Controller B's ask (1)) — GENUINELY UNATTEMPTED WORK IS "unattempted" ───────
    A part the student did not attempt — left blank, answered only "Don't know" / "DK", or
    struck out with nothing in its place — is the FOURTH STATE (no type, its marks in
@@ -616,7 +619,7 @@ function markGenuinelyUnattempted(steps) {
     if (s.status !== 'unattempted' && !(s.marksAwarded > 0) && s.studentWork && nonAttemptText(s.studentWork) === 'phrase') { toUnattempted(s); n += 1; }
   }
   // B — a part with no work in it at all.
-  const anyLabelled = live.some((s) => s.part != null);
+  const anyLabelled = live.some(hasPartLabel);
   const groups = new Map();
   for (const s of live) {
     const k = partKey(s.part);
@@ -636,57 +639,91 @@ function markGenuinelyUnattempted(steps) {
 
 /* ── GRADER-QUALITY-1 (D1) — AN OMISSION INSIDE AN ATTEMPTED ANSWER IS NOT "NOT ATTEMPTED" ──
    Live 4 and 5 Nov 2026 (Answer Checker multi, WS-M-MIX-02, the owner's student's paper of 3 Nov):
-   Q15 ("12th week" stated and verified, the inequality aₙ < 1000 not shown) and Q24(i) (BP, CQ written,
-   the reason "tangents from an external point are equal" left out) came back with that step
-   "unattempted" — on BOTH runs — so the scorecard said "Not attempted" for an answered question and
-   MI lost the exam-technique signal. "unattempted" is a question or PART with NO attempt
-   (rules.cjs UNATTEMPTED; owner, 5 Oct 2026, DECISION_LOG "Not attempted its own state, never a
-   mistake"); a step left out of attempted work is "missing" (rules.cjs MISSING), and R1 (5 Oct 2026):
-   "a 'missing' step the grader TYPED keeps its type + MI entry (a CBSE exam-technique deduction)";
-   rules.cjs PRESENTATION: "Right answer with weak or no justification → presentation".
-   RUNS AFTER EVERY MARK IS FINAL (after 7b), so it moves NO mark — it changes a status and a type only.
-   Conservative by construction (a genuinely skipped part is never touched):
-     - only a SUBJECTIVE question; only a step the model returned "unattempted" whose own work is not a
-       non-attempt phrase ("Don't know" stays unattempted — ruling 7);
-     - its PART must hold attempted work (a step that earned marks, or real written work). A labelled
-       step is grouped by its label; an unlabelled step only when NO step carries a part label AND the
-       question text shows no (i)/(ii)/(a)/(b) sub-parts — otherwise left alone;
-     - and there must be POSITIVE EVIDENCE that the step is an omission inside the answer, not a separately
-       asked deliverable left out: EITHER attempted work of the same part comes AFTER it (a gap in the
-       middle of the working — Q15: the inequality step between "a = 4500, d = −350" and "a₁₂ = 650"),
-       OR the step is a JUSTIFICATION (its description or annotation names a reason, justification,
-       verification, inequality, condition, theorem or property — Q24(i): "Geometric reason for equal
-       tangent lengths"). Without either it is left "unattempted": owner key owner-anomaly-02 Q22 ("State
-       the F2 phenotypic and genotypic ratio", genotypic not written) is an UNATTEMPTED PART (expected-key.md
-       row 22) — the differential vs trunk on the stored runs found exactly that case;
-     - it becomes "missing", typed "presentation" ONLY when no other step of the part is wrong or carries
-       a mistake of method/arithmetic/copying, AND the answer's exam-technique loss including it stays
-       within the A17 ruling B cap (1 mark; ½ on a 1-mark answer) — a bigger omission is not a format
-       nicety (rules.cjs MARK-SIZE SANITY CHECK): it stays "missing" with no type (honestly "reason not
-       recorded"; D248 ruling 1 then attributes it as for any omitted line). */
-const SUB_PART_MARKER = /\(\s*(?:i{1,3}|iv|v|vi|a|b|c|d)\s*\)/i;
-const JUSTIFICATION_STEP = /\b(?:reason\w*|justif\w*|because|why|verif\w*|inequalit\w*|conditions?|theorem|propert(?:y|ies))\b/i;
-function omissionsInAttemptedWork(steps, { questionText, totalMarks }) {
+   Q15 ("12th week" stated and verified, the inequality aₙ < 1000 not shown) came back with that step
+   "unattempted" on BOTH runs, so the scorecard said "Not attempted" for an answered question and MI lost the
+   exam-technique signal; Q24(i) (BP, CQ written, the asked-for reason blank) did the same on 4 Nov.
+   "unattempted" is a question or PART with NO attempt (rules.cjs UNATTEMPTED; owner, 5 Oct 2026,
+   DECISION_LOG:1445 "Not attempted its own state, never a mistake"); R1 (5 Oct 2026, DECISION_LOG:1478):
+   "a 'missing' step the grader TYPED keeps its type + MI entry (a CBSE exam-technique deduction)".
+   RUNS AFTER EVERY MARK IS FINAL (after 7b): it changes a status and a type, NEVER a mark. It flips a step
+   ONLY to "missing" + exam technique; in every other case the step stays exactly as the model reported it
+   (a missing step with no type would be shown as Not attempted AND counted as a new MI entry by the client
+   — src/lib/mistakeDisplay.ts — so an untyped flip is never made). Every condition must hold:
+     - a SUBJECTIVE question; the step's own work is EMPTY ("I don't know this part" is left alone);
+     - the step's own description names no part ("part (ii)", "(b)", "ii)");
+     - where it is unlabelled: no step carries a part label, the question text is a REAL question
+       (isRealQuestionText — an Answer Checker question that exists only in the photo is not), and the text
+       shows no sub-parts ("(i)", "i)", "i.", "a)", "1." …);
+     - ATTEMPTED work (status correct / partial / incorrect — never "missing") of the SAME part comes BEFORE
+       it — a skipped FIRST deliverable ("name the gas evolved and the type of reaction": gas blank,
+       reaction answered) is never a mistake — AND EITHER
+         (a) WORKING NOT SHOWN: attempted work of the part also comes AFTER it (a gap: Q15), OR
+         (b) PROOF OF KNOWLEDGE (owner ruling 5 Nov 2026 ~08:45, superseding the earlier "a blank asked-for
+             reason is exam technique"): its description names a reason / justification / verification /
+             inequality / condition / theorem / property AND the model's knowledgeEvidence quote is found in
+             ANOTHER correct/partial step of the question (knowledgeProven). A blank tells us what is missing,
+             not why: MI never guesses — without that proof the step stays as the model reported it;
+     - no step of the part is wrong or typed conceptual / calculation / silly;
+     - the answer's exam-technique loss INCLUDING it stays within the A17 ruling B cap (1 mark; ½ on a
+       1-mark answer), each step counted at the larger of its lost marks and its deduction.
+   The SAME proof for a blank reason step the MODEL typed exam technique itself is written below but OFF
+   (ENFORCE_EVIDENCE_ON_MODEL_TYPING) pending an owner gate decision; there the prompt binds the model.
+   Owner key owner-anomaly-02 Q22 ("State the F2 phenotypic and genotypic ratio", genotypic not written)
+   stays an UNATTEMPTED PART (expected-key.md row 22) — the differential vs trunk found that case. */
+const SUB_PART_MARKER = /\(\s*(?:i{1,3}|iv|vi?|[a-d])\s*\)|(?:^|[\s:;,.])(?:i{1,3}|iv|vi?|[a-d])[.)](?=\s)|(?:^|\s)[1-9][.)](?=\s)/im;
+const PART_NAMED = /\bpart\b|\(\s*(?:i{1,3}|iv|vi?|[a-d])\s*\)|(?:^|\s)(?:i{1,3}|iv|vi?|[a-d])[.)](?=\s|$)/i;
+const JUSTIFICATION_STEP = /\b(?:reason\w*|justif\w*|verif\w*|inequalit\w*|conditions?|theorem|propert(?:y|ies))\b/i;
+// The owner ruling's own words — a blank REASON / JUSTIFICATION / VERIFICATION step the model typed itself.
+const KNOWLEDGE_STEP = /\b(?:reason\w*|justif\w*|verif\w*)\b/i;
+const ATTEMPTED_STATUSES = new Set(['correct', 'partial', 'incorrect']);
+const ENFORCE_EVIDENCE_ON_MODEL_TYPING = false;
+const normEvidence = (t) => String(t == null ? '' : t).normalize('NFKC').toLowerCase().replace(/[−–—]/g, '-').replace(/\s+/g, ' ').trim();
+/** The model's knowledgeEvidence is a real quote of ANOTHER correct/partial step of this question. */
+function knowledgeProven(u, live) {
+  const ev = normEvidence(u._knowledgeEvidence);
+  if (ev.replace(/[\s.,;:]/g, '').length < 6) return false;
+  return live.some((s) => s !== u && (s.status === 'correct' || s.status === 'partial') && normEvidence(s.studentWork).includes(ev));
+}
+function omissionsInAttemptedWork(steps, { q, totalMarks }) {
   let n = 0;
   const live = steps.filter((s) => s.status !== 'withdrawn');
-  const anyLabelled = live.some((s) => partKey(s.part) !== '');
-  const attempted = (s) => s.status !== 'unattempted' && (s.marksAwarded > 0 || nonAttemptText(s.studentWork) === null);
-  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
+  const anyLabelled = live.some(hasPartLabel);
+  const questionText = String((q && (q.questionText || q.question)) || '');
+  const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
+  const attempted = (s) => ATTEMPTED_STATUSES.has(s.status);
+  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded, Number(s.marksDeducted) || 0));
   const cap = examTechniqueCap(totalMarks);
+  const sides = (u) => {
+    const at = live.indexOf(u);
+    const group = live.filter((s) => s !== u && partKey(s.part) === partKey(u.part));
+    return { group, before: group.some((s) => live.indexOf(s) < at && attempted(s)), after: group.some((s) => live.indexOf(s) > at && attempted(s)) };
+  };
+  // (b) for the MODEL'S OWN typing: a blank reason step typed exam technique needs the same proof, unless it
+  // is working not shown (a gap). Without it the type is withdrawn; status and marks are untouched.
+  // ⚑ OFF pending an owner gate decision (coordinator, 5 Nov): on the stored golden replies it fires on GS-M22-a
+  // only (a blank "verify your answer", typed presentation by the model; the examiner key says no type), which
+  // moves the G1 `consistency` floor (truth.cjs C05) and two rebaseline digests. Until then the prompt (rules.cjs
+  // (b)) is what binds the model's own typing; every flip THIS guard makes requires the proof (below).
+  if (ENFORCE_EVIDENCE_ON_MODEL_TYPING) for (const s of live) {
+    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || nonAttemptText(s.studentWork) !== 'empty') continue;
+    if (!KNOWLEDGE_STEP.test(String(s.description || ''))) continue;
+    const { before, after } = sides(s);
+    if (before && after) continue;
+    if (!knowledgeProven(s, live)) { s.mistakeType = null; n += 1; }
+  }
   for (const u of live) {
-    if (u.status !== 'unattempted' || u.marksAwarded > 0 || nonAttemptText(u.studentWork) === 'phrase') continue;
-    const k = partKey(u.part);
-    if (k === '' && (anyLabelled || SUB_PART_MARKER.test(String(questionText || '')))) continue;
-    const group = live.filter((s) => s !== u && partKey(s.part) === k);
-    if (!group.some(attempted)) continue;
-    const gapInWork = group.some((s) => live.indexOf(s) > live.indexOf(u) && attempted(s));
-    const justification = JUSTIFICATION_STEP.test([u.description, u.teacherAnnotation].join(' . '));
-    if (!gapInWork && !justification) continue;
-    const clean = !group.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType));
+    if (u.status !== 'unattempted' || u.marksAwarded > 0 || nonAttemptText(u.studentWork) !== 'empty') continue;
+    if (PART_NAMED.test(String(u.description || ''))) continue;
+    if (partKey(u.part) === '' && (anyLabelled || !realQuestion || SUB_PART_MARKER.test(questionText))) continue;
+    const { group, before, after } = sides(u);
+    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && knowledgeProven(u, live);
+    if (!before || !(after || proven)) continue;
+    if (group.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType))) continue;
     const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s))
       .reduce((a, s) => a + lostOf(s), 0));
+    if (half(etLost + lostOf(u)) > cap) continue;
     u.status = 'missing';
-    u.mistakeType = clean && half(etLost + lostOf(u)) <= cap ? 'presentation' : null;
+    u.mistakeType = 'presentation';
     n += 1;
   }
   return n;
@@ -772,6 +809,9 @@ function normaliseSteps(rawSteps) {
         departureKind: VALID_KINDS.has(s.departureKind) ? s.departureKind : null,
         isReturn: s.isReturn === true,
       };
+      // GRADER-QUALITY-1 (owner ruling 5 Nov 2026): the model's quote of the student's proof of knowledge for a
+      // BLANK reason step — internal only (never emitted), read by omissionsInAttemptedWork.
+      Object.defineProperty(step, '_knowledgeEvidence', { value: typeof s.knowledgeEvidence === 'string' ? s.knowledgeEvidence.trim() : '', writable: true, enumerable: false });
       // What the step could earn, by the model's own ledger when it did not say.
       step._available = step.marksAvailable != null ? step.marksAvailable : half(marksAwardedModel + marksDeductedModel);
       if (status === 'withdrawn') {
@@ -1365,7 +1405,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
 
   // 7c · GRADER-QUALITY-1 (D1): an omitted step inside attempted work is "missing" (typed
   //      exam technique where it fits), never "unattempted". After every mark is final: types only.
-  if (!questionIsObjective) omissionsInAttemptedWork(steps, { questionText: q.questionText || q.question, totalMarks });
+  if (!questionIsObjective) omissionsInAttemptedWork(steps, { q, totalMarks });
 
   // 8 · comments made true
   const primaryDeparture = departures[0] || null;

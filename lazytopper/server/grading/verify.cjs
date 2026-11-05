@@ -183,14 +183,17 @@ const MIXED_NUMBER = /^\s*(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)\s*$/;
 const SPACED_NUMBERS = /\d\s+(?=[\d.])/;
 /* GRADER-QUALITY-1 (D3), live 4 Nov 2026 (Answer Checker multi, WS-M-MIX-02 Q21, owner's student, 3 Nov):
    the student verified the zeroes in TWO COLUMNS — "−4 + 6 = 2 / 2 = 2" beside "6 × −4 = −24 / −24 = −24"
-   — and the model quoted the second rows as ONE line, "2 = 2 −24 = −24". Guard (1) above splits a
-   join only where the next column starts with a DIGIT; here it starts with a SIGN, so "2 −24" was
-   evaluated as 2 − 24 and a correct step lost ½ with "2 is not 2 −24". (4) a side holding a number,
-   whitespace, then a sign GLUED to a digit ("2 −24", "3 -5") in a photo/OCR quote is a joined line:
-   skipped, never charged. Like (1)–(2) it can only REMOVE a charge. Accepted cost (pinned in
-   core.test.cjs): a real slip quoted with a glued sign ("5 -3 = 3") is no longer charged by this
-   check; a spaced minus ("5 - 3 = 3", "2 − 24") and every TYPED answer are charged as before. */
-const SIGNED_COLUMN_JOIN = /\d\s+[-−](?=\d)/;
+   — and the model quoted the second rows as ONE line, "2 = 2 −24 = −24". Guard (1) above splits a join
+   only where the next column starts with a DIGIT; here it starts with a SIGN, so "2 −24" was evaluated as
+   2 − 24 and a correct step lost ½ with "2 is not 2 −24". (1b) In the MODEL'S QUOTE of a photographed /
+   uploaded answer (opts.quoted, no typed source) a line boundary is also a space before a number that has
+   a sign GLUED to it (-, −, –) and is followed at once by "=": the line is SPLIT there and each column is
+   checked on its own — "2 = 2" and "−24 = −24" are true; "3 + 4 = 8 −2 = −2" still charges "3 + 4 is not
+   8". Never on the student's TYPED words, never on the model's own corrected working.
+   Accepted cost (core.test.cjs §GQ.2): a real slip quoted with a glued sign ("5 -3 = 3") is read as two
+   lines, "5" and "-3 = 3", neither of them arithmetic, so it is not charged; spaced ("5 − 3 = 3") or typed,
+   it is. */
+const SIGNED_LINE_JOIN = /(?<=\d)\s+(?=[-−–]?\d+(?:\.\d+)?\s*[=≈])/;
 function mixedValue(side) {
   const m = MIXED_NUMBER.exec(String(side == null ? '' : side));
   if (!m || Number(m[4]) === 0 || Number(m[3]) >= Number(m[4])) return null;
@@ -240,7 +243,7 @@ function falseEqualities(text, opts = {}) {
   // line-boundary split and the spaced-number skip (guards 1–2) are for photo/OCR quotes only.
   const typedSource = String(opts.source == null ? '' : opts.source).trim().length > 0;
   const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i)
-    .flatMap((c) => (typedSource ? [c] : c.split(LINE_JOIN)));
+    .flatMap((c) => (typedSource ? [c] : c.split(opts.quoted === true ? SIGNED_LINE_JOIN : LINE_JOIN)));
   for (const clause of clauses) {
     if (!/[=≈]/.test(clause)) continue;
     if (/[,:%±∓°<>≤≥≠]/.test(clause)) continue; // lists, ratios, percentages, inequalities: not plain
@@ -257,7 +260,6 @@ function falseEqualities(text, opts = {}) {
       const ma = mixedValue(na);
       const mb = mixedValue(nb);
       if (!typedSource && ((ma === null && SPACED_NUMBERS.test(na)) || (mb === null && SPACED_NUMBERS.test(nb)))) continue;
-      if (!typedSource && (SIGNED_COLUMN_JOIN.test(a.raw) || SIGNED_COLUMN_JOIN.test(b.raw))) continue;
       if (!hasOperator(na) && !hasOperator(nb)) continue; // "8 = 8" — nothing computed
       // A RADICAL WITHOUT BRACKETS beside a + or − has an unknowable scope: the student's
       // vinculum over "196 + 110.25" is quoted as "√196 + 110.25" (live, 2026-10-05, CP03-Q08).
