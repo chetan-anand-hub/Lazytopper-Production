@@ -373,7 +373,7 @@ describe("CI-TUTOR-RETURN-1 · come back from the tutor to the same graded paper
 
   it("★ the 'asked' marker persists across the return (per-viewer, question numbers only)", async () => {
     arrange();
-    window.sessionStorage.setItem("lt.scorecardAsked.v1", JSON.stringify({ "CI-M-REAL-07": [4] }));
+    window.sessionStorage.setItem("lt.scorecardAsked.v2", JSON.stringify({ "u1|CI-M-REAL-07": [4] }));
     render(page("/check-improve?review=CI-M-REAL-07"));
     await screen.findByText(/CI-M-REAL-07 · graded/);
     await waitFor(() => expect(askButtons()).toHaveLength(3));
@@ -425,4 +425,46 @@ describe("CI-TUTOR-RETURN-1 · come back from the tutor to the same graded paper
     expect(screen.queryByTestId("ci-review-missed")).toBeNull();
     Object.defineProperty(H, "records", { configurable: true, writable: true, value: [] });
   });
+
+  it("★ the asked marker is per ACCOUNT: A's Q4 is not shown to B on the same tab and paper code", async () => {
+    arrange();
+    window.sessionStorage.setItem("lt.scorecardAsked.v2", JSON.stringify({ "u1|CI-M-REAL-07": [4] }));
+    H.auth = { user: { ...SIGNED_IN, uid: "u2" }, loading: false };
+    H.records = [ciRecord("CI-M-REAL-07", "u2")];
+    render(page("/check-improve?review=CI-M-REAL-07"));
+    await screen.findByText(/CI-M-REAL-07 · graded/);
+    await waitFor(() => expect(askButtons()).toHaveLength(3));
+    for (const b of askButtons()) expect(b).not.toHaveTextContent("ask again");
+  });
+
+  it("★★ the hop keeps the rest of the URL: after browser Back the other query params survive", async () => {
+    arrange();
+    render(page("/check-improve?review=CI-M-REAL-07&source=tutor&keep=1"));
+    await screen.findByText(/CI-M-REAL-07 · graded/);
+    await waitFor(() => expect(askButtons()).toHaveLength(3));
+    expect(H.url).toBe("/check-improve?source=tutor&keep=1");
+    fireEvent.click(askButtons()[0]);
+    await waitFor(() => expect(H.url).toMatch(/^\/tutor\//));
+    await act(async () => H.nav!(-1));
+    await screen.findByText(/CI-M-REAL-07 · graded/);
+    await waitFor(() => expect(askButtons()).toHaveLength(3));
+    expect(H.url).toContain("keep=1");
+    expect(H.url).toContain("source=tutor");
+  });
+
+  it("★ the 'couldn't reopen' line goes away once a paper is opened from Your papers (and stays gone after Done)", async () => {
+    H.records = [ciRecord("CI-M-REAL-07", "u1")];
+    H.payload = { response: paper([g(1, 3, 1)]) };
+    render(page("/check-improve?review=CI-M-REAL-404"));
+    await screen.findByTestId("ci-review-missed");
+    // the HEADER button (the notice's own button clears the line itself)
+    fireEvent.click(screen.getByRole("button", { name: /^Your papers/ }));
+    fireEvent.click(await screen.findByText("Real Numbers · Paper #7"));
+    await screen.findByText(/CI-M-REAL-07 · graded/);
+    expect(screen.queryByTestId("ci-review-missed")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    await act(async () => {});
+    expect(screen.queryByTestId("ci-review-missed")).toBeNull();
+  });
+
 });

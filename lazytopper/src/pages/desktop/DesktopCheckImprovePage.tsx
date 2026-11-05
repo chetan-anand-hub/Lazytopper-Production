@@ -190,6 +190,8 @@ import {
   buildCheckImproveReviewHref,
   positionalQuestionId,
   recordBelongsToUid,
+  searchWithoutReview,
+  withScorecardReviewParam,
 } from "../tutor/tutorRoundTrip";
 import type { ScorecardTutorAsk } from "../../components/results/scorecardVariants";
 import { askedQuestionsOf, markQuestionAsked } from "../tutor/scorecardAsked";
@@ -2529,6 +2531,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setWsResult(shown);
       trackFunnelStep("check_graded");
       setStatus("ready");
+      setCiReviewMissed(false);
       setSaveStatus("saving");
       fairUse.noteGraded();
 
@@ -2806,6 +2809,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       trackFunnelStep("check_graded");
       setResultCtx(ctx);
       setStatus("ready");
+      setCiReviewMissed(false);
       fairUse.noteGraded();
       // PR-2 (B8 + owner addendum) — a single answer that was NOT graded (could not be read,
       // option unread, answer does not match the question) records NOTHING: no MI entry, no
@@ -2903,7 +2907,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   // tutor's own overlay, and only when a single chapter is known for that question.
   function ciTutorAsk(subject: DesktopSubject, topicSlug: string | null | undefined, qNumber: number): ScorecardTutorAsk | null {
     if (overlay || !ciSaved || !ciCode || !topicSlug) return null;
-    return ciTutorHop(ciCode, subject, topicSlug, qNumber);
+    const liveUid = user?.uid && !user.isLocalSession ? user.uid : null;
+    return ciTutorHop(liveUid, ciCode, subject, topicSlug, qNumber);
   }
   // CI-TUTOR-RETURN-1 - the ONE hop to the tutor, shared by the live card and the card restored from a
   // saved record. Two things make "come back and ask about another mistake" work:
@@ -2912,14 +2917,18 @@ const DesktopCheckImprovePageInner: React.FC<{
   //      had no query (the live result is gone after the remount) and so showed an empty form.
   //   2. The question's number is remembered (sessionStorage, numbers only) so the returned card can
   //      mark it "Asked the tutor - ask again". The button stays tappable.
-  function ciTutorHop(code: string, subject: DesktopSubject, topicSlug: string, qNumber: number): ScorecardTutorAsk {
+  function ciTutorHop(uid: string | null, code: string, subject: DesktopSubject, topicSlug: string, qNumber: number): ScorecardTutorAsk {
     const reviewHref = buildCheckImproveReviewHref(code);
     return {
-      asked: askedQuestionsOf(code).includes(qNumber),
+      asked: askedQuestionsOf(uid, code).includes(qNumber),
       onAsk: () => {
         trackOnboardingEvent("tutor_from_scorecard", { surface: "check_improve" });
-        markQuestionAsked(code, qNumber);
-        navigate(reviewHref, { replace: true });
+        markQuestionAsked(uid, code, qNumber);
+        // Keep the rest of the URL and the router state (returnTo / backLabel), add only `review`.
+        navigate(withScorecardReviewParam(ciLocation.pathname + searchWithoutReview(ciLocation.search), code), {
+          replace: true,
+          state: ciLocation.state,
+        });
         navigate(
           buildTutorPath({
             subject,
@@ -2949,7 +2958,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       const r = response.results.find((x) => x.qNumber === qNumber);
       const slug = r?.topicSlug || recordTopic;
       if (!slug) return null;
-      return ciTutorHop(record.id, r?.topicSubject ?? recordSubject, slug, qNumber);
+      return ciTutorHop(uid, record.id, r?.topicSubject ?? recordSubject, slug, qNumber);
     };
   }
   // GUIDE-SCORE-1 — ONE topic-worksheet route: the scorecard's "Practise {topic}" action and
@@ -3009,6 +3018,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // arrives, and honestly ABSENT if the fetch fails. Absorbed verbatim in behaviour
   // from the retired mobile twin, which was ahead of this file here.
   async function openReopen(r: SessionRecord) {
+    setCiReviewMissed(false);
     setPanelOpen(false);
     setReopen(r);
     setReopenResponse(null);

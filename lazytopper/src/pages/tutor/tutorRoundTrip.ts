@@ -753,7 +753,7 @@ export function composeScorecardQuestionOpener(
   // CI-TUTOR-RETURN-1 - the student's own question has no official key, so the opener does not promise one.
   if (opts?.ownUpload) {
     return {
-      text: `Q${qNumber} on ${thatRef(topicLabel, "set")} cost you ${marks}. This is your own question, so I have no official key for it - I can walk through your working and where the marks went. Want to start there?`,
+      text: `Q${qNumber} on ${thatRef(topicLabel, "set")} cost you ${marks}. This is your own question, so I have no official key for it — I can walk through your working and where the marks went. Want to start there?`,
       follow: { label: "Where did I lose it?", send: `Let's go through Q${qNumber}: where did I lose the marks?` },
     };
   }
