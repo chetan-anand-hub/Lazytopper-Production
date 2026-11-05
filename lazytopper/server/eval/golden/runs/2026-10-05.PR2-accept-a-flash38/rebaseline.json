@@ -2450,8 +2450,8 @@
   },
   "run2:W.PAR.PARM7": {
    "from": "8cc50e7464d6aee43be8513545d8b406717588a3dae53aa6865a39965e629a0b",
-   "to": "0f57e67c49bee68cdca9722b8942c08521b60b093d421613e42f0d385d5eeda8",
-   "class": "a17-r2-not-attempted",
+   "to": "9d96ed5b4a1ee2cd0cd64b02855d459530858a1f110075d8d1aaf778cf16b890",
+   "class": "a17-r2-not-attempted+g-knowledge-evidence-1",
    "a17": {
     "base": "8cc50e7464d6aee43be8513545d8b406717588a3dae53aa6865a39965e629a0b",
     "delta": [
@@ -2496,6 +2496,32 @@
       ],
       "Marked against: (i) Total outcomes = 9 / P(red) = 4/9 (1); (ii) P(yellow) = 2/9 (1). This question was left unattempted on the answer sheet. Simple probability questions can earn you full marks easily with standard formula application.",
       "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   },
+   "knowl": {
+    "base": "0f57e67c49bee68cdca9722b8942c08521b60b093d421613e42f0d385d5eeda8",
+    "delta": [
+     [
+      [
+       "results",
+       1,
+       "annotatedSteps",
+       2,
+       "mistakeType"
+      ],
+      "presentation",
+      null
+     ],
+     [
+      [
+       "results",
+       1,
+       "mistakeSummary",
+       "presentation"
+      ],
+      1,
+      0
      ]
     ]
    }
@@ -2723,8 +2749,8 @@
   },
   "run3:W.PAR.PARM7": {
    "from": "c7b291b3d080c7d676966232bd61a27c2cf313c3c2afa352db9b17fa5bc3e510",
-   "to": "f2c84c7ebe1bbadc3a989715e416721d77d76f8544253f67c4aaae3f5c7e3a28",
-   "class": "a17-r2-not-attempted",
+   "to": "2d88f27200dd74bd598148bf02b05f3f62511eba766fb6c9c8f2a8b6f05f6e27",
+   "class": "a17-r2-not-attempted+g-knowledge-evidence-1",
    "a17": {
     "base": "c7b291b3d080c7d676966232bd61a27c2cf313c3c2afa352db9b17fa5bc3e510",
     "delta": [
@@ -2769,6 +2795,32 @@
       ],
       "Marked against: Total number of outcomes = 9 (0.5); (i) P(red) = 4/9 (0.5); (ii) P(yellow) = 2/9 (1). This question was left completely unattempted on the provided answer sheet.",
       "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   },
+   "knowl": {
+    "base": "f2c84c7ebe1bbadc3a989715e416721d77d76f8544253f67c4aaae3f5c7e3a28",
+    "delta": [
+     [
+      [
+       "results",
+       1,
+       "annotatedSteps",
+       2,
+       "mistakeType"
+      ],
+      "presentation",
+      null
+     ],
+     [
+      [
+       "results",
+       1,
+       "mistakeSummary",
+       "presentation"
+      ],
+      1,
+      0
      ]
     ]
    }
@@ -3189,5 +3241,11 @@
   "generator": "server/eval/golden/goldenRebaselineHabit.cjs",
   "count": 2,
   "about": "g-mcq-habit-1: a RIGHT objective answer with flawed working keeps its type as a 0-mark habit: one step gains a type and its summary count goes up by one. No mark, status, annotation, marksLostByType or note changes (lib/rebaselineClasses.cjs habitViolations)."
+ },
+ "knowl": {
+  "pr": "GRADER-QUALITY-1 (owner ruling 2026-11-05)",
+  "generator": "server/eval/golden/goldenRebaselineKnowl.cjs",
+  "count": 2,
+  "about": "g-knowledge-evidence-1: a BLANK reason / justification / verification step the model typed exam technique without proof of knowledge becomes unattempted, untyped. No mark, note or annotation changes (lib/rebaselineClasses.cjs knowlViolations)."
  }
 }

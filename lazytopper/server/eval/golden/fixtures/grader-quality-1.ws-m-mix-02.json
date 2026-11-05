@@ -1,0 +1,436 @@
+{
+  "_about": "GRADER-QUALITY-1 (5 Nov 2026) golden fixtures. Shapes from LazyTopper's own bank worksheet WS-M-MIX-02 (Real Numbers, Polynomials + 4 more), answered by the owner's student on 3 Nov 2026 and graded live on the Answer Checker (multi-question) on 4 Nov (41/51) and 5 Nov (41.5/51, code CI-M-SURF-06). PROVENANCE, case by case: `studentWritten` is a TRANSCRIPTION of the student's notebook ('Book 3 Nov 2026.pdf', page cited; read from a render of that page — spelling and spacing normalised, nothing added); `modelReply` is the grader-reply SHAPE the live run returned, used by the deterministic tests in server/grading/rulings.surfaces.suite.cjs: every `description`, `studentWork` and `teacherAnnotation` marked `pdfVerbatim` on its case is copied VERBATIM from the 4 Nov graded PDF ('WS-M-MIX-02-graded-answer-checker-41-of-51.pdf', page cited); where a case keeps fewer steps or different marks per step than the PDF, it says `shortenedShape` and what was left out. `questionTextParaphrased: true` marks a question text that is a paraphrase of the printed question. A case marked `synthetic: true` is NOT from the student's paper and says so. No image and no name are committed. `deterministic: false` marks a shape only the prompt can move (D2): it needs the live golden run (>= 3 runs, stable marks AND types).",
+  "source": {
+    "worksheet": "WS-M-MIX-02",
+    "student": "owner's student (not named)",
+    "answered": "2026-11-03",
+    "gradedLive": [
+      "2026-11-04",
+      "2026-11-05"
+    ]
+  },
+  "cases": [
+    {
+      "id": "GQ1-WS02-Q15",
+      "defect": "D1",
+      "deterministic": true,
+      "subject": "Maths",
+      "chapter": "arithmetic-progression",
+      "marks": 2,
+      "questionText": "At the end of week 1 a canteen card has a balance of Rs 4500 and Rs 350 is spent every week after that. At the end of which week will the balance first fall below Rs 1000?",
+      "modelReply": [
+        {
+          "description": "Identifying a and d of the AP",
+          "studentWork": "AP = 4500, 4150, 3800\na = 4500, d = -350",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct values of a and d",
+          "mistakeType": null
+        },
+        {
+          "description": "Setting up condition and solving for n",
+          "studentWork": "",
+          "status": "unattempted",
+          "marksAvailable": 1,
+          "marksAwarded": 0,
+          "marksDeducted": 1,
+          "teacherAnnotation": "× Missing algebraic setup/inequality to find n (e.g. 4500 + (n-1)(-350) < 1000)",
+          "mistakeType": null
+        },
+        {
+          "description": "Verifying and stating the final week",
+          "studentWork": "At the end of the 12th week the balance would fall below ₹1000\na12 = a + (n-1)d\n= 4500 - 11 × 350\n= 4500 - 3850\n= ₹ 650",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct final answer",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 1,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "missing",
+            0,
+            "presentation"
+          ],
+          [
+            "correct",
+            0.5,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "presentation": 1,
+          "unattempted": 0
+        }
+      },
+      "rulings": [
+        "handoff/DECISION_LOG.md:1478 R1 (5 Oct 2026): a typed missing step keeps its type (exam technique); only unattempted is Not attempted",
+        "server/grading/rules.cjs PRESENTATION: right answer with weak or no justification -> presentation"
+      ],
+      "studentWritten": {
+        "page": 3,
+        "text": "AP = 4500, 4150, 3800\na = 4500, d = -350\nAt the end of the 12th week the balance would fall below Rs 1000\na12 = a + (n-1)d\n= 4500 - 11 x 350\n= 4500 - 3850\n= Rs 650"
+      },
+      "questionTextParaphrased": true,
+      "questionTextNote": "PARAPHRASE. The printed question (PDF page 7): \"At the end of week 1, a student's prepaid canteen card has a balance of ₹4500, and exactly ₹350 is spent from it every week after that, so the balances at the end of weeks 1, 2, 3, ... are ₹4500, ₹4150, ₹3800, .... At the end of which week will the balance first fall below ₹1000?\"",
+      "pdfVerbatim": {
+        "page": 7,
+        "fields": "steps 1-3: description, studentWork, teacherAnnotation; statuses and marks (+0.5, Not attempted, +0.5) as printed"
+      }
+    },
+    {
+      "id": "GQ1-WS02-Q24",
+      "defect": "D1",
+      "deterministic": true,
+      "subject": "Maths",
+      "chapter": "circles",
+      "marks": 4,
+      "questionTextAbridged": true,
+      "abridgedNote": "ABRIDGED: the worksheet's full Q24 (a town park with a circular fountain) also asks for the cost of fencing all four walls at Rs 150 per metre; that part is left out here — it carries no D1 shape.",
+      "questionText": "A circle touches the sides of quadrilateral ABCD at P, Q, R and S. AP = 8 m, BQ = 10 m, CR = 12 m, DS = 6 m. (i) Write BP and CQ, giving a reason. (ii) Find CD and DA. (iii) Show that AB + CD = BC + DA.",
+      "modelReply": [
+        {
+          "description": "Lengths BP and CQ",
+          "studentWork": "BP = 10m, CQ = 12m",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ BP = 10 m, CQ = 12 m",
+          "mistakeType": null
+        },
+        {
+          "description": "Geometric reason for equal tangent lengths",
+          "studentWork": "",
+          "status": "unattempted",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "× State reason: tangents drawn from an external point to a circle are equal",
+          "mistakeType": null,
+          "knowledgeEvidence": "AB + CD = BC + DA"
+        },
+        {
+          "description": "Lengths of CD and DA",
+          "studentWork": "CD = 18m, DA = 12m",
+          "status": "partial",
+          "marksAvailable": 1,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "½ CD = 18 m correct; × DA should be DS + SA = 6 + 8 = 14 m",
+          "mistakeType": "calculation"
+        },
+        {
+          "description": "Show AB + CD = BC + DA",
+          "studentWork": "AB + CD = BC + DA\nLHS:- 18 + 18 = 36\nRHS:- 14 + 22 = 36\n∴ LHS = RHS\nHence proved",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ LHS = RHS = 36 verified and proved",
+          "mistakeType": null
+        },
+        {
+          "description": "Perimeter and fencing cost calculation",
+          "studentWork": "P = 18 + 18 + 14 + 22 = 72m\nCost = P x 150 = 72 x 150 = Rs 10800",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Total cost = Rs 10,800",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 3,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "unattempted",
+            0,
+            null
+          ],
+          [
+            "partial",
+            0.5,
+            "calculation"
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            1,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "unattempted": 0.5,
+          "presentation": 0
+        }
+      },
+      "note": "The live paper's Q24(ii) DA = 12 (then 14 used in (iii)) — calculation on 4 Nov, careless on 5 Nov — is #1399's area (closed 2 Nov), not this lane's.",
+      "rulings": [
+        "OWNER RULING 5 Nov 2026 (~08:45): a blank reason is exam technique ONLY with proof of knowledge — the same idea used correctly elsewhere in THIS question, quoted verbatim (knowledgeEvidence) and found in another part / a later correct step, not in the question text. Here there is no such proof in the written work, so Q24(i) stays as trunk (Not attempted ½). Honest outcome; the 20-second 'give the reason' check (separate lane) is for exactly this case.",
+        "handoff/DECISION_LOG.md:1478 R1"
+      ],
+      "studentWritten": {
+        "page": 8,
+        "text": "24) i) BP = 10m\n CQ = 12m\nii) CD = 18m\n DA = 12m\niii) AB + CD = BC + DA\n LHS:- 18 + 18 = 36\n RHS:- 14 + 22 = 36 (the 12 is overwritten to 14)\n ∴ LHS = RHS\n Hence proved\nP = 18 + 18 + 14 + 22 = 72m\nCost = P x 150 = 72 x 150 = Rs 10800\n[figure] the quadrilateral with the circle, each vertex's two tangent lengths labelled equal: A 8m/8m, B 10m/10m, C 12m/12m, D 6m/6m"
+      },
+      "modelReplyNote": "Steps as printed in the 4 Nov graded PDF (no part labels were shown there). knowledgeEvidence is ADDED to test the rule: a model following rules.cjs (b) could quote (iii)'s \"AB + CD = BC + DA\" — but that is the question's own \"Show that AB + CD = BC + DA\", so knowledgeProven REJECTS it. The student's equal-tangent knowledge is visible only in the FIGURE (equal lengths at each vertex) and, in another question, Q17 (\"AS=AP, DS=DR, BP=BQ, CQ=CR — length of tangents drawn from an external point of a circle are equal\", page 3); the ruling asks for use in THIS question's written work. So on this paper Q24(i) stays as trunk."
+    },
+    {
+      "id": "GQ1-SYNTH-Q24-EVIDENCE",
+      "synthetic": true,
+      "syntheticNote": "SYNTHETIC — NOT from the student's paper. The WS-M-MIX-02 Q24 question with a constructed answer whose (ii) WRITES the equal-tangent sums (CD = CR + DR, DA = DS + AS), so the positive case of the owner's 5 Nov ruling can be tested. Never present it as student work.",
+      "defect": "D1",
+      "deterministic": true,
+      "subject": "Maths",
+      "chapter": "circles",
+      "marks": 4,
+      "questionTextAbridged": true,
+      "questionText": "A circle touches the sides of quadrilateral ABCD at P, Q, R and S. AP = 8 m, BQ = 10 m, CR = 12 m, DS = 6 m. (i) Write BP and CQ, giving a reason. (ii) Find CD and DA. (iii) Show that AB + CD = BC + DA.",
+      "modelReply": [
+        {
+          "part": "(i)",
+          "description": "Lengths BP and CQ",
+          "studentWork": "BP = 10 m, CQ = 12 m",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ BP = 10 m, CQ = 12 m",
+          "mistakeType": null
+        },
+        {
+          "part": "(i)",
+          "description": "Geometric reason for equal tangent lengths",
+          "studentWork": "",
+          "status": "unattempted",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "× State reason: tangents drawn from an external point to a circle are equal",
+          "mistakeType": null,
+          "knowledgeEvidence": "CD = CR + DR = 12 + 6"
+        },
+        {
+          "part": "(ii)",
+          "description": "Lengths of CD and DA",
+          "studentWork": "CD = CR + DR = 12 + 6 = 18 m, DA = DS + AS = 6 + 8 = 14 m",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓",
+          "mistakeType": null
+        },
+        {
+          "part": "(iii)",
+          "description": "Show AB + CD = BC + DA",
+          "studentWork": "LHS = 18 + 18 = 36, RHS = 14 + 22 = 36, hence proved",
+          "status": "correct",
+          "marksAvailable": 2,
+          "marksAwarded": 2,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "missing",
+            0,
+            "presentation"
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "presentation": 0.5,
+          "unattempted": 0
+        }
+      },
+      "rulings": [
+        "OWNER RULING 5 Nov 2026 (~08:45): exam technique ONLY with proof — (ii) uses DR = DS and AS = AP, the equal-tangent fact the blank reason in (i) would have stated"
+      ]
+    },
+    {
+      "id": "GQ1-WS02-Q21",
+      "defect": "D3",
+      "deterministic": true,
+      "subject": "Maths",
+      "chapter": "polynomials",
+      "marks": 3,
+      "questionText": "Find the zeroes of x² − 2x − 24 and verify the relationship between the zeroes and the coefficients.",
+      "photoQuote": "Relationship of the zeroes & the coefficients.\nα + β = -b/a      αβ = c/a\n-4 + 6 = 2        6 × -4 = -24\n2 = 2      -24 = -24\n(Hence verified.)",
+      "modelReply": [
+        {
+          "description": "Factorisation of polynomial and finding zeroes",
+          "studentWork": "p(x) = x² - 2x - 24   (ax² + bx + c)\nx² - 2x - 24 = 0\nx² - 6x + 4x - 24 = 0\nx(x - 6) + 4(x - 6) = 0\n(x + 4)(x - 6)\nLet the zeroes of p(x) be α & β respectively.\nα = -4, β = 6",
+          "status": "correct",
+          "marksAvailable": 2,
+          "marksAwarded": 2,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Zeroes correctly found: α = -4, β = 6",
+          "mistakeType": null
+        },
+        {
+          "description": "Verification of relationships between zeroes and coefficients",
+          "studentWork": "Relationship of the zeroes & the coefficients.\nα + β = -b/a      αβ = c/a\n-4 + 6 = 2        6 × -4 = -24\n2 = 2      -24 = -24\n(Hence verified.)",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Verified",
+          "mistakeType": null
+        }
+      ],
+      "trunk": {
+        "marksAwarded": 2.5,
+        "annotation": "½ Check the arithmetic here: 2 is not 2 -24."
+      },
+      "expected": {
+        "marksAwarded": 3,
+        "noArithmeticComment": true,
+        "marksLostByType": {
+          "calculation": 0
+        }
+      },
+      "rulings": [
+        "CLAUDE.md section 13: calculation = PERFORMED wrongly; both columns are right",
+        "server/grading/verify.cjs guards (1)-(2): a joined line is skipped, never charged"
+      ],
+      "studentWritten": {
+        "page": 5,
+        "text": "Relationship of the zeroes & the coefficients.\n[left column] α+β = −b/a ; −4+6 = 2 ; 2 = 2\n[right column] αβ = c/a ; 6×−4 = −24 ; −24 = −24\n(Hence verified)"
+      },
+      "photoQuoteNote": "photoQuote is the model's quote of the student's two columns, copied from the 4 Nov graded PDF page 11 (STEP 3, \"Verification of relationships between zeroes and coefficients\"); the run of spaces between the columns is as rendered there (the PDF does not preserve its exact count). The student's own two columns are transcribed in studentWritten.",
+      "questionTextParaphrased": true,
+      "questionTextNote": "PARAPHRASE. The printed question (PDF page 11): \"Two villages lie along a straight highway on opposite sides of a junction. Taking east of the junction as positive, their positions in km are the zeroes of the polynomial x² - 2x - 24. Find the positions of the villages, verify the relationship between the zeroes and the coefficients, and find the position of a bus stop exactly midway between them.\"",
+      "shortenedShape": "The PDF (page 11) has FOUR steps: 1 factorisation +0.5, 2 \"Interpreting positions of the villages\" +0.5, 3 verification (Partial, Calculation slip, +0.5 −0.5), 4 \"Finding midpoint and position of the bus stop\" +1. This case keeps steps 1 and 3 only, as a 3-mark shape (step 1 worth 2, the verification worth 1); steps 2 and 4 carry no D3 shape.",
+      "pdfVerbatim": {
+        "page": 11,
+        "fields": "step 1 description, studentWork and teacherAnnotation; step 3 (here step 2) description and photoQuote; the trunk annotation"
+      }
+    },
+    {
+      "id": "GQ1-WS02-Q22",
+      "defect": "D2",
+      "deterministic": false,
+      "subject": "Maths",
+      "chapter": "real-numbers",
+      "marks": 5,
+      "questionText": "Prove that √5 is irrational.",
+      "expected": {
+        "marksAwardedRange": [
+          4,
+          4.5
+        ],
+        "mistakeTypes": [
+          "presentation"
+        ],
+        "never": [
+          "conceptual"
+        ]
+      },
+      "liveObserved": {
+        "2026-11-04": "4/5, both deductions typed conceptual (Concept gap)",
+        "2026-11-05": "4/5, typed exam technique"
+      },
+      "rulings": [
+        "CLAUDE.md section 13 tell-tale: if the student's later steps prove they know the method, it is NOT conceptual (now in rules.cjs MISTAKE_TAXONOMY_PROMPT)"
+      ],
+      "studentWritten": {
+        "page": 6,
+        "text": "Assume √5 is rational in the form of p/q (q ≠ 0)\n√5 = p/q (Here, p & q are integers and they are coprime)\n5 = p²/q² (square both the sides)\n∴ p² = 5q² — (1)\nIf a prime no. p divides q², then p must divide q.\n∴ p = 5c (c is another integer) — (2)\nSubstitute 2 in 1\n25c² = 5q²\nq² = 5c²\nFrom the above, 5 divides p² and q²\nThen p and q have a common factor of 5.\nHence, this contradicts our assumption, and therefore √5 is irrational."
+      }
+    },
+    {
+      "id": "GQ1-OA2-Q22-CONTROL",
+      "defect": "D1-control",
+      "deterministic": true,
+      "subject": "Science",
+      "chapter": "heredity",
+      "marks": 3,
+      "questionText": "A pure tall pea plant is crossed with a pure dwarf pea plant. State the F2 phenotypic and genotypic ratio.",
+      "modelReply": [
+        {
+          "description": "F2 phenotypic ratio",
+          "studentWork": "F2 phenotypic ratio = 3 : 1 (tall : dwarf)",
+          "status": "correct",
+          "marksAvailable": 1.5,
+          "marksAwarded": 1.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct phenotypic ratio",
+          "mistakeType": null
+        },
+        {
+          "description": "F2 genotypic ratio",
+          "studentWork": "",
+          "status": "unattempted",
+          "marksAvailable": 1.5,
+          "marksAwarded": 0,
+          "marksDeducted": 1.5,
+          "teacherAnnotation": "× Genotypic ratio not attempted",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 1.5,
+        "steps": [
+          [
+            "correct",
+            1.5,
+            null
+          ],
+          [
+            "unattempted",
+            0,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "unattempted": 1.5
+        }
+      },
+      "rulings": [
+        "server/eval/golden/owner-anomaly-02/expected-key.md row 22: genotypic not written = unattempted PART (owner key)",
+        "the stored reply 2026-10-06.PR3-combined-flash38 V2.W.OA2.MULTI Q22 is this shape; the trunk-vs-branch differential found it"
+      ]
+    }
+  ]
+}
