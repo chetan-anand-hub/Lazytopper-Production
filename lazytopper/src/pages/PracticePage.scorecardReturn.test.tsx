@@ -16,7 +16,7 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor, within, act } from "@testing-library/react";
 import { useEffect } from "react";
-import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
 const { authUser } = vi.hoisted(() => ({
@@ -144,10 +144,13 @@ function mkItem(n: number): PQ {
 }
 
 let lastLocation = "";
+let goBack: () => void = () => {};
 let historyLength = 0;
 function LocationProbe() {
   const l = useLocation();
   lastLocation = `${l.pathname}${l.search}`;
+  const nav = useNavigate();
+  goBack = () => nav(-1);
   return null;
 }
 
@@ -413,4 +416,22 @@ describe("QP-SCORECARD-2 E4 · Explore LazyTopper (Start-here graded scorecards 
     await screen.findByText(/nothing is counted against you/);
     expect(screen.queryByRole("button", { name: /Explore LazyTopper/ })).toBeNull();
   });
+});
+
+
+describe("CI-TUTOR-RETURN-1 · Quick Practice - browser Back from the tutor reopens the SAME saved session", () => {
+  it("★★ ask from the REOPENED scorecard, then browser Back: that scorecard is back with its tutor buttons", async () => {
+    const { recordId, tutorUrl } = await gradeAndAskTutor();
+    const returnTo = new URLSearchParams(tutorUrl.split("?")[1]).get("returnTo")!;
+    cleanup();
+    resetSpies();
+    await renderAt(returnTo, [mkItem(1), mkItem(2), mkItem(3)]);
+    expect(await screen.findByText(new RegExp(`${recordId} ·`))).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByTestId("sc-tutor-ask")).toHaveLength(2));
+    fireEvent.click(screen.getAllByTestId("sc-tutor-ask")[0]);
+    await waitFor(() => expect(lastLocation).toMatch(/^\/tutor\//));
+    act(() => goBack());
+    expect(await screen.findByText(new RegExp(`${recordId} ·`), {}, { timeout: 30000 })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByTestId("sc-tutor-ask")).toHaveLength(2));
+  }, 120000);
 });
