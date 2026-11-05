@@ -35,7 +35,7 @@ import { predictedQuestions } from "../../data/predictedQuestions";
 import { sciencePredictedQuestions } from "../../data/predictedQuestionsScience";
 import { PACK_SUBJECTS, packIdOf, type PackSku } from "../../services/packs";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
-import { cubicRemainingZeroes, evolutionTerms, lensHits } from "./packSyllabusLenses";
+import { cubicRemainingZeroes, evolutionTerms, lensHits } from "../../test/packSyllabusLenses";
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
 import { PACK_SYLLABUS_EXCLUDED, SYLLABUS_EXCLUDED_AT, hashSeed, drawAvoidingExcluded, drawPackWorksheetRows, drawPackWorksheetRowsSafe } from "./packContent";
 import { REVISED_PACK_PAPER_CODES, packPaperCode } from "./packPaperCode";

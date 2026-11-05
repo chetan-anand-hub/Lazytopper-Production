@@ -5,6 +5,8 @@
  * Test-only (imported by packSyllabus.guard.test.ts); nothing here runs in the app. A hit is not a verdict: each (question, lens)
  * pair must be an excluded row or carry a reviewed reason in the guard test.
  */
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
+
 export interface LensQuestion {
   topicKey: string;
   questionText: string;
@@ -35,7 +37,7 @@ const ALL_ZEROES = /\b(?:find|obtain|determine|write\s+down)\s+(?:all\s+)?(?:its
 const DIVIDES = /\bdivid(?:e|ed|es|ing)\b|\bquotient\b|\bcompar(?:e|es|ing)\s+coefficients\b|\blong\s+division\b|\bsynthetic\s+division\b/i;
 
 export function cubicRemainingZeroes(q: LensQuestion): boolean {
-  if (q.topicKey !== "polynomials") return false;
+  if (resolveCanonicalSlug(q.topicKey) !== "polynomials") return false;
   const text = wholeOf(q);
   if (!CUBIC.test(text)) return false;
   return (GIVEN.test(text) && (ASKS.test(text) || DIVIDES.test(text))) || ALL_ZEROES.test(text);
@@ -65,7 +67,7 @@ const EVOLVE_VERB = /\bevolv(?:e|ed|es|ing)\b/i;
 export function evolutionTerms(q: LensQuestion): boolean {
   const text = wholeOf(q).replace(CHEMICAL_EVOLUTION, " ");
   if (EVOLUTION.test(text)) return true;
-  return !CHEMISTRY_CHAPTERS.has(q.topicKey) && EVOLVE_VERB.test(text);
+  return !CHEMISTRY_CHAPTERS.has(resolveCanonicalSlug(q.topicKey)) && EVOLVE_VERB.test(text);
 }
 
 /* ── the lens list ────────────────────────────────────────────────────────────────────────────────────── */
@@ -77,7 +79,7 @@ export interface ContentLens {
 
 const re = (name: string, r: RegExp, chapter?: string): ContentLens => ({
   name,
-  hit: (q) => (!chapter || q.topicKey === chapter) && r.test(wholeOf(q)),
+  hit: (q) => (!chapter || resolveCanonicalSlug(q.topicKey) === chapter) && r.test(wholeOf(q)),
 });
 
 export const CONTENT_LENSES: readonly ContentLens[] = [
