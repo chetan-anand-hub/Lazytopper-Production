@@ -303,10 +303,20 @@ export function detectedTextForResult(
   results: ReadonlyArray<{ qNumber: number }>,
   index: number,
 ): string | undefined {
+  return detectedItemForResult(detected, results, index)?.questionText;
+}
+
+/** The detected question itself for the result at `index`, matched by the SAME occurrence rule as
+ *  `detectedTextForResult` (SCORECARD-SECTION-TYPE-1 reads its section / objective flag this way). */
+export function detectedItemForResult<D extends { questionNumber: number }>(
+  detected: ReadonlyArray<D> | null | undefined,
+  results: ReadonlyArray<{ qNumber: number }>,
+  index: number,
+): D | undefined {
   const r = results[index];
   if (!r) return undefined;
   let occurrence = 0;
   for (let i = 0; i < index; i += 1) if (results[i]?.qNumber === r.qNumber) occurrence += 1;
   const same = (detected ?? []).filter((q) => q.questionNumber === r.qNumber);
-  return same[occurrence]?.questionText;
+  return same[occurrence];
 }

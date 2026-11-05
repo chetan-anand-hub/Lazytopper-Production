@@ -981,6 +981,16 @@ export interface WorksheetQuestionGrade extends GradeV2Fields {
    *  Lets a mixed Maths + Science paper be titled and filed per question, never under the
    *  first question's subject. Additive; every existing reader ignores it. */
   topicSubject?: "Maths" | "Science" | null;
+  /** SCORECARD-SECTION-TYPE-1 — CLIENT-STAMPED after grading (the grader NEVER emits these; presentation
+   *  only, no mark and no mistake type reads them). `section` is the CBSE section letter ("A"-"E"): the
+   *  bank row's own section on a bank surface, or the section the paid read found on the student's paper
+   *  (Answer Checker). `sectionBasis` says which: "bank" | "read" (as read from the paper) | "check"
+   *  (the read inferred it; the student is asked to check). `format` is the bank's question format
+   *  (MCQ / Assertion-Reasoning / Case-Based / Short / Long / VSA) or, on the Answer Checker, only
+   *  "objective" / "written" as the read reported it. Absent = unknown, never guessed. */
+  section?: string | null;
+  sectionBasis?: "bank" | "read" | "check" | null;
+  format?: string | null;
 }
 
 export interface WorksheetGradeResponse {

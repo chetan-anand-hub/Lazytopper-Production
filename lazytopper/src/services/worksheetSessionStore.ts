@@ -30,6 +30,12 @@ export interface PersistedWorksheetQuestion {
   solutionSteps?: string[];
   finalAnswer?: string;
   answer?: string;
+  /** SCORECARD-SECTION-TYPE-1 (additive, optional) - the bank row's OWN `section` and `format`, kept
+   *  beside the blueprint `section` above (a Chapter Test / Full Mock slots a row by its marks band, so
+   *  that field is not always the bank's). Display only: the scorecard's section and type lenses read
+   *  them. Absent on a paper drawn before this field (the lens then falls back or is omitted). */
+  bankSection?: string;
+  format?: string;
 }
 
 export interface PersistedWorksheet {

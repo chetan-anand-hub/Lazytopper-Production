@@ -630,32 +630,40 @@ describe("(d) Chapter Test — a written answer that does not match its question
 });
 
 /** The "By section" lens rows ("C · SA" → "2/3"), as the scorecard prints them. */
-const sectionRows = (container: HTMLElement) =>
-  Object.fromEntries(
-    Array.from(container.querySelectorAll(".lt-sc__seclens-row")).map((r) => [text(r.querySelector(".lt-sc__seclens-lbl")), text(r.querySelector(".lt-sc__seclens-mk"))]),
+// SCORECARD-SECTION-TYPE-1 - the by-section lens is now a lazy Scored / Out of / Lost table.
+const sectionRows = async (container: HTMLElement) => {
+  await waitFor(() => expect(container.querySelector('[data-testid="sc-section-lens"]')).not.toBeNull());
+  return Object.fromEntries(
+    Array.from(container.querySelectorAll('[data-testid="sc-section-lens"] tbody tr')).map((r) => {
+      const cells = Array.from(r.querySelectorAll("td")).map((c) => text(c));
+      return [text(r.querySelector("th")), `${cells[0]}/${cells[1]}`];
+    }),
   );
+};
 
 // Found by this suite (PR-2): the lens builders skipped only `r.couldNotRead`, so an answer that
 // does not match its question (couldNotRead:false, answerMismatch:true, 0 awarded) was FOLDED
 // into its section as 0 of N ("2/6" instead of "2/3"). Fixed in scorecardVariants.ts /
 // scorecardBankLenses.ts (every lens skips `!isGradedQuestion(r)`); these pins keep it fixed.
 describe("(d)/(e) the BY-SECTION lens never folds a not-graded question in as a 0", () => {
+  // the lens reads the bank row's own section (the paper question carries it as `bankSection`)
+  const LENS_QS = CT_QS.map((q) => ({ ...q, bankSection: q.section }));
   const response = () =>
     buildChapterTestResponse({
-      paper: paperOf("lens-pr2", CT_QS),
+      paper: paperOf("lens-pr2", LENS_QS),
       objective: scoreObjectiveSection([MCQ], { 1: "(b)" }),
       subjectiveQuestions: CT_QS.slice(1),
       subjectiveResponse: respOf([gradedRow(2), mismatchRow(3)]),
     });
-  it("Chapter Test: section C reads Q2's 2/3 — the mismatched Q3 (0 of 3) is not in it", () => {
-    const variant = chapterTestScorecardVariant({ name: "T", code: "CT-L", response: response(), phase: "full", questions: CT_QS });
-    const rows = sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).baseElement);
+  it("Chapter Test: section C reads Q2's 2/3 — the mismatched Q3 (0 of 3) is not in it", async () => {
+    const variant = chapterTestScorecardVariant({ name: "T", code: "CT-L", response: response(), phase: "full", questions: LENS_QS });
+    const rows = await sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).baseElement);
     expect(Object.values(rows)).toContain("2/3");
     expect(Object.values(rows)).not.toContain("2/6");
   });
-  it("Full Mock: section C reads Q2's 2/3 — the mismatched Q3 (0 of 3) is not in it", () => {
-    const variant = fullMockScorecardVariant({ name: "M", code: "FM-L", response: response(), phase: "full", questions: CT_QS });
-    const rows = sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).baseElement);
+  it("Full Mock: section C reads Q2's 2/3 — the mismatched Q3 (0 of 3) is not in it", async () => {
+    const variant = fullMockScorecardVariant({ name: "M", code: "FM-L", response: response(), phase: "full", questions: LENS_QS });
+    const rows = await sectionRows(render(<ResultsScorecard variant={variant} onClose={() => {}} />).baseElement);
     expect(Object.values(rows)).toContain("2/3");
     expect(Object.values(rows)).not.toContain("2/6");
   });
@@ -721,6 +729,26 @@ describe("(f) Worksheets — an answer that does not match its question", () => 
     expect(text(pq)).not.toMatch(/\b0\s*\/\s*3\b/);
     // CONTROL — the graded sibling shows its mark
     expect(text(panel.container.querySelector(".lt-wg__qscore"))).toBe("2/3");
+  });
+});
+
+/* SCORECARD-SECTION-TYPE-1 - the Worksheet service stamps each graded row with its bank section and type (display only). */
+describe("(f2) Worksheets - the real service stamps the section and type lens data", () => {
+  it("rows carry the worksheet question's section and format; the persisted device grade is the stamped one; marks are the grader's", async () => {
+    const ws = paperOf("ws-lens-1", [
+      paperQ(1, 3, "C", { format: "Short" }),
+      paperQ(2, 4, "E", { format: "Case-Based" }),
+    ]);
+    H.gradeWorksheet.mockResolvedValue(respOf([gradedRow(1), gradedRow(2)]));
+    const out = await gradeWorksheetAndRecord(USER as never, ws, UPLOAD);
+    expect(out.response.results.map((r) => [r.section, r.sectionBasis, r.format])).toEqual([
+      ["C", "bank", "Short"],
+      ["E", "bank", "Case-Based"],
+    ]);
+    expect(out.response.results.map((r) => r.marksAwarded)).toEqual(respOf([gradedRow(1), gradedRow(2)]).results.map((r) => r.marksAwarded));
+    const variant = worksheetScorecardVariant({ name: "W", code: "WS-M-RN-01", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
+    expect(variant.sectionLens!.map((r) => r.section)).toEqual(["C", "E"]);
+    expect(variant.typeLens!.map((r) => r.key)).toEqual(["short", "case"]);
   });
 });
 

@@ -657,7 +657,7 @@ async function replay(b: Body) {
   const block = sc.baseElement.querySelector('[data-testid="sc-marks-lost"]');
   if (!allPending && o.lost > 0) {
     const groups = Array.from(block?.querySelectorAll("[data-marks]") ?? []).reduce((s, e) => s + Number(e.getAttribute("data-marks")), 0);
-    const rows = Array.from(sc.baseElement.querySelectorAll('[data-group="not-attempted"][data-marks], [data-group="untyped"][data-marks]'))
+    const rows = Array.from(sc.baseElement.querySelectorAll('[data-group="not-attempted"][data-marks], [data-group="untyped"][data-marks], [data-group="option-only"][data-marks]'))
       .filter((e) => !block?.contains(e))
       .reduce((s, e) => s + Number(e.getAttribute("data-marks")), 0);
     check(S, "scorecard.rendered.sumsToLost", !!block && Math.abs(r2(groups + rows) - o.lost) <= EPS, `groups ${groups} + rows ${rows} vs lost ${o.lost}`);

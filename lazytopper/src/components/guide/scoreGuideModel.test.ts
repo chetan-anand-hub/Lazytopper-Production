@@ -55,6 +55,7 @@ describe("GUIDE-SCORE-1 · the copy table", () => {
       wrong: "12 questions wrong",
       prev: "your last test on this chapter", // the longest {prev}
       chapter: "Quadratic Equations",
+      option: "12.5 marks",
     };
     for (const t of allLines()) {
       expect(t, t).not.toMatch(/\d/); // every number comes from a placeholder the scorecard prints
@@ -420,5 +421,36 @@ describe("MOMENTS-3 · two-beat reactions from the emotion map (existing poses o
     const p = scoreGuidePlan(base({ marksLost: marks({ calculation: 3 }) }))!;
     expect(p.byteStep).toBe("calculation");
     expect(p.ziggy.pose).not.toBe("hide");
+  });
+});
+
+/* SCORECARD-SECTION-TYPE-1 (owner ruling 5 Nov 2026) - the headline leads with wrong option picks when they are the biggest loss. */
+describe("SCORECARD-SECTION-TYPE-1 · the headline leads with option picks when they are the biggest loss", () => {
+  it("6 marks of option picks vs 2 marks of Presentation: Byte leads with the option picks, in marks, no invented cause", () => {
+    // the WS-M-MIX-02 shape: untyped 6 (all option picks) + presentation 2
+    const pm = { ...marks({ untyped: 6, presentation: 2 }), optionOnly: 6 } as PaperMarksLost;
+    const p = scoreGuidePlan(base({ marksLost: pm }))!;
+    expect(p.byteStep).toBe("optionPicks");
+    expect(p.byte.text).toContain("6 marks went on option picks (MCQ / A-R)");
+    expect(p.byte.text).toContain("No working to diagnose");
+    expect(p.byte.text).not.toContain("Presentation");
+  });
+
+  it("when a typed bucket is as big or bigger, the typed line still leads (a diagnosable loss wins a tie)", () => {
+    const pm = { ...marks({ untyped: 3, presentation: 3 }), optionOnly: 3 } as PaperMarksLost;
+    expect(scoreGuidePlan(base({ marksLost: pm }))!.byteStep).toBe("presentation");
+    const pm2 = { ...marks({ untyped: 2, conceptual: 5 }), optionOnly: 2 } as PaperMarksLost;
+    expect(scoreGuidePlan(base({ marksLost: pm2 }))!.byteStep).toBe("conceptual");
+  });
+
+  it("not when blanks or other unexplained marks are bigger than the option picks", () => {
+    const pm = { ...marks({ untyped: 5, presentation: 1 }), optionOnly: 2 } as PaperMarksLost; // 3 of the 5 untyped are NOT option picks
+    expect(scoreGuidePlan(base({ marksLost: pm }))!.byteStep).toBe("presentation");
+    const pm2 = { ...marks({ untyped: 2, unattempted: 4, presentation: 1 }), optionOnly: 2 } as PaperMarksLost;
+    expect(scoreGuidePlan(base({ marksLost: pm2 }))!.byteStep).toBe("presentation");
+  });
+
+  it("a card with no option-only bucket is unchanged (the old 'untyped' step)", () => {
+    expect(scoreGuidePlan(base({ marksLost: marks({ untyped: 8 }) }))!.byteStep).toBe("untyped");
   });
 });

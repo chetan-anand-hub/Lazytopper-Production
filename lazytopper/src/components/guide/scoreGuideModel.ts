@@ -15,6 +15,8 @@
  *   {lead}         "Biggest loss" ONLY when that type's marks are ≥ every other lost-marks row
  *                  (Not attempted and reason-not-recorded included); else "Most marks lost to a
  *                  mistake"; on a count-only grade "Most common mistake";
+ *   {option}       the marks on the card's "Option only — no working to diagnose" row (wrong MCQ / A-R picks),
+ *                  used only when that row is the biggest loss the card prints;
  *   {pending}      the "N questions couldn't be read" strip;
  *   {delta}        the card's own "▲ N marks …" line (Full Mock vs an earlier mock; Chapter Test
  *                  since the last same-total test of the chapter) — nothing is fetched for this.
@@ -46,6 +48,7 @@ export type ByteStep =
   | "calculation"
   | "silly"
   | "presentation"
+  | "optionPicks"
   | "clean"
   | "untyped"
   | "objective"
@@ -124,6 +127,13 @@ export const SCORE_GUIDE_LINES = {
     presentation: [
       { pose: "technique", text: "{lead}: Presentation, {loss}. Write units, labels and a clear final answer, the way CBSE marks it." },
       { pose: "explain", text: "{lead}: Presentation ({loss}). Add units, labels and a neat final line every time." },
+    ],
+    // SCORECARD-SECTION-TYPE-1 (owner ruling 5 Nov 2026): when wrong MCQ / Assertion-Reason picks with no
+    // working are the biggest loss, lead with THEM, in honest words. {option} is the marks the card
+    // prints on its "Option only" row.
+    optionPicks: [
+      { pose: "explain", text: "{option} went on option picks (MCQ / A-R). No working to diagnose. Add working to one and I'll find why." },
+      { pose: "think", text: "{option} went on option picks (MCQ / A-R), with no working. Save working on one and I'll check your method." },
     ],
     // MOMENTS-3 (great result): Byte cheers, plus one stretch tip.
     clean: [
@@ -333,6 +343,20 @@ function printedBiggestLoss(v: ScorecardVariant): { type: MiType; text: string; 
   return null;
 }
 
+/** SCORECARD-SECTION-TYPE-1 - the marks of wrong option picks (the card's "Option only" row) when that row is the
+ *  biggest loss the card prints: strictly more than every typed bucket, and at least every other row. Else null. */
+function printedOptionLead(v: ScorecardVariant): { marks: number; text: string } | null {
+  const pm = v.marksLost;
+  if (!pm || !(pm.lost > 0)) return null;
+  const option = Number(pm.optionOnly) || 0;
+  if (!(option > 0)) return null;
+  const by = pm.byType;
+  if (MI_ORDER.some((t) => !(option > (Number(by[t]) || 0)))) return null;
+  if (option < (Number(by.unattempted) || 0)) return null;
+  if (option < Math.max(0, (Number(by.untyped) || 0) - option)) return null;
+  return { marks: option, text: marksWithUnit(option) };
+}
+
 /** "Not attempted" is the largest lost-marks row the card PRINTS in "Where your marks went" (a tie counts). */
 function printedBlankDominant(v: ScorecardVariant): boolean {
   if (!v.marksLost || !(v.marksLost.lost > 0)) return false;
@@ -498,6 +522,10 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     }
   } else if (blankDominant) {
     byteStep = "blank";
+    cta = practise;
+  } else if (printedOptionLead(v)) {
+    byteStep = "optionPicks";
+    vals.option = printedOptionLead(v)!.text;
     cta = practise;
   } else if (biggest) {
     byteStep = biggest.type;

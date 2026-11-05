@@ -47,6 +47,7 @@ import {
   resolvePerQuestionGradeTopics,
   SHOW_DETECTION_META,
   detectedTextForResult,
+  detectedItemForResult,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
 // SCORECARD-MI-1 — every group, label, step state and count on this page comes from the ONE
@@ -64,6 +65,8 @@ import {
   withEffectiveCounts,
   WITHDRAWN_LABEL,
   UNTYPED_MARKS_LABEL,
+  OPTION_ONLY_LABEL,
+  isOptionPickQuestion,
   effectivePaperCounts,
   gradeStateOf,
   pendingBreakdown,
@@ -207,6 +210,7 @@ import { limitFromAiRefusal, type LimitState } from "../../components/usage/fair
 import { readFairUseLimit } from "../../services/usageClient";
 // TRIAL-PAPER-1 - a trial paper graded only up to today's checks: the rest listed as
 // not graded, with an honest upgrade note.
+import { readTypeOf, stampLens } from "../../components/results/sectionTypeLens";
 import TrialPaperNote from "../../components/usage/TrialPaperNote";
 import { trialPaperCut, trialPaperNoteCopy } from "../../components/usage/fairUseGate";
 import { prefetchKatexWhenIdle } from "../../components/question/MathText";
@@ -2524,7 +2528,20 @@ const DesktopCheckImprovePageInner: React.FC<{
 
       // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,
       // session record, MI): no type on a full-mark question, the grader's max-reconcile.
-      const shown = withEffectiveCounts(response);
+      // SCORECARD-SECTION-TYPE-1 - stamp each row with the section and question type the paid READ found on
+      // the student's paper ("as read from your paper"; a section the read only inferred is flagged
+      // "check"). Display only: it is NOT sent to the grader, so no mark and no mistake type can move.
+      // The stamp rides the saved response, so the restored card shows the same lens.
+      const counted = withEffectiveCounts(response);
+      const shown = stampLens(counted, (_r, i) => {
+        const d = detectedItemForResult(detectedQuestions, counted.results, i);
+        if (!d) return null;
+        return {
+          section: d.section ?? null,
+          sectionBasis: d.marksSource === "inferred" ? "check" : "read",
+          format: readTypeOf(d.objective),
+        };
+      });
       const paperMixed = isMixedPaper(shown.results);
       const paperFiling = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
       const mixLabel = ciPaperMixLabel(shown);
@@ -4316,7 +4333,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       )}
                       {qMarks && qMarks.untyped > 0 && (
                         <span data-group="untyped" data-marks={qMarks.untyped} style={{ ...chipBase, color: TEXT_MUTED }}>
-                          {UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
+                          {isOptionPickQuestion(g) ? OPTION_ONLY_LABEL : UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
                         </span>
                       )}
                       {!qMarks && chips.map(({ group, count }) => (
