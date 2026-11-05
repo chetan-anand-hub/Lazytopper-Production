@@ -199,6 +199,26 @@ function guardedObjectiveMarks(q, marks) {
   return marks;
 }
 
+/**
+ * DETECT-OBJECTIVE-STABILITY-1 · the grade routes' half of the printed-options rule (§4a: BOTH routes).
+ * A question with NO bank metadata (no section / format / qType / options / correctOption — i.e. one
+ * the detect step read, on Answer Checker) whose TEXT prints an MCQ option list or an Assertion–Reason
+ * item (grading/detect.cjs printedOptionsObjective — the SAME rule detect applies) is objective even
+ * when the request does not say so — but ONLY while its marks are ≤ 1 (or unset). A question sent with
+ * marks > 1 and objective:false is the student's GRADE-MARKS-1 override ("graded as written",
+ * PaperMarksEditor sendAsObjective) or a multi-mark question: it is never upgraded. Upgrade only, and
+ * never on a bank question: the bank already knows its own objectivity.
+ */
+function hasBankObjectiveMeta(q) {
+  return Boolean(q && (q.section || q.format || q.qType || q.correctOption
+    || (Array.isArray(q.options) && q.options.some((o) => o != null && String(o).trim()))));
+}
+function printedOptionsUpgrade(q, questionText, sentMarks) {
+  const m = Number(sentMarks);
+  if (sentMarks != null && sentMarks !== '' && Number.isFinite(m) && m > 1) return false;
+  return !hasBankObjectiveMeta(q) && D.printedOptionsObjective(questionText);
+}
+
 function answerSourceOf(v) {
   return v === 'printed' || v === 'derived' ? v : null;
 }
@@ -358,7 +378,9 @@ function createCheckSolutionRoute(deps) {
       // states no verdict (objectiveScoring.clampObjectiveResult). Absent = today's behaviour.
       ...(answerSourceOf(payload.answerSource) ? { answerSource: answerSourceOf(payload.answerSource) } : {}),
     };
-    const detectedObjective = payload.objective === true || payload.objective === 'true';
+    // DETECT-OBJECTIVE-STABILITY-1 · a detect-read question that prints its options is objective here too.
+    const detectedObjective = payload.objective === true || payload.objective === 'true'
+      || printedOptionsUpgrade(objectiveMeta, question, payload.marks);
 
     // Claim-2 auto-detect (no live client sends it since #246; kept, see the P17 table): the
     // grader determines marks/subject/topic itself; `marks`/`subject`/`topic` are hints.
@@ -765,7 +787,7 @@ function createCheckSolutionRoute(deps) {
       // so the grader can clamp a ≤1-mark objective question to 0/full off the model's
       // binary verdict. Defaults to false, so a model that omits it leaves grading
       // byte-unchanged.
-      const detectedObjective = parsed.detectedObjective === true || parsed.detectedObjective === 'true';
+      let detectedObjective = parsed.detectedObjective === true || parsed.detectedObjective === 'true';
 
       // Detected answer key (additive, OBJECTIVE-MARK-INVARIANT §2.4). NULL unless the
       // model actually supplied a non-empty string - a model that omits it, or returns
@@ -801,6 +823,14 @@ function createCheckSolutionRoute(deps) {
       // mark exactly when the server would force it to 1. Opted-in reads only (the legacy shape is pinned).
       if (wantsSectionMarks) {
         for (const q of questions) q.offersOptions = q.objective === true && grading.objectiveOffersOptions({ questionText: q.questionText });
+      }
+      // DETECT-OBJECTIVE-STABILITY-1 · a single-question read whose text prints its options: the top-level
+      // fields agree with the question (objective, 1 mark) — detect.cjs already set questions[0].
+      if (questions.length === 1 && questions[0]._printedOptions === true) {
+        detectedObjective = true;
+        detectedMarks = 1;
+        // R2-2 · "stated" only when the question itself says so (detect.cjs never leaves a false "stated")
+        marksSource = questions[0].marksSource === 'stated' ? 'stated' : 'inferred';
       }
       if (wantsSectionMarks && questions.length > 0 && (questions[0].marksSource === 'printed' || questions[0].marksSource === 'section')) {
         detectedMarks = questions[0].marks;
@@ -1017,6 +1047,9 @@ function createCheckSolutionRoute(deps) {
         chapter: String((q && q.chapter) || '').trim(),
       }))
       .map((q) => (q.topic || q.topicLabel || !q.chapter ? q : { ...q, topicLabel: q.chapter }))
+      // DETECT-OBJECTIVE-STABILITY-1 · a detect-read question that prints its options is objective (upgrade only).
+      //   Only at marks ≤ 1: an objective:false question sent with marks > 1 is the student's override.
+      .map((q) => (q.objective !== true && printedOptionsUpgrade(q, q.questionText, q.marks) ? { ...q, objective: true } : q))
       // GRADE-MARKS-1 · §13: an MCQ sent with marks > 1 is graded as its 1 mark (see guardedObjectiveMarks).
       .map((q) => { const m = guardedObjectiveMarks(q, q.marks); return m === q.marks ? q : { ...q, marks: m }; })
       .filter((q) => q.qNumber > 0 && q.questionText);

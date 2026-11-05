@@ -3458,3 +3458,251 @@ test('§GS.8 review F3: a General Instructions duplicate header (no firstQuestio
   assert.deepEqual([gsQ(q2, 20).marks, gsQ(q2, 20).marksSource], [3, 'inferred']);
   assert.equal(q2.reduce((s, q) => s + q.marks, 0), 51);
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §DO · DETECT-OBJECTIVE-STABILITY-1 — "objective" is read from the PRINTED OPTIONS, in code
+
+   Live 5 Nov 2026 (Answer Checker, multi-question upload): a worksheet whose Q1–Q2 were printed
+   MCQs with options (a)–(d) was read once with objective:false (marks editable, step-marking risk)
+   and once with objective:true (locked at 1). detect.cjs printedOptionsObjective now decides it from
+   the transcribed text on POSITIVE evidence only (an A-R item, or four answer values after a stem
+   with an MCQ cue). Upgrade only; never over a mark above 1; never over the student's GRADE-MARKS-1
+   override; NO on any ambiguous shape (fail safe = the model's own flag, as before).
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const DO_MCQ_Q1 = 'Which of the following is a prime number?\n(a) 4\n(b) 6\n(c) 7\n(d) 9';
+const DO_MCQ_Q2 = 'The HCF of 12 and 18 is ( a ) 2 ( b ) 3 ( c ) 6 ( d ) 36';
+const DO_SUBPART_5 = 'Mendel crossed a pure tall pea plant (TT) with a pure short pea plant (tt) and obtained all tall plants in F1 generation. (a) What is the gene combination present in the plants of F1 generation ? (b) Give reason why only tall plants are observed in F1 progeny. (c) What will be the ratio of the plants obtained in the F2 generation when F1 plants are self-pollinated ?';
+// PR #1582 review D1 — school-paper shapes the first rule wrongly upgraded. Every one is a NEGATIVE.
+const DO_REVIEW_D1 = [
+  'Simplify: (a) (3+√3)(2+√2) (b) (√5+√2)² (c) (√11+√7)(√11−√7) (d) (3+√3)(3−√3)',
+  'Simplify: (i) (3+√3)(2+√2) (ii) (√5+√2)² (iii) (√11+√7)(√11−√7) (iv) (3+√3)(3−√3)',
+  'Factorise: (a) x²+5x+6 (b) x²−7x+12 (c) 2x²+7x+3 (d) 6x²+5x−6',
+  'Rationalise the denominators of (a) 1/√7 (b) 1/(√7−√6) (c) 1/(√5+√2) (d) 1/(√7−2)',
+  'Expand (a) (x+2)³ (b) (2a−3b)³ (c) (x+1/x)² (d) (3x+4y)²',
+  'Which of the following are APs? If they form an AP, find the common difference d. (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2',
+  'Match the following: (a) Acetic acid (b) Baking soda (c) Bleaching powder (d) Plaster of Paris',
+  'Fill in the blanks: (a) The HCF of 6 and 20 is ____ (b) The LCM of 6 and 20 is ____ (c) HCF × LCM = ____ (d) √2 is ____',
+  'Draw the electron dot structures for (a) NaCl (b) MgO (c) CaO (d) H₂O',
+  'Electron dot structures for (a) NaCl (b) MgO (c) CaO (d) H₂O',
+  'Read the passage. Three resistors of 2 Ω, 3 Ω and 6 Ω are connected in parallel to a 6 V battery. (a) equivalent resistance [1] (b) total current [1] (c) current through the 6 Ω resistor [1] (d) power [1]',
+  // round 2 (R2-1) — an instruction after (d), inside it, or in the stem, newline / full stop or not
+  'Which of the following statements are correct?\n(a) Every integer is rational\n(b) Every rational is an integer\n(c) √2 is rational\n(d) π is irrational\nJustify your answer.',
+  'Which of the following are physical changes?\n(a) melting of ice\n(b) burning of paper\n(c) rusting of iron\n(d) dissolving sugar in water\nGive reasons for your answer.',
+  'Which of the following are APs? (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2 If they form an AP, find d.',
+  'Which of the following are APs? (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2 if they form an AP, find d',
+  'Which one of these is a prime? (a) 91 (b) 87 (c) 97 (d) 93 Explain your answer.',
+  'Identify the correct statements and correct the false ones: (a) Every integer is rational (b) Every rational is an integer (c) √2 is rational (d) π is irrational',
+  // round 3 (R3-1) — ANY text after the last option other than a bare 1-mark tag; any case; Hindi
+  ...[
+    '\njustify your answer', ' — explain your answer', ', justify.', ' (justify your answer)',
+    '\ngive reasons for your answer.', ' show your working', ' state reasons', ' kaaran batao', '\nkaaran batao',
+    ' स्पष्ट कीजिए।', '\nकारण दीजिए', ' Support your answer with reasons.', ' Provide a reason for each.', ' Reason out.',
+    ' Illustrate with an example.',
+  ].map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93' + tail),
+  'Which of the following are chemical changes?\n(a) rusting of iron\n(b) melting of ice\n(c) burning of paper\n(d) boiling of water\nwrite equations for the chemical ones',
+  'Put a tick against the correct statements: (a) 2 is prime (b) 9 is prime (c) 1 is prime (d) 0 is even',
+  // round 4 (R4-1 / R4-2) — an instruction or question word inside (d); a mark above 1 after (d)
+  ...['(d) 93 why', '(d) 93 explain', '(d) 93 prove', '(d) 93 justify', '\n(d) 93 justify', '(d) 93 (2)', '(d) 93 [3]']
+    .map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 ' + tail),
+  'Which of the following are physical changes? (a) melting of ice (b) burning of paper (c) rusting of iron (d) dissolving sugar justify',
+  // final delta (R5-1) — a reason request without a verb, or a dash clause, after (d)
+  ...[' along with reasons in brief', ' and the reasons for the same', ' — reasons please']
+    .map((tail) => 'Which of the following are physical changes? (a) melting of ice (b) burning of paper (c) rusting of iron (d) dissolving sugar in water' + tail),
+];
+
+test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or separate lines, OCR spacing, A/B/C/D, "a)" / "A.", long Science options, statement-list MCQs, (i)–(iv) after a question, the golden transcripts', () => {
+  const D = require('../grading/detect.cjs');
+  for (const yes of [
+    DO_MCQ_Q1,
+    DO_MCQ_Q2,
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9',
+    'Which is prime? a) 4 b) 6 c) 7 d) 9',
+    'Which is prime? A. 4 B. 6 C. 7 D. 9',
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9 [1]',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93\n[1]',
+    // round 4 — standard MCQ closers and a long Science option (d) are answer values
+    ...['None of these', 'Both (a) and (b)', 'All of the above', 'None of the above', '93 (1)']
+      .map((d) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) ' + d),
+    'If x + y = 10, then x is equal to: (a) 2 (b) 5 (c) 8 (d) cannot be determined from the given data',
+    'Which of the following correctly states a fact about respiration in plants? (a) It takes place only at night in the leaves (b) It takes place only in the presence of sunlight (c) It needs chlorophyll in every cell of the plant (d) It occurs in all living cells of the plant at all times of the day and night',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 (1 mark)',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 1 mark',
+    // golden transcripts (server/eval/golden runs, real detect reads)
+    'If α and β are the zeroes of polynomial 3x² + 6x + k such that α + β + αβ = −2/3, then the value of k is : (A) −8 (B) 8 (C) −4 (D) 4',
+    'The HCF of 6 and 20 is:\n(a) 1    (b) 2    (c) 4    (d) 120',
+    'An electrical appliance rated 1000 W is operated at 250 V. What current does it draw?(A) 0.25 A (B) 4 A (C) 2.5 A (D) 0.4 A',
+    'sec 0° is equal to: (a) 0 (b) 1 (c) Not defined (d) ∞',
+    'An event that cannot happen is called: (a) Certain event (b) Impossible event (c) Complementary event (d) Sure event',
+    'Which of the following cannot be the probability of an event? (a) 2/3 (b) −1.5 (c) 15% (d) 0.7',
+    'Which type of reaction is shown when iron nails are kept in copper sulphate solution? (a) A combination reaction in which two substances join to form one product (b) A decomposition reaction in which one compound splits into simpler substances (c) A displacement reaction in which iron displaces copper from its salt solution (d) A double displacement reaction in which two compounds exchange their ions',
+    'Which of the following are true?\n(i) 2 is prime\n(ii) 9 is prime\n(iii) 1 is prime\n(iv) 0 is even\n(a) (i) and (iv) (b) (ii) only (c) (iii) only (d) (i) only',
+    'The value of 2³ is: (i) 6 (ii) 8 (iii) 9 (iv) 5',
+    'The value of k is (1) 2 (2) 3 (3) 4 (4) 5',
+    'Assertion (A): Acids produce H⁺ ions in aqueous solution.\nReason (R): H⁺ ions are responsible for the acidic properties.',
+    'Assertion (A): No two magnetic field lines are found to cross each other. Reason (R): The compass needle points in one direction at a point.',
+  ]) assert.equal(D.printedOptionsObjective(yes), true, yes.slice(0, 60));
+});
+
+test('§DO.2 ★ review D1 + bank sub-part traps are NOT objective (no MCQ cue, per-part marks, act-on-each, instructions)', () => {
+  const D = require('../grading/detect.cjs');
+  for (const no of [
+    ...DO_REVIEW_D1,
+    DO_SUBPART_5,
+    '(a) (i) Define a reflex arc. Why have reflex arcs evolved in animals ? (ii) Name the part of nervous system which helps in communication. 5 OR (b) (i) Leaves of chhui-mui plant begin to fold up and droop in response to a stimulus. (ii) Define geotropism in plants.',
+    'A solid is in the shape of a cone standing on a hemisphere. (a) Find the volume of the solid. [2] (b) Find its total surface area. [3]',
+    'Consider the AP 3, 7, 11, … (a) What is its 10th term (b) What is the sum of 10 terms (c) Which term is 99 (d) Is 184 a term',
+    'During a lab experiment, a student tested three solutions A, B and C with universal indicator. Solution A turned red, B turned green and C turned blue.\n(i) Which solution is acidic?\n(ii) Which is neutral?\n(iii) Arrange them in increasing order of pH.\n(iv) What happens if A and C are mixed?',
+    'How do acids and bases react with: (i) metals (ii) metal oxides (iii) metal carbonates? Give one equation for each.',
+    'Two dice are thrown simultaneously. Find the probability that the sum of numbers appearing on the top is: (i) 10 (ii) less than or equal to 12 (iii) between 2 and 12 (inclusive) (iv) an odd number.',
+    'In each of the following situations what happens to the rate of photosynthesis?\n(a) Cloudy days\n(b) No rainfall in the area\n(c) Good manuring in the area\n(d) Stomata get blocked due to dust',
+    'Which among the following changes are exothermic or endothermic in nature?\n(a) Decomposition of ferrous sulphate\n(b) Dilution of sulphuric acid\n(c) Dissolution of sodium hydroxide in water\n(d) Dissolution of ammonium chloride in water',
+    'Name the correct substrates for the following enzymes:\n(a) Trypsin (b) Amylase (c) Pepsin (d) Lipase',
+    'Label the parts (a), (b), (c) and (d) and show the direction of flow of electrical signals in Figure 7.2.',
+    'Write balanced equations for the burning of (a) methane (b) ethane (c) propane (d) butane in air.',
+    'Give a reason for the assertion that metals conduct electricity.',
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9 (e) 11',
+    'Prove that a) x is even and b) y is odd',
+  ]) assert.equal(D.printedOptionsObjective(no), false, no.slice(0, 70));
+});
+
+test('§DO.3 ambiguous shapes FAIL SAFE (no upgrade — the model\'s own flag stands, as before)', () => {
+  const D = require('../grading/detect.cjs');
+  // MCQs whose stem carries no cue the rule trusts: a finished instruction, an "each", a "by:" ending
+  for (const t of [
+    'Find the value of k if 2 is a zero of x² + kx + 4. (A) −8 (B) 8 (C) −4 (D) 4',
+    'Solve: x² − 9 = 0 (a) ±3 (b) 3 only (c) −3 only (d) ±9',
+    'Two dice are rolled simultaneously. The probability of getting number less than 4 on each die is: (A) 1/4 (B) 1/9 (C) 1/36 (D) 1/6',
+    'In yeast, asexual reproduction takes place mainly by: (a) budding (b) binary fission (c) fragmentation (d) spore formation',
+    // an instruction verb anywhere disqualifies, even one that asks for the right choice (R2-1)
+    'Identify the correct statement: (a) Zinc is less reactive than copper (b) Copper displaces zinc (c) Zinc displaces copper from copper sulphate (d) None of these',
+    // "P(E)" reads as a fifth letter label to the §13 guard's own test, which this rule must agree with
+    'If P(E) = 0.05, what is P(not E)? (a) 0.95 (b) 0.05 (c) 1 (d) 0',
+  ]) assert.equal(D.printedOptionsObjective(t), false, t.slice(0, 60));
+});
+
+test('§DO.4 normaliseDetectedQuestions: printed MCQs UPGRADE to objective at 1 mark; review D1 shapes stay as the model read them; a model-flagged objective is never downgraded; the result does not depend on the model\'s flag', () => {
+  const D = require('../grading/detect.cjs');
+  const read = (flags) => D.normaliseDetectedQuestions([
+    { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 1, objective: flags[0] },
+    { questionNumber: 2, questionText: DO_MCQ_Q2, marks: 1, objective: flags[1] },
+    { questionNumber: 3, questionText: 'Find the HCF of 12 and 18 by prime factorisation.', marks: 1, objective: flags[2] },
+    { questionNumber: 4, questionText: DO_SUBPART_5, marks: 5, objective: false },
+  ], { detectedMarks: 1 });
+  const first = read([false, false, true]);
+  assert.deepEqual(first.map((q) => q.objective), [true, true, true, false], 'Q1/Q2 upgraded; Q3 model-flagged stays; Q4 sub-parts untouched');
+  assert.deepEqual(first.map((q) => q.marks), [1, 1, 1, 5], 'a printed MCQ reports 1 mark (§13)');
+  assert.deepEqual(read([true, true, true]), first, 'the same read whatever the model said about Q1/Q2');
+  assert.ok(first.every((q) => !Object.keys(q).includes('_printedOptions')), 'the internal marker never reaches the body');
+  const d1 = D.normaliseDetectedQuestions(DO_REVIEW_D1.map((t, i) => ({ questionNumber: i + 1, questionText: t, marks: 4, objective: false })), { detectedMarks: 4 });
+  assert.deepEqual(d1.map((q) => [q.objective, q.marks]), DO_REVIEW_D1.map(() => [false, 4]), 'review D1: nothing upgraded, marks untouched');
+});
+
+test('§DO.5 ★ review D2: a printed MCQ shape never overrides a mark above 1 (Section C header, printed mark, section label) — the model\'s flag stands', () => {
+  const D = require('../grading/detect.cjs');
+  const headers = [{ section: 'A', marksEach: 1, firstQuestion: 1 }, { section: 'C', marksEach: 3, firstQuestion: 2 }];
+  const qs = D.normaliseDetectedQuestions([
+    { questionNumber: 1, questionText: DO_MCQ_Q2, marks: 1, objective: false, section: 'A' },
+    { questionNumber: 2, questionText: DO_MCQ_Q1, marks: 4, objective: false, section: 'C' },
+    { questionNumber: 3, questionText: DO_MCQ_Q1, marks: 4, objective: false, printedMarks: 3 },
+  ], { detectedMarks: 1, sectionMarks: true, sectionHeaders: headers });
+  assert.deepEqual(qs.map((q) => q.objective), [true, false, false], 'only the Section A MCQ is upgraded');
+  assert.deepEqual(qs.map((q) => q.marks), [1, 3, 3], 'Section C / printed marks are kept, never forced to 1');
+  // a section LABEL B–E blocks it even without the opt-in rule
+  const legacy = D.normaliseDetectedQuestions([{ questionNumber: 7, questionText: DO_MCQ_Q1, marks: 3, objective: false, section: 'C' }], { detectedMarks: 3 });
+  assert.deepEqual([legacy[0].objective, legacy[0].marks], [false, 3]);
+});
+
+test('§DO.6 ★ integration: objective:false on printed (a)–(d) MCQs → locked (objective + offersOptions, 1 mark) at detect; a stale client sending objective:false at 1 mark is still graded 0 or full on BOTH routes', async () => {
+  const reply = { detectedMarks: 1, marksSource: 'stated', detectedObjective: false, sectionHeaders: [],
+    questions: [
+      { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 1, objective: false },
+      { questionNumber: 2, questionText: DO_MCQ_Q2, marks: 1, objective: false },
+      { questionNumber: 3, questionText: DO_SUBPART_5, marks: 5, objective: false },
+    ] };
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const qs = h.body().questions;
+  assert.deepEqual(qs.map((q) => q.objective), [true, true, false]);
+  assert.deepEqual(qs.map((q) => q.offersOptions), [true, true, false], 'the client marks editor locks Q1/Q2 (isLockedObjective)');
+  assert.deepEqual(qs.map((q) => q.marks), [1, 1, 5]);
+  const h1 = buildRoute({ replies: [{ ...reply, detectedMarks: 3, questions: [reply.questions[0]] }] });
+  await h1.route.handleDetectQuestion({ question: DO_MCQ_Q1 }, {});
+  assert.equal(h1.body().detectedObjective, true, 'single read: top level agrees');
+  assert.equal(h1.body().detectedMarks, 1);
+  assert.ok(!JSON.stringify(h1.body()).includes('_printedOptions'), 'the internal marker is never serialised');
+
+  // the server enforces it itself (a stale client): objective:false, marks 1 → clamped 0 or full
+  const raw = { annotatedSteps: [{ description: 'Option', studentWork: '(c) 7', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: DO_MCQ_Q1, objective: false }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 1);
+  assert.ok([0, 1].includes(hm.body().results[0].marksAwarded), 'multi: 0 or full: ' + hm.body().results[0].marksAwarded);
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution({ question: DO_MCQ_Q1, subject: 'Maths', textAnswer: '(c) 7', acceptsV2: true }, {});
+  assert.equal(hs.body().totalMarks, 1);
+  assert.ok([0, 1].includes(hs.body().marksAwarded), 'single (marks unset): 0 or full: ' + hs.body().marksAwarded);
+});
+
+test('§DO.7 ★ review D3: the student\'s GRADE-MARKS-1 override (objective:false, marks > 1) is honoured on BOTH routes — graded as written, never re-upgraded', async () => {
+  const raw = { annotatedSteps: [{ description: 'Working', studentWork: '7 is prime as its only factors are 1 and 7', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'presentation', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 3, questionText: DO_MCQ_Q1, objective: false }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 3, 'multi: the student\'s 3 marks stand');
+  assert.ok(![0, 3].includes(hm.body().results[0].marksAwarded), 'multi: step-marked: ' + hm.body().results[0].marksAwarded);
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution({ question: DO_MCQ_Q1, subject: 'Maths', marks: 3, objective: false, textAnswer: '(c) 7', acceptsV2: true }, {});
+  assert.equal(hs.body().totalMarks, 3, 'single: the student\'s 3 marks stand');
+  assert.ok(![0, 3].includes(hs.body().marksAwarded), 'single: step-marked: ' + hs.body().marksAwarded);
+});
+
+test('§DO.8 ★ review D1 on BOTH grade routes: an objective:false question in any D1 shape at 1 mark is NOT upgraded (no 0/full clamp); a bank row is never upgraded by its text', async () => {
+  const raw = { annotatedSteps: [{ description: 'Working', studentWork: 'x', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: 'x', mistakeType: 'calculation', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  // control: the same raw on a printed MCQ IS clamped (proves the probe can see an upgrade)
+  const hc = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hc.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: DO_MCQ_Q1, objective: false }]), {});
+  assert.ok([0, 1].includes(hc.body().results[0].marksAwarded), 'control clamped: ' + hc.body().results[0].marksAwarded);
+  for (const t of DO_REVIEW_D1) {
+    const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+    await hm.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: t, objective: false }]), {});
+    assert.equal(hm.body().results[0].marksAwarded, 0.5, 'multi not clamped: ' + t.slice(0, 50));
+    const hs = buildRoute({ replies: [raw] });
+    await hs.route.handleCheckSolution({ question: t, subject: 'Maths', textAnswer: 'x' }, {});
+    assert.equal(hs.body().marksAwarded, 0.5, 'single not clamped: ' + t.slice(0, 50));
+  }
+  // a 5-mark (a)/(b)/(c) question keeps its marks and step marking
+  const r5 = { annotatedSteps: [{ description: 'Part (a)', studentWork: 'Tt', status: 'partial', marksAwarded: 3, marksDeducted: 2, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  const h5 = buildRoute({ replies: [{ results: [{ qNumber: 4, ...r5 }] }] });
+  await h5.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 4, marks: 5, questionText: DO_SUBPART_5, objective: false }]), {});
+  assert.equal(h5.body().results[0].totalMarks, 5);
+  assert.equal(h5.body().results[0].marksAwarded, 3);
+  // a bank row carries its own objectivity: a Section C row whose text prints (a)–(d) is not touched
+  const hb = buildRoute({ replies: [{ results: [{ qNumber: 2, ...r5 }] }] });
+  await hb.route.handleGradeWorksheet(WORKSHEET_REQ([Q(2, { marks: 1, section: 'C', format: 'sa', questionText: DO_MCQ_Q1 })]), {});
+  assert.ok(!hb.body().results[0].objective, 'bank metadata wins');
+});
+
+test('§DO.9 ★ review R2-2: the model\'s own marks > 1 BLOCK the upgrade (no section, nothing printed) — not locked, not "stated"; a printed MCQ the model read at 1 mark still upgrades', async () => {
+  const D = require('../grading/detect.cjs');
+  const JUST = 'Which of the following are chemical changes? (a) rusting of iron (b) melting of ice (c) boiling of water (d) freezing of water';
+  const PROB = 'Which of the following cannot be the probability of an event? (a) 2/3 (b) −1.5 (c) 15% (d) 0.7';
+  assert.equal(D.printedOptionsObjective(JUST), true, 'the text alone would qualify');
+  const qs = D.normaliseDetectedQuestions([
+    { questionNumber: 1, questionText: JUST, marks: 3, marksSource: 'stated', objective: false },
+    { questionNumber: 2, questionText: PROB, marks: 1, marksSource: 'stated', objective: false },
+  ], { detectedMarks: 3 });
+  assert.deepEqual([qs[0].objective, qs[0].marks, qs[0].marksSource], [false, 3, 'stated'], 'model marks 3: the model\'s read stands, untouched');
+  assert.deepEqual([qs[1].objective, qs[1].marks], [true, 1], 'model marks 1: upgraded');
+  assert.equal(qs[1].marksSource, 'inferred', 'upgraded with nothing printed: never "stated"');
+  // through the route, opted in: the 3-mark read is NOT locked (offersOptions false), marksSource not "stated"
+  const h = buildRoute({ replies: [{ detectedMarks: 3, marksSource: 'stated', detectedObjective: false, sectionHeaders: [],
+    questions: [{ questionNumber: 1, questionText: JUST, marks: 3, marksSource: 'stated', objective: false }, { questionNumber: 2, questionText: PROB, marks: 1, marksSource: 'stated', objective: false }] }] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const b = h.body().questions;
+  assert.deepEqual(b.map((q) => [q.objective, q.offersOptions, q.marks]), [[false, false, 3], [true, true, 1]]);
+  assert.ok(b.every((q) => q.marksSource !== 'stated'), 'no false "stated": ' + b.map((q) => q.marksSource));
+  // single read with a model "stated" 1 and nothing printed: the top level is not "stated" either
+  const h1 = buildRoute({ replies: [{ detectedMarks: 1, marksSource: 'stated', detectedObjective: false, questions: [{ questionNumber: 1, questionText: PROB, marks: 1, marksSource: 'stated', objective: false }] }] });
+  await h1.route.handleDetectQuestion({ question: PROB }, {});
+  assert.deepEqual([h1.body().detectedObjective, h1.body().detectedMarks, h1.body().marksSource], [true, 1, 'inferred']);
+});
