@@ -16,6 +16,8 @@
  * The Chapter Pack, Mock Pack and Maths + Science Bundle are made by the same chapterFiles / mockFiles, so they are covered by
  * construction; the first test pins that (the bundle's file ids are the two Subject Packs' file ids).
  */
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { SYLLABUS_2026_27 } from "../../config/syllabus2026-27";
 import {
@@ -33,8 +35,9 @@ import { predictedQuestions } from "../../data/predictedQuestions";
 import { sciencePredictedQuestions } from "../../data/predictedQuestionsScience";
 import { PACK_SUBJECTS, packIdOf, type PackSku } from "../../services/packs";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
+import { cubicRemainingZeroes, evolutionTerms, lensHits } from "./packSyllabusLenses";
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
-import { PACK_SYLLABUS_EXCLUDED, SYLLABUS_EXCLUDED_AT, drawAvoidingExcluded, drawPackWorksheetRows, drawPackWorksheetRowsSafe } from "./packContent";
+import { PACK_SYLLABUS_EXCLUDED, SYLLABUS_EXCLUDED_AT, hashSeed, drawAvoidingExcluded, drawPackWorksheetRows, drawPackWorksheetRowsSafe } from "./packContent";
 import { REVISED_PACK_PAPER_CODES, packPaperCode } from "./packPaperCode";
 
 /**
@@ -106,13 +109,23 @@ const REVIEWED_INCIDENTAL: Readonly<Record<string, string>> = (() => {
   );
   add(
     "KEPT by owner ruling 5 Nov 2026: retained NCERT 8.1 wording in a Heredity variation MCQ; the key tests the false statement 'all variations have equal chance of survival', not the evolution option.",
-    "lens:evolutionary",
+    "lens:evolution-terms",
     ["HERED-EXMPLR-8-MCQ-010"],
   );
   add(
     "'Evolutionary' / 'evolution' is a closing remark in the CBSE-style key (brain size; copying errors give variation); the sub-topic (Brain Structure, DNA Copying) is IN and the marks are not for evolution.",
-    "lens:evolutionary",
+    "lens:evolution-terms",
     ["CNC2-007", "REPR-NCERT-7-SA-007"],
+  );
+  add(
+    "Reproduction (IN, Ch 8): variation from DNA copying / sexual reproduction is the tested idea; 'basis of evolution' is a closing remark in the CBSE-style key (SQP-S-2023-REPR-D-002 is an official CBSE sample-paper answer). Not an Evolution question.",
+    "lens:evolution-terms",
+    ["REPR-NCERT-7-SA-001", "REP-H02", "REP-H03", "BX-REP-D-020", "SCQ-S-REPR-044", "SQP-S-2023-REPR-D-002"],
+  );
+  add(
+    "Heredity (IN): BX-HER-D-009 is a variation question whose stem says 'Do NOT discuss evolution'; LTG-S-HERED-301 uses 'vestigial' only as the name of a fruit-fly wing allele in a dominant/recessive cross (Mendel, IN).",
+    "lens:evolution-terms",
+    ["BX-HER-D-009", "LTG-S-HERED-301"],
   );
   add(
     "KEPT by owner ruling 5 Nov 2026: CBSE-authored Class 10 competency-focused question using the remainder / factor idea on a quadratic or a graph; the remainder theorem is not a deleted Class 10 item (only polynomial long division and the cubic relations are).",
@@ -137,37 +150,18 @@ function PACK_SYLLABUS_EXCLUDED_FOR_TEST(id: string, fn: () => void): void {
   }
 }
 
-/**
- * CONTENT lenses (owner ruling 5 Nov 2026): classes of deleted content caught by what the question SAYS, so a new row is stopped
- * even if nobody lists its id. A hit needs a reviewed `<id>|lens:<name>` entry below. `chapter` narrows a lens to one chapter.
- */
-const CONTENT_LENSES: ReadonlyArray<{ name: string; re: RegExp; chapter?: string }> = [
-  { name: "induced-current", re: /induced\s+(current|e\.?\s?m\.?\s?f\.?|voltage|potential)/i },
-  { name: "electromagnetic-induction", re: /electro-?\s?magnetic\s+induction|magnetic\s+induction|faraday/i },
-  { name: "motor-generator-principle", re: /\b(electric|d\.?c\.?|a\.?c\.?|simple)\s+(motor|generator)s?\b|\bmotor\s+(principle|effect)\b|\bgenerators?\b|\bdynamo\b|\bsplit[- ]ring\b|\bcommutator\b|\barmature\b/i },
-  { name: "acquired-traits", re: /acquired\s+(and\s+inherited\s+)?traits?/i },
-  { name: "evolutionary", re: /\bevolutionary\b/i },
-  { name: "remainder-theorem", re: /remainder|divisible\s+by|is\s+divided\s+by|on\s+dividing/i, chapter: "polynomials" },
-];
-
-/** A cubic with one zero / factor GIVEN whose remaining zeroes are found by dividing it out or comparing coefficients. */
-function cubicRemainingZeroes(q: { topicKey: string; questionText: string; options?: string[]; solutionSteps?: string[]; finalAnswer?: string; answer?: string }): boolean {
-  if (q.topicKey !== "polynomials") return false;
-  const text = [q.questionText, ...(q.solutionSteps ?? []), q.finalAnswer ?? "", q.answer ?? ""].join(" \n ");
-  const cubic = /x\s*³|x\^3|\bcubic\b|degree\s*(3|three)/i.test(text);
-  const given = /(one|a|the)\s+zeroe?s?\s+(of|is|are)|\bis\s+a\s+zero|zero\s+of\s+[a-z]\(x\)\s+is|is\s+a\s+factor|are\s+factors|divisible\s+by|divided\s+by\s*\(|no\s+remainder|one\s+zero/i.test(text);
-  const remaining = /quotient|remaining\s+zeroe?s?|other\s+(two\s+)?zeroe?s?|find\s+(all\s+)?the\s+zeroe?s?|comparing\s+coefficients|dividing\s+(out|f|p)|long\s+division|factorisable/i.test(text);
-  return cubic && given && remaining;
-}
-
 const MATCHER = buildSyllabusMatcher(SYLLABUS_2026_27 as never);
+
+const sinkWithCodes: Array<{ ws: PersistedWorksheet; code?: string }> = [];
+const SNAPSHOT_PATH = path.resolve(__dirname, "packPaperCodes.pin.json");
 
 const ctxFor = (sink: Array<{ pack: string; ws: PersistedWorksheet }>, pack: string): BuildContext => ({
   licensee: { name: "Guard Test", email: "guard@example.in" },
   owned: [],
   nowIso: () => "2026-11-05T00:00:00.000Z",
-  exportPdf: async (ws: PersistedWorksheet) => {
+  exportPdf: async (ws: PersistedWorksheet, _mode: unknown, code?: string) => {
     sink.push({ pack, ws });
+    sinkWithCodes.push({ ws, code });
     return "x.pdf";
   },
 });
@@ -228,13 +222,9 @@ describe("every sellable pack goes through the syllabus guard", () => {
         ["answer", q.answer ?? ""],
       ];
       const whole = fields.map(([, t]) => t).join(" \n ");
-      for (const lens of CONTENT_LENSES) {
-        if (lens.chapter && lens.chapter !== q.topicKey) continue;
-        const key = `${id}|lens:${lens.name}`;
-        if (lens.re.test(whole) && !(key in REVIEWED_INCIDENTAL)) problems.push(`${key} (${q.topicKey}, "${sub}"): ${q.questionText.slice(0, 110).replace(/\s+/g, " ")}`);
-      }
-      if (cubicRemainingZeroes(q) && !(`${id}|lens:cubic-remaining-zeroes` in REVIEWED_INCIDENTAL)) {
-        problems.push(`${id}|lens:cubic-remaining-zeroes (${q.topicKey}, "${sub}"): ${q.questionText.slice(0, 110).replace(/\s+/g, " ")}`);
+      for (const name of lensHits(q)) {
+        const key = `${id}|lens:${name}`;
+        if (!(key in REVIEWED_INCIDENTAL)) problems.push(`${key} (${q.topicKey}, "${sub}"): ${q.questionText.slice(0, 110).replace(/\s+/g, " ")}`);
       }
       for (const [field, text] of fields) {
         if (!text) continue;
@@ -306,6 +296,88 @@ describe("paper draws steer clear of an excluded row", () => {
       expect(swapped).not.toContain(victim);
       expect(swapped.filter((id) => plain.includes(id))).toHaveLength(plain.length - 1);
     });
+  });
+});
+
+describe("the content lenses, on synthetic twins", () => {
+  const poly = (questionText: string, solutionSteps: string[] = []) => ({ topicKey: "polynomials", questionText, solutionSteps });
+  it.each([
+    ["root wording", poly("x = 2 is a root of x³ - 3x² + 4 = 0. Find the other roots.")],
+    ["'all its zeroes'", poly("If 2 is a zero of p(x) = x³ - 3x² + 4, find all its zeroes.")],
+    ["factor + working divides", poly("If (x + 1) is a factor of 2x³ + x² - 2x - 1, find its zeroes.", ["Divide: 2x³ + x² - 2x - 1 by (x + 1) to get 2x² - x - 1."])],
+    ["plain x3, factorise fully", poly("x - 2 is a factor of x3 - 3x2 + 4, factorise fully.")],
+    ["x^3", poly("One zero of f(x) = x^3 - 3x^2 + 4 is 2. Find the remaining zeroes.")],
+    ["cubic by name, quotient in the key", poly("A cubic polynomial p(x) is divisible by (x - 1). Find its other zeroes.", ["The quotient is a quadratic."])],
+    ["CFPQ-M-POLY-014 wording", poly("One zero of f(x) = x³ - 3x² + 4 is 2. At how many points will the graph of f(x) intersect the x-axis? Show your steps.", ["Divide by (x - 2) and compare coefficients."])],
+  ])("cubic lens: catches %s", (_n, q) => {
+    expect(cubicRemainingZeroes(q)).toBe(true);
+    expect(lensHits(q)).toContain("cubic-remaining-zeroes");
+  });
+
+  it.each([
+    ["quadratic zeroes", poly("If 2 is a zero of x² - 5x + 6, find the other zero.", ["Sum of zeroes = 5, so the other zero is 3."])],
+    ["quadratic factor", poly("(x - 1) is a factor of x² - 3x + 2. Find all its zeroes.")],
+    ["max zeroes of a cubic (degree fact)", poly("A cubic polynomial can have at most how many zeroes?")],
+    ["check a cubic zero by substitution", poly("Check whether x = -1 is a zero of x³ - 5x² + 7x - 3.", ["p(-1) = -1 - 5 - 7 - 3 = -16, not zero."])],
+    ["find a and b by substitution", poly("If x = 2 is a zero of p(x) = x³ - x² + ax + b, find a and b.")],
+    ["factor theorem 'divisible by x' on a quadratic", poly("p(x) = (x + 3)² - 2(x - c) is divisible by x. Find c.")],
+  ])("cubic lens: ignores %s", (_n, q) => {
+    expect(cubicRemainingZeroes(q)).toBe(false);
+  });
+
+  it("the cubic lens is a Polynomials lens (a cubic equation elsewhere is not a hit)", () => {
+    expect(cubicRemainingZeroes({ topicKey: "quadratic-equations", questionText: "x = 2 is a root of x³ - 3x² + 4 = 0. Find the other roots." })).toBe(false);
+  });
+
+  const bio = (questionText: string, topicKey = "heredity") => ({ topicKey, questionText });
+  it.each([
+    "Explain how natural selection leads to speciation.",
+    "Fossils show how organisms changed over time.",
+    "Homologous organs show a common ancestor.",
+    "Variation is the basis of evolution.",
+    "Darwin proposed the theory of evolution.",
+    "Wings of a bird and a bat are analogous organs.",
+    "The evolutionary tree of the elephant.",
+  ])("evolution lens: catches %s", (t) => {
+    expect(evolutionTerms(bio(t))).toBe(true);
+  });
+
+  it.each([
+    "Zinc reacts with dilute acid with the evolution of hydrogen gas.",
+    "Effervescence is observed due to evolution of CO₂.",
+    "Evolution of a gas: CaCO3 -> CaO + CO2.",
+    "Na reacts with explosive evolution of H₂ and release of large heat.",
+    "Gas evolution is one sign of a chemical change.",
+    "Burning fossil fuels releases SO₂.",
+    "Which pair are homologous series members?",
+  ])("evolution lens: ignores %s", (t) => {
+    expect(evolutionTerms(bio(t, "chemical-reactions-and-equations"))).toBe(false);
+  });
+});
+
+describe("graded pack papers are pinned to their code", () => {
+  it("each graded paper (Chapter Test, Worksheet, Full Mock) keeps its question ids under its code, or gets a new -V<n> code", () => {
+    const now: Record<string, string> = {};
+    for (const { ws, code } of sinkWithCodes) {
+      if (!code || ws.questions.length === 0) continue;
+      const h = `${ws.questions.length}:${hashSeed(ws.questions.map((q) => q.id).join(","))}`;
+      if (code in now && now[code] !== h) throw new Error(`${code} is built two different ways in one run`);
+      now[code] = h;
+    }
+    if (process.env.UPDATE_PACK_PAPER_SNAPSHOT === "1") {
+      fs.writeFileSync(SNAPSHOT_PATH, `${JSON.stringify(now, null, 1)}\n`);
+      return;
+    }
+    const pinned = JSON.parse(fs.readFileSync(SNAPSHOT_PATH, "utf8")) as Record<string, string>;
+    const changed = Object.keys(pinned).filter((c) => c in now && now[c] !== pinned[c]);
+    const unpinned = Object.keys(now).filter((c) => !(c in pinned));
+    const message = (list: string[]) =>
+      `Graded pack paper(s) ${list.join(", ")}: the question ids changed but the code did not. A student who downloaded the old PDF is graded against their saved copy under that code, and a re-download would overwrite it. ` +
+      `Add a -V<n> entry for each in REVISED_PACK_PAPER_CODES (packPaperCode.ts; old code -> "<old>-V2", or -V3 after a -V2), then regenerate this pin: UPDATE_PACK_PAPER_SNAPSHOT=1 npx vitest run src/lib/packs/packSyllabus.guard.test.ts`;
+    expect(changed, message(changed)).toEqual([]);
+    expect(unpinned, `New graded pack paper code(s) ${unpinned.join(", ")} are not pinned yet. Regenerate the pin: UPDATE_PACK_PAPER_SNAPSHOT=1 npx vitest run src/lib/packs/packSyllabus.guard.test.ts`).toEqual([]);
+    // a retired code (an old code replaced by its -V<n>) may stay pinned: students still hold papers under it
+    for (const [oldCode, newCode] of REVISED_PACK_PAPER_CODES) expect(newCode in now, newCode).toBe(true), expect(oldCode in now, `${oldCode} must no longer be built`).toBe(false);
   });
 });
 
