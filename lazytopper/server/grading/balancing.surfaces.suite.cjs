@@ -241,6 +241,11 @@ test('§GB.8 REPRO 3 — Maths, and equations the reader gives NO verdict on, ar
   assert.deepEqual(typesOf(mathsSubject), [['incorrect', 0, 'conceptual']], 'explicitly Maths: never touched');
   const noSubjMaths = grade({ qNumber: 1, marks: 1, questionText: 'Solve 2x − 3 = 11.' }, [S({ studentWork: '2x = 11 + 3', equationFault: 'not-balanced' })]);
   assert.deepEqual(typesOf(noSubjMaths), [['incorrect', 0, 'conceptual']], 'no subject, no chemical equation read: nothing moves');
+  // delta review: with NO subject "=" is never an arrow — a tagged geometry line "CO = 2OC" keeps the model's grade
+  const geo = grade({ qNumber: 1, marks: 1, questionText: 'In the figure, O is the centre of the circle. Prove that CO = 2OC.' }, [S({ studentWork: 'CO = 2OC', equationFault: 'wrong-coefficients' })]);
+  assert.deepEqual(typesOf(geo), [['incorrect', 0, 'conceptual']], 'no subject, "=" only: nothing moves');
+  const sciEq = grade(Q('Write the balanced equation for the formation of water.', 1), [S({ studentWork: 'H2 + O2 = H2O', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(sciEq), [['partial', 0.5, 'presentation']], 'CONTROL: a Science question keeps "=" as an arrow');
 });
 
 test('§GB.9 REPRO 4 — comment text never triggers: "✓ Balanced; no atom miscounted" with "H20" (digit zero) loses nothing', () => {

@@ -120,6 +120,7 @@ function readEquation(line) {
   let m = t.match(ARROW_WITH_LABEL);
   let left;
   let right;
+  const viaArrow = Boolean(m);
   if (m) {
     left = t.slice(0, m.index);
     right = t.slice(m.index + m[0].length);
@@ -146,7 +147,7 @@ function readEquation(line) {
   // The two sides must share their elements, or this is not a reaction (a misread line).
   for (const el of els) if (!(el in a) || !(el in b)) return null;
   const coefficientsWritten = [...L, ...R].some((x) => x.coefficient != null && x.coefficient !== 1);
-  return { balanced, coefficientsWritten, left: L.map((x) => x.formula), right: R.map((x) => x.formula) };
+  return { balanced, coefficientsWritten, viaArrow, left: L.map((x) => x.formula), right: R.map((x) => x.formula) };
 }
 
 /** Every equation this reader can read in a step's text (one per line or ';'-separated clause). */

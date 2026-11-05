@@ -824,10 +824,14 @@ function applyBalancingRuling(steps, { q, siblings, subject } = {}) {
   const subj = String(subject || '');
   if (/\bmath/i.test(subj)) return out;
   const live = steps.filter((s) => s.status !== 'withdrawn' && s.status !== 'unattempted');
-  if (!SCIENCE_SUBJECT.test(subj) && !live.some((s) => readEquations(s.studentWork).length > 0)) return out;
+  // with NO subject only an ARROW makes a chemical equation ("CO = 2OC" in a geometry answer is not one);
+  // a Science question keeps "=" as an arrow (delta review of #1584)
+  const bySubject = SCIENCE_SUBJECT.test(subj);
+  const read = (w) => readEquations(w).filter((e) => bySubject || e.viaArrow);
+  if (!bySubject && !live.some((s) => read(s.studentWork).length > 0)) return out;
   const questionText = String((q && (q.questionText || q.question)) || '');
   const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
-  const eqsOf = new Map(live.map((s) => [s, readEquations(s.studentWork)]));
+  const eqsOf = new Map(live.map((s) => [s, read(s.studentWork)]));
   const printedKeys = new Set(readEquations(questionText.replace(/[:;,]\s*/g, '\n')).map(reactionKey));
   // every reading of each reaction in the answer, and whether ANY of them balances
   const balancedKeys = new Set();
