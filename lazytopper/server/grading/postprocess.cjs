@@ -818,8 +818,13 @@ function inabilityProven(ev0, groupKeys, groupWork, allWork, questionText) {
 }
 function applyBalancingRuling(steps, { q, siblings, subject } = {}) {
   const out = { capped: 0, charged: 0, retyped: 0, unattempted: 0 };
-  if (!SCIENCE_SUBJECT.test(String(subject || ''))) return out;
+  // Science: the question's / paper's / model's subject says so — or, where none is given (a paper's stored
+  // replies predate the per-question subject), the reader itself reads a chemical equation in the answer. A
+  // question explicitly Maths is never touched (the reader gives no verdict on a maths line anyway).
+  const subj = String(subject || '');
+  if (/\bmath/i.test(subj)) return out;
   const live = steps.filter((s) => s.status !== 'withdrawn' && s.status !== 'unattempted');
+  if (!SCIENCE_SUBJECT.test(subj) && !live.some((s) => readEquations(s.studentWork).length > 0)) return out;
   const questionText = String((q && (q.questionText || q.question)) || '');
   const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
   const eqsOf = new Map(live.map((s) => [s, readEquations(s.studentWork)]));

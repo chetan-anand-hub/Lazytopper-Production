@@ -1315,7 +1315,8 @@ test('§16.S4 ★★★ SCIENCE — UNBALANCED: ½ per equation, and the bucket 
   // the CHEMICAL EQUATIONS rule carries the three cases and the mark, in its own words
   await bothPathsSay('(2) CORRECT SPECIES, COEFFICIENTS WRITTEN BUT WRONG', 'case (2)');
   await bothPathsSay('(3) CORRECT SPECIES LEFT SKELETAL', 'case (3)');
-  await bothPathsSay('loses EXACTLY ½, ONCE PER EQUATION, and never more for balancing alone', 'the mark, in CHEMICAL EQUATIONS');
+  await bothPathsSay('loses EXACTLY ½, ONCE PER REACTION in the whole answer', 'the mark, in CHEMICAL EQUATIONS');
+  await bothPathsSay('This ½ is NOT part of the exam-technique cap', 'balancing outside the exam-technique cap (coordinator ruling, 5 Nov 2026)');
   await bothPathsSay('A FORMULA OR SUBSCRIPT CHANGED TO FORCE A BALANCE', 'case (1), a changed subscript, in the conceptual definition');
 
   // NEGATIVE CONTROL — the SUPERSEDED rules must be gone from BOTH prompts.

@@ -236,7 +236,11 @@ test('§GB.8 REPRO 3 — Maths, and equations the reader gives NO verdict on, ar
   const ionic = grade(Q('Write the ionic equation for the precipitation of iron(III) hydroxide.', 1), [S({ studentWork: 'Fe3+ + OH- → Fe(OH)3', equationFault: 'not-balanced' })]);
   assert.deepEqual(typesOf(ionic), [['incorrect', 0, 'conceptual']], 'no verdict: no give-back, no retype');
   const sciNoSubject = grade({ qNumber: 1, marks: 1, questionText: AL }, [S({ studentWork: 'Al + H₂O → Al₂O₃ + H₂', equationFault: 'not-balanced' })]);
-  assert.deepEqual(typesOf(sciNoSubject), [['incorrect', 0, 'conceptual']], 'subject unknown: not Science, nothing moves');
+  assert.deepEqual(typesOf(sciNoSubject), [['partial', 0.5, 'presentation']], 'no subject given: the reader reading a chemical equation makes it Science');
+  const mathsSubject = grade(Q(AL, 1, 'Maths'), [S({ studentWork: 'Al + H₂O → Al₂O₃ + H₂', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(mathsSubject), [['incorrect', 0, 'conceptual']], 'explicitly Maths: never touched');
+  const noSubjMaths = grade({ qNumber: 1, marks: 1, questionText: 'Solve 2x − 3 = 11.' }, [S({ studentWork: '2x = 11 + 3', equationFault: 'not-balanced' })]);
+  assert.deepEqual(typesOf(noSubjMaths), [['incorrect', 0, 'conceptual']], 'no subject, no chemical equation read: nothing moves');
 });
 
 test('§GB.9 REPRO 4 — comment text never triggers: "✓ Balanced; no atom miscounted" with "H20" (digit zero) loses nothing', () => {
