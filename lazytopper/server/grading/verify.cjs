@@ -545,4 +545,67 @@ function compareFinalAnswerRaw(studentText, keyText) {
   return 'skip';
 }
 
-module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn, fudgedFactorisation, parseQuadratic, parseFactorised };
+/* ── GRADER-CREDIT-1 · EQUAL VALUE IN ANOTHER FORM (owner ruling B, 5 Nov 2026) ──────────────
+   CBSE examiners tick an answer that is EQUAL to the key in another form — 45/48 for 15/16
+   (2025 Maths 30/6/2 Q22, answer book p.7), 4.5 A for 4.54 A (2025 Science 31/1/3 Q37(b), p.28).
+   `equivalentFinalValue` reads ONE final value from each text (the right of the last "=" on the
+   last line), sets a trailing unit aside, and evaluates it with the same fixed grammar as the
+   arithmetic check (numbers, + − × ÷ / ^ √ and π — no eval). It is used ONLY to GIVE BACK a mark
+   (postprocess.cjs restoreEquivalentFinalAnswer), never to take one, so anything it is not sure
+   of is 'skip':
+     - a tuple / list / "or" / "±" (two roots, two values: shared credit is the prompt's job);
+     - a unit on the key that the student's value does not carry, or two different units;
+     - a value it cannot evaluate.
+   'equivalent' needs EITHER exact equality (two exact forms: fractions, surds, π, integers) OR
+   agreement within the rounding of the LESS precise decimal written (½ in its last place) AND
+   within 1% of the key — so "5" is never 4.54, and "4.5" is. 'different' otherwise. */
+const EQ_UNIT_TAIL = /\s*(?:km\s*\/\s*h|m\s*\/\s*s\^?2?|m\s*\/\s*s²|cm\s*\/\s*s|kmph|km|cm|mm|m|kg|mg|g|ml|mL|l|L|kJ|kW|kWh|Hz|ohms?|Ω|hrs?|h|min|sec|s|A|V|W|J|N|D|°C|°|K|Rs\.?|₹|rupees)(?:\s*(?:\^\s*\(?[23]\)?|[²³]))?\s*\.?\s*$/;
+const EQ_UNIT_HEAD = /^\s*(?:Rs\.?|₹)\s*/;
+function eqUnitOf(s) {
+  const t = String(s == null ? '' : s);
+  const head = EQ_UNIT_HEAD.exec(t);
+  if (head) return { rest: t.slice(head[0].length), unit: '₹' };
+  const m = EQ_UNIT_TAIL.exec(t);
+  // a single LOWER-CASE letter glued to a number ("2x", "3m" written without a space) is a variable, not a unit
+  if (!m || !/\d|\)|π/.test(t.slice(0, m.index).trim().slice(-1))) return { rest: t, unit: null };
+  const raw = m[0].trim().replace(/\.$/, '');
+  if (/^[a-z]$/.test(raw.replace(/\s/g, '')) && !/\s/.test(m[0][0] || '')) return { rest: t, unit: null };
+  const unit = raw.replace(/\s+/g, '').replace(/^ohms?$/i, 'Ω').replace(/^(?:Rs\.?|rupees)$/i, '₹').replace(/\^\(?([23])\)?/, (x, d) => (d === '2' ? '²' : '³'));
+  return { rest: t.slice(0, m.index), unit };
+}
+/** One final value: { value, exact, decimals, unit } or null. */
+function finalValueParsed(text) {
+  const lines = String(text == null ? '' : text).split(/\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return null;
+  const last = lines[lines.length - 1];
+  if (/±|∓|,|;|\bor\b|\band\b/i.test(last)) return null;
+  const parts = last.split(/=|≈/);
+  const { rest, unit } = eqUnitOf(parts[parts.length - 1].trim());
+  let expr = rest.trim();
+  if (!expr || /[A-Za-z]/.test(expr.replace(/π|pi/gi, ''))) return null;
+  const exact = /\/|√|π|pi/i.test(expr) || !/\./.test(expr);
+  expr = expr.replace(/π|\bpi\b/gi, '(' + Math.PI + ')');
+  const n = normaliseExpr(expr);
+  const value = evaluate(n);
+  if (value === null) return null;
+  return { value, exact, decimals: exact ? Infinity : decimalsOf(rest), unit };
+}
+/**
+ * @returns {'equivalent'|'different'|'skip'}
+ */
+function equivalentFinalValue(studentText, keyText) {
+  const s = finalValueParsed(studentText);
+  const k = finalValueParsed(keyText);
+  if (!s || !k) return 'skip';
+  if (k.unit && s.unit !== k.unit) return 'skip';
+  if (s.unit && k.unit && s.unit !== k.unit) return 'skip';
+  const diff = Math.abs(s.value - k.value);
+  if (diff <= 1e-9 * Math.max(1, Math.abs(k.value))) return 'equivalent';
+  if (s.exact && k.exact) return 'different';
+  const d = Math.min(s.decimals, k.decimals);
+  const tol = 0.5 * Math.pow(10, -d) + 1e-12;
+  if (diff <= tol && diff <= 0.01 * Math.abs(k.value)) return 'equivalent';
+  return 'different';
+}
+
+module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn, fudgedFactorisation, parseQuadratic, parseFactorised, equivalentFinalValue };

@@ -3407,3 +3407,76 @@ test('§GQ.9 D3 delta review item 1: on a photo quote a line is charged only whe
   assert.equal(falseEqualities('D = 7² − 4 × 3 × 2 = 49 −24 = 25').length, 0);
   assert.equal(falseEqualities('2 = 2 -24 = -24').length, 2);
 });
+
+/* ── GRADER-CREDIT-1 (owner ruling B, 5 Nov 2026): equal final answers in another form ─────────────────── */
+const { equivalentFinalValue } = require('./verify.cjs');
+const { restoreEquivalentFinalAnswer, FORM_DEMANDED, normaliseQuestionResult: nqr } = require('./postprocess.cjs');
+
+test('§GC1.1 equivalentFinalValue tells the readings apart: equal forms are equivalent; a wrong value, a missing unit or two values are not', () => {
+  const eq = (a, b) => equivalentFinalValue(a, b);
+  // CBSE model answer books (cbse.gov.in 2025): 45/48 for 15/16 (30/6/2 Q22), 4.5 A for 4.54 A (31/1/3 Q37(b))
+  assert.equal(eq('P = 90/96 = 45/48', '15/16'), 'equivalent');
+  assert.equal(eq('I = 4.5 A', 'I = 4.54 A'), 'equivalent');
+  assert.equal(eq('0.9375', '15/16'), 'equivalent', 'an exact decimal');
+  assert.equal(eq('0.94', '15/16'), 'equivalent', 'rounded to the places written');
+  assert.equal(eq('2√3', '√12'), 'equivalent', 'an equal surd');
+  assert.equal(eq('Rs 650', '₹ 650'), 'equivalent');
+  // NOT equivalent
+  assert.equal(eq('5 A', '4.54 A'), 'different', 'a coarser value outside the rounding');
+  assert.equal(eq('3.1', '3.14'), 'different', 'within ½ of the last place written, but more than 1% of the key');
+  assert.equal(eq('4', '4.4'), 'different', 'an integer is exact: 4 is never 4.4');
+  assert.equal(eq('44/48', '15/16'), 'different', 'two exact forms must be EQUAL');
+  assert.equal(eq('−4', '4'), 'different', 'the sign counts');
+  // SKIP — the guard never acts on these
+  assert.equal(eq('4.5', '4.54 A'), 'skip', 'the key has a unit the answer lacks: the unit rule is separate');
+  assert.equal(eq('4.5 V', '4.54 A'), 'skip', 'different units');
+  assert.equal(eq('x = 4', 'x = 4, −4'), 'skip', 'two values: shared credit is the prompt\'s job');
+  assert.equal(eq('x = ±4', '4'), 'skip');
+  assert.equal(eq('3m', '3 m'), 'skip', 'a letter glued to a number is a variable, not a unit');
+  assert.equal(eq('Hence proved', '5 − 2√3 is irrational'), 'skip');
+});
+
+test('§GC1.2 FORM_DEMANDED: an explicit demand for a form or a precision is recognised; a plain "find" is not', () => {
+  for (const t of ['Simplify 45/48.', 'Give your answer in its lowest terms.', 'in the simplest form', 'correct to two decimal places', 'correct up to 3 significant figures', 'to 2 d.p.', 'to the nearest metre',
+    'Leave your answer in terms of π.', 'Express 0.375 as a fraction.', 'Give the answer as a decimal.', 'Rationalise the denominator of 1/√5.']) assert.ok(FORM_DEMANDED.test(t), t);
+  for (const t of ['Find the probability that the number is a 2-digit number.', 'Find the current drawn by the iron.', 'Find the roots of x² − 16 = 0.', 'Prove that √5 is irrational.']) assert.ok(!FORM_DEMANDED.test(t), t);
+});
+
+const gcQ = (over = {}) => ({ qNumber: 1, marks: 2, questionText: 'An electric iron of power rating 1 kW is operated on the 220 V mains. Find the current drawn by the iron.', finalAnswer: 'I = 4.54 A', ...over });
+const gcRaw = (last, over = {}) => ({ addressesQuestion: 'yes', finalAnswerCorrect: false, teacherNote: 'Note.', annotatedSteps: [
+  { description: 'Relation', studentWork: 'P = VI ⇒ I = P/V', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+  { description: 'Current', studentWork: 'I = 1000/220 = 4.5 A', status: 'incorrect', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: '× 1000/220 = 4.54 A.', mistakeType: 'calculation', ...last },
+], ...over });
+
+test('§GC1.3 the guard gives back an equal final answer — and only that (never lowers, never acts beside a unit, a format loss, a concept, a departure, an arithmetic flag)', () => {
+  assert.equal(nqr(gcQ(), gcRaw({}), { acceptsV2: true }).marksAwarded, 2, '4.5 A for 4.54 A: full');
+  assert.equal(nqr(gcQ({ finalAnswer: null }), gcRaw({}), { acceptsV2: true }).marksAwarded, 1, 'no key: the model decides (trunk)');
+  assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220 = 4.0 A' }), { acceptsV2: true }).marksAwarded, 1, 'a wrong value stays wrong');
+  assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220 = 4.5' }), { acceptsV2: true }).marksAwarded, 1, 'no unit: the guard does not act');
+  assert.equal(nqr(gcQ(), gcRaw({ mistakeType: 'presentation', teacherAnnotation: '× write the unit (A) with your final answer.' }), { acceptsV2: true }).marksAwarded, 1, 'a unit loss is not given back');
+  assert.equal(nqr(gcQ(), gcRaw({ mistakeType: 'conceptual' }), { acceptsV2: true }).marksAwarded, 1, 'a concept loss is not given back');
+  assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220\n= 4.5 A' }), { acceptsV2: true }).marksAwarded, 1, 'a multi-line calculation step: the loss may be elsewhere in it');
+  assert.equal(nqr(gcQ(), gcRaw({}, { studentFinalAnswer: 'I = 5 A' }), { acceptsV2: true }).marksAwarded, 1, 'the quoted final answer must agree too');
+  assert.equal(nqr(gcQ({ questionText: 'Find the current drawn, correct to two decimal places.' }), gcRaw({}), { acceptsV2: true }).marksAwarded, 1, 'a stated precision is enforced');
+  const dep = gcRaw({});
+  dep.annotatedSteps[0] = { ...dep.annotatedSteps[0], isDeparture: true, departureKind: 'invalid-method', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' };
+  assert.equal(nqr(gcQ(), dep, { acceptsV2: true }).marksAwarded, 0, 'under a departure nothing is given back');
+  const flagged = gcRaw({});
+  flagged.annotatedSteps[0] = { ...flagged.annotatedSteps[0], studentWork: '1232/308 = 8' };
+  assert.equal(nqr(gcQ(), flagged, { acceptsV2: true }).marksAwarded, 0.5, 'an arithmetic flag in the question blocks the guard');
+  // NEVER LOWERS: a model that gave full marks to a DIFFERENT value is untouched by this guard (C4.2 decides, as on trunk)
+  const full = gcRaw({ status: 'correct', marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓' }, { finalAnswerCorrect: true });
+  const trunkLike = nqr(gcQ({ finalAnswer: null }), JSON.parse(JSON.stringify(full)), { acceptsV2: true }).marksAwarded;
+  assert.equal(nqr(gcQ(), full, { acceptsV2: true }).marksAwarded, trunkLike);
+});
+
+test('§GC1.4 the "final answer wrong" verdict alone is overruled only on a question WITHOUT parts', () => {
+  const steps = [{ description: 'a', studentWork: 'x = 1', status: 'correct', _available: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', part: null },
+    { description: 'b', studentWork: 'P = 45/48', status: 'correct', _available: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', part: null }];
+  const args = { q: { finalAnswer: '15/16', questionText: 'Find P.' }, raw: {}, zeroedBy: new Map(), finalAnswerCorrect: false };
+  assert.deepEqual(restoreEquivalentFinalAnswer(JSON.parse(JSON.stringify(steps)), args), { index: 1, stepRestored: false });
+  const parts = steps.map((s, i) => ({ ...s, part: i ? '(ii)' : '(i)' }));
+  assert.equal(restoreEquivalentFinalAnswer(parts, args), null);
+  assert.equal(nqr({ qNumber: 1, marks: 2, questionText: 'Find P.', finalAnswer: '15/16' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: steps.map((s) => ({ ...s, marksAvailable: 1 })) }, { acceptsV2: true }).marksAwarded, 2,
+    'on trunk the model\'s verdict alone capped this at 1.5');
+});

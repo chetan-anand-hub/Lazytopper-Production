@@ -939,6 +939,12 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // version is working, not a fault), outside the exam-technique cap, and a printed skeletal equation copied back
 // unbalanced is "unattempted" (coordinator rulings 5 Nov 2026). Rule TEXT only.
 //   PREVIOUS b97ae3a29aa889d4a90016f349d97d1ac43091c0a573ae260a52cfd45f1c29f7
+// GRADER-CREDIT-1 (owner rulings A and B, 5 Nov 2026; f8e888ec… → below): two new rules in the ONE rulebook,
+// every transport moved together — SEPARATE VALUES (one value point paid for two separately required values is
+// shared: ½ for one of two roots) and EQUIVALENT ANSWERS (an equal value in another form is right; a demanded form
+// or precision is enforced) — plus pointers to them from READING FIDELITY, the word-problem partial-credit line,
+// VALUE POINTS ARE EARNED OR NOT and case law 12. Rule TEXT only.
+//   PREVIOUS f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c
 const NO_UPLOADS_CONTENTS_SHA256 = 'f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c';
 
 const PINNED_REQ = () => ({
