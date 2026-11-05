@@ -3364,3 +3364,30 @@ test('§GQ.7 D3 review item 9: the column split reaches ONLY the model\'s quote 
   ]))] }).sheet(sheet([sq(1, { marks: 3, textAnswer: undefined, finalAnswer: null })], { uploads: [{ qNumber: 1, ...PHOTO }], acceptsV2: true }))).body.results[0];
   assert.equal(r.annotatedSteps[1].correctedWorking, null, 'a corrected working that is false as written is never shown to the student');
 });
+
+test('§GQ.8 (B) eval gate: knowlViolations accepts ONLY the knowledge-evidence change, and truth.cjs C05 exempts ONLY the step-level fourth state (narrow legacy variant)', () => {
+  const { knowlViolations } = require('../eval/golden/lib/rebaselineClasses.cjs');
+  const { consistencyFailures } = require('../eval/golden/lib/truth.cjs');
+  const body = { results: [{ qNumber: 1, marksAwarded: 1.5, totalMarks: 2, annotatedSteps: [{ studentWork: 'x = 1', status: 'correct' }, { description: 'Verification', studentWork: '', status: 'unattempted', mistakeType: null }] }] };
+  const ok = [
+    [['results', 0, 'annotatedSteps', 1, 'status'], 'missing', 'unattempted'],
+    [['results', 0, 'annotatedSteps', 1, 'mistakeType'], 'presentation', null],
+    [['results', 0, 'mistakeSummary', 'presentation'], 1, 0],
+    [['results', 0, 'marksLostByType', 'presentation'], 0.5, 0],
+    [['results', 0, 'marksLostByType', 'unattempted'], 0, 0.5],
+  ];
+  assert.deepEqual(knowlViolations(ok, body), []);
+  assert.deepEqual(knowlViolations(ok.slice(1, 3), body), [], 'the legacy shape: type only');
+  assert.notDeepEqual(knowlViolations([...ok, [['results', 0, 'marksAwarded'], 1.5, 2]], body), [], 'a MARK change is refused');
+  assert.notDeepEqual(knowlViolations([[['results', 0, 'annotatedSteps', 1, 'mistakeType'], 'presentation', 'conceptual'], [['results', 0, 'mistakeSummary', 'presentation'], 1, 0]], body), [], 'never upgraded to another type');
+  const written = JSON.parse(JSON.stringify(body)); written.results[0].annotatedSteps[1].studentWork = 'LHS = RHS';
+  assert.notDeepEqual(knowlViolations(ok, written), [], 'a step that is not blank is refused');
+  // C05 — every lost mark has a type — except the step-level fourth state
+  const res = (st) => ({ totalMarks: 2, marksAwarded: 1.5, objective: false, mistakeSummary: {}, annotatedSteps: [{ status: 'correct', marksAwarded: 1.5, marksDeducted: 0, mistakeType: null, studentWork: 'x = 1' }, { marksAwarded: 0, marksDeducted: 0.5, mistakeType: null, ...st }] });
+  const c05 = (r, v2) => consistencyFailures(r, { v2 }).some((f) => f.id === 'C05-every-lost-mark-has-a-type');
+  assert.equal(c05(res({ status: 'unattempted', description: 'Answer', studentWork: '' }), true), false, 'v2 step-level unattempted: exempt');
+  assert.equal(c05(res({ status: 'missing', description: 'Verification of values', studentWork: '' }), false), false, 'legacy: a blank untyped verification "missing" step is the same state');
+  assert.equal(c05(res({ status: 'missing', description: 'Solving for y', studentWork: '' }), false), true, 'CONTROL: any other blank untyped missing step still fails C05 (narrow variant)');
+  assert.equal(c05(res({ status: 'missing', description: 'Verification of values', studentWork: '' }), true), true, 'CONTROL: in v2 an untyped "missing" step still fails C05');
+  assert.equal(c05(res({ status: 'incorrect', description: 'Verification', studentWork: 'LHS = 6' }), false), true, 'CONTROL: an untyped wrong step still fails C05');
+});

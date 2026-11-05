@@ -666,8 +666,8 @@ function markGenuinelyUnattempted(steps) {
      - no step of the part is wrong or typed conceptual / calculation / silly;
      - the answer's exam-technique loss INCLUDING it stays within the A17 ruling B cap (1 mark; ½ on a
        1-mark answer), each step counted at the larger of its lost marks and its deduction.
-   The SAME proof for a blank reason step the MODEL typed exam technique itself is written below but OFF
-   (ENFORCE_EVIDENCE_ON_MODEL_TYPING) pending an owner gate decision; there the prompt binds the model.
+   The SAME proof is required of a blank reason step the MODEL typed exam technique itself: without it the
+   step becomes `unattempted`, untyped (the fourth state) — never upgraded to anything else.
    Owner key owner-anomaly-02 Q22 ("State the F2 phenotypic and genotypic ratio", genotypic not written)
    stays an UNATTEMPTED PART (expected-key.md row 22) — the differential vs trunk found that case. */
 const SUB_PART_MARKER = /\(\s*(?:i{1,3}|iv|vi?|[a-d])\s*\)|(?:^|[\s:;,.])(?:i{1,3}|iv|vi?|[a-d])[.)](?=\s)|(?:^|\s)[1-9][.)](?=\s)/im;
@@ -676,7 +676,7 @@ const JUSTIFICATION_STEP = /\b(?:reason\w*|justif\w*|verif\w*|inequalit\w*|condi
 // The owner ruling's own words — a blank REASON / JUSTIFICATION / VERIFICATION step the model typed itself.
 const KNOWLEDGE_STEP = /\b(?:reason\w*|justif\w*|verif\w*)\b/i;
 const ATTEMPTED_STATUSES = new Set(['correct', 'partial', 'incorrect']);
-const ENFORCE_EVIDENCE_ON_MODEL_TYPING = false;
+const ENFORCE_EVIDENCE_ON_MODEL_TYPING = true;
 const normEvidence = (t) => String(t == null ? '' : t).normalize('NFKC').toLowerCase().replace(/[−–—]/g, '-').replace(/\s+/g, ' ').trim();
 /** The model's knowledgeEvidence is a real quote of ANOTHER correct/partial step of this question. */
 function knowledgeProven(u, live) {
@@ -700,16 +700,17 @@ function omissionsInAttemptedWork(steps, { q, totalMarks }) {
   };
   // (b) for the MODEL'S OWN typing: a blank reason step typed exam technique needs the same proof, unless it
   // is working not shown (a gap). Without it the type is withdrawn; status and marks are untouched.
-  // ⚑ OFF pending an owner gate decision (coordinator, 5 Nov): on the stored golden replies it fires on GS-M22-a
-  // only (a blank "verify your answer", typed presentation by the model; the examiner key says no type), which
-  // moves the G1 `consistency` floor (truth.cjs C05) and two rebaseline digests. Until then the prompt (rules.cjs
-  // (b)) is what binds the model's own typing; every flip THIS guard makes requires the proof (below).
+  // ON (owner approval, option B): on the stored golden replies it fires on GS-M22-a only (a blank "verify your
+  // answer", typed presentation by the model; the examiner key says no type). truth.cjs C05 exempts the
+  // step-level fourth state; the PR2-accept PARM7 bodies are re-baselined under g-knowledge-evidence-1.
   if (ENFORCE_EVIDENCE_ON_MODEL_TYPING) for (const s of live) {
     if (s.status !== 'missing' || s.mistakeType !== 'presentation' || nonAttemptText(s.studentWork) !== 'empty') continue;
     if (!KNOWLEDGE_STEP.test(String(s.description || ''))) continue;
     const { before, after } = sides(s);
     if (before && after) continue;
-    if (!knowledgeProven(s, live)) { s.mistakeType = null; n += 1; }
+    // no proof → the fourth state, as the examiner key GS-M22-a reads it ("a requested sub-task left wholly
+    // unattempted → no mistake type"): `unattempted`, untyped. Marks are untouched (they are final here).
+    if (!knowledgeProven(s, live)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
   }
   for (const u of live) {
     if (u.status !== 'unattempted' || u.marksAwarded > 0 || nonAttemptText(u.studentWork) !== 'empty') continue;

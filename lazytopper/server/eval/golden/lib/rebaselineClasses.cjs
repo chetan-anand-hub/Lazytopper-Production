@@ -153,6 +153,47 @@ function habitViolations(delta, toBody) {
   return out;
 }
 
+const KNOWL_CLASS = 'g-knowledge-evidence-1';
+/** g-knowledge-evidence-1 (GRADER-QUALITY-1, owner ruling 5 Nov 2026) rule violations for ONE delta. A BLANK
+ *  reason / justification / verification step the model typed exam technique WITHOUT proof of knowledge becomes
+ *  the fourth state. ONLY, per question: a step whose studentWork is empty goes mistakeType "presentation" → null,
+ *  and (v2 shape only) status "missing" → "unattempted"; mistakeSummary.presentation goes DOWN by exactly the number
+ *  of such steps; marksLostByType moves presentation → unattempted by an equal amount (v2). No mark, note,
+ *  annotation or any other field changes anywhere. */
+function knowlViolations(delta, toBody) {
+  const out = [];
+  const perResult = new Map();
+  for (const [p, from, to] of delta) {
+    const at = p[0] === 'results' && Number.isInteger(p[1]) ? { prefix: p.slice(0, 2), rest: p.slice(2) } : { prefix: [], rest: p };
+    const key = JSON.stringify(at.prefix);
+    if (!perResult.has(key)) perResult.set(key, { result: getAt(toBody, at.prefix), steps: new Map(), summary: 0, lost: {} });
+    const pr = perResult.get(key);
+    const r = at.rest;
+    if (r.length === 3 && r[0] === 'annotatedSteps' && Number.isInteger(r[1]) && (r[2] === 'status' || r[2] === 'mistakeType')) {
+      const ok = r[2] === 'status' ? (from === 'missing' && to === 'unattempted') : (from === 'presentation' && to === null);
+      if (!ok) { out.push(p.join('.') + ': only missing → unattempted and presentation → null'); continue; }
+      const st = pr.steps.get(r[1]) || {}; st[r[2]] = true; pr.steps.set(r[1], st);
+      continue;
+    }
+    if (r.length === 2 && r[0] === 'mistakeSummary' && r[1] === 'presentation') { pr.summary = (Number(to) || 0) - (Number(from) || 0); continue; }
+    if (r.length === 2 && r[0] === 'marksLostByType' && (r[1] === 'presentation' || r[1] === 'unattempted')) { pr.lost[r[1]] = (Number(to) || 0) - (Number(from) || 0); continue; }
+    out.push(p.join('.') + ': outside the ' + KNOWL_CLASS + ' rules');
+  }
+  for (const [key, pr] of perResult) {
+    const steps = (isObj(pr.result) && Array.isArray(pr.result.annotatedSteps)) ? pr.result.annotatedSteps : [];
+    let n = 0;
+    for (const [k, st] of pr.steps) {
+      // v2 shows the fourth state as "unattempted"; the legacy shape shows it as "missing" (status unchanged)
+      if (!st.mistakeType) out.push(key + ': step ' + k + ' must lose its presentation type');
+      if (String((steps[k] || {}).studentWork || '').trim() !== '') out.push(key + ': step ' + k + ' is not blank');
+      n += 1;
+    }
+    if (pr.summary !== -n) out.push(key + ': presentation summary moved ' + pr.summary + ' for ' + n + ' steps');
+    if (Object.keys(pr.lost).length && Math.abs((pr.lost.presentation || 0) + (pr.lost.unattempted || 0)) > 1e-9) out.push(key + ': marksLostByType total moved');
+  }
+  return out;
+}
+
 /** Rule violations of `classes` (array) for one entry's delta; [] = accepted. */
 function classViolations(classes, delta, toBody) {
   const cls = new Set(classes);
@@ -217,4 +258,4 @@ function classesFor(delta, toBody) {
   return null;
 }
 
-module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations, HABIT_CLASS, habitViolations };
+module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations, HABIT_CLASS, habitViolations, KNOWL_CLASS, knowlViolations };

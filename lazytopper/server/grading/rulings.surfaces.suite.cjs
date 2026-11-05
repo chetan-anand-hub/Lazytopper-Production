@@ -468,6 +468,39 @@ for (const s of SURFACES) {
     });
   }
 
+  // OWNER RULING 5 Nov 2026, option (B), owner-approved: the MODEL'S OWN exam-technique typing of a blank
+  // reason / justification / verification step needs the same proof. GS-M22-a shape ("…and verify your answer").
+  const VERIFY_TEXT = 'Solve 7x − 2y = 5 and 8x + 7y = 15, and verify your answer.';
+  const verifySteps = (extra) => () => [
+    { description: 'Elimination of y and solving for x', studentWork: '49x − 14y = 35, 16x + 14y = 30, 65x = 65, x = 1', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Finding y', studentWork: 'Put x = 1 in (1): 7 − 2y = 5, y = 1', status: 'correct', marksAvailable: 0.5, marksAwarded: 0.5, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Verification of values in both original equations', studentWork: '', status: 'missing', marksAvailable: 0.5, marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: '× Verification step requested in the question is missing.', mistakeType: 'presentation', ...extra },
+  ];
+  test('GRADER-QUALITY-1 D1 evidence (B) — ' + s.id + ': GS-M22-a shape — the MODEL typed a blank verification exam technique with NO proof → the fourth state (unattempted, untyped); marks unchanged', async () => {
+    for (const acceptsV2 of [false, true]) {
+      const r = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), targetSteps: verifySteps({}), acceptsV2 });
+      assert.equal(r.result.marksAwarded, 1.5, s.id + ' v2=' + acceptsV2);
+      assert.deepEqual([r.result.annotatedSteps[2].status, r.result.annotatedSteps[2].mistakeType], [acceptsV2 ? 'unattempted' : 'missing', null], s.id + ' v2=' + acceptsV2 + ' (the legacy shape has no "unattempted")');
+      assert.equal(r.result.mistakeSummary.presentation, 0, s.id + ': no exam-technique MI entry without proof');
+      if (acceptsV2) assert.deepEqual(r.result.marksLostByType, { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0.5, untyped: 0 }, s.id);
+    }
+  });
+  test('GRADER-QUALITY-1 D1 evidence (B) CONTROL — ' + s.id + ': the model\'s exam-technique typing STANDS with proof, as working not shown (a gap), or when the step is not blank', async () => {
+    // proof: the student verified the same way elsewhere — quoted, and found in a correct step
+    const proven = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), acceptsV2: true, targetSteps: () => {
+      const st = verifySteps({ knowledgeEvidence: '7 − 2y = 5' })(); return st;
+    } });
+    assert.deepEqual([proven.result.annotatedSteps[2].status, proven.result.annotatedSteps[2].mistakeType], ['missing', 'presentation'], s.id + ': proven');
+    // a gap: attempted work before AND after the blank verification
+    const gap = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), acceptsV2: true, targetSteps: () => {
+      const st = verifySteps({})(); st[1].marksAvailable = 0.25; return [st[0], st[2], { ...st[1], marksAvailable: 0.5 }];
+    } });
+    assert.equal(gap.result.annotatedSteps[1].mistakeType, 'presentation', s.id + ': a gap in the working is working not shown');
+    // not blank: a conclusion LINE missing after a written check is a format element (rules.cjs PRESENTATION)
+    const line = await drive(s, { mutateTarget: withMarks(2, VERIFY_TEXT), acceptsV2: true, targetSteps: verifySteps({ studentWork: 'LHS = 7 − 2 = 5 = RHS', status: 'partial', marksAwarded: 0, teacherAnnotation: '× "Hence verified" line missing.' }) });
+    assert.equal(line.result.annotatedSteps[2].mistakeType, 'presentation', s.id + ': a written check keeps its format deduction');
+  });
+
   test('GRADER-QUALITY-1 D1 evidence — ' + s.id + ': (c) a WRONG reason actually written is untouched (the model\'s type stands); the objective clamp is untouched', async () => {
     const r = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), acceptsV2: true, targetSteps: () => {
       const st = q24Steps();

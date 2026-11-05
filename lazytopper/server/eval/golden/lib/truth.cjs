@@ -137,6 +137,13 @@ function consistencyFailures(result, opts = {}) {
   steps.forEach((s, i) => {
     const d = Number(s.marksDeducted) || 0;
     if (s.mistakeType && stepTypeCounts[s.mistakeType] !== undefined) { stepTypeCounts[s.mistakeType] += 1; typedLost += d; }
+    // GRADER-QUALITY-1 (owner ruling 5 Nov 2026): a STEP-level fourth state (a requested sub-task left blank, no proof
+    // of knowledge) is not a mistake and carries no type by design — its loss is accounted for, as a whole
+    // not-attempted question's is below.
+    // In the LEGACY (v1) shape the server emits that state as "missing" (postprocess: v1 has no "unattempted"):
+    // there it is a blank (empty studentWork), untyped "missing" step whose description names a reason /
+    // justification / verification (the owner ruling's own words — postprocess.cjs KNOWLEDGE_STEP).
+    else if (s.status === 'unattempted' || (!opts.v2 && s.status === 'missing' && !String(s.studentWork || '').trim() && /\b(?:reason\w*|justif\w*|verif\w*)\b/i.test(String(s.description || '')))) typedLost += d;
     if (UNATTEMPTED_RE.test(String(s.studentWork || '') + ' ' + String(s.teacherAnnotation || '')) && s.status !== 'unattempted') unattemptedSteps.push(i + 1);
   });
   const lost = round2(Math.max(0, total - awarded));

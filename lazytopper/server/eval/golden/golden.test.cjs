@@ -304,13 +304,13 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     // A17 owner rulings 1 and 2 (GRADING-JOBS-1 J0) add two declared classes: the one fixed unit comment,
     // and a subjective non-attempt that is now NOT ATTEMPTED instead of a graded 0; ruling 3 as changed by the
     // owner 2026-10-06 adds the medium class (a Hinglish answer: ½ once, one fixed comment).
-    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1', 'g-mcq-habit-1'];
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1', 'g-mcq-habit-1', 'g-knowledge-evidence-1'];
     assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
     // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
     // slot → unattempted) or an A17 owner ruling (1: the unit comment; 2: not attempted); the v2 field
     // and the detect restore never touch one.
     // MCQ-TYPE-2 (owner ruling 2026-10-23) adds g-mcq-habit-1: a RIGHT MCQ with flawed working keeps its type at 0 marks.
-    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-|g-mcq-habit-1$)/.test(c))), 'a legacy body changes only under D38, an A17 ruling or the MCQ-TYPE-2 ruling');
+    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-|g-mcq-habit-1$|g-knowledge-evidence-1$)/.test(c))), 'a legacy body changes only under D38, an A17 ruling, the MCQ-TYPE-2 ruling or the GRADER-QUALITY-1 knowledge-evidence ruling');
     const ok = await evaluateRun(runDir);
     assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
     // CONTROL 1: one tampered `to` → that body counts as changed again.
@@ -375,16 +375,23 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
       if (!e.class.split('+').some((c) => !c.startsWith('a17-'))) assert.strictEqual(e.a17.base, e.from, k + ': an A17-only entry starts from the stored body');
       const rep = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
       assert.strictEqual(digest(rep.body), e.to, k + ': the replayed body is the pinned one');
-      // GRADER-CONSEQUENTIAL-1: an entry may carry a g-conseq-1 change on top of its A17 one; peel it first.
+      // GRADER-QUALITY-1 (owner ruling 2026-11-05): an entry may carry a g-knowledge-evidence-1 change on top; peel it first.
       let a17Body = rep.body;
+      if (e.knowl) {
+        a17Body = undoDelta(rep.body, e.knowl.delta);
+        assert.ok(a17Body && digest(a17Body) === e.knowl.base, k + ': undoing the g-knowledge-evidence-1 delta must land exactly on knowl.base');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').knowlViolations(e.knowl.delta, rep.body), [], k + ' (g-knowledge-evidence-1)');
+      }
+      const knowlPeeled = a17Body;
+      // GRADER-CONSEQUENTIAL-1: an entry may carry a g-conseq-1 change on top of its A17 one; peel it first.
       if (e.conseq) {
-        a17Body = undoDelta(rep.body, e.conseq.delta);
+        a17Body = undoDelta(knowlPeeled, e.conseq.delta);
         assert.ok(a17Body && digest(a17Body) === e.conseq.base, k + ': undoing the g-conseq-1 delta must land exactly on conseq.base');
-        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').conseqViolations(e.conseq.delta, rep.body), [], k + ' (g-conseq-1)');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').conseqViolations(e.conseq.delta, knowlPeeled), [], k + ' (g-conseq-1)');
       }
       const before = undoDelta(a17Body, e.a17.delta);
       assert.ok(before && digest(before) === e.a17.base, k + ': undoing the delta must land exactly on a17.base (nothing changed outside it)');
-      assert.deepStrictEqual(classViolations(classes, e.a17.delta, rep.body), [], k + ' (' + classes.join('+') + ')');
+      assert.deepStrictEqual(classViolations(classes, e.a17.delta, knowlPeeled), [], k + ' (' + classes.join('+') + ')');
       if (!sample && classes.length === 1 && classes[0] === 'a17-r1-units' && Array.isArray(rep.body.results)) sample = { k, e, body: rep.body, before };
       checked += 1;
     }
