@@ -3481,6 +3481,15 @@ const DO_REVIEW_D1 = [
   'Which of the following are APs? (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2 if they form an AP, find d',
   'Which one of these is a prime? (a) 91 (b) 87 (c) 97 (d) 93 Explain your answer.',
   'Identify the correct statements and correct the false ones: (a) Every integer is rational (b) Every rational is an integer (c) √2 is rational (d) π is irrational',
+  // round 3 (R3-1) — ANY text after the last option other than a bare 1-mark tag; any case; Hindi
+  ...[
+    '\njustify your answer', ' — explain your answer', ', justify.', ' (justify your answer)',
+    '\ngive reasons for your answer.', ' show your working', ' state reasons', ' kaaran batao', '\nkaaran batao',
+    ' स्पष्ट कीजिए।', '\nकारण दीजिए', ' Support your answer with reasons.', ' Provide a reason for each.', ' Reason out.',
+    ' Illustrate with an example.',
+  ].map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93' + tail),
+  'Which of the following are chemical changes?\n(a) rusting of iron\n(b) melting of ice\n(c) burning of paper\n(d) boiling of water\nwrite equations for the chemical ones',
+  'Put a tick against the correct statements: (a) 2 is prime (b) 9 is prime (c) 1 is prime (d) 0 is even',
 ];
 
 test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or separate lines, OCR spacing, A/B/C/D, "a)" / "A.", long Science options, statement-list MCQs, (i)–(iv) after a question, the golden transcripts', () => {
@@ -3492,6 +3501,9 @@ test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or 
     'Which is prime? a) 4 b) 6 c) 7 d) 9',
     'Which is prime? A. 4 B. 6 C. 7 D. 9',
     'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9 [1]',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93\n[1]',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 (1 mark)',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 1 mark',
     // golden transcripts (server/eval/golden runs, real detect reads)
     'If α and β are the zeroes of polynomial 3x² + 6x + k such that α + β + αβ = −2/3, then the value of k is : (A) −8 (B) 8 (C) −4 (D) 4',
     'The HCF of 6 and 20 is:\n(a) 1    (b) 2    (c) 4    (d) 120',

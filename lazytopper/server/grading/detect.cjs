@@ -200,6 +200,11 @@ function strictOptionList(text, style) {
   const cueStem = style.letters && /\(\s*i\s*\)/i.test(stem) ? stem.replace(/\(\s*i\s*\)[\s\S]*$/i, '').trim() : stem;
   if (!/[A-Za-z0-9]/.test(cueStem) || !stemHasMcqCue(cueStem)) return false;
   const opts = marks.map((m, k) => text.slice(m.end, k + 1 < marks.length ? marks[k + 1].start : text.length).trim());
+  // R3-1 · the LAST option runs to the end of the text, so anything a transcript ran on after it
+  // ("(d) 93 justify your answer", "(d) 93 kaaran batao") lands in it: it may be at most ONE word longer
+  // than the longest of the other three, or it is not an answer value.
+  const words = (o) => o.split(/\s+/).filter(Boolean).length;
+  if (words(opts[3]) > Math.max(words(opts[0]), words(opts[1]), words(opts[2])) + 1) return false;
   if (style.letters) return opts.every((o) => isAnswerValue(o, OPTION_MAX_CHARS));
   if (PAREN_LETTER.test(text)) return false;
   return opts.every((o) => isAnswerValue(o, ROMAN_MAX_CHARS));
@@ -229,24 +234,47 @@ function strictOptionList(text, style) {
 const INSTRUCTION_VERBS = ['justify', 'give', 'explain', 'show', 'prove', 'find', 'calculate', 'correct', 'write', 'draw',
   'state', 'name', 'identify', 'classify', 'compare', 'differentiate', 'describe', 'define', 'simplify', 'factorise',
   'factorize', 'solve', 'evaluate', 'determine', 'verify', 'list', 'mention', 'express', 'construct', 'derive',
-  'predict', 'suggest', 'account', 'rationalise', 'rationalize', 'expand', 'match', 'fill', 'complete', 'label', 'translate', 'convert'];
+  'predict', 'suggest', 'account', 'rationalise', 'rationalize', 'expand', 'match', 'fill', 'complete', 'label', 'translate', 'convert',
+  // round 3 (R3-1)
+  'support', 'provide', 'reason', 'illustrate', 'put', 'tick', 'mark', 'discuss', 'comment', 'elaborate', 'check', 'tell', 'answer'];
 const CAPITALISED_INSTRUCTION = new RegExp('(?:^|[^A-Za-z])(?:' + INSTRUCTION_VERBS.map((w) => w[0].toUpperCase() + w.slice(1)).join('|') + ')\\b');
 const LOWERCASE_INSTRUCTION = new RegExp('\\bif\\b[^?]*?,\\s*(?:' + INSTRUCTION_VERBS.join('|') + ')\\b|\\b(?:and|then|also|hence)\\s+(?:' + INSTRUCTION_VERBS.join('|') + ')\\b', 'i');
+// R3-1 · an instruction verb starting a clause, in ANY case: at the start, or after punctuation, a
+// bracket, a dash or a line break ("…(d) 93, justify.", "(justify your answer)", "— explain why").
+// "Reason (R)" is the A-R label, never an instruction.
+const CLAUSE_INSTRUCTION = new RegExp('(?:^|[.?!;:,()\\[\\]\\n—–-]\\s*)(?:' + INSTRUCTION_VERBS.join('|') + ')\\b(?!\\s*\\(\\s*r\\s*\\))', 'i');
+const DEVANAGARI = /[\u0900-\u097F]/;
 function carriesInstruction(t) {
-  return CAPITALISED_INSTRUCTION.test(t) || LOWERCASE_INSTRUCTION.test(t);
+  if (DEVANAGARI.test(t)) return true; // a Hindi instruction ("स्पष्ट कीजिए", "कारण दीजिए") — never read here
+  const noReasonLabel = t.replace(/\breason\s*\(\s*r\s*\)/gi, ' ');
+  return CAPITALISED_INSTRUCTION.test(noReasonLabel) || LOWERCASE_INSTRUCTION.test(noReasonLabel)
+    || CLAUSE_INSTRUCTION.test(noReasonLabel);
+}
+
+// The only text allowed AFTER the last option: a bare mark tag of 1 ("[1]", "(1)", "(1 mark)", "1 mark").
+const TRAILING_MARK_TAG = /\s*(?:\[\s*1\s*\]|\(\s*1\s*\)|\(\s*1\s*marks?\s*\)|\b1\s*marks?)\s*$/i;
+const OPTION_LABEL_IN_LINE = /\(\s*(?:[a-d]|i{1,3}|iv|[1-4])\s*\)|(?:^|\s)[a-dA-D][).](?=\s)|\breason\s*\(\s*r\s*\)/i;
+/** R3-1 · ALLOW-LIST for what follows the options: the last non-empty LINE must hold an option label
+ *  (or the A-R "Reason (R)") once a trailing mark tag is removed — any other line after it ("Justify
+ *  your answer", "kaaran batao", "show your working") means NO upgrade. */
+function endsOnAnOptionLine(raw) {
+  const lines = String(raw || '').replace(TRAILING_MARK_TAG, '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return false;
+  return OPTION_LABEL_IN_LINE.test(lines[lines.length - 1]);
 }
 
 function printsOptionList(text) {
   const t = String(text || '').replace(/\s+/g, ' ').trim();
   if (!t) return false;
   if (/\bOR\b/.test(t)) return false;
-  if (carriesInstruction(t)) return false;
+  if (carriesInstruction(String(text || ''))) return false;
+  if (!endsOnAnOptionLine(text)) return false;
   const printed = [...t.matchAll(MARKS_VALUE)].map((m) => Number(m[1] || m[2]));
   if (printed.length > 1 || printed.some((n) => n > 1)) return false;
   const a = /\bassertion\s*\(\s*a\s*\)/i.exec(t);
   const r = /\breason\s*\(\s*r\s*\)/i.exec(t);
   if (a && r && a.index < r.index) return true;
-  const body = t.replace(/\s*(?:\[\s*1\s*\]|\(\s*1\s*marks?\s*\))\s*$/i, '');
+  const body = t.replace(TRAILING_MARK_TAG, '');
   return PRINTED_OPTION_STYLES.some((style) => strictOptionList(body, style));
 }
 
