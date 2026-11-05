@@ -9,7 +9,8 @@
     "7": "Mistake type: copied wrongly = silly, performed wrongly = calculation, method misunderstood = conceptual, CBSE format only = presentation, unattempted = no type.",
     "A17-1": "A17 owner ruling (GRADING-JOBS-1, 2026-10-06): a missing or wrong unit on the FINAL answer of a quantity-valued answer costs exactly ½ in Maths AND Science, at most ½ per question, typed presentation; never on a pure number. SUPERSEDES ruling 6's Maths half.",
     "A17-3": "A17 owner ruling 3 AS CHANGED BY THE OWNER 2026-10-06 (supersedes the spec text \"Hinglish never deducted\"): CBSE answers are in English or in Hindi in Devanagari; an answer written in Hinglish (Roman-script Hindi mixed with English) keeps its content marks and loses exactly 1/2 once per answer, typed presentation (exam technique), comment \"Write in English (or Hindi in Devanagari): board examiners expect one medium.\" English with technical terms and Devanagari Hindi are never penalised; no other language deduction.",
-    "MCQ-TYPE-2": "Owner ruling 2026-10-23 (~20:45 IST), MCQ-TYPE-2: a RIGHT MCQ with flawed uploaded working shows the mistake category and is saved to MI as a mistake with 0 marks lost (a habit to fix, never lost marks); the mark stays full. SUPERSEDES, for objective questions with working only, the earlier position 'no type on full marks' (audit GA-15)."
+    "MCQ-TYPE-2": "Owner ruling 2026-10-23 (~20:45 IST), MCQ-TYPE-2: a RIGHT MCQ with flawed uploaded working shows the mistake category and is saved to MI as a mistake with 0 marks lost (a habit to fix, never lost marks); the mark stays full. SUPERSEDES, for objective questions with working only, the earlier position 'no type on full marks' (audit GA-15).",
+    "BAL-1": "Owner ruling 5 Nov 2026 (GRADER-BALANCE-1): grade a little stricter than a CBSE examiner. An equation with the right species that is not balanced loses exactly 1/2, once per equation, never more for balancing alone. Type by what the student wrote: wrong species or a formula/subscript changed to force a balance = conceptual; coefficients written but wrong = calculation; correct species left skeletal = presentation by default, conceptual only with on-paper evidence of a failed balancing attempt elsewhere. SUPERSEDES S4a ('unbalanced when asked = conceptual') and the D33 settlement of GS-S12-a."
   },
   "repins": [
     {
@@ -369,15 +370,107 @@
       "new": "conceptual",
       "ruling": "MCQ-TYPE-2",
       "basis": "Right option (C), flawed working: the student writes the F1 genotype as Rryy (it is RrYy) and says round and yellow appear 'because round and yellow are recessive traits' — they are DOMINANT. Dominance, the principle the answer rests on, is not understood (ruling 7: conceptual), exactly the comment the verified case already allows ('round and yellow are DOMINANT, not recessive'). The mark stays 1/1; the type is a 0-mark habit (MCQ-TYPE-2)."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": "conceptual",
+      "new": "presentation",
+      "ruling": "BAL-1",
+      "basis": "BAL-1 (owner, 5 Nov 2026) supersedes D33/S4a: both equations have the correct species and NO coefficients anywhere (skeletal); nothing on the page is a failed balancing attempt, so there is no evidence the student cannot balance - exam technique (presentation). Marks unchanged: each skeletal equation loses exactly 1/2 (1/2 per equation), 1/2 + 1/2 of 2."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "studentLabel",
+      "old": "knowledge gap",
+      "new": "exam technique",
+      "ruling": "BAL-1",
+      "basis": "Follows the type (presentation = exam technique)."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "studentHeading",
+      "old": "Marks to gain — learn this",
+      "new": "Marks to gain — the quickest wins",
+      "ruling": "BAL-1",
+      "basis": "Follows the type (presentation = exam technique)."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "commentMustNotClaim",
+      "old": [
+        "the formulae are wrong",
+        "state symbols cost marks",
+        "presentation"
+      ],
+      "new": [
+        "the formulae are wrong",
+        "state symbols cost marks",
+        "the student cannot balance equations"
+      ],
+      "ruling": "BAL-1",
+      "basis": "The verified case forbade calling it presentation (S4a); under BAL-1 it IS exam technique, and what a comment must not claim is a knowledge gap the page does not show."
+    },
+    {
+      "caseId": "GS-S13-a",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": "conceptual",
+      "new": "presentation",
+      "ruling": "BAL-1",
+      "basis": "BAL-1 (owner, 5 Nov 2026) settles the contest: (a)'s brine equation has the right species and no coefficients (skeletal), and the same answer balances 2NaHCO3 -> Na2CO3 + H2O + CO2 correctly in (c)(i) - evidence the student CAN balance, not that they cannot. Exam technique (presentation); the 1/2 lost for balancing is unchanged."
+    },
+    {
+      "caseId": "GS-S13-a",
+      "kind": "changed",
+      "field": "studentLabel",
+      "old": "knowledge gap",
+      "new": "exam technique",
+      "ruling": "BAL-1",
+      "basis": "Follows the type (presentation = exam technique)."
+    },
+    {
+      "caseId": "GS-S13-a",
+      "kind": "changed",
+      "field": "studentHeading",
+      "old": "Marks to gain — learn this",
+      "new": "Marks to gain — the quickest wins",
+      "ruling": "BAL-1",
+      "basis": "Follows the type (presentation = exam technique)."
+    },
+    {
+      "caseId": "GS-S13-a",
+      "kind": "settled",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "BAL-1",
+      "basis": "BAL-1 decides the contest the rulings had left open (unsettled until 5 Nov 2026): neither conceptual nor silly - presentation, by evidence."
+    },
+    {
+      "caseId": "OA2-Q15",
+      "kind": "changed",
+      "field": "totalMarks",
+      "old": 1,
+      "new": 1.5,
+      "ruling": "BAL-1",
+      "basis": "'Na + H2O -> NaOH + H2 (balanced)': correct species, no coefficients, so unbalanced; the reaction type (displacement) is right. Owner key before the ruling: 1 of 2 (the whole balancing mark lost). BAL-1: an unbalanced equation costs exactly 1/2 - 1.5 of 2, which is what the grader returns on every stored run."
+    },
+    {
+      "caseId": "OA2-Q15",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": "conceptual",
+      "new": "presentation",
+      "ruling": "BAL-1",
+      "basis": "Skeletal with correct species and no failed balancing attempt elsewhere on the paper (Q17's equation has a WRONG FORMULA, ZnCl, and no coefficients - a species error, not a balancing attempt), so presentation by default. ⚠ OWNER QUESTION: the student wrote '(balanced)' beside it. BAL-1 asks for a failed balancing attempt ELSEWHERE as the evidence; a self-label on the same line is not one under this lane's reading, so it is presentation - confirm or rule otherwise."
     }
   ],
   "unsettled": [
-    {
-      "caseId": "GS-S13-a",
-      "field": "mistakeType",
-      "keeps": "conceptual",
-      "why": "The balanced equation was asked for and written unbalanced while (c)(i) balances correctly: not 'copied wrongly', arguably not 'method misunderstood', and not an unattempted sub-task (the equation was written). The rulings do not decide between conceptual and a slip; the verified value is kept."
-    },
     {
       "caseId": "GS-S06-b",
       "field": "mistakeType",

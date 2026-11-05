@@ -33,6 +33,17 @@
 //                         (an integer pointing at an EARLIER step) and nothing else about it changes.
 //                         No mark, status, type, note or annotation changes anywhere.
 //
+//   g-balancing-1         (GRADER-BALANCE-1, owner ruling 5 Nov 2026; NOT an A17 class, checked on its own, an entry
+//                         carries `balance: { base, delta }`). An equation with the right species that is not balanced
+//                         loses exactly ½ per equation, typed by what the student wrote. ONLY, per question: a step's
+//                         type moves to "presentation" (no coefficients written) or "calculation" (coefficients written),
+//                         READ FROM THE PAGE — the step (or an earlier step of the answer) holds an equation that
+//                         grading/chemEquation.cjs reads as UNBALANCED; never to "conceptual" (a stored reply carries no
+//                         evidence). A step's marks may only go UP, and only to the ½-per-equation cap, with the fixed
+//                         cap sentence appended; mistakeSummary moves exactly with the step types; marksLostByType keeps
+//                         its total minus what was given back; the question's mark (and the paper's) moves by exactly
+//                         what the steps moved; the note changes only when the mark does.
+//
 //   g-mcq-habit-1         (MCQ-TYPE-2, owner ruling 2026-10-23; NOT an A17 class, checked on its own, an
 //                         entry carries `habit: { base, delta }`). A RIGHT objective answer with flawed
 //                         working keeps its type as a 0-mark habit: on a full-mark objective question ONE
@@ -194,6 +205,77 @@ function knowlViolations(delta, toBody) {
   return out;
 }
 
+const BALANCE_CLASS = 'g-balancing-1';
+/** g-balancing-1 (GRADER-BALANCE-1, owner ruling 5 Nov 2026) rule violations for ONE delta (see the header). */
+function balanceViolations(delta, toBody, fromBody) {
+  const { readEquations } = require('../../../grading/chemEquation.cjs');
+  const out = [];
+  const perResult = new Map();
+  let topGraded = null;
+  for (const [p, from, to] of delta) {
+    if (p.length === 1 && p[0] === 'gradedMarksAwarded') { topGraded = Number(to) - Number(from); continue; }
+    const at = p[0] === 'results' && Number.isInteger(p[1]) ? { prefix: p.slice(0, 2), rest: p.slice(2) } : { prefix: [], rest: p };
+    const key = JSON.stringify(at.prefix);
+    if (!perResult.has(key)) perResult.set(key, { result: getAt(toBody, at.prefix), before: getAt(fromBody, at.prefix), steps: new Map(), summary: {}, lost: 0, mark: 0, note: false });
+    const pr = perResult.get(key);
+    const r = at.rest;
+    if (r.length === 3 && r[0] === 'annotatedSteps' && Number.isInteger(r[1]) && ['mistakeType', 'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'status'].includes(r[2])) {
+      const st = pr.steps.get(r[1]) || {}; st[r[2]] = [from, to]; pr.steps.set(r[1], st);
+      continue;
+    }
+    if (r.length === 2 && r[0] === 'mistakeSummary' && HABIT_TYPES.includes(r[1])) { pr.summary[r[1]] = (Number(to) || 0) - (Number(from) || 0); continue; }
+    if (r.length === 2 && r[0] === 'marksLostByType') { pr.lost += (Number(to) || 0) - (Number(from) || 0); continue; }
+    if (r.length === 1 && r[0] === 'marksAwarded') { pr.mark = Number(to) - Number(from); continue; }
+    if (r.length === 1 && r[0] === 'percentage') continue;
+    if (r.length === 1 && r[0] === 'teacherNote') { pr.note = true; continue; }
+    out.push(p.join('.') + ': outside the ' + BALANCE_CLASS + ' rules');
+  }
+  let questionMoves = 0;
+  const rkey = (e) => [...e.left].sort().join('+') + '>' + [...e.right].sort().join('+');
+  for (const [key, pr] of perResult) {
+    const steps = isObj(pr.result) && Array.isArray(pr.result.annotatedSteps) ? pr.result.annotatedSteps : [];
+    const typeMoves = {};
+    let stepMarks = 0;
+    // the page's verdict over the WHOLE answer: a reaction balanced anywhere is balanced work (review repro 1)
+    const stepEqs = steps.map((st) => (st && st.status !== 'withdrawn' ? readEquations(st.studentWork) : []));
+    const balancedKeys = new Set(stepEqs.flat().filter((e) => e.balanced).map(rkey));
+    const attemptedKeys = new Set(stepEqs.flat().filter((e) => e.coefficientsWritten).map(rkey));
+    for (const [k, ch] of pr.steps) {
+      const step = steps[k] || {};
+      // the equation, read from the PAGE: this step's work, else the nearest earlier step that holds one
+      let eqs = stepEqs[k] || [];
+      for (let j = k - 1; eqs.length === 0 && j >= 0; j -= 1) eqs = stepEqs[j] || [];
+      const unbalanced = eqs.filter((e) => !e.balanced && !balancedKeys.has(rkey(e)));
+      if (unbalanced.length === 0 || unbalanced.length !== eqs.length) { out.push(key + ': step ' + k + ' holds no unbalanced equation the reader can read'); continue; }
+      const want = unbalanced.some((e) => attemptedKeys.has(rkey(e))) ? 'calculation' : 'presentation';
+      if (step.mistakeType !== want) out.push(key + ': step ' + k + ' ends ' + step.mistakeType + ' but the page says ' + want);
+      if (ch.mistakeType) {
+        typeMoves[ch.mistakeType[1]] = (typeMoves[ch.mistakeType[1]] || 0) + 1;
+        if (ch.mistakeType[0]) typeMoves[ch.mistakeType[0]] = (typeMoves[ch.mistakeType[0]] || 0) - 1;
+      }
+      if (ch.marksAwarded || ch.marksDeducted || ch.teacherAnnotation || ch.status) {
+        const up = ch.marksAwarded ? Number(ch.marksAwarded[1]) - Number(ch.marksAwarded[0]) : 0;
+        if (!(up > 0)) out.push(key + ': step ' + k + ' changed its ledger without gaining marks');
+        if (!String(step.teacherAnnotation || '').endsWith(R.BALANCING_CAP_ANNOTATION)) out.push(key + ': step ' + k + ' gained marks without the fixed cap sentence');
+        // ½ per REACTION across every step that holds it (review repro 2: never ½ per step)
+        const mine = new Set(unbalanced.map(rkey));
+        const reactionLost = steps.reduce((a, st, j) => a + ((stepEqs[j] || []).some((e) => mine.has(rkey(e))) || j === k ? (Number(st.marksDeducted) || 0) : 0), 0);
+        if (Math.abs(reactionLost - 0.5 * mine.size) > 1e-9) out.push(key + ': step ' + k + ' does not end at ½ per reaction (' + reactionLost + ' across its steps)');
+        if (ch.status && !(ch.status[0] === 'incorrect' && ch.status[1] === 'partial')) out.push(key + ': step ' + k + ' status may only go incorrect → partial');
+        stepMarks += up;
+      }
+    }
+    for (const t of HABIT_TYPES) if ((typeMoves[t] || 0) !== (pr.summary[t] || 0)) out.push(key + ': ' + t + ' summary moved ' + (pr.summary[t] || 0) + ' but the steps moved ' + (typeMoves[t] || 0));
+    if (Math.abs(stepMarks - pr.mark) > 1e-9) out.push(key + ': the mark moved ' + pr.mark + ' but the steps moved ' + stepMarks);
+    const v2 = isObj(pr.result) && isObj(pr.result.marksLostByType);
+    if (Math.abs(pr.lost + (v2 ? pr.mark : 0)) > 1e-9) out.push(key + ': marksLostByType total moved ' + pr.lost + ' for a mark move of ' + pr.mark);
+    if (pr.note && !(pr.mark > 0)) out.push(key + ': the note changed but the mark did not');
+    questionMoves += pr.mark;
+  }
+  if (topGraded !== null && Math.abs(topGraded - questionMoves) > 1e-9) out.push('gradedMarksAwarded moved ' + topGraded + ' but the questions moved ' + questionMoves);
+  return out;
+}
+
 /** Rule violations of `classes` (array) for one entry's delta; [] = accepted. */
 function classViolations(classes, delta, toBody) {
   const cls = new Set(classes);
@@ -258,4 +340,4 @@ function classesFor(delta, toBody) {
   return null;
 }
 
-module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations, HABIT_CLASS, habitViolations, KNOWL_CLASS, knowlViolations };
+module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations, HABIT_CLASS, habitViolations, KNOWL_CLASS, knowlViolations, BALANCE_CLASS, balanceViolations };

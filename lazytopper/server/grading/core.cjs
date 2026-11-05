@@ -96,6 +96,22 @@ function knownPick(q) {
 }
 
 /** 'maths' | 'science' | 'auto' — the subject RULES a question is graded under. */
+/** GRADER-BALANCE-1: the steps of the OTHER questions of one model reply (one chunk), as plain read-only
+ *  records — status, studentWork, equationFault — for applyBalancingRuling's evidence check. */
+function siblingStepsOf(byNumber, chunkQuestions, q) {
+  const out = [];
+  for (const other of chunkQuestions) {
+    if (other === q || Number(other.qNumber) === Number(q.qNumber)) continue;
+    const r = byNumber.get(Number(other.qNumber));
+    for (const st of (r && Array.isArray(r.annotatedSteps) ? r.annotatedSteps : [])) {
+      if (!st || typeof st !== 'object') continue;
+      out.push(Object.freeze({ status: String(st.status || ''), studentWork: String(st.studentWork || ''),
+        equationFault: typeof st.equationFault === 'string' ? st.equationFault.trim().toLowerCase() : null }));
+    }
+  }
+  return out;
+}
+
 function subjectModeOf(subject) {
   const s = String(subject || '').trim();
   return !s ? 'auto' : /math/i.test(s) ? 'maths' : 'science';
@@ -532,7 +548,7 @@ function createGradingCore(deps) {
     // The per-question context of the ONE normaliser — shared by the final results below and the
     // job's per-part rows (onPartSettled), so a row judged on its own part differs from its final
     // result ONLY through the page inventory (its own part's versus the paper's union).
-    const normCtx = (q, inventory, notGraded) => ({
+    const normCtx = (q, inventory, notGraded, siblings) => ({
       acceptsV2: input.acceptsV2 === true,
       answerInput: answerInputOf(q),
       // PR-3 (ruling 6, deterministic): this question's OWN subject when the request says it — a
@@ -542,6 +558,10 @@ function createGradingCore(deps) {
       subjectHint: String(q.subject || '').trim() || (questions.length === 1 ? String(input.subject || '').trim() : ''),
       inventory,
       notGraded,
+      // GRADER-BALANCE-1: the OTHER questions' steps of the SAME model reply (this chunk), where a skeletal
+      // equation's balancingEvidence may be found (postprocess applyBalancingRuling). The same reply feeds the
+      // job's per-part row and the final result, so the two never differ through it.
+      siblings: siblings || [],
     });
     // J1 (D13): rows for the job, as each part settles. Without an inventory anywhere in this paper
     // (typed answers, per-question photos) a question's result depends on its own reply only, so it is
@@ -562,12 +582,13 @@ function createGradingCore(deps) {
       for (const r of a.results) if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
       return part.questions.map((q) => {
         const raw = byNumber.get(Number(q.qNumber)) || null;
+        const siblings = siblingStepsOf(byNumber, part.questions, q);
         const n = Number(q.qNumber);
         const own = a.inventory ? { present: a.inventory.has(n), firstLines: [...(a.inventory.get(n) || [])], partial } : null;
         const unread = !raw || raw.couldNotRead === true || raw.couldNotRead === 'true';
         const final = !inventoryPossible || unread || inventoryStable(own, raw);
         // A copy of the reply: the final pass below reads the same object.
-        return { index: idOf.get(q), final, result: normaliseQuestionResult(q, raw ? structuredClone(raw) : null, normCtx(q, own, null)) };
+        return { index: idOf.get(q), final, result: normaliseQuestionResult(q, raw ? structuredClone(raw) : null, normCtx(q, own, null, siblings)) };
       });
     };
     if (onPartSettled && deterministic.size > 0) {
@@ -601,6 +622,7 @@ function createGradingCore(deps) {
     const rawById = new Map(deterministic);
     const notGradedById = new Map(); // question id → 'timeout' | 'error'
     const inventoryById = new Map(); // D23: question id → { present, firstLines }
+    const siblingsById = new Map(); // GRADER-BALANCE-1: question id → the other questions' steps of its chunk's reply
     // D43 (controller): every chunk of a one-document paper lists the WHOLE document's pages, so
     // the paper's page inventory is the UNION of all chunks' inventories — a question another
     // chunk saw is never "not found", and any chunk's quoted first line for it counts.
@@ -633,6 +655,7 @@ function createGradingCore(deps) {
       for (const q of part.questions) {
         const id = idOf.get(q);
         rawById.set(id, byNumber.get(Number(q.qNumber)) || null);
+        siblingsById.set(id, siblingStepsOf(byNumber, part.questions, q));
         gradedIds.push([id, Boolean(document) && part.questions.length < questions.length]);
       }
       if (a.inventory) {
@@ -692,7 +715,7 @@ function createGradingCore(deps) {
     const results = questions.map((q, i) => normaliseQuestionResult(
       q,
       notGradedById.has(i) ? null : rawById.get(i) || null,
-      normCtx(q, inventoryById.get(i) || null, notGradedById.get(i) || null),
+      normCtx(q, inventoryById.get(i) || null, notGradedById.get(i) || null, siblingsById.get(i) || null),
     ));
     // A17 ruling 5 · the premium meter counts graded questions only: each call's usage is written
     // scaled by the chargeable share of the questions IT graded (0 when none was graded). A chunk's

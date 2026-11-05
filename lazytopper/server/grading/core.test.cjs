@@ -1985,6 +1985,7 @@ test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */
 require('./rulings.surfaces.suite.cjs');
+require('./balancing.surfaces.suite.cjs'); // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): every surface
 
 /* ══ GRADER-FIX · TYPED LINES + EXAMINER-EQUIVALENT FORMS (owner-approved lane, 16 Oct 2026) ══ */
 

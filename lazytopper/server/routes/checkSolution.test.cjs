@@ -927,7 +927,19 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // is exam technique only with proof of knowledge — the model returns a verbatim `knowledgeEvidence` quote
 // (rules.cjs (b); schema.cjs adds the optional field). Rule TEXT only; the schema object is not in this digest.
 //   PREVIOUS 0bfbc85bf5acc2c99f883ec9f41b729a79c17339ec46f5fb876ac968f28a553f
-const NO_UPLOADS_CONTENTS_SHA256 = '3281f1c90c7183368ad1e461b13c8eb9fbaebe392713d6dec4f0f735673d95d4';
+// GRADER-BALANCE-1 (owner ruling 5 Nov 2026; 3281f1c9… → below): chemical-equation balancing. An equation with
+// the right species that is not balanced loses exactly ½ per equation; the type follows what the student wrote
+// (wrong species / changed subscript = conceptual, coefficients wrong = calculation, skeletal = presentation unless
+// a verbatim "balancingEvidence" quote of a failed attempt elsewhere proves inability). Rewrites CHEMICAL
+// EQUATIONS, S3/S4/S4a, retires the MARK-SIZE SANITY CHECK, and the "conceptual" / "presentation" taxonomy lines
+// (rules.cjs). Rule TEXT only; every transport moved together. The schema's two new optional step fields
+// (equationFault, balancingEvidence) are not in this digest.
+//   PREVIOUS 3281f1c90c7183368ad1e461b13c8eb9fbaebe392713d6dec4f0f735673d95d4
+// Review round 1 (b97ae3a2… → below): ½ once per REACTION in the answer (a skeletal line then its balanced
+// version is working, not a fault), outside the exam-technique cap, and a printed skeletal equation copied back
+// unbalanced is "unattempted" (coordinator rulings 5 Nov 2026). Rule TEXT only.
+//   PREVIOUS b97ae3a29aa889d4a90016f349d97d1ac43091c0a573ae260a52cfd45f1c29f7
+const NO_UPLOADS_CONTENTS_SHA256 = 'f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

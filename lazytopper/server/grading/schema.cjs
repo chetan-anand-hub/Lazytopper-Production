@@ -46,6 +46,11 @@ function stepSchema() {
       // GRADER-QUALITY-1 (owner ruling 5 Nov 2026): optional, additive — a VERBATIM quote of the student's own
       // correct use, elsewhere in the question, of the idea a BLANK reason step left out (rules.cjs (b)).
       knowledgeEvidence: { type: 'STRING', nullable: true },
+      // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): optional, additive — the chemical-equation fault of this step
+      // (rules.cjs EQUATION_FAULTS; the parser ignores any other value, so no enum here) and, for a skeletal
+      // equation typed conceptual, a VERBATIM quote of a failed balancing attempt elsewhere on the paper.
+      equationFault: { type: 'STRING', nullable: true },
+      balancingEvidence: { type: 'STRING', nullable: true },
       correctedWorking: { type: 'STRING', nullable: true },
       isDeparture: { type: 'BOOLEAN', nullable: true },
       departureKind: { type: 'STRING', nullable: true },
@@ -54,7 +59,7 @@ function stepSchema() {
     // Ordering hint only: the model QUOTES and DESCRIBES a step before it judges it.
     propertyOrdering: [
       'stepNumber', 'part', 'description', 'studentWork', 'status', 'marksAvailable',
-      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'knowledgeEvidence', 'correctedWorking',
+      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'knowledgeEvidence', 'equationFault', 'balancingEvidence', 'correctedWorking',
       'isDeparture', 'departureKind', 'isReturn',
     ],
     required: ['description'],
