@@ -4,6 +4,8 @@
  * Honest signal only, and clock-free: opening Me stores the `gradedAt` of the newest device-local SessionRecord
  * it could show (per uid, localStorage — a per-viewer convenience, every access in try/catch). The dot is on
  * exactly when the newest record NOW is newer than that. No graded record -> no dot; storage blocked -> no dot.
+ * No stored key yet (first load after this shipped, or a new device) -> the current newest is stored SILENTLY and
+ * there is no dot: an existing student is never told "New" about papers they graded before the dot existed.
  */
 import { loadLocalSessionRecords } from "../../services/sessionRecords";
 
@@ -30,7 +32,12 @@ export function hasUnseenGradedPaper(uid: string | null | undefined): boolean {
   try {
     const newest = newestGradedAt(uid);
     if (!newest) return false;
-    const seen = Number(window.localStorage.getItem(key(uid)) || 0);
+    const raw = window.localStorage.getItem(key(uid));
+    if (raw === null) {
+      window.localStorage.setItem(key(uid), String(newest));
+      return false;
+    }
+    const seen = Number(raw);
     return newest > (Number.isFinite(seen) ? seen : 0);
   } catch {
     return false;

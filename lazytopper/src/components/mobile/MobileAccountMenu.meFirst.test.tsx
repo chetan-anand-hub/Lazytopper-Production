@@ -50,6 +50,13 @@ describe("MobileAccountMenu — Me / Progress first", () => {
     expect(screen.getByTestId("menu-me-progress")).toHaveTextContent("New");
   });
 
+  it("no stored key (first load after deploy): no dot, and the current newest is stored silently", () => {
+    records.list = [{ gradedAt: 2000 }];
+    mount();
+    expect(screen.queryByTestId("me-new-dot")).toBeNull();
+    expect(window.localStorage.getItem("lazytopper.meSeenGradedAt.dot-uid")).toBe("2000");
+  });
+
   it("already seen -> no dot", () => {
     records.list = [{ gradedAt: 2000 }];
     window.localStorage.setItem("lazytopper.meSeenGradedAt.dot-uid", "2000");

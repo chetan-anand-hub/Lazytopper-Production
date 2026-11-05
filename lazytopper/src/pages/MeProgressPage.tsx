@@ -1,6 +1,6 @@
-import { markMeSeen } from "../lib/nav/meSeen";
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
+import { markMeSeen } from "../lib/nav/meSeen";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useIsDesktop } from "../hooks/useIsDesktop";

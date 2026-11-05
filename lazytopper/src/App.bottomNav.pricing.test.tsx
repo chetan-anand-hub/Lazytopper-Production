@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "./test/setup";
 import { BottomNav } from "./App";
@@ -17,10 +17,19 @@ vi.mock("./context/AuthContext", async (importOriginal) => {
     useAuth: () => ({ user: auth.user, loading: auth.loading }) as unknown as ReturnType<typeof actual.useAuth>,
   };
 });
+const listeners = vi.hoisted(() => new Set<(uid: string, s: unknown) => void>());
+const emitHydrated = (uid: string, s: unknown) => listeners.forEach((l) => l(uid, s));
 const sub = vi.hoisted(() => ({ value: { tier: "free", plan: "none" } as { tier: string; plan: string } }));
 vi.mock("./services/subscriptionService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./services/subscriptionService")>();
-  return { ...actual, loadSubscription: () => sub.value as unknown as ReturnType<typeof actual.loadSubscription> };
+  return {
+    ...actual,
+    loadSubscription: () => sub.value as unknown as ReturnType<typeof actual.loadSubscription>,
+    onSubscriptionHydrated: (l: (uid: string, s: unknown) => void) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+  };
 });
 const track = vi.hoisted(() => vi.fn());
 vi.mock("./analytics/analytics", async (importOriginal) => {
@@ -103,6 +112,19 @@ describe("BottomNav 5th tab — Pricing / Me", () => {
     expect(screen.getByText("Me").closest("button")!.style.color).toBe("rgb(52, 178, 119)");
     fireEvent.click(screen.getByText("Me"));
     expect(screen.getByTestId("loc")).toHaveTextContent("/me");
+  });
+
+  it("a holder's 5th tab flips Pricing -> Me when the subscription hydrates", () => {
+    setMatchMediaMatches(false);
+    auth.user = { uid: "u1" };
+    renderNav("/browse"); // cache is the Basic default
+    expect(screen.getByText("Pricing")).toBeInTheDocument();
+    expect(screen.queryByText("Me")).toBeNull();
+    act(() => {
+      emitHydrated("u1", { tier: "premium", plan: "pass_till_boards" });
+    });
+    expect(screen.getByText("Me")).toBeInTheDocument();
+    expect(screen.queryByText("Pricing")).toBeNull();
   });
 
   it("still hidden on /pricing and on desktop", () => {
