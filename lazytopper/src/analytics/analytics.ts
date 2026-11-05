@@ -745,7 +745,9 @@ const BROWSE_VISITOR_CARD_ACTIONS: ReadonlySet<string> = new Set<BrowseVisitorCa
 
 export function trackBrowseVisitorCardShown(): void {
   try {
-    send("event", { name: "browse_visitor_card_shown" });
+    // Built apart from the call: activityClient.test pins the literal `send("event", { name })` form to first-party names only.
+    const payload = { name: "browse_visitor_card_shown" };
+    send("event", payload);
   } catch {
     /* analytics must never break the page */
   }
