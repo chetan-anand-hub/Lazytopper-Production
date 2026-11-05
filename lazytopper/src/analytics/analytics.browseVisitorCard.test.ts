@@ -23,9 +23,9 @@ afterEach(() => {
 });
 
 describe("browse visitor card analytics", () => {
-  it("shown is the bare event name", () => {
+  it("shown carries only the surface", () => {
     trackBrowseVisitorCardShown();
-    expect(sent.map((s) => s.payload)).toEqual([{ name: "browse_visitor_card_shown" }]);
+    expect(sent.map((s) => s.payload)).toEqual([{ name: "browse_visitor_card_shown", data: { surface: "browse" } }]);
   });
 
   it("a tap carries only the action", () => {

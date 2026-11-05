@@ -736,7 +736,7 @@ export function trackFirstGraded(surface: FirstGradedSurface): void {
 /**
  * BROWSE-VISITOR-CARD-1 - the signed-out visitor card on /browse. Two events, vendors only (neither is in
  * `NamedAnalyticsEvent`, and the card is for signed-out visitors, so the first-party log has nothing to record):
- * `browse_visitor_card_shown` (bare name, once per session - the caller enforces that) and `browse_visitor_card_tap`
+ * `browse_visitor_card_shown` (`{ surface: "browse" }`, once per session - the caller enforces that) and `browse_visitor_card_tap`
  * with ONE closed-set field, `{ action }`. No identifier, no path, no price.
  */
 export type BrowseVisitorCardAction = "signup" | "pricing" | "about" | "dismiss";
@@ -745,9 +745,8 @@ const BROWSE_VISITOR_CARD_ACTIONS: ReadonlySet<string> = new Set<BrowseVisitorCa
 
 export function trackBrowseVisitorCardShown(): void {
   try {
-    // Built apart from the call: activityClient.test pins the literal `send("event", { name })` form to first-party names only.
-    const payload = { name: "browse_visitor_card_shown" };
-    send("event", payload);
+    const data = { surface: "browse" };
+    send("event", { name: "browse_visitor_card_shown", data }, { ga4: data });
   } catch {
     /* analytics must never break the page */
   }
