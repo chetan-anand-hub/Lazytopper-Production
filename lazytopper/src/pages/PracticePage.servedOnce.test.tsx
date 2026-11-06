@@ -58,8 +58,14 @@ const URLS = [
   "/practice/10/Science?topic=magnetic-effects-of-electric-current&count=10&style=proof",
 ] as const;
 
-async function arrive(url: string, desktop: boolean) {
+async function arrive(url: string, desktop: boolean, preloaded = false) {
   vi.resetModules();
+  if (preloaded) {
+    // Downloaded by an earlier surface (tutor, Solutions, Answer Checker, packs, a Worksheet
+    // per-concept read ...) but NOT scored: no whole-chapter read has run in this module graph.
+    const loader = await import("../data/bankChapters/loader");
+    await loader.ensureBankChapters([new URLSearchParams(url.split("?")[1]).get("topic") ?? ""]);
+  }
   const { default: PracticePage } = await import("./PracticePage");
   const { recordServed } = await import("../lib/practice/servedHistory");
   vi.mocked(recordServed).mockClear();
@@ -91,6 +97,23 @@ describe("SPEED-HUB-2 — one arrival, one served set (cold chapter)", () => {
         expect(new Set(writes[0]).size).toBe(writes[0].length);
         if (url.includes("style=proof")) expect(writes.length).toBeLessThanOrEqual(2);
         else expect(writes, JSON.stringify(writes)).toHaveLength(1);
+      }, 120_000);
+    }
+  }
+});
+
+// #1592 delta review: the chapter is ALREADY DOWNLOADED (not scored) when the page mounts. On
+// trunk the clean-ups run before the build commits here too, so every URL — magnetic included —
+// serves exactly one set with one recordServed call.
+describe("SPEED-HUB-2 — one arrival, one served set (chapter preloaded, not scored)", () => {
+  for (const url of URLS) {
+    for (const desktop of [false, true]) {
+      it(`${desktop ? "desktop" : "360 px"} · preloaded · ${url}`, async () => {
+        const writes = await arrive(url, desktop, true);
+        const shown = screen.getAllByTestId("practice-question-card").length;
+        expect(writes, JSON.stringify(writes)).toHaveLength(1);
+        expect(writes[0].length).toBe(shown);
+        expect(new Set(writes[0]).size).toBe(writes[0].length);
       }, 120_000);
     }
   }

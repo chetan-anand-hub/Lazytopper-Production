@@ -9,14 +9,10 @@
 //
 // `enabled` is the page's `bank.ready`: the warm only runs once the chapters are in the cache.
 //
-// ⚠ ORDER (#1592 review, defect 1). The page's build effect awaits the SAME warm promise and
-// registered on it first, so when the warm settles the build's continuation runs before this
-// hook's `settle`. Both are microtasks, so React applies "chapter ready" and the build's set in
-// ONE render — exactly as on trunk, where both hung off ensureBankChapters. The effects keyed
-// on readiness (the CBQ auto-build, the dropped-filter / `built=1` clean-ups) then run AFTER
-// that set, cancel it if they change the inputs, and exactly one set settles. Readiness must
-// therefore flip only through this promise — never through a synchronous subscription, which
-// would flip it a render early and let a clean-up's preset be overwritten by the stale build.
+// ORDER (#1592 review): this hook only says WHEN the chapter is ready. PracticePage's build
+// does not race it — the build waits behind a gate that opens one commit after readiness is
+// seen, so the clean-ups keyed on readiness always run before the one build
+// (PracticePage.servedOnce.test.tsx, cold and preloaded chapters).
 //
 // A warm that fails for any reason still reports ready: the synchronous path then does the
 // work itself, exactly as before this hook existed.
