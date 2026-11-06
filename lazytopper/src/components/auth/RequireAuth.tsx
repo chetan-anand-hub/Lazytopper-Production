@@ -169,7 +169,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
                   Start my free 7-day trial
                 </button>
                 <p className="lt-lock__trial-note">{TRIAL_WORDING.shortFragment}</p>
-                {/* PAYWALL-PAY-1 — Pay, Pay by QR code, Ask a parent to pay. Payments dark: "See plans instead". */}
+                {/* PAYWALL-PAY-1 — Pay, Share QR code, Forward link to parents. Payments dark: "See plans instead". */}
                 <PaywallActions
                   surface="lock"
                   payTo={lockPayTo}

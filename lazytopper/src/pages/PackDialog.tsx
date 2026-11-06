@@ -236,7 +236,7 @@ export default function PackDialog(props: PackDialogProps) {
         ref={dialogRef}
         onKeyDown={onKeyDown}
         data-testid="pack-dialog"
-        // PACK-DIALOG-1: an opened "Ask a parent to pay" / "Pay by QR code" panel renders in the full-width slot below the
+        // PACK-DIALOG-1: an opened "Forward link to parents" / "Share QR code" panel renders in the full-width slot below the
         // footer (PaywallActionsView looks for this host), never inside the narrow buy column or the phone's sticky footer.
         data-parent-share-host=""
       >

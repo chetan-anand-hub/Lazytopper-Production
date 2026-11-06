@@ -177,11 +177,11 @@ export const ACTIVITY_EVENTS = [
   "feedback_after_graded_next_note_saved",
   // GUIDE-1 — which Byte-guide A/B arm the account is in, once per account per device. Additive.
   "guide_variant_assigned",
-  // PAYWALL-PAY-1 — a tap on "Pay", "Pay by QR code" or "Forward link to parents". Additive.
+  // PAYWALL-PAY-1 — a tap on "Pay", "Share QR code" or "Forward link to parents". Additive.
   "paywall_action_pay",
   "paywall_action_qr",
   "paywall_action_forward",
-  // CHECKOUT-1 - a tap on "Ask a parent to pay". Name only. Additive.
+  // CHECKOUT-1 - a tap on "Forward link to parents". Name only. Additive.
   "ask_parent_pay",
   // PAY-RESCUE-1 - the "Can't pay yourself?" card: shown / Ask a parent tapped / Try again tapped. Names only. Additive.
   "pay_rescue_shown",

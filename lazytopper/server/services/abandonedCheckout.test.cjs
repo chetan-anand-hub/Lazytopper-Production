@@ -228,7 +228,7 @@ test('with parent pay live, "Send it to a parent" opens the Plans page (Board Pa
   await s.run();
   const byTo = Object.fromEntries(s.calls.map((c) => [c.body.to[0], c.body.text]));
   assert.match(byTo['one@gmail.com'], /Send it to a parent: https:\/\/www\.lazytopper\.com\/pricing\?utm_source=email/);
-  assert.match(byTo['one@gmail.com'], /"Ask a parent to pay"/);
+  assert.match(byTo['one@gmail.com'], /"Forward link to parents"/);
   assert.match(byTo['two@gmail.com'], /Send it to a parent: https:\/\/wa\.me\/\?text=/);
 });
 

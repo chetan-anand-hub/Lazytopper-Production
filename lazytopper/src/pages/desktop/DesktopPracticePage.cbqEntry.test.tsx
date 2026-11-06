@@ -162,6 +162,63 @@ describe("CBQ-ENTRY-1 (E4) / CBQ-LANDING-1 — the ad link", () => {
   });
 });
 
+describe("CBQ-FREE-FIRST-1 — signed-out ad landing order (reverses the CBQ-LANDING-1 order)", () => {
+  // Document order of two elements: -1 when a precedes b.
+  const before = (a: Element, b: Element) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+  const mountSignedOut = async (desktop: boolean) => {
+    vi.stubEnv("VITE_PACKS_ENABLED", "1"); // the offer renders only with packs on (as in production)
+    window.history.replaceState(null, "", "/practice-hub?cbq=1"); // the offer reads the live URL
+    setMatchMediaMatches(desktop);
+    renderHub("/practice-hub?cbq=1");
+    const offer = await screen.findByTestId("landing-offer");
+    return { offer, free: screen.getByTestId("cbq-try-free") };
+  };
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    window.history.replaceState(null, "", "/");
+  });
+
+  it.each([
+    ["360 (phone)", false],
+    ["1280 (desktop)", true],
+  ])("★ at %s: heading, then the free-chapter button, then the pack offer, then the CBQ / Chapter Test cards", async (_w, desktop) => {
+    const { offer, free } = await mountSignedOut(desktop);
+    const heading = screen.getByRole("heading", { name: "What shall we practise?" });
+    expect(before(heading, free)).toBe(true);
+    expect(before(free, offer)).toBe(true);
+    expect(before(offer, card())).toBe(true);
+    // nothing sits between the button and the offer
+    expect(free.nextElementSibling).toBe(offer);
+  });
+
+  it("the pack offer stays fully there: both buy buttons, free sample and Board Pass line; the picker is still closed", async () => {
+    const { offer } = await mountSignedOut(false);
+    expect(within(offer).getByTestId("landing-offer-buy-maths")).toBeInTheDocument();
+    expect(within(offer).getByTestId("landing-offer-buy-science")).toBeInTheDocument();
+    expect(within(offer).getByTestId("landing-offer-board-pass")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: TITLE })).toBeNull(); // no surprise modal on mount
+  });
+
+  it("while auth settles: no button yet (nothing flashes), a same-height slot holds the place, the offer is below it", () => {
+    auth.loading = true;
+    setMatchMediaMatches(false);
+    const { container } = renderHub("/practice-hub?cbq=1");
+    expect(screen.queryByTestId("cbq-try-free")).toBeNull();
+    const slot = container.querySelector(".lt-cbq-tryfree-slot");
+    expect(slot).not.toBeNull();
+    expect(before(slot as Element, card())).toBe(true);
+  });
+
+  it("signed-out WITHOUT ?cbq=1 keeps the old place: the offer (if any) is under the entry cards, no free button", async () => {
+    vi.stubEnv("VITE_PACKS_ENABLED", "1");
+    window.history.replaceState(null, "", "/practice-hub");
+    setMatchMediaMatches(false);
+    const { container } = renderHub("/practice-hub");
+    expect(screen.queryByTestId("cbq-try-free")).toBeNull();
+    expect(container.querySelector(".lt-cbq-tryfree-slot")).toBeNull();
+  });
+});
+
 describe("CBQ-ENTRY-1-FIX — the chooser opens on the viewport, not inside the page", () => {
   it("★ on a phone the overlay is portalled to document.body, outside the page's transformed <main>", () => {
     setMatchMediaMatches(false); // 390: MobileShell, whose <main class="animate-float-up"> keeps a transform

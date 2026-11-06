@@ -41,7 +41,7 @@ export interface OffersBlockProps {
   payVerb?: "Pay" | "Get it for";
   /** The small "What you get" link under the card (results). A wall shows its parent links instead. */
   whatYouGet?: boolean;
-  /** Drawn inside the card, under the price line (a wall's "Ask a parent to pay" / QR links). */
+  /** Drawn inside the card, under the price line (a wall's "Forward link to parents" / QR links). */
   cardExtras?: ReactNode;
   /** The host's own counting of a Pay tap (e.g. the scorecard's upgrade click). */
   onPayTap?: () => void;

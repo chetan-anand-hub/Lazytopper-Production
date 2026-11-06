@@ -1650,6 +1650,8 @@ export default function DesktopPracticePage() {
     setCbqPickerOpen(true);
   }, [cbqArrival, signedInStudent]);
   const showCbqTryFree = cbqArrival && !authLoading && !signedInStudent;
+  // CBQ-FREE-FIRST-1: the ad landing for a signed-out visitor (while auth loads they look signed out, so the order is already right).
+  const cbqFreeFirst = cbqArrival && !signedInStudent;
   // `?cbq=1` (the ad landing) wins over `?ct=1`: never two dialogs stacked.
   const [ctPickerOpen, setCtPickerOpen] = useState(
     () => params.get(CT_HUB_PARAM) === "1" && params.get(CBQ_HUB_PARAM) !== "1",
@@ -2233,6 +2235,26 @@ export default function DesktopPracticePage() {
             anyone else (signed-out, any graded result, or "Not now" this session). */}
         <StartHereCard uid={user?.uid ?? null} surface="practice_hub" returnTo="/practice-hub" focus />
 
+        {/* CBQ-FREE-FIRST-1 (owner ruling 6 Nov 2026, reverses CBQ-LANDING-1 ordering) - signed-out ?cbq=1 ad landing: the free
+            chapter button is the first prominent element after the heading and the CBQ pack offer sits directly below it, both
+            fully visible. The picker still opens only on a tap (no surprise dialog). While auth settles a same-height slot holds the place. */}
+        {cbqFreeFirst && authLoading ? <div className="lt-cbq-tryfree-slot" aria-hidden /> : null}
+        {showCbqTryFree ? (
+          <button
+            type="button"
+            className="lt-cbq-tryfree"
+            data-testid="cbq-try-free"
+            aria-haspopup="dialog"
+            onClick={() => {
+              trackSaleMoment("sale_moment_tap", { surface: "landing-practice-cbq", offer: "cbq_free_picker" });
+              setCbqPickerOpen(true);
+            }}
+          >
+            Try CBQs free — pick a chapter
+          </button>
+        ) : null}
+        {cbqFreeFirst ? <LandingOffer variant="practice-cbq" /> : null}
+
         {/* CBQ-ENTRY-1 (E1) — straight to a chapter's competency-based questions. Above
             the scope card so it is in view without scrolling at 390px and on desktop.
             CT-ENTRY-1 — the Chapter Test entry sits beside it: two columns from 1024px,
@@ -2283,22 +2305,9 @@ export default function DesktopPracticePage() {
             </span>
           </button>
         </div>
-        {/* AD-LANDING-OFFER-1 - signed-out CBQ ad arrivals only: the CBQ Pack buys right under the CBQ entry (lazy chunk). */}
-        {!isSignedIn ? <LandingOffer variant="practice-cbq" /> : null}
-        {showCbqTryFree ? (
-          <button
-            type="button"
-            className="lt-cbq-tryfree"
-            data-testid="cbq-try-free"
-            aria-haspopup="dialog"
-            onClick={() => {
-              trackSaleMoment("sale_moment_tap", { surface: "landing-practice-cbq", offer: "cbq_free_picker" });
-              setCbqPickerOpen(true);
-            }}
-          >
-            Try CBQs free — pick a chapter
-          </button>
-        ) : null}
+        {/* AD-LANDING-OFFER-1 - signed-out arrivals that are NOT on the ?cbq=1 ad landing keep the offer right under the entry pair
+            (the ad landing renders it above, directly below the free button: CBQ-FREE-FIRST-1). */}
+        {!isSignedIn && !cbqFreeFirst ? <LandingOffer variant="practice-cbq" /> : null}
         <CbqChapterPicker open={cbqPickerOpen} onClose={() => setCbqPickerOpen(false)} />
         <ChapterTestPicker open={ctPickerOpen} onClose={() => setCtPickerOpen(false)} />
 
@@ -3180,6 +3189,7 @@ export default function DesktopPracticePage() {
             font-weight: 700;
             cursor: pointer;
           }
+          .lt-cbq-tryfree-slot { min-height: 48px; margin: 8px 0 4px; }
           .lt-cbq-tryfree:hover { background: hsl(152, 57%, 37%); }
           .lt-cbq-tryfree:focus-visible { outline: 2px solid hsl(222, 47%, 24%); outline-offset: 2px; }
           .lt-cbq-spine {

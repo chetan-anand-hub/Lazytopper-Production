@@ -57,7 +57,7 @@ describe("PAY-RESCUE-1 · pass card", () => {
   it("shows the exact heading + line, fires pay_rescue_shown once, and offers Ask / Try again / Not now", async () => {
     renderCard(<PayRescueCard kind="pass" onRetry={() => undefined} onClose={() => undefined} />);
     expect(screen.getByRole("heading", { name: PAY_RESCUE_HEADING }).textContent).toBe("Can't pay yourself?");
-    expect(PAY_RESCUE_LINE).toBe("Most students ask a parent. Send them a link — they can pay on their phone.");
+    expect(PAY_RESCUE_LINE).toBe("Most parents pay for their child. Send them a link — they can pay on their phone.");
     expect(screen.getByText(PAY_RESCUE_LINE)).toBeTruthy();
     expect(await screen.findByTestId("paywall-forward")).toBeTruthy();
     expect(screen.getByTestId("paywall-forward").textContent).toBe(PAY_RESCUE_ASK_LABEL);
@@ -69,7 +69,7 @@ describe("PAY-RESCUE-1 · pass card", () => {
     expect(names().filter((n) => n === "pay_rescue_shown")).toHaveLength(1);
   });
 
-  it("Ask a parent to pay reuses the existing action: ask_parent_pay (surface pay_rescue) + pay_rescue_parent + the minted link", async () => {
+  it("Forward link to parents reuses the existing action: ask_parent_pay (surface pay_rescue) + pay_rescue_parent + the minted link", async () => {
     const share = vi.fn(async () => undefined);
     Object.defineProperty(window.navigator, "share", { configurable: true, value: share });
     renderCard(<PayRescueCard kind="pass" onRetry={() => undefined} onClose={() => undefined} />);

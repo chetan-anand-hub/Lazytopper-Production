@@ -160,12 +160,12 @@ const EVENT_LABELS: Record<string, string> = {
   // PAYWALL-PAY-1 — the three paywall actions (any surface: lock, upgrade popup / sheet, limit, /pricing,
   // tutor, trial_paper, more_like_this).
   paywall_action_pay: "Tapped Pay on a paywall",
-  paywall_action_qr: "Tapped Pay by QR code (for parents)",
+  paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
-  ask_parent_pay: "Tapped Ask a parent to pay",
+  ask_parent_pay: "Tapped Forward link to parents",
   // PAY-RESCUE-1
   pay_rescue_shown: "Saw the \"Can't pay yourself?\" card after a payment sheet closed",
-  pay_rescue_parent: "Tapped Ask a parent to pay on the \"Can't pay yourself?\" card",
+  pay_rescue_parent: "Tapped Forward link to parents on the \"Can't pay yourself?\" card",
   pay_rescue_retry: "Tapped Try again on the \"Can't pay yourself?\" card",
   // LIMITS-1 — paper downloads and the weekly download limit.
   download_start: "Started a paper download",

@@ -908,15 +908,15 @@ export type NamedAnalyticsEvent =
   // GUIDE-1 — the Byte-guide A/B: which arm this account is in, once per account per device.
   // The arm itself is a vendor param only (the first-party store keeps names, never values)
   | "guide_variant_assigned"
-  // PAYWALL-PAY-1 — a tap on one of the three paywall actions (Pay, Pay by QR code, Forward
+  // PAYWALL-PAY-1 — a tap on one of the three paywall actions (Pay, Share QR code, Forward
   // link to parents). The vendors get the generic `paywall_action { action, surface }`, the
   // first-party log one name per action (it keeps names only). Sent by trackPaywallAction
   | "paywall_action_pay"
   | "paywall_action_qr"
   | "paywall_action_forward"
-  // CHECKOUT-1 - a tap on "Ask a parent to pay" (it replaced "Forward link to parents"). Name only.
+  // CHECKOUT-1 - a tap on "Forward link to parents". Name only.
   | "ask_parent_pay"
-  // PAY-RESCUE-1 - the "Can't pay yourself?" card after a closed / failed checkout: shown, "Ask a parent to pay" tapped, "Try again" tapped. Names only.
+  // PAY-RESCUE-1 - the "Can't pay yourself?" card after a closed / failed checkout: shown, "Forward link to parents" tapped, "Try again" tapped. Names only.
   | "pay_rescue_shown"
   | "pay_rescue_parent"
   | "pay_rescue_retry"
@@ -1698,12 +1698,12 @@ const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
   qr: "paywall_action_qr",
   forward: "paywall_action_forward",
-  // CHECKOUT-1 - "Ask a parent to pay" (the text-share action; `forward` is its retired name, kept for stored rows).
+  // CHECKOUT-1 - "Forward link to parents" (the text-share action; `forward` is its retired name, kept for stored rows).
   ask: "ask_parent_pay",
 };
 
 /**
- * PAYWALL-PAY-1 — `paywall_action { action, surface }`: ONE event per tap on "Pay", "Pay by QR
+ * PAYWALL-PAY-1 — `paywall_action { action, surface }`: ONE event per tap on "Pay", "Share QR
  * code" or "Forward link to parents". Action + surface ONLY: never the message, the link, its
  * token, a count or a contact. The vendors read `data` (Vercel) / the params (GA4); the
  * first-party log, which keeps names only, records `paywall_action_<action>` (the
