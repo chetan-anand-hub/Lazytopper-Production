@@ -23,7 +23,8 @@
 //   verifiers' input.
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { NCERT_CLASS10_CHAPTERS } from "../../src/config/ncertBooks";
 import { SOLUTIONS_SCI_LEDGER } from "../../src/config/solutionsSciLedger";
@@ -218,6 +219,44 @@ export function stepMarkingReason(q: Pick<Row, "marks" | "solutionSteps">): stri
   return null;
 }
 
+// ---------------------------------------------------------------------------------------------
+// #1605 review (6 Nov 2026): the OFF-BOOK TERM rule, mechanical. `ncertScienceVocabulary.json` holds
+// the word list of the 13 official 2026-27 NCERT Science chapter files (not their text) and a short,
+// reviewed list of general words. A row whose answer or steps use any other word (one not in its own
+// question either) is not published: a term the textbook never uses ("stoichiometry", "lattice",
+// "ionise", "genotype") teaches beyond the book.
+// ---------------------------------------------------------------------------------------------
+
+const VOCAB_FILE = resolve(dirname(fileURLToPath(import.meta.url)), "ncertScienceVocabulary.json");
+let vocabCache: { words: Set<string>; stems: Set<string>; allow: Set<string> } | null = null;
+
+const stemWord = (w: string) => {
+  for (const suf of ["ing", "ed", "es", "s"]) if (w.length > 4 + suf.length && w.endsWith(suf)) return w.slice(0, -suf.length);
+  return w;
+};
+const words = (t: string) => String(t ?? "").normalize("NFKC").toLowerCase().match(/[a-z]+/g) ?? [];
+
+export function ncertScienceVocabulary(): { words: Set<string>; stems: Set<string>; allow: Set<string> } {
+  if (!vocabCache) {
+    const v = JSON.parse(readFileSync(VOCAB_FILE, "utf8")) as { words: string[]; allowGeneral: string[] };
+    const all = new Set(v.words);
+    vocabCache = { words: all, stems: new Set([...all].map(stemWord)), allow: new Set(v.allowGeneral) };
+  }
+  return vocabCache;
+}
+
+/** The words (4+ letters) of a row's answer and steps that are neither NCERT words nor its own question's, nor reviewed general words. */
+export function offBookTerms(q: Pick<Row, "questionText" | "options" | "answer" | "finalAnswer" | "solutionSteps">): string[] {
+  const v = ncertScienceVocabulary();
+  const asked = new Set(words([q.questionText, ...(q.options ?? [])].map((x) => String(x ?? "")).join("\n")));
+  const out = new Set<string>();
+  for (const w of words([q.answer, q.finalAnswer, ...(q.solutionSteps ?? [])].map((x) => String(x ?? "")).join("\n"))) {
+    if (w.length < 4 || v.words.has(w) || v.stems.has(stemWord(w)) || asked.has(w) || v.allow.has(w)) continue;
+    out.add(w);
+  }
+  return [...out].sort();
+}
+
 export type ScienceExclusionReason =
   | "exemplar-unverified"
   | "other-chapter"
@@ -227,6 +266,7 @@ export type ScienceExclusionReason =
   | "ref-not-a-book-question"
   | "ref-stale-numbering"
   | "syllabus"
+  | "off-book-term"
   | "needs-figure"
   | "garbled"
   | "step-marking"
@@ -271,6 +311,8 @@ export function classifyScienceRow(
   if (ref.chapter !== null && ref.chapter !== spec.chapter) return out("ref-stale-numbering", rawRef);
   const syl = scienceSyllabusReason(q, guard);
   if (syl) return out("syllabus", syl);
+  const offBook = offBookTerms(q);
+  if (offBook.length > 0) return out("off-book-term", `not in the 2026-27 NCERT textbook: ${offBook.join(", ")}`);
   if (q.requiresDiagram === true) return out("needs-figure", "requiresDiagram");
   if (getFiguresForQuestion(id).length > 0) return out("needs-figure", "a bound question figure the page does not render");
   // SOLUTIONS-SCI-2: a row whose ANSWER is a bound solution figure (an NCERT crop or a computed ray
