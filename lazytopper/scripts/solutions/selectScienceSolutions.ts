@@ -23,7 +23,8 @@
 //   verifiers' input.
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { NCERT_CLASS10_CHAPTERS } from "../../src/config/ncertBooks";
 import { SOLUTIONS_SCI_LEDGER } from "../../src/config/solutionsSciLedger";
@@ -36,7 +37,7 @@ import {
   type SolutionsChapter,
 } from "../../src/config/solutionsPublishSafe";
 import { syllabusExclusion } from "../../src/lib/boardQuestions/selectionRule";
-import { correctOptionIndex } from "../../src/lib/solutions/compareAnswer";
+import { compareAnswer, correctOptionIndex, parseQuantity } from "../../src/lib/solutions/compareAnswer";
 import { getFiguresForQuestion } from "../../src/data/visualConceptRegistry";
 import { getSolutionFigures } from "../../src/diagrams/registry";
 import { WITHHELD_QUESTION_IDS } from "../../src/data/canonicalQuestionBank";
@@ -54,13 +55,24 @@ import {
   verdictEligibility,
   type Row,
   type SelectedRow,
+  type VerdictDecision,
 } from "./selectSolutions";
 
-/** The chapters this lane publishes (SOLUTIONS-SCI-1 pilot). */
+/** The chapters this lane publishes: SOLUTIONS-SCI-1 piloted Ch 1, 5, 11; SOLUTIONS-SCI-2 covers all 13. */
 export const SCIENCE_SOLUTIONS_SLUGS: readonly string[] = [
   "chemical-reactions-and-equations",
+  "acids-bases-and-salts",
+  "metals-and-non-metals",
+  "carbon-and-its-compounds",
   "life-processes",
+  "control-and-coordination",
+  "how-do-organisms-reproduce",
+  "heredity",
+  "light-reflection-and-refraction",
+  "human-eye-and-colourful-world",
   "electricity",
+  "magnetic-effects-of-electric-current",
+  "our-environment",
 ];
 
 export interface ScienceChapterSpec {
@@ -200,10 +212,49 @@ export function stepMarkingReason(q: Pick<Row, "marks" | "solutionSteps">): stri
     if (prefixed.length !== steps.length) return `${prefixed.length} of ${steps.length} steps carry a [N mark] prefix`;
     const sum = prefixed.reduce((a, m) => a + Number(m[1]), 0);
     if (Math.abs(sum - marks) > 1e-9) return `step marks sum to ${sum}, the question is worth ${marks}`;
-  } else if (marks > 1) {
-    return `${marks}-mark row without [N mark] step prefixes`;
   }
+  // SOLUTIONS-SCI-2: steps WITHOUT [N mark] prefixes are accepted when they meet the CBSE minimum
+  // count (the Maths bar and the brief: "solutionSteps matching CBSE step counts"); prefixes, when
+  // present, must cover every step and sum to the marks.
   return null;
+}
+
+// ---------------------------------------------------------------------------------------------
+// #1605 review (6 Nov 2026): the OFF-BOOK TERM rule, mechanical. `ncertScienceVocabulary.json` holds
+// the word list of the 13 official 2026-27 NCERT Science chapter files (not their text) and a short,
+// reviewed list of general words. A row whose answer or steps use any other word (one not in its own
+// question either) is not published: a term the textbook never uses ("stoichiometry", "lattice",
+// "ionise", "genotype") teaches beyond the book.
+// ---------------------------------------------------------------------------------------------
+
+const VOCAB_FILE = resolve(dirname(fileURLToPath(import.meta.url)), "ncertScienceVocabulary.json");
+let vocabCache: { words: Set<string>; stems: Set<string>; allow: Set<string> } | null = null;
+
+const stemWord = (w: string) => {
+  for (const suf of ["ing", "ed", "es", "s"]) if (w.length > 4 + suf.length && w.endsWith(suf)) return w.slice(0, -suf.length);
+  return w;
+};
+const words = (t: string) => String(t ?? "").normalize("NFKC").toLowerCase().match(/[a-z]+/g) ?? [];
+
+export function ncertScienceVocabulary(): { words: Set<string>; stems: Set<string>; allow: Set<string> } {
+  if (!vocabCache) {
+    const v = JSON.parse(readFileSync(VOCAB_FILE, "utf8")) as { words: string[]; allowGeneral: string[] };
+    const all = new Set(v.words);
+    vocabCache = { words: all, stems: new Set([...all].map(stemWord)), allow: new Set(v.allowGeneral) };
+  }
+  return vocabCache;
+}
+
+/** The words (4+ letters) of a row's answer and steps that are neither NCERT words nor its own question's, nor reviewed general words. */
+export function offBookTerms(q: Pick<Row, "questionText" | "options" | "answer" | "finalAnswer" | "solutionSteps">): string[] {
+  const v = ncertScienceVocabulary();
+  const asked = new Set(words([q.questionText, ...(q.options ?? [])].map((x) => String(x ?? "")).join("\n")));
+  const out = new Set<string>();
+  for (const w of words([q.answer, q.finalAnswer, ...(q.solutionSteps ?? [])].map((x) => String(x ?? "")).join("\n"))) {
+    if (w.length < 4 || v.words.has(w) || v.stems.has(stemWord(w)) || asked.has(w) || v.allow.has(w)) continue;
+    out.add(w);
+  }
+  return [...out].sort();
 }
 
 export type ScienceExclusionReason =
@@ -215,6 +266,7 @@ export type ScienceExclusionReason =
   | "ref-not-a-book-question"
   | "ref-stale-numbering"
   | "syllabus"
+  | "off-book-term"
   | "needs-figure"
   | "garbled"
   | "step-marking"
@@ -259,11 +311,17 @@ export function classifyScienceRow(
   if (ref.chapter !== null && ref.chapter !== spec.chapter) return out("ref-stale-numbering", rawRef);
   const syl = scienceSyllabusReason(q, guard);
   if (syl) return out("syllabus", syl);
+  const offBook = offBookTerms(q);
+  if (offBook.length > 0) return out("off-book-term", `not in the 2026-27 NCERT textbook: ${offBook.join(", ")}`);
   if (q.requiresDiagram === true) return out("needs-figure", "requiresDiagram");
   if (getFiguresForQuestion(id).length > 0) return out("needs-figure", "a bound question figure the page does not render");
-  if (getSolutionFigures(id).length > 0) return out("needs-figure", "a bound solution figure the page does not render");
-  if (SCIENCE_NEEDS_FIGURE_TEXT.test(String(q.questionText ?? ""))) return out("needs-figure", "question refers to a figure/graph/drawing");
-  if ((q.solutionSteps ?? []).some((s) => NEEDS_FIGURE_STEPS.test(String(s)))) return out("needs-figure", "solution refers to a figure");
+  // SOLUTIONS-SCI-2: a row whose ANSWER is a bound solution figure (an NCERT crop or a computed ray
+  // diagram, each bound by its own lane after the labels were eye-checked) is shown WITH that figure
+  // (SolutionsPage renders <SolutionFigure> in the solution), so "draw a ray diagram" is not missing
+  // anything. A question figure the page cannot render still excludes the row (checked above).
+  const solutionFigure = getSolutionFigures(id).length > 0;
+  if (!solutionFigure && SCIENCE_NEEDS_FIGURE_TEXT.test(String(q.questionText ?? ""))) return out("needs-figure", "question refers to a figure/graph/drawing");
+  if (!solutionFigure && (q.solutionSteps ?? []).some((s) => NEEDS_FIGURE_STEPS.test(String(s)))) return out("needs-figure", "solution refers to a figure");
   const text = allText(q);
   if (text.includes(REPLACEMENT_CHAR)) return out("garbled", "U+FFFD");
   if (MOJIBAKE.test(text)) return out("garbled", "mojibake");
@@ -278,6 +336,31 @@ export function classifyScienceRow(
     if (correctOptionIndex(String(q.answer ?? ""), q.options) === null) return out("mcq-key-ambiguous", String(q.answer));
   }
   return out(null);
+}
+
+/**
+ * Chapters whose numerical answers follow the NCERT New Cartesian sign convention: "f = 10 cm" and
+ * "f = −10 cm" are BOTH correct answers for a concave mirror, and compareAnswer would mark the signed
+ * one wrong. So no typed ✓/✗ there, ever ("never mark a correct student wrong; when in doubt, none").
+ */
+export const SIGN_CONVENTION_SLUGS: ReadonlySet<string> = new Set(["light-reflection-and-refraction", "human-eye-and-colourful-world"]);
+
+export function signConventionVerdict(slug: string, v: VerdictDecision): VerdictDecision {
+  return v.verdict && SIGN_CONVENTION_SLUGS.has(slug) ? { verdict: false, why: "sign convention: ± forms are both correct" } : v;
+}
+
+/**
+ * SOLUTIONS-SCI-2 + #1604: the Maths opt-in rules (verdictEligibility: no proof, multi-part,
+ * multi-value, relation, approximation, ratio), then the key must be ONE SI quantity that compares
+ * to itself in compareAnswer's opt-in Science mode ("I = 0.5 A", "R = 15 Ω", "9.6 kWh").
+ */
+export function scienceVerdictEligibility(q: Row): VerdictDecision {
+  const v = verdictEligibility(q);
+  if (v.verdict || (v.why !== "not one comparable value" && v.why !== "key does not compare to itself")) return v;
+  const key = String(q.finalAnswer ?? "").trim();
+  if (!parseQuantity(key, "science")) return v;
+  if (compareAnswer(key, key, "science").verdict !== "right") return { verdict: false, why: "key does not compare to itself" };
+  return { verdict: true, why: key };
 }
 
 const dupKey = (s: string) => fold(s).replace(/[^a-z0-9]+/g, "");
@@ -334,7 +417,7 @@ export function selectScienceChapter(
       sel.excluded.push({ ...c, reason: "unverified", detail: "content changed since verification (hash)" });
       continue;
     }
-    const code = verdictEligibility(q);
+    const code = signConventionVerdict(spec.slug, scienceVerdictEligibility(q));
     const v = l.status === "no-verdict" && code.verdict ? { verdict: false, why: "verifier: not one value" } : code;
     sel.ncert.push({ id: q.id, verdict: v.verdict, note: rowNote(q, v) });
   }
@@ -422,7 +505,11 @@ export function emitScienceBlock(selections: readonly ScienceChapterSelection[])
       const short = scienceShortTitle(s);
       checkHeads(s, short);
       const rows = s.ncert
-        .map((r) => `      ${r.verdict ? "v" : "r"}(${JSON.stringify(r.id)}),${r.note ? ` // ${commentSafe(r.note)}` : ""}`)
+        .map((r) => {
+          const ctor = r.verdict ? "v" : getSolutionFigures(r.id).length > 0 ? "f" : "r";
+          const note = ctor === "f" ? "answer shown with its bound solution figure" : r.note;
+          return `      ${ctor}(${JSON.stringify(r.id)}),${note ? ` // ${commentSafe(note)}` : ""}`;
+        })
         .join("\n");
       return [
         "  {",

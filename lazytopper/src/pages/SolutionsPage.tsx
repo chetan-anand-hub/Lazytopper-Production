@@ -1,4 +1,4 @@
-import { use, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { Suspense, use, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { stripAnswerLetter } from "../lib/answerLetterSuffix";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
@@ -47,6 +47,11 @@ import "./solutions.css";
 // MOMENTS-1 M10 — Byte peeks in after a matching check (signed out, public guide arm; lazy chunk).
 import { SolutionsMoment, noteSolutionMatched } from "../components/guide/moments/moments";
 import { hasUsedFreeCheck, isFreeCheckClientEnabled } from "../services/freeCheckClient";
+import { lazyWithRetry } from "../lib/lazyWithRetry";
+
+// SOLUTIONS-SCI-2: the solution figure (NCERT crop / ray diagram) of a row whose answer IS a figure,
+// lazy so the registry never weighs on a page without one.
+const SolutionFigure = lazyWithRetry(() => import("../diagrams/SolutionFigure"));
 
 /**
  * SolutionsPage — `/ncert-solutions/:chapter` and `/ncert-exemplar/:chapter` (SOLUTIONS-1, lane G;
@@ -178,7 +183,9 @@ function QuestionCard({
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     if (!typed.trim() || submitted) return;
-    const result = safe.verdict === "value" ? compareAnswer(typed, key) : { verdict: "none" as const, shown: typed.trim() };
+    // SOLUTIONS-SCI-2: Science keys carry SI units (#1604's opt-in mode); Maths keeps the length mode.
+    const result =
+      safe.verdict === "value" ? compareAnswer(typed, key, science ? "science" : "length") : { verdict: "none" as const, shown: typed.trim() };
     unlock();
     setSubmitted(result);
     track(
@@ -243,7 +250,7 @@ function QuestionCard({
               autoComplete="off"
               value={typed}
               disabled={submitted !== null}
-              placeholder={safe.verdict === "value" ? "e.g. 2 cm" : "Type your last line, then check"}
+              placeholder={safe.verdict === "value" ? (science ? "Value with unit, e.g. 0.5 A" : "e.g. 2 cm") : "Type your last line, then check"}
               onChange={(e) => setTyped(e.target.value)}
             />
             <button type="submit" disabled={!typed.trim() || submitted !== null}>
@@ -290,6 +297,13 @@ function QuestionCard({
           </p>
         )}
         <h4 className="lt-ncs__solh">Step-by-step solution</h4>
+        {/* Mounted only after an attempt: the figure's lazy chunk and its generated ids would otherwise
+            make the prerendered page non-deterministic (capture's data-dependence control). */}
+        {safe.figure && attempted ? (
+          <Suspense fallback={null}>
+            <SolutionFigure questionId={String(q.id)} />
+          </Suspense>
+        ) : null}
         <ol className="lt-ncs__steps">
           {steps.map((s, i) => (
             <li key={i}>

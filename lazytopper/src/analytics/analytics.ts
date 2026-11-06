@@ -148,10 +148,18 @@ const EMAIL_SEGMENT = /@|%40/i;
 const OPAQUE_ID_SEGMENT = /^[A-Za-z0-9_-]{20,}$/;
 const CONTENT_SLUG_SEGMENT = /^[a-z]+(?:-[a-z0-9]+)*$/;
 
+/**
+ * SPEED-INSIGHTS-ROUTE-1 (review of #1603) — a run of 6+ digits in a path segment is a number someone typed or
+ * a link carried (a phone number, an order or roll number), never content: it becomes `:num`. App paths carry at
+ * most 4-digit numbers (a year, a grade). The two inline copies in index.html (Vercel beforeSend, GA4) apply the
+ * same rule; indexHtml.guard.test.ts runs all three on the same cases.
+ */
+const LONG_DIGIT_RUN = /[0-9]{6,}/g;
+
 function redactSegment(segment: string): string {
   if (EMAIL_SEGMENT.test(segment)) return ":email";
   if (OPAQUE_ID_SEGMENT.test(segment) && !CONTENT_SLUG_SEGMENT.test(segment)) return ":id";
-  return segment;
+  return segment.replace(LONG_DIGIT_RUN, ":num");
 }
 
 const MAX_PATH_LENGTH = 200;

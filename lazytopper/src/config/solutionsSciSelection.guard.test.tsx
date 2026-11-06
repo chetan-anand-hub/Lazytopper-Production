@@ -17,6 +17,7 @@ import {
   scienceGroups,
   scienceRefLabel,
   solutionsChapter,
+  solutionsHeadDescription,
   solutionsHeadTitle,
   solutionsPath,
   solutionsPaths,
@@ -27,10 +28,15 @@ import { SOLUTIONS_SCI_LEDGER } from "./solutionsSciLedger";
 import { NCERT_CLASS10_CHAPTERS } from "./ncertBooks";
 import { ensureBankSubject, getBankRows } from "../data/bankChapters/loader";
 import { WITHHELD_QUESTION_IDS } from "../data/canonicalQuestionBank";
-import { correctOptionIndex } from "../lib/solutions/compareAnswer";
-import { rowHash, verdictEligibility, MIN_ROWS_PER_PAGE, type Row } from "../../scripts/solutions/selectSolutions";
+import { compareAnswer, correctOptionIndex, parseQuantity } from "../lib/solutions/compareAnswer";
+import { getSolutionFigures } from "../diagrams/registry";
+import { rowHash, MIN_ROWS_PER_PAGE, type Row } from "../../scripts/solutions/selectSolutions";
 import {
   SCIENCE_SOLUTIONS_SLUGS,
+  SIGN_CONVENTION_SLUGS,
+  offBookTerms,
+  scienceVerdictEligibility,
+  signConventionVerdict,
   SCI_BLOCK_BEGIN,
   SCI_BLOCK_END,
   classifyScienceRow,
@@ -47,9 +53,10 @@ import {
 } from "../../scripts/solutions/selectScienceSolutions";
 
 /**
- * SOLUTIONS-SCI-1 (owner approval, 6 Nov 2026) — free, attempt-first NCERT Class 10 SCIENCE
- * solutions pages (pilot: Ch 1 Chemical Reactions and Equations, Ch 5 Life Processes, Ch 11
- * Electricity), NCERT textbook only.
+ * SOLUTIONS-SCI-1/2 (owner approval, 6 Nov 2026) — free, attempt-first NCERT Class 10 SCIENCE
+ * solutions pages: SCI-1 piloted Ch 1, 5 and 11; SCI-2 covers all 13 chapters of the 2026-27 book
+ * (Heredity has no page: only 3 rows clear the bar, below the 5-row floor). NCERT textbook only;
+ * Exemplar Science is SOLUTIONS-SCI-3.
  *
  *   (a) DETERMINISM: re-running the selection on the live bank + ledger reproduces the committed
  *       SOLUTIONS-SCI blocks of solutionsPublishSafe.ts and solutionsPages.ts exactly;
@@ -86,19 +93,18 @@ describe("(a) the committed Science allowlist is exactly what the script selects
 });
 
 describe("(b) scope: the covered NCERT Science chapters, NCERT book only", () => {
-  it("the pilot chapters, under their /notes and /ncert-class-10 slugs and 2026-27 chapter numbers", () => {
-    expect([...SCIENCE_SOLUTIONS_SLUGS]).toEqual(["chemical-reactions-and-equations", "life-processes", "electricity"]);
+  it("all 13 chapters selected, under their /notes and /ncert-class-10 slugs and 2026-27 chapter numbers", () => {
     const sci = NCERT_CLASS10_CHAPTERS.filter((r) => r.book === "Science");
     expect(sci).toHaveLength(13);
+    expect([...SCIENCE_SOLUTIONS_SLUGS]).toEqual(sci.map((r) => r.slug));
     for (const spec of scienceSolutionsChapters()) {
       const row = sci.find((r) => r.slug === spec.slug)!;
       expect([spec.chapter, spec.title]).toEqual([row.chapter, row.title]);
     }
-    expect(SCI.map((c) => [c.slug, c.chapter])).toEqual([
-      ["chemical-reactions-and-equations", 1],
-      ["life-processes", 5],
-      ["electricity", 11],
-    ]);
+    // Every chapter but Heredity has a published NCERT page (Heredity: 3 rows, below the 5-row floor).
+    expect(SCI.map((c) => [c.slug, c.chapter])).toEqual(sci.filter((r) => r.slug !== "heredity").map((r) => [r.slug, r.chapter]));
+    // Heredity: none of its NCERT rows clears the bar (off-book terms, holds), so no NCERT page.
+    expect(selections.find((x) => x.spec.slug === "heredity")?.ncert).toEqual([]);
   });
   it("no Science Exemplar page, and every Science page has at least the minimum rows", () => {
     for (const ch of SCI) {
@@ -117,6 +123,7 @@ describe("(c) every published Science row is served, verified, and passes every 
     const guard = scienceSyllabusGuard();
     const seen = new Set<string>();
     let mcq = 0;
+    let verdicts = 0;
     for (const ch of SCI) {
       const served = getBankRows([ch.slug]);
       const spec: ScienceChapterSpec = { slug: ch.slug, chapter: ch.chapter, title: ch.title };
@@ -138,12 +145,57 @@ describe("(c) every published Science row is served, verified, and passes every 
           mcq += 1;
           expect(correctOptionIndex(String(q.answer), q.options), q.id).not.toBeNull();
         }
-        // A typed ✓/✗ only where code says the key is one comparable value (never mark a correct student wrong).
-        if (safe.verdict === "value") expect(verdictEligibility(q as Row).verdict, q.id).toBe(true);
+        // A typed ✓/✗ only where code says the key is ONE SI quantity (#1604; never mark a correct student wrong).
+        if (safe.verdict === "value") {
+          expect(scienceVerdictEligibility(q as Row).verdict, q.id).toBe(true);
+          expect(SIGN_CONVENTION_SLUGS.has(ch.slug), q.id).toBe(false);
+          const key = String(q.finalAnswer);
+          const k = parseQuantity(key, "science")!;
+          const rhs = key.slice(key.lastIndexOf("=") + 1).replace(/\.\s*$/, "").trim(); // "300 C"
+          const unit = rhs.replace(/^[-−\d./\s]+/, "").trim(); // "C"
+          for (const form of [key, rhs, `${k.value}${unit}`, ` ${rhs} `]) {
+            expect(compareAnswer(form, key, "science").verdict, `${q.id}: "${form}"`).toBe("right");
+          }
+          // #1604 final: a bare number is never ticked; a wrong value with the unit is wrong.
+          expect(compareAnswer(String(k.value), key, "science").verdict, `${q.id}: bare`).toBe("none");
+          expect(compareAnswer(`${k.value * 2} ${unit}`, key, "science").verdict, `${q.id}: wrong value`).toBe("wrong");
+          verdicts += 1;
+        }
       }
     }
-    expect(seen.size).toBe(60);
+    expect(seen.size).toBe(150);
     expect(mcq).toBeGreaterThan(0);
+    expect(verdicts).toBe(6); // Electricity SA-004 / 008 / 015 / 016 / 024 / 026
+  });
+  it("#1605 review, item 1: NO published row uses a word outside the 2026-27 NCERT textbook (mechanical, every row)", () => {
+    let checked = 0;
+    for (const ch of SCI) {
+      for (const book of ["ncert", "exemplar"] as const) {
+        for (const { q } of publishedRows(getBankRows([ch.slug]), ch, book)) {
+          expect(offBookTerms(q as Row), q.id).toEqual([]);
+          checked += 1;
+        }
+      }
+    }
+    expect(checked).toBe(150);
+    // The reviewer's named rows are out, by the rule (or, for METAL-3-SA-007, by the ledger).
+    const published = new Set(SCI.flatMap((c) => [...c.ncert, ...c.exemplar].map((r) => r.id)));
+    for (const id of [
+      "ACID-NCERT-2-VSA-006", "ACID-NCERT-2-VSA-003", "ACID-NCERT-2-VSA-019", "METAL-NCERT-3-VSA-005", "METAL-NCERT-3-SA-007",
+      "CARB-NCERT-4-VSA-002", "CARB-NCERT-4-SA-003", "CARB-NCERT-4-VSA-005", "CARB-NCERT-4-VSA-012", "CARB-NCERT-4-VSA-017",
+      "REPR-NCERT-7-SA-006", "CTRL-NCERT-6-SA-009", "CTRL-NCERT-6-SA-003",
+    ]) expect(published.has(id), id).toBe(false);
+    // "thermite": NCERT Ch 3 spells it "thermit" (the thermit reaction), so it is on the reviewed list.
+    expect(published.has("CHEM-NCERT-1-MCQ-002")).toBe(true);
+  });
+  it("#1605 review, item 3: one rule for a summary final step (final value with unit = content; restatement = hold)", () => {
+    const published = new Set(SCI.flatMap((c) => c.ncert.map((r) => r.id)));
+    const outcome: Record<string, boolean> = {
+      "LIGHT-NCERT-9-LA-001": true, "LIGHT-NCERT-9-LA-006": true, "LIGHT-NCERT-9-LA-012": true, "LIGHT-NCERT-9-LA-005": true,
+      "ELEC-NCERT-11-LA-014": true,
+      "LIGHT-NCERT-9-LA-009": false, "ACID-NCERT-2-SA-003": false, "LIGHT-NCERT-9-SA-006": false,
+    };
+    for (const [id, pub] of Object.entries(outcome)) expect(published.has(id), id).toBe(pub);
   });
   it("no ledger hold / ref-mismatch id is published, and each hold says why", () => {
     const published = new Set(SCI.flatMap((c) => c.ncert.map((r) => r.id)));
@@ -171,9 +223,19 @@ describe("(c) every published Science row is served, verified, and passes every 
       return [s.spec.slug, s.ncert.length, by];
     });
     expect(counts).toEqual([
-      ["chemical-reactions-and-equations", 12, { held: 13, "source-others": 1, "exemplar-unverified": 43 }],
-      ["life-processes", 11, { held: 23, "exemplar-unverified": 81 }],
-      ["electricity", 37, { held: 10, "needs-figure": 4, "source-others": 2, syllabus: 1, "exemplar-unverified": 35 }],
+      ["chemical-reactions-and-equations", 10, { held: 5, "off-book-term": 10, "source-others": 1, "exemplar-unverified": 43 }],
+      ["acids-bases-and-salts", 15, { "off-book-term": 13, held: 2, "source-others": 3, "exemplar-unverified": 47 }],
+      ["metals-and-non-metals", 5, { "off-book-term": 17, "ref-mismatch": 3, held: 3, "exemplar-unverified": 63 }],
+      ["carbon-and-its-compounds", 6, { "off-book-term": 22, "exemplar-unverified": 52 }],
+      ["life-processes", 7, { "off-book-term": 23, held: 4, "exemplar-unverified": 81 }],
+      ["control-and-coordination", 5, { "off-book-term": 16, "source-others": 3, "exemplar-unverified": 50 }],
+      ["how-do-organisms-reproduce", 5, { "off-book-term": 14, held: 3, "source-others": 1, "exemplar-unverified": 58 }],
+      ["heredity", 0, { "off-book-term": 8, "ref-not-a-book-question": 2, "exemplar-unverified": 26 }],
+      ["light-reflection-and-refraction", 28, { held: 4, "source-others": 1, "needs-figure": 1, "off-book-term": 1, "exemplar-unverified": 36 }],
+      ["human-eye-and-colourful-world", 14, { held: 1, "off-book-term": 1, "exemplar-unverified": 26 }],
+      ["electricity", 38, { held: 7, "needs-figure": 2, "off-book-term": 4, "source-others": 2, syllabus: 1, "exemplar-unverified": 35 }],
+      ["magnetic-effects-of-electric-current", 11, { "off-book-term": 3, "source-others": 2, held: 4, "exemplar-unverified": 23 }],
+      ["our-environment", 6, { "ref-stale-numbering": 7, "off-book-term": 2 }],
     ]);
   });
 });
@@ -233,6 +295,17 @@ describe("(d) the Science pages render their rows, attempt-first, under their bo
         if (isObjectiveRow(q)) expect(body, q.id).not.toMatch(/\[\s*\d+(?:\.\d+)?\s*marks?\s*\]/i);
         expect(body.includes(`data-testid="ncs-hint-${a}"`), q.id).toBe(!hintRevealsAnswer(q));
       }
+    }
+    // #1605 second review, item 2: no hint on a definition / nature question, on a solution of 3 steps or
+    // fewer, or when step 1 already names a word of the final answer.
+    for (const [slug, id] of [
+      ["human-eye-and-colourful-world", "EYE-NCERT-10-SA-006"], ["light-reflection-and-refraction", "LIGHT-NCERT-9-SA-010"],
+      ["electricity", "ELEC-NCERT-11-SA-007"],
+    ] as const) expect(hintRevealsAnswer(getBankRows([slug]).find((r) => r.id === id)!), id).toBe(true);
+    // Review of #1605 (b): a step 1 that states the conclusion is not a hint.
+    expect(hintRevealsAnswer(getBankRows(["electricity"]).find((r) => r.id === "ELEC-NCERT-11-SA-018")!)).toBe(true);
+    for (const id of ["CHEM-NCERT-1-VSA-002", "CHEM-NCERT-1-SA-012", "LIFE-NCERT-5-VSA-011", "LIFE-NCERT-5-VSA-013", "LIFE-NCERT-5-SA-005", "LIFE-NCERT-5-LONG-002"]) {
+      expect(SOLUTIONS_SCI_LEDGER[id]?.status, id).toBe("hold");
     }
     // The named MCQs: no hint (step 1 names the answer), no step marks.
     for (const id of ["LIFE-NCERT-5-MCQ-001", "LIFE-NCERT-5-MCQ-002", "CHEM-NCERT-1-MCQ-003"]) {
@@ -322,7 +395,9 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
   it("CBSE step marking (CLAUDE.md §13): minimum steps per mark value, [N mark] prefixes summing to the marks", () => {
     expect(reason({ solutionSteps: ["[1.5 marks] V = IR.", "[1.5 marks] R = 6 Ω."] })).toBe("step-marking");
     expect(reason({ solutionSteps: ["[1 mark] V = IR.", "[1 mark] R = 12/2.", "[0.5 mark] R = 6 Ω."] })).toBe("step-marking");
-    expect(reason({ solutionSteps: ["V = IR.", "R = 12/2.", "R = 6 Ω."] })).toBe("step-marking");
+    // SCI-2: unprefixed steps are fine when they meet the CBSE minimum count (the Maths bar).
+    expect(reason({ solutionSteps: ["V = IR.", "R = 12/2.", "R = 6 Ω."] })).toBeNull();
+    expect(reason({ solutionSteps: ["V = IR, so R = 12/2.", "R = 6 Ω."] })).toBe("step-marking");
     expect(reason({ solutionSteps: ["[1 mark] V = IR.", "R = 12/2.", "[2 marks] R = 6 Ω."] })).toBe("step-marking");
     expect(reason({ marks: 7 })).toBe("step-marking");
     expect(stepMarkingReason({ marks: 1, solutionSteps: ["P ∝ V², so P = 25 W."] })).toBeNull();
@@ -371,6 +446,28 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
       ["Chapter-end exercises", ["Exercise Q2", "Exercise Q10"]],
     ]);
   });
+  it("#1605 review: the off-book detector and the definition-question hint rule (controls)", () => {
+    const row = (steps: string[], questionText = "Why should equations be balanced?") => ({ questionText, solutionSteps: steps, finalAnswer: "x" });
+    expect(offBookTerms(row(["Atoms are equal on both sides, therefore the equation is balanced."]))).toEqual([]);
+    expect(offBookTerms(row(["Balance by stoichiometry using moles."]))).toEqual(["moles", "stoichiometry"]);
+    expect(offBookTerms(row(["The lattice holds ions."]))).toEqual(["lattice"]);
+    expect(offBookTerms(row(["The lattice holds ions."], "Describe the ionic lattice."))).toEqual([]); // the question's own word
+    expect(offBookTerms(row(["The thermite reaction joins railway tracks."]))).toEqual([]); // NCERT's "thermit"
+    const def = (questionText: string) =>
+      hintRevealsAnswer({ questionText, solutionSteps: ["Given: n = 2.42.", "a", "b", "c"], finalAnswer: "Light is slower in diamond." });
+    expect(def("The refractive index of diamond is 2.42. What is the meaning of this statement?")).toBe(true);
+    expect(def("What is meant by power of 2 D?")).toBe(true);
+    expect(def("Define 1 volt.")).toBe(true);
+    expect(def("What does 2.42 mean here?")).toBe(true);
+    expect(def("What is the nature and power of the lens for a far point of 80 cm?")).toBe(true);
+    expect(def("Find the speed of light in a medium of index 2.42.")).toBe(false);
+    expect(hintRevealsAnswer({ questionText: "Find R for 12 V and 2 A.", solutionSteps: ["Given: V = 12 V, I = 2 A.", "R = V/I"], finalAnswer: "6 Ω" })).toBe(true);
+  });
+  it("#1605 review, item 4: a title ending in '?' ends its own sentence (no '?.')", () => {
+    const ch = solutionsChapter("how-do-organisms-reproduce")!;
+    expect(solutionsHeadDescription("ncert", ch)).not.toContain("?.");
+    expect(read("public/llms.txt")).not.toMatch(/\?\./);
+  });
   it("page-rule helpers: strip only a leading step mark; hint reveal detector", () => {
     expect(stripStepMark("[0.5 mark] Kidneys remove wastes.")).toBe("Kidneys remove wastes.");
     expect(stripStepMark("[1 mark] x [1 mark]")).toBe("x [1 mark]");
@@ -382,14 +479,51 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
     expect(hintRevealsAnswer({ options: opts, answer: "excretion", solutionSteps: ["Kidneys belong to the excretion system."] })).toBe(true);
     // A theory nudge is still not a SETUP step: Science theory rows get no hint at all.
     expect(hintRevealsAnswer({ options: opts, answer: "excretion", solutionSteps: ["Think about what the kidneys remove from blood."] })).toBe(true);
-    expect(hintRevealsAnswer({ options: ["1/25", "1/5", "5", "25"], answer: "25", questionText: "Wire R is cut into 5 equal parts joined in parallel; R/R' is", solutionSteps: ["Each part has resistance r = R/5."] })).toBe(false);
-    expect(hintRevealsAnswer({ finalAnswer: "300 C", questionText: "0.5 A for 10 minutes. Find the charge.", solutionSteps: ["Given: I = 0.5 A, t = 600 s."] })).toBe(false);
+    expect(hintRevealsAnswer({ options: ["1/25", "1/5", "5", "25"], answer: "25", questionText: "Wire R is cut into 5 equal parts joined in parallel; R/R' is", solutionSteps: ["Each part has resistance r = R/5.", "b", "c", "d"] })).toBe(false);
+    expect(hintRevealsAnswer({ finalAnswer: "300 C", questionText: "0.5 A for 10 minutes. Find the charge.", solutionSteps: ["Given: I = 0.5 A, t = 600 s.", "b", "c", "d"] })).toBe(false);
     expect(hintRevealsAnswer({ finalAnswer: "300 C", questionText: "0.5 A for 10 minutes.", solutionSteps: ["Q = It = 300 C."] })).toBe(true);
     expect(hintRevealsAnswer({ finalAnswer: "(a) 4 Ω (b) 1 Ω", questionText: "Get 4 Ω and 1 Ω from 3 Ω and 6 Ω.", solutionSteps: ["(a) R' = 3×6/9 = 2 Ω"] })).toBe(true);
     expect(hintRevealsAnswer({ options: opts, answer: "excretion", solutionSteps: ["… Answer: (C)"] })).toBe(true);
-    expect(hintRevealsAnswer({ finalAnswer: "6 Ω", questionText: "12 V drives 2 A. Find R.", solutionSteps: ["Use V = IR."] })).toBe(false);
+    expect(hintRevealsAnswer({ finalAnswer: "6 Ω", questionText: "12 V drives 2 A. Find R.", solutionSteps: ["Use V = IR.", "b", "c", "d"] })).toBe(false);
     expect(hintRevealsAnswer({ finalAnswer: "A continuous closed conducting path for current.", solutionSteps: ["An electric circuit is a continuous closed conducting path for current."] })).toBe(true);
     expect(hintRevealsAnswer({ finalAnswer: "x", solutionSteps: [] })).toBe(true);
+  });
+  it("SCI-2: figure rows are exactly the rows whose answer is a bound solution figure; no typed verdict in optics", () => {
+    const figureRows = SCI.flatMap((c) => c.ncert.filter((r) => r.figure).map((r) => r.id));
+    expect(figureRows).toEqual(["LIGHT-NCERT-9-LA-007", "LIGHT-NCERT-9-LA-010", "LIGHT-NCERT-9-LA-011"]);
+    for (const ch of SCI) {
+      for (const r of ch.ncert) expect(Boolean(r.figure), r.id).toBe(getSolutionFigures(r.id).length > 0);
+      if (SIGN_CONVENTION_SLUGS.has(ch.slug)) expect(ch.ncert.filter((r) => r.verdict), ch.slug).toEqual([]);
+    }
+  });
+  it("SCI-2: the figure mounts only after an attempt, so the prerendered page is deterministic", () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter initialEntries={["/ncert-solutions/light-reflection-and-refraction"]}>
+        <SolutionsPage />
+      </MemoryRouter>,
+    );
+    expect(html).toContain('data-testid="ncs-q-light-ncert-9-la-010"');
+    expect(html).not.toContain("lt-solfig");
+  });
+  it("SCI-2: a bound SOLUTION figure makes a drawing question publishable; a QUESTION figure never does", () => {
+    const light: ScienceChapterSpec = { slug: "light-reflection-and-refraction", chapter: 9, title: "Light" };
+    const ray = { ...base, id: "LIGHT-NCERT-9-LA-010", topicKey: light.slug, ncertRef: "Exercise Q10", questionText: "Draw the ray diagram and find the image." };
+    expect(classifyScienceRow(ray, light, guard)?.reason).toBeNull();
+    expect(classifyScienceRow({ ...ray, id: "LIGHT-NCERT-9-LA-901" }, light, guard)?.reason).toBe("needs-figure");
+    expect(classifyScienceRow({ ...ray, id: "LIGHT-NCERT-9-SA-009" }, light, guard)?.reason).toBe("needs-figure");
+  });
+  it("SCI-2: Science verdict opt-in (#1604 units), never in sign-convention chapters", () => {
+    const yes = { verdict: true, why: "f = 10 cm" };
+    expect(signConventionVerdict("light-reflection-and-refraction", yes).verdict).toBe(false);
+    expect(signConventionVerdict("human-eye-and-colourful-world", yes).verdict).toBe(false);
+    expect(signConventionVerdict("electricity", yes).verdict).toBe(true);
+    const sv = (finalAnswer: string, questionText = "Find the current.") => scienceVerdictEligibility({ ...base, finalAnswer, questionText }).verdict;
+    expect(sv("I = 0.5 A")).toBe(true);
+    expect(sv("R = 15 Ω")).toBe(true);
+    expect(sv("R ≈ 3.4 Ω")).toBe(false);
+    expect(sv("4.8 × 10⁶ J")).toBe(false);
+    expect(sv("0.5 A and 2 A")).toBe(false);
+    expect(sv("I = 0.5 A", "(i) Find I. (ii) Find V.")).toBe(false);
   });
   it("hasBook: no Science chapter has an Exemplar book", () => {
     for (const ch of SCI) expect(hasBook(ch, "exemplar")).toBe(false);
