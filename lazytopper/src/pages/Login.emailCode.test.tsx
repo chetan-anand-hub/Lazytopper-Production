@@ -87,6 +87,22 @@ afterEach(() => {
 });
 
 describe("EMAIL-CODE-1 · /login 'Sign in with email code'", () => {
+  // SPEED-SITE-1d — FIRST in the file on purpose: the lazy door has not resolved yet, so the first render shows the
+  // fallback. It must hold the door's slot (no 56-px jump of the centred card when the chunk lands).
+  it("while the door's chunk loads, an invisible, inert slot holds its place; then the real door replaces it", async () => {
+    render(door("/login"));
+    const slot = screen.getByTestId("lt-email-code-door-slot");
+    expect(slot.getAttribute("aria-hidden")).toBe("true");
+    expect(slot.tagName).toBe("DIV");
+    expect(slot.className).toContain("lt-method lt-method--slot");
+    // Same place in the door list as the real button: right after "Continue with email".
+    expect(slot.previousElementSibling?.textContent).toMatch(/Continue with email/);
+    const real = await screen.findByTestId("lt-email-code-door");
+    expect(screen.queryByTestId("lt-email-code-door-slot")).toBeNull();
+    expect(real.previousElementSibling?.textContent).toMatch(/Continue with email/);
+    expect(real.className).toBe("lt-method");
+  });
+
   it("the door offers it beside the other methods; email -> code -> signed in -> the safe redirect", async () => {
     const view = render(door("/login?redirect=%2Fpacks"));
     expect(screen.getByRole("button", { name: /Continue with phone/ })).toBeTruthy();
