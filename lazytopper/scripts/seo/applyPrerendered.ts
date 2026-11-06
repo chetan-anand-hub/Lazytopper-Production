@@ -506,6 +506,43 @@ export function withRouteStyles(html: string, blocks: ReadonlyArray<{ file: stri
   return html.replace("</head>", () => `${styles}</head>`);
 }
 
+/**
+ * SPEED-SITE-1b — the entrance-animation classes stripped from a prerendered body before it
+ * is written. Both start from `opacity: 0` (styles.css `mobFloatUp` / `mobFadeIn`).
+ *
+ * ★ WHY. A prerendered page is meant to paint its content at first paint. With
+ * `animate-float-up` on the mobile shell's `<main>`, that first paint is at opacity 0, and
+ * Chrome does not count an opacity-0 paint as a Largest Contentful Paint candidate. The
+ * fade-in itself runs on the compositor, so nothing repaints when it ends, and the page's
+ * LCP was recorded only when React re-inserted the same content, after the entry bundle
+ * had downloaded and run. Measured on /notes/real-numbers (4x CPU): LCP 2280 ms with the
+ * class, 316 ms without it.
+ *
+ * Only the static first paint changes. The app's own render (MobileShell) still carries the
+ * class, so every in-app navigation fades in exactly as before, and the committed artifact
+ * (what the capture records) is untouched.
+ */
+export const ENTRANCE_ANIMATION_CLASSES: readonly string[] = ["animate-float-up", "animate-fade-in"];
+
+export function withoutEntranceAnimation(fragment: string): string {
+  return fragment.replace(/ class="([^"]*)"/g, (whole, value: string) => {
+    const tokens = value.split(/\s+/).filter((t) => t !== "");
+    if (!tokens.some((t) => ENTRANCE_ANIMATION_CLASSES.includes(t))) return whole;
+    const kept = tokens.filter((t) => !ENTRANCE_ANIMATION_CLASSES.includes(t));
+    return kept.length > 0 ? ` class="${kept.join(" ")}"` : "";
+  });
+}
+
+/** Every entrance-animation class still present on an element in a built page's body. */
+export function entranceAnimationsIn(html: string): string[] {
+  const body = html.slice(Math.max(0, html.indexOf("<body")));
+  const found: string[] = [];
+  for (const match of body.matchAll(/ class="([^"]*)"/g)) {
+    for (const token of match[1].split(/\s+/)) if (ENTRANCE_ANIMATION_CLASSES.includes(token)) found.push(token);
+  }
+  return found;
+}
+
 /** Every `data-lt-inline` file name in a built page. */
 export function inlinedStylesIn(html: string): string[] {
   return [...html.matchAll(/<style data-lt-inline="([^"]+)">/g)].map((m) => m[1]);
@@ -579,6 +616,10 @@ export function verifyBuiltPages(
         if (!/\/assets\/[^/]+\.js$/.test(href) || !existsSync(target) || !statSync(target).isFile()) {
           failures.push(`${path}: the ${variant} file ${file} preloads ${href}, which this build did not emit`);
         }
+      }
+      // SPEED-SITE-1b: no prerendered body paints its content at opacity 0.
+      for (const cls of entranceAnimationsIn(html)) {
+        failures.push(`${path}: the ${variant} file ${file} still carries the entrance animation "${cls}" in its body`);
       }
       // LOW-END-3 PR-1 (a): no URL that costs the reader a redirect hop.
       for (const url of hopUrlsIn(html)) {
@@ -704,8 +745,9 @@ export function applyArtifact(
   const desktopFragments = new Map<string, string>();
   const assetFailures: string[] = [];
   for (const path of expected) {
-    const fragment = readFileSync(fragmentPathFor(path, prerenderedDir), "utf8");
-    const desktopFragment = readFileSync(desktopFragmentPathFor(path, prerenderedDir), "utf8");
+    // SPEED-SITE-1b: the first paint shows the content, not an opacity-0 frame (see withoutEntranceAnimation).
+    const fragment = withoutEntranceAnimation(readFileSync(fragmentPathFor(path, prerenderedDir), "utf8"));
+    const desktopFragment = withoutEntranceAnimation(readFileSync(desktopFragmentPathFor(path, prerenderedDir), "utf8"));
     fragments.set(path, fragment);
     desktopFragments.set(path, desktopFragment);
     for (const ref of [...new Set([...assetRefsIn(fragment), ...assetRefsIn(desktopFragment)])]) {

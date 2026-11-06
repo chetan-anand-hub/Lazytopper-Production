@@ -3,7 +3,8 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Card } from "../../components/grammar/Card";
 import PublicPeek from "../../components/guide/public/PublicPeek";
 import { Note, type NoteInitialTab } from "../../components/notes/Note";
-import { useNoteSpec } from "../../components/notes/noteSpecRegistry";
+import { ensureNoteSpec, useNoteSpec } from "../../components/notes/noteSpecRegistry";
+import { holdPrerenderedRouteUntil } from "../../lib/prerenderHold";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { prevNext, related } from "../../seo/notesLinks";
 
@@ -180,6 +181,9 @@ export default function DesktopNotesPage() {
   const [params] = useSearchParams();
   const topic = topicSlug ? desktopTopicBySlug(topicSlug) : undefined;
   const { spec, ready, error } = useNoteSpec(topic?.slug);
+  // SPEED-SITE-1b: on a prerendered first load, keep the prerendered notes on screen until the
+  // chapter's spec has landed, rather than committing a title over a blank body (lib/prerenderHold).
+  if (topic && !ready) holdPrerenderedRouteUntil(`notes:${topic.slug}`, () => ensureNoteSpec(topic.slug));
 
   if (!topic || (ready && !spec)) {
     return (

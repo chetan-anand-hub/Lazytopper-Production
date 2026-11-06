@@ -13,6 +13,7 @@ import {
   assetRefsIn,
   desktopFragmentPathFor,
   desktopVariantFile,
+  entranceAnimationsIn,
   fragmentPathFor,
   modulepreloadHrefsIn,
   resolveRouteChunk,
@@ -20,6 +21,7 @@ import {
   validateArtifact,
   validateManifest,
   verifyBuiltPages,
+  withoutEntranceAnimation,
 } from "../../scripts/seo/applyPrerendered";
 import { routeChunkModulesFor } from "../../scripts/seo/writeStaticHeads";
 import { sitemapPaths } from "./sitemapUrls";
@@ -111,6 +113,43 @@ describe("applyArtifact — the landing fills index.html, __shell.html stays cle
       },
     };
   }
+
+  // SPEED-SITE-1b — a prerendered body must paint its content at first paint, not at opacity 0.
+  it("strips the opacity-0 entrance animation from every written body, and keeps the rest of the markup", () => {
+    const { out, art, cleanup } = syntheticBuild();
+    try {
+      const animated = '<div class="phone-shell"><main class="animate-float-up" style="padding: 20px;"><h1 class="a animate-fade-in b">Electricity</h1></main></div>';
+      writeFileSync(fragmentPathFor("/notes/electricity", art), animated, "utf8");
+      // CONTROL — the committed fragment carries both classes, so the assertion below can fail.
+      expect(entranceAnimationsIn(`<body>${animated}</body>`)).toEqual(["animate-float-up", "animate-fade-in"]);
+      applyArtifact(out, art, ["/", "/pricing", "/notes/electricity"], { preloads: false });
+      for (const file of ["notes/electricity.html", join("notes", "electricity", "index.html")]) {
+        const html = readFileSync(join(out, file), "utf8");
+        expect(entranceAnimationsIn(html)).toEqual([]);
+        expect(html).toContain('<div class="phone-shell"><main style="padding: 20px;"><h1 class="a b">Electricity</h1></main></div>');
+      }
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("withoutEntranceAnimation leaves markup with no entrance class byte-identical", () => {
+    const plain = '<main class="lt-notes-page"><p class="animate-float-upper">x</p><p data-x="class=&quot;animate-float-up&quot;">y</p></main>';
+    expect(withoutEntranceAnimation(plain)).toBe(plain);
+    expect(withoutEntranceAnimation('<main class="animate-float-up">x</main>')).toBe("<main>x</main>");
+  });
+
+  it("verifyBuiltPages fails a built page whose body still fades in from opacity 0", () => {
+    const { out, art, cleanup } = syntheticBuild();
+    try {
+      applyArtifact(out, art, ["/", "/pricing", "/notes/electricity"], { preloads: false });
+      writeFileSync(join(out, "pricing.html"), SHELL.replace('<div id="root"></div>', '<div id="root"><main class="animate-float-up">P</main></div>'), "utf8");
+      const { failures } = verifyBuiltPages(out, ["/", "/pricing", "/notes/electricity"]);
+      expect(failures.some((f) => f.includes('/pricing: the mobile file pricing.html still carries the entrance animation "animate-float-up"'))).toBe(true);
+    } finally {
+      cleanup();
+    }
+  });
 
   it("writes a __shell.html that contains no landing text, and fills index.html with it", () => {
     const { out, art, cleanup } = syntheticBuild();
