@@ -19,6 +19,7 @@ import CiDemoChunk from "./ciDemoChunk";
 import { CI_DEMO_COPY, CI_DEMO_SAMPLES } from "./ciDemoSamples";
 import { ciDemoEligible } from "./ciDemoModel";
 import { ONE_MINUTE_STARTERS } from "./oneMinuteStarters";
+import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import { __resetMascotBudgetForTests } from "../guide/mascotBudget";
 import { __resetMascotsForTests, hideMascots } from "../guide/mascotsMute";
 import { buildGuidePlan } from "../guide/intentMap";
@@ -265,5 +266,17 @@ describe("LADDER-NAV-1 — the verdict button is brought in once, clear of the B
   it("the nav-clear rule uses the app's own --mob-nav-height and the safe-area inset, mobile widths only", () => {
     const css = readFileSync(resolve(__dirname, "ciDemoDoor.css"), "utf8");
     expect(css).toMatch(/@media \(max-width: 1023px\)[\s\S]*\.ci-nav-clear[\s\S]*--mob-nav-height[\s\S]*safe-area-inset-bottom/);
+  });
+});
+
+describe("SPEED-SITE-1a — the ladder question is on the first frame", () => {
+  it("renders the starter's question with no wait box and no bank download", () => {
+    arrive({ landing: "/check-improve", utm_campaign: "yt_students" });
+    card();
+    // Synchronous: no findBy / waitFor. The copied row (STARTER_ROWS) is read during the first render.
+    expect(screen.queryByTestId("one-min-wait")).toBeNull();
+    const q = screen.getByTestId("one-min-question").textContent ?? "";
+    expect(Object.values(STARTER_ROWS).map((r) => r.question)).toContain(q);
+    expect(screen.getAllByTestId(/^one-min-opt-\d$/)).toHaveLength(4);
   });
 });

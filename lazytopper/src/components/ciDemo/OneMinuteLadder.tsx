@@ -5,7 +5,9 @@
  * (no network): the mark out of 1, the right option and one honest "why" line from the row's own stored solution.
  * An MCQ scores 0 or full on the tap alone (CLAUDE.md §13); a tap carries no working, so no mistake type.
  *
- * The bank is reached here, on mount, through import() only (/check-improve stays bank-free statically).
+ * SPEED-SITE-1a: a starter's row is read from STARTER_ROWS (./oneMinuteStarterRows.ts, test-pinned to the bank),
+ * so the question renders on the first frame. The bank is reached only as a fallback, and for a friend's
+ * challenge, through import() (/check-improve stays bank-free statically).
  * A failed load renders nothing for this step: the card falls back to its sample picker.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -18,6 +20,7 @@ import { useClearBottomNav } from "./useClearBottomNav";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
+import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { subscriptFormulas } from "../../lib/chemSubscript";
 import LadderOffers from "../packs/LadderOffers";
@@ -46,6 +49,13 @@ interface LoadedMcq {
 }
 
 const LETTERS = ["A", "B", "C", "D"];
+
+/** SPEED-SITE-1a — the starter as the bank would give it, with no download; null if it has no copied row. */
+function starterFromRows(starter: OneMinuteStarter): LoadedMcq | null {
+  const row = STARTER_ROWS[starter.bankId];
+  if (!row || row.options.length !== 4 || row.right < 0 || row.right > 3) return null;
+  return { starter, question: row.question, options: [...row.options], right: row.right, why: row.why, topicKey: row.topicKey, topicName: row.topicName };
+}
 
 async function loadStarter(starter: OneMinuteStarter): Promise<LoadedMcq | null> {
   try {
@@ -113,7 +123,8 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   const starter = useMemo(() => pickStarter(hint, visitSeed()), [hint]);
   // FRIEND-CHALLENGE-1 - a friend's link names one question; an id that resolves to no objective bank row is ignored.
   const [challengeId] = useState<string | null>(() => readChallengeParam());
-  const [mcq, setMcq] = useState<LoadedMcq | null>(null);
+  // SPEED-SITE-1a: no friend's challenge -> the copied row, on the first render (no bank download, no wait box).
+  const [mcq, setMcq] = useState<LoadedMcq | null>(() => (challengeId ? null : starterFromRows(starter)));
   const [picked, setPicked] = useState<number | null>(null);
   const shown = useRef(false);
   const verdictRef = useRef<HTMLDivElement>(null);
@@ -121,6 +132,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   useClearBottomNav(verdictRef, picked !== null);
 
   useEffect(() => {
+    if (mcq) return undefined;
     let live = true;
     void (async (): Promise<LoadedMcq | null> => {
       if (challengeId) {
