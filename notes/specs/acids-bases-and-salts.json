@@ -554,6 +554,23 @@
       "source": "NCERT 2.2.1"
     }
   ],
+  "key_terms": [
+    {"term": "Olfactory indicators", "meaning": "Substances whose smell changes in acidic or basic medium (onion, vanilla, clove oil).", "source": "NCERT 2026-27 Ch2 p.18 (jesc102)"},
+    {"term": "Alkalis", "meaning": "Bases that are soluble in water.", "source": "NCERT 2026-27 Ch2 p.23 (jesc102)"},
+    {"term": "Hydronium ion", "meaning": "H₃O⁺: H⁺ ions cannot exist alone, so in water they join water molecules.", "source": "NCERT 2026-27 Ch2 p.23 (jesc102)"},
+    {"term": "Neutralisation reaction", "meaning": "An acid and a base react to give a salt and water.", "source": "NCERT 2026-27 Ch2 p.21 (jesc102)"},
+    {"term": "pH scale", "meaning": "A 0 to 14 scale of how acidic or basic a solution is; 7 is neutral.", "source": "NCERT 2026-27 Ch2 p.25 (jesc102)"},
+    {"term": "Universal indicator", "meaning": "A mixture of indicators that shows a different colour at each pH.", "source": "NCERT 2026-27 Ch2 p.25 (jesc102)"},
+    {"term": "Strong acids", "meaning": "Acids that give rise to more H⁺ ions in water.", "source": "NCERT 2026-27 Ch2 p.26 (jesc102)"},
+    {"term": "Dilution", "meaning": "Mixing an acid or base with water, which lowers the concentration of ions.", "source": "NCERT 2026-27 Ch2 p.24 (jesc102)"},
+    {"term": "Antacid", "meaning": "A mild base, like milk of magnesia, that neutralises excess acid in the stomach.", "source": "NCERT 2026-27 Ch2 p.27 (jesc102)"},
+    {"term": "Family of salts", "meaning": "Salts that share the same positive or the same negative radical.", "source": "NCERT 2026-27 Ch2 p.28 (jesc102)"},
+    {"term": "Chlor-alkali process", "meaning": "Electrolysis of brine giving sodium hydroxide, chlorine and hydrogen.", "source": "NCERT 2026-27 Ch2 p.30 (jesc102)"},
+    {"term": "Water of crystallisation", "meaning": "The fixed number of water molecules in one formula unit of a salt.", "avoid": "moisture", "source": "NCERT 2026-27 Ch2 p.32 (jesc102)"},
+    {"term": "Bleaching powder", "meaning": "Made by the action of chlorine on dry slaked lime.", "source": "NCERT 2026-27 Ch2 p.30 (jesc102)"},
+    {"term": "Sodium hydrogencarbonate", "meaning": "The chemical name of baking soda, NaHCO₃: write it when the question asks for the chemical name.", "source": "NCERT 2026-27 Ch2 p.20 (jesc102)"},
+    {"term": "Plaster of Paris", "meaning": "Calcium sulphate hemihydrate, CaSO₄·½H₂O; sets into a hard mass with water.", "source": "NCERT 2026-27 Ch2 p.32 (jesc102)"}
+  ],
   "mindmap": {
     "root": "Acids, Bases and Salts",
     "branches": [

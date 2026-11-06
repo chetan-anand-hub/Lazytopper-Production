@@ -465,6 +465,23 @@
       "source": "NCERT 10.6.2"
     }
   ],
+  "key_terms": [
+    {"term": "Cornea", "meaning": "The transparent front bulge of the eye, where most refraction happens.", "source": "NCERT 2026-27 Ch10 p.161 (jesc110)"},
+    {"term": "Iris", "meaning": "The dark muscular diaphragm that controls the size of the pupil.", "source": "NCERT 2026-27 Ch10 p.161 (jesc110)"},
+    {"term": "Pupil", "meaning": "The opening that controls how much light enters the eye.", "source": "NCERT 2026-27 Ch10 p.161 (jesc110)"},
+    {"term": "Ciliary muscles", "meaning": "The muscles that change the curvature, and so the focal length, of the eye lens.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Power of accommodation", "meaning": "The eye lens's ability to adjust its focal length.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Near point", "meaning": "The closest point seen clearly without strain; about 25 cm for a normal eye.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Far point", "meaning": "The farthest point seen clearly; infinity for a normal eye.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Myopia", "meaning": "Near-sightedness: near objects are clear, distant ones blurred; corrected by a concave lens.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Hypermetropia", "meaning": "Far-sightedness: distant objects are clear, near ones blurred; corrected by a convex lens.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Presbyopia", "meaning": "The power of accommodation decreases with age, so near objects are hard to see.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Cataract", "meaning": "The eye lens of older people becomes milky and cloudy.", "source": "NCERT 2026-27 Ch10 p.162 (jesc110)"},
+    {"term": "Dispersion", "meaning": "The splitting of white light into its component colours.", "source": "NCERT 2026-27 Ch10 p.166 (jesc110)"},
+    {"term": "Spectrum", "meaning": "The band of coloured components of a light beam.", "source": "NCERT 2026-27 Ch10 p.167 (jesc110)"},
+    {"term": "Atmospheric refraction", "meaning": "Refraction of light by the earth's atmosphere; it makes stars twinkle.", "source": "NCERT 2026-27 Ch10 p.168 (jesc110)"},
+    {"term": "Tyndall effect", "meaning": "Scattering of light by colloidal particles, which makes the path of a beam visible.", "source": "NCERT 2026-27 Ch10 p.169 (jesc110)"}
+  ],
   "third_tab_content": {
     "kind": "rules",
     "intro": "This chapter is examined on rules, not derivations: how the eye adjusts focus, which lens fixes which defect, and how a prism bends light. Lock these in and every ray diagram, defect question and 'explain why' falls into place.",

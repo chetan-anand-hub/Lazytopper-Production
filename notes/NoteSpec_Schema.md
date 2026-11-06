@@ -86,10 +86,11 @@ For `kind:"reaction"` a step may carry `equation` instead of `math`; for `kind:"
 
 ### NOTES-FORMULA-3a additions (all OPTIONAL; validator rule 11)
 
-- `formula_strip[i]` may carry `{ id, heading, tip }`: `id` = a stable lower-kebab anchor (`#<id>`, unique on the page, never renamed once shipped, never one of `formulae shortcuts memory-tricks mindmap diagrams`); `heading` = a visible `<h3>` in the words students search; `tip` = one short correct exam tip (may hold `$…$`).
+- `formula_strip[i]` may carry `{ id, heading, tip }`: `id` = a stable lower-kebab anchor (`#<id>`, unique on the page, never renamed once shipped, never one of `formulae shortcuts memory-tricks key-terms mindmap diagrams`); `heading` = a visible `<h3>` in the words students search; `tip` = one short correct exam tip (may hold `$…$`).
 - `shortcuts[]` (spec top level, optional): `{ id, heading?, text, gloss?, use, source }` with `use` ∈ `"mcq-check"` (never write it as working) | `"written-ok"` (CBSE accepts it as a step) | `"memory-aid"` (Memory Tricks card; Hinglish first, D204/D205). `source` is required (NCERT section, CBSE scheme, or a PYQ/SQP id). An absent or empty list renders nothing and the second tab stays "Formulae & Mindmap"; with ≥ 1 shortcut it is "Formulae & Tricks".
 - a diagram in the diagrams tab may carry `{ id, heading, alt }` on its `figures{}` entry (heading and alt required when an id is present).
-- Anchors: section anchors `#formulae #shortcuts #memory-tricks #mindmap` (second tab) and `#diagrams` (third tab); `/notes/<chapter>#<anchor>` opens the tab that holds it and scrolls to it. Shipped ids are pinned in `lazytopper/src/components/notes/noteAnchorIds.pinned.json` (guard `noteAnchors.guard.test.ts`).
+- `key_terms[]` (spec top level, optional; KEY-TERMS-1, validator rule 12): `{ term, meaning, avoid?, source }`, 8–15 rows. `term` is written exactly as the NCERT 2026-27 chapter text has it (verified against the text); `meaning` is one line in student language; `avoid` is an everyday phrase that can cost ½ (rendered "Don't write: …"); `source` (NCERT chapter + printed page) is internal and never rendered. Plain text only (no `$…$`). Renders the "Key terms the examiner looks for" card in the second tab, anchor `#key-terms`; an absent or empty list renders nothing. Never presented as a CBSE "keyword list".
+- Anchors: section anchors `#formulae #shortcuts #memory-tricks #key-terms #mindmap` (second tab) and `#diagrams` (third tab); `/notes/<chapter>#<anchor>` opens the tab that holds it and scrolls to it. Shipped ids are pinned in `lazytopper/src/components/notes/noteAnchorIds.pinned.json` (guard `noteAnchors.guard.test.ts`).
 
 ### `formula_strip[]` / `pitfalls[]` / `strategies[]`
 ```jsonc
