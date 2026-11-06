@@ -91,5 +91,16 @@ export function whyLine(steps: readonly unknown[] | undefined): string {
   t = t.replace(/^Correct option(?: is)?:?\s*(?:\([a-d]\))?[^.]*\.\s*/i, "");
   t = t.replace(/\s*Correct option(?: is)?:?\s*(?:\([a-d]\))?[^.]*\.?$/i, "").trim();
   if (!t || /^Correct option/i.test(t)) return "";
-  return /^[a-z]/.test(t) ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+  return startsWithWord(t) ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+}
+
+/**
+ * SPEED-SITE-1a-fu — capitalise only a sentence that starts with an English WORD. A line that starts with
+ * maths ("x² + 3x − 10 = …", "x = 2", "θ/360°") keeps its variable as written: "X² + 3x" was wrong.
+ * A word = 2+ lowercase letters (then optional punctuation), or the article "a" before another word.
+ */
+function startsWithWord(t: string): boolean {
+  const [first = "", second = ""] = t.split(/\s+/);
+  if (/^[a-z][a-z'-]*[a-z][,.;:]?$/.test(first)) return true;
+  return first === "a" && /^[a-z]/i.test(second);
 }

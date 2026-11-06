@@ -26,6 +26,7 @@ import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
 import { chromeSigninHandoffUrl, currentIsAndroidInAppBrowser } from "../utils/inAppBrowserLinks";
 import { handoffSourceParams } from "../analytics/visitSource";
+import { createLoginAbandonTracker, type LoginAbandonTracker } from "../utils/loginAbandon";
 import { isPayAutoAccountClientEnabled } from "../services/checkoutWhoFlag";
 import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
 import { trackUxEvent } from "../services/uxTelemetry";
@@ -33,6 +34,7 @@ import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, newAccountGoesHome, takeNewAccountLanding } from "../services/newAccountLanding";
 import { BRAND_MARK_SRC } from "../config/brandMark";
+import { isEmailCodeSigninClientEnabled } from "../services/emailCodeFlag";
 import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../utils/indianMobileInput";
 import {
   chooseGoogleFlow,
@@ -80,6 +82,18 @@ export function guestPayDigitsFrom(state: unknown): string {
 const EmailLinkFinish = lazy(() => import("../components/checkoutWho/EmailLinkFinish"));
 /** EMAIL-CODE-1 - "Sign in with email code" (lazy and self-gating on VITE_EMAIL_CODE_SIGNIN_ENABLED: renders nothing while off). */
 const EmailCodeDoor = lazy(() => import("../components/auth/EmailCodeDoor"));
+
+/** SPEED-SITE-1d — EmailCodeDoor's button, invisible and inert: the same box, so its arrival moves nothing. */
+function EmailCodeDoorSlot() {
+  return (
+    <div className="lt-method lt-method--slot" aria-hidden="true" data-testid="lt-email-code-door-slot">
+      <span className="lt-method-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" />
+      </span>
+      Sign in with email code
+    </div>
+  );
+}
 /** CODE-WHERE-1 - "We've sent a code by SMS to +91 98•••••210. Wrong number? Change it" (lazy: kept out of the entry chunk). */
 const CodeSentTo = lazy(() => import("../components/auth/CodeSentTo"));
 
@@ -497,6 +511,12 @@ const LOGIN_CSS = `
     color: var(--lt-ink);
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
+  }
+
+  /* SPEED-SITE-1d - EmailCodeDoorSlot: holds the email-code door's place while its chunk loads. */
+  .lt-method--slot {
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .lt-method:hover:not(:disabled) {
@@ -1651,6 +1671,15 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   // can report login_success for it. Null when no attempt was made on this page (an already
   // signed-in visitor passing through /login reports nothing).
   const loginMethodRef = useRef<LoginMethod | null>(returnIntent ? "google" : null);
+  // LOGIN-FIX-2 — the open attempt, reported as login_abandon if the page goes away before a
+  // success or an error (utils/loginAbandon.ts). Ended by every login_error and by sign-in.
+  const abandonRef = useRef<LoginAbandonTracker | null>(null);
+  if (abandonRef.current === null) abandonRef.current = createLoginAbandonTracker();
+  const abandon = abandonRef.current;
+  const loginError = (...args: Parameters<typeof trackLoginError>) => {
+    abandon.end();
+    trackLoginError(...args);
+  };
   // A Google attempt that timed out but may still finish. Kept apart from loginMethodRef so a
   // later email / phone attempt is never reported as Google (nor Google as email / phone).
   const lateGoogleRef = useRef(false);
@@ -1662,6 +1691,18 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       mountedRef.current = false;
     };
   }, []);
+  // LOGIN-FIX-2 — pagehide / freeze report an open attempt; leaving /login inside the app does too.
+  useEffect(() => {
+    const uninstall = abandon.install();
+    return () => {
+      uninstall();
+      abandon.flush("route");
+    };
+  }, [abandon]);
+  // Signed in: the attempt is over (login_success is reported below, possibly after the trial wait).
+  useEffect(() => {
+    if (user) abandon.end();
+  }, [user, abandon]);
   const [error, setError] = useState<string | null>(null);
   const [offerReset, setOfferReset] = useState(false);
 
@@ -1926,7 +1967,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     };
     const fail = (err: unknown) => {
       if (settled || !mountedRef.current || signedInRef.current) return;
-      trackLoginError("google", err, "redirect");
+      loginError("google", err, "redirect");
       release();
       if (isGoogleCancel(err)) return; // LOGIN-FIX-1 — a cancel: the door, buttons ready, no message
       goToStep("phone");
@@ -1989,6 +2030,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     if (!saved) return false;
     googleFlowRef.current = "redirect";
     trackLoginAttempt("google", "redirect");
+    abandon.start("google", "google_redirect_started");
     try {
       // The guard is armed before the call: in the browser signInWithRedirect never settles.
       if (redirectGuardRef.current !== null) window.clearTimeout(redirectGuardRef.current);
@@ -2005,7 +2047,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         redirectGuardRef.current = null;
       }
       clearSigninIntent();
-      trackLoginError("google", err, "redirect");
+      loginError("google", err, "redirect");
       return false;
     }
   };
@@ -2028,6 +2070,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     // The popup — today's path. Also the one-time fallback when the redirect could not start.
     googleFlowRef.current = "popup";
     trackLoginAttempt("google", "popup");
+    abandon.start("google", "google_popup_open");
     // AUTH-SIGNAL-1 — a popup that never reports back (some in-app browsers and custom tabs)
     // must not leave every button disabled. After GOOGLE_POPUP_TIMEOUT_MS the buttons come back
     // with a message pointing at phone / email. If the popup does finish later, auth state still
@@ -2050,7 +2093,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       } else if (loginMethodRef.current === "google") {
         loginMethodRef.current = null;
       }
-      trackLoginError("google", err, "popup");
+      loginError("google", err, "popup");
       setBusy(false);
       // LOGIN-FIX-1 — the student closed the Google window: a cancel. No message, no phone jump;
       // the buttons are simply ready again (the error above still counts it). EXCEPT in an in-app
@@ -2105,6 +2148,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     setBusy(true);
     loginMethodRef.current = "email";
     trackLoginAttempt("email");
+    abandon.start("email", "email_entered");
 
     if (creating) {
       // ── CREATE, DIRECTLY ────────────────────────────────────────────────
@@ -2128,7 +2172,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
           setError(describeAuthError(err));
         }
         loginMethodRef.current = null;
-        trackLoginError("email", err);
+        loginError("email", err);
         setBusy(false);
       }
       return;
@@ -2156,7 +2200,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         setError(describeAuthError(signInErr));
       }
       loginMethodRef.current = null;
-      trackLoginError("email", signInErr);
+      loginError("email", signInErr);
       setBusy(false);
     }
   };
@@ -2230,12 +2274,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       setBusy(true);
       loginMethodRef.current = "phone";
       trackLoginAttempt("phone");
+      abandon.start("phone", "phone_entered_number");
       try {
         await sendPhoneOtp(`+91${phone}`, recaptchaContainerId);
+        abandon.step("phone_otp_sent");
         setPhoneStep("otp");
       } catch (err) {
         loginMethodRef.current = null;
-        trackLoginError("phone", err, undefined, "send");
+        loginError("phone", err, undefined, "send");
         setError(describePhoneError(err));
       } finally {
         setBusy(false);
@@ -2248,6 +2294,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       return;
     }
     setBusy(true);
+    abandon.step("phone_otp_entered");
     try {
       // ★ The name is typed on the NUMBER step and spent HERE, at confirm —
       // the only moment a Firebase user exists to attach it to. It survives the
@@ -2260,7 +2307,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       await verifyPhoneOtp(otp, creatingPhoneAccount ? name.trim() : undefined);
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
-      trackLoginError("phone", err, undefined, "verify");
+      loginError("phone", err, undefined, "verify");
       setError(describePhoneError(err));
       setBusy(false);
     }
@@ -2281,7 +2328,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     try {
       await sendPhoneOtp(`+91${phone}`, recaptchaContainerId);
     } catch (err) {
-      trackLoginError("phone", err, undefined, "resend");
+      loginError("phone", err, undefined, "resend");
       setError(describePhoneError(err));
     } finally {
       setBusy(false);
@@ -2386,7 +2433,10 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       href={chromeHandoffHref}
       data-testid="google-open-in-chrome"
       // The tap is the attempt: the sign-in itself then happens in Chrome (ua_class chrome_android).
-      onClick={() => trackLoginAttempt("google", "chrome_handoff")}
+      onClick={() => {
+        trackLoginAttempt("google", "chrome_handoff");
+        abandon.start("chrome_handoff", "chrome_handoff_tapped");
+      }}
     >
       {googleMark}
       Open in Chrome to continue with Google
@@ -2566,7 +2616,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   </span>
                   Continue with email
                 </button>
-                <Suspense fallback={null}>
+                {/* SPEED-SITE-1d: while the door's chunk loads, an invisible copy holds its slot, so the
+                    centred card does not grow by one row (and jump up 28 px) when it arrives. */}
+                <Suspense fallback={isEmailCodeSigninClientEnabled() ? <EmailCodeDoorSlot /> : null}>
                   <EmailCodeDoor />
                 </Suspense>
                 </div>

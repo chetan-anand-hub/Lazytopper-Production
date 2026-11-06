@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MobileAccountMenu } from "./MobileAccountMenu";
 import RouteNav from "../nav/RouteNav";
@@ -24,6 +24,27 @@ interface MobileShellProps {
 }
 
 /**
+ * SPEED-SITE-1b — was THIS document served with a prerendered route body? Read ONCE, when this module is
+ * evaluated: that is before main.tsx's `createRoot` replaces the server markup, so the route mark the capture
+ * serialized (`<template data-lt-route="start">` inside #root) is still in the document. False in the capture
+ * itself (it renders on an empty shell), in tests and on every non-prerendered page.
+ */
+export const SERVED_PRERENDERED: boolean = (() => {
+  try {
+    return typeof document !== "undefined" && document.querySelector('#root template[data-lt-route="start"]') !== null;
+  } catch {
+    return false;
+  }
+})();
+
+/**
+ * True until the first MobileShell has committed. The first shell of a prerendered document mounts over content
+ * the student is ALREADY reading (the static first paint, which has no entrance animation: applyPrerendered strips
+ * it), so it must not fade that content out and back in. Every later mount animates as before.
+ */
+let firstShellPending = SERVED_PRERENDERED;
+
+/**
  * MobileShell — the single shared wrapper for all new mobile screens.
  *
  * Provides:
@@ -31,7 +52,8 @@ interface MobileShellProps {
  *  - sticky top header  (back button · title · subtitle · rightSlot · account avatar)
  *  - safe-area padding  (top/bottom via env() where supported)
  *  - scrollable content with bottom-nav offset when showNav=true
- *  - animate-float-up entrance animation on the main content
+ *  - animate-float-up entrance animation on the main content (not on the very first shell of a prerendered
+ *    document: see SERVED_PRERENDERED)
  *
  * BottomNav visibility is controlled in App.tsx by pathname, not here.
  * `showNav` only governs the content bottom padding so nothing is obscured.
@@ -58,6 +80,12 @@ export function MobileShell({
   const hasHeader = Boolean(title || showBack || rightSlot);
   // NAV-1 — while this header is mounted it owns the Back/Home row (App's row steps aside before paint).
   useShellNavSlot(hasHeader);
+  // SPEED-SITE-1b: no fade for the shell that takes over a prerendered first paint (read in the initializer, so
+  // React's StrictMode double call cannot disagree with itself; the flag is cleared after commit).
+  const [fadeIn] = useState(() => !firstShellPending);
+  useEffect(() => {
+    firstShellPending = false;
+  }, []);
 
   return (
     <div
@@ -164,7 +192,7 @@ export function MobileShell({
       {/* NAV-1 — "← <parent>" + Home under the page header (App's own row steps aside meanwhile). */}
       {hasHeader && <RouteNav placement="shell" />}
       <main
-        className="animate-float-up"
+        className={fadeIn ? "animate-float-up" : undefined}
         style={{
           // MOBILE-FIT-2: side gutter is 12 px on a phone (<= 480 px wide) and 20 px
           // from 488 px up (a linear step between) — clamp(), because an inline

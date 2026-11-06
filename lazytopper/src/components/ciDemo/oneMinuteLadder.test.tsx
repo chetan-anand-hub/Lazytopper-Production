@@ -9,7 +9,12 @@ import { resolve } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { setMatchMediaMatches } from "../../test/setup";
 
-const H = vi.hoisted(() => ({ track: vi.fn(), one: vi.fn() }));
+const H = vi.hoisted(() => ({ track: vi.fn(), one: vi.fn(), loaderImports: 0 }));
+// SPEED-SITE-1a-fu: count every import of the chapter-bank loader (pass-through, so behaviour is unchanged).
+vi.mock("../../data/bankChapters/loader", async (importOriginal) => {
+  H.loaderImports += 1;
+  return importOriginal<typeof import("../../data/bankChapters/loader")>();
+});
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
   return { ...actual, trackNamedEvent: (...a: unknown[]) => H.track(...a), trackOneMinute: (...a: unknown[]) => H.one(...a) };
@@ -278,5 +283,15 @@ describe("SPEED-SITE-1a — the ladder question is on the first frame", () => {
     const q = screen.getByTestId("one-min-question").textContent ?? "";
     expect(Object.values(STARTER_ROWS).map((r) => r.question)).toContain(q);
     expect(screen.getAllByTestId(/^one-min-opt-\d$/)).toHaveLength(4);
+  });
+
+  it("never imports the chapter-bank loader, even after the effects and a tap", async () => {
+    arrive({ landing: "/check-improve", utm_campaign: "yt_students" });
+    card();
+    await screen.findByTestId("one-min-ladder");
+    fireEvent.click(screen.getByTestId("one-min-opt-1"));
+    await screen.findByTestId("one-min-verdict");
+    await new Promise((r) => setTimeout(r, 50));
+    expect(H.loaderImports).toBe(0);
   });
 });
