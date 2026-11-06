@@ -1600,6 +1600,12 @@ const SETUP_STEP = /^\s*(?:\[[^\]]*\]\s*)?given\b|(?:^|[^\p{L}])\p{L}[\p{L}\p{N}
 /** A definition / meaning / nature question: its first line is its answer. */
 const DEFINITION_QUESTION =
   /\bwhat (?:is|are) (?:meant by|the meaning of)\b|\bdefine\b|\bdefinition of\b|\bwhat does\b[^?]{0,80}\bmean\b|\bmeaning of\b|\bnature of\b|\bnature and\b/i;
+/** SCI-3 (Exemplar, #1605 item 2 re-run): a bare "What is electrical resistivity?" asks for a definition too.
+ *  Only a short term with no article or possessive, so "What is the / its focal length?" stays computational. */
+const WHAT_IS_TERM = /(?:^|[.?!]\s+)what (?:is|are) (?!(?:the|an?|its|their|this|that|these|those|your|his|her)\b)[\p{L} -]{2,40}\?/iu;
+/** A computed value with a unit: "≈ 4.55 A", "= 20 cm". */
+const COMPUTED_WITH_UNIT = /[=≈]\s*[−–-]?\d+(?:\.\d+)?\s*([\p{L}Ω%]+)/gu;
+const UNIT_OF_OPTION = /^\s*[−–-]?\d+(?:\.\d+)?(?:\/\d+)?\s*([\p{L}Ω%]+)\s*$/u;
 /** Step 1 already answers a part: "(a) …", "(i) …". */
 const PART_ANSWER = /^\s*(?:\[[^\]]*\]\s*)?\((?:[a-e]|i{1,3}|iv|v)\)/i;
 const numbersIn = (s: string) => new Set((String(s).match(/\d+(?:\.\d+)?/g) ?? []).map(Number));
@@ -1627,6 +1633,7 @@ export function hintRevealsAnswer(q: {
   // #1605 review, item 2: a number in the question does not make it computational. A definition or
   // "nature of" question is answered by its first line ("refractive index 2.42 means …").
   if (DEFINITION_QUESTION.test(String(q.questionText ?? ""))) return true;
+  if (WHAT_IS_TERM.test(String(q.questionText ?? ""))) return true;
   // A solution of three steps or fewer: its first step is a third of the answer or more.
   if ((q.solutionSteps?.length ?? 0) <= 3) return true;
   // Step 1 already names a word of the final answer that the question does not ("concave").
@@ -1642,6 +1649,12 @@ export function hintRevealsAnswer(q: {
   const firstNums = numbersIn(stripStepMark(first));
   if (finalNums.some((n) => firstNums.has(n))) return true;
   if (/\banswer\b|\boption\s*\(?[a-e]\)?/i.test(first)) return true;
+  // SCI-3 (Exemplar MCQ): step 1 already computes the quantity the options are given in
+  // ("I = 1000 W / 220 V ≈ 4.55 A" against options in A): the rest is picking the option.
+  if (Array.isArray(q.options) && q.options.length > 0) {
+    const optionUnits = new Set(q.options.map((o) => UNIT_OF_OPTION.exec(String(o))?.[1]).filter(Boolean));
+    for (const m of stripStepMark(first).matchAll(COMPUTED_WITH_UNIT)) if (optionUnits.has(m[1])) return true;
+  }
   const hay = ` ${norm(first)} `;
   if (Array.isArray(q.options) && q.options.length > 0) {
     const key = norm(String(q.answer ?? ""));

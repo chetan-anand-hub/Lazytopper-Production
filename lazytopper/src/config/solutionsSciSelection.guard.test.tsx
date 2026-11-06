@@ -343,6 +343,11 @@ describe("(d) the Science pages render their rows, attempt-first, under their bo
     for (const id of ["CHEM-NCERT-1-VSA-002", "CHEM-NCERT-1-SA-012", "LIFE-NCERT-5-VSA-011", "LIFE-NCERT-5-VSA-013", "LIFE-NCERT-5-SA-005", "LIFE-NCERT-5-LONG-002"]) {
       expect(SOLUTIONS_SCI_LEDGER[id]?.status, id).toBe("hold");
     }
+    // Items 1-3 re-run over #1609 (Exemplar): "What is electrical resistivity?" is a definition question,
+    // and step 1 of the kettle MCQ already computes 4.55 A against options in A. Neither gets a hint.
+    for (const id of ["ELEC-EXMPLR-11-LA-002", "ELEC-EXMPLR-11-MCQ-016"]) {
+      expect(hintRevealsAnswer(getBankRows(["electricity"]).find((r) => r.id === id)!), id).toBe(true);
+    }
     // The named MCQs: no hint (step 1 names the answer), no step marks.
     for (const id of ["LIFE-NCERT-5-MCQ-001", "LIFE-NCERT-5-MCQ-002", "CHEM-NCERT-1-MCQ-003"]) {
       const q = getBankRows([id.startsWith("LIFE") ? "life-processes" : "chemical-reactions-and-equations"]).find((r) => r.id === id)!;
@@ -520,6 +525,16 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
     expect(def("What does 2.42 mean here?")).toBe(true);
     expect(def("What is the nature and power of the lens for a far point of 80 cm?")).toBe(true);
     expect(def("Find the speed of light in a medium of index 2.42.")).toBe(false);
+    // SCI-3: a bare "What is <term>?" is a definition; "What is the / its <quantity>?" stays computational.
+    expect(def("What is electrical resistivity? The ammeter reads 5 A.")).toBe(true);
+    expect(def("What is the focal length of a mirror of radius 20 cm?")).toBe(false);
+    expect(def("The radius of curvature is 20 cm. What is its focal length?")).toBe(false);
+    // SCI-3: on an MCQ, a step 1 that computes a value in the options' unit gives the option away.
+    const mcq = (first: string) =>
+      hintRevealsAnswer({ questionText: "A 1 kW kettle runs at 220 V. Fuse rating?", options: ["1 A", "2 A", "4 A", "5 A"], answer: "5 A",
+        solutionSteps: [first, "b", "c", "d"], finalAnswer: "Option (d)" });
+    expect(mcq("I = P/V = 1000 W / 220 V ≈ 4.55 A.")).toBe(true);
+    expect(mcq("I = P/V.")).toBe(false);
     expect(hintRevealsAnswer({ questionText: "Find R for 12 V and 2 A.", solutionSteps: ["Given: V = 12 V, I = 2 A.", "R = V/I"], finalAnswer: "6 Ω" })).toBe(true);
   });
   it("#1605 review, item 4: a title ending in '?' ends its own sentence (no '?.')", () => {
