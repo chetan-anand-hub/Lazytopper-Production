@@ -47,6 +47,12 @@ export interface PublishSafeRow {
   readonly id: string;
   /** Typed final answer that is ONE comparable value (+ unit). Absent = no verdict. */
   readonly verdict?: "value";
+  /**
+   * SOLUTIONS-SCI-2: the row's answer is a bound solution figure (an eye-checked NCERT crop or a
+   * computed ray diagram, `src/diagrams/registry`), shown in the solution. Set only by the Science
+   * selection script; the page renders <SolutionFigure> for these rows and no other.
+   */
+  readonly figure?: true;
 }
 
 export interface SolutionsChapter {
@@ -81,6 +87,7 @@ export const BOARD_PATTERN_HEADING = "CBSE board pattern: Assertion-Reason and c
 
 const v = (id: string): PublishSafeRow => ({ id, verdict: "value" });
 const r = (id: string): PublishSafeRow => ({ id });
+const f = (id: string): PublishSafeRow => ({ id, figure: true });
 
 export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
   {
@@ -834,6 +841,80 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     exemplar: [],
   },
   {
+    slug: "acids-bases-and-salts",
+    subject: "Science",
+    chapter: 2,
+    title: "Acids, Bases and Salts",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("ACID-NCERT-2-VSA-002"), // not one comparable value
+      r("ACID-NCERT-2-SA-001"), // not one comparable value
+      r("ACID-NCERT-2-SA-002"), // more than one value in the answer
+      r("ACID-NCERT-2-VSA-003"), // more than one value in the answer
+      r("ACID-NCERT-2-VSA-005"), // more than one value in the answer
+      r("ACID-NCERT-2-VSA-006"), // approximate / rounded key
+      r("ACID-NCERT-2-VSA-007"), // not one comparable value
+      r("ACID-NCERT-2-SA-003"), // more than one value in the answer
+      r("ACID-NCERT-2-VSA-008"), // more than one value in the answer
+      r("ACID-NCERT-2-VSA-009"), // asks for more than one value
+      r("ACID-NCERT-2-VSA-010"), // not one comparable value
+      r("ACID-NCERT-2-SA-004"), // not one comparable value
+      r("ACID-NCERT-2-VSA-014"), // not one comparable value
+      r("ACID-NCERT-2-MCQ-001"),
+      r("ACID-NCERT-2-MCQ-002"),
+      r("ACID-NCERT-2-MCQ-003"),
+      r("ACID-NCERT-2-MCQ-004"),
+      r("ACID-NCERT-2-SA-005"), // proof
+      r("ACID-NCERT-2-SA-006"), // multi-part
+      r("ACID-NCERT-2-VSA-017"), // asks for more than one value
+      r("ACID-NCERT-2-VSA-019"), // more than one value in the answer
+      r("ACID-NCERT-2-VSA-020"), // more than one value in the answer
+      r("ACID-NCERT-2-VSA-021"), // not one comparable value
+    ],
+    exemplar: [],
+  },
+  {
+    slug: "metals-and-non-metals",
+    subject: "Science",
+    chapter: 3,
+    title: "Metals and Non-metals",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("METAL-NCERT-3-VSA-001"), // multi-part
+      r("METAL-NCERT-3-VSA-005"), // not one comparable value
+      r("METAL-NCERT-3-MCQ-001"),
+      r("METAL-NCERT-3-MCQ-003"),
+      r("METAL-NCERT-3-VSA-009"), // more than one value in the answer
+      r("METAL-NCERT-3-VSA-010"), // more than one value in the answer
+      r("METAL-NCERT-3-SA-007"), // more than one value in the answer
+    ],
+    exemplar: [],
+  },
+  {
+    slug: "carbon-and-its-compounds",
+    subject: "Science",
+    chapter: 4,
+    title: "Carbon and its Compounds",
+    shortTitle: "Carbon Compounds",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("CARB-NCERT-4-VSA-002"), // more than one value in the answer
+      r("CARB-NCERT-4-VSA-004"), // more than one value in the answer
+      r("CARB-NCERT-4-VSA-005"), // more than one value in the answer
+      r("CARB-NCERT-4-MCQ-001"),
+      r("CARB-NCERT-4-MCQ-002"),
+      r("CARB-NCERT-4-MCQ-003"),
+      r("CARB-NCERT-4-SA-003"), // more than one value in the answer
+      r("CARB-NCERT-4-SA-004"), // more than one value in the answer
+      r("CARB-NCERT-4-VSA-012"), // asks for more than one value
+      r("CARB-NCERT-4-SA-005"), // a relation, not one value
+      r("CARB-NCERT-4-VSA-016"), // more than one value in the answer
+      r("CARB-NCERT-4-VSA-017"), // more than one value in the answer
+      r("CARB-NCERT-4-LONG-003"), // more than one value in the answer
+    ],
+    exemplar: [],
+  },
+  {
     slug: "life-processes",
     subject: "Science",
     chapter: 5,
@@ -855,6 +936,108 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     exemplar: [],
   },
   {
+    slug: "control-and-coordination",
+    subject: "Science",
+    chapter: 6,
+    title: "Control and Coordination",
+    shortTitle: "Control & Coordination",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("CTRL-NCERT-6-SA-003"), // not one comparable value
+      r("CTRL-NCERT-6-SA-004"), // more than one value in the answer
+      r("CTRL-NCERT-6-SA-008"), // not one comparable value
+      r("CTRL-NCERT-6-SA-009"), // more than one value in the answer
+      r("CTRL-NCERT-6-MCQ-001"),
+      r("CTRL-NCERT-6-MCQ-003"),
+      r("CTRL-NCERT-6-SA-012"), // not one comparable value
+    ],
+    exemplar: [],
+  },
+  {
+    slug: "how-do-organisms-reproduce",
+    subject: "Science",
+    chapter: 7,
+    title: "How do Organisms Reproduce?",
+    shortTitle: "Reproduction",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("REPR-NCERT-7-SA-001"), // more than one value in the answer
+      r("REPR-NCERT-7-SA-002"), // not one comparable value
+      r("REPR-NCERT-7-SA-006"), // more than one value in the answer
+      r("REPR-NCERT-7-SA-007"), // more than one value in the answer
+      r("REPR-NCERT-7-SA-011"), // more than one value in the answer
+      r("REPR-NCERT-7-MCQ-001"),
+      r("REPR-NCERT-7-MCQ-002"),
+      r("REPR-NCERT-7-SA-018"), // more than one value in the answer
+    ],
+    exemplar: [],
+  },
+  {
+    slug: "light-reflection-and-refraction",
+    subject: "Science",
+    chapter: 9,
+    title: "Light – Reflection and Refraction",
+    shortTitle: "Light",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("LIGHT-NCERT-9-SA-001"), // not one comparable value
+      r("LIGHT-NCERT-9-SA-002"), // sign convention: ± forms are both correct
+      r("LIGHT-NCERT-9-SA-003"), // more than one value in the answer
+      r("LIGHT-NCERT-9-SA-004"), // more than one value in the answer
+      r("LIGHT-NCERT-9-LA-001"), // more than one value in the answer
+      r("LIGHT-NCERT-9-LA-002"), // more than one value in the answer
+      r("LIGHT-NCERT-9-SA-005"), // not one comparable value
+      r("LIGHT-NCERT-9-SA-006"), // more than one value in the answer
+      r("LIGHT-NCERT-9-SA-007"), // not one comparable value
+      r("LIGHT-NCERT-9-SA-010"), // approximate / rounded key
+      r("LIGHT-NCERT-9-LA-004"), // asks for more than one value
+      r("LIGHT-NCERT-9-SA-011"), // more than one value in the answer
+      r("LIGHT-NCERT-9-LA-006"), // asks for more than one value
+      r("LIGHT-NCERT-9-SA-012"), // not one comparable value
+      r("LIGHT-NCERT-9-MCQ-001"),
+      r("LIGHT-NCERT-9-MCQ-002"),
+      r("LIGHT-NCERT-9-MCQ-003"),
+      r("LIGHT-NCERT-9-MCQ-004"),
+      r("LIGHT-NCERT-9-MCQ-005"),
+      r("LIGHT-NCERT-9-MCQ-006"),
+      f("LIGHT-NCERT-9-LA-007"), // answer shown with its bound solution figure
+      r("LIGHT-NCERT-9-LA-009"), // yes/no, true/false or verify, with reason
+      f("LIGHT-NCERT-9-LA-010"), // answer shown with its bound solution figure
+      f("LIGHT-NCERT-9-LA-011"), // answer shown with its bound solution figure
+      r("LIGHT-NCERT-9-LA-012"), // more than one value in the answer
+      r("LIGHT-NCERT-9-LA-013"), // more than one value in the answer
+      r("LIGHT-NCERT-9-LA-014"), // more than one value in the answer
+      r("LIGHT-NCERT-9-SA-014"), // more than one value in the answer
+      r("LIGHT-NCERT-9-SA-015"), // more than one value in the answer
+    ],
+    exemplar: [],
+  },
+  {
+    slug: "human-eye-and-colourful-world",
+    subject: "Science",
+    chapter: 10,
+    title: "The Human Eye and the Colourful World",
+    shortTitle: "Human Eye",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("EYE-NCERT-10-SA-001"), // not one comparable value
+      r("EYE-NCERT-10-SA-002"), // a relation, not one value
+      r("EYE-NCERT-10-SA-003"), // more than one value in the answer
+      r("EYE-NCERT-10-SA-004"), // not one comparable value
+      r("EYE-NCERT-10-MCQ-001"),
+      r("EYE-NCERT-10-MCQ-002"),
+      r("EYE-NCERT-10-MCQ-003"),
+      r("EYE-NCERT-10-MCQ-004"),
+      r("EYE-NCERT-10-SA-005"), // multi-part
+      r("EYE-NCERT-10-SA-006"), // more than one value in the answer
+      r("EYE-NCERT-10-SA-008"), // more than one value in the answer
+      r("EYE-NCERT-10-SA-010"), // more than one value in the answer
+      r("EYE-NCERT-10-SA-011"), // more than one value in the answer
+      r("EYE-NCERT-10-SA-012"), // more than one value in the answer
+    ],
+    exemplar: [],
+  },
+  {
     slug: "electricity",
     subject: "Science",
     chapter: 11,
@@ -863,16 +1046,16 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     ncert: [
       r("ELEC-NCERT-11-SA-001"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-003"), // approximate / rounded key
-      r("ELEC-NCERT-11-SA-004"), // not one comparable value
+      v("ELEC-NCERT-11-SA-004"), // Q = 300 C
       r("ELEC-NCERT-11-SA-005"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-007"), // not one comparable value
-      r("ELEC-NCERT-11-SA-008"), // not one comparable value
+      v("ELEC-NCERT-11-SA-008"), // W = 24 J
       r("ELEC-NCERT-11-SA-009"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-010"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-011"), // not one comparable value
       r("ELEC-NCERT-11-SA-014"), // multi-part
-      r("ELEC-NCERT-11-SA-015"), // not one comparable value
-      r("ELEC-NCERT-11-SA-016"), // not one comparable value
+      v("ELEC-NCERT-11-SA-015"), // I₂ = 8 A
+      v("ELEC-NCERT-11-SA-016"), // R₂ = 1 Ω
       r("ELEC-NCERT-11-LA-003"), // multi-part
       r("ELEC-NCERT-11-SA-018"), // multi-part
       r("ELEC-NCERT-11-LA-004"), // more than one value in the answer
@@ -882,8 +1065,8 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ELEC-NCERT-11-SA-021"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-022"), // not one comparable value
       r("ELEC-NCERT-11-SA-023"), // more than one value in the answer
-      r("ELEC-NCERT-11-SA-024"), // not one comparable value
-      r("ELEC-NCERT-11-SA-026"), // not one comparable value
+      v("ELEC-NCERT-11-SA-024"), // V = 20 V
+      v("ELEC-NCERT-11-SA-026"), // P = 110 W
       r("ELEC-NCERT-11-LA-010"), // not one comparable value
       r("ELEC-NCERT-11-MCQ-001"),
       r("ELEC-NCERT-11-MCQ-002"),
@@ -898,6 +1081,44 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ELEC-NCERT-11-LA-015"), // multi-part
       r("ELEC-NCERT-11-SA-032"), // approximate / rounded key
       r("ELEC-NCERT-11-SA-033"), // not one comparable value
+    ],
+    exemplar: [],
+  },
+  {
+    slug: "magnetic-effects-of-electric-current",
+    subject: "Science",
+    chapter: 12,
+    title: "Magnetic Effects of Electric Current",
+    shortTitle: "Magnetic Effects",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("MAG-NCERT-12-SA-002"), // not one comparable value
+      r("MAG-NCERT-12-MCQ-001"),
+      r("MAG-NCERT-12-SA-005"), // more than one value in the answer
+      r("MAG-NCERT-12-SA-006"), // approximate / rounded key
+      r("MAG-NCERT-12-SA-008"), // not one comparable value
+      r("MAG-NCERT-12-MCQ-005"),
+      r("MAG-NCERT-12-SA-009"), // yes/no, true/false or verify, with reason
+      r("MAG-NCERT-12-SA-010"), // more than one value in the answer
+      r("MAG-NCERT-12-SA-012"), // not one comparable value
+      r("MAG-NCERT-12-SA-013"), // more than one value in the answer
+      r("MAG-NCERT-12-SA-014"), // more than one value in the answer
+    ],
+    exemplar: [],
+  },
+  {
+    slug: "our-environment",
+    subject: "Science",
+    chapter: 13,
+    title: "Our Environment",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [
+      r("OE-NCERT-13-MCQ-001"),
+      r("OE-NCERT-13-MCQ-002"),
+      r("OE-NCERT-13-SA-008"), // more than one value in the answer
+      r("OE-NCERT-13-SA-009"), // more than one value in the answer
+      r("OE-NCERT-13-SA-010"), // more than one value in the answer
+      r("OE-NCERT-13-SA-013"), // more than one value in the answer
     ],
     exemplar: [],
   },

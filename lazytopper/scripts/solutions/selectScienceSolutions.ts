@@ -36,7 +36,7 @@ import {
   type SolutionsChapter,
 } from "../../src/config/solutionsPublishSafe";
 import { syllabusExclusion } from "../../src/lib/boardQuestions/selectionRule";
-import { correctOptionIndex } from "../../src/lib/solutions/compareAnswer";
+import { compareAnswer, correctOptionIndex, parseQuantity } from "../../src/lib/solutions/compareAnswer";
 import { getFiguresForQuestion } from "../../src/data/visualConceptRegistry";
 import { getSolutionFigures } from "../../src/diagrams/registry";
 import { WITHHELD_QUESTION_IDS } from "../../src/data/canonicalQuestionBank";
@@ -54,13 +54,24 @@ import {
   verdictEligibility,
   type Row,
   type SelectedRow,
+  type VerdictDecision,
 } from "./selectSolutions";
 
-/** The chapters this lane publishes (SOLUTIONS-SCI-1 pilot). */
+/** The chapters this lane publishes: SOLUTIONS-SCI-1 piloted Ch 1, 5, 11; SOLUTIONS-SCI-2 covers all 13. */
 export const SCIENCE_SOLUTIONS_SLUGS: readonly string[] = [
   "chemical-reactions-and-equations",
+  "acids-bases-and-salts",
+  "metals-and-non-metals",
+  "carbon-and-its-compounds",
   "life-processes",
+  "control-and-coordination",
+  "how-do-organisms-reproduce",
+  "heredity",
+  "light-reflection-and-refraction",
+  "human-eye-and-colourful-world",
   "electricity",
+  "magnetic-effects-of-electric-current",
+  "our-environment",
 ];
 
 export interface ScienceChapterSpec {
@@ -200,9 +211,10 @@ export function stepMarkingReason(q: Pick<Row, "marks" | "solutionSteps">): stri
     if (prefixed.length !== steps.length) return `${prefixed.length} of ${steps.length} steps carry a [N mark] prefix`;
     const sum = prefixed.reduce((a, m) => a + Number(m[1]), 0);
     if (Math.abs(sum - marks) > 1e-9) return `step marks sum to ${sum}, the question is worth ${marks}`;
-  } else if (marks > 1) {
-    return `${marks}-mark row without [N mark] step prefixes`;
   }
+  // SOLUTIONS-SCI-2: steps WITHOUT [N mark] prefixes are accepted when they meet the CBSE minimum
+  // count (the Maths bar and the brief: "solutionSteps matching CBSE step counts"); prefixes, when
+  // present, must cover every step and sum to the marks.
   return null;
 }
 
@@ -261,9 +273,13 @@ export function classifyScienceRow(
   if (syl) return out("syllabus", syl);
   if (q.requiresDiagram === true) return out("needs-figure", "requiresDiagram");
   if (getFiguresForQuestion(id).length > 0) return out("needs-figure", "a bound question figure the page does not render");
-  if (getSolutionFigures(id).length > 0) return out("needs-figure", "a bound solution figure the page does not render");
-  if (SCIENCE_NEEDS_FIGURE_TEXT.test(String(q.questionText ?? ""))) return out("needs-figure", "question refers to a figure/graph/drawing");
-  if ((q.solutionSteps ?? []).some((s) => NEEDS_FIGURE_STEPS.test(String(s)))) return out("needs-figure", "solution refers to a figure");
+  // SOLUTIONS-SCI-2: a row whose ANSWER is a bound solution figure (an NCERT crop or a computed ray
+  // diagram, each bound by its own lane after the labels were eye-checked) is shown WITH that figure
+  // (SolutionsPage renders <SolutionFigure> in the solution), so "draw a ray diagram" is not missing
+  // anything. A question figure the page cannot render still excludes the row (checked above).
+  const solutionFigure = getSolutionFigures(id).length > 0;
+  if (!solutionFigure && SCIENCE_NEEDS_FIGURE_TEXT.test(String(q.questionText ?? ""))) return out("needs-figure", "question refers to a figure/graph/drawing");
+  if (!solutionFigure && (q.solutionSteps ?? []).some((s) => NEEDS_FIGURE_STEPS.test(String(s)))) return out("needs-figure", "solution refers to a figure");
   const text = allText(q);
   if (text.includes(REPLACEMENT_CHAR)) return out("garbled", "U+FFFD");
   if (MOJIBAKE.test(text)) return out("garbled", "mojibake");
@@ -278,6 +294,31 @@ export function classifyScienceRow(
     if (correctOptionIndex(String(q.answer ?? ""), q.options) === null) return out("mcq-key-ambiguous", String(q.answer));
   }
   return out(null);
+}
+
+/**
+ * Chapters whose numerical answers follow the NCERT New Cartesian sign convention: "f = 10 cm" and
+ * "f = −10 cm" are BOTH correct answers for a concave mirror, and compareAnswer would mark the signed
+ * one wrong. So no typed ✓/✗ there, ever ("never mark a correct student wrong; when in doubt, none").
+ */
+export const SIGN_CONVENTION_SLUGS: ReadonlySet<string> = new Set(["light-reflection-and-refraction", "human-eye-and-colourful-world"]);
+
+export function signConventionVerdict(slug: string, v: VerdictDecision): VerdictDecision {
+  return v.verdict && SIGN_CONVENTION_SLUGS.has(slug) ? { verdict: false, why: "sign convention: ± forms are both correct" } : v;
+}
+
+/**
+ * SOLUTIONS-SCI-2 + #1604: the Maths opt-in rules (verdictEligibility: no proof, multi-part,
+ * multi-value, relation, approximation, ratio), then the key must be ONE SI quantity that compares
+ * to itself in compareAnswer's opt-in Science mode ("I = 0.5 A", "R = 15 Ω", "9.6 kWh").
+ */
+export function scienceVerdictEligibility(q: Row): VerdictDecision {
+  const v = verdictEligibility(q);
+  if (v.verdict || (v.why !== "not one comparable value" && v.why !== "key does not compare to itself")) return v;
+  const key = String(q.finalAnswer ?? "").trim();
+  if (!parseQuantity(key, "science")) return v;
+  if (compareAnswer(key, key, "science").verdict !== "right") return { verdict: false, why: "key does not compare to itself" };
+  return { verdict: true, why: key };
 }
 
 const dupKey = (s: string) => fold(s).replace(/[^a-z0-9]+/g, "");
@@ -334,7 +375,7 @@ export function selectScienceChapter(
       sel.excluded.push({ ...c, reason: "unverified", detail: "content changed since verification (hash)" });
       continue;
     }
-    const code = verdictEligibility(q);
+    const code = signConventionVerdict(spec.slug, scienceVerdictEligibility(q));
     const v = l.status === "no-verdict" && code.verdict ? { verdict: false, why: "verifier: not one value" } : code;
     sel.ncert.push({ id: q.id, verdict: v.verdict, note: rowNote(q, v) });
   }
@@ -422,7 +463,11 @@ export function emitScienceBlock(selections: readonly ScienceChapterSelection[])
       const short = scienceShortTitle(s);
       checkHeads(s, short);
       const rows = s.ncert
-        .map((r) => `      ${r.verdict ? "v" : "r"}(${JSON.stringify(r.id)}),${r.note ? ` // ${commentSafe(r.note)}` : ""}`)
+        .map((r) => {
+          const ctor = r.verdict ? "v" : getSolutionFigures(r.id).length > 0 ? "f" : "r";
+          const note = ctor === "f" ? "answer shown with its bound solution figure" : r.note;
+          return `      ${ctor}(${JSON.stringify(r.id)}),${note ? ` // ${commentSafe(note)}` : ""}`;
+        })
         .join("\n");
       return [
         "  {",
