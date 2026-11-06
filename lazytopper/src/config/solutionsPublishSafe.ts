@@ -815,29 +815,21 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     subject: "Science",
     chapter: 1,
     title: "Chemical Reactions and Equations",
+    shortTitle: "Chemical Reactions",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
       r("CHEM-NCERT-1-VSA-001"), // not one comparable value
-      r("CHEM-NCERT-1-SA-001"), // multi-part
       r("CHEM-NCERT-1-SA-003"), // multi-part
       r("CHEM-NCERT-1-VSA-002"), // more than one value in the answer
       r("CHEM-NCERT-1-VSA-003"), // more than one value in the answer
       r("CHEM-NCERT-1-VSA-004"), // not one comparable value
       r("CHEM-NCERT-1-MCQ-002"),
       r("CHEM-NCERT-1-MCQ-003"),
-      r("CHEM-NCERT-1-SA-005"), // not one comparable value
       r("CHEM-NCERT-1-SA-007"), // multi-part
-      r("CHEM-NCERT-1-LONG-001"), // multi-part
-      r("CHEM-NCERT-1-SA-009"), // not one comparable value
-      r("CHEM-NCERT-1-SA-010"), // not one comparable value
-      r("CHEM-NCERT-1-SA-011"), // more than one value in the answer
       r("CHEM-NCERT-1-SA-012"), // not one comparable value
-      r("CHEM-NCERT-1-SA-013"), // not one comparable value
       r("CHEM-NCERT-1-VSA-005"), // not one comparable value
       r("CHEM-NCERT-1-SA-014"), // not one comparable value
-      r("CHEM-NCERT-1-LONG-002"), // multi-part
       r("CHEM-NCERT-1-VSA-006"), // more than one value in the answer
-      r("CHEM-NCERT-1-VSA-007"), // more than one value in the answer
     ],
     exemplar: [],
   },
@@ -849,28 +841,16 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
       r("LIFE-NCERT-5-SA-001"), // not one comparable value
-      r("LIFE-NCERT-5-VSA-002"), // more than one value in the answer
-      r("LIFE-NCERT-5-VSA-003"), // more than one value in the answer
-      r("LIFE-NCERT-5-SA-002"), // more than one value in the answer
-      r("LIFE-NCERT-5-VSA-005"), // more than one value in the answer
-      r("LIFE-NCERT-5-VSA-007"), // more than one value in the answer
-      r("LIFE-NCERT-5-SA-003"), // more than one value in the answer
-      r("LIFE-NCERT-5-SA-004"), // more than one value in the answer
       r("LIFE-NCERT-5-SA-005"), // not one comparable value
       r("LIFE-NCERT-5-VSA-011"), // more than one value in the answer
       r("LIFE-NCERT-5-VSA-013"), // more than one value in the answer
       r("LIFE-NCERT-5-MCQ-001"),
       r("LIFE-NCERT-5-MCQ-002"),
       r("LIFE-NCERT-5-MCQ-003"),
-      r("LIFE-NCERT-5-MCQ-004"),
       r("LIFE-NCERT-5-SA-006"), // not one comparable value
-      r("LIFE-NCERT-5-VSA-017"), // not one comparable value
       r("LIFE-NCERT-5-SA-007"), // more than one value in the answer
-      r("LIFE-NCERT-5-LONG-001"), // more than one value in the answer
       r("LIFE-NCERT-5-SA-008"), // a relation, not one value
-      r("LIFE-NCERT-5-VSA-018"), // more than one value in the answer
       r("LIFE-NCERT-5-LONG-002"), // more than one value in the answer
-      r("LIFE-NCERT-5-SA-009"), // more than one value in the answer
     ],
     exemplar: [],
   },
@@ -882,11 +862,9 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
       r("ELEC-NCERT-11-SA-001"), // more than one value in the answer
-      r("ELEC-NCERT-11-SA-002"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-003"), // approximate / rounded key
       r("ELEC-NCERT-11-SA-004"), // not one comparable value
       r("ELEC-NCERT-11-SA-005"), // more than one value in the answer
-      r("ELEC-NCERT-11-SA-006"), // a relation, not one value
       r("ELEC-NCERT-11-SA-007"), // not one comparable value
       r("ELEC-NCERT-11-SA-008"), // not one comparable value
       r("ELEC-NCERT-11-SA-009"), // more than one value in the answer
@@ -895,7 +873,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ELEC-NCERT-11-SA-014"), // multi-part
       r("ELEC-NCERT-11-SA-015"), // not one comparable value
       r("ELEC-NCERT-11-SA-016"), // not one comparable value
-      r("ELEC-NCERT-11-LA-002"), // more than one value in the answer
       r("ELEC-NCERT-11-LA-003"), // multi-part
       r("ELEC-NCERT-11-SA-018"), // multi-part
       r("ELEC-NCERT-11-LA-004"), // more than one value in the answer
@@ -906,25 +883,21 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ELEC-NCERT-11-SA-022"), // not one comparable value
       r("ELEC-NCERT-11-SA-023"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-024"), // not one comparable value
-      r("ELEC-NCERT-11-SA-025"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-026"), // not one comparable value
       r("ELEC-NCERT-11-LA-010"), // not one comparable value
       r("ELEC-NCERT-11-MCQ-001"),
       r("ELEC-NCERT-11-MCQ-002"),
       r("ELEC-NCERT-11-MCQ-003"),
       r("ELEC-NCERT-11-MCQ-004"),
-      r("ELEC-NCERT-11-SA-027"), // more than one value in the answer
       r("ELEC-NCERT-11-LA-011"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-028"), // more than one value in the answer
       r("ELEC-NCERT-11-SA-029"), // approximate / rounded key
       r("ELEC-NCERT-11-SA-030"), // not one comparable value
       r("ELEC-NCERT-11-LA-013"), // multi-part
       r("ELEC-NCERT-11-SA-031"), // approximate / rounded key
-      r("ELEC-NCERT-11-LA-014"), // more than one value in the answer
       r("ELEC-NCERT-11-LA-015"), // multi-part
       r("ELEC-NCERT-11-SA-032"), // approximate / rounded key
       r("ELEC-NCERT-11-SA-033"), // not one comparable value
-      r("ELEC-NCERT-11-LA-016"), // multi-part
     ],
     exemplar: [],
   },
@@ -1007,8 +980,13 @@ export function solutionsHeadTitle(book: SolutionsBook, ch: SolutionsChapter): s
     `${BOOK_SHORT[book]} Class 10 Ch ${n} ${ch.title}`,
     `${BOOK_SHORT[book]} Ch ${n} ${ch.title}`,
     `${BOOK_SHORT[book]} Class 10 Ch ${n} ${s}`,
+    // SOLUTIONS-SCI: reached only when nothing above fits (never for a Maths page on trunk).
+    `${BOOK_SHORT[book]} Class 10 ${ch.subject} Ch ${n} ${s}`,
   ];
-  const fit = ladder.find((t) => t.length <= SOLUTIONS_HEAD_TITLE_CAP);
+  // SOLUTIONS-SCI-1 review: a Science head title always says "Class 10 Science" (a shorter title,
+  // never a dropped subject). Maths keeps its ladder unchanged.
+  const forms = ch.subject === "Science" ? ladder.filter((t) => t.includes(` Class 10 ${ch.subject} `)) : ladder;
+  const fit = forms.find((t) => t.length <= SOLUTIONS_HEAD_TITLE_CAP);
   if (!fit) throw new Error(`solutions: no head title for ${solutionsPath(book, ch.slug)} fits ${SOLUTIONS_HEAD_TITLE_CAP} characters`);
   return fit;
 }
@@ -1188,4 +1166,86 @@ export function scienceGroups<T extends { q: { ncertRef?: string } }>(rows: read
       rows: keyed.filter((k) => k.r.kind === kind).sort((a, b) => cmp(a.r, b.r)).map((k) => k.row),
     }))
     .filter((g) => g.rows.length > 0);
+}
+
+// ---------------------------------------------------------------------------------------------
+// SOLUTIONS-SCI-1 review (6 Nov 2026) — two page rules for SCIENCE pages only (the Maths pages and
+// their prerender stay byte-identical):
+//   (1) an objective row (MCQ / 1 mark) is 0 or full marks (CLAUDE.md §13), so its steps are shown
+//       WITHOUT "[N mark]" prefixes;
+//   (2) the hint (step 1) is offered only when it does not give the answer away.
+// ---------------------------------------------------------------------------------------------
+
+const STEP_MARK_PREFIX = /^\s*\[\s*\d+(?:\.\d+)?\s*marks?\s*\]\s*/i;
+
+/** A step without its leading "[N mark]" prefix. */
+export function stripStepMark(step: string): string {
+  return String(step).replace(STEP_MARK_PREFIX, "");
+}
+
+/** MCQ or a 1-mark item: scored 0 or full on the answer alone. */
+export function isObjectiveRow(q: { options?: readonly string[]; marks?: number }): boolean {
+  return (Array.isArray(q.options) && q.options.length > 0) || Number(q.marks) === 1;
+}
+
+const norm = (s: string) =>
+  stripStepMark(String(s ?? ""))
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+const STOP = new Set(["the", "and", "for", "are", "was", "with", "from", "that", "this", "its", "into", "has", "have", "which", "when", "than", "then", "only"]);
+const contentWords = (s: string) => norm(s).split(" ").filter((w) => w.length >= 3 && !STOP.has(w));
+
+/** Step 1 is a SETUP (a nudge): the given data, or a formula / law written with a symbol ("V = IR", "R ∝ l"). */
+const SETUP_STEP = /^\s*(?:\[[^\]]*\]\s*)?given\b|(?:^|[^\p{L}])\p{L}[\p{L}\p{N}_₀-₉ᵢ']{0,3}\s*[=∝]/iu;
+/** Step 1 already answers a part: "(a) …", "(i) …". */
+const PART_ANSWER = /^\s*(?:\[[^\]]*\]\s*)?\((?:[a-e]|i{1,3}|iv|v)\)/i;
+const numbersIn = (s: string) => new Set((String(s).match(/\d+(?:\.\d+)?/g) ?? []).map(Number));
+
+/**
+ * True when step 1 must NOT be offered as a hint (Science pages; review of #1602: "hints never
+ * reveal"). A hint is offered only on a COMPUTATIONAL question (it gives numbers), when step 1 is a
+ * SETUP (given data, or a formula / law) that does
+ * not start a part's answer, names no answer or option, does not contain the correct option (or its
+ * word stems), the final answer, most of the final answer's words, or a final-answer number that the
+ * question itself does not contain. Theory rows, whose step 1 is always content, get no hint.
+ */
+export function hintRevealsAnswer(q: {
+  solutionSteps?: readonly string[];
+  options?: readonly string[];
+  answer?: string;
+  finalAnswer?: string;
+  questionText?: string;
+}): boolean {
+  const first = String(q.solutionSteps?.[0] ?? "");
+  if (!first.trim()) return true;
+  // Only a COMPUTATIONAL question (it gives numbers) gets a setup hint: on a conceptual question the
+  // law in step 1 ("R ∝ l", "P = VI = I²R") IS the answer.
+  if (!/\d/.test(String(q.questionText ?? ""))) return true;
+  if (!SETUP_STEP.test(first) || PART_ANSWER.test(first)) return true;
+  const asked = numbersIn(String(q.questionText ?? ""));
+  const finalNums = [...numbersIn(String(q.finalAnswer ?? ""))].filter((n) => !asked.has(n));
+  const firstNums = numbersIn(stripStepMark(first));
+  if (finalNums.some((n) => firstNums.has(n))) return true;
+  if (/\banswer\b|\boption\s*\(?[a-e]\)?/i.test(first)) return true;
+  const hay = ` ${norm(first)} `;
+  if (Array.isArray(q.options) && q.options.length > 0) {
+    const key = norm(String(q.answer ?? ""));
+    if (key && hay.includes(` ${key} `)) return true;
+    // Word stems too: "excretory system" gives away the option "excretion".
+    const stem = (w: string) => w.slice(0, Math.max(5, Math.min(w.length - 2, 7)));
+    const keyWords = contentWords(String(q.answer ?? ""));
+    const firstStems = contentWords(first).map(stem);
+    if (keyWords.length > 0 && keyWords.every((w) => firstStems.some((f) => f.startsWith(stem(w)) || stem(w).startsWith(f)))) return true;
+  }
+  const fin = norm(String(q.finalAnswer ?? "").replace(/\s*[—-]\s*option\s*\([a-e]\)\s*$/i, ""));
+  if (fin && hay.includes(` ${fin} `)) return true;
+  const words = [...new Set(contentWords(String(q.finalAnswer ?? "")))];
+  if (words.length > 0) {
+    const have = new Set(contentWords(first));
+    const shared = words.filter((w) => have.has(w)).length;
+    if (shared / words.length >= 0.6) return true;
+  }
+  return false;
 }

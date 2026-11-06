@@ -8,14 +8,20 @@ import SolutionsPage from "../pages/SolutionsPage";
 import {
   SOLUTIONS_CHAPTERS,
   booksOf,
+  boardPatternRows,
   hasBook,
+  hintRevealsAnswer,
+  isObjectiveRow,
   parseScienceRef,
   publishedRows,
   scienceGroups,
   scienceRefLabel,
+  solutionsChapter,
+  solutionsHeadTitle,
   solutionsPath,
   solutionsPaths,
   solutionsTitle,
+  stripStepMark,
 } from "./solutionsPublishSafe";
 import { SOLUTIONS_SCI_LEDGER } from "./solutionsSciLedger";
 import { NCERT_CLASS10_CHAPTERS } from "./ncertBooks";
@@ -65,6 +71,7 @@ const SCI = SOLUTIONS_CHAPTERS.filter((c) => c.subject === "Science");
 let selections: ScienceChapterSelection[] = [];
 beforeAll(async () => {
   await ensureBankSubject("Science");
+  await ensureBankSubject("Maths"); // the Maths-parity check renders the Triangles page
   selections = await selectAllScience();
 }, 120_000);
 
@@ -135,7 +142,7 @@ describe("(c) every published Science row is served, verified, and passes every 
         if (safe.verdict === "value") expect(verdictEligibility(q as Row).verdict, q.id).toBe(true);
       }
     }
-    expect(seen.size).toBe(88);
+    expect(seen.size).toBe(60);
     expect(mcq).toBeGreaterThan(0);
   });
   it("no ledger hold / ref-mismatch id is published, and each hold says why", () => {
@@ -148,6 +155,14 @@ describe("(c) every published Science row is served, verified, and passes every 
     }
     // The 2026-27 reprint's Exercise Q17 reads 44 Ω / 5 A; the bank row still has the older data.
     expect(SOLUTIONS_SCI_LEDGER["ELEC-NCERT-11-SA-034"].status).toBe("hold");
+    // Review of #1602 (6 Nov): the named defects are held, never published.
+    for (const id of [
+      "CHEM-NCERT-1-SA-009", "CHEM-NCERT-1-LONG-001", "ELEC-NCERT-11-LA-002", "CHEM-NCERT-1-SA-001", "CHEM-NCERT-1-LONG-002",
+      "LIFE-NCERT-5-SA-002", "LIFE-NCERT-5-SA-009", "LIFE-NCERT-5-SA-004", "LIFE-NCERT-5-LONG-001", "LIFE-NCERT-5-MCQ-004",
+    ]) {
+      expect(SOLUTIONS_SCI_LEDGER[id]?.status, id).toBe("hold");
+      expect(published.has(id), id).toBe(false);
+    }
   });
   it("the per-chapter selection is the recorded one (published / held / excluded by rule)", () => {
     const counts = selections.map((s) => {
@@ -156,9 +171,9 @@ describe("(c) every published Science row is served, verified, and passes every 
       return [s.spec.slug, s.ncert.length, by];
     });
     expect(counts).toEqual([
-      ["chemical-reactions-and-equations", 21, { "source-others": 1, held: 4, "exemplar-unverified": 43 }],
-      ["life-processes", 23, { held: 11, "exemplar-unverified": 81 }],
-      ["electricity", 44, { "needs-figure": 4, "source-others": 2, syllabus: 1, held: 3, "exemplar-unverified": 35 }],
+      ["chemical-reactions-and-equations", 12, { held: 13, "source-others": 1, "exemplar-unverified": 43 }],
+      ["life-processes", 11, { held: 23, "exemplar-unverified": 81 }],
+      ["electricity", 37, { held: 10, "needs-figure": 4, "source-others": 2, syllabus: 1, "exemplar-unverified": 35 }],
     ]);
   });
 });
@@ -201,6 +216,37 @@ describe("(d) the Science pages render their rows, attempt-first, under their bo
       expect(html).not.toMatch(/Mathematics|Exemplar Problems/);
     });
   }
+  it("review of #1602: every Science head title says 'Class 10 Science'; Ch 1 uses its short title", () => {
+    for (const ch of SCI) expect(solutionsHeadTitle("ncert", ch), ch.slug).toContain("Class 10 Science");
+    expect(solutionsHeadTitle("ncert", solutionsChapter("chemical-reactions-and-equations")!)).toBe(
+      "NCERT Solutions Class 10 Science Ch 1 Chemical Reactions",
+    );
+  });
+  it("review of #1602: objective rows show no [N mark]; no hint gives the answer away (Science pages)", () => {
+    for (const ch of SCI) {
+      const html = render(solutionsPath("ncert", ch.slug));
+      for (const { q } of publishedRows(getBankRows([ch.slug]), ch, "ncert")) {
+        const a = q.id.toLowerCase();
+        const card = html.slice(html.indexOf(`data-testid="ncs-q-${a}"`));
+        const cardEnd = card.indexOf("</article>");
+        const body = card.slice(0, cardEnd);
+        if (isObjectiveRow(q)) expect(body, q.id).not.toMatch(/\[\s*\d+(?:\.\d+)?\s*marks?\s*\]/i);
+        expect(body.includes(`data-testid="ncs-hint-${a}"`), q.id).toBe(!hintRevealsAnswer(q));
+      }
+    }
+    // The named MCQs: no hint (step 1 names the answer), no step marks.
+    for (const id of ["LIFE-NCERT-5-MCQ-001", "LIFE-NCERT-5-MCQ-002", "CHEM-NCERT-1-MCQ-003"]) {
+      const q = getBankRows([id.startsWith("LIFE") ? "life-processes" : "chemical-reactions-and-equations"]).find((r) => r.id === id)!;
+      expect(hintRevealsAnswer(q), id).toBe(true);
+    }
+  });
+  it("Maths pages are untouched by the Science-only page rules (hint offered from step 1 as before)", () => {
+    const tri = solutionsChapter("triangles")!;
+    const html = render(solutionsPath("ncert", "triangles"));
+    const hints = [...html.matchAll(/data-testid="ncs-hint-/g)].length;
+    const rows = publishedRows(getBankRows(["triangles"]), tri, "ncert").filter(({ q }) => (q.solutionSteps ?? []).length > 0);
+    expect(hints).toBe(rows.length + boardPatternRows(getBankRows(["triangles"]), tri, "ncert").length);
+  });
   it("an unknown Science book page is not a page (no Exemplar Science URL)", () => {
     expect(render("/ncert-exemplar/electricity")).not.toContain("ncert-solutions-page");
   });
@@ -324,6 +370,26 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
       ["Worked examples", ["Example 11.2", "Example 11.10"]],
       ["Chapter-end exercises", ["Exercise Q2", "Exercise Q10"]],
     ]);
+  });
+  it("page-rule helpers: strip only a leading step mark; hint reveal detector", () => {
+    expect(stripStepMark("[0.5 mark] Kidneys remove wastes.")).toBe("Kidneys remove wastes.");
+    expect(stripStepMark("[1 mark] x [1 mark]")).toBe("x [1 mark]");
+    expect(stripStepMark("No mark here.")).toBe("No mark here.");
+    expect(isObjectiveRow({ options: ["a", "b"], marks: 1 })).toBe(true);
+    expect(isObjectiveRow({ marks: 1 })).toBe(true);
+    expect(isObjectiveRow({ marks: 3 })).toBe(false);
+    const opts = ["nutrition", "respiration", "excretion", "transportation"];
+    expect(hintRevealsAnswer({ options: opts, answer: "excretion", solutionSteps: ["Kidneys belong to the excretion system."] })).toBe(true);
+    // A theory nudge is still not a SETUP step: Science theory rows get no hint at all.
+    expect(hintRevealsAnswer({ options: opts, answer: "excretion", solutionSteps: ["Think about what the kidneys remove from blood."] })).toBe(true);
+    expect(hintRevealsAnswer({ options: ["1/25", "1/5", "5", "25"], answer: "25", questionText: "Wire R is cut into 5 equal parts joined in parallel; R/R' is", solutionSteps: ["Each part has resistance r = R/5."] })).toBe(false);
+    expect(hintRevealsAnswer({ finalAnswer: "300 C", questionText: "0.5 A for 10 minutes. Find the charge.", solutionSteps: ["Given: I = 0.5 A, t = 600 s."] })).toBe(false);
+    expect(hintRevealsAnswer({ finalAnswer: "300 C", questionText: "0.5 A for 10 minutes.", solutionSteps: ["Q = It = 300 C."] })).toBe(true);
+    expect(hintRevealsAnswer({ finalAnswer: "(a) 4 Ω (b) 1 Ω", questionText: "Get 4 Ω and 1 Ω from 3 Ω and 6 Ω.", solutionSteps: ["(a) R' = 3×6/9 = 2 Ω"] })).toBe(true);
+    expect(hintRevealsAnswer({ options: opts, answer: "excretion", solutionSteps: ["… Answer: (C)"] })).toBe(true);
+    expect(hintRevealsAnswer({ finalAnswer: "6 Ω", questionText: "12 V drives 2 A. Find R.", solutionSteps: ["Use V = IR."] })).toBe(false);
+    expect(hintRevealsAnswer({ finalAnswer: "A continuous closed conducting path for current.", solutionSteps: ["An electric circuit is a continuous closed conducting path for current."] })).toBe(true);
+    expect(hintRevealsAnswer({ finalAnswer: "x", solutionSteps: [] })).toBe(true);
   });
   it("hasBook: no Science chapter has an Exemplar book", () => {
     for (const ch of SCI) expect(hasBook(ch, "exemplar")).toBe(false);

@@ -14,10 +14,13 @@ import {
   boardPatternRows,
   bookChapterNo,
   hasBook,
+  hintRevealsAnswer,
+  isObjectiveRow,
   parseSolutionsPath,
   publishedRows,
   scienceGroups,
   scienceRefLabel,
+  stripStepMark,
   solutionsBookName,
   solutionsChapter,
   solutionsPath,
@@ -126,10 +129,23 @@ export function optionText(opt: string, i: number): string {
  * (SOLUTIONS-3) shows the FORMAT ("CBSE board pattern · Assertion-Reason"), never the row's ncertRef,
  * so no board-pattern row reads as a numbered NCERT / Exemplar question.
  */
-function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: PublishSafeRow; refLabel?: string }) {
+function QuestionCard({
+  q,
+  safe,
+  refLabel,
+  science = false,
+}: {
+  q: CanonicalQuestion;
+  safe: PublishSafeRow;
+  refLabel?: string;
+  /** SOLUTIONS-SCI review: Science pages hide step marks on objective rows and never show a revealing hint. */
+  science?: boolean;
+}) {
   const anchor = anchorOf(q.id);
   const options = Array.isArray(q.options) ? q.options : null;
-  const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps : [];
+  const rawSteps = Array.isArray(q.solutionSteps) ? q.solutionSteps : [];
+  const steps = science && isObjectiveRow(q) ? rawSteps.map((s) => stripStepMark(String(s))) : rawSteps;
+  const offerHint = steps.length > 0 && !(science && hintRevealsAnswer(q));
   const key = String(q.finalAnswer ?? q.answer ?? "");
   const correct = options ? correctOptionIndex(String(q.answer ?? ""), options) : null;
 
@@ -228,7 +244,7 @@ function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: Publi
         </form>
       )}
 
-      {!attempted && steps.length > 0 && (
+      {!attempted && offerHint && (
         <div className="lt-ncs__hintbox">
           <button
             type="button"
@@ -354,7 +370,13 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           <section key={g.title} className="lt-ncs__group" aria-label={g.title}>
             <h2>{g.title}</h2>
             {g.rows.map(({ q, safe }) => (
-              <QuestionCard key={q.id} q={q} safe={safe} refLabel={science ? scienceRefLabel(q.ncertRef) ?? undefined : undefined} />
+              <QuestionCard
+                key={q.id}
+                q={q}
+                safe={safe}
+                refLabel={science ? scienceRefLabel(q.ncertRef) ?? undefined : undefined}
+                science={science}
+              />
             ))}
           </section>
         ))}

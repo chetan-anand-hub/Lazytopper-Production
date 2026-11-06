@@ -359,6 +359,40 @@ export const SOLUTIONS_SCI_DECISION = "SOLUTIONS-SCI (owner 6 Nov)";
 
 const commentSafe = (s: string) => s.replace(/\*\//g, "* /");
 
+/**
+ * Shorter chapter names, used ONLY when the full NCERT title would push "Class 10 Science" out of
+ * the 60-character head title (SOLUTIONS-SCI-1 review: every Science head title says "Class 10
+ * Science"). Each is a plain contraction of the NCERT title, never a different topic.
+ */
+export const SCIENCE_SHORT_TITLES: Readonly<Record<string, readonly string[]>> = {
+  "chemical-reactions-and-equations": ["Chemical Reactions"],
+  "acids-bases-and-salts": ["Acids, Bases & Salts", "Acids Bases Salts"],
+  "metals-and-non-metals": ["Metals & Non-metals"],
+  "carbon-and-its-compounds": ["Carbon Compounds"],
+  "control-and-coordination": ["Control & Coordination", "Coordination"],
+  "how-do-organisms-reproduce": ["Reproduction"],
+  "light-reflection-and-refraction": ["Light"],
+  "human-eye-and-colourful-world": ["Human Eye"],
+  "magnetic-effects-of-electric-current": ["Magnetic Effects"],
+};
+
+// The NCERT page's head title (SOLUTIONS-SCI publishes no Science Exemplar page yet).
+// (solutionsHeadTitle keeps only "Class 10 Science" forms for Science and throws when none fits.)
+const headSaysClass10Science = (ch: SolutionsChapter) => {
+  try {
+    return solutionsHeadTitle("ncert", ch).includes("Class 10 Science");
+  } catch {
+    return false;
+  }
+};
+
+/** The shortTitle a chapter needs (undefined when its full title already fits with "Class 10 Science"). */
+export function scienceShortTitle(s: ScienceChapterSelection): string | undefined {
+  if (headSaysClass10Science(asChapter(s))) return undefined;
+  for (const t of SCIENCE_SHORT_TITLES[s.spec.slug] ?? []) if (headSaysClass10Science(asChapter(s, t))) return t;
+  throw new Error(`selectScienceSolutions: no head title for ${s.spec.slug} says "Class 10 Science" within 60 characters`);
+}
+
 function asChapter(s: ScienceChapterSelection, shortTitle?: string): SolutionsChapter {
   return {
     slug: s.spec.slug,
@@ -373,8 +407,8 @@ function asChapter(s: ScienceChapterSelection, shortTitle?: string): SolutionsCh
 }
 
 /** Throws when no head title / description fits with the full title (the ladders have shorter forms first). */
-function checkHeads(s: ScienceChapterSelection): void {
-  const ch = asChapter(s);
+function checkHeads(s: ScienceChapterSelection, shortTitle?: string): void {
+  const ch = asChapter(s, shortTitle);
   for (const b of booksOf(ch)) {
     solutionsHeadTitle(b, ch);
     solutionsHeadDescription(b, ch);
@@ -385,7 +419,8 @@ export function emitScienceBlock(selections: readonly ScienceChapterSelection[])
   const parts = selections
     .filter((s) => s.ncert.length > 0)
     .map((s) => {
-      checkHeads(s);
+      const short = scienceShortTitle(s);
+      checkHeads(s, short);
       const rows = s.ncert
         .map((r) => `      ${r.verdict ? "v" : "r"}(${JSON.stringify(r.id)}),${r.note ? ` // ${commentSafe(r.note)}` : ""}`)
         .join("\n");
@@ -395,6 +430,7 @@ export function emitScienceBlock(selections: readonly ScienceChapterSelection[])
         '    subject: "Science",',
         `    chapter: ${s.spec.chapter},`,
         `    title: ${JSON.stringify(s.spec.title)},`,
+        ...(short ? [`    shortTitle: ${JSON.stringify(short)},`] : []),
         `    decision: ${JSON.stringify(SOLUTIONS_SCI_DECISION)},`,
         `    ncert: [\n${rows}\n    ],`,
         "    exemplar: [],",
