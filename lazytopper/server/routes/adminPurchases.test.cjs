@@ -286,3 +286,106 @@ test('PARENT-PACKS-1 M2: a paid pack order the student already had is flagged "d
   assert.equal(e.flag, undefined);
   assert.doesNotMatch(JSON.stringify(res.body), /refund/i);
 });
+
+// ── GUEST-ABANDON-1: signed-out checkouts in abandoned; unclaimed guest money in the totals ───────────────────────────
+test('GUEST-ABANDON-1 abandoned: a "Who will use it?" order and a phone-guest order appear MASKED; paid / claimed never', async () => {
+  const HOUR = 3600000;
+  const orders = [
+    created('who', null, 'till_boards', 1917, 2 * HOUR, { payer: 'guest', checkoutWho: true, payerType: 'signed_out', guestPhone: '+919876543948', guestEmail: 'anaya.k@gmail.com' }),
+    created('ph', null, 'pack_mock', 99, 3 * HOUR, { payer: 'guest', guestPhone: '+917012345678', packTarget: 'maths' }),
+    created('young', null, 'till_boards', 1917, 10 * MIN, { payer: 'guest', checkoutWho: true, guestEmail: 'y@gmail.com' }),
+    { id: 'gpaid', data: { uid: null, payer: 'guest', guestPhone: '+917012345678', passType: 'pack_mock', amountPaise: 9900, status: 'paid_unclaimed', paymentId: 'pay_g', guestPaidAt: new Date(NOW - HOUR), createdAt: new Date(NOW - 2 * HOUR) } },
+    { id: 'gclaimed', data: { uid: 'uK', payer: 'guest', guestEmail: 'anaya.k@gmail.com', passType: 'till_boards', amountPaise: 191700, status: 'claimed', paymentId: 'pay_c', guestPaidAt: new Date(NOW - HOUR), createdAt: new Date(NOW - 2 * HOUR) } },
+    created('own', 'u1', 'month', 599, 4 * HOUR),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.abandoned.items.map((i) => i.orderId), ['who', 'ph', 'own']);
+  const [who, ph, own] = res.body.abandoned.items;
+  assert.equal(who.channel, 'who');
+  assert.deepEqual(who.recipient, { phoneMasked: '+91 98•••••948', emailMasked: 'an••••@gmail.com' });
+  assert.equal(who.uid, null); assert.equal(who.email, null); assert.equal(who.name, null);
+  assert.equal(who.payerType, 'signed_out');
+  assert.equal(ph.channel, 'guest');
+  assert.deepEqual(ph.recipient, { phoneMasked: '+91 70•••••678' });
+  assert.equal(ph.amountInr, 99);
+  assert.equal(own.channel, 'student'); assert.equal(own.email, 'u1@x.in');
+  const body = JSON.stringify(res.body);
+  for (const raw of ['9876543948', '7012345678', 'anaya.k@', 'y@gmail.com']) assert.ok(!body.includes(raw), `raw ${raw} leaked`);
+});
+
+test('GUEST-ABANDON-1 abandoned: no profile lookup is made for a guest row', async () => {
+  process.env.ADMIN_FIREBASE_UIDS = 'admin1';
+  const asked = [];
+  const route = createAdminPurchasesRoutes({
+    sendJson: (res, s, b) => { res.status = s; res.body = b; },
+    adminFirestore: fakeFirestore([created('who', null, 'till_boards', 1917, 2 * 3600000, { payer: 'guest', checkoutWho: true, guestEmail: 'anaya.k@gmail.com' })]),
+    firebaseAdmin: { auth: () => ({ getUsers: async (ids) => { asked.push(...ids); return { users: [] }; } }) },
+    now: () => NOW, requireAdmin: async () => ({ ok: true, uid: 'admin1' }),
+  });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.body.abandoned.items.length, 1);
+  assert.deepEqual(asked, []);
+});
+
+test('GUEST-ABANDON-1 totals: unclaimed guest money counted ONCE in guestUnclaimed; after the claim it moves to its product bucket, not both', async () => {
+  const HOUR = 3600000;
+  const g = (id, status, extra = {}) => ({ id, data: { uid: null, payer: 'guest', guestPhone: '+919876543948', passType: 'till_boards', amountPaise: 191700, status, paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - 2 * HOUR), ...extra } });
+  const before = [
+    g('a', 'paid_unclaimed'),
+    g('e', 'erased_unclaimed', { guestPhone: null, passType: 'pack_chapter', packTarget: 'triangles', amountPaise: 4900 }),
+    g('c', 'claimed', { uid: 'u9' }),
+    g('dup', 'duplicate_purchase', { uid: 'u8' }),
+    g('old', 'paid_unclaimed', { guestPaidAt: new Date(NOW - 40 * DAY) }),
+    g('adm', 'paid_unclaimed', { payerUid: 'admin1' }),
+    g('nopay', 'paid_unclaimed', { paymentId: '' }),
+  ];
+  const r1 = {}; await harness({ orders: before }).route.list({}, r1);
+  const t1 = r1.body.totals;
+  assert.deepEqual(t1.last7.guestUnclaimed, { count: 3, inr: 1917 + 49 + 1917 });
+  assert.deepEqual(t1.last30.guestUnclaimed, { count: 3, inr: 1917 + 49 + 1917 });
+  assert.deepEqual(t1.last7.premium, { count: 0, inr: 0 });
+  assert.equal(t1.guestUnclaimedKnown, true);
+  // 'a' is claimed and granted 9 days later: status paid, uid set, paidAt NOW. It counts once, dated when the money came.
+  const after = [paid('a', 'u5', 'till_boards', 1917, 0, { payer: 'guest', guestPaidAt: new Date(NOW - 2 * HOUR) }), ...before.slice(1)];
+  const r2 = {}; await harness({ orders: after }).route.list({}, r2);
+  const t2 = r2.body.totals;
+  assert.deepEqual(t2.last7.guestUnclaimed, { count: 2, inr: 1917 + 49 });
+  assert.deepEqual(t2.last7.premium, { count: 1, inr: 1917 });
+  assert.ok(!JSON.stringify(r2.body).includes('9876543948'));
+});
+
+test('GUEST-ABANDON-1 totals: a failed guest read leaves purchases intact and says the guest figure is unknown', async () => {
+  process.env.ADMIN_FIREBASE_UIDS = 'admin1';
+  const base = fakeFirestore([paid('o1', 'u1', 'till_boards', 1917, 10)]);
+  const fs = { collection: (n) => ({ ...base.collection(n), where() { throw new Error('down'); } }) };
+  const route = createAdminPurchasesRoutes({
+    sendJson: (res, s, b) => { res.status = s; res.body = b; },
+    adminFirestore: fs, firebaseAdmin: fakeAuth, now: () => NOW, requireAdmin: async () => ({ ok: true, uid: 'admin1' }),
+  });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.totals.guestUnclaimedKnown, false);
+  assert.deepEqual(res.body.totals.last7.premium, { count: 1, inr: 1917 });
+});
+
+test('review D6/D4: erased_unclaimed counts; a claimed order by an admin payer or landed on an admin is excluded; guestTruncated is separate from complete', async () => {
+  const HOUR = 3600000;
+  const g = (id, status, extra = {}) => ({ id, data: { uid: null, payer: 'guest', passType: 'pack_chapter', packTarget: 'triangles', amountPaise: 4900, status, paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - HOUR), ...extra } });
+  const orders = [
+    g('er', 'erased_unclaimed', { guestPhone: null }),
+    g('cAdminPayer', 'claimed', { uid: 'u3', payerUid: 'admin1' }),
+    g('cAdminUid', 'claimed', { uid: 'admin1' }),
+    g('cOk', 'claimed', { uid: 'u4' }),
+  ];
+  const r = {}; await harness({ orders }).route.list({}, r);
+  assert.deepEqual(r.body.totals.last7.guestUnclaimed, { count: 2, inr: 98 });
+  assert.equal(r.body.totals.guestTruncated, false);
+  assert.equal(r.body.totals.complete, true);
+  // 300 paid_unclaimed guest orders: the guest read is capped -> guestTruncated, while `complete` (paid orders) stays true.
+  const many = Array.from({ length: 300 }, (_, i) => g(`m${i}`, 'paid_unclaimed'));
+  const r2 = {}; await harness({ orders: many }).route.list({}, r2);
+  assert.equal(r2.body.totals.guestTruncated, true);
+  assert.equal(r2.body.totals.complete, true);
+});

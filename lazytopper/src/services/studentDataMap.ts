@@ -85,7 +85,14 @@ export interface StudentDataLocation {
    * valid on a field-keyed (no `{uid}` segment) Firestore location; the erasure walker
    * refuses it anywhere else rather than guess.
    */
-  readonly onErase?: "delete" | "anonymise-uid";
+  /**
+   * GUEST-ABANDON-1 (review D2): `"delete-by-email-key"` / `"retain-email-key"` are for a top-level
+   * `name/{emailKey}` location - a record about an email ADDRESS, keyed by `emailKey(address)`
+   * (server/services/emailSuppression.cjs), reached on erasure from the account's own auth email.
+   * `retain` KEEPS it deliberately and is reported `retained`. The walker refuses either anywhere else,
+   * and refuses an `{emailKey}` path that names neither.
+   */
+  readonly onErase?: "delete" | "anonymise-uid" | "delete-by-email-key" | "retain-email-key";
   readonly notes?: string;
 }
 
@@ -766,6 +773,46 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "from a verified sign-in, first save only). Off unless the owner sets NUDGE_EMAIL_ENABLED. NOT " +
       "declared in firestore.rules — browsers fall through to the deny-all catch-all. Erased with " +
       "the account and included in the export.",
+  },
+
+  // ── Firestore: the guest checkout email ledger (server-only, GUEST-ABANDON-1) ─────
+  {
+    id: "guestNudgeEmails",
+    kind: "firestore-collection",
+    path: "guestNudgeEmails/{emailKey}",
+    holds:
+      "For an email address typed at a signed-out checkout (no account needed): which follow-up " +
+      "email about an unfinished checkout was sent to it — per product, its state (claimed, sent or " +
+      "failed), when, and the email provider's message id — and when the last one was claimed. Keyed " +
+      "by a SHA-256 of the address; never the address itself or the email's text.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    onErase: "delete-by-email-key",
+    notes:
+      "★★ Written ONLY by server/services/nudgeEmail.cjs (runGuestAbandonedCheckout) through the Admin SDK, behind " +
+      "GUEST_ABANDON_EMAIL_ENABLED. NOT declared in firestore.rules — browsers fall to the deny-all catch-all. " +
+      "On account erasure the document for emailKey(<the account's auth email>) is DELETED and it is included in " +
+      "the export. A document for an address that never became an account has no account to erase it from.",
+  },
+
+  // ── Firestore: the email stop record (server-only, GUEST-ABANDON-1) ───────────────
+  {
+    id: "emailSuppression",
+    kind: "firestore-collection",
+    path: "emailSuppression/{emailKey}",
+    holds:
+      "That the person at an email address asked LazyTopper to stop reminder and follow-up emails, " +
+      "and when. Keyed by a SHA-256 of the address; never the address itself.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    onErase: "retain-email-key",
+    notes:
+      "★★ KEPT ON ERASURE, DELIBERATELY (GUEST-ABANDON-1 review D2): it is the record of a request to NOT be " +
+      "contacted. Deleting it with the account would let a later signed-out checkout with the same address be " +
+      "emailed again — the opposite of what the person asked. It holds only the hash key, a flag and a time. " +
+      "Written ONLY by the guest email's stop link and read inside the claim " +
+      "transaction of every reminder email (trial-ending, every nudge, the guest checkout email). The key is " +
+      "pseudonymous: anyone holding the address can recompute it. Included in the export.",
   },
 
   // ── Firestore: stored grading results for retries (server-only, LOW-END-1 R4) ──────

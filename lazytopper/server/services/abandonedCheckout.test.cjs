@@ -119,6 +119,16 @@ function makeAdmin(users) {
         }
         return users[uid];
       },
+      // GUEST-ABANDON-1: the guest pass looks the address up to honour an account's own opt-out / purchases.
+      async getUserByEmail(email) {
+        const uid = Object.keys(users).find((k) => users[k].email === email);
+        if (!uid) {
+          const e = new Error('no user');
+          e.code = 'auth/user-not-found';
+          throw e;
+        }
+        return { uid, ...users[uid] };
+      },
     }),
   };
 }
@@ -487,4 +497,187 @@ test('no phone number in any rendered URL; the WhatsApp link names no number', (
       assert.doesNotMatch(m.text + m.html, /refund/i);
     }
   }
+});
+
+// ── GUEST-ABANDON-1: signed-out (guest) checkouts ───────────────────────────────────────────────────
+
+const G = require('./guestAbandonEmail.cjs');
+const ENV_GUEST = { ...ENV_SEND, GUEST_ABANDON_EMAIL_ENABLED: '1' };
+/** A "Who will use it?" guest order (uid null) created `ageH` hours before NOW. */
+const guestOrder = (db, ageH, extra = {}) =>
+  order(db, null, ageH, { payer: 'guest', checkoutWho: true, payerType: 'signed_out', guestPhone: '+919876543948', guestEmail: 'parent.k@gmail.com', ...extra });
+
+test('GUEST-ABANDON-1 flag: only exactly "1"; off (default) sends nothing to a guest and writes nothing', async () => {
+  assert.equal(G.guestAbandonEmailEnabled({}), false);
+  assert.equal(G.guestAbandonEmailEnabled({ GUEST_ABANDON_EMAIL_ENABLED: 'true' }), false);
+  assert.equal(G.guestAbandonEmailEnabled({ GUEST_ABANDON_EMAIL_ENABLED: '1' }), true);
+  const s = setup({ env: ENV_SEND });
+  guestOrder(s.db, 3);
+  const r = await s.run();
+  assert.equal(r.ran, true);
+  assert.equal(s.calls.length, 0);
+  assert.equal(r.byKind.guest_abandoned_checkout, 0);
+  assert.equal([...s.db.docs.keys()].some((k) => k.startsWith('guestNudgeEmails/')), false);
+  assert.equal(s.logs.some((l) => l.startsWith('[guest-abandoned-checkout]')), false);
+});
+
+test('GUEST-ABANDON-1: a guest checkout with an email gets EXACTLY one calm email in the window; a second run sends nothing', async () => {
+  const s = setup({ env: ENV_GUEST });
+  guestOrder(s.db, 3);
+  const r = await s.run();
+  assert.equal(r.sent, 1);
+  assert.equal(r.byKind.guest_abandoned_checkout, 1);
+  const b = s.calls[0].body;
+  assert.deepEqual(b.to, ['parent.k@gmail.com']);
+  assert.equal(b.subject, 'Your LazyTopper checkout for the Board Pass');
+  assert.match(b.text, /Nothing was charged\./);
+  assert.match(b.text, /Board Pass: ₹1,917\./); // the CURRENT price (founding offer open at NOW), nothing else
+  assert.match(b.text, /Open the Plans page: https:\/\/www\.lazytopper\.com\/pricing\?utm_source=email/);
+  assert.doesNotMatch(b.text + b.html, /buy=|refund|\bask\b|hurry|today only|last chance/i);
+  assert.match(b.text, /Unsubscribe: https:\/\/www\.lazytopper\.com\/api\/guest-email\/unsubscribe\?t=/);
+  assert.ok(b.headers['List-Unsubscribe'].includes('/api/guest-email/unsubscribe'));
+  assert.equal(b.tags[0].value, 'nudge_guest_abandoned_checkout');
+  const key = G.emailKey('parent.k@gmail.com');
+  assert.equal(s.db.docs.get(`guestNudgeEmails/${key}`).abandoned_board_pass.status, 'sent');
+  // No raw address or phone stored by this pass, and none in any log line.
+  assert.equal([...s.db.docs.keys()].some((k) => k.includes('parent.k')), false);
+  assert.equal(s.logs.some((l) => l.includes('parent.k@') || /\d{10}/.test(l)), false, s.logs.join('\n'));
+  // Re-run the next day (spacing passed): still once per recipient per product, ever.
+  s.clock.now = NOW + 25 * HOUR;
+  guestOrder(s.db, 3 - 25); // re-opened the same product 3 h before the new now
+  assert.equal((await s.run()).sent, 0);
+  assert.equal(s.calls.length, 1);
+});
+
+test('GUEST-ABANDON-1: a guest checkout with no email (phone only) gets nothing, never an SMS/WhatsApp', async () => {
+  const s = setup({ env: ENV_GUEST });
+  order(s.db, null, 3, { payer: 'guest', guestPhone: '+919876543948' }); // PAY-PHONE-1
+  guestOrder(s.db, 4, { guestEmail: undefined }); // "Who" with phone only
+  const r = await s.run();
+  assert.equal(s.calls.length, 0);
+  assert.equal(r.skipped['guest-no-email'], 2);
+  assert.equal(s.logs.some((l) => /\d{10}/.test(l)), false);
+});
+
+test('GUEST-ABANDON-1: a suppressed address (guest stop link) gets nothing; the stop link records only the key', async () => {
+  const s = setup({ env: ENV_GUEST });
+  const emailer = s.make();
+  const key = G.emailKey('Parent.K@gmail.com ');
+  const token = G.signGuestUnsubscribe(key, SECRET);
+  const resp = () => {
+    const r = { status: 0, body: '' };
+    r.writeHead = (st) => { r.status = st; };
+    r.end = (b) => { r.body = b; };
+    return r;
+  };
+  const get = resp();
+  await emailer.handleGuestUnsubscribe({ method: 'GET' }, get, `/api/guest-email/unsubscribe?t=${encodeURIComponent(token)}`);
+  assert.equal(get.status, 200);
+  assert.equal(s.db.docs.has(`emailSuppression/${key}`), false, 'a GET (link scanner) never unsubscribes');
+  const bad = resp();
+  await emailer.handleGuestUnsubscribe({ method: 'POST' }, bad, `/api/guest-email/unsubscribe?t=${key}.AAAA`);
+  assert.equal(bad.status, 400);
+  const post = resp();
+  await emailer.handleGuestUnsubscribe({ method: 'POST' }, post, `/api/guest-email/unsubscribe?t=${encodeURIComponent(token)}`);
+  assert.equal(post.status, 200);
+  assert.deepEqual(Object.keys(s.db.docs.get(`emailSuppression/${key}`)).sort(), ['optedOut', 'optedOutAt', 'source']);
+  guestOrder(s.db, 3);
+  const r = await s.run();
+  assert.equal(s.calls.length, 0);
+  assert.equal(r.skipped['opted-out'], 1);
+});
+
+test('GUEST-ABANDON-1: an address that is an account honours that account\'s opt-out; paid since / outside window / send window -> none', async () => {
+  const users = { kid: gUser('parent.k@gmail.com') };
+  const s = setup({ env: ENV_GUEST, users });
+  s.db.docs.set('trialEmails/kid', { optedOut: true });
+  guestOrder(s.db, 3);
+  assert.equal((await s.run()).skipped['opted-out'], 1);
+
+  const s2 = setup({ env: ENV_GUEST });
+  guestOrder(s2.db, 5);
+  guestOrder(s2.db, 2, { status: 'paid_unclaimed', paymentId: 'pay_1', guestPaidAt: new Date(NOW - 2 * HOUR) });
+  guestOrder(s2.db, 40); // too old
+  guestOrder(s2.db, 0.5, { guestEmail: 'other@gmail.com' }); // too young
+  const r2 = await s2.run();
+  assert.equal(s2.calls.length, 0);
+  assert.equal(r2.skipped['guest-paid-in-window'], 1);
+  assert.equal(r2.candidates, 0); // the too-old / too-young orders are outside the read window altogether
+
+  const s3 = setup({ env: ENV_GUEST, now: NIGHT });
+  guestOrder(s3.db, -9);
+  const r3 = await s3.run();
+  assert.equal(r3.reason, 'outside-send-window');
+  assert.equal(s3.calls.length, 0);
+});
+
+test('GUEST-ABANDON-1: one email a day per recipient and the shared daily cap; a pack links to /packs, not a payment', async () => {
+  const s = setup({ env: { ...ENV_GUEST, NUDGE_EMAIL_DAILY_CAP: '1' } });
+  guestOrder(s.db, 3, { passType: 'pack_chapter', packTarget: 'triangles', amountPaise: 4900 });
+  guestOrder(s.db, 4); // same address, Board Pass: never the same day
+  guestOrder(s.db, 5, { guestEmail: 'second@gmail.com' }); // another address: the cap (1) is already used
+  const r = await s.run();
+  assert.equal(s.calls.length, 1);
+  assert.equal(r.skipped['daily-cap'], 1);
+  const b = s.calls[0].body;
+  assert.match(b.text, /Triangles Chapter Pack: ₹49\./);
+  assert.match(b.text, /https:\/\/www\.lazytopper\.com\/packs\?utm_source=email/);
+  assert.doesNotMatch(b.text, /buy=|&t=/);
+});
+
+// ── GUEST-ABANDON-1 review D1/D5/D6 ─────────────────────────────────────────────────────────────
+
+test('review D1: the stop promise - an address stopped via the guest link gets NO account email either (abandoned checkout, d1)', async () => {
+  const s = setup({ env: { ...ENV_GUEST, ABANDONED_CHECKOUT_EMAIL_ENABLED: '1' } });
+  s.db.docs.set(`emailSuppression/${G.emailKey('one@gmail.com')}`, { optedOut: true, source: 'guest-email' });
+  order(s.db, 'u1', 3); // the signed-in abandoned-checkout email (CHECKOUT-NUDGE-1)
+  guestOrder(s.db, 3, { guestEmail: 'one@gmail.com' }); // and a guest checkout with the same address
+  const r = await s.run();
+  assert.equal(s.calls.length, 0, 'no email of any kind reaches a stopped address');
+  assert.ok(r.skipped['opted-out'] >= 2);
+  // The copy promises exactly what is honoured: reminder + follow-up emails stop; receipts and sign-in codes are named.
+  const msg = G.buildGuestAbandonEmail({ product: { key: 'board_pass', kind: 'board_pass' }, currentPriceInr: 1917, appUrl: 'https://x', unsubscribeUrl: 'https://x/u' });
+  assert.match(msg.text, /stop LazyTopper reminder and follow-up emails to this address/);
+  assert.match(msg.text, /Sign-in codes and payment receipts still arrive\./);
+  assert.doesNotMatch(msg.text, /stop all LazyTopper emails/);
+});
+
+test('review D6: guest stop tokens - tampered, wrong secret, short secret, malformed key, other key -> refused; tokens do not expire by design', () => {
+  const SECRET2 = 'y'.repeat(40);
+  const key = G.emailKey('parent.k@gmail.com');
+  const tok = G.signGuestUnsubscribe(key, SECRET);
+  assert.equal(G.verifyGuestUnsubscribe(tok, SECRET), key);
+  const [k, mac] = tok.split('.');
+  const flipped = `${k}.${mac[0] === 'A' ? 'B' : 'A'}${mac.slice(1)}`;
+  assert.equal(G.verifyGuestUnsubscribe(flipped, SECRET), null, 'tampered mac');
+  assert.equal(G.verifyGuestUnsubscribe(`${G.emailKey('x@gmail.com')}.${mac}`, SECRET), null, 'mac of another key');
+  assert.equal(G.verifyGuestUnsubscribe(tok, SECRET2), null, 'wrong secret');
+  assert.equal(G.verifyGuestUnsubscribe(G.signGuestUnsubscribe(key, 'short'), 'short'), null, 'a secret under 32 chars is refused');
+  assert.equal(G.verifyGuestUnsubscribe(`NOTHEX.${mac}`, SECRET), null, 'malformed key');
+  assert.equal(G.verifyGuestUnsubscribe('', SECRET), null);
+  assert.equal(G.verifyGuestUnsubscribe(`${tok}${'a'.repeat(300)}`, SECRET), null, 'oversized');
+});
+
+test('review D5: a timed-out guest send is retried next run only while inside 22 h of the FIRST attempt', async () => {
+  const s = setup({ env: ENV_GUEST });
+  const key = G.emailKey('parent.k@gmail.com');
+  let mode = 'timeout';
+  const emailer = createNudgeEmailer({
+    config: resolveNudgeConfig(ENV_GUEST), env: ENV_GUEST, adminFirestore: s.db, firebaseAdmin: makeAdmin(USERS),
+    fetchImpl: async () => { if (mode === 'timeout') throw Object.assign(new Error('t'), { name: 'TimeoutError' }); return { ok: true, status: 200, json: async () => ({ id: 'm' }) }; },
+    now: () => s.clock.now, log: () => {}, telemetry: { increment: () => {} }, setTimeoutFn: () => ({}), setIntervalFn: () => ({}),
+  });
+  guestOrder(s.db, 2);
+  await emailer.runOnce();
+  const row = s.db.docs.get(`guestNudgeEmails/${key}`);
+  assert.equal(row.abandoned_board_pass, undefined, 'a timeout inside the window releases the claim (retry next run)');
+  assert.equal(row.firstAttemptMs_abandoned_board_pass, NOW, 'the first attempt time survives the release');
+  // 23 h later the order (now 25 h old) is still in the 1-36 h window, but the first attempt is past 22 h: no retry.
+  s.clock.now = NOW + 23 * HOUR;
+  await emailer.runOnce();
+  assert.equal(s.db.docs.get(`guestNudgeEmails/${key}`).abandoned_board_pass.status, 'failed');
+  mode = 'ok';
+  s.clock.now = NOW + 26 * HOUR;
+  await emailer.runOnce();
+  assert.equal(s.db.docs.get(`guestNudgeEmails/${key}`).abandoned_board_pass.status, 'failed', 'never re-sent');
 });
