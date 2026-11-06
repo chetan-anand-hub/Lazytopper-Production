@@ -9,7 +9,7 @@
 // rows whose answer key resolves to one of four written options (the #352 bar, the same bar
 // Quick Practice's own MCQ grading uses). Real bank rows only: no AI top-up, no generated text.
 
-import { ensureBankSubject } from "../../data/bankChapters/loader";
+import { ensureBankChapters, ensureBankSubject } from "../../data/bankChapters/loader";
 import { PredictionCore } from "../../data/predictionCore";
 import { isCbq } from "../../lib/cbq/cbqClassification";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
@@ -173,7 +173,11 @@ export async function pickStartHereSet(args: {
   qtype: StartHereQType;
   rotation: number;
 }): Promise<string[]> {
-  await ensureBankSubject(args.subject);
+  // SPEED-HUB-1: load ONLY the chosen chapter. The rows are read through
+  // getLikelyQuestionsForConcept(label), which reads exactly that chapter's cache entry, so the
+  // whole subject (13 chunks on Maths, ~5 MB of JS, a multi-second freeze on a phone) was never
+  // needed on this tap. Both spellings are passed; the loader resolves them to the one chapter.
+  await ensureBankChapters([practiceTopicLabel(args.subject, args.chapter), args.chapter]);
   let seen = new Set<string>();
   try {
     seen = buildSeenQuestionIds(getAttempts(), practiceTopicLabel(args.subject, args.chapter) || args.chapter);
