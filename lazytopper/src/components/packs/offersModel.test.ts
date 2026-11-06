@@ -7,6 +7,10 @@ import { readBuyResume } from "./PacksShop";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { PREBOARDS_PICK_LINE, isPreboardsSeason } from "../../lib/packs/packLabels";
 import { OFFER_LINES, buyHrefFor, insideHrefFor, offerRows, unownedRows, type OfferContext, type OfferKind } from "./offersModel";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPriceLabel, packPayLabel } from "../../services/packs";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { displayPlusGst } from "../../config/pricing";
 
 const names = (ctx: OfferContext) => offerRows(ctx).map((r) => r.name);
 
@@ -54,9 +58,10 @@ describe("rows by surface (price high to low; Subject before CBQ on a tie)", () 
   it("prices come from the catalogue", () => {
     for (const r of offerRows({ kind: "check-improve", subject: "maths", chapterSlug: "triangles" })) {
       expect(r.priceInr).toBe(PACK_PRICE_INR[r.sku]);
-      expect(r.price).toBe(`₹${PACK_PRICE_INR[r.sku]}`);
+      expect(r.price).toBe(packPriceLabel(r.sku));
+      expect(r.payPrice).toBe(packPayLabel(r.sku));
     }
-    expect(offerRows({ kind: "check-improve", subject: "maths", chapterSlug: "triangles" }).map((r) => r.price)).toEqual(["₹299", "₹199", "₹199", "₹99", "₹49"]);
+    expect(offerRows({ kind: "check-improve", subject: "maths", chapterSlug: "triangles" }).map((r) => r.price)).toEqual([299, 199, 199, 99, 49].map((n) => displayPlusGst(n)));
   });
 
   it("PREBOARDS-BADGE-1: in season only the Bundle carries PRE-BOARDS PICK; after 20 Dec 2026 IST it reverts to BEST VALUE and the old line", () => {
@@ -68,7 +73,7 @@ describe("rows by surface (price high to low; Subject before CBQ on a tie)", () 
       expect(rows.filter((r) => r.badge).map((r) => [r.sku, r.badge])).toEqual([["pack_bundle", "PRE-BOARDS PICK"]]);
       expect(rows[0].line).toBe("All 26 chapters + 16 board mocks \u2014 ready before your pre-boards");
       expect(rows[0].name).toBe("Maths + Science Bundle");
-      expect(rows[0].price).toBe("\u20b9299");
+      expect(rows[0].price).toBe(packPriceLabel("pack_bundle"));
       vi.setSystemTime(new Date("2026-12-20T23:59:59+05:30"));
       expect(offerRows(ctx)[0].badge).toBe("PRE-BOARDS PICK");
       vi.setSystemTime(new Date("2026-12-21T00:00:00+05:30"));

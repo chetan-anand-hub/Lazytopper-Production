@@ -714,15 +714,21 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
   // PRICE-FIXED-1: the Board Pass is ₹1,917 until the founding deadline and ₹2,499 from it; no founding / month line is sent.
   assert.equal(pBefore, 1917);
   assert.equal(pAfter, 2499);
-  assert.ok(open.text.includes('₹1,917 till') && closed.text.includes('₹2,499 till'));
-  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
-  assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} till your boards`));
+  // GST-EXCL-1: both instants are after the 7 Nov 2026 GST cut-off - the CTA names the base "+ GST" (the charge is shown at checkout).
+  assert.ok(open.text.includes('₹1,917 + GST till') && closed.text.includes('₹2,499 + GST till'));
+  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} + GST till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
+  assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} + GST till your boards`));
+  // ...and BEFORE the cut-off the email is exactly as it was (all-in prices, no "+ GST").
+  const preCut = buildTrialEmail({ ...args, nowMs: Date.parse('2026-11-04T12:00:00+05:30') });
+  assert.ok(preCut.text.includes('Get the Board Pass - ₹1,917 till your boards: '));
+  assert.ok(preCut.text.includes('Prefer printed practice? PDF packs from ₹49: '));
+  assert.ok(!/GST/.test(preCut.text + preCut.html));
   assert.ok(!open.text.includes('Founding price') && !open.html.includes('Founding price'));
   assert.ok(!/599|999/.test(open.text + open.html + closed.text + closed.html), 'a month price in the trial-ending email');
   assert.ok(!closed.text.includes('Founding price'));
   assert.ok(!closed.html.includes('Founding price'));
   for (const m of [open, closed]) {
-    assert.ok(m.text.includes('Prefer printed practice? PDF packs from ₹49: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending&utm_content=packs#packs'));
+    assert.ok(m.text.includes('Prefer printed practice? PDF packs from ₹49 + GST: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending&utm_content=packs#packs'));
     assert.ok(!m.text.includes('See plans'));
     const urls = (m.text.match(/https:\/\/www\.lazytopper\.com\S*/g) || []).filter((u) => /pricing|packs/.test(u));
     assert.equal(urls.length, 2);

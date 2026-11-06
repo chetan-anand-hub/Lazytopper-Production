@@ -76,6 +76,9 @@ const {
   isPaymentsEnabled,
   isCheckoutSignatureValid,
   quotePass,
+  tableQuote,
+  gstOrderFields,
+  gstResponseFields,
   readRawBody,
   PAY_ORDERS_COLLECTION,
   RAZORPAY_API_BASE,
@@ -235,8 +238,11 @@ function linkPack(link) {
 }
 
 /** PARENT-PACKS-1: what a response says about a pack (never more). */
-function publicPack(pack) {
-  return { sku: pack.sku, target: pack.target, priceInr: pack.priceInr };
+function publicPack(pack, nowMs) {
+  // GST-EXCL-1: from the cut-off the response also carries what is CHARGED (base + 18% GST) and the GST, so the parent's page
+  // shows the breakup before Razorpay opens. Before it: byte-identical (priceInr only).
+  const q = tableQuote(pack.priceInr, nowMs);
+  return { sku: pack.sku, target: pack.target, priceInr: pack.priceInr, ...(q.gst ? { totalInr: q.gst.totalInr, gstInr: q.gst.gstInr } : {}) };
 }
 
 class OrderCapError extends Error {}
@@ -628,7 +634,7 @@ function createParentPayRoutes(deps = {}) {
       return sendJson(res, 500, { ok: false, error: 'Could not create a link.' });
     }
     emit('payments.parent.link.pack_created');
-    return sendJson(res, 200, { ok: true, token, expiresAt: new Date(expiresMs).toISOString(), pack: publicPack(pack) });
+    return sendJson(res, 200, { ok: true, token, expiresAt: new Date(expiresMs).toISOString(), pack: publicPack(pack, now()) });
   }
 
   /* ── POST /api/pay/parent/view — what the parent's page shows ─────────────── */
@@ -638,6 +644,7 @@ function createParentPayRoutes(deps = {}) {
     if (!body) return undefined;
     let resolved;
     let prices;
+    let boardPassGst = null;
     try {
       resolved = await resolveLink(body.token, { requireOpen: true });
       if (resolved.reason) return linkRefused(res, 'view', resolved.reason);
@@ -656,7 +663,7 @@ function createParentPayRoutes(deps = {}) {
         return sendJson(res, 200, {
           ok: true,
           firstName: firstNameOf(resolved.link.firstName),
-          pack: publicPack(pack),
+          pack: publicPack(pack, now()),
           expiresAt: new Date(toMillis(resolved.link.expiresAt)).toISOString(),
         });
       }
@@ -664,6 +671,14 @@ function createParentPayRoutes(deps = {}) {
       // Already covered till the boards (by the child, or through another link): nothing to sell.
       if (coveredTillBoards(stored, now())) return linkRefused(res, 'view', COVERED_REASON);
       prices = await pricesFrom(stored, resolved.link.uid);
+      // GST-EXCL-1: the Board Pass GST breakup (server numbers) the page shows before Razorpay opens; absent before the cut-off.
+      if (prices.till_boards !== null && prices.till_boards !== undefined) {
+        try {
+          boardPassGst = quotePass(stored, 'till_boards', now(), { foundingOfferOpen }).gst || null;
+        } catch {
+          boardPassGst = null;
+        }
+      }
     } catch (e) {
       emit('payments.parent.view.failed');
       console.error('[pay/parent/view] failed:', e && e.message);
@@ -674,6 +689,7 @@ function createParentPayRoutes(deps = {}) {
       ok: true,
       firstName: firstNameOf(resolved.link.firstName),
       prices,
+      ...(boardPassGst ? { boardPassGst } : {}),
       expiresAt: new Date(toMillis(resolved.link.expiresAt)).toISOString(),
     });
   }
@@ -774,6 +790,7 @@ function createParentPayRoutes(deps = {}) {
         passType,
         amountPaise: quote.amountPaise,
         ...creditOrderFields(packCreditInr, packCreditIds),
+        ...gstOrderFields(quote),
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -788,7 +805,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 
   /**
@@ -821,7 +838,9 @@ function createParentPayRoutes(deps = {}) {
     }
     const { linkId, ref, link } = resolved;
     const uid = link.uid;
-    const amountPaise = pack.priceInr * 100;
+    // GST-EXCL-1: the pack's base price + 18% GST for an order created at/after the cut-off (server clock).
+    const packQuote = tableQuote(pack.priceInr, now());
+    const amountPaise = packQuote.amountPaise;
 
     let created;
     try {
@@ -849,6 +868,7 @@ function createParentPayRoutes(deps = {}) {
         uid,
         passType: pack.sku,
         amountPaise,
+        ...gstOrderFields(packQuote),
         packTarget: pack.target,
         offerKey: null,
         status: 'created',
@@ -864,7 +884,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.pack_created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise, ...gstResponseFields(packQuote, 0) });
   }
 
   /* ── POST /api/pay/parent/verify — every check, then the CHILD's grant ────── */
@@ -955,7 +975,7 @@ function createParentPayRoutes(deps = {}) {
         replayed: packGranted.replayed,
         // Review M2: the child already had this pack (or a pack covering it): nothing new was added. Facts only.
         ...(packGranted.duplicate ? { duplicate: true } : {}),
-        pack: publicPack(pack),
+        pack: publicPack(pack, now()),
         firstName: firstNameOf(resolved.link.firstName),
         amountPaise: order.amountPaise,
       });

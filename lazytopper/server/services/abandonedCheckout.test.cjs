@@ -258,7 +258,22 @@ test('a pack checkout: pack name, catalogue price, the OFFERS-V2 one-tap /packs?
 
 test('price (pure): from the order amount only; no usable amount -> no price line', () => {
   const bp = A.productOf({ passType: 'till_boards' });
-  assert.equal(A.priceLine(bp, { amountPaise: 191700 }), 'Board Pass: ₹1,917, one payment till your boards.');
+  const PRE = Date.parse('2026-11-06T23:59:59+05:30');
+  const POST = Date.parse('2026-11-07T00:00:00+05:30');
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, PRE), 'Board Pass: ₹1,917, one payment till your boards.');
+  // GST-EXCL-1: an order that stored its breakup states it; an all-in order emailed after the cut-off never understates
+  // what "Finish paying" now charges (base + GST); a credited order names its credit.
+  assert.equal(
+    A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, POST),
+    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.',
+  );
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, POST), 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.');
+  assert.equal(
+    A.priceLine(bp, { amountPaise: 221300, baseInr: 1917, gstInr: 345, totalInr: 2262, packCreditInr: 49 }, POST),
+    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment till your boards.',
+  );
+  const pk = A.productOf({ passType: 'pack_chapter', packTarget: 'triangles' });
+  assert.equal(A.priceLine(pk, { amountPaise: 5800, baseInr: 49, gstInr: 9, totalInr: 58 }, POST), '₹49 + ₹9 GST (18%) = ₹58, one-time payment. It never renews.');
   assert.equal(A.priceLine(bp, { amountPaise: 0 }), null);
   assert.equal(A.priceLine(bp, {}), null);
   assert.equal(A.hadFailedAttempt({ lastFailure: { code: 'x' } }), true);
@@ -499,6 +514,44 @@ test('no phone number in any rendered URL; the WhatsApp link names no number', (
   }
 });
 
+// ── GST-EXCL-1 (review G3): the email states EXACTLY what "Finish paying" charges, via the same server quote ─────────
+function tinyDb(docs) {
+  const node = (path) => ({
+    get: async () => {
+      if (docs[path] !== undefined) return { exists: true, data: () => docs[path] };
+      const prefix = `${path}/`;
+      const kids = Object.keys(docs).filter((k) => k.startsWith(prefix) && !k.slice(prefix.length).includes('/'));
+      return { exists: false, data: () => undefined, docs: kids.map((k) => ({ id: k.slice(prefix.length), data: () => docs[k] })) };
+    },
+    doc: (id) => node(`${path}/${id}`),
+    collection: (name) => node(`${path}/${name}`),
+  });
+  return { collection: (name) => node(name) };
+}
+
+test('GST-EXCL-1 G3 · a credited Board Pass emailed after the cut-off states the finish-paying charge (2262 less 49 = 2213), not a recomputation of the old order', async () => {
+  const NOW = Date.parse('2026-11-07T10:00:00+05:30');
+  const db = tinyDb({
+    'subscriptions/u1': {},
+    'packEntitlements/u1/packs/pack_chapter:triangles': { packId: 'pack_chapter:triangles', sku: 'pack_chapter', pricePaidInr: 49, paidAt: Date.parse('2026-11-04T12:00:00+05:30'), creditedToPass: false },
+  });
+  const bp = A.productOf({ passType: 'till_boards' });
+  const q = await A.finishPayingQuote(db, 'u1', bp, NOW);
+  assert.equal(q.amountPaise, 221300);
+  // The abandoned order itself was a pre-cut-off credited order of 1868: the email must NOT say 1868 + GST = 2204.
+  const line = A.priceLine(bp, { amountPaise: 186800, packCreditInr: 49 }, NOW, q);
+  assert.equal(line, 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment till your boards.');
+  assert.equal(require('../routes/payments.cjs').quotePass({}, 'till_boards', NOW).amountPaise - 4900, q.amountPaise, 'the same quote the order route uses');
+  // A pack: the table quote.
+  const pk = A.productOf({ passType: 'pack_mock', packTarget: 'maths' });
+  const pq = await A.finishPayingQuote(db, 'u1', pk, NOW);
+  assert.equal(A.priceLine(pk, { amountPaise: 9900 }, NOW, pq), '₹99 + ₹18 GST (18%) = ₹117, one-time payment. It never renews.');
+  // An unreadable quote after the cut-off: no price line at all (never a guess).
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW, null), null);
+  // Before the cut-off nothing changes (the quote is not even consulted).
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW - 86400000, null), 'Board Pass: ₹1,917, one payment till your boards.');
+});
+
 // ── GUEST-ABANDON-1: signed-out (guest) checkouts ───────────────────────────────────────────────────
 
 const G = require('./guestAbandonEmail.cjs');
@@ -547,6 +600,39 @@ test('GUEST-ABANDON-1: a guest checkout with an email gets EXACTLY one calm emai
   guestOrder(s.db, 3 - 25); // re-opened the same product 3 h before the new now
   assert.equal((await s.run()).sent, 0);
   assert.equal(s.calls.length, 1);
+});
+
+test('GST-EXCL-1 x GUEST-ABANDON-1: the guest email states the price a new signed-out checkout charges - all-in before 00:00 IST 7 Nov, base + GST from it', async () => {
+  const at = (iso) => Date.parse(iso);
+  const gOrder = (db, nowMs, extra = {}) =>
+    order(db, null, 0, { payer: 'guest', checkoutWho: true, payerType: 'signed_out', guestEmail: 'parent.k@gmail.com', createdAt: new Date(nowMs - 3 * HOUR), ...extra });
+  // 6 Nov 20:00 IST (inside the send window, BEFORE the GST cut-off): exactly today's line.
+  const pre = setup({ env: ENV_GUEST, now: at('2026-11-06T20:00:00+05:30') });
+  gOrder(pre.db, pre.clock.now);
+  await pre.run();
+  assert.equal(pre.calls.length, 1);
+  assert.match(pre.calls[0].body.text, /\nBoard Pass: ₹1,917\.\n/);
+  assert.doesNotMatch(pre.calls[0].body.text + pre.calls[0].body.html, /GST/);
+  // 7 Nov 10:00 IST (from the cut-off): the same quote the guest checkout's order route charges (quotePass, no credit).
+  const post = setup({ env: ENV_GUEST, now: at('2026-11-07T10:00:00+05:30') });
+  gOrder(post.db, post.clock.now);
+  await post.run();
+  assert.equal(post.calls.length, 1);
+  const quote = require('../routes/payments.cjs').quotePass({}, 'till_boards', post.clock.now);
+  assert.equal(quote.amountPaise, 226200);
+  assert.match(post.calls[0].body.text, /\nBoard Pass: ₹1,917 \+ ₹345 GST \(18%\) = ₹2,262\.\n/);
+  assert.match(post.calls[0].body.html, /Board Pass: ₹1,917 \+ ₹345 GST \(18%\) = ₹2,262\./);
+  // A pack: tableQuote (₹99 -> ₹117).
+  const pk = setup({ env: ENV_GUEST, now: at('2026-11-07T10:00:00+05:30') });
+  gOrder(pk.db, pk.clock.now, { passType: 'pack_mock', packTarget: 'maths', amountPaise: 9900, guestEmail: 'pk@gmail.com' });
+  await pk.run();
+  assert.equal(pk.calls.length, 1);
+  assert.match(pk.calls[0].body.text, /: ₹99 \+ ₹18 GST \(18%\) = ₹117\.\n/);
+  // The builder: absent text -> the old line; null text -> no price line at all (never a guess).
+  const P = { key: 'board_pass', kind: 'board_pass' };
+  const base = { product: P, appUrl: 'https://x', unsubscribeUrl: 'https://x/u' };
+  assert.match(G.buildGuestAbandonEmail({ ...base, currentPriceInr: 1917 }).text, /Board Pass: ₹1,917\./);
+  assert.doesNotMatch(G.buildGuestAbandonEmail({ ...base, currentPriceInr: 1917, currentPriceText: null }).text, /₹/);
 });
 
 test('GUEST-ABANDON-1: a guest checkout with no email (phone only) gets nothing, never an SMS/WhatsApp', async () => {

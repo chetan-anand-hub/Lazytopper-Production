@@ -36,6 +36,8 @@ vi.mock("../../services/packs", async (orig) => {
 vi.mock("../../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
 
 import PacksStrip from "./PacksStrip";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 Element.prototype.scrollIntoView = vi.fn();
 
@@ -76,8 +78,8 @@ describe("/pricing packs - the same for every account", () => {
     const { container } = strip();
     expect(screen.getByTestId("cbq-band")).toBeTruthy();
     // PACKS-TILE-BUY-1: each CBQ card BUYS directly (same for every account, Premium included); "See inside" opens the pop-up.
-    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe("Buy Maths CBQ · ₹199");
-    expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe("Buy Science CBQ · ₹199");
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ${packPayLabel("pack_cbq")}`);
+    expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe(`Buy Science CBQ · ${packPayLabel("pack_cbq")}`);
     expect(screen.getByTestId("pricing-cbq-maths").textContent).toBe("See inside →");
     const tiles = Array.from(container.querySelectorAll("button.lt-packoffer__item"));
     expect(tiles.map((t) => t.getAttribute("data-pack"))).toEqual(["chapter", "mock", "subject", "bundle"]);

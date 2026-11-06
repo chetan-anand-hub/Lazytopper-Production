@@ -43,6 +43,8 @@ vi.mock("../lib/packs/buildPackFiles", () => ({
 
 import PacksPage from "./PacksPage";
 import * as packs from "../services/packs";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPayLabel } from "../services/packs";
 
 function Where() {
   const l = useLocation();
@@ -221,7 +223,7 @@ describe("PacksPage", () => {
     fireEvent.change(screen.getByLabelText("Pick your chapter"), { target: { value: "real-numbers" } });
     await waitFor(() => expect(screen.getByTestId("pack-slides").textContent).toMatch(/120 questions/));
     expect(b().disabled).toBe(false);
-    expect(b().textContent).toBe("Buy · ₹49");
+    expect(b().textContent).toBe(`Buy · ${packPayLabel("pack_chapter")}`);
   });
 
   it("Trigonometry is labelled with both chapters in the picker", async () => {
@@ -300,7 +302,7 @@ describe("PacksPage", () => {
     page();
     tap("bundle");
     const b = await screen.findByTestId("packs-buy-pack_bundle");
-    expect(b.textContent).toBe("Buy · ₹299");
+    expect(b.textContent).toBe(`Buy · ${packPayLabel("pack_bundle")}`);
     expect(screen.getByTestId("packs-signin-note").textContent).toBe("Quick sign-in (Google, 1 tap), then payment opens.");
     fireEvent.click(b);
     await waitFor(() => expect(screen.getByText("LOGIN")).toBeTruthy());

@@ -553,6 +553,34 @@ describe("PACK-CREDIT-1 · the Board Pass credit line", () => {
   });
 });
 
+/* ── GST-EXCL-1 · the breakup beside Pay (and the credited breakup) ───────────────── */
+describe("GST-EXCL-1 · the breakup beside the Board Pass Pay button", () => {
+  const CUT = Date.parse("2026-11-07T00:00:00+05:30");
+  // A credit bought before 5 Nov is honoured for 7 days, so a credited buyer can reach the GST side of the cut-off.
+  const CREDIT = { creditInr: 49, expiresAtMs: Date.parse("2026-11-11T06:30:00.000Z"), payInr: 2213 };
+  // The file pins Date in a top-level beforeEach; drop this suite's instants so the next test re-pins from scratch.
+  afterEach(() => vi.useRealTimers());
+
+  it("1 ms before 00:00 IST 7 Nov: no breakup, Pay names today's ₹1,917; at the cut-off: Pay ₹2,262 with its breakup", () => {
+    vi.setSystemTime(CUT - 1);
+    view({ signedIn: true, showMonth: false });
+    expect(screen.getByRole("button", { name: "Pay ₹1,917 once till your boards" })).toBeTruthy();
+    expect(screen.queryByTestId("pass-checkout-gst")).toBeNull();
+    cleanup();
+    vi.setSystemTime(CUT);
+    view({ signedIn: true, showMonth: false });
+    expect(screen.getByRole("button", { name: "Pay ₹2,262 once till your boards" })).toBeTruthy();
+    expect(screen.getByTestId("pass-checkout-gst").textContent).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262");
+  });
+
+  it("a credited buyer after the cut-off reads the CREDITED breakup, so the figures beside Pay add up to the server's charge", () => {
+    vi.setSystemTime(CUT + 3_600_000);
+    view({ signedIn: true, showMonth: false, packCredit: CREDIT });
+    expect(screen.getByTestId("pass-checkout-gst").textContent).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262, less your pack credit ₹49: you pay ₹2,213");
+    expect(screen.getByTestId("pass-checkout-pack-credit").textContent).toContain("Board Pass ₹2,213 incl. GST for you");
+  });
+});
+
 describe("PACK-CREDIT-1 · the connected buy area shows the SERVER's credit", () => {
   it("signed in: the credit line comes from /api/packs/mine; signed out: it is never asked for", async () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
