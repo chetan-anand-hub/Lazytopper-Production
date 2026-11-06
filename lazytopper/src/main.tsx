@@ -36,7 +36,23 @@ const prerenderedRoute = extractPrerenderedRoute(
   window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/",
 );
 
-ReactDOM.createRoot(rootElement).render(
+// SPEED-SITE-2f — a prerendered page loads the entry stylesheet WITHOUT blocking its first paint (its critical
+// rules are inlined; scripts/seo/applyPrerendered.ts withCriticalEntryCss). React must not render anything the
+// critical subset does not cover before that sheet is in, so the first render waits for it. It is ~20 KB against
+// this ~200 KB script and is requested first, so in practice it is already there; capped at 3 s regardless.
+// `__shell.html` and dev keep the ordinary blocking link: no such element, no wait.
+function deferredStylesheetReady(timeoutMs = 3000): Promise<void> {
+  const link = document.querySelector<HTMLLinkElement>("link[data-lt-deferred-css]");
+  if (!link || link.media === "all") return Promise.resolve();
+  return new Promise<void>((resolve) => {
+    const done = () => resolve();
+    link.addEventListener("load", done, { once: true });
+    link.addEventListener("error", done, { once: true });
+    window.setTimeout(done, timeoutMs);
+  });
+}
+
+void deferredStylesheetReady().then(() => ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       {/* Page views for a client-side router: one document load, then every "page" is a
@@ -57,4 +73,4 @@ ReactDOM.createRoot(rootElement).render(
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
-);
+));

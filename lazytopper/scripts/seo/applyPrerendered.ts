@@ -38,6 +38,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "node:fs";
+import { criticalCss } from "./criticalCss";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
@@ -379,13 +380,22 @@ export function preloadHrefsFor(
 }
 
 /** Insert the preload links immediately before `</head>`, which must occur exactly once. */
+/**
+ * SPEED-SITE-2f — route modulepreloads are fetched at LOW priority. They are not needed for the first paint (the
+ * prerendered HTML is the first paint); on a slow link at High priority they competed with the HTML and the
+ * stylesheet for bandwidth (~40–70 KB per page before first paint). They still arrive before the app needs them.
+ */
+export const MODULEPRELOAD_PRIORITY = "low";
+
 export function withPreloads(html: string, hrefs: readonly string[]): string {
   if (hrefs.length === 0) return html;
   const closes = html.split("</head>").length - 1;
   if (closes !== 1) {
     throw new Error(`applyPrerendered: expected exactly one </head> to insert modulepreload links, found ${closes}`);
   }
-  const links = hrefs.map((href) => `<link rel="modulepreload" crossorigin href="${href}">`).join("");
+  const links = hrefs
+    .map((href) => `<link rel="modulepreload" crossorigin href="${href}" fetchpriority="${MODULEPRELOAD_PRIORITY}">`)
+    .join("");
   return html.replace("</head>", `${links}</head>`);
 }
 
@@ -569,6 +579,39 @@ export function entranceAnimationsIn(html: string): string[] {
   return found;
 }
 
+/**
+ * SPEED-SITE-2f — the entry stylesheet no longer blocks a prerendered page's first paint.
+ *
+ * The rules that can apply to this page's HTML (`criticalCss`, scripts/seo/criticalCss.ts) are inlined in a
+ * `<style data-lt-critical>` where the entry `<link rel="stylesheet">` was, and the full sheet is loaded without
+ * blocking (`media="print"` switched to `all` on load; a `<noscript>` copy for no-JS readers). The full sheet holds
+ * the same rules in the same order after these, so its arrival changes nothing on screen, and main.tsx starts React
+ * only once it has loaded (`deferredStylesheetReady`), so nothing the app renders is ever unstyled.
+ * Only prerendered page files get this: `__shell.html` keeps its blocking link (it has no HTML to compute from).
+ */
+export const DEFERRED_CSS_ATTR = "data-lt-deferred-css";
+
+export function withCriticalEntryCss(html: string, cssFile: string, css: string, critical: (css: string, html: string) => string): string {
+  const link = `<link rel="stylesheet" crossorigin href="/assets/${cssFile}">`;
+  const count = html.split(link).length - 1;
+  if (count !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one entry stylesheet link ${link}, found ${count}`);
+  }
+  const body = html.slice(Math.max(0, html.indexOf("<body")));
+  const subset = inlinableCss(cssFile, critical(css, body));
+  const deferred =
+    `<style data-lt-critical="${cssFile}">${subset}</style>` +
+    `<link rel="stylesheet" crossorigin href="/assets/${cssFile}" media="print" onload="this.media='all'" ${DEFERRED_CSS_ATTR}>` +
+    `<noscript>${link}</noscript>`;
+  return html.replace(link, () => deferred);
+}
+
+/** The entry stylesheet's file name in the built shell (`index-<hash>.css`), or null if it has none. */
+export function entryStylesheetOf(shellHtml: string): string | null {
+  const m = shellHtml.match(/<link rel="stylesheet" crossorigin href="\/assets\/([^"/]+\.css)">/);
+  return m ? m[1] : null;
+}
+
 /** Every `data-lt-inline` file name in a built page. */
 export function inlinedStylesIn(html: string): string[] {
   return [...html.matchAll(/<style data-lt-inline="([^"]+)">/g)].map((m) => m[1]);
@@ -646,6 +689,13 @@ export function verifyBuiltPages(
       // SPEED-SITE-1b: no prerendered body paints its content at opacity 0.
       for (const cls of entranceAnimationsIn(html)) {
         failures.push(`${path}: the ${variant} file ${file} still carries the entrance animation "${cls}" in its body`);
+      }
+      // SPEED-SITE-2f: the entry stylesheet never blocks a prerendered page, and is never lost (deferred + noscript).
+      if (html.includes('<link rel="stylesheet" crossorigin href="/assets/index-') && !html.includes(DEFERRED_CSS_ATTR)) {
+        failures.push(`${path}: the ${variant} file ${file} still loads the entry stylesheet render-blocking`);
+      }
+      if (html.includes(DEFERRED_CSS_ATTR) && (!html.includes("<style data-lt-critical=") || !html.includes("<noscript><link rel=\"stylesheet\""))) {
+        failures.push(`${path}: the ${variant} file ${file} defers the entry stylesheet without its critical CSS or noscript copy`);
       }
       // LOW-END-3 PR-1 (a): no URL that costs the reader a redirect hop.
       for (const url of hopUrlsIn(html)) {
@@ -821,8 +871,14 @@ export function applyArtifact(
       );
     }
   }
-  const finish = (path: string, html: string, hrefs: readonly string[]): string =>
-    withPreloads(withRouteStyles(html, routeStyles.get(path) ?? []), hrefs);
+  // SPEED-SITE-2f: the entry stylesheet, inlined per page as its critical subset (skipped by the synthetic-build
+  // guards with no real assets, exactly like the preloads above).
+  const entryCss = options.preloads !== false ? entryStylesheetOf(cleanShell) : null;
+  const entryCssText = entryCss ? readFileSync(join(assetsDir, entryCss), "utf8") : "";
+  const finish = (path: string, html: string, hrefs: readonly string[]): string => {
+    const done = withPreloads(withRouteStyles(html, routeStyles.get(path) ?? []), hrefs);
+    return entryCss ? withCriticalEntryCss(done, entryCss, entryCssText, criticalCss) : done;
+  };
 
   let filesWritten = 0;
   let desktopFilesWritten = 0;
