@@ -176,13 +176,30 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
       // D63a, amended by D137/D142 (PARENTS-1) and NCERT-BOOKS-1 (G, CLS 0.46 at 1366 px without it):
       // the three pages whose layout shifts without their route CSS.
       // SOLUTIONS-1 (G): + SolutionsPage, the books page's layout on the solutions pages.
-      expect(INLINE_ROUTE_CSS_MODULES).toEqual(["CheckYourAnswerPage", "ForParentsPage", "NcertBooksPage", "SolutionsPage"]);
+      // CLS-1: + ContactPage, PacksPage, CbqHubPage, CbqChapterPage (CLS 0.17 / 0.58 / 0.44 / 1.09 without their CSS).
+      expect(INLINE_ROUTE_CSS_MODULES).toEqual([
+        "CheckYourAnswerPage",
+        "ForParentsPage",
+        "NcertBooksPage",
+        "SolutionsPage",
+        "ContactPage",
+        "PacksPage",
+        "CbqHubPage",
+        "CbqChapterPage",
+      ]);
       expect(inlinedStylesIn(read(out, "index.html"))).toEqual([]);
       expect(inlinedStylesIn(read(out, "__shell.html"))).toEqual([]);
       expect(verifyBuiltPages(out, PATHS).failures).toEqual([]);
     } finally {
       cleanup();
     }
+  });
+
+  it("dynamicImportCssOf also reads a named-export import (`import(...).then(e=>e.d)`), the CBQ chapter shape", () => {
+    const entry =
+      'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/P-1.js","assets/CbqBand-2.css","assets/P-3.css"])))=>i.map(i=>d[i]);' +
+      'x=_e(()=>Q(()=>import("./P-1.js").then(e=>e.d),__vite__mapDeps([0,1,2])))';
+    expect(dynamicImportCssOf(entry, "P-1.js")).toEqual(["CbqBand-2.css", "P-3.css"]);
   });
 
   it("dynamicImportCssOf reads Vite's own dependency table, and only CSS from it", () => {
