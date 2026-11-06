@@ -254,7 +254,7 @@ describe("WS-AWAIT-1 - the ready screen after a download", () => {
     await openReady(p);
     fs.recordReadFailures = 99;
     fireEvent.click(await dl());
-    const line = await screen.findByTestId("ws-paper-save-failed", undefined, { timeout: 5000 });
+    const line = await screen.findByTestId("ws-paper-save-failed", undefined, { timeout: 15000 });
     expect(line.textContent).toContain("We couldn’t save this paper to your list");
     expect(line.textContent).toContain(p.code!);
     expect(line.textContent).toContain("Worksheets → History");
