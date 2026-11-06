@@ -369,3 +369,23 @@ test('GUEST-ABANDON-1 totals: a failed guest read leaves purchases intact and sa
   assert.equal(res.body.totals.guestUnclaimedKnown, false);
   assert.deepEqual(res.body.totals.last7.premium, { count: 1, inr: 1917 });
 });
+
+test('review D6/D4: erased_unclaimed counts; a claimed order by an admin payer or landed on an admin is excluded; guestTruncated is separate from complete', async () => {
+  const HOUR = 3600000;
+  const g = (id, status, extra = {}) => ({ id, data: { uid: null, payer: 'guest', passType: 'pack_chapter', packTarget: 'triangles', amountPaise: 4900, status, paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - HOUR), ...extra } });
+  const orders = [
+    g('er', 'erased_unclaimed', { guestPhone: null }),
+    g('cAdminPayer', 'claimed', { uid: 'u3', payerUid: 'admin1' }),
+    g('cAdminUid', 'claimed', { uid: 'admin1' }),
+    g('cOk', 'claimed', { uid: 'u4' }),
+  ];
+  const r = {}; await harness({ orders }).route.list({}, r);
+  assert.deepEqual(r.body.totals.last7.guestUnclaimed, { count: 2, inr: 98 });
+  assert.equal(r.body.totals.guestTruncated, false);
+  assert.equal(r.body.totals.complete, true);
+  // 300 paid_unclaimed guest orders: the guest read is capped -> guestTruncated, while `complete` (paid orders) stays true.
+  const many = Array.from({ length: 300 }, (_, i) => g(`m${i}`, 'paid_unclaimed'));
+  const r2 = {}; await harness({ orders: many }).route.list({}, r2);
+  assert.equal(r2.body.totals.guestTruncated, true);
+  assert.equal(r2.body.totals.complete, true);
+});

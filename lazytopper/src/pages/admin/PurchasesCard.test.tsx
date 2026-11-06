@@ -243,3 +243,14 @@ describe("GUEST-ABANDON-1 · signed-out checkouts and unclaimed guest money", ()
     expect(screen.getByTestId("pu-totals").textContent).not.toMatch(/Guest paid/);
   });
 });
+
+describe("GUEST-ABANDON-1 review D4", () => {
+  it("a capped guest read says so in the guest note, not as the 300-paid-orders warning", async () => {
+    const base = resp([item()]);
+    stub({ ...base, totals: { ...base.totals, guestUnclaimedKnown: true, guestTruncated: true } });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-guest-note").textContent).toMatch(/first 300 guest orders/));
+    expect(screen.getByTestId("pu-totals").textContent).not.toMatch(/latest 300 paid orders/);
+  });
+});

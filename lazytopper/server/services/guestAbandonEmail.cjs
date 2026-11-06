@@ -30,9 +30,9 @@ const crypto = require('node:crypto');
 const { escapeHtml } = require('./trialEndingEmail.cjs');
 const { normaliseEmail } = require('./guestPay.cjs');
 const abandoned = require('./abandonedCheckout.cjs');
+const { emailKey, EMAIL_SUPPRESSION_COLLECTION } = require('./emailSuppression.cjs'); // the shared stop record (review D1)
 
 const GUEST_NUDGE_EMAILS_COLLECTION = 'guestNudgeEmails';
-const EMAIL_SUPPRESSION_COLLECTION = 'emailSuppression';
 const GUEST_EMAIL_UNSUBSCRIBE_PATH = '/api/guest-email/unsubscribe';
 const METRIC = 'guest_abandoned_checkout';
 const GUEST_PAYER = 'guest';
@@ -46,12 +46,6 @@ function guestAbandonEmailEnabled(env = process.env) {
   return String((env && env.GUEST_ABANDON_EMAIL_ENABLED) || '').trim() === '1';
 }
 
-/** The recipient key: hex SHA-256 of the normalised address, domain-separated. null for a non-address. PURE. */
-function emailKey(raw) {
-  const e = normaliseEmail(raw);
-  if (!e) return null;
-  return crypto.createHash('sha256').update(`lazytopper-email-key:v1:${e}`).digest('hex');
-}
 
 function msOf(v) {
   if (typeof v === 'number' && Number.isFinite(v)) return v;
@@ -194,7 +188,7 @@ function buildGuestAbandonEmail({ product, currentPriceInr, appUrl, unsubscribeU
   if (Number.isFinite(currentPriceInr) && currentPriceInr > 0) paras.push(`${name}: ${rupee(currentPriceInr)}.`);
   paras.push('If this was not you, or you have already sorted it out, you can ignore this email.');
   const signoff = 'Team LazyTopper';
-  const footer = 'This is the only email about this checkout. To stop all LazyTopper emails to this address, use the unsubscribe link.';
+  const footer = 'This is the only email about this checkout. To stop LazyTopper reminder and follow-up emails to this address, use the unsubscribe link. Sign-in codes and payment receipts still arrive.';
 
   const text = [...paras.flatMap((p) => [p, '']), `Open ${where}: ${page}`, '', signoff, '', footer, `Unsubscribe: ${unsubscribeUrl}`, '', 'LazyTopper'].join('\n');
 

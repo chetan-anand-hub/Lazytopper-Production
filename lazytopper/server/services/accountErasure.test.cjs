@@ -311,7 +311,9 @@ test('AUDIT: field-keyed is decided by the PATH, and matches every location with
     .filter(
       (l) =>
         (l.kind === 'firestore-collection' || l.kind === 'firestore-subcollection') &&
-        !templateSegments(l.path).includes('{uid}')
+        !templateSegments(l.path).includes('{uid}') &&
+        // GUEST-ABANDON-1: an address-keyed location is reached by emailKey, never as a uid field query.
+        !templateSegments(l.path).includes('{emailKey}')
     )
     .map((l) => l.id)
     .sort();
@@ -983,4 +985,53 @@ test('PAY-PHONE-1: erasure clears guestPhone on the account\'s claimed orders AN
   // Orders without the field are rewritten exactly as before (no guestPhone key added).
   assert.equal(Object.prototype.hasOwnProperty.call(store.docs.get('payOrders/order_A'), 'guestPhone'), false);
   assert.ok(!store.deleted.some((p) => p.startsWith('payOrders/')));
+});
+
+test('GUEST-ABANDON-1 review D3 + D2: erasure clears guestEmail on the account\'s guest orders, deletes its guest email ledger, KEEPS its stop record', async () => {
+  const EMAIL = 'Child.K@Gmail.com';
+  const { emailKey } = require('./emailSuppression.cjs');
+  const key = emailKey(EMAIL);
+  const otherKey = emailKey('someone.else@gmail.com');
+  const seed = {
+    ...realSeed(),
+    'payOrders/order_W1': { uid: null, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', guestPhone: '+919876543948', passType: 'till_boards', amountPaise: 191700, status: 'paid_unclaimed', paymentId: 'pay_W1' },
+    'payOrders/order_W2': { uid: null, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'pack_mock', amountPaise: 9900, status: 'created' },
+    'payOrders/order_W3': { uid: UID, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'pack_cbq', amountPaise: 19900, status: 'paid', paymentId: 'pay_W3' },
+    'payOrders/order_W4': { uid: null, payer: 'guest', checkoutWho: true, guestEmail: 'someone.else@gmail.com', passType: 'pack_cbq', amountPaise: 19900, status: 'paid_unclaimed', paymentId: 'pay_W4' },
+    [`guestNudgeEmails/${key}`]: { abandoned_board_pass: { status: 'sent' }, lastClaimMs: 1 },
+    [`guestNudgeEmails/${otherKey}`]: { abandoned_board_pass: { status: 'sent' } },
+    [`emailSuppression/${key}`]: { optedOut: true, source: 'guest-email' },
+  };
+  const store = makeFirestore(seed);
+  const admin = makeAdmin(makeBucket([]), [UID, OTHER]);
+  const baseAuth = admin.auth;
+  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => ({ uid, email: uid === UID ? EMAIL : null }) });
+  const service = createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'test-bucket' });
+  const result = await service.eraseAccount(UID);
+  assert.equal(result.ok, true);
+  const w1 = store.docs.get('payOrders/order_W1');
+  assert.equal(w1.guestEmail, null); assert.equal(w1.guestPhone, null);
+  assert.equal(w1.status, 'erased_unclaimed'); assert.equal(w1.paymentId, 'pay_W1', 'the accounting record is kept');
+  assert.equal(store.docs.get('payOrders/order_W2').guestEmail, null);
+  assert.equal(store.docs.get('payOrders/order_W2').status, 'created');
+  assert.equal(store.docs.get('payOrders/order_W3').guestEmail, null, 'a claimed order is anonymised by uid and loses guestEmail');
+  assert.equal(store.docs.get('payOrders/order_W3').uid, 'erased');
+  assert.equal(store.docs.get('payOrders/order_W4').guestEmail, 'someone.else@gmail.com', 'another address is untouched');
+  // The ledger for THIS address is deleted; another address's is not.
+  assert.equal(store.docs.has(`guestNudgeEmails/${key}`), false);
+  assert.equal(store.docs.has(`guestNudgeEmails/${otherKey}`), true);
+  assert.equal(byId(result, 'guestNudgeEmails').status, STATUS.DELETED);
+  // The stop record is KEPT on purpose and reported as such - never as deleted, never as a failure.
+  assert.deepEqual(store.docs.get(`emailSuppression/${key}`), { optedOut: true, source: 'guest-email' });
+  const stop = byId(result, 'emailSuppression');
+  assert.equal(stop.status, STATUS.RETAINED);
+  assert.ok(!result.remaining.some((r) => r.id === 'emailSuppression'));
+  assert.ok(!store.deleted.some((p) => p.startsWith('payOrders/') || p.startsWith('emailSuppression/')));
+});
+
+test('GUEST-ABANDON-1: an {emailKey} location without an email-key rule, or the rule on another shape, is REFUSED', () => {
+  const base = { kind: 'firestore-collection', mechanism: 'admin-sdk-required', exportable: true };
+  assert.equal(classifyLocation({ ...base, id: 'a', path: 'a/{emailKey}' }).strategy, STRATEGY.UNSUPPORTED);
+  assert.equal(classifyLocation({ ...base, id: 'b', path: 'b/{uid}', onErase: 'delete-by-email-key' }).strategy, STRATEGY.UNSUPPORTED);
+  assert.equal(classifyLocation({ ...base, id: 'c', path: 'c/{emailKey}', onErase: 'retain-email-key' }).strategy, STRATEGY.FIRESTORE_EMAIL_KEY);
 });

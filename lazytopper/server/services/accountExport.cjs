@@ -96,6 +96,7 @@ const {
 } = require('./accountErasure.cjs');
 
 const { __internals: qrInternals } = require('./qrUploadChannel.cjs');
+const { emailKey } = require('./emailSuppression.cjs'); // GUEST-ABANDON-1 review D2
 
 /**
  * ★ Stack-frame stripping, reused from the response sink rather than re-written.
@@ -410,6 +411,27 @@ async function readFirestoreByField(db, pathTemplate, uid, field) {
   }));
 }
 
+/**
+ * GUEST-ABANDON-1 review D2 - a `name/{emailKey}` location: the ONE document keyed by emailKey(the account's own auth
+ * email). No address on the account (or no such document) -> an honest empty.
+ */
+async function readFirestoreByEmailKey(db, firebaseAdmin, pathTemplate, uid) {
+  let email = '';
+  try {
+    const user = await firebaseAdmin.auth().getUser(uid);
+    email = user && typeof user.email === 'string' ? user.email : '';
+  } catch (e) {
+    if (e && e.code === 'auth/user-not-found') return [];
+    throw e;
+  }
+  const key = emailKey(email);
+  if (!key) return [];
+  const ref = db.collection(templateSegments(pathTemplate)[0]).doc(key);
+  const snap = await ref.get();
+  if (!snap || !snap.exists) return [];
+  return [{ path: (ref && ref.path) || null, id: key, data: toPlainJson(snap.data()) }];
+}
+
 /** `qr-uploads/{uid}/{slotId}.{ext}` -> `qr-uploads/<uid>/`. */
 function storagePrefixFor(pathTemplate, uid) {
   const segs = templateSegments(pathTemplate);
@@ -599,6 +621,8 @@ function createAccountExportService(deps = {}) {
         return {
           records: await readFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD),
         };
+      case STRATEGY.FIRESTORE_EMAIL_KEY:
+        return { records: await readFirestoreByEmailKey(adminFirestore, firebaseAdmin, step.path, uid) };
       case STRATEGY.STORAGE_PREFIX:
         return readStoragePrefix(bucket(), step.path, uid, caps, ctx);
       case STRATEGY.AUTH_ACCOUNT:

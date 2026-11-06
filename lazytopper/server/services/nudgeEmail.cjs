@@ -107,6 +107,7 @@ const abandoned = require('./abandonedCheckout.cjs'); // CHECKOUT-NUDGE-1
 const sampleFu = require('./sampleFollowup.cjs'); // SAMPLE-FOLLOWUP-1
 const { listPacks } = require('./packGrant.cjs');
 const guestEmail = require('./guestAbandonEmail.cjs'); // GUEST-ABANDON-1
+const { isSuppressedTx } = require('./emailSuppression.cjs');
 const { PACK_PRODUCTS, isAlreadyOwned } = require('./packProducts.cjs');
 const { computeGrant } = require('./passGrant.cjs');
 
@@ -601,7 +602,7 @@ function createNudgeEmailer(deps = {}) {
    * ★ CLAIM + DURABLE CAP + OPT-OUT RE-READ, in ONE transaction. Returns
    * 'claimed' | 'claimed-elsewhere' | 'opted-out' | 'daily-cap'.
    */
-  async function claimWithinCap(uid, kind, dayKey, nowMs) {
+  async function claimWithinCap(uid, kind, dayKey, nowMs, email) {
     const ledgerRef = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
     const trialRef = adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid);
     const dailyRef = adminFirestore.collection(NUDGE_EMAIL_DAILY_COLLECTION).doc(dayKey);
@@ -610,6 +611,8 @@ function createNudgeEmailer(deps = {}) {
       const t = await tx.get(trialRef);
       const d = await tx.get(dailyRef);
       if (t.exists && (t.data() || {}).optedOut) return 'opted-out';
+      // GUEST-ABANDON-1 review D1: a stop recorded for this ADDRESS (guest stop link) stops every nudge too.
+      if (await isSuppressedTx(tx, adminFirestore, email)) return 'opted-out';
       const row = l.exists ? l.data() || {} : {};
       if (row[kind]) return 'claimed-elsewhere';
       if (typeof row.lastClaimMs === 'number' && nowMs - row.lastClaimMs < SPACING_MS) return 'spaced';
@@ -883,7 +886,7 @@ function createNudgeEmailer(deps = {}) {
 
       let claim;
       try {
-        claim = await claimWithinCap(uid, kind, day, nowMs);
+        claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
       } catch (e) {
         skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
         continue;
@@ -1061,7 +1064,7 @@ function createNudgeEmailer(deps = {}) {
 
       let claim;
       try {
-        claim = await claimWithinCap(uid, kind, day, nowMs);
+        claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
       } catch (e) {
         skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
         continue;
@@ -1242,7 +1245,7 @@ function createNudgeEmailer(deps = {}) {
 
         let claim;
         try {
-          claim = await claimWithinCap(uid, kind, day, nowMs);
+          claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;
@@ -1463,7 +1466,7 @@ function createNudgeEmailer(deps = {}) {
 
       let claim;
       try {
-        claim = await claimWithinCap(uid, kind, day, nowMs);
+        claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
       } catch (e) {
         skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
         continue;
@@ -1644,7 +1647,7 @@ function createNudgeEmailer(deps = {}) {
 
         let claim;
         try {
-          claim = await claimWithinCap(uid, kind, day, nowMs);
+          claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;
@@ -1709,7 +1712,7 @@ function createNudgeEmailer(deps = {}) {
    * address is also an account's sign-in email, that account's opt-out, nudge ledger, spacing and purchases count too.
    * Logs counts only (never the address). Returns true when the daily cap is full.
    */
-  async function claimGuestWithinCap({ key, uid, kind, dayKey, nowMs }) {
+  async function claimGuestWithinCap({ key, uid, kind, dayKey, nowMs, info = {} }) {
     const guestRef = adminFirestore.collection(guestEmail.GUEST_NUDGE_EMAILS_COLLECTION).doc(key);
     const suppRef = adminFirestore.collection(guestEmail.EMAIL_SUPPRESSION_COLLECTION).doc(key);
     const dailyRef = adminFirestore.collection(NUDGE_EMAIL_DAILY_COLLECTION).doc(dayKey);
@@ -1732,7 +1735,12 @@ function createNudgeEmailer(deps = {}) {
       const raw = d.exists ? (d.data() || {}).count : 0;
       const count = typeof raw === 'number' && raw > 0 ? raw : 0;
       if (count >= config.dailyCap) return 'daily-cap';
-      tx.set(guestRef, { [kind]: { status: 'claimed', claimedAt: serverTimestamp(), claimedMs: nowMs, capDay: dayKey }, lastClaimMs: nowMs }, { merge: true });
+      // Review D5: the FIRST attempt time survives a released claim, so a retry can tell whether the provider's
+      // 24 h Idempotency-Key window still covers a send that may have gone out.
+      const firstKey = `${GUEST_FIRST_ATTEMPT_PREFIX}${kind}`;
+      const first = typeof row[firstKey] === 'number' ? row[firstKey] : nowMs;
+      info.firstAttemptMs = first;
+      tx.set(guestRef, { [kind]: { status: 'claimed', claimedAt: serverTimestamp(), claimedMs: nowMs, capDay: dayKey }, lastClaimMs: nowMs, [firstKey]: first }, { merge: true });
       // The account's one-a-day spacing sees this email too (not released on a retryable failure: one day later at worst).
       if (ledgerRef) tx.set(ledgerRef, { lastClaimMs: nowMs }, { merge: true });
       tx.set(dailyRef, { count: count + 1, dayKey, updatedAt: serverTimestamp() }, { merge: true });
@@ -1775,6 +1783,9 @@ function createNudgeEmailer(deps = {}) {
       return null;
     }
   }
+
+  const GUEST_FIRST_ATTEMPT_PREFIX = 'firstAttemptMs_';
+  const GUEST_RETRY_WINDOW_MS = 22 * HOUR_MS;
 
   async function runGuestAbandonedCheckout({ summary, skip: skipAll, nowMs, day }) {
     if (!config.guestAbandonEnabled) return false;
@@ -1900,8 +1911,9 @@ function createNudgeEmailer(deps = {}) {
         }
 
         let claim;
+        const claimInfo = {};
         try {
-          claim = await claimGuestWithinCap({ key, uid, kind, dayKey: day, nowMs });
+          claim = await claimGuestWithinCap({ key, uid, kind, dayKey: day, nowMs, info: claimInfo });
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;
@@ -1917,7 +1929,7 @@ function createNudgeEmailer(deps = {}) {
 
         const unsubscribeUrl = guestEmail.guestUnsubscribeUrlFor(config.appUrl, key, config.unsubscribeSecret);
         const message = guestEmail.buildGuestAbandonEmail({ product, currentPriceInr: currentPriceInr(product, nowMs), appUrl: config.appUrl, unsubscribeUrl });
-        const result =
+        let result =
           fetchImpl && message
             ? await sendViaResend({
                 fetchImpl,
@@ -1933,6 +1945,11 @@ function createNudgeEmailer(deps = {}) {
                 category: `nudge_${guestEmail.METRIC}`,
               })
             : { ok: false, retryable: false, code: message ? 'no-fetch' : 'bad-product' };
+        // Review D5: a retry more than 22 h after the FIRST attempt is outside the safe part of Resend's 24 h idempotency
+        // window - a timed-out send that did go out could be delivered twice - so it is NOT retried.
+        if (!result.ok && result.retryable && typeof claimInfo.firstAttemptMs === 'number' && nowMs - claimInfo.firstAttemptMs > GUEST_RETRY_WINDOW_MS) {
+          result = { ...result, retryable: false, code: `${result.code || 'error'}-past-idempotency-window` };
+        }
         try {
           const ref = adminFirestore.collection(guestEmail.GUEST_NUDGE_EMAILS_COLLECTION).doc(key);
           if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
@@ -2006,7 +2023,7 @@ function createNudgeEmailer(deps = {}) {
         .collection(guestEmail.EMAIL_SUPPRESSION_COLLECTION)
         .doc(key)
         .set({ optedOut: true, optedOutAt: serverTimestamp(), source: 'guest-email' }, { merge: true });
-      return sendGuestHtml(res, 200, 'Unsubscribed', "<h1 style=\"font-size:20px\">You're unsubscribed.</h1><p>We won't send follow-up emails to this address.</p>");
+      return sendGuestHtml(res, 200, 'Unsubscribed', "<h1 style=\"font-size:20px\">You're unsubscribed.</h1><p>We won't send LazyTopper reminder or follow-up emails to this address. Sign-in codes and payment receipts still arrive.</p>");
     } catch {
       return sendGuestHtml(res, 500, 'Try again later', '<p>We could not record that right now. Please try the link again later.</p>');
     }
@@ -2225,7 +2242,7 @@ function createNudgeEmailer(deps = {}) {
 
         let claim;
         try {
-          claim = await claimWithinCap(uid, kind, day, nowMs);
+          claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;

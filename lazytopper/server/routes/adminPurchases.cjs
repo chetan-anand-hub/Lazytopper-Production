@@ -290,13 +290,14 @@ function createAdminPurchasesRoutes(deps = {}) {
   /**
    * GUEST-ABANDON-1 - guest money received but not (yet) a granted 'paid' order, into `guestUnclaimed` of each window,
    * dated by guestPaidAt. Admin payers / admin claimers excluded like every other total. Returns false when a read failed
-   * (the guest totals are then not known), and marks the totals incomplete when a read hit its cap.
+   * (the guest totals are then not known). A guest read that hit its cap sets `totals.guestTruncated` (review D4) - NOT
+   * `complete`, which is only about the 300 paid orders.
    */
   async function addGuestMoney(totals, admins, windows, readStatus) {
     try {
       for (const status of GUEST_MONEY_STATUSES) {
         const snap = await readStatus(status);
-        if (snap.size >= ABANDONED_READ_CAP) totals.complete = false;
+        if (snap.size >= ABANDONED_READ_CAP) totals.guestTruncated = true;
         snap.forEach((d) => {
           const v = d.data() || {};
           if (v.payer !== GUEST_PAYER || typeof v.paymentId !== 'string' || !v.paymentId) return;
@@ -371,6 +372,7 @@ function createAdminPurchasesRoutes(deps = {}) {
       const oldestMs = paid.length ? paid[paid.length - 1].paidAtMs : null;
       totals.complete = !(readFull && (oldestMs === null || oldestMs >= start30));
       const readStatus = statusReader();
+      totals.guestTruncated = false;
       totals.guestUnclaimedKnown = await addGuestMoney(totals, admins, [['last7', start7], ['last30', start30]], readStatus);
 
       const shown = paid.slice(0, SHOWN_CAP);

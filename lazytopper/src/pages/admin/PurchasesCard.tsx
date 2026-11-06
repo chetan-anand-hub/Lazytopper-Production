@@ -108,7 +108,7 @@ interface WindowTotals {
 export interface PurchasesResponse {
   ok: true;
   items: PurchaseItem[];
-  totals: { last7: WindowTotals; last30: WindowTotals; excludesAdminAccounts: boolean; complete: boolean; guestUnclaimedKnown?: boolean };
+  totals: { last7: WindowTotals; last30: WindowTotals; excludesAdminAccounts: boolean; complete: boolean; guestUnclaimedKnown?: boolean; guestTruncated?: boolean };
   truncated?: boolean;
   /** CHECKOUT-1: absent on an older server, null when that read failed. */
   abandoned?: { items: AbandonedItem[]; truncated?: boolean } | null;
@@ -357,7 +357,8 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
             {state.data.totals.guestUnclaimedKnown !== undefined && (
               <p className="sa-muted" data-testid="pu-guest-note">
                 {state.data.totals.guestUnclaimedKnown
-                  ? "\"Guest paid, not yet on an account\" is money received from a signed-out checkout that no account holds yet; once it lands on an account it counts under Premium or Packs instead, never both."
+                  ? "\"Guest paid, not yet on an account\" is money received from a signed-out checkout that no account holds yet; once it lands on an account it counts under Premium or Packs instead, never both." +
+                    (state.data.totals.guestTruncated ? " May be incomplete: only the first 300 guest orders of a status were read." : "")
                   : "Guest payments not yet on an account could not be read, so they are not in these totals."}
               </p>
             )}

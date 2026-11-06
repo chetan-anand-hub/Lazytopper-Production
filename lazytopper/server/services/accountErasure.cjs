@@ -44,6 +44,14 @@
  * as for a delete. The flag is honoured ONLY on a field-keyed location; anywhere else
  * the plan REFUSES it, because "anonymise" has no meaning for a document whose id IS
  * the uid.
+ *
+ * ★ KEYED BY THE EMAIL ADDRESS, NOT THE UID (GUEST-ABANDON-1 review D2). A location whose
+ * path is `name/{emailKey}` holds a record about an ADDRESS (a signed-out checkout email
+ * has no uid). It is reached as `emailKey(<the account's own auth email>)`, read from the
+ * auth record BEFORE it is deleted. `onErase: "delete-by-email-key"` deletes that one
+ * document; `onErase: "retain-email-key"` KEEPS it on purpose (today: `emailSuppression`,
+ * a stop request that must outlive the account - it holds the hash key only) and is
+ * reported `retained`, never `deleted`. Any other `{emailKey}` shape is REFUSED.
  */
 
 const path = require('path');
@@ -55,6 +63,8 @@ const { __internals: qrInternals } = require('./qrUploadChannel.cjs');
 // STUDENT-ACTIVITY-1 (D10): the one live writer that can race an erasure names its
 // own path, so this walker stays free of ids. See resweepAfterAuth below.
 const { ACTIVITY_DAYS_PATH_TEMPLATE } = require('../routes/studentActivity.cjs');
+const { emailKey } = require('./emailSuppression.cjs'); // GUEST-ABANDON-1 review D2/D3
+const { normaliseEmail } = require('./guestPay.cjs');
 const RESWEEP_AFTER_AUTH_PATHS = new Set([ACTIVITY_DAYS_PATH_TEMPLATE]);
 
 /**
@@ -70,7 +80,8 @@ const UID_FIELD = 'uid';
 const ERASED_UID = 'erased';
 
 /** The map's `onErase` values. Absent = delete. */
-const ON_ERASE = Object.freeze({ DELETE: 'delete', ANONYMISE_UID: 'anonymise-uid' });
+const ON_ERASE = Object.freeze({ DELETE: 'delete', ANONYMISE_UID: 'anonymise-uid', DELETE_BY_EMAIL_KEY: 'delete-by-email-key', RETAIN_EMAIL_KEY: 'retain-email-key' });
+const EMAIL_KEY_SEGMENT = '{emailKey}';
 
 /** Where the map lives, relative to this file. Resolved once. */
 const STUDENT_DATA_MAP_PATH = path.join(__dirname, '..', '..', 'src', 'services', 'studentDataMap.ts');
@@ -83,6 +94,8 @@ const STRATEGY = Object.freeze({
   FIRESTORE_FIELD_QUERY: 'firestore-field-query',
   STORAGE_PREFIX: 'storage-prefix',
   AUTH_ACCOUNT: 'auth-account',
+  /** GUEST-ABANDON-1: `name/{emailKey}` - one document keyed by emailKey(the account's auth email). */
+  FIRESTORE_EMAIL_KEY: 'firestore-email-key',
   /** Reachable only from the student's own browser. */
   NOT_SERVER_ERASABLE: 'not-server-erasable',
   /** Left the product; retention is a third party's. */
@@ -95,6 +108,8 @@ const STATUS = Object.freeze({
   DELETED: 'deleted',
   /** Kept, with the uid field replaced by "erased" (map `onErase: "anonymise-uid"`). */
   ANONYMISED: 'anonymised',
+  /** GUEST-ABANDON-1: deliberately KEPT by the map (`onErase: "retain-email-key"`); nothing attempted. */
+  RETAINED: 'retained',
   /** ★ The query ran and matched nothing. NOT the same as success. */
   NOT_FOUND: 'notFound',
   FAILED: 'failed',
@@ -176,8 +191,16 @@ const isPlaceholder = (seg) => /^\{.+\}$/.test(seg);
  * `id === "qrUploadSlots"` the walker stops being a map-walker.
  */
 function classifyLocation(location) {
-  const classified = classifyByShape(location);
   const onErase = location.onErase === undefined ? ON_ERASE.DELETE : location.onErase;
+  const segs = templateSegments(location.path);
+  const emailKeyed = location.kind === 'firestore-collection' && segs.length === 2 && segs[1] === EMAIL_KEY_SEGMENT;
+  if (onErase === ON_ERASE.DELETE_BY_EMAIL_KEY || onErase === ON_ERASE.RETAIN_EMAIL_KEY) {
+    if (!emailKeyed) return { strategy: STRATEGY.UNSUPPORTED, reason: `onErase "${onErase}" is only supported on a top-level name/{emailKey} location` };
+    return { strategy: STRATEGY.FIRESTORE_EMAIL_KEY, retain: onErase === ON_ERASE.RETAIN_EMAIL_KEY };
+  }
+  // An {emailKey} location must say what erasure does with it: never guessed as a uid field query.
+  if (segs.includes(EMAIL_KEY_SEGMENT)) return { strategy: STRATEGY.UNSUPPORTED, reason: '{emailKey} location without an email-key onErase rule' };
+  const classified = classifyByShape(location);
   if (onErase === ON_ERASE.DELETE) return classified;
   if (onErase === ON_ERASE.ANONYMISE_UID && classified.strategy === STRATEGY.FIRESTORE_FIELD_QUERY) {
     return { ...classified, anonymise: true };
@@ -266,7 +289,7 @@ function classifyByShape(location) {
  *  4. The locations no server can reach — informational, ordered last.
  */
 function orderRank(location, strategy) {
-  if (strategy === STRATEGY.FIRESTORE_DOC_TREE || strategy === STRATEGY.FIRESTORE_FIELD_QUERY) return 0;
+  if (strategy === STRATEGY.FIRESTORE_DOC_TREE || strategy === STRATEGY.FIRESTORE_FIELD_QUERY || strategy === STRATEGY.FIRESTORE_EMAIL_KEY) return 0;
   if (strategy === STRATEGY.STORAGE_PREFIX) return 1;
   if (strategy === STRATEGY.AUTH_ACCOUNT) return 2;
   if (strategy === STRATEGY.UNSUPPORTED) return 3;
@@ -291,6 +314,7 @@ function planErasure(locations) {
       strategy: classified.strategy,
       field: classified.field,
       anonymise: classified.anonymise === true,
+      retain: classified.retain === true,
       reason: classified.reason,
       depth,
       index,
@@ -387,9 +411,9 @@ async function deleteFirestoreByField(db, pathTemplate, uid, field) {
  * phone number as its claim key (`guestPhone`); it is cleared wherever the uid is blanked. Only a field the document
  * actually has is written, so records without it are rewritten exactly as before.
  */
-const ANONYMISE_ALSO_CLEAR = Object.freeze(['guestPhone']);
+const ANONYMISE_ALSO_CLEAR = Object.freeze(['guestPhone', 'guestEmail']);
 
-async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone } = {}) {
+async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, email } = {}) {
   const segs = templateSegments(pathTemplate);
   const snap = await db.collection(segs[0]).where(field, '==', uid).get();
   const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
@@ -409,6 +433,7 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone }
     const byPhone = await db.collection(segs[0]).where('guestPhone', '==', phone).get();
     for (const doc of (byPhone && Array.isArray(byPhone.docs) ? byPhone.docs : [])) {
       if (seen.has(doc.id)) continue;
+      seen.add(doc.id);
       const data = typeof doc.data === 'function' ? doc.data() || {} : {};
       // Review fix 10: a PAID order nobody claimed can now never be claimed (its key is gone): mark it
       // `erased_unclaimed` - paymentId kept - an information label the owner sees in admin purchases.
@@ -416,7 +441,34 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone }
       phoneCleared += 1;
     }
   }
-  return docs.length + phoneCleared;
+  // GUEST-ABANDON-1 review D3 - the same for a "Who will use it?" order bought with this account's EMAIL address
+  // (`guestEmail`, stored lower-cased): its `guestEmail` (and a phone on the same order) is cleared; an unclaimed paid
+  // order becomes `erased_unclaimed`. Never counted twice with the phone sweep above.
+  let emailCleared = 0;
+  const em = normaliseEmail(typeof email === 'string' ? email : '');
+  if (em) {
+    const byEmail = await db.collection(segs[0]).where('guestEmail', '==', em).get();
+    for (const doc of (byEmail && Array.isArray(byEmail.docs) ? byEmail.docs : [])) {
+      if (seen.has(doc.id)) continue;
+      seen.add(doc.id);
+      const data = typeof doc.data === 'function' ? doc.data() || {} : {};
+      const clear = { guestEmail: null, ...(data.guestPhone ? { guestPhone: null } : {}) };
+      await doc.ref.update(data.status === 'paid_unclaimed' ? { ...clear, status: 'erased_unclaimed' } : clear);
+      emailCleared += 1;
+    }
+  }
+  return docs.length + phoneCleared + emailCleared;
+}
+
+/** GUEST-ABANDON-1 - delete `name/{emailKey(email)}`. 1 when it existed, 0 (-> notFound) when not or no address. */
+async function deleteFirestoreByEmailKey(db, pathTemplate, email) {
+  const key = emailKey(email);
+  if (!key) return 0;
+  const ref = db.collection(templateSegments(pathTemplate)[0]).doc(key);
+  const snap = await ref.get();
+  if (!snap || !snap.exists) return 0;
+  await ref.delete();
+  return 1;
 }
 
 /** `qr-uploads/{uid}/{slotId}.{ext}` -> `qr-uploads/<uid>/`. */
@@ -497,14 +549,18 @@ function createAccountErasureService(deps = {}) {
 
   /** PAY-PHONE-1 - the erased account's own verified phone, read once per erasure BEFORE the auth record is deleted. */
   let accountPhone = '';
+  /** GUEST-ABANDON-1 review D2/D3 - the erased account's own auth email, read in the same place. */
+  let accountEmail = '';
 
   async function runOne(step, uid) {
     switch (step.strategy) {
       case STRATEGY.FIRESTORE_DOC_TREE:
         return deleteFirestoreDocTree(adminFirestore, step.path, uid);
       case STRATEGY.FIRESTORE_FIELD_QUERY:
-        if (step.anonymise) return anonymiseFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD, { phone: accountPhone });
+        if (step.anonymise) return anonymiseFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD, { phone: accountPhone, email: accountEmail });
         return deleteFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD);
+      case STRATEGY.FIRESTORE_EMAIL_KEY:
+        return deleteFirestoreByEmailKey(adminFirestore, step.path, accountEmail);
       case STRATEGY.STORAGE_PREFIX:
         return deleteStoragePrefix(bucket(), step.path, uid);
       case STRATEGY.AUTH_ACCOUNT:
@@ -527,13 +583,16 @@ function createAccountErasureService(deps = {}) {
 
     // PAY-PHONE-1 - best effort: no phone, or a failed read, simply clears nothing by number.
     accountPhone = '';
+    accountEmail = '';
     try {
       const record = firebaseAdmin && typeof firebaseAdmin.auth === 'function' && typeof firebaseAdmin.auth().getUser === 'function'
         ? await firebaseAdmin.auth().getUser(trimmed)
         : null;
       accountPhone = record && typeof record.phoneNumber === 'string' ? record.phoneNumber : '';
+      accountEmail = record && typeof record.email === 'string' ? record.email : '';
     } catch {
       accountPhone = '';
+      accountEmail = '';
     }
 
     const plan = planErasure(locations);
@@ -575,6 +634,10 @@ function createAccountErasureService(deps = {}) {
       } else if (step.strategy === STRATEGY.UNSUPPORTED) {
         row.status = STATUS.REFUSED;
         row.reason = step.reason;
+      } else if (step.retain) {
+        // GUEST-ABANDON-1: kept ON PURPOSE by the map (a stop request must outlive the account). Nothing attempted.
+        row.status = STATUS.RETAINED;
+        row.reason = 'kept deliberately by the data map (onErase "retain-email-key")';
       } else if (hasStrandedDescendant(step)) {
         // Deleting this parent now would leave its surviving children orphaned and
         // still readable — the map's own warning, applied to the failure case.
@@ -644,7 +707,7 @@ function createAccountErasureService(deps = {}) {
     // `third-party.gemini` are always here, so `complete` is always false — which
     // is the honest answer for a server-only erasure and must stay visible.
     const remaining = results
-      .filter((r) => r.status !== STATUS.DELETED && r.status !== STATUS.ANONYMISED && r.status !== STATUS.NOT_FOUND)
+      .filter((r) => r.status !== STATUS.DELETED && r.status !== STATUS.ANONYMISED && r.status !== STATUS.RETAINED && r.status !== STATUS.NOT_FOUND)
       .map((r) => ({ id: r.id, status: r.status, reason: r.reason || r.error }));
 
     const failed = results.filter(
@@ -677,4 +740,6 @@ module.exports = {
   ERASED_UID,
   ON_ERASE,
   STUDENT_DATA_MAP_PATH,
+  deleteFirestoreByEmailKey,
+  anonymiseFirestoreByField,
 };

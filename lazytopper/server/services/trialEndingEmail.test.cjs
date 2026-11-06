@@ -755,3 +755,17 @@ test('send window: trial dry run outside the window still reports, writes nothin
   assert.equal(r.wouldSend, 1);
   assert.equal(s.fetchCalls.length, 0);
 });
+
+test('GUEST-ABANDON-1 review D1: a stop recorded for the ADDRESS (guest stop link) stops the trial email too', async () => {
+  const { emailKey } = require('./emailSuppression.cjs');
+  const db = makeDb();
+  db.docs.set(`emailSuppression/${emailKey('Asha@Example.com')}`, { optedOut: true, source: 'guest-email' });
+  const s = setup({ db });
+  const r = await s.emailer.runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(r.skipped['opted-out'], 1);
+  assert.equal(s.fetchCalls.length, 0);
+  // CONTROL: without the stop record the same student is emailed.
+  const s2 = setup();
+  assert.equal((await s2.emailer.runOnce()).sent, 1);
+});

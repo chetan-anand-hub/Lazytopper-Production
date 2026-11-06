@@ -624,3 +624,60 @@ test('GUEST-ABANDON-1: one email a day per recipient and the shared daily cap; a
   assert.match(b.text, /https:\/\/www\.lazytopper\.com\/packs\?utm_source=email/);
   assert.doesNotMatch(b.text, /buy=|&t=/);
 });
+
+// ── GUEST-ABANDON-1 review D1/D5/D6 ─────────────────────────────────────────────────────────────
+
+test('review D1: the stop promise - an address stopped via the guest link gets NO account email either (abandoned checkout, d1)', async () => {
+  const s = setup({ env: { ...ENV_GUEST, ABANDONED_CHECKOUT_EMAIL_ENABLED: '1' } });
+  s.db.docs.set(`emailSuppression/${G.emailKey('one@gmail.com')}`, { optedOut: true, source: 'guest-email' });
+  order(s.db, 'u1', 3); // the signed-in abandoned-checkout email (CHECKOUT-NUDGE-1)
+  guestOrder(s.db, 3, { guestEmail: 'one@gmail.com' }); // and a guest checkout with the same address
+  const r = await s.run();
+  assert.equal(s.calls.length, 0, 'no email of any kind reaches a stopped address');
+  assert.ok(r.skipped['opted-out'] >= 2);
+  // The copy promises exactly what is honoured: reminder + follow-up emails stop; receipts and sign-in codes are named.
+  const msg = G.buildGuestAbandonEmail({ product: { key: 'board_pass', kind: 'board_pass' }, currentPriceInr: 1917, appUrl: 'https://x', unsubscribeUrl: 'https://x/u' });
+  assert.match(msg.text, /stop LazyTopper reminder and follow-up emails to this address/);
+  assert.match(msg.text, /Sign-in codes and payment receipts still arrive\./);
+  assert.doesNotMatch(msg.text, /stop all LazyTopper emails/);
+});
+
+test('review D6: guest stop tokens - tampered, wrong secret, short secret, malformed key, other key -> refused; tokens do not expire by design', () => {
+  const SECRET2 = 'y'.repeat(40);
+  const key = G.emailKey('parent.k@gmail.com');
+  const tok = G.signGuestUnsubscribe(key, SECRET);
+  assert.equal(G.verifyGuestUnsubscribe(tok, SECRET), key);
+  const [k, mac] = tok.split('.');
+  const flipped = `${k}.${mac[0] === 'A' ? 'B' : 'A'}${mac.slice(1)}`;
+  assert.equal(G.verifyGuestUnsubscribe(flipped, SECRET), null, 'tampered mac');
+  assert.equal(G.verifyGuestUnsubscribe(`${G.emailKey('x@gmail.com')}.${mac}`, SECRET), null, 'mac of another key');
+  assert.equal(G.verifyGuestUnsubscribe(tok, SECRET2), null, 'wrong secret');
+  assert.equal(G.verifyGuestUnsubscribe(G.signGuestUnsubscribe(key, 'short'), 'short'), null, 'a secret under 32 chars is refused');
+  assert.equal(G.verifyGuestUnsubscribe(`NOTHEX.${mac}`, SECRET), null, 'malformed key');
+  assert.equal(G.verifyGuestUnsubscribe('', SECRET), null);
+  assert.equal(G.verifyGuestUnsubscribe(`${tok}${'a'.repeat(300)}`, SECRET), null, 'oversized');
+});
+
+test('review D5: a timed-out guest send is retried next run only while inside 22 h of the FIRST attempt', async () => {
+  const s = setup({ env: ENV_GUEST });
+  const key = G.emailKey('parent.k@gmail.com');
+  let mode = 'timeout';
+  const emailer = createNudgeEmailer({
+    config: resolveNudgeConfig(ENV_GUEST), env: ENV_GUEST, adminFirestore: s.db, firebaseAdmin: makeAdmin(USERS),
+    fetchImpl: async () => { if (mode === 'timeout') throw Object.assign(new Error('t'), { name: 'TimeoutError' }); return { ok: true, status: 200, json: async () => ({ id: 'm' }) }; },
+    now: () => s.clock.now, log: () => {}, telemetry: { increment: () => {} }, setTimeoutFn: () => ({}), setIntervalFn: () => ({}),
+  });
+  guestOrder(s.db, 2);
+  await emailer.runOnce();
+  const row = s.db.docs.get(`guestNudgeEmails/${key}`);
+  assert.equal(row.abandoned_board_pass, undefined, 'a timeout inside the window releases the claim (retry next run)');
+  assert.equal(row.firstAttemptMs_abandoned_board_pass, NOW, 'the first attempt time survives the release');
+  // 23 h later the order (now 25 h old) is still in the 1-36 h window, but the first attempt is past 22 h: no retry.
+  s.clock.now = NOW + 23 * HOUR;
+  await emailer.runOnce();
+  assert.equal(s.db.docs.get(`guestNudgeEmails/${key}`).abandoned_board_pass.status, 'failed');
+  mode = 'ok';
+  s.clock.now = NOW + 26 * HOUR;
+  await emailer.runOnce();
+  assert.equal(s.db.docs.get(`guestNudgeEmails/${key}`).abandoned_board_pass.status, 'failed', 'never re-sent');
+});
