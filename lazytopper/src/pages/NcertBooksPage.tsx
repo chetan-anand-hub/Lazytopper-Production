@@ -17,8 +17,10 @@ import "./ncertBooks.css";
 
 /** The row's "Solutions" link: its solutions page (NCERT book first, else Exemplar), or nothing. */
 export function solutionsHrefForRow(row: Pick<NcertBookChapter, "book" | "slug" | "chapter">): string | null {
-  if (row.book !== "Maths") return null;
-  const ch = solutionsChapterForNcert(row.slug, row.chapter);
+  // SOLUTIONS-SCI-1: Science rows link too. The chapter is matched by slug AND number AND subject,
+  // so Science Ch 11 (electricity) can never resolve to Maths Ch 11.
+  const found = solutionsChapterForNcert(row.slug, row.chapter);
+  const ch = found && found.subject === row.book ? found : null;
   const book = ch ? booksOf(ch)[0] : undefined;
   return ch && book ? solutionsPath(book, ch.slug) : null;
 }

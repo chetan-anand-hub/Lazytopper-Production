@@ -1,4 +1,4 @@
-import { use, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { Suspense, use, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { stripAnswerLetter } from "../lib/answerLetterSuffix";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
@@ -14,8 +14,13 @@ import {
   boardPatternRows,
   bookChapterNo,
   hasBook,
+  hintRevealsAnswer,
+  isObjectiveRow,
   parseSolutionsPath,
   publishedRows,
+  scienceGroups,
+  scienceRefLabel,
+  stripStepMark,
   solutionsBookName,
   solutionsChapter,
   solutionsPath,
@@ -33,10 +38,17 @@ import "./solutions.css";
 // MOMENTS-1 M10 — Byte peeks in after a matching check (signed out, public guide arm; lazy chunk).
 import { SolutionsMoment, noteSolutionMatched } from "../components/guide/moments/moments";
 import { hasUsedFreeCheck, isFreeCheckClientEnabled } from "../services/freeCheckClient";
+import { lazyWithRetry } from "../lib/lazyWithRetry";
+
+// SOLUTIONS-SCI-2: the solution figure (NCERT crop / ray diagram) of a row whose answer IS a figure,
+// lazy so the registry never weighs on a page without one.
+const SolutionFigure = lazyWithRetry(() => import("../diagrams/SolutionFigure"));
 
 /**
  * SolutionsPage — `/ncert-solutions/:chapter` and `/ncert-exemplar/:chapter` (SOLUTIONS-1, lane G;
- * #973 D259 / D260 / D261). Pilot: Chapter 6 Triangles; SOLUTIONS-2 (owner 18 Oct 2026): every Maths chapter.
+ * #973 D259 / D260 / D261). Pilot: Chapter 6 Triangles; SOLUTIONS-2 (owner 18 Oct 2026): every Maths chapter;
+ * SOLUTIONS-SCI (owner 6 Nov 2026): NCERT Science chapters (textbook only), grouped as in-text /
+ * worked examples / chapter-end exercises.
  *
  * ★ FREE, ATTEMPT-FIRST (D259). Before an attempt: the question, its options (MCQ / AR), and
  *   "Stuck? Show a hint" (the FIRST step only). An attempt is any MCQ pick or any non-empty typed
@@ -122,10 +134,23 @@ export function optionText(opt: string, i: number): string {
  * (SOLUTIONS-3) shows the FORMAT ("CBSE board pattern · Assertion-Reason"), never the row's ncertRef,
  * so no board-pattern row reads as a numbered NCERT / Exemplar question.
  */
-function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: PublishSafeRow; refLabel?: string }) {
+function QuestionCard({
+  q,
+  safe,
+  refLabel,
+  science = false,
+}: {
+  q: CanonicalQuestion;
+  safe: PublishSafeRow;
+  refLabel?: string;
+  /** SOLUTIONS-SCI review: Science pages hide step marks on objective rows and never show a revealing hint. */
+  science?: boolean;
+}) {
   const anchor = anchorOf(q.id);
   const options = Array.isArray(q.options) ? q.options : null;
-  const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps : [];
+  const rawSteps = Array.isArray(q.solutionSteps) ? q.solutionSteps : [];
+  const steps = science && isObjectiveRow(q) ? rawSteps.map((s) => stripStepMark(String(s))) : rawSteps;
+  const offerHint = steps.length > 0 && !(science && hintRevealsAnswer(q));
   const key = String(q.finalAnswer ?? q.answer ?? "");
   const correct = options ? correctOptionIndex(String(q.answer ?? ""), options) : null;
 
@@ -149,7 +174,9 @@ function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: Publi
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     if (!typed.trim() || submitted) return;
-    const result = safe.verdict === "value" ? compareAnswer(typed, key) : { verdict: "none" as const, shown: typed.trim() };
+    // SOLUTIONS-SCI-2: Science keys carry SI units (#1604's opt-in mode); Maths keeps the length mode.
+    const result =
+      safe.verdict === "value" ? compareAnswer(typed, key, science ? "science" : "length") : { verdict: "none" as const, shown: typed.trim() };
     unlock();
     setSubmitted(result);
     track(
@@ -214,7 +241,7 @@ function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: Publi
               autoComplete="off"
               value={typed}
               disabled={submitted !== null}
-              placeholder={safe.verdict === "value" ? "e.g. 2 cm" : "Type your last line, then check"}
+              placeholder={safe.verdict === "value" ? (science ? "Value with unit, e.g. 0.5 A" : "e.g. 2 cm") : "Type your last line, then check"}
               onChange={(e) => setTyped(e.target.value)}
             />
             <button type="submit" disabled={!typed.trim() || submitted !== null}>
@@ -224,7 +251,7 @@ function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: Publi
         </form>
       )}
 
-      {!attempted && steps.length > 0 && (
+      {!attempted && offerHint && (
         <div className="lt-ncs__hintbox">
           <button
             type="button"
@@ -261,6 +288,13 @@ function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: Publi
           </p>
         )}
         <h4 className="lt-ncs__solh">Step-by-step solution</h4>
+        {/* Mounted only after an attempt: the figure's lazy chunk and its generated ids would otherwise
+            make the prerendered page non-deterministic (capture's data-dependence control). */}
+        {safe.figure && attempted ? (
+          <Suspense fallback={null}>
+            <SolutionFigure questionId={String(q.id)} />
+          </Suspense>
+        ) : null}
         <ol className="lt-ncs__steps">
           {steps.map((s, i) => (
             <li key={i}>
@@ -288,7 +322,9 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
   const bank = bankSlugOf(ch);
   const served = useServedRows(bank);
   const rows = publishedRows(served, ch, book);
-  const groups = groupRows(rows);
+  // SOLUTIONS-SCI: Science references are in-text / example / exercise, not "Ex 6.2" (one parser, solutionsPublishSafe.ts).
+  const science = ch.subject === "Science";
+  const groups = science ? scienceGroups(rows) : groupRows(rows);
   const board = boardPatternRows(served, ch, book);
   const here = solutionsPath(book, ch.slug);
   const ncertRow = ncertRowsForSlug(bank).find((r) => r.chapter === ch.chapter) ?? null;
@@ -348,7 +384,13 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           <section key={g.title} className="lt-ncs__group" aria-label={g.title}>
             <h2>{g.title}</h2>
             {g.rows.map(({ q, safe }) => (
-              <QuestionCard key={q.id} q={q} safe={safe} />
+              <QuestionCard
+                key={q.id}
+                q={q}
+                safe={safe}
+                refLabel={science ? scienceRefLabel(q.ncertRef) ?? undefined : undefined}
+                science={science}
+              />
             ))}
           </section>
         ))}

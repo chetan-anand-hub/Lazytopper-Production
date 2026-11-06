@@ -365,6 +365,11 @@ describe("index.html — the GA4 block (GA4-1)", () => {
       `/${"y".repeat(250)}`,
       "/pricing/",
       "/upload",
+      // SPEED-INSIGHTS-ROUTE-1: 6+ digit runs are masked on all three paths.
+      "/9876543210",
+      "/order-1234567/receipt",
+      "/practice/10/Maths",
+      "/notes/2026-27",
     ];
     for (const path of paths) {
       const expected = normalisePath(path);
@@ -378,6 +383,9 @@ describe("index.html — the GA4 block (GA4-1)", () => {
     // CONTROL — the rule really fires (a no-op on both sides would also be "equal").
     expect(normalisePath("/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12")).toBe("/admin/students/:id");
     expect(normalisePath("/parent/a@b.c")).toBe("/parent/:email");
+    expect(normalisePath("/9876543210")).toBe("/:num");
+    expect(normalisePath("/order-1234567/receipt")).toBe("/order-:num/receipt");
+    expect(normalisePath("/practice/10/Maths")).toBe("/practice/10/Maths"); // short numbers are content
   });
 });
 

@@ -14,6 +14,13 @@
 // mm / cm / m / km, converted. A leading label ("EC = 2 cm") is ignored on both sides.
 // A decimal is accepted for a non-integer key when it is that key rounded to the decimals the
 // student wrote, with at least 3 significant figures (55/3 → 18.3 or 18.33 ✓, 18 ✗).
+//
+// SOLUTIONS-SCI-UNITS (6 Nov 2026) — an OPT-IN Science mode, `{ units: "science" }`, for the NCERT
+// Science solutions pages: one SI quantity with its unit, case-SENSITIVE (mA ≠ MA, mW ≠ MW) —
+// charge C, current A, potential difference V, resistance Ω / ohm, energy J / kWh, power W,
+// time s / min / h, plus the length units — each converted within its own dimension. A unit from
+// another dimension, or an unknown / ambiguous unit, is "none" (the same one rule). The DEFAULT mode
+// is the length-only behaviour above, unchanged: every Maths caller gets byte-identical results.
 
 export type Verdict = "right" | "wrong" | "none";
 
@@ -26,9 +33,62 @@ export interface CompareResult {
 type LengthUnit = "mm" | "cm" | "m" | "km";
 const TO_CM: Readonly<Record<LengthUnit, number>> = { mm: 0.1, cm: 1, m: 100, km: 100_000 };
 
+export type UnitMode = "length" | "science";
+
+/** A Science unit: its dimension and its factor to that dimension's SI base unit. */
+interface SciUnit {
+  dim: "length" | "charge" | "current" | "voltage" | "resistance" | "energy" | "power" | "time";
+  factor: number;
+}
+const MICRO = ["μ", "µ", "u"];
+const SCI_UNITS: ReadonlyArray<[string, SciUnit]> = [
+  ["mm", { dim: "length", factor: 1e-3 }],
+  ["cm", { dim: "length", factor: 1e-2 }],
+  ["km", { dim: "length", factor: 1e3 }],
+  ["m", { dim: "length", factor: 1 }],
+  ["C", { dim: "charge", factor: 1 }],
+  ["mC", { dim: "charge", factor: 1e-3 }],
+  ...MICRO.map((u): [string, SciUnit] => [`${u}C`, { dim: "charge", factor: 1e-6 }]),
+  ["coulomb", { dim: "charge", factor: 1 }],
+  ["coulombs", { dim: "charge", factor: 1 }],
+  ["A", { dim: "current", factor: 1 }],
+  ["mA", { dim: "current", factor: 1e-3 }],
+  ...MICRO.map((u): [string, SciUnit] => [`${u}A`, { dim: "current", factor: 1e-6 }]),
+  ["ampere", { dim: "current", factor: 1 }],
+  ["amperes", { dim: "current", factor: 1 }],
+  ["V", { dim: "voltage", factor: 1 }],
+  ["mV", { dim: "voltage", factor: 1e-3 }],
+  ["kV", { dim: "voltage", factor: 1e3 }],
+  ["volt", { dim: "voltage", factor: 1 }],
+  ["volts", { dim: "voltage", factor: 1 }],
+  ["Ω", { dim: "resistance", factor: 1 }],
+  ["kΩ", { dim: "resistance", factor: 1e3 }],
+  ["MΩ", { dim: "resistance", factor: 1e6 }],
+  ["ohm", { dim: "resistance", factor: 1 }],
+  ["ohms", { dim: "resistance", factor: 1 }],
+  ["J", { dim: "energy", factor: 1 }],
+  ["kJ", { dim: "energy", factor: 1e3 }],
+  ["MJ", { dim: "energy", factor: 1e6 }],
+  ["kWh", { dim: "energy", factor: 3.6e6 }],
+  ["joule", { dim: "energy", factor: 1 }],
+  ["joules", { dim: "energy", factor: 1 }],
+  ["W", { dim: "power", factor: 1 }],
+  ["kW", { dim: "power", factor: 1e3 }],
+  ["MW", { dim: "power", factor: 1e6 }],
+  ["watt", { dim: "power", factor: 1 }],
+  ["watts", { dim: "power", factor: 1 }],
+  ["s", { dim: "time", factor: 1 }],
+  ["min", { dim: "time", factor: 60 }],
+  ["h", { dim: "time", factor: 3600 }],
+];
+// Longest token first, so "kWh" is never read as "h" and "mm" never as "m".
+const SCI_UNITS_BY_LENGTH = [...SCI_UNITS].sort((a, b) => b[0].length - a[0].length);
+
 interface Quantity {
   value: number;
   unit: LengthUnit | null;
+  /** Science mode only: the parsed unit (dimension + SI factor); null when none was written. */
+  sci?: SciUnit | null;
   /** Decimals written, when the value was typed as a plain decimal; else null. */
   decimals: number | null;
   sigFigs: number | null;
@@ -62,8 +122,31 @@ function sigFigsOf(digits: string): number {
   return digits.replace(".", "").replace(/^0+/, "").length;
 }
 
-/** One value + optional length unit, or null when not unambiguous. */
-export function parseQuantity(raw: string): Quantity | null {
+/** Science mode: split "0.5 A" / "R = 15 Ω." into the number text and its unit (case kept). */
+function splitScienceUnit(raw: string): { num: string; sci: SciUnit | null } | null {
+  // B1 (review of #1604): NFKC flattens "10⁶" into "106". A superscript (power of ten, ⁻¹ unit) is
+  // never read: "none".
+  if (/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]/.test(String(raw ?? ""))) return null;
+  let s = String(raw ?? "").normalize("NFKC").replace(/⁄/g, "/").replace(/[−–]/g, "-");
+  const eq = s.lastIndexOf("=");
+  if (eq >= 0) s = s.slice(eq + 1);
+  s = s.replace(/\s+/g, "").replace(/\.+$/, "");
+  for (const [token, unit] of SCI_UNITS_BY_LENGTH) {
+    if (s.endsWith(token) && /[0-9)]$/.test(s.slice(0, -token.length))) return { num: s.slice(0, -token.length), sci: unit };
+  }
+  // Letters left over that are not a known unit (MA, mW, Ωm, …): not unambiguous.
+  return /[A-Za-zΩμµ]$/.test(s) ? null : { num: s, sci: null };
+}
+
+/** One value + optional unit (length units by default; SI Science units with `units: "science"`), or null. */
+export function parseQuantity(raw: string, units: UnitMode = "length"): Quantity | null {
+  if (units === "science") {
+    const split = splitScienceUnit(raw);
+    if (!split) return null;
+    const q = parseQuantity(split.num, "length");
+    if (!q || q.unit) return null;
+    return { ...q, sci: split.sci };
+  }
   let s = normalise(raw);
   let unit: LengthUnit | null = null;
   const u = /(mm|cm|km|m)$/.exec(s);
@@ -105,9 +188,10 @@ export function parseRatio(raw: string): [number, number] | null {
 const close = (a: number, b: number) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
 
 /** Compare a typed answer with a `finalAnswer` key. See the file header for the rules. */
-export function compareAnswer(typed: string, key: string): CompareResult {
+export function compareAnswer(typed: string, key: string, units: UnitMode = "length"): CompareResult {
   const shown = String(typed ?? "").trim();
   if (!shown) return { verdict: "none", shown };
+  if (units === "science") return compareScience(typed, key, shown);
 
   const keyRatio = parseRatio(key);
   if (keyRatio) {
@@ -130,6 +214,56 @@ export function compareAnswer(typed: string, key: string): CompareResult {
     if (close(Math.round(kv * factor) / factor, gv)) return { verdict: "right", shown };
   }
   return { verdict: "wrong", shown };
+}
+
+/** Half a unit in the last written place: the rounding a plain decimal "0.067" (or "667") carries. */
+const halfUlp = (decimals: number) => 0.5 * 10 ** -decimals;
+
+/**
+ * Science mode (second review of #1604): values compared in the KEY's unit after conversion.
+ * - "right" only for EXACT equality after conversion ("2.00 A" vs "2.0 A", "500 mA" vs "0.5 A"), or
+ *   when the answer is a 3+ significant-figure rounding of an EXACT key (an integer or a fraction:
+ *   "667 W" vs "2/3 kW").
+ * - A rounded (decimal) key stands for ± half its last place, and a plain answer for ± its own; when
+ *   those windows overlap without exact equality the verdict is "none" ("1.96 A" vs "2.0 A",
+ *   "0.0667 A" vs "0.067 A"): we cannot tell a correct rounding from a near miss.
+ * - In a whole-number answer trailing zeros are NOT significant: "700 W" is ±50 W, "730 mA" ±5 mA.
+ * - "wrong" only when the windows cannot overlap.
+ * - A bare number against a key WITH a unit is "none" ("500" vs "0.5 A"); another dimension, a
+ *   superscript, or an unknown unit is "none".
+ */
+function compareScience(typed: string, key: string, shown: string): CompareResult {
+  if (parseRatio(key)) return { verdict: "none", shown };
+  const k = parseQuantity(key, "science");
+  const g = parseQuantity(typed, "science");
+  if (!k || !g) return { verdict: "none", shown };
+  if (g.sci && !k.sci) return { verdict: "none", shown };
+  if (!g.sci && k.sci) return { verdict: "none", shown };
+  if (g.sci && k.sci && g.sci.dim !== k.sci.dim) return { verdict: "none", shown };
+  const kf = k.sci?.factor ?? 1;
+  const gf = g.sci?.factor ?? kf;
+  const gInKeyUnit = (g.value * gf) / kf;
+  if (close(gInKeyUnit, k.value)) return { verdict: "right", shown };
+  const diff = Math.abs(gInKeyUnit - k.value);
+  const eps = 1e-9 * Math.max(1, Math.abs(k.value));
+  const keyRounded = k.decimals !== null && k.decimals >= 1;
+  const keyTol = keyRounded ? halfUlp(k.decimals!) : 0;
+  // The answer's own window and significant figures (trailing zeros of a whole number do not count).
+  let answerTol = 0;
+  let sig = g.sigFigs;
+  if (g.decimals !== null) {
+    if (g.decimals >= 1) answerTol = halfUlp(g.decimals);
+    else {
+      const digits = String(Math.abs(g.value));
+      const zeros = g.value === 0 ? 0 : (/0*$/.exec(digits)?.[0].length ?? 0);
+      answerTol = 0.5 * 10 ** zeros;
+      if (sig !== null) sig = Math.max(1, sig - zeros);
+    }
+  }
+  answerTol = (answerTol * gf) / kf;
+  if (diff >= keyTol + answerTol - eps) return { verdict: "wrong", shown };
+  if (!keyRounded && sig !== null && sig >= 3 && diff <= answerTol + eps) return { verdict: "right", shown };
+  return { verdict: "none", shown };
 }
 
 const fold = (s: string) => String(s ?? "").replace(/\s+/g, " ").trim().toLowerCase();

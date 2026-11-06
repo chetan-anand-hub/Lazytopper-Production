@@ -268,7 +268,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
    * every member must have an AUTHORED spec — advertising a note URL that renders
    * "Notes not found" would be a soft 404 at HTTP 200.
    */
-  it("★ advertises 122 URLs (95 + the 27 CBQ-SEO-1 pages): the 66 before (incl. /packs, PACKS-LEGAL-1), /contact (CONTACT-INDEX-1) and 28 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering)", () => {
+  it("★ advertises 134 URLs (107 + the 27 CBQ-SEO-1 pages): the 66 before (incl. /packs, PACKS-LEGAL-1), /contact (CONTACT-INDEX-1) and 40 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering + 12 SOLUTIONS-SCI-1/2 Science NCERT pages; Heredity has none)", () => {
     const paths = sitemapPaths();
     const registry = allDesktopTopics();
     const notes = paths.filter((p) => p.startsWith("/notes/"));
@@ -282,9 +282,12 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     expect(paths).toContain("/contact");
     // SOLUTIONS-3 PR-B: + /ncert-solutions/ real-numbers, pair-of-linear-equations, areas-related-to-circles,
     // surface-areas-and-volumes, statistics, probability (renumbered NCERT references, re-verified).
-    expect(solutionsPaths().length, "published solutions pages").toBe(28);
+    // SOLUTIONS-SCI-1 (owner 6 Nov 2026): + /ncert-solutions/ chemical-reactions-and-equations,
+    // life-processes, electricity (NCERT Science textbook only; no Science Exemplar page).
+    // SOLUTIONS-SCI-2: + 9 more Science NCERT pages (all chapters but Heredity, below the 5-row floor).
+    expect(solutionsPaths().length, "published solutions pages").toBe(40);
     expect(paths.length, "the owner-ruled advertised count").toBe(94 + solutionsPaths().length); // 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters)
-    expect(paths.length).toBe(122);
+    expect(paths.length).toBe(134);
     expect(paths).toContain("/packs");
 
     for (const path of notes) {
