@@ -18,7 +18,7 @@ html.lt-pkd-lock { overflow: hidden; }
 }
 .lt-pkd__grab { align-self: center; width: 44px; height: 5px; border-radius: 3px; background: #c5cfdb; flex-shrink: 0; }
 .lt-pkd__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 0 18px; }
-.lt-pkd__title { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 23px; line-height: 1.2; font-weight: 700; }
+.lt-pkd__title { margin: 0; font-family: Fraunces, "Fraunces Fallback", Georgia, serif; font-size: 23px; line-height: 1.2; font-weight: 700; }
 .lt-pkd__price { white-space: nowrap; }
 .lt-pkd__line { margin: 4px 0 0; font-size: 15px; line-height: 1.4; color: #2f3e55; }
 .lt-pkd__x { flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; border: 1px solid #dbe2ea; background: #fff; font-size: 20px; color: #0f1b2d; cursor: pointer; }
@@ -159,7 +159,7 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
     margin-top: 52px; padding: 18px; border: 1px solid #dbe2ea; border-radius: 18px; background: #f6f9fb;
   }
   .lt-pkd__cardprice { display: block; margin: 0; font-size: 15px; color: #2f3e55; }
-  .lt-pkd__cardprice b { font-family: Fraunces, Georgia, serif; font-size: 26px; color: #0f1b2d; margin-right: 4px; }
+  .lt-pkd__cardprice b { font-family: Fraunces, "Fraunces Fallback", Georgia, serif; font-size: 26px; color: #0f1b2d; margin-right: 4px; }
   .lt-pkd__pick { flex: 0 0 auto; order: 1; }
   .lt-pkd__pick--note { order: 3; }
   .lt-pkd__buy { display: contents; }

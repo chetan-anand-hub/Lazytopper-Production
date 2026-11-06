@@ -168,13 +168,20 @@ export interface PackSummaryRow {
 
 const rupees = (n: number): string => `\u20b9${n}`;
 
+/** PACKS-CLS-1: the value of the "Questions" row while the bank is still being counted (never a guessed number). */
+export const PACK_QUESTIONS_COUNTING = "Counting\u2026";
+
 /**
  * The short "What you get" rows of the pop-up: a label and a value, in the order the owner approved. `questions` is the exact
  * question count when the bank has been read (lazy), otherwise null and the row shows the sections instead of a made-up number.
+ * PACKS-CLS-1: `counting` = the count is still loading. The Subject / Bundle "Questions" row is then already in place with an
+ * honest "Counting…" value, so the rows below it do not jump down when the number arrives (it is dropped only if counting fails).
  */
-export function packSummaryRows(sku: PackSku, target?: string, questions: number | null = null): PackSummaryRow[] {
+export function packSummaryRows(sku: PackSku, target?: string, questions: number | null = null, counting = false): PackSummaryRow[] {
   const subject: PackSubject = target === "science" ? "science" : "maths";
   const nf = (n: number): string => n.toLocaleString("en-IN");
+  const questionsRow: PackSummaryRow[] =
+    questions !== null ? [{ label: "Questions", value: nf(questions) }] : counting ? [{ label: "Questions", value: PACK_QUESTIONS_COUNTING }] : [];
   switch (sku) {
     case "pack_chapter":
       return [
@@ -194,7 +201,7 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
       const ncert = subject === "maths" ? MATHS_NCERT_CHAPTERS : SCIENCE_NCERT_CHAPTERS;
       return [
         { label: `Chapter packs (${ncert} NCERT chapters)`, value: String(chaptersOfSubject(subject).length) },
-        ...(questions !== null ? [{ label: "Questions", value: nf(questions) }] : []),
+        ...questionsRow,
         { label: "Mock papers + keys", value: String(MOCKS_PER_SUBJECT) },
         { label: "You save", value: rupees(subjectSaving(subject)) },
       ];
@@ -210,7 +217,7 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
       return [
         { label: "Chapter packs, both subjects", value: String(PACK_CHAPTER_SLUGS.length) },
         { label: "NCERT chapters covered", value: String(ALL_NCERT_CHAPTERS) },
-        ...(questions !== null ? [{ label: "Questions", value: nf(questions) }] : []),
+        ...questionsRow,
         { label: "Mock papers + keys", value: String(MOCKS_PER_SUBJECT * PACK_SUBJECTS.length) },
         { label: `Instead of 2 \u00d7 ${rupees(PACK_PRICE_INR.pack_subject)}`, value: rupees(bundleSavingBase()) },
       ];
