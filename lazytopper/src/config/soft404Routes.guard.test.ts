@@ -287,13 +287,17 @@ describe("SOFT404-1 — everything except the shell rules is exactly as it was",
       { source: "/__/firebase/:path*", destination: `${FIREBASE_HOSTING}/__/firebase/:path*` },
     ]);
     expect(vercel.rewrites.length).toBe(6 + shellRules.length);
-    expect(vercel.headers).toEqual([
+    expect(vercel.headers.slice(0, 2)).toEqual([
       { source: "/__shell.html", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
       {
         source: "/assets/:path(.*)",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
     ]);
+    // CACHE-LIFETIMES-1: every later rule only sets Cache-Control on static files (policy pinned in cacheLifetimes.guard.test.ts).
+    for (const rule of vercel.headers.slice(2) as Array<{ headers: Array<{ key: string }> }>) {
+      expect(rule.headers.map((h) => h.key)).toEqual(["Cache-Control"]);
+    }
   });
 });
 
