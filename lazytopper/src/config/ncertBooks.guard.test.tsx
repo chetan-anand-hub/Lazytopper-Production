@@ -237,8 +237,15 @@ describe("NCERT-HUB-1 (c) — the hub: empty state, all 27 chapters in the HTML,
       const got = [...row.matchAll(/href="\/ncert-(solutions|exemplar)\//g)].map((m) => (m[1] === "solutions" ? "ncert" : "exemplar"));
       expect(got, ncertCode(r)).toEqual(want);
     }
-    // SOLUTIONS-2: every Maths chapter has both books published.
-    expect(rows.filter((r) => r.book === "Maths").every((r) => hubSolutionsChapter(r) !== null)).toBe(true);
+    // Pinned exactly (SOLUTIONS-2: every Maths chapter has both books; SOLUTIONS-SCI-1: Science Ch 1, 5
+    // and 11 have their NCERT page and no Exemplar page).
+    expect(rows.filter((r) => hubSolutionsChapter(r) !== null).map(ncertCode)).toEqual([
+      "jemh101", "jemh102", "jemh103", "jemh104", "jemh105", "jemh106", "jemh107",
+      "jemh108", "jemh109", "jemh110", "jemh111", "jemh112", "jemh113", "jemh114",
+      "jesc101", "jesc105", "jesc111",
+    ]);
+    const elec = rows.find((r) => r.book === "Science" && r.chapter === 11)!;
+    expect(hubTiles(elec, false).map((t) => t.id)).toEqual(["ncert", "read", "important", "notes", "check"]);
   });
 
   it("the committed prerender (once captured) carries all 27 chapters and the empty state", () => {
