@@ -8,8 +8,10 @@
  *
  * ★ PAY IS ONE TAP AWAY, ALWAYS. The row's Pay is `BoardPassPayLink` - the SAME component the card's Pay button is (same destination,
  *   same `payLabel` over `boardPassPayDisplay`, same `sale_moment_tap`), so it follows GST-EXCL-1 with no code here. It is a SIBLING of
- *   the <details>, placed over the row by CSS, never inside <summary>: a tap on it can never toggle the block, and it keeps its own tab
- *   stop (before the summary). The price on the row is `boardPassPriceNow()`, the card's own tag.
+ *   the <details> (right after it), placed over the row by CSS, never inside <summary>: a tap on it can never toggle the block, and it
+ *   keeps its own tab stop. While the block is OPEN it is hidden by CSS alone (`details[open] + .lt-offsum__payslot`), so there is
+ *   exactly one Pay in each state - the row's when collapsed, the card's when open (owner, review of #1612). The row's height is fixed
+ *   in both states, so toggling never moves the row. The price on the row is `boardPassPriceNow()`, the card's own tag.
  * ★ NO CLS. The rules are a <style> rendered with the block (in the prerendered HTML, the practice row's pattern), the row has a fixed
  *   height, and it is collapsed on first paint. The OffersBlock inside is mounted (its `sale_moment_shown` still fires), only hidden.
  * ★ ANALYTICS. One vendor-only event, `offers_summary_open { surface }`, the first time the row is opened on this mount. No id, no text.
@@ -45,6 +47,8 @@ export const OFFERS_SUMMARY_CSS = `
 }
 .lt-offsum__pay:hover { background: hsl(152, 57%, 32%); }
 .lt-offsum__pay:focus-visible { outline: 2px solid hsl(220, 45%, 14%); outline-offset: 2px; }
+/* Exactly one Pay in each state (owner, review of #1612): open -> the card's Pay only. The row keeps its height (no jump). */
+.lt-offsum__d[open] + .lt-offsum__payslot { display: none; }
 .lt-offsum--nopay .lt-offsum__row { height: 64px; }
 .lt-offsum__body { padding: 0 12px 12px; }
 .lt-offsum__body .lt-offers { margin-top: 0; }
@@ -96,15 +100,6 @@ export default function OffersSummary({
   return (
     <div className={`lt-offsum${showCard ? "" : " lt-offsum--nopay"}`} data-testid="offers-summary" data-surface={surface}>
       <style>{OFFERS_SUMMARY_CSS}</style>
-      {showCard ? (
-        <span
-          className="lt-offsum__payslot"
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
-        >
-          <BoardPassPayLink className="lt-offsum__pay" testId="offers-summary-pay" surface={surface} />
-        </span>
-      ) : null}
       <details className="lt-offsum__d" ref={detailsRef}>
         <summary className="lt-offsum__row" data-testid="offers-summary-row">
           <span className="lt-offsum__text">
@@ -130,6 +125,16 @@ export default function OffersSummary({
         </summary>
         <div className="lt-offsum__body">{children}</div>
       </details>
+      {/* AFTER the <details> so `details[open] + .lt-offsum__payslot` hides it while open (the card's own Pay is then the one Pay). */}
+      {showCard ? (
+        <span
+          className="lt-offsum__payslot"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <BoardPassPayLink className="lt-offsum__pay" testId="offers-summary-pay" surface={surface} />
+        </span>
+      ) : null}
     </div>
   );
 }

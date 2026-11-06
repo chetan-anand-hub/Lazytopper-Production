@@ -14,6 +14,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 });
 
 import OffersSummary, { OFFERS_SUMMARY_CSS } from "./OffersSummary";
+import { BoardPassPayLink } from "./OffersBlock";
 import { boardPassPriceNow } from "../pricing/boardPassOffer";
 
 /**
@@ -79,5 +80,36 @@ describe("OffersSummary", () => {
     expect(container.querySelector("style")?.textContent).toBe(OFFERS_SUMMARY_CSS);
     expect(OFFERS_SUMMARY_CSS).toMatch(/\.lt-offsum__row \{[^}]*height: 132px/);
     expect(OFFERS_SUMMARY_CSS).toMatch(/\.lt-offsum__row \{ height: 64px/);
+  });
+
+  it("exactly ONE Pay in each state: the row's when collapsed, the card's when open (CSS only; the row keeps its height)", async () => {
+    const { container } = render(
+      <MemoryRouter>
+        <OffersSummary surface="important-qs-end" showCard>
+          <BoardPassPayLink className="lt-offers__pay" testId="offers-pay" surface="important-qs-end" />
+        </OffersSummary>
+      </MemoryRouter>,
+    );
+    const details = container.querySelector("details")!;
+    // rendered (not display:none on itself or an ancestor) AND not inside a closed <details> body
+    const shown = (el: Element) => {
+      for (let n: Element | null = el; n; n = n.parentElement) {
+        if (getComputedStyle(n).display === "none") return false;
+        const d = n.parentElement;
+        if (d && d.tagName === "DETAILS" && n.tagName !== "SUMMARY" && !(d as HTMLDetailsElement).open) return false;
+      }
+      return true;
+    };
+    const pays = () => Array.from(container.querySelectorAll("a")).filter((a) => /^Pay ₹/.test(a.textContent ?? "") && shown(a));
+    expect(pays().map((a) => a.getAttribute("data-testid"))).toEqual(["offers-summary-pay"]);
+    details.open = true;
+    await act(async () => {
+      details.dispatchEvent(new Event("toggle"));
+    });
+    expect(pays().map((a) => a.getAttribute("data-testid"))).toEqual(["offers-pay"]);
+    // the summary text stays, and the hide is the stylesheet's sibling rule (the slot follows the <details>)
+    expect(screen.getByTestId("offers-summary-row").textContent).toContain("Board Pass · get every answer marked like a CBSE examiner");
+    expect(details.nextElementSibling?.className).toBe("lt-offsum__payslot");
+    expect(OFFERS_SUMMARY_CSS).toContain(".lt-offsum__d[open] + .lt-offsum__payslot { display: none; }");
   });
 });
