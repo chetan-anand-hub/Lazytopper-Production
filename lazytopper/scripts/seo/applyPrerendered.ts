@@ -524,22 +524,48 @@ export function withRouteStyles(html: string, blocks: ReadonlyArray<{ file: stri
  */
 export const ENTRANCE_ANIMATION_CLASSES: readonly string[] = ["animate-float-up", "animate-fade-in"];
 
-export function withoutEntranceAnimation(fragment: string): string {
-  return fragment.replace(/ class="([^"]*)"/g, (whole, value: string) => {
-    const tokens = value.split(/\s+/).filter((t) => t !== "");
-    if (!tokens.some((t) => ENTRANCE_ANIMATION_CLASSES.includes(t))) return whole;
-    const kept = tokens.filter((t) => !ENTRANCE_ANIMATION_CLASSES.includes(t));
-    return kept.length > 0 ? ` class="${kept.join(" ")}"` : "";
-  });
+/**
+ * The class attributes this step may edit: only inside a start TAG, never in text, never inside a
+ * `<script>` or `<style>` element's raw contents and never in a comment. Those regions are copied
+ * through untouched; in the rest, only `<tag ...>` matches are looked at (text is serialized with `<`
+ * escaped, so it can never look like a tag). An attribute value holding a raw `>` ends the match early,
+ * which can only make this step strip LESS (verifyBuiltPages would then fail the build loudly).
+ */
+const RAW_REGION = /<!--[\s\S]*?-->|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+const START_TAG = /<[A-Za-z][A-Za-z0-9-]*(?:\s[^<>]*)?>/g;
+const CLASS_ATTR = /(\s)class="([^"]*)"/g;
+
+function mapStartTags(html: string, edit: (tag: string) => string): string {
+  let out = "";
+  let at = 0;
+  for (const raw of html.matchAll(RAW_REGION)) {
+    out += html.slice(at, raw.index).replace(START_TAG, edit) + raw[0];
+    at = (raw.index ?? 0) + raw[0].length;
+  }
+  return out + html.slice(at).replace(START_TAG, edit);
 }
 
-/** Every entrance-animation class still present on an element in a built page's body. */
+export function withoutEntranceAnimation(fragment: string): string {
+  return mapStartTags(fragment, (tag) =>
+    tag.replace(CLASS_ATTR, (whole, space: string, value: string) => {
+      const tokens = value.split(/\s+/).filter((t) => t !== "");
+      if (!tokens.some((t) => ENTRANCE_ANIMATION_CLASSES.includes(t))) return whole;
+      const kept = tokens.filter((t) => !ENTRANCE_ANIMATION_CLASSES.includes(t));
+      return kept.length > 0 ? `${space}class="${kept.join(" ")}"` : "";
+    }),
+  );
+}
+
+/** Every entrance-animation class still present on an element (a start tag) in a built page's body. */
 export function entranceAnimationsIn(html: string): string[] {
   const body = html.slice(Math.max(0, html.indexOf("<body")));
   const found: string[] = [];
-  for (const match of body.matchAll(/ class="([^"]*)"/g)) {
-    for (const token of match[1].split(/\s+/)) if (ENTRANCE_ANIMATION_CLASSES.includes(token)) found.push(token);
-  }
+  mapStartTags(body, (tag) => {
+    for (const match of tag.matchAll(CLASS_ATTR)) {
+      for (const token of match[2].split(/\s+/)) if (ENTRANCE_ANIMATION_CLASSES.includes(token)) found.push(token);
+    }
+    return tag;
+  });
   return found;
 }
 

@@ -36,6 +36,12 @@ export function isShowingPrerenderedRoute(): boolean {
  * Call during render, after the page's hooks, when the page's content is not loaded yet. If the
  * prerendered body is on screen, throws (suspends on) `load()` — at most once per `key`, and never
  * again once that load has settled either way. Otherwise returns and the page renders as before.
+ *
+ * ⚠ ONCE A HOLD HAS STARTED, it keeps suspending until its load settles, WHETHER OR NOT the
+ * prerendered body is still on screen. So if the student navigates away and back in-app while the
+ * spec is still loading, the page suspends again and App's boundary shows its ordinary "Loading…"
+ * (RouteFallback) for the rest of that load, where an unheld page would have shown its title over
+ * an empty body. Both are the not-yet-loaded state; the hold never outlives the load.
  */
 export function holdPrerenderedRouteUntil(key: string, load: () => Promise<unknown>): void {
   if (settled.has(key)) return;

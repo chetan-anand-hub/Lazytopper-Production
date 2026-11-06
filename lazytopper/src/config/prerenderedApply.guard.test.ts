@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import { existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, readdirSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { readFileSync } from "node:fs";
@@ -131,6 +131,36 @@ describe("applyArtifact — the landing fills index.html, __shell.html stays cle
     } finally {
       cleanup();
     }
+  });
+
+  it("only edits class attributes inside start tags: never text, script, style or comments", () => {
+    const tricky =
+      '<main class="animate-float-up"><p>Write class="animate-float-up" in your notes</p>' +
+      '<script type="application/ld+json">{"x":" class=\\"animate-float-up\\""}</script>' +
+      '<style>.a{content:\' class="animate-float-up"\'}</style><!-- <b class="animate-float-up"> --></main>';
+    expect(withoutEntranceAnimation(tricky)).toBe(tricky.replace('<main class="animate-float-up">', "<main>"));
+  });
+
+  it("on EVERY committed fragment, the only change is the removal of ' class=\"animate-float-up\"'", () => {
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) walk(full);
+        else if (name.endsWith(".html")) files.push(full);
+      }
+    };
+    walk(PRERENDERED_DIR);
+    expect(files.length).toBeGreaterThan(200);
+    let changed = 0;
+    for (const file of files) {
+      const fragment = readFileSync(file, "utf8");
+      const stripped = withoutEntranceAnimation(fragment);
+      expect(stripped, file).toBe(fragment.split(' class="animate-float-up"').join(""));
+      if (stripped !== fragment) changed += 1;
+    }
+    // CONTROL — the rule above is not vacuous: the artifact does carry the class.
+    expect(changed).toBeGreaterThan(0);
   });
 
   it("withoutEntranceAnimation leaves markup with no entrance class byte-identical", () => {
