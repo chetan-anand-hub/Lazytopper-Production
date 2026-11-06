@@ -25,6 +25,7 @@ import SigningInScreen from "../components/auth/SigningInScreen";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
 import { chromeSigninHandoffUrl, currentIsAndroidInAppBrowser } from "../utils/inAppBrowserLinks";
+import { handoffSourceParams } from "../analytics/visitSource";
 import { isPayAutoAccountClientEnabled } from "../services/checkoutWhoFlag";
 import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
 import { trackUxEvent } from "../services/uxTelemetry";
@@ -1626,7 +1627,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   // LOGIN-FIX-1 — an Android in-app browser / WebView: Google becomes "Open in Chrome". Read once.
   const [chromeHandoff] = useState<boolean>(() => currentIsAndroidInAppBrowser());
   const chromeHandoffHref = useMemo(
-    () => (chromeHandoff ? chromeSigninHandoffUrl(window.location.href, nextPath) : null),
+    () => (chromeHandoff ? chromeSigninHandoffUrl(window.location.href, nextPath, handoffSourceParams()) : null),
     [chromeHandoff, nextPath],
   );
   const [name, setName] = useState("");
@@ -2052,10 +2053,13 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       trackLoginError("google", err, "popup");
       setBusy(false);
       // LOGIN-FIX-1 — the student closed the Google window: a cancel. No message, no phone jump;
-      // the buttons are simply ready again (the error above still counts it).
-      if (isGoogleCancel(err)) return;
+      // the buttons are simply ready again (the error above still counts it). EXCEPT in an in-app
+      // browser (iOS Instagram / Facebook / YouTube): there Google shows disallowed_useragent and
+      // closing that window is how the student gives up, so they still get the message + phone step.
+      const inAppClose = isGoogleCancel(err) && currentGooglePopupMayHang();
+      if (isGoogleCancel(err) && !inAppClose) return;
       const message = describeAuthError(err);
-      if (shouldRescueToPhone(err)) {
+      if (shouldRescueToPhone(err) || inAppClose) {
         // SIGNIN-RESCUE-1 - open the phone step as if "Continue with phone number" was tapped, keeping the
         // message visible (goToStep clears the error, so it is set after). Back link still works.
         goToStep("phone");
@@ -2381,6 +2385,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       className="lt-google lt-google--secondary lt-google--chrome"
       href={chromeHandoffHref}
       data-testid="google-open-in-chrome"
+      // The tap is the attempt: the sign-in itself then happens in Chrome (ua_class chrome_android).
+      onClick={() => trackLoginAttempt("google", "chrome_handoff")}
     >
       {googleMark}
       Open in Chrome to continue with Google

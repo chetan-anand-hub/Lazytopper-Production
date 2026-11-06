@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 /**
@@ -189,6 +189,34 @@ describe("LOGIN-FIX-1 · the Android in-app Google door", () => {
       expect(decodeTarget()).toBe(`${window.location.host}/login?reason=start-trial`);
     } finally {
       restore();
+    }
+  });
+
+  it("the tap reports login_attempt { method: google, flow: chrome_handoff } (no new event name)", () => {
+    mount(YT_ANDROID);
+    const link = screen.getByTestId("google-open-in-chrome");
+    link.addEventListener("click", (e) => e.preventDefault()); // jsdom cannot follow intent://
+    fireEvent.click(link);
+    expect(track.mock.calls.filter((c) => c[0] === "login_attempt")).toEqual([
+      ["login_attempt", { method: "google", ua_class: "inapp_youtube", flow: "chrome_handoff" }],
+    ]);
+    expect(signInWithGoogle).not.toHaveBeenCalled();
+  });
+
+  it("carries the stored first-touch source (utm_* + lt_clk) so the sign-up in Chrome is not Direct", () => {
+    window.sessionStorage.setItem(
+      "lazytopper.visitSource",
+      JSON.stringify({ ref: "youtube.com", utm_source: "youtube", utm_medium: "paid", utm_campaign: "9", utm_content: null, landing: "/", gclid: true, fbclid: false }),
+    );
+    const restore = atAddress("/login");
+    try {
+      mountAt(YT_ANDROID, { pathname: "/login", state: { from: "/packs" } });
+      expect(decodeTarget()).toBe(
+        `${window.location.host}/login?redirect=%2Fpacks&utm_source=youtube&utm_medium=paid&utm_campaign=9&lt_clk=gclid`,
+      );
+    } finally {
+      restore();
+      window.sessionStorage.clear();
     }
   });
 

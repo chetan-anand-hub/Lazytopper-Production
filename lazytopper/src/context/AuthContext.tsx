@@ -282,7 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // LOGIN-FIX-1 — a render in flight. The phone step warms the widget on open; a quick "Send OTP"
   // used to start a SECOND render into the same container before the first had finished, and the
   // loser threw grecaptcha's code-less "already rendered" error (logged as "unknown").
-  const recaptchaPendingRef = useRef<{ id: string; promise: Promise<void> } | null>(null);
+  const recaptchaPendingRef = useRef<{ id: string; promise: Promise<void>; cancelled: boolean } | null>(null);
 
   // Tear down the verifier widget only; leaves any pending confirmation intact.
   const teardownRecaptcha = useCallback(() => {
@@ -302,6 +302,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // already detached
     }
     recaptchaContainerIdRef.current = null;
+    // A render still in flight is cancelled, not forgotten: when it lands it cleans itself up
+    // (verifier cleared, slot removed) instead of becoming the live widget after the teardown.
+    if (recaptchaPendingRef.current) recaptchaPendingRef.current.cancelled = true;
     recaptchaPendingRef.current = null;
     setPhoneRecaptchaStatus("idle");
   }, []);
@@ -601,6 +604,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Firebase v12 argument order: auth FIRST, then container, then params.
+    // The pending entry doubles as the cancel flag: teardown sets `cancelled` on it.
+    const entry: { id: string; promise: Promise<void>; cancelled: boolean } = {
+      id: recaptchaContainerId,
+      promise: Promise.resolve(),
+      cancelled: false,
+    };
     const run = async () => {
       let verifier: RecaptchaVerifier | null = null;
       try {
@@ -610,6 +619,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           "expired-callback": () => setPhoneRecaptchaStatus("expired"),
         });
         await verifier.render();
+        if (entry.cancelled) {
+          // Torn down while rendering (logout, sign-in, a failed send): never install it. The
+          // catch below clears the verifier and removes its slot, so nothing is left behind.
+          throw Object.assign(new Error("reCAPTCHA is not ready"), { code: RECAPTCHA_NOT_READY_CODE });
+        }
         recaptchaVerifierRef.current = verifier;
         recaptchaContainerIdRef.current = recaptchaContainerId;
         recaptchaElementRef.current = element;
@@ -621,14 +635,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // ignore
         }
         element?.remove();
-        setPhoneRecaptchaStatus("error");
+        if (!entry.cancelled) setPhoneRecaptchaStatus("error");
         throw err;
       }
     };
+    recaptchaPendingRef.current = entry;
     const promise = run().finally(() => {
-      if (recaptchaPendingRef.current?.promise === promise) recaptchaPendingRef.current = null;
+      if (recaptchaPendingRef.current === entry) recaptchaPendingRef.current = null;
     });
-    recaptchaPendingRef.current = { id: recaptchaContainerId, promise };
+    entry.promise = promise;
     return promise;
     // `teardownRecaptcha` is itself stable (useCallback with no deps), so listing
     // it keeps this callback's identity stable too — `sendPhoneOtp` depends on it.

@@ -166,10 +166,14 @@ export function captureVisitSource(
     utm_campaign: cleanUtm(params.get(UTM_KEYS[2])),
     utm_content: cleanUtm(params.get(UTM_KEYS[3])),
   };
-  const gclid = (params.get("gclid") ?? "") !== "";
-  const fbclid = (params.get("fbclid") ?? "") !== "";
-  const gbraid = (params.get("gbraid") ?? "") !== "";
-  const wbraid = (params.get("wbraid") ?? "") !== "";
+  // LOGIN-FIX-1 — `lt_clk` is OUR flag list ("gclid,gbraid"), written only by the in-app ->
+  // Chrome sign-in hand-off (handoffSourceParams below): the stored touch keeps click ids as
+  // BOOLEANS, never values, so the hop carries the booleans, not a forged id.
+  const carried = new Set((params.get(HANDOFF_CLICK_PARAM) ?? "").split(",").map((x) => x.trim()));
+  const gclid = (params.get("gclid") ?? "") !== "" || carried.has("gclid");
+  const fbclid = (params.get("fbclid") ?? "") !== "" || carried.has("fbclid");
+  const gbraid = (params.get("gbraid") ?? "") !== "" || carried.has("gbraid");
+  const wbraid = (params.get("wbraid") ?? "") !== "" || carried.has("wbraid");
   const tagged =
     ref !== null || gclid || fbclid || gbraid || wbraid || Object.values(utm).some((v) => v !== null);
   if (referrerKind.kind === "same" && !tagged) return null;
@@ -182,6 +186,44 @@ export function captureVisitSource(
     ...(gbraid ? { gbraid: true } : {}),
     ...(wbraid ? { wbraid: true } : {}),
   };
+}
+
+/**
+ * LOGIN-FIX-1 — the first-party param that carries click-id PRESENCE across the in-app ->
+ * Chrome sign-in hop. Not `gclid=` itself: a forged value would be forwarded to GA4 / Google Ads
+ * (analytics.ts keeps `gclid` on page_location) and poison their click matching.
+ */
+export const HANDOFF_CLICK_PARAM = "lt_clk";
+
+/**
+ * LOGIN-FIX-1 — the stored first touch, as plain query params for the Chrome hand-off link.
+ *
+ * Chrome has its own storage, so a sign-up that hops out of the YouTube / Instagram in-app
+ * browser arrived "Direct". This returns what this module ALREADY keeps (the tab copy if it is
+ * tagged, else the 7-day tagged copy), re-cleaned through the same allow-list: the four utm_*
+ * values and the click-id booleans as one `lt_clk` list. On arrival Chrome's own
+ * `rememberVisitSourceOnce` captures them like any tagged landing. Nothing else: no referrer
+ * host, no landing path, never a click-id value, never anything typed. Empty when nothing is
+ * tagged. (`utm_term` is not kept by this module, so it cannot be carried.)
+ */
+export function handoffSourceParams(): Array<[string, string]> {
+  let source: VisitSource | null = null;
+  try {
+    const tab = sanitiseStored(parseStored(window.sessionStorage.getItem(VISIT_SOURCE_KEY)));
+    source = tab && isTaggedSource(tab) ? tab : null;
+  } catch {
+    source = null;
+  }
+  if (!source) source = readLongKeep();
+  if (!source) return [];
+  const out: Array<[string, string]> = [];
+  for (const key of UTM_KEYS) {
+    const value = cleanUtm(source[key]);
+    if (value) out.push([key, value]);
+  }
+  const clicks = (["gclid", "gbraid", "wbraid", "fbclid"] as const).filter((k) => source![k] === true);
+  if (clicks.length) out.push([HANDOFF_CLICK_PARAM, clicks.join(",")]);
+  return out;
 }
 
 /**

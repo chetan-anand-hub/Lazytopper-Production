@@ -262,6 +262,29 @@ describe("LOGIN-FIX-1 — reCAPTCHA: one render at a time, a fresh widget after 
     expect(host.children).toHaveLength(1);
   });
 
+  it("a teardown during an in-flight render leaves nothing behind (no late install, slot removed)", async () => {
+    mount();
+    await waitFor(() => expect(ctx).not.toBeNull());
+    const host = mountContainer("lt-login-recaptcha");
+    let open: () => void = () => {};
+    H.renderGate = new Promise<void>((r) => {
+      open = r;
+    });
+    const warm = ctx!.initPhoneRecaptcha("lt-login-recaptcha");
+    expect(host.children).toHaveLength(1);
+    await ctx!.logout(); // tears down while the render is still in flight
+    open();
+    await expect(warm).rejects.toMatchObject({ code: "lt/recaptcha-not-ready" });
+    expect(host.children).toHaveLength(0);
+    expect(H.clearCount).toBe(1);
+    // The next request renders a fresh widget instead of reusing the cancelled one.
+    H.renderGate = null;
+    await ctx!.initPhoneRecaptcha("lt-login-recaptcha");
+    expect(H.renderedInto).toEqual(["lt-login-recaptcha", "lt-login-recaptcha"]);
+    expect(host.children).toHaveLength(1);
+    expect(H.elements[1]?.parentElement).toBe(host);
+  });
+
   it("our own guard errors now carry codes (they were logged as unknown)", async () => {
     mount();
     await waitFor(() => expect(ctx).not.toBeNull());

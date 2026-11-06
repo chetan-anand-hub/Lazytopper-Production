@@ -19,3 +19,20 @@ describe("isSafeInternalPath — the one rule for ?redirect= and state.from", ()
     "relative/path",
   ])("rejects %j", (p) => expect(isSafeInternalPath(p as string | null | undefined)).toBe(false));
 });
+
+describe("LOGIN-FIX-1 (review) — no control characters or whitespace anywhere", () => {
+  it.each([
+    "/\t/evil.com",
+    "/\n/evil.com",
+    "/\r/evil.com",
+    "/ok\u0000",
+    "/ /evil.com",
+    " /check-improve",
+    "/check-improve ",
+    "/a\u007f",
+    "/practice-hub?q=a b",
+  ])("rejects %j", (p) => expect(isSafeInternalPath(p)).toBe(false));
+  it("percent-encoded whitespace in a query is still fine", () => {
+    expect(isSafeInternalPath("/practice-hub?q=a%20b")).toBe(true);
+  });
+});

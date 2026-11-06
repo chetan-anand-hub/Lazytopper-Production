@@ -178,6 +178,28 @@ describe("LOGIN-FIX-1 · popup-closed-by-user is a cancel", () => {
   );
 });
 
+describe("LOGIN-FIX-1 (review) · popup-closed in an in-app browser still rescues to phone", () => {
+  const IG_IOS =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/21A329 Instagram 309.0.0.28.114";
+  it.each([["iOS Instagram", IG_IOS], ["iOS YouTube", YOUTUBE_APP]])(
+    "%s: closing Google's disallowed_useragent window opens the phone step with the message",
+    async (_n, ua) => {
+      signInWithGoogle.mockImplementation(async () => {
+        throw Object.assign(new Error("x"), { code: "auth/popup-closed-by-user" });
+      });
+      const google = mount(ua);
+      await act(async () => {
+        fireEvent.click(google);
+      });
+      expect(screen.getByRole("heading", { name: /Continue with phone/ })).toBeTruthy();
+      expect(document.body.textContent).toContain(POPUP_CLOSED_MESSAGE);
+      expect(track.mock.calls.filter((c) => c[0] === "login_error")).toEqual([
+        ["login_error", expect.objectContaining({ method: "google", error_code: "popup-closed-by-user", flow: "popup" })],
+      ]);
+    },
+  );
+});
+
 describe("cancelled-popup-request", () => {
   it("stays silent (a double-tap superseding the first popup)", async () => {
     signInWithGoogle.mockImplementation(async () => {

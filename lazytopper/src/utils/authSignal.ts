@@ -175,13 +175,15 @@ export function currentUaClass(): UaClass {
 }
 
 /**
- * GOOGLE-REDIRECT-1 — which Google flow an attempt used. Sent on Google events only (the caller
+ * GOOGLE-REDIRECT-1 — which Google flow an attempt used. LOGIN-FIX-1 adds "chrome_handoff": the
+ * Android in-app "Open in Chrome to continue with Google" tap (login_attempt only; the sign-in
+ * itself then reports from Chrome as an ordinary popup attempt). Sent on Google events only (the caller
  * passes it); email / phone events carry no `flow`, exactly as before.
  */
-export type LoginFlow = "popup" | "redirect";
+export type LoginFlow = "popup" | "redirect" | "chrome_handoff";
 
 function withFlow<T extends object>(params: T, flow: LoginFlow | undefined): T & { flow?: LoginFlow } {
-  return flow === "popup" || flow === "redirect" ? { ...params, flow } : params;
+  return flow === "popup" || flow === "redirect" || flow === "chrome_handoff" ? { ...params, flow } : params;
 }
 
 export function trackLoginAttempt(method: LoginMethod, flow?: LoginFlow): void {

@@ -217,6 +217,24 @@ describe("LOGIN-FIX-1 · chromeSigninHandoffUrl keeps the safe redirect", () => 
     expect(out?.target).toBe("lazytopper.com/login?reason=start-trial");
     expect(out?.fallback).toBe("https://lazytopper.com/login?reason=start-trial");
   });
+  it("carries the first-touch source params, allow-listed, without touching the redirect logic", () => {
+    const out = decode(
+      chromeSigninHandoffUrl("https://lazytopper.com/login?redirect=https%3A%2F%2Fevil.example", "/packs", [
+        ["utm_source", "youtube"],
+        ["utm_campaign", "9"],
+        ["lt_clk", "gclid,gbraid"],
+        ["gclid", "FORGED"], // not on the allow-list: never written
+        ["email", "a@b.com"], // not on the allow-list: never written
+        ["utm_content", "bad value!"], // fails the charset: dropped
+      ]),
+    );
+    expect(out?.target).toBe("lazytopper.com/login?redirect=%2Fpacks&utm_source=youtube&utm_campaign=9&lt_clk=gclid%2Cgbraid");
+    expect(out?.fallback).toBe("https://lazytopper.com/login?redirect=%2Fpacks&utm_source=youtube&utm_campaign=9&lt_clk=gclid%2Cgbraid");
+  });
+  it("never overwrites a source param the page URL already has", () => {
+    const out = decode(chromeSigninHandoffUrl("https://lazytopper.com/login?utm_source=google", "/", [["utm_source", "youtube"]]));
+    expect(out?.target).toBe("lazytopper.com/login?utm_source=google");
+  });
   it("stays on the page's own host", () => {
     const out = decode(chromeSigninHandoffUrl("https://lazytopper.com/login", "/x"));
     expect(out?.target.startsWith("lazytopper.com/")).toBe(true);
