@@ -16,6 +16,8 @@ import {
   hasBook,
   parseSolutionsPath,
   publishedRows,
+  scienceGroups,
+  scienceRefLabel,
   solutionsBookName,
   solutionsChapter,
   solutionsPath,
@@ -36,7 +38,9 @@ import { hasUsedFreeCheck, isFreeCheckClientEnabled } from "../services/freeChec
 
 /**
  * SolutionsPage — `/ncert-solutions/:chapter` and `/ncert-exemplar/:chapter` (SOLUTIONS-1, lane G;
- * #973 D259 / D260 / D261). Pilot: Chapter 6 Triangles; SOLUTIONS-2 (owner 18 Oct 2026): every Maths chapter.
+ * #973 D259 / D260 / D261). Pilot: Chapter 6 Triangles; SOLUTIONS-2 (owner 18 Oct 2026): every Maths chapter;
+ * SOLUTIONS-SCI (owner 6 Nov 2026): NCERT Science chapters (textbook only), grouped as in-text /
+ * worked examples / chapter-end exercises.
  *
  * ★ FREE, ATTEMPT-FIRST (D259). Before an attempt: the question, its options (MCQ / AR), and
  *   "Stuck? Show a hint" (the FIRST step only). An attempt is any MCQ pick or any non-empty typed
@@ -288,7 +292,9 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
   const bank = bankSlugOf(ch);
   const served = useServedRows(bank);
   const rows = publishedRows(served, ch, book);
-  const groups = groupRows(rows);
+  // SOLUTIONS-SCI: Science references are in-text / example / exercise, not "Ex 6.2" (one parser, solutionsPublishSafe.ts).
+  const science = ch.subject === "Science";
+  const groups = science ? scienceGroups(rows) : groupRows(rows);
   const board = boardPatternRows(served, ch, book);
   const here = solutionsPath(book, ch.slug);
   const ncertRow = ncertRowsForSlug(bank).find((r) => r.chapter === ch.chapter) ?? null;
@@ -348,7 +354,7 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           <section key={g.title} className="lt-ncs__group" aria-label={g.title}>
             <h2>{g.title}</h2>
             {g.rows.map(({ q, safe }) => (
-              <QuestionCard key={q.id} q={q} safe={safe} />
+              <QuestionCard key={q.id} q={q} safe={safe} refLabel={science ? scienceRefLabel(q.ncertRef) ?? undefined : undefined} />
             ))}
           </section>
         ))}
