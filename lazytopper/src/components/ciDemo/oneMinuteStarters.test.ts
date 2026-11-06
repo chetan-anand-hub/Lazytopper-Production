@@ -11,6 +11,7 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { class10TopicRegistry } from "../../data/class10TopicRegistry";
 import { class10ScienceTopicTrendList } from "../../data/class10ScienceTopicTrends";
 import { CI_DEMO_SAMPLES } from "./ciDemoSamples";
+import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import { ONE_MINUTE_STARTERS, STARTER_WEIGHTAGE, correctIndex, pickStarter, visitSeed, whyLine } from "./oneMinuteStarters";
 
 type Row = Record<string, unknown>;
@@ -60,12 +61,34 @@ describe("ONE-MINUTE-1 starters — six real board MCQs", () => {
       expect(why).not.toMatch(/^\[|\[1 mark\]/);
     });
 
+    // SPEED-SITE-1a — the copied row the ladder paints from must equal what the bank would give, field by field.
+    it(`${st.bankId}: STARTER_ROWS equals the served bank row`, async () => {
+      await ensureBankChapters(bankChaptersFor([st.topicKey]));
+      const r = (getBankRows(bankChaptersFor([st.topicKey])) as unknown as Row[]).find((x) => x.id === st.bankId) as Row;
+      const options = (r.options as unknown[]).map(String);
+      const topicKey = String(r.topicKey ?? "");
+      expect(STARTER_ROWS[st.bankId]).toEqual({
+        question: String(r.questionText ?? ""),
+        options,
+        right: correctIndex(options, String(r.answer ?? "")),
+        why: whyLine(r.solutionSteps as unknown[]),
+        topicKey,
+        topicName: desktopTopicBySlug(topicKey)?.name ?? st.chapter,
+      });
+    });
+
     it(`${st.bankId} hands on to a real 2-mark CI-SOFT-1 sample of the same subject`, () => {
       const smp = CI_DEMO_SAMPLES[st.nextKey];
       expect(smp.subject).toBe(st.subject);
       expect(smp.marks).toBe(2);
     });
   }
+});
+
+describe("SPEED-SITE-1a STARTER_ROWS", () => {
+  it("holds exactly the six starters, nothing else", () => {
+    expect(Object.keys(STARTER_ROWS).sort()).toEqual(ONE_MINUTE_STARTERS.map((s) => s.bankId).sort());
+  });
 });
 
 describe("ONE-MINUTE-1 pure rules", () => {
