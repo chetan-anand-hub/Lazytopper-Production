@@ -11,6 +11,19 @@ import {
   POPUP_BLOCKED_MESSAGE,
   POPUP_CLOSED_MESSAGE,
   telemetryErrorCode,
+  codelessErrorSlug,
+  describePhoneError,
+  isGoogleCancel,
+  shouldRescueToPhone,
+  PHONE_CODE_EXPIRED_MESSAGE,
+  PHONE_GENERIC_MESSAGE,
+  PHONE_HUMAN_CHECK_MESSAGE,
+  PHONE_NO_CODE_REQUESTED_MESSAGE,
+  PHONE_SMS_LIMIT_MESSAGE,
+  PHONE_TOO_MANY_MESSAGE,
+  PHONE_WRONG_CODE_MESSAGE,
+  OTP_NOT_REQUESTED_CODE,
+  RECAPTCHA_NOT_READY_CODE,
   trackLoginAttempt,
   trackLoginError,
   trackLoginSuccess,
@@ -62,7 +75,7 @@ describe("telemetryErrorCode", () => {
     [{ code: GOOGLE_POPUP_TIMEOUT_CODE }, "popup-timeout"],
     [{ code: "" }, "unknown"],
     [new Error("a@b.com"), "unknown"],
-    [null, "unknown"],
+    [null, "no-error-value"], // LOGIN-FIX-1 — was "unknown"
     [{ code: "weird code with spaces/and@symbols" }, "weird-code-with-spaces-and-symbols"],
   ];
   it.each(cases)("%j -> %s", (err, expected) => {
@@ -149,5 +162,81 @@ describe("GOOGLE-REDIRECT-1 · redirect-no-result", () => {
     expect(m.telemetryErrorCode(err)).toBe("redirect-no-result");
     expect(m.describeAuthError(err)).toBe(m.GOOGLE_REDIRECT_NO_RESULT_MESSAGE);
     expect(m.shouldRescueToPhone(err)).toBe(true);
+  });
+});
+
+describe("LOGIN-FIX-1 · errors with no Firebase code get a fixed slug, never their message", () => {
+  const cases: Array<[unknown, string]> = [
+    [new Error("reCAPTCHA has already been rendered in this element"), "recaptcha-already-rendered"],
+    [new Error("reCAPTCHA client element has been removed: 0"), "recaptcha-element-removed"],
+    [{ code: RECAPTCHA_NOT_READY_CODE }, "recaptcha-not-ready"],
+    [{ code: OTP_NOT_REQUESTED_CODE }, "otp-not-requested"],
+    [new Error("Unable to load external scripts"), "script-load-failed"],
+    [new Error("Firebase Auth is not configured"), "auth-not-configured"],
+    ["Timeout", "timeout"],
+    [new Error("recaptcha Enterprise site key undefined"), "recaptcha-other"],
+    [undefined, "no-error-value"],
+    [42, "non-error-value"],
+    [new Error("+919876543210"), "unknown"],
+  ];
+  it.each(cases)("%j -> %s", (err, expected) => {
+    expect(telemetryErrorCode(err)).toBe(expected);
+    expect(telemetryErrorCode(err)).toMatch(/^[a-z0-9][a-z0-9_-]{0,63}$/i);
+  });
+  it("a real Firebase code is still sent as-is (minus auth/)", () => {
+    expect(telemetryErrorCode({ code: "auth/invalid-verification-code" })).toBe("invalid-verification-code");
+    expect(telemetryErrorCode({ code: "auth/captcha-check-failed" })).toBe("captcha-check-failed");
+  });
+  it("codelessErrorSlug never echoes the message", () => {
+    expect(codelessErrorSlug(new Error("someone@example.com 9876543210"))).toBe("unknown");
+  });
+});
+
+describe("LOGIN-FIX-1 · phone telemetry carries the step", () => {
+  it("phone errors get step; google / email never do", () => {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+    );
+    track.mockClear();
+    trackLoginError("phone", { code: "auth/invalid-verification-code" }, undefined, "verify");
+    trackLoginError("phone", new Error("reCAPTCHA has already been rendered in this element"), undefined, "send");
+    trackLoginError("email", { code: "auth/invalid-credential" }, undefined, "send");
+    expect(track.mock.calls).toEqual([
+      ["login_error", { method: "phone", ua_class: "desktop", error_code: "invalid-verification-code", step: "verify" }],
+      ["login_error", { method: "phone", ua_class: "desktop", error_code: "recaptcha-already-rendered", step: "send" }],
+      ["login_error", { method: "email", ua_class: "desktop", error_code: "invalid-credential" }],
+    ]);
+  });
+});
+
+describe("LOGIN-FIX-1 · phone messages in a student's words", () => {
+  const cases: Array<[unknown, string]> = [
+    [{ code: "auth/invalid-verification-code" }, PHONE_WRONG_CODE_MESSAGE],
+    [{ code: "auth/code-expired" }, PHONE_CODE_EXPIRED_MESSAGE],
+    [{ code: "auth/too-many-requests" }, PHONE_TOO_MANY_MESSAGE],
+    [{ code: "auth/quota-exceeded" }, PHONE_SMS_LIMIT_MESSAGE],
+    [{ code: "auth/captcha-check-failed" }, PHONE_HUMAN_CHECK_MESSAGE],
+    [{ code: "auth/invalid-app-credential" }, PHONE_HUMAN_CHECK_MESSAGE],
+    [{ code: "auth/internal-error" }, PHONE_HUMAN_CHECK_MESSAGE],
+    [{ code: RECAPTCHA_NOT_READY_CODE }, PHONE_HUMAN_CHECK_MESSAGE],
+    [new Error("reCAPTCHA has already been rendered in this element"), PHONE_HUMAN_CHECK_MESSAGE],
+    [{ code: OTP_NOT_REQUESTED_CODE }, PHONE_NO_CODE_REQUESTED_MESSAGE],
+    [{ code: "auth/invalid-phone-number" }, "Enter a valid 10-digit mobile number."],
+    [{ code: "auth/network-request-failed" }, "Network error. Check your connection and try again."],
+    [{ code: "auth/something-new" }, PHONE_GENERIC_MESSAGE],
+    [null, PHONE_GENERIC_MESSAGE],
+  ];
+  it.each(cases)("%j", (err, message) => {
+    expect(describePhoneError(err)).toBe(message);
+  });
+});
+
+describe("LOGIN-FIX-1 · closing the Google window is a cancel", () => {
+  it("isGoogleCancel is popup-closed-by-user only, and it no longer forces the phone step", () => {
+    expect(isGoogleCancel({ code: "auth/popup-closed-by-user" })).toBe(true);
+    expect(isGoogleCancel({ code: "auth/popup-blocked" })).toBe(false);
+    expect(isGoogleCancel({ code: "auth/cancelled-popup-request" })).toBe(false);
+    expect(shouldRescueToPhone({ code: "auth/popup-closed-by-user" })).toBe(false);
+    expect(shouldRescueToPhone({ code: "auth/popup-blocked" })).toBe(true);
   });
 });

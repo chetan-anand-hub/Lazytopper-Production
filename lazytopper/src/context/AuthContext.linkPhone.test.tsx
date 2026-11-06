@@ -34,7 +34,10 @@ vi.mock("firebase/auth", () => ({
   updateProfile: vi.fn(),
   signOut: vi.fn(async () => {}),
   RecaptchaVerifier: class {
-    constructor(_a: unknown, containerId: string) { H.renderedInto.push(containerId); }
+    // LOGIN-FIX-1 — renders into a fresh child of the host; record the HOST id.
+    constructor(_a: unknown, container: string | HTMLElement) {
+      H.renderedInto.push(typeof container === "string" ? container : (container.parentElement?.id ?? ""));
+    }
     clear() {}
     async render() {}
   },
