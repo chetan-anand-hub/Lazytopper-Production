@@ -2010,11 +2010,15 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // clean-ups, the CBQ auto-build — has run and its state has been applied before the build reads
   // its inputs. That makes "clean-ups first, then exactly one build" a property of React's commit
   // order, not of which promise callback happens to run first.
+  // The gate is opened FOR a chapter set: when the chosen chapter(s) change inside one mount, it
+  // closes in that same render (never a commit late), and reopens once the new set is ready.
   const bankGateWanted = bank.ready || !!bank.error;
-  const [buildGateOpen, setBuildGateOpen] = useState<boolean>(bankGateWanted);
+  const bankGateKey = bankTopicKeys.join("\u0001");
+  const [buildGateOpenFor, setBuildGateOpenFor] = useState<string | null>(bankGateWanted ? bankGateKey : null);
   useEffect(() => {
-    setBuildGateOpen(bankGateWanted);
-  }, [bankGateWanted]);
+    setBuildGateOpenFor(bankGateWanted ? bankGateKey : null);
+  }, [bankGateWanted, bankGateKey]);
+  const buildGateOpen = bankGateWanted && buildGateOpenFor === bankGateKey;
   // MOMENTS-1 — Retry when the chapter chunk failed: load it again; on success the hook reads it
   // from the cache on this re-render and the build runs again.
   const retryBankLoad = () => {
