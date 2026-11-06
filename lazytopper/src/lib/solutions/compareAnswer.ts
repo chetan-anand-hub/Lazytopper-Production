@@ -220,14 +220,17 @@ export function compareAnswer(typed: string, key: string, units: UnitMode = "len
 const halfUlp = (decimals: number) => 0.5 * 10 ** -decimals;
 
 /**
- * Science mode: values compared in the KEY's unit after conversion, as INTERVALS (review of #1604):
- * a plain-decimal key ("0.067 A") stands for anything that rounds to it (±half its last place), and a
- * plain-decimal answer ("66.7 mA", "667 W") for anything that rounds to IT, so "1/15 A", "0.0667 A",
- * "66.7 mA" all match "0.067 A" and "667 W" matches "2/3 kW" (significant figures survive a unit
- * conversion; counted decimals do not). "wrong" only when the two intervals cannot overlap and the
- * answer carries 3+ significant figures; a coarser near-miss is "none". An integer or fraction key is
- * exact. Another dimension, a superscript, or a bare number against a PREFIXED key unit (mA, kΩ,
- * kWh: "50" is not 50 mA) is "none".
+ * Science mode (second review of #1604): values compared in the KEY's unit after conversion.
+ * - "right" only for EXACT equality after conversion ("2.00 A" vs "2.0 A", "500 mA" vs "0.5 A"), or
+ *   when the answer is a 3+ significant-figure rounding of an EXACT key (an integer or a fraction:
+ *   "667 W" vs "2/3 kW").
+ * - A rounded (decimal) key stands for ± half its last place, and a plain answer for ± its own; when
+ *   those windows overlap without exact equality the verdict is "none" ("1.96 A" vs "2.0 A",
+ *   "0.0667 A" vs "0.067 A"): we cannot tell a correct rounding from a near miss.
+ * - In a whole-number answer trailing zeros are NOT significant: "700 W" is ±50 W, "730 mA" ±5 mA.
+ * - "wrong" only when the windows cannot overlap.
+ * - A bare number against a key WITH a unit is "none" ("500" vs "0.5 A"); another dimension, a
+ *   superscript, or an unknown unit is "none".
  */
 function compareScience(typed: string, key: string, shown: string): CompareResult {
   if (parseRatio(key)) return { verdict: "none", shown };
@@ -235,21 +238,32 @@ function compareScience(typed: string, key: string, shown: string): CompareResul
   const g = parseQuantity(typed, "science");
   if (!k || !g) return { verdict: "none", shown };
   if (g.sci && !k.sci) return { verdict: "none", shown };
+  if (!g.sci && k.sci) return { verdict: "none", shown };
   if (g.sci && k.sci && g.sci.dim !== k.sci.dim) return { verdict: "none", shown };
-  if (!g.sci && k.sci && k.sci.factor !== 1) return { verdict: "none", shown };
   const kf = k.sci?.factor ?? 1;
   const gf = g.sci?.factor ?? kf;
   const gInKeyUnit = (g.value * gf) / kf;
-  const diff = Math.abs(gInKeyUnit - k.value);
   if (close(gInKeyUnit, k.value)) return { verdict: "right", shown };
-  const keyTol = k.decimals !== null && k.decimals >= 1 ? halfUlp(k.decimals) : 0;
-  const answerTol = g.decimals !== null ? (halfUlp(g.decimals) * gf) / kf : 0;
+  const diff = Math.abs(gInKeyUnit - k.value);
   const eps = 1e-9 * Math.max(1, Math.abs(k.value));
-  if (diff <= keyTol + eps) return { verdict: "right", shown };
-  // The two rounding intervals truly overlap (not just touch): the answer is a rounding of a value
-  // the key allows. Right at 3+ significant figures, else unsure.
-  if (diff < keyTol + answerTol - eps) return { verdict: g.sigFigs !== null && g.sigFigs >= 3 ? "right" : "none", shown };
-  return { verdict: "wrong", shown };
+  const keyRounded = k.decimals !== null && k.decimals >= 1;
+  const keyTol = keyRounded ? halfUlp(k.decimals!) : 0;
+  // The answer's own window and significant figures (trailing zeros of a whole number do not count).
+  let answerTol = 0;
+  let sig = g.sigFigs;
+  if (g.decimals !== null) {
+    if (g.decimals >= 1) answerTol = halfUlp(g.decimals);
+    else {
+      const digits = String(Math.abs(g.value));
+      const zeros = g.value === 0 ? 0 : (/0*$/.exec(digits)?.[0].length ?? 0);
+      answerTol = 0.5 * 10 ** zeros;
+      if (sig !== null) sig = Math.max(1, sig - zeros);
+    }
+  }
+  answerTol = (answerTol * gf) / kf;
+  if (diff >= keyTol + answerTol - eps) return { verdict: "wrong", shown };
+  if (!keyRounded && sig !== null && sig >= 3 && diff <= answerTol + eps) return { verdict: "right", shown };
+  return { verdict: "none", shown };
 }
 
 const fold = (s: string) => String(s ?? "").replace(/\s+/g, " ").trim().toLowerCase();
