@@ -20,6 +20,8 @@ import { boardPassPriceDisplay } from "../../config/pricing";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { limitCopy, limitFromRefusal, type LimitState } from "../usage/fairUseGate";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine, type PaperPackLine } from "../limits/limitsCopy";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { displayPlusGst } from "../../config/pricing";
 
 // PRICING-1 — the sheet reads the student's own founding flag; the hook is stubbed so these tests
 // need no auth provider, and each test sets what the "student" is.
@@ -528,9 +530,9 @@ const bp = () => {
 describe("paperPackLine", () => {
   it("picks the right pack and href", () => {
     on();
-    expect(paperPackLine("chapter-test", { chapters: ["triangles"] })).toMatchObject({ label: "Chapter Pack", priceLabel: "₹49", href: "/pricing?chapter=triangles#packs" });
+    expect(paperPackLine("chapter-test", { chapters: ["triangles"] })).toMatchObject({ label: "Chapter Pack", priceLabel: displayPlusGst(49), href: "/pricing?chapter=triangles#packs" });
     expect(paperPackLine("worksheet", { chapters: ["triangles", "triangles"] })?.href).toBe("/pricing?chapter=triangles#packs");
-    expect(paperPackLine("full-mock", { subject: "science" })).toMatchObject({ label: "Mock Pack", priceLabel: "₹99", href: "/pricing?mock=science#packs" });
+    expect(paperPackLine("full-mock", { subject: "science" })).toMatchObject({ label: "Mock Pack", priceLabel: displayPlusGst(99), href: "/pricing?mock=science#packs" });
     expect(paperPackLine("worksheet", { chapters: ["triangles", "electricity"] })).toMatchObject({ label: "PDF packs", priceLabel: "", href: "/pricing#packs" });
     expect(paperPackLine("full-mock", {})?.href).toBe("/pricing#packs");
   });
@@ -571,10 +573,10 @@ describe("UpgradeSheet pack line", () => {
   it("SALE-MOMENT-2: names the pack the paper wall was given (Mock, Chapter) and keeps the generic line for plain", () => {
     on();
     for (const [line, text, href] of [
-      [paperPackLine("full-mock", { subject: "maths" }), "Maths Mock Pack ₹99 — 8 full board mocks, printed with answer keys →", "/pricing?mock=maths#packs"],
-      [paperPackLine("full-mock", { subject: "science" }), "Science Mock Pack ₹99 — 8 full board mocks, printed with answer keys →", "/pricing?mock=science#packs"],
-      [paperPackLine("chapter-test", { chapters: ["triangles"] }), "Chapter Pack ₹49 — printed questions with answer keys →", "/pricing?chapter=triangles#packs"],
-      [paperPackLine("worksheet", { chapters: ["triangles", "electricity"] }), "Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →", "/pricing#packs"],
+      [paperPackLine("full-mock", { subject: "maths" }), `Maths Mock Pack ${displayPlusGst(99)} — 8 full board mocks, printed with answer keys →`, "/pricing?mock=maths#packs"],
+      [paperPackLine("full-mock", { subject: "science" }), `Science Mock Pack ${displayPlusGst(99)} — 8 full board mocks, printed with answer keys →`, "/pricing?mock=science#packs"],
+      [paperPackLine("chapter-test", { chapters: ["triangles"] }), `Chapter Pack ${displayPlusGst(49)} — printed questions with answer keys →`, "/pricing?chapter=triangles#packs"],
+      [paperPackLine("worksheet", { chapters: ["triangles", "electricity"] }), `Not ready for the Board Pass yet? Try our PDF packs from ${displayPlusGst(49)} — printed questions with answer keys, no marking →`, "/pricing#packs"],
     ] as const) {
       mount(line);
       const el = screen.getByTestId("upgrade-sheet-pack");
@@ -627,7 +629,7 @@ describe("FairUseLimitPanel on a trial paper refusal", () => {
     expect(bpEl.textContent).toContain(bp());
     const packEl = screen.getByTestId("fair-use-pack-line");
     expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.textContent).toContain("Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →");
+    expect(packEl.textContent).toContain(`Not ready for the Board Pass yet? Try our PDF packs from ${displayPlusGst(49)} — printed questions with answer keys, no marking →`);
     expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/pricing#packs");
   });
   it("PACK-BASIC-ONLY-1: also shown in the trial daily-checks dialog", () => {

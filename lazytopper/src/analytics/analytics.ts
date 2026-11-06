@@ -2085,6 +2085,21 @@ export interface OnboardingEventParams {
  *               LOGIN-FIX-1: chrome_handoff on login_attempt — the Android in-app "Open in Chrome
  *               to continue with Google" tap.
  *   step        send | verify | resend — LOGIN-FIX-1, phone login_error only.
+ *
+ * LOGIN-FIX-2 (owner ruling 6 Nov 2026: new events allowed to size the silent drop-off) —
+ *   login_abandon  once per attempt, on pagehide / freeze / leaving /login, after login_attempt and
+ *                  before login_success / login_error (utils/loginAbandon.ts). Never on a plain
+ *                  visibilitychange: switching to the SMS app, or a Google popup tab, is not leaving.
+ *     method            google | email | phone | chrome_handoff
+ *     step              google_popup_open | google_redirect_started | chrome_handoff_tapped |
+ *                       email_entered | phone_entered_number | phone_otp_sent | phone_otp_entered
+ *     ms_since_attempt  lt10s | 10to30s | 30to120s | gt120s
+ *     ua_class          as above
+ *     leave             abandon | expected (the Google redirect and the Chrome hand-off unload
+ *                       the page on purpose: expected, never counted as abandonment)
+ *     trigger           pagehide | freeze | route
+ *   login_step     the phone funnel between attempt and success, once per step per attempt:
+ *     method phone · step phone_otp_sent | phone_otp_entered · ua_class
  * GA4 / Vercel only: signed-out visitors are never in the first-party activity log, so none of
  * these is (or needs to be) on the activity allow-list.
  * ------------------------------------------------------------------------- */
@@ -2099,6 +2114,22 @@ export interface OnboardingEventParams {
     flow?: "popup" | "redirect" | "chrome_handoff";
     step?: "send" | "verify" | "resend";
   };
+  login_abandon: {
+    method: "google" | "email" | "phone" | "chrome_handoff";
+    step:
+      | "google_popup_open"
+      | "google_redirect_started"
+      | "chrome_handoff_tapped"
+      | "email_entered"
+      | "phone_entered_number"
+      | "phone_otp_sent"
+      | "phone_otp_entered";
+    ms_since_attempt: "lt10s" | "10to30s" | "30to120s" | "gt120s";
+    ua_class: string;
+    leave: "abandon" | "expected";
+    trigger: "pagehide" | "freeze" | "route";
+  };
+  login_step: { method: "phone"; step: "phone_otp_sent" | "phone_otp_entered"; ua_class: string };
 }
 
 /**

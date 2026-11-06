@@ -7,8 +7,8 @@
  * the Mummy lines and PARENT_RESULT_CTA_LABEL carry no price. PARENT-CARD-2 (owner, 31 Oct 2026) adds
  * the two pay buttons below - their prices come from config/pricing and the packs catalogue, never a literal.
  */
-import { boardPassPriceDisplay, formatInr } from "../../config/pricing";
-import { CHAPTER_PACK_PRICE_INR } from "../../lib/packs/packEntry";
+import { boardPassPriceDisplay } from "../../config/pricing";
+import { chapterPackPriceTag } from "../../lib/packs/packEntry";
 import type { ParentResultKind } from "./parentResultLink";
 
 /**
@@ -55,7 +55,7 @@ export function parentPrimaryCtaLabel(firstName: string, _now: number = Date.now
 
 /** "Or one PDF pack, from ₹49" - the cheapest pack in the catalogue. */
 export function parentSecondaryCtaLabel(): string {
-  return `Or one PDF pack, from ${formatInr(CHAPTER_PACK_PRICE_INR)}`;
+  return `Or one PDF pack, from ${chapterPackPriceTag()}`;
 }
 
 export const PARENT_TRUST_LINE = "Secure payment via Razorpay \u00b7 Made by an IITian (IIT Kanpur)";

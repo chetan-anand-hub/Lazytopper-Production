@@ -115,6 +115,16 @@ describe("ONE-MINUTE-1 pure rules", () => {
     expect(whyLine(["[1 mark] Correct option: 7 — sodium chloride is neutral."])).toBe("Sodium chloride is neutral.");
     expect(whyLine(["[1 mark] θ/360° = 1/12 ⇒ θ = 30°. Correct option: (b) 30°."])).toBe("θ/360° = 1/12 ⇒ θ = 30°.");
     expect(whyLine(undefined)).toBe("");
+    // SPEED-SITE-1a-fu: a leading maths variable is never capitalised; a leading word still is.
+    expect(whyLine(["[1 mark] x² + 3x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5."])).toBe("x² + 3x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5.");
+    expect(whyLine(["[1 mark] x = 2 satisfies the equation."])).toBe("x = 2 satisfies the equation.");
+    expect(whyLine(["[1 mark] a salt of a strong acid is neutral."])).toBe("A salt of a strong acid is neutral.");
+    expect(whyLine(["[1 mark] red light deviates least."])).toBe("Red light deviates least.");
+    // SPEED-SITE-1-fu2: function names, angle names and genotypes are maths, never capitalised.
+    for (const maths of ["tan θ = 1, so θ = 45°.", "sin A = 3/5 gives cos A = 4/5.", "cos A = 4/5.", "sec²θ − tan²θ = 1.", "px(x − 1) = 0 gives x = 0.", "yyrr is the recessive genotype."]) {
+      expect(whyLine([`[1 mark] ${maths}`])).toBe(maths);
+    }
+    expect(whyLine(["[1 mark] the ratio is 1:2."])).toBe("The ratio is 1:2.");
   });
 });
 

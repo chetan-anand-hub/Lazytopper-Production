@@ -14,6 +14,8 @@
  * ★ checkout.js IS LOADED ONLY ON THE BUY CLICK (Z3), from Razorpay's own origin, once.
  */
 
+import { confirmServerPrice, serverPriceFields, type ServerGst, razorpayDescription } from "./priceConfirm";
+
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
 export type PassType = "month" | "till_boards";
 
@@ -109,6 +111,9 @@ export interface PayOrder {
   orderId: string;
   keyId: string;
   amountPaise: number;
+  /** GST-EXCL-1 (G2): the server's breakup, on an order created at/after 00:00 IST 7 Nov 2026. */
+  gst?: ServerGst;
+  packCreditInr?: number;
 }
 
 export interface RazorpaySuccess {
@@ -257,7 +262,7 @@ export async function createPayOrder(passType: PassType): Promise<PayOrder> {
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new Error("malformed order");
   }
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 /** Z4 — the server verifies and grants. Returns the grant's `passEnd`. */
@@ -301,7 +306,7 @@ export async function createPackOrder(sku: string, packTarget?: string): Promise
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new Error("malformed order");
   }
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 /** The server verifies and grants a pack. A pass-shaped response (or none) is an error, never a grant. */
@@ -392,6 +397,8 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
       deps.loadScript(),
       deps.prefill ? deps.prefill().catch((): CheckoutPrefill => ({})) : Promise.resolve<CheckoutPrefill>({}),
     ]);
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     // PAY-RECOVER-1 — remember THIS tab's open order (an order id, never premium state).
     writePayPending(order.orderId);
     let sawFailure = false;
@@ -403,7 +410,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION,
+        description: razorpayDescription(passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

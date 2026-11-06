@@ -11,6 +11,8 @@ import {
   type IntentDeps,
   type IntentInput,
 } from "./intentMap";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPriceLabel } from "../../services/packs";
 
 /** GUIDE-1 §3C — the intent map, rule by rule (first match wins). */
 
@@ -368,18 +370,18 @@ describe("BYTE-CBQ-1 — CBQ landings and the CBQ pack option", () => {
   it("free CBQ practice stays first; the CBQ pack is second and goes to one-tap checkout for the known subject", () => {
     const sci = first({ landing: "/cbq-class-10/electricity" });
     expect(sci.options.map((o) => o.id).slice(0, 3)).toEqual(["cbq", "cbq_pack", "quick"]);
-    expect(sci.options[1].title).toBe("Get the Science CBQ pack · ₹199");
+    expect(sci.options[1].title).toBe(`Get the Science CBQ pack · ${packPriceLabel("pack_cbq")}`);
     expect(sci.options[1].action).toEqual({ kind: "route", path: "/packs?buy=pack_cbq&t=science" });
     const maths = first({ landing: "/cbq-class-10/trigonometry" });
     expect(maths.options[1].action).toEqual({ kind: "route", path: "/packs?buy=pack_cbq&t=maths" });
     const hinted = first({ cbqLanding: true, subjectHint: "Maths" });
-    expect(hinted.options[1].title).toBe("Get the Maths CBQ pack · ₹199");
+    expect(hinted.options[1].title).toBe(`Get the Maths CBQ pack · ${packPriceLabel("pack_cbq")}`);
     expect(sci.options.length).toBeLessThanOrEqual(GUIDE_MAX_OPTIONS);
   });
 
   it("an unknown subject says 'the CBQ pack' and opens /pricing#cbq (both packs), never a guessed subject", () => {
     const p = first({ utmContent: "cbq_short" });
-    expect(p.options[1].title).toBe("Get the CBQ pack · ₹199");
+    expect(p.options[1].title).toBe(`Get the CBQ pack · ${packPriceLabel("pack_cbq")}`);
     expect(p.options[1].action).toEqual({ kind: "route", path: "/pricing#cbq" });
   });
 

@@ -736,6 +736,23 @@
       "source": "NCERT 3.5.1"
     }
   ],
+  "key_terms": [
+    {"term": "Malleability", "meaning": "Metals can be beaten into thin sheets.", "source": "NCERT 2026-27 Ch3 p.38 (jesc103)"},
+    {"term": "Ductility", "meaning": "Metals can be drawn into thin wires.", "source": "NCERT 2026-27 Ch3 p.38 (jesc103)"},
+    {"term": "Sonorous", "meaning": "Makes a ringing sound when struck.", "source": "NCERT 2026-27 Ch3 p.39 (jesc103)"},
+    {"term": "Amphoteric oxides", "meaning": "Metal oxides that react with both acids and bases, e.g. Al₂O₃ and ZnO.", "source": "NCERT 2026-27 Ch3 p.41 (jesc103)"},
+    {"term": "Reactivity series", "meaning": "Metals arranged in order of decreasing reactivity.", "source": "NCERT 2026-27 Ch3 p.45 (jesc103)"},
+    {"term": "Ionic compounds", "meaning": "Formed by transfer of electrons from a metal to a non-metal; also called electrovalent compounds.", "source": "NCERT 2026-27 Ch3 p.48 (jesc103)"},
+    {"term": "Ores", "meaning": "Minerals from which a metal can be extracted profitably.", "source": "NCERT 2026-27 Ch3 p.49 (jesc103)"},
+    {"term": "Gangue", "meaning": "Impurities such as soil and sand that come mixed with the ore.", "source": "NCERT 2026-27 Ch3 p.50 (jesc103)"},
+    {"term": "Roasting", "meaning": "Heating a sulphide ore strongly in excess air to convert it into an oxide.", "source": "NCERT 2026-27 Ch3 p.51 (jesc103)"},
+    {"term": "Calcination", "meaning": "Heating a carbonate ore strongly in limited air to convert it into an oxide.", "source": "NCERT 2026-27 Ch3 p.51 (jesc103)"},
+    {"term": "Thermit reaction", "meaning": "Iron(III) oxide reduced by aluminium; the molten iron joins railway tracks.", "source": "NCERT 2026-27 Ch3 p.52 (jesc103)"},
+    {"term": "Electrolytic refining", "meaning": "Purifying a metal by electrolysis, with the impure metal as the anode.", "source": "NCERT 2026-27 Ch3 p.52 (jesc103)"},
+    {"term": "Alloy", "meaning": "A homogeneous mixture of two or more metals, or a metal and a non-metal.", "source": "NCERT 2026-27 Ch3 p.54 (jesc103)"},
+    {"term": "Amalgam", "meaning": "An alloy in which one of the metals is mercury.", "source": "NCERT 2026-27 Ch3 p.54 (jesc103)"},
+    {"term": "Galvanisation", "meaning": "Coating steel or iron with a thin layer of zinc to protect it from rusting.", "source": "NCERT 2026-27 Ch3 p.54 (jesc103)"}
+  ],
   "mindmap": {
     "root": "Metals and Non-metals",
     "branches": [
