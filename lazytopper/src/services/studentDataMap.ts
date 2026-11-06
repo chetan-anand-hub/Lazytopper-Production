@@ -810,7 +810,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "★★ KEPT ON ERASURE, DELIBERATELY (GUEST-ABANDON-1 review D2): it is the record of a request to NOT be " +
       "contacted. Deleting it with the account would let a later signed-out checkout with the same address be " +
       "emailed again — the opposite of what the person asked. It holds only the hash key, a flag and a time. " +
-      "Written ONLY by the guest email's stop link (/api/guest-email/unsubscribe) and read inside the claim " +
+      "Written ONLY by the guest email's stop link and read inside the claim " +
       "transaction of every reminder email (trial-ending, every nudge, the guest checkout email). The key is " +
       "pseudonymous: anyone holding the address can recompute it. Included in the export.",
   },
