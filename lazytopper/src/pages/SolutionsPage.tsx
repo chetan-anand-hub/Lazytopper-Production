@@ -27,6 +27,8 @@ import {
   isObjectiveRow,
   parseSolutionsPath,
   publishedRows,
+  scienceExemplarGroups,
+  scienceExemplarRefLabel,
   scienceGroups,
   scienceRefLabel,
   stripStepMark,
@@ -333,7 +335,8 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
   const rows = publishedRows(served, ch, book);
   // SOLUTIONS-SCI: Science references are in-text / example / exercise, not "Ex 6.2" (one parser, solutionsPublishSafe.ts).
   const science = ch.subject === "Science";
-  const groups = science ? scienceGroups(rows) : groupRows(rows);
+  // SOLUTIONS-SCI-3: an Exemplar Science page groups by the book's sections (MCQ / short / long answer).
+  const groups = science ? (book === "exemplar" ? scienceExemplarGroups(rows) : scienceGroups(rows)) : groupRows(rows);
   const board = boardPatternRows(served, ch, book);
   const here = solutionsPath(book, ch.slug);
   const ncertRow = ncertRowsForSlug(bank).find((r) => r.chapter === ch.chapter) ?? null;
@@ -414,7 +417,11 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
                 key={q.id}
                 q={q}
                 safe={safe}
-                refLabel={science ? scienceRefLabel(q.ncertRef) ?? undefined : undefined}
+                refLabel={
+                  science
+                    ? (book === "exemplar" ? scienceExemplarRefLabel(q.ncertRef, q.format) : scienceRefLabel(q.ncertRef)) ?? undefined
+                    : undefined
+                }
                 science={science}
               />
             ))}

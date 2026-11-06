@@ -9,10 +9,20 @@
 //   (`-NCERT-<n>-`) is put through the rules below IN ORDER; the first rule it fails is its recorded
 //   reason. A row that passes every rule AND is `publish` / `no-verdict` in the ledger with an
 //   unchanged content hash is published.
-// ★ NCERT ONLY. The bank also holds NCERT Exemplar Science rows (`-EXMPLR-`), but none of them has a
-//   verification record, and our Storage holds no copy of the Exemplar Science book to check them
-//   against, so they are excluded as `exemplar-unverified` (counted, never published). No
-//   `/ncert-exemplar/<science chapter>` URL exists.
+// ★ NCERT AND NCERT EXEMPLAR (SOLUTIONS-SCI-3, owner instruction 6 Nov 19:49 IST). Exemplar rows
+//   (`-EXMPLR-<n>-`) are published on `/ncert-exemplar/<chapter>` under the same rules and the same
+//   ledger. The Exemplar Science book keeps the OLD (pre-2023) chapter numbers, so each 2026-27
+//   chapter carries its Exemplar chapter (EXEMPLAR_SCIENCE_CHAPTER, mapped from each file's CONTENT,
+//   never by number); the deleted chapters' files (jeep105 Periodic Classification, jeep114 Sources of
+//   Energy, jeep116 Management of Natural Resources) and the sample papers (jeep117/118) map to no page.
+// ★ OFF-BOOK TERMS AND THE SUMMARY STEP (#1605 reviews). `off-book-term` is a selection rule: a word of
+//   a row's answer / steps that is not in the 2026-27 textbook's word list (ncertScienceVocabulary.json),
+//   not in the row's own question and not on its reviewed general list holds the row, in BOTH books.
+//   ONE rule for a summary / conclusion final step (also written in ncertScienceVocabulary.json and the
+//   ledger header): a Summary or Conclusion step that states values WITH UNITS is content and is KEPT;
+//   one that only restates a non-numeric conclusion already given in an earlier step holds the row
+//   (ledger `hold`). A step that gives the answer for the first time (the conclusion asked for, or the
+//   option chosen on an objective row) is not a restatement.
 // ★ NO BOARD-PATTERN SECTION. The Science NCERT rows carry no Assertion-Reason or case-based format
 //   (the formats are MCQ / VSA / Short / Long), so the SOLUTIONS-3 section has nothing to show and
 //   is not emitted; a row in such a format would fail `adapted-format`.
@@ -31,6 +41,7 @@ import { SOLUTIONS_SCI_LEDGER } from "../../src/config/solutionsSciLedger";
 import type { LedgerEntry } from "../../src/config/solutions2Ledger";
 import {
   booksOf,
+  parseScienceExemplarRef,
   parseScienceRef,
   solutionsHeadDescription,
   solutionsHeadTitle,
@@ -82,7 +93,33 @@ export interface ScienceChapterSpec {
   chapter: number;
   /** NCERT 2026-27 chapter title (from `NCERT_CLASS10_CHAPTERS`). */
   title: string;
+  /** The NCERT Exemplar Class X Science chapter (old numbering) that holds this chapter's problems. */
+  exemplarChapter: number;
 }
+
+/**
+ * NCERT Exemplar Problems, Class X Science (ncert.nic.in/pdf/publication/exemplarproblem/classX/
+ * science/jeep1NN.pdf): 2026-27 chapter slug → the Exemplar chapter / file, MAPPED BY EACH FILE'S
+ * CONTENT (its first questions), never by number. jeep105 (Periodic Classification), jeep114 (Sources
+ * of Energy) and jeep116 (Management of Natural Resources) are deleted chapters; jeep117/118 are
+ * sample papers: none maps to a page. jeep109 is "Heredity and Evolution": its Evolution questions
+ * are excluded by the syllabus guard.
+ */
+export const EXEMPLAR_SCIENCE_CHAPTER: Readonly<Record<string, { chapter: number; file: string }>> = {
+  "chemical-reactions-and-equations": { chapter: 1, file: "jeep101" },
+  "acids-bases-and-salts": { chapter: 2, file: "jeep102" },
+  "metals-and-non-metals": { chapter: 3, file: "jeep103" },
+  "carbon-and-its-compounds": { chapter: 4, file: "jeep104" },
+  "life-processes": { chapter: 6, file: "jeep106" },
+  "control-and-coordination": { chapter: 7, file: "jeep107" },
+  "how-do-organisms-reproduce": { chapter: 8, file: "jeep108" },
+  heredity: { chapter: 9, file: "jeep109" },
+  "light-reflection-and-refraction": { chapter: 10, file: "jeep110" },
+  "human-eye-and-colourful-world": { chapter: 11, file: "jeep111" },
+  electricity: { chapter: 12, file: "jeep112" },
+  "magnetic-effects-of-electric-current": { chapter: 13, file: "jeep113" },
+  "our-environment": { chapter: 15, file: "jeep115" },
+};
 
 /** The covered Science chapters, in book order, derived from ncertBooks.ts (never retyped). */
 export function scienceSolutionsChapters(slugs: readonly string[] = SCIENCE_SOLUTIONS_SLUGS): ScienceChapterSpec[] {
@@ -90,6 +127,7 @@ export function scienceSolutionsChapters(slugs: readonly string[] = SCIENCE_SOLU
     slug: r.slug,
     chapter: r.chapter,
     title: r.title,
+    exemplarChapter: EXEMPLAR_SCIENCE_CHAPTER[r.slug].chapter,
   }));
 }
 
@@ -258,7 +296,6 @@ export function offBookTerms(q: Pick<Row, "questionText" | "options" | "answer" 
 }
 
 export type ScienceExclusionReason =
-  | "exemplar-unverified"
   | "other-chapter"
   | "withheld"
   | "source-others"
@@ -297,7 +334,6 @@ export function classifyScienceRow(
   const book = scienceBookOf(id);
   if (!book || q.topicKey !== spec.slug) return null;
   const out = (reason: ScienceExclusionReason | null, detail = ""): ScienceClassified => ({ id, reason, detail });
-  if (book === "exemplar") return out("exemplar-unverified", "no verification record and no stored Exemplar Science copy");
   if (scienceIdChapterOf(id) !== spec.chapter) return out("other-chapter", `id chapter ${scienceIdChapterOf(id)}`);
   if (withheld.has(id)) return out("withheld", "WITHHELD_QUESTION_IDS");
   if (q.sourceOverride === "others") return out("source-others", "BANK-FIX-1: source not confirmed as NCERT");
@@ -306,9 +342,16 @@ export function classifyScienceRow(
   }
   const rawRef = String(q.ncertRef ?? "").trim();
   if (PAGE_QUALIFIED.test(rawRef)) return out("ref-stale-numbering", rawRef);
-  const ref = parseScienceRef(rawRef);
-  if (!ref) return out("ref-not-a-book-question", rawRef);
-  if (ref.chapter !== null && ref.chapter !== spec.chapter) return out("ref-stale-numbering", rawRef);
+  if (book === "ncert") {
+    const ref = parseScienceRef(rawRef);
+    if (!ref) return out("ref-not-a-book-question", rawRef);
+    if (ref.chapter !== null && ref.chapter !== spec.chapter) return out("ref-stale-numbering", rawRef);
+  } else {
+    // The Exemplar Science book numbers its chapters the OLD way (Life Processes is Exemplar Ch 6).
+    const ref = parseScienceExemplarRef(rawRef, q.format);
+    if (!ref) return out("ref-not-a-book-question", rawRef);
+    if (ref.chapter !== null && ref.chapter !== spec.exemplarChapter) return out("ref-stale-numbering", rawRef);
+  }
   const syl = scienceSyllabusReason(q, guard);
   if (syl) return out("syllabus", syl);
   const offBook = offBookTerms(q);
@@ -368,6 +411,8 @@ const dupKey = (s: string) => fold(s).replace(/[^a-z0-9]+/g, "");
 export interface ScienceChapterSelection {
   spec: ScienceChapterSpec;
   ncert: SelectedRow[];
+  /** SOLUTIONS-SCI-3: the chapter's NCERT Exemplar page. */
+  exemplar: SelectedRow[];
   excluded: ScienceClassified[];
 }
 
@@ -381,7 +426,7 @@ export function selectScienceChapter(
   guard: ScienceGuardLists,
   ledger: Readonly<Record<string, LedgerEntry>> = SOLUTIONS_SCI_LEDGER,
 ): ScienceChapterSelection {
-  const sel: ScienceChapterSelection = { spec, ncert: [], excluded: [] };
+  const sel: ScienceChapterSelection = { spec, ncert: [], exemplar: [], excluded: [] };
   const seenRef = new Map<string, string>();
   const seenText = new Map<string, string>();
   for (const q of rows) {
@@ -391,8 +436,9 @@ export function selectScienceChapter(
       sel.excluded.push(c);
       continue;
     }
-    const rk = String(q.ncertRef ?? "").trim();
-    const tk = dupKey(String(q.questionText));
+    const book = scienceBookOf(q.id)!;
+    const rk = `${book}|${String(q.ncertRef ?? "").trim()}`;
+    const tk = `${book}|${dupKey(String(q.questionText))}`;
     const dup = seenRef.get(rk) ?? seenText.get(tk);
     if (dup) {
       sel.excluded.push({ ...c, reason: "duplicate", detail: `same reference or question as ${dup}` });
@@ -419,11 +465,14 @@ export function selectScienceChapter(
     }
     const code = signConventionVerdict(spec.slug, scienceVerdictEligibility(q));
     const v = l.status === "no-verdict" && code.verdict ? { verdict: false, why: "verifier: not one value" } : code;
-    sel.ncert.push({ id: q.id, verdict: v.verdict, note: rowNote(q, v) });
+    sel[book].push({ id: q.id, verdict: v.verdict, note: rowNote(q, v) });
   }
-  if (sel.ncert.length > 0 && sel.ncert.length < MIN_ROWS_PER_PAGE) {
-    for (const r of sel.ncert) sel.excluded.push({ id: r.id, reason: "thin-page", detail: `only ${sel.ncert.length} publishable rows` });
-    sel.ncert = [];
+  // A book page with fewer than MIN_ROWS_PER_PAGE rows is not published (a thin page is worse than none).
+  for (const book of ["ncert", "exemplar"] as const) {
+    if (sel[book].length > 0 && sel[book].length < MIN_ROWS_PER_PAGE) {
+      for (const r of sel[book]) sel.excluded.push({ id: r.id, reason: "thin-page", detail: `only ${sel[book].length} publishable ${book} rows` });
+      sel[book] = [];
+    }
   }
   return sel;
 }
@@ -459,11 +508,11 @@ export const SCIENCE_SHORT_TITLES: Readonly<Record<string, readonly string[]>> =
   "magnetic-effects-of-electric-current": ["Magnetic Effects"],
 };
 
-// The NCERT page's head title (SOLUTIONS-SCI publishes no Science Exemplar page yet).
-// (solutionsHeadTitle keeps only "Class 10 Science" forms for Science and throws when none fits.)
+// Every published book page's head title (solutionsHeadTitle keeps only "Class 10 Science" forms for
+// Science and throws when none fits).
 const headSaysClass10Science = (ch: SolutionsChapter) => {
   try {
-    return solutionsHeadTitle("ncert", ch).includes("Class 10 Science");
+    return booksOf(ch).every((b) => solutionsHeadTitle(b, ch).includes("Class 10 Science"));
   } catch {
     return false;
   }
@@ -481,11 +530,12 @@ function asChapter(s: ScienceChapterSelection, shortTitle?: string): SolutionsCh
     slug: s.spec.slug,
     subject: "Science",
     chapter: s.spec.chapter,
+    ...(s.spec.exemplarChapter !== s.spec.chapter ? { exemplarChapter: s.spec.exemplarChapter } : {}),
     title: s.spec.title,
     ...(shortTitle ? { shortTitle } : {}),
     decision: SOLUTIONS_SCI_DECISION,
     ncert: s.ncert.map((r) => ({ id: r.id })),
-    exemplar: [],
+    exemplar: s.exemplar.map((r) => ({ id: r.id })),
   };
 }
 
@@ -500,27 +550,31 @@ function checkHeads(s: ScienceChapterSelection, shortTitle?: string): void {
 
 export function emitScienceBlock(selections: readonly ScienceChapterSelection[]): string {
   const parts = selections
-    .filter((s) => s.ncert.length > 0)
+    .filter((s) => s.ncert.length + s.exemplar.length > 0)
     .map((s) => {
       const short = scienceShortTitle(s);
       checkHeads(s, short);
-      const rows = s.ncert
-        .map((r) => {
-          const ctor = r.verdict ? "v" : getSolutionFigures(r.id).length > 0 ? "f" : "r";
-          const note = ctor === "f" ? "answer shown with its bound solution figure" : r.note;
-          return `      ${ctor}(${JSON.stringify(r.id)}),${note ? ` // ${commentSafe(note)}` : ""}`;
-        })
-        .join("\n");
+      const list = (rows: readonly SelectedRow[]) =>
+        rows.length === 0
+          ? "[]"
+          : `[\n${rows
+              .map((r) => {
+                const ctor = r.verdict ? "v" : getSolutionFigures(r.id).length > 0 ? "f" : "r";
+                const note = ctor === "f" ? "answer shown with its bound solution figure" : r.note;
+                return `      ${ctor}(${JSON.stringify(r.id)}),${note ? ` // ${commentSafe(note)}` : ""}`;
+              })
+              .join("\n")}\n    ]`;
       return [
         "  {",
         `    slug: ${JSON.stringify(s.spec.slug)},`,
         '    subject: "Science",',
         `    chapter: ${s.spec.chapter},`,
+        ...(s.spec.exemplarChapter !== s.spec.chapter ? [`    exemplarChapter: ${s.spec.exemplarChapter},`] : []),
         `    title: ${JSON.stringify(s.spec.title)},`,
         ...(short ? [`    shortTitle: ${JSON.stringify(short)},`] : []),
         `    decision: ${JSON.stringify(SOLUTIONS_SCI_DECISION)},`,
-        `    ncert: [\n${rows}\n    ],`,
-        "    exemplar: [],",
+        `    ncert: ${list(s.ncert)},`,
+        `    exemplar: ${list(s.exemplar)},`,
         "  },",
       ].join("\n");
     });
@@ -528,7 +582,10 @@ export function emitScienceBlock(selections: readonly ScienceChapterSelection[])
 }
 
 export function emitSciencePagesBlock(selections: readonly ScienceChapterSelection[]): string {
-  const lines = selections.filter((s) => s.ncert.length > 0).map((s) => `  { slug: ${JSON.stringify(s.spec.slug)}, books: ["ncert"] },`);
+  const lines = selections
+    .map((s) => ({ slug: s.spec.slug, books: (["ncert", "exemplar"] as const).filter((b) => s[b].length > 0) }))
+    .filter((p) => p.books.length > 0)
+    .map((p) => `  { slug: ${JSON.stringify(p.slug)}, books: [${p.books.map((b) => JSON.stringify(b)).join(", ")}] },`);
   return [SCI_PAGES_BEGIN, ...lines, SCI_PAGES_END].join("\n");
 }
 
@@ -554,7 +611,7 @@ async function main(argv: string[]): Promise<void> {
     for (const s of selections) {
       const by = new Map<string, number>();
       for (const e of s.excluded) by.set(String(e.reason), (by.get(String(e.reason)) ?? 0) + 1);
-      console.log(`${s.spec.slug}\tncert ${s.ncert.length} (v ${s.ncert.filter((r) => r.verdict).length})\t${[...by.entries()].map(([k, n]) => `${k}=${n}`).join(" ")}`);
+      console.log(`${s.spec.slug}\tncert ${s.ncert.length} (v ${s.ncert.filter((r) => r.verdict).length})\texemplar ${s.exemplar.length} (v ${s.exemplar.filter((r) => r.verdict).length})\t${[...by.entries()].map(([k, n]) => `${k}=${n}`).join(" ")}`);
     }
     if (argv.includes("--excluded")) {
       for (const s of selections) for (const e of s.excluded) console.log(`EXCL\t${s.spec.slug}\t${e.id}\t${e.reason}\t${e.detail}`);
