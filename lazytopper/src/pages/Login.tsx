@@ -33,6 +33,7 @@ import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, newAccountGoesHome, takeNewAccountLanding } from "../services/newAccountLanding";
 import { BRAND_MARK_SRC } from "../config/brandMark";
+import { isEmailCodeSigninClientEnabled } from "../services/emailCodeFlag";
 import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../utils/indianMobileInput";
 import {
   chooseGoogleFlow,
@@ -80,6 +81,18 @@ export function guestPayDigitsFrom(state: unknown): string {
 const EmailLinkFinish = lazy(() => import("../components/checkoutWho/EmailLinkFinish"));
 /** EMAIL-CODE-1 - "Sign in with email code" (lazy and self-gating on VITE_EMAIL_CODE_SIGNIN_ENABLED: renders nothing while off). */
 const EmailCodeDoor = lazy(() => import("../components/auth/EmailCodeDoor"));
+
+/** SPEED-SITE-1d — EmailCodeDoor's button, invisible and inert: the same box, so its arrival moves nothing. */
+function EmailCodeDoorSlot() {
+  return (
+    <div className="lt-method lt-method--slot" aria-hidden="true" data-testid="lt-email-code-door-slot">
+      <span className="lt-method-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" />
+      </span>
+      Sign in with email code
+    </div>
+  );
+}
 /** CODE-WHERE-1 - "We've sent a code by SMS to +91 98•••••210. Wrong number? Change it" (lazy: kept out of the entry chunk). */
 const CodeSentTo = lazy(() => import("../components/auth/CodeSentTo"));
 
@@ -497,6 +510,12 @@ const LOGIN_CSS = `
     color: var(--lt-ink);
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
+  }
+
+  /* SPEED-SITE-1d - EmailCodeDoorSlot: holds the email-code door's place while its chunk loads. */
+  .lt-method--slot {
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .lt-method:hover:not(:disabled) {
@@ -2566,7 +2585,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   </span>
                   Continue with email
                 </button>
-                <Suspense fallback={null}>
+                {/* SPEED-SITE-1d: while the door's chunk loads, an invisible copy holds its slot, so the
+                    centred card does not grow by one row (and jump up 28 px) when it arrives. */}
+                <Suspense fallback={isEmailCodeSigninClientEnabled() ? <EmailCodeDoorSlot /> : null}>
                   <EmailCodeDoor />
                 </Suspense>
                 </div>

@@ -26,7 +26,7 @@ export const STARTER_ROWS: Readonly<Record<string, StarterRow>> = {
     question: "The roots of the equation x² + 3x − 10 = 0 are :",
     options: ["2, −5", "−2, 5", "2, 5", "−2, −5"],
     right: 0,
-    why: "X² + 3x − 10 = x² + 5x − 2x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5.",
+    why: "x² + 3x − 10 = x² + 5x − 2x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5.",
     topicKey: "quadratic-equations",
     topicName: "Quadratic Equations",
   },
