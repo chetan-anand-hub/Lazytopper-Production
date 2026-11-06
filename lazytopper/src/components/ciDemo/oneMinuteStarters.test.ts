@@ -120,6 +120,11 @@ describe("ONE-MINUTE-1 pure rules", () => {
     expect(whyLine(["[1 mark] x = 2 satisfies the equation."])).toBe("x = 2 satisfies the equation.");
     expect(whyLine(["[1 mark] a salt of a strong acid is neutral."])).toBe("A salt of a strong acid is neutral.");
     expect(whyLine(["[1 mark] red light deviates least."])).toBe("Red light deviates least.");
+    // SPEED-SITE-1-fu2: function names, angle names and genotypes are maths, never capitalised.
+    for (const maths of ["tan θ = 1, so θ = 45°.", "sin A = 3/5 gives cos A = 4/5.", "cos A = 4/5.", "sec²θ − tan²θ = 1.", "px(x − 1) = 0 gives x = 0.", "yyrr is the recessive genotype."]) {
+      expect(whyLine([`[1 mark] ${maths}`])).toBe(maths);
+    }
+    expect(whyLine(["[1 mark] the ratio is 1:2."])).toBe("The ratio is 1:2.");
   });
 });
 

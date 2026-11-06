@@ -87,6 +87,19 @@ afterEach(() => {
 });
 
 describe("Login in an in-app browser", () => {
+  // SPEED-SITE-1-fu2 — FIRST in the file on purpose (the lazy note has not loaded yet): an invisible slot with the
+  // note's exact words holds its place, so the doors below do not jump when the note arrives (CLS 0.062 at 1280 px).
+  it("while the note's chunk loads, an invisible, inert slot with the same words holds its place", async () => {
+    mount(IG_ANDROID);
+    const slot = screen.getByTestId("inapp-signin-slot");
+    expect(slot.getAttribute("aria-hidden")).toBe("true");
+    expect(slot.className).toContain("lt-inapp lt-inapp-banner lt-inapp--slot");
+    expect(slot.textContent).toContain("doesn't work inside the Instagram app");
+    const banner = await screen.findByTestId("inapp-signin-banner");
+    expect(screen.queryByTestId("inapp-signin-slot")).toBeNull();
+    expect(banner.textContent).toBe(slot.textContent);
+  });
+
   it("Android Instagram: banner, ONE Chrome action (the Google door), phone first, event with app only", async () => {
     mount(IG_ANDROID);
     await screen.findByTestId("inapp-signin-banner");
@@ -133,6 +146,11 @@ describe("Login in an in-app browser", () => {
     }
     expect(screen.queryByTestId("inapp-signin-banner")).toBeNull();
     expect(track).not.toHaveBeenCalled();
+  });
+
+  it("a normal browser gets no slot either", () => {
+    mount(CHROME);
+    expect(screen.queryByTestId("inapp-signin-slot")).toBeNull();
   });
 
   it("a normal browser sees no banner and sends no event", () => {

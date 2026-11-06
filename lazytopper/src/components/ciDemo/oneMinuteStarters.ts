@@ -95,12 +95,25 @@ export function whyLine(steps: readonly unknown[] | undefined): string {
 }
 
 /**
- * SPEED-SITE-1a-fu — capitalise only a sentence that starts with an English WORD. A line that starts with
- * maths ("x² + 3x − 10 = …", "x = 2", "θ/360°") keeps its variable as written: "X² + 3x" was wrong.
- * A word = 2+ lowercase letters (then optional punctuation), or the article "a" before another word.
+ * SPEED-SITE-1a-fu / 1-fu2 — capitalise only a sentence that starts with an English WORD. A line that starts with
+ * maths keeps its first token as written: "x² + 3x − 10 = …", "x = 2", "θ/360°", "tan θ", "sin A", "sec²θ",
+ * "px(…", and a lowercase genotype such as "yyrr" (heredity). A word is 2+ lowercase letters containing a vowel
+ * (optionally ending in , . ; :), that is not a function name (sin, cos, tan, log …), and is not followed by a
+ * maths token (a symbol, a digit, a Greek letter or a single CAPITAL letter such as an angle name). The article
+ * "a" before another word also counts.
  */
+const MATH_FUNCTION_WORDS = new Set(["sin", "cos", "tan", "sec", "cosec", "csc", "cot", "log", "ln", "exp", "lim", "max", "min", "det"]);
+
+function looksLikeMathsToken(token: string): boolean {
+  return /^[=+\-−×÷/^²³(√θπαβγ∠°0-9]/.test(token) || /^[A-Z]$/.test(token) || /^[α-ω]/.test(token);
+}
+
 function startsWithWord(t: string): boolean {
   const [first = "", second = ""] = t.split(/\s+/);
-  if (/^[a-z][a-z'-]*[a-z][,.;:]?$/.test(first)) return true;
-  return first === "a" && /^[a-z]/i.test(second);
+  if (first === "a") return /^[a-z]/i.test(second) && !looksLikeMathsToken(second);
+  if (!/^[a-z][a-z'-]*[a-z][,.;:]?$/.test(first)) return false;
+  const bare = first.replace(/[,.;:]$/, "");
+  if (!/[aeiou]/.test(bare)) return false;
+  if (MATH_FUNCTION_WORDS.has(bare)) return false;
+  return second === "" || !looksLikeMathsToken(second);
 }
