@@ -181,6 +181,11 @@ export interface PrerenderedRoute {
   path: string;
   /** The route region's prerendered markup: everything between the start and end marks. */
   html: string;
+  /**
+   * SPEED-SITE-2b — the ORIGINAL server nodes of that region (not copies). `createRoot`'s first commit detaches
+   * them; the fallback puts these same nodes back instead of re-parsing `html`, so the page is not rebuilt.
+   */
+  nodes?: readonly Node[];
 }
 
 /** The attribute on the two marks every route boundary renders. */
@@ -201,12 +206,27 @@ export function extractPrerenderedRoute(container: Element | null, path: string)
     if (node instanceof Element && node.tagName === "TEMPLATE" && node.getAttribute(ROUTE_MARK_ATTR) === "end") end = node;
   }
   if (!end) return null;
-  const holder = document.createElement("div");
-  for (let node = start.nextSibling; node && node !== end; node = node.nextSibling) {
-    holder.appendChild(node.cloneNode(true));
-  }
-  const html = holder.innerHTML;
-  return html.trim() === "" ? null : { path, html };
+  // SPEED-SITE-2b — keep REFERENCES to the server's own nodes. They stay where they are (on screen) until React's
+  // first commit detaches them; nothing is cloned here (cloning ~4,000 nodes of a notes page cost a long task on a
+  // slow phone before React even started). `html` is serialised only if something asks for it (the fallback when
+  // the originals cannot be reused, and tests).
+  const nodes: Node[] = [];
+  for (let node = start.nextSibling; node && node !== end; node = node.nextSibling) nodes.push(node);
+  const meaningful = nodes.some((n) => n.nodeType === Node.ELEMENT_NODE || (n.textContent ?? "").trim() !== "");
+  if (!meaningful) return null;
+  let html: string | null = null;
+  return {
+    path,
+    nodes,
+    get html(): string {
+      if (html === null) {
+        const holder = document.createElement("div");
+        for (const n of nodes) holder.appendChild(n.cloneNode(true));
+        html = holder.innerHTML;
+      }
+      return html;
+    },
+  };
 }
 
 interface PrerenderedRouteState {
@@ -225,27 +245,43 @@ function RouteBoundaryMark({ edge }: { edge: "start" | "end" }) {
   return <template data-lt-route={edge} />;
 }
 
-/** The prerendered region, inserted after an anchor before the browser paints, removed on unmount. */
-function PrerenderedRouteBody({ html }: { html: string }) {
+/**
+ * The prerendered region, inserted after an anchor before the browser paints, removed on unmount.
+ *
+ * SPEED-SITE-2b — the SERVER'S OWN NODES go back in when they can: `createRoot`'s first commit detached them a moment
+ * earlier in the same commit, so the student sees no change at all, the browser re-lays-out nothing it has not
+ * already laid out, images are not re-decoded, and the paragraph that was the page's Largest Contentful Paint stays
+ * the same element at the same size (a re-parsed copy could be a pixel larger and became a NEW, later LCP). The
+ * copy path (`html`) remains for anything else: nodes still attached somewhere, or a route without originals.
+ * Content is exactly what it was before this change either way: the captured region, shown only until the route's
+ * own render replaces it (client render wins, as before — prices, auth and device included).
+ */
+function PrerenderedRouteBody({ route }: { route: PrerenderedRoute }) {
   const anchor = useRef<HTMLTemplateElement>(null);
   useLayoutEffect(() => {
     const at = anchor.current;
     if (!at || !at.parentNode) return undefined;
-    const parsed = document.createElement("template");
-    parsed.innerHTML = html;
-    const nodes = Array.from(parsed.content.childNodes);
+    const originals = route.nodes;
+    let nodes: Node[];
+    if (originals && originals.length > 0 && originals.every((n) => !n.isConnected)) {
+      nodes = [...originals];
+    } else {
+      const parsed = document.createElement("template");
+      parsed.innerHTML = route.html;
+      nodes = Array.from(parsed.content.childNodes);
+    }
     at.after(...nodes);
     return () => {
       for (const node of nodes) node.parentNode?.removeChild(node);
     };
-  }, [html]);
+  }, [route]);
   return <template data-lt-route="prerendered" ref={anchor} />;
 }
 
 function RouteSuspenseFallback() {
   const { route } = useContext(PrerenderedRouteContext);
   const { pathname } = useLocation();
-  if (route && route.path === pathname) return <PrerenderedRouteBody html={route.html} />;
+  if (route && route.path === pathname) return <PrerenderedRouteBody route={route} />;
   return <RouteFallback />;
 }
 

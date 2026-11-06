@@ -49,8 +49,10 @@ vi.mock("./pages/LegalPage", () => gatedPage("legal", "real-legal")());
 vi.mock("./pages/PricingPage", () => gatedPage("pricing", "real-pricing")());
 vi.mock("./pages/Cbse2027Page", () => gatedPage("cbse", "real-cbse")());
 vi.mock("./pages/ExamTrendsRanked", () => gatedPage("trends", "real-trends")());
+vi.mock("./pages/ContactPage", () => gatedPage("contact", "real-contact")());
+vi.mock("./pages/ForParentsPage", () => gatedPage("parents", "real-parents")());
 
-for (const key of ["legal", "pricing", "cbse", "trends"]) gates[key] = deferred();
+for (const key of ["legal", "pricing", "cbse", "trends", "contact", "parents"]) gates[key] = deferred();
 
 /* Imported AFTER the mocks above so App's module graph resolves to them. */
 const { default: App, extractPrerenderedRoute } = await import("./App");
@@ -105,6 +107,48 @@ beforeEach(() => {
   setMatchMediaMatches(false);
 });
 afterEach(cleanup);
+
+describe("SPEED-SITE-2b — the fallback puts the server's OWN nodes back (no re-parse)", () => {
+  function serverRegion(testId: string): { nodes: Node[]; first: Element } {
+    const holder = document.createElement("div");
+    holder.innerHTML = `<main data-testid="${testId}"><h1>Contact</h1><p>Prerendered, by the server.</p></main>`;
+    const nodes = Array.from(holder.childNodes);
+    // React's first commit detaches them (createRoot clears #root): simulate exactly that.
+    for (const n of nodes) n.parentNode?.removeChild(n);
+    return { nodes, first: nodes[0] as Element };
+  }
+
+  it("detached originals are re-inserted as THEMSELVES (same objects), after the anchor; then the real page", async () => {
+    const { nodes, first } = serverRegion("server-contact");
+    render(tree("/contact", { path: "/contact", html: "<main data-testid=\"copy-contact\">copy</main>", nodes }));
+    const shown = screen.getByTestId("server-contact");
+    expect(shown).toBe(first);
+    expect(screen.queryByTestId("copy-contact")).toBeNull();
+    const anchor = document.querySelector('template[data-lt-route="prerendered"]');
+    expect(anchor?.nextElementSibling).toBe(first);
+    await act(async () => {
+      gates.contact.resolve();
+    });
+    expect(await screen.findByTestId("real-contact")).toBeInTheDocument();
+    expect(first.isConnected).toBe(false);
+    expect(screen.queryByTestId("server-contact")).toBeNull();
+  });
+
+  it("originals still attached somewhere (cannot be moved safely): the copy from html is used, as before", async () => {
+    const holder = document.createElement("div");
+    document.body.appendChild(holder);
+    holder.innerHTML = '<main data-testid="still-attached">x</main>';
+    const nodes = Array.from(holder.childNodes);
+    render(tree("/for-parents", { path: "/for-parents", html: '<main data-testid="copy-parents">copy</main>', nodes }));
+    expect(screen.getByTestId("copy-parents")).toBeInTheDocument();
+    expect(holder.contains(nodes[0])).toBe(true); // never stolen from where it is
+    await act(async () => {
+      gates.parents.resolve();
+    });
+    expect(await screen.findByTestId("real-parents")).toBeInTheDocument();
+    holder.remove();
+  });
+});
 
 describe("D3 — the first prerendered route keeps its markup until it is ready", () => {
   it("★ pin (c): first paint shows the prerendered route, 'Loading...' NEVER enters the DOM; then the real page", async () => {
@@ -183,10 +227,20 @@ describe("extractPrerenderedRoute — what main.tsx keeps from the served HTML",
     "<nav>bottom nav</nav>";
 
   it("returns exactly the route region — never the chrome around it", () => {
-    expect(extractPrerenderedRoute(root(PAGE), "/notes/x")).toEqual({
-      path: "/notes/x",
-      html: '<section class="page">Page body</section>\n<p>more</p>',
-    });
+    const r = extractPrerenderedRoute(root(PAGE), "/notes/x");
+    expect(r?.path).toBe("/notes/x");
+    expect(r?.html).toBe('<section class="page">Page body</section>\n<p>more</p>');
+  });
+
+  // SPEED-SITE-2b — the region is kept as the server's OWN nodes (no copies made at boot), still in place.
+  it("keeps references to the original nodes, which stay where they are until React's first commit", () => {
+    const el = root(PAGE);
+    const section = el.querySelector("section.page");
+    const r = extractPrerenderedRoute(el, "/notes/x");
+    expect(r?.nodes?.[0]).toBe(section);
+    expect(r?.nodes?.map((n) => n.nodeName)).toEqual(["SECTION", "#text", "P"]);
+    expect(el.contains(section)).toBe(true); // still on screen: nothing is moved or copied at extraction
+    expect(el.querySelector("header")?.textContent).toBe("chrome"); // the chrome is not part of the region
   });
 
   it("returns null when there is nothing prerendered (the clean shell)", () => {
