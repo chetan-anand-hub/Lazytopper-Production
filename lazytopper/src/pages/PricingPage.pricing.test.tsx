@@ -568,7 +568,7 @@ describe("PRICING-B-1 — contrast (WCAG AA)", () => {
   it("CONTROL — offer CLOSED keeps the page rendering at the list month price for a month buyer", () => {
     pinToday("2026-12-01T00:00:00+05:30");
     const { pass } = renderPricing();
-    expect(flat(pass.querySelector(".lt-pricing-amount"))).toBe(PRICE_MONTHLY_LIST_DISPLAY);
+    expect(flat(pass.querySelector(".lt-pricing-amount"))).toBe(`${PRICE_MONTHLY_LIST_DISPLAY} + GST`); // GST-EXCL-1: 1 Dec is after 7 Nov
     expect(pass.querySelector(".lt-pricing-founding-note")).toBeNull();
   });
 });

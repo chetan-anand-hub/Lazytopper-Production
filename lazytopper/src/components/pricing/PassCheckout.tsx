@@ -25,10 +25,9 @@ import {
   boardPassPriceDisplay,
   foundingRateApplies,
   formatInr,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_FOUNDING_INR,
-  PRICE_MONTHLY_LIST_DISPLAY,
   PRICE_MONTHLY_LIST_INR,
+  payDisplay,
   tillBoardsQuote,
 } from "../../config/pricing";
 import { BOARD_PASS_BUY_PARAM, BOARD_PASS_BUY_PATH, BOARD_PASS_BUY_VALUE, readBoardPassBuy } from "./boardPassBuy";
@@ -89,7 +88,8 @@ export { BOARD_PASS_BUY_PARAM, BOARD_PASS_BUY_PATH, BOARD_PASS_BUY_VALUE, readBo
 
 /** The monthly button's label, from the pricing module's display constants. */
 export function monthButtonLabel(offerOpen: boolean): string {
-  return `Pay ${offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY} for a month`;
+  // GST-EXCL-1: the month pass is "+ GST" too from 00:00 IST 7 Nov 2026 (every paid product); a Pay button names the TOTAL.
+  return `Pay ${payDisplay(offerOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR)} for a month`;
 }
 
 /** A function: the price follows the founding deadline, so the label is read at RENDER time. */
@@ -110,7 +110,7 @@ export const monthPassActiveUntilCopy = (dateLabel: string): string => `Your mon
 export const fullAccessActiveUntilCopy = (dateLabel: string): string => `Full access is active until ${dateLabel}.`;
 export const boardPassUpsellCopy = (): string => `Stay covered till your boards: Board Pass ${boardPassPriceDisplay()} once`;
 export const renewMonthLabel = (offerOpen: boolean): string =>
-  `Renew month pass · ${offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY}`;
+  `Renew month pass · ${payDisplay(offerOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR)}`; // GST-EXCL-1: the total charged
 const MONTH_PLANS: readonly string[] = ["pass_month", "premium_monthly"];
 
 /**

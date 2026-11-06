@@ -353,3 +353,28 @@ describe("GST-EXCL-1 · 1 ms before 00:00 IST 7 Nov every amount and string equa
     expect([49, 99, 199, 299, 149].map((b) => routes.tableQuote(b, CUT).amountPaise)).toEqual([5800, 11700, 23500, 35300, 17600]);
   });
 });
+
+describe("GST-EXCL-1 · the month pass is + GST from 00:00 IST 7 Nov too (owner: every paid product)", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const routes = require("../../server/routes/payments.cjs") as {
+    quotePass: (s: object, t: string, n: number) => { pricePaidInr: number; amountPaise: number; gst?: unknown };
+  };
+  const CUT = Date.parse("2026-11-07T00:00:00+05:30");
+  it("1 ms before: ₹599 all-in (trunk); at the cut-off: ₹599 + ₹108 GST = ₹707 on the server and on every month label", () => {
+    const pre = routes.quotePass({}, "month", CUT - 1);
+    expect([pre.pricePaidInr, pre.amountPaise, "gst" in pre]).toEqual([599, 59900, false]);
+    const at = routes.quotePass({}, "month", CUT);
+    expect([at.pricePaidInr, at.amountPaise, at.gst]).toEqual([707, 70700, { baseInr: 599, gstInr: 108, totalInr: 707, gstRate: 0.18 }]);
+    expect(P.payDisplay(PRICE_MONTHLY_FOUNDING_INR, CUT - 1)).toBe("₹599");
+    expect(P.displayPlusGst(PRICE_MONTHLY_FOUNDING_INR, CUT - 1)).toBe("₹599");
+    expect(P.payDisplay(PRICE_MONTHLY_FOUNDING_INR, CUT)).toBe("₹707");
+    expect(P.displayPlusGst(PRICE_MONTHLY_FOUNDING_INR, CUT)).toBe("₹599 + GST");
+    expect(P.payDisplay(PRICE_MONTHLY_LIST_INR, CUT)).toBe("₹1,179");
+    // server = client on both sides of both switches, for both month prices
+    for (const now of [CUT - 1, CUT, FOUNDING_OFFER_CLOSES_AT_MS - 1, FOUNDING_OFFER_CLOSES_AT_MS]) {
+      const q = routes.quotePass({ passType: "month", plan: "pass_month" }, "month", now);
+      const base = foundingOfferOpen(now) ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR;
+      expect(q.pricePaidInr).toBe(priceWithGst(base, now));
+    }
+  });
+});

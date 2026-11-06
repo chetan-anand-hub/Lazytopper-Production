@@ -22,8 +22,9 @@ import {
   TILL_BOARDS_AFTER_FOUNDING_INR,
   foundingRateApplies,
   PERIOD_MONTHLY_LABEL,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_INR,
+  displayPlusGst,
+  PRICE_MONTHLY_LIST_INR,
   BOARD_PASS_NAME,
   TUITION_ANCHOR,
   tillBoardsQuote,
@@ -190,10 +191,11 @@ export function PremiumPriceHead({ offerOpen }: { offerOpen: boolean }) {
   return (
     <div className="lt-pricing-price" data-testid="pricing-monthly-price">
       <span className="lt-pricing-amount">
-        {offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY}
+        {/* GST-EXCL-1: a price TAG ("+ GST" from 00:00 IST 7 Nov 2026); the total is on the Pay button. */}
+        {displayPlusGst(offerOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR)}
       </span>
       <span className="lt-pricing-period">{PERIOD_MONTHLY_LABEL}</span>
-      {offerOpen && <s className="lt-pricing-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>}
+      {offerOpen && <s className="lt-pricing-was">{displayPlusGst(PRICE_MONTHLY_LIST_INR)}</s>}
     </div>
   );
 }

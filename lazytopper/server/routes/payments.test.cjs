@@ -1323,28 +1323,28 @@ test('PRICING-1 · an order made at 23:59:59 IST on 30 Nov and PAID at 00:00:01 
   const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
-  assert.equal(created.amountPaise, 59900, 'the order was priced at the founding rate');
+  assert.equal(created.amountPaise, 70700, 'the order was priced at the founding rate');
   clock = AFTER_CLOSE;
   const p = srv.rzp.pay(created.orderId);
   const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   const stored = srv.db.read('subscriptions/u1');
-  assert.equal(stored.pricePaidInr, 599, 'recorded what was charged');
+  assert.equal(stored.pricePaidInr, 707, 'recorded what was charged (founding 599 + 108 GST)');
   assert.equal(stored.offerKey, 'founding');
   assert.equal(stored.foundingMember, true);
-  assert.equal(srv.db.read(`subscriptions/u1/payments/${p.id}`).pricePaidInr, 599);
+  assert.equal(srv.db.read(`subscriptions/u1/payments/${p.id}`).pricePaidInr, 707);
 });
 
 test('PRICING-1 · an order made after the close is charged and recorded at the list price (999, not founding)', async (t) => {
   const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => AFTER_CLOSE, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
-  assert.equal(created.amountPaise, 99900);
+  assert.equal(created.amountPaise, 117900);
   const p = srv.rzp.pay(created.orderId);
   const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   const stored = srv.db.read('subscriptions/u1');
-  assert.equal(stored.pricePaidInr, 999);
+  assert.equal(stored.pricePaidInr, 1179);
   assert.equal(stored.offerKey, 'regular');
   assert.equal(stored.foundingMember, false);
 });
@@ -1376,7 +1376,7 @@ test('PRICING-1 · within the 24 h grace an authorized founding order is still c
   const p = srv.rzp.pay(created.orderId, { status: 'authorized' });
   const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
   assert.equal(r.status, 200, JSON.stringify(r.json));
-  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 599);
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 707);
 });
 
 test('PRICING-1 · money already CAPTURED is never stranded: a stale founding order that Razorpay captured is granted at its own price', async (t) => {
@@ -1390,7 +1390,7 @@ test('PRICING-1 · money already CAPTURED is never stranded: a stale founding or
   assert.equal(r.status, 200, JSON.stringify(r.json));
   const stored = srv.db.read('subscriptions/u1');
   assert.equal(stored.tier, 'premium');
-  assert.equal(stored.pricePaidInr, 599);
+  assert.equal(stored.pricePaidInr, 707);
   assert.equal(stored.foundingMember, true);
 });
 
@@ -1404,7 +1404,7 @@ test('PRICING-1 · status: a stale AUTHORIZED item does not hide a CAPTURED one 
   srv.rzp.pay(created.orderId, { id: 'pay_later_captured' });
   const st = await askStatus(srv, created.orderId);
   assert.equal(st.status, 200, JSON.stringify(st.json));
-  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 599, 'granted at the order price');
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 707, 'granted at the order price (599 + GST, ordered after 7 Nov)');
   assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'the stale authorization was never captured');
 });
 
@@ -1418,7 +1418,7 @@ test('PRICING-1 · an EXISTING founder is never refused: a late authorized found
   const p = srv.rzp.pay(created.orderId, { status: 'authorized' });
   const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
   assert.equal(r.status, 200, JSON.stringify(r.json));
-  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 599);
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 707);
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1510,7 +1510,7 @@ test('PRICE-FIXED-1 · after the instant a uid with a prior PAID month order (pa
   });
   t.after(srv.close);
   const out = await createOrder(srv, 'u_b', 'month');
-  assert.equal(out.amountPaise, 59900);
+  assert.equal(out.amountPaise, 70700);
 });
 
 test('PRICE-FIXED-1 · an ADMIN-GRANTED month pass (stored month, ledger record, no paid order) is NOT a purchase: month is neither offered nor orderable after the instant', async (t) => {
@@ -1681,7 +1681,7 @@ test('EXISTING-BUYERS (1) · a till_boards buyer keeps the SAME end date and sta
 });
 
 test('EXISTING-BUYERS (2) · a month buyer keeps the month option on every date, at the founding lock, and can renew: the offer says available, the order is priced as before, the grant stacks on the running pass', async (t) => {
-  for (const [day, expectPaise] of [['2026-11-20', 59900], ['2026-12-10', 59900]]) {
+  for (const [day, expectPaise] of [['2026-11-20', 70700], ['2026-12-10', 70700]]) { // GST-EXCL-1: 599 + 108 GST from 7 Nov
     const db = memoryFirestore(monthBuyerSeed());
     let clock = istNoon(day);
     const srv = await startRoutes({ db, now: () => clock, calendarOffer: true });
@@ -1697,7 +1697,7 @@ test('EXISTING-BUYERS (2) · a month buyer keeps the month option on every date,
     assert.equal(r.status, 200, JSON.stringify(r.json));
     const sub = db.read('subscriptions/mb1');
     assert.equal(sub.passType, 'month');
-    assert.equal(sub.pricePaidInr, 599);
+    assert.equal(sub.pricePaidInr, 707);
     assert.equal(sub.foundingMember, true);
     if (day === '2026-11-20') {
       // Still running on 20 Nov -> the new month stacks from the stored end (5 Dec -> 5 Jan).
@@ -1706,7 +1706,7 @@ test('EXISTING-BUYERS (2) · a month buyer keeps the month option on every date,
     }
     // The OLD paid order and ledger record are untouched.
     assert.equal(db.read('payOrders/order_mb_old').status, 'paid');
-    assert.equal(db.read('payOrders/order_mb_old').amountPaise, 59900);
+    assert.equal(db.read('payOrders/order_mb_old').amountPaise, 59900); // an existing buyer's stored order: never re-priced
     assert.equal(db.read('subscriptions/mb1/payments/pay_mb_old').pricePaidInr, 599);
   }
 });
@@ -1716,7 +1716,7 @@ test('EXISTING-BUYERS (2) · a month buyer who was NOT a founder keeps the list 
   seed['subscriptions/mb1'] = { ...seed['subscriptions/mb1'], foundingMember: false, offerKey: 'regular', pricePaidInr: 999 };
   const srv = await startRoutes({ db: memoryFirestore(seed), now: () => istNoon('2026-12-10'), calendarOffer: true });
   t.after(srv.close);
-  assert.equal((await createOrder(srv, 'mb1', 'month')).amountPaise, 99900);
+  assert.equal((await createOrder(srv, 'mb1', 'month')).amountPaise, 117900);
 });
 
 test('EXISTING-BUYERS (3) · admin grants are not gated: the owner can still grant a month or Board Pass to any uid after the instant, at the existing prices', async () => {
@@ -1779,7 +1779,7 @@ test('EXISTING-BUYERS (3) · PACK-TERMS-1: a pack paid BEFORE the 5 Nov cut-off 
   const mdb = memoryFirestore({ ...monthBuyerSeed(), 'packEntitlements/mb1/packs/pk2': { packId: 'pk2', sku: 'pack_chapter', target: 'x', pricePaidInr: 49, paidAt: istNoon('2026-11-19'), creditedToPass: false } });
   const msrv = await startRoutes({ db: mdb, now: () => istNoon('2026-11-20'), calendarOffer: true });
   t.after(msrv.close);
-  assert.equal((await createOrder(msrv, 'mb1', 'month')).amountPaise, 59900);
+  assert.equal((await createOrder(msrv, 'mb1', 'month')).amountPaise, 70700);
 });
 
 test('EXISTING-BUYERS (4) · NO new write path: the month-history helpers are read-only, and neither refused orders nor the offer endpoint change a single stored document', async (t) => {

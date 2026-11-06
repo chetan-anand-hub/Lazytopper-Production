@@ -783,7 +783,7 @@ test('PRICING-1 · V · a founding order only AUTHORIZED 24 h+ after the close i
   const done = srv.rzp.pay(o.orderId, { id: 'pay_done' });
   const ok = await parentVerify(srv, token, o.orderId, done.id);
   assert.equal(ok.status, 200, ok.text);
-  assert.equal(srv.db.read('subscriptions/child1').pricePaidInr, 599);
+  assert.equal(srv.db.read('subscriptions/child1').pricePaidInr, 707);
 });
 
 test('V · a payment captured after the link EXPIRED, for an order made while it was live, is still honoured', async (t) => {
@@ -972,10 +972,10 @@ test('PRICE-FIXED-1 · parent link: a child WITH a prior paid month order keeps 
   t.after(srv.close);
   const { token } = await mint(srv);
   const view = await request(srv.port, PARENT_VIEW_PATH, { body: { token } });
-  assert.equal(view.json.prices.month, 599);
+  assert.equal(view.json.prices.month, 707);
   const ok = await parentOrder(srv, token, 'month');
   assert.equal(ok.status, 200, ok.text);
-  assert.equal(ok.json.amountPaise, 59900);
+  assert.equal(ok.json.amountPaise, 70700);
 });
 
 /* ══════════════════════════════════════════════════════════════════════════

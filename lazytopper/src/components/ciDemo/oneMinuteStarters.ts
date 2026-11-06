@@ -91,5 +91,29 @@ export function whyLine(steps: readonly unknown[] | undefined): string {
   t = t.replace(/^Correct option(?: is)?:?\s*(?:\([a-d]\))?[^.]*\.\s*/i, "");
   t = t.replace(/\s*Correct option(?: is)?:?\s*(?:\([a-d]\))?[^.]*\.?$/i, "").trim();
   if (!t || /^Correct option/i.test(t)) return "";
-  return /^[a-z]/.test(t) ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+  return startsWithWord(t) ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+}
+
+/**
+ * SPEED-SITE-1a-fu / 1-fu2 — capitalise only a sentence that starts with an English WORD. A line that starts with
+ * maths keeps its first token as written: "x² + 3x − 10 = …", "x = 2", "θ/360°", "tan θ", "sin A", "sec²θ",
+ * "px(…", and a lowercase genotype such as "yyrr" (heredity). A word is 2+ lowercase letters containing a vowel
+ * (optionally ending in , . ; :), that is not a function name (sin, cos, tan, log …), and is not followed by a
+ * maths token (a symbol, a digit, a Greek letter or a single CAPITAL letter such as an angle name). The article
+ * "a" before another word also counts.
+ */
+const MATH_FUNCTION_WORDS = new Set(["sin", "cos", "tan", "sec", "cosec", "csc", "cot", "log", "ln", "exp", "lim", "max", "min", "det"]);
+
+function looksLikeMathsToken(token: string): boolean {
+  return /^[=+\-−×÷/^²³(√θπαβγ∠°0-9]/.test(token) || /^[A-Z]$/.test(token) || /^[α-ω]/.test(token);
+}
+
+function startsWithWord(t: string): boolean {
+  const [first = "", second = ""] = t.split(/\s+/);
+  if (first === "a") return /^[a-z]/i.test(second) && !looksLikeMathsToken(second);
+  if (!/^[a-z][a-z'-]*[a-z][,.;:]?$/.test(first)) return false;
+  const bare = first.replace(/[,.;:]$/, "");
+  if (!/[aeiou]/.test(bare)) return false;
+  if (MATH_FUNCTION_WORDS.has(bare)) return false;
+  return second === "" || !looksLikeMathsToken(second);
 }

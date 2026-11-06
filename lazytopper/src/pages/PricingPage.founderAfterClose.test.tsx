@@ -86,10 +86,11 @@ describe("PricingPage after 1 Dec 2026", () => {
   it("a FOUNDING month buyer sees the founding rate, the lock promise and a Pay button at that rate — what the server charges", async () => {
     const premium = await renderAs(status({ foundingMember: true }));
     expect(premium.querySelector('[data-testid="pricing-monthly-price"] .lt-pricing-amount')?.textContent).toBe(
-      PRICE_MONTHLY_FOUNDING_DISPLAY,
+      `${PRICE_MONTHLY_FOUNDING_DISPLAY} + GST`, // GST-EXCL-1: after 00:00 IST 7 Nov the month tag is "+ GST"
     );
     expect(premium.textContent).toContain(FOUNDING_LOCK_COPY);
-    expect(await screen.findByRole("button", { name: `Pay ${PRICE_MONTHLY_FOUNDING_DISPLAY} for a month` })).toBeInTheDocument();
+    // GST-EXCL-1: the Pay button names the total the server charges (599 + 108 GST).
+    expect(await screen.findByRole("button", { name: "Pay ₹707 for a month" })).toBeInTheDocument();
     // The offer is closed to NEW buyers: no badge, no end-date line.
     expect(premium.querySelector(".lt-pricing-founding-flag")).toBeNull();
     expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
@@ -98,10 +99,10 @@ describe("PricingPage after 1 Dec 2026", () => {
   it("a month buyer WITHOUT the founding rate sees the list price, no lock promise, and a Pay button at the list price", async () => {
     const premium = await renderAs(status({}));
     expect(premium.querySelector('[data-testid="pricing-monthly-price"] .lt-pricing-amount')?.textContent).toBe(
-      PRICE_MONTHLY_LIST_DISPLAY,
+      `${PRICE_MONTHLY_LIST_DISPLAY} + GST`, // GST-EXCL-1
     );
     expect(premium.textContent).not.toContain(FOUNDING_LOCK_COPY);
-    expect(await screen.findByRole("button", { name: `Pay ${PRICE_MONTHLY_LIST_DISPLAY} for a month` })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Pay ₹1,179 for a month" })).toBeInTheDocument(); // 999 + 180 GST
     expect(premium.querySelector(".lt-pricing-founding-flag")).toBeNull();
     expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
   });

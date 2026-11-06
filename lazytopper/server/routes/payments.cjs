@@ -215,11 +215,12 @@ function quotePass(storedSubscription, passType, nowMs, { foundingOfferOpen } = 
     foundingOfferOpen === undefined ? undefined : { foundingOfferOpen },
   );
   const pricePaidInr = decision.fields.pricePaidInr;
-  // GST-EXCL-1 - from 00:00 IST 7 Nov 2026 (SERVER clock, at ORDER time) a Board Pass is charged its base price + 18%
-  // GST. `pricePaidInr` / `amountPaise` are then the TOTAL - what Razorpay is asked for and what every later amount check
-  // (verify / webhook / status) compares against - and `gst` carries the breakup the order stores. Before the cut-off,
-  // and for any other pass type, the quote is byte-identical to before (no `gst` key).
-  if (passType === 'till_boards') {
+  // GST-EXCL-1 - from 00:00 IST 7 Nov 2026 (SERVER clock, at ORDER time) EVERY pass (the Board Pass and the month pass,
+  // owner scope: every paid product) is charged its base price + 18% GST (₹1,917 -> ₹2,262; month ₹599 -> ₹707).
+  // `pricePaidInr` / `amountPaise` are then the TOTAL - what Razorpay is asked for and what every later amount check
+  // (verify / webhook / status) compares against - and `gst` carries the breakup the order stores. Before the cut-off
+  // the quote is byte-identical to before (no `gst` key).
+  if (Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
     const charge = boardPassChargeFor(pricePaidInr, nowMs);
     if (charge.gstExclusive) {
       return {

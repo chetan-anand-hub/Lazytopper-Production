@@ -639,6 +639,21 @@
       "source": "NCERT 1.2.4"
     }
   ],
+  "key_terms": [
+    {"term": "Balanced chemical equation", "meaning": "The same number of atoms of each element on both sides of the arrow.", "source": "NCERT 2026-27 Ch1 p.3 (jesc101)"},
+    {"term": "Combination reaction", "meaning": "Two or more reactants join to form a single product.", "source": "NCERT 2026-27 Ch1 p.6 (jesc101)"},
+    {"term": "Decomposition reaction", "meaning": "A single reactant breaks down into simpler products.", "source": "NCERT 2026-27 Ch1 p.8 (jesc101)"},
+    {"term": "Thermal decomposition", "meaning": "A decomposition reaction carried out by heating.", "source": "NCERT 2026-27 Ch1 p.8 (jesc101)"},
+    {"term": "Displacement reaction", "meaning": "A more reactive element pushes a less reactive element out of its compound.", "source": "NCERT 2026-27 Ch1 p.10 (jesc101)"},
+    {"term": "Double displacement reaction", "meaning": "Two compounds exchange their ions.", "source": "NCERT 2026-27 Ch1 p.11 (jesc101)"},
+    {"term": "Precipitate", "meaning": "The insoluble solid that forms in a reaction.", "source": "NCERT 2026-27 Ch1 p.11 (jesc101)"},
+    {"term": "Exothermic reaction", "meaning": "Heat is given out along with the products.", "source": "NCERT 2026-27 Ch1 p.7 (jesc101)"},
+    {"term": "Endothermic reaction", "meaning": "Energy (heat) has to be absorbed for the reaction to happen.", "source": "NCERT 2026-27 Ch1 p.10 (jesc101)"},
+    {"term": "Oxidation", "meaning": "A substance gains oxygen or loses hydrogen.", "source": "NCERT 2026-27 Ch1 p.12 (jesc101)"},
+    {"term": "Reduction", "meaning": "A substance loses oxygen or gains hydrogen.", "source": "NCERT 2026-27 Ch1 p.12 (jesc101)"},
+    {"term": "Redox reactions", "meaning": "Oxidation and reduction happen together in the same reaction.", "source": "NCERT 2026-27 Ch1 p.12 (jesc101)"},
+    {"term": "Corrosion", "meaning": "A metal is slowly attacked by moisture, air or acids around it.", "source": "NCERT 2026-27 Ch1 p.13 (jesc101)"}
+  ],
   "mindmap": {
     "root": "Chemical Reactions and Equations",
     "branches": [
