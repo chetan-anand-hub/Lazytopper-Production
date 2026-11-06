@@ -115,7 +115,7 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     fireEvent.click(before[0]);
     expect(track.sample).toHaveBeenCalledWith("pack_mock:maths", "packs_tile");
     const btn = await screen.findByTestId("sample-buy-pack_mock-maths");
-    expect(btn.textContent).toBe(`Liked the sample? Get the Maths Mock Pack · ₹${P.pack_mock}`);
+    expect(btn.textContent).toBe(`Liked the sample? Get the Maths Mock Pack · ${packs.packPayLabel("pack_mock")}`);
     fireEvent.click(btn);
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0].slice(0, 2)).toEqual(["pack_mock", "maths"]);
@@ -127,7 +127,7 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
     fireEvent.click(sampleLink("cbq-science"));
     const cbq = await screen.findByTestId("sample-buy-pack_cbq-science");
-    expect(cbq.textContent).toBe(`Liked the sample? Get the Science CBQ Pack · ₹${P.pack_cbq}`);
+    expect(cbq.textContent).toBe(`Liked the sample? Get the Science CBQ Pack · ${packs.packPayLabel("pack_cbq")}`);
     fireEvent.click(cbq);
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0].slice(0, 2)).toEqual(["pack_cbq", "science"]);
@@ -140,7 +140,7 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
     fireEvent.click(sampleLink("chapter-science"));
     const btn = await screen.findByTestId("sample-buy-pack_chapter");
-    expect(btn.textContent).toBe(`Liked the sample? Get the Chapter Pack · ₹${P.pack_chapter}`);
+    expect(btn.textContent).toBe(`Liked the sample? Get the Chapter Pack · ${packs.packPayLabel("pack_chapter")}`);
     fireEvent.click(btn);
     const dialog = await screen.findByTestId("dialog");
     expect(dialog.getAttribute("data-sku")).toBe("pack_chapter");

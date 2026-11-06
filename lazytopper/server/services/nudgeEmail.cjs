@@ -419,8 +419,9 @@ function recheckAtMs(kind, reason, facts, startMs) {
  * Kept under its old export name so callers and the test seam do not move. PURE.
  */
 function foundingPriceLine() {
-  const rupee = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
-  return `Board Pass: ${rupee(pricing.tillBoardsPriceInr(Date.now()))}, one payment, and you are covered till your boards.`;
+  // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 7 Nov 2026 (the shared tag); before it, unchanged.
+  const nowMs = Date.now();
+  return `Board Pass: ${pricing.displayPlusGst(pricing.tillBoardsPriceInr(nowMs), nowMs)}, one payment, and you are covered till your boards.`;
 }
 
 function activityLine(counts) {
@@ -434,7 +435,8 @@ function activityLine(counts) {
 
 /** One short PDF-packs line for the d1 / d3 nudges. UTM only; no uid, email or other student data in the URL. */
 function packsPara(appUrl, campaign) {
-  const label = 'Want printed practice? Chapter packs from ₹49 → lazytopper.com/pricing';
+  // GST-EXCL-1: the Chapter Pack price from the server table, "+ GST" from the cut-off (never typed).
+  const label = `Want printed practice? Chapter packs from ${pricing.displayPlusGst(PACK_PRODUCTS.pack_chapter.priceInr, Date.now())} → lazytopper.com/pricing`;
   return { t: label, links: [{ label, url: `${appUrl}/pricing?utm_source=email&utm_medium=email&utm_campaign=${campaign}&utm_content=packs#packs` }] };
 }
 
@@ -1270,6 +1272,9 @@ function createNudgeEmailer(deps = {}) {
           appUrl: config.appUrl,
           unsubscribeUrl,
           parentPayLive: config.paymentsLive,
+          nowMs,
+          // GST-EXCL-1 (G3): from the cut-off, the price is the SAME quote "Finish paying" gets.
+          ...(pricing.boardPassGstExclusive(nowMs) ? { finishQuote: await abandoned.finishPayingQuote(adminFirestore, uid, product, nowMs) } : {}),
         });
         const result =
           fetchImpl && message
@@ -1784,6 +1789,28 @@ function createNudgeEmailer(deps = {}) {
     }
   }
 
+  /**
+   * GST-EXCL-1 - the price the guest email states. Before the GST cut-off: `{ currentPriceInr }`, byte-identical to before.
+   * From it: `{ currentPriceText }` = the SAME server quote a new signed-out checkout gets (routes/payments.cjs quotePass
+   * for the Board Pass, tableQuote for a pack; a guest has no pack credit), as "₹1,917 + ₹345 GST (18%) = ₹2,262" - so the
+   * email never states a figure the checkout will not charge. A quote that cannot be read -> null (no price line at all).
+   */
+  function guestPriceArgs(product, nowMs) {
+    if (!pricing.boardPassGstExclusive(nowMs)) return { currentPriceInr: currentPriceInr(product, nowMs) };
+    try {
+      const { quotePass, tableQuote } = require('../routes/payments.cjs');
+      const q =
+        product.kind === 'pack'
+          ? PACK_PRODUCTS[product.sku]
+            ? tableQuote(PACK_PRODUCTS[product.sku].priceInr, nowMs)
+            : null
+          : quotePass({}, 'till_boards', nowMs);
+      return { currentPriceText: q ? abandoned.quotePriceText({ amountPaise: q.amountPaise, gst: q.gst, packCreditInr: 0 }) : null };
+    } catch {
+      return { currentPriceText: null };
+    }
+  }
+
   const GUEST_FIRST_ATTEMPT_PREFIX = 'firstAttemptMs_';
   const GUEST_RETRY_WINDOW_MS = 22 * HOUR_MS;
 
@@ -1928,7 +1955,7 @@ function createNudgeEmailer(deps = {}) {
         }
 
         const unsubscribeUrl = guestEmail.guestUnsubscribeUrlFor(config.appUrl, key, config.unsubscribeSecret);
-        const message = guestEmail.buildGuestAbandonEmail({ product, currentPriceInr: currentPriceInr(product, nowMs), appUrl: config.appUrl, unsubscribeUrl });
+        const message = guestEmail.buildGuestAbandonEmail({ product, ...guestPriceArgs(product, nowMs), appUrl: config.appUrl, unsubscribeUrl });
         let result =
           fetchImpl && message
             ? await sendViaResend({

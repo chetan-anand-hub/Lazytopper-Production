@@ -58,14 +58,14 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
   it("every tile has its Buy, priced from PACK_PRICE_INR only", async () => {
     page();
     const P = packs.PACK_PRICE_INR;
-    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ₹${P.pack_bundle}`);
-    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy Maths ₹${P.pack_mock}`);
-    expect(screen.getByTestId("tile-buy-pack_mock-science").textContent).toBe(`Buy Science ₹${P.pack_mock}`);
-    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy Maths ₹${P.pack_subject}`);
-    expect(screen.getByTestId("tile-buy-pack_subject-science").textContent).toBe(`Buy Science ₹${P.pack_subject}`);
-    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe(`Choose chapter & buy · ₹${P.pack_chapter}`);
-    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ₹${P.pack_cbq}`);
-    expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe(`Buy Science CBQ · ₹${P.pack_cbq}`);
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ${packs.packPayLabel("pack_bundle")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe(`Choose chapter & buy · ${packs.packPayLabel("pack_chapter")}`);
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ${packs.packPayLabel("pack_cbq")}`);
+    expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe(`Buy Science CBQ · ${packs.packPayLabel("pack_cbq")}`);
     // "See inside" and the samples stay.
     expect(screen.getByTestId("packs-card-mock").textContent).toContain("See inside");
     expect(screen.getByTestId("packs-card-cbq-maths").textContent).toBe("See inside →");
@@ -185,5 +185,35 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     const pill = await screen.findByTestId("tile-owned-pack_bundle");
     expect(pill.tagName).toBe("SPAN");
     expect(pill.textContent).toBe("✓You own this");
+  });
+});
+
+describe("GST-EXCL-1 · the breakup next to every tile Buy and the pop-up Buy", () => {
+  const CUT = Date.parse("2026-11-07T00:00:00+05:30");
+  afterEach(() => vi.useRealTimers());
+
+  it("1 ms before 00:00 IST 7 Nov: no breakup anywhere and today's Buy labels; from the cut-off: totals on Buy, breakup beside it", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(CUT - 1);
+    page();
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe("Buy · ₹299");
+    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe("Choose chapter & buy · ₹49");
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe("Buy Maths CBQ · ₹199");
+    expect(screen.queryAllByTestId(/^tile-gst-/)).toHaveLength(0);
+    fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));
+    await waitFor(() => expect(screen.getByTestId("dialog").getAttribute("data-sku")).toBe("pack_mock"));
+    expect(screen.queryByTestId("packs-gst-pack_mock")).toBeNull();
+    cleanup();
+
+    vi.setSystemTime(CUT);
+    page();
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe("Buy · ₹353");
+    expect(screen.getByTestId("tile-gst-pack_bundle").textContent).toBe("₹299 + ₹54 GST (18%) = ₹353");
+    expect(screen.getByTestId("tile-gst-pack_chapter").textContent).toBe("₹49 + ₹9 GST (18%) = ₹58");
+    expect(screen.getByTestId("tile-gst-pack_mock").textContent).toBe("₹99 + ₹18 GST (18%) = ₹117");
+    expect(screen.getByTestId("tile-gst-pack_subject").textContent).toBe("₹199 + ₹36 GST (18%) = ₹235");
+    expect(screen.getAllByTestId("tile-gst-pack_cbq").map((e) => e.textContent)).toEqual(["₹199 + ₹36 GST (18%) = ₹235", "₹199 + ₹36 GST (18%) = ₹235"]);
+    fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));
+    await waitFor(() => expect(screen.getByTestId("packs-gst-pack_mock").textContent).toBe("₹99 + ₹18 GST (18%) = ₹117"));
   });
 });

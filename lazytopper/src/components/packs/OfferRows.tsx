@@ -58,10 +58,10 @@ export default function OfferRows({ surface, ctx, uid }: { surface: string; ctx:
             className="lt-offers__buy"
             to={r.buyHref}
             testId={`offers-buy-${r.sku}`}
-            label={`Buy ${r.name} for ${r.price}`}
+            label={`Buy ${r.name} for ${r.payPrice}`}
             onClick={() => trackSaleMoment("sale_moment_tap", { surface, offer: rowOfferSlug(r), rank: i + 2 })}
           >
-            {r.price}
+            {r.payPrice}
           </OfferLink>
         </div>
       ))}

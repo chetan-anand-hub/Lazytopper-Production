@@ -29,7 +29,7 @@ import {
   trackPurchase,
   type CheckoutDetails,
 } from "../../analytics/analytics";
-import { formatInr } from "../../config/pricing";
+import { formatInr, GST_RATE_PERCENT } from "../../config/pricing";
 import { formatPassDate, PAY_PENDING_TTL_MS, type PassType } from "../../services/checkout";
 import { trackPackCheckout, trackPackPurchase, type PackCheckoutDetails } from "../../lib/packs/packAnalytics";
 import { packChapterLabel } from "../../lib/packs/packLabels";
@@ -316,6 +316,8 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
 
   const prices = state.kind === "ready" && !state.data.pack ? state.data.prices : null;
   const pack = state.kind === "ready" && state.data.pack ? state.data.pack : null;
+  // GST-EXCL-1: the server's Board Pass breakup, shown under the Pay button before Razorpay opens.
+  const boardPassGst = state.kind === "ready" && !state.data.pack ? state.data.boardPassGst ?? null : null;
   const packName = pack ? packNameOf(pack) : "";
   // The heading names the product only when the page KNOWS it; a refusal with no view is neutral (PACK-DIALOG-1).
   const knownPack = known?.pack ?? null;
@@ -389,8 +391,13 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
               disabled={busy !== null || confirming}
               onClick={() => void handleBuyPack(pack, packName)}
             >
-              {t.packPay(formatInr(pack.priceInr))}
+              {t.packPay(formatInr(pack.totalInr ?? pack.priceInr))}
             </button>
+            {pack.totalInr !== undefined && pack.gstInr !== undefined && (
+              <p className="lt-parent-pay-fine" data-testid="parent-pay-pack-gst">
+                {`${formatInr(pack.priceInr)} + ${formatInr(pack.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(pack.totalInr)}`}
+              </p>
+            )}
             {failed && (
               <p className="lt-parent-pay-status lt-parent-pay-status--error" role="alert" data-testid="parent-pay-failed">
                 {t.payFailed}
@@ -427,6 +434,11 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
               >
                 {t.boards(formatInr(prices.till_boards))}
               </button>
+            )}
+            {prices.till_boards !== null && boardPassGst && boardPassGst.totalInr === prices.till_boards && (
+              <p className="lt-parent-pay-fine" data-testid="parent-pay-gst">
+                {`${formatInr(boardPassGst.baseInr)} + ${formatInr(boardPassGst.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(boardPassGst.totalInr)}`}
+              </p>
             )}
             {failed && (
               <p className="lt-parent-pay-status lt-parent-pay-status--error" role="alert" data-testid="parent-pay-failed">

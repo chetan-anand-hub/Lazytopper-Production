@@ -1,0 +1,53 @@
+/* GST-EXCL-1 (review G2) - the "price has been updated" confirm, shown before Razorpay only when the device's price and the
+   server's differ. Navy / soft white / green, the checkout sheets' grammar. Works from 360 px up. */
+.lt-pc {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(8, 18, 38, 0.6);
+}
+.lt-pc__panel {
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #0b1b33;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lt-pc__title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+}
+.lt-pc__line {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.lt-pc__pay,
+.lt-pc__cancel {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lt-pc__pay {
+  border: 0;
+  background: #16a34a;
+  color: #ffffff;
+}
+.lt-pc__cancel {
+  border: 1px solid #c8d1dc;
+  background: transparent;
+  color: #0b1b33;
+}

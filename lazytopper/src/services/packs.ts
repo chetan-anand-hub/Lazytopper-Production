@@ -16,6 +16,7 @@
  * the PDF exporter live in src/lib/packs/** and are reached only through dynamic imports.
  */
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS } from "../lib/packs/packLabels";
+import { boardPassGstExclusive, displayPlusGst, gstBreakdownFor, payDisplay, priceWithGst } from "../config/pricing";
 import { ACTIVITY_TOPIC_SLUGS } from "./activityPages";
 import {
   authHeaders,
@@ -35,6 +36,7 @@ import {
   type RazorpayConstructor,
   type RazorpaySuccess,
 } from "./checkout";
+import { confirmServerPrice, razorpayDescription } from "./priceConfirm";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
@@ -70,8 +72,24 @@ export const PACK_PRICE_INR: Readonly<Record<PackSku, number>> = {
   pack_cbq: 199,
 };
 
-export function packPriceLabel(sku: PackSku): string {
-  return `₹${PACK_PRICE_INR[sku]}`;
+/**
+ * The pack's price TAG at `now` ("₹49"; GST-EXCL-1: "₹49 + GST" from 00:00 IST 7 Nov 2026). Read at RENDER time.
+ * ⚠ Never on a Buy/Pay button - a button names what is CHARGED: `packPayLabel`.
+ */
+export function packPriceLabel(sku: PackSku, now: Date | number = Date.now()): string {
+  return boardPassGstExclusive(now) ? displayPlusGst(PACK_PRICE_INR[sku], now) : `₹${PACK_PRICE_INR[sku]}`;
+}
+/** GST-EXCL-1 - what a pack's Buy/Pay button names: the amount CHARGED ("₹49" before the cut-off; "₹58" from it). */
+export function packPayLabel(sku: PackSku, now: Date | number = Date.now()): string {
+  return boardPassGstExclusive(now) ? payDisplay(PACK_PRICE_INR[sku], now) : `₹${PACK_PRICE_INR[sku]}`;
+}
+/** GST-EXCL-1 - the rupees CHARGED for a pack at `now`. */
+export function packChargeInr(sku: PackSku, now: Date | number = Date.now()): number {
+  return priceWithGst(PACK_PRICE_INR[sku], now);
+}
+/** GST-EXCL-1 - the checkout-step breakup for a pack ("₹49 + ₹9 GST (18%) = ₹58"); null before the cut-off. */
+export function packGstBreakdown(sku: PackSku, now: Date | number = Date.now()): string | null {
+  return gstBreakdownFor(PACK_PRICE_INR[sku], now);
 }
 
 /** `"<sku>:<target>"` (the bundle is `"pack_bundle:all"`). */
@@ -381,6 +399,8 @@ export async function buyPack(
       deps.prefill ? deps.prefill().catch((): CheckoutPrefill => ({})) : Promise.resolve<CheckoutPrefill>({}),
     ]);
     let sawFailure = false;
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -388,7 +408,7 @@ export async function buyPack(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: packCheckoutDescription(sku, target, options.chapterName),
+        description: razorpayDescription(packCheckoutDescription(sku, target, options.chapterName), order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

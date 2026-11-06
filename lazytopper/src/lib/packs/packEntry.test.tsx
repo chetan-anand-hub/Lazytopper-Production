@@ -38,6 +38,8 @@ import { ensureAllNoteSpecs, getNoteSpecForTopic } from "../../components/notes/
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { displayPlusGst } from "../../config/pricing";
 
 await ensureAllNoteSpecs();
 const track = analytics.sendAnalyticsHit as unknown as ReturnType<typeof vi.fn>;
@@ -133,7 +135,7 @@ describe("(b) notes", () => {
       const card = await screen.findByTestId("note-pack-link", {}, { timeout: 8000 });
       expect(container.querySelectorAll('[data-testid="note-pack-link"]').length, slug).toBe(1);
       expect(card.querySelector("a")!.getAttribute("href")).toBe(`/pricing?chapter=${slug}#packs`);
-      expect(card.textContent).toContain("Worked solutions · ₹49 · yours to keep");
+      expect(card.textContent).toContain(`Worked solutions · ${displayPlusGst(49)} · yours to keep`);
       expect(card.textContent).toContain("See the Chapter Pack");
       const foot = container.querySelector(".lt-note__footnote")!;
       expect(card.compareDocumentPosition(foot) & Node.DOCUMENT_POSITION_FOLLOWING, slug).toBeTruthy();
@@ -302,11 +304,11 @@ describe("paid Premium sees no pack offers (owner ruling 25 Oct 19:54)", () => {
 
 describe("PACK-LINKS-1 packOfferFor", () => {
   it("one chapter -> Chapter Pack; a subject alone -> Mock Pack; anything else -> plain /packs", () => {
-    expect(packOfferFor({ chapters: ["triangles"] })).toEqual({ label: "Chapter Pack ₹49 →", priceLabel: "₹49", href: "/pricing?chapter=triangles#packs" });
-    expect(packOfferFor({ subject: "maths", kind: "mock" })).toEqual({ label: "Mock Pack ₹99 →", priceLabel: "₹99", href: "/pricing?mock=maths#packs" });
+    expect(packOfferFor({ chapters: ["triangles"] })).toEqual({ label: `Chapter Pack ${displayPlusGst(49)} →`, priceLabel: displayPlusGst(49), href: "/pricing?chapter=triangles#packs" });
+    expect(packOfferFor({ subject: "maths", kind: "mock" })).toEqual({ label: `Mock Pack ${displayPlusGst(99)} →`, priceLabel: displayPlusGst(99), href: "/pricing?mock=maths#packs" });
     expect(packOfferFor({ chapters: [], subject: "science" }).href).toBe("/pricing?mock=science#packs");
     expect(packOfferFor({ chapters: ["triangles", "circles"] }).href).toBe("/pricing#packs");
-    expect(packOfferFor({ chapters: ["not-a-chapter"] }).label).toBe("PDF packs from ₹49 →");
+    expect(packOfferFor({ chapters: ["not-a-chapter"] }).label).toBe(`PDF packs from ${displayPlusGst(49)} →`);
     expect(packOfferFor().href).toBe("/pricing#packs");
   });
   it("kind decides when both a chapter and a subject are given", () => {

@@ -25,7 +25,7 @@ const SHORT = `then free Basic, or the Board Pass ${boardPassPriceDisplay()} til
 
 describe("TRIAL_WORDING - PRICE-FIXED-1: the after-trial wording names the Board Pass at its fixed price", () => {
   it("CONTROL: the Board Pass price is a real figure, and no month price is in the wording", () => {
-    expect(boardPassPriceDisplay()).toMatch(/^₹[\d,]+$/);
+    expect(boardPassPriceDisplay()).toMatch(/^₹[\d,]+(?: \+ GST)?$/);
     expect(TRIAL_WORDING.generalLine).not.toMatch(/599|999|for a month/);
   });
 
@@ -70,7 +70,7 @@ describe("PRICE-FIXED-1 - the trial wording follows the Board Pass price of the 
     vi.useRealTimers();
   });
 
-  it.each([["2026-10-25T06:30:00Z", "₹1,917"], ["2026-12-01T00:00:00+05:30", "₹2,499"], ["2027-01-15T10:00:00+05:30", "₹2,499"]])("at %s the Board Pass price is %s", (iso, price) => {
+  it.each([["2026-10-25T06:30:00Z", "₹1,917"], ["2026-11-07T00:00:00+05:30", "₹1,917 + GST"], ["2026-12-01T00:00:00+05:30", "₹2,499 + GST"], ["2027-01-15T10:00:00+05:30", "₹2,499 + GST"]])("at %s the Board Pass price is %s", (iso, price) => {
     vi.useFakeTimers({ now: new Date(iso), toFake: ["Date"] });
     expect(TRIAL_WORDING.afterLine).toBe(`After that, keep free Basic or get the Board Pass: ${price} \u2014 one payment till your boards.`);
     expect(TRIAL_WORDING.shortFragment).toBe(`then free Basic, or the Board Pass ${price} till boards.`);

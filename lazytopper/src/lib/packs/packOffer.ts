@@ -2,7 +2,8 @@
  * packOffer — PACK-LINKS-1: which pack a wall offers for the paper it refused. Kept out of packEntry.ts (that file
  * is in the entry chunk and must stay light); only the lazily loaded pack button and tests import this.
  */
-import { CHAPTER_PACK_PRICE_INR, isPackChapterSlug, packsHref, type PackSubjectName } from "./packEntry";
+import { displayPlusGst } from "../../config/pricing";
+import { chapterPackPriceTag, isPackChapterSlug, packsHref, type PackSubjectName } from "./packEntry";
 
 /** Display price of one Mock Pack, copy only (pinned to the catalogue by a test, like the chapter price). */
 export const MOCK_PACK_PRICE_INR = 99;
@@ -26,8 +27,11 @@ export function packOfferFor(opts: { chapters?: readonly string[] | null; subjec
   const one = opts.chapters && opts.chapters.length === 1 && isPackChapterSlug(opts.chapters[0]) ? opts.chapters[0] : null;
   const subject = opts.subject === "maths" || opts.subject === "science" ? opts.subject : null;
   if (subject && (opts.kind === "mock" || (!one && !opts.chapters?.length))) {
-    return { label: `Mock Pack ₹${MOCK_PACK_PRICE_INR} →`, priceLabel: `₹${MOCK_PACK_PRICE_INR}`, href: packsHref({ mock: subject }) };
+    // GST-EXCL-1: "₹99 + GST" from 00:00 IST 7 Nov 2026.
+    const mockTag = displayPlusGst(MOCK_PACK_PRICE_INR);
+    return { label: `Mock Pack ${mockTag} →`, priceLabel: mockTag, href: packsHref({ mock: subject }) };
   }
-  if (one) return { label: `Chapter Pack ₹${CHAPTER_PACK_PRICE_INR} →`, priceLabel: `₹${CHAPTER_PACK_PRICE_INR}`, href: packsHref({ chapter: one }) };
-  return { label: `PDF packs from ₹${CHAPTER_PACK_PRICE_INR} →`, priceLabel: `₹${CHAPTER_PACK_PRICE_INR}`, href: "/pricing#packs" };
+  const tag = chapterPackPriceTag();
+  if (one) return { label: `Chapter Pack ${tag} →`, priceLabel: tag, href: packsHref({ chapter: one }) };
+  return { label: `PDF packs from ${tag} →`, priceLabel: tag, href: "/pricing#packs" };
 }
