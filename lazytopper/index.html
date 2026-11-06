@@ -19,8 +19,11 @@
     <meta name="theme-color" content="#0f1b33" />
     <!-- LOW-END-1 (L1): the one web font — Fraunces 700, self-hosted (public/fonts/), declared
          in src/styles.css — preloaded so headings do not wait for the stylesheet to find it.
-         Body text uses the system font. No font request leaves this origin. -->
-    <link rel="preload" href="/fonts/fraunces-700-latin.woff2" as="font" type="font/woff2" crossorigin />
+         Body text uses the system font. No font request leaves this origin.
+         SPEED-SITE-2f: fetchpriority="low". Text never waits for it (font-display: swap, with a
+         metric-matched Georgia fallback, so the swap does not move anything); at High it took ~35 KB
+         of a slow link's bandwidth from the HTML and the stylesheet before first paint. -->
+    <link rel="preload" href="/fonts/fraunces-700-latin.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low" />
     <meta
       name="description"
       content="Free CBSE Class 10 Maths &amp; Science prep. Every answer is diagnosed — conceptual, calculation or careless — and your AI tutor knows them before it teaches."

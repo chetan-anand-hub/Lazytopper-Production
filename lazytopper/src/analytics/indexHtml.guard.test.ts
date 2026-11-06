@@ -611,6 +611,8 @@ describe("index.html + styles.css — fonts (LOW-END-1 L1)", () => {
     expect(preload[0]).toMatch(/\scrossorigin(\s|=|\/|>)/);
     // CLAUDE.md section 7: no hard-coded retired-base prefix — the href starts at the root.
     expect(preload[0]).toMatch(/href="\/fonts\//);
+    // SPEED-SITE-2f: low priority (swap + metric-matched fallback: text never waits, nothing moves).
+    expect(preload[0]).toContain('fetchpriority="low"');
   });
 
   it("★ styles.css declares Fraunces 700 from that same file with font-display: swap", () => {

@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App, { extractPrerenderedRoute } from "./App";
+import { deferredStylesheetReady } from "./lib/deferredStylesheet";
 import "./styles.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ProfileProvider } from "./context/ProfileContext";
@@ -36,7 +37,12 @@ const prerenderedRoute = extractPrerenderedRoute(
   window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/",
 );
 
-ReactDOM.createRoot(rootElement).render(
+// SPEED-SITE-2f — a prerendered page loads the entry stylesheet WITHOUT blocking its first paint (its critical
+// rules are inlined; scripts/seo/applyPrerendered.ts withCriticalEntryCss). React must not render anything the
+// critical subset does not cover before that sheet applies, so the first render waits for it — immediately if it
+// already loaded or failed, otherwise until it does, capped at 3 s (lib/deferredStylesheet). `__shell.html` and dev
+// keep the ordinary blocking link: no such element, no wait.
+void deferredStylesheetReady().then(() => ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       {/* Page views for a client-side router: one document load, then every "page" is a
@@ -57,4 +63,4 @@ ReactDOM.createRoot(rootElement).render(
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
-);
+));
