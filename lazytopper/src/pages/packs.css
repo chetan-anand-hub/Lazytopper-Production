@@ -14,7 +14,7 @@
   --pk-gt: #136b43;
   --pk-navy: #15233a;
   --pk-bad: #b42318;
-  --pk-serif: Fraunces, Georgia, serif;
+  --pk-serif: Fraunces, "Fraunces Fallback", Georgia, serif; /* PACKS-CLS-1: metric-matched fallback (styles.css) */
   --pk-sans: Inter, system-ui, -apple-system, sans-serif;
   display: block;
   min-height: 100vh;

@@ -26,6 +26,8 @@ export interface PackDialogProps {
   onSubject: (s: PackSubject) => void;
   /** Exact question count for what the pop-up shows (chapter / subject / bundle), or null while unknown. */
   questions: number | null;
+  /** PACKS-CLS-1: the question total is still being counted (Subject / Bundle hold a "Counting…" row). */
+  questionsCounting?: boolean;
   /** The buy button (and its status notes), owned by the page. */
   buy: ReactNode;
   onClose: () => void;
@@ -59,7 +61,7 @@ export const CHAPTER_PLACEHOLDER = "Choose a chapter";
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 export default function PackDialog(props: PackDialogProps) {
-  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide, sampleInBuy = false, focusPicker = false, pickerSubject = null } = props;
+  const { sku, chapter, subject, onChapter, onSubject, questions, questionsCounting = false, buy, onClose, initialSlide, sampleInBuy = false, focusPicker = false, pickerSubject = null } = props;
   const pickerSlugs = pickerSubject ? PACK_CHAPTER_SLUGS.filter((slug) => subjectOfChapter(slug) === pickerSubject) : PACK_CHAPTER_SLUGS;
   const pickerRef = useRef<HTMLSelectElement | null>(null);
   useEffect(() => {
@@ -221,7 +223,7 @@ export default function PackDialog(props: PackDialogProps) {
   }
 
   const t = sku === "pack_cbq" ? { ...TITLES[sku], name: `${subjectLabel(subject)} CBQ Pack` } : TITLES[sku];
-  const rows = packSummaryRows(sku, sku === "pack_chapter" ? chapter : subject, questions);
+  const rows = packSummaryRows(sku, sku === "pack_chapter" ? chapter : subject, questions, questionsCounting);
   const manifest = packManifest(sku, sku === "pack_chapter" ? chapter : subject);
   const chapterGroups = manifest.groups.filter((g) => g.chapter);
 

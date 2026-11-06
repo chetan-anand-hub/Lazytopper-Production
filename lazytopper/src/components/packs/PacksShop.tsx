@@ -159,8 +159,10 @@ type Counts = Record<string, number>;
  * visitor touches a picker (`request`): a visitor who only reads the page never fetches the bank. A chapter is
  * counted first when it is the one picked; the rest follow so subject and bundle totals can appear.
  */
-function useChapterCounts(): { counts: Counts; request: (first?: string) => void } {
+function useChapterCounts(): { counts: Counts; failed: boolean; request: (first?: string) => void } {
   const [counts, setCounts] = useState<Counts>({});
+  /** PACKS-CLS-1: counting stopped on an error, so the pop-up drops its "Counting…" row instead of showing it forever. */
+  const [failed, setFailed] = useState(false);
   const started = useRef<Set<string>>(new Set());
   const alive = useRef(true);
   useEffect(() => {
@@ -185,10 +187,11 @@ function useChapterCounts(): { counts: Counts; request: (first?: string) => void
         }
       } catch {
         /* honest: no count is shown rather than a guessed one */
+        if (alive.current) setFailed(true);
       }
     })();
   }, []);
-  return { counts, request };
+  return { counts, failed, request };
 }
 
 interface BuyState {
@@ -262,7 +265,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const navigate = useNavigate();
   const location = useLocation();
   const enabled = isPacksClientEnabled();
-  const { counts, request: requestCounts } = useChapterCounts();
+  const { counts, failed: countsFailed, request: requestCounts } = useChapterCounts();
 
   const [mine, setMine] = useState<MyPacks | null>(null);
   const [mineError, setMineError] = useState<false | "failed" | "details">(false);
@@ -713,6 +716,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const dialogTarget = openSku === "pack_chapter" ? chapter || undefined : openSku === "pack_mock" || openSku === "pack_subject" || openSku === "pack_cbq" ? subject : undefined;
   const dialogQuestions =
     openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
+  // PACKS-CLS-1: the Subject / Bundle total is still loading - the pop-up holds its "Questions" row (no jump when it lands).
+  const dialogCounting = (openSku === "pack_subject" || openSku === "pack_bundle") && dialogQuestions === null && !countsFailed;
   const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
   // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
   const [namePromptDone, setNamePromptDone] = useState(false);
@@ -837,6 +842,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               onChapter={onChapter}
               onSubject={onSubject}
               questions={dialogQuestions}
+              questionsCounting={dialogCounting}
               buy={buyArea(openSku, dialogTarget, openSku !== "pack_chapter" || Boolean(chapter))}
               sampleInBuy={buy.phase === "dismissed" && buy.key === packIdOf(openSku, dialogTarget)}
               focusPicker={focusPicker}
