@@ -78,7 +78,8 @@ const NOTE = read("components/notes/Note.tsx");
 const CYA = read("pages/checkYourAnswer.css");
 const CBSE = read("pages/Cbse2027Page.tsx");
 const TV = read("components/marketing/testimonialVideo.css");
-const LOCKED = read("components/practice/StepsLockedNote.css");
+// HPQ-CLS-1: the note's rules moved from StepsLockedNote.css into a rendered string (stepsLockedCss.ts).
+const LOCKED = read("components/practice/stepsLockedCss.ts");
 const LEGAL = read("components/ux/PublicLegalFooter.tsx");
 const STYLES = read("styles.css");
 const PRACTICE = read("pages/desktop/DesktopPracticePage.tsx");
