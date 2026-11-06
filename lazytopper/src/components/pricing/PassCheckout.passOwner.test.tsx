@@ -25,6 +25,8 @@ vi.mock("../../services/packs", async (importOriginal) => ({
 vi.mock("../../services/firebaseClient", () => ({ authClient: { currentUser: null }, firestoreDb: null, app: null }));
 
 import { PassCheckoutView, boardPassActiveUntilCopy, tillBoardsButtonLabel } from "./PassCheckout";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 afterEach(() => {
   cleanup();
@@ -60,7 +62,7 @@ describe("a Board Pass owner on /pricing", () => {
   it("a running MONTH pass: 'Your month pass is active until …', the Board Pass upsell, one Board Pass Pay", () => {
     view({ activePassEnd: "2026-11-30T00:00:00.000Z", activePlan: "pass_month" });
     expect(screen.getByTestId("pass-checkout-already-active").textContent).toBe("Your month pass is active until 30 November 2026.");
-    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered till your boards: Board Pass ₹[\d,]+ once$/);
+    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered till your boards: Board Pass ₹[\d,]+(?: \+ GST)? once$/);
     expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/premium/i);
   });
@@ -78,8 +80,8 @@ describe("the Board Pass payment-success screen", () => {
     expect((await screen.findByTestId("pass-checkout-paid")).textContent).toBe("Your Board Pass is active until 17 February 2027.");
     const offer = await screen.findByTestId("pass-offer-pass_success");
     expect(offer.textContent).toContain("Your Board Pass is on. Prefer practising on paper too? The CBQ Packs put the case-based questions in print");
-    expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe("Maths ₹199");
-    expect(screen.getByTestId("pass-offer-buy-pack_cbq-science").textContent).toBe("Science ₹199");
+    expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe(`Maths ${packPayLabel("pack_cbq")}`);
+    expect(screen.getByTestId("pass-offer-buy-pack_cbq-science").textContent).toBe(`Science ${packPayLabel("pack_cbq")}`);
     expect(screen.getAllByTestId(/^pass-offer-pass_/)).toHaveLength(1);
   });
   it("packs dark: the success screen is exactly today's (no offer, nothing loaded)", async () => {

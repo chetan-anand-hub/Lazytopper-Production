@@ -315,6 +315,25 @@ test('GUEST-ABANDON-1 abandoned: a "Who will use it?" order and a phone-guest or
   for (const raw of ['9876543948', '7012345678', 'anaya.k@', 'y@gmail.com']) assert.ok(!body.includes(raw), `raw ${raw} leaked`);
 });
 
+test('GST-EXCL-1 abandoned: a guest ("Who" / phone) or student order created from the GST cut-off carries its base + GST; an all-in order carries none', async () => {
+  const HOUR = 3600000;
+  const orders = [
+    created('gwho', null, 'till_boards', 2262, 2 * HOUR, { payer: 'guest', checkoutWho: true, guestEmail: 'anaya.k@gmail.com', baseInr: 1917, gstInr: 345, totalInr: 2262, gstRate: 0.18 }),
+    created('gph', null, 'pack_mock', 117, 3 * HOUR, { payer: 'guest', guestPhone: '+917012345678', packTarget: 'maths', baseInr: 99, gstInr: 18, totalInr: 117, gstRate: 0.18 }),
+    created('gold', null, 'till_boards', 1917, 4 * HOUR, { payer: 'guest', checkoutWho: true, guestEmail: 'old@gmail.com' }),
+    created('sgst', 'u1', 'till_boards', 2262, 5 * HOUR, { baseInr: 1917, gstInr: 345, totalInr: 2262, gstRate: 0.18 }),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  const by = Object.fromEntries(res.body.abandoned.items.map((i) => [i.orderId, i]));
+  assert.deepEqual([by.gwho.amountInr, by.gwho.baseInr, by.gwho.gstInr], [2262, 1917, 345]);
+  assert.deepEqual([by.gph.amountInr, by.gph.baseInr, by.gph.gstInr], [117, 99, 18]);
+  assert.deepEqual([by.sgst.amountInr, by.sgst.baseInr, by.sgst.gstInr], [2262, 1917, 345]);
+  assert.equal(by.gold.amountInr, 1917);
+  assert.equal('baseInr' in by.gold || 'gstInr' in by.gold, false, 'an all-in (pre-cut-off) guest order: byte-identical row');
+});
+
 test('GUEST-ABANDON-1 abandoned: no profile lookup is made for a guest row', async () => {
   process.env.ADMIN_FIREBASE_UIDS = 'admin1';
   const asked = [];

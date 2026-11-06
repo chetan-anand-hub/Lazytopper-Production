@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import PackTileBuy from "../packs/PackTileBuy";
 import type { PacksShopApi } from "../packs/PacksShop";
 import { BUNDLE_NAME, CBQ_MIN_PER_SUBJECT, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
@@ -117,7 +117,7 @@ function CardBuy({ it, api: shop }: { it: (typeof ITEMS)[number]; api: PacksShop
             onClick={() => api.buyNow("pack_cbq", subject)}
             data-testid={`fp-buy-pack_cbq-${subject}`}
           >
-            {`Buy ${subjectLabel(subject)} CBQ \u00b7 ${packPriceLabel("pack_cbq")}`}
+            {`Buy ${subjectLabel(subject)} CBQ \u00b7 ${packPayLabel("pack_cbq")}`}
           </button>
         </div>
       </div>

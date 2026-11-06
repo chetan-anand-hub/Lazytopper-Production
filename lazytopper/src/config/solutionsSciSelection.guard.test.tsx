@@ -148,10 +148,14 @@ describe("(c) every published Science row is served, verified, and passes every 
           expect(SIGN_CONVENTION_SLUGS.has(ch.slug), q.id).toBe(false);
           const key = String(q.finalAnswer);
           const k = parseQuantity(key, "science")!;
-          for (const form of [key, String(k.value), key.slice(key.lastIndexOf("=") + 1).trim()]) {
+          const rhs = key.slice(key.lastIndexOf("=") + 1).replace(/\.\s*$/, "").trim(); // "300 C"
+          const unit = rhs.replace(/^[-−\d./\s]+/, "").trim(); // "C"
+          for (const form of [key, rhs, `${k.value}${unit}`, ` ${rhs} `]) {
             expect(compareAnswer(form, key, "science").verdict, `${q.id}: "${form}"`).toBe("right");
           }
-          expect(compareAnswer(String(k.value + 1), key, "science").verdict, `${q.id}: wrong value`).toBe("wrong");
+          // #1604 final: a bare number is never ticked; a wrong value with the unit is wrong.
+          expect(compareAnswer(String(k.value), key, "science").verdict, `${q.id}: bare`).toBe("none");
+          expect(compareAnswer(`${k.value * 2} ${unit}`, key, "science").verdict, `${q.id}: wrong value`).toBe("wrong");
           verdicts += 1;
         }
       }

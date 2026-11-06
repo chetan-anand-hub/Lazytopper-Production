@@ -783,7 +783,7 @@ test('PRICING-1 · V · a founding order only AUTHORIZED 24 h+ after the close i
   const done = srv.rzp.pay(o.orderId, { id: 'pay_done' });
   const ok = await parentVerify(srv, token, o.orderId, done.id);
   assert.equal(ok.status, 200, ok.text);
-  assert.equal(srv.db.read('subscriptions/child1').pricePaidInr, 599);
+  assert.equal(srv.db.read('subscriptions/child1').pricePaidInr, 707);
 });
 
 test('V · a payment captured after the link EXPIRED, for an order made while it was live, is still honoured', async (t) => {
@@ -952,7 +952,7 @@ test('PRICE-FIXED-1 · parent link: a never-month child has month: null on EVERY
   assert.deepEqual(view.json.prices, { month: null, till_boards: 1917 });
 });
 
-test('PRICE-FIXED-1 · parent link: a month ORDER for a never-month child is refused (409) after the instant, nothing reaches Razorpay; the Board Pass still orders at 1917', async (t) => {
+test('PRICE-FIXED-1 · parent link: a month ORDER for a never-month child is refused (409) after the instant, nothing reaches Razorpay; the Board Pass still orders at 1917 (+ GST after 7 Nov = 2262)', async (t) => {
   const srv = await startRoutes({ clock: { t: Date.parse('2026-11-12T10:00:00+05:30') } });
   t.after(srv.close);
   const { token } = await mint(srv);
@@ -962,7 +962,8 @@ test('PRICE-FIXED-1 · parent link: a month ORDER for a never-month child is ref
   assert.equal(srv.rzp.calls.length, 0);
   const ok = await parentOrder(srv, token, 'till_boards');
   assert.equal(ok.status, 200, ok.text);
-  assert.equal(ok.json.amountPaise, 191700);
+  // GST-EXCL-1: 12 Nov is after the 7 Nov GST cut-off - the founding base ₹1,917 + 18% GST = ₹2,262 is charged.
+  assert.equal(ok.json.amountPaise, 226200);
 });
 
 test('PRICE-FIXED-1 · parent link: a child WITH a prior paid month order keeps the month price and order after the instant', async (t) => {
@@ -971,10 +972,10 @@ test('PRICE-FIXED-1 · parent link: a child WITH a prior paid month order keeps 
   t.after(srv.close);
   const { token } = await mint(srv);
   const view = await request(srv.port, PARENT_VIEW_PATH, { body: { token } });
-  assert.equal(view.json.prices.month, 599);
+  assert.equal(view.json.prices.month, 707);
   const ok = await parentOrder(srv, token, 'month');
   assert.equal(ok.status, 200, ok.text);
-  assert.equal(ok.json.amountPaise, 59900);
+  assert.equal(ok.json.amountPaise, 70700);
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1336,4 +1337,49 @@ test('PARENT-PACKS-1 · F2: the close writes "owned" only while the link is stil
   assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(a.token)}`).status, 'paid');
   assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(b.token)}`).status, 'owned');
   assert.equal(await closeCoveredParentPackLinks(srv.db, 'child1'), 0, 'a second pass closes nothing more');
+});
+
+/* ── GST-EXCL-1 · the parent-pay link charges base + 18% GST from 00:00 IST 7 Nov 2026 and shows the breakup ────────── */
+const GST_LATER = Date.parse('2026-11-12T10:00:00+05:30');
+
+test('GST-EXCL-1 · Board Pass link: view carries the SERVER breakup (1917 + 345 = 2262) and the price = the charge; the order is 2262 with the breakup stored', async (t) => {
+  const srv = await startRoutes({ clock: { t: GST_LATER } });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const view = await request(srv.port, PARENT_VIEW_PATH, { body: { token } });
+  assert.equal(view.status, 200, view.text);
+  assert.equal(view.json.prices.till_boards, 2262);
+  assert.deepEqual(view.json.boardPassGst, { baseInr: 1917, gstInr: 345, totalInr: 2262, gstRate: 0.18 });
+  const ok = await parentOrder(srv, token, 'till_boards');
+  assert.equal(ok.status, 200, ok.text);
+  assert.equal(ok.json.amountPaise, view.json.prices.till_boards * 100, 'what the page shows is what is charged');
+  const stored = srv.db.read(`payOrders/${ok.json.orderId}`);
+  assert.deepEqual([stored.baseInr, stored.gstInr, stored.totalInr], [1917, 345, 2262]);
+});
+
+test('GST-EXCL-1 · Board Pass link BEFORE the cut-off: the view has no breakup key and the price is 1917 (byte-identical)', async (t) => {
+  const srv = await startRoutes({ clock: { t: Date.parse('2026-11-06T22:00:00+05:30') } });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const view = await request(srv.port, PARENT_VIEW_PATH, { body: { token } });
+  assert.equal(view.json.prices.till_boards, 1917);
+  assert.equal('boardPassGst' in view.json, false);
+});
+
+test('GST-EXCL-1 · pack link: view names base, GST and total; the parent order is charged the total and the pack lands on the child', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS, clock: { t: GST_LATER } });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+  assert.deepEqual(m.pack, { sku: 'pack_cbq', target: 'maths', priceInr: 199, totalInr: 235, gstInr: 36 });
+  const view = await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.token } });
+  assert.deepEqual(view.json.pack, { sku: 'pack_cbq', target: 'maths', priceInr: 199, totalInr: 235, gstInr: 36 });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack' } });
+  assert.equal(o.status, 200, o.text);
+  assert.equal(o.json.amountPaise, 23500);
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.deepEqual([stored.baseInr, stored.gstInr, stored.totalInr], [199, 36, 235]);
+  const p = srv.rzp.pay(o.json.orderId);
+  const v = await parentVerify(srv, m.token, o.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  assert.ok(srv.db.read('packEntitlements/child1/packs/pack_cbq:maths'));
 });
