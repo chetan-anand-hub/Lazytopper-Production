@@ -45,6 +45,7 @@ import { trackUxEvent } from "../services/uxTelemetry";
 import { isPacksEntryEnabled } from "../lib/packs/packEntryLazy";
 import { showPackLine } from "../components/limits/packLine";
 import OffersBlock from "../components/packs/OffersBlock";
+import OffersSummary from "../components/packs/OffersSummary";
 import { BOARD_PASS_BENEFIT } from "../components/packs/offersCopy";
 import { useKnownStatus, useOptionalUid } from "../components/packs/PackPromoCard";
 
@@ -412,27 +413,35 @@ function hpqCanonicalPath(subject: HPQSubject): string {
 }
 
 /**
- * IQ-PACKS-1 (owner, 2 Nov 2026) - the Important Questions page sells too: the SAME buying block the results show (OffersBlock), twice
- * (under the intro, and at the end of the list). A signed-out visitor (the ad traffic) and a KNOWN non-paid student see the Board Pass card
- * and the pack rows; paid Premium sees the pack rows only (Premium can buy packs); while the record is not yet known nothing shows (no
- * flash for a paid student). Packs switch off -> nothing. The chapter row follows the topic filter, when one is chosen.
+ * IQ-PACKS-1 (owner, 2 Nov 2026) - the Important Questions page sells too: the SAME buying block the results show (OffersBlock). A
+ * signed-out visitor (the ad traffic) and a KNOWN non-paid student see the Board Pass card and the pack rows; paid Premium sees the pack
+ * rows only (Premium can buy packs); while the record is not yet known nothing shows (no flash for a paid student). Packs switch off ->
+ * nothing. The chapter row follows the topic filter, when one is chosen.
+ *
+ * PRICING-DEDUPE-1 - REVERSES IQ-PACKS-1's "twice (under the intro, and at the end of the list)", per the owner's ruling of 6 Nov 2026:
+ * ONE block, at the END of the list only, collapsed to a summary row (OffersSummary) whose Pay button stays one tap away; opening it
+ * shows this same OffersBlock unchanged. The top mount (surface "important-qs") is gone; "important-qs-end" stays.
  */
-function ImportantQsOffers({ subject, topic, placement }: { subject: HPQSubject; topic: string; placement: "top" | "end" }) {
+function ImportantQsOffers({ subject, topic }: { subject: HPQSubject; topic: string }) {
   const uid = useOptionalUid();
   const [status, known] = useKnownStatus(uid);
   if (!isPacksEntryEnabled()) return null;
   const nonPaid = showPackLine(status, known);
   if (uid && !known) return null;
   const chapterSlug = topic !== "all" ? resolveCanonicalTopicKey(topic) : null;
+  const showCard = !uid || nonPaid;
+  const surface = "important-qs-end";
   return (
-    <OffersBlock
-      surface={placement === "top" ? "important-qs" : "important-qs-end"}
-      ctx={{ kind: "important-qs", subject: subject === "Science" ? "science" : "maths", chapterSlug, chapterName: topic !== "all" ? topic : null }}
-      uid={uid}
-      showCard={!uid || nonPaid}
-      showPacks
-      benefit={BOARD_PASS_BENEFIT["important-qs"]}
-    />
+    <OffersSummary surface={surface} showCard={showCard}>
+      <OffersBlock
+        surface={surface}
+        ctx={{ kind: "important-qs", subject: subject === "Science" ? "science" : "maths", chapterSlug, chapterName: topic !== "all" ? topic : null }}
+        uid={uid}
+        showCard={showCard}
+        showPacks
+        benefit={BOARD_PASS_BENEFIT["important-qs"]}
+      />
+    </OffersSummary>
   );
 }
 
@@ -1049,7 +1058,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
           </div>
         </section>
 
-        <ImportantQsOffers subject={subjectKey} topic={topicFilter} placement="top" />
+        {/* PRICING-DEDUPE-1 (owner, 6 Nov 2026): the top buying block is gone - the one block is at the end of the list. */}
 
         {/* Topic dropdown row (under hero) */}
         <section
@@ -2079,7 +2088,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
             </div>
           </section>
         )}
-        <ImportantQsOffers subject={subjectKey} topic={topicFilter} placement="end" />
+        <ImportantQsOffers subject={subjectKey} topic={topicFilter} />
       </div>
     </div>
   );
