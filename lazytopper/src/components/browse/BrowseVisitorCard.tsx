@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { trackBrowseVisitorCardShown, trackBrowseVisitorCardTap, type BrowseVisitorCardAction } from "../../analytics/analytics";
 import {
-  BROWSE_CARD_ABOUT_PATH,
   BROWSE_CARD_IITIAN_LINE,
   BROWSE_CARD_PRICING_PATH,
   BROWSE_CARD_SIGNUP_PATH,
@@ -77,9 +76,6 @@ export default function BrowseVisitorCard() {
           </Link>
         </div>
       </div>
-      <Link to={BROWSE_CARD_ABOUT_PATH} className="lt-bvc__about" data-testid="browse-visitor-card-about" onClick={tap("about")}>
-        What is LazyTopper?
-      </Link>
     </aside>
   );
 }

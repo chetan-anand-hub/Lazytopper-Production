@@ -54,10 +54,44 @@ export function payLabel(verb: "Pay" | "Get it for", price: string | null, payme
   return payPrice ? `${verb} ${payPrice}` : "Get the Board Pass";
 }
 
-export default function OffersBlock({ surface, ctx, uid, showCard = true, showPacks, headline, lead, benefit, payVerb = "Pay", whatYouGet = true, cardExtras, onPayTap }: OffersBlockProps) {
+/**
+ * PRICING-DEDUPE-1 - THE Board Pass Pay link: the card's own button, and (the same component) the Important Questions summary row's.
+ * One place for the destination (checkout, or /pricing while payments are dark), the label (`payLabel`: the amount CHARGED from
+ * `boardPassPayDisplay`, so it follows GST-EXCL-1 on its own) and the tap (`sale_moment_tap` + the host's `onPayTap`). Display only.
+ */
+export function BoardPassPayLink({
+  surface,
+  payVerb = "Pay",
+  onPayTap,
+  className,
+  testId,
+}: {
+  surface: string;
+  payVerb?: "Pay" | "Get it for";
+  onPayTap?: () => void;
+  className: string;
+  testId: string;
+}) {
   const price = boardPassPriceNow();
-  const founding = boardPassFoundingLabel();
   const paymentsOn = isPaymentsClientEnabled();
+  const to = paymentsOn ? BOARD_PASS_BUY_PATH : "/pricing";
+  return (
+    <OfferLink
+      className={className}
+      to={to}
+      testId={testId}
+      onClick={() => {
+        trackSaleMoment("sale_moment_tap", { surface, offer: "board_pass", rank: 1 });
+        onPayTap?.();
+      }}
+    >
+      {payLabel(payVerb, price, paymentsOn, price ? boardPassPayDisplay() : null)}
+    </OfferLink>
+  );
+}
+
+export default function OffersBlock({ surface, ctx, uid, showCard = true, showPacks, headline, lead, benefit, payVerb = "Pay", whatYouGet = true, cardExtras, onPayTap }: OffersBlockProps) {
+  const founding = boardPassFoundingLabel();
   const shown = useRef(false);
 
   useEffect(() => {
@@ -68,7 +102,6 @@ export default function OffersBlock({ surface, ctx, uid, showCard = true, showPa
   }, [showCard]);
 
   if (!showCard && !showPacks) return null;
-  const to = paymentsOn ? BOARD_PASS_BUY_PATH : "/pricing";
   return (
     <div className="lt-offers" data-testid="offers-block" data-surface={surface}>
       {headline && headline.length > 0 ? (
@@ -92,17 +125,7 @@ export default function OffersBlock({ surface, ctx, uid, showCard = true, showPa
             ) : null}
           </div>
           <p className="lt-offers__benefit">{benefit}</p>
-          <OfferLink
-            className="lt-offers__pay"
-            to={to}
-            testId="offers-pay"
-            onClick={() => {
-              trackSaleMoment("sale_moment_tap", { surface, offer: "board_pass", rank: 1 });
-              onPayTap?.();
-            }}
-          >
-            {payLabel(payVerb, price, paymentsOn, price ? boardPassPayDisplay() : null)}
-          </OfferLink>
+          <BoardPassPayLink className="lt-offers__pay" testId="offers-pay" surface={surface} payVerb={payVerb} onPayTap={onPayTap} />
           <div className="lt-offers__fine">
             <span data-testid="offers-from-line">{boardPassFromLine()}</span>
             {whatYouGet ? (

@@ -196,6 +196,18 @@ describe("NCERT-HUB-1 (c) — the hub: empty state, all 27 chapters in the HTML,
     expect(html).toContain("<h1>NCERT Hub — Class 10 Books, NCERT &amp; Exemplar Solutions</h1>");
   });
 
+  it("owner ruling 6 Nov: no 'About these books' section; the disclaimer and the edition/syllabus note stay; CBSE page via the footer", () => {
+    expect(html).not.toContain("About these books");
+    expect(html).not.toMatch(/id="nb-about"|class="lt-nb__about"/);
+    expect(html).toContain(
+      "LazyTopper is an independent platform and is not affiliated with CBSE or NCERT. Textbook copyright belongs to NCERT.",
+    );
+    const note = /<p[^>]*data-testid="nb-pickfoot"[^>]*>([\s\S]*?)<\/p>/.exec(html)?.[1] ?? "";
+    expect(note.replace(/<!-- -->/g, "")).toBe("14 chapters · NCERT 2026-27 · deleted chapters left out");
+    // The removed paragraph's one internal link (the CBSE Class 10 page) is still reachable: the footer's "CBSE 2027".
+    expect(html).toMatch(/<a[^>]*href="\/cbse\/class-10\?returnTo=[^"]*"[^>]*>CBSE 2027<\/a>/);
+  });
+
   it("the bare path shows the empty state, no chapter card, and the breadcrumb Home › NCERT Hub", () => {
     expect(html).toContain('data-testid="nb-empty"');
     expect(html).toContain("Pick a chapter to see its book, NCERT &amp; Exemplar solutions, important questions and notes");
@@ -237,16 +249,21 @@ describe("NCERT-HUB-1 (c) — the hub: empty state, all 27 chapters in the HTML,
       const got = [...row.matchAll(/href="\/ncert-(solutions|exemplar)\//g)].map((m) => (m[1] === "solutions" ? "ncert" : "exemplar"));
       expect(got, ncertCode(r)).toEqual(want);
     }
-    // Pinned exactly (SOLUTIONS-2: every Maths chapter has both books; SOLUTIONS-SCI-1/2: every Science
-    // chapter but Heredity (Ch 8, below the 5-row floor) has its NCERT page, and none an Exemplar page).
+    // Pinned exactly (SOLUTIONS-2: every Maths chapter has both books; SOLUTIONS-SCI-1/2/3: every Science
+    // chapter has a page in at least one book: Heredity (Ch 8) Exemplar only, Ch 12 and 13 NCERT only).
     expect(rows.filter((r) => hubSolutionsChapter(r) !== null).map(ncertCode)).toEqual([
       "jemh101", "jemh102", "jemh103", "jemh104", "jemh105", "jemh106", "jemh107",
       "jemh108", "jemh109", "jemh110", "jemh111", "jemh112", "jemh113", "jemh114",
       "jesc101", "jesc102", "jesc103", "jesc104", "jesc105", "jesc106", "jesc107",
-      "jesc109", "jesc110", "jesc111", "jesc112", "jesc113",
+      "jesc108", "jesc109", "jesc110", "jesc111", "jesc112", "jesc113",
     ]);
     const elec = rows.find((r) => r.book === "Science" && r.chapter === 11)!;
-    expect(hubTiles(elec, false).map((t) => t.id)).toEqual(["ncert", "read", "important", "notes", "check"]);
+    expect(hubTiles(elec, false).map((t) => t.id)).toEqual(["ncert", "exemplar", "read", "important", "notes", "check"]);
+    // SOLUTIONS-SCI-3: the 11 Science chapters with an Exemplar page show the Exemplar tile; Ch 12 and 13 do not.
+    const sciExemplar = rows.filter((r) => r.book === "Science" && hubTiles(r, false).some((t) => t.id === "exemplar")).map((r) => r.chapter);
+    expect(sciExemplar).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    const hered = rows.find((r) => r.book === "Science" && r.chapter === 8)!;
+    expect(hubTiles(hered, false).map((t) => t.id)).toEqual(["exemplar", "read", "important", "notes", "check"]);
   });
 
   it("the committed prerender (once captured) carries all 27 chapters and the empty state", () => {

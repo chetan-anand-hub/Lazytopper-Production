@@ -1,6 +1,7 @@
-// IQ-PACKS-1 - the Important Questions page carries the same buying block the results show (Board Pass card, then the pack rows), twice.
+// IQ-PACKS-1 - the Important Questions page carries the same buying block the results show (Board Pass card, then the pack rows).
+// PRICING-DEDUPE-1 (owner, 6 Nov 2026) - once, at the end, collapsed to a summary row whose Pay is the card's own Pay link.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 const H = vi.hoisted(() => ({
@@ -31,7 +32,10 @@ vi.mock("../services/packs", async (importOriginal) => {
 });
 vi.mock("../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../analytics/analytics")>();
-  return { ...actual, trackSaleMoment: (...a: unknown[]) => H.track(...a) };
+  return {
+    ...actual,
+    trackSaleMoment: (...a: unknown[]) => H.track(...a),
+  };
 });
 
 import HighlyProbableQuestions from "./HighlyProbableQuestions";
@@ -39,6 +43,7 @@ import { resetOwnedPacksCache } from "../components/packs/useOwnedPacks";
 import { packIdOf } from "../services/packs";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../services/packs";
+import { boardPassPriceNow } from "../components/pricing/boardPassOffer";
 
 function renderAt(path: string) {
   return render(
@@ -69,12 +74,26 @@ afterEach(() => {
 const rowIds = (block: HTMLElement) => Array.from(block.querySelectorAll("[data-testid^='offers-row-']")).map((n) => n.getAttribute("data-testid"));
 
 describe("Important Questions page buying block", () => {
-  it("signed out: Board Pass card then the Science rows, twice (under the intro and at the end), one-tap links", async () => {
+  it("signed out: ONE block, at the end, collapsed to a summary row (PRICING-DEDUPE-1 reverses IQ-PACKS-1's two)", async () => {
     H.user = null;
     renderAt("/highly-probable/10/Science");
     await screen.findAllByTestId("offers-packs");
     const blocks = screen.getAllByTestId("offers-block");
-    expect(blocks.map((b) => b.getAttribute("data-surface"))).toEqual(["important-qs", "important-qs-end"]);
+    expect(blocks.map((b) => b.getAttribute("data-surface"))).toEqual(["important-qs-end"]);
+    const summary = screen.getByTestId("offers-summary");
+    const details = summary.querySelector("details")!;
+    expect(details.open).toBe(false); // collapsed by default
+    expect(details.contains(blocks[0])).toBe(true); // the unchanged card + packs are inside
+    // the row: name, benefit, the card's own price tag, and a Pay link that is NOT inside <summary>
+    const row = screen.getByTestId("offers-summary-row");
+    expect(row.textContent).toContain("Board Pass · get every answer marked like a CBSE examiner · ");
+    expect(screen.getByTestId("offers-summary-price").textContent).toBe(boardPassPriceNow());
+    const rowPay = screen.getByTestId("offers-summary-pay");
+    const cardPay = blocks[0].querySelector("[data-testid='offers-pay']")!;
+    expect(row.contains(rowPay)).toBe(false);
+    expect(rowPay.getAttribute("href")).toBe(cardPay.getAttribute("href"));
+    expect(rowPay.textContent).toBe(cardPay.textContent); // same label helper -> flips to the GST amount with the card
+    expect(rowPay.textContent).toMatch(/^Pay ₹/);
     for (const b of blocks) {
       expect(b.querySelector("[data-testid='offers-board-pass']")).not.toBeNull();
       expect(b.querySelector("[data-testid='offers-pay']")).toHaveAttribute("href", "/pricing?buy=board_pass");
@@ -82,17 +101,28 @@ describe("Important Questions page buying block", () => {
       expect(b.querySelector("[data-testid='offers-buy-pack_cbq']")).toHaveAttribute("href", "/packs?buy=pack_cbq&t=science");
       expect(b.querySelector("[data-testid='offers-buy-pack_bundle']")).toHaveTextContent(packPayLabel("pack_bundle"));
     }
-    // the block sits before the "Question stacks" heading, and the end block after it
+    // nothing before the "Question stacks" heading any more: the one block is after it
     const heading = screen.getByText("Question stacks");
-    expect(blocks[0].compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(blocks[1].compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
-    expect(H.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "important-qs", offer: "board_pass", rank: 1 });
+    expect(blocks[0].compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(H.track).toHaveBeenCalledWith("sale_moment_shown", { surface: "important-qs-end", offer: "board_pass", rank: 1 });
+    expect(H.track).not.toHaveBeenCalledWith("sale_moment_shown", expect.objectContaining({ surface: "important-qs" }));
+  });
+
+  it("the row's Pay never toggles the block and counts the same tap as the card's Pay", async () => {
+    H.user = null;
+    renderAt("/highly-probable/10/Science");
+    await screen.findAllByTestId("offers-packs");
+    const details = screen.getByTestId("offers-summary").querySelector("details")!;
+    fireEvent.click(screen.getByTestId("offers-summary-pay"));
+    expect(details.open).toBe(false);
+    expect(H.track).toHaveBeenCalledWith("sale_moment_tap", { surface: "important-qs-end", offer: "board_pass", rank: 1 });
+    // (the open event is pinned in OffersSummary.test.tsx)
   });
 
   it("a known trial / Basic student sees the card and the rows; Maths uses the Maths packs", async () => {
     renderAt("/highly-probable/10/Maths");
     await screen.findAllByTestId("offers-packs");
-    expect(screen.getAllByTestId("offers-board-pass")).toHaveLength(2);
+    expect(screen.getAllByTestId("offers-board-pass")).toHaveLength(1);
     expect(screen.getAllByTestId("offers-buy-pack_cbq")[0]).toHaveAttribute("href", "/packs?buy=pack_cbq&t=maths");
   });
 
@@ -107,7 +137,10 @@ describe("Important Questions page buying block", () => {
     renderAt("/highly-probable/10/Science");
     await screen.findAllByTestId("offers-packs");
     expect(screen.queryByTestId("offers-board-pass")).toBeNull();
-    expect(screen.getAllByTestId("offers-row-pack_cbq")).toHaveLength(2);
+    expect(screen.getAllByTestId("offers-row-pack_cbq")).toHaveLength(1);
+    // no Board Pass -> no Pay on the row; the row names the packs instead
+    expect(screen.queryByTestId("offers-summary-pay")).toBeNull();
+    expect(screen.getByTestId("offers-summary-row").textContent).toContain("Prefer practising on paper?");
   });
 
   it("an owned pack is hidden (the CBQ Pack the student already has)", async () => {
@@ -115,7 +148,7 @@ describe("Important Questions page buying block", () => {
     renderAt("/highly-probable/10/Science");
     await screen.findAllByTestId("offers-packs");
     expect(screen.queryByTestId("offers-row-pack_cbq")).toBeNull();
-    expect(screen.getAllByTestId("offers-row-pack_subject")).toHaveLength(2);
+    expect(screen.getAllByTestId("offers-row-pack_subject")).toHaveLength(1);
   });
 
   it("nothing while the student's record is not yet known (a free cache that may hide a paid student)", async () => {
@@ -127,7 +160,7 @@ describe("Important Questions page buying block", () => {
     await act(async () => {
       H.listeners.forEach((l) => l("u1", { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null }));
     });
-    expect(await screen.findAllByTestId("offers-block")).toHaveLength(2);
+    expect(await screen.findAllByTestId("offers-block")).toHaveLength(1);
   });
 
   it("packs switched off: no block", async () => {

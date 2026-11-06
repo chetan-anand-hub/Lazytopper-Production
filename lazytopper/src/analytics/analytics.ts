@@ -747,9 +747,11 @@ export function trackFirstGraded(surface: FirstGradedSurface): void {
  * `browse_visitor_card_shown` (`{ surface: "browse" }`, once per session - the caller enforces that) and `browse_visitor_card_tap`
  * with ONE closed-set field, `{ action }`. No identifier, no path, no price.
  */
-export type BrowseVisitorCardAction = "signup" | "pricing" | "about" | "dismiss";
+// "about" was dropped with the card's "What is LazyTopper?" link (owner ruling, 6 Nov 2026); nothing emits it now.
+// The GA event names (browse_visitor_card_shown / _tap) are unchanged.
+export type BrowseVisitorCardAction = "signup" | "pricing" | "dismiss";
 
-const BROWSE_VISITOR_CARD_ACTIONS: ReadonlySet<string> = new Set<BrowseVisitorCardAction>(["signup", "pricing", "about", "dismiss"]);
+const BROWSE_VISITOR_CARD_ACTIONS: ReadonlySet<string> = new Set<BrowseVisitorCardAction>(["signup", "pricing", "dismiss"]);
 
 export function trackBrowseVisitorCardShown(): void {
   try {

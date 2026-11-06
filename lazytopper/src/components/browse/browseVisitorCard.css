@@ -3,7 +3,8 @@
   box-sizing: border-box;
   width: 100%;
   margin: 0 0 12px;
-  padding: 10px 12px 8px;
+  /* Owner ruling 6 Nov: the "What is LazyTopper?" link is gone, so the buttons are the last row: 10px all round. */
+  padding: 10px 12px;
   background: hsl(0, 0%, 100%);
   color: hsl(220, 45%, 14%);
   border: 1px solid hsl(214, 25%, 88%);
@@ -42,8 +43,7 @@
 }
 .lt-bvc__close:hover { background: hsl(210, 33%, 95%); }
 .lt-bvc__close:focus-visible,
-.lt-bvc__btn:focus-visible,
-.lt-bvc__about:focus-visible { outline: 2px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+.lt-bvc__btn:focus-visible { outline: 2px solid hsl(152, 55%, 30%); outline-offset: 2px; }
 .lt-bvc__body { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
 .lt-bvc__text p { margin: 0; }
 .lt-bvc__benefit { font-size: 12px; line-height: 1.35; color: hsl(220, 15%, 38%); }
@@ -67,14 +67,6 @@
 .lt-bvc__btn--primary:hover { background: hsl(152, 57%, 37%); }
 .lt-bvc__btn--secondary { background: transparent; color: hsl(220, 45%, 14%); border: 1px solid hsl(214, 25%, 78%); }
 .lt-bvc__btn--secondary:hover { background: hsl(210, 33%, 95%); }
-.lt-bvc__about {
-  display: inline-block;
-  margin-top: 4px;
-  padding: 2px 0;
-  font-size: 12px;
-  color: hsl(152, 55%, 28%);
-  text-decoration: underline;
-}
 
 @media (min-width: 720px) {
   .lt-bvc { padding: 10px 16px; margin-bottom: 0; }
