@@ -51,6 +51,39 @@ export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
+/** LOGIN-FIX-1 — synthetic codes for the two phone failures our own code raises (they had none). */
+export const RECAPTCHA_NOT_READY_CODE = "lt/recaptcha-not-ready";
+export const OTP_NOT_REQUESTED_CODE = "lt/otp-not-requested";
+
+/**
+ * LOGIN-FIX-1 — a failure with NO Firebase code (6 Nov 2026: one desktop student's six phone
+ * failures all arrived as "unknown"). The phone path can throw code-less errors from three places:
+ * the reCAPTCHA library itself (grecaptcha throws plain Errors such as "reCAPTCHA has already been
+ * rendered in this element" or "reCAPTCHA client element has been removed", and can reject with
+ * null or a bare string such as "Timeout"), Firebase's script loader, and our own guards. Each is
+ * mapped to a FIXED slug by pattern; the message itself is never sent (it could in principle carry
+ * text we do not control), only the slug.
+ */
+export function codelessErrorSlug(err: unknown): string {
+  if (err === null || err === undefined) return "no-error-value";
+  const message =
+    typeof err === "string"
+      ? err
+      : typeof err === "object" && "message" in err
+        ? String((err as { message?: unknown }).message ?? "")
+        : "";
+  if (/already been rendered/i.test(message)) return "recaptcha-already-rendered";
+  if (/element has been removed|client element/i.test(message)) return "recaptcha-element-removed";
+  if (/recaptcha is not ready/i.test(message)) return "recaptcha-not-ready";
+  if (/request an otp|request a code/i.test(message)) return "otp-not-requested";
+  if (/load external scripts|script/i.test(message)) return "script-load-failed";
+  if (/not configured/i.test(message)) return "auth-not-configured";
+  if (/time ?out/i.test(message)) return "timeout";
+  if (/recaptcha/i.test(message)) return "recaptcha-other";
+  if (typeof err !== "object") return "non-error-value";
+  return "unknown";
+}
+
 /**
  * The error code as the analytics sender accepts it (a short slug): "auth/popup-blocked" ->
  * "popup-blocked", the timeout -> "popup-timeout", anything unrecognisable -> "unknown".
@@ -59,6 +92,9 @@ export function telemetryErrorCode(err: unknown): string {
   const raw = authErrorCode(err);
   if (raw === GOOGLE_POPUP_TIMEOUT_CODE) return "popup-timeout";
   if (raw === GOOGLE_REDIRECT_NO_RESULT_CODE) return "redirect-no-result";
+  if (raw === RECAPTCHA_NOT_READY_CODE) return "recaptcha-not-ready";
+  if (raw === OTP_NOT_REQUESTED_CODE) return "otp-not-requested";
+  if (!raw) return codelessErrorSlug(err);
   const slug = raw
     .replace(/^auth\//, "")
     .toLowerCase()
@@ -104,13 +140,21 @@ export function isPhoneClient(): boolean {
 }
 
 /**
+ * LOGIN-FIX-1 — the student closed the Google window themselves. That is a cancel, not a failure:
+ * no message, no jump to the phone step, the buttons simply come back. (It is still reported as a
+ * login_error with its code, so the funnel keeps counting it.)
+ */
+export function isGoogleCancel(err: unknown): boolean {
+  return authErrorCode(err) === "auth/popup-closed-by-user";
+}
+
+/**
  * SIGNIN-RESCUE-1 — a Google failure after which the phone step should open by itself: the popup was
  * closed / blocked / never answered, or this browser cannot run it. NOT a cancelled-popup-request (a
  * newer attempt is live) and not any other error.
  */
 export function shouldRescueToPhone(err: unknown): boolean {
   switch (authErrorCode(err)) {
-    case "auth/popup-closed-by-user":
     case GOOGLE_POPUP_TIMEOUT_CODE:
     case GOOGLE_REDIRECT_NO_RESULT_CODE:
     case "auth/popup-blocked":
@@ -156,11 +200,19 @@ export function trackLoginSuccess(method: LoginMethod, flow?: LoginFlow): void {
   }
 }
 
-export function trackLoginError(method: LoginMethod, err: unknown, flow?: LoginFlow): void {
+/**
+ * LOGIN-FIX-1 — which phone step failed: sending the first code, checking it, or re-sending.
+ * Sent on phone errors only (the caller passes it), so the six "unknown" failures of 6 Nov can be
+ * told apart next time: a send that never leaves (reCAPTCHA) and a wrong code are different fixes.
+ */
+export type PhoneStep = "send" | "verify" | "resend";
+
+export function trackLoginError(method: LoginMethod, err: unknown, flow?: LoginFlow, step?: PhoneStep): void {
   try {
+    const params = withFlow({ method, ua_class: currentUaClass(), error_code: telemetryErrorCode(err) }, flow);
     trackOnboardingEvent(
       "login_error",
-      withFlow({ method, ua_class: currentUaClass(), error_code: telemetryErrorCode(err) }, flow),
+      method === "phone" && (step === "send" || step === "verify" || step === "resend") ? { ...params, step } : params,
     );
   } catch {
     /* analytics must never break a sign-in */
@@ -177,6 +229,77 @@ export const GOOGLE_REDIRECT_NO_RESULT_MESSAGE =
   `Google sign-in didn't finish. Tap Google to try again, or ${OTHER_WAYS}.`;
 export const GOOGLE_TIMEOUT_MESSAGE =
   `Google sign-in is taking longer than usual. If a Google window is still open, finish there. Or ${OTHER_WAYS}.`;
+
+/**
+ * LOGIN-FIX-1 — the phone step's messages, in a student's words. The three that matter most: the
+ * code was wrong, there were too many tries, and the "are you a real person" check (reCAPTCHA)
+ * did not go through. Anything else falls back to the shared messages.
+ */
+export const PHONE_WRONG_CODE_MESSAGE = "That code doesn't match. Check the latest SMS and type the 6 digits again.";
+export const PHONE_CODE_EXPIRED_MESSAGE = "This code has expired. Tap Resend OTP to get a new one.";
+export const PHONE_TOO_MANY_MESSAGE =
+  "Too many tries for now. Wait a few minutes and try again, or go back and continue with Google or email.";
+export const PHONE_SMS_LIMIT_MESSAGE =
+  "We can't send more SMS codes right now. Please try again later, or go back and continue with Google or email.";
+export const PHONE_HUMAN_CHECK_MESSAGE =
+  "We couldn't confirm you're a real person (a quick security check). Please try again. If it keeps failing, turn off any ad-blocker or VPN, or go back and continue with Google or email.";
+export const PHONE_NO_CODE_REQUESTED_MESSAGE = "Please ask for a new code: tap Resend OTP.";
+export const PHONE_GENERIC_MESSAGE =
+  "We couldn't send or check your code. Please try again, or go back and continue with Google or email.";
+
+const HUMAN_CHECK_CODES = new Set([
+  "auth/captcha-check-failed",
+  "auth/invalid-app-credential",
+  "auth/missing-app-credential",
+  "auth/missing-recaptcha-token",
+  "auth/invalid-recaptcha-token",
+  "auth/invalid-recaptcha-action",
+  "auth/recaptcha-not-enabled",
+  "auth/missing-recaptcha-version",
+  "auth/invalid-recaptcha-version",
+  "auth/invalid-req-type",
+  RECAPTCHA_NOT_READY_CODE,
+]);
+
+export function describePhoneError(err: unknown): string {
+  const code = authErrorCode(err);
+  switch (code) {
+    case "auth/invalid-verification-code":
+    case "auth/missing-verification-code":
+      return PHONE_WRONG_CODE_MESSAGE;
+    case "auth/code-expired":
+    case "auth/session-expired":
+    case "auth/invalid-verification-id":
+    case "auth/missing-verification-id":
+      return PHONE_CODE_EXPIRED_MESSAGE;
+    case "auth/too-many-requests":
+      return PHONE_TOO_MANY_MESSAGE;
+    case "auth/quota-exceeded":
+      return PHONE_SMS_LIMIT_MESSAGE;
+    case OTP_NOT_REQUESTED_CODE:
+      return PHONE_NO_CODE_REQUESTED_MESSAGE;
+    case "auth/invalid-phone-number":
+    case "auth/missing-phone-number":
+    case "auth/network-request-failed":
+    case "auth/user-disabled":
+    case "auth/operation-not-allowed":
+      return describeAuthError(err);
+    default:
+      break;
+  }
+  if (HUMAN_CHECK_CODES.has(code)) return PHONE_HUMAN_CHECK_MESSAGE;
+  if (!code) {
+    // No Firebase code: the reCAPTCHA library or its script failed (see codelessErrorSlug).
+    const slug = codelessErrorSlug(err);
+    if (slug.startsWith("recaptcha-") || slug === "script-load-failed" || slug === "timeout") {
+      return PHONE_HUMAN_CHECK_MESSAGE;
+    }
+    if (slug === "otp-not-requested") return PHONE_NO_CODE_REQUESTED_MESSAGE;
+  }
+  // "internal-error" during a send is, in practice, the reCAPTCHA script / site-key step failing.
+  if (code === "auth/internal-error" || code === "auth/argument-error") return PHONE_HUMAN_CHECK_MESSAGE;
+  return PHONE_GENERIC_MESSAGE;
+}
 
 export function describeAuthError(err: unknown): string {
   const code = authErrorCode(err);

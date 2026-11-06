@@ -36,6 +36,7 @@ import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured, getPopupRedirectResolver } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
 import { trackSignUp, trackSignUpIfNew } from "../analytics/analytics";
+import { OTP_NOT_REQUESTED_CODE, RECAPTCHA_NOT_READY_CODE } from "../utils/authSignal";
 import { markNewAccountLanding, markNewAccountLandingIfNew } from "../services/newAccountLanding";
 import { sendVisitSourceIfNewUser, sendVisitSourceOnSignUp } from "../analytics/visitSource";
 import { startTrialForNewAccount, startTrialIfNewAccount } from "../services/newAccountTrial";
@@ -270,6 +271,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // early-return below ignored it entirely, so passing a different id from a
   // second page silently did nothing at all.
   const recaptchaContainerIdRef = useRef<string | null>(null);
+  // LOGIN-FIX-1 — the element the live widget was ACTUALLY rendered into: a fresh child of the
+  // page's host container, created per verifier. grecaptcha refuses a second render into the same
+  // element for ever ("reCAPTCHA has already been rendered in this element"; clear() does not free
+  // it), so rendering into the host itself meant a broken widget could never be replaced — every
+  // retry reused it and failed the same way. With a fresh child, teardown removes the child and the
+  // next send renders a clean widget into a new one. Null when the host was not in the document
+  // (the id string is then passed through, exactly as before).
+  const recaptchaElementRef = useRef<HTMLElement | null>(null);
+  // LOGIN-FIX-1 — a render in flight. The phone step warms the widget on open; a quick "Send OTP"
+  // used to start a SECOND render into the same container before the first had finished, and the
+  // loser threw grecaptcha's code-less "already rendered" error (logged as "unknown").
+  const recaptchaPendingRef = useRef<{ id: string; promise: Promise<void> } | null>(null);
 
   // Tear down the verifier widget only; leaves any pending confirmation intact.
   const teardownRecaptcha = useCallback(() => {
@@ -281,7 +294,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       recaptchaVerifierRef.current = null;
     }
+    const element = recaptchaElementRef.current;
+    recaptchaElementRef.current = null;
+    try {
+      element?.remove();
+    } catch {
+      // already detached
+    }
     recaptchaContainerIdRef.current = null;
+    recaptchaPendingRef.current = null;
     setPhoneRecaptchaStatus("idle");
   }, []);
 
@@ -557,32 +578,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const live = recaptchaVerifierRef.current;
     if (live) {
       const renderedInto = recaptchaContainerIdRef.current;
+      const host = renderedInto !== null ? document.getElementById(renderedInto) : null;
+      const element = recaptchaElementRef.current;
+      // With a child element: it must still sit inside the CURRENT host (a remounted page gives a
+      // new host with the same id). Without one (no host at render time): the old id check.
       const stillAttached =
-        renderedInto !== null && document.getElementById(renderedInto) !== null;
+        host !== null && (element === null || (element.isConnected && element.parentElement === host));
       if (renderedInto === recaptchaContainerId && stillAttached) return;
       teardownRecaptcha();
     }
 
-    // Firebase v12 argument order: auth FIRST, then container, then params.
-    const verifier = new RecaptchaVerifier(authClient, recaptchaContainerId, {
-      size: "invisible",
-      callback: () => setPhoneRecaptchaStatus("solved"),
-      "expired-callback": () => setPhoneRecaptchaStatus("expired"),
-    });
-    try {
-      await verifier.render();
-      recaptchaVerifierRef.current = verifier;
-      recaptchaContainerIdRef.current = recaptchaContainerId;
-      setPhoneRecaptchaStatus("ready");
-    } catch (err) {
-      try {
-        verifier.clear();
-      } catch {
-        // ignore
-      }
-      setPhoneRecaptchaStatus("error");
-      throw err;
+    // LOGIN-FIX-1 — one render at a time per container: a second caller waits for the first.
+    const pending = recaptchaPendingRef.current;
+    if (pending && pending.id === recaptchaContainerId) return pending.promise;
+
+    const host = document.getElementById(recaptchaContainerId);
+    let element: HTMLElement | null = null;
+    if (host) {
+      element = document.createElement("div");
+      element.className = "lt-recaptcha-slot";
+      host.appendChild(element);
     }
+
+    // Firebase v12 argument order: auth FIRST, then container, then params.
+    const run = async () => {
+      let verifier: RecaptchaVerifier | null = null;
+      try {
+        verifier = new RecaptchaVerifier(authClient!, element ?? recaptchaContainerId, {
+          size: "invisible",
+          callback: () => setPhoneRecaptchaStatus("solved"),
+          "expired-callback": () => setPhoneRecaptchaStatus("expired"),
+        });
+        await verifier.render();
+        recaptchaVerifierRef.current = verifier;
+        recaptchaContainerIdRef.current = recaptchaContainerId;
+        recaptchaElementRef.current = element;
+        setPhoneRecaptchaStatus("ready");
+      } catch (err) {
+        try {
+          verifier?.clear();
+        } catch {
+          // ignore
+        }
+        element?.remove();
+        setPhoneRecaptchaStatus("error");
+        throw err;
+      }
+    };
+    const promise = run().finally(() => {
+      if (recaptchaPendingRef.current?.promise === promise) recaptchaPendingRef.current = null;
+    });
+    recaptchaPendingRef.current = { id: recaptchaContainerId, promise };
+    return promise;
     // `teardownRecaptcha` is itself stable (useCallback with no deps), so listing
     // it keeps this callback's identity stable too — `sendPhoneOtp` depends on it.
   }, [teardownRecaptcha]);
@@ -596,19 +643,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // "reCAPTCHA has already been rendered in this element".
       await initPhoneRecaptcha(recaptchaContainerId);
       const verifier = recaptchaVerifierRef.current;
-      if (!verifier) throw new Error("reCAPTCHA is not ready");
-      phoneConfirmationRef.current = await signInWithPhoneNumber(
-        authClient,
-        phoneE164,
-        verifier,
-      );
+      if (!verifier) throw Object.assign(new Error("reCAPTCHA is not ready"), { code: RECAPTCHA_NOT_READY_CODE });
+      try {
+        phoneConfirmationRef.current = await signInWithPhoneNumber(
+          authClient,
+          phoneE164,
+          verifier,
+        );
+      } catch (err) {
+        // LOGIN-FIX-1 — a failed send drops the widget, so the retry gets a FRESH one (a new child
+        // element, see recaptchaElementRef). Firebase resets the widget after every send, but a
+        // widget that is itself broken (its script, its element, an expired challenge) stayed broken
+        // and was reused on every retry: the same failure again and again. Rendering a new one costs
+        // a few hundred ms (the script is already loaded); a pending confirmation is kept.
+        if (recaptchaVerifierRef.current === verifier) teardownRecaptcha();
+        throw err;
+      }
     },
-    [initPhoneRecaptcha],
+    [initPhoneRecaptcha, teardownRecaptcha],
   );
 
   const verifyPhoneOtp = useCallback(async (code: string, displayName?: string) => {
     const confirmation = phoneConfirmationRef.current;
-    if (!confirmation) throw new Error("Request an OTP before verifying");
+    if (!confirmation) {
+      throw Object.assign(new Error("Request an OTP before verifying"), { code: OTP_NOT_REQUESTED_CODE });
+    }
     const credential = await confirmation.confirm(code);
     // Phone is the third door into an account, and like Google it is one call for both
     // a new student and a returning one. ⚠ Deliberately NOT mirrored onto the
@@ -669,14 +728,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!current) throw new Error("Sign in before linking a phone number");
       await initPhoneRecaptcha(recaptchaContainerId);
       const verifier = recaptchaVerifierRef.current;
-      if (!verifier) throw new Error("reCAPTCHA is not ready");
-      linkConfirmationRef.current = await linkWithPhoneNumber(
-        current,
-        phoneE164,
-        verifier,
-      );
+      if (!verifier) throw Object.assign(new Error("reCAPTCHA is not ready"), { code: RECAPTCHA_NOT_READY_CODE });
+      try {
+        linkConfirmationRef.current = await linkWithPhoneNumber(
+          current,
+          phoneE164,
+          verifier,
+        );
+      } catch (err) {
+        // LOGIN-FIX-1 — same as sendPhoneOtp: a failed send gets a fresh widget next time.
+        if (recaptchaVerifierRef.current === verifier) teardownRecaptcha();
+        throw err;
+      }
     },
-    [initPhoneRecaptcha],
+    [initPhoneRecaptcha, teardownRecaptcha],
   );
 
   /**

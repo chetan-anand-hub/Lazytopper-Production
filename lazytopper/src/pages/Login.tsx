@@ -16,12 +16,15 @@ import {
   currentGooglePopupMayHang,
   isPhoneClient,
   shouldRescueToPhone,
+  describePhoneError,
+  isGoogleCancel,
   type LoginMethod,
 } from "../utils/authSignal";
 import OfferStrip from "../components/auth/OfferStrip";
 import SigningInScreen from "../components/auth/SigningInScreen";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { isSafeInternalPath } from "../utils/safeInternalPath";
+import { chromeSigninHandoffUrl, currentIsAndroidInAppBrowser } from "../utils/inAppBrowserLinks";
 import { isPayAutoAccountClientEnabled } from "../services/checkoutWhoFlag";
 import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyReminder";
 import { trackUxEvent } from "../services/uxTelemetry";
@@ -541,6 +544,14 @@ const LOGIN_CSS = `
     border-width: 1px;
     border-color: #dbe3ee;
     box-shadow: none;
+  }
+
+  /* LOGIN-FIX-1 — the Android in-app "Open in Chrome to continue with Google" link wears the
+     Google button's shape. A link, so the underline goes and the label may wrap at 360 px. */
+  .lt-google--chrome {
+    text-decoration: none;
+    text-align: center;
+    line-height: 1.3;
   }
 
   .lt-method-icon {
@@ -1612,6 +1623,12 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   // SIGNIN-RESCUE-1 - phones lead with the phone-number door (Google is the secondary there). Read once
   // on mount; the Login page is client-rendered (createRoot), so there is no hydration to mismatch.
   const [phoneFirstDoor] = useState<boolean>(() => isPhoneClient());
+  // LOGIN-FIX-1 — an Android in-app browser / WebView: Google becomes "Open in Chrome". Read once.
+  const [chromeHandoff] = useState<boolean>(() => currentIsAndroidInAppBrowser());
+  const chromeHandoffHref = useMemo(
+    () => (chromeHandoff ? chromeSigninHandoffUrl(window.location.href, nextPath) : null),
+    [chromeHandoff, nextPath],
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -1910,6 +1927,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       if (settled || !mountedRef.current || signedInRef.current) return;
       trackLoginError("google", err, "redirect");
       release();
+      if (isGoogleCancel(err)) return; // LOGIN-FIX-1 — a cancel: the door, buttons ready, no message
       goToStep("phone");
       setError(describeAuthError(err) || describeAuthError(null));
     };
@@ -2032,8 +2050,11 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         loginMethodRef.current = null;
       }
       trackLoginError("google", err, "popup");
-      const message = describeAuthError(err);
       setBusy(false);
+      // LOGIN-FIX-1 — the student closed the Google window: a cancel. No message, no phone jump;
+      // the buttons are simply ready again (the error above still counts it).
+      if (isGoogleCancel(err)) return;
+      const message = describeAuthError(err);
       if (shouldRescueToPhone(err)) {
         // SIGNIN-RESCUE-1 - open the phone step as if "Continue with phone number" was tapped, keeping the
         // message visible (goToStep clears the error, so it is set after). Back link still works.
@@ -2210,8 +2231,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         setPhoneStep("otp");
       } catch (err) {
         loginMethodRef.current = null;
-        trackLoginError("phone", err);
-        setError(describeAuthError(err));
+        trackLoginError("phone", err, undefined, "send");
+        setError(describePhoneError(err));
       } finally {
         setBusy(false);
       }
@@ -2235,8 +2256,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       await verifyPhoneOtp(otp, creatingPhoneAccount ? name.trim() : undefined);
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
-      trackLoginError("phone", err);
-      setError(describeAuthError(err));
+      trackLoginError("phone", err, undefined, "verify");
+      setError(describePhoneError(err));
       setBusy(false);
     }
   };
@@ -2256,8 +2277,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     try {
       await sendPhoneOtp(`+91${phone}`, recaptchaContainerId);
     } catch (err) {
-      trackLoginError("phone", err);
-      setError(describeAuthError(err));
+      trackLoginError("phone", err, undefined, "resend");
+      setError(describePhoneError(err));
     } finally {
       setBusy(false);
     }
@@ -2340,6 +2361,41 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
   // SIGNIN-FLASH-1 — the return trip from Google: no form flash while the result resolves.
   if (redirectPending) return <SigningInScreen />;
+
+  const googleMark = (
+    <span className="lt-gmark" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="18" height="18">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+      </svg>
+    </span>
+  );
+  // LOGIN-FIX-1 — inside an Android app's browser (YouTube, Instagram, Gmail, Google's own
+  // search webviews) Google refuses sign-in, so the Google door hands the page to Chrome instead
+  // of opening a popup that can only fail (network-request-failed / disallowed_useragent). Same
+  // path, same ?redirect= (already checked by isUsableSigninTarget). Everywhere else: unchanged.
+  const googleDoor = chromeHandoffHref ? (
+    <a
+      className="lt-google lt-google--secondary lt-google--chrome"
+      href={chromeHandoffHref}
+      data-testid="google-open-in-chrome"
+    >
+      {googleMark}
+      Open in Chrome to continue with Google
+    </a>
+  ) : (
+    <button
+      type="button"
+      className={phoneFirstDoor ? "lt-google lt-google--secondary" : "lt-google"}
+      onClick={handleGoogle}
+      disabled={busy}
+    >
+      {googleMark}
+      Continue with Google
+    </button>
+  );
 
   return (
     <main
@@ -2465,42 +2521,12 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   {phoneFirstDoor ? "Continue with phone number" : "Continue with phone"}
                 </button>
 
-                <button
-                  type="button"
-                  className={phoneFirstDoor ? "lt-google lt-google--secondary" : "lt-google"}
-                  onClick={handleGoogle}
-                  disabled={busy}
-                >
-                  <span className="lt-gmark" aria-hidden="true">
-                    <svg viewBox="0 0 48 48" width="18" height="18">
-                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                    </svg>
-                  </span>
-                  Continue with Google
-                </button>
+                {googleDoor}
 
                   </>
                 ) : (
                   <>
-                <button
-                  type="button"
-                  className={phoneFirstDoor ? "lt-google lt-google--secondary" : "lt-google"}
-                  onClick={handleGoogle}
-                  disabled={busy}
-                >
-                  <span className="lt-gmark" aria-hidden="true">
-                    <svg viewBox="0 0 48 48" width="18" height="18">
-                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                    </svg>
-                  </span>
-                  Continue with Google
-                </button>
+                {googleDoor}
 
                 <button
                   type="button"

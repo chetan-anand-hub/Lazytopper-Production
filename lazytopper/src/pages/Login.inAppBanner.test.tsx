@@ -87,13 +87,15 @@ afterEach(() => {
 });
 
 describe("Login in an in-app browser", () => {
-  it("Android Instagram: banner, Open in Chrome, phone first, event with app only", async () => {
+  it("Android Instagram: banner, ONE Chrome action (the Google door), phone first, event with app only", async () => {
     mount(IG_ANDROID);
     await screen.findByTestId("inapp-signin-banner");
     expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside the Instagram app");
-    const chrome = screen.getByRole("link", { name: "Open in Chrome" });
+    // LOGIN-FIX-1 — the Google door IS the Chrome hand-off; the banner no longer has its own button.
+    const chrome = screen.getByRole("link", { name: /Open in Chrome to continue with Google/ });
     expect(chrome.getAttribute("href")).toMatch(/^intent:\/\/.+#Intent;scheme=http/);
-    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: /Open in Chrome/ })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: /Continue with Google/ })).toBeNull();
     await waitFor(() => expect(track).toHaveBeenCalledWith("inapp_signin_banner_shown", { app: "instagram" }));
     expect(document.querySelector(".lt-doors .lt-inapp-banner")).not.toBeNull();
   });
@@ -102,14 +104,15 @@ describe("Login in an in-app browser", () => {
     mount(IG_IOS);
     await screen.findByTestId("inapp-signin-banner");
     expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("Open in Safari");
-    expect(screen.queryByRole("link", { name: "Open in Chrome" })).toBeNull();
+    expect(screen.queryByRole("link", { name: /Open in Chrome/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
   });
 
   it("AUTH-SIGNAL-1 · YouTube app (Android): banner names YouTube, Open in Chrome, event app=youtube", async () => {
     mount(YT_ANDROID);
     await screen.findByTestId("inapp-signin-banner");
     expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside the YouTube app");
-    expect(screen.getByRole("link", { name: "Open in Chrome" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /Open in Chrome to continue with Google/ })).toBeTruthy();
     await waitFor(() => expect(track).toHaveBeenCalledWith("inapp_signin_banner_shown", { app: "youtube" }));
   });
 
@@ -117,7 +120,8 @@ describe("Login in an in-app browser", () => {
     mount(IOS_WEBVIEW);
     await screen.findByTestId("inapp-signin-banner");
     expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("Open in Safari");
-    expect(screen.queryByRole("link", { name: "Open in Chrome" })).toBeNull();
+    expect(screen.queryByRole("link", { name: /Open in Chrome/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
   });
 
   it("AUTH-SIGNAL-1 · a home-screen web app (navigator.standalone) gets no banner", () => {
@@ -135,6 +139,62 @@ describe("Login in an in-app browser", () => {
     mount(CHROME);
     expect(screen.queryByTestId("inapp-signin-banner")).toBeNull();
     expect(track).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
+  });
+});
+
+describe("LOGIN-FIX-1 · the Android in-app Google door", () => {
+  function mountAt(ua: string, entry: string | { pathname: string; search?: string; state?: unknown }) {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(ua);
+    return render(
+      <MemoryRouter initialEntries={[entry as never]}>
+        <Login />
+      </MemoryRouter>,
+    );
+  }
+  const decodeTarget = () => {
+    const href = screen.getByTestId("google-open-in-chrome").getAttribute("href") ?? "";
+    return /^intent:\/\/([^#]+)#/.exec(href)?.[1] ?? "";
+  };
+
+  it("never calls Google sign-in from inside the webview (it can only fail there)", () => {
+    mount(YT_ANDROID);
+    const link = screen.getByTestId("google-open-in-chrome");
+    expect(link.tagName).toBe("A");
+    expect(link.textContent).toContain("Open in Chrome to continue with Google");
+    expect(signInWithGoogle).not.toHaveBeenCalled();
+  });
+
+  // The hand-off reads the real address bar (window.location), as BrowserRouter keeps it in step.
+  function atAddress(pathAndQuery: string) {
+    const before = window.location.pathname + window.location.search;
+    window.history.replaceState({}, "", pathAndQuery);
+    return () => window.history.replaceState({}, "", before);
+  }
+
+  it("carries the page's own safe destination to Chrome (router state does not survive the hop)", () => {
+    const restore = atAddress("/login");
+    try {
+      mountAt(YT_ANDROID, { pathname: "/login", state: { from: "/check-improve" } });
+      expect(decodeTarget()).toBe(`${window.location.host}/login?redirect=%2Fcheck-improve`);
+    } finally {
+      restore();
+    }
+  });
+
+  it("an external ?redirect= is dropped, never handed to Chrome", () => {
+    const restore = atAddress("/login?redirect=https%3A%2F%2Fevil.example&reason=start-trial");
+    try {
+      mountAt(YT_ANDROID, "/login?redirect=https%3A%2F%2Fevil.example&reason=start-trial");
+      expect(decodeTarget()).toBe(`${window.location.host}/login?reason=start-trial`);
+    } finally {
+      restore();
+    }
+  });
+
+  it("desktop and normal Android Chrome keep the Google button exactly as before", () => {
+    mount(CHROME);
+    expect(screen.queryByTestId("google-open-in-chrome")).toBeNull();
     expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
   });
 });

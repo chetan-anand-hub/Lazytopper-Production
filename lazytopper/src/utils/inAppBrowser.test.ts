@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { inAppBrowser, uaClass } from "./inAppBrowser";
-import { chromeIntentUrl, isAndroidUserAgent, isIosUserAgent } from "./inAppBrowserLinks";
+import {
+  chromeIntentUrl,
+  chromeSigninHandoffUrl,
+  isAndroidInAppBrowser,
+  isAndroidUserAgent,
+  isIosUserAgent,
+} from "./inAppBrowserLinks";
 
 const UA = {
   instagramAndroid:
@@ -160,5 +166,62 @@ describe("standalone (home-screen web app)", () => {
   it("named apps are still detected when standalone is true", () => {
     expect(inAppBrowser(UA.youtubeIphone, true)).toBe("youtube");
     expect(inAppBrowser(UA.instagramIos, true)).toBe("instagram");
+  });
+});
+
+describe("LOGIN-FIX-1 · isAndroidInAppBrowser", () => {
+  it.each([
+    ["instagramAndroid", true],
+    ["facebookAndroid", true],
+    ["androidWebview", true],
+    ["youtubeAndroidWebview", true],
+    ["line", true],
+    ["chromeAndroid", false], // also what a Chrome Custom Tab reports
+    ["samsungInternet", false],
+    ["firefoxAndroid", false],
+    ["instagramIos", false],
+    ["iosBareWebview", false],
+    ["youtubeIphone", false],
+    ["desktopChrome", false],
+  ] as Array<[keyof typeof UA, boolean]>)("%s -> %s", (key, expected) => {
+    expect(isAndroidInAppBrowser(UA[key])).toBe(expected);
+  });
+});
+
+describe("LOGIN-FIX-1 · chromeSigninHandoffUrl keeps the safe redirect", () => {
+  const decode = (intent: string | null) => {
+    const m = /^intent:\/\/(.+?)#Intent;scheme=(https?);package=com\.android\.chrome;S\.browser_fallback_url=(.+);end$/.exec(intent ?? "");
+    return m ? { target: m[1], scheme: m[2], fallback: decodeURIComponent(m[3]) } : null;
+  };
+  it("adds ?redirect=<target> when the URL does not carry it (router state does not survive the hop)", () => {
+    const out = decode(chromeSigninHandoffUrl("https://lazytopper.com/login", "/check-improve?x=1"));
+    expect(out).toEqual({
+      target: "lazytopper.com/login?redirect=%2Fcheck-improve%3Fx%3D1",
+      scheme: "https",
+      fallback: "https://lazytopper.com/login?redirect=%2Fcheck-improve%3Fx%3D1",
+    });
+  });
+  it("keeps an existing ?redirect= and the rest of the query untouched", () => {
+    const out = decode(chromeSigninHandoffUrl("https://lazytopper.com/login?redirect=%2Fpacks&reason=start-trial", "/other"));
+    expect(out?.target).toBe("lazytopper.com/login?redirect=%2Fpacks&reason=start-trial");
+  });
+  it.each(["https://evil.example/x", "//evil.example", "/\\evil", "javascript:alert(1)", "/"])(
+    "never carries an unsafe or empty target (%s)",
+    (target) => {
+      const out = decode(chromeSigninHandoffUrl("https://lazytopper.com/login", target));
+      expect(out?.target).toBe("lazytopper.com/login");
+    },
+  );
+  it("drops an unsafe ?redirect= already on the page instead of handing it on", () => {
+    const out = decode(chromeSigninHandoffUrl("https://lazytopper.com/login?redirect=https%3A%2F%2Fevil.example&reason=start-trial", "/"));
+    expect(out?.target).toBe("lazytopper.com/login?reason=start-trial");
+    expect(out?.fallback).toBe("https://lazytopper.com/login?reason=start-trial");
+  });
+  it("stays on the page's own host", () => {
+    const out = decode(chromeSigninHandoffUrl("https://lazytopper.com/login", "/x"));
+    expect(out?.target.startsWith("lazytopper.com/")).toBe(true);
+  });
+  it("refuses garbage", () => {
+    expect(chromeSigninHandoffUrl("not a url", "/x")).toBeNull();
   });
 });

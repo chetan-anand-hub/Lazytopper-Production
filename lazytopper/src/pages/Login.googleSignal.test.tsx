@@ -57,8 +57,11 @@ import {
 const CHROME =
   "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36";
 
+// LOGIN-FIX-1 — the YouTube app on iOS: an in-app browser that still uses the Google popup. (On
+// Android the in-app Google door is now "Open in Chrome to continue with Google", no popup at all;
+// see Login.inAppBanner.test.tsx.)
 const YOUTUBE_APP =
-  "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.02.34";
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 com.google.ios.youtube/19.02.3";
 const DESKTOP =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36";
 
@@ -152,6 +155,29 @@ describe("SIGNIN-RESCUE-1 door order", () => {
   });
 });
 
+describe("LOGIN-FIX-1 · popup-closed-by-user is a cancel", () => {
+  it.each([["desktop", DESKTOP], ["normal mobile Chrome", CHROME]])(
+    "%s: no message, no phone step, the Google button is ready again; login_error still counts it",
+    async (_n, ua) => {
+      signInWithGoogle.mockImplementation(async () => {
+        throw Object.assign(new Error("x"), { code: "auth/popup-closed-by-user" });
+      });
+      const google = mount(ua);
+      await act(async () => {
+        fireEvent.click(google);
+      });
+      expect(document.body.textContent).not.toContain(POPUP_CLOSED_MESSAGE);
+      expect(document.body.textContent).not.toContain("Sign-in failed");
+      expect(screen.queryByRole("heading", { name: /Continue with phone/ })).toBeNull();
+      expect((screen.getByRole("button", { name: /Continue with Google/ }) as HTMLButtonElement).disabled).toBe(false);
+      expect(document.querySelector('[role="alert"]')).toBeNull();
+      expect(track.mock.calls.filter((c) => c[0] === "login_error")).toEqual([
+        ["login_error", expect.objectContaining({ method: "google", error_code: "popup-closed-by-user", flow: "popup" })],
+      ]);
+    },
+  );
+});
+
 describe("cancelled-popup-request", () => {
   it("stays silent (a double-tap superseding the first popup)", async () => {
     signInWithGoogle.mockImplementation(async () => {
@@ -168,7 +194,6 @@ describe("cancelled-popup-request", () => {
 
 describe("Google failure messages", () => {
   const cases: Array<[string, string, string]> = [
-    ["auth/popup-closed-by-user", POPUP_CLOSED_MESSAGE, "popup-closed-by-user"],
     ["auth/popup-blocked", POPUP_BLOCKED_MESSAGE, "popup-blocked"],
     [
       "auth/operation-not-supported-in-this-environment",
@@ -205,7 +230,6 @@ describe("SIGNIN-RESCUE-1 phone rescue after a failed Google attempt", () => {
       throw Object.assign(new Error("x"), { code });
     });
   it.each([
-    ["auth/popup-closed-by-user", POPUP_CLOSED_MESSAGE],
     ["auth/popup-blocked", POPUP_BLOCKED_MESSAGE],
     ["auth/operation-not-supported-in-this-environment", UNSUPPORTED_ENVIRONMENT_MESSAGE],
   ])("%s opens the phone step with the message kept", async (code, message) => {

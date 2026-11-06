@@ -2076,8 +2076,13 @@ export interface OnboardingEventParams {
  *   ua_class    inapp_youtube | inapp_instagram | inapp_facebook | android_webview | ios_webview |
  *               chrome_android | desktop | other   (never the raw user agent)
  *   error_code  the Firebase code without "auth/" (e.g. popup-blocked), "popup-timeout" for the
- *               45 s Google wait, or "unknown". No email, phone, uid or name rides along.
+ *               45 s Google wait. LOGIN-FIX-1: a failure with no Firebase code gets a fixed slug
+ *               (recaptcha-already-rendered, recaptcha-element-removed, recaptcha-not-ready,
+ *               otp-not-requested, script-load-failed, timeout, recaptcha-other, no-error-value,
+ *               non-error-value) and only then "unknown". No email, phone, uid, name or raw
+ *               error message rides along.
  *   flow        popup | redirect — GOOGLE-REDIRECT-1, Google events only (absent on email / phone).
+ *   step        send | verify | resend — LOGIN-FIX-1, phone login_error only.
  * GA4 / Vercel only: signed-out visitors are never in the first-party activity log, so none of
  * these is (or needs to be) on the activity allow-list.
  * ------------------------------------------------------------------------- */
@@ -2085,7 +2090,13 @@ export interface OnboardingEventParams {
 export interface OnboardingEventParams {
   login_attempt: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" };
   login_success: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" };
-  login_error: { method: "google" | "email" | "phone"; ua_class: string; error_code: string; flow?: "popup" | "redirect" };
+  login_error: {
+    method: "google" | "email" | "phone";
+    ua_class: string;
+    error_code: string;
+    flow?: "popup" | "redirect";
+    step?: "send" | "verify" | "resend";
+  };
 }
 
 /**

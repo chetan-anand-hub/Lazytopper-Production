@@ -29,7 +29,10 @@ const H = vi.hoisted(() => ({
   createdUser: null as null | Record<string, unknown>,
   /** Every container id a RecaptchaVerifier was constructed against, in order. */
   renderedInto: [] as string[],
+  elements: [] as Array<HTMLElement | null>,
   clearCount: 0,
+  renderGate: null as null | Promise<void>,
+  sendError: null as null | unknown,
 }));
 
 vi.mock("firebase/auth", () => ({
@@ -47,13 +50,20 @@ vi.mock("firebase/auth", () => ({
   }),
   signOut: vi.fn(async () => {}),
   RecaptchaVerifier: class {
-    constructor(_auth: unknown, containerId: string) {
-      H.renderedInto.push(containerId);
+    // LOGIN-FIX-1 — the verifier now renders into a fresh child of the host; record the HOST id.
+    constructor(_auth: unknown, container: string | HTMLElement) {
+      H.renderedInto.push(typeof container === "string" ? container : (container.parentElement?.id ?? ""));
+      H.elements.push(typeof container === "string" ? null : container);
     }
     clear() { H.clearCount += 1; }
-    async render() {}
+    async render() {
+      if (H.renderGate) await H.renderGate;
+    }
   },
-  signInWithPhoneNumber: vi.fn(async () => ({ confirm: vi.fn() })),
+  signInWithPhoneNumber: vi.fn(async () => {
+    if (H.sendError) throw H.sendError;
+    return { confirm: vi.fn() };
+  }),
   linkWithPhoneNumber: vi.fn(async () => ({ confirm: vi.fn() })),
   onAuthStateChanged: (_c: unknown, cb: (u: unknown) => void) => {
     H.authCb = cb;
@@ -106,7 +116,10 @@ beforeEach(() => {
   H.authCb = null;
   H.createdUser = null;
   H.renderedInto = [];
+  H.elements = [];
   H.clearCount = 0;
+  H.renderGate = null;
+  H.sendError = null;
   document.body.innerHTML = "";
 });
 
@@ -194,6 +207,65 @@ describe("AuthContext — reCAPTCHA reuse is scoped to the live container", () =
 
     expect(H.renderedInto).toEqual(["lt-signup-recaptcha", "lt-signup-recaptcha"]);
     expect(H.clearCount).toBe(1);
+  });
+});
+
+describe("LOGIN-FIX-1 — reCAPTCHA: one render at a time, a fresh widget after a failed send", () => {
+  function mountContainer(id: string) {
+    const el = document.createElement("div");
+    el.id = id;
+    document.body.appendChild(el);
+    return el;
+  }
+
+  it("renders into a fresh CHILD of the host, not the host itself", async () => {
+    mount();
+    await waitFor(() => expect(ctx).not.toBeNull());
+    const host = mountContainer("lt-login-recaptcha");
+    await ctx!.initPhoneRecaptcha("lt-login-recaptcha");
+    expect(H.elements).toHaveLength(1);
+    expect(H.elements[0]).not.toBe(host);
+    expect(H.elements[0]?.parentElement).toBe(host);
+  });
+
+  it("the warm-up and a quick Send OTP share ONE render (no second widget in the same element)", async () => {
+    mount();
+    await waitFor(() => expect(ctx).not.toBeNull());
+    mountContainer("lt-login-recaptcha");
+    let open: () => void = () => {};
+    H.renderGate = new Promise<void>((r) => {
+      open = r;
+    });
+    const warm = ctx!.initPhoneRecaptcha("lt-login-recaptcha");
+    const send = ctx!.sendPhoneOtp("+919876543210", "lt-login-recaptcha");
+    open();
+    await Promise.all([warm, send]);
+    expect(H.renderedInto).toEqual(["lt-login-recaptcha"]);
+    expect(H.clearCount).toBe(0);
+  });
+
+  it("a failed send drops the widget; the retry renders a NEW one into a new child", async () => {
+    mount();
+    await waitFor(() => expect(ctx).not.toBeNull());
+    const host = mountContainer("lt-login-recaptcha");
+    H.sendError = Object.assign(new Error("x"), { code: "auth/captcha-check-failed" });
+    await expect(ctx!.sendPhoneOtp("+919876543210", "lt-login-recaptcha")).rejects.toMatchObject({
+      code: "auth/captcha-check-failed",
+    });
+    expect(H.clearCount).toBe(1);
+    expect(H.elements[0]?.isConnected).toBe(false); // the old slot is gone from the host
+    H.sendError = null;
+    await ctx!.sendPhoneOtp("+919876543210", "lt-login-recaptcha");
+    expect(H.renderedInto).toEqual(["lt-login-recaptcha", "lt-login-recaptcha"]);
+    expect(H.elements[1]).not.toBe(H.elements[0]);
+    expect(H.elements[1]?.parentElement).toBe(host);
+    expect(host.children).toHaveLength(1);
+  });
+
+  it("our own guard errors now carry codes (they were logged as unknown)", async () => {
+    mount();
+    await waitFor(() => expect(ctx).not.toBeNull());
+    await expect(ctx!.verifyPhoneOtp("123456")).rejects.toMatchObject({ code: "lt/otp-not-requested" });
   });
 });
 
