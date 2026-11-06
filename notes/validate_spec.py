@@ -346,7 +346,7 @@ def validate(spec, banned_phrases, topic_keys):
 
     # ── Rule 11 (NOTES-FORMULA-3a, D208): anchors, headings, tips and shortcuts ──
     id_re = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-    reserved = {"formulae", "shortcuts", "memory-tricks", "mindmap", "diagrams"}
+    reserved = {"formulae", "shortcuts", "memory-tricks", "key-terms", "mindmap", "diagrams"}
     seen_ids = {}
 
     def take_id(val, path):
@@ -412,6 +412,44 @@ def validate(spec, banned_phrases, topic_keys):
             need_text(fig, "heading", f"$.figures.{ref}", required=True)
             need_text(fig, "alt", f"$.figures.{ref}", required=True)
 
+    # ── Rule 12 (KEY-TERMS-1): "Key terms the examiner looks for" ──
+    # Optional. When present: 8-15 rows, each { term, meaning, avoid?, source } with non-empty strings,
+    # terms unique on the page, no "$" (the card renders plain text, no math), and avoid != term.
+    key_terms = spec.get("key_terms")
+    if key_terms is not None:
+        if not isinstance(key_terms, list):
+            fail(12, "$.key_terms", "key_terms must be a list")
+            key_terms = []
+        elif not 8 <= len(key_terms) <= 15:
+            fail(12, "$.key_terms", f"key_terms has {len(key_terms)} rows (a chapter carries 8-15)")
+        seen_terms = {}
+        for i, k in enumerate(key_terms):
+            p = f"$.key_terms[{i}]"
+            if not isinstance(k, dict):
+                fail(12, p, "key term must be an object")
+                continue
+            extra = set(k) - {"term", "meaning", "avoid", "source"}
+            if extra:
+                fail(12, p, f"unknown key(s) {sorted(extra)}")
+            for key, required in (("term", True), ("meaning", True), ("avoid", False), ("source", True)):
+                val = k.get(key)
+                if val is None:
+                    if required:
+                        fail(12, f"{p}.{key}", f"'{key}' is required")
+                    continue
+                if not isinstance(val, str) or not val.strip():
+                    fail(12, f"{p}.{key}", f"'{key}' must be a non-empty string")
+                elif "$" in val:
+                    fail(12, f"{p}.{key}", "plain text only (the card renders no math)")
+            term = k.get("term")
+            if isinstance(term, str):
+                low = term.strip().lower()
+                if low in seen_terms:
+                    fail(12, f"{p}.term", f"term {term!r} duplicates {seen_terms[low]}")
+                seen_terms[low] = p
+                if isinstance(k.get("avoid"), str) and k["avoid"].strip().lower() == low:
+                    fail(12, f"{p}.avoid", "avoid must differ from the term")
+
     return v
 
 
@@ -430,6 +468,7 @@ RULES = {
     9: "required keys present + every figure_ref resolves",
     10: "per-step marks (when present) sum to the example's marks_total",
     11: "anchor ids lower-kebab + unique + not reserved; shortcuts have id/text/use/source; diagram ids carry heading + alt",
+    12: "key_terms (optional): 8-15 rows of plain-text term/meaning/source (+ optional avoid), terms unique",
 }
 
 

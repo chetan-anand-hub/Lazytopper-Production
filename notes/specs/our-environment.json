@@ -524,6 +524,22 @@
       "source": "NCERT 13.2"
     }
   ],
+  "key_terms": [
+    {"term": "Ecosystem", "meaning": "The living things in an area together with the non-living parts of their environment.", "source": "NCERT 2026-27 Ch13 p.208 (jesc113)"},
+    {"term": "Biotic components", "meaning": "The living parts of an ecosystem.", "source": "NCERT 2026-27 Ch13 p.208 (jesc113)"},
+    {"term": "Abiotic components", "meaning": "The non-living parts, like temperature, rainfall, wind and soil.", "source": "NCERT 2026-27 Ch13 p.208 (jesc113)"},
+    {"term": "Producers", "meaning": "Organisms that make their own food by photosynthesis, like green plants.", "source": "NCERT 2026-27 Ch13 p.209 (jesc113)"},
+    {"term": "Consumers", "meaning": "Organisms that depend on producers, directly or indirectly, for food.", "source": "NCERT 2026-27 Ch13 p.209 (jesc113)"},
+    {"term": "Decomposers", "meaning": "Micro-organisms like bacteria and fungi that break down dead remains and wastes.", "avoid": "germs", "source": "NCERT 2026-27 Ch13 p.209 (jesc113)"},
+    {"term": "Food chain", "meaning": "A series of organisms, each feeding on the one before it.", "source": "NCERT 2026-27 Ch13 p.210 (jesc113)"},
+    {"term": "Trophic levels", "meaning": "The steps of a food chain at which energy is transferred.", "source": "NCERT 2026-27 Ch13 p.210 (jesc113)"},
+    {"term": "Food web", "meaning": "Many food chains linked together.", "source": "NCERT 2026-27 Ch13 p.210 (jesc113)"},
+    {"term": "Biological magnification", "meaning": "Harmful chemicals collect in greater concentration at each higher trophic level.", "source": "NCERT 2026-27 Ch13 p.212 (jesc113)"},
+    {"term": "Ozone layer", "meaning": "A layer of O₃ in the upper atmosphere that shields the earth from the sun's UV radiation.", "source": "NCERT 2026-27 Ch13 p.212 (jesc113)"},
+    {"term": "Chlorofluorocarbons", "meaning": "CFCs: chemicals used as refrigerants and in fire extinguishers that deplete the ozone layer.", "source": "NCERT 2026-27 Ch13 p.213 (jesc113)"},
+    {"term": "Biodegradable", "meaning": "Substances broken down by biological processes, such as by bacteria.", "source": "NCERT 2026-27 Ch13 p.214 (jesc113)"},
+    {"term": "Non-biodegradable", "meaning": "Substances not broken down by biological processes; they stay in the environment.", "source": "NCERT 2026-27 Ch13 p.214 (jesc113)"}
+  ],
   "third_tab_content": {
     "kind": "diagrams",
     "intro": "The four figures this chapter is examined through - be able to read a food chain and food web, name the trophic levels on the pyramid, and describe the one-way flow of energy. Learn each in the exact NCERT form.",
