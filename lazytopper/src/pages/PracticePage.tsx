@@ -681,6 +681,8 @@ import {
 import TutorSignupPrompt from "../components/auth/TutorSignupPrompt";
 import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
+import { warmLikelyQuestions } from "../data/predictionCore";
+import { usePredictionWarm } from "../components/practice/usePredictionWarm";
 import {
   DIFFICULTY_OPTIONS,
   PracticeControls,
@@ -1998,7 +2000,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     () => (isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]),
     [isMultiTopic, multiTopics, topicLabel],
   );
-  const bank = useBankChapters(bankTopicKeys);
+  const bankLoaded = useBankChapters(bankTopicKeys);
+  // SPEED-HUB-2: the render-time reads below wait until the chapter's first-use prediction
+  // scoring has run in slices (usePredictionWarm) — the same loading card, no ~0.5 s freeze.
+  const bankWarm = usePredictionWarm(bankTopicKeys, bankLoaded.ready);
+  const bank = { ready: bankLoaded.ready && bankWarm, error: bankLoaded.error };
   // MOMENTS-1 — Retry when the chapter chunk failed: load it again; on success the hook reads it
   // from the cache on this re-render and the build runs again.
   const retryBankLoad = () => {
@@ -2249,6 +2255,8 @@ const packTopicKey = useMemo(() => {
         // chapters synchronously from the per-chapter cache.
         try {
           await ensureBankChapters(isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]);
+          // SPEED-HUB-2: the chapter's first-use scoring in slices, before the sync draws below.
+          await warmLikelyQuestions(isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]).catch(() => {});
         } catch (loadErr) {
           bankLoadFailed = true; // MOMENTS-1: the chapter chunk did not arrive
           throw loadErr;

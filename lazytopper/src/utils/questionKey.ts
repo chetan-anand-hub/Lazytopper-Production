@@ -28,8 +28,25 @@ export interface QuestionKeyInput {
   options?: unknown;
 }
 
+const ASCII_ONLY = /^[\x00-\x7f]*$/;
+
 /** The scout's N1 normalisation. */
 export function normaliseN1(s: unknown): string {
+  const raw = String(s ?? "");
+  // SPEED-HUB-2 — ASCII fast path, same output. For a string of only ASCII characters NFKC is
+  // the identity, lower-casing stays ASCII, and the only ASCII letters/digits (\p{L}\p{N}) are
+  // a-z and 0-9 after lower-casing — so the cheap ASCII class gives the identical result. The
+  // Unicode-class regex was most of a chapter's pool build on a phone (~2/3 of bank rows are
+  // ASCII). questionKey.n1FastPath.test.ts compares this to normaliseN1Reference on every bank
+  // stem and option.
+  if (ASCII_ONLY.test(raw)) {
+    return raw.toLowerCase().replace(/\\[a-z]+/g, "").replace(/[^a-z0-9]/g, "");
+  }
+  return normaliseN1Reference(raw);
+}
+
+/** N1 exactly as specified, with no fast path. Exported for questionKey.n1FastPath.test.ts. */
+export function normaliseN1Reference(s: unknown): string {
   return String(s ?? "")
     .normalize("NFKC")
     .toLowerCase()

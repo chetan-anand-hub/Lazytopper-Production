@@ -202,7 +202,11 @@ function getPredictedQuestions(): CanonicalQuestionWithScore[] {
 // the pre-split buildUnifiedQuestionBank; over one chapter or one subject it equals the
 // whole-bank result filtered to that chapter or subject (bankChapters.guard.test.ts
 // proves it row for row, scores included, for every chapter and both subjects).
-function buildUnified(
+//
+// SPEED-HUB-2: split into its two stages so warmLikelyQuestions (below) can run the
+// expensive one — one prediction score per row — in slices. buildUnified is still
+// exactly mergeUnified followed by scoreUnifiedRow over every row, in order.
+function mergeUnified(
   canonicalRows: readonly CanonicalQuestion[],
   predicted: readonly CanonicalQuestionWithScore[],
 ): CanonicalQuestionWithScore[] {
@@ -221,16 +225,23 @@ function buildUnified(
     })
   );
 
-  const merged = dedupeById([
+  return dedupeById([
     ...stampedCanonical,
     ...predicted,
   ]).filter((q) => !isScienceDeletedQuestion(q, targetYear));
+}
 
-  return merged.map((q) => {
-    const explicit = Number(q.predictionScore ?? 0);
-    const adjustedBase = explicit > 0 ? explicit : computePredictionScore(q);
-    return { ...q, _adjustedScore: adjustedBase };
-  });
+function scoreUnifiedRow(q: CanonicalQuestionWithScore): CanonicalQuestionWithScore {
+  const explicit = Number(q.predictionScore ?? 0);
+  const adjustedBase = explicit > 0 ? explicit : computePredictionScore(q);
+  return { ...q, _adjustedScore: adjustedBase };
+}
+
+function buildUnified(
+  canonicalRows: readonly CanonicalQuestion[],
+  predicted: readonly CanonicalQuestionWithScore[],
+): CanonicalQuestionWithScore[] {
+  return mergeUnified(canonicalRows, predicted).map(scoreUnifiedRow);
 }
 
 function assertLoaded(slugs: readonly string[]): void {
@@ -280,13 +291,19 @@ function getUnifiedForSlug(slug: string): CanonicalQuestionWithScore[] {
   assertLoaded([slug]);
   let rows = unifiedBySlugMemo.get(slug);
   if (!rows) {
-    rows = buildUnified(
-      isBankChapterSlug(slug) ? getBankRows([slug]) : [],
-      getPredictedQuestions().filter((q) => topicMatches(q.topicKey, slug)),
-    );
+    rows = buildUnified(...slugSlices(slug));
     unifiedBySlugMemo.set(slug, rows);
   }
   return rows;
+}
+
+function slugSlices(
+  slug: string,
+): [readonly CanonicalQuestion[], readonly CanonicalQuestionWithScore[]] {
+  return [
+    isBankChapterSlug(slug) ? getBankRows([slug]) : [],
+    getPredictedQuestions().filter((q) => topicMatches(q.topicKey, slug)),
+  ];
 }
 
 const unifiedBySubjectMemo = new Map<string, CanonicalQuestionWithScore[]>();
@@ -344,7 +361,24 @@ function policyRegimeForYear(targetYear: number) {
 // The per-id cache above stays the first lookup, exactly as before.
 const bayesianByInputs = new Map<string, number>();
 
+// SPEED-HUB-2: the deletion check reads only (subject, topicKey, subtopic, targetYear) and
+// two pure syllabus look-ups over static lists, so it is memoised on exactly those inputs.
+// It ran once per row (bayesianInputKey) and was ~15% of a chapter's first ranking.
+// Bounded by the bank's distinct (chapter, sub-topic) labels.
+const deletedForScoringMemo = new Map<string, boolean>();
 function isDeletedForScoring(q: CanonicalQuestionWithScore, targetYear: number): boolean {
+  const key = [targetYear, q.subject, q.topicKey, q.subtopic]
+    .map((v) => `${typeof v}:${String(v)}`)
+    .join("\u0001");
+  let hit = deletedForScoringMemo.get(key);
+  if (hit === undefined) {
+    hit = isDeletedForScoringUncached(q, targetYear);
+    deletedForScoringMemo.set(key, hit);
+  }
+  return hit;
+}
+
+function isDeletedForScoringUncached(q: CanonicalQuestionWithScore, targetYear: number): boolean {
   // The two guards at the top of scoreTopicRecurrenceConfidence, verbatim in condition.
   if (
     q.subject === "Science" &&
@@ -487,6 +521,110 @@ export function getAdjustedScore(q: CanonicalQuestionWithScore): number {
     getBayesianMultiplier(q) *
     getSourceMultiplier(q)
   );
+}
+
+// ---------------------------------------------------------------------------
+// SPEED-HUB-2 — warm a chapter's first-use work WITHOUT a long main-thread task.
+// ---------------------------------------------------------------------------
+// The first getLikelyQuestionsForConcept(chapter) pays for one prediction score per row
+// (computePredictionScore: the five-signal scan over the historical corpus) and one ranking
+// score per row (getAdjustedScore: the recurrence multiplier). On a 4x-throttled Pixel 7 that
+// was ONE ~500-950 ms task right after a CBQ chapter tap ([FU-SPEED-PRACTICE-UNIFY-LONGTASK]).
+//
+// This does the SAME work, row by row, in slices of ~SLICE_MS that yield to the browser in
+// between, and leaves it in the same memos the synchronous path reads:
+//   - unifiedBySlugMemo gets exactly buildUnified(...slugSlices(slug)) — mergeUnified, then
+//     scoreUnifiedRow over every row in order, the same two calls buildUnified makes;
+//   - getAdjustedScore(row) for every row fills the per-id / per-input recurrence caches.
+// Nothing is reordered, filtered or re-scored differently, so the questions served after a
+// warm are identical to the questions served without one (predictionWarm.parity.test.ts
+// proves it for every chapter of both subjects against a fixture captured from trunk).
+//
+// Safe to skip, safe to race: a synchronous read before the warm finishes simply builds the
+// rows itself (same result), and the warm then keeps the memo already there. A chapter that
+// is not loaded is skipped here and left to the synchronous path to report as before.
+const SLICE_MS = 30;
+
+function yieldToMain(): Promise<void> {
+  const sched = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+  if (sched && typeof sched.yield === "function") return sched.yield();
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+const warmedSlugs = new Set<string>();
+const warmInflight = new Map<string, Promise<void>>();
+
+async function warmSlug(slug: string): Promise<void> {
+  let sliceStart = performance.now();
+  const maybeYield = async () => {
+    if (performance.now() - sliceStart >= SLICE_MS) {
+      await yieldToMain();
+      sliceStart = performance.now();
+    }
+  };
+
+  let rows = unifiedBySlugMemo.get(slug);
+  if (!rows) {
+    const merged = mergeUnified(...slugSlices(slug));
+    const scored: CanonicalQuestionWithScore[] = [];
+    for (const q of merged) {
+      scored.push(scoreUnifiedRow(q));
+      await maybeYield();
+    }
+    rows = unifiedBySlugMemo.get(slug);
+    if (!rows) {
+      unifiedBySlugMemo.set(slug, scored);
+      rows = scored;
+    }
+  }
+  for (const q of rows) {
+    getAdjustedScore(q);
+    await maybeYield();
+  }
+  warmedSlugs.add(slug);
+  for (const listener of [...warmListeners]) listener();
+}
+
+const warmListeners = new Set<() => void>();
+
+/**
+ * Subscribe to "a chapter finished warming" (useSyncExternalStore). Listeners run the moment
+ * the memos are filled, before the warmLikelyQuestions promise settles, so a page that renders
+ * from areLikelyQuestionsWarm sees the chapter ready no later than its own build does.
+ */
+export function subscribeLikelyQuestionsWarm(listener: () => void): () => void {
+  warmListeners.add(listener);
+  return () => {
+    warmListeners.delete(listener);
+  };
+}
+
+/**
+ * Do the first-use work of getLikelyQuestionsForConcept for these topic keys (any spelling)
+ * in slices that yield to the browser. Await it after ensureBankChapters and before the first
+ * synchronous read; the reads then serve the same questions without a long task. Never
+ * throws for an unloaded or unknown key — those are left to the synchronous path.
+ */
+export async function warmLikelyQuestions(topicKeys: readonly string[]): Promise<void> {
+  for (const key of topicKeys) {
+    const slug = resolveCanonicalSlug(key);
+    if (!slug || warmedSlugs.has(slug)) continue;
+    if (isBankChapterSlug(slug) && !isBankChapterLoaded(slug)) continue;
+    let p = warmInflight.get(slug);
+    if (!p) {
+      p = warmSlug(slug).finally(() => warmInflight.delete(slug));
+      warmInflight.set(slug, p);
+    }
+    await p;
+  }
+}
+
+/** True once warmLikelyQuestions has finished for every one of these topic keys. */
+export function areLikelyQuestionsWarm(topicKeys: readonly string[]): boolean {
+  return topicKeys.every((key) => {
+    const slug = resolveCanonicalSlug(key);
+    return !slug || warmedSlugs.has(slug);
+  });
 }
 
 export const PredictionCore = {
