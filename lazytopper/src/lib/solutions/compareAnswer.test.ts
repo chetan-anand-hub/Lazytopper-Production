@@ -113,7 +113,10 @@ describe("compareAnswer — Science units (opt-in)", () => {
     ["2 h", "120 min"], ["7200 s", "2 h"], ["10 cm", "f = 10 cm"], ["0.1 m", "10 cm"],
     ["3.33 Ω", "10/3 Ω"],
   ];
-  const WRONG: Array<[string, string]> = [["16 Ω", "15 Ω"], ["0.4 A", "0.5 A"], ["25 W", "100 W"], ["1 h", "120 min"]];
+  const WRONG: Array<[string, string]> = [
+    ["16 Ω", "15 Ω"], ["0.4 A", "0.5 A"], ["25 W", "100 W"], ["1 h", "120 min"],
+    ["0.0700 A", "0.067 A"], ["70.0 mA", "0.067 A"], ["0.0355 Ω", "0.034 Ω"], ["700 W", "2/3 kW"], ["8.4 A", "8 A"],
+  ];
   const NONE: Array<[string, string]> = [
     ["300 A", "300 C"], // another dimension: never "wrong"
     ["500 MA", "0.5 A"], // MA is not mA (case kept)
@@ -123,7 +126,19 @@ describe("compareAnswer — Science units (opt-in)", () => {
     ["4.8×10^6 J", "4.8 × 10⁶ J"], // scientific notation: not parsed
     ["2:1", "2:1"], // ratios are not Science quantities
     ["Ωm 15", "15 Ω"],
+    // B1: superscripts are never flattened ("10⁶" is not 106).
+    ["10⁶ J", "1 MJ"], ["10³ W", "1 kW"], ["10⁶ J", "106 J"], ["10³ W", "103 W"], ["5 J", "5 × 10⁶ J"],
+    // Should-fix: a bare number against a PREFIXED key unit is not read in that unit.
+    ["50", "50 mA"], ["15", "15 kΩ"], ["9.6", "9.6 kWh"],
+    // A coarse (under 3 significant figures) near-miss of a rounded key: unsure, not wrong.
+    ["0.07 A", "0.067 A"],
   ];
+  // Review of #1604, B2 / B3: NCERT keys are ROUNDED; a more precise answer, or one in another
+  // prefix, is never "wrong" for that.
+  RIGHT.push(
+    ["0.0667 A", "0.067 A"], ["66.7 mA", "0.067 A"], ["1/15 A", "0.067 A"], ["0.0344 Ω", "R = 0.034 Ω"],
+    ["667 W", "2/3 kW"], ["0.667 kW", "2/3 kW"], ["666.7 W", "2/3 kW"], ["0.07 A", "0.07 A"],
+  );
   for (const [g, k] of RIGHT) it(`RIGHT  ${g} vs ${k}`, () => expect(sci(g, k)).toBe("right"));
   for (const [g, k] of WRONG) it(`WRONG  ${g} vs ${k}`, () => expect(sci(g, k)).toBe("wrong"));
   for (const [g, k] of NONE) it(`NONE   ${g} vs ${k}`, () => expect(sci(g, k)).toBe("none"));

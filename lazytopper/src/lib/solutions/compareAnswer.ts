@@ -124,6 +124,9 @@ function sigFigsOf(digits: string): number {
 
 /** Science mode: split "0.5 A" / "R = 15 Ω." into the number text and its unit (case kept). */
 function splitScienceUnit(raw: string): { num: string; sci: SciUnit | null } | null {
+  // B1 (review of #1604): NFKC flattens "10⁶" into "106". A superscript (power of ten, ⁻¹ unit) is
+  // never read: "none".
+  if (/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]/.test(String(raw ?? ""))) return null;
   let s = String(raw ?? "").normalize("NFKC").replace(/⁄/g, "/").replace(/[−–]/g, "-");
   const eq = s.lastIndexOf("=");
   if (eq >= 0) s = s.slice(eq + 1);
@@ -213,7 +216,19 @@ export function compareAnswer(typed: string, key: string, units: UnitMode = "len
   return { verdict: "wrong", shown };
 }
 
-/** Science mode: same rules, units converted within one dimension; another dimension is "none". */
+/** Half a unit in the last written place: the rounding a plain decimal "0.067" (or "667") carries. */
+const halfUlp = (decimals: number) => 0.5 * 10 ** -decimals;
+
+/**
+ * Science mode: values compared in the KEY's unit after conversion, as INTERVALS (review of #1604):
+ * a plain-decimal key ("0.067 A") stands for anything that rounds to it (±half its last place), and a
+ * plain-decimal answer ("66.7 mA", "667 W") for anything that rounds to IT, so "1/15 A", "0.0667 A",
+ * "66.7 mA" all match "0.067 A" and "667 W" matches "2/3 kW" (significant figures survive a unit
+ * conversion; counted decimals do not). "wrong" only when the two intervals cannot overlap and the
+ * answer carries 3+ significant figures; a coarser near-miss is "none". An integer or fraction key is
+ * exact. Another dimension, a superscript, or a bare number against a PREFIXED key unit (mA, kΩ,
+ * kWh: "50" is not 50 mA) is "none".
+ */
 function compareScience(typed: string, key: string, shown: string): CompareResult {
   if (parseRatio(key)) return { verdict: "none", shown };
   const k = parseQuantity(key, "science");
@@ -221,17 +236,19 @@ function compareScience(typed: string, key: string, shown: string): CompareResul
   if (!k || !g) return { verdict: "none", shown };
   if (g.sci && !k.sci) return { verdict: "none", shown };
   if (g.sci && k.sci && g.sci.dim !== k.sci.dim) return { verdict: "none", shown };
-  const kv = k.value * (k.sci?.factor ?? 1);
-  const gv = g.value * (g.sci?.factor ?? k.sci?.factor ?? 1);
-  if (close(gv, kv)) return { verdict: "right", shown };
-  // A rounded decimal at the student's own precision (3+ sig figs), in the unit they wrote.
-  if (g.decimals !== null && g.sigFigs !== null && g.decimals >= 1 && g.sigFigs >= 3) {
-    const inTheirUnit = kv / (g.sci?.factor ?? k.sci?.factor ?? 1);
-    if (!Number.isInteger(inTheirUnit)) {
-      const factor = 10 ** g.decimals;
-      if (close(Math.round(inTheirUnit * factor) / factor, g.value)) return { verdict: "right", shown };
-    }
-  }
+  if (!g.sci && k.sci && k.sci.factor !== 1) return { verdict: "none", shown };
+  const kf = k.sci?.factor ?? 1;
+  const gf = g.sci?.factor ?? kf;
+  const gInKeyUnit = (g.value * gf) / kf;
+  const diff = Math.abs(gInKeyUnit - k.value);
+  if (close(gInKeyUnit, k.value)) return { verdict: "right", shown };
+  const keyTol = k.decimals !== null && k.decimals >= 1 ? halfUlp(k.decimals) : 0;
+  const answerTol = g.decimals !== null ? (halfUlp(g.decimals) * gf) / kf : 0;
+  const eps = 1e-9 * Math.max(1, Math.abs(k.value));
+  if (diff <= keyTol + eps) return { verdict: "right", shown };
+  // The two rounding intervals truly overlap (not just touch): the answer is a rounding of a value
+  // the key allows. Right at 3+ significant figures, else unsure.
+  if (diff < keyTol + answerTol - eps) return { verdict: g.sigFigs !== null && g.sigFigs >= 3 ? "right" : "none", shown };
   return { verdict: "wrong", shown };
 }
 
