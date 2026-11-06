@@ -95,3 +95,47 @@ describe("compareOption — MCQ / AR", () => {
     expect(compareOption(1, "similar", ["similar", "Similar ", "x", "y"])).toBe("none");
   });
 });
+
+/**
+ * SOLUTIONS-SCI-UNITS (6 Nov 2026) — the OPT-IN Science mode. Maths parity is by construction (the
+ * default mode is untouched; every assertion above runs on it), and pinned below: the default mode
+ * never reads a Science unit.
+ */
+describe("compareAnswer — Science units (opt-in)", () => {
+  const sci = (typed: string, key: string) => compareAnswer(typed, key, "science").verdict;
+  const RIGHT: Array<[string, string]> = [
+    ["300 C", "Q = 300 C."], ["300", "Q = 300 C"], ["300 coulombs", "300 C"],
+    ["0.5 A", "I = 0.5 A"], ["500 mA", "0.5 A"], ["500 µA", "0.0005 A"],
+    ["15 Ω", "R = 15 Ω"], ["15 ohm", "15 Ω"], ["0.015 kΩ", "15 Ω"],
+    ["6 V", "V = 6 V"], ["6000 mV", "6 V"], ["2 kV", "2000 V"],
+    ["24 J", "W = 24 J"], ["9.6 kWh", "9.6 kWh"], ["34560000 J", "9.6 kWh"],
+    ["400 W", "P = 400 W"], ["0.4 kW", "400 W"],
+    ["2 h", "120 min"], ["7200 s", "2 h"], ["10 cm", "f = 10 cm"], ["0.1 m", "10 cm"],
+    ["3.33 Ω", "10/3 Ω"],
+  ];
+  const WRONG: Array<[string, string]> = [["16 Ω", "15 Ω"], ["0.4 A", "0.5 A"], ["25 W", "100 W"], ["1 h", "120 min"]];
+  const NONE: Array<[string, string]> = [
+    ["300 A", "300 C"], // another dimension: never "wrong"
+    ["500 MA", "0.5 A"], // MA is not mA (case kept)
+    ["400 mW", "400 W"], // a unit not in the table
+    ["300 c", "300 C"], // lowercase c is not the coulomb
+    ["15 Ω", "15"], // a unit against a unit-less key
+    ["4.8×10^6 J", "4.8 × 10⁶ J"], // scientific notation: not parsed
+    ["2:1", "2:1"], // ratios are not Science quantities
+    ["Ωm 15", "15 Ω"],
+  ];
+  for (const [g, k] of RIGHT) it(`RIGHT  ${g} vs ${k}`, () => expect(sci(g, k)).toBe("right"));
+  for (const [g, k] of WRONG) it(`WRONG  ${g} vs ${k}`, () => expect(sci(g, k)).toBe("wrong"));
+  for (const [g, k] of NONE) it(`NONE   ${g} vs ${k}`, () => expect(sci(g, k)).toBe("none"));
+
+  it("Maths parity: the DEFAULT mode never reads a Science unit, and length keys behave as before", () => {
+    for (const [g, k] of [["300 C", "300 C"], ["0.5 A", "0.5 A"], ["15 Ω", "15 Ω"], ["400 W", "400 W"], ["2 h", "2 h"]]) {
+      expect(compareAnswer(g, k).verdict, `${g} vs ${k}`).toBe("none");
+      expect(parseQuantity(k), k).toBeNull();
+    }
+    expect(compareAnswer("0.1 m", "10 cm").verdict).toBe("right");
+    expect(compareAnswer("42 cm", "42 m").verdict).toBe("wrong");
+    expect(parseQuantity("15 Ω", "science")?.sci?.dim).toBe("resistance");
+    expect(parseQuantity("15 Ω", "science")?.value).toBe(15);
+  });
+});
