@@ -84,17 +84,19 @@ function mobileHomeCss(): string {
 }
 
 describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
-  it("renders the four SHARED hero cards in SPEC §2 journey order", () => {
+  it("renders the five SHARED hero cards in SPEC §2 journey order (+ NCERT-HUB-1's NCERT Hub card)", () => {
     setMatchMediaMatches(false); // mobile
     renderMobileHome();
 
     const dests = screen.getAllByTestId("mobile-home-destination");
-    expect(dests).toHaveLength(4);
+    expect(dests).toHaveLength(5);
 
     expect(dests[0]).toHaveTextContent("See what's likely");
     expect(dests[1]).toHaveTextContent("Ask your tutor");
     expect(dests[2]).toHaveTextContent("Practise it");
     expect(dests[3]).toHaveTextContent("Check my answer");
+    expect(dests[4]).toHaveTextContent("NCERT & Exemplar");
+    expect(dests[4].getAttribute("href")).toBe("/ncert-class-10?source=home&returnTo=%2F");
 
     // Each card carries its accent icon.
     for (const d of dests) {
@@ -115,8 +117,8 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
       .map((d) => d.getAttribute("href"))
       .filter((h): h is string => h !== null);
 
-    expect(hrefs).toHaveLength(3); // the tutor card is a button, not a link
-    expect(new Set(hrefs).size).toBe(3);
+    expect(hrefs).toHaveLength(4); // the tutor card is a button, not a link
+    expect(new Set(hrefs).size).toBe(4);
   });
 
   it("routes each navigating destination to a canonical Home route", () => {
@@ -394,7 +396,7 @@ describe("Home cards — accent spine + accent edge (colour only)", () => {
     renderMobileHome();
 
     const cards = screen.getAllByTestId("mobile-home-destination");
-    expect(cards).toHaveLength(4);
+    expect(cards).toHaveLength(5);
 
     // Tones ride as inline custom properties; the CSS consumes them.
     const tones = cards.map((c) => ({
@@ -407,8 +409,10 @@ describe("Home cards — accent spine + accent edge (colour only)", () => {
       expect(t.line).not.toBe("");
       expect(t.accent).not.toBe("");
     }
-    // Four DISTINCT accents, in the shipped order: amber, green, navy, red.
+    // Four DISTINCT accents, in the shipped order: amber, green, navy, red — and NCERT-HUB-1's fifth
+    // card (the NCERT Hub) wears the house green again, never a new colour.
     expect(new Set(tones.map((t) => t.spine)).size).toBe(4);
+    expect(tones[4].spine).toBe("hsl(152, 55%, 45%)");  // NCERT Hub — green
     expect(tones[0].spine).toBe("hsl(38, 80%, 52%)");   // Exam Trends — amber
     expect(tones[1].spine).toBe("hsl(152, 55%, 45%)");  // Tutor — green
     expect(tones[2].spine).toBe("hsl(222, 47%, 24%)");  // Practice — navy
@@ -440,8 +444,8 @@ describe("Home cards — accent spine + accent edge (colour only)", () => {
     expect(css).toMatch(/padding:\s*2px 14px 12px/);
     expect(css).toMatch(/gap:\s*12px/);
 
-    // Dots still track four cards.
-    expect(document.querySelectorAll(".lt-mhome-dots span")).toHaveLength(4);
+    // Dots track every card (five since NCERT-HUB-1).
+    expect(document.querySelectorAll(".lt-mhome-dots span")).toHaveLength(5);
   });
 });
 

@@ -43,7 +43,7 @@ import { CompanionHome } from "../../components/guide/companion/companion";
  *
  * Section order (AUTH-2-FU §4 — owner ruling):
  *   [papers-waiting strip, HOME-PENDING-1] → CBSE news strip → phone-linking nudge →
- *   "Start here" (4 hero cards) → the MERGED card (first-session OR MI, one slot) →
+ *   "Start here" (5 hero cards) → the MERGED card (first-session OR MI, one slot) →
  *   resume strip → latest saved worksheet. ("Jump straight in" is gone: HOME-PENDING-1.)
  * The heroes come before the merged card so a new student sees WHAT THE PRODUCT
  * DOES before being told what to do; the nudge stays on top because it is an
@@ -218,8 +218,10 @@ const HOME_CSS = `
     font-size: 10.5px; font-weight: 800; letter-spacing: 0.09em;
     text-transform: uppercase; color: hsl(220, 15%, 60%); margin: 0;
   }
+  /* NCERT-HUB-1: five cards. One row of five where the column fits them (1280 px with the rail),
+     else they wrap to an even grid; the cards' own geometry is unchanged. */
   .lt-home-heroes {
-    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 14px;
   }
   /* Grid children default to min-width:auto, which is what let a card push past
      the viewport. Pin it to 0 so the grid can actually shrink. */
@@ -399,7 +401,7 @@ export default function DesktopHome() {
         {/* COMPANION-1 — Byte & Ziggy's companion moments (guide arm; renders nothing otherwise). */}
         <CompanionHome uid={realUid} startHereUp={!!startHere.eligible} returnTo="/" />
 
-        {/* ── Start here — 4 hero cards ──────────────────────────
+        {/* ── Start here — 5 hero cards ──────────────────────────
             AUTH-2-FU §4: the heroes now come BEFORE the merged card, so a new
             student sees WHAT THE PRODUCT DOES before being told what to do. */}
         <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
