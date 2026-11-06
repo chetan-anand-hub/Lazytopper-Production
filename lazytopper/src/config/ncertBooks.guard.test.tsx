@@ -196,6 +196,18 @@ describe("NCERT-HUB-1 (c) — the hub: empty state, all 27 chapters in the HTML,
     expect(html).toContain("<h1>NCERT Hub — Class 10 Books, NCERT &amp; Exemplar Solutions</h1>");
   });
 
+  it("owner ruling 6 Nov: no 'About these books' section; the disclaimer and the edition/syllabus note stay; CBSE page via the footer", () => {
+    expect(html).not.toContain("About these books");
+    expect(html).not.toMatch(/id="nb-about"|class="lt-nb__about"/);
+    expect(html).toContain(
+      "LazyTopper is an independent platform and is not affiliated with CBSE or NCERT. Textbook copyright belongs to NCERT.",
+    );
+    const note = /<p[^>]*data-testid="nb-pickfoot"[^>]*>([\s\S]*?)<\/p>/.exec(html)?.[1] ?? "";
+    expect(note.replace(/<!-- -->/g, "")).toBe("14 chapters · NCERT 2026-27 · deleted chapters left out");
+    // The removed paragraph's one internal link (the CBSE Class 10 page) is still reachable: the footer's "CBSE 2027".
+    expect(html).toMatch(/<a[^>]*href="\/cbse\/class-10\?returnTo=[^"]*"[^>]*>CBSE 2027<\/a>/);
+  });
+
   it("the bare path shows the empty state, no chapter card, and the breadcrumb Home › NCERT Hub", () => {
     expect(html).toContain('data-testid="nb-empty"');
     expect(html).toContain("Pick a chapter to see its book, NCERT &amp; Exemplar solutions, important questions and notes");
