@@ -84,7 +84,7 @@ const PAGE_NAMES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^\/highly-probable(\/|$)/, "Important Questions"],
   [/^\/ncert-solutions(\/|$)/, "NCERT Solutions"],
   [/^\/ncert-exemplar(\/|$)/, "NCERT Exemplar"],
-  [/^\/ncert-class-10$/, "the NCERT books"],
+  [/^\/ncert-class-10$/, "the NCERT Hub"],
   [/^\/cbse\/class-10$/, "the CBSE Class 10 boards"],
   [/^\/me$/, "my progress page"],
   [/^\/for-parents$/, "LazyTopper for my child"],

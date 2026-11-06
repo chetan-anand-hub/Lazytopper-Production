@@ -92,7 +92,7 @@ export function NcertChapterPicker({ open, onClose }: NcertChapterPickerProps) {
         className="lt-ncp__pop"
         role="dialog"
         aria-modal="true"
-        aria-label="NCERT Books"
+        aria-label="NCERT Hub"
         onKeyDown={(e) => {
           if (e.key === "Escape") onClose();
         }}
@@ -100,7 +100,7 @@ export function NcertChapterPicker({ open, onClose }: NcertChapterPickerProps) {
         <button type="button" className="lt-ncp__x" aria-label="Close" onClick={onClose}>
           ✕
         </button>
-        <h2>NCERT Books</h2>
+        <h2>NCERT Hub</h2>
         <p className="lt-ncp__sub">Pick a subject and a chapter. It opens right here, on LazyTopper.</p>
 
         <div className="lt-ncp__fld">
