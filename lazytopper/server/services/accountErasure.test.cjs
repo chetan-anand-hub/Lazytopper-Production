@@ -1005,7 +1005,7 @@ test('GUEST-ABANDON-1 review D3 + D2: erasure clears guestEmail on the account\'
   const store = makeFirestore(seed);
   const admin = makeAdmin(makeBucket([]), [UID, OTHER]);
   const baseAuth = admin.auth;
-  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => ({ uid, email: uid === UID ? EMAIL : null }) });
+  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => ({ uid, email: uid === UID ? EMAIL : null, emailVerified: true }) });
   const service = createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'test-bucket' });
   const result = await service.eraseAccount(UID);
   assert.equal(result.ok, true);
@@ -1034,4 +1034,51 @@ test('GUEST-ABANDON-1: an {emailKey} location without an email-key rule, or the 
   assert.equal(classifyLocation({ ...base, id: 'a', path: 'a/{emailKey}' }).strategy, STRATEGY.UNSUPPORTED);
   assert.equal(classifyLocation({ ...base, id: 'b', path: 'b/{uid}', onErase: 'delete-by-email-key' }).strategy, STRATEGY.UNSUPPORTED);
   assert.equal(classifyLocation({ ...base, id: 'c', path: 'c/{emailKey}', onErase: 'retain-email-key' }).strategy, STRATEGY.FIRESTORE_EMAIL_KEY);
+});
+
+// ── GUEST-ABANDON-1 review D7 / D8 / D9 ─────────────────────────────────────────────────────────
+
+function erasureWith(seed, authRecord) {
+  const store = makeFirestore(seed);
+  const admin = makeAdmin(makeBucket([]), [UID, OTHER]);
+  const baseAuth = admin.auth;
+  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => (uid === UID ? { uid, ...authRecord } : { uid }) });
+  return { store, service: createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'test-bucket' }) };
+}
+
+test('review D7: an account whose email is NOT verified never reaches orders or records keyed by that address', async () => {
+  const { emailKey } = require('./emailSuppression.cjs');
+  const victim = 'victim.k@gmail.com';
+  const order = { uid: null, payer: 'guest', checkoutWho: true, guestEmail: victim, guestPhone: '+919876543948', passType: 'till_boards', amountPaise: 191700, status: 'paid_unclaimed', paymentId: 'pay_V' };
+  const ledger = { abandoned_board_pass: { status: 'sent' } };
+  for (const authRecord of [{ email: victim, emailVerified: false }, { email: victim }]) {
+    const { store, service } = erasureWith({ ...realSeed(), 'payOrders/order_V': { ...order }, [`guestNudgeEmails/${emailKey(victim)}`]: { ...ledger } }, authRecord);
+    const result = await service.eraseAccount(UID);
+    assert.equal(result.ok, true);
+    assert.deepEqual(store.docs.get('payOrders/order_V'), order, 'the victim\'s paid order is untouched and still claimable');
+    assert.deepEqual(store.docs.get(`guestNudgeEmails/${emailKey(victim)}`), ledger);
+  }
+});
+
+test('review D8: an order found by the email but owned by ANOTHER account loses only the erased address', async () => {
+  const email = 'child.k@gmail.com';
+  const other = { uid: OTHER, payer: 'guest', checkoutWho: true, guestEmail: email, guestPhone: '+917012345678', passType: 'pack_cbq', amountPaise: 19900, status: 'paid', paymentId: 'pay_O' };
+  const { store, service } = erasureWith({ ...realSeed(), 'payOrders/order_O': { ...other } }, { email, emailVerified: true });
+  await service.eraseAccount(UID);
+  assert.deepEqual(store.docs.get('payOrders/order_O'), { ...other, guestEmail: null });
+});
+
+test('review D9: a guest order left `claimed` (grant never finished) on the erased account becomes erased_unclaimed', async () => {
+  const claimed = { uid: UID, payer: 'guest', guestPhone: '+919876543948', passType: 'pack_mock', amountPaise: 9900, status: 'claimed', paymentId: 'pay_C', claimError: { code: 'grant_failed' } };
+  const { store, service } = erasureWith({ ...realSeed(), 'payOrders/order_C': { ...claimed } }, {});
+  await service.eraseAccount(UID);
+  const after = store.docs.get('payOrders/order_C');
+  assert.equal(after.uid, 'erased');
+  assert.equal(after.status, 'erased_unclaimed');
+  assert.equal(after.guestPhone, null);
+  assert.equal(after.paymentId, 'pay_C', 'the accounting record is kept');
+  // A non-guest order, or a guest order already granted, keeps its status.
+  const { store: s2, service: e2 } = erasureWith({ ...realSeed(), 'payOrders/order_P': { uid: UID, payer: 'guest', status: 'paid', paymentId: 'p' } }, {});
+  await e2.eraseAccount(UID);
+  assert.equal(s2.docs.get('payOrders/order_P').status, 'paid');
 });

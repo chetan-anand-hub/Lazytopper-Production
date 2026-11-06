@@ -422,6 +422,9 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, 
     const data = typeof doc.data === 'function' ? doc.data() || {} : {};
     const extra = {};
     for (const k of ANONYMISE_ALSO_CLEAR) if (Object.prototype.hasOwnProperty.call(data, k) && data[k] !== null) extra[k] = null;
+    // GUEST-ABANDON-1 review D9: a guest order whose claim never finished its grant (`claimed`) can now never be
+    // granted; label it like any other paid-but-never-granted guest order instead of leaving it `claimed` forever.
+    if (data.payer === 'guest' && data.status === 'claimed') extra.status = 'erased_unclaimed';
     await doc.ref.update({ [field]: ERASED_UID, ...extra });
     seen.add(doc.id);
   }
@@ -452,6 +455,13 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, 
       if (seen.has(doc.id)) continue;
       seen.add(doc.id);
       const data = typeof doc.data === 'function' ? doc.data() || {} : {};
+      // Review D8: an order that already belongs to ANOTHER account keeps its phone and status; only this erased
+      // address is removed from it.
+      if (data.uid !== null && data.uid !== undefined) {
+        await doc.ref.update({ guestEmail: null });
+        emailCleared += 1;
+        continue;
+      }
       const clear = { guestEmail: null, ...(data.guestPhone ? { guestPhone: null } : {}) };
       await doc.ref.update(data.status === 'paid_unclaimed' ? { ...clear, status: 'erased_unclaimed' } : clear);
       emailCleared += 1;
@@ -589,7 +599,9 @@ function createAccountErasureService(deps = {}) {
         ? await firebaseAdmin.auth().getUser(trimmed)
         : null;
       accountPhone = record && typeof record.phoneNumber === 'string' ? record.phoneNumber : '';
-      accountEmail = record && typeof record.email === 'string' ? record.email : '';
+      // GUEST-ABANDON-1 review D7: ONLY a VERIFIED address. Erasure is self-serve, so an account created with somebody
+      // else's (unverified) address must never be able to wipe that person's guest orders or email records.
+      accountEmail = record && record.emailVerified === true && typeof record.email === 'string' ? record.email : '';
     } catch {
       accountPhone = '';
       accountEmail = '';

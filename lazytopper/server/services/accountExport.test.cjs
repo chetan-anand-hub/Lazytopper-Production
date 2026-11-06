@@ -258,7 +258,7 @@ function makeService(opts = {}) {
   const admin = makeAdmin(
     bucket,
     opts.users === undefined
-      ? { [UID]: { uid: UID, email: 'child@example.test', displayName: 'A Student' } }
+      ? { [UID]: { uid: UID, email: 'child@example.test', displayName: 'A Student', emailVerified: true } }
       : opts.users
   );
   const service = createAccountExportService({

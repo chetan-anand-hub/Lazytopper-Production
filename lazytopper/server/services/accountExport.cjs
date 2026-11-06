@@ -419,7 +419,8 @@ async function readFirestoreByEmailKey(db, firebaseAdmin, pathTemplate, uid) {
   let email = '';
   try {
     const user = await firebaseAdmin.auth().getUser(uid);
-    email = user && typeof user.email === 'string' ? user.email : '';
+    // Review D7: only a VERIFIED address reaches an address-keyed record (never someone else's by an unverified sign-up).
+    email = user && user.emailVerified === true && typeof user.email === 'string' ? user.email : '';
   } catch (e) {
     if (e && e.code === 'auth/user-not-found') return [];
     throw e;
