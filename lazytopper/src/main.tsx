@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App, { extractPrerenderedRoute } from "./App";
+import App, { extractPrerenderedRoute, preloadFirstRoute } from "./App";
 import "./styles.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ProfileProvider } from "./context/ProfileContext";
@@ -36,7 +36,16 @@ const prerenderedRoute = extractPrerenderedRoute(
   window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/",
 );
 
-ReactDOM.createRoot(rootElement).render(
+// SPEED-SITE-2a — fetch the code-split components the FIRST route renders straight away (Login on /login, the
+// desktop shell on a desktop shell route…) BEFORE the first render, so that render is the same one the old static
+// imports produced: no "Loading…", no flash. Whatever the server put in #root stays on screen while this waits
+// (it is only cleared by the first commit). Most first loads — every mobile public page — wait for nothing.
+// Page views (RouteAnalytics) and the visit-source capture run in that first render's effects, in the same order
+// as before, from the same untouched landing URL.
+const firstPath = window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/";
+const firstIsDesktop = typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1024px)").matches;
+
+void preloadFirstRoute(firstPath, firstIsDesktop).then(() => ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       {/* Page views for a client-side router: one document load, then every "page" is a
@@ -57,4 +66,4 @@ ReactDOM.createRoot(rootElement).render(
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
-);
+));

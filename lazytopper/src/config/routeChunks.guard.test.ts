@@ -47,12 +47,16 @@ describe("ROUTE_CHUNK_MODULES — the preloaded chunk is the route's own lazy pa
   for (const entry of ROUTE_CHUNK_MODULES) {
     for (const name of entry.modules) {
       it(`${entry.prefix}${entry.exact ? "" : "*"} -> ${name}: a lazy import of a file named ${name}`, () => {
+        // SPEED-SITE-2a: `preloadableLazy(() => import(...)` is the same lazy import (it wraps React.lazy and
+        // can also be preloaded); Vite names its chunk after the imported file exactly the same way.
         const lazyDecl = new RegExp(
-          `const ${name}\\s*=\\s*lazy\\(\\(\\)\\s*=>\\s*import\\("[^"]*/${name}"\\)\\)`,
+          `const ${name}\\s*=\\s*(?:lazy|preloadableLazy)\\(\\(\\)\\s*=>\\s*import\\("[^"]*/${name}"\\)`,
         );
         expect(APP, `App.tsx has no lazy(() => import(".../${name}"))`).toMatch(lazyDecl);
       });
 
+      // "/" renders RootEntry, not the page directly; its own test is below.
+      if (entry.prefix === "/" && entry.exact) continue;
       it(`${entry.prefix}${entry.exact ? "" : "*"} -> ${name}: its <Route> renders withRouteSuspense(<${name} />)`, () => {
         const pattern = routePatternFor(entry.prefix, entry.exact);
         const matching = blocks.filter((block) => pattern.test(block.path));
@@ -64,11 +68,15 @@ describe("ROUTE_CHUNK_MODULES — the preloaded chunk is the route's own lazy pa
     }
   }
 
-  it("the root's empty entry is true: / renders RootEntry, whose landing (Welcome) is a STATIC import", () => {
-    expect(routeChunkModulesFor("/")).toEqual([]);
+  // SPEED-SITE-2a — WAS "the root's empty entry is true: … Welcome is a STATIC import". Welcome left the entry
+  // chunk, so the root now preloads it like every other page preloads its route chunk. The property guarded is the
+  // same one: the root's preload names the component its route actually renders, under withRouteSuspense.
+  it("the root preloads Welcome: / renders RootEntry, whose landing is withRouteSuspense(<Welcome />)", () => {
+    expect(routeChunkModulesFor("/")).toEqual(["Welcome"]);
     expect(APP).toMatch(/<Route path="\/" element={<RootEntry \/>} \/>/);
-    expect(APP).toMatch(/^import Welcome from "\.\/pages\/Welcome";$/m);
-    expect(APP).not.toMatch(/const Welcome\s*=\s*lazy/);
+    const rootEntry = APP.slice(APP.indexOf("function RootEntry("), APP.indexOf("function RootEntry(") + 2500);
+    expect(rootEntry).toContain("withRouteSuspense(<Welcome />)");
+    expect(APP).not.toMatch(/^import Welcome from "\.\/pages\/Welcome";$/m);
   });
 
   it("CONTROL — the matcher fires on a route that renders a different page", () => {
