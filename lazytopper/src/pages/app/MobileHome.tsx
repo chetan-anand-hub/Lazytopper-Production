@@ -643,7 +643,7 @@ export default function MobileHome() {
         {/* COMPANION-1 — Byte & Ziggy's companion moments (guide arm; renders nothing otherwise). */}
         <CompanionHome uid={user && !user.isLocalSession ? user.uid : null} startHereUp={!!startHere.eligible} returnTo="/browse" />
 
-        {/* ── Hero carousel — the SHARED four cards ─────────────── */}
+        {/* ── Hero carousel — the SHARED five cards (NCERT-HUB-1) ─────────────── */}
         <div style={sectionLabelStyle()}>Start here</div>
         <div
           className="lt-mhome-heroes"

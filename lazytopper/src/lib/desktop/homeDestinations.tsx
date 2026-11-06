@@ -80,6 +80,18 @@ function ClipboardCheckIcon({ size = 20 }: IconProps) {
   );
 }
 
+// NCERT-HUB-1 — the NCERT Hub card (the desktop rail's BookOpen glyph).
+function BookOpenIcon({ size = 20 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+      strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 7v14" />
+      <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+    </svg>
+  );
+}
+
 export type IconCmp = (props: IconProps) => ReactElement;
 
 /** Card accent — SPEC §6 semantics: green = tutor/action, navy = practice,
@@ -202,7 +214,7 @@ export function tutorGateNote(isSignedIn: boolean): string {
     : "Sign up free — 7 days of the tutor and step marking. We'll bring you straight back to this chapter.";
 }
 
-// ── PRIMARY ACTION CARDS (4) — SPEC §2, journey order ───────────
+// ── PRIMARY ACTION CARDS (5: SPEC §2, journey order, + NCERT-HUB-1) ── ───────────
 //
 // The Worksheets hero is RETIRED: it carried the identical destination string
 // to the Practice card (`/practice-hub?source=home&returnTo=%2F`), so Home
@@ -243,6 +255,18 @@ export const PRIMARY_CARDS: QuickCard[] = [
     sub: "Upload what you wrote and see where the marks went.",
     go: "Answer Checker →",
     accent: "red",
+  },
+  // NCERT-HUB-1 (owner approval 6 Nov 2026) — the fifth card: the NCERT Hub (book + NCERT / Exemplar
+  // solutions, chapter by chapter). "work through its questions", never "solve every exercise": true
+  // whatever the solutions coverage of a chapter is (review of #1607).
+  {
+    kind: "link",
+    to: `/ncert-class-10${HOME_QS_LEAD}`,
+    icon: BookOpenIcon,
+    label: "NCERT & Exemplar",
+    sub: "Read the chapter, then work through its questions step by step.",
+    go: "NCERT Hub →",
+    accent: "green",
   },
 ];
 

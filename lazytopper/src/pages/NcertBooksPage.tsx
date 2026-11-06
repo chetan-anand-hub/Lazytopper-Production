@@ -1,18 +1,26 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 
+import { sendAnalyticsHit } from "../analytics/analytics";
 import NcertChapterReader from "../components/ncert/NcertChapterReader";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
   NCERT_CLASS10_CHAPTERS,
+  NCERT_HUB_PATH,
   ncertBookName,
   ncertCode,
+  ncertHubChapterPath,
+  ncertHubSlug,
+  ncertHubSubjectOf,
+  ncertHubSubjectPath,
   ncertOfficialUrl,
-  ncertPracticePath,
   type NcertBook,
   type NcertBookChapter,
+  type NcertHubSubject,
 } from "../config/ncertBooks";
-import { booksOf, solutionsChapterForNcert, solutionsPath } from "../config/solutionsPublishSafe";
+import { booksOf, solutionsChapterForNcert, solutionsPath, type SolutionsChapter } from "../config/solutionsPublishSafe";
+import { chapterUnit, UNIT_MARKS } from "../config/syllabusUnits2026-27";
+import { hasUsedFreeCheck, isFreeCheckClientEnabled } from "../services/freeCheckClient";
 import "./ncertBooks.css";
 
 /** The row's "Solutions" link: its solutions page (NCERT book first, else Exemplar), or nothing. */
@@ -25,95 +33,323 @@ export function solutionsHrefForRow(row: Pick<NcertBookChapter, "book" | "slug" 
   return ch && book ? solutionsPath(book, ch.slug) : null;
 }
 
-function solutionsRowLink(row: NcertBookChapter) {
-  const href = solutionsHrefForRow(row);
-  return href ? (
-    <Link to={href} data-testid={`nb-solutions-${ncertCode(row)}`}>
-      Solutions
-    </Link>
-  ) : null;
-}
-
 /**
- * NcertBooksPage — `/ncert-class-10` (NCERT-BOOKS-1, lane G; D210 / D211 / D213; 1b owner 14 Oct).
+ * NcertBooksPage — `/ncert-class-10`, the NCERT Hub (NCERT-HUB-1, owner approval 6 Nov 2026 20:32 IST;
+ * before it NCERT-BOOKS-1, lane G, D210 / D211 / D213).
  *
- * The NCERT Class 10 Maths and Science textbooks for the 2027 boards, chapter by chapter,
- * read ON LazyTopper. Each row: "Read the chapter" (our stored copy drawn in an on-site reader,
- * loaded only on click; the official ncert.nic.in file when our copy is missing or fails),
- * and always beside it the chapter's Notes, Formulae, Practice and Check my answer.
+ * Pick a subject (chips) and a chapter (dropdown) — the Practice Hub's picker grammar — and ONE card
+ * shows that chapter's NCERT and Exemplar solutions, the on-site book reader, the important
+ * questions, the notes and the answer check.
  *
- * ★ PRODUCT CHROME (1b). The route sits in the desktop shell (blue sidebar, where "NCERT Books"
- * is a rail item) and is self-chromed on mobile, the same treatment as `/cbse/class-10`. The exit at
- * every width is the NAV-1 header row ("← Back" / "← Home"); NAV-FIX-1 removed the page's own copy.
+ * ★ STATE IN THE URL. `?subject=maths&ch=<slug>` (`ncertHubSlug`): shareable, and every pick is a
+ * history entry so back / forward walk it. With no `?subject=` the last subject this browser picked is
+ * used (localStorage, every access in try / catch); the legacy `#science` hash still works, and the
+ * rail picker's `?read=<code>` opens that chapter with its reader. The query never forms a second
+ * canonical (`canonicalPathFor` drops it): every hub URL canonicalises to `/ncert-class-10`.
  *
- * ★ SUBJECT TOGGLE (1b). Maths | Science is a `role="tablist"`, the CBSE page's grammar.
- * `?subject=science` (or the old `#science` jump link) preselects it. BOTH panels stay mounted
- * and toggle `hidden`, so the prerender and a crawler carry all 27 rows; the capture loads the
- * bare path, so the frozen body is the default (Maths) view.
+ * ★ HONEST TILES (owner): a tile renders only when its target exists for THAT chapter. The NCERT and
+ * Exemplar tiles are driven by the solutions config (`SOLUTIONS_CHAPTERS`, the same allowlist the
+ * solutions pages publish from), matched by subject AND chapter number AND slug, so a Science chapter
+ * gets them the build its page is published, and never before. The question count is the
+ * allowlist's length: every allowlisted id is served and never withheld (solutions guards). The
+ * weightage chip is the real 2026-27 unit marks (`syllabusUnits2026-27`), never an estimate. No
+ * "coming soon" tile, ever.
  *
- * ★ HONEST LINKS ONLY (D210 §2). Every link is a route that exists today: `/notes/<slug>`,
- * `/notes/<slug>#formulae` (NOTES-FORMULA-3a; every chapter's note has a formula strip — a
- * guard asserts it), the practice route the notes page uses, `/check-improve`.
+ * ★ CRAWLABLE. Nothing is fetched on render. The prerender captures the bare path (empty state), and
+ * the "All N chapters" lists of BOTH subjects stay in the HTML (the other subject's is `hidden`), each
+ * chapter with links to its indexable pages (solutions, notes).
  *
- * ★ THE CREDIT LINE IS ALWAYS VISIBLE (D213 §1): "NCERT Class 10 <Book>, Chapter N (code) ·
- * official copy ncert.nic.in" — a trust signal for parents and search engines.
- *
- * ★ ONE COMPONENT AT EVERY WIDTH, responsive by CSS alone (owner ruling (a)); nothing fetched on
- * render, so a signed-out reader and a crawler see the same page the prerender freezes.
+ * ★ PRODUCT CHROME. Desktop shell (the rail's "NCERT Hub"), self-chromed on mobile; the NAV-1 header
+ * row owns Back. ONE component at every width, responsive by CSS alone; no inline style objects.
  */
 
 const BOOKS: readonly NcertBook[] = ["Maths", "Science"];
-type BookKey = "maths" | "science";
-const keyOf = (book: NcertBook): BookKey => (book === "Maths" ? "maths" : "science");
+type BookKey = NcertHubSubject;
+const keyOf = ncertHubSubjectOf;
+const bookOf = (key: BookKey): NcertBook => (key === "maths" ? "Maths" : "Science");
 
-/** `?subject=` (or the legacy `#maths` / `#science` jump hash) → the open tab; Maths otherwise. */
+/** The last subject this browser picked on the hub (a per-viewer convenience; never required). */
+export const NCERT_HUB_SUBJECT_KEY = "lazytopper.ncertHub.subject";
+
+function readStoredSubject(): BookKey | null {
+  try {
+    const v = window.localStorage.getItem(NCERT_HUB_SUBJECT_KEY);
+    return v === "maths" || v === "science" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeSubject(key: BookKey): void {
+  try {
+    window.localStorage.setItem(NCERT_HUB_SUBJECT_KEY, key);
+  } catch {
+    /* a private window or blocked storage: the URL still carries the choice */
+  }
+}
+
+/** `?subject=` (or the legacy `#maths` / `#science` jump hash) → the subject; Maths otherwise. */
 export function ncertSubjectFrom(param: string | null, hash: string): BookKey {
   const p = String(param || "").trim().toLowerCase();
   if (p === "science" || p === "maths") return p;
   return hash.replace(/^#/, "").toLowerCase() === "science" ? "science" : "maths";
 }
 
-function ChapterRow({
+/** True when the URL names the subject itself (a param or the legacy hash). */
+function urlNamesSubject(param: string | null, hash: string): boolean {
+  const p = String(param || "").trim().toLowerCase();
+  const h = hash.replace(/^#/, "").toLowerCase();
+  return p === "science" || p === "maths" || h === "science" || h === "maths";
+}
+
+/**
+ * The hub's state from the URL: the chapter (`?ch=`, else the `?read=` code), and the subject (that
+ * chapter's book, else `?subject=` / the hash, else the stored subject, else Maths). A `?ch=` that
+ * names no chapter, or a chapter of the other subject, is ignored rather than guessed.
+ */
+export function ncertHubState(
+  params: URLSearchParams,
+  hash: string,
+  stored: BookKey | null,
+): { subject: BookKey; row: NcertBookChapter | null; readCode: string } {
+  const readCode = String(params.get("read") || "").trim().toLowerCase();
+  const chSlug = String(params.get("ch") || "").trim().toLowerCase();
+  const subjectParam = params.get("subject");
+  const named = urlNamesSubject(subjectParam, hash);
+  const byCh = chSlug ? NCERT_CLASS10_CHAPTERS.find((r) => ncertHubSlug(r) === chSlug) ?? null : null;
+  const byRead = readCode ? NCERT_CLASS10_CHAPTERS.find((r) => ncertCode(r) === readCode) ?? null : null;
+  const picked = byCh ?? byRead;
+  const subject: BookKey = named ? ncertSubjectFrom(subjectParam, hash) : picked ? keyOf(picked.book) : stored ?? "maths";
+  const row = picked && keyOf(picked.book) === subject ? picked : null;
+  return { subject, row, readCode };
+}
+
+/** The published solutions chapter for an NCERT row (subject + chapter number + slug), or null. */
+export function hubSolutionsChapter(row: NcertBookChapter): SolutionsChapter | null {
+  const ch = solutionsChapterForNcert(row.slug, row.chapter);
+  // `subject` is compared as a string: the config's union widens when Science pages are published.
+  return ch && String(ch.subject) === row.book ? ch : null;
+}
+
+export type HubTileId = "ncert" | "exemplar" | "read" | "important" | "notes" | "check";
+
+export interface HubTile {
+  readonly id: HubTileId;
+  readonly title: string;
+  readonly sub: string;
+  /** Internal route; absent for the reader tile (it opens in place). */
+  readonly to?: string;
+}
+
+/**
+ * The tiles for one chapter, in the owner's order, each only when its target exists. `freeCheckOpen`
+ * is whether this browser still has its first free answer check (the line under "Check my answer").
+ */
+export function hubTiles(row: NcertBookChapter, freeCheckOpen: boolean): HubTile[] {
+  const sol = hubSolutionsChapter(row);
+  const tiles: HubTile[] = [];
+  if (sol && sol.ncert.length > 0) {
+    tiles.push({
+      id: "ncert",
+      title: "NCERT Solutions",
+      sub: `${sol.ncert.length} question${sol.ncert.length === 1 ? "" : "s"} · try first`,
+      to: solutionsPath("ncert", sol.slug),
+    });
+  }
+  if (sol && sol.exemplar.length > 0) {
+    tiles.push({
+      id: "exemplar",
+      title: "Exemplar Solutions",
+      sub: `${sol.exemplar.length} question${sol.exemplar.length === 1 ? "" : "s"} · harder practice`,
+      to: solutionsPath("exemplar", sol.slug),
+    });
+  }
+  tiles.push({ id: "read", title: "Read the chapter", sub: "Official NCERT 2026-27" });
+  tiles.push({
+    id: "important",
+    title: "Important Qs",
+    sub: "Likely board questions",
+    // The Exam Trends deep link: the subject's Important Questions scoped to the chapter by `?topic=<slug>`.
+    to: `/highly-probable/10/${row.book}?topic=${encodeURIComponent(row.slug)}`,
+  });
+  tiles.push({ id: "notes", title: "Notes & Formulae", sub: "Revision notes, formula strip", to: `/notes/${row.slug}` });
+  tiles.push({
+    id: "check",
+    title: "Check my answer",
+    sub: freeCheckOpen ? "First check free" : "CBSE step marking",
+    to: "/check-improve",
+  });
+  return tiles;
+}
+
+const TILE_ICON: Readonly<Record<HubTileId, string>> = {
+  ncert: "✍️",
+  exemplar: "🧩",
+  read: "📖",
+  important: "⭐",
+  notes: "📝",
+  check: "📸",
+};
+
+/** The unit-weightage chip ("Geometry · 15 of 80 marks"), only where the 2026-27 syllabus gives it. */
+export function hubWeightage(row: NcertBookChapter): string | null {
+  const unit = chapterUnit(row.slug);
+  if (!unit) return null;
+  const total = Object.values(UNIT_MARKS[unit.subject]).reduce((a, b) => a + b, 0);
+  return total > 0 ? `${unit.unitName} · ${unit.unitMarks} of ${total} marks` : null;
+}
+
+/**
+ * NCERT-HUB-1 analytics — vendor-only events (GA4 / Vercel), the NAV-PRICING-1 pattern: the name plus
+ * coarse slugs (subject, chapter slug, tile id), never an id, a uid or text. Not in the first-party
+ * activity allow-list, so it adds nothing there.
+ */
+function trackHub(name: "ncert_hub_pick" | "ncert_hub_tile", data: Record<string, string>): void {
+  try {
+    sendAnalyticsHit("event", { name, data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+function freeCheckOpenNow(): boolean {
+  try {
+    return isFreeCheckClientEnabled() && !hasUsedFreeCheck();
+  } catch {
+    return false;
+  }
+}
+
+function ChapterCard({
   row,
-  readCode,
+  readOpen,
   onReaderClosed,
 }: {
   row: NcertBookChapter;
-  readCode: string;
+  readOpen: boolean;
   onReaderClosed: () => void;
 }) {
   const code = ncertCode(row);
+  const subject = keyOf(row.book);
+  const chapter = ncertHubSlug(row);
+  const weight = hubWeightage(row);
+  const tiles = hubTiles(row, freeCheckOpenNow());
+  const tap = (tile: HubTileId) => trackHub("ncert_hub_tile", { tile, subject, chapter });
+
   return (
-    <li className="lt-nb__row" data-testid={`nb-row-${code}`}>
-      <div className="lt-nb__rowhead">
-        <span className="lt-nb__num">Ch {row.chapter}</span>
-        <h3 className="lt-nb__title">{row.title}</h3>
+    <article className="lt-nb__chcard" data-testid="nb-card" data-chapter={chapter} aria-labelledby="nb-card-h">
+      <div className="lt-nb__cardtop">
+        <p className="lt-nb__cardk">
+          {row.book} · Chapter {row.chapter}
+        </p>
+        <h2 id="nb-card-h">{row.title}</h2>
+        {weight ? (
+          <span className="lt-nb__weight" data-testid="nb-weight">
+            {weight}
+          </span>
+        ) : null}
       </div>
-      <div className="lt-nb__actions">
-        <NcertChapterReader row={row} openRequested={readCode === code} onClosed={onReaderClosed} />
-        <span className="lt-nb__links">
-          <Link to={`/notes/${row.slug}`}>Notes</Link>
-          <Link to={`/notes/${row.slug}#formulae`}>Formulae</Link>
-          <Link to={ncertPracticePath(row)}>Practice</Link>
-          <Link to="/check-improve">Check my answer</Link>
-          {/* SOLUTIONS-1/2 — only where a solutions page exists, never a placeholder (NCERT page first, else Exemplar). */}
-          {solutionsRowLink(row)}
-        </span>
-      </div>
+      <ul className="lt-nb__tiles">
+        {tiles.map((t) => {
+          const inner = (
+            <>
+              <span className="lt-nb__ti" aria-hidden="true">
+                {TILE_ICON[t.id]}
+              </span>
+              <span className="lt-nb__tt">{t.title}</span>
+              <span className="lt-nb__ts">{t.sub}</span>
+            </>
+          );
+          const cls = `lt-nb__tile${t.id === "ncert" ? " lt-nb__tile--pri" : ""}`;
+          return (
+            <li key={t.id} data-testid={`nb-tile-${t.id}`}>
+              {t.id === "read" ? (
+                <NcertChapterReader
+                  row={row}
+                  openRequested={readOpen}
+                  onClosed={onReaderClosed}
+                  triggerClassName={cls}
+                  onTrigger={() => tap("read")}
+                >
+                  {inner}
+                </NcertChapterReader>
+              ) : (
+                <Link className={cls} to={t.to ?? NCERT_HUB_PATH} onClick={() => tap(t.id)}>
+                  {inner}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {/* D213 §1 — the credit line, always visible: a trust signal for parents and search engines. */}
       <p className="lt-nb__credit">
         NCERT Class 10 {ncertBookName(row.book)}, Chapter {row.chapter} ({code}) · official copy{" "}
         <a href={ncertOfficialUrl(row)} target="_blank" rel="noopener noreferrer">
           ncert.nic.in
         </a>
       </p>
+    </article>
+  );
+}
+
+/** One chapter in the "All N chapters" list: the chapter (opens its card here) + its indexable pages. */
+function AllChaptersRow({ row, onPick }: { row: NcertBookChapter; onPick: (row: NcertBookChapter) => void }) {
+  const sol = hubSolutionsChapter(row);
+  return (
+    <li className="lt-nb__allrow" data-testid={`nb-row-${ncertCode(row)}`}>
+      <Link
+        className="lt-nb__allch"
+        to={ncertHubChapterPath(row)}
+        onClick={(e) => {
+          if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          onPick(row);
+        }}
+        preventScrollReset
+      >
+        Ch {row.chapter} {row.title}
+      </Link>
+      <span className="lt-nb__alllinks">
+        {sol && sol.ncert.length > 0 ? <Link to={solutionsPath("ncert", sol.slug)}>NCERT</Link> : null}
+        {sol && sol.exemplar.length > 0 ? <Link to={solutionsPath("exemplar", sol.slug)}>Exemplar</Link> : null}
+        <Link to={`/notes/${row.slug}`}>Notes</Link>
+      </span>
     </li>
   );
 }
 
 export default function NcertBooksPage() {
   const [params, setParams] = useSearchParams();
-  // NCERT-BOOKS-1b — `?read=<code>` (the rail picker's landing) opens that chapter's reader.
-  const readCode = String(params.get("read") || "").trim().toLowerCase();
+  const { hash } = useLocation();
+  // Read once per mount: the stored subject is only the default when the URL names none.
+  const [stored] = useState<BookKey | null>(() => readStoredSubject());
+  const { subject, row, readCode } = useMemo(() => ncertHubState(params, hash, stored), [params, hash, stored]);
+  const book = bookOf(subject);
+  const rowsOf = (b: NcertBook) => NCERT_CLASS10_CHAPTERS.filter((r) => r.book === b);
+  const subjectRows = rowsOf(book);
+
+  // Keep the stored default in step with whatever the URL shows (a shared link counts as a pick).
+  useEffect(() => {
+    if (params.get("subject") || params.get("ch")) storeSubject(subject);
+  }, [params, subject]);
+
+  const pickSubject = (key: BookKey) => {
+    if (key === subject && !row) return;
+    storeSubject(key);
+    trackHub("ncert_hub_pick", { kind: "subject", subject: key });
+    setParams(new URLSearchParams({ subject: key }), { preventScrollReset: true });
+  };
+
+  const pickChapter = useCallback(
+    (r: NcertBookChapter) => {
+      const key = keyOf(r.book);
+      storeSubject(key);
+      trackHub("ncert_hub_pick", { kind: "chapter", subject: key, chapter: ncertHubSlug(r) });
+      setParams(new URLSearchParams({ subject: key, ch: ncertHubSlug(r) }), { preventScrollReset: true });
+    },
+    [setParams],
+  );
+
   const onReaderClosed = useCallback(() => {
     setParams(
       (prev) => {
@@ -124,95 +360,131 @@ export default function NcertBooksPage() {
       { replace: true, preventScrollReset: true },
     );
   }, [setParams]);
-  const { hash } = useLocation();
-  const [subject, setSubject] = useState<BookKey>(() => ncertSubjectFrom(params.get("subject"), hash));
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  // A later deep link within the page (e.g. an in-app link to ?subject=science) follows too.
-  useEffect(() => {
-    setSubject(ncertSubjectFrom(params.get("subject"), hash));
-  }, [params, hash]);
-
-
-  const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-    event.preventDefault();
-    const next: BookKey = subject === "maths" ? "science" : "maths";
-    setSubject(next);
-    tabRefs.current[next]?.focus();
-  };
 
   return (
     <main className="lt-nb" data-testid="ncert-books-page">
       <header className="lt-nb__hero">
-        <div className="lt-nb__w">
+        <div className="lt-nb__w lt-nb__w--hub">
           {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
           <p className="lt-nb__eyebrow">CBSE Class 10 · Boards 2027 · NCERT 2026-27 edition</p>
-          <h1>NCERT Class 10 Maths and Science Books, Chapter-wise</h1>
+          <h1>NCERT Hub — Class 10 Books, NCERT &amp; Exemplar Solutions</h1>
           <p className="lt-nb__sub">
-            Read every chapter of the NCERT Class 10 Mathematics and Science textbooks here, then go straight to that
-            chapter&rsquo;s notes, formulae and practice, or photograph a written answer and see the marks for every
-            step.
+            Pick a subject and chapter: read the official 2026-27 book, work through the NCERT and Exemplar questions
+            with step-by-step solutions, and see the important questions.
           </p>
         </div>
       </header>
 
-      <div className="lt-nb__w lt-nb__body">
-        <div className="lt-nb__tabs" role="tablist" aria-label="Subject">
-          {BOOKS.map((book) => {
-            const key = keyOf(book);
-            const count = NCERT_CLASS10_CHAPTERS.filter((r) => r.book === book).length;
-            return (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                id={`nb-tab-${key}`}
-                className="lt-nb__tab"
-                aria-selected={key === subject}
-                aria-controls={`nb-panel-${key}`}
-                tabIndex={key === subject ? 0 : -1}
-                ref={(node) => {
-                  tabRefs.current[key] = node;
-                }}
-                onClick={() => setSubject(key)}
-                onKeyDown={onTabKeyDown}
-                data-testid={`nb-tab-${key}`}
-              >
-                {ncertBookName(book)} <span className="lt-nb__tabn">{count}</span>
-              </button>
-            );
-          })}
+      <div className="lt-nb__w lt-nb__w--hub lt-nb__body">
+        <nav aria-label="Breadcrumb" className="lt-nb__crumbs" data-testid="nb-crumbs">
+          <Link to="/">Home</Link> <span aria-hidden="true">›</span>{" "}
+          <Link to={NCERT_HUB_PATH} aria-current={row || params.get("subject") ? undefined : "page"}>
+            NCERT Hub
+          </Link>
+          {row || params.get("subject") ? (
+            <>
+              {" "}
+              <span aria-hidden="true">›</span>{" "}
+              <Link to={ncertHubSubjectPath(subject)} aria-current={row ? undefined : "page"}>
+                {book}
+              </Link>
+            </>
+          ) : null}
+          {row ? (
+            <>
+              {" "}
+              <span aria-hidden="true">›</span>{" "}
+              <Link to={ncertHubChapterPath(row)} aria-current="page">
+                Ch {row.chapter} {row.title}
+              </Link>
+            </>
+          ) : null}
+        </nav>
+
+        <div className="lt-nb__hub">
+          <section className="lt-nb__picker" aria-label="Pick a chapter" data-testid="nb-picker">
+            <p className="lt-nb__lbl" id="nb-subject-lbl">
+              Subject
+            </p>
+            <div className="lt-nb__chips" role="group" aria-labelledby="nb-subject-lbl">
+              {BOOKS.map((b) => {
+                const key = keyOf(b);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    className="lt-nb__chip"
+                    aria-pressed={key === subject}
+                    onClick={() => pickSubject(key)}
+                    data-testid={`nb-subject-${key}`}
+                  >
+                    {b}
+                  </button>
+                );
+              })}
+            </div>
+            <label className="lt-nb__lbl" htmlFor="nb-chapter">
+              Chapter
+            </label>
+            <select
+              id="nb-chapter"
+              className={`lt-nb__select${row ? "" : " lt-nb__select--empty"}`}
+              value={row ? ncertHubSlug(row) : ""}
+              onChange={(e) => {
+                const r = subjectRows.find((x) => ncertHubSlug(x) === e.target.value);
+                if (r) pickChapter(r);
+              }}
+              data-testid="nb-chapter"
+            >
+              <option value="" disabled>
+                Choose a chapter
+              </option>
+              {subjectRows.map((r) => (
+                <option key={ncertCode(r)} value={ncertHubSlug(r)}>
+                  Ch {r.chapter} · {r.title}
+                </option>
+              ))}
+            </select>
+            <p className="lt-nb__pickfoot">{subjectRows.length} chapters · NCERT 2026-27 edition</p>
+          </section>
+
+          <div className="lt-nb__result">
+            {row ? (
+              <ChapterCard
+                key={ncertCode(row)}
+                row={row}
+                readOpen={readCode === ncertCode(row)}
+                onReaderClosed={onReaderClosed}
+              />
+            ) : (
+              <p className="lt-nb__empty" data-testid="nb-empty">
+                Pick a chapter to see its book, NCERT &amp; Exemplar solutions, important questions and notes — all in
+                one place.
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Both panels stay mounted and toggle `hidden`: a crawler reads all 27 rows. */}
-        {BOOKS.map((book) => {
-          const rows = NCERT_CLASS10_CHAPTERS.filter((r) => r.book === book);
-          const key = keyOf(book);
+        {/* Both subjects' lists stay in the HTML (the other one `hidden`): a crawler reads all 27 chapters. */}
+        {BOOKS.map((b) => {
+          const key = keyOf(b);
+          const rows = rowsOf(b);
           return (
-            <section
-              key={book}
-              id={`nb-panel-${key}`}
-              role="tabpanel"
-              aria-labelledby={`nb-tab-${key}`}
-              className="lt-nb__book"
+            <details
+              key={key}
+              className="lt-nb__all"
               hidden={key !== subject}
-              data-testid={`nb-panel-${key}`}
+              data-testid={`nb-all-${key}`}
             >
-              <h2 id={key}>
-                NCERT Class 10 {ncertBookName(book)} <span className="lt-nb__count">{rows.length} chapters</span>
-              </h2>
-              <ol className="lt-nb__list">
-                {rows.map((row) => (
-                  <ChapterRow
-                    key={`${row.book}-${row.chapter}`}
-                    row={row}
-                    readCode={readCode}
-                    onReaderClosed={onReaderClosed}
-                  />
+              <summary>
+                All {rows.length} {b} chapters
+              </summary>
+              <ol className="lt-nb__alllist">
+                {rows.map((r) => (
+                  <AllChaptersRow key={ncertCode(r)} row={r} onPick={pickChapter} />
                 ))}
               </ol>
-            </section>
+            </details>
           );
         })}
 

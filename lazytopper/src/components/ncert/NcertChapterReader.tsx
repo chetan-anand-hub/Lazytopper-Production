@@ -25,7 +25,7 @@
  * the page's scoped stylesheet (`ncertBooks.css`); no inline style objects — canvas sizes are
  * canvas ATTRIBUTES and the CSS keeps the aspect ratio.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import {
   ncertBookName,
@@ -117,9 +117,21 @@ interface ReaderProps {
   openRequested?: boolean;
   /** Told when the reader closes (the page drops `?read=`). */
   onClosed?: () => void;
+  /** NCERT-HUB-1 — the trigger's class and content (the hub draws it as a tile). Default: the row button. */
+  triggerClassName?: string;
+  children?: ReactNode;
+  /** NCERT-HUB-1 — told when the trigger is pressed (the hub's tile analytics). */
+  onTrigger?: () => void;
 }
 
-export default function NcertChapterReader({ row, openRequested = false, onClosed }: ReaderProps) {
+export default function NcertChapterReader({
+  row,
+  openRequested = false,
+  onClosed,
+  triggerClassName = "lt-nb__read",
+  children,
+  onTrigger,
+}: ReaderProps) {
   const [open, setOpen] = useState(false);
   // A request can arrive on first render or later (the picker used while already on this page).
   useEffect(() => {
@@ -129,16 +141,17 @@ export default function NcertChapterReader({ row, openRequested = false, onClose
     setOpen(false);
     onClosed?.();
   }, [onClosed]);
-  const label = `Read the chapter`;
+  const label = children ?? "Read the chapter";
   const official = ncertOfficialUrl(row);
 
   if (!row.stored) {
     return (
       <a
-        className="lt-nb__read"
+        className={triggerClassName}
         href={official}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={onTrigger}
         data-testid={`nb-read-${ncertCode(row)}`}
       >
         {label}
@@ -150,8 +163,11 @@ export default function NcertChapterReader({ row, openRequested = false, onClose
     <>
       <button
         type="button"
-        className="lt-nb__read"
-        onClick={() => setOpen(true)}
+        className={triggerClassName}
+        onClick={() => {
+          onTrigger?.();
+          setOpen(true);
+        }}
         data-testid={`nb-read-${ncertCode(row)}`}
       >
         {label}

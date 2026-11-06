@@ -1272,7 +1272,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("MAG-NCERT-12-MCQ-005"),
       r("MAG-NCERT-12-SA-009"), // yes/no, true/false or verify, with reason
       r("MAG-NCERT-12-SA-010"), // more than one value in the answer
-      r("MAG-NCERT-12-SA-012"), // not one comparable value
       r("MAG-NCERT-12-SA-013"), // more than one value in the answer
       r("MAG-NCERT-12-SA-014"), // more than one value in the answer
     ],

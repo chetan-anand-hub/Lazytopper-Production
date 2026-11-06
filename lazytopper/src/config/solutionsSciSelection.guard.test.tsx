@@ -198,7 +198,7 @@ describe("(c) every published Science row is served, verified, and passes every 
       }
       }
     }
-    expect(seen.size).toBe(150 + 172); // NCERT + Exemplar
+    expect(seen.size).toBe(149 + 172); // NCERT + Exemplar
     expect(mcq).toBeGreaterThan(0);
     expect(verdicts).toBe(6); // Electricity SA-004 / 008 / 015 / 016 / 024 / 026
   });
@@ -212,7 +212,7 @@ describe("(c) every published Science row is served, verified, and passes every 
         }
       }
     }
-    expect(checked).toBe(150 + 172); // NCERT + Exemplar: the rule runs over both books
+    expect(checked).toBe(149 + 172); // NCERT + Exemplar: the rule runs over both books
     // The reviewer's named rows are out, by the rule (or, for METAL-3-SA-007, by the ledger).
     const published = new Set(SCI.flatMap((c) => [...c.ncert, ...c.exemplar].map((r) => r.id)));
     for (const id of [
@@ -236,6 +236,8 @@ describe("(c) every published Science row is served, verified, and passes every 
       "LIGHT-NCERT-9-LA-001": true, "LIGHT-NCERT-9-LA-006": true, "LIGHT-NCERT-9-LA-012": true, "LIGHT-NCERT-9-LA-005": true,
       "ELEC-NCERT-11-LA-014": true,
       "LIGHT-NCERT-9-LA-009": false, "ACID-NCERT-2-SA-003": false, "LIGHT-NCERT-9-SA-006": false,
+      // #1609 rulings: a final step repeating step 4 holds; "reduces to half" is the final answer in words.
+      "MAG-NCERT-12-SA-012": false, "ELEC-NCERT-11-SA-011": true,
     };
     for (const [id, pub] of Object.entries(outcome)) expect(published.has(id), id).toBe(pub);
   });
@@ -276,7 +278,7 @@ describe("(c) every published Science row is served, verified, and passes every 
       ["light-reflection-and-refraction", 28, 16, { held: 9, "source-others": 4, "needs-figure": 2, "off-book-term": 11, "step-marking": 1 }],
       ["human-eye-and-colourful-world", 14, 13, { held: 4, "off-book-term": 10, "source-others": 1 }],
       ["electricity", 38, 14, { held: 14, "needs-figure": 3, "off-book-term": 13, "source-others": 6, syllabus: 1 }],
-      ["magnetic-effects-of-electric-current", 11, 0, { "off-book-term": 20, "source-others": 4, held: 7, "needs-figure": 1 }],
+      ["magnetic-effects-of-electric-current", 10, 0, { "off-book-term": 20, "source-others": 4, held: 8, "needs-figure": 1 }],
       ["our-environment", 6, 0, { "ref-stale-numbering": 7, "off-book-term": 2 }],
     ]);
   });

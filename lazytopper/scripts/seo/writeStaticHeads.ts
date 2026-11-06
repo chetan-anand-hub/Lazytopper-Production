@@ -197,13 +197,14 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Message LazyTopper on WhatsApp at +91 97145 68948 with your CBSE Class 10 doubts, questions " +
       "or suggestions, or email support@lazytopper.com.",
   },
-  // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise. Both strings
-  // restate the page's own h1 and sub-line (src/pages/NcertBooksPage.tsx). Title <= 60 chars.
+  // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise; NCERT-HUB-1 (owner,
+  // 6 Nov 2026) — renamed the NCERT Hub: the page's h1 words ("NCERT Hub — Class 10 Books, NCERT &
+  // Exemplar Solutions") as the title, and what the picker opens as the description. Title <= 60 chars.
   "/ncert-class-10": {
-    title: "NCERT Class 10 Maths & Science Books PDF | LazyTopper",
+    title: "NCERT Hub Class 10: Books, NCERT & Exemplar Solutions",
     description:
-      "Read every chapter of the 2026-27 NCERT Class 10 Mathematics and Science textbooks, " +
-      "then go to that chapter's notes, practice and step-marked answer check.",
+      "Class 10 NCERT Hub: read every 2026-27 NCERT Maths and Science chapter, then open its NCERT " +
+      "and Exemplar solutions, important questions and notes.",
   },
   // SOLUTIONS-1 (lane G, D259-D261) — the Triangles solutions pilot; SOLUTIONS-2 (owner 18 Oct
   // 2026) — every published solutions page, DERIVED from `solutionsPaths()`. The title is the
@@ -514,7 +515,7 @@ export function notesJsonLd(path: string, basename: string): Record<string, unkn
 
 /**
  * SOLUTIONS-1 (lane G) — the JSON-LD for a solutions page: one `BreadcrumbList`
- * (Home › NCERT Books › this page). The NCERT books page is the real parent (it links here).
+ * (Home › NCERT Hub › this page). The NCERT Hub is the real parent (it links here).
  * Google's "Practice problems" (Quiz) rich result is deprecated, so no Quiz markup; `QAPage`
  * is for user forums, so not that either. `null` for any path outside the published set.
  */
@@ -528,8 +529,28 @@ export function solutionsJsonLd(path: string, basename: string): Record<string, 
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: canonicalFor("/", basename) },
-      { "@type": "ListItem", position: 2, name: "NCERT Books", item: canonicalFor("/ncert-class-10", basename) },
+      { "@type": "ListItem", position: 2, name: NCERT_HUB_CRUMB, item: canonicalFor("/ncert-class-10", basename) },
       { "@type": "ListItem", position: 3, name, item: canonicalFor(path, basename) },
+    ],
+  };
+}
+
+/** NCERT-HUB-1 — the hub's name in every BreadcrumbList (the visible breadcrumb uses the same words). */
+export const NCERT_HUB_CRUMB = "NCERT Hub";
+
+/**
+ * NCERT-HUB-1 — the hub's own BreadcrumbList (Home › NCERT Hub). Canonical URLs only: the hub's
+ * subject / chapter states are `?subject=` / `?ch=` views of ONE canonical page, so they are never
+ * breadcrumb items (a non-canonical URL in structured data invites a duplicate). `null` elsewhere.
+ */
+export function ncertHubJsonLd(path: string, basename: string): Record<string, unknown> | null {
+  if (path !== "/ncert-class-10") return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: canonicalFor("/", basename) },
+      { "@type": "ListItem", position: 2, name: NCERT_HUB_CRUMB, item: canonicalFor(path, basename) },
     ],
   };
 }
@@ -541,7 +562,9 @@ export function solutionsJsonLd(path: string, basename: string): Record<string, 
  */
 export function pageJsonLd(path: string, basename: string, hasHead: boolean): Record<string, unknown> | null {
   return (
-    (hasHead ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) ?? cbqJsonLd(path, basename) : null) ??
+    (hasHead
+      ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) ?? ncertHubJsonLd(path, basename) ?? cbqJsonLd(path, basename)
+      : null) ??
     testimonialVideoJsonLdFor(path, canonicalFor("/", basename))
   );
 }
