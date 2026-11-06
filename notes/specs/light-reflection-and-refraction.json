@@ -535,6 +535,23 @@
       "source": "NCERT 9.3.2"
     }
   ],
+  "key_terms": [
+    {"term": "Pole", "meaning": "The centre of the reflecting surface of a spherical mirror (P).", "source": "NCERT 2026-27 Ch9 p.135 (jesc109)"},
+    {"term": "Centre of curvature", "meaning": "The centre of the sphere of which the mirror is a part (C).", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
+    {"term": "Radius of curvature", "meaning": "The radius of that sphere (R); R = 2f.", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
+    {"term": "Principal axis", "meaning": "The straight line through the pole and the centre of curvature.", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
+    {"term": "Principal focus", "meaning": "The point where rays parallel to the principal axis meet, or seem to come from, after reflection (mirror) or refraction (lens).", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
+    {"term": "Focal length", "meaning": "The distance between the pole and the principal focus (f).", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
+    {"term": "Aperture", "meaning": "The diameter of the reflecting surface of the mirror.", "source": "NCERT 2026-27 Ch9 p.137 (jesc109)"},
+    {"term": "Real image", "meaning": "An image that can be obtained on a screen.", "source": "NCERT 2026-27 Ch9 p.143 (jesc109)"},
+    {"term": "Virtual image", "meaning": "An image that cannot be obtained on a screen.", "source": "NCERT 2026-27 Ch9 p.137 (jesc109)"},
+    {"term": "Magnification", "meaning": "Image height ÷ object height (m).", "source": "NCERT 2026-27 Ch9 p.143 (jesc109)"},
+    {"term": "Refractive index", "meaning": "Speed of light in vacuum (or air) ÷ speed of light in the medium.", "source": "NCERT 2026-27 Ch9 p.148 (jesc109)"},
+    {"term": "Optically denser", "meaning": "The medium with the larger refractive index; light travels slower in it.", "avoid": "heavier medium", "source": "NCERT 2026-27 Ch9 p.149 (jesc109)"},
+    {"term": "Optical centre", "meaning": "The central point of a lens; a ray through it goes straight.", "source": "NCERT 2026-27 Ch9 p.150 (jesc109)"},
+    {"term": "Power of a lens", "meaning": "The reciprocal of the focal length in metres, P = 1/f.", "source": "NCERT 2026-27 Ch9 p.157 (jesc109)"},
+    {"term": "Dioptre", "meaning": "The SI unit of the power of a lens (D).", "source": "NCERT 2026-27 Ch9 p.158 (jesc109)"}
+  ],
   "third_tab_content": {
     "kind": "rules",
     "intro": "CBSE does not require the mirror/lens formula derivation here — the formal core is the sign convention and ray rules that make every numerical and diagram correct.",

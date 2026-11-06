@@ -163,6 +163,22 @@ export interface NoteShortcut {
   source: string;
 }
 
+/**
+ * KEY-TERMS-1: one row of the "Key terms the examiner looks for" card (second tab, `#key-terms`). CBSE marking schemes
+ * pay the exact NCERT technical term as a value point; an everyday phrase for the same idea can cost ½ (the grader's
+ * TERMINOLOGY rule). Every `term` is verified to appear in that chapter's NCERT 2026-27 text.
+ */
+export interface NoteKeyTerm {
+  /** The term exactly as the NCERT 2026-27 textbook writes it. */
+  term: string;
+  /** One line, in student language. */
+  meaning: string;
+  /** Optional everyday phrase that loses the ½ ("food pipe" for "oesophagus"); rendered as "Don't write: …". */
+  avoid?: string;
+  /** Internal provenance (NCERT chapter + printed page). Never rendered (D221). */
+  source: string;
+}
+
 /** Mindmap tree. `_TODO` marks a spec whose tree has not been lifted yet. */
 export interface NoteMindmapBranch {
   label: string;
@@ -287,6 +303,8 @@ export interface NoteSpec {
   formula_strip: NoteFormulaItem[];
   /** NOTES-FORMULA-3a: optional; absent or empty renders nothing (no empty card, no "Tricks" tab label). */
   shortcuts?: NoteShortcut[];
+  /** KEY-TERMS-1: optional; absent or empty renders nothing (no empty card, no `#key-terms` anchor). */
+  key_terms?: NoteKeyTerm[];
   mindmap: NoteMindmap;
   third_tab_content: ThirdTabContent;
   figures: Record<string, NoteFigure>;

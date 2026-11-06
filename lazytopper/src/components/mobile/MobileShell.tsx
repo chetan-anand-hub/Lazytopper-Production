@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MobileAccountMenu } from "./MobileAccountMenu";
 import RouteNav from "../nav/RouteNav";
 import { useShellNavSlot } from "../nav/routeNavSlot";
@@ -45,6 +45,25 @@ export const SERVED_PRERENDERED: boolean = (() => {
 let firstShellPending = SERVED_PRERENDERED;
 
 /**
+ * SPEED-SITE-1-fu2 — the path the prerendered document was SERVED for, read at module load. 66 prerendered pages
+ * (/, /pricing, /packs, the CBQ and NCERT pages, every desktop variant) have no MobileShell, so the flag above would
+ * stay set until the first in-app navigation and that page (e.g. /pricing -> /exam-trends) would skip its fade. The
+ * skip now applies only to a shell whose first mount is ON the served path.
+ */
+const SERVED_PATH: string | null = (() => {
+  if (!SERVED_PRERENDERED) return null;
+  try {
+    return normalisePath(window.location.pathname);
+  } catch {
+    return null;
+  }
+})();
+
+function normalisePath(p: string): string {
+  return p.length > 1 && p.endsWith("/") ? p.slice(0, -1) : p;
+}
+
+/**
  * MobileShell — the single shared wrapper for all new mobile screens.
  *
  * Provides:
@@ -68,6 +87,7 @@ export function MobileShell({
   children,
 }: MobileShellProps) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const handleBack = () => {
     if (onBack) {
@@ -82,7 +102,7 @@ export function MobileShell({
   useShellNavSlot(hasHeader);
   // SPEED-SITE-1b: no fade for the shell that takes over a prerendered first paint (read in the initializer, so
   // React's StrictMode double call cannot disagree with itself; the flag is cleared after commit).
-  const [fadeIn] = useState(() => !firstShellPending);
+  const [fadeIn] = useState(() => !(firstShellPending && SERVED_PATH !== null && normalisePath(pathname) === SERVED_PATH));
   useEffect(() => {
     firstShellPending = false;
   }, []);

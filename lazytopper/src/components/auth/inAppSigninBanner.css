@@ -20,3 +20,9 @@
 .lt-doors:has(.lt-inapp-banner) { display: flex; flex-direction: column; }
 .lt-doors:has(.lt-inapp-banner) .lt-method { order: 1; }
 .lt-doors:has(.lt-inapp-banner) .lt-google { order: 2; margin-top: 9px; }
+
+/* SPEED-SITE-1-fu2 - Login's loading slot for this note: same box, invisible, inert. */
+.lt-inapp--slot {
+  visibility: hidden;
+  pointer-events: none;
+}

@@ -627,6 +627,23 @@
       "source": "NCERT 6.3"
     }
   ],
+  "key_terms": [
+    {"term": "Synapse", "meaning": "The gap between the end of one neuron and the dendrite of the next.", "source": "NCERT 2026-27 Ch6 p.101 (jesc106)"},
+    {"term": "Reflex action", "meaning": "A sudden, automatic response to a stimulus, without thinking about it.", "source": "NCERT 2026-27 Ch6 p.102 (jesc106)"},
+    {"term": "Reflex arc", "meaning": "The nerve pathway from receptor to spinal cord to muscle in a reflex.", "source": "NCERT 2026-27 Ch6 p.102 (jesc106)"},
+    {"term": "Cerebellum", "meaning": "The part of the hindbrain that keeps posture and balance.", "source": "NCERT 2026-27 Ch6 p.104 (jesc106)"},
+    {"term": "Medulla", "meaning": "The part of the hindbrain that controls involuntary actions like blood pressure and vomiting.", "source": "NCERT 2026-27 Ch6 p.104 (jesc106)"},
+    {"term": "Phototropism", "meaning": "A plant part bending towards or away from light.", "source": "NCERT 2026-27 Ch6 p.112 (jesc106)"},
+    {"term": "Geotropism", "meaning": "A plant part growing in response to gravity; roots grow downwards.", "source": "NCERT 2026-27 Ch6 p.107 (jesc106)"},
+    {"term": "Auxin", "meaning": "A plant hormone made at the shoot tip that helps cells grow longer.", "source": "NCERT 2026-27 Ch6 p.108 (jesc106)"},
+    {"term": "Gibberellins", "meaning": "Plant hormones that help the growth of the stem.", "source": "NCERT 2026-27 Ch6 p.108 (jesc106)"},
+    {"term": "Cytokinins", "meaning": "Plant hormones that promote cell division.", "source": "NCERT 2026-27 Ch6 p.108 (jesc106)"},
+    {"term": "Abscisic acid", "meaning": "A plant hormone that inhibits growth; it causes wilting of leaves.", "source": "NCERT 2026-27 Ch6 p.108 (jesc106)"},
+    {"term": "Thyroxin", "meaning": "The thyroid hormone that regulates carbohydrate, protein and fat metabolism; needs iodine.", "source": "NCERT 2026-27 Ch6 p.110 (jesc106)"},
+    {"term": "Insulin", "meaning": "The pancreas hormone that regulates blood sugar levels.", "source": "NCERT 2026-27 Ch6 p.110 (jesc106)"},
+    {"term": "Adrenaline", "meaning": "A hormone from the adrenal glands that prepares the body for an emergency.", "source": "NCERT 2026-27 Ch6 p.109 (jesc106)"},
+    {"term": "Feedback mechanism", "meaning": "The level of a substance in the body controls the timing and amount of hormone released.", "source": "NCERT 2026-27 Ch6 p.111 (jesc106)"}
+  ],
   "third_tab_content": {
     "kind": "diagrams",
     "intro": "The diagrams you must be able to draw and label - Control and Coordination is examined heavily through labelled figures. Learn each one in the exact NCERT form.",
