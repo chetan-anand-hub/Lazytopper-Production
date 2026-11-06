@@ -84,6 +84,19 @@ function mobileHomeCss(): string {
 }
 
 describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
+  it("BROWSE-SUBTITLE (owner, 7 Nov 2026): the signed-out subtitle invites sign-in for the 7-day free trial", () => {
+    setMatchMediaMatches(false);
+    renderMobileHome();
+    expect(screen.getByText("What do you want to do?")).toBeTruthy(); // signed out (the default here)
+    expect(screen.getByText("Sign in to explore everything for free (7 days).")).toBeTruthy();
+    expect(screen.queryByText("Explore everything free. Sign in only when you want to save.")).toBeNull();
+    // the signed-in variant is untouched
+    cleanup();
+    signIn();
+    renderMobileHome();
+    expect(screen.getByText("Pick up where you left off, or start fresh.")).toBeTruthy();
+  });
+
   it("renders the five SHARED hero cards in SPEC §2 journey order (+ NCERT-HUB-1's NCERT Hub card)", () => {
     setMatchMediaMatches(false); // mobile
     renderMobileHome();
