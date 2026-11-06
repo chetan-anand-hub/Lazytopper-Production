@@ -1028,7 +1028,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("CTRL-EXMPLR-6-MCQ-013"),
       r("CTRL-EXMPLR-6-MCQ-014"),
       r("CTRL-EXMPLR-6-MCQ-015"),
-      r("CTRL-EXMPLR-6-MCQ-018"),
       r("CTRL-EXMPLR-6-MCQ-019"),
       r("CTRL-EXMPLR-6-MCQ-021"),
       r("CTRL-EXMPLR-6-MCQ-023"),
@@ -1074,7 +1073,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("REPR-EXMPLR-7-MCQ-026"),
       r("REPR-EXMPLR-7-SA-002"), // more than one value in the answer
       r("REPR-EXMPLR-7-SA-011"), // more than one value in the answer
-      r("REPR-EXMPLR-7-SA-019"), // more than one value in the answer
     ],
   },
   {
@@ -1094,7 +1092,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("HERED-EXMPLR-8-MCQ-010"),
       r("HERED-EXMPLR-8-SA-004"), // more than one value in the answer
       r("HERED-EXMPLR-8-SA-005"), // multi-part
-      r("HERED-EXMPLR-8-SA-007"), // more than one value in the answer
     ],
   },
   {

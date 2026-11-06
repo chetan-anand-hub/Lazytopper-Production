@@ -38,8 +38,10 @@
 //      found it (the audit, or the #1605 review: stoichiometry, moles, photochemical,
 //      bidirectional, sinks, warm-blooded). Since the second #1605 review it is a SELECTION RULE
 //      (`off-book-term`, scripts/solutions/ncertScienceVocabulary.json), not a manual pass. ONE rule
-//      for a summary final step: a final step that states the final value(s) with unit is content; a
-//      step that only restates an earlier line with no final value holds the row. Rows are HELD, never edited: the bank is
+//      for a summary final step: a Summary / Conclusion step that states values with units is content
+//      (KEPT); one that only restates a non-numeric conclusion already given holds the row. A step
+//      giving the answer for the first time (the conclusion asked for; the option chosen on an MCQ)
+//      is not a restatement. Rows are HELD, never edited: the bank is
 //      outside this lane.
 // ★ CONTENT-BOUND. Each publish entry carries `hash` = rowHash() (selectSolutions.ts) of the question,
 //   options, keys, steps and ncertRef the verifiers saw; a changed bank row drops off the page as

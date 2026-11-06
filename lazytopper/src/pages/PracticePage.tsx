@@ -681,6 +681,7 @@ import {
 import TutorSignupPrompt from "../components/auth/TutorSignupPrompt";
 import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
+import { usePredictionWarm } from "../components/practice/usePredictionWarm";
 import {
   DIFFICULTY_OPTIONS,
   PracticeControls,
@@ -1998,7 +1999,26 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     () => (isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]),
     [isMultiTopic, multiTopics, topicLabel],
   );
-  const bank = useBankChapters(bankTopicKeys);
+  const bankLoaded = useBankChapters(bankTopicKeys);
+  // SPEED-HUB-2: the render-time reads below wait until the chapter's first-use prediction
+  // scoring has run in slices (usePredictionWarm) — the same loading card, no ~0.5 s freeze.
+  const bankWarm = usePredictionWarm(bankTopicKeys, bankLoaded.ready);
+  const bank = { ready: bankLoaded.ready && bankWarm, error: bankLoaded.error };
+  // SPEED-HUB-2 (#1592 review) — the build GATE. The build effect below runs only while it is open.
+  // It opens one commit AFTER readiness is first seen (or at once when the chapter is ready at
+  // mount, as on trunk), so every effect keyed on readiness — the dropped-filter and `built=1`
+  // clean-ups, the CBQ auto-build — has run and its state has been applied before the build reads
+  // its inputs. That makes "clean-ups first, then exactly one build" a property of React's commit
+  // order, not of which promise callback happens to run first.
+  // The gate is opened FOR a chapter set: when the chosen chapter(s) change inside one mount, it
+  // closes in that same render (never a commit late), and reopens once the new set is ready.
+  const bankGateWanted = bank.ready || !!bank.error;
+  const bankGateKey = bankTopicKeys.join("\u0001");
+  const [buildGateOpenFor, setBuildGateOpenFor] = useState<string | null>(bankGateWanted ? bankGateKey : null);
+  useEffect(() => {
+    setBuildGateOpenFor(bankGateWanted ? bankGateKey : null);
+  }, [bankGateWanted, bankGateKey]);
+  const buildGateOpen = bankGateWanted && buildGateOpenFor === bankGateKey;
   // MOMENTS-1 — Retry when the chapter chunk failed: load it again; on success the hook reads it
   // from the cache on this re-render and the build runs again.
   const retryBankLoad = () => {
@@ -2224,6 +2244,17 @@ const packTopicKey = useMemo(() => {
   }, [filteredQuestions, activeQuestionId]);
 
   useEffect(() => {
+    // SPEED-HUB-2 (#1592 review) — the build waits for the build gate (see `buildGateOpen`): the
+    // chapter loaded AND scored (bank.ready, usePredictionWarm), and the readiness effects already
+    // applied. It never awaits the warm-up itself, so no promise ordering is involved. A chunk
+    // that failed to load (bank.error) opens the gate too: the build then reports the failure
+    // exactly as before. Until then the page shows its loading state, as trunk's build did.
+    if (!buildGateOpen) {
+      setIsLoading(true);
+      setBuildSettled(false);
+      return;
+    }
+
     // PR-K2H-8e: clear exclusion set when filter changes so the
     // new filter cohort is not immediately excluded.
     previousQuestionKeys.current = new Set<string>();
@@ -2746,6 +2777,8 @@ const packTopicKey = useMemo(() => {
     isFullSubject,
     multiTopics,
     rotationOffset,
+    // SPEED-HUB-2: the build waits for the build gate (see the top of this effect).
+    buildGateOpen,
   ]);
 
   useEffect(() => {

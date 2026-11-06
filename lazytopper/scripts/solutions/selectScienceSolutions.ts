@@ -15,6 +15,14 @@
 //   chapter carries its Exemplar chapter (EXEMPLAR_SCIENCE_CHAPTER, mapped from each file's CONTENT,
 //   never by number); the deleted chapters' files (jeep105 Periodic Classification, jeep114 Sources of
 //   Energy, jeep116 Management of Natural Resources) and the sample papers (jeep117/118) map to no page.
+// ★ OFF-BOOK TERMS AND THE SUMMARY STEP (#1605 reviews). `off-book-term` is a selection rule: a word of
+//   a row's answer / steps that is not in the 2026-27 textbook's word list (ncertScienceVocabulary.json),
+//   not in the row's own question and not on its reviewed general list holds the row, in BOTH books.
+//   ONE rule for a summary / conclusion final step (also written in ncertScienceVocabulary.json and the
+//   ledger header): a Summary or Conclusion step that states values WITH UNITS is content and is KEPT;
+//   one that only restates a non-numeric conclusion already given in an earlier step holds the row
+//   (ledger `hold`). A step that gives the answer for the first time (the conclusion asked for, or the
+//   option chosen on an objective row) is not a restatement.
 // ★ NO BOARD-PATTERN SECTION. The Science NCERT rows carry no Assertion-Reason or case-based format
 //   (the formats are MCQ / VSA / Short / Long), so the SOLUTIONS-3 section has nothing to show and
 //   is not emitted; a row in such a format would fail `adapted-format`.

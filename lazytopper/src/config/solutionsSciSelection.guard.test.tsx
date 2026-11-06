@@ -198,7 +198,7 @@ describe("(c) every published Science row is served, verified, and passes every 
       }
       }
     }
-    expect(seen.size).toBe(150 + 175); // NCERT + Exemplar
+    expect(seen.size).toBe(150 + 172); // NCERT + Exemplar
     expect(mcq).toBeGreaterThan(0);
     expect(verdicts).toBe(6); // Electricity SA-004 / 008 / 015 / 016 / 024 / 026
   });
@@ -212,7 +212,7 @@ describe("(c) every published Science row is served, verified, and passes every 
         }
       }
     }
-    expect(checked).toBe(150 + 175); // NCERT + Exemplar: the rule runs over both books
+    expect(checked).toBe(150 + 172); // NCERT + Exemplar: the rule runs over both books
     // The reviewer's named rows are out, by the rule (or, for METAL-3-SA-007, by the ledger).
     const published = new Set(SCI.flatMap((c) => [...c.ncert, ...c.exemplar].map((r) => r.id)));
     for (const id of [
@@ -220,6 +220,13 @@ describe("(c) every published Science row is served, verified, and passes every 
       "CARB-NCERT-4-VSA-002", "CARB-NCERT-4-SA-003", "CARB-NCERT-4-VSA-005", "CARB-NCERT-4-VSA-012", "CARB-NCERT-4-VSA-017",
       "REPR-NCERT-7-SA-006", "CTRL-NCERT-6-SA-009", "CTRL-NCERT-6-SA-003",
     ]) expect(published.has(id), id).toBe(false);
+    // #1605 delta review: five technical words with no root in the book are OFF the general list, and
+    // the Exemplar rows that used them are held by the rule.
+    const vocab = JSON.parse(read("scripts/solutions/ncertScienceVocabulary.json")) as { allowGeneral: string[]; allowGeneralAbout: string };
+    for (const w of ["gradient", "sparingly", "reversible", "conception", "stds"]) expect(vocab.allowGeneral, w).not.toContain(w);
+    for (const id of ["CTRL-EXMPLR-6-MCQ-018", "REPR-EXMPLR-7-SA-019", "HERED-EXMPLR-8-SA-007"]) expect(published.has(id), id).toBe(false);
+    // "ionised" is a book word (NCERT Ch 4: "completely ionised"); the note must not cite it as off-book.
+    expect(vocab.allowGeneralAbout).not.toMatch(/\(stoichiometry, lattice, ionise/);
     // "thermite": NCERT Ch 3 spells it "thermit" (the thermit reaction), so it is on the reviewed list.
     expect(published.has("CHEM-NCERT-1-MCQ-002")).toBe(true);
   });
@@ -263,9 +270,9 @@ describe("(c) every published Science row is served, verified, and passes every 
       ["metals-and-non-metals", 5, 31, { "off-book-term": 37, "ref-mismatch": 3, held: 12, "source-others": 2, "needs-figure": 1 }],
       ["carbon-and-its-compounds", 6, 18, { "off-book-term": 51, held: 2, "needs-figure": 3 }],
       ["life-processes", 7, 9, { "off-book-term": 80, held: 4, "ref-mismatch": 14, "source-others": 1 }],
-      ["control-and-coordination", 5, 22, { "off-book-term": 42, "source-others": 3, held: 2 }],
-      ["how-do-organisms-reproduce", 5, 17, { "off-book-term": 48, held: 8, "source-others": 3 }],
-      ["heredity", 0, 9, { "off-book-term": 24, "ref-not-a-book-question": 2, held: 1 }],
+      ["control-and-coordination", 5, 21, { "off-book-term": 43, "source-others": 3, held: 2 }],
+      ["how-do-organisms-reproduce", 5, 16, { "off-book-term": 49, held: 8, "source-others": 3 }],
+      ["heredity", 0, 8, { "off-book-term": 25, "ref-not-a-book-question": 2, held: 1 }],
       ["light-reflection-and-refraction", 28, 16, { held: 9, "source-others": 4, "needs-figure": 2, "off-book-term": 11, "step-marking": 1 }],
       ["human-eye-and-colourful-world", 14, 13, { held: 4, "off-book-term": 10, "source-others": 1 }],
       ["electricity", 38, 14, { held: 14, "needs-figure": 3, "off-book-term": 13, "source-others": 6, syllabus: 1 }],
