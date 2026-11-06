@@ -198,7 +198,7 @@ describe("(c) every published Science row is served, verified, and passes every 
       }
       }
     }
-    expect(seen.size).toBe(149 + 172); // NCERT + Exemplar
+    expect(seen.size).toBe(149 + 166); // NCERT + Exemplar
     expect(mcq).toBeGreaterThan(0);
     expect(verdicts).toBe(6); // Electricity SA-004 / 008 / 015 / 016 / 024 / 026
   });
@@ -212,7 +212,7 @@ describe("(c) every published Science row is served, verified, and passes every 
         }
       }
     }
-    expect(checked).toBe(149 + 172); // NCERT + Exemplar: the rule runs over both books
+    expect(checked).toBe(149 + 166); // NCERT + Exemplar: the rule runs over both books
     // The reviewer's named rows are out, by the rule (or, for METAL-3-SA-007, by the ledger).
     const published = new Set(SCI.flatMap((c) => [...c.ncert, ...c.exemplar].map((r) => r.id)));
     for (const id of [
@@ -223,7 +223,9 @@ describe("(c) every published Science row is served, verified, and passes every 
     // #1605 delta review: five technical words with no root in the book are OFF the general list, and
     // the Exemplar rows that used them are held by the rule.
     const vocab = JSON.parse(read("scripts/solutions/ncertScienceVocabulary.json")) as { allowGeneral: string[]; allowGeneralAbout: string };
-    for (const w of ["gradient", "sparingly", "reversible", "conception", "stds"]) expect(vocab.allowGeneral, w).not.toContain(w);
+    for (const w of ["gradient", "sparingly", "reversible", "conception", "stds", "intrinsic", "viable"]) expect(vocab.allowGeneral, w).not.toContain(w);
+    // Review of #1609: "intrinsic" / "viable" are off-book; their rows are held by the rule.
+    for (const id of ["ELEC-EXMPLR-11-LA-002", "ELEC-EXMPLR-11-LA-007", "REPR-EXMPLR-7-MCQ-020"]) expect(published.has(id), id).toBe(false);
     for (const id of ["CTRL-EXMPLR-6-MCQ-018", "REPR-EXMPLR-7-SA-019", "HERED-EXMPLR-8-SA-007"]) expect(published.has(id), id).toBe(false);
     // "ionised" is a book word (NCERT Ch 4: "completely ionised"); the note must not cite it as off-book.
     expect(vocab.allowGeneralAbout).not.toMatch(/\(stoichiometry, lattice, ionise/);
@@ -249,6 +251,14 @@ describe("(c) every published Science row is served, verified, and passes every 
         expect(l.note.length, id).toBeGreaterThan(20);
       }
     }
+    // Review of #1609: m = –h'/h (NCERT: m = h'/h), Cu by carbon reduction (NCERT: Cu₂S heated in air),
+    // and a book Short Answer that the bank marks as 5-mark Long: held in the ledger, never edited.
+    for (const id of ["LIGHT-EXMPLR-9-MCQ-002", "METAL-EXMPLR-3-MCQ-018", "ELEC-EXMPLR-11-LA-003"]) {
+      expect(SOLUTIONS_SCI_LEDGER[id]?.status, id).toBe("hold");
+      expect(published.has(id), id).toBe(false);
+    }
+    // Kept on review: its evolution sentence is verbatim from the retained NCERT Ch 8 §8.1.
+    expect(published.has("HERED-EXMPLR-8-MCQ-010")).toBe(true);
     // The 2026-27 reprint's Exercise Q17 reads 44 Ω / 5 A; the bank row still has the older data.
     expect(SOLUTIONS_SCI_LEDGER["ELEC-NCERT-11-SA-034"].status).toBe("hold");
     // Review of #1602 (6 Nov): the named defects are held, never published.
@@ -269,15 +279,15 @@ describe("(c) every published Science row is served, verified, and passes every 
     expect(counts).toEqual([
       ["chemical-reactions-and-equations", 10, 10, { held: 12, "off-book-term": 33, "source-others": 3, syllabus: 1 }],
       ["acids-bases-and-salts", 15, 16, { "off-book-term": 37, held: 6, "source-others": 4, "needs-figure": 2 }],
-      ["metals-and-non-metals", 5, 31, { "off-book-term": 37, "ref-mismatch": 3, held: 12, "source-others": 2, "needs-figure": 1 }],
+      ["metals-and-non-metals", 5, 30, { "off-book-term": 37, "ref-mismatch": 3, held: 13, "source-others": 2, "needs-figure": 1 }],
       ["carbon-and-its-compounds", 6, 18, { "off-book-term": 51, held: 2, "needs-figure": 3 }],
       ["life-processes", 7, 9, { "off-book-term": 80, held: 4, "ref-mismatch": 14, "source-others": 1 }],
       ["control-and-coordination", 5, 21, { "off-book-term": 43, "source-others": 3, held: 2 }],
-      ["how-do-organisms-reproduce", 5, 16, { "off-book-term": 49, held: 8, "source-others": 3 }],
+      ["how-do-organisms-reproduce", 5, 15, { "off-book-term": 50, held: 8, "source-others": 3 }],
       ["heredity", 0, 8, { "off-book-term": 25, "ref-not-a-book-question": 2, held: 1 }],
-      ["light-reflection-and-refraction", 28, 16, { held: 9, "source-others": 4, "needs-figure": 2, "off-book-term": 11, "step-marking": 1 }],
+      ["light-reflection-and-refraction", 28, 15, { held: 10, "source-others": 4, "needs-figure": 2, "off-book-term": 11, "step-marking": 1 }],
       ["human-eye-and-colourful-world", 14, 13, { held: 4, "off-book-term": 10, "source-others": 1 }],
-      ["electricity", 38, 14, { held: 14, "needs-figure": 3, "off-book-term": 13, "source-others": 6, syllabus: 1 }],
+      ["electricity", 38, 11, { held: 14, "needs-figure": 3, "off-book-term": 16, "source-others": 6, syllabus: 1 }],
       ["magnetic-effects-of-electric-current", 10, 0, { "off-book-term": 20, "source-others": 4, held: 8, "needs-figure": 1 }],
       ["our-environment", 6, 0, { "ref-stale-numbering": 7, "off-book-term": 2 }],
     ]);

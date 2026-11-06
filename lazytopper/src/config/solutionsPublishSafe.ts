@@ -914,7 +914,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("METAL-EXMPLR-3-MCQ-009"),
       r("METAL-EXMPLR-3-MCQ-012"),
       r("METAL-EXMPLR-3-MCQ-017"),
-      r("METAL-EXMPLR-3-MCQ-018"),
       r("METAL-EXMPLR-3-MCQ-019"),
       r("METAL-EXMPLR-3-MCQ-020"),
       r("METAL-EXMPLR-3-MCQ-023"),
@@ -1066,7 +1065,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("REPR-EXMPLR-7-MCQ-015"),
       r("REPR-EXMPLR-7-MCQ-016"),
       r("REPR-EXMPLR-7-MCQ-017"),
-      r("REPR-EXMPLR-7-MCQ-020"),
       r("REPR-EXMPLR-7-MCQ-021"),
       r("REPR-EXMPLR-7-MCQ-022"),
       r("REPR-EXMPLR-7-MCQ-025"),
@@ -1134,7 +1132,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     ],
     exemplar: [
       r("LIGHT-EXMPLR-9-MCQ-001"),
-      r("LIGHT-EXMPLR-9-MCQ-002"),
       r("LIGHT-EXMPLR-9-MCQ-008"),
       r("LIGHT-EXMPLR-9-MCQ-009"),
       r("LIGHT-EXMPLR-9-MCQ-010"),
@@ -1245,12 +1242,9 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ELEC-EXMPLR-11-MCQ-016"),
       r("ELEC-EXMPLR-11-SA-003"), // not one comparable value
       r("ELEC-EXMPLR-11-SA-004"), // more than one value in the answer
-      r("ELEC-EXMPLR-11-LA-002"), // more than one value in the answer
       r("ELEC-EXMPLR-11-SA-005"), // not one comparable value
-      r("ELEC-EXMPLR-11-LA-003"), // more than one value in the answer
       r("ELEC-EXMPLR-11-SA-006"), // more than one value in the answer
       r("ELEC-EXMPLR-11-LA-005"), // yes/no, true/false or verify, with reason
-      r("ELEC-EXMPLR-11-LA-007"), // more than one value in the answer
       r("ELEC-EXMPLR-11-LA-008"), // not one comparable value
       r("ELEC-EXMPLR-11-LA-009"), // not one comparable value
     ],
