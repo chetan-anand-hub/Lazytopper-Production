@@ -281,7 +281,7 @@ describe("6 · the start card is wired into both Home pages", () => {
   it("it does NOT displace Home's own furniture on either page", async () => {
     renderIn(<DesktopHome />);
     expect(await screen.findByTestId("first-session-card")).toBeTruthy();
-    expect(screen.getAllByTestId("home-hero")).toHaveLength(3); // + 1 tutor button
+    expect(screen.getAllByTestId("home-hero")).toHaveLength(4); // + 1 tutor button (NCERT-HUB-1 added the NCERT Hub card)
     expect(screen.getByTestId("home-hero-tutor")).toBeTruthy();
     // HOME-PENDING-1: the quick strip that used to close the page is gone.
     expect(screen.queryByTestId("home-quick-tile")).toBeNull();

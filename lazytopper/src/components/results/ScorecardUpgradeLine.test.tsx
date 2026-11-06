@@ -36,8 +36,11 @@ import { scorecardHeadline, scorecardUpgradeCopy } from "./ScorecardUpgradeLine"
 import { boardPassPriceNow } from "../pricing/boardPassOffer";
 import * as analytics from "../../analytics/analytics";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
-import { PACK_PRICE_INR } from "../../services/packs";
 import type { ScorecardSurface, ScorecardVariant } from "./scorecardVariants";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPayLabel } from "../../services/packs";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { boardPassPayDisplay } from "../../config/pricing";
 
 const track = analytics.trackScorecardUpgrade as unknown as ReturnType<typeof vi.fn>;
 const marks = (awarded: number, total: number) => ({ kind: "marks" as const, awarded, total });
@@ -150,7 +153,7 @@ describe("the shell renders the block on every grading surface (one call site: R
     expect(screen.getByTestId("offers-block")).toHaveAttribute("data-surface", surface);
     expect(screen.getByTestId("offers-headline")).toHaveTextContent(surface === "quick-practice" ? "1 wrong.A slip, or a concept gap?" : "You lost 4 marks.");
     const pay = screen.getByTestId("offers-pay");
-    expect(pay).toHaveTextContent(`Pay ${boardPassPriceNow()}`);
+    expect(pay).toHaveTextContent(`Pay ${boardPassPayDisplay()}`);
     expect(pay).toHaveAttribute("href", "/pricing?buy=board_pass");
     expect(screen.getByTestId("offers-what-you-get")).toHaveAttribute("href", "/pricing");
     expect(track).toHaveBeenCalledWith("shown");
@@ -196,7 +199,7 @@ describe("the shell renders the block on every grading surface (one call site: R
     vi.useFakeTimers({ now: new Date("2026-11-10T06:30:00.000Z"), toFake: ["Date"] });
     try {
       render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
-      expect(screen.getByTestId("offers-from-line")).toHaveTextContent("One payment · ₹2,499 from 1 Dec");
+      expect(screen.getByTestId("offers-from-line")).toHaveTextContent("One payment · ₹2,499 + GST from 1 Dec"); // GST-EXCL-1: 10 Nov is after the GST cut-off
       expect(screen.getByTestId("offers-founding")).toHaveTextContent("Founding member offer");
       cleanup();
       vi.setSystemTime(new Date("2026-12-02T06:30:00.000Z"));
@@ -297,7 +300,7 @@ describe("OFFERS-V2: the pack rows, per surface, highest price first", () => {
     show(variantFor("worksheet", marks(6, 10)));
     const price = boardPassPriceNow();
     expect(price).toMatch(/^₹/);
-    expect(screen.getByTestId("offers-pay")).toHaveTextContent(price as string);
+    expect(screen.getByTestId("offers-pay")).toHaveTextContent(boardPassPayDisplay()); // GST-EXCL-1: the Pay button names the charge
     await screen.findByTestId("offers-packs");
     expect(screen.getByText("Prefer practising on paper?")).toBeInTheDocument();
     expect(rowSkus()).toEqual(["pack_bundle"]);
@@ -315,7 +318,7 @@ describe("OFFERS-V2: the pack rows, per surface, highest price first", () => {
     expect(rowSkus()).toEqual(["pack_bundle", "pack_cbq", "pack_chapter"]);
     expect(screen.getByTestId("offers-buy-pack_cbq")).toHaveAttribute("href", "/packs?buy=pack_cbq&t=maths");
     expect(screen.getByTestId("offers-buy-pack_chapter")).toHaveAttribute("href", "/packs?buy=pack_chapter&t=triangles");
-    expect(screen.getByTestId("offers-buy-pack_chapter")).toHaveTextContent(`₹${PACK_PRICE_INR.pack_chapter}`);
+    expect(screen.getByTestId("offers-buy-pack_chapter")).toHaveTextContent(packPayLabel("pack_chapter"));
     expect(screen.getByTestId("offers-row-pack_chapter")).toHaveTextContent("Triangles Chapter Pack");
     expect(screen.getByTestId("offers-inside-pack_chapter")).toHaveAttribute("href", "/packs?chapter=triangles");
   });

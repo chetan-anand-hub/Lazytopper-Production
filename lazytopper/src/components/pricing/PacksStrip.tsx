@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
+import { boardPassGstExclusive, displayPlusGst } from "../../config/pricing";
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, isPreboardsSeason } from "../../lib/packs/packLabels";
 import PacksShop from "../packs/PacksShop";
 import ParentReturnLink from "../parents/ParentReturnLink";
@@ -32,6 +33,8 @@ const USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 
 /** The lowest pack price, for the sub line ("from ₹49"). */
 const FROM_PRICE = Math.min(...ITEMS.map((i) => PACK_PRICE_INR[i.sku]));
+/** GST-EXCL-1: "₹49" before the cut-off, "₹49 + GST" from 00:00 IST 7 Nov 2026 (read at render). */
+const fromPriceTag = (): string => (boardPassGstExclusive(Date.now()) ? displayPlusGst(FROM_PRICE) : `\u20b9${FROM_PRICE}`);
 
 /**
  * BUY-PATH-1 - where `#cbq` lands: the wrapper above the CBQ band while it holds the parents' way back (it is visible then), else the
@@ -104,7 +107,7 @@ export default function PacksStrip() {
             <ParentReturnLink testId="parent-return-packs" />
             <div className="lt-packoffer__head">
               <h2 className="lt-packoffer__title" id="lt-packoffer-h">PDF packs: printed practice, one-time</h2>
-              <p className="lt-packoffer__sub">From &#8377;{FROM_PRICE} &middot; one-time &middot; never renews &middot; buy any pack right here</p>
+              <p className="lt-packoffer__sub">From {fromPriceTag()} &middot; one-time &middot; never renews &middot; buy any pack right here</p>
             </div>
             <ul className="lt-packoffer__list">
               {ITEMS.map((i) => (

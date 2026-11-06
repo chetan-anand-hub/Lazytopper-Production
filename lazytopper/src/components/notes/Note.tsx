@@ -4,6 +4,7 @@ import type {
   NoteConcept,
   NoteExample,
   NoteFigure,
+  NoteKeyTerm,
   NoteMindmap,
   NoteSource,
   NoteShortcut,
@@ -20,6 +21,7 @@ import {
   anchorFromHash,
   anchorTabs,
   hasTricks,
+  keyTermsOf,
   memoryTricksOf,
   shortcutsOf,
 } from "./noteAnchors";
@@ -28,7 +30,7 @@ import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
 import { NoteFigureLightbox } from "./NoteFigureLightbox";
 import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncertFileCode";
-import { ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
+import { ncertHubChapterPath, ncertHubLinkLabel, ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { cbqChapterPath, cbqTopicBySlug } from "../cbq/cbqSeo";
 import { subscriptFormulas } from "../../lib/chemSubscript";
@@ -672,6 +674,19 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
 .lt-note__tricks-link { margin: 10px 0 0; font-size: 14px; font-weight: 600; }
 .lt-note__tricks-link a { color: #1d7a4c; text-decoration: none; }
 
+/* ── KEY-TERMS-1: "Key terms the examiner looks for" (second tab, #key-terms) ── */
+.lt-note__kt-lede { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--lt-note-ink-soft); }
+.lt-note__kt-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 0; }
+.lt-note__kt { min-width: 0; padding: 10px 12px; border: 1px solid var(--lt-note-line); border-left: 3px solid var(--lt-note-green); border-radius: 10px; background: #fbfcfd; }
+.lt-note__kt-term { margin: 0; font-size: 15px; font-weight: 700; color: var(--lt-note-navy); overflow-wrap: anywhere; }
+.lt-note__kt-mean { margin: 3px 0 0; font-size: 14px; line-height: 1.45; color: var(--lt-note-ink); }
+.lt-note__kt-avoid { margin: 6px 0 0; font-size: 13px; line-height: 1.4; color: var(--lt-note-ink-soft); }
+.lt-note__kt-avoid-k { font-weight: 600; color: var(--lt-note-amber-ink); }
+.lt-note__kt-avoid s { text-decoration-thickness: 1px; }
+@media (min-width: 720px) {
+  .lt-note__kt-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* ── print: isolate the note, show every tab, drop app chrome (Part 3) ── */
 @media print {
   .lt-note__fcard--second, .lt-note__tricks-link { display: none !important; }
@@ -690,7 +705,7 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
   .lt-note__mm-kids--collapsed { display: grid !important; }
   .lt-note__figure img, .lt-note__gsvg { max-height: 235mm; }
   .lt-note__block, .lt-note__figure, .lt-note__def, .lt-note__concept,
-  .lt-note__ex, .lt-note__pit, .lt-note__signcard, .lt-note__gcol { break-inside: avoid; }
+  .lt-note__ex, .lt-note__pit, .lt-note__signcard, .lt-note__gcol, .lt-note__kt { break-inside: avoid; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 `;
@@ -1077,6 +1092,36 @@ function ShortcutsCard({ items, section, label }: { items: NoteShortcut[]; secti
           )}
         </div>
       ))}
+    </section>
+  );
+}
+
+/**
+ * KEY-TERMS-1 — "Key terms the examiner looks for" (owner approval 6 Nov 2026). CBSE marking schemes give examiners
+ * value points, and the exact NCERT term is one of them; an everyday phrase for the same idea can cost ½ (the grader's
+ * TERMINOLOGY rule). The card never claims CBSE publishes a keyword list. Plain text only (no math, no new imports):
+ * the notes page is a speed-lane surface. Nothing renders when the chapter has no key terms (honest empty state), and
+ * `source` is internal provenance that never reaches the student DOM (D221).
+ */
+function KeyTermsCard({ items }: { items: NoteKeyTerm[] }) {
+  if (items.length === 0) return null;
+  return (
+    <section id={SECTION_ANCHORS.keyTerms} className="lt-note__block">
+      <div className="lt-note__sec-label">Key terms the examiner looks for</div>
+      <p className="lt-note__kt-lede">Exact NCERT words earn the marks; everyday words can cost ½.</p>
+      <dl className="lt-note__kt-list">
+        {items.map((k) => (
+          <div key={k.term} className="lt-note__kt">
+            <dt className="lt-note__kt-term">{k.term}</dt>
+            <dd className="lt-note__kt-mean">{k.meaning}</dd>
+            {k.avoid && (
+              <dd className="lt-note__kt-avoid">
+                <span className="lt-note__kt-avoid-k">Don&apos;t write:</span> <s>{k.avoid}</s>
+              </dd>
+            )}
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
@@ -1746,6 +1791,7 @@ export function Note({ spec, initialTab }: NoteProps) {
         <FormulaeCard items={spec.formula_strip} canonical />
         <ShortcutsCard items={shortcutsOf(spec)} section={SECTION_ANCHORS.shortcuts} label="Shortcuts & Tricks" />
         <ShortcutsCard items={memoryTricksOf(spec)} section={SECTION_ANCHORS.memoryTricks} label="Memory Tricks" />
+        <KeyTermsCard items={keyTermsOf(spec)} />
         <MindmapPanel mindmap={spec.mindmap} />
       </div>
 
@@ -1786,6 +1832,17 @@ export function Note({ spec, initialTab }: NoteProps) {
       {cbqTopicBySlug(meta.topic_key) && (
         <p className="lt-note__ncert-read" data-testid="note-cbq-link">
           <Link to={cbqChapterPath(meta.topic_key)}>CBQs for this chapter →</Link>
+        </p>
+      )}
+      {/* NCERT-HUB-1 — this chapter's card in the NCERT Hub (its solutions, book, important questions). The
+          words say what the card holds (ncertHubLinkLabel): "solutions" only where a solutions page exists. */}
+      {ncertRows.length > 0 && (
+        <p className="lt-note__ncert-read" data-testid="note-ncert-hub">
+          {ncertRows.map((r, i) => (
+            <Link key={r.chapter} to={ncertHubChapterPath(r)}>
+              {i === 0 ? ncertHubLinkLabel(r) : `Chapter ${r.chapter}`}
+            </Link>
+          ))}
         </p>
       )}
       {ncertCode && (

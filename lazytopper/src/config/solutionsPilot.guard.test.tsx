@@ -379,11 +379,11 @@ describe("(e) registered everywhere a public page must be", () => {
       expect(copyProblems(head.title + " " + head.description)).toEqual([]);
     }
   });
-  it("JSON-LD is a BreadcrumbList (Home › NCERT Books › page); no Quiz, no QAPage", () => {
+  it("JSON-LD is a BreadcrumbList (Home › NCERT Hub › page); no Quiz, no QAPage", () => {
     for (const p of paths) {
       const data = pageJsonLd(p, "", true) as { "@type": string; itemListElement: Array<{ name: string; item: string }> };
       expect(data["@type"]).toBe("BreadcrumbList");
-      expect(data.itemListElement.map((i) => i.name)[1]).toBe("NCERT Books");
+      expect(data.itemListElement.map((i) => i.name)[1]).toBe("NCERT Hub");
       expect(data.itemListElement[2].item).toBe(`https://www.lazytopper.com${p}`);
       expect(JSON.stringify(data)).not.toMatch(/"Quiz"|"QAPage"/);
     }

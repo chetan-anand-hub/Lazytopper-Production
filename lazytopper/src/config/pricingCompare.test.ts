@@ -76,7 +76,7 @@ describe("L4 · the compare table data", () => {
     expect(COMPARE_BASIC_HEADER).toBe(`Basic · ${PRICE_FREE_DISPLAY}`);
     const before = new Date("2026-11-02T10:00:00+05:30");
     expect(comparePremiumHeader(before)).toBe("Premium · ₹1,917 till boards");
-    expect(comparePremiumHeader(new Date("2026-12-01T00:00:00+05:30"))).toBe("Premium · ₹2,499 till boards");
+    expect(comparePremiumHeader(new Date("2026-12-01T00:00:00+05:30"))).toBe("Premium · ₹2,499 + GST till boards"); // GST-EXCL-1
     expect(comparePremiumHeader(before)).not.toMatch(/599|999|from/);
   });
 

@@ -227,9 +227,11 @@ describe("★ ATTRIB-1 M1 — phone-shaped values are never kept", () => {
     }
   });
 
-  it("a phone-shaped path segment becomes :id, the rest of the path is kept", () => {
-    expect(cap("?utm_source=a", "/notes/9876543210")?.landing).toBe("/notes/:id");
-    expect(cap("?utm_source=a", "/notes/9876543210/x")?.landing).toBe("/notes/:id/x");
+  // SPEED-INSIGHTS-ROUTE-1: normalisePath now masks any 6+ digit run as ":num" first, so a phone-shaped segment
+  // arrives here already masked. The property pinned is unchanged: the number is never kept.
+  it("a phone-shaped path segment is masked (:num), the rest of the path is kept", () => {
+    expect(cap("?utm_source=a", "/notes/9876543210")?.landing).toBe("/notes/:num");
+    expect(cap("?utm_source=a", "/notes/9876543210/x")?.landing).toBe("/notes/:num/x");
     expect(cap("?utm_source=a", "/notes/light")?.landing).toBe("/notes/light");
   });
 

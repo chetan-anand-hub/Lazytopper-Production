@@ -13,17 +13,18 @@ import {
 } from "../services/freeCheckClient";
 import {
   boardPassDeadlineLine,
+  formatInr,
   boardPassFoundingLabel,
   boardPassPriceDisplay,
-  formatInr,
   FOUNDING_LOCK_COPY,
   FOUNDING_OFFER_BADGE,
   FOUNDING_OFFER_LIST_FROM_LABEL,
   TILL_BOARDS_AFTER_FOUNDING_INR,
   foundingRateApplies,
   PERIOD_MONTHLY_LABEL,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_INR,
+  displayPlusGst,
+  PRICE_MONTHLY_LIST_INR,
   BOARD_PASS_NAME,
   TUITION_ANCHOR,
   tillBoardsQuote,
@@ -133,7 +134,7 @@ const FAQ_ITEMS = [
   {
     // PRICE-FIXED-1 (owner, 21:12 IST 31 Oct 2026): both figures imported from the pricing config (never typed); true on every date.
     q: "What happens when the founding offer ends?",
-    a: `From ${FOUNDING_OFFER_LIST_FROM_LABEL} the Board Pass is ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)}. A pass you have already bought is never re-priced.`,
+    a: `From ${FOUNDING_OFFER_LIST_FROM_LABEL} the Board Pass is ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} + GST. A pass you have already bought is never re-priced.`,
   },
   {
     q: "Are there any usage limits?",
@@ -190,10 +191,11 @@ export function PremiumPriceHead({ offerOpen }: { offerOpen: boolean }) {
   return (
     <div className="lt-pricing-price" data-testid="pricing-monthly-price">
       <span className="lt-pricing-amount">
-        {offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY}
+        {/* GST-EXCL-1: a price TAG ("+ GST" from 00:00 IST 7 Nov 2026); the total is on the Pay button. */}
+        {displayPlusGst(offerOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR)}
       </span>
       <span className="lt-pricing-period">{PERIOD_MONTHLY_LABEL}</span>
-      {offerOpen && <s className="lt-pricing-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>}
+      {offerOpen && <s className="lt-pricing-was">{displayPlusGst(PRICE_MONTHLY_LIST_INR)}</s>}
     </div>
   );
 }

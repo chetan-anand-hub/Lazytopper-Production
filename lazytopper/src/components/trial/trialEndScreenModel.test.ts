@@ -88,7 +88,12 @@ describe("founding line and days left (TRIAL-END-OFFER-1)", () => {
 
   it("shows the real deadline before, and on, 30 November; hides it from 1 December 00:00 IST", () => {
     expect(trialEndFoundingLine(ist(11, 4, 12))).toBe(LINE);
-    expect(trialEndFoundingLine(ist(11, 30, 23, 59))).toBe(LINE);
+    // GST-EXCL-1 (owner, 4 Nov 18:20 IST): from 00:00 IST 7 Nov both figures read "+ GST".
+    expect(trialEndFoundingLine(ist(11, 6, 23, 59))).toBe(LINE);
+    expect(trialEndFoundingLine(Date.parse("2026-11-07T00:00:00+05:30") - 1)).toBe(LINE);
+    const GST_LINE = "Founding price \u20b91,917 + GST till 30 Nov \u2014 \u20b92,499 + GST from 1 Dec";
+    expect(trialEndFoundingLine(ist(11, 7, 0, 0))).toBe(GST_LINE);
+    expect(trialEndFoundingLine(ist(11, 30, 23, 59))).toBe(GST_LINE);
     expect(trialEndFoundingLine(ist(12, 1, 0, 0))).toBeNull();
     expect(trialEndFoundingLine(ist(12, 20, 12))).toBeNull();
     expect(trialEndFoundingLine(Number.NaN)).toBeNull();

@@ -17,6 +17,7 @@
  * official link at runtime if our copy fails to load, so a broken frame is never shown.
  */
 import type { NoteSubject } from "../components/notes/noteSpec.types";
+import { SOLUTIONS_PAGES } from "./solutionsPages";
 
 export type NcertBook = "Maths" | "Science";
 
@@ -105,7 +106,7 @@ export function ncertPracticePath(row: NcertBookChapter): string {
   return (
     `/practice/10/${row.book}?topic=${encodeURIComponent(row.slug)}` +
     `&returnTo=${encodeURIComponent("/ncert-class-10")}` +
-    `&backLabel=${encodeURIComponent("Back to NCERT books")}`
+    `&backLabel=${encodeURIComponent("Back to NCERT Hub")}`
   );
 }
 
@@ -129,4 +130,75 @@ export function ncertReadPath(row: NcertBookChapter, returnTo?: string, backLabe
 /** The NCERT chapters a notes / topic slug covers, in book order (Maths Ch 8 + Ch 9 share "trigonometry"). */
 export function ncertRowsForSlug(slug: string): NcertBookChapter[] {
   return NCERT_CLASS10_CHAPTERS.filter((r) => r.slug === slug);
+}
+
+/* ------------------------------------------------------------------------------------------ *
+ * NCERT-HUB-1 (owner approval 6 Nov 2026, 20:32 IST) — `/ncert-class-10` is the NCERT Hub: pick a
+ * subject, then a chapter, and the chapter's book, NCERT and Exemplar solutions, important
+ * questions, notes and answer check sit on one card. Its state lives in the URL
+ * (`?subject=maths&ch=<slug>`) so a chapter is shareable and back / forward work. The query never
+ * forms a second canonical (`canonicalPathFor` drops it), so every hub URL canonicalises to
+ * `/ncert-class-10`.
+ *
+ * LIGHT ON PURPOSE: the route map (lib/nav/routeParents.ts) and the notes page read these helpers,
+ * so nothing here imports the solutions id allowlist.
+ * ------------------------------------------------------------------------------------------ */
+
+/** The hub's subject key, as it appears in `?subject=`. */
+export type NcertHubSubject = "maths" | "science";
+
+export const NCERT_HUB_PATH = "/ncert-class-10";
+
+export function ncertHubSubjectOf(book: NcertBook): NcertHubSubject {
+  return book === "Maths" ? "maths" : "science";
+}
+
+/**
+ * The chapter's `?ch=` slug: unique per NCERT chapter. It is the notes / topic slug, except that
+ * Maths Ch 8 and Ch 9 share the `trigonometry` note, so those two take the solutions pages' own
+ * slugs (`solutionsPages.ts`): the hub slug and the solutions slug are the same string wherever a
+ * solutions page exists.
+ */
+export function ncertHubSlug(row: Pick<NcertBookChapter, "book" | "chapter" | "slug">): string {
+  if (row.book === "Maths" && row.chapter === 8) return "introduction-to-trigonometry";
+  if (row.book === "Maths" && row.chapter === 9) return "some-applications-of-trigonometry";
+  return row.slug;
+}
+
+/** The NCERT row a hub / solutions slug names, or null. */
+export function ncertRowForHubSlug(slug: string | null | undefined): NcertBookChapter | null {
+  const s = String(slug ?? "").trim().toLowerCase();
+  if (!s) return null;
+  return NCERT_CLASS10_CHAPTERS.find((r) => ncertHubSlug(r) === s) ?? null;
+}
+
+/** `/ncert-class-10?subject=<s>` — the hub with a subject chosen and no chapter yet. */
+export function ncertHubSubjectPath(subject: NcertHubSubject): string {
+  return `${NCERT_HUB_PATH}?subject=${subject}`;
+}
+
+/** `/ncert-class-10?subject=<s>&ch=<slug>` — the hub with this chapter's card open. */
+export function ncertHubChapterPath(row: Pick<NcertBookChapter, "book" | "chapter" | "slug">): string {
+  return `${NCERT_HUB_PATH}?subject=${ncertHubSubjectOf(row.book)}&ch=${encodeURIComponent(ncertHubSlug(row))}`;
+}
+
+/** The hub chapter for a solutions page slug (`/ncert-solutions/<slug>`), or the bare hub. */
+export function ncertHubPathForSolutionsSlug(slug: string | null | undefined): string {
+  const row = ncertRowForHubSlug(slug);
+  return row ? ncertHubChapterPath(row) : NCERT_HUB_PATH;
+}
+
+/**
+ * The words of a link INTO the hub chapter from another page (notes, Important Questions): what the
+ * chapter's card really holds — "NCERT & Exemplar solutions →" only when both solutions pages exist
+ * (`SOLUTIONS_PAGES`, the published set), "NCERT solutions →" when only the NCERT page does, and the
+ * plain "This chapter in the NCERT Hub →" otherwise. Never a promise of a page that is not there.
+ */
+export function ncertHubLinkLabel(row: Pick<NcertBookChapter, "book" | "chapter" | "slug">): string {
+  const page = SOLUTIONS_PAGES.find((p) => p.slug === ncertHubSlug(row));
+  const books = page?.books ?? [];
+  if (books.includes("ncert") && books.includes("exemplar")) return "NCERT & Exemplar solutions →";
+  if (books.includes("ncert")) return "NCERT solutions →";
+  if (books.includes("exemplar")) return "Exemplar solutions →";
+  return "This chapter in the NCERT Hub →";
 }

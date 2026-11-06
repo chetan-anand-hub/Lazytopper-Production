@@ -78,7 +78,7 @@ describe("DesktopShell rail — the six routed destinations (anti-regression)", 
       ["Home", "/"],
       ["Exam Trends", "/exam-trends"],
       ["Practice", "/practice-hub"],
-      ["NCERT Books", "/ncert-class-10"],
+      ["NCERT Hub", "/ncert-class-10"],
       ["Answer Checker", "/check-improve"],
       ["Pricing", "/pricing?source=sidebar"], // NAV-PRICING-1
       ["Me / Progress", "/me"],
@@ -102,10 +102,10 @@ describe("DesktopShell rail — the six routed destinations (anti-regression)", 
   });
 });
 
-describe("DesktopShell rail — the NCERT Books picker (NCERT-BOOKS-1b)", () => {
+describe("DesktopShell rail — the NCERT Hub picker (NCERT-BOOKS-1b; renamed NCERT-HUB-1)", () => {
   it("stays a real link to /ncert-class-10 (crawlable; new-tab works) and a plain click opens the picker", () => {
     renderShell();
-    const link = screen.getByRole("link", { name: "NCERT Books" });
+    const link = screen.getByRole("link", { name: "NCERT Hub" });
     expect(link.getAttribute("href")).toBe("/ncert-class-10");
     expect(screen.queryByTestId("ncert-picker")).toBeNull();
 
@@ -119,7 +119,7 @@ describe("DesktopShell rail — the NCERT Books picker (NCERT-BOOKS-1b)", () => 
 
   it("Maths → chapter; Science → Chemistry / Biology / Physics → chapter", () => {
     renderShell();
-    fireEvent.click(screen.getByRole("link", { name: "NCERT Books" }));
+    fireEvent.click(screen.getByRole("link", { name: "NCERT Hub" }));
     const chapterOptions = () =>
       Array.from((screen.getByTestId("ncert-picker-chapter") as HTMLSelectElement).options).map((o) => o.text);
 

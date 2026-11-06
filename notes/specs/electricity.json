@@ -581,6 +581,23 @@
       "source": "NCERT 11.8"
     }
   ],
+  "key_terms": [
+    {"term": "Electric current", "meaning": "The rate of flow of electric charge through a conductor, I = Q/t.", "avoid": "electricity", "source": "NCERT 2026-27 Ch11 p.171 (jesc111)"},
+    {"term": "Coulomb", "meaning": "The SI unit of electric charge.", "source": "NCERT 2026-27 Ch11 p.172 (jesc111)"},
+    {"term": "Potential difference", "meaning": "Work done to move a unit charge between two points, V = W/Q.", "source": "NCERT 2026-27 Ch11 p.173 (jesc111)"},
+    {"term": "Ohm's law", "meaning": "At constant temperature, current is proportional to potential difference: V = IR.", "source": "NCERT 2026-27 Ch11 p.175 (jesc111)"},
+    {"term": "Resistance", "meaning": "The property of a conductor to resist the flow of charges through it.", "source": "NCERT 2026-27 Ch11 p.175 (jesc111)"},
+    {"term": "Resistivity", "meaning": "A characteristic property of the material (ρ), in Ω m; it does not depend on length or area.", "source": "NCERT 2026-27 Ch11 p.178 (jesc111)"},
+    {"term": "Ampere", "meaning": "The SI unit of current: one coulomb of charge flowing per second.", "source": "NCERT 2026-27 Ch11 p.172 (jesc111)"},
+    {"term": "Volt", "meaning": "The SI unit of potential difference: one joule of work per coulomb.", "source": "NCERT 2026-27 Ch11 p.173 (jesc111)"},
+    {"term": "Ammeter", "meaning": "Measures current; always connected in series.", "source": "NCERT 2026-27 Ch11 p.172 (jesc111)"},
+    {"term": "Voltmeter", "meaning": "Measures potential difference; always connected in parallel.", "source": "NCERT 2026-27 Ch11 p.173 (jesc111)"},
+    {"term": "Rheostat", "meaning": "A variable resistance used to change the current in a circuit.", "source": "NCERT 2026-27 Ch11 p.175 (jesc111)"},
+    {"term": "Equivalent resistance", "meaning": "The single resistance that could replace a combination and draw the same current.", "source": "NCERT 2026-27 Ch11 p.182 (jesc111)"},
+    {"term": "Joule's law of heating", "meaning": "Heat produced in a resistor, H = I²Rt.", "source": "NCERT 2026-27 Ch11 p.189 (jesc111)"},
+    {"term": "Electric power", "meaning": "The rate at which electric energy is consumed, P = VI.", "source": "NCERT 2026-27 Ch11 p.190 (jesc111)"},
+    {"term": "Kilowatt hour", "meaning": "The commercial unit of electric energy: 1 kW h = 3.6 × 10⁶ J.", "avoid": "kilowatt per hour", "source": "NCERT 2026-27 Ch11 p.191 (jesc111)"}
+  ],
   "third_tab_content": {
     "kind": "rules",
     "intro": "The core skills here are wiring the meters correctly, reading circuit symbols, and knowing exactly how current, voltage and resistance behave in series vs parallel. These rules make every numerical and circuit-diagram question fall out.",

@@ -210,12 +210,13 @@ describe("TutorPickerModal — the rendered pop-card", () => {
 });
 
 describe("PRIMARY_CARDS — SPEC §2 inventory", () => {
-  it("is four cards in journey order", () => {
+  it("is five cards in journey order (NCERT-HUB-1 added the NCERT Hub card last)", () => {
     expect(PRIMARY_CARDS.map((c) => c.label)).toEqual([
       "See what's likely",
       "Ask your tutor",
       "Practise it",
       "Check my answer",
+      "NCERT & Exemplar",
     ]);
   });
 
@@ -234,6 +235,7 @@ describe("PRIMARY_CARDS — SPEC §2 inventory", () => {
       "/exam-trends?source=home&returnTo=%2F",
       "/practice-hub?source=home&returnTo=%2F",
       "/check-improve?source=home&returnTo=%2F",
+      "/ncert-class-10?source=home&returnTo=%2F",
     ]);
   });
 

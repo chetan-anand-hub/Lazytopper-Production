@@ -1,9 +1,9 @@
 /**
  * noteAnchors — the stable links of a note page (NOTES-FORMULA-3a, D208).
  *
- * A note page has FIVE section anchors and any number of per-item anchors:
+ * A note page has SIX section anchors and any number of per-item anchors:
  *
- *   #formulae  #shortcuts  #memory-tricks  #mindmap   -> the second tab ("Formulae & Tricks")
+ *   #formulae  #shortcuts  #memory-tricks  #key-terms  #mindmap   -> the second tab ("Formulae & Tricks")
  *   #diagrams                                         -> the third tab, when it is the diagrams tab
  *   #<id>      a formula-strip item, a shortcut / memory trick, or a diagram that carries an `id`
  *
@@ -22,6 +22,8 @@ export const SECTION_ANCHORS = {
   formulae: "formulae",
   shortcuts: "shortcuts",
   memoryTricks: "memory-tricks",
+  /** KEY-TERMS-1: the "Key terms the examiner looks for" card. */
+  keyTerms: "key-terms",
   mindmap: "mindmap",
   diagrams: "diagrams",
 } as const;
@@ -42,6 +44,11 @@ export function memoryTricksOf(spec: NoteSpec): NoteShortcut[] {
 /** Does the chapter have any shortcut or memory trick? (decides the tab label and the Note-tab link) */
 export function hasTricks(spec: NoteSpec): boolean {
   return (spec.shortcuts ?? []).length > 0;
+}
+
+/** KEY-TERMS-1: the rows of the "Key terms the examiner looks for" card (empty when the chapter has none). */
+export function keyTermsOf(spec: NoteSpec): NonNullable<NoteSpec["key_terms"]> {
+  return spec.key_terms ?? [];
 }
 
 /** The refs of the figures the diagrams tab shows (empty unless the third tab is the diagrams tab). */
@@ -89,6 +96,7 @@ export function anchorTabs(spec: NoteSpec): Map<string, AnchorTab> {
   if ((spec.formula_strip ?? []).length > 0) m.set(SECTION_ANCHORS.formulae, "mind");
   if (shortcutsOf(spec).length > 0) m.set(SECTION_ANCHORS.shortcuts, "mind");
   if (memoryTricksOf(spec).length > 0) m.set(SECTION_ANCHORS.memoryTricks, "mind");
+  if (keyTermsOf(spec).length > 0) m.set(SECTION_ANCHORS.keyTerms, "mind");
   m.set(SECTION_ANCHORS.mindmap, "mind");
   if (diagramRefs(spec).length > 0) m.set(SECTION_ANCHORS.diagrams, "third");
   for (const { id, kind } of itemAnchors(spec)) m.set(id, kind === "diagram" ? "third" : "mind");
