@@ -12,6 +12,12 @@
  *     emails and opaque ids masked) before it leaves.
  * The package is imported dynamically, after first paint (idle), so it stays out of the
  * entry chunk (PERF-3 budget).
+ *
+ * SPEED-INSIGHTS-ROUTE-1 (coordinator, 6 Nov 2026): every event used to arrive with `route` unset, so the
+ * dashboard showed one "Unknown" route. Each event now carries a ROUTE FAMILY derived from the already-scrubbed
+ * path (`speedRouteFor`): content slugs collapse to a placeholder (`/notes/[chapter]`), so per-page speed is
+ * readable without sending anything the URL did not already carry. Half the events are sampled (`sampleRate`
+ * 0.5, owner cost ruling on the paid plan); p75s stay representative at today's ~1,100 mobile events a week.
  */
 import { ADMIN_PATH, analyticsEnabled, normalisePath, routerPathOf } from "./analytics";
 
@@ -24,12 +30,42 @@ export function speedInsightsBlocked(routerPath: string): boolean {
   return ADMIN_PATH.test(routerPath) || HAND_OFF_PATH.test(routerPath);
 }
 
+export const SPEED_SAMPLE_RATE = 0.5;
+
+/** Multi-segment paths that are ONE page each (kept as they are). */
+const STATIC_MULTI_SEGMENT = new Set(["/cbse/class-10", "/practice/worksheets", "/practice/worksheets/ready"]);
+
+/** Placeholder names for the content families; any other deeper path keeps its first segment + "[…]". */
+const FAMILY: ReadonlyArray<[RegExp, string]> = [
+  [/^\/notes\/[^/]+$/, "/notes/[chapter]"],
+  [/^\/cbq-class-10\/[^/]+$/, "/cbq-class-10/[chapter]"],
+  [/^\/topic-hub\/[^/]+$/, "/topic-hub/[chapter]"],
+  [/^\/topic-hub\/[^/]+\/[^/]+(?:\/[^/]+)?$/, "/topic-hub/[grade]/[subject]"],
+  [/^\/highly-probable\/[^/]+\/[^/]+$/, "/highly-probable/[grade]/[subject]"],
+  [/^\/practice\/[^/]+\/[^/]+$/, "/practice/[grade]/[subject]"],
+  [/^\/legal\/[^/]+$/, "/legal/[page]"],
+];
+
+/**
+ * The route family Speed Insights groups a page under, from a router path. Runs normalisePath first (ids,
+ * emails and hand-off tokens are already masked there), then collapses content slugs.
+ */
+export function speedRouteFor(routerPath: string): string {
+  const path = normalisePath(routerPath);
+  if (STATIC_MULTI_SEGMENT.has(path)) return path;
+  for (const [pattern, family] of FAMILY) if (pattern.test(path)) return family;
+  const segments = path.split("/").filter(Boolean);
+  if (segments.length <= 1) return path;
+  return `/${segments[0]}/[…]`;
+}
+
 /** Scrub a vendor event URL; null drops the event (admin and hand-off pages). */
 export function scrubSpeedEvent<T extends { url: string; route?: string }>(event: T): T | null {
   try {
     const u = new URL(event.url, window.location.origin);
     if (speedInsightsBlocked(routerPathOf(u.pathname))) return null;
-    return { ...event, url: `${u.origin}${normalisePath(u.pathname)}`, route: undefined };
+    const routerPath = routerPathOf(u.pathname);
+    return { ...event, url: `${u.origin}${normalisePath(u.pathname)}`, route: speedRouteFor(routerPath) };
   } catch {
     return null;
   }
@@ -41,7 +77,12 @@ export function startSpeedInsights(routerPath: string = routerPathOf(window.loca
   const load = () => {
     import("@vercel/speed-insights")
       .then((m) => {
-        m.injectSpeedInsights({ beforeSend: scrubSpeedEvent, debug: false });
+        m.injectSpeedInsights({
+          beforeSend: scrubSpeedEvent,
+          debug: false,
+          sampleRate: SPEED_SAMPLE_RATE,
+          route: speedRouteFor(routerPath),
+        });
       })
       .catch(() => {
         /* a blocked or failed speed script is never worth a broken page */
