@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App, { extractPrerenderedRoute } from "./App";
+import { deferredStylesheetReady } from "./lib/deferredStylesheet";
 import "./styles.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ProfileProvider } from "./context/ProfileContext";
@@ -38,20 +39,9 @@ const prerenderedRoute = extractPrerenderedRoute(
 
 // SPEED-SITE-2f — a prerendered page loads the entry stylesheet WITHOUT blocking its first paint (its critical
 // rules are inlined; scripts/seo/applyPrerendered.ts withCriticalEntryCss). React must not render anything the
-// critical subset does not cover before that sheet is in, so the first render waits for it. It is ~20 KB against
-// this ~200 KB script and is requested first, so in practice it is already there; capped at 3 s regardless.
-// `__shell.html` and dev keep the ordinary blocking link: no such element, no wait.
-function deferredStylesheetReady(timeoutMs = 3000): Promise<void> {
-  const link = document.querySelector<HTMLLinkElement>("link[data-lt-deferred-css]");
-  if (!link || link.media === "all") return Promise.resolve();
-  return new Promise<void>((resolve) => {
-    const done = () => resolve();
-    link.addEventListener("load", done, { once: true });
-    link.addEventListener("error", done, { once: true });
-    window.setTimeout(done, timeoutMs);
-  });
-}
-
+// critical subset does not cover before that sheet applies, so the first render waits for it — immediately if it
+// already loaded or failed, otherwise until it does, capped at 3 s (lib/deferredStylesheet). `__shell.html` and dev
+// keep the ordinary blocking link: no such element, no wait.
 void deferredStylesheetReady().then(() => ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>

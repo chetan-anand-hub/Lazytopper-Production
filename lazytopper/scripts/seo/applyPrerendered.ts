@@ -380,22 +380,15 @@ export function preloadHrefsFor(
 }
 
 /** Insert the preload links immediately before `</head>`, which must occur exactly once. */
-/**
- * SPEED-SITE-2f — route modulepreloads are fetched at LOW priority. They are not needed for the first paint (the
- * prerendered HTML is the first paint); on a slow link at High priority they competed with the HTML and the
- * stylesheet for bandwidth (~40–70 KB per page before first paint). They still arrive before the app needs them.
- */
-export const MODULEPRELOAD_PRIORITY = "low";
-
 export function withPreloads(html: string, hrefs: readonly string[]): string {
   if (hrefs.length === 0) return html;
   const closes = html.split("</head>").length - 1;
   if (closes !== 1) {
     throw new Error(`applyPrerendered: expected exactly one </head> to insert modulepreload links, found ${closes}`);
   }
-  const links = hrefs
-    .map((href) => `<link rel="modulepreload" crossorigin href="${href}" fetchpriority="${MODULEPRELOAD_PRIORITY}">`)
-    .join("");
+  // #1608 review: route modulepreloads stay at their default priority. Lowering them (an earlier revision) delayed
+  // the entry script and so React's start on real Slow 3G (desktop /pricing +0.87 s, /packs +0.3 s).
+  const links = hrefs.map((href) => `<link rel="modulepreload" crossorigin href="${href}">`).join("");
   return html.replace("</head>", `${links}</head>`);
 }
 
@@ -584,7 +577,11 @@ export function entranceAnimationsIn(html: string): string[] {
  *
  * The rules that can apply to this page's HTML (`criticalCss`, scripts/seo/criticalCss.ts) are inlined in a
  * `<style data-lt-critical>` where the entry `<link rel="stylesheet">` was, and the full sheet is loaded without
- * blocking (`media="print"` switched to `all` on load; a `<noscript>` copy for no-JS readers). The full sheet holds
+ * blocking but at HIGH priority: `<link rel="preload" as="style" fetchpriority="high">` that becomes a stylesheet on
+ * load (#1608 review: `media="print"` fetched it at the LOWEST priority, after the 237 KB entry script, so on Slow 3G
+ * React started 1.1-4.2 s later than on trunk and /pricing hit the 3 s cap). The inline handlers record the outcome
+ * on the element (`data-lt-css="loaded" | "failed"`) so main.tsx never waits for an event that already fired.
+ * A `<noscript>` copy serves no-JS readers. The full sheet holds
  * the same rules in the same order after these, so its arrival changes nothing on screen, and main.tsx starts React
  * only once it has loaded (`deferredStylesheetReady`), so nothing the app renders is ever unstyled.
  * Only prerendered page files get this: `__shell.html` keeps its blocking link (it has no HTML to compute from).
@@ -601,7 +598,9 @@ export function withCriticalEntryCss(html: string, cssFile: string, css: string,
   const subset = inlinableCss(cssFile, critical(css, body));
   const deferred =
     `<style data-lt-critical="${cssFile}">${subset}</style>` +
-    `<link rel="stylesheet" crossorigin href="/assets/${cssFile}" media="print" onload="this.media='all'" ${DEFERRED_CSS_ATTR}>` +
+    `<link rel="preload" as="style" crossorigin href="/assets/${cssFile}" fetchpriority="high" ${DEFERRED_CSS_ATTR} ` +
+    `onload="this.onload=null;this.onerror=null;this.rel='stylesheet';this.setAttribute('data-lt-css','loaded')" ` +
+    `onerror="this.onload=null;this.onerror=null;this.setAttribute('data-lt-css','failed')">` +
     `<noscript>${link}</noscript>`;
   return html.replace(link, () => deferred);
 }

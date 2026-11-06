@@ -485,10 +485,9 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
       ]);
       // The root's page is in the entry chunk already: nothing to preload.
       expect(modulepreloadHrefsIn(readFileSync(join(out, "index.html"), "utf8"))).toEqual([]);
-      // crossorigin, so the browser reuses the preload for the module request. SPEED-SITE-2f: at low fetch
-      // priority (not needed for the prerendered first paint; it must not compete with the HTML and CSS).
+      // crossorigin, so the browser reuses the preload for the module request.
       expect(readFileSync(join(out, "pricing.html"), "utf8")).toContain(
-        '<link rel="modulepreload" crossorigin href="/assets/PricingPage-CCCCCCCC.js" fetchpriority="low">',
+        '<link rel="modulepreload" crossorigin href="/assets/PricingPage-CCCCCCCC.js">',
       );
     } finally {
       cleanup();

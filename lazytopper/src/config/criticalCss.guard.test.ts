@@ -51,6 +51,25 @@ describe("SPEED-SITE-2f criticalCss", () => {
     );
   });
 
+  // #1608 review — the extractor's two blind spots, pinned so they cannot change silently.
+  it("BLIND SPOT 1: rules keyed to the document element's runtime classes / attributes are KEPT", () => {
+    // `dark`, `data-theme`, `is-ios` never appear in a captured page: they are set at runtime on <html>.
+    for (const sel of ["html.dark .lead", 'html[data-theme="dark"] .lead', ":root.is-ios .lt-top", "html.a.b[data-x] p", ":root[data-theme=dark]"]) {
+      expect(selectorMayMatch(sel, tokens), sel).toBe(true);
+    }
+    // ...but the REST of the selector is still checked: an absent part still drops it.
+    expect(selectorMayMatch("html.dark .modal", tokens)).toBe(false);
+    expect(criticalCss('html.dark .lead{color:#fff}html.dark .modal{color:#000}', PAGE)).toBe("html.dark .lead{color:#fff}");
+  });
+
+  it("BLIND SPOT 2: attribute selector VALUES are never read for names (~=, |=, ^=, quoted values with spaces)", () => {
+    for (const sel of ['[data-x="a b"]', '[data-x~="b"]', "[data-x|=en]", '[class~="no-such-class"] p', '[data-x="x > y"] p', '[ data-x = "1" ]']) {
+      expect(selectorMayMatch(sel, tokens), sel).toBe(true);
+    }
+    // the attribute NAME is still checked
+    expect(selectorMayMatch('[data-open~="yes"]', tokens)).toBe(false);
+  });
+
   it("splits selector lists only at top-level commas, and honours strings in bodies", () => {
     expect(splitSelectors(".a:is(.b,.c),.d")).toEqual([".a:is(.b,.c)", ".d"]);
     expect(splitBlocks('.a{content:"}{"}.b{x:1}')).toEqual([
@@ -84,7 +103,13 @@ describe("SPEED-SITE-2f withCriticalEntryCss", () => {
   it("inlines the subset, defers the full sheet, keeps a noscript copy; the body is untouched", () => {
     const out = withCriticalEntryCss(shell, "index-AbC123.css", ".lead{a:1}.modal{b:2}", criticalCss);
     expect(out).toContain('<style data-lt-critical="index-AbC123.css">.lead{a:1}</style>');
-    expect(out).toContain(`<link rel="stylesheet" crossorigin href="/assets/index-AbC123.css" media="print" onload="this.media='all'" ${DEFERRED_CSS_ATTR}>`);
+    // #1608 review: HIGH-priority preload that becomes the stylesheet on load, recording its outcome for main.tsx.
+    expect(out).toContain(
+      `<link rel="preload" as="style" crossorigin href="/assets/index-AbC123.css" fetchpriority="high" ${DEFERRED_CSS_ATTR} ` +
+        `onload="this.onload=null;this.onerror=null;this.rel='stylesheet';this.setAttribute('data-lt-css','loaded')" ` +
+        `onerror="this.onload=null;this.onerror=null;this.setAttribute('data-lt-css','failed')">`,
+    );
+    expect(out).not.toContain('media="print"');
     expect(out).toContain('<noscript><link rel="stylesheet" crossorigin href="/assets/index-AbC123.css"></noscript>');
     expect(out.slice(out.indexOf("<body"))).toBe(shell.slice(shell.indexOf("<body")));
   });

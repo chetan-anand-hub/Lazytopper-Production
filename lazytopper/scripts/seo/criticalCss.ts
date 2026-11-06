@@ -170,9 +170,24 @@ function withoutPseudos(selector: string): string {
   return out;
 }
 
+/**
+ * #1608 review — the two places a captured page CANNOT tell us what will be there, handled conservatively:
+ *   1. A rule keyed to the DOCUMENT ELEMENT (`html.x …`, `html[data-theme=dark] …`, `:root.x …`): those classes and
+ *      attributes are set at runtime (a theme, a device flag), never captured. Its leading `html` / `:root`
+ *      compound is treated as plain `html`, so such a rule is kept whenever the rest of it may match.
+ *   2. Attribute selectors: only the attribute NAME is checked; the value (`~=`, `|=`, `^=`, quoted values with
+ *      spaces) is never parsed for names. It used to be scanned for element names (`[data-x="a b"]` required a
+ *      `<b>`), which could drop a rule that applies.
+ */
+const DOCUMENT_ELEMENT_COMPOUND = /^\s*(?:html|:root)(?:[.#][A-Za-z0-9_\\-]+|\[[^\]]*\])*/i;
+
+function withoutAttributeValues(selector: string): string {
+  return selector.replace(/\[\s*([A-Za-z0-9_:-]+)[^\]]*\]/g, "[$1]");
+}
+
 /** May this selector match an element of the page? Conservative: false only when a named part is absent. */
 export function selectorMayMatch(selector: string, tokens: PageTokens): boolean {
-  const s = withoutPseudos(selector);
+  const s = withoutAttributeValues(withoutPseudos(selector.replace(DOCUMENT_ELEMENT_COMPOUND, "html")));
   for (const m of s.matchAll(/\.((?:\\.|[A-Za-z0-9_-])+)/g)) if (!tokens.classes.has(unescape(m[1]))) return false;
   for (const m of s.matchAll(/#((?:\\.|[A-Za-z0-9_-])+)/g)) if (!tokens.ids.has(unescape(m[1]))) return false;
   for (const m of s.matchAll(/\[\s*([A-Za-z0-9_:-]+)/g)) if (!tokens.attrs.has(m[1].toLowerCase())) return false;
