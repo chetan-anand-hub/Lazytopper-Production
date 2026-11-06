@@ -914,9 +914,9 @@ export type NamedAnalyticsEvent =
   | "paywall_action_pay"
   | "paywall_action_qr"
   | "paywall_action_forward"
-  // CHECKOUT-1 - a tap on "Ask a parent to pay" (it replaced "Forward link to parents"). Name only.
+  // CHECKOUT-1 - a tap on "Forward link to parents". Name only.
   | "ask_parent_pay"
-  // PAY-RESCUE-1 - the "Can't pay yourself?" card after a closed / failed checkout: shown, "Ask a parent to pay" tapped, "Try again" tapped. Names only.
+  // PAY-RESCUE-1 - the "Can't pay yourself?" card after a closed / failed checkout: shown, "Forward link to parents" tapped, "Try again" tapped. Names only.
   | "pay_rescue_shown"
   | "pay_rescue_parent"
   | "pay_rescue_retry"
@@ -1698,7 +1698,7 @@ const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
   qr: "paywall_action_qr",
   forward: "paywall_action_forward",
-  // CHECKOUT-1 - "Ask a parent to pay" (the text-share action; `forward` is its retired name, kept for stored rows).
+  // CHECKOUT-1 - "Forward link to parents" (the text-share action; `forward` is its retired name, kept for stored rows).
   ask: "ask_parent_pay",
 };
 

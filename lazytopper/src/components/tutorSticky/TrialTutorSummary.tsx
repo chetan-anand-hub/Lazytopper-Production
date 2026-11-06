@@ -38,7 +38,7 @@ function writeHiddenDay(uid: string, dayKey: string): void {
 /**
  * TUTOR-STICKY-1 — the trial-ending tutor summary (Home, and the top of the tutor). For the last two days of
  * a trial and on the day it ends: what the tutor really did for this student, then the Board Pass offer and
- * "Ask a parent to pay" (the existing flow).
+ * "Forward link to parents" (the existing flow).
  *
  *  - N questions / M chapters are the student's own synced tutor doubts since the trial began. If there are
  *    none (or the read failed or is partial) the card renders NOTHING.

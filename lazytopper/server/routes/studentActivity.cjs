@@ -187,7 +187,7 @@ const ACTIVITY_EVENTS = Object.freeze([
   'paywall_action_pay',
   'paywall_action_qr',
   'paywall_action_forward',
-  // CHECKOUT-1 - a tap on "Ask a parent to pay". Name only. Additive only.
+  // CHECKOUT-1 - a tap on "Forward link to parents". Name only. Additive only.
   'ask_parent_pay',
   // PAY-RESCUE-1 - the "Can't pay yourself?" card: shown / Ask a parent tapped / Try again tapped. Names only. Additive only.
   'pay_rescue_shown',

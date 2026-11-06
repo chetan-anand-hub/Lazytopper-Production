@@ -16,8 +16,7 @@
  *                             /api/pay/parent-link) drawn as a QR PNG and shared as a FILE
  *                             (the phone's share sheet -> WhatsApp). Where the browser cannot
  *                             share files: the QR on screen, "Download QR" and a wa.me link.
- *   "Ask a parent to pay"     the same link as TEXT (share sheet, else wa.me + copy link). CHECKOUT-1
- *                             (31 Oct 2026): this is the old "Forward link to parents", renamed; one tap.
+ *   "Forward link to parents"     the same link as TEXT (share sheet, else wa.me + copy link); one tap.
  *
  * ★ THE WORDING IS THE RULING: never the word "Ask", never a half sign (U+00BD), always
  * "parents". The guard test `PaywallActions.test.tsx` scans the rendered text and the
@@ -103,9 +102,9 @@ export interface PaywallActionsViewProps {
   payTo?: string;
   /** "Pay by QR code" and "Forward link to parents". */
   showParent: boolean;
-  /** PAY-RESCUE-1 - only "Ask a parent to pay", styled as the primary action. */
+  /** PAY-RESCUE-1 - only "Forward link to parents", styled as the primary action. */
   askOnly?: boolean;
-  /** PAY-RESCUE-1 - fires with each fresh tap on "Ask a parent to pay". */
+  /** PAY-RESCUE-1 - fires with each fresh tap on "Forward link to parents". */
   onAsk?: () => void;
   forwardLabel?: string;
   qrLabel?: string;

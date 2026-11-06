@@ -16,7 +16,7 @@ import "./trialEarlyStrip.css";
 /**
  * TrialEarlyStrip - TRIAL-SELL-1. DESKTOP ONLY, trial days 1-3 (IST): one slim line
  * "Trial: day N of 7 · Board Pass ₹… till your boards (founding offer till …)" with "Pay"
- * (straight to the Board Pass checkout) and "Ask a parent to pay" (the existing parent-pay link,
+ * (straight to the Board Pass checkout) and "Forward link to parents" (the existing parent-pay link,
  * minted on tap). Phones keep their own strip (ux/TrialBanner); day 4 on, TrialCountdownBar speaks.
  *
  * Mounted inside the existing trial slot (TrialAskInner, a LAZY chunk - PERF-3), so neither App.tsx

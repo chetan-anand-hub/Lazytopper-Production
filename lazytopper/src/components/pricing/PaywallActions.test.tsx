@@ -1,5 +1,5 @@
 /**
- * PAYWALL-PAY-1 — the three paywall actions: "Pay", "Pay by QR code", "Ask a parent to pay".
+ * PAYWALL-PAY-1 — the three paywall actions: "Pay", "Pay by QR code", "Forward link to parents".
  *
  * Labels exact; never "Ask" next to parents (rendered AND in every pay surface's source, with
  * a control that proves the scan bites); the switches gate each action; the QR goes out as a
@@ -92,12 +92,8 @@ function flags(payments: boolean, parent: boolean) {
 
 /** The owner's ruling, as one pattern: the word "ask" anywhere before "parent" on a line. */
 const ASK_PARENT = /\bask\b[^\n"'`]*parent/i;
-/**
- * CHECKOUT-1 (owner, 31 Oct 2026, "agree with Proposed fix"): the ONE sanctioned exception to the 22 Oct ruling is the exact
- * label "Ask a parent to pay" (the text-share action). Every other "Ask ... parent" is still refused.
- */
-const SANCTIONED_ASK = "Ask a parent to pay";
-const withoutSanctioned = (text: string) => text.split(SANCTIONED_ASK).join("");
+/** PARENT-WORDING-1 (owner, 19 Oct, re-confirmed 6 Nov 2026): no sanctioned exception - "ask" never appears before "parent". */
+const withoutSanctioned = (text: string) => text;
 
 beforeEach(() => {
   track.mockClear();
@@ -108,12 +104,12 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("labels — exactly the owner's three (CHECKOUT-1: the third is now Ask a parent to pay)", () => {
-  it("Pay, Pay by QR code, Ask a parent to pay — in that order", () => {
+describe("labels — exactly the owner's three (the third is Forward link to parents)", () => {
+  it("Pay, Pay by QR code, Forward link to parents — in that order", () => {
     view(deps());
     const names = screen.getAllByRole("button").map((b) => b.textContent);
-    expect(names).toEqual(["Pay", "Pay by QR code", "Ask a parent to pay"]);
-    expect([PAY_LABEL, QR_LABEL, FORWARD_LABEL]).toEqual(["Pay", "Pay by QR code", "Ask a parent to pay"]);
+    expect(names).toEqual(["Pay", "Pay by QR code", "Forward link to parents"]);
+    expect([PAY_LABEL, QR_LABEL, FORWARD_LABEL]).toEqual(["Pay", "Pay by QR code", "Forward link to parents"]);
   });
 });
 
@@ -259,7 +255,7 @@ describe("Pay by QR code", () => {
   });
 });
 
-describe("Ask a parent to pay", () => {
+describe("Forward link to parents", () => {
   it("share sheet: the message as TEXT (no file)", async () => {
     const share = vi.fn(async () => undefined);
     const d = deps({ nav: { share, canShare: () => true } });
@@ -410,8 +406,9 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     // ...and is not fooled into flagging "ask the tutor" or a comment.
     expect(code('const t = "upgrade to ask the tutor";')).not.toMatch(ASK_PARENT);
     expect(code('// "Ask your parents to pay" was the old label\nconst x = 1;')).not.toMatch(ASK_PARENT);
-    // CHECKOUT-1: the sanctioned label passes; the old plural wording does not.
-    expect(withoutSanctioned(code('const L = "Ask a parent to pay";'))).not.toMatch(ASK_PARENT);
+    // PARENT-WORDING-1: the retired "Ask a parent to pay" label is refused too; the sanctioned label passes.
+    expect(withoutSanctioned(code('const L = "Ask a parent to pay";'))).toMatch(ASK_PARENT);
+    expect(withoutSanctioned(code('const L = "Forward link to parents";'))).not.toMatch(ASK_PARENT);
     expect(withoutSanctioned(code('const L = "Ask your parents to pay";'))).toMatch(ASK_PARENT);
   });
 
@@ -423,7 +420,7 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     for (const f of html) expect(readFileSync(path.join(dir, String(f)), "utf8")).not.toMatch(/\bask\b[^<]{0,40}parent/i);
   });
 
-  it('CHECKOUT-1: one tap on "Ask a parent to pay" mints the existing link once and shares it as text (the ask event)', async () => {
+  it('CHECKOUT-1: one tap on "Forward link to parents" mints the existing link once and shares it as text (the ask event)', async () => {
     const d = deps({ nav: { share: vi.fn(async () => undefined) } as never });
     view(d);
     await tap(FORWARD_LABEL);

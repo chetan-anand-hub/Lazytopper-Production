@@ -74,7 +74,7 @@ export interface UpgradeSheetProps {
   pack?: PaperPackLine | null;
   /**
    * OFFERS-V2: a PAPER WALL (a full mock, chapter test or worksheet the student could not have graded). The sheet then shows the one buying block:
-   * "<Your paper> is saved", the free-week button where it can still be started, the Board Pass card (one tap to payment, with "Ask a parent to pay"
+   * "<Your paper> is saved", the free-week button where it can still be started, the Board Pass card (one tap to payment, with "Forward link to parents"
    * and the QR link as small links), the pack rows for that paper from the highest price down, and a small grey way out at the very bottom
    * ("Not now" on a trial limit, "Continue with Basic (free)" for Basic). Replaces `pack`. Absent -> the sheet is exactly as before.
    */

@@ -1,5 +1,5 @@
 /**
- * parentPayPack - PARENT-PACKS-1 (owner, 4 Nov 2026): the pack half of "Ask a parent to pay".
+ * parentPayPack - PARENT-PACKS-1 (owner, 4 Nov 2026): the pack half of "Forward link to parents".
  *
  * Kept OUT of services/parentPay.ts on purpose: that module rides on the light paywall gate (the entry chunk), while
  * everything here is needed only once a pack's share sheet (the lazy PaywallActionsView chunk), the pack shop or the

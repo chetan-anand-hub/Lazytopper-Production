@@ -1,5 +1,5 @@
 /**
- * PACK-DIALOG-1 (owner, 4 Nov 15:05: "complete empty on the left side!") - in the pack pop-up, an opened "Ask a parent to pay"
+ * PACK-DIALOG-1 (owner, 4 Nov 15:05: "complete empty on the left side!") - in the pack pop-up, an opened "Forward link to parents"
  * / "Pay by QR code" panel is NEVER inside the sticky footer (a sticky white box taller than the scroller covered the title and
  * the slides). It renders in the dialog's own full-width slot below the footer, in normal flow, and its heading takes focus.
  * On desktop the footer is not sticky at all. The preview strip says plainly which pack kind and subject its pages are from.

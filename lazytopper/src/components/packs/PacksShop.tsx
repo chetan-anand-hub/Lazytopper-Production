@@ -51,7 +51,7 @@ import { maskEmail } from "../../services/checkoutWhoFlag";
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
-// PARENT-PACKS-1: "Ask a parent to pay" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
+// PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
@@ -214,7 +214,7 @@ export interface PacksShopApi {
   /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
   blockedBy: (sku: PackSku, target?: string) => boolean;
   /**
-   * PARENT-PACKS-1 - "Ask a parent to pay" (+ "Pay by QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
+   * PARENT-PACKS-1 - "Forward link to parents" (+ "Pay by QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
    */
   parentAsk: (sku: PackSku, target?: string, opts?: { noQr?: boolean }) => ReactNode;
