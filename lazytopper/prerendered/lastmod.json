@@ -152,7 +152,11 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-class-10": {
-    "sha256": "3080bd1d67f945295fd6f677227574e6ec16b1637b9e527b791575586384bbcf",
+    "sha256": "6f015fc51aecbc254459a8e9cf4371b846071f3d813097ea7536042b6ea4bfb8",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-exemplar/acids-bases-and-salts": {
+    "sha256": "d3cb56c46f724e9ae408e1aa1cf7b13b34aeeb35aa8c8a0d31b7932d0a4e244e",
     "lastmod": "2026-11-06"
   },
   "/ncert-exemplar/areas-related-to-circles": {
@@ -163,17 +167,57 @@
     "sha256": "c104f1da525331b067feab1bd05d81dd6ca6d06c227a3068f8c949709bbd27a6",
     "lastmod": "2026-11-05"
   },
+  "/ncert-exemplar/carbon-and-its-compounds": {
+    "sha256": "6fe8cf11d7421a364d90365115aef764b692cb6e500b7fc7fbe2203f87692724",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-exemplar/chemical-reactions-and-equations": {
+    "sha256": "ecccd57f08b89ef042445fda684308adca401ac97537d01fbc10ddaf7baaeb96",
+    "lastmod": "2026-11-06"
+  },
   "/ncert-exemplar/circles": {
     "sha256": "3ed55faf6e8a8c83ef6273ff6eea9fa402661b8683e8813d9f76964a9d19ba06",
     "lastmod": "2026-11-05"
+  },
+  "/ncert-exemplar/control-and-coordination": {
+    "sha256": "50327558b8bc8035b37a36b7096dbb9f5ffdf84f01349920aa1ee245a08daaf8",
+    "lastmod": "2026-11-06"
   },
   "/ncert-exemplar/coordinate-geometry": {
     "sha256": "87d2bc344533e23700ca03bae0113b28b6a277fa22482283db0d9850b4826ab0",
     "lastmod": "2026-11-05"
   },
+  "/ncert-exemplar/electricity": {
+    "sha256": "12769d931b626524ddc11b26a9c86fe78ae660f1eb61cd1dcbe96f274d728391",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-exemplar/heredity": {
+    "sha256": "71b94bbb572f151cef3612e0ade68551bd4bcef81799465fb63a5d021289eb19",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-exemplar/how-do-organisms-reproduce": {
+    "sha256": "30c2faf1eb9328e551086fca943a6d3ead24a8891809df266b634ea17edb2ff2",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-exemplar/human-eye-and-colourful-world": {
+    "sha256": "7e8756aa3ea82191593275d4f5fbcb2692bcc6cd4a32a863f4b25ed88b1e0d39",
+    "lastmod": "2026-11-06"
+  },
   "/ncert-exemplar/introduction-to-trigonometry": {
     "sha256": "304a072e3fdd6d3e0a5cb6dc6dfed555b565e3587b65a0ceb33941804bda7672",
     "lastmod": "2026-11-05"
+  },
+  "/ncert-exemplar/life-processes": {
+    "sha256": "5017e7ca8b70a5b73904fb1c912417fb33d43fd43736b592d9da79e13381af1d",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-exemplar/light-reflection-and-refraction": {
+    "sha256": "8f5cd89c088c2a6d5840618e356052ef858b5d8be51892bbfd2dca53d3430183",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-exemplar/metals-and-non-metals": {
+    "sha256": "ac717e72b9e020813627c4802ef1c7bea06ed5ab95257b62565300e6f2be16ca",
+    "lastmod": "2026-11-06"
   },
   "/ncert-exemplar/pair-of-linear-equations": {
     "sha256": "5ecad5da8808eb8e71c98a7a1cfa2a68960bbddb531784351e5daae91c2f8888",
@@ -212,7 +256,7 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-solutions/acids-bases-and-salts": {
-    "sha256": "72188ce9543c65cc65baad02dc8f72d4f186e6850d8321b68104f7464e99afa4",
+    "sha256": "d902472fda446c9f6ecfd28445112fcd0fc82cb56b4fa0e144f58f967d327061",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/areas-related-to-circles": {
@@ -224,11 +268,11 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-solutions/carbon-and-its-compounds": {
-    "sha256": "9cbcd217d411b8cdfd80d16fa0473ac3cf8f86462b508279aa30426442d23ebb",
+    "sha256": "d77cba14f59e33b89a039241b1d5e57c179ffa568b526cb980385c0630ac35e0",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/chemical-reactions-and-equations": {
-    "sha256": "b74ed66de7ebd82aa67570397b163a6ff6c2f5a0283c3e82016ead3548db17bc",
+    "sha256": "ca9baa1a12af797c0d4abb71d755ef0d6c4d6c5f29934fb2daec34b09ab66013",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/circles": {
@@ -236,7 +280,7 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-solutions/control-and-coordination": {
-    "sha256": "f9861501e3d3a760bae64dc81af802112fead112b9e8cc63b0d5ea19d8d079c2",
+    "sha256": "7b8613ef795027eb6031f8e954d2e71fa95dd9e1ea785438aff6a183f5fb6a65",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/coordinate-geometry": {
@@ -244,15 +288,15 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-solutions/electricity": {
-    "sha256": "a88fd12bfec654b525f2f0f677bd316d36dcd0caeadd0cfbbfb818075bc71331",
+    "sha256": "1cde8d52d7d2f1773cc277ac867a012299c40315f7cfe2e2530aee70edcaf288",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/how-do-organisms-reproduce": {
-    "sha256": "64876892d4fe3b1f7140ee2dec58258bee89f53d69f5e3a367616ddb342b4d4d",
+    "sha256": "b48a01b670f8f179f56e14c4d07d169a25eb137d1fa11d8edf6ee8ffd8d6cca7",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/human-eye-and-colourful-world": {
-    "sha256": "befc11bb4a8704ab3d754667e1805133c045bb38e8a184fe81acf20127f42a16",
+    "sha256": "e8bf93cc4402886ced44c9f6da5a210708aef4dffa79fd11e469d0e979ed5702",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/introduction-to-trigonometry": {
@@ -260,11 +304,11 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-solutions/life-processes": {
-    "sha256": "c04f47594325debd2b0c6c620187301d616616c72556969b1750312b05ba77a2",
+    "sha256": "e0b7c2b47e9cefd35ade3c86786886a7198036293b4c60b11e445c8a9ffd803b",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/light-reflection-and-refraction": {
-    "sha256": "01d0b1bf359569aa91892f866d74f6507f7920a4c8e59ec1dc31c772070b4577",
+    "sha256": "e06e61f442c24acf3b463db6f2dc0b4ad689cd3c68f72eef53a4c71fd22e200a",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/magnetic-effects-of-electric-current": {
@@ -272,7 +316,7 @@
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/metals-and-non-metals": {
-    "sha256": "164503dbb76528503a4a8ece8f101f0c00de79b04aa019a4e01535c3de92373c",
+    "sha256": "f71bd427a7f62de97a0b9f6335a063f723aa105fd8b5457f57ceaa37862e5616",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/our-environment": {
