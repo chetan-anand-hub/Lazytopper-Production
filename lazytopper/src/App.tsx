@@ -848,9 +848,12 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
     return () => stopTracking();
   }, []);
 
-  // SPEED-SITE-2a — AFTER the page has loaded and gone idle, fetch the split-out chunks this visitor is likely to
-  // need next, so an in-app tap to /login or a desktop shell route renders as promptly as when they were in the
-  // entry chunk: Login for a signed-out visitor, DesktopShell at desktop width. Never before first paint.
+  // SPEED-SITE-2a — WELL AFTER the page has loaded (load + 5 s, then idle), fetch the split-out chunks this visitor
+  // is likely to need next, so an in-app tap to /login or a desktop shell route renders as promptly as when they
+  // were in the entry chunk: Login for a signed-out visitor, DesktopShell at desktop width. The 5 s keeps these
+  // bytes out of the page's own load (the first 2a build prefetched at the first idle, and the Login chunk then
+  // competed with the Answer Checker's own chunks on a phone). No visitor downloads more than on trunk, where
+  // both were inside the entry chunk.
   const signedOutForPrefetch = !authLoadingForPrefetch && !user;
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -861,16 +864,20 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
       if (signedOutForPrefetch) void Login.preload();
       if (isDesktop) void DesktopShell.preload();
     };
+    let delayId: number | null = null;
     const schedule = () => {
-      const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
-      if (typeof w.requestIdleCallback === "function") idleId = w.requestIdleCallback(run, { timeout: 5000 });
-      else idleId = window.setTimeout(run, 2000);
+      delayId = window.setTimeout(() => {
+        const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+        if (typeof w.requestIdleCallback === "function") idleId = w.requestIdleCallback(run, { timeout: 5000 });
+        else run();
+      }, 5000);
     };
     if (document.readyState === "complete") schedule();
     else window.addEventListener("load", schedule, { once: true });
     return () => {
       cancelled = true;
       window.removeEventListener("load", schedule);
+      if (delayId !== null) window.clearTimeout(delayId);
       const w = window as Window & { cancelIdleCallback?: (id: number) => void };
       if (idleId !== null) {
         if (typeof w.cancelIdleCallback === "function") w.cancelIdleCallback(idleId);
