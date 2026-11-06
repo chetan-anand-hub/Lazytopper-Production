@@ -152,7 +152,7 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-class-10": {
-    "sha256": "d56c0de22abff1b3759dede0a2d9345a73decbc4b076beb52466c4d63493924a",
+    "sha256": "0d9c201d680beb605359631f61c75cf988eb1a297aadb2edd9bca8009238ff65",
     "lastmod": "2026-11-06"
   },
   "/ncert-exemplar/areas-related-to-circles": {
@@ -219,6 +219,10 @@
     "sha256": "c625e70d23a32290308474f02d29366a2c3637dacec5f20ab66a158bb060b269",
     "lastmod": "2026-11-06"
   },
+  "/ncert-solutions/chemical-reactions-and-equations": {
+    "sha256": "e8d08cbd97bed457a60688541927ed685dc2a762e8408c68808f1103ed82ef04",
+    "lastmod": "2026-11-06"
+  },
   "/ncert-solutions/circles": {
     "sha256": "45817c76f00aa4b058f2f2cd0c2a27f6f20ba2bd6bf178f64293f8882f1cdca2",
     "lastmod": "2026-11-06"
@@ -227,8 +231,16 @@
     "sha256": "cdd64105b90e2cd962048e061e7f65b962f9ca04011bdee2c65899f0d842e16f",
     "lastmod": "2026-11-06"
   },
+  "/ncert-solutions/electricity": {
+    "sha256": "b35cc57ff709d741719622058e9a3e7b7d1e47101e463231ff6ad0731f1f85a0",
+    "lastmod": "2026-11-06"
+  },
   "/ncert-solutions/introduction-to-trigonometry": {
     "sha256": "513cc87662cd84d418e681f506d46a09f713b8cee02e4ffb80b2fc2375a40765",
+    "lastmod": "2026-11-06"
+  },
+  "/ncert-solutions/life-processes": {
+    "sha256": "b61543d641578ec4815edfb0008b7fb1559eff52b15bba70a5f62e891dfdba22",
     "lastmod": "2026-11-06"
   },
   "/ncert-solutions/pair-of-linear-equations": {
@@ -284,7 +296,7 @@
     "lastmod": "2026-11-06"
   },
   "/notes/chemical-reactions-and-equations": {
-    "sha256": "c1d8a5c40e68c80d742dd5595e6eb9e3466187e2a83a673a35a1aee6eb436cba",
+    "sha256": "0be68e4ce100722e7fd6e6e863f660d1797a1de4808df9a1d0bf53ccd27936e4",
     "lastmod": "2026-11-06"
   },
   "/notes/circles": {
@@ -300,7 +312,7 @@
     "lastmod": "2026-11-06"
   },
   "/notes/electricity": {
-    "sha256": "a90e1d71167a917241df6b543c0238915556273fcbd8e2d2b741b4fba2acff6c",
+    "sha256": "50bf7ec0d1a7d09b668b55b492e3cc08d6cd648e41ffcb54e6f0067b770e166b",
     "lastmod": "2026-11-06"
   },
   "/notes/heredity": {
@@ -316,7 +328,7 @@
     "lastmod": "2026-11-06"
   },
   "/notes/life-processes": {
-    "sha256": "c103bf76bc7ba378e5c03e49d117ff41989669f50a6cbab99cc458ec1a63ef15",
+    "sha256": "92fb74c1cf2e3cb8b672d56e95c19d913595dfad7e31ad2e012539c8d6abf7ee",
     "lastmod": "2026-11-06"
   },
   "/notes/light-reflection-and-refraction": {
