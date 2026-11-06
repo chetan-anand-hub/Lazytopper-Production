@@ -41,6 +41,8 @@ export function worksheetQuestionFromBankRow(
     solutionSteps: q.solutionSteps,
     finalAnswer: q.finalAnswer,
     answer: q.answer,
+    // SCORECARD-SECTION-TYPE-1 - the bank row's own format (its `section` is already the field above).
+    ...(q.format ? { format: q.format } : {}),
   };
 }
 

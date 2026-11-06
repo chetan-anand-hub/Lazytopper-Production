@@ -28,7 +28,7 @@ vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackEvent: track.view, tr
 import PassOwnerOffer from "./PassOwnerOffer";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
 import { PASS_OFFERS_SNOOZE_KEY } from "./passOwnerOffersModel";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../../services/packs";
 
 function Where() {

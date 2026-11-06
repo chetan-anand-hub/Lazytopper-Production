@@ -44,6 +44,7 @@ const passPricing = require('./passPricing.cjs');
 // GST-EXCL-1: the Chapter Pack price for the packs line, from the server table (never typed).
 const CHAPTER_PACK_PRICE_INR = require('./packProducts.cjs').PACK_PRODUCTS.pack_chapter.priceInr;
 const { deriveEffectiveTier, isServerPinnedStart, TRIAL_MS } = require('./entitlement.cjs');
+const { isSuppressedTx } = require('./emailSuppression.cjs'); // GUEST-ABANDON-1 review D1
 
 const TRIAL_EMAILS_COLLECTION = 'trialEmails';
 /**
@@ -274,7 +275,7 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
   const packsUrl = `${appUrl}/pricing?${utm('packs')}#packs`;
   // Board Pass price at the SEND time, from the server pricing mirror (never a literal).
   const quote = passPricing.tillBoardsQuote(nowMs, passPricing.predictBoardDateIso(nowMs));
-  // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 5 Nov 2026 (the shared tag); before it, byte-identical.
+  // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 7 Nov 2026 (the shared tag); before it, byte-identical.
   const ctaLabel = quote ? `Get the Board Pass - ${passPricing.displayPlusGst(quote.priceInr, nowMs)} till your boards` : 'Get the Board Pass';
   // PRICE-FIXED-1: no founding/month line - the Board Pass is a fixed price and the month pass is not advertised.
   const foundingLine = null;
@@ -469,7 +470,7 @@ function createTrialEndingEmailer(deps = {}) {
    * 'spaced' - nothing is written, so the student stays a candidate and a later hourly run sends.
    * Returns 'claimed' | 'claimed-elsewhere' | 'opted-out' | 'spaced' | 'daily-cap'.
    */
-  async function claimWithinCap(ledgerRef, decision, dayKey, nowMs) {
+  async function claimWithinCap(ledgerRef, decision, dayKey, nowMs, email) {
     const dailyRef = adminFirestore.collection(TRIAL_EMAIL_DAILY_COLLECTION).doc(dayKey);
     const nudgeRef = adminFirestore.collection(NUDGE_LEDGER_COLLECTION).doc(ledgerRef.id);
     return adminFirestore.runTransaction(async (tx) => {
@@ -481,6 +482,8 @@ function createTrialEndingEmailer(deps = {}) {
         if (data.optedOut) return 'opted-out';
         if (!isDueSkipMarker(data, nowMs)) return 'claimed-elsewhere';
       }
+      // GUEST-ABANDON-1 review D1: a stop recorded for this ADDRESS (guest stop link) stops the trial email too.
+      if (await isSuppressedTx(tx, adminFirestore, email)) return 'opted-out';
       const lastNudge = n.exists ? (n.data() || {}).lastClaimMs : null;
       if (typeof lastNudge === 'number' && nowMs - lastNudge < ONE_A_DAY_MS) return 'spaced';
       const raw = d.exists ? (d.data() || {}).count : 0;
@@ -635,7 +638,7 @@ function createTrialEndingEmailer(deps = {}) {
         // and the IST day's count (in Firestore, not memory) never passes the cap.
         let claim;
         try {
-          claim = await claimWithinCap(ledgerRef, decision, day, nowMs);
+          claim = await claimWithinCap(ledgerRef, decision, day, nowMs, who.email);
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;

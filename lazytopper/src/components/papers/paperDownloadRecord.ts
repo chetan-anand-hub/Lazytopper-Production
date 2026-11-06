@@ -24,6 +24,7 @@ import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import {
   loadLocalSessionRecords,
   writeSessionRecord,
+  recordsAreSamePaper,
   type SessionRecord,
 } from "../../services/sessionRecords";
 
@@ -121,6 +122,9 @@ export async function recordPaperDownload(args: {
     existing = loadLocalSessionRecords(uid).find((r) => r.id === code);
   }
   if (existing && existing.status !== "pending-upload") return "skipped";
+  // RECORD-SAFE-1: a pending record of a DIFFERENT paper under this code is never replaced (and the guard in
+  // writeSessionRecord would otherwise move this pending card to another code than the one on the printed PDF).
+  if (existing && !recordsAreSamePaper(existing, paper)) return "skipped";
   writeSessionRecord(user, buildRecord(awaitingPaperResponse(paper), uid));
   saveSnapshot();
   return "written";

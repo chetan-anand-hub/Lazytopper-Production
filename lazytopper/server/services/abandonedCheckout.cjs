@@ -231,7 +231,7 @@ function finishPayingUrl(appUrl, product) {
   return `${appUrl}/packs?${q.toString()}&${utm('finish')}`;
 }
 
-/** The Plans page, where the existing "Ask a parent to pay" / "Pay by QR code" actions live (ASK-PARENTS-PAY-1). PURE. */
+/** The Plans page, where the existing "Forward link to parents" / "Share QR code" actions live (ASK-PARENTS-PAY-1). PURE. */
 function parentPayPageUrl(appUrl) {
   return `${appUrl}/pricing?${utm('parent')}`;
 }
@@ -371,7 +371,7 @@ function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubs
   const parent = product.kind === BOARD_PASS && parentPayLive ? parentPayPageUrl(appUrl) : whatsappShareUrl(ask);
   const parentNote =
     product.kind === BOARD_PASS && parentPayLive
-      ? 'Want a parent to pay? On the Plans page, "Ask a parent to pay" sends them a pay link.'
+      ? 'Want a parent to pay? On the Plans page, "Forward link to parents" sends them a pay link.'
       : 'Want a parent to pay? Send them a WhatsApp message with the details.';
 
   const subject = `Your ${name} is waiting`;

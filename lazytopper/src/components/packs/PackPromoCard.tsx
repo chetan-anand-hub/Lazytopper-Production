@@ -27,7 +27,7 @@ export function showPackPromo(uid: string, status: Pick<SubscriptionStatus, "tie
 export function promoChips(prices: Readonly<Record<string, number>>): string[] {
   const values = Object.values(prices).filter((n) => Number.isFinite(n) && n > 0);
   const chips = ["Chapter tests & mock papers"];
-  // GST-EXCL-1: "₹199 + GST" from 00:00 IST 5 Nov 2026 (read at render); before it, unchanged.
+  // GST-EXCL-1: "₹199 + GST" from 00:00 IST 7 Nov 2026 (read at render); before it, unchanged.
   const tag = (n: number): string => (boardPassGstExclusive(Date.now()) ? displayPlusGst(n) : `₹${n}`);
   if (typeof prices.pack_cbq === "number" && prices.pack_cbq > 0) chips.push(`Board CBQ Pack ${tag(prices.pack_cbq)}`);
   if (values.length > 0) chips.push(`From ${tag(Math.min(...values))}`);

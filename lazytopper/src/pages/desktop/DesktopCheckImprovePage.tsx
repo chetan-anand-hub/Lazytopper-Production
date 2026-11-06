@@ -47,6 +47,7 @@ import {
   resolvePerQuestionGradeTopics,
   SHOW_DETECTION_META,
   detectedTextForResult,
+  detectedItemForResult,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
 // SCORECARD-MI-1 — every group, label, step state and count on this page comes from the ONE
@@ -64,6 +65,8 @@ import {
   withEffectiveCounts,
   WITHDRAWN_LABEL,
   UNTYPED_MARKS_LABEL,
+  OPTION_ONLY_LABEL,
+  isOptionOnlyQuestion,
   effectivePaperCounts,
   gradeStateOf,
   pendingBreakdown,
@@ -143,7 +146,7 @@ import { launchMoreLikeThis } from "../../components/ciDemo/ladderMore";
 import { recordLadderTap } from "../../components/ciDemo/ladderAttempt";
 import { useCiDemoAudience } from "../../components/ciDemo/ciDemoModel";
 import { reportFirstActionShown, reportFirstActionTap } from "../../components/startHere/firstAction";
-import { buildSingleGradeRequest, seedConfirmedFromBank } from "../../components/ciDemo/ladderGradeRequest";
+import { buildSingleGradeRequest, detectedKeyFields, seedConfirmedFromBank } from "../../components/ciDemo/ladderGradeRequest";
 import { typeFirstAnswerMode, useZeroGraded } from "../../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
 import {
@@ -168,6 +171,8 @@ import {
 } from "../../services/freeCheckClient";
 import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
+import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
+import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
 import {
   FreeCheckRefusalPanel,
@@ -188,8 +193,11 @@ import {
   buildCheckImproveReviewHref,
   positionalQuestionId,
   recordBelongsToUid,
+  searchWithoutReview,
+  withScorecardReviewParam,
 } from "../tutor/tutorRoundTrip";
 import type { ScorecardTutorAsk } from "../../components/results/scorecardVariants";
+import { askedQuestionsOf, markQuestionAsked } from "../tutor/scorecardAsked";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
@@ -202,6 +210,7 @@ import { limitFromAiRefusal, type LimitState } from "../../components/usage/fair
 import { readFairUseLimit } from "../../services/usageClient";
 // TRIAL-PAPER-1 - a trial paper graded only up to today's checks: the rest listed as
 // not graded, with an honest upgrade note.
+import { readTypeOf, sectionBasisOfRead, stampLens } from "../../components/results/sectionTypeLens";
 import TrialPaperNote from "../../components/usage/TrialPaperNote";
 import { trialPaperCut, trialPaperNoteCopy } from "../../components/usage/fairUseGate";
 import { prefetchKatexWhenIdle } from "../../components/question/MathText";
@@ -215,6 +224,8 @@ prefetchKatexWhenIdle();
 // BANK-SPLIT-1 PR-2 (T3): the "Your checked papers" panel is its own chunk, fetched the
 // first time the student opens it (it renders only while `panelOpen`).
 const CheckImproveHistoryPanel = lazy(() => import("../../components/checkimprove/CheckImproveHistoryPanel"));
+// GRADE-ROUTE-1 - offer to grade the student's OWN worksheet on its worksheet page (own chunk; renders nothing otherwise).
+const PaperCodeRouteBanner = lazy(() => import("../../components/checkimprove/PaperCodeRouteBanner"));
 
 /**
  * DesktopCheckImprovePage — real desktop Check & Improve workflow.
@@ -1001,7 +1012,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     () => (returnTicket ? { label: returnTicket.label, onReturn: () => navigate(returnTicket.path) } : undefined),
     [returnTicket, navigate],
   );
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── FREE-CHECK-1b: the signed-out free check (inert unless the wrapper says so) ──
@@ -1578,19 +1589,50 @@ const DesktopCheckImprovePageInner: React.FC<{
   const ciSharedMoment = usePublicMomentAudience(isFreeMode && !overlay && ciSharedVisit, true);
   const ciReviewCode = overlay ? null : new URLSearchParams(ciLocation.search).get(SCORECARD_REVIEW_PARAM);
   const ciReviewConsumedRef = useRef<string | null>(null);
+  // CI-TUTOR-RETURN-1 - the tutor's way back must not give up early. The old effect marked the code
+  // consumed and STRIPPED `?review` before it knew the paper existed, and it did not wait for sign-in: on
+  // the remount `user` is still null for a moment, the records read comes back empty, and the miss was
+  // silent and final (empty upload form, query gone). Now: wait for auth AND the records read, strip only
+  // once the paper is found (or is honestly not findable), retry the read ONCE, and say so when it cannot
+  // be reopened.
+  const ciReviewRetryRef = useRef<string | null>(null);
+  const [ciReviewRetried, setCiReviewRetried] = useState<string | null>(null);
+  const [ciReviewMissed, setCiReviewMissed] = useState(false);
   useEffect(() => {
-    if (!ciReviewCode || ciRecordsLoading) return;
+    if (!ciReviewCode || authLoading || ciRecordsLoading) return;
     if (ciReviewConsumedRef.current === ciReviewCode) return;
-    ciReviewConsumedRef.current = ciReviewCode;
-    const sp = new URLSearchParams(ciLocation.search);
-    sp.delete(SCORECARD_REVIEW_PARAM);
-    const search = sp.toString();
-    navigate({ pathname: ciLocation.pathname, search: search ? `?${search}` : "" }, { replace: true, state: ciLocation.state });
+    const stripReview = () => {
+      const sp = new URLSearchParams(ciLocation.search);
+      sp.delete(SCORECARD_REVIEW_PARAM);
+      const search = sp.toString();
+      navigate({ pathname: ciLocation.pathname, search: search ? `?${search}` : "" }, { replace: true, state: ciLocation.state });
+    };
     const uid = user?.uid && !user.isLocalSession ? user.uid : null;
-    const record = uid ? ciRecords.find((r) => r.id === ciReviewCode && recordBelongsToUid(r, uid)) : undefined;
-    if (record) void openReopen(record);
+    if (!uid) {
+      // Signed out (auth has settled): nothing of theirs to reopen - the plain page, silently.
+      ciReviewConsumedRef.current = ciReviewCode;
+      stripReview();
+      return;
+    }
+    const record = ciRecords.find((r) => r.id === ciReviewCode && recordBelongsToUid(r, uid));
+    if (record) {
+      ciReviewConsumedRef.current = ciReviewCode;
+      stripReview();
+      void openReopen(record);
+      return;
+    }
+    if (ciReviewRetryRef.current !== ciReviewCode) {
+      // Not there yet (the just-graded record may not have reached this read): read once more.
+      ciReviewRetryRef.current = ciReviewCode;
+      void loadCiRecords().finally(() => setCiReviewRetried(ciReviewCode));
+      return;
+    }
+    if (ciReviewRetried !== ciReviewCode) return; // the retry read is still in flight
+    ciReviewConsumedRef.current = ciReviewCode;
+    stripReview();
+    setCiReviewMissed(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ciReviewCode, ciRecordsLoading, ciRecords, user?.uid, user?.isLocalSession]);
+  }, [ciReviewCode, authLoading, ciRecordsLoading, ciRecords, ciReviewRetried, user?.uid, user?.isLocalSession]);
 
   // QP-SCORECARD-2 E2 — the student has something in progress here, so the Start-here FOCUSED
   // surface is not offered (the inline card is unaffected): a return-path / deep-link ticket, the
@@ -1659,6 +1701,8 @@ const DesktopCheckImprovePageInner: React.FC<{
     questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   // Two or more questions were read from the upload → grade the whole paper.
   const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
+  // GRADE-MARKS-1 (§13) — the single question is a detect-objective one: its marks chip is locked at 1.
+  const singleObjectiveLocked = !isMultiQuestion && Boolean(detectedQuestions?.[0] && isLockedObjective(detectedQuestions[0]));
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
   // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
@@ -1926,18 +1970,33 @@ const DesktopCheckImprovePageInner: React.FC<{
     setDetectPartialCount(null);
     setDetectLimit(null);
     try {
-      const d = await detectQuestion({
+      const detectReq = {
         question: q || undefined,
         ...(questionTab === "upload" && qImageBase64
           ? { imageBase64: qImageBase64, imageMimeType: qImageMime }
           : {}),
         topicVocabulary: CANONICAL_TOPIC_VOCAB,
-      }, freeCallOpts);
+        // MCQ-KEY-TRUST-1 — ask detect where each MCQ key came from ("printed" | "derived"), so a key
+        // it worked out never overrides the grader (detectedKeyFields). Paid reads only: the free
+        // check never sends a key, and its request shape is fixed [FU-B15-FREECHECK-V2].
+        ...(freeCallOpts ? {} : { keySource: true }),
+        // GRADE-MARKS-1 — a question with no printed mark takes its section header's mark (carried
+        // across page breaks) before any guess. Paid reads only, like keySource: the free check's
+        // request shape is fixed.
+        ...(freeCallOpts ? {} : { sectionMarks: true }),
+      };
+      const d = await detectQuestion(detectReq, freeCallOpts);
       if (!d || d.ok === false) {
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
       }
-      const cd = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
+      // GRADE-MARKS-1 (§13, S1) — an objective question that PRINTS its options (detect's
+      // `offersOptions`, the server's own test) is a 1-mark, 0-or-full question: shown, totalled and SENT
+      // as 1 on the single chip and the whole-paper editor alike (the server forces the same). Any other
+      // detect-objective question keeps its read marks and stays editable (sendAsObjective).
+      const readQs = d.questions?.map((x) => (isLockedObjective(x) && x.marks !== 1 ? { ...x, marks: 1 } : x));
+      const cd0 = buildConfirmedDetection(d, q || d.questions?.[0]?.questionText);
+      const cd = (readQs?.length ?? 0) <= 1 && readQs?.[0] && isLockedObjective(readQs[0]) ? { ...cd0, marks: 1 } : cd0;
       setDetected(cd);
       setConfirmed(cd);
       const image = questionTab === "upload" ? qImageBase64 : null;
@@ -1951,7 +2010,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setTopicTouched(false);
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
-      setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
+      setDetectedQuestions(readQs && readQs.length > 0 ? readQs : null);
       // FU-CI-TYPEFIRST-MULTI: a WHOLE PAPER grades from the answer PHOTO, so a type-first default
       // (SHW-2) moves to "Upload image" - never when the student picked a tab or typed an answer.
       if ((d.questions?.length ?? 0) > 1 && tab === "type" && !ciAnswerTouchedRef.current && textAnswer.trim().length === 0) {
@@ -1995,7 +2054,16 @@ const DesktopCheckImprovePageInner: React.FC<{
     setTopicTouched(true); // provenance tag: confirmed/corrected by the student (C&I PR-1)
   }
   function correctMarks(m: number) {
-    setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
+    if (singleObjectiveLocked) return; // §13: an MCQ that prints its options stays at 1 mark
+    setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user", readMarksSource: c.readMarksSource ?? c.marksSource } : c));
+  }
+  // GRADE-MARKS-1 — the whole-paper confirm step: a student's correction of one question's marks.
+  // `detectedQuestions` IS what the grade request sends (q.marks), so the edit is what is graded.
+  function correctPaperMarks(index: number, marks: number) {
+    setDetectedQuestions((qs) =>
+      // §13: an MCQ that prints its options is never re-marked here (the editor shows it read-only).
+      qs ? qs.map((q, i) => (i === index && !isLockedObjective(q) ? { ...q, marks, marksSource: "user" as const, readMarksSource: q.readMarksSource ?? q.marksSource } : q)) : qs,
+    );
   }
 
   function resetToInput() {
@@ -2355,7 +2423,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       const response = await gradeWorksheet({
         worksheetId: `ci:${sessionCode}`,
         subject: confirmed.subject,
-        questions: questionsToGrade.map((q) => ({
+        // GRADE-MARKS-1 (S1): an objective read the student raised above 1 mark is graded as written.
+        questions: questionsToGrade.map((q0) => sendAsObjective(q0) ? q0 : { ...q0, objective: false }).map((q) => ({
           qNumber: q.questionNumber,
           marks: q.marks,
           topic: confirmed.topicName || undefined,
@@ -2367,7 +2436,8 @@ const DesktopCheckImprovePageInner: React.FC<{
           // PR-2 (B9) — the answer key detect read for an objective question (#704) is forwarded,
           // so the MCQ is scored on the option alone. Never on the signed-out free check, whose
           // request shape is fixed (spec §1). [FU-B15-FREECHECK-V2]
-          ...(!freeCallOpts && q.objective === true && q.answer ? { answer: q.answer } : {}),
+          // MCQ-KEY-TRUST-1 — with its source: a "derived" key never overrides the grader's verdict.
+          ...detectedKeyFields(q, Boolean(freeCallOpts)),
         })),
         imageBase64: imageBase64 ?? "",
         imageMimeType: imageMime,
@@ -2458,13 +2528,29 @@ const DesktopCheckImprovePageInner: React.FC<{
 
       // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,
       // session record, MI): no type on a full-mark question, the grader's max-reconcile.
-      const shown = withEffectiveCounts(response);
+      // SCORECARD-SECTION-TYPE-1 - stamp each row with the section and question type the paid READ found on
+      // the student's paper ("as read from your paper"; a section the read only inferred is flagged
+      // "check"). Display only: it is NOT sent to the grader, so no mark and no mistake type can move.
+      // The stamp rides the saved response, so the restored card shows the same lens.
+      const counted = withEffectiveCounts(response);
+      const shown = stampLens(counted, (_r, i) => {
+        const d = detectedItemForResult(detectedQuestions, counted.results, i);
+        if (!d) return null;
+        return {
+          section: d.section ?? null,
+          // Only a section the read was SURE of is "read"; inferred, fallback and a student-edited mark
+          // (which hides the read's own source) all stay "check" (no per-question sectionSource yet).
+          sectionBasis: sectionBasisOfRead(d.readMarksSource ?? d.marksSource),
+          format: readTypeOf(d.objective),
+        };
+      });
       const paperMixed = isMixedPaper(shown.results);
       const paperFiling = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
       const mixLabel = ciPaperMixLabel(shown);
       setWsResult(shown);
       trackFunnelStep("check_graded");
       setStatus("ready");
+      setCiReviewMissed(false);
       setSaveStatus("saving");
       fairUse.noteGraded();
 
@@ -2652,7 +2738,10 @@ const DesktopCheckImprovePageInner: React.FC<{
       const graded = await checkSolutionImage(buildSingleGradeRequest({
         question: trimmedQuestion,
         confirmed,
-        firstDetected: detectedQuestions?.[0],
+        // GRADE-MARKS-1 (S1): a single objective read the student raised above 1 mark is graded as written.
+        firstDetected: detectedQuestions?.[0] && confirmed.marks > 1 && !sendAsObjective({ ...detectedQuestions[0], marks: confirmed.marks })
+          ? { ...detectedQuestions[0], objective: false }
+          : detectedQuestions?.[0],
         freeCall: Boolean(freeCallOpts),
         answerPart,
       }), { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
@@ -2739,6 +2828,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       trackFunnelStep("check_graded");
       setResultCtx(ctx);
       setStatus("ready");
+      setCiReviewMissed(false);
       fairUse.noteGraded();
       // PR-2 (B8 + owner addendum) — a single answer that was NOT graded (could not be read,
       // option unread, answer does not match the question) records NOTHING: no MI entry, no
@@ -2836,9 +2926,28 @@ const DesktopCheckImprovePageInner: React.FC<{
   // tutor's own overlay, and only when a single chapter is known for that question.
   function ciTutorAsk(subject: DesktopSubject, topicSlug: string | null | undefined, qNumber: number): ScorecardTutorAsk | null {
     if (overlay || !ciSaved || !ciCode || !topicSlug) return null;
+    const liveUid = user?.uid && !user.isLocalSession ? user.uid : null;
+    return ciTutorHop(liveUid, ciCode, subject, topicSlug, qNumber);
+  }
+  // CI-TUTOR-RETURN-1 - the ONE hop to the tutor, shared by the live card and the card restored from a
+  // saved record. Two things make "come back and ask about another mistake" work:
+  //   1. BEFORE leaving, THIS history entry is replaced with `?review=<code>`. The tutor's back arrow
+  //      already pushed that URL, but the browser's Back button returns to the entry we left - which
+  //      had no query (the live result is gone after the remount) and so showed an empty form.
+  //   2. The question's number is remembered (sessionStorage, numbers only) so the returned card can
+  //      mark it "Asked the tutor - ask again". The button stays tappable.
+  function ciTutorHop(uid: string | null, code: string, subject: DesktopSubject, topicSlug: string, qNumber: number): ScorecardTutorAsk {
+    const reviewHref = buildCheckImproveReviewHref(code);
     return {
+      asked: askedQuestionsOf(uid, code).includes(qNumber),
       onAsk: () => {
         trackOnboardingEvent("tutor_from_scorecard", { surface: "check_improve" });
+        markQuestionAsked(uid, code, qNumber);
+        // Keep the rest of the URL and the router state (returnTo / backLabel), add only `review`.
+        navigate(withScorecardReviewParam(ciLocation.pathname + searchWithoutReview(ciLocation.search), code), {
+          replace: true,
+          state: ciLocation.state,
+        });
         navigate(
           buildTutorPath({
             subject,
@@ -2846,12 +2955,29 @@ const DesktopCheckImprovePageInner: React.FC<{
             source: "scorecard",
             // QP-SCORECARD-2 C — the back arrow reopens THIS saved paper (was "/check-improve":
             // a fresh upload page, the graded paper gone).
-            returnTo: buildCheckImproveReviewHref(ciCode),
+            returnTo: reviewHref,
             questionId: positionalQuestionId(qNumber),
-            from: ciCode,
+            from: code,
           }),
         );
       },
+    };
+  }
+  // CI-TUTOR-RETURN-1 - the restored card's tutor hop, from the SAVED record + payload only (never the
+  // live `ciSaved` / `ciCode`, which are fresh after the remount). Each question uses its own resolved
+  // chapter, else the record's single chapter; no chapter -> no button (never a guess).
+  function ciTutorAskForRecord(record: SessionRecord, response: WorksheetGradeResponse | null) {
+    if (overlay || !response) return undefined;
+    const uid = user?.uid && !user.isLocalSession ? user.uid : null;
+    if (!uid || !recordBelongsToUid(record, uid)) return undefined;
+    const single = record.topicKeys.filter((k) => k && !k.startsWith("mixed:"));
+    const recordTopic = record.topicSource !== "mixed" && single.length === 1 ? single[0] : null;
+    const recordSubject: DesktopSubject = record.subject === "science" ? "Science" : "Maths";
+    return (qNumber: number): ScorecardTutorAsk | null => {
+      const r = response.results.find((x) => x.qNumber === qNumber);
+      const slug = r?.topicSlug || recordTopic;
+      if (!slug) return null;
+      return ciTutorHop(uid, record.id, r?.topicSubject ?? recordSubject, slug, qNumber);
     };
   }
   // GUIDE-SCORE-1 — ONE topic-worksheet route: the scorecard's "Practise {topic}" action and
@@ -2911,6 +3037,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // arrives, and honestly ABSENT if the fetch fails. Absorbed verbatim in behaviour
   // from the retired mobile twin, which was ahead of this file here.
   async function openReopen(r: SessionRecord) {
+    setCiReviewMissed(false);
     setPanelOpen(false);
     setReopen(r);
     setReopenResponse(null);
@@ -3058,6 +3185,21 @@ const DesktopCheckImprovePageInner: React.FC<{
             />
           </Suspense>
         )}
+        {ciReviewMissed && !reopen && (
+          <div role="status" data-testid="ci-review-missed" style={{ ...cardStyle, marginBottom: 16 }}>
+            We couldn’t reopen that paper.{" "}
+            <button
+              type="button"
+              style={buttonOutline}
+              onClick={() => {
+                setCiReviewMissed(false);
+                setPanelOpen(true);
+              }}
+            >
+              Open Your papers
+            </button>
+          </div>
+        )}
         {reopen && (
           <ResultsScorecard
             limitKey={{ kind: "check-improve", resultKey: reopen.id }} // LIMITS-1 PR-2 — stored re-open
@@ -3073,6 +3215,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                 setReopenResponse(null);
               },
               response: reopenResponse,
+              tutorAskFor: ciTutorAskForRecord(reopen, reopenResponse),
               ...(reopenSheetOpen && buildReopenPrintProps()
                 ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
                 : {}),
@@ -3365,6 +3508,16 @@ const DesktopCheckImprovePageInner: React.FC<{
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{questionFileError}</div>
               )}
 
+              {(confirmed || qImageBase64 || imageBase64) && user?.uid && !user.isLocalSession ? (
+                <Suspense fallback={null}>
+                  <PaperCodeRouteBanner
+                    uid={user.uid}
+                    texts={[question, qImageName, imageName, ...(detectedQuestions ?? []).map((q) => q.questionText)]}
+                    files={[{ base64: qImageBase64, mime: qImageMime }, { base64: imageBase64, mime: imageMime }]}
+                  />
+                </Suspense>
+              ) : null}
+
               {/* UPLOAD-READ-1 — the read was CUT OFF: say how many questions we got and what to do.
                   Same note style as the sibling chips; shown for one question or many. */}
               {confirmed && detectPartialCount !== null && (
@@ -3402,13 +3555,8 @@ const DesktopCheckImprovePageInner: React.FC<{
                 >
                   <strong>{detectedQuestions.length} questions detected</strong> · each question&rsquo;s
                   subject and chapter are read when it is graded
-                  <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, display: "flex", flexWrap: "wrap", gap: "0 16px" }}>
-                    {detectedQuestions.map((q, qi) => (
-                      <span key={`${q.questionNumber}-${qi}`}>
-                        Q{q.questionNumber} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
-                      </span>
-                    ))}
-                  </div>
+                  {/* GRADE-MARKS-1 — each question's marks, editable before grading; guesses flagged. */}
+                  <PaperMarksEditor questions={detectedQuestions} onMarksChange={correctPaperMarks} />
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4 }}>
                     Upload your answer sheet (image or PDF) below to grade all {detectedQuestions.length}.
                   </div>
@@ -3486,6 +3634,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                           <option key={t.slug} value={t.slug}>{t.name}</option>
                         ))}
                       </select>
+                      {singleObjectiveLocked ? (
+                        <LockedMarksNote />
+                      ) : (
                       <div style={{ display: "flex", gap: 6 }}>
                         {[1, 2, 3, 4, 5, 6].map((m) => {
                           const active = confirmed.marks === m;
@@ -3507,6 +3658,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                           );
                         })}
                       </div>
+                      )}
                       <button
                         type="button"
                         onClick={() => setEditing(false)}
@@ -3964,6 +4116,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     const paperCut = detectedQuestions ? trialPaperCut(detectedQuestions.length, ciPaperLimit) : null;
     const paperAllowance = fairUse.snapshot?.trial?.limits.checksPerDay ?? null;
     const paperNote = paperCut ? trialPaperNoteCopy(paperCut, paperAllowance) : null;
+    const finalSummary = finalMarksSummary(ws);
     return withChrome(
       <div
         style={{
@@ -4072,9 +4225,10 @@ const DesktopCheckImprovePageInner: React.FC<{
               labels={detectedQuestions.map((q) => `Q${q.questionNumber}`)}
             />
           ) : null}
-          {ws.summary && (
+          {/* GRADE-MARKS-1 — the model's summary never states a score that disagrees with the final marks. */}
+          {finalSummary && (
             <p style={{ margin: "12px 0 0", fontSize: 13.5, color: TEXT_FG, lineHeight: 1.6 }}>
-              <EquationRender text={ws.summary} />
+              <EquationRender text={finalSummary} />
             </p>
           )}
         </div>
@@ -4181,7 +4335,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       )}
                       {qMarks && qMarks.untyped > 0 && (
                         <span data-group="untyped" data-marks={qMarks.untyped} style={{ ...chipBase, color: TEXT_MUTED }}>
-                          {UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
+                          {isOptionOnlyQuestion(g) ? OPTION_ONLY_LABEL : UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
                         </span>
                       )}
                       {!qMarks && chips.map(({ group, count }) => (

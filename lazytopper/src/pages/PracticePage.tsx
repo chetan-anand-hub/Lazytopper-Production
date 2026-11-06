@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
+import { stampLens } from "../components/results/sectionTypeLens";
 import {
   resolveTopicDisplayName,
   resolveTopicKey as resolveCanonicalTopicKey,
@@ -3537,6 +3538,8 @@ const packTopicKey = useMemo(() => {
           return {
             questionId: qId,
             marks: Number(q.marks) || 0,
+            section: q.section,
+            format: q.format,
             // A graded result carries real working; a bare MCQ click carries none. Keyed
             // off which INTERACTION produced the outcome, never off `format === "mcq"` —
             // a student can submit written working for an MCQ, and that working is real.
@@ -3775,6 +3778,8 @@ const packTopicKey = useMemo(() => {
       return {
         questionId: qId,
         marks: Number(q.marks) || 0,
+        section: q.section,
+        format: q.format,
         ...(gradedResults[qId] && !reviewSavedIds[qId] ? { graded: gradedResults[qId] } : {}),
         ...(mcqResults[qId] && !reviewMcqIds[qId] ? { mcq: mcqResults[qId] } : {}),
         ...(!reviewMcqIds[qId] && pickById.get(qId) ? { pickedOption: pickById.get(qId)! } : {}),
@@ -4723,6 +4728,7 @@ const packTopicKey = useMemo(() => {
           marksTotal: response.gradedMarksTotal,
           gradedCount: response.gradedCount,
           totalQuestions: response.totalQuestions,
+          response, // SCORECARD-SECTION-TYPE-1 - section + type lenses (each row stamped from the bank question)
           markedNow: markedNowRows,
           readyToGrade: diagnosedRows,
           nothingSaved: unansweredLabels,
@@ -4911,6 +4917,7 @@ const packTopicKey = useMemo(() => {
   // coaching carries the variant's own note (read back from the built variant).
   const mcqSheetResponse = buildQuickPracticeResponse(liveEntriesSoFar);
   const mcqVariant: ScorecardVariant = quickPracticeScorecardVariant({
+        response: mcqSheetResponse, // SCORECARD-SECTION-TYPE-1 - section + type lenses
         ...(quickPracticeHasGradedSheet(mcqSheetResponse)
           ? {
               onDownloadGraded: () => downloadQpGradedSheet(liveSheetFor(liveEntriesSoFar, mcqVariant.note)),
@@ -5068,6 +5075,7 @@ const packTopicKey = useMemo(() => {
         ? {
             onAsk: () => {
               trackOnboardingEvent("tutor_from_scorecard", { surface: "quick_practice" });
+              navigate(withScorecardReviewParam(here, record.id), { replace: true });
               navigate(
                 buildTutorPath({
                   subject: recSubject,
@@ -5110,6 +5118,14 @@ const packTopicKey = useMemo(() => {
         gradedCount: typeof payload?.response?.gradedCount === "number" ? payload.response.gradedCount : undefined,
         // FOLLOWUPS-4 D — the live scorecard's tap-the-answer note: read from the stored payload.
         tapMarksLost: storedTapMarksLost(payload?.response?.results),
+        // SCORECARD-SECTION-TYPE-1 - the stored rows (stamped at grading) plus, for an older record, the
+        // bank row's own section and format by the record's question order. Same lens as the live card.
+        response: reopenResponse
+          ? stampLens(reopenResponse, (r) => {
+              const row = bank.get((record.questionIds || [])[r.qNumber - 1]);
+              return row ? { section: row.section, sectionBasis: "bank", format: row.format } : null;
+            })
+          : null,
         wrongAnswers: rows,
         menu: {
           onFreshSet: () => { close(); buildFreshSet(); },

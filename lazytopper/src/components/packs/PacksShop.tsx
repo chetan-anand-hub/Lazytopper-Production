@@ -46,12 +46,13 @@ import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { GUEST_CLAIMED_EVENT, isGuestPayClientEnabled, maskIndianMobile, readRecentClaim, type ClaimedItem, type GuestClaimedDetail, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
+import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
-// PARENT-PACKS-1: "Ask a parent to pay" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
+// PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
@@ -214,7 +215,7 @@ export interface PacksShopApi {
   /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
   blockedBy: (sku: PackSku, target?: string) => boolean;
   /**
-   * PARENT-PACKS-1 - "Ask a parent to pay" (+ "Pay by QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
+   * PARENT-PACKS-1 - "Forward link to parents" (+ "Share QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
    */
   parentAsk: (sku: PackSku, target?: string, opts?: { noQr?: boolean }) => ReactNode;
@@ -494,9 +495,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       setBuy({ key, phase: "owned" });
       return;
     }
-    // CHECKOUT-WHO-1 - signed in, flag on: the sheet first ("For: you"); its Pay comes back here with `fromWho` and runs the
-    // unchanged checkout (the same events, sent once, at that Pay).
-    if (whoEnabled && !opts.fromWho) {
+    // CHECKOUT-SELF-1: a signed-in student's Buy / Pay goes straight to checkout for their own account (one tap); someone else /
+    // a mobile number is the secondary link under the button. Only the /for-parents audience keeps the sheet's "For: you" step.
+    if (whoEnabled && checkoutAudience && !opts.fromWho) {
       setWho({ sku, target, ...(opts.resumed ? { resumed: true } : {}), ...(from ? { from } : {}) });
       return;
     }
@@ -654,7 +655,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const confirming = ready && mine_ && buy.phase === "confirming";
     const dismissed = mine_ && buy.phase === "dismissed";
     const blocked = ready && otherBusy(key);
-    // GST-EXCL-1: every Buy/Pay label names the amount CHARGED (base + GST from 5 Nov 2026).
+    // GST-EXCL-1: every Buy/Pay label names the amount CHARGED (base + GST from 7 Nov 2026).
     let label = `Buy for ${packPayLabel(sku)}`;
     if (!enabled) label = "Opens soon";
     else if (!ready) label = CHOOSE_CHAPTER_FIRST;
@@ -678,6 +679,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         >
           {label}
         </button>
+        {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
+          <SomeoneElseLink testId={`packs-someone-else-${sku}`} onOpen={() => setWho({ sku, target })} />
+        )}
+        {/* GST-EXCL-1: the GST breakup next to Buy, before Razorpay opens (packGstBreakdown); nothing before 7 Nov 2026. */}
+        {enabled && ready && !isOwned && packGstBreakdown(sku) && (
+          <p className={`${prefix}__note`} data-testid={`packs-gst-${sku}`}>{packGstBreakdown(sku)}</p>
+        )}
         {blocked && <p className={`${prefix}__note`} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{whoEnabled ? PACK_WHO_NOTE : guestEnabled ? PACK_GUEST_NOTE : PACK_SIGNIN_NOTE}</p>}
         {dismissed && (
@@ -853,6 +861,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               priceBreakdown: packGstBreakdown(who.sku),
             }}
             {...(checkoutAudience ? { audience: checkoutAudience } : {})}
+            {...(signedIn && !checkoutAudience ? { startAt: "other" as const } : {})}
             signedIn={signedIn}
             selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
             onPaySelf={() => {

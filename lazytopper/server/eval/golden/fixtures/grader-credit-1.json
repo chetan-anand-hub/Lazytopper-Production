@@ -1,0 +1,358 @@
+{
+  "_about": "GRADER-CREDIT-1 (5 Nov 2026) golden fixtures for the owner's two rulings of 5 Nov 2026: (A) SHARED CREDIT — one value point paid for two or more separately required values earns its share for the right ones (½ of a 1-mark point for one of two roots); (B) EQUIVALENT FORMS — a final answer equal to the key in another form (45/48 for 15/16; 4.5 A for 4.54 A) is correct unless the question demands a form or a precision. Both rulings rest on the official CBSE marking schemes and the CBSE 'Model Answer by Candidate' books (cbse.gov.in, 2024-25; research/cbse-toppers/CALIBRATION.md). PROVENANCE, case by case: `source` says where the question and the student's work come from — `cbseModelAnswer` (question from the official QP, work transcribed from the CBSE model answer book page cited, abridged where it says so), `liveDefect` (the shape of a live grading seen on production; the worksheet's text is not in the repo, so the question is a RECONSTRUCTION and says so) or `synthetic`. Every `modelReply` is a SYNTHETIC grader-reply shape (what the model returns, or is feared to return), used by the deterministic tests in server/grading/rulings.surfaces.suite.cjs on every grading surface. `deterministic: true` marks a case the server post-processing decides (review round 1: the give-back guard acts only on a calculation / silly / untyped loss whose complaint is about the value or its form, and only when the student's own working on that line gives the key's value) (restoreEquivalentFinalAnswer, or the ledger keeping a ½); `deterministic: false` marks a case only the PROMPT can move (the model must award the share) — those need the live golden run (>= 3 runs, stable marks AND types). `expected.steps` rows are [status, marksAwarded, mistakeType].",
+  "rulings": {
+    "A": "Owner ruling 5 Nov 2026 (GRADER-CREDIT-1): partial credit — where one step's mark is for two or more required values/items and the student gets one right and one wrong/missing, award the proportional share (½ of a 1-mark step for one of two roots), as CBSE schemes do; only where the value points are genuinely separable; never split one indivisible result; multiples of ½; a wrong method that happens to hit one value gets nothing (ECF/departure rules govern); the lost half is typed by the CLAUDE.md §13 ruler.",
+    "B": "Owner ruling 5 Nov 2026 (GRADER-CREDIT-1): rounded / equivalent final answers — accept an equal value in another form (unsimplified equal fraction, equivalent surd/decimal, reasonable rounding consistent with the data, a different valid method, a step earned inside a combined line); NOT a wrong value, NOT rounding that changes the answer at the stated precision, NOT an unsimplified form when the question explicitly asks to simplify (then the simplification step is lost, presentation). 'A little stricter than CBSE': enforce a demanded form, otherwise accept as CBSE does. The missing-unit ½ is unchanged and separate."
+  },
+  "cases": [
+    {
+      "id": "GC1-ROOTS-HALF",
+      "ruling": "A",
+      "deterministic": false,
+      "source": {
+        "kind": "liveDefect",
+        "what": "Worksheet WS-M-MIX-05 (Maths multi-topic, 5Q/14), owner live check 5 Nov 2026 (research/SESSION_NOTES_2026-11-05.md:51): Q2, one of two roots right (4 correct, −4 wrong), lost the WHOLE 1-mark roots step; CBSE gives ½ per value, so 1.5/2.",
+        "reconstruction": "The worksheet's printed text is not in the repo (generated per student). The question below is a RECONSTRUCTION with the same shape (two roots, ±4, a 2-mark item); the student line is synthetic and reads the second root off a correct factor with the wrong sign."
+      },
+      "subject": "Maths",
+      "marks": 2,
+      "questionText": "Find the roots of the quadratic equation x² − 16 = 0.",
+      "finalAnswer": null,
+      "modelReply": [
+        {
+          "description": "Factorising the quadratic",
+          "studentWork": "x² − 16 = 0\n(x − 4)(x + 4) = 0",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct factorisation.",
+          "mistakeType": null
+        },
+        {
+          "description": "Both roots",
+          "studentWork": "x = 4, x = 4",
+          "status": "partial",
+          "marksAvailable": 1,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "½ x = 4 is right; the second root from (x + 4) = 0 is −4, not 4.",
+          "mistakeType": "silly",
+          "correctedWorking": "x = 4, x = −4"
+        }
+      ],
+      "finalAnswerCorrect": false,
+      "expected": {
+        "marksAwarded": 1.5,
+        "steps": [
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "partial",
+            0.5,
+            "silly"
+          ]
+        ],
+        "marksLostByType": {
+          "silly": 0.5,
+          "untyped": 0
+        }
+      },
+      "trunkLive": "0 for the roots step (1/2) — the defect. Trunk's prompt said 'VALUE POINTS ARE EARNED OR NOT … never a ½ for nearly right'."
+    },
+    {
+      "id": "GC1-REASONS-HALF",
+      "ruling": "A",
+      "deterministic": false,
+      "source": {
+        "kind": "synthetic",
+        "what": "Two reasons asked for inside ONE 1-mark value point; one reason given. Shape of the CBSE Science schemes' '½ + ½' reason points."
+      },
+      "subject": "Science",
+      "marks": 2,
+      "questionText": "(a) Give two reasons why tungsten is used for making the filaments of electric bulbs. (b) Why are electric bulbs usually filled with a chemically inactive gas such as argon or nitrogen?",
+      "finalAnswer": null,
+      "modelReply": [
+        {
+          "part": "(a)",
+          "description": "Two reasons for tungsten",
+          "studentWork": "Tungsten has a very high melting point (3380 °C).",
+          "status": "partial",
+          "marksAvailable": 1,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "½ High melting point is one reason; the second (it glows white-hot / emits light at high temperature) is not given.",
+          "mistakeType": null
+        },
+        {
+          "part": "(b)",
+          "description": "Reason for the inactive gas",
+          "studentWork": "The inactive gas stops the hot filament from oxidising, so it lasts longer.",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct.",
+          "mistakeType": null
+        }
+      ],
+      "finalAnswerCorrect": false,
+      "expected": {
+        "marksAwarded": 1.5,
+        "steps": [
+          [
+            "partial",
+            0.5,
+            null
+          ],
+          [
+            "correct",
+            1,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "untyped": 0.5
+        }
+      },
+      "note": "The second reason was simply not written: no type (ruling A defers to UNATTEMPTED AND WITHDRAWN WORK (b) — presentation only with proof of knowledge)."
+    },
+    {
+      "id": "GC1-EQ-45-48",
+      "ruling": "B",
+      "deterministic": true,
+      "source": {
+        "kind": "cbseModelAnswer",
+        "qp": "CBSE 2025 Mathematics Standard 041, set 30/6/2, Q22 (QP pdf p.13)",
+        "ms": "Marking scheme 30/6/2 Q22 (pdf p.7): 'P = 90/96 or 15/16'",
+        "answerBook": "https://www.cbse.gov.in/cbsenew/model-answer/2025/X/Math_Stand.zip pp.6-7 — '[boxed] P(a 2digit no.) = 90/96 = 45/48', ticked",
+        "abridged": "ABRIDGED to part (ii) and 1 mark (the printed Q22 has (i) and (ii), 2 marks). Student lines transcribed from the answer book."
+      },
+      "subject": "Maths",
+      "marks": 1,
+      "questionText": "A bag contains cards which are numbered from 5 to 100 such that each card bears a different number. A card is drawn at random. Find the probability that the number on the card is a 2-digit number.",
+      "finalAnswer": "15/16",
+      "modelReply": [
+        {
+          "description": "Total and favourable outcomes",
+          "studentWork": "No. of all possible outcomes = 100 − 5 + 1 = 96\nNo. of favourable outcomes = 100 − 10 + 1 − 1 = 90",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct counts.",
+          "mistakeType": null
+        },
+        {
+          "description": "Probability",
+          "studentWork": "P(a 2digit no.) = 90/96 = 45/48",
+          "status": "incorrect",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "× Reduce the fraction: 45/48 = 15/16.",
+          "mistakeType": "calculation",
+          "correctedWorking": "P = 90/96 = 15/16"
+        }
+      ],
+      "studentFinalAnswer": "45/48",
+      "finalAnswerCorrect": false,
+      "expected": {
+        "marksAwarded": 1,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "correct",
+            0.5,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "presentation": 0
+        }
+      },
+      "trunk": "0.5/1, calculation ½ — the model's verdict stood.",
+      "presentationVariant": "Review round 1 (#1583): where the model types the same loss \"presentation\" (\"× Simplify the fraction fully\"), the deterministic guard does NOT give it back — a presentation loss is not its business; the prompt rule EQUIVALENT ANSWERS is what moves it (live golden run). Pinned in core.test.cjs §GC1.5."
+    },
+    {
+      "id": "GC1-EQ-4-5A",
+      "ruling": "B",
+      "deterministic": true,
+      "source": {
+        "kind": "cbseModelAnswer",
+        "qp": "CBSE 2025 Science 086, set 31/1/3, Q37(b) (QP pdf p.23)",
+        "ms": "Marking scheme 31/1/3 Q37(b) (pdf p.34): 'I = 1000 W / 220 V = 4·54 A'",
+        "answerBook": "https://www.cbse.gov.in/cbsenew/model-answer/2025/X/Science.zip p.28 — 'I = 4.5A', ticked",
+        "abridged": "ADAPTED: the printed Q37(b) asks for the circuit's current RATING (5 A); here the question asks for the current itself, so 4.5 A is the final answer. Student lines follow the answer book."
+      },
+      "subject": "Science",
+      "marks": 2,
+      "questionText": "An electric iron of power rating 1 kW is operated on the 220 V mains. Find the current drawn by the iron.",
+      "finalAnswer": "I = 4.54 A",
+      "modelReply": [
+        {
+          "description": "Relation between power, voltage and current",
+          "studentWork": "P = VI ⇒ I = P/V",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct relation.",
+          "mistakeType": null
+        },
+        {
+          "description": "Current",
+          "studentWork": "I = 1000/220 = 4.5 A",
+          "status": "incorrect",
+          "marksAvailable": 1,
+          "marksAwarded": 0,
+          "marksDeducted": 1,
+          "teacherAnnotation": "× Round 1000/220 correctly: 4.54 A.",
+          "mistakeType": "calculation",
+          "correctedWorking": "I = 1000/220 = 4.54 A"
+        }
+      ],
+      "studentFinalAnswer": "I = 4.5 A",
+      "finalAnswerCorrect": false,
+      "expected": {
+        "marksAwarded": 2,
+        "steps": [
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            1,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "calculation": 0
+        }
+      },
+      "trunk": "1/2, calculation 1.",
+      "methodComplaintVariant": "Delta review (#1583): an annotation that complains about the VALUE or METHOD ('× 1000/220 = 4.54 A, not 4.5 A') is NOT given back by the deterministic guard; only a form/rounding complaint is. The prompt rule EQUIVALENT ANSWERS is what moves the rest (live golden run)."
+    },
+    {
+      "id": "GC1-DP-VIOLATED",
+      "ruling": "B",
+      "deterministic": true,
+      "source": {
+        "kind": "synthetic",
+        "what": "A precision the question STATES ('correct to two decimal places') that the answer does not meet. Control in the tests: the same reply without that phrase is given back (44.0 is 43.98 to one place)."
+      },
+      "subject": "Maths",
+      "marks": 2,
+      "questionText": "The radius of a circular park is 7 m. Find its circumference correct to two decimal places. (Use π = 3.1416)",
+      "finalAnswer": "43.98 m",
+      "modelReply": [
+        {
+          "description": "Formula",
+          "studentWork": "C = 2πr",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct formula.",
+          "mistakeType": null
+        },
+        {
+          "description": "Circumference to two decimal places",
+          "studentWork": "C = 2 × 3.1416 × 7 ≈ 44.0 m",
+          "status": "partial",
+          "marksAvailable": 1,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "½ The answer must be correct to two decimal places: 43.98 m.",
+          "mistakeType": "calculation",
+          "correctedWorking": "C = 43.9824 ≈ 43.98 m"
+        }
+      ],
+      "studentFinalAnswer": "44.0 m",
+      "finalAnswerCorrect": false,
+      "expected": {
+        "marksAwarded": 1.5,
+        "steps": [
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "partial",
+            0.5,
+            "calculation"
+          ]
+        ],
+        "marksLostByType": {
+          "calculation": 0.5
+        }
+      }
+    },
+    {
+      "id": "GC1-SIMPLIFY-ASKED",
+      "ruling": "B",
+      "deterministic": true,
+      "source": {
+        "kind": "synthetic",
+        "what": "GC1-EQ-45-48's question with an explicit demand for lowest terms added: the simplification step is lost, typed presentation; the rest keeps its marks."
+      },
+      "subject": "Maths",
+      "marks": 1,
+      "questionText": "A bag contains cards which are numbered from 5 to 100 such that each card bears a different number. A card is drawn at random. Find the probability that the number on the card is a 2-digit number. Give your answer in its lowest terms.",
+      "finalAnswer": "15/16",
+      "modelReply": [
+        {
+          "description": "Total and favourable outcomes",
+          "studentWork": "No. of all possible outcomes = 100 − 5 + 1 = 96\nNo. of favourable outcomes = 100 − 10 + 1 − 1 = 90",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ Correct counts.",
+          "mistakeType": null
+        },
+        {
+          "description": "Probability in lowest terms",
+          "studentWork": "P(a 2digit no.) = 90/96 = 45/48",
+          "status": "incorrect",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "× The question asks for lowest terms: 45/48 = 15/16.",
+          "mistakeType": "presentation",
+          "correctedWorking": "P = 90/96 = 15/16"
+        }
+      ],
+      "studentFinalAnswer": "45/48",
+      "finalAnswerCorrect": false,
+      "expected": {
+        "marksAwarded": 0.5,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "incorrect",
+            0,
+            "presentation"
+          ]
+        ],
+        "marksLostByType": {
+          "presentation": 0.5
+        }
+      }
+    }
+  ]
+}

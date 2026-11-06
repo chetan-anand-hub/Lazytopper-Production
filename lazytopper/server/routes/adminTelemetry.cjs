@@ -565,6 +565,29 @@ function createAdminTelemetryRoutes(deps) {
           + 'was unavailable (HTTP 403/404 or a model-specific 400). Non-zero = a possible silent '
           + 'quality drop; check the grading model\'s access for this key.',
       },
+      // SMALL-FIXES-1: objective questions where the grader stated NO final-answer verdict, by where
+      // the answer key came from (derived = the detect step's worked-out key decided the mark).
+      objectiveNoVerdict: {
+        derived: Number(counters['grading.objective_no_verdict.derived']) || 0,
+        printed: Number(counters['grading.objective_no_verdict.printed']) || 0,
+        bank: Number(counters['grading.objective_no_verdict.bank']) || 0,
+        none: Number(counters['grading.objective_no_verdict.none']) || 0,
+        note: 'Objective questions graded with no stated final-answer verdict, by key source. '
+          + 'Cumulative for this server process.',
+      },
+      // MISSING-TYPE-1: subjective steps that lost marks with no type from the grader, by how the server
+      // settled them (grading/postprocess.cjs settleUntypedLosses). keptUntyped = still shown to the
+      // student as "Marks lost, reason not recorded"; subjectiveQuestions = answers still carrying any.
+      untypedLoss: {
+        workingNotShown: Number(counters['grading.untyped_loss.working_not_shown']) || 0,
+        blankToUnattempted: Number(counters['grading.untyped_loss.blank_to_unattempted']) || 0,
+        blankToExamTechnique: Number(counters['grading.untyped_loss.blank_to_exam_technique']) || 0,
+        keptUntyped: Number(counters['grading.untyped_loss.kept_untyped']) || 0,
+        subjectiveQuestions: Number(counters['grading.untyped_loss.subjective_questions']) || 0,
+        note: 'Subjective grading steps with a lost mark the grader did not type, by how the server settled '
+          + 'them (steps; subjectiveQuestions counts answers still showing "reason not recorded"). '
+          + 'Cumulative for this server process.',
+      },
       byCallClass,
       totals: sumRows(byCallClass),
       // ── The workload axis (TELEMETRY-1) ──────────────────────────────────

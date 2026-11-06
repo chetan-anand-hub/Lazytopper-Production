@@ -54,9 +54,47 @@ export async function loadSubjectBank(subject: PackSubject): Promise<void> {
   await ensureBankSubject(bankSubjectName(subject));
 }
 
-/** True when the row is left out of packs: it needs a supplied figure and none is bound to it. */
+/**
+ * Rows no pack ever prints because they touch CBSE 2026-27 deleted content (PACK-SYLLABUS-1, 5 Nov 2026), id -> why.
+ *
+ * The rows STAY served elsewhere in the app (they are not withheld from the bank: a shared withhold cascades into many pinned
+ * guards, the same reasoning as CBQ_PACK_EXCLUDED_IDS). The pack simply never sells them. Judged by SUB-TOPIC against
+ * scripts/src/syllabusGuard.ts and src/config/syllabus2026-27.ts, never by a bare word: an in-syllabus question that merely
+ * mentions "solar" or "biogas" (Our Environment's energy flow, a Mensuration word problem) is NOT here. Only rows that either
+ * test a deleted item, or carry a deleted item's name as student-visible text (an answer option, the key), are.
+ * packSyllabus.guard.test.ts runs EVERY pack file through the guard, so a new hit fails CI instead of reaching a buyer.
+ */
+export const PACK_SYLLABUS_EXCLUDED: ReadonlyMap<string, string> = new Map([
+  [
+    "CFPQ-M-POLY-013",
+    "Polynomials: a cubic f(x), (x + 1) is a factor, find the other zeroes by dividing it out. The reference lists \"Division algorithm for polynomials (long division, finding remaining zeros by division)\" and the cubic as OUT for 2026-27.",
+  ],
+  [
+    "CFPQ-M-POLY-014",
+    "Polynomials: a cubic f(x) = x^3 - 3x^2 + 4 with one zero given (2); the other zeroes are found by dividing out (x - 2) / comparing coefficients. Same reason as CFPQ-M-POLY-013: 'finding remaining zeros by division' and the cubic are OUT for 2026-27.",
+  ],
+  [
+    "ME2-004",
+    "Magnetic Effects: options 'Direction of induced current' / 'Magnitude of induced EMF'. Electromagnetic induction is OUT / FORMATIVE in src/config/syllabus2026-27.ts; the deleted item is printed to the student as an option (same rule as the frustum options).",
+  ],
+  [
+    "ME2-030",
+    "Magnetic Effects: options 'Direction of induced current' / 'Direction of force on a current-carrying conductor'. Electromagnetic induction is OUT / FORMATIVE in src/config/syllabus2026-27.ts; the deleted item is printed to the student as an option.",
+  ],
+  ["SAV-N-EXEM2-12-MCQ-003", "Surface areas and volumes: 'frustum of a cone' (deleted: Frustum of Cone) is printed as an answer option."],
+  ["SAV-N-EXMPLR-12-MCQ-001", "Surface areas and volumes: 'frustum of a cone and a cylinder' (deleted: Frustum of Cone) is printed as an answer option."],
+  ["SAV-N-EXMPLR-12-MCQ-003", "Surface areas and volumes: 'frustum of a cone and a cylinder' (deleted: Frustum of Cone) is printed as an answer option."],
+  ["BX-PLE-D-038", "Pair of linear equations: the printed answer cites 'the division algorithm' (deleted: Euclid's Division Lemma / Algorithm) as its justification."],
+]);
+
+/** True when the row is left out of every pack for syllabus reasons (see PACK_SYLLABUS_EXCLUDED). */
+export function isSyllabusExcludedFromPacks(q: { id: string }): boolean {
+  return PACK_SYLLABUS_EXCLUDED.has(q.id);
+}
+
+/** True when the row is left out of packs: it needs a supplied figure and none is bound to it, or it is a syllabus exclusion. */
 export function isExcludedFromPacks(q: CanonicalQuestion): boolean {
-  return needsMissingFigure(q);
+  return needsMissingFigure(q) || isSyllabusExcludedFromPacks(q);
 }
 
 const sectionRank = (s: string): number => {
@@ -124,14 +162,54 @@ export function packServedAt(
   return m;
 }
 
+/** servedAt value of a syllabus-excluded row in a RE-draw: ranked behind everything, so a paper takes it only if a slot cannot otherwise be filled. */
+export const SYLLABUS_EXCLUDED_AT = 2_000_000;
+
+/**
+ * Run a seeded paper draw; if it printed a syllabus-excluded row, draw once more with those rows ranked last.
+ * A draw that never touches an excluded row is returned untouched, so existing papers stay byte-identical. Best effort by design
+ * (a paper must not fail to download): packSyllabus.guard.test.ts is what proves no shipped paper holds an excluded row.
+ */
+export function drawAvoidingExcluded<T extends { paper: { questions: ReadonlyArray<{ id: string }> } }>(
+  draw: (servedAt: ServedAt) => T,
+  servedAt: ServedAt,
+): T {
+  const first = draw(servedAt);
+  const hit = first.paper.questions.filter((q) => PACK_SYLLABUS_EXCLUDED.has(q.id)).map((q) => q.id);
+  if (hit.length === 0) return first;
+  const next = new Map(servedAt);
+  for (const id of PACK_SYLLABUS_EXCLUDED.keys()) next.set(id, SYLLABUS_EXCLUDED_AT);
+  return draw(next);
+}
+
 /**
  * The chapter's pack rows, board order: sections A..E, and WITHIN a section the step-marked questions first, then the
  * rest (each tier by id). The chapter must be loaded (`loadChapter`).
  */
 export function chapterPackRows(slug: string): CanonicalQuestion[] {
-  const rows = selectBankQuestions({ subject: bankSubjectOf(slug), topicKeys: [slug] }).filter(
-    (q) => !isExcludedFromPacks(q) && sectionRank(q.section) < 99,
+  return orderChapterRows(
+    selectBankQuestions({ subject: bankSubjectOf(slug), topicKeys: [slug] }).filter(
+      (q) => !isExcludedFromPacks(q) && sectionRank(q.section) < 99,
+    ),
   );
+}
+
+/**
+ * The chapter's rows as the pack's SEEDED DRAWS (Chapter Tests, Worksheet) saw them before PACK-SYLLABUS-1: the figure rule only,
+ * the syllabus exclusions not applied. A seeded draw over a shorter list is a different draw, so a paper a buyer already
+ * downloaded would change under them; drawing from this list keeps every paper that never touched an excluded row byte-identical,
+ * and `drawAvoidingExcluded` redraws the (today none) paper that would have printed one. The question SHEETS use chapterPackRows.
+ * The chapter must be loaded (`loadChapter`).
+ */
+export function chapterPackDrawRows(slug: string): CanonicalQuestion[] {
+  return orderChapterRows(
+    selectBankQuestions({ subject: bankSubjectOf(slug), topicKeys: [slug] }).filter(
+      (q) => !needsMissingFigure(q) && sectionRank(q.section) < 99,
+    ),
+  );
+}
+
+function orderChapterRows(rows: CanonicalQuestion[]): CanonicalQuestion[] {
   const tier = (q: CanonicalQuestion): number => (isStepMarked(q) ? 0 : 1);
   return [...rows].sort(
     (a, b) => sectionRank(a.section) - sectionRank(b.section) || tier(a) - tier(b) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
@@ -211,14 +289,25 @@ export const WORKSHEET_SECTION_TAKE: Readonly<Record<PackSection, number>> = { A
  * The pack Worksheet: a seeded sample of the chapter's rows, a few per section, in board order. Same seed,
  * same ids. Uses the app's seeded PRNG, never Math.random.
  */
-export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
+export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: number, skip?: (q: CanonicalQuestion) => boolean): CanonicalQuestion[] {
   const out: CanonicalQuestion[] = [];
   for (const [sec, list] of groupBySection(rows)) {
     // Step-marked questions are taken first; the others only when the section has too few (a stable partition after the seeded shuffle).
     const shuffled = stepMarkedFirst(seededShuffle(list, mulberry32(seed ^ hashSeed(`ws:${sec}`))));
-    out.push(...shuffled.slice(0, WORKSHEET_SECTION_TAKE[sec]).sort((a, b) => (a.id < b.id ? -1 : 1)));
+    // `skip` drops a row from the ORDER the draw walks, so the row after it takes its place and everything else stays put.
+    const pick = skip ? shuffled.filter((q) => !skip(q)) : shuffled;
+    out.push(...pick.slice(0, WORKSHEET_SECTION_TAKE[sec]).sort((a, b) => (a.id < b.id ? -1 : 1)));
   }
   return out;
+}
+
+/**
+ * The pack Worksheet's rows with the syllabus exclusions applied as a SWAP: the same seeded walk over `drawRows` (the list the draw has
+ * always used), skipping an excluded row, so the next row of that section takes its slot (same section, same marks bucket) and every
+ * other question stays where it was. A worksheet that holds no excluded row is unchanged.
+ */
+export function drawPackWorksheetRowsSafe(drawRows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
+  return drawPackWorksheetRows(drawRows, seed, isSyllabusExcludedFromPacks);
 }
 
 /** The exact number of questions in a chapter pack (page copy). The chapter must be loaded. */

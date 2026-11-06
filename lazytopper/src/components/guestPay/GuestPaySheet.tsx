@@ -251,7 +251,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
 
   const title = step.name === "paid" ? "Thank you" : step.name === "choose" ? GUEST_PAY_TITLE : "Pay with your phone number";
 
-  // GST-EXCL-1: the breakup before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null before 5 Nov.
+  // GST-EXCL-1: the breakup before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null before 7 Nov.
   // Review G4: packs too - the breakup of the pack the sheet is selling.
   const gstBreakdown = item.kind === "pass" ? boardPassGstBreakdown() : (PACK_SKUS as readonly string[]).includes(item.sku) ? packGstBreakdown(item.sku as PackSku) : null;
   return createPortal(

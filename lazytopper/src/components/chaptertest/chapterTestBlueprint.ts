@@ -329,6 +329,10 @@ export function drawChapterTest(args: {
         solutionSteps: q.solutionSteps,
         finalAnswer: q.finalAnswer,
         answer: q.answer,
+        // SCORECARD-SECTION-TYPE-1 - the bank row's OWN section and format (the `section` above is the
+        // blueprint slot: a 4-mark case row sits in D, but its bank section is E). Display only.
+        ...(typeof q.section === "string" && q.section ? { bankSection: String(q.section).toUpperCase() } : {}),
+        ...(q.format ? { format: q.format } : {}),
       });
     }
   }

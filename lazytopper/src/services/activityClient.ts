@@ -114,6 +114,8 @@ export const ACTIVITY_EVENTS = [
   "tutor_from_scorecard",
   // TUTOR-FIX-2 T13 — once per tutor thread. Additive.
   "tutor_first_message",
+  // SMALL-FIXES-1 — a worksheet's save-for-later failed (reason class only). Additive.
+  "worksheet_save_failed",
   // TRIAL-END-1 — the trial-ending Home banner. Additive.
   "trial_banner_shown",
   "trial_banner_click",
@@ -175,11 +177,11 @@ export const ACTIVITY_EVENTS = [
   "feedback_after_graded_next_note_saved",
   // GUIDE-1 — which Byte-guide A/B arm the account is in, once per account per device. Additive.
   "guide_variant_assigned",
-  // PAYWALL-PAY-1 — a tap on "Pay", "Pay by QR code" or "Forward link to parents". Additive.
+  // PAYWALL-PAY-1 — a tap on "Pay", "Share QR code" or "Forward link to parents". Additive.
   "paywall_action_pay",
   "paywall_action_qr",
   "paywall_action_forward",
-  // CHECKOUT-1 - a tap on "Ask a parent to pay". Name only. Additive.
+  // CHECKOUT-1 - a tap on "Forward link to parents". Name only. Additive.
   "ask_parent_pay",
   // PAY-RESCUE-1 - the "Can't pay yourself?" card: shown / Ask a parent tapped / Try again tapped. Names only. Additive.
   "pay_rescue_shown",
@@ -189,6 +191,8 @@ export const ACTIVITY_EVENTS = [
   "download_start",
   "download_blocked",
   "download_wall_shown",
+  "grade_route_offer_shown",
+  "grade_route_offer_accepted",
   "grade_blocked",
   "scorecard_lock_shown",
   // PARENT-REPORT-1 — the student shared a link to one result with a parent. Additive.

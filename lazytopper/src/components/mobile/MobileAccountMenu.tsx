@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { deriveAccountStatus } from "../../utils/accountStatus";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { hasUnseenGradedPaper, markMeSeen } from "../../lib/nav/meSeen";
 
 
 /**
@@ -77,6 +78,21 @@ export function MobileAccountMenu() {
   }).current;
   const avatarRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // NAV-PRICING-1 — the "new" dot: a graded paper this student has not yet seen on Me (lib/nav/meSeen.ts: the newest
+  // device-local graded record is later than their last visit to Me). Re-read on every route change; being on /me
+  // marks everything seen. Sits ABOVE the early return (hook order, see the #310 note above).
+  const [unseenGraded, setUnseenGraded] = useState(false);
+  const uidForDot = user?.uid || "";
+  const onMe = location.pathname === "/me";
+  useEffect(() => {
+    if (!uidForDot) {
+      setUnseenGraded(false);
+      return;
+    }
+    if (onMe) markMeSeen(uidForDot);
+    setUnseenGraded(onMe ? false : hasUnseenGradedPaper(uidForDot));
+  }, [uidForDot, onMe, location.pathname]);
 
   // SETTINGS-USAGE-1: a page asked for Settings ("See usage", an old /me#usage link) through the
   // eager door. Signed out there is no Settings window, so the request is ignored.
@@ -183,6 +199,23 @@ export function MobileAccountMenu() {
         >
           {initials}
         </button>
+        {unseenGraded && (
+          <span
+            data-testid="me-new-dot"
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: -1,
+              right: -1,
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: "hsl(0, 78%, 55%)",
+              border: "2px solid var(--mob-card)",
+              pointerEvents: "none",
+            }}
+          />
+        )}
 
         {open && (
           <div
@@ -202,6 +235,32 @@ export function MobileAccountMenu() {
               zIndex: 50,
             }}
           >
+            {/* NAV-PRICING-1 — the phone bar's 5th slot is Pricing for most students, so Me / Progress is the FIRST
+                row of this menu, clearly a destination (not buried under the identity block). */}
+            <button
+              type="button"
+              role="menuitem"
+              data-testid="menu-me-progress"
+              onClick={() => {
+                setOpen(false);
+                navigate("/me");
+              }}
+              style={{
+                ...menuItemStyle("var(--mob-fg)", 700),
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 8,
+                border: "1px solid var(--mob-card-border)",
+              }}
+            >
+              <span>Me / Progress</span>
+              {unseenGraded && (
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", background: "hsl(0, 78%, 55%)", borderRadius: 999, padding: "2px 8px" }}>
+                  New
+                </span>
+              )}
+            </button>
             <div style={{ padding: "4px 4px 10px", borderBottom: "1px solid var(--mob-card-border)" }}>
               <div style={{ fontWeight: 700, fontSize: 14, color: "var(--mob-fg)", overflowWrap: "anywhere" }}>
                 {identityLabel}
@@ -235,17 +294,6 @@ export function MobileAccountMenu() {
               </button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 10 }}>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/me");
-                }}
-                style={menuItemStyle("var(--mob-fg)", 600)}
-              >
-                Me / Progress
-              </button>
               {/* PACKS-ENTRY-1 (d) — only for a student who owns a pack. */}
               {open && (
                 <PacksEntry kind="account-row" uid={user.uid} onDone={() => setOpen(false)} />

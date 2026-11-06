@@ -865,7 +865,7 @@ test('OWNER 2 Nov · packs are not part of Premium: a Premium uid (pass till the
 
 /* ── PASS-OWNER-PACKS-1 · a Board Pass OWNER buys packs: the pack is granted, the subscription is never touched ─────── */
 test('PASS-OWNER · a Board Pass owner buys EVERY pack kind (signed in): granted to them, the subscription doc is byte-for-byte untouched, no credit fields', async (t) => {
-  const AFTER_CUTOFF = Date.parse('2026-11-06T06:30:00.000Z'); // packs never reduce anything after 5 Nov
+  const AFTER_CUTOFF = Date.parse('2026-11-07T06:30:00.000Z'); // packs never reduce anything after 5 Nov; GST-EXCL-1: also after the 7 Nov GST cut-off
   for (const [sku, extra, paise, packId, target] of CASES) {
     const db = memoryFirestore();
     const SUB = {
@@ -878,7 +878,7 @@ test('PASS-OWNER · a Board Pass owner buys EVERY pack kind (signed in): granted
     const srv = await start({ db, nowMs: AFTER_CUTOFF, licensees: { owner1: { name: 'Riya', email: 'riya@example.com' } } });
     t.after(srv.close);
     const o = await orderOk(srv, 'owner1', sku, extra);
-    // GST-EXCL-1: an order created after 5 Nov 00:00 IST is charged the pack price + 18% GST (₹49 -> ₹58 ...), never reduced.
+    // GST-EXCL-1: an order created after 7 Nov 00:00 IST is charged the pack price + 18% GST (₹49 -> ₹58 ...), never reduced.
     const charged = require('../services/passPricing.cjs').priceWithGst(paise / 100, AFTER_CUTOFF) * 100;
     assert.ok(charged > paise, `${sku}: GST is added after the cut-off`);
     assert.equal(o.amountPaise, charged, `${sku}: the pack price + GST, never reduced for a Board Pass owner`);
@@ -1040,8 +1040,8 @@ test('REDOWNLOAD · the server clock decides: a client-sent date header / query 
   assert.deepEqual(ids(r.json.endedPacks), ['pack_mock:maths']);
 });
 
-/* ── GST-EXCL-1 · packs are priced "+ 18% GST" from 00:00 IST 5 Nov 2026 (server clock, at ORDER time) ────────────── */
-const GST_CUT_MS = Date.parse('2026-11-05T00:00:00+05:30');
+/* ── GST-EXCL-1 · packs are priced "+ 18% GST" from 00:00 IST 7 Nov 2026 (server clock, at ORDER time) ────────────── */
+const GST_CUT_MS = Date.parse('2026-11-07T00:00:00+05:30');
 
 test('GST-EXCL-1 · every pack: an order before the cut-off is the all-in price (no GST fields); at/after it, base + 18% GST with the breakup stored', async (t) => {
   const { priceWithGst } = require('../services/passPricing.cjs');

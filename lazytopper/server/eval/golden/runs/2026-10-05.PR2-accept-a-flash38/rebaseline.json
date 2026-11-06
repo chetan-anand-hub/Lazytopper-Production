@@ -2450,8 +2450,8 @@
   },
   "run2:W.PAR.PARM7": {
    "from": "8cc50e7464d6aee43be8513545d8b406717588a3dae53aa6865a39965e629a0b",
-   "to": "0f57e67c49bee68cdca9722b8942c08521b60b093d421613e42f0d385d5eeda8",
-   "class": "a17-r2-not-attempted",
+   "to": "9d96ed5b4a1ee2cd0cd64b02855d459530858a1f110075d8d1aaf778cf16b890",
+   "class": "a17-r2-not-attempted+g-knowledge-evidence-1",
    "a17": {
     "base": "8cc50e7464d6aee43be8513545d8b406717588a3dae53aa6865a39965e629a0b",
     "delta": [
@@ -2496,6 +2496,32 @@
       ],
       "Marked against: (i) Total outcomes = 9 / P(red) = 4/9 (1); (ii) P(yellow) = 2/9 (1). This question was left unattempted on the answer sheet. Simple probability questions can earn you full marks easily with standard formula application.",
       "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   },
+   "knowl": {
+    "base": "0f57e67c49bee68cdca9722b8942c08521b60b093d421613e42f0d385d5eeda8",
+    "delta": [
+     [
+      [
+       "results",
+       1,
+       "annotatedSteps",
+       2,
+       "mistakeType"
+      ],
+      "presentation",
+      null
+     ],
+     [
+      [
+       "results",
+       1,
+       "mistakeSummary",
+       "presentation"
+      ],
+      1,
+      0
      ]
     ]
    }
@@ -2723,8 +2749,8 @@
   },
   "run3:W.PAR.PARM7": {
    "from": "c7b291b3d080c7d676966232bd61a27c2cf313c3c2afa352db9b17fa5bc3e510",
-   "to": "f2c84c7ebe1bbadc3a989715e416721d77d76f8544253f67c4aaae3f5c7e3a28",
-   "class": "a17-r2-not-attempted",
+   "to": "2d88f27200dd74bd598148bf02b05f3f62511eba766fb6c9c8f2a8b6f05f6e27",
+   "class": "a17-r2-not-attempted+g-knowledge-evidence-1",
    "a17": {
     "base": "c7b291b3d080c7d676966232bd61a27c2cf313c3c2afa352db9b17fa5bc3e510",
     "delta": [
@@ -2769,6 +2795,32 @@
       ],
       "Marked against: Total number of outcomes = 9 (0.5); (i) P(red) = 4/9 (0.5); (ii) P(yellow) = 2/9 (1). This question was left completely unattempted on the provided answer sheet.",
       "This question was not attempted, so it earns no marks."
+     ]
+    ]
+   },
+   "knowl": {
+    "base": "f2c84c7ebe1bbadc3a989715e416721d77d76f8544253f67c4aaae3f5c7e3a28",
+    "delta": [
+     [
+      [
+       "results",
+       1,
+       "annotatedSteps",
+       2,
+       "mistakeType"
+      ],
+      "presentation",
+      null
+     ],
+     [
+      [
+       "results",
+       1,
+       "mistakeSummary",
+       "presentation"
+      ],
+      1,
+      0
      ]
     ]
    }
@@ -3166,6 +3218,930 @@
      ]
     ]
    }
+  },
+  "run1:S.CI.GS-S12-a": {
+   "from": "6ba16c98966d80f398b606d020af3001a30d8ee7d6cabce71896d5df2f71261d",
+   "to": "95c1bb03bf846b9a7e3b45516ac3343ba97a7394cc7e1213f8d5fa3b6ec8ab1c",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "6ba16c98966d80f398b606d020af3001a30d8ee7d6cabce71896d5df2f71261d",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ]
+    ]
+   }
+  },
+  "run1:S.CI.GS-S13-a": {
+   "from": "fb4df03a7085304dd288c91aa97fd8d8b38a22800dcbfab0c65a8a8da1b51c35",
+   "to": "cfa8241989442750103ff0e5c07dbcffdeec5594047bff7c47bda408c2af33c2",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "fb4df03a7085304dd288c91aa97fd8d8b38a22800dcbfab0c65a8a8da1b51c35",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run1:W.PAR.PARS4": {
+   "from": "0c89f1cdf079b939a75b8d3336c71c87b1869edca4fc4e92fb2d121c29a9bb4e",
+   "to": "d9d075ed727964ee14316296daaae0d96dd8d29edb54fd3e46470b040a260744",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "0c89f1cdf079b939a75b8d3336c71c87b1869edca4fc4e92fb2d121c29a9bb4e",
+    "delta": [
+     [
+      [
+       "results",
+       2,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       2,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       2,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "results",
+       2,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ]
+    ]
+   }
+  },
+  "run1:W.PAR.PARS5": {
+   "from": "4979e1ef37ad561e77dc751980e5e2657885e7774caa2511838ad879735342d0",
+   "to": "0331a01d2553b75eea6235878ddcd4ca27d2ad5c95937323b62a7d9e30d4a7e8",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "4979e1ef37ad561e77dc751980e5e2657885e7774caa2511838ad879735342d0",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run1:W.QP.QPS": {
+   "from": "d59f804e2de393978e90b654473a9dce282fcb89d832e4ce624008b3cd323bdf",
+   "to": "49e113c0dab1c8e6ded86c073762c5c654c78521360fa45ce380812a7ff8d586",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "d59f804e2de393978e90b654473a9dce282fcb89d832e4ce624008b3cd323bdf",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       3,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       3,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run1:V2.S.CI.GS-S12-a": {
+   "from": "ed580a1d848c4d59f0558f45fc061827ebcbc440f82733ade7d952fec3909c58",
+   "to": "f4775dca89e36333ba17158aaaaf464e83642b6e3e8a3d7da757b693a602e960",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "ed580a1d848c4d59f0558f45fc061827ebcbc440f82733ade7d952fec3909c58",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ],
+     [
+      [
+       "marksLostByType",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "marksLostByType",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run2:S.CI.GS-S12-a": {
+   "from": "5551a9164e42bf1b117161a6d4a68887fb1bdf42db8f45ea58bb2d8ad345d893",
+   "to": "176ba5578d56c3c87fffd3db64dfcd5f9ca505674778f1cc581aa4c316cc6453",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "5551a9164e42bf1b117161a6d4a68887fb1bdf42db8f45ea58bb2d8ad345d893",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ]
+    ]
+   }
+  },
+  "run2:S.CI.GS-S13-a": {
+   "from": "7796f792cb203186672c895f48840285bd10fd4c02caec590289bdfb9f29fa00",
+   "to": "12a753afba67d3b4dc1a8ba4c30ea90894af45806b0349ecc9fcc9e6dac71002",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "7796f792cb203186672c895f48840285bd10fd4c02caec590289bdfb9f29fa00",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run2:W.PAR.PARS4": {
+   "from": "a0edc4116fe0fc361b46b2e00624a81a4dffb248503223ac25243066b4383ba9",
+   "to": "7fafd606c9fed459438274de6614de040d28f39fc1f5084775f853854749879c",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "a0edc4116fe0fc361b46b2e00624a81a4dffb248503223ac25243066b4383ba9",
+    "delta": [
+     [
+      [
+       "results",
+       2,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       2,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       2,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "results",
+       2,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ]
+    ]
+   }
+  },
+  "run2:W.PAR.PARS5": {
+   "from": "50944c2d4d714c9d86b331db56ea288e8dc7aa56dc4208c8ba0fd465466881b8",
+   "to": "c45da29e403f0cb18f14e9d977238ab4379813fb0f689dfe3d7f65c9becc5fde",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "50944c2d4d714c9d86b331db56ea288e8dc7aa56dc4208c8ba0fd465466881b8",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run2:W.QP.QPS": {
+   "from": "49d387dcc16d1b2652cb13927e81b387ed0166b7e8ecf9e4299e24b505f92537",
+   "to": "96035b31a43fe970afa1035445a152188ee6ccaed4a1b43e558c29843f6fd42f",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "49d387dcc16d1b2652cb13927e81b387ed0166b7e8ecf9e4299e24b505f92537",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       3,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       3,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run2:V2.S.CI.GS-S12-a": {
+   "from": "f3ffe566e5f0c19eeb3a419ffa87a88036c9005076339cca5512e6be248a14b5",
+   "to": "4fc65e32b0db4027a1581aca5e3175d10e81fdc69efd920b63890008ddfbbfea",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "f3ffe566e5f0c19eeb3a419ffa87a88036c9005076339cca5512e6be248a14b5",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ],
+     [
+      [
+       "marksLostByType",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "marksLostByType",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run3:S.CI.GS-S12-a": {
+   "from": "dae2426b942889be9d0e9b405bce93c2197363da5c3d410508b5d0e04532c858",
+   "to": "666620b73262f0e281377470fae07244004aa261a0e6cca57f2fd114ee170099",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "dae2426b942889be9d0e9b405bce93c2197363da5c3d410508b5d0e04532c858",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ]
+    ]
+   }
+  },
+  "run3:S.CI.GS-S13-a": {
+   "from": "830aff04e148b127fa821b3ecdc34d6a33b776a03790f4380ae830938df4b4e2",
+   "to": "a11a27ad757fc417b5a5c69b72feb6c8f4948c931b1ee97de4621be6a5c7cc11",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "830aff04e148b127fa821b3ecdc34d6a33b776a03790f4380ae830938df4b4e2",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run3:W.PAR.PARS4": {
+   "from": "9ad72752dbd9bd5a319db596f02fc02eb197fcf59a18748e800a312352521bd6",
+   "to": "337a68d6f06d7a008dd05ad31b8459a54acb0dcfbd569f60b170ed7dbbcfae05",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "9ad72752dbd9bd5a319db596f02fc02eb197fcf59a18748e800a312352521bd6",
+    "delta": [
+     [
+      [
+       "results",
+       2,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       2,
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       2,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "results",
+       2,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ]
+    ]
+   }
+  },
+  "run3:W.PAR.PARS5": {
+   "from": "1e27d47eefad287c9365fffd0f47799fea675eeace5706d0d7c58fbf4e38eeb4",
+   "to": "209cd07d554fa163b1fb81f790e2c477e13be0581dd60582fe052a8f6fa0a36a",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "1e27d47eefad287c9365fffd0f47799fea675eeace5706d0d7c58fbf4e38eeb4",
+    "delta": [
+     [
+      [
+       "results",
+       0,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       0,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run3:W.QP.QPS": {
+   "from": "d5e985d72470c107572c85f90e4e96d0f0f609883df96cf2855559012c869d4f",
+   "to": "12f45e68ea5c945c4e6336e22d0b538a4b0c22b23567102f61481f2a36e91e98",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "d5e985d72470c107572c85f90e4e96d0f0f609883df96cf2855559012c869d4f",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "results",
+       3,
+       "mistakeSummary",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       3,
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run3:V2.S.CI.GS-S12-a": {
+   "from": "f6cfe71856ba09f49a127d8ac1ae7e4624d3d9221677399eb646e168affd3f4b",
+   "to": "37b0e81f9c4ab180e7f439af40c97c15c362ca2945c90567baba2b674bcf148b",
+   "class": "g-balancing-1",
+   "balance": {
+    "base": "f6cfe71856ba09f49a127d8ac1ae7e4624d3d9221677399eb646e168affd3f4b",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      "conceptual",
+      "presentation"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      2,
+      0
+     ],
+     [
+      [
+       "mistakeSummary",
+       "presentation"
+      ],
+      0,
+      2
+     ],
+     [
+      [
+       "marksLostByType",
+       "conceptual"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "marksLostByType",
+       "presentation"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run1:V2.S.CI.GS-M22-a": {
+   "from": "c0fbfeb1de2f41abcc6952f1d99a1e0a77ca643d740d4d4c3f765dd37d161a8a",
+   "to": "0381a2f4760a2beaf49a00da80e08232b3723d8ff72a1b5ef3fe71979c76c44b",
+   "class": "g-missing-type-1",
+   "mtype": {
+    "base": "c0fbfeb1de2f41abcc6952f1d99a1e0a77ca643d740d4d4c3f765dd37d161a8a",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "status"
+      ],
+      "missing",
+      "unattempted"
+     ],
+     [
+      [
+       "marksLostByType",
+       "unattempted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "marksLostByType",
+       "untyped"
+      ],
+      0.5,
+      0
+     ]
+    ]
+   }
+  },
+  "run2:V2.S.CI.GS-M22-a": {
+   "from": "8538b620308e9e38040584ab0f36b5154ce2c7d63e14e78b59d0f16b8a712cf3",
+   "to": "22833f5222220b5aca4345ed86c176b3289ca1664b53f7d8d6b80b8b36270c2c",
+   "class": "g-missing-type-1",
+   "mtype": {
+    "base": "8538b620308e9e38040584ab0f36b5154ce2c7d63e14e78b59d0f16b8a712cf3",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "status"
+      ],
+      "missing",
+      "unattempted"
+     ],
+     [
+      [
+       "marksLostByType",
+       "unattempted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "marksLostByType",
+       "untyped"
+      ],
+      0.5,
+      0
+     ]
+    ]
+   }
+  },
+  "run3:V2.S.CI.GS-M22-a": {
+   "from": "1defc45727be5f256ac694f7a771409aa809895e4cbda2e1636874dc6653936e",
+   "to": "5482eedde8341fa62ac7e64af2151d8fe3d02e3ed5a0010e7f901961080902c5",
+   "class": "g-missing-type-1",
+   "mtype": {
+    "base": "1defc45727be5f256ac694f7a771409aa809895e4cbda2e1636874dc6653936e",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       2,
+       "status"
+      ],
+      "missing",
+      "unattempted"
+     ],
+     [
+      [
+       "marksLostByType",
+       "unattempted"
+      ],
+      0,
+      0.5
+     ],
+     [
+      [
+       "marksLostByType",
+       "untyped"
+      ],
+      0.5,
+      0
+     ]
+    ]
+   }
   }
  },
  "a17": {
@@ -3189,5 +4165,23 @@
   "generator": "server/eval/golden/goldenRebaselineHabit.cjs",
   "count": 2,
   "about": "g-mcq-habit-1: a RIGHT objective answer with flawed working keeps its type as a 0-mark habit: one step gains a type and its summary count goes up by one. No mark, status, annotation, marksLostByType or note changes (lib/rebaselineClasses.cjs habitViolations)."
+ },
+ "knowl": {
+  "pr": "GRADER-QUALITY-1 (owner ruling 2026-11-05)",
+  "generator": "server/eval/golden/goldenRebaselineKnowl.cjs",
+  "count": 2,
+  "about": "g-knowledge-evidence-1: a BLANK reason / justification / verification step the model typed exam technique without proof of knowledge becomes unattempted, untyped. No mark, note or annotation changes (lib/rebaselineClasses.cjs knowlViolations)."
+ },
+ "balance": {
+  "pr": "GRADER-BALANCE-1 (owner ruling 2026-11-05)",
+  "generator": "server/eval/golden/goldenRebaselineBalance.cjs",
+  "count": 18,
+  "about": "g-balancing-1: an equation with the right species that is not balanced loses exactly 1/2 per equation, typed presentation (skeletal) or calculation (coefficients written), read from the page; marks only given back to the cap (lib/rebaselineClasses.cjs balanceViolations)."
+ },
+ "mtype": {
+  "pr": "MISSING-TYPE-1 (owner ruling 2026-11-05 14:04)",
+  "generator": "server/eval/golden/goldenRebaselineMissingType.cjs",
+  "count": 3,
+  "about": "g-missing-type-1: a BLANK step that lost marks with no type is settled — an asked-for deliverable becomes unattempted (untyped), a working step before a right step becomes missing + presentation — and its marks leave \"untyped\". No mark, note or annotation changes (lib/rebaselineClasses.cjs mtypeViolations)."
  }
 }

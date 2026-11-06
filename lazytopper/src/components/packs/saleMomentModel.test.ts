@@ -6,7 +6,7 @@ import { readPacksQuery } from "../../lib/packs/packEntry";
 import { PACK_PRICE_INR } from "../../services/packs";
 import { singleChapterPracticeTarget } from "../results/scorecardVariants";
 import { offerIsOwned, pickSaleOffer, saleHintFromTarget, saleOfferText } from "./saleMomentModel";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPriceLabel } from "../../services/packs";
 
 describe("pickSaleOffer", () => {

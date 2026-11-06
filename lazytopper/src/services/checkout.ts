@@ -14,7 +14,7 @@
  * ★ checkout.js IS LOADED ONLY ON THE BUY CLICK (Z3), from Razorpay's own origin, once.
  */
 
-import { confirmServerPrice, serverPriceFields, type ServerGst } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, type ServerGst, razorpayDescription } from "./priceConfirm";
 
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
 export type PassType = "month" | "till_boards";
@@ -111,7 +111,7 @@ export interface PayOrder {
   orderId: string;
   keyId: string;
   amountPaise: number;
-  /** GST-EXCL-1 (G2): the server's breakup, on an order created at/after 00:00 IST 5 Nov 2026. */
+  /** GST-EXCL-1 (G2): the server's breakup, on an order created at/after 00:00 IST 7 Nov 2026. */
   gst?: ServerGst;
   packCreditInr?: number;
 }
@@ -410,7 +410,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION,
+        description: razorpayDescription(passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

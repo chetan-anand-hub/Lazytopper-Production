@@ -56,13 +56,13 @@ function toMsLoose(now) {
 }
 /**
  * Mirror of pricing.ts GST_RATE_PERCENT / GST_EXCLUSIVE_FROM_ISO / boardPassGstExclusive / withGstInr / boardPassCharge
- * (GST-EXCL-1, owner ruling 4 Nov 2026): from 00:00 IST on 5 Nov 2026 the Board Pass is priced "+ 18% GST" and the
+ * (GST-EXCL-1, owner ruling 4 Nov 2026; moment moved to 7 Nov by owner ruling 6 Nov 18:52 IST): from 00:00 IST on 7 Nov 2026 the Board Pass is priced "+ 18% GST" and the
  * amount CHARGED is base + GST rounded to the rupee (1917 -> 2262; 2499 -> 2949). The SERVER evaluates the cut-off on
- * ITS OWN clock when an order is created; an order created before it keeps its all-in amount. Board Pass only.
+ * ITS OWN clock when an order is created; an order created before it keeps its all-in amount. Every paid product.
  */
 const GST_RATE_PERCENT = 18;
 const GST_RATE = GST_RATE_PERCENT / 100;
-const GST_EXCLUSIVE_FROM_ISO = '2026-11-05T00:00:00+05:30';
+const GST_EXCLUSIVE_FROM_ISO = '2026-11-07T00:00:00+05:30';
 const GST_EXCLUSIVE_FROM_MS = Date.parse(GST_EXCLUSIVE_FROM_ISO);
 /** Is the Board Pass priced "+ GST" at `now`? PURE. */
 function boardPassGstExclusive(now) {

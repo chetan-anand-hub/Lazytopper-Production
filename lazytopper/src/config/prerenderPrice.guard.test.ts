@@ -32,7 +32,7 @@ const PACK_BY_LABEL: Record<string, PackSku> = {
   "Maths + Science Bundle": "pack_bundle",
 };
 const LABELS = Object.keys(PACK_BY_LABEL).map((l) => l.replace(/[+]/g, "\\+")).join("|");
-// GST-EXCL-1: a price TAG may carry " + GST" (from 5 Nov 2026); the captured group is the WHOLE shown figure, so a snapshot
+// GST-EXCL-1: a price TAG may carry " + GST" (from 7 Nov 2026); the captured group is the WHOLE shown figure, so a snapshot
 // that drops or adds the suffix is a mismatch exactly like a changed number.
 const AMT = "₹([\\d,]+(?: \\+ GST)?)";
 
@@ -150,7 +150,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
   // pass) legitimately differ from the snapshot (that is what the 2026-11-18 MUTATION PROOF below pins), but
   // pack and bundle prices do not move with the clock, so those are still asserted exactly. At the real clock
   // (every PR run) the assertion is the full, unchanged one.
-  // GST-EXCL-1: pack prices now move ONCE with the clock (the 5 Nov 2026 GST cut-off). Under a shifted clock they are still
+  // GST-EXCL-1: pack prices now move ONCE with the clock (the 7 Nov 2026 GST cut-off). Under a shifted clock they are still
   // asserted EXACTLY, against the live price on the same side of that cut-off as the snapshot was captured (a snapshot that
   // carries any "+ GST" tag was captured after it). At the real clock the full, unchanged assertion runs.
   it("every saved price equals the live price as of the clock", () => {
@@ -173,7 +173,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     ]);
     // ...and the live price steps to 2,499 at the founding deadline.
     // ...and the live price steps to "+ GST" at the GST cut-off and to 2,499 at the founding deadline (GST-EXCL-1).
-    expect(parentPriceModel(new Date("2026-11-04T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
+    expect(parentPriceModel(new Date("2026-11-06T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
     expect(parentPriceModel(new Date("2026-11-30T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917 + GST");
     expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹2,499 + GST");
     expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassPayDisplay).toBe("₹2,949");

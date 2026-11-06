@@ -25,6 +25,7 @@ vi.mock("./sessionRecords", async (importOriginal) => {
   return {
     ...actual,
     writeSessionRecord: (_u: unknown, r: { id: string; worksheetId: string; status: string }) => { writes.records.push(r); },
+    writeSessionRecordResolved: async (_u: unknown, r: { id: string; worksheetId: string; status: string }) => { writes.records.push(r); return { outcome: "recorded", code: r.id, record: r, resolved: true }; },
     writeSessionPerQuestion: () => {},
   };
 });

@@ -312,7 +312,7 @@ describe("6 · UI1 panel", () => {
       </MemoryRouter>,
     );
     const panel = screen.getByTestId("fair-use-limit-panel");
-    expect(panel.textContent).toMatch(/^Fair useYou've reached this day fair-use limit\. It resets at /);
+    expect(panel.textContent).toMatch(/^Fair useYou've reached today's fair-use limit\. It resets at /);
     expect(screen.queryByTestId("fair-use-see-plans")).toBeNull();
     expect(panel.textContent).not.toMatch(NO_CODES);
   });

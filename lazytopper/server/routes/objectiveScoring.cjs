@@ -187,6 +187,160 @@ const LETTER_THEN_TEXT = /^\s*\(?\s*([a-hA-H])\s*\)\s*(.+?)\s*$/;
 // A line that DISCUSSES an option ("option (b) is wrong because…") is not a declaration of it.
 const NEGATED_MENTION = /\b(?:is|was|are)\s+(?:wrong|incorrect|not)\b|\bnot\b|\bwrong\b|\bincorrect\b|\beliminat|\brule[sd]? out\b|\breject/i;
 
+// ─── MCQ-PICK-1 · A LETTER WRITTEN WITH ITS OPTION'S FULL SENTENCE ────────────
+// Students write "(b) The image formed is virtual, erect and diminished." — the letter AND the
+// option's sentence, copied with small differences (a spelling slip, missing punctuation, a
+// dropped "the"), often wrapped over two or three lines, or the letter on one line and the
+// sentence on the next. (2b) read only an EXACT copy on one line, so these came back with no
+// pick and the mark fell to the model's verdict. Now a letter + text is matched against the
+// options by a DETERMINISTIC token similarity (no model, no randomness):
+//   • tokens: the normalised text, digits split from letters ("10cm" → "10 cm"), "the" dropped;
+//   • two tokens agree when equal, or — only for digit-free words of ≥4 letters, and never when
+//     the options differ only by case — within one edit (two for words of ≥8 letters);
+//   • ℓ = longest common token subsequence; coverage = ℓ / option tokens, precision = ℓ / text
+//     tokens. A SENTENCE option (≥3 tokens) matches at coverage ≥ 0.8 AND precision ≥ 0.6; a
+//     SHORT option (1–2 tokens) only when every token agrees one-for-one (so "(b) 4x" is never
+//     option "4");
+//   • the option must match CLEARLY better than every other matching option (Dice margin ≥ 0.05:
+//     one distinguishing word, e.g. the "not" of an Assertion-Reason option, in ~13), else the line
+//     is not read at all — a text equally close to two options is never guessed;
+//   • Assertion-Reason: "(A)"/"(R)" labels are dropped and "Assertion"/"Reason" read as "A"/"R".
+// The matched option decides: the letter's OWN option → that letter, read ONLY where trunk reads no
+// declaration at all (see nearCopyScan); ANOTHER option → a CONTRADICTION (letter X, sentence of Y),
+// which changes nothing trunk reads and only adds `pickContradiction: true` for admin.
+const SENTENCE_MIN_TOKENS = 3;
+const MATCH_COVERAGE = 0.8;
+const MATCH_PRECISION = 0.6;
+const MATCH_MARGIN = 0.05;
+
+function editDistanceWithin(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return false;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i += 1) {
+    const cur = [i];
+    let rowMin = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (cur[j] < rowMin) rowMin = cur[j];
+    }
+    if (rowMin > max) return false;
+    prev = cur;
+  }
+  return prev[b.length] <= max;
+}
+
+// Assertion-Reason: "Assertion (A)" / "Reason (R)" are written by students as "A" / "R", so the
+// bracketed capital labels are dropped and the two words read as their letters.
+const AR_ALIAS = { assertion: 'a', reason: 'r' };
+// "doesn't" / "doesnt" / "cannot" / "won't" … read as "does not" / "can not" / "will not", with or
+// without the apostrophe, so a student's contraction matches the option's "does not".
+function expandContractions(s) {
+  return String(s == null ? '' : s).replace(/[\u2018\u2019`]/g, "'")
+    .replace(/\bwon'?t\b/gi, 'will not')
+    .replace(/\b(?:dosen'?t|dosent|dosnt|doesnot)\b/gi, 'does not')
+    .replace(/\bcan'?t\b|\bcannot\b/gi, 'can not')
+    .replace(/\b(does|do|did|is|are|was|were|has|have|had|could|should|would)(?:n'?t|'nt)\b/gi, '$1 not');
+}
+function matchTokens(s, N) {
+  const raw = expandContractions(s).replace(/\(\s*[AR]\s*\)/g, ' ');
+  return N(raw).replace(/(\d)([a-zA-Z])/g, '$1 $2').replace(/([a-zA-Z])(\d)/g, '$1 $2')
+    .split(' ').filter((t) => t && t.toLowerCase() !== 'the')
+    .map((t) => AR_ALIAS[t.toLowerCase()] || t);
+}
+
+function tokensAgree(a, b, fuzzy) {
+  if (a === b) return true;
+  if (!fuzzy || /\d/.test(a) || /\d/.test(b)) return false;
+  const m = Math.min(a.length, b.length);
+  if (m < 4) return false;
+  return editDistanceWithin(a, b, m >= 8 ? 2 : 1);
+}
+
+function commonSubsequence(o, t, fuzzy) {
+  const dp = Array.from({ length: o.length + 1 }, () => new Array(t.length + 1).fill(0));
+  for (let i = 1; i <= o.length; i += 1) {
+    for (let j = 1; j <= t.length; j += 1) {
+      dp[i][j] = tokensAgree(o[i - 1], t[j - 1], fuzzy) ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  return dp[o.length][t.length];
+}
+
+/** Which option a free text (the words after a letter) clearly IS, or -1. */
+function optionMatchingText(text, opts, { sentenceOnly = false } = {}) {
+  const N = optionNormaliser(opts);
+  const fuzzy = !optionsDifferOnlyByCase(opts);
+  const t = matchTokens(text, N);
+  if (t.length === 0) return -1;
+  const scored = [];
+  opts.forEach((opt, idx) => {
+    const o = matchTokens(opt, N);
+    if (o.length === 0) return;
+    const sentence = o.length >= SENTENCE_MIN_TOKENS;
+    if (sentenceOnly && !sentence) return;
+    const l = commonSubsequence(o, t, fuzzy);
+    const ok = sentence
+      ? l / o.length >= MATCH_COVERAGE && l / t.length >= MATCH_PRECISION
+      : l === o.length && l === t.length;
+    if (ok) scored.push({ idx, dice: (2 * l) / (o.length + t.length) });
+  });
+  if (scored.length === 0) return -1;
+  scored.sort((a, b) => b.dice - a.dice);
+  if (scored.length > 1 && scored[0].dice - scored[1].dice < MATCH_MARGIN) return -1;
+  return scored[0].idx;
+}
+
+// Review H1/H2 · the near match never reads a line that NAMES ANOTHER LETTER ("… or (c)", "… / (c)",
+// "…, or c", "so (c)") — a hedge or a later declaration stays exactly as on trunk — nor a line that
+// REJECTS what it copies ("… is wrong", "… ✗", "cannot be"): a negation word the option itself does
+// not contain makes the text a rejection, not a declaration ("not" is part of an A-R option).
+const NAMES_A_LETTER = /\(\s*[a-h]\s*\)|(?:\bor\b|\/|&|\bso\b|\bhence\b|\bthus\b|\btherefore\b|\banswer\b|\bans\b|\boption\b)\s*[,:=\-]?\s*\(?\s*[a-h]\s*\)?\s*[.)]?\s*$/i;
+function namesALetter(text) {
+  return NAMES_A_LETTER.test(String(text == null ? '' : text).replace(/\(\s*[AR]\s*\)/g, ' '));
+}
+const NEGATION_WORDS = /\b(?:not|no|never|wrong|incorrect|false|eliminat\w*|reject\w*|ruled?)\b|[\u2717\u2718\u00d7]/g;
+function negationCounts(s) {
+  const out = {};
+  for (const m of expandContractions(s).toLowerCase().match(NEGATION_WORDS) || []) {
+    const k = m.startsWith('eliminat') ? 'eliminat' : m.startsWith('reject') ? 'reject' : m.startsWith('rule') ? 'rule' : m;
+    out[k] = (out[k] || 0) + 1;
+  }
+  return out;
+}
+/** True when `text` carries a negation that `option` does not (so it rejects rather than copies). */
+function negatesBeyond(text, option) {
+  const t = negationCounts(text);
+  const o = negationCounts(option);
+  return Object.keys(t).some((k) => t[k] > (o[k] || 0));
+}
+/** Third review (MED) · a near copy must carry EXACTLY the option's negations — no more, no fewer. */
+function negationsAgree(text, option) {
+  return !negatesBeyond(text, option) && !negatesBeyond(option, text);
+}
+
+/** A letter + text read against the options: { pick } | { contradiction } | null. */
+function letterWithText(letter, text, opts, o) {
+  const x = letter.toLowerCase().charCodeAt(0) - 97;
+  if (x < 0 || x >= opts.length) return null;
+  // On an Assertion-Reason question "(A) is true but …" is the ASSERTION label, not option (a).
+  if (letter === 'A' && opts.some((op) => /\bassertion\b|\(\s*A\s*\)/i.test(String(op)))) return null;
+  if (namesALetter(text)) return null;
+  const y = optionMatchingText(text, opts, o);
+  if (y < 0) return null;
+  if (!negationsAgree(text, opts[y])) return null;
+  return y === x ? { pick: letter.toLowerCase() } : { contradiction: true, pick: '' };
+}
+
+// A line that STARTS a letter block (and so ends a continuation): a letter-led line, a hedge,
+// or an ordinary declaration.
+function startsDeclaration(line) {
+  const w = String(line || '').trim();
+  if (!w) return true;
+  if (/^\(?\s*[a-hA-H]\s*[).]?\s*$/.test(w)) return true;
+  return LETTER_THEN_TEXT.test(w) || HEDGE_LINE.test(w) || HEDGE_IN_DECLARATION.test(w)
+    || OPTION_DECLARATION_LETTER.test(w) || SELF_CORRECTION.test(w);
+}
+
 /** The declaration (if any) on ONE line of student work. */
 function declarationOn(line, opts) {
   const w = String(line || '').trim();
@@ -236,28 +390,98 @@ function declarationOn(line, opts) {
 // a hedge, a self-correction — outranks every fallback line, wherever it sits. If several
 // fallback lines name DIFFERENT options and nothing else declares, the answer is left
 // UNRESOLVED (null): we never guess which of two working-shaped lines was the answer.
-function lastDeclaration(steps, options) {
+//
+// MCQ-PICK-1 · NEAR COPIES, READ ONLY WHERE TRUNK READS NOTHING (third review: narrow scope).
+// The trunk reading above (`trunkDeclaration`) is unchanged and always wins. ONLY when it finds NO
+// declaration at all does the near-copy scan run, and it can only supply a letter whose OWN option
+// the student copied: "(b) The image formd is virtual erect and diminshed", a sentence WRAPPED over
+// lines ("(b) The image formed is virtual," / "erect and diminished."), or written under the letter.
+// A letter with ANOTHER option's text (a contradiction) never changes any pick or resolution — it
+// only raises the admin flag `pickContradiction`. If the scan finds a contradiction, or two
+// different letters, it reads nothing (exactly trunk's "no declaration").
+//
+// A letter-led line takes the lines after it, across steps, until a blank line, the next letter, or
+// a line that declares on its own (re-review); a block whose continuation names another letter or
+// rejects (a negation no option carries) is not read (review H1/H2).
+const BARE_LETTER_LINE = /^\s*\(?\s*([a-hA-H])\s*[).]?\s*$/;
+function nearCopyAt(lines, i, opts) {
+  const head = lines[i].text.trim();
+  const bare = BARE_LETTER_LINE.exec(head);
+  const lt = bare ? null : LETTER_THEN_TEXT.exec(head);
+  if (!bare && !lt) return null;
+  const letter = (bare || lt)[1];
+  const cont = [];
+  for (let j = i + 1; j < lines.length && !startsDeclaration(lines[j].text) && !declarationOn(lines[j].text, opts); j += 1) {
+    cont.push(lines[j].text.trim());
+  }
+  const contOk = cont.length > 0 && !cont.some((c) => namesALetter(c) || opts.every((op) => negatesBeyond(c, op)));
+  if (contOk) {
+    for (let k = cont.length; k >= 1; k -= 1) {
+      const text = [lt ? lt[2] : '', ...cont.slice(0, k)].join(' ').trim();
+      const d = letterWithText(letter, text, opts, { sentenceOnly: true });
+      if (d) return { d, consumed: k };
+    }
+  }
+  if (lt) {
+    const d = letterWithText(lt[1], lt[2], opts);
+    if (d) return { d, consumed: 0 };
+  }
+  return null;
+}
+
+/** The near-copy scan: { pick, stepIndex } when exactly one letter is near-copied and nothing contradicts. */
+function nearCopyScan(lines, opts) {
+  const found = { pick: null, stepIndex: -1, conflict: false, contradiction: false };
+  if (opts.length === 0) return found;
+  for (let n = 0; n < lines.length; n += 1) {
+    const r = nearCopyAt(lines, n, opts);
+    if (!r) continue;
+    if (r.d.contradiction) found.contradiction = true;
+    else if (found.pick && found.pick !== r.d.pick) found.conflict = true;
+    else if (!found.pick) { found.pick = r.d.pick; found.stepIndex = lines[n].stepIndex; }
+    n += r.consumed;
+  }
+  return found;
+}
+
+function linesOf(steps) {
   const list = Array.isArray(steps) ? steps : [];
-  const opts = Array.isArray(options) ? options : [];
-  let last = null;
-  let lastFallback = null;
-  let fallbackConflict = false;
+  const lines = [];
   for (let i = 0; i < list.length; i += 1) {
     const s = list[i];
     const w = s && s.studentWork != null ? String(s.studentWork) : '';
-    for (const line of w.split(/\n/)) {
-      const d = declarationOn(line, opts);
-      if (!d) continue;
-      if (d.fallback) {
-        if (lastFallback && lastFallback.pick !== d.pick) fallbackConflict = true;
-        lastFallback = { pick: d.pick, stepIndex: i };
-      } else {
-        last = { ...d, stepIndex: i };
-      }
+    for (const text of w.split(/\n/)) lines.push({ text, stepIndex: i });
+  }
+  return lines;
+}
+
+// The trunk reading, byte-for-byte in behaviour.
+function trunkDeclaration(lines, opts) {
+  let last = null;
+  let lastFallback = null;
+  let fallbackConflict = false;
+  for (const { text, stepIndex } of lines) {
+    const d = declarationOn(text, opts);
+    if (!d) continue;
+    if (d.fallback) {
+      if (lastFallback && lastFallback.pick !== d.pick) fallbackConflict = true;
+      lastFallback = { pick: d.pick, stepIndex };
+    } else {
+      last = { ...d, stepIndex };
     }
   }
   if (last) return last;
   if (lastFallback && !fallbackConflict) return lastFallback;
+  return null;
+}
+
+function lastDeclaration(steps, options) {
+  const opts = Array.isArray(options) ? options : [];
+  const lines = linesOf(steps);
+  const trunk = trunkDeclaration(lines, opts);
+  if (trunk) return trunk;
+  const near = nearCopyScan(lines, opts);
+  if (near.pick && !near.conflict && !near.contradiction) return { pick: near.pick, stepIndex: near.stepIndex };
   return null;
 }
 
@@ -275,6 +499,13 @@ function isHedgedPick(steps, options) {
   return Boolean(last && last.hedge);
 }
 
+/** MCQ-PICK-1 · True when the answer pairs a letter with ANOTHER option's sentence. */
+// Admin flag only: it never changes a pick or a resolution.
+function isContradictoryPick(steps, options) {
+  const opts = Array.isArray(options) ? options : [];
+  return nearCopyScan(linesOf(steps), opts).contradiction;
+}
+
 // modelStatedAnswerCorrect(v): the model's OWN stated verdict on the student's final
 // answer (`finalAnswerCorrect`), as a TRI-STATE — true / false / null for "not stated".
 // ⚠⚠ THIS REPLACES `modelSaysObjectiveCorrect`, WHICH DERIVED THE VERDICT FROM THE
@@ -289,6 +520,20 @@ function modelStatedAnswerCorrect(v) {
   if (v === true || v === 'true') return true;
   if (v === false || v === 'false') return false;
   return null;
+}
+
+// SMALL-FIXES-1 · counter `grading.objective_no_verdict.<source>` (closed set, no PII), read by the
+// admin telemetry endpoint: printed | derived (detect's key) | bank (any other key) | none.
+function noVerdictSourceOf(q, answerKey) {
+  if (!answerKey) return 'none';
+  if (q && q.answerSource === 'derived') return 'derived';
+  if (q && q.answerSource === 'printed') return 'printed';
+  return 'bank';
+}
+function recordNoVerdict(q, answerKey) {
+  try {
+    require('../telemetry.cjs').increment('grading.objective_no_verdict.' + noVerdictSourceOf(q, answerKey), 1);
+  } catch { /* telemetry never changes a grade */ }
 }
 
 // clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorrect)
@@ -334,9 +579,22 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
   const recorded = q.pickedOption != null ? String(q.pickedOption).trim() : '';
   const studentPick = recorded || extracted.pick;
   const hedge = !recorded && isHedgedPick(steps, q.options);
+  // MCQ-PICK-1 · letter X written with option Y's sentence: an admin flag only (marks as trunk).
+  const pickContradiction = !recorded && isContradictoryPick(steps, q.options);
 
   let correct = false;
   let resolved = false;
+  const stated = modelStatedAnswerCorrect(modelFinalAnswerCorrect);
+  // MCQ-KEY-TRUST-1 · A KEY THE DETECT STEP WORKED OUT (answerSource "derived": not printed on
+  // the paper, solved with thinking off) NEVER OVERRIDES THE GRADER'S STATED VERDICT. It is used
+  // only when the grader stated none. Bank keys, printed keys and a request with no
+  // answerSource keep the order below exactly. Live 4 Nov: derived keys b/c/a/a against true
+  // key d scored three right answers 0 and one wrong answer 1.
+  const keyIsDerived = Boolean(q.answer != null && String(q.answer).trim()) && q.answerSource === 'derived';
+  let derivedKeyDisagreed = false;
+  // SMALL-FIXES-1 · observability only (no mark, no branch below reads it): how often the grader
+  // states NO final-answer verdict on an objective question, by where the key came from.
+  if (stated === null) recordNoVerdict(q, answerKey);
 
   // 0. A hedge ("(a) or (c)") is a resolved WRONG answer: 0, never the first letter's mark.
   if (hedge) {
@@ -348,14 +606,18 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
   if (!resolved && answerKey && studentPick) {
     const scored = scoreObjective({ answerKey, studentPick, options: q.options, totalMarks: full });
     if (scored.resolved) {
-      correct = scored.correct;
-      resolved = true;
+      if (keyIsDerived && stated !== null) {
+        // Not used for the mark; only recorded (for admin) when it disagrees with the grader.
+        if (scored.correct !== stated) derivedKeyDisagreed = true;
+      } else {
+        correct = scored.correct;
+        resolved = true;
+      }
     }
   }
 
   // 2. The model's own stated final-answer verdict. Tri-state: absent leaves us unresolved.
   if (!resolved) {
-    const stated = modelStatedAnswerCorrect(modelFinalAnswerCorrect);
     if (stated !== null) {
       correct = stated;
       resolved = true;
@@ -385,9 +647,17 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
 
   // 3. Could not read the answer. Honest: no mark, and `resolved: false` so a caller
   // can say so rather than presenting a derived 0 as a graded one.
-  if (!resolved) return { marksAwarded: 0, correct: false, resolved: false };
+  if (!resolved) {
+    const unread = { marksAwarded: 0, correct: false, resolved: false };
+    if (pickContradiction) unread.pickContradiction = true;
+    return unread;
+  }
 
-  return { marksAwarded: correct ? full : 0, correct, resolved: true };
+  const verdict = { marksAwarded: correct ? full : 0, correct, resolved: true };
+  // Present ONLY when true, so every other verdict is byte-identical to before.
+  if (derivedKeyDisagreed) verdict.derivedKeyDisagreed = true;
+  if (pickContradiction) verdict.pickContradiction = true;
+  return verdict;
 }
 
 // objectiveHasWorking(studentWork, options): does the objective answer carry actual
@@ -521,6 +791,8 @@ module.exports = {
   scoreObjective,
   extractOptionPick,
   isHedgedPick,
+  isContradictoryPick,
+  optionMatchingText,
   modelStatedAnswerCorrect,
   clampObjectiveResult,
   objectiveHasWorking,

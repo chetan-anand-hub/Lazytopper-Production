@@ -188,6 +188,7 @@ describe("PENDING-UPLOAD-1 PR-2 · download writes the pending record + snapshot
     const graded = buildWorksheetSessionRecord(p, gradedResponse(p) as never, { code: p.code! }, "student-1") as SessionRecord;
     // this device's mirror still says "pending"; the cloud (the other device's grade) says graded
     writeSessionRecord(USER as never, buildWorksheetSessionRecord(p, { ...gradedResponse(p), gradedCount: 0, pendingCount: 2 } as never, { code: p.code! }, "student-1") as SessionRecord);
+    await new Promise((r) => setTimeout(r, 0)); // RECORD-SAFE-1: that seeding write reads first, so let it land before the cloud copy is injected
     fs.docs[`sessionRecords/student-1/records/${p.code}`] = graded;
     const before = fs.writes.length;
     await seedPending(p);

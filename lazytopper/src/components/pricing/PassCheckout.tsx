@@ -39,15 +39,16 @@ import PayRescueCard from "../payRescue/PayRescueCard";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { isGuestPayClientEnabled, maskIndianMobile, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
+import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Pay is tapped. */
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 
 /**
- * CHECKOUT-WHO-1 - set ONLY while VITE_CHECKOUT_WHO_ENABLED is on. Then the Board Pass Pay (and the ?buy= one-tap start) opens
- * the shared "Who will use it?" sheet first: signed in, its "Pay" runs the unchanged checkout below; signed out / someone else,
- * the sheet pays as a recipient purchase. Absent (flag off): every path below is exactly as before.
+ * CHECKOUT-WHO-1 - set ONLY while VITE_CHECKOUT_WHO_ENABLED is on. Signed out, the Board Pass Pay (and the ?buy= one-tap start) opens
+ * the shared "Who will use it?" sheet. CHECKOUT-SELF-1: signed in, the Pay button runs the unchanged checkout for the account itself,
+ * and a secondary link opens the same sheet at the someone-else / mobile-or-email box (the sheet pays as a recipient purchase). Absent (flag off): every path below is exactly as before.
  */
 export interface PassWhoWiring {
   selfMasked: string | null;
@@ -92,7 +93,7 @@ export function monthButtonLabel(offerOpen: boolean): string {
 }
 
 /** A function: the price follows the founding deadline, so the label is read at RENDER time. */
-/** GST-EXCL-1: a Pay button names the amount CHARGED (base + GST from 5 Nov 2026) - never the "+ GST" tag. */
+/** GST-EXCL-1: a Pay button names the amount CHARGED (base + GST from 7 Nov 2026) - never the "+ GST" tag. */
 export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPayDisplay()} once till your boards`;
 /** PAY-PHONE-1 (C) - the button that stays at the top after the Board Pass checkout was closed without paying. */
 /** PASS-OWNER-PACKS-1: what a Board Pass owner reads where the Pay button would be. */
@@ -363,7 +364,9 @@ export function PassCheckoutView({
     // same tap continuing, so it sends none.)
     if (!opts.fromWho) trackBeginCheckoutTap(details, signedIn, opts.resumed === true);
     // CHECKOUT-WHO-1 - flag on: the Board Pass Pay opens "Who will use it?" first (the month renewal stays as it was).
-    if (who && passType === "till_boards" && !opts.fromWho) {
+    // CHECKOUT-SELF-1: only a SIGNED-OUT tap opens the sheet; a signed-in student's Pay buys for their own account in one tap
+    // (someone else / a mobile number is the secondary link below the button).
+    if (who && passType === "till_boards" && !opts.fromWho && !signedIn) {
       setWhoOpen(true);
       return;
     }
@@ -470,8 +473,14 @@ export function PassCheckoutView({
   // PACK-CREDIT-1: signed in, no running Premium, nothing else in the notice slot (they share one grid row).
   const creditLine =
     signedIn && !activeLabel && packCredit && !failed && !expired && !recovery ? packCreditLine(packCredit) : null;
-  // GST-EXCL-1: the breakup beside the Pay button, before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"). Null before 5 Nov.
-  const gstBreakdown = boardPassGstBreakdown(Date.now());
+  // GST-EXCL-1: the breakup beside the Pay button, before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"). Null before 7 Nov.
+  // A credited buyer (the credit line is on screen, and the server takes the credit off the order) reads the credited breakup
+  // ("…= ₹2,262, less your pack credit ₹49: you pay ₹2,213"), so the figures beside Pay add up to what Razorpay asks for.
+  const gstBreakdown = creditLine && packCredit ? packCreditBreakdown(packCredit) : boardPassGstBreakdown(Date.now());
+
+  // CHECKOUT-SELF-1: a signed-in student with a pack credit pays the server's credited total - the one Pay button names exactly that.
+  const boardsLabel =
+    who && signedIn && packCredit ? `Pay \u20B9${packCredit.payInr.toLocaleString("en-IN")} once till your boards` : tillBoardsButtonLabel();
 
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
@@ -517,7 +526,7 @@ export function PassCheckoutView({
         disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("till_boards")}
       >
-        {tillBoardsButtonLabel()}
+        {boardsLabel}
       </button>
       {gstBreakdown && !activeLabel && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-gst">
@@ -534,6 +543,9 @@ export function PassCheckoutView({
         >
           {renewMonthLabel(offerOpen)}
         </button>
+      )}
+      {who && signedIn && !activeLabel && (
+        <SomeoneElseLink disabled={busy !== null || recovery !== null} onOpen={() => setWhoOpen(true)} />
       )}
       {creditLine && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-pack-credit">
@@ -588,6 +600,7 @@ export function PassCheckoutView({
             onSignInWithNumber={who.onSignInWithNumber}
             onSignInWithEmail={who.onSignInWithEmail}
             onClose={() => setWhoOpen(false)}
+            {...(signedIn ? { startAt: "other" as const } : {})}
           />
         </Suspense>
       )}

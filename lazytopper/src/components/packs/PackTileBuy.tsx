@@ -1,4 +1,4 @@
-import { packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "./PacksShop";
 import type { SampleBuy } from "./PackSampleLink";
 import "./packTileBuy.css";
@@ -49,9 +49,18 @@ function BusyNote({ show }: { show: boolean }) {
   return show ? <span className="lt-ptb__busy" role="status">{OTHER_PAYMENT_BUSY_COPY}</span> : null;
 }
 
+/**
+ * GST-EXCL-1 - the breakup next to a Buy, so the total on the button is explained before Razorpay opens:
+ * "₹49 + ₹9 GST (18%) = ₹58". Nothing before the GST cut-off (00:00 IST 7 Nov 2026), so today's tile is unchanged.
+ */
+function GstNote({ sku, show }: { sku: PackSku; show: boolean }) {
+  const line = show ? packGstBreakdown(sku) : null;
+  return line ? <span className="lt-ptb__gst" data-testid={`tile-gst-${sku}`}>{line}</span> : null;
+}
+
 export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku; api: PacksShopApi; tone?: "light" | "on-dark" }) {
   if (!api.buyEnabled) return null;
-  // GST-EXCL-1: a Buy button names the amount CHARGED (base + GST from 5 Nov 2026).
+  // GST-EXCL-1: a Buy button names the amount CHARGED (base + GST from 7 Nov 2026).
   const price = packPayLabel(sku);
   const cls = tone === "on-dark" ? "lt-ptb lt-ptb--dark" : "lt-ptb";
 
@@ -60,6 +69,7 @@ export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku
     return (
       <div className={cls}>
         <BuyButton blocked={blocked} onClick={api.chooseChapter} dialog testId="tile-buy-pack_chapter">{`Choose chapter & buy · ${price}`}</BuyButton>
+        <GstNote sku={sku} show />
         <BusyNote show={blocked} />
       </div>
     );
@@ -73,6 +83,7 @@ export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku
         ) : (
           <BuyButton blocked={blocked} onClick={() => api.buyNow(sku)} testId="tile-buy-pack_bundle">{`Buy · ${price}`}</BuyButton>
         )}
+        <GstNote sku={sku} show={!api.ownsPack(sku)} />
         <BusyNote show={blocked && !api.ownsPack(sku)} />
       </div>
     );
@@ -90,6 +101,7 @@ export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku
           </BuyButton>
         ),
       )}
+      <GstNote sku={sku} show={SUBJECTS.some((s) => !api.ownsPack(sku, s))} />
       <BusyNote show={anyBlocked} />
     </div>
   );
@@ -123,6 +135,7 @@ export function PackCbqBuy({ subject, api, testPrefix }: { subject: PackSubject;
           {`Buy ${subjectLabel(subject)} CBQ · ${packPayLabel("pack_cbq")}`}
         </BuyButton>
       )}
+      <GstNote sku="pack_cbq" show={!api.ownsPack("pack_cbq", subject)} />
       <BusyNote show={!api.ownsPack("pack_cbq", subject) && api.blockedBy("pack_cbq", subject)} />
       {see}
     </div>

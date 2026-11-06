@@ -510,6 +510,9 @@ function createAdminStudentsRoutes(deps = {}) {
       landing: str(d.landing),
       gclid: d.gclid === true,
       fbclid: d.fbclid === true,
+      // ATTRIB-1: iOS / app-campaign click ids; present (true) only when stored, so older rows keep their shape.
+      ...(d.gbraid === true ? { gbraid: true } : {}),
+      ...(d.wbraid === true ? { wbraid: true } : {}),
     };
   }
 

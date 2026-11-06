@@ -130,6 +130,11 @@
   border-radius: 12px;
   padding: 14px;
 }
+/* CLS-1: while the samples load (the prerendered page already holds them), keep the list's box tall so the CTAs below
+   do not slide up into the first screen and back down when the samples arrive. Below the fold, so not seen as a shift. */
+.lt-cbqs__note--loading {
+  min-height: 1400px;
+}
 .lt-cbqs__fine {
   font-size: 13px;
   color: var(--cq-ink2);

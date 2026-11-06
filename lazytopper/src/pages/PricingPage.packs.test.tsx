@@ -62,7 +62,7 @@ vi.mock("./PackDialog", async () => {
 import PricingPage from "./PricingPage";
 import { subjectFromReferrer, subjectFromSearch, subjectFromStored } from "../components/pricing/pricingPlansCopy";
 import { subjectOfChapter } from "../services/packs";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../services/packs";
 
 function Where() {

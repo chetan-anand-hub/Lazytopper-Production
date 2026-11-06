@@ -195,7 +195,7 @@ export default function UpgradeModalSheet({
           <BasicFreeList />
         </div>
 
-        {/* PAYWALL-PAY-1 — Pay, Pay by QR code, Forward link to parents. Payments dark: the
+        {/* PAYWALL-PAY-1 — Pay, Share QR code, Forward link to parents. Payments dark: the
             existing plans button, unchanged. */}
         <PaywallActions
           surface="upgrade_modal"

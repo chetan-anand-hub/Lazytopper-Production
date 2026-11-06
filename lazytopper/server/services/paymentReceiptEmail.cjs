@@ -113,7 +113,7 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   const isPack = isPackProduct(passType);
   const amount = formatInr(amountPaise / 100);
   const date = formatIstDay(paidAtMs);
-  // GST-EXCL-1: an order created at/after 5 Nov 2026 stored its breakup; the receipt shows it ("₹1,917 + ₹345 GST (18%) =
+  // GST-EXCL-1: an order created at/after 7 Nov 2026 stored its breakup; the receipt shows it ("₹1,917 + ₹345 GST (18%) =
   // ₹2,262 paid"; a credited Board Pass adds "less pack credit"). An older order (all-in) gets no GST line: byte-identical.
   const gstLine = receiptGstLine(gst, amountPaise);
   const where = isPack ? '/packs#my-packs' : '/';

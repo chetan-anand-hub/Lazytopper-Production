@@ -27,7 +27,7 @@ export function packOfferFor(opts: { chapters?: readonly string[] | null; subjec
   const one = opts.chapters && opts.chapters.length === 1 && isPackChapterSlug(opts.chapters[0]) ? opts.chapters[0] : null;
   const subject = opts.subject === "maths" || opts.subject === "science" ? opts.subject : null;
   if (subject && (opts.kind === "mock" || (!one && !opts.chapters?.length))) {
-    // GST-EXCL-1: "₹99 + GST" from 00:00 IST 5 Nov 2026.
+    // GST-EXCL-1: "₹99 + GST" from 00:00 IST 7 Nov 2026.
     const mockTag = displayPlusGst(MOCK_PACK_PRICE_INR);
     return { label: `Mock Pack ${mockTag} →`, priceLabel: mockTag, href: packsHref({ mock: subject }) };
   }

@@ -264,7 +264,7 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     pinToday("2026-11-30T23:59:59+05:30");
     const { container } = render(<TillBoardsOffer />);
     const figures = container.querySelector('[data-testid="till-boards-figures"]');
-    // GST-EXCL-1: 30 Nov is after the 5 Nov GST cut-off - every tag says "+ GST" (the total is at checkout).
+    // GST-EXCL-1: 30 Nov is after the 7 Nov GST cut-off - every tag says "+ GST" (the total is at checkout).
     expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917 + GST");
     const line = figures?.querySelector('[data-testid="till-boards-deadline"]');
     expect(flat(line)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.");

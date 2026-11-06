@@ -20,7 +20,7 @@ import { boardPassPriceDisplay } from "../../config/pricing";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { limitCopy, limitFromRefusal, type LimitState } from "../usage/fairUseGate";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine, type PaperPackLine } from "../limits/limitsCopy";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { displayPlusGst } from "../../config/pricing";
 
 // PRICING-1 — the sheet reads the student's own founding flag; the hook is stubbed so these tests

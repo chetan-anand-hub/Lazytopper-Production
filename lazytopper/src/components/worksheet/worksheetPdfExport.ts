@@ -27,6 +27,8 @@ import {
   type CheckImproveGradedPrintDocProps,
 } from "../checkimprove/CheckImproveGradedPrintDoc";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
+import { buildPaperQrMatrix, drawPaperQr, PAPER_QR_MM } from "./paperQr";
+export { buildPaperQrMatrix, PAPER_QR_MM };
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { PrintCoverProps } from "./PrintCover";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
@@ -177,6 +179,10 @@ interface CoreOptions extends WorksheetPdfOptions {
   edition?: string;
   /** Right-hand text of the running header drawn on every page after the first body page. */
   runningHeader?: string;
+  /** GRADE-ROUTE-2 - the paper's own code (WS-/CT-/FM-): written into the PDF's Title/Subject/Keywords. */
+  paperCode?: string;
+  /** GRADE-ROUTE-2 - print a small QR of `paperCode` (code only) in every page footer. Questions sheets only. */
+  paperQr?: boolean;
 }
 
 const BRAND_WORDMARK_SRC = BRAND_MARK_SRC.replace(/[^/]+$/, "lazytopper-wordmark.png");
@@ -227,8 +233,11 @@ interface PageGeometry {
 }
 const SCREEN_GEOMETRY: PageGeometry = { top: MARGIN_TOP, footerH: FOOTER_H, bar: true, headerImgY: 3.6, headerTextY: 8.5, headerRuleY: 11.5, footLineY: PAGE_H - 17, licY: PAGE_H - 12.5, pageY: PAGE_H - 6.5 };
 export const PRINT_GEOMETRY: PageGeometry = { top: 22, footerH: 27, bar: false, headerImgY: 10.6, headerTextY: 15.5, headerRuleY: 18.5, footLineY: PAGE_H - 25, licY: PAGE_H - 20.5, pageY: PAGE_H - 14 };
-export function pageGeometry(opts: { licensee?: unknown; sample?: unknown }): PageGeometry {
-  return opts.licensee && !opts.sample ? PRINT_GEOMETRY : SCREEN_GEOMETRY;
+/** GRADE-ROUTE-2 - a taller footer band (27 mm) for the sheets that print the 18 mm paper QR; everything else unchanged. */
+const QR_GEOMETRY: PageGeometry = { ...SCREEN_GEOMETRY, footerH: 27, footLineY: PAGE_H - 25 };
+export function pageGeometry(opts: { licensee?: unknown; sample?: unknown; paperQr?: unknown }): PageGeometry {
+  if (opts.licensee && !opts.sample) return PRINT_GEOMETRY;
+  return opts.paperQr && !opts.sample ? QR_GEOMETRY : SCREEN_GEOMETRY;
 }
 const ACCENT_RGB: [number, number, number] = [63, 191, 130];
 const NAVY_RGB: [number, number, number] = [21, 35, 58];
@@ -347,7 +356,7 @@ function drawSampleChrome(pdf: Doc, innerW: number, line: ReturnType<typeof rend
   }
 }
 
-function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null): void {
+function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null, qr: boolean[][] | null = null): void {
   const innerW = PAGE_W - MARGIN_X * 2;
   const g = pageGeometry(opts);
   if (g.bar) {
@@ -400,6 +409,7 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
     drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, PAGE_H - 10);
+    if (qr) drawPaperQr(pdf, qr, MARGIN_X + 30, PAGE_H - 23.5);
   }
 }
 
@@ -487,6 +497,13 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     // PACK-SAMPLE-1: the sample's pack + price travel in the PDF's Subject field (the price line itself is an image).
     if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
+    // GRADE-ROUTE-2 - the paper's code travels in the file itself (Title/Subject/Keywords), so a renamed file still
+    // names its paper; the Answer Checker reads it back in the browser. Code only, nothing personal.
+    if (opts.paperCode && !opts.sample && typeof pdf.setProperties === "function") {
+      const code = latin1(opts.paperCode);
+      pdf.setProperties({ title: latin1(`${code} - ${opts.runningHeader ?? "LazyTopper paper"}`), subject: code, keywords: code, author: "LazyTopper" });
+    }
+    const qrRows = opts.paperQr && opts.paperCode && !opts.sample && !opts.licensee ? await buildPaperQrMatrix(opts.paperCode) : null;
     const imgW = PAGE_W - MARGIN_X * 2;
     const geom = pageGeometry(opts);
     const usableH = PAGE_H - geom.top - geom.footerH;
@@ -522,7 +539,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       }
       if (page > 0 || coverJpeg) pdf.addPage();
       pdf.addImage(slice.toDataURL("image/jpeg", opts.sample ? 0.78 : 0.95), "JPEG", MARGIN_X, geom.top, imgW, hPx / pxPerMm);
-      drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand);
+      drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand, qrRows);
     }
 
     pdf.save(filename);
@@ -561,7 +578,14 @@ export async function exportWorksheetPdf(
   return renderElementToPdf(
     createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee }),
     filename,
-    { ...opts, edition: editionOf(ws.createdAt), runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}` },
+    {
+      ...opts,
+      edition: editionOf(ws.createdAt),
+      runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}`,
+      // GRADE-ROUTE-2: every newly generated Worksheet / Chapter Test / Full Mock PDF names its paper in its metadata;
+      // the questions sheet (the one that is written on and uploaded) also carries a small QR. Packs/samples: untouched.
+      ...(code && !opts?.licensee && !opts?.sample ? { paperCode: code, paperQr: kind === "questions" } : {}),
+    },
   );
 }
 

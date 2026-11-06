@@ -570,6 +570,7 @@ const trialEndingEmailer = createTrialEndingEmailer({ adminFirestore, firebaseAd
 // NUDGE_EMAIL_DRY_RUN=0 and the Resend key/sender/unsubscribe secret are all set. Armed below.
 const { createNudgeEmailer } = require('./services/nudgeEmail.cjs');
 const nudgeEmailer = createNudgeEmailer({ adminFirestore, firebaseAdmin, telemetry });
+const { GUEST_EMAIL_UNSUBSCRIBE_PATH } = require('./services/guestAbandonEmail.cjs'); // GUEST-ABANDON-1
 // OPS-REPORT-1: the owner's daily health email at 08:00 IST. OFF unless OPS_REPORT_ENABLED; a DRY
 // RUN until OPS_REPORT_DRY_RUN=0 with RESEND_API_KEY + sender + OPS_REPORT_TO. Armed in
 // server.listen below; its admin send-now route is matched in handleRequest. See the module.
@@ -829,7 +830,10 @@ async function handleRequest(req, res) {
     return accountExportRoutes.handleExport(req, res);
   }
   if (req.method === 'POST' && reqPath === '/api/activity') return require('./routes/studentActivity.cjs').handleStudentActivity(req, res, { sendJson, firebaseAdmin, adminFirestore }); // STUDENT-ACTIVITY-1: signed-in students' section/event counts (first-party, admin-only; see the module)
+  if (req.method === 'POST' && reqPath === '/api/trial/ensure-signup') return require('./routes/trialEnsure.cjs').handleEnsureSignupTrialRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // TRIAL-SAVE-1: restores a NEW (<24h) account's sign-up trial whose browser write was lost; create-only transaction, verified uid, never for an older account (see the module)
   if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
+  if (req.method === 'POST' && reqPath === '/api/pack-sample-seen') return require('./routes/packSampleSeen.cjs').handlePackSampleSeenRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SAMPLE-FOLLOWUP-1: a SIGNED-IN student saved a pack's free sample - first save per pack, in their own nudgeEmails row (see the module)
+  if ((req.method === 'GET' || req.method === 'POST') && reqPath === GUEST_EMAIL_UNSUBSCRIBE_PATH) return nudgeEmailer.handleGuestUnsubscribe(req, res, reqUrlRaw); // GUEST-ABANDON-1: the guest checkout email's stop link (HMAC over the email key; GET confirms, POST records emailSuppression/{key})
   if ((req.method === 'GET' || req.method === 'POST') && reqPath === TRIAL_EMAIL_UNSUBSCRIBE_PATH) return trialEndingEmailer.handleUnsubscribe(req, res, reqUrlRaw); // TRIAL-END-1: the trial email's unsubscribe link (HMAC token; GET confirms, POST records; see services/trialEndingEmail.cjs)
 
   // ── Payments (RAZORPAY-1) ────────────────────────────────────────────────────

@@ -38,8 +38,10 @@ import {
   bankSubjectOf,
   cbqPackRows,
   chapterName,
+  chapterPackDrawRows,
   chapterPackRows,
-  drawPackWorksheetRows,
+  drawAvoidingExcluded,
+  drawPackWorksheetRowsSafe,
   groupBySection,
   hashSeed,
   loadChapter,
@@ -203,6 +205,9 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   const subject = bankSubjectOf(slug);
   const subjectKicker = subject.toUpperCase();
   const rows = chapterPackRows(slug);
+  // The seeded draws (Chapter Tests, Worksheet) keep the list they have always drawn from; an excluded row is steered out of them
+  // by drawAvoidingExcluded / drawPackWorksheetRowsSafe, so a paper that never held one is byte-identical (PACK-SYLLABUS-1).
+  const drawRows = chapterPackDrawRows(slug);
   const orderRef = coveringRef(ctx.owned, "chapter", slug, fallback);
   const files: PackFile[] = [];
   const cover = (kicker: string, title: string, nQ: number, marks: number) => ({
@@ -253,16 +258,20 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   const ctUsed: Array<Set<string>> = [];
   for (const n of [1, 2]) {
     const seed = hashSeed(`pack-paper:${slug}:ct${n}`);
-    const drawn = drawChapterTest({
-      subject,
-      topicKey: slug,
-      topicLabel: name,
-      worksheetId: `pack-${slug}-ct${n}`,
-      name: `${name} · Chapter Test ${n}`,
-      createdAt: DRAW_STAMP,
-      seed,
-      servedAt: packServedAt(rows, ctUsed),
-    });
+    const drawn = drawAvoidingExcluded(
+      (servedAt) =>
+        drawChapterTest({
+          subject,
+          topicKey: slug,
+          topicLabel: name,
+          worksheetId: `pack-${slug}-ct${n}`,
+          name: `${name} · Chapter Test ${n}`,
+          createdAt: DRAW_STAMP,
+          seed,
+          servedAt,
+        }),
+      packServedAt(drawRows, ctUsed),
+    );
     if (!drawn.enoughQuestions) continue;
     ctUsed.push(new Set(drawn.paper.questions.map((q) => q.id)));
     const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, rows) };
@@ -289,7 +298,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   }
 
   // 3. Worksheet (paper + key).
-  const wsRows = drawPackWorksheetRows(rows, hashSeed(`pack-paper:${slug}:ws1`));
+  const wsRows = drawPackWorksheetRowsSafe(drawRows, hashSeed(`pack-paper:${slug}:ws1`));
   if (wsRows.length > 0) {
     const questions = wsRows.map((q, i) => toWorksheetQuestion(q, i + 1, name));
     const marks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
@@ -331,15 +340,19 @@ export function drawPackMocks(subject: PackSubject): Array<{ n: number; drawn: R
   const out: Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> = [];
   for (let n = 1; n <= MOCKS_PER_SUBJECT; n += 1) {
     const name = `${bankSubject} Full Mock ${n}`;
-    const drawn = drawFullMock({
-      subject: bankSubject,
-      worksheetId: `pack-mock-${subject}-${n}`,
-      code: packPaperCode({ kind: "mock", subject, n }),
-      name,
-      createdAt: DRAW_STAMP,
-      seed: hashSeed(`pack-paper:mock:${subject}:${n}`),
-      servedAt: packServedAt(unionPool, used),
-    });
+    const drawn = drawAvoidingExcluded(
+      (servedAt) =>
+        drawFullMock({
+          subject: bankSubject,
+          worksheetId: `pack-mock-${subject}-${n}`,
+          code: packPaperCode({ kind: "mock", subject, n }),
+          name,
+          createdAt: DRAW_STAMP,
+          seed: hashSeed(`pack-paper:mock:${subject}:${n}`),
+          servedAt,
+        }),
+      packServedAt(unionPool, used),
+    );
     if (!drawn.enoughQuestions) continue;
     used.push(new Set(drawn.paper.questions.map((q) => q.id)));
     out.push({ n, drawn, name });

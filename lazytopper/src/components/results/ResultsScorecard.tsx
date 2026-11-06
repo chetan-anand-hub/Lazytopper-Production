@@ -10,6 +10,7 @@ import {
   MISTAKES_BY_KIND_HEADING,
   NOT_ATTEMPTED,
   UNTYPED_MARKS_LABEL,
+  OPTION_ONLY_LABEL,
   countWithUnit,
   groupRows,
   marksGroupRows,
@@ -91,6 +92,8 @@ interface ResultsScorecardProps {
 
 // The locked card is its own lazy chunk (PERF-3 entry budget); it loads only when a lock shows.
 const LockedDetail = lazy(() => import("./LockedDetail"));
+// SCORECARD-SECTION-TYPE-1 - the by-section / by-type tables load on demand (entry-chunk budget).
+const SectionTypeLens = lazy(() => import("./SectionTypeLens"));
 
 /** "11 of 20" / "7 of 10" from the card's own numbers, for the locked-detail card. */
 function scoreLine(score: ScorecardScore): string {
@@ -434,10 +437,12 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
 
 /** START-HERE-1 — "Ask the tutor why I lost this mark". The host owns the hop. */
 export const TUTOR_ASK_LABEL = "Ask the tutor why I lost this mark";
+/** CI-TUTOR-RETURN-1 - a question already asked about: still tappable, label says so. */
+export const TUTOR_ASKED_LABEL = "Asked the tutor \u2713 \u00b7 ask again";
 function TutorAskButton({ ask }: { ask: ScorecardTutorAsk }) {
   return (
-    <button type="button" className="lt-sc__tutorask" data-testid="sc-tutor-ask" onClick={ask.onAsk}>
-      {TUTOR_ASK_LABEL}
+    <button type="button" className="lt-sc__tutorask" data-testid="sc-tutor-ask" onClick={ask.onAsk} data-asked={ask.asked ? "true" : undefined}>
+      {ask.asked ? TUTOR_ASKED_LABEL : TUTOR_ASK_LABEL}
     </button>
   );
 }
@@ -594,10 +599,16 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
           <span className="lt-sc__ct">{marksWithUnit(pm.byType.unattempted)}</span>
         </div>
       )}
-      {pm.byType.untyped > 0 && (
-        <div className="lt-sc__row lt-sc__row--na" data-group="untyped" data-marks={pm.byType.untyped}>
+      {(pm.optionOnly ?? 0) > 0 && (
+        <div className="lt-sc__row lt-sc__row--na" data-group="option-only" data-marks={pm.optionOnly}>
+          {OPTION_ONLY_LABEL}
+          <span className="lt-sc__ct">{marksWithUnit(pm.optionOnly ?? 0)}</span>
+        </div>
+      )}
+      {pm.byType.untyped - (pm.optionOnly ?? 0) > 0 && (
+        <div className="lt-sc__row lt-sc__row--na" data-group="untyped" data-marks={pm.byType.untyped - (pm.optionOnly ?? 0)}>
           {UNTYPED_MARKS_LABEL}
-          <span className="lt-sc__ct">{marksWithUnit(pm.byType.untyped)}</span>
+          <span className="lt-sc__ct">{marksWithUnit(Math.round((pm.byType.untyped - (pm.optionOnly ?? 0)) * 100) / 100)}</span>
         </div>
       )}
     </>
@@ -727,15 +738,37 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
 
               {variant.sectionLens && variant.sectionLens.length > 0 && (
-                <LensBlock
-                  heading="By section"
-                  rows={variant.sectionLens.map((r) => ({
-                    id: r.section,
-                    label: r.label,
-                    awarded: r.awarded,
-                    total: r.total,
-                  }))}
-                />
+                <Suspense fallback={null}>
+                  <SectionTypeLens
+                    kind="section"
+                    heading="By section"
+                    rows={variant.sectionLens.map((r) => ({
+                      id: r.section,
+                      label: r.label,
+                      awarded: r.awarded,
+                      total: r.total,
+                      lost: r.lost ?? Math.max(0, Math.round((r.total - r.awarded) * 100) / 100),
+                      check: r.check,
+                    }))}
+                    note={variant.sectionLensNote}
+                  />
+                </Suspense>
+              )}
+              {variant.typeLens && variant.typeLens.length > 0 && (
+                <Suspense fallback={null}>
+                  <SectionTypeLens
+                    kind="type"
+                    heading="By question type"
+                    rows={variant.typeLens.map((r) => ({
+                      id: r.key,
+                      label: r.label,
+                      awarded: r.awarded,
+                      total: r.total,
+                      lost: r.lost,
+                    }))}
+                    note={variant.typeLensNote}
+                  />
+                </Suspense>
               )}
               {variant.chapterLens && variant.chapterLens.length > 0 && (
                 <ChapterLensBlock

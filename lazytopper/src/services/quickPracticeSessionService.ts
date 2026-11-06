@@ -26,6 +26,7 @@
 //     (the shipped "no visible reasoning → no MI intel" invariant, D-PROG-2);
 //   • a session where NOTHING was attempted writes NO record — no fabricated history.
 
+import { stampLens } from "../components/results/sectionTypeLens";
 import { noteFirstGraded } from "../analytics/firstGraded";
 import type { AuthUser } from "../context/AuthContext";
 import type { GradingJobInterruptedError, GradingJobOptions } from "../ai/gradingJobs";
@@ -163,6 +164,10 @@ export interface QuickPracticeEntry {
    *  the perQuestion payload so a reopened scorecard can say "Your answer"; nothing grades on it.
    *  Absent for an unpicked or written-only answer, and for a pick made in review mode. */
   pickedOption?: string;
+  /** SCORECARD-SECTION-TYPE-1 - the bank row's own section and format, carried so the stored result can
+   *  show its by-section / by-type lens. Display only; nothing grades on them. Absent on older entries. */
+  section?: string;
+  format?: string;
 }
 
 /**
@@ -237,7 +242,7 @@ export function buildQuickPracticeResponse(entries: QuickPracticeEntry[]): Works
     // Unattempted — omitted entirely (see the header).
   });
 
-  return {
+  const built: WorksheetGradeResponse = {
     ok: true,
     results,
     totalQuestions: entries.length,
@@ -248,6 +253,11 @@ export function buildQuickPracticeResponse(entries: QuickPracticeEntry[]): Works
     gradedMarksTotal,
     worksheetTotalMarks,
   };
+  // SCORECARD-SECTION-TYPE-1 - each result carries its question's bank section and format (display only).
+  return stampLens(built, (r) => {
+    const e = entries[r.qNumber - 1];
+    return e && (e.section || e.format) ? { section: e.section, sectionBasis: "bank", format: e.format } : null;
+  });
 }
 
 export type PersistQuickPracticeOutcome =
@@ -783,6 +793,8 @@ export async function gradeQuickPracticeBatch(args: {
     if (classifyQuickPracticeAnswer(answer) === "local-mcq" && answer.pickedCorrect != null) {
       base.mcq = answer.pickedCorrect ? "correct" : "wrong";
     }
+    if (nonEmpty(answer.section)) base.section = String(answer.section);
+    if (nonEmpty(answer.format)) base.format = String(answer.format);
     if (nonEmpty(answer.pickedOption)) base.pickedOption = String(answer.pickedOption).trim(); // FOLLOWUPS-1 C1 — stored only
     return base;
   };

@@ -1289,51 +1289,44 @@ test('§16.S2 ★★ SCIENCE — the wrong ORGAN/LAW/PRINCIPLE named then descri
 });
 
 
-test('§16.S4 ★★★ SCIENCE — UNBALANCED is NOT presentation: three faults, three buckets, decided by WHAT FIXES IT', async () => {
-  // ⚠⚠ THIS CORRECTS A DEFECT THAT PREDATES THIS LANE. The taxonomy clause lumped
-  // "a correct reaction left UNBALANCED, missing state symbols" into PRESENTATION as a
-  // single item. Those are TWO different defects with two different remedies and two
-  // different mark costs, and only ONE of them is presentation.
-  // ★ THE TEST IS THE REMEDY: ask what the student must LEARN to stop getting it wrong.
-  //   unbalanced when balancing was ASKED FOR -> learn conservation of mass  -> conceptual
-  //   wrong coefficients while balancing      -> recount the atoms           -> calculation
-  //   balanced, state symbols missing         -> learn the board format      -> presentation
-  // ⚠ MARK-SIZE CROSS-CHECK: CBSE typically pays 1 mark for species and 1 for balancing,
-  // so mis-bucketing unbalanced-as-presentation costs HALF the question. Presentation
-  // deductions are never that size.
+test('§16.S4 ★★★ SCIENCE — UNBALANCED: ½ per equation, and the bucket by WHAT THE STUDENT WROTE (owner ruling 5 Nov 2026, GRADER-BALANCE-1)', async () => {
+  // ⚠ SUPERSEDED READING. This test used to pin S4a "UNBALANCED when the question ASKED for a balanced equation
+  // ⇒ conceptual" and a MARK-SIZE SANITY CHECK ("a CBSE scheme typically pays 1 mark … for balancing, so calling
+  // an unbalanced equation presentation would cost HALF the question"). The OWNER RULED OTHERWISE on 5 Nov 2026:
+  // grade a little stricter than a CBSE examiner, whose schemes give balancing AT MOST ½ per equation (often 0) —
+  // so an unbalanced equation costs exactly ½, once per equation, and the TYPE follows the evidence on the page:
+  //   wrong species / a subscript changed to force a balance -> conceptual
+  //   coefficients written but wrong                          -> calculation
+  //   correct species left skeletal                           -> presentation BY DEFAULT; conceptual ONLY with a
+  //                                                              verbatim quote of a failed attempt elsewhere
   await bothPathsSay('S4. A CORRECT reaction left UNBALANCED', 'Science scenario S4');
   await bothPathsSay('NOT A DEPARTURE', 'that an unbalanced equation does not change the question');
-
-  // (a) UNBALANCED when a balanced equation was asked for => CONCEPTUAL
-  await bothPathsSay('S4a. UNBALANCED when the question ASKED for a balanced equation',
-    'S4a, the conceptual case');
-  await bothPathsSay('The fix is learning that equations ',
-    'the REMEDY that makes S4a conceptual');
-
-  // (b) wrong coefficients while genuinely balancing => CALCULATION
-  await bothPathsSay('S4b. WRONG COEFFICIENTS while genuinely attempting to balance',
-    'S4b, the calculation case');
+  await bothPathsSay('It loses EXACTLY ½ per equation, never more for balancing alone', 'the ½-per-equation mark');
+  await bothPathsSay('S4a. NO COEFFICIENTS ATTEMPTED (skeletal) ⇒ "presentation" (exam technique) by default, even when the question asked for a balanced equation',
+    'S4a, the skeletal case, presentation by default');
+  await bothPathsSay('"conceptual" ONLY with a verbatim "balancingEvidence" quote of a FAILED balancing attempt elsewhere on the paper',
+    'that conceptual needs on-paper evidence');
+  // (b) wrong coefficients while genuinely balancing => CALCULATION (unchanged)
+  await bothPathsSay('S4b. WRONG COEFFICIENTS while genuinely attempting to balance', 'S4b, the calculation case');
   await bothPathsSay('The fix is to recount the atoms', 'the REMEDY that makes S4b calculation');
-
-  // RULING 5: missing state symbols cost NOTHING — S4c ("missing state symbols ⇒ presentation") is gone.
+  // RULING 5: missing state symbols cost NOTHING.
   await bothPathsSay('MISSING STATE SYMBOLS cost NOTHING — never a deduction and never a fault',
     'that missing state symbols are never a fault');
-  const aS4 = await U_A();
-  assert.ok(!aS4.includes('S4c. BALANCED correctly but MISSING STATE SYMBOLS'), 'the retired S4c is gone');
+  // the CHEMICAL EQUATIONS rule carries the three cases and the mark, in its own words
+  await bothPathsSay('(2) CORRECT SPECIES, COEFFICIENTS WRITTEN BUT WRONG', 'case (2)');
+  await bothPathsSay('(3) CORRECT SPECIES LEFT SKELETAL', 'case (3)');
+  await bothPathsSay('loses EXACTLY ½, ONCE PER REACTION in the whole answer', 'the mark, in CHEMICAL EQUATIONS');
+  await bothPathsSay('This ½ is NOT part of the exam-technique cap', 'balancing outside the exam-technique cap (coordinator ruling, 5 Nov 2026)');
+  await bothPathsSay('A FORMULA OR SUBSCRIPT CHANGED TO FORCE A BALANCE', 'case (1), a changed subscript, in the conceptual definition');
 
-  // ★★ THE GOVERNING LINE. Without it the three cases read as arbitrary and a future
-  // edit re-merges them; with it, the boundary is derivable.
-  await bothPathsSay('ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION',
-    'the rule that NARROWS presentation to format only');
-  await bothPathsSay('MARK-SIZE SANITY CHECK', 'the mark-size cross-check for edge cases');
-
-  // NEGATIVE CONTROL — the OLD, WRONG rule must be gone from BOTH prompts. This is the
-  // assertion that would have caught the defect in the first place.
+  // NEGATIVE CONTROL — the SUPERSEDED rules must be gone from BOTH prompts.
   const a = await U_A();
   const b = await U_B();
   for (const [name, t] of [['single-question', a], ['structured', b]]) {
-    assert.ok(!t.includes('A correct but unbalanced equation is PRESENTATION'),
-      name + ': the old unbalanced-is-presentation rule must NOT survive');
+    assert.ok(!t.includes('S4a. UNBALANCED when the question ASKED for a balanced equation ⇒ "conceptual"'), name + ': the superseded S4a must NOT survive');
+    assert.ok(!t.includes('MARK-SIZE SANITY CHECK'), name + ': the retired mark-size check must NOT survive');
+    assert.ok(!t.includes('AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION'), name + ': the superseded conceptual clause must NOT survive');
+    assert.ok(!t.includes('The right species left UNBALANCED when a balanced equation was asked for is "conceptual"'), name + ': the superseded CHEMICAL EQUATIONS sentence must NOT survive');
     assert.ok(!t.includes('a correct reaction left UNBALANCED, missing state symbols'),
       name + ': unbalanced and missing-state-symbols must NOT be one lumped item');
   }
@@ -1474,9 +1467,11 @@ test('§16.13 ★★ THE UNIFORMITY PROOF — every §2 ruling reaches BOTH grad
     'S1. Answering a DIFFERENT QUESTION',
     'S2. Naming the WRONG ORGAN, LAW or PRINCIPLE',
     'S4. A CORRECT reaction left UNBALANCED',
-    'S4a. UNBALANCED when the question ASKED for a balanced equation',
+    // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): S4a re-stated (skeletal ⇒ presentation by default), and the
+    // governing line narrowed to "ANYTHING ELSE" since a skeletal equation is now presentation.
+    'S4a. NO COEFFICIENTS ATTEMPTED (skeletal)',
     'S4b. WRONG COEFFICIENTS while genuinely attempting to balance',
-    'ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION',
+    'ANYTHING ELSE THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION',
     'UNITS. A CORRECT answer written WITHOUT ITS UNIT',
     'MULTI-PART QUESTIONS AND THE UNATTEMPTED SUB-PART',
     'ONE KEYSTROKE APART',
@@ -1766,9 +1761,13 @@ test('§17.9 ★★★ CORRECTED CASE 2 — the THREE-WAY chemistry distinction,
     for (const b of order) { const bi = tax.indexOf(b); if (bi >= 0 && bi < idx && bi > at) { at = bi; cur = b.replace(/[" =]/g, ''); } }
     return cur;
   };
+  // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): the THREE-WAY distinction is now BY WHAT THE STUDENT WROTE —
+  // a subscript changed to force a balance is conceptual, wrong coefficients calculation, a skeletal equation
+  // (no coefficients attempted) presentation. The old "unbalanced when asked ⇒ conceptual" clause is gone.
   const CLAUSES = [
-    ['AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION', 'conceptual'],
+    ['A FORMULA OR SUBSCRIPT CHANGED TO FORCE A BALANCE', 'conceptual'],
     ['WRONG COEFFICIENTS while genuinely attempting to balance', 'calculation'],
+    ['A CORRECT EQUATION LEFT UNBALANCED WITH NO COEFFICIENTS ATTEMPTED', 'presentation'],
     // RULING 5: missing state symbols are no longer a presentation fault — the presentation clause now
     // EXCLUDES them, and the old "balanced but missing state symbols ⇒ presentation" clause is gone.
     ['NEVER for missing state symbols', 'presentation'],
@@ -1785,6 +1784,7 @@ test('§17.9 ★★★ CORRECTED CASE 2 — the THREE-WAY chemistry distinction,
         label + ': "' + clause.slice(0, 44) + '..." must be ' + want);
     }
     assert.ok(!tax.includes('a correctly BALANCED equation MISSING STATE SYMBOLS'), label + ': the retired S4c clause is gone (ruling 5)');
+    assert.ok(!tax.includes('AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION'), label + ': the superseded S4a clause is gone (owner ruling 5 Nov 2026)');
   }
 });
 

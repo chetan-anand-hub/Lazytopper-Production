@@ -31,6 +31,7 @@ import {
   type WorksheetGradeResponse,
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
+import { stampFromPaper } from "../components/results/sectionTypeLens";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import { saveWorksheetGrade } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
@@ -43,7 +44,8 @@ import {
 } from "./chapterTestGradeService";
 import {
   buildFullMockSessionRecord,
-  writeSessionRecord,
+  writeSessionRecordResolved,
+  currentCodeForPaper,
   writeSessionPerQuestion,
   type SessionFocusAggregates,
   type SessionSubject,
@@ -67,7 +69,9 @@ export function buildFullMockResponse(args: {
   subjectiveQuestions: PersistedWorksheetQuestion[];
   subjectiveResponse: WorksheetGradeResponse | null;
 }): WorksheetGradeResponse {
-  return buildChapterTestResponse(args);
+  // SCORECARD-SECTION-TYPE-1 - the CT builder stamps each row from the paper's bank fields; a Full Mock
+  // paper drawn before those fields existed falls back to its blueprint slot (exact for a mock).
+  return stampFromPaper(buildChapterTestResponse(args), args.paper.questions, { blueprintFallback: true });
 }
 
 /** Adapt one legible per-question grade into the CheckSolutionResponse shape the
@@ -106,17 +110,22 @@ export function writeFullMockPartialRecord(args: {
   subject: SessionSubject;
   response: WorksheetGradeResponse;
   focus?: SessionFocusAggregates;
-}): void {
+}): Promise<string> {
   const { user, paper, code, subject, response, focus } = args;
   const uid = user?.uid;
-  if (!uid || user?.isLocalSession) return;
-  try {
-    const record = buildFullMockSessionRecord({ paper, code, subject, response, uid, focus });
-    writeSessionRecord(user, record);
-    noteFirstGraded(uid, record, "full_mock"); // MEASURE-1 B — observe only
-  } catch (error) {
-    console.warn("[fullMockGradeService] partial record write failed", error);
-  }
+  if (!uid || user?.isLocalSession) return Promise.resolve(code);
+  // RECORD-SAFE-1: the FINAL code is resolved once, before the write; the caller uses the returned code.
+  return (async () => {
+    try {
+      const record = buildFullMockSessionRecord({ paper, code, subject, response, uid, focus });
+      const written = await writeSessionRecordResolved(user, record);
+      noteFirstGraded(uid, written.record, "full_mock"); // MEASURE-1 B — observe only
+      return written.code;
+    } catch (error) {
+      console.warn("[fullMockGradeService] partial record write failed", error);
+      return code;
+    }
+  })();
 }
 
 export interface FullMockMiOutcome {
@@ -131,6 +140,9 @@ export interface FullMockGradeOutcome {
    *  subjective response (carrying `.error`) on failure. */
   response: WorksheetGradeResponse;
   miOutcomes: FullMockMiOutcome[];
+  /** RECORD-SAFE-1: the code the full record was finally saved under (differs from the requested code only
+   *  when that code belonged to another paper). */
+  savedCode?: string;
 }
 
 /**
@@ -152,7 +164,9 @@ export async function gradeFullMockUpload(args: {
   /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
   job?: GradingJobOptions;
 }): Promise<FullMockGradeOutcome> {
-  const { user, paper, code, subject, objective, subjectiveQuestions, upload, focus } = args;
+  const { user, paper, subject, objective, subjectiveQuestions, upload, focus } = args;
+  // RECORD-SAFE-1: resolve the paper by identity - its record may have moved to a free code while no page was open
+  const code = currentCodeForPaper(user, paper.worksheetId, "full-mock", args.code);
 
   const qByNumber = new Map(subjectiveQuestions.map((q) => [q.qNumber, q]));
   const miOutcomes: FullMockMiOutcome[] = [];
@@ -262,18 +276,20 @@ export async function gradeFullMockUpload(args: {
   }
 
   // Overwrite the partial record with the FULL one (idempotent by id = code).
+  let savedCode: string | undefined;
   try {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const record = buildFullMockSessionRecord({ paper, code, subject, response, uid, focus });
-      writeSessionRecord(user, record);
-      noteFirstGraded(uid, record, "full_mock"); // MEASURE-1 B — observe only
+      const written = await writeSessionRecordResolved(user, record);
+      savedCode = written.code;
+      noteFirstGraded(uid, written.record, "full_mock"); // MEASURE-1 B — observe only
       writeSessionPerQuestion(user, {
-        ref: record.perQuestionRef,
-        code,
+        ref: written.record.perQuestionRef,
+        code: written.code,
         worksheetId: paper.worksheetId,
         surface: "full-mock",
-        gradedAt: record.gradedAt,
+        gradedAt: written.record.gradedAt,
         response,
       });
     }
@@ -281,5 +297,5 @@ export async function gradeFullMockUpload(args: {
     console.warn("[fullMockGradeService] full record write failed", error);
   }
 
-  return { ok: true, response, miOutcomes };
+  return { ok: true, response, miOutcomes, ...(savedCode ? { savedCode } : {}) };
 }

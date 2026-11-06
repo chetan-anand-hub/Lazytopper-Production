@@ -31,6 +31,7 @@ import {
 } from "../ai/aiClient";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import { recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobRecords";
+import { stampFromPaper } from "../components/results/sectionTypeLens";
 import { saveWorksheetGrade, listStoredWorksheetsLite } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
 import { isGradedQuestion, v2GradeFields, withEffectiveCounts } from "../lib/mistakeDisplay";
@@ -218,7 +219,8 @@ export async function gradeWorksheetAndRecord(
   if (!rawResponse.ok) return { response: rawResponse, miOutcomes: [] };
   // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,
   // session record, MI): no type on a full-mark question (owner ruling).
-  const response = withEffectiveCounts(rawResponse);
+  // SCORECARD-SECTION-TYPE-1 - stamp each row with its bank section and question type (display only).
+  const response = stampFromPaper(withEffectiveCounts(rawResponse), worksheet.questions, { blueprintFallback: true });
 
   // Persist so the student can revisit the grade later.
   saveWorksheetGrade(worksheet.worksheetId, response);

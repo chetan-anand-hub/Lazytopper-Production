@@ -80,6 +80,7 @@ describe("DesktopShell rail — the six routed destinations (anti-regression)", 
       ["Practice", "/practice-hub"],
       ["NCERT Books", "/ncert-class-10"],
       ["Answer Checker", "/check-improve"],
+      ["Pricing", "/pricing?source=sidebar"], // NAV-PRICING-1
       ["Me / Progress", "/me"],
     ]);
   });
@@ -89,12 +90,13 @@ describe("DesktopShell rail — the six routed destinations (anti-regression)", 
 
     const routed = railEntries().filter(([, href]) => href !== null);
     expect(routed[0]).toEqual(["Home", "/browse"]);
-    // The other five are unaffected by auth state.
+    // The others are unaffected by auth state.
     expect(routed.slice(1).map(([, href]) => href)).toEqual([
       "/exam-trends",
       "/practice-hub",
       "/ncert-class-10",
       "/check-improve",
+      "/pricing?source=sidebar", // NAV-PRICING-1
       "/me",
     ]);
   });

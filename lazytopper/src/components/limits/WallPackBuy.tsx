@@ -68,7 +68,7 @@ export function wallPackOffer(ctx: {
   const offer = (sku: PackSku, target: string, name: string, fallback = false): WallPackOffer => ({
     sku,
     target,
-    // GST-EXCL-1: a one-tap buy link names the amount CHARGED (base + GST from 5 Nov 2026).
+    // GST-EXCL-1: a one-tap buy link names the amount CHARGED (base + GST from 7 Nov 2026).
     label: `Or get the ${name} · ${packPayLabel(sku)}`,
     href: buyHrefFor(sku, target),
     fallback,

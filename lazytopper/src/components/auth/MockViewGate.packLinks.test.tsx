@@ -11,7 +11,7 @@ vi.mock("../../hooks/useSubscription", () => ({
 
 import { MockViewGate } from "./MockViewGate";
 import { SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPriceLabel } from "../../services/packs";
 
 const gate = (path: string) => (

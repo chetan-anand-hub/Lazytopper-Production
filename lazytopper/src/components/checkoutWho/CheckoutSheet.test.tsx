@@ -249,3 +249,25 @@ describe("PARENTS-PAY-1 - audience=\"parent\" (opened from /for-parents)", () =>
     expect(JSON.stringify(analytics.trackNamedEvent.mock.calls)).not.toMatch(/9876|5432/);
   });
 });
+
+describe("CHECKOUT-SELF-1 · startAt=other", () => {
+  it("signed in with startAt='other' opens straight at the someone-else box (no 'For: you' step, no sign-in link)", () => {
+    mount({ signedIn: true, selfMasked: "an••••@gmail.com", startAt: "other" });
+    expect(screen.queryByTestId("who-self")).toBeNull();
+    expect(screen.getByTestId("who-first")).toBeTruthy();
+    expect(screen.queryByTestId("who-sign-in-first")).toBeNull();
+  });
+  it("signed in without startAt is unchanged: 'For: you' + Pay", () => {
+    mount({ signedIn: true, selfMasked: "an••••@gmail.com" });
+    expect(screen.getByTestId("who-self")).toBeTruthy();
+    expect(screen.getByTestId("who-pay-self")).toBeTruthy();
+  });
+});
+
+describe("CHECKOUT-SELF-1 · link wording", () => {
+  it("the link reads exactly the sheet's own 'Buying for someone else?' (no 'phone number' wording)", async () => {
+    const { SOMEONE_ELSE_LINK } = await import("./SomeoneElseLink");
+    const { WHO_SOMEONE_ELSE } = await import("../../services/checkoutWho");
+    expect(SOMEONE_ELSE_LINK).toBe(WHO_SOMEONE_ELSE);
+  });
+});

@@ -112,6 +112,212 @@ function restoreSymbols(modelText, sources) {
   return String(modelText || '').trim();
 }
 
+/* ── DETECT-OBJECTIVE-STABILITY-1 · objective by PRINTED OPTIONS, in code ── */
+
+// Live 5 Nov 2026: detect (gemini-2.5-flash, thinkingBudget 0) flagged the same printed (a)–(d) MCQs
+// objective on one read and not on the next, so their marks stayed editable and they risked step
+// marking. Whether a question PRINTS an MCQ is read here from the text detect transcribed —
+// deterministically — but ONLY on strong POSITIVE evidence: an Assertion–Reason item, or four short
+// answer options after a stem that carries an MCQ cue. Anything else is NOT upgraded and the model's
+// own flag stands (fail safe = the behaviour before this lane). It never downgrades.
+//
+// Why positive evidence and not a list of "sub-part" words: school papers on Answer Checker print
+// "Simplify: (a) … (d)", "Factorise: (a) … (d)", "Match the following: (a) … (d)", "Fill in the
+// blanks: (a) … (d)", "Rationalise the denominators of (a) … (d)" — four labels after an instruction.
+// No blacklist of instruction verbs is ever complete; an MCQ CUE in the stem is what an MCQ has.
+
+// The stem's LAST clause must carry one of these:
+//   · it ends with "?";
+//   · it holds a blank ("____", "……", "....");
+//   · it ends (optionally with ":" / "–") on a copula an MCQ answer completes: "is", "are", "equals",
+//     "is equal to", "will be", "lies in", "called", "known as", "=" ("… then the value of k is :
+//     (A) −8 …") — and only when that clause does not INSTRUCT (find / write / simplify …);
+//   · it says "which of the following", "which one", "the correct option / statement / answer",
+//     "choose", "select the".
+const MCQ_STEM_END = /(?:\bis|\bare|\bequals|\bequal\s+to|\bwill\s+be|\blies\s+in|\bcalled|\bknown\s+as|\btermed|=)\s*[:\-–—]?$/i;
+// A copula cue does not count when the clause INSTRUCTS ("Find the probability that the sum is: (i) 10
+// (ii) …" is a four-part long answer).
+const INSTRUCTION_IN_CLAUSE = /\b(?:find|calculate|determine|write|state|show|prove|evaluate|compute|simplify|draw|name|give|explain|list|express|verify|solve|factori[sz]e|expand|rationali[sz]e|match|fill|complete)\b/i;
+// A clause that asks about EACH item, or to classify / explain each, lists parts even when it ends "?":
+// "In each of the following situations what happens …?", "Which among the following changes are
+// exothermic or endothermic?", "what would happen if following changes are made?".
+const ASKS_ABOUT_EACH = /\beach\b|\bfollowing\b[^?]*\bor\b|\bwhat\s+(?:would\s+|will\s+)?happens?\b/i;
+const MCQ_STEM_PHRASE = /\bwhich\s+(?:one\s+)?of\s+the\s+following\b|\bwhich\s+one\b|\b(?:in)?correct\s+(?:option|statement|answer|alternative|choice)s?\b|\bchoose\b|\bselect\s+the\b/i;
+const MCQ_BLANK = /_{2,}|…{1,}|\.{4,}/;
+// A part that starts like an instruction or a question is a sub-part, never a choice (a second
+// check, behind the cue; the cue is the gate).
+const SUBPART_LEAD = /^(?:find|prove|show|state|define|explain|calculate|hence|give|write|draw|name|determine|evaluate|solve|derive|justify|describe|list|compare|verify|construct|identify|simplify|factori[sz]e|expand|rationali[sz]e|match|fill|complete|what|why|how|which|when|where|who|is|are|does|do|can)\b/i;
+const MARKS_VALUE = /\[\s*(\d+)\s*\]|\(\s*(\d+)\s*marks?\s*\)/gi;
+const OPTION_MAX_CHARS = 120; // a Science MCQ's option is often a sentence (50–90 chars)
+const ROMAN_MAX_CHARS = 40;
+const LETTERS4 = (l) => 'abcd'.indexOf(String(l).toLowerCase());
+const ROMAN4 = (l) => ({ i: 0, ii: 1, iii: 2, iv: 3 })[String(l).toLowerCase()];
+const PRINTED_OPTION_STYLES = [
+  // letters "(a)", "a)", "a." / "A." — exactly four, a b c d, in order ("(e)" counts, and rejects)
+  { re: /\(\s*([a-e])\s*\)/gi, index: LETTERS4, letters: true },
+  { re: /(?:^|[\s:;,?])([a-e])\)(?=\s)/gi, index: LETTERS4, letters: true },
+  { re: /(?:^|[\s:;,?])([a-e])\.(?=\s)/gi, index: LETTERS4, letters: true },
+  // "(i)"–"(iv)" / "(1)"–"(4)": terse, and no (a)-style labels anywhere
+  { re: /\(\s*(i{1,3}|iv|v|vi)\s*\)/gi, index: ROMAN4, letters: false },
+  { re: /\(\s*([1-6])\s*\)/g, index: (l) => Number(l) - 1, letters: false },
+];
+const PAREN_LETTER = /\(\s*[a-d]\s*\)/i;
+
+/** The stem's last clause (after its last sentence break), e.g. "Which of the following are APs? If
+ *  they form an AP, find d." → "If they form an AP, find d." — so a question that goes on to ask the
+ *  student to ACT on each item has no cue at its end. */
+function lastClause(stem) {
+  return stem.split(/(?<=[.?!])\s+/).pop() || '';
+}
+
+/** Does the stem carry an MCQ cue at its END (see MCQ_STEM_END / MCQ_STEM_PHRASE / MCQ_BLANK)? */
+function stemHasMcqCue(stem) {
+  const last = lastClause(stem);
+  if (ASKS_ABOUT_EACH.test(last)) return false;
+  if (MCQ_STEM_PHRASE.test(last)) return true;
+  if (/\?$/.test(stem)) return true;
+  if (INSTRUCTION_IN_CLAUSE.test(last)) return false;
+  return MCQ_BLANK.test(last) || MCQ_STEM_END.test(stem);
+}
+
+/** One labelled part reads as an ANSWER VALUE (not an instruction, a question or a run-on). */
+function isAnswerValue(opt, maxChars) {
+  if (!opt || opt.length > maxChars) return false;
+  if (!/[^\s.,;:()\-–—]/.test(opt.replace(/^(?:and|or)\b/i, ''))) return false; // "(c) and (d)"
+  if (/[?]/.test(opt)) return false;
+  if (/[_]{2,}/.test(opt)) return false; // a blank to fill
+  return !opt.split(/[.;!]\s+/).some((s) => SUBPART_LEAD.test(s.trim()));
+}
+
+// R4 · the LAST option runs to the end of the text, so anything a transcript ran on after it lands in it.
+// A standard MCQ closer is an answer value whatever its length ("None of these", "Both (a) and (b)",
+// "All of the above", "Cannot be determined from the given data").
+const MCQ_CLOSER = /^(?:(?:none|both|all|neither|either)\b.*\b(?:these|those|them|above|below|[a-d]\s*(?:,|and|or|nor|&)\s*[a-d])\b|cannot\s+be\s+(?:determined|found|said|predicted)|can'?t\s+be\s+determined|data\s+(?:is\s+)?(?:insufficient|inadequate)|insufficient\s+data)/i;
+// No instruction or question WORD anywhere in it, in any case ("(d) 93 why", "(d) dissolving sugar justify").
+const INSTRUCTION_OR_QUESTION_WORD = new RegExp('\\b(?:' + 'justify|give|explain|show|prove|find|calculate|correct|write|draw|state|name|identify|classify|compare|differentiate|describe|define|simplify|factorise|factorize|solve|evaluate|determine|verify|list|mention|express|construct|derive|predict|suggest|account|rationalise|rationalize|expand|match|fill|complete|label|translate|convert|support|provide|reason|illustrate|put|tick|mark|discuss|comment|elaborate|check|tell|answer' + ')\\b', 'i');
+// A question word ENDING (d) ("(d) 93 why"); inside a sentence option ("… in which two compounds …") it is a relative clause.
+const TRAILING_QUESTION_WORD = /\b(?:why|how|what|which|when|where|who|whom|whose)\W*$/i;
+// A next question run on ("(d) 93 Q2. Find …", "(d) 93 2. The …").
+const NEXT_QUESTION = /\bQ\.?\s*\d+\b|(?:^|\s)\d{1,2}\s*[.)]\s+[A-Z]/;
+function lastOptionIsAnswerValue(opts) {
+  const last = opts[3];
+  if (!last || INSTRUCTION_OR_QUESTION_WORD.test(last) || TRAILING_QUESTION_WORD.test(last) || NEXT_QUESTION.test(last)) return false;
+  // R5-1 · a reason request without a verb ("… along with reasons in brief", "— reasons please"), and a
+  // dash starting a new clause inside (d). (The A-R "Reason (R)" label never reaches here: A-R returns earlier.)
+  if (/\breason(?:s|ing)?\b/i.test(last) || /\s(?:—|–|--)|\s-\s+[A-Za-z]/.test(last)) return false;
+  if (MCQ_CLOSER.test(last)) return true;
+  const words = (o) => o.split(/\s+/).filter(Boolean).length;
+  const others = opts.slice(0, 3);
+  const maxWords = Math.max(...others.map(words));
+  // short-answer options (numbers, symbols, one or two words): (d) at most one word longer
+  // ("(d) 93 kaaran batao" is not an answer value)
+  if (maxWords <= 2) return words(last) <= maxWords + 1;
+  // sentence options: a character budget comparable to the others
+  return last.length <= Math.max(60, 2 * Math.max(...others.map((o) => o.length)));
+}
+// "(d) Both (a) and (b)" / "All of (a), (b) and (c)": labels REFERRED TO inside an option are not labels.
+const REFERRED_LABELS = /\b(both|either|neither|all\s+of|only)\s+\(\s*[a-d]\s*\)(?:\s*(?:,|and|or|nor|&)\s*\(\s*[a-d]\s*\))+/gi;
+function unwrapReferredLabels(text) {
+  return text.replace(REFERRED_LABELS, (m) => m.replace(/\(\s*([a-d])\s*\)/gi, '$1'));
+}
+
+/** True when `text` prints exactly four options in this one label style after an MCQ stem. */
+function strictOptionList(text, style) {
+  const marks = [...text.matchAll(style.re)].map((m) => ({ i: style.index(m[1]), start: m.index, end: m.index + m[0].length }));
+  if (marks.length !== 4) return false;
+  for (let k = 0; k < 4; k += 1) if (marks[k].i !== k) return false;
+  const stem = text.slice(0, marks[0].start).trim();
+  // A statement-list MCQ ("Which of the following are true? (i) … (iv) … (a) (i) and (iv) …") carries its
+  // cue BEFORE its (i)–(iv) statements.
+  const cueStem = style.letters && /\(\s*i\s*\)/i.test(stem) ? stem.replace(/\(\s*i\s*\)[\s\S]*$/i, '').trim() : stem;
+  if (!/[A-Za-z0-9]/.test(cueStem) || !stemHasMcqCue(cueStem)) return false;
+  const opts = marks.map((m, k) => text.slice(m.end, k + 1 < marks.length ? marks[k + 1].start : text.length).trim());
+  if (!lastOptionIsAnswerValue(opts)) return false;
+  if (style.letters) return opts.every((o) => isAnswerValue(o, OPTION_MAX_CHARS));
+  if (PAREN_LETTER.test(text)) return false;
+  return opts.every((o) => isAnswerValue(o, ROMAN_MAX_CHARS));
+}
+
+/**
+ * Does this transcribed question text PRINT an MCQ or an Assertion–Reason item? (pure) Positive
+ * evidence only:
+ *   · Assertion–Reason: "Assertion (A)" … then "Reason (R)";
+ *   · four options a–d ((a) / a) / a. / A–D, any spacing, one line or many) — or (i)–(iv) / (1)–(4)
+ *     of ≤ 40 chars with no (a)-labels — after a stem whose END carries an MCQ cue, each option an
+ *     answer value (≤ 120 chars, no "?", no blank, not an instruction or a question).
+ * Never when the text carries an internal choice ("OR"), any printed mark above 1, or more than one
+ * printed mark (per-part marks: "(a) … [1] (b) … [1]" is a case study's parts).
+ * @param {string} text
+ * @returns {boolean}
+ */
+/**
+ * PR #1582 round 2 (R2-1) · an INSTRUCTION anywhere in the text disqualifies it — in the stem, inside
+ * the last option, or after it. Detect transcripts collapse newlines and often drop the full stop, so
+ * "(d) 93 Explain your answer." arrives as one option; no sentence split can be trusted. Read BEFORE
+ * any cue ("Identify the correct statements and correct the false ones" is an instruction first).
+ *   · a CAPITALISED instruction verb starting a clause anywhere ("Justify …", "Give reasons …",
+ *     "Explain …", "Identify …") — case-sensitive, so "the solid state" or "explanation" never count;
+ *   · "If …, find / write / …" and "… and correct / justify / explain / give …" in any case.
+ */
+const INSTRUCTION_VERBS = ['justify', 'give', 'explain', 'show', 'prove', 'find', 'calculate', 'correct', 'write', 'draw',
+  'state', 'name', 'identify', 'classify', 'compare', 'differentiate', 'describe', 'define', 'simplify', 'factorise',
+  'factorize', 'solve', 'evaluate', 'determine', 'verify', 'list', 'mention', 'express', 'construct', 'derive',
+  'predict', 'suggest', 'account', 'rationalise', 'rationalize', 'expand', 'match', 'fill', 'complete', 'label', 'translate', 'convert',
+  // round 3 (R3-1)
+  'support', 'provide', 'reason', 'illustrate', 'put', 'tick', 'mark', 'discuss', 'comment', 'elaborate', 'check', 'tell', 'answer'];
+const CAPITALISED_INSTRUCTION = new RegExp('(?:^|[^A-Za-z])(?:' + INSTRUCTION_VERBS.map((w) => w[0].toUpperCase() + w.slice(1)).join('|') + ')\\b');
+const LOWERCASE_INSTRUCTION = new RegExp('\\bif\\b[^?]*?,\\s*(?:' + INSTRUCTION_VERBS.join('|') + ')\\b|\\b(?:and|then|also|hence)\\s+(?:' + INSTRUCTION_VERBS.join('|') + ')\\b', 'i');
+// R3-1 · an instruction verb starting a clause, in ANY case: at the start, or after punctuation, a
+// bracket, a dash or a line break ("…(d) 93, justify.", "(justify your answer)", "— explain why").
+// "Reason (R)" is the A-R label, never an instruction.
+const CLAUSE_INSTRUCTION = new RegExp('(?:^|[.?!;:,()\\[\\]\\n—–-]\\s*)(?:' + INSTRUCTION_VERBS.join('|') + ')\\b(?!\\s*\\(\\s*r\\s*\\))', 'i');
+const DEVANAGARI = /[\u0900-\u097F]/;
+function carriesInstruction(t) {
+  if (DEVANAGARI.test(t)) return true; // a Hindi instruction ("स्पष्ट कीजिए", "कारण दीजिए") — never read here
+  const noReasonLabel = t.replace(/\breason\s*\(\s*r\s*\)/gi, ' ');
+  return CAPITALISED_INSTRUCTION.test(noReasonLabel) || LOWERCASE_INSTRUCTION.test(noReasonLabel)
+    || CLAUSE_INSTRUCTION.test(noReasonLabel);
+}
+
+// The only text allowed AFTER the last option: a bare mark tag of 1 ("[1]", "(1)", "(1 mark)", "1 mark").
+const TRAILING_MARK_TAG = /\s*(?:\[\s*1\s*\]|\(\s*1\s*\)|\(\s*1\s*marks?\s*\)|\b1\s*marks?)\s*$/i;
+const OPTION_LABEL_IN_LINE = /\(\s*(?:[a-d]|i{1,3}|iv|[1-4])\s*\)|(?:^|\s)[a-dA-D][).](?=\s)|\breason\s*\(\s*r\s*\)/i;
+/** R3-1 · ALLOW-LIST for what follows the options: the last non-empty LINE must hold an option label
+ *  (or the A-R "Reason (R)") once a trailing mark tag is removed — any other line after it ("Justify
+ *  your answer", "kaaran batao", "show your working") means NO upgrade. */
+function endsOnAnOptionLine(raw) {
+  const lines = String(raw || '').replace(TRAILING_MARK_TAG, '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return false;
+  return OPTION_LABEL_IN_LINE.test(lines[lines.length - 1]);
+}
+
+function printsOptionList(text) {
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!t) return false;
+  if (/\bOR\b/.test(t)) return false;
+  if (carriesInstruction(String(text || ''))) return false;
+  if (!endsOnAnOptionLine(text)) return false;
+  const printed = [...t.matchAll(MARKS_VALUE)].map((m) => Number(m[1] || m[2]));
+  if (printed.length > 1 || printed.some((n) => n > 1)) return false;
+  const a = /\bassertion\s*\(\s*a\s*\)/i.exec(t);
+  const r = /\breason\s*\(\s*r\s*\)/i.exec(t);
+  if (a && r && a.index < r.index) return true;
+  // R4-2 · only a 1-mark tag may end the text: "(d) 93 (2)" / "[3]" is a mark above 1
+  if (/[[(]\s*(\d+)\s*[\])]\s*$/.test(t) && Number(/[[(]\s*(\d+)\s*[\])]\s*$/.exec(t)[1]) > 1) return false;
+  const body = unwrapReferredLabels(t.replace(TRAILING_MARK_TAG, ''));
+  return PRINTED_OPTION_STYLES.some((style) => strictOptionList(body, style));
+}
+
+/** The text half of the §13 decision: printsOptionList AND the grade routes' own guard test
+ *  (postprocess objectiveOffersOptions), so the client's lock and the server's force-to-1 can never
+ *  disagree with an upgrade. The MARKS half (a printed / section mark above 1 blocks it) is applied
+ *  by the callers: normaliseDetectedQuestions and the grade routes. */
+function printedOptionsObjective(text) {
+  if (!printsOptionList(text)) return false;
+  // lazily required: postprocess pulls the whole grading module graph
+  return require('./postprocess.cjs').objectiveOffersOptions({ questionText: String(text || '') });
+}
+
 /* ── the questions list ─────────────────────────────────────────────────── */
 
 const LATER_SUBPART = /^\s*\(?\s*(ii|iii|iv|v|vi|b|c|d|e)\s*[).]/i;
@@ -139,6 +345,9 @@ function normaliseDetectedQuestions(rawQuestions, o) {
       answer: q && q.answer != null && String(q.answer).trim() && String(q.answer).trim().toLowerCase() !== 'null' ? String(q.answer).trim() : null,
       subject: q ? q.subject : null,
       chapter: q ? q.chapter : null,
+      // GRADE-MARKS-1 · read only when the request opted in (o.sectionMarks); ignored otherwise.
+      section: sectionLetterOf(q && q.section),
+      printedMarks: marksInRange(q && q.printedMarks),
     };
   }).filter((e) => e.text.length > 0);
 
@@ -155,12 +364,18 @@ function normaliseDetectedQuestions(rawQuestions, o) {
         prev.stated = prev.stated && e.stated;
         prev.objective = false;
         prev.answer = null;
+        prev.section = prev.section || e.section;
+        prev.printedMarks = prev.printedMarks !== null && e.printedMarks !== null ? prev.printedMarks + e.printedMarks : null;
         continue;
       }
     }
     merged.push({ ...e });
   }
   entries = merged;
+
+  // 2b · DETECT-OBJECTIVE-STABILITY-1 · does the TEXT print an MCQ / A-R (decided at 3c, after the
+  //      section rule, because a mark above 1 blocks it)?
+  for (const e of entries) e.textOptions = printedOptionsObjective(e.text);
 
   // 3 · numbers: printed ones kept; a missing one never collides with a printed one
   const used = new Set(entries.filter((e) => e.n !== null).map((e) => e.n));
@@ -171,6 +386,28 @@ function normaliseDetectedQuestions(rawQuestions, o) {
     used.add(n);
     e.n = n;
     e.numberAssigned = true;
+  });
+
+  // 3b · GRADE-MARKS-1 (opt-in): each question's marks by RULE before any guess — printed on
+  //      the question, else its section header's mark (carried across page breaks), else the
+  //      CBSE section map when the paper's headers follow it. Without the flag: nothing here runs.
+  const bySection = o.sectionMarks === true ? assignSectionMarks(entries, o.sectionHeaders) : null;
+
+  // 3c · DETECT-OBJECTIVE-STABILITY-1 · a question whose text prints its options is objective whatever
+  //      the model said — UNLESS a mark above 1 says otherwise: printed on the question, or its section
+  //      (B–E; GRADE-MARKS-1's rule or the model's label). Then nothing changes (fail safe = before).
+  //      Upgrade only: a model-flagged objective is never cleared here.
+  entries.forEach((e, i) => {
+    const ruled = bySection ? bySection[i] : null;
+    // R2-2 · the model's OWN mark (or the read's fallback) above 1 blocks it too: every mark signal must say ≤ 1.
+    const modelMarks = e.marks !== null ? e.marks : o.detectedMarks;
+    const multiMark = (Number(modelMarks) > 1)
+      || (e.printedMarks !== null && e.printedMarks > 1)
+      || /^[B-E]$/.test(e.section || '')
+      || Boolean(ruled && ((ruled.marks !== null && ruled.marks > 1) || /^[B-E]$/.test(ruled.section || '')));
+    e.printedOptions = e.textOptions && !multiMark;
+    e.upgradedByText = e.printedOptions && e.objective !== true; // the model had NOT flagged it
+    if (e.printedOptions) e.objective = true;
   });
 
   // 4 · the response entries
@@ -184,6 +421,29 @@ function normaliseDetectedQuestions(rawQuestions, o) {
       objective: e.objective,
       answer: e.answer,
     };
+    if (bySection) {
+      const ruled = bySection[i];
+      if (ruled.marks !== null) {
+        out.marks = ruled.marks;
+        out.marksSource = ruled.source;
+      } else {
+        // No rule set it: the model's own value, as before — flagged as a guess for the student to
+        // check (the model's own "stated" is not trusted: it said "stated" for Q20's guessed 5).
+        out.marksSource = 'inferred';
+      }
+      out.section = ruled.section;
+    }
+    // DETECT-OBJECTIVE-STABILITY-1 · §13: a question that prints its options (and has no mark above 1
+    // by any rule — see 3c) is a 1-mark, 0-or-full item: detect reports 1, on every read.
+    if (e.printedOptions) {
+      out.marks = 1;
+      // R2-2 · a question THIS rule upgraded never claims its mark was "stated" unless one is printed on
+      // it ("[1]" / "(1 mark)"); a rule source (printed / section) stands. A question the model itself
+      // flagged objective keeps the model's read byte-for-byte (the golden replay pins it).
+      if (e.upgradedByText && out.marksSource === 'stated' && !new RegExp(MARKS_TOKEN.source, 'i').test(e.text)) out.marksSource = 'inferred';
+      // for the route's single-question mirror; non-enumerable, so never in the response body
+      Object.defineProperty(out, '_printedOptions', { value: true, enumerable: false });
+    }
     if (o.acceptsV2 === true) {
       const chapter = e.chapter != null && vocab.has(String(e.chapter).trim()) ? String(e.chapter).trim() : null;
       const subj = chapter ? vocab.get(chapter) : String(e.subject || '');
@@ -192,10 +452,130 @@ function normaliseDetectedQuestions(rawQuestions, o) {
         subject: /sci/i.test(subj) ? 'Science' : /math/i.test(subj) ? 'Maths' : null,
         chapter,
       });
-      if (!inRange) out.marksSource = 'fallback';
+      if (!inRange && !(bySection && bySection[i].marks !== null)) out.marksSource = 'fallback';
     }
     return out;
   });
+}
+
+/* ── GRADE-MARKS-1 · section marks by rule ──────────────────────────────── */
+
+/** The CBSE Class 10 board-paper section pattern (2026-27): marks per question in each section. */
+const CBSE_SECTION_MARKS = Object.freeze({ A: 1, B: 2, C: 3, D: 5, E: 4 });
+
+/** "C", "c", "Section C", "SECTION - C" → "C"; anything else → null. */
+function sectionLetterOf(v) {
+  if (v == null) return null;
+  const m = /^\s*(?:section\s*[-–—:]?\s*)?([A-Ea-e])\s*$/i.exec(String(v));
+  return m ? m[1].toUpperCase() : null;
+}
+
+/** A mark value in the detect range (1–6), rounded; else null. */
+function marksInRange(v) {
+  if (v == null || v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 1 && n <= 6 ? Math.round(n) : null;
+}
+
+/**
+ * The marks every question gets by RULE, in order (pure, deterministic). For each entry:
+ *   1. a mark printed ON the question (`printedMarks`)          → source "printed";
+ *   2. its section's header mark ("Section C … 3 marks each")   → source "section" — trusted ONLY
+ *      when it equals the CBSE value for that section (A=1, B=2, C=3, D=5, E=4). Any other header
+ *      number may be a misread ("6 × 3 = 18" read as 6 each, "4 × 3" read as 4), so the question
+ *      gets the CBSE value for its section instead, labelled "inferred" — flagged for the student
+ *      to check and edit on the confirm step;
+ *   3. the CBSE section map (A=1, B=2, C=3, D=5, E=4), only when the paper's headers follow it
+ *      (two or more header marks, every one equal to the map)  → source "section";
+ *   4. otherwise `marks: null` — the caller keeps the model's own value.
+ * ★ §13 objective invariant: an OBJECTIVE question (MCQ / A-R) is scored 0-or-full only while its
+ * marks are ≤ 1 (postprocess normaliseQuestionResult). So a rule never gives an objective question
+ * more than 1 mark: a rule mark above 1 is skipped and the model's own value stands.
+ * A question with no section continues the section of the question before it: a section runs
+ * across page breaks until the next header, so Q20 on a page with no header stays in Section C.
+ *
+ * GRADE-SECTION-1 · section membership by ORDER, not by the model's per-question label. Live 4 Nov
+ * (WS-M-MIX-02): page 6 prints Q20, Q21, THEN the "Section D" header, then Q22; the model labelled
+ * Q20/Q21 "D" (the header LATER on the same page) → 5 marks each, total 55, marked "section". Each
+ * header now carries `firstQuestion` (the number of the first question printed after it), and a
+ * numbered question N belongs to the header with the greatest firstQuestion ≤ N (question numbers
+ * are in reading order). A question before the first header keeps the label/carry rule above.
+ *   · the model's own label DISAGREES with the order → the order wins, and the mark is "inferred"
+ *     (flagged for the student to check) — never silently "section";
+ *   · a header's firstQuestion is missing (or the readable ones are not increasing in header order)
+ *     → the label/carry rule above, but every question of a section whose range cannot be
+ *     established (its own header's or the NEXT header's firstQuestion is missing) is "inferred".
+ * @param {Array<{n?: number|null, numberAssigned?: boolean, section: string|null, printedMarks: number|null, objective?: boolean}>} entries  in paper order
+ * @param {Array<{section?: unknown, marksEach?: unknown, firstQuestion?: unknown}>|undefined} headers  the model's sectionHeaders
+ * @returns {Array<{marks: number|null, source: 'printed'|'section'|'inferred'|null, section: string|null}>}
+ */
+function assignSectionMarks(entries, headers) {
+  const headerMarks = new Map(); // letter → marks; a letter with two different marks is unknown (null)
+  const ordered = []; // GRADE-SECTION-1 · every lettered header, in the model's (reading) order
+  for (const h of Array.isArray(headers) ? headers : []) {
+    const letter = sectionLetterOf(h && h.section);
+    if (!letter) continue;
+    const fq = Number(h && h.firstQuestion);
+    ordered.push({ letter, first: h && h.firstQuestion != null && h.firstQuestion !== '' && Number.isFinite(fq) && fq >= 1 ? Math.round(fq) : null });
+    const marks = marksInRange(h && h.marksEach);
+    if (marks === null) continue;
+    headerMarks.set(letter, headerMarks.has(letter) && headerMarks.get(letter) !== marks ? null : marks);
+  }
+  const known = [...headerMarks.entries()].filter(([, m]) => m !== null);
+  const cbsePattern = known.length >= 2 && known.every(([l, m]) => CBSE_SECTION_MARKS[l] === m);
+  // GRADE-SECTION-1 · a General Instructions line ("Section A has 20 MCQs of 1 mark each") listed as a
+  // header has no firstQuestion: drop it when the same letter's real header has one.
+  const placed = new Set(ordered.filter((h) => h.first !== null).map((h) => h.letter));
+  for (let i = ordered.length - 1; i >= 0; i -= 1) if (ordered[i].first === null && placed.has(ordered[i].letter)) ordered.splice(i, 1);
+  // GRADE-SECTION-1 · the ranges are established only when every header has a firstQuestion and they
+  // increase in header order. Otherwise: the sections whose range is open (own or next start unknown).
+  const byOrder = ordered.length > 0 && ordered.every((h, i) => h.first !== null && (i === 0 || h.first > ordered[i - 1].first));
+  const openSections = new Set();
+  if (!byOrder) {
+    const anyUnordered = ordered.some((h, i) => h.first !== null && i > 0 && ordered[i - 1].first !== null && h.first <= ordered[i - 1].first);
+    ordered.forEach((h, i) => {
+      if (anyUnordered || h.first === null || (i + 1 < ordered.length && ordered[i + 1].first === null)) openSections.add(h.letter);
+    });
+  }
+  const sectionByOrder = (n) => {
+    let hit = null;
+    for (const h of ordered) if (h.first <= n) hit = h.letter;
+    return hit;
+  };
+  let carried = null;
+  return entries.map((e) => {
+    // labelSection: the section GRADE-MARKS-1 used (the model's label, else carried from the last label).
+    const labelSection = e.section || carried;
+    if (labelSection) carried = labelSection;
+    let section = labelSection;
+    let disagrees = false;
+    if (byOrder && Number.isFinite(e.n) && e.numberAssigned !== true) {
+      const bySeq = sectionByOrder(e.n);
+      if (bySeq) {
+        // any disagreement with the label-or-carried section is flagged (an unlabelled question too)
+        disagrees = labelSection !== null && labelSection !== undefined && labelSection !== bySeq;
+        section = bySeq;
+      }
+    }
+    const unsure = disagrees || (section !== null && openSections.has(section));
+    const ruled = ruleFor(e, section, headerMarks, cbsePattern);
+    if (unsure && ruled.source === 'section') ruled.source = 'inferred';
+    return ruled;
+  });
+}
+
+/** The rule mark for one entry in a known section (GRADE-MARKS-1, unchanged). */
+function ruleFor(e, section, headerMarks, cbsePattern) {
+  let ruled = { marks: null, source: null, section };
+  if (e.printedMarks !== null) ruled = { marks: e.printedMarks, source: 'printed', section };
+  else if (section && headerMarks.get(section) != null) {
+    ruled = headerMarks.get(section) === CBSE_SECTION_MARKS[section]
+      ? { marks: headerMarks.get(section), source: 'section', section }
+      : { marks: CBSE_SECTION_MARKS[section], source: 'inferred', section }; // a non-CBSE header number: never trusted
+  } else if (section && cbsePattern && !headerMarks.has(section)) ruled = { marks: CBSE_SECTION_MARKS[section], source: 'section', section };
+  // §13: never more than 1 mark for an objective question by rule (the 0/full clamp needs ≤ 1).
+  if (e.objective === true && ruled.marks !== null && ruled.marks > 1) return { marks: null, source: null, section };
+  return ruled;
 }
 
 /** One retry for detection: a parse miss, a 429, a 5xx other than a timeout, or a network
@@ -321,6 +701,11 @@ module.exports = {
   textLayerBlock,
   restoreSymbols,
   normaliseDetectedQuestions,
+  printsOptionList,
+  printedOptionsObjective,
+  assignSectionMarks,
+  sectionLetterOf,
+  CBSE_SECTION_MARKS,
   isDetectRetryableError,
   salvageDetectQuestions,
   DETECT_LONG_PAPER_MESSAGE,

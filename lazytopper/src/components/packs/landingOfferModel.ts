@@ -20,7 +20,7 @@ export const LANDING_SUBJECTS: readonly PackSubject[] = ["maths", "science"];
 /** The cheapest pack's price ("₹49"), from the catalogue; null if the catalogue has none. */
 export function cheapestPackLabel(prices: Readonly<Record<string, number>> = PACK_PRICE_INR): string | null {
   const values = Object.values(prices).filter((n) => Number.isFinite(n) && n > 0);
-  // GST-EXCL-1: "₹49" before the cut-off, "₹49 + GST" from 00:00 IST 5 Nov 2026.
+  // GST-EXCL-1: "₹49" before the cut-off, "₹49 + GST" from 00:00 IST 7 Nov 2026.
   return values.length ? (boardPassGstExclusive(Date.now()) ? displayPlusGst(Math.min(...values)) : `₹${Math.min(...values)}`) : null;
 }
 

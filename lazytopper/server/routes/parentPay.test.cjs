@@ -952,7 +952,7 @@ test('PRICE-FIXED-1 · parent link: a never-month child has month: null on EVERY
   assert.deepEqual(view.json.prices, { month: null, till_boards: 1917 });
 });
 
-test('PRICE-FIXED-1 · parent link: a month ORDER for a never-month child is refused (409) after the instant, nothing reaches Razorpay; the Board Pass still orders at 1917 (+ GST after 5 Nov = 2262)', async (t) => {
+test('PRICE-FIXED-1 · parent link: a month ORDER for a never-month child is refused (409) after the instant, nothing reaches Razorpay; the Board Pass still orders at 1917 (+ GST after 7 Nov = 2262)', async (t) => {
   const srv = await startRoutes({ clock: { t: Date.parse('2026-11-12T10:00:00+05:30') } });
   t.after(srv.close);
   const { token } = await mint(srv);
@@ -962,7 +962,7 @@ test('PRICE-FIXED-1 · parent link: a month ORDER for a never-month child is ref
   assert.equal(srv.rzp.calls.length, 0);
   const ok = await parentOrder(srv, token, 'till_boards');
   assert.equal(ok.status, 200, ok.text);
-  // GST-EXCL-1: 12 Nov is after the 5 Nov GST cut-off - the founding base ₹1,917 + 18% GST = ₹2,262 is charged.
+  // GST-EXCL-1: 12 Nov is after the 7 Nov GST cut-off - the founding base ₹1,917 + 18% GST = ₹2,262 is charged.
   assert.equal(ok.json.amountPaise, 226200);
 });
 
@@ -1339,7 +1339,7 @@ test('PARENT-PACKS-1 · F2: the close writes "owned" only while the link is stil
   assert.equal(await closeCoveredParentPackLinks(srv.db, 'child1'), 0, 'a second pass closes nothing more');
 });
 
-/* ── GST-EXCL-1 · the parent-pay link charges base + 18% GST from 00:00 IST 5 Nov 2026 and shows the breakup ────────── */
+/* ── GST-EXCL-1 · the parent-pay link charges base + 18% GST from 00:00 IST 7 Nov 2026 and shows the breakup ────────── */
 const GST_LATER = Date.parse('2026-11-12T10:00:00+05:30');
 
 test('GST-EXCL-1 · Board Pass link: view carries the SERVER breakup (1917 + 345 = 2262) and the price = the charge; the order is 2262 with the breakup stored', async (t) => {
@@ -1358,7 +1358,7 @@ test('GST-EXCL-1 · Board Pass link: view carries the SERVER breakup (1917 + 345
 });
 
 test('GST-EXCL-1 · Board Pass link BEFORE the cut-off: the view has no breakup key and the price is 1917 (byte-identical)', async (t) => {
-  const srv = await startRoutes({ clock: { t: Date.parse('2026-11-04T22:00:00+05:30') } });
+  const srv = await startRoutes({ clock: { t: Date.parse('2026-11-06T22:00:00+05:30') } });
   t.after(srv.close);
   const { token } = await mint(srv);
   const view = await request(srv.port, PARENT_VIEW_PATH, { body: { token } });

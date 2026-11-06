@@ -1,8 +1,8 @@
 /**
- * PACK-DIALOG-1 (owner, 4 Nov 15:05: "complete empty on the left side!") - in the pack pop-up, an opened "Ask a parent to pay"
- * / "Pay by QR code" panel is NEVER inside the sticky footer (a sticky white box taller than the scroller covered the title and
+ * PACK-DIALOG-1 (owner, 4 Nov 15:05: "complete empty on the left side!") - in the pack pop-up, an opened "Forward link to parents"
+ * / "Share QR code" panel is NEVER inside the sticky footer (a sticky white box taller than the scroller covered the title and
  * the slides). It renders in the dialog's own full-width slot below the footer, in normal flow, and its heading takes focus.
- * On desktop the footer is not sticky at all. The preview strip says plainly that its pages are from a Maths Chapter Pack.
+ * On desktop the footer is not sticky at all. The preview strip says plainly which pack kind and subject its pages are from.
  * Everywhere else (no host) the panel stays where it always was.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -17,9 +17,10 @@ vi.mock("../analytics/analytics", async (importOriginal) => {
   return { ...actual, trackPaywallAction: vi.fn() };
 });
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" }, loading: false }) }));
-vi.mock("../components/packs/PackSampleLink", () => ({ default: () => <a href="/sample">See a free sample</a> }));
+vi.mock("../components/packs/PackSampleButton", () => ({ default: () => <a href="/sample">See a free sample</a> }));
 
-import PackDialog, { PREVIEW_CAPTION } from "./PackDialog";
+import PackDialog from "./PackDialog";
+import { PACK_PREVIEWS, previewCaption } from "../lib/packs/packPreviews";
 import { FORWARD_LABEL, QR_LABEL } from "../components/pricing/PaywallActions";
 import {
   PARENT_SHARE_HEADING,
@@ -183,10 +184,12 @@ describe("PACK-DIALOG-1 · the parent panel leaves the sticky footer", () => {
 });
 
 describe("PACK-DIALOG-1 · honest previews", () => {
-  it("the strip says its pages are from a Maths Chapter Pack", () => {
-    dialog();
-    expect(screen.getByTestId("pack-preview-caption").textContent).toBe(PREVIEW_CAPTION);
-    expect(PREVIEW_CAPTION).toBe("Sample pages from a Maths Chapter Pack — your pack has the same layout");
+  it("the strip's caption names the pack kind and subject its pages come from (PACK-PREVIEW-1)", () => {
+    dialog("pack_cbq");
+    const spec = PACK_PREVIEWS.find((p) => p.id === "cbq-science");
+    expect(spec).toBeTruthy();
+    expect(screen.getByTestId("pack-preview-caption").textContent).toBe(previewCaption(spec!));
+    expect(screen.getByTestId("pack-preview-caption").textContent).toContain("Science CBQ Pack");
   });
 });
 

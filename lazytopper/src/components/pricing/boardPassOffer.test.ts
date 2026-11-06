@@ -33,7 +33,7 @@ describe("PRICE-FIXED-1 - the Board Pass is the only offer (owner, 31 Oct 2026)"
   const BOARD = predictCbseExamDate("10");
 
   it("the lead is the Board Pass price of the date: 1,917 before the founding deadline, 2,499 from it", () => {
-    for (const [now, price] of [[NOW_OPEN, "₹1,917"], [NOW_CLOSED, "₹2,499 + GST"]] as const) { // GST-EXCL-1: "+ GST" from 5 Nov 2026
+    for (const [now, price] of [[NOW_OPEN, "₹1,917"], [NOW_CLOSED, "₹2,499 + GST"]] as const) { // GST-EXCL-1: "+ GST" from 7 Nov 2026
       const o = premiumOffer(now, BOARD);
       expect(o.title).toBe("Board Pass");
       expect(o.priceDisplay).toBe(price);

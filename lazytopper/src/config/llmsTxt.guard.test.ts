@@ -144,7 +144,9 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     const ch = chargeFor(PACK_PRICE_INR.pack_chapter, cut);
     expect(txt).toContain(`${formatInr(bp.baseInr)} + ${formatInr(bp.gstInr)} GST = ${formatInr(bp.totalInr)}`);
     expect(txt).toContain(`${formatInr(ch.baseInr)} + ${formatInr(ch.gstInr)} GST = ${formatInr(ch.totalInr)}`);
-    expect(txt).toContain("From 5 November 2026 every price is plus 18% GST");
+    expect(txt).toContain("Prices are shown + GST (18%); the total is shown before payment");
+    // Owner ruling 6 Nov 2026 18:52 IST: the rollout moment moved to 7 Nov, so llms.txt names no date at all.
+    expect(txt).not.toMatch(/From [0-9]+ November 2026 every price/);
     expect(txt).not.toContain(String(PRICE_MONTHLY_FOUNDING_INR));
     expect(txt).not.toContain(String(PRICE_MONTHLY_LIST_INR));
     expect(txt).not.toMatch(/less than paying monthly|for a month/i);

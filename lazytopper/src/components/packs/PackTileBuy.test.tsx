@@ -187,3 +187,33 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     expect(pill.textContent).toBe("✓You own this");
   });
 });
+
+describe("GST-EXCL-1 · the breakup next to every tile Buy and the pop-up Buy", () => {
+  const CUT = Date.parse("2026-11-07T00:00:00+05:30");
+  afterEach(() => vi.useRealTimers());
+
+  it("1 ms before 00:00 IST 7 Nov: no breakup anywhere and today's Buy labels; from the cut-off: totals on Buy, breakup beside it", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(CUT - 1);
+    page();
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe("Buy · ₹299");
+    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe("Choose chapter & buy · ₹49");
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe("Buy Maths CBQ · ₹199");
+    expect(screen.queryAllByTestId(/^tile-gst-/)).toHaveLength(0);
+    fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));
+    await waitFor(() => expect(screen.getByTestId("dialog").getAttribute("data-sku")).toBe("pack_mock"));
+    expect(screen.queryByTestId("packs-gst-pack_mock")).toBeNull();
+    cleanup();
+
+    vi.setSystemTime(CUT);
+    page();
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe("Buy · ₹353");
+    expect(screen.getByTestId("tile-gst-pack_bundle").textContent).toBe("₹299 + ₹54 GST (18%) = ₹353");
+    expect(screen.getByTestId("tile-gst-pack_chapter").textContent).toBe("₹49 + ₹9 GST (18%) = ₹58");
+    expect(screen.getByTestId("tile-gst-pack_mock").textContent).toBe("₹99 + ₹18 GST (18%) = ₹117");
+    expect(screen.getByTestId("tile-gst-pack_subject").textContent).toBe("₹199 + ₹36 GST (18%) = ₹235");
+    expect(screen.getAllByTestId("tile-gst-pack_cbq").map((e) => e.textContent)).toEqual(["₹199 + ₹36 GST (18%) = ₹235", "₹199 + ₹36 GST (18%) = ₹235"]);
+    fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));
+    await waitFor(() => expect(screen.getByTestId("packs-gst-pack_mock").textContent).toBe("₹99 + ₹18 GST (18%) = ₹117"));
+  });
+});

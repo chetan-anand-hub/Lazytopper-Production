@@ -78,7 +78,7 @@ export function sampleBuyName(sku: PackSku, subject?: PackSubject | null): strin
 }
 
 export function sampleBuyLabel(sku: PackSku, subject?: PackSubject | null): string {
-  // GST-EXCL-1: a buy link names the amount CHARGED (base + GST from 5 Nov 2026).
+  // GST-EXCL-1: a buy link names the amount CHARGED (base + GST from 7 Nov 2026).
   return `Liked the sample? Get the ${sampleBuyName(sku, subject)} \u00b7 ${packPayLabel(sku)}`;
 }
 

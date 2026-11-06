@@ -185,7 +185,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
-  const now = () => nowMs; // GST-EXCL-1: a test may move the clock past the 5 Nov GST cut-off
+  const now = () => nowMs; // GST-EXCL-1: a test may move the clock past the 7 Nov GST cut-off
   // `Bearer uid:<uid>` or `Bearer uid:<uid>|phone:<e164>` — the test stand-in for a token firebase-admin verified.
   const identityOf = (req) => {
     const h = String(req.headers.authorization || '');
@@ -1736,8 +1736,8 @@ test('AUTO · email fallbacks: a link that cannot be made, or a phone-only accou
   assert.equal(resend.sent[0].body.subject, 'Your Maths CBQ Pack is ready');
 });
 
-/* ══ GST-EXCL-1 · pay-by-phone and "Who will use it?" charge base + 18% GST from 00:00 IST 5 Nov 2026 ══════════════ */
-const GST_AFTER = Date.parse('2026-11-05T09:00:00+05:30');
+/* ══ GST-EXCL-1 · pay-by-phone and "Who will use it?" charge base + 18% GST from 00:00 IST 7 Nov 2026 ══════════════ */
+const GST_AFTER = Date.parse('2026-11-07T09:00:00+05:30');
 
 test('GST-EXCL-1 · pay-by-phone: the Board Pass and a pack are charged base + GST after the cut-off, with the breakup stored; claim grants them', async (t) => {
   const srv = await startRoutes({ nowMs: GST_AFTER });
@@ -1758,7 +1758,7 @@ test('GST-EXCL-1 · pay-by-phone: the Board Pass and a pack are charged base + G
 });
 
 test('GST-EXCL-1 · pay-by-phone BEFORE the cut-off is byte-identical (1917, no GST fields)', async (t) => {
-  const srv = await startRoutes({ nowMs: Date.parse('2026-11-04T23:59:59+05:30') });
+  const srv = await startRoutes({ nowMs: Date.parse('2026-11-06T23:59:59+05:30') });
   t.after(srv.close);
   const bp = await paidGuestOrder(srv, { sku: 'till_boards', phone: PHONE });
   const o = srv.db.read(`payOrders/${bp.orderId}`);

@@ -26,7 +26,8 @@ const {
   applyObjectiveMistakeGuard,
 } = require('../routes/objectiveScoring.cjs');
 const R = require('./rules.cjs');
-const { falseEqualities, compareFinalAnswer, fudgedFactorisation } = require('./verify.cjs');
+const { falseEqualities, compareFinalAnswer, fudgedFactorisation, equivalentFinalValue } = require('./verify.cjs');
+const { readEquations, atomsOf } = require('./chemEquation.cjs');
 
 const TYPES = R.MISTAKE_TYPES;
 const VALID_TYPES = new Set(TYPES);
@@ -336,11 +337,12 @@ function applyMediumRuling(steps, q, raw) {
 // figure is its own CBSE value point ("the figure mark is LOST"), not a format nicety (verified key
 // GS-S05-b: "draw the ray diagram" answered in words = 0). Arrows/labels on a drawn figure still count.
 const FIGURE_VALUE_POINT = /\b(?:diagram|figure|graph)\b[^.;]*\b(?:not drawn|absent|missing|not shown|not marked)\b|\b(?:not drawn|no|without|missing)\s+(?:a\s+|the\s+|any\s+)?(?:labelled\s+)?(?:ray\s+)?(?:diagram|figure|graph)\b|\b(?:marked|drawn|shown)\s+(?:on|in)\s+(?:a|the)\s+(?:ray\s+)?(?:diagram|figure)\b/i;
-const countsTowardCap = (s) => !(FIGURE_VALUE_POINT.test([s.teacherAnnotation, s.description].join(' . ')) && !/\barrow/i.test(String(s.teacherAnnotation || '')));
+const countsTowardCap = (s) => !s._balancing && !(FIGURE_VALUE_POINT.test([s.teacherAnnotation, s.description].join(' . ')) && !/\barrow/i.test(String(s.teacherAnnotation || '')));
 function examTechniqueCap(totalMarks) { return Number(totalMarks) <= 1 ? 0.5 : 1; }
 function capExamTechnique(steps, totalMarks) {
   const cap = examTechniqueCap(totalMarks);
-  const et = (s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s);
+  // MISSING-TYPE-1 (owner ruling 5 Nov 2026, 14:04): working not shown is never capped — its marks are lost as an examiner takes them.
+  const et = (s) => s.status !== 'withdrawn' && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s) && !s._workingNotShown;
   const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
   let excess = half(steps.filter(et).reduce((a, s) => a + lostOf(s), 0) - cap);
   if (!(excess > 0)) return 0;
@@ -573,6 +575,9 @@ function inventoryStable(inventory, raw) {
   return lines.some((l) => firstLineInWork(l, work));
 }
 
+/** A step carries a part label (the SAME test in markGenuinelyUnattempted and omissionsInAttemptedWork). */
+const hasPartLabel = (s) => s.part != null;
+
 /* ── D29 (Controller B's ask (1)) — GENUINELY UNATTEMPTED WORK IS "unattempted" ───────
    A part the student did not attempt — left blank, answered only "Don't know" / "DK", or
    struck out with nothing in its place — is the FOURTH STATE (no type, its marks in
@@ -599,6 +604,24 @@ function nonAttemptText(s) {
     .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
   return t && NON_ATTEMPT_PHRASES.has(t) ? 'phrase' : null;
 }
+/* MISSING-TYPE-1 review item 3 — a MODEL PLACEHOLDER for absent work ("Not shown", "(no working shown)", "Working not
+   shown", "Not written", "—") is BLANK, exactly like an empty string. One helper for every blank-step check of #1575
+   and MISSING-TYPE-1. It is never a STUDENT'S non-attempt ("Don't know", "DK", "no idea"): those stay ruling 7's. */
+const ABSENT_WORK = new Set([
+  'not shown', 'no working shown', 'working not shown', 'working is not shown', 'steps not shown', 'step not shown', 'not written',
+  'no working', 'no work', 'no work shown', 'nothing written', 'blank', 'left blank', 'not provided', 'not given', 'omitted',
+  'missing', 'not attempted', 'unattempted', 'not answered', 'no answer', 'empty', 'null', 'none', 'n a', 'na', 'not done',
+]);
+// Review round 2: the placeholder words are read ONLY on a step the MODEL reported absent ("missing" / "unattempted").
+// On any other step they may be the student's own answer (a wrong "None" on a working step): only truly empty is blank.
+const PLACEHOLDER_STATUSES = new Set(['missing', 'unattempted']);
+function isBlankWork(text, status) {
+  if (nonAttemptText(text) === 'empty') return true;
+  if (!PLACEHOLDER_STATUSES.has(status)) return false;
+  const t = String(text == null ? '' : text).normalize('NFKC').toLowerCase()
+    .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
+  return !t || ABSENT_WORK.has(t);
+}
 function toUnattempted(s) {
   s.status = 'unattempted';
   s.marksAwarded = 0;
@@ -616,7 +639,7 @@ function markGenuinelyUnattempted(steps) {
     if (s.status !== 'unattempted' && !(s.marksAwarded > 0) && s.studentWork && nonAttemptText(s.studentWork) === 'phrase') { toUnattempted(s); n += 1; }
   }
   // B — a part with no work in it at all.
-  const anyLabelled = live.some((s) => s.part != null);
+  const anyLabelled = live.some(hasPartLabel);
   const groups = new Map();
   for (const s of live) {
     const k = partKey(s.part);
@@ -632,6 +655,432 @@ function markGenuinelyUnattempted(steps) {
     for (const s of g) if (s.status !== 'unattempted') { toUnattempted(s); n += 1; }
   }
   return n;
+}
+
+/* ── GRADER-QUALITY-1 (D1) — AN OMISSION INSIDE AN ATTEMPTED ANSWER IS NOT "NOT ATTEMPTED" ──
+   Live 4 and 5 Nov 2026 (Answer Checker multi, WS-M-MIX-02, the owner's student's paper of 3 Nov):
+   Q15 ("12th week" stated and verified, the inequality aₙ < 1000 not shown) came back with that step
+   "unattempted" on BOTH runs, so the scorecard said "Not attempted" for an answered question and MI lost the
+   exam-technique signal; Q24(i) (BP, CQ written, the asked-for reason blank) did the same on 4 Nov.
+   "unattempted" is a question or PART with NO attempt (rules.cjs UNATTEMPTED; owner, 5 Oct 2026,
+   DECISION_LOG:1445 "Not attempted its own state, never a mistake"); R1 (5 Oct 2026, DECISION_LOG:1478):
+   "a 'missing' step the grader TYPED keeps its type + MI entry (a CBSE exam-technique deduction)".
+   RUNS AFTER EVERY MARK IS FINAL (after 7b): it changes a status and a type, NEVER a mark. It flips a step
+   ONLY to "missing" + exam technique; in every other case the step stays exactly as the model reported it
+   (a missing step with no type would be shown as Not attempted AND counted as a new MI entry by the client
+   — src/lib/mistakeDisplay.ts — so an untyped flip is never made). Every condition must hold:
+     - a SUBJECTIVE question; the step's own work is EMPTY ("I don't know this part" is left alone);
+     - the step's own description names no part ("part (ii)", "(b)", "ii)");
+     - where it is unlabelled: no step carries a part label, the question text is a REAL question
+       (isRealQuestionText — an Answer Checker question that exists only in the photo is not), and the text
+       shows no sub-parts ("(i)", "i)", "i.", "a)", "1." …);
+     - ATTEMPTED work (status correct / partial / incorrect — never "missing") of the SAME part comes BEFORE
+       it — a skipped FIRST deliverable ("name the gas evolved and the type of reaction": gas blank,
+       reaction answered) is never a mistake — AND EITHER
+         (a) WORKING NOT SHOWN: attempted work of the part also comes AFTER it (a gap: Q15), OR
+         (b) PROOF OF KNOWLEDGE (owner ruling 5 Nov 2026 ~08:45, superseding the earlier "a blank asked-for
+             reason is exam technique"): its description names a reason / justification / verification /
+             inequality / condition / theorem / property AND the model's knowledgeEvidence quote is found in
+             ANOTHER correct/partial step of the question (knowledgeProven). A blank tells us what is missing,
+             not why: MI never guesses — without that proof the step stays as the model reported it;
+     - no step of the part is wrong or typed conceptual / calculation / silly;
+     - the answer's exam-technique loss INCLUDING it stays within the A17 ruling B cap (1 mark; ½ on a
+       1-mark answer), each step counted at the larger of its lost marks and its deduction.
+   The SAME proof is required of a blank reason step the MODEL typed exam technique itself: without it the
+   step becomes `unattempted`, untyped (the fourth state) — never upgraded to anything else.
+   Owner key owner-anomaly-02 Q22 ("State the F2 phenotypic and genotypic ratio", genotypic not written)
+   stays an UNATTEMPTED PART (expected-key.md row 22) — the differential vs trunk found that case. */
+const SUB_PART_MARKER = /\(\s*(?:i{1,3}|iv|vi?|[a-d])\s*\)|(?:^|[\s:;,.])(?:i{1,3}|iv|vi?|[a-d])[.)](?=\s)|(?:^|\s)[1-9][.)](?=\s)/im;
+const PART_NAMED = /\bpart\b|\(\s*(?:i{1,3}|iv|vi?|[a-d])\s*\)|(?:^|\s)(?:i{1,3}|iv|vi?|[a-d])[.)](?=\s|$)/i;
+const JUSTIFICATION_STEP = /\b(?:reason\w*|justif\w*|verif\w*|inequalit\w*|conditions?|theorem|propert(?:y|ies))\b/i;
+// The owner ruling's own words — a blank REASON / JUSTIFICATION / VERIFICATION step the model typed itself.
+const KNOWLEDGE_STEP = /\b(?:reason\w*|justif\w*|verif\w*)\b/i;
+const ATTEMPTED_STATUSES = new Set(['correct', 'partial', 'incorrect']);
+/* MISSING-TYPE-1 review items 1–2 — an item the QUESTION ASKS FOR is a deliverable, whatever the step is called:
+   "State the formula for the nth term … and find the 10th term" makes a blank "State the formula" step an asked
+   deliverable (Not attempted), not working not shown; "Solve … and verify your answer" makes a blank "Verify by
+   substitution" step one, even between two right lines. Read from the question's own instruction clauses
+   (state / write / name / give / define / draw / verify / justify / mention / list …) against the step's description. */
+const ASK_CLAUSE = /\b(?:state|write(?:\s+down)?|name|give|giving|define|draw|mention|list|verify|justify|prove|show\s+that)\b[^.?;!]*/gi;
+const DELIVERABLE_NOUNS = [
+  ['formula', /\bformula/i], ['definition', /\bdefin/i], ['law', /\blaws?\b/i], ['rule', /\brules?\b/i], ['theorem', /\btheorem/i],
+  ['principle', /\bprinciple/i], ['statement', /\bstat(?:e|ement)\b/i], ['reason', /\breason/i], ['verify', /\bverif/i],
+  ['justify', /\bjustif/i], ['diagram', /\b(?:diagram|figure|graph|sketch)/i], ['ratio', /\bratios?\b/i], ['equation', /\bequation/i],
+];
+function askedByQuestion(description, questionText) {
+  const desc = String(description || '');
+  const clauses = String(questionText || '').match(ASK_CLAUSE) || [];
+  if (!clauses.length) return false;
+  return DELIVERABLE_NOUNS.some(([noun, re]) => re.test(desc) && clauses.some((c) => re.test(c) && (noun !== 'statement' || /\bstatement\b/i.test(c))));
+}
+const ENFORCE_EVIDENCE_ON_MODEL_TYPING = true;
+const normEvidence = (t) => String(t == null ? '' : t).normalize('NFKC').toLowerCase().replace(/[−–—]/g, '-').replace(/\s+/g, ' ').trim();
+// A skipped diagram / figure / graph is a deliverable of its own, never "working not shown" (delta review nit).
+const DIAGRAM_STEP = /\b(?:diagram|figure|graph|sketch)s?\b/i;
+// "BP = 10 m": a bare value — it shows a result, not that the student knows the idea behind it.
+const BARE_VALUE = /^[a-z][a-z0-9 ]* ?= ?-?[\d.]+ ?(?:[a-z]{1,3}\d?)?$/;
+/** The model's knowledgeEvidence PROVES the student knows the blank step's idea (owner ruling 5 Nov 2026), ALL of:
+ *  at least 10 normalised characters; not a bare value; at least one word (4+ letters) or a relation between
+ *  two or more named quantities ("CD = CR + DR"); NOT found in the question text (a restated "Show that …" is the
+ *  question, not the student's knowledge); and found VERBATIM (normalised) in a correct/partial step that is in
+ *  ANOTHER part, or LATER in the same part — never the step itself, nor the same part's earlier steps (the
+ *  answer the reason justifies). */
+function knowledgeProven(u, live, questionText) {
+  const ev = normEvidence(u._knowledgeEvidence);
+  if (ev.replace(/\s/g, '').length < 10 || BARE_VALUE.test(ev)) return false;
+  const names = ev.match(/[a-z]+/g) || [];
+  if (!(names.some((w) => w.length >= 4) || (names.length >= 3 && /[=<>≤≥]/.test(ev)))) return false;
+  const nq = normEvidence(questionText);
+  if (nq && (nq.includes(ev) || nq.replace(/\s/g, '').includes(ev.replace(/\s/g, '')))) return false;
+  const at = live.indexOf(u);
+  return live.some((s) => s !== u && (s.status === 'correct' || s.status === 'partial')
+    && (partKey(s.part) !== partKey(u.part) || live.indexOf(s) > at)
+    && normEvidence(s.studentWork).includes(ev));
+}
+function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
+  let n = 0;
+  const live = steps.filter((s) => s.status !== 'withdrawn');
+  const anyLabelled = live.some(hasPartLabel);
+  const questionText = String((q && (q.questionText || q.question)) || '');
+  const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
+  const attempted = (s) => ATTEMPTED_STATUSES.has(s.status);
+  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded, Number(s.marksDeducted) || 0));
+  const cap = examTechniqueCap(totalMarks);
+  const sides = (u) => {
+    const at = live.indexOf(u);
+    const group = live.filter((s) => s !== u && partKey(s.part) === partKey(u.part));
+    return { group, before: group.some((s) => live.indexOf(s) < at && attempted(s)), after: group.some((s) => live.indexOf(s) > at && attempted(s)) };
+  };
+  // (b) for the MODEL'S OWN typing: a blank reason step typed exam technique needs the same proof, unless it
+  // is working not shown (a gap). Without it the type is withdrawn; status and marks are untouched.
+  // ON (owner approval, option B): on the stored golden replies it fires on GS-M22-a only (a blank "verify your
+  // answer", typed presentation by the model; the examiner key says no type). truth.cjs C05 exempts the
+  // step-level fourth state; the PR2-accept PARM7 bodies are re-baselined under g-knowledge-evidence-1.
+  // MISSING-TYPE-1: `only` (a Set) re-runs the flip below for the steps settleUntypedLosses just made
+  // "unattempted" — the model-typing pass already ran, so it is skipped.
+  if (ENFORCE_EVIDENCE_ON_MODEL_TYPING && !only) for (const s of live) {
+    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || !isBlankWork(s.studentWork, s.status)) continue;
+    // delta review item 2 (the MINIMUM fix): a step still holding marks — the model's own, or given back by the
+    // exam-technique cap (capExamTechnique, step 5, runs BEFORE this) — keeps the model's typing, as on trunk, so
+    // an "unattempted" step never holds marks. (Deciding the evidence before the cap would LOWER marks: owner
+    // follow-up GRADER-EVIDENCE-BEFORE-CAP, not built.)
+    if (s.marksAwarded !== 0 || s._etCapped) continue;
+    // MISSING-TYPE-1 review item 1: an item the QUESTION ASKS FOR ("State the formula …") needs the same proof as a reason.
+    if (!KNOWLEDGE_STEP.test(String(s.description || '')) && !askedByQuestion(s.description, questionText)) continue;
+    const { before, after } = sides(s);
+    // MISSING-TYPE-1 review item 2: a gap exempts it only when the question did not ASK for it.
+    if (before && after && !askedByQuestion(s.description, questionText)) continue;
+    // no proof → the fourth state, as the examiner key GS-M22-a reads it ("a requested sub-task left wholly
+    // unattempted → no mistake type"): `unattempted`, untyped. Marks are untouched (they are final here).
+    if (!knowledgeProven(s, live, questionText)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
+  }
+  for (const u of live) {
+    if (only && !only.has(u)) continue;
+    if (u.status !== 'unattempted' || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status)) continue;
+    if (PART_NAMED.test(String(u.description || '')) || DIAGRAM_STEP.test(String(u.description || ''))) continue;
+    if (partKey(u.part) === '' && (anyLabelled || !realQuestion || SUB_PART_MARKER.test(questionText))) continue;
+    const { group, before, after } = sides(u);
+    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && knowledgeProven(u, live, questionText);
+    // MISSING-TYPE-1 review item 2: the gap rule (working not shown) is never applied to an item the question ASKS for;
+    // only #1575's proof of knowledge can make such a blank exam technique.
+    const gap = after && !askedByQuestion(u.description, questionText);
+    if (!before || !(gap || proven)) continue;
+    if (group.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType))) continue;
+    const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s) && !s._workingNotShown)
+      .reduce((a, s) => a + lostOf(s), 0));
+    if (half(etLost + lostOf(u)) > cap) continue;
+    u.status = 'missing';
+    u.mistakeType = 'presentation';
+    n += 1;
+  }
+  return n;
+}
+
+/* ── GRADER-BALANCE-1 · OWNER RULING 5 NOV 2026 · CHEMICAL-EQUATION BALANCING ─────────────────────
+   "Grade a little stricter than a CBSE examiner": CBSE schemes give balancing at most ½ per equation
+   (often 0), so a REACTION written with the right species and never balanced loses EXACTLY ½, ONCE per
+   reaction across the whole answer, never more for balancing alone — and OUTSIDE the exam-technique cap
+   (coordinator ruling, 5 Nov 2026). The TYPE follows what the student WROTE:
+     (1) wrong species, or a formula / subscript changed to force a balance ⇒ conceptual (the species mark
+         follows the scheme — marks untouched here);
+     (2) coefficients written but wrong ⇒ calculation;
+     (3) correct species left skeletal ⇒ presentation BY DEFAULT; conceptual ONLY when the model quotes
+         (balancingEvidence) a DIFFERENT reaction elsewhere on the paper that the reader CONFIRMS the student
+         tried and failed to balance (coefficients written, unbalanced, never balanced anywhere).
+   A question that PRINTS the skeletal equation ("Balance: …"): the scheme's balancing mark stands (no cap);
+   copied back with no coefficients the task was not done ⇒ the step is unattempted (Not attempted).
+   EVERY ACTION NEEDS THE PAGE'S VERDICT (strict review of #1584): Science only; a reaction is acted on only
+   when chemEquation.cjs READS it and reads EVERY occurrence of that species set in the answer unbalanced (a
+   skeletal line followed by its balanced version is balanced work); the model's comment text is never a
+   trigger (only a BLOCKER: a species fault named on the same reaction stops the guard). A step is acted on
+   when its own work holds the reaction and is equation-only, or when the model TAGGED it (equationFault).
+   Steps sharing reactions are one group, charged ½ per reaction in the group: marks are given back down to
+   that, and — only where the model tagged the fault but left it uncharged — taken up to it. */
+const BALANCING_FAULTS = new Set(['wrong-coefficients', 'not-balanced']);
+const SPECIES_FAULTS = new Set(['wrong-species', 'formula-changed']);
+function equationFaultOf(v) {
+  const t = String(v == null ? '' : v).trim().toLowerCase();
+  return R.EQUATION_FAULTS.includes(t) ? t : null;
+}
+// BLOCKERS only: the model says a SPECIES / formula is wrong (case (1) — the balancing guard keeps out).
+const SPECIES_FAULT = /\b(?:incorrect|wrong|invalid)\s+(?:chemical\s+|product\s+|reactant\s+)?(?:formula|formulae|formulas|species|reactants?|products?|valency|symbols?)\b|\b(?:formula|formulae|species)\b[^.;,]*\b(?:incorrect|wrong|should\s+be)\b|\bvalency\s+error\b|\binstead\s+of\b|\b(?:subscript|formula)\s+(?:was\s+|is\s+)?(?:changed|altered)\b/i;
+const SUBSCRIPT_DIGITS = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9' };
+/** The model's comment NAMES a compound the student did not write ("Zinc chloride formula is ZnCl₂"). */
+function namesOtherFormula(text, studentFormulas) {
+  if (!studentFormulas || studentFormulas.size === 0) return false;
+  const tokens = String(text == null ? '' : text).normalize('NFKC').replace(/[₀-₉]/g, (d) => SUBSCRIPT_DIGITS[d] || d)
+    .match(/[A-Z][A-Za-z0-9()]*/g) || [];
+  return tokens.some((t) => {
+    const atoms = atomsOf(t);
+    return atoms && Object.values(atoms).reduce((a, b) => a + b, 0) >= 2 && !studentFormulas.has(t);
+  });
+}
+const SCIENCE_SUBJECT = /\b(?:science|chemistry|physics|biology)\b/i;
+const reactionKey = (e) => [...e.left].sort().join('+') + '>' + [...e.right].sort().join('+');
+// A step whose work is the equation(s) alone (a label, a short remark or "(balanced)" around it): its loss is the
+// equation's. A step that also carries prose may have lost marks for that prose — acted on only when TAGGED.
+function equationOnly(work) {
+  const rest = String(work || '').replace(/\([^()]*\)/g, ' ').replace(/[A-Z][A-Za-z0-9()[\]·.]*/g, ' ');
+  return (rest.match(/[a-z]{4,}/g) || []).length <= 3;
+}
+/** balancingEvidence PROVES inability (case (3) → conceptual), ALL of: ≥10 normalised characters, not a bare value,
+ *  not in the question text, not in this group's own work; the reader reads the QUOTE as ONE equation of a DIFFERENT
+ *  reaction, unbalanced WITH coefficients written; that reaction is balanced NOWHERE in the student's work; and the
+ *  quote is found verbatim in another step of this question or of another question of the same reply. The model's
+ *  tags are never evidence. */
+function inabilityProven(ev0, groupKeys, groupWork, allWork, questionText) {
+  const ev = normEvidence(ev0);
+  if (ev.replace(/\s/g, '').length < 10 || BARE_VALUE.test(ev)) return false;
+  const nq = normEvidence(questionText);
+  if (nq && nq.replace(/\s/g, '').includes(ev.replace(/\s/g, ''))) return false;
+  if (groupWork.some((w) => normEvidence(w).includes(ev))) return false;
+  const eqs = readEquations(ev0);
+  if (eqs.length !== 1 || eqs[0].balanced || !eqs[0].coefficientsWritten || groupKeys.has(reactionKey(eqs[0]))) return false;
+  const k = reactionKey(eqs[0]);
+  if (allWork.some((w) => readEquations(w).some((e) => e.balanced && reactionKey(e) === k))) return false;
+  return allWork.some((w) => normEvidence(w).includes(ev));
+}
+function applyBalancingRuling(steps, { q, siblings, subject } = {}) {
+  const out = { capped: 0, charged: 0, retyped: 0, unattempted: 0 };
+  // Science: the question's / paper's / model's subject says so — or, where none is given (a paper's stored
+  // replies predate the per-question subject), the reader itself reads a chemical equation in the answer. A
+  // question explicitly Maths is never touched (the reader gives no verdict on a maths line anyway).
+  const subj = String(subject || '');
+  if (/\bmath/i.test(subj)) return out;
+  const live = steps.filter((s) => s.status !== 'withdrawn' && s.status !== 'unattempted');
+  // with NO subject only an ARROW makes a chemical equation ("CO = 2OC" in a geometry answer is not one);
+  // a Science question keeps "=" as an arrow (delta review of #1584)
+  const bySubject = SCIENCE_SUBJECT.test(subj);
+  const read = (w) => readEquations(w).filter((e) => bySubject || e.viaArrow);
+  if (!bySubject && !live.some((s) => read(s.studentWork).length > 0)) return out;
+  const questionText = String((q && (q.questionText || q.question)) || '');
+  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded));
+  const eqsOf = new Map(live.map((s) => [s, read(s.studentWork)]));
+  const printedKeys = new Set(readEquations(questionText.replace(/[:;,]\s*/g, '\n')).map(reactionKey));
+  // every reading of each reaction in the answer, and whether ANY of them balances
+  const balancedKeys = new Set();
+  const attemptedKeys = new Set();
+  for (const [, eqs] of eqsOf) for (const e of eqs) { if (e.balanced) balancedKeys.add(reactionKey(e)); if (e.coefficientsWritten) attemptedKeys.add(reactionKey(e)); }
+  const studentFormulas = new Set([...eqsOf.values()].flat().flatMap((e) => e.left.concat(e.right)));
+  const speciesBlocked = (t) => SPECIES_FAULTS.has(t._equationFault)
+    || (t.status !== 'correct' && (SPECIES_FAULT.test([t.teacherAnnotation, t.correctedWorking].join(' . ')) || namesOtherFormula(t.teacherAnnotation, studentFormulas)));
+  // case (1) by the model's tag, on a step whose own work the reader reads: conceptual (marks untouched)
+  for (const s of live) {
+    if (SPECIES_FAULTS.has(s._equationFault) && lostOf(s) > 0 && eqsOf.get(s).length && s.mistakeType !== 'conceptual') { s.mistakeType = 'conceptual'; out.retyped += 1; }
+  }
+  // the reactions each step stands for: its own (equation-only, or tagged), or — a TAGGED split "balancing" step
+  // with no equation of its own — the nearest earlier step of the same part that holds one
+  const keysOf = new Map();
+  live.forEach((s, at) => {
+    if (SPECIES_FAULTS.has(s._equationFault)) return;
+    const tagged = BALANCING_FAULTS.has(s._equationFault);
+    let eqs = eqsOf.get(s);
+    if (eqs.length && !tagged && !equationOnly(s.studentWork)) return;
+    if (!eqs.length && tagged) {
+      for (let j = at - 1; j >= 0; j -= 1) {
+        if (partKey(live[j].part) !== partKey(s.part)) continue;
+        if (eqsOf.get(live[j]).length) { eqs = eqsOf.get(live[j]); break; }
+      }
+    }
+    if (eqs.length) keysOf.set(s, new Set(eqs.map(reactionKey)));
+  });
+  // groups: steps joined by a shared reaction
+  const groups = [];
+  for (const [s, keys] of keysOf) {
+    const hit = groups.filter((g) => [...keys].some((k) => g.keys.has(k)));
+    const g = { keys: new Set(keys), steps: [s] };
+    for (const h of hit) { h.keys.forEach((k) => g.keys.add(k)); g.steps.push(...h.steps); groups.splice(groups.indexOf(h), 1); }
+    groups.push(g);
+  }
+  const allWork = live.map((t) => t.studentWork).concat((Array.isArray(siblings) ? siblings : []).map((t) => t.studentWork));
+  for (const g of groups) {
+    const keys = [...g.keys];
+    // the page's verdict: every reaction of the group read UNBALANCED everywhere, no species fault on it
+    if (keys.some((k) => balancedKeys.has(k))) continue;
+    if (g.steps.some(speciesBlocked)) continue;
+    const gs = live.filter((t) => g.steps.includes(t)); // page order
+    const printed = keys.every((k) => printedKeys.has(k));
+    if (!printed && keys.some((k) => printedKeys.has(k))) continue; // a mix: not decidable here
+    const attempted = keys.some((k) => attemptedKeys.has(k));
+    if (printed && !attempted) {
+      // the printed equation copied back unbalanced: the task was not done — Not attempted (never a type)
+      for (const t of gs) {
+        if (!(lostOf(t) > 0) || t.marksAwarded !== 0) continue;
+        t.status = 'unattempted'; t.mistakeType = null; t.marksDeducted = half(t._available || 0); out.unattempted += 1;
+      }
+      continue;
+    }
+    if (!printed) {
+      const cap = half(0.5 * keys.length);
+      let lost = half(gs.reduce((a, t) => a + lostOf(t), 0));
+      if (lost > cap) {
+        // give back from the largest losses first, down to ½ per reaction
+        for (const t of [...gs].sort((a, b) => lostOf(b) - lostOf(a))) {
+          if (!(lost > cap)) break;
+          const back = giveBack(t, Math.min(half(lost - cap), lostOf(t)));
+          if (!(back > 0)) continue;
+          lost = half(lost - back);
+          t.teacherAnnotation = (String(t.teacherAnnotation || '').replace(/^\s*(?:✓|✔|×|✗|✘)\s*/, t.marksAwarded > 0 ? '½ ' : '× ').replace(/\s*$/, '') + ' ' + R.BALANCING_CAP_ANNOTATION).trim();
+          out.capped += 1;
+        }
+      } else if (lost < cap) {
+        // a fault the model TAGGED but left uncharged (or under-charged): up to ½ per reaction, tagged steps only
+        for (const t of gs) {
+          if (!(lost < cap) || !BALANCING_FAULTS.has(t._equationFault)) continue;
+          const take = Math.min(half(cap - lost), half(t.marksAwarded));
+          if (!(take > 0)) continue;
+          t.marksAwarded = half(t.marksAwarded - take);
+          t.marksDeducted = half(Math.max(0, (t._available || 0) - t.marksAwarded));
+          lost = half(lost + take);
+          t.teacherAnnotation = (String(t.teacherAnnotation || '').replace(/^\s*(?:✓|✔)\s*/, '').replace(/\s*$/, '') + ' ' + R.BALANCING_CHARGE_ANNOTATION).trim();
+          out.charged += 1;
+        }
+      }
+    }
+    // the type, by what was written and by evidence only
+    const proven = !attempted && gs.some((t) => t._balancingEvidence && inabilityProven(t._balancingEvidence, g.keys, gs.map((x) => x.studentWork), allWork, questionText));
+    const type = attempted ? 'calculation' : (proven ? 'conceptual' : 'presentation');
+    for (const t of gs) {
+      if (!(lostOf(t) > 0)) continue;
+      if (t.mistakeType !== type) { t.mistakeType = type; out.retyped += 1; }
+      if (t.status === 'correct') t.status = t.marksAwarded > 0 ? 'partial' : 'incorrect';
+      else if (t.status === 'incorrect' && t.marksAwarded > 0) t.status = 'partial';
+      // BAL-1 is outside the exam-technique cap (capExamTechnique / countsTowardCap)
+      if (!printed) t._balancing = true;
+    }
+  }
+  return out;
+}
+
+/* ── MISSING-TYPE-1 — NO LOST MARK LEAVES THE GRADER WITHOUT A REASON IT CAN NAME ──────────────
+   Live 5 Nov 2026 (production after #1575): (1) Answer Checker multi, WS-M-MIX-02 Q25(i) — the asked-for
+   reason left blank came back "missing", untyped, 0/½, and the scorecard said "Marks lost, reason not
+   recorded" while the SAME shape in Q24(i) said "Not attempted"; (2) Answer Checker single, typed — "Which
+   term of the AP 5, 8, 11, 14, … is 47? Show your working." answered "47 is the 15th term.": the two working
+   steps came back blank and untyped, the step rows said "Not attempted" (lib/mistakeDisplay.ts stepDisplay
+   shows an untyped "missing" step so) and "Where your marks went" said "reason not recorded · 1½". The SERVER
+   was the cause on both paths: an untyped "missing" deduction lands in marksLostByType.untyped.
+
+   OWNER RULING 5 Nov 2026 (14:04) — WORKING NOT SHOWN. When the answer is attempted and a LATER step of the
+   same part is right, an intermediate WORKING step left blank is "missing", typed exam technique
+   ("presentation": show your working), and its marks are lost as a CBSE examiner would take them. It is
+   EXCLUDED from the A17 ruling-B exam-technique cap (the cap stays for format slips: units, labels, state
+   symbols, the medium) — the cap never gives back marks for working not shown. Both shapes: the gap
+   (#1575's Q15: attempted work before AND a right step after) and "final answer only" (nothing attempted
+   before the blank; the blank's description names WORKING — owner key owner-anomaly-02 row 5: "47" only,
+   no working → presentation). UNCHANGED: a separately ASKED deliverable left blank — a reason /
+   justification / verification without #1575's proof of knowledge, a diagram, a named part — and a blank
+   whole answer stay "unattempted" (GQ1-WS02-Q24, GS-M22-a, OA2 Q22 keys). Objective items: untouched. */
+const WORKING_STEP = /\b(?:formula\w*|relation(?:ship)?s?|substitut\w*|solv\w*|simplif\w*|calculat\w*|comput\w*|working|method|deriv\w*|expan(?:d|sion)\w*|factori[sz]\w*|eliminat\w*|rearrang\w*|set(?:ting)? up)\b|\bidentif\w*\s+(?:of\s+)?(?:a\b|d\b|values?\b|the values?\b|the given\b)/i;
+/** The blank WORKING steps of a subjective answer (owner ruling 5 Nov 2026, 14:04), by the rules above. Every
+ *  condition must hold: the step's own work is EMPTY and it earned nothing; it is "missing" or "unattempted",
+ *  untyped or typed exam technique; its description names no reason / justification / verification, no
+ *  diagram and no part; a LATER step of the same part is CORRECT with work in it; and EITHER attempted work of
+ *  the part comes before it (the gap) OR its description names working (WORKING_STEP). Unlabelled steps are
+ *  one group only where no step carries a part label and the question text shows no sub-parts; a question
+ *  that exists only in the photo needs WORKING_STEP even for a gap. */
+function workingNotShown(steps, q, { preCap = false } = {}) {
+  const out = new Set();
+  const live = steps.filter((s) => s.status !== 'withdrawn');
+  const anyLabelled = live.some(hasPartLabel);
+  const questionText = String((q && (q.questionText || q.question)) || '');
+  const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
+  // #1583 (GRADER-CREDIT-1) gives an equal final answer in another form its mark back AFTER the cap (step 6). Before the
+  // cap (`preCap`), a final answer that equals the stored key the way restoreEquivalentFinalAnswer reads it counts as
+  // right, so the cap never gives back marks for working not shown that 7d will then type; 7d re-decides on final state.
+  const lastWorked = [...live].reverse().find((s) => String(s.studentWork || '').trim()) || null;
+  const answerEqualsKey = Boolean(preCap && lastWorked && q && String(q.finalAnswer || '').trim()
+    && equivalentFinalValue(lastWorked.studentWork, q.finalAnswer, { requireWorking: true }) === 'equivalent');
+  for (const u of live) {
+    // review (lower priority): a blank step the model judged "incorrect" is handled like missing / unattempted here —
+    // a correct step after it shows the answer was reached, so it is not a bare wrong answer (§4.1).
+    if (!['missing', 'unattempted', 'incorrect'].includes(u.status) || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status)) continue;
+    if (u.mistakeType && u.mistakeType !== 'presentation') continue;
+    const desc = String(u.description || '');
+    if (KNOWLEDGE_STEP.test(desc) || DIAGRAM_STEP.test(desc) || PART_NAMED.test(desc) || askedByQuestion(desc, questionText)) continue;
+    if (partKey(u.part) === '' && (anyLabelled || SUB_PART_MARKER.test(questionText))) continue;
+    const at = live.indexOf(u);
+    const group = live.filter((s) => s !== u && partKey(s.part) === partKey(u.part));
+    const laterRight = group.some((s) => live.indexOf(s) > at && nonAttemptText(s.studentWork) === null && !isBlankWork(s.studentWork, s.status)
+      && (s.status === 'correct' || (preCap && s === lastWorked && answerEqualsKey)));
+    if (!laterRight) continue;
+    const before = group.some((s) => live.indexOf(s) < at && ATTEMPTED_STATUSES.has(s.status));
+    if (!(WORKING_STEP.test(desc) || (before && realQuestion))) continue;
+    out.add(u);
+  }
+  return out;
+}
+const tagWorkingNotShown = (s) => Object.defineProperty(s, '_workingNotShown', { value: true, writable: true, enumerable: false, configurable: true });
+
+/** GRADER-CONSEQUENTIAL-1 (D242, D248 ruling 1), moved verbatim out of step 10 so MISSING-TYPE-1 can see which
+ *  untyped loss already follows an earlier typed error: a deducting step with no type inherits the type of the
+ *  NEAREST EARLIER typed step of the same part that lost marks (`_consequentialOrigin`). No mark, status or type
+ *  changes. 'presentation' is never an origin. */
+const isTypedOrigin = (zeroedBy) => (t, j) => Boolean(t.mistakeType) && t.mistakeType !== 'presentation' && t.marksDeducted > 0 && !zeroedBy.has(j) && !t._ecf
+  && t.status !== 'unattempted' && t.status !== 'withdrawn';
+function assignConsequentialOrigins(steps, zeroedBy) {
+  const origin = isTypedOrigin(zeroedBy);
+  steps.forEach((s, i) => {
+    if (zeroedBy.has(i) || s._ecf || s.mistakeType || !(s.marksDeducted > 0) || s.status === 'unattempted' || s.status === 'withdrawn') return;
+    // D248 ruling 1: an omitted line (`missing`) follows an earlier error ONLY if no fully-credited step of the part lies
+    // between them - an omission after correct working is a separate loss. Lost working steps keep the nearest-earlier rule.
+    let creditedBetween = false;
+    for (let j = i - 1; j >= 0; j -= 1) {
+      if (partKey(steps[j].part) !== partKey(s.part)) continue;
+      if (origin(steps[j], j)) { if (!(s.status === 'missing' && creditedBetween)) s._consequentialOrigin = steps[j]; break; }
+      if (steps[j].status === 'correct' && steps[j]._available > 0 && steps[j].marksAwarded >= steps[j]._available) creditedBetween = true;
+    }
+  });
+}
+
+/** MISSING-TYPE-1 · the untyped exits left after every other rule (marks are final; types and statuses only):
+ *   - a BLANK step that earned nothing (a separately asked deliverable not written — Q25's reason) becomes
+ *     `unattempted`, as GQ1-WS02-Q24 is; #1575's omissionsInAttemptedWork then decides it again (`only`), so a
+ *     blank reason WITH proof of knowledge is still exam technique — #1575 takes precedence;
+ *   - any other untyped loss (a step WITH work, or a blank one the model judged "incorrect") is NOT given a guessed type (CLAUDE.md 13: no deterministic signal
+ *     exists beyond the arithmetic check and GRADER-CONSEQUENTIAL-1, which have already run): it stays in
+ *     `untyped` — the codebase's honest default ("Marks lost, reason not recorded") — and is COUNTED for admin
+ *     (`grading.untyped_loss.kept_untyped`, routes/adminTelemetry.cjs `untypedLoss`).
+ *  Skips: a departure's zeroed work and ECF steps (charged on the departure), a loss that already follows a typed
+ *  error (`_consequentialOrigin`), a departure step itself. Returns the counts. */
+function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
+  const blank = [];
+  let keptUntyped = 0;
+  steps.forEach((s, i) => {
+    if (zeroedBy.has(i) || s._ecf || s.mistakeType || s._consequentialOrigin || s.isDeparture || !(s.marksDeducted > 0)
+      || s.status === 'unattempted' || s.status === 'withdrawn') return;
+    // only a "missing" step: a blank "incorrect" one stays as the model judged it (a bare wrong answer it did not
+    // quote is still an attempt — markGenuinelyUnattempted, checkSolution.test.cjs §4.1).
+    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status))) { s.status = 'unattempted'; blank.push(s); }
+    else keptUntyped += 1;
+  });
+  if (blank.length) omissionsInAttemptedWork(steps, { q, totalMarks, only: new Set(blank) });
+  const toExamTechnique = blank.filter((s) => s.mistakeType === 'presentation').length;
+  return { toUnattempted: blank.length - toExamTechnique, toExamTechnique, keptUntyped };
+}
+function countUntyped(kind, n) {
+  if (!(n > 0)) return;
+  try { require('../telemetry.cjs').increment('grading.untyped_loss.' + kind, n); } catch { /* telemetry never changes a grade */ }
 }
 
 /* ── rubric (C7) ─────────────────────────────────────────────────────────── */
@@ -714,6 +1163,13 @@ function normaliseSteps(rawSteps) {
         departureKind: VALID_KINDS.has(s.departureKind) ? s.departureKind : null,
         isReturn: s.isReturn === true,
       };
+      // GRADER-QUALITY-1 (owner ruling 5 Nov 2026): the model's quote of the student's proof of knowledge for a
+      // BLANK reason step — internal only (never emitted), read by omissionsInAttemptedWork.
+      Object.defineProperty(step, '_knowledgeEvidence', { value: typeof s.knowledgeEvidence === 'string' ? s.knowledgeEvidence.trim() : '', writable: true, enumerable: false });
+      // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): the model's chemical-equation fault for this step and its quote of
+      // a failed balancing attempt elsewhere — internal only (never emitted), read by applyBalancingRuling.
+      Object.defineProperty(step, '_equationFault', { value: equationFaultOf(s.equationFault), writable: true, enumerable: false });
+      Object.defineProperty(step, '_balancingEvidence', { value: typeof s.balancingEvidence === 'string' ? s.balancingEvidence.trim() : '', writable: true, enumerable: false });
       // What the step could earn, by the model's own ledger when it did not say.
       step._available = step.marksAvailable != null ? step.marksAvailable : half(marksAwardedModel + marksDeductedModel);
       if (status === 'withdrawn') {
@@ -772,6 +1228,84 @@ function rubricStatesValue(point, rightRaw) {
   return new RegExp('(?<![\\d./])' + esc + '(?![\\d./])').test(String(point || '').replace(/[−–—]/g, '-'));
 }
 
+/* ── GRADER-CREDIT-1 · AN EQUAL FINAL ANSWER IN ANOTHER FORM KEEPS ITS MARK (owner ruling B, 5 Nov 2026) ──
+   CBSE ticks an answer EQUAL to the key in another form: 45/48 for 15/16 (2025 Maths 30/6/2 Q22, model answer
+   book p.7), 4.5 A for 4.54 A (2025 Science 31/1/3 Q37(b), p.28). The prompt says so (rules.cjs
+   EQUIVALENT_ANSWERS_PROMPT); this guard makes it hold where the model still marks such a final answer wrong.
+   It can ONLY GIVE BACK — it never lowers a mark, a status or a type — and it fires only when ALL hold:
+     - a stored key exists (q.finalAnswer) and the question does NOT demand a form (FORM_DEMANDED: simplify,
+       lowest terms, "correct to N decimal places", nearest, "in terms of π", "express as" …) — where it does,
+       the model's verdict stands (ruling B: enforce a demanded form);
+     - no departure, no fudged step and no arithmetic flag in the question (a value reached through a broken
+       line is not "equal by another method");
+     - the final step (the last one with the student's work) lost marks, was not zeroed, is NOT typed
+       "presentation" or "conceptual", and its annotation complains about the form, the rounding or the final
+       value (VALUE_COMPLAINT) — never about stating, rejecting, justifying or working (NOT_A_VALUE_COMPLAINT),
+       a unit, a label or the language; when typed "calculation"/"silly", its work is ONE line;
+     - the step's final value AND the model's quoted studentFinalAnswer (when given) are each EQUAL to the key
+       (verify.cjs equivalentFinalValue: exact, or within the rounding of the less precise decimal and 1%;
+       a one-line key; the same variable), AND the student's own working on that line gives the key's value
+       (requireWorking: "900/200 = 4.5 A" is a wrong substitution, never given back for 4.54 A).
+   A presentation-typed "simplify" loss is left to the prompt rule (EQUIVALENT ANSWERS), not this guard.
+   Then that step earns what it could earn, untyped, with one true comment, and the final answer counts as
+   correct (the "wrong final answer" cap no longer applies). Where the final step lost NOTHING and only the
+   model's "final answer wrong" verdict stands against it, that verdict is overruled only on a question
+   without parts (in a multi-part question it may be about another part's answer) whose every step earned
+   in full (so that verdict alone held the mark down).
+   No stored key → no guard: the Answer Checker (single and multi) sends none, so there the prompt rule
+   alone decides (rulings.surfaces.suite.cjs pins which surfaces carry a key). */
+const FORM_DEMANDED = new RegExp([
+  /\bsimplif(?:y|ied|ication)\b/, /\blowest terms?\b/, /\b(?:simplest|reduced|standard|surd|fraction(?:al)?|decimal|exponential|scientific|rational(?:ised|ized)?|lowest)\s+form\b/,
+  /\bcorrect(?:ed)?\s+(?:up\s*)?to\b/, /\bup\s*to\s+(?:\w+\s+)?(?:decimal|place|significant)/, /\bround(?:ed|ing)?(?:\s+off)?\b/, /\bdecimals?\b/, /\bplaces?\s+of\s+decimals?\b/,
+  /\bsignificant\s+(?:figures?|digits?)\b/, /\bapprox\w*/, /\b(?:\d+|one|two|three|four)\s+places?\b/, /\b\d+\s*(?:d\.\s*p|s\.\s*f)\b/, /\bnearest\b/, /\bin terms of\b/, /\bin the form\b/,
+  /\bexpress\w*\b[^.?]*\b(?:as|in)\b/, /\bas an? (?:fraction|mixed (?:number|fraction)|percentage|whole number|integer)\b/, /\brationali[sz]/,
+].map((r) => r.source).join('|'), 'i');
+// Review round 1 (#1583, item 2): the guard gives back ONLY a loss whose complaint is about the FORM, the ROUNDING
+// or the final VALUE itself — never a presentation-typed loss (units, format, working: not this guard's business),
+// and never a complaint about stating / rejecting / justifying (a word problem's "say which root fits").
+// Delta review (#1583, a7efcb2b): ONLY a complaint about the FORM of a right value — simplification, rounding,
+// decimals, fractions, approximation, an equivalent form. A digit is not a complaint ("side = √16 = 4 cm, not
+// 16/4" is a METHOD complaint), and any method word blocks the give-back.
+const VALUE_COMPLAINT = /\b(?:simplif\w*|unsimplified|lowest terms|simplest|reduc\w*|round\w*|decimals?|fraction\w*|approximat\w*|equivalent|places?)\b/i;
+const NOT_A_VALUE_COMPLAINT = /\b(?:state[sd]?|stating|reject\w*|which root|context|fits?|natural number|justif\w*|reason\w*|conclu\w*|explain\w*|working|steps?|shown?|method|not|instead|formula|wrong|should|incorrect)\b|√/i;
+const EQUIVALENT_FORM_NOTE_CLAIM = /\b(?:simplif\w*|lowest terms|simplest form|round(?:ed|ing)?|decimal places?)\b|\bfinal answer\b[^.]*\b(?:incorrect|wrong|not (?:correct|right)|does not match)\b/i;
+function restoreEquivalentFinalAnswer(steps, { q, raw, zeroedBy, finalAnswerCorrect }) {
+  if (!q || !String(q.finalAnswer || '').trim()) return null;
+  if (FORM_DEMANDED.test(String(q.questionText || q.question || ''))) return null;
+  let at = -1;
+  for (let i = steps.length - 1; i >= 0; i -= 1) {
+    if (steps[i].status !== 'withdrawn' && String(steps[i].studentWork || '').trim()) { at = i; break; }
+  }
+  if (at < 0 || zeroedBy.has(at)) return null;
+  const s = steps[at];
+  const lostHere = half(s._available - s.marksAwarded) > 0;
+  if (!lostHere && finalAnswerCorrect !== false) return null;
+  // Nothing to give back on the step itself: the model's "final answer wrong" verdict is overruled only for a
+  // question WITHOUT parts (none labelled, none printed) — in a multi-part question that verdict may be about
+  // another part's answer — and only where every step earned in full, so that verdict alone held the mark down.
+  if (!lostHere && (steps.some((t) => t.part != null) || SUB_PART_MARKER.test(String(q.questionText || q.question || ''))
+    || !steps.every((t) => t.status === 'withdrawn' || t.marksAwarded >= t._available))) return null;
+  if (!['correct', 'partial', 'incorrect'].includes(s.status) || s._flagged || s._ecf) return null;
+  if (s.mistakeType === 'conceptual' || s.mistakeType === 'presentation') return null;
+  const why = [s.teacherAnnotation, s.correctedWorking].join(' . ');
+  if (UNIT_LOSS.test(why) || /\bwrite the unit\b/i.test(why) || OTHER_FORMAT_FAULT.test(why) || LANGUAGE_LOSS.test(why) || TERMINOLOGY_LOSS.test(why)) return null;
+  if (lostHere && (!VALUE_COMPLAINT.test(String(s.teacherAnnotation || '')) || NOT_A_VALUE_COMPLAINT.test(String(s.teacherAnnotation || '')))) return null;
+  if ((s.mistakeType === 'calculation' || s.mistakeType === 'silly') && /\n/.test(String(s.studentWork).trim())) return null;
+  if (falseEqualities(s.studentWork, { quoted: true, source: q.textAnswer }).length) return null;
+  if (equivalentFinalValue(s.studentWork, q.finalAnswer, { requireWorking: true }) !== 'equivalent') return null;
+  const quoted = String((raw && raw.studentFinalAnswer) || '').trim();
+  if (quoted && equivalentFinalValue(quoted, q.finalAnswer) !== 'equivalent') return null;
+  if (lostHere) {
+    s.marksAwarded = s._available;
+    s.marksDeducted = 0;
+    s.status = 'correct';
+    s.mistakeType = null;
+    s.correctedWorking = null;
+    s.teacherAnnotation = '✓ ' + R.EQUIVALENT_FINAL_ANSWER_ANNOTATION;
+  }
+  return { index: at, stepRestored: lostHere };
+}
+
 /* ── the one normaliser ────────────────────────────────────────────────────── */
 
 /**
@@ -793,10 +1327,50 @@ function objectiveOffersOptions(q) {
   const t = String(q.format || q.qType || '').toLowerCase();
   if (t === 'mcq' || t === 'ar' || t === 'assertionreason' || t === 'assertion-reason') return true;
   const text = String(q.questionText || q.question || '');
-  if (/\bassertion\b/i.test(text) && /\breason\b/i.test(text)) return true;
-  const letters = new Set();
-  for (const m of text.matchAll(/\(\s*([a-dA-D])\s*\)/g)) letters.add(m[1].toLowerCase());
-  return letters.size >= 2;
+  // GRADE-MARKS-1 (S2) · read from the TEXT only when it really is a printed option list:
+  //   Assertion-Reason needs BOTH "Assertion (A)" and "Reason (R)" ("give a reason for the assertion
+  //   that …" is a written question);
+  //   otherwise ONE label style printed as an option list:
+  //   · letters "(a)", "a)", "a."/"A." — all FOUR, a b c d, in order (a CBSE MCQ prints four; "Prove
+  //     that a) … and b) …" has two), the first not an instruction ("a) Find the HCF … b) Hence …" is
+  //     sub-parts). NO length cap: a Science MCQ's options are often full sentences;
+  //   · "(i)" / "(1)" — at least three in order, each TERSE (≤ 40 chars) and none an instruction
+  //     ("(i) Find the distance. (ii) Find the angle." is a case study's parts).
+  if (/\bassertion\s*\(\s*a\s*\)/i.test(text) && /\breason\s*\(\s*r\s*\)/i.test(text)) return true;
+  return OPTION_LIST_STYLES.some((style) => isOptionList(text, style));
+}
+
+const OPTION_INSTRUCTION = /^(?:find|prove|show|state|define|explain|calculate|hence|give|write|draw|name|determine|evaluate|solve|derive|justify|describe|list|compare|verify|construct)\b/i;
+const ROMAN_INDEX = { i: 0, ii: 1, iii: 2, iv: 3 };
+/** Each label style: its marker pattern (group 1 = the label) and the label's position (0 = first option). */
+const LETTER = (l) => 'abcd'.indexOf(l.toLowerCase());
+const OPTION_LIST_STYLES = [
+  { re: /\(\s*([a-d])\s*\)/gi, index: LETTER, letters: true },
+  { re: /(?:^|[\s:;,?])([a-d])\)(?=\s)/gi, index: LETTER, letters: true },
+  { re: /(?:^|[\s:;,?])([a-d])\.(?=\s)/gi, index: LETTER, letters: true },
+  { re: /\(\s*(i{1,3}|iv)\s*\)/gi, index: (l) => ROMAN_INDEX[l.toLowerCase()], letters: false },
+  { re: /\(\s*([1-4])\s*\)/g, index: (l) => Number(l) - 1, letters: false },
+];
+
+/** True when `text` holds an option list in this one label style (see objectiveOffersOptions). */
+function isOptionList(text, style) {
+  const marks = [...text.matchAll(style.re)].map((m) => ({ i: style.index(m[1]), start: m.index, end: m.index + m[0].length }));
+  const need = style.letters ? 4 : 3;
+  if (marks.length < need) return false;
+  // the first markers, in order, label the first, second, third (and, for letters, fourth) option
+  for (let k = 0; k < need; k += 1) if (marks[k].i !== k) return false;
+  const optionText = (k) => text.slice(marks[k].end, k + 1 < marks.length ? marks[k + 1].start : text.length)
+    .replace(/\[\s*\d+\s*\]\s*$/, '').trim();
+  if (style.letters) {
+    // no length cap (a Science option is often a sentence); the FIRST option must not be an instruction
+    const first = optionText(0);
+    return Boolean(first) && !OPTION_INSTRUCTION.test(first);
+  }
+  for (let k = 0; k < marks.length; k += 1) {
+    const opt = optionText(k);
+    if (!opt || opt.length > 40 || OPTION_INSTRUCTION.test(opt)) return false;
+  }
+  return true;
 }
 
 function normaliseQuestionResult(q, raw, ctx = {}) {
@@ -975,6 +1549,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     }
   }
   applyObjectiveMistakeGuard(steps, { objective: questionIsObjective, options: q.options, typedAnswer: q.textAnswer });
+  // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): ½ per unbalanced equation, typed by what the student wrote
+  // (applyBalancingRuling). Before the units / medium rulings and the exam-technique cap, which then count it.
+  if (!questionIsObjective) applyBalancingRuling(steps, { q, siblings: ctx.siblings, subject: ctx.subjectHint || raw.subject || q.subject });
   // A17 ruling 1, deterministic: a missing/wrong unit costs exactly ½ once per question, in Maths
   // AND Science, never on a pure number, and says so in one fixed comment (applyUnitRuling).
   const unitRuling = questionIsObjective ? { charged: 0, restored: 0 } : applyUnitRuling(steps, q);
@@ -982,6 +1559,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // one fixed comment; no other language deduction stands (applyMediumRuling).
   const mediumRuling = questionIsObjective ? { medium: null, charged: 0, restored: 0 } : applyMediumRuling(steps, q, raw);
   // A17 owner ruling B: all exam-technique (presentation) deductions of one answer ≤ 1 (½ on a 1-mark answer).
+  // MISSING-TYPE-1: blank WORKING steps (owner ruling 5 Nov 2026, 14:04) are marked first, so the cap leaves them out.
+  if (!questionIsObjective) for (const s of workingNotShown(steps, q, { preCap: true })) tagWorkingNotShown(s);
   if (!questionIsObjective) capExamTechnique(steps, totalMarks);
   const languageRestored = mediumRuling.restored;
 
@@ -1142,6 +1721,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   else if (raw.finalAnswerCorrect === false || raw.finalAnswerCorrect === 'false') finalAnswerCorrect = false;
   else finalAnswerCorrect = steps.length ? steps[steps.length - 1].status === 'correct' : false;
 
+  // GRADER-CREDIT-1 (owner ruling B, 5 Nov 2026): a final answer EQUAL to the stored key in another form
+  // (45/48 for 15/16; 4.5 A for 4.54 A) keeps its mark where no form was demanded. Only ever gives back.
+  let equivalentRestored = null;
+  if (!questionIsObjective && departures.length === 0 && !fudged && arithmeticFlags === 0) {
+    equivalentRestored = restoreEquivalentFinalAnswer(steps, { q, raw, zeroedBy, finalAnswerCorrect });
+    if (equivalentRestored) finalAnswerCorrect = true;
+  }
+
   let marksAwarded;
   let keyCheck = 'skip';
   if (questionIsObjective) {
@@ -1265,6 +1852,30 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     });
   }
 
+  // 7c · GRADER-QUALITY-1 (D1): an omitted step inside attempted work is "missing" (typed
+  //      exam technique where it fits), never "unattempted". After every mark is final: types only.
+  if (!questionIsObjective) omissionsInAttemptedWork(steps, { q, totalMarks });
+
+  // 7d · MISSING-TYPE-1 (owner ruling 5 Nov 2026, 14:04): a blank WORKING step before a right step is "missing",
+  //      typed exam technique, its marks lost (never capped). After every mark is final: status and type only.
+  // 7e · MISSING-TYPE-1: the untyped exits left — a blank deliverable is "unattempted" (#1575 decides it again);
+  //      untyped work stays "reason not recorded" and is counted for admin. GRADER-CONSEQUENTIAL-1's origins are
+  //      assigned between the two (moved here from step 10, unchanged) so a loss that follows a typed error keeps it.
+  let untypedSettled = { toUnattempted: 0, toExamTechnique: 0, keptUntyped: 0 };
+  let workingFlipped = 0;
+  if (!questionIsObjective) {
+    const wns = workingNotShown(steps, q);
+    // review (lower priority): a step tagged before the cap that later processing took out of the shape loses the tag.
+    for (const s of steps) if (s._workingNotShown && !wns.has(s)) s._workingNotShown = false;
+    for (const s of wns) {
+      if (s.status !== 'missing' || s.mistakeType !== 'presentation') workingFlipped += 1;
+      s.status = 'missing'; s.mistakeType = 'presentation';
+      tagWorkingNotShown(s);
+    }
+    assignConsequentialOrigins(steps, zeroedBy);
+    untypedSettled = settleUntypedLosses(steps, { q, totalMarks, zeroedBy });
+  }
+
   // 8 · comments made true
   const primaryDeparture = departures[0] || null;
   for (const s of steps) {
@@ -1292,6 +1903,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // not get full marks (live 2026-10-05, owner-anomaly-02 Q13: "Full marks … completely accurate"
   // beside 2/3). Such sentences go; a negated one ("not full marks") stays.
   if (marksAwarded < totalMarks) note = scrubSentences(note, FULL_MARKS_CLAIM);
+  // GRADER-CREDIT-1: once an equal final answer keeps its mark, a note calling it wrong / unsimplified / badly
+  // rounded is false — that sentence goes.
+  if (equivalentRestored) note = scrubSentences(note, EQUIVALENT_FORM_NOTE_CLAIM);
   if (languageRestored > 0) note = scrubSentences(note, LANGUAGE_ADVICE);
   // A17 ruling 1: a unit deduction given back in full (a pure number / an unnamed unit) leaves no
   // note sentence claiming it.
@@ -1344,19 +1958,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     // entries (built from steps that carry a type) are exactly what they were: one per error.
     // 'presentation' is never an origin: a format slip cannot make LATER working wrong (CLAUDE.md 13: anything that changes
     // whether the maths is right is not presentation) and A17 ruling B caps all presentation losses of one answer at 1.
-    const isTypedOrigin = (t, j) => Boolean(t.mistakeType) && t.mistakeType !== 'presentation' && t.marksDeducted > 0 && !zeroedBy.has(j) && !t._ecf
-      && t.status !== 'unattempted' && t.status !== 'withdrawn';
-    steps.forEach((s, i) => {
-      if (zeroedBy.has(i) || s._ecf || s.mistakeType || !(s.marksDeducted > 0) || s.status === 'unattempted' || s.status === 'withdrawn') return;
-      // D248 ruling 1: an omitted line (`missing`) follows an earlier error ONLY if no fully-credited step of the part lies
-      // between them - an omission after correct working is a separate loss. Lost working steps keep the nearest-earlier rule.
-      let creditedBetween = false;
-      for (let j = i - 1; j >= 0; j -= 1) {
-        if (partKey(steps[j].part) !== partKey(s.part)) continue;
-        if (isTypedOrigin(steps[j], j)) { if (!(s.status === 'missing' && creditedBetween)) s._consequentialOrigin = steps[j]; break; }
-        if (steps[j].status === 'correct' && steps[j]._available > 0 && steps[j].marksAwarded >= steps[j]._available) creditedBetween = true;
-      }
-    });
+    // GRADER-CONSEQUENTIAL-1's origins (`_consequentialOrigin`) are assigned at 7d-7e (assignConsequentialOrigins).
     steps.forEach((s, i) => {
       if (zeroedBy.has(i)) {
         const dep = steps[zeroedBy.get(i)];
@@ -1369,9 +1971,17 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     // a remainder with no step to carry it goes to the question's typed origin when the question has
     // exactly one such type; with none (or with several different ones: ambiguous) it stays untyped
     if (left > 0) {
-      const originTypes = [...new Set(steps.filter(isTypedOrigin).map((t) => t.mistakeType))];
+      const originTypes = [...new Set(steps.filter(isTypedOrigin(zeroedBy)).map((t) => t.mistakeType))];
       put(originTypes.length === 1 ? originTypes[0] : 'untyped', left);
     }
+  }
+  // MISSING-TYPE-1 · admin counters (closed set, no PII; routes/adminTelemetry.cjs `untypedLoss`). Observability only.
+  if (!questionIsObjective) {
+    countUntyped('working_not_shown', workingFlipped);
+    countUntyped('blank_to_unattempted', untypedSettled.toUnattempted);
+    countUntyped('blank_to_exam_technique', untypedSettled.toExamTechnique);
+    countUntyped('kept_untyped', untypedSettled.keptUntyped);
+    if (marksLostByType.untyped > 0) countUntyped('subjective_questions', 1);
   }
   const lostSum = half(Object.values(marksLostByType).reduce((a, b) => a + b, 0));
   if (Math.abs(lostSum - lost) > 1e-9) {
@@ -1431,6 +2041,10 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       notGraded: null,
     });
   }
+  // MCQ-KEY-TRUST-1 · observability only (admin; never a mark, never shown to a student): a key
+  // detect worked out disagreed with the grader's stated verdict, which decided the mark.
+  // Present only when true, so every other result is byte-identical.
+  if (objectiveVerdict && objectiveVerdict.derivedKeyDisagreed === true) out.derivedKeyDisagreed = true;
   Object.defineProperty(out, '_graded', { value: true });
   Object.defineProperty(out, '_reason', { value: 'graded' });
   // PR-3 (C9): a legacy client keeps today's 0 for an MCQ whose pick could not be read (the
@@ -1439,6 +2053,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   Object.defineProperty(out, '_finalAnswerCorrect', { value: finalAnswerCorrect });
   Object.defineProperty(out, '_keyCheck', { value: keyCheck });
   Object.defineProperty(out, '_arithmeticFlags', { value: arithmeticFlags });
+  Object.defineProperty(out, '_equivalentRestored', { value: Boolean(equivalentRestored) });
   return out;
 }
 
@@ -1455,6 +2070,8 @@ function pendingNote(q, modelNote) {
 
 module.exports = {
   normaliseQuestionResult,
+  // GRADE-MARKS-1 · read by the grade routes' objective-marks guard (routes/checkSolution.cjs).
+  objectiveOffersOptions,
   copiesScheme,
   gramContainment,
   stripAnswerLabel,
@@ -1462,6 +2079,10 @@ module.exports = {
   inventoryVerdict,
   inventoryStable,
   markGenuinelyUnattempted,
+  omissionsInAttemptedWork,
+  applyBalancingRuling,
+  restoreEquivalentFinalAnswer,
+  FORM_DEMANDED,
   nonAttemptText,
   isRealQuestionText,
   acceptedDepartures,

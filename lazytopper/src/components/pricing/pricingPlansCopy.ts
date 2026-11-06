@@ -91,7 +91,7 @@ export const CBQ_NOT_IN_BUNDLE = "Not in the Bundle.";
 export const SEE_INSIDE_LABEL = "See inside + free sample page";
 
 export function cbqBuyLabel(s: PackSubject): string {
-  // GST-EXCL-1: a buy button names the amount CHARGED (base + GST from 5 Nov 2026).
+  // GST-EXCL-1: a buy button names the amount CHARGED (base + GST from 7 Nov 2026).
   return `${subjectLabel(s)} CBQ · ${packPayLabel("pack_cbq")}`;
 }
 

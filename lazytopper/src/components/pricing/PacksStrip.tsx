@@ -33,7 +33,7 @@ const USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 
 /** The lowest pack price, for the sub line ("from ₹49"). */
 const FROM_PRICE = Math.min(...ITEMS.map((i) => PACK_PRICE_INR[i.sku]));
-/** GST-EXCL-1: "₹49" before the cut-off, "₹49 + GST" from 00:00 IST 5 Nov 2026 (read at render). */
+/** GST-EXCL-1: "₹49" before the cut-off, "₹49 + GST" from 00:00 IST 7 Nov 2026 (read at render). */
 const fromPriceTag = (): string => (boardPassGstExclusive(Date.now()) ? displayPlusGst(FROM_PRICE) : `\u20b9${FROM_PRICE}`);
 
 /**

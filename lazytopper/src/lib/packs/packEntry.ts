@@ -31,7 +31,7 @@ export type PackEntrySource = "download_wall" | "notes" | "footer" | "account" |
 
 /** Display price of one Chapter Pack, copy only (the server charges its own amount; a test pins this to the catalogue). */
 export const CHAPTER_PACK_PRICE_INR = 49;
-/** GST-EXCL-1: the Chapter Pack price TAG at render time ("₹49"; "₹49 + GST" from 00:00 IST 5 Nov 2026). */
+/** GST-EXCL-1: the Chapter Pack price TAG at render time ("₹49"; "₹49 + GST" from 00:00 IST 7 Nov 2026). */
 export function chapterPackPriceTag(now: Date | number = Date.now()): string {
   return displayPlusGst(CHAPTER_PACK_PRICE_INR, now);
 }

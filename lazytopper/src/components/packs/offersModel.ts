@@ -43,7 +43,7 @@ export interface OfferRow {
   line: string;
   /** "₹299" etc. */
   price: string;
-  /** GST-EXCL-1: what the Buy button names - the amount CHARGED (base + GST from 5 Nov 2026). */
+  /** GST-EXCL-1: what the Buy button names - the amount CHARGED (base + GST from 7 Nov 2026). */
   payPrice: string;
   priceInr: number;
   /** "BEST VALUE" (in the pre-boards season "PRE-BOARDS PICK") on the Bundle only. */

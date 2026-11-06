@@ -45,7 +45,7 @@ import DownloadLimitWall from "./DownloadLimitWall";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
 import LimitChip from "./LimitChip";
 import { blockedWallCopy, chipText, FIRST_FREE_CHIP, SIGNED_OUT_CHIP, wallOfferLines } from "./limitsCopy";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../../services/packs";
 
 const track = analytics.trackDownload as unknown as ReturnType<typeof vi.fn>;
@@ -92,7 +92,7 @@ describe("copy: numbers come from the server", () => {
 
 describe("wall offer: the Board Pass is the only plan named (PRICE-FIXED-1)", () => {
   it("the data carries the Board Pass at its fixed price and nothing else - on both sides of the old founding close", () => {
-    for (const [at, price, label] of [["2026-11-02T06:00:00Z", "₹1,917", "Founding member offer"], ["2026-12-02T06:00:00Z", "₹2,499 \\+ GST", null]] as const) { // GST-EXCL-1: "+ GST" from 5 Nov 2026
+    for (const [at, price, label] of [["2026-11-02T06:00:00Z", "₹1,917", "Founding member offer"], ["2026-12-02T06:00:00Z", "₹2,499 \\+ GST", null]] as const) { // GST-EXCL-1: "+ GST" from 7 Nov 2026
       const o = wallOfferLines(new Date(at));
       expect(Object.keys(o)).toEqual(["boardPass", "foundingLabel"]);
       expect(o.foundingLabel).toBe(label);

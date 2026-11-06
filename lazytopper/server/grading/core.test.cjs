@@ -502,7 +502,9 @@ test('§D29.1 genuinely UNATTEMPTED work is status "unattempted" (bucket unattem
     R(2, [S({ part: '(i)', marksAwarded: 2, marksAvailable: 2 }), S({ part: '(ii)', studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1 }), S({ part: '(ii)', studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1, mistakeType: 'conceptual' })]),
     // CONTROL (c): a missing CONCLUSION in attempted work, typed presentation — stays "missing" + presentation
     R(3, [S({ marksAwarded: 3, marksAvailable: 3 }), S({ studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1, mistakeType: 'presentation' })], { finalAnswerCorrect: true }),
-    // CONTROL (d): an untyped missing intermediate step inside attempted work stays "missing" (August §13.9)
+    // CONTROL (d): an untyped missing intermediate step inside attempted work stays "missing" (August §13.9) —
+    // and, by OWNER RULING 5 Nov 2026 14:04 (MISSING-TYPE-1), a blank WORKING step between attempted lines before a
+    // right step is exam technique: "missing" + presentation, its mark lost (never given back by the cap)
     R(4, [S({ marksAwarded: 2, marksAvailable: 2 }), S({ studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1 }), S({ marksAwarded: 1, marksAvailable: 1 })], { finalAnswerCorrect: true }),
   );
   const b = (await harness({ replies: [reply] }).sheet(sheet([q4(1), q4(2), q4(3), q4(4)], { acceptsV2: true }))).body;
@@ -514,7 +516,8 @@ test('§D29.1 genuinely UNATTEMPTED work is status "unattempted" (bucket unattem
   assert.deepEqual(concl.annotatedSteps.map((s) => [s.status, s.mistakeType]), [['correct', null], ['missing', 'presentation']], 'CONTROL: exam-technique missing stays missing + presentation');
   assert.deepEqual(concl.marksLostByType, { ...grading.zeroLost(), presentation: 1 });
   assert.deepEqual(mid.annotatedSteps.map((s) => s.status), ['correct', 'missing', 'correct'], 'CONTROL: a missing step inside attempted work is not unattempted');
-  assert.deepEqual(mid.marksLostByType, { ...grading.zeroLost(), untyped: 1 });
+  assert.deepEqual(mid.annotatedSteps[1].mistakeType, 'presentation', 'owner ruling 5 Nov 2026 14:04: working not shown is exam technique');
+  assert.deepEqual([mid.marksAwarded, mid.marksLostByType], [3, { ...grading.zeroLost(), presentation: 1 }], 'the mark is unchanged; the loss leaves "untyped"');
   // legacy: the same fixture maps "unattempted" to "missing", and the blank part loses its invented type
   const lg = (await harness({ replies: [reply] }).sheet(sheet([q4(1), q4(2), q4(3), q4(4)]))).body;
   assert.deepEqual(lg.results[1].annotatedSteps.map((s) => [s.status, s.mistakeType]), [['correct', null], ['missing', null], ['missing', null]]);
@@ -1967,10 +1970,13 @@ test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step
   const omitted = S({ description: 'Omitted line', studentWork: '', status: 'missing', marksAwarded: 0, marksDeducted: 1 });
   const lostWorking = S({ description: 'Lost working', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 });
   const run = async (steps) => (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 3, acceptsV2: true }))).body;
-  // [error][correct][omitted]: a separate loss - NOT consequential
+  // [error][correct][omitted]: a separate loss - NOT consequential. MISSING-TYPE-1 (5 Nov 2026): a BLANK trailing
+  // line with nothing right after it is an asked-for deliverable not written — "unattempted" (as GQ1-WS02-Q24),
+  // never "reason not recorded"; it is still not filed under conceptual (D248 unchanged).
   const a = await run([origin, credited, omitted]);
   assert.equal(a.annotatedSteps[2].consequentialOf, undefined);
-  assert.equal(a.marksLostByType.untyped, 1, 'stays untyped (honest), not filed under conceptual');
+  assert.equal(a.annotatedSteps[2].status, 'unattempted');
+  assert.deepEqual([a.marksLostByType.untyped, a.marksLostByType.unattempted, a.marksLostByType.conceptual], [0, 1, 0.5], 'not attempted, not conceptual, not untyped');
   // CONTROL: [error][omitted] with nothing credited between: consequential
   const b = await run([origin, S({ ...omitted, marksDeducted: 1 })]);
   assert.equal(b.annotatedSteps[1].consequentialOf, 1);
@@ -1981,10 +1987,23 @@ test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step
   assert.equal(c.marksLostByType.untyped, 0);
 });
 
+test('§MT1.1 MISSING-TYPE-1 — OBJECTIVE items are untouched: a wrong pick with no working keeps its honest untyped loss ("Option only"), a blank extra step is never re-labelled; both paths', async () => {
+  const steps = [S({ studentWork: '(b)', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 }), S({ description: 'Reason', studentWork: '', status: 'missing', marksAwarded: 0, marksDeducted: 0 })];
+  const set = (await harness({ replies: [REPLY(R(1, steps))] }).sheet(sheet([LETTER_MCQ({ textAnswer: '(b)' })], { acceptsV2: true }))).body.results[0];
+  const one = (await harness({ replies: [REPLY(R(1, steps))] }).single({ question: 'Which option? (a) Parallel (b) Intersecting (c) Coincident (d) None', marks: 1, subject: 'Maths', topic: TOPIC, objective: true, textAnswer: '(b)', acceptsV2: true })).body;
+  for (const [tag, r] of [['set', set], ['single', one]]) {
+    assert.equal(r.objective, true, tag);
+    assert.ok(!r.annotatedSteps.some((st) => st.status === 'unattempted' || st.mistakeType === 'presentation'), tag + ': no MISSING-TYPE-1 rule touched an objective item');
+    assert.equal(r.marksLostByType.unattempted, 0, tag);
+    assert.equal(r.marksLostByType.presentation, 0, tag);
+  }
+});
+
 /* ══ A17 OWNER RULINGS 1-5 ON EVERY GRADING SURFACE (GRADING-JOBS-1 J0) ══════════════
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */
 require('./rulings.surfaces.suite.cjs');
+require('./balancing.surfaces.suite.cjs'); // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): every surface
 
 /* ══ GRADER-FIX · TYPED LINES + EXAMINER-EQUIVALENT FORMS (owner-approved lane, 16 Oct 2026) ══ */
 
@@ -2299,6 +2318,18 @@ test('§MCQ-TYPE-2.5 ★ (b) a RIGHT 1-mark FILL-IN (no options) with flawed wor
 });
 
 
+test('§MCQ-TYPE-2.6 ★ GRADE-MARKS-1 H1: a RIGHT long-option Science MCQ (options only in the TEXT, each a sentence) keeps its habit, as on trunk', async () => {
+  const q = "Which type of reaction is shown when iron nails are kept in copper sulphate solution? (a) A combination reaction in which two substances join to form one product (b) A decomposition reaction in which one compound splits into simpler substances (c) A displacement reaction in which iron displaces copper from its salt solution (d) A double displacement reaction in which two compounds exchange their ions";
+  const textMcq = { question: q, questionText: q, marks: 1, section: 'A', format: '', answer: 'c', options: undefined, textAnswer: 'Iron is more reactive so it combines with copper\n(c)' };
+  const tSteps = [
+    S({ description: 'Reason given', studentWork: 'Iron is more reactive so it combines with copper', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' }),
+    S({ description: 'Option chosen', studentWork: '(c)', status: 'correct', marksAwarded: 1 }),
+  ];
+  const c = (await harness({ replies: [REPLY(R(1, tSteps, { finalAnswerCorrect: true }))] }).single({ subject: 'Science', topic: TOPIC, acceptsV2: true, ...textMcq })).body;
+  assert.equal(c.marksAwarded, 1);
+  assert.deepEqual(c.annotatedSteps.map((s) => s.mistakeType), ['conceptual', null], 'long lettered options in the text → the habit stands');
+});
+
 test('§MCQ-TYPE-1.6 ★ HONESTY: lines that only DECLARE the option are not working — a restated tap stays UNTYPED on both endpoints', async () => {
   const K_OPTS = ['k', '3k', '7k', 'k^3'];
   const cases = [
@@ -2481,4 +2512,1063 @@ test('§MCQ-EXTRACT-1.7 previous positives still read as the letter when they st
   // a positive through both endpoints, alone → FULL
   for (const r of await fbBoth(['(a) (x+1)(x-2)'], { options: ['(x+1)(x-2)', '(x-1)(x+2)', '(x+1)(x+2)', '(x-1)(x-2)'], answer: '(x+1)(x-2)' }))
     assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+/* ══ §MCQ-PICK-1 · A HANDWRITTEN MCQ ANSWER WITH THE OPTION'S FULL SENTENCE IS READ AS THAT OPTION ══
+   Owner, 4 Nov: "many students not only write the options, as in a/b/c/d, but they also write the
+   full sentences under those options". (2b) read the letter only when the sentence was an EXACT
+   copy on ONE line; a near copy (spelling, punctuation, a missing word), a sentence wrapped over
+   several lines, or a letter on one line with the sentence under it came back with no pick and the
+   mark fell to the model's verdict. Every ★ test below fails on trunk f86becde; tests marked CONTROL
+   pin behaviour trunk already had. */
+
+const PK_MIRROR = [
+  'The image formed is real, inverted and enlarged.',
+  'The image formed is virtual, erect and diminished.',
+  'The image formed is virtual, erect and enlarged.',
+  'The image formed is real, inverted and diminished.',
+];
+const PK_LONG = [ // Science options of 50–90 characters
+  'Rusting of iron is a slow oxidation reaction that needs both air and moisture.',
+  'Rusting of iron is a fast reduction reaction that needs only dry air to occur.',
+  'Rusting of iron is a displacement reaction in which zinc replaces iron from salt.',
+  'Rusting of iron is a decomposition reaction that happens only on strong heating.',
+];
+const PK_AR = [
+  'Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).',
+  'Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).',
+  'Assertion (A) is true but Reason (R) is false.',
+  'Assertion (A) is false but Reason (R) is true.',
+];
+const PK = (works, opts) => O.extractOptionPick(works.map((w) => ({ studentWork: w })), opts);
+
+test('§MCQ-PICK-1.1 ★ near-exact: a typo, missing punctuation, a dropped word, "&" — read as the letter; both endpoints grade it', async () => {
+  for (const w of [
+    '(b) The image formd is virtual erect and diminshed',
+    '(b) image formed is virtual, erect & diminished',
+    'b) The image formed is virtual erect and diminished',
+    '(b) The image formed is virtual, erect and diminished',
+  ]) assert.equal(PK([w], PK_MIRROR).pick, 'b', w);
+  for (const r of await fbBoth(['(b) The image formd is virtual erect and diminshed'], { options: PK_MIRROR, answer: PK_MIRROR[1] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // the key decides, never the model: same line, key (c), model says correct → 0, resolved
+  for (const r of await fbBoth(['(b) The image formd is virtual erect and diminshed'], { options: PK_MIRROR, answer: PK_MIRROR[2], raw: { finalAnswerCorrect: true } }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+});
+
+test('§MCQ-PICK-1.2 ★ a sentence WRAPPED over three lines (one step, or one step per line) is one declaration', async () => {
+  const wrapped = ['(b) The image formed is virtual,', 'erect and', 'diminished.'];
+  assert.deepEqual(PK([wrapped.join('\n')], PK_MIRROR), { pick: 'b', stepIndex: 0 });
+  assert.deepEqual(PK(wrapped, PK_MIRROR), { pick: 'b', stepIndex: 0 }, 'across steps; the answer step is the letter\'s');
+  for (const r of await fbBoth(wrapped, { options: PK_MIRROR, answer: PK_MIRROR[1] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  for (const r of await fbBoth(wrapped, { options: PK_MIRROR, answer: PK_MIRROR[3] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+  // a long Science option, wrapped
+  const longW = ['(a) Rusting of iron is a slow oxidation', 'reaction that needs both air and moisture'];
+  assert.equal(PK(longW, PK_LONG).pick, 'a');
+  for (const r of await fbBoth(longW, { options: PK_LONG, answer: PK_LONG[0] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+test('§MCQ-PICK-1.3 letter on one line, the sentence on the next line(s) — the same declaration (CONTROL: trunk already lands on the same option)', async () => {
+  // Trunk read these through the bare letter (or the exact option text, last-wins) — the SAME
+  // option. They are pinned so the letter block never changes that. The ★ G3 change is the
+  // contradiction ("(b)" over option (c)'s sentence), pinned in §MCQ-PICK-1.4.
+  const ix = (works, opts) => O.resolveOptionIndex(PK(works, opts).pick, opts);
+  assert.equal(ix(['(b)\nThe image formed is virtual, erect and diminished.'], PK_MIRROR), 1);
+  assert.equal(ix(['(a)', 'Rusting of iron is a slow oxidation reaction', 'that needs both air and moisture'], PK_LONG), 0);
+  assert.deepEqual(PK(['(a)', 'Rusting of iron is slow oxidation reaction', 'that needs both air and moisture'], PK_LONG), { pick: 'a', stepIndex: 0 });
+  for (const r of await fbBoth(['(a)', 'Rusting of iron is slow oxidation reaction', 'that needs both air and moisture'], { options: PK_LONG, answer: PK_LONG[0] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+test('§MCQ-PICK-1.4 ★ CONTRADICTION: letter (b) with option (c)\'s sentence → the pick/resolution trunk gives those lines, plus the admin flag', async () => {
+  const w = ['(b) The image formed is virtual, erect and enlarged.'];
+  assert.deepEqual(PK(w, PK_MIRROR), { pick: '', stepIndex: -1 });
+  assert.equal(O.isContradictoryPick(w.map((x) => ({ studentWork: x })), PK_MIRROR), true);
+  // re-review HIGH · an EXACT option text under the letter declares on its own: read as on trunk
+  // (last wins → option c's text), never swallowed into a contradiction
+  const exactUnder = ['(b)', 'The image formed is virtual, erect and enlarged.'];
+  assert.equal(PK(exactUnder, PK_MIRROR).pick, PK_MIRROR[2]);
+  assert.equal(O.isContradictoryPick(exactUnder.map((x) => ({ studentWork: x })), PK_MIRROR), false);
+  // third review · a near copy of option c's sentence under a bare "(b)": the bare letter is a
+  // declaration of b exactly as on trunk; the contradiction ONLY adds the admin flag
+  const under = ['(b)', 'The image formd is virtual, erect and enlargd'];
+  assert.equal(PK(under, PK_MIRROR).pick, 'b');
+  assert.equal(O.isContradictoryPick(under.map((x) => ({ studentWork: x })), PK_MIRROR), true);
+  // clamp: the key is not used; the model's stated verdict decides, and the verdict carries the flag
+  const st = (ws) => ws.map((x) => ({ studentWork: x, status: 'correct', marksAwarded: 1 }));
+  assert.deepEqual(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR }, st(w), 1, true),
+    { marksAwarded: 1, correct: true, resolved: true, pickContradiction: true });
+  assert.deepEqual(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR }, st(w), 1, false),
+    { marksAwarded: 0, correct: false, resolved: true, pickContradiction: true });
+  assert.deepEqual(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR }, st(w), 1),
+    { marksAwarded: 0, correct: false, resolved: false, pickContradiction: true });
+  // both endpoints: no model verdict → honestly unresolved; model verdict → it decides
+  for (const r of await fbBoth(w, { options: PK_MIRROR, answer: PK_MIRROR[1] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // the bare "(b)" is scored on the key, as on trunk: key c → 0 whatever the model says; key b → full
+  for (const r of await fbBoth(under, { options: PK_MIRROR, answer: PK_MIRROR[2], raw: { finalAnswerCorrect: true } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+  for (const r of await fbBoth(under, { options: PK_MIRROR, answer: PK_MIRROR[1], raw: { finalAnswerCorrect: false } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  assert.equal(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR }, st(under), 1).pickContradiction, true, 'flag added, mark unchanged');
+  // a recorded UI pick (Quick Practice) is never second-guessed: no flag
+  assert.equal(O.clampObjectiveResult({ answer: PK_MIRROR[1], options: PK_MIRROR, pickedOption: 'b' }, st(w), 1).pickContradiction, undefined);
+});
+
+test('§MCQ-PICK-1.5 ★ Assertion-Reason written with "A"/"R": the "not" decides; a sentence equally close to two options is never guessed', async () => {
+  assert.equal(PK(['(b) Both A and R are true but R is not the correct explanation of A'], PK_AR).pick, 'b');
+  assert.equal(PK(['(a) Both A and R are true and R is the correct explanation of A.'], PK_AR).pick, 'a');
+  assert.equal(PK(['(c) Assertion is true but reason is false'], PK_AR).pick, 'c');
+  assert.equal(PK(['(d) A is true but R is false'], PK_AR).pick, '', 'letter d with option c\'s sentence: contradiction');
+  // "not" dropped: equally close to (a) and (b) → not read (the model decides)
+  assert.equal(PK(['(b) Both A and R are true but R is correct explanation of A'], PK_AR).pick, '');
+  assert.equal(O.isContradictoryPick([{ studentWork: '(b) Both A and R are true but R is correct explanation of A' }], PK_AR), false);
+  for (const r of await fbBoth(['(b) Both A and R are true but R is not the correct explanation of A'], { options: PK_AR, answer: PK_AR[1] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+test('§MCQ-PICK-1.6 [fails on a1d3fac0; = trunk] NO OPTIONS (Answer Checker) is byte-identical to trunk — no letter+text line is read (review H4: G4 removed)', async () => {
+  for (const w of [
+    ['(b) The image is virtual, erect and diminished'], ['(a) 3 ✗', 'Ans 5'], ['c) x = 2', 'x = 2'], ['(b) part: f = -10 cm'],
+    ['(b) cannot be since image is real'], ['(b) - false'], ['(b) False'], ['(A) is true but (R) is false'], ['(A) true, (R) true', 'R explains A'],
+    ['(A) is correct', '(R) is wrong'],
+  ]) {
+    assert.equal(PK(w, []).pick, '', w.join(' | '));
+    assert.equal(PK(w, null).pick, '', w.join(' | '));
+  }
+  // what trunk read with no options it still reads: a bare letter, a declaration
+  assert.equal(PK(['(b)'], []).pick, 'b');
+  assert.equal(PK(['Answer: (c)'], []).pick, 'c');
+  // the clamp: no pick → the model's stated verdict decides (or honestly unresolved)
+  for (const r of await fbBoth(['(b) The image is virtual, erect and diminished'], { options: [], answer: 'b' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  for (const r of await fbBoth(['(b) The image is virtual, erect and diminished'], { options: [], answer: 'b', raw: { finalAnswerCorrect: true } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+test('§MCQ-PICK-1.7 CONTROLS — working, negation, self-correction, two different letter+sentence lines: unchanged', async () => {
+  // working line "(b) 4" after "(c)" is still only a fallback
+  assert.equal(PK(['(c)', '(b) 4'], FB_OPTS).pick, 'c');
+  assert.equal(PK(['(b) 4x'], FB_OPTS).pick, '', 'a short option needs a one-for-one match');
+  // prose after a letter is working, not a pick; trailing reasoning after a sentence does not hide it
+  assert.equal(PK(['(b) because a convex mirror always diverges the light rays'], PK_MIRROR).pick, '');
+  assert.equal(PK(['(b) The image formed is virtual erect and diminished', 'since a convex mirror always diverges rays'], PK_MIRROR).pick, 'b');
+  // a negated mention is not a declaration
+  assert.equal(PK(['option (b) is wrong because the image is real', '(c)'], PK_MIRROR).pick, 'c');
+  assert.equal(PK(['option (b) is wrong because the image is real'], PK_MIRROR).pick, '');
+  // self-correction: last wins
+  assert.equal(PK(['(c) The image formed is virtual erect and enlarged', 'no wait, (b)'], PK_MIRROR).pick, 'b');
+  assert.equal(PK(['(c)', 'no wait, (b)'], PK_MIRROR).pick, 'b');
+  // two DIFFERENT letter+sentence lines → unresolved, never a guess
+  const two = ['(b) The image formd is virtual erect and diminished', '(c) The image formd is virtual erect and enlarged'];
+  assert.equal(PK(two, PK_MIRROR).pick, '');
+  for (const r of await fbBoth(two, { options: PK_MIRROR, answer: PK_MIRROR[1] })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // options that differ only by case: no fuzzy token agreement
+  assert.equal(O.optionMatchingText('TTww', GENOTYPES), GENOTYPES.indexOf('TTww'));
+  assert.equal(O.optionMatchingText('TTwW', GENOTYPES), -1);
+});
+
+/* ══ §MCQ-PICK-1 · REVIEW REJECT (4 HIGH) — the reviewer's probe inputs, every one pinned ══════════
+   H1 a hedge "(b) <sentence> or (c)" / "… / (c)" / "…, or c" — and a wrapped block followed by
+      "so (c)" / "hence c" — is never read through the near match (as on trunk: no pick).
+   H2 a line that REJECTS what it copies ("… is wrong", "… ✗", "cannot be") is not a declaration,
+      on the letter line AND on every continuation line ("(c)" + "not virtual and erect" on a
+      NOT-question still reads c; "(b)" + "<option c sentence> is wrong" reads b, no contradiction).
+   H3 a contradiction counts only when NOTHING else declares: "(a) 3" beside "(c) 4" reads c.
+   H4 no options: trunk behaviour exactly (§MCQ-PICK-1.6).
+   Rows are the reviewer's probes (review-1567/probe p1/p2/p3) with the expected reading; each
+   test fails on a1d3fac0. */
+const PK_PROBE_PICKS = [ // [studentWork lines, options, pick, contradiction]
+  [["(b) The image formed is virtual, erect and enlarged."], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "", true],
+  [["(b) The image formed is virtual erect diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["(b) The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "", true],
+  [["(b) The resistance decreses"], ["The resistance increases","The resistance decreases","The resistance remains the same","The resistance becomes zero"], "b", false],
+  [["(a) The resistance decreases"], ["The resistance increases","The resistance decreases","The resistance remains the same","The resistance becomes zero"], "", false],
+  [["(a) resistance increses"], ["The resistance increases","The resistance decreases","The resistance remains the same","The resistance becomes zero"], "a", false],
+  [["(b) resistance increses"], ["The resistance increases","The resistance decreases","The resistance remains the same","The resistance becomes zero"], "", true],
+  [["(b) real and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "b", false],
+  [["(a) real and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "", true],
+  [["(a) virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "", true],
+  [["(a) virtual and erect image"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "a", false],
+  [["(c) virtual and erect"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "", true],
+  [["(b) 3 cm"], ["2 cm","3 cm","4 cm","5 cm"], "b", false],
+  [["(b) 2 cm"], ["2 cm","3 cm","4 cm","5 cm"], "", true],
+  [["(b) 4","Answer: (c)"], ["2","3","4","5"], "c", true],
+  [["(b) 4"], ["2","3","4","5"], "", true],
+  [["a) x = 2"], ["2","3","4","5"], "", false],
+  [["a) x = 2","so image virtual"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "", false],
+  [["(a) The image formed is virtual, erect and diminished","(b) because convex"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "", true],
+  [["(b) The image formed is virtual,","erect and diminished.","Q2. The image formed is real, inverted and enlarged."], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["(b)","The image formed is real, inverted","and enlarged","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "c", true],
+  [["(b)","The image formed is virtual erect and enlarged is wrong"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["(a) The image formed is real, inverted and enlarged? No.","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["(a) The image formed is real, inverted and enlarged cannot be","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["(b) The image formed is virtual, erect and diminished or (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "", false],
+  [["(c) The image formed is virtual erect and enlarged","(b) The image formed is virtual erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "", false],
+  [["(b)","The image formed is virtual, erect and enlarged.","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["(b)","The image formed is virtual, erect and enlarged.","Answer: (b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["The image formed is virtual, erect and enlarged.","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "b", false],
+  [["A is true but R is false"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "A is true but R is false", false],
+  [["(a) A is false but R is true"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "", true],
+  [["(c) A is false but R is true"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "", true],
+  [["(d) A is true but R is false"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "", true],
+  [["(c) Assertion is true but Reason is not true"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "", false],
+];
+const PK_PROBE_CLAMP = [ // [studentWork lines, options, key, model verdict, answerSource, clamp verdict]
+  [["(b) The image formed is virtual, erect and diminished or (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) The image formed is virtual, erect and diminished or (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, null, {"marksAwarded":0,"correct":false,"resolved":true}],
+  [["(b) The image formed is virtual, erect and diminished / (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) The image formed is virtual, erect and diminished, or c"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) The image formed is virtual, erect and diminished is wrong","(a) real inverted enlarged"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) The image formed is virtual erect and diminished is wrong"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b)","The image formed is virtual, erect and enlarged is wrong"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(c)","not virtual and erect"], ["virtual and erect","laterally inverted","real and inverted","same size as object"], "real and inverted", false, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(c)","since it is not virtual and erect"], ["virtual and erect","laterally inverted","real and inverted","same size as object"], "real and inverted", false, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(a) 3","(c) 4"], ["2","3","4","5"], "4", null, null, {"marksAwarded":1,"correct":true,"resolved":true,"pickContradiction":true}],
+  [["(a) 3","(c) 4"], ["2","3","4","5"], "4", false, null, {"marksAwarded":1,"correct":true,"resolved":true,"pickContradiction":true}],
+  [["(b) 4"], ["2","3","4","5"], "4", true, null, {"marksAwarded":1,"correct":true,"resolved":true,"pickContradiction":true}],
+  [["(a) The image formed is real, inverted and enlarged ✗","(b) The image formed is virtual, erect and diminished ✓"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(b) The image formed is virtual,","erect and diminished.","so (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) The image formed is virtual,","erect and diminished","hence c"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(a) 3 ✗","Ans 5"], [], "a", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["c) x = 2","x = 2"], [], "c", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) part: f = -10 cm"], [], "b", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) cannot be since image is real"], [], "b", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(a) ✗","(d) ✓"], [], "d", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(a) is real so no","(d) correct"], [], "d", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) - false"], [], "b", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(b) False"], [], "b", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(A) is true but (R) is false"], [], "c", true, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(A) is true but (R) is false"], [], "c", null, null, {"marksAwarded":0,"correct":false,"resolved":false}],
+  [["(A) is true but (R) is false"], [], "c", true, "derived", {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(A) true, (R) true","R explains A"], [], "a", false, null, {"marksAwarded":0,"correct":false,"resolved":true}],
+  [["(A) is correct","(R) is wrong"], [], "c", true, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(A) is true but R is false","(c) Assertion is true but reason is false"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Assertion (A) is true but Reason (R) is false.", null, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+  [["(A) is true but R is false"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Assertion (A) is true but Reason (R) is false.", true, null, {"marksAwarded":1,"correct":true,"resolved":true}],
+];
+test('§MCQ-PICK-1.8 ★ reviewer probes — the pick and the contradiction flag on every probe row', () => {
+  for (const [w, opts, pick, contra] of PK_PROBE_PICKS) {
+    const s = w.map((x) => ({ studentWork: x }));
+    assert.equal(O.extractOptionPick(s, opts).pick, pick, w.join(' | '));
+    assert.equal(O.isContradictoryPick(s, opts), contra, 'contradiction: ' + w.join(' | '));
+  }
+});
+
+test('§MCQ-PICK-1.9 ★ reviewer probes — the clamp verdict on every probe row (H1 hedges, H2 rejections, H3 working contradiction, H4 no options, AR labels)', () => {
+  for (const [w, opts, answer, model, src, verdict] of PK_PROBE_CLAMP) {
+    const st = w.map((x) => ({ studentWork: x, status: 'correct', marksAwarded: 1 }));
+    const q = { answer, options: opts, ...(src ? { answerSource: src } : {}) };
+    assert.deepEqual(O.clampObjectiveResult(q, st, 1, model === null ? undefined : model), verdict, w.join(' | '));
+  }
+});
+
+test('§MCQ-PICK-1.10 [fails on a1d3fac0; = trunk] H1/H2/H3 through BOTH endpoints', async () => {
+  // H1 hedge: never b's mark, no model verdict → unresolved
+  for (const r of await fbBoth(['(b) The image formed is virtual, erect and diminished or (c)'], { options: PK_MIRROR, answer: PK_MIRROR[1] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // H2 rejection: "… is wrong" is not a pick of b
+  for (const r of await fbBoth(['(b) The image formed is virtual erect and diminished is wrong'], { options: PK_MIRROR, answer: PK_MIRROR[1] }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // M5: "(c)" then "not virtual and erect" on a NOT-question → c, FULL
+  const PM = ['virtual and erect', 'laterally inverted', 'real and inverted', 'same size as object'];
+  for (const r of await fbBoth(['(c)', 'not virtual and erect'], { options: PM, answer: PM[2], raw: { finalAnswerCorrect: false } }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // H3: "(a) 3" (a working line naming option b's value) beside "(c) 4", key "4" → c, FULL
+  for (const r of await fbBoth(['(a) 3', '(c) 4'], { options: ['2', '3', '4', '5'], answer: '4' }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
+
+/* ══ §MCQ-PICK-1 · RE-REVIEW HIGH — a continuation line that DECLARES ON ITS OWN ends the block ═══
+   ["(b)", "Answer: virtual and inverted"] used to be read as ONE block → a contradiction → the mark
+   went the other way from trunk. A line that, read alone, declares (exact option text, "Answer:
+   <text>", "Ans = …", a bare letter, any declaration) now ends the block and is read as on trunk.
+   Rows are the re-review probes (review-1567b/probe p4 + p5). Every row equals TRUNK's mark except
+   the six intended near-copy improvements, which are asserted explicitly. */
+const PK_REREVIEW = [ // [lines, options, key, model verdict, pick, clamp verdict, TRUNK {marksAwarded,resolved}]
+  [["(b) The image formed is virtual, erect and diminished, which is option b, not (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b) The image formed is virtual, erect and diminished since (a) and (c) are wrong"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b) The image formed is virtual, erect and diminished.","since (a) and (c) are wrong"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","The image formed is virtual, erect and diminished.","(a) and (c) are wrong"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "The image formed is virtual, erect and diminished.", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b) The image formed is virtual, erect and diminished so b"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b) The image formed is virtual, erect and diminished ans b"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(a) virtual and erect"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and erect", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(a) virtual and erect / (b)"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and erect", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b) It does not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It does not conduct electricity in any state", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b) It does not conduct electrcity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It does not conduct electricity in any state", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b) It doesn't conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It does not conduct electricity in any state", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(a) It does not conduct electricity in molten state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It conducts electricity in molten state", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(a) It conducts electricity in molten state not"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It conducts electricity in molten state", true, "", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b) It conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It does not conduct electricity in any state", false, "", {"marksAwarded":0,"correct":false,"resolved":true,"pickContradiction":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b) It does not conduct","electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It does not conduct electricity in any state", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b)","It does not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It does not conduct electricity in any state", false, "It does not conduct electricity in any state", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(a) Copper does not react with dilute HCl"], ["Copper does not react with dilute HCl","Copper reacts with dilute HCl to give hydrogen","Zinc does not react with dilute HCl","Iron reacts with water at room temperature"], "Copper does not react with dilute HCl", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(a) Copper does not react with dil HCl"], ["Copper does not react with dilute HCl","Copper reacts with dilute HCl to give hydrogen","Zinc does not react with dilute HCl","Iron reacts with water at room temperature"], "Copper does not react with dilute HCl", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(c) Zinc does not react with dilute HCl"], ["Copper does not react with dilute HCl","Copper reacts with dilute HCl to give hydrogen","Zinc does not react with dilute HCl","Iron reacts with water at room temperature"], "Zinc does not react with dilute HCl", false, "c", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b) The image formed is virtual, erect and diminished, no doubt"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b)","The image formed is virtual, erect and diminished.","not (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "The image formed is virtual, erect and diminished.", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","It does not conduct electricity in any state","because ionic bonds not free"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], "It does not conduct electricity in any state", false, "It does not conduct electricity in any state", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(A) Both A and R are true and R is the correct explanation of A."], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "Both A and R are true and R is the correct explanation of A.", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(C) A is true but R is false"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "A is true but R is false.", false, "c", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(C) Assertion is true but Reason is false"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Assertion (A) is true but Reason (R) is false.", false, "c", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(A)"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "Both A and R are true and R is the correct explanation of A.", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(A)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(A)","Both A and R are true and R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(A) is true but (R) is false"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Assertion (A) is true but Reason (R) is false.", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(a) Both A and R are true and R is the correct explanation of A."], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "Both A and R are true and R is the correct explanation of A.", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["A) Both A and R are true and R is the correct explanation of A"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "Both A and R are true and R is the correct explanation of A.", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(D) A is false but R is true"], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "A is false but R is true.", false, "d", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b) Both A and R are true but R is not the correct explanation of A."], ["Both A and R are true and R is the correct explanation of A.","Both A and R are true but R is not the correct explanation of A.","A is true but R is false.","A is false but R is true."], "Both A and R are true but R is not the correct explanation of A.", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and inverted", false, "virtual and inverted", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","real and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "real and inverted", false, "real and inverted", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","Answer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and inverted", false, "virtual and inverted", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(c) The image formed is virtual, erect and enlarged","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","The image formed is virtual, erect and enlarged."], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and enlarged.", false, "The image formed is virtual, erect and enlarged.", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","The image formed is virtual erect and enlarged"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and enlarged.", true, "The image formed is virtual erect and enlarged", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b) 3 cm"], ["2 cm","3 cm","4 cm","5 cm"], "3 cm", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["B) real and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "real and inverted", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(c)","actually (b)"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "real and inverted", false, "b", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(c)","real and erect is wrong"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and inverted", false, "c", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(d)","real and erect"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "real and erect", false, "real and erect", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","Answer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "real and inverted", true, "virtual and inverted", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b)","Answer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and inverted", false, "virtual and inverted", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","Ans = virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "real and inverted", true, "virtual and inverted", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "real and inverted", true, "virtual and inverted", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b)","The image formed is virtual, erect and enlarged."], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and diminished.", true, "The image formed is virtual, erect and enlarged.", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b) The image formed is virtual,","Answer: The image formed is virtual, erect and enlarged."], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], "The image formed is virtual, erect and enlarged.", false, "The image formed is virtual, erect and enlarged.", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["1.","(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and inverted", false, "virtual and inverted", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(A) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A)."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(A) Both A and R are true and R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", false, "", {"marksAwarded":0,"correct":false,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(a) Both A and R are true and R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", false, "a", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":0,"resolved":true}],
+  [["(b)\nvirtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and inverted", false, "virtual and inverted", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+  [["(b)","x = 2","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], "virtual and inverted", false, "virtual and inverted", {"marksAwarded":1,"correct":true,"resolved":true}, {"marksAwarded":1,"resolved":true}],
+];
+
+const PK_NEAR_COPY_IMPROVEMENTS = [
+  '(b) It does not conduct electrcity in any state',
+  "(b) It doesn't conduct electricity in any state",
+  '(b) It does not conduct | electricity in any state',
+  '(a) Copper does not react with dil HCl',
+  '(C) Assertion is true but Reason is false',
+  '(a) Both A and R are true and R is the correct explanation of A',
+];
+
+test('§MCQ-PICK-1.11 ★ re-review probes — every row: the pick, the clamp verdict, and trunk\'s mark except the intended near copies', () => {
+  for (const [w, opts, answer, model, pick, verdict, trunk] of PK_REREVIEW) {
+    const st = w.map((x) => ({ studentWork: x, status: 'correct', marksAwarded: 1 }));
+    const label = w.join(' | ');
+    assert.equal(O.extractOptionPick(w.map((x) => ({ studentWork: x })), opts).pick, pick, label);
+    const r = O.clampObjectiveResult({ answer, options: opts }, st, 1, model === null ? undefined : model);
+    assert.deepEqual(r, verdict, label);
+    if (PK_NEAR_COPY_IMPROVEMENTS.includes(label)) {
+      assert.deepEqual([r.marksAwarded, r.resolved, trunk.marksAwarded], [1, true, 0], 'near copy of the KEYED option, model false: trunk 0, now FULL — ' + label);
+    } else {
+      assert.deepEqual({ marksAwarded: r.marksAwarded, resolved: r.resolved }, trunk, 'trunk mark kept — ' + label);
+    }
+  }
+});
+
+test('§MCQ-PICK-1.12 ★ the HIGH itself through BOTH endpoints: "(b)" then a line that declares option c → as on trunk', async () => {
+  const VE = ['virtual and erect', 'real and inverted', 'virtual and inverted', 'real and erect'];
+  for (const tail of ['Answer: virtual and inverted', 'Ans = virtual and inverted', 'virtual and inverted']) {
+    for (const r of await fbBoth(['(b)', tail], { options: VE, answer: VE[1], raw: { finalAnswerCorrect: true } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true], tail);
+    for (const r of await fbBoth(['(b)', tail], { options: VE, answer: VE[2], raw: { finalAnswerCorrect: false } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true], tail);
+  }
+  for (const r of await fbBoth(['1.', '(b)', 'virtual and inverted'], { options: VE, answer: VE[2], raw: { finalAnswerCorrect: false } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  for (const r of await fbBoth(['(b)\nvirtual and inverted'], { options: VE, answer: VE[2], raw: { finalAnswerCorrect: false } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  for (const r of await fbBoth(['(b)', 'The image formed is virtual, erect and enlarged.'], { options: PK_MIRROR, answer: PK_MIRROR[1], raw: { finalAnswerCorrect: true } })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+});
+
+/* ══ §MCQ-PICK-1 · THIRD REVIEW — NARROW SCOPE: TRUNK FIRST, A NEAR COPY ONLY WHERE TRUNK READS NOTHING ══
+   The ONLY change vs trunk: where trunk finds NO declaration, a letter followed by a near copy of
+   ITS OWN option reads as that letter. A contradiction gives exactly trunk's pick/resolution and
+   only ADDS pickContradiction. Negations must agree both ways, and contractions (doesnt / doesn't /
+   cannot / won't / does'nt …) read as "not". Rows: review-1567c probes p6 (every key × model
+   verdict), p7, p8. Each row's mark equals TRUNK's, except rows where trunk read nothing and the
+   near-copied letter is now read (asserted: trunk had no pick there). */
+const PK_THIRD = [ // [lines, options, key index, model verdict, pick, {marks,resolved}, TRUNK {marks,resolved}, pickContradiction]
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, true, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, false, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, null, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, true, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, false, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, null, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)\nAnswer: virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 0, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 1, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, true, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, false, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 2, null, "virtual and inverted", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, true, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, false, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","virtual and inverted"], ["virtual and erect","real and inverted","virtual and inverted","real and erect"], 3, null, "virtual and inverted", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Ans:","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","(b)\nThe image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["~~(b) The image formed is virtual erect and diminishd~~","(c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["I think option b because the image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(a)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["The image formed is virtual erect and diminishd","(b)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) 10cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b) 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, true],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","f = 15 cm"], ["5 cm","10 cm","15 cm","20 cm"], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, true, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, false, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, null, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","because ionic compounds do not conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesnt conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(B)","It does not conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, true, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, false, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, null, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(A) is true","(R) is false","(c)"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, true, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, false, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, null, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Both A and R are true and","R is the correct explanation of A"], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, true, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, false, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 0, null, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, true, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, false, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 1, null, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, true, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, false, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 2, null, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, true, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, false, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) Both A and R are true but","Assertion (A) is false but Reason (R) is true."], ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).","Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).","Assertion (A) is true but Reason (R) is false.","Assertion (A) is false but Reason (R) is true."], 3, null, "Assertion (A) is false but Reason (R) is true.", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 0, true, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 0, false, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 0, null, "a", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 1, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 1, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 1, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 2, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 2, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 2, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 3, true, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 3, false, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(a) Oxygenated blood flows from lungs to left atrium through pulmonary vein"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 3, null, "a", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 0, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 0, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 1, true, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 2, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 2, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 2, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 3, true, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 3, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","Oxygenated blood flow from lungs to left atrium through pulmonary veins"], ["Oxygenated blood flows from lungs to the left atrium through pulmonary vein","Deoxygenated blood flows from right ventricle to lungs through pulmonary artery","Oxygenated blood flows from left ventricle to aorta","Deoxygenated blood flows from vena cava to left atrium"], 3, null, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","Ans: (c)"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) The image formed is virtual erect and diminishd","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "", {"marksAwarded":0,"resolved":false}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b) ✗","(c) The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "The image formed is virtual, erect and diminished", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "The image formed is virtual, erect and diminished", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "The image formed is virtual, erect and diminished", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b)","The image formed is virtual, erect and diminished"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "The image formed is virtual, erect and diminished", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, true, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, false, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 2, null, "c", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, true, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(c)","(b) The image formed is virtual,","erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 3, null, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","It doesn't conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","It doesn't conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b)","It cannot conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) It doesn't conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(a)","(b)","The image formed is virtual, erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["Ans: (a)","(b)","The image formed is virtual erect and enlargd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 0, false, "b", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","(c)","The image formed is virtual erect and diminishd"], ["The image formed is real, inverted and enlarged.","The image formed is virtual, erect and diminished.","The image formed is virtual, erect and enlarged.","The image formed is real, inverted and diminished."], 1, false, "c", {"marksAwarded":0,"resolved":true}, {"marksAwarded":0,"resolved":true}, true],
+  [["(b)","It doesnt conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) It doesnt conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) It doesnt conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It doesn't conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) It doesn't conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) It doesn't conduct electricty in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It dosent conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) It dosent conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) It dosent conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","It does'nt conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) It does'nt conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) It does'nt conduct electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+  [["(b)","it doesnt conducts electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":1,"resolved":true}, false],
+  [["(b) it doesnt conducts electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, null, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":false}, false],
+  [["(b) it doesnt conducts electricity in any state"], ["It conducts electricity in molten state","It does not conduct electricity in any state","It conducts electricity only in solid state","It does not dissolve in water"], 1, false, "b", {"marksAwarded":1,"resolved":true}, {"marksAwarded":0,"resolved":true}, false],
+];
+
+test('§MCQ-PICK-1.13 ★ third-review probes — every mark equals trunk unless trunk read NO pick and a near copy of the letter\'s own option is now read', () => {
+  const letters = 'abcdefgh';
+  let moved = 0;
+  for (const [w, opts, k, model, pick, mine, trunk, contra] of PK_THIRD) {
+    const st = () => w.map((x) => ({ studentWork: x, status: 'correct' }));
+    const label = w.join(' | ') + ' key=' + letters[k] + ' model=' + model;
+    assert.equal(O.extractOptionPick(st(), opts).pick, pick, label);
+    const r = O.clampObjectiveResult({ answer: opts[k], options: opts }, st(), 1, model === null ? undefined : model);
+    assert.deepEqual({ marksAwarded: r.marksAwarded, resolved: r.resolved }, mine, label);
+    assert.equal(Boolean(r.pickContradiction), contra, 'flag ' + label);
+    if (mine.marksAwarded !== trunk.marksAwarded || mine.resolved !== trunk.resolved) {
+      moved += 1;
+      // the ONLY allowed movement: trunk had no declaration, and the read pick is a single letter
+      assert.match(pick, /^[a-h]$/, 'moved row must read a letter: ' + label);
+      const head = w.find((x) => /^\s*\(?\s*[a-hA-H]\s*\)/.test(x));
+      assert.ok(head, label);
+    }
+  }
+  assert.ok(moved > 0);
+});
+
+test('§MCQ-PICK-1.14 ★ MED negation: "(b)" + "It doesnt conduct …" reads b exactly like the apostrophe spelling; a dropped "not" is never a near copy', () => {
+  const SCI = ['It conducts electricity in molten state', 'It does not conduct electricity in any state', 'It conducts electricity only in solid state', 'It does not dissolve in water'];
+  for (const t of ["It doesnt conduct electricity in any state", "It doesn't conduct electricity in any state", "It doesn\u2019t conduct electricity in any state", "It does'nt conduct electricity in any state", 'It cannot conduct electricity in any state'.replace('cannot', 'does not')]) {
+    assert.equal(PK([`(b) ${t}`], SCI).pick, 'b', t);
+    assert.equal(O.optionMatchingText(t, SCI), 1, t);
+  }
+  assert.equal(PK(['(b) It conduct electricity in any state'], SCI).pick, '', '"not" dropped: no near copy of b');
+  assert.equal(PK(['(a) It does not conduct electricity in molten state'], SCI).pick, '', 'an extra "not": no near copy of a');
+});
+
+/* ── GRADER-QUALITY-1 (5 Nov 2026) — deterministic guards, unit level ─────────────────────────────────
+   The per-surface proofs are in rulings.surfaces.suite.cjs (§ GRADER-QUALITY-1). Here: the guard's own
+   contract (it NEVER moves a mark), the objective invariant, D248 ruling 1, and verify.cjs's new skip. */
+const { omissionsInAttemptedWork } = require('./postprocess.cjs');
+
+test('§GQ.1 D3 ★ the WS-M-MIX-02 Q21 quote: a two-column check joined into one row from a PHOTO is not charged — hyphen and Unicode minus', () => {
+  for (const t of ['2 = 2 −24 = −24', '2 = 2 -24 = -24', '-4 + 6 = 2 6 x -4 = -24\n2 = 2 -24 = -24', '−4 + 6 = 2   6 × −4 = −24\n2 = 2 −24 = −24\nHence verified']) {
+    assert.deepEqual(falseEqualities(t, { quoted: true }), [], t);
+  }
+  // CONTROLS — the check is otherwise unchanged:
+  assert.equal(falseEqualities('2 = 2 − 24', { quoted: true }).length, 1, 'a SPACED minus is a real subtraction and is charged');
+  assert.equal(falseEqualities('5 - 3 = 3', { quoted: true }).length, 1);
+  assert.equal(falseEqualities('1232/308 = 8', { quoted: true }).length, 1, 'GS-M12-a still charged');
+  assert.equal(falseEqualities('50 − 16 = 36', { quoted: true }).length, 1, 'CP02-Q08 still charged');
+  assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true }), [], 'guard (1) unchanged');
+  // review round 1, item 10: the joined line is SPLIT, not skipped — each column is still checked on its own
+  assert.deepEqual(falseEqualities('2 = 2 –24 = –24', { quoted: true }), [], 'en dash');
+  assert.deepEqual(falseEqualities('3 + 4 = 8 −2 = −2', { quoted: true }).map((e) => [e.left, e.right]), [['3 + 4', '8']], 'a false FIRST column is still charged');
+  assert.deepEqual(falseEqualities('3 + 4 = 8 -2 = -2', { quoted: true }).map((e) => [e.left, e.right]), [['3 + 4', '8']]);
+  // a TYPED answer is the student's own words: a glued sign there is charged, as before
+  assert.equal(falseEqualities('2 = 2 -24', { quoted: true, source: '2 = 2 -24' }).length, 1, 'typed source: charged');
+});
+
+test('§GQ.2 D3 ★ ACCEPTED COST (coordinator, 5 Nov): a real slip quoted from a photo with a GLUED sign ("5 -3 = 3") is no longer charged by the arithmetic check', () => {
+  // On trunk this was charged ½ ("5 -3 is not 3"). The skip can only REMOVE a charge (guards (1)–(2) above it
+  // take the same side): an OCR quote that glues a sign to a number after a space is read as a joined line.
+  assert.deepEqual(falseEqualities('5 -3 = 3', { quoted: true }), []);
+  assert.deepEqual(falseEqualities('x = 5 −3 = 3', { quoted: true }), []);
+  // …while the same slip spaced, or typed, is still charged
+  assert.equal(falseEqualities('5 − 3 = 3', { quoted: true }).length, 1);
+  assert.equal(falseEqualities('5 -3 = 3', { quoted: true, source: '5 -3 = 3' }).length, 1);
+});
+
+test('§GQ.3 D1 ★ the guard NEVER moves a mark: over an enumeration of step shapes, only status and mistakeType can differ', () => {
+  const statuses = ['correct', 'partial', 'incorrect', 'missing', 'unattempted', 'withdrawn'];
+  const types = [null, 'presentation', 'calculation', 'conceptual'];
+  const works = ['', 'x = 4', "Don't know"];
+  const descs = ['Step', 'Reason for equal tangents'];
+  const parts = [null, '(i)', '(ii)'];
+  let n = 0, changed = 0;
+  for (const a of statuses) for (const b of statuses) for (const ta of types) for (const w of works) for (const d of descs) for (const p of parts) for (const total of [1, 2, 4]) {
+    const mk = (status, type, i) => ({ description: i === 1 ? d : 'Step', studentWork: status === 'unattempted' ? (i === 1 ? w : '') : 'x = 4', status, part: i === 0 ? p : null,
+      _available: 1, marksAwarded: status === 'correct' ? 1 : status === 'partial' ? 0.5 : 0, marksDeducted: status === 'correct' ? 0 : status === 'partial' ? 0.5 : 1, mistakeType: type, teacherAnnotation: 'a' });
+    const steps = [mk(a, ta, 0), mk(b, null, 1), mk('correct', null, 2)];
+    const before = JSON.parse(JSON.stringify(steps));
+    omissionsInAttemptedWork(steps, { q: { questionText: 'Find the value of x, y and z from the data given.' }, totalMarks: total });
+    steps.forEach((s, i) => {
+      for (const k of Object.keys(before[i])) if (k !== 'status' && k !== 'mistakeType') assert.deepEqual(s[k], before[i][k], k + ' moved');
+      if (s.status !== before[i].status) {
+        changed += 1;
+        assert.deepEqual([before[i].status, s.status], ['unattempted', 'missing'], 'the only status move');
+        assert.equal(s.mistakeType, 'presentation', 'a flip is ALWAYS typed exam technique — never an untyped missing (review item 7)');
+      }
+    });
+    n += 1;
+  }
+  assert.ok(n > 5000 && changed > 0, n + ' shapes, ' + changed + ' retyped');
+});
+
+test('§GQ.4 D1 OBJECTIVE INVARIANT: an MCQ with an "unattempted" working step is untouched — 0 or full on the option alone, no step retyped', async () => {
+  for (const [pick, expected] of [['Parallel', 1], ['Skew', 0]]) {
+    const r = (await harness({ replies: [REPLY(R(1, [
+      S({ description: 'Selected option', studentWork: pick, status: expected ? 'correct' : 'incorrect', marksAwarded: expected, marksDeducted: 1 - expected }),
+      S({ description: 'Reason for the option', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 0, mistakeType: null }),
+    ], { finalAnswerCorrect: Boolean(expected) }))] }).sheet(sheet([LETTER_MCQ({ textAnswer: pick })], { acceptsV2: true }))).body.results[0];
+    assert.equal(r.objective, true);
+    assert.equal(r.marksAwarded, expected, pick);
+    assert.ok(!r.annotatedSteps.some((s) => s.status === 'missing' || s.mistakeType === 'presentation'), pick + ': D1 never reaches an objective question');
+  }
+});
+
+test('§GQ.5 D1 review item 7: beside a real error the omission is NOT flipped — it stays "unattempted" with trunk\'s ledger (never an untyped "missing", which the client shows as Not attempted AND counts as a new MI entry)', async () => {
+  const run = async (steps) => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] })
+    .sheet(sheet([sq(1, { marks: 3, questionText: 'Find the value of x and give a reason for it.', finalAnswer: null })], { acceptsV2: true }))).body.results[0];
+  const slip = S({ description: 'Solves', studentWork: '2x = 9, x = 4', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' });
+  const ok = S({ description: 'Substitutes', studentWork: 'x + 1 = 5', status: 'correct', marksAwarded: 1, marksDeducted: 0 });
+  const omitted = S({ description: 'Reason for the value of x', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1, mistakeType: null });
+  for (const order of [[ok, slip, omitted], [slip, ok, omitted]]) {
+    const r = await run(order);
+    assert.deepEqual([r.annotatedSteps[2].status, r.annotatedSteps[2].mistakeType], ['unattempted', null]);
+    assert.equal(r.marksAwarded, 1);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), calculation: 1, unattempted: 1 });
+  }
+});
+
+test('§GQ.6 D1 ADVERSARIAL: the model fights the rule — "unattempted" for an omitted middle step, even with a TYPE — the guard still decides; a whole-question blank stays Not attempted', async () => {
+  const run = async (steps, marks = 2, qt = 'Find the week n in which the balance first falls below Rs 1000.') => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] })
+    .sheet(sheet([sq(1, { marks, questionText: qt, finalAnswer: null })], { acceptsV2: true }))).body.results[0];
+  const first = S({ description: 'a and d', studentWork: 'a = 4500, d = -350', status: 'correct', marksAwarded: 0.5, marksDeducted: 0 });
+  const last = S({ description: 'Final week', studentWork: 'n = 12', status: 'correct', marksAwarded: 0.5, marksDeducted: 0 });
+  const mid = S({ description: 'Solving for n', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' });
+  const r = await run([first, mid, last]);
+  assert.equal(r.marksAwarded, 1);
+  assert.deepEqual([r.annotatedSteps[1].status, r.annotatedSteps[1].mistakeType], ['missing', 'presentation'], 'a gap in the working; the model\'s type is replaced');
+  // every step blank → the question is Not attempted (D29 / FU-GRADER-UNATTEMPTED-SINGLE-CHARGED), untouched
+  const blank = await run([S({ studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 2 })]);
+  assert.equal(blank.marksAwarded, 0);
+  assert.ok(blank.annotatedSteps.every((s) => s.status === 'unattempted'));
+  // sub-part markers in the question and no step labels → left alone (cannot tell a part from a step)
+  const marked = await run([first, mid, last], 2, 'For the AP 4500, 4150, … (i) Write a and d. (ii) Find the week.');
+  assert.equal(marked.annotatedSteps[1].status, 'unattempted');
+  // the last step, no justification word, nothing after it → a separately asked deliverable: left alone
+  const tail = await run([first, last, S({ description: 'Second ratio', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1 })], 2);
+  assert.equal(tail.annotatedSteps[2].status, 'unattempted');
+  // the FIRST step, answered work only after it → a skipped first deliverable: left alone (review item 1)
+  const head = await run([S({ description: 'Gas evolved', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1 }), last], 2, 'Name the gas evolved and the type of reaction when zinc reacts with dilute sulphuric acid.');
+  assert.equal(head.annotatedSteps[0].status, 'unattempted');
+  // a justification FIRST, its answer after it → still no attempted work before it: left alone
+  const why = await run([S({ description: 'Reason for the value', studentWork: '', status: 'unattempted', marksAwarded: 0, marksDeducted: 1 }), last], 2);
+  assert.equal(why.annotatedSteps[0].status, 'unattempted');
+});
+
+test('§GQ.7 D3 review item 9: the column split reaches ONLY the model\'s quote of a photographed answer — never the model\'s own corrected working, which is read exactly as on trunk (and still nulled when false)', async () => {
+  assert.equal(falseEqualities('2 = 2 -24 = -24').length, 2, 'unquoted text: as trunk');
+  assert.equal(falseEqualities('3 + 4 = 8 −2 = −2').length, 2, 'unquoted text: as trunk');
+  // through the handler: a photo answer whose step carries a FALSE corrected working of the glued shape — trunk drops it
+  const r = (await harness({ replies: [REPLY(R(1, [
+    S({ description: 'Finds the zeroes', studentWork: 'x = 6, x = −4', marksAwarded: 2 }),
+    S({ description: 'Verifies', studentWork: 'Sum = 6 + (−4) = 3', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation', correctedWorking: '2 = 2 -24 = -24' }),
+  ]))] }).sheet(sheet([sq(1, { marks: 3, textAnswer: undefined, finalAnswer: null })], { uploads: [{ qNumber: 1, ...PHOTO }], acceptsV2: true }))).body.results[0];
+  assert.equal(r.annotatedSteps[1].correctedWorking, null, 'a corrected working that is false as written is never shown to the student');
+});
+
+test('§GQ.8 (B) eval gate: knowlViolations accepts ONLY the knowledge-evidence change, and truth.cjs C05 exempts ONLY the step-level fourth state (narrow legacy variant)', () => {
+  const { knowlViolations } = require('../eval/golden/lib/rebaselineClasses.cjs');
+  const { consistencyFailures } = require('../eval/golden/lib/truth.cjs');
+  const body = { results: [{ qNumber: 1, marksAwarded: 1.5, totalMarks: 2, annotatedSteps: [{ studentWork: 'x = 1', status: 'correct' }, { description: 'Verification', studentWork: '', status: 'unattempted', mistakeType: null }] }] };
+  const ok = [
+    [['results', 0, 'annotatedSteps', 1, 'status'], 'missing', 'unattempted'],
+    [['results', 0, 'annotatedSteps', 1, 'mistakeType'], 'presentation', null],
+    [['results', 0, 'mistakeSummary', 'presentation'], 1, 0],
+    [['results', 0, 'marksLostByType', 'presentation'], 0.5, 0],
+    [['results', 0, 'marksLostByType', 'unattempted'], 0, 0.5],
+  ];
+  assert.deepEqual(knowlViolations(ok, body), []);
+  assert.deepEqual(knowlViolations(ok.slice(1, 3), body), [], 'the legacy shape: type only');
+  assert.notDeepEqual(knowlViolations([...ok, [['results', 0, 'marksAwarded'], 1.5, 2]], body), [], 'a MARK change is refused');
+  assert.notDeepEqual(knowlViolations([[['results', 0, 'annotatedSteps', 1, 'mistakeType'], 'presentation', 'conceptual'], [['results', 0, 'mistakeSummary', 'presentation'], 1, 0]], body), [], 'never upgraded to another type');
+  const written = JSON.parse(JSON.stringify(body)); written.results[0].annotatedSteps[1].studentWork = 'LHS = RHS';
+  assert.notDeepEqual(knowlViolations(ok, written), [], 'a step that is not blank is refused');
+  // C05 — every lost mark has a type — except the step-level fourth state
+  const res = (st) => ({ totalMarks: 2, marksAwarded: 1.5, objective: false, mistakeSummary: {}, annotatedSteps: [{ status: 'correct', marksAwarded: 1.5, marksDeducted: 0, mistakeType: null, studentWork: 'x = 1' }, { marksAwarded: 0, marksDeducted: 0.5, mistakeType: null, ...st }] });
+  const c05 = (r, v2) => consistencyFailures(r, { v2 }).some((f) => f.id === 'C05-every-lost-mark-has-a-type');
+  assert.equal(c05(res({ status: 'unattempted', description: 'Verification of the values', studentWork: '' }), true), false, 'v2 step-level unattempted blank reason/verification: exempt');
+  // delta review item 5: the v2 half is as narrow as the legacy half
+  assert.equal(c05(res({ status: 'unattempted', description: 'Answer', studentWork: '' }), true), true, 'CONTROL: any other step-level unattempted still fails C05');
+  assert.equal(c05(res({ status: 'missing', description: 'Verification of values', studentWork: '' }), false), false, 'legacy: a blank untyped verification "missing" step is the same state');
+  assert.equal(c05(res({ status: 'missing', description: 'Solving for y', studentWork: '' }), false), true, 'CONTROL: any other blank untyped missing step still fails C05 (narrow variant)');
+  assert.equal(c05(res({ status: 'missing', description: 'Verification of values', studentWork: '' }), true), true, 'CONTROL: in v2 an untyped "missing" step still fails C05');
+  assert.equal(c05(res({ status: 'incorrect', description: 'Verification', studentWork: 'LHS = 6' }), false), true, 'CONTROL: an untyped wrong step still fails C05');
+});
+
+test('§GQ.9 D3 delta review item 1: on a photo quote a line is charged only when BOTH readings (trunk\'s and the glued-sign split) find it false — correct glued-minus chains are never charged', () => {
+  for (const t of ['D = 7² − 4 × 3 × 2 = 49 −24 = 25', 'x = (12 + 4)/2 = 16 −8 = 8', '2 × 3 = 7 -1 = 6', 'D = 7² − 4 × 3 × 2 = 49 –24 = 25']) {
+    assert.deepEqual(falseEqualities(t, { quoted: true }), [], t);
+  }
+  // still charged (false both ways), reported in the split reading's words
+  assert.deepEqual(falseEqualities('3 + 4 = 8 −2 = −2', { quoted: true }).map((e) => [e.left, e.right]), [['3 + 4', '8']]);
+  assert.deepEqual(falseEqualities('2 = 2 −24 = −24', { quoted: true }), [], 'Q21');
+  assert.deepEqual(falseEqualities('5 -3 = 3', { quoted: true }), [], 'the accepted cost, unchanged');
+  // CONTROL: unquoted text and typed source read exactly as on trunk
+  assert.equal(falseEqualities('D = 7² − 4 × 3 × 2 = 49 −24 = 25').length, 0);
+  assert.equal(falseEqualities('2 = 2 -24 = -24').length, 2);
+});
+
+/* ── GRADER-CREDIT-1 (owner ruling B, 5 Nov 2026): equal final answers in another form ─────────────────── */
+const { equivalentFinalValue } = require('./verify.cjs');
+const { restoreEquivalentFinalAnswer, FORM_DEMANDED, normaliseQuestionResult: nqr } = require('./postprocess.cjs');
+
+test('§GC1.1 equivalentFinalValue tells the readings apart: equal forms are equivalent; a wrong value, a missing unit or two values are not', () => {
+  const eq = (a, b) => equivalentFinalValue(a, b);
+  // CBSE model answer books (cbse.gov.in 2025): 45/48 for 15/16 (30/6/2 Q22), 4.5 A for 4.54 A (31/1/3 Q37(b))
+  assert.equal(eq('P = 90/96 = 45/48', '15/16'), 'equivalent');
+  assert.equal(eq('I = 4.5 A', 'I = 4.54 A'), 'equivalent');
+  assert.equal(eq('0.9375', '15/16'), 'equivalent', 'an exact decimal');
+  assert.equal(eq('0.94', '15/16'), 'equivalent', 'rounded to the places written');
+  assert.equal(eq('2√3', '√12'), 'equivalent', 'an equal surd');
+  assert.equal(eq('Rs 650', '₹ 650'), 'equivalent');
+  // NOT equivalent
+  assert.equal(eq('5 A', '4.54 A'), 'different', 'a coarser value outside the rounding');
+  assert.equal(eq('3.1', '3.14'), 'different', 'within ½ of the last place written, but more than 1% of the key');
+  assert.equal(eq('4', '4.4'), 'different', 'an integer is exact: 4 is never 4.4');
+  assert.equal(eq('44/48', '15/16'), 'different', 'two exact forms must be EQUAL');
+  assert.equal(eq('−4', '4'), 'different', 'the sign counts');
+  // SKIP — the guard never acts on these
+  assert.equal(eq('4.5', '4.54 A'), 'skip', 'the key has a unit the answer lacks: the unit rule is separate');
+  assert.equal(eq('4.5 V', '4.54 A'), 'skip', 'different units');
+  assert.equal(eq('x = 4', 'x = 4, −4'), 'skip', 'two values: shared credit is the prompt\'s job');
+  assert.equal(eq('x = ±4', '4'), 'skip');
+  assert.equal(eq('3m', '3 m'), 'skip', 'a letter glued to a number is a variable, not a unit');
+  assert.equal(eq('Hence proved', '5 − 2√3 is irrational'), 'skip');
+});
+
+test('§GC1.2 FORM_DEMANDED: an explicit demand for a form or a precision is recognised; a plain "find" is not', () => {
+  for (const t of ['Simplify 45/48.', 'Give your answer in its lowest terms.', 'in the simplest form', 'correct to two decimal places', 'correct up to 3 significant figures', 'to 2 d.p.', 'to the nearest metre',
+    'Leave your answer in terms of π.', 'Express 0.375 as a fraction.', 'Give the answer as a decimal.', 'Rationalise the denominator of 1/√5.']) assert.ok(FORM_DEMANDED.test(t), t);
+  for (const t of ['Find the probability that the number is a 2-digit number.', 'Find the current drawn by the iron.', 'Find the roots of x² − 16 = 0.', 'Prove that √5 is irrational.']) assert.ok(!FORM_DEMANDED.test(t), t);
+});
+
+const gcQ = (over = {}) => ({ qNumber: 1, marks: 2, questionText: 'An electric iron of power rating 1 kW is operated on the 220 V mains. Find the current drawn by the iron.', finalAnswer: 'I = 4.54 A', ...over });
+const gcRaw = (last, over = {}) => ({ addressesQuestion: 'yes', finalAnswerCorrect: false, teacherNote: 'Note.', annotatedSteps: [
+  { description: 'Relation', studentWork: 'P = VI ⇒ I = P/V', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+  { description: 'Current', studentWork: 'I = 1000/220 = 4.5 A', status: 'incorrect', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: '× 1000/220 = 4.54 A.', mistakeType: 'calculation', ...last },
+], ...over });
+
+test('§GC1.3 the guard gives back an equal final answer — and only that (never lowers, never acts beside a unit, a format loss, a concept, a departure, an arithmetic flag)', () => {
+  assert.equal(nqr(gcQ(), gcRaw({ teacherAnnotation: '× Round correctly: 4.54 A.' }), { acceptsV2: true }).marksAwarded, 2, '4.5 A for 4.54 A, a rounding complaint: full');
+  assert.equal(nqr(gcQ(), gcRaw({}), { acceptsV2: true }).marksAwarded, 1, 'a VALUE complaint ("× 1000/220 = 4.54 A.") is the prompt\'s business, not the guard\'s');
+  assert.equal(nqr(gcQ({ finalAnswer: null }), gcRaw({}), { acceptsV2: true }).marksAwarded, 1, 'no key: the model decides (trunk)');
+  assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220 = 4.0 A' }), { acceptsV2: true }).marksAwarded, 1, 'a wrong value stays wrong');
+  assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220 = 4.5' }), { acceptsV2: true }).marksAwarded, 1, 'no unit: the guard does not act');
+  assert.equal(nqr(gcQ(), gcRaw({ mistakeType: 'presentation', teacherAnnotation: '× write the unit (A) with your final answer.' }), { acceptsV2: true }).marksAwarded, 1, 'a unit loss is not given back');
+  assert.equal(nqr(gcQ(), gcRaw({ mistakeType: 'conceptual' }), { acceptsV2: true }).marksAwarded, 1, 'a concept loss is not given back');
+  assert.equal(nqr(gcQ(), gcRaw({ studentWork: 'I = 1000/220\n= 4.5 A' }), { acceptsV2: true }).marksAwarded, 1, 'a multi-line calculation step: the loss may be elsewhere in it');
+  assert.equal(nqr(gcQ(), gcRaw({}, { studentFinalAnswer: 'I = 5 A' }), { acceptsV2: true }).marksAwarded, 1, 'the quoted final answer must agree too');
+  assert.equal(nqr(gcQ({ questionText: 'Find the current drawn, correct to two decimal places.' }), gcRaw({}), { acceptsV2: true }).marksAwarded, 1, 'a stated precision is enforced');
+  const dep = gcRaw({});
+  dep.annotatedSteps[0] = { ...dep.annotatedSteps[0], isDeparture: true, departureKind: 'invalid-method', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' };
+  assert.equal(nqr(gcQ(), dep, { acceptsV2: true }).marksAwarded, 0, 'under a departure nothing is given back');
+  const flagged = gcRaw({});
+  flagged.annotatedSteps[0] = { ...flagged.annotatedSteps[0], studentWork: '1232/308 = 8' };
+  assert.equal(nqr(gcQ(), flagged, { acceptsV2: true }).marksAwarded, 0.5, 'an arithmetic flag in the question blocks the guard');
+  // NEVER LOWERS: a model that gave full marks to a DIFFERENT value is untouched by this guard (C4.2 decides, as on trunk)
+  const full = gcRaw({ status: 'correct', marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓' }, { finalAnswerCorrect: true });
+  const trunkLike = nqr(gcQ({ finalAnswer: null }), JSON.parse(JSON.stringify(full)), { acceptsV2: true }).marksAwarded;
+  assert.equal(nqr(gcQ(), full, { acceptsV2: true }).marksAwarded, trunkLike);
+});
+
+test('§GC1.4 the "final answer wrong" verdict alone is overruled only on a question WITHOUT parts', () => {
+  const steps = [{ description: 'a', studentWork: 'x = 1', status: 'correct', _available: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', part: null },
+    { description: 'b', studentWork: 'P = 90/96 = 45/48', status: 'correct', _available: 1, marksAwarded: 1, marksDeducted: 0, mistakeType: null, teacherAnnotation: '✓', part: null }];
+  const args = { q: { finalAnswer: '15/16', questionText: 'Find P.' }, raw: {}, zeroedBy: new Map(), finalAnswerCorrect: false };
+  assert.deepEqual(restoreEquivalentFinalAnswer(JSON.parse(JSON.stringify(steps)), args), { index: 1, stepRestored: false });
+  const parts = steps.map((s, i) => ({ ...s, part: i ? '(ii)' : '(i)' }));
+  assert.equal(restoreEquivalentFinalAnswer(parts, args), null);
+  assert.equal(nqr({ qNumber: 1, marks: 2, questionText: 'Find P.', finalAnswer: '15/16' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: steps.map((s) => ({ ...s, marksAvailable: 1 })) }, { acceptsV2: true }).marksAwarded, 2,
+    'on trunk the model\'s verdict alone capped this at 1.5');
+});
+
+/* ── GRADER-CREDIT-1 review round 1 (#1583, coordinator 5 Nov): the reviewer's adversarial set ─────────── */
+test('§GC1.5 ★ BLOCKING 1+2 — a wrong substitution, a rejected-root ½ and a presentation loss are NEVER given back; the right forms still are', () => {
+  const run = (studentWork, last = {}, q = {}) => nqr(gcQ(q), gcRaw({ studentWork, ...last }), { acceptsV2: true }).marksAwarded;
+  // (1) the working must give the key's value — only the final number's FORM / ROUNDING may differ
+  assert.equal(run('I = 900/200 = 4.5 A', { mistakeType: 'silly', teacherAnnotation: '× You used 900 W; 1000/220 = 4.54 A.' }), 1, '900 W substituted: stays');
+  assert.equal(run('I = 1000/222 = 4.5 A', { teacherAnnotation: '× Round correctly: 4.54 A.' }), 1, '222 V substituted: stays even with a rounding complaint');
+  assert.equal(run('I = 4.5 A', { teacherAnnotation: '× 4.54 A.' }), 1, 'no working on the line: not evaluable here, stays');
+  assert.equal(run('I = 1000/220 = 4.5 A', { teacherAnnotation: '× Round correctly: 4.54 A.' }), 2, 'CONTROL: the right working, rounded: given back');
+  // (2) a word problem's "state which root is rejected" ½ — and ANY presentation-typed loss — stays
+  const wp = { qNumber: 1, marks: 3, questionText: 'The product of two consecutive natural numbers is 72. Find the smaller number N.', finalAnswer: '8' };
+  const wpRaw = (ann, type) => ({ addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Equation', studentWork: 'N(N + 1) = 72 ⇒ N² + N − 72 = 0 ⇒ (N + 9)(N − 8) = 0', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Answer', studentWork: 'N = 8', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: ann, mistakeType: type }] });
+  for (const [ann, type] of [['½ Say why N = −9 is rejected.', 'presentation'], ['½ You did not state which root fits.', 'presentation'], ['½ You did not state which root fits.', 'calculation'], ['½ Reject −9: N must be a natural number.', null]]) {
+    assert.equal(nqr(wp, wpRaw(ann, type), { acceptsV2: true }).marksAwarded, 2.5, ann + ' / ' + type);
+  }
+  // a presentation-typed "simplify" loss is the PROMPT's business (EQUIVALENT ANSWERS), never this guard's
+  // delta review: a METHOD complaint carrying digits is never a form complaint
+  const sq = { qNumber: 1, marks: 2, questionText: 'The area of a square is 16 cm². Find its side x.', finalAnswer: 'x = 4 cm' };
+  const sqRaw = (work, ann) => ({ addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Area relation', studentWork: 'x² = 16', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Side', studentWork: work, status: 'incorrect', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: ann, mistakeType: 'calculation' }] });
+  assert.equal(nqr(sq, sqRaw('x = 16/4 = 4 cm', '× side = √16 = 4 cm, not 16/4'), { acceptsV2: true }).marksAwarded, 1, '16/4: a wrong method, stays');
+  const sq2 = { qNumber: 1, marks: 2, questionText: 'Solve x² = 4 for the positive root.', finalAnswer: 'x = 2' };
+  assert.equal(nqr(sq2, sqRaw('x = 4/2 = 2', '× x = √4 = 2, not 4/2.'), { acceptsV2: true }).marksAwarded, 1, 'x² = 4 → x = 4/2 = 2: stays');
+  const pres = nqr({ qNumber: 1, marks: 1, questionText: 'Find the probability that the card is a 2-digit number.', finalAnswer: '15/16' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Counts', studentWork: 'Total = 96, favourable = 90', status: 'correct', marksAvailable: 0.5, marksAwarded: 0.5, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    { description: 'Probability', studentWork: 'P = 90/96 = 45/48', status: 'incorrect', marksAvailable: 0.5, marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: '× Simplify the fraction fully: 15/16.', mistakeType: 'presentation' }] }, { acceptsV2: true });
+  assert.equal(pres.marksAwarded, 0.5);
+});
+
+test('§GC1.6 ★ BLOCKING 3 — FORM_DEMANDED recognises every way a form or a precision is demanded', () => {
+  for (const t of ['Find x, rounding off to two places of decimal.', 'Give the answer up to 2 decimals.', 'Give it to one decimal.', 'Write the answer in fractional form.', 'Write it in decimal form.',
+    'Give the ratio in the reduced form.', 'Write the number in standard form.', 'correct to 3 significant figures', 'to the nearest whole number', 'to the nearest tenth', 'to the nearest hundredth',
+    'Write the answer in simplest form.', 'Leave it in surd form.', 'in terms of π', 'Round off to the nearest integer.', 'Find it approximately to 2 places.', 'Give it to two places.']) assert.ok(FORM_DEMANDED.test(t), t);
+  for (const t of ['Find the probability that the number is a 2-digit number.', 'Find the current drawn by the iron.', 'Find the height of the tower.']) assert.ok(!FORM_DEMANDED.test(t), t);
+});
+
+test('§GC1.7 SHOULD-FIX 4+5 and the owner calls — multi-line keys and another variable are never one value; 0.14 for 5/36 and 10√3 = 17.3 m are', () => {
+  const eqW = (a, b) => equivalentFinalValue(a, b, { requireWorking: true });
+  assert.equal(equivalentFinalValue('x = −4', 'x = 4\nx = −4'), 'skip', 'a two-line key is two values');
+  assert.equal(equivalentFinalValue('y = 2', 'x = 2'), 'skip', 'another variable');
+  assert.equal(equivalentFinalValue('x = 2', 'x = 2'), 'equivalent');
+  assert.equal(eqW('P = 5/36 = 0.14', '5/36'), 'equivalent', 'owner call: 0.14 for 5/36 when no precision is demanded');
+  assert.equal(eqW('h = 10√3 = 17.3 m', 'h = 17.3 m'), 'equivalent', 'owner call: 10√3 m for 17.3 m');
+  assert.equal(eqW('P = 5/36 = 0.13', '5/36'), 'different');
+  // safe direction, by owner call: a mixed number and 22/7 vs π may stay "different"/"skip"
+  assert.notEqual(eqW('A = 22/7 × 49 = 154', '49π'), 'equivalent');
+});
+
+test('§GC1.8 SHOULD-FIX 6+7 — the 1-mark split is for NON-objective items only (objective stays 0/full); answer-only separable values share the final-answer mark', () => {
+  const p = require('./prompt.cjs').rulesText({ transport: 'typedOnly', hasAnyTyped: true, anyScheme: false, subjectMode: 'maths' });
+  assert.ok(p.includes('INCLUDING a 1-mark item or a 1-mark part of a case study that asks for two separable values') && p.includes('NEVER an OBJECTIVE item'), 'SEPARATE VALUES');
+  assert.ok(p.includes('EXCEPT a NON-objective 1-mark item or part that asks for TWO OR MORE SEPARABLE values') && p.includes('an OBJECTIVE item — MCQ, Assertion-Reason, or a 1-mark item with printed options — NEVER does'), 'FINAL ANSWER');
+  assert.ok(p.includes('separable values in the FINAL ANSWER share the final-answer mark EVEN WITHOUT WORKING') && p.includes('"x = 4, 5" where the roots are 4 and −5'), 'answer only');
+  // deterministic: a NON-objective 1-mark item keeps the model's ½; an OBJECTIVE 1-mark MCQ is 0 or full
+  const half = nqr({ qNumber: 1, marks: 1, questionText: 'Write the zeroes of x² + x − 20.' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Zeroes', studentWork: 'x = 4, 5', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½ 4 is right; the other zero is −5.', mistakeType: 'calculation' }] }, { acceptsV2: true });
+  assert.equal(half.marksAwarded, 0.5, 'answer-only, non-objective: the share is kept');
+  const mcq = nqr({ qNumber: 1, marks: 1, objective: true, questionText: 'The zeroes of x² + x − 20 are (a) 4, 5 (b) 4, −5 (c) −4, 5 (d) −4, −5', options: ['4, 5', '4, −5', '−4, 5', '−4, −5'], correctOption: 'b' }, { addressesQuestion: 'yes', finalAnswerCorrect: false, annotatedSteps: [
+    { description: 'Option', studentWork: '(a)', status: 'partial', marksAvailable: 1, marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: '½', mistakeType: null }] }, { acceptsV2: true });
+  assert.ok(mcq.marksAwarded === 0 || mcq.marksAwarded === 1, 'objective invariant: never ½ (got ' + mcq.marksAwarded + ')');
+  assert.equal(mcq.marksAwarded, 0, 'a wrong option is 0');
+});
+
+test('§GC1.9 delta review — a form demand is read from the QUESTION TEXT the request carries; no paper-level instruction reaches the grader (follow-up FU-GRADER-PAPER-LEVEL-FORM-DEMAND)', () => {
+  const raw = () => gcRaw({ teacherAnnotation: '× Round correctly: 4.54 A.' });
+  // inside the question text (how a printed instruction reaches the grader today): enforced
+  assert.equal(nqr(gcQ({ questionText: 'General instruction: give every answer correct to two decimal places. An electric iron of 1 kW runs on 220 V. Find the current drawn.' }), raw(), { acceptsV2: true }).marksAwarded, 1);
+  // a paper-level field is NOT read (no such field exists on any request today) — pinned so the gap is visible
+  assert.equal(nqr(gcQ({ instructions: 'Give every answer correct to two decimal places.' }), raw(), { acceptsV2: true }).marksAwarded, 2);
 });

@@ -1,6 +1,6 @@
 /**
  * GST-EXCL-1 (review G2) - "what is charged must equal what was shown before payment", even on a device whose clock is
- * wrong or a tab rendered before 00:00 IST 5 Nov 2026.
+ * wrong or a tab rendered before 00:00 IST 7 Nov 2026.
  *
  * Every Pay/Buy label is computed in the browser from the device clock. The SERVER decides the charge from its own
  * clock and, from the GST cut-off, returns its breakup on the order (`gst`, `packCreditInr`). Before Razorpay opens,
@@ -65,6 +65,19 @@ export function priceNowLine(order: ServerPricedOrder): string {
   if (!order.gst) return `Price now ${charged}`;
   const head = `Price now ${formatInr(order.gst.baseInr)} + ${formatInr(order.gst.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(order.gst.totalInr)}`;
   return order.packCreditInr ? `${head}, less your pack credit ${formatInr(order.packCreditInr)}: ${charged}` : head;
+}
+
+/**
+ * PURE. The Razorpay checkout `description`: unchanged for an all-in order (every order before the GST cut-off, so it stays
+ * byte-identical to today); for an order that ADDED GST, the server's own breakup is appended, so the Razorpay sheet names
+ * the same figures the checkout step showed: "Board Pass till your boards · ₹1,917 + ₹345 GST (18%) = ₹2,262" (a pack
+ * credit is named: "…, less pack credit ₹49: ₹2,213").
+ */
+export function razorpayDescription(description: string, order: ServerPricedOrder): string {
+  if (!order.gst) return description;
+  const head = `${formatInr(order.gst.baseInr)} + ${formatInr(order.gst.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(order.gst.totalInr)}`;
+  const tail = order.packCreditInr ? `${head}, less pack credit ${formatInr(order.packCreditInr)}: ${formatInr(order.amountPaise / 100)}` : head;
+  return `${description} \u00b7 ${tail}`;
 }
 
 /** PURE. The confirm button: "Pay ₹2,262" - exactly what Razorpay will ask for. */

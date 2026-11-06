@@ -155,7 +155,7 @@ function shortDate(label: string): string {
  */
 export function trialEndFoundingLine(nowMs: number): string | null {
   if (!foundingOfferOpen(nowMs)) return null;
-  // GST-EXCL-1: "Founding price ₹1,917 + GST till 30 Nov — ₹2,499 + GST from 1 Dec" from 00:00 IST 5 Nov 2026.
+  // GST-EXCL-1: "Founding price ₹1,917 + GST till 30 Nov — ₹2,499 + GST from 1 Dec" from 00:00 IST 7 Nov 2026.
   return `Founding price ${displayPlusGst(TILL_BOARDS_FOUNDING_INR, nowMs)} till ${shortDate(FOUNDING_OFFER_LAST_DAY_LABEL)} \u2014 ${displayPlusGst(TILL_BOARDS_AFTER_FOUNDING_INR, nowMs)} from ${shortDate(FOUNDING_OFFER_LIST_FROM_LABEL)}`;
 }
 

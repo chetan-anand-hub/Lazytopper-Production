@@ -185,9 +185,9 @@ function daysToBoards(now: Date, boardIso: string): number | null {
 }
 
 export interface ParentPriceModel {
-  /** The price TAG ("₹1,917", or "₹1,917 + GST" from 5 Nov 2026). */
+  /** The price TAG ("₹1,917", or "₹1,917 + GST" from 7 Nov 2026). */
   boardPassDisplay: string;
-  /** GST-EXCL-1: the amount CHARGED - what the Pay buttons name ("₹2,262" from 5 Nov 2026). */
+  /** GST-EXCL-1: the amount CHARGED - what the Pay buttons name ("₹2,262" from 7 Nov 2026). */
   boardPassPayDisplay: string;
   /** "≈ ₹N a day till the boards", or null when the date or price cannot be trusted. */
   perDayLine: string | null;
@@ -228,7 +228,7 @@ function useMounted(): boolean {
   return mounted;
 }
 
-/** "Pay for my child · ₹1,917" (GST-EXCL-1: the amount CHARGED, ₹2,262 from 5 Nov 2026): the figure is read AFTER mount (founding/regular logic of /pricing), so the prerender has none. */
+/** "Pay for my child · ₹1,917" (GST-EXCL-1: the amount CHARGED, ₹2,262 from 7 Nov 2026): the figure is read AFTER mount (founding/regular logic of /pricing), so the prerender has none. */
 function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
   const mounted = useMounted();
   return (

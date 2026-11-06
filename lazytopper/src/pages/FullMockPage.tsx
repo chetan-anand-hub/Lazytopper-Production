@@ -40,8 +40,11 @@ import type { PersistedWorksheet } from "../services/worksheetSessionStore";
 import {
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
-  fullMockSequence,
-  fullMockNomenclature,
+  mintUniqueFullMockNomenclature,
+  nameForCode,
+  onRecordRelocated,
+  RecordCodeCheckError,
+  RECORD_CODE_CHECK_FAILED_LINE,
   buildFullMockSessionRecord,
   type SessionRecord,
   type SessionSubject,
@@ -128,6 +131,7 @@ import {
   searchWithoutReview,
   withScorecardReviewParam,
 } from "./tutor/tutorRoundTrip";
+import { getSurfaceHistory } from "../services/progressStore";
 import { bankRowMeta } from "../data/bankChapters/bankIdIndex";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 // BANK-LEAN-1 (C3): the stored re-open chapter join reads the question bank, so it
@@ -240,6 +244,9 @@ export default function FullMockPage() {
   // ── Records (history panel · pending banner · durable #NN) ──────────────────
   const [records, setRecords] = useState<SessionRecord[]>([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
+  // RECORD-SAFE-1: the code could not be checked against the student's saved papers; mintNonce retries.
+  const [codeCheckFailed, setCodeCheckFailed] = useState(false);
+  const [mintNonce, setMintNonce] = useState(0);
   const loadRecords = useCallback(async () => {
     try {
       const all = await getSessionRecordsFromCloud(user?.uid);
@@ -276,9 +283,20 @@ export default function FullMockPage() {
       setRecordsLoading(true);
       const all = await loadRecords();
       if (!live) return;
-      const seq = fullMockSequence(all, sessionSubject);
-      const nm = fullMockNomenclature(sessionSubject, seq);
-      snapshotFresh(all, seq);
+      // RECORD-SAFE-1: checked against the student's real records and saved papers; unknown -> mint nothing.
+      let nm: Awaited<ReturnType<typeof mintUniqueFullMockNomenclature>>;
+      try {
+        nm = await mintUniqueFullMockNomenclature(sessionSubject, all, user);
+      } catch (error) {
+        if (!(error instanceof RecordCodeCheckError)) console.warn("[FullMockPage] code mint failed", error);
+        if (!live) return;
+        setCodeCheckFailed(true);
+        setRecordsLoading(false);
+        return;
+      }
+      if (!live) return;
+      setCodeCheckFailed(false);
+      snapshotFresh(all, nm.sequence);
       setNomen({ code: nm.code, name: nm.name });
       setRecordsLoading(false);
     })();
@@ -286,7 +304,7 @@ export default function FullMockPage() {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, sessionSubject]);
+  }, [user?.uid, sessionSubject, mintNonce]);
 
   const mockRecords = useMemo(
     () => records.filter((r) => r.surface === "full-mock").sort((a, b) => b.gradedAt - a.gradedAt),
@@ -321,6 +339,15 @@ export default function FullMockPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   useScrollTopOnChange(phase); // SCROLL-TOP-1 — each phase/view opens at the top
   const [activeMock, setActiveMock] = useState<ActiveMock | null>(null);
+  // RECORD-SAFE-1: when a record had to be saved under a different code than the paper was drawn with (that code
+  // belonged to another paper), the sitting follows it - scorecard, graded sheet, detail lock, delta line and
+  // downloads all read `activeMock.code`.
+  const adoptFmCode = useCallback((savedCode: string | undefined, a: { code: string; name: string; paper: PersistedWorksheet }): { code: string; name: string } => {
+    if (!savedCode || savedCode === a.code) return { code: a.code, name: a.name };
+    const next = { code: savedCode, name: nameForCode(a.name, savedCode) };
+    setActiveMock((m) => (m && m.paper.worksheetId === a.paper.worksheetId ? { ...m, ...next } : m));
+    return next;
+  }, []);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [flags, setFlags] = useState<Set<number>>(new Set());
   const [currentQNumber, setCurrentQNumber] = useState(1);
@@ -331,6 +358,33 @@ export default function FullMockPage() {
 
   // Latest values for the autosave writer (avoids stale closures in callbacks).
   const answersRef = useRef(answers);
+  // RECORD-SAFE-1 (D): a record that had to move to a free code takes the page, the device session and the server
+  // paper copy with it. Called with the code the page holds NOW, so a record that moves twice ends on the final one.
+  const moveFmPaper = useCallback(
+    (from: string, to: string, a: ActiveMock, obj: ObjectiveScore, focus: SessionFocusAggregates) => {
+      const eff = adoptFmCode(to, a);
+      const sess = loadFullMockSession(sessionUid, from);
+      if (sess) {
+        saveFullMockSession(sessionUid, { ...sess, code: eff.code, name: eff.name });
+        clearFullMockSession(sessionUid, from);
+      }
+      saveFullMockPaperSnapshot(user, {
+        code: eff.code,
+        name: eff.name,
+        subject,
+        grade,
+        paper: a.paper,
+        startedAt: a.startedAt,
+        durationMs: a.durationMs,
+        objective: obj,
+        focus,
+        pyqCount: a.pyqCount,
+        freshCount: a.freshCount,
+      });
+      deleteFullMockPaperSnapshot(user, from, a.paper.worksheetId);
+    },
+    [adoptFmCode, sessionUid, user, subject, grade],
+  );
   const flagsRef = useRef(flags);
   const currentQRef = useRef(currentQNumber);
   const focusRef = useRef<SessionFocusAggregates>(EMPTY_FOCUS);
@@ -400,6 +454,18 @@ export default function FullMockPage() {
 
   // ── Results state (two-phase) ────────────────────────────────────────────────
   const [objective, setObjective] = useState<ObjectiveScore | null>(null);
+  const objectiveRef = useRef<ObjectiveScore | null>(null);
+  objectiveRef.current = objective;
+  useEffect(
+    () =>
+      onRecordRelocated((_from, to, worksheetId) => {
+        const a = activeRef.current;
+        const obj = objectiveRef.current;
+        if (!a || !obj || a.paper.worksheetId !== worksheetId || a.code === to) return;
+        moveFmPaper(a.code, to, a, obj, focusRef.current);
+      }),
+    [moveFmPaper],
+  );
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
@@ -514,7 +580,10 @@ export default function FullMockPage() {
         subjectiveQuestions: subjQs,
         subjectiveResponse: null,
       });
-      writeFullMockPartialRecord({
+      // RECORD-SAFE-1: the partial record, the device session and the server paper copy are written NOW, under the
+      // requested code, with no wait on any cloud read (as before). If that code turns out to belong to another paper
+      // the cloud write saves it under a free code and onRecordRelocated moves the page + these copies to it.
+      const wrote = writeFullMockPartialRecord({
         user,
         paper: a.paper,
         code: a.code,
@@ -558,6 +627,10 @@ export default function FullMockPage() {
         pyqCount: a.pyqCount,
         freshCount: a.freshCount,
       });
+      // the device mirror may already have moved the record to a free code: follow it
+      const written = wrote.then((savedCode) => {
+        if (savedCode && savedCode !== a.code) moveFmPaper(a.code, savedCode, a, obj, focus);
+      });
       focusRef.current = focus;
       setObjective(obj);
       setResultsPhase("partial");
@@ -571,14 +644,19 @@ export default function FullMockPage() {
       // Re-mint the NEXT mock's nomenclature off the fresh records (this mock's
       // record now exists) — otherwise a same-visit second mock would reuse this
       // code and overwrite this record.
-      void loadRecords().then((all) => {
-        const seq = fullMockSequence(all, sessionSubject);
-        const nm = fullMockNomenclature(sessionSubject, seq);
-        snapshotFresh(all, seq);
-        setNomen({ code: nm.code, name: nm.name });
+      void written.then(() => loadRecords()).then(async (all) => {
+        try {
+          const nm = await mintUniqueFullMockNomenclature(sessionSubject, all, user);
+          snapshotFresh(all, nm.sequence);
+          setNomen({ code: nm.code, name: nm.name });
+        } catch {
+          // Unknown -> no new code is minted; the page asks the student to retry (the submitted mock is safe).
+          setNomen(null);
+          setCodeCheckFailed(true);
+        }
       });
     },
-    [user, sessionSubject, sessionUid, subject, grade, loadRecords],
+    [user, sessionSubject, sessionUid, subject, grade, loadRecords, moveFmPaper],
   );
 
   const finishToPartial = useCallback(() => {
@@ -733,10 +811,12 @@ export default function FullMockPage() {
           setResultsPhase("full");
           setScorecardOpen(true);
           fairUse.noteGraded();
+          const gradedAs = adoptFmCode(outcome.savedCode, a);
           clearFullMockSession(sessionUid, a.code);
           // Fully graded — the durable record + perQuestion payload exist; the
-          // cross-device paper snapshot has done its job.
-          deleteFullMockPaperSnapshot(user, a.code);
+          // cross-device paper snapshot has done its job. Only THIS paper's copy (by identity).
+          deleteFullMockPaperSnapshot(user, a.code, a.paper.worksheetId);
+          if (gradedAs.code !== a.code) deleteFullMockPaperSnapshot(user, gradedAs.code, a.paper.worksheetId);
           trackUxEvent("full_mock_complete", "FullMockPage", {
             subject,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -763,7 +843,7 @@ export default function FullMockPage() {
         setGrading(false);
       }
     },
-    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal, adoptFmCode],
   );
 
   // J2 — resume after a reload: an awaiting-upload mock on this device with a background grade
@@ -918,6 +998,8 @@ export default function FullMockPage() {
         return {
           onAsk: () => {
             trackOnboardingEvent("tutor_from_scorecard", { surface: "full_mock" });
+            // CI-TUTOR-RETURN-1 - name THIS saved paper on the entry we leave, so browser Back (not just the tutor's arrow) reopens it.
+            navigate(withScorecardReviewParam(location.pathname + searchWithoutReview(location.search), record.id), { replace: true });
             navigate(
               buildTutorPath({
                 subject,
@@ -956,6 +1038,41 @@ export default function FullMockPage() {
       }
     })();
   }, [reviewParam, authLoading, reviewUid, location.pathname, location.search, location.state, navigate, openStored]);
+
+  // GRADE-ROUTE-1 - `?upload=<code>` opens THAT pending mock's upload, exactly like the pending banner's
+  // Upload button (`openPendingUpload`: attaches to the EXISTING record, never a new one). Used by Home, the
+  // bell and the Answer Checker's "grade it on its own page" offer. Consumed once and stripped with `replace`.
+  // Signed out (kept for after login) / unknown / not this student's / already graded -> the normal page.
+  const uploadParam = sp.get("upload");
+  const uploadConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!uploadParam || authLoading || !reviewUid) return;
+    if (uploadConsumedRef.current === uploadParam) return;
+    uploadConsumedRef.current = uploadParam;
+    const rest = new URLSearchParams(location.search);
+    rest.delete("upload");
+    const q = rest.toString();
+    navigate({ pathname: location.pathname, search: q ? `?${q}` : "" }, { replace: true, state: location.state });
+    void (async () => {
+      try {
+        const own = (r: SessionRecord) =>
+          r.id === uploadParam && r.surface === "full-mock" && r.status !== "graded" && recordBelongsToUid(r, reviewUid);
+        // This device's records first (a mock the Answer Checker found only locally), then the cloud list.
+        let record = getSurfaceHistory("full-mock", reviewUid).find(own);
+        if (!record) {
+          try {
+            record = (await getSessionRecordsFromCloud(reviewUid)).find(own);
+          } catch {
+            /* offline: nothing more to look at */
+          }
+        }
+        if (record) await openPendingUpload(record);
+      } catch {
+        /* honest fallback: the plain page */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadParam, authLoading, reviewUid]);
 
   // The live (just graded) mock's saved record — only once it is in the student's store and holds
   // THIS grade (same graded marks), and only while the paper on screen is the record's paper.
@@ -1084,7 +1201,7 @@ export default function FullMockPage() {
       }
       setPaperNotice(null);
       const obj = scoreObjectiveSection(fullMockObjectiveQuestions(snap.paper), picks);
-      writeFullMockPartialRecord({
+      const savedCode = await writeFullMockPartialRecord({
         user,
         paper: snap.paper,
         code: snap.code,
@@ -1096,9 +1213,10 @@ export default function FullMockPage() {
           subjectiveResponse: null,
         }),
       });
+      const fin = savedCode && savedCode !== snap.code ? { code: savedCode, name: nameForCode(snap.name, savedCode) } : { code: snap.code, name: snap.name };
       saveFullMockSession(sessionUid, {
-        code: snap.code,
-        name: snap.name,
+        code: fin.code,
+        name: fin.name,
         subject: snap.subject,
         grade: snap.grade,
         paper: snap.paper,
@@ -1116,8 +1234,8 @@ export default function FullMockPage() {
         updatedAt: Date.now(),
       });
       saveFullMockPaperSnapshot(user, {
-        code: snap.code,
-        name: snap.name,
+        code: fin.code,
+        name: fin.name,
         subject: snap.subject,
         grade: snap.grade,
         paper: snap.paper,
@@ -1130,8 +1248,8 @@ export default function FullMockPage() {
       });
       const a: ActiveMock = {
         paper: snap.paper,
-        code: snap.code,
-        name: snap.name,
+        code: fin.code,
+        name: fin.name,
         startedAt: snap.startedAt,
         durationMs: snap.durationMs,
         pyqCount: snap.pyqCount,
@@ -1382,6 +1500,13 @@ export default function FullMockPage() {
                 {!draw && bank.error ? (
                   <div className="lt-ct__empty">
                     We couldn’t load the {subject} questions. Check your connection and reload the page.
+                  </div>
+                ) : !draw && codeCheckFailed ? (
+                  <div className="lt-ct__empty" role="alert">
+                    {RECORD_CODE_CHECK_FAILED_LINE}{" "}
+                    <button type="button" className="lt-ct__btn" onClick={() => setMintNonce((n) => n + 1)}>
+                      Try again
+                    </button>
                   </div>
                 ) : !draw ? (
                   <div className="lt-ct__empty">Building your mock…</div>

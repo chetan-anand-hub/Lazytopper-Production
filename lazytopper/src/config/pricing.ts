@@ -160,10 +160,12 @@ export function tillBoardsPriceInr(now: Date | number = Date.now()): number {
 
 /**
  * GST-EXCL-1 (owner ruling, 4 Nov 2026, 18:12-18:20 IST): the company is GST-registered and the Board Pass is priced
- * TAX-EXCLUSIVE from 00:00 IST on 5 Nov 2026 - "actual price plus GST, which will be deducted during Razorpay payment".
+ * TAX-EXCLUSIVE from 00:00 IST on 7 Nov 2026 - "actual price plus GST, which will be deducted during Razorpay payment".
+ * Rollout moment moved from 5 Nov to 00:00 IST 7 Nov 2026 by owner ruling (6 Nov 2026, 18:52 IST); anyone who bought before it
+ * sees no change (their orders keep their amounts; grants and passes are untouched).
  * The base prices above do not change; from this instant the amount CHARGED is base + 18% GST, rounded to the rupee
  * (₹1,917 -> ₹2,262 founding; ₹2,499 -> ₹2,949 from 1 Dec). Before it, every figure is byte-identical to today's.
- * Board Pass ONLY: PDF packs stay all-in. The SERVER mirrors these in `server/services/passPricing.cjs` and decides
+ * EVERY paid product (Board Pass, every PDF pack, top-ups; owner scope 4 Nov 18:23 IST). The SERVER mirrors these in `server/services/passPricing.cjs` and decides
  * what is charged on its own clock; `passPricing.parity.test.ts` proves the two agree.
  * ★ CONSUMER LAW (E-Commerce Rules 2020, CCPA dark-pattern guidelines 2023): the TOTAL incl. tax is shown before Razorpay
  * opens. Owner (4 Nov 18:20 IST): price tags read only "₹1,917 + GST"; every Pay button names the TOTAL ("Pay ₹2,262");
@@ -171,7 +173,7 @@ export function tillBoardsPriceInr(now: Date | number = Date.now()): number {
  */
 export const GST_RATE_PERCENT = 18;
 export const GST_RATE = GST_RATE_PERCENT / 100;
-export const GST_EXCLUSIVE_FROM_ISO = "2026-11-05T00:00:00+05:30";
+export const GST_EXCLUSIVE_FROM_ISO = "2026-11-07T00:00:00+05:30";
 export const GST_EXCLUSIVE_FROM_MS = Date.parse(GST_EXCLUSIVE_FROM_ISO);
 
 /** Is the Board Pass priced "+ GST" at the instant `now`? PURE: the clock is an argument. */

@@ -28,7 +28,7 @@ import type {
   SessionRecord,
   SessionTopicSource,
 } from "../../services/sessionRecords";
-import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
+import { deriveSectionLens, deriveTypeLens, stampFromPaper, type PaperLensQuestion, type TypeLensRow } from "./sectionTypeLens";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
@@ -128,6 +128,30 @@ export interface ScorecardSectionLensRow {
   label: string;
   awarded: number;
   total: number;
+  /** SCORECARD-SECTION-TYPE-1 — marks lost in the section (total - awarded), graded questions in it,
+   *  and whether the section was only INFERRED by the paper read (shown with a "check" chip). */
+  lost?: number;
+  count?: number;
+  check?: boolean;
+}
+
+/** SCORECARD-SECTION-TYPE-1 — one row of the by-question-type lens (bank `format`, or on the Answer
+ *  Checker only "MCQ / Assertion-Reason" vs "Written" as the paper read reported them). */
+export type ScorecardTypeLensRow = TypeLensRow;
+
+/** The section + type lens fields of a variant, derived from a (stamped) grade response. ONE helper,
+ *  so every surface's variant, live and restored, gets the same lens from the same data. Absent
+ *  data → empty object → nothing renders (honest-or-silent). Presentation only. */
+export function sectionTypeLensFields(
+  response: WorksheetGradeResponse | null | undefined,
+): Pick<ScorecardVariant, "sectionLens" | "sectionLensNote" | "typeLens" | "typeLensNote"> {
+  const sec = deriveSectionLens(response);
+  const typ = deriveTypeLens(response);
+  // Only the fields that have data: a variant with no lens is byte-identical to what it was before.
+  return {
+    ...(sec ? { sectionLens: sec.rows, ...(sec.note ? { sectionLensNote: sec.note } : {}) } : {}),
+    ...(typ ? { typeLens: typ.rows, ...(typ.note ? { typeLensNote: typ.note } : {}) } : {}),
+  };
 }
 
 /** One row of the chapter-test BY-CONCEPT lens ([FU-CT-CONCEPT-LENS]) — the
@@ -205,6 +229,9 @@ export interface ScorecardSplit {
  *  the button, and only on a question that lost marks. */
 export interface ScorecardTutorAsk {
   onAsk: () => void;
+  /** CI-TUTOR-RETURN-1 (optional, additive): the student already asked the tutor about this question
+   *  (this browser session). The button stays tappable and only its label changes. */
+  asked?: boolean;
 }
 
 /** START-HERE-1 · one MCQ the student got wrong. `yourAnswer` / `correctAnswer` are the option
@@ -305,6 +332,12 @@ export interface ScorecardVariant {
   /** Chapter-test BY-SECTION lens (A–D), rendered by the shell above the four-type
    *  block. Derived at render (D3); other surfaces leave it null. */
   sectionLens?: ScorecardSectionLensRow[] | null;
+  /** SCORECARD-SECTION-TYPE-1 — the honest line under the by-section table ("Sections as read from your
+   *  paper", the "check" explanation, questions with no section). Null/absent: no line. */
+  sectionLensNote?: string | null;
+  /** SCORECARD-SECTION-TYPE-1 — the by-question-type lens, rendered right after the section lens. */
+  typeLens?: ScorecardTypeLensRow[] | null;
+  typeLensNote?: string | null;
   /** Chapter-test BY-CONCEPT lens ([FU-CT-CONCEPT-LENS]), rendered by the shell
    *  BETWEEN the section lens and the four-type (the Full-Mock arrangement:
    *  section → concept → four-type). Derived at render; other surfaces leave it null. */
@@ -469,6 +502,9 @@ export interface WorksheetVariantInput {
   onRead: () => void;
   /** Download the graded-sheet PDF. */
   onDownload: () => void;
+  /** SCORECARD-SECTION-TYPE-1 - the worksheet's own questions (a worksheet's `section` IS the bank
+   *  row's), so a grade stamped before this lane still gets its section and type lenses. Optional. */
+  questions?: PaperLensQuestion[];
 }
 
 /**
@@ -495,6 +531,7 @@ export function worksheetScorecardVariant(input: WorksheetVariantInput): Scoreca
     // hidden only in the all-pending case, exactly as the shipped card does.
     fourType: allPending ? null : aggregateFourType(response),
     marksLost: allPending ? null : aggregateMarksLost(response),
+    ...(allPending ? {} : sectionTypeLensFields(stampFromPaper(response, input.questions, { blueprintFallback: true }))),
     pending: allPending ? null : pendingStrip(response),
     allPending: allPending ? allPendingMessage(response) : null,
     actions: [
@@ -515,6 +552,9 @@ export function worksheetScorecardVariant(input: WorksheetVariantInput): Scoreca
 // ── LIVE variant: QUICK PRACTICE (§2.1) ───────────────────────────────────────────
 
 export interface QuickPracticeVariantInput {
+  /** SCORECARD-SECTION-TYPE-1 - the tapped-MCQ response (stamped with section and format), for the
+   *  section and type lenses. Absent -> no lens. */
+  response?: WorksheetGradeResponse | null;
   attempted: number;
   totalInSet: number;
   /** MCQs whose answer was checked in-session (0 for a set with no MCQ interactions). */
@@ -731,6 +771,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
       // The MI block stays honest-or-silent exactly as before: shown only when typed
       // mistakes are supplied (none are today), never invented.
       fourType: typedFourType,
+      ...(input.response ? sectionTypeLensFields(input.response) : {}),
       pending: null,
       allPending: null,
       wrongAnswers: wrongAnswers && wrongAnswers.length > 0 ? wrongAnswers : null,
@@ -861,6 +902,9 @@ export interface QuickPracticeGradedVariantInput {
    *  menu is byte-identical to before. */
   onDownloadGraded?: () => void;
   downloading?: boolean;
+  /** SCORECARD-SECTION-TYPE-1 - the batch grade response (stamped with each question's bank section and
+   *  format). When given, the section + type lenses come from it, replacing `sectionLens` below. */
+  response?: WorksheetGradeResponse | null;
 }
 
 /** Thrown when an OBJECTIVE answer carries a mark that a 1-marker cannot have.
@@ -966,6 +1010,7 @@ export function quickPracticeGradedScorecardVariant(
     },
     // Honest-or-silent throughout: an absent input renders NOTHING, never a placeholder.
     sectionLens: sectionLens && sectionLens.length > 0 ? sectionLens : null,
+    ...(input.response ? sectionTypeLensFields(input.response) : {}),
     split: hasSplit
       ? {
           markedNow,
@@ -1004,6 +1049,11 @@ export interface StoredWorksheetVariantInput {
   downloading?: boolean;
   /** PENDING-UPLOAD-1: a pending record offers "Upload answer sheet" when the host can open it. */
   onUploadSheet?: () => void;
+  /** SCORECARD-SECTION-TYPE-1 - the record's stored per-question grade (and, when the host has the
+   *  worksheet, its questions), so a re-opened card shows the SAME section and type lenses the live
+   *  card showed. Absent -> no lens (honest), exactly as before. */
+  response?: WorksheetGradeResponse | null;
+  questions?: PaperLensQuestion[];
 }
 
 /**
@@ -1086,6 +1136,9 @@ export function storedWorksheetScorecardVariant(
     },
     message: partial ? "Graded portion shown — some pages were pending on this session." : null,
     fourType: record.fourType,
+    ...(input.response && input.response.ok
+      ? sectionTypeLensFields(stampFromPaper(input.response, input.questions, { blueprintFallback: true }))
+      : {}),
     pending: null,
     allPending: null,
     actions,
@@ -1144,47 +1197,9 @@ export function fullMockScorecardVariantStub(input: DeferredVariantInput): Score
 // existing shell, not a re-architecture: the only new shell capability is the
 // `sectionLens` block.
 
-const CT_SECTION_LABEL: Record<string, string> = {
-  A: "A · Objective",
-  B: "B · VSA",
-  C: "C · SA",
-  D: "D · LA / Case",
-};
-
-/**
- * Derive the A–D by-section lens from a chapter-test response's per-question marks —
- * decision D3: NOT persisted (a chapter-test SessionRecord's sectionBreakdown stays
- * null), DERIVED at render via the SHIPPED #353 CBSE mark-band proxy
- * (`sectionFromTotalMarks`: 1→A · 2→B · 3→C · 5→D · 4→E case). The CT board shape is
- * A–D, so the case band (E) folds into D. Only GRADED (legible) questions contribute;
- * a mark value that maps to no canonical band is an HONEST UNKNOWN — it still counts
- * in the total score but sits in NO section bucket (never a fabricated section).
- * Returns null when nothing is attributable (e.g. an all-pending partial).
- */
-export function deriveChapterTestSectionLens(
-  response: WorksheetGradeResponse,
-): ScorecardSectionLensRow[] | null {
-  const buckets = new Map<string, { awarded: number; total: number }>();
-  for (const r of response.results) {
-    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
-    const band = sectionFromTotalMarks(r.totalMarks);
-    if (!band) continue; // honest unknown — never a fabricated section
-    const sec = band === "E" ? "D" : band; // CT groups the case band under D
-    const b = buckets.get(sec) ?? { awarded: 0, total: 0 };
-    b.awarded += Number(r.marksAwarded) || 0;
-    b.total += Number(r.totalMarks) || 0;
-    buckets.set(sec, b);
-  }
-  const rows = ["A", "B", "C", "D"]
-    .filter((s) => buckets.has(s))
-    .map((s) => ({
-      section: s,
-      label: CT_SECTION_LABEL[s] ?? s,
-      awarded: buckets.get(s)!.awarded,
-      total: buckets.get(s)!.total,
-    }));
-  return rows.length > 0 ? rows : null;
-}
+// SCORECARD-SECTION-TYPE-1 — the chapter test's by-section lens is now `sectionTypeLensFields`
+// (sectionTypeLens.ts): the bank row's REAL section, A-E, with E no longer folded into D. The old
+// marks-band proxy that lived here is gone.
 
 // ── BY-CONCEPT lens ([FU-CT-CONCEPT-LENS]) ─────────────────────────────────────
 //
@@ -1202,6 +1217,9 @@ export function deriveChapterTestSectionLens(
 export interface ConceptLensQuestion {
   qNumber: number;
   id: string;
+  /** SCORECARD-SECTION-TYPE-1 - the bank row's own section and format when the paper carries them. */
+  bankSection?: string;
+  format?: string;
 }
 
 // BANK-LEAN-1 (C3): the bank-backed concept join — `subtopicForQuestionId`,
@@ -1283,62 +1301,17 @@ export interface StoredChapterTestVariantInput {
 // NO board-readiness projection, ever (spec §5 — a fabricated "68/80" to a student
 // who scores 52 is harm; [FU-BOARD-READINESS-MODEL] tracks any future model).
 
-const FM_SECTION_LABEL: Record<string, string> = {
-  A: "A · Objective",
-  B: "B · VSA",
-  C: "C · SA",
-  D: "D · Long",
-  E: "E · Case",
-};
-
 /** A full-mock question's identity for the render-time lens joins: qNumber (to
  *  match a grade row) + the paper's REAL section + canonical chapter. Satisfied
  *  structurally by the drawn paper's PersistedWorksheetQuestion. */
 export interface FullMockLensQuestion {
   qNumber: number;
   section?: string;
+  /** SCORECARD-SECTION-TYPE-1 — the bank row's own section and format (display only). */
+  bankSection?: string;
+  format?: string;
   topicKey?: string;
   topicLabel?: string;
-}
-
-/**
- * Derive the A–E by-section lens for a full mock. With the paper's questions at
- * hand (live scorecard) the section is EXACT — read off each question. Without
- * them (a stored re-open) it falls back to the #353 CBSE mark-band proxy, which
- * for a full-mock paper is also exact by construction (the FM bands ARE the
- * five canonical bands: 1→A · 2→B · 3→C · 5→D · 4→E). Only graded questions
- * contribute; an unmappable mark is an honest unknown (in the hero total, no
- * section row). Returns null when nothing is attributable.
- */
-export function deriveFullMockSectionLens(
-  response: WorksheetGradeResponse,
-  questions?: FullMockLensQuestion[],
-): ScorecardSectionLensRow[] | null {
-  const sectionByQNumber = new Map<number, string>();
-  if (questions) {
-    for (const q of questions) {
-      if (q.section) sectionByQNumber.set(q.qNumber, String(q.section).toUpperCase());
-    }
-  }
-  const buckets = new Map<string, { awarded: number; total: number }>();
-  for (const r of response.results) {
-    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
-    const sec = sectionByQNumber.get(r.qNumber) ?? sectionFromTotalMarks(r.totalMarks);
-    if (!sec || !FM_SECTION_LABEL[sec]) continue; // honest unknown — never fabricated
-    const b = buckets.get(sec) ?? { awarded: 0, total: 0 };
-    b.awarded += Number(r.marksAwarded) || 0;
-    b.total += Number(r.totalMarks) || 0;
-    buckets.set(sec, b);
-  }
-  const rows = ["A", "B", "C", "D", "E"]
-    .filter((s) => buckets.has(s))
-    .map((s) => ({
-      section: s,
-      label: FM_SECTION_LABEL[s],
-      awarded: buckets.get(s)!.awarded,
-      total: buckets.get(s)!.total,
-    }));
-  return rows.length > 0 ? rows : null;
 }
 
 /**
@@ -1565,7 +1538,9 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     note: input.focusLine ?? null,
     fourType: aggregateFourType(response),
     marksLost: aggregateMarksLost(response),
-    sectionLens: deriveFullMockSectionLens(response, input.questions),
+    // SCORECARD-SECTION-TYPE-1 - the bank row's real A-E section and the question type, from the paper's
+    // questions (a response stamped at grading time keeps its own). Same lens as every other surface.
+    ...sectionTypeLensFields(stampFromPaper(response, input.questions, { blueprintFallback: true })),
     // GRADED-STEP-BLOCK - see the chapter-test twin above. Full Mock shipped the SAME
     // defect and ships the SAME fix in the same lane: fixing one and not the other would
     // have been the seventh one-path-fixed-one-not in this arc.
@@ -1917,6 +1892,8 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     chapterLensNote: fullMockChapterLensNote(topicLens),
     fourType: aggregateFourType(response),
     marksLost: aggregateMarksLost(response),
+    // SCORECARD-SECTION-TYPE-1 - sections / types AS READ FROM THE PAPER (a single question has none).
+    ...sectionTypeLensFields(response),
     pending: pendingStrip(response),
     allPending: null,
     wrongAnswers: ciTutorRows(response, input.tutorAskFor),
@@ -1949,6 +1926,10 @@ export interface StoredCheckImproveVariantInput {
    *  can print it (something graded, detail lock open); flagged `detail` so a locked card drops it. */
   onDownloadGraded?: () => void;
   downloading?: boolean;
+  /** CI-TUTOR-RETURN-1 - the tutor hop for a question of the restored paper (built by the host from the
+   *  SAVED record, as the live card's is). With a resolved `response` it yields the same "Where marks
+   *  slipped" rows the live card shows. Omitted -> no rows, byte-identical to before. */
+  tutorAskFor?: (qNumber: number) => ScorecardTutorAsk | null;
 }
 
 /**
@@ -1992,8 +1973,12 @@ export function storedCheckImproveScorecardVariant(
     // PR-2 (B7) — marks when the stored payload carries them (a v2 grade); an old count-only
     // record (or no payload) keeps its counts, never converted (G5).
     marksLost: input.response ? aggregateMarksLost(input.response) : null,
+    // SCORECARD-SECTION-TYPE-1 - the SAME lens the live card showed, from the stored (stamped) rows.
+    ...(input.response ? sectionTypeLensFields(input.response) : {}),
     pending: null,
     allPending: null,
+    // CI-TUTOR-RETURN-1 - the live card's per-question tutor rows, rebuilt from the saved record.
+    wrongAnswers: input.response ? ciTutorRows(input.response, input.tutorAskFor) : null,
     actions: [
       ...(input.onDownloadGraded
         ? [{
@@ -2158,6 +2143,9 @@ export interface ReopenedQuickPracticeVariantInput {
    *  supplies it only when the stored payload resolves a graded sheet. Omitted ⇒ unchanged. */
   onDownloadGraded?: () => void;
   downloading?: boolean;
+  /** SCORECARD-SECTION-TYPE-1 - the stored per-question grade, for the section and type lenses the
+   *  live card showed. Absent -> no lens. */
+  response?: WorksheetGradeResponse | null;
 }
 
 /** FOLLOWUPS-4 D [FU-QP-REOPEN-TAP-NOTE] — PURE. The marks a STORED Quick Practice payload lost
@@ -2221,6 +2209,7 @@ export function reopenedQuickPracticeScorecardVariant(
     // its condition: tap-the-answer marks were lost and no typed mistake shows. Display only.
     note: (input.tapMarksLost ?? 0) > 0 && !typedFourType ? UNTYPED_MARKS_NOTE : null,
     fourType: typedFourType,
+    ...(input.response ? sectionTypeLensFields(input.response) : {}),
     pending: null,
     allPending: null,
     wrongAnswers: rows,

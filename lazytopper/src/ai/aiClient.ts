@@ -723,6 +723,9 @@ export interface CheckSolutionResponse extends GradeV2Fields {
   annotatedSteps: CheckSolutionAnnotatedStep[];
   mistakeSummary: CheckSolutionMistakeSummary;
   teacherNote: string;
+  /** MCQ-KEY-TRUST-1 — admin observability only, present only when true: a derived key disagreed
+   *  with the grader's stated verdict (which decided the mark). Never rendered. */
+  derivedKeyDisagreed?: boolean;
   /** The grader's objective verdict for this question (additive echo of
    *  `bankObjective || flaggedObjective`). When true, the clamp intentionally zeroed
    *  every per-step mark — the whole mark lives at answer level (PR-348) — so a step's
@@ -775,6 +778,8 @@ export async function checkSolutionImage(req: {
   section?: string;
   format?: string;
   answer?: string;
+  /** MCQ-KEY-TRUST-1 — Answer Checker only (the server drops it on any other surface). */
+  answerSource?: "printed" | "derived";
   options?: string[];
   objective?: boolean;
 }, opts?: PaidCallOptions): Promise<CheckSolutionResponse> {
@@ -800,7 +805,20 @@ export interface DetectedQuestion {
   questionNumber: number;
   questionText: string;
   marks: number;
-  marksSource: "stated" | "inferred";
+  /** "stated"/"inferred" on a legacy read. GRADE-MARKS-1 — a read sent with `sectionMarks: true`
+   *  reports how the mark was set: "printed" (on the question), "section" (its section header,
+   *  or the CBSE section map), or "inferred" (a guess the student is asked to check). "user" =
+   *  the student corrected it on the confirm step (client-side only). */
+  marksSource: "stated" | "inferred" | "printed" | "section" | "fallback" | "user";
+  /** SCORECARD-SECTION-TYPE-1 — the source the READ reported, kept when the student edits the marks (which
+   *  overwrites `marksSource` with "user"). Client-side only; never sent. Absent until an edit. */
+  readMarksSource?: "stated" | "inferred" | "printed" | "section" | "fallback" | "user";
+  /** GRADE-MARKS-1 — the section letter ("A"–"E") detect placed the question in (opt-in read only). */
+  section?: string | null;
+  /** GRADE-MARKS-1 (S1) — an objective question whose text prints an option list (MCQ) or is an
+   *  Assertion-Reason item, by the server's own test (opt-in read only). Only such a question is
+   *  locked at 1 mark; the grade routes force exactly these to 1 (§13). */
+  offersOptions?: boolean;
   /** True for a multiple-choice / assertion-reason question. Forwarded to the grade
    *  call so a keyless objective question is clamped to 0/full (≤1-mark rail). */
   objective?: boolean;
@@ -808,6 +826,10 @@ export interface DetectedQuestion {
    *  not be determined (never a guess). SCORECARD-MI-1 PR-2 (B9) forwards it to the grade call
    *  as the answer key, so the MCQ is scored on the option alone. */
   answer?: string | null;
+  /** MCQ-KEY-TRUST-1 — where `answer` came from: "printed" in the document, or "derived" (worked
+   *  out by the detect step). Present only on a read that sent `keySource: true` (paid Answer
+   *  Checker); absent = treat the key as "derived". */
+  answerSource?: "printed" | "derived" | null;
 }
 
 export interface DetectQuestionResponse {
@@ -835,6 +857,10 @@ export async function detectQuestion(req: {
   imageBase64?: string;
   imageMimeType?: string;
   topicVocabulary?: CheckSolutionTopicVocab[];
+  /** MCQ-KEY-TRUST-1 — paid Answer Checker read only: label each key "printed" | "derived". */
+  keySource?: boolean;
+  /** GRADE-MARKS-1 — paid Answer Checker read only: marks by section header before any guess. */
+  sectionMarks?: boolean;
 }, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
   const res = await sendWithTokenRefresh(
     opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
@@ -864,6 +890,9 @@ export interface WorksheetGradeQuestionInput {
    *  grader scores the MCQ deterministically (0 or full) instead of relying on model
    *  judgment. Absent for subjective questions. */
   answer?: string;
+  /** MCQ-KEY-TRUST-1 — Answer Checker only: "derived" = a key the detect step worked out. The
+   *  server drops it unless the request carries the check-improve surface. */
+  answerSource?: "printed" | "derived";
   /** The MCQ option list, so the grader can bridge a letter pick ("(b)") to the
    *  option text `answer` compares against. */
   options?: string[];
@@ -933,6 +962,8 @@ export interface WorksheetQuestionGrade extends GradeV2Fields {
   annotatedSteps?: CheckSolutionAnnotatedStep[];
   mistakeSummary?: CheckSolutionMistakeSummary;
   teacherNote?: string;
+  /** MCQ-KEY-TRUST-1 — admin observability only, present only when true (see CheckSolutionResponse). */
+  derivedKeyDisagreed?: boolean;
   /** The grader's objective verdict (additive echo — same field the single-question
    *  CheckSolutionResponse carries). True → per-step marks were zeroed by design; the
    *  worksheet / C&I views suppress the misleading per-step chip. Flows through the
@@ -953,6 +984,16 @@ export interface WorksheetQuestionGrade extends GradeV2Fields {
    *  Lets a mixed Maths + Science paper be titled and filed per question, never under the
    *  first question's subject. Additive; every existing reader ignores it. */
   topicSubject?: "Maths" | "Science" | null;
+  /** SCORECARD-SECTION-TYPE-1 — CLIENT-STAMPED after grading (the grader NEVER emits these; presentation
+   *  only, no mark and no mistake type reads them). `section` is the CBSE section letter ("A"-"E"): the
+   *  bank row's own section on a bank surface, or the section the paid read found on the student's paper
+   *  (Answer Checker). `sectionBasis` says which: "bank" | "read" (as read from the paper) | "check"
+   *  (the read inferred it; the student is asked to check). `format` is the bank's question format
+   *  (MCQ / Assertion-Reasoning / Case-Based / Short / Long / VSA) or, on the Answer Checker, only
+   *  "objective" / "written" as the read reported it. Absent = unknown, never guessed. */
+  section?: string | null;
+  sectionBasis?: "bank" | "read" | "check" | null;
+  format?: string | null;
 }
 
 export interface WorksheetGradeResponse {

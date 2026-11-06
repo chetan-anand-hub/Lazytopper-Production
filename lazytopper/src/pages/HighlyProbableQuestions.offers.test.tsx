@@ -37,7 +37,7 @@ vi.mock("../analytics/analytics", async (importOriginal) => {
 import HighlyProbableQuestions from "./HighlyProbableQuestions";
 import { resetOwnedPacksCache } from "../components/packs/useOwnedPacks";
 import { packIdOf } from "../services/packs";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../services/packs";
 
 function renderAt(path: string) {

@@ -142,7 +142,7 @@ describe("GUIDE-PAGES-1 M7 · FairUseLimitPanel", () => {
 
   it("premium refusal: no Premium line", () => {
     render(<Panel limit={{ tier: "premium", scope: "checks", resetAt: null, window: "week" }} />);
-    expect(screen.getByTestId("guide-m7-hit").textContent).toBe("You've reached Premium's week fair-use limit.");
+    expect(screen.getByTestId("guide-m7-hit").textContent).toBe("You've reached this week's fair-use limit.");
     expect(screen.getByTestId("fair-use-limit-panel").textContent ?? "").not.toMatch(/Premium removes/);
   });
 

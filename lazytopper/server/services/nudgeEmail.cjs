@@ -25,6 +25,14 @@
  *   ABANDONED_CHECKOUT_EMAIL_ENABLED="1" (default off): a signed-in student's own Board Pass / PDF pack order, still
  *   'created' 1-36 h after it was opened, with no payment for that product since. Served FIRST under the shared daily cap
  *   (before checkout_help and the pack nudges). Pure rules + template: abandonedCheckout.cjs.
+ *   SAMPLE-FOLLOWUP-1 (owner approved 4 Nov 2026): `samplefu_<pack>`, at most ONCE per student per pack ever, behind
+ *   SAMPLE_FOLLOWUP_EMAIL_ENABLED="1" (default off): a SIGNED-IN student who saved a pack's free sample 24-72 h ago and does not
+ *   own that pack (or one that includes it) nor a paid Board Pass. The "sample saved" marker is written by routes/packSampleSeen.cjs
+ *   into `nudgeEmails/{uid}.sampleSeenAt_<pack>`. Runs after the pack nudges, before d1/d3. Pure rules + template: sampleFollowup.cjs.
+ *   GUEST-ABANDON-1 (owner ruling 6 Nov 2026): `abandoned_<product>` in `guestNudgeEmails/{emailKey}`, at most ONCE per
+ *   recipient address per product ever, behind GUEST_ABANDON_EMAIL_ENABLED="1" (default off): a SIGNED-OUT guest checkout
+ *   that carries an email address, still 'created' 1-36 h after it was opened, nothing paid for it since. Runs right after
+ *   CHECKOUT-NUDGE-1. Its own stop link writes `emailSuppression/{emailKey}`. Pure rules + template: guestAbandonEmail.cjs.
  *   Both need a reply-to (NUDGE_EMAIL_REPLY_TO) - without one they are skipped and logged. They share the daily
  *   cap with the rest; checkout_help is served first. Never premium, admin (ADMIN_FIREBASE_UIDS) or @lazytopper.com.
  *
@@ -90,13 +98,18 @@ const {
 } = require('./trialEndingEmail.cjs');
 const { deriveEffectiveTier, isServerPinnedStart } = require('./entitlement.cjs');
 const pricing = require('./passPricing.cjs');
-const { isPackProduct, PACK_PRODUCTS } = require('./packProducts.cjs');
+const { isPackProduct } = require('./packProducts.cjs');
 const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
 const packNudge = require('./packNudge.cjs');
 const { resolveSendWindow } = require('./emailSendWindow.cjs'); // EMAIL-SEND-WINDOW-1
 const { packIdFor } = require('./packProducts.cjs');
 const abandoned = require('./abandonedCheckout.cjs'); // CHECKOUT-NUDGE-1
+const sampleFu = require('./sampleFollowup.cjs'); // SAMPLE-FOLLOWUP-1
 const { listPacks } = require('./packGrant.cjs');
+const guestEmail = require('./guestAbandonEmail.cjs'); // GUEST-ABANDON-1
+const { isSuppressedTx } = require('./emailSuppression.cjs');
+const { PACK_PRODUCTS, isAlreadyOwned } = require('./packProducts.cjs');
+const { computeGrant } = require('./passGrant.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
 /** One doc per IST day holding ONLY a count (uid-free; listed in studentDataMap NON_STUDENT_COLLECTIONS). */
@@ -235,6 +248,10 @@ function resolveNudgeConfig(env = process.env) {
     packNudgeEnabled: isOnFlag(e.PACK_NUDGE_ENABLED),
     // CHECKOUT-NUDGE-1: the abandoned-checkout email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
     abandonedCheckoutEnabled: abandoned.abandonedCheckoutEnabled(e),
+    // SAMPLE-FOLLOWUP-1: the free-sample follow-up email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
+    sampleFollowupEnabled: sampleFu.sampleFollowupEnabled(e),
+    // GUEST-ABANDON-1: the signed-out abandoned-checkout email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
+    guestAbandonEnabled: guestEmail.guestAbandonEmailEnabled(e),
     // Never emailed: the admin allowlist (the same ADMIN_FIREBASE_UIDS the admin pages use).
     adminUids: new Set(str(e.ADMIN_FIREBASE_UIDS).split(',').map((x) => x.trim()).filter(Boolean)),
   };
@@ -402,7 +419,7 @@ function recheckAtMs(kind, reason, facts, startMs) {
  * Kept under its old export name so callers and the test seam do not move. PURE.
  */
 function foundingPriceLine() {
-  // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 5 Nov 2026 (the shared tag); before it, unchanged.
+  // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 7 Nov 2026 (the shared tag); before it, unchanged.
   const nowMs = Date.now();
   return `Board Pass: ${pricing.displayPlusGst(pricing.tillBoardsPriceInr(nowMs), nowMs)}, one payment, and you are covered till your boards.`;
 }
@@ -587,7 +604,7 @@ function createNudgeEmailer(deps = {}) {
    * ★ CLAIM + DURABLE CAP + OPT-OUT RE-READ, in ONE transaction. Returns
    * 'claimed' | 'claimed-elsewhere' | 'opted-out' | 'daily-cap'.
    */
-  async function claimWithinCap(uid, kind, dayKey, nowMs) {
+  async function claimWithinCap(uid, kind, dayKey, nowMs, email) {
     const ledgerRef = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
     const trialRef = adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid);
     const dailyRef = adminFirestore.collection(NUDGE_EMAIL_DAILY_COLLECTION).doc(dayKey);
@@ -596,6 +613,8 @@ function createNudgeEmailer(deps = {}) {
       const t = await tx.get(trialRef);
       const d = await tx.get(dailyRef);
       if (t.exists && (t.data() || {}).optedOut) return 'opted-out';
+      // GUEST-ABANDON-1 review D1: a stop recorded for this ADDRESS (guest stop link) stops every nudge too.
+      if (await isSuppressedTx(tx, adminFirestore, email)) return 'opted-out';
       const row = l.exists ? l.data() || {} : {};
       if (row[kind]) return 'claimed-elsewhere';
       if (typeof row.lastClaimMs === 'number' && nowMs - row.lastClaimMs < SPACING_MS) return 'spaced';
@@ -869,7 +888,7 @@ function createNudgeEmailer(deps = {}) {
 
       let claim;
       try {
-        claim = await claimWithinCap(uid, kind, day, nowMs);
+        claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
       } catch (e) {
         skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
         continue;
@@ -1047,7 +1066,7 @@ function createNudgeEmailer(deps = {}) {
 
       let claim;
       try {
-        claim = await claimWithinCap(uid, kind, day, nowMs);
+        claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
       } catch (e) {
         skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
         continue;
@@ -1228,7 +1247,7 @@ function createNudgeEmailer(deps = {}) {
 
         let claim;
         try {
-          claim = await claimWithinCap(uid, kind, day, nowMs);
+          claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;
@@ -1452,7 +1471,7 @@ function createNudgeEmailer(deps = {}) {
 
       let claim;
       try {
-        claim = await claimWithinCap(uid, kind, day, nowMs);
+        claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
       } catch (e) {
         skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
         continue;
@@ -1503,9 +1522,543 @@ function createNudgeEmailer(deps = {}) {
     return false;
   }
 
+  /**
+   * SAMPLE-FOLLOWUP-1: one email to a SIGNED-IN student who saved a pack's free sample page 24-72 h ago and does not own that
+   * pack (or a pack that includes it) nor hold a paid Board Pass. At most once per student per pack, ever (ledger key
+   * `samplefu_<pack>` in nudgeEmails/{uid}). The marker (`sampleSeenAt_<pack>` = first-save ms) is written by
+   * routes/packSampleSeen.cjs from a verified ID token, so a signed-out visitor is never a candidate. Same rails as every other
+   * nudge: claim + durable daily cap + opt-out re-read in ONE transaction, 24 h spacing, trial-email overlap, verified email
+   * only, admin / @lazytopper.com never. Logs one count line per run (no PII). Returns true when the daily cap is full.
+   */
+  async function runSampleFollowup({ summary, skip: skipAll, nowMs, day }) {
+    if (!config.sampleFollowupEnabled) return false;
+    const own = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {} };
+    const skip = (reason) => {
+      own.skipped[reason] = (own.skipped[reason] || 0) + 1;
+      skipAll(reason);
+    };
+    try {
+      // One single-field range query PER PACK on that pack's own first-save time, so a later sample of another pack can never
+      // push an earlier pack out of its 24-72 h window. A student with two packs due is one candidate per pack, oldest first.
+      const found = [];
+      for (const key of sampleFu.SAMPLE_KEYS) {
+        const field = sampleFu.seenField(key);
+        try {
+          const qs = await adminFirestore
+            .collection(NUDGE_EMAILS_COLLECTION)
+            .where(field, '>=', nowMs - sampleFu.SAMPLE_FOLLOWUP_MAX_AGE_MS)
+            .where(field, '<', nowMs - sampleFu.SAMPLE_FOLLOWUP_MIN_AGE_MS + 1)
+            .orderBy(field, 'desc')
+            .limit(sampleFu.CAP_SAMPLE_FOLLOWUP)
+            .get();
+          for (const d of qs.docs) found.push({ uid: d.id, ledger: d.data() || {}, packKey: key, at: d.data()[field] });
+        } catch {
+          skip('sample-rows-unavailable');
+        }
+      }
+      found.sort((x, y) => x.at - y.at);
+      const handled = new Set();
+      for (const { uid, ledger, packKey } of found) {
+        const kind = sampleFu.sampleFollowupKind(packKey);
+        if (ledger[kind]) {
+          skip('already-sent');
+          continue;
+        }
+        // One email a day per student: the oldest due pack that passes every check is served; another due pack waits for a later run.
+        if (handled.has(uid)) {
+          skip('spaced');
+          continue;
+        }
+        own.candidates += 1;
+        summary.candidates += 1;
+        if (config.adminUids.has(uid)) {
+          skip('internal');
+          continue;
+        }
+        if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
+          skip(`marked-${ledger.skip.reason || 'skipped'}`);
+          continue;
+        }
+        const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+        const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+        if (trialRow.optedOut) {
+          skip('opted-out');
+          continue;
+        }
+        if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+          skip('spaced');
+          continue;
+        }
+        let sub = {};
+        try {
+          const ss = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+          sub = ss.exists ? ss.data() || {} : {};
+        } catch {
+          skip('subscription-unavailable');
+          continue;
+        }
+        const trialRecent = trialEmailRecentMs(trialRow);
+        if ((trialRecent !== null && nowMs - trialRecent < SPACING_MS) || decideCandidate(sub, nowMs).ok) {
+          skip('trial-email-covers');
+          continue;
+        }
+        // Bought since? A paid Board Pass (tier 'premium'; a free trial is 'trial' and still gets the email) or what they own now.
+        // A failed read skips: never email blind.
+        let owned = false;
+        try {
+          if (deriveEffectiveTier(sub, nowMs).tier === 'premium') owned = true;
+          else owned = sampleFu.sampleOwned(await listPacks(adminFirestore, uid), packKey);
+        } catch {
+          skip('recheck-unavailable');
+          continue;
+        }
+        if (owned) {
+          skip('already-owned');
+          continue;
+        }
+
+        let user = null;
+        try {
+          user = await firebaseAdmin.auth().getUser(uid);
+        } catch {
+          skip('no-account');
+          continue;
+        }
+        const who = emailEligibility(user);
+        if (!who.ok) {
+          skip(who.reason);
+          if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+            await writeSkipMarker(uid, who.reason, nowMs);
+          }
+          continue;
+        }
+        if (isInternalAccount(uid, who.email, config.adminUids)) {
+          skip('internal');
+          continue;
+        }
+
+        if (config.mode !== 'send') {
+          handled.add(uid);
+          own.wouldSend += 1;
+          summary.wouldSend += 1;
+          summary.byKind[sampleFu.METRIC] += 1;
+          const key = `${uid}:${kind}`;
+          if (!dryRunLogged.has(key)) {
+            dryRunLogged.add(key);
+            log(`[nudge-email] dry-run: would email kind=${sampleFu.METRIC} pack=${packKey} uid=${uid} to=${maskEmail(who.email)}`);
+          }
+          continue;
+        }
+
+        let claim;
+        try {
+          claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
+        } catch (e) {
+          skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+          continue;
+        }
+        if (claim !== 'claimed') {
+          skip(claim);
+          if (claim === 'daily-cap') return true;
+          continue;
+        }
+
+        handled.add(uid);
+        const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
+        const message = sampleFu.buildSampleFollowupEmail({ packKey, displayName: user && user.displayName, appUrl: config.appUrl, unsubscribeUrl });
+        const result =
+          fetchImpl && message
+            ? await sendViaResend({
+                fetchImpl,
+                apiKey: config.apiKey,
+                from: config.from,
+                replyTo: config.replyTo || packNudge.DEFAULT_REPLY_TO,
+                to: who.email,
+                subject: message.subject,
+                text: message.text,
+                html: message.html,
+                unsubscribeUrl,
+                idempotencyKey: `nudge-${kind}-${uid}`,
+                category: 'nudge_sample_followup',
+              })
+            : { ok: false, retryable: false, code: message ? 'no-fetch' : 'bad-pack' };
+        try {
+          const ref = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
+          if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+          else if (result.retryable) await releaseClaim(uid, kind, day);
+          else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+        } catch {
+          /* the claim stays: at most once */
+        }
+        if (result.ok) {
+          own.sent += 1;
+          summary.sent += 1;
+          summary.byKind[sampleFu.METRIC] += 1;
+          bump(`nudge_email_sent_${sampleFu.METRIC}`);
+          log(`[nudge-email] nudge_email_sent kind=${sampleFu.METRIC} uid=${uid}`);
+        } else {
+          own.failed += 1;
+          summary.failed += 1;
+          bump(`nudge_email_failed_${sampleFu.METRIC}`);
+          log(`[nudge-email] send failed kind=${sampleFu.METRIC} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+        }
+      }
+    } finally {
+      log(sampleFu.runCountLine(own));
+    }
+    return false;
+  }
+
+  /**
+   * GUEST-ABANDON-1: ONE email for a signed-out (guest) checkout opened 1-36 h ago and not paid, ONLY when the order
+   * carries an email address. Behind GUEST_ABANDON_EMAIL_ENABLED="1" (default off). Same rails as CHECKOUT-NUDGE-1:
+   * claim + durable daily cap + opt-out re-read in ONE transaction, 24 h one-a-day spacing per recipient, at most once
+   * per recipient per product ever. The recipient is keyed by guestEmail.emailKey (no uid, no raw address stored). If the
+   * address is also an account's sign-in email, that account's opt-out, nudge ledger, spacing and purchases count too.
+   * Logs counts only (never the address). Returns true when the daily cap is full.
+   */
+  async function claimGuestWithinCap({ key, uid, kind, dayKey, nowMs, info = {} }) {
+    const guestRef = adminFirestore.collection(guestEmail.GUEST_NUDGE_EMAILS_COLLECTION).doc(key);
+    const suppRef = adminFirestore.collection(guestEmail.EMAIL_SUPPRESSION_COLLECTION).doc(key);
+    const dailyRef = adminFirestore.collection(NUDGE_EMAIL_DAILY_COLLECTION).doc(dayKey);
+    const ledgerRef = uid ? adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid) : null;
+    const trialRef = uid ? adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid) : null;
+    return adminFirestore.runTransaction(async (tx) => {
+      const g = await tx.get(guestRef);
+      const s = await tx.get(suppRef);
+      const d = await tx.get(dailyRef);
+      const l = ledgerRef ? await tx.get(ledgerRef) : null;
+      const t = trialRef ? await tx.get(trialRef) : null;
+      if (s.exists && (s.data() || {}).optedOut) return 'opted-out';
+      if (t && t.exists && (t.data() || {}).optedOut) return 'opted-out';
+      const row = g.exists ? g.data() || {} : {};
+      const acct = l && l.exists ? l.data() || {} : {};
+      if (row[kind] || acct[kind]) return 'claimed-elsewhere';
+      for (const last of [row.lastClaimMs, acct.lastClaimMs]) if (typeof last === 'number' && nowMs - last < SPACING_MS) return 'spaced';
+      const trialRecent = trialEmailRecentMs(t && t.exists ? t.data() || {} : null);
+      if (trialRecent !== null && nowMs - trialRecent < SPACING_MS) return 'spaced';
+      const raw = d.exists ? (d.data() || {}).count : 0;
+      const count = typeof raw === 'number' && raw > 0 ? raw : 0;
+      if (count >= config.dailyCap) return 'daily-cap';
+      // Review D5: the FIRST attempt time survives a released claim, so a retry can tell whether the provider's
+      // 24 h Idempotency-Key window still covers a send that may have gone out.
+      const firstKey = `${GUEST_FIRST_ATTEMPT_PREFIX}${kind}`;
+      const first = typeof row[firstKey] === 'number' ? row[firstKey] : nowMs;
+      info.firstAttemptMs = first;
+      tx.set(guestRef, { [kind]: { status: 'claimed', claimedAt: serverTimestamp(), claimedMs: nowMs, capDay: dayKey }, lastClaimMs: nowMs, [firstKey]: first }, { merge: true });
+      // The account's one-a-day spacing sees this email too (not released on a retryable failure: one day later at worst).
+      if (ledgerRef) tx.set(ledgerRef, { lastClaimMs: nowMs }, { merge: true });
+      tx.set(dailyRef, { count: count + 1, dayKey, updatedAt: serverTimestamp() }, { merge: true });
+      return 'claimed';
+    });
+  }
+
+  /** Release a guest claim whose send certainly did not go out, and give the day's slot back. */
+  async function releaseGuestClaim(key, kind, dayKey) {
+    const guestRef = adminFirestore.collection(guestEmail.GUEST_NUDGE_EMAILS_COLLECTION).doc(key);
+    const dailyRef = adminFirestore.collection(NUDGE_EMAIL_DAILY_COLLECTION).doc(dayKey);
+    return adminFirestore.runTransaction(async (tx) => {
+      const g = await tx.get(guestRef);
+      const d = await tx.get(dailyRef);
+      if (!g.exists) return false;
+      const row = { ...(g.data() || {}) };
+      if (!row[kind] || row[kind].status !== 'claimed') return false;
+      delete row[kind];
+      let last = null;
+      for (const k of Object.keys(row)) {
+        const c = row[k] && typeof row[k] === 'object' && typeof row[k].claimedMs === 'number' ? row[k].claimedMs : null;
+        if (c !== null && (last === null || c > last)) last = c;
+      }
+      if (last === null) delete row.lastClaimMs;
+      else row.lastClaimMs = last;
+      tx.set(guestRef, row);
+      const raw = d.exists ? (d.data() || {}).count : 0;
+      if (typeof raw === 'number' && raw > 0) tx.set(dailyRef, { count: raw - 1, updatedAt: serverTimestamp() }, { merge: true });
+      return true;
+    });
+  }
+
+  /** The item's CURRENT price for someone with no account (the guest checkout's own quote rule). null if unknown. */
+  function currentPriceInr(product, nowMs) {
+    try {
+      if (product.kind === 'pack') return PACK_PRODUCTS[product.sku] ? PACK_PRODUCTS[product.sku].priceInr : null;
+      const p = computeGrant({}, { passType: 'till_boards', paymentRef: 'quote', nowMs }).fields.pricePaidInr;
+      return Number.isFinite(p) && p > 0 ? p : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * GST-EXCL-1 - the price the guest email states. Before the GST cut-off: `{ currentPriceInr }`, byte-identical to before.
+   * From it: `{ currentPriceText }` = the SAME server quote a new signed-out checkout gets (routes/payments.cjs quotePass
+   * for the Board Pass, tableQuote for a pack; a guest has no pack credit), as "₹1,917 + ₹345 GST (18%) = ₹2,262" - so the
+   * email never states a figure the checkout will not charge. A quote that cannot be read -> null (no price line at all).
+   */
+  function guestPriceArgs(product, nowMs) {
+    if (!pricing.boardPassGstExclusive(nowMs)) return { currentPriceInr: currentPriceInr(product, nowMs) };
+    try {
+      const { quotePass, tableQuote } = require('../routes/payments.cjs');
+      const q =
+        product.kind === 'pack'
+          ? PACK_PRODUCTS[product.sku]
+            ? tableQuote(PACK_PRODUCTS[product.sku].priceInr, nowMs)
+            : null
+          : quotePass({}, 'till_boards', nowMs);
+      return { currentPriceText: q ? abandoned.quotePriceText({ amountPaise: q.amountPaise, gst: q.gst, packCreditInr: 0 }) : null };
+    } catch {
+      return { currentPriceText: null };
+    }
+  }
+
+  const GUEST_FIRST_ATTEMPT_PREFIX = 'firstAttemptMs_';
+  const GUEST_RETRY_WINDOW_MS = 22 * HOUR_MS;
+
+  async function runGuestAbandonedCheckout({ summary, skip: skipAll, nowMs, day }) {
+    if (!config.guestAbandonEnabled) return false;
+    const own = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {} };
+    const skip = (reason) => {
+      own.skipped[reason] = (own.skipped[reason] || 0) + 1;
+      skipAll(reason);
+    };
+    let capFull = false;
+    try {
+      let orders = [];
+      try {
+        const qs = await adminFirestore
+          .collection(PAY_ORDERS_COLLECTION)
+          .where('createdAt', '>=', timestampFromMillis(nowMs - abandoned.ABANDONED_MAX_AGE_MS))
+          .where('createdAt', '<', timestampFromMillis(nowMs - abandoned.ABANDONED_MIN_AGE_MS))
+          .orderBy('createdAt', 'desc')
+          .limit(abandoned.CAP_ABANDONED)
+          .get();
+        orders = qs.docs.map((d) => d.data() || {});
+      } catch {
+        skip('guest-orders-unavailable');
+        return false;
+      }
+      const candidates = guestEmail.pickGuestCandidates(orders, nowMs, skip);
+      const decided = new Set(); // one decision per recipient per run
+      for (const c of candidates) {
+        const { key, email, order, product } = c;
+        if (decided.has(key)) continue;
+        decided.add(key);
+        const kind = abandoned.abandonedKind(product);
+        own.candidates += 1;
+        summary.candidates += 1;
+        if (isInternalAccount(null, email, config.adminUids) || (typeof order.payerUid === 'string' && config.adminUids.has(order.payerUid))) {
+          skip('internal');
+          continue;
+        }
+        let row = {};
+        let suppressed = false;
+        try {
+          const g = await adminFirestore.collection(guestEmail.GUEST_NUDGE_EMAILS_COLLECTION).doc(key).get();
+          row = g.exists ? g.data() || {} : {};
+          const s = await adminFirestore.collection(guestEmail.EMAIL_SUPPRESSION_COLLECTION).doc(key).get();
+          suppressed = s.exists && !!(s.data() || {}).optedOut;
+        } catch {
+          skip('guest-ledger-unavailable');
+          continue;
+        }
+        if (suppressed) {
+          skip('opted-out');
+          continue;
+        }
+        if (row[kind]) {
+          skip('already-sent');
+          decided.delete(key);
+          continue;
+        }
+        if (typeof row.lastClaimMs === 'number' && nowMs - row.lastClaimMs < SPACING_MS) {
+          skip('spaced');
+          continue;
+        }
+        // Is this address also an account? Then that account's opt-out, ledger and purchases count too.
+        let uid = null;
+        try {
+          const user = await firebaseAdmin.auth().getUserByEmail(email);
+          uid = user && typeof user.uid === 'string' ? user.uid : null;
+        } catch (e) {
+          if (!(e && e.code === 'auth/user-not-found')) {
+            skip('account-lookup-unavailable');
+            continue;
+          }
+        }
+        if (uid && config.adminUids.has(uid)) {
+          skip('internal');
+          continue;
+        }
+        let late = null;
+        try {
+          const related = [];
+          for (const [field, value] of [['guestEmail', email], ['guestPhone', order.guestPhone]]) {
+            if (typeof value !== 'string' || !value) continue;
+            const rs = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where(field, '==', value).get();
+            related.push(...rs.docs.map((d) => d.data() || {}));
+          }
+          let accountOrders = [];
+          let accountPremium = false;
+          let accountOwnsPack = false;
+          if (uid) {
+            const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+            if (trialSnap.exists && (trialSnap.data() || {}).optedOut) late = 'opted-out';
+            const ledgerSnap = await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).get();
+            const ledger = ledgerSnap.exists ? ledgerSnap.data() || {} : {};
+            if (!late && ledger[kind]) late = 'already-sent';
+            if (!late && typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) late = 'spaced';
+            if (!late) {
+              const os = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('uid', '==', uid).get();
+              accountOrders = os.docs.map((d) => d.data() || {});
+              const ss = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+              accountPremium = deriveEffectiveTier(ss.exists ? ss.data() || {} : {}, nowMs).tier === 'premium';
+              if (product.kind === 'pack') accountOwnsPack = isAlreadyOwned(await listPacks(adminFirestore, uid), product.sku, product.target);
+            }
+          }
+          if (!late) late = guestEmail.guestPaidSinceReason({ product, order, related, accountOrders, accountPremium, accountOwnsPack });
+        } catch {
+          late = 'recheck-unavailable';
+        }
+        if (late) {
+          skip(late);
+          if (late === 'paid-since' || late === 'premium-now' || late === 'already-owned' || late === 'already-sent') decided.delete(key);
+          continue;
+        }
+
+        if (config.mode !== 'send') {
+          own.wouldSend += 1;
+          summary.wouldSend += 1;
+          summary.byKind[guestEmail.METRIC] += 1;
+          const dk = `${key}:${kind}`;
+          if (!dryRunLogged.has(dk)) {
+            dryRunLogged.add(dk);
+            log(`[nudge-email] dry-run: would email kind=${guestEmail.METRIC} product=${product.key} to=${maskEmail(email)}`);
+          }
+          continue;
+        }
+
+        let claim;
+        const claimInfo = {};
+        try {
+          claim = await claimGuestWithinCap({ key, uid, kind, dayKey: day, nowMs, info: claimInfo });
+        } catch (e) {
+          skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+          continue;
+        }
+        if (claim !== 'claimed') {
+          skip(claim);
+          if (claim === 'daily-cap') {
+            capFull = true;
+            break;
+          }
+          continue;
+        }
+
+        const unsubscribeUrl = guestEmail.guestUnsubscribeUrlFor(config.appUrl, key, config.unsubscribeSecret);
+        const message = guestEmail.buildGuestAbandonEmail({ product, ...guestPriceArgs(product, nowMs), appUrl: config.appUrl, unsubscribeUrl });
+        let result =
+          fetchImpl && message
+            ? await sendViaResend({
+                fetchImpl,
+                apiKey: config.apiKey,
+                from: config.from,
+                replyTo: config.replyTo || packNudge.DEFAULT_REPLY_TO,
+                to: email,
+                subject: message.subject,
+                text: message.text,
+                html: message.html,
+                unsubscribeUrl,
+                idempotencyKey: `nudge-guest-${kind}-${key.slice(0, 40)}`,
+                category: `nudge_${guestEmail.METRIC}`,
+              })
+            : { ok: false, retryable: false, code: message ? 'no-fetch' : 'bad-product' };
+        // Review D5: a retry more than 22 h after the FIRST attempt is outside the safe part of Resend's 24 h idempotency
+        // window - a timed-out send that did go out could be delivered twice - so it is NOT retried.
+        if (!result.ok && result.retryable && typeof claimInfo.firstAttemptMs === 'number' && nowMs - claimInfo.firstAttemptMs > GUEST_RETRY_WINDOW_MS) {
+          result = { ...result, retryable: false, code: `${result.code || 'error'}-past-idempotency-window` };
+        }
+        try {
+          const ref = adminFirestore.collection(guestEmail.GUEST_NUDGE_EMAILS_COLLECTION).doc(key);
+          if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+          else if (result.retryable) await releaseGuestClaim(key, kind, day);
+          else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+        } catch {
+          /* the claim stays: at most once */
+        }
+        if (result.ok) {
+          own.sent += 1;
+          summary.sent += 1;
+          summary.byKind[guestEmail.METRIC] += 1;
+          bump(`nudge_email_sent_${guestEmail.METRIC}`);
+          log(`[nudge-email] nudge_email_sent kind=${guestEmail.METRIC} product=${product.key}`);
+        } else {
+          own.failed += 1;
+          summary.failed += 1;
+          bump(`nudge_email_failed_${guestEmail.METRIC}`);
+          log(`[nudge-email] send failed kind=${guestEmail.METRIC} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+        }
+      }
+    } finally {
+      log(guestEmail.runCountLine(own));
+    }
+    return capFull;
+  }
+
+  /**
+   * GUEST-ABANDON-1: the guest email's stop link. GET shows one confirm button (a link scanner's prefetch never
+   * unsubscribes anyone); POST (also a mail client's RFC 8058 one-click) records `emailSuppression/{key}` - the hash
+   * key only, never the address. Honoured by every later guest email to that address.
+   */
+  function sendGuestHtml(res, status, title, bodyHtml) {
+    res.writeHead(status, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Robots-Tag': 'noindex',
+      'Referrer-Policy': 'no-referrer',
+      'X-Content-Type-Options': 'nosniff',
+    });
+    res.end(
+      `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(title)}</title></head>` +
+        `<body style="margin:0;padding:32px 16px;background:#0f1d33;color:#eaf2fb;font-family:Arial,Helvetica,sans-serif"><main style="max-width:480px;margin:0 auto">${bodyHtml}</main></body></html>`,
+    );
+  }
+
+  async function handleGuestUnsubscribe(req, res, rawUrl) {
+    try {
+      let token = '';
+      try {
+        token = new URL(String(rawUrl || req.url || ''), 'http://local').searchParams.get('t') || '';
+      } catch {
+        token = '';
+      }
+      const key = guestEmail.verifyGuestUnsubscribe(token, config.unsubscribeSecret);
+      if (!key) return sendGuestHtml(res, 400, 'Link not valid', '<h1 style="font-size:20px">This unsubscribe link is not valid.</h1><p>If you copied it, check it is complete.</p>');
+      if (req.method === 'GET') {
+        const action = `${guestEmail.GUEST_EMAIL_UNSUBSCRIBE_PATH}?t=${encodeURIComponent(token)}`;
+        return sendGuestHtml(
+          res,
+          200,
+          'Unsubscribe',
+          '<h1 style="font-size:20px">Stop LazyTopper emails to this address?</h1>' +
+            `<form method="post" action="${escapeHtml(action)}"><button type="submit" style="min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#1f9d63;color:#fff;font-size:15px;font-weight:700">Unsubscribe</button></form>`,
+        );
+      }
+      if (req.method !== 'POST') return sendGuestHtml(res, 405, 'Not allowed', '<p>Not allowed.</p>');
+      if (typeof req.resume === 'function') req.resume();
+      if (!adminFirestore) return sendGuestHtml(res, 503, 'Try again later', '<p>We could not record that right now. Please try the link again later.</p>');
+      await adminFirestore
+        .collection(guestEmail.EMAIL_SUPPRESSION_COLLECTION)
+        .doc(key)
+        .set({ optedOut: true, optedOutAt: serverTimestamp(), source: 'guest-email' }, { merge: true });
+      return sendGuestHtml(res, 200, 'Unsubscribed', "<h1 style=\"font-size:20px\">You're unsubscribed.</h1><p>We won't send LazyTopper reminder or follow-up emails to this address. Sign-in codes and payment receipts still arrive.</p>");
+    } catch {
+      return sendGuestHtml(res, 500, 'Try again later', '<p>We could not record that right now. Please try the link again later.</p>');
+    }
+  }
+
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
-    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0, abandoned_checkout: 0 } };
+    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0, abandoned_checkout: 0, sample_followup: 0, guest_abandoned_checkout: 0 } };
     const skip = (reason) => {
       summary.skipped[reason] = (summary.skipped[reason] || 0) + 1;
     };
@@ -1559,6 +2112,14 @@ function createNudgeEmailer(deps = {}) {
         skip('abandoned-phase-error');
         log(`[nudge-email] abandoned-checkout phase failed: ${e && e.message ? e.message : 'error'}`);
       }
+      // GUEST-ABANDON-1: the signed-out checkout email, right after the signed-in one (same 1-36 h window). A failure here
+      // must not abort the rest.
+      try {
+        if (!capFull) capFull = await runGuestAbandonedCheckout({ summary, skip, nowMs, day });
+      } catch (e) {
+        skip('guest-abandoned-phase-error');
+        log(`[nudge-email] guest abandoned-checkout phase failed: ${e && e.message ? e.message : 'error'}`);
+      }
       // EMAIL-CONCIERGE-1: checkout_help runs next so the shared daily cap serves it before d1/d3/founding;
       // founder_checkin runs after them.
       const conciergeState = { seen: new Set(), dead: new Set() };
@@ -1571,6 +2132,14 @@ function createNudgeEmailer(deps = {}) {
       } catch (e) {
         skip('pack-phase-error');
         log(`[nudge-email] pack phase failed: ${e && e.message ? e.message : 'error'}`);
+      }
+      // SAMPLE-FOLLOWUP-1: a signed-in student's free-sample follow-up is served after the pack nudges and before d1/d3 (a 3-day
+      // window; one email, at most once per pack). A failure here must not abort d1/d3.
+      try {
+        if (!capFull) capFull = await runSampleFollowup({ summary, skip, nowMs, day });
+      } catch (e) {
+        skip('sample-phase-error');
+        log(`[nudge-email] sample-followup phase failed: ${e && e.message ? e.message : 'error'}`);
       }
       const cohort = new Map();
       for (const r of ranges) {
@@ -1700,7 +2269,7 @@ function createNudgeEmailer(deps = {}) {
 
         let claim;
         try {
-          claim = await claimWithinCap(uid, kind, day, nowMs);
+          claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;
@@ -1782,7 +2351,7 @@ function createNudgeEmailer(deps = {}) {
     return { first, every };
   }
 
-  return { config, runOnce, schedule };
+  return { config, runOnce, schedule, handleGuestUnsubscribe };
 }
 
 module.exports = {

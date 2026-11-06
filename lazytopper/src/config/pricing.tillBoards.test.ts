@@ -39,9 +39,9 @@ describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2
     expect(TILL_BOARDS_FOUNDING_INR).toBe(1917);
     expect(TILL_BOARDS_AFTER_FOUNDING_INR).toBe(2499);
     expect(boardPassPriceDisplay(istNoon("2026-10-31"))).toBe("₹1,917");
-    // GST-EXCL-1: from 5 Nov 2026 the tag is "+ GST" (the charge, base + 18%, is on the Pay button / checkout).
+    // GST-EXCL-1: from 7 Nov 2026 the tag is "+ GST" (the charge, base + 18%, is on the Pay button / checkout).
     expect(boardPassPriceDisplay(istNoon("2026-11-04"))).toBe("₹1,917");
-    expect(boardPassPriceDisplay(istNoon("2026-11-05"))).toBe("₹1,917 + GST");
+    expect(boardPassPriceDisplay(istNoon("2026-11-07"))).toBe("₹1,917 + GST");
     expect(boardPassPriceDisplay(istNoon("2026-12-02"))).toBe("₹2,499 + GST");
     expect(boardPassPriceLine(istNoon("2026-10-31"))).toBe("₹1,917 — one payment till your boards");
     expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹2,499 + GST — one payment till your boards");

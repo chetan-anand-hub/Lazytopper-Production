@@ -2,10 +2,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GST_EXCLUSIVE_FROM_MS } from "../config/pricing";
 import { buyPass, type BuyDeps } from "./checkout";
-import { confirmServerPrice, priceConfirmNeeded, priceNowLine, serverPriceFields } from "./priceConfirm";
+import { confirmServerPrice, priceConfirmNeeded, priceNowLine, razorpayDescription, serverPriceFields } from "./priceConfirm";
 
-const OPENED_2359_30 = Date.parse("2026-11-04T23:59:30+05:30");
-const ORDER_0000_30 = Date.parse("2026-11-05T00:00:30+05:30");
+const OPENED_2359_30 = Date.parse("2026-11-06T23:59:30+05:30");
+const ORDER_0000_30 = Date.parse("2026-11-07T00:00:30+05:30");
 const GST_ORDER = { amountPaise: 226200, gst: { baseInr: 1917, gstInr: 345, totalInr: 2262 } };
 
 afterEach(() => {
@@ -97,5 +97,18 @@ describe("a checkout path (buyPass): tab opened 23:59:30, Pay tapped 00:00:30", 
     const Razorpay = await (d.loadScript as unknown as () => Promise<ReturnType<typeof vi.fn>>)();
     await vi.waitFor(() => expect(open).toHaveBeenCalled());
     expect(Razorpay.mock.calls[0][0].amount).toBe(226200);
+  });
+});
+
+describe("GST-EXCL-1 · the Razorpay description names the server's breakup", () => {
+  it("an all-in order (every order before the cut-off): the description is unchanged, byte for byte", () => {
+    expect(razorpayDescription("Board Pass till your boards", { amountPaise: 191700 })).toBe("Board Pass till your boards");
+  });
+  it("an order that added GST: the breakup is appended; a credit is named and the charge is the order's", () => {
+    expect(razorpayDescription("Board Pass till your boards", GST_ORDER)).toBe("Board Pass till your boards \u00b7 ₹1,917 + ₹345 GST (18%) = ₹2,262");
+    expect(razorpayDescription("Board Pass till your boards", { amountPaise: 221300, gst: GST_ORDER.gst, packCreditInr: 49 })).toBe(
+      "Board Pass till your boards \u00b7 ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213",
+    );
+    expect(razorpayDescription("Maths Mock Pack", { amountPaise: 11700, gst: { baseInr: 99, gstInr: 18, totalInr: 117 } })).toBe("Maths Mock Pack \u00b7 ₹99 + ₹18 GST (18%) = ₹117");
   });
 });

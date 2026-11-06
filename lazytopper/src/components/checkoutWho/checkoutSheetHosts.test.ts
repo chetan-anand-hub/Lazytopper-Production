@@ -30,16 +30,18 @@ describe("one sheet behind every Pay / Buy", () => {
     expect(read("components/parents/ParentBoardPassSheet.tsx")).toMatch(SHEET_IMPORT);
   });
 
-  it("PassCheckout: the Board Pass Pay opens the sheet before any checkout", () => {
+  it("PassCheckout: a SIGNED-OUT Board Pass Pay opens the sheet; a signed-in one buys directly (CHECKOUT-SELF-1)", () => {
     const src = read("components/pricing/PassCheckout.tsx");
-    expect(src).toMatch(/if \(who && passType === "till_boards" && !opts\.fromWho\) \{\s*setWhoOpen\(true\);\s*return;/);
+    expect(src).toMatch(/if \(who && passType === "till_boards" && !opts\.fromWho && !signedIn\) \{\s*setWhoOpen\(true\);\s*return;/);
     expect(src).toMatch(/\{who && whoOpen && \(/);
   });
 
   it("PacksShop: the signed-out tap, the signed-in tap and the one-tap entry all set the sheet's state", () => {
     const src = read("components/packs/PacksShop.tsx");
     expect(src).toMatch(/if \(whoEnabled\) \{\s*setWho\(\{ sku, target \}\);\s*return;/);
-    expect(src).toMatch(/if \(whoEnabled && !opts\.fromWho\) \{\s*setWho\(/);
+    // CHECKOUT-SELF-1: the signed-in tap buys directly (only the /for-parents audience keeps the sheet first); the secondary link opens the sheet.
+    expect(src).toMatch(/if \(whoEnabled && checkoutAudience && !opts\.fromWho\) \{\s*setWho\(/);
+    expect(src).toMatch(/<SomeoneElseLink[^>]*onOpen=\{\(\) => setWho\(\{ sku, target \}\)\}/);
     expect(src).toMatch(/if \(whoEnabled\) setWho\(\{ sku: want\.sku, target: want\.target \}\);/);
     expect(src).toMatch(/<CheckoutSheet/);
   });

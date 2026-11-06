@@ -32,7 +32,9 @@ const CALL_WINDOW_MS = 10 * 60 * 1000;
 const MAX_TRACKED_UIDS = 10000;
 
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
-const ALLOWED_KEYS = new Set(['ref', ...UTM_KEYS, 'landing', 'gclid', 'fbclid']);
+// ATTRIB-1: gbraid / wbraid (iOS app-campaign click ids) join gclid / fbclid. Old clients never send them; new
+// clients send them only when true. Stored as booleans only, and only when true.
+const ALLOWED_KEYS = new Set(['ref', ...UTM_KEYS, 'landing', 'gclid', 'fbclid', 'gbraid', 'wbraid']);
 const UTM_MAX = 64;
 const UTM_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
 const HOST_CHARSET = /^[a-z0-9.-]{1,253}$/;
@@ -76,6 +78,12 @@ function validateSource(body) {
     const v = body[key] === undefined ? false : body[key];
     if (typeof v !== 'boolean') return { ok: false, error: `${key} must be a boolean (never the value)` };
     data[key] = v;
+  }
+  // ATTRIB-1: optional; absent = not stored at all, so a doc from an old client keeps its exact old shape.
+  for (const key of ['gbraid', 'wbraid']) {
+    if (body[key] === undefined) continue;
+    if (typeof body[key] !== 'boolean') return { ok: false, error: `${key} must be a boolean (never the value)` };
+    if (body[key] === true) data[key] = true;
   }
   return { ok: true, data };
 }

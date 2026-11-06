@@ -42,7 +42,7 @@ export default function TrialPaperNote({
       <p className="lt-usage__body">{copy.upgrade}</p>
       <BoardPassLine testId="trial-paper-board-pass" />
       <div className="lt-usage__actions">
-        {/* PAYWALL-PAY-1 — Pay / Pay by QR code / Forward link to parents; payments dark:
+        {/* PAYWALL-PAY-1 — Pay / Share QR code / Forward link to parents; payments dark:
             "See plans", unchanged. */}
         <PaywallActions
           surface="trial_paper"

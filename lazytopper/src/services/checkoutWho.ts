@@ -16,7 +16,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
-import { confirmServerPrice, serverPriceFields } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled } from "./checkoutWhoFlag";
 
@@ -255,7 +255,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: item.description,
+        description: razorpayDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...whoPrefill(recipient, signedIn),

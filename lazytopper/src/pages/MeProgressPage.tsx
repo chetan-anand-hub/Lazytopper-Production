@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
+import { markMeSeen } from "../lib/nav/meSeen";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useIsDesktop } from "../hooks/useIsDesktop";
@@ -417,7 +418,7 @@ const TrendDownGlyph = () => (
 /**
  * LockedCta - the GATE-3 (#602) locked treatment, matched not re-derived: a visibly
  * disabled control that stays FOCUSABLE and is announced as unavailable
- * (`aria-disabled`, never the `disabled` attribute), with the Premium badge adjacent,
+ * (`aria-disabled`, never the `disabled` attribute), with the Board Pass badge adjacent,
  * and TAPPING IT OPENS THE UPGRADE SHEET rather than doing nothing.
  */
 const LockedCta = ({
@@ -440,7 +441,7 @@ const LockedCta = ({
       <LockGlyph />
     </span>
     <span>{label}</span>
-    <span className="lt-me__badge">Premium</span>
+    <span className="lt-me__badge">Board Pass</span>
   </button>
 );
 
@@ -512,7 +513,14 @@ export default function MeProgressPage() {
   }, [location.hash, location.pathname, location.search, location.state, navigate]);
   const isDesktop = useIsDesktop();
   const { user, loading } = useAuth();
-  const { isPremium } = useSubscription();
+  // NAV-PRICING-1 — opening Me marks any graded paper seen (clears the phone avatar's "new" dot).
+  const meUid = user?.uid;
+  useEffect(() => {
+    markMeSeen(meUid);
+  }, [meUid]);
+  // EARLY-PAYWALL-1 — `hydrated` = this uid's cloud entitlement has been read. Until then a free-looking
+  // status is UNKNOWN (a brand-new trial student's cache can still read free), never "Basic".
+  const { isPremium, hydrated } = useSubscription();
 
   // The cross-device reads need a REAL account. A local/browse session has no
   // server-side progress, and we say so rather than inventing one.
@@ -1173,11 +1181,19 @@ export default function MeProgressPage() {
                               label="Learn"
                               testId={`me-cta-learn-${c.key}`}
                             />
-                          ) : (
+                          ) : hydrated ? (
                             <LockedCta
                               label="Learn"
                               onOpenPremium={() => openPremium("Topic Hub")}
                               testId={`me-cta-learn-locked-${c.key}`}
+                            />
+                          ) : (
+                            // EARLY-PAYWALL-1 — entitlement still loading: hold the Learn button's space (no lock,
+                            // no link) so Practise does not jump when hydration lands.
+                            <span
+                              className="lt-me__cta lt-me__cta--ghost"
+                              aria-hidden="true"
+                              data-testid={`me-cta-learn-pending-${c.key}`}
                             />
                           )}
                           <NavCta
@@ -1918,6 +1934,7 @@ const ME_CSS = `
 }
 .lt-me__cta--accent { background: var(--me-navy); border-color: var(--me-navy); color: #fff; }
 .lt-me__cta--locked { background: hsl(220, 20%, 96%); border-color: var(--me-border); color: var(--me-muted); }
+.lt-me__cta--ghost { visibility: hidden; pointer-events: none; min-width: 150px; }
 .lt-me__lock-icon { display: inline-flex; flex-shrink: 0; }
 .lt-me__badge {
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;

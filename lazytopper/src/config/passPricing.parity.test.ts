@@ -43,6 +43,8 @@ import {
   priceWithGst,
 } from "./pricing";
 import { PACK_PRICE_INR } from "../services/packs";
+import * as P from "./pricing";
+import * as K from "../services/packs";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 
 const require = createRequire(import.meta.url);
@@ -216,7 +218,7 @@ describe("P16 — server pass pricing mirrors pricing.ts exactly", () => {
   });
 });
 
-// ── GST-EXCL-1 (owner, 4 Nov 2026): EVERY paid product is priced "+ 18% GST" from 00:00 IST 5 Nov 2026. The server
+// ── GST-EXCL-1 (owner, 4 Nov 2026): EVERY paid product is priced "+ 18% GST" from 00:00 IST 7 Nov 2026. The server
 // charges `chargeFor(base, orderTime)`; the client shows `chargeFor(base, now)`. They are the same rule or this is red.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const gstServer = require("../../server/services/passPricing.cjs") as {
@@ -245,10 +247,10 @@ describe("GST-EXCL-1 — the GST rule is ONE rule, server and client, for the Bo
     ...Object.values(serverTopups).map((p) => p.priceInr),
   ];
 
-  it("the constants are identical: 18%, from 2026-11-05T00:00:00+05:30", () => {
+  it("the constants are identical: 18%, from 2026-11-07T00:00:00+05:30", () => {
     expect(GST_RATE_PERCENT).toBe(18);
     expect(gstServer.GST_RATE_PERCENT).toBe(GST_RATE_PERCENT);
-    expect(GST_EXCLUSIVE_FROM_ISO).toBe("2026-11-05T00:00:00+05:30");
+    expect(GST_EXCLUSIVE_FROM_ISO).toBe("2026-11-07T00:00:00+05:30");
     expect(gstServer.GST_EXCLUSIVE_FROM_ISO).toBe(GST_EXCLUSIVE_FROM_ISO);
     expect(gstServer.GST_EXCLUSIVE_FROM_MS).toBe(GST_EXCLUSIVE_FROM_MS);
   });
@@ -284,5 +286,70 @@ describe("GST-EXCL-1 — the GST rule is ONE rule, server and client, for the Bo
 
   it("CONTROL — the comparison can fail: one ms before the cut-off differs from the cut-off", () => {
     expect(chargeFor(1917, CUT - 1)).not.toEqual(chargeFor(1917, CUT));
+  });
+});
+
+// ── GST-EXCL-1 refresh (owner ruling 6 Nov 2026 18:52 IST): the switch is 00:00 IST 7 Nov 2026. One ms before it, every price
+// figure and string is EXACTLY current trunk's (the literals below are trunk 22880010's own output at that instant, read off
+// trunk's pricing.ts / packs.ts); at the cut-off they become base + 18% GST. The old 5 Nov instant is now plainly pre-GST.
+describe("GST-EXCL-1 · 1 ms before 00:00 IST 7 Nov every amount and string equals trunk; at the cut-off, base + GST", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const routes = require("../../server/routes/payments.cjs") as {
+    quotePass: (s: object, t: string, n: number) => { pricePaidInr: number; amountPaise: number; gst?: unknown };
+    tableQuote: (b: number, n: number) => { pricePaidInr: number; amountPaise: number; gst?: unknown };
+  };
+  const CUT = Date.parse("2026-11-07T00:00:00+05:30");
+  const BEFORE = CUT - 1;
+
+  it("the cut-off is 00:00 IST 7 Nov 2026 on both sides; 5 Nov and 6 Nov are now before it", () => {
+    expect(GST_EXCLUSIVE_FROM_MS).toBe(CUT);
+    expect(gstServer.GST_EXCLUSIVE_FROM_MS).toBe(CUT);
+    for (const t of [Date.parse("2026-11-05T00:00:00+05:30"), +istNoon("2026-11-06"), BEFORE]) {
+      expect(P.boardPassGstExclusive(t)).toBe(false);
+      expect(boardPassTotalInr(t)).toBe(1917);
+    }
+  });
+
+  it("1 ms before: trunk's strings, byte for byte (client), and trunk's quotes with no gst key (server)", () => {
+    expect(P.boardPassPriceDisplay(BEFORE)).toBe("₹1,917");
+    expect(P.boardPassPayDisplay(BEFORE)).toBe("₹1,917");
+    expect(P.boardPassPriceLine(BEFORE)).toBe("₹1,917 \u2014 one payment till your boards");
+    expect(P.boardPassDeadlineLine(BEFORE)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499.");
+    expect(P.boardPassFromLine(BEFORE)).toBe("One payment \u00b7 ₹2,499 from 1 Dec");
+    expect(P.boardPassFoundingLabel(BEFORE)).toBe("Founding member offer");
+    expect(boardPassGstBreakdown(BEFORE)).toBeNull();
+    const trunkPack: Record<string, string> = { pack_chapter: "₹49", pack_mock: "₹99", pack_subject: "₹199", pack_bundle: "₹299", pack_cbq: "₹199" };
+    for (const [sku, tag] of Object.entries(trunkPack)) {
+      expect(K.packPriceLabel(sku as never, BEFORE)).toBe(tag);
+      expect(K.packPayLabel(sku as never, BEFORE)).toBe(tag);
+      expect(K.packGstBreakdown(sku as never, BEFORE)).toBeNull();
+    }
+    expect(routes.quotePass({}, "till_boards", BEFORE)).toEqual({ pricePaidInr: 1917, amountPaise: 191700, offerKey: "founding" });
+    for (const base of [49, 99, 199, 299, 149]) {
+      expect(routes.tableQuote(base, BEFORE)).toEqual({ pricePaidInr: base, amountPaise: base * 100, offerKey: null });
+    }
+  });
+
+  it("at the cut-off: tags say + GST, Pay names the total, the breakup appears, and the server charges base + GST", () => {
+    expect(P.boardPassPriceDisplay(CUT)).toBe("₹1,917 + GST");
+    expect(P.boardPassPayDisplay(CUT)).toBe("₹2,262");
+    expect(P.boardPassPriceLine(CUT)).toBe("₹1,917 + GST \u2014 one payment till your boards");
+    expect(P.boardPassDeadlineLine(CUT)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.");
+    expect(boardPassGstBreakdown(CUT)).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262");
+    const after: Record<string, [string, string, string]> = {
+      pack_chapter: ["₹49 + GST", "₹58", "₹49 + ₹9 GST (18%) = ₹58"],
+      pack_mock: ["₹99 + GST", "₹117", "₹99 + ₹18 GST (18%) = ₹117"],
+      pack_subject: ["₹199 + GST", "₹235", "₹199 + ₹36 GST (18%) = ₹235"],
+      pack_bundle: ["₹299 + GST", "₹353", "₹299 + ₹54 GST (18%) = ₹353"],
+      pack_cbq: ["₹199 + GST", "₹235", "₹199 + ₹36 GST (18%) = ₹235"],
+    };
+    for (const [sku, [tag, pay, breakup]] of Object.entries(after)) {
+      expect(K.packPriceLabel(sku as never, CUT)).toBe(tag);
+      expect(K.packPayLabel(sku as never, CUT)).toBe(pay);
+      expect(K.packGstBreakdown(sku as never, CUT)).toBe(breakup);
+    }
+    const q = routes.quotePass({}, "till_boards", CUT);
+    expect([q.pricePaidInr, q.amountPaise, q.gst]).toEqual([2262, 226200, { baseInr: 1917, gstInr: 345, totalInr: 2262, gstRate: 0.18 }]);
+    expect([49, 99, 199, 299, 149].map((b) => routes.tableQuote(b, CUT).amountPaise)).toEqual([5800, 11700, 23500, 35300, 17600]);
   });
 });

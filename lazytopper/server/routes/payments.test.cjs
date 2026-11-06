@@ -1440,12 +1440,12 @@ test('PRICE-FIXED-1 · the retirement instant is exactly 2026-11-01T00:00:00+05:
 });
 
 test('PRICE-FIXED-1 · till_boards is 1917 until the founding deadline and 2499 from it: 31 Oct, 30 Nov 23:59:59 IST -> 1917; 1 Dec 00:00:00 IST, 2 Dec, 1 Feb -> 2499 (the SERVER clock decides)', async (t) => {
-  // GST-EXCL-1: from 00:00 IST 5 Nov 2026 the order is the base + 18% GST (1917 -> 2262, 2499 -> 2949); the founding ->
+  // GST-EXCL-1: from 00:00 IST 7 Nov 2026 the order is the base + 18% GST (1917 -> 2262, 2499 -> 2949); the founding ->
   // regular switch at 1 Dec still happens, now on the GST-inclusive total.
   const cases = [
     [Date.parse('2026-10-31T10:00:00+05:30'), 191700],
-    [Date.parse('2026-11-04T23:59:59.999+05:30'), 191700],
-    [Date.parse('2026-11-05T00:00:00+05:30'), 226200],
+    [Date.parse('2026-11-06T23:59:59.999+05:30'), 191700],
+    [Date.parse('2026-11-07T00:00:00+05:30'), 226200],
     [Date.parse('2026-11-15T10:00:00+05:30'), 226200],
     [Date.parse('2026-11-30T23:59:59+05:30'), 226200],
     [Date.parse('2026-12-01T00:00:00+05:30'), 294900],
@@ -1740,13 +1740,24 @@ test('EXISTING-BUYERS (3) · PACK-TERMS-1: a pack paid BEFORE the 5 Nov cut-off 
   const srv = await startRoutes({ db, now: () => istNoon('2026-11-05'), calendarOffer: true });
   t.after(srv.close);
   const out = await createOrder(srv, 'pc1', 'till_boards');
-  // GST-EXCL-1: on 5 Nov the Board Pass is 1917 + 345 GST = 2262; the old pack credit comes off that total.
-  assert.equal(out.amountPaise, (2262 - 49) * 100);
+  // GST-EXCL-1: 5 Nov is BEFORE the 7 Nov GST cut-off - byte-for-byte today's order (all-in 1917 less the credit, no GST fields).
+  assert.equal(out.amountPaise, (1917 - 49) * 100);
   const stored = db.read(`payOrders/${out.orderId}`);
   assert.equal(stored.packCreditInr, 49);
-  assert.deepEqual([stored.baseInr, stored.gstInr, stored.totalInr, stored.gstRate], [1917, 345, 2262, 0.18]);
+  assert.deepEqual([stored.baseInr, stored.gstInr, stored.totalInr, stored.gstRate], [undefined, undefined, undefined, undefined]);
   // The pack is NOT marked credited until the payment is granted (unchanged behaviour).
   assert.equal(db.read('packEntitlements/pc1/packs/pk1').creditedToPass, false);
+  // GST-EXCL-1: the same credited buyer ordering on 7 Nov (credit window still open): 1917 + 345 GST = 2262, less the credit.
+  const gdb = memoryFirestore({
+    'packEntitlements/pc1/packs/pk1': { packId: 'pk1', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: istNoon('2026-11-04'), creditedToPass: false },
+  });
+  const gsrv = await startRoutes({ db: gdb, now: () => istNoon('2026-11-07'), calendarOffer: true });
+  t.after(gsrv.close);
+  const gout = await createOrder(gsrv, 'pc1', 'till_boards');
+  assert.equal(gout.amountPaise, (2262 - 49) * 100);
+  const gstored = gdb.read(`payOrders/${gout.orderId}`);
+  assert.equal(gstored.packCreditInr, 49);
+  assert.deepEqual([gstored.baseInr, gstored.gstInr, gstored.totalInr, gstored.gstRate], [1917, 345, 2262, 0.18]);
   // PACK-TERMS-1: the same order for a pack paid AFTER the cut-off is charged the full fixed price, no credit stored.
   const ldb = memoryFirestore({
     'packEntitlements/pc2/packs/pk3': { packId: 'pk3', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: istNoon('2026-11-05'), creditedToPass: false },
@@ -1754,8 +1765,16 @@ test('EXISTING-BUYERS (3) · PACK-TERMS-1: a pack paid BEFORE the 5 Nov cut-off 
   const lsrv = await startRoutes({ db: ldb, now: () => istNoon('2026-11-06'), calendarOffer: true });
   t.after(lsrv.close);
   const late = await createOrder(lsrv, 'pc2', 'till_boards');
-  assert.equal(late.amountPaise, 2262 * 100, 'no credit for a pack paid on/after the cut-off (1917 + GST)');
+  assert.equal(late.amountPaise, 1917 * 100, 'no credit for a pack paid on/after the cut-off (6 Nov: before the GST cut-off, all-in)');
   assert.equal(ldb.read(`payOrders/${late.orderId}`).packCreditInr, undefined);
+  const l7db = memoryFirestore({
+    'packEntitlements/pc2/packs/pk3': { packId: 'pk3', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: istNoon('2026-11-05'), creditedToPass: false },
+  });
+  const l7srv = await startRoutes({ db: l7db, now: () => istNoon('2026-11-07'), calendarOffer: true });
+  t.after(l7srv.close);
+  const late7 = await createOrder(l7srv, 'pc2', 'till_boards');
+  assert.equal(late7.amountPaise, 2262 * 100, 'no credit, and from 7 Nov 1917 + GST');
+  assert.equal(l7db.read(`payOrders/${late7.orderId}`).packCreditInr, undefined);
   // And a month order earns no credit (unchanged), for a month buyer.
   const mdb = memoryFirestore({ ...monthBuyerSeed(), 'packEntitlements/mb1/packs/pk2': { packId: 'pk2', sku: 'pack_chapter', target: 'x', pricePaidInr: 49, paidAt: istNoon('2026-11-19'), creditedToPass: false } });
   const msrv = await startRoutes({ db: mdb, now: () => istNoon('2026-11-20'), calendarOffer: true });
@@ -1795,9 +1814,9 @@ test('EXISTING-BUYERS (4) · NO new write path: the month-history helpers are re
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
-   GST-EXCL-1 — every paid product is priced "+ 18% GST" from 00:00 IST 5 Nov 2026 (server clock, at ORDER time)
+   GST-EXCL-1 — every paid product is priced "+ 18% GST" from 00:00 IST 7 Nov 2026 (server clock, at ORDER time)
    ══════════════════════════════════════════════════════════════════════════ */
-const GST_CUT = Date.parse('2026-11-05T00:00:00+05:30');
+const GST_CUT = Date.parse('2026-11-07T00:00:00+05:30');
 
 test('GST-EXCL-1 · the shared rule: totals = round(base x 1.18), from the cut-off only, mirrored by the constant', () => {
   assert.equal(pricing.GST_EXCLUSIVE_FROM_MS, GST_CUT);

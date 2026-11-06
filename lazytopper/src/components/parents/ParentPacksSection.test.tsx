@@ -9,7 +9,7 @@ const fire = vi.hoisted(() => vi.fn());
 vi.mock("../../lib/packs/packEntry", () => ({ firePackEntryClick: fire }));
 
 import ParentPacksSection, { PACKS_ALL_TO, PACKS_CBQ_TO, ParentPacksBand, ParentPacksHeroLink } from "./ParentPacksSection";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { displayPlusGst } from "../../config/pricing";
 
 afterEach(() => { cleanup(); paidMock.paid = false; fire.mockClear(); });

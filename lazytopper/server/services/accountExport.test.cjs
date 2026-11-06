@@ -226,6 +226,9 @@ function realSeed(uid = UID) {
     // TRIAL-END-1 — the one trial-ending email's ledger (server-only).
     [`trialEmails/${uid}`]: { trialStartMs: 1790000000000, trialEndsAtMs: 1790604800000, status: 'sent', providerMessageId: 'msg_1' },
     [`nudgeEmails/${uid}`]: { d1: { status: 'sent', providerMessageId: 'msg_2' }, lastClaimMs: 1790000000000 },
+    // GUEST-ABANDON-1 review D2: keyed by emailKey(the account's auth email), not the uid.
+    [`guestNudgeEmails/${require('./emailSuppression.cjs').emailKey('child@example.test')}`]: { abandoned_board_pass: { status: 'sent' }, lastClaimMs: 1 },
+    [`emailSuppression/${require('./emailSuppression.cjs').emailKey('child@example.test')}`]: { optedOut: true, source: 'guest-email' },
     // LOW-END-1 R4. The parent is seeded only so the map-driven test has a row to find;
     // production writes only the attempt documents (a stored grade, kept 24 h).
     [`gradingResults/${uid}`]: {},
@@ -255,7 +258,7 @@ function makeService(opts = {}) {
   const admin = makeAdmin(
     bucket,
     opts.users === undefined
-      ? { [UID]: { uid: UID, email: 'child@example.test', displayName: 'A Student' } }
+      ? { [UID]: { uid: UID, email: 'child@example.test', displayName: 'A Student', emailVerified: true } }
       : opts.users
   );
   const service = createAccountExportService({

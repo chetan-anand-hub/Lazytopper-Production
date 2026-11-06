@@ -62,7 +62,7 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
 
 /* Phone: the Buy row stays reachable (sticky). An opened parent / QR panel is NEVER in here - it renders in .lt-pkd__share. */
 .lt-pkd__foot { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #eef2f6; padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; }
-/* PACK-DIALOG-1: the full-width slot for the opened "Ask a parent to pay" / "Pay by QR code" panel (normal flow, below the foot). */
+/* PACK-DIALOG-1: the full-width slot for the opened "Forward link to parents" / "Share QR code" panel (normal flow, below the foot). */
 .lt-pkd__share { padding: 0 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
 .lt-pkd__share:empty { display: none; }
 .lt-pkd__label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; color: #2f3e55; }
@@ -91,7 +91,8 @@ button.lt-pkd__x:hover { background: #f3f7fa; }
 .lt-pkd__btn {
   width: 100%; height: 56px; border: 0; border-radius: 14px; background: #3fbf82; color: #0f1b2d; font: inherit; font-size: 18px; font-weight: 700; cursor: pointer;
 }
-.lt-pkd__sample { display: flex; justify-content: center; margin-top: 2px; }
+.lt-pkd__sample { display: flex; justify-content: center; margin-top: 4px; }
+.lt-pkd__sample > .lt-psbtn { flex: 1 1 auto; }
 .lt-pkd__btn:disabled { background: #d3dbe5; color: #3c4b60; cursor: not-allowed; }
 .lt-pkd__note { margin: 8px 0 0; font-size: 14.5px; color: #2f3e55; }
 .lt-pkd__note--ok { color: #136b43; font-weight: 600; }

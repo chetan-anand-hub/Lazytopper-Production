@@ -129,6 +129,100 @@ const DETECT_RESPONSE_SCHEMA = deepFreeze({
 });
 
 
+// MCQ-KEY-TRUST-1 · the detect schema for a request that opts in with `keySource: true` (the paid
+// Answer Checker read): the SAME schema plus one ADDITIVE, NULLABLE per-question field saying where
+// `answer` came from. Only "printed" (an answer key / marked answer in the document) keeps the key's
+// precedence over the grader's verdict; anything else is treated as "derived". A request without
+// the flag uses DETECT_RESPONSE_SCHEMA unchanged.
+const DETECT_RESPONSE_SCHEMA_KEY_SOURCE = (() => {
+  const s = JSON.parse(JSON.stringify(DETECT_RESPONSE_SCHEMA));
+  const item = s.properties.questions.items;
+  item.properties.answerSource = { type: 'STRING', enum: ['printed', 'derived'], nullable: true };
+  item.propertyOrdering.splice(item.propertyOrdering.indexOf('answer') + 1, 0, 'answerSource');
+  return deepFreeze(s);
+})();
+
+// GRADE-MARKS-1 · the detect schema for a request that opts in with `sectionMarks: true` (the paid
+// Answer Checker read): the request's schema (with or without answerSource) plus ADDITIVE, NULLABLE
+// fields — the paper's section headers and the marks each states, and per question its section and
+// the mark printed ON it. A deterministic post-step (grading/detect.cjs assignSectionMarks) turns
+// them into marks. A request without the flag uses its schema unchanged.
+function withSectionMarksSchema(base) {
+  const s = JSON.parse(JSON.stringify(base));
+  s.properties.sectionHeaders = {
+    type: 'ARRAY',
+    nullable: true,
+    items: {
+      type: 'OBJECT',
+      // GRADE-SECTION-1 · firstQuestion: the number of the first question printed AFTER the header —
+      // section membership is then derived by ORDER (grading/detect.cjs assignSectionMarks).
+      properties: { section: { type: 'STRING' }, marksEach: { type: 'NUMBER', nullable: true }, firstQuestion: { type: 'NUMBER', nullable: true } },
+      propertyOrdering: ['section', 'marksEach', 'firstQuestion'],
+      required: ['section'],
+    },
+  };
+  s.propertyOrdering.splice(s.propertyOrdering.indexOf('questions'), 0, 'sectionHeaders');
+  const item = s.properties.questions.items;
+  item.properties.section = { type: 'STRING', nullable: true };
+  item.properties.printedMarks = { type: 'NUMBER', nullable: true };
+  item.propertyOrdering.splice(item.propertyOrdering.indexOf('questionText'), 0, 'section');
+  item.propertyOrdering.splice(item.propertyOrdering.indexOf('marks') + 1, 0, 'printedMarks');
+  return deepFreeze(s);
+}
+const DETECT_RESPONSE_SCHEMA_SECTION_MARKS = withSectionMarksSchema(DETECT_RESPONSE_SCHEMA);
+const DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS = withSectionMarksSchema(DETECT_RESPONSE_SCHEMA_KEY_SOURCE);
+
+/** GRADE-MARKS-1 · the one prompt line an opted-in detect request adds (right after the marks rule). */
+const DETECT_SECTION_MARKS_RULE =
+  '- SECTIONS AND MARKS: many papers print marks ONLY in a section header (e.g. "SECTION C — this section has 6 questions of 3 marks each"). List every section header you see in "sectionHeaders", in reading order, as { "section": "<its letter>", "marksEach": <the marks per question it states, or null if it states none>, "firstQuestion": <the number of the FIRST question printed AFTER that header, or null if you cannot read it> }. ' +
+  'For EACH question give "section": the letter of the section it is printed under — a section continues across page breaks until the next section header, so a question on a page with no header belongs to the last section header before it, and a question printed ABOVE a header on the same page belongs to the section BEFORE that header — or null if the paper has no sections. ' +
+  'Give "printedMarks": the mark printed ON or beside THAT question itself (e.g. "[3]", "(2 marks)"; for a question with parts, the TOTAL of its printed part-marks), or null when no mark is printed on the question. A section-header mark is NOT a printed mark for this field.\n';
+
+// MCQ-KEY-TRUST-1 · the provenance of an objective answer key on a grade request: "printed"
+// (in the document) or "derived" (worked out by the detect step). Anything else = absent (null),
+// which keeps today's key precedence (bank surfaces, old clients) — and then the field is not
+// added to the question at all, so those requests are byte-identical to before.
+/**
+ * GRADE-MARKS-1 · §13 OBJECTIVE INVARIANT GUARD (both grade routes, one helper — §4a).
+ * A detect-flagged objective question is scored 0-or-full only while its marks are ≤ 1
+ * (postprocess normaliseQuestionResult: `q.objective === true && totalMarks <= 1`). A student's mark
+ * edit, or any mis-read, that sends an MCQ / Assertion-Reason item with marks > 1 would silently drop
+ * that clamp and step-mark it. So such an item is graded as the 1-mark question it is: its marks are
+ * FORCED TO 1 — chosen over "clamp 0/full at the larger total", which would award an MCQ 3 marks.
+ * Only when the question really OFFERS OPTIONS (options / format / "(a) (b)" / Assertion-Reason in its
+ * text): a multi-mark subjective that detect mis-flagged objective keeps its marks and its step
+ * marking — the ≤ 1 rail's original purpose. Bank-objective items (section/format) are untouched:
+ * they are clamped whatever their marks, exactly as before.
+ */
+function guardedObjectiveMarks(q, marks) {
+  if (q && q.objective === true && Number(marks) > 1 && !isObjective(q) && grading.objectiveOffersOptions(q)) return 1;
+  return marks;
+}
+
+/**
+ * DETECT-OBJECTIVE-STABILITY-1 · the grade routes' half of the printed-options rule (§4a: BOTH routes).
+ * A question with NO bank metadata (no section / format / qType / options / correctOption — i.e. one
+ * the detect step read, on Answer Checker) whose TEXT prints an MCQ option list or an Assertion–Reason
+ * item (grading/detect.cjs printedOptionsObjective — the SAME rule detect applies) is objective even
+ * when the request does not say so — but ONLY while its marks are ≤ 1 (or unset). A question sent with
+ * marks > 1 and objective:false is the student's GRADE-MARKS-1 override ("graded as written",
+ * PaperMarksEditor sendAsObjective) or a multi-mark question: it is never upgraded. Upgrade only, and
+ * never on a bank question: the bank already knows its own objectivity.
+ */
+function hasBankObjectiveMeta(q) {
+  return Boolean(q && (q.section || q.format || q.qType || q.correctOption
+    || (Array.isArray(q.options) && q.options.some((o) => o != null && String(o).trim()))));
+}
+function printedOptionsUpgrade(q, questionText, sentMarks) {
+  const m = Number(sentMarks);
+  if (sentMarks != null && sentMarks !== '' && Number.isFinite(m) && m > 1) return false;
+  return !hasBankObjectiveMeta(q) && D.printedOptionsObjective(questionText);
+}
+
+function answerSourceOf(v) {
+  return v === 'printed' || v === 'derived' ? v : null;
+}
+
 function createCheckSolutionRoute(deps) {
   const {
     sendJson,
@@ -280,8 +374,13 @@ function createCheckSolutionRoute(deps) {
       answer: payload.answer != null ? String(payload.answer).trim() : null,
       options: Array.isArray(payload.options) ? payload.options.map(String) : null,
       correctOption: payload.correctOption ? String(payload.correctOption).trim() : null,
+      // MCQ-KEY-TRUST-1: "derived" = a key the detect step worked out — used only when the grader
+      // states no verdict (objectiveScoring.clampObjectiveResult). Absent = today's behaviour.
+      ...(answerSourceOf(payload.answerSource) ? { answerSource: answerSourceOf(payload.answerSource) } : {}),
     };
-    const detectedObjective = payload.objective === true || payload.objective === 'true';
+    // DETECT-OBJECTIVE-STABILITY-1 · a detect-read question that prints its options is objective here too.
+    const detectedObjective = payload.objective === true || payload.objective === 'true'
+      || printedOptionsUpgrade(objectiveMeta, question, payload.marks);
 
     // Claim-2 auto-detect (no live client sends it since #246; kept, see the P17 table): the
     // grader determines marks/subject/topic itself; `marks`/`subject`/`topic` are hints.
@@ -323,7 +422,7 @@ function createCheckSolutionRoute(deps) {
       // answer makes it a typed-only set. Exactly the fields the set grader would carry.
       const one = {
         qNumber: 1,
-        marks,
+        marks: guardedObjectiveMarks({ ...objectiveMeta, objective: detectedObjective, questionText: question }, marks),
         questionText: question,
         subject,
         topic,
@@ -414,6 +513,8 @@ function createCheckSolutionRoute(deps) {
         ...detected,
         provider: ACTIVE_PROVIDER,
         model: graded.modelUsed,
+        // MCQ-KEY-TRUST-1 · admin observability only; present only when true.
+        ...(r.derivedKeyDisagreed === true ? { derivedKeyDisagreed: true } : {}),
       };
       if (acceptsV2) {
         Object.assign(body, {
@@ -451,6 +552,14 @@ function createCheckSolutionRoute(deps) {
     }
 
     const acceptsV2 = payload.acceptsV2 === true;
+    // MCQ-KEY-TRUST-1 · opt-in (C7 pattern): only a client that sends `keySource: true` is asked
+    // for, and given, each key's `answerSource`. Without it the prompt, schema and response are
+    // exactly as before.
+    const wantsKeySource = payload.keySource === true;
+    // GRADE-MARKS-1 · opt-in the same way: only a client that sends `sectionMarks: true` (the paid Answer
+    // Checker read) is asked for section headers + printed marks and has its marks assigned by rule.
+    // Without it the prompt, schema and response are exactly as before.
+    const wantsSectionMarks = payload.sectionMarks === true;
     const question = String(payload.question || '').trim();
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
@@ -518,10 +627,12 @@ function createCheckSolutionRoute(deps) {
       (layerText ? D.textLayerBlock(layerText, nonce, fence) : '') +
       '\nDETERMINE:\n' +
       '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never override a clearly-printed value, and never blindly default to 3.\n' +
+      (wantsSectionMarks ? DETECT_SECTION_MARKS_RULE : '') +
       '- detectedSubject: "Maths" or "Science".\n' +
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
       '- objective: true ONLY if the question is a multiple-choice question (lettered options like (a)/(b)/(c)/(d)) or an assertion-reason question; false for any question that needs written working, a derivation, a proof, or step-by-step reasoning. Apply this per question.\n' +
       '- answer: for an OBJECTIVE question ONLY, the CORRECT option - its letter ("a"/"b"/"c"/"d") or its exact printed option text. Set it ONLY when the correct option is printed in the document (an answer key, a marked answer) or is unambiguously determinable from the question itself. If you are not certain, set it to null. NEVER guess: a wrong key is worse than no key, because it is used to mark the student. Set null for every non-objective question.\n' +
+      (wantsKeySource ? '- answerSource: for each question whose answer you set, "printed" ONLY when that correct option is printed or marked in the document itself (an answer key, a ticked or marked answer); otherwise "derived". null when answer is null.\n' : '') +
       D.DETECT_SYMBOL_RULE +
       D.DETECT_SUBPART_RULE +
       topicListBlock +
@@ -554,7 +665,9 @@ function createCheckSolutionRoute(deps) {
         // handler's own parser, which is far looser than the grader's: a bare `{}` is an
         // accepted parse. (Until PR-3 detect was the one path with no retry; it now retries
         // ONCE, bounded — see below.)
-        responseSchema: DETECT_RESPONSE_SCHEMA,
+        responseSchema: wantsSectionMarks
+          ? (wantsKeySource ? DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS : DETECT_RESPONSE_SCHEMA_SECTION_MARKS)
+          : (wantsKeySource ? DETECT_RESPONSE_SCHEMA_KEY_SOURCE : DETECT_RESPONSE_SCHEMA),
         // gemini-2.5-flash is a thinking model and thinking tokens count against
         // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
         // leaving 1-5 tokens for the JSON → truncated → "couldn't read the question".
@@ -629,6 +742,8 @@ function createCheckSolutionRoute(deps) {
             detectedObjective: pre.detectedObjective != null ? pre.detectedObjective : q0.objective,
             detectedAnswer: pre.detectedAnswer != null ? pre.detectedAnswer : q0.answer,
             questions: best.questions,
+            // GRADE-MARKS-1 · the headers precede the questions in the reply, so a cut-off read still has them.
+            ...(wantsSectionMarks && Array.isArray(pre.sectionHeaders) ? { sectionHeaders: pre.sectionHeaders } : {}),
           };
           partialRead = true;
         } else {
@@ -672,7 +787,7 @@ function createCheckSolutionRoute(deps) {
       // so the grader can clamp a ≤1-mark objective question to 0/full off the model's
       // binary verdict. Defaults to false, so a model that omits it leaves grading
       // byte-unchanged.
-      const detectedObjective = parsed.detectedObjective === true || parsed.detectedObjective === 'true';
+      let detectedObjective = parsed.detectedObjective === true || parsed.detectedObjective === 'true';
 
       // Detected answer key (additive, OBJECTIVE-MARK-INVARIANT §2.4). NULL unless the
       // model actually supplied a non-empty string - a model that omits it, or returns
@@ -699,7 +814,45 @@ function createCheckSolutionRoute(deps) {
         acceptsV2,
         vocabulary: topicVocabulary,
         sources: [question, layerText].filter(Boolean),
+        ...(wantsSectionMarks ? { sectionMarks: true, sectionHeaders: parsed.sectionHeaders } : {}),
       });
+      // GRADE-MARKS-1 · the top-level mark mirrors the first question (backward compatibility, as the
+      // prompt asks) when the rule set it: a printed or section mark is a mark the paper states.
+      // GRADE-MARKS-1 (S1) · whether each objective question OFFERS OPTIONS (an MCQ / A-R), by the SAME
+      // test the grade routes' §13 guard uses (guardedObjectiveMarks): the client locks a question at 1
+      // mark exactly when the server would force it to 1. Opted-in reads only (the legacy shape is pinned).
+      if (wantsSectionMarks) {
+        for (const q of questions) q.offersOptions = q.objective === true && grading.objectiveOffersOptions({ questionText: q.questionText });
+      }
+      // DETECT-OBJECTIVE-STABILITY-1 · a single-question read whose text prints its options: the top-level
+      // fields agree with the question (objective, 1 mark) — detect.cjs already set questions[0].
+      if (questions.length === 1 && questions[0]._printedOptions === true) {
+        detectedObjective = true;
+        detectedMarks = 1;
+        // R2-2 · "stated" only when the question itself says so (detect.cjs never leaves a false "stated")
+        marksSource = questions[0].marksSource === 'stated' ? 'stated' : 'inferred';
+      }
+      if (wantsSectionMarks && questions.length > 0 && (questions[0].marksSource === 'printed' || questions[0].marksSource === 'section')) {
+        detectedMarks = questions[0].marks;
+        marksSource = 'stated';
+      }
+
+      // MCQ-KEY-TRUST-1 · each returned key carries `answerSource`. "printed" ONLY when every model
+      // entry with that question number and that exact key said "printed"; a missing or any
+      // other label is "derived" (the safe side: the grader's verdict then decides).
+      // (grading/detect.cjs whitelists entry fields, so the label is matched back here by number + key.)
+      const printedVotes = new Map();
+      for (const rq of wantsKeySource && Array.isArray(parsed.questions) ? parsed.questions : []) {
+        const n = Number(rq && rq.questionNumber);
+        const a = rq && rq.answer != null ? String(rq.answer).trim() : '';
+        if (!Number.isFinite(n) || n < 1 || !a || a.toLowerCase() === 'null' || !String((rq && rq.questionText) || '').trim()) continue;
+        const k = Math.round(n) + '\u0000' + a;
+        const printed = rq.answerSource === 'printed';
+        printedVotes.set(k, printedVotes.has(k) ? printedVotes.get(k) && printed : printed);
+      }
+      if (wantsKeySource) for (const q of questions) {
+        if (q.answer) q.answerSource = printedVotes.get(q.questionNumber + '\u0000' + q.answer) === true ? 'printed' : 'derived';
+      }
 
       // UPLOAD-READ-1 · a salvaged read that normalised to nothing is no read at all.
       if (partialRead && questions.length === 0) {
@@ -874,6 +1027,8 @@ function createCheckSolutionRoute(deps) {
         format: String((q && q.format) || '').trim(),
         qType: String((q && q.qType) || '').trim(),
         answer: q && q.answer != null ? String(q.answer).trim() : null,
+        // MCQ-KEY-TRUST-1: the SAME provenance field as the single path (see objectiveMeta).
+        ...(answerSourceOf(q && q.answerSource) ? { answerSource: answerSourceOf(q.answerSource) } : {}),
         options: Array.isArray(q && q.options) ? q.options.map(String) : null,
         // A keyless detect step's objective flag (clamped only for a ≤1-mark item).
         objective: q && (q.objective === true || q.objective === 'true') ? true : false,
@@ -892,6 +1047,11 @@ function createCheckSolutionRoute(deps) {
         chapter: String((q && q.chapter) || '').trim(),
       }))
       .map((q) => (q.topic || q.topicLabel || !q.chapter ? q : { ...q, topicLabel: q.chapter }))
+      // DETECT-OBJECTIVE-STABILITY-1 · a detect-read question that prints its options is objective (upgrade only).
+      //   Only at marks ≤ 1: an objective:false question sent with marks > 1 is the student's override.
+      .map((q) => (q.objective !== true && printedOptionsUpgrade(q, q.questionText, q.marks) ? { ...q, objective: true } : q))
+      // GRADE-MARKS-1 · §13: an MCQ sent with marks > 1 is graded as its 1 mark (see guardedObjectiveMarks).
+      .map((q) => { const m = guardedObjectiveMarks(q, q.marks); return m === q.marks ? q : { ...q, marks: m }; })
       .filter((q) => q.qNumber > 0 && q.questionText);
 
     if (questions.length === 0) {
@@ -1084,6 +1244,9 @@ module.exports = {
   GRADING_RESPONSE_SCHEMA,
   WORKSHEET_RESPONSE_SCHEMA,
   DETECT_RESPONSE_SCHEMA,
+  DETECT_RESPONSE_SCHEMA_KEY_SOURCE,
+  DETECT_RESPONSE_SCHEMA_SECTION_MARKS,
+  DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS,
   STEP_STATUS_VALUES,
   MAX_BATCH_UPLOADS,
   // The server-produced departure sentences (golden T05 imports the historic two names).

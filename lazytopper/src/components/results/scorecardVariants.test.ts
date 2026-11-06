@@ -9,7 +9,6 @@ import {
   storedWorksheetScorecardVariant,
   chapterTestScorecardVariantStub,
   fullMockScorecardVariantStub,
-  deriveFullMockSectionLens,
   deriveFullMockChapterLens,
   fullMockChapterLensNote,
   fullMockFocusLine,
@@ -596,34 +595,8 @@ describe("chapterTestScorecardVariant — concept lens wiring", () => {
 
 // ── FULL MOCK live variant (Full Mock build — fills the PR-2 seam) ────────────────
 
-describe("deriveFullMockSectionLens", () => {
-  it("is EXACT from the paper's sections when questions are supplied", () => {
-    const resp = response({
-      results: [
-        { qNumber: 1, couldNotRead: false, totalMarks: 1, marksAwarded: 1 },
-        { qNumber: 2, couldNotRead: false, totalMarks: 4, marksAwarded: 2 },
-      ],
-    });
-    const rows = deriveFullMockSectionLens(resp, [
-      { qNumber: 1, section: "A" },
-      { qNumber: 2, section: "E" },
-    ])!;
-    expect(rows.map((r) => r.section)).toEqual(["A", "E"]);
-    expect(rows[1]).toMatchObject({ awarded: 2, total: 4 });
-  });
-
-  it("falls back to the CBSE band proxy without questions (exact for FM bands) and skips pending", () => {
-    const resp = response({
-      results: [
-        { qNumber: 1, couldNotRead: false, totalMarks: 2, marksAwarded: 2 }, // → B
-        { qNumber: 2, couldNotRead: false, totalMarks: 5, marksAwarded: 3 }, // → D
-        { qNumber: 3, couldNotRead: true, totalMarks: 3 }, // pending — excluded
-      ],
-    });
-    const rows = deriveFullMockSectionLens(resp)!;
-    expect(rows.map((r) => r.section)).toEqual(["B", "D"]);
-  });
-});
+// SCORECARD-SECTION-TYPE-1 - the old band-proxy lens derivations were replaced by the one shared
+// lens (sectionTypeLens.ts); its tests live in sectionTypeLens.test.ts and sectionType.surfaces.test.tsx.
 
 describe("deriveFullMockChapterLens + note", () => {
   const questions = [

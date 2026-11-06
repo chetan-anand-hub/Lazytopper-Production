@@ -36,7 +36,7 @@ import {
   type RazorpayConstructor,
   type RazorpaySuccess,
 } from "./checkout";
-import { confirmServerPrice } from "./priceConfirm";
+import { confirmServerPrice, razorpayDescription } from "./priceConfirm";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
@@ -73,7 +73,7 @@ export const PACK_PRICE_INR: Readonly<Record<PackSku, number>> = {
 };
 
 /**
- * The pack's price TAG at `now` ("₹49"; GST-EXCL-1: "₹49 + GST" from 00:00 IST 5 Nov 2026). Read at RENDER time.
+ * The pack's price TAG at `now` ("₹49"; GST-EXCL-1: "₹49 + GST" from 00:00 IST 7 Nov 2026). Read at RENDER time.
  * ⚠ Never on a Buy/Pay button - a button names what is CHARGED: `packPayLabel`.
  */
 export function packPriceLabel(sku: PackSku, now: Date | number = Date.now()): string {
@@ -408,7 +408,7 @@ export async function buyPack(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: packCheckoutDescription(sku, target, options.chapterName),
+        description: razorpayDescription(packCheckoutDescription(sku, target, options.chapterName), order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const { recordActivity } = vi.hoisted(() => ({ recordActivity: vi.fn() }));
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity }));
+const { hint, seen } = vi.hoisted(() => ({ hint: vi.fn<() => boolean | undefined>(() => undefined), seen: vi.fn() }));
+vi.mock("./packSampleSeen", () => ({ signedInHint: hint, reportPackSampleSeen: seen }));
 
 import { __resetPurchaseMemoryForTests } from "../../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase, trackPackSampleDownload } from "./packAnalytics";
@@ -103,5 +105,19 @@ describe("pack analytics", () => {
     expect(recordActivity.mock.calls[0][1]).toMatchObject({ name: "pack_sample_download", data: { pack: "pack_cbq:science", surface: "packs_cbq" } });
     const hit = gtagCalls.find((c) => c[0] === "event" && c[1] === "pack_sample_download");
     expect(hit?.[2]).toMatchObject({ pack: "pack_cbq:science", surface: "packs_cbq" });
+  });
+
+  it("SAMPLE-FOLLOWUP-1: pack_sample_download carries signed_in true / false once known (never guessed), and reports the pack for the follow-up", () => {
+    hint.mockReturnValueOnce(true);
+    trackPackSampleDownload("pack_cbq:science", "packs_dialog");
+    expect(recordActivity.mock.calls[0][1]).toMatchObject({ data: { pack: "pack_cbq:science", surface: "packs_dialog", signed_in: true } });
+    hint.mockReturnValueOnce(false);
+    trackPackSampleDownload("pack_bundle:all", "packs_tile");
+    expect(recordActivity.mock.calls[1][1]).toMatchObject({ data: { signed_in: false } });
+    hint.mockReturnValueOnce(undefined);
+    trackPackSampleDownload("pack_mock:maths", "packs_tile");
+    expect((recordActivity.mock.calls[2][1] as { data: Record<string, unknown> }).data).not.toHaveProperty("signed_in");
+    expect(seen.mock.calls.map((c) => c[0]).slice(-3)).toEqual(["pack_cbq:science", "pack_bundle:all", "pack_mock:maths"]);
+    expect(JSON.stringify(recordActivity.mock.calls)).not.toMatch(/@|uid|email/i);
   });
 });

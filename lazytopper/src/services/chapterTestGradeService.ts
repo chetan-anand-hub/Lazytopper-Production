@@ -32,6 +32,7 @@ import {
   type WorksheetGradeResponse,
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
+import { stampFromPaper } from "../components/results/sectionTypeLens";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import { saveWorksheetGrade } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
@@ -44,7 +45,8 @@ import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
   buildChapterTestSessionRecord,
-  writeSessionRecord,
+  writeSessionRecordResolved,
+  currentCodeForPaper,
   writeSessionPerQuestion,
   type SessionSubject,
 } from "./sessionRecords";
@@ -173,7 +175,7 @@ export function buildChapterTestResponse(args: {
   const legible = rows.filter((r) => isGradedQuestion(r));
   const gradedMarksAwarded = legible.reduce((s, r) => s + (Number(r.marksAwarded) || 0), 0);
   const gradedMarksTotal = legible.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
-  return {
+  const built: WorksheetGradeResponse = {
     ok: true,
     worksheetId: paper.worksheetId,
     results: rows,
@@ -185,6 +187,10 @@ export function buildChapterTestResponse(args: {
     worksheetTotalMarks: Number(paper.totalMarks) || gradedMarksTotal,
     summary: subjectiveResponse?.summary,
   };
+  // SCORECARD-SECTION-TYPE-1 - stamp each row with its bank section and question type (display only), so
+  // the live card, the device cache and the stored payload all carry the SAME lens data. A Chapter Test
+  // slot is a marks band, so there is no blueprint fallback: only the bank row's own section counts.
+  return stampFromPaper(built, paper.questions, { blueprintFallback: false });
 }
 
 /** Adapt one legible per-question grade into the CheckSolutionResponse shape the MI
@@ -223,17 +229,22 @@ export function writeChapterTestPartialRecord(args: {
   subject: SessionSubject;
   topicKey: string;
   response: WorksheetGradeResponse;
-}): void {
+}): Promise<string> {
   const { user, paper, code, subject, topicKey, response } = args;
   const uid = user?.uid;
-  if (!uid || user?.isLocalSession) return;
-  try {
-    const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response, uid });
-    writeSessionRecord(user, record);
-    noteFirstGraded(uid, record, "chapter_test"); // MEASURE-1 B — observe only
-  } catch (error) {
-    console.warn("[chapterTestGradeService] partial record write failed", error);
-  }
+  if (!uid || user?.isLocalSession) return Promise.resolve(code);
+  // RECORD-SAFE-1: the FINAL code is resolved once, before the write; the caller uses the returned code.
+  return (async () => {
+    try {
+      const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response, uid });
+      const written = await writeSessionRecordResolved(user, record);
+      noteFirstGraded(uid, written.record, "chapter_test"); // MEASURE-1 B — observe only
+      return written.code;
+    } catch (error) {
+      console.warn("[chapterTestGradeService] partial record write failed", error);
+      return code;
+    }
+  })();
 }
 
 export interface ChapterTestMiOutcome {
@@ -249,6 +260,9 @@ export interface ChapterTestGradeOutcome {
    *  response (carrying `.error`) on failure. */
   response: WorksheetGradeResponse;
   miOutcomes: ChapterTestMiOutcome[];
+  /** RECORD-SAFE-1: the code the full record was finally saved under (differs from the requested code only
+   *  when that code belonged to another paper). Absent when nothing was written. */
+  savedCode?: string;
 }
 
 /**
@@ -270,7 +284,9 @@ export async function gradeChapterTestUpload(args: {
   /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
   job?: GradingJobOptions;
 }): Promise<ChapterTestGradeOutcome> {
-  const { user, paper, code, subject, topicKey, objective, subjectiveQuestions, upload } = args;
+  const { user, paper, subject, topicKey, objective, subjectiveQuestions, upload } = args;
+  // RECORD-SAFE-1: resolve the paper by identity - its record may have moved to a free code while no page was open
+  const code = currentCodeForPaper(user, paper.worksheetId, "chapter-test", args.code);
 
   const qByNumber = new Map(subjectiveQuestions.map((q) => [q.qNumber, q]));
   const miOutcomes: ChapterTestMiOutcome[] = [];
@@ -380,18 +396,20 @@ export async function gradeChapterTestUpload(args: {
   }
 
   // Overwrite the partial record with the FULL one (idempotent by id = code).
+  let savedCode: string | undefined;
   try {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response, uid });
-      writeSessionRecord(user, record);
-      noteFirstGraded(uid, record, "chapter_test"); // MEASURE-1 B — observe only
+      const written = await writeSessionRecordResolved(user, record);
+      savedCode = written.code;
+      noteFirstGraded(uid, written.record, "chapter_test"); // MEASURE-1 B — observe only
       writeSessionPerQuestion(user, {
-        ref: record.perQuestionRef,
-        code,
+        ref: written.record.perQuestionRef,
+        code: written.code,
         worksheetId: paper.worksheetId,
         surface: "chapter-test",
-        gradedAt: record.gradedAt,
+        gradedAt: written.record.gradedAt,
         response,
       });
     }
@@ -399,5 +417,5 @@ export async function gradeChapterTestUpload(args: {
     console.warn("[chapterTestGradeService] full record write failed", error);
   }
 
-  return { ok: true, response, miOutcomes };
+  return { ok: true, response, miOutcomes, ...(savedCode ? { savedCode } : {}) };
 }

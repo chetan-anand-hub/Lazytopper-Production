@@ -147,7 +147,7 @@ describe("which papers are waiting", () => {
 describe("deep links — each surface's own existing entry", () => {
   it("Worksheet: the generator with review=<code> (reopens the paper on its upload step)", () => {
     expect(pendingPaperHref("worksheet", { code: "WS-M-TRI-01", subject: "maths" })).toBe(
-      "/practice/worksheets?review=WS-M-TRI-01&source=home&returnTo=%2F",
+      "/practice/worksheets?subject=Maths&scope=full-subject&upload=WS-M-TRI-01&source=home&returnTo=%2F",
     );
   });
   it("Chapter Test: the chapter's test page with review=<code> (openStored -> openPendingUpload)", () => {
@@ -155,9 +155,9 @@ describe("deep links — each surface's own existing entry", () => {
       "/chapter-test/10/Science/light-reflection?review=CT-S-LIG-01&source=home&returnTo=%2F",
     );
   });
-  it("Full Mock: the mock page (its awaiting banner carries the Upload button — no direct URL exists)", () => {
+  it("Full Mock: the mock page with upload=<code> (opens that pending mock's upload)", () => {
     expect(pendingPaperHref("full-mock", { code: "FM-M-01", subject: "maths" })).toBe(
-      "/full-mock/10/Maths?source=home&returnTo=%2F",
+      "/full-mock/10/Maths?upload=FM-M-01&source=home&returnTo=%2F",
     );
   });
   it("Quick Practice: the practice page with review=<code> (the scorecard offers 'Upload written answers')", () => {

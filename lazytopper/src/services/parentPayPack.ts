@@ -1,5 +1,5 @@
 /**
- * parentPayPack - PARENT-PACKS-1 (owner, 4 Nov 2026): the pack half of "Ask a parent to pay".
+ * parentPayPack - PARENT-PACKS-1 (owner, 4 Nov 2026): the pack half of "Forward link to parents".
  *
  * Kept OUT of services/parentPay.ts on purpose: that module rides on the light paywall gate (the entry chunk), while
  * everything here is needed only once a pack's share sheet (the lazy PaywallActionsView chunk), the pack shop or the
@@ -29,14 +29,14 @@ import {
   type ParentPayLang,
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
-import { confirmServerPrice, serverPriceFields } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 
 /** The pack a link carries, as the SERVER reports it (its price is the server table's). */
 export interface ParentPackRef {
   sku: PackSku;
   target: string;
   priceInr: number;
-  /** GST-EXCL-1: what the server CHARGES (base + 18% GST) and the GST, from 5 Nov 2026; absent before. */
+  /** GST-EXCL-1: what the server CHARGES (base + 18% GST) and the GST, from 7 Nov 2026; absent before. */
   totalInr?: number;
   gstInr?: number;
 }
@@ -144,7 +144,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: `${packName || "PDF pack"} (for your child)`,
+        description: razorpayDescription(`${packName || "PDF pack"} (for your child)`, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

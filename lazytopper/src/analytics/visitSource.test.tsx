@@ -17,9 +17,14 @@ vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
 import RouteAnalytics from "./RouteAnalytics";
 import {
+  LONG_KEEP_KEY,
+  LONG_KEEP_MS,
+  isTaggedSource,
   VISIT_SOURCE_KEY,
   SIGNUP_SOURCE_ENDPOINT,
   captureVisitSource,
+  handoffSourceParams,
+  HANDOFF_CLICK_PARAM,
   rememberVisitSourceOnce,
   resetVisitSourceAttempt,
   sendVisitSourceIfNewUser,
@@ -161,12 +166,13 @@ describe("rememberVisitSourceOnce", () => {
     );
   });
 
-  it("★ localStorage, cookies and any other store are untouched (a throwing localStorage proves it)", () => {
+  it("★ ATTRIB-1: an UNTAGGED visit never touches localStorage; cookies are never touched", () => {
     const ls = vi.spyOn(window, "localStorage", "get").mockImplementation(() => {
-      throw new Error("localStorage must not be touched");
+      throw new Error("localStorage must not be touched by an untagged visit");
     });
-    expect(() => rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=youtube" }, "", OWN)).not.toThrow();
+    expect(() => rememberVisitSourceOnce({ pathname: "/", search: "" }, "", OWN)).not.toThrow();
     expect(window.sessionStorage.getItem(VISIT_SOURCE_KEY)).not.toBeNull();
+    // the long copy is looked at (to keep "first tagged wins") only for a TAGGED touch
     expect(ls).not.toHaveBeenCalled();
     expect(document.cookie).toBe("");
   });
@@ -176,6 +182,240 @@ describe("rememberVisitSourceOnce", () => {
       throw new Error("blocked");
     });
     expect(() => rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=youtube" }, "", OWN)).not.toThrow();
+  });
+});
+
+describe("★ ATTRIB-1 — gbraid / wbraid", () => {
+  it("are captured as booleans (never the value) and make the touch tagged", () => {
+    const got = captureVisitSource({ pathname: "/", search: "?gbraid=0AAAAAVALUE&wbraid=CjkWBRAIDVALUE" }, "", OWN);
+    expect(got).toMatchObject({ gbraid: true, wbraid: true, gclid: false });
+    expect(JSON.stringify(got)).not.toMatch(/VALUE/);
+    expect(isTaggedSource(got)).toBe(true);
+  });
+
+  it("are ABSENT from the payload when not present, so an older server never sees an unknown key", () => {
+    const got = captureVisitSource({ pathname: "/", search: "?utm_source=youtube" }, "", OWN) as unknown as Record<string, unknown>;
+    expect("gbraid" in got).toBe(false);
+    expect("wbraid" in got).toBe(false);
+  });
+
+  it("isTaggedSource: utm or a click id is tagged; a bare referrer or nothing is not", () => {
+    expect(isTaggedSource({ utm_campaign: "x" })).toBe(true);
+    expect(isTaggedSource({ gclid: true })).toBe(true);
+    expect(isTaggedSource({ fbclid: true })).toBe(true);
+    expect(isTaggedSource({ ref: "www.youtube.com", utm_source: null, gclid: false, fbclid: false })).toBe(false);
+    expect(isTaggedSource(null)).toBe(false);
+  });
+});
+
+describe("★ ATTRIB-1 M1 — phone-shaped values are never kept", () => {
+  const cap = (search: string, pathname = "/") => captureVisitSource({ pathname, search }, "", OWN);
+
+  it("utm_source / medium / content shaped like a mobile number are dropped (plain, +91, 91 prefixes)", () => {
+    for (const v of ["9876543210", "919876543210", "91-9876543210", "6000000000", "x9876543210y", "%2B919876543210"]) {
+      const got = cap(`?utm_source=${v}&utm_medium=${v}&utm_content=${v}`);
+      expect(got?.utm_source, v).toBeNull();
+      expect(got?.utm_medium, v).toBeNull();
+      expect(got?.utm_content, v).toBeNull();
+    }
+  });
+
+  it("utm_campaign: a mobile-shaped value is dropped; a numeric Google campaign id is kept", () => {
+    expect(cap("?utm_campaign=9876543210")?.utm_campaign).toBeNull();
+    for (const id of ["23456789012", "2345678901", "12345678901", "16123456789", "{campaignid}"]) {
+      expect(cap(`?utm_campaign=${id}`)?.utm_campaign, id).toBe(id);
+    }
+  });
+
+  it("a phone-shaped path segment becomes :id, the rest of the path is kept", () => {
+    expect(cap("?utm_source=a", "/notes/9876543210")?.landing).toBe("/notes/:id");
+    expect(cap("?utm_source=a", "/notes/9876543210/x")?.landing).toBe("/notes/:id/x");
+    expect(cap("?utm_source=a", "/notes/light")?.landing).toBe("/notes/light");
+  });
+
+  it("a phone-shaped value in the 7-day copy is scrubbed on read, and never persisted at capture", async () => {
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=9876543210&utm_medium=paid" }, "", OWN);
+    expect(window.localStorage.getItem(LONG_KEEP_KEY) as string).not.toMatch(/9876543210/);
+    window.sessionStorage.clear();
+    window.localStorage.setItem(
+      LONG_KEEP_KEY,
+      JSON.stringify({ v: { utm_source: "9876543210", utm_medium: "paid", landing: "/p/9876543210" }, exp: Date.now() + 1000 }),
+    );
+    const fetchImpl = vi.fn().mockResolvedValue({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", fetchImpl, 0);
+    await flush();
+    const body = fetchImpl.mock.calls[0][1].body as string;
+    expect(body).not.toMatch(/9876543210/);
+    expect(JSON.parse(body)).toMatchObject({ utm_source: null, utm_medium: "paid", landing: "/p/:id" });
+  });
+});
+
+describe("★ ATTRIB-1 — tagged beats untagged", () => {
+  const stored = () => JSON.parse(window.sessionStorage.getItem(VISIT_SOURCE_KEY) as string);
+
+  it("an untagged first touch is REPLACED by a later tagged landing in the same tab", () => {
+    rememberVisitSourceOnce({ pathname: "/welcome", search: "" }, "", OWN); // Direct
+    expect(stored().utm_source).toBeNull();
+    resetVisitSourceAttempt();
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=youtube&utm_medium=paid&utm_campaign=7" }, "", OWN);
+    expect(stored()).toMatchObject({ utm_source: "youtube", utm_campaign: "7", landing: "/" });
+  });
+
+  it("a referrer-only first touch (no utm, no click id) is also untagged and is replaced", () => {
+    rememberVisitSourceOnce({ pathname: "/", search: "" }, "https://l.instagram.com/", OWN);
+    resetVisitSourceAttempt();
+    rememberVisitSourceOnce({ pathname: "/", search: "?gbraid=abc" }, "", OWN);
+    expect(stored().gbraid).toBe(true);
+  });
+
+  it("a TAGGED first touch is never replaced, by a tagged or an untagged landing", () => {
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=youtube&utm_medium=paid" }, "", OWN);
+    const first = window.sessionStorage.getItem(VISIT_SOURCE_KEY);
+    resetVisitSourceAttempt();
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=google&utm_medium=paid" }, "", OWN);
+    resetVisitSourceAttempt();
+    rememberVisitSourceOnce({ pathname: "/pricing", search: "" }, "", OWN);
+    expect(window.sessionStorage.getItem(VISIT_SOURCE_KEY)).toBe(first);
+  });
+
+  it("an untagged landing never replaces an untagged first touch (first still wins)", () => {
+    rememberVisitSourceOnce({ pathname: "/a", search: "" }, "", OWN);
+    const first = window.sessionStorage.getItem(VISIT_SOURCE_KEY);
+    resetVisitSourceAttempt();
+    rememberVisitSourceOnce({ pathname: "/b", search: "" }, "https://news.example.org/", OWN);
+    expect(window.sessionStorage.getItem(VISIT_SOURCE_KEY)).toBe(first);
+  });
+});
+
+describe("★ ATTRIB-1 — 7-day localStorage copy (in-app browser hop / Google sign-in redirect)", () => {
+  const TAGGED = "?utm_source=youtube&utm_medium=paid&utm_campaign=9&gclid=SECRETGCLID";
+  const longRaw = () => window.localStorage.getItem(LONG_KEEP_KEY);
+
+  it("a TAGGED touch is also kept with a 7-day expiry; an untagged one is not", () => {
+    const now = Date.now();
+    rememberVisitSourceOnce({ pathname: "/", search: "" }, "", OWN);
+    expect(longRaw()).toBeNull();
+    resetVisitSourceAttempt();
+    rememberVisitSourceOnce({ pathname: "/", search: TAGGED }, "", OWN);
+    const entry = JSON.parse(longRaw() as string);
+    expect(entry.v).toMatchObject({ utm_source: "youtube", utm_campaign: "9", gclid: true });
+    expect(entry.exp).toBeGreaterThanOrEqual(now + LONG_KEEP_MS - 1000);
+    expect(entry.exp).toBeLessThanOrEqual(Date.now() + LONG_KEEP_MS + 1000);
+    expect(longRaw()).not.toMatch(/SECRETGCLID|@|\?|=/);
+  });
+
+  it("the FIRST tagged touch wins for the 7 days", () => {
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=youtube&utm_medium=paid" }, "", OWN);
+    const first = longRaw();
+    window.sessionStorage.clear();
+    resetVisitSourceAttempt();
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=google&utm_medium=paid" }, "", OWN);
+    expect(longRaw()).toBe(first);
+  });
+
+  it("an EXPIRED copy is ignored, removed, and replaced by a new tagged touch", () => {
+    window.localStorage.setItem(
+      LONG_KEEP_KEY,
+      JSON.stringify({ v: { ref: null, utm_source: "old", utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false }, exp: Date.now() - 1 }),
+    );
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=youtube" }, "", OWN);
+    expect(JSON.parse(longRaw() as string).v.utm_source).toBe("youtube");
+  });
+
+  it("at sign-up, an EMPTY tab falls back to the 7-day copy, and the copy is consumed", async () => {
+    rememberVisitSourceOnce({ pathname: "/", search: TAGGED }, "", OWN);
+    window.sessionStorage.clear(); // the in-app browser -> system browser hop / the redirect lost the tab
+    const fetchImpl = vi.fn().mockResolvedValue({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", fetchImpl, 0);
+    await flush();
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body)).toMatchObject({ utm_source: "youtube", utm_campaign: "9", gclid: true });
+    expect(fetchImpl.mock.calls[0][1].body).not.toMatch(/SECRETGCLID/);
+    expect(longRaw()).toBeNull();
+  });
+
+  it("an UNTAGGED tab (Direct on return) yields to the tagged 7-day copy; a TAGGED tab wins over it", async () => {
+    rememberVisitSourceOnce({ pathname: "/", search: TAGGED }, "", OWN);
+    window.sessionStorage.setItem(VISIT_SOURCE_KEY, JSON.stringify({ ref: null, utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, landing: "/welcome", gclid: false, fbclid: false }));
+    const f1 = vi.fn().mockResolvedValue({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", f1, 0);
+    await flush();
+    expect(JSON.parse(f1.mock.calls[0][1].body).utm_source).toBe("youtube");
+
+    window.localStorage.setItem(LONG_KEEP_KEY, JSON.stringify({ v: { ref: null, utm_source: "google", utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false }, exp: Date.now() + 1000 }));
+    window.sessionStorage.setItem(VISIT_SOURCE_KEY, JSON.stringify({ ref: null, utm_source: "meta", utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false }));
+    const f2 = vi.fn().mockResolvedValue({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", f2, 0);
+    await flush();
+    expect(JSON.parse(f2.mock.calls[0][1].body).utm_source).toBe("meta");
+  });
+
+  it("a tampered copy is rebuilt from allow-listed fields only (no email, no extra keys)", async () => {
+    window.localStorage.setItem(
+      LONG_KEEP_KEY,
+      JSON.stringify({ v: { utm_source: "youtube", email: "kid@example.com", phone: "9999999999", landing: "/x?y=1", ref: "bad host" }, exp: Date.now() + 1000 }),
+    );
+    const fetchImpl = vi.fn().mockResolvedValue({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", fetchImpl, 0);
+    await flush();
+    const sent = JSON.parse(fetchImpl.mock.calls[0][1].body);
+    expect(Object.keys(sent).sort()).toEqual(["fbclid", "gclid", "landing", "ref", "utm_campaign", "utm_content", "utm_medium", "utm_source"]);
+    expect(sent.landing).toBe("/");
+    expect(sent.ref).toBeNull();
+    expect(JSON.stringify(sent)).not.toMatch(/kid@|9999999999/);
+  });
+
+  it("blocked localStorage never throws and the tab copy still works", () => {
+    vi.spyOn(window, "localStorage", "get").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    expect(() => rememberVisitSourceOnce({ pathname: "/", search: TAGGED }, "", OWN)).not.toThrow();
+    expect(window.sessionStorage.getItem(VISIT_SOURCE_KEY)).not.toBeNull();
+    expect(() => sendVisitSourceOnSignUp(async () => "T", vi.fn().mockResolvedValue({ status: 204 }), 0)).not.toThrow();
+  });
+});
+
+describe("★ ATTRIB-1 — POST resilience", () => {
+  const STORED = { ref: null, utm_source: "youtube", utm_medium: "paid", utm_campaign: "1", utm_content: null, landing: "/", gclid: false, fbclid: false };
+  const arm = () => window.sessionStorage.setItem(VISIT_SOURCE_KEY, JSON.stringify(STORED));
+
+  it("retries ONCE after a network failure", async () => {
+    arm();
+    const fetchImpl = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", fetchImpl, 0);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries ONCE after a 5xx, and never a third time", async () => {
+    arm();
+    const fetchImpl = vi.fn().mockResolvedValue({ status: 503 });
+    sendVisitSourceOnSignUp(async () => "T", fetchImpl, 0);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("does NOT retry a 4xx (400, 401, 409, 429)", async () => {
+    for (const status of [400, 401, 409, 429]) {
+      arm();
+      const fetchImpl = vi.fn().mockResolvedValue({ status });
+      sendVisitSourceOnSignUp(async () => "T", fetchImpl, 0);
+      await new Promise((r) => setTimeout(r, 5));
+      expect(fetchImpl, String(status)).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it("a success is not retried; both attempts carry the same body", async () => {
+    arm();
+    const ok = vi.fn().mockResolvedValue({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", ok, 0);
+    await new Promise((r) => setTimeout(r, 5));
+    expect(ok).toHaveBeenCalledTimes(1);
+    arm();
+    const flaky = vi.fn().mockResolvedValueOnce({ status: 500 }).mockResolvedValueOnce({ status: 204 });
+    sendVisitSourceOnSignUp(async () => "T", flaky, 0);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(flaky.mock.calls[0][1].body).toBe(flaky.mock.calls[1][1].body);
   });
 });
 
@@ -290,6 +530,52 @@ describe("AuthContext call sites", () => {
     expect(signUps).toBe(5);
     expect(sends).toBe(signUps);
     const login = readFileSync(path.join(__dirname, "..", "pages", "Login.tsx"), "utf8");
-    expect(login).not.toMatch(/visitSource/);
+    // LOGIN-FIX-1: Login READS the stored touch for the Chrome hand-off link (handoffSourceParams)
+    // and nothing else — it never sends, captures or clears a source; sending stays here, in AuthContext.
+    expect(login).not.toMatch(/sendVisitSource|rememberVisitSource|captureVisitSource|VISIT_SOURCE_KEY|LONG_KEEP_KEY/);
+    expect(login.match(/visitSource/g) ?? []).toHaveLength(1);
+    expect(login).toMatch(/import \{ handoffSourceParams \} from "\.\.\/analytics\/visitSource";/);
+  });
+});
+
+describe("LOGIN-FIX-1 — attribution across the in-app -> Chrome sign-in hop", () => {
+  it("handoffSourceParams: the stored tagged touch as utm_* + lt_clk flags; never a click-id value", () => {
+    rememberVisitSourceOnce(
+      { pathname: "/", search: "?utm_source=youtube&utm_medium=paid&utm_campaign=9&utm_content=Maths&gclid=SECRETGCLID&gbraid=SECRETGB" },
+      "https://www.youtube.com/",
+      OWN,
+    );
+    const params = handoffSourceParams();
+    expect(params).toEqual([
+      ["utm_source", "youtube"],
+      ["utm_medium", "paid"],
+      ["utm_campaign", "9"],
+      ["utm_content", "Maths"],
+      [HANDOFF_CLICK_PARAM, "gclid,gbraid"],
+    ]);
+    expect(JSON.stringify(params)).not.toMatch(/SECRET|youtube\.com/);
+  });
+
+  it("falls back to the 7-day copy when the tab has nothing tagged; empty when nothing is tagged", () => {
+    expect(handoffSourceParams()).toEqual([]);
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=instagram&fbclid=X" }, "", OWN);
+    window.sessionStorage.clear();
+    expect(handoffSourceParams()).toEqual([["utm_source", "instagram"], [HANDOFF_CLICK_PARAM, "fbclid"]]);
+  });
+
+  it("Chrome's own capture on arrival records the carried source as a tagged touch", () => {
+    const carried = captureVisitSource(
+      { pathname: "/login", search: `?redirect=%2Fpacks&utm_source=youtube&utm_campaign=9&${HANDOFF_CLICK_PARAM}=gclid,wbraid` },
+      "",
+      OWN,
+    );
+    expect(carried).toMatchObject({ utm_source: "youtube", utm_campaign: "9", gclid: true, wbraid: true, fbclid: false });
+    expect(isTaggedSource(carried)).toBe(true);
+  });
+
+  it("lt_clk ignores anything that is not a known click id", () => {
+    const c = captureVisitSource({ pathname: "/", search: `?${HANDOFF_CLICK_PARAM}=evil,gclidx` }, "", OWN);
+    expect(c).toMatchObject({ gclid: false, fbclid: false });
+    expect(isTaggedSource(c)).toBe(false);
   });
 });

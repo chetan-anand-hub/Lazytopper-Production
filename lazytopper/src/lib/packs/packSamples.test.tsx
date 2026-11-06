@@ -43,7 +43,7 @@ import CbqHubPage from "../../pages/cbq/CbqHubPage";
 import PackSampleLink from "../../components/packs/PackSampleLink";
 import { PACK_CHAPTER_SLUGS, PACK_PRICE_INR, PACK_SKUS, subjectOfChapter } from "../../services/packs";
 import { PACK_SAMPLES, packSampleFor, packSampleHref, sampleLine, sampleMeta, skusWithoutSample } from "./packSamples";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPriceLabel } from "../../services/packs";
 
 Element.prototype.scrollIntoView = vi.fn();

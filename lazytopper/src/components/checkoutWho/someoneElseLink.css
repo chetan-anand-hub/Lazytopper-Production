@@ -1,0 +1,11 @@
+/* CHECKOUT-SELF-1 - a quiet text link under the one Pay button (44px tap target, wraps at 360px). */
+.lt-else-link {
+  display: block; width: 100%; min-height: 44px; margin: 4px 0 0; padding: 8px 4px; border: 0; background: none;
+  font: inherit; font-size: 14.5px; line-height: 1.35; color: #136b43; text-decoration: underline; text-align: center; cursor: pointer;
+}
+.lt-else-link:disabled { color: #6b7a90; cursor: default; }
+.lt-else-link:focus-visible { outline: 2px solid #136b43; outline-offset: 2px; border-radius: 4px; }
+/* >=1024px the passes row is a flex row: the link takes its own full line, left-aligned under the Pay button. */
+@media (min-width: 1024px) {
+  .lt-pricing-passes .lt-else-link { flex: 1 1 100%; text-align: left; width: auto; }
+}

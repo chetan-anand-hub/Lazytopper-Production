@@ -41,7 +41,7 @@ export interface OffersBlockProps {
   payVerb?: "Pay" | "Get it for";
   /** The small "What you get" link under the card (results). A wall shows its parent links instead. */
   whatYouGet?: boolean;
-  /** Drawn inside the card, under the price line (a wall's "Ask a parent to pay" / QR links). */
+  /** Drawn inside the card, under the price line (a wall's "Forward link to parents" / QR links). */
   cardExtras?: ReactNode;
   /** The host's own counting of a Pay tap (e.g. the scorecard's upgrade click). */
   onPayTap?: () => void;
@@ -50,7 +50,7 @@ export interface OffersBlockProps {
 /** The Pay button's words. Payments dark: no "Pay" promise - the link then only shows the plan on /pricing. */
 export function payLabel(verb: "Pay" | "Get it for", price: string | null, paymentsOn: boolean, payPrice: string | null = price): string {
   if (!paymentsOn) return price ? `See Board Pass ${price}` : "See the Board Pass";
-  // GST-EXCL-1: a Pay button names the amount CHARGED (base + GST from 5 Nov 2026), never the "+ GST" tag.
+  // GST-EXCL-1: a Pay button names the amount CHARGED (base + GST from 7 Nov 2026), never the "+ GST" tag.
   return payPrice ? `${verb} ${payPrice}` : "Get the Board Pass";
 }
 

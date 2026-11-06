@@ -1,5 +1,5 @@
 /**
- * Parent pay — "Ask your parents to pay" (ASK-PARENTS-PAY-1, owner ruling 18 Oct 2026).
+ * Parent pay — "Forward link to parents" (ASK-PARENTS-PAY-1, owner ruling 18 Oct 2026).
  *
  * ⚠ TOUCHES PAYMENT — NEEDS COFOUNDER AUDIT. This module creates Razorpay orders and
  * verifies payments for a payer who is NOT signed in. It does not change payments.cjs,

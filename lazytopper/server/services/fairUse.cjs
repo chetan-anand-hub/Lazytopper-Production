@@ -271,6 +271,17 @@ function envPositive(env, name, fallback, integer) {
   return integer ? Math.floor(n) : n;
 }
 
+/**
+ * FAIRUSE-MONTHLY-1: a Premium rupee window that may be switched OFF by env. The value "off"
+ * (any case) means NO such window: null limit, never refused, omitted from the view. Anything
+ * else resolves exactly like envPositive (unset / empty / invalid -> the default).
+ */
+function envWindowInr(env, name, fallback) {
+  const raw = env ? env[name] : undefined;
+  if (raw !== undefined && raw !== null && String(raw).trim().toLowerCase() === 'off') return null;
+  return envPositive(env, name, fallback, false);
+}
+
 /** CAP-30DAY: the 30-day cap in micro-rupees from env, or null (OFF) when unset / empty / not a positive number. */
 function thirtyDayMicroInrFrom(env) {
   const v = envPositive(env, LIMIT_ENV.premiumThirtyDayInr, null, false);
@@ -283,11 +294,29 @@ function thirtyDayOn(limits) {
   return typeof cap === 'number' && cap > 0;
 }
 
+let dayOffWarned = false;
+
 /** The limits in force, from `env` ONLY. Rupee caps are returned in micro-rupees (the ledger's unit). */
 function resolveLimits(env) {
   const e = env || {};
-  const inr = (key) => Math.round(envPositive(e, LIMIT_ENV[key], DEFAULT_LIMITS[key], false) * 1e6);
   const int = (key) => envPositive(e, LIMIT_ENV[key], DEFAULT_LIMITS[key], true);
+  // FAIRUSE-MONTHLY-1: 5-hour / day / week may be "off" (null limit = no such window).
+  const inrOrOff = (key) => {
+    const v = envWindowInr(e, LIMIT_ENV[key], DEFAULT_LIMITS[key]);
+    return v === null ? null : Math.round(v * 1e6);
+  };
+  // SAFETY NET: the DAY window may be "off" only while a valid 30-day cap is set. Otherwise Premium spend
+  // would be uncapped, so DAY keeps its default and one boot warning says so.
+  const dayMicro = inrOrOff('premiumDayInr');
+  const monthlyOk = thirtyDayMicroInrFrom(e) !== null;
+  let dayMicroInr = dayMicro;
+  if (dayMicro === null && !monthlyOk) {
+    dayMicroInr = Math.round(DEFAULT_LIMITS.premiumDayInr * 1e6);
+    if (!dayOffWarned) {
+      dayOffWarned = true;
+      console.warn('[fairUse] FAIR_USE_PREMIUM_DAY_INR=off ignored: FAIR_USE_PREMIUM_30DAY_INR is unset or invalid, so the day cap stays at its default to keep Premium spend capped.');
+    }
+  }
   return {
     trial: {
       checksPerDay: int('trialChecksPerDay'),
@@ -296,9 +325,9 @@ function resolveLimits(env) {
       worksheetsPerWeek: int('trialWorksheetsPerWeek'),
     },
     premium: {
-      weekMicroInr: inr('premiumWeekInr'),
-      dayMicroInr: inr('premiumDayInr'),
-      fiveHourMicroInr: inr('premiumFiveHourInr'),
+      weekMicroInr: inrOrOff('premiumWeekInr'),
+      dayMicroInr,
+      fiveHourMicroInr: inrOrOff('premiumFiveHourInr'),
       // CAP-30DAY: null = no 30-day limit (env unset / empty / invalid). Never a default.
       thirtyDayMicroInr: thirtyDayMicroInrFrom(e),
     },
@@ -653,8 +682,12 @@ function trialState(days, nowMs, limits) {
 
 function premiumState(days, nowMs, limits) {
   const p = limits.premium;
-  const five = hourBuckets(days, nowMs);
-  const week = dayBuckets(days, nowMs, 'costMicroInr');
+  // FAIRUSE-MONTHLY-1: a window whose limit is null is OFF — not enforced, not in the view.
+  const fiveOn = typeof p.fiveHourMicroInr === 'number' && p.fiveHourMicroInr > 0;
+  const dayOn = typeof p.dayMicroInr === 'number' && p.dayMicroInr > 0;
+  const weekOn = typeof p.weekMicroInr === 'number' && p.weekMicroInr > 0;
+  const five = fiveOn ? hourBuckets(days, nowMs) : [];
+  const week = weekOn ? dayBuckets(days, nowMs, 'costMicroInr') : [];
   // CAP-30DAY: the same day buckets over 30 IST days — only when the window is ON (env set).
   const on = thirtyDayOn(limits);
   const thirty = on ? dayBuckets(days, nowMs, 'costMicroInr', THIRTY_DAYS) : [];
@@ -662,27 +695,23 @@ function premiumState(days, nowMs, limits) {
   const fiveUsed = sum(five);
   const weekUsed = sum(week);
   const thirtyUsed = sum(thirty);
-  const resets = {
-    fiveHour: rollingResetAt(five, p.fiveHourMicroInr, FIVE_HOURS * HOUR_MS),
-    day: nextIstMidnightIso(nowMs),
-    week: rollingResetAt(week, p.weekMicroInr, WEEK_DAYS * DAY_MS),
-  };
+  const resets = {};
+  if (fiveOn) resets.fiveHour = rollingResetAt(five, p.fiveHourMicroInr, FIVE_HOURS * HOUR_MS);
+  if (dayOn) resets.day = nextIstMidnightIso(nowMs);
+  if (weekOn) resets.week = rollingResetAt(week, p.weekMicroInr, WEEK_DAYS * DAY_MS);
   if (on) resets.thirtyDay = rollingResetAt(thirty, p.thirtyDayMicroInr, THIRTY_DAYS * DAY_MS);
   // Longest window first: when more than one cap is reached, the one reported is the
   // one that actually decides when the student is served again.
   let atCap = null;
   if (on && thirtyUsed >= p.thirtyDayMicroInr) atCap = 'thirtyDay';
-  else if (weekUsed >= p.weekMicroInr) atCap = 'week';
-  else if (dayUsed >= p.dayMicroInr) atCap = 'day';
-  else if (fiveUsed >= p.fiveHourMicroInr) atCap = 'fiveHour';
-  const view = {
-    fiveHourPct: pct(fiveUsed, p.fiveHourMicroInr),
-    dayPct: pct(dayUsed, p.dayMicroInr),
-    weekPct: pct(weekUsed, p.weekMicroInr),
-    resets,
-  };
-  // CAP-30DAY: additive and ONLY when ON (an old client ignores it); OFF -> the view is
-  // byte-for-byte what it was before this lane (no key at all, so no bar).
+  else if (weekOn && weekUsed >= p.weekMicroInr) atCap = 'week';
+  else if (dayOn && dayUsed >= p.dayMicroInr) atCap = 'day';
+  else if (fiveOn && fiveUsed >= p.fiveHourMicroInr) atCap = 'fiveHour';
+  const view = { resets };
+  if (fiveOn) view.fiveHourPct = pct(fiveUsed, p.fiveHourMicroInr);
+  if (dayOn) view.dayPct = pct(dayUsed, p.dayMicroInr);
+  if (weekOn) view.weekPct = pct(weekUsed, p.weekMicroInr);
+  // CAP-30DAY: additive and ONLY when ON (an old client ignores it); OFF -> no key at all, so no bar.
   if (on) view.thirtyDayPct = pct(thirtyUsed, p.thirtyDayMicroInr);
   return { view, atCap };
 }

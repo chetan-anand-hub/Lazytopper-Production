@@ -80,8 +80,9 @@ vi.mock("../hooks/useIsDesktop", () => ({
 }));
 
 let mockIsPremium = true;
+let mockHydrated = true;
 vi.mock("../hooks/useSubscription", () => ({
-  useSubscription: () => ({ isPremium: mockIsPremium }),
+  useSubscription: () => ({ isPremium: mockIsPremium, hydrated: mockHydrated }),
 }));
 
 let mockUser: { uid: string; displayName?: string; isLocalSession?: boolean } | null = {
@@ -137,6 +138,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockIsDesktop = true;
   mockIsPremium = true;
+  mockHydrated = true;
   mockUser = { uid: "u-1", displayName: "Asha Rao" };
   mockGetWindowedProgress.mockResolvedValue(EMPTY);
   mockGetRecentSessions.mockReturnValue([]);
@@ -449,7 +451,7 @@ describe("9 · premium CTAs match GATE-3's locked treatment", () => {
     );
   });
 
-  it("a free user gets a focusable aria-disabled control with a Premium badge that opens the upgrade sheet", async () => {
+  it("a free user gets a focusable aria-disabled control with a Board Pass badge that opens the upgrade sheet", async () => {
     const user = userEvent.setup();
     mockIsPremium = false;
     renderPage();
@@ -459,7 +461,7 @@ describe("9 · premium CTAs match GATE-3's locked treatment", () => {
     // announced as unavailable (GATE-3's contract).
     expect(locked.getAttribute("aria-disabled")).toBe("true");
     expect(locked.hasAttribute("disabled")).toBe(false);
-    expect(within(locked).getByText("Premium")).toBeInTheDocument();
+    expect(within(locked).getByText("Board Pass")).toBeInTheDocument();
 
     // Tapping opens the upgrade sheet rather than doing nothing.
     await user.click(locked);
@@ -471,6 +473,51 @@ describe("9 · premium CTAs match GATE-3's locked treatment", () => {
     renderPage();
     expect(await screen.findByTestId("me-cta-learn-real-numbers")).toBeInTheDocument();
     expect(screen.queryByTestId("me-cta-learn-locked-real-numbers")).toBeNull();
+  });
+});
+
+/* ══════════════ 9b · EARLY-PAYWALL-1 — no upgrade wall for a student on an active trial ══════════════
+ * useSubscription().isPremium is true for tier "trial" (isPremiumAccess), so an active trial renders the real Learn CTA.
+ * Before the cloud entitlement has loaded (hydrated=false) a free-looking status is UNKNOWN: no lock may flash.
+ */
+describe("9b · EARLY-PAYWALL-1 trial and loading states", () => {
+  beforeEach(() => {
+    mockGetWindowedProgress.mockResolvedValue(
+      windowed({ topics: [rung("real-numbers", "Real Numbers")] }),
+    );
+  });
+
+  it("(a) an active-trial student (isPremium, hydrated) sees the real Learn CTA and no Board Pass lock or Pay path", async () => {
+    mockIsPremium = true;
+    mockHydrated = true;
+    renderPage();
+    expect(await screen.findByTestId("me-cta-learn-real-numbers")).toBeInTheDocument();
+    expect(screen.queryByTestId("me-cta-learn-locked-real-numbers")).toBeNull();
+    expect(screen.queryByTestId("upgrade-sheet")).toBeNull();
+    expect(screen.queryByText("Board Pass")).toBeNull();
+  });
+
+  it("(b) while the entitlement is still loading (free-looking, not hydrated) no lock flashes", async () => {
+    mockIsPremium = false;
+    mockHydrated = false;
+    renderPage();
+    expect(await screen.findByTestId("me-cta-practise-real-numbers")).toBeInTheDocument();
+    expect(screen.queryByTestId("me-cta-learn-locked-real-numbers")).toBeNull();
+    expect(screen.queryByTestId("me-cta-learn-real-numbers")).toBeNull();
+    expect(screen.queryByText("Board Pass")).toBeNull();
+    // the Learn slot's space is held by an invisible, inert placeholder (no layout jump on hydration)
+    expect(screen.getByTestId("me-cta-learn-pending-real-numbers").getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("(c) a Basic student (hydrated, not premium) still gets the existing locked CTA that opens the upgrade sheet", async () => {
+    const user = userEvent.setup();
+    mockIsPremium = false;
+    mockHydrated = true;
+    renderPage();
+    const locked = await screen.findByTestId("me-cta-learn-locked-real-numbers");
+    expect(within(locked).getByText("Board Pass")).toBeInTheDocument();
+    await user.click(locked);
+    expect(screen.getByTestId("upgrade-sheet")).toBeInTheDocument();
   });
 });
 

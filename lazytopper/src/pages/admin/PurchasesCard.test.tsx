@@ -203,3 +203,54 @@ describe("PAY-ACCOUNT-1 · how the purchase landed", () => {
     );
   });
 });
+
+describe("GUEST-ABANDON-1 · signed-out checkouts and unclaimed guest money", () => {
+  it("abandoned guest rows show the MASKED recipient and a signed-out channel label; totals show the guest figure and its note", async () => {
+    const ab = (over = {}) => ({
+      orderId: "w1", createdAtMs: 1761890000000, uid: null, email: null, name: null, passType: "till_boards", packTarget: null,
+      kind: "premium", amountInr: 1917, channel: "who", isAdminAccount: false,
+      recipient: { phoneMasked: "+91 98•••••948", emailMasked: "an••••@gmail.com" }, payerType: "signed_out", ...over,
+    });
+    const base = resp([item()]);
+    const withGuest = (w: ReturnType<typeof win>, c: number, i: number) => ({ ...w, guestUnclaimed: b(c, i) });
+    stub({
+      ...base,
+      totals: { ...base.totals, last7: withGuest(base.totals.last7, 2, 1966), last30: withGuest(base.totals.last30, 2, 1966), guestUnclaimedKnown: true },
+      abandoned: { items: [ab(), ab({ orderId: "g1", channel: "guest", recipient: { phoneMasked: "+91 70•••••678" } })] },
+    });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-abandoned-list")).toBeTruthy());
+    expect(screen.getByTestId("pu-ab-who-w1").textContent).toBe("+91 98•••••948 / an••••@gmail.com");
+    expect(screen.getByTestId("pu-ab-channel-w1").textContent).toBe("Signed out · Who will use it?");
+    expect(screen.getByTestId("pu-ab-who-g1").textContent).toBe("+91 70•••••678");
+    expect(screen.getByTestId("pu-ab-channel-g1").textContent).toBe("Signed out · phone number");
+    expect(screen.getByTestId("pu-totals").textContent).toMatch(/Last 7 days:.*Guest paid, not yet on an account 2 \(₹1,966\)/);
+    expect(screen.getByTestId("pu-guest-note").textContent).toMatch(/never both/);
+  });
+  it("an unreadable guest figure says so; an older server shows no guest note", async () => {
+    const base = resp([item()]);
+    stub({ ...base, totals: { ...base.totals, guestUnclaimedKnown: false } });
+    const r = render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-guest-note").textContent).toMatch(/could not be read/));
+    r.unmount();
+    stub(resp([item()]));
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-totals")).toBeTruthy());
+    expect(screen.queryByTestId("pu-guest-note")).toBeNull();
+    expect(screen.getByTestId("pu-totals").textContent).not.toMatch(/Guest paid/);
+  });
+});
+
+describe("GUEST-ABANDON-1 review D4", () => {
+  it("a capped guest read says so in the guest note, not as the 300-paid-orders warning", async () => {
+    const base = resp([item()]);
+    stub({ ...base, totals: { ...base.totals, guestUnclaimedKnown: true, guestTruncated: true } });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-guest-note").textContent).toMatch(/first 300 guest orders/));
+    expect(screen.getByTestId("pu-totals").textContent).not.toMatch(/latest 300 paid orders/);
+  });
+});

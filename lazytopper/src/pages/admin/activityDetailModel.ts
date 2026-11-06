@@ -144,6 +144,7 @@ const EVENT_LABELS: Record<string, string> = {
   tutor_from_scorecard: "Opened the tutor from a scorecard",
   // TUTOR-FIX-2 T13.
   tutor_first_message: "Sent a first tutor message",
+  worksheet_save_failed: "A worksheet could not be saved for later",
   trial_banner_shown: "Saw the trial-ending banner",
   trial_banner_click: "Tapped the trial-ending banner",
   trial_end_screen_shown: "Saw the trial-ended screen",
@@ -159,17 +160,19 @@ const EVENT_LABELS: Record<string, string> = {
   // PAYWALL-PAY-1 — the three paywall actions (any surface: lock, upgrade popup / sheet, limit, /pricing,
   // tutor, trial_paper, more_like_this).
   paywall_action_pay: "Tapped Pay on a paywall",
-  paywall_action_qr: "Tapped Pay by QR code (for parents)",
+  paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
-  ask_parent_pay: "Tapped Ask a parent to pay",
+  ask_parent_pay: "Tapped Forward link to parents",
   // PAY-RESCUE-1
   pay_rescue_shown: "Saw the \"Can't pay yourself?\" card after a payment sheet closed",
-  pay_rescue_parent: "Tapped Ask a parent to pay on the \"Can't pay yourself?\" card",
+  pay_rescue_parent: "Tapped Forward link to parents on the \"Can't pay yourself?\" card",
   pay_rescue_retry: "Tapped Try again on the \"Can't pay yourself?\" card",
   // LIMITS-1 — paper downloads and the weekly download limit.
   download_start: "Started a paper download",
   download_blocked: "Was stopped by the weekly download limit",
   download_wall_shown: "Saw the download limit screen",
+  grade_route_offer_shown: "Answer Checker offered to grade their own paper on its own page",
+  grade_route_offer_accepted: "Took the offer to grade their own paper on its own page",
   grade_blocked: "Was stopped by the daily graded-practice limit",
   scorecard_lock_shown: "Saw the locked answer-by-answer breakdown",
   parent_report_shared: "Shared a result link with parents",

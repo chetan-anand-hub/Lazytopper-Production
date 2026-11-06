@@ -7,9 +7,9 @@ import { readBuyResume } from "./PacksShop";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { PREBOARDS_PICK_LINE, isPreboardsSeason } from "../../lib/packs/packLabels";
 import { OFFER_LINES, buyHrefFor, insideHrefFor, offerRows, unownedRows, type OfferContext, type OfferKind } from "./offersModel";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPriceLabel, packPayLabel } from "../../services/packs";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { displayPlusGst } from "../../config/pricing";
 
 const names = (ctx: OfferContext) => offerRows(ctx).map((r) => r.name);

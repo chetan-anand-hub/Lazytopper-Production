@@ -734,6 +734,35 @@ export function trackFirstGraded(surface: FirstGradedSurface): void {
 }
 
 /**
+ * BROWSE-VISITOR-CARD-1 - the signed-out visitor card on /browse. Two events, vendors only (neither is in
+ * `NamedAnalyticsEvent`, and the card is for signed-out visitors, so the first-party log has nothing to record):
+ * `browse_visitor_card_shown` (`{ surface: "browse" }`, once per session - the caller enforces that) and `browse_visitor_card_tap`
+ * with ONE closed-set field, `{ action }`. No identifier, no path, no price.
+ */
+export type BrowseVisitorCardAction = "signup" | "pricing" | "about" | "dismiss";
+
+const BROWSE_VISITOR_CARD_ACTIONS: ReadonlySet<string> = new Set<BrowseVisitorCardAction>(["signup", "pricing", "about", "dismiss"]);
+
+export function trackBrowseVisitorCardShown(): void {
+  try {
+    const data = { surface: "browse" };
+    send("event", { name: "browse_visitor_card_shown", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+export function trackBrowseVisitorCardTap(action: BrowseVisitorCardAction): void {
+  try {
+    if (!BROWSE_VISITOR_CARD_ACTIONS.has(action)) return;
+    const data = { action };
+    send("event", { name: "browse_visitor_card_tap", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
  * §2.5 — SIGNUPS, AND WHY THIS TAKES NO ARGUMENTS.
  *
  * The caller has a Firebase credential in hand at this point and it is tempting to pass
@@ -812,6 +841,8 @@ export type NamedAnalyticsEvent =
   | "tutor_from_scorecard"
   // TUTOR-FIX-2 T13 — the first message a student sends in a tutor thread (once per thread).
   | "tutor_first_message"
+  // SMALL-FIXES-1 — a worksheet's save-for-later failed (reason class only). Names only.
+  | "worksheet_save_failed"
   // TRIAL-END-1 — the trial-ending Home banner (trial days 5 to 7): shown (once per tab per IST
   // day) and a tap on one of its actions (a two-value cta, never an id or a count).
   | "trial_banner_shown"
@@ -877,15 +908,15 @@ export type NamedAnalyticsEvent =
   // GUIDE-1 — the Byte-guide A/B: which arm this account is in, once per account per device.
   // The arm itself is a vendor param only (the first-party store keeps names, never values)
   | "guide_variant_assigned"
-  // PAYWALL-PAY-1 — a tap on one of the three paywall actions (Pay, Pay by QR code, Forward
+  // PAYWALL-PAY-1 — a tap on one of the three paywall actions (Pay, Share QR code, Forward
   // link to parents). The vendors get the generic `paywall_action { action, surface }`, the
   // first-party log one name per action (it keeps names only). Sent by trackPaywallAction
   | "paywall_action_pay"
   | "paywall_action_qr"
   | "paywall_action_forward"
-  // CHECKOUT-1 - a tap on "Ask a parent to pay" (it replaced "Forward link to parents"). Name only.
+  // CHECKOUT-1 - a tap on "Forward link to parents". Name only.
   | "ask_parent_pay"
-  // PAY-RESCUE-1 - the "Can't pay yourself?" card after a closed / failed checkout: shown, "Ask a parent to pay" tapped, "Try again" tapped. Names only.
+  // PAY-RESCUE-1 - the "Can't pay yourself?" card after a closed / failed checkout: shown, "Forward link to parents" tapped, "Try again" tapped. Names only.
   | "pay_rescue_shown"
   | "pay_rescue_parent"
   | "pay_rescue_retry"
@@ -894,6 +925,9 @@ export type NamedAnalyticsEvent =
   | "download_start"
   | "download_blocked"
   | "download_wall_shown"
+  // GRADE-ROUTE-1 - the Answer Checker offered to grade a student's own paper on its own page / the offer was taken. Names only.
+  | "grade_route_offer_shown"
+  | "grade_route_offer_accepted"
   // LIMITS-1 PR-2 — a graded Quick Practice set was refused by the daily limit, or a Basic student saw
   // the locked per-answer breakdown. Names only.
   | "grade_blocked"
@@ -1210,6 +1244,9 @@ export type ScorecardSurface = "quick_practice" | "check_improve" | "chapter_tes
 export type PendingUploadSurface = "worksheet" | "chapter_test" | "full_mock" | "quick_practice";
 /** HOME-PENDING-1 — where the pending list was: the Home action strip or the header bell. */
 export type PendingPlacement = "strip" | "bell";
+/** SMALL-FIXES-1 — why a worksheet's save-for-later did not happen: the write failed, the student was
+ *  not signed in (nothing can be stored), or every freshly minted code collided. */
+export type WorksheetSaveFailReason = "write_failed" | "signed_out" | "code_collision";
 
 /** ACTIVATION-2 A — which focused first-run surface was shown: absent = the practice picker
  *  (every page before), "check_one" = Check & Improve's "Check one answer" takeover. */
@@ -1232,6 +1269,9 @@ export interface OnboardingEventParams {
   tutor_from_scorecard: { surface: ScorecardSurface };
   /** TUTOR-FIX-2 T13 — once per tutor thread: the subject and the board chapter slug only. */
   tutor_first_message: { subject: string; chapter: string };
+  /** SMALL-FIXES-1 — a worksheet's save-for-later (pending card + saved copy) did not happen. A closed
+   *  reason class only: no code, no id, no text. */
+  worksheet_save_failed: { reason: WorksheetSaveFailReason };
 }
 
 export type OnboardingEvent = keyof OnboardingEventParams;
@@ -1564,6 +1604,21 @@ export function trackTrialBannerClick(cta: TrialBannerCta): void {
 }
 
 /**
+ * NAV-PRICING-1 — `nav_pricing_tap { surface }`: the "Pricing" entry in the phone bottom bar or the desktop
+ * panel was tapped. The vendors get the name plus ONE coarse slug; no uid, no path, no state. Not in the
+ * first-party activity log (no activity name passed), so it adds nothing to that allow-list.
+ */
+export type NavPricingSurface = "bottom_nav" | "sidebar";
+
+export function trackNavPricingTap(surface: NavPricingSurface): void {
+  try {
+    send("event", { name: "nav_pricing_tap", data: { surface } }, { ga4: { surface } });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
  * TUTOR-STICKY-1 — the six events of the daily-return loop. The vendors get the name plus ONE coarse
  * slug (`surface` / `cta`: never an id, a chapter, a count or text); the first-party log gets the bare
  * name. A "shown" event is sent at most once per tab per IST day per surface (a re-render or a reload
@@ -1643,12 +1698,12 @@ const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
   qr: "paywall_action_qr",
   forward: "paywall_action_forward",
-  // CHECKOUT-1 - "Ask a parent to pay" (the text-share action; `forward` is its retired name, kept for stored rows).
+  // CHECKOUT-1 - "Forward link to parents" (the text-share action; `forward` is its retired name, kept for stored rows).
   ask: "ask_parent_pay",
 };
 
 /**
- * PAYWALL-PAY-1 — `paywall_action { action, surface }`: ONE event per tap on "Pay", "Pay by QR
+ * PAYWALL-PAY-1 — `paywall_action { action, surface }`: ONE event per tap on "Pay", "Share QR
  * code" or "Forward link to parents". Action + surface ONLY: never the message, the link, its
  * token, a count or a contact. The vendors read `data` (Vercel) / the params (GA4); the
  * first-party log, which keeps names only, records `paywall_action_<action>` (the
@@ -2021,16 +2076,29 @@ export interface OnboardingEventParams {
  *   ua_class    inapp_youtube | inapp_instagram | inapp_facebook | android_webview | ios_webview |
  *               chrome_android | desktop | other   (never the raw user agent)
  *   error_code  the Firebase code without "auth/" (e.g. popup-blocked), "popup-timeout" for the
- *               45 s Google wait, or "unknown". No email, phone, uid or name rides along.
+ *               45 s Google wait. LOGIN-FIX-1: a failure with no Firebase code gets a fixed slug
+ *               (recaptcha-already-rendered, recaptcha-element-removed, recaptcha-not-ready,
+ *               otp-not-requested, script-load-failed, auth-not-configured, timeout, recaptcha-other, no-error-value,
+ *               non-error-value) and only then "unknown". No email, phone, uid, name or raw
+ *               error message rides along.
  *   flow        popup | redirect — GOOGLE-REDIRECT-1, Google events only (absent on email / phone).
+ *               LOGIN-FIX-1: chrome_handoff on login_attempt — the Android in-app "Open in Chrome
+ *               to continue with Google" tap.
+ *   step        send | verify | resend — LOGIN-FIX-1, phone login_error only.
  * GA4 / Vercel only: signed-out visitors are never in the first-party activity log, so none of
  * these is (or needs to be) on the activity allow-list.
  * ------------------------------------------------------------------------- */
 
 export interface OnboardingEventParams {
-  login_attempt: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" };
-  login_success: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" };
-  login_error: { method: "google" | "email" | "phone"; ua_class: string; error_code: string; flow?: "popup" | "redirect" };
+  login_attempt: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" | "chrome_handoff" };
+  login_success: { method: "google" | "email" | "phone"; ua_class: string; flow?: "popup" | "redirect" | "chrome_handoff" };
+  login_error: {
+    method: "google" | "email" | "phone";
+    ua_class: string;
+    error_code: string;
+    flow?: "popup" | "redirect" | "chrome_handoff";
+    step?: "send" | "verify" | "resend";
+  };
 }
 
 /**

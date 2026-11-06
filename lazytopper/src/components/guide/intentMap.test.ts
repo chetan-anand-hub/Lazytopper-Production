@@ -11,7 +11,7 @@ import {
   type IntentDeps,
   type IntentInput,
 } from "./intentMap";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPriceLabel } from "../../services/packs";
 
 /** GUIDE-1 §3C — the intent map, rule by rule (first match wins). */

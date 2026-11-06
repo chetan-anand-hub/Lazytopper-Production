@@ -914,7 +914,41 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // Hinglish (a clause or more is), and all exam-technique deductions of an answer are capped at 1 (½ on a
 // 1-mark answer). Rule TEXT only.
 //   PREVIOUS bba8045764c14b359a0d4186578a1e826bd6b910ba2c965f8bbb620b1cea447c
-const NO_UPLOADS_CONTENTS_SHA256 = '72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8';
+// GRADER-QUALITY-1 (5 Nov 2026; 72113f2d… → below): three rule-TEXT additions, every transport moved
+// together (one rulebook, grading/prompt.cjs rulesText): the CLAUDE.md §13 tell-tale on "conceptual"
+// (later steps that carry out the method prove it is known), an omission inside an ATTEMPTED answer is
+// "missing" (typed presentation where the answer is right), never "unattempted", and side-by-side work
+// is read and quoted column by column (WS-M-MIX-02 Q21/Q22/Q15/Q24).
+//   PREVIOUS 72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8
+// GRADER-QUALITY-1 review round 1 (0bfbc85b… → below): the D1 rule is bounded by the exam-technique cap (a
+// bigger omission stays "missing", untyped, as before), reconciled with PRESENTATION vs MISSING, and the
+// asked-for-reason case follows the owner ruling of 5 Nov 2026; the D2 sentence is limited to wording /
+// variable names. Then the OWNER RULING of 5 Nov 2026 (~08:45): a blank reason / justification / verification
+// is exam technique only with proof of knowledge — the model returns a verbatim `knowledgeEvidence` quote
+// (rules.cjs (b); schema.cjs adds the optional field). Rule TEXT only; the schema object is not in this digest.
+//   PREVIOUS 0bfbc85bf5acc2c99f883ec9f41b729a79c17339ec46f5fb876ac968f28a553f
+// GRADER-BALANCE-1 (owner ruling 5 Nov 2026; 3281f1c9… → below): chemical-equation balancing. An equation with
+// the right species that is not balanced loses exactly ½ per equation; the type follows what the student wrote
+// (wrong species / changed subscript = conceptual, coefficients wrong = calculation, skeletal = presentation unless
+// a verbatim "balancingEvidence" quote of a failed attempt elsewhere proves inability). Rewrites CHEMICAL
+// EQUATIONS, S3/S4/S4a, retires the MARK-SIZE SANITY CHECK, and the "conceptual" / "presentation" taxonomy lines
+// (rules.cjs). Rule TEXT only; every transport moved together. The schema's two new optional step fields
+// (equationFault, balancingEvidence) are not in this digest.
+//   PREVIOUS 3281f1c90c7183368ad1e461b13c8eb9fbaebe392713d6dec4f0f735673d95d4
+// Review round 1 (b97ae3a2… → below): ½ once per REACTION in the answer (a skeletal line then its balanced
+// version is working, not a fault), outside the exam-technique cap, and a printed skeletal equation copied back
+// unbalanced is "unattempted" (coordinator rulings 5 Nov 2026). Rule TEXT only.
+//   PREVIOUS b97ae3a29aa889d4a90016f349d97d1ac43091c0a573ae260a52cfd45f1c29f7
+// GRADER-CREDIT-1 (owner rulings A and B, 5 Nov 2026; f8e888ec… → below): two new rules in the ONE rulebook,
+// every transport moved together — SEPARATE VALUES (one value point paid for two separately required values is
+// shared: ½ for one of two roots) and EQUIVALENT ANSWERS (an equal value in another form is right; a demanded form
+// or precision is enforced) — plus pointers to them from READING FIDELITY, the word-problem partial-credit line,
+// VALUE POINTS ARE EARNED OR NOT and case law 12. Rule TEXT only.
+//   PREVIOUS f8e888ec5df6b0bed49d71bc6dc272161107ed62a778818510721a9ddecc500c
+// GRADER-CREDIT-1 review round 1 (same pin, rebased onto GRADER-BALANCE-1): SEPARATE VALUES says which items it
+// covers (non-objective, incl. a 1-mark item or case-study part; never an objective item) and that answer-only
+// separable values share the final-answer mark; FINAL ANSWER's single-mark sentence names the same exception.
+const NO_UPLOADS_CONTENTS_SHA256 = 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -2850,3 +2884,834 @@ test('§23.6 ★ (D141 F2) the phone upload checks its slot BEFORE it reads the 
 // branch, the job runner, the poll route and the deferred fair-use commit (grading/jobs.suite.cjs:
 // a *.suite.cjs run from here, so it is part of test:server:check-solution in CI).
 require('../grading/jobs.suite.cjs');
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §MKT · MCQ-KEY-TRUST-1 — A KEY THE DETECT STEP GUESSED NEVER OVERRIDES THE GRADER
+
+   Live 4 Nov 2026 (owner's account, production, Answer Checker multi): detect returned keys
+   Q1 "b", Q3 "c", Q8 "a", Q9 "a" (true key "d" for all four). The clamp compared the pick to
+   that key BEFORE the grader's stated verdict, so Q1/Q3/Q9 (student chose d) scored 0 under
+   "Correct option chosen" and Q8 (student chose a) scored 1 under "Incorrect option chosen".
+   A key detect worked out (answerSource "derived") is now used only when the grader states
+   no verdict. Bank keys, printed keys and requests with no answerSource are unchanged.
+   Fixtures are the repro shapes (GRADE-INVESTIGATE-1): no options[], answer = detect's key.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const { DETECT_RESPONSE_SCHEMA: MKT_BASE_SCHEMA } = require('./checkSolution.cjs');
+const MKT_Q3 = "A quiz app checks a student's answer by forming a quadratic polynomial whose zeroes are the ages of two siblings. The sum of their ages is 9 years and the product is 20. Which of the following is an acceptable answer?(a) 2x² + 18x + 40(b) x² - 20x + 9(c) 2x² - 9x + 20(d) 2x² - 18x + 40";
+const MKT_Q8 = 'In a triangular park ABC ... Assertion (A): The rope DE is about 33.3 m long. Reason (R): ... (a) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.(b) ...(c) ...(d) Assertion is false but Reason is true.';
+const MKT_STEP = (work, ok, ann) => ({ description: 'Selection of the correct option', studentWork: work,
+  status: ok ? 'correct' : 'incorrect', marksAwarded: ok ? 1 : 0, marksDeducted: ok ? 0 : 1,
+  teacherAnnotation: ann, mistakeType: ok ? null : 'conceptual', correctedWorking: null });
+// The grader's reply: Q3 the student chose d, the grader says correct; Q8 the student chose a, the grader says incorrect.
+const MKT_RAW = {
+  3: (fac = true) => ({ annotatedSteps: [MKT_STEP('Option d - 2x² -18x + 40', true, 'Correct option chosen')], finalAnswerCorrect: fac, addressesQuestion: 'yes', teacherNote: 'x' }),
+  8: (fac = false) => ({ annotatedSteps: [MKT_STEP('Option a - Both A and R are true and R is the correct exploration of A.', false, 'Incorrect option chosen. DE = 20 m, so Assertion is false.')], finalAnswerCorrect: fac, addressesQuestion: 'yes', teacherNote: 'x' }),
+};
+const MKT_TEXT = { 3: MKT_Q3, 8: MKT_Q8 };
+
+// SINGLE path: handleCheckSolution, exactly the ladderGradeRequest shape (objective + answer [+ answerSource]).
+async function mktSingle(n, keyFields, raw, acceptsV2 = true) {
+  const h = buildRoute({ replies: [raw] });
+  await h.route.handleCheckSolution({ question: MKT_TEXT[n], subject: 'Maths', topic: 'Polynomials', marks: 1,
+    objective: true, ...keyFields, imageBase64: 'BASE64', imageMimeType: 'image/jpeg', acceptsV2 }, {});
+  return h.body();
+}
+// MULTI path: handleGradeWorksheet, exactly the DesktopCheckImprovePage.gradeMultiQuestion shape.
+async function mktMulti(n, keyFields, raw, acceptsV2 = true) {
+  const h = buildRoute({ replies: [{ results: [{ qNumber: n, ...raw }] }] });
+  await h.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: n, marks: 1, questionText: MKT_TEXT[n],
+    topic: 'Polynomials', topicLabel: 'Polynomials', objective: true, ...keyFields }]), acceptsV2 }, {});
+  return h.body().results[0];
+}
+const MKT_PATHS = [['single (handleCheckSolution)', mktSingle], ['multi (handleGradeWorksheet)', mktMulti]];
+
+for (const [label, grade] of MKT_PATHS) {
+  for (const v2 of [true, false]) {
+    const tag = label + (v2 ? ' v2' : ' legacy');
+
+    test(`§MKT.1 ★★ Q3: derived key "c", student chose d, grader says correct ⇒ 1/1, step correct — ${tag}`, async () => {
+      const r = await grade(3, { answer: 'c', answerSource: 'derived' }, MKT_RAW[3](), v2);
+      assert.equal(r.marksAwarded, 1, '★ the guessed key no longer overrides the grader');
+      assert.equal(r.annotatedSteps[0].status, 'correct', 'the pill agrees with "Correct option chosen"');
+      assert.equal(r.derivedKeyDisagreed, true, 'the disagreement is recorded for admin');
+    });
+
+    test(`§MKT.2 ★★ Q8: derived key "a", student chose a, grader says incorrect ⇒ 0/1 — ${tag}`, async () => {
+      const r = await grade(8, { answer: 'a', answerSource: 'derived' }, MKT_RAW[8](), v2);
+      assert.equal(r.marksAwarded, 0, '★ a wrong answer is not rescued by a guessed key');
+      assert.equal(r.annotatedSteps[0].status, 'incorrect');
+      assert.equal(r.derivedKeyDisagreed, true);
+    });
+
+    test(`§MKT.3 a derived key with NO grader verdict is still used (today's fallback) — ${tag}`, async () => {
+      const raw3 = MKT_RAW[3](); delete raw3.finalAnswerCorrect;
+      const r = await grade(3, { answer: 'c', answerSource: 'derived' }, raw3, v2);
+      assert.equal(r.marksAwarded, 0, 'no stated verdict ⇒ the key decides, exactly as before');
+      assert.equal(r.derivedKeyDisagreed, undefined, 'nothing to disagree with');
+      const raw3b = MKT_RAW[3](); delete raw3b.finalAnswerCorrect;
+      const ok = await grade(3, { answer: 'd', answerSource: 'derived' }, raw3b, v2);
+      assert.equal(ok.marksAwarded, 1, 'CONTROL — the fallback key can award as well');
+    });
+
+    test(`§MKT.4 a derived key that AGREES with the grader changes nothing and records nothing — ${tag}`, async () => {
+      const r = await grade(3, { answer: 'd', answerSource: 'derived' }, MKT_RAW[3](), v2);
+      assert.equal(r.marksAwarded, 1);
+      assert.equal(Object.prototype.hasOwnProperty.call(r, 'derivedKeyDisagreed'), false, 'absent, not false');
+    });
+
+    test(`§MKT.5 ★ a PRINTED key and a key with NO answerSource keep today's precedence (key over verdict) — ${tag}`, async () => {
+      for (const keyFields of [{ answer: 'c', answerSource: 'printed' }, { answer: 'c' }, { answer: 'c', answerSource: 'bogus' }]) {
+        const r = await grade(3, keyFields, MKT_RAW[3](), v2);
+        assert.equal(r.marksAwarded, 0, 'today: the key compare is authoritative — ' + JSON.stringify(keyFields));
+        assert.equal(Object.prototype.hasOwnProperty.call(r, 'derivedKeyDisagreed'), false);
+        const r8 = await grade(8, { ...keyFields, answer: 'a' }, MKT_RAW[8](), v2);
+        assert.equal(r8.marksAwarded, 1, 'today: the key compare is authoritative — ' + JSON.stringify(keyFields));
+      }
+    });
+  }
+}
+
+test('§MKT.6 ★★ BANK keys (Worksheet / CT / FM / QP shape: answer + options, no answerSource) win over a disagreeing grader, on BOTH paths', async () => {
+  const options = ['b^2 + 4ac', 'b^2 - 4ac', '2a', '-b/2a'];
+  // The grader says WRONG; the student wrote the bank's correct option.
+  const raw = { annotatedSteps: [{ description: 'Option chosen', studentWork: 'Answer: (b)', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: null, correctedWorking: null }], finalAnswerCorrect: false };
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution(MCQ_REQ({ textAnswer: '', imageBase64: 'BASE64', imageMimeType: 'image/jpeg' }), {});
+  assert.equal(hs.body().marksAwarded, 1, 'single: the bank key decides, exactly as before');
+  assert.equal(Object.prototype.hasOwnProperty.call(hs.body(), 'derivedKeyDisagreed'), false);
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { section: 'A', format: 'mcq', qType: 'mcq', answer: 'b^2 - 4ac', options })]), {});
+  assert.equal(hm.body().results[0].marksAwarded, 1, 'multi: the bank key decides, exactly as before');
+  assert.equal(Object.prototype.hasOwnProperty.call(hm.body().results[0], 'derivedKeyDisagreed'), false);
+});
+
+test('§MKT.7 the pure clamp: derived key yields to a stated verdict; every other verdict shape is unchanged', () => {
+  const st = (w, s) => [{ description: 'a', studentWork: w, status: s, marksAwarded: 0, marksDeducted: 0 }];
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c', answerSource: 'derived' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 1, correct: true, resolved: true, derivedKeyDisagreed: true });
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c', answerSource: 'derived' }, st('(d)', 'correct'), 1),
+    { marksAwarded: 0, correct: false, resolved: true }, 'no verdict ⇒ the derived key is used');
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c', answerSource: 'printed' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true }, 'printed ⇒ key first, as today');
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'c' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true }, 'no answerSource ⇒ key first, as today');
+  // A derived label on an EMPTY answer cannot make a correctOption (bank fallback) key derived.
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: '', correctOption: 'c', answerSource: 'derived' }, st('(d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true }, 'correctOption keeps its precedence');
+  // A hedge stays a resolved 0 whatever the key's source.
+  assert.deepEqual(OBJ.clampObjectiveResult({ objective: true, answer: 'd', answerSource: 'derived' }, st('(a) or (d)', 'correct'), 1, true),
+    { marksAwarded: 0, correct: false, resolved: true });
+});
+
+test('§MKT.8 detect (opted in with keySource) labels each key: "printed" only when the model said so, everything else "derived"', async () => {
+  const h = buildRoute({ replies: [{
+    detectedMarks: 1, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null, detectedObjective: true, detectedAnswer: 'd',
+    questions: [
+      { questionNumber: 1, questionText: 'Q1 text', marks: 1, marksSource: 'stated', objective: true, answer: 'd', answerSource: 'printed' },
+      { questionNumber: 2, questionText: 'Q2 text', marks: 1, marksSource: 'stated', objective: true, answer: 'b', answerSource: 'derived' },
+      { questionNumber: 3, questionText: 'Q3 text', marks: 1, marksSource: 'stated', objective: true, answer: 'c' },
+      { questionNumber: 4, questionText: 'Q4 text', marks: 1, marksSource: 'stated', objective: true, answer: 'a', answerSource: 'nonsense' },
+      { questionNumber: 5, questionText: 'Q5 text', marks: 3, marksSource: 'stated', objective: false, answer: null },
+    ],
+  }] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  const qs = h.body().questions;
+  assert.deepEqual(qs.map((q) => q.answerSource), ['printed', 'derived', 'derived', 'derived', undefined]);
+  assert.equal(Object.prototype.hasOwnProperty.call(qs[4], 'answerSource'), false, 'a keyless question gets no label');
+  const schema = h.calls[0].genConfig.responseSchema;
+  assert.deepEqual(schema.properties.questions.items.properties.answerSource, { type: 'STRING', enum: ['printed', 'derived'], nullable: true });
+  assert.match(textOfCall(h), /- answerSource: for each question whose answer you set, "printed" ONLY when/);
+});
+
+test('§MKT.9 detect: a repeated question with conflicting labels is "derived" (printed needs every entry to agree)', async () => {
+  const h = buildRoute({ replies: [{
+    detectedMarks: 1, marksSource: 'stated', detectedObjective: true,
+    questions: [
+      { questionNumber: 1, questionText: 'Q1 text', marks: 1, objective: true, answer: 'd', answerSource: 'printed' },
+      { questionNumber: 1, questionText: 'Q1 text', marks: 1, objective: true, answer: 'd', answerSource: 'derived' },
+    ],
+  }] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.equal(h.body().questions.length, 1, 'the repeat is dropped (grading/detect.cjs)');
+  assert.equal(h.body().questions[0].answerSource, 'derived');
+});
+
+test('§MKT.10 ★ detect WITHOUT keySource (free check, topic reads, old clients, golden replays) is byte-identical: no prompt line, base schema, no label', async () => {
+  const reply = { detectedMarks: 1, marksSource: 'stated', detectedObjective: true, detectedAnswer: 'd',
+    questions: [{ questionNumber: 1, questionText: 'Q1 text', marks: 1, objective: true, answer: 'd', answerSource: 'printed' }] };
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper' }, {});
+  assert.equal(Object.prototype.hasOwnProperty.call(h.body().questions[0], 'answerSource'), false, 'no label without the opt-in');
+  assert.equal(h.calls[0].genConfig.responseSchema, MKT_BASE_SCHEMA, 'the unchanged base schema object');
+  assert.equal(Object.prototype.hasOwnProperty.call(MKT_BASE_SCHEMA.properties.questions.items.properties, 'answerSource'), false);
+  assert.doesNotMatch(textOfCall(h), /answerSource/, 'the prompt does not mention it');
+  // CONTROL — the same reply WITH the opt-in is labelled, and the prompt differs by exactly the one line.
+  const h2 = buildRoute({ replies: [reply] });
+  await h2.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.equal(h2.body().questions[0].answerSource, 'printed');
+  const line = '- answerSource: for each question whose answer you set, "printed" ONLY when that correct option is printed or marked in the document itself (an answer key, a ticked or marked answer); otherwise "derived". null when answer is null.\n';
+  assert.equal(textOfCall(h2).replace(line, ''), textOfCall(h), 'exactly one additive prompt line');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §GM · GRADE-MARKS-1 — A QUESTION WITH NO PRINTED MARK TAKES ITS SECTION HEADER'S MARK
+
+   Live 4 Nov 2026 (owner's account, production, Answer Checker multi, WS-M-MIX-02): the worksheet
+   prints marks ONLY in its section headers ("Section C … 3 marks each"). Q20/Q21 (Section C) sit on a
+   page with no header, and detect returned them as 5 marks ("5 for a proof", reported "stated") in
+   2 of 3 runs, so the paper totalled 55 instead of 51. With the opt-in `sectionMarks: true` (the paid
+   Answer Checker read) detect reports each question's section and the header marks it saw, and a
+   deterministic post-step assigns the section's mark before any guess (carried across page breaks).
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const GM_D = require('../grading/detect.cjs');
+const { DETECT_RESPONSE_SCHEMA_KEY_SOURCE: GM_KEY_SCHEMA } = require('./checkSolution.cjs');
+// A paper shaped like WS-M-MIX-02 (marks only in section headers, total 51, Q20/Q21 in Section C):
+// A Q1–Q10 ×1 = 10 · B Q11–Q15 ×2 = 10 · C Q16–Q21 ×3 = 18 · D Q22 ×5 = 5 · E Q23–Q24 ×4 = 8 → 51.
+const GM_SECTIONS = [['A', 1, 10], ['B', 2, 5], ['C', 3, 6], ['D', 5, 1], ['E', 4, 2]];
+// GRADE-SECTION-1 · each header's firstQuestion (the first question printed after it): 1/11/16/22/23.
+const GM_FIRST = { A: 1, B: 11, C: 16, D: 22, E: 23 };
+function gmReply({ q20Section = null, q21Section = null, headers = GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: m, firstQuestion: GM_FIRST[l] })) } = {}) {
+  const questions = [];
+  let n = 1;
+  for (const [letter, marks, count] of GM_SECTIONS) {
+    for (let i = 0; i < count; i += 1, n += 1) {
+      // Only the FIRST question of each section is on the page with the header; the model labels
+      // the rest of the page, and Q20/Q21 (a page with no header) come back unlabelled and as 5 "stated".
+      const isQ20 = n === 20;
+      const isQ21 = n === 21;
+      questions.push({
+        questionNumber: n,
+        section: isQ20 ? q20Section : isQ21 ? q21Section : letter,
+        questionText: 'Question ' + n + ' text',
+        marks: isQ20 || isQ21 ? 5 : marks,
+        printedMarks: null,
+        marksSource: isQ20 || isQ21 ? 'stated' : 'inferred',
+        objective: letter === 'A',
+        answer: null,
+      });
+    }
+  }
+  return { detectedMarks: 1, marksSource: 'inferred', detectedSubject: 'Maths', detectedTopic: null,
+    detectedObjective: true, detectedAnswer: null, sectionHeaders: headers, questions };
+}
+const gmSum = (qs) => qs.reduce((s, q) => s + q.marks, 0);
+
+test('§GM.1 ★★ the WS-M-MIX-02 shape: Q20/Q21 on a header-less page take Section C\'s 3 marks; the paper totals 51 (today 55)', async () => {
+  const h = buildRoute({ replies: [gmReply()] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const qs = h.body().questions;
+  assert.equal(qs.length, 24);
+  const q20 = qs.find((q) => q.questionNumber === 20);
+  const q21 = qs.find((q) => q.questionNumber === 21);
+  assert.deepEqual([q20.marks, q20.marksSource, q20.section], [3, 'section', 'C'], 'carried across the page break');
+  assert.deepEqual([q21.marks, q21.marksSource, q21.section], [3, 'section', 'C']);
+  assert.equal(gmSum(qs), 51, '★ the paper total is the printed 51, not 55');
+  assert.ok(qs.every((q) => q.marksSource === 'section'), 'every mark came from a header, none was guessed');
+});
+
+test('§GM.2 ★ a mark printed ON the question still wins over its section header', async () => {
+  const reply = gmReply();
+  reply.questions[19].printedMarks = 4; // Q20 prints "[4]" itself
+  reply.questions[19].marks = 4;
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const q20 = h.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20.marks, q20.marksSource], [4, 'printed']);
+});
+
+test('§GM.3 the CBSE section map is used only when the paper\'s headers follow it; otherwise the model\'s mark stays, flagged "inferred"', async () => {
+  // Headers printed for A, B and D only (all CBSE values) — C has no header mark: the CBSE map gives 3.
+  const cbse = gmReply({ q20Section: 'C', q21Section: 'C',
+    headers: [{ section: 'A', marksEach: 1, firstQuestion: 1 }, { section: 'B', marksEach: 2, firstQuestion: 11 }, { section: 'C', marksEach: null, firstQuestion: 16 }, { section: 'D', marksEach: 5, firstQuestion: 22 }] });
+  const h = buildRoute({ replies: [cbse] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const q20 = h.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20.marks, q20.marksSource], [3, 'section'], 'CBSE map C=3');
+  // A paper whose headers do NOT follow the CBSE map: no map is applied; a question with no section
+  // mark keeps the model's value, and a mark the model did not read is flagged for the student.
+  const own = gmReply({ headers: [{ section: 'A', marksEach: 2 }, { section: 'B', marksEach: 2 }] });
+  own.questions[19].section = 'C';
+  own.questions[19].marksSource = 'inferred';
+  const h2 = buildRoute({ replies: [own] });
+  await h2.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const q20b = h2.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20b.marks, q20b.marksSource], [5, 'inferred'], 'no rule ⇒ the guess is kept AND flagged');
+  const q21b = h2.body().questions.find((q) => q.questionNumber === 21);
+  assert.deepEqual([q21b.marks, q21b.marksSource], [5, 'inferred'], 'F2: no rule set it ⇒ flagged, even when the model said "stated"');
+});
+
+test('§GM.4 the post-step (pure): carry-forward, conflicting headers, leading unsectioned questions', () => {
+  const e = (section, printedMarks = null, n = null) => ({ section, printedMarks, n });
+  assert.deepEqual(GM_D.assignSectionMarks([e(null, null, 1), e('B', null, 2), e(null, null, 3), e('C', null, 4), e(null, 2, 5)], [{ section: 'Section B', marksEach: 2, firstQuestion: 2 }, { section: 'c', marksEach: 3, firstQuestion: 4 }]),
+    [{ marks: null, source: null, section: null }, { marks: 2, source: 'section', section: 'B' }, { marks: 2, source: 'section', section: 'B' },
+      { marks: 3, source: 'section', section: 'C' }, { marks: 2, source: 'printed', section: 'C' }]);
+  // Two headers for one letter with different marks: that letter is unknown (never a coin-flip).
+  assert.deepEqual(GM_D.assignSectionMarks([e('B', null, 1)], [{ section: 'B', marksEach: 2, firstQuestion: 1 }, { section: 'B', marksEach: 3, firstQuestion: 5 }]),
+    [{ marks: null, source: null, section: 'B' }]);
+  assert.equal(GM_D.sectionLetterOf('SECTION - D'), 'D');
+  assert.equal(GM_D.sectionLetterOf('Part II'), null);
+});
+
+test('§GM.5 ★ the single-question read mirrors a rule-set first mark at the top level', async () => {
+  const h = buildRoute({ replies: [{ detectedMarks: 5, marksSource: 'stated', detectedObjective: false,
+    sectionHeaders: [{ section: 'C', marksEach: 3, firstQuestion: 20 }],
+    questions: [{ questionNumber: 20, section: 'C', questionText: 'Prove that root 5 is irrational.', marks: 5, printedMarks: null, marksSource: 'stated', objective: false }] }] });
+  await h.route.handleDetectQuestion({ question: 'Prove that root 5 is irrational.', keySource: true, sectionMarks: true }, {});
+  assert.equal(h.body().detectedMarks, 3);
+  assert.equal(h.body().marksSource, 'stated');
+  assert.equal(h.body().questions[0].marks, 3);
+});
+
+test('§GM.6 ★ detect WITHOUT sectionMarks (free check, topic reads, golden replays) is byte-identical: no prompt line, the request\'s schema, no section/marks rule', async () => {
+  const reply = gmReply();
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.equal(h.calls[0].genConfig.responseSchema, GM_KEY_SCHEMA, 'the unchanged keySource schema object');
+  assert.equal(Object.prototype.hasOwnProperty.call(GM_KEY_SCHEMA.properties, 'sectionHeaders'), false);
+  assert.doesNotMatch(textOfCall(h), /sectionHeaders|printedMarks/, 'the prompt does not mention them');
+  const q20 = h.body().questions.find((q) => q.questionNumber === 20);
+  assert.deepEqual([q20.marks, q20.marksSource], [5, 'stated'], 'today\'s behaviour, unchanged without the opt-in');
+  assert.equal(Object.prototype.hasOwnProperty.call(q20, 'section'), false, 'no new field');
+  assert.equal(gmSum(h.body().questions), 55);
+  // CONTROL — the same reply WITH the opt-in: the prompt differs by exactly the one rule; the schema is the variant.
+  const h2 = buildRoute({ replies: [reply] });
+  await h2.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const CS = require('./checkSolution.cjs');
+  assert.equal(h2.calls[0].genConfig.responseSchema, CS.DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS);
+  const rule = textOfCall(h2).match(/- SECTIONS AND MARKS:[^\n]*\n/)[0];
+  assert.equal(textOfCall(h2).replace(rule, ''), textOfCall(h), 'exactly one additive prompt line');
+  // Without keySource but with sectionMarks: the base schema + the section fields (no answerSource).
+  const h3 = buildRoute({ replies: [reply] });
+  await h3.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const sch = h3.calls[0].genConfig.responseSchema;
+  assert.equal(sch, CS.DETECT_RESPONSE_SCHEMA_SECTION_MARKS);
+  assert.equal(Object.prototype.hasOwnProperty.call(sch.properties.questions.items.properties, 'answerSource'), false);
+  assert.deepEqual(sch.properties.questions.items.properties.section, { type: 'STRING', nullable: true });
+});
+
+test('§GM.7 ★★ F1 (§13) the section rule never gives an OBJECTIVE question more than 1 mark', () => {
+  const r = GM_D.assignSectionMarks(
+    [{ section: 'B', printedMarks: null, objective: true }, { section: 'B', printedMarks: null, objective: false },
+      { section: 'A', printedMarks: null, objective: true }, { section: 'B', printedMarks: 2, objective: true }],
+    [{ section: 'A', marksEach: 1 }, { section: 'B', marksEach: 2 }]);
+  assert.deepEqual(r.map((x) => x.marks), [null, 2, 1, null], 'an MCQ under a 2-mark header keeps the model value; a 1-mark rule is fine');
+});
+
+test('§GM.8 R1 a header mark is trusted ONLY at the CBSE value; any other number gets the CBSE value, flagged "inferred"', async () => {
+  const e = [{ section: 'C', printedMarks: null }, { section: null, printedMarks: null }];
+  const ok = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: 3, firstQuestion: 1 }]);
+  assert.deepEqual(ok.map((x) => [x.marks, x.source]), [[3, 'section'], [3, 'section']], 'the CBSE value is trusted (and carried)');
+  // "6 × 3 = 18" read as 6 each, "4 × 3" read as 4: never trusted, never carried as 6 / 4.
+  for (const misread of [6, 4]) {
+    const r = GM_D.assignSectionMarks(e, [{ section: 'C', marksEach: misread, firstQuestion: 1 }]);
+    assert.deepEqual(r.map((x) => [x.marks, x.source]), [[3, 'inferred'], [3, 'inferred']], 'C misread as ' + misread);
+  }
+  // End to end: Section C header misread as 6 → header-less Q20/Q21 are 3, flagged; the paper is still 51.
+  const reply = gmReply({ headers: GM_SECTIONS.map(([l, m]) => ({ section: l, marksEach: l === 'C' ? 6 : m, firstQuestion: GM_FIRST[l] })) });
+  reply.questions[19].section = 'C'; reply.questions[20].section = null;
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  const qs = h.body().questions;
+  for (const n of [16, 20, 21]) {
+    const q = qs.find((x) => x.questionNumber === n);
+    assert.deepEqual([q.marks, q.marksSource], [3, 'inferred'], 'Q' + n);
+  }
+  assert.equal(gmSum(qs), 51);
+});
+
+test('§GM.9 ★★★ F1 (§13) a 1-mark MCQ SENT with marks 3 is still scored 0 or full, on BOTH paths, with no step marks', async () => {
+  // Grader says correct and awards 2 partial step marks on a "3-mark" MCQ; the student chose d (key c derived).
+  const step = (ok, m) => ({ description: 'Option', studentWork: 'Option d', status: ok ? 'correct' : 'partial', marksAwarded: m, marksDeducted: 3 - m, teacherAnnotation: 'x', mistakeType: ok ? null : 'conceptual', correctedWorking: null });
+  const raw = { annotatedSteps: [step(false, 2)], finalAnswerCorrect: false, addressesQuestion: 'yes', teacherNote: 'x' };
+  for (const v2 of [true, false]) {
+    const hs = buildRoute({ replies: [raw] });
+    await hs.route.handleCheckSolution({ question: MKT_Q3, subject: 'Maths', topic: 'Polynomials', marks: 3, objective: true,
+      imageBase64: 'BASE64', imageMimeType: 'image/jpeg', acceptsV2: v2 }, {});
+    assert.equal(hs.body().totalMarks, 1, 'single: graded as the 1-mark question it is');
+    assert.ok([0, 1].includes(hs.body().marksAwarded), 'single: 0 or full, never a step mark: ' + hs.body().marksAwarded);
+    const hm = buildRoute({ replies: [{ results: [{ qNumber: 3, ...raw }] }] });
+    await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 3, marks: 3, questionText: MKT_Q3, topic: 'Polynomials', objective: true }]), acceptsV2: v2 }, {});
+    const r = hm.body().results[0];
+    assert.equal(r.totalMarks, 1, 'multi: graded as 1 mark');
+    assert.ok([0, 1].includes(r.marksAwarded), 'multi: 0 or full: ' + r.marksAwarded);
+    assert.equal(hm.body().gradedMarksTotal, 1);
+  }
+});
+
+test('§GM.10 F1 guard CONTROL: a mis-flagged SUBJECTIVE (no options) keeps its marks and step marking; a bank MCQ is untouched', async () => {
+  const raw = { annotatedSteps: [{ description: 'Setup', studentWork: 'x', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'calculation', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 4, ...raw }] }] });
+  await hm.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 4, marks: 3, questionText: 'Prove that root 5 is irrational.', objective: true }]), {});
+  assert.equal(hm.body().results[0].totalMarks, 3, 'no options in the text ⇒ the ≤1 rail\'s purpose: not forced');
+  assert.equal(hm.body().results[0].marksAwarded, 2);
+  const hb = buildRoute({ replies: [{ results: [{ qNumber: 1, annotatedSteps: [{ description: 'Option', studentWork: '(b)', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'x', mistakeType: null, correctedWorking: null }] }] }] });
+  await hb.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { marks: 2, section: 'A', format: 'mcq', qType: 'mcq', answer: 'x', options: ['w', 'x'] })]), {});
+  assert.equal(hb.body().results[0].totalMarks, 2, 'a bank-objective item keeps its marks (clamped whatever its marks, as before)');
+});
+
+test('§GM.11 R4 objectiveOffersOptions reads every printed option-list form, never one stray "a)"', () => {
+  const PP = require('../grading/postprocess.cjs');
+  const t = (questionText) => PP.objectiveOffersOptions({ questionText });
+  assert.equal(t('Which is prime? (a) 4 (b) 6 (c) 7 (d) 9'), true, '(a) form, as before');
+  assert.equal(t('Which is prime? a) 4 b) 6 c) 7 d) 9'), true, 'a) form');
+  assert.equal(t('Which is prime? A. 4 B. 6 C. 7 D. 9'), true, 'A. form');
+  assert.equal(t('Which is prime? (i) 4 (ii) 6 (iii) 7 (iv) 9'), true, '(i) form, short options');
+  assert.equal(t('Find the value of a) when x = 2 and show your working.'), false, 'one "a)" in ordinary text');
+  assert.equal(t('Point A. B is the midpoint of PQ.'), false, 'a stray "A." is not a list');
+  assert.equal(t('Read the case. (i) Find the length of the rope DE when the park sides are 20 m and 30 m in a right triangle. (ii) Find the area enclosed by the rope and the two walls given in the figure above.'), false,
+    'a case study\'s long (i)/(ii) sub-questions are not options');
+});
+
+test('§GM.12 R4 the §13 guard reaches an "a) … b)" MCQ sent with marks 3, on BOTH paths', async () => {
+  const mcq = 'Which of these is a zero of x² − 5x + 6? a) 1 b) 2 c) 4 d) 5';
+  const raw = { annotatedSteps: [{ description: 'Option', studentWork: 'b) 2', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution({ question: mcq, subject: 'Maths', marks: 3, objective: true, textAnswer: 'b) 2', acceptsV2: true }, {});
+  assert.equal(hs.body().totalMarks, 1);
+  assert.ok([0, 1].includes(hs.body().marksAwarded));
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 3, questionText: mcq, objective: true }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 1);
+  assert.ok([0, 1].includes(hm.body().results[0].marksAwarded));
+});
+
+test('§GM.13 ★ S2 option lists: sub-parts, two-item lists, stray letters and a "reason for the assertion" are NOT options; real MCQs are', () => {
+  const PP = require('../grading/postprocess.cjs');
+  const t = (questionText) => PP.objectiveOffersOptions({ questionText });
+  for (const no of [
+    'Case study: a park. (i) Find the distance. (ii) Find the angle.',
+    'a) Find the HCF of 12 and 18 b) Hence find the LCM',
+    'Prove that a) x is even and b) y is odd',
+    'Given: A. Ray AB meets B.',
+    'Give a reason for the assertion that metals conduct electricity.',
+  ]) assert.equal(t(no), false, no);
+  for (const yes of [
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9',
+    'Which is prime? a) 4 b) 6 c) 7 d) 9',
+    'Which is prime? a. 4 b. 6 c. 7 d. 9',
+    'Which is prime? A. 4 B. 6 C. 7 D. 9',
+    'The value of k is (1) 2 (2) 3 (3) 4 (4) 5',
+    'Find the value of k if 2 is a zero of x² + kx + 4. (A) −8 (B) 8 (C) −4 (D) 4',
+    'Assertion (A): √2 is irrational. Reason (R): the square root of every prime is irrational.',
+  ]) assert.equal(t(yes), true, yes);
+});
+
+test('§GM.14 ★ S1 detect (opted in) returns offersOptions by the SAME test as the §13 guard; the legacy shape has no such field', async () => {
+  const reply = { detectedMarks: 1, marksSource: 'stated', detectedObjective: true, sectionHeaders: [],
+    questions: [
+      { questionNumber: 1, questionText: 'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9', marks: 1, objective: true },
+      { questionNumber: 2, questionText: 'Prove that root 5 is irrational.', marks: 5, objective: true },
+      { questionNumber: 3, questionText: 'Find the HCF of 12 and 18.', marks: 2, objective: false },
+    ] };
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  assert.deepEqual(h.body().questions.map((q) => q.offersOptions), [true, false, false]);
+  const h2 = buildRoute({ replies: [reply] });
+  await h2.route.handleDetectQuestion({ question: 'paper' }, {});
+  assert.ok(h2.body().questions.every((q) => !Object.prototype.hasOwnProperty.call(q, 'offersOptions')));
+  // and the mis-flagged 5-mark proof sent as objective with marks 5 keeps 5, step-marked (guard leaves it)
+  const raw = { annotatedSteps: [{ description: 'Assume rational', studentWork: 'x', status: 'partial', marksAwarded: 3, marksDeducted: 2, teacherAnnotation: 'x', mistakeType: 'presentation', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 2, ...raw }] }] });
+  await hm.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 2, marks: 5, questionText: 'Prove that root 5 is irrational.', objective: true }]), {});
+  assert.equal(hm.body().results[0].totalMarks, 5, 'keeps its 5 marks');
+  assert.ok(![0, 5].includes(hm.body().results[0].marksAwarded), 'step-marked, not clamped 0/full: ' + hm.body().results[0].marksAwarded);
+});
+
+test('§GM.15 ★★ H1 long-option Science MCQs (each option 50–90 chars) ARE option lists; the §13 guard and the lock reach them', async () => {
+  const PP = require('../grading/postprocess.cjs');
+  const LONG = ["Which type of reaction is shown when iron nails are kept in copper sulphate solution? (a) A combination reaction in which two substances join to form one product (b) A decomposition reaction in which one compound splits into simpler substances (c) A displacement reaction in which iron displaces copper from its salt solution (d) A double displacement reaction in which two compounds exchange their ions", "A ray of light passes obliquely through a rectangular glass slab. Which statement is correct? (a) The emergent ray is parallel to the incident ray but laterally displaced from it (b) The emergent ray bends towards the normal and meets the incident ray at the slab (c) The emergent ray travels along the same straight line as the incident ray (d) The emergent ray is perpendicular to the incident ray at the second face", "Which is the correct sequence of events after pollination in a flowering plant? (a) Pollen tube growth, fertilisation, formation of the zygote, development of the seed (b) Fertilisation, pollen tube growth, formation of the seed, development of the zygote (c) Formation of the zygote, pollen tube growth, fertilisation, development of the fruit (d) Development of the seed, fertilisation, pollen tube growth, formation of the zygote"];
+  for (const q of LONG) {
+    assert.equal(PP.objectiveOffersOptions({ questionText: q }), true, q.slice(0, 50));
+    const opts = q.split(/\(\s*[a-d]\s*\)/).slice(1).map((o) => o.trim().length);
+    assert.ok(opts.every((n) => n >= 50 && n <= 90), 'the fixture really has 50–90-char options: ' + opts);
+  }
+  // still true / still false
+  assert.equal(PP.objectiveOffersOptions({ questionText: 'The value of k is (1) 2 (2) 3 (3) 4 (4) 5' }), true);
+  assert.equal(PP.objectiveOffersOptions({ questionText: 'Which is even? a. 4 b. 6 c. 8 d. 10' }), true);
+  // detect locks it, and a 3-mark send is still graded 0 or full out of 1
+  const h = buildRoute({ replies: [{ detectedMarks: 1, marksSource: 'stated', detectedObjective: true, sectionHeaders: [], questions: [{ questionNumber: 1, questionText: LONG[0], marks: 1, objective: true }] }] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  assert.equal(h.body().questions[0].offersOptions, true);
+  const raw = { annotatedSteps: [{ description: 'Option', studentWork: '(c)', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 3, questionText: LONG[1], objective: true }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 1);
+  assert.ok([0, 1].includes(hm.body().results[0].marksAwarded));
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §GS · GRADE-SECTION-1 — A QUESTION BELONGS TO THE SECTION HEADER ABOVE IT, NOT THE NEXT ONE ON THE PAGE
+
+   Live 4 Nov 2026 ~23:05 IST (production, owner account, WS-M-MIX-02, detect with sectionMarks): the
+   model labelled Q20/Q21 "D". Truth (the PDF): page 5 has the Section C header, Q18, Q19; page 6 starts
+   with Q20, Q21 (no header), THEN the "Section D · 5 marks each" header, then Q22, Q23. So Q20/Q21 are
+   Section C (3 marks) and the paper is 51, not 55 — and the 55 came back as marksSource "section",
+   unflagged. Each header now carries firstQuestion; membership is derived by ORDER.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// The exact WS-M-MIX-02 layout: A Q1–13 ×1 · B Q14–17 ×2 · C Q18–21 ×3 · D Q22–23 ×5 · E Q24–25 ×4 = 51.
+const GS_TRUTH = [['A', 1, 1, 13], ['B', 2, 14, 17], ['C', 3, 18, 21], ['D', 5, 22, 23], ['E', 4, 24, 25]];
+function gsReply({ q20q21Label = 'D', firstOf = (l, f) => f } = {}) {
+  const questions = [];
+  for (const [letter, marks, from, to] of GS_TRUTH) {
+    for (let n = from; n <= to; n += 1) {
+      const wrong = n === 20 || n === 21;
+      const label = wrong ? q20q21Label : letter;
+      questions.push({
+        questionNumber: n, section: label,
+        questionText: letter === 'A' ? 'Question ' + n + ': which is prime? (a) 4 (b) 6 (c) 7 (d) 9' : 'Question ' + n + ' text',
+        marks: wrong && label === 'D' ? 5 : marks, printedMarks: null, marksSource: 'stated', objective: letter === 'A', answer: null,
+      });
+    }
+  }
+  return { detectedMarks: 1, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null, detectedObjective: true, detectedAnswer: null,
+    sectionHeaders: GS_TRUTH.map(([l, m, f]) => ({ section: l, marksEach: m, firstQuestion: firstOf(l, f) })), questions };
+}
+async function gsDetect(reply) {
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  return h.body().questions;
+}
+const gsQ = (qs, n) => qs.find((q) => q.questionNumber === n);
+
+test('§GS.1 ★★★ WS-M-MIX-02: Q20/Q21 labelled "D" but printed before the D header (firstQuestion 22) are Section C, 3 marks, FLAGGED; total 51', async () => {
+  const qs = await gsDetect(gsReply());
+  assert.equal(qs.length, 25);
+  for (const n of [20, 21]) assert.deepEqual([gsQ(qs, n).marks, gsQ(qs, n).marksSource, gsQ(qs, n).section], [3, 'inferred', 'C'], 'Q' + n + ': order wins, never silently "section"');
+  for (const n of [18, 19]) assert.deepEqual([gsQ(qs, n).marks, gsQ(qs, n).marksSource], [3, 'section'], 'Q' + n);
+  for (const n of [22, 23]) assert.deepEqual([gsQ(qs, n).marks, gsQ(qs, n).marksSource, gsQ(qs, n).section], [5, 'section', 'D'], 'Q' + n);
+  assert.equal(qs.reduce((s, q) => s + q.marks, 0), 51, '★ 51, not 55');
+  assert.equal(qs.filter((q) => q.marksSource === 'inferred').length, 2, 'exactly the two disputed questions are flagged');
+});
+
+test('§GS.2 ★ agreement: the model labels Q20/Q21 "C" too → unchanged: every mark "section", total 51', async () => {
+  const qs = await gsDetect(gsReply({ q20q21Label: 'C' }));
+  assert.ok(qs.every((q) => q.marksSource === 'section'), 'nothing flagged when label and order agree');
+  assert.equal(qs.reduce((s, q) => s + q.marks, 0), 51);
+});
+
+test('§GS.3 ★★ a header\'s firstQuestion missing → today\'s label rule, but every question of a section whose range is open is flagged', async () => {
+  // D's firstQuestion unreadable: C's end and D's start are unknown → C and D flagged (incl. Q20/Q21 labelled D).
+  const qs = await gsDetect(gsReply({ firstOf: (l, f) => (l === 'D' ? null : f) }));
+  for (const n of [18, 19, 20, 21, 22, 23]) assert.equal(gsQ(qs, n).marksSource, 'inferred', 'Q' + n + ' flagged');
+  for (const n of [1, 14, 24]) assert.equal(gsQ(qs, n).marksSource, 'section', 'Q' + n + ' (range established) not flagged');
+  // no firstQuestion at all (model omitted the field) → nothing silently "section"
+  const none = await gsDetect(gsReply({ firstOf: () => null }));
+  assert.ok(none.every((q) => q.marksSource !== 'section'), 'every header-derived mark flagged');
+  // firstQuestion values not increasing in header order (unreliable) → treated as open, flagged
+  const bad = await gsDetect(gsReply({ firstOf: (l, f) => (l === 'D' ? 15 : f) }));
+  assert.ok(bad.every((q) => q.marksSource !== 'section'));
+});
+
+test('§GS.4 ★ a mark printed ON the question still wins over the order-derived section', async () => {
+  const reply = gsReply();
+  const q20 = reply.questions.find((q) => q.questionNumber === 20);
+  q20.printedMarks = 5;
+  const qs = await gsDetect(reply);
+  assert.deepEqual([gsQ(qs, 20).marks, gsQ(qs, 20).marksSource, gsQ(qs, 20).section], [5, 'printed', 'C']);
+  assert.deepEqual([gsQ(qs, 21).marks, gsQ(qs, 21).marksSource], [3, 'inferred']);
+});
+
+test('§GS.5 (pure) questions before the first header keep the label rule; §13 objective rule unchanged; an invented number is not ordered', () => {
+  const hs = [{ section: 'B', marksEach: 2, firstQuestion: 3 }, { section: 'C', marksEach: 3, firstQuestion: 5 }];
+  const r = GM_D.assignSectionMarks([
+    { n: 1, section: 'A', printedMarks: null }, // before the first header: label rule (no A header; headers follow CBSE ⇒ A=1)
+    { n: 2, section: null, printedMarks: null },
+    { n: 3, section: 'C', printedMarks: null, objective: true }, // order says B (2 marks) — objective ⇒ no rule mark > 1
+    { n: 5, section: 'B', printedMarks: null }, // order says C, label B ⇒ 3, inferred
+    { n: 9, numberAssigned: true, section: 'B', printedMarks: null }, // invented number: label rule
+  ], hs);
+  assert.deepEqual(r, [
+    { marks: 1, source: 'section', section: 'A' },
+    { marks: 1, source: 'section', section: 'A' },
+    { marks: null, source: null, section: 'B' },
+    { marks: 3, source: 'inferred', section: 'C' },
+    { marks: 2, source: 'section', section: 'B' },
+  ]);
+});
+
+test('§GS.6 ★ schema/prompt: firstQuestion is an additive nullable header field on the opt-in path only', async () => {
+  const CS = require('./checkSolution.cjs');
+  for (const sch of [CS.DETECT_RESPONSE_SCHEMA_SECTION_MARKS, CS.DETECT_RESPONSE_SCHEMA_KEY_SOURCE_SECTION_MARKS]) {
+    assert.deepEqual(sch.properties.sectionHeaders.items.properties.firstQuestion, { type: 'NUMBER', nullable: true });
+    assert.deepEqual(sch.properties.sectionHeaders.items.required, ['section']);
+  }
+  const h = buildRoute({ replies: [gsReply()] });
+  await h.route.handleDetectQuestion({ question: 'paper', keySource: true }, {});
+  assert.doesNotMatch(textOfCall(h), /firstQuestion/, 'no opt-in → prompt unchanged');
+  const h2 = buildRoute({ replies: [gsReply()] });
+  await h2.route.handleDetectQuestion({ question: 'paper', keySource: true, sectionMarks: true }, {});
+  assert.match(textOfCall(h2), /"firstQuestion"/);
+  assert.match(textOfCall(h2), /ABOVE a header on the same page belongs to the section BEFORE/);
+});
+
+test('§GS.7 ★ review F1: an UNLABELLED question whose carried section disagrees with the order is flagged, not silently "section"', () => {
+  // Headers A1 B14 C22 D23 E24 (C placed wrongly); Q18 labelled C, Q19–21 unlabelled (carried C).
+  const hs = [['A', 1, 1], ['B', 2, 14], ['C', 3, 22], ['D', 5, 23], ['E', 4, 24]].map(([section, marksEach, firstQuestion]) => ({ section, marksEach, firstQuestion }));
+  const r = GM_D.assignSectionMarks([18, 19, 20, 21].map((n) => ({ n, section: n === 18 ? 'C' : null, printedMarks: null })), hs);
+  assert.deepEqual(r.map((x) => [x.marks, x.source, x.section]), [[2, 'inferred', 'B'], [2, 'inferred', 'B'], [2, 'inferred', 'B'], [2, 'inferred', 'B']]);
+});
+
+test('§GS.8 review F3: a General Instructions duplicate header (no firstQuestion) is dropped when the real header has one', async () => {
+  const reply = gsReply({ q20q21Label: 'C' });
+  reply.sectionHeaders = [...GS_TRUTH.map(([l, m]) => ({ section: l, marksEach: m, firstQuestion: null })), ...reply.sectionHeaders];
+  const qs = await gsDetect(reply);
+  assert.ok(qs.every((q) => q.marksSource === 'section'), 'nothing flagged by the instruction lines');
+  assert.equal(qs.reduce((s, q) => s + q.marks, 0), 51);
+  // and the WS-M-MIX-02 disagreement is still caught with the instruction lines present
+  const r2 = gsReply();
+  r2.sectionHeaders = [{ section: 'D', marksEach: 5, firstQuestion: null }, ...r2.sectionHeaders];
+  const q2 = await gsDetect(r2);
+  assert.deepEqual([gsQ(q2, 20).marks, gsQ(q2, 20).marksSource], [3, 'inferred']);
+  assert.equal(q2.reduce((s, q) => s + q.marks, 0), 51);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §DO · DETECT-OBJECTIVE-STABILITY-1 — "objective" is read from the PRINTED OPTIONS, in code
+
+   Live 5 Nov 2026 (Answer Checker, multi-question upload): a worksheet whose Q1–Q2 were printed
+   MCQs with options (a)–(d) was read once with objective:false (marks editable, step-marking risk)
+   and once with objective:true (locked at 1). detect.cjs printedOptionsObjective now decides it from
+   the transcribed text on POSITIVE evidence only (an A-R item, or four answer values after a stem
+   with an MCQ cue). Upgrade only; never over a mark above 1; never over the student's GRADE-MARKS-1
+   override; NO on any ambiguous shape (fail safe = the model's own flag, as before).
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const DO_MCQ_Q1 = 'Which of the following is a prime number?\n(a) 4\n(b) 6\n(c) 7\n(d) 9';
+const DO_MCQ_Q2 = 'The HCF of 12 and 18 is ( a ) 2 ( b ) 3 ( c ) 6 ( d ) 36';
+const DO_SUBPART_5 = 'Mendel crossed a pure tall pea plant (TT) with a pure short pea plant (tt) and obtained all tall plants in F1 generation. (a) What is the gene combination present in the plants of F1 generation ? (b) Give reason why only tall plants are observed in F1 progeny. (c) What will be the ratio of the plants obtained in the F2 generation when F1 plants are self-pollinated ?';
+// PR #1582 review D1 — school-paper shapes the first rule wrongly upgraded. Every one is a NEGATIVE.
+const DO_REVIEW_D1 = [
+  'Simplify: (a) (3+√3)(2+√2) (b) (√5+√2)² (c) (√11+√7)(√11−√7) (d) (3+√3)(3−√3)',
+  'Simplify: (i) (3+√3)(2+√2) (ii) (√5+√2)² (iii) (√11+√7)(√11−√7) (iv) (3+√3)(3−√3)',
+  'Factorise: (a) x²+5x+6 (b) x²−7x+12 (c) 2x²+7x+3 (d) 6x²+5x−6',
+  'Rationalise the denominators of (a) 1/√7 (b) 1/(√7−√6) (c) 1/(√5+√2) (d) 1/(√7−2)',
+  'Expand (a) (x+2)³ (b) (2a−3b)³ (c) (x+1/x)² (d) (3x+4y)²',
+  'Which of the following are APs? If they form an AP, find the common difference d. (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2',
+  'Match the following: (a) Acetic acid (b) Baking soda (c) Bleaching powder (d) Plaster of Paris',
+  'Fill in the blanks: (a) The HCF of 6 and 20 is ____ (b) The LCM of 6 and 20 is ____ (c) HCF × LCM = ____ (d) √2 is ____',
+  'Draw the electron dot structures for (a) NaCl (b) MgO (c) CaO (d) H₂O',
+  'Electron dot structures for (a) NaCl (b) MgO (c) CaO (d) H₂O',
+  'Read the passage. Three resistors of 2 Ω, 3 Ω and 6 Ω are connected in parallel to a 6 V battery. (a) equivalent resistance [1] (b) total current [1] (c) current through the 6 Ω resistor [1] (d) power [1]',
+  // round 2 (R2-1) — an instruction after (d), inside it, or in the stem, newline / full stop or not
+  'Which of the following statements are correct?\n(a) Every integer is rational\n(b) Every rational is an integer\n(c) √2 is rational\n(d) π is irrational\nJustify your answer.',
+  'Which of the following are physical changes?\n(a) melting of ice\n(b) burning of paper\n(c) rusting of iron\n(d) dissolving sugar in water\nGive reasons for your answer.',
+  'Which of the following are APs? (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2 If they form an AP, find d.',
+  'Which of the following are APs? (a) 2, 4, 8, 16 (b) 2, 5/2, 3, 7/2 (c) −1.2, −3.2, −5.2, −7.2 (d) −10, −6, −2, 2 if they form an AP, find d',
+  'Which one of these is a prime? (a) 91 (b) 87 (c) 97 (d) 93 Explain your answer.',
+  'Identify the correct statements and correct the false ones: (a) Every integer is rational (b) Every rational is an integer (c) √2 is rational (d) π is irrational',
+  // round 3 (R3-1) — ANY text after the last option other than a bare 1-mark tag; any case; Hindi
+  ...[
+    '\njustify your answer', ' — explain your answer', ', justify.', ' (justify your answer)',
+    '\ngive reasons for your answer.', ' show your working', ' state reasons', ' kaaran batao', '\nkaaran batao',
+    ' स्पष्ट कीजिए।', '\nकारण दीजिए', ' Support your answer with reasons.', ' Provide a reason for each.', ' Reason out.',
+    ' Illustrate with an example.',
+  ].map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93' + tail),
+  'Which of the following are chemical changes?\n(a) rusting of iron\n(b) melting of ice\n(c) burning of paper\n(d) boiling of water\nwrite equations for the chemical ones',
+  'Put a tick against the correct statements: (a) 2 is prime (b) 9 is prime (c) 1 is prime (d) 0 is even',
+  // round 4 (R4-1 / R4-2) — an instruction or question word inside (d); a mark above 1 after (d)
+  ...['(d) 93 why', '(d) 93 explain', '(d) 93 prove', '(d) 93 justify', '\n(d) 93 justify', '(d) 93 (2)', '(d) 93 [3]']
+    .map((tail) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 ' + tail),
+  'Which of the following are physical changes? (a) melting of ice (b) burning of paper (c) rusting of iron (d) dissolving sugar justify',
+  // final delta (R5-1) — a reason request without a verb, or a dash clause, after (d)
+  ...[' along with reasons in brief', ' and the reasons for the same', ' — reasons please']
+    .map((tail) => 'Which of the following are physical changes? (a) melting of ice (b) burning of paper (c) rusting of iron (d) dissolving sugar in water' + tail),
+];
+
+test('§DO.1 printed MCQs and A-R items ARE objective: (a)–(d) on one line or separate lines, OCR spacing, A/B/C/D, "a)" / "A.", long Science options, statement-list MCQs, (i)–(iv) after a question, the golden transcripts', () => {
+  const D = require('../grading/detect.cjs');
+  for (const yes of [
+    DO_MCQ_Q1,
+    DO_MCQ_Q2,
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9',
+    'Which is prime? a) 4 b) 6 c) 7 d) 9',
+    'Which is prime? A. 4 B. 6 C. 7 D. 9',
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9 [1]',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93\n[1]',
+    // round 4 — standard MCQ closers and a long Science option (d) are answer values
+    ...['None of these', 'Both (a) and (b)', 'All of the above', 'None of the above', '93 (1)']
+      .map((d) => 'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) ' + d),
+    'If x + y = 10, then x is equal to: (a) 2 (b) 5 (c) 8 (d) cannot be determined from the given data',
+    'Which of the following correctly states a fact about respiration in plants? (a) It takes place only at night in the leaves (b) It takes place only in the presence of sunlight (c) It needs chlorophyll in every cell of the plant (d) It occurs in all living cells of the plant at all times of the day and night',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 (1 mark)',
+    'Which one of these is a prime? (a) 91 (b) 87 (c) 89 (d) 93 1 mark',
+    // golden transcripts (server/eval/golden runs, real detect reads)
+    'If α and β are the zeroes of polynomial 3x² + 6x + k such that α + β + αβ = −2/3, then the value of k is : (A) −8 (B) 8 (C) −4 (D) 4',
+    'The HCF of 6 and 20 is:\n(a) 1    (b) 2    (c) 4    (d) 120',
+    'An electrical appliance rated 1000 W is operated at 250 V. What current does it draw?(A) 0.25 A (B) 4 A (C) 2.5 A (D) 0.4 A',
+    'sec 0° is equal to: (a) 0 (b) 1 (c) Not defined (d) ∞',
+    'An event that cannot happen is called: (a) Certain event (b) Impossible event (c) Complementary event (d) Sure event',
+    'Which of the following cannot be the probability of an event? (a) 2/3 (b) −1.5 (c) 15% (d) 0.7',
+    'Which type of reaction is shown when iron nails are kept in copper sulphate solution? (a) A combination reaction in which two substances join to form one product (b) A decomposition reaction in which one compound splits into simpler substances (c) A displacement reaction in which iron displaces copper from its salt solution (d) A double displacement reaction in which two compounds exchange their ions',
+    'Which of the following are true?\n(i) 2 is prime\n(ii) 9 is prime\n(iii) 1 is prime\n(iv) 0 is even\n(a) (i) and (iv) (b) (ii) only (c) (iii) only (d) (i) only',
+    'The value of 2³ is: (i) 6 (ii) 8 (iii) 9 (iv) 5',
+    'The value of k is (1) 2 (2) 3 (3) 4 (4) 5',
+    'Assertion (A): Acids produce H⁺ ions in aqueous solution.\nReason (R): H⁺ ions are responsible for the acidic properties.',
+    'Assertion (A): No two magnetic field lines are found to cross each other. Reason (R): The compass needle points in one direction at a point.',
+  ]) assert.equal(D.printedOptionsObjective(yes), true, yes.slice(0, 60));
+});
+
+test('§DO.2 ★ review D1 + bank sub-part traps are NOT objective (no MCQ cue, per-part marks, act-on-each, instructions)', () => {
+  const D = require('../grading/detect.cjs');
+  for (const no of [
+    ...DO_REVIEW_D1,
+    DO_SUBPART_5,
+    '(a) (i) Define a reflex arc. Why have reflex arcs evolved in animals ? (ii) Name the part of nervous system which helps in communication. 5 OR (b) (i) Leaves of chhui-mui plant begin to fold up and droop in response to a stimulus. (ii) Define geotropism in plants.',
+    'A solid is in the shape of a cone standing on a hemisphere. (a) Find the volume of the solid. [2] (b) Find its total surface area. [3]',
+    'Consider the AP 3, 7, 11, … (a) What is its 10th term (b) What is the sum of 10 terms (c) Which term is 99 (d) Is 184 a term',
+    'During a lab experiment, a student tested three solutions A, B and C with universal indicator. Solution A turned red, B turned green and C turned blue.\n(i) Which solution is acidic?\n(ii) Which is neutral?\n(iii) Arrange them in increasing order of pH.\n(iv) What happens if A and C are mixed?',
+    'How do acids and bases react with: (i) metals (ii) metal oxides (iii) metal carbonates? Give one equation for each.',
+    'Two dice are thrown simultaneously. Find the probability that the sum of numbers appearing on the top is: (i) 10 (ii) less than or equal to 12 (iii) between 2 and 12 (inclusive) (iv) an odd number.',
+    'In each of the following situations what happens to the rate of photosynthesis?\n(a) Cloudy days\n(b) No rainfall in the area\n(c) Good manuring in the area\n(d) Stomata get blocked due to dust',
+    'Which among the following changes are exothermic or endothermic in nature?\n(a) Decomposition of ferrous sulphate\n(b) Dilution of sulphuric acid\n(c) Dissolution of sodium hydroxide in water\n(d) Dissolution of ammonium chloride in water',
+    'Name the correct substrates for the following enzymes:\n(a) Trypsin (b) Amylase (c) Pepsin (d) Lipase',
+    'Label the parts (a), (b), (c) and (d) and show the direction of flow of electrical signals in Figure 7.2.',
+    'Write balanced equations for the burning of (a) methane (b) ethane (c) propane (d) butane in air.',
+    'Give a reason for the assertion that metals conduct electricity.',
+    'Which is prime? (a) 4 (b) 6 (c) 7 (d) 9 (e) 11',
+    'Prove that a) x is even and b) y is odd',
+  ]) assert.equal(D.printedOptionsObjective(no), false, no.slice(0, 70));
+});
+
+test('§DO.3 ambiguous shapes FAIL SAFE (no upgrade — the model\'s own flag stands, as before)', () => {
+  const D = require('../grading/detect.cjs');
+  // MCQs whose stem carries no cue the rule trusts: a finished instruction, an "each", a "by:" ending
+  for (const t of [
+    'Find the value of k if 2 is a zero of x² + kx + 4. (A) −8 (B) 8 (C) −4 (D) 4',
+    'Solve: x² − 9 = 0 (a) ±3 (b) 3 only (c) −3 only (d) ±9',
+    'Two dice are rolled simultaneously. The probability of getting number less than 4 on each die is: (A) 1/4 (B) 1/9 (C) 1/36 (D) 1/6',
+    'In yeast, asexual reproduction takes place mainly by: (a) budding (b) binary fission (c) fragmentation (d) spore formation',
+    // an instruction verb anywhere disqualifies, even one that asks for the right choice (R2-1)
+    'Identify the correct statement: (a) Zinc is less reactive than copper (b) Copper displaces zinc (c) Zinc displaces copper from copper sulphate (d) None of these',
+    // "P(E)" reads as a fifth letter label to the §13 guard's own test, which this rule must agree with
+    'If P(E) = 0.05, what is P(not E)? (a) 0.95 (b) 0.05 (c) 1 (d) 0',
+  ]) assert.equal(D.printedOptionsObjective(t), false, t.slice(0, 60));
+});
+
+test('§DO.4 normaliseDetectedQuestions: printed MCQs UPGRADE to objective at 1 mark; review D1 shapes stay as the model read them; a model-flagged objective is never downgraded; the result does not depend on the model\'s flag', () => {
+  const D = require('../grading/detect.cjs');
+  const read = (flags) => D.normaliseDetectedQuestions([
+    { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 1, objective: flags[0] },
+    { questionNumber: 2, questionText: DO_MCQ_Q2, marks: 1, objective: flags[1] },
+    { questionNumber: 3, questionText: 'Find the HCF of 12 and 18 by prime factorisation.', marks: 1, objective: flags[2] },
+    { questionNumber: 4, questionText: DO_SUBPART_5, marks: 5, objective: false },
+  ], { detectedMarks: 1 });
+  const first = read([false, false, true]);
+  assert.deepEqual(first.map((q) => q.objective), [true, true, true, false], 'Q1/Q2 upgraded; Q3 model-flagged stays; Q4 sub-parts untouched');
+  assert.deepEqual(first.map((q) => q.marks), [1, 1, 1, 5], 'a printed MCQ reports 1 mark (§13)');
+  assert.deepEqual(read([true, true, true]), first, 'the same read whatever the model said about Q1/Q2');
+  assert.ok(first.every((q) => !Object.keys(q).includes('_printedOptions')), 'the internal marker never reaches the body');
+  const d1 = D.normaliseDetectedQuestions(DO_REVIEW_D1.map((t, i) => ({ questionNumber: i + 1, questionText: t, marks: 4, objective: false })), { detectedMarks: 4 });
+  assert.deepEqual(d1.map((q) => [q.objective, q.marks]), DO_REVIEW_D1.map(() => [false, 4]), 'review D1: nothing upgraded, marks untouched');
+});
+
+test('§DO.5 ★ review D2: a printed MCQ shape never overrides a mark above 1 (Section C header, printed mark, section label) — the model\'s flag stands', () => {
+  const D = require('../grading/detect.cjs');
+  const headers = [{ section: 'A', marksEach: 1, firstQuestion: 1 }, { section: 'C', marksEach: 3, firstQuestion: 2 }];
+  const qs = D.normaliseDetectedQuestions([
+    { questionNumber: 1, questionText: DO_MCQ_Q2, marks: 1, objective: false, section: 'A' },
+    { questionNumber: 2, questionText: DO_MCQ_Q1, marks: 4, objective: false, section: 'C' },
+    { questionNumber: 3, questionText: DO_MCQ_Q1, marks: 4, objective: false, printedMarks: 3 },
+  ], { detectedMarks: 1, sectionMarks: true, sectionHeaders: headers });
+  assert.deepEqual(qs.map((q) => q.objective), [true, false, false], 'only the Section A MCQ is upgraded');
+  assert.deepEqual(qs.map((q) => q.marks), [1, 3, 3], 'Section C / printed marks are kept, never forced to 1');
+  // a section LABEL B–E blocks it even without the opt-in rule
+  const legacy = D.normaliseDetectedQuestions([{ questionNumber: 7, questionText: DO_MCQ_Q1, marks: 3, objective: false, section: 'C' }], { detectedMarks: 3 });
+  assert.deepEqual([legacy[0].objective, legacy[0].marks], [false, 3]);
+});
+
+test('§DO.6 ★ integration: objective:false on printed (a)–(d) MCQs → locked (objective + offersOptions, 1 mark) at detect; a stale client sending objective:false at 1 mark is still graded 0 or full on BOTH routes', async () => {
+  const reply = { detectedMarks: 1, marksSource: 'stated', detectedObjective: false, sectionHeaders: [],
+    questions: [
+      { questionNumber: 1, questionText: DO_MCQ_Q1, marks: 1, objective: false },
+      { questionNumber: 2, questionText: DO_MCQ_Q2, marks: 1, objective: false },
+      { questionNumber: 3, questionText: DO_SUBPART_5, marks: 5, objective: false },
+    ] };
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const qs = h.body().questions;
+  assert.deepEqual(qs.map((q) => q.objective), [true, true, false]);
+  assert.deepEqual(qs.map((q) => q.offersOptions), [true, true, false], 'the client marks editor locks Q1/Q2 (isLockedObjective)');
+  assert.deepEqual(qs.map((q) => q.marks), [1, 1, 5]);
+  const h1 = buildRoute({ replies: [{ ...reply, detectedMarks: 3, questions: [reply.questions[0]] }] });
+  await h1.route.handleDetectQuestion({ question: DO_MCQ_Q1 }, {});
+  assert.equal(h1.body().detectedObjective, true, 'single read: top level agrees');
+  assert.equal(h1.body().detectedMarks, 1);
+  assert.ok(!JSON.stringify(h1.body()).includes('_printedOptions'), 'the internal marker is never serialised');
+
+  // the server enforces it itself (a stale client): objective:false, marks 1 → clamped 0 or full
+  const raw = { annotatedSteps: [{ description: 'Option', studentWork: '(c) 7', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: DO_MCQ_Q1, objective: false }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 1);
+  assert.ok([0, 1].includes(hm.body().results[0].marksAwarded), 'multi: 0 or full: ' + hm.body().results[0].marksAwarded);
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution({ question: DO_MCQ_Q1, subject: 'Maths', textAnswer: '(c) 7', acceptsV2: true }, {});
+  assert.equal(hs.body().totalMarks, 1);
+  assert.ok([0, 1].includes(hs.body().marksAwarded), 'single (marks unset): 0 or full: ' + hs.body().marksAwarded);
+});
+
+test('§DO.7 ★ review D3: the student\'s GRADE-MARKS-1 override (objective:false, marks > 1) is honoured on BOTH routes — graded as written, never re-upgraded', async () => {
+  const raw = { annotatedSteps: [{ description: 'Working', studentWork: '7 is prime as its only factors are 1 and 7', status: 'partial', marksAwarded: 2, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'presentation', correctedWorking: null }], finalAnswerCorrect: true, addressesQuestion: 'yes', teacherNote: 'x' };
+  const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hm.route.handleGradeWorksheet({ ...WORKSHEET_REQ([{ qNumber: 1, marks: 3, questionText: DO_MCQ_Q1, objective: false }]), acceptsV2: true }, {});
+  assert.equal(hm.body().results[0].totalMarks, 3, 'multi: the student\'s 3 marks stand');
+  assert.ok(![0, 3].includes(hm.body().results[0].marksAwarded), 'multi: step-marked: ' + hm.body().results[0].marksAwarded);
+  const hs = buildRoute({ replies: [raw] });
+  await hs.route.handleCheckSolution({ question: DO_MCQ_Q1, subject: 'Maths', marks: 3, objective: false, textAnswer: '(c) 7', acceptsV2: true }, {});
+  assert.equal(hs.body().totalMarks, 3, 'single: the student\'s 3 marks stand');
+  assert.ok(![0, 3].includes(hs.body().marksAwarded), 'single: step-marked: ' + hs.body().marksAwarded);
+});
+
+test('§DO.8 ★ review D1 on BOTH grade routes: an objective:false question in any D1 shape at 1 mark is NOT upgraded (no 0/full clamp); a bank row is never upgraded by its text', async () => {
+  const raw = { annotatedSteps: [{ description: 'Working', studentWork: 'x', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: 'x', mistakeType: 'calculation', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  // control: the same raw on a printed MCQ IS clamped (proves the probe can see an upgrade)
+  const hc = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+  await hc.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: DO_MCQ_Q1, objective: false }]), {});
+  assert.ok([0, 1].includes(hc.body().results[0].marksAwarded), 'control clamped: ' + hc.body().results[0].marksAwarded);
+  for (const t of DO_REVIEW_D1) {
+    const hm = buildRoute({ replies: [{ results: [{ qNumber: 1, ...raw }] }] });
+    await hm.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: t, objective: false }]), {});
+    assert.equal(hm.body().results[0].marksAwarded, 0.5, 'multi not clamped: ' + t.slice(0, 50));
+    const hs = buildRoute({ replies: [raw] });
+    await hs.route.handleCheckSolution({ question: t, subject: 'Maths', textAnswer: 'x' }, {});
+    assert.equal(hs.body().marksAwarded, 0.5, 'single not clamped: ' + t.slice(0, 50));
+  }
+  // a 5-mark (a)/(b)/(c) question keeps its marks and step marking
+  const r5 = { annotatedSteps: [{ description: 'Part (a)', studentWork: 'Tt', status: 'partial', marksAwarded: 3, marksDeducted: 2, teacherAnnotation: 'x', mistakeType: 'conceptual', correctedWorking: null }], addressesQuestion: 'yes', teacherNote: 'x' };
+  const h5 = buildRoute({ replies: [{ results: [{ qNumber: 4, ...r5 }] }] });
+  await h5.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 4, marks: 5, questionText: DO_SUBPART_5, objective: false }]), {});
+  assert.equal(h5.body().results[0].totalMarks, 5);
+  assert.equal(h5.body().results[0].marksAwarded, 3);
+  // a bank row carries its own objectivity: a Section C row whose text prints (a)–(d) is not touched
+  const hb = buildRoute({ replies: [{ results: [{ qNumber: 2, ...r5 }] }] });
+  await hb.route.handleGradeWorksheet(WORKSHEET_REQ([Q(2, { marks: 1, section: 'C', format: 'sa', questionText: DO_MCQ_Q1 })]), {});
+  assert.ok(!hb.body().results[0].objective, 'bank metadata wins');
+});
+
+test('§DO.9 ★ review R2-2: the model\'s own marks > 1 BLOCK the upgrade (no section, nothing printed) — not locked, not "stated"; a printed MCQ the model read at 1 mark still upgrades', async () => {
+  const D = require('../grading/detect.cjs');
+  const JUST = 'Which of the following are chemical changes? (a) rusting of iron (b) melting of ice (c) boiling of water (d) freezing of water';
+  const PROB = 'Which of the following cannot be the probability of an event? (a) 2/3 (b) −1.5 (c) 15% (d) 0.7';
+  assert.equal(D.printedOptionsObjective(JUST), true, 'the text alone would qualify');
+  const qs = D.normaliseDetectedQuestions([
+    { questionNumber: 1, questionText: JUST, marks: 3, marksSource: 'stated', objective: false },
+    { questionNumber: 2, questionText: PROB, marks: 1, marksSource: 'stated', objective: false },
+  ], { detectedMarks: 3 });
+  assert.deepEqual([qs[0].objective, qs[0].marks, qs[0].marksSource], [false, 3, 'stated'], 'model marks 3: the model\'s read stands, untouched');
+  assert.deepEqual([qs[1].objective, qs[1].marks], [true, 1], 'model marks 1: upgraded');
+  assert.equal(qs[1].marksSource, 'inferred', 'upgraded with nothing printed: never "stated"');
+  // through the route, opted in: the 3-mark read is NOT locked (offersOptions false), marksSource not "stated"
+  const h = buildRoute({ replies: [{ detectedMarks: 3, marksSource: 'stated', detectedObjective: false, sectionHeaders: [],
+    questions: [{ questionNumber: 1, questionText: JUST, marks: 3, marksSource: 'stated', objective: false }, { questionNumber: 2, questionText: PROB, marks: 1, marksSource: 'stated', objective: false }] }] });
+  await h.route.handleDetectQuestion({ question: 'paper', sectionMarks: true }, {});
+  const b = h.body().questions;
+  assert.deepEqual(b.map((q) => [q.objective, q.offersOptions, q.marks]), [[false, false, 3], [true, true, 1]]);
+  assert.ok(b.every((q) => q.marksSource !== 'stated'), 'no false "stated": ' + b.map((q) => q.marksSource));
+  // single read with a model "stated" 1 and nothing printed: the top level is not "stated" either
+  const h1 = buildRoute({ replies: [{ detectedMarks: 1, marksSource: 'stated', detectedObjective: false, questions: [{ questionNumber: 1, questionText: PROB, marks: 1, marksSource: 'stated', objective: false }] }] });
+  await h1.route.handleDetectQuestion({ question: PROB }, {});
+  assert.deepEqual([h1.body().detectedObjective, h1.body().detectedMarks, h1.body().marksSource], [true, 1, 'inferred']);
+});

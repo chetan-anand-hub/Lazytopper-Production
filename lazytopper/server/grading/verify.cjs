@@ -181,6 +181,17 @@ function quotedInSource(leftRaw, rightRaw, source) {
 const LINE_JOIN = /(?<=\d)\s+(?=\d+(?:\.\d+)?\s*[=≈])/;
 const MIXED_NUMBER = /^\s*(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)\s*$/;
 const SPACED_NUMBERS = /\d\s+(?=[\d.])/;
+/* GRADER-QUALITY-1 (D3), live 4 Nov 2026 (Answer Checker multi, WS-M-MIX-02 Q21, owner's student, 3 Nov):
+   the student verified the zeroes in TWO COLUMNS — "−4 + 6 = 2 / 2 = 2" beside "6 × −4 = −24 / −24 = −24"
+   — and the model quoted the second rows as ONE line, "2 = 2 −24 = −24". Guard (1) above splits a join
+   only where the next column starts with a DIGIT; here it starts with a SIGN, so "2 −24" was evaluated as
+   2 − 24 and a correct step lost ½ with "2 is not 2 −24". (1b) In the MODEL'S QUOTE of a photographed /
+   uploaded answer (opts.quoted, no typed source) the line is ALSO read split before a number with a sign
+   GLUED to it (-, −, –) that is followed at once by "=", and it is charged only when BOTH readings find it
+   false (falseEqualities) — never on the student's TYPED words, never on the model's own corrected working.
+   Accepted cost (core.test.cjs §GQ.2): a real slip quoted with a glued sign ("5 -3 = 3") is true when
+   split, so it is not charged; spaced ("5 − 3 = 3") or typed, it is. */
+const SIGNED_LINE_JOIN = /(?<=\d)\s+(?=[-−–]?\d+(?:\.\d+)?\s*[=≈])/;
 function mixedValue(side) {
   const m = MIXED_NUMBER.exec(String(side == null ? '' : side));
   if (!m || Number(m[4]) === 0 || Number(m[3]) >= Number(m[4])) return null;
@@ -224,13 +235,31 @@ function spansSourceLines(leftRaw, rightRaw, source) {
  * @returns {Array<{ left: string, right: string, leftValue: number, rightValue: number }>}
  */
 function falseEqualities(text, opts = {}) {
-  const out = [];
   // Review 2 (#1207): with the student's TYPED words known, spaced numbers are the student's own
   // writing ("1 000 + 500 = 1600" is charged) — only the line check (guard 3) applies there; the
   // line-boundary split and the spaced-number skip (guards 1–2) are for photo/OCR quotes only.
   const typedSource = String(opts.source == null ? '' : opts.source).trim().length > 0;
-  const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i)
-    .flatMap((c) => (typedSource ? [c] : c.split(LINE_JOIN)));
+  const lines = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i);
+  if (typedSource) return falseEqualitiesIn(lines, opts, typedSource);
+  if (opts.quoted !== true) return falseEqualitiesIn(lines.flatMap((c) => c.split(LINE_JOIN)), opts, typedSource);
+  // (1b) GRADER-QUALITY-1, delta review: a photo quote is read BOTH ways — as trunk reads it (guard (1)) and
+  // split before a glued sign — and a line is charged ONLY when BOTH readings find it false (the split
+  // reading's text is reported). So the split can only REMOVE a charge: "2 = 2 −24 = −24" (Q21) is true
+  // when split; "D = 7² − 4 × 3 × 2 = 49 −24 = 25" and "x = (12 + 4)/2 = 16 −8 = 8" are true unsplit;
+  // "3 + 4 = 8 −2 = −2" is false both ways and is charged "3 + 4 is not 8".
+  const out = [];
+  for (const line of lines) {
+    const trunkReading = falseEqualitiesIn(line.split(LINE_JOIN), opts, typedSource);
+    if (!trunkReading.length) continue;
+    const splitReading = falseEqualitiesIn(line.split(SIGNED_LINE_JOIN), opts, typedSource);
+    for (const e of splitReading) if (!out.some((o) => o.left === e.left && o.right === e.right)) out.push(e);
+  }
+  return out;
+}
+
+/** Every FALSE plain numeric equality among already-split clauses (the body of falseEqualities). */
+function falseEqualitiesIn(clauses, opts, typedSource) {
+  const out = [];
   for (const clause of clauses) {
     if (!/[=≈]/.test(clause)) continue;
     if (/[,:%±∓°<>≤≥≠]/.test(clause)) continue; // lists, ratios, percentages, inequalities: not plain
@@ -516,4 +545,112 @@ function compareFinalAnswerRaw(studentText, keyText) {
   return 'skip';
 }
 
-module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn, fudgedFactorisation, parseQuadratic, parseFactorised };
+/* ── GRADER-CREDIT-1 · EQUAL VALUE IN ANOTHER FORM (owner ruling B, 5 Nov 2026) ──────────────
+   CBSE examiners tick an answer that is EQUAL to the key in another form — 45/48 for 15/16
+   (2025 Maths 30/6/2 Q22, answer book p.7), 4.5 A for 4.54 A (2025 Science 31/1/3 Q37(b), p.28).
+   `equivalentFinalValue` reads ONE final value from each text (the right of the last "=" on the
+   last line), sets a trailing unit aside, and evaluates it with the same fixed grammar as the
+   arithmetic check (numbers, + − × ÷ / ^ √ and π — no eval). It is used ONLY to GIVE BACK a mark
+   (postprocess.cjs restoreEquivalentFinalAnswer), never to take one, so anything it is not sure
+   of is 'skip':
+     - a tuple / list / "or" / "±" (two roots, two values: shared credit is the prompt's job);
+     - a unit on the key that the student's value does not carry, or two different units;
+     - a value it cannot evaluate.
+   'equivalent' needs EITHER exact equality (two exact forms: fractions, surds, π, integers) OR
+   agreement within the rounding of the LESS precise decimal written (½ in its last place) AND
+   within 1% of the key — so "5" is never 4.54, and "4.5" is. 'different' otherwise. */
+const EQ_UNIT_TAIL = /\s*(?:km\s*\/\s*h|m\s*\/\s*s\^?2?|m\s*\/\s*s²|cm\s*\/\s*s|kmph|km|cm|mm|m|kg|mg|g|ml|mL|l|L|kJ|kW|kWh|Hz|ohms?|Ω|hrs?|h|min|sec|s|A|V|W|J|N|D|°C|°|K|Rs\.?|₹|rupees)(?:\s*(?:\^\s*\(?[23]\)?|[²³]))?\s*\.?\s*$/;
+const EQ_UNIT_HEAD = /^\s*(?:Rs\.?|₹)\s*/;
+function eqUnitOf(s) {
+  const t = String(s == null ? '' : s);
+  const head = EQ_UNIT_HEAD.exec(t);
+  if (head) return { rest: t.slice(head[0].length), unit: '₹' };
+  const m = EQ_UNIT_TAIL.exec(t);
+  // a single LOWER-CASE letter glued to a number ("2x", "3m" written without a space) is a variable, not a unit
+  if (!m || !/\d|\)|π/.test(t.slice(0, m.index).trim().slice(-1))) return { rest: t, unit: null };
+  const raw = m[0].trim().replace(/\.$/, '');
+  if (/^[a-z]$/.test(raw.replace(/\s/g, '')) && !/\s/.test(m[0][0] || '')) return { rest: t, unit: null };
+  const unit = raw.replace(/\s+/g, '').replace(/^ohms?$/i, 'Ω').replace(/^(?:Rs\.?|rupees)$/i, '₹').replace(/\^\(?([23])\)?/, (x, d) => (d === '2' ? '²' : '³'));
+  return { rest: t.slice(0, m.index), unit };
+}
+/** One final value: { value, exact, decimals, unit } or null. */
+function finalValueParsed(text) {
+  const lines = String(text == null ? '' : text).split(/\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return null;
+  const last = lines[lines.length - 1];
+  if (/±|∓|,|;|\bor\b|\band\b/i.test(last)) return null;
+  const parts = last.split(/=|≈/);
+  const { rest, unit } = eqUnitOf(parts[parts.length - 1].trim());
+  let expr = rest.trim();
+  if (!expr || /[A-Za-z]/.test(expr.replace(/π|pi/gi, ''))) return null;
+  const exact = /\/|√|π|pi/i.test(expr) || !/\./.test(expr);
+  expr = expr.replace(/π|\bpi\b/gi, '(' + Math.PI + ')');
+  const n = normaliseExpr(expr);
+  const value = evaluate(n);
+  if (value === null) return null;
+  return { value, exact, decimals: exact ? Infinity : decimalsOf(rest), unit };
+}
+/** The label a line's value is assigned to ("x", "I", "AB", "R₁"), or null. */
+function valueLabelOf(text) {
+  const lines = String(text == null ? '' : text).split(/\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return null;
+  const parts = lines[lines.length - 1].split(/=|≈/);
+  if (parts.length < 2) return null;
+  const m = /^([A-Za-z][A-Za-z0-9₀-₉']{0,3})$/.exec(parts[0].trim());
+  return m ? m[1] : null;
+}
+/* Review round 1 (#1583, item 1): the WORKING before the final value must itself give the key's value, so the
+   only difference is the FORM or ROUNDING of the final number — "I = 900/200 = 4.5 A" (a wrong substitution)
+   or "1000/222 = 4.5 A" is never given back for key 4.54 A, while "1000/220 = 4.5 A" is. Every side of the
+   last line before the final value that holds a number must evaluate (unit set aside) and agree with the key:
+   exactly for an exact key, within ONE unit of the key's last decimal place for a rounded key (a scheme's
+   4·54 is 1000/220 = 4.545… truncated). A first-side label ("I", "P(E)") is passed over; no numeric side at all, or
+   one that cannot be evaluated, is 'skip'. */
+function workingGivesKey(studentText, k) {
+  const lines = String(studentText == null ? '' : studentText).split(/\n/).map((l) => l.trim()).filter(Boolean);
+  // the FIRST side may be a label ("I", "P(a 2digit no.)") when it is not plain arithmetic; it is passed over
+  const all = lines[lines.length - 1].split(/=|≈/).slice(0, -1).map((x) => x.trim());
+  const sides = all.filter((x, i) => /\d/.test(x) && !(i === 0 && /[A-Za-z]/.test(x.replace(/π|\bpi\b/gi, ''))));
+  if (!sides.length) return 'skip';
+  const tol = k.exact ? 1e-9 * Math.max(1, Math.abs(k.value)) : Math.pow(10, -k.decimals) + 1e-12;
+  for (const side of sides) {
+    const { rest } = eqUnitOf(side);
+    const t = rest.trim();
+    if (/[A-Za-z]/.test(t.replace(/π|\bpi\b/gi, ''))) return 'skip';
+    const v = evaluate(normaliseExpr(t.replace(/π|\bpi\b/gi, '(' + Math.PI + ')')));
+    if (v === null) return 'skip';
+    if (Math.abs(v - k.value) > tol) return 'different';
+  }
+  return 'equivalent';
+}
+/**
+ * @param {{ requireWorking?: boolean }} [opts] requireWorking: the student's own working on the final line must
+ *   give the key's value too (workingGivesKey) — used for the step the guard gives back.
+ * @returns {'equivalent'|'different'|'skip'}
+ */
+function equivalentFinalValue(studentText, keyText, opts = {}) {
+  // Review round 1 (item 4): a key of more than one line ("x = 4\nx = −4") is several values — never one.
+  if (String(keyText == null ? '' : keyText).split(/\n/).filter((l) => l.trim()).length !== 1) return 'skip';
+  const s = finalValueParsed(studentText);
+  const k = finalValueParsed(keyText);
+  if (!s || !k) return 'skip';
+  if (k.unit && s.unit !== k.unit) return 'skip';
+  if (s.unit && k.unit && s.unit !== k.unit) return 'skip';
+  // Review round 1 (item 5): "y = 2" is not the key's "x = 2" — where both name the variable, it must be the same one.
+  const sl = valueLabelOf(studentText);
+  const kl = valueLabelOf(keyText);
+  if (sl && kl && sl !== kl) return 'skip';
+  const diff = Math.abs(s.value - k.value);
+  let verdict;
+  if (diff <= 1e-9 * Math.max(1, Math.abs(k.value))) verdict = 'equivalent';
+  else if (s.exact && k.exact) verdict = 'different';
+  else {
+    const d = Math.min(s.decimals, k.decimals);
+    const tol = 0.5 * Math.pow(10, -d) + 1e-12;
+    verdict = diff <= tol && diff <= 0.01 * Math.abs(k.value) ? 'equivalent' : 'different';
+  }
+  if (verdict !== 'equivalent' || !opts.requireWorking) return verdict;
+  return workingGivesKey(studentText, k);
+}
+
+module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn, fudgedFactorisation, parseQuadratic, parseFactorised, equivalentFinalValue };

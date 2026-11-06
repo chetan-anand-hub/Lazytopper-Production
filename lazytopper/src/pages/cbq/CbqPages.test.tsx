@@ -7,7 +7,7 @@ import CbqChapterPage, { CBQ_PRACTICE_TO } from "./CbqChapterPage";
 import { cbqChapterPath, cbqChapterSlugs, cbqChapterTopics } from "../../components/cbq/cbqSeo";
 import { PACK_PRICE_INR } from "../../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../../services/packs";
 
 afterEach(() => cleanup());

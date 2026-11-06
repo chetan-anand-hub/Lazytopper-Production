@@ -36,7 +36,7 @@ vi.mock("../../services/packs", async (orig) => {
 vi.mock("../../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
 
 import PacksStrip from "./PacksStrip";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../../services/packs";
 
 Element.prototype.scrollIntoView = vi.fn();

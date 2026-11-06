@@ -339,12 +339,13 @@ async function saveCloud(
   uid: string,
   status: SubscriptionStatus,
   opts: { pinTrialStart?: boolean } = {},
-): Promise<void> {
-  if (!isFirestoreEnabled()) return;
+): Promise<SaveCloudOutcome> {
+  // Nothing to write is not a failure: there is no cloud, or the record is server-owned.
+  if (!isFirestoreEnabled()) return { ok: true };
   // A pass (or legacy premium) record is SERVER-owned. Its expiry is DERIVED on every
   // read, never written back: the write would carry plan "pass_*", which rules refuse,
   // and the stored pass must survive so a later grant can see it.
-  if (!isClientWritable(status)) return;
+  if (!isClientWritable(status)) return { ok: true };
   const payload: Record<string, unknown> = {
     tier: status.tier,
     plan: status.plan,
@@ -357,8 +358,17 @@ async function saveCloud(
       if (opts.pinTrialStart) payload.trialStartDate = fs.serverTimestamp();
       return fs.setDoc(ref, payload, { merge: true });
     });
-  } catch {}
+    return { ok: true };
+  } catch (e) {
+    // Ordinary write-backs stay best-effort and silent. The sign-up trial write READS this
+    // outcome (TRIAL-SAVE-1) so a failure is no longer invisible to it.
+    const code = (e as { code?: unknown } | null)?.code;
+    return { ok: false, permanent: code === "permission-denied" };
+  }
 }
+
+/** TRIAL-SAVE-1 - what `saveCloud` reports. `permanent`: rules refused it, so retrying cannot help. */
+type SaveCloudOutcome = { ok: true } | { ok: false; permanent: boolean };
 
 async function loadCloud(uid: string): Promise<CloudResult> {
   // No Firestore configured means no read happened, so we know NOTHING — that is the
@@ -490,7 +500,30 @@ function emitHydrated(uid: string, status: SubscriptionStatus): void {
  *           they really have.
  */
 export async function hydrateSubscriptionFromCloud(uid: string): Promise<SubscriptionStatus> {
-  const cloud = await loadCloud(uid);
+  let cloud = await loadCloud(uid);
+
+  if (cloud.kind === "absent") {
+    // TRIAL-SAVE-1 - a brand-new account whose sign-up trial write was LOST. Strictly: this
+    // device holds a trial for THIS uid (the per-uid cache key), the signed-in Auth account
+    // is < 24 h old, and the read SUCCEEDED with no document. Then the server (not the
+    // browser: rules accept only request.time) is asked to restore the sign-up trial, once
+    // per call and capped per page session. It refuses an older account and never touches an
+    // existing document, so an account older than a day, or one with any record, cannot get
+    // a trial from here. ONLY a transient failure (network, timeout, 5xx, 429) keeps the local
+    // trial for the next load; a refusal (401/403/409) or a still-absent re-read wipes it.
+    const local = loadLocal(uid);
+    if (local && local.tier !== "premium" && !local.passEnd && local.trialStartDate && (await isSignedInNewAccount(uid))) {
+      const ensured = await ensureSignupTrial(uid);
+      if (ensured === "transient") return applyExpiry(local);
+      if (ensured === "ok") {
+        const again = await loadCloud(uid);
+        if (again.kind === "found") cloud = again;
+        else if (again.kind === "error") return applyExpiry(local);
+        // still absent after a 200: fall through to the free default, exactly as trunk did
+      }
+      // "refused" (401/403/409 ...): fall through - a local-only trial is wiped as on trunk
+    }
+  }
 
   if (cloud.kind === "found") {
     const pinned = cloud.startIsServerPinned;
@@ -499,12 +532,12 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
       pinned,
     );
     saveLocal(uid, resolved);
-    // TRIAL-CLOCK-1 — a server-pinned start beyond even the pinned limit is THIS DEVICE's
+    // TRIAL-CLOCK-1 - a server-pinned start beyond even the pinned limit is THIS DEVICE's
     // clock being wrong, not the trial ending: the local view fails closed, but that
     // downgrade is never written over the server's record.
     const deviceClockOnly = pinned && resolved.tier === "free" && startAheadOfDevice(cloud.data, { serverPinned: true });
     if (resolved.tier !== cloud.data.tier && !deviceClockOnly) {
-      // Persist the derived change — a downgrade, so the record stops claiming an ended
+      // Persist the derived change - a downgrade, so the record stops claiming an ended
       // trial, or a repair, so the record stops denying a live one. The write omits
       // trialStartDate, so the merge preserves the pinned start either way.
       void saveCloud(uid, resolved);
@@ -553,12 +586,108 @@ export function activateTrial(uid: string): SubscriptionStatus {
   };
   saveLocal(uid, status);
   // PAY-PHONE-1 (review fix 1): remembered so a purchase claim waits for the trial write to settle first.
-  const write = saveCloud(uid, status, { pinTrialStart: true });
+  const write = saveTrialWithRetry(uid, status);
   pendingTrialWrites.set(uid, write);
   void write.finally(() => {
     if (pendingTrialWrites.get(uid) === write) pendingTrialWrites.delete(uid);
   });
   return status;
+}
+
+/**
+ * TRIAL-SAVE-1 - the sign-up trial's cloud write used to be fire-and-forget with every error
+ * swallowed: one transient failure left the student with a local trial the cloud never heard
+ * of, and the next load read "absent" and wiped it. Now: bounded retry in this session
+ * (TRIAL_WRITE_ATTEMPTS, backoff), and if the browser still cannot land it the SERVER does,
+ * via `ensureSignupTrial`. firestore.rules forbid a client from re-issuing "the same date"
+ * (only `request.time` is accepted), so the server restoring the sign-up instant is the one
+ * route that keeps the trial the SAME trial. Never rejects.
+ */
+const TRIAL_WRITE_ATTEMPTS = 3;
+const TRIAL_WRITE_BACKOFF_MS = [400, 1200];
+
+async function saveTrialWithRetry(uid: string, status: SubscriptionStatus): Promise<void> {
+  for (let attempt = 0; attempt < TRIAL_WRITE_ATTEMPTS; attempt += 1) {
+    const outcome = await saveCloud(uid, status, { pinTrialStart: true });
+    if (outcome.ok) return;
+    // Rules refusal is deterministic (typically "already pinned" after a lost ack): skip the
+    // wait and let the server settle it.
+    if (outcome.permanent) break;
+    if (attempt < TRIAL_WRITE_ATTEMPTS - 1) {
+      await new Promise<void>((resolve) => setTimeout(resolve, TRIAL_WRITE_BACKOFF_MS[attempt] ?? 1200));
+    }
+  }
+  await ensureSignupTrial(uid);
+}
+
+/** TRIAL-SAVE-1 - server restore (POST /api/trial/ensure-signup). */
+const ENSURE_SIGNUP_ENDPOINT = "/api/trial/ensure-signup";
+const ENSURE_MAX_ATTEMPTS_PER_UID = 3;
+const NEW_ACCOUNT_WINDOW_MS = DAY_MS;
+const ENSURE_TIMEOUT_MS = 8000;
+const ensureAttempts = new Map<string, number>();
+const ensureInflight = new Map<string, Promise<EnsureOutcome>>();
+
+/**
+ * "ok" = the document exists afterwards. "transient" = could not be decided (network error,
+ * timeout, 5xx, 429, no token): keep what we have and try again later. "refused" = the server
+ * (or the Auth state) said no (401/403/409 ...): the account is not entitled to a restore.
+ */
+type EnsureOutcome = "ok" | "transient" | "refused";
+
+/**
+ * Ask the server to create THIS signed-in student's sign-up trial if, and only if, the account
+ * is < 24 h old and has no subscription document at all (the server decides both; nothing here
+ * is trusted). "ok" = the document exists afterwards (created now, or already there).
+ * Single-flight per uid and at most ENSURE_MAX_ATTEMPTS_PER_UID calls per page session.
+ */
+function ensureSignupTrial(uid: string): Promise<EnsureOutcome> {
+  const running = ensureInflight.get(uid);
+  if (running) return running;
+  const used = ensureAttempts.get(uid) ?? 0;
+  if (used >= ENSURE_MAX_ATTEMPTS_PER_UID) return Promise.resolve("transient");
+  ensureAttempts.set(uid, used + 1);
+  const run = (async (): Promise<EnsureOutcome> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const { authClient } = await import("./firebaseClient");
+      const current = authClient?.currentUser ?? null;
+      if (!current || current.uid !== uid) return "refused";
+      const token = await current.getIdToken().catch(() => null);
+      if (!token) return "transient";
+      const controller = new AbortController();
+      timer = setTimeout(() => controller.abort(), ENSURE_TIMEOUT_MS);
+      const res = await fetch(ENSURE_SIGNUP_ENDPOINT, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal,
+      });
+      if (res.ok) return "ok";
+      return res.status >= 500 || res.status === 429 ? "transient" : "refused";
+    } catch {
+      return "transient";
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+    }
+  })().finally(() => {
+    ensureInflight.delete(uid);
+  });
+  ensureInflight.set(uid, run);
+  return run;
+}
+
+/** Is the signed-in Firebase Auth account `uid` less than 24 h old? (a cheap client precheck; the server re-checks) */
+async function isSignedInNewAccount(uid: string): Promise<boolean> {
+  try {
+    const { authClient } = await import("./firebaseClient");
+    const current = authClient?.currentUser ?? null;
+    if (!current || current.uid !== uid) return false;
+    const created = Date.parse(current.metadata?.creationTime ?? "");
+    const age = Date.now() - created;
+    return Number.isFinite(age) && age <= NEW_ACCOUNT_WINDOW_MS;
+  } catch {
+    return false;
+  }
 }
 
 /** In-flight sign-up trial writes, by uid (memory only). */
@@ -567,7 +696,16 @@ const pendingTrialWrites = new Map<string, Promise<void>>();
 /** Resolves once this uid's sign-up trial write (if any is in flight) has settled. Never rejects. */
 export function whenTrialWriteSettled(uid: string): Promise<void> {
   const p = pendingTrialWrites.get(uid);
-  return p ? p.then(() => undefined, () => undefined) : Promise.resolve();
+  if (!p) return Promise.resolve();
+  // TRIAL-SAVE-1: never make a purchase claim wait longer than the server-restore timeout.
+  return new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, ENSURE_TIMEOUT_MS);
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    p.then(done, done);
+  });
 }
 
 export function activatePremium(uid: string): SubscriptionStatus {

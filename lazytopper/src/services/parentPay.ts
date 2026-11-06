@@ -1,6 +1,6 @@
 /**
  * parentPay — the browser half of parent pay (ASK-PARENTS-PAY-1): the link a student sends
- * with "Pay by QR code" / "Forward link to parents" (PAYWALL-PAY-1), and the parent's page.
+ * with "Share QR code" / "Forward link to parents" (PAYWALL-PAY-1), and the parent's page.
  *
  * ★★ DARK BY DEFAULT. `isParentPayClientEnabled()` is false unless BOTH build flags
  * `VITE_PAYMENTS_ENABLED` and `VITE_PARENT_PAY_ENABLED` are on. The server has its own pair.
@@ -26,7 +26,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 // PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
 import type { ParentPackRef } from "./parentPayPack";
-import { confirmServerPrice, serverPriceFields } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
 export const PARENT_VIEW_ENDPOINT = "/api/pay/parent/view";
@@ -162,7 +162,7 @@ export interface ParentLinkView {
   expiresAt: string;
   /** PARENT-PACKS-1 - a pack link: the pack and its SERVER price (then `prices` is empty). */
   pack?: ParentPackRef;
-  /** GST-EXCL-1 - the SERVER's Board Pass GST breakup (from 5 Nov 2026); absent before it. */
+  /** GST-EXCL-1 - the SERVER's Board Pass GST breakup (from 7 Nov 2026); absent before it. */
   boardPassGst?: BoardPassGst;
 }
 
@@ -253,7 +253,7 @@ export async function buyPassAsParent(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: `${passType === "month" ? "Monthly pass" : "Board Pass"} (for your child)`,
+        description: razorpayDescription(`${passType === "month" ? "Monthly pass" : "Board Pass"} (for your child)`, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

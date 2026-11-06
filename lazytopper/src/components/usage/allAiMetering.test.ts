@@ -56,7 +56,7 @@ describe("ALL-AI-METERING-1 · scopes and owner copy", () => {
   it("★ Premium on the Tutor scope reads the EXISTING Premium window copy (a week cap is not 'today's')", () => {
     for (const scope of ["tutor"] as const) {
       const c = limitCopy({ tier: "premium", scope, resetAt: RESET, window: "week" });
-      expect(c.lead).toBe("You've reached this week fair-use limit.");
+      expect(c.lead).toBe("You've reached this week's fair-use limit.");
       expect(c.resetPrefix).toBe("It resets at");
       expect(c.showPlans).toBe(false);
     }
@@ -125,7 +125,7 @@ describe("ALL-AI-METERING-1 · Tutor — a refusal surfaces the Tutor limit copy
   it("★★ 429 usage_limit -> the Premium window copy with its reset (and no 'usage_limit' text)", async () => {
     respond(429, { error: "usage_limit", window: "week", resetAt: RESET });
     const err = await thrown();
-    expect(err.message).toMatch(/^You've reached this week fair-use limit\. It resets at .+\.$/);
+    expect(err.message).toMatch(/^You've reached this week's fair-use limit\. It resets at .+\.$/);
     expect(err.message).not.toMatch(/usage_limit/);
   });
   it("★ CONTROL: a 429 daily_limit and a 500 keep their existing path", async () => {

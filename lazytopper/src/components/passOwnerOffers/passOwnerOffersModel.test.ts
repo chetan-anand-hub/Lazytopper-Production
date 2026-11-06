@@ -13,7 +13,7 @@ import {
   snoozePassOffers,
 } from "./passOwnerOffersModel";
 import { readBuyResume } from "../packs/PacksShop";
-// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 5 Nov 2026.
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../../services/packs";
 
 const ids = (...xs: string[]) => xs.map((packId) => ({ packId }));

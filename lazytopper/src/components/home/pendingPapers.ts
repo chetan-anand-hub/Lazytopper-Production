@@ -80,13 +80,13 @@ function subjectSegment(subject: SessionSubject): "Maths" | "Science" {
 /**
  * The deep link that opens THIS paper's upload, per surface (each is the surface's own existing
  * entry — nothing new is routed):
- *   • Worksheet — `/practice/worksheets?review=<code>`: the generator reopens the paper in its
+ *   • Worksheet — `/practice/worksheets?subject=<S>&scope=full-subject&upload=<code>`: the generator reopens the paper in its
  *     generated view, whose grade panel is the upload step (WorksheetGenerator `openUploadFor`).
  *   • Chapter Test — `/chapter-test/10/<Subject>/<chapter>?review=<code>`: `openStored` sends a
  *     pending record straight to `openPendingUpload` (the upload step).
- *   • Full Mock — `/full-mock/10/<Subject>`: there is NO URL that opens a pending mock's upload
- *     (its `review=` opens a read-only scorecard with no upload button), so the link lands on the
- *     mock page, whose "awaiting" banner lists the paper with its Upload button (one more tap).
+ *   • Full Mock — `/full-mock/10/<Subject>?upload=<code>` (GRADE-ROUTE-1): the mock page opens THAT
+ *     pending mock's upload exactly like its "awaiting" banner's Upload button (the existing record,
+ *     never a new one); an unknown / other student's / graded code lands on the normal page.
  *   • Quick Practice — the practice page with `review=<code>` (the "Your past sessions" link):
  *     the reopened scorecard offers "Upload written answers" (one more tap); a set with nothing
  *     scored yet has no record, so the page's own "Awaiting your written answers" strip shows it.
@@ -97,7 +97,9 @@ export function pendingPaperHref(
 ): string {
   const subject = subjectSegment(paper.subject);
   if (surface === "worksheet") {
-    return withHomeSource(withScorecardReviewParam("/practice/worksheets", paper.code));
+    // The builder redirects to the hub when the URL names no subject + scope (FIX-1), so the
+    // link carries the subject and the whole-subject scope: that is what lets `upload=` be read.
+    return withHomeSource(`/practice/worksheets?subject=${subject}&scope=full-subject&upload=${encodeURIComponent(paper.code)}`);
   }
   if (surface === "chapter-test") {
     const chapter = (paper.topicKeys || []).find((k) => !!k && !k.startsWith("mixed:"));
@@ -107,7 +109,7 @@ export function pendingPaperHref(
     );
   }
   if (surface === "full-mock") {
-    return withHomeSource(`/full-mock/10/${subject}`);
+    return withHomeSource(`/full-mock/10/${subject}?upload=${encodeURIComponent(paper.code)}`);
   }
   return withHomeSource(
     buildQuickPracticeReviewHref({ id: paper.code, subject: paper.subject, topicKeys: paper.topicKeys ?? [] }),

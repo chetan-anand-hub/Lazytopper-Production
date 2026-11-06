@@ -208,7 +208,7 @@ describe("StudentsAdminPage — list", () => {
     expect(coveredCount(0, "full", "2026-10-02").text).toBe("0"); // a FULL-coverage zero is a real zero
   });
 
-  it("★ SOURCE-1: a Source column after Method, with the label rules, campaign text, and '—' for a missing doc", async () => {
+  it("★ SOURCE-1: a Source column after Method, with the label rules, campaign text, and 'No source recorded' for a missing doc", async () => {
     const src = (extra: Record<string, unknown>) => ({
       ref: null, utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false, ...extra,
     });
@@ -254,7 +254,13 @@ describe("StudentsAdminPage — list", () => {
       ["m-ctl", src({ utm_source: "fbx", ref: "l.facebook.com" }), "From l.facebook.com"],
       ["ref", src({ ref: "news.example.org" }), "From news.example.org"],
       ["dir", src({}), "Direct"],
-      ["old", null, "—"],
+      // ATTRIB-1: iOS / app-campaign click ids name a Google Ads click honestly; gclid keeps its older label
+      ["gbraid", src({ gbraid: true }), "Google Ads (YouTube/Demand Gen)"],
+      ["wbraid-c", src({ wbraid: true, utm_campaign: "yt1" }), "Google Ads (YouTube/Demand Gen) (yt1)"],
+      ["gclid-first", src({ gclid: true, gbraid: true }), "Google ad"],
+      ["gbraid-utm", src({ gbraid: true, utm_source: "youtube", utm_medium: "paid" }), "YouTube ad"],
+      // ATTRIB-1: no document is "No source recorded", distinct from a document with no tags ("Direct")
+      ["old", null, "No source recorded"],
     ];
     routeFn = (url) => ({
       status: 200,

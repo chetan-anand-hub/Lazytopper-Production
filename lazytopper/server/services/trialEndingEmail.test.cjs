@@ -714,7 +714,7 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
   // PRICE-FIXED-1: the Board Pass is ₹1,917 until the founding deadline and ₹2,499 from it; no founding / month line is sent.
   assert.equal(pBefore, 1917);
   assert.equal(pAfter, 2499);
-  // GST-EXCL-1: both instants are after the 5 Nov 2026 GST cut-off - the CTA names the base "+ GST" (the charge is shown at checkout).
+  // GST-EXCL-1: both instants are after the 7 Nov 2026 GST cut-off - the CTA names the base "+ GST" (the charge is shown at checkout).
   assert.ok(open.text.includes('₹1,917 + GST till') && closed.text.includes('₹2,499 + GST till'));
   assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} + GST till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
   assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} + GST till your boards`));
@@ -760,4 +760,18 @@ test('send window: trial dry run outside the window still reports, writes nothin
   assert.equal(r.outsideWindow, true);
   assert.equal(r.wouldSend, 1);
   assert.equal(s.fetchCalls.length, 0);
+});
+
+test('GUEST-ABANDON-1 review D1: a stop recorded for the ADDRESS (guest stop link) stops the trial email too', async () => {
+  const { emailKey } = require('./emailSuppression.cjs');
+  const db = makeDb();
+  db.docs.set(`emailSuppression/${emailKey('Asha@Example.com')}`, { optedOut: true, source: 'guest-email' });
+  const s = setup({ db });
+  const r = await s.emailer.runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(r.skipped['opted-out'], 1);
+  assert.equal(s.fetchCalls.length, 0);
+  // CONTROL: without the stop record the same student is emailed.
+  const s2 = setup();
+  assert.equal((await s2.emailer.runOnce()).sent, 1);
 });

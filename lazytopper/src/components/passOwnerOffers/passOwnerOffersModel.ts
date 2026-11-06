@@ -74,7 +74,7 @@ const MOCK_BUNDLE_LEAD = `Sit the next one on paper: the ${BUNDLE_NAME} has ${BU
 function cbqItem(s: PackSubject): PassOfferItem {
   return { sku: "pack_cbq", target: s, label: `${subjectLabel(s)} ${packPayLabel("pack_cbq")}` };
 }
-/** GST-EXCL-1 (review G2): built at RENDER time, never at module load, so a tab open across 00:00 IST 5 Nov shows today's charge. */
+/** GST-EXCL-1 (review G2): built at RENDER time, never at module load, so a tab open across 00:00 IST 7 Nov shows today's charge. */
 const bundleItem = (): PassOfferItem => ({ sku: "pack_bundle", target: undefined, label: `${BUNDLE_NAME} ${packPayLabel("pack_bundle")}` });
 
 function subjectOf(hint: PassOfferHint): PackSubject | null {

@@ -96,14 +96,27 @@ export function saveChapterTestPaper(
   const uid = cloudUid(user);
   if (!uid) return;
   const full: ChapterTestPaperSnapshot = { ...snapshot, savedAt: Date.now() };
+  // RECORD-SAFE-1: a saved paper is never replaced by a DIFFERENT paper under the same code.
+  const prior = readLocal(uid).find((s) => s.code === full.code);
+  if (prior && prior.paper.worksheetId !== full.paper.worksheetId) {
+    console.warn("[chapterTestPaperStore] code already holds a different paper; not saved", full.code);
+    return;
+  }
   writeLocal(uid, [full, ...readLocal(uid).filter((s) => s.code !== full.code)]);
   if (!isFirestoreEnabled()) return;
   try {
     const data = stripUndefined(full);
-    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "chapterTestPapers", full.code), data))
-      .catch((error) => {
-        console.warn("[chapterTestPaperStore] snapshot write failed", error);
-      });
+    void withFirestore(async ({ fs, db }) => {
+      const ref = fs.doc(db, "sessionRecords", uid, "chapterTestPapers", full.code);
+      const snap = await fs.getDoc(ref);
+      if (snap.metadata && snap.metadata.fromCache) throw new Error("cache-only snapshot read");
+      if (snap.exists() && (snap.data() as { paper?: { worksheetId?: string } })?.paper?.worksheetId !== full.paper.worksheetId) {
+        throw new Error("code already holds a different paper");
+      }
+      await fs.setDoc(ref, data);
+    }).catch((error) => {
+      console.warn("[chapterTestPaperStore] snapshot write failed", error);
+    });
   } catch (error) {
     console.warn("[chapterTestPaperStore] snapshot write failed", error);
   }
@@ -133,17 +146,26 @@ export async function loadChapterTestPaper(
   }
 }
 
-/** Best-effort cleanup once the test is fully graded. */
-export function deleteChapterTestPaper(user: AuthUser | null | undefined, code: string): void {
+/**
+ * Best-effort cleanup once the test is fully graded. RECORD-SAFE-1: pass `worksheetId` (the paper that was
+ * graded) and only THAT paper's copy is deleted - a different paper saved under the code is left alone.
+ */
+export function deleteChapterTestPaper(user: AuthUser | null | undefined, code: string, worksheetId?: string): void {
   const uid = cloudUid(user);
   if (!uid) return;
-  writeLocal(uid, readLocal(uid).filter((s) => s.code !== code));
+  writeLocal(uid, readLocal(uid).filter((s) => !(s.code === code && (!worksheetId || s.paper.worksheetId === worksheetId))));
   if (!isFirestoreEnabled()) return;
   try {
-    void withFirestore(({ fs, db }) => fs.deleteDoc(fs.doc(db, "sessionRecords", uid, "chapterTestPapers", code)))
-      .catch(() => {
-        /* best-effort */
-      });
+    void withFirestore(async ({ fs, db }) => {
+      const ref = fs.doc(db, "sessionRecords", uid, "chapterTestPapers", code);
+      if (worksheetId) {
+        const snap = await fs.getDoc(ref);
+        if (!snap.exists() || (snap.data() as { paper?: { worksheetId?: string } })?.paper?.worksheetId !== worksheetId) return;
+      }
+      await fs.deleteDoc(ref);
+    }).catch(() => {
+      /* best-effort */
+    });
   } catch {
     /* best-effort */
   }
