@@ -7,19 +7,23 @@
 // chapter list (`desktopTopicsBySubject`), never a second copy. It supplies the words and
 // what "go" does: open the chapter on Practice with the Competency preset (E3).
 //
-// P6: while open it checks, for the subject on screen, which chapters have real CBQs
-// (cbqAvailability, loaded with import() so the hub stays bank-free). CBQ-1 PR-1: a CBQ
-// is `isCbq` (src/lib/cbq/cbqClassification.ts) — every mark value 1-5, and the landing
-// serves them mixed-marks (no longer the 4-mark Section-E case studies only). A chapter without
-// any is listed "coming soon" and cannot be chosen. Until the check lands nothing is
-// marked — the landing (PracticePage, `preset=comp`) gates on the same check itself, so
-// an unchecked choice still never reaches an empty set.
+// P6: a chapter without any real CBQ is listed "coming soon" and cannot be chosen. CBQ-1
+// PR-1: a CBQ is `isCbq` (src/lib/cbq/cbqClassification.ts) — every mark value 1-5, and the
+// landing serves them mixed-marks.
+//
+// SPEED-HUB-1 (6 Nov 2026): the "coming soon" answer comes from a small precomputed manifest
+// (cbqChapterManifest → cbqChapters.generated.ts, pinned to the bank by the drift guard in
+// cbqAvailability.test.ts), so opening the chooser downloads NO question. It used to import
+// cbqAvailability on open, which loaded all 13 chapters of the subject (~5.5 MB of JS) and
+// froze a throttled phone for ~5 s — on the CBQ ad's landing page. The bank is fetched only
+// after a chapter is chosen, by the landing (PracticePage, `preset=comp`), for that ONE
+// chapter; the landing still gates on the chapter's own pool, so a chapter can never reach an
+// empty set even if the manifest were stale.
 
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
-import { desktopTopicsBySubject } from "../../lib/desktop/topics";
+import { cbqChapterComingSoon } from "./cbqChapterManifest";
 
 /** The ad link's switch on /practice-hub (E4): `?cbq=1` opens this chooser. */
 export const CBQ_HUB_PARAM = "cbq" as const;
@@ -39,27 +43,6 @@ export interface CbqChapterPickerProps {
 
 export function CbqChapterPicker({ open, onClose }: CbqChapterPickerProps) {
   const navigate = useNavigate();
-  const [subject, setSubject] = useState<DesktopSubject>("Maths");
-  // Per subject: the slugs WITH real CBQs. Absent = not checked yet → nothing marked.
-  const [withCbqs, setWithCbqs] = useState<Partial<Record<DesktopSubject, ReadonlySet<string>>>>({});
-
-  useEffect(() => {
-    if (!open || withCbqs[subject]) return;
-    let live = true;
-    const slugs = desktopTopicsBySubject(subject).map((t) => t.slug);
-    import("./cbqAvailability")
-      .then((m) => m.chaptersWithCbqs(subject, slugs))
-      .then((found) => {
-        if (live) setWithCbqs((prev) => ({ ...prev, [subject]: found }));
-      })
-      .catch(() => {
-        // Honest degrade: nothing is marked, and the landing still gates per chapter.
-      });
-    return () => {
-      live = false;
-    };
-  }, [open, subject, withCbqs]);
-
   return (
     <ChapterPickerModal
       open={open}
@@ -69,11 +52,7 @@ export function CbqChapterPicker({ open, onClose }: CbqChapterPickerProps) {
       goLabel="Open CBQs →"
       testId="cbq-picker"
       idPrefix="lt-cbq"
-      onSubjectChange={setSubject}
-      isComingSoon={(s, slug) => {
-        const found = withCbqs[s];
-        return found !== undefined && !found.has(slug);
-      }}
+      isComingSoon={cbqChapterComingSoon}
       onGo={(s, slug) => navigate(cbqLandingPath(s, slug))}
     />
   );
