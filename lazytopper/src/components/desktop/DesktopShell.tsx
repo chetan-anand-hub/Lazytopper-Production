@@ -167,7 +167,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     // NCERT-BOOKS-1b (owner 14 Oct): the NCERT Class 10 books, chapter-wise, read on site.
     to: "/ncert-class-10",
-    label: "NCERT Books",
+    label: "NCERT Hub",
     picker: "ncert",
     // BookOpen
     icon: (

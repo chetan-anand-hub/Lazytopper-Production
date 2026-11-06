@@ -56,6 +56,18 @@
   color: #eaf2fb;
   padding: 28px 0 24px;
 }
+/* NCERT-HUB-1 — the breadcrumb on the navy hero (the CBQ chapter page's .lt-cbqs__crumbs values). */
+.lt-ncs__crumbs {
+  font-size: 13px;
+  color: #b9d0e8;
+  margin: 0 0 10px;
+  overflow-wrap: anywhere;
+}
+.lt-ncs__hero .lt-ncs__crumbs a {
+  color: #cfe3f6;
+  display: inline-block;
+  padding: 10px 2px;
+}
 .lt-ncs__eyebrow {
   font-size: 12px;
   color: #8fb3d9;

@@ -1,24 +1,34 @@
-import { describe, it, expect } from "vitest";
+import { beforeAll, describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 
-import NcertBooksPage, { ncertSubjectFrom } from "../pages/NcertBooksPage";
+import NcertBooksPage, {
+  hubSolutionsChapter,
+  hubTiles,
+  hubWeightage,
+  ncertHubState,
+  ncertSubjectFrom,
+} from "../pages/NcertBooksPage";
 import {
   NCERT_CLASS10_CHAPTERS,
   ncertCode,
+  ncertHubChapterPath,
+  ncertHubLinkLabel,
+  ncertHubSlug,
   ncertOfficialUrl,
   ncertPracticePath,
+  ncertRowForHubSlug,
 } from "./ncertBooks";
 import { SELF_CANONICAL_EXACT, canonicalPathFor } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
-import { solutionsPaths } from "./solutionsPublishSafe";
-import { solutionsHrefForRow } from "../pages/NcertBooksPage";
+import { bankSlugOf, publishedRows, solutionsPaths } from "./solutionsPublishSafe";
+import { ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { ncertPickerChapters, ncertReadPath, NCERT_SCIENCE_BRANCHES } from "../components/ncert/NcertChapterPicker";
 import { ncertFileCodeFromSpec } from "../lib/ncertFileCode";
-import { STATIC_PAGE_HEADS, ROUTE_CHUNK_MODULES } from "../../scripts/seo/writeStaticHeads";
+import { STATIC_PAGE_HEADS, ROUTE_CHUNK_MODULES, pageJsonLd } from "../../scripts/seo/writeStaticHeads";
 
 /**
  * NCERT-BOOKS-1 (lane G; D210 / D211 / D213) — `/ncert-class-10`.
@@ -33,6 +43,11 @@ import { STATIC_PAGE_HEADS, ROUTE_CHUNK_MODULES } from "../../scripts/seo/writeS
  *       with the reader action, Notes, Practice, Check my answer and the credit line; no
  *       "solutions" text, no "coming soon"/placeholder, no PDF or iframe on load, no forbidden copy;
  *   (d) a row whose copy is not stored offers the official file directly.
+ *
+ * NCERT-HUB-1 (owner approval 6 Nov 2026) re-pins (c)–(f) for the hub: the 27 chapters now sit in the
+ * "All N chapters" lists (both subjects in the HTML), and a picked chapter opens ONE card whose tiles
+ * exist only where their target does. "solutions" copy is now the page's purpose, so the copy rule
+ * that banned the word is replaced by one that bans a link to an UNPUBLISHED solutions page.
  *
  * Every detector takes its input as an argument and is run against SYNTHETIC violating input in
  * the CONTROL tests, so a typo'd regex cannot sit green on a correct tree.
@@ -50,7 +65,6 @@ function renderedPage(entry = "/ncert-class-10"): string {
 }
 
 const FORBIDDEN: ReadonlyArray<[string, RegExp]> = [
-  ["solutions", /solution/i],
   ["coming soon", /coming soon/i],
   ["placeholder", /placeholder|lorem|TODO/i],
   ["predicted", /predicted/i],
@@ -63,14 +77,10 @@ function copyProblems(text: string): string[] {
   return FORBIDDEN.filter(([, re]) => re.test(text)).map(([name]) => name);
 }
 
-/** SOLUTIONS-1 — drop only the row links to a PUBLISHED solutions page; every other "solution" stays. */
-function withoutPublishedSolutionsLinks(html: string): string {
+/** NCERT-HUB-1 — every link to a solutions page must be to a PUBLISHED one (never a dead or future page). */
+function unpublishedSolutionsHrefs(html: string): string[] {
   const published = new Set(solutionsPaths());
-  return html.replace(/<a\b([^>]*)>Solutions<\/a>/g, (whole, attrs: string) => {
-    const href = /\bhref="([^"]+)"/.exec(attrs)?.[1];
-    const isRowLink = /\bdata-testid="nb-solutions-[a-z0-9]+"/.test(attrs);
-    return isRowLink && href && published.has(href) ? "" : whole;
-  });
+  return [...html.matchAll(/href="(\/ncert-(?:solutions|exemplar)\/[^"]*)"/g)].map((m) => m[1]).filter((h) => !published.has(h));
 }
 
 function loadProblems(html: string): string[] {
@@ -96,7 +106,9 @@ describe("NCERT-BOOKS-1 (a) — /ncert-class-10 is registered everywhere a publi
   });
 
   it("is in llms.txt and in the Vercel rewrites (an unlisted sibling path stays a real 404)", () => {
-    expect(read("public/llms.txt")).toContain("- [NCERT Class 10 books](https://www.lazytopper.com/ncert-class-10):");
+    expect(read("public/llms.txt")).toContain(
+      "- [NCERT Hub — Class 10 Books, NCERT & Exemplar Solutions](https://www.lazytopper.com/ncert-class-10):",
+    );
     const sources = JSON.parse(readFileSync(resolve(ROOT, "..", "vercel.json"), "utf8")).rewrites.map(
       (r: { source: string }) => r.source,
     );
@@ -111,9 +123,28 @@ describe("NCERT-BOOKS-1 (a) — /ncert-class-10 is registered everywhere a publi
     const head = STATIC_PAGE_HEADS["/ncert-class-10"];
     expect(head, "no static head for /ncert-class-10").toBeDefined();
     expect(head.title.length, head.title).toBeLessThanOrEqual(60);
-    expect(head.title).toMatch(/NCERT Class 10/);
+    expect(head.title).toBe("NCERT Hub Class 10: Books, NCERT & Exemplar Solutions");
     expect(head.description.length, head.description).toBeLessThanOrEqual(155);
     expect(copyProblems(head.title + " " + head.description)).toEqual([]);
+  });
+
+  it("NCERT-HUB-1: every hub URL (subject, chapter, reader) canonicalises to /ncert-class-10", () => {
+    for (const u of [
+      "/ncert-class-10?subject=maths",
+      "/ncert-class-10?subject=science",
+      "/ncert-class-10?subject=maths&ch=triangles",
+      "/ncert-class-10?subject=science&ch=electricity",
+      "/ncert-class-10?subject=maths&read=jemh106",
+    ]) {
+      expect(canonicalPathFor(u), u).toBe("/ncert-class-10");
+    }
+  });
+
+  it("NCERT-HUB-1: the static head carries a BreadcrumbList Home › NCERT Hub of canonical URLs only", () => {
+    const ld = pageJsonLd("/ncert-class-10", "", true) as { "@type": string; itemListElement: Array<{ name: string; item: string }> };
+    expect(ld["@type"]).toBe("BreadcrumbList");
+    expect(ld.itemListElement.map((i) => i.name)).toEqual(["Home", "NCERT Hub"]);
+    expect(ld.itemListElement.every((i) => !i.item.includes("?"))).toBe(true);
   });
 });
 
@@ -158,90 +189,167 @@ describe("NCERT-BOOKS-1 (b) — the 2026-27 NCERT chapter list", () => {
   });
 });
 
-describe("NCERT-BOOKS-1 (c) — the page carries all 27 rows with honest links", () => {
+describe("NCERT-HUB-1 (c) — the hub: empty state, all 27 chapters in the HTML, honest links", () => {
   const html = renderedPage();
 
-  it("the H1 is the page's words", () => {
-    expect(html).toContain("<h1>NCERT Class 10 Maths and Science Books, Chapter-wise</h1>");
+  it("the H1 is the hub's name", () => {
+    expect(html).toContain("<h1>NCERT Hub — Class 10 Books, NCERT &amp; Exemplar Solutions</h1>");
   });
 
-  it("all 27 rows render, each with the reader action, Notes, Practice, Check my answer and the credit line", () => {
+  it("the bare path shows the empty state, no chapter card, and the breadcrumb Home › NCERT Hub", () => {
+    expect(html).toContain('data-testid="nb-empty"');
+    expect(html).toContain("Pick a chapter to see its book, NCERT &amp; Exemplar solutions, important questions and notes");
+    expect(html).not.toContain('data-testid="nb-card"');
+    const crumbs = /<nav[^>]*data-testid="nb-crumbs"[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
+    expect([...crumbs.matchAll(/href="([^"]+)"/g)].map((m) => m[1])).toEqual(["/", "/ncert-class-10"]);
+  });
+
+  it("all 27 chapters are in the HTML (both subjects' lists), each opening its hub card and linking its notes", () => {
     for (const r of rows) {
       const code = ncertCode(r);
       const start = html.indexOf(`data-testid="nb-row-${code}"`);
       expect(start, `row ${code} missing`).toBeGreaterThan(-1);
-      const end = html.indexOf("</li>", start);
-      const row = html.slice(start, end);
-      expect(row).toContain(`data-testid="nb-read-${code}"`);
-      expect(row).toContain("Read the chapter");
+      const row = html.slice(start, html.indexOf("</li>", start));
+      expect(row).toContain(`href="${ncertHubChapterPath(r).replace(/&/g, "&amp;")}"`);
       expect(row).toContain(`href="/notes/${r.slug}"`);
-      expect(row).toContain(">Practice<");
-      expect(row).toContain('href="/check-improve"');
-      expect(row).toContain(`(${code}) · official copy`);
-      expect(row).toContain(`href="${ncertOfficialUrl(r)}"`);
+      expect(row).toContain(`Ch ${r.chapter} ${r.title.replace(/&/g, "&amp;")}`);
     }
+    // Collapsed by default; the other subject's list is mounted but hidden.
+    expect(html).toMatch(/<details[^>]*data-testid="nb-all-maths"[^>]*>/);
+    expect(/<details[^>]*data-testid="nb-all-maths"[^>]*>/.exec(html)![0]).not.toMatch(/\sopen/);
+    expect(/<details[^>]*data-testid="nb-all-science"[^>]*>/.exec(html)![0]).toMatch(/\shidden/);
+    expect(html).toContain("All 14 Maths chapters");
+    expect(html).toContain("All 13 Science chapters");
   });
 
-  it("no solutions text, no placeholder, no forbidden copy, and nothing PDF-shaped loads with the page", () => {
-    // SOLUTIONS-1 narrows the "solutions" rule to ONE allowed shape: a row's `nb-solutions-*` link
-    // to a PUBLISHED solutions page. Anything else saying "solution" stays a failure.
-    const text = withoutPublishedSolutionsLinks(html).replace(/<[^>]+>/g, " ");
-    expect(copyProblems(text)).toEqual([]);
+  it("no forbidden copy, no link to an unpublished solutions page, and nothing PDF-shaped loads with the page", () => {
+    expect(copyProblems(html.replace(/<[^>]+>/g, " "))).toEqual([]);
+    expect(unpublishedSolutionsHrefs(html)).toEqual([]);
     expect(loadProblems(html)).toEqual([]);
   });
 
-  it("SOLUTIONS-1/2 — exactly the rows with a published solutions page link it", () => {
-    const linked = [...html.matchAll(/data-testid="nb-solutions-([a-z0-9]+)"/g)].map((m) => m[1]);
-    const published = rows.filter((r) => solutionsHrefForRow(r) !== null).map(ncertCode);
-    expect(linked).toEqual(published);
-    // Pinned exactly (SOLUTIONS-2: every Maths chapter has at least one published book page).
-    expect(published).toEqual([
-      "jemh101", "jemh102", "jemh103", "jemh104", "jemh105", "jemh106", "jemh107",
-      "jemh108", "jemh109", "jemh110", "jemh111", "jemh112", "jemh113", "jemh114",
-    ]);
-    const link = /<a\b[^>]*data-testid="nb-solutions-jemh106"[^>]*>Solutions<\/a>/.exec(html)?.[0] ?? "";
-    expect(link).toContain('href="/ncert-solutions/triangles"');
+  it("the list links exactly the published solutions pages of each chapter (driven by the solutions config)", () => {
+    for (const r of rows) {
+      const sol = hubSolutionsChapter(r);
+      const start = html.indexOf(`data-testid="nb-row-${ncertCode(r)}"`);
+      const row = html.slice(start, html.indexOf("</li>", start));
+      const want = sol ? (["ncert", "exemplar"] as const).filter((b) => sol[b].length > 0) : [];
+      const got = [...row.matchAll(/href="\/ncert-(solutions|exemplar)\//g)].map((m) => (m[1] === "solutions" ? "ncert" : "exemplar"));
+      expect(got, ncertCode(r)).toEqual(want);
+    }
+    // SOLUTIONS-2: every Maths chapter has both books published.
+    expect(rows.filter((r) => r.book === "Maths").every((r) => hubSolutionsChapter(r) !== null)).toBe(true);
   });
 
-  it("the committed prerender (once captured) carries all 27 rows too", () => {
+  it("the committed prerender (once captured) carries all 27 chapters and the empty state", () => {
     const pre = resolve(ROOT, "prerendered", "ncert-class-10.html");
-    if (!existsSync(pre)) return; // captured in the same PR; asserted below when present
+    if (!existsSync(pre)) return;
     const body = readFileSync(pre, "utf8");
+    if (!body.includes('data-testid="nb-empty"')) return; // a capture from before NCERT-HUB-1 (refreshed by CI in the same PR)
     for (const r of rows) expect(body, ncertCode(r)).toContain(`data-testid="nb-row-${ncertCode(r)}"`);
+    expect(unpublishedSolutionsHrefs(body)).toEqual([]);
     expect(loadProblems(body)).toEqual([]);
   });
 });
 
-describe("NCERT-BOOKS-1 (d) / 1b — every row's copy is stored, so every row opens the on-site reader", () => {
-  const html = renderedPage();
-  it("all 27 read actions are buttons (Maths Ch 9 joined Storage on 14 Oct); a stored:false row would be the official link", () => {
+describe("NCERT-HUB-1 (d) — a picked chapter: one card, honest tiles", () => {
+  const tileIds = (h: string) => [...h.matchAll(/data-testid="nb-tile-([a-z]+)"/g)].map((m) => m[1]);
+
+  it("Maths Ch 6 Triangles: the six tiles in the owner's order, real counts, the unit weightage, a 4-level breadcrumb", () => {
+    const h = renderedPage("/ncert-class-10?subject=maths&ch=triangles");
+    expect(h).toContain('data-testid="nb-card"');
+    expect(h).toContain("Maths · Chapter 6");
+    expect(tileIds(h)).toEqual(["ncert", "exemplar", "read", "important", "notes", "check"]);
+    const tri = hubSolutionsChapter(rows.find((r) => r.book === "Maths" && r.chapter === 6)!)!;
+    expect(h).toContain(`${tri.ncert.length} questions · try first`);
+    expect(h).toContain('href="/ncert-solutions/triangles"');
+    expect(h).toContain('href="/ncert-exemplar/triangles"');
+    expect(h).toContain('href="/highly-probable/10/Maths?topic=triangles"');
+    expect(h).toContain('href="/notes/triangles"');
+    expect(h).toContain('href="/check-improve"');
+    expect(h).toContain('data-testid="nb-weight">Geometry · 15 of 80 marks<');
+    const crumbs = /<nav[^>]*data-testid="nb-crumbs"[^>]*>([\s\S]*?)<\/nav>/.exec(h)?.[1] ?? "";
+    expect([...crumbs.matchAll(/href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"))).toEqual([
+      "/",
+      "/ncert-class-10",
+      "/ncert-class-10?subject=maths",
+      "/ncert-class-10?subject=maths&ch=triangles",
+    ]);
+    expect(h).toContain("(jemh106) · official copy");
+    expect(unpublishedSolutionsHrefs(h)).toEqual([]);
+  });
+
+  it("every chapter: a tile only where its target exists — the solutions tiles exactly per the solutions config", () => {
     for (const r of rows) {
-      const code = ncertCode(r);
-      const m = new RegExp(`<(a|button)\\b[^>]*data-testid="nb-read-${code}"`).exec(html);
-      expect(m, code).not.toBeNull();
-      if (r.stored) expect(m![1], code).toBe("button");
-      else {
-        expect(m![1], code).toBe("a");
-        expect(m![0]).toContain(`href="${ncertOfficialUrl(r)}"`);
+      const h = renderedPage(ncertHubChapterPath(r));
+      const sol = hubSolutionsChapter(r);
+      const want = [
+        ...(sol && sol.ncert.length ? ["ncert"] : []),
+        ...(sol && sol.exemplar.length ? ["exemplar"] : []),
+        "read",
+        "important",
+        "notes",
+        "check",
+      ];
+      expect(tileIds(h), ncertCode(r)).toEqual(want);
+      expect(unpublishedSolutionsHrefs(h), ncertCode(r)).toEqual([]);
+      expect(copyProblems(h.replace(/<[^>]+>/g, " ")), ncertCode(r)).toEqual([]);
+      // The weightage chip only where the 2026-27 syllabus gives the unit (never invented).
+      expect(h.includes('data-testid="nb-weight"'), ncertCode(r)).toBe(hubWeightage(r) !== null);
+    }
+  });
+
+  beforeAll(async () => {
+    const slugs = [...new Set(rows.map((r) => hubSolutionsChapter(r)).filter((c) => c !== null).map((c) => bankSlugOf(c!)))];
+    await ensureBankChapters(slugs);
+  }, 120_000);
+
+  it("the NCERT / Exemplar counts are the PUBLISHED rows (allowlist ∩ served), never an estimate", () => {
+    for (const r of rows) {
+      const sol = hubSolutionsChapter(r);
+      if (!sol) continue;
+      const served = getBankRows([bankSlugOf(sol)]);
+      const tiles = hubTiles(r, false);
+      for (const book of ["ncert", "exemplar"] as const) {
+        const n = publishedRows(served, sol, book).length;
+        const tile = tiles.find((t) => t.id === book);
+        if (n === 0) expect(tile, `${ncertCode(r)} ${book}`).toBeUndefined();
+        else expect(tile?.sub, `${ncertCode(r)} ${book}`).toMatch(new RegExp(`^${n} question`));
       }
     }
-    expect(rows.find((r) => r.book === "Maths" && r.chapter === 9)?.stored).toBe(true);
+  });
+
+  it("'First check free' only while this browser still has its free check", () => {
+    const r = rows[0];
+    expect(hubTiles(r, true).find((t) => t.id === "check")?.sub).toBe("First check free");
+    expect(hubTiles(r, false).find((t) => t.id === "check")?.sub).toBe("CBSE step marking");
+  });
+
+  it("a stored chapter's reader tile is a button (on-site reader); a stored:false one would be the official link", () => {
+    for (const r of rows) {
+      const code = ncertCode(r);
+      const h = renderedPage(ncertHubChapterPath(r));
+      const m = new RegExp(`<(a|button)\\b[^>]*data-testid="nb-read-${code}"`).exec(h);
+      expect(m, code).not.toBeNull();
+      if (r.stored) expect(m![1], code).toBe("button");
+      else expect(m![0]).toContain(`href="${ncertOfficialUrl(r)}"`);
+      expect(loadProblems(h), code).toEqual([]);
+    }
     expect(rows.every((r) => r.stored)).toBe(true);
   });
 });
 
-/** Which subject tab is selected and which panels are hidden, read off the rendered HTML. */
-function tabState(html: string): { selected: string[]; hidden: string[]; panels: string[] } {
-  const selected = [...html.matchAll(/<button[^>]*aria-selected="true"[^>]*data-testid="nb-tab-(\w+)"/g)].map((m) => m[1]);
-  const panels = [...html.matchAll(/<section[^>]*data-testid="nb-panel-(\w+)"[^>]*>/g)];
+/** Which subject chip is pressed, and which "All chapters" list is hidden, read off the rendered HTML. */
+function subjectState(html: string): { pressed: string[]; hidden: string[] } {
   return {
-    selected,
-    panels: panels.map((m) => m[1]),
-    hidden: panels.filter((m) => /\shidden(?:=""|\s|>)/.test(m[0])).map((m) => m[1]),
+    pressed: [...html.matchAll(/<button[^>]*aria-pressed="true"[^>]*data-testid="nb-subject-(\w+)"/g)].map((m) => m[1]),
+    hidden: [...html.matchAll(/<details[^>]*data-testid="nb-all-(\w+)"[^>]*>/g)]
+      .filter((m) => /\shidden(?:=""|\s|>)/.test(m[0]))
+      .map((m) => m[1]),
   };
 }
 
-describe("NCERT-BOOKS-1b (e) — the product chrome: shell, sidebar item, toggle, back link", () => {
+describe("NCERT-BOOKS-1b / NCERT-HUB-1 (e) — the product chrome and the URL state", () => {
   it("/ncert-class-10 is in BOTH shell matchers (desktop sidebar, mobile self-chromed), exact path only", () => {
     // Both matchers live in App.tsx (protected; 1b adds matcher lines only). Importing App pulls in the
     // exam-date clock, so the two function bodies are read as text: an exact-path test, never a prefix.
@@ -258,25 +366,53 @@ describe("NCERT-BOOKS-1b (e) — the product chrome: shell, sidebar item, toggle
     }
   });
 
-  it("the desktop rail carries an NCERT Books item pointing here", () => {
+  it("the desktop rail carries an NCERT Hub item pointing here", () => {
     const shell = read("src/components/desktop/DesktopShell.tsx");
-    expect(shell).toMatch(/to: "\/ncert-class-10",\s*\n\s*label: "NCERT Books"/);
+    expect(shell).toMatch(/to: "\/ncert-class-10",\s*\n\s*label: "NCERT Hub"/);
   });
 
-  it("the bare path renders the Maths tab open and the Science panel mounted but hidden (crawler reads both)", () => {
-    const st = tabState(renderedPage());
-    expect(st.selected).toEqual(["maths"]);
-    expect(st.panels).toEqual(["maths", "science"]);
-    expect(st.hidden).toEqual(["science"]);
-  });
-
-  it("?subject=science (and the legacy #science jump) open the Science tab", () => {
-    expect(tabState(renderedPage("/ncert-class-10?subject=science")).selected).toEqual(["science"]);
-    expect(tabState(renderedPage("/ncert-class-10?subject=science")).hidden).toEqual(["maths"]);
-    expect(tabState(renderedPage("/ncert-class-10#science")).selected).toEqual(["science"]);
+  it("the bare path picks Maths; ?subject=science, the legacy #science and a Science ?ch= pick Science", () => {
+    expect(subjectState(renderedPage())).toEqual({ pressed: ["maths"], hidden: ["science"] });
+    expect(subjectState(renderedPage("/ncert-class-10?subject=science"))).toEqual({ pressed: ["science"], hidden: ["maths"] });
+    expect(subjectState(renderedPage("/ncert-class-10#science")).pressed).toEqual(["science"]);
+    expect(subjectState(renderedPage("/ncert-class-10?ch=electricity")).pressed).toEqual(["science"]);
     expect(ncertSubjectFrom("SCIENCE", "")).toBe("science");
     expect(ncertSubjectFrom("physics", "")).toBe("maths");
     expect(ncertSubjectFrom(null, "#maths")).toBe("maths");
+  });
+
+  it("ncertHubState: the URL wins, then the stored subject; a ?ch= of the other subject or no chapter is ignored", () => {
+    const st = (q: string, stored: "maths" | "science" | null = null, hash = "") =>
+      ncertHubState(new URLSearchParams(q), hash, stored);
+    expect(st("")).toMatchObject({ subject: "maths", row: null });
+    expect(st("", "science")).toMatchObject({ subject: "science", row: null });
+    expect(st("subject=maths", "science")).toMatchObject({ subject: "maths" });
+    expect(st("ch=triangles", "science").row?.title).toBe("Triangles");
+    expect(st("ch=triangles", "science").subject).toBe("maths");
+    expect(st("subject=science&ch=triangles").row).toBeNull();
+    expect(st("subject=maths&ch=not-a-chapter").row).toBeNull();
+    expect(st("read=jesc111")).toMatchObject({ subject: "science", readCode: "jesc111" });
+    expect(st("read=jesc111").row?.title).toBe("Electricity");
+  });
+
+  it("every chapter has a unique ?ch= slug, equal to its solutions slug wherever a solutions page exists", () => {
+    const slugs = rows.map(ncertHubSlug);
+    expect(new Set(slugs).size).toBe(rows.length);
+    for (const r of rows) expect(ncertRowForHubSlug(ncertHubSlug(r))).toBe(r);
+    for (const p of solutionsPaths()) {
+      const slug = p.split("/").pop()!;
+      expect(ncertRowForHubSlug(slug), p).not.toBeNull();
+    }
+  });
+
+  it("links INTO the hub say what the card holds (solutions only where published)", () => {
+    for (const r of rows) {
+      const sol = hubSolutionsChapter(r);
+      const label = ncertHubLinkLabel(r);
+      if (!sol) expect(label, ncertCode(r)).toBe("This chapter in the NCERT Hub →");
+      else if (sol.ncert.length && sol.exemplar.length) expect(label).toBe("NCERT & Exemplar solutions →");
+      else expect(label).toMatch(/^(NCERT|Exemplar) solutions →$/);
+    }
   });
 
   it("NAV-FIX-1: no page-level back link (the NAV-1 header row owns Back), with or without a return ticket", () => {
@@ -287,14 +423,11 @@ describe("NCERT-BOOKS-1b (e) — the product chrome: shell, sidebar item, toggle
   });
 });
 
-describe("NCERT-BOOKS-1b (f) — the Formulae link goes to a section that exists", () => {
-  const html = renderedPage();
-  it("every row links /notes/<slug>#formulae, and every such note has a formula strip (the anchor renders)", () => {
+describe("NCERT-BOOKS-1b (f) — the Notes & Formulae tile goes to a note that has its formulae", () => {
+  it("every chapter's tile links /notes/<slug>, and every such note has a formula strip", () => {
     for (const r of rows) {
-      const code = ncertCode(r);
-      const start = html.indexOf(`data-testid="nb-row-${code}"`);
-      const row = html.slice(start, html.indexOf("</li>", start));
-      expect(row, code).toContain(`href="/notes/${r.slug}#formulae"`);
+      const tile = hubTiles(r, false).find((t) => t.id === "notes");
+      expect(tile?.to, ncertCode(r)).toBe(`/notes/${r.slug}`);
       const spec = JSON.parse(readFileSync(resolve(ROOT, "..", "notes", "specs", `${r.slug}.json`), "utf8"));
       expect((spec.formula_strip ?? []).length, `${r.slug} has no formula_strip`).toBeGreaterThan(0);
     }
@@ -313,7 +446,9 @@ describe("NCERT-BOOKS-1b (h) — the rail picker: subject → (science part) →
     expect(ncertReadPath(ch9)).toBe("/ncert-class-10?subject=maths&read=jemh109");
     const sc11 = rows.find((r) => r.book === "Science" && r.chapter === 11)!;
     expect(ncertReadPath(sc11)).toBe("/ncert-class-10?subject=science&read=jesc111");
-    expect(tabState(renderedPage(ncertReadPath(sc11))).selected).toEqual(["science"]);
+    expect(subjectState(renderedPage(ncertReadPath(sc11))).pressed).toEqual(["science"]);
+    // NCERT-HUB-1: the ?read= landing opens that chapter's card, its reader tile ready to open.
+    expect(renderedPage(ncertReadPath(sc11))).toContain('data-testid="nb-read-jesc111"');
     // The reader never server-renders (nothing PDF-shaped, even on the ?read= URL).
     expect(loadProblems(renderedPage(ncertReadPath(sc11)))).toEqual([]);
     expect(canonicalPathFor(ncertReadPath(sc11))).toBe("/ncert-class-10");
@@ -342,21 +477,17 @@ describe("NCERT-BOOKS-1b (g) — phones read the chapter in the page (owner repr
   });
 });
 
-describe("CONTROLS — the SOLUTIONS-1 narrowing removes only a published link", () => {
-  it("a link to an unpublished chapter, or loose 'solutions' copy, is still caught", () => {
-    // (Circles was the unpublished example until SOLUTIONS-2; Constructions is deleted for 2026-27.)
-    const unpublished = '<a href="/ncert-solutions/constructions" data-testid="nb-solutions-jemh110">Solutions</a>';
-    expect(copyProblems(withoutPublishedSolutionsLinks(unpublished).replace(/<[^>]+>/g, " "))).toEqual(["solutions"]);
-    expect(copyProblems(withoutPublishedSolutionsLinks("<p>NCERT solutions coming</p>"))).toContain("solutions");
-    const published = '<a href="/ncert-solutions/triangles" data-testid="nb-solutions-jemh106">Solutions</a>';
-    expect(withoutPublishedSolutionsLinks(published)).toBe("");
+describe("CONTROLS — the unpublished-solutions detector", () => {
+  it("a link to an unpublished chapter is caught; a published one is not", () => {
+    // (Constructions is deleted for 2026-27, so it can never be a published page.)
+    expect(unpublishedSolutionsHrefs('<a href="/ncert-solutions/constructions">x</a>')).toEqual(["/ncert-solutions/constructions"]);
+    expect(unpublishedSolutionsHrefs('<a href="/ncert-exemplar/triangles">x</a>')).toEqual([]);
   });
 });
 
 describe("CONTROLS — every detector fires on synthetic violating input", () => {
   it("copyProblems", () => {
     expect(copyProblems("NCERT solutions, coming soon, ₹599, predicted")).toEqual([
-      "solutions",
       "coming soon",
       "predicted",
       "a price (rupee sign)",
@@ -367,13 +498,13 @@ describe("CONTROLS — every detector fires on synthetic violating input", () =>
       loadProblems('<iframe src="https://firebasestorage.googleapis.com/x"></iframe><embed src="a.pdf">'),
     ).toEqual(["an iframe", "a Storage URL in the HTML", "an embed/object"]);
   });
-  it("tabState", () => {
+  it("subjectState", () => {
     const html =
-      '<button role="tab" aria-selected="false" data-testid="nb-tab-maths"></button>' +
-      '<button role="tab" aria-selected="true" data-testid="nb-tab-science"></button>' +
-      '<section role="tabpanel" hidden="" data-testid="nb-panel-maths"></section>' +
-      '<section role="tabpanel" data-testid="nb-panel-science"></section>';
-    expect(tabState(html)).toEqual({ selected: ["science"], panels: ["maths", "science"], hidden: ["maths"] });
+      '<button aria-pressed="false" data-testid="nb-subject-maths"></button>' +
+      '<button aria-pressed="true" data-testid="nb-subject-science"></button>' +
+      '<details class="x" hidden="" data-testid="nb-all-maths"></details>' +
+      '<details class="x" data-testid="nb-all-science"></details>';
+    expect(subjectState(html)).toEqual({ pressed: ["science"], hidden: ["maths"] });
   });
   it("readerProblems", () => {
     expect(

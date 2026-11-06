@@ -28,7 +28,7 @@ import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
 import { NoteFigureLightbox } from "./NoteFigureLightbox";
 import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncertFileCode";
-import { ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
+import { ncertHubChapterPath, ncertHubLinkLabel, ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { cbqChapterPath, cbqTopicBySlug } from "../cbq/cbqSeo";
 import { subscriptFormulas } from "../../lib/chemSubscript";
@@ -1786,6 +1786,17 @@ export function Note({ spec, initialTab }: NoteProps) {
       {cbqTopicBySlug(meta.topic_key) && (
         <p className="lt-note__ncert-read" data-testid="note-cbq-link">
           <Link to={cbqChapterPath(meta.topic_key)}>CBQs for this chapter →</Link>
+        </p>
+      )}
+      {/* NCERT-HUB-1 — this chapter's card in the NCERT Hub (its solutions, book, important questions). The
+          words say what the card holds (ncertHubLinkLabel): "solutions" only where a solutions page exists. */}
+      {ncertRows.length > 0 && (
+        <p className="lt-note__ncert-read" data-testid="note-ncert-hub">
+          {ncertRows.map((r, i) => (
+            <Link key={r.chapter} to={ncertHubChapterPath(r)}>
+              {i === 0 ? ncertHubLinkLabel(r) : `Chapter ${r.chapter}`}
+            </Link>
+          ))}
         </p>
       )}
       {ncertCode && (

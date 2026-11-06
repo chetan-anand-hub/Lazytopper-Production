@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import { EVIDENCE_BASE_YEARS } from "../config/evidenceBase";
+import NcertHubLink from "../components/ncert/NcertHubLink";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
 import { navigateToPractice } from "../navigation/practiceNavigation";
 import { resolveCanonicalTopicKey, normalizeTopicSlug, getRuntimeTopicCandidates } from "../data/syllabus/topicAliasMap";
@@ -970,6 +971,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
               Chosen by our prediction model from {EVIDENCE_BASE_YEARS} years of CBSE paper trends and the{" "}
               <span style={{ whiteSpace: "nowrap" }}>2026-27</span> syllabus. A strong guide, not the actual paper.
             </div>
+            {/* NCERT-HUB-1 — the chapter's NCERT Hub card when a chapter is in scope, else the subject's hub. */}
+            <NcertHubLink subject={subjectKey} topic={topicParam} />
             {topicFilter !== "all" ? (
               <div
                 style={{

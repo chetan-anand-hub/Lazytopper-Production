@@ -1,5 +1,7 @@
 import { matchPath } from "react-router-dom";
 
+import { NCERT_HUB_PATH, ncertHubPathForSolutionsSlug } from "../../config/ncertBooks";
+
 /**
  * NAV-1 (owner, 4 Nov 2026): "How will students know that they have to click the logo to go home? Better to give
  * navigation arrows, and we should have this child-parent navigation from every page, plus an option of going to Home."
@@ -56,8 +58,9 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   ["/cbq-class-10", { parent: "/" }],
   ["/cbq-class-10/:chapterSlug", { parent: "/cbq-class-10" }],
   ["/ncert-class-10", { parent: "/" }],
-  ["/ncert-solutions/:chapter", { parent: "/ncert-class-10" }],
-  ["/ncert-exemplar/:chapter", { parent: "/ncert-class-10" }],
+  // NCERT-HUB-1 — a solutions page returns to ITS chapter in the hub (`?subject=…&ch=…`), not the bare hub.
+  ["/ncert-solutions/:chapter", { parent: (p) => ncertHubPathForSolutionsSlug(p.chapter) }],
+  ["/ncert-exemplar/:chapter", { parent: (p) => ncertHubPathForSolutionsSlug(p.chapter) }],
 
   // The cockpit.
   ["/check-improve", { parent: "/" }],
@@ -109,7 +112,7 @@ export function targetLabel(path: string): string {
   if (path === "/practice/worksheets") return "Worksheets";
   if (path === "/exam-trends") return "Exam Trends";
   if (path === "/cbq-class-10") return "CBQ";
-  if (path === "/ncert-class-10") return "NCERT Books";
+  if (path === NCERT_HUB_PATH || path.startsWith(`${NCERT_HUB_PATH}?`)) return "NCERT Hub";
   if (path === "/admin/students") return "Students";
   if (path === "/me") return "Me";
   if (path.startsWith("/topic-hub/")) return "Topic Hub";

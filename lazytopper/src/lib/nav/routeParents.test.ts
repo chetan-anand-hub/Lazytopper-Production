@@ -62,8 +62,15 @@ describe("NAV-1 Back target - arrived directly (no in-app history)", () => {
   it("goes to the page's parent with the parent's short name", () => {
     expect(parent("/packs")).toMatchObject({ kind: "parent", to: "/pricing", label: "Pricing", showHome: true });
     expect(parent("/cbq-class-10/triangles")).toMatchObject({ to: "/cbq-class-10", label: "CBQ" });
-    expect(parent("/ncert-solutions/jemh108")).toMatchObject({ to: "/ncert-class-10", label: "NCERT Books" });
-    expect(parent("/ncert-exemplar/jemh108")).toMatchObject({ to: "/ncert-class-10", label: "NCERT Books" });
+    // NCERT-HUB-1: an unknown chapter slug falls back to the bare hub; a real one returns to its chapter card.
+    expect(parent("/ncert-solutions/jemh108")).toMatchObject({ to: "/ncert-class-10", label: "NCERT Hub" });
+    expect(parent("/ncert-exemplar/jemh108")).toMatchObject({ to: "/ncert-class-10", label: "NCERT Hub" });
+    expect(parent("/ncert-solutions/triangles")).toMatchObject({ to: "/ncert-class-10?subject=maths&ch=triangles", label: "NCERT Hub" });
+    expect(parent("/ncert-exemplar/some-applications-of-trigonometry")).toMatchObject({
+      to: "/ncert-class-10?subject=maths&ch=some-applications-of-trigonometry",
+      label: "NCERT Hub",
+    });
+    expect(parent("/ncert-solutions/electricity")).toMatchObject({ to: "/ncert-class-10?subject=science&ch=electricity", label: "NCERT Hub" });
     expect(parent("/notes/triangles")).toMatchObject({ to: "/topic-hub/triangles", label: "Topic Hub" });
     expect(parent("/practice/10/Maths")).toMatchObject({ to: "/practice-hub", label: "Practice" });
     expect(parent("/practice/worksheets")).toMatchObject({ to: "/practice-hub", label: "Practice" });

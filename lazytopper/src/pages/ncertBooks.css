@@ -77,121 +77,285 @@
   padding-bottom: 28px;
 }
 
-/* SUBJECT SWITCHER — the CBSE page's grammar (.lt-cbse__subs / .lt-cbse__sub). */
-.lt-nb__tabs {
+/* NCERT-HUB-1 — wider body at desktop: the picker on the left, the chapter card on the right. */
+@media (min-width: 900px) {
+  .lt-nb__w--hub {
+    max-width: 1120px;
+  }
+}
+
+/* BREADCRUMB — the CBQ chapter page's grammar (.lt-cbqs__crumbs). */
+.lt-nb__crumbs {
+  font-size: 13px;
+  color: var(--nb-ink3);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+.lt-nb__crumbs a {
+  color: var(--nb-gt);
+  font-weight: 600;
+  text-decoration: none;
+}
+.lt-nb__crumbs a[aria-current="page"] {
+  color: var(--nb-ink2);
+  font-weight: 500;
+}
+
+/* PICKER — the Practice Hub's grammar: subject chips (green when on), then the chapter dropdown. */
+.lt-nb__hub {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+.lt-nb__picker,
+.lt-nb__chcard,
+.lt-nb__empty {
+  background: var(--nb-card);
+  border: 1px solid var(--nb-line);
+  border-radius: 16px;
+  box-shadow: var(--nb-sh);
+}
+.lt-nb__picker {
+  padding: 16px;
+}
+.lt-nb__lbl {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nb-ink3);
+  margin: 0 0 8px;
+}
+.lt-nb__chips {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 16px;
 }
-.lt-nb__tab {
-  flex: 1 1 0;
+.lt-nb__chip {
   min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 10px;
   border: 1px solid var(--nb-line);
   background: var(--nb-card);
-  border-radius: 10px;
-  padding: 10px;
+  color: var(--nb-navy);
   font: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: var(--nb-ink2);
   cursor: pointer;
 }
-.lt-nb__tab[aria-selected="true"] {
-  background: var(--nb-ink);
-  border-color: var(--nb-ink);
+.lt-nb__chip[aria-pressed="true"] {
+  background: var(--nb-gt);
+  border-color: var(--nb-gt);
   color: #fff;
 }
-.lt-nb__tabn {
-  font-size: 12px;
-  font-weight: 500;
-  opacity: 0.7;
-  margin-left: 4px;
+/* `.lt-nb` raises specificity over the app theme's `[data-theme="light"] select { background: … }`. */
+.lt-nb .lt-nb__select {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--nb-ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  /* The dropdown's chevron, drawn here: the app's base styles strip the native arrow. */
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23132c4d' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
 }
-.lt-nb__book[hidden] {
-  display: none;
-}
-.lt-nb__book {
-  margin-bottom: 26px;
-  scroll-margin-top: 16px;
-}
-.lt-nb__book h2 {
-  font-size: 21px;
-  margin-bottom: 12px;
-}
-.lt-nb__count {
-  font-family: var(--nb-sans);
-  font-size: 13px;
-  font-weight: 500;
+.lt-nb .lt-nb__select--empty {
   color: var(--nb-ink3);
-  letter-spacing: 0;
-  margin-left: 6px;
-  white-space: nowrap;
+  font-weight: 500;
 }
-.lt-nb__list {
+.lt-nb__select option {
+  color: var(--nb-ink);
+  font-weight: 500;
+}
+.lt-nb__select:focus-visible {
+  outline: 2px solid var(--nb-g);
+  outline-offset: 1px;
+}
+.lt-nb__pickfoot {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--nb-ink3);
+}
+
+/* EMPTY STATE — no chapter picked yet. */
+.lt-nb__empty {
+  margin: 0;
+  padding: 18px;
+  color: var(--nb-ink2);
+  font-size: 14px;
+}
+
+/* CHAPTER CARD — navy header, then the tiles (2 columns on a phone, 3 on desktop). */
+.lt-nb__chcard {
+  overflow: hidden;
+}
+.lt-nb__cardtop {
+  background: var(--nb-navy);
+  color: #fff;
+  padding: 14px 16px 16px;
+}
+.lt-nb__cardk {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9fb4d6;
+}
+.lt-nb__cardtop h2 {
+  font-size: 21px;
+  line-height: 1.25;
+  margin-top: 2px;
+  color: #fff;
+}
+.lt-nb__weight {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: #eaf2fb;
+}
+.lt-nb__tiles {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 14px;
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
-.lt-nb__row {
+.lt-nb__tiles > li {
+  min-width: 0;
+  display: flex;
+}
+.lt-nb__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 92px;
+  padding: 12px;
+  border: 1px solid var(--nb-line);
+  border-radius: 12px;
+  background: var(--nb-card);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.lt-nb__tile:hover {
+  border-color: var(--nb-g);
+  box-shadow: 0 6px 16px rgba(15, 32, 56, 0.08);
+}
+.lt-nb__tile--pri {
+  background: #ecfdf3;
+  border-color: #bbf7d0;
+}
+.lt-nb__ti {
+  font-size: 18px;
+  line-height: 1.2;
+}
+.lt-nb__tt {
+  display: block;
+  margin-top: 4px;
+  color: var(--nb-navy);
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.lt-nb__ts {
+  display: block;
+  margin-top: 2px;
+  color: var(--nb-ink3);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.lt-nb__chcard .lt-nb__credit {
+  margin: 0;
+  padding: 0 16px 14px;
+}
+.lt-nb__credit {
+  font-size: 12px;
+  color: var(--nb-ink3);
+}
+
+/* ALL CHAPTERS — collapsed by default; both subjects' lists stay in the HTML. */
+.lt-nb__all {
+  margin-top: 18px;
   background: var(--nb-card);
   border: 1px solid var(--nb-line);
   border-radius: 14px;
-  box-shadow: var(--nb-sh);
-  padding: 12px 14px;
 }
-.lt-nb__rowhead {
+.lt-nb__all[hidden] {
+  display: none;
+}
+.lt-nb__all > summary {
+  list-style: none;
+  cursor: pointer;
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-.lt-nb__num {
-  flex-shrink: 0;
-  font-size: 12px;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  padding: 12px 16px;
   font-weight: 700;
-  color: var(--nb-gt);
-  background: var(--nb-gw);
-  border-radius: 999px;
-  padding: 2px 9px;
+  color: var(--nb-navy);
+  font-size: 14.5px;
 }
-.lt-nb__title {
-  font-size: 16px;
-  line-height: 1.3;
+.lt-nb__all > summary::-webkit-details-marker {
+  display: none;
 }
-.lt-nb__links {
+.lt-nb__all > summary::after {
+  content: "▾";
+  color: var(--nb-ink3);
+  transition: transform 160ms ease;
+}
+.lt-nb__all[open] > summary::after {
+  transform: rotate(180deg);
+}
+.lt-nb__alllist {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 12px;
+  display: grid;
+  gap: 2px;
+}
+.lt-nb__allrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--nb-line);
+  font-size: 14px;
+}
+.lt-nb__allch {
+  font-weight: 600;
+  text-decoration: none;
+}
+.lt-nb__alllinks {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 6px 14px;
+  gap: 4px 12px;
+  font-size: 13px;
 }
-.lt-nb__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-  margin-top: 10px;
-  font-size: 14px;
-  font-weight: 600;
-}
-.lt-nb__read {
-  display: inline-block;
-  background: var(--nb-g);
-  color: #fff !important;
-  border: 0;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font: inherit;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-}
-.lt-nb__read:hover {
-  background: var(--nb-gt);
-}
-.lt-nb__credit {
-  margin: 8px 0 0;
-  font-size: 12px;
-  color: var(--nb-ink3);
+
+.lt-nb__about {
+  margin-top: 26px;
 }
 .lt-nb__about h2 {
   font-size: 19px;
@@ -207,9 +371,30 @@
   color: var(--nb-ink3);
 }
 
-@media (min-width: 560px) {
-  .lt-nb__tabs {
-    max-width: 360px;
+/* The reader's default trigger (any NcertChapterReader used without the hub's tile class). */
+.lt-nb__read {
+  display: inline-block;
+  background: var(--nb-g);
+  color: #fff !important;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@media (max-width: 400px) {
+  .lt-nb__tiles {
+    padding: 12px;
+    gap: 8px;
+  }
+  .lt-nb__tile {
+    padding: 10px;
+  }
+  .lt-nb__tt {
+    font-size: 14px;
   }
 }
 
@@ -220,19 +405,16 @@
   .lt-nb__hero h1 {
     font-size: 34px;
   }
-  .lt-nb__row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    column-gap: 18px;
+  .lt-nb__hub {
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 20px;
   }
-  .lt-nb__actions {
-    margin-top: 0;
-    justify-content: flex-end;
+  .lt-nb__tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .lt-nb__credit {
-    grid-column: 1 / -1;
-    margin-top: 8px;
+  .lt-nb__alllist {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
   }
 }
 

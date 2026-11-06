@@ -6,7 +6,16 @@ import { trackNamedEvent, type NamedAnalyticsEvent } from "../analytics/analytic
 import { MathText } from "../components/question/MathText";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { pricingPacksHref } from "../lib/packs/packLinks";
-import { ncertCode, ncertPracticePath, ncertReadPath, ncertRowsForSlug } from "../config/ncertBooks";
+import {
+  NCERT_HUB_PATH,
+  ncertCode,
+  ncertHubChapterPath,
+  ncertHubSubjectOf,
+  ncertHubSubjectPath,
+  ncertPracticePath,
+  ncertReadPath,
+  ncertRowsForSlug,
+} from "../config/ncertBooks";
 import {
   BOARD_PATTERN_HEADING,
   bankSlugOf,
@@ -305,7 +314,24 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
       <SolutionsMoment freeCheckOn={isFreeCheckClientEnabled() && !hasUsedFreeCheck()} />
       <header className="lt-ncs__hero">
         <div className="lt-ncs__w">
-          {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page). */}
+          {/* NAV-FIX-1: the page-level back link is gone — the NAV-1 header row owns Back (one per page).
+              NCERT-HUB-1: the breadcrumb (the CBQ chapter page's pattern) — Home › NCERT Hub › subject ›
+              chapter (both open that state of the hub) › this book. Back ("← NCERT Hub") returns to the
+              same chapter card (lib/nav/routeParents.ts). */}
+          <nav aria-label="Breadcrumb" className="lt-ncs__crumbs" data-testid="ncs-crumbs">
+            <Link to="/">Home</Link> <span aria-hidden="true">›</span> <Link to={NCERT_HUB_PATH}>NCERT Hub</Link>{" "}
+            {ncertRow ? (
+              <>
+                <span aria-hidden="true">›</span>{" "}
+                <Link to={ncertHubSubjectPath(ncertHubSubjectOf(ncertRow.book))}>{ncertRow.book}</Link>{" "}
+                <span aria-hidden="true">›</span>{" "}
+                <Link to={ncertHubChapterPath(ncertRow)}>
+                  Ch {ncertRow.chapter} {ncertRow.title}
+                </Link>{" "}
+              </>
+            ) : null}
+            <span aria-hidden="true">›</span> <span aria-current="page">{BOOK_NAME[book]}</span>
+          </nav>
           <p className="lt-ncs__eyebrow">CBSE Class 10 · Boards 2027 · NCERT 2026-27 syllabus</p>
           <h1>{solutionsH1(book, ch)}</h1>
           <p className="lt-ncs__sub">
