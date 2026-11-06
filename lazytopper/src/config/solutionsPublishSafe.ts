@@ -841,13 +841,11 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("CHEM-EXMPLR-1-MCQ-004"),
       r("CHEM-EXMPLR-1-MCQ-005"),
       r("CHEM-EXMPLR-1-MCQ-010"),
-      r("CHEM-EXMPLR-1-MCQ-011"),
       r("CHEM-EXMPLR-1-MCQ-013"),
       r("CHEM-EXMPLR-1-MCQ-016"),
       r("CHEM-EXMPLR-1-SA-001"), // multi-part
       r("CHEM-EXMPLR-1-SA-004"), // asks for more than one value
       r("CHEM-EXMPLR-1-SA-005"), // more than one value in the answer
-      r("CHEM-EXMPLR-1-SA-019"), // multi-part
       r("CHEM-EXMPLR-1-SA-020"), // more than one value in the answer
     ],
   },
@@ -859,13 +857,8 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
       r("ACID-NCERT-2-VSA-002"), // not one comparable value
-      r("ACID-NCERT-2-SA-001"), // not one comparable value
-      r("ACID-NCERT-2-SA-002"), // more than one value in the answer
-      r("ACID-NCERT-2-VSA-003"), // more than one value in the answer
       r("ACID-NCERT-2-VSA-005"), // more than one value in the answer
-      r("ACID-NCERT-2-VSA-006"), // approximate / rounded key
       r("ACID-NCERT-2-VSA-007"), // not one comparable value
-      r("ACID-NCERT-2-SA-003"), // more than one value in the answer
       r("ACID-NCERT-2-VSA-008"), // more than one value in the answer
       r("ACID-NCERT-2-VSA-009"), // asks for more than one value
       r("ACID-NCERT-2-VSA-010"), // not one comparable value
@@ -873,12 +866,9 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ACID-NCERT-2-VSA-014"), // not one comparable value
       r("ACID-NCERT-2-MCQ-001"),
       r("ACID-NCERT-2-MCQ-002"),
-      r("ACID-NCERT-2-MCQ-003"),
       r("ACID-NCERT-2-MCQ-004"),
-      r("ACID-NCERT-2-SA-005"), // proof
       r("ACID-NCERT-2-SA-006"), // multi-part
       r("ACID-NCERT-2-VSA-017"), // asks for more than one value
-      r("ACID-NCERT-2-VSA-019"), // more than one value in the answer
       r("ACID-NCERT-2-VSA-020"), // more than one value in the answer
       r("ACID-NCERT-2-VSA-021"), // not one comparable value
     ],
@@ -887,7 +877,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ACID-EXMPLR-2-MCQ-002"),
       r("ACID-EXMPLR-2-MCQ-004"),
       r("ACID-EXMPLR-2-MCQ-007"),
-      r("ACID-EXMPLR-2-MCQ-008"),
       r("ACID-EXMPLR-2-MCQ-009"),
       r("ACID-EXMPLR-2-MCQ-010"),
       r("ACID-EXMPLR-2-MCQ-012"),
@@ -895,16 +884,11 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ACID-EXMPLR-2-MCQ-014"),
       r("ACID-EXMPLR-2-MCQ-016"),
       r("ACID-EXMPLR-2-MCQ-017"),
-      r("ACID-EXMPLR-2-MCQ-018"),
       r("ACID-EXMPLR-2-MCQ-019"),
-      r("ACID-EXMPLR-2-MCQ-023"),
-      r("ACID-EXMPLR-2-MCQ-027"),
       r("ACID-EXMPLR-2-MCQ-028"),
       r("ACID-EXMPLR-2-MCQ-029"),
       r("ACID-EXMPLR-2-MCQ-030"),
-      r("ACID-EXMPLR-2-SA-004"), // asks for more than one value
       r("ACID-EXMPLR-2-SA-005"), // not one comparable value
-      r("ACID-EXMPLR-2-SA-011"), // more than one value in the answer
     ],
   },
   {
@@ -915,12 +899,10 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
       r("METAL-NCERT-3-VSA-001"), // multi-part
-      r("METAL-NCERT-3-VSA-005"), // not one comparable value
       r("METAL-NCERT-3-MCQ-001"),
       r("METAL-NCERT-3-MCQ-003"),
       r("METAL-NCERT-3-VSA-009"), // more than one value in the answer
       r("METAL-NCERT-3-VSA-010"), // more than one value in the answer
-      r("METAL-NCERT-3-SA-007"), // more than one value in the answer
     ],
     exemplar: [
       r("METAL-EXMPLR-3-MCQ-002"),
@@ -931,7 +913,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("METAL-EXMPLR-3-MCQ-008"),
       r("METAL-EXMPLR-3-MCQ-009"),
       r("METAL-EXMPLR-3-MCQ-012"),
-      r("METAL-EXMPLR-3-MCQ-014"),
       r("METAL-EXMPLR-3-MCQ-017"),
       r("METAL-EXMPLR-3-MCQ-018"),
       r("METAL-EXMPLR-3-MCQ-019"),
@@ -950,7 +931,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("METAL-EXMPLR-3-SA-006"), // asks for more than one value
       r("METAL-EXMPLR-3-SA-008"), // multi-part
       r("METAL-EXMPLR-3-SA-011"), // more than one value in the answer
-      r("METAL-EXMPLR-3-SA-012"), // multi-part
       r("METAL-EXMPLR-3-SA-016"), // asks for more than one value
       r("METAL-EXMPLR-3-SA-018"), // more than one value in the answer
       r("METAL-EXMPLR-3-SA-020"), // asks for more than one value
@@ -966,18 +946,11 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     shortTitle: "Carbon Compounds",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
-      r("CARB-NCERT-4-VSA-002"), // more than one value in the answer
       r("CARB-NCERT-4-VSA-004"), // more than one value in the answer
-      r("CARB-NCERT-4-VSA-005"), // more than one value in the answer
       r("CARB-NCERT-4-MCQ-001"),
       r("CARB-NCERT-4-MCQ-002"),
       r("CARB-NCERT-4-MCQ-003"),
-      r("CARB-NCERT-4-SA-003"), // more than one value in the answer
       r("CARB-NCERT-4-SA-004"), // more than one value in the answer
-      r("CARB-NCERT-4-VSA-012"), // asks for more than one value
-      r("CARB-NCERT-4-SA-005"), // a relation, not one value
-      r("CARB-NCERT-4-VSA-016"), // more than one value in the answer
-      r("CARB-NCERT-4-VSA-017"), // more than one value in the answer
       r("CARB-NCERT-4-LONG-003"), // more than one value in the answer
     ],
     exemplar: [
@@ -990,21 +963,14 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("CARB-EXMPLR-4-MCQ-015"),
       r("CARB-EXMPLR-4-MCQ-017"),
       r("CARB-EXMPLR-4-MCQ-019"),
-      r("CARB-EXMPLR-4-MCQ-020"),
       r("CARB-EXMPLR-4-MCQ-021"),
-      r("CARB-EXMPLR-4-MCQ-025"),
       r("CARB-EXMPLR-4-MCQ-026"),
       r("CARB-EXMPLR-4-MCQ-027"),
-      r("CARB-EXMPLR-4-MCQ-028"),
-      r("CARB-EXMPLR-4-SA-001"), // asks for more than one value
-      r("CARB-EXMPLR-4-SA-004"), // multi-part
-      r("CARB-EXMPLR-4-SA-005"), // more than one value in the answer
       r("CARB-EXMPLR-4-SA-006"), // multi-part
       r("CARB-EXMPLR-4-SA-007"), // more than one value in the answer
       r("CARB-EXMPLR-4-SA-009"), // asks for more than one value
       r("CARB-EXMPLR-4-SA-010"), // not one comparable value
       r("CARB-EXMPLR-4-SA-015"), // multi-part
-      r("CARB-EXMPLR-4-LONG-002"), // multi-part
       r("CARB-EXMPLR-4-LONG-006"), // asks for more than one value
     ],
   },
@@ -1033,9 +999,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("LIFE-EXMPLR-5-SA-012"), // multi-part
       r("LIFE-EXMPLR-5-SA-017"), // not one comparable value
       r("LIFE-EXMPLR-5-SA-020"), // multi-part
-      r("LIFE-EXMPLR-5-SA-023"), // more than one value in the answer
       r("LIFE-EXMPLR-5-SA-025"), // multi-part
-      r("LIFE-EXMPLR-5-SA-033"), // not one comparable value
     ],
   },
   {
@@ -1047,10 +1011,8 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     shortTitle: "Control & Coordination",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
-      r("CTRL-NCERT-6-SA-003"), // not one comparable value
       r("CTRL-NCERT-6-SA-004"), // more than one value in the answer
       r("CTRL-NCERT-6-SA-008"), // not one comparable value
-      r("CTRL-NCERT-6-SA-009"), // more than one value in the answer
       r("CTRL-NCERT-6-MCQ-001"),
       r("CTRL-NCERT-6-MCQ-003"),
       r("CTRL-NCERT-6-SA-012"), // not one comparable value
@@ -1090,13 +1052,10 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
       r("REPR-NCERT-7-SA-001"), // more than one value in the answer
-      r("REPR-NCERT-7-SA-002"), // not one comparable value
-      r("REPR-NCERT-7-SA-006"), // more than one value in the answer
       r("REPR-NCERT-7-SA-007"), // more than one value in the answer
       r("REPR-NCERT-7-SA-011"), // more than one value in the answer
       r("REPR-NCERT-7-MCQ-001"),
       r("REPR-NCERT-7-MCQ-002"),
-      r("REPR-NCERT-7-SA-018"), // more than one value in the answer
     ],
     exemplar: [
       r("REPR-EXMPLR-7-MCQ-001"),
@@ -1104,7 +1063,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("REPR-EXMPLR-7-MCQ-004"),
       r("REPR-EXMPLR-7-MCQ-005"),
       r("REPR-EXMPLR-7-MCQ-007"),
-      r("REPR-EXMPLR-7-MCQ-008"),
       r("REPR-EXMPLR-7-MCQ-009"),
       r("REPR-EXMPLR-7-MCQ-015"),
       r("REPR-EXMPLR-7-MCQ-016"),
@@ -1115,7 +1073,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("REPR-EXMPLR-7-MCQ-025"),
       r("REPR-EXMPLR-7-MCQ-026"),
       r("REPR-EXMPLR-7-SA-002"), // more than one value in the answer
-      r("REPR-EXMPLR-7-SA-006"), // more than one value in the answer
       r("REPR-EXMPLR-7-SA-011"), // more than one value in the answer
       r("REPR-EXMPLR-7-SA-019"), // more than one value in the answer
     ],
@@ -1131,8 +1088,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     exemplar: [
       r("HERED-EXMPLR-8-MCQ-001"),
       r("HERED-EXMPLR-8-MCQ-003"),
-      r("HERED-EXMPLR-8-MCQ-004"),
-      r("HERED-EXMPLR-8-MCQ-005"),
       r("HERED-EXMPLR-8-MCQ-006"),
       r("HERED-EXMPLR-8-MCQ-007"),
       r("HERED-EXMPLR-8-MCQ-008"),
@@ -1158,10 +1113,10 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("LIGHT-NCERT-9-LA-001"), // more than one value in the answer
       r("LIGHT-NCERT-9-LA-002"), // more than one value in the answer
       r("LIGHT-NCERT-9-SA-005"), // not one comparable value
-      r("LIGHT-NCERT-9-SA-006"), // more than one value in the answer
       r("LIGHT-NCERT-9-SA-007"), // not one comparable value
       r("LIGHT-NCERT-9-SA-010"), // approximate / rounded key
       r("LIGHT-NCERT-9-LA-004"), // asks for more than one value
+      r("LIGHT-NCERT-9-LA-005"), // asks for more than one value
       r("LIGHT-NCERT-9-SA-011"), // more than one value in the answer
       r("LIGHT-NCERT-9-LA-006"), // asks for more than one value
       r("LIGHT-NCERT-9-SA-012"), // not one comparable value
@@ -1172,7 +1127,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("LIGHT-NCERT-9-MCQ-005"),
       r("LIGHT-NCERT-9-MCQ-006"),
       f("LIGHT-NCERT-9-LA-007"), // answer shown with its bound solution figure
-      r("LIGHT-NCERT-9-LA-009"), // yes/no, true/false or verify, with reason
       f("LIGHT-NCERT-9-LA-010"), // answer shown with its bound solution figure
       f("LIGHT-NCERT-9-LA-011"), // answer shown with its bound solution figure
       r("LIGHT-NCERT-9-LA-012"), // more than one value in the answer
@@ -1188,14 +1142,12 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("LIGHT-EXMPLR-9-MCQ-009"),
       r("LIGHT-EXMPLR-9-MCQ-010"),
       r("LIGHT-EXMPLR-9-MCQ-012"),
-      r("LIGHT-EXMPLR-9-MCQ-013"),
       r("LIGHT-EXMPLR-9-MCQ-018"),
       r("LIGHT-EXMPLR-9-MCQ-019"),
       r("LIGHT-EXMPLR-9-SA-001"), // multi-part
       r("LIGHT-EXMPLR-9-SA-003"), // more than one value in the answer
       r("LIGHT-EXMPLR-9-SA-008"), // more than one value in the answer
       f("LIGHT-EXMPLR-9-LA-001"), // answer shown with its bound solution figure
-      f("LIGHT-EXMPLR-9-LA-003"), // answer shown with its bound solution figure
       f("LIGHT-EXMPLR-9-LA-004"), // answer shown with its bound solution figure
       f("LIGHT-EXMPLR-9-LA-005"), // answer shown with its bound solution figure
       r("LIGHT-EXMPLR-9-LA-006"), // more than one value in the answer
@@ -1284,6 +1236,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ELEC-NCERT-11-SA-030"), // not one comparable value
       r("ELEC-NCERT-11-LA-013"), // multi-part
       r("ELEC-NCERT-11-SA-031"), // approximate / rounded key
+      r("ELEC-NCERT-11-LA-014"), // more than one value in the answer
       r("ELEC-NCERT-11-LA-015"), // multi-part
       r("ELEC-NCERT-11-SA-032"), // approximate / rounded key
       r("ELEC-NCERT-11-SA-033"), // not one comparable value
@@ -1438,7 +1391,8 @@ export function solutionsHeadTitle(book: SolutionsBook, ch: SolutionsChapter): s
 /** The head description (<= 155 characters; THROWS when no form fits). */
 export function solutionsHeadDescription(book: SolutionsBook, ch: SolutionsChapter): string {
   const n = bookChapterNo(ch, book);
-  const lead = (t: string) => `Step-by-step ${BOOK_ADJ[book]} solutions for Class 10 ${ch.subject} Chapter ${n} ${t}.`;
+  // #1605 review: "How do Organisms Reproduce?" ends its own sentence (never "Reproduce?.").
+  const lead = (t: string) => `Step-by-step ${BOOK_ADJ[book]} solutions for Class 10 ${ch.subject} Chapter ${n} ${t}${/[?.!]$/.test(t) ? "" : "."}`;
   const tail = " Try each question first, then see the full solution, free.";
   const ladder = [
     `${lead(ch.title)}${tail} No account needed.`,
@@ -1643,6 +1597,9 @@ const contentWords = (s: string) => norm(s).split(" ").filter((w) => w.length >=
 
 /** Step 1 is a SETUP (a nudge): the given data, or a formula / law written with a symbol ("V = IR", "R ∝ l"). */
 const SETUP_STEP = /^\s*(?:\[[^\]]*\]\s*)?given\b|(?:^|[^\p{L}])\p{L}[\p{L}\p{N}_₀-₉ᵢ']{0,3}\s*[=∝]/iu;
+/** A definition / meaning / nature question: its first line is its answer. */
+const DEFINITION_QUESTION =
+  /\bwhat (?:is|are) (?:meant by|the meaning of)\b|\bdefine\b|\bdefinition of\b|\bwhat does\b[^?]{0,80}\bmean\b|\bmeaning of\b|\bnature of\b|\bnature and\b/i;
 /** Step 1 already answers a part: "(a) …", "(i) …". */
 const PART_ANSWER = /^\s*(?:\[[^\]]*\]\s*)?\((?:[a-e]|i{1,3}|iv|v)\)/i;
 const numbersIn = (s: string) => new Set((String(s).match(/\d+(?:\.\d+)?/g) ?? []).map(Number));
@@ -1667,6 +1624,15 @@ export function hintRevealsAnswer(q: {
   // Only a COMPUTATIONAL question (it gives numbers) gets a setup hint: on a conceptual question the
   // law in step 1 ("R ∝ l", "P = VI = I²R") IS the answer.
   if (!/\d/.test(String(q.questionText ?? ""))) return true;
+  // #1605 review, item 2: a number in the question does not make it computational. A definition or
+  // "nature of" question is answered by its first line ("refractive index 2.42 means …").
+  if (DEFINITION_QUESTION.test(String(q.questionText ?? ""))) return true;
+  // A solution of three steps or fewer: its first step is a third of the answer or more.
+  if ((q.solutionSteps?.length ?? 0) <= 3) return true;
+  // Step 1 already names a word of the final answer that the question does not ("concave").
+  const askedWords = new Set(contentWords(String(q.questionText ?? "")));
+  const firstWords = new Set(contentWords(first));
+  if (contentWords(String(q.finalAnswer ?? "")).some((w) => w.length >= 5 && !askedWords.has(w) && firstWords.has(w))) return true;
   if (!SETUP_STEP.test(first) || PART_ANSWER.test(first)) return true;
   // Review of #1605 (b): a step 1 that already states a conclusion ("Therefore R_p is less than the
   // smallest resistance") gives most of the answer away.
