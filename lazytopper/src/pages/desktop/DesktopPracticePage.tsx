@@ -33,6 +33,7 @@ import {
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
 import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
 import StartHereCard from "../../components/startHere/StartHereCard";
+import PracticeHubSegRow from "../../components/practice/PracticeHubSegRow";
 import PackPromo from "../../components/packs/PackPromoLazy";
 import LandingOffer from "../../components/packs/LandingOfferLazy";
 import SurfaceHistory from "../../components/results/SurfaceHistory";
@@ -2200,6 +2201,10 @@ export default function DesktopPracticePage() {
         }}
       >
         <ParentReturnLink />
+
+        {/* NCERT-HUB-1 (owner approval 6 Nov 2026) — Practice · NCERT Hub · Important Qs. Rendered in the
+            first paint at a fixed height (no layout shift); Important Qs follows the subject picked below. */}
+        <PracticeHubSegRow subject={scope.subject} />
 
         <div>
           <div
