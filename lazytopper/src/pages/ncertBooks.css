@@ -354,17 +354,6 @@
   font-size: 13px;
 }
 
-.lt-nb__about {
-  margin-top: 26px;
-}
-.lt-nb__about h2 {
-  font-size: 19px;
-  margin-bottom: 8px;
-}
-.lt-nb__about p {
-  margin: 0;
-  color: var(--nb-ink2);
-}
 .lt-nb__fine {
   margin: 22px 0 0;
   font-size: 12px;

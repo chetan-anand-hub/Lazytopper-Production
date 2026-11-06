@@ -19,7 +19,6 @@ export const BROWSE_CARD_IITIAN_LINE = "Made by an IITian (IIT Kanpur)";
 /** Sign-up goes to the login page and comes back to /browse (the same encoding MobileSignUpButton uses). */
 export const BROWSE_CARD_SIGNUP_PATH = `/login?redirect=${encodeURIComponent("/browse")}`;
 export const BROWSE_CARD_PRICING_PATH = "/pricing?source=browse-card";
-export const BROWSE_CARD_ABOUT_PATH = "/";
 
 export const BROWSE_CARD_DISMISS_KEY = "lt.browseVisitorCard.dismissed";
 export const BROWSE_CARD_SHOWN_KEY = "lt.browseVisitorCard.shown";

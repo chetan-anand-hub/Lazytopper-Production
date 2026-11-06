@@ -445,7 +445,9 @@ export default function NcertBooksPage() {
                 </option>
               ))}
             </select>
-            <p className="lt-nb__pickfoot">{subjectRows.length} chapters · NCERT 2026-27 edition</p>
+            <p className="lt-nb__pickfoot" data-testid="nb-pickfoot">
+              {subjectRows.length} chapters · NCERT 2026-27 · deleted chapters left out
+            </p>
           </section>
 
           <div className="lt-nb__result">
@@ -488,16 +490,9 @@ export default function NcertBooksPage() {
           );
         })}
 
-        <section aria-labelledby="nb-about" className="lt-nb__about">
-          <h2 id="nb-about">About these books</h2>
-          <p>
-            These are the NCERT textbooks for the 2026-27 session, the edition the CBSE Class 10 board exam in 2027
-            follows. Chapters removed from the syllabus are not listed. Mathematics Chapters 8 and 9 (trigonometry and
-            its applications) share one set of LazyTopper notes. The official sample papers and marking schemes are on
-            our <Link to="/cbse/class-10">CBSE Class 10 page</Link>.
-          </p>
-        </section>
-
+        {/* Owner ruling 6 Nov 2026: the "About these books" section is gone (clutter). The edition and the
+            syllabus message live in the picker note; the CBSE Class 10 page stays linked from the footer
+            ("CBSE 2027"). The independence / copyright line stays. */}
         <p className="lt-nb__fine">
           LazyTopper is an independent platform and is not affiliated with CBSE or NCERT. Textbook copyright belongs to
           NCERT.

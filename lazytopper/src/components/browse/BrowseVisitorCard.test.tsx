@@ -69,16 +69,20 @@ describe("BrowseVisitorCard", () => {
     );
     expect(screen.getByTestId("browse-visitor-card-signup").textContent).toBe("Sign up free");
     expect(screen.getByTestId("browse-visitor-card-pricing").textContent).toBe("See pricing");
-    expect(screen.getByTestId("browse-visitor-card-about").textContent).toBe("What is LazyTopper?");
+    // Owner ruling 6 Nov 2026: the "What is LazyTopper?" link (to the landing page) is gone.
+    expect(screen.queryByTestId("browse-visitor-card-about")).toBeNull();
+    expect(card.textContent).not.toContain("What is LazyTopper?");
+    expect(card.querySelector('a[href="/"]')).toBeNull();
+    expect(card.querySelectorAll("a")).toHaveLength(2);
     expect(card.textContent).not.toMatch(/premium|refund/i);
   });
 
-  it("links point at sign-up (back to /browse), /pricing?source=browse-card and the landing page", async () => {
+  it("links point at sign-up (back to /browse) and /pricing?source=browse-card, and nothing else", async () => {
     mount();
     await screen.findByTestId("browse-visitor-card");
     expect(screen.getByTestId("browse-visitor-card-signup").getAttribute("href")).toBe("/login?redirect=%2Fbrowse");
     expect(screen.getByTestId("browse-visitor-card-pricing").getAttribute("href")).toBe("/pricing?source=browse-card");
-    expect(screen.getByTestId("browse-visitor-card-about").getAttribute("href")).toBe("/");
+    expect(screen.queryByTestId("browse-visitor-card-about")).toBeNull();
   });
 
   it("is absent for a signed-in user (control: the same mount shows it signed out)", async () => {
@@ -155,7 +159,7 @@ describe("BrowseVisitorCard analytics", () => {
     expect(track.shown).toHaveBeenCalledTimes(1);
   });
 
-  it("sends a tap with the action for sign-up, pricing and about", async () => {
+  it("sends a tap with the action for sign-up and pricing (no about link any more)", async () => {
     mount();
     await screen.findByTestId("browse-visitor-card");
     fireEvent.click(screen.getByTestId("browse-visitor-card-signup"));
@@ -164,10 +168,7 @@ describe("BrowseVisitorCard analytics", () => {
     mount();
     fireEvent.click(await screen.findByTestId("browse-visitor-card-pricing"));
     expect(track.tap).toHaveBeenLastCalledWith("pricing");
-    cleanup();
-    mount();
-    fireEvent.click(await screen.findByTestId("browse-visitor-card-about"));
-    expect(track.tap).toHaveBeenLastCalledWith("about");
+    expect(track.tap).not.toHaveBeenCalledWith("about");
   });
   it("GST-EXCL-1: 1 ms before 00:00 IST 7 Nov the card is exactly today's (no GST); at the cut-off the tags read + GST", async () => {
     expect(GST_EXCLUSIVE_FROM_MS).toBe(Date.parse("2026-11-07T00:00:00+05:30"));
