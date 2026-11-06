@@ -68,6 +68,8 @@ const ASSETS: Record<string, string> = {
     'const b=()=>__vitePreload(()=>import("./DesktopNotesPage-FFFFFFFF.js"),__vite__mapDeps([2,3,4]));',
   "CheckYourAnswerPage-CCCCCCCC.js": "export default 1;",
   "DesktopNotesPage-FFFFFFFF.js": "export default 2;",
+  // SPEED-SITE-2a: the landing is a lazy chunk now (the root preloads it).
+  "Welcome-WWWWWWWW.js": "export default 5;",
   "index-SSSSSSSS.css": ".lt-a{color:red}",
   "CheckYourAnswerPage-RRRRRRRR.css": ROUTE_CSS,
   // A SHARED lazy CSS (Notes/HPQ import KaTeX): it must never be inlined (D63a).
