@@ -7,7 +7,7 @@
  * Tiny and pure on purpose: the scorecard line, the upgrade sheet and the fair-use panel (all lazy
  * chunks) share it, and it pulls nothing heavy into the entry chunk. No clock is read.
  */
-import { CHAPTER_PACK_PRICE_INR } from "../../lib/packs/packEntry";
+import { chapterPackPriceTag } from "../../lib/packs/packEntry";
 import type { SubscriptionStatus } from "../../services/subscriptionService";
 
 /**
@@ -22,4 +22,4 @@ export function showPackLine(status: Pick<SubscriptionStatus, "tier"> | null | u
 export const PACK_LINE_HREF = "/pricing#packs";
 
 /** The ONE line, on every surface. The price is the catalogue's cheapest pack (packEntry), never a literal. */
-export const PACK_LINE_TEXT = `Not ready for the Board Pass yet? Try our PDF packs from \u20b9${CHAPTER_PACK_PRICE_INR} \u2014 printed questions with answer keys, no marking \u2192`;
+export const PACK_LINE_TEXT = `Not ready for the Board Pass yet? Try our PDF packs from ${chapterPackPriceTag()} \u2014 printed questions with answer keys, no marking \u2192`;

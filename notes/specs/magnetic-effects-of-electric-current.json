@@ -579,6 +579,20 @@
       "source": "NCERT 12.4"
     }
   ],
+  "key_terms": [
+    {"term": "Magnetic field", "meaning": "The region around a magnet in which its force can be detected.", "source": "NCERT 2026-27 Ch12 p.195 (jesc112)"},
+    {"term": "Magnetic field lines", "meaning": "Lines that show the field; outside the magnet they run from north pole to south pole.", "source": "NCERT 2026-27 Ch12 p.196 (jesc112)"},
+    {"term": "Right-hand thumb rule", "meaning": "Thumb along the current; the curled fingers give the direction of the field lines.", "source": "NCERT 2026-27 Ch12 p.199 (jesc112)"},
+    {"term": "Solenoid", "meaning": "A coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder.", "source": "NCERT 2026-27 Ch12 p.201 (jesc112)"},
+    {"term": "Electromagnet", "meaning": "A soft iron core inside a current-carrying solenoid; magnetic only while current flows.", "source": "NCERT 2026-27 Ch12 p.195 (jesc112)"},
+    {"term": "Fleming's left-hand rule", "meaning": "Forefinger = field, middle finger = current, thumb = force on the conductor.", "source": "NCERT 2026-27 Ch12 p.203 (jesc112)"},
+    {"term": "Live wire", "meaning": "The supply wire with red insulation.", "source": "NCERT 2026-27 Ch12 p.204 (jesc112)"},
+    {"term": "Neutral wire", "meaning": "The supply wire with black insulation.", "source": "NCERT 2026-27 Ch12 p.204 (jesc112)"},
+    {"term": "Earth wire", "meaning": "The green-insulated safety wire that connects an appliance's metal body to the earth.", "source": "NCERT 2026-27 Ch12 p.204 (jesc112)"},
+    {"term": "Electric fuse", "meaning": "A safety device that melts and breaks the circuit when the current is too high.", "source": "NCERT 2026-27 Ch12 p.205 (jesc112)"},
+    {"term": "Short-circuiting", "meaning": "The live and neutral wires touch directly, so the current rises sharply.", "source": "NCERT 2026-27 Ch12 p.205 (jesc112)"},
+    {"term": "Overloading", "meaning": "Too much current is drawn, e.g. by connecting too many appliances to a single socket.", "source": "NCERT 2026-27 Ch12 p.205 (jesc112)"}
+  ],
   "third_tab_content": {
     "kind": "rules",
     "intro": "This chapter is about DIRECTIONS, not formulas. Two hand rules do almost all the work — keep them straight, and note how the field's size changes with current and distance. The last two blocks are the household end: wire colours, the fuse, and AC versus DC.",

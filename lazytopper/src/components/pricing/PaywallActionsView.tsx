@@ -174,7 +174,7 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
   const messageOf = (s: Extract<LinkState, { kind: "ready" }>, l: ParentPayLang) =>
     // PARENT-PACKS-1: a pack link's message names the pack at the SERVER's price (from the mint), never a typed figure.
     product && s.link.pack
-      ? buildAskParentPackMessage({ lang: l, name: product.name, priceInr: s.link.pack.priceInr, url: urlOf(s), days: daysLeft(s.link.expiresAt, deps.now()) })
+      ? buildAskParentPackMessage({ lang: l, name: product.name, priceInr: s.link.pack.totalInr ?? s.link.pack.priceInr, url: urlOf(s), days: daysLeft(s.link.expiresAt, deps.now()) })
       : buildAskParentMessage({
       lang: l,
       prices: s.link.prices,

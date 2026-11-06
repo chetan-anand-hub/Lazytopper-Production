@@ -29,12 +29,17 @@ describe("PARENTS-PAY-1 — price and how to pay on /for-parents", () => {
     expect(m.boardPassDisplay).toBe("₹1,917");
     // 28 Oct 2026 -> 17 Feb 2027 = 112 days
     expect(m.perDayLine).toBe(`≈ ₹${Math.ceil(q.priceInr / 112)} a day till the boards`);
-    expect(Object.keys(m).sort()).toEqual(["boardPassDisplay", "perDayLine", "untilLabel"]);
+    expect(Object.keys(m).sort()).toEqual(["boardPassDisplay", "boardPassPayDisplay", "perDayLine", "untilLabel"]);
+    // GST-EXCL-1: before 7 Nov 2026 the Pay figure IS the price (all-in).
+    expect(m.boardPassPayDisplay).toBe("₹1,917");
   });
 
   it("the Board Pass price is ₹1,917 before the founding deadline and ₹2,499 from it", () => {
     expect(parentPriceModel(OPEN, BOARDS)!.boardPassDisplay).toBe("₹1,917");
-    expect(parentPriceModel(CLOSED, BOARDS)!.boardPassDisplay).toBe("₹2,499");
+    // GST-EXCL-1: after the 7 Nov 2026 cut-off the tag says "+ GST", the Pay figure is the total, and the per-day line is gone.
+    expect(parentPriceModel(CLOSED, BOARDS)!.boardPassDisplay).toBe("₹2,499 + GST");
+    expect(parentPriceModel(CLOSED, BOARDS)!.boardPassPayDisplay).toBe("₹2,949");
+    expect(parentPriceModel(CLOSED, BOARDS)!.perDayLine).toBeNull();
   });
 
   it("hides the per-day line when the board date is unusable or past", () => {

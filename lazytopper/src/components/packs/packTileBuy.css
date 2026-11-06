@@ -17,6 +17,9 @@
 .lt-ptb--dark .lt-ptb__tick { color: #6fe0a8; }
 .lt-ptb__busy { font-size: 13.5px; font-weight: 600; color: #3c4b60; text-align: center; }
 .lt-ptb--dark .lt-ptb__busy { color: #dbe4f0; }
+/* GST-EXCL-1: the breakup under a Buy ("₹49 + ₹9 GST (18%) = ₹58"); wraps on a 360 px phone, never overflows the tile. */
+.lt-ptb__gst { font-size: 13px; font-weight: 600; color: #3c4b60; text-align: center; line-height: 1.35; overflow-wrap: anywhere; }
+.lt-ptb--dark .lt-ptb__gst { color: #dbe4f0; }
 .lt-ptb__see {
   align-self: center; min-height: 44px; border: 0; background: none; color: inherit; font: inherit; font-size: 15px; font-weight: 700;
   text-decoration: underline; cursor: pointer; padding: 0 8px;

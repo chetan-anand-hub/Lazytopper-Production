@@ -71,6 +71,16 @@ afterEach(() => {
 });
 
 describe("TrialTutorSummary", () => {
+  it("GST-EXCL-1: on day 7 (7 Nov 11:00 IST, after the 00:00 IST 7 Nov cut-off) the Board Pass tags read + GST", async () => {
+    setNow(START + 6 * DAY + HOUR);
+    hydrate.mockResolvedValue(trial());
+    mount();
+    await screen.findByTestId("trial-tutor-summary-line");
+    expect(screen.getByTestId("trial-tutor-summary-plans").textContent).toBe("Board Pass ₹1,917 + GST →");
+    expect(screen.getByText(/Founding member offer ends 30 November\. From 1 December: ₹2,499 \+ GST\./)).toBeTruthy();
+    expect(screen.getByText(/₹1,917 \+ GST once, till your boards/)).toBeTruthy();
+  });
+
   it("shows the real counts and the Board Pass offer on the last trial days", async () => {
     setNow(START + 5 * DAY + HOUR); // day 6: 2 days left
     hydrate.mockResolvedValue(trial());
@@ -78,6 +88,7 @@ describe("TrialTutorSummary", () => {
     const line = await screen.findByTestId("trial-tutor-summary-line");
     expect(line.textContent).toBe("During your trial the tutor helped you with 3 questions across 2 chapters.");
     const plans = screen.getByTestId("trial-tutor-summary-plans");
+    // GST-EXCL-1: day 6 (6 Nov 11:00 IST) is BEFORE the 00:00 IST 7 Nov GST cut-off - exactly today's copy.
     expect(plans.textContent).toMatch(/^Board Pass ₹[\d,]+ →$/);
     expect(plans.getAttribute("href")).toBe("/pricing?source=tutor-trial-summary");
     expect(screen.getByText(/Founding member offer ends 30 November\. From 1 December: ₹2,499\./)).toBeTruthy();

@@ -101,7 +101,10 @@ describe("trialEarlyStripModel", () => {
     expect(trialEarlyStripDayText(2)).toBe("Trial: day 2 of 7");
     expect(trialEarlyStripOfferText(ist(2026, 11, 3, 12))).toBe("Board Pass ₹1,917 till your boards (founding offer till 30 November)");
     expect(trialEarlyStripOfferText(FOUNDING_OFFER_CLOSES_AT_MS - 1)).toContain("₹1,917");
-    expect(trialEarlyStripOfferText(FOUNDING_OFFER_CLOSES_AT_MS)).toBe("Board Pass ₹2,499 till your boards");
+    expect(trialEarlyStripOfferText(FOUNDING_OFFER_CLOSES_AT_MS)).toBe("Board Pass ₹2,499 + GST till your boards"); // GST-EXCL-1
+    // GST-EXCL-1: 6 Nov (before the 00:00 IST 7 Nov cut-off) is today's copy; 7 Nov reads "+ GST".
+    expect(trialEarlyStripOfferText(ist(2026, 11, 6, 12))).toBe("Board Pass ₹1,917 till your boards (founding offer till 30 November)");
+    expect(trialEarlyStripOfferText(ist(2026, 11, 7, 12))).toBe("Board Pass ₹1,917 + GST till your boards (founding offer till 30 November)");
   });
 });
 

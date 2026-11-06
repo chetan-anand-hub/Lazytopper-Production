@@ -27,6 +27,7 @@ const {
   chaptersOf,
   isAlreadyOwned,
 } = require('./packProducts.cjs');
+const { orderAmountMatchesBase } = require('./passPricing.cjs');
 //
 // PARENT-PACKS-1 review M1 (4 Nov 2026):
 // ★ COVERED == DUPLICATE. A payment for a pack whose contents the student already holds through ANOTHER pack (a Chapter
@@ -164,10 +165,14 @@ async function grantPackInTransaction(input) {
     const target = validateTarget(sku, order.packTarget);
     const packId = packIdFor(sku, order.packTarget);
     if (target === null || packId === null) throw new PackGrantInputError('payment order has an invalid pack target');
-    const priceInr = PACK_PRODUCTS[sku].priceInr;
-    if (!Number.isInteger(order.amountPaise) || order.amountPaise !== priceInr * 100) {
+    const basePriceInr = PACK_PRODUCTS[sku].priceInr;
+    // GST-EXCL-1: an order created at/after the GST cut-off was charged base + 18% GST and STORES that breakup; one created
+    // before it was charged the base (all-in). Either is the pack price; anything else is refused, exactly as before.
+    if (!orderAmountMatchesBase(order, basePriceInr)) {
       throw new PackGrantInputError('payment order amount does not match the pack price');
     }
+    // What the student actually paid (base before the cut-off; base + GST after) - recorded on the pack.
+    const priceInr = order.amountPaise / 100;
 
     const markOrderPaid = (extra) => {
       if (order.status !== 'paid') {

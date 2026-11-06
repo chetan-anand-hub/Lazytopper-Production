@@ -21,6 +21,7 @@ import {
   PARENT_VIEW_ENDPOINT,
   postJson,
   readPrices,
+  readBoardPassGst,
   type MintedParentLink,
   type ParentBuyOutcome,
   type ParentLinkReason,
@@ -28,12 +29,16 @@ import {
   type ParentPayLang,
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
+import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 
 /** The pack a link carries, as the SERVER reports it (its price is the server table's). */
 export interface ParentPackRef {
   sku: PackSku;
   target: string;
   priceInr: number;
+  /** GST-EXCL-1: what the server CHARGES (base + 18% GST) and the GST, from 7 Nov 2026; absent before. */
+  totalInr?: number;
+  gstInr?: number;
 }
 
 /** The pack a child asks a parent to pay for (the share button's product). `name` is for display only. */
@@ -54,7 +59,13 @@ export function readPack(v: unknown): ParentPackRef | undefined {
   const o = v as Record<string, unknown>;
   if (typeof o.sku !== "string" || !PARENT_PACK_SKUS.includes(o.sku)) return undefined;
   if (typeof o.target !== "string" || typeof o.priceInr !== "number" || !Number.isFinite(o.priceInr) || o.priceInr <= 0) return undefined;
-  return { sku: o.sku as PackSku, target: o.target, priceInr: o.priceInr };
+  // GST-EXCL-1: from the cut-off the server adds what it CHARGES (base + GST) and the GST; kept only when they add up.
+  const gst =
+    typeof o.totalInr === "number" && typeof o.gstInr === "number" && Number.isInteger(o.totalInr) && Number.isInteger(o.gstInr) &&
+    o.gstInr > 0 && o.priceInr + o.gstInr === o.totalInr
+      ? { totalInr: o.totalInr, gstInr: o.gstInr }
+      : {};
+  return { sku: o.sku as PackSku, target: o.target, priceInr: o.priceInr, ...gst };
 }
 
 /**
@@ -88,6 +99,7 @@ export async function viewParentLinkWithPack(token: string): Promise<ParentLinkV
     prices: readPrices(json.prices),
     expiresAt: typeof json.expiresAt === "string" ? json.expiresAt : "",
     ...(pack ? { pack } : {}),
+    ...(readBoardPassGst(json.boardPassGst) ? { boardPassGst: readBoardPassGst(json.boardPassGst) } : {}),
   };
 }
 
@@ -102,7 +114,7 @@ export async function createParentPackOrder(token: string) {
   const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack" });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new ParentLinkError("failed");
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 /** Believed only when the server says `kind: "pack"`; `duplicate` = the child already had it (review M2). */
@@ -123,6 +135,8 @@ const PACK_DEPS: ParentPackBuyDeps = { createOrder: createParentPackOrder, loadS
 export async function buyPackAsParent(token: string, packName: string, deps: ParentPackBuyDeps = PACK_DEPS): Promise<ParentBuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(token), deps.loadScript()]);
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -130,7 +144,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: `${packName || "PDF pack"} (for your child)`,
+        description: razorpayDescription(`${packName || "PDF pack"} (for your child)`, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

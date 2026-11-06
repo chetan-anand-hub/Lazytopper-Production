@@ -112,9 +112,10 @@ describe("the Board Pass line (the same on every date)", () => {
       const strip = await renderStrip(open);
       const text = flat(strip);
       expect(flat(strip.querySelector(".lt-offer-strip-body"))).toBe(
-        `Board Pass: ${open ? "₹1,917" : "₹2,499"} \u2014 one payment till your boards. Upgrade whenever you like.`,
+        // GST-EXCL-1: the closed case is after the 7 Nov 2026 GST cut-off - the tag reads "+ GST".
+        `Board Pass: ${open ? "₹1,917" : "₹2,499 + GST"} \u2014 one payment till your boards. Upgrade whenever you like.`,
       );
-      expect([...new Set(text.match(/₹[\d,]+/g))]).toEqual([boardPassPriceDisplay()]);
+      expect([...new Set(text.match(/₹[\d,]+/g))]).toEqual([boardPassPriceDisplay().replace(" + GST", "")]);
       expect(text).not.toMatch(/599|999|for a month|locked|20%|save/i);
       // The Founding member offer label shows before the deadline only (owner, 21:20 IST 31 Oct 2026).
       if (open) expect(screen.getByTestId("lt-offer-founding-label")).toHaveTextContent("Founding member offer");
