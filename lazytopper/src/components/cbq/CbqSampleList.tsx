@@ -50,7 +50,7 @@ function Sample({ q, index }: { q: CanonicalQuestion; index: number }) {
 
 export default function CbqSampleList({ state }: { state: CbqSamplesState }) {
   if (state.status === "loading") {
-    return <p className="lt-cbqs__note" data-testid="cbq-samples-loading">Loading sample questions…</p>;
+    return <p className="lt-cbqs__note lt-cbqs__note--loading" data-testid="cbq-samples-loading">Loading sample questions…</p>;
   }
   if (state.status === "empty") {
     return (

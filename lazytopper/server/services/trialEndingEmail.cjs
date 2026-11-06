@@ -42,6 +42,7 @@
 const crypto = require('crypto');
 const passPricing = require('./passPricing.cjs');
 const { deriveEffectiveTier, isServerPinnedStart, TRIAL_MS } = require('./entitlement.cjs');
+const { isSuppressedTx } = require('./emailSuppression.cjs'); // GUEST-ABANDON-1 review D1
 
 const TRIAL_EMAILS_COLLECTION = 'trialEmails';
 /**
@@ -466,7 +467,7 @@ function createTrialEndingEmailer(deps = {}) {
    * 'spaced' - nothing is written, so the student stays a candidate and a later hourly run sends.
    * Returns 'claimed' | 'claimed-elsewhere' | 'opted-out' | 'spaced' | 'daily-cap'.
    */
-  async function claimWithinCap(ledgerRef, decision, dayKey, nowMs) {
+  async function claimWithinCap(ledgerRef, decision, dayKey, nowMs, email) {
     const dailyRef = adminFirestore.collection(TRIAL_EMAIL_DAILY_COLLECTION).doc(dayKey);
     const nudgeRef = adminFirestore.collection(NUDGE_LEDGER_COLLECTION).doc(ledgerRef.id);
     return adminFirestore.runTransaction(async (tx) => {
@@ -478,6 +479,8 @@ function createTrialEndingEmailer(deps = {}) {
         if (data.optedOut) return 'opted-out';
         if (!isDueSkipMarker(data, nowMs)) return 'claimed-elsewhere';
       }
+      // GUEST-ABANDON-1 review D1: a stop recorded for this ADDRESS (guest stop link) stops the trial email too.
+      if (await isSuppressedTx(tx, adminFirestore, email)) return 'opted-out';
       const lastNudge = n.exists ? (n.data() || {}).lastClaimMs : null;
       if (typeof lastNudge === 'number' && nowMs - lastNudge < ONE_A_DAY_MS) return 'spaced';
       const raw = d.exists ? (d.data() || {}).count : 0;
@@ -632,7 +635,7 @@ function createTrialEndingEmailer(deps = {}) {
         // and the IST day's count (in Firestore, not memory) never passes the cap.
         let claim;
         try {
-          claim = await claimWithinCap(ledgerRef, decision, day, nowMs);
+          claim = await claimWithinCap(ledgerRef, decision, day, nowMs, who.email);
         } catch (e) {
           skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;

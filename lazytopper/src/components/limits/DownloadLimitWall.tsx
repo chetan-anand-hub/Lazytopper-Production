@@ -1,7 +1,7 @@
 /**
  * DownloadLimitWall — LIMITS-1: the sheet a student meets at the weekly download limit (and
  * the sign-up / offline variants of it). Bottom sheet on a phone, centred card on desktop
- * (the same shape as UpgradeSheet). Actions: Pay / Pay by QR / Forward link (PaywallActions,
+ * (the same shape as UpgradeSheet). Actions: Pay / Share QR / Forward link (PaywallActions,
  * which renders "See plans" while payments are dark), and "Keep using Basic".
  *
  * Honest by construction: the date comes from the server, the price from config/pricing.ts,

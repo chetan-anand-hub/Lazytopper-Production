@@ -99,9 +99,13 @@ function collectionsInTexts(texts: readonly string[]): Set<string> {
       else if (m[2] && constants.has(m[2])) found.add(constants.get(m[2])!);
     }
 
-    // Admin SDK: adminFirestore.collection('name' | CONST)
+    // Admin SDK: adminFirestore.collection('name' | CONST | module.CONST)
+    //
+    // ★ GUEST-ABANDON-1 review D2: the optional `module.` prefix is load-bearing. A server file that imports a
+    // module and writes `.collection(guestEmail.GUEST_NUDGE_EMAILS_COLLECTION)` was invisible to this guard (it
+    // passed vacuously). The constant is still resolved from its `const X = 'name'` definition in whichever file.
     for (const m of text.matchAll(
-      /\.collection\(\s*(?:['"`]([a-zA-Z][a-zA-Z0-9]*)['"`]|([A-Z][A-Z0-9_]*))\s*\)/g
+      /\.collection\(\s*(?:['"`]([a-zA-Z][a-zA-Z0-9]*)['"`]|(?:[a-zA-Z_$][\w$]*\.)?([A-Z][A-Z0-9_]*))\s*\)/g
     )) {
       if (m[1]) found.add(m[1]);
       else if (m[2] && constants.has(m[2])) found.add(constants.get(m[2])!);
@@ -151,6 +155,8 @@ describe("studentDataMap — the source scanner, driven by FIXTURES", () => {
 
   it("★ catches the Admin-SDK .collection() form", () => {
     expect([...collectionsInTexts([`adminFirestore.collection('epsilon')`])]).toEqual(["epsilon"]);
+    // GUEST-ABANDON-1 review D2: a constant read off an imported module.
+    expect([...collectionsInTexts([`const OMEGA_COLLECTION = 'omega';`, `db.collection(mod.OMEGA_COLLECTION).doc(k)`])]).toEqual(["omega"]);
   });
 
   it("★★ REJECTS things that are not a top-level collection reference", () => {
@@ -327,7 +333,12 @@ describe("studentDataMap — drift guard", () => {
     // server/services/opsReport.cjs through the Admin SDK; no client reads or writes it, so it is
     // undeclared on purpose (deny-all catch-all; firestore.rules is NOT edited). Uid-free and
     // exempt (NON_STUDENT_COLLECTIONS), like `trialEmailDaily`.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "keyDisputeReports", "nudgeEmailDaily", "nudgeEmails", "opsReports", "packEntitlements", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
+    //
+    // ★ `emailSuppression` and `guestNudgeEmails` JOINED this set with GUEST-ABANDON-1 (and were only SEEN once
+    // review D2 taught the scanner the `module.CONST` form). Written only by server/services/nudgeEmail.cjs through
+    // the Admin SDK, keyed by an email-address hash; undeclared on purpose (deny-all catch-all). Mapped:
+    // guestNudgeEmails deleted on erasure, emailSuppression deliberately retained (a stop request).
+    expect(undeclared).toEqual(["activityLog", "emailSuppression", "freeCheckDaily", "gradingResults", "guestNudgeEmails", "keyDisputeReports", "nudgeEmailDaily", "nudgeEmails", "opsReports", "packEntitlements", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -742,5 +753,20 @@ describe("studentDataMap — FEEDBACK-2 repeat-ask keys", () => {
     expect(local!.holds).toContain("`lazytopper.feedbackGradedAsked`");
     expect(local!.holds).toContain("`a`");
     expect(STUDENT_DATA_MAP.filter((l) => l.kind === "local-storage")).toHaveLength(1);
+  });
+});
+
+describe("studentDataMap — email-address-keyed locations (GUEST-ABANDON-1 review D2)", () => {
+  it("★★ guestNudgeEmails is deleted by email key on erasure; emailSuppression is RETAINED on purpose and says why", () => {
+    const ledger = STUDENT_DATA_MAP.find((l) => l.id === "guestNudgeEmails");
+    const stop = STUDENT_DATA_MAP.find((l) => l.id === "emailSuppression");
+    expect(ledger?.path).toBe("guestNudgeEmails/{emailKey}");
+    expect(ledger?.onErase).toBe("delete-by-email-key");
+    expect(stop?.path).toBe("emailSuppression/{emailKey}");
+    expect(stop?.onErase).toBe("retain-email-key");
+    expect(stop?.notes).toMatch(/KEPT ON ERASURE, DELIBERATELY/);
+    // CONTROL: the scanner really finds both (it did not before the module.CONST fix).
+    const found = scanCollectionsFromSource();
+    expect(found.has("guestNudgeEmails") && found.has("emailSuppression")).toBe(true);
   });
 });

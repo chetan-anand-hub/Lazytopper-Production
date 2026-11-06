@@ -405,7 +405,7 @@ export function withPreloads(html: string, hrefs: readonly string[]): string {
  */
 export function dynamicImportCssOf(entryCode: string, chunkFile: string): string[] {
   const escaped = chunkFile.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const call = entryCode.match(new RegExp(`import\\("\\./${escaped}"\\),__vite__mapDeps\\(\\[([0-9,]*)\\]`));
+  const call = entryCode.match(new RegExp(`import\\("\\./${escaped}"\\)(?:\\.then\\([^()]*\\))*,__vite__mapDeps\\(\\[([0-9,]*)\\]`));
   if (!call) return [];
   const table = entryCode.match(/m\.f=\[([^\]]*)\]/);
   if (!table) {
@@ -437,12 +437,24 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
  * without their route CSS, so they are the pages that get it.
  */
 // SOLUTIONS-1 (G) adds `SolutionsPage`: the same hero + card layout as NcertBooksPage.
-export const INLINE_ROUTE_CSS_MODULES: readonly string[] = [
-  "CheckYourAnswerPage",
-  "ForParentsPage",
-  "NcertBooksPage",
-  "SolutionsPage",
-];
+/**
+ * CLS-1 (6 Nov 2026): /packs (CLS 0.575 desktop, CrUX 0.30 phones), /cbq-class-10 (0.44), every CBQ chapter page
+ * (1.085) and /contact (0.173) shifted for the same reason as the pages above: their CSS rode in with the lazy chunk
+ * AFTER the prerendered body had painted unstyled. A module may name extra SHARED chunk CSS prefixes (the CBQ band,
+ * the pack tiles, the founder badge ...) that its first paint needs; KaTeX stays out for the reason above.
+ */
+const OWN_ONLY: readonly string[] = [];
+export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
+  CheckYourAnswerPage: OWN_ONLY,
+  ForParentsPage: OWN_ONLY,
+  NcertBooksPage: OWN_ONLY,
+  SolutionsPage: OWN_ONLY,
+  ContactPage: ["ParentReturnLink"],
+  PacksPage: ["FounderBadge", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "TestimonialVideo"],
+  CbqHubPage: ["PackSampleLink", "CbqBand", "CbqChapterPage", "faqContent"],
+  CbqChapterPage: ["CbqChapterPage"],
+};
+export const INLINE_ROUTE_CSS_MODULES: readonly string[] = Object.keys(INLINE_ROUTE_CSS);
 
 /** The allowlisted route's own CSS files (never shared deps such as KaTeX) for `path`, in order. */
 export function routeCssFor(
@@ -456,8 +468,9 @@ export function routeCssFor(
   const css: string[] = [];
   for (const moduleName of routeChunkModulesFor(path)) {
     if (!INLINE_ROUTE_CSS_MODULES.includes(moduleName)) continue;
+    const prefixes = [moduleName, ...INLINE_ROUTE_CSS[moduleName]];
     for (const file of dynamicImportCssOf(entryCode, resolveRouteChunk(moduleName, assetFiles))) {
-      if (file.startsWith(`${moduleName}-`) && !css.includes(file)) css.push(file);
+      if (prefixes.some((prefix) => file.startsWith(`${prefix}-`)) && !css.includes(file)) css.push(file);
     }
   }
   return css;
