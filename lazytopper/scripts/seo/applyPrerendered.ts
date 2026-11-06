@@ -506,6 +506,69 @@ export function withRouteStyles(html: string, blocks: ReadonlyArray<{ file: stri
   return html.replace("</head>", () => `${styles}</head>`);
 }
 
+/**
+ * SPEED-SITE-1b — the entrance-animation classes stripped from a prerendered body before it
+ * is written. Both start from `opacity: 0` (styles.css `mobFloatUp` / `mobFadeIn`).
+ *
+ * ★ WHY. A prerendered page is meant to paint its content at first paint. With
+ * `animate-float-up` on the mobile shell's `<main>`, that first paint is at opacity 0, and
+ * Chrome does not count an opacity-0 paint as a Largest Contentful Paint candidate. The
+ * fade-in itself runs on the compositor, so nothing repaints when it ends, and the page's
+ * LCP was recorded only when React re-inserted the same content, after the entry bundle
+ * had downloaded and run. Measured on /notes/real-numbers (4x CPU): LCP 2280 ms with the
+ * class, 316 ms without it.
+ *
+ * Only the static first paint changes. The app's own render (MobileShell) still carries the
+ * class, so every in-app navigation fades in exactly as before, and the committed artifact
+ * (what the capture records) is untouched.
+ */
+export const ENTRANCE_ANIMATION_CLASSES: readonly string[] = ["animate-float-up", "animate-fade-in"];
+
+/**
+ * The class attributes this step may edit: only inside a start TAG, never in text, never inside a
+ * `<script>` or `<style>` element's raw contents and never in a comment. Those regions are copied
+ * through untouched; in the rest, only `<tag ...>` matches are looked at (text is serialized with `<`
+ * escaped, so it can never look like a tag). An attribute value holding a raw `>` ends the match early,
+ * which can only make this step strip LESS (verifyBuiltPages would then fail the build loudly).
+ */
+const RAW_REGION = /<!--[\s\S]*?-->|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+const START_TAG = /<[A-Za-z][A-Za-z0-9-]*(?:\s[^<>]*)?>/g;
+const CLASS_ATTR = /(\s)class="([^"]*)"/g;
+
+function mapStartTags(html: string, edit: (tag: string) => string): string {
+  let out = "";
+  let at = 0;
+  for (const raw of html.matchAll(RAW_REGION)) {
+    out += html.slice(at, raw.index).replace(START_TAG, edit) + raw[0];
+    at = (raw.index ?? 0) + raw[0].length;
+  }
+  return out + html.slice(at).replace(START_TAG, edit);
+}
+
+export function withoutEntranceAnimation(fragment: string): string {
+  return mapStartTags(fragment, (tag) =>
+    tag.replace(CLASS_ATTR, (whole, space: string, value: string) => {
+      const tokens = value.split(/\s+/).filter((t) => t !== "");
+      if (!tokens.some((t) => ENTRANCE_ANIMATION_CLASSES.includes(t))) return whole;
+      const kept = tokens.filter((t) => !ENTRANCE_ANIMATION_CLASSES.includes(t));
+      return kept.length > 0 ? `${space}class="${kept.join(" ")}"` : "";
+    }),
+  );
+}
+
+/** Every entrance-animation class still present on an element (a start tag) in a built page's body. */
+export function entranceAnimationsIn(html: string): string[] {
+  const body = html.slice(Math.max(0, html.indexOf("<body")));
+  const found: string[] = [];
+  mapStartTags(body, (tag) => {
+    for (const match of tag.matchAll(CLASS_ATTR)) {
+      for (const token of match[2].split(/\s+/)) if (ENTRANCE_ANIMATION_CLASSES.includes(token)) found.push(token);
+    }
+    return tag;
+  });
+  return found;
+}
+
 /** Every `data-lt-inline` file name in a built page. */
 export function inlinedStylesIn(html: string): string[] {
   return [...html.matchAll(/<style data-lt-inline="([^"]+)">/g)].map((m) => m[1]);
@@ -579,6 +642,10 @@ export function verifyBuiltPages(
         if (!/\/assets\/[^/]+\.js$/.test(href) || !existsSync(target) || !statSync(target).isFile()) {
           failures.push(`${path}: the ${variant} file ${file} preloads ${href}, which this build did not emit`);
         }
+      }
+      // SPEED-SITE-1b: no prerendered body paints its content at opacity 0.
+      for (const cls of entranceAnimationsIn(html)) {
+        failures.push(`${path}: the ${variant} file ${file} still carries the entrance animation "${cls}" in its body`);
       }
       // LOW-END-3 PR-1 (a): no URL that costs the reader a redirect hop.
       for (const url of hopUrlsIn(html)) {
@@ -704,8 +771,9 @@ export function applyArtifact(
   const desktopFragments = new Map<string, string>();
   const assetFailures: string[] = [];
   for (const path of expected) {
-    const fragment = readFileSync(fragmentPathFor(path, prerenderedDir), "utf8");
-    const desktopFragment = readFileSync(desktopFragmentPathFor(path, prerenderedDir), "utf8");
+    // SPEED-SITE-1b: the first paint shows the content, not an opacity-0 frame (see withoutEntranceAnimation).
+    const fragment = withoutEntranceAnimation(readFileSync(fragmentPathFor(path, prerenderedDir), "utf8"));
+    const desktopFragment = withoutEntranceAnimation(readFileSync(desktopFragmentPathFor(path, prerenderedDir), "utf8"));
     fragments.set(path, fragment);
     desktopFragments.set(path, desktopFragment);
     for (const ref of [...new Set([...assetRefsIn(fragment), ...assetRefsIn(desktopFragment)])]) {
