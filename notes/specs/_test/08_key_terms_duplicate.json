@@ -121,20 +121,44 @@
   ],
   "key_terms": [
     {
-      "term": "Ohm's law",
-      "meaning": "At constant temperature, V = IR.",
+      "term": "Term A",
+      "meaning": "A plain one-line meaning.",
       "source": "NCERT 2026-27 Ch11 p.176"
     },
     {
-      "term": "ohm's law",
-      "meaning": "Duplicate row: rule 12 must catch it.",
+      "term": "Term B",
+      "meaning": "A plain one-line meaning.",
       "source": "NCERT 2026-27 Ch11 p.176"
     },
     {
-      "term": "Rheostat",
-      "meaning": "A variable resistance.",
-      "avoid": "rheostat",
-      "source": "NCERT 2026-27 Ch11 p.175"
+      "term": "Term C",
+      "meaning": "A plain one-line meaning.",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "term": "Term D",
+      "meaning": "A plain one-line meaning.",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "term": "Term E",
+      "meaning": "A plain one-line meaning.",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "term": "Term F",
+      "meaning": "A plain one-line meaning.",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "term": "Term G",
+      "meaning": "A plain one-line meaning.",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "term": "term a",
+      "meaning": "Duplicate of Term A, case-folded.",
+      "source": "NCERT 2026-27 Ch11 p.176"
     }
   ]
 }

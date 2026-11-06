@@ -515,7 +515,7 @@
     {"term": "Heredity", "meaning": "The rules by which traits and characteristics are reliably inherited.", "source": "NCERT 2026-27 Ch8 p.128 (jesc108)"},
     {"term": "Variation", "meaning": "Differences between individuals of the same species.", "source": "NCERT 2026-27 Ch8 p.128 (jesc108)"},
     {"term": "Inherited traits", "meaning": "Features passed from parents to children, like free or attached earlobes.", "source": "NCERT 2026-27 Ch8 p.129 (jesc108)"},
-    {"term": "Genes", "meaning": "A section of DNA that provides information for one protein.", "avoid": "factors", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
+    {"term": "Genes", "meaning": "A section of DNA that provides information for one protein.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
     {"term": "Dominant traits", "meaning": "Traits that show even when only one copy is present, like T in Tt.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
     {"term": "Recessive traits", "meaning": "Traits that show only when both copies are the same, like tt.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
     {"term": "F1 progeny", "meaning": "The first generation from a cross; in Mendel's tall × short cross, all were tall.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},

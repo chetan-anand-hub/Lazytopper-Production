@@ -540,7 +540,7 @@
     {"term": "Centre of curvature", "meaning": "The centre of the sphere of which the mirror is a part (C).", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
     {"term": "Radius of curvature", "meaning": "The radius of that sphere (R); R = 2f.", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
     {"term": "Principal axis", "meaning": "The straight line through the pole and the centre of curvature.", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
-    {"term": "Principal focus", "meaning": "The point where rays parallel to the principal axis meet, or seem to come from, after reflection.", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
+    {"term": "Principal focus", "meaning": "The point where rays parallel to the principal axis meet, or seem to come from, after reflection (mirror) or refraction (lens).", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
     {"term": "Focal length", "meaning": "The distance between the pole and the principal focus (f).", "source": "NCERT 2026-27 Ch9 p.136 (jesc109)"},
     {"term": "Aperture", "meaning": "The diameter of the reflecting surface of the mirror.", "source": "NCERT 2026-27 Ch9 p.137 (jesc109)"},
     {"term": "Real image", "meaning": "An image that can be obtained on a screen.", "source": "NCERT 2026-27 Ch9 p.143 (jesc109)"},

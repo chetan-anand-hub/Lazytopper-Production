@@ -28,7 +28,12 @@ EXPECT = {
     TEST_DIR / "04_ledger_count.json": 7,
     TEST_DIR / "05_third_tab_mismatch.json": 4,
     TEST_DIR / "06_marks_sum_mismatch.json": 10,
-    TEST_DIR / "07_key_terms_bad.json": 12,      # KEY-TERMS-1: too few rows, a duplicate term, avoid == term
+    # KEY-TERMS-1 rule 12 — one fixture per check, each tripping exactly one violation
+    TEST_DIR / "07_key_terms_too_few.json": 12,
+    TEST_DIR / "08_key_terms_duplicate.json": 12,
+    TEST_DIR / "09_key_terms_avoid_equals_term.json": 12,
+    TEST_DIR / "10_key_terms_math.json": 12,
+    TEST_DIR / "11_key_terms_no_source.json": 12,
 }
 
 
