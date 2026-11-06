@@ -836,7 +836,20 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("CHEM-NCERT-1-SA-014"), // not one comparable value
       r("CHEM-NCERT-1-VSA-006"), // more than one value in the answer
     ],
-    exemplar: [],
+    exemplar: [
+      r("CHEM-EXMPLR-1-MCQ-001"),
+      r("CHEM-EXMPLR-1-MCQ-004"),
+      r("CHEM-EXMPLR-1-MCQ-005"),
+      r("CHEM-EXMPLR-1-MCQ-010"),
+      r("CHEM-EXMPLR-1-MCQ-011"),
+      r("CHEM-EXMPLR-1-MCQ-013"),
+      r("CHEM-EXMPLR-1-MCQ-016"),
+      r("CHEM-EXMPLR-1-SA-001"), // multi-part
+      r("CHEM-EXMPLR-1-SA-004"), // asks for more than one value
+      r("CHEM-EXMPLR-1-SA-005"), // more than one value in the answer
+      r("CHEM-EXMPLR-1-SA-019"), // multi-part
+      r("CHEM-EXMPLR-1-SA-020"), // more than one value in the answer
+    ],
   },
   {
     slug: "acids-bases-and-salts",
@@ -869,7 +882,30 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ACID-NCERT-2-VSA-020"), // more than one value in the answer
       r("ACID-NCERT-2-VSA-021"), // not one comparable value
     ],
-    exemplar: [],
+    exemplar: [
+      r("ACID-EXMPLR-2-MCQ-001"),
+      r("ACID-EXMPLR-2-MCQ-002"),
+      r("ACID-EXMPLR-2-MCQ-004"),
+      r("ACID-EXMPLR-2-MCQ-007"),
+      r("ACID-EXMPLR-2-MCQ-008"),
+      r("ACID-EXMPLR-2-MCQ-009"),
+      r("ACID-EXMPLR-2-MCQ-010"),
+      r("ACID-EXMPLR-2-MCQ-012"),
+      r("ACID-EXMPLR-2-MCQ-013"),
+      r("ACID-EXMPLR-2-MCQ-014"),
+      r("ACID-EXMPLR-2-MCQ-016"),
+      r("ACID-EXMPLR-2-MCQ-017"),
+      r("ACID-EXMPLR-2-MCQ-018"),
+      r("ACID-EXMPLR-2-MCQ-019"),
+      r("ACID-EXMPLR-2-MCQ-023"),
+      r("ACID-EXMPLR-2-MCQ-027"),
+      r("ACID-EXMPLR-2-MCQ-028"),
+      r("ACID-EXMPLR-2-MCQ-029"),
+      r("ACID-EXMPLR-2-MCQ-030"),
+      r("ACID-EXMPLR-2-SA-004"), // asks for more than one value
+      r("ACID-EXMPLR-2-SA-005"), // not one comparable value
+      r("ACID-EXMPLR-2-SA-011"), // more than one value in the answer
+    ],
   },
   {
     slug: "metals-and-non-metals",
@@ -886,7 +922,41 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("METAL-NCERT-3-VSA-010"), // more than one value in the answer
       r("METAL-NCERT-3-SA-007"), // more than one value in the answer
     ],
-    exemplar: [],
+    exemplar: [
+      r("METAL-EXMPLR-3-MCQ-002"),
+      r("METAL-EXMPLR-3-MCQ-003"),
+      r("METAL-EXMPLR-3-MCQ-004"),
+      r("METAL-EXMPLR-3-MCQ-006"),
+      r("METAL-EXMPLR-3-MCQ-007"),
+      r("METAL-EXMPLR-3-MCQ-008"),
+      r("METAL-EXMPLR-3-MCQ-009"),
+      r("METAL-EXMPLR-3-MCQ-012"),
+      r("METAL-EXMPLR-3-MCQ-014"),
+      r("METAL-EXMPLR-3-MCQ-017"),
+      r("METAL-EXMPLR-3-MCQ-018"),
+      r("METAL-EXMPLR-3-MCQ-019"),
+      r("METAL-EXMPLR-3-MCQ-020"),
+      r("METAL-EXMPLR-3-MCQ-023"),
+      r("METAL-EXMPLR-3-MCQ-024"),
+      r("METAL-EXMPLR-3-MCQ-025"),
+      r("METAL-EXMPLR-3-MCQ-026"),
+      r("METAL-EXMPLR-3-MCQ-028"),
+      r("METAL-EXMPLR-3-MCQ-030"),
+      r("METAL-EXMPLR-3-MCQ-031"),
+      r("METAL-EXMPLR-3-MCQ-034"),
+      r("METAL-EXMPLR-3-MCQ-035"),
+      r("METAL-EXMPLR-3-SA-002"), // multi-part
+      r("METAL-EXMPLR-3-SA-004"), // more than one value in the answer
+      r("METAL-EXMPLR-3-SA-006"), // asks for more than one value
+      r("METAL-EXMPLR-3-SA-008"), // multi-part
+      r("METAL-EXMPLR-3-SA-011"), // more than one value in the answer
+      r("METAL-EXMPLR-3-SA-012"), // multi-part
+      r("METAL-EXMPLR-3-SA-016"), // asks for more than one value
+      r("METAL-EXMPLR-3-SA-018"), // more than one value in the answer
+      r("METAL-EXMPLR-3-SA-020"), // asks for more than one value
+      r("METAL-EXMPLR-3-SA-022"), // not one comparable value
+      r("METAL-EXMPLR-3-LONG-005"), // asks for more than one value
+    ],
   },
   {
     slug: "carbon-and-its-compounds",
@@ -910,12 +980,39 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("CARB-NCERT-4-VSA-017"), // more than one value in the answer
       r("CARB-NCERT-4-LONG-003"), // more than one value in the answer
     ],
-    exemplar: [],
+    exemplar: [
+      r("CARB-EXMPLR-4-MCQ-004"),
+      r("CARB-EXMPLR-4-MCQ-007"),
+      r("CARB-EXMPLR-4-MCQ-008"),
+      r("CARB-EXMPLR-4-MCQ-009"),
+      r("CARB-EXMPLR-4-MCQ-012"),
+      r("CARB-EXMPLR-4-MCQ-014"),
+      r("CARB-EXMPLR-4-MCQ-015"),
+      r("CARB-EXMPLR-4-MCQ-017"),
+      r("CARB-EXMPLR-4-MCQ-019"),
+      r("CARB-EXMPLR-4-MCQ-020"),
+      r("CARB-EXMPLR-4-MCQ-021"),
+      r("CARB-EXMPLR-4-MCQ-025"),
+      r("CARB-EXMPLR-4-MCQ-026"),
+      r("CARB-EXMPLR-4-MCQ-027"),
+      r("CARB-EXMPLR-4-MCQ-028"),
+      r("CARB-EXMPLR-4-SA-001"), // asks for more than one value
+      r("CARB-EXMPLR-4-SA-004"), // multi-part
+      r("CARB-EXMPLR-4-SA-005"), // more than one value in the answer
+      r("CARB-EXMPLR-4-SA-006"), // multi-part
+      r("CARB-EXMPLR-4-SA-007"), // more than one value in the answer
+      r("CARB-EXMPLR-4-SA-009"), // asks for more than one value
+      r("CARB-EXMPLR-4-SA-010"), // not one comparable value
+      r("CARB-EXMPLR-4-SA-015"), // multi-part
+      r("CARB-EXMPLR-4-LONG-002"), // multi-part
+      r("CARB-EXMPLR-4-LONG-006"), // asks for more than one value
+    ],
   },
   {
     slug: "life-processes",
     subject: "Science",
     chapter: 5,
+    exemplarChapter: 6,
     title: "Life Processes",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
@@ -927,12 +1024,25 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("LIFE-NCERT-5-SA-007"), // more than one value in the answer
       r("LIFE-NCERT-5-SA-008"), // a relation, not one value
     ],
-    exemplar: [],
+    exemplar: [
+      r("LIFE-EXMPLR-5-MCQ-001"),
+      r("LIFE-EXMPLR-5-MCQ-035"),
+      r("LIFE-EXMPLR-5-SA-005"), // yes/no, true/false or verify, with reason
+      r("LIFE-EXMPLR-5-SA-006"), // more than one value in the answer
+      r("LIFE-EXMPLR-5-SA-010"), // more than one value in the answer
+      r("LIFE-EXMPLR-5-SA-012"), // multi-part
+      r("LIFE-EXMPLR-5-SA-017"), // not one comparable value
+      r("LIFE-EXMPLR-5-SA-020"), // multi-part
+      r("LIFE-EXMPLR-5-SA-023"), // more than one value in the answer
+      r("LIFE-EXMPLR-5-SA-025"), // multi-part
+      r("LIFE-EXMPLR-5-SA-033"), // not one comparable value
+    ],
   },
   {
     slug: "control-and-coordination",
     subject: "Science",
     chapter: 6,
+    exemplarChapter: 7,
     title: "Control and Coordination",
     shortTitle: "Control & Coordination",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
@@ -945,12 +1055,36 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("CTRL-NCERT-6-MCQ-003"),
       r("CTRL-NCERT-6-SA-012"), // not one comparable value
     ],
-    exemplar: [],
+    exemplar: [
+      r("CTRL-EXMPLR-6-MCQ-001"),
+      r("CTRL-EXMPLR-6-MCQ-002"),
+      r("CTRL-EXMPLR-6-MCQ-006"),
+      r("CTRL-EXMPLR-6-MCQ-007"),
+      r("CTRL-EXMPLR-6-MCQ-008"),
+      r("CTRL-EXMPLR-6-MCQ-010"),
+      r("CTRL-EXMPLR-6-MCQ-012"),
+      r("CTRL-EXMPLR-6-MCQ-013"),
+      r("CTRL-EXMPLR-6-MCQ-014"),
+      r("CTRL-EXMPLR-6-MCQ-015"),
+      r("CTRL-EXMPLR-6-MCQ-018"),
+      r("CTRL-EXMPLR-6-MCQ-019"),
+      r("CTRL-EXMPLR-6-MCQ-021"),
+      r("CTRL-EXMPLR-6-MCQ-023"),
+      r("CTRL-EXMPLR-6-MCQ-026"),
+      r("CTRL-EXMPLR-6-MCQ-028"),
+      r("CTRL-EXMPLR-6-MCQ-029"),
+      r("CTRL-EXMPLR-6-MCQ-031"),
+      r("CTRL-EXMPLR-6-MCQ-032"),
+      r("CTRL-EXMPLR-6-MCQ-033"),
+      r("CTRL-EXMPLR-6-SA-007"), // not one comparable value
+      r("CTRL-EXMPLR-6-SA-010"), // multi-part
+    ],
   },
   {
     slug: "how-do-organisms-reproduce",
     subject: "Science",
     chapter: 7,
+    exemplarChapter: 8,
     title: "How do Organisms Reproduce?",
     shortTitle: "Reproduction",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
@@ -964,12 +1098,55 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("REPR-NCERT-7-MCQ-002"),
       r("REPR-NCERT-7-SA-018"), // more than one value in the answer
     ],
-    exemplar: [],
+    exemplar: [
+      r("REPR-EXMPLR-7-MCQ-001"),
+      r("REPR-EXMPLR-7-MCQ-003"),
+      r("REPR-EXMPLR-7-MCQ-004"),
+      r("REPR-EXMPLR-7-MCQ-005"),
+      r("REPR-EXMPLR-7-MCQ-007"),
+      r("REPR-EXMPLR-7-MCQ-008"),
+      r("REPR-EXMPLR-7-MCQ-009"),
+      r("REPR-EXMPLR-7-MCQ-015"),
+      r("REPR-EXMPLR-7-MCQ-016"),
+      r("REPR-EXMPLR-7-MCQ-017"),
+      r("REPR-EXMPLR-7-MCQ-020"),
+      r("REPR-EXMPLR-7-MCQ-021"),
+      r("REPR-EXMPLR-7-MCQ-022"),
+      r("REPR-EXMPLR-7-MCQ-025"),
+      r("REPR-EXMPLR-7-MCQ-026"),
+      r("REPR-EXMPLR-7-SA-002"), // more than one value in the answer
+      r("REPR-EXMPLR-7-SA-006"), // more than one value in the answer
+      r("REPR-EXMPLR-7-SA-011"), // more than one value in the answer
+      r("REPR-EXMPLR-7-SA-019"), // more than one value in the answer
+    ],
+  },
+  {
+    slug: "heredity",
+    subject: "Science",
+    chapter: 8,
+    exemplarChapter: 9,
+    title: "Heredity",
+    decision: "SOLUTIONS-SCI (owner 6 Nov)",
+    ncert: [],
+    exemplar: [
+      r("HERED-EXMPLR-8-MCQ-001"),
+      r("HERED-EXMPLR-8-MCQ-003"),
+      r("HERED-EXMPLR-8-MCQ-004"),
+      r("HERED-EXMPLR-8-MCQ-005"),
+      r("HERED-EXMPLR-8-MCQ-006"),
+      r("HERED-EXMPLR-8-MCQ-007"),
+      r("HERED-EXMPLR-8-MCQ-008"),
+      r("HERED-EXMPLR-8-MCQ-010"),
+      r("HERED-EXMPLR-8-SA-004"), // more than one value in the answer
+      r("HERED-EXMPLR-8-SA-005"), // multi-part
+      r("HERED-EXMPLR-8-SA-007"), // more than one value in the answer
+    ],
   },
   {
     slug: "light-reflection-and-refraction",
     subject: "Science",
     chapter: 9,
+    exemplarChapter: 10,
     title: "Light – Reflection and Refraction",
     shortTitle: "Light",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
@@ -1004,12 +1181,32 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("LIGHT-NCERT-9-SA-014"), // more than one value in the answer
       r("LIGHT-NCERT-9-SA-015"), // more than one value in the answer
     ],
-    exemplar: [],
+    exemplar: [
+      r("LIGHT-EXMPLR-9-MCQ-001"),
+      r("LIGHT-EXMPLR-9-MCQ-002"),
+      r("LIGHT-EXMPLR-9-MCQ-008"),
+      r("LIGHT-EXMPLR-9-MCQ-009"),
+      r("LIGHT-EXMPLR-9-MCQ-010"),
+      r("LIGHT-EXMPLR-9-MCQ-012"),
+      r("LIGHT-EXMPLR-9-MCQ-013"),
+      r("LIGHT-EXMPLR-9-MCQ-018"),
+      r("LIGHT-EXMPLR-9-MCQ-019"),
+      r("LIGHT-EXMPLR-9-SA-001"), // multi-part
+      r("LIGHT-EXMPLR-9-SA-003"), // more than one value in the answer
+      r("LIGHT-EXMPLR-9-SA-008"), // more than one value in the answer
+      f("LIGHT-EXMPLR-9-LA-001"), // answer shown with its bound solution figure
+      f("LIGHT-EXMPLR-9-LA-003"), // answer shown with its bound solution figure
+      f("LIGHT-EXMPLR-9-LA-004"), // answer shown with its bound solution figure
+      f("LIGHT-EXMPLR-9-LA-005"), // answer shown with its bound solution figure
+      r("LIGHT-EXMPLR-9-LA-006"), // more than one value in the answer
+      r("LIGHT-EXMPLR-9-LA-008"), // more than one value in the answer
+    ],
   },
   {
     slug: "human-eye-and-colourful-world",
     subject: "Science",
     chapter: 10,
+    exemplarChapter: 11,
     title: "The Human Eye and the Colourful World",
     shortTitle: "Human Eye",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
@@ -1029,12 +1226,27 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("EYE-NCERT-10-SA-011"), // more than one value in the answer
       r("EYE-NCERT-10-SA-012"), // more than one value in the answer
     ],
-    exemplar: [],
+    exemplar: [
+      r("EYE-EXMPLR-10-MCQ-001"),
+      r("EYE-EXMPLR-10-MCQ-002"),
+      r("EYE-EXMPLR-10-MCQ-006"),
+      r("EYE-EXMPLR-10-MCQ-007"),
+      r("EYE-EXMPLR-10-MCQ-009"),
+      r("EYE-EXMPLR-10-MCQ-011"),
+      r("EYE-EXMPLR-10-MCQ-012"),
+      r("EYE-EXMPLR-10-MCQ-013"),
+      r("EYE-EXMPLR-10-SA-003"), // asks for more than one value
+      r("EYE-EXMPLR-10-SA-007"), // yes/no, true/false or verify, with reason
+      r("EYE-EXMPLR-10-SA-008"), // more than one value in the answer
+      r("EYE-EXMPLR-10-SA-009"), // more than one value in the answer
+      r("EYE-EXMPLR-10-LA-006"), // not one comparable value
+    ],
   },
   {
     slug: "electricity",
     subject: "Science",
     chapter: 11,
+    exemplarChapter: 12,
     title: "Electricity",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
@@ -1076,12 +1288,28 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("ELEC-NCERT-11-SA-032"), // approximate / rounded key
       r("ELEC-NCERT-11-SA-033"), // not one comparable value
     ],
-    exemplar: [],
+    exemplar: [
+      r("ELEC-EXMPLR-11-MCQ-004"),
+      r("ELEC-EXMPLR-11-MCQ-010"),
+      r("ELEC-EXMPLR-11-MCQ-012"),
+      r("ELEC-EXMPLR-11-MCQ-016"),
+      r("ELEC-EXMPLR-11-SA-003"), // not one comparable value
+      r("ELEC-EXMPLR-11-SA-004"), // more than one value in the answer
+      r("ELEC-EXMPLR-11-LA-002"), // more than one value in the answer
+      r("ELEC-EXMPLR-11-SA-005"), // not one comparable value
+      r("ELEC-EXMPLR-11-LA-003"), // more than one value in the answer
+      r("ELEC-EXMPLR-11-SA-006"), // more than one value in the answer
+      r("ELEC-EXMPLR-11-LA-005"), // yes/no, true/false or verify, with reason
+      r("ELEC-EXMPLR-11-LA-007"), // more than one value in the answer
+      r("ELEC-EXMPLR-11-LA-008"), // not one comparable value
+      r("ELEC-EXMPLR-11-LA-009"), // not one comparable value
+    ],
   },
   {
     slug: "magnetic-effects-of-electric-current",
     subject: "Science",
     chapter: 12,
+    exemplarChapter: 13,
     title: "Magnetic Effects of Electric Current",
     shortTitle: "Magnetic Effects",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
@@ -1104,6 +1332,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     slug: "our-environment",
     subject: "Science",
     chapter: 13,
+    exemplarChapter: 15,
     title: "Our Environment",
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
@@ -1466,4 +1695,81 @@ export function hintRevealsAnswer(q: {
     if (shared / words.length >= 0.6) return true;
   }
   return false;
+}
+
+// ---------------------------------------------------------------------------------------------
+// SOLUTIONS-SCI-3 (owner instruction, 6 Nov 2026) — the NCERT Exemplar SCIENCE book references.
+//
+// The Exemplar Science book numbers its questions straight through each chapter (Q1 … Qn) in three
+// sections: Multiple Choice, Short Answer, Long Answer. The bank writes the reference as
+// "Exemplar Ex 6.1 Q1 (MCQ)", "Exemplar Ex 4.1 Q1", "Exemplar MCQ Q1", "Exemplar SA Q19",
+// "Exemplar Q13", "Exemplar Q25 (LA)" or "Exemplar Ex 1.2 Q20a (SA)": ONE parser reads them all
+// for the selection script and the page. The "Ex N." number, when written, is the Exemplar
+// chapter (old numbering) and must match the chapter's Exemplar chapter.
+// ---------------------------------------------------------------------------------------------
+
+export type ScienceExemplarSection = "mcq" | "sa" | "la";
+
+export interface ScienceExemplarRef {
+  /** Exemplar chapter named in the reference ("Ex 6.1" → 6), or null. */
+  chapter: number | null;
+  section: ScienceExemplarSection;
+  /** Question number (the book numbers straight through the chapter). */
+  n: number;
+  /** A sub-part written with the number ("a", "b–d"), or null. */
+  part: string | null;
+}
+
+const EXEMPLAR_SCI_REF =
+  /^Exemplar (?:Ex (\d+)\.\d+ )?(?:(MCQ|SA|LA) )?Q(\d+)([a-z](?:[–-][a-z])?)?(?: \((MCQ|SA|LA)\))?$/;
+
+/** The parsed Exemplar Science reference, or null. The section comes from the reference, else the row's format. */
+export function parseScienceExemplarRef(ref: string | undefined, format?: string): ScienceExemplarRef | null {
+  const m = EXEMPLAR_SCI_REF.exec(String(ref ?? "").trim());
+  if (!m) return null;
+  const tag = (m[2] ?? m[5] ?? "").toLowerCase();
+  const f = String(format ?? "").toLowerCase();
+  const section: ScienceExemplarSection | null =
+    tag === "mcq" || tag === "sa" || tag === "la"
+      ? tag
+      : /mcq/.test(f)
+        ? "mcq"
+        : /long/.test(f)
+          ? "la"
+          : /short|vsa/.test(f)
+            ? "sa"
+            : null;
+  if (!section) return null;
+  return { chapter: m[1] ? Number(m[1]) : null, section, n: Number(m[3]), part: m[4] ?? null };
+}
+
+export const SCIENCE_EXEMPLAR_GROUP_TITLES: Readonly<Record<ScienceExemplarSection, string>> = {
+  mcq: "Multiple choice questions",
+  sa: "Short answer questions",
+  la: "Long answer questions",
+};
+
+/** "Exemplar Q12", "Exemplar Q20(a)": the card label of an Exemplar Science row, or null. */
+export function scienceExemplarRefLabel(ref: string | undefined, format?: string): string | null {
+  const r = parseScienceExemplarRef(ref, format);
+  return r ? `Exemplar Q${r.n}${r.part ? `(${r.part})` : ""}` : null;
+}
+
+/** The Exemplar page's groups (MCQ, short answer, long answer), each in question-number order. */
+export function scienceExemplarGroups<T extends { q: { ncertRef?: string; format?: string } }>(
+  rows: readonly T[],
+): Array<{ title: string; rows: T[] }> {
+  const keyed = rows.flatMap((row) => {
+    const r = parseScienceExemplarRef(row.q.ncertRef, row.q.format);
+    return r ? [{ row, r }] : [];
+  });
+  return (["mcq", "sa", "la"] as const)
+    .map((section) => ({
+      title: SCIENCE_EXEMPLAR_GROUP_TITLES[section],
+      rows: keyed
+        .filter((k) => k.r.section === section)
+        .sort((a, b) => a.r.n - b.r.n || String(a.r.part).localeCompare(String(b.r.part)))
+        .map((k) => k.row),
+    }))
+    .filter((g) => g.rows.length > 0);
 }

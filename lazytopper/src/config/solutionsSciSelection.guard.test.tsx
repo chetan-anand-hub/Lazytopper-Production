@@ -12,7 +12,11 @@ import {
   hasBook,
   hintRevealsAnswer,
   isObjectiveRow,
+  bookChapterNo,
+  parseScienceExemplarRef,
   parseScienceRef,
+  scienceExemplarGroups,
+  scienceExemplarRefLabel,
   publishedRows,
   scienceGroups,
   scienceRefLabel,
@@ -31,6 +35,7 @@ import { compareAnswer, correctOptionIndex, parseQuantity } from "../lib/solutio
 import { getSolutionFigures } from "../diagrams/registry";
 import { rowHash, MIN_ROWS_PER_PAGE, type Row } from "../../scripts/solutions/selectSolutions";
 import {
+  EXEMPLAR_SCIENCE_CHAPTER,
   SCIENCE_SOLUTIONS_SLUGS,
   SIGN_CONVENTION_SLUGS,
   scienceVerdictEligibility,
@@ -90,7 +95,7 @@ describe("(a) the committed Science allowlist is exactly what the script selects
   });
 });
 
-describe("(b) scope: the covered NCERT Science chapters, NCERT book only", () => {
+describe("(b) scope: the 13 Science chapters, NCERT textbook and (SCI-3) NCERT Exemplar", () => {
   it("all 13 chapters selected, under their /notes and /ncert-class-10 slugs and 2026-27 chapter numbers", () => {
     const sci = NCERT_CLASS10_CHAPTERS.filter((r) => r.book === "Science");
     expect(sci).toHaveLength(13);
@@ -99,19 +104,47 @@ describe("(b) scope: the covered NCERT Science chapters, NCERT book only", () =>
       const row = sci.find((r) => r.slug === spec.slug)!;
       expect([spec.chapter, spec.title]).toEqual([row.chapter, row.title]);
     }
-    // Every chapter but Heredity has a published NCERT page (Heredity: 3 rows, below the 5-row floor).
-    expect(SCI.map((c) => [c.slug, c.chapter])).toEqual(sci.filter((r) => r.slug !== "heredity").map((r) => [r.slug, r.chapter]));
+    // Every chapter has a page in at least one book. Heredity: Exemplar only (its NCERT rows are 3,
+    // below the 5-row floor); Magnetic Effects and Our Environment: NCERT only.
+    expect(SCI.map((c) => [c.slug, c.chapter])).toEqual(sci.map((r) => [r.slug, r.chapter]));
+    expect(Object.fromEntries(SCI.map((c) => [c.slug, booksOf(c).join("+")]))).toEqual({
+      "chemical-reactions-and-equations": "ncert+exemplar", "acids-bases-and-salts": "ncert+exemplar",
+      "metals-and-non-metals": "ncert+exemplar", "carbon-and-its-compounds": "ncert+exemplar",
+      "life-processes": "ncert+exemplar", "control-and-coordination": "ncert+exemplar",
+      "how-do-organisms-reproduce": "ncert+exemplar", heredity: "exemplar",
+      "light-reflection-and-refraction": "ncert+exemplar", "human-eye-and-colourful-world": "ncert+exemplar",
+      electricity: "ncert+exemplar", "magnetic-effects-of-electric-current": "ncert", "our-environment": "ncert",
+    });
     expect(selections.find((x) => x.spec.slug === "heredity")?.excluded.filter((e) => e.reason === "thin-page")).toHaveLength(3);
   });
-  it("no Science Exemplar page, and every Science page has at least the minimum rows", () => {
+  it("every published Science book page has at least the minimum rows; each book's rows carry its own ids", () => {
     for (const ch of SCI) {
-      expect(ch.exemplar, ch.slug).toEqual([]);
-      expect(booksOf(ch), ch.slug).toEqual(["ncert"]);
-      expect(ch.ncert.length, ch.slug).toBeGreaterThanOrEqual(MIN_ROWS_PER_PAGE);
+      for (const book of ["ncert", "exemplar"] as const) {
+        if (hasBook(ch, book)) expect(ch[book].length, `${ch.slug} ${book}`).toBeGreaterThanOrEqual(MIN_ROWS_PER_PAGE);
+        else expect(solutionsPaths(), `${ch.slug} ${book}`).not.toContain(solutionsPath(book, ch.slug));
+      }
+      for (const r of ch.ncert) expect(r.id).toMatch(/-NCERT-\d+-/);
+      for (const r of ch.exemplar) expect(r.id).toMatch(/-EXMPLR-\d+-/);
       expect(ch.boardPattern, ch.slug).toBeUndefined();
-      expect(solutionsPaths()).not.toContain(solutionsPath("exemplar", ch.slug));
     }
-    for (const id of Object.keys(SOLUTIONS_SCI_LEDGER)) expect(id, "an Exemplar row in the Science ledger").toMatch(/-NCERT-\d+-/);
+  });
+  it("SCI-3: each Exemplar page uses the Exemplar book's OWN chapter number (old numbering), mapped by content", () => {
+    expect(Object.fromEntries(Object.entries(EXEMPLAR_SCIENCE_CHAPTER).map(([k, v]) => [k, v.file]))).toEqual({
+      "chemical-reactions-and-equations": "jeep101", "acids-bases-and-salts": "jeep102", "metals-and-non-metals": "jeep103",
+      "carbon-and-its-compounds": "jeep104", "life-processes": "jeep106", "control-and-coordination": "jeep107",
+      "how-do-organisms-reproduce": "jeep108", heredity: "jeep109", "light-reflection-and-refraction": "jeep110",
+      "human-eye-and-colourful-world": "jeep111", electricity: "jeep112", "magnetic-effects-of-electric-current": "jeep113",
+      "our-environment": "jeep115",
+    });
+    // jeep105 (Periodic Classification), jeep114 (Sources of Energy), jeep116 (Natural Resources): deleted chapters, no page.
+    const files = Object.values(EXEMPLAR_SCIENCE_CHAPTER).map((v) => v.file);
+    for (const f of ["jeep105", "jeep114", "jeep116", "jeep117", "jeep118"]) expect(files).not.toContain(f);
+    for (const ch of SCI) {
+      if (!hasBook(ch, "exemplar")) continue;
+      expect(bookChapterNo(ch, "exemplar"), ch.slug).toBe(EXEMPLAR_SCIENCE_CHAPTER[ch.slug].chapter);
+      expect(solutionsHeadTitle("exemplar", ch), ch.slug).toContain("Class 10 Science");
+    }
+    expect(solutionsTitle("exemplar", solutionsChapter("life-processes")!)).toBe("NCERT Exemplar Solutions Class 10 Science Chapter 6 Life Processes");
   });
 });
 
@@ -123,9 +156,10 @@ describe("(c) every published Science row is served, verified, and passes every 
     let verdicts = 0;
     for (const ch of SCI) {
       const served = getBankRows([ch.slug]);
-      const spec: ScienceChapterSpec = { slug: ch.slug, chapter: ch.chapter, title: ch.title };
-      const rows = publishedRows(served, ch, "ncert");
-      expect(rows.map(({ q }) => q.id)).toEqual(ch.ncert.map((r) => r.id));
+      const spec: ScienceChapterSpec = { slug: ch.slug, chapter: ch.chapter, title: ch.title, exemplarChapter: EXEMPLAR_SCIENCE_CHAPTER[ch.slug].chapter };
+      for (const book of ["ncert", "exemplar"] as const) {
+      const rows = publishedRows(served, ch, book);
+      expect(rows.map(({ q }) => q.id)).toEqual(ch[book].map((r) => r.id));
       for (const { q, safe } of rows) {
         expect(WITHHELD_QUESTION_IDS.has(q.id), q.id).toBe(false);
         expect(seen.has(q.id), `${q.id} twice`).toBe(false);
@@ -137,7 +171,8 @@ describe("(c) every published Science row is served, verified, and passes every 
         expect(l.note, q.id).toContain("blind solve agrees");
         expect(classifyScienceRow(q as Row, spec, guard)?.reason, q.id).toBeNull();
         expect(stepMarkingReason(q as Row), q.id).toBeNull();
-        expect(parseScienceRef(q.ncertRef), q.id).not.toBeNull();
+        if (book === "ncert") expect(parseScienceRef(q.ncertRef), q.id).not.toBeNull();
+        else expect(parseScienceExemplarRef(q.ncertRef, q.format), q.id).not.toBeNull();
         if (Array.isArray(q.options) && q.options.length > 0) {
           mcq += 1;
           expect(correctOptionIndex(String(q.answer), q.options), q.id).not.toBeNull();
@@ -159,13 +194,14 @@ describe("(c) every published Science row is served, verified, and passes every 
           verdicts += 1;
         }
       }
+      }
     }
-    expect(seen.size).toBe(172);
+    expect(seen.size).toBe(172 + 200);
     expect(mcq).toBeGreaterThan(0);
     expect(verdicts).toBe(6); // Electricity SA-004 / 008 / 015 / 016 / 024 / 026
   });
   it("no ledger hold / ref-mismatch id is published, and each hold says why", () => {
-    const published = new Set(SCI.flatMap((c) => c.ncert.map((r) => r.id)));
+    const published = new Set(SCI.flatMap((c) => [...c.ncert, ...c.exemplar].map((r) => r.id)));
     for (const [id, l] of Object.entries(SOLUTIONS_SCI_LEDGER)) {
       if (l.status === "hold" || l.status === "ref-mismatch") {
         expect(published.has(id), id).toBe(false);
@@ -187,22 +223,22 @@ describe("(c) every published Science row is served, verified, and passes every 
     const counts = selections.map((s) => {
       const by: Record<string, number> = {};
       for (const e of s.excluded) by[String(e.reason)] = (by[String(e.reason)] ?? 0) + 1;
-      return [s.spec.slug, s.ncert.length, by];
+      return [s.spec.slug, s.ncert.length, s.exemplar.length, by];
     });
     expect(counts).toEqual([
-      ["chemical-reactions-and-equations", 10, { held: 15, "source-others": 1, "exemplar-unverified": 43 }],
-      ["acids-bases-and-salts", 23, { held: 7, "source-others": 3, "exemplar-unverified": 47 }],
-      ["metals-and-non-metals", 7, { held: 14, "ref-mismatch": 7, "exemplar-unverified": 63 }],
-      ["carbon-and-its-compounds", 13, { held: 7, "ref-mismatch": 8, "exemplar-unverified": 52 }],
-      ["life-processes", 7, { held: 27, "exemplar-unverified": 81 }],
-      ["control-and-coordination", 7, { held: 14, "source-others": 3, "exemplar-unverified": 50 }],
-      ["how-do-organisms-reproduce", 8, { held: 13, "source-others": 1, "needs-figure": 1, "exemplar-unverified": 58 }],
-      ["heredity", 0, { "ref-not-a-book-question": 2, held: 4, "mcq-key-ambiguous": 1, "exemplar-unverified": 26, "thin-page": 3 }],
-      ["light-reflection-and-refraction", 29, { held: 4, "source-others": 1, "needs-figure": 1, "exemplar-unverified": 36 }],
-      ["human-eye-and-colourful-world", 14, { held: 2, "exemplar-unverified": 26 }],
-      ["electricity", 37, { held: 10, "needs-figure": 4, "source-others": 2, syllabus: 1, "exemplar-unverified": 35 }],
-      ["magnetic-effects-of-electric-current", 11, { held: 6, "needs-figure": 1, "source-others": 2, "exemplar-unverified": 23 }],
-      ["our-environment", 6, { "ref-stale-numbering": 7, held: 2 }],
+      ["chemical-reactions-and-equations", 10, 12, { held: 43, "source-others": 3, syllabus: 1 }],
+      ["acids-bases-and-salts", 23, 22, { held: 28, "source-others": 4, "needs-figure": 3 }],
+      ["metals-and-non-metals", 7, 33, { held: 39, "ref-mismatch": 7, "needs-figure": 3, "source-others": 2 }],
+      ["carbon-and-its-compounds", 13, 25, { held: 25, "ref-mismatch": 8, "needs-figure": 8, "step-marking": 1 }],
+      ["life-processes", 7, 11, { held: 64, "ref-mismatch": 31, "step-marking": 1, "source-others": 1 }],
+      ["control-and-coordination", 7, 22, { held: 38, "source-others": 3, "needs-figure": 4 }],
+      ["how-do-organisms-reproduce", 8, 19, { held: 46, "source-others": 3, "needs-figure": 5 }],
+      ["heredity", 0, 11, { "ref-not-a-book-question": 2, held: 19, "mcq-key-ambiguous": 1, "thin-page": 3 }],
+      ["light-reflection-and-refraction", 29, 18, { held: 12, "source-others": 4, "needs-figure": 7, "step-marking": 1 }],
+      ["human-eye-and-colourful-world", 14, 13, { held: 9, "source-others": 1, "needs-figure": 5 }],
+      ["electricity", 37, 14, { held: 21, "needs-figure": 10, "source-others": 6, syllabus: 1 }],
+      ["magnetic-effects-of-electric-current", 11, 0, { held: 20, "needs-figure": 6, "source-others": 4, "ref-mismatch": 1, "thin-page": 1 }],
+      ["our-environment", 6, 0, { "ref-stale-numbering": 7, held: 2 }],
     ]);
   });
 });
@@ -214,7 +250,7 @@ describe("(d) the Science pages render their rows, attempt-first, under their bo
         <SolutionsPage />
       </MemoryRouter>,
     );
-  for (const ch of SCI) {
+  for (const ch of SCI.filter((c) => hasBook(c, "ncert"))) {
     const p = solutionsPath("ncert", ch.slug);
     it(p, () => {
       const html = render(p);
@@ -233,13 +269,14 @@ describe("(d) the Science pages render their rows, attempt-first, under their bo
       for (const l of labels) expect(l).toMatch(/^(?:In-text Q\d+ · (?:Section \d+(?:\.\d+)+|after Example \d+\.\d+)|Example \d+\.\d+|Exercise Q\d+)$/);
       // Attempt first: every solution is in the HTML, hidden until an attempt.
       for (const { q } of rows) expect(html).toMatch(new RegExp(`data-testid="ncs-sol-${q.id.toLowerCase()}"[^>]*hidden|hidden=""[^>]*data-testid="ncs-sol-${q.id.toLowerCase()}"`));
-      // Links: notes, formulae, the NCERT reader for this chapter, practice, Check my answer; no Exemplar sibling.
+      // Links: notes, formulae, the NCERT reader for this chapter, practice, Check my answer; the Exemplar
+      // sibling exactly when that page exists (SCI-3).
       expect(html).toContain(`href="/notes/${ch.slug}"`);
       expect(html).toContain(`href="/notes/${ch.slug}#formulae"`);
       expect(html).toContain(`Read NCERT Chapter ${ch.chapter} (jesc1${String(ch.chapter).padStart(2, "0")})`);
       expect(html).toContain(`/practice/10/Science?topic=${ch.slug}`);
       expect(html).toContain('href="/check-improve"');
-      expect(html).not.toContain(`href="${solutionsPath("exemplar", ch.slug)}"`);
+      expect(html.includes(`href="${solutionsPath("exemplar", ch.slug)}"`)).toBe(hasBook(ch, "exemplar"));
       expect(html).not.toContain('data-testid="ncs-board"');
       expect(html).toContain("NCERT Class 10 Science textbook");
       expect(html).not.toMatch(/Mathematics|Exemplar Problems/);
@@ -281,14 +318,33 @@ describe("(d) the Science pages render their rows, attempt-first, under their bo
     const rows = publishedRows(getBankRows(["triangles"]), tri, "ncert").filter(({ q }) => (q.solutionSteps ?? []).length > 0);
     expect(hints).toBe(rows.length + boardPatternRows(getBankRows(["triangles"]), tri, "ncert").length);
   });
-  it("an unknown Science book page is not a page (no Exemplar Science URL)", () => {
-    expect(render("/ncert-exemplar/electricity")).not.toContain("ncert-solutions-page");
+  for (const ch of SCI.filter((c) => hasBook(c, "exemplar"))) {
+    const p = solutionsPath("exemplar", ch.slug);
+    it(`${p} (SCI-3)`, () => {
+      const html = render(p);
+      expect(html).toContain(`<h1>${solutionsTitle("exemplar", ch)}</h1>`);
+      const rows = publishedRows(getBankRows([ch.slug]), ch, "exemplar");
+      const cards = [...html.matchAll(/data-testid="ncs-q-([a-z0-9-]+)"/g)].map((m) => m[1]);
+      expect(cards).toEqual(scienceExemplarGroups(rows).flatMap((g) => g.rows.map(({ q }) => q.id.toLowerCase())));
+      const headings = [...html.matchAll(/<section[^>]*class="lt-ncs__group"[^>]*><h2>([^<]*)<\/h2>/g)].map((m) => m[1]);
+      expect(headings).toEqual(scienceExemplarGroups(rows).map((g) => g.title));
+      for (const l of [...html.matchAll(/<span class="lt-ncs__ref">([^<]*)<\/span>/g)].map((m) => m[1])) expect(l).toMatch(/^Exemplar Q\d+(?:\([a-z](?:[–-][a-z])?\))?$/);
+      for (const { q } of rows) expect(html).toMatch(new RegExp(`data-testid="ncs-sol-${q.id.toLowerCase()}"[^>]*hidden|hidden=""[^>]*data-testid="ncs-sol-${q.id.toLowerCase()}"`));
+      expect(html.includes(`href="${solutionsPath("ncert", ch.slug)}"`)).toBe(hasBook(ch, "ncert"));
+      expect(html).toContain("Exemplar Problems");
+      expect(html).not.toContain("lt-solfig");
+    });
+  }
+  it("a Science book page with no rows is not a page", () => {
+    expect(render("/ncert-exemplar/our-environment")).not.toContain("ncert-solutions-page");
+    expect(render("/ncert-exemplar/magnetic-effects-of-electric-current")).not.toContain("ncert-solutions-page");
+    expect(render("/ncert-solutions/heredity")).not.toContain("ncert-solutions-page");
   });
 });
 
 describe("CONTROLS — every Science rule fires on synthetic violating input", () => {
   const guard = scienceSyllabusGuard();
-  const spec: ScienceChapterSpec = { slug: "electricity", chapter: 11, title: "Electricity" };
+  const spec: ScienceChapterSpec = { slug: "electricity", chapter: 11, title: "Electricity", exemplarChapter: 12 };
   const base: Row = {
     id: "ELEC-NCERT-11-SA-901",
     topicKey: "electricity",
@@ -308,7 +364,11 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
     expect(classifyScienceRow({ ...base, topicKey: "life-processes" }, spec, guard)).toBeNull();
   });
   it("book rules: Exemplar, chapter, withheld, source, format, reference", () => {
-    expect(reason({ id: "ELEC-EXMPLR-11-SA-901" })).toBe("exemplar-unverified");
+    // SCI-3: Exemplar rows use the Exemplar book's references and its OLD chapter number (Electricity = 12).
+    expect(reason({ id: "ELEC-EXMPLR-11-SA-901", ncertRef: "Exemplar SA Q19" })).toBeNull();
+    expect(reason({ id: "ELEC-EXMPLR-11-SA-901", ncertRef: "Exemplar Ex 12.2 Q19 (SA)" })).toBeNull();
+    expect(reason({ id: "ELEC-EXMPLR-11-SA-901", ncertRef: "Exemplar Ex 11.2 Q19 (SA)" })).toBe("ref-stale-numbering");
+    expect(reason({ id: "ELEC-EXMPLR-11-SA-901", ncertRef: "Exercise Q5" })).toBe("ref-not-a-book-question");
     expect(reason({ id: "ELEC-NCERT-12-SA-901" })).toBe("other-chapter");
     expect(classifyScienceRow(base, spec, guard, new Set([base.id]))?.reason).toBe("withheld");
     expect(reason({ sourceOverride: "others" })).toBe("source-others");
@@ -331,7 +391,7 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
     expect(reason({ subtopic: "Sources of Energy" })).toBe("syllabus");
     expect(reason({ questionText: "Explain the principle of an Electric Motor." })).toBe("syllabus");
     expect(reason({ solutionSteps: ["[1 mark] Electromagnetic induction gives …", "[1 mark] x", "[1 mark] y"] })).toBe("syllabus");
-    const lp: ScienceChapterSpec = { slug: "heredity", chapter: 8, title: "Heredity" };
+    const lp: ScienceChapterSpec = { slug: "heredity", chapter: 8, title: "Heredity", exemplarChapter: 9 };
     const h = { ...base, id: "HERED-NCERT-8-SA-901", topicKey: "heredity", ncertRef: "Exercise Q9", subtopic: "Sex Determination", questionText: "How is the sex of a child determined in human beings?" };
     expect(classifyScienceRow(h, lp, guard)?.reason).toBeNull();
     expect(classifyScienceRow({ ...h, subtopic: "Evolution" }, lp, guard)?.reason).toBe("syllabus");
@@ -431,8 +491,8 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
     const figureRows = SCI.flatMap((c) => c.ncert.filter((r) => r.figure).map((r) => r.id));
     expect(figureRows).toEqual(["LIGHT-NCERT-9-LA-007", "LIGHT-NCERT-9-LA-010", "LIGHT-NCERT-9-LA-011"]);
     for (const ch of SCI) {
-      for (const r of ch.ncert) expect(Boolean(r.figure), r.id).toBe(getSolutionFigures(r.id).length > 0);
-      if (SIGN_CONVENTION_SLUGS.has(ch.slug)) expect(ch.ncert.filter((r) => r.verdict), ch.slug).toEqual([]);
+      for (const r of [...ch.ncert, ...ch.exemplar]) expect(Boolean(r.figure), r.id).toBe(getSolutionFigures(r.id).length > 0);
+      if (SIGN_CONVENTION_SLUGS.has(ch.slug)) expect([...ch.ncert, ...ch.exemplar].filter((r) => r.verdict), ch.slug).toEqual([]);
     }
   });
   it("SCI-2: the figure mounts only after an attempt, so the prerendered page is deterministic", () => {
@@ -445,7 +505,7 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
     expect(html).not.toContain("lt-solfig");
   });
   it("SCI-2: a bound SOLUTION figure makes a drawing question publishable; a QUESTION figure never does", () => {
-    const light: ScienceChapterSpec = { slug: "light-reflection-and-refraction", chapter: 9, title: "Light" };
+    const light: ScienceChapterSpec = { slug: "light-reflection-and-refraction", chapter: 9, title: "Light", exemplarChapter: 10 };
     const ray = { ...base, id: "LIGHT-NCERT-9-LA-010", topicKey: light.slug, ncertRef: "Exercise Q10", questionText: "Draw the ray diagram and find the image." };
     expect(classifyScienceRow(ray, light, guard)?.reason).toBeNull();
     expect(classifyScienceRow({ ...ray, id: "LIGHT-NCERT-9-LA-901" }, light, guard)?.reason).toBe("needs-figure");
@@ -464,7 +524,23 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
     expect(sv("0.5 A and 2 A")).toBe(false);
     expect(sv("I = 0.5 A", "(i) Find I. (ii) Find V.")).toBe(false);
   });
-  it("hasBook: no Science chapter has an Exemplar book", () => {
-    for (const ch of SCI) expect(hasBook(ch, "exemplar")).toBe(false);
+  it("SCI-3: the Exemplar Science reference parser, label and grouping", () => {
+    expect(parseScienceExemplarRef("Exemplar Ex 6.1 Q1 (MCQ)")).toEqual({ chapter: 6, section: "mcq", n: 1, part: null });
+    expect(parseScienceExemplarRef("Exemplar SA Q19")).toEqual({ chapter: null, section: "sa", n: 19, part: null });
+    expect(parseScienceExemplarRef("Exemplar Q13", "Short")).toEqual({ chapter: null, section: "sa", n: 13, part: null });
+    expect(parseScienceExemplarRef("Exemplar Q25 (LA)")).toEqual({ chapter: null, section: "la", n: 25, part: null });
+    expect(parseScienceExemplarRef("Exemplar Ex 4.1 Q1", "MCQ")?.section).toBe("mcq");
+    expect(parseScienceExemplarRef("Exemplar Ex 1.2 Q20a (SA)")?.part).toBe("a");
+    expect(parseScienceExemplarRef("Exemplar Q13")).toBeNull(); // no section anywhere: not shown
+    expect(parseScienceExemplarRef("Exemplar-style question")).toBeNull();
+    expect(scienceExemplarRefLabel("Exemplar Ex 1.2 Q20b–d (SA)")).toBe("Exemplar Q20(b–d)");
+    const g = scienceExemplarGroups(
+      ["Exemplar LA Q30", "Exemplar MCQ Q3", "Exemplar SA Q20", "Exemplar MCQ Q1"].map((ncertRef) => ({ q: { ncertRef } })),
+    );
+    expect(g.map((x) => [x.title, x.rows.map((r) => r.q.ncertRef)])).toEqual([
+      ["Multiple choice questions", ["Exemplar MCQ Q1", "Exemplar MCQ Q3"]],
+      ["Short answer questions", ["Exemplar SA Q20"]],
+      ["Long answer questions", ["Exemplar LA Q30"]],
+    ]);
   });
 });

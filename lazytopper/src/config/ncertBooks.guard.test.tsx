@@ -195,12 +195,12 @@ describe("NCERT-BOOKS-1 (c) — the page carries all 27 rows with honest links",
     const published = rows.filter((r) => solutionsHrefForRow(r) !== null).map(ncertCode);
     expect(linked).toEqual(published);
     // Pinned exactly (SOLUTIONS-2: every Maths chapter has at least one published book page;
-    // SOLUTIONS-SCI-1/2: every Science chapter but Heredity (Ch 8, below the 5-row floor) has its NCERT page).
+    // SOLUTIONS-SCI-1/2/3: every Science chapter has a page; Heredity links its Exemplar page).
     expect(published).toEqual([
       "jemh101", "jemh102", "jemh103", "jemh104", "jemh105", "jemh106", "jemh107",
       "jemh108", "jemh109", "jemh110", "jemh111", "jemh112", "jemh113", "jemh114",
       "jesc101", "jesc102", "jesc103", "jesc104", "jesc105", "jesc106", "jesc107",
-      "jesc109", "jesc110", "jesc111", "jesc112", "jesc113",
+      "jesc108", "jesc109", "jesc110", "jesc111", "jesc112", "jesc113",
     ]);
     const link = /<a\b[^>]*data-testid="nb-solutions-jemh106"[^>]*>Solutions<\/a>/.exec(html)?.[0] ?? "";
     expect(link).toContain('href="/ncert-solutions/triangles"');
