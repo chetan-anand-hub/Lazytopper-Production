@@ -517,3 +517,20 @@ describe("SIGNIN-FLASH-1 — no login-form flash on the return from Google", () 
     await screen.findByText("LANDED ON HOME");
   });
 });
+
+describe("LOGIN-FIX-2 · the redirect is an expected unload, not an abandonment", () => {
+  it("pagehide after signInWithRedirect -> login_abandon leave=expected at google_redirect_started", async () => {
+    stubMode("redirect");
+    signInWithGoogle.mockImplementation(() => new Promise<void>(() => {})); // the page navigates away
+    mount("/login");
+    await act(async () => fireEvent.click(google()));
+    expect(signInWithGoogle).toHaveBeenCalledWith({ flow: "redirect" });
+    act(() => void window.dispatchEvent(new Event("pagehide")));
+    expect(events("login_abandon")).toEqual([
+      [
+        "login_abandon",
+        expect.objectContaining({ method: "google", step: "google_redirect_started", leave: "expected", trigger: "pagehide" }),
+      ],
+    ]);
+  });
+});
