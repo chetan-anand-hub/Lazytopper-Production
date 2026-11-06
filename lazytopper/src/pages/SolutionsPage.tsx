@@ -288,7 +288,9 @@ function QuestionCard({
           </p>
         )}
         <h4 className="lt-ncs__solh">Step-by-step solution</h4>
-        {safe.figure ? (
+        {/* Mounted only after an attempt: the figure's lazy chunk and its generated ids would otherwise
+            make the prerendered page non-deterministic (capture's data-dependence control). */}
+        {safe.figure && attempted ? (
           <Suspense fallback={null}>
             <SolutionFigure questionId={String(q.id)} />
           </Suspense>

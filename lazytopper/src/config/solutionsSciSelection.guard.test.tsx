@@ -435,6 +435,15 @@ describe("CONTROLS — every Science rule fires on synthetic violating input", (
       if (SIGN_CONVENTION_SLUGS.has(ch.slug)) expect(ch.ncert.filter((r) => r.verdict), ch.slug).toEqual([]);
     }
   });
+  it("SCI-2: the figure mounts only after an attempt, so the prerendered page is deterministic", () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter initialEntries={["/ncert-solutions/light-reflection-and-refraction"]}>
+        <SolutionsPage />
+      </MemoryRouter>,
+    );
+    expect(html).toContain('data-testid="ncs-q-light-ncert-9-la-010"');
+    expect(html).not.toContain("lt-solfig");
+  });
   it("SCI-2: a bound SOLUTION figure makes a drawing question publishable; a QUESTION figure never does", () => {
     const light: ScienceChapterSpec = { slug: "light-reflection-and-refraction", chapter: 9, title: "Light" };
     const ray = { ...base, id: "LIGHT-NCERT-9-LA-010", topicKey: light.slug, ncertRef: "Exercise Q10", questionText: "Draw the ray diagram and find the image." };
