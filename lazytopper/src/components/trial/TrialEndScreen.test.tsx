@@ -379,12 +379,12 @@ describe("BUY-PATH-1 · one-tap pay with payments on", () => {
     expect(analytics.trackPaywallAction).toHaveBeenCalledWith("pay", "trial_end");
   });
 
-  it("TRIAL-END-OFFER-1: with payments and parent-pay on, 'Ask a parent to pay' sits under the primary action (no QR button)", async () => {
+  it("TRIAL-END-OFFER-1: with payments and parent-pay on, 'Forward link to parents' sits under the primary action (no QR button)", async () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
     hydrate.mockResolvedValue(status("free"));
     renderAt("/practice");
-    expect(await screen.findByTestId("paywall-forward")).toHaveTextContent("Ask a parent to pay");
+    expect(await screen.findByTestId("paywall-forward")).toHaveTextContent("Forward link to parents");
     expect(screen.queryByTestId("paywall-qr")).toBeNull();
     expect(screen.queryByTestId("paywall-pay")).toBeNull(); // the screen's own primary button is the only buy button
     expect(screen.getByTestId("trial-end-screen-buy")).toBeInTheDocument();

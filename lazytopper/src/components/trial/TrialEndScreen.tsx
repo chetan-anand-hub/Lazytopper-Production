@@ -30,7 +30,7 @@ import {
  * TrialEndScreen — ASK-FIX-1, reworked by TRIAL-END-OFFER-1. "Your free week is over": on the first visit after the 7-day trial
  * has ended, a full-screen sheet on a phone / a centred card on desktop. In order: what the student really did (only when there is
  * something real to say), the Board Pass with its founding price, the real deadline and whole days left, the Board Pass star
- * features (the LOCK-SELL-1 list), "Get the Board Pass" (one tap to the existing checkout), "Ask a parent to pay", a quiet PDF-pack
+ * features (the LOCK-SELL-1 list), "Get the Board Pass" (one tap to the existing checkout), "Forward link to parents", a quiet PDF-pack
  * line, and - smallest - "Continue with Basic". The why-not-upgrading feedback card follows "Continue with Basic".
  *
  * Everything that decides WHETHER it shows is in ./trialEndScreenModel.ts. Reads trial state,
@@ -320,7 +320,7 @@ export default function TrialEndScreen() {
             >
               {buyLabel}
             </Link>
-            {/* "Ask a parent to pay" only (no QR button): renders nothing while payments are dark. */}
+            {/* "Forward link to parents" only (no QR button): renders nothing while payments are dark. */}
             <PaywallActions surface="trial_end" noQr />
           </>
         }

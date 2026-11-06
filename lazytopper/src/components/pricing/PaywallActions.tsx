@@ -1,6 +1,6 @@
 /**
  * PaywallActions — the light GATE of PAYWALL-PAY-1 (owner rulings 19 + 22 Oct 2026). Every
- * lock point imports this file: "Pay", "Pay by QR code", "Forward link to parents".
+ * lock point imports this file: "Pay", "Share QR code", "Forward link to parents".
  *
  * ★★ DARK-SHIP PARITY. While `VITE_PAYMENTS_ENABLED` is off this renders the surface's own
  * old control (`fallback`) and nothing else — no Suspense, no wrapper — so a dark build's DOM
@@ -16,13 +16,13 @@ import { isParentPayClientEnabled } from "../../services/parentPay";
 import type { ParentPayPackProduct } from "../../services/parentPayPack";
 
 export const PAY_LABEL = "Pay";
-export const QR_LABEL = "Pay by QR code";
+export const QR_LABEL = "Share QR code";
 /**
- * CHECKOUT-1 (owner, 31 Oct 2026): the text-share action is now "Ask a parent to pay" - one tap mints the
- * existing parent-pay link and shares it (native share sheet, else WhatsApp wa.me, else copy). This replaces
- * "Forward link to parents" and, for this one exact label, the 22 Oct "never the word Ask" ruling.
+ * PARENT-WORDING-1 (owner ruling 19 Oct, re-confirmed 6 Nov 2026): the text-share action is "Forward link to parents" -
+ * one tap mints the existing parent-pay link and shares it (native share sheet, else WhatsApp wa.me, else copy).
+ * The word "ask" never appears in the parent-pay route. (The 31 Oct "Ask a parent to pay" label is retired.)
  */
-export const ASK_PARENT_LABEL = "Ask a parent to pay";
+export const ASK_PARENT_LABEL = "Forward link to parents";
 /** The earlier name of the same action, kept so older imports keep working. */
 export const FORWARD_LABEL = ASK_PARENT_LABEL;
 
@@ -32,11 +32,11 @@ export interface PaywallActionsLiveProps {
   onPay?: () => void;
   /** "Pay" as an internal route link (no /app/ prefix — CLAUDE.md §7). */
   payTo?: string;
-  /** "Pay by QR code" and "Ask a parent to pay" (also needs a signed-in account). */
+  /** "Share QR code" and "Forward link to parents" (also needs a signed-in account). */
   showParent: boolean;
-  /** PAY-RESCUE-1 - render ONLY "Ask a parent to pay" (as the primary button): no Pay, no QR. */
+  /** PAY-RESCUE-1 - render ONLY "Forward link to parents" (as the primary button): no Pay, no QR. */
   askOnly?: boolean;
-  /** PAY-RESCUE-1 - called once per tap on "Ask a parent to pay" (not on the panel's "Share" retry). */
+  /** PAY-RESCUE-1 - called once per tap on "Forward link to parents" (not on the panel's "Share" retry). */
   onAsk?: () => void;
   /** PRICING-B-1 - a page's own wording for the two parent actions (same actions, same events). Default: the labels above. */
   forwardLabel?: string;
@@ -46,7 +46,7 @@ export interface PaywallActionsLiveProps {
    * prices it). Absent -> the Board Pass link, exactly as before.
    */
   product?: ParentPayPackProduct;
-  /** PARENT-PACKS-1 - only "Ask a parent to pay" (no QR button), as a secondary button: for a tight card (/pricing CBQ). */
+  /** PARENT-PACKS-1 - only "Forward link to parents" (no QR button), as a secondary button: for a tight card (/pricing CBQ). */
   noQr?: boolean;
 }
 

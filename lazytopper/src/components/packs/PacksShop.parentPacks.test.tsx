@@ -1,5 +1,5 @@
 /**
- * PARENT-PACKS-1 - "Ask a parent to pay" sits next to every pack Buy for a SIGNED-IN student: in the pack pop-up (every pack,
+ * PARENT-PACKS-1 - "Forward link to parents" sits next to every pack Buy for a SIGNED-IN student: in the pack pop-up (every pack,
  * /packs and /pricing) and through `api.parentAsk` (the /pricing CBQ and Bundle cards). Each carries ONE pack (sku + target +
  * its display name); the server mints and prices it. Signed out, packs dark, or already owned (directly or through a Subject Pack
  * / the Bundle): nothing. PaywallActions itself (its dark-ship parity, the share sheet) is pinned by PaywallActions.test.tsx.

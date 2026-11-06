@@ -21,8 +21,8 @@ import { openWhatsAppLink, type ShareNavigator } from "../results/share/shareSco
 import "./payRescue.css";
 
 export const PAY_RESCUE_HEADING = "Can't pay yourself?";
-export const PAY_RESCUE_LINE = "Most students ask a parent. Send them a link — they can pay on their phone.";
-export const PAY_RESCUE_ASK_LABEL = "Ask a parent to pay";
+export const PAY_RESCUE_LINE = "Most parents pay for their child. Send them a link — they can pay on their phone.";
+export const PAY_RESCUE_ASK_LABEL = "Forward link to parents";
 export const PAY_RESCUE_RETRY_LABEL = "Try again";
 export const PAY_RESCUE_CLOSE_LABEL = "Not now";
 export const PAY_RESCUE_PACK_LINK_FAILED = "WhatsApp didn't open. Please try again.";
