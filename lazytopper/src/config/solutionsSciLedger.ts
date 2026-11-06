@@ -33,7 +33,10 @@
 //      textbook itself uses in any chapter, body or figure labels (thermite is NCERT Ch 3; Fig 5.10
 //      labels the aorta and venae cavae; SCI-2 grepped every flagged term across all 13 official
 //      chapter texts), a drawing answered by its bound solution figure, and [N mark] on MCQs
-//      (the Science page strips it on objective rows). Rows are HELD, never edited: the bank is
+//      (the Science page strips it on objective rows). The scope test is mechanical: a term the
+//      2026-27 textbook never uses (grep of the 13 official chapter texts) holds the row, whoever
+//      found it (the audit, or the #1605 review: stoichiometry, moles, photochemical,
+//      bidirectional, sinks, warm-blooded). Rows are HELD, never edited: the bank is
 //      outside this lane.
 // ★ CONTENT-BOUND. Each publish entry carries `hash` = rowHash() (selectSolutions.ts) of the question,
 //   options, keys, steps and ncertRef the verifiers saw; a changed bank row drops off the page as
@@ -49,7 +52,7 @@ export const SOLUTIONS_SCI_LEDGER: Readonly<Record<string, LedgerEntry>> = {
   "CHEM-NCERT-1-SA-001": { status: "hold", note: "review #1602 + third audit: step 4 awards 1 mark for restating the conclusion (no content of its own)" },
   "CHEM-NCERT-1-SA-002": { status: "hold", note: "judge/audit: Step (ii) says 'O 1+1=1+1', which is wrong. O is 1 on each side (NaOH on the left, H2O on the right)." },
   "CHEM-NCERT-1-SA-003": { status: "publish", hash: "ec810a8e3db1d51f", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
-  "CHEM-NCERT-1-VSA-002": { status: "publish", hash: "1645cded4a4e7754", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
+  "CHEM-NCERT-1-VSA-002": { status: "hold", note: "review of #1605 (a): uses \"stoichiometry\" and \"moles\", which the 2026-27 NCERT Class 10 Science textbook never uses (grep of all 13 official chapter texts)" },
   "CHEM-NCERT-1-VSA-003": { status: "publish", hash: "b081fb9487a70e83", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
   "CHEM-NCERT-1-VSA-004": { status: "publish", hash: "bfd4ae291fd94698", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
   "CHEM-NCERT-1-SA-004": { status: "hold", note: "judge/audit: Step (i) explains O2 as 'gaining electrons / accepting from Na'. That is the electron concept, which is inconsistent with the oxygen-gain/loss framing used here and outside this chapter's treatment." },
@@ -63,7 +66,7 @@ export const SOLUTIONS_SCI_LEDGER: Readonly<Record<string, LedgerEntry>> = {
   "CHEM-NCERT-1-SA-009": { status: "hold", note: "review #1602: step 4 prints the unbalanced \"AgCl→Ag+Cl₂\" (balanced: 2AgCl(s) → 2Ag(s) + Cl₂(g)); key and finalAnswer also disagree on the example" },
   "CHEM-NCERT-1-SA-010": { status: "hold", note: "third audit (review checklist): The last [0.5 mark] step ('Since heat/energy is released, respiration is classified as exothermic') only restates the conclusion." },
   "CHEM-NCERT-1-SA-011": { status: "hold", note: "third audit (review checklist): The [0.5 mark] step 'They are reverse processes of each other — combination joins, decomposition breaks' repeats steps 1-2 and adds nothing new." },
-  "CHEM-NCERT-1-SA-012": { status: "publish", hash: "f3e6036b74b41724", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
+  "CHEM-NCERT-1-SA-012": { status: "hold", note: "review of #1605 (a): uses \"photochemical\", which the 2026-27 NCERT Class 10 Science textbook never uses (cathode / anode are NCERT Ch 3 terms)" },
   "CHEM-NCERT-1-SA-013": { status: "hold", note: "third audit (review checklist): The key and the steps disagree on the examples. The answer and finalAnswer use Fe + CuSO₄ for displacement, but the steps use Zn + CuSO₄. The answer and finalAnswer use Na₂SO₄ + BaCl₂ for double displacement, but the steps lead with AgNO₃ + NaCl and give Na₂SO₄ + BaCl₂ only as an 'Or'. Every equation shown is balanced, and the marks add up to 3. The steps should use the same examples as the key." },
   "CHEM-NCERT-1-VSA-005": { status: "publish", hash: "a5202461e3710a06", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
   "CHEM-NCERT-1-SA-014": { status: "publish", hash: "23ee1929754d80bc", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
@@ -85,10 +88,10 @@ export const SOLUTIONS_SCI_LEDGER: Readonly<Record<string, LedgerEntry>> = {
   "LIFE-NCERT-5-VSA-008": { status: "hold", note: "judge/audit: The NCERT answer is CO₂ transported dissolved in plasma. The key's bicarbonate and 'bound to haemoglobin' detail is outside the Class 10 syllabus, and 'dissolved bicarbonate' is loosely worded." },
   "LIFE-NCERT-5-VSA-009": { status: "hold", note: "judge/audit: Key says the alveolar area is 'about the size of a tennis court', which is exaggerated and contradicts the steps' ~80 m²." },
   "LIFE-NCERT-5-VSA-010": { status: "hold", note: "second audit: The key says arteries carry oxygenated blood and veins carry deoxygenated blood. This is wrong for the pulmonary artery and pulmonary vein. NCERT defines arteries as carrying blood away from the heart and veins as carrying blood to the heart." },
-  "LIFE-NCERT-5-SA-005": { status: "publish", hash: "50798baeb4e03efc", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
-  "LIFE-NCERT-5-VSA-011": { status: "publish", hash: "80e8ea42b57c253f", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
+  "LIFE-NCERT-5-SA-005": { status: "hold", note: "review of #1605 (a): uses \"warm-blooded\", which the 2026-27 NCERT Class 10 Science textbook never uses" },
+  "LIFE-NCERT-5-VSA-011": { status: "hold", note: "review of #1605 (a): uses \"bidirectional\" / \"sinks\", which the 2026-27 NCERT Class 10 Science textbook never uses" },
   "LIFE-NCERT-5-VSA-012": { status: "hold", note: "judge/audit: Step says root hairs absorb water and minerals by osmosis. Minerals are taken up by active transport/ions, not osmosis. Root pressure is omitted." },
-  "LIFE-NCERT-5-VSA-013": { status: "publish", hash: "0b62ce5612c3f3d8", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
+  "LIFE-NCERT-5-VSA-013": { status: "hold", note: "review of #1605 (a): uses \"bidirectional\" / \"sinks\", which the 2026-27 NCERT Class 10 Science textbook never uses" },
   "LIFE-NCERT-5-VSA-014": { status: "hold", note: "second audit: The answer awards marks for tubular 'secretion', proximal tubule, loop of Henle and distal tubule. NCERT Class 10 does not cover these; it covers only filtration, reabsorption and the collecting duct. This is beyond the syllabus but presented as required." },
   "LIFE-NCERT-5-VSA-015": { status: "hold", note: "judge/audit: Key and step say gums and resins are excreted into the soil via roots. In NCERT, gums and resins are stored in old xylem, and separately, some wastes are excreted into the soil." },
   "LIFE-NCERT-5-VSA-016": { status: "hold", note: "second audit: ADH (antidiuretic hormone) and its mechanism are not in NCERT Class 10 but are given as a mark-bearing step. NCERT says only that urine volume depends on the body's water excess and the amount of dissolved waste." },
@@ -102,7 +105,7 @@ export const SOLUTIONS_SCI_LEDGER: Readonly<Record<string, LedgerEntry>> = {
   "LIFE-NCERT-5-LONG-001": { status: "hold", note: "review #1602 + third audit: ATP counts (36–38, 2), Lactobacillus, Saccharomyces and industrial fermentation are beyond the chapter" },
   "LIFE-NCERT-5-SA-008": { status: "publish", hash: "d5760ffd7015bcd4", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
   "LIFE-NCERT-5-VSA-018": { status: "hold", note: "third audit (review checklist): 'Anaemia', pallor, poor immunity, poor concentration and organ damage are not in the chapter." },
-  "LIFE-NCERT-5-LONG-002": { status: "publish", hash: "007540bfed108254", note: "book check MATCH, text faithful; syllabus IN (guard); blind solve agrees; judge + text/steps audit clean; second audit clean; third audit (review checklist) clean or kept by its written rule" },
+  "LIFE-NCERT-5-LONG-002": { status: "hold", note: "review of #1605 (a): uses \"warm-blooded\", which the 2026-27 NCERT Class 10 Science textbook never uses" },
   "LIFE-NCERT-5-SA-009": { status: "hold", note: "review #1602 + third audit: step 3 is an empty step carrying 1 mark; xylem dead / phloem living / \"active transport\" beyond the chapter" },
   "LIFE-NCERT-5-LONG-003": { status: "hold", note: "judge/audit: Steps say 'Both increase surface area massively' and 'both have thin walls', which is unsupported for nephrons. The 'functional unit' and 'passive vs active' framing is also loose." },
   // electricity · ncert (book: our Storage copy ncert/physics/ch11.pdf, NCERT Reprint 2026-27)

@@ -156,7 +156,7 @@ describe("(c) every published Science row is served, verified, and passes every 
         }
       }
     }
-    expect(seen.size).toBe(178);
+    expect(seen.size).toBe(172);
     expect(mcq).toBeGreaterThan(0);
     expect(verdicts).toBe(6); // Electricity SA-004 / 008 / 015 / 016 / 024 / 026
   });
@@ -186,11 +186,11 @@ describe("(c) every published Science row is served, verified, and passes every 
       return [s.spec.slug, s.ncert.length, by];
     });
     expect(counts).toEqual([
-      ["chemical-reactions-and-equations", 12, { held: 13, "source-others": 1, "exemplar-unverified": 43 }],
+      ["chemical-reactions-and-equations", 10, { held: 15, "source-others": 1, "exemplar-unverified": 43 }],
       ["acids-bases-and-salts", 23, { held: 7, "source-others": 3, "exemplar-unverified": 47 }],
       ["metals-and-non-metals", 7, { held: 14, "ref-mismatch": 7, "exemplar-unverified": 63 }],
       ["carbon-and-its-compounds", 13, { held: 7, "ref-mismatch": 8, "exemplar-unverified": 52 }],
-      ["life-processes", 11, { held: 23, "exemplar-unverified": 81 }],
+      ["life-processes", 7, { held: 27, "exemplar-unverified": 81 }],
       ["control-and-coordination", 7, { held: 14, "source-others": 3, "exemplar-unverified": 50 }],
       ["how-do-organisms-reproduce", 8, { held: 13, "source-others": 1, "needs-figure": 1, "exemplar-unverified": 58 }],
       ["heredity", 0, { "ref-not-a-book-question": 2, held: 4, "mcq-key-ambiguous": 1, "exemplar-unverified": 26, "thin-page": 3 }],
@@ -258,6 +258,11 @@ describe("(d) the Science pages render their rows, attempt-first, under their bo
         if (isObjectiveRow(q)) expect(body, q.id).not.toMatch(/\[\s*\d+(?:\.\d+)?\s*marks?\s*\]/i);
         expect(body.includes(`data-testid="ncs-hint-${a}"`), q.id).toBe(!hintRevealsAnswer(q));
       }
+    }
+    // Review of #1605 (b): a step 1 that states the conclusion is not a hint.
+    expect(hintRevealsAnswer(getBankRows(["electricity"]).find((r) => r.id === "ELEC-NCERT-11-SA-018")!)).toBe(true);
+    for (const id of ["CHEM-NCERT-1-VSA-002", "CHEM-NCERT-1-SA-012", "LIFE-NCERT-5-VSA-011", "LIFE-NCERT-5-VSA-013", "LIFE-NCERT-5-SA-005", "LIFE-NCERT-5-LONG-002"]) {
+      expect(SOLUTIONS_SCI_LEDGER[id]?.status, id).toBe("hold");
     }
     // The named MCQs: no hint (step 1 names the answer), no step marks.
     for (const id of ["LIFE-NCERT-5-MCQ-001", "LIFE-NCERT-5-MCQ-002", "CHEM-NCERT-1-MCQ-003"]) {

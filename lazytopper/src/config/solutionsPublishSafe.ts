@@ -827,13 +827,11 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     ncert: [
       r("CHEM-NCERT-1-VSA-001"), // not one comparable value
       r("CHEM-NCERT-1-SA-003"), // multi-part
-      r("CHEM-NCERT-1-VSA-002"), // more than one value in the answer
       r("CHEM-NCERT-1-VSA-003"), // more than one value in the answer
       r("CHEM-NCERT-1-VSA-004"), // not one comparable value
       r("CHEM-NCERT-1-MCQ-002"),
       r("CHEM-NCERT-1-MCQ-003"),
       r("CHEM-NCERT-1-SA-007"), // multi-part
-      r("CHEM-NCERT-1-SA-012"), // not one comparable value
       r("CHEM-NCERT-1-VSA-005"), // not one comparable value
       r("CHEM-NCERT-1-SA-014"), // not one comparable value
       r("CHEM-NCERT-1-VSA-006"), // more than one value in the answer
@@ -922,16 +920,12 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     decision: "SOLUTIONS-SCI (owner 6 Nov)",
     ncert: [
       r("LIFE-NCERT-5-SA-001"), // not one comparable value
-      r("LIFE-NCERT-5-SA-005"), // not one comparable value
-      r("LIFE-NCERT-5-VSA-011"), // more than one value in the answer
-      r("LIFE-NCERT-5-VSA-013"), // more than one value in the answer
       r("LIFE-NCERT-5-MCQ-001"),
       r("LIFE-NCERT-5-MCQ-002"),
       r("LIFE-NCERT-5-MCQ-003"),
       r("LIFE-NCERT-5-SA-006"), // not one comparable value
       r("LIFE-NCERT-5-SA-007"), // more than one value in the answer
       r("LIFE-NCERT-5-SA-008"), // a relation, not one value
-      r("LIFE-NCERT-5-LONG-002"), // more than one value in the answer
     ],
     exemplar: [],
   },
@@ -1445,6 +1439,9 @@ export function hintRevealsAnswer(q: {
   // law in step 1 ("R ∝ l", "P = VI = I²R") IS the answer.
   if (!/\d/.test(String(q.questionText ?? ""))) return true;
   if (!SETUP_STEP.test(first) || PART_ANSWER.test(first)) return true;
+  // Review of #1605 (b): a step 1 that already states a conclusion ("Therefore R_p is less than the
+  // smallest resistance") gives most of the answer away.
+  if (/\b(?:therefore|hence|thus|less than|greater than|more than)\b/i.test(first)) return true;
   const asked = numbersIn(String(q.questionText ?? ""));
   const finalNums = [...numbersIn(String(q.finalAnswer ?? ""))].filter((n) => !asked.has(n));
   const firstNums = numbersIn(stripStepMark(first));
