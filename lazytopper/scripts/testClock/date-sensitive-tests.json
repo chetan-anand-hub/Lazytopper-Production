@@ -677,6 +677,7 @@
     "src/hooks/useSubscription.autotrial.test.ts",
     "src/hooks/useSubscription.emitter.test.ts",
     "src/hooks/useSubscription.recover.test.ts",
+    "src/lib/deferredStylesheet.test.ts",
     "src/lib/desktop/homeDestinations.test.tsx",
     "src/lib/figureSafe.surfaces.test.ts",
     "src/lib/freshSet/freshSet.realBank.test.ts",
