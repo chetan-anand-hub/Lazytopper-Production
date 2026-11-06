@@ -39,9 +39,12 @@ describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2
     expect(TILL_BOARDS_FOUNDING_INR).toBe(1917);
     expect(TILL_BOARDS_AFTER_FOUNDING_INR).toBe(2499);
     expect(boardPassPriceDisplay(istNoon("2026-10-31"))).toBe("₹1,917");
-    expect(boardPassPriceDisplay(istNoon("2026-12-02"))).toBe("₹2,499");
+    // GST-EXCL-1: from 7 Nov 2026 the tag is "+ GST" (the charge, base + 18%, is on the Pay button / checkout).
+    expect(boardPassPriceDisplay(istNoon("2026-11-04"))).toBe("₹1,917");
+    expect(boardPassPriceDisplay(istNoon("2026-11-07"))).toBe("₹1,917 + GST");
+    expect(boardPassPriceDisplay(istNoon("2026-12-02"))).toBe("₹2,499 + GST");
     expect(boardPassPriceLine(istNoon("2026-10-31"))).toBe("₹1,917 — one payment till your boards");
-    expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹2,499 — one payment till your boards");
+    expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹2,499 + GST — one payment till your boards");
   });
 
   it.each([
@@ -80,7 +83,7 @@ describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2
   it("the founding label and the one deadline line exist before the deadline only, with no strike or saving claim", () => {
     expect(boardPassFoundingLabel(new Date("2026-11-30T23:59:59+05:30"))).toBe("Founding member offer");
     expect(boardPassDeadlineLine(new Date("2026-11-30T23:59:59+05:30"))).toBe(
-      "Founding member offer ends 30 November. From 1 December: ₹2,499.",
+      "Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.",
     );
     expect(boardPassFoundingLabel(new Date("2026-12-01T00:00:00+05:30"))).toBeNull();
     expect(boardPassDeadlineLine(new Date("2026-12-01T00:00:00+05:30"))).toBeNull();
@@ -89,7 +92,7 @@ describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2
 
   it("the quote carries no saving claim, struck price or monthly figure", () => {
     const q = tillBoardsQuote(istNoon("2026-10-31"), BOARD)! as unknown as Record<string, unknown>;
-    expect(Object.keys(q).sort()).toEqual(["monthsLeft", "priceDisplay", "priceInr", "untilLabel"]);
+    expect(Object.keys(q).sort()).toEqual(["monthsLeft", "priceDisplay", "priceInr", "totalDisplay", "totalInr", "untilLabel"]);
   });
 });
 

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { boardPassFoundingLabel, boardPassPriceDisplay } from "../../config/pricing";
-import { PACK_PRICE_INR } from "../../services/packs";
+import { packPriceLabel } from "../../services/packs";
 import type { PendingFreeCheck } from "../../services/freeCheckClient";
 import type { CheckSolutionResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
 import {
@@ -88,9 +88,9 @@ export function freeCheckBuyCopy(now: Date | number = Date.now(), packsOn: boole
     }`,
     boardPassLink: `Board Pass ${boardPassPriceDisplay(now)} →`,
     packLine: packsOn
-      ? `Want printed practice? Board CBQ Pack ₹${PACK_PRICE_INR.pack_cbq}: a PDF with answer keys, no marking.`
+      ? `Want printed practice? Board CBQ Pack ${packPriceLabel("pack_cbq")}: a PDF with answer keys, no marking.`
       : null,
-    packLink: packsOn ? `CBQ Pack ₹${PACK_PRICE_INR.pack_cbq} →` : null,
+    packLink: packsOn ? `CBQ Pack ${packPriceLabel("pack_cbq")} →` : null,
   };
 }
 

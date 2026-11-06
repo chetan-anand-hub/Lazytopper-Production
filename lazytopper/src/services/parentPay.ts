@@ -26,6 +26,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 // PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
 import type { ParentPackRef } from "./parentPayPack";
+import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
 export const PARENT_VIEW_ENDPOINT = "/api/pay/parent/view";
@@ -161,6 +162,24 @@ export interface ParentLinkView {
   expiresAt: string;
   /** PARENT-PACKS-1 - a pack link: the pack and its SERVER price (then `prices` is empty). */
   pack?: ParentPackRef;
+  /** GST-EXCL-1 - the SERVER's Board Pass GST breakup (from 7 Nov 2026); absent before it. */
+  boardPassGst?: BoardPassGst;
+}
+
+/** GST-EXCL-1 - whole rupees, as the server stores them on the order. */
+export interface BoardPassGst {
+  baseInr: number;
+  gstInr: number;
+  totalInr: number;
+}
+
+/** The server's breakup, or undefined when it is missing or does not add up (never shown half-trusted). */
+export function readBoardPassGst(v: unknown): BoardPassGst | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const o = v as Record<string, unknown>;
+  const ok = (n: unknown): n is number => typeof n === "number" && Number.isInteger(n) && n >= 0;
+  if (!ok(o.baseInr) || !ok(o.gstInr) || !ok(o.totalInr) || o.baseInr + o.gstInr !== o.totalInr) return undefined;
+  return { baseInr: o.baseInr, gstInr: o.gstInr, totalInr: o.totalInr };
 }
 
 /** The parent's page: is the link live, whose first name, what the server charges. */
@@ -170,6 +189,7 @@ export async function viewParentLink(token: string): Promise<ParentLinkView> {
     firstName: typeof json.firstName === "string" ? json.firstName : "",
     prices: readPrices(json.prices),
     expiresAt: typeof json.expiresAt === "string" ? json.expiresAt : "",
+    ...(readBoardPassGst(json.boardPassGst) ? { boardPassGst: readBoardPassGst(json.boardPassGst) } : {}),
   };
 }
 
@@ -193,7 +213,7 @@ async function createParentOrder(token: string, passType: PassType) {
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new ParentLinkError("failed");
   }
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 async function verifyParentPayment(token: string, success: RazorpaySuccess) {
@@ -224,6 +244,8 @@ export async function buyPassAsParent(
 ): Promise<ParentBuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(token, passType), deps.loadScript()]);
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -231,7 +253,7 @@ export async function buyPassAsParent(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: `${passType === "month" ? "Monthly pass" : "Board Pass"} (for your child)`,
+        description: razorpayDescription(`${passType === "month" ? "Monthly pass" : "Board Pass"} (for your child)`, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

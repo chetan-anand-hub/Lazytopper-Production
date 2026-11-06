@@ -45,6 +45,8 @@ import DownloadLimitWall from "./DownloadLimitWall";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
 import LimitChip from "./LimitChip";
 import { blockedWallCopy, chipText, FIRST_FREE_CHIP, SIGNED_OUT_CHIP, wallOfferLines } from "./limitsCopy";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 const track = analytics.trackDownload as unknown as ReturnType<typeof vi.fn>;
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -90,7 +92,7 @@ describe("copy: numbers come from the server", () => {
 
 describe("wall offer: the Board Pass is the only plan named (PRICE-FIXED-1)", () => {
   it("the data carries the Board Pass at its fixed price and nothing else - on both sides of the old founding close", () => {
-    for (const [at, price, label] of [["2026-11-02T06:00:00Z", "₹1,917", "Founding member offer"], ["2026-12-02T06:00:00Z", "₹2,499", null]] as const) {
+    for (const [at, price, label] of [["2026-11-02T06:00:00Z", "₹1,917", "Founding member offer"], ["2026-12-02T06:00:00Z", "₹2,499 \\+ GST", null]] as const) { // GST-EXCL-1: "+ GST" from 7 Nov 2026
       const o = wallOfferLines(new Date(at));
       expect(Object.keys(o)).toEqual(["boardPass", "foundingLabel"]);
       expect(o.foundingLabel).toBe(label);
@@ -391,7 +393,7 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
   it("flag on: Board Pass actions first, then the one-tap buy of that chapter's pack; click fires download_wall", async () => {
     FLAG_ON();
     wall();
-    const link = await screen.findByRole("link", { name: "Or get the Triangles Chapter Pack · ₹49" });
+    const link = await screen.findByRole("link", { name: `Or get the Triangles Chapter Pack · ${packPayLabel("pack_chapter")}` });
     expect(link.getAttribute("href")).toBe("/packs?buy=pack_chapter&t=triangles");
     const acts = document.querySelector(".lt-limit-acts")!;
     const line = screen.getByTestId("wall-pack-buy");
@@ -415,7 +417,7 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
     FLAG_ON();
     wall({}, "/practice/10/maths/full-mock");
     expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_mock&t=maths");
-    expect((await buyLink()).textContent).toBe("Or get the Maths Mock Pack · ₹99");
+    expect((await buyLink()).textContent).toBe(`Or get the Maths Mock Pack · ${packPayLabel("pack_mock")}`);
     cleanup();
     wall({}, "/worksheet");
     expect((await screen.findByRole("link", { name: /PDF packs from/ })).getAttribute("href")).toBe("/pricing#packs");
@@ -451,7 +453,7 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
     FLAG_ON();
     wall({}, "/practice?topic=triangles&style=cbq");
     expect((await buyLink()).getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
-    expect((await buyLink()).textContent).toBe("Or get the Maths CBQ Pack · ₹199");
+    expect((await buyLink()).textContent).toBe(`Or get the Maths CBQ Pack · ${packPayLabel("pack_cbq")}`);
   });
   it("review fix 1: an owned match is never sold again - owned CBQ on a CBQ set; a chapter owned through the Bundle -> 'open My packs'", async () => {
     FLAG_ON();
