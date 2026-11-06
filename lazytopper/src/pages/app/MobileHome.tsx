@@ -596,7 +596,7 @@ export default function MobileHome() {
             ? "Try one board question now. It takes about a minute."
             : isSignedIn
             ? "Pick up where you left off, or start fresh."
-            : "Explore everything free. Sign in only when you want to save."}
+            : "Sign in to explore everything for free (7 days)."}
         </p>
         <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 11 }}>
           <span style={crumbChipStyle()}>Class {fallbackGrade}</span>
