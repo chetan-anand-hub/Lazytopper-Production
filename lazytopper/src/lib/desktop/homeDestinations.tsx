@@ -257,14 +257,14 @@ export const PRIMARY_CARDS: QuickCard[] = [
     accent: "red",
   },
   // NCERT-HUB-1 (owner approval 6 Nov 2026) — the fifth card: the NCERT Hub (book + NCERT / Exemplar
-  // solutions, chapter by chapter). "its exercises", not "every exercise": Science solutions are still
-  // being published chapter by chapter, and the card must not promise a page that is not there yet.
+  // solutions, chapter by chapter). "work through its questions", never "solve every exercise": true
+  // whatever the solutions coverage of a chapter is (review of #1607).
   {
     kind: "link",
     to: `/ncert-class-10${HOME_QS_LEAD}`,
     icon: BookOpenIcon,
     label: "NCERT & Exemplar",
-    sub: "Read the chapter, then solve its exercises step by step.",
+    sub: "Read the chapter, then work through its questions step by step.",
     go: "NCERT Hub →",
     accent: "green",
   },

@@ -11,7 +11,7 @@ vi.mock("../../analytics/analytics", () => ({
   },
 }));
 
-import PracticeHubSegRow, { importantQsPath } from "./PracticeHubSegRow";
+import PracticeHubSegRow, { SEG_CSS, importantQsPath } from "./PracticeHubSegRow";
 
 /**
  * NCERT-HUB-1 — the Practice · NCERT Hub · Important Qs row on /practice-hub.
@@ -40,7 +40,7 @@ describe("PracticeHubSegRow", () => {
     expect(row.querySelector('[aria-current="page"]')?.textContent).toBe("Practice");
     expect(screen.getByTestId("practice-seg-ncert").getAttribute("href")).toBe("/ncert-class-10");
     expect(screen.getByTestId("practice-seg-important").getAttribute("href")).toBe("/highly-probable/10/Maths");
-    expect(row.textContent).toContain("NCERT Hub: books, NCERT & Exemplar solutions — Maths and Science");
+    expect(row.querySelector(".lt-pseg__help")?.textContent).toBe("NCERT Hub: books, NCERT & Exemplar solutions");
   });
 
   it("Important Qs follows the subject picked on the page", () => {
@@ -59,10 +59,14 @@ describe("PracticeHubSegRow", () => {
     ]);
   });
 
-  it("no inline styles; the row has a fixed height and the labels never wrap (CLS 0)", () => {
+  it("no inline style objects; its rules render WITH the row (first paint is final); fixed height, no wrap (CLS 0)", () => {
     const { container } = renderRow("Maths");
     expect(container.querySelector("[style]")).toBeNull();
-    const css = readFileSync(resolve(ROOT, "src/components/practice/practiceHubSegRow.css"), "utf8");
+    // Review of #1607: a route-chunk stylesheet painted the row unstyled first (40 -> 78 px, CLS 0.019).
+    // The rules must be IN the rendered markup, so the prerendered HTML carries them.
+    const css = container.querySelector("nav style")?.textContent ?? "";
+    expect(css).toBe(SEG_CSS);
+    expect(readFileSync(resolve(ROOT, "src/components/practice/PracticeHubSegRow.tsx"), "utf8")).not.toMatch(/import\s+"[^"]*\.css"/);
     expect(css).toMatch(/\.lt-pseg__row\s*\{[^}]*min-height:\s*52px/);
     expect(css).toMatch(/\.lt-pseg__seg\s*\{[^}]*white-space:\s*nowrap/);
   });

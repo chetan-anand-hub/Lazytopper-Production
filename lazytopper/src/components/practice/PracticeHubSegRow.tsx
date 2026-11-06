@@ -6,18 +6,89 @@
  *   NCERT Hub     → /ncert-class-10
  *   Important Qs  → /highly-probable/10/<the subject picked on this page>
  *
- * ★ NO LAYOUT SHIFT. Rendered synchronously in the page body (no auth, no fetch, no lazy chunk), so
- * the prerendered page already holds it at its final size; the row has a fixed min-height and the
- * labels never wrap (one line at 360 px: "Important Qs" there, "Important Questions" from 768 px,
- * swapped by CSS so both widths render the same box).
+ * ★ NO LAYOUT SHIFT. Rendered synchronously in the page body (no auth, no fetch), AND its rules ship
+ * as a `<style>` element rendered WITH the row (`SEG_CSS`), the practice page's own first-paint
+ * pattern (its `.lt-entry-pair` rules are a `<style>` too). A route-chunk stylesheet arrives after
+ * the prerendered HTML paints, so the row first painted unstyled at ~40 px and grew to ~78 px
+ * (CLS 0.019 on the paid `/practice-hub?cbq=1` landing, review of #1607). Here the rules are in the
+ * prerendered HTML itself, so the first paint is the final box: fixed min-height, labels that never
+ * wrap ("Important Qs" at 360 px, "Important Questions" from 768 px, swapped by CSS).
  * ★ NO INP COST. Plain links; the only handler is a fire-and-forget vendor event.
  *
- * Styles: `practiceHubSegRow.css`, scoped `.lt-pseg`; no inline style objects.
+ * Styles: `SEG_CSS` below, scoped `.lt-pseg`; no inline style objects.
  */
 import { Link } from "react-router-dom";
 
 import { sendAnalyticsHit } from "../../analytics/analytics";
-import "./practiceHubSegRow.css";
+
+/** The row's rules, rendered as a `<style>` with the row so the prerendered first paint is final. */
+export const SEG_CSS = `
+.lt-pseg {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+.lt-pseg__row {
+  display: flex;
+  gap: 6px;
+  min-height: 52px;
+  padding: 5px;
+  border-radius: 14px;
+  background: #eef2f7;
+  box-sizing: border-box;
+}
+.lt-pseg__seg {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 10px;
+  color: #13294b;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+a.lt-pseg__seg:hover {
+  background: rgba(19, 41, 75, 0.06);
+}
+a.lt-pseg__seg:focus-visible {
+  outline: 2px solid #0b8f50;
+  outline-offset: 2px;
+}
+.lt-pseg__seg--on {
+  background: #13294b;
+  color: #fff;
+}
+.lt-pseg__long {
+  display: none;
+}
+.lt-pseg__help {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #64748b;
+}
+@media (min-width: 768px) {
+  .lt-pseg__row {
+    max-width: 560px;
+  }
+  .lt-pseg__seg {
+    font-size: 15px;
+    padding: 0 10px;
+  }
+  .lt-pseg__short {
+    display: none;
+  }
+  .lt-pseg__long {
+    display: inline;
+  }
+}
+`;
 
 export type PracticeSegTarget = "ncert_hub" | "important_qs";
 
@@ -37,6 +108,7 @@ export function importantQsPath(subject: "Maths" | "Science"): string {
 export default function PracticeHubSegRow({ subject }: { subject: "Maths" | "Science" }) {
   return (
     <nav className="lt-pseg" aria-label="Practice, NCERT Hub and Important Questions" data-testid="practice-seg-row">
+      <style>{SEG_CSS}</style>
       <div className="lt-pseg__row">
         <span className="lt-pseg__seg lt-pseg__seg--on" aria-current="page">
           Practice
@@ -59,7 +131,7 @@ export default function PracticeHubSegRow({ subject }: { subject: "Maths" | "Sci
           <span className="lt-pseg__long">Important Questions</span>
         </Link>
       </div>
-      <p className="lt-pseg__help">NCERT Hub: books, NCERT &amp; Exemplar solutions — Maths and Science</p>
+      <p className="lt-pseg__help">NCERT Hub: books, NCERT &amp; Exemplar solutions</p>
     </nav>
   );
 }
