@@ -6,6 +6,9 @@
  * CHECKOUT-1: below the purchases, "Abandoned checkouts" lists orders opened but never paid (older than 30 minutes, last 30
  * days, newest first). Read-only.
  *
+ * GUEST-ABANDON-1: abandoned checkouts also list SIGNED-OUT guest checkouts ("Who will use it?" or phone), recipient MASKED
+ * by the server; the totals carry "Guest paid, not yet on an account" as its own labelled figure (counted once).
+ *
  * Loads on request, only once the admin API has answered OK (the parent decides). An unreadable list says so.
  */
 import { useState } from "react";
@@ -73,15 +76,20 @@ export interface PurchaseItem extends WhoFields {
 export interface AbandonedItem {
   orderId: string;
   createdAtMs: number;
-  uid: string;
+  /** GUEST-ABANDON-1: null for a signed-out (guest) checkout. */
+  uid: string | null;
   email: string | null;
   name: string | null;
   passType: string;
   packTarget: string | null;
   kind: "premium" | "pack" | "topup" | "other";
   amountInr: number | null;
-  channel: "student" | "parent";
+  /** GUEST-ABANDON-1: "who" = signed out via "Who will use it?", "guest" = signed out with a phone number. */
+  channel: "student" | "parent" | "who" | "guest";
   isAdminAccount: boolean;
+  /** GUEST-ABANDON-1: a guest checkout's recipient, MASKED by the server. */
+  recipient?: { phoneMasked?: string; emailMasked?: string };
+  payerType?: string | null;
   /** PAY-RESCUE-1: absent on an older server. True only when Razorpay's `payment.failed` left a note on the order. */
   attempted?: boolean;
   lastFailure?: { code: string; reason: string; source: string; step: string; atMs: number | null } | null;
@@ -94,11 +102,13 @@ interface WindowTotals {
   premium: Bucket;
   packs: Bucket;
   topups: Bucket;
+  /** GUEST-ABANDON-1: guest money received but not (yet) on an account. Absent on an older server. */
+  guestUnclaimed?: Bucket;
 }
 export interface PurchasesResponse {
   ok: true;
   items: PurchaseItem[];
-  totals: { last7: WindowTotals; last30: WindowTotals; excludesAdminAccounts: boolean; complete: boolean };
+  totals: { last7: WindowTotals; last30: WindowTotals; excludesAdminAccounts: boolean; complete: boolean; guestUnclaimedKnown?: boolean };
   truncated?: boolean;
   /** CHECKOUT-1: absent on an older server, null when that read failed. */
   abandoned?: { items: AbandonedItem[]; truncated?: boolean } | null;
@@ -229,7 +239,29 @@ export function productLabel(p: Pick<PurchaseItem, "passType" | "packTarget">): 
 const inr = (n: number | null) => (n === null ? "—" : `₹${n.toLocaleString("en-IN")}`);
 const line = (w: WindowTotals) =>
   `Premium ${w.premium.count} (${inr(w.premium.inr)}) · Packs ${w.packs.count} (${inr(w.packs.inr)})` +
-  (w.topups.count ? ` · Top-ups ${w.topups.count} (${inr(w.topups.inr)})` : "");
+  (w.topups.count ? ` · Top-ups ${w.topups.count} (${inr(w.topups.inr)})` : "") +
+  (w.guestUnclaimed && w.guestUnclaimed.count ? ` · Guest paid, not yet on an account ${w.guestUnclaimed.count} (${inr(w.guestUnclaimed.inr)})` : "");
+
+/** GUEST-ABANDON-1 - who an abandoned checkout belongs to: the account, or a guest's MASKED recipient. */
+export function abandonedWho(a: Pick<AbandonedItem, "uid" | "email" | "name" | "recipient">): string {
+  if (a.uid) return a.email || a.name || a.uid;
+  const ids = [a.recipient?.phoneMasked, a.recipient?.emailMasked].filter(Boolean).join(" / ");
+  return ids || "Signed out";
+}
+
+/** GUEST-ABANDON-1 - the checkout's channel, in words. */
+export function abandonedChannel(channel: AbandonedItem["channel"]): string {
+  switch (channel) {
+    case "parent":
+      return "Parent pay link";
+    case "who":
+      return "Signed out · Who will use it?";
+    case "guest":
+      return "Signed out · phone number";
+    default:
+      return "Student checkout";
+  }
+}
 
 /** PAY-RESCUE-1 - why this order was never paid, from Razorpay's own failure note; else "no payment attempted". */
 export function abandonedReason(a: Pick<AbandonedItem, "attempted" | "lastFailure">): string {
@@ -244,7 +276,7 @@ export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["aba
     <div className="pu-abandoned" data-testid="pu-abandoned">
       <h3 className="gh-title">Abandoned checkouts</h3>
       <p className="sa-muted gh-note">
-        Orders opened but never paid, older than 30 minutes, last 30 days, newest first. A student may have paid on a later order.
+        Orders opened but never paid, older than 30 minutes, last 30 days, newest first, including signed-out checkouts (shown masked). A student may have paid on a later order.
       </p>
       {abandoned == null ? (
         <p className="sa-muted" data-testid="pu-abandoned-unavailable">
@@ -259,10 +291,10 @@ export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["aba
           {abandoned.items.map((a) => (
             <li key={a.orderId} className="pu-row" data-testid={`pu-ab-row-${a.orderId}`}>
               <span className="pu-date">{formatIstDateTime(a.createdAtMs)}</span>
-              <span className="pu-who">{a.email || a.name || a.uid}</span>
+              <span className="pu-who" data-testid={`pu-ab-who-${a.orderId}`}>{abandonedWho(a)}</span>
               <span className="pu-product">{productLabel(a)}</span>
               <span className="pu-amount">{inr(a.amountInr)}</span>
-              <span className="pu-channel sa-muted">{a.channel === "parent" ? "Parent pay link" : "Student checkout"}</span>
+              <span className="pu-channel sa-muted" data-testid={`pu-ab-channel-${a.orderId}`}>{abandonedChannel(a.channel)}</span>
               <span className="pu-flag">
                 {a.isAdminAccount && (
                   <span className="pu-pill" data-testid={`pu-ab-admin-${a.orderId}`}>
@@ -322,6 +354,13 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
               <strong>Last 30 days:</strong> {line(state.data.totals.last30)}
             </p>
             <p className="sa-muted">Excludes admin / test accounts.{state.data.totals.complete ? "" : " May be incomplete: only the latest 300 paid orders were read."}</p>
+            {state.data.totals.guestUnclaimedKnown !== undefined && (
+              <p className="sa-muted" data-testid="pu-guest-note">
+                {state.data.totals.guestUnclaimedKnown
+                  ? "\"Guest paid, not yet on an account\" is money received from a signed-out checkout that no account holds yet; once it lands on an account it counts under Premium or Packs instead, never both."
+                  : "Guest payments not yet on an account could not be read, so they are not in these totals."}
+              </p>
+            )}
             <p className="sa-muted" data-testid="pu-note">Every paid order counts as paid; LazyTopper gives no refunds. Top-ups are counted separately.</p>
           </div>
           {state.data.items.length === 0 ? (
