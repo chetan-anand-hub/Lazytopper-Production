@@ -115,9 +115,7 @@ describe("GUIDE-FILTER-1 · a URL / preset filter the chapter holds none of fall
     expect(flash.seen.empty).toBe(false);
     const loc = screen.getByTestId("loc");
     // #1302 review: the URL clean-up REPLACES the entry (no extra history step for back).
-    // SPEED-HUB-2: the chapter's scoring is now sliced, so the clean-up's router update can land a
-    // render after the first cards (it used to ride the same long task). Still a REPLACE.
-    await waitFor(() => expect(loc.getAttribute("data-nav")).toBe("REPLACE"), { timeout: 10000 });
+    expect(loc.getAttribute("data-nav")).toBe("REPLACE");
     const search = loc.textContent ?? "";
     expect(search).not.toMatch(/style=/);
     expect(search).toMatch(/topic=magnetic-effects-of-electric-current/);

@@ -8,30 +8,33 @@
 // of freezing. The questions served afterwards are identical (predictionWarm.parity.test.ts).
 //
 // `enabled` is the page's `bank.ready`: the warm only runs once the chapters are in the cache.
-// Readiness is read from the module (useSyncExternalStore), so the page sees the chapter warm
-// the moment ANY caller's warm finishes — including the build effect's own — never a render
-// after its set. A warm that fails for any reason still reports ready: the synchronous path
-// then does the work itself, exactly as before this hook existed.
+//
+// ⚠ ORDER (#1592 review, defect 1). The page's build effect awaits the SAME warm promise and
+// registered on it first, so when the warm settles the build's continuation runs before this
+// hook's `settle`. Both are microtasks, so React applies "chapter ready" and the build's set in
+// ONE render — exactly as on trunk, where both hung off ensureBankChapters. The effects keyed
+// on readiness (the CBQ auto-build, the dropped-filter / `built=1` clean-ups) then run AFTER
+// that set, cancel it if they change the inputs, and exactly one set settles. Readiness must
+// therefore flip only through this promise — never through a synchronous subscription, which
+// would flip it a render early and let a clean-up's preset be overwritten by the stale build.
+//
+// A warm that fails for any reason still reports ready: the synchronous path then does the
+// work itself, exactly as before this hook existed.
 
-import { useEffect, useReducer, useRef, useSyncExternalStore } from "react";
-import {
-  areLikelyQuestionsWarm,
-  subscribeLikelyQuestionsWarm,
-  warmLikelyQuestions,
-} from "../../data/predictionCore";
+import { useEffect, useReducer, useRef } from "react";
+import { areLikelyQuestionsWarm, warmLikelyQuestions } from "../../data/predictionCore";
 
 export function usePredictionWarm(topicKeys: ReadonlyArray<string>, enabled: boolean): boolean {
   const sig = topicKeys.join("\u0001");
   const [, rerender] = useReducer((n: number) => n + 1, 0);
-  // The last key set whose warm has settled (resolved OR failed). A settled warm always
-  // releases the page, even if a key could not be warmed: the sync path then does the work.
+  // The last key set whose warm has settled (resolved OR failed).
   const settledSig = useRef<string | null>(null);
-  const warm = useSyncExternalStore(subscribeLikelyQuestionsWarm, () =>
-    areLikelyQuestionsWarm(sig.split("\u0001")),
-  );
+  // Warm at FIRST render for this key set? Then readiness needs no wait (a revisit).
+  const warmNow = enabled && areLikelyQuestionsWarm(topicKeys);
+  if (warmNow) settledSig.current = sig;
 
   useEffect(() => {
-    if (!enabled || areLikelyQuestionsWarm(topicKeys)) return;
+    if (!enabled || settledSig.current === sig) return;
     let live = true;
     const settle = () => {
       settledSig.current = sig;
@@ -45,5 +48,5 @@ export function usePredictionWarm(topicKeys: ReadonlyArray<string>, enabled: boo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig, enabled]);
 
-  return enabled && (warm || settledSig.current === sig);
+  return enabled && settledSig.current === sig;
 }

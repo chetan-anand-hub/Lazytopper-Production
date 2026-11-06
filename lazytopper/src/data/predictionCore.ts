@@ -545,9 +545,24 @@ export function getAdjustedScore(q: CanonicalQuestionWithScore): number {
 // is not loaded is skipped here and left to the synchronous path to report as before.
 const SLICE_MS = 30;
 
+// Yield to the browser between slices. `scheduler.yield()` where it exists. Otherwise a
+// MessageChannel task, NOT setTimeout(0): a background tab clamps timers to >= 1 s, which
+// would stretch a chapter's ~30 slices into ~30 s. A hidden tab has nothing to keep
+// responsive, so there the remaining work simply runs on (#1592 review follow-up).
 function yieldToMain(): Promise<void> {
+  if (typeof document !== "undefined" && document.hidden) return Promise.resolve();
   const sched = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
   if (sched && typeof sched.yield === "function") return sched.yield();
+  if (typeof MessageChannel === "function") {
+    return new Promise((resolve) => {
+      const ch = new MessageChannel();
+      ch.port1.onmessage = () => {
+        ch.port1.close();
+        resolve();
+      };
+      ch.port2.postMessage(null);
+    });
+  }
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
@@ -582,21 +597,6 @@ async function warmSlug(slug: string): Promise<void> {
     await maybeYield();
   }
   warmedSlugs.add(slug);
-  for (const listener of [...warmListeners]) listener();
-}
-
-const warmListeners = new Set<() => void>();
-
-/**
- * Subscribe to "a chapter finished warming" (useSyncExternalStore). Listeners run the moment
- * the memos are filled, before the warmLikelyQuestions promise settles, so a page that renders
- * from areLikelyQuestionsWarm sees the chapter ready no later than its own build does.
- */
-export function subscribeLikelyQuestionsWarm(listener: () => void): () => void {
-  warmListeners.add(listener);
-  return () => {
-    warmListeners.delete(listener);
-  };
 }
 
 /**
@@ -667,10 +667,15 @@ export const PredictionCore = {
     if (!slug) return [];
     // LOW-END-1 (L3) — decorate-sort: each adjusted score is computed ONCE, not on both
     // sides of every comparison. Same comparator values, same stable sort, same order.
-    return getUnifiedForSlug(slug)
+    const ranked = getUnifiedForSlug(slug)
       .filter((q) => (conceptKey ? subtopicMatches(q.subtopic, conceptKey) : true))
       .map((q) => ({ q, score: getAdjustedScore(q) }))
       .sort((a, b) => b.score - a.score)
       .map((d) => d.q);
+    // SPEED-HUB-2: a whole-chapter read has just done everything warmLikelyQuestions would
+    // (every row merged, scored and ranked), so the chapter IS warm — a page arriving on it
+    // later is ready at once, in the same order as before the warm-up existed.
+    if (!conceptKey) warmedSlugs.add(slug);
+    return ranked;
   },
 };

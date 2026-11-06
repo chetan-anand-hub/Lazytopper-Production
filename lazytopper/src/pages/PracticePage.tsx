@@ -2256,6 +2256,11 @@ const packTopicKey = useMemo(() => {
         try {
           await ensureBankChapters(isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]);
           // SPEED-HUB-2: the chapter's first-use scoring in slices, before the sync draws below.
+          // ⚠ ORDER (#1592 review): usePredictionWarm flips `bank.ready` from the SAME promise, so
+          // this build's set and "chapter ready" land in one render, as on trunk; the clean-ups /
+          // CBQ auto-build keyed on bank.ready then run after it and cancel it if they change the
+          // inputs (the `if (cancelled) return` below) — one set settles. Do not flip readiness any
+          // other way (PracticePage.servedOnce.test.tsx).
           await warmLikelyQuestions(isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]).catch(() => {});
         } catch (loadErr) {
           bankLoadFailed = true; // MOMENTS-1: the chapter chunk did not arrive
