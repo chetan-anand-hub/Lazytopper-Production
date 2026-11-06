@@ -51,7 +51,7 @@ const crypto = require('node:crypto');
 const { grantPass, computeGrant, describePass, isStaleFoundingOrder, monthPassAvailableFor, hasPaidMonthOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter } = require('../services/rateLimiter.cjs');
 // TOPUP-1 (DARK): the extra-usage packs. Everything below is behind PAYMENTS_ENABLED AND TOPUP_ENABLED.
-const { TOPUP_PRODUCTS, isTopupProduct } = require('../services/passPricing.cjs');
+const { TOPUP_PRODUCTS, isTopupProduct, boardPassChargeFor, chargeFor } = require('../services/passPricing.cjs');
 const { grantTopup, TopupInputError, isTopupFlagOn } = require('../services/usageCredit.cjs');
 const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 // PACKS-SERVER-1 (DARK): one-time PDF packs. Behind PAYMENTS_ENABLED AND PACKS_ENABLED=1.
@@ -215,7 +215,58 @@ function quotePass(storedSubscription, passType, nowMs, { foundingOfferOpen } = 
     foundingOfferOpen === undefined ? undefined : { foundingOfferOpen },
   );
   const pricePaidInr = decision.fields.pricePaidInr;
+  // GST-EXCL-1 - from 00:00 IST 7 Nov 2026 (SERVER clock, at ORDER time) EVERY pass (the Board Pass and the month pass,
+  // owner scope: every paid product) is charged its base price + 18% GST (₹1,917 -> ₹2,262; month ₹599 -> ₹707).
+  // `pricePaidInr` / `amountPaise` are then the TOTAL - what Razorpay is asked for and what every later amount check
+  // (verify / webhook / status) compares against - and `gst` carries the breakup the order stores. Before the cut-off
+  // the quote is byte-identical to before (no `gst` key).
+  if (Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
+    const charge = boardPassChargeFor(pricePaidInr, nowMs);
+    if (charge.gstExclusive) {
+      return {
+        pricePaidInr: charge.totalInr,
+        amountPaise: charge.totalInr * 100,
+        offerKey: decision.fields.offerKey,
+        gst: { baseInr: charge.baseInr, gstInr: charge.gstInr, totalInr: charge.totalInr, gstRate: charge.gstRate },
+      };
+    }
+  }
   return { pricePaidInr, amountPaise: pricePaidInr * 100, offerKey: decision.fields.offerKey };
+}
+
+/**
+ * GST-EXCL-1 - the quote for an item priced from a SERVER TABLE (a PDF pack, a top-up): its base price, plus 18% GST for an
+ * order created at/after the cut-off (owner scope, 4 Nov 18:23 IST). Before it: byte-identical to `{ pricePaidInr: base, ... }`.
+ */
+function tableQuote(baseInr, nowMs) {
+  const charge = chargeFor(baseInr, nowMs);
+  const quote = { pricePaidInr: charge.totalInr, amountPaise: charge.totalInr * 100, offerKey: null };
+  if (charge.gstExclusive) {
+    quote.gst = { baseInr: charge.baseInr, gstInr: charge.gstInr, totalInr: charge.totalInr, gstRate: charge.gstRate };
+  }
+  return quote;
+}
+
+/**
+ * GST-EXCL-1 - the GST breakup a stored pay order carries: { baseInr, gstInr, totalInr, gstRate } for a Board Pass order
+ * created at/after the cut-off, else nothing (an older order, a pack, a top-up: byte-identical to before). `totalInr` is
+ * base + GST BEFORE any pack credit; `amountPaise` stays the amount actually charged.
+ */
+function gstOrderFields(quote) {
+  const g = quote && quote.gst;
+  if (!g || !Number.isInteger(g.baseInr) || !Number.isInteger(g.gstInr) || !Number.isInteger(g.totalInr)) return {};
+  return { baseInr: g.baseInr, gstInr: g.gstInr, totalInr: g.totalInr, gstRate: g.gstRate };
+}
+
+/**
+ * GST-EXCL-1 (review G2) - what the ORDER response tells the browser about the price it is about to pay: the server's own
+ * breakup, so a tab rendered before the cut-off (or a phone with a wrong clock) can show the corrected total and ask
+ * before Razorpay opens. Nothing for a pre-cut-off order: the response is byte-identical to before.
+ */
+function gstResponseFields(quote, packCreditInr) {
+  const g = gstOrderFields(quote);
+  if (!('baseInr' in g)) return {};
+  return { gst: { baseInr: g.baseInr, gstInr: g.gstInr, totalInr: g.totalInr }, ...(packCreditInr > 0 ? { packCreditInr } : {}) };
 }
 
 function createPaymentRoutes(deps = {}) {
@@ -385,8 +436,7 @@ function createPaymentRoutes(deps = {}) {
         console.error('[pay/order] pack ownership read failed:', e && e.message);
         return sendJson(res, 500, { ok: false, error: 'Could not price this pack.' });
       }
-      const packPrice = PACK_PRODUCTS[passType].priceInr;
-      quote = { pricePaidInr: packPrice, amountPaise: packPrice * 100, offerKey: null };
+      quote = tableQuote(PACK_PRODUCTS[passType].priceInr, now());
     }
     try {
       // A pack needs no subscription read: its price does not depend on the student's plan.
@@ -401,8 +451,7 @@ function createPaymentRoutes(deps = {}) {
           emit('payments.order.topup_not_premium');
           return sendJson(res, 403, { ok: false, error: 'premium_required' });
         }
-        const price = TOPUP_PRODUCTS[passType].priceInr;
-        quote = { pricePaidInr: price, amountPaise: price * 100, offerKey: null };
+        quote = tableQuote(TOPUP_PRODUCTS[passType].priceInr, now());
       } else {
         // PRICE-FIXED-1 - the month pass is no longer sold to an account that has never bought one, from
         // 2026-11-01T00:00:00+05:30 (server clock). Derived from the server's own records, never the body.
@@ -476,6 +525,7 @@ function createPaymentRoutes(deps = {}) {
         amountPaise: quote.amountPaise,
         ...(isPack ? { packTarget } : {}),
         ...creditOrderFields(packCreditInr, packCreditIds),
+        ...gstOrderFields(quote),
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -487,7 +537,7 @@ function createPaymentRoutes(deps = {}) {
     }
 
     emit('payments.order.created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 
   /**
@@ -982,6 +1032,9 @@ module.exports = {
   timingSafeHexEqual,
   hmacSha256Hex,
   quotePass,
+  tableQuote,
+  gstOrderFields,
+  gstResponseFields,
   readRawBody,
   paymentMismatch,
   PAY_ORDER_PATH,

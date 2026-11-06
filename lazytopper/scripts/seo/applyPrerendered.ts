@@ -378,6 +378,49 @@ export function preloadHrefsFor(
   return hrefs;
 }
 
+/**
+ * SPEED-SITE-2a — preloads for routes served by the shared `__shell.html` (not prerendered, so no per-page file
+ * to put a `<link rel="modulepreload">` in). Login, SignUpPage and DesktopShell left the entry chunk; without
+ * this, /login fetched Login only AFTER the entry had run (Lighthouse mobile LCP 2.86 -> 3.67 s). A tiny inline
+ * script reads `location.pathname` and adds the matching route's chunk closure as modulepreloads while the head
+ * is still being parsed, so it downloads in parallel with the entry, as it did when it was inside it. The
+ * Answer Checker (/check-improve, also a shell route) gets its page chunk preloaded the same way, a gain over
+ * trunk. `desktop` modules are added only at >= 1024 px (where the route renders inside DesktopShell).
+ */
+export const SHELL_ROUTE_CHUNKS: ReadonlyArray<{ pattern: string; modules: readonly string[]; desktop: readonly string[] }> = [
+  { pattern: "^/login(?:/|$)", modules: ["Login"], desktop: [] },
+  { pattern: "^/sign-up(?:/|$)", modules: ["SignUpPage"], desktop: [] },
+  { pattern: "^/check-improve/?$", modules: ["DesktopCheckImprovePage"], desktop: ["DesktopShell"] },
+];
+
+export function shellPreloadScript(
+  assetsDir: string,
+  shellHtml: string,
+  assetFiles: readonly string[] = readdirSync(assetsDir),
+): string {
+  const { base, entry } = entryScriptOf(shellHtml);
+  const readChunk = (file: string): string => readFileSync(join(assetsDir, file), "utf8");
+  const alreadyLoading = new Set(staticImportClosure(entry, readChunk));
+  const closure = (names: readonly string[]): string[] => {
+    const hrefs: string[] = [];
+    for (const name of names) {
+      for (const file of staticImportClosure(resolveRouteChunk(name, assetFiles), readChunk)) {
+        const href = `${base}assets/${file}`;
+        if (!alreadyLoading.has(file) && !hrefs.includes(href)) hrefs.push(href);
+      }
+    }
+    return hrefs;
+  };
+  const table = SHELL_ROUTE_CHUNKS.map((r) => [r.pattern, closure(r.modules), closure(r.desktop)]);
+  return (
+    "<script>(function(){try{var t=" +
+    JSON.stringify(table) +
+    ';var p=location.pathname,d=window.matchMedia&&window.matchMedia("(min-width: 1024px)").matches;' +
+    "for(var i=0;i<t.length;i++){if(!new RegExp(t[i][0]).test(p))continue;var h=d?t[i][1].concat(t[i][2]):t[i][1];" +
+    'for(var j=0;j<h.length;j++){var l=document.createElement("link");l.rel="modulepreload";l.crossOrigin="";l.href=h[j];document.head.appendChild(l);}break;}}catch(e){}})();</script>'
+  );
+}
+
 /** Insert the preload links immediately before `</head>`, which must occur exactly once. */
 export function withPreloads(html: string, hrefs: readonly string[]): string {
   if (hrefs.length === 0) return html;
@@ -698,6 +741,12 @@ export interface ApplyOptions {
    * build with no real `assets/` passes false — the real build never does.
    */
   preloads?: boolean;
+  /**
+   * SPEED-SITE-2a: add the shell-route preload script to `__shell.html` (SHELL_ROUTE_CHUNKS). The real build
+   * (`main`) passes true; it needs the real Login / SignUpPage / DesktopCheckImprovePage / DesktopShell chunks,
+   * so the synthetic-build guards leave it off.
+   */
+  shellPreloads?: boolean;
 }
 
 /**
@@ -731,7 +780,13 @@ export function applyArtifact(
         `and cannot be copied to ${SPA_SHELL}. The shell changed shape, or this step ran twice.`,
     );
   }
-  writeFileSync(join(outDir, SPA_SHELL), noindexShell(cleanShell), "utf8");
+  // SPEED-SITE-2a: the shell carries its routes' preload script (skipped by synthetic builds with no real assets).
+  const shellAssetsDir = join(outDir, "assets");
+  const shellOut =
+    options.shellPreloads === true && existsSync(shellAssetsDir)
+      ? noindexShell(cleanShell).replace("</head>", () => `${shellPreloadScript(shellAssetsDir, cleanShell)}</head>`)
+      : noindexShell(cleanShell);
+  writeFileSync(join(outDir, SPA_SHELL), shellOut, "utf8");
 
   // ★ THE UN-BOOTSTRAPPED STATE IS ANNOUNCED, NOT SKIPPED. Until the capture job has
   // committed its first artifact there is nothing to apply, and the site keeps the
@@ -870,7 +925,9 @@ export function applyArtifact(
 
 async function main(): Promise<void> {
   const outDir = await resolveOutDir();
-  const { applied, filesWritten, desktopFilesWritten, bodyBytes, preloadLinks } = applyArtifact(outDir);
+  const { applied, filesWritten, desktopFilesWritten, bodyBytes, preloadLinks } = applyArtifact(outDir, undefined, undefined, {
+    shellPreloads: true,
+  });
 
   // ★ Names its subject on every run, green included: a run that silently applied
   // nothing must be visible in the build log rather than reading as success.

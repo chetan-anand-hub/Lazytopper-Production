@@ -84,6 +84,8 @@ const BOOKS = ["ncert", "exemplar"] as const;
 let selections: ChapterSelection[] = [];
 beforeAll(async () => {
   await ensureBankSubject("Maths");
+  // SOLUTIONS-SCI-1: (b) and (g) iterate EVERY solutions chapter, Science included.
+  await ensureBankSubject("Science");
   selections = await selectAll();
 }, 120_000);
 
@@ -167,12 +169,15 @@ describe("(b) every chapter × published book is registered everywhere; nothing 
       "- [NCERT Exemplar Solutions Class 10 Maths Chapter 6 Triangles](https://www.lazytopper.com/ncert-exemplar/triangles): NCERT Exemplar questions of Chapter 6 with step-by-step solutions",
     ]);
   });
-  it("the NCERT books page links each Maths row to its solutions page (NCERT first), never to a missing one", () => {
+  it("the NCERT books page links each row to its solutions page (NCERT first), never to a missing one", () => {
     for (const row of NCERT_CLASS10_CHAPTERS) {
       const href = solutionsHrefForRow(row);
       if (href) expect(solutionsPaths()).toContain(href);
       const ch = SOLUTIONS_CHAPTERS.find((c) => bankSlugOf(c) === row.slug && c.chapter === row.chapter);
-      expect(href, `${row.book} ${row.chapter}`).toBe(row.book === "Maths" && ch && booksOf(ch)[0] ? solutionsPath(booksOf(ch)[0], ch.slug) : null);
+      // SOLUTIONS-SCI-1: Science rows link too, when their chapter has a published page (the match is
+      // by bank slug AND chapter number, so Science Ch 11 never resolves to Maths Ch 11).
+      expect(ch?.subject ?? row.book, `${row.book} ${row.chapter}`).toBe(row.book);
+      expect(href, `${row.book} ${row.chapter}`).toBe(ch && booksOf(ch)[0] ? solutionsPath(booksOf(ch)[0], ch.slug) : null);
     }
   });
 });

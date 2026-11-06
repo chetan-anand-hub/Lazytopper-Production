@@ -410,6 +410,8 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
     "tokens-GGGGGGGG.js": "export const t=1;",
     "Lazy-EEEEEEEE.js": "export default 3;",
     "DesktopNotesPage-FFFFFFFF.js": 'import{c}from"./Card-DDDDDDDD.js";export default 2;',
+    // SPEED-SITE-2a: the landing is a lazy chunk now (the root preloads it).
+    "Welcome-WWWWWWWW.js": 'import{c}from"./Card-DDDDDDDD.js";export default 5;',
     // A decoy whose name merely STARTS with a route module's name: never a match.
     "DesktopNotesPageExtra-HHHHHHHH.js": "export default 4;",
   };
@@ -483,8 +485,12 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
         "/assets/Card-DDDDDDDD.js",
         "/assets/tokens-GGGGGGGG.js",
       ]);
-      // The root's page is in the entry chunk already: nothing to preload.
-      expect(modulepreloadHrefsIn(readFileSync(join(out, "index.html"), "utf8"))).toEqual([]);
+      // SPEED-SITE-2a: the root preloads its landing (Welcome left the entry chunk) and its static deps.
+      expect(modulepreloadHrefsIn(readFileSync(join(out, "index.html"), "utf8"))).toEqual([
+        "/assets/Welcome-WWWWWWWW.js",
+        "/assets/Card-DDDDDDDD.js",
+        "/assets/tokens-GGGGGGGG.js",
+      ]);
       // crossorigin, so the browser reuses the preload for the module request.
       expect(readFileSync(join(out, "pricing.html"), "utf8")).toContain(
         '<link rel="modulepreload" crossorigin href="/assets/PricingPage-CCCCCCCC.js">',
@@ -502,7 +508,8 @@ describe("SEO-5 PR-2 — both widths applied, preloads resolved, verified from d
       expect(verified.failures).toEqual([]);
       expect(verified.mobileFiles).toBe(5);
       expect(verified.desktopFiles).toBe(3);
-      expect(verified.preloadLinks).toBe(3 * 3 + 3 * 3);
+      // SPEED-SITE-2a: the root's two files (mobile + desktop) now preload Welcome + its 2 deps as well.
+      expect(verified.preloadLinks).toBe(3 * 3 + 3 * 3 + 2 * 3);
     } finally {
       cleanup();
     }

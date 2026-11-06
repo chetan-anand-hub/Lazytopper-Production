@@ -27,7 +27,8 @@ import {
   isValidPackTarget,
   packDescription,
   packIdOf,
-  packPriceLabel,
+  packGstBreakdown,
+  packPayLabel,
   packCheckoutDescription,
   subjectOfChapter,
   type MyPacks,
@@ -654,15 +655,16 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const confirming = ready && mine_ && buy.phase === "confirming";
     const dismissed = mine_ && buy.phase === "dismissed";
     const blocked = ready && otherBusy(key);
-    let label = `Buy for ${packPriceLabel(sku)}`;
+    // GST-EXCL-1: every Buy/Pay label names the amount CHARGED (base + GST from 7 Nov 2026).
+    let label = `Buy for ${packPayLabel(sku)}`;
     if (!enabled) label = "Opens soon";
     else if (!ready) label = CHOOSE_CHAPTER_FIRST;
     else if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
     else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
-    else if (!signedIn && !authLoading) label = `Buy · ${packPriceLabel(sku)}`;
+    else if (!signedIn && !authLoading) label = `Buy · ${packPayLabel(sku)}`;
     // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
-    else if (dismissed) label = `Pay ${packPriceLabel(sku)}`;
+    else if (dismissed) label = `Pay ${packPayLabel(sku)}`;
     const showSigninNote = enabled && ready && !isOwned && !busy && !blocked && !signedIn && !authLoading;
     const off = !enabled || !ready || isOwned || busy || confirming || blocked;
     return (
@@ -679,6 +681,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         </button>
         {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
           <SomeoneElseLink testId={`packs-someone-else-${sku}`} onOpen={() => setWho({ sku, target })} />
+        )}
+        {/* GST-EXCL-1: the GST breakup next to Buy, before Razorpay opens (packGstBreakdown); nothing before 7 Nov 2026. */}
+        {enabled && ready && !isOwned && packGstBreakdown(sku) && (
+          <p className={`${prefix}__note`} data-testid={`packs-gst-${sku}`}>{packGstBreakdown(sku)}</p>
         )}
         {blocked && <p className={`${prefix}__note`} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{whoEnabled ? PACK_WHO_NOTE : guestEnabled ? PACK_GUEST_NOTE : PACK_SIGNIN_NOTE}</p>}
@@ -851,7 +857,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               ...(who.target ? { target: who.target } : {}),
               label: packDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
               description: packCheckoutDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
-              priceDisplay: packPriceLabel(who.sku),
+              priceDisplay: packPayLabel(who.sku),
+              priceBreakdown: packGstBreakdown(who.sku),
             }}
             {...(checkoutAudience ? { audience: checkoutAudience } : {})}
             {...(signedIn && !checkoutAudience ? { startAt: "other" as const } : {})}

@@ -16,6 +16,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
+import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled } from "./checkoutWhoFlag";
 
@@ -207,7 +208,7 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
   );
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
-  return { orderId, keyId, amountPaise };
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
 async function verifyWhoPayment(success: RazorpaySuccess): Promise<void> {
@@ -245,6 +246,8 @@ export function whoPrefill(recipient: Recipient, signedIn: boolean): { prefill?:
 export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, recipient, signedIn), deps.loadScript()]);
+    // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -252,7 +255,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: item.description,
+        description: razorpayDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...whoPrefill(recipient, signedIn),

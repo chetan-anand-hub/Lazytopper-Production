@@ -14,7 +14,7 @@ import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 import { maskIndianMobile, type GuestSigninState } from "../../services/guestPay";
-import { boardPassPriceDisplay, BOARD_PASS_NAME } from "../../config/pricing";
+import { boardPassGstBreakdown, boardPassPayDisplay, BOARD_PASS_NAME } from "../../config/pricing";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { BOARD_PASS_CHECKOUT_DESCRIPTION } from "../../services/checkout";
 
@@ -28,7 +28,7 @@ export default function ParentBoardPassSheet({ onClose }: { onClose: () => void 
     <Suspense fallback={null}>
       <CheckoutSheet
         audience="parent"
-        item={{ kind: "pass", sku: "till_boards", label: BOARD_PASS_NAME, description: BOARD_PASS_CHECKOUT_DESCRIPTION, priceDisplay: boardPassPriceDisplay() }}
+        item={{ kind: "pass", sku: "till_boards", label: BOARD_PASS_NAME, description: BOARD_PASS_CHECKOUT_DESCRIPTION, priceDisplay: boardPassPayDisplay(), priceBreakdown: boardPassGstBreakdown() }}
         signedIn={signedIn}
         selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
         onPaySelf={() => navigate(BOARD_PASS_BUY_PATH)}

@@ -56,8 +56,11 @@ export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
  *  2026-10-25 PACKS-CLIENT-1: +446 B gz (272,950 -> 273,396, flag ON) for the /packs route, activity events and Meta map (owner revenue priority);
  *  reduction lane [FU-PERF3-BUDGET] queued.
  *  2026-10-25 PACKS-UX-1: +~125 B (grouped pack pending row on Home + packs labels); reduction lane [FU-PERF3-BUDGET] queued.
- *  2026-10-25 PACKS-ENTRY-1: +~200 B (lazy entry-point wrappers, pack_entry_click event); reduction lane [FU-PERF3-BUDGET] queued. */
-export const MEASURED_ENTRY_GZ = 249110;
+ *  2026-10-25 PACKS-ENTRY-1: +~200 B (lazy entry-point wrappers, pack_entry_click event); reduction lane [FU-PERF3-BUDGET] queued.
+ *  2026-11-06 SPEED-SITE-2a: Login, SignUpPage, Welcome and DesktopShell left the entry (preloadable lazies);
+ *  re-measured 214,820 B gz (`pnpm run build`, flags off and on alike; was 273,030 at trunk 49bda772). The budget
+ *  tightens with it: 274,021 -> 236,302 B. */
+export const MEASURED_ENTRY_GZ = 214820;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */
