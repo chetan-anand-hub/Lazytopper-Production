@@ -231,7 +231,7 @@ function finishPayingUrl(appUrl, product) {
   return `${appUrl}/packs?${q.toString()}&${utm('finish')}`;
 }
 
-/** The Plans page, where the existing "Forward link to parents" / "Pay by QR code" actions live (ASK-PARENTS-PAY-1). PURE. */
+/** The Plans page, where the existing "Forward link to parents" / "Share QR code" actions live (ASK-PARENTS-PAY-1). PURE. */
 function parentPayPageUrl(appUrl) {
   return `${appUrl}/pricing?${utm('parent')}`;
 }

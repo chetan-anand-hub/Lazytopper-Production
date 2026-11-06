@@ -160,7 +160,7 @@ const EVENT_LABELS: Record<string, string> = {
   // PAYWALL-PAY-1 — the three paywall actions (any surface: lock, upgrade popup / sheet, limit, /pricing,
   // tutor, trial_paper, more_like_this).
   paywall_action_pay: "Tapped Pay on a paywall",
-  paywall_action_qr: "Tapped Pay by QR code (for parents)",
+  paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
   ask_parent_pay: "Tapped Forward link to parents",
   // PAY-RESCUE-1

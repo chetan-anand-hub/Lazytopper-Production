@@ -214,7 +214,7 @@ export interface PacksShopApi {
   /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
   blockedBy: (sku: PackSku, target?: string) => boolean;
   /**
-   * PARENT-PACKS-1 - "Forward link to parents" (+ "Pay by QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
+   * PARENT-PACKS-1 - "Forward link to parents" (+ "Share QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
    */
   parentAsk: (sku: PackSku, target?: string, opts?: { noQr?: boolean }) => ReactNode;

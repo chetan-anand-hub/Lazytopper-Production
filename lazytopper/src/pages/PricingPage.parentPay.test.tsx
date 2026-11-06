@@ -1,7 +1,7 @@
 /**
  * ASK-PARENTS-PAY-1 — where the two halves mount on /pricing.
  *
- *   "Pay by QR code" / "Forward link to parents" (PAYWALL-PAY-1): signed-in, hydrated, NOT
+ *   "Share QR code" / "Forward link to parents" (PAYWALL-PAY-1): signed-in, hydrated, NOT
  *   Premium (Basic or trial), flags on.
  *   The parent's page: `/pricing#pp=<token>` with flags on. Otherwise the plans page exactly
  *   as before — with the flags off a pay-link address is just /pricing.
@@ -94,7 +94,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("PricingPage — Pay by QR code / Forward link to parents (PAYWALL-PAY-1)", () => {
+describe("PricingPage — Share QR code / Forward link to parents (PAYWALL-PAY-1)", () => {
   it.each([
     ["Basic", FREE],
     ["trial", TRIAL],

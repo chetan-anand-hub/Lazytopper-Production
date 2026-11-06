@@ -1,5 +1,5 @@
 /**
- * PAYWALL-PAY-1 — the three paywall actions: "Pay", "Pay by QR code", "Forward link to parents".
+ * PAYWALL-PAY-1 — the three paywall actions: "Pay", "Share QR code", "Forward link to parents".
  *
  * Labels exact; never "Ask" next to parents (rendered AND in every pay surface's source, with
  * a control that proves the scan bites); the switches gate each action; the QR goes out as a
@@ -105,11 +105,11 @@ afterEach(() => {
 });
 
 describe("labels — exactly the owner's three (the third is Forward link to parents)", () => {
-  it("Pay, Pay by QR code, Forward link to parents — in that order", () => {
+  it("Pay, Share QR code, Forward link to parents — in that order", () => {
     view(deps());
     const names = screen.getAllByRole("button").map((b) => b.textContent);
-    expect(names).toEqual(["Pay", "Pay by QR code", "Forward link to parents"]);
-    expect([PAY_LABEL, QR_LABEL, FORWARD_LABEL]).toEqual(["Pay", "Pay by QR code", "Forward link to parents"]);
+    expect(names).toEqual(["Pay", "Share QR code", "Forward link to parents"]);
+    expect([PAY_LABEL, QR_LABEL, FORWARD_LABEL]).toEqual(["Pay", "Share QR code", "Forward link to parents"]);
   });
 });
 
@@ -193,7 +193,7 @@ describe("Pay", () => {
   });
 });
 
-describe("Pay by QR code", () => {
+describe("Share QR code", () => {
   it("phones: the QR goes out as a PNG FILE with the message through the share sheet", async () => {
     const share = vi.fn(async () => undefined);
     const canShare = vi.fn(() => true);
