@@ -5,8 +5,9 @@
 // (a) the card renders at phone and desktop width, above the scope card; (b) Maths →
 // Triangles lands on the E3 URL; (e) `?cbq=1` arrives with the chooser open; and the
 // chooser lists a chapter with no real CBQs as "coming soon" and will not open it.
-// The per-chapter CBQ check (cbqAvailability, real-bank tested in its own suite) is
-// stubbed here so this suite controls which chapters have CBQs.
+// The per-chapter CBQ answer (SPEED-HUB-1: the precomputed manifest read by
+// cbqChapterManifest, pinned to the real bank in cbqAvailability.test.ts) is stubbed here so
+// this suite controls which chapters have CBQs.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor, within } from "@testing-library/react";
@@ -30,10 +31,10 @@ vi.mock("../../services/mistakeLogService", () => ({
   getMistakeLogs: async () => [],
 }));
 vi.mock("../../services/firebaseClient", () => ({ firestoreDb: null }));
-vi.mock("../../components/practice/cbqAvailability", () => ({
-  chaptersWithCbqs: async (subject: string, slugs: readonly string[]) => {
+vi.mock("../../components/practice/cbqChapterManifest", () => ({
+  cbqChapterComingSoon: (subject: string, slug: string) => {
     avail.calls.push(subject);
-    return new Set(slugs.filter((s) => !avail.without.has(s)));
+    return avail.without.has(slug);
   },
 }));
 
@@ -213,7 +214,7 @@ describe("CBQ-ENTRY-1 (E2) — the chooser", () => {
     auth.user = { uid: "u1" };
     renderHub("/practice-hub?cbq=1");
     const dialog = screen.getByRole("dialog", { name: TITLE });
-    // The check ran for the subject on screen, from the bank (stubbed here).
+    // The check ran for the subject on screen, from the manifest (stubbed here).
     await waitFor(() => expect(avail.calls).toContain("Maths"));
     const circles = await within(dialog).findByRole("option", { name: "Circles — coming soon" });
     expect((circles as HTMLOptionElement).disabled).toBe(true);

@@ -8,7 +8,12 @@ import {
   renderStartHereAvailabilityFile,
 } from "./startHereAvailabilitySource";
 import { START_HERE_AVAILABILITY } from "./startHereAvailability.generated";
-import { ensureBankSubject } from "../../data/bankChapters/loader";
+import {
+  __resetBankChaptersForTest,
+  bankChaptersForSubject,
+  ensureBankSubject,
+  isBankChapterLoaded,
+} from "../../data/bankChapters/loader";
 import { isCbq } from "../../lib/cbq/cbqClassification";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 import {
@@ -249,4 +254,25 @@ describe("START-HERE-WRITTEN · one written Science CBQ", () => {
     expect(next[0]).not.toBe(first[0]);
     expect(next[0].startsWith("h")).toBe(true);
   });
+});
+
+/**
+ * SPEED-HUB-1 — the Start tap loads ONE chapter, not the subject, and picks the same five.
+ * From a cold cache the pick must leave every other chapter of the subject unloaded; the ids
+ * must equal the pick made with the whole subject loaded (the old behaviour).
+ */
+describe("SPEED-HUB-1 · pickStartHereSet loads only the chosen chapter", () => {
+  it.each(CHAPTERS)("★ $subject / $chapter: cold cache -> only that chapter loads, same five ids", async ({ subject, chapter }) => {
+    __resetBankChaptersForTest();
+    const cold = await pickStartHereSet({ subject, chapter, qtype: "mcq", rotation: 1 });
+    expect(isBankChapterLoaded(chapter)).toBe(true);
+    const others = bankChaptersForSubject(subject).filter((s) => s !== chapter);
+    // Precondition: the subject has other chapters, or "not loaded" proves nothing.
+    expect(others.length).toBeGreaterThan(0);
+    for (const s of others) expect(isBankChapterLoaded(s), s).toBe(false);
+    await ensureBankSubject(subject);
+    const warm = await pickStartHereSet({ subject, chapter, qtype: "mcq", rotation: 1 });
+    expect(cold).toHaveLength(5);
+    expect(cold).toEqual(warm);
+  }, 120_000);
 });
