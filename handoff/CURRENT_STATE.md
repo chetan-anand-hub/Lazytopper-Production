@@ -1,3 +1,72 @@
+## [CURRENT - 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617: grader rulings, GST-exclusive pricing LIVE, NCERT Hub, Science NCERT + Exemplar solutions, sign-in fixes, site speed] `#1573` `#1574` `#1575` `#1576` `#1577` `#1578` `#1579` `#1580` `#1582` `#1583` `#1584` `#1585` `#1587` `#1588` `#1589` `#1590` `#1591` `#1592` `#1593` `#1594` `#1595` `#1596` `#1597` `#1598` `#1599` `#1600` `#1601` `#1602` `#1603` `#1604` `#1605` `#1606` `#1607` `#1608` `#1609` `#1610` `#1611` `#1612` `#1613` `#1614` `#1615` `#1616` `#1617` `#1560`
+
+*(One daily handoff, CLAUDE.md section 10, for every PR merged after the last docs PR `#1572` (`1b268a52`, 4 Nov 23:37 IST). 44 merges: 12 on 5 Nov (08:20 to 15:03 IST), 25 on 6 Nov (15:15 to 23:31 IST) and 7 in the first hour of 7 Nov (00:20 to 00:51 IST). `#1581` (UNIT-LABEL-1) was closed unmerged; `#1586` is a nightly clock-run issue, not a PR. No PR is open against trunk at writing. Trunk at writing: **`28394aed`** (`#1615`, the last merge) [git, re-derived with `git fetch` immediately before the commit]. **GRADING BEHAVIOUR CHANGED on 5 Nov in five PRs (`#1575`, `#1582`, `#1583`, `#1584`, `#1585`); per-surface table below (CLAUDE.md section 4a).** **"+ GST" pricing is LIVE from 00:00 IST 7 Nov 2026 (`#1560`, merged 6 Nov 21:21 IST; prerender re-captured after the cut-off in `#1613`).** Facts marked **[gh]** come from each PR body and merge data via the gh REST API; **[owner]** rulings as relayed by the coordinator in this lane's brief; trunk **[git]**.)*
+
+Adds to the blocks below, which stay current for everything this block does not name. `NAMING` stands (Answer Checker; "Board Pass", never "Premium", in user copy). **Pricing constants change from 7 Nov 00:00 IST:** every paid product is priced exclusive of GST. Tags read "Rs X + GST"; Pay / Buy buttons show the total. Board Pass Rs 1,917 + GST (pays Rs 2,262; Rs 2,499 + GST from 1 Dec), packs Rs 49 / 99 / 199 / 299 + GST (pay Rs 58 / 117 / 235 / 353), month pass Rs 599 + GST (pays Rs 707; list Rs 999 -> Rs 1,179). Orders created before the cut-off keep their amount [gh `#1560`].
+
+| PR | merge SHA | merged (IST) | what it changed [gh] |
+|---|---|---|---|
+| `#1574` CHECKOUT-SELF-1 | `9880e4d8` | 5 Nov 08:20 | A signed-in student's Pay / Buy buys for the account in one tap; "Buying for someone else, or paying with a phone number?" link opens the existing sheet at the someone-else box. |
+| `#1573` EARLY-PAYWALL-1 | `d7ca23a7` | 5 Nov 08:32 | Me/Progress: no lock flash while the entitlement hydrates (same-size placeholder); lock badge reads "Board Pass". |
+| `#1576` CI-TUTOR-RETURN-1 | `6f802c7d` | 5 Nov 08:53 | Back from the tutor reopens the same graded Answer Checker paper (`?review=<code>`) with every tutor button; same history-replace on Chapter Test and Full Mock. |
+| `#1577` NAV-PRICING-1 | `97dbb636` | 5 Nov 09:49 | Pricing is the 5th phone bottom-bar tab (Me for Board Pass holders) and a desktop panel item; owner authorised `App.tsx` / `DesktopShell.tsx` for this change only. |
+| `#1578` BROWSE-VISITOR-CARD-1 | `3c3b0a64` | 5 Nov 10:11 | Signed-out /browse gets one card: who made it, what the Board Pass gives, real price and deadline, Sign up free, See pricing. |
+| `#1579` SCORECARD-SECTION-TYPE-1 | `9eaf8bc9` | 5 Nov 11:29 | "By section" (A-E) and "By question type" on every scorecard, live and restored, all six surfaces. Presentation only, nothing sent to the grader. |
+| `#1575` GRADER-QUALITY-1 | `d05e67a2` | 5 Nov 12:34 | **Grader.** Honest mistake types (no false "Not attempted" / concept gap; a blank asked-for reason needs proof of knowledge to be typed), column-aware reading, steadier grading. |
+| `#1580` PACK-SYLLABUS-1 | `1deadf97` | 5 Nov 14:12 | Scanned every sellable pack (778 files, 10,697 questions) by sub-topic: the reported "Solar Energy" / "Biogas" hits were in-syllabus; 8 real or borderline rows excluded; guard at selection. |
+| `#1584` GRADER-BALANCE-1 | `ea44714d` | 5 Nov 14:37 | **Grader.** An unbalanced equation with the right species loses exactly 1/2, once per equation; type by what was written (changed formula = conceptual, wrong coefficients = calculation, skeletal = presentation unless on-paper evidence). |
+| `#1582` DETECT-OBJECTIVE-STABILITY-1 | `cc15fb8a` | 5 Nov 14:40 | **Grader (detect).** A printed MCQ / A-R is recognised in code from the transcribed options (upgrade only, never downgrade, never over a mark above 1 or the student's override). |
+| `#1583` GRADER-CREDIT-1 | `b5908d18` | 5 Nov 14:50 | **Grader.** Proportional 1/2 credit for separable values (one of two roots); an equal final answer in another form (45/48, 4.5 A) keeps its mark. |
+| `#1585` MISSING-TYPE-1 | `06cf7d37` | 5 Nov 15:03 | **Grader.** No blank step stays untyped; working not shown before a correct later step = exam technique, outside the cap. |
+| `#1587` SPEED-HUB-1 | `90e0a68e` | 6 Nov 15:15 | CBQ chapter picker reads a precomputed manifest (no whole-subject bank load; CrUX INP had been 2,010 ms); Start-here loads one chapter. |
+| `#1588` CLS-1 | `689f70e5` | 6 Nov 15:24 | Route CSS inlined for /packs, CBQ hub and chapters, /contact; CLS 0.30-0.75 -> 0 in the lab. |
+| `#1591` CBQ-FREE-FIRST-1 | `66f9276a` | 6 Nov 15:44 | Signed-out `?cbq=1`: free chapter button first, CBQ pack offer directly below (reverses `#1524`'s order; YouTube sign-ups had fallen from 15-24 to about 2 a day). |
+| `#1589` PARENT-WORDING-1 | `c9e8937c` | 6 Nov 15:45 | Parent-pay route never says "ask": "Forward link to parents". Event names unchanged. |
+| `#1590` GUEST-ABANDON-1 | `0d46ad3e` | 6 Nov 16:02 | Guest checkouts listed in admin (masked), unclaimed guest money in totals, one opt-in follow-up email. |
+| `#1593` LOGIN-FIX-1 | `0aeb0578` | 6 Nov 17:09 | Android in-app browsers get "Open in Chrome to continue with Google"; phone OTP reCAPTCHA defects fixed; real error codes instead of "unknown". |
+| `#1594` SPEED-SITE-1a | `22880010` | 6 Nov 17:29 | Answer Checker ladder paints its question from six copied starter rows, no chapter-bank download. |
+| `#1596` SPEED-SITE-1a-fu | `16bde4b6` | 6 Nov 19:21 | Ladder "why" line keeps a leading maths variable lowercase; test that the bank loader is never imported. |
+| `#1597` SPEED-SITE-1c | `ab28b338` | 6 Nov 19:21 | No 56-px ghost nav row on first load of mobile self-chromed pages (CLS 0.068 -> 0). |
+| `#1598` SPEED-SITE-1d | `f04051da` | 6 Nov 19:21 | /login holds the email-code door's slot while its chunk loads (CLS 0.034 -> 0). |
+| `#1595` SPEED-SITE-1b | `f2bf9aee` | 6 Nov 19:22 | Prerendered pages paint visible content first (no opacity-0 fade on 56 bodies); Notes keeps its prerendered body. |
+| `#1601` LOGIN-FIX-2 | `dcc71db5` | 6 Nov 20:26 | `login_abandon` and `login_step` events: why and where a started sign-in was left (closed value sets, no personal data). |
+| `#1600` SPEED-SITE-1-fu2 | `4d57e8d0` | 6 Nov 20:45 | Fade-skip only on the served path; `whyLine` maths tokens; in-app note slot on Login. |
+| `#1599` KEY-TERMS-1 | `9f55e56e` | 6 Nov 20:54 | "Key terms the examiner looks for" card on the 13 Science notes pages (`#key-terms`). No grader change. |
+| `#1560` GST-EXCL-1 | `49bda772` | 6 Nov 21:21 | **Money.** Every paid product priced "+ GST" from 00:00 IST 7 Nov 2026 (cut-off moved from 5 Nov); total shown before payment; month pass included (Rs 707); existing buyers unchanged. |
+| `#1602` SOLUTIONS-SCI-1 | `436cb7d4` | 6 Nov 21:28 | Free attempt-first NCERT Science solutions, pilot Ch 1, 5, 11: 60 verified rows (88 -> 60; defective rows held, bank untouched). |
+| `#1604` SOLUTIONS-SCI-UNITS | `797ce296` | 6 Nov 21:33 | Opt-in SI-unit mode in `compareAnswer` for Science typed verdicts; default (Maths) mode unchanged; unknown unit = "none", never "wrong". |
+| `#1592` SPEED-HUB-2 | `53aa5177` | 6 Nov 22:14 | CBQ chapter tap no longer freezes 400-950 ms on first use (sliced warm-up; owner allowed the `src/data/predictionCore.ts` edit for this fix only). Same questions served (parity fixture). |
+| `#1603` SPEED-INSIGHTS-ROUTE-1 | `362e33eb` | 6 Nov 22:14 | Vercel Speed Insights per route family (no more "Unknown"); `sampleRate` 0.5. |
+| `#1605` SOLUTIONS-SCI-2 | `d3c9598f` | 6 Nov 22:22 | NCERT Science solutions, 9 more chapters (12 pages, 150 rows); mechanical off-book-term rule and guard; hint rule; figures; SI-unit verdicts. |
+| `#1606` NCERT-HUB-1a | `fcc01fae` | 6 Nov 22:47 | "NCERT Books" -> **NCERT Hub** (`/ncert-class-10` unchanged): subject / chapter picker, one honest chapter card, parent-child breadcrumb. |
+| `#1607` NCERT-HUB-1b | `302f72ad` | 6 Nov 22:48 | Practice hub segmented row (Practice / NCERT Hub / Important Qs); NCERT Hub card on Home (5th card). |
+| `#1610` BROWSE-ABOUT-REMOVE | `4187262f` | 6 Nov 23:10 | "What is LazyTopper?" link removed from the /browse visitor card. |
+| `#1611` HUB-ABOUT-REMOVE | `b6c4c6ca` | 6 Nov 23:10 | "About these books" removed from the NCERT Hub; disclaimer kept; picker note "14 chapters · NCERT 2026-27 · deleted chapters left out". |
+| `#1609` SOLUTIONS-SCI-3 | `ca1d752e` | 6 Nov 23:31 | NCERT Exemplar Science solutions: 11 pages, 166 rows (200 at first push; 34 held). |
+| `#1613` [ci-full] prerender re-capture | `d289c268` | 7 Nov 00:20 | Prerender re-captured after the GST cut-off: 63 files + lastmod + sitemap; no bare old price left in `prerendered/`. |
+| `#1612` PRICING-DEDUPE-1 | `5fcde27f` | 7 Nov 00:32 | Important Questions: one buying block at the end, collapsed, Pay on the row (reverses IQ-PACKS-1). |
+| `#1616` PACKS-CLS-1 | `5914ad7f` | 7 Nov 00:42 | Pack pop-up holds its "Questions" row ("Counting..."); metric-matched Fraunces fallback. |
+| `#1617` CACHE-LIFETIMES-1 | `797be2f7` | 7 Nov 00:42 | `vercel.json` headers: fonts 1 year immutable; unhashed images 30 days + SWR; previews and samples 1 day + SWR. |
+| `#1608` SPEED-SITE-2f | `e2523029` | 7 Nov 00:43 | Prerendered pages inline critical CSS and load the entry sheet non-blocking (slow-3G FCP 6.5 s -> 4.7 s). |
+| `#1614` HPQ-CLS-1 | `8caaf5a6` | 7 Nov 00:51 | Important Questions: NCERT Hub link and locked-steps note CSS ship in the markup (no late stylesheet). |
+| `#1615` BROWSE-SUBTITLE | `28394aed` | 7 Nov 00:51 | Signed-out /browse subtitle: "Sign in to explore everything for free (7 days)." |
+
+**Stage.** Launch-hardening and conversion. GST-exclusive pricing is live; the NCERT Hub and Science NCERT / Exemplar solutions are live; the site-speed day (SPEED-SITE-1 / 2, owner target: mid-range Android on 4G) is merged on the code side, judged next by Google PageSpeed and Vercel real-user data.
+
+**PR state at writing [gh].** No open PR targets `base/approved-thru-437`. `#1581` UNIT-LABEL-1 closed unmerged. Issue `#1586` (nightly clock run failed at ist-midnight on `06cf7d37`) is open.
+
+**Grading surfaces (CLAUDE.md section 4a) [gh, each PR's section 0b / 4a table].**
+| Surface | moved by | state |
+|---|---|---|
+| Answer Checker (single question) | `#1575`, `#1582` (printed-options objective), `#1583` (rules A+B; no key, so the model decides equivalence), `#1584`, `#1585` | merged; `#1579` scorecard has no section / type lens here |
+| Answer Checker (multi-question upload) | `#1575`, `#1582`, `#1583`, `#1584`, `#1585`; `#1579` lens "as read from your paper" | merged |
+| Worksheet | `#1575`, `#1583` (+ equivalence guard with the bank key), `#1584`, `#1585`; `#1582` does NOT reach it (bank meta decides) | merged |
+| Chapter Test (written part) | as Worksheet; `#1579` uses the bank row's real section | merged |
+| Full Mock (written part) | as Worksheet | merged |
+| Quick Practice (batch at Finish) | `#1575`, `#1583`, `#1584`, `#1585`; `#1582` only for a row with no section / format / options (0 found) | merged |
+
+**Live checks owed (section 4a) [gh, each PR's live-verify section].** The PR bodies list them; this docs lane did not see them done, so treat them as owed until the coordinator records them: `#1583` a Worksheet re-upload of WS-M-MIX-05 (expect 1/2 on the roots step) AND an Answer Checker equal-form answer (45/48 or 4.5 A, full marks); `#1584` an unbalanced skeletal equation on the Answer Checker (single and multi) AND a Worksheet (-1/2, exam technique); `#1585` the Answer Checker single AP question AND WS-M-MIX-02 Q25 on the multi path. Until two surfaces are checked those grader lanes are PARTIAL, not PASS. Money: open a checkout without paying and confirm the Razorpay amount equals the shown total (Board Pass Rs 2,262; month Rs 707; packs Rs 58 / 117 / 235 / 353).
+
 ## [CURRENT - 2026-11-04 (daily, third) - #1550 - #1571: CODE-WHERE-1, PACK-DIALOG-1, NAV-FIX-1, TRIAL-END-OFFER-1, PARENTS-PAY-1, TUTOR-RETURN-SHEET-1, WS-AWAIT-1, FAIRUSE-MONTHLY-1, MCQ-KEY-TRUST-1, GRADE-MARKS-1, GRADE-ROUTE-1/2/3, TRIAL-SAVE-1, SAMPLE-FOLLOWUP-1, SMALL-FIXES-1, MCQ-PICK-1, ATTRIB-1, PACK-PREVIEW-1, GRADE-SECTION-1, RECORD-SAFE-1] `#1550` `#1551` `#1552` `#1553` `#1554` `#1555` `#1556` `#1557` `#1558` `#1559` `#1561` `#1562` `#1563` `#1564` `#1565` `#1566` `#1567` `#1568` `#1569` `#1570` `#1571`
 
 *(Third daily handoff for 4 Nov 2026, CLAUDE.md section 10. Covers the 21 merges #1550-#1571 after the second 4 Nov docs PR `#1549` (`7e4b3024`). `#1560` GST-EXCL-1 is **OPEN on purpose, NOT merged** (see NEXT_ACTION). All 21 merged between 4 Nov 10:36 UTC and 17:55 UTC (16:06 to 23:25 IST). Trunk at writing: **`1fee3557`** (`#1562`, the last merge) [git ls-remote]. **GRADING BEHAVIOUR DID CHANGE today, in four PRs, all reviewed by a strict independent reviewer and checked by a real upload on the owner's account (CLAUDE.md section 4a):** `#1558` (a key the detect step worked out never overrides the grader's verdict), `#1559` (section marks read by rule, a per-question marks editor, MCQ / Assertion-Reason locked at 1 mark, summaries built from final marks), `#1570` (a question belongs to the section header above it) and `#1567` (a handwritten MCQ answer written with the option's sentence is read as that option). The per-surface table is below. `#1561`/`#1563`/`#1571` change where a paper is routed, `#1562` how records are saved; none of them grades. Facts marked **[coordinator]** come from the coordinator's 4 Nov night handoff; PR facts **[gh]** from each PR body and merge data via `gh api`; trunk **[git]**.)*

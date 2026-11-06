@@ -1,3 +1,20 @@
+## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`28394aed`** [git].
+
+- **Done [git/gh]:** 44 PRs merged (table in CURRENT_STATE). GST-exclusive pricing is live from 00:00 IST 7 Nov (`#1560`, prerender re-captured in `#1613`). Grading behaviour changed in `#1575`, `#1582`, `#1583`, `#1584`, `#1585` (per-surface table in CURRENT_STATE); their second-surface live checks are owed, so those lanes are PARTIAL until done.
+- **Closed:** `[FU-PACK-DELETED-SYLLABUS-ITEMS]` (`#1580`), `[FU-SPEED-PRACTICE-UNIFY-LONGTASK]` (`#1592`), `[FU-EARLY-UPGRADE-FRESH-TRIAL]` (`#1573`, Me/Progress lock flash for a hydrating trial), `[FU-SIMPLER-SIGNED-IN-CHECKOUT]` (`#1574`), the GST rollout steps of the 4 Nov block (merged, cut-off moved to 7 Nov, prerender re-captured).
+- **NEXT, in order:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the "6 Nov (daily)" section of OPEN_QUESTIONS_AND_FOLLOWUPS.
+  2. **Money check (production, no payment):** open a checkout for the Board Pass, the month pass and one pack; the Razorpay amount must equal the total on the button (Rs 2,262 / Rs 707 / Rs 58-353). Tags must read "Rs X + GST" on /pricing, /packs, internal pages and the Important Questions row.
+  3. **Grader live checks (section 4a, two surfaces each):** `#1583`, `#1584`, `#1585` as listed in CURRENT_STATE "Live checks owed".
+  4. **Site speed, judged as the owner ruled:** Google PageSpeed (mobile) and Vercel Speed Insights real-user data per route (now per family after `#1603`) on a mid-range Android / 4G target. Open items: `[FU-VITE-MANUALCHUNKS-ISLANDS]` (needs the owner's OK for `vite.config.ts`), `[FU-PRACTICE-HUB-CBQ-CLS]`, `[FU-BOTTOM-NAV-LATE-GROWTH]` and `[FU-DESKTOP-MI-SIDEBAR-SHIFT]` (forbidden files: ask first). Optional `[FU-POST-DEPLOY-CACHE-WARM]`.
+  5. **Ads (ask the owner first):** price assets and ad copy to "+ GST" (owner reversed the base-price-only ruling); age exclusions as ruled (55+ on all Search ad groups, 18-24 on PDF Packs; confirm they are applied in the account); watch `[FU-ADS-IMAGE-REVIEW]`. Carried: `[FU-ADS-DEFERRED-4NOV]` items not yet done.
+  6. **Invoices:** `[FU-GST-INVOICE-1]` (state + PIN, CA gaps messaged; GSTR-1 deferred).
+  7. **Content:** `[FU-SCI-SOLUTIONS-BANK-REPAIR]` (bank lane; `src/data/**` needs owner approval), `[FU-SCI-UNITS-NONE-CASES]`, `[FU-SCI-PAGES-INDEXING]` (request indexing for the 2 Science pages).
+  8. **Smaller:** `[FU-SPEED-HUB-2-RECHECKS]`, `[FU-PACKS-ENABLED-PREVIEW-ENV]`.
+- **Housekeeping:** repo back to PRIVATE (owner) at session end; delete merged lane branches and the `/home/claude/wt/*` worktrees; `[FU-GRADER-2027-PRICE]` by 15 Dec; issue `#1586` (nightly clock run).
+
 ## 2026-11-04 (daily, third) - #1550 - #1571
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`1fee3557`** [git].

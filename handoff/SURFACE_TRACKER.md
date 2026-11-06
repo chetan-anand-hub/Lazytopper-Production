@@ -1,3 +1,26 @@
+> **2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617 (CLAUDE.md section 10).** Scope: the grader (five PRs), every scorecard, every money surface (GST), packs, the NCERT Hub, Science NCERT and Exemplar solutions, Important Questions pricing, /browse, sign-in, navigation and site speed. **GRADING BEHAVIOUR MOVED on all six surfaces through `#1575`, `#1583`, `#1584`, `#1585`, and on the Answer Checker (both paths) through `#1582` (CLAUDE.md section 4a; table in CURRENT_STATE).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (single question) | `#1575`, `#1582`, `#1583`, `#1584`, `#1585` | merged | live check (AP question for `#1585`; equal-form answer for `#1583`; skeletal equation for `#1584`) |
+| Answer Checker (multi-question upload) | as above; scorecard section / type lens "as read from your paper" (`#1579`); tutor return to the same paper (`#1576`) | merged | WS-M-MIX-02 Q25 (`#1585`); skeletal equation (`#1584`) |
+| Worksheet | `#1575`, `#1583` (with the bank-key equivalence guard), `#1584`, `#1585`; scorecard lens (`#1579`) | merged | WS-M-MIX-05 re-upload (`#1583`); skeletal equation (`#1584`) |
+| Chapter Test / Full Mock | written part: `#1575`, `#1583`, `#1584`, `#1585`; real bank section on the scorecard (`#1579`); tutor return (`#1576`) | merged | none beyond the second-surface checks above |
+| Quick Practice | `#1575`, `#1583`, `#1584`, `#1585` (batch at Finish); `#1582` only for a row with no meta (0 found) | merged | none |
+| **NCERT Hub** (`/ncert-class-10`, was "NCERT Books") | renamed; subject / chapter picker; one honest chapter card; breadcrumb (`#1606`); Practice segmented row + 5th Home card (`#1607`); "About these books" removed (`#1611`) | **merged, live** | check at 360 / 1280 |
+| **Science NCERT solutions** (`/ncert-solutions/<science-slug>`) | pilot Ch 1, 5, 11, 60 rows (`#1602`); 9 more chapters, 150 rows, figures (`#1605`); SI-unit typed verdicts (`#1604`) | **merged, live** (Heredity has no NCERT page) | `[FU-SCI-SOLUTIONS-BANK-REPAIR]`, `[FU-SCI-UNITS-NONE-CASES]`, `[FU-SCI-PAGES-INDEXING]` |
+| **Science Exemplar solutions** (`/ncert-exemplar/<science-slug>`) | 11 pages, 166 rows (`#1609`); NCERT <-> Exemplar sibling links | **merged, live** (no page for Magnetic Effects or Our Environment) | as above |
+| **Important Questions pricing** (`/highly-probable/10/*`) | one buying block, at the end, collapsed, Pay on the row (`#1612`, reverses IQ-PACKS-1); styles in the markup (`#1614`) | **merged, live** | none |
+| **GST on every money surface** (/pricing, /packs, pack pop-up, checkout, /for-parents, month pass, top-ups, abandoned-checkout email, admin rows) | "Rs X + GST" tags, Pay shows the total, server charges base + 18 % for orders from 00:00 IST 7 Nov (`#1560`); prerender re-captured (`#1613`) | **merged, LIVE** | Razorpay amount check without paying; `[FU-GST-INVOICE-1]` |
+| **Packs** (/packs, pop-up) | no deleted-syllabus rows (`#1580`); CLS fixed (`#1588`); "Questions" row held while counting (`#1616`); "+ GST" (`#1560`) | **merged** | `[FU-PACKS-ENABLED-PREVIEW-ENV]` |
+| **/browse card and subtitle** (signed out) | visitor card (`#1578`); "What is LazyTopper?" removed (`#1610`); subtitle "Sign in to explore everything for free (7 days)." (`#1615`) | **merged, live** | none |
+| Navigation | Pricing in the bottom bar and desktop panel (`#1577`) | merged | `[FU-BOTTOM-NAV-LATE-GROWTH]`, `[FU-DESKTOP-MI-SIDEBAR-SHIFT]` |
+| Checkout / Me/Progress | one-tap signed-in Pay (`#1574`); no lock flash (`#1573`); parent wording (`#1589`); guest checkouts in admin (`#1590`) | merged | none |
+| CBQ landing (`/practice-hub?cbq=1`) | free-first order (`#1591`); manifest picker (`#1587`); no freeze on chapter tap (`#1592`) | merged | `[FU-PRACTICE-HUB-CBQ-CLS]`, `[FU-SPEED-HUB-2-RECHECKS]` |
+| Sign-in (/login) | in-app Google -> Chrome, OTP fixes, real error codes (`#1593`); abandon events (`#1601`); slot held (`#1598`) | merged | read `login_abandon` |
+| Science notes | key-terms card (`#1599`) | merged | none |
+| Site-wide speed | `#1588`, `#1594`-`#1598`, `#1600`, `#1603`, `#1608`, `#1614`, `#1616`, `#1617` | merged | `[FU-VITE-MANUALCHUNKS-ISLANDS]`, `[FU-POST-DEPLOY-CACHE-WARM]` |
+
 > **2026-11-04 (daily, third) - #1550 - #1571 (CLAUDE.md section 10).** Scope: Answer Checker (detect read, marks, sections, MCQ reading, banner), Worksheet (MCQ reading, codes, upload later), Chapter Test and Full Mock (code uniqueness, record saving), packs (previews, sample), Settings fair-use card, /for-parents, navigation, trial-end screen, sign-up trial and attribution. **GRADING BEHAVIOUR MOVED on the Answer Checker (`#1558`, `#1559`, `#1570`) and the Worksheet (`#1567`); Chapter Test, Full Mock and Quick Practice did not move (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
