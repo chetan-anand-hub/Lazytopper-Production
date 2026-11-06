@@ -34,6 +34,8 @@ vi.mock("../../pages/PackDialog", () => ({ default: (p: { buy?: unknown }) => (p
 
 import PacksShop from "./PacksShop";
 import * as packs from "../../services/packs";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPayLabel } from "../../services/packs";
 
 const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
 
@@ -112,7 +114,7 @@ describe("PAY-PHONE-1 (C) · after a closed checkout", () => {
     const btn = await screen.findByTestId("packs-buy-pack_mock");
     await waitFor(() => expect((btn as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(btn);
-    await waitFor(() => expect(screen.getByTestId("packs-buy-pack_mock").textContent).toBe("Pay ₹99"));
+    await waitFor(() => expect(screen.getByTestId("packs-buy-pack_mock").textContent).toBe(`Pay ${packPayLabel("pack_mock")}`));
     expect(screen.getByTestId("packs-dismissed-sample")).toBeTruthy();
     expect(screen.getAllByText(/parent/i).length).toBeGreaterThan(0);
     // Order: Pay button, then the sample, then the card.

@@ -27,6 +27,8 @@ import {
   checkPacksLine,
   cheapestPackLabel,
 } from "./landingOfferModel";
+// GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
+import { packPriceLabel } from "../../services/packs";
 
 function setSearch(search: string) {
   window.history.replaceState(null, "", `/practice-hub${search}`);
@@ -48,9 +50,9 @@ const ui = (variant: "practice-cbq" | "check") => render(<MemoryRouter><LandingO
 describe("copy (Google Ads policy, constants only)", () => {
   it("uses the CBQ floor constant and the pack price", () => {
     expect(CBQ_LANDING_TITLE).toContain(CBQ_SUBJECT_CLAIM);
-    expect(cbqButtonLabel("maths")).toBe("Maths CBQ Pack ₹199");
-    expect(cbqButtonLabel("science")).toBe("Science CBQ Pack ₹199");
-    expect(cheapestPackLabel({ pack_chapter: 49, pack_cbq: 199 })).toBe("₹49");
+    expect(cbqButtonLabel("maths")).toBe(`Maths CBQ Pack ${packPriceLabel("pack_cbq")}`);
+    expect(cbqButtonLabel("science")).toBe(`Science CBQ Pack ${packPriceLabel("pack_cbq")}`);
+    expect(cheapestPackLabel({ pack_chapter: 49, pack_cbq: 199 })).toBe(packPriceLabel("pack_chapter"));
   });
   it("no banned word in any new heading or CTA", () => {
     for (const s of [CBQ_LANDING_TITLE, CBQ_LANDING_SUB, cbqBoardPassLine("₹1,917"), checkBoardPassLine("₹1,917"), checkPacksLine("₹49"), cbqButtonLabel("maths")]) {
@@ -159,7 +161,7 @@ describe("review fixes (fix round 1)", () => {
   });
   it("the full button and Board Pass words stay in the markup (phones only hide parts with CSS)", () => {
     ui("practice-cbq");
-    expect(screen.getByTestId("landing-offer-buy-maths").textContent).toBe("Maths CBQ Pack ₹199");
+    expect(screen.getByTestId("landing-offer-buy-maths").textContent).toBe(`Maths CBQ Pack ${packPriceLabel("pack_cbq")}`);
     expect(screen.getByTestId("landing-offer-board-pass").textContent).toBe(cbqBoardPassLine("₹1,917"));
   });
 });

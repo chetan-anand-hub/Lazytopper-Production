@@ -865,7 +865,7 @@ test('OWNER 2 Nov · packs are not part of Premium: a Premium uid (pass till the
 
 /* ── PASS-OWNER-PACKS-1 · a Board Pass OWNER buys packs: the pack is granted, the subscription is never touched ─────── */
 test('PASS-OWNER · a Board Pass owner buys EVERY pack kind (signed in): granted to them, the subscription doc is byte-for-byte untouched, no credit fields', async (t) => {
-  const AFTER_CUTOFF = Date.parse('2026-11-06T06:30:00.000Z'); // packs never reduce anything after 5 Nov
+  const AFTER_CUTOFF = Date.parse('2026-11-07T06:30:00.000Z'); // packs never reduce anything after 5 Nov; GST-EXCL-1: also after the 7 Nov GST cut-off
   for (const [sku, extra, paise, packId, target] of CASES) {
     const db = memoryFirestore();
     const SUB = {
@@ -878,10 +878,16 @@ test('PASS-OWNER · a Board Pass owner buys EVERY pack kind (signed in): granted
     const srv = await start({ db, nowMs: AFTER_CUTOFF, licensees: { owner1: { name: 'Riya', email: 'riya@example.com' } } });
     t.after(srv.close);
     const o = await orderOk(srv, 'owner1', sku, extra);
-    assert.equal(o.amountPaise, paise, `${sku}: the pack price, never reduced for a Board Pass owner`);
+    // GST-EXCL-1: an order created after 7 Nov 00:00 IST is charged the pack price + 18% GST (₹49 -> ₹58 ...), never reduced.
+    const charged = require('../services/passPricing.cjs').priceWithGst(paise / 100, AFTER_CUTOFF) * 100;
+    assert.ok(charged > paise, `${sku}: GST is added after the cut-off`);
+    assert.equal(o.amountPaise, charged, `${sku}: the pack price + GST, never reduced for a Board Pass owner`);
     const stored = db.read(`payOrders/${o.orderId}`);
     assert.equal(stored.uid, 'owner1');
     assert.equal(stored.packCreditInr, undefined);
+    assert.equal(stored.baseInr, paise / 100, `${sku}: the order stores its base`);
+    assert.equal(stored.baseInr + stored.gstInr, charged / 100, `${sku}: base + GST = the amount charged`);
+    assert.equal(stored.gstRate, 0.18);
     const p = srv.rzp.pay(o.orderId);
     const v = await verify(srv, 'owner1', o.orderId, p.id);
     assert.equal(v.status, 200, v.text);
@@ -889,7 +895,7 @@ test('PASS-OWNER · a Board Pass owner buys EVERY pack kind (signed in): granted
     assert.equal(v.json.packId, packId);
     assert.equal('passEnd' in v.json, false);
     assert.deepEqual(db.read(`packEntitlements/owner1/packs/${packId}`), {
-      packId, sku, target, pricePaidInr: paise / 100, paidAt: AFTER_CUTOFF, orderId: o.orderId, paymentRef: p.id, creditedToPass: false,
+      packId, sku, target, pricePaidInr: charged / 100, paidAt: AFTER_CUTOFF, orderId: o.orderId, paymentRef: p.id, creditedToPass: false,
     });
     // ★ tier, passEnd, trial, price paid - every field and the write version of the subscription are unchanged.
     assert.deepEqual(db.read('subscriptions/owner1'), before.data, `${sku}: subscription untouched`);
@@ -1032,4 +1038,48 @@ test('REDOWNLOAD · the server clock decides: a client-sent date header / query 
   t.after(srv.close);
   const r = await call(srv.port, 'GET', `${PACKS_MINE_PATH}?now=2026-11-10`, { headers: { ...asUid('u1'), Date: 'Tue, 10 Nov 2026 10:00:00 GMT', 'X-Client-Now': '1762750000000' } });
   assert.deepEqual(ids(r.json.endedPacks), ['pack_mock:maths']);
+});
+
+/* ── GST-EXCL-1 · packs are priced "+ 18% GST" from 00:00 IST 7 Nov 2026 (server clock, at ORDER time) ────────────── */
+const GST_CUT_MS = Date.parse('2026-11-07T00:00:00+05:30');
+
+test('GST-EXCL-1 · every pack: an order before the cut-off is the all-in price (no GST fields); at/after it, base + 18% GST with the breakup stored', async (t) => {
+  const { priceWithGst } = require('../services/passPricing.cjs');
+  for (const [sku, extra, paise] of CASES) {
+    const pre = await start({ nowMs: GST_CUT_MS - 1 });
+    t.after(pre.close);
+    const a = await orderOk(pre, 'u1', sku, extra);
+    assert.equal(a.amountPaise, paise, `${sku} before`);
+    assert.equal('gstInr' in pre.db.read(`payOrders/${a.orderId}`), false);
+    const post = await start({ nowMs: GST_CUT_MS });
+    t.after(post.close);
+    const b = await orderOk(post, 'u1', sku, extra);
+    const total = priceWithGst(paise / 100, GST_CUT_MS);
+    assert.equal(b.amountPaise, total * 100, `${sku} after`);
+    const stored = post.db.read(`payOrders/${b.orderId}`);
+    assert.deepEqual([stored.baseInr, stored.gstInr, stored.totalInr], [paise / 100, total - paise / 100, total]);
+    // ...and the payment of that total verifies and grants the pack.
+    const p = post.rzp.pay(b.orderId);
+    const v = await verify(post, 'u1', b.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(v.json.kind, 'pack');
+  }
+  // The totals the owner published (computed, never typed in product code).
+  assert.deepEqual([49, 99, 199, 299].map((n) => priceWithGst(n, GST_CUT_MS)), [58, 117, 235, 353]);
+});
+
+test('GST-EXCL-1 · grantPack: a pre-cut-off order (all-in) granted after the cut-off is honoured; a post-cut-off order must carry a breakup that adds up', async () => {
+  const later = GST_CUT_MS + 3600_000;
+  const db = memoryFirestore({
+    'payOrders/o_old': { uid: 'u1', passType: 'pack_chapter', packTarget: 'triangles', amountPaise: 4900, status: 'created' },
+    'payOrders/o_new': { uid: 'u1', passType: 'pack_mock', packTarget: 'maths', amountPaise: 11700, baseInr: 99, gstInr: 18, totalInr: 117, gstRate: 0.18, status: 'created' },
+    'payOrders/o_nofields': { uid: 'u1', passType: 'pack_subject', packTarget: 'science', amountPaise: 23500, status: 'created' },
+    'payOrders/o_badgst': { uid: 'u1', passType: 'pack_bundle', packTarget: 'all', amountPaise: 35400, baseInr: 299, gstInr: 55, status: 'created' },
+  });
+  const old = await grantPack({ db, uid: 'u1', order: { orderId: 'o_old' }, paymentRef: 'p_old', nowMs: later });
+  assert.equal(old.pack.pricePaidInr, 49);
+  const fresh = await grantPack({ db, uid: 'u1', order: { orderId: 'o_new' }, paymentRef: 'p_new', nowMs: later });
+  assert.equal(fresh.pack.pricePaidInr, 117, 'the pack records what was charged');
+  await assert.rejects(grantPack({ db, uid: 'u1', order: { orderId: 'o_nofields' }, paymentRef: 'p3', nowMs: later }), PackGrantInputError);
+  await assert.rejects(grantPack({ db, uid: 'u1', order: { orderId: 'o_badgst' }, paymentRef: 'p4', nowMs: later }), PackGrantInputError);
 });

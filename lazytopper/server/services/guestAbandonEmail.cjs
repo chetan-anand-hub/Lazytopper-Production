@@ -172,9 +172,11 @@ function productPageUrl(appUrl, product) {
 /**
  * The email. PURE. Plain HTML + text, no tracking pixel, no name, no urgency, no "ask", a plain stop line with the
  * guest unsubscribe link. `currentPriceInr` is the item's price NOW (null -> no price line).
+ * GST-EXCL-1: from the GST cut-off the caller passes `currentPriceText` instead - the checkout's own quote as text
+ * ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null -> no price line. When it is absent the line is byte-identical to before.
  * @returns {{subject:string, text:string, html:string, links:{page:string}} | null}
  */
-function buildGuestAbandonEmail({ product, currentPriceInr, appUrl, unsubscribeUrl }) {
+function buildGuestAbandonEmail({ product, currentPriceInr, currentPriceText, appUrl, unsubscribeUrl }) {
   const name = abandoned.productName(product);
   if (!name || !unsubscribeUrl) return null;
   const page = productPageUrl(appUrl, product);
@@ -185,7 +187,9 @@ function buildGuestAbandonEmail({ product, currentPriceInr, appUrl, unsubscribeU
     `A checkout for the LazyTopper ${name} was started with this email address, and the payment was not finished. Nothing was charged.`,
     `If you still want it, it is on ${where} whenever you are ready.`,
   ];
-  if (Number.isFinite(currentPriceInr) && currentPriceInr > 0) paras.push(`${name}: ${rupee(currentPriceInr)}.`);
+  if (currentPriceText !== undefined) {
+    if (typeof currentPriceText === 'string' && currentPriceText) paras.push(`${name}: ${currentPriceText}.`);
+  } else if (Number.isFinite(currentPriceInr) && currentPriceInr > 0) paras.push(`${name}: ${rupee(currentPriceInr)}.`);
   paras.push('If this was not you, or you have already sorted it out, you can ignore this email.');
   const signoff = 'Team LazyTopper';
   const footer = 'This is the only email about this checkout. To stop LazyTopper reminder and follow-up emails to this address, use the unsubscribe link. Sign-in codes and payment receipts still arrive.';

@@ -194,13 +194,17 @@ describe("NCERT-BOOKS-1 (c) — the page carries all 27 rows with honest links",
     const linked = [...html.matchAll(/data-testid="nb-solutions-([a-z0-9]+)"/g)].map((m) => m[1]);
     const published = rows.filter((r) => solutionsHrefForRow(r) !== null).map(ncertCode);
     expect(linked).toEqual(published);
-    // Pinned exactly (SOLUTIONS-2: every Maths chapter has at least one published book page).
+    // Pinned exactly (SOLUTIONS-2: every Maths chapter has at least one published book page;
+    // SOLUTIONS-SCI-1: Science Ch 1, 5 and 11 have their NCERT page).
     expect(published).toEqual([
       "jemh101", "jemh102", "jemh103", "jemh104", "jemh105", "jemh106", "jemh107",
       "jemh108", "jemh109", "jemh110", "jemh111", "jemh112", "jemh113", "jemh114",
+      "jesc101", "jesc105", "jesc111",
     ]);
     const link = /<a\b[^>]*data-testid="nb-solutions-jemh106"[^>]*>Solutions<\/a>/.exec(html)?.[0] ?? "";
     expect(link).toContain('href="/ncert-solutions/triangles"');
+    const sci = /<a\b[^>]*data-testid="nb-solutions-jesc111"[^>]*>Solutions<\/a>/.exec(html)?.[0] ?? "";
+    expect(sci).toContain('href="/ncert-solutions/electricity"');
   });
 
   it("the committed prerender (once captured) carries all 27 rows too", () => {

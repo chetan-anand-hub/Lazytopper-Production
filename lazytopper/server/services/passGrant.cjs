@@ -283,7 +283,10 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
     if (!decision.replay && order && Number.isInteger(order.amountPaise) && order.amountPaise > 0 && order.amountPaise % 100 === 0) {
       const chargedInr = order.amountPaise / 100;
       // A credited Board Pass is expected to be charged the table price LESS its recorded credit.
-      const expectedInr = decision.fields.pricePaidInr - (Number.isInteger(order.packCreditInr) && order.packCreditInr > 0 ? order.packCreditInr : 0);
+      // GST-EXCL-1: an order created at/after the GST cut-off was charged the table price PLUS the GST it stored. (Log only:
+      // what is recorded is still exactly the amount the order charged, as before.)
+      const gstInr = Number.isInteger(order.gstInr) && order.gstInr > 0 ? order.gstInr : 0;
+      const expectedInr = decision.fields.pricePaidInr + gstInr - (Number.isInteger(order.packCreditInr) && order.packCreditInr > 0 ? order.packCreditInr : 0);
       if (chargedInr !== expectedInr) {
         console.error('[passGrant] order amount differs from the price table:', orderId, chargedInr, decision.fields.pricePaidInr);
       }

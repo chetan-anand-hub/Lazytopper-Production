@@ -208,6 +208,11 @@ async function grantTopup(input, { firestore } = {}) {
       bonusMicroInr: credit.bonusMicroInr,
       bonusPercent: credit.bonusPercent,
       priceInr: product.priceInr,
+      // GST-EXCL-1 (review G5): an order created at/after the GST cut-off stored its breakup; the grant records the base,
+      // the GST and the total charged exactly like the order. Nothing for an older (all-in) order: byte-identical.
+      ...(Number.isInteger(order.baseInr) && Number.isInteger(order.gstInr) && order.gstInr > 0 && Number.isInteger(order.amountPaise)
+        ? { baseInr: order.baseInr, gstInr: order.gstInr, totalInr: order.amountPaise / 100 }
+        : {}),
       orderId: request.orderId,
       grantedAt: new Date(request.nowMs),
     });

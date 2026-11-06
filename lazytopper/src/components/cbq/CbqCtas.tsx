@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { PACK_PRICE_INR, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
+import { packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { buyHrefFor } from "../packs/offersModel";
 
 /**
@@ -23,7 +23,7 @@ export function cbqBuyHref(subject: PackSubject): string {
 
 /** "Buy Maths CBQ · ₹199" - the button label (price from the pack constants). */
 export function cbqBuyLabel(subject: PackSubject): string {
-  return `Buy ${subjectLabel(subject)} CBQ · ${packPriceLabel("pack_cbq")}`;
+  return `Buy ${subjectLabel(subject)} CBQ · ${packPayLabel("pack_cbq")}`;
 }
 
 /**
@@ -65,7 +65,7 @@ export function CbqPackCta({ subject }: { subject: PackSubject }) {
   return (
     <section className="lt-cbqs__cta lt-cbqs__cta--pack" aria-labelledby="cbqs-pack" data-testid="cbq-cta-pack">
       <h2 id="cbqs-pack">Get every {subjectLabel(subject)} CBQ</h2>
-      <p>{`${name} ₹${PACK_PRICE_INR.pack_cbq} · one-time payment, printable PDF with worked steps.`}</p>
+      <p>{`${name} ${packPriceLabel("pack_cbq")} · one-time payment, printable PDF with worked steps.`}</p>
       <Link className="lt-cbqs__btn lt-cbqs__btn--ghost" to={cbqBuyHref(subject)} data-testid="cbq-cta-pack-link">
         {cbqBuyLabel(subject)}
       </Link>
