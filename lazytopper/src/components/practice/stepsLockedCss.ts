@@ -1,4 +1,14 @@
-/* PRACTICE-HONESTY-1 — the locked-steps note (dimmed, calm; no inline style). */
+/**
+ * HPQ-CLS-1 - the locked-steps note's rules (and the Important Questions page's "Show all solutions" row), as a string.
+ *
+ * Why a string, not a stylesheet import: a route-chunk stylesheet arrives AFTER a prerendered page paints, so on the
+ * prerendered Important Questions pages the note first painted unstyled and then grew (layout shift at 1280 px, found
+ * on #1612). The rules are now rendered WITH the markup: the Important Questions page writes them once into its body
+ * (`StepsLockedStyleInline`, in the prerendered HTML); every other host gets them through React 19's deduplicated, hoisted
+ * `<style href precedence>` from `StepsLockedNote` itself (client-rendered routes, where the chunk and its styles
+ * arrive together). One source: this string. The #1607 pattern (practice row).
+ */
+export const STEPS_LOCKED_CSS = `
 .lt-steps-locked {
   flex-basis: 100%;
   display: flex;
@@ -50,3 +60,4 @@
   color: hsl(220, 12%, 40%);
   text-align: center;
 }
+`;

@@ -30,7 +30,7 @@ import { buildTopicHubUrl } from "../utils/buildUrl";
 
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { MathText } from "../components/question/MathText";
-import { StepsLockedNote } from "../components/practice/StepsLockedNote";
+import { StepsLockedNote, StepsLockedStyleInline } from "../components/practice/StepsLockedNote";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../components/question/katexEager";
 import { lazyWithRetry } from "../lib/lazyWithRetry";
@@ -853,6 +853,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
         paddingBottom: isDesktop ? "48px" : "80px",
       } as React.CSSProperties}
     >
+      {/* HPQ-CLS-1: the locked-steps and "Show all solutions" rules in the prerendered body (no late stylesheet, no shift). */}
+      <StepsLockedStyleInline />
       <div
         style={{
           maxWidth: "1280px",

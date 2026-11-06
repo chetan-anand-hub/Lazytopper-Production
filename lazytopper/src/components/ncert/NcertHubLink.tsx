@@ -6,7 +6,9 @@
  *     in words that say what the card holds (`ncertHubLinkLabel`: "solutions" only where published);
  *   otherwise → the hub with the subject chosen.
  *
- * Styles: `ncertHubLink.css`, scoped `.lt-nhl`; no inline style objects.
+ * Styles: `NCERT_HUB_LINK_CSS`, scoped `.lt-nhl`, rendered as a <style> WITH the link (HPQ-CLS-1): the Important Questions
+ * pages are prerendered, and a route-chunk stylesheet arrived after their first paint, so the line painted unstyled and
+ * then moved (layout shift at 1280 px, found on #1612). The #1607 pattern. No inline style objects.
  */
 import { Link } from "react-router-dom";
 
@@ -19,7 +21,24 @@ import {
   type NcertBook,
   type NcertBookChapter,
 } from "../../config/ncertBooks";
-import "./ncertHubLink.css";
+
+export const NCERT_HUB_LINK_CSS = `
+.lt-nhl {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.lt-nhl a {
+  display: inline-block;
+  padding: 6px 0;
+  color: hsl(152, 60%, 28%);
+  font-weight: 700;
+  text-decoration: none;
+}
+.lt-nhl a:hover {
+  text-decoration: underline;
+}
+`;
 
 /** The NCERT chapter a `?topic=` value names for this subject (its notes / topic slug), or null. */
 export function ncertRowForTopic(subject: NcertBook, topic: string | null | undefined): NcertBookChapter | null {
@@ -32,6 +51,7 @@ export default function NcertHubLink({ subject, topic }: { subject: NcertBook; t
   const row = ncertRowForTopic(subject, topic);
   return (
     <p className="lt-nhl" data-testid="ncert-hub-link">
+      <style>{NCERT_HUB_LINK_CSS}</style>
       {row ? (
         <Link to={ncertHubChapterPath(row)}>{ncertHubLinkLabel(row)}</Link>
       ) : (
