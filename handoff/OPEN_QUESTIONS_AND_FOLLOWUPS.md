@@ -23,6 +23,53 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `28394aed`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. Grading behaviour changed in `#1575`, `#1582`, `#1583`, `#1584`, `#1585` (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*
+
+**Closed by this window (not re-headed):** `[FU-PACK-DELETED-SYLLABUS-ITEMS]` closed by `#1580` (the reported hits were in-syllabus questions that mention the word; 8 real or borderline rows excluded from every pack; guard at selection). `[FU-EARLY-UPGRADE-FRESH-TRIAL]` closed by `#1573` (the Me/Progress lock showed while a trial's entitlement hydrated). `[FU-SIMPLER-SIGNED-IN-CHECKOUT]` closed by `#1574`. `[FU-GST-REVIEW-ITEMS]`: `#1560` merged after a further strict money review (llms.txt wording fixed there); re-open only if the price-confirm comparison item is still wanted.
+
+**Carried, not duplicated:** `[FU-ADS-DEFERRED-4NOV]` (now with "+ GST" in ads, per the owner's reversal), `[FU-GRADER-2027-PRICE]` (by 15 Dec), `[FU-RECORD-SAFE-TWO-TAB-RACE]`, `[FU-OWNER-TESTS-T3-T6]`.
+
+### [FU-SPEED-PRACTICE-UNIFY-LONGTASK]
+CLOSED by `#1592` (SPEED-HUB-2). Raised in `#1587`: after a CBQ chapter pick the practice page froze the main thread for 400-950 ms on first use of a chapter. Recorded here so the ID has a heading (standing rule 1).
+
+### [FU-VITE-MANUALCHUNKS-ISLANDS]
+SPEED. `manualChunks` in `lazytopper/vite.config.ts` plus islands (hydrate only the interactive parts) for the content pages (notes, topic hub, NCERT / Exemplar solutions, Important Questions). **`vite.config.ts` is globally forbidden (CLAUDE.md section 4): needs the owner's explicit OK before any lane is scoped.** **[coordinator]**
+
+### [FU-PRACTICE-HUB-CBQ-CLS]
+SPEED. `/practice-hub?cbq=1` (the YouTube CBQ landing) still has layout shift; the fix needs a separate prerender for the `?cbq=1` variant. **[coordinator]**
+
+### [FU-BOTTOM-NAV-LATE-GROWTH]
+SPEED / CLS. The phone bottom bar grows late on first load. The fix is in `App.tsx` (BottomNav), a globally forbidden file: ask the owner first. **[coordinator]**
+
+### [FU-DESKTOP-MI-SIDEBAR-SHIFT]
+SPEED / CLS. The desktop Mistake Intelligence sidebar card shifts the layout when it loads. The fix is in `DesktopShell.tsx`, a globally forbidden file: ask the owner first. **[coordinator]**
+
+### [FU-SCI-SOLUTIONS-BANK-REPAIR]
+CONTENT, bank lane (`src/data/**`: owner approval needed). Rows held, never edited, by the Science solutions lanes. Read the lists, each with its reason, from the PR bodies: `#1602` ("Held" list: e.g. CHEM-1-SA-009 unbalanced AgCl, CHEM-1-LONG-001, ELEC-11-LA-002; 88 -> 60 rows), `#1605` ("Held / ref-mismatch rows in the new chapters" section and the per-chapter table) and `#1609` ("Exemplar rows held by the off-book rule since the first push (28)" plus the review holds, e.g. LIGHT-EXMPLR-9-MCQ-002 sign convention, METAL-EXMPLR-3-MCQ-018, ELEC-EXMPLR-11-LA-003 marks 5 vs book Short Answer, MAG-NCERT-12-SA-012). The "ionise" / "ionisation" rows stay held by owner ruling (the stemmer does not link them to NCERT's "ionised"). **[gh]**
+
+### [FU-SCI-UNITS-NONE-CASES]
+CONTENT / verdicts. In the Science unit mode of `compareAnswer` (`#1604`), the typed answers **110 J/s**, **0.3 kC** and **24000 mJ** give "none" (no verdict): the parser does not read those unit forms (J/s, kC, mJ). Decide whether to read them; the rule "never mark a correct student wrong" (D260) still applies, so "none" is safe, only unhelpful. **[coordinator]**
+
+### [FU-SPEED-HUB-2-RECHECKS]
+SPEED-HUB-2 (`#1592`). The two items its review marked "Recheck". Their text is NOT in the PR body or on GitHub (searched the body, reviews and comments via the REST API); it is in the reviewer's report to the coordinator. The coordinator should paste both here. Related, recorded in the body: `magnetic...&style=proof` writes the same 10 served ids twice on trunk and on the PR (pre-existing). **[coordinator; gh]**
+
+### [FU-PACKS-ENABLED-PREVIEW-ENV]
+OPS. Set `VITE_PACKS_ENABLED` in the Vercel **preview** environment so pack surfaces render on PR previews as they do in production (owner, Vercel settings). **[coordinator]**
+
+### [FU-GST-INVOICE-1] (6 Nov update)
+Update to the 4 Nov entry, left as written (standing rule 3). Owner ruling: invoices carry the buyer's **state + PIN** (state prefilled from IP and confirmed; PIN optional; **no Karnataka default**, CBIC Circular 242/36/2024). GSTR-1 deferred. The CA was messaged about the remaining gaps. The lane is GST-INVOICE-1 (not built; money path: strict review). **[coordinator]**
+
+### [FU-SCI-PAGES-INDEXING]
+SEO. Two Science solutions pages still need a Google Search Console indexing request (owner action). **[coordinator]**
+
+### [FU-ADS-IMAGE-REVIEW]
+ADS. Google is still reviewing the new ad images; check their status before judging those ads. **[coordinator]**
+
+### [FU-POST-DEPLOY-CACHE-WARM]
+OPTIONAL, SPEED. A post-deploy cache warm-up after each production deploy. Optional; not scoped. **[coordinator]**
+
 ## 2026-11-04 (daily, third) - #1550 - #1571 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `1fee3557`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's 4 Nov night handoff, sections 5 and 6 **[coordinator]**, and the PR bodies **[gh]**. Grading behaviour changed in `#1558`, `#1559`, `#1570`, `#1567` (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*

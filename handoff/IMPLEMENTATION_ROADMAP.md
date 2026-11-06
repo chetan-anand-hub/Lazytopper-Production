@@ -1,3 +1,16 @@
+## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617 - MERGED
+
+- DONE. `#1560` (`49bda77`) GST-EXCL-1 and `#1613` (`d289c26`) prerender re-capture: "+ GST" pricing live from 00:00 IST 7 Nov on every paid product. NEXT: Razorpay amount check without paying; ads "+ GST"; `[FU-GST-INVOICE-1]`.
+- DONE. `#1575` (`d05e67a`), `#1582` (`cc15fb8`), `#1583` (`b5908d1`), `#1584` (`ea44714`), `#1585` (`06cf7d3`): grader rulings of 5 Nov. NEXT: second-surface live checks (section 4a).
+- DONE. `#1579` (`9eaf8bc`): section and question-type breakdown on every scorecard. NEXT: none.
+- DONE. `#1606` (`fcc01fa`), `#1607` (`302f72a`), `#1611` (`b6c4c6c`): NCERT Hub (rename, picker, chapter card, Practice row, Home card). NEXT: check at 360 / 1280.
+- DONE. `#1602` (`436cb7d`), `#1604` (`797ce29`), `#1605` (`d3c9598`), `#1609` (`ca1d752`): Science NCERT and Exemplar solutions. NEXT: `[FU-SCI-SOLUTIONS-BANK-REPAIR]`, `[FU-SCI-UNITS-NONE-CASES]`, `[FU-SCI-PAGES-INDEXING]`.
+- DONE. `#1587` (`90e0a68`), `#1588` (`689f70e`), `#1592` (`53aa517`), `#1594` (`2288001`), `#1595` (`f2bf9ae`), `#1596` (`16bde4b`), `#1597` (`ab28b33`), `#1598` (`f04051d`), `#1600` (`4d57e8d`), `#1603` (`362e33e`), `#1608` (`e252302`), `#1614` (`8caaf5a`), `#1616` (`5914ad7`), `#1617` (`797be2f`): site-speed day (mid-range Android / 4G target). NEXT: judge with PageSpeed + Vercel real-user data; `[FU-VITE-MANUALCHUNKS-ISLANDS]`, `[FU-PRACTICE-HUB-CBQ-CLS]`, `[FU-BOTTOM-NAV-LATE-GROWTH]`, `[FU-DESKTOP-MI-SIDEBAR-SHIFT]`.
+- DONE. `#1593` (`0aeb057`), `#1601` (`dcc71db`): sign-in fixes and abandon measurement. NEXT: read `login_abandon` after a few days.
+- DONE. `#1573`, `#1574`, `#1576`, `#1577`, `#1578`, `#1580`, `#1589`, `#1590`, `#1591`, `#1599`, `#1610`, `#1612`, `#1615`: checkout, nav, /browse, packs syllabus, parent wording, guest checkouts, CBQ landing, key terms, IQ pricing row, /browse subtitle. NEXT: live-verify at 360 / 1280.
+- DONE. `[FU-EARLY-UPGRADE-FRESH-TRIAL]` (`#1573`) and `[FU-SIMPLER-SIGNED-IN-CHECKOUT]` (`#1574`).
+- NEXT (not built): `[FU-GST-INVOICE-1]`.
+
 ## 2026-11-04 (daily, third) - #1550 - #1571: CODE-WHERE-1 ... RECORD-SAFE-1 - MERGED (GST-EXCL-1 OPEN)
 
 - DONE. `#1558` (`8ee422b`), `#1559` (`9937a26`), `#1570` (`a342017`), `#1567` (`2b3ea47`): grader reads derived keys, section marks, section order and handwritten MCQ sentences better. NEXT: second-surface live checks (a Worksheet upload and a Worksheet "(b) <near copy>" answer; an Answer Checker single MCQ).

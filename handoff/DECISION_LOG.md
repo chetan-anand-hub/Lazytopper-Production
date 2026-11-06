@@ -1,3 +1,28 @@
+## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 5-7 Nov 2026 by the owner **[owner]**, as relayed by the coordinator in this lane's brief or quoted in the PR bodies **[gh]**, each with its reason. The 5 Nov grader rulings are recorded in the PR bodies of `#1575`, `#1583`, `#1584`, `#1585` with their CBSE marking-scheme evidence; the rows below summarise them.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Prices are EXCLUSIVE of GST from 00:00 IST 7 Nov 2026, on every paid product (`#1560`) [owner] | tags read "Rs X + GST"; Pay / Buy buttons show the total; includes the month pass (Rs 599 -> Rs 707); existing buyers unchanged | the CA's advice, and the government charges the GST, not LazyTopper. |
+| Ads also show "+ GST" [owner] | ad price assets and copy carry "+ GST"; this REVERSES the owner's earlier base-price-only ruling for ads | owner reversal; no separate reason was relayed to the docs lane beyond the GST ruling above (the ad price must match what the buyer is charged). |
+| Internal pages keep showing prices in the same "+ GST" format, not only /pricing [owner] | packs and Board Pass prices on internal pages use the same tag | impulse pack buys happen inside the app, and one consistent price everywhere. |
+| Invoicing goes with state + PIN [owner] | state prefilled from IP and confirmed by the buyer; PIN optional; no Karnataka default (CBIC Circular 242/36/2024); GSTR-1 deferred; the CA was messaged about the gaps | place of supply must be the buyer's state, which a default would get wrong; filing waits on the CA's answers (`[FU-GST-INVOICE-1]`). |
+| "NCERT Books" renamed "NCERT Hub" (`#1606`) [owner] | URL unchanged; one hub for books, NCERT and Exemplar solutions, important questions, notes, answer check | owner-approved design (6 Nov 20:32 IST, quoted in `#1606`): one place per chapter for the book, both solution sets and the related practice. |
+| NCERT Hub mobile placement = Practice segmented row + 5th Home card + the hub page (`#1607`) [owner] | not a bottom-nav tab | Exam Trends and Pricing must stay in the bottom nav. |
+| "About these books" removed from the NCERT Hub (`#1611`) [owner] | disclaimer kept; picker note says deleted chapters are left out | it was clutter. |
+| "What is LazyTopper?" removed from the /browse visitor card (`#1610`) [owner] | card has Sign up free and See pricing only | the link served no purpose (it only sent visitors to the landing page). |
+| Important Questions pricing only at the bottom, collapsed row, Pay on the row (`#1612`) [owner] | REVERSES IQ-PACKS-1; scope is the IQ pages only | the full buying block showed twice on one page. |
+| Signed-out /browse subtitle (`#1615`) [owner 7 Nov 00:19] | "Sign in to explore everything for free (7 days)." | owner request; no further reason was relayed. |
+| Speed target = a mid-range Android on 4G, not a Rs 6k phone on 2G [owner] | 2G lite mode dropped; speed done in one day; judged with Google PageSpeed and Vercel real-user data | the customers are CBSE families in cities. |
+| Mumbai region (Option A) dropped [owner] | no region move | India is already served from `bom1`. |
+| Science NCERT / Exemplar content rules (`#1605`, `#1609`) [owner] | off-book-term rule (a word in neither the official chapter word list nor the reviewed general list holds the row), hint rule (no hint that reveals the answer or states a conclusion), summary-step rule (a step that only restates a non-numeric conclusion is held), 5-row page floor; the "ionise" rows stay held | rows must stay inside the 2026-27 NCERT book and be honest; mechanical rules make that checkable by a guard. Held rows are never edited in a content lane (`src/data/**`). |
+| Age exclusions on ads [owner] | 55+ excluded on all Search ad groups; 18-24 excluded on PDF Packs | no reason was relayed to the docs lane; record it with the owner next session. |
+| Pricing link for visitors (`#1577`) [owner 5 Nov 09:20] | Pricing in the phone bottom bar and desktop panel; `App.tsx` / `DesktopShell.tsx` authorised for that change only | "Today there is no place where pricing page link is shown to visitors". |
+| CBQ landing back to free-first (`#1591`) [owner 6 Nov] | free chapter button first, CBQ pack offer directly below | YouTube sign-ups from `?cbq=1` fell from 15-24 a day to about 2 after the offer went first. |
+| Parent-pay route never says "ask" (`#1589`) [owner 19 Oct, re-confirmed 6 Nov] | "Forward link to parents" | owner ruling (reason not restated in `#1589`). |
+| Grader rulings of 5 Nov (`#1575`, `#1583`, `#1584`, `#1585`) [owner, gh] | blank asked-for items need proof of knowledge to be typed; 1/2 per unbalanced equation typed by what was written; proportional 1/2 for separable values and equal-form answers keep their mark; working not shown = exam technique, outside the cap | grade a little stricter than a CBSE examiner, never wrongly; each ruling is evidenced by official CBSE marking schemes and model answer books. |
+
 ## 2026-11-04 (daily, third) - #1550 - #1571: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 4 Nov 2026 (afternoon to night) by the owner **[owner]**, as relayed by the coordinator's night and evening handoffs **[coordinator]** or quoted in the PR bodies **[gh]**, each with its reason.
