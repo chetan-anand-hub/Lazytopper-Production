@@ -152,8 +152,8 @@
     "lastmod": "2026-11-05"
   },
   "/ncert-class-10": {
-    "sha256": "b488300a556e5fbfb23a51ec3bf6452efafafad1ab4a2d4370057ef19ecb96d5",
-    "lastmod": "2026-11-05"
+    "sha256": "f2a4224b4ac1a38a255f820fb88c4b1331759d96a8f87bff684d350ef1fa8d4d",
+    "lastmod": "2026-11-06"
   },
   "/ncert-exemplar/areas-related-to-circles": {
     "sha256": "e17a99cf59380cc3ed7623baaf9d74a75a5229391f8415a02eed70d4e669a0f0",
@@ -219,6 +219,10 @@
     "sha256": "b56693e93b2b032d55ea2332e0b98b2fe25f259867e9e8711569b1c2284dbfd9",
     "lastmod": "2026-11-05"
   },
+  "/ncert-solutions/chemical-reactions-and-equations": {
+    "sha256": "ad97b92e59ddae976e86bb4d8f4049e71af18b30fff584b3a5eb01ac7b5d6fd6",
+    "lastmod": "2026-11-06"
+  },
   "/ncert-solutions/circles": {
     "sha256": "5fdfef90d94f90bc024ec0bdefdf0355f9fd6d5c40c76c102f5d0c145910e758",
     "lastmod": "2026-11-05"
@@ -227,9 +231,17 @@
     "sha256": "989bff8b7ad2a7e2f0baabd1305e20b8921bb696cf982584113d1b498c8fdfa0",
     "lastmod": "2026-11-05"
   },
+  "/ncert-solutions/electricity": {
+    "sha256": "cf5b2e90dadaf2b32ef84de8f9c1619a7c8585337aa6973a3615368c6330c4ec",
+    "lastmod": "2026-11-06"
+  },
   "/ncert-solutions/introduction-to-trigonometry": {
     "sha256": "035e8e0b5e3b725a2d5d6a55b20d1755849863bdb1b8505178affbf3984824b2",
     "lastmod": "2026-11-05"
+  },
+  "/ncert-solutions/life-processes": {
+    "sha256": "b0f30b12ce96e5fa83de4f6b489502cdb8496409d952617d345ee2641347d957",
+    "lastmod": "2026-11-06"
   },
   "/ncert-solutions/pair-of-linear-equations": {
     "sha256": "4db58ad354fa62a8919afcd35d7e232be73c2e289f354f8f34d5636b60f13748",
