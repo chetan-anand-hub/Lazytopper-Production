@@ -33,6 +33,8 @@ import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, newAccountGoesHome, takeNewAccountLanding } from "../services/newAccountLanding";
 import { BRAND_MARK_SRC } from "../config/brandMark";
+import { inAppSigninNote } from "../components/auth/inAppSigninCopy";
+import "../components/auth/inAppSigninBanner.css";
 import { isEmailCodeSigninClientEnabled } from "../services/emailCodeFlag";
 import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../utils/indianMobileInput";
 import {
@@ -58,8 +60,20 @@ export const REDIRECT_RESULT_WAIT_MS = 20_000;
  */
 export const REDIRECT_START_GUARD_MS = 10_000;
 
-// INAPP-SIGNIN-1 — the UA check, the note and its CSS all live in this lazy chunk.
+// INAPP-SIGNIN-1 — the note lives in this lazy chunk. SPEED-SITE-1-fu2: its words and CSS are also imported here,
+// for the invisible slot that keeps its size while the chunk loads (CLS 0.062 in a WebView at 1280 px).
 const InAppSignin = lazy(() => import("../components/auth/InAppSigninBanner"));
+
+/** SPEED-SITE-1-fu2 — the in-app note's exact box, invisible and inert; null outside an in-app browser. */
+function InAppSigninSlot() {
+  const note = inAppSigninNote();
+  if (!note) return null;
+  return (
+    <div className="lt-inapp lt-inapp-banner lt-inapp--slot" aria-hidden="true" data-testid="inapp-signin-slot">
+      <p className="lt-inapp-text">{note.text}</p>
+    </div>
+  );
+}
 
 type LocationState = {
   from?: string;
@@ -2525,7 +2539,9 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                 </p>
 
                 <div className="lt-doors">
-                <Suspense fallback={null}>
+                {/* SPEED-SITE-1-fu2: in an in-app browser, an invisible copy of the note holds its place (and the
+                    phone-first order its :has() rule gives) while the note's chunk loads; elsewhere nothing, as before. */}
+                <Suspense fallback={<InAppSigninSlot />}>
                   <InAppSignin />
                 </Suspense>
 
