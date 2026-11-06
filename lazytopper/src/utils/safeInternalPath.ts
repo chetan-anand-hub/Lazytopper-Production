@@ -6,6 +6,10 @@
  */
 export function isSafeInternalPath(path: string | null | undefined): path is string {
   if (!path) return false;
+  // LOGIN-FIX-1 (review) — no control character or whitespace ANYWHERE (e.g. "/\t/evil.com": browsers
+  // strip tabs and newlines from URLs, which would turn it into "//evil.com"). A real in-app path
+  // never needs a raw one; spaces in a query arrive percent-encoded.
+  if (/[\x00-\x20\x7f]/.test(path)) return false;
   const trimmed = path.trim();
   if (!trimmed.startsWith("/")) return false;
   if (trimmed.startsWith("//")) return false;

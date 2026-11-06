@@ -64,13 +64,15 @@ import {
   setRedirectOutcome,
   type SigninIntentInput,
 } from "../services/signinIntent";
-import { GOOGLE_REDIRECT_NO_RESULT_MESSAGE, POPUP_CLOSED_MESSAGE } from "../utils/authSignal";
+import { GOOGLE_REDIRECT_NO_RESULT_MESSAGE, POPUP_BLOCKED_MESSAGE, POPUP_CLOSED_MESSAGE } from "../utils/authSignal";
 
 const DESKTOP =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36";
 const CHROME_ANDROID =
   "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36";
 const YOUTUBE_APP = `${CHROME_ANDROID} com.google.android.youtube/19.02.34`;
+const YOUTUBE_IOS =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 com.google.ios.youtube/19.02.3";
 
 type Entry = string | { pathname: string; search?: string; state?: unknown };
 const tree = (entry: Entry) => (
@@ -228,14 +230,26 @@ describe("choosing the flow", () => {
     expect(events("login_error")).toHaveLength(0);
   });
 
-  it("redirect mode, YouTube in-app browser: no redirect — phone first, Open in Chrome, popup path", async () => {
+  it("redirect mode, YouTube app on Android: no redirect, no popup — phone first, Google opens in Chrome (LOGIN-FIX-1)", async () => {
     stubMode("redirect");
     mount("/login", YOUTUBE_APP);
     const banner = await screen.findByTestId("inapp-signin-banner");
-    expect(banner.textContent).toContain("Google sign-in doesn't work inside the YouTube app. Use your phone number below, or open in Chrome.");
-    expect(screen.getByRole("link", { name: "Open in Chrome" })).toBeTruthy();
-    const order = Array.from(document.querySelectorAll("button.lt-google, button.lt-method")).map((b) => b.textContent);
+    expect(banner.textContent).toContain(
+      "Google sign-in doesn't work inside the YouTube app. Use your phone number or email below, or tap Open in Chrome to continue with Google.",
+    );
+    expect(screen.queryByRole("button", { name: /Continue with Google/ })).toBeNull();
+    const chrome = screen.getByRole("link", { name: /Open in Chrome to continue with Google/ });
+    expect(chrome.getAttribute("href")).toMatch(/^intent:\/\/.+;package=com\.android\.chrome;/);
+    const order = Array.from(document.querySelectorAll(".lt-doors .lt-google, .lt-doors .lt-method")).map((b) => b.textContent);
     expect(order[0]).toMatch(/phone/);
+    expect(signInWithGoogle).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
+  });
+
+  it("redirect mode, YouTube app on iOS: no redirect — the popup path, as before", async () => {
+    stubMode("redirect");
+    mount("/login", YOUTUBE_IOS);
+    await screen.findByTestId("inapp-signin-banner");
     await act(async () => fireEvent.click(google()));
     expect(signInWithGoogle.mock.calls).toEqual([[]]);
     expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
@@ -329,13 +343,28 @@ describe("the return trip", () => {
     saveSigninIntent(INTENT);
     mount("/login");
     act(() =>
+      setRedirectOutcome({ kind: "error", error: Object.assign(new Error("x"), { code: "auth/popup-blocked" }) }),
+    );
+    expect(events("login_error")).toEqual([
+      ["login_error", { method: "google", ua_class: "desktop", error_code: "popup-blocked", flow: "redirect" }],
+    ]);
+    expect(document.body.textContent).toContain(POPUP_BLOCKED_MESSAGE);
+    expect(screen.getByRole("heading", { name: /Continue with phone/ })).toBeTruthy();
+    expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
+  });
+
+  it("LOGIN-FIX-1: popup-closed-by-user on the return trip is a cancel — the door, buttons ready, no message", async () => {
+    saveSigninIntent(INTENT);
+    mount("/login");
+    act(() =>
       setRedirectOutcome({ kind: "error", error: Object.assign(new Error("x"), { code: "auth/popup-closed-by-user" }) }),
     );
     expect(events("login_error")).toEqual([
       ["login_error", { method: "google", ua_class: "desktop", error_code: "popup-closed-by-user", flow: "redirect" }],
     ]);
-    expect(document.body.textContent).toContain(POPUP_CLOSED_MESSAGE);
-    expect(screen.getByRole("heading", { name: /Continue with phone/ })).toBeTruthy();
+    expect(document.body.textContent).not.toContain(POPUP_CLOSED_MESSAGE);
+    expect(screen.queryByRole("heading", { name: /Continue with phone/ })).toBeNull();
+    expect(google().disabled).toBe(false);
     expect(sessionStorage.getItem(SIGNIN_INTENT_KEY)).toBeNull();
   });
 
@@ -435,10 +464,10 @@ describe("SIGNIN-FLASH-1 — no login-form flash on the return from Google", () 
     saveSigninIntent(INTENT);
     mount("/login");
     act(() =>
-      setRedirectOutcome({ kind: "error", error: Object.assign(new Error("x"), { code: "auth/popup-closed-by-user" }) }),
+      setRedirectOutcome({ kind: "error", error: Object.assign(new Error("x"), { code: "auth/popup-blocked" }) }),
     );
     expect(screen.queryByText("Signing you in…")).toBeNull();
-    expect(document.body.textContent).toContain(POPUP_CLOSED_MESSAGE);
+    expect(document.body.textContent).toContain(POPUP_BLOCKED_MESSAGE);
   });
 
   it("review of #1521: the 20 s result timer is cleared on unmount (no late release clears a live intent)", async () => {

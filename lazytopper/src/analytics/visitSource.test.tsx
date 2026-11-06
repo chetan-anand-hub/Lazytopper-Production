@@ -23,6 +23,8 @@ import {
   VISIT_SOURCE_KEY,
   SIGNUP_SOURCE_ENDPOINT,
   captureVisitSource,
+  handoffSourceParams,
+  HANDOFF_CLICK_PARAM,
   rememberVisitSourceOnce,
   resetVisitSourceAttempt,
   sendVisitSourceIfNewUser,
@@ -528,6 +530,52 @@ describe("AuthContext call sites", () => {
     expect(signUps).toBe(5);
     expect(sends).toBe(signUps);
     const login = readFileSync(path.join(__dirname, "..", "pages", "Login.tsx"), "utf8");
-    expect(login).not.toMatch(/visitSource/);
+    // LOGIN-FIX-1: Login READS the stored touch for the Chrome hand-off link (handoffSourceParams)
+    // and nothing else — it never sends, captures or clears a source; sending stays here, in AuthContext.
+    expect(login).not.toMatch(/sendVisitSource|rememberVisitSource|captureVisitSource|VISIT_SOURCE_KEY|LONG_KEEP_KEY/);
+    expect(login.match(/visitSource/g) ?? []).toHaveLength(1);
+    expect(login).toMatch(/import \{ handoffSourceParams \} from "\.\.\/analytics\/visitSource";/);
+  });
+});
+
+describe("LOGIN-FIX-1 — attribution across the in-app -> Chrome sign-in hop", () => {
+  it("handoffSourceParams: the stored tagged touch as utm_* + lt_clk flags; never a click-id value", () => {
+    rememberVisitSourceOnce(
+      { pathname: "/", search: "?utm_source=youtube&utm_medium=paid&utm_campaign=9&utm_content=Maths&gclid=SECRETGCLID&gbraid=SECRETGB" },
+      "https://www.youtube.com/",
+      OWN,
+    );
+    const params = handoffSourceParams();
+    expect(params).toEqual([
+      ["utm_source", "youtube"],
+      ["utm_medium", "paid"],
+      ["utm_campaign", "9"],
+      ["utm_content", "Maths"],
+      [HANDOFF_CLICK_PARAM, "gclid,gbraid"],
+    ]);
+    expect(JSON.stringify(params)).not.toMatch(/SECRET|youtube\.com/);
+  });
+
+  it("falls back to the 7-day copy when the tab has nothing tagged; empty when nothing is tagged", () => {
+    expect(handoffSourceParams()).toEqual([]);
+    rememberVisitSourceOnce({ pathname: "/", search: "?utm_source=instagram&fbclid=X" }, "", OWN);
+    window.sessionStorage.clear();
+    expect(handoffSourceParams()).toEqual([["utm_source", "instagram"], [HANDOFF_CLICK_PARAM, "fbclid"]]);
+  });
+
+  it("Chrome's own capture on arrival records the carried source as a tagged touch", () => {
+    const carried = captureVisitSource(
+      { pathname: "/login", search: `?redirect=%2Fpacks&utm_source=youtube&utm_campaign=9&${HANDOFF_CLICK_PARAM}=gclid,wbraid` },
+      "",
+      OWN,
+    );
+    expect(carried).toMatchObject({ utm_source: "youtube", utm_campaign: "9", gclid: true, wbraid: true, fbclid: false });
+    expect(isTaggedSource(carried)).toBe(true);
+  });
+
+  it("lt_clk ignores anything that is not a known click id", () => {
+    const c = captureVisitSource({ pathname: "/", search: `?${HANDOFF_CLICK_PARAM}=evil,gclidx` }, "", OWN);
+    expect(c).toMatchObject({ gclid: false, fbclid: false });
+    expect(isTaggedSource(c)).toBe(false);
   });
 });
