@@ -65,6 +65,12 @@ describe("SPEED-1 speed insights", () => {
     expect(speedRouteFor("/cbq-class-10")).toBe("/cbq-class-10");
     expect(speedRouteFor("/topic-hub/real-numbers")).toBe("/topic-hub/[chapter]");
     expect(speedRouteFor("/topic-hub/10/Maths")).toBe("/topic-hub/[grade]/[subject]");
+    expect(speedRouteFor("/topic-hub/10/Maths/triangles")).toBe("/topic-hub/[grade]/[subject]/[topic]");
+    // Review of #1603: unknown single segments and unknown families never become a route.
+    expect(speedRouteFor("/9876543210")).toBe("/[other]");
+    expect(speedRouteFor("/somebody-typed-this")).toBe("/[other]");
+    expect(speedRouteFor("/random/deep/path")).toBe("/[other]");
+    expect(speedRouteFor("/chapter-test/10/Maths/triangles")).toBe("/chapter-test/[…]");
     expect(speedRouteFor("/highly-probable/10/Science")).toBe("/highly-probable/[grade]/[subject]");
     expect(speedRouteFor("/practice/10/Maths")).toBe("/practice/[grade]/[subject]");
     expect(speedRouteFor("/cbse/class-10")).toBe("/cbse/class-10");

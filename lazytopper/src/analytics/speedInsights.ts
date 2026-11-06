@@ -32,6 +32,17 @@ export function speedInsightsBlocked(routerPath: string): boolean {
 
 export const SPEED_SAMPLE_RATE = 0.5;
 
+/**
+ * Known top-level pages (review of #1603): a single-segment path is reported as itself ONLY if it is one of these.
+ * Anything else — the catch-all (`/9876543210`, a typo, a pasted string) — is "/[other]", so a route can never
+ * carry what a student typed into the address bar.
+ */
+export const KNOWN_TOP_LEVEL = new Set([
+  "/", "/welcome", "/browse", "/login", "/sign-up", "/pricing", "/packs", "/exam-trends", "/practice-hub",
+  "/check-improve", "/check-your-answer", "/for-parents", "/contact", "/cbq-class-10", "/highly-probable",
+  "/ncert-class-10", "/topic-hub", "/me", "/tutor", "/intent", "/practice", "/notes", "/funnel", "/admin",
+]);
+
 /** Multi-segment paths that are ONE page each (kept as they are). */
 const STATIC_MULTI_SEGMENT = new Set(["/cbse/class-10", "/practice/worksheets", "/practice/worksheets/ready"]);
 
@@ -40,7 +51,8 @@ const FAMILY: ReadonlyArray<[RegExp, string]> = [
   [/^\/notes\/[^/]+$/, "/notes/[chapter]"],
   [/^\/cbq-class-10\/[^/]+$/, "/cbq-class-10/[chapter]"],
   [/^\/topic-hub\/[^/]+$/, "/topic-hub/[chapter]"],
-  [/^\/topic-hub\/[^/]+\/[^/]+(?:\/[^/]+)?$/, "/topic-hub/[grade]/[subject]"],
+  [/^\/topic-hub\/[^/]+\/[^/]+$/, "/topic-hub/[grade]/[subject]"],
+  [/^\/topic-hub\/[^/]+\/[^/]+\/[^/]+$/, "/topic-hub/[grade]/[subject]/[topic]"],
   [/^\/highly-probable\/[^/]+\/[^/]+$/, "/highly-probable/[grade]/[subject]"],
   [/^\/practice\/[^/]+\/[^/]+$/, "/practice/[grade]/[subject]"],
   [/^\/legal\/[^/]+$/, "/legal/[page]"],
@@ -55,8 +67,10 @@ export function speedRouteFor(routerPath: string): string {
   if (STATIC_MULTI_SEGMENT.has(path)) return path;
   for (const [pattern, family] of FAMILY) if (pattern.test(path)) return family;
   const segments = path.split("/").filter(Boolean);
-  if (segments.length <= 1) return path;
-  return `/${segments[0]}/[…]`;
+  if (segments.length <= 1) return KNOWN_TOP_LEVEL.has(path) ? path : "/[other]";
+  return KNOWN_TOP_LEVEL.has(`/${segments[0]}`) || /^ncert-(solutions|exemplar)$/.test(segments[0]) || segments[0] === "legal" || segments[0] === "chapter-test" || segments[0] === "full-mock" || segments[0] === "cbse"
+    ? `/${segments[0]}/[…]`
+    : "/[other]";
 }
 
 /** Scrub a vendor event URL; null drops the event (admin and hand-off pages). */
