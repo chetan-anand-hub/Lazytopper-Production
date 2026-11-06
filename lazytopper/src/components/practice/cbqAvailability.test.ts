@@ -10,6 +10,8 @@
 // not a section, a format, or the legacy flag — decides.
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const flags = vi.hoisted(() => ({ noCbq: false }));
 
@@ -27,7 +29,17 @@ vi.mock("../../lib/cbq/cbqClassification", async (importOriginal) => {
   };
 });
 
-import { chapterCbqCounts, chapterHasCbqs, chaptersWithCbqs, practiceTopicLabel } from "./cbqAvailability";
+import {
+  CBQ_CHAPTER_SUBJECTS,
+  chapterCbqCounts,
+  chapterHasCbqs,
+  chaptersWithCbqs,
+  computeCbqChapterMap,
+  practiceTopicLabel,
+  renderCbqChaptersFile,
+} from "./cbqAvailability";
+import { CBQ_CHAPTERS } from "./cbqChapters.generated";
+import { cbqChapterComingSoon } from "./cbqChapterManifest";
 import { buildCbqPracticePool, type SubjectKey } from "./practiceQuestionBuilder";
 import { __resetBankChaptersForTest, ensureBankSubject, isBankChapterLoaded } from "../../data/bankChapters/loader";
 import { PredictionCore } from "../../data/predictionCore";
@@ -107,4 +119,65 @@ describe("CBQ-ENTRY-1 (P6) + CBQ-1 PR-1 — chapters with real CBQs", () => {
     expect(chapterHasCbqs("Maths", "not-a-chapter")).toBe(false);
     expect(chapterHasCbqs("Maths", "generic")).toBe(false);
   }, 60000);
+});
+
+/**
+ * SPEED-HUB-1 — the chooser's precomputed manifest can never drift from the bank.
+ *
+ * CbqChapterPicker marks "coming soon" from cbqChapters.generated.ts (no bank download). This
+ * guard recomputes the manifest with the SAME runtime function (`chaptersWithCbqs`) over the
+ * REAL bank and asserts the committed file is byte-identical to its rendering. A bank change
+ * that gives a chapter its first CBQ (or takes its last away) fails here until
+ * `node scripts/generateCbqChapters.mjs --write` is re-run (it runs THIS block with
+ * CBQ_CHAPTERS_WRITE=1).
+ */
+const MANIFEST = resolve(__dirname, "cbqChapters.generated.ts");
+
+describe("SPEED-HUB-1 · cbqChapters.generated.ts equals the runtime computation", () => {
+  it("★★ the committed file is exactly the rendering of the live-bank computation", async () => {
+    const map = await computeCbqChapterMap();
+    const text = renderCbqChaptersFile(map);
+    if (process.env.CBQ_CHAPTERS_WRITE === "1") writeFileSync(MANIFEST, text, "utf8");
+    const committed = readFileSync(MANIFEST, "utf8").replace(/\r\n/g, "\n");
+    expect(committed, "STALE: run `node scripts/generateCbqChapters.mjs --write`").toBe(text);
+    // Independently of the renderer: every listed chapter's entry is exactly chapterHasCbqs.
+    for (const subject of CBQ_CHAPTER_SUBJECTS) {
+      const slugs = desktopTopicsBySubject(subject).map((t) => t.slug);
+      expect(Object.keys(map[subject])).toEqual(slugs);
+      for (const slug of slugs) expect(map[subject][slug], `${subject}/${slug}`).toBe(chapterHasCbqs(subject, slug));
+    }
+  }, 240_000);
+
+  // Skipped in write mode only: the imported module is the file as it was BEFORE the write.
+  it.skipIf(process.env.CBQ_CHAPTERS_WRITE === "1")("the imported manifest carries every chapter the chooser lists, and the reader follows it", () => {
+    for (const subject of CBQ_CHAPTER_SUBJECTS) {
+      const entry = CBQ_CHAPTERS[subject] as Record<string, boolean>;
+      const slugs = desktopTopicsBySubject(subject).map((t) => t.slug);
+      expect(Object.keys(entry)).toEqual(slugs);
+      // Precondition: the manifest is not vacuous — some chapter in each subject has CBQs.
+      expect(Object.values(entry).some(Boolean), subject).toBe(true);
+      for (const slug of slugs) expect(cbqChapterComingSoon(subject, slug), slug).toBe(entry[slug] === false);
+    }
+    // A slug the manifest does not know is NOT marked (the landing gates it itself).
+    expect(cbqChapterComingSoon("Maths", "not-a-chapter")).toBe(false);
+  });
+
+  it("CONTROL — the renderer writes a chapter without CBQs as false (so the chooser would mark it)", () => {
+    const text = renderCbqChaptersFile({ Maths: { triangles: true, circles: false }, Science: { electricity: true } });
+    expect(text).toContain('"circles": false,');
+    expect(text).toContain('"triangles": true,');
+  });
+
+  it("★ the chooser reads only the manifest: no import() and no bank-reaching static import", () => {
+    const src = readFileSync(resolve(__dirname, "CbqChapterPicker.tsx"), "utf8");
+    expect(src).not.toMatch(/\bimport\s*\(/);
+    const specs = [...src.matchAll(/^import[^;]*?from\s+"([^"]+)"/gms)].map((m) => m[1]);
+    expect(specs).toContain("./cbqChapterManifest");
+    for (const bad of ["./cbqAvailability", "./practiceQuestionBuilder", "loader", "predictionCore", "bankChapters"]) {
+      expect(specs.some((sp) => sp.includes(bad)), bad).toBe(false);
+    }
+    const manifestSrc = readFileSync(resolve(__dirname, "cbqChapterManifest.ts"), "utf8");
+    const manifestSpecs = [...manifestSrc.matchAll(/^import[^;]*?from\s+"([^"]+)"/gms)].map((m) => m[1]);
+    expect(manifestSpecs.sort()).toEqual(["../../lib/desktop/navigation", "./cbqChapters.generated"]);
+  });
 });
