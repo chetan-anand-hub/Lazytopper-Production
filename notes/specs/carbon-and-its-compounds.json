@@ -656,6 +656,23 @@
       "source": "NCERT 4.4.3"
     }
   ],
+  "key_terms": [
+    {"term": "Covalent bond", "meaning": "A bond formed by sharing a pair of electrons between two atoms.", "source": "NCERT 2026-27 Ch4 p.58 (jesc104)"},
+    {"term": "Allotropes", "meaning": "Different forms of the same element, like diamond, graphite and fullerene.", "source": "NCERT 2026-27 Ch4 p.61 (jesc104)"},
+    {"term": "Catenation", "meaning": "Carbon links with other carbon atoms to form long chains, branches and rings.", "source": "NCERT 2026-27 Ch4 p.62 (jesc104)"},
+    {"term": "Tetravalency", "meaning": "Carbon has a valency of four, so it can bond with four other atoms.", "source": "NCERT 2026-27 Ch4 p.63 (jesc104)"},
+    {"term": "Saturated compounds", "meaning": "Carbon compounds with only single bonds between carbon atoms.", "source": "NCERT 2026-27 Ch4 p.62 (jesc104)"},
+    {"term": "Unsaturated compounds", "meaning": "Carbon compounds with a double or triple bond between carbon atoms.", "source": "NCERT 2026-27 Ch4 p.62 (jesc104)"},
+    {"term": "Structural isomers", "meaning": "Compounds with the same molecular formula but different structures.", "source": "NCERT 2026-27 Ch4 p.65 (jesc104)"},
+    {"term": "Functional group", "meaning": "An atom or group of atoms (like –OH or –COOH) that gives a compound its properties.", "source": "NCERT 2026-27 Ch4 p.66 (jesc104)"},
+    {"term": "Homologous series", "meaning": "Compounds with the same functional group, each differing from the next by a –CH₂– unit.", "source": "NCERT 2026-27 Ch4 p.66 (jesc104)"},
+    {"term": "Oxidising agents", "meaning": "Substances like alkaline potassium permanganate that add oxygen to others.", "source": "NCERT 2026-27 Ch4 p.71 (jesc104)"},
+    {"term": "Addition reaction", "meaning": "An unsaturated hydrocarbon adds hydrogen, with a nickel catalyst, to become saturated.", "source": "NCERT 2026-27 Ch4 p.71 (jesc104)"},
+    {"term": "Substitution reaction", "meaning": "One atom or group takes the place of another, e.g. chlorine replacing hydrogen in methane.", "source": "NCERT 2026-27 Ch4 p.71 (jesc104)"},
+    {"term": "Esterification", "meaning": "A carboxylic acid reacts with an alcohol, with an acid catalyst, to form an ester.", "source": "NCERT 2026-27 Ch4 p.73 (jesc104)"},
+    {"term": "Saponification", "meaning": "An ester reacts with an alkali to give back the alcohol and the sodium salt of the acid; this makes soap.", "source": "NCERT 2026-27 Ch4 p.73 (jesc104)"},
+    {"term": "Micelle", "meaning": "A cluster of soap molecules with the oily dirt held at its centre.", "source": "NCERT 2026-27 Ch4 p.74 (jesc104)"}
+  ],
   "mindmap": {
     "root": "Carbon and its Compounds",
     "branches": [

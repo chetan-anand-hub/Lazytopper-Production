@@ -718,6 +718,23 @@
       "source": "NCERT 5.4.2"
     }
   ],
+  "key_terms": [
+    {"term": "Autotrophic nutrition", "meaning": "Making food from simple inorganic substances like carbon dioxide and water.", "source": "NCERT 2026-27 Ch5 p.81 (jesc105)"},
+    {"term": "Stomata", "meaning": "Tiny pores on the leaf surface where gases are exchanged.", "avoid": "holes in the leaf", "source": "NCERT 2026-27 Ch5 p.83 (jesc105)"},
+    {"term": "Oesophagus", "meaning": "The tube that carries food from the mouth to the stomach.", "avoid": "food pipe", "source": "NCERT 2026-27 Ch5 p.85 (jesc105)"},
+    {"term": "Peristaltic movements", "meaning": "Rhythmic contraction of the gut muscles that pushes food forward.", "source": "NCERT 2026-27 Ch5 p.85 (jesc105)"},
+    {"term": "Villi", "meaning": "Finger-like projections in the small intestine that increase the surface area for absorption.", "source": "NCERT 2026-27 Ch5 p.86 (jesc105)"},
+    {"term": "Aerobic respiration", "meaning": "Breaking down glucose using oxygen; releases much more energy.", "source": "NCERT 2026-27 Ch5 p.88 (jesc105)"},
+    {"term": "Anaerobic respiration", "meaning": "Breaking down glucose without oxygen.", "source": "NCERT 2026-27 Ch5 p.87 (jesc105)"},
+    {"term": "Alveoli", "meaning": "Balloon-like structures in the lungs where gases are exchanged.", "avoid": "air sacs", "source": "NCERT 2026-27 Ch5 p.90 (jesc105)"},
+    {"term": "Haemoglobin", "meaning": "The respiratory pigment in red blood cells that carries oxygen.", "source": "NCERT 2026-27 Ch5 p.90 (jesc105)"},
+    {"term": "Double circulation", "meaning": "Blood goes through the heart twice during each cycle.", "source": "NCERT 2026-27 Ch5 p.92 (jesc105)"},
+    {"term": "Xylem", "meaning": "The tissue that carries water and minerals up from the roots.", "source": "NCERT 2026-27 Ch5 p.94 (jesc105)"},
+    {"term": "Phloem", "meaning": "The tissue that carries the food made in the leaves to other parts.", "source": "NCERT 2026-27 Ch5 p.94 (jesc105)"},
+    {"term": "Translocation", "meaning": "Transport of the soluble products of photosynthesis through the phloem.", "source": "NCERT 2026-27 Ch5 p.95 (jesc105)"},
+    {"term": "Transpiration", "meaning": "Loss of water as vapour from the aerial parts of the plant.", "avoid": "plant sweating", "source": "NCERT 2026-27 Ch5 p.95 (jesc105)"},
+    {"term": "Nephrons", "meaning": "The basic filtration units of the kidney.", "avoid": "kidney filters", "source": "NCERT 2026-27 Ch5 p.97 (jesc105)"}
+  ],
   "third_tab_content": {
     "kind": "diagrams",
     "intro": "The diagrams you must be able to draw and label - Life Processes is examined heavily through labelled figures. Learn each one in the exact NCERT form.",

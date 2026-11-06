@@ -669,6 +669,23 @@
       "source": "NCERT 7.3.3"
     }
   ],
+  "key_terms": [
+    {"term": "DNA copying", "meaning": "Making a copy of the DNA: the basic event in reproduction.", "source": "NCERT 2026-27 Ch7 p.114 (jesc107)"},
+    {"term": "Variation", "meaning": "Small differences between parent and offspring, from inaccuracies in DNA copying.", "source": "NCERT 2026-27 Ch7 p.114 (jesc107)"},
+    {"term": "Binary fission", "meaning": "One cell splits into two equal halves, as in Amoeba.", "source": "NCERT 2026-27 Ch7 p.115 (jesc107)"},
+    {"term": "Multiple fission", "meaning": "One cell divides into many daughter cells at once, as in Plasmodium.", "source": "NCERT 2026-27 Ch7 p.116 (jesc107)"},
+    {"term": "Fragmentation", "meaning": "The body breaks into pieces and each piece grows into a new organism, as in Spirogyra.", "source": "NCERT 2026-27 Ch7 p.116 (jesc107)"},
+    {"term": "Regeneration", "meaning": "A cut piece of the body grows into a complete organism, as in Planaria.", "source": "NCERT 2026-27 Ch7 p.116 (jesc107)"},
+    {"term": "Budding", "meaning": "An outgrowth (bud) develops into a new individual, as in Hydra.", "source": "NCERT 2026-27 Ch7 p.117 (jesc107)"},
+    {"term": "Vegetative propagation", "meaning": "New plants grow from the root, stem or leaves of a plant.", "source": "NCERT 2026-27 Ch7 p.117 (jesc107)"},
+    {"term": "Spore formation", "meaning": "Reproduction through spores held in sporangia, as in Rhizopus.", "source": "NCERT 2026-27 Ch7 p.118 (jesc107)"},
+    {"term": "Pollination", "meaning": "Transfer of pollen grains from the stamen to the stigma.", "source": "NCERT 2026-27 Ch7 p.121 (jesc107)"},
+    {"term": "Fertilisation", "meaning": "Fusion of the male and female germ cells to form a zygote.", "source": "NCERT 2026-27 Ch7 p.121 (jesc107)"},
+    {"term": "Zygote", "meaning": "The fertilised cell that develops into the embryo.", "source": "NCERT 2026-27 Ch7 p.120 (jesc107)"},
+    {"term": "Germination", "meaning": "The seed growing into a seedling.", "source": "NCERT 2026-27 Ch7 p.121 (jesc107)"},
+    {"term": "Puberty", "meaning": "The period of adolescence when the reproductive tissues mature.", "source": "NCERT 2026-27 Ch7 p.122 (jesc107)"},
+    {"term": "Placenta", "meaning": "A disc of tissue in the uterine wall that passes food and oxygen from mother to embryo.", "source": "NCERT 2026-27 Ch7 p.124 (jesc107)"}
+  ],
   "third_tab_content": {
     "kind": "diagrams",
     "intro": "The diagrams you must be able to draw and label - this chapter is examined heavily through labelled figures. Learn each one in the exact NCERT form, especially the longitudinal section of a flower and the two human reproductive systems.",

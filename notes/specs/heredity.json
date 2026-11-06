@@ -511,6 +511,23 @@
       "source": "NCERT 8.2.2 (Fig 8.4 text)"
     }
   ],
+  "key_terms": [
+    {"term": "Heredity", "meaning": "The rules by which traits and characteristics are reliably inherited.", "source": "NCERT 2026-27 Ch8 p.128 (jesc108)"},
+    {"term": "Variation", "meaning": "Differences between individuals of the same species.", "source": "NCERT 2026-27 Ch8 p.128 (jesc108)"},
+    {"term": "Inherited traits", "meaning": "Features passed from parents to children, like free or attached earlobes.", "source": "NCERT 2026-27 Ch8 p.129 (jesc108)"},
+    {"term": "Genes", "meaning": "A section of DNA that provides information for one protein.", "avoid": "factors", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
+    {"term": "Dominant traits", "meaning": "Traits that show even when only one copy is present, like T in Tt.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
+    {"term": "Recessive traits", "meaning": "Traits that show only when both copies are the same, like tt.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
+    {"term": "F1 progeny", "meaning": "The first generation from a cross; in Mendel's tall × short cross, all were tall.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
+    {"term": "F2 progeny", "meaning": "The second generation, from self-pollinating F1; one quarter were short.", "source": "NCERT 2026-27 Ch8 p.131 (jesc108)"},
+    {"term": "Self-pollination", "meaning": "A plant's own pollen fertilises it; Mendel used it to raise the F2 generation.", "source": "NCERT 2026-27 Ch8 p.130 (jesc108)"},
+    {"term": "Independently inherited", "meaning": "Two traits, like seed shape and seed colour, are passed on separately.", "source": "NCERT 2026-27 Ch8 p.131 (jesc108)"},
+    {"term": "DNA", "meaning": "The information source in the cell for making proteins.", "source": "NCERT 2026-27 Ch8 p.128 (jesc108)"},
+    {"term": "Chromosome", "meaning": "A separate, independent piece of DNA that carries genes.", "source": "NCERT 2026-27 Ch8 p.132 (jesc108)"},
+    {"term": "Germ cells", "meaning": "Reproductive cells; each carries only one set of genes.", "source": "NCERT 2026-27 Ch8 p.131 (jesc108)"},
+    {"term": "Sex chromosomes", "meaning": "The one pair that is not always a perfect pair: XX in women, XY in men.", "source": "NCERT 2026-27 Ch8 p.132 (jesc108)"},
+    {"term": "Sex determination", "meaning": "How the sex of a newborn is decided; in humans it is largely genetic.", "source": "NCERT 2026-27 Ch8 p.132 (jesc108)"}
+  ],
   "third_tab_content": {
     "kind": "diagrams",
     "intro": "The diagrams you must be able to read and reproduce for Heredity - each Mendelian cross and the human sex-determination cross. Learn the genotypes and the F2 ratios in the exact NCERT form.",

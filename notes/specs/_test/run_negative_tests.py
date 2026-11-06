@@ -28,6 +28,7 @@ EXPECT = {
     TEST_DIR / "04_ledger_count.json": 7,
     TEST_DIR / "05_third_tab_mismatch.json": 4,
     TEST_DIR / "06_marks_sum_mismatch.json": 10,
+    TEST_DIR / "07_key_terms_bad.json": 12,      # KEY-TERMS-1: too few rows, a duplicate term, avoid == term
 }
 
 
