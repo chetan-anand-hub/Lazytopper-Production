@@ -131,6 +131,9 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   // LADDER-NAV-1: the verdict + "Now a 2-mark one" appear below the fold; bring them in once, clear of the BottomNav.
   useClearBottomNav(verdictRef, picked !== null);
 
+  // SPEED-SITE-1a-fu: DELIBERATE — the question is chosen once per mount (from the visit's subject hint and seed) and
+  // does NOT swap if the subject hint changes later in the visit: a student must never see the question they are
+  // reading replaced under their thumb. A new mount (a new visit / reopening the card) picks again.
   useEffect(() => {
     if (mcq) return undefined;
     let live = true;

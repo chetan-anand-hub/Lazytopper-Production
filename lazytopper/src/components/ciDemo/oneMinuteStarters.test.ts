@@ -115,6 +115,11 @@ describe("ONE-MINUTE-1 pure rules", () => {
     expect(whyLine(["[1 mark] Correct option: 7 — sodium chloride is neutral."])).toBe("Sodium chloride is neutral.");
     expect(whyLine(["[1 mark] θ/360° = 1/12 ⇒ θ = 30°. Correct option: (b) 30°."])).toBe("θ/360° = 1/12 ⇒ θ = 30°.");
     expect(whyLine(undefined)).toBe("");
+    // SPEED-SITE-1a-fu: a leading maths variable is never capitalised; a leading word still is.
+    expect(whyLine(["[1 mark] x² + 3x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5."])).toBe("x² + 3x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5.");
+    expect(whyLine(["[1 mark] x = 2 satisfies the equation."])).toBe("x = 2 satisfies the equation.");
+    expect(whyLine(["[1 mark] a salt of a strong acid is neutral."])).toBe("A salt of a strong acid is neutral.");
+    expect(whyLine(["[1 mark] red light deviates least."])).toBe("Red light deviates least.");
   });
 });
 
