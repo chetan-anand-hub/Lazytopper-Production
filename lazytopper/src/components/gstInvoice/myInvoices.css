@@ -1,0 +1,21 @@
+/* GST-INVOICE-1 - "Your GST invoices" on /packs. Navy / soft white / green. One column at 360 px, a row per invoice at 1280 px. */
+.lt-inv { padding: 8px 0 16px; }
+.lt-inv__w { max-width: 1180px; margin: 0 auto; padding: 16px; box-sizing: border-box; background: #f8fafc; border: 1px solid #dbe3ec; border-radius: 16px; color: #0b1b33; }
+.lt-inv__h { margin: 0 0 8px; font-size: 18px; }
+.lt-inv__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lt-inv__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid #e2e8f0; }
+.lt-inv__row:first-child { border-top: 0; }
+.lt-inv__what { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 220px; }
+.lt-inv__num { font-weight: 700; overflow-wrap: anywhere; }
+.lt-inv__desc { font-size: 14px; overflow-wrap: anywhere; }
+.lt-inv__meta { font-size: 13px; color: #475569; }
+.lt-inv__dl { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: #16a34a; color: #ffffff; font-weight: 600; font-size: 15px; cursor: pointer; }
+.lt-inv__dl:focus-visible { outline: 2px solid #0b1b33; outline-offset: 2px; }
+.lt-inv__err { flex-basis: 100%; margin: 0; font-size: 14px; color: #b42318; }
+@media (min-width: 768px) { .lt-inv__w { margin: 0 24px; } }
+@media (min-width: 1228px) { .lt-inv__w { margin: 0 auto; } }
+/* GST-INVOICE-1 (review D4) - "State: X · Change" just above Pay. One compact line; wraps at 360 px. */
+.lt-gstline { margin: 4px 0 8px; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+.lt-gstline__change { padding: 4px 0; min-height: 32px; border: 0; background: none; color: inherit; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.lt-gstline__change:focus-visible { outline: 2px solid #16a34a; outline-offset: 2px; }
+.lt-gstline__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

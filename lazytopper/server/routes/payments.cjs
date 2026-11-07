@@ -61,6 +61,8 @@ const { grantPack, listPacks, PackGrantInputError } = require('../services/packG
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
 // PAY-PHONE-1: a guest (signed-out, phone-number) order is only marked paid_unclaimed by the webhook, never granted here.
 const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
+// GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice issued after a verified capture.
+const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
@@ -287,6 +289,11 @@ function createPaymentRoutes(deps = {}) {
      * Idempotent and never throws. Absent -> a webhook-only recipient order simply waits for the recipient's sign-in.
      */
     afterGuestPaid,
+    /**
+     * GST-INVOICE-1 - optional `{ issueForPayment, config }` (services/gstInvoice.cjs). Absent, or GST_INVOICE_ENABLED off:
+     * nothing happens and the receipt is sent exactly as before. Fired AFTER the grant has answered; never awaited.
+     */
+    invoicer,
   } = deps;
 
   /**
@@ -295,13 +302,15 @@ function createPaymentRoutes(deps = {}) {
    * and only sends for an order that is really paid. Top-ups get none.
    */
   function sendReceipt(orderId, paymentId, payment, passType) {
-    if (!receiptEmailer || typeof receiptEmailer.sendForPayment !== 'function' || isTopupProduct(passType)) return;
+    // GST-INVOICE-1: the invoice (if invoicing is on) is issued first, so the receipt can link it; a top-up gets no
+    // receipt but still reaches the invoicer (which HOLDS it: no SAC is configured for a top-up).
+    const wantsReceipt = !!receiptEmailer && typeof receiptEmailer.sendForPayment === 'function' && !isTopupProduct(passType);
     const email = payment && typeof payment.email === 'string' ? payment.email : '';
-    try {
-      void receiptEmailer.sendForPayment({ orderId, paymentId, email });
-    } catch {
-      /* never */
-    }
+    afterCapture({
+      invoicer,
+      input: { orderId, paymentId, payment },
+      sendReceipt: wantsReceipt ? () => void receiptEmailer.sendForPayment({ orderId, paymentId, email }) : null,
+    });
   }
 
   const rateLimiter =
@@ -487,6 +496,10 @@ function createPaymentRoutes(deps = {}) {
       if (packCreditInr > 0) emit('payments.order.pack_credit_applied');
     }
 
+    // GST-INVOICE-1: the state the buyer confirmed (+ optional PIN / business GSTIN). Never refuses an order.
+    const gstBuyer = gstBuyerFromBody(body.gstBuyer);
+    for (const d of gstBuyer.dropped) emit(`payments.order.gst_buyer_dropped.${d}`);
+
     let created;
     try {
       created = await razorpay(keys, 'POST', '/orders', {
@@ -526,6 +539,7 @@ function createPaymentRoutes(deps = {}) {
         ...(isPack ? { packTarget } : {}),
         ...creditOrderFields(packCreditInr, packCreditIds),
         ...gstOrderFields(quote),
+        ...gstBuyer.fields,
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),

@@ -443,12 +443,23 @@ const payEmailSignInLink = async (email, continueUrl) => {
   return firebaseAdmin.auth().generateSignInWithEmailLink(email, { url: continueUrl, handleCodeInApp: true });
 };
 const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({ adminFirestore, telemetry, emailSignInLink: payEmailSignInLink });
+// GST-INVOICE-1 (DARK behind GST_INVOICE_ENABLED): the tax invoice, issued after a verified capture on every pay path.
+const gstInvoicer = require('./services/gstInvoice.cjs').createGstInvoicer({
+  adminFirestore,
+  telemetry,
+  getDisplayName: async (uid) => {
+    if (!firebaseAdmin) return '';
+    const record = await firebaseAdmin.auth().getUser(uid);
+    return (record && record.displayName) || '';
+  },
+});
 const paymentRoutes = createPaymentRoutes({
   sendJson,
   verifiedCaller,
   adminFirestore,
   telemetry,
   receiptEmailer: paymentReceiptEmailer,
+  invoicer: gstInvoicer,
   // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery too (late-bound: guestPayRoutes is built below).
   afterGuestPaid: (input) => guestPayRoutes.afterRecipientPaid(input),
 });
@@ -472,6 +483,7 @@ const parentPayRoutes = createParentPayRoutes({
   verifiedCaller,
   adminFirestore,
   telemetry,
+  invoicer: gstInvoicer,
   // The child's display name from the server's own auth record — never from a request.
   getDisplayName: async (uid) => {
     if (!firebaseAdmin) return '';
@@ -485,6 +497,7 @@ const guestPayRoutes = createGuestPayRoutes({
   adminFirestore,
   telemetry,
   receiptEmailer: paymentReceiptEmailer,
+  invoicer: gstInvoicer,
   // Owner ruling 2 Nov 2026: a number that already has an account signs in instead of paying as a guest.
   accountExistsForPhone: async (e164) => {
     if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
@@ -577,6 +590,32 @@ const { GUEST_EMAIL_UNSUBSCRIBE_PATH } = require('./services/guestAbandonEmail.c
 const { createOpsReporter, OPS_REPORT_SEND_NOW_PATH } = require('./services/opsReport.cjs');
 const opsReporter = createOpsReporter({ adminFirestore, firebaseAdmin, telemetry });
 
+// GST-INVOICE-1 - the read-only invoice routes (built on first use: they need the admin gate defined above).
+const {
+  createGstInvoiceRoutes,
+  GST_CHECKOUT_CONTEXT_PATH,
+  GST_INVOICES_PATH,
+  GST_INVOICE_PDF_PATH,
+  GST_ADMIN_STATUS_PATH,
+  GST_ADMIN_EXPORT_PATH,
+  GST_ADMIN_ISSUE_PATH,
+} = require('./routes/gstInvoice.cjs');
+let gstInvoiceRoutesMemo = null;
+function gstInvoiceRoutes() {
+  if (!gstInvoiceRoutesMemo) {
+    gstInvoiceRoutesMemo = createGstInvoiceRoutes({
+      sendJson,
+      sendJsonWithHeaders,
+      verifiedCaller,
+      adminFirestore,
+      requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin,
+      invoicer: gstInvoicer,
+      readJson,
+    });
+  }
+  return gstInvoiceRoutesMemo;
+}
+
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
   const reqPath = reqUrlRaw.split("?")[0];
@@ -607,6 +646,10 @@ async function handleRequest(req, res) {
       reqPath === ACCOUNT_EXPORT_PATH ||
       // PACKS-SERVER-1: a credentialed GET, preflighted for the same reason.
       reqPath === PACKS_MINE_PATH ||
+      // GST-INVOICE-1: credentialed GETs, preflighted for the same reason.
+      reqPath === GST_CHECKOUT_CONTEXT_PATH ||
+      reqPath === GST_INVOICES_PATH ||
+      reqPath === GST_INVOICE_PDF_PATH ||
       // FAIR-USE-1 (U5): a credentialed GET, preflighted for the same reason.
       reqPath === USAGE_ME_PATH ||
       // FAIR-USE-2 (F1): the paper-pass mint — a credentialed POST.
@@ -845,6 +888,14 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PAY_WEBHOOK_PATH) return paymentRoutes.handleWebhook(req, res);
   if (req.method === 'POST' && reqPath === PAY_STATUS_PATH) return paymentRoutes.handleStatus(req, res); // PAY-STATUS-1
   if (req.method === 'GET' && reqPath === PACKS_MINE_PATH) return packRoutes.handleMine(req, res); // PACKS-SERVER-1
+  // GST-INVOICE-1 - read-only. checkout-context is behind PAYMENTS_ENABLED, the invoice list behind GST_INVOICE_ENABLED;
+  // a PDF is served only for an invoice already issued (buyer's uid, or the signed guest link). Admin: ADMIN_FIREBASE_UIDS.
+  if (req.method === 'GET' && reqPath === GST_CHECKOUT_CONTEXT_PATH) return gstInvoiceRoutes().handleCheckoutContext(req, res);
+  if (req.method === 'GET' && reqPath === GST_INVOICES_PATH) return gstInvoiceRoutes().handleMyInvoices(req, res);
+  if (req.method === 'GET' && reqPath === GST_INVOICE_PDF_PATH) return gstInvoiceRoutes().handleInvoicePdf(req, res, reqUrlRaw);
+  if (req.method === 'GET' && reqPath === GST_ADMIN_STATUS_PATH) return gstInvoiceRoutes().handleAdminStatus(req, res, reqUrlRaw);
+  if (req.method === 'GET' && reqPath === GST_ADMIN_EXPORT_PATH) return gstInvoiceRoutes().handleAdminExport(req, res, reqUrlRaw);
+  if (req.method === 'POST' && reqPath === GST_ADMIN_ISSUE_PATH) return gstInvoiceRoutes().handleAdminIssue(req, res); // "Issue now", same ADMIN_FIREBASE_UIDS gate, same-origin
   // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
   if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);

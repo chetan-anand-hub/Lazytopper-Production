@@ -37,6 +37,7 @@ import {
   type RazorpaySuccess,
 } from "./checkout";
 import { confirmServerPrice, razorpayDescription } from "./priceConfirm";
+import { isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
@@ -437,6 +438,8 @@ export async function buyPack(
     };
   } catch (e) {
     if (e instanceof PayAlreadyOwnedError) return { status: "already_owned" };
+    // GST-INVOICE-1: closing "Your state" (createPackOrder) is closing the checkout.
+    if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     return { status: "failed" };
   }
 }

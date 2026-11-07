@@ -1,0 +1,4 @@
+Invoice number,Invoice date,Order ID,Razorpay payment ID,Type,Buyer name,Buyer GSTIN,Place of supply code,Place of supply,Supply type,SAC,Taxable value,Rate %,IGST,CGST,SGST,Invoice value
+LT/26-27/000001,08-11-2026,order_SAMPLE1,pay_SAMPLE1,B2C,Sample Student,,29,Karnataka,Intra-state,990000,1917.00,18,0.00,172.50,172.50,2262.00
+LT/26-27/000002,08-11-2026,order_SAMPLE2,pay_SAMPLE2,B2C,,,27,Maharashtra,Inter-state,990000,49.00,18,9.00,0.00,0.00,58.00
+LT/26-27/000003,08-11-2026,order_SAMPLE3,pay_SAMPLE3,B2B,Sample Coaching Centre Pvt Ltd,27BBBBB1111B1ZN,27,Maharashtra,Inter-state,990000,299.00,18,54.00,0.00,0.00,353.00

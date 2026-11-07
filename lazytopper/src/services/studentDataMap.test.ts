@@ -224,7 +224,8 @@ describe("studentDataMap — drift guard", () => {
     // Exact (toEqual), so adding a name here is a deliberate, reviewed edit.
     // TRIAL-END-1 (review finding 1): `trialEmailDaily` — one counter per IST day, no uid.
     // OPS-REPORT-1: `opsReports` - the daily health email's send claim, one per IST day, no uid.
-    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports"]);
+    // GST-INVOICE-1: `gstInvoiceCounters` - the last tax-invoice number issued, one doc per financial year, no uid.
+    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters"]);
     // An exempt name must never ALSO be a student-data location.
     const mapped = new Set(firestoreCollectionNames());
     expect(NON_STUDENT_COLLECTIONS.filter((c) => mapped.has(c))).toEqual([]);
@@ -338,7 +339,9 @@ describe("studentDataMap — drift guard", () => {
     // review D2 taught the scanner the `module.CONST` form). Written only by server/services/nudgeEmail.cjs through
     // the Admin SDK, keyed by an email-address hash; undeclared on purpose (deny-all catch-all). Mapped:
     // guestNudgeEmails deleted on erasure, emailSuppression deliberately retained (a stop request).
-    expect(undeclared).toEqual(["activityLog", "emailSuppression", "freeCheckDaily", "gradingResults", "guestNudgeEmails", "keyDisputeReports", "nudgeEmailDaily", "nudgeEmails", "opsReports", "packEntitlements", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
+    // ★ `gstInvoiceCounters` JOINED this set with GST-INVOICE-1: one number per financial year, written only by
+    // server/services/gstInvoice.cjs inside the issuing transaction; uid-free and exempt (NON_STUDENT_COLLECTIONS).
+    expect(undeclared).toEqual(["activityLog", "emailSuppression", "freeCheckDaily", "gradingResults", "gstInvoiceCounters", "guestNudgeEmails", "keyDisputeReports", "nudgeEmailDaily", "nudgeEmails", "opsReports", "packEntitlements", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {

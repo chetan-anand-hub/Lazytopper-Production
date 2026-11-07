@@ -1,4 +1,5 @@
 import { Suspense, lazy, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import GstStateLine from "../gstInvoice/GstStateLine";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -672,6 +673,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const off = !enabled || !ready || isOwned || busy || confirming || blocked;
     return (
       <>
+        {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state above Pay (nothing while the flag is off). */}
+        {signedIn && enabled && ready && !isOwned && <GstStateLine />}
         <button
           type="button"
           className={`${prefix}__btn`}

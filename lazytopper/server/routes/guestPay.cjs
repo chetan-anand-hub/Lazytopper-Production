@@ -96,6 +96,8 @@ const {
   maskIndianMobile,
   markGuestOrderPaid,
 } = require('../services/guestPay.cjs');
+// GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice after a verified capture.
+const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('../services/packGrant.cjs');
 
 const GUEST_ORDER_PATH = '/api/pay/guest/order';
@@ -257,6 +259,7 @@ function createGuestPayRoutes(deps = {}) {
     now = () => Date.now(),
     foundingOfferOpen,
     receiptEmailer, // PAY-PHONE-1 (A): optional, fire and forget, idempotent per payment
+    invoicer, // GST-INVOICE-1: optional { issueForPayment, config }; absent or off -> nothing changes
     /**
      * Owner ruling 2 Nov 2026 (prevent duplicates): async (e164) => boolean - does ANY Firebase account already use this
      * number (firebase-admin getUserByPhoneNumber)? Throws when it cannot tell. Absent -> no check (tests / no admin).
@@ -277,6 +280,13 @@ function createGuestPayRoutes(deps = {}) {
     authAccounts,
   } = deps;
   const limiters = deps.limiters || createGuestPayLimiters({ telemetry, now });
+
+  /** GST-INVOICE-1 - the buyer's confirmed state (+ PIN / business) for the stored order; {} when none. Never refuses. */
+  function gstBuyerFields(body) {
+    const g = gstBuyerFromBody(body && body.gstBuyer);
+    for (const d of g.dropped) emit(`payments.guest.order.gst_buyer_dropped.${d}`);
+    return g.fields;
+  }
 
   function emit(event) {
     try {
@@ -511,6 +521,7 @@ function createGuestPayRoutes(deps = {}) {
         ...(isPack ? { packTarget } : {}),
         amountPaise: quote.amountPaise,
         ...gstOrderFields(quote),
+        ...gstBuyerFields(body),
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -689,6 +700,7 @@ function createGuestPayRoutes(deps = {}) {
       ...(isPack ? { packTarget } : {}),
       amountPaise: quote.amountPaise,
       ...gstOrderFields(quote),
+      ...gstBuyerFields(body),
       offerKey: quote.offerKey,
       status: GUEST_STATUS.created,
       createdAt: new Date(now()),
@@ -787,9 +799,15 @@ function createGuestPayRoutes(deps = {}) {
       if (!marked.ok) return reject(res, 'verify', marked.reason || 'bad_order');
       emit(marked.changed ? 'payments.guest.verify.paid_unclaimed' : 'payments.guest.verify.replayed');
       if (marked.reason === 'other_payment') emit('payments.guest.verify.duplicate_payment');
-      else if (receiptEmailer && typeof receiptEmailer.sendForPayment === 'function') {
-        // The address Razorpay recorded on THIS payment; the emailer sends at most one receipt per payment.
-        void receiptEmailer.sendForPayment({ orderId, paymentId, email: typeof payment.email === 'string' ? payment.email : '' });
+      else {
+        // GST-INVOICE-1: the invoice first (when on), then the receipt that links it. Never awaited here.
+        const wantsReceipt = !!receiptEmailer && typeof receiptEmailer.sendForPayment === 'function';
+        afterCapture({
+          invoicer,
+          input: { orderId, paymentId, payment },
+          // The address Razorpay recorded on THIS payment; the emailer sends at most one receipt per payment.
+          sendReceipt: wantsReceipt ? () => void receiptEmailer.sendForPayment({ orderId, paymentId, email: typeof payment.email === 'string' ? payment.email : '' }) : null,
+        });
       }
     } catch (e) {
       emit('payments.guest.verify.store_write_failed');
