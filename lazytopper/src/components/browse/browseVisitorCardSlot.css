@@ -1,0 +1,32 @@
+/*
+ * PREEXIST-FIX-1 (7 Nov 2026) - the space the visitor card will take, held while auth is still loading for a likely visitor
+ * (BrowseVisitorCardLazy). The card used to be inserted at the top of /browse only once auth settled and its chunk landed, so
+ * the whole page dropped ~200 px (CLS ~0.23 at 360 px). Heights are the card's own, measured per width band (Fraunces loaded).
+ */
+.lt-bvc-slot {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 12px;
+  min-height: 191px;
+}
+@media (min-width: 375px) {
+  .lt-bvc-slot {
+    min-height: 174px;
+  }
+}
+@media (min-width: 440px) {
+  .lt-bvc-slot {
+    min-height: 159px;
+  }
+}
+@media (min-width: 540px) {
+  .lt-bvc-slot {
+    min-height: 143px;
+  }
+}
+@media (min-width: 720px) {
+  .lt-bvc-slot {
+    margin: 0;
+    min-height: 99px;
+  }
+}

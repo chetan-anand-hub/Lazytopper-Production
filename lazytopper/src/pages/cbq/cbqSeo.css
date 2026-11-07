@@ -14,7 +14,9 @@
   --cq-gt: #06663a;
   --cq-gw: #e6f4ec;
   --cq-navy: #132c4d;
-  --cq-serif: Fraunces, Georgia, serif;
+  /* PREEXIST-FIX-1: the site's metric-matched Georgia fallback (styles.css, LOW-END-1) before plain Georgia, so the Fraunces swap
+     does not re-wrap headings where Georgia exists (Windows / macOS). */
+  --cq-serif: Fraunces, "Fraunces Fallback", Georgia, serif;
   --cq-sans: Inter, system-ui, -apple-system, sans-serif;
   --cq-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
   display: block;
@@ -288,6 +290,19 @@
 }
 .lt-cbqs .lt-cbq {
   margin-top: 10px;
+}
+
+/*
+ * PREEXIST-FIX-1 (7 Nov 2026): chapter-page H1 on phones. "<Chapter> CBQs — CBSE Class 10 (2027) with step-by-step explanations"
+ * wraps to 3 lines in the fallback serif (Android has no Georgia) and to 4 in Fraunces for 11 of the 26 chapters at 360-480 px
+ * (measured on every chapter), so the Fraunces swap pushed the whole page down one line (CLS ~0.19 live at 360 px). Reserve the
+ * 4 lines it can reach; below 768 px only (the font size follows the viewport there, so the line counts do too). The hub's
+ * shorter H1 is not affected.
+ */
+@media (max-width: 767px) {
+  .lt-cbqs[data-testid="cbq-chapter-page"] .lt-cbqs__hero h1 {
+    min-height: calc(4 * 1.15em);
+  }
 }
 
 @media (min-width: 768px) {

@@ -177,6 +177,7 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
       // the three pages whose layout shifts without their route CSS.
       // SOLUTIONS-1 (G): + SolutionsPage, the books page's layout on the solutions pages.
       // CLS-1: + ContactPage, PacksPage, CbqHubPage, CbqChapterPage (CLS 0.17 / 0.58 / 0.44 / 1.09 without their CSS).
+      // PREEXIST-FIX-1: + PricingPage (own + TestimonialVideo; /pricing#packs CLS 0.28 at 1280 px without it).
       expect(INLINE_ROUTE_CSS_MODULES).toEqual([
         "CheckYourAnswerPage",
         "ForParentsPage",
@@ -186,6 +187,7 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
         "PacksPage",
         "CbqHubPage",
         "CbqChapterPage",
+        "PricingPage",
       ]);
       expect(inlinedStylesIn(read(out, "index.html"))).toEqual([]);
       expect(inlinedStylesIn(read(out, "__shell.html"))).toEqual([]);

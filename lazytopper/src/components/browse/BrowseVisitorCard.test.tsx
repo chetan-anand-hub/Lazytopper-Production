@@ -27,7 +27,7 @@ vi.mock("../../analytics/analytics", () => ({
 import BrowseVisitorCardMount from "./BrowseVisitorCardLazy";
 import { BOARD_PASS_TICKS } from "../pricing/pricingPlansCopy";
 import { boardPassPriceDisplay, FOUNDING_OFFER_BADGE, GST_EXCLUSIVE_FROM_MS } from "../../config/pricing";
-import { resetBrowseCardForTests } from "./browseVisitorCardModel";
+import { BROWSE_SIGNED_IN_HINT_KEY, resetBrowseCardForTests } from "./browseVisitorCardModel";
 
 function Where() {
   const loc = useLocation();
@@ -50,6 +50,7 @@ beforeEach(() => {
   track.shown.mockClear();
   track.tap.mockClear();
   resetBrowseCardForTests();
+  window.localStorage.clear();
   vi.setSystemTime(new Date("2026-11-10T10:00:00+05:30"));
 });
 afterEach(cleanup);
@@ -95,10 +96,11 @@ describe("BrowseVisitorCard", () => {
     expect(await screen.findByTestId("browse-visitor-card")).toBeTruthy();
   });
 
-  it("is absent while auth is loading, then appears when it settles signed out", async () => {
+  it("is absent while auth is loading (PREEXIST-FIX-1: a likely visitor gets only the empty slot), then appears when it settles signed out", async () => {
     auth.state = { user: null, loading: true };
-    const { container, rerender } = mount();
-    expect(container.innerHTML).toBe("");
+    const { rerender } = mount();
+    expect(screen.queryByTestId("browse-visitor-card")).toBeNull();
+    expect(screen.getByTestId("browse-visitor-card-slot").getAttribute("aria-hidden")).toBe("true");
     auth.state = { user: null, loading: false };
     rerender(
       <MemoryRouter initialEntries={["/browse"]}>
@@ -108,6 +110,37 @@ describe("BrowseVisitorCard", () => {
       </MemoryRouter>,
     );
     expect(await screen.findByTestId("browse-visitor-card")).toBeTruthy();
+  });
+
+  it("★ PREEXIST-FIX-1: a likely signed-in device holds NO slot while auth loads (hint from a previous visit, or a Firebase storage record)", async () => {
+    auth.state = { user: { uid: "u1" }, loading: false };
+    mount();
+    expect(window.localStorage.getItem(BROWSE_SIGNED_IN_HINT_KEY)).toBe("1");
+    cleanup();
+    auth.state = { user: null, loading: true };
+    let r = mount();
+    expect(r.container.innerHTML).toBe("");
+    cleanup();
+    window.localStorage.clear();
+    window.localStorage.setItem("firebase:authUser:key:[DEFAULT]", "{}");
+    r = mount();
+    expect(r.container.innerHTML).toBe("");
+    cleanup();
+    window.localStorage.clear();
+    r = mount();
+    expect(screen.getByTestId("browse-visitor-card-slot")).toBeTruthy();
+  });
+
+  it("PREEXIST-FIX-1: settling signed out clears the hint; a dismissed card holds no slot either", async () => {
+    window.localStorage.setItem(BROWSE_SIGNED_IN_HINT_KEY, "1");
+    mount();
+    await screen.findByTestId("browse-visitor-card");
+    expect(window.localStorage.getItem(BROWSE_SIGNED_IN_HINT_KEY)).toBeNull();
+    fireEvent.click(screen.getByTestId("browse-visitor-card-dismiss"));
+    cleanup();
+    auth.state = { user: null, loading: true };
+    const { container } = mount();
+    expect(container.innerHTML).toBe("");
   });
 
   it("dismiss hides it for the session and a re-mount stays hidden", async () => {

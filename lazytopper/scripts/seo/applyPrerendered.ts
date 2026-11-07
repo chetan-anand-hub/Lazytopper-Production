@@ -456,6 +456,12 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
  * AFTER the prerendered body had painted unstyled. A module may name extra SHARED chunk CSS prefixes (the CBQ band,
  * the pack tiles, the founder badge ...) that its first paint needs; KaTeX stays out for the reason above.
  */
+/**
+ * PREEXIST-FIX-1 (7 Nov 2026): /pricing at 1280 px. The hero's testimonial video (desktop: beside the Board Pass card) painted
+ * WITHOUT its 16:9 frame rule until the lazy chunk landed, so its column was ~745 px tall, then 243 px; on a hash deep link
+ * (#packs / #cbq) the anchor scroll had already happened, so the whole packs block jumped ~400 px (CLS 0.28). Its own CSS
+ * (~1.3 KB) + TestimonialVideo (~1.2 KB) are inlined; the larger shared PacksShop CSS is not needed for that first screen.
+ */
 const OWN_ONLY: readonly string[] = [];
 export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   CheckYourAnswerPage: OWN_ONLY,
@@ -466,6 +472,7 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   PacksPage: ["FounderBadge", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "TestimonialVideo"],
   CbqHubPage: ["PackSampleLink", "CbqBand", "CbqChapterPage", "faqContent"],
   CbqChapterPage: ["CbqChapterPage"],
+  PricingPage: ["TestimonialVideo"],
 };
 export const INLINE_ROUTE_CSS_MODULES: readonly string[] = Object.keys(INLINE_ROUTE_CSS);
 

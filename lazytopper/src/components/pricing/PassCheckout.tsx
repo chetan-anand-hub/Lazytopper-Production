@@ -43,7 +43,13 @@ import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Pay is tapped. */
+/** PREEXIST-FIX-1: the same specifier as the lazy() below (one chunk), for the ?buy= warm-up. */
+const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
+// PREEXIST-FIX-1: a direct landing on /pricing?buy=board_pass warms the sheet's chunk as soon as this module is evaluated (chunk only).
+if (typeof window !== "undefined" && isCheckoutWhoClientEnabled() && readBoardPassBuy(window.location.search)) {
+  void loadCheckoutSheet().catch(() => undefined);
+}
 
 /**
  * CHECKOUT-WHO-1 - set ONLY while VITE_CHECKOUT_WHO_ENABLED is on. Signed out, the Board Pass Pay (and the ?buy= one-tap start) opens
@@ -630,6 +636,14 @@ function PassCheckoutConnected() {
   // CHECKOUT-WHO-1 - "Who will use it?" (dark unless VITE_CHECKOUT_WHO_ENABLED).
   const whoEnabled = isCheckoutWhoClientEnabled();
   const buyHandled = useRef(false);
+  // PREEXIST-FIX-1 (7 Nov 2026): on /pricing?buy=board_pass signed out, the sheet's lazy chunk was fetched only after auth and the
+  // param strip, so the clean /pricing showed first. Warm it at mount (chunk fetch only; no order, no checkout call).
+  const sheetPreloaded = useRef(false);
+  useEffect(() => {
+    if (sheetPreloaded.current || !whoEnabled || !readBoardPassBuy(location.search)) return;
+    sheetPreloaded.current = true;
+    void loadCheckoutSheet().catch(() => undefined);
+  }, [whoEnabled, location.search]);
   useEffect(() => {
     if (buyHandled.current || authLoading || !readBoardPassBuy(location.search)) return;
     if (!user || user.isLocalSession) {

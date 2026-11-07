@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { AuthUser } from "../../context/AuthContext";
 import { PendingPapersList } from "./PendingPapersList";
 import { PENDING_CSS, papersWaitingLabel } from "./pendingPapersUi";
@@ -10,7 +11,9 @@ import { trackPendingShown, usePendingPapers } from "./usePendingPapers";
  * opens a small popover listing them (the same list as the Home strip, through the same
  * `usePendingPapers` read — no extra network read).
  *
- *   • Signed out / local session: the bell renders as before — inert, no badge, no popover.
+ *   • Signed out / local session: no badge, no popover. PREEXIST-FIX-1 (7 Nov 2026): a tap used to do nothing (a dead
+ *     button on desktop); it now opens sign-in and comes back here. The markup is unchanged, so the prerendered desktop
+ *     header (and island pages, which upgrade-and-replay a tap on it) need no re-capture.
  *   • Signed in, nothing waiting: no badge; the popover says so honestly.
  *   • Accessible: a real button with aria-expanded / aria-controls; Escape, an outside click or
  *     focus leaving the bell + popover closes it, and Escape returns focus to the bell.
@@ -23,6 +26,8 @@ export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "is
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const popId = useId();
+  const navigate = useNavigate();
+  const location = useLocation();
   const count = papers.length;
 
   const close = useCallback((returnFocus: boolean) => {
@@ -76,6 +81,9 @@ export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "is
         {...(uid ? { "aria-expanded": open, "aria-controls": popId, "aria-haspopup": "dialog" as const } : {})}
         onClick={() => {
           if (uid) setOpen((v) => !v);
+          // PREEXIST-FIX-1: signed out, the bell is the sign-in door (back to this page afterwards). Same URL shape as
+          // withSigninRedirect; the path is this page's own, so it is always internal.
+          else navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search + location.hash)}`);
         }}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
