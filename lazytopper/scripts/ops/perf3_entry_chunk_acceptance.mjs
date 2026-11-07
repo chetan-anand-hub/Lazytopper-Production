@@ -60,6 +60,11 @@ export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
 export const MEASURED_ENTRY_GZ = 249110;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
+/** SPEED-ISLANDS-1 (tighten only): the no-React island content pages load instead of the entry.
+ *  Measured 8.47 kB gz at its first build (7 Nov 2026); the lane's target is <= 15 KB gz, enforced
+ *  with the entry budget (CI only, for the same reason). */
+export const ISLAND_GZ_BUDGET = 15 * 1024;
+
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */
 async function resolveDist(argv) {
   const override = argv.find((a) => a.startsWith("--dist=") || a.startsWith("--out="));
@@ -106,6 +111,26 @@ export function modulepreloadsOf(dist) {
   return [...out];
 }
 
+/** SPEED-ISLANDS-1 (tighten only): every `<script type="module" src="/assets/...">` in EVERY built HTML file. An
+ *  island page's module script is not the entry, but it is fetched eagerly on that page, so it is in the eager set. */
+export function moduleScriptsOf(dist) {
+  const out = new Set();
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { if (e.name !== "assets") walk(p); }
+      else if (e.name.endsWith(".html")) {
+        for (const tag of fs.readFileSync(p, "utf8").match(/<script\b[^>]*\btype="module"[^>]*>/g) ?? []) {
+          const src = /\bsrc="\/?(assets\/[^"]+\.js)"/.exec(tag);
+          if (src) out.add(src[1]);
+        }
+      }
+    }
+  };
+  walk(dist);
+  return [...out];
+}
+
 /** The chunks a built chunk imports STATICALLY (`import … from "./x.js"`, `import "./x.js"`,
  *  `export … from "./x.js"`). A dynamic `import("./x.js")` is not matched. */
 export function staticImportsOf(src) {
@@ -122,7 +147,7 @@ export function staticImportsOf(src) {
 export function eagerSetOf(dist) {
   const entryRel = entryChunkOf(dist);
   const seen = new Set();
-  const queue = [entryRel, ...modulepreloadsOf(dist)];
+  const queue = [entryRel, ...modulepreloadsOf(dist), ...moduleScriptsOf(dist)];
   while (queue.length) {
     const rel = queue.shift();
     if (seen.has(rel)) continue;
@@ -153,6 +178,10 @@ export function checkBuild(dist, { budget = false } = {}) {
     }
   }
   if (budget && gz > ENTRY_GZ_BUDGET) failures.push(`entry ${entryRel} is ${gz} B gz, over the budget ${ENTRY_GZ_BUDGET} B`);
+  for (const rel of all.filter((r) => /^assets\/contentIsland-[^/]+\.js$/.test(r))) {
+    const islandGz = zlib.gzipSync(text.get(rel)).length;
+    if (budget && islandGz > ISLAND_GZ_BUDGET) failures.push(`island ${rel} is ${islandGz} B gz, over the budget ${ISLAND_GZ_BUDGET} B`);
+  }
   return { entryRel, eager, raw: Buffer.byteLength(entry), gz, budget, failures };
 }
 
@@ -184,12 +213,16 @@ export function selfTest() {
       files: { "index-AAAA.js": `import{h as a}from"./vendor-CCCC.js";console.log(a);`, "vendor-CCCC.js": sdk }, html: html() },
     { name: "SDK reached TRANSITIVELY (entry → a → b) goes RED", red: true,
       files: { "index-AAAA.js": `import"./a-DDDD.js";`, "a-DDDD.js": `export*from"./b-EEEE.js";`, "b-EEEE.js": sdk }, html: html() },
+    { name: "SDK reached from an ISLAND page's module script goes RED", red: true,
+      files: { "index-AAAA.js": `const l=()=>import("./sdk-BBBB.js");export{l};`, "island-CCCC.js": `import"./sdk-BBBB.js";`, "sdk-BBBB.js": sdk },
+      html: html(), extraHtml: { "notes.html": `<html><head><script type="module" crossorigin src="/assets/island-CCCC.js" data-lt-island></script></head></html>` } },
     { name: "SDK in a MODULEPRELOADED chunk goes RED", red: true,
       files: { "index-AAAA.js": `const l=()=>import("./sdk-BBBB.js");export{l};`, "sdk-BBBB.js": sdk },
       html: html(`<link rel="modulepreload" crossorigin href="/assets/sdk-BBBB.js">`) },
   ];
   for (const c of cases) {
     const dir = mk(c.files, c.html);
+    for (const [name, body] of Object.entries(c.extraHtml ?? {})) fs.writeFileSync(path.join(dir, name), body);
     try {
       const r = checkBuild(dir);
       const red = r.failures.some((f) => f.includes("contains the Firestore SDK marker"));

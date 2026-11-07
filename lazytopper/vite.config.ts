@@ -20,6 +20,16 @@ export default defineConfig({
       ? path.resolve(__dirname, "../artifacts/lazytopper-app/dist/public")
       : "dist",
     emptyOutDir: true,
+    // SPEED-ISLANDS-1 (owner ruling 7 Nov 2026, speed only): a SECOND entry, the no-React island that
+    // scripts/seo/applyPrerendered.ts serves on content pages instead of the app entry. It imports
+    // nothing from the app, so the app's own entry chunk is unchanged. `index` is the app, under the
+    // name it always had (index-<hash>.js / .css: the build steps and guards key on that name).
+    rollupOptions: {
+      input: {
+        index: path.resolve(__dirname, "index.html"),
+        contentIsland: path.resolve(__dirname, "src/islands/contentIsland.ts"),
+      },
+    },
   },
   server: {
     host: true,
