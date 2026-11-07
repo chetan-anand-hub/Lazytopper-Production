@@ -15,6 +15,41 @@ export function gstStateFieldOn(): boolean {
   }
 }
 
+/*
+ * GST-INVOICE-2a (review 2a) - the Pay button, captured IN THE CLICK HANDLER. A capture-phase `click` listener records
+ * the button the buyer pressed, before any surface handler runs (and so before a surface disables Pay while busy, which
+ * moves focus off it). The "Your state" dialog returns focus to it on close. Installed ONLY with VITE_GST_STATE_FIELD on:
+ * with the flag off nothing is added to the page.
+ */
+const PRESS_MAX_AGE_MS = 15000;
+let lastPress: { el: HTMLElement; at: number } | null = null;
+/** An elapsed-time reading (monotonic; not the calendar clock - only "how long ago was Pay pressed"). */
+const tick = (): number => (typeof performance !== "undefined" && typeof performance.now === "function" ? performance.now() : 0);
+function recordPress(e: Event): void {
+  const t = e.target;
+  if (typeof Element === "undefined" || !(t instanceof Element)) return;
+  const hit = t.closest("button, [role='button'], a[href], input[type='submit'], input[type='button']");
+  // A press INSIDE the dialog (Continue / Cancel / Change toggles) is not an opener.
+  if (hit instanceof HTMLElement && !hit.closest(".lt-gst")) lastPress = { el: hit, at: tick() };
+}
+let pressListening = false;
+/** Arms the click capture (idempotent). Called at import when the flag is on; exported for tests. */
+export function armPressCapture(): void {
+  if (pressListening || typeof document === "undefined") return;
+  pressListening = true;
+  document.addEventListener("click", recordPress, true);
+}
+/** The button pressed within the last 15 s that is still on the page, or null. */
+export function recentPress(): HTMLElement | null {
+  if (!lastPress || tick() - lastPress.at > PRESS_MAX_AGE_MS || !lastPress.el.isConnected) return null;
+  return lastPress.el;
+}
+/** Test seam. */
+export function resetPressForTests(): void {
+  lastPress = null;
+}
+if (gstStateFieldOn()) armPressCapture();
+
 /** `{ gstBuyer }` for an order body ({} when off; a lazy `authHeaders` is then never called). Throws the dialog's cancel error when the buyer cancels. */
 export async function gstBuyerOrderFields(
   authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,

@@ -10,14 +10,19 @@
  *   - a SIGNED-IN student whose state the server already has (from their own earlier order) -> that state, no dialog
  *     ("asked once and remembered");
  *   - otherwise a small dialog: the state select, PRE-FILLED from the IP region when the server can tell (else from this
- *     device's last choice, else unselected - there is NO Karnataka default), an optional PIN, and a "Buying for a school
- *     or coaching centre?" link that opens GSTIN + legal name + address. The common case is one tap (Continue).
+ *     device's last choice for the SAME account, else unselected - there is NO Karnataka default), the PIN code, and a
+ *     "Buying for a school or coaching centre?" link that opens GSTIN + legal name + address. The common case is one tap.
  *   Cancel -> GstBuyerCancelledError, which every buy function treats exactly like closing Razorpay ("dismissed").
- * ★ The state is REQUIRED before Pay; the PIN is optional (6 digits). A GSTIN must pass its checksum and its first two
- *   digits must be the chosen state's code. The server re-checks all of it and never refuses an order over it.
+ * ★ GST-INVOICE-2a (owner ruling 7 Nov 2026): the state AND the PIN are REQUIRED before Pay. The PIN is checked for FORMAT
+ *   only (6 digits, first 1-9), never against the state. A GSTIN must pass its checksum and its first two
+ *   digits must be the chosen state's code. The server re-checks all of it and never refuses an order over it (an order
+ *   without a valid state + PIN is paid as normal and HELD, not invoiced).
+ * ★ GST-INVOICE-2a (review 2b): a remembered or changed state / PIN belongs to the signed-in account that chose it. It is
+ *   never offered to, or used for, a different account signing in on the same page or device.
  * ★ Plain DOM, like priceConfirm.ts: it works over any sheet on any surface, at 360 px and 1280 px.
  */
 import "./gstBuyer.css";
+import { recentPress } from "./gstBuyerOrder";
 
 export interface GstBusiness {
   gstin: string;
@@ -100,12 +105,15 @@ export function isValidGstin(raw: string): boolean {
   }
   return GSTIN_CHARS[(36 - (sum % 36)) % 36] === g[14];
 }
-export const isValidPin = (pin: string): boolean => /^[1-9][0-9]{5}$/.test(pin);
+/** GST-INVOICE-2a: FORMAT only - 6 digits, the first 1-9 (owner ruling 7 Nov 2026: payment is never blocked by a guess about the state). */
+export const isValidPin = (pin: unknown): pin is string => typeof pin === "string" && /^[1-9][0-9]{5}$/.test(pin);
+
 
 /** PURE. The error to show, or null when the form can be submitted. */
 export function gstFormError(input: { stateCode: string; pin: string; business: GstBusiness | null }): string | null {
   if (!isGstStateCode(input.stateCode)) return "Choose your state to continue.";
-  if (input.pin && !isValidPin(input.pin)) return "PIN code must be 6 digits.";
+  if (!input.pin) return "Enter your 6-digit PIN code.";
+  if (!isValidPin(input.pin)) return "PIN code must be 6 digits.";
   const b = input.business;
   if (b) {
     const g = normaliseGstin(b.gstin);
@@ -119,21 +127,41 @@ export function gstFormError(input: { stateCode: string; pin: string; business: 
 
 /* ── This device's last choice (a per-viewer convenience; the server keeps the signed-in record) ─────────── */
 
-/** localStorage key: `{ stateCode, pin? }` - the state and PIN this device last confirmed. Never a GSTIN. Registered in studentDataMap.ts. */
+/**
+ * localStorage key: `{ owner, stateCode, pin? }` - the state and PIN this device last confirmed, and WHO confirmed it
+ * (`owner`: "guest" when signed out, else a short one-way tag of the account - never the uid itself). Never a GSTIN.
+ * Registered in studentDataMap.ts.
+ */
 export const GST_BUYER_KEY = "lazytopper.gstBuyerState";
 
-function readLocal(): { stateCode: string; pin?: string } | null {
+/** "guest" for a signed-out buyer. */
+export const GUEST_OWNER = "guest";
+/** PURE. A short one-way tag of a uid (FNV-1a, 32 bit): enough to tell two accounts apart on one device; null = unknown. */
+export function ownerTag(uid: string | null | undefined): string | null {
+  if (typeof uid !== "string" || !uid) return null;
+  let h = 0x811c9dc5;
+  for (let i = 0; i < uid.length; i += 1) {
+    h ^= uid.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return `a${h.toString(36)}`;
+}
+
+/** This device's last choice - only when the SAME owner made it (an entry from before GST-INVOICE-2a has none: ignored). */
+function readLocal(owner: string | null): { stateCode: string; pin?: string } | null {
+  if (!owner) return null;
   try {
-    const v = JSON.parse(localStorage.getItem(GST_BUYER_KEY) || "null") as { stateCode?: unknown; pin?: unknown } | null;
-    if (!v || !isGstStateCode(v.stateCode)) return null;
-    return { stateCode: v.stateCode, ...(typeof v.pin === "string" && isValidPin(v.pin) ? { pin: v.pin } : {}) };
+    const v = JSON.parse(localStorage.getItem(GST_BUYER_KEY) || "null") as { owner?: unknown; stateCode?: unknown; pin?: unknown } | null;
+    if (!v || v.owner !== owner || !isGstStateCode(v.stateCode)) return null;
+    return { stateCode: v.stateCode, ...(isValidPin(v.pin) ? { pin: v.pin } : {}) };
   } catch {
     return null;
   }
 }
-function writeLocal(b: GstBuyer): void {
+function writeLocal(b: GstBuyer, owner: string | null): void {
+  if (!owner) return;
   try {
-    localStorage.setItem(GST_BUYER_KEY, JSON.stringify({ stateCode: b.stateCode, ...(b.pin ? { pin: b.pin } : {}) }));
+    localStorage.setItem(GST_BUYER_KEY, JSON.stringify({ owner, stateCode: b.stateCode, ...(b.pin ? { pin: b.pin } : {}) }));
   } catch {
     /* a convenience only */
   }
@@ -153,7 +181,7 @@ function cleanBuyer(v: unknown): GstBuyer | null {
   const o = v as { stateCode?: unknown; pin?: unknown; business?: { gstin?: unknown; legalName?: unknown; address?: unknown } } | null;
   if (!o || !isGstStateCode(o.stateCode)) return null;
   const out: GstBuyer = { stateCode: o.stateCode };
-  if (typeof o.pin === "string" && isValidPin(o.pin)) out.pin = o.pin;
+  if (isValidPin(o.pin)) out.pin = o.pin;
   const b = o.business;
   if (b && typeof b.gstin === "string" && typeof b.legalName === "string" && typeof b.address === "string" && isValidGstin(b.gstin)) {
     out.business = { gstin: normaliseGstin(b.gstin), legalName: b.legalName, address: b.address };
@@ -201,6 +229,38 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, attrs: R
   return node;
 }
 
+const FOCUS_RETRY_MS = 50;
+const FOCUS_WAIT_MS = 3000;
+/**
+ * Focus back to the opener. On Cancel the surface re-enables Pay a render later, so wait (up to 3 s) for it to be
+ * enabled. On Continue the order goes on (Razorpay opens next): focus once, now, and never later.
+ */
+function returnFocus(opener: HTMLElement, wait: boolean): void {
+  const ready = () => opener.isConnected && !(opener as HTMLButtonElement).disabled && opener.getAttribute("aria-disabled") !== "true";
+  const tryFocus = () => {
+    try {
+      opener.focus();
+    } catch {
+      /* nothing to return to */
+    }
+  };
+  if (ready() || !wait) {
+    if (opener.isConnected) tryFocus();
+    return;
+  }
+  let tries = Math.ceil(FOCUS_WAIT_MS / FOCUS_RETRY_MS);
+  const tick = () => {
+    if (ready()) {
+      // Only if nothing else took focus meanwhile (the buyer may already be elsewhere).
+      if (!document.activeElement || document.activeElement === document.body) tryFocus();
+      return;
+    }
+    tries -= 1;
+    if (tries > 0) setTimeout(tick, FOCUS_RETRY_MS);
+  };
+  setTimeout(tick, FOCUS_RETRY_MS);
+}
+
 /** Resolves the buyer's details, or null on Cancel / Escape / a tap outside. */
 export function askGstBuyer(prefill: GstBuyer | null): Promise<GstBuyer | null> {
   return new Promise((resolve) => {
@@ -229,8 +289,16 @@ export function askGstBuyer(prefill: GstBuyer | null): Promise<GstBuyer | null> 
     select.value = prefill && isGstStateCode(prefill.stateCode) ? prefill.stateCode : "";
 
     const pinLabel = el("label", "lt-gst__label", { for: "lt-gst-pin" });
-    pinLabel.textContent = "PIN code (optional)";
-    const pin = el("input", "lt-gst__input", { id: "lt-gst-pin", "data-testid": "gst-pin", inputmode: "numeric", autocomplete: "postal-code", maxlength: "6" });
+    pinLabel.textContent = "PIN code";
+    const pin = el("input", "lt-gst__input", {
+      id: "lt-gst-pin",
+      "data-testid": "gst-pin",
+      inputmode: "numeric",
+      autocomplete: "postal-code",
+      maxlength: "6",
+      required: "",
+      "aria-required": "true",
+    });
     pin.value = prefill?.pin || "";
 
     const bizToggle = el("button", "lt-gst__link", { type: "button", "aria-expanded": "false", "aria-controls": "lt-gst-biz", "data-testid": "gst-business-toggle" });
@@ -270,7 +338,10 @@ export function askGstBuyer(prefill: GstBuyer | null): Promise<GstBuyer | null> 
 
     // Review D3: a real modal. The page behind is `inert` (no focus, no clicks, hidden from screen readers), Tab stays
     // inside the panel, and focus goes back to whatever opened the dialog (the Pay button) when it closes.
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // GST-INVOICE-2a (review 2a): the opener is the button the buyer PRESSED (captured in the click handler, see
+    // gstBuyerOrder.ts), not whatever has focus now: a surface that disables Pay while busy has already moved focus off it.
+    const pressed = recentPress();
+    const opener = pressed || (document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null);
     const inerted: Array<[Element, string | null]> = [];
     const done = (v: GstBuyer | null) => {
       document.removeEventListener("keydown", onKey, true);
@@ -279,13 +350,7 @@ export function askGstBuyer(prefill: GstBuyer | null): Promise<GstBuyer | null> 
         if (prev === null) node.removeAttribute("inert");
         else node.setAttribute("inert", prev);
       }
-      if (opener && opener.isConnected) {
-        try {
-          opener.focus();
-        } catch {
-          /* nothing to return to */
-        }
-      }
+      if (opener) returnFocus(opener, v === null);
       resolve(v);
     };
     const focusables = (): HTMLElement[] =>
@@ -339,29 +404,43 @@ export function askGstBuyer(prefill: GstBuyer | null): Promise<GstBuyer | null> 
 
 /* ── The signed-in buyer's state, shared by the "State: X · Change" line and the order (review D4) ─────────── */
 
+/** The signed-in uid, or null (signed out / unknown). Never throws. */
+export async function currentAuthUid(): Promise<string | null> {
+  try {
+    const { authClient } = await import("./firebaseClient");
+    const uid = authClient?.currentUser?.uid;
+    return typeof uid === "string" && uid ? uid : null;
+  } catch {
+    return null;
+  }
+}
+
 let contextCache: { key: string; promise: Promise<GstCheckoutContext> } | null = null;
 /** One context request per signed-in identity per page: the line above Pay and the order both read it. */
 export function loadGstContext(
   headers: Record<string, string>,
   fetchContext: (h: Record<string, string>) => Promise<GstCheckoutContext> = fetchGstCheckoutContext,
+  owner: string | null = null,
 ): Promise<GstCheckoutContext> {
-  const key = headers.Authorization || "";
+  const key = `${owner || ""}|${headers.Authorization || ""}`;
   if (!contextCache || contextCache.key !== key) contextCache = { key, promise: fetchContext(headers) };
   return contextCache.promise;
 }
 
-let sessionChoice: GstBuyer | null = null;
-const listeners = new Set<(b: GstBuyer | null) => void>();
-/** The state the buyer picked with "Change" on this page; it wins over the remembered one for the next order. */
-export function setSessionGstBuyer(b: GstBuyer | null): void {
-  sessionChoice = b;
-  if (b) writeLocal(b);
-  for (const fn of listeners) fn(b);
+/** The state + PIN picked with "Change" on this page, and the account (owner tag) that picked it (review 2b). */
+let sessionChoice: { owner: string; buyer: GstBuyer } | null = null;
+const listeners = new Set<(b: GstBuyer | null, owner: string | null) => void>();
+/** The state the buyer picked with "Change" on this page; it wins over the remembered one for THIS account's next order. */
+export function setSessionGstBuyer(b: GstBuyer | null, owner: string | null): void {
+  sessionChoice = b && owner ? { owner, buyer: b } : null;
+  if (b) writeLocal(b, owner);
+  for (const fn of listeners) fn(sessionChoice ? sessionChoice.buyer : null, sessionChoice ? sessionChoice.owner : null);
 }
-export function getSessionGstBuyer(): GstBuyer | null {
-  return sessionChoice;
+/** The "Change" choice, ONLY for the account that made it; any other account (or a signed-out buyer) gets null. */
+export function getSessionGstBuyer(owner: string | null): GstBuyer | null {
+  return sessionChoice && owner && sessionChoice.owner === owner ? sessionChoice.buyer : null;
 }
-export function onSessionGstBuyer(fn: (b: GstBuyer | null) => void): () => void {
+export function onSessionGstBuyer(fn: (b: GstBuyer | null, owner: string | null) => void): () => void {
   listeners.add(fn);
   return () => listeners.delete(fn);
 }
@@ -372,11 +451,13 @@ export function resetGstBuyerSessionForTests(): void {
   listeners.clear();
 }
 
-/** PURE. "State: Karnataka" for the line above Pay, or null. */
+/** PURE. "State: Karnataka · PIN 560001" for the line above Pay, or null. */
 export function gstStateLineText(b: GstBuyer | null): string | null {
   const s = b ? GST_STATES.find((x) => x.code === b.stateCode) : null;
-  return s ? `State: ${s.name}${b?.business ? ` · GSTIN ${b.business.gstin}` : ""}` : null;
+  return s ? `State: ${s.name}${b?.pin ? ` · PIN ${b.pin}` : ""}${b?.business ? ` · GSTIN ${b.business.gstin}` : ""}` : null;
 }
+/** PURE. A buyer complete enough to pay with, no dialog: a state AND a 6-digit PIN. */
+export const isCompleteGstBuyer = (b: GstBuyer | null | undefined): b is GstBuyer => !!b && isGstStateCode(b.stateCode) && isValidPin(b.pin);
 
 /* ── The one entry point the order functions call ─────────────────────────────── */
 
@@ -384,8 +465,10 @@ export interface GstBuyerDeps {
   fetchContext: (headers: Record<string, string>) => Promise<GstCheckoutContext>;
   ask: (prefill: GstBuyer | null) => Promise<GstBuyer | null>;
   enabled: () => boolean;
+  /** The signed-in uid (review 2b). Optional for tests; the default reads Firebase Auth. */
+  currentUid?: () => Promise<string | null>;
 }
-const DEFAULT_DEPS: GstBuyerDeps = { fetchContext: fetchGstCheckoutContext, ask: askGstBuyer, enabled: isGstStateFieldOn };
+const DEFAULT_DEPS: GstBuyerDeps = { fetchContext: fetchGstCheckoutContext, ask: askGstBuyer, enabled: isGstStateFieldOn, currentUid: currentAuthUid };
 
 /**
  * The `gstBuyer` for an order body, or undefined when the field is off. Throws GstBuyerCancelledError on Cancel.
@@ -393,20 +476,27 @@ const DEFAULT_DEPS: GstBuyerDeps = { fetchContext: fetchGstCheckoutContext, ask:
  */
 export async function gstBuyerForOrder(authHeaders: Record<string, string> | null = null, deps: GstBuyerDeps = DEFAULT_DEPS): Promise<GstBuyer | undefined> {
   if (!deps.enabled()) return undefined;
-  // A state picked with "Change" on this page (signed in): used as is - the buyer just confirmed it.
-  if (authHeaders && sessionChoice) return sessionChoice;
-  const ctx = await (authHeaders ? loadGstContext(authHeaders, deps.fetchContext) : deps.fetchContext({}));
-  // Signed in with a remembered state: no dialog (no extra tap). The surface shows it above Pay as "State: X · Change"
-  // (components/gstInvoice/GstStateLine), so it is never applied silently.
-  if (authHeaders && ctx.remembered) {
-    writeLocal(ctx.remembered);
+  // Review 2b: WHO is buying. Signed out -> "guest"; signed in -> this account's tag; signed in but unknown -> null
+  // (nothing remembered on this device is used, and nothing is saved).
+  const owner = authHeaders ? ownerTag(deps.currentUid ? await deps.currentUid() : null) : GUEST_OWNER;
+  // A state + PIN picked with "Change" on this page by THIS account: used as is - the buyer just confirmed it.
+  const session = authHeaders ? getSessionGstBuyer(owner) : null;
+  if (isCompleteGstBuyer(session)) return session;
+  const ctx = await (authHeaders ? loadGstContext(authHeaders, deps.fetchContext, owner) : deps.fetchContext({}));
+  // Signed in with a remembered state AND PIN: no dialog (no extra tap). The surface shows it above Pay as
+  // "State: X · PIN n · Change" (components/gstInvoice/GstStateLine), so it is never applied silently. A remembered
+  // state with no valid PIN (an order from before the PIN was required) opens the dialog, pre-filled.
+  if (authHeaders && isCompleteGstBuyer(ctx.remembered)) {
+    writeLocal(ctx.remembered, owner);
     return ctx.remembered;
   }
-  const local = readLocal();
-  const prefill: GstBuyer | null = ctx.remembered || (ctx.ipStateCode ? { stateCode: ctx.ipStateCode, ...(local?.stateCode === ctx.ipStateCode && local.pin ? { pin: local.pin } : {}) } : local);
+  const local = readLocal(owner);
+  const prefill: GstBuyer | null =
+    (authHeaders ? session || ctx.remembered : null) ||
+    (ctx.ipStateCode ? { stateCode: ctx.ipStateCode, ...(local?.stateCode === ctx.ipStateCode && local.pin ? { pin: local.pin } : {}) } : local);
   const chosen = await deps.ask(prefill);
   if (!chosen) throw new GstBuyerCancelledError();
-  writeLocal(chosen);
+  writeLocal(chosen, owner);
   return chosen;
 }
 

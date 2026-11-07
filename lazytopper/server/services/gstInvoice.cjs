@@ -131,6 +131,11 @@ function normaliseGstin(raw) {
 /* ── The buyer's details on an order (collected at checkout) ─────────────────── */
 
 const PIN_PATTERN = /^[1-9][0-9]{5}$/;
+
+/** PURE. GST-INVOICE-2a: a PIN code is 6 digits, the first 1-9 (format only: owner ruling 7 Nov 2026 - never guessed against the state). */
+function isValidPin(pin) {
+  return typeof pin === 'string' && PIN_PATTERN.test(pin);
+}
 const cleanText = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max) : '');
 
 /**
@@ -138,6 +143,9 @@ const cleanText = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f
  * ★ NEVER REJECTS AN ORDER: a bad PIN is dropped, a bad business block (GSTIN checksum, or its state code not the chosen
  *   state, or no legal name / address) is dropped (the order is then a B2C sale in the chosen state) and reported in
  *   `dropped` for a counter. The client validates the same rules before Pay, so this only catches a forged / stale body.
+ * ★ GST-INVOICE-2a (owner ruling 7 Nov 2026): the PIN is REQUIRED for an invoice, checked for FORMAT only (6 digits,
+ *   first 1-9; never against the state). A missing or malformed PIN is dropped: the order is still made and paid, and
+ *   is HELD (`no_pin`) instead of invoiced.
  */
 function gstBuyerFromBody(raw) {
   const out = { fields: {}, dropped: [] };
@@ -149,10 +157,8 @@ function gstBuyerFromBody(raw) {
   }
   const buyer = { stateCode };
   const pin = typeof raw.pin === 'string' ? raw.pin.trim() : '';
-  if (pin) {
-    if (PIN_PATTERN.test(pin)) buyer.pin = pin;
-    else out.dropped.push('pin');
-  }
+  if (isValidPin(pin)) buyer.pin = pin;
+  else out.dropped.push(pin ? 'pin' : 'pin_missing');
   const b = raw.business;
   if (b && typeof b === 'object') {
     const gstin = normaliseGstin(b.gstin);
@@ -303,6 +309,8 @@ function heldReasonFor(order, config) {
   if (!Number.isFinite(createdMs) || createdMs < GST_EXCLUSIVE_FROM_MS) return 'pre_cutoff';
   if (!Number.isInteger(order.baseInr) || !Number.isInteger(order.gstInr) || !(order.gstInr > 0)) return 'pre_cutoff';
   if (!order.gstBuyer || !isGstStateCode(order.gstBuyer.stateCode)) return 'no_state';
+  // GST-INVOICE-2a: state AND PIN are both required (owner ruling 7 Nov 2026).
+  if (!isValidPin(order.gstBuyer.pin)) return 'no_pin';
   const amounts = invoiceAmountsFor(order);
   if (amounts.held) return amounts.held;
   if (!config || !config.ready) return 'seller_config_missing';
@@ -501,6 +509,27 @@ function createGstInvoicer(deps = {}) {
   }
 
   /**
+   * `{ email, contact }` from Razorpay's payment record, only when it IS this order's payment; else null (no fetcher, no
+   * keys, an error, or another order's payment). Never throws.
+   */
+  async function fetchPaymentContact(orderId, paymentId) {
+    if (typeof deps.fetchPayment !== 'function') return null;
+    try {
+      const p = await deps.fetchPayment(paymentId);
+      if (!p || typeof p !== 'object' || p.id !== paymentId) return null;
+      // The order's doc id IS the Razorpay order id; a payment of any other order is never trusted.
+      if (typeof p.order_id === 'string' && p.order_id && p.order_id !== orderId) return null;
+      return {
+        email: typeof p.email === 'string' ? p.email : '',
+        contact: typeof p.contact === 'string' ? p.contact : '',
+      };
+    } catch {
+      emit('payments.gst_invoice.payment_fetch_failed');
+      return null;
+    }
+  }
+
+  /**
    * Admin "Issue now" (review D2): the SAME transaction as a capture, for a paid order that has no invoice (a held order
    * whose cause is now fixed, or one whose issue threw). Idempotent per payment id: an order that already has an invoice
    * returns it. Resolves `{ issued | existing | held | skipped | error }`; never throws.
@@ -514,7 +543,16 @@ function createGstInvoicer(deps = {}) {
       if (!o) return { skipped: 'unknown_order' };
       if (o.gstInvoice) return { issued: false, existing: o.gstInvoice.number };
       if (typeof o.paymentId !== 'string' || !o.paymentId) return { skipped: 'unpaid' };
-      return await run({ orderId, paymentId: o.paymentId, payment: null });
+      // GST-INVOICE-2a (review 2c): the payer's contact as Razorpay recorded it on THIS payment, so the invoice names the
+      // buyer exactly as a capture-time invoice would. A failed / mismatched fetch only means no contact on the invoice.
+      const payment = await fetchPaymentContact(orderId, o.paymentId);
+      // Review F1: no payment record -> NOT issued (no number consumed), so the admin can simply retry. An invoice issued
+      // without the payer's contact could never be emailed, and a retry would only return that same invoice.
+      if (!payment) {
+        emit('payments.gst_invoice.issue_now_fetch_failed');
+        return { skipped: 'payment_fetch_failed' };
+      }
+      return await run({ orderId, paymentId: o.paymentId, payment });
     } catch (e) {
       emit('payments.gst_invoice.error');
       console.error('[gst-invoice] issue-now failed:', e && e.message);
@@ -538,6 +576,27 @@ function createGstInvoicer(deps = {}) {
   }
 
   return { issueForPayment, issueNow, whenIdle, config };
+}
+
+/**
+ * GST-INVOICE-2a - `fetchPayment(paymentId)` for "Issue now": Razorpay's payment record (GET /v1/payments/{id}) with the
+ * server's own keys, or null (no keys, an error, a timeout). Admin-only path; never on a payment response.
+ */
+function createRazorpayPaymentFetcher({ env = process.env, fetchImpl = typeof fetch === 'function' ? fetch : null, timeoutMs = 15000 } = {}) {
+  return async function fetchPayment(paymentId) {
+    const keyId = String((env && env.RAZORPAY_KEY_ID) || '').trim();
+    const keySecret = String((env && env.RAZORPAY_KEY_SECRET) || '').trim();
+    if (!keyId || !keySecret || typeof fetchImpl !== 'function' || !/^[A-Za-z0-9_]{1,64}$/.test(String(paymentId || ''))) return null;
+    const init = { method: 'GET', headers: { Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString('base64')}` } };
+    if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') init.signal = AbortSignal.timeout(timeoutMs);
+    const res = await fetchImpl(`https://api.razorpay.com/v1/payments/${paymentId}`, init);
+    if (!res || !res.ok) return null;
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
 }
 
 /**
@@ -596,6 +655,8 @@ module.exports = {
   isValidGstin,
   normaliseGstin,
   gstBuyerFromBody,
+  isValidPin,
+  createRazorpayPaymentFetcher,
   resolveInvoiceConfig,
   financialYearFor,
   invoiceNumberFor,

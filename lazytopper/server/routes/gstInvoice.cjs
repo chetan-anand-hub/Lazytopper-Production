@@ -8,7 +8,9 @@
  *   GET /api/gst/invoice?t=…                 SIGNED TOKEN   the PDF, for a guest purchase (the receipt email's link)
  *   GET /api/admin/gst/status?from=&to=      ADMIN          seller-config warning, counters, held orders
  *   GET /api/admin/gst/export?section=&from=&to=   ADMIN    GSTR-1 CSV (invoices | b2cs | b2b | hsn | held)
- *   POST /api/admin/gst/issue { orderId }    ADMIN          "Issue now": the SAME issuing transaction (idempotent)
+ *   POST /api/admin/gst/issue { orderId }    ADMIN          "Issue now": the SAME issuing transaction (idempotent);
+ *                                                          GST-INVOICE-2a: a NEW invoice re-sends the receipt with its
+ *                                                          link (queued to the IST window / one-a-day rule if needed)
  *
  * ★★ OWNERSHIP (review D1): an invoice - and the state / GSTIN typed for it - belongs to the account that PAID
  *   (services/gstInvoice.cjs invoiceOwnedBy), never to the child of a parent-paid order or the recipient of someone
@@ -94,7 +96,7 @@ function rememberedFrom(orders, uid) {
 }
 
 function createGstInvoiceRoutes(deps = {}) {
-  const { sendJson, sendJsonWithHeaders, verifiedCaller, adminFirestore, requireAdmin, invoicer, readJson, env = process.env, now = () => Date.now() } = deps;
+  const { sendJson, sendJsonWithHeaders, verifiedCaller, adminFirestore, requireAdmin, invoicer, invoiceMailer, readJson, env = process.env, now = () => Date.now() } = deps;
   const renderPdf = deps.renderPdf || ((inv) => require('../services/gstInvoicePdf.cjs').renderInvoicePdf(inv));
   const pdfHits = new Map();
 
@@ -350,7 +352,12 @@ function createGstInvoiceRoutes(deps = {}) {
     const orderId = body && typeof body.orderId === 'string' ? body.orderId.trim() : '';
     if (!ID_PATTERN.test(orderId)) return sendJson(res, 400, { ok: false, error: 'orderId required' });
     const result = await invoicer.issueNow({ orderId });
-    return sendJsonWithHeaders(res, result && result.error ? 500 : 200, { ok: !(result && result.error), result }, { 'Cache-Control': 'no-store' });
+    // GST-INVOICE-2a (review 2c): a newly issued invoice is emailed to the payer (the receipt again, with the link).
+    let email;
+    if (result && result.issued && invoiceMailer && typeof invoiceMailer.queueInvoiceEmail === 'function') {
+      email = await invoiceMailer.queueInvoiceEmail({ orderId });
+    }
+    return sendJsonWithHeaders(res, result && result.error ? 500 : 200, { ok: !(result && result.error), result, ...(email ? { email } : {}) }, { 'Cache-Control': 'no-store' });
   }
 
   return { handleCheckoutContext, handleMyInvoices, handleInvoicePdf, handleAdminStatus, handleAdminExport, handleAdminIssue };

@@ -38,8 +38,8 @@ function invoiceTextBlocks(inv) {
     ...(b.phone ? [`Phone: ${b.phone}`] : []),
     ...(b.gstin ? [`GSTIN: ${b.gstin}`] : []),
     ...(b.address ? [`Address: ${b.address}`] : []),
-    `State: ${b.stateName} (code ${b.stateCode})`,
-    ...(b.pin ? [`PIN: ${b.pin}`] : []),
+    // GST-INVOICE-2a (owner ruling 7 Nov 2026): "State (code), PIN".
+    `State: ${b.stateName} (code ${b.stateCode})${b.pin ? `, PIN ${b.pin}` : ''}`,
   ];
   const taxRows = intra
     ? [
