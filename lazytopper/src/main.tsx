@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App, { extractPrerenderedRoute } from "./App";
+import App, { extractPrerenderedRoute, preloadFirstRoute } from "./App";
 import { deferredStylesheetReady } from "./lib/deferredStylesheet";
 import "./styles.css";
 import { AuthProvider } from "./context/AuthContext";
@@ -37,6 +37,19 @@ const prerenderedRoute = extractPrerenderedRoute(
   window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/",
 );
 
+// SPEED-SITE-2a — fetch the code-split components the FIRST route renders straight away (Login on /login, the
+// desktop shell on a desktop shell route…) BEFORE the first render, so that render is the same one the old static
+// imports produced: no "Loading…", no flash. Whatever the server put in #root stays on screen while this waits
+// (it is only cleared by the first commit). Most first loads — every mobile public page — wait for nothing.
+// Page views (RouteAnalytics) and the visit-source capture run in that first render's effects, in the same order
+// as before, from the same untouched landing URL. Started HERE, so it runs in parallel with the 2f stylesheet wait
+// below; preloadFirstRoute never rejects and gives up waiting after 4 s (the lazy path then takes over).
+const firstPath = window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/";
+const firstIsDesktop = typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1024px)").matches;
+const firstRouteReady = preloadFirstRoute(firstPath, firstIsDesktop);
+
+// SPEED-SITE-2a: the 2f block below is unchanged, byte for byte; it now also runs after firstRouteReady.
+void firstRouteReady.then(() => {
 // SPEED-SITE-2f — a prerendered page loads the entry stylesheet WITHOUT blocking its first paint (its critical
 // rules are inlined; scripts/seo/applyPrerendered.ts withCriticalEntryCss). React must not render anything the
 // critical subset does not cover before that sheet applies, so the first render waits for it — immediately if it
@@ -64,3 +77,4 @@ void deferredStylesheetReady().then(() => ReactDOM.createRoot(rootElement).rende
     </BrowserRouter>
   </React.StrictMode>,
 ));
+});

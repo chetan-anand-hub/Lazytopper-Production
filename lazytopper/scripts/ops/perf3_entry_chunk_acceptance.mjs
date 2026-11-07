@@ -60,8 +60,10 @@ export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
  *  2026-11-07 SPEED-CHUNKS-1: TIGHTENED 249,110 -> 155,116 (budget 274,021 -> 170,627). vite.config.ts manualChunks moved
  *  React (+ react-router, scheduler) and Firebase App/Auth out of the entry FILE into vendor-react-* / vendor-firebase-*,
  *  which the entry imports statically. The code still loads eagerly (entry closure 273,816 B gz at level 9 vs 272,915
- *  before); only the entry FILE shrank. Leaving the old figure would have left ~119 KB gz of silent headroom here. */
-export const MEASURED_ENTRY_GZ = 155116;
+ *  before); only the entry FILE shrank. Leaving the old figure would have left ~119 KB gz of silent headroom here.
+ *  2026-11-07 SPEED-SITE-2a (rebuilt on 2a9d33b1): TIGHTENED 155,116 -> 96,850 (budget 170,627 -> 106,535). Login,
+ *  SignUpPage, Welcome and DesktopShell left the entry (preloadable lazies; App.tsx firstRouteChunks). */
+export const MEASURED_ENTRY_GZ = 96850;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */

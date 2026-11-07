@@ -1,9 +1,6 @@
 import type React from "react";
 import { Routes, Route, Link, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
-import Login from "./pages/Login";
 import { isSafeInternalPath } from "./utils/safeInternalPath";
-import SignUpPage from "./pages/SignUpPage";
-import Welcome from "./pages/Welcome";
 
 // Import the new Vibe toggle and command palette components.
 
@@ -25,7 +22,19 @@ import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary"
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
 import { useIsDesktop } from "./hooks/useIsDesktop";
-import { DesktopShell } from "./components/desktop/DesktopShell";
+// SPEED-SITE-2a — Login, SignUpPage (it imports Login's AuthDoor), Welcome and DesktopShell are no longer static
+// imports: together ~317 KB of the 866 KB entry chunk, downloaded and run before first paint on pages that use
+// none of them. They are preloadable lazies (lib/preloadableLazy): main.tsx awaits the ones the FIRST route
+// needs (`preloadFirstRoute`) before React's first render, so that render is exactly the old one.
+import { preloadableLazy } from "./lib/preloadableLazy";
+import type { DesktopShell as DesktopShellType } from "./components/desktop/DesktopShell";
+const Login = preloadableLazy(() => import("./pages/Login"), "Login");
+const SignUpPage = preloadableLazy(() => import("./pages/SignUpPage"), "SignUpPage");
+const Welcome = preloadableLazy(() => import("./pages/Welcome"), "Welcome");
+const DesktopShell = preloadableLazy<React.ComponentProps<typeof DesktopShellType>>(
+  () => import("./components/desktop/DesktopShell").then((m) => ({ default: m.DesktopShell })),
+  "DesktopShell",
+);
 import MobileShell from "./components/mobile/MobileShell";
 // NAV-1 — "← <parent>" + Home on every non-Home page (one route→parent map in lib/nav/routeParents.ts).
 import RouteNav from "./components/nav/RouteNav";
@@ -742,6 +751,44 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   return false;
 }
 
+/**
+ * SPEED-SITE-2a — the code-split components the FIRST route renders right away, fetched before React's first
+ * render (main.tsx awaits this). The prerendered HTML, if any, stays on screen meanwhile. Never rejects; gives up
+ * waiting after `timeoutMs` (the lazy path then takes over under the route's Suspense).
+ *   - /login, /sign-up (and below): Login / SignUpPage — rendered outside any prerendered body.
+ *   - "/" and /welcome: Welcome (the landing RootEntry renders while auth loads). The prerendered "/" does NOT
+ *     modulepreload it (writeStaticHeads ROUTE_CHUNK_MODULES): that starved the landing's LCP image on a phone.
+ *   - a desktop-width shell route: DesktopShell, which wraps the route OUTSIDE its boundary. "/" included: it
+ *     shell-wraps only for a signed-in student, known only after auth, and if the chunk were merely prefetched an
+ *     auth that resolved first would suspend the whole page into the shell's `fallback={null}` (a blank frame on a
+ *     returning student's desktop Home). The prerendered "/" stays on screen while this waits.
+ */
+export function firstRouteChunks(pathname: string, isDesktop: boolean): {
+  await: Array<{ preload: () => Promise<void> }>;
+  prefetch: Array<{ preload: () => Promise<void> }>;
+} {
+  const wait: Array<{ preload: () => Promise<void> }> = [];
+  const prefetch: Array<{ preload: () => Promise<void> }> = [];
+  if (pathname === "/login" || pathname.startsWith("/login/")) wait.push(Login);
+  if (pathname === "/sign-up" || pathname.startsWith("/sign-up/")) wait.push(SignUpPage);
+  if (pathname === "/welcome" || pathname === "/") wait.push(Welcome);
+  if (isDesktop && isDesktopShellRoute(pathname, true)) wait.push(DesktopShell);
+  return { await: wait, prefetch };
+}
+
+export function preloadFirstRoute(pathname: string, isDesktop: boolean, timeoutMs = 4000): Promise<void> {
+  const { await: wait, prefetch } = firstRouteChunks(pathname, isDesktop);
+  for (const c of prefetch) void c.preload();
+  if (wait.length === 0) return Promise.resolve();
+  return new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, timeoutMs);
+    void Promise.all(wait.map((c) => c.preload())).then(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
 export default function App({ prerenderedRoute = null }: { prerenderedRoute?: PrerenderedRoute | null } = {}) {
   // SEO-5 PR-2 (D3) — the first route's prerendered markup, until that route is ready.
   const [firstRoute, setFirstRoute] = useState<PrerenderedRoute | null>(prerenderedRoute);
@@ -754,7 +801,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
   const [headerStreak, setHeaderStreak] = useState(0);
   const navigate = useNavigate();
   const { mode, setMode } = useVibeMode();
-  const { user } = useAuth();
+  const { user, loading: authLoadingForPrefetch } = useAuth();
   const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
   const isDesktop = useIsDesktop();
 
@@ -763,6 +810,44 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
     if (isFocusTrackingEnabled()) startTracking();
     return () => stopTracking();
   }, []);
+
+  // SPEED-SITE-2a — WELL AFTER the page has loaded (load + 5 s, then idle), fetch the split-out chunks this visitor
+  // is likely to need next, so an in-app tap to /login or a desktop shell route renders as promptly as when they
+  // were in the entry chunk: Login for a signed-out visitor, DesktopShell at desktop width. The 5 s keeps these
+  // bytes out of the page's own load (the first 2a build prefetched at the first idle, and the Login chunk then
+  // competed with the Answer Checker's own chunks on a phone). No visitor downloads more than on trunk, where
+  // both were inside the entry chunk.
+  const signedOutForPrefetch = !authLoadingForPrefetch && !user;
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    let cancelled = false;
+    let idleId: number | null = null;
+    const run = () => {
+      if (cancelled) return;
+      if (signedOutForPrefetch) void Login.preload();
+      if (isDesktop) void DesktopShell.preload();
+    };
+    let delayId: number | null = null;
+    const schedule = () => {
+      delayId = window.setTimeout(() => {
+        const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+        if (typeof w.requestIdleCallback === "function") idleId = w.requestIdleCallback(run, { timeout: 5000 });
+        else run();
+      }, 5000);
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+    return () => {
+      cancelled = true;
+      window.removeEventListener("load", schedule);
+      if (delayId !== null) window.clearTimeout(delayId);
+      const w = window as Window & { cancelIdleCallback?: (id: number) => void };
+      if (idleId !== null) {
+        if (typeof w.cancelIdleCallback === "function") w.cancelIdleCallback(idleId);
+        window.clearTimeout(idleId);
+      }
+    };
+  }, [signedOutForPrefetch, isDesktop]);
 
   useEffect(() => {
     try {
@@ -1035,7 +1120,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
               it is live-linked from Intent.tsx:61's back button and is the
               signed-out mobile target of "/" just below, and redirecting it to
               "/" would loop against that redirect. */}
-          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/welcome" element={<Suspense fallback={<RouteFallback />}><Welcome /></Suspense>} />
           {/* SEVER PR: at mobile width /browse ALWAYS renders the live MobileHome
               (signed-in or out) — this is the signed-in mobile home landing that
               "/" (RootEntry) redirects to. Desktop is unchanged: signed-in users
@@ -1052,10 +1137,12 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
                 : withRouteSuspense(<MobileHome />)
             }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/login/*" element={<Login />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
-          <Route path="/sign-up/*" element={<SignUpPage />} />
+          {/* SPEED-SITE-2a: the Suspense only shows if a student navigates here in-app before the (idle-prefetched)
+              chunk arrived; a first load of these paths renders after main.tsx has preloaded them. */}
+          <Route path="/login" element={<Suspense fallback={<RouteFallback />}><Login /></Suspense>} />
+          <Route path="/login/*" element={<Suspense fallback={<RouteFallback />}><Login /></Suspense>} />
+          <Route path="/sign-up" element={<Suspense fallback={<RouteFallback />}><SignUpPage /></Suspense>} />
+          <Route path="/sign-up/*" element={<Suspense fallback={<RouteFallback />}><SignUpPage /></Suspense>} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
           <Route path="/packs" element={withRouteSuspense(<PacksPage />)} />
@@ -1423,11 +1510,16 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
         // params) and all mobile widths fall through to the legacy
         // paddingBottom:60px container so nothing already shipped regresses.
         if (shouldUseDesktopShell) {
+          // SPEED-SITE-2a: DesktopShell is preloaded before the first render on a desktop shell route, and
+          // prefetched at idle on any desktop; this boundary only shows (nothing) if a student reaches a shell
+          // route before that chunk ever arrived.
           return (
-            <DesktopShell onOpenSearch={() => setPaletteOpen(true)}>
-              <RouteNav />
-              {routesEl}
-            </DesktopShell>
+            <Suspense fallback={null}>
+              <DesktopShell onOpenSearch={() => setPaletteOpen(true)}>
+                <RouteNav />
+                {routesEl}
+              </DesktopShell>
+            </Suspense>
           );
         }
         return <div style={{ paddingBottom: '60px' }}><RouteNav />{routesEl}</div>;

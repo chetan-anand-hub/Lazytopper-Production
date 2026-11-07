@@ -246,10 +246,12 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
  *
  * ★ LIVES HERE, BESIDE `STATIC_PAGE_HEADS`, SO A NEW ADVERTISED PAGE ADDS BOTH IN ONE FILE.
  * A path with no entry also fails the build — a page that silently loses its preload is
- * the failure this exists to prevent. The root is the ONE page with no route chunk:
- * `Welcome` is a static import of `App.tsx`, already inside the entry chunk the shell
- * loads. `routeChunks.guard.test.ts` ties every name here to a `lazy(() => import(...))`
- * in `App.tsx` and to the route element that renders it.
+ * the failure this exists to prevent. The root is the ONE page that preloads nothing.
+ * SPEED-SITE-2a: `Welcome` left the entry chunk (a preloadable lazy in `App.tsx`), but it is
+ * deliberately NOT preloaded: on a throttled phone its five modulepreloads took bandwidth from
+ * the landing's LCP image (lab LCP 744 -> 1,152 ms). main.tsx fetches it once the entry runs,
+ * while the prerendered landing stays on screen. `routeChunks.guard.test.ts` ties every name
+ * here to a `lazy(() => import(...))` in `App.tsx` and to the route element that renders it.
  */
 export interface RouteChunkEntry {
   readonly prefix: string;

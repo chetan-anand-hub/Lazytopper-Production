@@ -48,7 +48,7 @@ vi.mock("./pages/app/MobileHome", async () => {
 });
 
 /* Imported AFTER the mocks above so App's module graph resolves to them. */
-const { default: App } = await import("./App");
+const { default: App, preloadFirstRoute } = await import("./App");
 const { AuthProvider } = await import("./context/AuthContext");
 const { ProfileProvider } = await import("./context/ProfileContext");
 const { SmartLearningProvider } = await import("./engine/smartLearningStore");
@@ -97,8 +97,11 @@ afterEach(cleanup);
 
 describe("RootEntry — while auth is loading, '/' renders the landing (never null)", () => {
   for (const [width, desktop] of [["mobile", false], ["desktop", true]] as const) {
-    it(`${width}: the landing is on screen and the URL stays '/'`, () => {
+    it(`${width}: the landing is on screen and the URL stays '/'`, async () => {
       setMatchMediaMatches(desktop);
+      // SPEED-SITE-2a: Welcome is code-split; main.tsx awaits preloadFirstRoute before the first render, so the
+      // harness does the same. The assertion is unchanged: the FIRST render shows the landing (still synchronous).
+      await preloadFirstRoute("/", desktop);
       render(tree("/"));
       expect(landing()).toBeInTheDocument();
       expect(loc()).toBe("/");
