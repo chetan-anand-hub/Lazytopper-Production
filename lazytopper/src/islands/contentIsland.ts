@@ -1,3 +1,7 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+// ^ This file is also type-checked under the build scripts' Node tsconfig (islandConfig.ts re-exports a
+//   type from it, and scripts/seo/applyPrerendered.ts imports islandConfig.ts), which has no DOM lib.
 /**
  * SPEED-ISLANDS-1 — the island for prerendered content pages (notes, NCERT and Exemplar solutions).
  *
