@@ -317,9 +317,71 @@ function heldReasonFor(order, config) {
   return null;
 }
 
+/* ── GST-INVOICE-BACKDATE-1: invoices issued LATER for the sales of 16 Sep - 6 Nov 2026 (CA's answer, 7 Nov) ─────── */
+
+/** 16 Sep 2026 00:00 IST: GST registration. A sale before it gets no invoice (pre-registration). */
+const BACKDATE_FROM_ISO = '2026-09-16T00:00:00+05:30';
+const BACKDATE_FROM_MS = Date.parse(BACKDATE_FROM_ISO);
+
+/**
+ * The instant of the SUPPLY: when the order was PAID. A guest (signed-out) order is paid at `guestPaidAt`; its `paidAt`
+ * is rewritten to the CLAIM time when an account claims it (guestPay.cjs -> passGrant.cjs), so `guestPaidAt` is read
+ * FIRST (review B1 of #1625). Then `paidAt`, then the creation time.
+ */
+function supplyMsOf(order) {
+  for (const v of [order.guestPaidAt, order.paidAt, order.createdAt]) {
+    const ms = toMs(v);
+    if (Number.isFinite(ms)) return ms;
+  }
+  return NaN;
+}
+
+/**
+ * PURE. Is this order one of the PAST SALES that get an invoice issued later? A paid order, supplied on/after 16 Sep 2026
+ * 00:00 IST, CREATED before the 7 Nov cut-off (its price was GST-inclusive, so no breakup is stored), for a product with
+ * a SAC (never a top-up), not refunded, with a positive amount. Returns null when it is, else the reason it is not.
+ */
+function backdateExclusion(order) {
+  if (!order || !PAID_STATES.includes(order.status)) return 'unpaid';
+  if (!productLineFor(order)) return 'no_sac_for_product';
+  const createdMs = toMs(order.createdAt);
+  if (!Number.isFinite(createdMs) || createdMs >= GST_EXCLUSIVE_FROM_MS) return 'not_past_sale';
+  const supplyMs = supplyMsOf(order);
+  if (!Number.isFinite(supplyMs) || supplyMs < BACKDATE_FROM_MS) return 'pre_registration';
+  if (order.refunded === true || order.refundedAt || (order.gstBackdate && order.gstBackdate.status === 'refunded')) return 'refunded';
+  if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return 'amount_mismatch';
+  return null;
+}
+
+/**
+ * PURE. The tax worked BACK from the amount paid (CA, 7 Nov 2026: the price was GST-inclusive): taxable = paid / 1.18
+ * rounded to the paisa (half up), GST = paid - taxable, so taxable + GST equals the amount paid EXACTLY.
+ * Intra-state: CGST = floor(GST / 2), SGST = GST - CGST. Rs 1,917 -> 1,624.58 + 292.42.
+ */
+function workedBackAmounts(amountPaise, buyerStateCode) {
+  if (!Number.isInteger(amountPaise) || amountPaise <= 0) return { held: 'amount_mismatch' };
+  // round(paid * 100 / 118), half up, in integers only.
+  const taxablePaise = Math.floor((amountPaise * 200 + 118) / 236);
+  const gstPaise = amountPaise - taxablePaise;
+  const intra = buyerStateCode === SELLER_STATE_CODE;
+  const cgstPaise = intra ? Math.floor(gstPaise / 2) : 0;
+  const sgstPaise = intra ? gstPaise - cgstPaise : 0;
+  const igstPaise = intra ? 0 : gstPaise;
+  return {
+    supplyType: intra ? 'intra' : 'inter',
+    taxablePaise,
+    gstPaise,
+    cgstPaise,
+    sgstPaise,
+    igstPaise,
+    totalPaise: taxablePaise + cgstPaise + sgstPaise + igstPaise,
+    rates: intra ? { cgst: GST_RATE_PERCENT / 2, sgst: GST_RATE_PERCENT / 2 } : { igst: GST_RATE_PERCENT },
+  };
+}
+
 /** PURE. The invoice document for an eligible order at `issuedAtMs` with sequence `seq`. */
-function buildInvoiceRecord({ order, orderId, paymentId, config, fy, seq, issuedAtMs, contact }) {
-  const amounts = invoiceAmountsFor(order);
+function buildInvoiceRecord({ order, orderId, paymentId, config, fy, seq, issuedAtMs, contact, amounts: givenAmounts, backdated = false }) {
+  const amounts = givenAmounts || invoiceAmountsFor(order);
   const line = productLineFor(order);
   const buyerState = stateByCode(order.gstBuyer.stateCode);
   const business = order.gstBuyer.business || null;
@@ -362,6 +424,9 @@ function buildInvoiceRecord({ order, orderId, paymentId, config, fy, seq, issued
     sgstPaise: amounts.sgstPaise,
     igstPaise: amounts.igstPaise,
     totalPaise: amounts.totalPaise,
+    // GST-INVOICE-BACKDATE-1: issued later for an earlier supply. Invoice date = the issue date; the supply date is
+    // printed beside it and the GSTR-1 export flags it, so the CA can report it.
+    ...(backdated ? { issuedLater: true, supplyMs: supplyMsOf(order), supplyDateIst: istDateLabel(supplyMsOf(order)), taxWorkedBack: true } : {}),
   };
 }
 
@@ -509,6 +574,75 @@ function createGstInvoicer(deps = {}) {
   }
 
   /**
+   * GST-INVOICE-BACKDATE-1 - issue the invoice for a PAST SALE once the buyer has confirmed their state + PIN
+   * (`order.gstBuyer`, written by the invoice-details form). The SAME gapless series and the SAME transaction pattern as a
+   * capture: the number is taken from gstInvoiceCounters/{fy} in the transaction that writes the invoice, idempotent per
+   * payment id (an order that has an invoice returns it). The contact is the one recorded when the form was sent.
+   * Resolves `{ issued, number } | { issued: false, existing } | { held } | { skipped }`; never throws.
+   */
+  async function issueBackdated({ orderId } = {}) {
+    if (!config.enabled) return { skipped: 'off' };
+    if (!adminFirestore || typeof adminFirestore.runTransaction !== 'function') return { skipped: 'no_store' };
+    if (typeof orderId !== 'string' || !/^[A-Za-z0-9_]{1,64}$/.test(orderId)) return { skipped: 'bad_input' };
+    const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+    try {
+      let name = '';
+      try {
+        const pre = await ref.get();
+        const o = pre && pre.exists ? pre.data() || {} : null;
+        if (!o) return { skipped: 'unknown_order' };
+        if (o.gstInvoice) return { issued: false, existing: o.gstInvoice.number };
+        name = await lookupName(o);
+      } catch {
+        /* the transaction re-reads */
+      }
+      const result = await adminFirestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const order = snap && snap.exists ? snap.data() || {} : null;
+        if (!order) return { skipped: 'unknown_order' };
+        if (order.gstInvoice) return { issued: false, existing: order.gstInvoice.number };
+        const excluded = backdateExclusion(order);
+        if (excluded) return { skipped: excluded };
+        if (typeof order.paymentId !== 'string' || !order.paymentId) return { skipped: 'unpaid' };
+        const buyer = order.gstBuyer;
+        if (!buyer || !isGstStateCode(buyer.stateCode)) return { held: 'no_state' };
+        if (!isValidPin(buyer.pin)) return { held: 'no_pin' };
+        if (!config.ready) return { held: 'seller_config_missing' };
+        const amounts = workedBackAmounts(order.amountPaise, buyer.stateCode);
+        if (amounts.held) return { held: amounts.held };
+        const issuedAtMs = now();
+        const fy = financialYearFor(issuedAtMs);
+        const counterRef = adminFirestore.collection(GST_INVOICE_COUNTERS_COLLECTION).doc(fy);
+        const counterSnap = await tx.get(counterRef);
+        const last = counterSnap && counterSnap.exists ? Number((counterSnap.data() || {}).last) || 0 : 0;
+        const seq = last + 1;
+        const c = (order.gstBackdate && order.gstBackdate.contact) || {};
+        const invoice = buildInvoiceRecord({
+          order,
+          orderId,
+          paymentId: order.paymentId,
+          config,
+          fy,
+          seq,
+          issuedAtMs,
+          contact: { name, email: typeof c.email === 'string' ? c.email : '', phone: typeof c.phone === 'string' ? c.phone : '' },
+          amounts,
+          backdated: true,
+        });
+        tx.set(counterRef, { last: seq, fy, updatedAt: new Date(issuedAtMs) }, { merge: true });
+        tx.set(ref, { gstInvoice: invoice, ...(order.gstInvoiceHeld ? { gstInvoiceHeld: null } : {}) }, { merge: true });
+        return { issued: true, number: invoice.number };
+      }, { maxAttempts: 10 });
+      if (result.issued) emit('payments.gst_invoice.issued_later');
+      return result;
+    } catch (e) {
+      emit('payments.gst_invoice.error');
+      console.error('[gst-invoice] backdated issue failed:', e && e.message);
+      return { error: true };
+    }
+  }
+
+  /**
    * `{ email, contact }` from Razorpay's payment record, only when it IS this order's payment; else null (no fetcher, no
    * keys, an error, or another order's payment). Never throws.
    */
@@ -543,8 +677,11 @@ function createGstInvoicer(deps = {}) {
       if (!o) return { skipped: 'unknown_order' };
       if (o.gstInvoice) return { issued: false, existing: o.gstInvoice.number };
       if (typeof o.paymentId !== 'string' || !o.paymentId) return { skipped: 'unpaid' };
+      // GST-INVOICE-BACKDATE-1: a past sale whose buyer has confirmed their state + PIN is issued as a backdated invoice
+      // (worked-back tax, its contact recorded when the form was sent) - e.g. after the seller config was fixed.
+      if (!backdateExclusion(o) && o.gstBuyer) return await issueBackdated({ orderId });
       // GST-INVOICE-2a (review 2c): the payer's contact as Razorpay recorded it on THIS payment, so the invoice names the
-      // buyer exactly as a capture-time invoice would. A failed / mismatched fetch only means no contact on the invoice.
+      // buyer exactly as a capture-time invoice would (review F1: no record -> not issued, below).
       const payment = await fetchPaymentContact(orderId, o.paymentId);
       // Review F1: no payment record -> NOT issued (no number consumed), so the admin can simply retry. An invoice issued
       // without the payer's contact could never be emailed, and a retry would only return that same invoice.
@@ -575,7 +712,7 @@ function createGstInvoicer(deps = {}) {
     while (inFlight.size) await Promise.all([...inFlight]);
   }
 
-  return { issueForPayment, issueNow, whenIdle, config };
+  return { issueForPayment, issueNow, issueBackdated, whenIdle, config };
 }
 
 /**
@@ -666,6 +803,10 @@ module.exports = {
   invoiceAmountsFor,
   heldReasonFor,
   buildInvoiceRecord,
+  BACKDATE_FROM_MS,
+  supplyMsOf,
+  backdateExclusion,
+  workedBackAmounts,
   invoiceToken,
   orderIdFromToken,
   invoiceOwnedBy,

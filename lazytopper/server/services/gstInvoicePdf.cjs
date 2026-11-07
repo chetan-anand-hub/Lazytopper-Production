@@ -52,6 +52,8 @@ function invoiceTextBlocks(inv) {
     meta: [
       `Invoice number: ${inv.number}`,
       `Invoice date: ${inv.dateIst} (IST)`,
+      // GST-INVOICE-BACKDATE-1: an invoice issued later shows the date of the supply it is for.
+      ...(inv.issuedLater && inv.supplyDateIst ? [`Supply date: ${inv.supplyDateIst} (IST)`] : []),
       `Place of supply: ${inv.placeOfSupply.name} (code ${inv.placeOfSupply.code})`,
       `Razorpay payment ID: ${inv.paymentId}`,
     ],
@@ -60,6 +62,10 @@ function invoiceTextBlocks(inv) {
     line: { description: inv.line.description, sac: inv.line.sac, qty: String(inv.line.quantity || 1), taxable: rupees(inv.taxablePaise) },
     totals: [['Taxable value', rupees(inv.taxablePaise)], ...taxRows, ['Total (amount paid)', rupees(inv.totalPaise)]],
     footer: 'This is a computer-generated invoice and does not require a signature.',
+    note:
+      inv.issuedLater && inv.supplyDateIst
+        ? `This invoice is issued for a supply made on ${inv.supplyDateIst}. The price paid included GST; the tax shown is worked back from the amount paid.`
+        : null,
   };
 }
 
@@ -136,6 +142,11 @@ function renderInvoicePdf(inv) {
   y += 24;
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(9);
+  if (t.note) {
+    const note = doc.splitTextToSize(t.note, R - L);
+    doc.text(note, L, y);
+    y += 12 * note.length + 6;
+  }
   doc.text(t.footer, L, y);
   return Buffer.from(doc.output('arraybuffer'));
 }

@@ -53,6 +53,22 @@ const INVOICE_EMAIL_INTERVAL_MS = 60 * 60 * 1000;
 const INVOICE_EMAIL_STALE_SENDING_MS = 30 * 60 * 1000;
 /** Review F3: at most this many send attempts; after that the email is `failed` and shown to the admin. */
 const INVOICE_EMAIL_MAX_ATTEMPTS = 3;
+/**
+ * GST-INVOICE-BACKDATE-1 - the DURABLE daily cap shared by every later invoice email (the invoice email, the state form
+ * and its reminder): one doc per IST day holding only `count` (a counter, no student data; NON_STUDENT_COLLECTIONS).
+ * Default 30/day, env GST_INVOICE_EMAIL_DAILY_CAP (1-1000): Resend's free plan is shared with the trial and nudge mail.
+ */
+const GST_INVOICE_EMAIL_DAILY_COLLECTION = 'gstInvoiceEmailDaily';
+const DEFAULT_INVOICE_EMAIL_DAILY_CAP = 30;
+const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
+/** "2026-11-08" - the IST day of an instant (the daily cap's key). */
+function istDayKey(ms) {
+  return new Date(ms + IST_OFFSET_MS).toISOString().slice(0, 10);
+}
+function invoiceEmailDailyCap(env) {
+  const n = Number(env && env.GST_INVOICE_EMAIL_DAILY_CAP);
+  return Number.isFinite(n) && n >= 1 ? Math.min(1000, Math.floor(n)) : DEFAULT_INVOICE_EMAIL_DAILY_CAP;
+}
 
 function resolveReceiptEmailConfig(env = process.env) {
   const e = env || {};
@@ -119,6 +135,13 @@ function receiptGstLine(gst, amountPaise) {
   if (total - credit !== paid) return null;
   const head = `${formatInr(gst.baseInr)} + ${formatInr(gst.gstInr)} GST (${GST_RATE_PERCENT}%) = ${formatInr(total)}`;
   return credit > 0 ? `${head}, less pack credit ${formatInr(credit)}: ${formatInr(paid)} paid` : `${head} paid`;
+}
+
+/** The account that PAID (its one-a-day clock counts a later email), or null for a payer with no account. */
+function payerAccountUid(order) {
+  if (typeof order.payerUid === 'string' && order.payerUid) return order.payerUid;
+  if (typeof order.uid === 'string' && order.uid && order.uid !== 'erased' && invoiceOwnedBy(order, order.uid)) return order.uid;
+  return null;
 }
 
 function msOf(v) {
@@ -514,11 +537,49 @@ function createPaymentReceiptEmailer(deps = {}) {
    */
   const sendWindow = resolveSendWindow(deps.env || process.env, () => {});
 
-  /** The account that PAID (its one-a-day clock counts this email), or null for a payer with no account. */
-  function payerAccountUid(order) {
-    if (typeof order.payerUid === 'string' && order.payerUid) return order.payerUid;
-    if (typeof order.uid === 'string' && order.uid && order.uid !== 'erased' && invoiceOwnedBy(order, order.uid)) return order.uid;
-    return null;
+  const dailyCap = invoiceEmailDailyCap(deps.env || process.env);
+
+  /**
+   * GST-INVOICE-BACKDATE-1 - the rails of every LATER invoice email, INSIDE the caller's transaction (all reads first):
+   * one email a day to this person (this order's receipt, the paying account's nudge / trial ledgers, the address's guest
+   * ledger) and the durable daily cap. `{ ok: false, reason: 'spaced' | 'daily_cap' }`, or `{ ok: true, commit }` where
+   * commit() writes `lastClaimMs` to the ledgers and count+1 to the day (call it after the caller's own reads).
+   */
+  async function slotTx(tx, order, to, t) {
+    const uid = payerAccountUid(order);
+    const key = emailKey(to);
+    const nudgeRef = uid ? adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid) : null;
+    const trialRef = uid ? adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid) : null;
+    const guestRef = key ? adminFirestore.collection(GUEST_NUDGE_EMAILS_COLLECTION).doc(key) : null;
+    const dayKey = istDayKey(t);
+    const dailyRef = adminFirestore.collection(GST_INVOICE_EMAIL_DAILY_COLLECTION).doc(dayKey);
+    const rowOf = async (r) => {
+      if (!r) return {};
+      const x = await tx.get(r);
+      return x && x.exists ? x.data() || {} : {};
+    };
+    const nudge = await rowOf(nudgeRef);
+    const trial = await rowOf(trialRef);
+    const guest = await rowOf(guestRef);
+    const day = await rowOf(dailyRef);
+    const receipt = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : {};
+    const recent = [
+      receipt.status === 'sent' || receipt.status === 'sending' ? msOf(receipt.at) : null,
+      nudge.lastClaimMs,
+      trial.status === 'sent' || trial.status === 'claimed' ? Math.max(msOf(trial.sentAt) || 0, msOf(trial.claimedAt) || 0) || null : null,
+      guest.lastClaimMs,
+    ].filter((v) => typeof v === 'number' && Number.isFinite(v));
+    if (recent.some((ms) => t - ms < ONE_A_DAY_MS)) return { ok: false, reason: 'spaced' };
+    const count = typeof day.count === 'number' && day.count > 0 ? day.count : 0;
+    if (count >= dailyCap) return { ok: false, reason: 'daily_cap' };
+    return {
+      ok: true,
+      commit() {
+        if (nudgeRef) tx.set(nudgeRef, { lastClaimMs: t }, { merge: true });
+        if (guestRef) tx.set(guestRef, { lastClaimMs: t }, { merge: true });
+        tx.set(dailyRef, { count: count + 1, dayKey, updatedAt: new Date(t) }, { merge: true });
+      },
+    };
   }
 
   async function runInvoiceEmail(orderId) {
@@ -547,30 +608,10 @@ function createPaymentReceiptEmailer(deps = {}) {
         tx.set(ref, { gstInvoiceEmail: { status: 'no_address', queuedAtMs, attempts, at: new Date(t) } }, { merge: true });
         return { skipped: 'no_address' };
       }
-      const uid = payerAccountUid(order);
-      const key = emailKey(to);
-      const nudgeRef = uid ? adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid) : null;
-      const trialRef = uid ? adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid) : null;
-      const guestRef = key ? adminFirestore.collection(GUEST_NUDGE_EMAILS_COLLECTION).doc(key) : null;
-      const rowOf = async (r) => {
-        if (!r) return {};
-        const x = await tx.get(r);
-        return x && x.exists ? x.data() || {} : {};
-      };
-      const nudge = await rowOf(nudgeRef);
-      const trial = await rowOf(trialRef);
-      const guest = await rowOf(guestRef);
-      const receipt = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : {};
-      const recent = [
-        receipt.status === 'sent' || receipt.status === 'sending' ? msOf(receipt.at) : null,
-        nudge.lastClaimMs,
-        trial.status === 'sent' || trial.status === 'claimed' ? Math.max(msOf(trial.sentAt) || 0, msOf(trial.claimedAt) || 0) || null : null,
-        guest.lastClaimMs,
-      ].filter((v) => typeof v === 'number' && Number.isFinite(v));
-      if (recent.some((ms) => t - ms < ONE_A_DAY_MS)) return { queued: 'spaced' };
+      const slot = await slotTx(tx, order, to, t);
+      if (!slot.ok) return { queued: slot.reason };
       tx.set(ref, { gstInvoiceEmail: { status: 'sending', queuedAtMs, attempts: attempts + 1, at: new Date(t) } }, { merge: true });
-      if (nudgeRef) tx.set(nudgeRef, { lastClaimMs: t }, { merge: true });
-      if (guestRef) tx.set(guestRef, { lastClaimMs: t }, { merge: true });
+      slot.commit();
       return { order, to, queuedAtMs, attempts: attempts + 1 };
     });
     if (!claimed.order) return claimed;
@@ -669,6 +710,7 @@ function createPaymentReceiptEmailer(deps = {}) {
         else if (r.queued) summary.queued += 1;
         else if (r.error || r.sent === false) summary.failed += 1;
         else summary.skipped += 1;
+        if (r.queued === 'daily_cap') break; // the day is full: nothing else goes out today
       }
     } catch (e) {
       emit('payments.gst_invoice_email.error');
@@ -689,7 +731,21 @@ function createPaymentReceiptEmailer(deps = {}) {
     while (inFlight.size) await Promise.all([...inFlight]);
   }
 
-  return { sendForPayment, sendRecipientReady, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config };
+  /**
+   * GST-INVOICE-BACKDATE-1 - the same rails for the state form and its reminder (services/gstBackdate.cjs): the send
+   * switch, the IST window, the in-transaction slot (one a day + daily cap) and the Resend send. Never logs an address.
+   */
+  const rails = {
+    canSend: () => config.mode === 'send' && !!adminFirestore && typeof fetchImpl === 'function',
+    inWindow: (t) => sendWindow.contains(t),
+    slotTx,
+    isAddress: (to) => typeof to === 'string' && to.length <= 254 && EMAIL_PATTERN.test(to),
+    appUrl: config.appUrl,
+    send: ({ to, subject, text, html, idempotencyKey, category }) =>
+      sendViaResend({ fetchImpl, apiKey: config.apiKey, from: config.from, replyTo: config.replyTo, to, subject, text, html, idempotencyKey, category }),
+  };
+
+  return { sendForPayment, sendRecipientReady, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
 }
 
 module.exports = {
@@ -703,4 +759,9 @@ module.exports = {
   chapterTitle,
   SUPPORT_WHATSAPP_URL,
   SUPPORT_WHATSAPP_DISPLAY,
+  GST_INVOICE_EMAIL_DAILY_COLLECTION,
+  payerAccountUid,
+  istDayKey,
+  formatInr,
+  formatIstDay,
 };

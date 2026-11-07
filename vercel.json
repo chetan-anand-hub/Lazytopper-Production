@@ -102,6 +102,10 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(invoice-details/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(ncert-class-10/?)",
       "destination": "/__shell.html"
     },

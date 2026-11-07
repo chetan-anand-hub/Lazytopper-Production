@@ -721,3 +721,10 @@
   padding-left: 18px;
   overflow-wrap: anywhere;
 }
+
+/* GST-INVOICE-BACKDATE-1 - the past sales block under the held list. */
+.gst-past {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.4);
+}

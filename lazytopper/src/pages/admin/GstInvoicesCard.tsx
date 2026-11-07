@@ -6,6 +6,7 @@
  */
 import { useState } from "react";
 import { fetchAdmin } from "./studentsAdminModel";
+import GstPastSales from "./GstPastSales";
 
 export const GST_STATUS_URL = "/api/admin/gst/status";
 export const GST_EXPORT_URL = "/api/admin/gst/export";
@@ -219,6 +220,8 @@ export default function GstInvoicesCard({ getToken }: { getToken: () => Promise<
           )}
         </>
       )}
+      {/* GST-INVOICE-BACKDATE-1: the sales of 16 Sep - 6 Nov 2026, invoiced once the buyer confirms state + PIN. */}
+      <GstPastSales getToken={getToken} issueNow={issueNow} issued={issued} />
     </section>
   );
 }

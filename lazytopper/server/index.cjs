@@ -601,7 +601,24 @@ const {
   GST_ADMIN_STATUS_PATH,
   GST_ADMIN_EXPORT_PATH,
   GST_ADMIN_ISSUE_PATH,
+  GST_INVOICE_DETAILS_PATH,
+  GST_ADMIN_PAST_SALES_PATH,
+  GST_ADMIN_PAST_SALES_SEND_PATH,
 } = require('./routes/gstInvoice.cjs');
+// GST-INVOICE-BACKDATE-1: invoices for the past sales (16 Sep - 6 Nov 2026), after the buyer confirms state + PIN.
+const gstBackdate = require('./services/gstBackdate.cjs').createGstBackdate({
+  adminFirestore,
+  telemetry,
+  invoicer: gstInvoicer,
+  mailer: paymentReceiptEmailer,
+  fetchPayment: require('./services/gstInvoice.cjs').createRazorpayPaymentFetcher(),
+  // The fallback address: the PAYING account's own auth email (never a request value).
+  getAccountEmail: async (uid) => {
+    if (!firebaseAdmin) return '';
+    const record = await firebaseAdmin.auth().getUser(uid);
+    return (record && record.email) || '';
+  },
+});
 let gstInvoiceRoutesMemo = null;
 function gstInvoiceRoutes() {
   if (!gstInvoiceRoutesMemo) {
@@ -613,6 +630,7 @@ function gstInvoiceRoutes() {
       requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin,
       invoicer: gstInvoicer,
       invoiceMailer: paymentReceiptEmailer,
+      backdate: gstBackdate,
       readJson,
     });
   }
@@ -899,6 +917,11 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === GST_ADMIN_STATUS_PATH) return gstInvoiceRoutes().handleAdminStatus(req, res, reqUrlRaw);
   if (req.method === 'GET' && reqPath === GST_ADMIN_EXPORT_PATH) return gstInvoiceRoutes().handleAdminExport(req, res, reqUrlRaw);
   if (req.method === 'POST' && reqPath === GST_ADMIN_ISSUE_PATH) return gstInvoiceRoutes().handleAdminIssue(req, res); // "Issue now", same ADMIN_FIREBASE_UIDS gate, same-origin
+  // GST-INVOICE-BACKDATE-1: the signed-out state form (signed, expiring link) and the admin past-sales list / send.
+  if (req.method === 'GET' && reqPath === GST_INVOICE_DETAILS_PATH) return gstInvoiceRoutes().handleInvoiceDetailsGet(req, res, reqUrlRaw);
+  if (req.method === 'POST' && reqPath === GST_INVOICE_DETAILS_PATH) return gstInvoiceRoutes().handleInvoiceDetailsPost(req, res);
+  if (req.method === 'GET' && reqPath === GST_ADMIN_PAST_SALES_PATH) return gstInvoiceRoutes().handleAdminPastSales(req, res);
+  if (req.method === 'POST' && reqPath === GST_ADMIN_PAST_SALES_SEND_PATH) return gstInvoiceRoutes().handleAdminSendForms(req, res);
   // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
   if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);
@@ -1201,6 +1224,8 @@ server.listen(config.PORT, () => {
   opsReporter.schedule();
   // GST-INVOICE-2a — the hourly drain of queued invoice emails; armed ONLY while invoicing AND payment email are on.
   if (gstInvoicer.config.enabled && paymentReceiptEmailer.config.mode === 'send') paymentReceiptEmailer.startInvoiceEmailRunner();
+  // GST-INVOICE-BACKDATE-1 — the hourly drain of state forms + reminders; armed only with invoicing, email and the link secret.
+  gstBackdate.startRunner();
 
   // ── Unattended question generation ────────────────────────────────────────
   // ★ GATE FIRST, SCHEMA SECOND. Resolve and PRINT the state of every path

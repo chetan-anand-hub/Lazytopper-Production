@@ -1,0 +1,2 @@
+Invoice number,Invoice date,Order ID,Razorpay payment ID,Type,Buyer name,Buyer GSTIN,Place of supply code,Place of supply,Supply type,SAC,Taxable value,Rate %,IGST,CGST,SGST,Invoice value,Supply date,Issued later
+LT/26-27/000042,09-11-2026,order_TEST,pay_TEST,B2C,Test Buyer,,29,Karnataka,Intra-state,990000,1624.58,18,0.00,146.21,146.21,1917.00,01-10-2026,Yes

@@ -398,7 +398,8 @@ test('GSTR-1 CSVs: invoice-wise, B2CS by place of supply + rate, B2B with GSTIN,
   const invoices = exp.invoicesCsv([mh, ka]).trim().split('\r\n');
   assert.equal(invoices.length, 3);
   assert.match(invoices[1], /^LT\/26-27\/000001,/);
-  assert.match(invoices[1], /,1917\.00,18,0\.00,172\.50,172\.50,2262\.00$/);
+  assert.match(invoices[1], /,1917\.00,18,0\.00,172\.50,172\.50,2262\.00,08-11-2026,No$/);
+  assert.match(invoices[0], /,Invoice value,Supply date,Issued later$/);
   const b2cs = exp.b2csCsv([ka, mh]).trim().split('\r\n');
   assert.deepEqual(b2cs.slice(1), ['OE,29-Karnataka,18,,1917.00,0.00,,0.00,172.50,172.50,1']);
   const b2b = exp.b2bCsv([ka, mh]).trim().split('\r\n');
@@ -1068,3 +1069,378 @@ test('F3 a temporary send failure is retried at most 3 times in all, then `faile
   const m2 = createPaymentReceiptEmailer({ adminFirestore: d2, now: () => AFTER_CUTOFF, env: { PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key', INVOICE_LINK_SECRET: LINK_SECRET }, fetchImpl: async () => ({ ok: false, status: 422, json: async () => ({}) }) });
   assert.equal((await m2.queueInvoiceEmail({ orderId: 'order_M' })).status, 'refused');
 });
+
+/* ══ GST-INVOICE-BACKDATE-1: invoices issued later for the sales of 16 Sep - 6 Nov 2026 ══ */
+
+const bd = require('./gstBackdate.cjs');
+
+/** A past sale exactly as payments.cjs stored it before the cut-off: GST-inclusive amount, no breakup, no state. */
+function pastOrder({ passType = 'till_boards', inr = 1917, paid = '2026-10-01T10:00:00', created, uid = 'u1', paymentId = 'pay_P', extra = {} } = {}) {
+  return {
+    uid,
+    passType,
+    amountPaise: inr * 100,
+    status: 'paid',
+    paymentId,
+    createdAt: new Date(IST(created || paid)),
+    paidAt: new Date(IST(paid)),
+    ...(passType.startsWith('pack_') && passType !== 'pack_bundle' ? { packTarget: passType === 'pack_chapter' ? 'polynomials' : 'maths' } : {}),
+    ...extra,
+  };
+}
+
+test('BACKDATE worked-back rounding: every price paid in the window, and every rupee 1..3000 (credit-reduced amounts), sums EXACTLY', () => {
+  const table = [
+    // paid (Rs), taxable (paise), GST (paise)
+    [1917, 162458, 29242], // CA's example: 1,624.58 + 292.42
+    [599, 50763, 9137],
+    [49, 4153, 747],
+    [99, 8390, 1510],
+    [199, 16864, 3036],
+    [299, 25339, 4561],
+  ];
+  for (const [inr, taxable, gst] of table) {
+    for (const st of ['29', '27']) {
+      const a = g.workedBackAmounts(inr * 100, st);
+      assert.equal(a.taxablePaise, taxable, `${inr} taxable`);
+      assert.equal(a.gstPaise, gst, `${inr} gst`);
+      assert.equal(a.taxablePaise + a.cgstPaise + a.sgstPaise + a.igstPaise, inr * 100, `${inr} ${st} sums`);
+      if (st === '29') assert.deepEqual([a.supplyType, a.igstPaise, a.cgstPaise + a.sgstPaise], ['intra', 0, gst]);
+      else assert.deepEqual([a.supplyType, a.cgstPaise, a.sgstPaise, a.igstPaise], ['inter', 0, 0, gst]);
+    }
+  }
+  // Credit-reduced amounts are not in the repo's data (no refund / credit ledger for past sales): EVERY whole-rupee
+  // amount up to Rs 3,000 is checked instead - taxable is paid/1.18 to the nearest paisa and the lines sum exactly.
+  for (let inr = 1; inr <= 3000; inr += 1) {
+    const paid = inr * 100;
+    const a = g.workedBackAmounts(paid, inr % 2 ? '29' : '33');
+    assert.equal(a.taxablePaise + a.cgstPaise + a.sgstPaise + a.igstPaise, paid, `${inr} sums`);
+    assert.ok(Math.abs(a.taxablePaise * 118 - paid * 100) <= 59, `${inr} is paid/1.18 to the nearest paisa`);
+  }
+  assert.deepEqual(g.workedBackAmounts(0, '29'), { held: 'amount_mismatch' });
+});
+
+test('BACKDATE past sales: from 16 Sep 00:00 IST, created before the cut-off; never pre-registration, a top-up, refunded or unpaid', () => {
+  assert.equal(g.backdateExclusion(pastOrder({ paid: '2026-09-16T00:00:00' })), null);
+  assert.equal(g.backdateExclusion(pastOrder({ paid: '2026-09-15T23:59:59' })), 'pre_registration');
+  assert.equal(g.backdateExclusion(pastOrder({ paid: '2026-11-06T23:59:59' })), null);
+  assert.equal(g.backdateExclusion(pastOrder({ paid: '2026-11-07T00:00:01', created: '2026-11-07T00:00:00' })), 'not_past_sale');
+  assert.equal(g.backdateExclusion(pastOrder({ paid: '2026-11-07T00:05:00', created: '2026-11-06T23:59:00' })), null, 'created before the cut-off, paid just after');
+  assert.equal(g.backdateExclusion(pastOrder({ passType: 'topup_tutor' })), 'no_sac_for_product');
+  assert.equal(g.backdateExclusion(pastOrder({ extra: { status: 'created' } })), 'unpaid');
+  assert.equal(g.backdateExclusion(pastOrder({ extra: { gstBackdate: { status: 'refunded' } } })), 'refunded');
+  assert.equal(g.backdateExclusion(pastOrder({ extra: { refundedAt: new Date(1) } })), 'refunded');
+});
+
+test('BACKDATE details token: round-trips, expires after 30 days, rejects tampering, another secret and the invoice-download token', () => {
+  const t0 = IST('2026-11-08T12:00:00');
+  const exp = t0 + bd.DETAILS_TOKEN_TTL_MS;
+  const tok = bd.detailsToken('order_P1', exp, LINK_SECRET);
+  assert.deepEqual(bd.parseDetailsToken(tok, LINK_SECRET, t0), { orderId: 'order_P1', expMs: exp });
+  assert.deepEqual(bd.parseDetailsToken(tok, LINK_SECRET, exp - 1).orderId, 'order_P1');
+  assert.deepEqual(bd.parseDetailsToken(tok, LINK_SECRET, exp), { error: 'expired' });
+  const [payload, mac] = tok.split('.');
+  const forged = Buffer.from(`order_P2.${exp}`).toString('base64url');
+  assert.deepEqual(bd.parseDetailsToken(`${forged}.${mac}`, LINK_SECRET, t0), { error: 'invalid' }, 'another order');
+  const longer = Buffer.from(`order_P1.${exp + 10 * 86400000}`).toString('base64url');
+  assert.deepEqual(bd.parseDetailsToken(`${longer}.${mac}`, LINK_SECRET, t0), { error: 'invalid' }, 'a pushed-out expiry');
+  assert.deepEqual(bd.parseDetailsToken(`${payload}.${mac.slice(0, -1)}A`, LINK_SECRET, t0).error, 'invalid');
+  assert.deepEqual(bd.parseDetailsToken(tok, 'another-secret-another-secret-0123456789', t0), { error: 'invalid' });
+  assert.deepEqual(bd.parseDetailsToken(g.invoiceToken('order_P1', LINK_SECRET), LINK_SECRET, t0), { error: 'invalid' }, 'the download link is not a form link');
+  assert.equal(g.orderIdFromToken(tok, LINK_SECRET), null, 'nor the other way round');
+  assert.equal(bd.detailsToken('order_P1', exp, ''), '', 'no secret, no link');
+  assert.deepEqual(bd.parseDetailsToken(tok, '', t0), { error: 'invalid' });
+});
+
+/** A backdate service over a fake Resend; `clock.t` is now. Each email records its link token. */
+function backdateFor(db, clock, { env = {}, payments = {}, accountEmails = {} } = {}) {
+  const E = { ...ENV_READY, PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key', INVOICE_LINK_SECRET: LINK_SECRET, ...env };
+  const sent = [];
+  const fetchImpl = async (url, init) => {
+    const body = JSON.parse(init.body);
+    const m = /invoice-details\?t=([^\s"<]+)/.exec(body.text);
+    sent.push({ key: init.headers['Idempotency-Key'], to: body.to[0], subject: body.subject, text: body.text, token: m ? decodeURIComponent(m[1]) : null });
+    return { ok: true, status: 200, json: async () => ({ id: `re_${sent.length}` }) };
+  };
+  const now = () => clock.t;
+  const mailer = createPaymentReceiptEmailer({ adminFirestore: db, fetchImpl, now, env: E });
+  const inv = g.createGstInvoicer({ adminFirestore: db, env: E, now });
+  const fetchPayment = async (id) => (payments[id] === undefined ? null : payments[id]);
+  const svc = bd.createGstBackdate({ adminFirestore: db, invoicer: inv, mailer, fetchPayment, getAccountEmail: async (uid) => accountEmails[uid] || '', env: E, now });
+  return { svc, sent, inv, mailer, env: E };
+}
+
+test('BACKDATE end to end: list -> send forms (payer email, account fallback, refunded, no address) -> form -> invoice in the SAME series', async () => {
+  const db = memoryFirestore({
+    'payOrders/order_KA': pastOrder({ uid: 'uKA', paymentId: 'pay_KA', paid: '2026-10-01T10:00:00' }),
+    'payOrders/order_ACCT': pastOrder({ uid: 'uAC', passType: 'pack_chapter', inr: 49, paymentId: 'pay_AC', paid: '2026-09-20T09:00:00' }),
+    'payOrders/order_REF': pastOrder({ uid: 'uRF', paymentId: 'pay_RF', paid: '2026-10-05T09:00:00' }),
+    'payOrders/order_NOAD': pastOrder({ uid: null, passType: 'pack_bundle', inr: 299, paymentId: 'pay_NA', paid: '2026-10-06T09:00:00', extra: { payer: 'parent' } }),
+    'payOrders/order_PRE': pastOrder({ uid: 'uPR', paymentId: 'pay_PR', paid: '2026-09-10T09:00:00' }),
+    'payOrders/order_NEW': storedOrder({ paymentId: 'pay_NEW', extra: { paidAt: new Date(AFTER_CUTOFF) } }),
+  });
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc, sent, inv } = backdateFor(db, clock, {
+    payments: {
+      pay_KA: { id: 'pay_KA', order_id: 'order_KA', email: 'ka.buyer@example.com', contact: '+919800000001', status: 'captured' },
+      pay_AC: { id: 'pay_AC', order_id: 'order_ACCT', status: 'captured' },
+      pay_RF: { id: 'pay_RF', order_id: 'order_REF', email: 'rf@example.com', status: 'refunded', amount_refunded: 191700 },
+      pay_NA: { id: 'pay_NA', order_id: 'order_NOAD', status: 'captured' },
+    },
+    accountEmails: { uAC: 'account.owner@example.com' },
+  });
+  let list = await svc.listPastSales();
+  assert.deepEqual(list.rows.map((r) => [r.orderId, r.status]), [['order_ACCT', 'needs_details'], ['order_KA', 'needs_details'], ['order_REF', 'needs_details'], ['order_NOAD', 'needs_details']]);
+  const result = await svc.sendForms();
+  assert.deepEqual([result.queued, result.refunded, result.noAddress, result.sent], [2, 1, 1, 2]);
+  assert.deepEqual(sent.map((s) => [s.to, s.key]).sort(), [['account.owner@example.com', 'gst-state-form-pay_AC'], ['ka.buyer@example.com', 'gst-state-form-pay_KA']]);
+  assert.match(sent[0].subject, /confirm your state/);
+  assert.ok(!/Karnataka/.test(sent.map((s) => s.text).join(' ')), 'no state is suggested in the email');
+  list = await svc.listPastSales();
+  assert.deepEqual(Object.fromEntries(list.rows.map((r) => [r.orderId, r.status])), { order_ACCT: 'form_sent', order_KA: 'form_sent', order_NOAD: 'no_address' });
+  assert.equal(list.refundedExcluded, 1, 'the refunded order leaves the list');
+  assert.equal(list.rows.find((r) => r.orderId === 'order_KA').emailMasked, 'ka••••@example.com');
+  // The buyer opens the form: NO state is suggested (no IP, no Karnataka default).
+  const ka = sent.find((s) => s.key === 'gst-state-form-pay_KA');
+  const details = await svc.getDetails(ka.token);
+  assert.deepEqual(details, { item: 'Board Pass (Premium till your boards)', amountPaise: 191700, paidOn: '1 October 2026', status: 'needs_details' });
+  // Bad answers are refused with the field (never guessed).
+  assert.deepEqual(await svc.submitDetails(ka.token, { pin: '560001' }), { error: 'bad_input', field: 'state' });
+  assert.deepEqual(await svc.submitDetails(ka.token, { stateCode: '29' }), { error: 'bad_input', field: 'pin' });
+  assert.deepEqual(await svc.submitDetails(ka.token, { stateCode: '29', pin: '56001' }), { error: 'bad_input', field: 'pin' });
+  assert.deepEqual(await svc.submitDetails(ka.token, { stateCode: '29', pin: '560001', business: { gstin: 'NOPE', legalName: 'X Y', address: '1 Road, City' } }), { error: 'bad_input', field: 'business' });
+  assert.equal(db.read('payOrders/order_KA').gstBuyer, undefined, 'nothing stored for a refused answer');
+  // A live capture happens meanwhile: same series, no gap.
+  db.docs.set('payOrders/order_NEW', { data: { ...db.read('payOrders/order_NEW') }, version: 7 });
+  await inv.issueForPayment({ orderId: 'order_NEW', paymentId: 'pay_NEW', payment: {} });
+  const r = await svc.submitDetails(ka.token, { stateCode: '29', pin: '560001' });
+  assert.equal(r.ok, true);
+  assert.equal(r.status, 'invoiced');
+  assert.equal(r.invoice.number, 'LT/26-27/000002');
+  assert.match(r.invoice.url, /^\/api\/gst\/invoice\?t=/);
+  const invRec = db.read('payOrders/order_KA').gstInvoice;
+  assert.deepEqual([invRec.taxablePaise, invRec.cgstPaise, invRec.sgstPaise, invRec.igstPaise, invRec.totalPaise], [162458, 14621, 14621, 0, 191700]);
+  assert.deepEqual([invRec.issuedLater, invRec.supplyDateIst, invRec.dateIst], [true, '01-10-2026', '08-11-2026']);
+  assert.deepEqual([invRec.buyer.stateCode, invRec.buyer.pin, invRec.buyer.email, invRec.buyer.phone], ['29', '560001', 'ka.buyer@example.com', '+919800000001']);
+  // Idempotent: a second submit (or a double tap) returns the SAME invoice; no number is used.
+  const again = await svc.submitDetails(ka.token, { stateCode: '27', pin: '411001' });
+  assert.equal(again.invoice.number, 'LT/26-27/000002');
+  assert.equal(db.read('payOrders/order_KA').gstBuyer.stateCode, '29', 'an invoiced order is never changed');
+  assert.equal(db.read('gstInvoiceCounters/26-27').last, 2);
+  assert.deepEqual((await svc.getDetails(ka.token)).status, 'invoiced');
+  // The invoice email is queued: the form went to this person today, so it waits for the one-a-day rule.
+  assert.equal(db.read('payOrders/order_KA').gstInvoiceEmail.status, 'queued');
+  // The PDF prints the supply date and the note; the GSTR-1 list flags it.
+  const blocks = invoiceTextBlocks(invRec);
+  assert.ok(blocks.meta.includes('Supply date: 01-10-2026 (IST)'));
+  assert.match(blocks.note, /issued for a supply made on 01-10-2026/);
+  assert.ok(renderInvoicePdf(invRec).length > 1000);
+  const csv = exp.invoicesCsv([invRec]).trim().split('\r\n');
+  assert.match(csv[1], /,1624\.58,18,0\.00,146\.21,146\.21,1917\.00,01-10-2026,Yes$/);
+  // An inter-state answer: IGST.
+  const ac = sent.find((s) => s.key === 'gst-state-form-pay_AC');
+  const r2 = await svc.submitDetails(ac.token, { stateCode: '33', pin: '600001' });
+  const rec2 = db.read('payOrders/order_ACCT').gstInvoice;
+  assert.equal(r2.invoice.number, 'LT/26-27/000003');
+  assert.deepEqual([rec2.taxablePaise, rec2.igstPaise, rec2.cgstPaise, rec2.supplyType], [4153, 747, 0, 'inter']);
+});
+
+test('BACKDATE concurrency: 6 form answers and 6 live captures at once take numbers 1..12, no gap, no duplicate', async () => {
+  const seed = {};
+  for (let i = 0; i < 6; i += 1) {
+    seed[`payOrders/past_${i}`] = pastOrder({ paymentId: `pp_${i}`, uid: `p${i}`, extra: { gstBackdate: { status: 'form_sent', formSentAtMs: 1, contact: { email: `p${i}@example.com` } } } });
+    seed[`payOrders/live_${i}`] = storedOrder({ paymentId: `pl_${i}`, uid: `l${i}` });
+  }
+  const db = memoryFirestore(seed);
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc, inv } = backdateFor(db, clock);
+  const toks = Array.from({ length: 6 }, (_, i) => bd.detailsToken(`past_${i}`, clock.t + 1000, LINK_SECRET));
+  await Promise.all([
+    ...toks.map((t) => svc.submitDetails(t, { stateCode: '07', pin: '110001' })),
+    ...Array.from({ length: 6 }, (_, i) => inv.issueForPayment({ orderId: `live_${i}`, paymentId: `pl_${i}`, payment: {} })),
+  ]);
+  const seqs = [];
+  for (let i = 0; i < 6; i += 1) seqs.push(db.read(`payOrders/past_${i}`).gstInvoice.seq, db.read(`payOrders/live_${i}`).gstInvoice.seq);
+  assert.deepEqual(seqs.sort((a, b) => a - b), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+  assert.equal(db.read('gstInvoiceCounters/26-27').last, 12);
+});
+
+test('BACKDATE emails: never outside 08:00-21:00 IST; one reminder after 5 days, then nothing; the daily cap holds', async () => {
+  const db = memoryFirestore({
+    'payOrders/o1': pastOrder({ uid: 'a1', paymentId: 'p1' }),
+    'payOrders/o2': pastOrder({ uid: 'a2', paymentId: 'p2' }),
+    'payOrders/o3': pastOrder({ uid: 'a3', paymentId: 'p3' }),
+  });
+  const payments = {};
+  for (const i of [1, 2, 3]) payments[`p${i}`] = { id: `p${i}`, order_id: `o${i}`, email: `b${i}@example.com` };
+  const clock = { t: IST('2026-11-08T21:30:00') };
+  const { svc, sent } = backdateFor(db, clock, { payments, env: { GST_INVOICE_EMAIL_DAILY_CAP: '2' } });
+  const r = await svc.sendForms();
+  assert.deepEqual([r.queued, r.sent], [3, 0], 'queued at 21:30, nothing sent');
+  for (const hhmm of ['23:00', '00:00', '07:59']) {
+    clock.t = IST(`2026-11-${hhmm < '08' ? '09' : '08'}T${hhmm}:00`);
+    assert.deepEqual(await svc.drain(), { sent: 0, waiting: 0, failed: 0 }, hhmm);
+  }
+  assert.equal(sent.length, 0);
+  clock.t = IST('2026-11-09T08:00:00');
+  assert.equal((await svc.drain()).sent, 2, 'the daily cap (2) stops the third');
+  clock.t = IST('2026-11-09T15:00:00');
+  assert.equal((await svc.drain()).sent, 0, 'still the same IST day');
+  clock.t = IST('2026-11-10T08:00:00');
+  assert.equal((await svc.drain()).sent, 1, 'the next day');
+  assert.equal(sent.filter((s) => /gst-state-form/.test(s.key)).length, 3);
+  // Reminders: 5 days after each form, in the window, once.
+  const firstForm = IST('2026-11-09T08:00:00');
+  clock.t = firstForm + bd.REMINDER_AFTER_MS - 60000;
+  assert.equal((await svc.drain()).sent, 0, 'not before 5 days');
+  clock.t = IST('2026-11-14T08:00:00');
+  assert.equal((await svc.drain()).sent, 2, 'two reminders (the cap is per day)');
+  clock.t = IST('2026-11-15T09:00:00');
+  assert.equal((await svc.drain()).sent, 1);
+  const reminders = sent.filter((s) => /gst-state-reminder/.test(s.key));
+  assert.equal(reminders.length, 3);
+  assert.match(reminders[0].subject, /^Reminder: /);
+  assert.ok(bd.parseDetailsToken(reminders[0].token, LINK_SECRET, clock.t).orderId, 'the reminder carries a fresh 30-day link');
+  for (const day of ['2026-11-20', '2026-11-25', '2026-12-05']) {
+    clock.t = IST(`${day}T10:00:00`);
+    assert.equal((await svc.drain()).sent, 0, `${day}: no second reminder`);
+  }
+  assert.equal(sent.length, 6);
+  const list = await svc.listPastSales();
+  assert.deepEqual([...new Set(list.rows.map((x) => x.status))], ['reminder_sent']);
+});
+
+test('BACKDATE one email a day: a nudge to the same account today defers the form to tomorrow', async () => {
+  const db = memoryFirestore({ 'payOrders/o1': pastOrder({ uid: 'a1', paymentId: 'p1' }), 'nudgeEmails/a1': { lastClaimMs: IST('2026-11-08T09:00:00') } });
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc, sent } = backdateFor(db, clock, { payments: { p1: { id: 'p1', order_id: 'o1', email: 'b1@example.com' } } });
+  assert.equal((await svc.sendForms()).sent, 0);
+  clock.t = IST('2026-11-09T08:30:00');
+  assert.equal((await svc.drain()).sent, 0, '23.5 h after the nudge');
+  clock.t = IST('2026-11-09T09:00:00');
+  assert.equal((await svc.drain()).sent, 1);
+  assert.equal(sent.length, 1);
+  assert.equal(db.read('nudgeEmails/a1').lastClaimMs, IST('2026-11-09T09:00:00'), 'and the nudges now wait for it');
+});
+
+test('BACKDATE Razorpay unreachable: the order is left for the next click (never assumed not refunded)', async () => {
+  const db = memoryFirestore({ 'payOrders/o1': pastOrder({ paymentId: 'p1' }) });
+  const { svc, sent } = backdateFor(db, { t: IST('2026-11-08T12:00:00') }, { payments: {} });
+  const r = await svc.sendForms();
+  assert.deepEqual([r.queued, r.retryLater, r.sent], [0, 1, 0]);
+  assert.equal(sent.length, 0);
+  assert.equal((await svc.listPastSales()).rows[0].status, 'needs_details');
+});
+
+test('BACKDATE seller config missing at submit: details saved, not issued; "Issue now" later issues the backdated invoice', async () => {
+  const db = memoryFirestore({ 'payOrders/o1': pastOrder({ paymentId: 'p1', extra: { gstBackdate: { status: 'form_sent', formSentAtMs: 1, contact: { email: 'b@example.com' } } } }) });
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc } = backdateFor(db, clock, { env: { SAC_BOARD_PASS: '' } });
+  const tok = bd.detailsToken('o1', clock.t + 1000, LINK_SECRET);
+  assert.deepEqual(await svc.submitDetails(tok, { stateCode: '32', pin: '682001' }), { ok: true, status: 'details_received', held: 'seller_config_missing' });
+  assert.equal(db.read('gstInvoiceCounters/26-27'), undefined);
+  assert.equal((await svc.listPastSales()).rows[0].status, 'details_received');
+  const fixed = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => clock.t });
+  assert.deepEqual(await fixed.issueNow({ orderId: 'o1' }), { issued: true, number: 'LT/26-27/000001' });
+  const rec = db.read('payOrders/o1').gstInvoice;
+  assert.deepEqual([rec.issuedLater, rec.igstPaise, rec.buyer.email], [true, 29242, 'b@example.com']);
+});
+
+test('BACKDATE routes: signed-out form GET/POST (expired 410, forged 404, bad input 400), admin list + send gated', async () => {
+  const db = memoryFirestore({ 'payOrders/o1': pastOrder({ paymentId: 'p1', extra: { gstBackdate: { status: 'form_sent', formSentAtMs: 1, contact: { email: 'b@example.com' } } } }) });
+  const clock = { t: AFTER_CUTOFF };
+  const { svc, inv } = backdateFor(db, clock);
+  const { sendJson, sendJsonWithHeaders } = createHttpUtils('*');
+  const routes = createGstInvoiceRoutes({
+    sendJson,
+    sendJsonWithHeaders,
+    adminFirestore: db,
+    env: { ...ENV_READY, INVOICE_LINK_SECRET: LINK_SECRET },
+    now: () => clock.t,
+    requireAdmin: async (rq) => (rq.headers.authorization === 'Bearer admin' ? { ok: true } : { ok: false, status: 403, error: 'no' }),
+    invoicer: inv,
+    backdate: svc,
+    readJson: async (rq) => rq.body,
+  });
+  const good = bd.detailsToken('o1', clock.t + 5000, LINK_SECRET);
+  let res = fakeRes();
+  await routes.handleInvoiceDetailsGet(req(`/api/gst/invoice-details?t=${good}`), res, `/api/gst/invoice-details?t=${good}`);
+  assert.equal(res.r.status, 200);
+  assert.equal(res.json().status, 'needs_details');
+  assert.equal('stateCode' in res.json(), false);
+  const old = bd.detailsToken('o1', clock.t - 1, LINK_SECRET);
+  res = fakeRes();
+  await routes.handleInvoiceDetailsGet(req(`/api/gst/invoice-details?t=${old}`), res, `/api/gst/invoice-details?t=${old}`);
+  assert.equal(res.r.status, 410);
+  res = fakeRes();
+  await routes.handleInvoiceDetailsGet(req('/api/gst/invoice-details?t=abc.def'), res, '/api/gst/invoice-details?t=abc.def');
+  assert.equal(res.r.status, 404);
+  res = fakeRes();
+  await routes.handleInvoiceDetailsPost({ ...req('/api/gst/invoice-details'), method: 'POST', body: { t: good, stateCode: '29' } }, res);
+  assert.deepEqual([res.r.status, res.json().field], [400, 'pin']);
+  res = fakeRes();
+  await routes.handleInvoiceDetailsPost({ ...req('/api/gst/invoice-details'), method: 'POST', body: { t: good, stateCode: '29', pin: '560001' } }, res);
+  assert.equal(res.r.status, 200);
+  assert.equal(res.json().invoice.number, 'LT/26-27/000001');
+  res = fakeRes();
+  await routes.handleAdminPastSales(req('/api/admin/gst/past-sales', { authorization: 'Bearer nope' }), res);
+  assert.equal(res.r.status, 403);
+  res = fakeRes();
+  await routes.handleAdminPastSales(req('/api/admin/gst/past-sales', { authorization: 'Bearer admin' }), res);
+  assert.deepEqual(res.json().rows.map((x) => [x.orderId, x.status, x.invoiceNumber]), [['o1', 'invoiced', 'LT/26-27/000001']]);
+  res = fakeRes();
+  await routes.handleAdminSendForms({ ...req('/api/admin/gst/past-sales/send-forms', { authorization: 'Bearer nope' }), method: 'POST' }, res);
+  assert.equal(res.r.status, 403);
+  // Invoicing off: the form endpoints do not exist.
+  const off = createGstInvoiceRoutes({ sendJson, sendJsonWithHeaders, adminFirestore: db, env: {}, backdate: svc, readJson: async (rq) => rq.body });
+  res = fakeRes();
+  await off.handleInvoiceDetailsGet(req(`/api/gst/invoice-details?t=${good}`), res, `/api/gst/invoice-details?t=${good}`);
+  assert.equal(res.r.status, 404);
+});
+
+/* ══ review of #1625: B1 the supply date of a CLAIMED guest order is guestPaidAt; F3 no due reminder is starved ══ */
+
+test('B1 a guest order: the supply date is when it was PAID (guestPaidAt), never when it was claimed (paidAt)', async () => {
+  const guest = (paid, claimed, paymentId) => ({
+    uid: 'claimer1',
+    payer: 'guest',
+    passType: 'till_boards',
+    amountPaise: 191700,
+    status: 'paid', // passGrant rewrites status + paidAt at the claim
+    paymentId,
+    createdAt: new Date(IST(paid) - 60000),
+    guestPaidAt: new Date(IST(paid)),
+    paidAt: new Date(IST(claimed)),
+  });
+  const before = guest('2026-09-10T10:00:00', '2026-09-20T10:00:00', 'pay_G1');
+  const inside = guest('2026-10-01T10:00:00', '2026-10-03T18:00:00', 'pay_G2');
+  assert.equal(g.supplyMsOf(before), IST('2026-09-10T10:00:00'));
+  assert.equal(g.backdateExclusion(before), 'pre_registration', 'paid before registration, claimed after: NOT a past sale');
+  assert.equal(g.backdateExclusion(inside), null);
+  const db = memoryFirestore({ 'payOrders/order_G1': before, 'payOrders/order_G2': inside });
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc } = backdateFor(db, clock);
+  const list = await svc.listPastSales();
+  assert.deepEqual(list.rows.map((r) => [r.orderId, r.paidIst]), [['order_G2', '1 October 2026']]);
+  const tok = bd.detailsToken('order_G2', clock.t + 1000, LINK_SECRET);
+  assert.equal((await svc.submitDetails(tok, { stateCode: '07', pin: '110001' })).status, 'invoiced');
+  const rec = db.read('payOrders/order_G2').gstInvoice;
+  assert.equal(rec.supplyDateIst, '01-10-2026', 'the paid date, not the claim date (03-10-2026)');
+  assert.match(exp.invoicesCsv([rec]).trim().split('\r\n')[1], /,01-10-2026,Yes$/);
+  assert.equal(await svc.getDetails(bd.detailsToken('order_G1', clock.t + 1000, LINK_SECRET)).then((r) => r.error), 'invalid', 'no form for the pre-registration sale');
+});
+
+test('F3 the drain reads EVERY waiting order in a fixed order: 250 forms not yet due never starve the one reminder that is', async () => {
+  const seed = {};
+  const now0 = IST('2026-11-20T10:00:00');
+  for (let i = 0; i < 250; i += 1) {
+    seed[`payOrders/recent_${String(i).padStart(3, '0')}`] = pastOrder({ uid: `r${i}`, paymentId: `pr_${i}`, extra: { gstBackdate: { status: 'form_sent', formSentAtMs: now0 - 2 * DAY_MS_T, contact: { email: `r${i}@example.com` } } } });
+  }
+  seed['payOrders/zzz_due'] = pastOrder({ uid: 'due1', paymentId: 'p_due', extra: { gstBackdate: { status: 'form_sent', formSentAtMs: now0 - 6 * DAY_MS_T, contact: { email: 'due@example.com' } } } });
+  const db = memoryFirestore(seed);
+  const { svc, sent } = backdateFor(db, { t: now0 });
+  assert.deepEqual(await svc.drain(), { sent: 1, waiting: 0, failed: 0 });
+  assert.deepEqual(sent.map((s) => [s.to, s.key]), [['due@example.com', 'gst-state-reminder-p_due']]);
+  assert.equal(db.read('payOrders/zzz_due').gstBackdate.status, 'reminder_sent');
+});
+const DAY_MS_T = 24 * 60 * 60 * 1000;
