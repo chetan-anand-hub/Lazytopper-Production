@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import middleware, {
   advertisedPathsFrom,
+  paintPathsFrom,
   config,
   deploymentPinCookie,
   desktopVariantPath,
@@ -12,7 +13,8 @@ import middleware, {
   type PinEnv,
 } from "../../../middleware";
 import { PIN_REFRESH_PATH } from "./chunkReload";
-import { desktopVariantFile } from "../../scripts/seo/applyPrerendered";
+import { desktopVariantFile, paintPagesFor } from "../../scripts/seo/applyPrerendered";
+import { PAINT_PATHS } from "../../scripts/seo/loginPaint";
 import { sitemapPaths } from "../config/sitemapUrls";
 
 /**
@@ -367,6 +369,29 @@ describe("SEO-5 PR-2 (D2) — each device gets its own capture of an advertised 
     for (const path of paths) {
       const res = middleware(req(path, { headers: { "user-agent": UA.chromeDesktop } }));
       expect(variantOf(res).to, path).toBe(desktopVariantPath(path));
+    }
+  });
+
+  // SPEED-LOGIN-1 — /login is NOT advertised but has a paint page at both widths: device-served the same way.
+  it("paintPathsFrom: shape-checked, fail-open, separate from paths", () => {
+    expect(paintPathsFrom(null).size).toBe(0);
+    expect(paintPathsFrom({ paths: ["/x"] }).size).toBe(0);
+    expect(paintPathsFrom({ paintPaths: ["/login", 3, "no-slash"] })).toEqual(new Set(["/login"]));
+  });
+
+  it("the default export device-serves every paint path: desktop -> its __desktop file, phone -> its own file, Vary on both", () => {
+    expect(PAINT_PATHS).toContain("/login");
+    for (const path of PAINT_PATHS) {
+      const desk = middleware(req(path, { headers: { "user-agent": UA.chromeDesktop } }));
+      expect(variantOf(desk).to, path).toBe(desktopVariantPath(path));
+      expect(`/${paintPagesFor(path).find((p) => p.variant === "desktop")?.file}`).toBe(desktopVariantPath(path));
+      expect(desk?.headers.get("vary")).toContain("User-Agent");
+      const phone = middleware(req(path, { headers: { "user-agent": UA.chromeAndroid } }));
+      expect(variantOf(phone).variant, path).toBe("mobile");
+      expect(phone?.headers.get("vary")).toContain("User-Agent");
+      expect(variantOf(middleware(req(`${path}/`, { headers: { "user-agent": UA.chromeDesktop } }))).to).toBe(desktopVariantPath(path));
+      // A sub-route of /login keeps the shell: no rewrite.
+      expect(variantOf(middleware(req(`${path}/x`, { headers: { "user-agent": UA.chromeDesktop } }))).to).toBeNull();
     }
   });
 

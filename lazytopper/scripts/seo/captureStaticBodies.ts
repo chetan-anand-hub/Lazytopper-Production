@@ -64,7 +64,24 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { AddressInfo } from "node:net";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
-import { DESKTOP_PREFIX, desktopFragmentPathFor, fragmentPathFor } from "./applyPrerendered";
+import { DESKTOP_PREFIX, SPA_SHELL as SPA_SHELL_FILE, desktopFragmentPathFor, fragmentPathFor } from "./applyPrerendered";
+import {
+  PAINT_ATTR,
+  PAINT_DIR,
+  PAINT_PATHS,
+  type LoginPaintDecision,
+  type PaintKind,
+  type PaintVariant,
+  PAINT_RECORD,
+  type PaintRecord,
+  clockWindowAt,
+  loginPaintApplySource,
+  paintFragmentPathFor,
+  loginPaintConfig,
+  loginPaintDecisionSource,
+  markTopLevel,
+  withoutEmailCodeSlot,
+} from "./loginPaint";
 
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -300,7 +317,11 @@ function serveBuiltOutput(outDir: string, basename: string): Promise<Server> {
 
     // Lookups only — the request never becomes a path. Order mirrors the host:
     // an exact file, then `<path>.html`, then `<path>/index.html`, then the shell.
+    // SPEED-LOGIN-1: a paint path is captured from the app as it renders from the CLEAN shell (what the
+    // host served before paint pages existed). A build that already carries a paint page must not
+    // feed its static markup into the capture of the next one.
     const file =
+      (PAINT_PATHS.includes(bare) ? index.get(`/${SPA_SHELL_FILE}`) : undefined) ??
       index.get(pathname) ??
       index.get(`${bare}.html`) ??
       index.get(`${bare}/index.html`) ??
@@ -746,6 +767,317 @@ export function validateCaptures(captures: readonly Capture[]): string[] {
   return failures;
 }
 
+/* ------------------------------------------------------------------------------------------------ *
+ * SPEED-LOGIN-1 — PAINT SHELLS. NOT ADVERTISED, NOT STRIPPED, VALIDATED ON THEIR OWN.
+ *
+ * `/login` is never in the sitemap and its signed-out door IS its content, so none of the rules above
+ * (auth-chrome strip, advertised coverage) apply to it, and it is kept out of every set they check.
+ * What is captured is React's FIRST COMMIT — the DOM React itself puts on screen first, observed by a
+ * MutationObserver the moment it lands — because that is what the static paint must equal for React's
+ * take-over to move nothing. (The settled DOM differs from it only by lazy chunks arriving, and by
+ * SigningInScreen's status text, which an effect fills after the first frame.)
+ *
+ * ★ THE PARITY CHECK is the validator that matters. For every case below the app is loaded for real
+ * (its URL, user agent, viewport, sessionStorage), the SHIPPED decision script is evaluated against
+ * that environment before the app starts, and the SHIPPED apply step is run on the captured
+ * fragments. Whatever it would leave on screen must be byte-identical to React's own first commit in
+ * that environment, and the decision must be the one the case expects (so no case can pass by
+ * quietly turning `off`).
+ * ------------------------------------------------------------------------------------------------ */
+
+/** A phone (Pixel 7, Chrome) and a desktop (Windows, Chrome): what middleware.ts sends each variant to. */
+export const PAINT_USER_AGENTS = {
+  phone:
+    "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36",
+  tablet: "Mozilla/5.0 (Linux; Android 13; SM-X700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  desktop:
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  instagram:
+    "Mozilla/5.0 (Linux; Android 14; Pixel 7; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 Instagram 350.0.0.0",
+} as const;
+
+interface PaintRender {
+  path: string;
+  search: string;
+  width: number;
+  height: number;
+  touch: boolean;
+  userAgent: string;
+  /** Seed `lt.signinIntent` before the app loads: a fresh record (the Google return trip) or a stale one. */
+  intent?: "fresh" | "stale";
+  /** The capture the host would serve this client (middleware.ts), whose script decides. */
+  served: PaintVariant;
+}
+
+export interface PaintCase extends PaintRender {
+  name: string;
+  expect: PaintKind | "off";
+}
+
+const PHONE = { width: 390, height: 844, touch: true, userAgent: PAINT_USER_AGENTS.phone, served: "mobile" as const };
+const DESKTOP = { width: 1280, height: 900, touch: false, userAgent: PAINT_USER_AGENTS.desktop, served: "desktop" as const };
+
+/** The two states captured per variant. */
+export const PAINT_CAPTURES: ReadonlyArray<{ kind: PaintKind; variant: PaintVariant; render: PaintRender }> = [
+  { kind: "door", variant: "mobile", render: { ...PHONE, path: "/login", search: "" } },
+  { kind: "signing-in", variant: "mobile", render: { ...PHONE, path: "/login", search: "", intent: "fresh" } },
+  { kind: "door", variant: "desktop", render: { ...DESKTOP, path: "/login", search: "" } },
+  { kind: "signing-in", variant: "desktop", render: { ...DESKTOP, path: "/login", search: "", intent: "fresh" } },
+];
+
+/** The parity matrix: the URL shapes `withSigninRedirect` / the trial CTAs / the pay flows send to /login. */
+export const PAINT_PARITY_CASES: readonly PaintCase[] = [
+  { name: "phone 360, ?redirect", ...PHONE, width: 360, height: 740, path: "/login", search: "?redirect=%2Fpractice-hub", expect: "door" },
+  { name: "phone, start-trial + redirect", ...PHONE, path: "/login", search: "?reason=start-trial&redirect=%2Fpricing%3Fsource%3Dlanding", expect: "door" },
+  { name: "phone, /login/ (trailing slash)", ...PHONE, path: "/login/", search: "", expect: "door" },
+  { name: "android tablet 800 (mobile file)", ...PHONE, width: 800, height: 1280, userAgent: PAINT_USER_AGENTS.tablet, path: "/login", search: "?redirect=%2Fnotes%2Freal-numbers", expect: "door" },
+  { name: "desktop 1440, ?redirect", ...DESKTOP, width: 1440, path: "/login", search: "?redirect=%2Fcheck-improve%3Fsource%3Dx", expect: "door" },
+  { name: "desktop, start-trial", ...DESKTOP, path: "/login", search: "?reason=start-trial", expect: "door" },
+  { name: "phone, Google return", ...PHONE, width: 360, height: 740, path: "/login", search: "", intent: "fresh", expect: "signing-in" },
+  { name: "desktop, Google return", ...DESKTOP, width: 1366, path: "/login", search: "?redirect=%2Fpricing", intent: "fresh", expect: "signing-in" },
+  { name: "phone, stale intent record", ...PHONE, path: "/login", search: "", intent: "stale", expect: "off" },
+  { name: "desktop UA in a 900-px window", ...DESKTOP, width: 900, path: "/login", search: "", expect: "off" },
+  { name: "android tablet 1280 (mobile file, desktop layout)", ...PHONE, width: 1280, height: 800, touch: true, userAgent: PAINT_USER_AGENTS.tablet, path: "/login", search: "", expect: "off" },
+  { name: "Instagram in-app", ...PHONE, userAgent: PAINT_USER_AGENTS.instagram, path: "/login", search: "", expect: "off" },
+  { name: "buy intent", ...PHONE, path: "/login", search: "?redirect=%2Fpricing%3Fbuy%3Dboard_pass", expect: "off" },
+  { name: "?method=phone", ...PHONE, path: "/login", search: "?method=phone", expect: "off" },
+];
+
+interface PaintRendered {
+  first: string;
+  topLevelElementsOnly: boolean;
+  decision: LoginPaintDecision | null;
+  apiCalls: string[];
+}
+
+/** Load the app for one environment and return React's first commit of `#root` (+ the shipped decision). */
+async function renderPaintFirstCommit(
+  browser: Browser,
+  origin: string,
+  basename: string,
+  render: PaintRender,
+  blockApis: boolean,
+  clock: { from: number; until: number },
+): Promise<PaintRendered> {
+  const context = await browser.newContext({
+    viewport: { width: render.width, height: render.height },
+    isMobile: render.touch,
+    hasTouch: render.touch,
+    userAgent: render.userAgent,
+  });
+  try {
+    const page = await context.newPage();
+    const apiCalls = new Set<string>();
+    page.on("request", (request) => {
+      if (isAppApiUrl(request.url())) apiCalls.add(new URL(request.url()).pathname);
+    });
+    if (blockApis) {
+      for (const pattern of APP_API_PATTERNS) await page.route(pattern, (route) => route.abort());
+    }
+    const intentAt = render.intent === "fresh" ? "Date.now()" : render.intent === "stale" ? "Date.now() - 31 * 60 * 1000" : "null";
+    // ★ The init script mirrors what the paint page carries before the app runs — `<html data-theme="light">`
+    // (applyPrerendered) — then records the SHIPPED decision for this environment and React's first commit.
+    await page.addInitScript({
+      content:
+        `(function(){if(window.top!==window)return;` +
+        `var at=${intentAt};if(at!==null){try{sessionStorage.setItem(${JSON.stringify(SIGNIN_INTENT_KEY_FOR_CAPTURE)},JSON.stringify({v:1,method:"google",target:"/",explicitTarget:null,from:null,startTrial:false,guestPayClaim:false,guestPayExisting:false,at:at}));}catch(e){}}` +
+        `window.__ltFirst=null;window.__ltTopOk=null;window.__ltDecision=null;var decided=false;var watching=false;` +
+        `var tick=function(){var html=document.documentElement;if(!html)return;` +
+        `if(!html.hasAttribute("data-theme"))html.setAttribute("data-theme","light");` +
+        `if(!decided){decided=true;try{window.__ltDecision=${loginPaintDecisionSource(loginPaintConfig(render.served, clock))};}catch(e){window.__ltDecision={kind:"error",reason:String(e)};}}` +
+        `var root=document.getElementById("root");if(!root||watching)return;watching=true;docMo.disconnect();` +
+        `var initial=root.innerHTML;new MutationObserver(function(r,mo){if(window.__ltFirst===null&&root.innerHTML!==initial){` +
+        `window.__ltFirst=root.innerHTML;window.__ltTopOk=Array.prototype.every.call(root.childNodes,function(n){return n.nodeType===1;});mo.disconnect();}})` +
+        `.observe(root,{childList:true,subtree:true,characterData:true,attributes:true});};` +
+        `var docMo=new MutationObserver(tick);docMo.observe(document,{childList:true,subtree:true});tick();})();`,
+    });
+    await page.goto(`${origin}${basename}${render.path}${render.search}`, { waitUntil: "networkidle", timeout: 60_000 });
+    await page.waitForFunction(() => (window as unknown as { __ltFirst: string | null }).__ltFirst !== null, undefined, {
+      timeout: 30_000,
+    });
+    const result = await page.evaluate(() => {
+      const w = window as unknown as { __ltFirst: string; __ltTopOk: boolean; __ltDecision: LoginPaintDecision | null };
+      return { first: w.__ltFirst, topLevelElementsOnly: w.__ltTopOk === true, decision: w.__ltDecision };
+    });
+    return { ...result, apiCalls: [...apiCalls].sort() };
+  } finally {
+    await context.close();
+  }
+}
+
+/** The sessionStorage key the capture seeds (services/signinIntent.ts SIGNIN_INTENT_KEY, via loginPaint). */
+const SIGNIN_INTENT_KEY_FOR_CAPTURE = loginPaintConfig("mobile", { from: 0, until: 1 }).intentKey;
+
+export interface PaintCapture {
+  path: string;
+  kind: PaintKind;
+  variant: PaintVariant;
+  /** Artifact form: the email-code slot removed (the build re-inserts it per its own flag). */
+  html: string;
+  htmlWithApis: string;
+  topLevelElementsOnly: boolean;
+  apiCalls: string[];
+}
+
+export interface PaintParityResult {
+  name: string;
+  expect: PaintKind | "off";
+  decided: string;
+  shown: string;
+  /** null when nothing is shown (`off`); otherwise whether the shown DOM equals React's first commit. */
+  equal: boolean | null;
+  detail?: string;
+}
+
+/** Text every capture of a state must carry, and text it must not. */
+export const PAINT_REQUIRED_TEXT: Readonly<Record<PaintKind, readonly string[]>> = {
+  door: ["Sign in to LazyTopper", "Continue with Google", "Continue with phone", "Continue with email", "Use the same method every time."],
+  "signing-in": ["Taking you back to where you were."],
+};
+export const PAINT_FORBIDDEN_TEXT: Readonly<Record<PaintKind, readonly string[]>> = {
+  door: ["Signing you in"],
+  "signing-in": ["Continue with", "lt-method", "lt-google", "Signing you in"],
+};
+const MIN_PAINT_BYTES: Readonly<Record<PaintKind, number>> = { door: 4000, "signing-in": 200 };
+
+/** Every check on the paint captures and the parity matrix. Empty = good. */
+export function validatePaintCaptures(
+  captures: readonly PaintCapture[],
+  parity: readonly PaintParityResult[],
+  advertised: Readonly<Record<PaintVariant, readonly Capture[]>>,
+): string[] {
+  const failures: string[] = [];
+  for (const path of PAINT_PATHS) {
+    for (const variant of ["mobile", "desktop"] as const) {
+      for (const kind of ["door", "signing-in"] as const) {
+        if (!captures.some((c) => c.path === path && c.kind === kind && c.variant === variant)) {
+          failures.push(`[paint] ${path} ${kind} ${variant}: never captured`);
+        }
+      }
+    }
+  }
+  const seen = new Map<string, string>();
+  for (const c of captures) {
+    const tag = `[paint] ${c.path} ${c.kind} ${c.variant}`;
+    if (Buffer.byteLength(c.html, "utf8") < MIN_PAINT_BYTES[c.kind]) failures.push(`${tag}: only ${Buffer.byteLength(c.html)} bytes`);
+    const lower = c.html.toLowerCase();
+    for (const marker of ERROR_BOUNDARY_MARKERS) if (lower.includes(marker)) failures.push(`${tag}: captured an error boundary ("${marker}")`);
+    for (const text of PAINT_REQUIRED_TEXT[c.kind]) if (!c.html.includes(text)) failures.push(`${tag}: missing "${text}"`);
+    for (const text of PAINT_FORBIDDEN_TEXT[c.kind]) if (c.html.includes(text)) failures.push(`${tag}: carries "${text}"`);
+    if (!c.topLevelElementsOnly) failures.push(`${tag}: #root has a top-level text node (it could not be hidden or removed)`);
+    if (c.html.includes("data-lt-route")) failures.push(`${tag}: carries route marks main.tsx would extract`);
+    if (c.html.includes(`${PAINT_ATTR}=`)) failures.push(`${tag}: React's own DOM carries ${PAINT_ATTR}`);
+    if (c.htmlWithApis !== c.html) failures.push(`${tag}: first commit DEPENDS ON A RUNTIME API RESPONSE`);
+    try {
+      markTopLevel(c.html, c.kind);
+    } catch (error: unknown) {
+      failures.push(`${tag}: cannot be marked (${String(error)})`);
+    }
+    if (c.kind === "door") {
+      if ((c.html.match(/class="lt-login-back-link"/g) ?? []).length !== 1) failures.push(`${tag}: expected exactly one back link`);
+      if (!c.html.includes('class="lt-offer-strip-link" href="/pricing?source=login"')) failures.push(`${tag}: plans link not at its default`);
+      // Login's isPhoneClient: the phone capture leads with the phone door, the desktop one with Google.
+      const phone = c.html.indexOf("Continue with phone");
+      const google = c.html.indexOf("Continue with Google");
+      if (c.variant === "mobile" ? !(phone < google) : !(google < phone)) failures.push(`${tag}: door order is not this variant's`);
+    } else if (!/<p class="lt-signing-in__title"[^>]*><\/p>/.test(c.html)) {
+      failures.push(`${tag}: the status line is not empty (React's first commit leaves it empty)`);
+    }
+    const prior = seen.get(c.html);
+    if (prior) failures.push(`${tag}: byte-identical to ${prior}`);
+    else seen.set(c.html, tag);
+    for (const other of advertised[c.variant]) {
+      if (other.html === c.html) failures.push(`${tag}: byte-identical to the advertised capture of ${other.path}`);
+    }
+  }
+  if (parity.length !== PAINT_PARITY_CASES.length) failures.push(`[paint] parity: ${parity.length} of ${PAINT_PARITY_CASES.length} cases ran`);
+  for (const r of parity) {
+    if (r.decided !== r.expect) failures.push(`[paint] parity "${r.name}": decided ${r.decided}, expected ${r.expect}`);
+    if (r.shown !== r.decided) failures.push(`[paint] parity "${r.name}": decided ${r.decided} but the shipped apply left ${r.shown}`);
+    if (r.equal === false) failures.push(`[paint] parity "${r.name}": the static ${r.shown} differs from React's first commit${r.detail ? ` — ${r.detail}` : ""}`);
+  }
+  return failures;
+}
+
+/** Index of the first differing character, with context, for a failure message. */
+function firstDifference(a: string, b: string): string {
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i += 1;
+  return `at ${i}: static "${a.slice(Math.max(0, i - 60), i + 60)}" vs react "${b.slice(Math.max(0, i - 60), i + 60)}"`;
+}
+
+/** Capture every paint state (blocked + live control) and run the parity matrix. */
+async function capturePaintShells(
+  browser: Browser,
+  origin: string,
+  basename: string,
+  clock: { from: number; until: number },
+): Promise<{ captures: PaintCapture[]; parity: PaintParityResult[] }> {
+  const captures: PaintCapture[] = [];
+  for (const path of PAINT_PATHS) {
+    for (const spec of PAINT_CAPTURES) {
+      const render = { ...spec.render, path };
+      const blocked = await renderPaintFirstCommit(browser, origin, basename, render, true, clock);
+      const live = await renderPaintFirstCommit(browser, origin, basename, render, false, clock);
+      captures.push({
+        path,
+        kind: spec.kind,
+        variant: spec.variant,
+        html: withoutEmailCodeSlot(blocked.first),
+        htmlWithApis: withoutEmailCodeSlot(live.first),
+        topLevelElementsOnly: blocked.topLevelElementsOnly,
+        apiCalls: [...new Set([...blocked.apiCalls, ...live.apiCalls])].sort(),
+      });
+    }
+  }
+
+  const parity: PaintParityResult[] = [];
+  for (const kase of PAINT_PARITY_CASES) {
+    const fragment = (kind: PaintKind) =>
+      captures.find((c) => c.path === "/login" && c.kind === kind && c.variant === kase.served)?.html ?? "";
+    const rendered = await renderPaintFirstCommit(browser, origin, basename, kase, true, clock);
+    const decision = rendered.decision;
+    const decided = decision ? decision.kind : "none";
+    if (!decision || (decision.kind !== "door" && decision.kind !== "signing-in" && decision.kind !== "off")) {
+      parity.push({ name: kase.name, expect: kase.expect, decided, shown: "none", equal: false, detail: JSON.stringify(decision) });
+      continue;
+    }
+    // Run the SHIPPED apply on the marked fragments, in a page, exactly as the paint page would.
+    const page = await browser.newPage();
+    try {
+      const applied = await page.evaluate(
+        ([applySource, html, dec, attr]) => {
+          const apply = new Function(`return ${applySource}`)() as (root: Element, d: unknown) => string;
+          const holder = document.createElement("div");
+          holder.innerHTML = html;
+          const shown = apply(holder, dec);
+          for (const el of Array.from(holder.querySelectorAll(`[${attr}]`))) el.removeAttribute(attr);
+          return { shown, html: holder.innerHTML };
+        },
+        [
+          loginPaintApplySource(loginPaintConfig(kase.served, clock)),
+          markTopLevel(fragment("door"), "door") + markTopLevel(fragment("signing-in"), "signing-in"),
+          decision,
+          PAINT_ATTR,
+        ] as const,
+      );
+      const react = withoutEmailCodeSlot(rendered.first);
+      const equal = applied.shown === "off" ? null : applied.html === react;
+      parity.push({
+        name: kase.name,
+        expect: kase.expect,
+        decided,
+        shown: applied.shown,
+        equal,
+        detail: equal === false ? firstDifference(applied.html, react) : undefined,
+      });
+    } finally {
+      await page.close();
+    }
+  }
+  return { captures, parity };
+}
+
 async function main(): Promise<void> {
   const outDir = await resolveOutDir();
   const basename = await resolveBasename();
@@ -772,6 +1104,9 @@ async function main(): Promise<void> {
 
   const captures: Capture[] = [];
   const desktopCaptures: Capture[] = [];
+  // SPEED-LOGIN-1: the clock window the paint captures hold for (their OfferStrip copy follows the calendar).
+  const paintClock = clockWindowAt(Date.now());
+  let paint: { captures: PaintCapture[]; parity: PaintParityResult[] } = { captures: [], parity: [] };
   // ⚠ THE SERVER IS CLOSED ON EVERY PATH OUT OF HERE, INCLUDING A FAILED BROWSER
   // LAUNCH, AND THAT OUTER `try` IS NOT TIDINESS. `chromium.launch()` used to sit
   // OUTSIDE it: on a machine with no browser downloaded the launch threw in ONE
@@ -809,6 +1144,7 @@ async function main(): Promise<void> {
         captures.push(...settled.map((pair) => pair.mobile));
         desktopCaptures.push(...settled.map((pair) => pair.desktop));
       }
+      paint = await capturePaintShells(browser, origin, basename, paintClock);
     } finally {
       await browser.close();
     }
@@ -816,7 +1152,10 @@ async function main(): Promise<void> {
     await new Promise<void>((done) => server.close(() => done()));
   }
 
-  const failures = validateBothWidths(captures, desktopCaptures);
+  const failures = [
+    ...validateBothWidths(captures, desktopCaptures),
+    ...validatePaintCaptures(paint.captures, paint.parity, { mobile: captures, desktop: desktopCaptures }),
+  ];
   if (failures.length > 0) {
     throw new Error(
       `captureStaticBodies: ${failures.length} page(s) failed validation. NOTHING WAS ` +
@@ -866,6 +1205,18 @@ async function main(): Promise<void> {
     filesWritten += 1;
   }
 
+  // SPEED-LOGIN-1: the paint captures, under `__paint/` (never a public path, never advertised), and
+  // their record. The clock window is what makes them byte-stable between instants and stale across one.
+  for (const capture of paint.captures) {
+    const file = paintFragmentPathFor(PRERENDERED_DIR, capture.path, capture.kind, capture.variant);
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, capture.html, "utf8");
+    filesWritten += 1;
+  }
+  const paintRecord: PaintRecord = { paths: [...PAINT_PATHS], clock: paintClock };
+  writeFileSync(join(PRERENDERED_DIR, PAINT_DIR, PAINT_RECORD), `${JSON.stringify(paintRecord, null, 2)}\n`, "utf8");
+  filesWritten += 1;
+
   // ★ THE MANIFEST RECORDS WHAT IS PLATFORM-STABLE, AND NOTHING ELSE.
   //
   // ⚠ IT USED TO CARRY THE ENTRY CHUNK'S CONTENT HASH AS A STALENESS FINGERPRINT, AND
@@ -899,7 +1250,10 @@ async function main(): Promise<void> {
         // up as a diff line in the committed artifact, rather than passing unnoticed
         // because it happened not to change any rendering.
         appApiCallsObserved: [
-          ...new Set([...captures, ...desktopCaptures].flatMap((capture) => capture.apiCalls ?? [])),
+          ...new Set([
+            ...[...captures, ...desktopCaptures].flatMap((capture) => capture.apiCalls ?? []),
+            ...paint.captures.flatMap((capture) => capture.apiCalls),
+          ]),
         ].sort(),
         // ★ LOAD-BEARING SINCE SEO-5 PR-2: `middleware.ts` imports `paths` as the set of pages
         // that HAVE a desktop variant; `applyPrerendered` fails the build unless it equals the
@@ -907,6 +1261,9 @@ async function main(): Promise<void> {
         desktopPrefix: DESKTOP_PREFIX,
         viewports: CAPTURE_VIEWPORTS,
         paths: captures.map((capture) => capture.path).sort(),
+        // SPEED-LOGIN-1 — non-advertised paths with a paint page at both widths; `middleware.ts` serves
+        // desktop clients their `/__desktop/` file exactly as it does for `paths`.
+        paintPaths: [...PAINT_PATHS],
       },
       null,
       2,
@@ -928,6 +1285,12 @@ async function main(): Promise<void> {
       `files=${filesWritten} auth_nodes_removed=${removed} ` +
       `body_bytes_min=${Math.min(...bytes)} body_bytes_max=${Math.max(...bytes)} ` +
       `entry=${entryChunkOf(outDir)}`,
+  );
+  // eslint-disable-next-line no-console
+  console.log(
+    `PAINT_SHELLS_CAPTURE: paths=${PAINT_PATHS.join(",")} captures=${paint.captures.length} ` +
+      `parity_cases=${paint.parity.length} parity_shown=${paint.parity.filter((r) => r.equal === true).length} ` +
+      `parity_off=${paint.parity.filter((r) => r.equal === null).length} clock=${paintClock.from}..${paintClock.until}`,
   );
 }
 

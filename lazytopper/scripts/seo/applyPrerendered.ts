@@ -39,6 +39,17 @@
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "node:fs";
 import { criticalCss } from "./criticalCss";
+import {
+  PAINT_DIR,
+  PAINT_PATHS,
+  PAINT_RECORD,
+  PAINT_VARIANTS,
+  type PaintRecord,
+  buildLoginPaintPage,
+  emailCodeFlagOn,
+  loginPaintConfig,
+  paintFragmentPathFor,
+} from "./loginPaint";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
@@ -194,6 +205,8 @@ function fragmentsPresent(dir: string, skipDesktop = true): string[] {
     for (const entry of readdirSync(current, { withFileTypes: true })) {
       const absolute = join(current, entry.name);
       if (skipDesktop && prefix === "" && entry.isDirectory() && entry.name === DESKTOP_PREFIX) continue;
+      // SPEED-LOGIN-1: the paint captures are a separate, non-advertised set (`applyPaintShells`).
+      if (prefix === "" && entry.isDirectory() && entry.name === PAINT_DIR) continue;
       if (entry.isDirectory()) walk(absolute, `${prefix}/${entry.name}`);
       else if (entry.name.endsWith(".html")) {
         const path = `${prefix}/${entry.name.replace(/\.html$/, "")}`;
@@ -877,6 +890,136 @@ export function verifyBuiltPages(
   return { failures, mobileFiles, desktopFiles, preloadLinks, islandFiles };
 }
 
+/**
+ * SPEED-LOGIN-1 — the paint pages (`/login`): `login.html`, `login/index.html` (390-px capture) and
+ * `__desktop/login.html` (1280-px), built from the CLEAN NOINDEX `__shell.html` that /login was served
+ * until now, so the head (robots `noindex`, the root canonical) is byte-for-byte what it was. See
+ * `loginPaint.ts` for the runtime decision. Vercel serves a real file before applying `vercel.json`'s
+ * `/login` -> `/__shell.html` rewrite (the same precedence every prerendered page relies on), so no
+ * routing changes; `/login/<anything>` still gets the shell.
+ *
+ * ★ PRE-CAPTURE STATE: no `__paint/` in the artifact -> nothing is written, /login keeps the shell, and
+ * the manifest must then NOT list `paintPaths` (middleware.ts would rewrite desktop clients to a file
+ * that does not exist). A manifest that lists them without the fragments FAILS the build.
+ */
+export function paintPagesFor(path: string): Array<{ file: string; variant: "mobile" | "desktop" }> {
+  const stem = path.replace(/^\//, "");
+  return [
+    { file: `${stem}.html`, variant: "mobile" },
+    { file: join(stem, "index.html"), variant: "mobile" },
+    { file: desktopVariantFile(path), variant: "desktop" },
+  ];
+}
+
+export function applyPaintShells(
+  outDir: string,
+  prerenderedDir: string = PRERENDERED_DIR,
+  options: { emailCodeOn: boolean; criticalCss?: boolean },
+): { pages: number; paths: string[] } {
+  const manifestFile = join(prerenderedDir, "manifest.json");
+  const listed = existsSync(manifestFile)
+    ? ((JSON.parse(readFileSync(manifestFile, "utf8")) as { paintPaths?: unknown }).paintPaths ?? [])
+    : [];
+  const recordFile = join(prerenderedDir, PAINT_DIR, PAINT_RECORD);
+  if (!existsSync(recordFile)) {
+    if (Array.isArray(listed) && listed.length > 0) {
+      throw new Error(
+        `applyPrerendered: manifest.json lists paintPaths ${JSON.stringify(listed)} but the artifact has no ` +
+          `${PAINT_DIR}/${PAINT_RECORD}. middleware.ts would send desktop clients to a missing file.`,
+      );
+    }
+    return { pages: 0, paths: [] };
+  }
+  const record = JSON.parse(readFileSync(recordFile, "utf8")) as PaintRecord;
+  const failures: string[] = [];
+  const same = (a: readonly unknown[], b: readonly unknown[]) =>
+    a.length === b.length && [...a].sort().every((v, i) => v === [...b].sort()[i]);
+  if (!Array.isArray(record.paths) || !same(record.paths, PAINT_PATHS)) {
+    failures.push(`${PAINT_RECORD}: paths ${JSON.stringify(record.paths)} are not ${JSON.stringify(PAINT_PATHS)}`);
+  }
+  if (!Array.isArray(listed) || !same(listed, PAINT_PATHS)) {
+    failures.push(`manifest.json: paintPaths ${JSON.stringify(listed)} are not ${JSON.stringify(PAINT_PATHS)}`);
+  }
+  if (!record.clock || !Number.isFinite(record.clock.from) || !Number.isFinite(record.clock.until) || record.clock.from >= record.clock.until) {
+    failures.push(`${PAINT_RECORD}: no valid clock window`);
+  }
+  for (const path of PAINT_PATHS) {
+    if (sitemapPaths().includes(path)) failures.push(`${path}: a paint path must never be advertised`);
+    for (const variant of PAINT_VARIANTS) {
+      for (const kind of ["door", "signing-in"] as const) {
+        if (!existsSync(paintFragmentPathFor(prerenderedDir, path, kind, variant))) {
+          failures.push(`${path}: no ${kind} capture for ${variant}`);
+        }
+      }
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(`applyPrerendered: the paint artifact is incomplete. NOTHING WAS WRITTEN.\n  - ${failures.join("\n  - ")}`);
+  }
+
+  const shellFile = join(outDir, SPA_SHELL);
+  if (!existsSync(shellFile)) throw new Error(`applyPrerendered: ${SPA_SHELL} must be written before the paint pages`);
+  const shell = readFileSync(shellFile, "utf8");
+  const entryCss = options.criticalCss === false ? null : entryStylesheetOf(shell);
+  const entryCssText = entryCss ? readFileSync(join(outDir, "assets", entryCss), "utf8") : "";
+  let pages = 0;
+  for (const path of PAINT_PATHS) {
+    for (const variant of PAINT_VARIANTS) {
+      const read = (kind: "door" | "signing-in") => readFileSync(paintFragmentPathFor(prerenderedDir, path, kind, variant), "utf8");
+      const built = buildLoginPaintPage(
+        shell,
+        { door: read("door"), signingIn: read("signing-in") },
+        loginPaintConfig(variant, record.clock),
+        options.emailCodeOn,
+      );
+      const html = entryCss ? withCriticalEntryCss(built, entryCss, entryCssText, criticalCss) : built;
+      for (const page of paintPagesFor(path).filter((p) => p.variant === variant)) {
+        const file = join(outDir, page.file);
+        mkdirSync(dirname(file), { recursive: true });
+        writeFileSync(file, html, "utf8");
+        pages += 1;
+      }
+    }
+  }
+  return { pages, paths: [...PAINT_PATHS] };
+}
+
+/** Re-read the written paint pages and check what they must carry. Empty = good. */
+export function verifyPaintPages(outDir: string, paths: readonly string[] = PAINT_PATHS): string[] {
+  const failures: string[] = [];
+  const shell = readFileSync(join(outDir, SPA_SHELL), "utf8");
+  const head = (html: string) => html.slice(0, html.indexOf("<body"));
+  const robots = (html: string) => html.match(ANY_ROBOTS_META) ?? [];
+  const canonical = (html: string) => html.match(/<link rel="canonical"[^>]*>/g) ?? [];
+  for (const path of paths) {
+    for (const { file } of paintPagesFor(path)) {
+      const absolute = join(outDir, file);
+      if (!existsSync(absolute)) {
+        failures.push(`${path}: paint page ${file} was not written`);
+        continue;
+      }
+      const html = readFileSync(absolute, "utf8");
+      const tag = `${path}: paint page ${file}`;
+      const r = robots(html);
+      if (r.length !== 1 || !/content="noindex[,"]/.test(r[0])) failures.push(`${tag} is not exactly-once noindex (${r.join(" ")})`);
+      if (JSON.stringify(canonical(html)) !== JSON.stringify(canonical(shell))) failures.push(`${tag} has a canonical other than the shell's`);
+      if (html.includes(EMPTY_ROOT)) failures.push(`${tag} has an EMPTY body`);
+      if ((html.match(/<script data-lt-paint-script>/g) ?? []).length !== 1) failures.push(`${tag} lacks its one paint script`);
+      if (!/<\/div><script data-lt-paint-script>/.test(html)) failures.push(`${tag}: the paint script does not follow #root`);
+      if ((head(html).match(/<style data-lt-paint-css>/g) ?? []).length !== 1) failures.push(`${tag} lacks the paint CSS in its head`);
+      if (!/<html\b[^>]*\bdata-theme="light"/.test(html)) failures.push(`${tag} lacks <html data-theme="light">`);
+      if (!html.includes('data-lt-paint="door"') || !html.includes('data-lt-paint="signing-in"')) failures.push(`${tag} lacks a state`);
+      if (html.includes('<link rel="stylesheet" crossorigin href="/assets/index-') && !html.includes(DEFERRED_CSS_ATTR)) {
+        failures.push(`${tag} still loads the entry stylesheet render-blocking`);
+      }
+      for (const url of hopUrlsIn(html)) failures.push(`${tag} emits ${url}, which redirects`);
+      const entry = entryScriptOf(shell);
+      if (!html.includes(`src="${entry.base}assets/${entry.entry}"`)) failures.push(`${tag} does not load the app entry`);
+    }
+  }
+  return failures;
+}
+
 async function resolveOutDir(): Promise<string> {
   const override = process.argv.find((arg) => arg.startsWith("--out="));
   if (override) return resolve(LAZYTOPPER_ROOT, override.slice("--out=".length));
@@ -1147,6 +1290,22 @@ async function main(): Promise<void> {
       `shell=${SPA_SHELL} body_bytes_total=${bodyBytes} preload_links_per_page_total=${preloadLinks} ` +
       `island_paths=${islandPaths}${islandsEnabled(process.env) ? "" : " (LT_ISLANDS=0)"}`,
   );
+
+  // SPEED-LOGIN-1 — the paint pages. The email-code flag is read the way Vite reads it for this build
+  // (process env + .env files, mode production), so the slot matches the bundle's own first commit.
+  const { loadEnv } = await import("vite");
+  const viteEnv = loadEnv("production", LAZYTOPPER_ROOT, "VITE_");
+  const painted = applyPaintShells(outDir, PRERENDERED_DIR, { emailCodeOn: emailCodeFlagOn(viteEnv.VITE_EMAIL_CODE_SIGNIN_ENABLED) });
+  const paintFailures = painted.pages > 0 ? verifyPaintPages(outDir, painted.paths) : [];
+  // eslint-disable-next-line no-console
+  console.log(
+    `PAINT_SHELLS_APPLY: paths=${painted.paths.join(",") || "none (pre-capture: /login keeps the shell)"} ` +
+      `pages=${painted.pages} email_code_slot=${emailCodeFlagOn(viteEnv.VITE_EMAIL_CODE_SIGNIN_ENABLED) ? "on" : "off"} ` +
+      `failures=${paintFailures.length}`,
+  );
+  if (paintFailures.length > 0) {
+    throw new Error(`applyPrerendered: ${paintFailures.length} paint page problem(s).\n  - ${paintFailures.join("\n  - ")}`);
+  }
 
   // ★ PINS (a) + (d) AGAINST THIS REAL BUILD — re-read from disk, independent of the writer.
   // Skipped only in the pre-capture state, where nothing was applied to verify.

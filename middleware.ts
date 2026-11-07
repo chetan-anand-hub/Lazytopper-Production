@@ -98,9 +98,20 @@ export function advertisedPathsFrom(manifest: unknown): ReadonlySet<string> {
   return new Set(paths.filter((p): p is string => typeof p === "string" && p.startsWith("/")));
 }
 
+/**
+ * SPEED-LOGIN-1 — the manifest's `paintPaths`: NON-advertised pages that also have a 1280-px file under
+ * `/__desktop/` (`/login`). Device serving treats them exactly like `paths`; nothing else does (they are
+ * never in a sitemap). Same shape check, same fail-open: malformed -> empty -> the mobile file for all.
+ */
+export function paintPathsFrom(manifest: unknown): ReadonlySet<string> {
+  const paths = (manifest as { paintPaths?: unknown } | null)?.paintPaths;
+  if (!Array.isArray(paths)) return new Set();
+  return new Set(paths.filter((p): p is string => typeof p === "string" && p.startsWith("/")));
+}
+
 const ADVERTISED: ReadonlySet<string> = (() => {
   try {
-    return advertisedPathsFrom(prerenderManifest);
+    return new Set([...advertisedPathsFrom(prerenderManifest), ...paintPathsFrom(prerenderManifest)]);
   } catch {
     return new Set<string>();
   }
