@@ -56,8 +56,12 @@ export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
  *  2026-10-25 PACKS-CLIENT-1: +446 B gz (272,950 -> 273,396, flag ON) for the /packs route, activity events and Meta map (owner revenue priority);
  *  reduction lane [FU-PERF3-BUDGET] queued.
  *  2026-10-25 PACKS-UX-1: +~125 B (grouped pack pending row on Home + packs labels); reduction lane [FU-PERF3-BUDGET] queued.
- *  2026-10-25 PACKS-ENTRY-1: +~200 B (lazy entry-point wrappers, pack_entry_click event); reduction lane [FU-PERF3-BUDGET] queued. */
-export const MEASURED_ENTRY_GZ = 249110;
+ *  2026-10-25 PACKS-ENTRY-1: +~200 B (lazy entry-point wrappers, pack_entry_click event); reduction lane [FU-PERF3-BUDGET] queued.
+ *  2026-11-07 SPEED-CHUNKS-1: TIGHTENED 249,110 -> 155,116 (budget 274,021 -> 170,627). vite.config.ts manualChunks moved
+ *  React (+ react-router, scheduler) and Firebase App/Auth out of the entry FILE into vendor-react-* / vendor-firebase-*,
+ *  which the entry imports statically. The code still loads eagerly (entry closure 273,816 B gz at level 9 vs 272,915
+ *  before); only the entry FILE shrank. Leaving the old figure would have left ~119 KB gz of silent headroom here. */
+export const MEASURED_ENTRY_GZ = 155116;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */
