@@ -30,6 +30,7 @@ import {
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
+import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /** The pack a link carries, as the SERVER reports it (its price is the server table's). */
 export interface ParentPackRef {
@@ -111,7 +112,9 @@ export interface ParentPackBuyDeps {
 
 /** The pack order names NO pack: the server takes sku, target, child and amount from the link. */
 export async function createParentPackOrder(token: string) {
-  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack" });
+  // GST-INVOICE-1: the PARENT (the payer) confirms their state.
+  const gst = await gstBuyerOrderFields(null);
+  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new ParentLinkError("failed");
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
@@ -170,6 +173,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
       ...(verified.duplicate ? { duplicate: true } : {}),
     };
   } catch (e) {
+    if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof ParentLinkError && e.reason !== "failed") return { status: "failed", reason: e.reason as Exclude<ParentLinkReason, "failed"> };
     return { status: "failed" };
   }

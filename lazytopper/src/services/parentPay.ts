@@ -27,6 +27,7 @@ import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayCon
 // PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
 import type { ParentPackRef } from "./parentPayPack";
 import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
+import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
 export const PARENT_VIEW_ENDPOINT = "/api/pay/parent/view";
@@ -208,7 +209,9 @@ export interface ParentBuyDeps {
 }
 
 async function createParentOrder(token: string, passType: PassType) {
-  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, passType });
+  // GST-INVOICE-1: the PARENT (the payer) confirms their state.
+  const gst = await gstBuyerOrderFields(null);
+  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, passType, ...gst });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new ParentLinkError("failed");
@@ -282,6 +285,7 @@ export async function buyPassAsParent(
       ...(amountInr !== undefined ? { amountInr } : {}),
     };
   } catch (e) {
+    if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof ParentLinkError && e.reason !== "failed") return { status: "failed", reason: e.reason };
     return { status: "failed" };
   }

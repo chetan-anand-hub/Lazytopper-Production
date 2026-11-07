@@ -17,6 +17,7 @@ import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type 
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
 import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
+import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled } from "./checkoutWhoFlag";
 
@@ -197,12 +198,15 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
     const { authHeaders } = await import("./checkout");
     headers = await authHeaders().catch(() => ({}));
   }
+  // GST-INVOICE-1: the PAYER's state (a signed-in payer's remembered state is used without asking).
+  const gst = await gstBuyerOrderFields(signedIn && headers.Authorization ? headers : null);
   const json = await postJson(
     GUEST_ORDER_ENDPOINT,
     {
       sku: item.sku,
       ...(item.kind === "pack" && item.target ? { target: item.target } : {}),
       recipient: { ...(recipient.phone ? { phone: recipient.phone } : {}), ...(recipient.email ? { email: recipient.email } : {}), first: recipient.first },
+      ...gst,
     },
     headers,
   );
@@ -274,6 +278,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
     }
     return { status: "paid", confirmed, ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}) };
   } catch (e) {
+    if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code };
     return { status: "failed" };
   }
