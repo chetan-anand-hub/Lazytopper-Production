@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES, isHabitOnlyEntry } from "../../lib/mistakeDisplay";
 import type { TypeMarks } from "../../services/meHomeSummary";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -32,11 +32,11 @@ import {
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
 import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
-import StartHereCard from "../../components/startHere/StartHereCard";
-import PracticeHubSegRow from "../../components/practice/PracticeHubSegRow";
-import PackPromo from "../../components/packs/PackPromoLazy";
-import LandingOffer from "../../components/packs/LandingOfferLazy";
-import SurfaceHistory from "../../components/results/SurfaceHistory";
+import StartHereCardBase from "../../components/startHere/StartHereCard";
+import PracticeHubSegRowBase from "../../components/practice/PracticeHubSegRow";
+import PackPromoBase from "../../components/packs/PackPromoLazy";
+import LandingOfferBase from "../../components/packs/LandingOfferLazy";
+import SurfaceHistoryBase from "../../components/results/SurfaceHistory";
 import { buildQuickPracticeReviewHref } from "../tutor/tutorRoundTrip";
 import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
 // BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
@@ -54,11 +54,24 @@ import {
   type LearningSignalMode,
 } from "../../lib/desktop/learningSignals";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
+import { afterNextPaint } from "../../lib/afterNextPaint";
 import { EVIDENCE_BASE_YEARS } from "../../config/evidenceBase";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { subscriptFormulas } from "../../lib/chemSubscript";
 // DIAGRAMS-1 PR-2a — solution figure drawn from the question's own numbers (lazy; null when unbound).
 const SolutionFigure = lazyWithRetry(() => import("../../diagrams/SolutionFigure"));
+
+// SPEED-HUB-3 (8 Nov 2026) — every tap on this hub (a picker card, a subject / scope pill, a
+// topic) used to re-render and re-diff the WHOLE page: every section, every inline-style
+// object, every card. On a mid-range phone that was the bulk of the tap's time to next paint
+// (field INP p75 304 ms on /practice-hub). The children below are memoised so a tap re-renders
+// only what its state actually feeds; their props are kept stable (useCallback / useMemo /
+// module constants) so the memo holds. Same components, same props, same output.
+const StartHereCard = memo(StartHereCardBase);
+const PracticeHubSegRow = memo(PracticeHubSegRowBase);
+const PackPromo = memo(PackPromoBase);
+const LandingOffer = memo(LandingOfferBase);
+const SurfaceHistory = memo(SurfaceHistoryBase);
 
 /**
  * DesktopPracticePage — Level 2 (PR-C2: locked-prototype parity).
@@ -601,7 +614,7 @@ function TopicDropdown({
 }
 
 // ── StepHeader (page-local) ───────────────────────────────────────────────
-function StepHeader({ n, title, aside }: { n: number; title: string; aside?: string }) {
+function StepHeaderImpl({ n, title, aside }: { n: number; title: string; aside?: string }) {
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 9, marginBottom: 12 }}>
       <span
@@ -658,7 +671,7 @@ interface ModeCardProps {
   onActivate: (to: string) => void;
   extra?: React.ReactNode;
 }
-function ModeCard({
+function ModeCardImpl({
   accent,
   icon,
   title,
@@ -865,7 +878,7 @@ function PillButton({
   );
 }
 
-function PracticeScopeBuilder({
+function PracticeScopeBuilderImpl({
   value,
   onChange,
   topics,
@@ -1079,7 +1092,7 @@ export function costliestMistakeType(typeMarks: TypeMarks | null): { key: Bucket
 }
 
 // ── MistakeTrendCard — DESKTOP-ONLY rail card, real series only ───────────
-function MistakeTrendCard({ trend }: { trend: MistakeTrend | null }) {
+function MistakeTrendCardImpl({ trend }: { trend: MistakeTrend | null }) {
   if (!trend) return null;
   const { points, changePct } = trend;
   const W = 260;
@@ -1225,7 +1238,7 @@ const MI_BAR_COLOURS = [
   "hsl(220, 15%, 60%)",
 ];
 
-function MistakeIntelligencePanel({
+function MistakeIntelligencePanelImpl({
   isSignedIn,
   loading,
   buckets,
@@ -1590,6 +1603,109 @@ function MistakeIntelligencePanel({
 }
 
 // ── PR-C2.1 helpers — real-data resolution for in-page Quick Practice + HPQ tabs ──
+
+// SPEED-HUB-3 — memoised page-local sections (see the note at the top of the file).
+const StepHeader = memo(StepHeaderImpl);
+const ModeCard = memo(ModeCardImpl);
+const PracticeScopeBuilder = memo(PracticeScopeBuilderImpl);
+const MistakeTrendCard = memo(MistakeTrendCardImpl);
+const MistakeIntelligencePanel = memo(MistakeIntelligencePanelImpl);
+// Stable mode-card props (a fresh element / array per render would defeat ModeCard's memo).
+const MODE_ICON_QUICK = <IconLayers />;
+const MODE_ICON_WORKSHEET = <IconClipboard />;
+const MODE_ICON_HPQ = <IconSparkles />;
+const MODE_ICON_FULL = <IconGraduation />;
+const MODE_CHIPS_QUICK = ["Presets", "Board mix"];
+const MODE_CHIPS_WORKSHEET = ["Printable", "Sectioned"];
+const MODE_CHIPS_HPQ = ["Chapter-wise", "Board-pattern"];
+const MODE_CHIPS_FULL = ["3 hours", "80 marks"];
+
+// SPEED-HUB-3 — the page's static heading (one module-level element, so React skips it on every
+// re-render) and the CBQ / Chapter Test entry pair (memoised): opening a picker, or any other tap,
+// no longer re-renders them. Markup unchanged.
+const HUB_INTRO = (
+  <div>
+    <div
+      style={{
+        fontSize: 11,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+        color: NAVY,
+        fontWeight: 600,
+      }}
+    >
+      Practice
+    </div>
+    <h1
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 600,
+        fontSize: "clamp(22px, 3vw, 30px)",
+        margin: "4px 0 3px",
+        letterSpacing: "-0.01em",
+        color: NAVY_DARK,
+      }}
+    >
+      What shall we practise?
+    </h1>
+    <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
+      Pick what to work on, then choose how — a quick set, a worksheet, the
+      important questions, or a full paper.
+    </p>
+  </div>
+);
+
+function HubEntryPairImpl({ onOpenCbq, onOpenCt }: { onOpenCbq: () => void; onOpenCt: () => void }) {
+  return (
+    <div className="lt-entry-pair">
+      <button
+        type="button"
+        className="lt-cbq-card"
+        aria-haspopup="dialog"
+        onClick={onOpenCbq}
+      >
+        <span className="lt-cbq-spine" aria-hidden />
+        <span className="lt-cbq-icon" aria-hidden>
+          <IconTarget size={20} />
+        </span>
+        <span className="lt-cbq-text">
+          <span className="lt-cbq-title">Competency-based questions (CBQs)</span>
+          {/* MI-COPY C (owner ask, 16 Oct 2026) — was "Case-based questions like the board
+              paper's Section E": the chooser opens preset=comp (style "cbq"), i.e.
+              buildCbqPracticePool — EVERY isCbq row of the chapter at every mark value
+              (1-mark MCQ / assertion-reason through 5-mark), interleaved by mark. */}
+          <span className="lt-cbq-line">
+            Board-style competency questions at every mark value — MCQs, assertion-reason, short answers and case studies. Pick a chapter.
+          </span>
+          <span className="lt-entry-short">Pick a chapter</span>
+        </span>
+        <span className="lt-cbq-go" aria-hidden>
+          <IconArrowRight size={16} />
+        </span>
+      </button>
+      <button
+        type="button"
+        className="lt-cbq-card lt-ct-card"
+        aria-haspopup="dialog"
+        onClick={onOpenCt}
+      >
+        <span className="lt-cbq-spine" aria-hidden />
+        <span className="lt-cbq-icon" aria-hidden>
+          <IconTimer size={20} />
+        </span>
+        <span className="lt-cbq-text">
+          <span className="lt-cbq-title">Chapter Tests</span>
+          <span className="lt-cbq-line">A timed test on one chapter, board-style — pick a chapter</span>
+          <span className="lt-entry-short">Pick a chapter</span>
+        </span>
+        <span className="lt-cbq-go" aria-hidden>
+          <IconArrowRight size={16} />
+        </span>
+      </button>
+    </div>
+  );
+}
+const HubEntryPair = memo(HubEntryPairImpl);
 
 const RETURN_TO = "/practice-hub";
 const SOURCE: DesktopActionSource = "practice";
@@ -2180,6 +2296,88 @@ export default function DesktopPracticePage() {
           }`
         : `${scope.subject} · ${selectedTopic?.name ?? "pick a topic"}`;
 
+  // SPEED-HUB-3 — stable callbacks / elements for the memoised children (same behaviour).
+  // A mode card's destination (Quick Practice, Worksheet, Important Questions, Full Test) may
+  // already be loaded — then navigating inside the tap rendered that whole page before the tap
+  // could paint (256-608 ms lab, 4x CPU). Navigate one frame later instead; a second tap in that
+  // frame is ignored so it can never push the route twice.
+  const pendingNavRef = useRef(false);
+  const navigateTo = useCallback(
+    (to: string) => {
+      if (pendingNavRef.current) return;
+      pendingNavRef.current = true;
+      afterNextPaint(() => {
+        pendingNavRef.current = false;
+        navigate(to);
+      });
+    },
+    [navigate],
+  );
+  const openCbqPicker = useCallback(() => setCbqPickerOpen(true), []);
+  const openCtPicker = useCallback(() => setCtPickerOpen(true), []);
+  const closeCbqPicker = useCallback(() => setCbqPickerOpen(false), []);
+  const closeCtPicker = useCallback(() => setCtPickerOpen(false), []);
+  const openQuickPracticeReview = useCallback(
+    (r: Parameters<typeof buildQuickPracticeReviewHref>[0]) =>
+      afterNextPaint(() => navigate(buildQuickPracticeReviewHref(r))),
+    [navigate],
+  );
+  const quickPracticeExtra = useMemo(
+    () => (
+      <label
+        style={{
+          marginTop: 11,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontSize: 11.5,
+          color: TEXT_MUTED,
+          cursor: "pointer",
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={timerOn}
+          onChange={(e) => setTimerOn(e.target.checked)}
+          style={{ accentColor: PRIMARY_GREEN }}
+        />
+        <IconTimer size={14} /> Add a timer
+      </label>
+    ),
+    [timerOn],
+  );
+  const hasTopRow = !!buckets.topRow;
+  const worksheetExtra = useMemo(
+    () => (
+      <label
+        style={{
+          marginTop: 11,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontSize: 11.5,
+          color: hasTopRow ? TEXT_MUTED : "hsl(220, 15%, 62%)",
+          cursor: hasTopRow ? "pointer" : "not-allowed",
+        }}
+        title={
+          hasTopRow
+            ? "Adds a mini-section that targets your top mistake bucket"
+            : "Available after you save a graded answer in Answer Checker"
+        }
+      >
+        <input
+          type="checkbox"
+          checked={worksheetMistakeMini && hasTopRow}
+          onChange={(e) => setWorksheetMistakeMini(e.target.checked)}
+          disabled={!hasTopRow}
+          style={{ accentColor: PRIMARY_GREEN }}
+        />
+        Add mistake-focus mini-section
+      </label>
+    ),
+    [hasTopRow, worksheetMistakeMini],
+  );
+
   // ── Render ─────────────────────────────────────────────────────────────
   const pageBody = (
     <div
@@ -2206,35 +2404,7 @@ export default function DesktopPracticePage() {
             first paint at a fixed height (no layout shift); Important Qs follows the subject picked below. */}
         <PracticeHubSegRow subject={scope.subject} />
 
-        <div>
-          <div
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: NAVY,
-              fontWeight: 600,
-            }}
-          >
-            Practice
-          </div>
-          <h1
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 600,
-              fontSize: "clamp(22px, 3vw, 30px)",
-              margin: "4px 0 3px",
-              letterSpacing: "-0.01em",
-              color: NAVY_DARK,
-            }}
-          >
-            What shall we practise?
-          </h1>
-          <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
-            Pick what to work on, then choose how — a quick set, a worksheet, the
-            important questions, or a full paper.
-          </p>
-        </div>
+        {HUB_INTRO}
 
         {/* START-HERE-1 — a signed-in student with no graded result yet; renders nothing for
             anyone else (signed-out, any graded result, or "Not now" this session). */}
@@ -2264,57 +2434,12 @@ export default function DesktopPracticePage() {
             the scope card so it is in view without scrolling at 390px and on desktop.
             CT-ENTRY-1 — the Chapter Test entry sits beside it: two columns from 1024px,
             two compact tiles in one row below that (icon, title, "Pick a chapter"). */}
-        <div className="lt-entry-pair">
-          <button
-            type="button"
-            className="lt-cbq-card"
-            aria-haspopup="dialog"
-            onClick={() => setCbqPickerOpen(true)}
-          >
-            <span className="lt-cbq-spine" aria-hidden />
-            <span className="lt-cbq-icon" aria-hidden>
-              <IconTarget size={20} />
-            </span>
-            <span className="lt-cbq-text">
-              <span className="lt-cbq-title">Competency-based questions (CBQs)</span>
-              {/* MI-COPY C (owner ask, 16 Oct 2026) — was "Case-based questions like the board
-                  paper's Section E": the chooser opens preset=comp (style "cbq"), i.e.
-                  buildCbqPracticePool — EVERY isCbq row of the chapter at every mark value
-                  (1-mark MCQ / assertion-reason through 5-mark), interleaved by mark. */}
-              <span className="lt-cbq-line">
-                Board-style competency questions at every mark value — MCQs, assertion-reason, short answers and case studies. Pick a chapter.
-              </span>
-              <span className="lt-entry-short">Pick a chapter</span>
-            </span>
-            <span className="lt-cbq-go" aria-hidden>
-              <IconArrowRight size={16} />
-            </span>
-          </button>
-          <button
-            type="button"
-            className="lt-cbq-card lt-ct-card"
-            aria-haspopup="dialog"
-            onClick={() => setCtPickerOpen(true)}
-          >
-            <span className="lt-cbq-spine" aria-hidden />
-            <span className="lt-cbq-icon" aria-hidden>
-              <IconTimer size={20} />
-            </span>
-            <span className="lt-cbq-text">
-              <span className="lt-cbq-title">Chapter Tests</span>
-              <span className="lt-cbq-line">A timed test on one chapter, board-style — pick a chapter</span>
-              <span className="lt-entry-short">Pick a chapter</span>
-            </span>
-            <span className="lt-cbq-go" aria-hidden>
-              <IconArrowRight size={16} />
-            </span>
-          </button>
-        </div>
+        <HubEntryPair onOpenCbq={openCbqPicker} onOpenCt={openCtPicker} />
         {/* AD-LANDING-OFFER-1 - signed-out arrivals that are NOT on the ?cbq=1 ad landing keep the offer right under the entry pair
             (the ad landing renders it above, directly below the free button: CBQ-FREE-FIRST-1). */}
         {!isSignedIn && !cbqFreeFirst ? <LandingOffer variant="practice-cbq" /> : null}
-        <CbqChapterPicker open={cbqPickerOpen} onClose={() => setCbqPickerOpen(false)} />
-        <ChapterTestPicker open={ctPickerOpen} onClose={() => setCtPickerOpen(false)} />
+        <CbqChapterPicker open={cbqPickerOpen} onClose={closeCbqPicker} />
+        <ChapterTestPicker open={ctPickerOpen} onClose={closeCtPicker} />
 
         {topicHubFocusContext ? (
           <section
@@ -2383,93 +2508,47 @@ export default function DesktopPracticePage() {
               >
                 <ModeCard
                   accent="quick"
-                  icon={<IconLayers />}
+                  icon={MODE_ICON_QUICK}
                   title="Quick Practice"
                   desc="A short, focused set of real questions — presets or your own filters."
-                  chips={["Presets", "Board mix"]}
+                  chips={MODE_CHIPS_QUICK}
                   cta="Start quick practice"
                   to={quickPracticeTarget}
                   disabledHint="Pick a topic to start"
-                  onActivate={(to) => navigate(to)}
-                  extra={
-                    <label
-                      style={{
-                        marginTop: 11,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        fontSize: 11.5,
-                        color: TEXT_MUTED,
-                        cursor: "pointer",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={timerOn}
-                        onChange={(e) => setTimerOn(e.target.checked)}
-                        style={{ accentColor: PRIMARY_GREEN }}
-                      />
-                      <IconTimer size={14} /> Add a timer
-                    </label>
-                  }
+                  onActivate={navigateTo}
+                  extra={quickPracticeExtra}
                 />
                 <ModeCard
                   accent="worksheet"
-                  icon={<IconClipboard />}
+                  icon={MODE_ICON_WORKSHEET}
                   title="Worksheet"
                   desc="A sectioned worksheet, ready for screen or print."
-                  chips={["Printable", "Sectioned"]}
+                  chips={MODE_CHIPS_WORKSHEET}
                   cta="Open worksheet builder"
                   to={worksheetPath}
                   disabledHint="Pick a topic to start"
-                  onActivate={(to) => navigate(to)}
-                  extra={
-                    <label
-                      style={{
-                        marginTop: 11,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        fontSize: 11.5,
-                        color: buckets.topRow ? TEXT_MUTED : "hsl(220, 15%, 62%)",
-                        cursor: buckets.topRow ? "pointer" : "not-allowed",
-                      }}
-                      title={
-                        buckets.topRow
-                          ? "Adds a mini-section that targets your top mistake bucket"
-                          : "Available after you save a graded answer in Answer Checker"
-                      }
-                    >
-                      <input
-                        type="checkbox"
-                        checked={worksheetMistakeMini && !!buckets.topRow}
-                        onChange={(e) => setWorksheetMistakeMini(e.target.checked)}
-                        disabled={!buckets.topRow}
-                        style={{ accentColor: PRIMARY_GREEN }}
-                      />
-                      Add mistake-focus mini-section
-                    </label>
-                  }
+                  onActivate={navigateTo}
+                  extra={worksheetExtra}
                 />
                 <ModeCard
                   accent="hpq"
-                  icon={<IconSparkles />}
+                  icon={MODE_ICON_HPQ}
                   title="Important Questions"
                   desc={`Chapter-wise important questions from ${EVIDENCE_BASE_YEARS} years of CBSE papers.`}
-                  chips={["Chapter-wise", "Board-pattern"]}
+                  chips={MODE_CHIPS_HPQ}
                   cta="Open important questions"
                   to={buildPredictedPath()}
-                  onActivate={(to) => navigate(to)}
+                  onActivate={navigateTo}
                 />
                 <ModeCard
                   accent="full"
-                  icon={<IconGraduation />}
+                  icon={MODE_ICON_FULL}
                   title="Full Test"
                   desc="3-hour board paper · 80 marks."
-                  chips={["3 hours", "80 marks"]}
+                  chips={MODE_CHIPS_FULL}
                   cta="Open full test"
                   to={buildFullTestPath()}
-                  onActivate={(to) => navigate(to)}
+                  onActivate={navigateTo}
                 />
               </div>
               {/* Mobile carousel page dots — desktop renders a 2×2 grid. */}
@@ -3101,7 +3180,7 @@ export default function DesktopPracticePage() {
                 surface="quick-practice"
                 uid={user.uid}
                 cloud
-                onOpen={(r) => navigate(buildQuickPracticeReviewHref(r))}
+                onOpen={openQuickPracticeReview}
               />
             ) : null}
 

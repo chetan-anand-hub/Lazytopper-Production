@@ -72,7 +72,10 @@ describe("Practice hub — Chapter Tests entry (CT-ENTRY-1)", () => {
       target: { value: slug },
     });
     fireEvent.click(screen.getByRole("button", { name: "Start Chapter Test →" }));
-    expect(screen.getByTestId("probe").getAttribute("data-url")).toBe(
+    // SPEED-HUB-3: the dialog closes at once; the route changes one frame later.
+    expect(screen.queryByTestId("ct-picker")).toBeNull();
+    expect(screen.queryByTestId("probe")).toBeNull();
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(
       buildDesktopChapterTestPath({
         subject,
         topicKey: slug,

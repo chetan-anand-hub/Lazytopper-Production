@@ -13,6 +13,7 @@
 // and ChapterTestPage still says so honestly if a chapter ever runs short.
 
 import { useNavigate } from "react-router-dom";
+import { afterNextPaint } from "../../lib/afterNextPaint";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import { buildDesktopChapterTestPath, type DesktopSubject } from "../../lib/desktop/navigation";
 import { PageGuide } from "../guide/pages/pageGuides";
@@ -41,7 +42,9 @@ export function ChapterTestPicker({ open, onClose }: ChapterTestPickerProps) {
       goLabel="Start Chapter Test →"
       testId="ct-picker"
       idPrefix="lt-ct"
-      onGo={(s, slug) => navigate(chapterTestLandingPath(s, slug))}
+      // SPEED-HUB-3: the dialog closes in the tap's own frame; the (possibly already-loaded)
+      // Chapter Test page renders one frame later instead of blocking that paint.
+      onGo={(s, slug) => afterNextPaint(() => navigate(chapterTestLandingPath(s, slug)))}
       // GUIDE-PAGES-1 — Byte's "?" beside the heading (first open on this device shows it once).
       headingAside={open ? <PageGuide id="ct_entry" step="chooser" placement="inline" /> : null}
     />

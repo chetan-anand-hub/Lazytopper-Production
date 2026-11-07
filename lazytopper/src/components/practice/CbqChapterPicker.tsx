@@ -21,6 +21,7 @@
 // empty set even if the manifest were stale.
 
 import { useNavigate } from "react-router-dom";
+import { afterNextPaint } from "../../lib/afterNextPaint";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { cbqChapterComingSoon } from "./cbqChapterManifest";
@@ -53,7 +54,9 @@ export function CbqChapterPicker({ open, onClose }: CbqChapterPickerProps) {
       testId="cbq-picker"
       idPrefix="lt-cbq"
       isComingSoon={cbqChapterComingSoon}
-      onGo={(s, slug) => navigate(cbqLandingPath(s, slug))}
+      // SPEED-HUB-3: the dialog closes in the tap's own frame; the (possibly already-loaded)
+      // practice page renders one frame later instead of blocking that paint.
+      onGo={(s, slug) => afterNextPaint(() => navigate(cbqLandingPath(s, slug)))}
     />
   );
 }

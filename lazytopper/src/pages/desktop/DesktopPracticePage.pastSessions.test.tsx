@@ -11,6 +11,10 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
 const { auth } = vi.hoisted(() => ({ auth: { user: null as null | { uid: string; isLocalSession?: boolean } } }));
+// SPEED-HUB-3: the hub's CTAs navigate one frame after the tap (afterNextPaint). This suite pins
+// WHERE they go, not when, so the deferral runs inline here; the timing is pinned in
+// afterNextPaint.test.ts and DesktopPracticePage.multiTopicNav.test.tsx.
+vi.mock("../../lib/afterNextPaint", () => ({ afterNextPaint: (fn: () => void) => fn() }));
 vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({ user: auth.user, loading: false }),
 }));
