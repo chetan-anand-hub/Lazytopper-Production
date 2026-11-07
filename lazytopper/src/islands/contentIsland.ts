@@ -26,6 +26,10 @@
 import { APP_ENTRY_ATTR, APP_PRELOADS_ATTR, FORCE_APP_PARAM, ISLAND_SCRIPT_ATTR } from "./islandConfig";
 import { sendNamedEvent, sendWhatsAppTap, startIslandAnalytics, stopIslandWatches, suppressAppRepeats } from "./islandAnalytics";
 
+/** The value of `<html data-lt-island>`: the island is live, the app is loading, or the app has taken over. */
+export type IslandHtmlState = "island" | "upgrading" | "app";
+const setState = (state: IslandHtmlState): void => document.documentElement.setAttribute(ISLAND_SCRIPT_ATTR, state);
+
 /* ------------------------------------------------------------------ selectors (the markup contract) */
 
 /** Mobile bottom bar (App.tsx MobileBottomNav, signed-out items): label → the route its button navigates to. */
@@ -241,7 +245,7 @@ export function warm(): void {
 export function upgrade(): void {
   if (upgraded || !config) return;
   upgraded = true;
-  document.documentElement.setAttribute(ISLAND_SCRIPT_ATTR, "upgrading");
+  setState("upgrading");
   stopIslandWatches();
   addDrops = suppressAppRepeats();
   warm();
@@ -324,7 +328,7 @@ async function replay(): Promise<void> {
 function finish(): void {
   if (finished) return;
   finished = true;
-  document.documentElement.setAttribute(ISLAND_SCRIPT_ATTR, "app");
+  setState("app");
   for (const el of document.querySelectorAll(`.${BUSY_CLASS}`)) {
     el.classList.remove(BUSY_CLASS);
     el.removeAttribute("aria-busy");
@@ -579,7 +583,7 @@ function injectBusyStyle(): void {
 export async function boot(): Promise<void> {
   config = readConfig();
   if (!config) return;
-  document.documentElement.setAttribute(ISLAND_SCRIPT_ATTR, "island");
+  setState("island");
   injectBusyStyle();
   listen(document, "click", onClick as (e: Event) => void, { capture: true });
   listen(document, "pointerdown", onPointerDown, { capture: true, passive: true });

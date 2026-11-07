@@ -12,6 +12,11 @@
  * visitor reaches it. Pure data: nothing here touches the DOM, so the build step can import it.
  */
 
+// The island's own source is a Rollup input in vite.config.ts (a `path.resolve` string, which the
+// noOrphans guard does not follow); this type-only re-export is the import edge that makes it — and
+// islandAnalytics.ts — reachable from a live root (scripts/seo/applyPrerendered.ts imports this file).
+export type { IslandHtmlState } from "./contentIsland";
+
 /** Advertised path families served as islands (phase 1). Remove a prefix to turn that family off. */
 export const ISLAND_PATH_PREFIXES: readonly string[] = ["/notes/", "/ncert-solutions/", "/ncert-exemplar/"];
 
