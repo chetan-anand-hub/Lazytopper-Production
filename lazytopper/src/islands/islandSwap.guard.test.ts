@@ -86,6 +86,15 @@ describe("withIsland", () => {
     expect(modulepreloadHrefsIn(withPreloads(page, ["/assets/Note-CCCCCCCC.js"]))).toEqual(["/assets/Note-CCCCCCCC.js"]);
   });
 
+  it("hands the shell's own modulepreloads (the vendor chunks) to the island too, first", () => {
+    const vendor = '<link rel="modulepreload" crossorigin href="/assets/vendor-react-EEEEEEEE.js">';
+    const withVendor = page.replace(ENTRY, ENTRY + vendor);
+    const out = withIsland(withVendor, shell(), "contentIsland-BBBBBBBB.js", ["/assets/Note-CCCCCCCC.js"]);
+    expect(modulepreloadHrefsIn(out)).toEqual([]);
+    expect(islandScriptIn(out)?.preloads).toEqual(["/assets/vendor-react-EEEEEEEE.js", "/assets/Note-CCCCCCCC.js"]);
+    expect(out.split("<body")[1]).toBe(withVendor.split("<body")[1]);
+  });
+
   it("throws unless the entry tag occurs exactly once", () => {
     expect(() => withIsland(page.replace(ENTRY, ""), shell(), "contentIsland-BBBBBBBB.js", [])).toThrow(/exactly one app entry tag/);
     expect(() => withIsland(page.replace(ENTRY, ENTRY + ENTRY), shell(), "contentIsland-BBBBBBBB.js", [])).toThrow(/exactly one/);

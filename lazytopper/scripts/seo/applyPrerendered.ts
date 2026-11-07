@@ -654,8 +654,9 @@ export function modulepreloadHrefsIn(html: string): string[] {
 
 /**
  * SPEED-ISLANDS-1 — serve the page as an island: the app's module script becomes the island's, and the
- * route chunks the page used to modulepreload move into a data attribute (the island preloads them
- * when it loads the app). ONLY the one script tag changes: the body, canonical, meta and JSON-LD are
+ * app chunks the page used to modulepreload (the shell's vendor chunks, then the route's chunks) move into
+ * a data attribute (the island preloads them when it loads the app). ONLY those head tags change: the
+ * body, canonical, meta and JSON-LD are
  * untouched (`islandSwap.guard.test.ts`). Exactly one entry tag, or this THROWS.
  */
 export function withIsland(html: string, shellHtml: string, islandFile: string, appPreloads: readonly string[]): string {
@@ -665,10 +666,14 @@ export function withIsland(html: string, shellHtml: string, islandFile: string, 
   if (count !== 1) {
     throw new Error(`applyPrerendered: expected exactly one app entry tag ${tag} to swap for the island, found ${count}`);
   }
+  // The shell's own modulepreloads (Vite's, for the entry's static imports: the vendor chunks) are app
+  // chunks too: they move into the attribute with the route chunks, ahead of them, in their order.
+  const shellPreloads = modulepreloadHrefsIn(html);
+  const handed = [...shellPreloads, ...appPreloads.filter((href) => !shellPreloads.includes(href))];
   const island =
     `<script type="module" crossorigin src="${base}assets/${islandFile}" ${ISLAND_SCRIPT_ATTR} ` +
-    `${APP_ENTRY_ATTR}="${base}assets/${entry}" ${APP_PRELOADS_ATTR}="${appPreloads.join(" ")}"></script>`;
-  return html.replace(tag, () => island);
+    `${APP_ENTRY_ATTR}="${base}assets/${entry}" ${APP_PRELOADS_ATTR}="${handed.join(" ")}"></script>`;
+  return html.replace(/<link\b[^>]*\brel="modulepreload"[^>]*>/g, "").replace(tag, () => island);
 }
 
 /** The island script tag in a built page: its src and the app entry it upgrades to, or null. */
