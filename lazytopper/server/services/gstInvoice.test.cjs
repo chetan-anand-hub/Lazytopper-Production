@@ -801,17 +801,17 @@ test('D6: checkout-context with invoicing OFF answers an empty context and touch
 
 /* ══ GST-INVOICE-2a: PIN required, Issue now reads Razorpay's contact and emails the invoice (window + one a day) ══ */
 
-test('2a PIN required server-side: missing / malformed / wrong-state PIN is dropped, the order is still made, and it is HELD no_pin', async () => {
+test('2a PIN required server-side (FORMAT only): missing / malformed PIN is dropped, the order is still made, and it is HELD no_pin', async () => {
   assert.deepEqual(g.gstBuyerFromBody({ stateCode: '29' }), { fields: { gstBuyer: { stateCode: '29' } }, dropped: ['pin_missing'] });
-  assert.deepEqual(g.gstBuyerFromBody({ stateCode: '29', pin: '110001' }), { fields: { gstBuyer: { stateCode: '29' } }, dropped: ['pin'] });
+  assert.deepEqual(g.gstBuyerFromBody({ stateCode: '29', pin: '012345' }), { fields: { gstBuyer: { stateCode: '29' } }, dropped: ['pin'] });
   assert.deepEqual(g.gstBuyerFromBody({ stateCode: '29', pin: '560001' }), { fields: { gstBuyer: { stateCode: '29', pin: '560001' } }, dropped: [] });
-  assert.deepEqual(g.gstBuyerFromBody({ stateCode: '29', pin: '999001' }).dropped, [], 'Army Postal Service PINs pass in any state');
-  assert.equal(g.isPinForState('560001', '29'), true);
-  assert.equal(g.isPinForState('560001', '27'), false);
-  assert.equal(g.isPinForState(undefined, '29'), false);
+  assert.deepEqual(g.gstBuyerFromBody({ stateCode: '29', pin: '110001' }).dropped, [], 'never checked against the state (owner ruling)');
+  assert.equal(g.isValidPin('560001'), true);
+  assert.equal(g.isValidPin('56001'), false);
+  assert.equal(g.isValidPin(undefined), false);
   const db = memoryFirestore({
     'payOrders/nopin': storedOrder({ paymentId: 'p1', extra: { gstBuyer: { stateCode: '29' } } }),
-    'payOrders/badpin': storedOrder({ paymentId: 'p2', extra: { gstBuyer: { stateCode: '29', pin: '110001' } } }),
+    'payOrders/badpin': storedOrder({ paymentId: 'p2', extra: { gstBuyer: { stateCode: '29', pin: '56001' } } }),
     'payOrders/ok': storedOrder({ paymentId: 'p3' }),
   });
   const { inv } = invoicer(db);

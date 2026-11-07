@@ -132,57 +132,9 @@ function normaliseGstin(raw) {
 
 const PIN_PATTERN = /^[1-9][0-9]{5}$/;
 
-/**
- * GST-INVOICE-2a - the PIN code's first two digits that are plausible for each state (India Post's postal circles). A
- * small, deliberately GENEROUS table: a PIN on a state's border, an enclave (Puducherry's Yanam / Mahe / Karaikal, Diu)
- * and the Army Postal Service (9xxxxx, any state) all pass. It only catches a PIN that plainly belongs elsewhere (a
- * Karnataka buyer typing a Delhi PIN). Mirrored in src/services/gstBuyer.ts PIN_PREFIXES (parity-tested).
- */
-const PIN_PREFIXES = Object.freeze({
-  '01': ['18', '19'],
-  '02': ['17'],
-  '03': ['14', '15', '16'],
-  '04': ['16'],
-  '05': ['24', '26'],
-  '06': ['12', '13'],
-  '07': ['11'],
-  '08': ['30', '31', '32', '33', '34'],
-  '09': ['20', '21', '22', '23', '24', '25', '26', '27', '28'],
-  10: ['80', '81', '82', '83', '84', '85'],
-  11: ['73'],
-  12: ['79'],
-  13: ['79'],
-  14: ['79'],
-  15: ['79'],
-  16: ['79'],
-  17: ['79'],
-  18: ['78', '79'],
-  19: ['70', '71', '72', '73', '74'],
-  20: ['81', '82', '83'],
-  21: ['75', '76', '77'],
-  22: ['49'],
-  23: ['45', '46', '47', '48'],
-  24: ['36', '37', '38', '39'],
-  26: ['36', '39'],
-  27: ['40', '41', '42', '43', '44'],
-  29: ['56', '57', '58', '59'],
-  30: ['40'],
-  31: ['68'],
-  32: ['67', '68', '69'],
-  33: ['60', '61', '62', '63', '64'],
-  34: ['53', '60', '67'],
-  35: ['74'],
-  36: ['50'],
-  37: ['50', '51', '52', '53'],
-  38: ['19'],
-});
-
-/** PURE. A 6-digit PIN whose first two digits are plausible for the state (or an Army Postal Service 9xxxxx PIN). */
-function isPinForState(pin, stateCode) {
-  if (typeof pin !== 'string' || !PIN_PATTERN.test(pin) || !isGstStateCode(stateCode)) return false;
-  if (pin[0] === '9') return true;
-  const allowed = PIN_PREFIXES[stateCode];
-  return Array.isArray(allowed) && allowed.includes(pin.slice(0, 2));
+/** PURE. GST-INVOICE-2a: a PIN code is 6 digits, the first 1-9 (format only: owner ruling 7 Nov 2026 - never guessed against the state). */
+function isValidPin(pin) {
+  return typeof pin === 'string' && PIN_PATTERN.test(pin);
 }
 const cleanText = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max) : '');
 
@@ -191,9 +143,9 @@ const cleanText = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f
  * ★ NEVER REJECTS AN ORDER: a bad PIN is dropped, a bad business block (GSTIN checksum, or its state code not the chosen
  *   state, or no legal name / address) is dropped (the order is then a B2C sale in the chosen state) and reported in
  *   `dropped` for a counter. The client validates the same rules before Pay, so this only catches a forged / stale body.
- * ★ GST-INVOICE-2a (owner ruling 7 Nov 2026): the PIN is REQUIRED for an invoice. A missing PIN, or one that is not 6
- *   digits or not plausible for the chosen state (isPinForState), is dropped: the order is still made and paid, and is
- *   HELD (`no_pin`) instead of invoiced.
+ * ★ GST-INVOICE-2a (owner ruling 7 Nov 2026): the PIN is REQUIRED for an invoice, checked for FORMAT only (6 digits,
+ *   first 1-9; never against the state). A missing or malformed PIN is dropped: the order is still made and paid, and
+ *   is HELD (`no_pin`) instead of invoiced.
  */
 function gstBuyerFromBody(raw) {
   const out = { fields: {}, dropped: [] };
@@ -205,7 +157,7 @@ function gstBuyerFromBody(raw) {
   }
   const buyer = { stateCode };
   const pin = typeof raw.pin === 'string' ? raw.pin.trim() : '';
-  if (isPinForState(pin, stateCode)) buyer.pin = pin;
+  if (isValidPin(pin)) buyer.pin = pin;
   else out.dropped.push(pin ? 'pin' : 'pin_missing');
   const b = raw.business;
   if (b && typeof b === 'object') {
@@ -358,7 +310,7 @@ function heldReasonFor(order, config) {
   if (!Number.isInteger(order.baseInr) || !Number.isInteger(order.gstInr) || !(order.gstInr > 0)) return 'pre_cutoff';
   if (!order.gstBuyer || !isGstStateCode(order.gstBuyer.stateCode)) return 'no_state';
   // GST-INVOICE-2a: state AND PIN are both required (owner ruling 7 Nov 2026).
-  if (!isPinForState(order.gstBuyer.pin, order.gstBuyer.stateCode)) return 'no_pin';
+  if (!isValidPin(order.gstBuyer.pin)) return 'no_pin';
   const amounts = invoiceAmountsFor(order);
   if (amounts.held) return amounts.held;
   if (!config || !config.ready) return 'seller_config_missing';
@@ -694,8 +646,7 @@ module.exports = {
   isValidGstin,
   normaliseGstin,
   gstBuyerFromBody,
-  PIN_PREFIXES,
-  isPinForState,
+  isValidPin,
   createRazorpayPaymentFetcher,
   resolveInvoiceConfig,
   financialYearFor,

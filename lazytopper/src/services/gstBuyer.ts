@@ -13,8 +13,8 @@
  *     device's last choice for the SAME account, else unselected - there is NO Karnataka default), the PIN code, and a
  *     "Buying for a school or coaching centre?" link that opens GSTIN + legal name + address. The common case is one tap.
  *   Cancel -> GstBuyerCancelledError, which every buy function treats exactly like closing Razorpay ("dismissed").
- * ★ GST-INVOICE-2a (owner ruling 7 Nov 2026): the state AND the PIN are REQUIRED before Pay. The PIN is 6 digits and its
- *   first two must be plausible for the chosen state (PIN_PREFIXES). A GSTIN must pass its checksum and its first two
+ * ★ GST-INVOICE-2a (owner ruling 7 Nov 2026): the state AND the PIN are REQUIRED before Pay. The PIN is checked for FORMAT
+ *   only (6 digits, first 1-9), never against the state. A GSTIN must pass its checksum and its first two
  *   digits must be the chosen state's code. The server re-checks all of it and never refuses an order over it (an order
  *   without a valid state + PIN is paid as normal and HELD, not invoiced).
  * ★ GST-INVOICE-2a (review 2b): a remembered or changed state / PIN belongs to the signed-in account that chose it. It is
@@ -105,67 +105,15 @@ export function isValidGstin(raw: string): boolean {
   }
   return GSTIN_CHARS[(36 - (sum % 36)) % 36] === g[14];
 }
-export const isValidPin = (pin: string): boolean => /^[1-9][0-9]{5}$/.test(pin);
+/** GST-INVOICE-2a: FORMAT only - 6 digits, the first 1-9 (owner ruling 7 Nov 2026: payment is never blocked by a guess about the state). */
+export const isValidPin = (pin: unknown): pin is string => typeof pin === "string" && /^[1-9][0-9]{5}$/.test(pin);
 
-/**
- * GST-INVOICE-2a - the PIN code's first two digits that are plausible for each state (India Post's postal circles),
- * deliberately GENEROUS (border PINs, enclaves, and the Army Postal Service's 9xxxxx for any state). Mirrors
- * server/services/gstInvoice.cjs PIN_PREFIXES (parity-tested).
- */
-export const PIN_PREFIXES: Readonly<Record<string, readonly string[]>> = Object.freeze({
-  "01": ["18", "19"],
-  "02": ["17"],
-  "03": ["14", "15", "16"],
-  "04": ["16"],
-  "05": ["24", "26"],
-  "06": ["12", "13"],
-  "07": ["11"],
-  "08": ["30", "31", "32", "33", "34"],
-  "09": ["20", "21", "22", "23", "24", "25", "26", "27", "28"],
-  "10": ["80", "81", "82", "83", "84", "85"],
-  "11": ["73"],
-  "12": ["79"],
-  "13": ["79"],
-  "14": ["79"],
-  "15": ["79"],
-  "16": ["79"],
-  "17": ["79"],
-  "18": ["78", "79"],
-  "19": ["70", "71", "72", "73", "74"],
-  "20": ["81", "82", "83"],
-  "21": ["75", "76", "77"],
-  "22": ["49"],
-  "23": ["45", "46", "47", "48"],
-  "24": ["36", "37", "38", "39"],
-  "26": ["36", "39"],
-  "27": ["40", "41", "42", "43", "44"],
-  "29": ["56", "57", "58", "59"],
-  "30": ["40"],
-  "31": ["68"],
-  "32": ["67", "68", "69"],
-  "33": ["60", "61", "62", "63", "64"],
-  "34": ["53", "60", "67"],
-  "35": ["74"],
-  "36": ["50"],
-  "37": ["50", "51", "52", "53"],
-  "38": ["19"],
-});
-/** PURE. 6 digits, and plausible for the state (or an Army Postal Service 9xxxxx PIN). */
-export function isPinForState(pin: unknown, stateCode: unknown): boolean {
-  if (typeof pin !== "string" || !isValidPin(pin) || !isGstStateCode(stateCode)) return false;
-  if (pin[0] === "9") return true;
-  return (PIN_PREFIXES[stateCode] || []).includes(pin.slice(0, 2));
-}
 
 /** PURE. The error to show, or null when the form can be submitted. */
 export function gstFormError(input: { stateCode: string; pin: string; business: GstBusiness | null }): string | null {
   if (!isGstStateCode(input.stateCode)) return "Choose your state to continue.";
   if (!input.pin) return "Enter your 6-digit PIN code.";
   if (!isValidPin(input.pin)) return "PIN code must be 6 digits.";
-  if (!isPinForState(input.pin, input.stateCode)) {
-    const name = GST_STATES.find((s) => s.code === input.stateCode)?.name || "that state";
-    return `That PIN code is not in ${name}. Check the PIN or the state.`;
-  }
   const b = input.business;
   if (b) {
     const g = normaliseGstin(b.gstin);
@@ -205,7 +153,7 @@ function readLocal(owner: string | null): { stateCode: string; pin?: string } | 
   try {
     const v = JSON.parse(localStorage.getItem(GST_BUYER_KEY) || "null") as { owner?: unknown; stateCode?: unknown; pin?: unknown } | null;
     if (!v || v.owner !== owner || !isGstStateCode(v.stateCode)) return null;
-    return { stateCode: v.stateCode, ...(isPinForState(v.pin, v.stateCode) ? { pin: v.pin as string } : {}) };
+    return { stateCode: v.stateCode, ...(isValidPin(v.pin) ? { pin: v.pin } : {}) };
   } catch {
     return null;
   }
@@ -233,7 +181,7 @@ function cleanBuyer(v: unknown): GstBuyer | null {
   const o = v as { stateCode?: unknown; pin?: unknown; business?: { gstin?: unknown; legalName?: unknown; address?: unknown } } | null;
   if (!o || !isGstStateCode(o.stateCode)) return null;
   const out: GstBuyer = { stateCode: o.stateCode };
-  if (isPinForState(o.pin, o.stateCode)) out.pin = o.pin as string;
+  if (isValidPin(o.pin)) out.pin = o.pin;
   const b = o.business;
   if (b && typeof b.gstin === "string" && typeof b.legalName === "string" && typeof b.address === "string" && isValidGstin(b.gstin)) {
     out.business = { gstin: normaliseGstin(b.gstin), legalName: b.legalName, address: b.address };
@@ -508,8 +456,8 @@ export function gstStateLineText(b: GstBuyer | null): string | null {
   const s = b ? GST_STATES.find((x) => x.code === b.stateCode) : null;
   return s ? `State: ${s.name}${b?.pin ? ` · PIN ${b.pin}` : ""}${b?.business ? ` · GSTIN ${b.business.gstin}` : ""}` : null;
 }
-/** PURE. A buyer complete enough to pay with, no dialog: a state AND a PIN plausible for it. */
-export const isCompleteGstBuyer = (b: GstBuyer | null | undefined): b is GstBuyer => !!b && isGstStateCode(b.stateCode) && isPinForState(b.pin, b.stateCode);
+/** PURE. A buyer complete enough to pay with, no dialog: a state AND a 6-digit PIN. */
+export const isCompleteGstBuyer = (b: GstBuyer | null | undefined): b is GstBuyer => !!b && isGstStateCode(b.stateCode) && isValidPin(b.pin);
 
 /* ── The one entry point the order functions call ─────────────────────────────── */
 

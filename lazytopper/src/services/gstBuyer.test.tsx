@@ -17,9 +17,8 @@ import {
   setSessionGstBuyer,
   gstStateLineText,
   getSessionGstBuyer,
-  isPinForState,
+  isValidPin,
   ownerTag,
-  PIN_PREFIXES,
   GUEST_OWNER,
 } from "./gstBuyer";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
@@ -30,8 +29,7 @@ import { buyPass, type BuyDeps } from "./checkout";
 const require = createRequire(import.meta.url);
 const server = require("../../server/services/gstInvoice.cjs") as {
   GST_STATES: { code: string; name: string }[];
-  PIN_PREFIXES: Record<string, string[]>;
-  isPinForState: (pin: string, state: string) => boolean;
+  isValidPin: (pin: unknown) => boolean;
   isValidGstin: (g: string) => boolean;
   gstinCheckChar: (s: string) => string;
 };
@@ -61,31 +59,24 @@ describe("state table and validators", () => {
       expect(isValidGstin(v)).toBe(server.isValidGstin(v));
     }
   });
-  it("form rules: state AND PIN required, PIN 6 digits and plausible for the state, GSTIN checksum + state match, name and address", () => {
+  it("form rules: state AND PIN required, PIN 6 digits (format only, never checked against the state), GSTIN checksum + state match, name and address", () => {
     const biz = { gstin: TEST_GSTIN_MH, legalName: "Test Coaching", address: "12 Test Road, Pune" };
     expect(gstFormError({ stateCode: "", pin: "", business: null })).toMatch(/Choose your state/);
     expect(gstFormError({ stateCode: "29", pin: "", business: null })).toMatch(/Enter your 6-digit PIN/);
     expect(gstFormError({ stateCode: "29", pin: "560001", business: null })).toBeNull();
     expect(gstFormError({ stateCode: "29", pin: "5600", business: null })).toMatch(/6 digits/);
-    expect(gstFormError({ stateCode: "29", pin: "110001", business: null })).toMatch(/not in Karnataka/);
+    expect(gstFormError({ stateCode: "29", pin: "110001", business: null })).toBeNull(); // a Delhi-looking PIN in Karnataka is NOT blocked
+    expect(gstFormError({ stateCode: "29", pin: "012345", business: null })).toMatch(/6 digits/);
     expect(gstFormError({ stateCode: "27", pin: "411001", business: biz })).toBeNull();
     expect(gstFormError({ stateCode: "29", pin: "560001", business: biz })).toMatch(/must match the state/);
     expect(gstFormError({ stateCode: "27", pin: "411001", business: { ...biz, gstin: "27AAPFU0939F1ZW" } })).toMatch(/does not look right/);
     expect(gstFormError({ stateCode: "27", pin: "411001", business: { ...biz, legalName: "" } })).toMatch(/legal name/);
   });
-  it("PIN table: EXACTLY the server's; every state has prefixes; border / enclave / APS PINs pass, a wrong state's fails", () => {
-    expect(JSON.parse(JSON.stringify(PIN_PREFIXES))).toEqual(JSON.parse(JSON.stringify(server.PIN_PREFIXES)));
-    for (const st of GST_STATES) expect((PIN_PREFIXES[st.code] || []).length, st.name).toBeGreaterThan(0);
-    const cases: Array<[string, string, boolean]> = [
-      ["560001", "29", true], ["110001", "07", true], ["400001", "27", true], ["403001", "30", true], ["600001", "33", true],
-      ["605001", "34", true], ["533464", "34", true], ["673310", "34", true], ["682555", "31", true], ["362520", "26", true],
-      ["737101", "11", true], ["744101", "35", true], ["194101", "38", true], ["160017", "04", true], ["248001", "05", true],
-      ["500001", "36", true], ["520001", "37", true], ["834001", "20", true], ["799001", "16", true], ["999001", "29", true],
-      ["110001", "29", false], ["560001", "07", false], ["400001", "33", false], ["012345", "29", false], ["56001", "29", false],
-    ];
-    for (const [pin, st, ok] of cases) {
-      expect(isPinForState(pin, st), `${pin} ${st}`).toBe(ok);
-      expect(server.isPinForState(pin, st), `server ${pin} ${st}`).toBe(ok);
+  it("PIN: format only (6 digits, first 1-9), the same on client and server; any state accepts any well-formed PIN", () => {
+    const cases: Array<[unknown, boolean]> = [["560001", true], ["110001", true], ["999001", true], ["100000", true], ["012345", false], ["56001", false], ["5600011", false], ["56000a", false], ["", false], [undefined, false], [560001, false]];
+    for (const [pin, ok] of cases) {
+      expect(isValidPin(pin), String(pin)).toBe(ok);
+      expect(server.isValidPin(pin), `server ${String(pin)}`).toBe(ok);
     }
   });
 });
@@ -167,9 +158,9 @@ describe("the dialog", () => {
     go.click();
     expect(document.querySelector('[data-testid="gst-error"]')!.textContent).toMatch(/Enter your 6-digit PIN/);
     const pin = document.querySelector('[data-testid="gst-pin"]') as HTMLInputElement;
-    pin.value = "560001";
+    pin.value = "41100";
     go.click();
-    expect(document.querySelector('[data-testid="gst-error"]')!.textContent).toMatch(/not in Maharashtra/);
+    expect(document.querySelector('[data-testid="gst-error"]')!.textContent).toMatch(/6 digits/);
     pin.value = "411001";
     go.click();
     expect(document.querySelector('[data-testid="gst-error"]')!.textContent).toMatch(/does not look right/);
