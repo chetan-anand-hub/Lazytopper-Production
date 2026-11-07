@@ -139,6 +139,10 @@ export function preloadBuyChunks(): void {
   void loadPackDialog().catch(() => undefined);
 }
 
+// PREEXIST-FIX-1: start as early as possible - when this module is first evaluated on a `?buy=` URL (a direct landing or the first
+// in-app hop to it), before the shop has even mounted. The mount effect below covers later in-app hops (module already loaded).
+if (typeof window !== "undefined" && isPacksClientEnabled() && readBuyResume(window.location.search)) preloadBuyChunks();
+
 /** PREEXIST-FIX-1 - signed in, a `?buy=` resume waits for My packs; past this it opens the pop-up only (never a payment). */
 export const BUY_RESUME_MINE_TIMEOUT_MS = 8_000;
 

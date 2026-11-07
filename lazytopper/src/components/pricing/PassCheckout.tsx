@@ -45,6 +45,10 @@ import { maskEmail } from "../../services/checkoutWhoFlag";
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Pay is tapped. */
 const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
 const CheckoutSheet = lazy(loadCheckoutSheet);
+// PREEXIST-FIX-1: a direct landing on /pricing?buy=board_pass warms the sheet's chunk as soon as this module is evaluated (chunk only).
+if (typeof window !== "undefined" && isCheckoutWhoClientEnabled() && readBoardPassBuy(window.location.search)) {
+  void loadCheckoutSheet().catch(() => undefined);
+}
 
 /**
  * CHECKOUT-WHO-1 - set ONLY while VITE_CHECKOUT_WHO_ENABLED is on. Signed out, the Board Pass Pay (and the ?buy= one-tap start) opens
