@@ -21,6 +21,7 @@ export const GST_SECTIONS = Object.freeze([
 export const HELD_REASON_LABEL: Readonly<Record<string, string>> = Object.freeze({
   pre_cutoff: "Created before the 7 Nov GST cut-off (waits for the CA)",
   no_state: "No buyer state on the order",
+  no_pin: "No valid PIN code on the order (state + PIN are required)",
   pack_credit: "Board Pass with a pack credit (GST treatment for the CA)",
   no_sac_for_product: "No SAC for this product (e.g. a top-up)",
   amount_mismatch: "Amounts do not add up",
@@ -52,6 +53,25 @@ export function configWarning(c: GstStatusResponse["config"]): string | null {
   return null;
 }
 
+/** GST-INVOICE-2a - what happened to the invoice email after "Issue now". */
+export interface InvoiceEmailResult {
+  sent?: boolean;
+  queued?: string;
+  skipped?: string;
+  error?: boolean;
+}
+/** PURE. " · emailed to the payer" etc., or "" when the server sent no email outcome. */
+export function invoiceEmailNote(e: InvoiceEmailResult | undefined): string {
+  if (!e) return "";
+  if (e.sent) return " · emailed to the payer";
+  if (e.queued === "window") return " · email queued (sends between 8 am and 9 pm IST)";
+  if (e.queued === "spaced") return " · email queued (one email a day: sends within 24 h)";
+  if (e.skipped === "no_address") return " · no email address on the payment: share the invoice by hand";
+  if (e.skipped === "off") return " · email is off";
+  if (e.sent === false || e.error) return " · the email did not go out (a temporary failure is retried hourly)";
+  return e.skipped ? ` · email not sent (${e.skipped})` : "";
+}
+
 /** PURE. The IST "YYYY-MM-DD" of an instant. */
 export function istIsoDay(ms: number): string {
   return new Date(ms + 330 * 60000).toISOString().slice(0, 10);
@@ -80,9 +100,9 @@ export default function GstInvoicesCard({ getToken }: { getToken: () => Promise<
         body: JSON.stringify({ orderId }),
         cache: "no-store",
       });
-      const json = (await res.json()) as { result?: { issued?: boolean; number?: string; existing?: string; held?: string; skipped?: string } };
+      const json = (await res.json()) as { result?: { issued?: boolean; number?: string; existing?: string; held?: string; skipped?: string }; email?: InvoiceEmailResult };
       const r = json.result || {};
-      text = r.number ? `Issued ${r.number}` : r.existing ? `Already ${r.existing}` : r.held ? `Still held: ${HELD_REASON_LABEL[r.held] || r.held}` : r.skipped ? `Not issued (${r.skipped})` : text;
+      text = r.number ? `Issued ${r.number}${invoiceEmailNote(json.email)}` : r.existing ? `Already ${r.existing}` : r.held ? `Still held: ${HELD_REASON_LABEL[r.held] || r.held}` : r.skipped ? `Not issued (${r.skipped})` : text;
     } catch {
       /* text stays the failure line */
     }

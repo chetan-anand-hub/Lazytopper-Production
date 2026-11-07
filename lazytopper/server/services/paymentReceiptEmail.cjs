@@ -29,6 +29,9 @@ const { maskIndianMobile, maskEmail, GUEST_PAYER } = require('./guestPay.cjs');
 const { GST_RATE_PERCENT } = require('./passPricing.cjs');
 // GST-INVOICE-1: the tax invoice link (a signed link for a purchase made without this account's sign-in).
 const { invoiceToken, invoiceLinkSecret, invoiceOwnedBy } = require('./gstInvoice.cjs');
+// GST-INVOICE-2a: the invoice email ("Issue now") keeps the batch-email rules: the IST send window and one email a day.
+const { resolveSendWindow } = require('./emailSendWindow.cjs');
+const { emailKey } = require('./emailSuppression.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const DEFAULT_FROM = 'LazyTopper <hello@mail.lazytopper.com>';
@@ -39,6 +42,13 @@ const SUPPORT_WHATSAPP_URL = 'https://wa.me/919714568948';
 const SUPPORT_WHATSAPP_DISPLAY = '+91 97145 68948';
 const PAID_STATES = Object.freeze(['paid', 'paid_unclaimed', 'claimed']);
 const EMAIL_PATTERN = /^[^\s@<>()",;:]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/;
+/** GST-INVOICE-2a - the ledgers of the one-email-a-day rule (read, and `lastClaimMs` written, by every student emailer). */
+const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
+const TRIAL_EMAILS_COLLECTION = 'trialEmails';
+const GUEST_NUDGE_EMAILS_COLLECTION = 'guestNudgeEmails';
+const ONE_A_DAY_MS = 24 * 60 * 60 * 1000;
+const INVOICE_EMAIL_BATCH = 25;
+const INVOICE_EMAIL_INTERVAL_MS = 60 * 60 * 1000;
 
 function resolveReceiptEmailConfig(env = process.env) {
   const e = env || {};
@@ -107,6 +117,13 @@ function receiptGstLine(gst, amountPaise) {
   return credit > 0 ? `${head}, less pack credit ${formatInr(credit)}: ${formatInr(paid)} paid` : `${head} paid`;
 }
 
+function msOf(v) {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  if (v instanceof Date) return v.getTime();
+  if (v && typeof v.toMillis === 'function') return v.toMillis();
+  return null;
+}
+
 function formatInr(inr) {
   return `₹${Number(inr).toLocaleString('en-IN')}`;
 }
@@ -118,9 +135,11 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false }) {
   const item = itemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
+  // GST-INVOICE-2a: the receipt RE-SENT with an invoice issued later ("Issue now") - only with a usable invoice link.
+  if (invoiceResend && !(invoice && typeof invoice.number === 'string' && typeof invoice.url === 'string' && /^https:\/\//.test(invoice.url))) return null;
   const isPack = isPackProduct(passType);
   const amount = formatInr(amountPaise / 100);
   const date = formatIstDay(paidAtMs);
@@ -128,7 +147,8 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   // ₹2,262 paid"; a credited Board Pass adds "less pack credit"). An older order (all-in) gets no GST line: byte-identical.
   const gstLine = receiptGstLine(gst, amountPaise);
   const where = isPack ? '/packs#my-packs' : '/';
-  const subject = `Payment received: ${item} (${amount})`;
+  const subject = invoiceResend ? `GST tax invoice ${invoice.number}: ${item} (${amount})` : `Payment received: ${item} (${amount})`;
+  const opening = invoiceResend ? 'Your GST tax invoice for this purchase is ready. Your payment details are below.' : 'Thank you. We have received your payment.';
 
   let howText;
   let howHtml;
@@ -164,13 +184,13 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   const invoiceHtml = inv ? `\n<p>GST tax invoice ${escapeHtml(inv.number)}: <a href="${escapeHtml(inv.url)}">Download the invoice (PDF)</a></p>` : '';
   const supportText = `Need help? Reply to this email, write to ${SUPPORT_EMAIL}, or message us on WhatsApp: ${SUPPORT_WHATSAPP_DISPLAY} (${SUPPORT_WHATSAPP_URL}).`;
   const text = [
-    'Thank you. We have received your payment.',
+    opening,
     `Item: ${item}\nAmount: ${amount}${gstLine ? `\nGST: ${gstLine}` : ''}\nRazorpay payment ID: ${paymentId}\nDate: ${date}${invoiceText}`,
     `How to get it\n${howText}`,
     supportText,
     'LazyTopper',
   ].join('\n\n');
-  const html = `<p>Thank you. We have received your payment.</p>
+  const html = `<p>${opening}</p>
 <p>Item: ${escapeHtml(item)}<br>Amount: ${escapeHtml(amount)}${gstLine ? `<br>GST: ${escapeHtml(gstLine)}` : ''}<br>Razorpay payment ID: ${escapeHtml(paymentId)}<br>Date: ${escapeHtml(date)}</p>${invoiceHtml}
 <p><strong>How to get it</strong></p>
 ${howHtml}
@@ -301,6 +321,26 @@ function createPaymentReceiptEmailer(deps = {}) {
     return t ? { number: inv.number, url: `${config.appUrl}/api/gst/invoice?t=${encodeURIComponent(t)}` } : null;
   }
 
+  /** The receipt's inputs for a stored order (shared by the receipt and, GST-INVOICE-2a, the invoice email). */
+  function receiptArgsFor(order, orderId, paymentId, paidAtMs) {
+    const guest = order.payer === GUEST_PAYER;
+    const who = guest && order.checkoutWho === true;
+    return {
+      passType: order.passType,
+      packTarget: order.packTarget,
+      amountPaise: order.amountPaise,
+      paymentId,
+      paidAtMs,
+      guestPhoneMasked: guest ? maskIndianMobile(order.guestPhone) || null : null,
+      appUrl: config.appUrl,
+      payer: typeof order.payer === 'string' ? order.payer : null,
+      gst: { baseInr: order.baseInr, gstInr: order.gstInr, packCreditInr: order.packCreditInr },
+      invoice: invoiceLinkFor(order, orderId, paymentId),
+      // CHECKOUT-WHO-1: a recipient order names the masked phone and/or email to sign in with.
+      ...(who ? { recipient: { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskEmail(order.guestEmail) || null } } : {}),
+    };
+  }
+
   async function settle(orderId, status) {
     try {
       await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ receiptEmail: { status, at: new Date(now()) } }, { merge: true });
@@ -319,22 +359,7 @@ function createPaymentReceiptEmailer(deps = {}) {
     if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
     const order = await claim(orderId, paymentId);
     if (!order) return { skipped: 'already_or_unpaid' };
-    const guest = order.payer === GUEST_PAYER;
-    const who = guest && order.checkoutWho === true;
-    const built = buildReceiptEmail({
-      passType: order.passType,
-      packTarget: order.packTarget,
-      amountPaise: order.amountPaise,
-      paymentId,
-      paidAtMs: now(),
-      guestPhoneMasked: guest ? maskIndianMobile(order.guestPhone) || null : null,
-      appUrl: config.appUrl,
-      payer: typeof order.payer === 'string' ? order.payer : null,
-      gst: { baseInr: order.baseInr, gstInr: order.gstInr, packCreditInr: order.packCreditInr },
-      invoice: invoiceLinkFor(order, orderId, paymentId),
-      // CHECKOUT-WHO-1: a recipient order names the masked phone and/or email to sign in with.
-      ...(who ? { recipient: { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskEmail(order.guestEmail) || null } } : {}),
-    });
+    const built = buildReceiptEmail(receiptArgsFor(order, orderId, paymentId, now()));
     if (!built) {
       await settle(orderId, 'skipped');
       return { skipped: 'not_receipted' };
@@ -472,11 +497,180 @@ function createPaymentReceiptEmailer(deps = {}) {
     return p;
   }
 
+  /* ── GST-INVOICE-2a (review 2c): the receipt RE-SENT with an invoice issued later ("Issue now") ────────────────
+   * ★ The order carries `gstInvoiceEmail: { status, queuedAtMs, at }` (queued -> sending -> sent | queued again after a
+   *   retryable failure | refused | no_address | skipped). The address is the one ON THE INVOICE (Razorpay's payment
+   *   record, fetched at issue). Resend's Idempotency-Key `gst-invoice-email-<paymentId>` is the second fence.
+   * ★ Unlike the receipt, this is a LATER email, so it keeps the student-email rules: it goes out only inside the IST
+   *   send window (EMAIL_SEND_WINDOW_IST, default 08:00-21:00) and never within 24 h of another LazyTopper email to the
+   *   same person (the receipt for this order, a nudge or trial-ending email to the paying account, a guest email to this
+   *   address); it writes `lastClaimMs` to those ledgers so the other emailers wait for it in turn. Otherwise it stays
+   *   QUEUED and the hourly drain sends it when allowed. The stop list is not read: a tax invoice is transactional.
+   */
+  const sendWindow = resolveSendWindow(deps.env || process.env, () => {});
+
+  /** The account that PAID (its one-a-day clock counts this email), or null for a payer with no account. */
+  function payerAccountUid(order) {
+    if (typeof order.payerUid === 'string' && order.payerUid) return order.payerUid;
+    if (typeof order.uid === 'string' && order.uid && order.uid !== 'erased' && invoiceOwnedBy(order, order.uid)) return order.uid;
+    return null;
+  }
+
+  async function runInvoiceEmail(orderId) {
+    if (config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
+    if (typeof orderId !== 'string' || !/^[A-Za-z0-9_]{1,64}$/.test(orderId)) return { skipped: 'bad_input' };
+    const t = now();
+    if (!sendWindow.contains(t)) return { queued: 'window' };
+    const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+    const claimed = await adminFirestore.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const order = snap && snap.exists ? snap.data() || {} : null;
+      const state = order && order.gstInvoiceEmail && typeof order.gstInvoiceEmail === 'object' ? order.gstInvoiceEmail : null;
+      if (!order || !order.gstInvoice || !state || state.status !== 'queued') return { skipped: 'not_queued' };
+      const queuedAtMs = typeof state.queuedAtMs === 'number' ? state.queuedAtMs : t;
+      const buyer = order.gstInvoice.buyer || {};
+      const to = typeof buyer.email === 'string' ? buyer.email.trim() : '';
+      if (!to || to.length > 254 || !EMAIL_PATTERN.test(to)) {
+        tx.set(ref, { gstInvoiceEmail: { status: 'no_address', queuedAtMs, at: new Date(t) } }, { merge: true });
+        return { skipped: 'no_address' };
+      }
+      const uid = payerAccountUid(order);
+      const key = emailKey(to);
+      const nudgeRef = uid ? adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid) : null;
+      const trialRef = uid ? adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid) : null;
+      const guestRef = key ? adminFirestore.collection(GUEST_NUDGE_EMAILS_COLLECTION).doc(key) : null;
+      const rowOf = async (r) => {
+        if (!r) return {};
+        const x = await tx.get(r);
+        return x && x.exists ? x.data() || {} : {};
+      };
+      const nudge = await rowOf(nudgeRef);
+      const trial = await rowOf(trialRef);
+      const guest = await rowOf(guestRef);
+      const receipt = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : {};
+      const recent = [
+        receipt.status === 'sent' || receipt.status === 'sending' ? msOf(receipt.at) : null,
+        nudge.lastClaimMs,
+        trial.status === 'sent' || trial.status === 'claimed' ? Math.max(msOf(trial.sentAt) || 0, msOf(trial.claimedAt) || 0) || null : null,
+        guest.lastClaimMs,
+      ].filter((v) => typeof v === 'number' && Number.isFinite(v));
+      if (recent.some((ms) => t - ms < ONE_A_DAY_MS)) return { queued: 'spaced' };
+      tx.set(ref, { gstInvoiceEmail: { status: 'sending', queuedAtMs, at: new Date(t) } }, { merge: true });
+      if (nudgeRef) tx.set(nudgeRef, { lastClaimMs: t }, { merge: true });
+      if (guestRef) tx.set(guestRef, { lastClaimMs: t }, { merge: true });
+      return { order, to, queuedAtMs };
+    });
+    if (!claimed.order) return claimed;
+    const { order, to, queuedAtMs } = claimed;
+    const mark = async (status) => {
+      try {
+        await ref.set({ gstInvoiceEmail: { status, queuedAtMs, at: new Date(now()) } }, { merge: true });
+      } catch {
+        /* at most once */
+      }
+    };
+    const paymentId = order.gstInvoice.paymentId;
+    const paidMs = msOf(order.paidAt) || msOf(order.guestPaidAt) || order.gstInvoice.issuedAtMs || t;
+    const built = buildReceiptEmail({ ...receiptArgsFor(order, orderId, paymentId, paidMs), invoiceResend: true });
+    if (!built) {
+      await mark('skipped');
+      return { skipped: 'not_receipted' };
+    }
+    const sent = await sendViaResend({
+      fetchImpl,
+      apiKey: config.apiKey,
+      from: config.from,
+      replyTo: config.replyTo,
+      to,
+      subject: built.subject,
+      text: built.text,
+      html: built.html,
+      idempotencyKey: `gst-invoice-email-${paymentId}`,
+      category: 'gst_invoice',
+    });
+    if (sent.ok) {
+      await mark('sent');
+      emit('payments.gst_invoice_email.sent');
+      return { sent: true };
+    }
+    // A send that certainly did not go out is queued again (the next in-window drain, a day later at worst).
+    await mark(sent.retryable ? 'queued' : 'refused');
+    emit('payments.gst_invoice_email.failed');
+    return { sent: false, code: sent.code };
+  }
+
+  /**
+   * Queue the invoice email for an order that has an invoice, and try to send it now. Resolves `{ sent } | { queued:
+   * 'window' | 'spaced' } | { skipped }`. A queued / sent / sending email is never queued twice. Never throws.
+   */
+  async function queueInvoiceEmail({ orderId } = {}) {
+    try {
+      if (config.mode !== 'send' || !adminFirestore) return { skipped: 'off' };
+      if (typeof orderId !== 'string' || !/^[A-Za-z0-9_]{1,64}$/.test(orderId)) return { skipped: 'bad_input' };
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      const t = now();
+      const queued = await adminFirestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const order = snap && snap.exists ? snap.data() || {} : null;
+        if (!order || !order.gstInvoice) return 'no_invoice';
+        const prior = order.gstInvoiceEmail && typeof order.gstInvoiceEmail === 'object' ? order.gstInvoiceEmail.status : null;
+        if (prior === 'sent' || prior === 'sending') return prior;
+        if (prior !== 'queued') tx.set(ref, { gstInvoiceEmail: { status: 'queued', queuedAtMs: t, at: new Date(t) } }, { merge: true });
+        return 'queued';
+      });
+      if (queued !== 'queued') return { skipped: queued };
+      return await runInvoiceEmail(orderId);
+    } catch (e) {
+      emit('payments.gst_invoice_email.error');
+      console.error('[gst-invoice-email] queue failed:', e && e.message);
+      return { error: true };
+    }
+  }
+
+  /** One drain pass: the queued invoice emails (oldest first, a bounded batch), each under the rules above. Never throws. */
+  async function drainInvoiceEmails() {
+    const summary = { sent: 0, queued: 0, skipped: 0, failed: 0 };
+    try {
+      if (config.mode !== 'send' || !adminFirestore || !sendWindow.contains(now())) return summary;
+      let q = adminFirestore.collection(PAY_ORDERS_COLLECTION).where('gstInvoiceEmail.status', '==', 'queued');
+      if (typeof q.limit === 'function') q = q.limit(INVOICE_EMAIL_BATCH * 4);
+      const snap = await q.get();
+      const ids = [];
+      snap.forEach((d) => ids.push([d.id, Number(((d.data() || {}).gstInvoiceEmail || {}).queuedAtMs) || 0]));
+      ids.sort((a, b) => a[1] - b[1]);
+      for (const [id] of ids.slice(0, INVOICE_EMAIL_BATCH)) {
+        let r;
+        try {
+          r = await runInvoiceEmail(id);
+        } catch (e) {
+          console.error('[gst-invoice-email] send failed:', e && e.message);
+          r = { error: true };
+        }
+        if (r.sent) summary.sent += 1;
+        else if (r.queued) summary.queued += 1;
+        else if (r.error || r.sent === false) summary.failed += 1;
+        else summary.skipped += 1;
+      }
+    } catch (e) {
+      emit('payments.gst_invoice_email.error');
+      console.error('[gst-invoice-email] drain failed:', e && e.message);
+    }
+    return summary;
+  }
+
+  /** The hourly drain (started by server/index.cjs only while invoicing AND payment email are on). Returns stop(). */
+  function startInvoiceEmailRunner({ intervalMs = INVOICE_EMAIL_INTERVAL_MS } = {}) {
+    if (config.mode !== 'send') return () => {};
+    const timer = setInterval(() => void drainInvoiceEmails(), intervalMs);
+    if (timer && typeof timer.unref === 'function') timer.unref();
+    return () => clearInterval(timer);
+  }
+
   async function whenIdle() {
     while (inFlight.size) await Promise.all([...inFlight]);
   }
 
-  return { sendForPayment, sendRecipientReady, whenIdle, config };
+  return { sendForPayment, sendRecipientReady, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config };
 }
 
 module.exports = {

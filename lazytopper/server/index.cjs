@@ -447,6 +447,8 @@ const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').crea
 const gstInvoicer = require('./services/gstInvoice.cjs').createGstInvoicer({
   adminFirestore,
   telemetry,
+  // GST-INVOICE-2a: "Issue now" reads the payer's contact from Razorpay's payment record (admin path only).
+  fetchPayment: require('./services/gstInvoice.cjs').createRazorpayPaymentFetcher(),
   getDisplayName: async (uid) => {
     if (!firebaseAdmin) return '';
     const record = await firebaseAdmin.auth().getUser(uid);
@@ -610,6 +612,7 @@ function gstInvoiceRoutes() {
       adminFirestore,
       requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin,
       invoicer: gstInvoicer,
+      invoiceMailer: paymentReceiptEmailer,
       readJson,
     });
   }
@@ -1196,6 +1199,8 @@ server.listen(config.PORT, () => {
   nudgeEmailer.schedule();
   // OPS-REPORT-1 — prints its mode and arms nothing when OFF.
   opsReporter.schedule();
+  // GST-INVOICE-2a — the hourly drain of queued invoice emails; armed ONLY while invoicing AND payment email are on.
+  if (gstInvoicer.config.enabled && paymentReceiptEmailer.config.mode === 'send') paymentReceiptEmailer.startInvoiceEmailRunner();
 
   // ── Unattended question generation ────────────────────────────────────────
   // ★ GATE FIRST, SCHEMA SECOND. Resolve and PRINT the state of every path

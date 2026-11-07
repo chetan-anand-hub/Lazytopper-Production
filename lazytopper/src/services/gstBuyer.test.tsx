@@ -16,15 +16,22 @@ import {
   resetGstBuyerSessionForTests,
   setSessionGstBuyer,
   gstStateLineText,
+  getSessionGstBuyer,
+  isPinForState,
+  ownerTag,
+  PIN_PREFIXES,
+  GUEST_OWNER,
 } from "./gstBuyer";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import GstStateLine from "../components/gstInvoice/GstStateLine";
-import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
+import { gstBuyerOrderFields, isGstBuyerCancelled, armPressCapture, resetPressForTests } from "./gstBuyerOrder";
 import { buyPass, type BuyDeps } from "./checkout";
 
 const require = createRequire(import.meta.url);
 const server = require("../../server/services/gstInvoice.cjs") as {
   GST_STATES: { code: string; name: string }[];
+  PIN_PREFIXES: Record<string, string[]>;
+  isPinForState: (pin: string, state: string) => boolean;
   isValidGstin: (g: string) => boolean;
   gstinCheckChar: (s: string) => string;
 };
@@ -34,6 +41,7 @@ const TEST_GSTIN_MH = withCheck("27BBBBB1111B1Z"); // test fixture
 afterEach(() => {
   cleanup();
   resetGstBuyerSessionForTests();
+  resetPressForTests();
   document.body.innerHTML = "";
   try {
     localStorage.clear();
@@ -53,15 +61,32 @@ describe("state table and validators", () => {
       expect(isValidGstin(v)).toBe(server.isValidGstin(v));
     }
   });
-  it("form rules: state required, PIN 6 digits, GSTIN checksum + state match, name and address", () => {
+  it("form rules: state AND PIN required, PIN 6 digits and plausible for the state, GSTIN checksum + state match, name and address", () => {
     const biz = { gstin: TEST_GSTIN_MH, legalName: "Test Coaching", address: "12 Test Road, Pune" };
     expect(gstFormError({ stateCode: "", pin: "", business: null })).toMatch(/Choose your state/);
-    expect(gstFormError({ stateCode: "29", pin: "", business: null })).toBeNull();
+    expect(gstFormError({ stateCode: "29", pin: "", business: null })).toMatch(/Enter your 6-digit PIN/);
+    expect(gstFormError({ stateCode: "29", pin: "560001", business: null })).toBeNull();
     expect(gstFormError({ stateCode: "29", pin: "5600", business: null })).toMatch(/6 digits/);
+    expect(gstFormError({ stateCode: "29", pin: "110001", business: null })).toMatch(/not in Karnataka/);
     expect(gstFormError({ stateCode: "27", pin: "411001", business: biz })).toBeNull();
-    expect(gstFormError({ stateCode: "29", pin: "", business: biz })).toMatch(/must match the state/);
-    expect(gstFormError({ stateCode: "27", pin: "", business: { ...biz, gstin: "27AAPFU0939F1ZW" } })).toMatch(/does not look right/);
-    expect(gstFormError({ stateCode: "27", pin: "", business: { ...biz, legalName: "" } })).toMatch(/legal name/);
+    expect(gstFormError({ stateCode: "29", pin: "560001", business: biz })).toMatch(/must match the state/);
+    expect(gstFormError({ stateCode: "27", pin: "411001", business: { ...biz, gstin: "27AAPFU0939F1ZW" } })).toMatch(/does not look right/);
+    expect(gstFormError({ stateCode: "27", pin: "411001", business: { ...biz, legalName: "" } })).toMatch(/legal name/);
+  });
+  it("PIN table: EXACTLY the server's; every state has prefixes; border / enclave / APS PINs pass, a wrong state's fails", () => {
+    expect(JSON.parse(JSON.stringify(PIN_PREFIXES))).toEqual(JSON.parse(JSON.stringify(server.PIN_PREFIXES)));
+    for (const st of GST_STATES) expect((PIN_PREFIXES[st.code] || []).length, st.name).toBeGreaterThan(0);
+    const cases: Array<[string, string, boolean]> = [
+      ["560001", "29", true], ["110001", "07", true], ["400001", "27", true], ["403001", "30", true], ["600001", "33", true],
+      ["605001", "34", true], ["533464", "34", true], ["673310", "34", true], ["682555", "31", true], ["362520", "26", true],
+      ["737101", "11", true], ["744101", "35", true], ["194101", "38", true], ["160017", "04", true], ["248001", "05", true],
+      ["500001", "36", true], ["520001", "37", true], ["834001", "20", true], ["799001", "16", true], ["999001", "29", true],
+      ["110001", "29", false], ["560001", "07", false], ["400001", "33", false], ["012345", "29", false], ["56001", "29", false],
+    ];
+    for (const [pin, st, ok] of cases) {
+      expect(isPinForState(pin, st), `${pin} ${st}`).toBe(ok);
+      expect(server.isPinForState(pin, st), `server ${pin} ${st}`).toBe(ok);
+    }
   });
 });
 
@@ -95,7 +120,7 @@ describe("gstBuyerForOrder", () => {
   it("this device's last choice is the pre-fill when the IP is unknown, and is saved after Continue", async () => {
     const d = deps({ ask: vi.fn(async () => ({ stateCode: "32", pin: "682001" })) });
     await gstBuyerForOrder(null, d);
-    expect(JSON.parse(localStorage.getItem(GST_BUYER_KEY) || "null")).toEqual({ stateCode: "32", pin: "682001" });
+    expect(JSON.parse(localStorage.getItem(GST_BUYER_KEY) || "null")).toEqual({ owner: GUEST_OWNER, stateCode: "32", pin: "682001" });
     const d2 = deps();
     await gstBuyerForOrder(null, d2);
     expect(d2.ask).toHaveBeenCalledWith({ stateCode: "32", pin: "682001" });
@@ -116,12 +141,13 @@ describe("gstBuyerForOrder", () => {
 
 describe("the dialog", () => {
   it("renders the 36 states pre-filled; Continue is one tap; Cancel resolves null", async () => {
-    const p = askGstBuyer({ stateCode: "29" });
+    const p = askGstBuyer({ stateCode: "29", pin: "560001" });
     const select = document.querySelector<HTMLSelectElement>('[data-testid="gst-state-select"]')!;
     expect(select.options).toHaveLength(37);
     expect(select.value).toBe("29");
+    expect(document.querySelector('label[for="lt-gst-pin"]')!.textContent).toBe("PIN code");
     document.querySelector<HTMLButtonElement>('[data-testid="gst-continue"]')!.click();
-    expect(await p).toEqual({ stateCode: "29" });
+    expect(await p).toEqual({ stateCode: "29", pin: "560001" });
     expect(document.querySelector('[data-testid="gst-state-dialog"]')).toBeNull();
     const p2 = askGstBuyer(null);
     document.querySelector<HTMLButtonElement>('[data-testid="gst-cancel"]')!.click();
@@ -139,10 +165,17 @@ describe("the dialog", () => {
     (document.querySelector('[data-testid="gst-legal-name"]') as HTMLInputElement).value = "Test Coaching";
     (document.querySelector('[data-testid="gst-address"]') as HTMLTextAreaElement).value = "12 Test Road, Pune";
     go.click();
+    expect(document.querySelector('[data-testid="gst-error"]')!.textContent).toMatch(/Enter your 6-digit PIN/);
+    const pin = document.querySelector('[data-testid="gst-pin"]') as HTMLInputElement;
+    pin.value = "560001";
+    go.click();
+    expect(document.querySelector('[data-testid="gst-error"]')!.textContent).toMatch(/not in Maharashtra/);
+    pin.value = "411001";
+    go.click();
     expect(document.querySelector('[data-testid="gst-error"]')!.textContent).toMatch(/does not look right/);
     (document.querySelector('[data-testid="gst-gstin"]') as HTMLInputElement).value = TEST_GSTIN_MH.toLowerCase();
     go.click();
-    expect(await p).toEqual({ stateCode: "27", business: { gstin: TEST_GSTIN_MH, legalName: "Test Coaching", address: "12 Test Road, Pune" } });
+    expect(await p).toEqual({ stateCode: "27", pin: "411001", business: { gstin: TEST_GSTIN_MH, legalName: "Test Coaching", address: "12 Test Road, Pune" } });
   });
 });
 
@@ -182,16 +215,17 @@ describe("review round (HOLD of #1619)", () => {
   });
 
   it("D4: a state picked with Change wins over the remembered one, with no dialog at Pay", async () => {
-    const d = deps({ fetchContext: async () => ({ ipStateCode: null, remembered: { stateCode: "33" } }) });
-    setSessionGstBuyer({ stateCode: "32" });
-    expect(await gstBuyerForOrder({ Authorization: "Bearer x" }, d)).toEqual({ stateCode: "32" });
+    const d = deps({ fetchContext: async () => ({ ipStateCode: null, remembered: { stateCode: "33", pin: "600001" } }), currentUid: async () => "uA" });
+    setSessionGstBuyer({ stateCode: "32", pin: "682001" }, ownerTag("uA"));
+    expect(await gstBuyerForOrder({ Authorization: "Bearer x" }, d)).toEqual({ stateCode: "32", pin: "682001" });
     expect(d.ask).not.toHaveBeenCalled();
     expect(gstStateLineText({ stateCode: "29" })).toBe("State: Karnataka");
+    expect(gstStateLineText({ stateCode: "29", pin: "560001" })).toBe("State: Karnataka · PIN 560001");
     expect(gstStateLineText(null)).toBeNull();
   });
 
   it("D4/D6: the line renders nothing and calls nothing with the flag off; with it on it shows the remembered state + Change", async () => {
-    const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => ({ ok: true, ipStateCode: null, remembered: { stateCode: "29" } }) }));
+    const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => ({ ok: true, ipStateCode: null, remembered: { stateCode: "29", pin: "560001" } }) }));
     vi.stubGlobal("fetch", fetchSpy);
     const { container } = render(<GstStateLine />);
     expect(container.innerHTML).toBe("");
@@ -199,11 +233,97 @@ describe("review round (HOLD of #1619)", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
     cleanup();
     vi.stubEnv("VITE_GST_STATE_FIELD", "1");
-    vi.doMock("./firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } }, firestoreDb: null, app: null }));
+    vi.doMock("./firebaseClient", () => ({
+      authClient: { currentUser: { uid: "uA", getIdToken: async () => "tok" }, onAuthStateChanged: () => () => {} },
+      firestoreDb: null,
+      app: null,
+    }));
     render(<GstStateLine />);
-    await waitFor(() => expect(screen.getByTestId("gst-state-line").textContent).toMatch(/State: Karnataka · Change/));
+    await waitFor(() => expect(screen.getByTestId("gst-state-line").textContent).toMatch(/State: Karnataka · PIN 560001 · Change/));
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     vi.unstubAllGlobals();
     vi.doUnmock("./firebaseClient");
+  });
+});
+
+describe("GST-INVOICE-2a", () => {
+  it("PIN required: a remembered state WITHOUT a valid PIN opens the dialog pre-filled (no silent order without a PIN)", async () => {
+    const d = deps({ fetchContext: async () => ({ ipStateCode: null, remembered: { stateCode: "33" } }), currentUid: async () => "uA", ask: vi.fn(async () => ({ stateCode: "33", pin: "600001" })) });
+    expect(await gstBuyerForOrder({ Authorization: "Bearer a" }, d)).toEqual({ stateCode: "33", pin: "600001" });
+    expect(d.ask).toHaveBeenCalledWith({ stateCode: "33" });
+  });
+
+  it("2b: a Change made by account A is never used for, or offered to, account B signing in on the same page", async () => {
+    const a = ownerTag("uA");
+    const b = ownerTag("uB");
+    expect(a).not.toBe(b);
+    expect(a).not.toContain("uA");
+    setSessionGstBuyer({ stateCode: "32", pin: "682001" }, a);
+    expect(getSessionGstBuyer(a)).toEqual({ stateCode: "32", pin: "682001" });
+    expect(getSessionGstBuyer(b)).toBeNull();
+    expect(getSessionGstBuyer(null)).toBeNull();
+    const dB = deps({ fetchContext: async () => ({ ipStateCode: null, remembered: null }), currentUid: async () => "uB", ask: vi.fn(async () => ({ stateCode: "07", pin: "110001" })) });
+    expect(await gstBuyerForOrder({ Authorization: "Bearer b" }, dB)).toEqual({ stateCode: "07", pin: "110001" });
+    expect(dB.ask).toHaveBeenCalledWith(null); // neither A's Change nor A's device entry is B's pre-fill
+    // A's own next order still uses A's choice; and a signed-out buyer on this device gets nothing of either.
+    const dA = deps({ currentUid: async () => "uA" });
+    expect(await gstBuyerForOrder({ Authorization: "Bearer a2" }, dA)).toEqual({ stateCode: "32", pin: "682001" });
+    const dGuest = deps();
+    await gstBuyerForOrder(null, dGuest);
+    expect(dGuest.ask).toHaveBeenCalledWith(null);
+  });
+
+  it("2b: the device entry is used only by the account that saved it; an entry with no owner (pre-2a) is ignored", async () => {
+    localStorage.setItem(GST_BUYER_KEY, JSON.stringify({ stateCode: "32", pin: "682001" }));
+    const d1 = deps({ currentUid: async () => "uA" });
+    await gstBuyerForOrder({ Authorization: "Bearer a" }, d1);
+    expect(d1.ask).toHaveBeenCalledWith(null);
+    localStorage.setItem(GST_BUYER_KEY, JSON.stringify({ owner: ownerTag("uA"), stateCode: "32", pin: "682001" }));
+    const d2 = deps({ currentUid: async () => "uA" });
+    await gstBuyerForOrder({ Authorization: "Bearer a3" }, d2);
+    expect(d2.ask).toHaveBeenCalledWith({ stateCode: "32", pin: "682001" });
+    localStorage.setItem(GST_BUYER_KEY, JSON.stringify({ owner: ownerTag("uA"), stateCode: "32", pin: "682001" }));
+    const d3 = deps({ currentUid: async () => "uB" });
+    await gstBuyerForOrder({ Authorization: "Bearer b3" }, d3);
+    expect(d3.ask).toHaveBeenCalledWith(null);
+    // Signed in but the uid cannot be read: nothing from the device, nothing saved.
+    localStorage.clear();
+    const d4 = deps({ currentUid: async () => null });
+    await gstBuyerForOrder({ Authorization: "Bearer c" }, d4);
+    expect(localStorage.getItem(GST_BUYER_KEY)).toBeNull();
+  });
+
+  it("2a: focus returns to the PRESSED Pay button even though the surface disabled it while busy (Cancel)", async () => {
+    armPressCapture();
+    document.body.innerHTML = '<main id="page"><button id="pay">Pay</button><button id="other">Other</button></main>';
+    const pay = document.getElementById("pay") as HTMLButtonElement;
+    let opened: Promise<unknown> | null = null;
+    pay.addEventListener("click", () => {
+      pay.disabled = true; // the surface's busy state
+      pay.blur();
+      opened = askGstBuyer({ stateCode: "29", pin: "560001" }).then((v) => {
+        setTimeout(() => {
+          pay.disabled = false; // the surface re-enables Pay a render later
+        }, 120);
+        return v;
+      });
+    });
+    pay.click();
+    expect(document.activeElement).not.toBe(pay);
+    document.querySelector<HTMLButtonElement>('[data-testid="gst-cancel"]')!.click();
+    expect(await opened).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(pay), { timeout: 2000 });
+  });
+
+  it("2a: a press inside the dialog is never taken as the opener", async () => {
+    armPressCapture();
+    document.body.innerHTML = '<button id="pay">Pay</button>';
+    const pay = document.getElementById("pay") as HTMLButtonElement;
+    pay.click();
+    const p = askGstBuyer(null);
+    document.querySelector<HTMLButtonElement>('[data-testid="gst-continue"]')!.click(); // shows an error, stays open
+    document.querySelector<HTMLButtonElement>('[data-testid="gst-cancel"]')!.click();
+    expect(await p).toBeNull();
+    expect(document.activeElement).toBe(pay);
   });
 });

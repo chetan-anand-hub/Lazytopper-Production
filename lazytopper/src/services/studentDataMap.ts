@@ -487,10 +487,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "number, the claim key), status created -> paid_unclaimed -> claimed -> paid; its `uid` is set only when an " +
       "account whose VERIFIED token carries that number claims it. `receiptEmail` records the one receipt email " +
       "(status only; the address is never stored). ★ GST-INVOICE-1: an order may also carry `gstBuyer` (the GST state " +
-      "code the buyer confirmed at checkout, an optional PIN, and for a school / coaching-centre purchase its GSTIN, " +
+      "code the buyer confirmed at checkout, the PIN (required for an invoice since GST-INVOICE-2a), and for a school / coaching-centre purchase its GSTIN, " +
       "legal name and billing address), `gstInvoice` (the issued tax invoice: number, date, seller and buyer details " +
       "as printed - buyer name, the email / phone Razorpay recorded on the payment, state, PIN, GSTIN - and the tax " +
-      "amounts) or `gstInvoiceHeld` (why no invoice was issued). The invoice is a statutory record (CGST Act s.36: " +
+      "amounts) or `gstInvoiceHeld` (why no invoice was issued), and GST-INVOICE-2a `gstInvoiceEmail` (the invoice " +
+      "email's status only: queued / sent; the address is the one on the invoice). The invoice is a statutory record (CGST Act s.36: " +
       "kept 72 months), so like the rest of the order it is KEPT on erasure; only the `uid` field is anonymised.",
   },
 
@@ -1003,9 +1004,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "PAY-PHONE-1: plus localStorage `lazytopper.packNameSkipped.<tag>` (the single character 1 once a phone-only " +
       "account skipped the \"Student's name for your PDFs\" question in My packs, so it is not asked again on this device; " +
       "<tag> is an 8-hex hash of the uid, never the uid; never a name, never pack state). " +
-      "GST-INVOICE-1: plus localStorage `lazytopper.gstBuyerState` (the GST state code and, if given, the 6-digit PIN this " +
-      "device last confirmed in the checkout's \"Your state\" step, so the next checkout is pre-filled; a device key, never " +
-      "a GSTIN, a name, an address or the uid; sent only inside an order the buyer confirms). " +
+      "GST-INVOICE-1: plus localStorage `lazytopper.gstBuyerState` (the GST state code and the 6-digit PIN this " +
+      "device last confirmed in the checkout's \"Your state\" step, so the next checkout is pre-filled; GST-INVOICE-2a: " +
+      "tagged `owner` = \"guest\" or a short one-way hash of the signed-in account, so it is pre-filled only for the SAME " +
+      "account; never a GSTIN, a name, an address or the uid itself; sent only inside an order the buyer confirms). " +
       "GUIDE-PUBLIC-1: plus localStorage `lazytopper.guidePublicArm` (guide or control: this DEVICE's " +
       "group in the public-page Byte test, drawn once at random; a device key, NOT cleared at sign-out; " +
       "never the uid; the group alone is sent once, as an analytics user property, so the test can be " +
