@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 //
 // HOME-PENDING-1 (rework) — the header bell: a badge with the pending count, a small accessible
-// popover with the same list, the same read as the Home strip (no extra network read), hidden when
-// signed out. Mounted in DesktopShell's header and in mobile Home's brand bar.
+// popover with the same list, the same read as the Home strip (no extra network read), signed out a tap
+// opens sign-in. Mounted in DesktopShell's header and in mobile Home's brand bar.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
 vi.mock("../../services/firebaseClient", () => ({ firestoreDb: null }));
@@ -86,6 +86,10 @@ function rec(over: Partial<SessionRecord>): SessionRecord {
 }
 function seedRecords(list: SessionRecord[]): void {
   window.localStorage.setItem(`lazytopper.user.${UID}.sessionRecords.v1`, JSON.stringify(list));
+}
+function WhereAmI() {
+  const l = useLocation();
+  return <p data-testid="where">{l.pathname + l.search}</p>;
 }
 function renderBell(user: { uid: string; isLocalSession?: boolean } | null = USER) {
   return render(
@@ -209,18 +213,29 @@ describe("PendingBell", () => {
     expect(screen.queryByTestId("pending-paper-row")).toBeNull();
   });
 
-  it("★ signed OUT: no bell at all (PREEXIST-FIX-1: it used to render as a dead button), no read", async () => {
+  it("★ signed OUT: no badge, no popover, no read (CONTROL: the button renders)", async () => {
     seedRecords([rec({})]);
     renderBell(null);
-    expect(screen.queryByTestId("pending-bell")).toBeNull();
-    expect(screen.queryByTestId("pending-bell-popover")).toBeNull();
+    const bell = screen.getByTestId("pending-bell");
+    expect(bell.getAttribute("aria-expanded")).toBeNull();
     expect(screen.queryByTestId("pending-bell-badge")).toBeNull();
     expect(cloud.sessionReads + qp.reads).toBe(0);
   });
 
-  it("local session: no bell either (same rule as signed out)", () => {
-    renderBell({ uid: "local-1", isLocalSession: true });
-    expect(screen.queryByTestId("pending-bell")).toBeNull();
+  it("★ PREEXIST-FIX-1: signed OUT a tap opens sign-in and returns to this page (it used to do nothing); no popover", () => {
+    render(
+      <MemoryRouter initialEntries={["/ncert-class-10?subject=science#c3"]}>
+        <Routes>
+          <Route path="/login" element={<WhereAmI />} />
+          <Route path="*" element={<PendingBell user={null} />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByTestId("pending-bell"));
+    expect(screen.queryByTestId("pending-bell-popover")).toBeNull();
+    expect(screen.getByTestId("where").textContent).toBe(
+      "/login?redirect=" + encodeURIComponent("/ncert-class-10?subject=science#c3"),
+    );
   });
 
   it("analytics: pending_card_shown {placement:'bell'} once per tab, when the popover opens with items", async () => {
@@ -279,7 +294,7 @@ describe("where the bell is mounted", () => {
     expect(screen.getByTestId("pending-bell-popover")).toBeTruthy();
   });
 
-  it("DesktopShell signed out: no bell in the header (PREEXIST-FIX-1)", () => {
+  it("DesktopShell signed out: the bell is still there, inert, with no badge", () => {
     render(
       <MemoryRouter>
         <DesktopShell>
@@ -287,8 +302,7 @@ describe("where the bell is mounted", () => {
         </DesktopShell>
       </MemoryRouter>,
     );
-    expect(screen.getByText("page")).toBeTruthy();
-    expect(screen.queryByTestId("pending-bell")).toBeNull();
+    expect(screen.getByTestId("pending-bell").getAttribute("title")).toBe("Notifications");
     expect(screen.queryByTestId("pending-bell-badge")).toBeNull();
   });
 

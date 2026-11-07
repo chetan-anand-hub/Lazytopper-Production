@@ -43,8 +43,9 @@ import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Pay is tapped. */
+/** PREEXIST-FIX-1: the same specifier as the lazy() below (one chunk), for the ?buy= warm-up. */
 const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
-const CheckoutSheet = lazy(loadCheckoutSheet);
+const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 // PREEXIST-FIX-1: a direct landing on /pricing?buy=board_pass warms the sheet's chunk as soon as this module is evaluated (chunk only).
 if (typeof window !== "undefined" && isCheckoutWhoClientEnabled() && readBoardPassBuy(window.location.search)) {
   void loadCheckoutSheet().catch(() => undefined);

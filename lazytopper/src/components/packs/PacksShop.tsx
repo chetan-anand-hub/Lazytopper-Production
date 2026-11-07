@@ -51,8 +51,9 @@ import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
+/** PREEXIST-FIX-1: the same specifier as the lazy() below (one chunk), for the ?buy= warm-up. */
 const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
-const CheckoutSheet = lazy(loadCheckoutSheet);
+const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
@@ -126,7 +127,7 @@ function packCheckoutDetails(sku: PackSku, target: string | undefined): PackChec
 const MY_PACKS_USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 
 const loadPackDialog = () => import("../../pages/PackDialog");
-const PackDialog = lazy(loadPackDialog);
+const PackDialog = lazy(() => import("../../pages/PackDialog"));
 
 /**
  * PREEXIST-FIX-1 (7 Nov 2026) - a `?buy=` deep link opens the pack's pop-up and the checkout sheet, both lazy chunks. They used to
