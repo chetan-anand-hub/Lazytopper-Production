@@ -37,9 +37,10 @@ vi.mock("../../services/quickPracticePaperStore", async (importOriginal) => {
 const authState = vi.hoisted(() => ({
   user: null as null | { uid: string; displayName?: string | null; email?: string; isLocalSession?: boolean },
   logout: vi.fn(async () => {}),
+  loading: false,
 }));
 vi.mock("../../context/AuthContext", () => ({
-  useAuth: () => ({ user: authState.user, logout: authState.logout }),
+  useAuth: () => ({ user: authState.user, logout: authState.logout, loading: authState.loading }),
 }));
 vi.mock("../../hooks/useSubscription", () => ({
   useSubscription: () => ({ tier: "free", isTrialActive: false, isPremium: false, isTrialExpired: false, daysLeftInTrial: 0 }),
@@ -104,6 +105,7 @@ beforeEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
   authState.user = null;
+  authState.loading = false;
   cloud.sessionReads = 0;
   qp.reads = 0;
   onboarding.mockReset();
@@ -236,6 +238,29 @@ describe("PendingBell", () => {
     expect(screen.getByTestId("where").textContent).toBe(
       "/login?redirect=" + encodeURIComponent("/ncert-class-10?subject=science#c3"),
     );
+  });
+
+  it("★ GST-FU-1 F3: a tap while auth is still LOADING does nothing (no /login bounce); once resolved signed out it opens sign-in", () => {
+    authState.loading = true;
+    const view = () => (
+      <MemoryRouter initialEntries={["/home"]}>
+        <Routes>
+          <Route path="/login" element={<WhereAmI />} />
+          <Route path="*" element={<PendingBell user={null} />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    const { rerender } = render(view());
+    const bell = screen.getByTestId("pending-bell");
+    fireEvent.click(bell);
+    expect(screen.queryByTestId("where")).toBeNull();
+    expect(screen.queryByTestId("pending-bell-popover")).toBeNull();
+    expect(screen.getByTestId("pending-bell")).toBe(bell);
+    // CONTROL: auth resolved, still signed out -> the sign-in door as before.
+    authState.loading = false;
+    rerender(view());
+    fireEvent.click(screen.getByTestId("pending-bell"));
+    expect(screen.getByTestId("where").textContent).toBe("/login?redirect=" + encodeURIComponent("/home"));
   });
 
   it("analytics: pending_card_shown {placement:'bell'} once per tab, when the popover opens with items", async () => {

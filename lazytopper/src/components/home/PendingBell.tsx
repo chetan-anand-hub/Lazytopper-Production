@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import type { AuthUser } from "../../context/AuthContext";
+import { useAuth, type AuthUser } from "../../context/AuthContext";
 import { PendingPapersList } from "./PendingPapersList";
 import { PENDING_CSS, papersWaitingLabel } from "./pendingPapersUi";
 import { trackPendingShown, usePendingPapers } from "./usePendingPapers";
@@ -14,12 +14,16 @@ import { trackPendingShown, usePendingPapers } from "./usePendingPapers";
  *   • Signed out / local session: no badge, no popover. PREEXIST-FIX-1 (7 Nov 2026): a tap used to do nothing (a dead
  *     button on desktop); it now opens sign-in and comes back here. The markup is unchanged, so the prerendered desktop
  *     header (and island pages, which upgrade-and-replay a tap on it) need no re-capture.
+ *     GST-FU-1 F3 (8 Nov 2026): while auth is still LOADING there is no uid yet, so a signed-in student's tap used to go
+ *     to /login and bounce back. Until auth has resolved a tap does nothing (same markup, no visual jump).
  *   • Signed in, nothing waiting: no badge; the popover says so honestly.
  *   • Accessible: a real button with aria-expanded / aria-controls; Escape, an outside click or
  *     focus leaving the bell + popover closes it, and Escape returns focus to the bell.
  */
 export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "isLocalSession"> | null | undefined }) {
   const { uid, papers } = usePendingPapers(user);
+  // GST-FU-1 F3: the provider's own "auth not resolved yet" flag (every mount of the bell is inside AuthProvider).
+  const { loading: authLoading } = useAuth();
   const [openState, setOpen] = useState(false);
   // Derived, not synced by an effect: signed out (no uid) the popover is simply never open.
   const open = openState && !!uid;
@@ -81,6 +85,8 @@ export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "is
         {...(uid ? { "aria-expanded": open, "aria-controls": popId, "aria-haspopup": "dialog" as const } : {})}
         onClick={() => {
           if (uid) setOpen((v) => !v);
+          // GST-FU-1 F3: auth not resolved yet - a signed-in student may be seconds away from a uid. Do nothing.
+          else if (authLoading) return;
           // PREEXIST-FIX-1: signed out, the bell is the sign-in door (back to this page afterwards). Same URL shape as
           // withSigninRedirect; the path is this page's own, so it is always internal.
           else navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search + location.hash)}`);
