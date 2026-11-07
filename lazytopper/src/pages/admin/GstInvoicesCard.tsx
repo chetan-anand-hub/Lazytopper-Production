@@ -9,6 +9,7 @@ import { fetchAdmin } from "./studentsAdminModel";
 
 export const GST_STATUS_URL = "/api/admin/gst/status";
 export const GST_EXPORT_URL = "/api/admin/gst/export";
+export const GST_ISSUE_URL = "/api/admin/gst/issue";
 export const GST_SECTIONS = Object.freeze([
   { key: "invoices", label: "Invoice-wise list" },
   { key: "b2cs", label: "B2C summary (by state and rate)" },
@@ -64,6 +65,29 @@ export default function GstInvoicesCard({ getToken }: { getToken: () => Promise<
   const [to, setTo] = useState(today);
   const [state, setState] = useState<State>({ status: "idle" });
   const [dlError, setDlError] = useState<string | null>(null);
+  const [issued, setIssued] = useState<Record<string, string>>({});
+
+  /** Review D2 - "Issue now": the server runs the SAME issuing transaction (idempotent per payment). */
+  const issueNow = async (orderId: string) => {
+    setIssued((m) => ({ ...m, [orderId]: "Issuing…" }));
+    let text = "Could not issue. Try again.";
+    try {
+      const token = await getToken();
+      if (!token) throw new Error("no token");
+      const res = await fetch(GST_ISSUE_URL, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+        cache: "no-store",
+      });
+      const json = (await res.json()) as { result?: { issued?: boolean; number?: string; existing?: string; held?: string; skipped?: string } };
+      const r = json.result || {};
+      text = r.number ? `Issued ${r.number}` : r.existing ? `Already ${r.existing}` : r.held ? `Still held: ${HELD_REASON_LABEL[r.held] || r.held}` : r.skipped ? `Not issued (${r.skipped})` : text;
+    } catch {
+      /* text stays the failure line */
+    }
+    setIssued((m) => ({ ...m, [orderId]: text }));
+  };
   const range = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
 
   const load = () => {
@@ -151,7 +175,13 @@ export default function GstInvoicesCard({ getToken }: { getToken: () => Promise<
               {state.data.held.map((h) => (
                 <li key={h.orderId}>
                   {h.paidIst} · {h.passType} · ₹{(h.amountPaise / 100).toFixed(2)} · {HELD_REASON_LABEL[h.reason] || h.reason}{" "}
-                  <span className="sa-muted">({h.orderId})</span>
+                  <span className="sa-muted">({h.orderId})</span>{" "}
+                  {h.reason !== "pre_cutoff" && h.reason !== "no_sac_for_product" && (
+                    <button type="button" className="sa-btn sa-btn-small" data-testid={`gst-issue-${h.orderId}`} onClick={() => void issueNow(h.orderId)}>
+                      Issue now
+                    </button>
+                  )}
+                  {issued[h.orderId] && <span className="sa-muted"> {issued[h.orderId]}</span>}
                 </li>
               ))}
             </ul>

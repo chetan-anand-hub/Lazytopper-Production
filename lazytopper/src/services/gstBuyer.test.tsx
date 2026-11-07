@@ -13,7 +13,12 @@ import {
   GstBuyerCancelledError,
   GST_BUYER_KEY,
   type GstBuyerDeps,
+  resetGstBuyerSessionForTests,
+  setSessionGstBuyer,
+  gstStateLineText,
 } from "./gstBuyer";
+import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import GstStateLine from "../components/gstInvoice/GstStateLine";
 import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { buyPass, type BuyDeps } from "./checkout";
 
@@ -27,6 +32,8 @@ const withCheck = (first14: string) => `${first14}${server.gstinCheckChar(first1
 const TEST_GSTIN_MH = withCheck("27BBBBB1111B1Z"); // test fixture
 
 afterEach(() => {
+  cleanup();
+  resetGstBuyerSessionForTests();
   document.body.innerHTML = "";
   try {
     localStorage.clear();
@@ -149,5 +156,54 @@ describe("every buy function: closing 'Your state' is 'dismissed', never 'failed
       verify: async () => ({ passEnd: "" }),
     };
     expect(await buyPass("till_boards", d)).toEqual({ status: "dismissed" });
+  });
+});
+
+describe("review round (HOLD of #1619)", () => {
+  it("D3: the dialog is modal - the page behind is inert, Tab wraps inside, focus returns to Pay on close", async () => {
+    document.body.innerHTML = '<main id="page"><button id="pay">Pay</button></main>';
+    const pay = document.getElementById("pay") as HTMLButtonElement;
+    pay.focus();
+    const p = askGstBuyer({ stateCode: "29" });
+    expect(document.getElementById("page")!.hasAttribute("inert")).toBe(true);
+    const go = document.querySelector<HTMLButtonElement>('[data-testid="gst-continue"]')!;
+    const cancel = document.querySelector<HTMLButtonElement>('[data-testid="gst-cancel"]')!;
+    const select = document.querySelector<HTMLSelectElement>('[data-testid="gst-state-select"]')!;
+    expect(document.activeElement).toBe(go);
+    cancel.focus();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+    expect(document.activeElement).toBe(select);
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true }));
+    expect(document.activeElement).toBe(cancel);
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(await p).toBeNull();
+    expect(document.getElementById("page")!.hasAttribute("inert")).toBe(false);
+    expect(document.activeElement).toBe(pay);
+  });
+
+  it("D4: a state picked with Change wins over the remembered one, with no dialog at Pay", async () => {
+    const d = deps({ fetchContext: async () => ({ ipStateCode: null, remembered: { stateCode: "33" } }) });
+    setSessionGstBuyer({ stateCode: "32" });
+    expect(await gstBuyerForOrder({ Authorization: "Bearer x" }, d)).toEqual({ stateCode: "32" });
+    expect(d.ask).not.toHaveBeenCalled();
+    expect(gstStateLineText({ stateCode: "29" })).toBe("State: Karnataka");
+    expect(gstStateLineText(null)).toBeNull();
+  });
+
+  it("D4/D6: the line renders nothing and calls nothing with the flag off; with it on it shows the remembered state + Change", async () => {
+    const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => ({ ok: true, ipStateCode: null, remembered: { stateCode: "29" } }) }));
+    vi.stubGlobal("fetch", fetchSpy);
+    const { container } = render(<GstStateLine />);
+    expect(container.innerHTML).toBe("");
+    await new Promise((r) => setTimeout(r, 10));
+    expect(fetchSpy).not.toHaveBeenCalled();
+    cleanup();
+    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
+    vi.doMock("./firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } }, firestoreDb: null, app: null }));
+    render(<GstStateLine />);
+    await waitFor(() => expect(screen.getByTestId("gst-state-line").textContent).toMatch(/State: Karnataka · Change/));
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+    vi.doUnmock("./firebaseClient");
   });
 });

@@ -268,13 +268,47 @@ export function askGstBuyer(prefill: GstBuyer | null): Promise<GstBuyer | null> 
     panel.append(title, lede, stateLabel, select, pinLabel, pin, bizToggle, biz, error, go, cancel);
     overlay.append(panel);
 
+    // Review D3: a real modal. The page behind is `inert` (no focus, no clicks, hidden from screen readers), Tab stays
+    // inside the panel, and focus goes back to whatever opened the dialog (the Pay button) when it closes.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const inerted: Array<[Element, string | null]> = [];
     const done = (v: GstBuyer | null) => {
-      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("keydown", onKey, true);
       overlay.remove();
+      for (const [node, prev] of inerted) {
+        if (prev === null) node.removeAttribute("inert");
+        else node.setAttribute("inert", prev);
+      }
+      if (opener && opener.isConnected) {
+        try {
+          opener.focus();
+        } catch {
+          /* nothing to return to */
+        }
+      }
       resolve(v);
     };
+    const focusables = (): HTMLElement[] =>
+      Array.from(panel.querySelectorAll<HTMLElement>("select, input, textarea, button")).filter((n) => !n.closest("[hidden]") && !(n as HTMLButtonElement).disabled);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") done(null);
+      if (e.key === "Escape") {
+        e.preventDefault();
+        done(null);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const list = focusables();
+      if (list.length === 0) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !panel.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !panel.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     panel.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -293,10 +327,55 @@ export function askGstBuyer(prefill: GstBuyer | null): Promise<GstBuyer | null> 
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) done(null);
     });
-    document.addEventListener("keydown", onKey);
+    document.addEventListener("keydown", onKey, true);
+    for (const node of Array.from(document.body.children)) {
+      inerted.push([node, node.getAttribute("inert")]);
+      node.setAttribute("inert", "");
+    }
     document.body.append(overlay);
     (select.value ? go : select).focus();
   });
+}
+
+/* ── The signed-in buyer's state, shared by the "State: X · Change" line and the order (review D4) ─────────── */
+
+let contextCache: { key: string; promise: Promise<GstCheckoutContext> } | null = null;
+/** One context request per signed-in identity per page: the line above Pay and the order both read it. */
+export function loadGstContext(
+  headers: Record<string, string>,
+  fetchContext: (h: Record<string, string>) => Promise<GstCheckoutContext> = fetchGstCheckoutContext,
+): Promise<GstCheckoutContext> {
+  const key = headers.Authorization || "";
+  if (!contextCache || contextCache.key !== key) contextCache = { key, promise: fetchContext(headers) };
+  return contextCache.promise;
+}
+
+let sessionChoice: GstBuyer | null = null;
+const listeners = new Set<(b: GstBuyer | null) => void>();
+/** The state the buyer picked with "Change" on this page; it wins over the remembered one for the next order. */
+export function setSessionGstBuyer(b: GstBuyer | null): void {
+  sessionChoice = b;
+  if (b) writeLocal(b);
+  for (const fn of listeners) fn(b);
+}
+export function getSessionGstBuyer(): GstBuyer | null {
+  return sessionChoice;
+}
+export function onSessionGstBuyer(fn: (b: GstBuyer | null) => void): () => void {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+/** Test seam. */
+export function resetGstBuyerSessionForTests(): void {
+  contextCache = null;
+  sessionChoice = null;
+  listeners.clear();
+}
+
+/** PURE. "State: Karnataka" for the line above Pay, or null. */
+export function gstStateLineText(b: GstBuyer | null): string | null {
+  const s = b ? GST_STATES.find((x) => x.code === b.stateCode) : null;
+  return s ? `State: ${s.name}${b?.business ? ` · GSTIN ${b.business.gstin}` : ""}` : null;
 }
 
 /* ── The one entry point the order functions call ─────────────────────────────── */
@@ -314,7 +393,11 @@ const DEFAULT_DEPS: GstBuyerDeps = { fetchContext: fetchGstCheckoutContext, ask:
  */
 export async function gstBuyerForOrder(authHeaders: Record<string, string> | null = null, deps: GstBuyerDeps = DEFAULT_DEPS): Promise<GstBuyer | undefined> {
   if (!deps.enabled()) return undefined;
-  const ctx = await deps.fetchContext(authHeaders || {});
+  // A state picked with "Change" on this page (signed in): used as is - the buyer just confirmed it.
+  if (authHeaders && sessionChoice) return sessionChoice;
+  const ctx = await (authHeaders ? loadGstContext(authHeaders, deps.fetchContext) : deps.fetchContext({}));
+  // Signed in with a remembered state: no dialog (no extra tap). The surface shows it above Pay as "State: X · Change"
+  // (components/gstInvoice/GstStateLine), so it is never applied silently.
   if (authHeaders && ctx.remembered) {
     writeLocal(ctx.remembered);
     return ctx.remembered;

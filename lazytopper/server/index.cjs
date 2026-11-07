@@ -598,6 +598,7 @@ const {
   GST_INVOICE_PDF_PATH,
   GST_ADMIN_STATUS_PATH,
   GST_ADMIN_EXPORT_PATH,
+  GST_ADMIN_ISSUE_PATH,
 } = require('./routes/gstInvoice.cjs');
 let gstInvoiceRoutesMemo = null;
 function gstInvoiceRoutes() {
@@ -608,6 +609,8 @@ function gstInvoiceRoutes() {
       verifiedCaller,
       adminFirestore,
       requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin,
+      invoicer: gstInvoicer,
+      readJson,
     });
   }
   return gstInvoiceRoutesMemo;
@@ -892,6 +895,7 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === GST_INVOICE_PDF_PATH) return gstInvoiceRoutes().handleInvoicePdf(req, res, reqUrlRaw);
   if (req.method === 'GET' && reqPath === GST_ADMIN_STATUS_PATH) return gstInvoiceRoutes().handleAdminStatus(req, res, reqUrlRaw);
   if (req.method === 'GET' && reqPath === GST_ADMIN_EXPORT_PATH) return gstInvoiceRoutes().handleAdminExport(req, res, reqUrlRaw);
+  if (req.method === 'POST' && reqPath === GST_ADMIN_ISSUE_PATH) return gstInvoiceRoutes().handleAdminIssue(req, res); // "Issue now", same ADMIN_FIREBASE_UIDS gate, same-origin
   // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
   if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);

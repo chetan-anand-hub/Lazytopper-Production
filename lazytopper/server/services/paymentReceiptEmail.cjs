@@ -28,7 +28,7 @@ const { isPackProduct, validateTarget } = require('./packProducts.cjs');
 const { maskIndianMobile, maskEmail, GUEST_PAYER } = require('./guestPay.cjs');
 const { GST_RATE_PERCENT } = require('./passPricing.cjs');
 // GST-INVOICE-1: the tax invoice link (a signed link for a purchase made without this account's sign-in).
-const { invoiceToken } = require('./gstInvoice.cjs');
+const { invoiceToken, invoiceLinkSecret, invoiceOwnedBy } = require('./gstInvoice.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const DEFAULT_FROM = 'LazyTopper <hello@mail.lazytopper.com>';
@@ -55,8 +55,8 @@ function resolveReceiptEmailConfig(env = process.env) {
     from,
     replyTo,
     appUrl: normaliseAppUrl(e.PAYMENT_EMAIL_APP_URL || e.TRIAL_EMAIL_APP_URL),
-    // GST-INVOICE-1: the secret the guest invoice link is signed with (domain-separated inside invoiceToken). Never sent.
-    invoiceLinkSecret: str(e.RAZORPAY_KEY_SECRET),
+    // GST-INVOICE-1 (review D5): the DEDICATED secret the signed invoice link uses. Missing -> no link. Never sent.
+    invoiceLinkSecret: invoiceLinkSecret(e),
   };
 }
 
@@ -294,7 +294,9 @@ function createPaymentReceiptEmailer(deps = {}) {
   function invoiceLinkFor(order, orderId, paymentId) {
     const inv = order && order.gstInvoice;
     if (!inv || typeof inv.number !== 'string' || inv.paymentId !== paymentId) return null;
-    if (typeof order.uid === 'string' && order.uid && !order.payer) return { number: inv.number, url: `${config.appUrl}/packs#invoices` };
+    // The account that paid can open it from My packs; anyone else (a parent, a signed-out payer) needs the signed link.
+    const accountUid = typeof order.payerUid === 'string' && order.payerUid ? order.payerUid : order.uid;
+    if (invoiceOwnedBy(order, accountUid) && (!order.payer || order.payerUid)) return { number: inv.number, url: `${config.appUrl}/packs#invoices` };
     const t = invoiceToken(orderId, config.invoiceLinkSecret);
     return t ? { number: inv.number, url: `${config.appUrl}/api/gst/invoice?t=${encodeURIComponent(t)}` } : null;
   }

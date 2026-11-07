@@ -330,7 +330,7 @@ test('held, never numbered: pre-cut-off, no state, pack credit, top-up; an aband
     'payOrders/pre': storedOrder({ createdMs: BEFORE_CUTOFF, paymentId: 'p1' }),
     'payOrders/nostate': storedOrder({ stateCode: null, paymentId: 'p2' }),
     'payOrders/credit': storedOrder({ paymentId: 'p3', extra: { packCreditInr: 49, amountPaise: (2262 - 49) * 100 } }),
-    'payOrders/topup': storedOrder({ passType: 'topup_49', baseInr: 49, paymentId: 'p4' }),
+    'payOrders/topup': storedOrder({ passType: 'topup_49', baseInr: 49, paymentId: 'p4', createdMs: BEFORE_CUTOFF }), // D7: a top-up is no_sac_for_product even before the cut-off
     'payOrders/abandoned': storedOrder({ status: 'created', paymentId: undefined }),
   });
   const { inv } = invoicer(db);
@@ -457,7 +457,8 @@ test('receipt email: the invoice line appears only when an invoice exists (byte-
 
 /* ══ the routes ══ */
 
-function routesFor(db, { env = { ...ENV_READY, PAYMENTS_ENABLED: '1', RAZORPAY_KEY_SECRET: 'k' }, admin = true } = {}) {
+const LINK_SECRET = 'test-invoice-link-secret-0123456789abcdef'; // test fixture (>= 32 chars)
+function routesFor(db, { env = { ...ENV_READY, PAYMENTS_ENABLED: '1', INVOICE_LINK_SECRET: LINK_SECRET }, admin = true, inv = null } = {}) {
   const { sendJson, sendJsonWithHeaders } = createHttpUtils('*');
   return createGstInvoiceRoutes({
     sendJson,
@@ -467,6 +468,8 @@ function routesFor(db, { env = { ...ENV_READY, PAYMENTS_ENABLED: '1', RAZORPAY_K
     now: () => AFTER_CUTOFF,
     verifiedCaller: { async resolveVerifiedUid(req) { const h = String(req.headers.authorization || ''); return h.startsWith('Bearer uid:') ? h.slice(11) : ''; } },
     requireAdmin: async (req) => (admin && req.headers.authorization === 'Bearer admin' ? { ok: true } : { ok: false, status: 403, error: 'no' }),
+    invoicer: inv,
+    readJson: async (r) => r.body,
   });
 }
 function fakeRes() {
@@ -480,7 +483,7 @@ function fakeRes() {
 }
 const req = (url, headers = {}) => ({ url, headers, method: 'GET' });
 
-test('routes: the PDF only for the buyer uid or a valid signed token; others get a uniform 404', async () => {
+test('routes: the PDF only for the paying uid (others 403) or a valid signed token (forged 404)', async () => {
   const { db } = await issuedPair();
   const routes = routesFor(db);
   let res = fakeRes();
@@ -490,11 +493,11 @@ test('routes: the PDF only for the buyer uid or a valid signed token; others get
   assert.equal(res.r.body.slice(0, 5).toString(), '%PDF-');
   res = fakeRes();
   await routes.handleInvoicePdf(req('/api/gst/invoice?orderId=ka', { authorization: 'Bearer uid:someone_else' }), res, '/api/gst/invoice?orderId=ka');
-  assert.equal(res.r.status, 404);
+  assert.equal(res.r.status, 403);
   res = fakeRes();
   await routes.handleInvoicePdf(req('/api/gst/invoice?orderId=ka'), res, '/api/gst/invoice?orderId=ka');
   assert.equal(res.r.status, 401);
-  const t = g.invoiceToken('mh', 'k');
+  const t = g.invoiceToken('mh', LINK_SECRET);
   res = fakeRes();
   await routes.handleInvoicePdf(req(`/api/gst/invoice?t=${t}`), res, `/api/gst/invoice?t=${t}`);
   assert.equal(res.r.status, 200);
@@ -521,9 +524,9 @@ test('routes: my invoices (own only, 404 while invoicing is off) and checkout co
   res = fakeRes();
   await routesFor(db, { env: {} }).handleCheckoutContext(req('/api/gst/checkout-context'), res);
   assert.equal(res.r.status, 404, 'dark while PAYMENTS_ENABLED is off');
-  const older = { gstBuyer: { stateCode: '07' }, createdAt: new Date(1) };
-  const newer = { gstBuyer: { stateCode: '33', pin: '600001' }, createdAt: new Date(2) };
-  assert.deepEqual(rememberedFrom([newer, older, { createdAt: new Date(3) }]), { stateCode: '33', pin: '600001' });
+  const older = { uid: 'u1', gstBuyer: { stateCode: '07' }, createdAt: new Date(1) };
+  const newer = { uid: 'u1', gstBuyer: { stateCode: '33', pin: '600001' }, createdAt: new Date(2) };
+  assert.deepEqual(rememberedFrom([newer, older, { uid: 'u1', createdAt: new Date(3) }, { uid: 'u1', payer: 'parent', gstBuyer: { stateCode: '29' }, createdAt: new Date(9) }], 'u1'), { stateCode: '33', pin: '600001' });
 });
 
 test('admin routes: gated; status names missing config and lists held orders; CSV export', async () => {
@@ -675,4 +678,120 @@ test('wiring: invoicing FAILING (store down for the invoice) never fails or chan
   } finally {
     await srv.close();
   }
+});
+
+/* ══ review round (HOLD of #1619): D1 ownership, D2 issue now, D5 link secret, D6 dark context, D7 order ══ */
+
+const BIZ_MH = () => ({ gstin: TEST_B2B_GSTIN_MH, legalName: 'Parent Coaching LLP', address: '1 Parent Road, Pune 411001' });
+
+async function parentAndWho() {
+  const db = memoryFirestore({
+    // A parent paid for the child's Board Pass: uid is the CHILD, payer 'parent'; the invoice carries the PARENT's contact.
+    'payOrders/par': storedOrder({ uid: 'child1', paymentId: 'pay_par', extra: { payer: 'parent', parentLinkId: 'L1', gstBuyer: { stateCode: '27', business: BIZ_MH() } } }),
+    // A signed-in payer bought for someone else; it was then claimed by the recipient (uid = recipient).
+    'payOrders/who': storedOrder({ uid: 'recip1', paymentId: 'pay_who', extra: { payer: 'guest', checkoutWho: true, payerUid: 'payer1', gstBuyer: { stateCode: '33', pin: '600001' } } }),
+    // A signed-out phone purchase claimed by the same person.
+    'payOrders/self': storedOrder({ uid: 'phone1', paymentId: 'pay_self', extra: { payer: 'guest', gstBuyer: { stateCode: '07' } } }),
+  });
+  const { inv } = invoicer(db);
+  await inv.issueForPayment({ orderId: 'par', paymentId: 'pay_par', payment: { email: 'parent@example.com', contact: '+919888888888' } });
+  await inv.issueForPayment({ orderId: 'who', paymentId: 'pay_who', payment: { email: 'payer@example.com' } });
+  await inv.issueForPayment({ orderId: 'self', paymentId: 'pay_self', payment: {} });
+  return db;
+}
+
+test('D1: the child of a parent-paid order gets 403, an empty list, and NO reuse of the parent state / GSTIN', async () => {
+  const db = await parentAndWho();
+  const routes = routesFor(db);
+  let res = fakeRes();
+  await routes.handleInvoicePdf(req('/api/gst/invoice?orderId=par', { authorization: 'Bearer uid:child1' }), res, '/api/gst/invoice?orderId=par');
+  assert.equal(res.r.status, 403);
+  res = fakeRes();
+  await routes.handleMyInvoices(req('/api/gst/invoices', { authorization: 'Bearer uid:child1' }), res);
+  assert.deepEqual(res.json().items, []);
+  res = fakeRes();
+  await routes.handleCheckoutContext(req('/api/gst/checkout-context', { authorization: 'Bearer uid:child1' }), res);
+  assert.equal(res.json().remembered, null, 'the parent state / GSTIN is never offered to the child');
+  // The recipient of someone else's purchase: same.
+  res = fakeRes();
+  await routes.handleInvoicePdf(req('/api/gst/invoice?orderId=who', { authorization: 'Bearer uid:recip1' }), res, '/api/gst/invoice?orderId=who');
+  assert.equal(res.r.status, 403);
+  res = fakeRes();
+  await routes.handleCheckoutContext(req('/api/gst/checkout-context', { authorization: 'Bearer uid:recip1' }), res);
+  assert.equal(res.json().remembered, null);
+});
+
+test('D1: the payer can still download: the parent by the signed link, a signed-in payer from the account; a self-claim is the owner', async () => {
+  const db = await parentAndWho();
+  const routes = routesFor(db);
+  const t = g.invoiceToken('par', LINK_SECRET);
+  let res = fakeRes();
+  await routes.handleInvoicePdf(req(`/api/gst/invoice?t=${t}`), res, `/api/gst/invoice?t=${t}`);
+  assert.equal(res.r.status, 200);
+  res = fakeRes();
+  await routes.handleInvoicePdf(req('/api/gst/invoice?orderId=who', { authorization: 'Bearer uid:payer1' }), res, '/api/gst/invoice?orderId=who');
+  assert.equal(res.r.status, 200);
+  res = fakeRes();
+  await routes.handleMyInvoices(req('/api/gst/invoices', { authorization: 'Bearer uid:payer1' }), res);
+  assert.deepEqual(res.json().items.map((i) => i.orderId), ['who']);
+  res = fakeRes();
+  await routes.handleCheckoutContext(req('/api/gst/checkout-context', { authorization: 'Bearer uid:payer1' }), res);
+  assert.deepEqual(res.json().remembered, { stateCode: '33', pin: '600001' });
+  res = fakeRes();
+  await routes.handleInvoicePdf(req('/api/gst/invoice?orderId=self', { authorization: 'Bearer uid:phone1' }), res, '/api/gst/invoice?orderId=self');
+  assert.equal(res.r.status, 200);
+  assert.equal(g.invoiceOwnedBy({ uid: 'u', payer: 'parent' }, 'u'), false);
+  assert.equal(g.invoiceOwnedBy({ uid: 'u' }, 'u'), true);
+});
+
+test('D2: admin "Issue now" issues a held order once the cause is fixed, through the same transaction; idempotent', async () => {
+  const db = memoryFirestore({ 'payOrders/h': storedOrder({ paymentId: 'pay_h', extra: { paidAt: new Date(AFTER_CUTOFF) } }) });
+  const broken = invoicer(db, { env: { ...ENV_READY, SAC_BOARD_PASS: '' } }).inv;
+  assert.deepEqual(await broken.issueForPayment({ orderId: 'h', paymentId: 'pay_h', payment: {} }), { held: 'seller_config_missing' });
+  const { inv } = invoicer(db);
+  const routes = routesFor(db, { inv });
+  let res = fakeRes();
+  await routes.handleAdminIssue({ ...req('/api/admin/gst/issue', { authorization: 'Bearer nope' }), method: 'POST', body: { orderId: 'h' } }, res);
+  assert.equal(res.r.status, 403);
+  res = fakeRes();
+  await routes.handleAdminIssue({ ...req('/api/admin/gst/issue', { authorization: 'Bearer admin' }), method: 'POST', body: { orderId: 'h' } }, res);
+  assert.deepEqual(res.json().result, { issued: true, number: 'LT/26-27/000001' });
+  assert.equal(db.read('payOrders/h').gstInvoiceHeld, null, 'the hold is cleared in the same write');
+  res = fakeRes();
+  await routes.handleAdminIssue({ ...req('/api/admin/gst/issue', { authorization: 'Bearer admin' }), method: 'POST', body: { orderId: 'h' } }, res);
+  assert.deepEqual(res.json().result, { issued: false, existing: 'LT/26-27/000001' });
+  assert.equal(db.read('gstInvoiceCounters/26-27').last, 1);
+  // An issue that THREW at capture (store down) is recovered the same way.
+  db.docs.set('payOrders/t', { data: storedOrder({ paymentId: 'pay_t' }), version: 1 });
+  const realTx = db.runTransaction;
+  db.runTransaction = async () => { throw new Error('FIRESTORE DOWN'); };
+  const err = console.error;
+  console.error = () => {};
+  try {
+    assert.deepEqual(await inv.issueForPayment({ orderId: 't', paymentId: 'pay_t', payment: {} }), { error: true });
+  } finally {
+    console.error = err;
+    db.runTransaction = realTx;
+  }
+  assert.deepEqual(await inv.issueNow({ orderId: 't' }), { issued: true, number: 'LT/26-27/000002' });
+  assert.deepEqual(await inv.issueNow({ orderId: 'nope' }), { skipped: 'unknown_order' });
+});
+
+test('D5: links use INVOICE_LINK_SECRET only; missing or short -> no link and no token accepted', async () => {
+  assert.equal(g.invoiceLinkSecret({ INVOICE_LINK_SECRET: 'short' }), '');
+  assert.equal(g.invoiceLinkSecret({ RAZORPAY_KEY_SECRET: LINK_SECRET }), '', 'the Razorpay secret is never used');
+  assert.equal(g.invoiceLinkSecret({ INVOICE_LINK_SECRET: LINK_SECRET }), LINK_SECRET);
+  const db = await parentAndWho();
+  const t = g.invoiceToken('par', LINK_SECRET);
+  const res = fakeRes();
+  await routesFor(db, { env: { ...ENV_READY, PAYMENTS_ENABLED: '1', RAZORPAY_KEY_SECRET: LINK_SECRET } }).handleInvoicePdf(req(`/api/gst/invoice?t=${t}`), res, `/api/gst/invoice?t=${t}`);
+  assert.equal(res.r.status, 404);
+});
+
+test('D6: checkout-context with invoicing OFF answers an empty context and touches no store', async () => {
+  const db = memoryFirestore({ 'payOrders/x': storedOrder({ extra: { gstBuyer: { stateCode: '29' } } }) });
+  const res = fakeRes();
+  await routesFor(db, { env: { PAYMENTS_ENABLED: '1' } }).handleCheckoutContext(req('/api/gst/checkout-context', { authorization: 'Bearer uid:u1', 'x-vercel-ip-country': 'IN', 'x-vercel-ip-country-region': 'KA' }), res);
+  assert.deepEqual(res.json(), { ok: true, ipStateCode: null, remembered: null });
+  assert.equal(db.stats.calls, 0);
 });

@@ -12,6 +12,7 @@
  *
  * Nothing here grants anything. What the payer typed never goes into a URL, storage or an analytics event.
  */
+import GstStateLine from "../gstInvoice/GstStateLine";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics";
@@ -184,6 +185,7 @@ export default function CheckoutSheet({
     body = (
       <>
         <p className="lt-gps__line" data-testid="who-self">{selfLine(selfMasked)}</p>
+        <GstStateLine />
         <button
           type="button"
           className="lt-gps__primary"
@@ -265,6 +267,7 @@ export default function CheckoutSheet({
         {secondError && <p className="lt-gps__error" role="alert" data-testid="who-second-error">{secondError}</p>}
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "form" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
+        {signedIn && <GstStateLine />}
         <button type="submit" className="lt-gps__primary lt-who__pay" disabled={busy || !recipient} data-testid="who-pay">
           {busy ? "Opening payment…" : payReadBack(item.priceDisplay, first)}
         </button>

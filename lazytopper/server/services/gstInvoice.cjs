@@ -297,11 +297,11 @@ function invoiceAmountsFor(order) {
  * PURE. Why an order (already paid) gets no invoice, or null when it gets one. Order of checks = the reason a CA reads.
  */
 function heldReasonFor(order, config) {
+  // A product with no SAC (a top-up) is reported as that, whatever its date (review D7).
+  if (!productLineFor(order)) return 'no_sac_for_product';
   const createdMs = toMs(order.createdAt);
   if (!Number.isFinite(createdMs) || createdMs < GST_EXCLUSIVE_FROM_MS) return 'pre_cutoff';
   if (!Number.isInteger(order.baseInr) || !Number.isInteger(order.gstInr) || !(order.gstInr > 0)) return 'pre_cutoff';
-  const line = productLineFor(order);
-  if (!line) return 'no_sac_for_product';
   if (!order.gstBuyer || !isGstStateCode(order.gstBuyer.stateCode)) return 'no_state';
   const amounts = invoiceAmountsFor(order);
   if (amounts.held) return amounts.held;
@@ -357,7 +357,37 @@ function buildInvoiceRecord({ order, orderId, paymentId, config, fy, seq, issued
   };
 }
 
+/* ── Whose invoice is it (review D1) ─────────────────────────────────────────── */
+
+/**
+ * PURE. Does this order's invoice (and the state / GSTIN the buyer typed) belong to the signed-in `uid`?
+ *   - a student who paid for their OWN account (no `payer` marker, `uid` = the caller);
+ *   - a signed-in payer who bought for someone else ("who will use it": `payerUid` = the caller);
+ *   - a signed-out phone purchase (`payer: "guest"`, NOT a "who will use it" order) later claimed by the account whose
+ *     verified phone paid for it: the payer and the account are the same person.
+ * NOT the child of a parent-paid order, and NOT the recipient of someone else's "who will use it" purchase: their
+ * `uid` is on the order, but the invoice carries the PAYER's contact and state. Those invoices are reachable only by
+ * the signed link in the payer's receipt.
+ */
+function invoiceOwnedBy(order, uid) {
+  if (!order || typeof uid !== 'string' || !uid) return false;
+  if (typeof order.payerUid === 'string' && order.payerUid === uid) return true;
+  if (order.uid !== uid) return false;
+  if (!order.payer) return true;
+  return order.payer === 'guest' && order.checkoutWho !== true;
+}
+
 /* ── The invoice download token (guest purchases; the email link) ─────────────── */
+
+/**
+ * The DEDICATED secret the signed invoice link uses (review D5): INVOICE_LINK_SECRET, at least 32 characters. Missing or
+ * short -> '' -> no link is ever made or accepted (fail closed). Rotating it invalidates every emailed link; the owners
+ * of self-paid invoices still download them from their account.
+ */
+function invoiceLinkSecret(env = process.env) {
+  const v = typeof (env && env.INVOICE_LINK_SECRET) === 'string' ? env.INVOICE_LINK_SECRET.trim() : '';
+  return v.length >= 32 ? v : '';
+}
 
 /** HMAC over the order id under the server's key secret, domain-separated. Empty secret -> no token. */
 function invoiceToken(orderId, secret) {
@@ -470,6 +500,28 @@ function createGstInvoicer(deps = {}) {
     return result;
   }
 
+  /**
+   * Admin "Issue now" (review D2): the SAME transaction as a capture, for a paid order that has no invoice (a held order
+   * whose cause is now fixed, or one whose issue threw). Idempotent per payment id: an order that already has an invoice
+   * returns it. Resolves `{ issued | existing | held | skipped | error }`; never throws.
+   */
+  async function issueNow({ orderId } = {}) {
+    if (!config.enabled) return { skipped: 'off' };
+    if (!adminFirestore || typeof orderId !== 'string' || !/^[A-Za-z0-9_]{1,64}$/.test(orderId)) return { skipped: 'bad_input' };
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      const o = snap && snap.exists ? snap.data() || {} : null;
+      if (!o) return { skipped: 'unknown_order' };
+      if (o.gstInvoice) return { issued: false, existing: o.gstInvoice.number };
+      if (typeof o.paymentId !== 'string' || !o.paymentId) return { skipped: 'unpaid' };
+      return await run({ orderId, paymentId: o.paymentId, payment: null });
+    } catch (e) {
+      emit('payments.gst_invoice.error');
+      console.error('[gst-invoice] issue-now failed:', e && e.message);
+      return { error: true };
+    }
+  }
+
   function issueForPayment(input) {
     const p = run(input || {}).catch((e) => {
       emit('payments.gst_invoice.error');
@@ -485,7 +537,7 @@ function createGstInvoicer(deps = {}) {
     while (inFlight.size) await Promise.all([...inFlight]);
   }
 
-  return { issueForPayment, whenIdle, config };
+  return { issueForPayment, issueNow, whenIdle, config };
 }
 
 /**
@@ -555,6 +607,8 @@ module.exports = {
   buildInvoiceRecord,
   invoiceToken,
   orderIdFromToken,
+  invoiceOwnedBy,
+  invoiceLinkSecret,
   createGstInvoicer,
   afterCapture,
   isPackProduct,

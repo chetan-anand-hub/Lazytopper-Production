@@ -8,6 +8,11 @@
  *   GET /api/gst/invoice?t=…                 SIGNED TOKEN   the PDF, for a guest purchase (the receipt email's link)
  *   GET /api/admin/gst/status?from=&to=      ADMIN          seller-config warning, counters, held orders
  *   GET /api/admin/gst/export?section=&from=&to=   ADMIN    GSTR-1 CSV (invoices | b2cs | b2b | hsn | held)
+ *   POST /api/admin/gst/issue { orderId }    ADMIN          "Issue now": the SAME issuing transaction (idempotent)
+ *
+ * ★★ OWNERSHIP (review D1): an invoice - and the state / GSTIN typed for it - belongs to the account that PAID
+ *   (services/gstInvoice.cjs invoiceOwnedBy), never to the child of a parent-paid order or the recipient of someone
+ *   else's purchase. Those invoices are reachable only by the signed link (INVOICE_LINK_SECRET) in the payer's receipt.
  *
  * ★ READ-ONLY. Nothing here issues, numbers or changes an invoice: issuing happens only after a server-verified capture
  *   (services/gstInvoice.cjs). A downloaded PDF is rendered from the invoice record STORED on the order.
@@ -27,6 +32,8 @@ const {
   toMs,
   istDateLabel,
   PAID_STATES,
+  invoiceOwnedBy,
+  invoiceLinkSecret,
 } = require('../services/gstInvoice.cjs');
 const { SECTIONS, heldCsv } = require('../services/gstInvoiceExport.cjs');
 const { IST_OFFSET_MS } = require('../services/passPricing.cjs');
@@ -36,6 +43,7 @@ const GST_INVOICES_PATH = '/api/gst/invoices';
 const GST_INVOICE_PDF_PATH = '/api/gst/invoice';
 const GST_ADMIN_STATUS_PATH = '/api/admin/gst/status';
 const GST_ADMIN_EXPORT_PATH = '/api/admin/gst/export';
+const GST_ADMIN_ISSUE_PATH = '/api/admin/gst/issue';
 
 const NOT_FOUND_BODY = Object.freeze({ error: 'Not Found' });
 const ID_PATTERN = /^[A-Za-z0-9_]{1,64}$/;
@@ -64,12 +72,13 @@ function parseRange(query) {
   return { fromMs, toMs: toMsExcl };
 }
 
-/** PURE. The latest state a signed-in buyer confirmed, from their own orders. */
-function rememberedFrom(orders) {
+/** PURE. The latest state the signed-in `uid` confirmed, from orders THEY paid for (never a parent's or another payer's). */
+function rememberedFrom(orders, uid) {
   let best = null;
   let bestMs = -Infinity;
   for (const o of orders) {
     if (!o || !o.gstBuyer || !isGstStateCode(o.gstBuyer.stateCode)) continue;
+    if (!invoiceOwnedBy(o, uid)) continue;
     const ms = toMs(o.createdAt);
     if (Number.isFinite(ms) && ms > bestMs) {
       bestMs = ms;
@@ -85,13 +94,13 @@ function rememberedFrom(orders) {
 }
 
 function createGstInvoiceRoutes(deps = {}) {
-  const { sendJson, sendJsonWithHeaders, verifiedCaller, adminFirestore, requireAdmin, env = process.env, now = () => Date.now() } = deps;
+  const { sendJson, sendJsonWithHeaders, verifiedCaller, adminFirestore, requireAdmin, invoicer, readJson, env = process.env, now = () => Date.now() } = deps;
   const renderPdf = deps.renderPdf || ((inv) => require('../services/gstInvoicePdf.cjs').renderInvoicePdf(inv));
   const pdfHits = new Map();
 
   const paymentsOn = () => isOn(env.PAYMENTS_ENABLED);
   const invoicingOn = () => isOn(env.GST_INVOICE_ENABLED);
-  const tokenSecret = () => String(env.RAZORPAY_KEY_SECRET || '').trim();
+  const tokenSecret = () => invoiceLinkSecret(env);
 
   async function uidOf(req) {
     try {
@@ -101,22 +110,27 @@ function createGstInvoiceRoutes(deps = {}) {
     }
   }
 
+  /** The orders this uid PAID for: its own (`uid`) and those it bought for someone else (`payerUid`), then the D1 rule. */
   async function ordersOf(uid) {
-    const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('uid', '==', uid).get();
-    const out = [];
-    snap.forEach((d) => out.push({ id: d.id, ...(d.data() || {}) }));
-    return out;
+    const out = new Map();
+    for (const field of ['uid', 'payerUid']) {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where(field, '==', uid).get();
+      snap.forEach((d) => out.set(d.id, { id: d.id, ...(d.data() || {}) }));
+    }
+    return [...out.values()].filter((o) => invoiceOwnedBy(o, uid));
   }
 
   /* GET /api/gst/checkout-context */
   async function handleCheckoutContext(req, res) {
     if (!paymentsOn()) return sendJson(res, 404, NOT_FOUND_BODY);
+    // Review D6: with invoicing off there is nothing to pre-fill for - an empty context, no header read, no Firestore.
+    if (!invoicingOn()) return sendJsonWithHeaders(res, 200, { ok: true, ipStateCode: null, remembered: null }, { 'Cache-Control': 'no-store' });
     const ipStateCode = stateCodeFromIpRegion(req.headers['x-vercel-ip-country'], req.headers['x-vercel-ip-country-region']);
     let remembered = null;
     const uid = req.headers.authorization ? await uidOf(req) : null;
     if (uid && adminFirestore) {
       try {
-        remembered = rememberedFrom(await ordersOf(uid));
+        remembered = rememberedFrom(await ordersOf(uid), uid);
       } catch {
         remembered = null; // a failed read only means the buyer is asked
       }
@@ -185,9 +199,9 @@ function createGstInvoiceRoutes(deps = {}) {
       console.error('[gst/invoice] read failed:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not read the invoice.' });
     }
-    // Uniform 404: an unknown order, someone else's order and an order with no invoice look the same.
     if (!order || !order.gstInvoice) return sendJson(res, 404, NOT_FOUND_BODY);
-    if (uid && order.uid !== uid) return sendJson(res, 404, NOT_FOUND_BODY);
+    // Review D1: a signed-in caller gets ONLY an invoice they paid for (the child of a parent-paid order does not).
+    if (uid && !invoiceOwnedBy(order, uid)) return sendJson(res, 403, { ok: false, error: 'forbidden' });
     let pdf;
     try {
       pdf = renderPdf(order.gstInvoice);
@@ -323,7 +337,23 @@ function createGstInvoiceRoutes(deps = {}) {
     return res.end(body);
   }
 
-  return { handleCheckoutContext, handleMyInvoices, handleInvoicePdf, handleAdminStatus, handleAdminExport };
+  /* POST /api/admin/gst/issue - "Issue now" (review D2) */
+  async function handleAdminIssue(req, res) {
+    if (!(await admit(req, res))) return undefined;
+    if (!invoicer || typeof invoicer.issueNow !== 'function') return sendJson(res, 503, { ok: false, error: 'Invoicing unavailable' });
+    let body;
+    try {
+      body = typeof readJson === 'function' ? await readJson(req) : null;
+    } catch {
+      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
+    }
+    const orderId = body && typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    if (!ID_PATTERN.test(orderId)) return sendJson(res, 400, { ok: false, error: 'orderId required' });
+    const result = await invoicer.issueNow({ orderId });
+    return sendJsonWithHeaders(res, result && result.error ? 500 : 200, { ok: !(result && result.error), result }, { 'Cache-Control': 'no-store' });
+  }
+
+  return { handleCheckoutContext, handleMyInvoices, handleInvoicePdf, handleAdminStatus, handleAdminExport, handleAdminIssue };
 }
 
 module.exports = {
@@ -335,4 +365,5 @@ module.exports = {
   GST_INVOICE_PDF_PATH,
   GST_ADMIN_STATUS_PATH,
   GST_ADMIN_EXPORT_PATH,
+  GST_ADMIN_ISSUE_PATH,
 };
