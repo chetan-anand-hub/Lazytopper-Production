@@ -1,3 +1,16 @@
+## 2026-11-07 (daily, second) - #1625 - #1626: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 7 Nov 2026, each with its reason where one was given. Tags: **[owner]**, **[coordinator]**.
+
+| decision | what it says | the reason |
+|---|---|---|
+| The GST form asks for state AND PIN, with no address [owner] | both required; no address field | the CA said both are needed for the invoice; the owner wanted low friction. |
+| Past sales are invoiced through an emailed 1-tap form [owner] | signed link to /invoice-details; never default to Karnataka; never use the IP address as the state | the CA said past sales must be invoiced; a guessed state would put wrong tax on a real invoice. |
+| F2 CLOSED: no refund re-check on form submit [owner] | the form does not re-check Razorpay for refunds | the owner has never refunded anyone (22:55 IST). |
+| F1 OPEN: invoice-email cap is separate from the nudge cap [owner] | `GST_INVOICE_EMAIL_DAILY_CAP` is 10 now, 30 once Resend Pro is bought | Resend free plan is 100 a day and 3,000 a month; 7 Nov used 115 and 1,505. |
+| The signed-out bell goes to /login instead of being hidden [coordinator] | taps go to `/login?redirect=<page>` | hiding it changed the prerendered header on every page. |
+| GST switched on after the secret rotation and a real test [owner; coordinator] | flags ON about 21:00 to 22:00 IST; `INVOICE_LINK_SECRET` rotated 22:52 IST; rollback is to delete the Railway flag and remove the Vercel flag | a money feature goes live only after a real test payment; the secret had been shown on screen once. |
+
 ## 2026-11-07 (daily) - #1619 - #1623: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 7 Nov 2026 by the owner **[owner]**, as relayed by the coordinator in this lane's brief, each with its reason where one was given.

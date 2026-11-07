@@ -1,3 +1,18 @@
+## 2026-11-07 (daily, second) - #1625 - #1626: GST invoicing goes live, past sales get invoices, six pre-existing live issues are fixed (trunk `6f578d2b`)
+
+**PROVENANCE.** *(Second daily handoff of 7 Nov, CLAUDE.md section 10. Covers the 2 merges after `#1624`. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** and live steps **[coordinator]** as relayed in the brief; trunk **[git]**.)*
+
+**How the evening went [gh; coordinator; owner].**
+- **Evening.** `#1625` built invoices for past sales (16 Sep to 6 Nov): an admin "Past sales" list, a signed 1-tap state + PIN form at /invoice-details emailed to each buyer, GST worked back from the amount paid, the original payment date as the supply date, one reminder after 5 days. It never defaults to Karnataka and never takes the state from the IP address. Blocking finding B1 (the guest supply date) was fixed before merge.
+- **GST switched on.** About 21:00 to 22:00 IST the flags went ON (Railway `GST_INVOICE_ENABLED=1`, `GST_INVOICE_EMAIL_DAILY_CAP=10`; Vercel `VITE_GST_STATE_FIELD=1`). The owner rotated `INVOICE_LINK_SECRET` at 22:52. Two Rs 58 test purchases proved Karnataka (CGST + SGST) and Maharashtra (IGST) invoices and the PDF on /packs.
+- **Night.** `#1626` fixed six pre-existing live issues found by the islands regression baseline: pricing hash CLS 0.278 -> 0.003, /pricing#my-packs, the ?buy= sheet latency, the signed-out bell, CLS at 360 px on CBQ / browse / chapter-test, and /packs#invoices scroll.
+- **Past-sales send.** At 22:50 IST "Send state forms" queued 19 (about 2 days at 10 a day); 1 buyer had no email; 3 could not be checked with Razorpay (re-click on 8 Nov).
+- **Resend.** The free plan (100 a day) was exceeded on 7 Nov (115 of 100; 1,505 of 3,000 for the month), so the month runs out about 14 Nov. The owner is to buy Pro.
+
+**LESSON: a ?buy= delay was a chunk fetch, not an auth race [gh].** The first guess was an auth race; the cause was a late fetch of the checkout sheet code. Preloading it at mount fixed it with no change to orders, price or Razorpay.
+
+**Method notes.** The switch-on followed the rule from the first block: rotate the exposed secret, then flip the flags, then prove it with a real test payment before any buyer relies on it.
+
 ## 2026-11-07 (daily) - #1619 - #1623: vendor chunks and the production router ship, GST invoices are built dark, the signed-out content pages become islands (trunk `46905d05`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers the 5 merges after docs PR `#1618` (`b1a2b313`), all on 7 Nov IST. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** as relayed by the coordinator; trunk **[git]**.)*
