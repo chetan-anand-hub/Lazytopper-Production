@@ -1,3 +1,10 @@
+## 2026-11-07 (daily) - #1619 - #1623 - MERGED
+
+- DONE. `#1620` (`97270df`), `#1622` (`2a9d33b`): vendor-react / vendor-firebase chunks, entry budget 155,116 B gz; react-router production build. NEXT: login LCP, CLS on practice-hub / home / browse, for-parents INP.
+- DONE. `#1621` (`46905d0`) SPEED-ISLANDS-1: no-React island for signed-out notes, NCERT and Exemplar solutions. NEXT: `[FU-ISLANDS-PHASE-2]` (ncert-class-10, highly-probable, cbq-class-10).
+- DONE (dark). `#1619` (`299ea98`) GST-INVOICE-1 and `#1623` (`00bb9d6`) GST-INVOICE-2a. NEXT: rotate `INVOICE_LINK_SECRET`, switch the flags on after a real test payment, then the past-sales one-tap form (16 Sep to 6 Nov).
+- NEXT (not built): `[FU-SPEED-2A-RETRY]`, `[FU-GST-PAST-SALES-INVOICES]`.
+
 ## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617 - MERGED
 
 - DONE. `#1560` (`49bda77`) GST-EXCL-1 and `#1613` (`d289c26`) prerender re-capture: "+ GST" pricing live from 00:00 IST 7 Nov on every paid product. NEXT: Razorpay amount check without paying; ads "+ GST"; `[FU-GST-INVOICE-1]`.

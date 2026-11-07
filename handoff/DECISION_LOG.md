@@ -1,3 +1,18 @@
+## 2026-11-07 (daily) - #1619 - #1623: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 7 Nov 2026 by the owner **[owner]**, as relayed by the coordinator in this lane's brief, each with its reason where one was given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| `vite.config.ts` may be edited for SPEED only [owner] | the speed OK covers `#1620` (manual chunks) and `#1622` (react-router alias); any other edit of the file still needs its own OK | the file is globally forbidden (CLAUDE.md section 4); the speed lanes need it for chunking and aliasing. |
+| GST checkout asks for state AND PIN, both required, no address field [owner] | state bound to the account (uid); PIN checked for format only (6 digits, first 1-9) | place of supply needs the buyer's state; an address field costs conversion and was not wanted. |
+| Past sales from 16 Sep to 6 Nov get invoices through an emailed one-tap state + PIN form [owner] | not built; `[FU-GST-PAST-SALES-INVOICES]` | the CA confirmed in writing that invoices are required. |
+| GST invoice PRs ship DARK [coordinator] | `GST_INVOICE_ENABLED` and `VITE_GST_STATE_FIELD` OFF; rotate `INVOICE_LINK_SECRET` first | a money feature is switched on only after a real test payment; the secret was shown on screen once. |
+| Replace all 30 NCERT ad images [owner] | done: v4 mascot images, no text | owner choice of creative. |
+| Extend speed work to the whole site, prioritised by traffic [owner] | order: login LCP, CLS on practice-hub / home / browse, for-parents INP, islands phase 2 | traffic (7 days to 6 Nov): practice-hub 2.7K, packs 2.1K, for-parents 1.7K, pricing 1.1K, highly-probable 1.0K, home 958, login 825. |
+| Speed lane "2a" is parked [coordinator] | retry only with `modulepreload` for /login and /check-improve restored plus grouped small chunks, kept only if no route gets slower | it made 3 routes slower. |
+| Islands: desktop "Log in" after the idle upgrade; Byte pop-up forces the app at 8 s or 25 % scroll [coordinator] | rulings 2 and 1 of the islands lane | keeps the island light while still reaching the app for engaged readers; recorded in `[FU-ISLANDS-KNOWN-BEHAVIOURS]`. |
+
 ## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 5-7 Nov 2026 by the owner **[owner]**, as relayed by the coordinator in this lane's brief or quoted in the PR bodies **[gh]**, each with its reason. The 5 Nov grader rulings are recorded in the PR bodies of `#1575`, `#1583`, `#1584`, `#1585` with their CBSE marking-scheme evidence; the rows below summarise them.
