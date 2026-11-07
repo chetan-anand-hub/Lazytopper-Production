@@ -1,3 +1,17 @@
+## 2026-11-07 (daily) - #1619 - #1623
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`46905d05`** [git].
+
+- **Done [git/gh]:** 5 PRs merged (table in CURRENT_STATE): `#1620`, `#1619`, `#1622`, `#1623`, `#1621`. No grading change. The GST invoice work is DARK (`GST_INVOICE_ENABLED` and `VITE_GST_STATE_FIELD` OFF).
+- **Closed:** `[FU-VITE-MANUALCHUNKS-ISLANDS]` (manual chunks in `#1620`, `#1622`; islands phase 1 in `#1621`; phase 2 is the new `[FU-ISLANDS-PHASE-2]`). `[FU-GST-INVOICE-1]` is built in `#1619` / `#1623` but NOT switched on.
+- **NEXT, in order:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the "7 Nov (daily)" section of OPEN_QUESTIONS_AND_FOLLOWUPS.
+  2. **Before switching GST invoices on:** rotate `INVOICE_LINK_SECRET` on Railway (it was shown on screen once); then set `GST_INVOICE_ENABLED` and `VITE_GST_STATE_FIELD`, make one real test payment (state + PIN both required, no address field) and check the invoice number (`LT/26-27`, gapless), the CGST/SGST vs IGST split, the PDF on /packs and the admin GSTR-1 CSVs.
+  3. **Past-sales invoices (16 Sep to 6 Nov):** build the emailed one-tap state + PIN form (owner ruling; the CA confirmed in writing that invoices are required).
+  4. **Speed, in the owner's traffic order:** login LCP (mobile 6.48 s), then CLS on practice-hub / home / browse, then for-parents INP (536 ms), then islands phase 2 (ncert-class-10, highly-probable, cbq-class-10). Judge by PageSpeed and Vercel real-user data.
+  5. **Search:** GSC indexing for the 11 Exemplar Science pages and /packs (reminder set for 8 Nov 12:45). Bing was fed through IndexNow (80 URLs).
+  6. Carried: the grader second-surface live checks of the 6 Nov block (`#1583`, `#1584`, `#1585`); the money check; ads "+ GST".
+
 ## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`28394aed`** [git].

@@ -1,3 +1,17 @@
+## 2026-11-07 (daily) - #1619 - #1623: vendor chunks and the production router ship, GST invoices are built dark, the signed-out content pages become islands (trunk `46905d05`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers the 5 merges after docs PR `#1618` (`b1a2b313`), all on 7 Nov IST. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** as relayed by the coordinator; trunk **[git]**.)*
+
+**How the day went [gh; owner].**
+- **Morning.** `#1620` split React and Firebase Auth into their own long-cached chunks (returning visitors about 155 KB gz instead of 273 KB after an app-only deploy; entry budget tightened to 155,116 B gz), after the owner allowed `vite.config.ts` for speed only. `#1619` built GST tax invoices dark: state at checkout, gapless `LT/26-27` numbers, CGST/SGST vs IGST, PDF on /packs, admin GSTR-1 CSVs, seller config that fails closed; Railway got the seller variables. `#1622` aliased react-router to its production build (about -0.5 KB gz per route).
+- **Afternoon.** `#1623` finished the checkout side of invoicing (PIN required, state bound to the uid, "Issue now" with a quiet-hours-aware receipt re-send, attempt cap, stale-`sending` retry). `#1621` made notes, NCERT and Exemplar solution pages a no-React island for signed-out visitors (LCP 1.6-1.7 s -> 0.55-0.6 s on the solutions pages in the lab; Notes +0.1-0.2 s, accepted).
+- **Owner rulings.** Speed-only OK for `vite.config.ts`; state + PIN both required and no address field; past sales (16 Sep to 6 Nov) get invoices through an emailed one-tap form (CA confirmed in writing); 30 NCERT ad images replaced; extend speed to the whole site by traffic.
+- **A parked attempt.** A separate speed lane "2a" (grouped chunks) made 3 routes slower and was parked; see `[FU-SPEED-2A-RETRY]`.
+
+**LESSON: measure every route, not the one you aimed at [gh].** Chunk grouping that helped the target route made three others slower. The islands lane kept a regression baseline, and that baseline also surfaced the pre-existing live issues recorded as `[FU-REGRESSION-BASELINE-LIVE-ISSUES]`; the keep-only-if-no-route-gets-slower rule is now the bar for retrying.
+
+**Method notes.** A secret shown on screen once is treated as exposed: rotate before the feature that uses it goes live (`INVOICE_LINK_SECRET`). Money features ship dark behind two flags and are switched on only after a real test payment.
+
 ## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617: the grader follows the owner's CBSE rulings, prices go "+ GST", the NCERT Hub and Science solutions ship, sign-in and speed fixes (trunk `28394aed`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers the 44 merges after docs PR `#1572` (`1b268a52`): 12 on 5 Nov, 25 on 6 Nov, 7 between 00:20 and 00:51 IST on 7 Nov. No docs PR was written on 5 Nov, so this one covers both days. **Grading behaviour changed in `#1575`, `#1582`, `#1583`, `#1584`, `#1585` (CLAUDE.md section 4a; per-surface table in CURRENT_STATE).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** as relayed by the coordinator; trunk **[git]**.)*

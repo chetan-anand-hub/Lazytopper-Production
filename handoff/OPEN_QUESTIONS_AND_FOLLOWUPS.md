@@ -23,6 +23,38 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-07 (daily) - #1619 - #1623 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `46905d05`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed. Every new ID below has its own heading and body (standing rule 1).*
+
+**Closed by this window (not re-headed):** `[FU-VITE-MANUALCHUNKS-ISLANDS]` closed by `#1620` / `#1622` (chunks, production router) and `#1621` (islands phase 1). `[FU-GST-INVOICE-1]` is built dark in `#1619` / `#1623` (switch-on steps in NEXT_ACTION).
+
+**Carried, not duplicated:** `[FU-ADS-DEFERRED-4NOV]`, `[FU-GRADER-2027-PRICE]`, `[FU-RECORD-SAFE-TWO-TAB-RACE]`, `[FU-OWNER-TESTS-T3-T6]`, `[FU-PRACTICE-HUB-CBQ-CLS]`, `[FU-BOTTOM-NAV-LATE-GROWTH]`, `[FU-DESKTOP-MI-SIDEBAR-SHIFT]`.
+
+### [FU-SPEED-2A-RETRY]
+SPEED. The "2a" speed lane (grouped small chunks plus changed preloads) was PARKED because it made 3 routes slower. Retry only with `modulepreload` restored for /login and /check-improve plus grouped small chunks, and keep it only if NO route gets slower (measure every route against the baseline). **[coordinator]**
+
+### [FU-ISLANDS-PHASE-2]
+SPEED. Extend islands to ncert-class-10, highly-probable and cbq-class-10, after login LCP, the CLS on practice-hub / home / browse, and for-parents INP (owner's traffic order). **[coordinator; owner]**
+
+### [FU-ISLANDS-KNOWN-BEHAVIOURS]
+SPEED, known and accepted behaviours of `#1621` to revisit: (1) on desktop, "Log in" appears only after the idle upgrade (ruling 2); (2) Byte's notes pop-up forces the full app at 8 s or 25 % scroll (ruling 1); (3) the URL hash is removed after the reader scrolls away. Notes LCP is +0.1-0.2 s because KaTeX CSS blocks (accepted). **[coordinator; gh]**
+
+### [FU-REGRESSION-BASELINE-LIVE-ISSUES]
+SPEED / BUGS. Pre-existing live issues (not caused by the 7 Nov PRs) found by the islands regression baseline: (a) desktop CLS of about 0.28 on `/pricing#packs-type` deep links; (b) `/pricing#my-packs` has no target (it lives at `/packs#my-packs`); (c) `/packs?buy=` flips between checkout and plain /packs depending on timing; (d) the desktop notifications bell does nothing when signed out; (e) CLS of about 0.19-0.25 on some CBQ chapters, `/notes/carbon-and-its-compounds` and `/browse`. Some touch forbidden files (ask first). **[coordinator]**
+
+### [FU-GST-PAST-SALES-INVOICES]
+MONEY. Owner ruling 7 Nov: past sales from 16 Sep to 6 Nov get invoices through an emailed one-tap state + PIN form (the CA confirmed in writing that invoices are required). Not built. **[owner]**
+
+### [FU-GST-INVOICE-SECRET-ROTATE]
+SECURITY. `INVOICE_LINK_SECRET` (Railway) was shown on screen once; rotate it BEFORE `GST_INVOICE_ENABLED` is switched on. **[coordinator]**
+
+### [FU-GSC-INDEXING-EXEMPLAR-PACKS]
+SEO. GSC indexing is still due for the 11 Exemplar Science pages and /packs (reminder set for 8 Nov 12:45). Bing was fed through IndexNow (80 URLs). Related: `[FU-SCI-PAGES-INDEXING]`. **[coordinator]**
+
+### [FU-SPEED-NEXT-BY-TRAFFIC]
+SPEED. Work the site by traffic (7 days to 6 Nov, Vercel): practice-hub 2.7K, packs 2.1K, for-parents 1.7K (INP 536 ms), pricing 1.1K, highly-probable 1.0K, home 958 (CLS 0.20), login 825 (mobile LCP 6.48 s), check-improve 683, browse 552 (CLS 0.25). Order: login LCP, then CLS on practice-hub / home / browse, then for-parents INP, then islands phase 2. Context: 308 sign-ups and 15 purchases worth Rs 5,951 in the same window. **[owner; coordinator]**
+
 ## 2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `28394aed`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. Grading behaviour changed in `#1575`, `#1582`, `#1583`, `#1584`, `#1585` (CLAUDE.md section 4a). Every new ID below has its own heading and body (standing rule 1).*

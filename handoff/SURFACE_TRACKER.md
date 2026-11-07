@@ -1,3 +1,12 @@
+> **2026-11-07 (daily) - #1619 - #1623 (CLAUDE.md section 10).** Scope: build output (chunks, router), checkout and invoicing (dark), signed-out notes / NCERT / Exemplar solution pages. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker, Worksheet, Chapter Test, Full Mock, Quick Practice | none | unchanged | the 6 Nov second-surface checks stay owed |
+| Checkout (state + PIN) and GST invoices | state / PIN fields, gapless `LT/26-27` invoices, CGST/SGST vs IGST, PDF on /packs, admin GSTR-1 CSVs (`#1619`); PIN required, uid-bound state, Issue-now contact and receipt re-send, attempt cap (`#1623`) | **merged, DARK** (`GST_INVOICE_ENABLED`, `VITE_GST_STATE_FIELD` OFF) | rotate `INVOICE_LINK_SECRET`; one real test payment after switch-on; `[FU-GST-PAST-SALES-INVOICES]` |
+| Notes, NCERT and Exemplar solution pages (signed out) | no-React island (`#1621`); kill switches `?app=1`, `LT_ISLANDS=0`; signed-in gets the full app | merged, live | 360 / 1280 check; `[FU-ISLANDS-KNOWN-BEHAVIOURS]`, `[FU-ISLANDS-PHASE-2]` |
+| Site-wide speed (build) | vendor-react / vendor-firebase chunks, entry budget 155,116 B gz (`#1620`); react-router production build (`#1622`) | merged, live | `[FU-SPEED-2A-RETRY]`, `[FU-SPEED-NEXT-BY-TRAFFIC]`, `[FU-REGRESSION-BASELINE-LIVE-ISSUES]` |
+
 > **2026-11-06 (daily, covers 5 Nov, 6 Nov and early 7 Nov IST) - #1573 - #1617 (CLAUDE.md section 10).** Scope: the grader (five PRs), every scorecard, every money surface (GST), packs, the NCERT Hub, Science NCERT and Exemplar solutions, Important Questions pricing, /browse, sign-in, navigation and site speed. **GRADING BEHAVIOUR MOVED on all six surfaces through `#1575`, `#1583`, `#1584`, `#1585`, and on the Answer Checker (both paths) through `#1582` (CLAUDE.md section 4a; table in CURRENT_STATE).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
