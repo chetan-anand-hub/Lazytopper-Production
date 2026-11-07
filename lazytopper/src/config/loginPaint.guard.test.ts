@@ -294,6 +294,154 @@ describe("buildLoginPaintPage + the shipped script (jsdom)", () => {
     });
   });
 
+  // SPEED-LOGIN-2 — once Fraunces is ready, the static Fraunces text is re-inserted (a new node painted in
+  // the web font before React), so React's identical node is never a larger, later LCP.
+  const FRAUNCES = "font-family: Fraunces, &quot;Fraunces Fallback&quot;, Georgia, serif";
+  const DOOR_H1 = DOOR.replace(
+    '<h2>Sign in to LazyTopper</h2>',
+    `<h1 class="lt-login-title" style="${FRAUNCES}">Sign in when your work needs saving.</h1><h2 style="${FRAUNCES}">Sign in to LazyTopper</h2>`,
+  );
+  const pageH1 = () =>
+    buildLoginPaintPage(SHELL, { door: DOOR_H1, signingIn: SIGNING }, loginPaintConfig("mobile", { from: 0, until: Number.MAX_SAFE_INTEGER }), false);
+  function withFonts(faces: unknown[], fn: (loads: string[]) => Promise<void>) {
+    const loads: string[] = [];
+    const fonts = { load: (d: string) => { loads.push(d); return Promise.resolve(faces); } };
+    Object.defineProperty(document, "fonts", { value: fonts, configurable: true });
+    return fn(loads).finally(() => {
+      delete (document as unknown as { fonts?: unknown }).fonts;
+    });
+  }
+
+  it("font ready: every static element whose own text is in Fraunces is replaced by an identical clone; nothing else moves", async () => {
+    await withFonts([{}], async (loads) => {
+      let root!: HTMLElement;
+      let h1Before!: Element, h2Before!: Element, linkBefore!: Element;
+      withWidth(true, () => {
+        root = runPage(pageH1());
+        h1Before = root.querySelector("h1")!;
+        h2Before = root.querySelector("h2")!;
+        linkBefore = root.querySelector("a.lt-offer-strip-link")!;
+      });
+      const htmlBefore = root.innerHTML;
+      await new Promise((r) => setTimeout(r, 0));
+      expect(loads).toEqual(["700 1em Fraunces"]);
+      expect(root.querySelector("h1")).not.toBe(h1Before);
+      expect(root.querySelector("h2")).not.toBe(h2Before);
+      expect(root.querySelector("a.lt-offer-strip-link")).toBe(linkBefore);
+      expect(root.innerHTML).toBe(htmlBefore);
+    });
+  });
+
+  it("font NOT available (no faces), or React already took over: nothing is re-inserted", async () => {
+    await withFonts([], async () => {
+      let root!: HTMLElement;
+      let h1!: Element;
+      withWidth(true, () => {
+        root = runPage(pageH1());
+        h1 = root.querySelector("h1")!;
+      });
+      await new Promise((r) => setTimeout(r, 0));
+      expect(root.querySelector("h1")).toBe(h1);
+    });
+    let resolveLoad!: (faces: unknown[]) => void;
+    const fonts = { load: () => new Promise<unknown[]>((r) => (resolveLoad = r)) };
+    Object.defineProperty(document, "fonts", { value: fonts, configurable: true });
+    try {
+      let root!: HTMLElement;
+      withWidth(true, () => {
+        root = runPage(pageH1());
+      });
+      // React's createRoot clears #root and renders its own (unmarked) H1.
+      while (root.firstChild) root.removeChild(root.firstChild);
+      const reactH1 = document.createElement("h1");
+      reactH1.setAttribute("style", "font-family: Fraunces, serif");
+      reactH1.textContent = "Sign in when your work needs saving.";
+      root.appendChild(reactH1);
+      resolveLoad([{}]);
+      await new Promise((r) => setTimeout(r, 0));
+      expect(root.firstChild).toBe(reactH1);
+    } finally {
+      delete (document as unknown as { fonts?: unknown }).fonts;
+    }
+  });
+
+  it("React's first commit already in #root (even with a static node left): the font swap does NOTHING", async () => {
+    let resolveLoad!: (faces: unknown[]) => void;
+    const fonts = { load: () => new Promise<unknown[]>((r) => (resolveLoad = r)) };
+    Object.defineProperty(document, "fonts", { value: fonts, configurable: true });
+    try {
+      let root!: HTMLElement;
+      withWidth(true, () => {
+        root = runPage(pageH1());
+      });
+      const staticH1 = root.querySelector("h1")!;
+      // React has rendered into the root while a static node is still there.
+      const reactNode = document.createElement("div");
+      reactNode.textContent = "React";
+      root.appendChild(reactNode);
+      resolveLoad([{}]);
+      await new Promise((r) => setTimeout(r, 0));
+      expect(root.querySelector("h1")).toBe(staticH1);
+    } finally {
+      delete (document as unknown as { fonts?: unknown }).fonts;
+    }
+  });
+
+  it("a throw mid-swap stops it: no unhandled error, swapped nodes stay swapped, the rest stay as they are", async () => {
+    const errors: unknown[] = [];
+    const onRejection = (e: PromiseRejectionEvent) => errors.push(e.reason);
+    window.addEventListener("unhandledrejection", onRejection);
+    await withFonts([{}], async () => {
+      let root!: HTMLElement;
+      let h1!: Element, h2!: Element;
+      withWidth(true, () => {
+        root = runPage(pageH1());
+        h1 = root.querySelector("h1")!;
+        h2 = root.querySelector("h2")!;
+      });
+      // The second clone throws.
+      const original = Element.prototype.cloneNode;
+      let calls = 0;
+      Element.prototype.cloneNode = function (this: Element, deep?: boolean) {
+        calls += 1;
+        if (calls === 2) throw new Error("boom");
+        return original.call(this, deep);
+      } as typeof Element.prototype.cloneNode;
+      try {
+        await new Promise((r) => setTimeout(r, 0));
+      } finally {
+        Element.prototype.cloneNode = original;
+      }
+      expect(root.querySelector("h1")).not.toBe(h1);
+      expect(root.querySelector("h2")).toBe(h2);
+      expect(root.querySelectorAll("h1")).toHaveLength(1);
+      expect(root.querySelectorAll("h2")).toHaveLength(1);
+      expect(document.documentElement.classList.contains(PAINT_READY_CLASS)).toBe(true);
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    window.removeEventListener("unhandledrejection", onRejection);
+    expect(errors).toEqual([]);
+  });
+
+  it("refreshWebFontText: outermost own-text element only, inside the static nodes only", () => {
+    const root = document.createElement("div");
+    root.innerHTML =
+      `<div ${PAINT_ATTR}="door"><p style="font-family: Fraunces, serif">a <b>b</b></p><p style="font-family: system-ui">c</p>` +
+      `<span style="font-family: 'Fraunces'">d</span></div><h1 style="font-family: Fraunces">React</h1>`;
+    document.body.appendChild(root);
+    const outsider = root.querySelector("h1");
+    expect(paint.refreshWebFontText(root, PAINT_ATTR, "Fraunces")).toBe(2);
+    expect(root.querySelector("h1")).toBe(outsider);
+    root.remove();
+  });
+
+  it("the Login page's own serif stacks all carry the metric-matched fallback", () => {
+    const login = readFileSync(resolve(__dirname, "../pages/Login.tsx"), "utf8");
+    const stacks = login.match(/font-family:\s*['"]?Fraunces['"]?[^;]*;/g) ?? [];
+    expect(stacks.length).toBeGreaterThan(3);
+    for (const stack of stacks) expect(stack, stack).toMatch(/Fraunces Fallback/);
+  });
+
   it("a tapped static control is shown pressed (class + aria-busy, paint-only CSS), never navigates", () => {
     withWidth(true, () => {
       const root = runPage(page());

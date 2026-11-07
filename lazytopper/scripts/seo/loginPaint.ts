@@ -206,6 +206,9 @@ export interface LoginPaintConfig {
   attr: string;
   readyClass: string;
   pressedClass: string;
+  /** The web font the static text waits on (`document.fonts.load` descriptor) and its family name. */
+  fontLoad: string;
+  fontFamily: string;
 }
 
 export interface LoginPaintDecision {
@@ -349,6 +352,47 @@ export function applyLoginPaint(root: Element, decision: LoginPaintDecision, con
   return keep === null ? "off" : keep;
 }
 
+/**
+ * SPEED-LOGIN-2 — once the web font (Fraunces) has loaded, re-insert every static element whose OWN text is
+ * set in it, as an identical clone. Browser-only; shipped as source. Returns how many were re-inserted.
+ *
+ * ★ WHY. The static text first paints in the fallback serif; Fraunces then swaps in on the SAME node,
+ * and Chrome does not report a font swap as a new Largest Contentful Paint. React's take-over later
+ * paints a NEW node in Fraunces — larger than the fallback paint — so it became the LCP (PageSpeed
+ * mobile 5.0 s on `h1.lt-login-title`). A clone inserted when the font is ready is a new node painted in
+ * Fraunces BEFORE React, so React's identical node is never larger and never a later LCP. Works whatever
+ * the fallback is (Georgia exists on Windows/macOS only, not on Android, Linux or PageSpeed's runner).
+ *
+ * Same element, same classes, same box: nothing moves (the swap already happened on the original). Only
+ * the outermost such element is cloned; nothing outside the static nodes is touched; after React has
+ * taken over there is nothing left to touch.
+ */
+export function refreshWebFontText(root: Element, attr: string, family: string): number {
+  var all = root.querySelectorAll("[" + attr + "] *");
+  var picked: Element[] = [];
+  for (var i = 0; i < all.length; i += 1) {
+    var el = all[i];
+    var inside = false;
+    for (var k = 0; k < picked.length; k += 1) if (picked[k].contains(el)) inside = true;
+    if (inside) continue;
+    var ownText = false;
+    for (var c = el.firstChild; c; c = c.nextSibling) if (c.nodeType === 3 && /\S/.test(c.nodeValue || "")) ownText = true;
+    if (!ownText) continue;
+    var style = el.ownerDocument && el.ownerDocument.defaultView ? el.ownerDocument.defaultView.getComputedStyle(el) : null;
+    var first = style ? String(style.fontFamily).split(",")[0].replace(/["']/g, "").trim() : "";
+    if (first === family) picked.push(el);
+  }
+  // One node at a time: replaceChild is atomic, so a throw (caught by the caller) leaves every node either
+  // swapped or untouched — never half a node — and stops the swap there.
+  var done = 0;
+  for (var j = 0; j < picked.length; j += 1) {
+    var parent = picked[j].parentNode;
+    if (parent) parent.replaceChild(picked[j].cloneNode(true), picked[j]);
+    done += 1;
+  }
+  return done;
+}
+
 /* ------------------------------------------------------------------------------------------------ *
  * THE SHIPPED SCRIPT AND CSS.
  * ------------------------------------------------------------------------------------------------ */
@@ -367,6 +411,8 @@ export function loginPaintConfig(variant: PaintVariant, clock: { from: number; u
     attr: PAINT_ATTR,
     readyClass: PAINT_READY_CLASS,
     pressedClass: PAINT_PRESSED_CLASS,
+    fontLoad: "700 1em Fraunces",
+    fontFamily: "Fraunces",
   };
 }
 
@@ -378,7 +424,8 @@ function prelude(config: LoginPaintConfig): string {
     `var helpers={inApp:(${inAppBrowser.toString()}),safe:(${safeSigninRedirect.toString()}),withRedirect:(${withSigninRedirect.toString()})};` +
     `var decide=(${decideLoginPaint.toString()});` +
     `var gather=(${gatherLoginPaintEnv.toString()});` +
-    `var apply=(${applyLoginPaint.toString()});`
+    `var apply=(${applyLoginPaint.toString()});` +
+    `var refresh=(${refreshWebFontText.toString()});`
   );
 }
 
@@ -410,9 +457,15 @@ export function loginPaintScript(config: LoginPaintConfig): string {
     `var control=t.closest("button,a");if(control&&hit.contains(control)){control.classList.add(config.pressedClass);control.setAttribute("aria-busy","true");}};` +
     `document.addEventListener("click",guard,true);` +
     `var gone=function(){return !root.querySelector("["+config.attr+"]");};` +
+    `var reactIn=function(){for(var n=root.firstElementChild;n;n=n.nextElementSibling)if(!n.hasAttribute(config.attr))return true;return false;};` +
     `if(typeof MutationObserver==="function"){var watch=new MutationObserver(function(){if(gone()){document.removeEventListener("click",guard,true);watch.disconnect();}});` +
     `watch.observe(root,{childList:true});}` +
     `document.documentElement.classList.add(config.readyClass);` +
+    // SPEED-LOGIN-2: re-insert the Fraunces text once the font is ready, while the static nodes are up.
+    `if(document.fonts&&typeof document.fonts.load==="function"){document.fonts.load(config.fontLoad).then(function(faces){` +
+    // Only while the static nodes are up AND React has rendered nothing into #root yet (createRoot's first
+    // commit). Its own try/catch: a throw stops the swap; whatever is not yet swapped stays as it is.
+    `if(faces&&faces.length&&!gone()&&!reactIn()){try{refresh(root,config.attr,config.fontFamily);}catch(e){}}},function(){});}` +
     `}catch(error){if(root)while(root.firstChild)root.removeChild(root.firstChild);}})();`;
   if (/<\/script/i.test(body)) throw new Error("loginPaint: the shipped script contains </script");
   return `<script data-lt-paint-script>${body}</script>`;
