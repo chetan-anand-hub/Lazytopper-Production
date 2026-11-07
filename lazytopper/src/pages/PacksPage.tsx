@@ -15,6 +15,8 @@ import type { PacksShopApi } from "../components/packs/PacksShop";
 import "./packs.css";
 import "./packsTrust.css";
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
+// GST-INVOICE-1: the signed-in student's tax invoices (renders nothing unless VITE_GST_STATE_FIELD is on and there are some).
+import MyInvoices from "../components/gstInvoice/MyInvoices";
 
 /** PRICING-ONE-1: the shop (My packs, pop-ups, Buy, buy-resume) moved to components/packs/PacksShop; these names stay importable from here. */
 export { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume };
@@ -124,6 +126,8 @@ export default function PacksPage() {
           </>
         )}
       </PacksShop>
+
+      <MyInvoices />
 
       <p className="lt-packs__terms lt-packs__terms--page">One-time payment · never renews · {REDOWNLOAD_SHORT}</p>
 

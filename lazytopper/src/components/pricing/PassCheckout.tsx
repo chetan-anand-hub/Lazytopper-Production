@@ -13,6 +13,7 @@
  * no caller-supplied destination ever reaches the redirect.
  */
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import GstStateLine from "../gstInvoice/GstStateLine";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -510,6 +511,8 @@ export function PassCheckoutView({
           </button>
         </div>
       )}
+      {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state, shown above Pay (renders nothing while the flag is off). */}
+      {signedIn && !activeLabel && <GstStateLine />}
       {monthButton && !activeLabel && (
         <button
           type="button"

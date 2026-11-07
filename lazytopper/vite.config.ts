@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { createRequire } from "module";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +24,27 @@ export default defineConfig({
   // `assets/` land at the served root.
   base: "/",
   plugins: [react()],
+  resolve: {
+    // SPEED-RR-PROD-1 (owner ruling 7 Nov 2026): every condition in react-router 7's `exports` map
+    // (node / module / import / default) points at `dist/development/`, so the production bundle shipped
+    // the DEVELOPMENT build. `dist/production/` is the same code with ONE line flipped
+    // (`ENABLE_DEV_WARNINGS = true` -> `false`): it drops the dev-only `warning()` / `warningOnce()` calls,
+    // the "Error handled by React Router default ErrorBoundary" console.error and the "Hey developer"
+    // text, and nothing else. Routing, matching, redirects and history behave identically.
+    // Production builds only: `vite` (dev) keeps the warnings. vitest has its own config and is untouched.
+    // Exact-match regexes: only the two specifiers react-router-dom imports, never `react-router/internal…`.
+    // If a react-router upgrade drops these files the build FAILS to resolve them (loud), never ships dev.
+    alias: isProduction
+      ? (() => {
+          const fromRouterDom = createRequire(createRequire(import.meta.url).resolve("react-router-dom/package.json"));
+          const productionDist = path.join(path.dirname(fromRouterDom.resolve("react-router/package.json")), "dist", "production");
+          return [
+            { find: /^react-router$/, replacement: path.join(productionDist, "index.mjs") },
+            { find: /^react-router\/dom$/, replacement: path.join(productionDist, "dom-export.mjs") },
+          ];
+        })()
+      : [],
+  },
   build: {
     outDir: isProduction
       ? path.resolve(__dirname, "../artifacts/lazytopper-app/dist/public")

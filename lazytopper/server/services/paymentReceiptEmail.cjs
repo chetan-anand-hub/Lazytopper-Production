@@ -27,6 +27,8 @@ const { senderOnVerifiedDomain } = require('./nudgeEmail.cjs');
 const { isPackProduct, validateTarget } = require('./packProducts.cjs');
 const { maskIndianMobile, maskEmail, GUEST_PAYER } = require('./guestPay.cjs');
 const { GST_RATE_PERCENT } = require('./passPricing.cjs');
+// GST-INVOICE-1: the tax invoice link (a signed link for a purchase made without this account's sign-in).
+const { invoiceToken, invoiceLinkSecret, invoiceOwnedBy } = require('./gstInvoice.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const DEFAULT_FROM = 'LazyTopper <hello@mail.lazytopper.com>';
@@ -46,7 +48,16 @@ function resolveReceiptEmailConfig(env = process.env) {
   const from = str(e.PAYMENT_EMAIL_FROM) || DEFAULT_FROM;
   const replyTo = str(e.PAYMENT_EMAIL_REPLY_TO) || DEFAULT_REPLY_TO;
   const ready = enabled && !!apiKey && senderOnVerifiedDomain(from);
-  return { enabled, mode: ready ? 'send' : 'off', apiKey, from, replyTo, appUrl: normaliseAppUrl(e.PAYMENT_EMAIL_APP_URL || e.TRIAL_EMAIL_APP_URL) };
+  return {
+    enabled,
+    mode: ready ? 'send' : 'off',
+    apiKey,
+    from,
+    replyTo,
+    appUrl: normaliseAppUrl(e.PAYMENT_EMAIL_APP_URL || e.TRIAL_EMAIL_APP_URL),
+    // GST-INVOICE-1 (review D5): the DEDICATED secret the signed invoice link uses. Missing -> no link. Never sent.
+    invoiceLinkSecret: invoiceLinkSecret(e),
+  };
 }
 
 const SMALL_WORDS = new Set(['and', 'of', 'its', 'to', 'do']);
@@ -107,7 +118,7 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice }) {
   const item = itemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   const isPack = isPackProduct(passType);
@@ -147,16 +158,20 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
     howHtml = `<p>${lands}.</p>\n<p><a href="${escapeHtml(url)}">${isPack ? 'Open My packs' : 'Open LazyTopper'}</a></p>`;
   }
 
+  // GST-INVOICE-1: { number, url } when a tax invoice was issued for this payment; nothing otherwise (byte-identical email).
+  const inv = invoice && typeof invoice.number === 'string' && typeof invoice.url === 'string' && /^https:\/\//.test(invoice.url) ? invoice : null;
+  const invoiceText = inv ? `\n\nGST tax invoice ${inv.number}: ${inv.url}` : '';
+  const invoiceHtml = inv ? `\n<p>GST tax invoice ${escapeHtml(inv.number)}: <a href="${escapeHtml(inv.url)}">Download the invoice (PDF)</a></p>` : '';
   const supportText = `Need help? Reply to this email, write to ${SUPPORT_EMAIL}, or message us on WhatsApp: ${SUPPORT_WHATSAPP_DISPLAY} (${SUPPORT_WHATSAPP_URL}).`;
   const text = [
     'Thank you. We have received your payment.',
-    `Item: ${item}\nAmount: ${amount}${gstLine ? `\nGST: ${gstLine}` : ''}\nRazorpay payment ID: ${paymentId}\nDate: ${date}`,
+    `Item: ${item}\nAmount: ${amount}${gstLine ? `\nGST: ${gstLine}` : ''}\nRazorpay payment ID: ${paymentId}\nDate: ${date}${invoiceText}`,
     `How to get it\n${howText}`,
     supportText,
     'LazyTopper',
   ].join('\n\n');
   const html = `<p>Thank you. We have received your payment.</p>
-<p>Item: ${escapeHtml(item)}<br>Amount: ${escapeHtml(amount)}${gstLine ? `<br>GST: ${escapeHtml(gstLine)}` : ''}<br>Razorpay payment ID: ${escapeHtml(paymentId)}<br>Date: ${escapeHtml(date)}</p>
+<p>Item: ${escapeHtml(item)}<br>Amount: ${escapeHtml(amount)}${gstLine ? `<br>GST: ${escapeHtml(gstLine)}` : ''}<br>Razorpay payment ID: ${escapeHtml(paymentId)}<br>Date: ${escapeHtml(date)}</p>${invoiceHtml}
 <p><strong>How to get it</strong></p>
 ${howHtml}
 <p>Need help? Reply to this email, write to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>, or message us on WhatsApp: <a href="${SUPPORT_WHATSAPP_URL}">${SUPPORT_WHATSAPP_DISPLAY}</a>.</p>
@@ -272,6 +287,20 @@ function createPaymentReceiptEmailer(deps = {}) {
     });
   }
 
+  /**
+   * GST-INVOICE-1 - the invoice link for the receipt: a buyer who paid signed in to their OWN account downloads it from
+   * the account (My packs, behind their sign-in); a guest / parent / "who will use it" purchase gets a SIGNED link.
+   */
+  function invoiceLinkFor(order, orderId, paymentId) {
+    const inv = order && order.gstInvoice;
+    if (!inv || typeof inv.number !== 'string' || inv.paymentId !== paymentId) return null;
+    // The account that paid can open it from My packs; anyone else (a parent, a signed-out payer) needs the signed link.
+    const accountUid = typeof order.payerUid === 'string' && order.payerUid ? order.payerUid : order.uid;
+    if (invoiceOwnedBy(order, accountUid) && (!order.payer || order.payerUid)) return { number: inv.number, url: `${config.appUrl}/packs#invoices` };
+    const t = invoiceToken(orderId, config.invoiceLinkSecret);
+    return t ? { number: inv.number, url: `${config.appUrl}/api/gst/invoice?t=${encodeURIComponent(t)}` } : null;
+  }
+
   async function settle(orderId, status) {
     try {
       await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ receiptEmail: { status, at: new Date(now()) } }, { merge: true });
@@ -302,6 +331,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       appUrl: config.appUrl,
       payer: typeof order.payer === 'string' ? order.payer : null,
       gst: { baseInr: order.baseInr, gstInr: order.gstInr, packCreditInr: order.packCreditInr },
+      invoice: invoiceLinkFor(order, orderId, paymentId),
       // CHECKOUT-WHO-1: a recipient order names the masked phone and/or email to sign in with.
       ...(who ? { recipient: { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskEmail(order.guestEmail) || null } } : {}),
     });

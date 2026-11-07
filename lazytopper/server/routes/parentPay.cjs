@@ -91,6 +91,8 @@ const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields }
 // PARENT-PACKS-1: a link may carry one PDF pack. The catalogue, price table and ownership rule are the server's own.
 const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, isAlreadyOwned } = require('../services/packProducts.cjs');
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
+// GST-INVOICE-1 (DARK): the parent's confirmed state on the order, and the tax invoice after a verified capture.
+const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -266,7 +268,19 @@ function createParentPayRoutes(deps = {}) {
     /** async (uid) => display name | '' — the server's own record (firebase-admin), never the request. */
     getDisplayName = async () => '',
     tokenFactory = mintToken,
+    invoicer, // GST-INVOICE-1: optional { issueForPayment, config }; absent or off -> nothing changes
   } = deps;
+
+  /** GST-INVOICE-1 - the parent's confirmed state (+ PIN / business) for the stored order; {} when none. Never refuses. */
+  function gstBuyerFields(body) {
+    const g = gstBuyerFromBody(body && body.gstBuyer);
+    for (const d of g.dropped) emit(`payments.parent.order.gst_buyer_dropped.${d}`);
+    return g.fields;
+  }
+  /** GST-INVOICE-1 - after a verified capture: the invoice, fired and forgotten (no receipt email on this path). */
+  function issueInvoice(orderId, paymentId, payment) {
+    afterCapture({ invoicer, input: { orderId, paymentId, payment }, sendReceipt: null });
+  }
 
   const rateLimiter = deps.rateLimiter || createParentPayLimiter({ telemetry, now });
 
@@ -702,7 +716,7 @@ function createParentPayRoutes(deps = {}) {
     const body = await readJsonBody(req, res);
     if (!body) return undefined;
     // PARENT-PACKS-1: a pack link's order. The pack comes from the LINK; every other body field is ignored.
-    if (body.product === PACK_PRODUCT) return handlePackOrder(res, keys, body.token);
+    if (body.product === PACK_PRODUCT) return handlePackOrder(res, keys, body.token, body);
     const passType = body.passType;
     if (!Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
       return sendJson(res, 400, { ok: false, error: 'passType must be "month" or "till_boards"' });
@@ -791,6 +805,7 @@ function createParentPayRoutes(deps = {}) {
         amountPaise: quote.amountPaise,
         ...creditOrderFields(packCreditInr, packCreditIds),
         ...gstOrderFields(quote),
+        ...gstBuyerFields(body),
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -812,7 +827,7 @@ function createParentPayRoutes(deps = {}) {
    * PARENT-PACKS-1 — POST /api/pay/parent/order { token, product: "pack" }. The sku, target and child come from the
    * LINK document; the amount from PACK_PRODUCTS. Same single-use / expiry / slot-cap transaction as a pass order.
    */
-  async function handlePackOrder(res, keys, token) {
+  async function handlePackOrder(res, keys, token, body) {
     let resolved;
     let pack;
     try {
@@ -869,6 +884,7 @@ function createParentPayRoutes(deps = {}) {
         passType: pack.sku,
         amountPaise,
         ...gstOrderFields(packQuote),
+        ...gstBuyerFields(body),
         packTarget: pack.target,
         offerKey: null,
         status: 'created',
@@ -964,6 +980,7 @@ function createParentPayRoutes(deps = {}) {
       }
       emit(packGranted.replayed ? 'payments.parent.verify.pack_replayed' : 'payments.parent.verify.pack_granted');
       if (packGranted.duplicate) emit('payments.parent.verify.pack_duplicate_payment');
+      issueInvoice(orderId, paymentId, payment);
       try {
         await resolved.ref.set({ status: 'paid', paidOrderId: orderId, paidAt: new Date(now()) }, { merge: true });
       } catch {
@@ -1000,6 +1017,7 @@ function createParentPayRoutes(deps = {}) {
       emit('payments.parent.verify.pack_credit_marked');
       if (granted.packCredit.conflict) emit('payments.parent.verify.pack_credit_conflict');
     }
+    issueInvoice(orderId, paymentId, payment);
 
     // 5. The link is spent. Not part of the grant: if this write fails the link still
     //    refuses new orders, because order creation re-reads its orders' status.

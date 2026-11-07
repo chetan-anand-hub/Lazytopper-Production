@@ -702,3 +702,22 @@
     grid-column: 1 / -1;
   }
 }
+
+/* GST-INVOICE-1 - the GST invoices card: the date range, the CSV buttons and the held list wrap at 360 px. */
+.gst-range,
+.gst-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+.gst-range input {
+  min-height: 36px;
+  margin-left: 4px;
+}
+.gst-held {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  overflow-wrap: anywhere;
+}
