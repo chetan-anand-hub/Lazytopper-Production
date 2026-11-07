@@ -14,7 +14,9 @@ import {
   __resetIslandForTests,
   boot,
   findAnchor,
+  findTwin,
   nav,
+  twinOf,
   raiseCurtain,
 } from "./contentIsland";
 
@@ -298,5 +300,73 @@ describe("D4 — the curtain keeps the visitor's page on screen while the app re
     expect(found?.el).toBe(root.querySelector(".lt-ncs__hintbtn"));
     expect(found?.top).toBe(42);
     expect(findAnchor([{ scopeId: "gone", tag: "p", text: "x", ordinal: 0, top: 0 }], root)).toBeNull();
+  });
+});
+
+describe("D5/D6 — the same element in the app's copy, without ids (scroll containers, focused tab)", () => {
+  const PAGE = (extra = "") => `
+    <div class="lt-shell"><aside data-lt-sidebar=""><button role="tab" class="t">Home</button></aside>
+      <main class="lt-desk__main" data-lt-scroller="">${extra}
+        <div class="lt-note__tabs" role="tablist">
+          <button type="button" role="tab" class="lt-note__tab lt-note__tab--active" data-lt-tab="note">Note</button>
+          <button type="button" role="tab" class="lt-note__tab" data-lt-tab="formulae">Formulae</button>
+        </div>
+      </main></div>`;
+
+  it("a focused notes tab maps by role + data attributes + class + text, even when the app adds elements before it", () => {
+    const curtain = document.createElement("div");
+    curtain.innerHTML = PAGE();
+    const app = document.createElement("div");
+    app.innerHTML = PAGE('<button role="tab" class="lt-note__tab" data-lt-tab="extra">Extra</button>');
+    // The app re-renders with the active class moved: the class differs, text and data attributes do not.
+    const focused = curtain.querySelectorAll(".lt-note__tab")[1];
+    const twin = twinOf(focused, curtain, true);
+    expect(findTwin(twin, app, "BUTTON")).toBe(app.querySelector('[data-lt-tab="formulae"]'));
+  });
+
+  it("falls back to the index among the same tag + role + data attributes when class and text both changed", () => {
+    const curtain = document.createElement("div");
+    curtain.innerHTML = PAGE();
+    const app = document.createElement("div");
+    app.innerHTML = PAGE().replace(/lt-note__tab--active/g, "x").replace(">Formulae<", ">Formulae &amp; tricks<");
+    const twin = twinOf(curtain.querySelectorAll(".lt-note__tab")[1], curtain, true);
+    expect(findTwin(twin, app, "BUTTON")?.getAttribute("data-lt-tab")).toBe("formulae");
+  });
+
+  it("the desktop scroller (<main>) is found in the app's copy", () => {
+    const curtain = document.createElement("div");
+    curtain.innerHTML = PAGE();
+    const app = document.createElement("div");
+    app.innerHTML = PAGE();
+    const twin = twinOf(curtain.querySelector("main") as Element, curtain, false);
+    expect(findTwin(twin, app, "MAIN")).toBe(app.querySelector("main"));
+  });
+});
+
+describe("D5 — nothing the visitor sees is moved when the curtain goes up (a move resets scroll and drops a wheel)", () => {
+  afterEach(() => __resetIslandForTests());
+
+  it("the live #root is renamed to the curtain in place; a fresh hidden #root follows it", async () => {
+    await bootIsland();
+    const live = document.getElementById("root") as HTMLElement;
+    const firstChild = live.firstElementChild;
+    raiseCurtain();
+    expect(live.id).toBe(CURTAIN_ID);
+    expect(live.firstElementChild).toBe(firstChild); // same nodes, never re-parented
+    const fresh = document.getElementById("root") as HTMLElement;
+    expect(fresh).not.toBe(live);
+    expect(live.nextElementSibling).toBe(fresh);
+  });
+
+  it("a failed app unwinds to the very same live #root", async () => {
+    await bootIsland();
+    vi.spyOn(nav, "go").mockImplementation(() => undefined);
+    const live = document.getElementById("root") as HTMLElement;
+    raiseCurtain();
+    realClick(document.querySelector(".lt-ncs__opt") as Element);
+    appScript()?.dispatchEvent(new Event("error"));
+    expect(document.getElementById("root")).toBe(live);
+    expect(document.querySelectorAll("#root").length).toBe(1);
+    expect(document.getElementById(CURTAIN_ID)).toBeNull();
   });
 });

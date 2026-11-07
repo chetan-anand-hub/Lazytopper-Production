@@ -292,50 +292,114 @@ export function appMounted(): boolean {
   return false;
 }
 
-function refocus(active: Element | null, scope: ParentNode | null): void {
-  if (!(active instanceof HTMLElement) || !scope) return;
-  const target = active.isConnected ? active : active.id ? scope.querySelector<HTMLElement>(`[id="${cssString(active.id)}"]`) : null;
-  if (!target || document.activeElement === target) return;
-  const range = active instanceof HTMLInputElement ? [active.selectionStart, active.selectionEnd] : null;
-  try {
-    target.focus({ preventScroll: true });
-    if (range && target instanceof HTMLInputElement && range[0] !== null) target.setSelectionRange(range[0], range[1]);
-  } catch {
-    /* focus is a nicety */
-  }
-}
-
 const cssString = (value: string): string => value.replace(/["\\]/g, "\\$&");
 
+/**
+ * "The same element" in another copy of the page, for elements without an id (#1621 review D5/D6): tag, role,
+ * every data-* attribute and the class list, then the ordinal among the matches. `text` narrows it when given.
+ */
+export interface Twin {
+  key: string;
+  text: string | null;
+  ordinal: number;
+  /** Ordinal among all elements with the same tag+role+data-* (class ignored): the fallback. */
+  loose: number;
+  looseKey: string;
+}
+
+function looseKeyOf(el: Element): string {
+  const data = [...el.attributes]
+    .filter((a) => a.name.startsWith("data-") && a.name !== HIDDEN_ROOT_ATTR)
+    .map((a) => `${a.name}=${a.value}`)
+    .sort()
+    .join("&");
+  return `${el.tagName}|${el.getAttribute("role") ?? ""}|${data}`;
+}
+const keyOf = (el: Element): string => `${looseKeyOf(el)}|${norm(el.getAttribute("class"))}`;
+
+export function twinOf(el: Element, container: Element, withText: boolean): Twin {
+  const all = [...container.getElementsByTagName(el.tagName)];
+  const key = keyOf(el);
+  const looseKey = looseKeyOf(el);
+  const text = withText ? norm(el.textContent).slice(0, 200) : null;
+  const same = all.filter((c) => keyOf(c) === key && (text === null || norm(c.textContent).slice(0, 200) === text));
+  return { key, text, ordinal: Math.max(0, same.indexOf(el)), looseKey, loose: Math.max(0, all.filter((c) => looseKeyOf(c) === looseKey).indexOf(el)) };
+}
+
+export function findTwin(t: Twin, container: Element, tag: string): Element | null {
+  const all = [...container.getElementsByTagName(tag)];
+  const exact = all.filter((c) => keyOf(c) === t.key && (t.text === null || norm(c.textContent).slice(0, 200) === t.text));
+  if (exact[t.ordinal]) return exact[t.ordinal];
+  const keyed = all.filter((c) => keyOf(c) === t.key);
+  if (keyed[t.ordinal]) return keyed[t.ordinal];
+  return all.filter((c) => looseKeyOf(c) === t.looseKey)[t.loose] ?? null;
+}
+
+/** The element's nearest ancestor that scrolls vertically (the desktop shell's <main>), or null for the window. */
+export function scrollParentOf(el: Element | null): HTMLElement | null {
+  for (let node = el?.parentElement ?? null; node && node !== document.body && node !== document.documentElement; node = node.parentElement) {
+    const overflow = getComputedStyle(node).overflowY;
+    if ((overflow === "auto" || overflow === "scroll" || overflow === "overlay") && node.scrollHeight > node.clientHeight) return node;
+  }
+  return null;
+}
+
+/** Every element inside `container` that is scrolled (desktop: the shell's <main>), with how far. */
+function scrolledIn(container: Element): Array<{ el: Element; top: number; left: number }> {
+  const out: Array<{ el: Element; top: number; left: number }> = [];
+  for (const el of container.querySelectorAll("*")) if (el.scrollTop > 0 || el.scrollLeft > 0) out.push({ el, top: el.scrollTop, left: el.scrollLeft });
+  return out;
+}
+
+/** Where focus was, recorded on the curtain before it goes, so the app's equivalent can take it (D6). */
+function focusTwin(active: Element | null, container: Element): { tag: string; twin: Twin; id: string } | null {
+  if (!(active instanceof HTMLElement) || !container.contains(active)) return null;
+  return { tag: active.tagName, twin: twinOf(active, container, true), id: active.id };
+}
+
+function restoreFocus(was: { tag: string; twin: Twin; id: string } | null, root: Element, range: Array<number | null> | null): void {
+  if (!was) return;
+  const target = (was.id ? root.querySelector(`[id="${cssString(was.id)}"]`) : null) ?? findTwin(was.twin, root, was.tag);
+  if (!(target instanceof HTMLElement) || document.activeElement === target) return;
+  const apply = () => {
+    if (document.activeElement === target || !target.isConnected) return;
+    try {
+      target.focus({ preventScroll: true });
+      if (range && target instanceof HTMLInputElement && range[0] !== null) target.setSelectionRange(range[0], range[1]);
+    } catch {
+      /* focus is a nicety */
+    }
+  };
+  apply();
+  // The browser's focus fix-up for the removed curtain runs after this task and can undo a same-task focus.
+  window.setTimeout(apply, 0);
+  window.requestAnimationFrame(() => window.setTimeout(apply, 0));
+}
+
 export function raiseCurtain(): void {
-  const root = appRoot();
-  if (curtain || !root || !root.parentNode) return;
-  const active = document.activeElement;
-  const copy = root.cloneNode(true) as HTMLElement;
-  for (const el of copy.querySelectorAll(`.${BUSY_CLASS}`)) {
+  const live = appRoot();
+  if (curtain || !live || !live.parentNode) return;
+  // D5: NOTHING the visitor sees is moved. Moving a node out of the document resets its scroll and drops a
+  // wheel/fling latched to it (desktop pages scroll inside the shell's <main>). Instead the live #root is
+  // RENAMED to the curtain and a fresh, hidden #root (a copy, for main.tsx) is inserted after it: main.tsx
+  // looks #root up by id when the entry runs, so React renders into the new one.
+  const fresh = live.cloneNode(true) as HTMLElement;
+  for (const el of fresh.querySelectorAll(`.${BUSY_CLASS}`)) {
     el.classList.remove(BUSY_CLASS); // the app's render must not inherit the island's "loading" look
     el.removeAttribute("aria-busy");
   }
-  const live = document.createElement("div");
+  fresh.setAttribute(HIDDEN_ROOT_ATTR, "");
   live.id = CURTAIN_ID;
-  live.append(...root.childNodes);
-  root.before(live);
-  root.replaceChildren(...copy.childNodes);
-  root.setAttribute(HIDDEN_ROOT_ATTR, "");
+  live.after(fresh);
   curtain = live;
-  refocus(active, live);
 }
 
-/** Back to the plain island (the app failed before it mounted): live nodes into #root, #root shown. */
+/** Back to the plain island (the app failed before it mounted): drop the hidden copy, the curtain is #root again. */
 function unwindCurtain(): void {
-  const root = appRoot();
-  if (!curtain || !root) return;
-  const active = document.activeElement;
-  root.replaceChildren(...curtain.childNodes);
-  root.removeAttribute(HIDDEN_ROOT_ATTR);
-  curtain.remove();
+  if (!curtain) return;
+  appRoot()?.remove();
+  curtain.id = "root";
   curtain = null;
-  refocus(active, root);
 }
 
 const ANCHOR_BLOCKS = "h1,h2,h3,h4,h5,h6,p,li,dt,dd,tr,figure,figcaption,summary,blockquote,pre,img,.katex-display,article,section";
@@ -399,6 +463,19 @@ export function findAnchor(steps: readonly AnchorStep[], root: Element): { el: E
 }
 
 const SETTLE_POLL_MS = 50;
+
+/** Scroll activity (any container, wheel, touch): the curtain is lowered only between scrolls (D5). */
+let lastScrollAt = -Infinity;
+const SCROLL_IDLE_MS = 160;
+const SCROLL_IDLE_MAX_MS = 2_000;
+const markScroll = (): void => {
+  lastScrollAt = performance.now();
+};
+const scrollingNow = (): boolean => performance.now() - lastScrollAt < SCROLL_IDLE_MS;
+async function scrollIdle(): Promise<void> {
+  const end = performance.now() + SCROLL_IDLE_MAX_MS;
+  while (scrollingNow() && performance.now() < end) await sleep(40);
+}
 const SETTLE_MAX_MS = 4_000;
 const nextFrame = () => new Promise<void>((r) => window.requestAnimationFrame(() => r()));
 
@@ -419,11 +496,16 @@ async function lowerCurtain(): Promise<void> {
     await sleep(SETTLE_POLL_MS);
   }
   await replayState(0); // anything the visitor changed on the curtain while the app settled
+  await scrollIdle();
   await nextFrame();
   if (!curtain) return;
   const active = document.activeElement;
+  const range = active instanceof HTMLInputElement ? [active.selectionStart, active.selectionEnd] : null;
+  const focusWas = focusTwin(active, curtain);
   const steps = readingAnchor(curtain);
   const scrolledBefore = window.scrollY;
+  // D5: desktop pages scroll inside the shell's <main>, not the window. Record every scrolled container.
+  const scrolled = scrolledIn(curtain).map(({ el, top, left }) => ({ tag: el.tagName, twin: twinOf(el, curtain as Element, false), top, left }));
   // D3: a <details> opened or closed on the curtain in the last moments (its toggle event is async) — same order.
   const shown = [...root.querySelectorAll("details")];
   [...curtain.querySelectorAll("details")].forEach((d, i) => {
@@ -432,14 +514,26 @@ async function lowerCurtain(): Promise<void> {
   root.removeAttribute(HIDDEN_ROOT_ATTR);
   curtain.remove();
   curtain = null;
+  // The app's twin of each scrolled container takes the same scroll, then the anchor is corrected inside its
+  // OWN nearest scroller (the window only when nothing nearer scrolls).
+  for (const { tag, twin, top, left } of scrolled) {
+    const el = findTwin(twin, root, tag);
+    if (el) {
+      el.scrollTop = top;
+      el.scrollLeft = left;
+    }
+  }
+  if (window.scrollY !== scrolledBefore) window.scrollTo(window.scrollX, scrolledBefore);
   const found = findAnchor(steps, root);
   if (found) {
-    const delta = found.el.getBoundingClientRect().top - found.top;
-    if (delta !== 0) window.scrollTo(window.scrollX, window.scrollY + delta);
-  } else if (window.scrollY !== scrolledBefore) {
-    window.scrollTo(window.scrollX, scrolledBefore);
+    const delta = Math.round(found.el.getBoundingClientRect().top - found.top);
+    if (delta !== 0) {
+      const scroller = scrollParentOf(found.el);
+      if (scroller) scroller.scrollTop += delta;
+      else window.scrollTo(window.scrollX, window.scrollY + delta);
+    }
   }
-  refocus(active, root);
+  restoreFocus(focusWas, root, range);
 }
 
 /* ---------------------------------------------------- loading the app */
@@ -624,6 +718,7 @@ export function __resetIslandForTests(): void {
   while (cleanups.length > 0) (cleanups.pop() as () => void)();
   config = null;
   warmed = upgraded = finished = failed = islandLive = false;
+  lastScrollAt = -Infinity;
   curtain = null;
   queue.length = 0;
   tabState.clear();
@@ -896,6 +991,9 @@ export async function boot(): Promise<void> {
   listen(document, "input", onInput, { capture: true, passive: true });
   listen(document, "submit", onSubmit, { capture: true });
   listen(document, "toggle", onToggle, { capture: true, passive: true });
+  listen(document, "scroll", markScroll, { capture: true, passive: true });
+  listen(window, "wheel", markScroll, { capture: true, passive: true });
+  listen(window, "touchmove", markScroll, { capture: true, passive: true });
   listen(window, "hashchange", () => void openAnchor(anchorFromHash(window.location.hash)), {});
 
   let forced = false;
