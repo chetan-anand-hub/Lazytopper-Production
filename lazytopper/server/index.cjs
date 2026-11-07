@@ -916,12 +916,12 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === GST_INVOICE_PDF_PATH) return gstInvoiceRoutes().handleInvoicePdf(req, res, reqUrlRaw);
   if (req.method === 'GET' && reqPath === GST_ADMIN_STATUS_PATH) return gstInvoiceRoutes().handleAdminStatus(req, res, reqUrlRaw);
   if (req.method === 'GET' && reqPath === GST_ADMIN_EXPORT_PATH) return gstInvoiceRoutes().handleAdminExport(req, res, reqUrlRaw);
-  if (req.method === 'POST' && reqPath === GST_ADMIN_ISSUE_PATH) return gstInvoiceRoutes().handleAdminIssue(req, res);
+  if (req.method === 'POST' && reqPath === GST_ADMIN_ISSUE_PATH) return gstInvoiceRoutes().handleAdminIssue(req, res); // "Issue now", same ADMIN_FIREBASE_UIDS gate, same-origin
   // GST-INVOICE-BACKDATE-1: the signed-out state form (signed, expiring link) and the admin past-sales list / send.
   if (req.method === 'GET' && reqPath === GST_INVOICE_DETAILS_PATH) return gstInvoiceRoutes().handleInvoiceDetailsGet(req, res, reqUrlRaw);
   if (req.method === 'POST' && reqPath === GST_INVOICE_DETAILS_PATH) return gstInvoiceRoutes().handleInvoiceDetailsPost(req, res);
   if (req.method === 'GET' && reqPath === GST_ADMIN_PAST_SALES_PATH) return gstInvoiceRoutes().handleAdminPastSales(req, res);
-  if (req.method === 'POST' && reqPath === GST_ADMIN_PAST_SALES_SEND_PATH) return gstInvoiceRoutes().handleAdminSendForms(req, res); // "Issue now", same ADMIN_FIREBASE_UIDS gate, same-origin
+  if (req.method === 'POST' && reqPath === GST_ADMIN_PAST_SALES_SEND_PATH) return gstInvoiceRoutes().handleAdminSendForms(req, res);
   // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
   if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);

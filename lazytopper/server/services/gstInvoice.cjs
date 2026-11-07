@@ -323,9 +323,13 @@ function heldReasonFor(order, config) {
 const BACKDATE_FROM_ISO = '2026-09-16T00:00:00+05:30';
 const BACKDATE_FROM_MS = Date.parse(BACKDATE_FROM_ISO);
 
-/** The instant of the SUPPLY: when the order was paid (guest: guestPaidAt), else when it was created. */
+/**
+ * The instant of the SUPPLY: when the order was PAID. A guest (signed-out) order is paid at `guestPaidAt`; its `paidAt`
+ * is rewritten to the CLAIM time when an account claims it (guestPay.cjs -> passGrant.cjs), so `guestPaidAt` is read
+ * FIRST (review B1 of #1625). Then `paidAt`, then the creation time.
+ */
 function supplyMsOf(order) {
-  for (const v of [order.paidAt, order.guestPaidAt, order.createdAt]) {
+  for (const v of [order.guestPaidAt, order.paidAt, order.createdAt]) {
     const ms = toMs(v);
     if (Number.isFinite(ms)) return ms;
   }

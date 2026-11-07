@@ -1397,3 +1397,50 @@ test('BACKDATE routes: signed-out form GET/POST (expired 410, forged 404, bad in
   await off.handleInvoiceDetailsGet(req(`/api/gst/invoice-details?t=${good}`), res, `/api/gst/invoice-details?t=${good}`);
   assert.equal(res.r.status, 404);
 });
+
+/* ══ review of #1625: B1 the supply date of a CLAIMED guest order is guestPaidAt; F3 no due reminder is starved ══ */
+
+test('B1 a guest order: the supply date is when it was PAID (guestPaidAt), never when it was claimed (paidAt)', async () => {
+  const guest = (paid, claimed, paymentId) => ({
+    uid: 'claimer1',
+    payer: 'guest',
+    passType: 'till_boards',
+    amountPaise: 191700,
+    status: 'paid', // passGrant rewrites status + paidAt at the claim
+    paymentId,
+    createdAt: new Date(IST(paid) - 60000),
+    guestPaidAt: new Date(IST(paid)),
+    paidAt: new Date(IST(claimed)),
+  });
+  const before = guest('2026-09-10T10:00:00', '2026-09-20T10:00:00', 'pay_G1');
+  const inside = guest('2026-10-01T10:00:00', '2026-10-03T18:00:00', 'pay_G2');
+  assert.equal(g.supplyMsOf(before), IST('2026-09-10T10:00:00'));
+  assert.equal(g.backdateExclusion(before), 'pre_registration', 'paid before registration, claimed after: NOT a past sale');
+  assert.equal(g.backdateExclusion(inside), null);
+  const db = memoryFirestore({ 'payOrders/order_G1': before, 'payOrders/order_G2': inside });
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc } = backdateFor(db, clock);
+  const list = await svc.listPastSales();
+  assert.deepEqual(list.rows.map((r) => [r.orderId, r.paidIst]), [['order_G2', '1 October 2026']]);
+  const tok = bd.detailsToken('order_G2', clock.t + 1000, LINK_SECRET);
+  assert.equal((await svc.submitDetails(tok, { stateCode: '07', pin: '110001' })).status, 'invoiced');
+  const rec = db.read('payOrders/order_G2').gstInvoice;
+  assert.equal(rec.supplyDateIst, '01-10-2026', 'the paid date, not the claim date (03-10-2026)');
+  assert.match(exp.invoicesCsv([rec]).trim().split('\r\n')[1], /,01-10-2026,Yes$/);
+  assert.equal(await svc.getDetails(bd.detailsToken('order_G1', clock.t + 1000, LINK_SECRET)).then((r) => r.error), 'invalid', 'no form for the pre-registration sale');
+});
+
+test('F3 the drain reads EVERY waiting order in a fixed order: 250 forms not yet due never starve the one reminder that is', async () => {
+  const seed = {};
+  const now0 = IST('2026-11-20T10:00:00');
+  for (let i = 0; i < 250; i += 1) {
+    seed[`payOrders/recent_${String(i).padStart(3, '0')}`] = pastOrder({ uid: `r${i}`, paymentId: `pr_${i}`, extra: { gstBackdate: { status: 'form_sent', formSentAtMs: now0 - 2 * DAY_MS_T, contact: { email: `r${i}@example.com` } } } });
+  }
+  seed['payOrders/zzz_due'] = pastOrder({ uid: 'due1', paymentId: 'p_due', extra: { gstBackdate: { status: 'form_sent', formSentAtMs: now0 - 6 * DAY_MS_T, contact: { email: 'due@example.com' } } } });
+  const db = memoryFirestore(seed);
+  const { svc, sent } = backdateFor(db, { t: now0 });
+  assert.deepEqual(await svc.drain(), { sent: 1, waiting: 0, failed: 0 });
+  assert.deepEqual(sent.map((s) => [s.to, s.key]), [['due@example.com', 'gst-state-reminder-p_due']]);
+  assert.equal(db.read('payOrders/zzz_due').gstBackdate.status, 'reminder_sent');
+});
+const DAY_MS_T = 24 * 60 * 60 * 1000;

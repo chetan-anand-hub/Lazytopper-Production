@@ -154,7 +154,9 @@ function createGstBackdate(deps = {}) {
   /** Every past sale (paid on/after 16 Sep 2026, created before the cut-off), refunded ones excluded. */
   async function pastSales() {
     const seen = new Map();
-    for (const field of ['paidAt', 'guestPaidAt']) {
+    // guestPaidAt first, as supplyMsOf reads it (a claimed guest order's paidAt is the claim time); the supply date then
+    // decides membership, so a guest who paid before 16 Sep and claimed after it is NOT a past sale (review B1).
+    for (const field of ['guestPaidAt', 'paidAt']) {
       const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where(field, '>=', new Date(BACKDATE_FROM_MS)).get();
       snap.forEach((d) => {
         if (!seen.has(d.id)) seen.set(d.id, { id: d.id, ...(d.data() || {}) });
@@ -338,13 +340,22 @@ function createGstBackdate(deps = {}) {
     const summary = { sent: 0, waiting: 0, failed: 0 };
     try {
       if (!enabled() || !rails || !rails.canSend() || !secret() || !rails.inWindow(now())) return summary;
-      const ids = new Set();
+      // Review F3 of #1625: EVERY order in these statuses is read (no limit: the past sales are a closed set of a few
+      // hundred at most), then taken in a FIXED order - oldest due first (a queued form by when it was queued, a reminder
+      // by when its form was sent, a stale claim by its claim time), ties by order id - so nothing due is ever starved.
+      const due = new Map();
       for (const status of ['form_queued', 'form_sent', 'form_sending', 'reminder_sending']) {
-        let q = adminFirestore.collection(PAY_ORDERS_COLLECTION).where('gstBackdate.status', '==', status);
-        if (typeof q.limit === 'function') q = q.limit(200);
-        const snap = await q.get();
-        snap.forEach((d) => ids.add(d.id));
+        const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('gstBackdate.status', '==', status).get();
+        const t = now();
+        snap.forEach((d) => {
+          const b = backdateOf(d.data() || {});
+          const at = status === 'form_sent' ? b.formSentAtMs : status === 'form_queued' ? b.queuedAtMs : b.atMs;
+          // A form sent less than 5 days ago has no reminder due yet: not even a transaction for it this run.
+          if (status === 'form_sent' && Number.isFinite(at) && t - at < REMINDER_AFTER_MS) return;
+          due.set(d.id, Number.isFinite(at) ? at : 0);
+        });
       }
+      const ids = [...due.entries()].sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([id]) => id);
       let tried = 0;
       for (const id of ids) {
         if (tried >= SEND_BATCH) break;
