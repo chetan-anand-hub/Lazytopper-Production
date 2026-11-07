@@ -168,6 +168,60 @@ export function openAnchor(anchor: string): boolean {
   return true;
 }
 
+/**
+ * #1621 review D8 — Note.tsx scrolls to the URL's anchor when the app MOUNTS. On trunk that is at load; on an island
+ * it is whenever the app arrives, possibly mid-read. So the island remembers where the page stood once it showed
+ * the URL's anchor; if the reader has scrolled since, the hash is dropped (history.replaceState) before the app
+ * loads, and the app does not pull them back. The tab the anchor opened is replayed as any other tab choice.
+ */
+let hashView: { el: Element; top: number } | null = null;
+// Where the anchor sits in the viewport (not the scroll offset: content loading above it moves the offset, and
+// the browser's scroll anchoring keeps the anchor in place, so the offset would read as "the reader scrolled").
+const viewTop = (el: Element): number => el.getBoundingClientRect().top;
+function showHashAnchor(): void {
+  const anchor = anchorFromHash(window.location.hash);
+  if (!openAnchor(anchor)) return;
+  const el = document.getElementById(anchor);
+  if (!el) return;
+  hashView = { el, top: viewTop(el) };
+  // The browser may settle its own fragment scroll after this: take the position once layout has.
+  window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+    if (hashView?.el === el) hashView.top = viewTop(el);
+  }));
+}
+/** The reader moved away from the URL's anchor: the app must not scroll back to it. */
+export function dropStaleHash(): boolean {
+  if (!hashView || !hashView.el.isConnected) return false;
+  if (Math.abs(viewTop(hashView.el) - hashView.top) <= 4) return false;
+  try {
+    window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+  } catch {
+    return false;
+  }
+  guardStaleAnchor(hashView.el.id);
+  hashView = null;
+  return true;
+}
+
+/**
+ * The app may have read the hash a moment before it was dropped (React renders, then commits a frame later), and
+ * Note.tsx's commit then scrolls to it — by id, which while the curtain is up is the reader's own copy. Until the
+ * app has taken over, a scrollIntoView on that anchor is the stale jump the reader scrolled away from: skip it.
+ */
+let unguard: (() => void) | null = null;
+function guardStaleAnchor(id: string): void {
+  if (!id || unguard || typeof Element === "undefined") return;
+  const original = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = function (this: Element, arg?: boolean | ScrollIntoViewOptions) {
+    if (this.id === id && !finished) return;
+    return original.call(this, arg);
+  };
+  unguard = () => {
+    Element.prototype.scrollIntoView = original;
+    unguard = null;
+  };
+}
+
 function anchorFromHash(hash: string): string {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
   try {
@@ -470,6 +524,9 @@ const SCROLL_IDLE_MS = 160;
 const SCROLL_IDLE_MAX_MS = 2_000;
 const markScroll = (): void => {
   lastScrollAt = performance.now();
+  // D8: the app may already be loading (desktop loads it on idle) when the reader scrolls away from the URL's
+  // anchor: drop the hash then too, before the app's notes route reads it and scrolls back.
+  if (upgraded && !finished) dropStaleHash();
 };
 const scrollingNow = (): boolean => performance.now() - lastScrollAt < SCROLL_IDLE_MS;
 async function scrollIdle(): Promise<void> {
@@ -546,6 +603,7 @@ export function upgrade(): void {
   stopIslandWatches();
   addDrops = suppressAppRepeats();
   warm();
+  dropStaleHash(); // D8: before the app reads the URL
   if (islandLive) raiseCurtain();
   const script = document.createElement("script");
   script.type = "module";
@@ -670,6 +728,7 @@ function finish(): void {
     curtain = null;
   }
   setState("app");
+  unguard?.();
   clearBusy();
   while (upgradeCleanups.length > 0) (upgradeCleanups.pop() as () => void)();
   while (cleanups.length > 0) (cleanups.pop() as () => void)();
@@ -684,6 +743,7 @@ export function fail(): void {
   if (failed || finished) return;
   if (appMounted()) return; // React is up: not a boot failure (pollReady completes or times out)
   failed = true;
+  unguard?.();
   unwindCurtain();
   setState("island");
   clearBusy();
@@ -719,6 +779,8 @@ export function __resetIslandForTests(): void {
   config = null;
   warmed = upgraded = finished = failed = islandLive = false;
   lastScrollAt = -Infinity;
+  hashView = null;
+  unguard?.();
   curtain = null;
   queue.length = 0;
   tabState.clear();
@@ -994,7 +1056,7 @@ export async function boot(): Promise<void> {
   listen(document, "scroll", markScroll, { capture: true, passive: true });
   listen(window, "wheel", markScroll, { capture: true, passive: true });
   listen(window, "touchmove", markScroll, { capture: true, passive: true });
-  listen(window, "hashchange", () => void openAnchor(anchorFromHash(window.location.hash)), {});
+  listen(window, "hashchange", showHashAnchor, {});
 
   let forced = false;
   try {
@@ -1007,7 +1069,8 @@ export async function boot(): Promise<void> {
     return;
   }
   // The first view the app would show: a hash names an anchor (it wins), else `?tab=questions`.
-  if (!openAnchor(anchorFromHash(window.location.hash))) {
+  showHashAnchor();
+  if (!hashView) {
     try {
       if (new URLSearchParams(window.location.search).get("tab") === "questions") {
         for (const root of noteRoots()) activateTab(root, 3);

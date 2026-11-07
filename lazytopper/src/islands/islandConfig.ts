@@ -42,3 +42,11 @@ export function isIslandPath(path: string, prefixes: readonly string[] = ISLAND_
 export function islandsEnabled(env: Record<string, string | undefined>): boolean {
   return String(env.LT_ISLANDS ?? "").trim() !== "0";
 }
+
+/**
+ * #1621 review D7 — the theme the app's ThemeProvider sets on `<html data-theme>` at mount (ThemeContext.tsx: the
+ * theme is fixed to "light"; no stored preference is read). An island page may never mount the app, so the build
+ * writes the same attribute into the served `<html>` tag: the first frame already has the app's tokens (typed
+ * answers were white on white without it). `islandSwap.guard.test.ts` pins this against ThemeContext.tsx.
+ */
+export const ISLAND_THEME = "light";

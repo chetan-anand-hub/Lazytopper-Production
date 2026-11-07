@@ -14,9 +14,11 @@ import {
   verifyBuiltPages,
   withIsland,
   withIslandStylesheets,
+  withIslandTheme,
   withPreloads,
 } from "../../scripts/seo/applyPrerendered";
-import { ISLAND_PATH_PREFIXES, isIslandPath, islandsEnabled } from "./islandConfig";
+import { readFileSync } from "node:fs";
+import { ISLAND_PATH_PREFIXES, ISLAND_THEME, isIslandPath, islandsEnabled } from "./islandConfig";
 
 /**
  * GUARD — SPEED-ISLANDS-1: the island swap reaches the allowlisted content families ONLY, changes ONLY the
@@ -112,7 +114,7 @@ describe("verifyBuiltPages — island pages", () => {
     for (const f of ["index-AAAAAAAA.js", "contentIsland-BBBBBBBB.js", "DesktopNotesPage-CCCCCCCC.js", "TopicHubPage-DDDDDDDD.js"]) {
       writeFileSync(join(out, "assets", f), "export{};", "utf8");
     }
-    const island = withIsland(shell("<main>N</main>"), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]);
+    const island = withIslandTheme(withIsland(shell("<main>N</main>"), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]));
     for (const f of ["notes/electricity.html", "notes/electricity/index.html", "__desktop/notes/electricity.html"]) {
       mkdirSync(join(out, f, ".."), { recursive: true });
       writeFileSync(join(out, f), island, "utf8");
@@ -201,7 +203,7 @@ describe("#1621 review D1 — an island page links the lazy stylesheets its serv
           writeFileSync(join(out, f), html, "utf8");
         }
       };
-      const bare = withIsland(shell(`<main>${KATEX}</main>`), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]);
+      const bare = withIslandTheme(withIsland(shell(`<main>${KATEX}</main>`), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]));
       write(bare);
       const red = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
       expect(red.failures.some((f) => f.includes("katex markup but does not link its stylesheet"))).toBe(true);
@@ -210,6 +212,42 @@ describe("#1621 review D1 — an island page links the lazy stylesheets its serv
       write(withIslandStylesheets(bare, "/", ["katex-ZZZZZZZZ.css"]));
       const missing = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
       expect(missing.failures.some((f) => f.includes("links island CSS /assets/katex-ZZZZZZZZ.css, which this build did not emit"))).toBe(true);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("#1621 review D7 — an island page is served in the theme the app sets at mount", () => {
+  it("ThemeContext still fixes the theme (no stored preference), and it is the one islands are served in", () => {
+    const src = readFileSync(new URL("../context/ThemeContext.tsx", import.meta.url), "utf8");
+    // If ThemeContext ever reads a preference again, the island must mirror that logic: this goes red first.
+    expect(src).toMatch(new RegExp(`const theme: AppTheme = "${ISLAND_THEME}";`));
+    expect(src).toMatch(new RegExp(`setAttribute\\("data-theme", "${ISLAND_THEME}"\\)`));
+    expect(src).not.toMatch(/localStorage\.getItem/);
+  });
+
+  it("writes data-theme onto the <html> tag only (body untouched); throws on zero, two, or an existing data-theme", () => {
+    const page = shell("<main>x</main>").replace("<html>", '<html lang="en-IN">');
+    const out = withIslandTheme(page);
+    expect(out).toContain(`<html lang="en-IN" data-theme="${ISLAND_THEME}">`);
+    expect(out.slice(out.indexOf("<head>"))).toBe(page.slice(page.indexOf("<head>")));
+    expect(() => withIslandTheme(out)).toThrow(/already carries/);
+    expect(() => withIslandTheme("<head></head>")).toThrow(/exactly one/);
+  });
+
+  it("RED: verifyBuiltPages fails an island page served without the theme", () => {
+    const out = mkdtempSync(join(tmpdir(), "island-theme-"));
+    try {
+      mkdirSync(join(out, "assets"));
+      for (const f of ["index-AAAAAAAA.js", "contentIsland-BBBBBBBB.js", "DesktopNotesPage-CCCCCCCC.js"]) writeFileSync(join(out, "assets", f), "export{};", "utf8");
+      const page = withIsland(shell("<main>N</main>"), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]);
+      for (const f of ["notes/electricity.html", "notes/electricity/index.html", "__desktop/notes/electricity.html"]) {
+        mkdirSync(join(out, f, ".."), { recursive: true });
+        writeFileSync(join(out, f), page, "utf8");
+      }
+      const v = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
+      expect(v.failures.some((f) => f.includes(`is an island without <html data-theme="${ISLAND_THEME}">`))).toBe(true);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

@@ -49,6 +49,7 @@ import {
   ISLAND_ENTRY_NAME,
   ISLAND_PATH_PREFIXES,
   ISLAND_SCRIPT_ATTR,
+  ISLAND_THEME,
   isIslandPath,
   islandsEnabled,
 } from "../../src/islands/islandConfig";
@@ -736,6 +737,17 @@ export function withIslandStylesheets(html: string, base: string, files: readonl
   return html.replace("</head>", () => `${links}</head>`);
 }
 
+/**
+ * #1621 review D7 — the served `<html>` tag carries the theme the app's ThemeProvider sets at mount
+ * (`ISLAND_THEME`). Exactly one `<html …>` tag without a data-theme, or this THROWS.
+ */
+export function withIslandTheme(html: string): string {
+  const tags = html.match(/<html\b[^>]*>/gi) ?? [];
+  if (tags.length !== 1) throw new Error(`applyPrerendered: expected exactly one <html> tag to set the island theme, found ${tags.length}`);
+  if (/\bdata-theme=/.test(tags[0])) throw new Error(`applyPrerendered: the <html> tag already carries a data-theme: ${tags[0]}`);
+  return html.replace(tags[0], () => tags[0].replace(/>$/, ` data-theme="${ISLAND_THEME}">`));
+}
+
 /** Every island stylesheet href in a built page. */
 export function islandStylesheetHrefsIn(html: string): string[] {
   return [...html.matchAll(new RegExp(`<link rel="stylesheet" crossorigin href="([^"]+)" ${ISLAND_CSS_ATTR}>`, "g"))].map((m) => m[1]);
@@ -805,6 +817,10 @@ export function verifyBuiltPages(
             failures.push(`${path}: the ${variant} file ${file} hands the island no route chunk to preload`);
           }
           if (hrefs.length > 0) failures.push(`${path}: the ${variant} file ${file} is an island but still modulepreloads app chunks`);
+          // #1621 review D7: the served <html> carries the app's theme.
+          if (!new RegExp(`<html\\b[^>]*\\bdata-theme="${ISLAND_THEME}"`).test(html)) {
+            failures.push(`${path}: the ${variant} file ${file} is an island without <html data-theme="${ISLAND_THEME}">`);
+          }
           // #1621 review D1: the markup's lazy stylesheets are linked, and exist.
           const sheets = islandStylesheetHrefsIn(html);
           for (const href of sheets) {
@@ -1050,12 +1066,12 @@ export function applyArtifact(
   const finish = (path: string, html: string, hrefs: readonly string[]): string => {
     const styled = withRouteStyles(html, routeStyles.get(path) ?? []);
     const done = islands.has(path)
-      ? withIsland(
+      ? withIslandTheme(withIsland(
           withIslandStylesheets(styled, entryScriptOf(cleanShell).base, islandStylesheetsFor(path, styled, islandEntryCode, islandAssets)),
           cleanShell,
           islandFile,
           hrefs,
-        )
+        ))
       : withPreloads(styled, hrefs);
     return entryCss ? withCriticalEntryCss(done, entryCss, entryCssText, criticalCss) : done;
   };

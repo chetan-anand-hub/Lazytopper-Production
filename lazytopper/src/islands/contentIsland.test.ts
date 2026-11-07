@@ -14,6 +14,7 @@ import {
   __resetIslandForTests,
   boot,
   findAnchor,
+  dropStaleHash,
   findTwin,
   nav,
   twinOf,
@@ -368,5 +369,70 @@ describe("D5 — nothing the visitor sees is moved when the curtain goes up (a m
     expect(document.getElementById("root")).toBe(live);
     expect(document.querySelectorAll("#root").length).toBe(1);
     expect(document.getElementById(CURTAIN_ID)).toBeNull();
+  });
+});
+
+describe("D8 — a URL anchor the reader has scrolled away from is dropped before the app loads", () => {
+  afterEach(() => {
+    __resetIslandForTests();
+    window.history.replaceState(null, "", "/");
+  });
+  /** jsdom has no layout: give the anchor a viewport position the test controls. */
+  let anchorTop = 0;
+  beforeEach(() => {
+    anchorTop = 0;
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const top = this.id === "shortcuts" ? anchorTop : 0;
+      return { top, bottom: top, left: 0, right: 0, width: 0, height: 0, x: 0, y: top, toJSON: () => ({}) } as DOMRect;
+    });
+  });
+
+  it("shown at boot and still in place: the hash stays (the app's own anchor jump is trunk's)", async () => {
+    window.history.replaceState(null, "", "/notes/x#shortcuts");
+    await bootIsland();
+    expect(document.querySelectorAll(".lt-note__panel")[1].classList.contains("lt-note__panel--active")).toBe(true);
+    expect(dropStaleHash()).toBe(false);
+    expect(window.location.hash).toBe("#shortcuts");
+  });
+
+  it("the reader scrolled since: the hash is removed (path and query kept) when the app is loaded", async () => {
+    window.history.replaceState(null, "", "/notes/x?tab=questions#shortcuts");
+    await bootIsland();
+    anchorTop = 2000; // scrolled up 2,000 px: the anchor is now well below the viewport top
+    realClick(document.querySelector(".lt-ncs__opt") as Element); // loads the app
+    expect(window.location.hash).toBe("");
+    expect(window.location.pathname + window.location.search).toBe("/notes/x?tab=questions");
+  });
+
+  it("the app is already loading when the reader scrolls away: the scroll drops the hash", async () => {
+    window.history.replaceState(null, "", "/notes/x#shortcuts");
+    await bootIsland();
+    realClick(document.querySelector(".lt-ncs__opt") as Element); // loads the app, reader still at the anchor
+    expect(window.location.hash).toBe("#shortcuts");
+    anchorTop = 900;
+    document.dispatchEvent(new Event("scroll"));
+    expect(window.location.hash).toBe("");
+  });
+
+  it("after the drop, the app's late scroll to that anchor is skipped until the app has taken over", async () => {
+    const base = vi.fn();
+    Element.prototype.scrollIntoView = base;
+    window.history.replaceState(null, "", "/notes/x#shortcuts");
+    await bootIsland();
+    base.mockClear();
+    anchorTop = 2000;
+    realClick(document.querySelector(".lt-ncs__opt") as Element); // drops the hash, guards the anchor
+    (document.getElementById("shortcuts") as HTMLElement).scrollIntoView({ block: "start" });
+    expect(base).not.toHaveBeenCalled();
+    (document.getElementById("plain") as HTMLElement).scrollIntoView();
+    expect(base).toHaveBeenCalledOnce();
+    appScript()?.dispatchEvent(new Event("error")); // the app failed: the real method is back
+    expect(Element.prototype.scrollIntoView).toBe(base);
+  });
+
+  it("no anchor in the URL: nothing to drop", async () => {
+    window.history.replaceState(null, "", "/notes/x");
+    await bootIsland();
+    expect(dropStaleHash()).toBe(false);
   });
 });
