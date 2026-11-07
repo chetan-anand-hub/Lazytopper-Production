@@ -357,9 +357,12 @@ describe("CI-SOFT-1b — stylesheet hygiene", () => {
     expect(unused).toEqual([]);
   });
 
-  it("the placeholder at 768-1023 stays a little under the measured PICK card (390 px)", () => {
-    const door = readFileSync(resolve(__dirname, "ciDemoDoor.css"), "utf8");
-    expect(door).toMatch(/min-width: 768px\)[\s\S]*?min-height: 390px/);
-    expect(door).not.toMatch(/410px/);
+  it("the placeholder stays a little UNDER the measured PICK card in every band (SPEED-CLS-2, re-measured 8 Nov 2026)", () => {
+    const door = readFileSync(resolve(__dirname, "ciDemoDoor.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    // smallest measured card height inside each band: <600 (430-480 px) 493, 600-767 470, 768-1023 (1000-1023 px) 501, >=1024 (1280 px) 441
+    const heights = [...door.matchAll(/(?:@media \(min-width: (\d+)px\)\s*\{\s*)?\.ci-demo-ph\s*\{[^}]*?min-height: (\d+)px/g)].map((m) => [Number(m[1] ?? 0), Number(m[2])]);
+    expect(heights).toEqual([[0, 490], [600, 470], [768, 500], [1024, 440]]);
+    const measured: Record<number, number> = { 0: 493, 600: 470, 768: 501, 1024: 441 };
+    for (const [from, h] of heights) expect(h).toBeLessThanOrEqual(measured[from]);
   });
 });

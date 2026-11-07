@@ -16,7 +16,7 @@
   --fp-gt: #06663a;
   --fp-gw: #e6f4ec;
   --fp-navy: #132c4d;
-  --fp-serif: Fraunces, Georgia, serif;
+  --fp-serif: Fraunces, "Fraunces Fallback", Georgia, serif; /* SPEED-CLS-2: metric-matched fallback (styles.css), so the hero heading wraps the same before and after the webfont lands */
   --fp-sans: Inter, system-ui, -apple-system, sans-serif;
   --fp-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
   display: block;
@@ -395,3 +395,10 @@
     gap: 18px;
   }
 }
+
+/* SPEED-CLS-2 - the PacksShop wrapper that sits before the page (`.lt-packs--embedded`, empty here: the shop's tiles render in the page).
+   Its own stylesheet (packs.css, a shared lazy chunk) gives it `padding-bottom: 28px` wherever no bottom nav is mounted (signed-out
+   visitors, desktop) - see `body:not(:has([data-lt-bottomnav])) .lt-packs` there - and it arrives ~0.6 s after the prerendered hero has
+   painted, pushing the whole page down 28px (CLS 0.019 at 1280). Stating the same final value here, in the page's own (inlined) CSS,
+   makes the first paint match the settled one. Same selector condition and value as packs.css, so nothing changes on screen once it loads. */
+body:not(:has([data-lt-bottomnav])) .lt-packs.lt-packs--embedded { padding-bottom: 28px; }

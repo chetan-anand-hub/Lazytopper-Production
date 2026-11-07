@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
@@ -222,10 +222,16 @@ export const PAY_ONE_LINE =
 /** The Pay opener the page passes to its two Pay buttons (hero + price section). */
 type PayPlacement = "hero" | "price";
 
+/**
+ * SPEED-CLS-2: true from the FIRST client render, false in a string render (renderToString / renderToStaticMarkup use the server
+ * snapshot, so the "no price in static markup" contract holds). The prerendered page already carries these prices
+ * (PRERENDER-PRICE-GUARD-1) and React's first commit replaces that markup, so a first render WITHOUT them narrowed the Pay /
+ * packs-link buttons and emptied the band chips for a frame before the effect filled them in: two layout shifts at hand-over
+ * (CLS 0.03-0.06 at 1280). createRoot does not hydrate, so there is no markup to match.
+ */
+const subscribeNever = () => () => undefined;
 function useMounted(): boolean {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted;
+  return useSyncExternalStore(subscribeNever, () => true, () => false);
 }
 
 /** "Pay for my child · ₹1,917" (GST-EXCL-1: the amount CHARGED, ₹2,262 from 7 Nov 2026): the figure is read AFTER mount (founding/regular logic of /pricing), so the prerender has none. */
