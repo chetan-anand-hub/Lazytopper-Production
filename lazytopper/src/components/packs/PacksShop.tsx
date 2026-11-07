@@ -527,9 +527,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return stop;
   }, [location.hash, mine, myPacksMounted]);
 
+  /** GST-FU-1 review F4: a ?buy= resume held at the pop-up's Pay (remembered state) - the pack and the link's source. */
+  const heldResume = useRef<{ key: string; from?: PackCheckoutFrom } | null>(null);
   async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom; fromWho?: boolean } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
-    const from = opts.from ?? (sku === "pack_chapter" && sampleChapterBuy.current ? "sample" : undefined);
+    // GST-FU-1 review F4: the tap that completes a ?buy= link held at Pay keeps that link's `resumed` mark and its source.
+    const held = heldResume.current && heldResume.current.key === packIdOf(sku, target) ? heldResume.current : null;
+    heldResume.current = null;
+    const resumed = opts.resumed === true || held !== null;
+    const from = opts.from ?? held?.from ?? (sku === "pack_chapter" && sampleChapterBuy.current ? "sample" : undefined);
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
@@ -558,13 +564,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // CHECKOUT-SELF-1: a signed-in student's Buy / Pay goes straight to checkout for their own account (one tap); someone else /
     // a mobile number is the secondary link under the button. Only the /for-parents audience keeps the sheet's "For: you" step.
     if (whoEnabled && checkoutAudience && !opts.fromWho) {
-      setWho({ sku, target, ...(opts.resumed ? { resumed: true } : {}), ...(from ? { from } : {}) });
+      setWho({ sku, target, ...(resumed ? { resumed: true } : {}), ...(from ? { from } : {}) });
       return;
     }
     setBuy({ key, phase: "busy" });
     const details = packCheckoutDetails(sku, target);
     const attemptId = newCheckoutAttemptId();
-    trackPackCheckout(details, { signedIn: true, resumed: opts.resumed === true, ...(from ? { from } : {}) });
+    trackPackCheckout(details, { signedIn: true, resumed, ...(from ? { from } : {}) });
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
@@ -675,6 +681,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         start();
         return;
       }
+      heldResume.current = { key: packIdOf(want.sku, want.target), ...(from ? { from } : {}) };
       focusPayWhenShown(() => document.querySelector<HTMLElement>(`[role="dialog"] [data-testid="packs-buy-${want.sku}"]`));
     });
   }, [authLoading, user, enabled, mine, mineError, mineSlow, location.search, location.pathname, location.hash, navigate, requestCounts]);

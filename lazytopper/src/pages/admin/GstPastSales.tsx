@@ -68,7 +68,8 @@ export function pastSaleLookupNote(r: Pick<PastSaleRow, "lookup" | "status" | "e
           : "";
   if (!why) return "";
   if (r.status === "no_address") return `${why}, and the account has no email`;
-  if (r.emailSource === "account") return `${why}: form sent to the account email`;
+  // Review F4: "queued" until the drain has actually sent it; "sent" only after.
+  if (r.emailSource === "account") return r.status === "form_queued" ? `${why}: form queued to the account email` : `${why}: form sent to the account email`;
   return why;
 }
 

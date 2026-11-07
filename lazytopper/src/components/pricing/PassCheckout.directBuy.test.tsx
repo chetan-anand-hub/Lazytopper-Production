@@ -43,12 +43,13 @@ vi.mock("../../services/gstBuyerOrder", async (orig) => ({
 vi.mock("../gstInvoice/GstStateLine", () => ({
   default: () => (flag.on ? <p data-testid="gst-state-line">State: Kerala · PIN 682001 · Change</p> : null),
 }));
-const gst = vi.hoisted(() => ({ remembered: null as null | { stateCode: string; pin?: string }, contextReads: 0 }));
+const gst = vi.hoisted(() => ({ remembered: null as null | { stateCode: string; pin?: string }, contextReads: 0, gate: null as null | Promise<void> }));
 vi.mock("../../services/gstBuyer", async (orig) => ({
   ...(await orig<typeof import("../../services/gstBuyer")>()),
   currentAuthUid: async () => "u1",
   loadGstContext: async () => {
     gst.contextReads += 1;
+    if (gst.gate) await gst.gate; // review B1: hold the read open (a slow network)
     return { remembered: gst.remembered, ipStateCode: null };
   },
 }));
@@ -88,6 +89,7 @@ beforeEach(() => {
   flag.on = false;
   gst.remembered = null;
   gst.contextReads = 0;
+  gst.gate = null;
 });
 afterEach(() => {
   cleanup();
@@ -296,5 +298,57 @@ describe("GST-FU-1 F2 · ?buy=board_pass with a remembered state", () => {
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
     await act(async () => undefined);
     expect(gst.contextReads).toBe(0);
+  });
+});
+
+/** GST-FU-1 review: B1 (a tap during the pending remembered-state read never starts a second order) and F4 (analytics kept). */
+describe("GST-FU-1 review · ?buy=board_pass held at Pay", () => {
+  it("★ B1: Pay tapped WHILE the remembered-state read is pending, then 'nothing remembered' -> buyPass ONCE (the tap), never a second", async () => {
+    flag.on = true;
+    gst.remembered = null;
+    let open: () => void = () => undefined;
+    gst.gate = new Promise<void>((r) => {
+      open = r;
+    });
+    const c = mount("/pricing?buy=board_pass");
+    await waitFor(() => expect(gst.contextReads).toBe(1));
+    expect(checkout.buyPass).not.toHaveBeenCalled();
+    fireEvent.click(c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement);
+    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
+    await act(async () => {
+      open();
+      await new Promise((r) => setTimeout(r, 20));
+    });
+    expect(checkout.buyPass).toHaveBeenCalledTimes(1);
+  });
+
+  it("★ B1: the same race after the tap's checkout was CLOSED (busy cleared) -> still no second start", async () => {
+    flag.on = true;
+    checkout.buyPass.mockImplementation(async () => ({ status: "dismissed" }));
+    let open: () => void = () => undefined;
+    gst.gate = new Promise<void>((r) => {
+      open = r;
+    });
+    const c = mount("/pricing?buy=board_pass");
+    await waitFor(() => expect(gst.contextReads).toBe(1));
+    fireEvent.click(c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement);
+    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
+    await act(async () => {
+      open();
+      await new Promise((r) => setTimeout(r, 20));
+    });
+    expect(checkout.buyPass).toHaveBeenCalledTimes(1);
+  });
+
+  it("★ F4: the tap on a held Pay keeps the auto-start's `resumed` mark (same event, same values as the auto-start sent)", async () => {
+    flag.on = true;
+    gst.remembered = { stateCode: "32", pin: "682001" };
+    const c = mount("/pricing?buy=board_pass");
+    const pay = c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement;
+    await waitFor(() => expect(document.activeElement).toBe(pay));
+    expect(track.trackBeginCheckoutTap).not.toHaveBeenCalled();
+    fireEvent.click(pay);
+    await waitFor(() => expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1));
+    expect(track.trackBeginCheckoutTap.mock.calls[0].slice(1)).toEqual([true, true]);
   });
 });

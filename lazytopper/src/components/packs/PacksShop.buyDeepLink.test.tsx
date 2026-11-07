@@ -55,6 +55,11 @@ vi.mock("../../services/packs", async (orig) => {
     checkPackOrder: vi.fn(),
   };
 });
+const packTrack = vi.hoisted(() => ({ checkout: vi.fn() }));
+vi.mock("../../lib/packs/packAnalytics", async (orig) => ({
+  ...(await orig<typeof import("../../lib/packs/packAnalytics")>()),
+  trackPackCheckout: (...a: unknown[]) => packTrack.checkout(...a),
+}));
 vi.mock("../../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
 const chunks = vi.hoisted(() => ({ sheet: 0, dialog: 0 }));
 vi.mock("../../pages/PackDialog", () => {
@@ -104,6 +109,7 @@ beforeEach(() => {
   flag.on = false;
   gst.remembered = null;
   gst.contextReads = 0;
+  packTrack.checkout.mockClear();
 });
 afterEach(() => {
   cleanup();
@@ -149,7 +155,9 @@ describe("PREEXIST-FIX-1 · /packs?buy= deep link", () => {
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0][0]).toBe("pack_bundle");
     expect(screen.queryByTestId("who-sheet")).toBeNull();
-    expect(screen.getByTestId("where").textContent).toBe("/packs");
+    // GST-FU-1 review F3: buyPack is called inside the same effect that replaces the URL, so waitFor(buyMock) can resolve before
+    // the router's re-render reaches <Where/>. Wait for the stripped URL itself (deterministic) instead of reading it at once.
+    await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/packs"));
     r.rerender(tree("/packs?buy=pack_bundle"));
     await act(async () => {
       await new Promise((res) => setTimeout(res, 20));
@@ -201,6 +209,17 @@ describe("GST-FU-1 F2 · signed-in ?buy=pack_* with a remembered state", () => {
     fireEvent.click(pay);
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0][0]).toBe("pack_bundle");
+  });
+
+  it("★ review F4: the tap on a held Pay keeps the link's `resumed` mark and its sample source (same event, same values)", async () => {
+    gst.remembered = { stateCode: "32", pin: "682001" };
+    render(tree("/packs?buy=pack_bundle&from=sample"));
+    const pay = await screen.findByTestId("packs-buy-pack_bundle");
+    await waitFor(() => expect(document.activeElement).toBe(pay));
+    expect(packTrack.checkout).not.toHaveBeenCalled();
+    fireEvent.click(pay);
+    await waitFor(() => expect(packTrack.checkout).toHaveBeenCalledTimes(1));
+    expect(packTrack.checkout.mock.calls[0][1]).toEqual({ signedIn: true, resumed: true, from: "sample" });
   });
 
   it("CONTROL: no remembered state -> checkout starts at once, as today (the order step asks state + PIN)", async () => {

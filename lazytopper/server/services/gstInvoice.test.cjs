@@ -1588,3 +1588,18 @@ test('F5 re-queue via the click: "Send state forms" re-resolves a form_sent plac
   assert.deepEqual([r.queued, r.sent], [1, 1]);
   assert.deepEqual(sent.map((x) => [x.to, x.key]), [['c@example.com', 'gst-state-form-pay_C-r1']]);
 });
+
+test('GST-FU-1 review F2: the invoice email to a Razorpay placeholder (buyer.email void@razorpay.com) is never sent: no_address', async () => {
+  const db = memoryFirestore({ 'payOrders/order_M': storedOrder({ paymentId: 'pay_M', extra: { paidAt: new Date(AFTER_CUTOFF - 48 * HOUR) } }) });
+  const inv = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF, fetchPayment: async (id) => ({ id, order_id: 'order_M', email: 'void@razorpay.com' }) });
+  await inv.issueNow({ orderId: 'order_M' });
+  assert.equal(db.read('payOrders/order_M').gstInvoice.buyer.email, 'void@razorpay.com', 'the invoice prints what Razorpay gave');
+  const clock = { t: AFTER_CUTOFF };
+  const { mailer, sent } = mailerFor(db, clock);
+  assert.deepEqual(await mailer.queueInvoiceEmail({ orderId: 'order_M' }), { skipped: 'no_address' });
+  assert.equal(sent.length, 0);
+  assert.equal(db.read('payOrders/order_M').gstInvoiceEmail.status, 'no_address');
+  // The hourly drain never picks it up either.
+  assert.deepEqual(await mailer.drainInvoiceEmails(), { sent: 0, queued: 0, skipped: 0, failed: 0 });
+  assert.equal(sent.length, 0);
+});
