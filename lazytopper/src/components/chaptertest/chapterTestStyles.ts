@@ -83,6 +83,12 @@ export const CT_CSS = `
 .lt-ct__btn--sm { font-size: 13px; padding: 9px 15px; }
 .lt-ct__honest { font-size: 12px; color: var(--ct-ink-3); font-style: italic; margin-top: 14px; display: flex; gap: 7px; align-items: flex-start; }
 .lt-ct__empty { text-align: center; padding: 26px 16px; color: var(--ct-ink-2); font-size: 14px; }
+/* PREEXIST-FIX-1 (7 Nov 2026): "Building your test…" holds roughly the height of the setup it turns into (chips, blueprint, toggle,
+   Start), measured at 320-1280 px and kept a little UNDER it, so the history rail below it on phones no longer jumps when the
+   chapter loads (CLS ~0.11 at 360 px). */
+.lt-ct__empty--building { min-height: 470px; box-sizing: border-box; }
+@media (max-width: 819px) { .lt-ct__empty--building { min-height: 520px; } }
+@media (max-width: 480px) { .lt-ct__empty--building { min-height: 760px; } }
 
 /* ── History cards ── */
 .lt-ct__hcard { background: #fff; border: 1px solid var(--ct-line); border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: .12s; width: 100%; text-align: left; font-family: var(--ct-fb); }

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "../packs/PacksShop";
 import ParentReturnLink from "../parents/ParentReturnLink";
@@ -154,6 +154,19 @@ export function CbqCard({ api, subject }: { api: PacksShopApi; subject: PackSubj
   );
 }
 
+/** PREEXIST-FIX-1: where `/pricing#my-packs` goes. */
+const MY_PACKS_PAGE = "/packs";
+const MY_PACKS_HASH = "#my-packs";
+/** Only utm_* survive the hop; every other param (buy=, pack entry links) belongs to the page it was written for. */
+function utmOnly(search: string): string {
+  const out = new URLSearchParams();
+  new URLSearchParams(search).forEach((v, k) => {
+    if (/^utm_/i.test(k)) out.append(k, v);
+  });
+  const q = out.toString();
+  return q ? `?${q}` : "";
+}
+
 /** Student input that ends the hash re-assert: we never fight a deliberate scroll. */
 const USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 
@@ -163,7 +176,14 @@ const USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
  * scrolls, touches or presses a key. The SPA's route-change scroll leaves in-page targets to the page (useScrollTopOnRouteChange).
  */
 export function useHashLanding(): void {
-  const { hash } = useLocation();
+  const { hash, search } = useLocation();
+  const navigate = useNavigate();
+  // PREEXIST-FIX-1 (7 Nov 2026): `/pricing#my-packs` had no target for anyone without packs (and signed out), so it landed at the
+  // top of Pricing. My packs lives on /packs: send the hash there (replace, so Back does not bounce). utm_* tags ride along.
+  useEffect(() => {
+    if (hash.toLowerCase() !== MY_PACKS_HASH) return;
+    navigate({ pathname: MY_PACKS_PAGE, search: utmOnly(search), hash: MY_PACKS_HASH }, { replace: true });
+  }, [hash, search, navigate]);
   useEffect(() => {
     if (hash !== "#packs" && hash !== "#cbq") return undefined;
     let stopped = false;

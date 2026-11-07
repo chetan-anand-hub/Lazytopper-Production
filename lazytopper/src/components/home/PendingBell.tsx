@@ -10,7 +10,9 @@ import { trackPendingShown, usePendingPapers } from "./usePendingPapers";
  * opens a small popover listing them (the same list as the Home strip, through the same
  * `usePendingPapers` read — no extra network read).
  *
- *   • Signed out / local session: the bell renders as before — inert, no badge, no popover.
+ *   • Signed out / local session: no bell at all (PREEXIST-FIX-1, 7 Nov 2026). It used to render
+ *     inert, which read as a dead button on desktop; mobile Home already hid it while signed out,
+ *     so hiding it here makes both surfaces behave the same.
  *   • Signed in, nothing waiting: no badge; the popover says so honestly.
  *   • Accessible: a real button with aria-expanded / aria-controls; Escape, an outside click or
  *     focus leaving the bell + popover closes it, and Escape returns focus to the bell.
@@ -54,6 +56,10 @@ export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "is
   }, [open, count]);
 
   const label = uid && count > 0 ? `Notifications: ${papersWaitingLabel(count)}` : "Notifications";
+
+  // Signed out there is nothing to notify about, so the bell is not rendered (all hooks above run
+  // unconditionally, so this early return is hook-order safe).
+  if (!uid) return null;
 
   return (
     <div

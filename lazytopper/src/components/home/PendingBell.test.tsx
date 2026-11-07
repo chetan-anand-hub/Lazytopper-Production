@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 //
 // HOME-PENDING-1 (rework) — the header bell: a badge with the pending count, a small accessible
-// popover with the same list, the same read as the Home strip (no extra network read), inert when
+// popover with the same list, the same read as the Home strip (no extra network read), hidden when
 // signed out. Mounted in DesktopShell's header and in mobile Home's brand bar.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -209,15 +209,18 @@ describe("PendingBell", () => {
     expect(screen.queryByTestId("pending-paper-row")).toBeNull();
   });
 
-  it("★ signed OUT: inert-but-harmless — no badge, no popover, no read (CONTROL: the button renders)", async () => {
+  it("★ signed OUT: no bell at all (PREEXIST-FIX-1: it used to render as a dead button), no read", async () => {
     seedRecords([rec({})]);
     renderBell(null);
-    const bell = screen.getByTestId("pending-bell");
-    expect(bell.getAttribute("aria-expanded")).toBeNull();
-    fireEvent.click(bell);
+    expect(screen.queryByTestId("pending-bell")).toBeNull();
     expect(screen.queryByTestId("pending-bell-popover")).toBeNull();
     expect(screen.queryByTestId("pending-bell-badge")).toBeNull();
     expect(cloud.sessionReads + qp.reads).toBe(0);
+  });
+
+  it("local session: no bell either (same rule as signed out)", () => {
+    renderBell({ uid: "local-1", isLocalSession: true });
+    expect(screen.queryByTestId("pending-bell")).toBeNull();
   });
 
   it("analytics: pending_card_shown {placement:'bell'} once per tab, when the popover opens with items", async () => {
@@ -276,7 +279,7 @@ describe("where the bell is mounted", () => {
     expect(screen.getByTestId("pending-bell-popover")).toBeTruthy();
   });
 
-  it("DesktopShell signed out: the bell is still there, inert, with no badge", () => {
+  it("DesktopShell signed out: no bell in the header (PREEXIST-FIX-1)", () => {
     render(
       <MemoryRouter>
         <DesktopShell>
@@ -284,7 +287,8 @@ describe("where the bell is mounted", () => {
         </DesktopShell>
       </MemoryRouter>,
     );
-    expect(screen.getByTestId("pending-bell").getAttribute("title")).toBe("Notifications");
+    expect(screen.getByText("page")).toBeTruthy();
+    expect(screen.queryByTestId("pending-bell")).toBeNull();
     expect(screen.queryByTestId("pending-bell-badge")).toBeNull();
   });
 

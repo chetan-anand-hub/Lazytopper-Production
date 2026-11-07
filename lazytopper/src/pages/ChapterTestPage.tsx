@@ -1262,7 +1262,7 @@ export default function ChapterTestPage() {
                     </button>
                   </div>
                 ) : !shownFacts ? (
-                  <div className="lt-ct__empty">Building your test…</div>
+                  <div className="lt-ct__empty lt-ct__empty--building">Building your test…</div>
                 ) : !restoredPaper && draw && !draw.enoughQuestions ? (
                   <div className="lt-ct__empty">
                     We don’t have enough {topicName} questions in the bank to build a fair test yet. This

@@ -51,7 +51,8 @@ import SomeoneElseLink from "../checkoutWho/SomeoneElseLink";
 import { maskEmail } from "../../services/checkoutWhoFlag";
 
 /** CHECKOUT-WHO-1 - "Who will use it?": its own lazy chunk, loaded only when the flag is on and a Buy is tapped. */
-const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
+const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
+const CheckoutSheet = lazy(loadCheckoutSheet);
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
@@ -124,7 +125,22 @@ function packCheckoutDetails(sku: PackSku, target: string | undefined): PackChec
 /** Student input that ends the #my-packs scroll re-assert: we never fight a deliberate scroll. */
 const MY_PACKS_USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 
-const PackDialog = lazy(() => import("../../pages/PackDialog"));
+const loadPackDialog = () => import("../../pages/PackDialog");
+const PackDialog = lazy(loadPackDialog);
+
+/**
+ * PREEXIST-FIX-1 (7 Nov 2026) - a `?buy=` deep link opens the pack's pop-up and the checkout sheet, both lazy chunks. They used to
+ * be fetched only AFTER auth was known and the param was stripped, so for ~0.3-2 s the visitor saw plain /packs (the URL already
+ * clean) before the sheet appeared - which read as "the link just shows /packs". Fetch both chunks as soon as a valid `?buy=` is
+ * seen, in parallel with auth. Same import specifiers as the lazy() calls, so it is the same chunk, fetched once. No `?buy=`: nothing.
+ */
+export function preloadBuyChunks(): void {
+  void loadCheckoutSheet().catch(() => undefined);
+  void loadPackDialog().catch(() => undefined);
+}
+
+/** PREEXIST-FIX-1 - signed in, a `?buy=` resume waits for My packs; past this it opens the pop-up only (never a payment). */
+export const BUY_RESUME_MINE_TIMEOUT_MS = 8_000;
 
 const POLL_DELAYS_MS: readonly number[] = [0, 3_000, 10_000, 30_000];
 
@@ -567,13 +583,29 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // An owned pack goes through handleBuy's own owned phase (no order). If My packs failed to load we only open the
   // pop-up: we never start a payment without knowing what the student already owns.
   const resumeDone = useRef(false);
+  // PREEXIST-FIX-1: warm the pop-up + sheet chunks the moment a valid ?buy= is on the URL (mount), not after auth.
+  const buyPreloaded = useRef(false);
+  useEffect(() => {
+    if (buyPreloaded.current || !enabled || !readBuyResume(location.search)) return;
+    buyPreloaded.current = true;
+    preloadBuyChunks();
+  }, [enabled, location.search]);
+  // PREEXIST-FIX-1: a My packs read that never answers must not leave a signed-in ?buy= link doing nothing for ever. After
+  // BUY_RESUME_MINE_TIMEOUT_MS the resume treats it like a failed read: the pop-up opens, no payment starts.
+  const [mineSlow, setMineSlow] = useState(false);
+  const waitingForMine = !!user && enabled && mine === null && mineError === false && !!readBuyResume(location.search);
+  useEffect(() => {
+    if (!waitingForMine) return undefined;
+    const t = window.setTimeout(() => setMineSlow(true), BUY_RESUME_MINE_TIMEOUT_MS);
+    return () => window.clearTimeout(t);
+  }, [waitingForMine]);
   const handleBuyRef = useRef(handleBuy);
   handleBuyRef.current = handleBuy;
   useEffect(() => {
     if (resumeDone.current || authLoading || !user || !enabled) return;
     const want = readBuyResume(location.search);
     if (!want) return;
-    if (mine === null && mineError === false) return; // My packs still loading
+    if (mine === null && mineError === false && !mineSlow) return; // My packs still loading (PREEXIST-FIX-1: up to a timeout)
     resumeDone.current = true;
     const from = readResumeFrom(location.search);
     const rest = new URLSearchParams(location.search);
@@ -589,7 +621,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
     if (mine !== null) void handleBuyRef.current(want.sku, want.target, { resumed: true, ...(from ? { from } : {}) });
-  }, [authLoading, user, enabled, mine, mineError, location.search, location.pathname, location.hash, navigate, requestCounts]);
+  }, [authLoading, user, enabled, mine, mineError, mineSlow, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
   // PAY-PHONE-1 - a SIGNED-OUT visitor on a one-tap `?buy=` link (with paying-by-phone on): strip the params first, open the
   // pack's pop-up and the "How do you want to pay?" sheet, once. Signed in, the resume effect above handles it as before.

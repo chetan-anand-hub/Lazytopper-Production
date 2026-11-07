@@ -76,9 +76,15 @@ function renderAt(url: string) {
       <Routes>
         <Route path="/pricing" element={<><PricingPage /><Where /></>} />
         <Route path="/login" element={<Where />} />
+        <Route path="/packs" element={<PacksWhere />} />
       </Routes>
     </MemoryRouter>,
   );
+}
+
+function PacksWhere() {
+  const l = useLocation();
+  return <p data-testid="packs-where">{l.pathname + l.search + l.hash}</p>;
 }
 
 const sku = (id: string) => screen.getByTestId(id);
@@ -412,7 +418,7 @@ describe("deep links into /pricing keep working", () => {
     expect(dlg.getAttribute("data-subject")).toBe("science");
   });
 
-  it("#packs and #cbq land on elements that exist and are re-asserted after late content (300 / 900 ms); #my-packs is the shop's own", async () => {
+  it("#packs and #cbq land on elements that exist and are re-asserted after late content (300 / 900 ms); #my-packs goes to /packs#my-packs", async () => {
     for (const hash of ["#packs", "#cbq"]) {
       (Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mockClear();
       renderAt(`/pricing${hash}`);
@@ -427,10 +433,15 @@ describe("deep links into /pricing keep working", () => {
       expect(spy.mock.calls.length, `${hash} re-asserted`).toBeGreaterThan(first);
       cleanup();
     }
+    // PREEXIST-FIX-1: /pricing#my-packs had no target without packs (signed out: landed at the top). It now replaces to /packs#my-packs,
+    // signed out AND for an owner; only utm_* ride along (a buy= or pack entry param is Pricing's own and is dropped).
+    renderAt("/pricing#my-packs");
+    await waitFor(() => expect(screen.getByTestId("packs-where").textContent).toBe("/packs#my-packs"));
+    cleanup();
     auth.user = { uid: "u1" };
     owned.packs = [{ sku: "pack_cbq", target: "maths" }];
-    renderAt("/pricing#my-packs");
-    await waitFor(() => expect(document.getElementById("my-packs")).not.toBeNull());
+    renderAt("/pricing?utm_source=wa&buy=board_pass&mock=maths#my-packs");
+    await waitFor(() => expect(screen.getByTestId("packs-where").textContent).toBe("/packs?utm_source=wa#my-packs"));
   });
 
   it("pack_view is sent once with surface 'pricing'", async () => {
