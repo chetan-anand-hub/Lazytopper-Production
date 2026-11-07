@@ -683,6 +683,7 @@
     "src/hooks/useSubscription.recover.test.ts",
     "src/islands/contentIsland.test.ts",
     "src/islands/islandAnalytics.parity.test.ts",
+    "src/lib/afterNextPaint.test.ts",
     "src/lib/deferredStylesheet.test.ts",
     "src/lib/desktop/homeDestinations.test.tsx",
     "src/lib/figureSafe.surfaces.test.ts",
