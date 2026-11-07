@@ -508,13 +508,16 @@ function createGstInvoicer(deps = {}) {
     return result;
   }
 
-  /** `{ email, contact }` from Razorpay's payment record, only when it IS this order's payment; else null. Never throws. */
+  /**
+   * `{ email, contact }` from Razorpay's payment record, only when it IS this order's payment; else null (no fetcher, no
+   * keys, an error, or another order's payment). Never throws.
+   */
   async function fetchPaymentContact(orderId, paymentId) {
     if (typeof deps.fetchPayment !== 'function') return null;
     try {
       const p = await deps.fetchPayment(paymentId);
       if (!p || typeof p !== 'object' || p.id !== paymentId) return null;
-      // A guest / parent order's doc id IS the Razorpay order id; anything else is not this order's payment.
+      // The order's doc id IS the Razorpay order id; a payment of any other order is never trusted.
       if (typeof p.order_id === 'string' && p.order_id && p.order_id !== orderId) return null;
       return {
         email: typeof p.email === 'string' ? p.email : '',
@@ -543,6 +546,12 @@ function createGstInvoicer(deps = {}) {
       // GST-INVOICE-2a (review 2c): the payer's contact as Razorpay recorded it on THIS payment, so the invoice names the
       // buyer exactly as a capture-time invoice would. A failed / mismatched fetch only means no contact on the invoice.
       const payment = await fetchPaymentContact(orderId, o.paymentId);
+      // Review F1: no payment record -> NOT issued (no number consumed), so the admin can simply retry. An invoice issued
+      // without the payer's contact could never be emailed, and a retry would only return that same invoice.
+      if (!payment) {
+        emit('payments.gst_invoice.issue_now_fetch_failed');
+        return { skipped: 'payment_fetch_failed' };
+      }
       return await run({ orderId, paymentId: o.paymentId, payment });
     } catch (e) {
       emit('payments.gst_invoice.error');

@@ -68,7 +68,8 @@ export function invoiceEmailNote(e: InvoiceEmailResult | undefined): string {
   if (e.queued === "spaced") return " · email queued (one email a day: sends within 24 h)";
   if (e.skipped === "no_address") return " · no email address on the payment: share the invoice by hand";
   if (e.skipped === "off") return " · email is off";
-  if (e.sent === false || e.error) return " · the email did not go out (a temporary failure is retried hourly)";
+  if (e.skipped === "failed") return " · the email failed 3 times: share the invoice by hand";
+  if (e.sent === false || e.error) return " · the email did not go out (a temporary failure is retried, up to 3 tries in all, about a day apart)";
   return e.skipped ? ` · email not sent (${e.skipped})` : "";
 }
 
@@ -102,7 +103,17 @@ export default function GstInvoicesCard({ getToken }: { getToken: () => Promise<
       });
       const json = (await res.json()) as { result?: { issued?: boolean; number?: string; existing?: string; held?: string; skipped?: string }; email?: InvoiceEmailResult };
       const r = json.result || {};
-      text = r.number ? `Issued ${r.number}${invoiceEmailNote(json.email)}` : r.existing ? `Already ${r.existing}` : r.held ? `Still held: ${HELD_REASON_LABEL[r.held] || r.held}` : r.skipped ? `Not issued (${r.skipped})` : text;
+      text = r.number
+        ? `Issued ${r.number}${invoiceEmailNote(json.email)}`
+        : r.existing
+          ? `Already ${r.existing}`
+          : r.held
+            ? `Still held: ${HELD_REASON_LABEL[r.held] || r.held}`
+            : r.skipped === "payment_fetch_failed"
+              ? "Not issued: Razorpay's payment record could not be read (no number used). Try again."
+              : r.skipped
+                ? `Not issued (${r.skipped})`
+                : text;
     } catch {
       /* text stays the failure line */
     }

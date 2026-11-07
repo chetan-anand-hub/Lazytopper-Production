@@ -49,6 +49,10 @@ const GUEST_NUDGE_EMAILS_COLLECTION = 'guestNudgeEmails';
 const ONE_A_DAY_MS = 24 * 60 * 60 * 1000;
 const INVOICE_EMAIL_BATCH = 25;
 const INVOICE_EMAIL_INTERVAL_MS = 60 * 60 * 1000;
+/** Review F2: a `sending` claim older than this was lost in a crash; it is taken again (Resend's key dedupes a real send). */
+const INVOICE_EMAIL_STALE_SENDING_MS = 30 * 60 * 1000;
+/** Review F3: at most this many send attempts; after that the email is `failed` and shown to the admin. */
+const INVOICE_EMAIL_MAX_ATTEMPTS = 3;
 
 function resolveReceiptEmailConfig(env = process.env) {
   const e = env || {};
@@ -499,7 +503,8 @@ function createPaymentReceiptEmailer(deps = {}) {
 
   /* ── GST-INVOICE-2a (review 2c): the receipt RE-SENT with an invoice issued later ("Issue now") ────────────────
    * ★ The order carries `gstInvoiceEmail: { status, queuedAtMs, at }` (queued -> sending -> sent | queued again after a
-   *   retryable failure | refused | no_address | skipped). The address is the one ON THE INVOICE (Razorpay's payment
+   *   retryable failure, at most 3 attempts | failed after 3 | refused | no_address | skipped); a `sending` claim older than
+   *   30 min (a crash) is taken again. The address is the one ON THE INVOICE (Razorpay's payment
    *   record, fetched at issue). Resend's Idempotency-Key `gst-invoice-email-<paymentId>` is the second fence.
    * ★ Unlike the receipt, this is a LATER email, so it keeps the student-email rules: it goes out only inside the IST
    *   send window (EMAIL_SEND_WINDOW_IST, default 08:00-21:00) and never within 24 h of another LazyTopper email to the
@@ -526,12 +531,20 @@ function createPaymentReceiptEmailer(deps = {}) {
       const snap = await tx.get(ref);
       const order = snap && snap.exists ? snap.data() || {} : null;
       const state = order && order.gstInvoiceEmail && typeof order.gstInvoiceEmail === 'object' ? order.gstInvoiceEmail : null;
-      if (!order || !order.gstInvoice || !state || state.status !== 'queued') return { skipped: 'not_queued' };
+      // Review F2: a `sending` claim older than 30 min (the process died mid-send) is taken again.
+      const stale = !!state && state.status === 'sending' && !(t - (msOf(state.at) || 0) < INVOICE_EMAIL_STALE_SENDING_MS);
+      if (!order || !order.gstInvoice || !state || (state.status !== 'queued' && !stale)) return { skipped: 'not_queued' };
       const queuedAtMs = typeof state.queuedAtMs === 'number' ? state.queuedAtMs : t;
+      const attempts = Number.isInteger(state.attempts) && state.attempts > 0 ? state.attempts : 0;
+      // Review F3: the attempt cap (a stale claim counts as the attempt it was).
+      if (attempts >= INVOICE_EMAIL_MAX_ATTEMPTS) {
+        tx.set(ref, { gstInvoiceEmail: { status: 'failed', queuedAtMs, attempts, at: new Date(t) } }, { merge: true });
+        return { skipped: 'failed' };
+      }
       const buyer = order.gstInvoice.buyer || {};
       const to = typeof buyer.email === 'string' ? buyer.email.trim() : '';
       if (!to || to.length > 254 || !EMAIL_PATTERN.test(to)) {
-        tx.set(ref, { gstInvoiceEmail: { status: 'no_address', queuedAtMs, at: new Date(t) } }, { merge: true });
+        tx.set(ref, { gstInvoiceEmail: { status: 'no_address', queuedAtMs, attempts, at: new Date(t) } }, { merge: true });
         return { skipped: 'no_address' };
       }
       const uid = payerAccountUid(order);
@@ -555,16 +568,16 @@ function createPaymentReceiptEmailer(deps = {}) {
         guest.lastClaimMs,
       ].filter((v) => typeof v === 'number' && Number.isFinite(v));
       if (recent.some((ms) => t - ms < ONE_A_DAY_MS)) return { queued: 'spaced' };
-      tx.set(ref, { gstInvoiceEmail: { status: 'sending', queuedAtMs, at: new Date(t) } }, { merge: true });
+      tx.set(ref, { gstInvoiceEmail: { status: 'sending', queuedAtMs, attempts: attempts + 1, at: new Date(t) } }, { merge: true });
       if (nudgeRef) tx.set(nudgeRef, { lastClaimMs: t }, { merge: true });
       if (guestRef) tx.set(guestRef, { lastClaimMs: t }, { merge: true });
-      return { order, to, queuedAtMs };
+      return { order, to, queuedAtMs, attempts: attempts + 1 };
     });
     if (!claimed.order) return claimed;
-    const { order, to, queuedAtMs } = claimed;
+    const { order, to, queuedAtMs, attempts } = claimed;
     const mark = async (status) => {
       try {
-        await ref.set({ gstInvoiceEmail: { status, queuedAtMs, at: new Date(now()) } }, { merge: true });
+        await ref.set({ gstInvoiceEmail: { status, queuedAtMs, attempts, at: new Date(now()) } }, { merge: true });
       } catch {
         /* at most once */
       }
@@ -593,10 +606,12 @@ function createPaymentReceiptEmailer(deps = {}) {
       emit('payments.gst_invoice_email.sent');
       return { sent: true };
     }
-    // A send that certainly did not go out is queued again (the next in-window drain, a day later at worst).
-    await mark(sent.retryable ? 'queued' : 'refused');
+    // A send that certainly did not go out is queued again (the next allowed drain: the one-a-day clock it just set means
+    // about a day later), at most INVOICE_EMAIL_MAX_ATTEMPTS tries in all; then `failed`, for the admin (review F3).
+    const status = !sent.retryable ? 'refused' : attempts < INVOICE_EMAIL_MAX_ATTEMPTS ? 'queued' : 'failed';
+    await mark(status);
     emit('payments.gst_invoice_email.failed');
-    return { sent: false, code: sent.code };
+    return { sent: false, code: sent.code, status, attempts };
   }
 
   /**
@@ -632,11 +647,14 @@ function createPaymentReceiptEmailer(deps = {}) {
     const summary = { sent: 0, queued: 0, skipped: 0, failed: 0 };
     try {
       if (config.mode !== 'send' || !adminFirestore || !sendWindow.contains(now())) return summary;
-      let q = adminFirestore.collection(PAY_ORDERS_COLLECTION).where('gstInvoiceEmail.status', '==', 'queued');
-      if (typeof q.limit === 'function') q = q.limit(INVOICE_EMAIL_BATCH * 4);
-      const snap = await q.get();
       const ids = [];
-      snap.forEach((d) => ids.push([d.id, Number(((d.data() || {}).gstInvoiceEmail || {}).queuedAtMs) || 0]));
+      // Queued emails, and `sending` claims a crash left behind (review F2; runInvoiceEmail takes only stale ones).
+      for (const status of ['queued', 'sending']) {
+        let q = adminFirestore.collection(PAY_ORDERS_COLLECTION).where('gstInvoiceEmail.status', '==', status);
+        if (typeof q.limit === 'function') q = q.limit(INVOICE_EMAIL_BATCH * 4);
+        const snap = await q.get();
+        snap.forEach((d) => ids.push([d.id, Number(((d.data() || {}).gstInvoiceEmail || {}).queuedAtMs) || 0]));
+      }
       ids.sort((a, b) => a[1] - b[1]);
       for (const [id] of ids.slice(0, INVOICE_EMAIL_BATCH)) {
         let r;
@@ -647,6 +665,7 @@ function createPaymentReceiptEmailer(deps = {}) {
           r = { error: true };
         }
         if (r.sent) summary.sent += 1;
+        else if (r.skipped === 'not_queued') continue; // a fresh `sending` claim another instance holds
         else if (r.queued) summary.queued += 1;
         else if (r.error || r.sent === false) summary.failed += 1;
         else summary.skipped += 1;

@@ -751,7 +751,7 @@ test('D2: admin "Issue now" issues a held order once the cause is fixed, through
   const db = memoryFirestore({ 'payOrders/h': storedOrder({ paymentId: 'pay_h', extra: { paidAt: new Date(AFTER_CUTOFF) } }) });
   const broken = invoicer(db, { env: { ...ENV_READY, SAC_BOARD_PASS: '' } }).inv;
   assert.deepEqual(await broken.issueForPayment({ orderId: 'h', paymentId: 'pay_h', payment: {} }), { held: 'seller_config_missing' });
-  const { inv } = invoicer(db);
+  const inv = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF, fetchPayment: async (id) => ({ id }) });
   const routes = routesFor(db, { inv });
   let res = fakeRes();
   await routes.handleAdminIssue({ ...req('/api/admin/gst/issue', { authorization: 'Bearer nope' }), method: 'POST', body: { orderId: 'h' } }, res);
@@ -840,28 +840,21 @@ test('2a PIN required on the REAL order route: a body without a PIN still makes 
   }
 });
 
-test('2c Issue now: the payer contact comes from Razorpay payments.fetch (only for THIS order), stored on the invoice; a failed fetch still issues', async () => {
+test('2c Issue now: the payer contact comes from Razorpay payments.fetch (only for THIS order), stored on the invoice', async () => {
   const db = memoryFirestore({
     'payOrders/order_A': storedOrder({ paymentId: 'pay_A1', extra: { gstInvoiceHeld: { reason: 'seller_config_missing' } } }),
-    'payOrders/order_B': storedOrder({ paymentId: 'pay_B1' }),
-    'payOrders/order_C': storedOrder({ paymentId: 'pay_C1' }),
   });
   const fetched = [];
   const fetchPayment = async (id) => {
     fetched.push(id);
-    if (id === 'pay_A1') return { id, order_id: 'order_A', email: 'payer@example.com', contact: '+919812345678' };
-    if (id === 'pay_B1') return { id, order_id: 'order_SOMEONE_ELSE', email: 'wrong@example.com' };
-    throw new Error('razorpay down');
+    return { id, order_id: 'order_A', email: 'payer@example.com', contact: '+919812345678' };
   };
   const inv = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF, fetchPayment });
   assert.deepEqual(await inv.issueNow({ orderId: 'order_A' }), { issued: true, number: 'LT/26-27/000001' });
   const a = db.read('payOrders/order_A').gstInvoice;
   assert.equal(a.buyer.email, 'payer@example.com');
   assert.equal(a.buyer.phone, '+919812345678');
-  assert.deepEqual(await inv.issueNow({ orderId: 'order_B' }), { issued: true, number: 'LT/26-27/000002' });
-  assert.equal(db.read('payOrders/order_B').gstInvoice.buyer.email, null, 'a payment of another order is never trusted');
-  assert.deepEqual(await inv.issueNow({ orderId: 'order_C' }), { issued: true, number: 'LT/26-27/000003' });
-  assert.deepEqual(fetched, ['pay_A1', 'pay_B1', 'pay_C1']);
+  assert.deepEqual(fetched, ['pay_A1']);
   assert.deepEqual(await inv.issueNow({ orderId: 'order_A' }), { issued: false, existing: 'LT/26-27/000001' }, 'idempotent');
   // The fetcher: Basic auth with the server's keys, the payment URL; no keys -> null without a call.
   const calls = [];
@@ -984,10 +977,94 @@ test('2c route: admin "Issue now" issues, fetches the contact and emails the inv
 
 test('2c a failing mailer never fails "Issue now": the invoice stands', async () => {
   const db = memoryFirestore({ 'payOrders/order_F': storedOrder({ paymentId: 'pay_F' }) });
-  const inv = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF });
+  const inv = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF, fetchPayment: async (id) => ({ id, order_id: 'order_F' }) });
   const mailer = { queueInvoiceEmail: async () => ({ error: true }) };
   const res = fakeRes();
   await routesFor(db, { inv, mailer }).handleAdminIssue({ ...req('/api/admin/gst/issue', { authorization: 'Bearer admin' }), method: 'POST', body: { orderId: 'order_F' } }, res);
   assert.equal(res.r.status, 200);
   assert.deepEqual(res.json().result, { issued: true, number: 'LT/26-27/000001' });
+});
+
+/* ══ review of #1623: F1 no payment record -> not issued; F2 a stale `sending` claim is retried; F3 at most 3 attempts ══ */
+
+test('F1 Issue now: Razorpay unreachable / no keys / another order\'s payment -> NOT issued, no number used; a retry then issues', async () => {
+  const db = memoryFirestore({ 'payOrders/order_X': storedOrder({ paymentId: 'pay_X', extra: { gstInvoiceHeld: { reason: 'seller_config_missing' } } }) });
+  let mode = 'throw';
+  const fetchPayment = async (id) => {
+    if (mode === 'throw') throw new Error('razorpay down');
+    if (mode === 'null') return null; // no keys / non-2xx
+    if (mode === 'other') return { id, order_id: 'order_SOMEONE_ELSE', email: 'wrong@example.com' };
+    return { id, order_id: 'order_X', email: 'payer@example.com' };
+  };
+  const inv = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF, fetchPayment });
+  for (const m of ['throw', 'null', 'other']) {
+    mode = m;
+    assert.deepEqual(await inv.issueNow({ orderId: 'order_X' }), { skipped: 'payment_fetch_failed' }, m);
+    assert.equal(db.read('payOrders/order_X').gstInvoice, undefined, m);
+    assert.equal(db.read('gstInvoiceCounters/26-27'), undefined, `${m}: no number consumed`);
+  }
+  const noFetcher = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF });
+  assert.deepEqual(await noFetcher.issueNow({ orderId: 'order_X' }), { skipped: 'payment_fetch_failed' });
+  mode = 'ok';
+  assert.deepEqual(await inv.issueNow({ orderId: 'order_X' }), { issued: true, number: 'LT/26-27/000001' });
+  assert.equal(db.read('payOrders/order_X').gstInvoice.buyer.email, 'payer@example.com');
+  // Through the route: the admin sees the skip, no email is attempted.
+  const db2 = memoryFirestore({ 'payOrders/order_Y': storedOrder({ paymentId: 'pay_Y' }) });
+  const inv2 = g.createGstInvoicer({ adminFirestore: db2, env: ENV_READY, now: () => AFTER_CUTOFF, fetchPayment: async () => null });
+  let queued = 0;
+  const res = fakeRes();
+  await routesFor(db2, { inv: inv2, mailer: { queueInvoiceEmail: async () => { queued += 1; return { sent: true }; } } }).handleAdminIssue({ ...req('/api/admin/gst/issue', { authorization: 'Bearer admin' }), method: 'POST', body: { orderId: 'order_Y' } }, res);
+  assert.deepEqual(res.json(), { ok: true, result: { skipped: 'payment_fetch_failed' } });
+  assert.equal(queued, 0);
+});
+
+test('F2 a `sending` claim left by a crash is retried after 30 min (same Idempotency-Key); a fresh one is left alone', async () => {
+  const { db } = await issuedForMail();
+  const o = db.read('payOrders/order_M');
+  db.docs.set('payOrders/order_M', { data: { ...o, gstInvoiceEmail: { status: 'sending', queuedAtMs: AFTER_CUTOFF - HOUR, attempts: 1, at: new Date(AFTER_CUTOFF) } }, version: 9 });
+  const clock = { t: AFTER_CUTOFF + 29 * 60 * 1000 };
+  const { mailer, sent } = mailerFor(db, clock);
+  assert.deepEqual(await mailer.drainInvoiceEmails(), { sent: 0, queued: 0, skipped: 0, failed: 0 }, 'a 29-min-old claim may still be sending');
+  assert.equal(db.read('payOrders/order_M').gstInvoiceEmail.status, 'sending');
+  clock.t = AFTER_CUTOFF + 31 * 60 * 1000;
+  assert.deepEqual(await mailer.drainInvoiceEmails(), { sent: 1, queued: 0, skipped: 0, failed: 0 });
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].key, 'gst-invoice-email-pay_M', 'the same key: Resend drops a duplicate if the lost send did go out');
+  const st = db.read('payOrders/order_M').gstInvoiceEmail;
+  assert.equal(st.status, 'sent');
+  assert.equal(st.attempts, 2);
+});
+
+test('F3 a temporary send failure is retried at most 3 times in all, then `failed` (shown to the admin); a hard refusal is not retried', async () => {
+  const { db } = await issuedForMail();
+  const clock = { t: AFTER_CUTOFF };
+  const calls = [];
+  const mailer = createPaymentReceiptEmailer({
+    adminFirestore: db,
+    now: () => clock.t,
+    env: { PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key', INVOICE_LINK_SECRET: LINK_SECRET },
+    fetchImpl: async (url, init) => { calls.push(init.headers['Idempotency-Key']); return { ok: false, status: 503, json: async () => ({}) }; },
+  });
+  const r1 = await mailer.queueInvoiceEmail({ orderId: 'order_M' });
+  assert.deepEqual([r1.sent, r1.status, r1.attempts], [false, 'queued', 1]);
+  // Each retry waits for the one-a-day clock the failed attempt set (24 h), inside the window.
+  clock.t += 24 * HOUR + 1;
+  assert.equal((await mailer.drainInvoiceEmails()).failed, 1);
+  assert.deepEqual([db.read('payOrders/order_M').gstInvoiceEmail.status, db.read('payOrders/order_M').gstInvoiceEmail.attempts], ['queued', 2]);
+  clock.t += 24 * HOUR + 1;
+  assert.equal((await mailer.drainInvoiceEmails()).failed, 1);
+  assert.deepEqual([db.read('payOrders/order_M').gstInvoiceEmail.status, db.read('payOrders/order_M').gstInvoiceEmail.attempts], ['failed', 3]);
+  clock.t += 24 * HOUR + 1;
+  assert.deepEqual(await mailer.drainInvoiceEmails(), { sent: 0, queued: 0, skipped: 0, failed: 0 }, 'never a 4th try');
+  assert.equal(calls.length, 3);
+  // A stale `sending` already at the cap becomes `failed` without a send.
+  const o = db.read('payOrders/order_M');
+  db.docs.set('payOrders/order_M', { data: { ...o, gstInvoiceEmail: { status: 'sending', queuedAtMs: 1, attempts: 3, at: new Date(clock.t - 2 * HOUR) } }, version: 99 });
+  await mailer.drainInvoiceEmails();
+  assert.equal(db.read('payOrders/order_M').gstInvoiceEmail.status, 'failed');
+  assert.equal(calls.length, 3);
+  // A non-retryable answer (4xx) is `refused` at once.
+  const { db: d2 } = await issuedForMail();
+  const m2 = createPaymentReceiptEmailer({ adminFirestore: d2, now: () => AFTER_CUTOFF, env: { PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key', INVOICE_LINK_SECRET: LINK_SECRET }, fetchImpl: async () => ({ ok: false, status: 422, json: async () => ({}) }) });
+  assert.equal((await m2.queueInvoiceEmail({ orderId: 'order_M' })).status, 'refused');
 });
