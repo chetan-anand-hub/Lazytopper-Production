@@ -9,7 +9,13 @@ import {
   openAnchor,
   resolve,
   BOTTOM_NAV_ROUTES,
+  CURTAIN_ID,
+  FALLBACK_ROUTES,
+  __resetIslandForTests,
+  boot,
+  findAnchor,
   nav,
+  raiseCurtain,
 } from "./contentIsland";
 
 /**
@@ -169,5 +175,128 @@ describe("activateTab", () => {
     const root = document.querySelector(".lt-note") as Element;
     activateTab(root, 9);
     expect(document.querySelectorAll(".lt-note__panel")[0].classList.contains("lt-note__panel--active")).toBe(true);
+  });
+});
+
+/* ------------------------------------------------------------------ #1621 review fixes */
+
+const ISLAND_TAG =
+  '<script type="module" src="/assets/contentIsland-AAAAAAAA.js" data-lt-island="" data-lt-app-entry="/assets/index-BBBBBBBB.js" data-lt-app-preloads=""></script>';
+
+/** A live island on NOTE (plus a tracked link), booted as a signed-out visitor. */
+async function bootIsland(): Promise<void> {
+  __resetIslandForTests();
+  document.head.innerHTML = ISLAND_TAG;
+  document.body.innerHTML = NOTE.replace("</div>`", "").replace(
+    '<a id="plain"',
+    '<a id="tracked" href="/check-improve">Check my answer</a><a id="plain"',
+  );
+  window.requestAnimationFrame = (cb: FrameRequestCallback) => window.setTimeout(() => cb(0), 0);
+  await boot();
+}
+const appScript = () => document.head.querySelector<HTMLScriptElement>('script[src="/assets/index-BBBBBBBB.js"]');
+const realClick = (el: Element) => {
+  const event = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
+  el.dispatchEvent(event);
+  return event;
+};
+
+describe("D2 — the app entry fails: held taps complete, nothing dies or stays grey", () => {
+  afterEach(() => __resetIslandForTests());
+
+  it("entry 404: a held tracked link navigates at once, busy clears, the island keeps working", async () => {
+    await bootIsland();
+    const go = vi.spyOn(nav, "go").mockImplementation(() => undefined);
+    const link = document.getElementById("tracked") as Element;
+    expect(realClick(link).defaultPrevented).toBe(true); // held for the app (it sends an event first)
+    expect(link.classList.contains("lt-island-busy")).toBe(true);
+    const script = appScript();
+    expect(script).not.toBeNull();
+    script?.dispatchEvent(new Event("error"));
+    expect(go).toHaveBeenCalledWith(new URL("/check-improve", window.location.href).href);
+    expect(document.querySelectorAll(".lt-island-busy").length).toBe(0);
+    expect(document.documentElement.getAttribute("data-lt-island")).toBe("island");
+    // Island handlers survive the failure: hints and tabs still work.
+    const hint = document.querySelector(".lt-ncs__hintbtn") as HTMLElement;
+    expect(realClick(hint).defaultPrevented).toBe(true);
+    expect(hint.getAttribute("aria-expanded")).toBe("true");
+    const tab = document.querySelectorAll(".lt-note__tab")[1] as HTMLElement;
+    realClick(tab);
+    expect(tab.getAttribute("aria-selected")).toBe("true");
+    // Later taps: a tracked link is a plain navigation, a bottom-bar item gets its page, an app-only button is native.
+    expect(realClick(link).defaultPrevented).toBe(false);
+    const pricing = [...document.querySelectorAll("[data-lt-bottomnav] button")].find((b) => b.textContent === "Pricing") as Element;
+    realClick(pricing);
+    expect(go).toHaveBeenLastCalledWith(FALLBACK_ROUTES.Pricing);
+    const opt = document.querySelector(".lt-ncs__opt") as Element;
+    expect(realClick(opt).defaultPrevented).toBe(false);
+    expect(opt.classList.contains("lt-island-busy")).toBe(false);
+  });
+
+  it("entry throws before React mounts: a held bottom-bar Pricing goes to /pricing, an MCQ tap is released", async () => {
+    await bootIsland();
+    const go = vi.spyOn(nav, "go").mockImplementation(() => undefined);
+    const opt = document.querySelector(".lt-ncs__opt") as Element;
+    realClick(opt);
+    const pricing = [...document.querySelectorAll("[data-lt-bottomnav] button")].find((b) => b.textContent === "Pricing") as Element;
+    realClick(pricing);
+    expect(document.querySelectorAll(".lt-island-busy").length).toBe(2);
+    window.dispatchEvent(new ErrorEvent("error", { message: "boom", filename: `${window.location.origin}/assets/index-BBBBBBBB.js` }));
+    expect(go).toHaveBeenCalledWith("/pricing");
+    expect(document.querySelectorAll(".lt-island-busy, [aria-busy]").length).toBe(0);
+  });
+
+  it("an error from somewhere else (not an /assets/ module) is not an app failure", async () => {
+    await bootIsland();
+    realClick(document.querySelector(".lt-ncs__opt") as Element);
+    window.dispatchEvent(new ErrorEvent("error", { message: "x", filename: "https://ads.example/x.js" }));
+    expect(document.documentElement.getAttribute("data-lt-island")).toBe("upgrading");
+    expect(document.querySelectorAll(".lt-island-busy").length).toBe(1);
+  });
+});
+
+describe("D4 — the curtain keeps the visitor's page on screen while the app renders unseen", () => {
+  afterEach(() => __resetIslandForTests());
+
+  it("live nodes move to the curtain (before #root); #root gets a copy for main.tsx and is hidden", async () => {
+    await bootIsland();
+    const liveHint = document.querySelector(".lt-ncs__hintbtn") as HTMLElement;
+    realClick(liveHint); // island state the copy must carry
+    raiseCurtain();
+    const curtain = document.getElementById(CURTAIN_ID) as HTMLElement;
+    const root = document.getElementById("root") as HTMLElement;
+    expect(curtain.nextElementSibling).toBe(root);
+    expect(curtain.contains(liveHint)).toBe(true);
+    expect(root.hasAttribute("data-lt-island-hidden")).toBe(true);
+    expect(root.querySelector(".lt-ncs__hintbtn")?.getAttribute("aria-expanded")).toBe("true");
+    // getElementById finds the LIVE copy (the island's hints and anchors keep acting on what is seen) ...
+    expect(curtain.contains(document.getElementById("ncs-hint-q1"))).toBe(true);
+    // ... and a control's scope is never the curtain itself (the app has no such element).
+    expect(describeControl(curtain.querySelector("#plain") as Element).scopeId).toBe("plain");
+    expect(describeControl(curtain.querySelector(".lt-ncs__opt") as Element).scopeId).toBe("q1");
+    expect(describeControl(curtain.querySelector(".lt-note__ex-head") as Element).scopeId).toBeNull();
+  });
+
+  it("resolve looks inside #root first, so the app's twin is found while the curtain is up", async () => {
+    await bootIsland();
+    const d = describeControl(document.querySelector(".lt-ncs__opt") as Element);
+    raiseCurtain();
+    const root = document.getElementById("root") as HTMLElement;
+    const scope = root.querySelector("#q1") as Element;
+    const twin = root.querySelector(".lt-ncs__opt") as Element;
+    for (const el of [scope, twin]) (el as unknown as Record<string, unknown>)["__reactFiber$y"] = {};
+    expect(resolve(d)).toBe(twin);
+  });
+
+  it("findAnchor maps the reader's element to the app's twin by scope, tag, text and ordinal", () => {
+    const root = document.getElementById("root") as HTMLElement;
+    const steps = [
+      { scopeId: "q1", tag: "div", text: "nope", ordinal: 0, top: 10 },
+      { scopeId: "q1", tag: "button", text: "Stuck? Show a hint", ordinal: 0, top: 42 },
+    ];
+    const found = findAnchor(steps, root);
+    expect(found?.el).toBe(root.querySelector(".lt-ncs__hintbtn"));
+    expect(found?.top).toBe(42);
+    expect(findAnchor([{ scopeId: "gone", tag: "p", text: "x", ordinal: 0, top: 0 }], root)).toBeNull();
   });
 });

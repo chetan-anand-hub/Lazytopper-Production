@@ -676,6 +676,71 @@ export function withIsland(html: string, shellHtml: string, islandFile: string, 
   return html.replace(/<link\b[^>]*\brel="modulepreload"[^>]*>/g, "").replace(tag, () => island);
 }
 
+/**
+ * SPEED-ISLANDS-1 (#1621 review D1) — lazy stylesheets an island page's SERVED MARKUP needs. On trunk they
+ * arrive with the app's chunks a second or two after first paint; an island page may never load the app, so
+ * without them the maths is drawn wrong (KaTeX: "I2Rt", broken radicals) and the WhatsApp button sits
+ * unstyled in the flow. Each is named by its module, resolved against THIS build's `assets/` (exactly one
+ * `<name>-<hash>.css`, as `resolveRouteChunk` does for chunks), and linked only when its markup is present.
+ */
+export const ISLAND_MARKUP_CSS: ReadonlyArray<{ name: string; marker: RegExp }> = [
+  { name: "katex", marker: /\bclass="katex[\s"]/ },
+  { name: "WhatsAppFab", marker: /\bclass="[^"]*\blt-wa-fab\b/ },
+];
+/** On each island stylesheet link: marks it (the verifier and the guard key on it). */
+export const ISLAND_CSS_ATTR = "data-lt-island-css";
+
+/** The ONE emitted `<name>-<hash>.css` in this build, or a throw (zero or two is a renamed module). */
+export function resolveStylesheet(name: string, assetFiles: readonly string[]): string {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^${escaped}-[A-Za-z0-9_-]{8}\\.css$`);
+  const hits = assetFiles.filter((file) => pattern.test(file));
+  if (hits.length !== 1) {
+    throw new Error(
+      `applyPrerendered: island stylesheet "${name}" matches ${hits.length} emitted file(s) (${hits.join(", ") || "none"}); ` +
+        `exactly one is required. Update ISLAND_MARKUP_CSS.`,
+    );
+  }
+  return hits[0];
+}
+
+/**
+ * The stylesheets an island page links: the CSS the app loads WITH the route's chunk (`__vite__mapDeps`), less
+ * what is already inlined, then the markup-driven sheets above. File names, in order, de-duplicated.
+ */
+export function islandStylesheetsFor(
+  path: string,
+  html: string,
+  entryCode: string,
+  assetFiles: readonly string[],
+): string[] {
+  const inlined = inlinedStylesIn(html);
+  const css: string[] = [];
+  const add = (file: string) => {
+    if (!inlined.includes(file) && !css.includes(file)) css.push(file);
+  };
+  for (const moduleName of routeChunkModulesFor(path)) {
+    for (const file of dynamicImportCssOf(entryCode, resolveRouteChunk(moduleName, assetFiles))) add(file);
+  }
+  const body = html.slice(Math.max(0, html.indexOf("<body")));
+  for (const { name, marker } of ISLAND_MARKUP_CSS) if (marker.test(body)) add(resolveStylesheet(name, assetFiles));
+  return css;
+}
+
+/** Link `files` as ordinary stylesheets immediately before `</head>` (exactly one), marked ISLAND_CSS_ATTR. */
+export function withIslandStylesheets(html: string, base: string, files: readonly string[]): string {
+  if (files.length === 0) return html;
+  const closes = html.split("</head>").length - 1;
+  if (closes !== 1) throw new Error(`applyPrerendered: expected exactly one </head> to link island CSS, found ${closes}`);
+  const links = files.map((file) => `<link rel="stylesheet" crossorigin href="${base}assets/${file}" ${ISLAND_CSS_ATTR}>`).join("");
+  return html.replace("</head>", () => `${links}</head>`);
+}
+
+/** Every island stylesheet href in a built page. */
+export function islandStylesheetHrefsIn(html: string): string[] {
+  return [...html.matchAll(new RegExp(`<link rel="stylesheet" crossorigin href="([^"]+)" ${ISLAND_CSS_ATTR}>`, "g"))].map((m) => m[1]);
+}
+
 /** The island script tag in a built page: its src and the app entry it upgrades to, or null. */
 export function islandScriptIn(html: string): { src: string; appEntry: string; preloads: string[] } | null {
   const tag = html.match(new RegExp(`<script\\b[^>]*\\b${ISLAND_SCRIPT_ATTR}\\b[^>]*>`));
@@ -740,6 +805,20 @@ export function verifyBuiltPages(
             failures.push(`${path}: the ${variant} file ${file} hands the island no route chunk to preload`);
           }
           if (hrefs.length > 0) failures.push(`${path}: the ${variant} file ${file} is an island but still modulepreloads app chunks`);
+          // #1621 review D1: the markup's lazy stylesheets are linked, and exist.
+          const sheets = islandStylesheetHrefsIn(html);
+          for (const href of sheets) {
+            const target = join(outDir, href.replace(/^\/(?:[^/]*\/)?assets\//, "assets/"));
+            if (!/\/assets\/[^/]+\.css$/.test(href) || !existsSync(target)) {
+              failures.push(`${path}: the ${variant} file ${file} links island CSS ${href}, which this build did not emit`);
+            }
+          }
+          const body = html.slice(Math.max(0, html.indexOf("<body")));
+          for (const { name, marker } of ISLAND_MARKUP_CSS) {
+            if (marker.test(body) && !sheets.some((href) => new RegExp(`/assets/${name}-[A-Za-z0-9_-]{8}\\.css$`).test(href))) {
+              failures.push(`${path}: the ${variant} file ${file} is an island with ${name} markup but does not link its stylesheet`);
+            }
+          }
         }
       } else {
         if (island) failures.push(`${path}: the ${variant} file ${file} carries the island script but is not an island path`);
@@ -965,10 +1044,19 @@ export function applyArtifact(
   const entryCssText = entryCss ? readFileSync(join(assetsDir, entryCss), "utf8") : "";
   // SPEED-ISLANDS-1: island paths swap the entry script and hand their route preloads to the island.
   const islands = islandPathsFor(expected, options);
-  const islandFile = islands.size > 0 ? resolveRouteChunk(ISLAND_ENTRY_NAME, readdirSync(assetsDir)) : "";
+  const islandAssets = islands.size > 0 ? readdirSync(assetsDir) : [];
+  const islandFile = islands.size > 0 ? resolveRouteChunk(ISLAND_ENTRY_NAME, islandAssets) : "";
+  const islandEntryCode = islands.size > 0 ? readFileSync(join(assetsDir, entryScriptOf(cleanShell).entry), "utf8") : "";
   const finish = (path: string, html: string, hrefs: readonly string[]): string => {
     const styled = withRouteStyles(html, routeStyles.get(path) ?? []);
-    const done = islands.has(path) ? withIsland(styled, cleanShell, islandFile, hrefs) : withPreloads(styled, hrefs);
+    const done = islands.has(path)
+      ? withIsland(
+          withIslandStylesheets(styled, entryScriptOf(cleanShell).base, islandStylesheetsFor(path, styled, islandEntryCode, islandAssets)),
+          cleanShell,
+          islandFile,
+          hrefs,
+        )
+      : withPreloads(styled, hrefs);
     return entryCss ? withCriticalEntryCss(done, entryCss, entryCssText, criticalCss) : done;
   };
 

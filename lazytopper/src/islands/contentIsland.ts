@@ -91,7 +91,8 @@ export interface Descriptor {
 }
 
 function scopeOf(el: Element): Element {
-  const scoped = el.closest("[id]:not(#root)");
+  // Never the curtain (raiseCurtain): it is the live copy's wrapper, not a scope the app renders.
+  const scoped = el.closest("[id]:not(#root):not(#lt-island-curtain)");
   return scoped ?? document.body;
 }
 
@@ -113,7 +114,10 @@ export function describe(el: Element): Descriptor {
 
 /** The React-owned element matching `d`, or null while the app has not rendered it. */
 export function resolve(d: Descriptor): HTMLElement | null {
-  const scope = d.scopeId ? document.getElementById(d.scopeId) : document.body;
+  // While the curtain is up the live copy (which comes first) has the same ids: look inside #root first.
+  const scope = d.scopeId
+    ? (document.getElementById("root")?.querySelector(`[id="${d.scopeId.replace(/["\\]/g, "\\$&")}"]`) ?? document.getElementById(d.scopeId))
+    : document.body;
   // A scope element that React has not rendered yet (or a served copy) is not the app's: wait.
   if (!scope || (d.scopeId !== null && !isReactOwned(scope))) return null;
   const strict = candidates(scope, d, true, true);
@@ -125,8 +129,9 @@ export function resolve(d: Descriptor): HTMLElement | null {
 
 /** Per `.lt-note` root (document order): the active tab index the visitor chose here. */
 const tabState = new Map<number, number>();
-/** Toggles changed here (hints, mind-map branches): descriptor + the state the visitor left them in. */
-const toggleState = new Map<string, { d: Descriptor; open: boolean; kind: "hint" | "mm" }>();
+type ToggleKind = "hint" | "mm" | "details";
+/** Toggles changed here (hints, mind-map branches, `<details>` such as "Sources"): descriptor + the state left. */
+const toggleState = new Map<string, { d: Descriptor; open: boolean; kind: ToggleKind }>();
 /** Typed answers, by input id. */
 const typed = new Map<string, string>();
 
@@ -172,7 +177,7 @@ function anchorFromHash(hash: string): string {
   }
 }
 
-function recordToggle(kind: "hint" | "mm", el: Element, open: boolean): void {
+function recordToggle(kind: ToggleKind, el: Element, open: boolean): void {
   const d = describe(el);
   const key = `${kind}:${d.scopeId}:${d.tag}:${d.cls}:${d.text}:${d.ordinal}`;
   const was = toggleState.get(key);
@@ -221,13 +226,25 @@ interface IslandConfig {
   preloads: string[];
 }
 
+/** A tap held for the app, and where it goes if the app never arrives (#1621 review D2). */
+interface Held {
+  d: Descriptor;
+  /** A link's href or a bottom-bar route: navigated to at once if the app fails. Null: nothing to complete. */
+  fallback: string | null;
+}
+
 let config: IslandConfig | null = null;
 let warmed = false;
 let upgraded = false;
 let finished = false;
+/** The app failed to load or threw before it mounted: the island stays, with its handlers. */
+let failed = false;
+/** The island has been live (page view sent, the visitor may have scrolled): upgrades go behind a curtain. */
+let islandLive = false;
 let addDrops: (name: string, count: number) => void = () => undefined;
-const queue: Descriptor[] = [];
+const queue: Held[] = [];
 const cleanups: Array<() => void> = [];
+const upgradeCleanups: Array<() => void> = [];
 
 function addLink(rel: string, href: string): void {
   const link = document.createElement("link");
@@ -245,6 +262,188 @@ export function warm(): void {
   for (const href of config.preloads) addLink("modulepreload", href);
 }
 
+/* ---------------------------------------------------- the curtain (#1621 review D4: no jump at the switch) */
+
+/**
+ * ★ WHY A CURTAIN. `createRoot` (main.tsx, forbidden here) throws away #root's children on its first commit
+ * and renders the app with its own default state (first tab, hints closed, details shut), after which this
+ * island replays the visitor's state. On trunk that happens at load, before anyone has scrolled; on an island
+ * page it happens mid-read, so every height difference moved the text under the reader (CLS 0.16-1.0).
+ *
+ * So, when the upgrade starts on a live island: the visitor's LIVE nodes move into `#lt-island-curtain`, in
+ * #root's place in the flow (nothing about them changes: same boxes, focus and typed text kept), and #root gets
+ * a copy of the same markup, for main.tsx's extractPrerenderedRoute, and is hidden (visibility, out of the flow)
+ * while React renders into it. Once the app's route is ready, the visitor's state is replayed into it, and its
+ * height has settled, the swap happens in ONE frame: the element the reader is looking at is found in the app's
+ * render and the page is scrolled so it stays exactly where it was. Elements that appear are not layout shifts.
+ * The curtain sits BEFORE #root so the island's getElementById (hints, anchors) finds the live copy.
+ */
+export const CURTAIN_ID = "lt-island-curtain";
+const HIDDEN_ROOT_ATTR = "data-lt-island-hidden";
+let curtain: HTMLElement | null = null;
+
+const appRoot = (): HTMLElement | null => document.getElementById("root");
+
+/** True once main.tsx's createRoot has claimed #root (React marks the container `__reactContainer$<id>`). */
+export function appMounted(): boolean {
+  const root = appRoot();
+  if (!root) return false;
+  for (const key in root) if (key.startsWith("__reactContainer$")) return true;
+  return false;
+}
+
+function refocus(active: Element | null, scope: ParentNode | null): void {
+  if (!(active instanceof HTMLElement) || !scope) return;
+  const target = active.isConnected ? active : active.id ? scope.querySelector<HTMLElement>(`[id="${cssString(active.id)}"]`) : null;
+  if (!target || document.activeElement === target) return;
+  const range = active instanceof HTMLInputElement ? [active.selectionStart, active.selectionEnd] : null;
+  try {
+    target.focus({ preventScroll: true });
+    if (range && target instanceof HTMLInputElement && range[0] !== null) target.setSelectionRange(range[0], range[1]);
+  } catch {
+    /* focus is a nicety */
+  }
+}
+
+const cssString = (value: string): string => value.replace(/["\\]/g, "\\$&");
+
+export function raiseCurtain(): void {
+  const root = appRoot();
+  if (curtain || !root || !root.parentNode) return;
+  const active = document.activeElement;
+  const copy = root.cloneNode(true) as HTMLElement;
+  for (const el of copy.querySelectorAll(`.${BUSY_CLASS}`)) {
+    el.classList.remove(BUSY_CLASS); // the app's render must not inherit the island's "loading" look
+    el.removeAttribute("aria-busy");
+  }
+  const live = document.createElement("div");
+  live.id = CURTAIN_ID;
+  live.append(...root.childNodes);
+  root.before(live);
+  root.replaceChildren(...copy.childNodes);
+  root.setAttribute(HIDDEN_ROOT_ATTR, "");
+  curtain = live;
+  refocus(active, live);
+}
+
+/** Back to the plain island (the app failed before it mounted): live nodes into #root, #root shown. */
+function unwindCurtain(): void {
+  const root = appRoot();
+  if (!curtain || !root) return;
+  const active = document.activeElement;
+  root.replaceChildren(...curtain.childNodes);
+  root.removeAttribute(HIDDEN_ROOT_ATTR);
+  curtain.remove();
+  curtain = null;
+  refocus(active, root);
+}
+
+const ANCHOR_BLOCKS = "h1,h2,h3,h4,h5,h6,p,li,dt,dd,tr,figure,figcaption,summary,blockquote,pre,img,.katex-display,article,section";
+const CHROME = 'header, nav, [data-lt-bottomnav], [role="dialog"], .lt-wa-fab';
+
+interface AnchorStep {
+  scopeId: string | null;
+  tag: string;
+  text: string;
+  ordinal: number;
+  /** Distance from the viewport top when recorded. */
+  top: number;
+}
+
+/** The block the reader is looking at (a third of the way down the viewport), and its ancestors, as descriptors. */
+export function readingAnchor(container: Element): AnchorStep[] {
+  const x = Math.round(window.innerWidth / 2);
+  const ys = [0.33, 0.2, 0.5, 0.1, 0.7].map((f) => Math.round(window.innerHeight * f));
+  let el: Element | null = null;
+  for (const y of ys) {
+    const hits = typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(x, y) : [];
+    const hit = hits.find((h) => container.contains(h) && !h.closest(CHROME));
+    if (hit) {
+      el = hit; // the innermost element: its text is the least likely to differ in the app's render
+      break;
+    }
+  }
+  if (!el) {
+    el = [...container.querySelectorAll(ANCHOR_BLOCKS)].find((c) => !c.closest(CHROME) && c.getBoundingClientRect().bottom > 0) ?? null;
+  }
+  const steps: AnchorStep[] = [];
+  for (let node: Element | null = el; node && node !== container && steps.length < 8; node = node.parentElement) {
+    if (norm(node.textContent) === "" && !node.matches("img, svg")) continue; // nothing to recognise it by
+    const scope = node.parentElement?.closest("[id]") ?? null;
+    const scoped = scope && container.contains(scope) && scope !== container ? scope : container;
+    const tag = node.tagName.toLowerCase();
+    const text = norm(node.textContent).slice(0, 300);
+    const same = [...scoped.querySelectorAll(tag)].filter((c) => norm(c.textContent).slice(0, 300) === text);
+    steps.push({
+      scopeId: scoped === container ? null : scoped.id,
+      tag,
+      text,
+      ordinal: Math.max(0, same.indexOf(node)),
+      top: node.getBoundingClientRect().top,
+    });
+    if (node.id) break; // an id is as specific as it gets
+  }
+  return steps;
+}
+
+/** The app's twin of the first anchor step it has, with the offset that step was recorded at. */
+export function findAnchor(steps: readonly AnchorStep[], root: Element): { el: Element; top: number } | null {
+  for (const step of steps) {
+    const scope = step.scopeId ? root.querySelector(`[id="${cssString(step.scopeId)}"]`) : root;
+    if (!scope) continue;
+    const same = [...scope.querySelectorAll(step.tag)].filter((c) => norm(c.textContent).slice(0, 300) === step.text);
+    const el = same[step.ordinal] ?? (same.length === 1 ? same[0] : undefined);
+    if (el) return { el, top: step.top };
+  }
+  return null;
+}
+
+const SETTLE_POLL_MS = 50;
+const SETTLE_MAX_MS = 4_000;
+const nextFrame = () => new Promise<void>((r) => window.requestAnimationFrame(() => r()));
+
+/** Wait for the hidden app's height to settle, then swap it in, in one frame, the reader's text kept in place. */
+async function lowerCurtain(): Promise<void> {
+  const root = appRoot();
+  if (!curtain || !root) return;
+  const end = Date.now() + SETTLE_MAX_MS;
+  let last = -1;
+  let stable = 0;
+  let seen = false;
+  // Settled: the height held for 2 polls (100 ms) and the reader's text is in the app (or held ~1 s without it).
+  while (Date.now() < end && !(stable >= 2 && (seen || stable >= 20))) {
+    const height = root.scrollHeight;
+    seen = !!findAnchor(readingAnchor(curtain), root);
+    stable = height === last ? stable + 1 : 0;
+    last = height;
+    await sleep(SETTLE_POLL_MS);
+  }
+  await replayState(0); // anything the visitor changed on the curtain while the app settled
+  await nextFrame();
+  if (!curtain) return;
+  const active = document.activeElement;
+  const steps = readingAnchor(curtain);
+  const scrolledBefore = window.scrollY;
+  // D3: a <details> opened or closed on the curtain in the last moments (its toggle event is async) — same order.
+  const shown = [...root.querySelectorAll("details")];
+  [...curtain.querySelectorAll("details")].forEach((d, i) => {
+    if (shown.length === curtain?.querySelectorAll("details").length && shown[i] && shown[i].open !== d.open) shown[i].open = d.open;
+  });
+  root.removeAttribute(HIDDEN_ROOT_ATTR);
+  curtain.remove();
+  curtain = null;
+  const found = findAnchor(steps, root);
+  if (found) {
+    const delta = found.el.getBoundingClientRect().top - found.top;
+    if (delta !== 0) window.scrollTo(window.scrollX, window.scrollY + delta);
+  } else if (window.scrollY !== scrolledBefore) {
+    window.scrollTo(window.scrollX, scrolledBefore);
+  }
+  refocus(active, root);
+}
+
+/* ---------------------------------------------------- loading the app */
+
 /** Load and run the full app. Idempotent. */
 export function upgrade(): void {
   if (upgraded || !config) return;
@@ -253,13 +452,24 @@ export function upgrade(): void {
   stopIslandWatches();
   addDrops = suppressAppRepeats();
   warm();
+  if (islandLive) raiseCurtain();
   const script = document.createElement("script");
   script.type = "module";
   script.crossOrigin = "";
   script.src = config.appEntry;
-  // A failed load is handled by index.html's ASSET-RELOAD-NET listener (module script under /assets/).
+  // D2: a failed load (index.html's ASSET-RELOAD-NET may also reload once) or an entry that throws before
+  // React mounts leaves the island in charge: held links navigate, nothing stays greyed.
+  script.addEventListener("error", () => fail(), { once: true });
+  const onError = (event: Event) => {
+    const file = (event as ErrorEvent).filename ?? "";
+    if (!appMounted() && file.startsWith(`${window.location.origin}/assets/`)) fail();
+  };
+  window.addEventListener("error", onError);
+  upgradeCleanups.push(() => window.removeEventListener("error", onError));
+  let loadedAt = 0;
+  script.addEventListener("load", () => (loadedAt = Date.now()), { once: true });
   document.head.appendChild(script);
-  pollReady(Date.now());
+  pollReady(Date.now(), () => loadedAt);
 }
 
 /** The app's route is live: React rendered the route's own start mark (the served one is not React's). */
@@ -268,59 +478,79 @@ export function routeIsReady(): boolean {
 }
 
 const READY_TIMEOUT_MS = 30_000;
+/** After the entry ran, React must claim #root within this (main.tsx waits ≤ 3 s for the deferred sheet). */
+const MOUNT_TIMEOUT_MS = 6_000;
 const FIND_TIMEOUT_MS = 6_000;
 
-function pollReady(startedAt: number): void {
+function pollReady(startedAt: number, loadedAt: () => number): void {
+  if (failed) return;
   if (routeIsReady()) {
-    window.requestAnimationFrame(() => window.setTimeout(() => void replay(), 0));
+    window.requestAnimationFrame(() => window.setTimeout(() => void complete(), 0));
     return;
   }
-  if (Date.now() - startedAt > READY_TIMEOUT_MS) {
-    finish();
+  const now = Date.now();
+  const mounted = appMounted();
+  if (!mounted && ((loadedAt() > 0 && now - loadedAt() > MOUNT_TIMEOUT_MS) || now - startedAt > READY_TIMEOUT_MS)) {
+    fail();
     return;
   }
-  window.setTimeout(() => pollReady(startedAt), 80);
+  if (now - startedAt > READY_TIMEOUT_MS) {
+    void complete(); // the app is up but its route never said so: show it, as before
+    return;
+  }
+  window.setTimeout(() => pollReady(startedAt, loadedAt), 80);
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 
-async function find(d: Descriptor, until: (el: HTMLElement) => boolean = () => true): Promise<HTMLElement | null> {
-  const end = Date.now() + FIND_TIMEOUT_MS;
+async function find(d: Descriptor, until: (el: HTMLElement) => boolean = () => true, timeoutMs = FIND_TIMEOUT_MS): Promise<HTMLElement | null> {
+  const end = Date.now() + timeoutMs;
   for (;;) {
     const el = resolve(d);
     if (el && until(el)) return el;
-    if (Date.now() > end) return null;
+    if (Date.now() >= end) return null;
     await sleep(60);
   }
 }
 
-/** Put the visitor's state into the app, then complete the held taps, in order. */
-async function replay(): Promise<void> {
+/** Put the visitor's state (tabs, toggles, details, typed answers) into the app. Idempotent. */
+async function replayState(findTimeoutMs: number): Promise<void> {
+  // 1. Tabs.
+  const roots = [...document.querySelectorAll("#root .lt-note")].filter(isReactOwned);
+  for (const [at, index] of tabState) {
+    const tab = roots[at]?.querySelectorAll<HTMLElement>('.lt-note__tabs [role="tab"]')[index];
+    if (tab && tab.getAttribute("aria-selected") !== "true") tab.click();
+  }
+  // 2. Hints, mind-map branches and <details> the visitor changed. A replayed hint re-sends sol_hint: drop it.
+  for (const { d, open, kind } of toggleState.values()) {
+    const el = await find(d, () => true, findTimeoutMs);
+    if (!el) continue;
+    if (kind === "details") {
+      if (el instanceof HTMLDetailsElement && el.open !== open) el.open = open;
+      continue;
+    }
+    if ((el.getAttribute("aria-expanded") === "true") === open) continue;
+    if (kind === "hint" && open) addDrops("sol_hint", 1);
+    el.click();
+  }
+  // 3. Typed answers (React-controlled inputs: the native setter + an input event reaches onChange).
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+  for (const [id, value] of typed) {
+    const input = appRoot()?.querySelector(`[id="${cssString(id)}"]`);
+    if (!(input instanceof HTMLInputElement) || !isReactOwned(input) || input.disabled || input.value === value) continue;
+    setter?.call(input, value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+}
+
+/** The app is ready: replay the visitor's state, swap it in without a jump, then complete the held taps. */
+async function complete(): Promise<void> {
+  if (failed || finished) return;
   try {
-    // 1. Tabs.
-    const roots = [...document.querySelectorAll(".lt-note")].filter(isReactOwned);
-    for (const [at, index] of tabState) {
-      const tab = roots[at]?.querySelectorAll<HTMLElement>('.lt-note__tabs [role="tab"]')[index];
-      if (tab && tab.getAttribute("aria-selected") !== "true") tab.click();
-    }
-    // 2. Hints and mind-map branches the visitor changed. A replayed hint re-sends sol_hint: drop it.
-    for (const { d, open, kind } of toggleState.values()) {
-      const el = await find(d);
-      if (!el || (el.getAttribute("aria-expanded") === "true") === open) continue;
-      if (kind === "hint" && open) addDrops("sol_hint", 1);
-      el.click();
-    }
-    // 3. Typed answers (React-controlled inputs: the native setter + an input event reaches onChange).
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
-    for (const [id, value] of typed) {
-      const input = document.getElementById(id);
-      if (!(input instanceof HTMLInputElement) || !isReactOwned(input) || input.disabled || input.value === value) continue;
-      setter?.call(input, value);
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    }
-    // 4. The held taps.
+    await replayState(FIND_TIMEOUT_MS);
+    await lowerCurtain();
     while (queue.length > 0) {
-      const d = queue.shift() as Descriptor;
+      const { d } = queue.shift() as Held;
       const el = await find(d, (e) => !(e as HTMLButtonElement).disabled);
       el?.click();
     }
@@ -329,24 +559,76 @@ async function replay(): Promise<void> {
   }
 }
 
-function finish(): void {
-  if (finished) return;
-  finished = true;
-  setState("app");
+function clearBusy(): void {
   for (const el of document.querySelectorAll(`.${BUSY_CLASS}`)) {
     el.classList.remove(BUSY_CLASS);
     el.removeAttribute("aria-busy");
   }
+}
+
+function finish(): void {
+  if (finished) return;
+  finished = true;
+  if (curtain) {
+    // Never leave the app hidden.
+    appRoot()?.removeAttribute(HIDDEN_ROOT_ATTR);
+    curtain.remove();
+    curtain = null;
+  }
+  setState("app");
+  clearBusy();
+  while (upgradeCleanups.length > 0) (upgradeCleanups.pop() as () => void)();
   while (cleanups.length > 0) (cleanups.pop() as () => void)();
 }
+
+/**
+ * #1621 review D2 — the app did not arrive (its entry 404'd, or threw before React mounted). The island stays in
+ * charge and keeps ALL its handlers (tabs, hints, anchors still work); a held link or bottom-bar route is
+ * navigated to at once; nothing stays greyed; later taps on app-only controls behave natively.
+ */
+export function fail(): void {
+  if (failed || finished) return;
+  if (appMounted()) return; // React is up: not a boot failure (pollReady completes or times out)
+  failed = true;
+  unwindCurtain();
+  setState("island");
+  clearBusy();
+  while (upgradeCleanups.length > 0) (upgradeCleanups.pop() as () => void)();
+  const target = queue.find((h) => h.fallback)?.fallback ?? null;
+  queue.length = 0;
+  if (target) nav.go(target);
+}
+
+/** Where a control goes when there is no app to complete it, or null. */
+function fallbackOf(el: Element): string | null {
+  if (el.matches("a[href]")) return (el as HTMLAnchorElement).href || el.getAttribute("href");
+  if (el.closest("[data-lt-bottomnav]")) return FALLBACK_ROUTES[norm(el.textContent)] ?? null;
+  return null;
+}
+
+/** Bottom-bar items the app completes (they send an event first): their route if the app never arrives. */
+export const FALLBACK_ROUTES: Readonly<Record<string, string>> = { Pricing: "/pricing" };
 
 function hold(el: Element): void {
   el.classList.add(BUSY_CLASS);
   el.setAttribute("aria-busy", "true");
   const d = describe(el);
   const last = queue[queue.length - 1];
-  if (!last || JSON.stringify(last) !== JSON.stringify(d)) queue.push(d);
+  if (!last || JSON.stringify(last.d) !== JSON.stringify(d)) queue.push({ d, fallback: fallbackOf(el) });
   upgrade();
+}
+
+/** Test seam: forget every module-level state (each test boots a fresh island). */
+export function __resetIslandForTests(): void {
+  while (upgradeCleanups.length > 0) (upgradeCleanups.pop() as () => void)();
+  while (cleanups.length > 0) (cleanups.pop() as () => void)();
+  config = null;
+  warmed = upgraded = finished = failed = islandLive = false;
+  curtain = null;
+  queue.length = 0;
+  tabState.clear();
+  toggleState.clear();
+  typed.clear();
 }
 
 /* ------------------------------------------------------------------ events */
@@ -359,7 +641,7 @@ export function onClick(event: MouseEvent): void {
 
   if (el.matches("a[href]")) {
     const href = el.getAttribute("href") ?? "";
-    if (el.matches(TRACKED_LINK)) {
+    if (el.matches(TRACKED_LINK) && !failed) {
       event.preventDefault();
       event.stopPropagation();
       hold(el);
@@ -382,6 +664,15 @@ export function onClick(event: MouseEvent): void {
     nav.go(route);
     return;
   }
+  if (failed) {
+    // D2: no app is coming. A bottom-bar item still gets its page; anything else behaves natively.
+    const fallback = fallbackOf(el);
+    if (fallback) {
+      event.preventDefault();
+      nav.go(fallback);
+    }
+    return;
+  }
   // Everything else completes in the app.
   event.preventDefault();
   event.stopPropagation();
@@ -391,9 +682,16 @@ export function onClick(event: MouseEvent): void {
 function onPointerDown(event: Event): void {
   const el = (event.target as Element | null)?.closest?.(ACTIONABLE);
   if (!el || isReactOwned(el)) return;
-  if (el.matches("a[href]") && !el.matches(TRACKED_LINK)) return; // a navigation
+  if (failed || (el.matches("a[href]") && !el.matches(TRACKED_LINK))) return; // a navigation (or no app to warm)
   if (el.matches("summary, .lt-note__tab, .lt-note__mm-node--toggle, .lt-ncs__hintbtn, .lt-note__pdf-btn")) return; // owned
   warm(); // a control that completes in the app (or an answer box): start fetching it now
+}
+
+/** D3: a native `<details>` (the notes' "Sources" footnote) the visitor opened or closed is replayed into the app. */
+function onToggle(event: Event): void {
+  const el = event.target;
+  if (!(el instanceof HTMLDetailsElement) || isReactOwned(el)) return;
+  recordToggle("details", el, el.open);
 }
 
 function onInput(event: Event): void {
@@ -579,7 +877,10 @@ function readConfig(): IslandConfig | null {
 
 function injectBusyStyle(): void {
   const style = document.createElement("style");
-  style.textContent = `.${BUSY_CLASS}{cursor:progress;opacity:.6;transition:opacity .15s}`;
+  style.textContent =
+    `.${BUSY_CLASS}{cursor:progress;opacity:.6;transition:opacity .15s}` +
+    // The app renders here unseen while the curtain shows the visitor's page (raiseCurtain).
+    `#root[${HIDDEN_ROOT_ATTR}]{position:absolute;top:0;left:0;right:0;visibility:hidden;pointer-events:none}`;
   document.head.appendChild(style);
 }
 
@@ -594,6 +895,7 @@ export async function boot(): Promise<void> {
   listen(document, "focusin", onPointerDown, { capture: true, passive: true });
   listen(document, "input", onInput, { capture: true, passive: true });
   listen(document, "submit", onSubmit, { capture: true });
+  listen(document, "toggle", onToggle, { capture: true, passive: true });
   listen(window, "hashchange", () => void openAnchor(anchorFromHash(window.location.hash)), {});
 
   let forced = false;
@@ -621,6 +923,7 @@ export async function boot(): Promise<void> {
     return;
   }
   if (upgraded) return; // a tap during the check already loaded the app (it sends the page view)
+  islandLive = true;
   startIslandAnalytics();
   watchAppRegions();
 }

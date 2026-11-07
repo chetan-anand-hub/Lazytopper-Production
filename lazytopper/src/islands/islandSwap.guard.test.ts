@@ -7,9 +7,13 @@ import {
   applicablePaths,
   islandPathsFor,
   islandScriptIn,
+  islandStylesheetHrefsIn,
+  islandStylesheetsFor,
   modulepreloadHrefsIn,
+  resolveStylesheet,
   verifyBuiltPages,
   withIsland,
+  withIslandStylesheets,
   withPreloads,
 } from "../../scripts/seo/applyPrerendered";
 import { ISLAND_PATH_PREFIXES, isIslandPath, islandsEnabled } from "./islandConfig";
@@ -145,6 +149,69 @@ describe("verifyBuiltPages — island pages", () => {
       expect(v.failures.some((f) => f.includes("carries the island script but is not an island path"))).toBe(true);
     } finally {
       cleanup();
+    }
+  });
+});
+
+describe("#1621 review D1 — an island page links the lazy stylesheets its served markup needs", () => {
+  const KATEX = '<span class="katex"><span class="katex-html" aria-hidden="true">x</span></span>';
+  const FAB = '<a class="lt-wa-fab" href="https://wa.me/1">WA</a>';
+  const ASSETS = ["index-AAAAAAAA.js", "SolutionsPage-EEEEEEEE.js", "katex-C-EwFotM.css", "WhatsAppFab-TWtivnxE.css", "katex-C-g2SbSj.js", "DesktopNotesPage-CCCCCCCC.js"];
+  // The entry's own __vite__mapDeps table: the notes route's chunk brings KaTeX's CSS (as in the real build).
+  const ENTRY_CODE =
+    'const m={};m.f=["assets/DesktopNotesPage-CCCCCCCC.js","assets/katex-C-EwFotM.css"];' +
+    'import("./DesktopNotesPage-CCCCCCCC.js"),__vite__mapDeps([0,1]);';
+
+  it("resolves each sheet from THIS build's assets (exactly one <name>-<hash>.css), never a hard-coded name", () => {
+    expect(resolveStylesheet("katex", ASSETS)).toBe("katex-C-EwFotM.css");
+    expect(resolveStylesheet("WhatsAppFab", ASSETS)).toBe("WhatsAppFab-TWtivnxE.css");
+    expect(() => resolveStylesheet("katex", ["katex-AAAAAAAA.css", "katex-BBBBBBBB.css"])).toThrow(/exactly one/);
+    expect(() => resolveStylesheet("WhatsAppFab", [])).toThrow(/matches 0/);
+  });
+
+  it("a notes page: the route's CSS (KaTeX) + the WhatsApp button's; a page without that markup gets neither", () => {
+    const page = shell(`<main>${KATEX}${FAB}</main>`);
+    expect(islandStylesheetsFor("/notes/electricity", page, ENTRY_CODE, ASSETS)).toEqual(["katex-C-EwFotM.css", "WhatsAppFab-TWtivnxE.css"]);
+    expect(islandStylesheetsFor("/ncert-solutions/triangles", shell(`<main>${FAB}</main>`), ENTRY_CODE, ASSETS)).toEqual(["WhatsAppFab-TWtivnxE.css"]);
+    // Markup alone decides for KaTeX on a solutions page (its maths comes from a nested lazy chunk).
+    expect(islandStylesheetsFor("/ncert-solutions/electricity", shell(`<main>${KATEX}</main>`), ENTRY_CODE, ASSETS)).toEqual(["katex-C-EwFotM.css"]);
+    // Already inlined: not linked again.
+    const inlined = page.replace("</head>", '<style data-lt-inline="katex-C-EwFotM.css">.k{}</style></head>');
+    expect(islandStylesheetsFor("/notes/electricity", inlined, ENTRY_CODE, ASSETS)).toEqual(["WhatsAppFab-TWtivnxE.css"]);
+  });
+
+  it("links them in the head, body untouched; the verifier reads them back", () => {
+    const page = shell(`<main>${KATEX}</main>`);
+    const out = withIslandStylesheets(page, "/", ["katex-C-EwFotM.css"]);
+    expect(islandStylesheetHrefsIn(out)).toEqual(["/assets/katex-C-EwFotM.css"]);
+    expect(out.slice(out.indexOf("<body"))).toBe(page.slice(page.indexOf("<body")));
+    expect(withIslandStylesheets(page, "/", [])).toBe(page);
+  });
+
+  it("RED: verifyBuiltPages fails an island page with KaTeX markup and no KaTeX stylesheet", () => {
+    const out = mkdtempSync(join(tmpdir(), "island-css-"));
+    try {
+      mkdirSync(join(out, "assets"));
+      for (const f of ["index-AAAAAAAA.js", "contentIsland-BBBBBBBB.js", "DesktopNotesPage-CCCCCCCC.js", "katex-C-EwFotM.css"]) {
+        writeFileSync(join(out, "assets", f), "export{};", "utf8");
+      }
+      const write = (html: string) => {
+        for (const f of ["notes/electricity.html", "notes/electricity/index.html", "__desktop/notes/electricity.html"]) {
+          mkdirSync(join(out, f, ".."), { recursive: true });
+          writeFileSync(join(out, f), html, "utf8");
+        }
+      };
+      const bare = withIsland(shell(`<main>${KATEX}</main>`), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]);
+      write(bare);
+      const red = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
+      expect(red.failures.some((f) => f.includes("katex markup but does not link its stylesheet"))).toBe(true);
+      write(withIslandStylesheets(bare, "/", ["katex-C-EwFotM.css"]));
+      expect(verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"])).failures).toEqual([]);
+      write(withIslandStylesheets(bare, "/", ["katex-ZZZZZZZZ.css"]));
+      const missing = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
+      expect(missing.failures.some((f) => f.includes("links island CSS /assets/katex-ZZZZZZZZ.css, which this build did not emit"))).toBe(true);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
     }
   });
 });
