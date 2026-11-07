@@ -43,6 +43,15 @@ import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { routeChunkModulesFor } from "./writeStaticHeads";
+import {
+  APP_ENTRY_ATTR,
+  APP_PRELOADS_ATTR,
+  ISLAND_ENTRY_NAME,
+  ISLAND_PATH_PREFIXES,
+  ISLAND_SCRIPT_ATTR,
+  isIslandPath,
+  islandsEnabled,
+} from "../../src/islands/islandConfig";
 
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -644,6 +653,103 @@ export function modulepreloadHrefsIn(html: string): string[] {
 }
 
 /**
+ * SPEED-ISLANDS-1 — serve the page as an island: the app's module script becomes the island's, and the
+ * app chunks the page used to modulepreload (the shell's vendor chunks, then the route's chunks) move into
+ * a data attribute (the island preloads them when it loads the app). ONLY those head tags change: the
+ * body, canonical, meta and JSON-LD are
+ * untouched (`islandSwap.guard.test.ts`). Exactly one entry tag, or this THROWS.
+ */
+export function withIsland(html: string, shellHtml: string, islandFile: string, appPreloads: readonly string[]): string {
+  const { base, entry } = entryScriptOf(shellHtml);
+  const tag = `<script type="module" crossorigin src="${base}assets/${entry}"></script>`;
+  const count = html.split(tag).length - 1;
+  if (count !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one app entry tag ${tag} to swap for the island, found ${count}`);
+  }
+  // The shell's own modulepreloads (Vite's, for the entry's static imports: the vendor chunks) are app
+  // chunks too: they move into the attribute with the route chunks, ahead of them, in their order.
+  const shellPreloads = modulepreloadHrefsIn(html);
+  const handed = [...shellPreloads, ...appPreloads.filter((href) => !shellPreloads.includes(href))];
+  const island =
+    `<script type="module" crossorigin src="${base}assets/${islandFile}" ${ISLAND_SCRIPT_ATTR} ` +
+    `${APP_ENTRY_ATTR}="${base}assets/${entry}" ${APP_PRELOADS_ATTR}="${handed.join(" ")}"></script>`;
+  return html.replace(/<link\b[^>]*\brel="modulepreload"[^>]*>/g, "").replace(tag, () => island);
+}
+
+/**
+ * SPEED-ISLANDS-1 (#1621 review D1) — lazy stylesheets an island page's SERVED MARKUP needs. On trunk they
+ * arrive with the app's chunks a second or two after first paint; an island page may never load the app, so
+ * without them the maths is drawn wrong (KaTeX: "I2Rt", broken radicals) and the WhatsApp button sits
+ * unstyled in the flow. Each is named by its module, resolved against THIS build's `assets/` (exactly one
+ * `<name>-<hash>.css`, as `resolveRouteChunk` does for chunks), and linked only when its markup is present.
+ */
+export const ISLAND_MARKUP_CSS: ReadonlyArray<{ name: string; marker: RegExp }> = [
+  { name: "katex", marker: /\bclass="katex[\s"]/ },
+  { name: "WhatsAppFab", marker: /\bclass="[^"]*\blt-wa-fab\b/ },
+];
+/** On each island stylesheet link: marks it (the verifier and the guard key on it). */
+export const ISLAND_CSS_ATTR = "data-lt-island-css";
+
+/** The ONE emitted `<name>-<hash>.css` in this build, or a throw (zero or two is a renamed module). */
+export function resolveStylesheet(name: string, assetFiles: readonly string[]): string {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^${escaped}-[A-Za-z0-9_-]{8}\\.css$`);
+  const hits = assetFiles.filter((file) => pattern.test(file));
+  if (hits.length !== 1) {
+    throw new Error(
+      `applyPrerendered: island stylesheet "${name}" matches ${hits.length} emitted file(s) (${hits.join(", ") || "none"}); ` +
+        `exactly one is required. Update ISLAND_MARKUP_CSS.`,
+    );
+  }
+  return hits[0];
+}
+
+/**
+ * The stylesheets an island page links: the CSS the app loads WITH the route's chunk (`__vite__mapDeps`), less
+ * what is already inlined, then the markup-driven sheets above. File names, in order, de-duplicated.
+ */
+export function islandStylesheetsFor(
+  path: string,
+  html: string,
+  entryCode: string,
+  assetFiles: readonly string[],
+): string[] {
+  const inlined = inlinedStylesIn(html);
+  const css: string[] = [];
+  const add = (file: string) => {
+    if (!inlined.includes(file) && !css.includes(file)) css.push(file);
+  };
+  for (const moduleName of routeChunkModulesFor(path)) {
+    for (const file of dynamicImportCssOf(entryCode, resolveRouteChunk(moduleName, assetFiles))) add(file);
+  }
+  const body = html.slice(Math.max(0, html.indexOf("<body")));
+  for (const { name, marker } of ISLAND_MARKUP_CSS) if (marker.test(body)) add(resolveStylesheet(name, assetFiles));
+  return css;
+}
+
+/** Link `files` as ordinary stylesheets immediately before `</head>` (exactly one), marked ISLAND_CSS_ATTR. */
+export function withIslandStylesheets(html: string, base: string, files: readonly string[]): string {
+  if (files.length === 0) return html;
+  const closes = html.split("</head>").length - 1;
+  if (closes !== 1) throw new Error(`applyPrerendered: expected exactly one </head> to link island CSS, found ${closes}`);
+  const links = files.map((file) => `<link rel="stylesheet" crossorigin href="${base}assets/${file}" ${ISLAND_CSS_ATTR}>`).join("");
+  return html.replace("</head>", () => `${links}</head>`);
+}
+
+/** Every island stylesheet href in a built page. */
+export function islandStylesheetHrefsIn(html: string): string[] {
+  return [...html.matchAll(new RegExp(`<link rel="stylesheet" crossorigin href="([^"]+)" ${ISLAND_CSS_ATTR}>`, "g"))].map((m) => m[1]);
+}
+
+/** The island script tag in a built page: its src and the app entry it upgrades to, or null. */
+export function islandScriptIn(html: string): { src: string; appEntry: string; preloads: string[] } | null {
+  const tag = html.match(new RegExp(`<script\\b[^>]*\\b${ISLAND_SCRIPT_ATTR}\\b[^>]*>`));
+  if (!tag) return null;
+  const attr = (name: string) => tag[0].match(new RegExp(`\\b${name}="([^"]*)"`))?.[1] ?? "";
+  return { src: attr("src"), appEntry: attr(APP_ENTRY_ATTR), preloads: attr(APP_PRELOADS_ATTR).split(/\s+/).filter(Boolean) };
+}
+
+/**
  * ★ PINS (a) AND (d), AGAINST THE REAL BUILD, ON EVERY BUILD — CI's Build step included.
  *
  * Re-reads what was WRITTEN, independent of how it was written: every advertised path has a
@@ -655,11 +761,17 @@ export function modulepreloadHrefsIn(html: string): string[] {
 export function verifyBuiltPages(
   outDir: string,
   expected: readonly string[],
-): { failures: string[]; mobileFiles: number; desktopFiles: number; preloadLinks: number } {
+  islandPaths: ReadonlySet<string> = new Set(),
+): { failures: string[]; mobileFiles: number; desktopFiles: number; preloadLinks: number; islandFiles: number } {
   const failures: string[] = [];
   let mobileFiles = 0;
   let desktopFiles = 0;
   let preloadLinks = 0;
+  let islandFiles = 0;
+  const exists = (href: string) => {
+    const target = join(outDir, href.replace(/^\/(?:[^/]*\/)?assets\//, "assets/"));
+    return /\/assets\/[^/]+\.js$/.test(href) && existsSync(target) && statSync(target).isFile();
+  };
   for (const path of expected) {
     const relative = path.replace(/^\//, "");
     const mobile = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
@@ -676,12 +788,46 @@ export function verifyBuiltPages(
       const html = readFileSync(absolute, "utf8");
       if (html.includes(EMPTY_ROOT)) failures.push(`${path}: the ${variant} file ${file} has an EMPTY body`);
       const hrefs = modulepreloadHrefsIn(html);
-      if (routeChunkModulesFor(path).length > 0 && hrefs.length === 0) {
-        failures.push(`${path}: the ${variant} file ${file} carries no modulepreload for its route chunk`);
+      // SPEED-ISLANDS-1: an island page loads the island, never the app entry, and its route chunks are
+      // handed to the island (data attribute) instead of preloaded; every other page is unchanged.
+      const island = islandScriptIn(html);
+      if (islandPaths.has(path)) {
+        if (!island) failures.push(`${path}: the ${variant} file ${file} is an island path but carries no island script`);
+        else {
+          islandFiles += 1;
+          if (html.includes('<script type="module" crossorigin src="/assets/index-')) {
+            failures.push(`${path}: the ${variant} file ${file} loads the app entry as well as the island`);
+          }
+          for (const href of [island.src, island.appEntry, ...island.preloads]) {
+            if (!exists(href)) failures.push(`${path}: the ${variant} file ${file} island names ${href}, which this build did not emit`);
+          }
+          if (routeChunkModulesFor(path).length > 0 && island.preloads.length === 0) {
+            failures.push(`${path}: the ${variant} file ${file} hands the island no route chunk to preload`);
+          }
+          if (hrefs.length > 0) failures.push(`${path}: the ${variant} file ${file} is an island but still modulepreloads app chunks`);
+          // #1621 review D1: the markup's lazy stylesheets are linked, and exist.
+          const sheets = islandStylesheetHrefsIn(html);
+          for (const href of sheets) {
+            const target = join(outDir, href.replace(/^\/(?:[^/]*\/)?assets\//, "assets/"));
+            if (!/\/assets\/[^/]+\.css$/.test(href) || !existsSync(target)) {
+              failures.push(`${path}: the ${variant} file ${file} links island CSS ${href}, which this build did not emit`);
+            }
+          }
+          const body = html.slice(Math.max(0, html.indexOf("<body")));
+          for (const { name, marker } of ISLAND_MARKUP_CSS) {
+            if (marker.test(body) && !sheets.some((href) => new RegExp(`/assets/${name}-[A-Za-z0-9_-]{8}\\.css$`).test(href))) {
+              failures.push(`${path}: the ${variant} file ${file} is an island with ${name} markup but does not link its stylesheet`);
+            }
+          }
+        }
+      } else {
+        if (island) failures.push(`${path}: the ${variant} file ${file} carries the island script but is not an island path`);
+        if (routeChunkModulesFor(path).length > 0 && hrefs.length === 0) {
+          failures.push(`${path}: the ${variant} file ${file} carries no modulepreload for its route chunk`);
+        }
       }
       for (const href of hrefs) {
-        const target = join(outDir, href.replace(/^\/(?:[^/]*\/)?assets\//, "assets/"));
-        if (!/\/assets\/[^/]+\.js$/.test(href) || !existsSync(target) || !statSync(target).isFile()) {
+        if (!exists(href)) {
           failures.push(`${path}: the ${variant} file ${file} preloads ${href}, which this build did not emit`);
         }
       }
@@ -705,7 +851,7 @@ export function verifyBuiltPages(
       else desktopFiles += 1;
     }
   }
-  return { failures, mobileFiles, desktopFiles, preloadLinks };
+  return { failures, mobileFiles, desktopFiles, preloadLinks, islandFiles };
 }
 
 async function resolveOutDir(): Promise<string> {
@@ -739,6 +885,8 @@ export interface ApplyResult {
   bodyBytes: number;
   /** SEO-5 PR-2 (D4): modulepreload links resolved per path (counted once per path). */
   preloadLinks: number;
+  /** SPEED-ISLANDS-1: paths served as islands. */
+  islandPaths: number;
 }
 
 export interface ApplyOptions {
@@ -747,6 +895,26 @@ export interface ApplyOptions {
    * build with no real `assets/` passes false — the real build never does.
    */
   preloads?: boolean;
+  /**
+   * SPEED-ISLANDS-1 — the path families served as islands. Default: none, so every synthetic build in the
+   * guards behaves exactly as before; the real build (`main`) passes ISLAND_PATH_PREFIXES. LT_ISLANDS=0
+   * turns them off whatever is passed. Islands need the real `assets/` (the island chunk), so
+   * `preloads: false` never gets them.
+   */
+  islandPrefixes?: readonly string[];
+}
+
+/** The paths of `expected` served as islands under these options and this environment. */
+export function islandPathsFor(
+  expected: readonly string[],
+  options: ApplyOptions = {},
+  env: Record<string, string | undefined> = process.env,
+): Set<string> {
+  if (options.preloads === false) return new Set();
+  const prefixes = options.islandPrefixes ?? [];
+  // Only the real build (main, below) asks for islands; LT_ISLANDS=0 turns them off there too.
+  if (!islandsEnabled(env)) return new Set();
+  return new Set(expected.filter((path) => isIslandPath(path, prefixes)));
 }
 
 /**
@@ -795,7 +963,7 @@ export function applyArtifact(
         `pages keep an EMPTY BODY. This is the pre-capture state; the CI capture job has not ` +
         `committed a prerendered set yet. ${SPA_SHELL} was still written.`,
     );
-    return { applied: 0, filesWritten: 0, desktopFilesWritten: 0, bodyBytes: 0, preloadLinks: 0 };
+    return { applied: 0, filesWritten: 0, desktopFilesWritten: 0, bodyBytes: 0, preloadLinks: 0, islandPaths: 0 };
   }
 
   const present = fragmentsPresent(prerenderedDir);
@@ -874,8 +1042,21 @@ export function applyArtifact(
   // guards with no real assets, exactly like the preloads above).
   const entryCss = options.preloads !== false ? entryStylesheetOf(cleanShell) : null;
   const entryCssText = entryCss ? readFileSync(join(assetsDir, entryCss), "utf8") : "";
+  // SPEED-ISLANDS-1: island paths swap the entry script and hand their route preloads to the island.
+  const islands = islandPathsFor(expected, options);
+  const islandAssets = islands.size > 0 ? readdirSync(assetsDir) : [];
+  const islandFile = islands.size > 0 ? resolveRouteChunk(ISLAND_ENTRY_NAME, islandAssets) : "";
+  const islandEntryCode = islands.size > 0 ? readFileSync(join(assetsDir, entryScriptOf(cleanShell).entry), "utf8") : "";
   const finish = (path: string, html: string, hrefs: readonly string[]): string => {
-    const done = withPreloads(withRouteStyles(html, routeStyles.get(path) ?? []), hrefs);
+    const styled = withRouteStyles(html, routeStyles.get(path) ?? []);
+    const done = islands.has(path)
+      ? withIsland(
+          withIslandStylesheets(styled, entryScriptOf(cleanShell).base, islandStylesheetsFor(path, styled, islandEntryCode, islandAssets)),
+          cleanShell,
+          islandFile,
+          hrefs,
+        )
+      : withPreloads(styled, hrefs);
     return entryCss ? withCriticalEntryCss(done, entryCss, entryCssText, criticalCss) : done;
   };
 
@@ -920,12 +1101,19 @@ export function applyArtifact(
     desktopFilesWritten,
     bodyBytes,
     preloadLinks: [...preloads.values()].reduce((total, list) => total + list.length, 0),
+    islandPaths: islands.size,
   };
 }
 
 async function main(): Promise<void> {
   const outDir = await resolveOutDir();
-  const { applied, filesWritten, desktopFilesWritten, bodyBytes, preloadLinks } = applyArtifact(outDir);
+  const islandOptions: ApplyOptions = { islandPrefixes: ISLAND_PATH_PREFIXES };
+  const { applied, filesWritten, desktopFilesWritten, bodyBytes, preloadLinks, islandPaths } = applyArtifact(
+    outDir,
+    PRERENDERED_DIR,
+    applicablePaths(),
+    islandOptions,
+  );
 
   // ★ Names its subject on every run, green included: a run that silently applied
   // nothing must be visible in the build log rather than reading as success.
@@ -933,17 +1121,18 @@ async function main(): Promise<void> {
   console.log(
     `STATIC_BODIES_APPLY: outDir=${outDir} advertised=${sitemapPaths().length} ` +
       `applied=${applied} (root included) files=${filesWritten} desktop_files=${desktopFilesWritten} ` +
-      `shell=${SPA_SHELL} body_bytes_total=${bodyBytes} preload_links_per_page_total=${preloadLinks}`,
+      `shell=${SPA_SHELL} body_bytes_total=${bodyBytes} preload_links_per_page_total=${preloadLinks} ` +
+      `island_paths=${islandPaths}${islandsEnabled(process.env) ? "" : " (LT_ISLANDS=0)"}`,
   );
 
   // ★ PINS (a) + (d) AGAINST THIS REAL BUILD — re-read from disk, independent of the writer.
   // Skipped only in the pre-capture state, where nothing was applied to verify.
   if (applied > 0) {
-    const verified = verifyBuiltPages(outDir, applicablePaths());
+    const verified = verifyBuiltPages(outDir, applicablePaths(), islandPathsFor(applicablePaths(), islandOptions));
     // eslint-disable-next-line no-console
     console.log(
       `PRERENDER_DEVICE_VERIFY: pages=${applicablePaths().length} mobile_files=${verified.mobileFiles} ` +
-        `desktop_files=${verified.desktopFiles} modulepreload_links=${verified.preloadLinks} ` +
+        `desktop_files=${verified.desktopFiles} modulepreload_links=${verified.preloadLinks} island_files=${verified.islandFiles} ` +
         `failures=${verified.failures.length}`,
     );
     if (verified.failures.length > 0) {
