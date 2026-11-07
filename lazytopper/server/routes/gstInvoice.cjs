@@ -11,6 +11,10 @@
  *   POST /api/admin/gst/issue { orderId }    ADMIN          "Issue now": the SAME issuing transaction (idempotent);
  *                                                          GST-INVOICE-2a: a NEW invoice re-sends the receipt with its
  *                                                          link (queued to the IST window / one-a-day rule if needed)
+ *   GET  /api/gst/invoice-details?t=…        SIGNED, EXPIRING  GST-INVOICE-BACKDATE-1: the past sale the form is for
+ *   POST /api/gst/invoice-details { t, stateCode, pin, business? }   the buyer's state + PIN -> the invoice
+ *   GET  /api/admin/gst/past-sales           ADMIN          the past sales (16 Sep - cut-off) and their status
+ *   POST /api/admin/gst/past-sales/send-forms ADMIN         queue + send the state forms (batched, capped)
  *
  * ★★ OWNERSHIP (review D1): an invoice - and the state / GSTIN typed for it - belongs to the account that PAID
  *   (services/gstInvoice.cjs invoiceOwnedBy), never to the child of a parent-paid order or the recipient of someone
@@ -46,6 +50,10 @@ const GST_INVOICE_PDF_PATH = '/api/gst/invoice';
 const GST_ADMIN_STATUS_PATH = '/api/admin/gst/status';
 const GST_ADMIN_EXPORT_PATH = '/api/admin/gst/export';
 const GST_ADMIN_ISSUE_PATH = '/api/admin/gst/issue';
+const GST_INVOICE_DETAILS_PATH = '/api/gst/invoice-details';
+const GST_ADMIN_PAST_SALES_PATH = '/api/admin/gst/past-sales';
+const GST_ADMIN_PAST_SALES_SEND_PATH = '/api/admin/gst/past-sales/send-forms';
+const DETAILS_PER_MINUTE = 10;
 
 const NOT_FOUND_BODY = Object.freeze({ error: 'Not Found' });
 const ID_PATTERN = /^[A-Za-z0-9_]{1,64}$/;
@@ -96,7 +104,7 @@ function rememberedFrom(orders, uid) {
 }
 
 function createGstInvoiceRoutes(deps = {}) {
-  const { sendJson, sendJsonWithHeaders, verifiedCaller, adminFirestore, requireAdmin, invoicer, invoiceMailer, readJson, env = process.env, now = () => Date.now() } = deps;
+  const { sendJson, sendJsonWithHeaders, verifiedCaller, adminFirestore, requireAdmin, invoicer, invoiceMailer, backdate, readJson, env = process.env, now = () => Date.now() } = deps;
   const renderPdf = deps.renderPdf || ((inv) => require('../services/gstInvoicePdf.cjs').renderInvoicePdf(inv));
   const pdfHits = new Map();
 
@@ -360,7 +368,98 @@ function createGstInvoiceRoutes(deps = {}) {
     return sendJsonWithHeaders(res, result && result.error ? 500 : 200, { ok: !(result && result.error), result, ...(email ? { email } : {}) }, { 'Cache-Control': 'no-store' });
   }
 
-  return { handleCheckoutContext, handleMyInvoices, handleInvoicePdf, handleAdminStatus, handleAdminExport, handleAdminIssue };
+  /* ── GST-INVOICE-BACKDATE-1 ─────────────────────────────────────────────────── */
+
+  const detailsHits = new Map();
+  function overDetailsCap(key) {
+    const minute = Math.floor(now() / 60000);
+    const k = `${key}|${minute}`;
+    const n = (detailsHits.get(k) || 0) + 1;
+    detailsHits.set(k, n);
+    if (detailsHits.size > 5000) {
+      for (const key2 of detailsHits.keys()) if (!key2.endsWith(`|${minute}`)) detailsHits.delete(key2);
+    }
+    return n > DETAILS_PER_MINUTE;
+  }
+  /** The answer for a token error: 410 for an expired link (the page says so), 404 for anything else. */
+  function tokenError(res, error) {
+    if (error === 'expired') return sendJsonWithHeaders(res, 410, { ok: false, error: 'expired' }, { 'Cache-Control': 'no-store' });
+    return sendJsonWithHeaders(res, 404, { ok: false, error: 'invalid' }, { 'Cache-Control': 'no-store' });
+  }
+
+  /* GET /api/gst/invoice-details?t= (signed out) */
+  async function handleInvoiceDetailsGet(req, res, reqUrlRaw) {
+    if (!invoicingOn() || !backdate) return sendJson(res, 404, NOT_FOUND_BODY);
+    const token = new URL(reqUrlRaw || req.url || '', 'http://local').searchParams.get('t') || '';
+    if (overDetailsCap(`g:${token.slice(-16)}`)) return sendJson(res, 429, { ok: false, error: 'Too many requests' });
+    try {
+      const r = await backdate.getDetails(token);
+      if (r.error) return tokenError(res, r.error);
+      return sendJsonWithHeaders(res, 200, { ok: true, ...r }, { 'Cache-Control': 'no-store' });
+    } catch (e) {
+      console.error('[gst/invoice-details] read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read the purchase.' });
+    }
+  }
+
+  /* POST /api/gst/invoice-details (signed out) */
+  async function handleInvoiceDetailsPost(req, res) {
+    if (!invoicingOn() || !backdate) return sendJson(res, 404, NOT_FOUND_BODY);
+    let body;
+    try {
+      body = typeof readJson === 'function' ? await readJson(req) : null;
+    } catch {
+      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
+    }
+    const token = body && typeof body.t === 'string' ? body.t : '';
+    if (overDetailsCap(`p:${token.slice(-16)}`)) return sendJson(res, 429, { ok: false, error: 'Too many requests' });
+    try {
+      const r = await backdate.submitDetails(token, body && typeof body === 'object' ? { stateCode: body.stateCode, pin: body.pin, business: body.business } : {});
+      if (r.error === 'bad_input') return sendJsonWithHeaders(res, 400, { ok: false, error: 'bad_input', field: r.field }, { 'Cache-Control': 'no-store' });
+      if (r.error) return tokenError(res, r.error);
+      return sendJsonWithHeaders(res, 200, r, { 'Cache-Control': 'no-store' });
+    } catch (e) {
+      console.error('[gst/invoice-details] submit failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not save your details.' });
+    }
+  }
+
+  /* GET /api/admin/gst/past-sales */
+  async function handleAdminPastSales(req, res) {
+    if (!(await admit(req, res))) return undefined;
+    if (!backdate) return sendJson(res, 503, { ok: false, error: 'Unavailable' });
+    try {
+      return sendJsonWithHeaders(res, 200, { ok: true, ...(await backdate.listPastSales()) }, { 'Cache-Control': 'no-store' });
+    } catch (e) {
+      console.error('[admin/gst/past-sales] read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read past sales.' });
+    }
+  }
+
+  /* POST /api/admin/gst/past-sales/send-forms */
+  async function handleAdminSendForms(req, res) {
+    if (!(await admit(req, res))) return undefined;
+    if (!backdate) return sendJson(res, 503, { ok: false, error: 'Unavailable' });
+    try {
+      return sendJsonWithHeaders(res, 200, { ok: true, result: await backdate.sendForms() }, { 'Cache-Control': 'no-store' });
+    } catch (e) {
+      console.error('[admin/gst/past-sales] send failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not send the forms.' });
+    }
+  }
+
+  return {
+    handleCheckoutContext,
+    handleMyInvoices,
+    handleInvoicePdf,
+    handleAdminStatus,
+    handleAdminExport,
+    handleAdminIssue,
+    handleInvoiceDetailsGet,
+    handleInvoiceDetailsPost,
+    handleAdminPastSales,
+    handleAdminSendForms,
+  };
 }
 
 module.exports = {
@@ -373,4 +472,7 @@ module.exports = {
   GST_ADMIN_STATUS_PATH,
   GST_ADMIN_EXPORT_PATH,
   GST_ADMIN_ISSUE_PATH,
+  GST_INVOICE_DETAILS_PATH,
+  GST_ADMIN_PAST_SALES_PATH,
+  GST_ADMIN_PAST_SALES_SEND_PATH,
 };

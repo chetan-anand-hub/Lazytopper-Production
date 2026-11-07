@@ -491,7 +491,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "legal name and billing address), `gstInvoice` (the issued tax invoice: number, date, seller and buyer details " +
       "as printed - buyer name, the email / phone Razorpay recorded on the payment, state, PIN, GSTIN - and the tax " +
       "amounts) or `gstInvoiceHeld` (why no invoice was issued), and GST-INVOICE-2a `gstInvoiceEmail` (the invoice " +
-      "email's status only: queued / sent; the address is the one on the invoice). The invoice is a statutory record (CGST Act s.36: " +
+      "email's status only: queued / sent; the address is the one on the invoice), and GST-INVOICE-BACKDATE-1 `gstBackdate` " +
+      "(a sale of 16 Sep - 6 Nov 2026 whose invoice is issued later: the state-form email's status and times, and the payer's " +
+      "email / phone from the Razorpay payment record or the paying account's email, kept to send the form, its one reminder " +
+      "and the invoice; an issued-later invoice carries `issuedLater` and its supply date). The invoice is a statutory record (CGST Act s.36: " +
       "kept 72 months), so like the rest of the order it is KEPT on erasure; only the `uid` field is anonymised.",
   },
 
@@ -1136,7 +1139,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
  */
 // GST-INVOICE-1: `gstInvoiceCounters/{fy}` holds ONE number per financial year (the last invoice number issued) - no
 // student data. Written only by server/services/gstInvoice.cjs inside the issuing transaction.
-export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters"]);
+// GST-INVOICE-BACKDATE-1: `gstInvoiceEmailDaily/{IST day}` holds ONE count (the later invoice emails sent that day:
+// state forms, reminders, invoice emails) - the durable daily cap. Written only by server/services/paymentReceiptEmail.cjs.
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters", "gstInvoiceEmailDaily"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {

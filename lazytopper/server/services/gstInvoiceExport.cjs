@@ -2,7 +2,7 @@
 /**
  * gstInvoiceExport.cjs — GST-INVOICE-1 §6. The GSTR-1 working files for the CA, PURE: invoice records in, CSV text out.
  *
- *   invoices  every invoice, one row each (the invoice-wise list)
+ *   invoices  every invoice, one row each (the invoice-wise list), with its supply date and an "Issued later" flag
  *   b2cs      B2C (unregistered buyer) summary by place of supply and rate        (GSTR-1 Table 7)
  *   b2b       B2B rows, one per invoice, with the buyer's GSTIN                     (GSTR-1 Table 4A)
  *   hsn       SAC-wise summary                                                      (GSTR-1 Table 12)
@@ -58,9 +58,13 @@ function invoicesCsv(list) {
     money(inv.cgstPaise),
     money(inv.sgstPaise),
     money(inv.totalPaise),
+    // GST-INVOICE-BACKDATE-1: an invoice issued later for an earlier supply (16 Sep - 6 Nov 2026) carries its supply
+    // date and the flag, so the CA can report it for the right period.
+    inv.issuedLater ? inv.supplyDateIst || '' : inv.dateIst,
+    inv.issuedLater ? 'Yes' : 'No',
   ]);
   return toCsv(
-    ['Invoice number', 'Invoice date', 'Order ID', 'Razorpay payment ID', 'Type', 'Buyer name', 'Buyer GSTIN', 'Place of supply code', 'Place of supply', 'Supply type', 'SAC', 'Taxable value', 'Rate %', 'IGST', 'CGST', 'SGST', 'Invoice value'],
+    ['Invoice number', 'Invoice date', 'Order ID', 'Razorpay payment ID', 'Type', 'Buyer name', 'Buyer GSTIN', 'Place of supply code', 'Place of supply', 'Supply type', 'SAC', 'Taxable value', 'Rate %', 'IGST', 'CGST', 'SGST', 'Invoice value', 'Supply date', 'Issued later'],
     rows,
   );
 }

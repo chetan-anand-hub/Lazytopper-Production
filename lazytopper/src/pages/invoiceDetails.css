@@ -1,0 +1,160 @@
+/* GST-INVOICE-BACKDATE-1 - /invoice-details. Deep navy page, soft white card, green action: the checkout's "Your state"
+   grammar (services/gstBuyer.css). One layout from 360 px (16 px gutter, full-width card) to 1280 px (480 px card). */
+.lt-invd {
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  /* The bottom padding clears the phone's fixed bottom nav (and the home-indicator inset), so "Get my invoice" is never under it. */
+  padding: 32px 16px calc(112px + env(safe-area-inset-bottom, 0px));
+  background: #0b1b33;
+  color: #0b1b33;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.lt-invd__card {
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  padding: 24px 20px;
+  border-radius: 16px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lt-invd__title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.3;
+}
+.lt-invd__lede,
+.lt-invd__note,
+.lt-invd__ok {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #1e293b;
+}
+.lt-invd__ok {
+  padding: 12px;
+  border-radius: 10px;
+  background: #e8f7ee;
+  color: #14532d;
+}
+.lt-invd__muted {
+  margin: 0;
+  font-size: 14px;
+  color: #475569;
+}
+.lt-invd__help {
+  margin-top: 8px;
+}
+.lt-invd a {
+  color: #0f5f37;
+}
+.lt-invd__form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lt-invd__summary {
+  margin: 4px 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: #eef2f7;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+.lt-invd__summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lt-invd__summary dt {
+  color: #475569;
+}
+.lt-invd__summary dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.lt-invd__label {
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.lt-invd__input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #94a3b8;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0b1b33;
+  font-size: 16px;
+  font-family: inherit;
+}
+.lt-invd__input:focus-visible,
+.lt-invd__link:focus-visible,
+.lt-invd__go:focus-visible {
+  outline: 3px solid #22a35a;
+  outline-offset: 2px;
+}
+.lt-invd__link {
+  align-self: flex-start;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: #0f5f37;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.lt-invd__biz {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lt-invd__error {
+  min-height: 1.2em;
+  margin: 0;
+  font-size: 14px;
+  color: #b91c1c;
+}
+.lt-invd__go {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.lt-invd a.lt-invd__go {
+  color: #ffffff;
+}
+.lt-invd__go:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+@media (min-width: 768px) {
+  .lt-invd {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+  .lt-invd__card {
+    padding: 32px;
+  }
+}

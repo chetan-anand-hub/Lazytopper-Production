@@ -98,6 +98,7 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/check-your-answer": [["/check-your-answer", null]],
   "/for-parents": [["/for-parents", null]], // PARENTS-1 — public, like the guide: not an activity page
   "/contact": [["/contact", null]], // WA-CONTACT-1 — public contact page: not an activity page
+  "/invoice-details": [["/invoice-details?t=abc.def", null]], // GST-INVOICE-BACKDATE-1 — signed-out state form: not an activity page
   "/ncert-class-10": [["/ncert-class-10", null]], // NCERT-BOOKS-1 (G) — public books page: not an activity page
   // SOLUTIONS-1 (G) — public solutions pages: not activity pages (their attempts travel as sol_* events).
   "/ncert-solutions/:chapter": [["/ncert-solutions/triangles", null]],
