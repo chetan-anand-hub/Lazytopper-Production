@@ -5,7 +5,8 @@
  */
 import type { GstBuyer } from "./gstBuyer";
 
-function flagOn(): boolean {
+/** The client switch, read synchronously, so a call site with the flag off adds not even an await (timing is unchanged too). */
+export function gstStateFieldOn(): boolean {
   try {
     const raw: unknown = import.meta.env.VITE_GST_STATE_FIELD;
     return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
@@ -18,7 +19,7 @@ function flagOn(): boolean {
 export async function gstBuyerOrderFields(
   authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,
 ): Promise<{ gstBuyer?: GstBuyer }> {
-  if (!flagOn()) return {};
+  if (!gstStateFieldOn()) return {};
   const headers = typeof authHeaders === "function" ? await authHeaders().catch(() => null) : authHeaders;
   const m = await import("./gstBuyer");
   return m.gstBuyerBody(await m.gstBuyerForOrder(headers));

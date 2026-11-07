@@ -17,7 +17,7 @@ import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type 
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
 import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
-import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
+import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled } from "./checkoutWhoFlag";
 
@@ -199,7 +199,7 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
     headers = await authHeaders().catch(() => ({}));
   }
   // GST-INVOICE-1: the PAYER's state (a signed-in payer's remembered state is used without asking).
-  const gst = await gstBuyerOrderFields(signedIn && headers.Authorization ? headers : null);
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(signedIn && headers.Authorization ? headers : null) : {};
   const json = await postJson(
     GUEST_ORDER_ENDPOINT,
     {

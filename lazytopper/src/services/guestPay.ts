@@ -17,7 +17,7 @@ import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type 
 import { ALSO_SIGNIN_EVENT, type AlsoSignIn } from "./checkoutWhoFlag";
 import { maskIndianMobile, normaliseIndianMobile } from "../lib/maskContact";
 import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
-import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
+import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -143,7 +143,7 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
 
 /** Exported for tests; the default `buyAsGuest` path. */
 export async function createGuestOrder(item: GuestItem, phone: string): Promise<GuestOrder> {
-  const gst = await gstBuyerOrderFields(null);
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
   const json = await postJson(GUEST_ORDER_ENDPOINT, {
     sku: item.sku,
     ...(item.kind === "pack" && item.target ? { target: item.target } : {}),

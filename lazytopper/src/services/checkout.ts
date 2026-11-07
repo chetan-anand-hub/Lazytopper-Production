@@ -16,7 +16,7 @@
 
 import { confirmServerPrice, serverPriceFields, type ServerGst, razorpayDescription } from "./priceConfirm";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
-import { gstBuyerOrderFields, isGstBuyerCancelled } from "./gstBuyerOrder";
+import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
 export type PassType = "month" | "till_boards";
@@ -259,7 +259,7 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
 
 /** Z2 — the server prices and creates the order. Only the pass TYPE is sent. */
 export async function createPayOrder(passType: PassType): Promise<PayOrder> {
-  const gst = await gstBuyerOrderFields(authHeaders);
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders) : {};
   const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
@@ -301,7 +301,7 @@ function readPackGrant(json: Record<string, unknown>): PackGrant | null {
 
 /** The server prices and creates a pack order. Only the sku and (where the sku has one) the target are sent. */
 export async function createPackOrder(sku: string, packTarget?: string): Promise<PayOrder> {
-  const gst = await gstBuyerOrderFields(authHeaders);
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders) : {};
   const json = await postJson(PAY_ORDER_ENDPOINT, {
     passType: sku,
     ...(packTarget !== undefined ? { packTarget } : {}),
