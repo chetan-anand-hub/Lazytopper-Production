@@ -79,6 +79,8 @@ export interface PaintRecord {
 export const PAINT_ATTR = "data-lt-paint";
 /** On `<html>` once the script has chosen and patched the static state. Until then it is hidden. */
 export const PAINT_READY_CLASS = "lt-paint-ready";
+/** On a static button / link the student tapped before React took over: visibly pressed, nothing else. */
+export const PAINT_PRESSED_CLASS = "lt-paint-pressed";
 
 /** `AuthContext.tsx` LOCAL_AUTH_KEY (module-private there; `loginPaint.guard.test.ts` pins the literal). */
 export const LOCAL_AUTH_KEY = "lazytopper.auth.local.v1";
@@ -203,6 +205,7 @@ export interface LoginPaintConfig {
   backLanding: string;
   attr: string;
   readyClass: string;
+  pressedClass: string;
 }
 
 export interface LoginPaintDecision {
@@ -363,6 +366,7 @@ export function loginPaintConfig(variant: PaintVariant, clock: { from: number; u
     backLanding: BACK_LANDING_TEXT,
     attr: PAINT_ATTR,
     readyClass: PAINT_READY_CLASS,
+    pressedClass: PAINT_PRESSED_CLASS,
   };
 }
 
@@ -398,17 +402,29 @@ export function loginPaintScript(config: LoginPaintConfig): string {
     `var decision=decide(gather(config),config,helpers);` +
     `var shown=apply(root,decision,config);` +
     `if(shown==="off")return;` +
-    `document.addEventListener("click",function(event){var t=event.target;` +
-    `if(t&&t.closest&&t.closest("["+config.attr+"]")){event.preventDefault();event.stopPropagation();}},true);` +
+    // Taps on the static nodes do nothing (nothing queued) but show it: the tapped control gets the
+    // pressed class (opacity + progress cursor only — same box, no shift) and aria-busy. React's nodes
+    // never carry the attribute; once none is left the listener and the observer remove themselves.
+    `var guard=function(event){var t=event.target;var hit=t&&t.closest?t.closest("["+config.attr+"]"):null;` +
+    `if(!hit)return;event.preventDefault();event.stopPropagation();` +
+    `var control=t.closest("button,a");if(control&&hit.contains(control)){control.classList.add(config.pressedClass);control.setAttribute("aria-busy","true");}};` +
+    `document.addEventListener("click",guard,true);` +
+    `var gone=function(){return !root.querySelector("["+config.attr+"]");};` +
+    `if(typeof MutationObserver==="function"){var watch=new MutationObserver(function(){if(gone()){document.removeEventListener("click",guard,true);watch.disconnect();}});` +
+    `watch.observe(root,{childList:true});}` +
     `document.documentElement.classList.add(config.readyClass);` +
     `}catch(error){if(root)while(root.firstChild)root.removeChild(root.firstChild);}})();`;
   if (/<\/script/i.test(body)) throw new Error("loginPaint: the shipped script contains </script");
   return `<script data-lt-paint-script>${body}</script>`;
 }
 
-/** Hides the static nodes until the script has chosen and patched them. */
+/**
+ * Hides the static nodes until the script has chosen and patched them, and styles a tapped static
+ * control as pressed (opacity and cursor only: paint, never layout — no box changes, so no shift).
+ */
 export const LOGIN_PAINT_CSS =
-  `<style data-lt-paint-css>html:not(.${PAINT_READY_CLASS}) #root>[${PAINT_ATTR}]{display:none!important}</style>`;
+  `<style data-lt-paint-css>html:not(.${PAINT_READY_CLASS}) #root>[${PAINT_ATTR}]{display:none!important}` +
+  `#root [${PAINT_ATTR}] .${PAINT_PRESSED_CLASS}{opacity:.6!important;cursor:progress!important}</style>`;
 
 const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
 

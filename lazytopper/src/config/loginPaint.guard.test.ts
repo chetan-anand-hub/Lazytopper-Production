@@ -46,7 +46,7 @@ import { sitemapPaths } from "./sitemapUrls";
  * Clock-free: every time is an argument.
  */
 
-const NOW = 1_794_500_000_000; // 2026-11-12 (inside the committed window as captured)
+const NOW = 1_794_500_000_000; // a fixed instant; every clock read in this suite is pinned to it
 const CLOCK = { from: NOW - 1000, until: NOW + 1000 };
 const ANDROID =
   "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36";
@@ -292,6 +292,53 @@ describe("buildLoginPaintPage + the shipped script (jsdom)", () => {
       expect(event.defaultPrevented).toBe(true);
       expect(reached).toBe(false);
     });
+  });
+
+  it("a tapped static control is shown pressed (class + aria-busy, paint-only CSS), never navigates", () => {
+    withWidth(true, () => {
+      const root = runPage(page());
+      const link = root.querySelector("a.lt-offer-strip-link") as HTMLAnchorElement;
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+      link.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(link.classList.contains(paint.PAINT_PRESSED_CLASS)).toBe(true);
+      expect(link.getAttribute("aria-busy")).toBe("true");
+      // Untapped controls are untouched.
+      expect(root.querySelectorAll(`.${paint.PAINT_PRESSED_CLASS}`)).toHaveLength(1);
+    });
+    // The pressed rule changes paint only: no property that can move a box.
+    const rule = paint.LOGIN_PAINT_CSS.match(new RegExp(`\\.${paint.PAINT_PRESSED_CLASS}\\{([^}]*)\\}`))?.[1] ?? "";
+    expect(rule.split(";").map((d) => d.split(":")[0].trim()).filter(Boolean).sort()).toEqual(["cursor", "opacity"]);
+  });
+
+  it("once React has replaced the static nodes, the tap guard removes itself", async () => {
+    const removed: unknown[] = [];
+    const original = document.removeEventListener.bind(document);
+    document.removeEventListener = ((type: string, fn: EventListener, opts?: boolean) => {
+      removed.push([type, opts]);
+      return original(type, fn, opts);
+    }) as typeof document.removeEventListener;
+    try {
+      let root: HTMLElement | null = null;
+      withWidth(true, () => {
+        root = runPage(page());
+      });
+      // Still static: nothing removed.
+      await new Promise((r) => setTimeout(r, 0));
+      expect(removed).toEqual([]);
+      // React's createRoot clears #root and renders its own (unmarked) nodes.
+      const r = root as unknown as HTMLElement;
+      while (r.firstChild) r.removeChild(r.firstChild);
+      const reactButton = document.createElement("button");
+      r.appendChild(reactButton);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(removed).toEqual([["click", true]]);
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+      reactButton.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    } finally {
+      document.removeEventListener = original;
+    }
   });
 
   it("door + ?reason=start-trial&redirect: the two details patched", () => {
