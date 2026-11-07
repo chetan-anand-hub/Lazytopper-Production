@@ -1,3 +1,9 @@
+## 2026-11-07 (daily, second) - #1625 - #1626 - MERGED
+
+- DONE. `#1625` (`97fbcf5`) GST-INVOICE-BACKDATE-1: invoices for past sales (16 Sep to 6 Nov) through the emailed 1-tap state + PIN form. GST invoicing (checkout, `#1619` / `#1623`, and past sales) is now LIVE. NEXT: `[FU-RESEND-PRO]`, `[FU-GST-BUY-LINK-STATE-HIDDEN]`, re-click "Send state forms" on 8 Nov.
+- DONE. `#1626` (`6f578d2`) PREEXIST-FIX-1: the pre-existing live issues from the regression baseline, items (a) to (e). NEXT: the follow-ups `[FU-CBQ-H1-RESERVE]`, `[FU-BROWSE-SLOT-COLLAPSE]`, `[FU-PENDINGBELL-AUTH-LOADING]`.
+- NEXT (not built): speed by traffic (login LCP, CLS on practice-hub / home / browse, for-parents INP, islands phase 2).
+
 ## 2026-11-07 (daily) - #1619 - #1623 - MERGED
 
 - DONE. `#1620` (`97270df`), `#1622` (`2a9d33b`): vendor-react / vendor-firebase chunks, entry budget 155,116 B gz; react-router production build. NEXT: login LCP, CLS on practice-hub / home / browse, for-parents INP.

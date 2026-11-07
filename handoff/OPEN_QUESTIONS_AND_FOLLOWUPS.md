@@ -23,6 +23,36 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-07 (daily, second) - #1625 - #1626 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `6f578d2b`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed. Every new ID below has its own heading and body (standing rule 1).*
+
+**Closed by this window (kept, marked closed):** `[FU-GST-PAST-SALES-INVOICES]` CLOSED by `#1625`. `[FU-REGRESSION-BASELINE-LIVE-ISSUES]` CLOSED by `#1626` for items (a) to (e). `[FU-GST-INVOICE-SECRET-ROTATE]` done: the owner rotated the secret at 22:52 IST on 7 Nov.
+
+### [FU-GST-BUY-LINK-STATE-HIDDEN]
+MONEY. A ?buy= link for a signed-in buyer with a remembered state opens Razorpay directly, so the "State: ... - Change" line is only visible after closing Razorpay. Show the state before Razorpay opens. **[coordinator; gh]**
+
+### [FU-MONTHPASS-BOARDPASS-UPGRADE]
+PRODUCT, owner question. /pricing?buy=board_pass does nothing for a month-pass (Premium) account, by design (`status.tier === "premium"` returns early; pre-existing). Should month-pass holders get the upgrade sheet? **[coordinator; owner to rule]**
+
+### [FU-PENDINGBELL-AUTH-LOADING]
+BUGS. `PendingBell.tsx`: a tap while sign-in is still loading sends a signed-in student to /login, which bounces back. Gate the tap on auth being ready. **[coordinator; gh]**
+
+### [FU-DESKTOPSHELL-BELL-COMMENT]
+DOCS IN CODE. The `DesktopShell.tsx` comment (around lines 562-565) still calls the signed-out bell "inert". The file is forbidden; it needs the owner's OK to edit. **[coordinator; gh]**
+
+### [FU-PACKS-MYPACKS-SIGNEDOUT]
+BUGS. Signed-out /packs#my-packs has no target (pre-existing). **[coordinator]**
+
+### [FU-CBQ-H1-RESERVE]
+SPEED / POLISH. `cbqSeo.css`: the 4-line H1 reserve leaves about 29 px of blank space under short CBQ chapter titles on phones. **[coordinator; gh]**
+
+### [FU-BROWSE-SLOT-COLLAPSE]
+SPEED / POLISH. /browse: a signed-in phone user with no stored hint sees the reserved slot collapse once. **[coordinator; gh]**
+
+### [FU-RESEND-PRO]
+OPS. The Resend free plan (100 a day, 3,000 a month) runs out about 14 Nov (7 Nov: 115 of 100 for the day; 1,505 of 3,000 for the month). The owner is to buy Pro; then raise `GST_INVOICE_EMAIL_DAILY_CAP` to 30. The invoice-email cap is separate from the nudge cap (owner F1, open). **[owner; coordinator]**
+
 ## 2026-11-07 (daily) - #1619 - #1623 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `46905d05`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed. Every new ID below has its own heading and body (standing rule 1).*
@@ -41,9 +71,11 @@ SPEED. Extend islands to ncert-class-10, highly-probable and cbq-class-10, after
 SPEED, known and accepted behaviours of `#1621` to revisit: (1) on desktop, "Log in" appears only after the idle upgrade (ruling 2); (2) Byte's notes pop-up forces the full app at 8 s or 25 % scroll (ruling 1); (3) the URL hash is removed after the reader scrolls away. Notes LCP is +0.1-0.2 s because KaTeX CSS blocks (accepted). **[coordinator; gh]**
 
 ### [FU-REGRESSION-BASELINE-LIVE-ISSUES]
+**CLOSED 7 Nov (second daily) by `#1626` for items (a) to (e).** Original entry follows.
 SPEED / BUGS. Pre-existing live issues (not caused by the 7 Nov PRs) found by the islands regression baseline: (a) desktop CLS of about 0.28 on `/pricing#packs-type` deep links; (b) `/pricing#my-packs` has no target (it lives at `/packs#my-packs`); (c) `/packs?buy=` flips between checkout and plain /packs depending on timing; (d) the desktop notifications bell does nothing when signed out; (e) CLS of about 0.19-0.25 on some CBQ chapters, `/notes/carbon-and-its-compounds` and `/browse`. Some touch forbidden files (ask first). **[coordinator]**
 
 ### [FU-GST-PAST-SALES-INVOICES]
+**CLOSED 7 Nov (second daily) by `#1625`.** Original entry follows.
 MONEY. Owner ruling 7 Nov: past sales from 16 Sep to 6 Nov get invoices through an emailed one-tap state + PIN form (the CA confirmed in writing that invoices are required). Not built. **[owner]**
 
 ### [FU-GST-INVOICE-SECRET-ROTATE]

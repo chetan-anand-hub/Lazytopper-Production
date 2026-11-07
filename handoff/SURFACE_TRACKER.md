@@ -1,3 +1,12 @@
+> **2026-11-07 (daily, second) - #1625 - #1626 (CLAUDE.md section 10).** Scope: checkout and GST invoicing (now live), past-sales invoices, /pricing hash links, ?buy= links, /packs#invoices, the signed-out bell, CLS on CBQ / browse / chapter-test. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker, Worksheet, Chapter Test, Full Mock, Quick Practice | none | unchanged | the 6 Nov second-surface checks stay owed |
+| Checkout and GST invoices | flags switched ON 7 Nov about 21:00 to 22:00 IST (`GST_INVOICE_ENABLED=1`, `GST_INVOICE_EMAIL_DAILY_CAP=10`, `VITE_GST_STATE_FIELD=1`); two Rs 58 test purchases verified Karnataka and Maharashtra invoices | **LIVE** | `[FU-GST-BUY-LINK-STATE-HIDDEN]`, `[FU-RESEND-PRO]` |
+| Past-sales invoices (/invoice-details, admin Past sales) | admin "Past sales" list, signed 1-tap state + PIN form, gapless `LT/26-27` series, one reminder after 5 days (`#1625`) | **merged, live** | re-click "Send state forms" on 8 Nov (3 buyers); one real form submit end to end |
+| /pricing hash links, ?buy= links, /packs#invoices, signed-out bell, CLS on CBQ / browse / chapter-test | hash CLS 0.278 -> 0.003, #my-packs redirect, sheet preload, bell to /login, 360 px CLS fixes, invoices scroll (`#1626`) | **merged, live** | regression on trunk `6f578d2b`; `[FU-PENDINGBELL-AUTH-LOADING]`, `[FU-CBQ-H1-RESERVE]`, `[FU-BROWSE-SLOT-COLLAPSE]`, `[FU-PACKS-MYPACKS-SIGNEDOUT]` |
+
 > **2026-11-07 (daily) - #1619 - #1623 (CLAUDE.md section 10).** Scope: build output (chunks, router), checkout and invoicing (dark), signed-out notes / NCERT / Exemplar solution pages. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

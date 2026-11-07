@@ -1,3 +1,15 @@
+## 2026-11-07 (daily, second) - #1625 - #1626
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6f578d2b`** [git].
+
+- **Done [git/gh]:** 2 PRs merged (table in CURRENT_STATE): `#1625`, `#1626`. No grading change. GST invoicing is LIVE (flags ON, verified with two Rs 58 test purchases). Closed: `[FU-GST-PAST-SALES-INVOICES]` (`#1625`), `[FU-REGRESSION-BASELINE-LIVE-ISSUES]` items (a) to (e) (`#1626`), `[FU-GST-INVOICE-SECRET-ROTATE]` (rotated 22:52 IST by the owner).
+- **NEXT, in order:**
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the "7 Nov (daily, second)" section of OPEN_QUESTIONS_AND_FOLLOWUPS.
+  2. **Full signed-out regression and the signed-in checklist on trunk `6f578d2b`** (the 8 Nov session is running it).
+  3. **GST follow-ups:** `[FU-RESEND-PRO]` (owner buys Pro before about 14 Nov, then `GST_INVOICE_EMAIL_DAILY_CAP` to 30); re-click "Send state forms" on 8 Nov for the 3 buyers Razorpay could not check; `[FU-GST-BUY-LINK-STATE-HIDDEN]`; `[FU-MONTHPASS-BOARDPASS-UPGRADE]` (owner question); `[FU-PENDINGBELL-AUTH-LOADING]`; `[FU-DESKTOPSHELL-BELL-COMMENT]` (forbidden file, needs the owner's OK); `[FU-PACKS-MYPACKS-SIGNEDOUT]`; `[FU-CBQ-H1-RESERVE]`; `[FU-BROWSE-SLOT-COLLAPSE]`.
+  4. **Speed, by traffic:** /login mobile LCP 6.5 s first, then CLS on practice-hub / home / browse, then for-parents INP, then islands phase 2.
+  5. Carried from the 7 Nov block: GSC indexing for the Exemplar Science pages and /packs; the grader second-surface live checks of the 6 Nov block (`#1583`, `#1584`, `#1585`); the money check; ads "+ GST".
+
 ## 2026-11-07 (daily) - #1619 - #1623
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`46905d05`** [git].

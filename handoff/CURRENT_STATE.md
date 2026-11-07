@@ -1,3 +1,26 @@
+## [CURRENT - 2026-11-07 (daily, second) - #1625 - #1626: GST-INVOICE-BACKDATE-1, PREEXIST-FIX-1; GST invoicing switched ON live] `#1625` `#1626`
+
+*(Second daily handoff of 7 Nov, CLAUDE.md section 10, for the 2 PRs merged after `#1624`. Both merged on 7 Nov: `#1625` at 21:18 IST, `#1626` at 23:19 IST. Trunk at writing: **`6f578d2b`** (`#1626`, the last merge) [git ls-remote, re-derived before the branch was made; it did not move]. **No grading behaviour changed (CLAUDE.md section 4a): neither PR touches marks, mistake types, departure handling, the objective clamp or a prompt rule.** Facts marked **[gh]** come from each PR's data via the gh REST API; **[owner]** and **[coordinator]** as relayed in this lane's brief.)*
+
+Adds to the blocks below, which stay current for everything this block does not name. **GST invoicing is now LIVE (see below). The flags that the block below calls OFF are ON.**
+
+| PR | merge SHA | merged (IST) | what it changed |
+|---|---|---|---|
+| `#1625` GST-INVOICE-BACKDATE-1 | `97fbcf56` | 7 Nov 21:18 | Invoices for past sales (16 Sep to 6 Nov 2026). An admin "Past sales" list sits on the /admin/students GST card. Each past buyer is emailed a signed 1-tap state + PIN form at /invoice-details. On submit the invoice is issued in the same gapless `LT/26-27` series, with GST worked back from the amount paid; the supply date is the original payment date. One reminder after 5 days. It never defaults to Karnataka and never uses the IP address as the state. Review PASS-WITH-FOLLOW-UP; blocking finding B1 (the guest supply date) was fixed before merge. |
+| `#1626` PREEXIST-FIX-1 | `6f578d2b` | 7 Nov 23:19 | Six pre-existing live issues: (1) desktop CLS on /pricing hash deep links 0.278 -> 0.003 (TestimonialVideo CSS inlined into the PricingPage route CSS); (2) /pricing#my-packs now goes to /packs#my-packs; (3) ?buy= links: the checkout sheet code is preloaded at mount (the cause was a late chunk fetch, not an auth race; no order, price or Razorpay change); (4) signed-out desktop bell taps go to /login?redirect=<page>; (5) CLS at 360 px on CBQ chapters (H1 min-height + Fraunces fallback), /browse (slot reserved while auth loads) and /chapter-test (min-height); (6) /packs#invoices scrolls to the invoices once they load. Review PASS-WITH-FOLLOW-UP. |
+
+**GST switched ON live, 7 Nov about 21:00 to 22:00 IST [coordinator; owner].** Railway: `GST_INVOICE_ENABLED=1` and `GST_INVOICE_EMAIL_DAILY_CAP=10`. Vercel (production): `VITE_GST_STATE_FIELD=1`. `INVOICE_LINK_SECRET` was rotated by the owner at 22:52 IST (the value is not recorded anywhere). Verified end to end with the owner's two Rs 58 test purchases: `LT/26-27/000001` Karnataka (CGST 4.50 + SGST 4.50 on 49.00) and `LT/26-27/000002` Maharashtra (IGST 9.00); SAC 998431; the PDF downloads from /packs "Your GST invoices". **Rollback:** delete `GST_INVOICE_ENABLED` in Railway and Deploy; remove `VITE_GST_STATE_FIELD` in Vercel and redeploy.
+
+**Past-sales forms [coordinator].** At 22:50 IST on 7 Nov, "Send state forms" queued 19 (sent from 8am IST, cap 10 a day, so about 2 days). 1 buyer had no email. 3 "could not be checked with Razorpay" (re-click on 8 Nov).
+
+**Owner decisions [owner].** F2 CLOSED (22:55): no refund re-check on form submit, because the owner has never refunded anyone. F1 OPEN: the invoice-email cap is separate from the nudge cap. Resend is on the FREE plan (100 a day, 3,000 a month); 7 Nov used 115 of 100 for the day and 1,505 of 3,000 for the month, so the month runs out about 14 Nov. The owner is to buy Pro, then raise `GST_INVOICE_EMAIL_DAILY_CAP` to 30 (`[FU-RESEND-PRO]`).
+
+**Stage.** Launch-hardening, conversion and site speed. GST invoicing (checkout and past sales) is live; the pre-existing live issues from the regression baseline are fixed.
+
+**Grading surfaces (CLAUDE.md section 4a).** NONE moved in `#1625` or `#1626`. Answer Checker (single and multi-question upload), Worksheet, Chapter Test, Full Mock and Quick Practice: unchanged. The 6 Nov second-surface live checks stay owed.
+
+**Live checks owed.** The full signed-out regression and the signed-in checklist on trunk `6f578d2b` (8 Nov session, running); the 8 Nov re-click for the 3 buyers Razorpay could not check; the past-sales form end to end on a real buyer.
+
 ## [CURRENT - 2026-11-07 (daily) - #1619 - #1623: SPEED-CHUNKS-1, SPEED-RR-PROD-1, GST-INVOICE-1 (dark), GST-INVOICE-2a (dark), SPEED-ISLANDS-1] `#1619` `#1620` `#1621` `#1622` `#1623`
 
 *(One daily handoff, CLAUDE.md section 10, for every PR merged after the last docs PR `#1618` (`b1a2b313`, 7 Nov 01:03 IST). 5 merges, all on 7 Nov: 08:42 to 19:25 IST. No PR is open against trunk that this lane knows of. Trunk at writing: **`46905d05`** (`#1621`, the last merge) [git ls-remote, re-derived before the branch was made]. **No grading behaviour changed (CLAUDE.md section 4a): none of the five PRs touches marks, mistake types, departure handling, the objective clamp or a prompt rule.** Facts marked **[gh]** come from each PR's merge data via the gh REST API and the PR bodies as relayed by the coordinator; **[owner]** rulings as relayed by the coordinator in this lane's brief; trunk **[git]**.)*
