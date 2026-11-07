@@ -720,7 +720,7 @@ function createGstInvoicer(deps = {}) {
  * server's own keys, or null (no keys, an error, a timeout). Admin-only path; never on a payment response.
  */
 function createRazorpayPaymentFetcher({ env = process.env, fetchImpl = typeof fetch === 'function' ? fetch : null, timeoutMs = 15000 } = {}) {
-  return async function fetchPayment(paymentId) {
+  async function fetchPayment(paymentId) {
     const keyId = String((env && env.RAZORPAY_KEY_ID) || '').trim();
     const keySecret = String((env && env.RAZORPAY_KEY_SECRET) || '').trim();
     if (!keyId || !keySecret || typeof fetchImpl !== 'function' || !/^[A-Za-z0-9_]{1,64}$/.test(String(paymentId || ''))) return null;
@@ -733,7 +733,40 @@ function createRazorpayPaymentFetcher({ env = process.env, fetchImpl = typeof fe
     } catch {
       return null;
     }
+  }
+  /**
+   * GST-FU-1 F4 (additive: `fetchPayment` itself, and so "Issue now" / the receipt path, is unchanged). The same request,
+   * CLASSIFIED for the past-sales lookup: `{ payment }`, `{ permanent: reason }` (no usable payment id on the order, or
+   * Razorpay answers 400 / 404 - asking again cannot change it) or `{ transient: reason }` (no keys, a network error or
+   * timeout, a 5xx / 429 or any other status, an unreadable body - worth trying again). Never throws.
+   */
+  fetchPayment.lookup = async function lookupPayment(paymentId) {
+    if (!/^[A-Za-z0-9_]{1,64}$/.test(String(paymentId || ''))) return { permanent: 'no_payment_id' };
+    const keyId = String((env && env.RAZORPAY_KEY_ID) || '').trim();
+    const keySecret = String((env && env.RAZORPAY_KEY_SECRET) || '').trim();
+    if (!keyId || !keySecret || typeof fetchImpl !== 'function') return { transient: 'no_keys' };
+    const init = { method: 'GET', headers: { Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString('base64')}` } };
+    if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') init.signal = AbortSignal.timeout(timeoutMs);
+    let res;
+    try {
+      res = await fetchImpl(`https://api.razorpay.com/v1/payments/${paymentId}`, init);
+    } catch {
+      return { transient: 'network' };
+    }
+    if (!res) return { transient: 'network' };
+    if (!res.ok) {
+      const status = Number(res.status) || 0;
+      if (status === 400 || status === 404) return { permanent: 'not_found', status };
+      return { transient: 'http', status };
+    }
+    try {
+      const payment = await res.json();
+      return payment && typeof payment === 'object' ? { payment } : { transient: 'bad_body' };
+    } catch {
+      return { transient: 'bad_body' };
+    }
   };
+  return fetchPayment;
 }
 
 /**

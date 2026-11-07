@@ -42,6 +42,17 @@ const SUPPORT_WHATSAPP_URL = 'https://wa.me/919714568948';
 const SUPPORT_WHATSAPP_DISPLAY = '+91 97145 68948';
 const PAID_STATES = Object.freeze(['paid', 'paid_unclaimed', 'claimed']);
 const EMAIL_PATTERN = /^[^\s@<>()",;:]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/;
+/**
+ * GST-FU-1 F5 - Razorpay fills a PLACEHOLDER (`void@razorpay.com`) when a buyer gives no email at checkout. Any address at
+ * the razorpay.com domain (or a subdomain of it) is never the buyer's: an email to it is lost, so it counts as no address.
+ */
+function isPlaceholderAddress(to) {
+  if (typeof to !== 'string') return false;
+  const at = to.trim().lastIndexOf('@');
+  if (at < 0) return false;
+  const domain = to.trim().slice(at + 1).toLowerCase().replace(/\.$/, '');
+  return domain === 'razorpay.com' || domain.endsWith('.razorpay.com');
+}
 /** GST-INVOICE-2a - the ledgers of the one-email-a-day rule (read, and `lastClaimMs` written, by every student emailer). */
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
 const TRIAL_EMAILS_COLLECTION = 'trialEmails';
@@ -379,7 +390,7 @@ function createPaymentReceiptEmailer(deps = {}) {
   async function run({ orderId, paymentId, email }) {
     if (config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
     const to = typeof email === 'string' ? email.trim() : '';
-    if (!to || to.length > 254 || !EMAIL_PATTERN.test(to)) {
+    if (!to || to.length > 254 || !EMAIL_PATTERN.test(to) || isPlaceholderAddress(to)) {
       emit('payments.receipt_email.no_address');
       return { skipped: 'no_address' };
     }
@@ -604,7 +615,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       }
       const buyer = order.gstInvoice.buyer || {};
       const to = typeof buyer.email === 'string' ? buyer.email.trim() : '';
-      if (!to || to.length > 254 || !EMAIL_PATTERN.test(to)) {
+      if (!to || to.length > 254 || !EMAIL_PATTERN.test(to) || isPlaceholderAddress(to)) {
         tx.set(ref, { gstInvoiceEmail: { status: 'no_address', queuedAtMs, attempts, at: new Date(t) } }, { merge: true });
         return { skipped: 'no_address' };
       }
@@ -739,7 +750,7 @@ function createPaymentReceiptEmailer(deps = {}) {
     canSend: () => config.mode === 'send' && !!adminFirestore && typeof fetchImpl === 'function',
     inWindow: (t) => sendWindow.contains(t),
     slotTx,
-    isAddress: (to) => typeof to === 'string' && to.length <= 254 && EMAIL_PATTERN.test(to),
+    isAddress: (to) => typeof to === 'string' && to.length <= 254 && EMAIL_PATTERN.test(to) && !isPlaceholderAddress(to),
     appUrl: config.appUrl,
     send: ({ to, subject, text, html, idempotencyKey, category }) =>
       sendViaResend({ fetchImpl, apiKey: config.apiKey, from: config.from, replyTo: config.replyTo, to, subject, text, html, idempotencyKey, category }),
@@ -761,6 +772,7 @@ module.exports = {
   SUPPORT_WHATSAPP_DISPLAY,
   GST_INVOICE_EMAIL_DAILY_COLLECTION,
   payerAccountUid,
+  isPlaceholderAddress,
   istDayKey,
   formatInr,
   formatIstDay,

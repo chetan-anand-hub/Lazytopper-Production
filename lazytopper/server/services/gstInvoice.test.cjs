@@ -1153,7 +1153,7 @@ test('BACKDATE details token: round-trips, expires after 30 days, rejects tamper
 });
 
 /** A backdate service over a fake Resend; `clock.t` is now. Each email records its link token. */
-function backdateFor(db, clock, { env = {}, payments = {}, accountEmails = {} } = {}) {
+function backdateFor(db, clock, { env = {}, payments = {}, accountEmails = {}, fetchPayment: fetchOverride = null } = {}) {
   const E = { ...ENV_READY, PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key', INVOICE_LINK_SECRET: LINK_SECRET, ...env };
   const sent = [];
   const fetchImpl = async (url, init) => {
@@ -1165,7 +1165,7 @@ function backdateFor(db, clock, { env = {}, payments = {}, accountEmails = {} } 
   const now = () => clock.t;
   const mailer = createPaymentReceiptEmailer({ adminFirestore: db, fetchImpl, now, env: E });
   const inv = g.createGstInvoicer({ adminFirestore: db, env: E, now });
-  const fetchPayment = async (id) => (payments[id] === undefined ? null : payments[id]);
+  const fetchPayment = fetchOverride || (async (id) => (payments[id] === undefined ? null : payments[id]));
   const svc = bd.createGstBackdate({ adminFirestore: db, invoicer: inv, mailer, fetchPayment, getAccountEmail: async (uid) => accountEmails[uid] || '', env: E, now });
   return { svc, sent, inv, mailer, env: E };
 }
@@ -1444,3 +1444,162 @@ test('F3 the drain reads EVERY waiting order in a fixed order: 250 forms not yet
   assert.equal(db.read('payOrders/zzz_due').gstBackdate.status, 'reminder_sent');
 });
 const DAY_MS_T = 24 * 60 * 60 * 1000;
+
+/* ══ GST-FU-1: F4 a payment Razorpay can never give is not retried forever; F5 the Razorpay placeholder email ══ */
+
+test('F4 the fetcher: .lookup classifies (permanent 400/404/no id, transient 5xx/429/network/no keys); fetchPayment itself is unchanged', async () => {
+  const KEYS = { RAZORPAY_KEY_ID: 'rzp_test_K', RAZORPAY_KEY_SECRET: 'sec' };
+  const withStatus = (status, body = { id: 'pay_X' }) =>
+    g.createRazorpayPaymentFetcher({ env: KEYS, fetchImpl: async () => ({ ok: status >= 200 && status < 300, status, json: async () => body }) });
+  assert.deepEqual(await withStatus(404).lookup('pay_X'), { permanent: 'not_found', status: 404 });
+  assert.deepEqual(await withStatus(400).lookup('pay_X'), { permanent: 'not_found', status: 400 });
+  assert.deepEqual(await withStatus(500).lookup('pay_X'), { transient: 'http', status: 500 });
+  assert.deepEqual(await withStatus(503).lookup('pay_X'), { transient: 'http', status: 503 });
+  assert.deepEqual(await withStatus(429).lookup('pay_X'), { transient: 'http', status: 429 });
+  assert.deepEqual(await withStatus(401).lookup('pay_X'), { transient: 'http', status: 401 }, 'a key problem is ours, not the order\'s');
+  assert.deepEqual(await withStatus(200).lookup('pay_X'), { payment: { id: 'pay_X' } });
+  assert.deepEqual(await withStatus(200).lookup(''), { permanent: 'no_payment_id' });
+  assert.deepEqual(await withStatus(200).lookup(undefined), { permanent: 'no_payment_id' });
+  assert.deepEqual(await withStatus(200).lookup('pay/../x'), { permanent: 'no_payment_id' });
+  const throwing = g.createRazorpayPaymentFetcher({ env: KEYS, fetchImpl: async () => { throw new Error('ETIMEDOUT'); } });
+  assert.deepEqual(await throwing.lookup('pay_X'), { transient: 'network' });
+  assert.deepEqual(await g.createRazorpayPaymentFetcher({ env: {}, fetchImpl: async () => { throw new Error('must not call'); } }).lookup('pay_X'), { transient: 'no_keys' });
+  // What existing callers ("Issue now", the receipt path) receive is unchanged: the record, or null.
+  assert.equal(await withStatus(404)('pay_X'), null);
+  assert.equal(await withStatus(500)('pay_X'), null);
+  assert.equal(await withStatus(200)(''), null);
+  assert.deepEqual(await withStatus(200)('pay_X'), { id: 'pay_X' });
+  await assert.rejects(() => throwing('pay_X'), /ETIMEDOUT/, 'fetchPayment still throws on a network error, as before');
+});
+
+test('F4 past sales: no payment id / Razorpay 404 / another order\'s payment are NOT retried: lookup recorded, form to the account email', async () => {
+  const db = memoryFirestore({
+    'payOrders/order_404': pastOrder({ uid: 'u404', paymentId: 'pay_404', paid: '2026-10-14T10:00:00' }),
+    'payOrders/order_NOID': pastOrder({ uid: 'uNOID', paymentId: '', paid: '2026-10-14T10:05:00' }),
+    'payOrders/order_MIS': pastOrder({ uid: 'uMIS', paymentId: 'pay_MIS', paid: '2026-10-14T10:10:00' }),
+    'payOrders/order_NOACCT': pastOrder({ uid: null, paymentId: 'pay_404b', paid: '2026-10-14T10:15:00' }),
+    'payOrders/order_5XX': pastOrder({ uid: 'u5', paymentId: 'pay_5XX', paid: '2026-10-14T10:20:00' }),
+    'payOrders/order_REF': pastOrder({ uid: 'uRF', paymentId: 'pay_RF', paid: '2026-10-14T10:25:00' }),
+  });
+  const answers = {
+    pay_404: { permanent: 'not_found', status: 404 },
+    pay_404b: { permanent: 'not_found', status: 404 },
+    pay_MIS: { payment: { id: 'pay_MIS', order_id: 'order_OTHER', email: 'someone.else@example.com' } },
+    pay_5XX: { transient: 'http', status: 503 },
+    pay_RF: { payment: { id: 'pay_RF', order_id: 'order_REF', status: 'refunded', amount_refunded: 191700, email: 'rf@example.com' } },
+  };
+  const fetchPayment = async () => {
+    throw new Error('the classified lookup is used, not the bare fetch');
+  };
+  fetchPayment.lookup = async (id) => answers[id] || { permanent: 'not_found', status: 404 };
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc, sent } = backdateFor(db, clock, { fetchPayment, accountEmails: { u404: 'acct404@example.com', uNOID: 'acctnoid@example.com', uMIS: 'acctmis@example.com', u5: 'acct5@example.com' } });
+  const r = await svc.sendForms();
+  assert.deepEqual([r.queued, r.noAddress, r.refunded, r.retryLater], [3, 1, 1, 1]);
+  assert.deepEqual(sent.map((x) => x.to).sort(), ['acct404@example.com', 'acctmis@example.com', 'acctnoid@example.com']);
+  assert.ok(!sent.some((x) => x.to === 'someone.else@example.com'), 'never another order\'s payer');
+  const b = (id) => db.read(`payOrders/${id}`).gstBackdate;
+  assert.deepEqual([b('order_404').lookup, b('order_404').emailSource], ['not_found', 'account']);
+  assert.deepEqual([b('order_NOID').lookup, b('order_MIS').lookup], ['no_payment_id', 'order_mismatch']);
+  assert.deepEqual([b('order_NOACCT').status, b('order_NOACCT').lookup], ['no_address', 'not_found']);
+  assert.equal(b('order_5XX'), undefined, 'a 5xx is retried as before');
+  assert.equal(b('order_REF').status, 'refunded', 'a payment that CAN be fetched keeps the refund check');
+  const rows = Object.fromEntries((await svc.listPastSales()).rows.map((x) => [x.orderId, x]));
+  assert.deepEqual([rows.order_404.status, rows.order_404.lookup, rows.order_404.emailMasked], ['form_sent', 'not_found', 'ac••••@example.com']);
+  assert.deepEqual([rows.order_NOACCT.status, rows.order_NOACCT.lookup], ['no_address', 'not_found']);
+  assert.deepEqual([rows.order_5XX.status, rows.order_5XX.lookup], ['needs_details', '']);
+  // A second click: only the transient one is tried again.
+  let calls = 0;
+  fetchPayment.lookup = async (id) => {
+    calls += 1;
+    return answers[id];
+  };
+  assert.equal((await svc.sendForms()).retryLater, 1);
+  assert.equal(calls, 1);
+});
+
+test('F5 the Razorpay placeholder (void@razorpay.com) is never an address: form falls to the account email; receipts/invoices skip it', async () => {
+  const { isPlaceholderAddress } = require('./paymentReceiptEmail.cjs');
+  assert.equal(isPlaceholderAddress('void@razorpay.com'), true);
+  assert.equal(isPlaceholderAddress(' VOID@RazorPay.com '), true);
+  assert.equal(isPlaceholderAddress('x@mail.razorpay.com'), true);
+  assert.equal(isPlaceholderAddress('buyer@notrazorpay.com'), false);
+  assert.equal(isPlaceholderAddress('razorpay.com@gmail.com'), false);
+  assert.equal(isPlaceholderAddress(''), false);
+  const db = memoryFirestore({
+    'payOrders/order_V': pastOrder({ uid: 'uV', paymentId: 'pay_V' }),
+    'payOrders/order_V2': pastOrder({ uid: null, paymentId: 'pay_V2', paid: '2026-10-02T10:00:00' }),
+  });
+  const { svc, sent, mailer } = backdateFor(db, { t: IST('2026-11-08T12:00:00') }, {
+    payments: {
+      pay_V: { id: 'pay_V', order_id: 'order_V', email: 'void@razorpay.com', contact: '+919800000009' },
+      pay_V2: { id: 'pay_V2', order_id: 'order_V2', email: 'void@razorpay.com' },
+    },
+    accountEmails: { uV: 'real.buyer@example.com' },
+  });
+  assert.equal(mailer.rails.isAddress('void@razorpay.com'), false);
+  assert.equal(mailer.rails.isAddress('real.buyer@example.com'), true);
+  const r = await svc.sendForms();
+  assert.deepEqual([r.queued, r.noAddress], [1, 1]);
+  assert.deepEqual(sent.map((x) => x.to), ['real.buyer@example.com']);
+  assert.deepEqual([db.read('payOrders/order_V').gstBackdate.emailSource, db.read('payOrders/order_V2').gstBackdate.status], ['account', 'no_address']);
+  // The payer receipt (guest pay passes payment.email) skips the placeholder.
+  assert.deepEqual(await mailer.sendForPayment({ orderId: 'order_V', paymentId: 'pay_V', email: 'void@razorpay.com' }), { skipped: 'no_address' });
+});
+
+test('F5 re-queue: an order already queued / sent to void@razorpay.com is re-resolved by the drain and the click; void@ is never emailed again', async () => {
+  const placeholder = (status, extra = {}) => ({ gstBackdate: { status, contact: { email: 'void@razorpay.com', phone: '' }, emailSource: 'payment', queuedAtMs: 1, attempts: 0, ...extra } });
+  const now0 = IST('2026-11-14T12:00:00');
+  const db = memoryFirestore({
+    'payOrders/order_SENT': pastOrder({ uid: 'uS', paymentId: 'pay_S', extra: placeholder('form_sent', { formSentAtMs: now0 - 1 * DAY_MS_T }) }),
+    'payOrders/order_Q': pastOrder({ uid: 'uQ', paymentId: 'pay_Q', paid: '2026-10-03T10:00:00', extra: placeholder('form_queued') }),
+    'payOrders/order_OLD': pastOrder({ uid: 'uO', paymentId: 'pay_O', paid: '2026-10-04T10:00:00', extra: placeholder('form_sent', { formSentAtMs: now0 - 6 * DAY_MS_T }) }),
+  });
+  const payments = {
+    pay_S: { id: 'pay_S', order_id: 'order_SENT', email: 'void@razorpay.com' },
+    pay_Q: { id: 'pay_Q', order_id: 'order_Q', email: 'void@razorpay.com' },
+    pay_O: { id: 'pay_O', order_id: 'order_OLD', email: 'void@razorpay.com' },
+  };
+  const clock = { t: now0 };
+  const { svc, sent } = backdateFor(db, clock, { payments, accountEmails: { uS: 's@example.com', uQ: 'q@example.com' } });
+  // The list shows them as needing details again, never the placeholder.
+  const rows = (await svc.listPastSales()).rows;
+  assert.deepEqual(rows.map((x) => [x.orderId, x.status, x.emailMasked]), [['order_SENT', 'needs_details', ''], ['order_Q', 'needs_details', ''], ['order_OLD', 'needs_details', '']]);
+  const d = await svc.drain();
+  assert.equal(d.sent, 2);
+  assert.ok(!sent.some((x) => /razorpay\.com/.test(x.to)), 'void@ is never emailed');
+  assert.deepEqual(sent.map((x) => [x.to, x.key]).sort(), [['q@example.com', 'gst-state-form-pay_Q-r1'], ['s@example.com', 'gst-state-form-pay_S-r1']]);
+  const s = db.read('payOrders/order_SENT').gstBackdate;
+  assert.deepEqual([s.status, s.emailSource, s.reresolved, s.reminderSentAtMs], ['form_sent', 'account', 1, null]);
+  assert.equal(s.formSentAtMs, now0, 'a fresh form time: the reminder clock restarts');
+  assert.deepEqual([db.read('payOrders/order_OLD').gstBackdate.status, db.read('payOrders/order_OLD').gstBackdate.contact], ['no_address', null], 'no account email: no_address, never a reminder to void@');
+  // The click finds nothing left to re-resolve, and the 1-a-day rule still holds for the new address.
+  const r = await svc.sendForms();
+  assert.deepEqual([r.queued, r.noAddress, r.retryLater], [0, 0, 0]);
+  assert.equal(sent.length, 2);
+});
+
+test('F5 re-queue via the click: "Send state forms" re-resolves a form_sent placeholder order too', async () => {
+  const db = memoryFirestore({
+    'payOrders/order_C': pastOrder({ uid: 'uC', paymentId: 'pay_C', extra: { gstBackdate: { status: 'form_sent', formSentAtMs: 5, contact: { email: 'void@razorpay.com' }, emailSource: 'payment' } } }),
+  });
+  const { svc, sent } = backdateFor(db, { t: IST('2026-11-08T12:00:00') }, { payments: { pay_C: { id: 'pay_C', order_id: 'order_C', email: 'void@razorpay.com' } }, accountEmails: { uC: 'c@example.com' } });
+  const r = await svc.sendForms();
+  assert.deepEqual([r.queued, r.sent], [1, 1]);
+  assert.deepEqual(sent.map((x) => [x.to, x.key]), [['c@example.com', 'gst-state-form-pay_C-r1']]);
+});
+
+test('GST-FU-1 review F2: the invoice email to a Razorpay placeholder (buyer.email void@razorpay.com) is never sent: no_address', async () => {
+  const db = memoryFirestore({ 'payOrders/order_M': storedOrder({ paymentId: 'pay_M', extra: { paidAt: new Date(AFTER_CUTOFF - 48 * HOUR) } }) });
+  const inv = g.createGstInvoicer({ adminFirestore: db, env: ENV_READY, now: () => AFTER_CUTOFF, fetchPayment: async (id) => ({ id, order_id: 'order_M', email: 'void@razorpay.com' }) });
+  await inv.issueNow({ orderId: 'order_M' });
+  assert.equal(db.read('payOrders/order_M').gstInvoice.buyer.email, 'void@razorpay.com', 'the invoice prints what Razorpay gave');
+  const clock = { t: AFTER_CUTOFF };
+  const { mailer, sent } = mailerFor(db, clock);
+  assert.deepEqual(await mailer.queueInvoiceEmail({ orderId: 'order_M' }), { skipped: 'no_address' });
+  assert.equal(sent.length, 0);
+  assert.equal(db.read('payOrders/order_M').gstInvoiceEmail.status, 'no_address');
+  // The hourly drain never picks it up either.
+  assert.deepEqual(await mailer.drainInvoiceEmails(), { sent: 0, queued: 0, skipped: 0, failed: 0 });
+  assert.equal(sent.length, 0);
+});

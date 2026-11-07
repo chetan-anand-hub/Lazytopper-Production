@@ -14,6 +14,8 @@
  */
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import GstStateLine from "../gstInvoice/GstStateLine";
+import { gstStateFieldOn } from "../../services/gstBuyerOrder";
+import { focusPayWhenShown, hasRememberedGstBuyer } from "../packs/PacksShop";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -283,6 +285,12 @@ export function PassCheckoutView({
   const pollRun = useRef(0);
   const mounted = useRef(true);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** GST-FU-1 F2: the Board Pass Pay button (an auto-start with a remembered state stops here, focused). */
+  const boardsPayRef = useRef<HTMLButtonElement | null>(null);
+  /** GST-FU-1 review B1: set (synchronously) once any checkout starts on this mount - a held auto-start then never starts a second. */
+  const buyStartedRef = useRef(false);
+  /** GST-FU-1 review F4: the auto-start stopped at Pay - the next Board Pass tap keeps the auto-start's `resumed` mark. */
+  const heldResumeRef = useRef(false);
 
   function clearHold() {
     if (holdTimer.current !== null) clearTimeout(holdTimer.current);
@@ -365,11 +373,15 @@ export function PassCheckoutView({
 
   async function handleBuy(passType: PassType, opts: { resumed?: boolean; fromWho?: boolean } = {}) {
     if (busy || recovery !== null) return;
+    buyStartedRef.current = true;
+    // GST-FU-1 review F4: the tap that completes a ?buy= link held at Pay is still that link's (resumed) start.
+    const resumed = opts.resumed === true || (passType === "till_boards" && heldResumeRef.current);
+    heldResumeRef.current = false;
     const details = checkoutEventDetails(passType, offerOpen);
     // BUY-PATH-1: `begin_checkout` at the TAP, signed in or not (a signed-out tap used to return before any event).
     // ONE call per tap: the signed-in path below no longer sends its own. (CHECKOUT-WHO-1: the sheet's own "Pay" is the
     // same tap continuing, so it sends none.)
-    if (!opts.fromWho) trackBeginCheckoutTap(details, signedIn, opts.resumed === true);
+    if (!opts.fromWho) trackBeginCheckoutTap(details, signedIn, resumed);
     // CHECKOUT-WHO-1 - flag on: the Board Pass Pay opens "Who will use it?" first (the month renewal stays as it was).
     // CHECKOUT-SELF-1: only a SIGNED-OUT tap opens the sheet; a signed-in student's Pay buys for their own account in one tap
     // (someone else / a mobile number is the secondary link below the button).
@@ -435,10 +447,30 @@ export function PassCheckoutView({
 
   // OFFERS-V2 A2: the one-tap start. A ref makes it once per mount, so a re-render, a StrictMode re-run or a prop flicker never opens a second order.
   const autoStarted = useRef(false);
+  // GST-FU-1 review B1: the auto-start may run AFTER an await (below); it calls the LATEST handleBuy (whose busy / recovery
+  // guard sees a tap made meanwhile), never the copy captured when the effect ran - the same pattern as PacksShop's resume.
+  const handleBuyRef = useRef(handleBuy);
+  handleBuyRef.current = handleBuy;
   useEffect(() => {
     if (!autoStart || autoStarted.current) return;
     autoStarted.current = true;
-    void handleBuy("till_boards", { resumed: true }); // the ?buy=board_pass auto-start, not a tap on this page
+    const start = () => void handleBuyRef.current("till_boards", { resumed: true }); // the ?buy=board_pass auto-start, not a tap on this page
+    // GST-FU-1 F2: flag off (or signed out: the sheet asks) -> exactly as before.
+    if (!signedIn || !gstStateFieldOn()) {
+      start();
+      return;
+    }
+    // A remembered state + PIN would send the buyer straight into Razorpay, covering "State: X · Change". Stop at Pay instead
+    // (the line and the total above it, focus on Pay): one tap to Razorpay. Nothing remembered -> start as today (the order
+    // step asks state + PIN).
+    void hasRememberedGstBuyer().then((remembered) => {
+      // B1: the buyer tapped Pay (or any Pay) while this was read - that checkout IS the start; never a second one.
+      if (!mounted.current || buyStartedRef.current) return;
+      if (remembered) {
+        heldResumeRef.current = true;
+        focusPayWhenShown(() => boardsPayRef.current);
+      } else start();
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
 
@@ -517,8 +549,9 @@ export function PassCheckoutView({
           </button>
         </div>
       )}
-      {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state, shown above Pay (renders nothing while the flag is off). */}
-      {signedIn && !activeLabel && <GstStateLine />}
+      {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state, shown above Pay (renders nothing while the flag is off).
+          GST-FU-1 F1/F2: also above a running month pass's upgrade Pay (the Board Pass owner's view returned above). */}
+      {signedIn && <GstStateLine />}
       {monthButton && !activeLabel && (
         <button
           type="button"
@@ -531,6 +564,7 @@ export function PassCheckoutView({
       )}
       <button
         type="button"
+        ref={boardsPayRef}
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
         disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("till_boards")}
@@ -675,10 +709,17 @@ function PassCheckoutConnected() {
     rest.delete(BOARD_PASS_BUY_PARAM);
     const search = rest.toString();
     navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
-    if (status.tier === "premium") return;
+    // GST-FU-1 F1 (owner, 8 Nov 2026: "1. Yes"): a RUNNING plan that is not the Board Pass (a month pass, an admin grant with an
+    // end date) gets what its visible upgrade Pay does - the Board Pass checkout. A Board Pass holder (and Premium with no
+    // readable end) does nothing, as before.
+    if (status.tier === "premium") {
+      const endMs = status.passEnd ? Date.parse(status.passEnd) : NaN;
+      const upgradeable = Number.isFinite(endMs) && endMs > Date.now() && status.plan !== "pass_till_boards";
+      if (!upgradeable) return;
+    }
     trackNamedEvent("board_pass_direct_checkout");
     setAutoStart(true);
-  }, [authLoading, user, hydrated, status.tier, location.search, location.pathname, location.hash, navigate, guestEnabled, whoEnabled]);
+  }, [authLoading, user, hydrated, status.tier, status.plan, status.passEnd, location.search, location.pathname, location.hash, navigate, guestEnabled, whoEnabled]);
 
   // PACK-CREDIT-1: the server's credit for this student. A failed read is simply no credit line.
   const [packCredit, setPackCredit] = useState<BoardPassCredit | null>(null);

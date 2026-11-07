@@ -31,6 +31,8 @@ export interface PastSaleRow {
   status: string;
   emailMasked: string;
   emailSource: string;
+  /** GST-FU-1 F4: why Razorpay's payment record could never be used ('' when it was, or not yet asked). */
+  lookup?: string;
   invoiceNumber: string;
 }
 interface PastSalesResponse {
@@ -48,6 +50,27 @@ interface SendResult {
   remaining?: number;
   sent?: number;
   waiting?: number;
+}
+
+/**
+ * PURE. GST-FU-1 F4: the plain-words reason on a row whose payment Razorpay can never give (no payment id on the order,
+ * Razorpay has no record of it, or the record is another order's payment), and where the form went instead. '' otherwise.
+ * Never an address: the row's masked email is shown separately.
+ */
+export function pastSaleLookupNote(r: Pick<PastSaleRow, "lookup" | "status" | "emailSource">): string {
+  const why =
+    r.lookup === "not_found"
+      ? "Razorpay has no record of this payment"
+      : r.lookup === "no_payment_id"
+        ? "This order has no Razorpay payment id"
+        : r.lookup === "order_mismatch"
+          ? "Razorpay's payment belongs to another order"
+          : "";
+  if (!why) return "";
+  if (r.status === "no_address") return `${why}, and the account has no email`;
+  // Review F4: "queued" until the drain has actually sent it; "sent" only after.
+  if (r.emailSource === "account") return r.status === "form_queued" ? `${why}: form queued to the account email` : `${why}: form sent to the account email`;
+  return why;
 }
 
 /** PURE. The line shown after "Send state forms". */
@@ -145,7 +168,13 @@ export default function GstPastSales({
                 <li key={r.orderId}>
                   {r.paidIst} · {r.item} · ₹{(r.amountPaise / 100).toFixed(2)} · <strong>{PAST_SALE_STATUS_LABEL[r.status] || r.status}</strong>
                   {r.invoiceNumber && ` ${r.invoiceNumber}`}
-                  {r.emailMasked && <span className="sa-muted"> · {r.emailMasked}{r.emailSource === "account" ? " (account email)" : ""}</span>}{" "}
+                  {r.emailMasked && <span className="sa-muted"> · {r.emailMasked}{r.emailSource === "account" ? " (account email)" : ""}</span>}
+                  {pastSaleLookupNote(r) && (
+                    <span className="sa-muted" data-testid={`gst-past-lookup-${r.orderId}`}>
+                      {" "}
+                      · {pastSaleLookupNote(r)}
+                    </span>
+                  )}{" "}
                   <span className="sa-muted">({r.orderId})</span>{" "}
                   {r.status === "details_received" && (
                     <button type="button" className="sa-btn sa-btn-small" data-testid={`gst-past-issue-${r.orderId}`} onClick={() => void issueNow(r.orderId)}>

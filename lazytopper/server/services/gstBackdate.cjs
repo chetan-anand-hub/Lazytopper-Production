@@ -22,8 +22,12 @@
  *   24 h of another LazyTopper email to the same person, and under the durable daily cap (paymentReceiptEmail rails).
  * ★ NEVER a default state, NEVER the IP region: the form starts unselected and only the buyer's answer is used.
  * ★ The order field is `gstBackdate: { status, contact: { email, phone }, emailSource, queuedAtMs, formSentAtMs,
- *   reminderSentAtMs, detailsAtMs, attempts, at }`. The address is kept for the reminder and the invoice (the invoice
- *   prints it anyway). Never logged.
+ *   reminderSentAtMs, detailsAtMs, attempts, at, lookup?, reresolved? }`. The address is kept for the reminder and the
+ *   invoice (the invoice prints it anyway). Never logged.
+ * ★ GST-FU-1 F4: `lookup` records WHY Razorpay's payment record could not be used for this order when that can never
+ *   change ('no_payment_id' | 'not_found' | 'order_mismatch'); such an order is not retried, its form goes to the paying
+ *   account's email. F5: a Razorpay PLACEHOLDER contact (`…@razorpay.com`) is no address; an order that was queued to
+ *   one is re-resolved (`reresolved` counts how often, and keeps the email's idempotency key fresh).
  */
 
 const crypto = require('node:crypto');
@@ -37,7 +41,7 @@ const {
   BACKDATE_FROM_MS,
 } = require('./gstInvoice.cjs');
 const { escapeHtml } = require('./trialEndingEmail.cjs');
-const { itemLabel, formatInr, formatIstDay, payerAccountUid } = require('./paymentReceiptEmail.cjs');
+const { itemLabel, formatInr, formatIstDay, payerAccountUid, isPlaceholderAddress } = require('./paymentReceiptEmail.cjs');
 const { maskEmail } = require('./guestPay.cjs');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -87,12 +91,19 @@ function parseDetailsToken(token, secret, nowMs) {
 
 /* ── Status ───────────────────────────────────────────────────────────────────── */
 
+/** GST-FU-1 F5. True when the order's stored form contact is a Razorpay placeholder (never the buyer's address). */
+function hasPlaceholderContact(b) {
+  return !!(b && b.contact && typeof b.contact === 'object' && isPlaceholderAddress(b.contact.email));
+}
+
 /** PURE. The admin's status for a past sale. */
 function pastSaleStatus(order) {
   if (order.gstInvoice) return 'invoiced';
   const b = order.gstBackdate && typeof order.gstBackdate === 'object' ? order.gstBackdate : {};
   if (b.status === 'details_received' || (order.gstBuyer && b.detailsAtMs)) return 'details_received';
   if (b.status === 'refunded' || b.status === 'no_address' || b.status === 'failed') return b.status;
+  // GST-FU-1 F5: queued / sent to a Razorpay placeholder = nobody got it: it needs details again (re-resolved).
+  if (hasPlaceholderContact(b)) return 'needs_details';
   if (b.reminderSentAtMs) return 'reminder_sent';
   if (b.formSentAtMs) return 'form_sent';
   if (b.status === 'form_queued' || b.status === 'form_sending') return 'form_queued';
@@ -188,45 +199,105 @@ function createGstBackdate(deps = {}) {
         item: itemLabel(o.passType, o.packTarget) || o.passType || '',
         amountPaise: o.amountPaise,
         status,
-        emailMasked: b.contact && b.contact.email ? maskEmail(b.contact.email) : '',
+        emailMasked: b.contact && b.contact.email && !hasPlaceholderContact(b) ? maskEmail(b.contact.email) : '',
         emailSource: b.emailSource || '',
+        lookup: typeof b.lookup === 'string' ? b.lookup : '',
         invoiceNumber: o.gstInvoice ? o.gstInvoice.number : '',
       };
     });
     return { rows, counts, refundedExcluded: refunded };
   }
 
+  /**
+   * GST-FU-1 F4. Razorpay's payment record for a past sale, classified: `{ payment }`, `{ permanent: reason }` (asking
+   * again can never help: no usable payment id on the order, Razorpay has no such payment (400 / 404), or the record is
+   * another order's payment) or `{ retry: true }` (no fetcher / keys, a network error, a timeout, a 5xx / 429).
+   */
+  async function lookupPayment(o) {
+    if (typeof o.paymentId !== 'string' || !ID_PATTERN.test(o.paymentId)) return { permanent: 'no_payment_id' };
+    const f = deps.fetchPayment;
+    if (typeof f !== 'function') return { retry: true };
+    let p = null;
+    try {
+      if (typeof f.lookup === 'function') {
+        const r = await f.lookup(o.paymentId);
+        if (r && typeof r.permanent === 'string' && r.permanent) return { permanent: r.permanent };
+        if (!r || !r.payment || typeof r.payment !== 'object') return { retry: true };
+        p = r.payment;
+      } else {
+        p = await f(o.paymentId);
+        if (!p || typeof p !== 'object') return { retry: true };
+      }
+    } catch {
+      return { retry: true };
+    }
+    if (p.id !== o.paymentId || (p.order_id && p.order_id !== o.id)) return { permanent: 'order_mismatch' };
+    return { payment: p };
+  }
+
   /** The payer's address for a past sale: Razorpay's payment record, else the paying account's email. */
   async function contactFor(o) {
-    let payment = null;
-    let fetchFailed = false;
-    if (typeof deps.fetchPayment === 'function') {
-      try {
-        const p = await deps.fetchPayment(o.paymentId);
-        if (p && typeof p === 'object' && p.id === o.paymentId && (!p.order_id || p.order_id === o.id)) payment = p;
-        else fetchFailed = true;
-      } catch {
-        fetchFailed = true;
-      }
-    } else {
-      fetchFailed = true;
-    }
+    const look = await lookupPayment(o);
+    // A passing failure: we cannot tell whether it was refunded, so try again next time.
+    if (look.retry) return { retry: true };
+    const payment = look.payment || null;
+    // The refund check runs for EVERY order whose payment CAN be fetched. When Razorpay can never give the record
+    // (`look.permanent`), the order is not retried forever: the owner has never refunded anyone (owner, 7 Nov 2026
+    // 22:55), so the form goes to the paying account's email.
     if (payment && (payment.status === 'refunded' || (Number(payment.amount_refunded) || 0) > 0)) return { refunded: true };
-    // Without the payment record we cannot tell whether it was refunded: try again next time.
-    if (fetchFailed) return { retry: true };
-    const email = typeof payment.email === 'string' ? payment.email.trim() : '';
-    const phone = typeof payment.contact === 'string' ? payment.contact.trim() : '';
-    if (rails && rails.isAddress(email)) return { contact: { email, phone }, source: 'payment' };
+    const lookup = look.permanent || '';
+    const email = payment && typeof payment.email === 'string' ? payment.email.trim() : '';
+    const phone = payment && typeof payment.contact === 'string' ? payment.contact.trim() : '';
+    if (payment && rails && rails.isAddress(email)) return { contact: { email, phone }, source: 'payment' };
     const uid = payerAccountUid(o);
     if (uid && typeof deps.getAccountEmail === 'function') {
       try {
         const acct = String((await deps.getAccountEmail(uid)) || '').trim();
-        if (rails && rails.isAddress(acct)) return { contact: { email: acct, phone }, source: 'account' };
+        if (rails && rails.isAddress(acct)) return { contact: { email: acct, phone }, source: 'account', lookup };
       } catch {
         /* no account address */
       }
     }
-    return { contact: null };
+    return { contact: null, lookup };
+  }
+
+  /**
+   * Prepare ONE past sale that needs details: its address + refund check, then (in a transaction that re-checks it still
+   * needs details) `form_queued` / `refunded` / `no_address`. An order that was queued to a Razorpay placeholder starts
+   * over: no form / reminder time is kept, and `reresolved` keeps the new email's idempotency key apart.
+   * Returns 'retry' | 'skipped' | the status written.
+   */
+  async function prepare(o) {
+    const c = await contactFor(o);
+    if (c.retry) return 'retry';
+    const t = now();
+    const status = c.refunded ? 'refunded' : c.contact ? 'form_queued' : 'no_address';
+    const wrote = await adminFirestore.runTransaction(async (tx) => {
+      const snap = await tx.get(orderRef(o.id));
+      const cur = snap && snap.exists ? snap.data() || {} : null;
+      if (!cur || cur.gstInvoice || pastSaleStatus({ ...cur, id: o.id }) !== 'needs_details') return false;
+      const prev = backdateOf(cur);
+      const again = hasPlaceholderContact(prev);
+      const reresolved = (Number.isInteger(prev.reresolved) ? prev.reresolved : 0) + (again ? 1 : 0);
+      tx.set(
+        orderRef(o.id),
+        {
+          gstBackdate: {
+            status,
+            ...(c.contact ? { contact: c.contact, emailSource: c.source } : {}),
+            ...(c.lookup ? { lookup: c.lookup } : {}),
+            ...(again ? { contact: c.contact || null, emailSource: c.contact ? c.source : null, formSentAtMs: null, reminderSentAtMs: null } : {}),
+            ...(reresolved ? { reresolved } : {}),
+            queuedAtMs: t,
+            attempts: 0,
+            at: new Date(t),
+          },
+        },
+        { merge: true },
+      );
+      return true;
+    });
+    return wrote ? status : 'skipped';
   }
 
   /**
@@ -242,25 +313,12 @@ function createGstBackdate(deps = {}) {
     const todo = orders.filter((o) => pastSaleStatus(o) === 'needs_details');
     summary.remaining = Math.max(0, todo.length - FORMS_PER_CLICK);
     for (const o of todo.slice(0, FORMS_PER_CLICK)) {
-      const c = await contactFor(o);
-      if (c.retry) {
+      const status = await prepare(o);
+      if (status === 'retry') {
         summary.retryLater += 1;
         continue;
       }
-      const t = now();
-      const status = c.refunded ? 'refunded' : c.contact ? 'form_queued' : 'no_address';
-      const wrote = await adminFirestore.runTransaction(async (tx) => {
-        const snap = await tx.get(orderRef(o.id));
-        const cur = snap && snap.exists ? snap.data() || {} : null;
-        if (!cur || cur.gstInvoice || pastSaleStatus({ ...cur, id: o.id }) !== 'needs_details') return false;
-        tx.set(
-          orderRef(o.id),
-          { gstBackdate: { status, ...(c.contact ? { contact: c.contact, emailSource: c.source } : {}), queuedAtMs: t, attempts: 0, at: new Date(t) } },
-          { merge: true },
-        );
-        return true;
-      });
-      if (!wrote) continue;
+      if (status === 'skipped') continue;
       if (status === 'form_queued') summary.queued += 1;
       else if (status === 'refunded') summary.refunded += 1;
       else summary.noAddress += 1;
@@ -290,6 +348,8 @@ function createGstBackdate(deps = {}) {
         return { skipped: 'failed' };
       }
       const to = b.contact && b.contact.email;
+      // GST-FU-1 F5: never an email to a Razorpay placeholder; the drain / the next click re-resolves this order.
+      if (hasPlaceholderContact(b)) return { skipped: 'placeholder' };
       if (!rails.isAddress(to)) {
         tx.set(ref, { gstBackdate: { ...b, status: 'no_address', at: new Date(t), atMs: t } }, { merge: true });
         return { skipped: 'no_address' };
@@ -321,7 +381,7 @@ function createGstBackdate(deps = {}) {
       subject: built.subject,
       text: built.text,
       html: built.html,
-      idempotencyKey: `gst-state-${kind}-${o.paymentId}`,
+      idempotencyKey: `gst-state-${kind}-${o.paymentId}${Number.isInteger(b.reresolved) && b.reresolved > 0 ? `-r${b.reresolved}` : ''}`,
       category: 'gst_state_form',
     });
     if (sent.ok) {
@@ -344,16 +404,29 @@ function createGstBackdate(deps = {}) {
       // hundred at most), then taken in a FIXED order - oldest due first (a queued form by when it was queued, a reminder
       // by when its form was sent, a stale claim by its claim time), ties by order id - so nothing due is ever starved.
       const due = new Map();
+      const placeholders = [];
       for (const status of ['form_queued', 'form_sent', 'form_sending', 'reminder_sending']) {
         const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('gstBackdate.status', '==', status).get();
         const t = now();
         snap.forEach((d) => {
           const b = backdateOf(d.data() || {});
+          // GST-FU-1 F5: queued to a Razorpay placeholder: re-resolve it (below), never email it.
+          if (hasPlaceholderContact(b)) {
+            placeholders.push({ id: d.id, ...(d.data() || {}) });
+            return;
+          }
           const at = status === 'form_sent' ? b.formSentAtMs : status === 'form_queued' ? b.queuedAtMs : b.atMs;
           // A form sent less than 5 days ago has no reminder due yet: not even a transaction for it this run.
           if (status === 'form_sent' && Number.isFinite(at) && t - at < REMINDER_AFTER_MS) return;
           due.set(d.id, Number.isFinite(at) ? at : 0);
         });
+      }
+      for (const o of placeholders) {
+        try {
+          if ((await prepare(o)) === 'form_queued') due.set(o.id, now());
+        } catch (e) {
+          console.error('[gst-backdate] re-resolve failed:', e && e.message);
+        }
       }
       const ids = [...due.entries()].sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([id]) => id);
       let tried = 0;
@@ -366,7 +439,7 @@ function createGstBackdate(deps = {}) {
           console.error('[gst-backdate] send failed:', e && e.message);
           r = { failed: true };
         }
-        if (r.skipped === 'not_due') continue;
+        if (r.skipped === 'not_due' || r.skipped === 'placeholder') continue;
         tried += 1;
         if (r.sent) summary.sent += 1;
         else if (r.waiting) summary.waiting += 1;
