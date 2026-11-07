@@ -469,6 +469,7 @@
     "src/components/feedback/useTrialEndFeedback.test.ts",
     "src/components/fullmock/fullMockBlueprint.test.ts",
     "src/components/fullmock/fullMockSession.gradingJob.test.ts",
+    "src/components/gstInvoice/MyInvoices.hash.test.tsx",
     "src/components/guestPay/GuestPaySheet.test.tsx",
     "src/components/guide/ahaModel.test.ts",
     "src/components/guide/companion/companion.test.tsx",
