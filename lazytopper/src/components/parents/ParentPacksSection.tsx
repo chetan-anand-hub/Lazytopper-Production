@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import { packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import PackTileBuy from "../packs/PackTileBuy";
@@ -31,10 +31,16 @@ const ITEMS: ReadonlyArray<{ sku: PackSku; name: string; what: string; cbq?: boo
   { sku: "pack_bundle", name: BUNDLE_NAME, what: "Maths + Science: every chapter + 8 mocks each, the whole year at one price" },
 ];
 
+/**
+ * SPEED-CLS-2: true from the FIRST client render, false in a string render (renderToString / renderToStaticMarkup use the server
+ * snapshot, so the "no price in static markup" contract holds). The prerendered page already carries these prices
+ * (PRERENDER-PRICE-GUARD-1) and React's first commit replaces that markup, so a first render WITHOUT them narrowed the Pay /
+ * packs-link buttons and emptied the band chips for a frame before the effect filled them in: two layout shifts at hand-over
+ * (CLS 0.03-0.06 at 1280). createRoot does not hydrate, so there is no markup to match.
+ */
+const subscribeNever = () => () => undefined;
 function useMounted(): boolean {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted;
+  return useSyncExternalStore(subscribeNever, () => true, () => false);
 }
 
 /** PARENTS-PACKS-2: the hero's secondary action (outlined, green accent). Price after mount; shown to every account. */

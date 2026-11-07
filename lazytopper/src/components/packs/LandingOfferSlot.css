@@ -1,0 +1,18 @@
+/* SPEED-CLS-2 - the space the lazy landing-offer card will take, held while its chunk (or auth) loads so the entry cards / sample card
+   below do not drop when it lands. Heights are the card's own, measured at 320 / 360 / 390 / 480 / 481 / 768 / 1023 / 1024 / 1280 / 1600 px,
+   and its margins (see LandingOfferCard.css). Mounted only when the card WILL render (see LandingOfferLazy), so nobody gets a blank gap. */
+.lt-lo-slot { box-sizing: border-box; width: 100%; margin: 12px 0 4px; }
+.lt-lo-slot--cbq { min-height: 297px; }
+.lt-lo-slot--check { min-height: 109px; }
+@media (min-width: 1024px) {
+  .lt-lo-slot--cbq { min-height: 232px; }
+  .lt-lo-slot--check { min-height: 80px; }
+}
+@media (max-width: 480px) {
+  .lt-lo-slot { margin: 8px 0 2px; }
+  .lt-lo-slot--cbq { min-height: 166px; }
+  .lt-lo-slot--check { min-height: 103px; }
+}
+@media (max-width: 339px) {
+  .lt-lo-slot--check { min-height: 122px; }
+}
