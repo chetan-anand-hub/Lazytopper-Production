@@ -382,11 +382,15 @@ export function refreshWebFontText(root: Element, attr: string, family: string):
     var first = style ? String(style.fontFamily).split(",")[0].replace(/["']/g, "").trim() : "";
     if (first === family) picked.push(el);
   }
+  // One node at a time: replaceChild is atomic, so a throw (caught by the caller) leaves every node either
+  // swapped or untouched — never half a node — and stops the swap there.
+  var done = 0;
   for (var j = 0; j < picked.length; j += 1) {
     var parent = picked[j].parentNode;
     if (parent) parent.replaceChild(picked[j].cloneNode(true), picked[j]);
+    done += 1;
   }
-  return picked.length;
+  return done;
 }
 
 /* ------------------------------------------------------------------------------------------------ *
@@ -453,12 +457,15 @@ export function loginPaintScript(config: LoginPaintConfig): string {
     `var control=t.closest("button,a");if(control&&hit.contains(control)){control.classList.add(config.pressedClass);control.setAttribute("aria-busy","true");}};` +
     `document.addEventListener("click",guard,true);` +
     `var gone=function(){return !root.querySelector("["+config.attr+"]");};` +
+    `var reactIn=function(){for(var n=root.firstElementChild;n;n=n.nextElementSibling)if(!n.hasAttribute(config.attr))return true;return false;};` +
     `if(typeof MutationObserver==="function"){var watch=new MutationObserver(function(){if(gone()){document.removeEventListener("click",guard,true);watch.disconnect();}});` +
     `watch.observe(root,{childList:true});}` +
     `document.documentElement.classList.add(config.readyClass);` +
     // SPEED-LOGIN-2: re-insert the Fraunces text once the font is ready, while the static nodes are up.
     `if(document.fonts&&typeof document.fonts.load==="function"){document.fonts.load(config.fontLoad).then(function(faces){` +
-    `if(faces&&faces.length&&!gone())refresh(root,config.attr,config.fontFamily);},function(){});}` +
+    // Only while the static nodes are up AND React has rendered nothing into #root yet (createRoot's first
+    // commit). Its own try/catch: a throw stops the swap; whatever is not yet swapped stays as it is.
+    `if(faces&&faces.length&&!gone()&&!reactIn()){try{refresh(root,config.attr,config.fontFamily);}catch(e){}}},function(){});}` +
     `}catch(error){if(root)while(root.firstChild)root.removeChild(root.firstChild);}})();`;
   if (/<\/script/i.test(body)) throw new Error("loginPaint: the shipped script contains </script");
   return `<script data-lt-paint-script>${body}</script>`;
