@@ -164,5 +164,8 @@
     "/topic-hub/surface-areas-and-volumes",
     "/topic-hub/triangles",
     "/topic-hub/trigonometry"
+  ],
+  "paintPaths": [
+    "/login"
   ]
 }

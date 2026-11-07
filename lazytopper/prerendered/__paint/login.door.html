@@ -1,0 +1,1631 @@
+<div style="padding-bottom: 60px;"><main class="lt-login-page" data-login-theme="light" aria-label="LazyTopper sign in" style="--lt-login-bg: #f7fbff;"><style>
+  .lt-login-page,
+  .lt-login-page * {
+    box-sizing: border-box;
+  }
+
+  html:has(.lt-login-page),
+  body:has(.lt-login-page),
+  #root:has(.lt-login-page),
+  #root > div:has(.lt-login-page) {
+    background: var(--lt-login-bg);
+  }
+
+  #root > div:has(.lt-login-page) {
+    padding-bottom: 0 !important;
+  }
+
+  #root:has(.lt-login-page) > div[style*="position: fixed"][style*="bottom: 0px"] {
+    display: none !important;
+  }
+
+  .lt-login-page {
+    --lt-navy: #071a3d;
+    --lt-navy-2: #092858;
+    --lt-green: #16b96a;
+    --lt-green-dark: #0b8f50;
+    --lt-ink: #071a3d;
+    --lt-muted: #49627f;
+    --lt-soft: #f6fbff;
+    --lt-line: rgba(7, 26, 61, 0.12);
+    --lt-card: rgba(255, 255, 255, 0.94);
+    --lt-login-bg: #f7fbff;
+
+    min-height: 100vh;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(460px, 0.95fr);
+    overflow-x: hidden;
+    color: var(--lt-ink);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background:
+      radial-gradient(circle at 71% 21%, rgba(22, 185, 106, 0.12) 0, rgba(22, 185, 106, 0) 24%),
+      radial-gradient(circle at 18% 26%, rgba(125, 220, 255, 0.20) 0, rgba(125, 220, 255, 0) 23%),
+      linear-gradient(180deg, #fbfdff 0%, #f6fbff 62%, #eef7ff 100%);
+  }
+
+  .lt-login-page[data-login-theme="dark"] {
+    --lt-ink: #f8fafc;
+    --lt-muted: #b8c6d8;
+    --lt-soft: #0b203a;
+    --lt-card: rgba(10, 31, 55, 0.92);
+    --lt-line: rgba(255, 255, 255, 0.14);
+    --lt-login-bg: #051733;
+    background:
+      radial-gradient(circle at 71% 21%, rgba(22, 185, 106, 0.12) 0, rgba(22, 185, 106, 0) 24%),
+      linear-gradient(180deg, #071a3d 0%, #051733 100%);
+  }
+
+  .lt-login-brand-panel {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 44px;
+    padding: 42px 56px 36px;
+    overflow: hidden;
+    color: #f8fafc;
+    background:
+      radial-gradient(circle at 22% 24%, rgba(53, 242, 160, 0.18) 0, rgba(53, 242, 160, 0) 22%),
+      radial-gradient(circle at 82% 33%, rgba(125, 220, 255, 0.18) 0, rgba(125, 220, 255, 0) 24%),
+      linear-gradient(145deg, #082958 0%, #071a3d 54%, #051733 100%);
+  }
+
+  .lt-login-brand-panel:after {
+    content: "";
+    position: absolute;
+    left: 56px;
+    right: 56px;
+    bottom: 118px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(53, 242, 160, 0), rgba(53, 242, 160, 0.55), rgba(125, 220, 255, 0));
+    opacity: 0.72;
+  }
+
+  .lt-login-home-link,
+  .lt-login-mobile-brand,
+  .lt-login-back-link {
+    text-decoration: none;
+  }
+
+  .lt-login-home-link {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    align-self: flex-start;
+    color: #f8fafc;
+  }
+
+  .lt-login-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    background: var(--lt-green);
+    color: #06281b;
+    font-weight: 900;
+    box-shadow: 0 18px 38px rgba(22, 185, 106, 0.28);
+  }
+
+  .lt-login-wordmark {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .lt-login-promise {
+    position: relative;
+    z-index: 1;
+    max-width: 610px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .lt-login-kicker {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    color: #dffff0;
+    background: rgba(22, 185, 106, 0.13);
+    border: 1px solid rgba(53, 242, 160, 0.24);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lt-login-title {
+    margin: 0;
+    color: #ffffff;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 3.7rem;
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: 0;
+    max-width: 650px;
+  }
+
+  .lt-login-lede {
+    max-width: 560px;
+    margin: 0;
+    color: #d8e4ef;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  .lt-login-benefits {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    max-width: 580px;
+    margin-top: 8px;
+  }
+
+  .lt-login-benefit {
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    background: rgba(255, 255, 255, 0.08);
+    color: #edf7ff;
+    font-size: 0.84rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .lt-login-benefit-dot {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--lt-green);
+    box-shadow: 0 0 0 5px rgba(22, 185, 106, 0.14);
+  }
+
+  .lt-login-auth-panel {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 34px 48px;
+  }
+
+  .lt-login-gate {
+    width: 100%;
+    max-width: 470px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .lt-login-mobile-brand {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    color: var(--lt-ink);
+  }
+
+  .lt-login-mobile-brand-sub {
+    display: block;
+    margin-top: 2px;
+    color: var(--lt-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .lt-login-prompt {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .lt-login-reason-chip {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 11px;
+    border-radius: 999px;
+    color: var(--lt-green-dark);
+    background: rgba(22, 185, 106, 0.12);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lt-login-heading {
+    margin: 0;
+    color: var(--lt-ink);
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 2rem;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .lt-login-subcopy {
+    margin: 0;
+    color: var(--lt-muted);
+    font-size: 0.96rem;
+    line-height: 1.55;
+    font-weight: 500;
+  }
+
+  .lt-login-frame {
+    width: 100%;
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid var(--lt-line);
+    background: var(--lt-card);
+    box-shadow: 0 24px 80px rgba(7, 26, 61, 0.12);
+    backdrop-filter: blur(18px);
+  }
+
+  /* ── ONE DOOR: the step heading inside the frame ───────────────────────
+     Every step (choose / email / phone / verify) leads with the same two
+     elements, so the frame's vertical rhythm never jumps as the student
+     moves between them. */
+  .lt-login-stephead {
+    margin: 0 0 4px;
+    color: var(--lt-ink);
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.32rem;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .lt-login-stepsub {
+    margin: 0 0 16px;
+    color: var(--lt-muted);
+    font-size: 0.87rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
+  /* ★ GOOGLE CARRIES PRIMARY WEIGHT among the three methods. It is the fastest
+     path and most CBSE students already hold a Gmail account, so three visually
+     identical outline buttons made every student choose where one choice is
+     clearly better.
+
+     ⚠ DELIBERATELY NOT A FILLED BUTTON. A filled control here would compete
+     with the navy submit on the email step, and the page would then have two
+     things claiming to be the primary action. A green-tinted border plus a
+     stronger shadow is enough to lead without shouting — the background stays
+     white, which Google's brand guidance requires anyway. */
+  .lt-google {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    background: #ffffff;
+    border: 1.5px solid rgba(22, 185, 106, 0.55);
+    border-radius: 12px;
+    padding: 13px;
+    box-shadow: 0 4px 14px rgba(22, 185, 106, 0.16);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+
+  .lt-google:hover {
+    border-color: var(--lt-green);
+    box-shadow: 0 6px 18px rgba(22, 185, 106, 0.24);
+  }
+
+
+  .lt-google:hover:not(:disabled) {
+    border-color: #bcc9dc;
+    background: #fafcff;
+  }
+
+  .lt-google:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* PRE-EXISTING dark-theme defect, same class as the .lt-field one below and
+     worse, because this is the PRIMARY action: the button keeps a hard white
+     background while its label inherits color: var(--lt-ink), which the dark
+     block redefines to #f8fafc — white text on a white button. Measured at
+     rgb(248,250,252) on rgb(255,255,255). The background STAYS white on
+     purpose (Google's brand guidance for the sign-in button); it is the INK
+     that has to be pinned dark rather than inherited. */
+  /* ⚠ ONE RULE, BOTH CONCERNS — deliberately not a second block.
+     A separate dark .lt-google rule added later in the file for the green lift
+     SHADOWED this one for Login.oneDoor.test.tsx, whose ruleBody() helper
+     resolves a selector with src.indexOf(...) and reads only the FIRST match.
+     The suite went red naming the wrong cause: the pinned color #071a3d was
+     still present, just no longer first. Source-scanning tests make duplicate
+     selectors a correctness problem, not a style one.
+
+     ⚠ AND NO BACKTICKS IN THIS BLOCK — the stylesheet is a template literal, so
+     one ends the string. This comment contained three on its first draft and
+     took the whole file down with a transform error. Second time this lane. */
+  .lt-login-page[data-login-theme="dark"] .lt-google {
+    color: #071a3d;
+    border-color: rgba(53, 242, 160, 0.6);
+    box-shadow: 0 4px 16px rgba(53, 242, 160, 0.2);
+  }
+
+  /* The phone and email doors. Now deliberately LIGHTER than the Google button
+     — see the Google rule above: Google is the fastest path for this audience
+     and three identical outlines made every student choose where one choice is
+     clearly better. They keep the plain outline treatment they always had; it
+     is Google that gained weight, not these that lost it. Formerly identical to
+     them, because the student's right answer depends only on which account
+     they already have. */
+  .lt-method {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    margin-top: 9px;
+    background: #ffffff;
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    padding: 13px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  /* SPEED-SITE-1d - EmailCodeDoorSlot: holds the email-code door's place while its chunk loads. */
+  .lt-method--slot {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .lt-method:hover:not(:disabled) {
+    border-color: rgba(22, 185, 106, 0.45);
+    background: rgba(22, 185, 106, 0.06);
+  }
+
+  .lt-method:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-method {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #f8fafc;
+  }
+
+  /* SIGNIN-RESCUE-1 - on phones the phone-number door leads (filled) and Google is the secondary. */
+  .lt-method--primary {
+    margin-top: 0;
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    color: #071a3d;
+    box-shadow: 0 4px 14px rgba(22, 185, 106, 0.22);
+  }
+
+  .lt-method--primary:hover:not(:disabled) {
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    filter: brightness(1.05);
+  }
+
+  .lt-method--primary .lt-method-icon {
+    color: #071a3d;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-method--primary {
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    color: #071a3d;
+  }
+
+  .lt-google--secondary {
+    margin-top: 9px;
+    border-width: 1px;
+    border-color: #dbe3ee;
+    box-shadow: none;
+  }
+
+  /* LOGIN-FIX-1 — the Android in-app "Open in Chrome to continue with Google" link wears the
+     Google button's shape. A link, so the underline goes and the label may wrap at 360 px. */
+  .lt-google--chrome {
+    text-decoration: none;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .lt-method-icon {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    color: var(--lt-muted);
+  }
+
+  .lt-gmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+  }
+
+  .lt-onetap {
+    margin: 8px 0 0;
+    font-size: 0.78rem;
+    color: var(--lt-muted);
+    text-align: center;
+  }
+
+  .lt-or {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 18px 0 16px;
+    color: rgba(7, 26, 61, 0.4);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .lt-or:before,
+  .lt-or:after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: var(--lt-line);
+  }
+
+  /* "<- All sign-in options" — the way back out of a chosen method. */
+  .lt-login-backstep {
+    display: inline-flex;
+    align-items: center;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0 0 12px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--lt-muted);
+    cursor: pointer;
+  }
+
+  .lt-login-backstep:hover:not(:disabled) {
+    color: var(--lt-ink);
+  }
+
+  /* The linking warning. Deliberately NEUTRAL grey, not error-red and not the
+     green notice treatment: it is neither a mistake the student has made nor
+     good news, it is a fact about how accounts work that they need before
+     choosing. Red here would read as "you have done something wrong" on a
+     screen where they have not yet done anything. */
+  /* ★ A FOOTNOTE, NOT A PANEL — and not one word of the copy changes.
+     Filled, bordered and 600-weight, four dense lines of it OUTWEIGHED the
+     three outline method buttons directly above it: guidance was louder than
+     the actions. The copy is doing prevention work — until AUTH-1 ships the
+     other link direction it is the only thing standing between a student and an
+     unrecoverable split account — so the WEIGHT comes down, never the content.
+     A green left rule on transparent ground keeps it findable without
+     competing. */
+  .lt-login-linkwarn {
+    margin: 14px 0 0;
+    padding: 1px 0 1px 12px;
+    border: 0;
+    border-left: 2px solid var(--lt-green);
+    border-radius: 0;
+    background: transparent;
+    color: var(--lt-muted);
+    font-size: 0.76rem;
+    line-height: 1.55;
+    font-weight: 500;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-linkwarn {
+    background: transparent;
+    border-left-color: #35f2a0;
+    color: rgba(248, 250, 252, 0.72);
+  }
+
+  .lt-login-linkwarn b {
+    color: var(--lt-ink);
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-linkwarn b {
+    color: #f8fafc;
+  }
+
+  .lt-field-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+    margin: 0 0 7px;
+  }
+
+  .lt-field-label + .lt-field {
+    margin-bottom: 12px;
+  }
+
+  /* Label row that carries a trailing action (e.g. "Forgot password?").
+     Mirrors the plain-label spacing so the field below keeps its rhythm. */
+  .lt-login-field-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .lt-login-field-row + .lt-field {
+    margin-bottom: 12px;
+  }
+
+  .lt-field {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--lt-line);
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .lt-field:focus-within {
+    border-color: var(--lt-green);
+    box-shadow: 0 0 0 3px rgba(22, 185, 106, 0.15);
+  }
+
+  .lt-prefix {
+    padding: 0 12px;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgba(7, 26, 61, 0.6);
+    background: #f6f9fd;
+    border-right: 1px solid var(--lt-line);
+  }
+
+  .lt-field input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: 13px 14px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    color: var(--lt-ink);
+    background: transparent;
+  }
+
+  .lt-field input::placeholder {
+    color: rgba(7, 26, 61, 0.35);
+  }
+
+  .lt-field input:disabled {
+    color: rgba(7, 26, 61, 0.4);
+    cursor: not-allowed;
+  }
+
+  /* ⚠ DARK-THEME LEGIBILITY — a PRE-EXISTING defect, found by screenshotting
+     this page rather than by any assertion, and fixed here because this PR
+     makes the email form a deliberate destination rather than a default pane.
+
+     MEASURED, not guessed: with no dark override, .lt-field kept its hard
+     background #ffffff while .lt-field input inherited color: var(--lt-ink),
+     which the dark block redefines to #f8fafc. getComputedStyle reported
+     rgb(248,250,252) text on rgb(255,255,255) — about 1.04:1, i.e. the student
+     could not see what they were typing. The dark theme is what renders when no
+     data-theme attribute is set, so this was the default. */
+  .lt-login-page[data-login-theme="dark"] .lt-field {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-field input::placeholder {
+    color: rgba(248, 250, 252, 0.42);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-field input:disabled {
+    color: rgba(248, 250, 252, 0.45);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-prefix {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(248, 250, 252, 0.72);
+    border-right-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .lt-login-error {
+    margin: 2px 0 0;
+    color: #c0362c;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .lt-login-note {
+    margin: 2px 0 0;
+    color: var(--lt-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  /* The self-declaration control. Two equal halves, no tab semantics — these
+     change what the form DOES, they do not swap panels. */
+  .lt-login-seg {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 5px;
+    margin: 14px 0 4px;
+    background: var(--lt-soft);
+    border: 1px solid var(--lt-line);
+    border-radius: 13px;
+  }
+
+  .lt-login-seg button {
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 11px 10px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--lt-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  /* ★★ PRODUCT GREEN, WITH NAVY INK — and the ink colour is the whole point.
+     White on #16b96a measures 2.57:1. These labels are 0.9rem bold, which is
+     nowhere near the 18.66px-bold large-text exemption, so 4.5:1 is the bar and
+     white FAILS it. Navy #071a3d on the same green passes comfortably. Both
+     figures were re-measured in a real browser by this lane's probe rather than
+     taken on trust — see the report. */
+  .lt-login-seg button[aria-pressed="true"] {
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    color: var(--lt-ink);
+    box-shadow: 0 2px 10px rgba(22, 185, 106, 0.28);
+  }
+
+  .lt-login-seg button:disabled {
+    cursor: default;
+  }
+
+  /* Dark theme: the light-theme rule above hardcodes a white pill, and the ink
+     that sits on it is near-white in dark — the 1.04:1 trap AUTH-3 fixed on the
+     Google button and the input fields. Both halves are re-pinned here. */
+  .lt-login-page[data-login-theme="dark"] .lt-login-seg {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-seg button {
+    color: rgba(248, 250, 252, 0.72);
+  }
+
+  /* Dark pair — also green, not a grey pill. The brighter #35f2a0 is used
+     because the dark ground makes the light-theme green read as muddy; navy ink
+     still sits on it, so the same contrast argument holds. */
+  .lt-login-page[data-login-theme="dark"] .lt-login-seg button[aria-pressed="true"] {
+    background: #35f2a0;
+    border-color: #35f2a0;
+    color: #071a3d;
+    box-shadow: 0 2px 10px rgba(53, 242, 160, 0.26);
+  }
+
+  /* A note that sits BETWEEN two fields has to carry the gap the form normally
+     gets from the .lt-field-label + .lt-field margin-bottom. Plain
+     .lt-login-note has no bottom margin and .lt-field-label has no top margin,
+     so the next label renders butted straight against the note's last line — no
+     breathing room at all, while every other label on the form has 12px.
+
+     Found by a 390px screenshot in NAME-1 v1, where the name prompt's notice
+     hit it; every assertion in the suite passed with it broken. v2 moved the
+     name field but reintroduced the same adjacency (name hint, then the Email
+     address label), so the rule is repurposed rather than deleted.
+
+     Scoped to its own class rather than widening .lt-login-note, which the
+     phone step also uses and whose rhythm is correct as it stands.
+
+     ⚠ NO BACKTICKS IN THIS BLOCK. The whole stylesheet is a template literal,
+     so a backtick in a CSS comment ends the string — it took the dev server
+     down with a Babel parse error the moment it was introduced. */
+  .lt-login-note.lt-login-note--between {
+    margin: 4px 0 14px;
+  }
+
+  .lt-continue {
+    width: 100%;
+    margin-top: 16px;
+    background: var(--lt-navy);
+    color: #ffffff;
+    border: 0;
+    border-radius: 12px;
+    padding: 14px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.98rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s, transform 0.05s;
+  }
+
+  .lt-continue:hover:not(:disabled) {
+    background: #0a2452;
+  }
+
+  .lt-continue:active:not(:disabled) {
+    transform: scale(0.99);
+  }
+
+  .lt-continue:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* The CTA echoes the typed address, so it must survive a long one without
+     pushing the arrow off the button. */
+  .lt-continue-echo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lt-signup {
+    text-align: center;
+    margin: 14px 0 0;
+    font-size: 0.86rem;
+    color: var(--lt-muted);
+  }
+
+  .lt-signup a {
+    color: var(--lt-ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .lt-signup a:hover {
+    color: var(--lt-green-dark);
+  }
+
+  .lt-login-linkbtn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: var(--lt-ink);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .lt-login-linkbtn:hover:not(:disabled) {
+    color: var(--lt-green-dark);
+  }
+
+  .lt-login-linkbtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .lt-login-forgot {
+    margin: 0 0 7px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+  }
+
+  /* "Reset my password", offered beside the wrong-password message. A
+     SECONDARY button: the student's first instinct is usually to retype, so
+     the primary action stays "try again". */
+  .lt-login-reset-offer {
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid var(--lt-line);
+    border-radius: 12px;
+    background: transparent;
+    padding: 11px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--lt-ink);
+    cursor: pointer;
+  }
+
+  .lt-login-reset-offer:hover:not(:disabled) {
+    border-color: rgba(22, 185, 106, 0.45);
+    background: rgba(22, 185, 106, 0.06);
+  }
+
+  .lt-login-reset-lede {
+    margin: 0 0 14px;
+    color: var(--lt-muted);
+    font-size: 0.86rem;
+    line-height: 1.45;
+    font-weight: 600;
+  }
+
+  .lt-login-reset-notice {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin: 12px 0 0;
+    padding: 11px 12px;
+    border-radius: 12px;
+    color: var(--lt-green-dark);
+    background: rgba(22, 185, 106, 0.1);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-reset-notice {
+    color: #b6f2d5;
+  }
+
+  .lt-login-reset-back {
+    text-align: center;
+    margin: 14px 0 0;
+    font-size: 0.86rem;
+    color: var(--lt-muted);
+  }
+
+  /* ── VERIFY-EMAIL GATE ─────────────────────────────────────────────────
+     A neutral, expected step — NOT an error. It therefore borrows the offer
+     strip's green-bordered treatment (the same one the reset confirmation
+     uses) and leaves error-red for genuine input mistakes, which on this
+     screen means only a bad address in "change it". */
+  .lt-verify-heading {
+    margin: 0 0 5px;
+    color: var(--lt-ink);
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.32rem;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .lt-verify-lede {
+    margin: 0 0 12px;
+    color: var(--lt-muted);
+    font-size: 0.87rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
+  .lt-verify-address {
+    margin: 0 0 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--lt-line);
+    background: rgba(7, 26, 61, 0.04);
+    color: var(--lt-ink);
+    font-size: 0.92rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-verify-address {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .lt-verify-spam {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 11px 12px;
+    border-radius: 12px;
+    color: var(--lt-green-dark);
+    background: rgba(22, 185, 106, 0.1);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-verify-spam {
+    color: #b6f2d5;
+  }
+
+  .lt-verify-notice {
+    margin: 10px 0 0;
+    color: var(--lt-muted);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+
+  .lt-verify-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 0.82rem;
+  }
+
+  .lt-verify-change {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--lt-line);
+  }
+
+  .lt-verify-startover {
+    text-align: center;
+    margin: 14px 0 0;
+    font-size: 0.82rem;
+    color: var(--lt-muted);
+  }
+
+  /* ★ THE COLUMN NEEDS A FLOOR. Card, then guidance, then a lone back-link
+     above dead space read as unfinished. With the consent line restored here
+     (it belongs in the column the student is acting in), the two together
+     compose a real footer — back-link left, consent right, one hairline rule
+     above. That closes the void without adding ornament. */
+  .lt-login-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px solid var(--lt-line);
+    color: var(--lt-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-foot {
+    border-top-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .lt-login-back-link {
+    color: var(--lt-muted);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .lt-login-terms {
+    text-align: right;
+    line-height: 1.35;
+  }
+
+  .lt-login-terms a {
+    color: var(--lt-ink);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .lt-login-terms a:hover {
+    color: var(--lt-green-dark);
+  }
+
+  @media (max-width: 1180px) {
+    .lt-login-page {
+      grid-template-columns: minmax(0, 0.95fr) minmax(430px, 1.05fr);
+    }
+
+    .lt-login-brand-panel {
+      padding: 38px 40px 34px;
+    }
+
+    .lt-login-brand-panel:after {
+      left: 40px;
+      right: 40px;
+    }
+
+    .lt-login-title {
+      font-size: 3.05rem;
+    }
+
+    .lt-login-auth-panel {
+      padding: 36px 34px;
+    }
+  }
+
+  @media (min-width: 1024px) and (max-height: 820px) {
+    .lt-login-brand-panel {
+      gap: 28px;
+      padding-top: 30px;
+      padding-bottom: 26px;
+    }
+
+    .lt-login-brand-panel:after {
+      bottom: 92px;
+    }
+
+    .lt-login-promise {
+      gap: 13px;
+    }
+
+    .lt-login-title {
+      font-size: 3rem;
+    }
+
+    .lt-login-lede {
+      font-size: 0.95rem;
+      line-height: 1.48;
+    }
+
+    .lt-login-benefit {
+      min-height: 44px;
+      padding: 8px 11px;
+      font-size: 0.8rem;
+    }
+
+    .lt-login-auth-panel {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+    .lt-login-gate {
+      gap: 12px;
+    }
+
+    .lt-login-heading {
+      font-size: 1.72rem;
+    }
+
+    .lt-login-subcopy {
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .lt-login-frame {
+      padding: 16px;
+    }
+
+  }
+
+  @media (max-width: 1023px) {
+    .lt-login-page {
+      min-height: 100svh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(125, 220, 255, 0.22) 0, rgba(125, 220, 255, 0) 28%),
+        radial-gradient(circle at 86% 20%, rgba(22, 185, 106, 0.14) 0, rgba(22, 185, 106, 0) 28%),
+        linear-gradient(180deg, #fbfdff 0%, #eef7ff 100%);
+    }
+
+    .lt-login-page[data-login-theme="dark"] {
+      background: linear-gradient(180deg, #071a3d 0%, #051733 100%);
+    }
+
+    .lt-login-brand-panel {
+      display: none;
+    }
+
+    .lt-login-auth-panel {
+      width: 100%;
+      padding: 0;
+      align-items: center;
+    }
+
+    .lt-login-gate {
+      max-width: 500px;
+      gap: 16px;
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--lt-line);
+      background: var(--lt-card);
+      box-shadow: 0 22px 70px rgba(7, 26, 61, 0.13);
+      backdrop-filter: blur(18px);
+    }
+
+    .lt-login-mobile-brand {
+      display: inline-flex;
+    }
+
+    .lt-login-heading {
+      font-size: 1.55rem;
+    }
+
+    .lt-login-subcopy {
+      font-size: 0.92rem;
+    }
+
+    .lt-login-frame {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .lt-login-page {
+      padding: 14px;
+    }
+
+    .lt-login-gate {
+      padding: 20px 16px;
+      border-radius: 18px;
+    }
+
+    .lt-login-stephead {
+      font-size: 1.2rem;
+    }
+
+    .lt-verify-heading {
+      font-size: 1.2rem;
+    }
+
+    /* At 390px a wrapped two-line address inside a fixed-height button
+       clipped the arrow. Let the row wrap instead of the label overflow. */
+    .lt-continue {
+      flex-wrap: wrap;
+    }
+
+    .lt-login-foot {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .lt-login-terms {
+      text-align: center;
+    }
+  }
+</style><section class="lt-login-brand-panel" aria-label="LazyTopper exam companion"><a aria-label="Back to LazyTopper home" class="lt-login-home-link" href="/" data-discover="true"><img class="lt-login-mark" width="42" height="42" alt="" aria-hidden="true" src="/brand/lazytopper-fingerprint-icon-128.png"><span class="lt-login-wordmark">LazyTopper</span></a><div class="lt-login-promise"><span class="lt-login-kicker">CBSE Class 10 study cockpit</span><h1 class="lt-login-title">Sign in when your work needs saving.</h1><p class="lt-login-lede">LazyTopper can keep attempts, checked answers, progress, and Mistake Intelligence evidence connected to your account only after real sign-in.</p><div class="lt-login-benefits" aria-label="What sign-in protects"><div class="lt-login-benefit"><span class="lt-login-benefit-dot"></span>Saved practice attempts</div><div class="lt-login-benefit"><span class="lt-login-benefit-dot"></span>Checked-answer history</div><div class="lt-login-benefit"><span class="lt-login-benefit-dot"></span>Progress tied to account</div><div class="lt-login-benefit"><span class="lt-login-benefit-dot"></span>Mistake Intelligence evidence</div></div><div class="lt-offer-strip lt-offer-strip--panel" data-testid="lt-offer-strip" aria-label="What you are joining"><style>
+  .lt-offer-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    color: var(--lt-green-dark, #0b8f50);
+    background: rgba(22, 185, 106, 0.1);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.84rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip {
+    color: #b6f2d5;
+  }
+
+  .lt-offer-strip-lead {
+    margin: 0;
+    font-weight: 900;
+    font-size: 0.86rem;
+  }
+
+  .lt-offer-strip-body {
+    margin: 0;
+    color: var(--lt-muted, #49627f);
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-body {
+    color: #cfe3f3;
+  }
+
+  .lt-offer-strip-badge {
+    color: var(--lt-green-dark, #0b8f50);
+    font-weight: 900;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-badge {
+    color: #8ff0c0;
+  }
+
+  .lt-offer-strip-price {
+    white-space: nowrap;
+    font-weight: 900;
+  }
+
+  /* The list price is struck because it is not what a founding member pays —
+     NOT because it is retired. It is live and charged from student 201 onward.
+     <s> carries that meaning natively. It is kept on its own nowrap run so the
+     strike cannot break across two lines at 390px, where a half-struck figure
+     is unreadable. */
+  .lt-offer-strip-was {
+    white-space: nowrap;
+    opacity: 0.75;
+    text-decoration-thickness: 1px;
+  }
+
+  .lt-offer-strip-note {
+    margin: 0;
+    color: var(--lt-muted, #49627f);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-note {
+    color: #b8c6d8;
+  }
+
+  .lt-offer-strip-link {
+    align-self: flex-start;
+    margin-top: 2px;
+    color: var(--lt-green-dark, #0b8f50);
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-link {
+    color: #8ff0c0;
+  }
+
+  .lt-login-aftertrial {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    font-weight: 600;
+    max-width: 560px;
+  }
+
+  .lt-login-aftertrial strong {
+    color: #dffff0;
+    font-weight: 800;
+  }
+
+  /* Mobile mirror. The brand panel is display:none below 1024px, so without
+     this the after-trial sentence would be invisible to every phone student —
+     the exact audience most likely to read "free trial" as "my parent's card
+     gets charged". */
+  .lt-login-aftertrial--mobile {
+    display: none;
+    color: var(--lt-muted, #49627f);
+  }
+
+  .lt-login-aftertrial--mobile strong {
+    color: var(--lt-ink, #071a3d);
+  }
+
+  /* ★★ THE PANEL VARIANT SITS ON A PERMANENTLY DARK BACKDROP, so its colours
+     cannot key off the PAGE theme.
+
+     Every rule above pairs a light-theme colour with a
+     .lt-login-page[data-login-theme="dark"] override — correct while the strip
+     lived in the auth column, which really does follow the page theme. The
+     brand panel does not: it is navy in BOTH themes. So in LIGHT theme the
+     strip rendered #49627f body text and #0b8f50 links on near-black navy —
+     the same class of defect as the 1.04:1 white-on-white AUTH-3 fixed, and
+     invisible to every assertion in the suite.
+
+     Caught by a 1440px screenshot after the move, not by a test. These rules
+     are scoped to the panel variant only, so the mobile mirror keeps following
+     the page theme exactly as before.
+
+     NO BACKTICKS ANYWHERE IN THIS STRING. It is a template literal, so one
+     would terminate it and take the build down. */
+  .lt-offer-strip--panel {
+    color: #b6f2d5;
+    background: rgba(53, 242, 160, 0.085);
+    border-color: rgba(53, 242, 160, 0.3);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-lead {
+    color: #a7f7d0;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-body,
+  .lt-offer-strip--panel .lt-offer-strip-note {
+    color: #cfe0f2;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-badge {
+    color: #8ff0c0;
+    background: rgba(53, 242, 160, 0.16);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-price {
+    color: #ffffff;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-was {
+    color: rgba(207, 224, 242, 0.62);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-link {
+    color: #7ff3c0;
+  }
+
+  .lt-offer-strip--panel .lt-login-aftertrial {
+    color: #cfe0f2;
+  }
+
+  .lt-offer-strip--panel .lt-login-aftertrial strong {
+    color: #ffffff;
+  }
+
+  /* The compact strip mirrors the panel one for phones, so it is the exact
+     inverse of the brand panel: hidden while the panel is visible, shown once
+     the panel is removed. Same reasoning as the after-trial mirror above, and
+     the same breakpoint — 1023px, which is where Login.tsx sets
+     .lt-login-brand-panel to display:none. */
+  .lt-offer-strip--mobile {
+    display: none;
+    /* ⚠ 3.76:1 BEFORE THIS LINE — a real WCAG-AA failure for normal text, and
+       PRE-EXISTING on trunk rather than introduced here.
+
+       The strip inherits var(--lt-green-dark, #0b8f50) and sits on its own
+       rgba(22,185,106,0.1) wash over white, which composites to about #e8f8f0.
+       The lead is 0.86rem and the link 0.8rem — nowhere near the 18.66px-bold
+       large-text exemption, so 4.5:1 is the bar and it missed.
+
+       Found by this lane's own contrast probe once that probe was fixed to
+       composite alpha instead of scoring a 10%-alpha wash as solid green. The
+       original measurement reported 1.09:1 for legible text and would never
+       have been believed; a correct measurement found a defect nobody had seen.
+
+       Scoped to the mobile variant, which is the only place this colour lands
+       on a light backdrop now. The dark-theme rule has higher specificity and
+       still wins, so dark theme is untouched. */
+    color: #07713f;
+  }
+
+  .lt-offer-strip--mobile .lt-offer-strip-link {
+    color: #07713f;
+  }
+
+  @media (max-width: 1023px) {
+    .lt-login-aftertrial--mobile {
+      display: block;
+    }
+
+    .lt-offer-strip--mobile {
+      display: flex;
+    }
+  }
+</style><p class="lt-offer-strip-lead" data-testid="lt-offer-lead">7-day trial, then free Basic</p><p class="lt-login-aftertrial" data-testid="lt-after-trial-panel"><strong>Try Premium free for 7 days — no card needed.</strong> After that, keep free Basic or get the Board Pass: ₹1,917 + GST — one payment till your boards.</p><p class="lt-offer-strip-lead" data-testid="lt-offer-founding-label">Founding member offer</p><p class="lt-offer-strip-body">Board Pass: <span class="lt-offer-strip-price">₹1,917 + GST — one payment till your boards</span>. Upgrade whenever you like.</p><a class="lt-offer-strip-link" href="/pricing?source=login" data-discover="true">See plans →</a></div></div></section><section class="lt-login-auth-panel" aria-label="Sign in"><div class="lt-login-gate"><a aria-label="Back to LazyTopper home" class="lt-login-mobile-brand" href="/" data-discover="true"><img class="lt-login-mark" width="42" height="42" alt="" aria-hidden="true" src="/brand/lazytopper-fingerprint-icon-128.png"><span><span class="lt-login-wordmark">LazyTopper</span><span class="lt-login-mobile-brand-sub">CBSE Class 10 Board Exam Prep</span></span></a><div class="lt-login-frame"><h2 class="lt-login-stephead">Sign in to LazyTopper</h2><p class="lt-login-stepsub">New here? Just continue — your account is created automatically.</p><div class="lt-doors"><button type="button" class="lt-method lt-method--primary"><span class="lt-method-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"></line></svg></span>Continue with phone number</button><button type="button" class="lt-google lt-google--secondary"><span class="lt-gmark" aria-hidden="true"><svg viewBox="0 0 48 48" width="18" height="18"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg></span>Continue with Google</button><button type="button" class="lt-method"><span class="lt-method-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect><path d="M3 7l9 6 9-6"></path></svg></span>Continue with email</button></div><p class="lt-login-linkwarn" data-testid="lt-link-warning"><b>Use the same method every time.</b> Your attempts, checked answers and progress stay with that account. Start with email or Google and you can add your phone later from Home — both then open the same account. No email? Phone works on its own; just sign in with that same number each time.</p></div><div class="lt-offer-strip lt-offer-strip--mobile" data-testid="lt-offer-strip-mobile" aria-label="What you are joining"><style>
+  .lt-offer-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    color: var(--lt-green-dark, #0b8f50);
+    background: rgba(22, 185, 106, 0.1);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.84rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip {
+    color: #b6f2d5;
+  }
+
+  .lt-offer-strip-lead {
+    margin: 0;
+    font-weight: 900;
+    font-size: 0.86rem;
+  }
+
+  .lt-offer-strip-body {
+    margin: 0;
+    color: var(--lt-muted, #49627f);
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-body {
+    color: #cfe3f3;
+  }
+
+  .lt-offer-strip-badge {
+    color: var(--lt-green-dark, #0b8f50);
+    font-weight: 900;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-badge {
+    color: #8ff0c0;
+  }
+
+  .lt-offer-strip-price {
+    white-space: nowrap;
+    font-weight: 900;
+  }
+
+  /* The list price is struck because it is not what a founding member pays —
+     NOT because it is retired. It is live and charged from student 201 onward.
+     <s> carries that meaning natively. It is kept on its own nowrap run so the
+     strike cannot break across two lines at 390px, where a half-struck figure
+     is unreadable. */
+  .lt-offer-strip-was {
+    white-space: nowrap;
+    opacity: 0.75;
+    text-decoration-thickness: 1px;
+  }
+
+  .lt-offer-strip-note {
+    margin: 0;
+    color: var(--lt-muted, #49627f);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-note {
+    color: #b8c6d8;
+  }
+
+  .lt-offer-strip-link {
+    align-self: flex-start;
+    margin-top: 2px;
+    color: var(--lt-green-dark, #0b8f50);
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-offer-strip-link {
+    color: #8ff0c0;
+  }
+
+  .lt-login-aftertrial {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    font-weight: 600;
+    max-width: 560px;
+  }
+
+  .lt-login-aftertrial strong {
+    color: #dffff0;
+    font-weight: 800;
+  }
+
+  /* Mobile mirror. The brand panel is display:none below 1024px, so without
+     this the after-trial sentence would be invisible to every phone student —
+     the exact audience most likely to read "free trial" as "my parent's card
+     gets charged". */
+  .lt-login-aftertrial--mobile {
+    display: none;
+    color: var(--lt-muted, #49627f);
+  }
+
+  .lt-login-aftertrial--mobile strong {
+    color: var(--lt-ink, #071a3d);
+  }
+
+  /* ★★ THE PANEL VARIANT SITS ON A PERMANENTLY DARK BACKDROP, so its colours
+     cannot key off the PAGE theme.
+
+     Every rule above pairs a light-theme colour with a
+     .lt-login-page[data-login-theme="dark"] override — correct while the strip
+     lived in the auth column, which really does follow the page theme. The
+     brand panel does not: it is navy in BOTH themes. So in LIGHT theme the
+     strip rendered #49627f body text and #0b8f50 links on near-black navy —
+     the same class of defect as the 1.04:1 white-on-white AUTH-3 fixed, and
+     invisible to every assertion in the suite.
+
+     Caught by a 1440px screenshot after the move, not by a test. These rules
+     are scoped to the panel variant only, so the mobile mirror keeps following
+     the page theme exactly as before.
+
+     NO BACKTICKS ANYWHERE IN THIS STRING. It is a template literal, so one
+     would terminate it and take the build down. */
+  .lt-offer-strip--panel {
+    color: #b6f2d5;
+    background: rgba(53, 242, 160, 0.085);
+    border-color: rgba(53, 242, 160, 0.3);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-lead {
+    color: #a7f7d0;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-body,
+  .lt-offer-strip--panel .lt-offer-strip-note {
+    color: #cfe0f2;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-badge {
+    color: #8ff0c0;
+    background: rgba(53, 242, 160, 0.16);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-price {
+    color: #ffffff;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-was {
+    color: rgba(207, 224, 242, 0.62);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-link {
+    color: #7ff3c0;
+  }
+
+  .lt-offer-strip--panel .lt-login-aftertrial {
+    color: #cfe0f2;
+  }
+
+  .lt-offer-strip--panel .lt-login-aftertrial strong {
+    color: #ffffff;
+  }
+
+  /* The compact strip mirrors the panel one for phones, so it is the exact
+     inverse of the brand panel: hidden while the panel is visible, shown once
+     the panel is removed. Same reasoning as the after-trial mirror above, and
+     the same breakpoint — 1023px, which is where Login.tsx sets
+     .lt-login-brand-panel to display:none. */
+  .lt-offer-strip--mobile {
+    display: none;
+    /* ⚠ 3.76:1 BEFORE THIS LINE — a real WCAG-AA failure for normal text, and
+       PRE-EXISTING on trunk rather than introduced here.
+
+       The strip inherits var(--lt-green-dark, #0b8f50) and sits on its own
+       rgba(22,185,106,0.1) wash over white, which composites to about #e8f8f0.
+       The lead is 0.86rem and the link 0.8rem — nowhere near the 18.66px-bold
+       large-text exemption, so 4.5:1 is the bar and it missed.
+
+       Found by this lane's own contrast probe once that probe was fixed to
+       composite alpha instead of scoring a 10%-alpha wash as solid green. The
+       original measurement reported 1.09:1 for legible text and would never
+       have been believed; a correct measurement found a defect nobody had seen.
+
+       Scoped to the mobile variant, which is the only place this colour lands
+       on a light backdrop now. The dark-theme rule has higher specificity and
+       still wins, so dark theme is untouched. */
+    color: #07713f;
+  }
+
+  .lt-offer-strip--mobile .lt-offer-strip-link {
+    color: #07713f;
+  }
+
+  @media (max-width: 1023px) {
+    .lt-login-aftertrial--mobile {
+      display: block;
+    }
+
+    .lt-offer-strip--mobile {
+      display: flex;
+    }
+  }
+</style><p class="lt-offer-strip-lead" data-testid="lt-offer-lead">7-day trial, then free Basic</p><p class="lt-login-aftertrial lt-login-aftertrial--mobile" data-testid="lt-after-trial-mobile"><strong>Try Premium free for 7 days — no card needed.</strong> After that, keep free Basic or get the Board Pass: ₹1,917 + GST — one payment till your boards.</p><a class="lt-offer-strip-link" href="/pricing?source=login" data-discover="true">See plans →</a></div><div id="lt-login-recaptcha"></div><div class="lt-login-foot"><a class="lt-login-back-link" href="/" data-discover="true">&lt;- Back to home</a><span class="lt-login-terms" data-testid="lt-legal-footer">By signing in, you agree to our <a href="/legal/terms" data-discover="true">Terms of Service</a> and <a href="/legal/privacy" data-discover="true">Privacy Policy</a></span></div></div></section></main></div><div data-lt-bottomnav="" style="position: fixed; bottom: 0px; left: 0px; right: 0px; display: flex; justify-content: space-around; padding: 6px 8px 10px; background: rgb(255, 255, 255); border-top: 1px solid rgb(225, 228, 234); z-index: 20;"><button style="background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: rgb(91, 102, 123); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; padding: 4px 6px; border-radius: 8px; transition: color 0.15s; -webkit-tap-highlight-color: transparent;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg><span>Home</span></button><button style="background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: rgb(91, 102, 123); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; padding: 4px 6px; border-radius: 8px; transition: color 0.15s; -webkit-tap-highlight-color: transparent;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 16l4-4 4 4 4-4"></path></svg><span>Exam Trends</span></button><button style="background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: rgb(91, 102, 123); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; padding: 4px 6px; border-radius: 8px; transition: color 0.15s; -webkit-tap-highlight-color: transparent;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg><span>Practice</span></button><button style="background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: rgb(91, 102, 123); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; padding: 4px 6px; border-radius: 8px; transition: color 0.15s; -webkit-tap-highlight-color: transparent;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"></rect><circle cx="12" cy="16" r="1"></circle></svg><span>Check</span></button><button style="background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: rgb(91, 102, 123); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; padding: 4px 6px; border-radius: 8px; transition: color 0.15s; -webkit-tap-highlight-color: transparent;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29a2.5 2.5 0 0 0 3.42 0l6.58-6.58a2.5 2.5 0 0 0 0-3.42Z"></path><path d="M7 7h.01"></path></svg><span>Pricing</span></button></div>
