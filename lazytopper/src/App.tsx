@@ -75,6 +75,7 @@ const CbqHubPage = lazy(() => import("./pages/cbq/CbqHubPage"));
 const CbqChapterPage = lazy(() => import("./pages/cbq/CbqChapterPage"));
 // WA-CONTACT-1 — the /contact page and the floating WhatsApp button (decides its own routes).
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const InvoiceDetailsPage = lazy(() => import("./pages/InvoiceDetailsPage")); // GST-INVOICE-BACKDATE-1: the signed-out state form
 // Mounted outside the ErrorBoundary, so a chunk that never loads renders nothing, never an error.
 const WhatsAppFab = lazy(() => import("./components/contact/WhatsAppFab").catch(() => ({ default: () => null })));
 const NcertBooksPage = lazy(() => import("./pages/NcertBooksPage"));
@@ -1072,6 +1073,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/cbq-class-10" element={withRouteSuspense(<CbqHubPage />)} />
           <Route path="/cbq-class-10/:chapterSlug" element={withRouteSuspense(<CbqChapterPage />)} />
           <Route path="/contact" element={withRouteSuspense(<ContactPage />)} />
+          <Route path="/invoice-details" element={withRouteSuspense(<InvoiceDetailsPage />)} />
           <Route path="/ncert-class-10" element={withRouteSuspense(<NcertBooksPage />)} />
           {/* SOLUTIONS-1 (G, D259-D261): one route family; the page serves the pilot chapters only. */}
           <Route path="/ncert-solutions/:chapter" element={withRouteSuspense(<SolutionsPage />)} />
