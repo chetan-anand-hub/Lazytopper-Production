@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactElement, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import type { DesktopSubject } from "./navigation";
@@ -305,9 +305,13 @@ const PICKER_CSS = `
     border-color: hsl(152, 55%, 45%); box-shadow: 0 0 0 3px hsl(152, 50%, 96%);
   }
   .lt-tutor-x {
-    position: absolute; top: 12px; right: 15px; font-size: 17px; line-height: 1;
-    color: hsl(220, 15%, 60%); cursor: pointer; background: none; border: 0; padding: 0;
-    display: flex; align-items: center; justify-content: flex-end; width: 14.25px; height: 17px;
+    position: absolute; top: 0; right: 0; font-size: 17px; line-height: 1;
+    color: hsl(220, 15%, 60%); cursor: pointer; background: none; border: 0;
+    box-sizing: border-box; width: 44px; height: 44px; padding: 0 0 3px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lt-tutor-x:focus-visible, .lt-tutor-go:focus-visible {
+    outline: 2px solid hsl(152, 55%, 38%); outline-offset: 2px; border-radius: 12px;
   }
   .lt-tutor-x svg { display: block; }
   .lt-tutor-go {
@@ -335,6 +339,43 @@ function ensurePickerStyles(): void {
   el.id = PICKER_STYLE_ID;
   el.textContent = PICKER_CSS;
   document.head.appendChild(el);
+}
+
+const FOCUSABLE_SEL =
+  'button:not([disabled]), select:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+// CBQ-CHOOSER-A11Y — focus moves into the dialog on open, Tab cycles inside it, and focus returns to
+// whatever opened it on close. The first select takes the initial focus (callers that nest the chooser
+// rely on that).
+function useDialogFocus(open: boolean, popRef: { current: HTMLDivElement | null }): void {
+  useEffect(() => {
+    if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const pop = popRef.current;
+    (pop?.querySelector<HTMLElement>("select") ?? pop?.querySelector<HTMLElement>("button.lt-tutor-go"))?.focus({ preventScroll: true });
+    return () => {
+      // Only when focus was lost with the dialog (a caller that already moved focus keeps its choice).
+      const now = document.activeElement;
+      const lost = !now || now === document.body || (pop ? pop.contains(now) : false);
+      if (lost && opener && opener.isConnected && typeof opener.focus === "function") opener.focus({ preventScroll: true });
+    };
+  }, [open, popRef]);
+}
+
+function trapTab(e: { key: string; shiftKey: boolean; preventDefault: () => void }, pop: HTMLElement | null): void {
+  if (e.key !== "Tab" || !pop) return;
+  const items = Array.from(pop.querySelectorAll<HTMLElement>(FOCUSABLE_SEL));
+  if (items.length === 0) return;
+  const first = items[0];
+  const last = items[items.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && (active === first || !items.includes(active as HTMLElement))) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (active === last || !items.includes(active as HTMLElement))) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 export interface TutorPickerModalProps {
@@ -408,6 +449,8 @@ export function ChapterPickerModal({
 }: ChapterPickerModalProps) {
   const [subject, setSubject] = useState<DesktopSubject>(initialSubject ?? "Maths");
   const [topicKey, setTopicKey] = useState<string>(initialTopicKey ?? "");
+  const popRef = useRef<HTMLDivElement | null>(null);
+  useDialogFocus(open, popRef);
 
   const topics = useMemo(() => desktopTopicsBySubject(subject), [subject]);
   const soon = (slug: string) => Boolean(isComingSoon?.(subject, slug));
@@ -443,11 +486,13 @@ export function ChapterPickerModal({
     >
       <div
         className="lt-tutor-pop"
+        ref={popRef}
         role="dialog"
         aria-modal="true"
         aria-label={title}
         onKeyDown={(e) => {
           if (e.key === "Escape") onClose();
+          trapTab(e, popRef.current);
         }}
       >
         <button type="button" className="lt-tutor-x" aria-label="Close" onClick={onClose}>

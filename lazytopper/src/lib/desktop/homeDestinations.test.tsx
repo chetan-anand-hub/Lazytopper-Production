@@ -295,3 +295,60 @@ describe("chooser styles + close glyph (SPEED-CBQPICK-1)", () => {
     expect(closed).toBe(2);
   });
 });
+
+describe("chooser keyboard + focus (FU-CBQ-CHOOSER-A11Y)", () => {
+  it("is a named modal dialog, and focus moves to its first select on open", () => {
+    renderPicker(true);
+    const dlg = screen.getByRole("dialog");
+    expect(dlg.getAttribute("aria-modal")).toBe("true");
+    expect(dlg.getAttribute("aria-label")).toBeTruthy();
+    expect(document.activeElement).toBe(dlg.querySelector("select"));
+  });
+
+  it("Tab from the last control wraps to the first, Shift+Tab from the first wraps to the last", () => {
+    renderPicker(true);
+    const dlg = screen.getByRole("dialog");
+    const items = Array.from(dlg.querySelectorAll<HTMLElement>("button, select"));
+    const first = items[0];
+    const last = items[items.length - 1];
+    last.focus();
+    fireEvent.keyDown(last, { key: "Tab" });
+    expect(document.activeElement).toBe(first);
+    first.focus();
+    fireEvent.keyDown(first, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(last);
+  });
+
+  it("focus returns to the opener when the dialog closes", () => {
+    const { rerender } = render(
+      <MemoryRouter>
+        <button type="button" data-testid="opener">open</button>
+        <TutorPickerModal open={false} onClose={() => {}} isSignedIn />
+      </MemoryRouter>,
+    );
+    const opener = screen.getByTestId("opener");
+    opener.focus();
+    rerender(
+      <MemoryRouter>
+        <button type="button" data-testid="opener">open</button>
+        <TutorPickerModal open onClose={() => {}} isSignedIn />
+      </MemoryRouter>,
+    );
+    expect(document.activeElement).not.toBe(opener);
+    rerender(
+      <MemoryRouter>
+        <button type="button" data-testid="opener">open</button>
+        <TutorPickerModal open={false} onClose={() => {}} isSignedIn />
+      </MemoryRouter>,
+    );
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it("the Close button's hit area is at least 44x44 in the injected CSS", () => {
+    renderPicker(true);
+    const css = document.head.querySelector("style#lt-picker-css")!.textContent!;
+    const rule = css.slice(css.indexOf(".lt-tutor-x {"), css.indexOf("}", css.indexOf(".lt-tutor-x {")));
+    expect(rule).toMatch(/width: 44px/);
+    expect(rule).toMatch(/height: 44px/);
+  });
+});
