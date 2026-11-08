@@ -55,14 +55,13 @@ import { maskEmail } from "../../services/checkoutWhoFlag";
 /** PREEXIST-FIX-1: the same specifier as the lazy() below (one chunk), for the ?buy= warm-up. */
 const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
-/** BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card in My packs: its own lazy chunk, warmed as soon as an account is known. */
-const loadMyPacksBridge = () => import("./MyPacksBridge");
-const MyPacksBridge = lazy(loadMyPacksBridge);
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
+// BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card in My packs (its own lazy chunk behind a boundary).
+import MyPacksBridgeSlot, { warmMyPacksBridge } from "./MyPacksBridgeSlot";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -390,7 +389,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   }, [user, loadMine]);
   // BRIDGE-PANEL-1: warm the panel's chunk alongside the My packs read, so it lands with the pack cards (no late jump).
   useEffect(() => {
-    if (user && !embedded && !hideMyPacks) void loadMyPacksBridge().catch(() => undefined);
+    if (user && !embedded && !hideMyPacks) warmMyPacksBridge();
   }, [user, embedded, hideMyPacks]);
 
   // PAY-PHONE-1 - a sign-in just attached a pack paid with this phone number: re-read My packs from the server.
@@ -877,9 +876,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
             {/* BRIDGE-PANEL-1: buyers only (this section renders only for an owner), never in the /pricing strip (embedded). */}
             {!embedded && mine && hasLicenseeContact(mine.licensee) && mine.packs.length > 0 && (
-              <Suspense fallback={null}>
-                <MyPacksBridge packs={mine.packs} paidPass={paidPass} onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} />
-              </Suspense>
+              <MyPacksBridgeSlot packs={mine.packs} titleOf={ownedPackTitle} paidPass={paidPass} onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} />
             )}
             {/* PACK-READY-1: the name is offered AFTER the files, never in front of the first download (PDFs fall back to the masked phone). */}
             {askName && user && mine && (

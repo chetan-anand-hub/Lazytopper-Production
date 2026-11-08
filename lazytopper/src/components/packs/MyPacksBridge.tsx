@@ -5,7 +5,6 @@ import { trackSaleMoment } from "../../analytics/analytics";
 import type { OwnedPack } from "../../services/packs";
 import type { SessionRecord } from "../../services/sessionRecords";
 import { roundMarks } from "../../lib/mistakeDisplay";
-import { ownedPackTitle } from "./PacksShop";
 import { useMyPacksBridge } from "./useMyPacksBridge";
 import {
   BRIDGE_ANALYTICS_SURFACE,
@@ -44,6 +43,8 @@ export interface MyPacksBridgeProps {
   packs: readonly OwnedPack[];
   /** A server-backed paid Board Pass (usePaidPremium) - no Board Pass card, every paper "with Board Pass". */
   paidPass: boolean;
+  /** The pack's display title (PacksShop's `ownedPackTitle`, passed in so this chunk does not import the shop back). */
+  titleOf: (pack: OwnedPack) => string;
   /** Open (and scroll to) one pack's file list - the existing My packs mechanism. */
   onOpenFiles: (packId: string) => void;
 }
@@ -100,13 +101,13 @@ function RowAction({ row, packId, onOpenFiles }: { row: BridgeRow; packId: strin
   );
 }
 
-function PackPapers({ group, showTitle, onOpenFiles }: { group: PackGroup; showTitle: boolean; onOpenFiles: (packId: string) => void }) {
+function PackPapers({ group, title, onOpenFiles }: { group: PackGroup; title: string | null; onOpenFiles: (packId: string) => void }) {
   const [open, setOpen] = useState(false);
   const rows = open ? group.rows : group.rows.slice(0, BRIDGE_ROWS_COLLAPSED);
   const more = group.rows.length - BRIDGE_ROWS_COLLAPSED;
   return (
     <div className="lt-pb__pack" data-testid="packs-bridge-pack">
-      {showTitle && <h4 className="lt-pb__packname">{ownedPackTitle(group.pack)}</h4>}
+      {title && <h4 className="lt-pb__packname">{title}</h4>}
       <ul className="lt-pb__rows">
         {rows.map((row) => (
           <li key={row.paper.code} className="lt-pb__row" data-testid="packs-bridge-row" data-code={row.paper.code}>
@@ -190,7 +191,7 @@ function BoardPassCard() {
   );
 }
 
-export default function MyPacksBridge({ packs, paidPass, onOpenFiles }: MyPacksBridgeProps) {
+export default function MyPacksBridge({ packs, paidPass, titleOf, onOpenFiles }: MyPacksBridgeProps) {
   const { user } = useAuth();
   const { records, allowance } = useMyPacksBridge(user);
   const { groups, first } = useMemo(() => bridgeView(packs, records, { paidPass, allowance }), [packs, records, paidPass, allowance]);
@@ -213,7 +214,7 @@ export default function MyPacksBridge({ packs, paidPass, onOpenFiles }: MyPacksB
               </p>
             </div>
             {groups.map((g) => (
-              <PackPapers key={g.pack.packId} group={g} showTitle={groups.length > 1} onOpenFiles={onOpenFiles} />
+              <PackPapers key={g.pack.packId} group={g} title={groups.length > 1 ? titleOf(g.pack) : null} onOpenFiles={onOpenFiles} />
             ))}
           </>
         )}
