@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
@@ -257,7 +257,15 @@ describe("ASK-COPY-1: the signed-out tutor gate leads with the free week", () =>
 });
 
 describe("chooser styles + close glyph (SPEED-CBQPICK-1)", () => {
+  it("the picker CSS is NOT in <head> before the first open (importing the module adds nothing)", async () => {
+    document.getElementById("lt-picker-css")?.remove();
+    vi.resetModules();
+    await import("./homeDestinations");
+    expect(document.getElementById("lt-picker-css")).toBeNull();
+  });
+
   it("the picker CSS lives in <head> exactly once, never inside the dialog, across opens", () => {
+    document.getElementById("lt-picker-css")?.remove();
     const first = renderPicker(true);
     expect(document.head.querySelectorAll("style#lt-picker-css")).toHaveLength(1);
     expect(document.head.querySelector("style#lt-picker-css")!.textContent).toContain(".lt-tutor-pop");
