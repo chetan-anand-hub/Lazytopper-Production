@@ -41,8 +41,8 @@ export const PACK_PREVIEWS: readonly PackPreviewSpec[] = [
   p("pack_subject", "maths", 1, "worksheet-questions", "worksheet-answers"),
   p("pack_subject", "science", 1, "worksheet-questions", "worksheet-answers"),
   p("pack_bundle", "all", 2, "worksheet-questions", "worksheet-answers", "maths"),
-  p("pack_cbq", "maths", 0, "cbq-1-questions", "cbq-1-answers"),
-  p("pack_cbq", "science", 1, "cbq-1-questions", "cbq-1-answers"),
+  p("pack_cbq", "maths", 0, "cbq-set-1-questions", "cbq-set-1-answers"),
+  p("pack_cbq", "science", 1, "cbq-set-1-questions", "cbq-set-1-answers"),
 ];
 
 export const PREVIEW_DIR = "/packs/previews";
