@@ -64,6 +64,15 @@ const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice issued after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 
+/**
+ * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
+ * call time because parentPay.cjs itself requires this module at load (a top-level require here would be a cycle that
+ * hands parentPay a half-built exports object).
+ */
+function coveredTillBoards(storedSubscription, nowMs) {
+  return require('./parentPay.cjs').coveredTillBoards(storedSubscription, nowMs);
+}
+
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
 const PAY_WEBHOOK_PATH = '/api/pay/webhook';
@@ -462,6 +471,19 @@ function createPaymentRoutes(deps = {}) {
         }
         quote = tableQuote(TOPUP_PRODUCTS[passType].priceInr, now());
       } else {
+        // MONEY-DUPGUARD-1 (owner 2-3 Nov: "There are no refunds") - an account whose pass ALREADY runs to the boards
+        // buys nothing new with either pass, so no order is made for it (no Razorpay order, nothing stored). The rule is
+        // the ONE guest / parent pay already use (parentPay.cjs `coveredTillBoards`). A month pass that ends before the
+        // boards is not covered, so its Board Pass upgrade is still sold. A failed subscription read never reaches here:
+        // it is the catch below (500, no order) - fail CLOSED.
+        if (coveredTillBoards(stored, now())) {
+          emit('payments.order.pass_already_covered');
+          return sendJson(res, 409, {
+            ok: false,
+            error: 'already_covered',
+            message: 'Your Board Pass already covers you till your boards. There is nothing more to pay.',
+          });
+        }
         // PRICE-FIXED-1 - the month pass is no longer sold to an account that has never bought one, from
         // 2026-11-01T00:00:00+05:30 (server clock). Derived from the server's own records, never the body.
         if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, uid, now()))) {

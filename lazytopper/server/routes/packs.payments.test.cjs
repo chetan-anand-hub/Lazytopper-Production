@@ -728,8 +728,13 @@ test('CREDIT · A CREDITED ORDER IS NOT REJECTED AS A MISMATCH: verify grants, r
   assert.equal(again.status, 200);
   assert.equal(again.json.replayed, true);
   assert.equal(srv.db.version('packEntitlements/u1/packs/pack_mock:maths'), before);
-  // the credit is SPENT: the next Board Pass order has none
-  assert.equal(await orderAmount(srv, 'u1', 'till_boards'), full);
+  // the credit is SPENT: the server's credit for a next Board Pass is 0 (read directly - MONEY-DUPGUARD-1 now refuses a
+  // second Board Pass ORDER from this account, which is covered till the boards)
+  const { boardPassCreditFor } = require('../services/packCredit.cjs');
+  assert.equal((await boardPassCreditFor(srv.db, 'u1', 'till_boards', full / 100, NOW)).creditInr, 0);
+  const next = await order(srv, 'u1', 'till_boards');
+  assert.equal(next.status, 409);
+  assert.equal(next.json.error, 'already_covered');
 });
 
 test('CREDIT · paying the FULL price for a credited order is refused (the stored credited amount is what is enforced)', async (t) => {

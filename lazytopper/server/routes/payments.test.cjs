@@ -1634,7 +1634,7 @@ const monthBuyerSeed = () => ({
   'payOrders/order_mb_old': { uid: 'mb1', passType: 'month', status: 'paid', amountPaise: 59900, offerKey: 'founding', paymentId: 'pay_mb_old' },
 });
 
-test('EXISTING-BUYERS (1) · a till_boards buyer: their stored pass is byte-identical after the offer endpoint, a refused month order and a new Board Pass ORDER; the new order is the only write', async (t) => {
+test('EXISTING-BUYERS (1) · a till_boards buyer: their stored pass is byte-identical after the offer endpoint, a refused month order and a REFUSED new Board Pass order (MONEY-DUPGUARD-1); nothing is written', async (t) => {
   const db = memoryFirestore(tillBoardsBuyerSeed());
   const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
   t.after(srv.close);
@@ -1643,21 +1643,18 @@ test('EXISTING-BUYERS (1) · a till_boards buyer: their stored pass is byte-iden
   // The offer endpoint: not a month buyer -> month hidden. Writes nothing.
   const offer = await request(srv.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid('tb1') });
   assert.equal(offer.json.monthPassAvailable, false);
-  // A month order is refused (never bought a month): writes nothing.
+  // A month order is refused (MONEY-DUPGUARD-1: the pass already runs to the boards): writes nothing.
   const refused = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: asUid('tb1') });
   assert.equal(refused.status, 409);
   assert.equal(snapshotDocs(db), before, 'a read-only/refused call rewrote a stored document');
 
-  // A new Board Pass order: priced at the fixed 1917 + 18% GST (GST-EXCL-1, 10 Nov); the ONLY new document is the new payOrders order.
-  const ok = await createOrder(srv, 'tb1', 'till_boards');
-  assert.equal(ok.amountPaise, 226200);
-  const after = new Map(db.docs);
-  const added = [...after.keys()].filter((k) => !JSON.parse(before).some(([bk]) => bk === k));
-  assert.deepEqual(added, [`payOrders/${ok.orderId}`]);
-  for (const [k, data, version] of JSON.parse(before)) {
-    assert.equal(db.docs.get(k).version, version, `${k} was rewritten`);
-    assert.deepEqual(JSON.parse(JSON.stringify(db.docs.get(k).data)), data, `${k} changed`);
-  }
+  // MONEY-DUPGUARD-1 (owner: "There are no refunds"): a second Board Pass buys nothing for an account already covered till
+  // the boards, so the server refuses the order (this test used to assert it was created - the gap #1628's review logged).
+  const again = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'till_boards' }, headers: asUid('tb1') });
+  assert.equal(again.status, 409, JSON.stringify(again.json));
+  assert.equal(again.json.error, 'already_covered');
+  assert.equal(srv.rzp.calls.length, 0, 'Razorpay was called for an account already covered');
+  assert.equal(snapshotDocs(db), before, 'a refused Board Pass order wrote something');
 });
 
 test('EXISTING-BUYERS (1) · a till_boards buyer keeps the SAME end date and stacking rule: re-granting never shortens a later passEnd, a replay changes nothing, and the paid order record is untouched', async () => {
@@ -1913,4 +1910,144 @@ test('GST-EXCL-1 · top-ups follow the same rule: 49 -> 58 and 149 -> 176 after 
   const g = srv.db.read(`usageCredits/u1/grants/${a.p.id}`);
   assert.deepEqual([g.priceInr, g.baseInr, g.gstInr, g.totalInr], [49, 49, 9, 58]);
   assert.equal(pricing.priceWithGst(149, GST_CUT), 176);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MONEY-DUPGUARD-1 (owner 2-3 Nov: "There are no refunds") - the server refuses a pass order from an account whose
+   pass ALREADY runs to the boards. Same rule as guest / parent pay (parentPay.cjs coveredTillBoards). Everything a
+   covered account could not buy before is still sold to everyone else.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const DG_NOW = istNoon('2026-11-10'); // predicted board day 2027-02-17 (end of IST day = BOARD_END)
+const dgPayOrders = (db) => [...db.docs.keys()].filter((k) => k.startsWith('payOrders/'));
+
+test('DUPGUARD · a Board Pass holder: till_boards AND month orders are refused 409 already_covered; Razorpay never called, nothing written, telemetry', async (t) => {
+  for (const passType of ['till_boards', 'month']) {
+    const db = memoryFirestore(tillBoardsBuyerSeed());
+    const srv = await startRoutes({ db, now: () => DG_NOW, calendarOffer: true });
+    t.after(srv.close);
+    const before = snapshotDocs(db);
+    const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType }, headers: asUid('tb1') });
+    assert.equal(r.status, 409, `${passType}: ${JSON.stringify(r.json)}`);
+    assert.equal(r.json.ok, false);
+    assert.equal(r.json.error, 'already_covered');
+    assert.equal(typeof r.json.message, 'string');
+    assert.ok(r.json.message.length > 0 && r.json.message.length < 120);
+    assert.equal(srv.rzp.calls.length, 0, `${passType}: Razorpay was called`);
+    assert.equal(snapshotDocs(db), before, `${passType}: a refused order wrote something`);
+    assert.ok(srv.events.includes('payments.order.pass_already_covered'), `${passType}: no telemetry`);
+    assert.ok(!srv.events.includes('payments.order.created'));
+  }
+});
+
+test('DUPGUARD · covered past the boards (an admin extension to April) is refused too; a body claim cannot open it', async (t) => {
+  const seed = tillBoardsBuyerSeed();
+  seed['subscriptions/tb1'] = { ...seed['subscriptions/tb1'], passEnd: new Date(Date.parse('2027-04-30T23:59:59+05:30')) };
+  const srv = await startRoutes({ db: memoryFirestore(seed), now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const r = await request(srv.port, PAY_ORDER_PATH, {
+    body: { passType: 'till_boards', covered: false, passEnd: '2026-01-01', amount: 1 },
+    headers: asUid('tb1'),
+  });
+  assert.equal(r.status, 409);
+  assert.equal(r.json.error, 'already_covered');
+  assert.equal(srv.rzp.calls.length, 0);
+});
+
+test('DUPGUARD · boundary: passEnd AT the end of the predicted board day is covered (409); 1 ms earlier is not (order made)', async (t) => {
+  const { coveredTillBoards } = require('./parentPay.cjs');
+  for (const [endMs, covered] of [[BOARD_END, true], [BOARD_END - 1, false]]) {
+    const stored = { tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(endMs) };
+    assert.equal(coveredTillBoards(stored, DG_NOW), covered, 'the shared helper disagrees with this test');
+    const srv = await startRoutes({ db: memoryFirestore({ 'subscriptions/b1': stored }), now: () => DG_NOW, calendarOffer: true });
+    t.after(srv.close);
+    const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'till_boards' }, headers: asUid('b1') });
+    assert.equal(r.status, covered ? 409 : 200, `${new Date(endMs).toISOString()}: ${JSON.stringify(r.json)}`);
+    assert.equal(dgPayOrders(srv.db).length, covered ? 0 : 1);
+  }
+});
+
+test('DUPGUARD · a MONTH-pass holder still gets the Board Pass UPGRADE order, at the server upgrade price (owner 7 Nov)', async (t) => {
+  const db = memoryFirestore(monthBuyerSeed());
+  const srv = await startRoutes({ db, now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const stored = db.read('subscriptions/mb1');
+  const expected = quotePass(stored, 'till_boards', DG_NOW).amountPaise;
+  const out = await createOrder(srv, 'mb1', 'till_boards');
+  assert.equal(out.amountPaise, expected);
+  assert.equal(out.amountPaise, 226200);
+  assert.ok(!srv.events.includes('payments.order.pass_already_covered'));
+  // ...and the upgrade, once paid, is granted (to the boards).
+  const p = srv.rzp.pay(out.orderId);
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: out.orderId, paymentId: p.id, signature: checkoutSig(out.orderId, p.id) }, headers: asUid('mb1') });
+  assert.equal(v.status, 200, JSON.stringify(v.json));
+  assert.equal(ms(db.read('subscriptions/mb1').passEnd), BOARD_END);
+  // Now covered: a further Board Pass order is refused.
+  const again = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'till_boards' }, headers: asUid('mb1') });
+  assert.equal(again.status, 409);
+  assert.equal(again.json.error, 'already_covered');
+});
+
+test('DUPGUARD · no subscription / trial / Basic / expired pass (last year\'s Board Pass, an expired month) still get a Board Pass order', async (t) => {
+  const cases = {
+    nosub: null,
+    trial: { tier: 'trial', trialStartDate: new Date(DG_NOW - DAY) },
+    basic: { tier: 'free', plan: 'free' },
+    expiredBoards: { tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(Date.parse('2026-03-15T23:59:59+05:30')) },
+    expiredMonth: { tier: 'premium', plan: 'pass_month', passType: 'month', passEnd: new Date(DG_NOW - DAY) },
+  };
+  const seed = {};
+  for (const [uid, sub] of Object.entries(cases)) if (sub) seed[`subscriptions/${uid}`] = sub;
+  const srv = await startRoutes({ db: memoryFirestore(seed), now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  for (const uid of Object.keys(cases)) {
+    const out = await createOrder(srv, uid, 'till_boards');
+    assert.equal(out.amountPaise, 226200, uid);
+  }
+  assert.ok(!srv.events.includes('payments.order.pass_already_covered'));
+});
+
+test('DUPGUARD · a covered holder can still buy a TOP-UP (premium only) - top-ups are unchanged', async (t) => {
+  // ISO strings: entitlement.cjs reads a Firestore Timestamp (toDate) or a string, not the harness's plain Date.
+  const seed = tillBoardsBuyerSeed();
+  seed['subscriptions/tb1'] = { ...seed['subscriptions/tb1'], passStart: new Date(istNoon('2026-09-27')).toISOString(), passEnd: new Date(BOARD_END).toISOString() };
+  const db = memoryFirestore(seed);
+  const srv = await startRoutes({ env: ENV_TOPUP, db, now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'tb1', 'topup_49');
+  assert.ok(out.amountPaise > 0);
+  assert.ok(!srv.events.includes('payments.order.pass_already_covered'));
+});
+
+test('DUPGUARD · a covered holder can still buy a PDF PACK - packs are unchanged (no subscription read on the pack path)', async (t) => {
+  const db = memoryFirestore(tillBoardsBuyerSeed());
+  const srv = await startRoutes({ env: { ...ENV_ON, PACKS_ENABLED: '1' }, db, now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'tb1', 'pack_chapter', { packTarget: 'triangles' });
+  assert.ok(out.amountPaise > 0);
+  assert.ok(!srv.events.includes('payments.order.pass_already_covered'));
+});
+
+test('DUPGUARD · the subscription read FAILS -> 500, no Razorpay order (fail CLOSED: never a possible duplicate)', async (t) => {
+  for (const passType of ['till_boards', 'month']) {
+    const db = memoryFirestore(tillBoardsBuyerSeed());
+    const realCollection = db.collection;
+    db.collection = (name) => {
+      const c = realCollection(name);
+      if (name === 'subscriptions') return { ...c, doc: () => ({ get: async () => { throw new Error('firestore down'); } }) };
+      return c;
+    };
+    const srv = await startRoutes({ db, now: () => DG_NOW, calendarOffer: true });
+    t.after(srv.close);
+    const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType }, headers: asUid('tb1') });
+    assert.equal(r.status, 500, passType);
+    assert.equal(srv.rzp.calls.length, 0, `${passType}: Razorpay was called after a failed read`);
+    assert.equal(dgPayOrders(db).length, 1, 'only the seeded paid order exists');
+  }
+});
+
+test('DUPGUARD · STATIC: the order route uses parentPay\'s coveredTillBoards (one rule), never a copy', () => {
+  const src = fs.readFileSync(PAYMENTS_CJS, 'utf8');
+  assert.match(src, /require\('\.\/parentPay\.cjs'\)\.coveredTillBoards\(/);
+  assert.ok(!/predictBoardDateIso|endOfIstDayMs/.test(src), 'payments.cjs re-derives the board day itself');
 });
