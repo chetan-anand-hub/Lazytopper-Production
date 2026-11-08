@@ -816,6 +816,13 @@ export const PAINT_USER_AGENTS = {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
   instagram:
     "Mozilla/5.0 (Linux; Android 14; Pixel 7; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 Instagram 350.0.0.0",
+  // SPEED-CI-3: the in-app browsers the Answer Checker's ads land in (utils/inAppBrowser.ts names each of them).
+  youtube:
+    "Mozilla/5.0 (Linux; Android 13; SM-A145F Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.44.38",
+  youtubeIos:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 com.google.ios.youtube/19.45.4 (iPhone14,5; U; CPU iOS 17_5 like Mac OS X; en_IN)",
+  facebook:
+    "Mozilla/5.0 (Linux; Android 13; V2207 Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/480.0.0.39.108;]",
 } as const;
 
 interface PaintRender {
@@ -1048,8 +1055,11 @@ export interface CiCase {
   touch: boolean;
   userAgent: string;
   served: PaintVariant;
-  /** Seed storage before the load: a prior real visit (same context, other tab), or explicit keys. */
-  seed?: "prior-visit" | { session?: Record<string, string>; local?: Record<string, string> };
+  /**
+   * Seed storage before the load: a prior real visit (same context, other tab), or explicit keys. SPEED-CI-3:
+   * "no-dom-storage" is an Android WebView with DOM storage off (`localStorage` / `sessionStorage` are null).
+   */
+  seed?: "prior-visit" | "no-dom-storage" | { session?: Record<string, string>; local?: Record<string, string> };
   expect: "door" | "off";
   /** SPEED-CI-2: a door's demo card — the first-visit card (fixed question) or today's placeholder. */
   expectDemo?: "first" | "placeholder";
@@ -1076,7 +1086,15 @@ export const CI_PARITY_CASES: readonly CiCase[] = [
   { name: "ci signed-in trace (active uid)", ...CI_DESKTOP, search: "", seed: { local: { "lazytopper.progress.active_uid.v1": "u1" } }, expect: "off" },
   { name: "ci desktop UA in a 900-px window", ...CI_DESKTOP, width: 900, search: "", expect: "off" },
   { name: "ci android tablet 1280 (mobile file, desktop layout)", ...CI_PHONE, width: 1280, height: 800, userAgent: PAINT_USER_AGENTS.tablet, search: "", expect: "off" },
-  { name: "ci Instagram in-app", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.instagram, search: "", expect: "off" },
+  // SPEED-CI-3: in-app browsers render the same first frame (nothing in it reads the user agent), so they get the door;
+  // a web view without DOM storage cannot say "first visit" the way React does (ladderVisit.ts), so it stays off.
+  { name: "ci Instagram in-app", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.instagram, search: "?utm_source=ig&utm_medium=paid&fbclid=x", expect: "door", expectDemo: "first" },
+  { name: "ci YouTube in-app 412", ...CI_PHONE, width: 412, height: 915, userAgent: PAINT_USER_AGENTS.youtube, search: "?utm_source=youtube&utm_medium=video&gclid=y", expect: "door", expectDemo: "first" },
+  { name: "ci YouTube in-app 360, returning visitor", ...CI_PHONE, width: 360, height: 740, userAgent: PAINT_USER_AGENTS.youtube, search: "", seed: "prior-visit", expect: "door", expectDemo: "placeholder" },
+  { name: "ci YouTube in-app, CBQ ad", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.youtube, search: "?utm_source=youtube&utm_content=cbq_short", expect: "door", expectDemo: "placeholder" },
+  { name: "ci YouTube iOS web view", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.youtubeIos, search: "", expect: "door", expectDemo: "first" },
+  { name: "ci Facebook in-app", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.facebook, search: "?fbclid=z", expect: "door", expectDemo: "first" },
+  { name: "ci web view without DOM storage", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.youtube, search: "", seed: "no-dom-storage", expect: "off" },
 ];
 
 /** Text the Answer Checker's static state must / must not carry. */
@@ -1253,6 +1271,11 @@ async function runCheckImproveParity(
           : route.continue(),
       );
       const seed = typeof kase.seed === "object" ? kase.seed : null;
+      if (kase.seed === "no-dom-storage") {
+        await page.addInitScript({
+          content: `(function(){for(var n of ["localStorage","sessionStorage"])Object.defineProperty(window,n,{get:function(){return null;},configurable:true});})();`,
+        });
+      }
       await page.addInitScript({
         content:
           `(function(){if(window.top!==window)return;var seed=${JSON.stringify(seed)};` +
