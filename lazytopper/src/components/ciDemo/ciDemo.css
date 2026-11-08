@@ -583,6 +583,11 @@
   opacity: 0.75;
   background: #e8ecf2;
 }
+/* SPEED-CI-2 - an early tap the first-visit preview holds for the ladder (shown pressed until the ladder marks it). */
+.ci-demo__opt--held {
+  opacity: 0.6;
+  cursor: progress;
+}
 .ci-demo__verdict {
   display: flex;
   flex-direction: column;

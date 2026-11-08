@@ -32,8 +32,7 @@ import {
   type CiDemoSample,
 } from "./ciDemoSamples";
 import { nextSampleKey, readCiDemoSubjectHint, trioFor } from "./ciDemoModel";
-import { guidePlanFor } from "../guide/guideInputs";
-import { parseChallengeId } from "./challengeModel";
+import { ladderLeads } from "./ladderLeads";
 import OneMinuteLadder, { type LadderAnswer } from "./OneMinuteLadder";
 import type { OneMinuteStarter } from "./oneMinuteStarters";
 import "./ciDemo.css";
@@ -96,30 +95,6 @@ function marginMark(awarded: number, max: number): string {
   if (awarded === max) return `✓ ${formatMarks(awarded)}`;
   if (awarded === 0) return "✗ 0";
   return `${formatMarks(awarded)} of ${formatMarks(max)}`;
-}
-
-/**
- * LADDER-REACH-1 — the one-minute ladder leads for EVERY visitor the card is shown to (an ad arrival that qualifies by
- * `ciDemoModel`), except a CBQ arrival, which keeps today's sample picker (owner rule 30 Oct: CBQ arrivals see CBQ first;
- * GUIDE-1's intent map encodes that as intent "cbq" and is read, never changed). Before this, the ladder led only when
- * the map's FIRST option was "check_one", so any ad whose utm_content said sample / mock / preboard / quick / mcq / tap /
- * pack (or a ?quick=1 URL) was classed papers / packs / quick and fell back to the picker: ~1% of arrivals saw the ladder.
- * "Watch a sample get marked" stays reachable from the ladder (onWatch).
- */
-function ladderLeads(uid: string | null | undefined, forced: boolean): boolean {
-  if (forced) return true;
-  // FRIEND-CHALLENGE-1 - a friend's challenge link (a valid-shaped id) leads with the ladder; the ladder itself
-  // falls back to its normal starter when the id resolves to nothing.
-  try {
-    if (typeof window !== "undefined" && parseChallengeId(window.location.search)) return true;
-  } catch {
-    /* no param */
-  }
-  try {
-    return guidePlanFor("check_improve", uid ?? null).intent !== "cbq";
-  } catch {
-    return false;
-  }
 }
 
 export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderType, onLadderMore }: CiDemoChunkProps) {

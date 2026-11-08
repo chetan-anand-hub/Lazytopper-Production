@@ -8,10 +8,17 @@
  *
  * DISPLAY ONLY: no grader call, no AI call; the host fills the question box on "Check my own answer"
  * and the student still taps Check themselves.
+ *
+ * SPEED-CI-2 (owner ruling 8 Nov 2026): for a FIRST-TIME visitor the card will open on a FIXED question, so the
+ * fallback is that question itself (./LadderPreview.tsx), not the empty placeholder — the Answer Checker's static
+ * paint is captured from it and a phone shows the question at first paint. Its styles (./ciDemo.css) therefore ship
+ * with this eager door; every other visit keeps the placeholder.
  */
-import { lazy, Suspense, type ComponentType } from "react";
+import { lazy, Suspense, useState, type ComponentType } from "react";
 import type { CiDemoChunkProps } from "./ciDemoChunk";
+import LadderPreview, { previewStarter } from "./LadderPreview";
 import "./ciDemoDoor.css";
+import "./ciDemo.css";
 
 export type { CiDemoOwnPick, CiDemoLadderPick } from "./ciDemoChunk";
 export type { LadderAnswer } from "./OneMinuteLadder";
@@ -25,8 +32,12 @@ const LazyCiDemo = lazy(() =>
 );
 
 export default function CiDemoCard(props: CiDemoChunkProps) {
+  // Chosen once per mount, like the ladder's own starter.
+  const [first] = useState(() => previewStarter(props.uid, props.ladderForced === true));
   return (
-    <Suspense fallback={<div className="ci-demo-ph" data-testid="ci-demo-placeholder" aria-hidden="true" />}>
+    <Suspense
+      fallback={first ? <LadderPreview starter={first} /> : <div className="ci-demo-ph" data-testid="ci-demo-placeholder" aria-hidden="true" />}
+    >
       <LazyCiDemo {...props} />
     </Suspense>
   );

@@ -19,7 +19,9 @@ import { markLadderStart } from "./ladderClock";
 import { useClearBottomNav } from "./useClearBottomNav";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { LADDER_MORE_COPY } from "./ladderMoreCopy";
-import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
+import { correctIndex, fixedStarter, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
+import { isFirstLadderVisit, markLadderSeen, takeLadderTap } from "./ladderVisit";
+import { LadderMeta, LadderOptions, LadderQuestionText, ladderLetter } from "./LadderTapParts";
 import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { subscriptFormulas } from "../../lib/chemSubscript";
@@ -47,8 +49,6 @@ interface LoadedMcq {
   topicKey: string;
   topicName: string;
 }
-
-const LETTERS = ["A", "B", "C", "D"];
 
 /** SPEED-SITE-1a — the starter as the bank would give it, with no download; null if it has no copied row. */
 function starterFromRows(starter: OneMinuteStarter): LoadedMcq | null {
@@ -120,7 +120,9 @@ export interface OneMinuteLadderProps {
 }
 
 export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable, onMore }: OneMinuteLadderProps) {
-  const starter = useMemo(() => pickStarter(hint, visitSeed()), [hint]);
+  // SPEED-CI-2 (owner ruling 8 Nov 2026): a browser's FIRST ladder opens with the fixed top-weightage starter (the
+  // Answer Checker's static paint draws that same question before the app runs); every later visit picks per visit.
+  const starter = useMemo(() => (isFirstLadderVisit() ? fixedStarter(hint) : pickStarter(hint, visitSeed())), [hint]);
   // FRIEND-CHALLENGE-1 - a friend's link names one question; an id that resolves to no objective bank row is ignored.
   const [challengeId] = useState<string | null>(() => readChallengeParam());
   // SPEED-SITE-1a: no friend's challenge -> the copied row, on the first render (no bank download, no wait box).
@@ -172,12 +174,22 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       shown.current = true;
       markLadderStart();
       trackOneMinute("one_min_tap_shown");
+      markLadderSeen();
     }
     if (picked === null) onLine(CI_DEMO_COPY.ladderHead, "tap");
     else if (picked === mcq.right) onLine(CI_DEMO_COPY.ladderRight, "right");
     else onLine(CI_DEMO_COPY.ladderWrong, "wrong");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcq, picked]);
+
+  // SPEED-CI-2: a tap made on THIS question before the ladder could answer (on the static paint or the preview) is
+  // answered now, exactly as a tap here: the same local 0-or-full verdict. A friend's challenge never takes one.
+  useEffect(() => {
+    if (!mcq || picked !== null || challengeId) return;
+    const early = takeLadderTap(mcq.starter.bankId);
+    if (early !== null) tap(early);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mcq]);
 
   if (!mcq) return <div className="ci-demo__ladder ci-demo__ladder--wait" data-testid="one-min-wait" aria-busy="true" />;
 
@@ -202,12 +214,8 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
 
   return (
     <div className="ci-demo__ladder" data-testid="one-min-ladder" data-step={done ? "verdict" : "tap"}>
-      <p className="ci-demo__ladder-meta">
-        {mcq.starter.subject} · {mcq.topicName} · 1 mark · CBSE board question
-      </p>
-      <p className="ci-demo__ladder-q" data-testid="one-min-question">
-        {mcq.question}
-      </p>
+      <LadderMeta subject={mcq.starter.subject} topicName={mcq.topicName} />
+      <LadderQuestionText question={mcq.question} />
       {done ? (
         <p
           className={`ci-demo__verdict-mark ${correct ? "ci-demo__verdict-mark--right" : "ci-demo__verdict-mark--wrong"}`}
@@ -217,33 +225,12 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
           {correct ? "✓ 1/1" : "✗ 0/1"}
           <span className="ci-demo__verdict-ans">
             {" "}
-            Right answer: {LETTERS[mcq.right]}. {subscriptFormulas(mcq.options[mcq.right])}
+            Right answer: {ladderLetter(mcq.right)}. {subscriptFormulas(mcq.options[mcq.right])}
           </span>
         </p>
       ) : null}
 
-      <ul className="ci-demo__opts" role="list">
-        {mcq.options.map((o, i) => {
-          const state = !done ? "" : i === mcq.right ? " ci-demo__opt--right" : i === picked ? " ci-demo__opt--wrong" : " ci-demo__opt--dim";
-          return (
-            <li key={i}>
-              <button
-                type="button"
-                className={`ci-demo__opt${state}`}
-                data-testid={`one-min-opt-${i}`}
-                disabled={done}
-                aria-pressed={picked === i}
-                onClick={() => tap(i)}
-              >
-                <span className="ci-demo__opt-letter" aria-hidden="true">
-                  {LETTERS[i]}
-                </span>
-                <span className="ci-demo__opt-text">{subscriptFormulas(o)}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <LadderOptions options={mcq.options} right={mcq.right} picked={picked} onTap={tap} />
 
       {done ? (
         <div className="ci-demo__verdict ci-nav-clear" ref={verdictRef}>
