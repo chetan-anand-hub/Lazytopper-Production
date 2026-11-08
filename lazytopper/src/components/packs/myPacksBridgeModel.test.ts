@@ -115,13 +115,13 @@ describe("bridgeRows - statuses from the record and the server only", () => {
     expect(bridgeRows(papers, new Map(), { paidPass: false, allowance: basic({ "chapter-test": true }, false) }).every((r) => r.note === BRIDGE_COPY.withPass)).toBe(true);
   });
 
-  it("trial: the server's flag when enforced; an unmetered trial (no grade counters) says nothing", () => {
-    const trial: GradeAllowance = { enforced: true, tier: "trial", firstFree: { "chapter-test": false, worksheet: true } };
-    expect(bridgeRows(papers, new Map(), { paidPass: false, allowance: trial }).map((r) => r.note)).toEqual([
-      BRIDGE_COPY.withPass,
-      BRIDGE_COPY.withPass,
-      BRIDGE_COPY.freeLeft,
-    ]);
+  it("trial: the server's flag; a later paper says 'with Board Pass' ONLY when the week has no grade of that kind left", () => {
+    const fresh: GradeAllowance = { enforced: true, tier: "trial", firstFree: { "chapter-test": true, worksheet: true }, remaining: { "chapter-test": 1, worksheet: 1 } };
+    expect(bridgeRows(papers, new Map(), { paidPass: false, allowance: fresh }).map((r) => r.note)).toEqual([BRIDGE_COPY.freeLeft, null, BRIDGE_COPY.freeLeft]);
+    const spentFree: GradeAllowance = { enforced: true, tier: "trial", firstFree: { "chapter-test": false, worksheet: false }, remaining: { "chapter-test": 1, worksheet: 0 } };
+    expect(bridgeRows(papers, new Map(), { paidPass: false, allowance: spentFree }).map((r) => r.note)).toEqual([null, null, BRIDGE_COPY.withPass]);
+    const noCount: GradeAllowance = { enforced: true, tier: "trial", firstFree: { "chapter-test": false, worksheet: true } };
+    expect(bridgeRows(papers, new Map(), { paidPass: false, allowance: noCount }).map((r) => r.note)).toEqual([null, null, BRIDGE_COPY.freeLeft]);
     const unmetered: GradeAllowance = { enforced: true, tier: "trial", firstFree: {} };
     expect(bridgeRows(papers, new Map(), { paidPass: false, allowance: unmetered }).every((r) => r.note === null)).toBe(true);
   });
@@ -207,7 +207,13 @@ describe("parseGradeAllowance", () => {
     expect(parseGradeAllowance(null)).toBeNull();
     expect(
       parseGradeAllowance({ enforced: true, tier: "free", grade: { worksheet: { firstFreeAvailable: true }, "chapter-test": { firstFreeAvailable: false }, "full-mock": { firstFreeAvailable: "yes" } } }),
-    ).toEqual({ enforced: true, tier: "free", firstFree: { worksheet: true, "chapter-test": false } });
-    expect(parseGradeAllowance({ tier: "premium" })).toEqual({ enforced: false, tier: "premium", firstFree: {} });
+    ).toEqual({ enforced: true, tier: "free", firstFree: { worksheet: true, "chapter-test": false }, remaining: {} });
+    expect(parseGradeAllowance({ tier: "premium" })).toEqual({ enforced: false, tier: "premium", firstFree: {}, remaining: {} });
+    expect(parseGradeAllowance({ enforced: true, tier: "trial", grade: { worksheet: { firstFreeAvailable: false, remaining: 0 }, "full-mock": { remaining: -1 } } })).toEqual({
+      enforced: true,
+      tier: "trial",
+      firstFree: { worksheet: false },
+      remaining: { worksheet: 0 },
+    });
   });
 });

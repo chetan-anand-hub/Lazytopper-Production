@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import { trackSaleMoment } from "../../analytics/analytics";
 import type { OwnedPack } from "../../services/packs";
 import type { SessionRecord } from "../../services/sessionRecords";
 import { roundMarks } from "../../lib/mistakeDisplay";
-import { useMyPacksBridge } from "./useMyPacksBridge";
+import type { BridgeData } from "./useMyPacksBridge";
+export { prepareBridgeData } from "./useMyPacksBridge";
 import {
   BRIDGE_ANALYTICS_SURFACE,
   BRIDGE_BOARD_PASS_HREF,
@@ -37,12 +37,13 @@ import "./myPacksBridge.css";
  *      with Board Pass), "Get marked" opening the paper's existing upload or review route, "Download" for a paper not yet
  *      downloaded (opens that pack's files - there is nothing to grade against before);
  *   3. the Board Pass card - only for an owner WITHOUT a paid Board Pass; it links to the existing Board Pass page.
- * Display only: nothing here grades, charges, unlocks or records (CLAUDE.md §4a / §5). Lazy chunk (PacksShop loads it).
+ * Display only: nothing here grades, charges, unlocks or records (CLAUDE.md §4a / §5). Its own chunk, fetched only for a pack owner
+ * (myPacksBridgeLoader); a PURE render of data read before My packs is revealed - so it lands in the same commit as the pack cards.
  */
 export interface MyPacksBridgeProps {
   packs: readonly OwnedPack[];
-  /** A server-backed paid Board Pass (usePaidPremium) - no Board Pass card, every paper "with Board Pass". */
-  paidPass: boolean;
+  /** Everything the panel shows, read ONCE before My packs is revealed (`prepareBridgeData`), so the panel never grows later. */
+  data: BridgeData;
   /** The pack's display title (PacksShop's `ownedPackTitle`, passed in so this chunk does not import the shop back). */
   titleOf: (pack: OwnedPack) => string;
   /** Open (and scroll to) one pack's file list - the existing My packs mechanism. */
@@ -191,15 +192,16 @@ function BoardPassCard() {
   );
 }
 
-export default function MyPacksBridge({ packs, paidPass, titleOf, onOpenFiles }: MyPacksBridgeProps) {
-  const { user } = useAuth();
-  const { records, allowance } = useMyPacksBridge(user);
+export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles }: MyPacksBridgeProps) {
+  const { records, allowance, paidPass } = data;
   const { groups, first } = useMemo(() => bridgeView(packs, records, { paidPass, allowance }), [packs, records, paidPass, allowance]);
+  // The Board Pass card only to an owner KNOWN not to hold a paid Board Pass (never on a guess, never its view event either).
+  const showPass = !paidPass && data.entitlementKnown;
   if (packs.length === 0) return null;
   const hasPapers = groups.length > 0;
-  if (!first && !hasPapers && paidPass) return null;
+  if (!first && !hasPapers && !showPass) return null;
   return (
-    <div className={`lt-pb${paidPass ? " lt-pb--nopass" : ""}${!first && !hasPapers ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">
+    <div className={`lt-pb${!showPass ? " lt-pb--nopass" : ""}${!first && !hasPapers ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">
       {(first || hasPapers) && (
       <div className="lt-pb__main">
         {first && <FirstMarkedCard first={first} />}
@@ -221,7 +223,7 @@ export default function MyPacksBridge({ packs, paidPass, titleOf, onOpenFiles }:
         )}
       </div>
       )}
-      {!paidPass && <BoardPassCard />}
+      {showPass && <BoardPassCard />}
     </div>
   );
 }

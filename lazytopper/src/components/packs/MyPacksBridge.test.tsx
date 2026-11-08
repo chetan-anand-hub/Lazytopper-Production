@@ -9,9 +9,7 @@ import { MemoryRouter } from "react-router-dom";
 import type { SessionRecord } from "../../services/sessionRecords";
 import type { GradeAllowance } from "./myPacksBridgeModel";
 
-vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" }, loading: false }) }));
-const data = vi.hoisted(() => ({ records: [] as SessionRecord[], allowance: null as GradeAllowance | null }));
-vi.mock("./useMyPacksBridge", () => ({ useMyPacksBridge: () => ({ records: data.records, allowance: data.allowance }) }));
+const data = vi.hoisted(() => ({ records: [] as SessionRecord[], allowance: null as GradeAllowance | null, known: true }));
 const track = vi.hoisted(() => ({ sale: vi.fn() }));
 vi.mock("../../analytics/analytics", async (orig) => ({
   ...(await orig<typeof import("../../analytics/analytics")>()),
@@ -47,7 +45,11 @@ function show(props: { packs: Array<typeof chapter>; paidPass?: boolean; onOpenF
   return render(
     <MemoryRouter>
       <div className="lt-packs">
-        <MyPacksBridge packs={props.packs} titleOf={(p) => `T:${p.packId}`} paidPass={props.paidPass ?? false} onOpenFiles={props.onOpenFiles ?? (() => undefined)} />
+        <MyPacksBridge
+          packs={props.packs}
+          titleOf={(p) => `T:${p.packId}`}
+          data={{ records: data.records, allowance: data.allowance, paidPass: props.paidPass ?? false, entitlementKnown: data.known }}
+          onOpenFiles={props.onOpenFiles ?? (() => undefined)} />
       </div>
     </MemoryRouter>,
   );
@@ -56,6 +58,7 @@ function show(props: { packs: Array<typeof chapter>; paidPass?: boolean; onOpenF
 beforeEach(() => {
   data.records = [];
   data.allowance = null;
+  data.known = true;
   track.sale.mockReset();
 });
 afterEach(cleanup);
@@ -80,6 +83,14 @@ describe("BRIDGE-PANEL-1 · the Board Pass card (buyers only, never to a pass ho
     show({ packs: [chapter], paidPass: true });
     expect(screen.queryByTestId("packs-bridge-pass")).toBeNull();
     expect(screen.getAllByTestId("packs-bridge-row")).toHaveLength(3);
+    expect(track.sale).not.toHaveBeenCalled();
+  });
+
+  it("entitlement not known yet (no server tier, no reconciled subscription) -> no Board Pass card and NO view event", () => {
+    data.known = false;
+    show({ packs: [chapter] });
+    expect(screen.getAllByTestId("packs-bridge-row")).toHaveLength(3);
+    expect(screen.queryByTestId("packs-bridge-pass")).toBeNull();
     expect(track.sale).not.toHaveBeenCalled();
   });
 

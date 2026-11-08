@@ -143,6 +143,8 @@ export interface GradeAllowance {
   tier: string | null;
   /** Per kind: is this account's one free grade of that kind still unused? Absent kind = not reported. */
   firstFree: Partial<Record<BridgeKind, boolean>>;
+  /** Per kind: graded papers still allowed in this window (a trial's 1 per 7 days). Absent = not reported. */
+  remaining?: Partial<Record<BridgeKind, number>>;
 }
 
 /** Parse the limits summary body; null on anything unexpected (unknown -> no status words). */
@@ -150,33 +152,41 @@ export function parseGradeAllowance(body: unknown): GradeAllowance | null {
   if (!body || typeof body !== "object") return null;
   const b = body as Record<string, unknown>;
   const firstFree: Partial<Record<BridgeKind, boolean>> = {};
+  const remaining: Partial<Record<BridgeKind, number>> = {};
   const g = b.grade && typeof b.grade === "object" ? (b.grade as Record<string, unknown>) : null;
   if (g) {
     for (const k of ["chapter-test", "worksheet", "full-mock"] as const) {
-      const v = g[k];
-      if (v && typeof v === "object" && typeof (v as Record<string, unknown>).firstFreeAvailable === "boolean") {
-        firstFree[k] = (v as Record<string, unknown>).firstFreeAvailable as boolean;
-      }
+      const v = g[k] && typeof g[k] === "object" ? (g[k] as Record<string, unknown>) : null;
+      if (!v) continue;
+      if (typeof v.firstFreeAvailable === "boolean") firstFree[k] = v.firstFreeAvailable;
+      if (typeof v.remaining === "number" && Number.isFinite(v.remaining) && v.remaining >= 0) remaining[k] = v.remaining;
     }
   }
-  return { enforced: b.enforced === true, tier: typeof b.tier === "string" ? b.tier : null, firstFree };
+  return { enforced: b.enforced === true, tier: typeof b.tier === "string" ? b.tier : null, firstFree, remaining };
 }
 
-/** Is a kind's free grade still there (true), used (false) or unknown (null)? */
-function freeState(kind: BridgeKind, paidPass: boolean, allowance: GradeAllowance | null): boolean | null {
-  if (paidPass) return false;
-  if (!allowance) return null;
+/**
+ * What one ungraded paper of `kind` may say. `freeLeft` = this kind's one free grade is unused (only the FIRST such row says so);
+ * `other` = what every other ungraded row of that kind says.
+ *  - paid Board Pass: never free, every row "with Board Pass";
+ *  - Basic: the limits gate on -> the server's per-kind flag, then the 402 ("with Board Pass"); gate off -> the 402 for all;
+ *  - trial (metered): the server's flag; a row beyond it says "with Board Pass" ONLY when this window has no grade left of that
+ *    kind - while the trial still has one, it says nothing (it is not a Board Pass-only paper yet);
+ *  - anything unknown (no read, unmetered trial, other tiers): nothing at all.
+ */
+function kindStatus(kind: BridgeKind, paidPass: boolean, allowance: GradeAllowance | null): { freeLeft: boolean; other: string | null } {
+  if (paidPass) return { freeLeft: false, other: BRIDGE_COPY.withPass };
+  if (!allowance) return { freeLeft: false, other: null };
+  const ff = allowance.firstFree[kind];
   if (allowance.tier === "free") {
-    // Basic: grading is the 402 unless the limits gate is on AND this kind's first free is unused.
-    if (!allowance.enforced) return false;
-    const v = allowance.firstFree[kind];
-    return typeof v === "boolean" ? v : null;
+    if (!allowance.enforced) return { freeLeft: false, other: BRIDGE_COPY.withPass };
+    return typeof ff === "boolean" ? { freeLeft: ff, other: BRIDGE_COPY.withPass } : { freeLeft: false, other: null };
   }
-  if (allowance.tier === "trial" && allowance.enforced) {
-    const v = allowance.firstFree[kind];
-    return typeof v === "boolean" ? v : null;
+  if (allowance.tier === "trial" && allowance.enforced && typeof ff === "boolean") {
+    const left = allowance.remaining?.[kind];
+    return { freeLeft: ff, other: typeof left === "number" && left === 0 ? BRIDGE_COPY.withPass : null };
   }
-  return null;
+  return { freeLeft: false, other: null };
 }
 
 export type BridgeRowState =
@@ -281,15 +291,12 @@ export function bridgeRows(
   return items.map(({ paper, state }) => {
     // A marked (or partly marked) paper already had its grade: no status words on it.
     if (state.kind === "marked") return { paper, state, note: null };
-    const free = freeState(paper.kind, opts.paidPass, opts.allowance);
-    let note: string | null = null;
-    if (free === true && !taken.has(paper.kind)) {
+    const st = kindStatus(paper.kind, opts.paidPass, opts.allowance);
+    if (st.freeLeft && !taken.has(paper.kind)) {
       taken.add(paper.kind);
-      note = BRIDGE_COPY.freeLeft;
-    } else if (free !== null) {
-      note = BRIDGE_COPY.withPass;
+      return { paper, state, note: BRIDGE_COPY.freeLeft };
     }
-    return { paper, state, note };
+    return { paper, state, note: st.other };
   });
 }
 

@@ -60,8 +60,8 @@ import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
-// BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card in My packs (its own lazy chunk behind a boundary).
-import MyPacksBridgeSlot, { warmMyPacksBridge } from "./MyPacksBridgeSlot";
+// BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card in My packs: prepared BEFORE My packs is revealed (one commit).
+import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPacksBridgeLoader";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -387,10 +387,6 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }
     void loadMine();
   }, [user, loadMine]);
-  // BRIDGE-PANEL-1: warm the panel's chunk alongside the My packs read, so it lands with the pack cards (no late jump).
-  useEffect(() => {
-    if (user && !embedded && !hideMyPacks) warmMyPacksBridge();
-  }, [user, embedded, hideMyPacks]);
 
   // PAY-PHONE-1 - a sign-in just attached a pack paid with this phone number: re-read My packs from the server.
   useEffect(() => {
@@ -416,6 +412,29 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [eventItems, setEventItems] = useState<ClaimedItem[] | null>(null);
   const claimedItems = eventItems ?? (user ? readRecentClaim(user.uid) : []);
   const paidPass = usePaidPremium();
+  // BRIDGE-PANEL-1 (review #1645 B1): for a pack OWNER on /packs, the panel's chunk + data are prepared first and My packs is revealed
+  // with the cards and the panel in ONE commit (capped; on failure / cap, without the panel). Only the FIRST reveal waits; a later
+  // change of packs (a claim) keeps My packs on screen and swaps the panel in when it is ready.
+  const [bridge, setBridge] = useState<{ key: string; ready: BridgeReady | null } | null>(null);
+  const bridgeWanted = !embedded && !hideMyPacks && Boolean(user) && mine !== null && mine.packs.length > 0 && hasLicenseeContact(mine.licensee);
+  const bridgeKey = bridgeWanted && user && mine ? `${user.uid}|${mine.packs.map((p) => p.packId).join(",")}` : "";
+  // Another account's prepared panel never shows (a sign-in switch on the same page).
+  const bridgeMine = bridge !== null && Boolean(user) && bridge.key.startsWith(`${user?.uid}|`);
+  const bridgeSettled = !bridgeWanted || bridgeMine;
+  const bridgeKeyRef = useRef("");
+  useEffect(() => {
+    if (!bridgeKey || bridgeKeyRef.current === bridgeKey) return;
+    bridgeKeyRef.current = bridgeKey;
+    let live = true;
+    void prepareMyPacksBridge(user, paidPass).then((ready) => {
+      if (live) setBridge({ key: bridgeKey, ready });
+    });
+    return () => {
+      live = false;
+      if (bridgeKeyRef.current === bridgeKey) bridgeKeyRef.current = "";
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per account + pack set; the cached pass flag is read at that moment
+  }, [bridgeKey]);
   const [readyDismissed, setReadyDismissed] = useState(false);
   /** The pack whose file list the banner button asked to open (`n` makes a repeat tap count). */
   const [openReq, setOpenReq] = useState<{ packId: string; n: number } | null>(null);
@@ -536,7 +555,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }));
     timers.push(window.setTimeout(assert, 300), window.setTimeout(assert, 900), window.setTimeout(stop, 950));
     return stop;
-  }, [location.hash, mine, myPacksMounted, signedOutMine]);
+  }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled]);
 
   /** GST-FU-1 review F4: a ?buy= resume held at the pop-up's Pay (remembered state) - the pack and the link's source. */
   const heldResume = useRef<{ key: string; from?: PackCheckoutFrom } | null>(null);
@@ -827,7 +846,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
   // PACKS-CLS-1: the Subject / Bundle total is still loading - the pop-up holds its "Questions" row (no jump when it lands).
   const dialogCounting = (openSku === "pack_subject" || openSku === "pack_bundle") && dialogQuestions === null && !countsFailed;
-  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
+  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0 && bridgeSettled));
   // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
   const [namePromptDone, setNamePromptDone] = useState(false);
   const askName =
@@ -876,7 +895,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
             {/* BRIDGE-PANEL-1: buyers only (this section renders only for an owner), never in the /pricing strip (embedded). */}
             {!embedded && mine && hasLicenseeContact(mine.licensee) && mine.packs.length > 0 && (
-              <MyPacksBridgeSlot packs={mine.packs} titleOf={ownedPackTitle} paidPass={paidPass} onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} />
+              bridgeMine && bridge?.ready && (
+                <BridgeBoundary>
+                  <bridge.ready.Panel packs={mine.packs} data={bridge.ready.data} titleOf={ownedPackTitle} onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} />
+                </BridgeBoundary>
+              )
             )}
             {/* PACK-READY-1: the name is offered AFTER the files, never in front of the first download (PDFs fall back to the masked phone). */}
             {askName && user && mine && (

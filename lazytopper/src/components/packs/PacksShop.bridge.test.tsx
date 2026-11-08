@@ -24,11 +24,22 @@ vi.mock("../../lib/packs/buildPackFiles", () => ({
 }));
 const paid = vi.hoisted(() => ({ premium: false }));
 vi.mock("../../lib/packs/usePaidPremium", () => ({ usePaidPremium: () => paid.premium }));
-const hook = vi.hoisted(() => ({ boom: false }));
+const hook = vi.hoisted(() => ({ boom: false, renderBoom: false, hold: null as null | Promise<void>, never: false, calls: 0 }));
 vi.mock("./useMyPacksBridge", () => ({
-  useMyPacksBridge: () => {
+  prepareBridgeData: async (_u: unknown, cachedPaid: boolean) => {
+    hook.calls += 1;
+    if (hook.never) return new Promise(() => undefined);
+    if (hook.hold) await hook.hold;
     if (hook.boom) throw new Error("read failed");
-    return { records: [], allowance: null };
+    const base = { allowance: null, paidPass: cachedPaid, entitlementKnown: true };
+    if (hook.renderBoom)
+      return {
+        ...base,
+        get records(): never {
+          throw new Error("render failed");
+        },
+      };
+    return { ...base, records: [] };
   },
 }));
 
@@ -53,6 +64,10 @@ beforeEach(() => {
   auth.user = { uid: "u1" };
   paid.premium = false;
   hook.boom = false;
+  hook.renderBoom = false;
+  hook.hold = null;
+  hook.never = false;
+  hook.calls = 0;
   builder.buildPackFiles.mockReset();
   builder.buildPackFiles.mockResolvedValue([{ id: "f1", group: "Real Numbers", label: "Chapter Test 1 · Questions", build: async () => undefined }]);
   fetchMine.mockReset();
@@ -101,12 +116,47 @@ describe("BRIDGE-PANEL-1 · mount", () => {
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
   });
 
-  it("a panel that throws renders nothing; My packs and its files still work", async () => {
+  it("ONE commit: My packs is not revealed until the panel is ready, then the cards and the panel appear together", async () => {
+    let release!: () => void;
+    hook.hold = new Promise<void>((r) => (release = r));
+    shop("/packs");
+    await waitFor(() => expect(hook.calls).toBe(1));
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByTestId("packs-owned")).toBeNull();
+    expect(screen.queryByTestId("packs-bridge")).toBeNull();
+    release();
+    const card = await screen.findByTestId("packs-owned");
+    expect(screen.getByTestId("packs-bridge")).toBeTruthy();
+    expect(card).toBeTruthy();
+  });
+
+  it("the panel is prepared only for an owner (no chunk, no reads for a signed-in student with no pack)", async () => {
+    fetchMine.mockResolvedValue({ packs: [], licensee: { name: "", email: "a@b.in" }, boardPassCredit: null });
+    shop("/packs");
+    await waitFor(() => expect(fetchMine).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 30));
+    expect(hook.calls).toBe(0);
+  });
+
+  it("a panel whose reads never finish: after the cap My packs is revealed WITHOUT it (and it never pops in)", async () => {
+    hook.never = true;
+    shop("/packs");
+    expect(await screen.findByTestId("packs-owned", {}, { timeout: 4000 })).toBeTruthy();
+    expect(screen.queryByTestId("packs-bridge")).toBeNull();
+  });
+
+  it("failed reads or a render error -> no panel; My packs and its files still work", async () => {
     hook.boom = true;
+    shop("/packs");
+    await screen.findByTestId("packs-owned");
+    expect(screen.queryByTestId("packs-bridge")).toBeNull();
+    cleanup();
+    hook.boom = false;
+    hook.renderBoom = true;
     const err = vi.spyOn(console, "error").mockImplementation(() => undefined);
     shop("/packs");
     await screen.findByTestId("packs-owned");
-    await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => setTimeout(r, 30));
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Show files" }));
     expect(await screen.findByText("Chapter Test 1 · Questions")).toBeTruthy();
