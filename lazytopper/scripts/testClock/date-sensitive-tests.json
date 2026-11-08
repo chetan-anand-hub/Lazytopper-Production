@@ -550,6 +550,7 @@
     "src/components/pricing/PacksStrip.parity.test.tsx",
     "src/components/pricing/PassCheckout.checkoutWho.test.tsx",
     "src/components/pricing/PassCheckout.directBuy.test.tsx",
+    "src/components/pricing/PassCheckout.dupguard.test.tsx",
     "src/components/pricing/PassCheckout.guestPay.test.tsx",
     "src/components/pricing/PassCheckout.passOwner.test.tsx",
     "src/components/pricing/PassCheckout.recover.test.tsx",
