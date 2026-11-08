@@ -12,6 +12,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { setMatchMediaMatches } from "../../test/setup";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const H = vi.hoisted(() => ({ one: vi.fn() }));
 vi.mock("../../analytics/analytics", async (importOriginal) => {
@@ -157,6 +159,37 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderAnswered={answered} />);
     return answered;
   }
+
+  it("FU1: an early tap is the ladder's FIRST frame (no later update), inside the reserved box until the next input", () => {
+    (window as W).__ltStaticTap = { id: `one-min-opt-${right}`, bank: LIGHT };
+    const answered = vi.fn();
+    const { container } = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderAnswered={answered} />);
+    // Synchronous: the verdict is there in the render that replaced the preview.
+    const block = container.querySelector(".ci-demo__verdict") as HTMLElement;
+    expect(screen.getByTestId("one-min-verdict").textContent).toContain("✓ 1/1");
+    expect(block.className).toContain("ci-demo__verdict--reserve");
+    expect(answered).toHaveBeenCalledTimes(1);
+    fireEvent.pointerDown(document.body);
+    expect((container.querySelector(".ci-demo__verdict") as HTMLElement).className).not.toContain("ci-demo__verdict--reserve");
+    expect(answered).toHaveBeenCalledTimes(1);
+    expect(H.one.mock.calls.filter((c) => c[0] === "one_min_tap_answered")).toHaveLength(1);
+  });
+
+  it("FU1: the preview holding a tap shows the same reserved boxes (the static guard inserts them too); FU2: × and watch look inert", () => {
+    (window as W).__ltStaticTap = { id: `one-min-opt-${wrong}`, bank: LIGHT };
+    const { container } = render(<LadderPreview starter={fixedStarter(null)} />);
+    const ul = container.querySelector("ul") as HTMLElement;
+    expect((ul.previousElementSibling as HTMLElement).className).toBe("ci-demo__verdict-mark ci-demo__verdict-mark--held");
+    expect((ul.previousElementSibling as HTMLElement).textContent).toBe("Checking your answer…");
+    expect((ul.nextElementSibling as HTMLElement).className).toBe("ci-demo__verdict ci-demo__verdict--reserve");
+    const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
+    expect(css).toMatch(/\.ci-demo\[data-ci-first\] \.ci-demo__close,\s*\.ci-demo\[data-ci-first\] \.ci-demo__link \{\s*opacity: 0\.45;/);
+    // A reserve for every band, never smaller than the measured right-answer verdict (8 Nov 2026) in that band.
+    const bands = [...css.matchAll(/(?:@media \(min-width: (\d+)px\)\s*\{\s*)?\.ci-demo__verdict--reserve\s*\{\s*min-height: (\d+)px/g)].map((m) => [Number(m[1] ?? 0), Number(m[2])]);
+    const measured: Record<number, number> = { 0: 337, 360: 317, 390: 297, 1024: 235, 1440: 214 };
+    expect(bands.map((b) => b[0])).toEqual([0, 360, 390, 1024, 1440]);
+    for (const [from, h] of bands) expect(h).toBeGreaterThanOrEqual(measured[from]);
+  });
 
   it("a tap on the STATIC paint's right option: 1/1", () => {
     (window as W).__ltStaticTap = { id: `one-min-opt-${right}`, bank: LIGHT };

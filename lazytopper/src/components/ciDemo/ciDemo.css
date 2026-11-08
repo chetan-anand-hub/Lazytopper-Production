@@ -598,6 +598,43 @@
   font-size: 18px;
   font-weight: 800;
 }
+/* SPEED-CI-2 (review of #1639, FU1) - an EARLY tap (on the static page / the preview, before the ladder can mark it):
+   at the tap the verdict line says "Checking your answer…" in the verdict's own box, and the verdict block below the
+   options is reserved at its final height (the tallest, a right answer: measured 8 Nov 2026 on the fixed starter,
+   + 8 px), so nothing below the card moves when the verdict lands seconds later. The reserve stays on the real
+   verdict until the student's next tap or key (when a shrink is input-excluded). */
+.ci-demo__verdict-mark--held {
+  color: #c9d3e0;
+}
+.ci-demo__verdict--reserve {
+  min-height: 345px;
+}
+@media (min-width: 360px) {
+  .ci-demo__verdict--reserve {
+    min-height: 325px;
+  }
+}
+@media (min-width: 390px) {
+  .ci-demo__verdict--reserve {
+    min-height: 305px;
+  }
+}
+@media (min-width: 1024px) {
+  .ci-demo__verdict--reserve {
+    min-height: 243px;
+  }
+}
+@media (min-width: 1440px) {
+  .ci-demo__verdict--reserve {
+    min-height: 222px;
+  }
+}
+/* FU2: before the card is in, its × and the watch link cannot act yet: they look it (the option taps are kept). */
+.ci-demo[data-ci-first] .ci-demo__close,
+.ci-demo[data-ci-first] .ci-demo__link {
+  opacity: 0.45;
+  cursor: progress;
+}
 .ci-demo__verdict-mark--right {
   color: #5ee0a0;
 }

@@ -20,7 +20,7 @@ import { useClearBottomNav } from "./useClearBottomNav";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import { correctIndex, fixedStarter, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
-import { isFirstLadderVisit, markLadderSeen, takeLadderTap } from "./ladderVisit";
+import { isFirstLadderVisit, markLadderSeen, peekLadderTap, takeLadderTap } from "./ladderVisit";
 import { LadderMeta, LadderOptions, LadderQuestionText, ladderLetter } from "./LadderTapParts";
 import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
@@ -127,7 +127,13 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   const [challengeId] = useState<string | null>(() => readChallengeParam());
   // SPEED-SITE-1a: no friend's challenge -> the copied row, on the first render (no bank download, no wait box).
   const [mcq, setMcq] = useState<LoadedMcq | null>(() => (challengeId ? null : starterFromRows(starter)));
-  const [picked, setPicked] = useState<number | null>(null);
+  // SPEED-CI-2: a tap made on THIS question before the ladder could answer (on the static paint or the preview) is the
+  // ladder's FIRST state, not a later update (review of #1639, FU1): the verdict renders in the very frame that replaces
+  // the preview, inside the boxes the early tap reserved (`ci-demo__verdict--reserve`), so nothing moves. It is scored
+  // exactly as a tap here (picked === right: 0 or full), reported once below. A friend's challenge never takes one.
+  const [early] = useState<number | null>(() => (challengeId || !mcq ? null : peekLadderTap(mcq.starter.bankId)));
+  const [picked, setPicked] = useState<number | null>(early);
+  const [reserve, setReserve] = useState(early !== null);
   const shown = useRef(false);
   const verdictRef = useRef<HTMLDivElement>(null);
   // LADDER-NAV-1: the verdict + "Now a 2-mark one" appear below the fold; bring them in once, clear of the BottomNav.
@@ -182,14 +188,43 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcq, picked]);
 
-  // SPEED-CI-2: a tap made on THIS question before the ladder could answer (on the static paint or the preview) is
-  // answered now, exactly as a tap here: the same local 0-or-full verdict. A friend's challenge never takes one.
+  const reported = useRef(false);
   useEffect(() => {
-    if (!mcq || picked !== null || challengeId) return;
-    const early = takeLadderTap(mcq.starter.bankId);
-    if (early !== null) tap(early);
+    if (early === null || !mcq || reported.current) return;
+    reported.current = true;
+    takeLadderTap(mcq.starter.bankId);
+    report(mcq, early);
+    // Once, for the early tap this mount started with.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mcq]);
+  }, []);
+
+  // The reserve holds the verdict block's final height until the student's next tap or key, when giving the space
+  // back is an input-led change (never counted as a layout shift).
+  useEffect(() => {
+    if (!reserve) return undefined;
+    const release = () => setReserve(false);
+    document.addEventListener("pointerdown", release, true);
+    document.addEventListener("keydown", release, true);
+    return () => {
+      document.removeEventListener("pointerdown", release, true);
+      document.removeEventListener("keydown", release, true);
+    };
+  }, [reserve]);
+
+  /** The answered tap, recorded: unchanged ONE-MINUTE-1 behaviour (0 or full on the tap alone). */
+  function report(m: LoadedMcq, i: number) {
+    const ok = i === m.right;
+    trackOneMinute("one_min_tap_answered", { correct: ok });
+    onAnswered({
+      bankId: m.starter.bankId,
+      subject: m.starter.subject,
+      topicKey: m.topicKey,
+      topicName: m.topicName,
+      question: m.question,
+      correct: ok,
+      ...(ok ? {} : wrongPickFields(m.options, m.options[i], m.options[m.right])),
+    });
+  }
 
   if (!mcq) return <div className="ci-demo__ladder ci-demo__ladder--wait" data-testid="one-min-wait" aria-busy="true" />;
 
@@ -199,17 +234,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   function tap(i: number) {
     if (!mcq || done) return;
     setPicked(i);
-    const ok = i === mcq.right;
-    trackOneMinute("one_min_tap_answered", { correct: ok });
-    onAnswered({
-      bankId: mcq.starter.bankId,
-      subject: mcq.starter.subject,
-      topicKey: mcq.topicKey,
-      topicName: mcq.topicName,
-      question: mcq.question,
-      correct: ok,
-      ...(ok ? {} : wrongPickFields(mcq.options, mcq.options[i], mcq.options[mcq.right])),
-    });
+    report(mcq, i);
   }
 
   return (
@@ -233,7 +258,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       <LadderOptions options={mcq.options} right={mcq.right} picked={picked} onTap={tap} />
 
       {done ? (
-        <div className="ci-demo__verdict ci-nav-clear" ref={verdictRef}>
+        <div className={`ci-demo__verdict ci-nav-clear${reserve ? " ci-demo__verdict--reserve" : ""}`} ref={verdictRef}>
           {mcq.why ? (
             <p className="ci-demo__verdict-why" data-testid="one-min-why">
               {mcq.why}

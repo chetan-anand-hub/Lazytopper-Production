@@ -31,6 +31,9 @@ import { paintFragmentPathFor, PAINT_DIR } from "../../scripts/seo/loginPaint";
 import { CI_FIRST_STARTER, CI_LADDER_SEEN_KEY, ciFirstCardExpectation, firstCardProblems, setPaintGreeting, withNeutralGreeting } from "../../scripts/seo/checkImprovePaint";
 import { LADDER_SEEN_KEY } from "../components/ciDemo/ladderVisit";
 import { fixedStarter } from "../components/ciDemo/oneMinuteStarters";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { LadderHeldMark, LadderVerdictReserve } from "../components/ciDemo/LadderTapParts";
 import { CI_PARITY_CASES } from "../../scripts/seo/captureStaticBodies";
 
 /**
@@ -500,7 +503,7 @@ describe("review of #1635 — B2: the build's free-check flag", () => {
 const FIRST_CARD =
   `<section class="ci-demo ci-demo--pick" data-testid="ci-demo-preview" data-ci-first="" data-ci-bank="PYQ-S-2024-LIGHT-003">` +
   `<p class="ci-demo__ladder-q">The colour of light for which the refractive index of glass is minimum, is :</p>` +
-  `<ul><li><button type="button" data-testid="one-min-opt-0">Red</button></li><li><button type="button" data-testid="one-min-opt-2">Green</button></li></ul>` +
+  `<ul class="ci-demo__opts" role="list"><li><button type="button" data-testid="one-min-opt-0">Red</button></li><li><button type="button" data-testid="one-min-opt-2">Green</button></li></ul>` +
   `<button type="button" data-testid="ci-demo-close">x</button></section>`;
 const C_FIRST = C.replace("<button type=\"button\">Check</button>", `<button type="button">Check</button>${FIRST_CARD}`);
 
@@ -585,6 +588,23 @@ describe("SPEED-CI-2 — the demo card in the static paint", () => {
       expect((window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap).toEqual({ id: "one-min-opt-2", bank: "PYQ-S-2024-LIGHT-003" });
       close.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
       expect((window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap).toEqual({ id: "one-min-opt-2", bank: "PYQ-S-2024-LIGHT-003" });
+    });
+
+    it("FU1: an early option tap reserves the verdict's boxes at once, exactly as the preview / ladder draw them, once", () => {
+      const root = runPage(page());
+      const card = root.querySelector("[data-ci-first]") as HTMLElement;
+      const tap = (id: string) => (card.querySelector(`[data-testid="${id}"]`) as HTMLElement).dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      tap("ci-demo-close");
+      expect(card.querySelector(".ci-demo__verdict--reserve")).toBeNull();
+      tap("one-min-opt-2");
+      tap("one-min-opt-0");
+      const ul = card.querySelector("ul") as HTMLElement;
+      expect(card.querySelectorAll(".ci-demo__verdict-mark--held")).toHaveLength(1);
+      expect(card.querySelectorAll(".ci-demo__verdict--reserve")).toHaveLength(1);
+      expect((ul.previousElementSibling as HTMLElement).outerHTML).toBe(renderToStaticMarkup(createElement(LadderHeldMark)));
+      expect((ul.nextElementSibling as HTMLElement).outerHTML).toBe(renderToStaticMarkup(createElement(LadderVerdictReserve)));
+      // FU4 (accepted): the last early tap is the one kept.
+      expect((window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap).toEqual({ id: "one-min-opt-0", bank: "PYQ-S-2024-LIGHT-003" });
     });
 
     it("a returning visitor (ladder seen) and a CBQ ad: today's placeholder, byte for byte, in the card's place", () => {

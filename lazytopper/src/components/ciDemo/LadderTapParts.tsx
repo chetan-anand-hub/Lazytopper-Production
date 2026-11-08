@@ -5,6 +5,7 @@
  * verdict stays in OneMinuteLadder (picked === right), unchanged.
  */
 import { subscriptFormulas } from "../../lib/chemSubscript";
+import { LADDER_CHECKING } from "./ladderCopy";
 
 const LETTERS = ["A", "B", "C", "D"];
 
@@ -66,4 +67,21 @@ export function LadderOptions({ options, right, picked, onTap, holding = null }:
       })}
     </ul>
   );
+}
+
+/**
+ * SPEED-CI-2 (review of #1639, FU1) — what an EARLY tap shows at once (the static paint's guard inserts the same two
+ * nodes): the verdict line's box saying "Checking your answer…" above the options, and the verdict block's box at its
+ * final height below them (`ci-demo__verdict--reserve`). The ladder's verdict then lands inside both: nothing moves.
+ */
+export function LadderHeldMark() {
+  return (
+    <p className="ci-demo__verdict-mark ci-demo__verdict-mark--held" role="status">
+      {LADDER_CHECKING}
+    </p>
+  );
+}
+
+export function LadderVerdictReserve() {
+  return <div className="ci-demo__verdict ci-demo__verdict--reserve" />;
 }

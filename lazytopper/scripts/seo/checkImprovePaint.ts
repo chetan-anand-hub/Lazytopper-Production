@@ -35,6 +35,7 @@
 
 import { inAppBrowser } from "../../src/utils/inAppBrowser";
 import { STARTER_ROWS } from "../../src/components/ciDemo/oneMinuteStarterRows";
+import { LADDER_CHECKING } from "../../src/components/ciDemo/ladderCopy";
 import {
   PAINT_ATTR,
   PAINT_PRESSED_CLASS,
@@ -132,6 +133,8 @@ export interface CiPaintConfig {
   staticAttr: string;
   /** SPEED-CI-2: the ladder-seen localStorage key (`CI_LADDER_SEEN_KEY`). */
   ladderSeenKey: string;
+  /** SPEED-CI-2 (review of #1639, FU1): the held verdict line an early option tap shows (ladderCopy.ts). */
+  checkingText: string;
 }
 
 export interface CiPaintDecision {
@@ -280,6 +283,7 @@ export function checkImprovePaintConfig(variant: PaintVariant, clock: { from: nu
     stateAttr: PAINT_STATE_ATTR,
     staticAttr: STATIC_ATTR,
     ladderSeenKey: CI_LADDER_SEEN_KEY,
+    checkingText: LADDER_CHECKING,
   };
 }
 
@@ -335,7 +339,11 @@ export function checkImprovePaintScript(config: CiPaintConfig): string {
     `var click=function(event){var t=event.target;var hit=staticOf(t);if(!hit)return;event.preventDefault();event.stopPropagation();` +
     `var control=t.closest("button,a,label,input,textarea,select,[role=button]");if(control&&hit.contains(control)){control.classList.add(config.pressedClass);control.setAttribute("aria-busy","true");` +
     // SPEED-CI-2: an option of the first-visit card is remembered (not answered): the ladder answers it once it renders.
-    `var opt=control.getAttribute("data-testid")||"";var bank=control.closest("[data-ci-bank]");if(/^one-min-opt-[0-3]$/.test(opt)&&bank)window.__ltStaticTap={id:opt,bank:bank.getAttribute("data-ci-bank")};}};` +
+    `var opt=control.getAttribute("data-testid")||"";var bank=control.closest("[data-ci-bank]");if(/^one-min-opt-[0-3]$/.test(opt)&&bank){window.__ltStaticTap={id:opt,bank:bank.getAttribute("data-ci-bank")};` +
+    // FU1 (review of #1639): reserve the verdict's boxes NOW (the tap's own frame), exactly as the preview and the
+    // ladder draw them (LadderTapParts.tsx LadderHeldMark / LadderVerdictReserve), so the verdict lands without a shift.
+    `var ul=control.closest(".ci-demo__opts");if(ul&&ul.parentNode&&!bank.querySelector(".ci-demo__verdict-mark--held")){var held=document.createElement("p");held.className="ci-demo__verdict-mark ci-demo__verdict-mark--held";` +
+    `held.setAttribute("role","status");held.textContent=config.checkingText;ul.parentNode.insertBefore(held,ul);var box=document.createElement("div");box.className="ci-demo__verdict ci-demo__verdict--reserve";ul.parentNode.insertBefore(box,ul.nextSibling);}}}};` +
     `var hold=function(event){if(staticOf(event.target)){event.preventDefault();event.stopPropagation();}};` +
     `var keys=function(event){if(staticOf(event.target)&&field(event.target)){event.preventDefault();event.stopPropagation();}};` +
     `var focus=function(event){var t=event.target;if(staticOf(t)&&field(t)&&t.blur)t.blur();};` +

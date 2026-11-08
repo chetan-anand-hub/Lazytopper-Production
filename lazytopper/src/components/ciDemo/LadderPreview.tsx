@@ -15,7 +15,7 @@ import { useMascotsHidden } from "../guide/mascotsMute";
 import { LADDER_HEAD, LADDER_WATCH } from "./ladderCopy";
 import { hasChallengeParam, ladderLeads } from "./ladderLeads";
 import { holdLadderTap, isFirstLadderVisit, peekLadderTap } from "./ladderVisit";
-import { LadderMeta, LadderOptions, LadderQuestionText } from "./LadderTapParts";
+import { LadderHeldMark, LadderMeta, LadderOptions, LadderQuestionText, LadderVerdictReserve } from "./LadderTapParts";
 import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import { fixedStarter, type OneMinuteStarter } from "./oneMinuteStarters";
 import { readCiDemoSubjectHint } from "./ciDemoModel";
@@ -52,7 +52,9 @@ export default function LadderPreview({ starter }: { starter: OneMinuteStarter }
         <div className="ci-demo__ladder" data-testid="one-min-ladder" data-step="tap">
           <LadderMeta subject={starter.subject} topicName={row.topicName} />
           <LadderQuestionText question={row.question} />
+          {holding !== null ? <LadderHeldMark /> : null}
           <LadderOptions options={row.options} right={row.right} picked={null} onTap={hold} holding={holding} />
+          {holding !== null ? <LadderVerdictReserve /> : null}
           <button type="button" className="ci-demo__link" data-testid="one-min-watch" aria-disabled="true">
             {LADDER_WATCH}
           </button>

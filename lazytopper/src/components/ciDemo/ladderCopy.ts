@@ -5,3 +5,5 @@
  */
 export const LADDER_HEAD = "Try one board question. 1 tap.";
 export const LADDER_WATCH = "Or watch me mark a board answer";
+/** SPEED-CI-2 (review of #1639, FU1): the verdict line while an early tap waits for the ladder to mark it. */
+export const LADDER_CHECKING = "Checking your answer…";
