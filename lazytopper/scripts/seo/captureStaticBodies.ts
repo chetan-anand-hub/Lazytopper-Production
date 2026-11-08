@@ -1445,7 +1445,8 @@ async function runEarlyTapMarkChecks(
           ? route.fulfill({ status: 200, contentType: "text/html", body: pageHtml })
           : route.continue(),
       );
-      await page.goto(`${origin}${basename}${CHECK_IMPROVE_PATH}?utm_source=youtube`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+      // "commit": the held entry is a module script, so DOMContentLoaded waits for it (it would never fire before the tap).
+      await page.goto(`${origin}${basename}${CHECK_IMPROVE_PATH}?utm_source=youtube`, { waitUntil: "commit", timeout: 60_000 });
       const option = page.locator(`[data-lt-paint] [data-testid="one-min-opt-${kase.option}"]`);
       await option.waitFor({ timeout: 30_000 });
       await option.tap({ noWaitAfter: true });
