@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, act, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "./test/setup";
 import { BottomNav } from "./App";
@@ -69,12 +69,14 @@ describe("BottomNav 5th tab — Pricing / Me", () => {
     expect(screen.queryByText("Me")).toBeNull();
   });
 
-  it("Pricing goes to /pricing?source=bottom-nav and fires nav_pricing_tap", () => {
+  it("Pricing goes to /pricing?source=bottom-nav and fires nav_pricing_tap", async () => {
     setMatchMediaMatches(false);
     renderNav("/browse");
     fireEvent.click(screen.getByText("Pricing"));
-    expect(screen.getByTestId("loc")).toHaveTextContent("/pricing?source=bottom-nav");
+    // SPEED-NAV-1: the event fires in the tap itself, the navigation one frame later.
     expect(track).toHaveBeenCalledWith("bottom_nav");
+    await waitFor(() => expect(screen.getByTestId("loc")).toHaveTextContent("/pricing?source=bottom-nav"));
+    expect(track).toHaveBeenCalledTimes(1);
   });
 
   it("Pricing is never the active tab", () => {
@@ -103,7 +105,7 @@ describe("BottomNav 5th tab — Pricing / Me", () => {
     expect(screen.getByText("Pricing")).toBeInTheDocument();
   });
 
-  it("★ a Board Pass holder keeps Me (no Pricing), and Me keeps its active state", () => {
+  it("★ a Board Pass holder keeps Me (no Pricing), and Me keeps its active state", async () => {
     setMatchMediaMatches(false);
     auth.user = { uid: "u1" };
     sub.value = { tier: "premium", plan: "pass_till_boards" };
@@ -111,7 +113,7 @@ describe("BottomNav 5th tab — Pricing / Me", () => {
     expect(screen.queryByText("Pricing")).toBeNull();
     expect(screen.getByText("Me").closest("button")!.style.color).toBe("rgb(52, 178, 119)");
     fireEvent.click(screen.getByText("Me"));
-    expect(screen.getByTestId("loc")).toHaveTextContent("/me");
+    await waitFor(() => expect(screen.getByTestId("loc")).toHaveTextContent("/me"));
   });
 
   it("a holder's 5th tab flips Pricing -> Me when the subscription hydrates", () => {

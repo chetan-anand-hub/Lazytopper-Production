@@ -20,6 +20,8 @@ import { TrialBanner } from "./components/ux/TrialBanner";
 import { useAuth } from "./context/AuthContext";
 import { useHoldsBoardPass } from "./lib/nav/boardPass";
 import { trackNavPricingTap } from "./analytics/analytics";
+import { useNavigateAfterPaint } from "./lib/useNavigateAfterPaint";
+import { prefetchBottomNavPage } from "./lib/nav/bottomNavPrefetch";
 import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
@@ -471,11 +473,16 @@ export function isSignedOutBuyRoute(path: string): boolean {
 
 export function BottomNav() {
   const location = useLocation();
-  const navigate = useNavigate();
   const isDesktop = useIsDesktop();
   const { user } = useAuth();
   // NAV-PRICING-1 — above every early return (hook order). False when signed out / not yet hydrated.
   const holdsBoardPass = useHoldsBoardPass();
+  // SPEED-NAV-1 — the tab the student just pressed, painted active at once (see `go` below).
+  // Cleared whenever the route changes; above every early return (hook order).
+  const [pressedTab, setPressedTab] = useState<string | null>(null);
+  useEffect(() => setPressedTab(null), [location.key]);
+  // One push per gesture, dropped if stale (Back / another link) or if the bar unmounts first.
+  const navigateAfterPaint = useNavigateAfterPaint();
 
   const current = location.pathname;
 
@@ -501,7 +508,17 @@ export function BottomNav() {
     return null;
   }
 
-  const go = (path: string) => navigate(path);
+  // SPEED-NAV-1 (8 Nov 2026) — a tab tap used to navigate INSIDE the tap, so the frame after it
+  // waited for the destination route to load and render (lab, 4x CPU, 360 px: Check ~1400 ms,
+  // Pricing ~600 ms with no visible change). Now the pressed tab turns active in the tap's own
+  // frame, the page's chunk starts loading (on pointerdown, below), and the navigation runs one
+  // frame later (same path, same push). Until the route changes, further taps are ignored.
+  const go = (label: string, path: string) => {
+    if (pressedTab) return;
+    setPressedTab(label);
+    prefetchBottomNavPage(path); // keyboard / no-pointer taps; a no-op after onPointerDown
+    navigateAfterPaint(path);
+  };
   // Light app grammar — same tokens as the grammar primitives / locked design.
   const activeColor = "hsl(152, 55%, 45%)";
   const inactiveColor = "hsl(220, 15%, 42%)";
@@ -540,8 +557,9 @@ export function BottomNav() {
           <path d="M5 10v10h14V10"/>
         </svg>
       ),
+      to: "/browse",
       active: isHomeActive,
-      onClick: () => go("/browse"),
+      onClick: () => go("Home", "/browse"),
     },
     {
       label: "Exam Trends",
@@ -552,8 +570,9 @@ export function BottomNav() {
           <path d="M7 16l4-4 4 4 4-4"/>
         </svg>
       ),
+      to: "/exam-trends",
       active: isExamTrendsActive,
-      onClick: () => go("/exam-trends"),
+      onClick: () => go("Exam Trends", "/exam-trends"),
     },
     {
       label: "Practice",
@@ -564,8 +583,9 @@ export function BottomNav() {
           <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
         </svg>
       ),
+      to: "/practice-hub",
       active: isPracticeActive,
-      onClick: () => go("/practice-hub"),
+      onClick: () => go("Practice", "/practice-hub"),
     },
     {
       label: "Check",
@@ -576,8 +596,9 @@ export function BottomNav() {
           <circle cx="12" cy="16" r="1"/>
         </svg>
       ),
+      to: "/check-improve",
       active: isCheckActive,
-      onClick: () => go("/check-improve"),
+      onClick: () => go("Check", "/check-improve"),
     },
     holdsBoardPass
       ? {
@@ -589,8 +610,9 @@ export function BottomNav() {
               <circle cx="12" cy="7" r="4"/>
             </svg>
           ),
+          to: "/me",
           active: isMeActive,
-          onClick: () => go("/me"),
+          onClick: () => go("Me", "/me"),
         }
       : {
           label: "Pricing",
@@ -601,10 +623,12 @@ export function BottomNav() {
               <path d="M7 7h.01"/>
             </svg>
           ),
+          to: "/pricing?source=bottom-nav",
           active: false,
           onClick: () => {
+            if (pressedTab) return; // SPEED-NAV-1: a tap that will not navigate is not counted
             trackNavPricingTap("bottom_nav");
-            go("/pricing?source=bottom-nav");
+            go("Pricing", "/pricing?source=bottom-nav");
           },
         },
   ];
@@ -625,9 +649,12 @@ export function BottomNav() {
         zIndex: 20,
       }}
     >
-      {navItems.map((item) => (
+      {navItems.map((item) => {
+        const shownActive = pressedTab ? item.label === pressedTab : item.active;
+        return (
         <button
           key={item.label}
+          onPointerDown={() => prefetchBottomNavPage(item.to)}
           onClick={item.onClick}
           style={{
             background: "transparent",
@@ -637,8 +664,8 @@ export function BottomNav() {
             flexDirection: "column",
             alignItems: "center",
             gap: 2,
-            color: item.active ? activeColor : inactiveColor,
-            fontWeight: item.active ? 800 : 600,
+            color: shownActive ? activeColor : inactiveColor,
+            fontWeight: shownActive ? 800 : 600,
             fontSize: "0.6rem",
             letterSpacing: "0.02em",
             textTransform: "uppercase",
@@ -652,7 +679,8 @@ export function BottomNav() {
           {item.icon}
           <span>{item.label}</span>
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
