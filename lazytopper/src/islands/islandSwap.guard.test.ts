@@ -21,7 +21,7 @@ import { readFileSync } from "node:fs";
 import { ISLAND_PATH_PREFIXES, ISLAND_THEME, isIslandPath, islandsEnabled } from "./islandConfig";
 
 /**
- * GUARD — SPEED-ISLANDS-1: the island swap reaches the allowlisted content families ONLY, changes ONLY the
+ * GUARD — SPEED-ISLANDS-1 (+ phase 2): the island swap reaches the allowlisted content families ONLY, changes ONLY the
  * script tag (body, canonical, meta and JSON-LD stay byte-identical), and has a one-line off switch.
  */
 
@@ -35,24 +35,34 @@ describe("which paths are islands", () => {
   const advertised = applicablePaths();
   const islands = islandPathsFor(advertised, ON, {});
 
-  it("exactly the notes, NCERT-solutions and Exemplar chapter pages (phase 1)", () => {
-    const expected = advertised.filter((p) => /^\/(notes|ncert-solutions|ncert-exemplar)\/[^/]+$/.test(p));
+  it("exactly the notes, NCERT-solutions and Exemplar chapter pages (phase 1), Important Questions, CBQ chapters and the NCERT Hub (phase 2)", () => {
+    const expected = advertised.filter(
+      (p) => /^\/(notes|ncert-solutions|ncert-exemplar|highly-probable|cbq-class-10)\/.+$/.test(p) || p === "/ncert-class-10",
+    );
     expect([...islands].sort()).toEqual(expected.sort());
     // CONTROL — the families are really advertised, so the equality above is not vacuous.
     expect(expected.filter((p) => p.startsWith("/notes/")).length).toBeGreaterThanOrEqual(20);
     expect(expected.filter((p) => p.startsWith("/ncert-solutions/")).length).toBeGreaterThanOrEqual(20);
     expect(expected.filter((p) => p.startsWith("/ncert-exemplar/")).length).toBeGreaterThanOrEqual(20);
+    expect(expected.filter((p) => p.startsWith("/cbq-class-10/")).length).toBeGreaterThanOrEqual(20);
+    expect(expected.filter((p) => p.startsWith("/highly-probable/")).sort()).toEqual(["/highly-probable/10/Maths", "/highly-probable/10/Science"]);
+    expect(islands.has("/ncert-class-10")).toBe(true);
   });
 
-  it("never the root, pricing, packs, the hubs, CBQ, HPQ or topic hubs (phase 2 is a separate PR)", () => {
-    for (const p of ["/", "/pricing", "/packs", "/ncert-class-10", "/cbq-class-10", "/practice-hub", "/check-your-answer"]) {
+  it("never the root, pricing, packs, the CBQ landing (its chooser stays on the app), the hubs or topic hubs", () => {
+    for (const p of ["/", "/pricing", "/packs", "/cbq-class-10", "/practice-hub", "/check-your-answer", "/exam-trends"]) {
       expect(islands.has(p)).toBe(false);
     }
     for (const p of advertised) {
-      if (/^\/(highly-probable|cbq-class-10|topic-hub|legal|cbse)\b/.test(p)) expect(islands.has(p)).toBe(false);
+      if (/^\/(topic-hub|legal|cbse)\b/.test(p)) expect(islands.has(p)).toBe(false);
     }
     expect(isIslandPath("/notes/")).toBe(false);
     expect(isIslandPath("/notes")).toBe(false);
+    expect(isIslandPath("/cbq-class-10/")).toBe(false);
+    // An entry without a trailing "/" is ONE exact path, never a family.
+    expect(isIslandPath("/ncert-class-10")).toBe(true);
+    expect(isIslandPath("/ncert-class-10/x")).toBe(false);
+    expect(isIslandPath("/ncert-class-10x")).toBe(false);
   });
 
   it("is off by default (every synthetic build in the other guards), and LT_ISLANDS=0 turns it off", () => {
@@ -64,6 +74,12 @@ describe("which paths are islands", () => {
     expect(islandPathsFor(advertised, { ...ON, preloads: false }, {}).size).toBe(0);
     // The family allowlist is the per-family switch.
     expect([...islandPathsFor(advertised, { islandPrefixes: ["/notes/"] }, {})].every((p) => p.startsWith("/notes/"))).toBe(true);
+    // Each phase-2 family turns off on its own.
+    for (const off of ["/highly-probable/", "/cbq-class-10/", "/ncert-class-10"]) {
+      const rest = islandPathsFor(advertised, { islandPrefixes: ISLAND_PATH_PREFIXES.filter((p) => p !== off) }, {});
+      expect([...rest].some((p) => (off.endsWith("/") ? p.startsWith(off) : p === off))).toBe(false);
+      expect(rest.size).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -78,7 +94,12 @@ describe("withIsland", () => {
       src: "/assets/contentIsland-BBBBBBBB.js",
       appEntry: "/assets/index-AAAAAAAA.js",
       preloads: ["/assets/Note-CCCCCCCC.js", "/assets/tokens-DDDDDDDD.js"],
+      variant: "",
     });
+    // SPEED-ISLANDS-2: the build names the capture it served (mobile / desktop), on the script tag only.
+    const desk = withIsland(page, shell(), "contentIsland-BBBBBBBB.js", [], "desktop");
+    expect(islandScriptIn(desk)?.variant).toBe("desktop");
+    expect(desk.split("<body")[1]).toBe(page.split("<body")[1]);
     expect(swapped).not.toContain(ENTRY);
     const [before, after] = page.split(ENTRY);
     expect(swapped.startsWith(before)).toBe(true);
@@ -114,10 +135,11 @@ describe("verifyBuiltPages — island pages", () => {
     for (const f of ["index-AAAAAAAA.js", "contentIsland-BBBBBBBB.js", "DesktopNotesPage-CCCCCCCC.js", "TopicHubPage-DDDDDDDD.js"]) {
       writeFileSync(join(out, "assets", f), "export{};", "utf8");
     }
-    const island = withIslandTheme(withIsland(shell("<main>N</main>"), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]));
+    const island = (v: "mobile" | "desktop") =>
+      withIslandTheme(withIsland(shell("<main>N</main>"), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"], v));
     for (const f of ["notes/electricity.html", "notes/electricity/index.html", "__desktop/notes/electricity.html"]) {
       mkdirSync(join(out, f, ".."), { recursive: true });
-      writeFileSync(join(out, f), island, "utf8");
+      writeFileSync(join(out, f), island(f.startsWith("__desktop/") ? "desktop" : "mobile"), "utf8");
     }
     return { out, cleanup: () => rmSync(out, { recursive: true, force: true }) };
   }
@@ -128,6 +150,17 @@ describe("verifyBuiltPages — island pages", () => {
       const v = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
       expect(v.failures).toEqual([]);
       expect(v.islandFiles).toBe(3);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("RED: a desktop file whose island says it carries the mobile capture (SPEED-ISLANDS-2)", () => {
+    const { out, cleanup } = build();
+    try {
+      writeFileSync(join(out, "__desktop/notes/electricity.html"), readFileSync(join(out, "notes/electricity.html"), "utf8"), "utf8");
+      const v = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
+      expect(v.failures.some((f) => f.includes('island says data-lt-variant="mobile"'))).toBe(true);
     } finally {
       cleanup();
     }
@@ -200,7 +233,8 @@ describe("#1621 review D1 — an island page links the lazy stylesheets its serv
       const write = (html: string) => {
         for (const f of ["notes/electricity.html", "notes/electricity/index.html", "__desktop/notes/electricity.html"]) {
           mkdirSync(join(out, f, ".."), { recursive: true });
-          writeFileSync(join(out, f), html, "utf8");
+          const variant = f.startsWith("__desktop/") ? "desktop" : "mobile";
+          writeFileSync(join(out, f), html.replace("<script type=\"module\" crossorigin src=\"/assets/contentIsland-", `<script ${"data-lt-variant"}="${variant}" type="module" crossorigin src="/assets/contentIsland-`), "utf8");
         }
       };
       const bare = withIslandTheme(withIsland(shell(`<main>${KATEX}</main>`), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]));

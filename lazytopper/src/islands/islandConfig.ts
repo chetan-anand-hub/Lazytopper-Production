@@ -17,8 +17,20 @@
 // islandAnalytics.ts — reachable from a live root (scripts/seo/applyPrerendered.ts imports this file).
 export type { IslandHtmlState } from "./contentIsland";
 
-/** Advertised path families served as islands (phase 1). Remove a prefix to turn that family off. */
-export const ISLAND_PATH_PREFIXES: readonly string[] = ["/notes/", "/ncert-solutions/", "/ncert-exemplar/"];
+/**
+ * Advertised path families served as islands. Remove an entry to turn that family off (one-line revert).
+ * An entry ending in "/" is a family (every path under it, never the bare prefix); any other entry is ONE exact path.
+ * Phase 1: notes, NCERT and Exemplar solutions. Phase 2 (SPEED-ISLANDS-2): Important Questions, the CBQ chapter
+ * pages (NOT the /cbq-class-10 landing: its CBQ chooser stays on the app), and the NCERT Hub.
+ */
+export const ISLAND_PATH_PREFIXES: readonly string[] = [
+  "/notes/",
+  "/ncert-solutions/",
+  "/ncert-exemplar/",
+  "/highly-probable/",
+  "/cbq-class-10/",
+  "/ncert-class-10",
+];
 
 /** The Rollup input name of the island entry (`vite.config.ts` build.rollupOptions.input). */
 export const ISLAND_ENTRY_NAME = "contentIsland";
@@ -30,12 +42,23 @@ export const APP_ENTRY_ATTR = "data-lt-app-entry";
 /** Space-separated route-chunk URLs the page used to modulepreload — preloaded on upgrade. */
 export const APP_PRELOADS_ATTR = "data-lt-app-preloads";
 
+/**
+ * SPEED-ISLANDS-2 — which capture the file carries: "mobile" (390-px, the page's own file) or "desktop" (1280-px,
+ * `/__desktop/`; middleware.ts picks it by device, not width). The app lays out by WIDTH (useIsDesktop: >= 1024 px),
+ * so a capture that does not match the window (a desktop browser narrower than 1024 px, a tablet in landscape) is
+ * not what today's app shows after boot: the island then loads the app at once.
+ */
+export const ISLAND_VARIANT_ATTR = "data-lt-variant";
+export const DESKTOP_QUERY = "(min-width: 1024px)";
+
 /** `?app=1` on any island page loads the full app straight away (kill switch for one visit). */
 export const FORCE_APP_PARAM = "app";
 
 /** True when `path` (an advertised path) is served as an island under the given family list. */
 export function isIslandPath(path: string, prefixes: readonly string[] = ISLAND_PATH_PREFIXES): boolean {
-  return prefixes.some((prefix) => path.startsWith(prefix) && path.length > prefix.length);
+  return prefixes.some((prefix) =>
+    prefix.endsWith("/") ? path.startsWith(prefix) && path.length > prefix.length : path === prefix,
+  );
 }
 
 /** `LT_ISLANDS=0` at build time serves every page with the full app, as before this lane. */
