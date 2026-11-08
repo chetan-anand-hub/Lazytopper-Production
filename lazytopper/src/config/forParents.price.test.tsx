@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, act } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -79,5 +80,36 @@ describe("PARENTS-PAY-1 — price and how to pay on /for-parents", () => {
     expect(help.href).toBe(PAY_HELP_HREF);
     expect(help.href.startsWith("https://wa.me/")).toBe(true);
     expect(screen.getByTestId("fp-pay-line").textContent).toBe(PAY_ONE_LINE);
+  });
+  // FU-FORPARENTS-FIRST-PRICE-TEST (#1629 review F1/F4): the prices a parent acts on are in React's FIRST COMMIT, not filled in
+  // by an effect a frame later (that late fill is the pop-in SPEED-CLS-2 removed: CLS 0.03-0.06 at 1280). A layout effect in a
+  // sibling runs in the first commit, after the DOM mutation and BEFORE any passive effect, so it sees exactly the first paint.
+  it("★ the Pay buttons, the packs band chips and the pack prices carry their rupee figure in the FIRST commit", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30"));
+    const first: Record<string, string[]> = {};
+    function FirstCommitProbe() {
+      useLayoutEffect(() => {
+        const texts = (sel: string) => Array.from(document.querySelectorAll(sel)).map((n) => n.textContent ?? "");
+        first.hero = texts('[data-testid="fp-pay-hero"]');
+        first.price = texts('[data-testid="fp-pay-price"]');
+        first.bandChips = texts('[data-testid="fp-band-price"]');
+        first.packPrices = texts('[data-testid="fp-packs-price"]');
+        first.slot = texts('[data-testid="fp-price"] .lt-fp__price-slot');
+      }, []);
+      return null;
+    }
+    render(
+      <MemoryRouter>
+        <ForParentsPage />
+        <FirstCommitProbe />
+      </MemoryRouter>,
+    );
+    expect(first.hero).toEqual(["Pay for my child · ₹1,917"]);
+    expect(first.price).toEqual(["Pay for my child · ₹1,917"]);
+    expect(first.bandChips.length).toBeGreaterThan(0);
+    for (const t of [...first.bandChips, ...first.packPrices]) expect(t).toMatch(/₹\d/);
+    // The price section reserves its slot from the first commit (its figures settle inside it, shifting nothing).
+    expect(first.slot).toHaveLength(1);
   });
 });
