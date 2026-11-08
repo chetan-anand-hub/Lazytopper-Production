@@ -17,8 +17,20 @@
 // islandAnalytics.ts — reachable from a live root (scripts/seo/applyPrerendered.ts imports this file).
 export type { IslandHtmlState } from "./contentIsland";
 
-/** Advertised path families served as islands (phase 1). Remove a prefix to turn that family off. */
-export const ISLAND_PATH_PREFIXES: readonly string[] = ["/notes/", "/ncert-solutions/", "/ncert-exemplar/"];
+/**
+ * Advertised path families served as islands. Remove an entry to turn that family off (one-line revert).
+ * An entry ending in "/" is a family (every path under it, never the bare prefix); any other entry is ONE exact path.
+ * Phase 1: notes, NCERT and Exemplar solutions. Phase 2 (SPEED-ISLANDS-2): Important Questions, the CBQ chapter
+ * pages (NOT the /cbq-class-10 landing: its CBQ chooser stays on the app), and the NCERT Hub.
+ */
+export const ISLAND_PATH_PREFIXES: readonly string[] = [
+  "/notes/",
+  "/ncert-solutions/",
+  "/ncert-exemplar/",
+  "/highly-probable/",
+  "/cbq-class-10/",
+  "/ncert-class-10",
+];
 
 /** The Rollup input name of the island entry (`vite.config.ts` build.rollupOptions.input). */
 export const ISLAND_ENTRY_NAME = "contentIsland";
@@ -35,7 +47,9 @@ export const FORCE_APP_PARAM = "app";
 
 /** True when `path` (an advertised path) is served as an island under the given family list. */
 export function isIslandPath(path: string, prefixes: readonly string[] = ISLAND_PATH_PREFIXES): boolean {
-  return prefixes.some((prefix) => path.startsWith(prefix) && path.length > prefix.length);
+  return prefixes.some((prefix) =>
+    prefix.endsWith("/") ? path.startsWith(prefix) && path.length > prefix.length : path === prefix,
+  );
 }
 
 /** `LT_ISLANDS=0` at build time serves every page with the full app, as before this lane. */

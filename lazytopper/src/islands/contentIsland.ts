@@ -4,6 +4,9 @@
 //   type from it, and scripts/seo/applyPrerendered.ts imports islandConfig.ts), which has no DOM lib.
 /**
  * SPEED-ISLANDS-1 — the island for prerendered content pages (notes, NCERT and Exemplar solutions).
+ * SPEED-ISLANDS-2 — the same island also serves Important Questions, the CBQ chapter pages and the NCERT Hub: their
+ * controls are all upgrade-and-replay (buttons, the dropdowns via `onChange`), links or native `<details>`; a URL that
+ * asks for a non-default view boots the app at once (`appViewRequested`).
  *
  * ★ WHAT IT DOES. The served page already contains the whole rendered body. Today every visitor then
  * downloads the app entry (~270 KB gzip) and React throws that body away and renders it again — the
@@ -45,11 +48,21 @@ export const BOTTOM_NAV_ROUTES: Readonly<Record<string, string>> = {
   // "Pricing" also sends nav_pricing_tap, so it is an upgrade-and-replay (the app sends it, then navigates).
 };
 
-/** Links whose app-side click handler sends an event before navigating: upgrade-and-replay, never a bare navigation. */
-export const TRACKED_LINK = 'a[href="/check-improve"], a[href^="/pricing"]';
+/**
+ * Links whose app-side click handler does something before (or instead of) navigating: upgrade-and-replay, never a
+ * bare navigation. `/check-improve` and `/pricing` send an event first; the NCERT Hub's "All chapters" rows
+ * (`a.lt-nb__allch`, NcertBooksPage.tsx AllChaptersRow) pick the chapter IN PLACE (setParams, scroll kept), which a
+ * full navigation would turn into a reload at the top of the page.
+ */
+export const TRACKED_LINK = 'a[href="/check-improve"], a[href^="/pricing"], a.lt-nb__allch';
 
-/** Where the app adds content the island must not render (rule c): pack offers and the sign-in button. */
-export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal"];
+/**
+ * Where the app adds content the island must not render (rule c): pack offers and prices. Phase 2: the CBQ chapter
+ * page's pack card (its price is in the served markup, PRERENDER-PRICE-GUARD-1, but the app re-renders it from the
+ * live price setting), and the end of the Important Questions list, where the app alone adds the buying block
+ * (HighlyProbableQuestions.tsx ImportantQsOffers, never in the served markup).
+ */
+export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal", "section.lt-cbqs__cta--pack", "div.lt-show-all"];
 /** The desktop header row where the app shows "Log in" (signed out): its presence means "desktop variant". */
 export const AUTH_REGION = '[data-testid="pending-bell"]';
 
@@ -134,6 +147,8 @@ type ToggleKind = "hint" | "mm" | "details";
 const toggleState = new Map<string, { d: Descriptor; open: boolean; kind: ToggleKind }>();
 /** Typed answers, by input id. */
 const typed = new Map<string, string>();
+/** SPEED-ISLANDS-2: dropdown choices (the Important Questions topic filter, the NCERT Hub chapter), by select id. */
+const chosen = new Map<string, string>();
 
 function noteRoots(): Element[] {
   return [...document.querySelectorAll(".lt-note")].filter((el) => !isReactOwned(el));
@@ -693,6 +708,22 @@ async function replayState(findTimeoutMs: number): Promise<void> {
     setter?.call(input, value);
     input.dispatchEvent(new Event("input", { bubbles: true }));
   }
+  // 4. Dropdown choices (React-controlled selects: the native setter + a change event reaches onChange). The app may
+  //    render the select a moment after its route mark (data-driven options): wait for it as for a held tap.
+  const pick = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")?.set;
+  for (const [id, value] of chosen) {
+    const end = Date.now() + findTimeoutMs;
+    let select: Element | null | undefined = null;
+    for (;;) {
+      select = appRoot()?.querySelector(`[id="${cssString(id)}"]`);
+      if ((select instanceof HTMLSelectElement && isReactOwned(select)) || Date.now() >= end) break;
+      await sleep(60);
+    }
+    if (!(select instanceof HTMLSelectElement) || !isReactOwned(select) || select.disabled || select.value === value) continue;
+    if (![...select.options].some((o) => o.value === value)) continue; // the app offers no such choice: leave its own
+    pick?.call(select, value);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
 }
 
 /** The app is ready: replay the visitor's state, swap it in without a jump, then complete the held taps. */
@@ -786,6 +817,7 @@ export function __resetIslandForTests(): void {
   tabState.clear();
   toggleState.clear();
   typed.clear();
+  chosen.clear();
 }
 
 /* ------------------------------------------------------------------ events */
@@ -858,6 +890,21 @@ function onInput(event: Event): void {
   // SolutionsPage: Check is enabled once the answer is non-blank. Mirror it, so the tap reaches us.
   const submit = input.form?.querySelector<HTMLButtonElement>('button[type="submit"]');
   if (submit && !isReactOwned(submit)) submit.disabled = !input.value.trim();
+}
+
+/**
+ * SPEED-ISLANDS-2 — a dropdown the app owns (the Important Questions topic filter, the NCERT Hub chapter picker).
+ * Its native control already shows the choice; the app applies it (filters the list, opens the chapter card). So
+ * the choice is recorded, the app is loaded, and the choice is replayed into it (`replayState` step 4).
+ */
+function onChange(event: Event): void {
+  const select = event.target;
+  if (finished || !(select instanceof HTMLSelectElement) || isReactOwned(select) || !select.id) return;
+  chosen.set(select.id, select.value);
+  if (failed) return; // no app is coming: the native control keeps the choice, as with a dead entry on trunk
+  select.classList.add(BUSY_CLASS);
+  select.setAttribute("aria-busy", "true");
+  upgrade();
 }
 
 function onSubmit(event: Event): void {
@@ -947,6 +994,45 @@ export function watchAppRegions(): void {
   );
   for (const region of regions) observer.observe(region);
   cleanups.push(() => observer.disconnect());
+}
+
+/* ------------------------------------------------------------------ a view only the app can show */
+
+/** NcertBooksPage.tsx NCERT_HUB_SUBJECT_KEY: the subject this browser last picked on the hub (pinned by the guard test). */
+export const NCERT_HUB_SUBJECT_KEY = "lazytopper.ncertHub.subject";
+
+/**
+ * SPEED-ISLANDS-2 — the served markup is ONE view of a page whose app reads more than the path: the NCERT Hub's
+ * `?subject=` / `?ch=` / `?read=` and legacy `#maths` / `#science` (NcertBooksPage.tsx ncertHubState), and the subject
+ * this browser last picked there (shown when the URL names none); the Important Questions `?topic=` filter
+ * (HighlyProbableQuestions.tsx topicParam, the Exam Trends deep link). A visit that asks for any other view gets the
+ * full app at once, exactly as today, instead of the default view followed by a change of content.
+ */
+export function appViewRequested(loc: { pathname: string; search: string; hash: string }, readStored: () => string | null): boolean {
+  let params: URLSearchParams;
+  try {
+    params = new URLSearchParams(loc.search);
+  } catch {
+    return true;
+  }
+  const has = (name: string) => String(params.get(name) ?? "").trim() !== "";
+  if (loc.pathname === "/ncert-class-10") {
+    if (has("subject") || has("ch") || has("read")) return true;
+    const hash = loc.hash.replace(/^#/, "").toLowerCase();
+    if (hash === "maths" || hash === "science") return true;
+    let stored: string | null = null;
+    try {
+      stored = readStored();
+    } catch {
+      stored = null;
+    }
+    return stored === "science"; // "maths" (or nothing) is the served view
+  }
+  if (loc.pathname.startsWith("/highly-probable/")) {
+    const topic = String(params.get("topic") ?? "").trim();
+    return topic !== "" && topic !== "all";
+  }
+  return false;
 }
 
 /* ------------------------------------------------------------------ signed in? (rule a) */
@@ -1052,6 +1138,7 @@ export async function boot(): Promise<void> {
   listen(document, "focusin", onPointerDown, { capture: true, passive: true });
   listen(document, "input", onInput, { capture: true, passive: true });
   listen(document, "submit", onSubmit, { capture: true });
+  listen(document, "change", onChange, { capture: true, passive: true });
   listen(document, "toggle", onToggle, { capture: true, passive: true });
   listen(document, "scroll", markScroll, { capture: true, passive: true });
   listen(window, "wheel", markScroll, { capture: true, passive: true });
@@ -1064,7 +1151,8 @@ export async function boot(): Promise<void> {
   } catch {
     forced = false;
   }
-  if (forced || hasAuthRecordSync()) {
+  const otherView = appViewRequested(window.location, () => window.localStorage.getItem(NCERT_HUB_SUBJECT_KEY));
+  if (forced || otherView || hasAuthRecordSync()) {
     upgrade();
     return;
   }
