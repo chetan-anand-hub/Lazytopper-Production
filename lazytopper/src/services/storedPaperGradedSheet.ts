@@ -99,5 +99,8 @@ export async function downloadStoredPaperGradedSheet(
     code: sheet.code,
     // The live Chapter Test / Full Mock download prints the shared coaching line of the response.
     coaching: storedCoaching(record, response),
+    // SHEET-HEADER-1 — the record's own kind (Chapter Test / Full Mock, never the doc default) and marking time.
+    kindLabel: record.surface === "full-mock" ? "Full Mock" : "Chapter Test",
+    gradedAt: record.gradedAt,
   });
 }

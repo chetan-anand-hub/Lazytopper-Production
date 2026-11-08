@@ -835,13 +835,16 @@ export async function exportGradedWorksheetPdf(args: {
   /** QP-GRADED-SHEET-1 — optional header word ("Quick Practice"); absent ⇒ the doc's "Worksheet",
    *  so every existing caller renders exactly as before. */
   kindLabel?: string;
+  /** SHEET-HEADER-1 — when the answers were marked (ms or ISO); absent ⇒ the sheet prints no date. */
+  gradedAt?: number | string | null;
 }): Promise<string> {
-  const { ws, response, name, code, coaching, kindLabel } = args;
+  const { ws, response, name, code, coaching, kindLabel, gradedAt } = args;
   const filename = `lazytopper-${slug(name || ws.title)}-${codeToken(code)}graded.pdf`;
   return renderElementToPdf(
     createElement(WorksheetGradedPrintDoc, {
       ws, response, name, code, coaching, renderSolutionFigure: await loadSolutionFigureRenderer(),
       ...(kindLabel ? { kindLabel } : {}),
+      ...(gradedAt !== undefined && gradedAt !== null ? { gradedAt } : {}),
     }),
     filename,
     { runningHeader: `${ws.subject} \u00b7 ${name || ws.title} \u00b7 Graded sheet` },

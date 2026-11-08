@@ -122,6 +122,7 @@ import {
   withScorecardReviewParam,
 } from "./tutor/tutorRoundTrip";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
+import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
@@ -387,6 +388,8 @@ export default function ChapterTestPage() {
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
+  // SHEET-HEADER-1 — when THIS fullResponse was marked (set beside it; it is only ever set from a fresh grade).
+  const fullGradedAtRef = useRef<number | null>(null);
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   // PAPER-WALLS-1: the upgrade sheet (Board Pass first, the Chapter Pack second) for a Basic 402 / spent trial allowance.
@@ -772,6 +775,7 @@ export default function ChapterTestPage() {
         if (!outcome.ok) {
           setGradeError(outcome.response.error || "We couldn’t grade your answers. Try a clearer scan, or try again.");
         } else {
+          fullGradedAtRef.current = Date.now();
           setFullResponse(outcome.response);
           setResultsPhase("full");
           setScorecardOpen(true);
@@ -986,6 +990,8 @@ export default function ChapterTestPage() {
         name: nomen.name,
         code: nomen.code,
         coaching: coachingLine(fullResponse),
+        kindLabel: GRADED_SHEET_KIND["chapter-test"],
+        gradedAt: fullGradedAtRef.current,
       });
     } catch {
       /* best-effort */
