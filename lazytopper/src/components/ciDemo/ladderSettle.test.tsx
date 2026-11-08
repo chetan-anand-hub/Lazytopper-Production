@@ -7,6 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { useEffect, useState } from "react";
 import { setMatchMediaMatches } from "../../test/setup";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const B = vi.hoisted(() => ({ block: true, rowsLater: true }));
 vi.mock("../../analytics/analytics", async (importOriginal) => {
@@ -111,6 +113,22 @@ describe("an early tap's verdict settles without a reserved height", () => {
       expect(ladder().hasAttribute("data-settling")).toBe(false);
       unmount();
     }
+  });
+
+  it("a scroll shows the held landing line again (no blank hole); a plain pointer tap does not (B3 keeps its target still)", () => {
+    (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
+    render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+    expect(ladder().hasAttribute("data-lo-shown")).toBe(false);
+    act(() => {
+      fireEvent.pointerDown(document.body);
+    });
+    expect(ladder().hasAttribute("data-lo-shown")).toBe(false);
+    act(() => {
+      fireEvent.wheel(document.body);
+    });
+    expect(ladder().hasAttribute("data-lo-shown")).toBe(true);
+    const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
+    expect(css).toMatch(/\.ci-demo:has\(\.ci-demo__verdict--reserve\):not\(:has\(\.ci-demo__ladder\[data-lo-shown\]\)\) \+ \.lt-lo,/);
   });
 
   it("rows that never come: released 1.5 s after the landing, never left hidden", () => {

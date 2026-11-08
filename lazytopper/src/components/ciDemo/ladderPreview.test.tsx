@@ -247,7 +247,9 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
 
   it("(b) the page's landing line is hidden IN PLACE while the verdict box is held (no second offer line, no shift)", () => {
     const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
-    expect(css).toMatch(/\.ci-demo:has\(\.ci-demo__verdict--reserve\) \+ \.lt-lo,\s*\.ci-demo:has\(\.ci-demo__verdict--reserve\) \+ \.lt-lo-slot \{\s*visibility: hidden;/);
+    // SPEED-CI-3: ...until the student scrolls (data-lo-shown), when it is shown again in place.
+    const held = "\\.ci-demo:has\\(\\.ci-demo__verdict--reserve\\):not\\(:has\\(\\.ci-demo__ladder\\[data-lo-shown\\]\\)\\)";
+    expect(css).toMatch(new RegExp(`${held} \\+ \\.lt-lo,\\s*${held} \\+ \\.lt-lo-slot \\{\\s*visibility: hidden;`));
     const page = readFileSync(resolve(__dirname, "../../pages/desktop/DesktopCheckImprovePage.tsx"), "utf8");
     // The landing line is the card's NEXT sibling (what the CSS relies on), and an early tap defers only its removal.
     expect(page).toMatch(/<CiDemoCard[\s\S]*?\/>\s*\)\}\s*\{\/\*[^]*?\*\/\}\s*\{!overlay && ciDemo\.show && !ciMomentUid && !ladderAnsweredHere \? <LandingOffer variant="check" \/> : null\}/);

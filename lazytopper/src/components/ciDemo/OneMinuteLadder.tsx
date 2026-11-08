@@ -156,6 +156,18 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   // first touch, pointer, wheel or key releases it AT ONCE — a scroll never reveals a hole, and because the hidden nodes
   // stay hit-testable (opacity, not visibility), the very tap that releases them also lands on its control.
   const [settling, setSettling] = useState(early !== null);
+  // A scroll (touch drag, wheel, keys) while the early tap's boxes are held shows the hidden landing line again in place
+  // (ciDemo.css), so the student never scrolls past a blank hole. A plain tap does not: B3 keeps that tap's target still.
+  const [loShown, setLoShown] = useState(false);
+  useEffect(() => {
+    if (!reserve || loShown) return undefined;
+    const show = () => setLoShown(true);
+    const types = ["touchmove", "wheel", "keydown"] as const;
+    for (const type of types) window.addEventListener(type, show, { capture: true, passive: true });
+    return () => {
+      for (const type of types) window.removeEventListener(type, show, true);
+    };
+  }, [reserve, loShown]);
   useEffect(() => {
     if (!settling) return undefined;
     let live = true;
@@ -337,6 +349,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       data-testid="one-min-ladder"
       data-step={done ? "verdict" : "tap"}
       data-settling={settling ? "" : undefined}
+      data-lo-shown={reserve && loShown ? "" : undefined}
     >
       <LadderMeta subject={mcq.starter.subject} topicName={mcq.topicName} />
       <LadderQuestionText question={mcq.question} />
