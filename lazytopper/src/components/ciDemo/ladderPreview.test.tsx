@@ -271,6 +271,21 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     for (const [from, h] of bands) expect(h).toBeGreaterThanOrEqual(measured[from]);
   });
 
+  it("SPEED-CI-3: the watch link never moves visibly when the verdict lands — hidden in place while the reserve is held", () => {
+    (window as W).__ltStaticTap = { id: `one-min-opt-${wrong}`, bank: LIGHT };
+    const { container } = render(<LadderPreview starter={fixedStarter(null)} />);
+    const reserve = container.querySelector(".ci-demo__verdict--reserve") as HTMLElement;
+    const link = container.querySelector(".ci-demo__link") as HTMLElement;
+    // A later sibling of the reserve, so `.ci-demo__verdict--reserve ~ .ci-demo__link` reaches it.
+    expect(reserve.parentElement).toBe(link.parentElement);
+    expect(reserve.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
+    expect(css).toMatch(/\.ci-demo__verdict--reserve ~ \.ci-demo__link \{\s*visibility: hidden;\s*\}/);
+    // The inert look (FU2) changes no box property: same font, size, padding, line-height as the active link.
+    const inert = css.match(/\.ci-demo\[data-ci-first\] \.ci-demo__link \{([^}]*)\}/)?.[1] ?? "";
+    expect(inert.split(";").map((d) => d.split(":")[0].trim()).filter(Boolean).sort()).toEqual(["cursor", "opacity"]);
+  });
+
   it("a tap on the STATIC paint's right option: 1/1", () => {
     (window as W).__ltStaticTap = { id: `one-min-opt-${right}`, bank: LIGHT };
     const answered = ladder();

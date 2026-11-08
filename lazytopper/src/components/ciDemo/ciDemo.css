@@ -636,6 +636,15 @@
 .ci-demo:has(.ci-demo__verdict--reserve) + .lt-lo-slot {
   visibility: hidden;
 }
+/* SPEED-CI-3 (coordinator, live c814c9b, early-tap CLS 0.019-0.023 at 360 in 6/6 runs): the watch link sits right under
+   the reserved verdict box, and the real verdict (scorecard + buying block) is TALLER than the reserve on a real
+   account (625 px vs 325 px at 360), so when the ladder lands ~4-5 s after the tap the link alone is pushed down — the
+   only visible node that moves. Its own box never changes (inert and active differ in opacity / cursor only). It is
+   hidden IN PLACE while the reserve is held (a hidden node's move is not a layout shift) and comes back when the
+   reserve is given back after the student's next tap / key (OneMinuteLadder), already in its final place. */
+.ci-demo__verdict--reserve ~ .ci-demo__link {
+  visibility: hidden;
+}
 /* FU2: before the card is in, its × and the watch link cannot act yet: they look it (the option taps are kept). */
 .ci-demo[data-ci-first] .ci-demo__close,
 .ci-demo[data-ci-first] .ci-demo__link {
