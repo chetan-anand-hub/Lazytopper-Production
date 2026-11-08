@@ -477,7 +477,7 @@ export function BottomNav() {
   const { user } = useAuth();
   // NAV-PRICING-1 — above every early return (hook order). False when signed out / not yet hydrated.
   const holdsBoardPass = useHoldsBoardPass();
-  // SPEED-NAV-1 — the tab the student just pressed, painted active at once (see `go` below).
+  // SPEED-NAV-1 — the destination of the tab just pressed, painted active at once (see `go` below).
   // Cleared whenever the route changes; above every early return (hook order).
   const [pressedTab, setPressedTab] = useState<string | null>(null);
   useEffect(() => setPressedTab(null), [location.key]);
@@ -513,9 +513,9 @@ export function BottomNav() {
   // Pricing ~600 ms with no visible change). Now the pressed tab turns active in the tap's own
   // frame, the page's chunk starts loading (on pointerdown, below), and the navigation runs one
   // frame later (same path, same push). Until the route changes, further taps are ignored.
-  const go = (label: string, path: string) => {
+  const go = (path: string) => {
     if (pressedTab) return;
-    setPressedTab(label);
+    setPressedTab(path);
     prefetchBottomNavPage(path); // keyboard / no-pointer taps; a no-op after onPointerDown
     navigateAfterPaint(path);
   };
@@ -559,7 +559,7 @@ export function BottomNav() {
       ),
       to: "/browse",
       active: isHomeActive,
-      onClick: () => go("Home", "/browse"),
+      onClick: () => go("/browse"),
     },
     {
       label: "Exam Trends",
@@ -572,7 +572,7 @@ export function BottomNav() {
       ),
       to: "/exam-trends",
       active: isExamTrendsActive,
-      onClick: () => go("Exam Trends", "/exam-trends"),
+      onClick: () => go("/exam-trends"),
     },
     {
       label: "Practice",
@@ -585,7 +585,7 @@ export function BottomNav() {
       ),
       to: "/practice-hub",
       active: isPracticeActive,
-      onClick: () => go("Practice", "/practice-hub"),
+      onClick: () => go("/practice-hub"),
     },
     {
       label: "Check",
@@ -598,7 +598,7 @@ export function BottomNav() {
       ),
       to: "/check-improve",
       active: isCheckActive,
-      onClick: () => go("Check", "/check-improve"),
+      onClick: () => go("/check-improve"),
     },
     holdsBoardPass
       ? {
@@ -612,7 +612,7 @@ export function BottomNav() {
           ),
           to: "/me",
           active: isMeActive,
-          onClick: () => go("Me", "/me"),
+          onClick: () => go("/me"),
         }
       : {
           label: "Pricing",
@@ -628,7 +628,7 @@ export function BottomNav() {
           onClick: () => {
             if (pressedTab) return; // SPEED-NAV-1: a tap that will not navigate is not counted
             trackNavPricingTap("bottom_nav");
-            go("Pricing", "/pricing?source=bottom-nav");
+            go("/pricing?source=bottom-nav");
           },
         },
   ];
@@ -650,7 +650,7 @@ export function BottomNav() {
       }}
     >
       {navItems.map((item) => {
-        const shownActive = pressedTab ? item.label === pressedTab : item.active;
+        const shownActive = pressedTab ? item.to === pressedTab : item.active;
         return (
         <button
           key={item.label}
