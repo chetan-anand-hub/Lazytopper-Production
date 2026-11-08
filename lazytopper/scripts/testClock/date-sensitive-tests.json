@@ -642,6 +642,7 @@
     "src/components/worksheet/WorksheetGradePanel.detailLock.test.tsx",
     "src/components/worksheet/WorksheetGradePanel.gradeStages.test.tsx",
     "src/components/worksheet/WorksheetGradePanel.jobs.test.tsx",
+    "src/components/worksheet/WorksheetGradePanel.sheetHeader.test.tsx",
     "src/components/worksheet/WorksheetGradePanel.summary.test.tsx",
     "src/components/worksheet/worksheetDraw.guard.test.ts",
     "src/components/worksheet/worksheetMiSelector.test.ts",

@@ -100,6 +100,8 @@ describe("QP-GRADED-SHEET-1 · buildQuickPracticeGradedSheet", () => {
     expect(s.ws.questions[2].solutionSteps).toEqual(["Bank step for 3."]);
     expect(s.ws.totalMarks).toBe(5);
     expect(s.kindLabel).toBe("Quick Practice");
+    // SHEET-HEADER-1 — the marking time is the caller's createdAt (grade time / record.gradedAt)
+    expect(s.gradedAt).toBe(s.ws.createdAt);
   });
 
   it("a reopened row whose bank row could not load keeps its stored marks, with no invented text", () => {

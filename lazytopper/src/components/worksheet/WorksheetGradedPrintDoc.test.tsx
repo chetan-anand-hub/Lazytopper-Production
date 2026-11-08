@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { WorksheetGradedPrintDoc } from "./WorksheetGradedPrintDoc";
+import { WorksheetGradedPrintDoc, gradedSheetKindFor, GRADED_SHEET_KIND } from "./WorksheetGradedPrintDoc";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
 
@@ -219,5 +219,50 @@ describe("WorksheetGradedPrintDoc — the annotation arrow and 'follows from ste
     paint(plain as never, 5);
     expect(document.body.textContent).not.toContain("follows from");
     expect(document.querySelectorAll("svg.lt-stann__arrow")).toHaveLength(4);
+  });
+});
+
+/* SHEET-HEADER-1 (owner ruling 8 Nov 2026) — the header names the paper's real kind and the date its
+ * answers were MARKED. The paper's own `createdAt` (first download) is never printed as that date. */
+describe("WorksheetGradedPrintDoc — header kind and marking date", () => {
+  const r = { qNumber: 1, couldNotRead: false, totalMarks: 3, marksAwarded: 2 } as WorksheetQuestionGrade;
+  const meta = () => document.querySelector(".lt-gp__meta")?.textContent ?? "";
+  const foot = () => document.querySelector(".lt-gp__foot")?.textContent ?? "";
+  const paperDay = new Date("2026-08-16T00:00:00.000Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  it.each([
+    ["Chapter Test", "2026-11-08T09:30:00.000Z"],
+    ["Full Mock", Date.UTC(2026, 10, 7, 6, 0)],
+    ["Worksheet", "2026-11-05T12:00:00.000Z"],
+  ] as const)("%s: kind + 'Marked <date>' in the header, same date in the footer, never the paper's date", (kind, at) => {
+    render(<WorksheetGradedPrintDoc ws={ws(3)} response={resp(r, 3)} name="N" code="PK-M-RN-CT1" coaching="" kindLabel={kind} gradedAt={at} />);
+    const day = new Date(at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    expect(meta()).toContain(`${kind} · 1 question · 3 marks`);
+    expect(meta()).toContain("PK-M-RN-CT1");
+    expect(meta()).toContain(`Marked ${day}`);
+    expect(foot()).toContain(day);
+    expect(meta()).not.toContain(paperDay);
+    expect(foot()).not.toContain(paperDay);
+  });
+
+  it("no gradedAt (or an invalid one) -> no date at all, never the paper's createdAt", () => {
+    render(<WorksheetGradedPrintDoc ws={ws(3)} response={resp(r, 3)} name="N" code="C" coaching="" kindLabel="Chapter Test" />);
+    expect(meta()).not.toContain("Marked");
+    expect(meta()).not.toContain(paperDay);
+    expect(foot()).not.toContain(paperDay);
+    expect(document.querySelector("[data-graded-date]")).toBeNull();
+  });
+
+  it("an invalid gradedAt prints no date", () => {
+    render(<WorksheetGradedPrintDoc ws={ws(3)} response={resp(r, 3)} name="N" code="C" coaching="" gradedAt="not a date" />);
+    expect(document.querySelector("[data-graded-date]")).toBeNull();
+  });
+
+  it("gradedSheetKindFor maps every surface the doc prints; anything else stays 'Worksheet'", () => {
+    expect(gradedSheetKindFor("worksheet")).toBe(GRADED_SHEET_KIND.worksheet);
+    expect(gradedSheetKindFor("chapter-test")).toBe("Chapter Test");
+    expect(gradedSheetKindFor("full-mock")).toBe("Full Mock");
+    expect(gradedSheetKindFor("quick-practice")).toBe("Quick Practice");
+    expect(gradedSheetKindFor(undefined)).toBe("Worksheet");
   });
 });

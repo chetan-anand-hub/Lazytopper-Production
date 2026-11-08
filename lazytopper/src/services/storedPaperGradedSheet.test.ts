@@ -30,3 +30,20 @@ describe("downloadStoredPaperGradedSheet - header total", () => {
     expect(sent().response.worksheetTotalMarks).toBe(6);
   });
 });
+
+// SHEET-HEADER-1 — the restored card's sheet names the record's own kind and its marking time.
+describe("downloadStoredPaperGradedSheet - header kind + marking date", () => {
+  const args = () => (exp.run.mock.calls[0] as unknown as [{ kindLabel?: string; gradedAt?: unknown; ws: { createdAt: string } }])[0];
+  it("a Chapter Test record -> 'Chapter Test' + record.gradedAt", async () => {
+    const at = Date.UTC(2026, 10, 8, 9, 30);
+    await downloadStoredPaperGradedSheet({ ...record, gradedAt: at } as SessionRecord, response());
+    expect(args().kindLabel).toBe("Chapter Test");
+    expect(args().gradedAt).toBe(at);
+  });
+  it("a Full Mock record -> 'Full Mock' + record.gradedAt", async () => {
+    const at = Date.UTC(2026, 10, 7, 4, 0);
+    await downloadStoredPaperGradedSheet({ ...record, id: "FM-M-01", surface: "full-mock", gradedAt: at } as SessionRecord, response());
+    expect(args().kindLabel).toBe("Full Mock");
+    expect(args().gradedAt).toBe(at);
+  });
+});
