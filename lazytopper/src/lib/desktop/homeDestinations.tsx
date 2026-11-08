@@ -307,7 +307,9 @@ const PICKER_CSS = `
   .lt-tutor-x {
     position: absolute; top: 12px; right: 15px; font-size: 17px; line-height: 1;
     color: hsl(220, 15%, 60%); cursor: pointer; background: none; border: 0; padding: 0;
+    display: flex; width: 17px; height: 17px;
   }
+  .lt-tutor-x svg { display: block; }
   .lt-tutor-go {
     width: 100%; text-align: center; padding: 12px; font-size: 13.5px;
     border-radius: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent;
@@ -320,6 +322,22 @@ const PICKER_CSS = `
     line-height: 1.55; border-top: 1px solid hsl(220, 20%, 92%); padding-top: 10px;
   }
 `;
+
+// SPEED-CBQPICK-1 — the chooser's CSS used to ride along as a <style> child of the overlay, so every
+// open parsed and inserted it (style recalc + first-time layout inside the tap). It now lives in <head>
+// ONCE: injected when this module loads (off the tap path), with an id-guard so a second call, a second
+// open or a test re-render never duplicates it. `ensurePickerStyles()` is also called on render as a
+// safety net (no-op after the first), so the dialog is styled even if the load-time call was skipped.
+const PICKER_STYLE_ID = "lt-picker-css";
+function ensurePickerStyles(): void {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(PICKER_STYLE_ID)) return;
+  const el = document.createElement("style");
+  el.id = PICKER_STYLE_ID;
+  el.textContent = PICKER_CSS;
+  document.head.appendChild(el);
+}
+ensurePickerStyles();
 
 export interface TutorPickerModalProps {
   open: boolean;
@@ -403,6 +421,7 @@ export function ChapterPickerModal({
     : (topics.find((t) => !soon(t.slug))?.slug ?? "");
 
   if (!open) return null;
+  ensurePickerStyles();
 
   const go = () => {
     if (!selected) return;
@@ -424,7 +443,6 @@ export function ChapterPickerModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <style>{PICKER_CSS}</style>
       <div
         className="lt-tutor-pop"
         role="dialog"
@@ -435,7 +453,9 @@ export function ChapterPickerModal({
         }}
       >
         <button type="button" className="lt-tutor-x" aria-label="Close" onClick={onClose}>
-          ✕
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true" focusable="false">
+            <path d="M5 5l14 14M19 5L5 19" />
+          </svg>
         </button>
         <h2>
           {title}

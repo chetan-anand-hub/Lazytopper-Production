@@ -255,3 +255,35 @@ describe("ASK-COPY-1: the signed-out tutor gate leads with the free week", () =>
     expect(tutorGateNote(false)).not.toMatch(/Log in to open your tutor/);
   });
 });
+
+describe("chooser styles + close glyph (SPEED-CBQPICK-1)", () => {
+  it("the picker CSS lives in <head> exactly once, never inside the dialog, across opens", () => {
+    const first = renderPicker(true);
+    expect(document.head.querySelectorAll("style#lt-picker-css")).toHaveLength(1);
+    expect(document.head.querySelector("style#lt-picker-css")!.textContent).toContain(".lt-tutor-pop");
+    expect(screen.getByRole("dialog").querySelector("style")).toBeNull();
+    expect(document.querySelector(".lt-tutor-ov style")).toBeNull();
+    first.unmount();
+    renderPicker(false);
+    expect(document.head.querySelectorAll("style#lt-picker-css")).toHaveLength(1);
+  });
+
+  it("the Close button keeps its label and is an SVG (no text glyph to lay out)", () => {
+    renderPicker(true);
+    const close = screen.getByRole("button", { name: "Close" });
+    expect(close.querySelector("svg")).not.toBeNull();
+    expect(close.textContent).toBe("");
+  });
+
+  it("Esc and the Close button still close", () => {
+    let closed = 0;
+    render(
+      <MemoryRouter>
+        <TutorPickerModal open onClose={() => closed++} isSignedIn />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    expect(closed).toBe(2);
+  });
+});
