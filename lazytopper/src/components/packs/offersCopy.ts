@@ -61,7 +61,7 @@ export function paperWallCopy(kind: OfferKind, onTrial: boolean, trialEndedLine:
   return {
     title: `${saved} Get it marked like the board would.`,
     body: [trialEndedLine, written].filter(Boolean).join(" "),
-    benefit: "Every answer marked step by step, your AI tutor, and Mistake Intelligence — till your boards.",
+    benefit: "Every answer marked step by step, your personal tutor, and Mistake Intelligence — till your boards.",
     dismiss: WALL_DISMISS_BASIC,
   };
 }

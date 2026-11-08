@@ -244,7 +244,7 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     expect(Array.from(pass.querySelectorAll(".lt-pp-ticks li")).map(li => flat(li))).toEqual([
       "✓Answer Checker: handwritten answers marked step by step, like a CBSE examiner",
       "✓Chapter tests, full mocks and worksheets graded",
-      "✓Mistake Intelligence and an AI tutor that knows your mistakes",
+      "✓Mistake Intelligence and a personal tutor that knows your mistakes",
       "✓Every question and solution, till your boards",
     ]);
   });
@@ -486,7 +486,7 @@ describe("PRICING-B-1 — What you get with each", () => {
     expect(Array.from(table.querySelectorAll("thead th")).map(visibleText)).toEqual(["", "Board Pass", "CBQ Pack", "Bundle"]);
     expect(Array.from(table.querySelectorAll("tbody tr")).map(tr => Array.from(tr.children).map(visibleText))).toEqual([
       ["Answers checked like a CBSE examiner", "✓", "—", "—"],
-      ["Graded tests, mocks, AI tutor", "✓", "—", "—"],
+      ["Graded tests, mocks, personal tutor", "✓", "—", "—"],
       ["Practise on paper, offline", "—", "✓", "✓"],
       ["What's inside", "Everything, online", "1,400+ CBQs, one subject", "26 chapters + 16 mocks"],
       ["Price", "₹1,917", "₹199", "₹299"],
@@ -502,7 +502,7 @@ describe("PRICING-B-1 — What you get with each", () => {
     for (const row of [
       "Exam Trends — chapters ranked from ten years of papers",
       "Step marks, CBSE keywords and units, the way examiners mark",
-      "AI tutor that knows your chapters and mistakes",
+      "A personal tutor that knows your chapters and mistakes",
       "Fair use",
     ]) {
       expect(html).toContain(row);

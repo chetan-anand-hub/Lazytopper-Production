@@ -181,13 +181,13 @@ describe("3 · dark / free / signed-out → nothing", () => {
 /* ── 4 · copy ──────────────────────────────────────────────────────────────── */
 
 describe("4 · copy (draft for the owner)", () => {
-  it("premium banner: level, window phrase, 'AI use', reset time", () => {
+  it("premium banner: level, window phrase, 'usage', reset time", () => {
     const w5 = usageWarning(premium(80, 10, 10), NOW, "practice")!;
-    expect(warningBannerCopy(w5, NOW)).toBe("You've used 75% of your 5-hour AI use allowance. It resets at 1:00 pm.");
+    expect(warningBannerCopy(w5, NOW)).toBe("You've used 75% of your 5-hour usage allowance. It resets at 1:00 pm.");
     const wd = usageWarning(premium(10, 91, 10), NOW, "practice")!;
-    expect(warningBannerCopy(wd, NOW)).toBe("You've used 90% of today's AI use allowance. It resets at 12:00 am on Tue 29 Sep.");
+    expect(warningBannerCopy(wd, NOW)).toBe("You've used 90% of today's usage allowance. It resets at 12:00 am on Tue 29 Sep.");
     const ww = usageWarning(premium(10, 10, 80), NOW, "practice")!;
-    expect(warningBannerCopy(ww, NOW)).toBe("You've used 75% of this week's AI use allowance. It resets at 2:00 pm on Thu 1 Oct.");
+    expect(warningBannerCopy(ww, NOW)).toBe("You've used 75% of this week's usage allowance. It resets at 2:00 pm on Thu 1 Oct.");
   });
   it("trial banner: the server's own counts", () => {
     const w = usageWarning(trial(1, 5), NOW, "practice")!;

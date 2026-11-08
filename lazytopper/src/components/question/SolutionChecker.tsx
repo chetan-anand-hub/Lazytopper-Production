@@ -508,7 +508,7 @@ function SignInToCheckCta() {
       </Link>
       <p className="lt-sc-lock__note">
         Reading the question, the steps and the stored solution stays free and needs no
-        account. Marking your working is done by AI, so it needs one — and a new account
+        account. CBSE examiner style marking of your working needs one — and a new account
         can start a free 7-day trial with every Premium feature on.
       </p>
     </div>

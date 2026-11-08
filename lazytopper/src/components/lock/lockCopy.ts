@@ -16,12 +16,26 @@ import { BOARD_PASS_NAME } from "../../config/pricing";
 /** The labels the tutor gates pass (App.tsx, TutorPage, the Chapter Hub) all read as one feature on the lock. */
 const TUTOR_LABELS: ReadonlySet<string> = new Set(["Ask the tutor", "The AI tutor", "Tutor"]);
 
+/** The words a student reads for the tutor. The gate labels below stay as KEYS (App.tsx passes them); only the shown text changes. */
+const TUTOR_DISPLAY_NAME = "Your personal tutor";
+
+/**
+ * COPY-NOAI-1 - the text shown for a gate label. The label itself is a key (App.tsx / featureGates.ts pass "The AI tutor" and
+ * "Chapter Hub (AI Tutor)"), so it is translated here, at the point of display, instead of renamed at every call site.
+ */
+export function studentFeatureLabel(featureLabel?: string): string {
+  const label = (featureLabel || "").trim();
+  if (label === "The AI tutor") return TUTOR_DISPLAY_NAME;
+  if (label === "Chapter Hub (AI Tutor)") return "Chapter Hub (Tutor)";
+  return label;
+}
+
 /** The name the headline gives the feature behind the lock. */
 export function lockFeatureName(featureLabel?: string): string {
   const label = (featureLabel || "").trim();
   if (!label) return "This feature";
-  if (TUTOR_LABELS.has(label)) return "The AI tutor";
-  return label;
+  if (TUTOR_LABELS.has(label)) return TUTOR_DISPLAY_NAME;
+  return studentFeatureLabel(label);
 }
 
 /** "Answer Checker comes with the Board Pass" - the lock's headline. */

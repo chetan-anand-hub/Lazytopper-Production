@@ -207,9 +207,9 @@ export type RazorpayConstructor = new (options: RazorpayOptions) => RazorpayInst
 
 /**
  * PAY-PHONE-1 (B) - what the Board Pass is, as Razorpay shows it inside the payment window. Taken from the existing
- * /pricing copy ("Checked answers, the AI tutor and Mistake Intelligence come with Premium"); no new claim.
+ * /pricing copy ("Checked answers, your personal tutor and Mistake Intelligence come with Premium"); no new claim.
  */
-export const BOARD_PASS_CHECKOUT_DESCRIPTION = "Board Pass · checked answers, AI tutor and Mistake Intelligence till your boards";
+export const BOARD_PASS_CHECKOUT_DESCRIPTION = "Board Pass · checked answers, your personal tutor and Mistake Intelligence till your boards";
 
 type WindowWithRazorpay = Window & { Razorpay?: RazorpayConstructor };
 

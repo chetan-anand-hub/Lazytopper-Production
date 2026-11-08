@@ -124,7 +124,7 @@ export { PRICING_CSS };
 const FAQ_ITEMS = [
   {
     q: "Is Basic really free?",
-    a: `Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with the ${BOARD_PASS_NAME}.`,
+    a: `Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, your personal tutor and Mistake Intelligence come with the ${BOARD_PASS_NAME}.`,
   },
   {
     // PRICE-FIXED-1 (owner, 31 Oct 2026): NO FIGURE here (the price sits in the post-mount figures node).
