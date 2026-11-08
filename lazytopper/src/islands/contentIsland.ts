@@ -647,25 +647,6 @@ async function lowerCurtain(): Promise<void> {
 
 /* ---------------------------------------------------- loading the app */
 
-/**
- * SPEED-ISLANDS-2 — the curtain exists to keep a READER's place (D4/D5). When the visitor has done nothing yet (no
- * scroll, no tap held, no state to replay, not at an anchor) — the desktop idle hand-over a moment after load — the
- * app takes over exactly as it does today (main.tsx keeps the served markup until the route is ready), with no
- * curtain: measured, the curtain swap there cost CLS 0.001-0.002 at 1024-1440 px where today's boot has 0.
- */
-function visitorActed(): boolean {
-  return (
-    lastScrollAt !== -Infinity ||
-    window.scrollY > 0 ||
-    queue.length > 0 ||
-    tabState.size > 0 ||
-    toggleState.size > 0 ||
-    typed.size > 0 ||
-    chosen.size > 0 ||
-    hashView !== null
-  );
-}
-
 /** Load and run the full app. Idempotent. */
 export function upgrade(): void {
   if (upgraded || !config) return;
@@ -675,7 +656,7 @@ export function upgrade(): void {
   addDrops = suppressAppRepeats();
   warm();
   dropStaleHash(); // D8: before the app reads the URL
-  if (islandLive && visitorActed()) raiseCurtain();
+  if (islandLive) raiseCurtain();
   const script = document.createElement("script");
   script.type = "module";
   script.crossOrigin = "";

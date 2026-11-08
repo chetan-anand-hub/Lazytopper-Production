@@ -275,22 +275,6 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     expect(await at(360)).toBe("island");
   }, 10_000);
 
-  it("the desktop idle hand-over with an untouched page needs no curtain (today's boot); after a scroll it raises one", async () => {
-    setMatchMediaMatches(true);
-    const run = async (scroll: boolean) => {
-      window.history.replaceState(null, "", "/cbq-class-10/electricity");
-      __resetIslandForTests();
-      document.head.innerHTML = ISLAND_TAG;
-      document.body.innerHTML = '<div id="root"><div class="navbar"><a href="/">LazyTopper</a><div></div></div><main><p>x</p></main></div>';
-      await boot();
-      if (scroll) document.dispatchEvent(new Event("scroll"));
-      await new Promise((r) => setTimeout(r, 2200));
-      return { st: state(), curtain: !!document.getElementById("lt-island-curtain") };
-    };
-    expect(await run(false)).toEqual({ st: "upgrading", curtain: false });
-    expect(await run(true)).toEqual({ st: "upgrading", curtain: true });
-  }, 10_000);
-
   it("the NCERT Hub does not watch its footer (only the lazy 'PDF packs' link, never in the markup): it stays an island", async () => {
     window.history.replaceState(null, "", "/ncert-class-10");
     __resetIslandForTests();
