@@ -2,8 +2,8 @@
 // CANCELLED when the component unmounts or the location changes before it fires.
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { BrowserRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Suspense, lazy, useState } from "react";
 import { useNavigateAfterPaint } from "./useNavigateAfterPaint";
 
 afterEach(cleanup);
@@ -92,5 +92,72 @@ describe("useNavigateAfterPaint", () => {
     fireEvent.click(screen.getByRole("button", { name: "go" }));
     await settle();
     expect(where()).toBe("/dest");
+  });
+});
+
+// ★ B1 (#1632 delta review) — the PRODUCTION router. BrowserRouter commits location changes in a
+// transition: while the other destination's route is still loading, the URL has moved but this
+// component is still mounted with the OLD location, so the effect cleanup has not cancelled the
+// pending push. The hook must still drop it (it compares the browser's own location).
+const NeverLoads = lazy(() => new Promise<{ default: () => null }>(() => {}));
+
+function BrowserHarness() {
+  const go = useNavigateAfterPaint();
+  const navigate = useNavigate();
+  return (
+    <>
+      <button type="button" onClick={() => go("/dest")}>
+        go
+      </button>
+      <button type="button" onClick={() => navigate("/elsewhere")}>
+        elsewhere
+      </button>
+    </>
+  );
+}
+
+function renderBrowser() {
+  render(
+    <BrowserRouter>
+      <Suspense fallback={<p>loading</p>}>
+        <Routes>
+          <Route path="/start" element={<BrowserHarness />} />
+          <Route path="/elsewhere" element={<NeverLoads />} />
+          <Route path="/back-target" element={<NeverLoads />} />
+          <Route path="/dest" element={<p>dest</p>} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>,
+  );
+}
+
+describe("useNavigateAfterPaint — BrowserRouter with the other route still loading", () => {
+  it("another navigation started before the deferred push fires: the push is dropped", async () => {
+    window.history.replaceState(null, "", "/start");
+    renderBrowser();
+    fireEvent.click(screen.getByRole("button", { name: "go" }));
+    fireEvent.click(screen.getByRole("button", { name: "elsewhere" }));
+    await act(() => new Promise<void>((r) => setTimeout(r, 250)));
+    expect(window.location.pathname).toBe("/elsewhere");
+  });
+
+  it("Back (popstate) before the deferred push fires: the push is dropped", async () => {
+    window.history.replaceState(null, "", "/back-target");
+    window.history.pushState({ idx: 1, key: "start" }, "", "/start");
+    renderBrowser();
+    fireEvent.click(screen.getByRole("button", { name: "go" }));
+    await act(async () => {
+      window.history.back();
+      await new Promise<void>((r) => setTimeout(r, 250));
+    });
+    expect(window.location.pathname).toBe("/back-target");
+  });
+
+  it("CONTROL: with nothing in between, the deferred push still lands on BrowserRouter", async () => {
+    window.history.replaceState(null, "", "/start");
+    renderBrowser();
+    fireEvent.click(screen.getByRole("button", { name: "go" }));
+    await act(() => new Promise<void>((r) => setTimeout(r, 250)));
+    expect(window.location.pathname).toBe("/dest");
   });
 });
