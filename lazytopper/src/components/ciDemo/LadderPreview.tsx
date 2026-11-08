@@ -10,11 +10,12 @@
  * which answers it with its own 0-or-full verdict the moment it renders (./ladderVisit.ts). × and the watch link are
  * pressed-only until the card is in. The row is the bank-pinned copy (./oneMinuteStarterRows.ts): no bank import.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMascotsHidden } from "../guide/mascotsMute";
 import { LADDER_HEAD, LADDER_WATCH } from "./ladderCopy";
 import { hasChallengeParam, ladderLeads } from "./ladderLeads";
 import { holdLadderTap, isFirstLadderVisit, peekLadderTap } from "./ladderVisit";
+import { prefetchOfferRows } from "./offerRowsPrefetch";
 import { LadderHeldMark, LadderMeta, LadderOptions, LadderQuestionText, LadderVerdictReserve } from "./LadderTapParts";
 import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import { fixedStarter, type OneMinuteStarter } from "./oneMinuteStarters";
@@ -32,8 +33,15 @@ export default function LadderPreview({ starter }: { starter: OneMinuteStarter }
   const row = STARTER_ROWS[starter.bankId];
   const hidden = useMascotsHidden();
   const [holding, setHolding] = useState<number | null>(() => peekLadderTap(starter.bankId));
+  // A tap made on the static page before the app ran: the rows start loading now (SPEED-CI-3).
+  useEffect(() => {
+    if (holding !== null) prefetchOfferRows();
+    // On mount only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const hold = (i: number) => {
     holdLadderTap(starter.bankId, i);
+    prefetchOfferRows();
     setHolding(i);
   };
   return (

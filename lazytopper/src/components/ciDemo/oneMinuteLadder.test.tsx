@@ -251,21 +251,36 @@ describe("ONE-MINUTE-1 step 1 — TAP", () => {
 });
 
 describe("LADDER-NAV-1 — the verdict button is brought in once, clear of the BottomNav", () => {
-  it("after a tap the next-step block scrolls into view ONCE (nearest) and carries the nav-clear class; nothing before the tap", async () => {
-    const spy = vi.fn();
-    const orig = Element.prototype.scrollIntoView;
-    Element.prototype.scrollIntoView = spy;
+  it("after a tap the next-step block is brought in ONCE, but never past the student's mark line (SPEED-CI-3, B1); nothing before the tap", async () => {
+    const scrollBy = vi.fn();
+    const into = vi.fn();
+    const origInto = Element.prototype.scrollIntoView;
+    const origRect = Element.prototype.getBoundingClientRect;
+    const origBy = window.scrollBy;
+    Element.prototype.scrollIntoView = into;
+    window.scrollBy = scrollBy as unknown as typeof window.scrollBy;
+    // A verdict box far taller than the screen (a phone with the buying block), its mark line at y=400.
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      const r = (top: number, bottom: number) => ({ top, bottom, left: 0, right: 0, width: 0, height: bottom - top, x: 0, y: top, toJSON: () => ({}) }) as DOMRect;
+      if (this.classList.contains("ci-demo__verdict")) return r(653, 2000);
+      if ((this as HTMLElement).dataset?.testid === "one-min-verdict") return r(400, 421);
+      return origRect.call(this);
+    };
     try {
       arrive({ landing: "/check-improve" });
       card();
       await screen.findByTestId("one-min-ladder");
-      expect(spy).not.toHaveBeenCalled();
+      expect(scrollBy).not.toHaveBeenCalled();
       fireEvent.click(screen.getByTestId("one-min-opt-0"));
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy.mock.calls[0][0]).toMatchObject({ block: "nearest" });
+      expect(scrollBy).toHaveBeenCalledTimes(1);
+      // The box wants 2000 - innerHeight; the mark allows only 400 (its top, less its scroll margin): 400 wins.
+      expect(scrollBy.mock.calls[0][0]).toMatchObject({ top: 400 });
+      expect(into).not.toHaveBeenCalled();
       expect(screen.getByTestId("one-min-next").parentElement?.className).toContain("ci-nav-clear");
     } finally {
-      Element.prototype.scrollIntoView = orig;
+      Element.prototype.scrollIntoView = origInto;
+      Element.prototype.getBoundingClientRect = origRect;
+      window.scrollBy = origBy;
     }
   });
   it("the nav-clear rule uses the app's own --mob-nav-height and the safe-area inset, mobile widths only", () => {

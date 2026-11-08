@@ -17,6 +17,7 @@ import ChallengeFriendButton from "./ChallengeFriendButton";
 import { parseChallengeId, type ChallengeQuestion } from "./challengeModel";
 import { markLadderStart } from "./ladderClock";
 import { useClearBottomNav } from "./useClearBottomNav";
+import { prefetchOfferRows } from "./offerRowsPrefetch";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import { correctIndex, fixedStarter, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
@@ -142,8 +143,143 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   const [reserve, setReserve] = useState(early !== null);
   const shown = useRef(false);
   const verdictRef = useRef<HTMLDivElement>(null);
+  const markRef = useRef<HTMLParagraphElement>(null);
   // LADDER-NAV-1: the verdict + "Now a 2-mark one" appear below the fold; bring them in once, clear of the BottomNav.
-  useClearBottomNav(verdictRef, picked !== null);
+  // SPEED-CI-3 (review of #1641, B1): ...but never so far that the student's own mark line leaves the screen.
+  useClearBottomNav(verdictRef, picked !== null, markRef);
+  // SPEED-CI-3 — SETTLING. An early tap's verdict lands (this first frame) and its buying block's pack rows land a
+  // moment later (OffersBlock's lazy OfferRows chunk). No height is reserved for either; instead, from this first frame
+  // until the rows are in, what lies BELOW the verdict (the watch link, the page under the card) is made transparent IN
+  // PLACE (ciDemo.css `[data-settling]`, opacity 0): an invisible node that moves is not a layout shift, and it reappears
+  // in its final place. Nothing above the verdict ever moves.
+  // Settled = the rows are in the DOM; or there is no block to wait for; or 1.5 s after the landing (rows that slow, or
+  // none for this chapter, must never leave a blank hole); or the student does ANYTHING (review of #1641, B4/FU): the
+  // first touch, pointer, wheel or key releases it AT ONCE — a scroll never reveals a hole, and because the hidden nodes
+  // stay hit-testable (opacity, not visibility), the very tap that releases them also lands on its control.
+  const [settling, setSettling] = useState(early !== null);
+  // Rows that arrive AFTER the hide has ended (a rows chunk > 1.5 s late) are held out of the layout (display: none,
+  // ciDemo.css `[data-rows-wait]`) and shown only where they cannot move what the student is looking at: when their
+  // place (the end of the buying block) is below the screen, or right after the student's next tap / key (input-
+  // excluded, B3: after the click has landed). Prefetching at the tap (offerRowsPrefetch.ts) makes this rare.
+  const [rowsWait, setRowsWait] = useState(false);
+  // A scroll (touch drag, wheel, keys) while the early tap's boxes are held shows the hidden landing line again in place
+  // (ciDemo.css), so the student never scrolls past a blank hole. A plain tap does not: B3 keeps that tap's target still.
+  const [loShown, setLoShown] = useState(false);
+  useEffect(() => {
+    if (!reserve || loShown) return undefined;
+    const show = () => setLoShown(true);
+    const types = ["touchmove", "wheel", "keydown"] as const;
+    for (const type of types) window.addEventListener(type, show, { capture: true, passive: true });
+    return () => {
+      for (const type of types) window.removeEventListener(type, show, true);
+    };
+  }, [reserve, loShown]);
+  useEffect(() => {
+    if (!settling) return undefined;
+    prefetchOfferRows();
+    let live = true;
+    let mounted = true;
+    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
+    const rowsIn = () => !!block?.querySelector('[data-testid="offers-packs"]');
+    let observer: MutationObserver | undefined;
+    let cap: number | undefined;
+    const INPUT = ["touchstart", "pointerdown", "wheel", "keydown"] as const;
+    // ★ Never in the frame the verdict landed in: the hiding must have been PAINTED with the grown verdict, or the page
+    // below is seen moving. (Measured: with the rows already cached the effect settled synchronously, before the first
+    // paint, and the page below moved 0.39.) So a release that is not the student's own input waits two frames.
+    const frame = (next: () => void) => {
+      if (typeof requestAnimationFrame === "function") requestAnimationFrame(next);
+      else window.setTimeout(next, 16);
+    };
+    const stop = () => {
+      live = false;
+      observer?.disconnect();
+      if (cap !== undefined) window.clearTimeout(cap);
+      for (const type of INPUT) window.removeEventListener(type, now, true);
+    };
+    // Settling ends with the rows still on their way (the cap, or the student's input first): they wait out of the
+    // layout (rowsWait below) rather than land on top of what the student is now looking at.
+    const holdLateRows = () => {
+      if (mounted && block && !rowsIn()) setRowsWait(true);
+    };
+    const done = () => {
+      if (!live) return;
+      stop();
+      holdLateRows();
+      frame(() => frame(() => {
+        if (mounted) setSettling(false);
+      }));
+    };
+    // The student's own input: release at once (any move it causes is input-excluded).
+    function now() {
+      if (!live) return;
+      stop();
+      holdLateRows();
+      if (mounted) setSettling(false);
+    }
+    for (const type of INPUT) window.addEventListener(type, now, { capture: true, passive: true });
+    if (!block || rowsIn()) {
+      done();
+    } else {
+      if (typeof MutationObserver === "function") {
+        observer = new MutationObserver(() => {
+          if (rowsIn()) done();
+        });
+        observer.observe(block, { childList: true, subtree: true });
+      }
+      cap = window.setTimeout(done, 1500);
+    }
+    return () => {
+      mounted = false;
+      stop();
+    };
+    // Once, for the early tap this mount started with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Late rows: shown only where they move nothing the student can see — when their place (the end of the buying block)
+  // is BELOW the screen, so everything they push is off-screen too. Checked when they arrive, on every scroll and resize.
+  // (Showing them above the view was tried: scroll anchoring / a same-frame scroll did not hold the view still during a
+  // fling — measured 0.36-0.48 — so they wait instead. The prefetch at the tap makes a late arrival rare.)
+  useEffect(() => {
+    if (!rowsWait) return undefined;
+    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
+    if (!block) {
+      setRowsWait(false);
+      return undefined;
+    }
+    const check = () => {
+      if (block.querySelector('[data-testid="offers-packs"]') && block.getBoundingClientRect().bottom >= window.innerHeight) {
+        setRowsWait(false);
+      }
+    };
+    const observer = typeof MutationObserver === "function" ? new MutationObserver(check) : undefined;
+    observer?.observe(block, { childList: true, subtree: true });
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check, { passive: true });
+    check();
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [rowsWait]);
+
+  // While what lies below the verdict is see-through (settling), screen readers must not read it either: the page
+  // under the card gets aria-hidden for exactly that window (only nodes that did not have it), the watch link too (JSX).
+  useEffect(() => {
+    if (!settling) return undefined;
+    const card = verdictRef.current?.closest("section.ci-demo") ?? null;
+    const marked: Element[] = [];
+    for (let n = card?.nextElementSibling ?? null; n; n = n.nextElementSibling) {
+      if (n.hasAttribute("aria-hidden")) continue;
+      n.setAttribute("aria-hidden", "true");
+      marked.push(n);
+    }
+    return () => {
+      for (const n of marked) n.removeAttribute("aria-hidden");
+    };
+  }, [settling]);
 
   // SPEED-SITE-1a-fu: DELIBERATE — the question is chosen once per mount (from the visit's subject hint and seed) and
   // does NOT swap if the subject hint changes later in the visit: a student must never see the question they are
@@ -266,13 +402,22 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   }
 
   return (
-    <div className="ci-demo__ladder" data-testid="one-min-ladder" data-step={done ? "verdict" : "tap"}>
+    <div
+      className="ci-demo__ladder"
+      data-testid="one-min-ladder"
+      data-step={done ? "verdict" : "tap"}
+      data-settling={settling ? "" : undefined}
+      data-rows-wait={rowsWait ? "" : undefined}
+      onPointerDown={prefetchOfferRows}
+      data-lo-shown={reserve && loShown ? "" : undefined}
+    >
       <LadderMeta subject={mcq.starter.subject} topicName={mcq.topicName} />
       <LadderQuestionText question={mcq.question} />
       {done ? (
         <p
           className={`ci-demo__verdict-mark ${correct ? "ci-demo__verdict-mark--right" : "ci-demo__verdict-mark--wrong"}`}
           data-testid="one-min-verdict"
+          ref={markRef}
           role="status"
         >
           {correct ? "✓ 1/1" : "✗ 0/1"}
@@ -319,7 +464,13 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
         </div>
       ) : null}
 
-      <button type="button" className="ci-demo__link" data-testid="one-min-watch" onClick={onWatch}>
+      <button
+        type="button"
+        className="ci-demo__link"
+        data-testid="one-min-watch"
+        onClick={onWatch}
+        aria-hidden={settling ? true : undefined}
+      >
         {CI_DEMO_COPY.ladderWatch}
       </button>
     </div>
