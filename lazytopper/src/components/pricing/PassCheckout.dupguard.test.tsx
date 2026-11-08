@@ -108,7 +108,7 @@ describe("MONEY-DUPGUARD-1 · connected (real buyPass, server answers 409 alread
     const fetchSpy = vi.fn(async () => ({
       ok: false,
       status: 409,
-      json: async () => ({ ok: false, error: "already_covered", message: "Your Board Pass already covers you till your boards." }),
+      json: async () => ({ ok: false, error: "already_covered", message: "Your pass already covers you till your boards." }),
     }));
     vi.stubGlobal("fetch", fetchSpy);
     render(

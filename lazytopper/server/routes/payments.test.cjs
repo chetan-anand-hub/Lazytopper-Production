@@ -2237,3 +2237,83 @@ test('REUSE · packs and top-ups are never reused (their own rules are unchanged
   assert.notEqual(b.orderId, a.orderId);
   assert.ok(!srv.events.includes('payments.order.reused'));
 });
+
+test('REUSE · review F1: a PARENT pay-link order (stored under the child uid, payer parent) or a GUEST order is never handed to the student; the parent link is unaffected', async (t) => {
+  const { createParentPayRoutes, PARENT_LINK_PATH, PARENT_ORDER_PATH } = require('./parentPay.cjs');
+  const env = { ...ENV_ON, PARENT_PAY_ENABLED: '1' };
+  const db = memoryFirestore({
+    // A guest / pay-for-someone order shape (guestPay.cjs): never the student's own checkout either.
+    'payOrders/order_guest1': { uid: 'child1', payer: 'guest', guestPhone: '+919800000001', passType: 'till_boards', amountPaise: 226200, offerKey: 'founding', baseInr: 1917, gstInr: 345, totalInr: 2262, gstRate: 0.18, status: 'created', createdAt: new Date(DG_NOW - 60 * 1000) },
+  });
+  const rzp = fakeRazorpay();
+  // The guest order exists, open, at Razorpay too - so ONLY the payer marker can keep it from being reused.
+  rzp.orders.set('order_guest1', { id: 'order_guest1', entity: 'order', amount: 226200, currency: 'INR', notes: { payer: 'guest' }, status: 'created' });
+  const { sendJson } = createHttpUtils('*');
+  const events = [];
+  const deps = {
+    sendJson, adminFirestore: db, telemetry: { increment: (e) => events.push(e) }, env, fetchImpl: rzp.fetchImpl, now: () => DG_NOW,
+    verifiedCaller: { async resolveVerifiedUid(req) { const h = String(req.headers.authorization || ''); return h.startsWith('Bearer uid:') ? h.slice(11) : ''; } },
+  };
+  const parent = createParentPayRoutes({ ...deps, getDisplayName: async () => 'Aarav Sharma' });
+  const pay = createPaymentRoutes(deps);
+  const table = { [PARENT_LINK_PATH]: parent.handleMintLink, [PARENT_ORDER_PATH]: parent.handleOrder, [PAY_ORDER_PATH]: pay.handleOrder };
+  const server = http.createServer((req, res) => {
+    const h = req.method === 'POST' ? table[String(req.url).split('?')[0]] : null;
+    if (!h) return sendJson(res, 404, { error: 'Not Found' });
+    return Promise.resolve(h(req, res)).catch((e) => sendJson(res, 500, { error: e.message }));
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  t.after(() => new Promise((r) => server.close(r)));
+  const { port } = server.address();
+
+  const link = await request(port, PARENT_LINK_PATH, { headers: asUid('child1') });
+  assert.equal(link.status, 200, link.text);
+  const po = await request(port, PARENT_ORDER_PATH, { body: { token: link.json.token, passType: 'till_boards' } });
+  assert.equal(po.status, 200, po.text);
+  const parentDoc = db.read(`payOrders/${po.json.orderId}`);
+  assert.equal(parentDoc.uid, 'child1');
+  assert.equal(parentDoc.payer, 'parent');
+  const parentBefore = JSON.stringify(parentDoc);
+
+  // The child (signed in) asks for the same Board Pass: a FRESH order of their own - never the parent's or the guest's.
+  const own = await request(port, PAY_ORDER_PATH, { body: { passType: 'till_boards' }, headers: asUid('child1') });
+  assert.equal(own.status, 200, own.text);
+  assert.notEqual(own.json.orderId, po.json.orderId, 'the parent\'s link order was handed to the student');
+  assert.notEqual(own.json.orderId, 'order_guest1', 'a guest order was handed to the student');
+  assert.equal(db.read(`payOrders/${own.json.orderId}`).payer, undefined);
+  assert.ok(!events.includes('payments.order.reused'));
+  // ...and the student's own open order IS reused on a second ask.
+  const again = await request(port, PAY_ORDER_PATH, { body: { passType: 'till_boards' }, headers: asUid('child1') });
+  assert.equal(again.json.orderId, own.json.orderId);
+  // The parent link is unaffected: its order is byte-identical and it can still order.
+  assert.equal(JSON.stringify(db.read(`payOrders/${po.json.orderId}`)), parentBefore);
+  const po2 = await request(port, PARENT_ORDER_PATH, { body: { token: link.json.token, passType: 'till_boards' } });
+  assert.equal(po2.status, 200, po2.text);
+  assert.equal(db.read(`payOrders/${po2.json.orderId}`).payer, 'parent');
+});
+
+test('CAPTURE · review F3: a 2nd AUTHORIZED payment on an order already PAID by another payment is NOT captured and NOT granted (verify and status)', async (t) => {
+  const db = memoryFirestore();
+  const srv = await startRoutes({ db, now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const o = await createOrder(srv, 'r2', 'till_boards');
+  const first = srv.rzp.pay(o.orderId, { id: 'pay_first' });
+  assert.equal((await verifyAs(srv, 'r2', o.orderId, first.id)).status, 200);
+  assert.equal(db.read(`payOrders/${o.orderId}`).status, 'paid');
+  // P7: a late second authorisation on the same (already paid) order.
+  const late = srv.rzp.pay(o.orderId, { id: 'pay_late', status: 'authorized' });
+  const captures = () => srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length;
+  const v = await verifyAs(srv, 'r2', o.orderId, late.id);
+  assert.equal(v.status, 400, v.text);
+  assert.equal(v.json.reason, 'order_already_paid');
+  assert.equal(captures(), 0, 'the late authorisation was captured');
+  assert.equal(srv.rzp.payments.get('pay_late').status, 'authorized', 'left uncaptured (Razorpay refunds it)');
+  assert.equal([...db.docs.keys()].filter((k) => k.startsWith('subscriptions/r2/payments/')).length, 1, 'granted twice');
+  assert.ok(srv.events.includes('payments.verify.late_auth_not_captured'));
+  // The status reconcile never captures it either (a paid order answers from our record).
+  const st = await request(srv.port, PAY_STATUS_PATH, { body: { orderId: o.orderId }, headers: asUid('r2') });
+  assert.equal(st.status, 200);
+  assert.equal(st.json.state, 'paid');
+  assert.equal(captures(), 0);
+  // ...while the FIRST (genuine) authorized-then-captured path is unchanged elsewhere (Z4 · an AUTHORIZED payment is captured).
+});

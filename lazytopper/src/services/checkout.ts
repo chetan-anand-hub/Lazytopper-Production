@@ -64,7 +64,8 @@ export class PayAlreadyCoveredError extends Error {
 }
 
 /** MONEY-DUPGUARD-1 — the calm line shown instead of a checkout when the server says the student is already covered. */
-export const PASS_ALREADY_COVERED_COPY = "Your Board Pass already covers you till your boards. There's nothing more to pay.";
+// Review F2: neutral "pass" - a month pass that runs past the board day covers the student too.
+export const PASS_ALREADY_COVERED_COPY = "Your pass already covers you till your boards. There's nothing more to pay.";
 
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";

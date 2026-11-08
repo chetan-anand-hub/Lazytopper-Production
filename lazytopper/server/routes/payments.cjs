@@ -90,6 +90,8 @@ const REUSE_SCAN_LIMIT = 10;
 const REUSE_MATCH_FIELDS = Object.freeze([
   'passType', 'amountPaise', 'offerKey', 'packCreditInr', 'packCreditIds', 'baseInr', 'gstInr', 'totalInr', 'gstRate', 'gstBuyer',
 ]);
+/** Fields that mark an order as made by someone other than the signed-in student (parent link, guest / pay-for-someone). */
+const NON_STUDENT_ORDER_MARKERS = Object.freeze(['payer', 'parentLinkId', 'recipient', 'guestPhone']);
 /** Razorpay order states in which a NEW payment may still be made (razorpay.com/docs/payments/orders). */
 const RAZORPAY_OPEN_ORDER_STATES = Object.freeze(['created', 'attempted']);
 
@@ -474,6 +476,9 @@ function createPaymentRoutes(deps = {}) {
         const stored = d.data() || {};
         const at = createdAtMs(stored.createdAt);
         if (stored.uid !== uid || stored.status !== 'created' || at === null) continue;
+        // Review F1: only the student's OWN signed-in orders. A parent pay-link order (stored under the CHILD's uid) or a
+        // guest order carries a payer marker: it is someone else's checkout and is never handed to the student.
+        if (NON_STUDENT_ORDER_MARKERS.some((k) => stored[k] !== undefined && stored[k] !== null)) continue;
         if (at > nowMs || nowMs - at > REUSE_OPEN_ORDER_MS) continue;
         if (!ID_PATTERN.test(d.id) || !sameOrderTerms(stored, terms)) continue;
         if (!candidate || at > candidate.at) candidate = { id: d.id, at };
@@ -583,7 +588,7 @@ function createPaymentRoutes(deps = {}) {
           return sendJson(res, 409, {
             ok: false,
             error: 'already_covered',
-            message: 'Your Board Pass already covers you till your boards. There is nothing more to pay.',
+            message: 'Your pass already covers you till your boards. There is nothing more to pay.',
           });
         }
         // PRICE-FIXED-1 - the month pass is no longer sold to an account that has never bought one, from
@@ -725,6 +730,12 @@ function createPaymentRoutes(deps = {}) {
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed', upstream: true };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
+      // MONEY-DUPGUARD-1 (review F3) - our order is ALREADY PAID by a different payment: this is a late / second
+      // authorisation on it (Razorpay binds one successful payment to an order and auto-refunds a late authorisation).
+      // Never capture it - leave it uncaptured so it lapses / is refunded - and never grant twice.
+      if (order && order.status === 'paid' && typeof order.paymentId === 'string' && order.paymentId && order.paymentId !== paymentId) {
+        return { error: 'order_already_paid', upstream: false };
+      }
       // PRICING-1 — MANUAL-CAPTURE PATH ONLY. Orders are created WITHOUT payment_capture, so the Razorpay
       // account setting applies (auto-capture is Razorpay's default). Auto-capture: a stale founding order
       // that is captured is honoured at its order price (599) — a captured payment ALWAYS grants (verify,
@@ -794,6 +805,10 @@ function createPaymentRoutes(deps = {}) {
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
     if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
+    if (result.error === 'order_already_paid') {
+      emit('payments.verify.late_auth_not_captured');
+      return reject(res, 'verify', 'order_already_paid');
+    }
     if (result.error) {
       emit(`payments.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
@@ -1042,6 +1057,8 @@ function createPaymentRoutes(deps = {}) {
         const result = await fetchCapturedPayment(keys, item.id, amountPaise, order);
         // A stale authorized item must not hide a captured one later on the order: keep looking.
         if (result.error === 'order_expired') { sawExpired = true; continue; }
+        // MONEY-DUPGUARD-1 (F3): a second authorisation on an order already paid by another payment is never captured.
+        if (result.error === 'order_already_paid') { emit('payments.status.late_auth_not_captured'); continue; }
         if (result.error) return { upstream: result.error };
         payment = result.payment;
         if (payment.id !== undefined && payment.id !== item.id) continue;
