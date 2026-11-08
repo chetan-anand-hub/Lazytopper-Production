@@ -2063,3 +2063,177 @@ test('DUPGUARD · STATIC: the order route uses parentPay\'s coveredTillBoards (o
   assert.match(src, /require\('\.\/parentPay\.cjs'\)\.coveredTillBoards\(/);
   assert.ok(!/predictBoardDateIso|endOfIstDayMs/.test(src), 'payments.cjs re-derives the board day itself');
 });
+
+/* ── MONEY-DUPGUARD-1 §2.4 · the caller's open unpaid pass order is handed back, not duplicated ─────────────── */
+
+const orderPosts = (srv) => srv.rzp.calls.filter((c) => c.method === 'POST' && c.url.endsWith('/v1/orders')).length;
+const verifyAs = (srv, uid, orderId, paymentId) =>
+  request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId, signature: checkoutSig(orderId, paymentId) }, headers: asUid(uid) });
+
+test('REUSE · THE RACE: two tabs ask before either pays -> ONE Razorpay order; paying it grants once; a third ask after the grant is refused', async (t) => {
+  const db = memoryFirestore();
+  const srv = await startRoutes({ db, now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const a = await createOrder(srv, 'r1', 'till_boards');
+  const b = await createOrder(srv, 'r1', 'till_boards'); // the second tab
+  assert.equal(b.orderId, a.orderId, 'a second order was created');
+  assert.deepEqual(b, a, 'the second tab gets the same order, amount and breakup');
+  assert.equal(orderPosts(srv), 1);
+  assert.equal(dgPayOrders(db).length, 1);
+  assert.ok(srv.events.includes('payments.order.reused'));
+  // Both tabs now hold ONE order; Razorpay binds a single successful payment to it.
+  const p = srv.rzp.pay(a.orderId);
+  const va = await verifyAs(srv, 'r1', a.orderId, p.id);
+  const vb = await verifyAs(srv, 'r1', b.orderId, p.id);
+  assert.equal(va.status, 200);
+  assert.equal(va.json.replayed, false);
+  assert.equal(vb.status, 200);
+  assert.equal(vb.json.replayed, true, 'the second tab re-granted');
+  assert.equal([...db.docs.keys()].filter((k) => k.startsWith('subscriptions/r1/payments/')).length, 1, 'more than one payment recorded');
+  const c = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'till_boards' }, headers: asUid('r1') });
+  assert.equal(c.status, 409);
+  assert.equal(c.json.error, 'already_covered');
+});
+
+test('REUSE · month orders are reused the same way (before the retirement instant)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const a = await createOrder(srv, 'u1', 'month');
+  const b = await createOrder(srv, 'u1', 'month');
+  assert.equal(b.orderId, a.orderId);
+  assert.equal(orderPosts(srv), 1);
+});
+
+test('REUSE · different terms make a FRESH order: another pass type, another GST state, another PIN, another student', async (t) => {
+  const srv = await startRoutes({ now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const base = await createOrder(srv, 'u1', 'till_boards', { gstBuyer: { stateCode: '29', pin: '560001' } });
+  const same = await createOrder(srv, 'u1', 'till_boards', { gstBuyer: { stateCode: '29', pin: '560001' } });
+  assert.equal(same.orderId, base.orderId, 'identical GST buyer -> reused');
+  const ids = new Set([base.orderId]);
+  for (const [uid, extra] of [
+    ['u1', {}], // no GST buyer
+    ['u1', { gstBuyer: { stateCode: '27', pin: '400001' } }], // another state
+    ['u1', { gstBuyer: { stateCode: '29', pin: '560002' } }], // another PIN
+    ['u2', { gstBuyer: { stateCode: '29', pin: '560001' } }], // another student
+  ]) {
+    const o = await createOrder(srv, uid, 'till_boards', extra);
+    assert.ok(!ids.has(o.orderId), `${uid} ${JSON.stringify(extra)} reused an order with other terms`);
+    ids.add(o.orderId);
+  }
+  assert.equal(orderPosts(srv), 5);
+});
+
+test('REUSE · a price change between the two asks (the 1 Dec founding close) makes a fresh order at the NEW price', async (t) => {
+  let clock = Date.parse('2026-11-30T23:55:00+05:30');
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const a = await createOrder(srv, 'u1', 'till_boards');
+  clock = Date.parse('2026-12-01T00:05:00+05:30'); // 10 minutes later, inside the window
+  const b = await createOrder(srv, 'u1', 'till_boards');
+  assert.notEqual(b.orderId, a.orderId);
+  assert.notEqual(b.amountPaise, a.amountPaise);
+  assert.equal(b.amountPaise, quotePass({}, 'till_boards', clock).amountPaise);
+});
+
+test('REUSE · a pack credit that appears between the two asks changes the amount -> a fresh, credited order', async (t) => {
+  // 4 Nov: before the pack-terms cut-off (5 Nov 00:00 IST), when a pack still earned a Board Pass credit.
+  const clock = istNoon('2026-11-04');
+  const db = memoryFirestore();
+  const srv = await startRoutes({ db, now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const a = await createOrder(srv, 'u1', 'till_boards');
+  db.docs.set('packEntitlements/u1/packs/pack_chapter:triangles', {
+    data: { packId: 'pack_chapter:triangles', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: clock - 1000, orderId: 'o_seed', paymentRef: 'p_seed', creditedToPass: false },
+    version: 1,
+  });
+  const b = await createOrder(srv, 'u1', 'till_boards');
+  assert.equal(b.amountPaise, a.amountPaise - 4900, 'the pack credit was not applied');
+  assert.notEqual(b.orderId, a.orderId, 'a credited quote reused the uncredited order');
+  assert.equal(srv.db.read(`payOrders/${b.orderId}`).packCreditInr, 49);
+  // ...and a third identical ask now reuses the CREDITED order.
+  const c = await createOrder(srv, 'u1', 'till_boards');
+  assert.equal(c.orderId, b.orderId);
+});
+
+test('REUSE · the window: 29 minutes later -> reused; 31 minutes later -> a fresh order', async (t) => {
+  for (const [mins, reused] of [[29, true], [31, false]]) {
+    let clock = DG_NOW;
+    const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+    t.after(srv.close);
+    const a = await createOrder(srv, 'u1', 'till_boards');
+    clock = DG_NOW + mins * 60 * 1000;
+    const b = await createOrder(srv, 'u1', 'till_boards');
+    assert.equal(b.orderId === a.orderId, reused, `${mins} min`);
+  }
+});
+
+test('REUSE · Razorpay decides: attempted with only a FAILED payment -> reused; an AUTHORIZED or CAPTURED payment on it -> never reused (fresh order)', async (t) => {
+  for (const [status, reused] of [['failed', true], ['authorized', false], ['captured', false]]) {
+    const srv = await startRoutes({ now: () => DG_NOW, calendarOffer: true });
+    t.after(srv.close);
+    const a = await createOrder(srv, 'u1', 'till_boards');
+    srv.rzp.pay(a.orderId, { id: `pay_${status}`, status });
+    const b = await createOrder(srv, 'u1', 'till_boards');
+    assert.equal(b.orderId === a.orderId, reused, status);
+    if (!reused) assert.ok(srv.events.includes('payments.order.reuse_not_open'), status);
+  }
+});
+
+test('REUSE · our record must still be `created`: a paid / claimed / erased order is never handed back', async (t) => {
+  for (const status of ['paid', 'claimed', 'paid_unclaimed']) {
+    const db = memoryFirestore();
+    const srv = await startRoutes({ db, now: () => DG_NOW, calendarOffer: true });
+    t.after(srv.close);
+    const a = await createOrder(srv, 'u1', 'till_boards');
+    db.docs.get(`payOrders/${a.orderId}`).data.status = status;
+    const b = await createOrder(srv, 'u1', 'till_boards');
+    assert.notEqual(b.orderId, a.orderId, status);
+  }
+});
+
+test('REUSE · a failed read never blocks the student: Firestore query throws / Razorpay order read fails or answers oddly -> a fresh order, counted', async (t) => {
+  // (1) the open-order query throws
+  {
+    const db = memoryFirestore();
+    const srv = await startRoutes({ db, now: () => DG_NOW, calendarOffer: true });
+    t.after(srv.close);
+    const a = await createOrder(srv, 'u1', 'till_boards');
+    const real = db.collection;
+    db.collection = (name) => (name === 'payOrders' ? { ...real(name), where: () => { throw new Error('firestore down'); } } : real(name));
+    const b = await createOrder(srv, 'u1', 'till_boards');
+    assert.notEqual(b.orderId, a.orderId);
+    assert.ok(srv.events.includes('payments.order.reuse_read_failed'));
+  }
+  // (2) Razorpay's order read throws, (3) answers 5xx, (4) answers a mismatching amount
+  for (const mode of ['throw', '500', 'amount']) {
+    const rzp = fakeRazorpay();
+    const inner = rzp.fetchImpl;
+    rzp.fetchImpl = async (url, init = {}) => {
+      if ((init.method || 'GET') === 'GET' && /\/v1\/orders\/[^/]+$/.test(new URL(url).pathname)) {
+        if (mode === 'throw') throw new Error('ETIMEDOUT');
+        if (mode === '500') return { ok: false, status: 500, json: async () => ({}) };
+        const r = await inner(url, init);
+        const j = await r.json();
+        return { ok: true, status: 200, json: async () => ({ ...j, amount: j.amount + 100 }) };
+      }
+      return inner(url, init);
+    };
+    const srv = await startRoutes({ rzp, now: () => DG_NOW, calendarOffer: true });
+    t.after(srv.close);
+    const a = await createOrder(srv, 'u1', 'till_boards');
+    const b = await createOrder(srv, 'u1', 'till_boards');
+    assert.notEqual(b.orderId, a.orderId, mode);
+    assert.equal(b.amountPaise, a.amountPaise, mode);
+    assert.ok(srv.events.includes(mode === 'throw' ? 'payments.order.reuse_read_failed' : 'payments.order.reuse_not_open'), mode);
+  }
+});
+
+test('REUSE · packs and top-ups are never reused (their own rules are unchanged)', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, PACKS_ENABLED: '1' }, now: () => DG_NOW, calendarOffer: true });
+  t.after(srv.close);
+  const a = await createOrder(srv, 'u1', 'pack_chapter', { packTarget: 'triangles' });
+  const b = await createOrder(srv, 'u1', 'pack_chapter', { packTarget: 'triangles' });
+  assert.notEqual(b.orderId, a.orderId);
+  assert.ok(!srv.events.includes('payments.order.reused'));
+});
