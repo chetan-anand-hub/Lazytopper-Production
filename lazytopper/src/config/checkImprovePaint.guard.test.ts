@@ -28,7 +28,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } from "node:
 import { tmpdir } from "node:os";
 import { SPA_SHELL, applyPaintShells, verifyPaintPages } from "../../scripts/seo/applyPrerendered";
 import { paintFragmentPathFor, PAINT_DIR } from "../../scripts/seo/loginPaint";
-import { CI_FIRST_STARTER, CI_LADDER_SEEN_KEY, ciFirstCardExpectation, firstCardProblems } from "../../scripts/seo/checkImprovePaint";
+import { CI_FIRST_STARTER, CI_LADDER_SEEN_KEY, ciFirstCardExpectation, firstCardProblems, setPaintGreeting, withNeutralGreeting } from "../../scripts/seo/checkImprovePaint";
 import { LADDER_SEEN_KEY } from "../components/ciDemo/ladderVisit";
 import { fixedStarter } from "../components/ciDemo/oneMinuteStarters";
 import { CI_PARITY_CASES } from "../../scripts/seo/captureStaticBodies";
@@ -599,5 +599,52 @@ describe("SPEED-CI-2 — the demo card in the static paint", () => {
       expect(cbq.querySelector("[data-ci-first]")).toBeNull();
       expect(cbq.innerHTML.split(CI_DEMO_PLACEHOLDER_HTML)).toHaveLength(2);
     });
+  });
+});
+
+describe("SPEED-CI-2 — the desktop greeting is the device's, never the capture machine's", () => {
+  const P = (t: string) => `<div><p data-testid="shell-greeting" style="margin: 0px;">${t}</p></div>`;
+
+  it("same thresholds as DesktopShell.tsx greetingFor", () => {
+    const shell = readFileSync(resolve(__dirname, "../components/desktop/DesktopShell.tsx"), "utf8");
+    expect(shell).toContain('if (hour < 12) return "Good morning";');
+    expect(shell).toContain('if (hour < 17) return "Good afternoon";');
+    expect(shell).toContain('return "Good evening";');
+    expect(shell).toContain('data-testid="shell-greeting"');
+    const at = (h: number) => {
+      document.body.innerHTML = P("Good morning");
+      setPaintGreeting(document.body, h);
+      return document.body.textContent;
+    };
+    expect([0, 11, 12, 16, 17, 23].map(at)).toEqual(["Good morning", "Good morning", "Good afternoon", "Good afternoon", "Good evening", "Good evening"]);
+    document.body.innerHTML = P("Good morning, Asha");
+    setPaintGreeting(document.body, 18);
+    expect(document.body.textContent).toBe("Good morning, Asha");
+    document.body.innerHTML = "";
+  });
+
+  it("the capture stores it neutral (a deterministic artifact whatever hour CI runs)", () => {
+    expect(withNeutralGreeting(P("Good evening"))).toBe(P("Good morning"));
+    expect(withNeutralGreeting(P("Good afternoon"))).toBe(P("Good morning"));
+    expect(withNeutralGreeting(P("Good morning, Asha"))).toBe(P("Good morning, Asha"));
+  });
+
+  it("the shipped script sets the device's greeting on a door before anything paints", () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((q: string) => ({ matches: q.includes("min-width") })) as unknown as typeof window.matchMedia;
+    vi.spyOn(Date, "now").mockReturnValue(NOW);
+    vi.spyOn(Date.prototype, "getHours").mockReturnValue(15);
+    try {
+      const html = buildCheckImprovePaintPage(SHELL, composeRouteShell(F.replace("<div data-lt-bottomnav", `${P("Good morning")}<div data-lt-bottomnav`), C), desktop, []);
+      const root = runPage(html);
+      expect(document.documentElement.getAttribute(PAINT_STATE_ATTR)).toBe("door");
+      expect((root.querySelector('[data-testid="shell-greeting"]') as HTMLElement).textContent).toBe("Good afternoon");
+    } finally {
+      window.matchMedia = original;
+      vi.restoreAllMocks();
+      document.body.innerHTML = "";
+      document.documentElement.className = "";
+      document.documentElement.removeAttribute(PAINT_STATE_ATTR);
+    }
   });
 });

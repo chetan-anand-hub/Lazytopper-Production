@@ -245,6 +245,26 @@ export function applyPaintKind(root: Element, kind: string, attr: string): strin
   return root.firstChild ? kind : "off";
 }
 
+/**
+ * SPEED-CI-2 — the desktop chrome's time-of-day greeting (DesktopShell.tsx `greetingFor`, from the DEVICE clock). The
+ * capture would freeze the CI machine's hour into the static ("Good morning" all day, while React's first commit says
+ * the student's own); the capture stores it as "Good morning" (`withNeutralGreeting`) and this sets the device's own
+ * before anything paints, so the static and React's first commit say the same. Same thresholds (pinned by a test).
+ * Only an exact signed-out greeting is touched. Browser-only; shipped as source.
+ */
+export function setPaintGreeting(root: Element, hour: number): void {
+  var text = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  var nodes = root.querySelectorAll('[data-testid="shell-greeting"]');
+  for (var i = 0; i < nodes.length; i += 1) {
+    if (/^Good (morning|afternoon|evening)$/.test(String(nodes[i].textContent || ""))) nodes[i].textContent = text;
+  }
+}
+
+/** The captured state with the greeting at a fixed value (the script sets the device's own). Pure. */
+export function withNeutralGreeting(html: string): string {
+  return html.replace(/(data-testid="shell-greeting"[^>]*>)Good (?:morning|afternoon|evening)</g, "$1Good morning<");
+}
+
 export function checkImprovePaintConfig(variant: PaintVariant, clock: { from: number; until: number }): CiPaintConfig {
   return {
     variant,
@@ -275,7 +295,8 @@ function prelude(config: CiPaintConfig): string {
     `var decide=(${decideCheckImprovePaint.toString()});` +
     `var gather=(${gatherCheckImprovePaintEnv.toString()});` +
     `var apply=(${applyPaintKind.toString()});` +
-    `var refresh=(${refreshWebFontText.toString()});`
+    `var refresh=(${refreshWebFontText.toString()});` +
+    `var greet=(${setPaintGreeting.toString()});`
   );
 }
 
@@ -292,8 +313,10 @@ export function checkImprovePaintDecisionSource(config: CiPaintConfig): string {
 export function checkImprovePaintScript(config: CiPaintConfig): string {
   const body =
     `(function(){var root=document.getElementById("root");try{${prelude(config)}` +
-    `var decision=decide(gather(),config,helpers);` +
+    `var seen=gather();var decision=decide(seen,config,helpers);` +
     `var shown=apply(root,decision.kind,config.attr);` +
+    // The hour of the same instant the decision read (env.now), on the device's own clock.
+    `if(shown!=="off")greet(root,new Date(seen.now).getHours());` +
     // SPEED-CI-2: a returning visitor / CBQ ad gets today's placeholder in place of the first-visit card.
     `if(shown!=="off"&&decision.demo!=="first"){var card=root.querySelector("[data-ci-first]");if(card&&card.parentNode){var ph=document.createElement("div");` +
     `ph.className="ci-demo-ph";ph.setAttribute("data-testid","ci-demo-placeholder");ph.setAttribute("aria-hidden","true");card.parentNode.replaceChild(ph,card);}}` +

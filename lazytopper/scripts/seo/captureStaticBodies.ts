@@ -98,6 +98,7 @@ import {
   CI_DEMO_PLACEHOLDER_HTML,
   buildCheckImprovePaintPage,
   firstCardProblems,
+  withNeutralGreeting,
   checkImprovePaintConfig,
   checkImprovePaintDecisionSource,
   composeRouteShell,
@@ -1193,7 +1194,8 @@ async function captureCheckImprove(browser: Browser, origin: string, basename: s
     const live = await renderCheckImproveCommits(browser, origin, basename, kase, false, eager);
     const compose = (r: { first: string; content: string }) => {
       try {
-        return composeRouteShell(r.first, r.content);
+        // SPEED-CI-2: the greeting is the capture machine's hour; stored neutral, set per device by the script.
+        return withNeutralGreeting(composeRouteShell(r.first, r.content));
       } catch (error: unknown) {
         return `<!-- compose failed: ${String(error)} -->`;
       }
