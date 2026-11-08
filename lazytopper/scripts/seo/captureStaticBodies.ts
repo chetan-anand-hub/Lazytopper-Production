@@ -64,11 +64,21 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { AddressInfo } from "node:net";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
-import { DESKTOP_PREFIX, SPA_SHELL as SPA_SHELL_FILE, desktopFragmentPathFor, fragmentPathFor } from "./applyPrerendered";
+import {
+  DESKTOP_PREFIX,
+  SPA_SHELL as SPA_SHELL_FILE,
+  desktopFragmentPathFor,
+  entryScriptOf,
+  fragmentPathFor,
+  resolveRouteChunk,
+  staticImportClosure,
+} from "./applyPrerendered";
 import {
   PAINT_ATTR,
   PAINT_DIR,
   PAINT_PATHS,
+  PAINT_ROUTE_KINDS,
+  LOGIN_PATH,
   type LoginPaintDecision,
   type PaintKind,
   type PaintVariant,
@@ -82,6 +92,16 @@ import {
   markTopLevel,
   withoutEmailCodeSlot,
 } from "./loginPaint";
+import {
+  CHECK_IMPROVE_PATH,
+  CHECK_IMPROVE_ROUTE_MODULE,
+  CI_DEMO_PLACEHOLDER_HTML,
+  buildCheckImprovePaintPage,
+  checkImprovePaintConfig,
+  checkImprovePaintDecisionSource,
+  composeRouteShell,
+  withoutRouteTemplates,
+} from "./checkImprovePaint";
 
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -949,7 +969,7 @@ export function validatePaintCaptures(
   const failures: string[] = [];
   for (const path of PAINT_PATHS) {
     for (const variant of ["mobile", "desktop"] as const) {
-      for (const kind of ["door", "signing-in"] as const) {
+      for (const kind of PAINT_ROUTE_KINDS[path]) {
         if (!captures.some((c) => c.path === path && c.kind === kind && c.variant === variant)) {
           failures.push(`[paint] ${path} ${kind} ${variant}: never captured`);
         }
@@ -959,6 +979,13 @@ export function validatePaintCaptures(
   const seen = new Map<string, string>();
   for (const c of captures) {
     const tag = `[paint] ${c.path} ${c.kind} ${c.variant}`;
+    if (c.path === CHECK_IMPROVE_PATH) {
+      failures.push(...validateCheckImproveCapture(c, tag));
+      const prior = seen.get(c.html);
+      if (prior) failures.push(`${tag}: byte-identical to ${prior}`);
+      else seen.set(c.html, tag);
+      continue;
+    }
     if (Buffer.byteLength(c.html, "utf8") < MIN_PAINT_BYTES[c.kind]) failures.push(`${tag}: only ${Buffer.byteLength(c.html)} bytes`);
     const lower = c.html.toLowerCase();
     for (const marker of ERROR_BOUNDARY_MARKERS) if (lower.includes(marker)) failures.push(`${tag}: captured an error boundary ("${marker}")`);
@@ -990,13 +1017,265 @@ export function validatePaintCaptures(
       if (other.html === c.html) failures.push(`${tag}: byte-identical to the advertised capture of ${other.path}`);
     }
   }
-  if (parity.length !== PAINT_PARITY_CASES.length) failures.push(`[paint] parity: ${parity.length} of ${PAINT_PARITY_CASES.length} cases ran`);
+  const expectedCases = PAINT_PARITY_CASES.length + CI_PARITY_CASES.length;
+  if (parity.length !== expectedCases) failures.push(`[paint] parity: ${parity.length} of ${expectedCases} cases ran`);
   for (const r of parity) {
     if (r.decided !== r.expect) failures.push(`[paint] parity "${r.name}": decided ${r.decided}, expected ${r.expect}`);
     if (r.shown !== r.decided) failures.push(`[paint] parity "${r.name}": decided ${r.decided} but the shipped apply left ${r.shown}`);
     if (r.equal === false) failures.push(`[paint] parity "${r.name}": the static ${r.shown} differs from React's first commit${r.detail ? ` — ${r.detail}` : ""}`);
   }
   return failures;
+}
+
+/* ------------------------------------------------------------------------------------------------ *
+ * SPEED-CI-1 — the Answer Checker (`/check-improve`). A LAZY route, so its static state is React's first
+ * commit's chrome with the "Loading..." fallback replaced by the route's first content commit between the
+ * route marks (checkImprovePaint.ts `composeRouteShell`). Its parity check serves that static page and
+ * asserts React's first commit OF IT is the same DOM (route templates aside).
+ * ------------------------------------------------------------------------------------------------ */
+
+export interface CiCase {
+  name: string;
+  search: string;
+  width: number;
+  height: number;
+  touch: boolean;
+  userAgent: string;
+  served: PaintVariant;
+  /** Seed storage before the load: a prior real visit (same context, other tab), or explicit keys. */
+  seed?: "prior-visit" | { session?: Record<string, string>; local?: Record<string, string> };
+  expect: "door" | "off";
+}
+
+const CI_PHONE = { width: 390, height: 844, touch: true, userAgent: PAINT_USER_AGENTS.phone, served: "mobile" as const };
+const CI_DESKTOP = { width: 1280, height: 900, touch: false, userAgent: PAINT_USER_AGENTS.desktop, served: "desktop" as const };
+
+export const CI_PARITY_CASES: readonly CiCase[] = [
+  { name: "ci phone 390", ...CI_PHONE, search: "", expect: "door" },
+  { name: "ci phone 360, Google ads params", ...CI_PHONE, width: 360, height: 740, search: "?utm_source=google&utm_medium=cpc&utm_campaign=ci&gclid=x1", expect: "door" },
+  { name: "ci phone, returning signed-out visitor", ...CI_PHONE, search: "", seed: "prior-visit", expect: "door" },
+  { name: "ci desktop 1280", ...CI_DESKTOP, search: "", expect: "door" },
+  { name: "ci desktop 1440, YouTube params", ...CI_DESKTOP, width: 1440, search: "?utm_source=youtube&utm_medium=video&utm_content=a", expect: "door" },
+  { name: "ci desktop, returning signed-out visitor", ...CI_DESKTOP, search: "", seed: "prior-visit", expect: "door" },
+  { name: "ci parent share link", ...CI_PHONE, search: "?utm_source=parent_share", expect: "off" },
+  { name: "ci ?review= code", ...CI_DESKTOP, search: "?review=AB12CD", expect: "off" },
+  { name: "ci ?from=for_parents", ...CI_PHONE, search: "?from=for_parents", expect: "off" },
+  { name: "ci a session key (draft / visit source)", ...CI_PHONE, search: "", seed: { session: { "lazytopper.visitSource": "{}" } }, expect: "off" },
+  { name: "ci signed-in trace (active uid)", ...CI_DESKTOP, search: "", seed: { local: { "lazytopper.progress.active_uid.v1": "u1" } }, expect: "off" },
+  { name: "ci desktop UA in a 900-px window", ...CI_DESKTOP, width: 900, search: "", expect: "off" },
+  { name: "ci android tablet 1280 (mobile file, desktop layout)", ...CI_PHONE, width: 1280, height: 800, userAgent: PAINT_USER_AGENTS.tablet, search: "", expect: "off" },
+  { name: "ci Instagram in-app", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.instagram, search: "", expect: "off" },
+];
+
+/** Text the Answer Checker's static state must / must not carry. */
+export const CI_REQUIRED_TEXT: Readonly<Record<PaintVariant, readonly string[]>> = {
+  mobile: ["Answer Checker"],
+  desktop: ["Grade your answer, examiner-style"],
+};
+export const CI_FORBIDDEN_TEXT: readonly string[] = ["Loading...", "Checking your session", "Check &amp; Improve", "Check & Improve"];
+
+export function validateCheckImproveCapture(c: PaintCapture, tag: string): string[] {
+  const failures: string[] = [];
+  if (Buffer.byteLength(c.html, "utf8") < 4000) failures.push(`${tag}: only ${Buffer.byteLength(c.html)} bytes`);
+  const lower = c.html.toLowerCase();
+  for (const marker of ERROR_BOUNDARY_MARKERS) if (lower.includes(marker)) failures.push(`${tag}: captured an error boundary ("${marker}")`);
+  for (const text of CI_REQUIRED_TEXT[c.variant]) if (!c.html.includes(text)) failures.push(`${tag}: missing "${text}"`);
+  for (const text of CI_FORBIDDEN_TEXT) if (c.html.includes(text)) failures.push(`${tag}: carries "${text}"`);
+  if (!c.topLevelElementsOnly) failures.push(`${tag}: #root has a top-level text node`);
+  if (c.html.split('<template data-lt-route="start"></template>').length !== 2) failures.push(`${tag}: not exactly one route start mark`);
+  if (c.html.split('<template data-lt-route="end"></template>').length !== 2) failures.push(`${tag}: not exactly one route end mark`);
+  if (c.html.includes(`${PAINT_ATTR}=`)) failures.push(`${tag}: React's own DOM carries ${PAINT_ATTR}`);
+  if (c.html.split(CI_DEMO_PLACEHOLDER_HTML).length !== 2) failures.push(`${tag}: the demo card is not exactly its placeholder (its question is per visit)`);
+  if (c.htmlWithApis !== c.html) {
+    failures.push(`${tag}: the static state DEPENDS ON A RUNTIME API RESPONSE (or is not deterministic) — ${firstDifference(c.html, c.htmlWithApis)}`);
+  }
+  try {
+    markTopLevel(c.html, "door");
+  } catch (error: unknown) {
+    failures.push(`${tag}: cannot be marked (${String(error)})`);
+  }
+  return failures;
+}
+
+function ciContext(browser: Browser, kase: Pick<CiCase, "width" | "height" | "touch" | "userAgent">) {
+  return browser.newContext({
+    viewport: { width: kase.width, height: kase.height },
+    isMobile: kase.touch,
+    hasTouch: kase.touch,
+    userAgent: kase.userAgent,
+  });
+}
+
+/** One load of the clean shell: React's first commit (F) and its first commit with the route content (C). */
+async function renderCheckImproveCommits(
+  browser: Browser,
+  origin: string,
+  basename: string,
+  kase: Pick<CiCase, "width" | "height" | "touch" | "userAgent">,
+  blockApis: boolean,
+  eagerChunks: ReadonlySet<string>,
+): Promise<{ first: string; content: string; topLevelElementsOnly: boolean; apiCalls: string[] }> {
+  const context = await ciContext(browser, kase);
+  try {
+    const page = await context.newPage();
+    // ★ DETERMINISM. The route's first content commit races its own lazy children (the demo card, the
+    // offer slot, ...): when one resolves first, the commit carries it. Holding every chunk outside the
+    // entry's and the route's STATIC import closure until the commit is recorded makes the captured
+    // commit the one with all of them in their (same-box) Suspense fallbacks, on every run and platform.
+    await page.route("**/assets/*.js", async (route) => {
+      const file = new URL(route.request().url()).pathname.split("/").pop() ?? "";
+      if (!eagerChunks.has(file)) {
+        await page
+          .waitForFunction(() => (window as unknown as { __ltC: string | null }).__ltC !== null, undefined, { timeout: 30_000 })
+          .catch(() => undefined);
+      }
+      await route.continue().catch(() => undefined);
+    });
+    const apiCalls = new Set<string>();
+    page.on("request", (request) => {
+      if (isAppApiUrl(request.url())) apiCalls.add(new URL(request.url()).pathname);
+    });
+    if (blockApis) for (const pattern of APP_API_PATTERNS) await page.route(pattern, (route) => route.abort());
+    await page.addInitScript({
+      content:
+        `(function(){if(window.top!==window)return;window.__ltF=null;window.__ltC=null;window.__ltTopOk=null;var watching=false;` +
+        `var tick=function(){var html=document.documentElement;if(!html)return;if(!html.hasAttribute("data-theme"))html.setAttribute("data-theme","light");` +
+        `var root=document.getElementById("root");if(!root||watching)return;watching=true;docMo.disconnect();var initial=root.innerHTML;` +
+        `new MutationObserver(function(r,mo){if(window.__ltF===null&&root.innerHTML!==initial)window.__ltF=root.innerHTML;` +
+        `if(window.__ltC===null&&root.querySelector('template[data-lt-route="start"]')){window.__ltC=root.innerHTML;` +
+        `window.__ltTopOk=Array.prototype.every.call(root.childNodes,function(n){return n.nodeType===1;});mo.disconnect();}})` +
+        `.observe(root,{childList:true,subtree:true,characterData:true,attributes:true});};` +
+        `var docMo=new MutationObserver(tick);docMo.observe(document,{childList:true,subtree:true});tick();})();`,
+    });
+    await page.goto(`${origin}${basename}${CHECK_IMPROVE_PATH}`, { waitUntil: "networkidle", timeout: 60_000 });
+    await page.waitForFunction(() => (window as unknown as { __ltC: string | null }).__ltC !== null, undefined, { timeout: 30_000 });
+    const r = await page.evaluate(() => {
+      const w = window as unknown as { __ltF: string; __ltC: string; __ltTopOk: boolean };
+      return { first: w.__ltF, content: w.__ltC, topLevelElementsOnly: w.__ltTopOk === true };
+    });
+    return { ...r, apiCalls: [...apiCalls].sort() };
+  } finally {
+    await context.close();
+  }
+}
+
+/** The entry's and the Answer Checker route's static import closures: the chunks its first content commit needs. */
+export function checkImproveEagerChunks(outDir: string): Set<string> {
+  const assetsDir = join(outDir, "assets");
+  const files = readdirSync(assetsDir);
+  const shell = readFileSync(join(outDir, "index.html"), "utf8");
+  const read = (file: string) => readFileSync(join(assetsDir, file), "utf8");
+  const entry = entryScriptOf(shell).entry;
+  return new Set([
+    ...staticImportClosure(entry, read),
+    ...staticImportClosure(resolveRouteChunk(CHECK_IMPROVE_ROUTE_MODULE, files), read),
+  ]);
+}
+
+async function captureCheckImprove(browser: Browser, origin: string, basename: string, eager: ReadonlySet<string>): Promise<PaintCapture[]> {
+  const out: PaintCapture[] = [];
+  for (const [variant, kase] of [["mobile", CI_PHONE], ["desktop", CI_DESKTOP]] as const) {
+    const blocked = await renderCheckImproveCommits(browser, origin, basename, kase, true, eager);
+    const live = await renderCheckImproveCommits(browser, origin, basename, kase, false, eager);
+    const compose = (r: { first: string; content: string }) => {
+      try {
+        return composeRouteShell(r.first, r.content);
+      } catch (error: unknown) {
+        return `<!-- compose failed: ${String(error)} -->`;
+      }
+    };
+    out.push({
+      path: CHECK_IMPROVE_PATH,
+      kind: "door",
+      variant,
+      html: compose(blocked),
+      htmlWithApis: compose(live),
+      topLevelElementsOnly: blocked.topLevelElementsOnly && !blocked.first.includes("<!--"),
+      apiCalls: [...new Set([...blocked.apiCalls, ...live.apiCalls])].sort(),
+    });
+  }
+  return out;
+}
+
+/**
+ * The Answer Checker parity matrix: serve the paint page built from the captured door (the SHIPPED script),
+ * then compare the state the script leaves (S) with React's first commit (R) of that page.
+ */
+async function runCheckImproveParity(
+  browser: Browser,
+  origin: string,
+  basename: string,
+  clock: { from: number; until: number },
+  captures: readonly PaintCapture[],
+): Promise<PaintParityResult[]> {
+  const shell = await (await fetch(`${origin}${basename}/${SPA_SHELL_FILE}`)).text();
+  const results: PaintParityResult[] = [];
+  for (const kase of CI_PARITY_CASES) {
+    const door = captures.find((c) => c.path === CHECK_IMPROVE_PATH && c.variant === kase.served)?.html ?? "";
+    const config = checkImprovePaintConfig(kase.served, clock);
+    let page_html: string;
+    try {
+      page_html = buildCheckImprovePaintPage(shell, door, config, []);
+    } catch (error: unknown) {
+      results.push({ name: kase.name, expect: kase.expect, decided: "none", shown: "none", equal: false, detail: String(error) });
+      continue;
+    }
+    const context = await ciContext(browser, kase);
+    try {
+      if (kase.seed === "prior-visit") {
+        const prior = await context.newPage();
+        for (const pattern of APP_API_PATTERNS) await prior.route(pattern, (route) => route.abort());
+        await prior.goto(`${origin}${basename}${CHECK_IMPROVE_PATH}`, { waitUntil: "networkidle", timeout: 60_000 });
+        await prior.waitForTimeout(500);
+        await prior.close();
+      }
+      const page = await context.newPage();
+      for (const pattern of APP_API_PATTERNS) await page.route(pattern, (route) => route.abort());
+      await page.route(`**${basename}${CHECK_IMPROVE_PATH}*`, (route) =>
+        route.request().resourceType() === "document"
+          ? route.fulfill({ status: 200, contentType: "text/html", body: page_html })
+          : route.continue(),
+      );
+      const seed = typeof kase.seed === "object" ? kase.seed : null;
+      await page.addInitScript({
+        content:
+          `(function(){if(window.top!==window)return;var seed=${JSON.stringify(seed)};` +
+          `if(seed){try{for(var k in seed.session||{})sessionStorage.setItem(k,seed.session[k]);for(var j in seed.local||{})localStorage.setItem(j,seed.local[j]);}catch(e){}}` +
+          `window.__ltDecision=null;window.__ltS=null;window.__ltR=null;var decided=false;var watching=false;` +
+          `var tick=function(){if(!decided&&document.documentElement){decided=true;try{window.__ltDecision=${checkImprovePaintDecisionSource(config)};}catch(e){window.__ltDecision={kind:"error",reason:String(e)};}}` +
+          `var root=document.getElementById("root");if(!root)return;` +
+          `if(window.__ltS===null&&document.documentElement.hasAttribute("data-lt-paint-state")){window.__ltS=root.innerHTML;}` +
+          `if(window.__ltS!==null&&!watching){watching=true;docMo.disconnect();var s=window.__ltS;` +
+          `new MutationObserver(function(r,mo){if(root.innerHTML!==s){window.__ltR=root.innerHTML;mo.disconnect();}})` +
+          `.observe(root,{childList:true,subtree:true,characterData:true,attributes:true});}};` +
+          `var docMo=new MutationObserver(tick);docMo.observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["data-lt-paint-state"]});tick();})();`,
+      });
+      await page.goto(`${origin}${basename}${CHECK_IMPROVE_PATH}${kase.search}`, { waitUntil: "networkidle", timeout: 60_000 });
+      await page.waitForFunction(() => (window as unknown as { __ltR: string | null }).__ltR !== null, undefined, { timeout: 30_000 });
+      const r = await page.evaluate(() => {
+        const w = window as unknown as { __ltDecision: { kind: string; reason: string } | null; __ltS: string; __ltR: string };
+        return { decision: w.__ltDecision, s: w.__ltS, rr: w.__ltR };
+      });
+      const decided = r.decision ? r.decision.kind : "none";
+      const shown = r.s === "" ? "off" : "door";
+      const a = withoutRouteTemplates(r.s);
+      const b = withoutRouteTemplates(r.rr);
+      const equal = shown === "off" ? null : a === b;
+      results.push({
+        name: kase.name,
+        expect: kase.expect,
+        decided: decided === "door" || decided === "off" ? decided : `${decided} (${r.decision?.reason})`,
+        shown,
+        equal,
+        detail: equal === false ? firstDifference(a, b) : r.decision?.reason,
+      });
+    } catch (error: unknown) {
+      results.push({ name: kase.name, expect: kase.expect, decided: "none", shown: "none", equal: false, detail: String(error) });
+    } finally {
+      await context.close();
+    }
+  }
+  return results;
 }
 
 /** Index of the first differing character, with context, for a failure message. */
@@ -1012,9 +1291,10 @@ async function capturePaintShells(
   origin: string,
   basename: string,
   clock: { from: number; until: number },
+  outDir: string,
 ): Promise<{ captures: PaintCapture[]; parity: PaintParityResult[] }> {
   const captures: PaintCapture[] = [];
-  for (const path of PAINT_PATHS) {
+  for (const path of [LOGIN_PATH]) {
     for (const spec of PAINT_CAPTURES) {
       const render = { ...spec.render, path };
       const blocked = await renderPaintFirstCommit(browser, origin, basename, render, true, clock);
@@ -1075,6 +1355,9 @@ async function capturePaintShells(
       await page.close();
     }
   }
+  // SPEED-CI-1 — the Answer Checker's captures and parity matrix.
+  captures.push(...(await captureCheckImprove(browser, origin, basename, checkImproveEagerChunks(outDir))));
+  parity.push(...(await runCheckImproveParity(browser, origin, basename, clock, captures)));
   return { captures, parity };
 }
 
@@ -1144,7 +1427,7 @@ async function main(): Promise<void> {
         captures.push(...settled.map((pair) => pair.mobile));
         desktopCaptures.push(...settled.map((pair) => pair.desktop));
       }
-      paint = await capturePaintShells(browser, origin, basename, paintClock);
+      paint = await capturePaintShells(browser, origin, basename, paintClock, outDir);
     } finally {
       await browser.close();
     }
