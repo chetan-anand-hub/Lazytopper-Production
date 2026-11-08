@@ -144,6 +144,7 @@ import ResultsScorecard, { revealGradedSheet } from "../components/results/Resul
 import { useDetailLock } from "../components/results/useDetailLock";
 import { downloadStoredPaperGradedSheet, hasStoredPaperSheet } from "../services/storedPaperGradedSheet";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
+import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
@@ -469,6 +470,8 @@ export default function FullMockPage() {
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
+  // SHEET-HEADER-1 — when THIS fullResponse was marked (set beside it; it is only ever set from a fresh grade).
+  const fullGradedAtRef = useRef<number | null>(null);
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   // PAPER-WALLS-1: the upgrade sheet (Board Pass first, the Mock Pack second) for a Basic 402 / spent trial allowance.
@@ -807,6 +810,7 @@ export default function FullMockPage() {
         if (!outcome.ok) {
           setGradeError(outcome.response.error || "We couldn’t grade your answers. Try a clearer scan, or try again.");
         } else {
+          fullGradedAtRef.current = Date.now();
           setFullResponse(outcome.response);
           setResultsPhase("full");
           setScorecardOpen(true);
@@ -1304,6 +1308,8 @@ export default function FullMockPage() {
         name: a.name,
         code: a.code,
         coaching: coachingLine(fullResponse),
+        kindLabel: GRADED_SHEET_KIND["full-mock"],
+        gradedAt: fullGradedAtRef.current,
       });
     } catch {
       /* best-effort */
