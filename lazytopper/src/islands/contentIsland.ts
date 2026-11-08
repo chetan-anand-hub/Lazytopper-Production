@@ -31,6 +31,7 @@
  */
 
 import { APP_ENTRY_ATTR, APP_PRELOADS_ATTR, DESKTOP_QUERY, FORCE_APP_PARAM, ISLAND_SCRIPT_ATTR, ISLAND_VARIANT_ATTR } from "./islandConfig";
+import { packsEntryEnabled } from "./islandFlags";
 import { sendNamedEvent, sendWhatsAppTap, startIslandAnalytics, stopIslandWatches, suppressAppRepeats } from "./islandAnalytics";
 
 /** The value of `<html data-lt-island>`: the island is live, the app is loading, or the app has taken over. */
@@ -67,19 +68,60 @@ export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal"
  * SPEED-ISLANDS-2 — pages where the public footer is NOT watched. On the NCERT Hub the footer is the page's only
  * app-only region, and the hub is so short (360 px: the footer starts ~190 px below the fold) that watching it loads
  * the app at once. There the footer adds no price and no personalisation: only the quiet "PDF packs" link
- * (PublicLegalFooter.tsx PacksEntry, lazy, never in the served markup), so rule c holds as written (not in the markup,
- * not rendered by the island); the link appears once the app loads, on the visitor's first app tap.
+ * (PublicLegalFooter.tsx PacksEntry, lazy, never in the served markup, no price), which the island itself shows from
+ * first paint for a signed-out visitor (`showSignedOutChrome`, ruling of 8 Nov).
  */
 export const FOOTER_UNWATCHED_PATHS: readonly string[] = ["/ncert-class-10"];
 /** The desktop header row where the app shows "Log in" (signed out): its presence means "desktop variant". */
 export const AUTH_REGION = '[data-testid="pending-bell"]';
 /**
- * SPEED-ISLANDS-2 — the CBQ chapter pages carry App.tsx's top `.navbar` on BOTH variants; its sign-in slot (Log in /
- * the avatar) is app-only and served empty. On a desktop-width window it gets the desktop rule above (the app on
- * idle, so "Log in" appears as on the phase-1 desktop pages); on a phone it stays empty until the app loads (the
- * visitor's first app tap or the pack card) — the phone's whole saving depends on not booting the app on idle.
+ * SPEED-ISLANDS-2 (coordinator/cofounder ruling 8 Nov, owner rulings "packs must stay clearly visible" 25 Oct and
+ * "sales first" 30-31 Oct) — the signed-out chrome the app adds is shown by the island from first paint, in the app's
+ * exact markup, so nothing changes at the hand-over:
+ *   - CBQ chapter pages carry App.tsx's top `.navbar`; its right-hand slot is served EMPTY (captured before auth
+ *     resolved). Signed out, App.tsx renders the "Log in" button there (navigate to /login?redirect=<page>).
+ *   - PublicLegalFooter's "PDF packs" link (PacksEntry footer-link, behind VITE_PACKS_ENABLED; hidden only for paid
+ *     Premium, who always have an auth record) after "For parents".
+ * This is safe ONLY because the island runs for a visitor with no auth record (rule a): any record, or a slow or
+ * unreadable store, loads the app instead, and these are rendered only after that check. No price, no personalisation.
  */
-export const NAVBAR_AUTH_SLOT = ".navbar";
+export const NAVBAR_AUTH_SLOT = ".navbar > div:last-child";
+/** App.tsx's signed-out "Log in" button, style for style. */
+export const LOGIN_BUTTON_STYLE =
+  "border: 1px solid var(--bg-card-border); border-radius: 12px; background: var(--bg-card); color: var(--text-muted); " +
+  "font-weight: 800; font-size: 0.78rem; padding: 6px 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;";
+const LOGIN_ATTR = "data-lt-island-login";
+/** PublicLegalFooter's default packsHref (the NCERT Hub passes none). */
+export const FOOTER_PACKS_HREF = "/pricing#packs";
+
+/** The /login link App.tsx builds for this page (an island path is always a safe internal path). */
+export function loginHrefFor(loc: { pathname: string; search: string }): string {
+  return `/login?redirect=${encodeURIComponent(`${loc.pathname}${loc.search}`)}`;
+}
+
+/** Show the app's signed-out header button and footer pack link. Call only once signed out is established. */
+export function showSignedOutChrome(): void {
+  const slot = document.querySelector(NAVBAR_AUTH_SLOT);
+  if (slot && slot.children.length === 0 && !isReactOwned(slot) && slot.closest("#root")) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("style", LOGIN_BUTTON_STYLE);
+    button.setAttribute(LOGIN_ATTR, "");
+    button.textContent = "Log in";
+    slot.appendChild(button);
+  }
+  if (!packsEntryEnabled()) return;
+  for (const footer of document.querySelectorAll("#root footer.lt-public-legal")) {
+    if (isReactOwned(footer) || [...footer.querySelectorAll("a")].some((a) => a.textContent === "PDF packs")) continue;
+    const parents = [...footer.querySelectorAll('a[href="/for-parents"]')].pop();
+    if (!parents) continue;
+    const link = document.createElement("a");
+    link.href = FOOTER_PACKS_HREF;
+    link.setAttribute("data-discover", "true");
+    link.textContent = "PDF packs";
+    parents.after(link);
+  }
+}
 export const DESKTOP_MIN_WIDTH_PX = 1024;
 
 /** The app's own layout switch (useIsDesktop.ts: `(min-width: 1024px)`). */
@@ -304,6 +346,10 @@ export function handleOwned(el: Element): boolean {
     el.querySelector(".lt-note__mm-caret")?.classList.toggle("lt-note__mm-caret--open", open);
     el.nextElementSibling?.classList.toggle("lt-note__mm-kids--collapsed", !open);
     recordToggle("mm", el, open);
+    return true;
+  }
+  if (el.matches(`[${LOGIN_ATTR}]`)) {
+    nav.go(loginHrefFor(window.location));
     return true;
   }
   if (el.matches(".lt-note__pdf-btn")) {
@@ -917,7 +963,7 @@ function onPointerDown(event: Event): void {
   const el = (event.target as Element | null)?.closest?.(ACTIONABLE);
   if (!el || isReactOwned(el)) return;
   if (failed || (el.matches("a[href]") && !el.matches(TRACKED_LINK))) return; // a navigation (or no app to warm)
-  if (el.matches("summary, .lt-note__tab, .lt-note__mm-node--toggle, .lt-ncs__hintbtn, .lt-note__pdf-btn")) return; // owned
+  if (el.matches(`summary, .lt-note__tab, .lt-note__mm-node--toggle, .lt-ncs__hintbtn, .lt-note__pdf-btn, [${LOGIN_ATTR}]`)) return; // owned
   warm(); // a control that completes in the app (or an answer box): start fetching it now
 }
 
@@ -1021,10 +1067,18 @@ function watchPeek(): void {
   });
 }
 
+/** `upgrade` for a timer: a no-op if the test seam has started another boot since (never fires into a later page). */
+function upgradeFromThisBoot(): () => void {
+  const at = epoch;
+  return () => {
+    if (at === epoch) upgrade();
+  };
+}
+
 export function watchAppRegions(): void {
   watchPeek();
   // Desktop variant: the header's sign-in button is the app's. Load the app once the page is idle.
-  if (document.querySelector(AUTH_REGION) || (desktopWide() && document.querySelector(NAVBAR_AUTH_SLOT))) afterLoad(() => onIdle(upgrade, 2000));
+  if (document.querySelector(AUTH_REGION)) afterLoad(() => onIdle(upgradeFromThisBoot(), 2000));
   // A window resized (or a tablet rotated) across the app's layout switch: the app re-lays the page out today.
   try {
     if (typeof window.matchMedia === "function") {
@@ -1040,7 +1094,7 @@ export function watchAppRegions(): void {
   const regions = APP_ONLY_REGIONS.filter((sel) => !unwatched.includes(sel)).flatMap((sel) => [...document.querySelectorAll(sel)]);
   if (regions.length === 0) return;
   if (typeof IntersectionObserver !== "function") {
-    afterLoad(() => onIdle(upgrade, 2000));
+    afterLoad(() => onIdle(upgradeFromThisBoot(), 2000));
     return;
   }
   // Load the app about one screen before the visitor reaches a region the app fills.
@@ -1235,6 +1289,7 @@ export async function boot(): Promise<void> {
   }
   if (upgraded) return; // a tap during the check already loaded the app (it sends the page view)
   islandLive = true;
+  showSignedOutChrome();
   startIslandAnalytics();
   watchAppRegions();
 }

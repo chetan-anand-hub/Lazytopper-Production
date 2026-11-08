@@ -5,6 +5,10 @@ import { setMatchMediaMatches } from "../test/setup";
 import {
   APP_ONLY_REGIONS,
   FOOTER_UNWATCHED_PATHS,
+  FOOTER_PACKS_HREF,
+  LOGIN_BUTTON_STYLE,
+  loginHrefFor,
+  nav,
   NCERT_HUB_SUBJECT_KEY,
   TRACKED_LINK,
   __resetIslandForTests,
@@ -260,20 +264,62 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     expect(observed.map((e) => e.className).sort()).toEqual(["lt-cbqs__cta lt-cbqs__cta--pack", "lt-public-legal"]);
   });
 
-  it("CBQ navbar sign-in slot: a desktop-width window loads the app on idle (Log in appears); a phone stays an island", async () => {
-    const at = async (width: number) => {
-      setMatchMediaMatches(width >= 1024); // the app's (min-width: 1024px)
-      window.history.replaceState(null, "", "/cbq-class-10/electricity");
+  it("CBQ navbar: the island shows App.tsx's signed-out 'Log in' at every width, stays an island, and the button logs in", async () => {
+    const go = vi.spyOn(nav, "go").mockImplementation(() => undefined);
+    for (const width of [360, 1280]) {
+      setMatchMediaMatches(width >= 1024); // the app's (min-width: 1024px); the capture is the matching variant
+      window.history.replaceState(null, "", "/cbq-class-10/electricity?utm_source=x");
       __resetIslandForTests();
       document.head.innerHTML = ISLAND_TAG;
-      document.body.innerHTML = '<div id="root"><div class="navbar"><a href="/">LazyTopper</a><div></div></div><main></main></div>';
+      document.body.innerHTML =
+        '<div id="root"><div class="navbar"><a href="/">LazyTopper</a><div style="display: flex; align-items: center; gap: 10px;"></div></div><main></main></div>';
       await boot();
-      await new Promise((r) => setTimeout(r, 2200)); // onIdle's fallback timeout (jsdom has no requestIdleCallback)
-      return state();
+      await new Promise((r) => setTimeout(r, 2200)); // past onIdle's fallback: no idle hand-over for the navbar
+      expect(`${width}:${state()}`).toBe(`${width}:island`);
+      const button = document.querySelector(".navbar > div:last-child > button") as HTMLButtonElement;
+      expect(button.outerHTML).toBe(`<button type="button" style="${LOGIN_BUTTON_STYLE}" data-lt-island-login="">Log in</button>`);
+      expect(button.textContent).toBe("Log in");
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
+      button.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(go).toHaveBeenLastCalledWith(loginHrefFor(window.location));
+      expect(loginHrefFor(window.location)).toBe("/login?redirect=%2Fcbq-class-10%2Felectricity%3Futm_source%3Dx");
+    }
+  }, 12_000);
+
+  it("a visitor with an auth record never gets the island's Log in (the app at once, as today)", async () => {
+    window.localStorage.setItem("lazytopper.auth.local.v1", JSON.stringify({ uid: "u" }));
+    window.history.replaceState(null, "", "/cbq-class-10/electricity");
+    __resetIslandForTests();
+    document.head.innerHTML = ISLAND_TAG;
+    document.body.innerHTML = '<div id="root"><div class="navbar"><a href="/">LazyTopper</a><div></div></div></div>';
+    await boot();
+    expect(state()).toBe("upgrading");
+    expect(document.querySelector("[data-lt-island-login]")).toBeNull();
+  });
+
+  it("footer 'PDF packs' (PacksEntry footer-link) after 'For parents', only when VITE_PACKS_ENABLED is '1'", async () => {
+    const page = '<div id="root"><main></main><footer class="lt-public-legal"><a href="/for-parents">For parents</a><a href="/legal/privacy">Privacy</a></footer></div>';
+    const run = async () => {
+      window.history.replaceState(null, "", "/ncert-class-10");
+      __resetIslandForTests();
+      document.head.innerHTML = ISLAND_TAG;
+      document.body.innerHTML = page;
+      await boot();
+      return [...document.querySelectorAll("footer a")].map((a) => `${a.textContent}=${a.getAttribute("href")}`);
     };
-    expect(await at(1280)).toBe("upgrading");
-    expect(await at(360)).toBe("island");
-  }, 10_000);
+    expect(await run()).toEqual(["For parents=/for-parents", "Privacy=/legal/privacy"]);
+    vi.stubEnv("VITE_PACKS_ENABLED", "1");
+    expect(await run()).toEqual(["For parents=/for-parents", `PDF packs=${FOOTER_PACKS_HREF}`, "Privacy=/legal/privacy"]);
+    expect(FOOTER_PACKS_HREF).toBe("/pricing#packs");
+    // The app's link is a tracked /pricing link: held and replayed, so the app sends its pack_entry click.
+    const link = [...document.querySelectorAll("footer a")].find((a) => a.textContent === "PDF packs") as HTMLElement;
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
+    link.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(state()).toBe("upgrading");
+    vi.unstubAllEnvs();
+  });
 
   it("the NCERT Hub does not watch its footer (only the lazy 'PDF packs' link, never in the markup): it stays an island", async () => {
     window.history.replaceState(null, "", "/ncert-class-10");
@@ -293,6 +339,30 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
 });
 
 describe("PINS — the markup and app contracts the island relies on", () => {
+  it("App.tsx's signed-out Log in button: same target and the same style, property for property", () => {
+    const app = read("App.tsx");
+    const at = app.indexOf("navigate(`/login?redirect=${encodeURIComponent(isSafeInternalPath(");
+    expect(at).toBeGreaterThan(0);
+    const block = app.slice(at, app.indexOf("Log in", at));
+    const camel: Record<string, string> = {
+      border: '"1px solid var(--bg-card-border)"', borderRadius: "12", background: '"var(--bg-card)"', color: '"var(--text-muted)"',
+      fontWeight: "800", fontSize: '"0.78rem"', padding: '"6px 14px"', cursor: '"pointer"', textTransform: '"uppercase"', letterSpacing: '"0.3px"',
+    };
+    for (const [prop, value] of Object.entries(camel)) expect(block).toContain(`${prop}: ${value}`);
+    expect(block.match(/^\s+[a-zA-Z]+: /gm)?.length).toBe(Object.keys(camel).length); // no property the island lacks
+    for (const css of ["1px solid var(--bg-card-border)", "12px", "var(--bg-card)", "var(--text-muted)", "800", "0.78rem", "6px 14px", "pointer", "uppercase", "0.3px"]) {
+      expect(LOGIN_BUTTON_STYLE).toContain(css);
+    }
+  });
+
+  it("the footer's PDF packs link: PublicLegalFooter default href, after 'For parents', behind the same flag", () => {
+    const footer = read("components/ux/PublicLegalFooter.tsx");
+    expect(footer).toContain(`packsHref = "${FOOTER_PACKS_HREF}"`);
+    expect(footer.indexOf("<PacksEntry kind=\"footer-link\"")).toBeGreaterThan(footer.indexOf('<Link to="/for-parents">For parents</Link>'));
+    expect(read("lib/packs/PacksFooterLink.tsx")).toMatch(/>\s*PDF packs\s*<\/Link>/);
+    expect(read("lib/packs/packEntryLazy.tsx")).toContain('String(import.meta.env.VITE_PACKS_ENABLED ?? "").trim() === "1"');
+  });
+
   it("the NCERT Hub's stored-subject key, URL state and in-place chapter links", () => {
     const hub = read("pages/NcertBooksPage.tsx");
     expect(hub).toContain(`export const NCERT_HUB_SUBJECT_KEY = "${NCERT_HUB_SUBJECT_KEY}";`);
