@@ -84,6 +84,7 @@ import {
   PAYMENT_CHECKING_COPY,
   PAYMENT_FAILED_COPY,
   ORDER_EXPIRED_COPY,
+  PASS_ALREADY_COVERED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
   type BuyOutcome,
   type PassType,
@@ -277,6 +278,8 @@ export function PassCheckoutView({
   const [failed, setFailed] = useState(false);
   /** PRICING-1 — the server refused the order as expired: "start again", never the pending copy. */
   const [expired, setExpired] = useState(false);
+  /** MONEY-DUPGUARD-1 — the server refused the order: this account's pass already runs to the boards. */
+  const [covered, setCovered] = useState(false);
   /** PAY-RECOVER-1 — "checking" while polls run; "confirming" once they ran out still pending. */
   const [recovery, setRecovery] = useState<null | "checking" | "confirming">(null);
   /** PAY-RESCUE-1 — the checkout sheet was closed: the pass whose "Can't pay yourself?" card is showing, else null. */
@@ -439,6 +442,9 @@ export function PassCheckoutView({
       setFailed(true);
     } else if (outcome.status === "expired") {
       setExpired(true);
+    } else if (outcome.status === "already_covered") {
+      // MONEY-DUPGUARD-1 — no order was made and Razorpay never opened: say so calmly, offer nothing to pay.
+      setCovered(true);
     } else if (outcome.status === "dismissed") {
       // PAY-RESCUE-1 — the sheet was closed (with or without a failed payment first): offer the parent hand-off.
       setRescue(passType);
@@ -487,6 +493,18 @@ export function PassCheckoutView({
         </p>
         {/* PASS-OWNER-PACKS-1 (owner 3 Nov): once, on the payment-success screen - the CBQ Packs, both subjects. Its own lazy chunk. */}
         <PassOwnerOfferLazy placement="pass_success" assumePaid />
+      </div>
+    );
+  }
+
+  // MONEY-DUPGUARD-1: the SERVER says this account is already covered till the boards (e.g. bought on another device and
+  // not yet hydrated here). The same calm notice as an owner's, and no Pay button to tap again.
+  if (covered) {
+    return (
+      <div className="lt-pricing-checkout" data-testid="pass-checkout">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-already-covered">
+          {PASS_ALREADY_COVERED_COPY}
+        </p>
       </div>
     );
   }
@@ -770,7 +788,8 @@ function PassCheckoutConnected() {
       onBuy={async (passType) => {
         const outcome = await buyPass(passType);
         // Refresh the cached entitlement from the SERVER record the grant just wrote.
-        if (outcome.status === "paid" && uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined);
+        // MONEY-DUPGUARD-1: `already_covered` means the server holds a pass this tab has not loaded yet - load it too.
+        if ((outcome.status === "paid" || outcome.status === "already_covered") && uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined);
         return outcome;
       }}
       onCheckStatus={async (orderId) => {
