@@ -45,10 +45,27 @@ const basic = (ff: Partial<Record<"chapter-test" | "worksheet" | "full-mock", bo
 });
 
 describe("packPapers - the pack's own printed codes, nothing more", () => {
-  it("the bundle lists EXACTLY the 94 pinned pack paper codes (packPaperCodes.pin.json), each once", () => {
+  // The pin also holds the CBQ Pack set codes (`-CBQ<k>`, BRIDGE-CODES-1) once that lane is in: those belong to the CBQ packs, never
+  // to the Bundle, and are listed from the student's own records (next test), so they are kept out of this exact comparison.
+  const pinnedCodes = Object.keys(pin);
+  const isCbqSetCode = (c: string) => /-CBQ\d+(?:-V\d+)?$/.test(c);
+  it("the bundle lists EXACTLY the pinned Chapter Test / Worksheet / Mock codes (packPaperCodes.pin.json, CBQ sets aside), each once", () => {
     const codes = packPapers({ sku: "pack_bundle", target: "" }).map((p) => p.code);
     expect(new Set(codes).size).toBe(codes.length);
-    expect([...codes].sort()).toEqual(Object.keys(pin).sort());
+    expect(codes.some(isCbqSetCode)).toBe(false);
+    expect([...codes].sort()).toEqual(pinnedCodes.filter((c) => !isCbqSetCode(c)).sort());
+  });
+  it("every pinned CBQ set code (when the pin has them) becomes a row of ITS subject's CBQ pack once the student holds that paper", () => {
+    const cbqCodes = pinnedCodes.filter(isCbqSetCode);
+    // A synthetic set code keeps this test meaningful before the CBQ codes are pinned.
+    const all = cbqCodes.length > 0 ? cbqCodes : ["PK-M-RN-CBQ1", "PK-S-CRAE-CBQ2"];
+    const records = all.map((id) => rec({ id, surface: "worksheet", title: id }));
+    const maths = cbqPapersFromRecords("maths", records).map((p) => p.code);
+    const science = cbqPapersFromRecords("science", records).map((p) => p.code);
+    expect([...maths, ...science].sort()).toEqual([...all].sort());
+    expect(maths.every((c) => c.startsWith("PK-M-"))).toBe(true);
+    expect(science.every((c) => c.startsWith("PK-S-"))).toBe(true);
+    expect(cbqPapersFromRecords("maths", records).every((p) => p.kind === "worksheet")).toBe(true);
   });
   it("a Chapter Pack is its two Chapter Tests and its Worksheet", () => {
     const ps = packPapers({ sku: "pack_chapter", target: "real-numbers" });
