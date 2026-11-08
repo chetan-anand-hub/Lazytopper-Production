@@ -61,6 +61,18 @@ export function pickStarter(hint: DesktopSubject | null, seed: number): OneMinut
   return from[Math.abs(Math.floor(seed)) % from.length];
 }
 
+/**
+ * SPEED-CI-2 (owner ruling 8 Nov 2026) — a FIRST visit's starter: the highest-weightage chapter of the hinted
+ * subject (all six with no hint). No hint or Science → PYQ-S-2024-LIGHT-003 (Light, 10%); Maths → PYQ-M-QE-002
+ * (Quadratic Equations, 8%). Fixed, so the Answer Checker's static paint can draw it before the app runs. Ties keep
+ * the list order (a stable sort). Later visits use `pickStarter`.
+ */
+export function fixedStarter(hint: DesktopSubject | null): OneMinuteStarter {
+  const pool = hint ? ONE_MINUTE_STARTERS.filter((s) => s.subject === hint) : ONE_MINUTE_STARTERS;
+  const all = pool.length > 0 ? pool : ONE_MINUTE_STARTERS;
+  return [...all].sort((a, b) => STARTER_WEIGHTAGE[b.topicKey] - STARTER_WEIGHTAGE[a.topicKey])[0];
+}
+
 /** The seed `pickStarter` reads in the browser: a small integer hash of this page load's time origin. */
 export function visitSeed(): number {
   let origin = 0;

@@ -22,6 +22,7 @@
 import { zeroMarksLost, type MarksLostByType, type StoredMistakeType } from "../../lib/mistakeDisplay";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import type { CiDemoKey } from "./ciDemoModel";
+import { LADDER_HEAD, LADDER_WATCH } from "./ladderCopy";
 
 // CiDemoKey and CI_DEMO_ORDER live in ./ciDemoModel (the eager half) so that THIS file, with every
 // sample and line of copy, is imported only by the lazy chunk and by tests.
@@ -315,11 +316,11 @@ export const CI_DEMO_COPY = {
   l4: "Here is a student-style answer. Watch the red pen.",
   l9: "Your own answer gets marked exactly like this. Want to try one?",
   // ONE-MINUTE-1 — the first-minute ladder (tap, then type, then photo).
-  ladderHead: "Try one board question. 1 tap.",
+  ladderHead: LADDER_HEAD,
   ladderRight: "That is right. 1 out of 1.",
   ladderWrong: "Not this time. 0 out of 1. Here is why.",
   ladderNext: "Now a 2-mark one: type two lines, get step marks like a CBSE examiner",
-  ladderWatch: "Or watch me mark a board answer",
+  ladderWatch: LADDER_WATCH,
 } as const;
 
 export function sampleTotal(s: CiDemoSample): number {

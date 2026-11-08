@@ -28,6 +28,13 @@ import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } from "node:
 import { tmpdir } from "node:os";
 import { SPA_SHELL, applyPaintShells, verifyPaintPages } from "../../scripts/seo/applyPrerendered";
 import { paintFragmentPathFor, PAINT_DIR } from "../../scripts/seo/loginPaint";
+import { CI_FIRST_STARTER, CI_LADDER_SEEN_KEY, ciFirstCardExpectation, firstCardProblems, setPaintGreeting, withNeutralGreeting } from "../../scripts/seo/checkImprovePaint";
+import { LADDER_SEEN_KEY } from "../components/ciDemo/ladderVisit";
+import { fixedStarter } from "../components/ciDemo/oneMinuteStarters";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { LadderHeldMark, LadderVerdictReserve } from "../components/ciDemo/LadderTapParts";
+import { CI_PARITY_CASES } from "../../scripts/seo/captureStaticBodies";
 
 /**
  * GUARD — SPEED-CI-1, the Answer Checker's paint shell (`scripts/seo/checkImprovePaint.ts`).
@@ -485,5 +492,179 @@ describe("review of #1635 — B2: the build's free-check flag", () => {
     expect(emailCodeFlagOn("0")).toBe(false);
     const apply = readFileSync(resolve(__dirname, "../../scripts/seo/applyPrerendered.ts"), "utf8");
     expect(apply).toContain("freeCheckOn = emailCodeFlagOn(viteEnv.VITE_FREE_CHECK_ENABLED)");
+  });
+});
+
+/* ------------------------------------------------------------------------------------------------ *
+ * SPEED-CI-2 (owner ruling 8 Nov 2026 12:10 IST) — a first-time visitor's demo card is a FIXED question, so the
+ * static paint carries it; a returning visitor / a CBQ ad keeps today's placeholder; a tap on its options is kept.
+ * ------------------------------------------------------------------------------------------------ */
+
+const FIRST_CARD =
+  `<section class="ci-demo ci-demo--pick" data-testid="ci-demo-preview" data-ci-first="" data-ci-bank="PYQ-S-2024-LIGHT-003">` +
+  `<p class="ci-demo__ladder-q">The colour of light for which the refractive index of glass is minimum, is :</p>` +
+  `<ul class="ci-demo__opts" role="list"><li><button type="button" data-testid="one-min-opt-0">Red</button></li><li><button type="button" data-testid="one-min-opt-2">Green</button></li></ul>` +
+  `<button type="button" data-testid="ci-demo-close">x</button></section>`;
+const C_FIRST = C.replace("<button type=\"button\">Check</button>", `<button type="button">Check</button>${FIRST_CARD}`);
+
+describe("SPEED-CI-2 — the demo card in the static paint", () => {
+  const demo = (over: Partial<CiPaintEnv>, config = mobile) => decideCheckImprovePaint(env(over), config, helpers).demo;
+
+  it("the decision: the first-visit card unless the ladder was seen here or the ad is a CBQ one (then the placeholder)", () => {
+    expect(demo({})).toBe("first");
+    expect(demo({ narrow: false, wide: true, coarse: false, userAgent: WINDOWS }, desktop)).toBe("first");
+    expect(demo({ search: "?utm_source=youtube&utm_content=sci_light" })).toBe("first");
+    expect(demo({ search: "?utm_source=youtube&utm_content=a" })).toBe("first");
+    expect(demo({ local: [[CI_LADDER_SEEN_KEY, "1"]] })).toBe("placeholder");
+    expect(kind({ local: [[CI_LADDER_SEEN_KEY, "1"]] })).toBe("door");
+    expect(kind({ local: [[CI_LADDER_SEEN_KEY, "yes"]] })).toBe("off");
+    expect(demo({ search: "?utm_content=cbq_short" })).toBe("placeholder");
+    expect(demo({ search: "?utm_content=CBQ_Short" })).toBe("placeholder");
+    expect(demo({ search: "?utm_campaign=yt_cbq_maths" })).toBe("placeholder");
+    expect(demo({ search: "?review=x" })).toBeUndefined();
+  });
+
+  it("the key is the app's own (ladderVisit.ts), and the one card serves every first-visit door", () => {
+    expect(CI_LADDER_SEEN_KEY).toBe(LADDER_SEEN_KEY);
+    expect(CI_LOCAL_ALLOW[LADDER_SEEN_KEY]).toEqual(["1"]);
+    expect(ciFirstCardExpectation().bank).toBe(fixedStarter(null).bankId);
+    expect(CI_FIRST_STARTER).toBe(fixedStarter(null).bankId);
+    expect(fixedStarter("Science").bankId).toBe(fixedStarter(null).bankId);
+  });
+
+  it("firstCardProblems: exactly one first-visit card of the fixed starter, no captured placeholder", () => {
+    expect(firstCardProblems(C_FIRST)).toEqual([]);
+    expect(firstCardProblems(C).length).toBeGreaterThan(0);
+    expect(firstCardProblems(C_FIRST + FIRST_CARD).join()).toMatch(/exactly once/);
+    expect(firstCardProblems(C_FIRST.replace("PYQ-S-2024-LIGHT-003", "PYQ-M-QE-002")).join()).toMatch(/fixed starter/);
+    expect(firstCardProblems(C_FIRST + CI_DEMO_PLACEHOLDER_HTML).join()).toMatch(/placeholder/);
+  });
+
+  it("the capture's parity matrix pins both card forms on real loads", () => {
+    const by = (d: string) => CI_PARITY_CASES.filter((k) => k.expect === "door" && k.expectDemo === d).map((k) => k.name);
+    expect(by("first").length).toBeGreaterThanOrEqual(4);
+    expect(by("placeholder").length).toBeGreaterThanOrEqual(3);
+    expect(CI_PARITY_CASES.filter((k) => k.expect === "door" && !k.expectDemo)).toEqual([]);
+    expect(CI_PARITY_CASES.some((k) => k.search.includes("cbq") && k.expectDemo === "placeholder")).toBe(true);
+    expect(CI_PARITY_CASES.some((k) => k.seed === "prior-visit" && k.expectDemo === "placeholder")).toBe(true);
+  });
+
+  describe("the shipped script (jsdom)", () => {
+    const page = () =>
+      buildCheckImprovePaintPage(SHELL, composeRouteShell(F, C_FIRST), checkImprovePaintConfig("mobile", { from: 0, until: Number.MAX_SAFE_INTEGER }), []);
+    let original: typeof window.matchMedia;
+    beforeEach(() => {
+      vi.spyOn(Date, "now").mockReturnValue(NOW);
+      localStorage.clear();
+      sessionStorage.clear();
+      original = window.matchMedia;
+      window.matchMedia = ((q: string) => ({ matches: q.includes("pointer") ? true : q.includes("max-width") })) as unknown as typeof window.matchMedia;
+      (window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap = undefined;
+    });
+    afterEach(() => {
+      window.matchMedia = original;
+      vi.restoreAllMocks();
+      document.body.innerHTML = "";
+      document.documentElement.className = "";
+      document.documentElement.removeAttribute(PAINT_STATE_ATTR);
+      localStorage.clear();
+      sessionStorage.clear();
+      window.history.replaceState(null, "", "/");
+    });
+
+    it("first visit: the card stays, and a tap on an option is swallowed, pressed and REMEMBERED (× is not)", () => {
+      const root = runPage(page());
+      const card = root.querySelector("[data-ci-first]") as HTMLElement;
+      expect(card).not.toBeNull();
+      expect(root.innerHTML).not.toContain("ci-demo-placeholder");
+      const close = card.querySelector('[data-testid="ci-demo-close"]') as HTMLElement;
+      close.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      expect((window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap).toBeUndefined();
+      const opt = card.querySelector('[data-testid="one-min-opt-2"]') as HTMLElement;
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+      opt.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(opt.classList.contains(PAINT_PRESSED_CLASS)).toBe(true);
+      expect((window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap).toEqual({ id: "one-min-opt-2", bank: "PYQ-S-2024-LIGHT-003" });
+      close.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      expect((window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap).toEqual({ id: "one-min-opt-2", bank: "PYQ-S-2024-LIGHT-003" });
+    });
+
+    it("FU1: an early option tap reserves the verdict's boxes at once, exactly as the preview / ladder draw them, once", () => {
+      const root = runPage(page());
+      const card = root.querySelector("[data-ci-first]") as HTMLElement;
+      const tap = (id: string) => (card.querySelector(`[data-testid="${id}"]`) as HTMLElement).dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      tap("ci-demo-close");
+      expect(card.querySelector(".ci-demo__verdict--reserve")).toBeNull();
+      tap("one-min-opt-2");
+      tap("one-min-opt-0");
+      const ul = card.querySelector("ul") as HTMLElement;
+      expect(card.querySelectorAll(".ci-demo__verdict-mark--held")).toHaveLength(1);
+      expect(card.querySelectorAll(".ci-demo__verdict--reserve")).toHaveLength(1);
+      expect((ul.previousElementSibling as HTMLElement).outerHTML).toBe(renderToStaticMarkup(createElement(LadderHeldMark)));
+      expect((ul.nextElementSibling as HTMLElement).outerHTML).toBe(renderToStaticMarkup(createElement(LadderVerdictReserve)));
+      // FU4 (accepted): the last early tap is the one kept.
+      expect((window as unknown as { __ltStaticTap?: unknown }).__ltStaticTap).toEqual({ id: "one-min-opt-0", bank: "PYQ-S-2024-LIGHT-003" });
+    });
+
+    it("a returning visitor (ladder seen) and a CBQ ad: today's placeholder, byte for byte, in the card's place", () => {
+      const seen = runPage(page(), () => localStorage.setItem(LADDER_SEEN_KEY, "1"));
+      expect(document.documentElement.getAttribute(PAINT_STATE_ATTR)).toBe("door");
+      expect(seen.querySelector("[data-ci-first]")).toBeNull();
+      expect(seen.innerHTML.split(CI_DEMO_PLACEHOLDER_HTML)).toHaveLength(2);
+      expect(seen.innerHTML).toContain(`<button type="button">Check</button>${CI_DEMO_PLACEHOLDER_HTML}`);
+      localStorage.clear();
+      window.history.replaceState(null, "", "/check-improve?utm_source=youtube&utm_content=cbq_short");
+      const cbq = runPage(page());
+      expect(cbq.querySelector("[data-ci-first]")).toBeNull();
+      expect(cbq.innerHTML.split(CI_DEMO_PLACEHOLDER_HTML)).toHaveLength(2);
+    });
+  });
+});
+
+describe("SPEED-CI-2 — the desktop greeting is the device's, never the capture machine's", () => {
+  const P = (t: string) => `<div><p data-testid="shell-greeting" style="margin: 0px;">${t}</p></div>`;
+
+  it("same thresholds as DesktopShell.tsx greetingFor", () => {
+    const shell = readFileSync(resolve(__dirname, "../components/desktop/DesktopShell.tsx"), "utf8");
+    expect(shell).toContain('if (hour < 12) return "Good morning";');
+    expect(shell).toContain('if (hour < 17) return "Good afternoon";');
+    expect(shell).toContain('return "Good evening";');
+    expect(shell).toContain('data-testid="shell-greeting"');
+    const at = (h: number) => {
+      document.body.innerHTML = P("Good morning");
+      setPaintGreeting(document.body, h);
+      return document.body.textContent;
+    };
+    expect([0, 11, 12, 16, 17, 23].map(at)).toEqual(["Good morning", "Good morning", "Good afternoon", "Good afternoon", "Good evening", "Good evening"]);
+    document.body.innerHTML = P("Good morning, Asha");
+    setPaintGreeting(document.body, 18);
+    expect(document.body.textContent).toBe("Good morning, Asha");
+    document.body.innerHTML = "";
+  });
+
+  it("the capture stores it neutral (a deterministic artifact whatever hour CI runs)", () => {
+    expect(withNeutralGreeting(P("Good evening"))).toBe(P("Good morning"));
+    expect(withNeutralGreeting(P("Good afternoon"))).toBe(P("Good morning"));
+    expect(withNeutralGreeting(P("Good morning, Asha"))).toBe(P("Good morning, Asha"));
+  });
+
+  it("the shipped script sets the device's greeting on a door before anything paints", () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((q: string) => ({ matches: q.includes("min-width") })) as unknown as typeof window.matchMedia;
+    vi.spyOn(Date, "now").mockReturnValue(NOW);
+    vi.spyOn(Date.prototype, "getHours").mockReturnValue(15);
+    try {
+      const html = buildCheckImprovePaintPage(SHELL, composeRouteShell(F.replace("<div data-lt-bottomnav", `${P("Good morning")}<div data-lt-bottomnav`), C), desktop, []);
+      const root = runPage(html);
+      expect(document.documentElement.getAttribute(PAINT_STATE_ATTR)).toBe("door");
+      expect((root.querySelector('[data-testid="shell-greeting"]') as HTMLElement).textContent).toBe("Good afternoon");
+    } finally {
+      window.matchMedia = original;
+      vi.restoreAllMocks();
+      document.body.innerHTML = "";
+      document.documentElement.className = "";
+      document.documentElement.removeAttribute(PAINT_STATE_ATTR);
+    }
   });
 });

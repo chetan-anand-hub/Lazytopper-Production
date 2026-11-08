@@ -347,7 +347,7 @@ describe("CI-SOFT-1 card — N4: nothing to replay under reduced motion", () => 
 
 describe("CI-SOFT-1b — stylesheet hygiene", () => {
   const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  const sources = ["ciDemoChunk.tsx", "CiDemoCard.tsx", "OneMinuteLadder.tsx"].map((f) => readFileSync(resolve(__dirname, f), "utf8")).join("\n");
+  const sources = ["ciDemoChunk.tsx", "CiDemoCard.tsx", "OneMinuteLadder.tsx", "LadderTapParts.tsx", "LadderPreview.tsx"].map((f) => readFileSync(resolve(__dirname, f), "utf8")).join("\n");
   // classes built as `ci-demo--${name}` / `ci-demo__tag--${type}` in the chunk
   const dynamic = [/^ci-demo--(pick|mark|result)$/, /^ci-demo__tag--(conceptual|presentation|calculation|silly)$/];
 

@@ -34,6 +34,8 @@
  */
 
 import { inAppBrowser } from "../../src/utils/inAppBrowser";
+import { STARTER_ROWS } from "../../src/components/ciDemo/oneMinuteStarterRows";
+import { LADDER_CHECKING } from "../../src/components/ciDemo/ladderCopy";
 import {
   PAINT_ATTR,
   PAINT_PRESSED_CLASS,
@@ -81,7 +83,25 @@ export const CI_LOCAL_ALLOW: Readonly<Record<string, readonly string[] | null>> 
   "lazytopper.progress.scope.v1:smartLearning:anonymous": ["{}"],
   "lazytopper.smartLearning.stats.v1": ["{}"],
   "lazytopper.ux.telemetry.v1": null,
+  // SPEED-CI-2: written once the ladder has shown a question (components/ciDemo/ladderVisit.ts LADDER_SEEN_KEY). A
+  // returning visitor still gets the door, with the demo card as its placeholder (see `demo` below).
+  "lazytopper.ciLadder.seen.v1": ["1"],
 };
+
+/**
+ * SPEED-CI-2 — the localStorage key that says this browser has seen a ladder question (ladderVisit.ts). Absent: a
+ * FIRST visit, whose demo card opens on the fixed starter (oneMinuteStarters.ts `fixedStarter`), so the static
+ * state carries that card. Present: the card's question is picked per visit, so the static keeps the placeholder.
+ */
+export const CI_LADDER_SEEN_KEY = "lazytopper.ciLadder.seen.v1";
+
+/**
+ * What the static demo card is. "first": the first-visit preview the capture recorded (CiDemoCard's fallback, the
+ * fixed starter). "placeholder": today's same-box placeholder, put in its place by the script — for a returning
+ * visitor (random question) and for a CBQ ad (utm_content / utm_campaign containing "cbq": the intent map then
+ * leads with the sample picker, not the ladder, intentMap.ts classify).
+ */
+export type CiDemoPaint = "first" | "placeholder";
 
 export interface CiPaintEnv {
   search: string;
@@ -111,11 +131,17 @@ export interface CiPaintConfig {
   stateAttr: string;
   /** On the route region's top-level static nodes (and so on main.tsx's prerendered copy of them). */
   staticAttr: string;
+  /** SPEED-CI-2: the ladder-seen localStorage key (`CI_LADDER_SEEN_KEY`). */
+  ladderSeenKey: string;
+  /** SPEED-CI-2 (review of #1639, FU1): the held verdict line an early option tap shows (ladderCopy.ts). */
+  checkingText: string;
 }
 
 export interface CiPaintDecision {
   kind: "door" | "off";
   reason: string;
+  /** SPEED-CI-2: door only — the demo card's static form. */
+  demo?: CiDemoPaint;
 }
 
 export function decideCheckImprovePaint(
@@ -152,7 +178,14 @@ export function decideCheckImprovePaint(
   // cameFromSharedLink (guide/moments): a parent's share link renders a different first frame.
   if (String(params.get("utm_source") || "").toLowerCase() === "parent_share") return off("shared-link");
   if (String(params.get("utm_medium") || "").toLowerCase() === "share") return off("shared-link");
-  return { kind: "door", reason: "door" };
+  // SPEED-CI-2: the demo card. The first-visit card (fixed starter) only when this browser has never seen a ladder
+  // question AND the ad is not a CBQ one (no ladder then); anything else keeps today's placeholder.
+  var seen = false;
+  for (var s = 0; s < env.local.length; s += 1) if (env.local[s][0] === config.ladderSeenKey) seen = true;
+  var cbq =
+    String(params.get("utm_content") || "").toLowerCase().indexOf("cbq") >= 0 ||
+    String(params.get("utm_campaign") || "").toLowerCase().indexOf("cbq") >= 0;
+  return { kind: "door", reason: "door", demo: seen || cbq ? "placeholder" : "first" };
 }
 
 /** What the decision reads, read before the app runs. Browser-only; shipped as source. */
@@ -215,6 +248,26 @@ export function applyPaintKind(root: Element, kind: string, attr: string): strin
   return root.firstChild ? kind : "off";
 }
 
+/**
+ * SPEED-CI-2 — the desktop chrome's time-of-day greeting (DesktopShell.tsx `greetingFor`, from the DEVICE clock). The
+ * capture would freeze the CI machine's hour into the static ("Good morning" all day, while React's first commit says
+ * the student's own); the capture stores it as "Good morning" (`withNeutralGreeting`) and this sets the device's own
+ * before anything paints, so the static and React's first commit say the same. Same thresholds (pinned by a test).
+ * Only an exact signed-out greeting is touched. Browser-only; shipped as source.
+ */
+export function setPaintGreeting(root: Element, hour: number): void {
+  var text = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  var nodes = root.querySelectorAll('[data-testid="shell-greeting"]');
+  for (var i = 0; i < nodes.length; i += 1) {
+    if (/^Good (morning|afternoon|evening)$/.test(String(nodes[i].textContent || ""))) nodes[i].textContent = text;
+  }
+}
+
+/** The captured state with the greeting at a fixed value (the script sets the device's own). Pure. */
+export function withNeutralGreeting(html: string): string {
+  return html.replace(/(data-testid="shell-greeting"[^>]*>)Good (?:morning|afternoon|evening)</g, "$1Good morning<");
+}
+
 export function checkImprovePaintConfig(variant: PaintVariant, clock: { from: number; until: number }): CiPaintConfig {
   return {
     variant,
@@ -229,6 +282,8 @@ export function checkImprovePaintConfig(variant: PaintVariant, clock: { from: nu
     fontFamily: "Fraunces",
     stateAttr: PAINT_STATE_ATTR,
     staticAttr: STATIC_ATTR,
+    ladderSeenKey: CI_LADDER_SEEN_KEY,
+    checkingText: LADDER_CHECKING,
   };
 }
 
@@ -244,7 +299,8 @@ function prelude(config: CiPaintConfig): string {
     `var decide=(${decideCheckImprovePaint.toString()});` +
     `var gather=(${gatherCheckImprovePaintEnv.toString()});` +
     `var apply=(${applyPaintKind.toString()});` +
-    `var refresh=(${refreshWebFontText.toString()});`
+    `var refresh=(${refreshWebFontText.toString()});` +
+    `var greet=(${setPaintGreeting.toString()});`
   );
 }
 
@@ -261,8 +317,13 @@ export function checkImprovePaintDecisionSource(config: CiPaintConfig): string {
 export function checkImprovePaintScript(config: CiPaintConfig): string {
   const body =
     `(function(){var root=document.getElementById("root");try{${prelude(config)}` +
-    `var decision=decide(gather(),config,helpers);` +
+    `var seen=gather();var decision=decide(seen,config,helpers);` +
     `var shown=apply(root,decision.kind,config.attr);` +
+    // The hour of the same instant the decision read (env.now), on the device's own clock.
+    `if(shown!=="off")greet(root,new Date(seen.now).getHours());` +
+    // SPEED-CI-2: a returning visitor / CBQ ad gets today's placeholder in place of the first-visit card.
+    `if(shown!=="off"&&decision.demo!=="first"){var card=root.querySelector("[data-ci-first]");if(card&&card.parentNode){var ph=document.createElement("div");` +
+    `ph.className="ci-demo-ph";ph.setAttribute("data-testid","ci-demo-placeholder");ph.setAttribute("aria-hidden","true");card.parentNode.replaceChild(ph,card);}}` +
     `document.documentElement.setAttribute(config.stateAttr,shown);` +
     `if(shown==="off")return;` +
     // ★ INERT UNTIL THE STATIC CONTENT IS GONE (review of #1635, B1). "Static" is anything under a
@@ -276,7 +337,13 @@ export function checkImprovePaintScript(config: CiPaintConfig): string {
     `var staticOf=function(t){return t&&t.closest?t.closest(sel):null;};` +
     `var field=function(t){return !!(t&&t.closest&&t.closest("input,textarea,select,[contenteditable]"));};` +
     `var click=function(event){var t=event.target;var hit=staticOf(t);if(!hit)return;event.preventDefault();event.stopPropagation();` +
-    `var control=t.closest("button,a,label,input,textarea,select,[role=button]");if(control&&hit.contains(control)){control.classList.add(config.pressedClass);control.setAttribute("aria-busy","true");}};` +
+    `var control=t.closest("button,a,label,input,textarea,select,[role=button]");if(control&&hit.contains(control)){control.classList.add(config.pressedClass);control.setAttribute("aria-busy","true");` +
+    // SPEED-CI-2: an option of the first-visit card is remembered (not answered): the ladder answers it once it renders.
+    `var opt=control.getAttribute("data-testid")||"";var bank=control.closest("[data-ci-bank]");if(/^one-min-opt-[0-3]$/.test(opt)&&bank){window.__ltStaticTap={id:opt,bank:bank.getAttribute("data-ci-bank")};` +
+    // FU1 (review of #1639): reserve the verdict's boxes NOW (the tap's own frame), exactly as the preview and the
+    // ladder draw them (LadderTapParts.tsx LadderHeldMark / LadderVerdictReserve), so the verdict lands without a shift.
+    `var ul=control.closest(".ci-demo__opts");if(ul&&ul.parentNode&&!bank.querySelector(".ci-demo__verdict-mark--held")){var held=document.createElement("p");held.className="ci-demo__verdict-mark ci-demo__verdict-mark--held";` +
+    `held.setAttribute("role","status");held.textContent=config.checkingText;ul.parentNode.insertBefore(held,ul);var box=document.createElement("div");box.className="ci-demo__verdict ci-demo__verdict--reserve";ul.parentNode.insertBefore(box,ul.nextSibling);}}}};` +
     `var hold=function(event){if(staticOf(event.target)){event.preventDefault();event.stopPropagation();}};` +
     `var keys=function(event){if(staticOf(event.target)&&field(event.target)){event.preventDefault();event.stopPropagation();}};` +
     `var focus=function(event){var t=event.target;if(staticOf(t)&&field(t)&&t.blur)t.blur();};` +
@@ -338,11 +405,40 @@ export function routeRegionOf(contentCommit: string): string {
 }
 
 /**
- * CiDemoCard's Suspense fallback (components/ciDemo/CiDemoCard.tsx), as serialized. The static state keeps
- * it: the card is a lazy chunk and its ladder question is chosen per visit, so its content cannot be
- * painted ahead of React; the placeholder holds the PICK card's box, so the card's arrival moves nothing.
+ * CiDemoCard's placeholder fallback (components/ciDemo/CiDemoCard.tsx), as serialized. SPEED-CI-2: the CAPTURE now
+ * records the first-visit card instead (CiDemoCard's other fallback, the fixed starter: `data-ci-first`); the script
+ * swaps this placeholder in for a returning visitor or a CBQ ad, whose card question React cannot know ahead.
  */
 export const CI_DEMO_PLACEHOLDER_HTML = '<div class="ci-demo-ph" data-testid="ci-demo-placeholder" aria-hidden="true"></div>';
+
+/**
+ * SPEED-CI-2 — what the captured first-visit card must be: CiDemoCard's preview of the fixed starter. The static
+ * door is only ever "first" for no hint or a Science hint (a Maths hint is a CBQ ad: placeholder), and both open on
+ * the overall top starter, so ONE card serves every first-visit door.
+ */
+export const CI_FIRST_STARTER = "PYQ-S-2024-LIGHT-003";
+
+/**
+ * The fixed starter's id is named here, not computed: oneMinuteStarters.ts reaches the app's React graph, which this
+ * node-side file must not import (tsconfig.node). checkImprovePaint.guard.test.ts asserts it equals
+ * `fixedStarter(null)` and `fixedStarter("Science")`, so a weightage change fails a test, never a student.
+ */
+export function ciFirstCardExpectation(): { bank: string; question: string } {
+  const row = STARTER_ROWS[CI_FIRST_STARTER];
+  if (!row) throw new Error(`checkImprovePaint: ${CI_FIRST_STARTER} has no copied starter row`);
+  return { bank: CI_FIRST_STARTER, question: row.question };
+}
+
+/** Problems with the demo card of a captured (or built) static state. Empty = good. */
+export function firstCardProblems(html: string): string[] {
+  const want = ciFirstCardExpectation();
+  const out: string[] = [];
+  if (html.split('data-ci-first=""').length !== 2) out.push("the first-visit demo card is not there exactly once");
+  if (html.split(`data-ci-bank="${want.bank}"`).length !== 2) out.push(`the first-visit card is not the fixed starter ${want.bank}`);
+  if (!html.includes(want.question)) out.push("the first-visit card lacks its question");
+  if (html.includes('data-testid="ci-demo-placeholder"')) out.push("the demo placeholder is captured (the script supplies it)");
+  return out;
+}
 
 /** F with its one RouteFallback replaced by C's route region. */
 export function composeRouteShell(firstCommit: string, contentCommit: string): string {

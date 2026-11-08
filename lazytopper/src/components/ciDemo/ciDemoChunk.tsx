@@ -32,8 +32,7 @@ import {
   type CiDemoSample,
 } from "./ciDemoSamples";
 import { nextSampleKey, readCiDemoSubjectHint, trioFor } from "./ciDemoModel";
-import { guidePlanFor } from "../guide/guideInputs";
-import { parseChallengeId } from "./challengeModel";
+import { ladderLeads } from "./ladderLeads";
 import OneMinuteLadder, { type LadderAnswer } from "./OneMinuteLadder";
 import type { OneMinuteStarter } from "./oneMinuteStarters";
 import "./ciDemo.css";
@@ -64,7 +63,9 @@ export interface CiDemoChunkProps {
   /** ONE-MINUTE-1 — Byte's "Check one answer" asked for the ladder: it leads whatever the arrival. */
   ladderForced?: boolean;
   /** ONE-MINUTE-1 step 1 — the tap was answered (the page records it as an MCQ attempt for a signed-in student). */
-  onLadderAnswered?: (a: LadderAnswer) => void;
+  onLadderAnswered?: (a: LadderAnswer, meta?: { early: true }) => void;
+  /** SPEED-CI-2 — after an EARLY tap, the student's next tap / key has completed: the page may change its layout. */
+  onLadderSettled?: () => void;
   /** ONE-MINUTE-1 step 2 — prefill the 2-mark question, seed its confirmed metadata, focus the Type box. */
   onLadderType?: (pick: CiDemoLadderPick) => void;
   /** FIVE-MORE-1: "5 more like this" under the tap verdict. */
@@ -98,31 +99,7 @@ function marginMark(awarded: number, max: number): string {
   return `${formatMarks(awarded)} of ${formatMarks(max)}`;
 }
 
-/**
- * LADDER-REACH-1 — the one-minute ladder leads for EVERY visitor the card is shown to (an ad arrival that qualifies by
- * `ciDemoModel`), except a CBQ arrival, which keeps today's sample picker (owner rule 30 Oct: CBQ arrivals see CBQ first;
- * GUIDE-1's intent map encodes that as intent "cbq" and is read, never changed). Before this, the ladder led only when
- * the map's FIRST option was "check_one", so any ad whose utm_content said sample / mock / preboard / quick / mcq / tap /
- * pack (or a ?quick=1 URL) was classed papers / packs / quick and fell back to the picker: ~1% of arrivals saw the ladder.
- * "Watch a sample get marked" stays reachable from the ladder (onWatch).
- */
-function ladderLeads(uid: string | null | undefined, forced: boolean): boolean {
-  if (forced) return true;
-  // FRIEND-CHALLENGE-1 - a friend's challenge link (a valid-shaped id) leads with the ladder; the ladder itself
-  // falls back to its normal starter when the id resolves to nothing.
-  try {
-    if (typeof window !== "undefined" && parseChallengeId(window.location.search)) return true;
-  } catch {
-    /* no param */
-  }
-  try {
-    return guidePlanFor("check_improve", uid ?? null).intent !== "cbq";
-  } catch {
-    return false;
-  }
-}
-
-export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderType, onLadderMore }: CiDemoChunkProps) {
+export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderSettled, onLadderType, onLadderMore }: CiDemoChunkProps) {
   const [view, setView] = useState<View>({ name: "pick" });
   const [ladderOn, setLadderOn] = useState<boolean>(() => ladderLeads(uid, ladderForced));
   const [ladderSay, setLadderSay] = useState<{ line: string; mood: "tap" | "right" | "wrong" }>({ line: CI_DEMO_COPY.ladderHead, mood: "tap" });
@@ -238,7 +215,8 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
       <OneMinuteLadder
         hint={readCiDemoSubjectHint()}
         onLine={(l, mood) => setLadderSay({ line: l, mood })}
-        onAnswered={(a) => onLadderAnswered?.(a)}
+        onAnswered={(a, meta) => onLadderAnswered?.(a, meta)}
+        onSettled={() => onLadderSettled?.()}
         onNext={(st) => goType(st)}
         onMore={onLadderMore}
         onWatch={() => setLadderOn(false)}
