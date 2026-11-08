@@ -18,8 +18,11 @@
 // right after the next paint (afterNextPaint): on a phone that is still well before the finger
 // lifts (the click), and it runs just before the deferred navigation, which then reuses it.
 //
-// A failed prefetch is ignored: the router's own import (lazyWithRetry) still does its
-// retries exactly as before, so a prefetch can never turn into an error screen.
+// A failed prefetch is ignored here, and the route still recovers through lazyWithRetry — but not
+// with quite the same attempts. Chromium remembers a failed import() of a URL for the life of the
+// page, so after a failed prefetch the router's FIRST import replays that failure without a request;
+// lazyWithRetry's `?retry=1` / `?retry=2` imports are then the real network attempts (3 in total,
+// counting the prefetch). Firefox and WebKit re-request the URL, so there nothing changes.
 
 import { afterNextPaint } from "../afterNextPaint";
 

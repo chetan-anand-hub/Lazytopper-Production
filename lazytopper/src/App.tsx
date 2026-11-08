@@ -20,7 +20,7 @@ import { TrialBanner } from "./components/ux/TrialBanner";
 import { useAuth } from "./context/AuthContext";
 import { useHoldsBoardPass } from "./lib/nav/boardPass";
 import { trackNavPricingTap } from "./analytics/analytics";
-import { useNavigateAfterPaint } from "./lib/useNavigateAfterPaint";
+import { afterNextPaint } from "./lib/afterNextPaint";
 import { prefetchBottomNavPage } from "./lib/nav/bottomNavPrefetch";
 import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
@@ -473,16 +473,37 @@ export function isSignedOutBuyRoute(path: string): boolean {
 
 export function BottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isDesktop = useIsDesktop();
   const { user } = useAuth();
   // NAV-PRICING-1 — above every early return (hook order). False when signed out / not yet hydrated.
   const holdsBoardPass = useHoldsBoardPass();
   // SPEED-NAV-1 — the destination of the tab just pressed, painted active at once (see `go` below).
-  // Cleared whenever the route changes; above every early return (hook order).
+  // Above every early return (hook order). It is a HIGHLIGHT, never a lock: only a repeat tap on
+  // the same tab is ignored. It clears when a navigation commits, on Back/Forward (popstate: a
+  // Back to the location the bar already saw commits no new key), and after PRESS_HOLD_MS at most.
   const [pressedTab, setPressedTab] = useState<string | null>(null);
-  useEffect(() => setPressedTab(null), [location.key]);
-  // One push per gesture, dropped if stale (Back / another link) or if the bar unmounts first.
-  const navigateAfterPaint = useNavigateAfterPaint();
+  const pendingNavRef = useRef<(() => void) | null>(null); // cancel() of the deferred push
+  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPushRef = useRef<string | null>(null);
+  useEffect(() => {
+    // A location change that is not the commit of this bar's own last push (Back, another link)
+    // overtakes a push still waiting for its frame.
+    if (pendingNavRef.current && location.pathname + location.search !== lastPushRef.current) {
+      pendingNavRef.current();
+      pendingNavRef.current = null;
+    }
+    if (!pendingNavRef.current) setPressedTab(null);
+  }, [location.key]); // eslint-disable-line react-hooks/exhaustive-deps -- runs per committed location
+  useEffect(() => {
+    const onPop = () => setPressedTab(null);
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      pendingNavRef.current?.(); // a deferred push never outlives the bar
+      if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    };
+  }, []);
 
   const current = location.pathname;
 
@@ -511,13 +532,35 @@ export function BottomNav() {
   // SPEED-NAV-1 (8 Nov 2026) — a tab tap used to navigate INSIDE the tap, so the frame after it
   // waited for the destination route to load and render (lab, 4x CPU, 360 px: Check ~1400 ms,
   // Pricing ~600 ms with no visible change). Now the pressed tab turns active in the tap's own
-  // frame, the page's chunk starts loading (on pointerdown, below), and the navigation runs one
-  // frame later (same path, same push). Until the route changes, further taps are ignored.
+  // frame, the page's chunk starts loading (pointerdown, below), and the push runs one frame later.
+  // - A repeat tap on the SAME tab is ignored (no double push).
+  // - A tap on a DIFFERENT tab takes over: the pending push is cancelled and the new tab navigates
+  //   (as before this change, the last tab tapped wins).
+  // - A push whose moment passed is dropped: if the browser's location (href + history key) moved
+  //   between the tap and the push (Back, another link), it is stale. BrowserRouter commits in a
+  //   transition, so the router's own location can lag; the browser's cannot.
+  const PRESS_HOLD_MS = 8000;
+  const browserLocation = () => {
+    const state = window.history.state as { key?: unknown } | null;
+    return `${window.location.href}#${String(state?.key ?? "")}`;
+  };
   const go = (path: string) => {
-    if (pressedTab) return;
+    if (pressedTab === path) return;
+    pendingNavRef.current?.();
     setPressedTab(path);
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    pressTimerRef.current = setTimeout(() => setPressedTab(null), PRESS_HOLD_MS);
     prefetchBottomNavPage(path); // keyboard / no-pointer taps; a no-op after onPointerDown
-    navigateAfterPaint(path);
+    const tappedAt = browserLocation();
+    pendingNavRef.current = afterNextPaint(() => {
+      pendingNavRef.current = null;
+      if (browserLocation() !== tappedAt) {
+        setPressedTab(null);
+        return;
+      }
+      lastPushRef.current = path;
+      navigate(path);
+    });
   };
   // Light app grammar — same tokens as the grammar primitives / locked design.
   const activeColor = "hsl(152, 55%, 45%)";
@@ -626,7 +669,7 @@ export function BottomNav() {
           to: "/pricing?source=bottom-nav",
           active: false,
           onClick: () => {
-            if (pressedTab) return; // SPEED-NAV-1: a tap that will not navigate is not counted
+            if (pressedTab === "/pricing?source=bottom-nav") return; // SPEED-NAV-1: a repeat tap does not navigate, so is not counted
             trackNavPricingTap("bottom_nav");
             go("/pricing?source=bottom-nav");
           },
