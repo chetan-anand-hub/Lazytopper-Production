@@ -298,21 +298,34 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     expect(document.querySelector("[data-lt-island-login]")).toBeNull();
   });
 
-  it("footer 'PDF packs' (PacksEntry footer-link) after 'For parents', only when VITE_PACKS_ENABLED is '1'", async () => {
+  it("footer 'PDF packs' after 'For parents': NCERT Hub only, flag on, and only while the footer is below the fold", async () => {
     const page = '<div id="root"><main></main><footer class="lt-public-legal"><a href="/for-parents">For parents</a><a href="/legal/privacy">Privacy</a></footer></div>';
-    const run = async () => {
-      window.history.replaceState(null, "", "/ncert-class-10");
+    let footerTop = 2000;
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const top = this.matches("footer") ? footerTop : 0;
+      return { top, bottom: top, left: 0, right: 0, width: 0, height: 0, x: 0, y: top, toJSON: () => ({}) } as DOMRect;
+    });
+    const run = async (path = "/ncert-class-10") => {
+      window.history.replaceState(null, "", path);
       __resetIslandForTests();
       document.head.innerHTML = ISLAND_TAG;
       document.body.innerHTML = page;
       await boot();
       return [...document.querySelectorAll("footer a")].map((a) => `${a.textContent}=${a.getAttribute("href")}`);
     };
-    expect(await run()).toEqual(["For parents=/for-parents", "Privacy=/legal/privacy"]);
+    const plain = ["For parents=/for-parents", "Privacy=/legal/privacy"];
+    expect(await run()).toEqual(plain); // flag off: the app shows no link either
     vi.stubEnv("VITE_PACKS_ENABLED", "1");
     expect(await run()).toEqual(["For parents=/for-parents", `PDF packs=${FOOTER_PACKS_HREF}`, "Privacy=/legal/privacy"]);
-    expect(FOOTER_PACKS_HREF).toBe("/pricing#packs");
+    expect(FOOTER_PACKS_HREF).toBe("/pricing#packs"); // PublicLegalFooter's default: the hub passes no packsHref
+    // A CBQ / solutions footer carries the page's own href (/pricing?chapter=<bank>#packs): left to the app, which loads first.
+    expect(await run("/cbq-class-10/electricity")).toEqual(plain);
+    // In view (desktop hub, footer in the 800-px viewport): inserting would reflow a visible row; the app adds it.
+    footerTop = 500;
+    expect(await run()).toEqual(plain);
+    footerTop = 2000;
     // The app's link is a tracked /pricing link: held and replayed, so the app sends its pack_entry click.
+    await run();
     const link = [...document.querySelectorAll("footer a")].find((a) => a.textContent === "PDF packs") as HTMLElement;
     const event = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
     link.dispatchEvent(event);
@@ -320,6 +333,25 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     expect(state()).toBe("upgrading");
     vi.unstubAllEnvs();
   });
+
+  it("#1640 B1: a held link whose app twin never renders in time (lazy chunk delayed) still lands on its URL", async () => {
+    const go = vi.spyOn(nav, "go").mockImplementation(() => undefined);
+    window.history.replaceState(null, "", "/ncert-class-10");
+    __resetIslandForTests();
+    document.head.innerHTML = ISLAND_TAG;
+    document.body.innerHTML =
+      '<div id="root"><template data-lt-route="start"></template><main><p>x</p></main><footer class="lt-public-legal"><a href="/pricing#packs">PDF packs</a></footer></div>';
+    await boot();
+    const link = document.querySelector("footer a") as HTMLElement;
+    link.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 })); // held: curtain up
+    const root = document.getElementById("root") as HTMLElement;
+    root.querySelector("footer a")?.remove(); // the app's footer link is still in its lazy chunk
+    (root as unknown as Record<string, unknown>)["__reactContainer$t"] = {};
+    for (const el of root.querySelectorAll("template, main, footer")) (el as unknown as Record<string, unknown>)["__reactFiber$t"] = {};
+    await vi.waitFor(() => expect(state()).toBe("app"), { timeout: 12_000, interval: 100 });
+    expect(go).toHaveBeenCalledWith(new URL("/pricing#packs", window.location.href).href);
+    expect(document.querySelectorAll(".lt-island-busy").length).toBe(0);
+  }, 15_000);
 
   it("the NCERT Hub does not watch its footer (only the lazy 'PDF packs' link, never in the markup): it stays an island", async () => {
     window.history.replaceState(null, "", "/ncert-class-10");

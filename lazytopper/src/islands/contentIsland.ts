@@ -81,7 +81,8 @@ export const AUTH_REGION = '[data-testid="pending-bell"]';
  *   - CBQ chapter pages carry App.tsx's top `.navbar`; its right-hand slot is served EMPTY (captured before auth
  *     resolved). Signed out, App.tsx renders the "Log in" button there (navigate to /login?redirect=<page>).
  *   - PublicLegalFooter's "PDF packs" link (PacksEntry footer-link, behind VITE_PACKS_ENABLED; hidden only for paid
- *     Premium, who always have an auth record) after "For parents".
+ *     Premium, who always have an auth record) after "For parents" — on the NCERT Hub (FOOTER_UNWATCHED_PATHS) while
+ *     its footer is below the fold; every other footer is watched, so the app renders its page-specific href first.
  * This is safe ONLY because the island runs for a visitor with no auth record (rule a): any record, or a slow or
  * unreadable store, loads the app instead, and these are rendered only after that check. No price, no personalisation.
  */
@@ -110,8 +111,14 @@ export function showSignedOutChrome(): void {
     button.textContent = "Log in";
     slot.appendChild(button);
   }
-  if (!packsEntryEnabled()) return;
+  // Only where the footer is NOT watched (the NCERT Hub, whose footer passes no packsHref, so the app's link is exactly
+  // FOOTER_PACKS_HREF). Elsewhere the footer is an app-only region: the app loads one screen before it and renders the
+  // link with the page's own href (`/pricing?chapter=<bank>#packs`, pricingPacksHref), which the island cannot know.
+  if (!packsEntryEnabled() || !FOOTER_UNWATCHED_PATHS.includes(window.location.pathname)) return;
   for (const footer of document.querySelectorAll("#root footer.lt-public-legal")) {
+    // #1640 review FU: never reflow a footer row the visitor can see (desktop hub: CLS 0.008). Below the fold it is free;
+    // in view, the app adds the link when it takes over (desktop hands over on idle), as today.
+    if (footer.getBoundingClientRect().top < window.innerHeight) continue;
     if (isReactOwned(footer) || [...footer.querySelectorAll("a")].some((a) => a.textContent === "PDF packs")) continue;
     const parents = [...footer.querySelectorAll('a[href="/for-parents"]')].pop();
     if (!parents) continue;
@@ -823,9 +830,13 @@ async function complete(): Promise<void> {
     await replayState(FIND_TIMEOUT_MS);
     await lowerCurtain();
     while (queue.length > 0) {
-      const { d } = queue.shift() as Held;
+      const { d, fallback } = queue.shift() as Held;
       const el = await find(d, (e) => !(e as HTMLButtonElement).disabled);
-      el?.click();
+      // #1640 review B1: a held tap is never dropped. If the app has not rendered the control in time (a lazy chunk on a
+      // slow network), a link-like control (a link's href, a bottom-bar route) is completed by a full navigation, which
+      // boots the app on that page; a control with nowhere to go is released (its busy look cleared by finish()).
+      if (el) el.click();
+      else if (fallback) nav.go(fallback);
     }
   } finally {
     finish();
