@@ -10,7 +10,7 @@
  * challenge, through import() (/check-improve stays bank-free statically).
  * A failed load renders nothing for this step: the card falls back to its sample picker.
  */
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { wrongPickFields } from "../../services/mistakePick";
 import { trackFriendChallenge, trackOneMinute } from "../../analytics/analytics";
 import ChallengeFriendButton from "./ChallengeFriendButton";
@@ -237,11 +237,10 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Late rows: shown only where they move nothing the student can see — their place (the end of the buying block) is
-  // BELOW the screen (everything they push is off-screen too), or ABOVE it (scroll anchoring keeps what is on screen
-  // put; where the engine has none, the page is scrolled by their height in the same frame, before paint). Checked when
-  // they arrive and on every scroll.
-  const lateRowsTop = useRef<number | null>(null);
+  // Late rows: shown only where they move nothing the student can see — when their place (the end of the buying block)
+  // is BELOW the screen, so everything they push is off-screen too. Checked when they arrive, on every scroll and resize.
+  // (Showing them above the view was tried: scroll anchoring / a same-frame scroll did not hold the view still during a
+  // fling — measured 0.36-0.48 — so they wait instead. The prefetch at the tap makes a late arrival rare.)
   useEffect(() => {
     if (!rowsWait) return undefined;
     const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
@@ -249,15 +248,8 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       setRowsWait(false);
       return undefined;
     }
-    const rowsIn = () => !!block.querySelector('[data-testid="offers-packs"]');
     const check = () => {
-      if (!rowsIn()) return;
-      const end = block.getBoundingClientRect().bottom;
-      if (end >= window.innerHeight) {
-        lateRowsTop.current = null;
-        setRowsWait(false);
-      } else if (end <= 0) {
-        lateRowsTop.current = end;
+      if (block.querySelector('[data-testid="offers-packs"]') && block.getBoundingClientRect().bottom >= window.innerHeight) {
         setRowsWait(false);
       }
     };
@@ -271,25 +263,6 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       window.removeEventListener("scroll", check);
       window.removeEventListener("resize", check);
     };
-  }, [rowsWait]);
-  useLayoutEffect(() => {
-    if (rowsWait || lateRowsTop.current === null) return;
-    const before = lateRowsTop.current;
-    lateRowsTop.current = null;
-    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
-    if (!block || typeof window.scrollBy !== "function") return;
-    // Engines with scroll anchoring (Chromium, Firefox: `overflow-anchor`) already keep the view still for content
-    // inserted above it — compensating again would move it the other way (measured: 0.36-0.48). Others (Safari / iOS
-    // web views) get the same-frame scroll.
-    let anchored = false;
-    try {
-      anchored = typeof CSS !== "undefined" && typeof CSS.supports === "function" && CSS.supports("overflow-anchor", "auto");
-    } catch {
-      anchored = false;
-    }
-    if (anchored) return;
-    const grown = block.getBoundingClientRect().bottom - before;
-    if (grown > 0) window.scrollBy({ top: grown, behavior: "instant" as ScrollBehavior });
   }, [rowsWait]);
 
   // While what lies below the verdict is see-through (settling), screen readers must not read it either: the page

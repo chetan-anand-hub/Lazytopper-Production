@@ -217,18 +217,11 @@ describe("an early tap's verdict settles without a reserved height", () => {
     expect(css).toMatch(/\.ci-demo__ladder\[data-rows-wait\] \[data-testid="offers-packs"\] \{\s*display: none;\s*\}/);
   });
 
-  it("rows whose place is ABOVE the screen: shown with the page scrolled by their height in the same frame (view stays put)", async () => {
+  it("rows whose place is ABOVE the screen keep waiting (no jump under a scrolling student)", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame"] });
-    const by = vi.fn();
-    const origBy = window.scrollBy;
-    window.scrollBy = by as unknown as typeof window.scrollBy;
     const orig = Element.prototype.getBoundingClientRect;
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
-      if ((this as HTMLElement).dataset?.testid === "offers-block") {
-        const shown = !!this.querySelector('[data-testid="offers-packs"]') && !this.closest("[data-rows-wait]");
-        const bottom = shown ? -50 + 440 : -50;
-        return { top: bottom - 300, bottom, left: 0, right: 0, width: 0, height: 300, x: 0, y: bottom - 300, toJSON: () => ({}) } as DOMRect;
-      }
+      if ((this as HTMLElement).dataset?.testid === "offers-block") return { top: -350, bottom: -50, left: 0, right: 0, width: 0, height: 300, x: 0, y: -350, toJSON: () => ({}) } as DOMRect;
       return orig.call(this);
     });
     try {
@@ -237,18 +230,15 @@ describe("an early tap's verdict settles without a reserved height", () => {
       act(() => {
         vi.advanceTimersByTime(1600);
       });
-      by.mockClear();
-      // An engine without scroll anchoring (Safari / iOS web views): the same-frame scroll does it.
-      const supports = vi.spyOn(CSS, "supports").mockReturnValue(false);
       await act(async () => {
         (window as W).__rows?.();
         await Promise.resolve();
       });
-      expect(ladder().hasAttribute("data-rows-wait")).toBe(false);
-      expect(by).toHaveBeenCalledWith({ top: 440, behavior: "instant" });
-      supports.mockRestore();
+      act(() => {
+        window.dispatchEvent(new Event("scroll"));
+      });
+      expect(ladder().hasAttribute("data-rows-wait")).toBe(true);
     } finally {
-      window.scrollBy = origBy;
       vi.useRealTimers();
     }
   });
