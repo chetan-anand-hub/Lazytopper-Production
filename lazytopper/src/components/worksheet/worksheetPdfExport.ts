@@ -433,7 +433,7 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
 }
 
 /** A detached offscreen host that holds ONLY the element handed in; always cleaned up. */
-async function withHost<T>(width: number, element: ReactElement, run: (host: HTMLElement) => Promise<T>): Promise<T> {
+async function withHost<T>(width: number, element: ReactElement, run: (host: HTMLElement) => Promise<T>, imageTimeoutMs?: number): Promise<T> {
   const host = document.createElement("div");
   host.setAttribute("aria-hidden", "true");
   host.style.position = "fixed";
@@ -452,7 +452,7 @@ async function withHost<T>(width: number, element: ReactElement, run: (host: HTM
     await loadKatex();
     root.render(element);
     await waitForRenderReady();
-    await waitForImages(host);
+    await waitForImages(host, imageTimeoutMs);
     await svgsToImages(host);
     return await run(host);
   } finally {
@@ -587,7 +587,12 @@ interface BridgePageRaster {
  * here never costs the student the paper: it resolves to no pages and the file is produced as before.
  */
 const bridgeCache = new Map<string, Promise<BridgePageRaster[]>>();
-async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas): Promise<BridgePageRaster[]> {
+/** Every sample image of a bridge page decoded? A blocked or slow image (offline, 2G past the wait) would print an empty navy box. */
+export function bridgeImagesReady(host: HTMLElement): boolean {
+  return Array.from(host.querySelectorAll("img")).every((img) => img.complete && img.naturalWidth > 0);
+}
+/** Exported for tests only. */
+export async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas, imageTimeoutMs?: number): Promise<BridgePageRaster[]> {
   const key = JSON.stringify(data);
   const hit = bridgeCache.get(key);
   if (hit) return hit;
@@ -600,6 +605,9 @@ async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas
       for (const Page of [mod.PrintBridgeMarkPage, mod.PrintBridgeViewsPage]) {
         out.push(
           await withHost(mod.BRIDGE_W, createElement(Page, { data, links }), async (h) => {
+            // Review FU-1: build the pages only when every image decoded; otherwise this file gets NO pages 2-3 (and nothing is
+            // cached, so the next file tries again) rather than pages with empty boxes.
+            if (!bridgeImagesReady(h)) throw new Error("bridge_images_missing");
             const box = h.getBoundingClientRect();
             const mm = PAGE_W / mod.BRIDGE_W;
             const areas = Array.from(h.querySelectorAll<HTMLElement>("[data-pdf-link]")).map((el) => {
@@ -608,7 +616,7 @@ async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas
             });
             const c = await html2canvas(h, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: mod.BRIDGE_W });
             return { jpeg: c.toDataURL("image/jpeg", 0.72), links: areas.filter((a) => a.url && a.w > 0 && a.h > 0) };
-          }),
+          }, imageTimeoutMs),
         );
       }
       return out;

@@ -55,7 +55,7 @@ import { maskEmail } from "../../services/checkoutWhoFlag";
 /** PREEXIST-FIX-1: the same specifier as the lazy() below (one chunk), for the ?buy= warm-up. */
 const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
-import { usePaidPremium } from "../../lib/packs/usePaidPremium";
+import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPremium";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
@@ -1035,8 +1035,6 @@ type FilesState =
 
 function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine: MyPacks; openRequest?: number }) {
   const { user } = useAuth();
-  // BRIDGE-PDF-1: a Board Pass holder's pack files leave the Board Pass card off page 2 (they already have it).
-  const paidBoardPass = usePaidPremium();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [failedId, setFailedId] = useState<string | null>(null);
@@ -1049,6 +1047,14 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
     }
     setState({ phase: "loading" });
     try {
+      // BRIDGE-PDF-1: a Board Pass holder's files leave the Board Pass box off page 2; decided from the RESOLVED entitlement
+      // (null = still unknown -> the box is left out), never from a not-yet-hydrated cache.
+      let paidBoardPass: boolean | null = null;
+      try {
+        paidBoardPass = await resolvePaidBoardPass(user?.uid ?? "");
+      } catch {
+        /* unknown: the box is left out; the file list never fails on this */
+      }
       const { buildPackFiles, groupPackFiles } = await import("../../lib/packs/buildPackFiles");
       const files = await buildPackFiles(
         { packId: pack.packId, sku: pack.sku as PackSku, target: pack.target },

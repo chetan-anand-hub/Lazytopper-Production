@@ -46,8 +46,11 @@ export interface BridgePagesData {
 
 /** The build-context switch: present only on the real buyer download. */
 export interface BridgeContext {
-  /** True when the student already holds a PAID Board Pass (`isPaidPremium`): page 2 then leaves the Board Pass card out. */
-  paidBoardPass: boolean;
+  /**
+   * The student's PAID Board Pass (`isPaidPremium`), resolved before the build: true -> page 2 leaves the Board Pass box out (they have
+   * it); null -> not known yet (a fresh device whose entitlement did not load) -> also left out; only false shows it.
+   */
+  paidBoardPass: boolean | null;
 }
 
 function subjectName(s: PackSubject | string): string {
@@ -62,7 +65,7 @@ export function bridgePackName(sku: PackSku, target: string): string {
     case "pack_mock":
       return "Mock Pack";
     case "pack_subject":
-      return "Subject Pack";
+      return `${subjectName(target)} Subject Pack`;
     case "pack_bundle":
       return BUNDLE_NAME;
     case "pack_cbq":
@@ -70,9 +73,14 @@ export function bridgePackName(sku: PackSku, target: string): string {
   }
 }
 
-/** "Real Numbers · Chapter Pack", "Maths · Mock Pack", "Maths CBQ Pack" (no repeated subject). */
+/**
+ * "Real Numbers · Chapter Pack", "Maths · Mock Pack", "Real Numbers · Maths CBQ Pack". A Subject Pack and the Bundle are headed by the
+ * pack's own title alone ("Maths Subject Pack", "Maths + Science Bundle"), as the checkout names them (review FU-10). `target` is the
+ * pack's subject for subject / mock / CBQ packs.
+ */
 export function bridgePackLabel(scope: string, sku: PackSku, target: string): string {
   const name = bridgePackName(sku, target);
+  if (sku === "pack_subject" || sku === "pack_bundle") return name;
   return name.startsWith(`${scope} `) ? name : `${scope} · ${name}`;
 }
 

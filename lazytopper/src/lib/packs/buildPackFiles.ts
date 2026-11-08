@@ -171,7 +171,7 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
       const bridge: BridgePagesData | undefined =
         ctx.bridge && spec.bridge
-          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), boardPassCard: !ctx.bridge.paidBoardPass }
+          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), boardPassCard: ctx.bridge.paidBoardPass === false }
           : undefined;
       await exportPdf(ws, spec.mode, spec.paper?.code, {
         // The exporter's `email` slot is the contact printed after the name: the email, or the MASKED phone.
@@ -229,7 +229,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   // BRIDGE-PDF-1: a paper file shows its own code; a question-bank file shows the chapter's first paper code (read at build time,
   // after the list below is complete).
   const bridgeFor = (ownCode?: string) => ({
-    packLabel: bridgePackLabel(name, sku, slug),
+    packLabel: bridgePackLabel(name, sku, subjectOfChapter(slug) ?? "maths"),
     exampleCode: () => ownCode ?? files.find((f) => f.code)?.code ?? null,
   });
   const cover = (kicker: string, title: string, nQ: number, marks: number) => ({
