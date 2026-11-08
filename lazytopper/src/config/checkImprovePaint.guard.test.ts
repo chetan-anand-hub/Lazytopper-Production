@@ -22,6 +22,7 @@ import {
 } from "../../scripts/seo/checkImprovePaint";
 import { PAINT_ATTR, PAINT_PATHS, PAINT_PRESSED_CLASS, PAINT_READY_CLASS, PAINT_ROUTE_KINDS } from "../../scripts/seo/loginPaint";
 import { inAppBrowser } from "../utils/inAppBrowser";
+import { isFirstLadderVisit } from "../components/ciDemo/ladderVisit";
 import { STATIC_ATTR, withStaticRouteRegion } from "../../scripts/seo/checkImprovePaint";
 import { emailCodeFlagOn } from "../../scripts/seo/loginPaint";
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } from "node:fs";
@@ -49,9 +50,6 @@ const NOW = 1_794_500_000_000;
 const CLOCK = { from: NOW - 1000, until: NOW + 1000 };
 const ANDROID =
   "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36";
-const WINDOWS =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
-const helpers = { inApp: inAppBrowser };
 const mobile = checkImprovePaintConfig("mobile", CLOCK);
 const desktop = checkImprovePaintConfig("desktop", CLOCK);
 
@@ -61,8 +59,6 @@ function env(over: Partial<CiPaintEnv> = {}): CiPaintEnv {
     sessionKeys: [],
     local: [],
     historyUsr: null,
-    userAgent: ANDROID,
-    standalone: false,
     narrow: true,
     wide: false,
     coarse: true,
@@ -70,7 +66,7 @@ function env(over: Partial<CiPaintEnv> = {}): CiPaintEnv {
     ...over,
   };
 }
-const kind = (over: Partial<CiPaintEnv>, config = mobile) => decideCheckImprovePaint(env(over), config, helpers).kind;
+const kind = (over: Partial<CiPaintEnv>, config = mobile) => decideCheckImprovePaint(env(over), config).kind;
 
 describe("the route is registered", () => {
   it("/check-improve is a paint path with one state, and never advertised", () => {
@@ -83,7 +79,7 @@ describe("the route is registered", () => {
 describe("decideCheckImprovePaint — door only when the first frame is predictable", () => {
   it("a clean first visit: door at each width", () => {
     expect(kind({})).toBe("door");
-    expect(kind({ narrow: false, wide: true, coarse: false, userAgent: WINDOWS }, desktop)).toBe("door");
+    expect(kind({ narrow: false, wide: true, coarse: false }, desktop)).toBe("door");
   });
 
   it("ad attribution parameters are fine; every other parameter is off", () => {
@@ -125,13 +121,12 @@ describe("decideCheckImprovePaint — door only when the first frame is predicta
   it("width and pointer must match the served capture (useIsDesktop, useCoarsePointer)", () => {
     expect(kind({ narrow: false, wide: true })).toBe("off");
     expect(kind({ coarse: false })).toBe("off");
-    expect(kind({ narrow: true, wide: false, coarse: false, userAgent: WINDOWS }, desktop)).toBe("off");
-    expect(kind({ narrow: false, wide: true, coarse: true, userAgent: WINDOWS }, desktop)).toBe("off");
+    expect(kind({ narrow: true, wide: false, coarse: false }, desktop)).toBe("off");
+    expect(kind({ narrow: false, wide: true, coarse: true }, desktop)).toBe("off");
     expect(kind({ narrow: false, wide: false })).toBe("off");
   });
 
-  it("in-app browsers, router state and the clock window are off", () => {
-    expect(kind({ userAgent: `${ANDROID} Instagram 350.0` })).toBe("off");
+  it("router state and the clock window are off", () => {
     expect(kind({ historyUsr: { from: "/x" } })).toBe("off");
     expect(kind({ now: CLOCK.until })).toBe("off");
     expect(kind({ now: CLOCK.from - 1 })).toBe("off");
@@ -508,11 +503,11 @@ const FIRST_CARD =
 const C_FIRST = C.replace("<button type=\"button\">Check</button>", `<button type="button">Check</button>${FIRST_CARD}`);
 
 describe("SPEED-CI-2 — the demo card in the static paint", () => {
-  const demo = (over: Partial<CiPaintEnv>, config = mobile) => decideCheckImprovePaint(env(over), config, helpers).demo;
+  const demo = (over: Partial<CiPaintEnv>, config = mobile) => decideCheckImprovePaint(env(over), config).demo;
 
   it("the decision: the first-visit card unless the ladder was seen here or the ad is a CBQ one (then the placeholder)", () => {
     expect(demo({})).toBe("first");
-    expect(demo({ narrow: false, wide: true, coarse: false, userAgent: WINDOWS }, desktop)).toBe("first");
+    expect(demo({ narrow: false, wide: true, coarse: false }, desktop)).toBe("first");
     expect(demo({ search: "?utm_source=youtube&utm_content=sci_light" })).toBe("first");
     expect(demo({ search: "?utm_source=youtube&utm_content=a" })).toBe("first");
     expect(demo({ local: [[CI_LADDER_SEEN_KEY, "1"]] })).toBe("placeholder");
@@ -666,5 +661,112 @@ describe("SPEED-CI-2 — the desktop greeting is the device's, never the capture
       document.documentElement.className = "";
       document.documentElement.removeAttribute(PAINT_STATE_ATTR);
     }
+  });
+});
+
+describe("SPEED-CI-3 — in-app browsers get the door; a web view without storage does not", () => {
+  const YOUTUBE =
+    "Mozilla/5.0 (Linux; Android 13; SM-A145F Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.44.38";
+  const IN_APP = [
+    YOUTUBE,
+    `${ANDROID.replace("Pixel 7)", "Pixel 7; wv)")} Instagram 350.0.0.0`,
+    `${ANDROID.replace("Pixel 7)", "Pixel 7; wv)")} [FB_IAB/FB4A;FBAV/480.0.0.39.108;]`,
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 com.google.ios.youtube/19.45.4",
+  ];
+  const page = () =>
+    buildCheckImprovePaintPage(SHELL, composeRouteShell(F, C), checkImprovePaintConfig("mobile", { from: 0, until: Number.MAX_SAFE_INTEGER }), []);
+  const script = () => (page().match(/<script data-lt-paint-script>([\s\S]*?)<\/script>/) ?? ["", ""])[1];
+  const realUa = Object.getOwnPropertyDescriptor(window.navigator, "userAgent");
+  let originalMedia: typeof window.matchMedia;
+  const stores: Array<["localStorage" | "sessionStorage", PropertyDescriptor | undefined]> = [];
+  function withoutStorage(name: "localStorage" | "sessionStorage") {
+    stores.push([name, Object.getOwnPropertyDescriptor(window, name)]);
+    Object.defineProperty(window, name, { get: () => null, configurable: true });
+  }
+  beforeEach(() => {
+    vi.spyOn(Date, "now").mockReturnValue(NOW);
+    localStorage.clear();
+    sessionStorage.clear();
+    originalMedia = window.matchMedia;
+    window.matchMedia = ((q: string) => ({ matches: q.includes("pointer") ? true : q.includes("max-width") })) as unknown as typeof window.matchMedia;
+  });
+  afterEach(() => {
+    window.matchMedia = originalMedia;
+    for (const [name, d] of stores.splice(0)) {
+      if (d) Object.defineProperty(window, name, d);
+      else delete (window as unknown as Record<string, unknown>)[name];
+    }
+    if (realUa) Object.defineProperty(window.navigator, "userAgent", realUa);
+    else delete (window.navigator as unknown as Record<string, unknown>).userAgent;
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+    document.documentElement.className = "";
+    document.documentElement.removeAttribute(PAINT_STATE_ATTR);
+  });
+
+  it("every in-app user agent the shared detector names gets the door (the shipped script, jsdom)", () => {
+    for (const ua of IN_APP) {
+      expect(inAppBrowser(ua), ua).not.toBeNull();
+      Object.defineProperty(window.navigator, "userAgent", { value: ua, configurable: true });
+      const root = runPage(page());
+      expect(document.documentElement.getAttribute(PAINT_STATE_ATTR), ua).toBe("door");
+      expect(root.children.length, ua).toBeGreaterThan(0);
+    }
+  });
+
+  it("the decision and the shipped script never read the user agent", () => {
+    expect(script()).not.toMatch(/userAgent|inApp|standalone/);
+    expect(decideCheckImprovePaint.length).toBe(2);
+  });
+
+  it("nothing new in the app reads the user agent (the first frame would then differ in-app: re-run the parity)", () => {
+    const SRC = resolve(__dirname, "..");
+    const readers: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        const p = join(dir, name);
+        if (statSync(p).isDirectory()) walk(p);
+        else if (/\.(ts|tsx)$/.test(name) && !/\.test\.tsx?$/.test(name) && /\.userAgent(Data)?\b/.test(readFileSync(p, "utf8"))) {
+          readers.push(p.slice(SRC.length + 1).replace(/\\/g, "/"));
+        }
+      }
+    };
+    walk(SRC);
+    // Login (sign-in in-app note / Chrome handoff / phone-first door), the guest pay sheet and sign-in telemetry.
+    // None renders on the Answer Checker's first frame. A new reader must be checked against /check-improve's parity.
+    expect(readers.sort()).toEqual([
+      "components/auth/inAppSigninCopy.ts",
+      "components/guestPay/GuestPaySheet.tsx",
+      "utils/authSignal.ts",
+      "utils/inAppBrowserLinks.ts",
+    ]);
+  });
+
+  it("an Android web view without DOM storage (localStorage === null) is off — React reads it as NOT a first visit", async () => {
+    Object.defineProperty(window.navigator, "userAgent", { value: YOUTUBE, configurable: true });
+    withoutStorage("localStorage");
+    expect(runPage(page()).innerHTML).toBe("");
+    expect(document.documentElement.getAttribute(PAINT_STATE_ATTR)).toBe("off");
+    // ...because the app's own first-visit read says "not first" there (placeholder, then a random question).
+    vi.resetModules();
+    const fresh = await import("../components/ciDemo/ladderVisit");
+    expect(fresh.isFirstLadderVisit()).toBe(false);
+    expect(typeof isFirstLadderVisit).toBe("function");
+  });
+
+  it("a missing sessionStorage is off too", () => {
+    withoutStorage("sessionStorage");
+    expect(runPage(page()).innerHTML).toBe("");
+    expect(document.documentElement.getAttribute(PAINT_STATE_ATTR)).toBe("off");
+  });
+
+  it("the capture's parity matrix runs the in-app user agents as doors and the storage-less web view as off", () => {
+    const inApp = CI_PARITY_CASES.filter((k) => inAppBrowser(k.userAgent) !== null);
+    expect(inApp.filter((k) => k.expect === "door").map((k) => inAppBrowser(k.userAgent)).sort()).toEqual(
+      expect.arrayContaining(["facebook", "instagram", "youtube"]),
+    );
+    expect(inApp.some((k) => k.expect === "door" && /iPhone/.test(k.userAgent))).toBe(true);
+    expect(inApp.some((k) => k.width === 412 && k.expect === "door")).toBe(true);
+    expect(CI_PARITY_CASES.filter((k) => k.seed === "no-dom-storage").map((k) => k.expect)).toEqual(["off"]);
   });
 });

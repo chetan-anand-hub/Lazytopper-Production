@@ -6,22 +6,98 @@
  * is a no-op when the element is already fully visible (desktop), and the element's `scroll-margin-bottom`
  * (the `.ci-nav-clear` class: --mob-nav-height + safe-area) keeps it above the nav when it does scroll.
  * Smooth unless the student prefers reduced motion. Never throws (jsdom has no scrollIntoView).
+ *
+ * SPEED-CI-3 (review of #1641, B1) — `keep`: an element that must STAY on screen. The ladder passes its mark line
+ * ("✓ 1/1" / "✗ 0/1 Right answer: …"): a verdict box taller than the screen used to be aligned by its top, which
+ * scrolled the student's own mark (and the coloured options) above the screen. With `keep`, the page scrolls only as
+ * far as the box needs AND never past `keep`'s top (less its `scroll-margin-top`); if `keep` itself is off-screen it is
+ * brought in. No height is assumed: everything is read from the laid-out page.
  */
 import { useEffect, type RefObject } from "react";
 
-export function useClearBottomNav(ref: RefObject<HTMLElement | null>, active: boolean): void {
+/** How far to scroll (px, + = down) so `box`'s bottom clears the nav without `keep`'s top leaving the screen. Pure. */
+export function clearScrollDelta(
+  box: { bottom: number },
+  keep: { top: number; bottom: number },
+  view: { height: number; bottomClear: number; topClear: number },
+): number {
+  const floor = view.height - view.bottomClear;
+  if (keep.top < view.topClear) return keep.top - view.topClear; // the mark is above the screen: bring it back
+  const want = box.bottom - floor; // what the box needs to clear the nav
+  if (want <= 0) return 0;
+  return Math.max(0, Math.min(want, keep.top - view.topClear)); // ...but never past the mark
+}
+
+/** The student's own input: any of these cancels a pending correction (a scroll starts with one of them). */
+const USER_INPUT = ["touchstart", "touchmove", "pointerdown", "wheel", "keydown"] as const;
+
+function px(value: string): number {
+  const n = parseFloat(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+export function useClearBottomNav(
+  ref: RefObject<HTMLElement | null>,
+  active: boolean,
+  keep?: RefObject<HTMLElement | null>,
+): void {
   useEffect(() => {
     if (!active) return;
     const el = ref.current;
-    if (!el || typeof el.scrollIntoView !== "function") return;
+    if (!el) return;
     let reduced = false;
     try {
       reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     } catch {
       reduced = false;
     }
-    el.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
-    // Once per activation; the ref is stable.
+    const behavior: ScrollBehavior = reduced ? "auto" : "smooth";
+    const mark = keep?.current ?? null;
+    if (!mark) {
+      if (typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "nearest", behavior });
+      return;
+    }
+    let check: number | undefined;
+    const disarm = () => {
+      for (const type of USER_INPUT) window.removeEventListener(type, cancel, true);
+    };
+    function cancel() {
+      if (check !== undefined) window.clearTimeout(check);
+      check = undefined;
+      disarm();
+    }
+    try {
+      const style = window.getComputedStyle(el);
+      const topClear = px(window.getComputedStyle(mark).scrollMarginTop);
+      const dy = clearScrollDelta(el.getBoundingClientRect(), mark.getBoundingClientRect(), {
+        height: window.innerHeight,
+        bottomClear: px(style.scrollMarginBottom),
+        topClear,
+      });
+      if (dy !== 0 && typeof window.scrollBy === "function") {
+        window.scrollBy({ top: dy, behavior });
+        // A smooth scroll can be cut short (measured: it stopped 50 px early once, leaving the mark above the screen).
+        // Once it has had time to finish, a mark still off the screen is put back at once, at its margin — UNLESS the
+        // student has touched, scrolled or typed since (review of #1641, B4: their own scroll must never be yanked back).
+        check = window.setTimeout(() => {
+          check = undefined;
+          disarm();
+          try {
+            const k = mark.getBoundingClientRect();
+            if (k.top < 0 || k.bottom > window.innerHeight) window.scrollBy({ top: k.top - topClear, behavior: "auto" });
+          } catch {
+            /* never throws */
+          }
+        }, 900);
+        for (const type of USER_INPUT) window.addEventListener(type, cancel, { capture: true, passive: true });
+      }
+    } catch {
+      /* never throws */
+    }
+    return () => {
+      cancel();
+    };
+    // Once per activation; the refs are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 }

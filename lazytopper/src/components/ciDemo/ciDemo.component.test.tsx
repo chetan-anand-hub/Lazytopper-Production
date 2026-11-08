@@ -315,7 +315,8 @@ describe("CI-SOFT-1 card — B1: a sample is never presented as the student's ow
   it("★ the only rule that hides anything is the paper column's: the head can never be hidden by the CSS", () => {
     const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
     const hidden = [...css.matchAll(/([^{}]+)\{[^{}]*display:\s*none[^{}]*\}/g)].map((m) => m[1].trim());
-    expect(hidden).toEqual([".ci-demo--result .ci-demo__paperCol"]);
+    // SPEED-CI-3: plus the buying block's late pack rows, held out of the layout until they cannot move the view.
+    expect(hidden).toEqual([".ci-demo--result .ci-demo__paperCol", '.ci-demo__ladder[data-rows-wait] [data-testid="offers-packs"]']);
   });
 });
 

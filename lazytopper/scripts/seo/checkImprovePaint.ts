@@ -25,15 +25,22 @@
  * other than ad attribution (and not the parent-share pair `cameFromSharedLink` reacts to), an EMPTY
  * sessionStorage (drafts, the ladder marker, the visit source, the sign-in intent all live there),
  * nothing in localStorage but the keys a plain signed-out visit writes (so no sign-in trace: the active
- * uid, Firebase's own keys, a subscription cache, a local session), no router state, not an in-app
- * browser, the width / pointer the served capture was taken at (useIsDesktop at 1024 px,
- * `useCoarsePointer`), and inside the pricing clock window of the capture. Anything else: `off`.
+ * uid, Firebase's own keys, a subscription cache, a local session), no router state, the width / pointer
+ * the served capture was taken at (useIsDesktop at 1024 px, `useCoarsePointer`), and inside the pricing
+ * clock window of the capture. Anything else: `off`.
+ *
+ * ★ IN-APP BROWSERS GET THE DOOR TOO (SPEED-CI-3). #1635 copied /login's "in-app: off" rule, whose reason
+ * is /login's own (its in-app note and "Open in Chrome" handoff are not captured). Nothing in this page's
+ * first frame reads the user agent (only Login.tsx and the guest pay sheet do), and the capture's parity
+ * matrix runs the YouTube / Instagram / Facebook / iOS web-view user agents to keep it so. What a web view
+ * CAN differ in is storage: an Android WebView without DOM storage has `window.localStorage === null`
+ * (no throw), which React reads as "not a first visit" (ladderVisit.ts) — so a missing storage object is
+ * "unreadable" here, exactly like one that throws, and that is `off`.
  *
  * ⚠ Like loginPaint.ts, the browser-side functions are shipped as source: self-contained, no imports
  * used inside them, no module-scope references.
  */
 
-import { inAppBrowser } from "../../src/utils/inAppBrowser";
 import { STARTER_ROWS } from "../../src/components/ciDemo/oneMinuteStarterRows";
 import { LADDER_CHECKING } from "../../src/components/ciDemo/ladderCopy";
 import {
@@ -108,8 +115,6 @@ export interface CiPaintEnv {
   sessionKeys: string[];
   local: Array<[string, string | null]>;
   historyUsr: unknown;
-  userAgent: string;
-  standalone: boolean;
   narrow: boolean;
   wide: boolean;
   coarse: boolean;
@@ -144,18 +149,15 @@ export interface CiPaintDecision {
   demo?: CiDemoPaint;
 }
 
-export function decideCheckImprovePaint(
-  env: CiPaintEnv,
-  config: CiPaintConfig,
-  helpers: { inApp: (userAgent: string, standalone: boolean) => unknown },
-): CiPaintDecision {
+export function decideCheckImprovePaint(env: CiPaintEnv, config: CiPaintConfig): CiPaintDecision {
   var off = function (reason: string): CiPaintDecision {
     return { kind: "off", reason: reason };
   };
   if (!(env.now >= config.clockFrom && env.now < config.clockUntil)) return off("clock");
   // useIsDesktop (1024 px) and useCoarsePointer must render what the served capture holds.
   if (config.variant === "mobile" ? !(env.narrow && env.coarse) : !(env.wide && !env.coarse)) return off("variant");
-  if (helpers.inApp(env.userAgent, env.standalone) !== null) return off("in-app");
+  // SPEED-CI-3: no user-agent rule. An in-app browser (YouTube, Instagram, Facebook, any web view) renders the same
+  // first frame; its one real difference, storage, is caught by gather() as "unreadable" below.
   if (env.historyUsr !== null && env.historyUsr !== undefined) return off("router-state");
   if (env.sessionKeys.length > 0) return off("session-storage");
   for (var i = 0; i < env.local.length; i += 1) {
@@ -191,7 +193,6 @@ export function decideCheckImprovePaint(
 /** What the decision reads, read before the app runs. Browser-only; shipped as source. */
 export function gatherCheckImprovePaintEnv(): CiPaintEnv {
   var w = window as Window & typeof globalThis;
-  var nav = (w.navigator || {}) as Navigator & { standalone?: boolean };
   var matches = function (query: string): boolean {
     try {
       return typeof w.matchMedia === "function" && w.matchMedia(query).matches;
@@ -200,16 +201,19 @@ export function gatherCheckImprovePaintEnv(): CiPaintEnv {
     }
   };
   var sessionKeys: string[] = [];
+  // SPEED-CI-3: a web view without DOM storage has NO storage object (null, not a throw): unreadable, like a throw.
   try {
     var s = w.sessionStorage;
-    for (var i = 0; s && i < s.length; i += 1) sessionKeys.push(String(s.key(i)));
+    if (!s) throw new Error("no sessionStorage");
+    for (var i = 0; i < s.length; i += 1) sessionKeys.push(String(s.key(i)));
   } catch (e) {
     sessionKeys = ["unreadable"];
   }
   var local: Array<[string, string | null]> = [];
   try {
     var l = w.localStorage;
-    for (var j = 0; l && j < l.length; j += 1) {
+    if (!l) throw new Error("no localStorage");
+    for (var j = 0; j < l.length; j += 1) {
       var k = String(l.key(j));
       local.push([k, l.getItem(k)]);
     }
@@ -228,8 +232,6 @@ export function gatherCheckImprovePaintEnv(): CiPaintEnv {
     sessionKeys: sessionKeys,
     local: local,
     historyUsr: usr === undefined ? null : usr,
-    userAgent: String(nav.userAgent || ""),
-    standalone: nav.standalone === true,
     narrow: matches("(max-width: 1023px)"),
     wide: matches("(min-width: 1024px)"),
     coarse: matches("(pointer: coarse)"),
@@ -295,7 +297,6 @@ function prelude(config: CiPaintConfig): string {
   return (
     `var __name=function(f){return f};` +
     `var config=${JSON.stringify(config)};` +
-    `var helpers={inApp:(${inAppBrowser.toString()})};` +
     `var decide=(${decideCheckImprovePaint.toString()});` +
     `var gather=(${gatherCheckImprovePaintEnv.toString()});` +
     `var apply=(${applyPaintKind.toString()});` +
@@ -306,7 +307,7 @@ function prelude(config: CiPaintConfig): string {
 
 /** An expression: the decision this page's environment yields right now (the capture's init script). */
 export function checkImprovePaintDecisionSource(config: CiPaintConfig): string {
-  return `(function(){${prelude(config)}return decide(gather(),config,helpers);})()`;
+  return `(function(){${prelude(config)}return decide(gather(),config);})()`;
 }
 
 /**
@@ -317,7 +318,7 @@ export function checkImprovePaintDecisionSource(config: CiPaintConfig): string {
 export function checkImprovePaintScript(config: CiPaintConfig): string {
   const body =
     `(function(){var root=document.getElementById("root");try{${prelude(config)}` +
-    `var seen=gather();var decision=decide(seen,config,helpers);` +
+    `var seen=gather();var decision=decide(seen,config);` +
     `var shown=apply(root,decision.kind,config.attr);` +
     // The hour of the same instant the decision read (env.now), on the device's own clock.
     `if(shown!=="off")greet(root,new Date(seen.now).getHours());` +
