@@ -92,7 +92,7 @@ describe("T1 — the App Check warm-up waits for the visitor's first intent", ()
     await settle();
     expect(H.ensure).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
     await settle();
     expect(H.ensure).not.toHaveBeenCalled();
     const answer = screen.getByLabelText("Type your answer");
@@ -105,7 +105,7 @@ describe("T1 — the App Check warm-up waits for the visitor's first intent", ()
   it("opening the answer file picker warms it", async () => {
     renderPage();
     await screen.findByLabelText("Type the question");
-    fireEvent.click(screen.getByRole("button", { name: "Upload image" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Upload image" }));
     await settle();
     expect(H.ensure).not.toHaveBeenCalled();
     const input = document.querySelector('input[type="file"][accept="image/jpeg,image/png,application/pdf"]') as HTMLInputElement;
@@ -120,7 +120,7 @@ describe("T1 — the App Check warm-up waits for the visitor's first intent", ()
     try {
       renderPage();
       await settle();
-      const answerTab = screen.queryByRole("button", { name: "Type answer" });
+      const answerTab = screen.queryByRole("tab", { name: "Type answer" });
       if (answerTab) {
         fireEvent.click(answerTab);
         act(() => {

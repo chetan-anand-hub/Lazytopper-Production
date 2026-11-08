@@ -149,7 +149,7 @@ async function readQuestion() {
   await act(async () => {});
 }
 function typeAnswer(value: string) {
-  fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+  fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
   fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value } });
 }
 async function clickGrade() {
@@ -190,7 +190,7 @@ describe("MOMENTS-1 M4 · the answer step (first session)", () => {
   it("★★ guide arm, zero graded: Byte's line for the Type tab, then the Upload tab's line", async () => {
     render(page());
     await waitFor(() => expect(lineOf("m4")).toBe("Write every step. CBSE gives marks for each one."));
-    fireEvent.click(screen.getByRole("button", { name: "Upload image" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Upload image" }));
     await waitFor(() => expect(lineOf("m4")).toBe("Flat page, good light, whole answer in the photo."));
     expect(moment("m4")!.getAttribute("data-kind")).toBe("byte");
   });
@@ -338,7 +338,7 @@ describe("MOMENTS-1 M9 · the signed-out free check from a shared link", () => {
   it("not from a shared link → nothing", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
     render(page("/check-improve"));
-    await screen.findByRole("button", { name: "Upload image" });
+    await screen.findByRole("tab", { name: "Upload image" });
     await act(async () => {});
     expect(moment("m9")).toBeNull();
   });
@@ -353,7 +353,7 @@ describe("MOMENTS-1 M9 · the signed-out free check from a shared link", () => {
   it("★★ 'Hide mascots' on the device → nothing", async () => {
     hideMascots();
     render(page("/check-improve?utm_source=parent_share&utm_medium=whatsapp"));
-    await screen.findByRole("button", { name: "Upload image" });
+    await screen.findByRole("tab", { name: "Upload image" });
     await act(async () => {});
     await act(async () => {});
     expect(moment("m9")).toBeNull();

@@ -144,7 +144,7 @@ async function typeAndReadQuestion(text = "Prove that root 2 is irrational.") {
 }
 
 function typeAnswer(value: string) {
-  fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+  fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
   fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value } });
 }
 
