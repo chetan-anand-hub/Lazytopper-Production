@@ -59,7 +59,7 @@ function PremiumCard({ selfHref, onRetry }: { selfHref: string; onRetry: () => v
       <button type="button" className="lt-tutor__action" data-testid="tutor-see-board-pass" onClick={() => setSheetOpen(true)}>
         See the Board Pass
       </button>
-      {sheetOpen && <UpgradeSheet featureLabel="The AI tutor" onClose={() => setSheetOpen(false)} />}
+      {sheetOpen && <UpgradeSheet featureLabel="Your personal tutor" onClose={() => setSheetOpen(false)} />}
     </div>
   );
 }

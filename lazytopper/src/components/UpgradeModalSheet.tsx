@@ -1,4 +1,5 @@
 import { PREMIUM_PLUS } from "../config/pricingCompare";
+import { studentFeatureLabel } from "./lock/lockCopy";
 import BoardPassLine from "./pricing/BoardPassLine";
 import type { UseSubscriptionResult } from "../hooks/useSubscription";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -142,7 +143,7 @@ export default function UpgradeModalSheet({
           </h2>
           {featureLabel && (
             <p style={{ fontSize: "0.88rem", color: "#666", margin: 0 }}>
-              <strong>{featureLabel}</strong> needs an active plan
+              <strong>{studentFeatureLabel(featureLabel)}</strong> needs an active plan
             </p>
           )}
         </div>

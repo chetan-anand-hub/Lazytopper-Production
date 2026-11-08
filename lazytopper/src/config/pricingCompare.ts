@@ -156,7 +156,7 @@ export function basicLimits({ freeCheck, limitsOn = limitsCopyOn() }: { freeChec
         : "No handwritten answer checking",
     },
     { id: "steps", label: "No step marks the way a board examiner gives them" },
-    { id: "tutor", label: "No AI tutor" },
+    { id: "tutor", label: "No personal tutor" },
     {
       id: "mi",
       label: limitsOn
@@ -175,7 +175,7 @@ export const PREMIUM_PLUS: readonly PlanItem[] = [
     label: "Answer Checker — photograph your handwritten answer, marked step by step like a board examiner",
   },
   { id: "graded", label: "Chapter tests, full mocks and worksheets graded, not just downloaded" },
-  { id: "tutor", label: "Your AI tutor that knows your chapters, your mistakes, your pace" },
+  { id: "tutor", label: "Your personal tutor that knows your chapters, your mistakes, your pace" },
   { id: "mi", label: "Mistake Intelligence — why you lose marks, not just where" },
   // Opens are uncapped for Premium (MockViewGate: "Premium is unlimited and never reaches
   // this."). Fair use limits GRADING, not opening, so this one claim is true as worded.
@@ -286,7 +286,7 @@ export function compareSections({ freeCheck, limitsOn = limitsCopyOn() }: { free
     {
       title: "Coaching",
       rows: [
-        { label: "AI tutor that knows your chapters and mistakes", basic: NO, premium: YES },
+        { label: "A personal tutor that knows your chapters and mistakes", basic: NO, premium: YES },
         {
           label: "Mistake Intelligence — why you lose marks",
           basic: limitsOn ? text("Summary free; answer-by-answer breakdown Premium") : NO,
