@@ -54,17 +54,34 @@ export function useClearBottomNav(
       if (typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "nearest", behavior });
       return;
     }
+    let check: number | undefined;
     try {
       const style = window.getComputedStyle(el);
+      const topClear = px(window.getComputedStyle(mark).scrollMarginTop);
       const dy = clearScrollDelta(el.getBoundingClientRect(), mark.getBoundingClientRect(), {
         height: window.innerHeight,
         bottomClear: px(style.scrollMarginBottom),
-        topClear: px(window.getComputedStyle(mark).scrollMarginTop),
+        topClear,
       });
-      if (dy !== 0 && typeof window.scrollBy === "function") window.scrollBy({ top: dy, behavior });
+      if (dy !== 0 && typeof window.scrollBy === "function") {
+        window.scrollBy({ top: dy, behavior });
+        // A smooth scroll can be cut short (measured: it stopped 50 px early once, leaving the mark above the screen).
+        // Once it has had time to finish, a mark still off the screen is put back at once, at its margin.
+        check = window.setTimeout(() => {
+          try {
+            const k = mark.getBoundingClientRect();
+            if (k.top < 0 || k.bottom > window.innerHeight) window.scrollBy({ top: k.top - topClear, behavior: "auto" });
+          } catch {
+            /* never throws */
+          }
+        }, 900);
+      }
     } catch {
       /* never throws */
     }
+    return () => {
+      if (check !== undefined) window.clearTimeout(check);
+    };
     // Once per activation; the refs are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);

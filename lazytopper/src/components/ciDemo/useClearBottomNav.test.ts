@@ -2,8 +2,10 @@
  * SPEED-CI-3 (review of #1641, B1) — the ladder's bring-into-view never scrolls the student's mark line off the screen.
  * Geometry of the real phones the reviewer measured (viewport heights 640-915, BottomNav 60 px + margin).
  */
-import { describe, expect, it } from "vitest";
-import { clearScrollDelta } from "./useClearBottomNav";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createElement, useRef } from "react";
+import { render } from "@testing-library/react";
+import { clearScrollDelta, useClearBottomNav } from "./useClearBottomNav";
 
 const view = (height: number) => ({ height, bottomClear: 72, topClear: 12 });
 
@@ -33,5 +35,41 @@ describe("clearScrollDelta", () => {
   it("a mark below the screen is brought in even when the box is huge", () => {
     const dy = clearScrollDelta({ bottom: 3000 }, { top: 700, bottom: 721 }, view(640));
     expect(700 - dy).toBe(12);
+  });
+});
+
+describe("useClearBottomNav with a mark to keep", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+  it("a smooth scroll cut short is corrected once: a mark still off the screen is put back at once", () => {
+    vi.useFakeTimers();
+    const by = vi.fn();
+    const orig = window.scrollBy;
+    window.scrollBy = by as unknown as typeof window.scrollBy;
+    let markTop = -120;
+    function Probe() {
+      const box = useRef<HTMLDivElement>(null);
+      const mark = useRef<HTMLParagraphElement>(null);
+      useClearBottomNav(box, true, mark);
+      return createElement("div", null, createElement("p", { ref: mark }), createElement("div", { ref: box }));
+    }
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const tag = this.tagName;
+      const r = (top: number, bottom: number) => ({ top, bottom, left: 0, right: 0, width: 0, height: bottom - top, x: 0, y: top, toJSON: () => ({}) }) as DOMRect;
+      return tag === "P" ? r(markTop, markTop + 21) : r(markTop + 250, markTop + 1500);
+    });
+    try {
+      render(createElement(Probe));
+      expect(by).toHaveBeenCalledTimes(1);
+      expect(by.mock.calls[0][0]).toMatchObject({ top: -120 });
+      markTop = -38; // the smooth scroll stopped early
+      vi.advanceTimersByTime(1000);
+      expect(by).toHaveBeenCalledTimes(2);
+      expect(by.mock.calls[1][0]).toEqual({ top: -38, behavior: "auto" });
+    } finally {
+      window.scrollBy = orig;
+    }
   });
 });
