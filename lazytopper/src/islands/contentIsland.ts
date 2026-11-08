@@ -73,6 +73,14 @@ export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal"
 export const FOOTER_UNWATCHED_PATHS: readonly string[] = ["/ncert-class-10"];
 /** The desktop header row where the app shows "Log in" (signed out): its presence means "desktop variant". */
 export const AUTH_REGION = '[data-testid="pending-bell"]';
+/**
+ * SPEED-ISLANDS-2 — the CBQ chapter pages carry App.tsx's top `.navbar` on BOTH variants; its sign-in slot (Log in /
+ * the avatar) is app-only and served empty. On a desktop-width window it gets the desktop rule above (the app on
+ * idle, so "Log in" appears as on the phase-1 desktop pages); on a phone it stays empty until the app loads (the
+ * visitor's first app tap or the pack card) — the phone's whole saving depends on not booting the app on idle.
+ */
+export const NAVBAR_AUTH_SLOT = ".navbar";
+export const DESKTOP_MIN_WIDTH_PX = 1024;
 
 /**
  * Byte's peek on a notes page (GUIDE-PUBLIC-1, PublicPeek.tsx) is app-rendered: it shows once per tab after
@@ -987,7 +995,8 @@ function watchPeek(): void {
 export function watchAppRegions(): void {
   watchPeek();
   // Desktop variant: the header's sign-in button is the app's. Load the app once the page is idle.
-  if (document.querySelector(AUTH_REGION)) afterLoad(() => onIdle(upgrade, 2000));
+  const desktopWidth = window.innerWidth >= DESKTOP_MIN_WIDTH_PX;
+  if (document.querySelector(AUTH_REGION) || (desktopWidth && document.querySelector(NAVBAR_AUTH_SLOT))) afterLoad(() => onIdle(upgrade, 2000));
   const unwatched = FOOTER_UNWATCHED_PATHS.includes(window.location.pathname) ? ["footer.lt-public-legal"] : [];
   const regions = APP_ONLY_REGIONS.filter((sel) => !unwatched.includes(sel)).flatMap((sel) => [...document.querySelectorAll(sel)]);
   if (regions.length === 0) return;

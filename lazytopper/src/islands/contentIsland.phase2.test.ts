@@ -234,6 +234,22 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     expect(observed.map((e) => e.className).sort()).toEqual(["lt-cbqs__cta lt-cbqs__cta--pack", "lt-public-legal"]);
   });
 
+  it("CBQ navbar sign-in slot: a desktop-width window loads the app on idle (Log in appears); a phone stays an island", async () => {
+    const at = async (width: number) => {
+      Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+      window.history.replaceState(null, "", "/cbq-class-10/electricity");
+      __resetIslandForTests();
+      document.head.innerHTML = ISLAND_TAG;
+      document.body.innerHTML = '<div id="root"><div class="navbar"><a href="/">LazyTopper</a><div></div></div><main></main></div>';
+      await boot();
+      await new Promise((r) => setTimeout(r, 2200)); // onIdle's fallback timeout (jsdom has no requestIdleCallback)
+      return state();
+    };
+    expect(await at(1280)).toBe("upgrading");
+    expect(await at(360)).toBe("island");
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
+  }, 10_000);
+
   it("the NCERT Hub does not watch its footer (only the lazy 'PDF packs' link, never in the markup): it stays an island", async () => {
     window.history.replaceState(null, "", "/ncert-class-10");
     __resetIslandForTests();
