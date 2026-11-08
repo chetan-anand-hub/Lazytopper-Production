@@ -53,7 +53,7 @@ function shop(url: string) {
   return render(
     <MemoryRouter initialEntries={[url]}>
       <Routes>
-        <Route path="/packs" element={<PacksShop>{() => null}</PacksShop>} />
+        <Route path="/packs" element={<PacksShop>{() => <p data-testid="shop-children">shop</p>}</PacksShop>} />
         <Route path="/pricing" element={<PacksShop embedded returnPath="/pricing">{() => null}</PacksShop>} />
       </Routes>
     </MemoryRouter>,
@@ -76,13 +76,14 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("BRIDGE-PANEL-1 · mount", () => {
-  it("/packs, signed-in owner: the panel sits in My packs after the pack card, with the Board Pass card", async () => {
+  it("/packs, signed-in owner: the panel is its own section BELOW the shop (never inside My packs above the hero), with the Board Pass card", async () => {
     shop("/packs#my-packs");
     const panel = await screen.findByTestId("packs-bridge");
     const mine = screen.getByTestId("packs-mine");
-    expect(mine.contains(panel)).toBe(true);
-    const card = screen.getByTestId("packs-owned");
-    expect(card.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(mine.contains(panel)).toBe(false);
+    expect(screen.getByTestId("packs-bridge-section").contains(panel)).toBe(true);
+    const shopEnd = screen.getByTestId("shop-children");
+    expect(shopEnd.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("packs-bridge-pass")).toBeTruthy();
   });
 
@@ -116,18 +117,14 @@ describe("BRIDGE-PANEL-1 · mount", () => {
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
   });
 
-  it("ONE commit: My packs is not revealed until the panel is ready, then the cards and the panel appear together", async () => {
+  it("My packs never waits for the panel; the panel appears once, complete, when its chunk + reads are ready", async () => {
     let release!: () => void;
     hook.hold = new Promise<void>((r) => (release = r));
     shop("/packs");
-    await waitFor(() => expect(hook.calls).toBe(1));
-    await new Promise((r) => setTimeout(r, 30));
-    expect(screen.queryByTestId("packs-owned")).toBeNull();
+    expect(await screen.findByTestId("packs-owned")).toBeTruthy();
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
     release();
-    const card = await screen.findByTestId("packs-owned");
-    expect(screen.getByTestId("packs-bridge")).toBeTruthy();
-    expect(card).toBeTruthy();
+    expect(await screen.findByTestId("packs-bridge")).toBeTruthy();
   });
 
   it("the panel is prepared only for an owner (no chunk, no reads for a signed-in student with no pack)", async () => {
@@ -138,10 +135,11 @@ describe("BRIDGE-PANEL-1 · mount", () => {
     expect(hook.calls).toBe(0);
   });
 
-  it("a panel whose reads never finish: after the cap My packs is revealed WITHOUT it (and it never pops in)", async () => {
+  it("a panel whose reads never finish: My packs shows at once and the panel never appears", async () => {
     hook.never = true;
     shop("/packs");
-    expect(await screen.findByTestId("packs-owned", {}, { timeout: 4000 })).toBeTruthy();
+    expect(await screen.findByTestId("packs-owned")).toBeTruthy();
+    await new Promise((r) => setTimeout(r, 2700));
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
   });
 

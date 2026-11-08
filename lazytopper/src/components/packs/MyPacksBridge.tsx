@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { trackSaleMoment } from "../../analytics/analytics";
-import type { OwnedPack } from "../../services/packs";
+import { trackPackEvent } from "../../lib/packs/packAnalytics";
+import type { OwnedPack, PackSku } from "../../services/packs";
+import {
+  NOT_NOW_LABEL,
+  passOffersSnoozed,
+  pickPassOwnerOffer,
+  snoozePassOffers,
+  type PassOwnerOffer,
+} from "../passOwnerOffers/passOwnerOffersModel";
 import type { SessionRecord } from "../../services/sessionRecords";
 import { roundMarks } from "../../lib/mistakeDisplay";
 import type { BridgeData } from "./useMyPacksBridge";
@@ -46,6 +54,8 @@ export interface MyPacksBridgeProps {
   data: BridgeData;
   /** The pack's display title (PacksShop's `ownedPackTitle`, passed in so this chunk does not import the shop back). */
   titleOf: (pack: OwnedPack) => string;
+  /** A confirmed Board Pass holder's pack card "Buy": the shop's own central buy path (pop-up + checkout), never new checkout code. */
+  onBuyPack: (sku: PackSku, target: string | undefined) => void;
   /** Open (and scroll to) one pack's file list - the existing My packs mechanism. */
   onOpenFiles: (packId: string) => void;
 }
@@ -192,16 +202,58 @@ function BoardPassCard() {
   );
 }
 
-export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles }: MyPacksBridgeProps) {
+/**
+ * A confirmed Board Pass holder's ONE quiet packs card (PASS-OWNER-PACKS-1 rules and copy). Analytics reuse that feature's existing
+ * events: `pack_view` (surface "pass_me") once when shown; the Buy tap goes through the shop's handleBuy, which sends `pack_checkout`
+ * with from "pass_me". "Not now" is that feature's one-day, all-offers hide on this device.
+ */
+function HolderPacksCard({ offer, onBuy, onNotNow }: { offer: PassOwnerOffer; onBuy: (sku: PackSku, target: string | undefined) => void; onNotNow: () => void }) {
+  const sent = useRef(false);
+  const firstSku = offer.items[0]?.sku;
+  useEffect(() => {
+    if (!firstSku || sent.current) return;
+    sent.current = true;
+    trackPackEvent("pack_view", firstSku, "pass_me");
+  }, [firstSku]);
+  return (
+    <aside className="lt-pb__pass lt-pb__holder" aria-label="Printed practice packs" data-testid="packs-bridge-holder">
+      <span className="lt-pb__kicker">PDF packs</span>
+      <p className="lt-pb__holderlead">{offer.lead}</p>
+      <div className="lt-pb__holderrow">
+        {offer.items.map((item) => (
+          <button
+            key={`${item.sku}:${item.target ?? "all"}`}
+            type="button"
+            className="lt-pb__holderbuy"
+            onClick={() => onBuy(item.sku, item.target)}
+            data-testid={`packs-bridge-holder-buy-${item.sku}${item.target ? `-${item.target}` : ""}`}
+          >
+            {item.label}
+          </button>
+        ))}
+        <button type="button" className="lt-pb__holderlater" onClick={onNotNow} data-testid="packs-bridge-holder-not-now">
+          {NOT_NOW_LABEL}
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuyPack }: MyPacksBridgeProps) {
   const { records, allowance, paidPass } = data;
   const { groups, first } = useMemo(() => bridgeView(packs, records, { paidPass, allowance }), [packs, records, paidPass, allowance]);
   // The Board Pass card only to an owner KNOWN not to hold a paid Board Pass (never on a guess, never its view event either).
   const showPass = !paidPass && data.entitlementKnown;
+  // Owner ruling 8 Nov 22:11: a CONFIRMED Board Pass holder gets ONE quiet packs card in the same place instead (PASS-OWNER-PACKS-1's
+  // "pass_me" rule: the CBQ Packs they do not own, else the Bundle, else nothing), from the SERVER's owned list (`packs` = /api/packs/mine).
+  const [snoozed, setSnoozed] = useState<boolean>(() => passOffersSnoozed(Date.now()));
+  const holderOffer = paidPass && data.entitlementKnown && !snoozed ? pickPassOwnerOffer("pass_me", {}, packs) : null;
   if (packs.length === 0) return null;
   const hasPapers = groups.length > 0;
-  if (!first && !hasPapers && !showPass) return null;
+  const side = showPass || holderOffer !== null;
+  if (!first && !hasPapers && !side) return null;
   return (
-    <div className={`lt-pb${!showPass ? " lt-pb--nopass" : ""}${!first && !hasPapers ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">
+    <div className={`lt-pb${!side ? " lt-pb--nopass" : ""}${!first && !hasPapers ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">
       {(first || hasPapers) && (
       <div className="lt-pb__main">
         {first && <FirstMarkedCard first={first} />}
@@ -224,6 +276,16 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles }: MyP
       </div>
       )}
       {showPass && <BoardPassCard />}
+      {holderOffer && (
+        <HolderPacksCard
+          offer={holderOffer}
+          onBuy={onBuyPack}
+          onNotNow={() => {
+            snoozePassOffers(Date.now());
+            setSnoozed(true);
+          }}
+        />
+      )}
     </div>
   );
 }

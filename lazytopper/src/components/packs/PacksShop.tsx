@@ -60,7 +60,7 @@ import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
-// BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card in My packs: prepared BEFORE My packs is revealed (one commit).
+// BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card for pack owners: chunk + data prepared in one step, rendered complete.
 import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPacksBridgeLoader";
 import "../../pages/packs.css";
 
@@ -412,15 +412,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [eventItems, setEventItems] = useState<ClaimedItem[] | null>(null);
   const claimedItems = eventItems ?? (user ? readRecentClaim(user.uid) : []);
   const paidPass = usePaidPremium();
-  // BRIDGE-PANEL-1 (review #1645 B1): for a pack OWNER on /packs, the panel's chunk + data are prepared first and My packs is revealed
-  // with the cards and the panel in ONE commit (capped; on failure / cap, without the panel). Only the FIRST reveal waits; a later
-  // change of packs (a claim) keeps My packs on screen and swaps the panel in when it is ready.
+  // BRIDGE-PANEL-1 (review #1645 B1): for a pack OWNER on /packs, the panel's chunk + data are prepared in ONE step (capped; on failure /
+  // cap there is no panel this visit) and it renders complete, never growing afterwards. It sits in its own section BELOW the shop:
+  // My packs is inserted above the already-painted hero, so anything added there pushes the visible page down (measured: the panel
+  // inside My packs, even in the same commit as the cards, took /packs CLS from 0.38 to 0.85 at 360 and 0.20 to 0.71 at 1280).
   const [bridge, setBridge] = useState<{ key: string; ready: BridgeReady | null } | null>(null);
   const bridgeWanted = !embedded && !hideMyPacks && Boolean(user) && mine !== null && mine.packs.length > 0 && hasLicenseeContact(mine.licensee);
   const bridgeKey = bridgeWanted && user && mine ? `${user.uid}|${mine.packs.map((p) => p.packId).join(",")}` : "";
   // Another account's prepared panel never shows (a sign-in switch on the same page).
   const bridgeMine = bridge !== null && Boolean(user) && bridge.key.startsWith(`${user?.uid}|`);
-  const bridgeSettled = !bridgeWanted || bridgeMine;
   const bridgeKeyRef = useRef("");
   useEffect(() => {
     if (!bridgeKey || bridgeKeyRef.current === bridgeKey) return;
@@ -555,7 +555,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }));
     timers.push(window.setTimeout(assert, 300), window.setTimeout(assert, 900), window.setTimeout(stop, 950));
     return stop;
-  }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled]);
+  }, [location.hash, mine, myPacksMounted, signedOutMine]);
 
   /** GST-FU-1 review F4: a ?buy= resume held at the pop-up's Pay (remembered state) - the pack and the link's source. */
   const heldResume = useRef<{ key: string; from?: PackCheckoutFrom } | null>(null);
@@ -846,7 +846,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
   // PACKS-CLS-1: the Subject / Bundle total is still loading - the pop-up holds its "Questions" row (no jump when it lands).
   const dialogCounting = (openSku === "pack_subject" || openSku === "pack_bundle") && dialogQuestions === null && !countsFailed;
-  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0 && bridgeSettled));
+  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
   // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
   const [namePromptDone, setNamePromptDone] = useState(false);
   const askName =
@@ -893,14 +893,6 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               </p>
             )}
             {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
-            {/* BRIDGE-PANEL-1: buyers only (this section renders only for an owner), never in the /pricing strip (embedded). */}
-            {!embedded && mine && hasLicenseeContact(mine.licensee) && mine.packs.length > 0 && (
-              bridgeMine && bridge?.ready && (
-                <BridgeBoundary>
-                  <bridge.ready.Panel packs={mine.packs} data={bridge.ready.data} titleOf={ownedPackTitle} onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} />
-                </BridgeBoundary>
-              )
-            )}
             {/* PACK-READY-1: the name is offered AFTER the files, never in front of the first download (PDFs fall back to the masked phone). */}
             {askName && user && mine && (
               <PackNamePrompt
@@ -980,6 +972,32 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       {embedded ? <div className="lt-packs lt-packs--embedded">{mineAndStatus}</div> : mineAndStatus}
 
       {children(api)}
+
+      {/* BRIDGE-PANEL-1: "Get your papers marked" + the Board Pass card, for a signed-in pack owner on /packs only (never embedded,
+          never signed out). Below the shop, so its arrival never moves what the student is looking at. */}
+      {bridgeWanted && showMine && bridgeMine && bridge?.ready && mine && (
+        <section className="lt-packs__getmarked" id="get-marked" aria-label="Get your papers marked" data-testid="packs-bridge-section">
+          <div className="lt-packs__w">
+            <BridgeBoundary>
+              <bridge.ready.Panel
+                packs={mine.packs}
+                data={bridge.ready.data}
+                titleOf={ownedPackTitle}
+                onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))}
+                onBuyPack={(sku, target) => {
+                  // The shop's own buy path (as a ?buy= resume does): that pack's pop-up, then its checkout; from = "pass_me".
+                  if (sku === "pack_chapter" && target) setChapter(target);
+                  else if (target) setSubject(target as PackSubject);
+                  setEntrySlide(0);
+                  setOpenSku(sku);
+                  requestCounts(sku === "pack_chapter" ? target : undefined);
+                  void handleBuy(sku, target, { from: "pass_me" });
+                }}
+              />
+            </BridgeBoundary>
+          </div>
+        </section>
+      )}
 
       {openSku &&
         createPortal(

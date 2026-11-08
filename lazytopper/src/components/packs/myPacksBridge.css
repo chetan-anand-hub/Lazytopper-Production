@@ -3,6 +3,9 @@
  * soft-white Board Pass card. Scoped under `.lt-packs .lt-pb` (a lazy route's stylesheet is global once loaded).
  * Phone first (360px); at 1024px the Board Pass card moves beside the papers. Every control is at least 44px tall.
  */
+/* Its own section below the shop on /packs (review #1645 B1: inside My packs it pushed the painted page down). */
+.lt-packs .lt-packs__getmarked { padding: 8px 0 16px; }
+
 .lt-packs .lt-pb {
   --pb-navy: #0f1b33;
   --pb-card: #16264a;
@@ -14,7 +17,6 @@
   --pb-ink3: #9fb0cc;
   --pb-g: #22a05a;
   --pb-gl: #4ade80;
-  margin-top: 16px;
   background: var(--pb-navy);
   color: var(--pb-ink);
   border-radius: 16px;
@@ -74,6 +76,14 @@
 .lt-packs .lt-pb a.lt-pb__passcta { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 12px; background: #15803d; color: #fff; font-weight: 700; font-size: 15px; text-decoration: none; }
 .lt-packs .lt-pb a.lt-pb__passcta:hover { background: #136b43; }
 .lt-packs .lt-pb__keep { font-size: 12px; color: #46536b; text-align: center; }
+
+/* A confirmed Board Pass holder's one quiet packs card (PASS-OWNER-PACKS-1), in the Board Pass card's place. */
+.lt-packs .lt-pb__holderlead { margin: 0; font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+.lt-packs .lt-pb__holderrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lt-packs .lt-pb__holderbuy { flex: 1 1 auto; min-height: 44px; padding: 10px 14px; border: 0; border-radius: 10px; background: #15803d; color: #fff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.lt-packs .lt-pb__holderbuy:hover { background: #136b43; }
+.lt-packs .lt-pb__holderlater { min-height: 44px; padding: 10px 12px; border: 0; background: transparent; color: #46536b; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.lt-packs .lt-pb__holder :focus-visible { outline: 3px solid #15803d; outline-offset: 2px; }
 
 @media (min-width: 1024px) {
   .lt-packs .lt-pb { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; padding: 24px; }

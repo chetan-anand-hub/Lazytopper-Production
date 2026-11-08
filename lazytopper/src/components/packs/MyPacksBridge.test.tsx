@@ -10,7 +10,11 @@ import type { SessionRecord } from "../../services/sessionRecords";
 import type { GradeAllowance } from "./myPacksBridgeModel";
 
 const data = vi.hoisted(() => ({ records: [] as SessionRecord[], allowance: null as GradeAllowance | null, known: true }));
-const track = vi.hoisted(() => ({ sale: vi.fn() }));
+const track = vi.hoisted(() => ({ sale: vi.fn(), pack: vi.fn() }));
+vi.mock("../../lib/packs/packAnalytics", async (orig) => ({
+  ...(await orig<typeof import("../../lib/packs/packAnalytics")>()),
+  trackPackEvent: (...a: unknown[]) => track.pack(...a),
+}));
 vi.mock("../../analytics/analytics", async (orig) => ({
   ...(await orig<typeof import("../../analytics/analytics")>()),
   trackSaleMoment: (...a: unknown[]) => track.sale(...a),
@@ -41,6 +45,7 @@ function rec(over: Partial<SessionRecord> & Pick<SessionRecord, "id" | "surface"
   } as SessionRecord;
 }
 
+const buyPack = vi.fn();
 function show(props: { packs: Array<typeof chapter>; paidPass?: boolean; onOpenFiles?: (id: string) => void }) {
   return render(
     <MemoryRouter>
@@ -49,6 +54,7 @@ function show(props: { packs: Array<typeof chapter>; paidPass?: boolean; onOpenF
           packs={props.packs}
           titleOf={(p) => `T:${p.packId}`}
           data={{ records: data.records, allowance: data.allowance, paidPass: props.paidPass ?? false, entitlementKnown: data.known }}
+          onBuyPack={buyPack}
           onOpenFiles={props.onOpenFiles ?? (() => undefined)} />
       </div>
     </MemoryRouter>,
@@ -60,6 +66,9 @@ beforeEach(() => {
   data.allowance = null;
   data.known = true;
   track.sale.mockReset();
+  track.pack.mockReset();
+  buyPack.mockReset();
+  localStorage.clear();
 });
 afterEach(cleanup);
 
@@ -79,7 +88,7 @@ describe("BRIDGE-PANEL-1 · the Board Pass card (buyers only, never to a pass ho
     expect(track.sale).toHaveBeenCalledTimes(2);
   });
 
-  it("a paid Board Pass holder sees the papers but NO Board Pass card and no event", () => {
+  it("a paid Board Pass holder sees the papers but NO Board Pass card and no Board Pass event", () => {
     show({ packs: [chapter], paidPass: true });
     expect(screen.queryByTestId("packs-bridge-pass")).toBeNull();
     expect(screen.getAllByTestId("packs-bridge-row")).toHaveLength(3);
@@ -188,8 +197,64 @@ describe("BRIDGE-PANEL-1 · papers and the first-marked card", () => {
     expect(screen.getAllByTestId("packs-bridge-row").map((r) => r.getAttribute("data-code"))).toEqual(["PK-M-RN-CBQ1"]);
   });
 
-  it("a pass holder with only a CBQ pack and nothing to show -> the panel renders nothing", () => {
+  it("a CBQ-only owner whose entitlement is unknown, with no papers yet -> the panel renders nothing", () => {
+    data.known = false;
     show({ packs: [cbq], paidPass: true });
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
+  });
+});
+
+describe("BRIDGE-PANEL-1 · a confirmed Board Pass holder's ONE quiet packs card (owner 8 Nov 22:11, PASS-OWNER-PACKS-1 rules)", () => {
+  const bundle2 = { packId: "pack_bundle:all", sku: "pack_bundle", target: "all", pricePaidInr: 299, paidAt: 9 };
+  const cbqS = { packId: "pack_cbq:science", sku: "pack_cbq", target: "science", pricePaidInr: 99, paidAt: 7 };
+
+  it("holder owning no CBQ pack: the CBQ Packs of both subjects, in the Board Pass card's place; pack_view (pass_me) once; Buy -> the shop's buy path", () => {
+    show({ packs: [chapter], paidPass: true });
+    const card = screen.getByTestId("packs-bridge-holder");
+    expect(card.textContent).toContain("Practising on paper too? The CBQ Packs put the case-based questions in print");
+    expect(screen.getByTestId("packs-bridge-holder-buy-pack_cbq-maths")).toBeTruthy();
+    expect(screen.getByTestId("packs-bridge-holder-buy-pack_cbq-science")).toBeTruthy();
+    expect(track.pack).toHaveBeenCalledTimes(1);
+    expect(track.pack).toHaveBeenCalledWith("pack_view", "pack_cbq", "pass_me");
+    fireEvent.click(screen.getByTestId("packs-bridge-holder-buy-pack_cbq-science"));
+    expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science");
+  });
+
+  it("never an owned pack: owns one CBQ -> only the other; owns both CBQ -> the Bundle; owns everything -> nothing", () => {
+    show({ packs: [chapter, cbqS], paidPass: true });
+    expect(screen.queryByTestId("packs-bridge-holder-buy-pack_cbq-science")).toBeNull();
+    expect(screen.getByTestId("packs-bridge-holder-buy-pack_cbq-maths")).toBeTruthy();
+    cleanup();
+    show({ packs: [chapter, cbq, cbqS], paidPass: true });
+    expect(screen.getByTestId("packs-bridge-holder-buy-pack_bundle")).toBeTruthy();
+    cleanup();
+    show({ packs: [bundle2, cbq, cbqS], paidPass: true });
+    expect(screen.queryByTestId("packs-bridge-holder")).toBeNull();
+  });
+
+  it("not a holder -> the Board Pass card, never the holder card; entitlement unknown -> neither card", () => {
+    show({ packs: [chapter] });
+    expect(screen.queryByTestId("packs-bridge-holder")).toBeNull();
+    expect(screen.getByTestId("packs-bridge-pass")).toBeTruthy();
+    cleanup();
+    data.known = false;
+    show({ packs: [chapter], paidPass: true });
+    expect(screen.queryByTestId("packs-bridge-holder")).toBeNull();
+    expect(screen.queryByTestId("packs-bridge-pass")).toBeNull();
+    expect(track.pack).not.toHaveBeenCalled();
+  });
+
+  it("'Not now' hides it (PASS-OWNER-PACKS-1's one-day, all-offers hide) and it stays hidden on the next visit", () => {
+    show({ packs: [chapter], paidPass: true });
+    fireEvent.click(screen.getByTestId("packs-bridge-holder-not-now"));
+    expect(screen.queryByTestId("packs-bridge-holder")).toBeNull();
+    cleanup();
+    show({ packs: [chapter], paidPass: true });
+    expect(screen.queryByTestId("packs-bridge-holder")).toBeNull();
+  });
+
+  it("a holder with only CBQ packs (no paper rows yet) still gets the card when something is left to offer", () => {
+    show({ packs: [cbq], paidPass: true });
+    expect(screen.getByTestId("packs-bridge-holder-buy-pack_cbq-science")).toBeTruthy();
   });
 });
