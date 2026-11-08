@@ -23,6 +23,94 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-08 (daily, second) - #1637 - #1647 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `1886217`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block.*
+
+**Closed by this window:** `[FU-GST-TEST-ORDERS-14OCT]` CLOSED (owner, 8 Nov 12:10: "yes those two purchases were mine"; orders `order_TnoOI7hNpeRZmM` and `order_TnoU4PmvY04pI0` were his own test payments, no invoice needed). `[FU-BOARDPASS-SERVER-DUP-GUARD]` CLOSED by `#1637`. `[FU-ISLANDS-PHASE-2]` CLOSED by `#1640`. `[FU-CBQ-CHOOSER-A11Y]` CLOSED by `#1638`. `[FU-DESKTOPSHELL-BELL-COMMENT]` CLOSED by `#1638`.
+
+**Still open, carried:** `[FU-RESEND-PRO]` (free plan ends about 14 Nov; then `GST_INVOICE_EMAIL_DAILY_CAP` 10 -> 30), `[FU-PAINT-SHELL-1DEC-RECAPTURE]` (1 Dec 07:56 IST, scheduled task `trig_01UzxeqA73stgGMUBnZCGf2c`, waits for `trig_018RXwjrYd44Vjj8qaA3tGJB`). Their entries in the earlier blocks stand.
+
+### [FU-ENTITLEMENT-PASSEND-FREE]
+
+From the `#1637` review (F4) [reviewer]. An entitlement mismatch: an account whose tier is free but whose pass end date (`passEnd`) is past the board day. Not a blocker for `#1637`. Also open: the same-instant double-order race. Both go to the next money lane.
+
+### [FU-ORDER-REUSE-PARENT-AND-COPY]
+
+ID minted here. `#1637` review items F1 (parent-paid orders and reuse), F2 ("Board Pass" wording for a month-pass holder) and F5 (360/1280 render) were sent to the builder and fixed before the merge at `81ab227`; kept only so the finding trail is complete. F3 stays pre-existing and open: the capture of a second authorised payment on an order that is already paid. Read the `REVIEW_1637.md` before touching `buyPass`.
+
+### [FU-MAIN-ENTRY-FAIL-BLANK]
+
+Pre-existing, found in the `#1639` review (FU3) [reviewer]. If the main entry chunk fails to load, the page is blank instead of showing the existing reload fallback. Not caused by the paint work. Live-check with a chunk 404 before and after any fix.
+
+### [FU-LANDING-OFFER-RESERVE]
+
+`LandingOfferSlot.css` reserves 103 px on the CBQ landing but 60 px elsewhere (pre-existing, shared with `#1629`) [reviewer]. Decided in session to be its own lane. Measure CLS at 360, 412, 768, 1024, 1280, 1440 before and after.
+
+### [FU-CI-EARLYTAP-RESERVES]
+
+After `#1639`: a very early tap on the Answer Checker leaves the Byte line CLS at 0.0249 on 1280 px in 1 of 4 runs, plus the `LandingOfferSlot` reserve above [reviewer]. Target CLS <= 0.01. Related: `#1641` removed the fixed verdict reserve in favour of a rule with no magic height.
+
+### [FU-PAINT-COARSE-LIGHTHOUSE]
+
+Consider a narrow-only mobile variant of the static paint so the PSI run and the Ads landing-page score also see it. Lighthouse reports a COARSE pointer (settled in the `#1641` review: the builder was right, the coordinator wrong). `#1639` live: PSI mobile 63 -> 75, LCP 9.2 -> 3.9 s because the Lighthouse run does not get the static paint. Needs care: Android with a mouse is rare but exists. Idea only; do not build without the owner.
+
+### [FU-ISLAND-LIGHTHOUSE-POINTER]
+
+After `#1640`: the island serves real phones (2 JS requests, TBT 0) but the PSI run gets the app, so CBQ and Hub TBT are unchanged in Lighthouse (PSI mobile HP 93, CBQ 86, Hub 86). Same class as `[FU-PAINT-COARSE-LIGHTHOUSE]`. Decide both together.
+
+### [FU-ISLAND-FOLLOWUPS-PHASE-2]
+
+ID minted here. From the `#1640` review: Hub desktop CLS 0.008 occasionally (the app's late packs link); desktop Log in shows about 1 s late on island pages (the phase 1 rule); offline-before-first-tap leaves a held tap with nowhere to go. All small and below the build target.
+
+### [FU-PRICING-MYPACKS-REDIRECT-CLS]
+
+Owner-approved for the next session (21:29, "record it in the handoff document for the next session, same for small follow ups"). Repoint old `/pricing#my-packs` links at their source (emails, buttons) to `/packs#my-packs`. Do NOT touch `App.tsx` (globally forbidden). Done = no link in the repo or in sent templates still lands on `/pricing#my-packs`; CLS on `/packs#my-packs` not worse at the seven widths.
+
+### [FU-CBQ-H1-RESERVE]
+
+Owner-approved for the next session (21:29). Build-time line-count class for the CBQ chapter H1 (`CbqChapterPage.tsx`), CLS <= 0.01 at 360 and 1280, to be done after the pack group merges. The part held out of `#1638` (G) on purpose.
+
+### [FU-YT-DEMO-VIDEO]
+
+Owner 21:29, in his words: "My recommendation: make it now from real screens we already have. -- record it in the handoff document for the next session ...". A 20-30 s vertical YouTube demo from REAL screens: sample sheet photo -> upload -> scorecard 25.5/31 -> Q7 "-1/2 write the unit (cm)" -> "Check your answer - CBSE examiner style marking - lazytopper.com". Script and storyboard go to the owner first. Reuse `bridge-sample/` (no new grading).
+
+### [FU-CBQ-SAMPLE]
+
+Owner 21:32 (verbatim): "You haven't answered yet on the real marked CBQ sample for CBQ pack pages (about Rs11 of your allowance, once #1643 is live go ahead". APPROVED. After `#1643` is live: write a CBQ set answer sheet with planted mistakes (wrong option, missing unit, calculation slip, concept), grade it on the owner account, verify the types and the objective invariant (CLAUDE.md section 13), and use it as the CBQ pack sample on pages 2-3. Template: `SAMPLE_SHEET_2026-11-08.md`. Also regenerate the CBQ free-sample PDFs and shop preview images (still the old "Part k of n" layout).
+
+### [FU-SHEET-DATE-WS-CACHE]
+
+Small. From `#1647`: a Worksheet graded sheet re-downloaded from a cached or reopened grade on the panel prints NO date (honest fallback) because the stored `gradedAt` in `worksheetSessionStore` is outside that lane's allowlist. Expose `gradedAt` from `getWorksheetGrade` rows, or pass it on `WorksheetReopenGrade`. The history-list download already prints the record's date. `#1647` merged 8 Nov 23:08 IST (`18862176`, PASS-WITH-FU at `09eb85a4`). Other FUs from its review: Quick Practice prints the download time as its date (pre-existing); the hosted sample `/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf` must be re-downloaded from the owner account and re-hosted.
+
+### [FU-MYPACKS-CLS]
+
+Pre-existing: the My packs block is inserted above an already-painted hero, a 0.14-0.48 jump for owners at every width (baseline, not from `#1645`) [reviewer]. Owner 22:45: fix it in this session ("I want to fix it in this session only") by putting My packs and the panel FIRST above the shop for owners and reserving the space (cache/skeleton). That rework is owed on `#1645`; if it does not land fully, this FU stays open with the number measured.
+
+### [FU-PACK-PANEL-FOLLOWUPS]
+
+ID minted here. `#1645` review items for the next round: panel chunk warmed for signed-in non-owners; the full records collection read on each view; the admin label meaning of `sale_moment_*` from `my_packs`; the shown event fires before subscription hydration; trial wording "with Board Pass" after the first free paper while 1 of 7 days remains. **`LIMITS_ENFORCE` must stay ON in Railway:** the static line "Every account gets its first paper of each kind marked free" (pack PDF page 2, panel) is false if it is off.
+
+### [FU-PACK-CODES-FOLLOWUPS]
+
+ID minted here. `#1643` review: FU-2/3/5/6 from part B still open; FU-7 file size (22 MB chapter questions file; fix JPEG 0.80 at the same scale, measured 20.8 -> 13.5 MB) and FU-8 (progress text) are folded into the owner's 22:45 "deliver in parts" rework; FU-9 decode test of a QR at 800 px wide. `#1644` review: hosted-sample no-QR test, subject heading, code wrap, Board Pass holder on a new device, question-bank instruction consistency.
+
+### [FU-GRADED-WRONG-MCQ-REASON]
+
+ID minted here. From grading `PK-M-RN-CT1`: a wrong MCQ shows "Marks lost, reason not recorded" in the scorecard. Display only; the objective invariant holds (0 or full on the answer alone). Check every one of the six grading surfaces before changing any prompt text (CLAUDE.md section 4a).
+
+### [FU-AI-DISCLOSURE-LINE]
+
+ID minted here. `#1642` review: the owner is to decide whether one in-product AI/LLM disclosure line is wanted (the privacy/terms pages and the `#1646` FAQ already disclose). Also `aiClient.ts:513` shows the generic "AI API request failed" text on an error; reword without naming a vendor (owner rule: never name Google or Gemini). `aiClient.ts:490` and `tutorClient.ts:366` show server message text and need no change.
+
+### [FU-INAPP-NO-HAS-JUMP]
+
+ID minted here. `#1641` review: in-app browsers without `:has` get a one-time layout jump when the rows land (below the build target). Pre-existing: if the rows chunk fails to load, the card resets; when the rows chunk is slower than 1.5 s the rows push the page below the card in one non-input shift (0.27-0.37 if the student is looking at that part). The prefetch-at-tap fix and `aria-hidden` while settling were sent to the builder on 8 Nov 22:2x.
+
+### [FU-ADS-FOLLOWUPS-8NOV]
+
+ID minted here. Ads (account 488-270-0343) still to do, all discussed with the owner first: the "study app" ad group in Sign-ups v2 (class-10 phrase keywords, Board Pass ad, home landing; copy to the owner first); an "AI" sweep of ad text (Google and YouTube); a search-terms review for NCERT Maths and YouTube; the 39 "new keywords" recommendations and the "Remove conflicting negative keywords" recommendation were NOT applied (the conflicting one was the PDF Packs phrase "mcq", since removed). Dated: 13-15 Nov Quality Score landing-page rating, 15 Nov Vercel Speed Insights (`trig_01V2YMhx7L2hzcTosAiBjUNr`), 16 Nov PDF Packs review (`trig_01Jtq6SfwPW6fHoDBHqwmPfG`). Reminders to the owner: Google Ads balance (Rs35,051.41, "Funds running low", about 2 days at the 8 Nov rate) and Resend Pro.
+
 ## 2026-11-08 (daily) - #1628 - #1635 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `ca6f1f1c`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed. Every new ID below has its own heading and body (standing rule 1).*
