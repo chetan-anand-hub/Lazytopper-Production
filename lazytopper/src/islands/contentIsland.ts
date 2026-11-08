@@ -888,6 +888,10 @@ function onPointerDown(event: Event): void {
 function onToggle(event: Event): void {
   const el = event.target;
   if (!(el instanceof HTMLDetailsElement) || isReactOwned(el)) return;
+  // SPEED-ISLANDS-2: the hidden copy raiseCurtain inserts for the app fires `toggle` for every <details> it carries
+  // open. That is not the visitor's choice, and its descriptor (counted across both copies) names no app element:
+  // replaying it stalled every held tap by FIND_TIMEOUT_MS (6 s) whenever a <details> was open at the upgrade.
+  if (el.closest(`[${HIDDEN_ROOT_ATTR}]`)) return;
   recordToggle("details", el, el.open);
 }
 

@@ -176,6 +176,37 @@ describe("rule b on the phase-2 pages", () => {
   });
 });
 
+describe("a <details> open at the upgrade (CBQ explanations, the hub's chapter lists)", () => {
+  it("the hidden copy's own toggle events are not the visitor's: a held tap completes without the 6 s find stall", async () => {
+    await bootAt("/ncert-class-10");
+    document.querySelector("main")?.insertAdjacentHTML(
+      "beforeend",
+      '<details class="lt-nb__all"><summary>All 14 Maths chapters</summary><ol><li>x</li></ol></details>',
+    );
+    const live = document.querySelector("details.lt-nb__all") as HTMLDetailsElement;
+    live.open = true;
+    live.dispatchEvent(new Event("toggle")); // the visitor opened it (jsdom fires no toggle by itself)
+    const pick = document.querySelector("a.lt-nb__allch") as HTMLElement;
+    pick.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 })); // held: curtain up
+    const root = document.getElementById("root") as HTMLElement;
+    const copy = root.querySelector("details.lt-nb__all") as HTMLDetailsElement;
+    copy.dispatchEvent(new Event("toggle")); // what Chrome fires for an inserted <details open>
+    const own = (el: Element) => ((el as unknown as Record<string, unknown>)["__reactFiber$t"] = {});
+    (root as unknown as Record<string, unknown>)["__reactContainer$t"] = {};
+    for (const el of root.querySelectorAll("template, details, a, select, button")) own(el);
+    const clicked: string[] = [];
+    (root.querySelector("a.lt-nb__allch") as HTMLElement).addEventListener("click", (e) => {
+      e.preventDefault();
+      clicked.push("pick");
+    });
+    const t0 = Date.now();
+    await vi.waitFor(() => expect(state()).toBe("app"), { timeout: 9000, interval: 50 });
+    expect(Date.now() - t0).toBeLessThan(4000);
+    expect(clicked).toEqual(["pick"]);
+    expect(copy.open).toBe(true);
+  }, 12_000);
+});
+
 describe("rule c on the phase-2 pages — which regions load the app before the visitor reaches them", () => {
   const observed: Element[] = [];
   beforeEach(() => {
