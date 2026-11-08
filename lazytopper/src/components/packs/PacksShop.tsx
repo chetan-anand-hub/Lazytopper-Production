@@ -63,7 +63,7 @@ import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
 // BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card for pack owners: chunk + data prepared in one step, rendered complete.
 import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPacksBridgeLoader";
 // BRIDGE-PANEL-1 round 3 (owner 22:45): the per-device height hint that reserves My packs' space before its data arrives.
-import { MINE_HINT_SCRIPT, clearMineHint, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
+import { MINE_HINT_SCRIPT, clearMineHint, hintNow, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -434,13 +434,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const handed = staticMineHandover();
     if (handed) return handed;
     if (!user || user.isLocalSession || typeof window === "undefined") return null;
-    const px = readMineHint(user.uid, window.innerWidth, Date.now(), window.innerHeight);
+    const px = readMineHint(user.uid, window.innerWidth, hintNow(), window.innerHeight);
     return px ? { u: user.uid, px } : null;
   });
   // The server says this account owns packs (My packs read, a paid order, a pay-by-phone claim): remember it on this device so the
   // next /packs load reserves My packs' space from its first paint.
   useEffect(() => {
-    if (user && !user.isLocalSession && mine && mine.packs.length > 0) writeMineOwner(user.uid, Date.now());
+    if (user && !user.isLocalSession && mine && mine.packs.length > 0) writeMineOwner(user.uid);
   }, [user, mine]);
   useEffect(() => {
     if (!reserve || authLoading) return;
@@ -464,7 +464,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (!section) return;
     measuredKey.current = bridgeKey;
     const h = section.getBoundingClientRect().height;
-    if (h > 0) writeMineHint(user.uid, window.innerWidth, h, Date.now());
+    if (h > 0) writeMineHint(user.uid, window.innerWidth, h, hintNow());
     if (reserve && h >= reserve.px) setReserve(null);
   });
   const bridgeKeyRef = useRef("");
