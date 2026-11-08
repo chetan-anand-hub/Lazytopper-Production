@@ -14,7 +14,8 @@
 
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation, useParams } from "react-router-dom";
+// SPEED-HUB-3: the CTA navigates one frame after the tap (afterNextPaint), so the route is awaited.
+import { MemoryRouter, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
 vi.mock("../../context/AuthContext", () => ({
@@ -34,9 +35,13 @@ afterEach(cleanup);
 function PracticeRouteProbe() {
   const params = useParams<"grade" | "subject">();
   const location = useLocation();
+  const navigate = useNavigate();
   return (
     <div data-testid="practice-route" data-search={location.search}>
       {`${params.grade}/${params.subject}`}
+      <button type="button" onClick={() => navigate(-1)}>
+        back
+      </button>
     </div>
   );
 }
@@ -55,11 +60,13 @@ function renderHub(entry: string) {
 const startQuickPractice = () => screen.getByRole("button", { name: /start quick practice/i });
 
 describe("Practice hub QP multi-topic entry (FU-PRACTICEHUB-MULTITOPIC)", () => {
-  it("multi-topic scope → the QP CTA carries the FULL topic set (topics=a,b), not just the first", () => {
+  it("multi-topic scope → the QP CTA carries the FULL topic set (topics=a,b), not just the first", async () => {
     setMatchMediaMatches(true);
     renderHub("/practice-hub?scope=multi-topic&topics=real-numbers,polynomials");
     fireEvent.click(startQuickPractice());
-    const probe = screen.getByTestId("practice-route");
+    // SPEED-HUB-3: the tap paints first; the route is pushed one frame later — once.
+    expect(screen.queryByTestId("practice-route")).toBeNull();
+    const probe = (await screen.findByTestId("practice-route"));
     expect(probe).toHaveTextContent("10/Maths");
     const search = probe.getAttribute("data-search") ?? "";
     const params = new URLSearchParams(search);
@@ -71,36 +78,46 @@ describe("Practice hub QP multi-topic entry (FU-PRACTICEHUB-MULTITOPIC)", () => 
     expect(params.get("source")).toBe("practice");
   });
 
-  it("mobile: the SAME responsive hub carries the set (reflow is CSS-only)", () => {
+  it("mobile: the SAME responsive hub carries the set (reflow is CSS-only)", async () => {
     setMatchMediaMatches(false);
     renderHub("/practice-hub?scope=multi-topic&topics=real-numbers,polynomials");
     fireEvent.click(startQuickPractice());
     const params = new URLSearchParams(
-      screen.getByTestId("practice-route").getAttribute("data-search") ?? "",
+      (await screen.findByTestId("practice-route")).getAttribute("data-search") ?? "",
     );
     expect(params.get("topics")).toBe("real-numbers,polynomials");
   });
 
-  it("Science multi-topic scope carries its own set to /practice/10/Science", () => {
+  it("Science multi-topic scope carries its own set to /practice/10/Science", async () => {
     setMatchMediaMatches(true);
     renderHub(
       "/practice-hub?subject=Science&scope=multi-topic&topics=chemical-reactions-and-equations,life-processes",
     );
     fireEvent.click(startQuickPractice());
-    const probe = screen.getByTestId("practice-route");
+    const probe = (await screen.findByTestId("practice-route"));
     expect(probe).toHaveTextContent("10/Science");
     const params = new URLSearchParams(probe.getAttribute("data-search") ?? "");
     expect(params.get("topics")).toBe("chemical-reactions-and-equations,life-processes");
   });
 
-  it("single-topic scope is UNCHANGED — it still carries topic= (byte-identical path)", () => {
+  it("single-topic scope is UNCHANGED — it still carries topic= (byte-identical path)", async () => {
     setMatchMediaMatches(true);
     renderHub("/practice-hub?scope=topic&topic=real-numbers");
     fireEvent.click(startQuickPractice());
     const params = new URLSearchParams(
-      screen.getByTestId("practice-route").getAttribute("data-search") ?? "",
+      (await screen.findByTestId("practice-route")).getAttribute("data-search") ?? "",
     );
     expect(params.get("topic")).toBe("real-numbers");
     expect(params.get("topics")).toBeNull(); // no plural param on the single-topic path
+  });
+
+  it("SPEED-HUB-3: a double tap inside the deferral frame pushes the route ONCE (Back returns to the hub)", async () => {
+    setMatchMediaMatches(false);
+    renderHub("/practice-hub?scope=topic&topic=real-numbers");
+    fireEvent.click(startQuickPractice());
+    fireEvent.click(startQuickPractice());
+    fireEvent.click(await screen.findByRole("button", { name: "back" }));
+    expect(await screen.findByRole("button", { name: /start quick practice/i })).toBeInTheDocument();
+    expect(screen.queryByTestId("practice-route")).toBeNull();
   });
 });

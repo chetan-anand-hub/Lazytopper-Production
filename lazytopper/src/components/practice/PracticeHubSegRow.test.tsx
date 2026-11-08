@@ -75,9 +75,14 @@ describe("PracticeHubSegRow", () => {
     const hub = readFileSync(resolve(ROOT, "src/pages/desktop/DesktopPracticePage.tsx"), "utf8");
     const at = hub.indexOf("<PracticeHubSegRow subject={scope.subject} />");
     expect(at).toBeGreaterThan(-1);
-    // The heading's JSX text comes after the row (the doc comment at the top also names it, so search from the row).
-    expect(hub.indexOf("<h1", at)).toBeGreaterThan(at);
-    expect(hub.indexOf("What shall we practise?", at)).toBeGreaterThan(at);
+    // The heading comes after the row. SPEED-HUB-3 moved the static heading into one module-level
+    // element (HUB_INTRO) so React skips it on re-render: the row precedes `{HUB_INTRO}` in the
+    // page's JSX, and HUB_INTRO is the heading.
+    expect(hub.indexOf("{HUB_INTRO}", at)).toBeGreaterThan(at);
+    const intro = hub.indexOf("const HUB_INTRO = (");
+    expect(intro).toBeGreaterThan(-1);
+    expect(hub.indexOf("<h1", intro)).toBeGreaterThan(intro);
+    expect(hub.indexOf("What shall we practise?", intro)).toBeLessThan(hub.indexOf(");", hub.indexOf("</h1>", intro)) + 2);
     expect(hub.lastIndexOf("<ParentReturnLink />", at)).toBeGreaterThan(-1);
     expect(readFileSync(resolve(ROOT, "src/pages/PracticePage.tsx"), "utf8")).not.toContain("PracticeHubSegRow");
   });

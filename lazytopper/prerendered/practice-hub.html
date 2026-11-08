@@ -250,6 +250,14 @@ a.lt-pseg__seg:focus-visible {
             scrollbar-width: none;
           }
           .lt-mode-grid::-webkit-scrollbar { height: 0; }
+          /* SPEED-HUB-3 — pressed feedback, painted in the tap's own frame (outline: no layout shift). */
+          .lt-mode-card[data-pressed="true"] {
+            outline: 2px solid hsla(222, 47%, 24%, 0.45);
+            outline-offset: -2px;
+          }
+          .lt-mode-card[data-pressed="true"] button {
+            opacity: 0.7;
+          }
           .lt-mode-grid > .lt-mode-card {
             scroll-snap-align: center;
             flex: 0 0 calc(100% - 26px);
