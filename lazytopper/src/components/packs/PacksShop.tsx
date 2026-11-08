@@ -507,7 +507,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // to show, and the section above only renders for an account. Give the link an honest target instead of landing nowhere: the
   // heading and one line that goes to sign-in and comes back here. Only for that hash, only once auth has resolved signed out, never
   // embedded (/pricing, /for-parents) and never fake content.
-  const signedOutMine = !embedded && !hideMyPacks && !authLoading && !signedIn && location.hash.toLowerCase() === "#my-packs";
+  const signedOutMine = !embedded && !hideMyPacks && !authLoading && !user && location.hash.toLowerCase() === "#my-packs";
   useEffect(() => {
     if (location.hash !== "#my-packs") return undefined;
     let stopped = false;

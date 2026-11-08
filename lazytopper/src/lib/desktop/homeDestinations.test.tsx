@@ -297,12 +297,12 @@ describe("chooser styles + close glyph (SPEED-CBQPICK-1)", () => {
 });
 
 describe("chooser keyboard + focus (FU-CBQ-CHOOSER-A11Y)", () => {
-  it("is a named modal dialog, and focus moves to its first select on open", () => {
+  it("is a named modal dialog, and focus moves to its heading on open", () => {
     renderPicker(true);
     const dlg = screen.getByRole("dialog");
     expect(dlg.getAttribute("aria-modal")).toBe("true");
     expect(dlg.getAttribute("aria-label")).toBeTruthy();
-    expect(document.activeElement).toBe(dlg.querySelector("select"));
+    expect(document.activeElement).toBe(dlg.querySelector("h2"));
   });
 
   it("Tab from the last control wraps to the first, Shift+Tab from the first wraps to the last", () => {

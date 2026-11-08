@@ -310,6 +310,8 @@ const PICKER_CSS = `
     box-sizing: border-box; width: 44px; height: 44px; padding: 0 0 3px;
     display: flex; align-items: center; justify-content: center;
   }
+  .lt-tutor-pop h2:focus { outline: none; }
+  .lt-tutor-pop h2:focus-visible { outline: 2px solid hsl(152, 55%, 38%); outline-offset: 3px; border-radius: 6px; }
   .lt-tutor-x:focus-visible, .lt-tutor-go:focus-visible {
     outline: 2px solid hsl(152, 55%, 38%); outline-offset: 2px; border-radius: 12px;
   }
@@ -345,14 +347,14 @@ const FOCUSABLE_SEL =
   'button:not([disabled]), select:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 // CBQ-CHOOSER-A11Y — focus moves into the dialog on open, Tab cycles inside it, and focus returns to
-// whatever opened it on close. The first select takes the initial focus (callers that nest the chooser
-// rely on that).
+// whatever opened it on close. The HEADING (tabIndex -1) takes the initial focus: a tap opens no picker wheel and
+// shows no ring (the ring is :focus-visible only); a screen reader reads the dialog name first.
 function useDialogFocus(open: boolean, popRef: { current: HTMLDivElement | null }): void {
   useEffect(() => {
     if (!open) return;
     const opener = document.activeElement as HTMLElement | null;
     const pop = popRef.current;
-    (pop?.querySelector<HTMLElement>("select") ?? pop?.querySelector<HTMLElement>("button.lt-tutor-go"))?.focus({ preventScroll: true });
+    pop?.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
     return () => {
       // Only when focus was lost with the dialog (a caller that already moved focus keeps its choice).
       const now = document.activeElement;
@@ -500,7 +502,7 @@ export function ChapterPickerModal({
             <path d="M5 5l14 14M19 5L5 19" />
           </svg>
         </button>
-        <h2>
+        <h2 tabIndex={-1}>
           {title}
           {headingAside}
         </h2>

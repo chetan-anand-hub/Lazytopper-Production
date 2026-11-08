@@ -48,7 +48,7 @@ describe("PARENTS-PAY-1 — price and how to pay on /for-parents", () => {
     expect(parentPriceModel(new Date("2027-03-01T10:00:00+05:30"), "2027-02-17")?.perDayLine ?? null).toBeNull();
   });
 
-  it("static markup carries no rupee figure (prerender cannot go stale) but has the one pay line, the Pay button and the badge", () => {
+  it("a raw string render (renderToStaticMarkup) has no rupee figure - the Pay buttons and pack prices appear from the first client commit, see below - but has the one pay line, the Pay button and the badge", () => {
     const html = renderToStaticMarkup(<MemoryRouter><ForParentsPage /></MemoryRouter>);
     expect(html).not.toMatch(/₹/);
     // The 3-step block and the WhatsApp-as-payment note are gone; one line replaces them.

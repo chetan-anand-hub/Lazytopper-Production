@@ -291,4 +291,11 @@ describe("FU-MYPACKS-SIGNEDOUT · /packs#my-packs has a target for a signed-out 
     await screen.findByTestId("packs-mine");
     expect(screen.queryByTestId("packs-mine-signedout")).toBeNull();
   });
+
+  it("a local-session user (any account record) never sees the sign-in line", async () => {
+    auth.user = { uid: "local", isLocalSession: true } as unknown as { uid: string };
+    shop("/packs#my-packs");
+    await waitFor(() => expect(screen.getByText("open mock")).toBeTruthy());
+    expect(screen.queryByTestId("packs-mine-signedout")).toBeNull();
+  });
 });
