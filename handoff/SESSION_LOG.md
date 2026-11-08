@@ -1,3 +1,17 @@
+## 2026-11-08 (daily) - #1628 - #1635: eight PRs, mostly site speed; five of them were held for real bugs that every gate passed (trunk `ca6f1f1c`)
+
+**PROVENANCE.** *(Daily handoff of 8 Nov, CLAUDE.md section 10. Covers the 8 merges after `#1627`. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** and live steps **[coordinator]** as relayed in the brief; trunk **[git]**.)*
+
+**How the window went [gh; coordinator; owner].**
+- **Late 7 Nov to early 8 Nov.** `#1628` finished the GST follow-ups: the month-pass upgrade link, the state line before Razorpay, the bell during sign-in, and a permanent "no record" path for past sales (20 of 23 queued, 3 with no email). `#1629` removed layout shift on the CBQ landing, Answer Checker and /for-parents. `#1630` and `#1631` made /login paint from static HTML (mobile LCP 3.2 s -> 0.9 s; desktop about 1.8 s -> about 0.6 s).
+- **Morning, 8 Nov.** `#1632` made practice-hub taps respond in 24 ms (were 184-216 ms). The owner asked that a returning student always gets a unique set, so the "keep the topic on Back" idea was withdrawn; two consecutive Real Numbers sets had 0 overlap. `#1633` made the CBQ chooser open faster.
+- **Midday.** `#1634` made the mobile bottom nav respond at once (16-40 ms, were 440-1168 ms). `#1635` gave the Answer Checker a static first frame (desktop LCP 4.0-4.6 s -> 0.54-0.74 s).
+- **Scope call.** At 08:08 the owner said this session finishes the bottom nav, the CBQ chooser and the Answer Checker desktop; everything else goes to the next session.
+
+**LESSON: every speed lane needed a strict reviewer: 5 of 8 PRs were held for real bugs (double order race, stale navigation, dead bottom bar, inert page, CI date guard) that all gates passed [coordinator; gh].** Type check, build, the guard matrices and CI were green each time. The bugs were found by reading the diff against real tap and load sequences.
+
+**Method notes.** Speed claims are lab numbers, quoted with the sample that gave them. Where a change cost something (hub arrival is 18-19 ms later), the log says so.
+
 ## 2026-11-07 (daily, second) - #1625 - #1626: GST invoicing goes live, past sales get invoices, six pre-existing live issues are fixed (trunk `6f578d2b`)
 
 **PROVENANCE.** *(Second daily handoff of 7 Nov, CLAUDE.md section 10. Covers the 2 merges after `#1624`. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** and live steps **[coordinator]** as relayed in the brief; trunk **[git]**.)*

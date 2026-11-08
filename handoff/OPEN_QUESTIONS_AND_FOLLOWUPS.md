@@ -23,6 +23,41 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-08 (daily) - #1628 - #1635 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `ca6f1f1c`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed. Every new ID below has its own heading and body (standing rule 1).*
+
+**Still open, carried:** `[FU-ISLANDS-PHASE-2]` (NCERT Hub, Important Questions, CBQ chapter pages) and `[FU-RESEND-PRO]` (the free plan runs out about 14 Nov). Their entries in the earlier blocks stand.
+
+**Closed by this window (kept, marked closed):** `[FU-GST-BUY-LINK-STATE-HIDDEN]`, `[FU-MONTHPASS-BOARDPASS-UPGRADE]` and `[FU-PENDINGBELL-AUTH-LOADING]` CLOSED by `#1628`.
+
+### [FU-PAINT-SHELL-1DEC-RECAPTURE]
+LAUNCH / DATE. The /login and /check-improve static paints switch themselves OFF at 1 Dec 00:00 IST (price change) until the capture is re-run and merged. Re-capture (a `[ci-full]` capture PR) on the morning of 1 Dec. Until then both pages fall back to the blank shell (safe, slower). **[coordinator; gh]**
+
+### [FU-CI-SESSION-FLASH]
+BUGS. A signed-in student whose storage is wiped but whose Firebase IndexedDB auth survives can see the signed-out static Answer Checker before the signed-in app. It is inert, so no wrong action is possible. Count "Checking your session..." after paint in analytics. **[coordinator; gh]**
+
+### [FU-CBQ-CHOOSER-A11Y]
+ACCESSIBILITY. Pre-existing: the CBQ chooser has no initial focus, no focus trap or return, and a 17 px close hit area (should be 44 px). **[coordinator; gh]**
+
+### [FU-CBQ-CHOOSER-50MS]
+SPEED. The CBQ chooser's first open is still 64-72 ms (native selects and layout floor). **[coordinator; gh]**
+
+### [FU-FORPARENTS-FIRST-PRICE-TEST]
+TESTS. `#1629`: add a test that /for-parents prices are present in React's first render, and fix two stale "prerender has no price" comments. **[coordinator; gh]**
+
+### [FU-PRICING-MYPACKS-REDIRECT-CLS]
+SPEED / POLISH. Old /pricing#my-packs links shift 0.077 while redirecting to /packs (under the 0.1 limit). **[coordinator]**
+
+### [FU-BOARDPASS-SERVER-DUP-GUARD]
+MONEY. The server does not refuse a second Board Pass order from an active Board Pass holder; only the client checks. **[coordinator; gh]**
+
+### [FU-GST-TEST-ORDERS-14OCT]
+MONEY, owner to confirm. Two Rs 599 month-pass orders of 14 Oct (`order_TnoOI7hNpeRZmM`, `order_TnoU4PmvY04pI0`) are unknown to Razorpay and have no email. Owner to confirm whether they were test payments. **[coordinator; owner]**
+
+### [FU-CHECKIMPROVE-TABS-ARIA]
+ACCESSIBILITY. The Answer Checker mode tabs expose no `aria-selected` or pressed state (pre-existing). **[coordinator]**
+
 ## 2026-11-07 (daily, second) - #1625 - #1626 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `6f578d2b`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator's brief for this lane **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed. Every new ID below has its own heading and body (standing rule 1).*

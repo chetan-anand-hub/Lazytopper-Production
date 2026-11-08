@@ -1,3 +1,11 @@
+## 2026-11-08 (daily) - #1628 - #1635 - MERGED
+
+- DONE. `#1628` (`d8eab1c`) GST-FU-1: month-pass Board Pass upgrade link, state line before Razorpay, bell during sign-in, past-sales "no record" path. NEXT: `[FU-BOARDPASS-SERVER-DUP-GUARD]`, `[FU-GST-TEST-ORDERS-14OCT]`.
+- DONE. `#1629` (`1c036883`) SPEED-CLS-2: layout shift on the CBQ landing, Answer Checker desktop and /for-parents. NEXT: `[FU-FORPARENTS-FIRST-PRICE-TEST]`.
+- DONE. `#1630` (`ca3da65f`) SPEED-LOGIN-1 and `#1631` (`c78e2cae`) SPEED-LOGIN-2: /login static first paint and a stable LCP. NEXT: `[FU-PAINT-SHELL-1DEC-RECAPTURE]` on 1 Dec.
+- DONE. `#1632` (`2eac530a`) SPEED-HUB-3: practice-hub taps. `#1633` (`debcca6a`) SPEED-CBQPICK-1: CBQ chooser. `#1634` (`0a8c728b`) SPEED-NAV-1: mobile bottom nav. `#1635` (`ca6f1f1c`) SPEED-CI-1: Answer Checker static first frame.
+- NEXT (not built): islands phase 2 (NCERT Hub, Important Questions, CBQ chapter pages). Pricing-page redesign is ON HOLD (owner).
+
 ## 2026-11-07 (daily, second) - #1625 - #1626 - MERGED
 
 - DONE. `#1625` (`97fbcf5`) GST-INVOICE-BACKDATE-1: invoices for past sales (16 Sep to 6 Nov) through the emailed 1-tap state + PIN form. GST invoicing (checkout, `#1619` / `#1623`, and past sales) is now LIVE. NEXT: `[FU-RESEND-PRO]`, `[FU-GST-BUY-LINK-STATE-HIDDEN]`, re-click "Send state forms" on 8 Nov.

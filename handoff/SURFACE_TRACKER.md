@@ -1,3 +1,17 @@
+> **2026-11-08 (daily) - #1628 - #1635 (CLAUDE.md section 10).** Scope: checkout and GST (month-pass upgrade, state before Razorpay, past-sales lookup), /login, the practice hub, the CBQ chooser, the mobile bottom nav, the Answer Checker first paint, layout shift on three pages. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none | unchanged | the 6 Nov second-surface checks stay owed |
+| Checkout and GST | month-pass `?buy=board_pass` upgrade start, state line before Razorpay, bell ignored while auth loads, past-sale "no record" path, @razorpay.com treated as no address (`#1628`) | **merged, live** | `[FU-BOARDPASS-SERVER-DUP-GUARD]`, `[FU-GST-TEST-ORDERS-14OCT]`, `[FU-RESEND-PRO]` |
+| /login | static first paint, then a stable LCP (`#1630`, `#1631`); mobile LCP 3.2 s -> 0.9 s | **merged, live** | `[FU-PAINT-SHELL-1DEC-RECAPTURE]` (static paint switches off 1 Dec 00:00 IST) |
+| Answer Checker first paint (/check-improve) | static first frame for signed-out first visits (`#1635`); desktop LCP 4.0-4.6 s -> 0.54-0.74 s | **merged, live** | `[FU-PAINT-SHELL-1DEC-RECAPTURE]`, `[FU-CI-SESSION-FLASH]`, `[FU-CHECKIMPROVE-TABS-ARIA]` |
+| Practice hub and CBQ chooser | taps navigate after paint, INP 184-216 -> 24 ms (`#1632`); chooser CSS on first open (`#1633`) | **merged, live** | `[FU-CBQ-CHOOSER-A11Y]`, `[FU-CBQ-CHOOSER-50MS]` |
+| Mobile BottomNav | pressed tab at once, navigate after paint, route prefetch (`#1634`); 16-40 ms (were 440-1168 ms) | **merged, live** | none |
+| Layout-shift pages (CBQ landing, Answer Checker desktop, /for-parents) | offer card and placeholders hold their space (`#1629`) | **merged, live** | `[FU-FORPARENTS-FIRST-PRICE-TEST]`, `[FU-PRICING-MYPACKS-REDIRECT-CLS]` |
+
+No grading surface moved.
+
 > **2026-11-07 (daily, second) - #1625 - #1626 (CLAUDE.md section 10).** Scope: checkout and GST invoicing (now live), past-sales invoices, /pricing hash links, ?buy= links, /packs#invoices, the signed-out bell, CLS on CBQ / browse / chapter-test. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
