@@ -79,7 +79,7 @@ const body = (enforced: boolean) => ({
     resets: { fiveHour: "2026-09-28T07:30:00.000Z", day: "2026-09-28T18:30:00.000Z", week: "2026-10-01T08:30:00.000Z" },
   },
 });
-const BANNER = "You've used 75% of your 5-hour AI use allowance. It resets at 1:00 pm.";
+const BANNER = "You've used 75% of your 5-hour usage allowance. It resets at 1:00 pm.";
 
 let usageFetch: ReturnType<typeof vi.fn>;
 function stubUsage(enforced: boolean) {

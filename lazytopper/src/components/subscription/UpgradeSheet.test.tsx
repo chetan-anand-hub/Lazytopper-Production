@@ -113,7 +113,7 @@ describe("UpgradeSheet — every feature it sells is premium AND shipped", () =>
   /** CONTROL for the five negatives above — the query finds a label that IS sold. */
   it("CONTROL — the same query DOES find a live benefit", () => {
     renderSheet();
-    expect(screen.getByText("Your AI tutor that knows your chapters, your mistakes, your pace")).toBeInTheDocument();
+    expect(screen.getByText("Your personal tutor that knows your chapters, your mistakes, your pace")).toBeInTheDocument();
   });
 
   /** The list is not empty; a sheet selling nothing would pass every negative. */
@@ -256,7 +256,7 @@ describe("UpgradeSheet — copy, price and treatment", () => {
 
   it("names the feature that was blocked, not one string for every surface", () => {
     renderSheet({ featureLabel: "The AI tutor" });
-    expect(screen.getByText("The AI tutor is a Premium feature")).toBeInTheDocument();
+    expect(screen.getByText("Your personal tutor is a Premium feature")).toBeInTheDocument();
     cleanup();
     renderSheet({ featureLabel: "Checking your answer" });
     expect(screen.getByText("Checking your answer is a Premium feature")).toBeInTheDocument();
@@ -403,7 +403,7 @@ describe("ASK-COPY-1: title and trial-first lead", () => {
   it("a Basic student keeps the true statement", () => {
     subState.trialStartDate = "2026-10-01T00:00:00.000Z";
     renderSheet({ featureLabel: "The AI tutor" });
-    expect(screen.getByRole("heading", { name: "The AI tutor is a Premium feature" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your personal tutor is a Premium feature" })).toBeInTheDocument();
   });
 
   it("a TRIAL student is not told it is a Premium feature - the title names what the pass keeps", () => {

@@ -42,7 +42,7 @@ export const START_HERE_BADGE = "START HERE";
 export const BOARD_PASS_TICKS: ReadonlyArray<{ id: string; strong?: string; text: string }> = [
   { id: "checker", strong: "Answer Checker", text: ": handwritten answers marked step by step, like a CBSE examiner" },
   { id: "graded", text: "Chapter tests, full mocks and worksheets graded" },
-  { id: "mi", text: "Mistake Intelligence and an AI tutor that knows your mistakes" },
+  { id: "mi", text: "Mistake Intelligence and a personal tutor that knows your mistakes" },
   { id: "all", text: "Every question and solution, till your boards" },
 ];
 
@@ -151,7 +151,7 @@ export function whatYouGetRows(boardPassPrice: string): ReadonlyArray<{ label: s
   const N: WhatCell = { kind: "no" };
   return [
     { label: "Answers checked like a CBSE examiner", cells: [Y, N, N] },
-    { label: "Graded tests, mocks, AI tutor", cells: [Y, N, N] },
+    { label: "Graded tests, mocks, personal tutor", cells: [Y, N, N] },
     { label: "Practise on paper, offline", cells: [N, Y, Y] },
     {
       label: "What's inside",

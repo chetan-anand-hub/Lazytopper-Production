@@ -111,6 +111,6 @@ describe("FAIRUSE-MONTHLY-1 · copy strings", () => {
   it("★ the 75% banner names the month with a date, from a payload without 5h/week", () => {
     const w = usageWarning(snap(live(10, 80)), NOW, "tutor");
     expect(w).toMatchObject({ tier: "premium", window: "thirtyDay", level: 75 });
-    expect(warningBannerCopy(w!, NOW)).toBe("You've used 75% of this month's AI use allowance. It resets on Wed 18 Nov.");
+    expect(warningBannerCopy(w!, NOW)).toBe("You've used 75% of this month's usage allowance. It resets on Wed 18 Nov.");
   });
 });
