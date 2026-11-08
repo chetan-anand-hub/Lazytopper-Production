@@ -819,7 +819,7 @@ export default function Welcome() {
                   for reasons unrelated to their own use. We don't ship claims that
                   are false today. It returns, with a fair-use line, once
                   [FU-GLOBAL-SHED-REFUSES-PAYING] is fixed. */}
-              <p className="pd">AI marking for Maths and Science, plus your mistake pattern.</p>
+              <p className="pd">CBSE examiner style marking for Maths and Science, plus identifies your mistake pattern.</p>
               <p className="go">See plans &rarr;</p>
             </Link>
           </div>
