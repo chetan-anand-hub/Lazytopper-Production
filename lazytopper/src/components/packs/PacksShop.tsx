@@ -1125,7 +1125,46 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
         (state.groups.length === 0 ? (
           <p className="lt-packs__muted">No printable files could be prepared for this pack yet.</p>
         ) : (
-          state.groups.map((g) => (
+          state.groups.map((g) =>
+            // BRIDGE-CODES-1 (owner 8 Nov 23:30): a CBQ chapter is ONE row - its parts inside, one tap each (questions, then keys).
+            g.files.length > 0 && g.files.every((f) => f.codes && f.codes.length > 0) ? (
+              <div key={g.group} className="lt-packs__grp" data-testid="cbq-chapter-row">
+                <h4>{g.group}</h4>
+                {(["questions", "answers"] as const).map((mode) => {
+                  const parts = g.files.filter((f) => f.id.endsWith(`-${mode}`));
+                  if (parts.length === 0) return null;
+                  return (
+                    <div key={mode} className="lt-packs__partrow">
+                      <span className="lt-packs__partkind">{mode === "questions" ? "Questions" : "Answer keys"}</span>
+                      <div className="lt-packs__partbtns">
+                        {parts.map((f) => (
+                          <button
+                            key={f.id}
+                            type="button"
+                            className="lt-packs__btn lt-packs__btn--small lt-packs__btn--sets"
+                            disabled={busyId !== null}
+                            aria-label={`Download ${g.group}: ${f.label}`}
+                            data-testid="cbq-part-download"
+                            onClick={() => void download(f)}
+                          >
+                            {busyId === f.id
+                              ? progress ?? "Preparing\u2026"
+                              : failedId === f.id
+                              ? "Retry"
+                              : savedIds.has(f.id)
+                              ? "Saved \u2713"
+                              : f.label.split(" \u00b7 ").slice(0, 2).join(" \u00b7 ").replace(/ of \d+/, "")}
+                          </button>
+                        ))}
+                      </div>
+                      {parts.some((f) => failedId === f.id) && (
+                        <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
             <div key={g.group} className="lt-packs__grp">
               <h4>{g.group}</h4>
               <ul className="lt-packs__files">
@@ -1145,7 +1184,8 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
                 ))}
               </ul>
             </div>
-          ))
+            ),
+          )
         ))}
     </div>
   );

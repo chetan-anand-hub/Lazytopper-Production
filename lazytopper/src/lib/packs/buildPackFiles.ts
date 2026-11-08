@@ -584,7 +584,8 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
                 ],
                 types: CBQ_QUESTION_TYPES,
               },
-              bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) },
+              // Owner 8 Nov 23:30: pages 2-3 ("Get this paper marked" + sample scorecard) only in each chapter's Part 1.
+              ...(pk === 0 ? { bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) } } : {}),
             },
             sku,
             ctx,
@@ -597,10 +598,10 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
 }
 
 /**
- * BRIDGE-CODES-1 (owner 8 Nov 22:45, "deliver/download in parts"): at most this many CBQ sets per PART file. Measured in Chrome with
- * the real exporter: 3 sets = 4.5-8.4 MB and 14-25 s at 4-6x CPU; 2 sets = 4.3-6.0 MB and ~20 s at 6x (target was <=5 MB, <=10-15 s).
+ * BRIDGE-CODES-1: at most this many CBQ sets per PART file (owner 8 Nov 22:45 "deliver/download in parts"; 23:30: 3 sets per part,
+ * body pages at 1.5x - SETS_RASTER_SCALE - and pages 2-3 only in Part 1, "but ensure that print quality is good").
  */
-export const CBQ_SETS_PER_PART = 2;
+export const CBQ_SETS_PER_PART = 3;
 
 /** A chapter's sets split, in order, into ceil(n / CBQ_SETS_PER_PART) parts of near-equal size (9 -> 3+3+3, 8 -> 3+3+2, 7 -> 3+2+2). */
 export function cbqParts<T>(sets: readonly T[]): T[][] {

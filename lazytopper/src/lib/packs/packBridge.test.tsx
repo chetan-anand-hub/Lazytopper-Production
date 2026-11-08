@@ -104,6 +104,24 @@ describe("BRIDGE-PDF-1 - who gets pages 2-3", () => {
   });
 });
 
+describe("BRIDGE-CODES-1 - CBQ parts (owner 8 Nov 23:30)", () => {
+  it("pages 2-3 only in each chapter's Part 1; Parts 2+ carry none", async () => {
+    const h = harness(owned("pack_cbq:maths"), { bridge: { paidBoardPass: false } });
+    const files = await buildPackFiles(h.ref, h.ctx);
+    const p1 = files.find((f) => f.id.endsWith("|real-numbers|cbq-part-1-questions"))!;
+    const p2 = files.find((f) => f.id.endsWith("|real-numbers|cbq-part-2-questions"))!;
+    const k2 = files.find((f) => f.id.endsWith("|real-numbers|cbq-part-2-answers"))!;
+    await p1.build();
+    const n1 = h.calls.length;
+    expect(n1).toBe(p1.codes!.length);
+    for (const c of h.calls) expect(c.bridge).toBeDefined();
+    await p2.build();
+    await k2.build();
+    expect(h.calls.length).toBe(n1 + p2.codes!.length + k2.codes!.length);
+    for (const c of h.calls.slice(n1)) expect(c.bridge).toBeUndefined();
+  });
+});
+
 describe("BRIDGE-PDF-1 - labels", () => {
   it("names the pack as the checkout does, never repeating the subject", () => {
     expect(bridgePackLabel("Real Numbers", "pack_chapter", "real-numbers")).toBe("Real Numbers · Chapter Pack");

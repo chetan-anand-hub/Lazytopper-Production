@@ -681,6 +681,12 @@ export interface PdfPaperSet {
 
 /** JPEG quality of a several-paper file's body pages (review 1643: 0.95 -> 0.80 at the same 2x scale). */
 export const SETS_BODY_JPEG_QUALITY = 0.8;
+/**
+ * Raster scale of a several-paper file's body pages (owner 8 Nov 23:30: "yes, but ensure that print quality is good" - slightly
+ * lower resolution so a CBQ part stays small). 1.5x = 1140 px over the 186 mm print width (~156 px/inch at A4); the code QR is drawn
+ * as vector squares by the page chrome, so it is unaffected. See the print-quality crops in the PR (300 dpi, A4).
+ */
+export const SETS_RASTER_SCALE = 1.5;
 
 /** One rasterised body page of a multi-paper file. */
 interface SetPage {
@@ -708,6 +714,8 @@ export async function exportWorksheetSetsPdf(
   opts: WorksheetPdfOptions & {
     /** Called as each set starts rendering (1-based), so the download button can say "Preparing… set k of n". */
     onProgress?: (set: number, of: number) => void;
+    /** Test / measurement seam: the body raster scale (default SETS_RASTER_SCALE). */
+    rasterScale?: number;
   } = {},
 ): Promise<string> {
   if (sets.length === 0) throw new Error("no_paper_sets");
@@ -759,7 +767,7 @@ export async function exportWorksheetSetsPdf(
         atomsCss.push({ top: r.top - top0, bottom: r.bottom - top0 });
       });
       const hostH = host.getBoundingClientRect().height;
-      const canvas = await html2canvas(host, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: HOST_WIDTH });
+      const canvas = await html2canvas(host, { scale: opts.rasterScale ?? SETS_RASTER_SCALE, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: HOST_WIDTH });
       const pxPerMm = canvas.width / imgW || 1;
       const sliceHpx = Math.max(1, Math.floor(usableH * pxPerMm));
       const yScale = hostH > 0 ? canvas.height / hostH : 1;
