@@ -106,11 +106,17 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 .lt-packs__mine h2 { font-size: 22px; margin-bottom: 4px; }
 .lt-packs__mine .lt-packs__w { background: var(--pk-card); border: 1px solid var(--pk-line); border-radius: 16px; padding: 16px; margin: 12px; max-width: none; }
 .lt-packs__muted { color: var(--pk-ink2); font-size: 14px; margin: 8px 0 0; }
+/* BRIDGE-PANEL-1 round 3: the slot that holds My packs' space from the first paint (min-height set from the device hint), and the calm
+   placeholder shown in it until My packs and its panel arrive together. */
+.lt-packs__mineslot { display: flow-root; }
+.lt-packs__mineskel { min-height: inherit; display: grid; padding: 26px 12px 4px; }
+.lt-packs__mineskel::before { content: ""; border-radius: 16px; background: var(--pk-card); border: 1px solid var(--pk-line); }
 
 @media (min-width: 640px) {
   .lt-packs__w { padding: 0 24px; }
   .lt-packs__faqgrid { grid-template-columns: 1fr 1fr; }
   .lt-packs__mine .lt-packs__w { max-width: 1180px; margin: 12px auto; }
+  .lt-packs__mineskel { max-width: 1180px; margin: 0 auto; padding: 26px 0 4px; }
 }
 @media (min-width: 1024px) {
   .lt-packs { padding-bottom: 0; }

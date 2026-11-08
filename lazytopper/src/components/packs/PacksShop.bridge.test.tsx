@@ -76,14 +76,14 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("BRIDGE-PANEL-1 · mount", () => {
-  it("/packs, signed-in owner: the panel is its own section BELOW the shop (never inside My packs above the hero), with the Board Pass card", async () => {
+  it("/packs, signed-in owner: My packs is the FIRST thing (above the shop) with the panel at its TOP, above the pack cards", async () => {
     shop("/packs#my-packs");
     const panel = await screen.findByTestId("packs-bridge");
     const mine = screen.getByTestId("packs-mine");
-    expect(mine.contains(panel)).toBe(false);
-    expect(screen.getByTestId("packs-bridge-section").contains(panel)).toBe(true);
-    const shopEnd = screen.getByTestId("shop-children");
-    expect(shopEnd.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(mine.contains(panel)).toBe(true);
+    const card = screen.getByTestId("packs-owned");
+    expect(panel.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(mine.compareDocumentPosition(screen.getByTestId("shop-children")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("packs-bridge-pass")).toBeTruthy();
   });
 
@@ -117,14 +117,16 @@ describe("BRIDGE-PANEL-1 · mount", () => {
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
   });
 
-  it("My packs never waits for the panel; the panel appears once, complete, when its chunk + reads are ready", async () => {
+  it("ONE reveal: My packs (cards) waits for the panel, then both appear in the same commit", async () => {
     let release!: () => void;
     hook.hold = new Promise<void>((r) => (release = r));
     shop("/packs");
-    expect(await screen.findByTestId("packs-owned")).toBeTruthy();
-    expect(screen.queryByTestId("packs-bridge")).toBeNull();
+    await waitFor(() => expect(hook.calls).toBe(1));
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByTestId("packs-owned")).toBeNull();
     release();
-    expect(await screen.findByTestId("packs-bridge")).toBeTruthy();
+    await screen.findByTestId("packs-owned");
+    expect(screen.getByTestId("packs-bridge")).toBeTruthy();
   });
 
   it("the panel is prepared only for an owner (no chunk, no reads for a signed-in student with no pack)", async () => {
@@ -135,11 +137,12 @@ describe("BRIDGE-PANEL-1 · mount", () => {
     expect(hook.calls).toBe(0);
   });
 
-  it("a panel whose reads never finish: My packs shows at once and the panel never appears", async () => {
+  it("a panel whose reads never finish: after the cap My packs is revealed WITHOUT it, and it never appears later", async () => {
     hook.never = true;
     shop("/packs");
-    expect(await screen.findByTestId("packs-owned")).toBeTruthy();
-    await new Promise((r) => setTimeout(r, 2700));
+    expect(await screen.findByTestId("packs-owned", {}, { timeout: 4000 })).toBeTruthy();
+    expect(screen.queryByTestId("packs-bridge")).toBeNull();
+    await new Promise((r) => setTimeout(r, 300));
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
   });
 
@@ -159,5 +162,74 @@ describe("BRIDGE-PANEL-1 · mount", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show files" }));
     expect(await screen.findByText("Chapter Test 1 · Questions")).toBeTruthy();
     err.mockRestore();
+  });
+});
+
+describe("BRIDGE-PANEL-1 round 3 · the reserved My packs slot (device height hint, owner 22:45)", () => {
+  const hintFor = (uid: string, px: number) =>
+    localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: uid, t: Date.now(), h: { [String(window.innerWidth)]: px } }));
+  beforeEach(() => {
+    localStorage.clear();
+    delete (window as { __ltMineHint?: unknown }).__ltMineHint;
+  });
+
+  it("a returning owner (hint for this account): the slot holds the hinted height from the FIRST render, with a placeholder, until My packs arrives", async () => {
+    hintFor("u1", 640);
+    let release!: () => void;
+    hook.hold = new Promise<void>((r) => (release = r));
+    shop("/packs");
+    const slot = screen.getByTestId("packs-mine-slot");
+    expect(slot.style.minHeight).toBe("640px");
+    expect(screen.getByTestId("packs-mine-skeleton")).toBeTruthy();
+    release();
+    await screen.findByTestId("packs-bridge");
+    expect(screen.queryByTestId("packs-mine-skeleton")).toBeNull();
+  });
+
+  it("the static page's hand-over (window.__ltMineHint) is used before auth is known; another account -> no reservation", async () => {
+    (window as { __ltMineHint?: unknown }).__ltMineHint = { u: "u1", px: 500 };
+    shop("/packs");
+    expect(screen.getByTestId("packs-mine-slot").style.minHeight).toBe("500px");
+    cleanup();
+    auth.user = { uid: "someone-else" };
+    shop("/packs");
+    await waitFor(() => expect(screen.getByTestId("packs-mine-slot").style.minHeight).toBe(""));
+  });
+
+  it("the first reveal WITH its panel records this account's height for this width (the next visit reserves it)", async () => {
+    const real = HTMLElement.prototype.getBoundingClientRect;
+    const spy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      return this.getAttribute("data-testid") === "packs-mine" ? ({ height: 812, width: 360, top: 0, left: 0, right: 360, bottom: 812, x: 0, y: 0, toJSON: () => ({}) } as DOMRect) : real.call(this);
+    });
+    shop("/packs");
+    await screen.findByTestId("packs-bridge");
+    await waitFor(() => expect(localStorage.getItem("lt.packs.mineHint.v1")).not.toBeNull());
+    const v = JSON.parse(localStorage.getItem("lt.packs.mineHint.v1") || "{}");
+    expect(v.u).toBe("u1");
+    expect(Object.keys(v.h)).toEqual([String(window.innerWidth)]);
+    expect(v.h[String(window.innerWidth)]).toBe(812);
+    expect(v).not.toHaveProperty("packs");
+    spy.mockRestore();
+  });
+
+  it("a hint, but the account owns no pack (server): the reservation is dropped and the hint forgotten", async () => {
+    hintFor("u1", 640);
+    fetchMine.mockResolvedValue({ packs: [], licensee: { name: "", email: "a@b.in" }, boardPassCredit: null });
+    shop("/packs");
+    await waitFor(() => expect(screen.getByTestId("packs-mine-slot").style.minHeight).toBe(""));
+    expect(localStorage.getItem("lt.packs.mineHint.v1")).toBeNull();
+  });
+
+  it("signed out / no hint: an empty slot, no reservation, no placeholder (zero layout cost); never in the /pricing strip", async () => {
+    auth.user = null;
+    hintFor("u1", 640);
+    shop("/packs");
+    expect(screen.getByTestId("packs-mine-slot").style.minHeight).toBe("");
+    expect(screen.queryByTestId("packs-mine-skeleton")).toBeNull();
+    cleanup();
+    auth.user = { uid: "u1" };
+    shop("/pricing");
+    await screen.findByTestId("packs-owned");
+    expect(screen.queryByTestId("packs-mine-slot")).toBeNull();
   });
 });

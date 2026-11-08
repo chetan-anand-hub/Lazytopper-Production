@@ -4,7 +4,7 @@
  * WHY NOT React.lazy: a lazy component suspends on its first render even when its module is already loaded, and React then holds the
  * reveal ~300 ms, so the panel landed in a second commit and then grew again when its reads arrived. Instead the panel's module AND
  * its data are fetched first (`prepareMyPacksBridge`); the panel then renders once, complete, and never changes size afterwards.
- * PacksShop places it in its own section BELOW the shop (inside My packs, above the painted hero, it pushed the page down).
+ * PacksShop shows it at the TOP of My packs and reveals My packs together with it, into space the device hint reserved (mineHint.ts).
  *
  * Only a pack OWNER pays for it: PacksShop calls this after `/api/packs/mine` returned at least one pack. Capped: if the module or the
  * reads take longer than BRIDGE_PREPARE_CAP_MS (or fail), the result is null and there is no panel this visit (it never pops in later).
@@ -14,7 +14,7 @@ import { Component, type ComponentType, type ReactNode } from "react";
 import type { AuthUser } from "../../context/AuthContext";
 import type { MyPacksBridgeProps } from "./MyPacksBridge";
 
-/** The longest the panel may take (chunk + reads); past it there is no panel this visit, so it never appears late. */
+/** The longest My packs waits for the panel (chunk + reads); past it My packs is revealed without it, and it never appears late. */
 export const BRIDGE_PREPARE_CAP_MS = 2500;
 
 export interface BridgeReady {

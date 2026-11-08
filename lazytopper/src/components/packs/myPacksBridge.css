@@ -3,8 +3,8 @@
  * soft-white Board Pass card. Scoped under `.lt-packs .lt-pb` (a lazy route's stylesheet is global once loaded).
  * Phone first (360px); at 1024px the Board Pass card moves beside the papers. Every control is at least 44px tall.
  */
-/* Its own section below the shop on /packs (review #1645 B1: inside My packs it pushed the painted page down). */
-.lt-packs .lt-packs__getmarked { padding: 8px 0 16px; }
+/* At the top of My packs (owner 22:45), under its heading, above the pack cards. */
+.lt-packs .lt-packs__mine .lt-pb { margin: 12px 0 4px; }
 
 .lt-packs .lt-pb {
   --pb-navy: #0f1b33;
