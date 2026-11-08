@@ -1,3 +1,17 @@
+## 2026-11-08 (daily, second) - #1637 - #1646
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`598896cc`** [git].
+
+- **Done [git/gh]:** 6 PRs merged (table in CURRENT_STATE): `#1637`, `#1638`, `#1639`, `#1640`, `#1642`, `#1646`. No grading change. Server guard against a second Board Pass order; CBQ chooser and Answer Checker accessibility; first-visit Answer Checker phone paint; islands phase 2; "no AI in selling copy"; the pricing FAQ on how an answer is marked.
+- **NEXT, in order** (the full queue is in the project handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-08_NIGHT.md`):
+  1. Re-derive trunk. Read CURRENT_STATE (its second-daily block), SURFACE_TRACKER and the "8 Nov (daily, second)" section of OPEN_QUESTIONS_AND_FOLLOWUPS. List open PRs with the gh REST API (GraphQL is blocked).
+  2. **MERGE THE PACK GROUP FIRST, in this order: `#1644` -> `#1643` -> `#1645`**, back to back, each at its reviewed head with `sha=<head>`. `#1643` and `#1645` owe the rework of the owner's 22:45 ruling (CBQ in parts; My packs panel on the first screen, CLS <= 0.01): delta review before merge. Then `#1641` (quick fixes + delta) and `#1647` (review).
+  3. **After the pack group is live (owner approved the grade):** live check on the owner's account (download a pack: pages 2-3 and the QR; Answer Checker with a `PK-` code; My packs panel at 360 and 1280, no jump; a Board Pass holder sees the packs card, not the Board Pass card). Re-download the `PK-M-RN-CT1` graded sheet after `#1647` and re-host it. `[FU-CBQ-SAMPLE]`: grade one CBQ set (about Rs11 of the owner's allowance) and use it on the CBQ pack pages. Regenerate the CBQ free-sample PDFs and shop preview images. Full regression, signed-in checklist, perf matrix "after" columns.
+  4. **Owner-approved small items:** `[FU-YT-DEMO-VIDEO]` (script and storyboard to the owner first), `[FU-PRICING-MYPACKS-REDIRECT-CLS]`, `[FU-CBQ-H1-RESERVE]`.
+  5. **Dated checks:** 13-15 Nov Quality Score landing-page rating; 15 Nov Vercel Speed Insights; 16 Nov PDF Packs review; 1 Dec 07:56 IST paint-shell and /for-parents recapture. Reminders: Google Ads balance (about 2 days at the 8 Nov rate), Resend Pro (free plan ends about 14 Nov, then `GST_INVOICE_EMAIL_DAILY_CAP` 10 -> 30).
+  6. Ads still to do: the "study app" ad group in Sign-ups v2 (copy to the owner first), an "AI" sweep of ad text, search-terms review for NCERT Maths and YouTube.
+  7. **Pricing-page redesign stays ON HOLD** (owner, 7 Nov 23:44). `LIMITS_ENFORCE` must stay ON in Railway.
+
 ## 2026-11-08 (daily) - #1628 - #1635
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ca6f1f1c`** [git].

@@ -1,3 +1,19 @@
+> **2026-11-08 (daily, second) - #1637 - #1646 (CLAUDE.md section 10).** Scope: Board Pass checkout guard, the CBQ chooser and Answer Checker a11y, the Answer Checker first paint, the island pages (Important Questions, CBQ chapters, NCERT Hub), selling copy and the pricing FAQ. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none | unchanged | the 6 Nov second-surface checks stay owed |
+| Checkout (Board Pass) | server refuses a second pass order from a covered account; open unpaid order reused (`#1637`) | **merged, live** | `[FU-ENTITLEMENT-PASSEND-FREE]`, the same-instant race |
+| CBQ chooser and Answer Checker tabs | focus to the heading, `role=tab`/`aria-selected` (`#1638`) | **merged, live** | none |
+| Answer Checker first paint (/check-improve) | fixed first demo question for first visits; phone LCP 4.30 -> 0.91 s (`#1639`) | **merged, live** | `[FU-MAIN-ENTRY-FAIL-BLANK]`, `[FU-CI-EARLYTAP-RESERVES]`, `[FU-PAINT-SHELL-1DEC-RECAPTURE]` |
+| Island pages (/highly-probable, /cbq-class-10, /ncert-class-10) | no-React island for signed-out visitors; 2 JS requests, TBT 0 (`#1640`) | **merged, live** | `[FU-ISLAND-LIGHTHOUSE-POINTER]` |
+| Selling copy, /pricing FAQ, Welcome | "CBSE examiner style marking", "your tutor", FAQ "How is my answer marked?" (`#1642`, `#1646`) | **merged, live** | `[FU-AI-DISCLOSURE-LINE]` |
+| /packs, pack PDFs, Answer Checker pack codes, My packs panel | bridge to Board Pass (`#1644`, `#1643`, `#1645`) | **open, reviewed, NOT merged** | merge `#1644` -> `#1643` -> `#1645`; `[FU-MYPACKS-CLS]`, `[FU-CBQ-SAMPLE]` |
+| Answer Checker in-app browsers | static paint for YouTube/Instagram/Facebook (`#1641`) | **open, delta PASS-WITH-FU, NOT merged** | quick fixes, delta, merge, live in-app check |
+| Graded sheet header (all 6 callers) | right kind and marking date (`#1647`) | **open, in review, NOT merged** | review, merge, re-host the sample |
+
+No grading surface moved.
+
 > **2026-11-08 (daily) - #1628 - #1635 (CLAUDE.md section 10).** Scope: checkout and GST (month-pass upgrade, state before Razorpay, past-sales lookup), /login, the practice hub, the CBQ chooser, the mobile bottom nav, the Answer Checker first paint, layout shift on three pages. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

@@ -1,3 +1,21 @@
+## 2026-11-08 (daily, second) - #1637 - #1646: a money race, the first screen of the Answer Checker, and "no AI" in the copy (trunk `598896cc`)
+
+**PROVENANCE.** *(Second daily handoff of 8 Nov, CLAUDE.md section 10. Covers the 6 merges after `#1636`. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]**, live steps **[coordinator]** and findings **[reviewer]** from the session log `ops_0811b.md` and the `REVIEW_16xx.md` files; trunk **[git]**. Session chat: https://claude.ai/code/session_01QscBGosvAbUpCD158g7uHW ; earlier sessions: 7 Nov `session_01QscBGo4jGdSa2ghv63PoFh`, 6 Nov `session_01QscBGkaaojHjmnivneUPMi`, 5 Nov `session_01QscBGnz7CtUWG1EddXnTRB`, 4 Nov evening `session_01QscBGpFxjKnBBNSqF5rRhT`.)*
+
+**How the window went [gh; coordinator; owner].**
+- **Midday.** The owner confirmed the two 14 Oct orders were his own test payments (`[FU-GST-TEST-ORDERS-14OCT]` closed) and approved the CBQ chooser a11y, the Answer Checker on phones and a comment-only edit of `DesktopShell.tsx`. `#1637` closed a race where two unpaid Board Pass orders both charged and granted. At 13:05 the owner asked that every fix work on mobile, desktop and other sizes; the lane brief now requires 360, 412, 768, 1023, 1024, 1280 and 1440. At 13:13 the owner said the product is live and students are using it; the NOTHING BREAKS method file was written from the 4-8 Nov sessions.
+- **Afternoon.** `#1638` shipped the small follow-ups. `#1639` made the first demo question fixed so a first-time phone visitor sees it at once (LCP 4.30 -> 0.91 s). `#1640` served three more page families from the no-React island (22-44 JS requests -> 2; TBT -> 0).
+- **Evening.** `#1642` removed "AI" from selling copy; `#1646` added the honest "How is my answer marked?" FAQ. In parallel the PDF-pack-to-Board-Pass bridge was designed, approved by the owner from a mock-up, and built as five PRs (`#1643`, `#1644`, `#1645`, `#1647`, plus `#1641` for in-app browsers); they were NOT merged this session.
+- **Ads.** With the owner's yes: Sign-ups v2 keywords -> phrase and +28 negatives; locations on every running campaign changed from India or 16 states to the top 100 CBSE cities; the PDF Packs phrase negative "mcq" removed. Details in DECISION_LOG.
+
+**LESSON: strict review again paid for itself: 7 of the 11 PRs of the day were HELD for real student-visible bugs that CI passed (a dropped held tap, a next-tap miss, a mark scrolled off-screen, a 900 ms scroll yank, a late panel adding 0.17-0.42 CLS).** The bugs were found by replaying real tap and load sequences on a production-flag build, not by the gates [coordinator; reviewer].
+
+**LESSON: measure on live before believing a reviewer's number.** A reviewer reported early-tap CLS 0.117 "on trunk"; the live measure was 0.019-0.023. The 0.117 came from the reviewer's local build only [coordinator].
+
+**LESSON: restarting the regression harness needs BOTH `diff.cjs` and `run.cjs` killed.** Regression #10 was invalid because a duplicate harness ran concurrently after one process was killed [coordinator].
+
+**Method notes.** Lab numbers are quoted with the sample that gave them. PSI mobile is quoted as the Lighthouse run gave it; Lighthouse reports a coarse pointer, so the static paint and the island are served to it only where the code allows (`[FU-PAINT-COARSE-LIGHTHOUSE]`, `[FU-ISLAND-LIGHTHOUSE-POINTER]`).
+
 ## 2026-11-08 (daily) - #1628 - #1635: eight PRs, mostly site speed; five of them were held for real bugs that every gate passed (trunk `ca6f1f1c`)
 
 **PROVENANCE.** *(Daily handoff of 8 Nov, CLAUDE.md section 10. Covers the 8 merges after `#1627`. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** and live steps **[coordinator]** as relayed in the brief; trunk **[git]**.)*
