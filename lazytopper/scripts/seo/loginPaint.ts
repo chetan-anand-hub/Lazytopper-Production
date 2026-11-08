@@ -500,6 +500,11 @@ const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input"
  * A non-whitespace top-level text node throws (it could not be hidden or removed by attribute).
  */
 export function markTopLevel(fragment: string, kind: PaintKind): string {
+  return markTopLevelWith(fragment, PAINT_ATTR, kind);
+}
+
+/** `markTopLevel` with any attribute name and value (SPEED-CI-1 marks the route region `data-lt-static`). */
+export function markTopLevelWith(fragment: string, attr: string, value: string): string {
   let out = "";
   let i = 0;
   let depth = 0;
@@ -536,8 +541,8 @@ export function markTopLevel(fragment: string, kind: PaintKind): string {
         i = end + 1;
         continue;
       }
-      if (depth === 0 && !tag.includes(` ${PAINT_ATTR}=`)) {
-        tag = tag.replace(/^<([a-zA-Z][a-zA-Z0-9-]*)/, `<$1 ${PAINT_ATTR}="${kind}"`);
+      if (depth === 0 && !tag.includes(` ${attr}=`)) {
+        tag = tag.replace(/^<([a-zA-Z][a-zA-Z0-9-]*)/, `<$1 ${attr}="${value}"`);
       }
       out += tag;
       i = end + 1;

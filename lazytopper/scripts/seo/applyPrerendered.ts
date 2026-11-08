@@ -921,7 +921,7 @@ export function paintPagesFor(path: string): Array<{ file: string; variant: "mob
 export function applyPaintShells(
   outDir: string,
   prerenderedDir: string = PRERENDERED_DIR,
-  options: { emailCodeOn: boolean; criticalCss?: boolean },
+  options: { emailCodeOn: boolean; criticalCss?: boolean; freeCheckOn?: boolean },
 ): { pages: number; paths: string[] } {
   const manifestFile = join(prerenderedDir, "manifest.json");
   const listed = existsSync(manifestFile)
@@ -985,16 +985,23 @@ export function applyPaintShells(
   for (const path of PAINT_PATHS) {
     for (const variant of PAINT_VARIANTS) {
       const read = (kind: "door" | "signing-in") => readFileSync(paintFragmentPathFor(prerenderedDir, path, kind, variant), "utf8");
+      // SPEED-CI-1 (review of #1635, B2): the static Answer Checker is the FREE-CHECK page, which exists only
+      // when this build's VITE_FREE_CHECK_ENABLED is on; off, React renders the Premium gate. So off writes
+      // the plain shell (today's blank page) to all three files — the desktop file must still exist,
+      // because middleware.ts rewrites desktop clients to it.
       const built =
         path === CHECK_IMPROVE_PATH
-          ? buildCheckImprovePaintPage(shell, read("door"), checkImprovePaintConfig(variant, record.clock), ciRouteStyles())
+          ? options.freeCheckOn === false
+            ? shell
+            : buildCheckImprovePaintPage(shell, read("door"), checkImprovePaintConfig(variant, record.clock), ciRouteStyles())
           : buildLoginPaintPage(
               shell,
               { door: read("door"), signingIn: read("signing-in") },
               loginPaintConfig(variant, record.clock),
               options.emailCodeOn,
             );
-      const html = entryCss ? withCriticalEntryCss(built, entryCss, entryCssText, criticalCss) : built;
+      const plain = built === shell;
+      const html = entryCss && !plain ? withCriticalEntryCss(built, entryCss, entryCssText, criticalCss) : built;
       for (const page of paintPagesFor(path).filter((p) => p.variant === variant)) {
         const file = join(outDir, page.file);
         mkdirSync(dirname(file), { recursive: true });
@@ -1007,9 +1014,21 @@ export function applyPaintShells(
 }
 
 /** Re-read the written paint pages and check what they must carry. Empty = good. */
-export function verifyPaintPages(outDir: string, paths: readonly string[] = PAINT_PATHS): string[] {
+export function verifyPaintPages(
+  outDir: string,
+  paths: readonly string[] = PAINT_PATHS,
+  options: { freeCheckOn?: boolean } = {},
+): string[] {
   const failures: string[] = [];
   const shell = readFileSync(join(outDir, SPA_SHELL), "utf8");
+  if (options.freeCheckOn === false && paths.includes(CHECK_IMPROVE_PATH)) {
+    for (const { file } of paintPagesFor(CHECK_IMPROVE_PATH)) {
+      const absolute = join(outDir, file);
+      if (!existsSync(absolute)) failures.push(`${CHECK_IMPROVE_PATH}: ${file} was not written (middleware rewrites desktop clients to it)`);
+      else if (readFileSync(absolute, "utf8") !== shell) failures.push(`${CHECK_IMPROVE_PATH}: ${file} is not the plain shell although the free check is off`);
+    }
+    paths = paths.filter((p) => p !== CHECK_IMPROVE_PATH);
+  }
   const head = (html: string) => html.slice(0, html.indexOf("<body"));
   const robots = (html: string) => html.match(ANY_ROBOTS_META) ?? [];
   const canonical = (html: string) => html.match(/<link rel="canonical"[^>]*>/g) ?? [];
@@ -1326,12 +1345,17 @@ async function main(): Promise<void> {
   // (process env + .env files, mode production), so the slot matches the bundle's own first commit.
   const { loadEnv } = await import("vite");
   const viteEnv = loadEnv("production", LAZYTOPPER_ROOT, "VITE_");
-  const painted = applyPaintShells(outDir, PRERENDERED_DIR, { emailCodeOn: emailCodeFlagOn(viteEnv.VITE_EMAIL_CODE_SIGNIN_ENABLED) });
-  const paintFailures = painted.pages > 0 ? verifyPaintPages(outDir, painted.paths) : [];
+  const freeCheckOn = emailCodeFlagOn(viteEnv.VITE_FREE_CHECK_ENABLED);
+  const painted = applyPaintShells(outDir, PRERENDERED_DIR, {
+    emailCodeOn: emailCodeFlagOn(viteEnv.VITE_EMAIL_CODE_SIGNIN_ENABLED),
+    freeCheckOn,
+  });
+  const paintFailures = painted.pages > 0 ? verifyPaintPages(outDir, painted.paths, { freeCheckOn }) : [];
   // eslint-disable-next-line no-console
   console.log(
     `PAINT_SHELLS_APPLY: paths=${painted.paths.join(",") || "none (pre-capture: /login keeps the shell)"} ` +
       `pages=${painted.pages} email_code_slot=${emailCodeFlagOn(viteEnv.VITE_EMAIL_CODE_SIGNIN_ENABLED) ? "on" : "off"} ` +
+      `check_improve=${freeCheckOn ? "painted" : "plain-shell (VITE_FREE_CHECK_ENABLED off)"} ` +
       `failures=${paintFailures.length}`,
   );
   if (paintFailures.length > 0) {

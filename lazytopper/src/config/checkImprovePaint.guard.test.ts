@@ -22,6 +22,12 @@ import {
 } from "../../scripts/seo/checkImprovePaint";
 import { PAINT_ATTR, PAINT_PATHS, PAINT_PRESSED_CLASS, PAINT_READY_CLASS, PAINT_ROUTE_KINDS } from "../../scripts/seo/loginPaint";
 import { inAppBrowser } from "../utils/inAppBrowser";
+import { STATIC_ATTR, withStaticRouteRegion } from "../../scripts/seo/checkImprovePaint";
+import { emailCodeFlagOn } from "../../scripts/seo/loginPaint";
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { SPA_SHELL, applyPaintShells, verifyPaintPages } from "../../scripts/seo/applyPrerendered";
+import { paintFragmentPathFor, PAINT_DIR } from "../../scripts/seo/loginPaint";
 
 /**
  * GUARD — SPEED-CI-1, the Answer Checker's paint shell (`scripts/seo/checkImprovePaint.ts`).
@@ -174,7 +180,8 @@ const F =
   `${ROUTE_FALLBACK_HTML}</div><div data-lt-bottomnav=""><button>Home</button></div>`;
 const C =
   `<div style="padding-bottom: 60px;">${ROUTE_START}<div class="phone-shell"><h1 style="font-family: Fraunces, serif">Answer Checker</h1>` +
-  `<a class="x" href="/pricing">Plans</a><button type="button">Check</button></div>${ROUTE_END}</div><div data-lt-bottomnav=""><button>Home</button></div>`;
+  `<a class="x" href="/pricing">Plans</a><a class="marks" href="/check-your-answer">How marks are given</a><textarea class="lt-eq__textarea"></textarea>` +
+  `<button type="button">Check</button></div>${ROUTE_END}</div><div data-lt-bottomnav=""><button>Home</button></div>`;
 
 describe("composition", () => {
   it("F with its RouteFallback replaced by C's route region (marks kept)", () => {
@@ -303,7 +310,8 @@ describe("the shipped script (jsdom)", () => {
       while (root.firstChild) root.removeChild(root.firstChild);
       root.appendChild(document.createElement("main"));
       await new Promise((r) => setTimeout(r, 0));
-      expect(removed).toEqual([["click", true]]);
+      expect(removed).toContainEqual(["click", true]);
+      expect(removed).toContainEqual(["focusin", true]);
     } finally {
       document.removeEventListener = original;
     }
@@ -330,5 +338,152 @@ describe("the shipped script (jsdom)", () => {
     resolveLoad([{}]);
     await new Promise((r) => setTimeout(r, 0));
     expect(root2.querySelector("h1")).toBe(h1b);
+  });
+});
+
+describe("review of #1635 — the static page is inert until the static content is gone", () => {
+  const page = () =>
+    buildCheckImprovePaintPage(SHELL, composeRouteShell(F, C), checkImprovePaintConfig("mobile", { from: 0, until: Number.MAX_SAFE_INTEGER }), []);
+  let restore: () => void = () => {};
+  beforeEach(() => {
+    vi.spyOn(Date, "now").mockReturnValue(NOW);
+    localStorage.clear();
+    sessionStorage.clear();
+    const original = window.matchMedia;
+    window.matchMedia = ((q: string) => ({ matches: q.includes("pointer") ? true : q.includes("max-width") })) as unknown as typeof window.matchMedia;
+    restore = () => {
+      window.matchMedia = original;
+    };
+  });
+  afterEach(() => {
+    restore();
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+    document.documentElement.className = "";
+    document.documentElement.removeAttribute(PAINT_STATE_ATTR);
+  });
+  const fire = (el: Element, type: string, init: Record<string, unknown> = {}) => {
+    const event = new Event(type, { bubbles: true, cancelable: true, ...init });
+    el.dispatchEvent(event);
+    return event.defaultPrevented;
+  };
+
+  it("the route region's top-level nodes are marked static at build time", () => {
+    const marked = withStaticRouteRegion(composeRouteShell(F, C));
+    expect(marked).toContain(`${ROUTE_START}<div ${STATIC_ATTR}="" class="phone-shell">`);
+    expect(marked.split(`${STATIC_ATTR}=""`)).toHaveLength(2);
+  });
+
+  it("(a) a static field can never be focused by a pointer, is blurred if focused, and takes no keys, input or paste", () => {
+    const root = runPage(page());
+    const area = root.querySelector("textarea") as HTMLTextAreaElement;
+    expect(fire(area, "mousedown")).toBe(true);
+    area.focus();
+    expect(document.activeElement).not.toBe(area);
+    for (const type of ["keydown", "keypress", "beforeinput", "input", "paste", "drop"]) expect(fire(area, type), type).toBe(true);
+    expect(area.value).toBe("");
+  });
+
+  it("(b)+(c) the guard lives until the PRERENDERED copy is gone; React's nodes are never touched", async () => {
+    const removed: string[] = [];
+    const original = document.removeEventListener.bind(document);
+    document.removeEventListener = ((type: string, fn: EventListener, opts?: boolean) => {
+      removed.push(type);
+      return original(type, fn, opts);
+    }) as typeof document.removeEventListener;
+    try {
+      const root = runPage(page());
+      // React's first commit: its own chrome, plus main.tsx's copy of the route region (attributes kept).
+      const region = Array.from(root.querySelectorAll(`[${STATIC_ATTR}]`)).map((n) => n.cloneNode(true) as Element);
+      while (root.firstChild) root.removeChild(root.firstChild);
+      const chrome = document.createElement("div");
+      const reactButton = document.createElement("button");
+      chrome.appendChild(reactButton);
+      const anchor = document.createElement("template");
+      anchor.setAttribute("data-lt-route", "prerendered");
+      chrome.appendChild(anchor);
+      for (const node of region) chrome.appendChild(node);
+      root.appendChild(chrome);
+      await new Promise((r) => setTimeout(r, 0));
+      expect(removed).toEqual([]);
+      // Still static: "How marks are given" does not navigate, a tap shows pressed, the field stays inert.
+      const marks = root.querySelector("a.marks") as HTMLAnchorElement;
+      expect(fire(marks, "click")).toBe(true);
+      expect(marks.classList.contains(PAINT_PRESSED_CLASS)).toBe(true);
+      expect(fire(root.querySelector("textarea") as Element, "keydown")).toBe(true);
+      // React's own node: untouched.
+      expect(fire(reactButton, "click")).toBe(false);
+      expect(reactButton.classList.contains(PAINT_PRESSED_CLASS)).toBe(false);
+      expect(reactButton.hasAttribute("aria-busy")).toBe(false);
+      // The route mounts: the prerendered copy is removed, the guard goes with it.
+      for (const node of region) node.remove();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(removed).toContain("click");
+      expect(removed).toContain("keydown");
+      expect(removed).toContain("focusin");
+    } finally {
+      document.removeEventListener = original;
+    }
+  });
+
+  it("(c) before React, the marks link and every static link are swallowed with pressed feedback", () => {
+    const root = runPage(page());
+    const marks = root.querySelector("a.marks") as HTMLAnchorElement;
+    expect(fire(marks, "click")).toBe(true);
+    expect(marks.getAttribute("aria-busy")).toBe("true");
+  });
+});
+
+describe("review of #1635 — B2: the build's free-check flag", () => {
+  const made: string[] = [];
+  afterEach(() => {
+    for (const d of made.splice(0)) rmSync(d, { recursive: true, force: true });
+  });
+  function build(freeCheckOn: boolean) {
+    const dir = mkdtempSync(join(tmpdir(), "lt-ci-flag-"));
+    made.push(dir);
+    const out = join(dir, "out");
+    const art = join(dir, "prerendered");
+    mkdirSync(out, { recursive: true });
+    writeFileSync(join(out, SPA_SHELL), SHELL);
+    for (const variant of ["mobile", "desktop"] as const) {
+      for (const [path, kind] of [["/login", "door"], ["/login", "signing-in"], ["/check-improve", "door"]] as const) {
+        const file = paintFragmentPathFor(art, path, kind, variant);
+        mkdirSync(join(file, ".."), { recursive: true });
+        writeFileSync(
+          file,
+          path === "/check-improve"
+            ? composeRouteShell(F, C)
+            : '<div><a class="lt-login-back-link" href="/">&lt;- Back to home</a><a class="lt-offer-strip-link" href="/pricing?source=login">p</a><button>Continue with email</button></div>',
+        );
+      }
+    }
+    writeFileSync(join(art, "manifest.json"), JSON.stringify({ paths: [], paintPaths: [...PAINT_PATHS] }));
+    writeFileSync(join(art, PAINT_DIR, "paint.json"), JSON.stringify({ paths: [...PAINT_PATHS], clock: CLOCK }));
+    applyPaintShells(out, art, { emailCodeOn: false, criticalCss: false, freeCheckOn });
+    return out;
+  }
+  const files = ["check-improve.html", "check-improve/index.html", "__desktop/check-improve.html"];
+
+  it("flag OFF: all three files are the plain shell (blank, today) and still exist for middleware", () => {
+    const out = build(false);
+    for (const f of files) expect(readFileSync(join(out, f), "utf8"), f).toBe(SHELL);
+    expect(verifyPaintPages(out, ["/check-improve"], { freeCheckOn: false })).toEqual([]);
+    expect(existsSync(join(out, "login.html"))).toBe(true);
+  });
+
+  it("flag ON: all three files are painted", () => {
+    const out = build(true);
+    for (const f of files) expect(readFileSync(join(out, f), "utf8"), f).toContain('data-lt-paint="door"');
+    expect(verifyPaintPages(out, ["/check-improve"], { freeCheckOn: false }).join("\n")).toMatch(/not the plain shell/);
+  });
+
+  it("the build reads the flag with the client's own grammar", () => {
+    const client = readFileSync(resolve(__dirname, "../services/freeCheckClient.ts"), "utf8");
+    expect(client).toContain('/^(1|true|on|yes)$/i.test(readEnv("VITE_FREE_CHECK_ENABLED"))');
+    expect(emailCodeFlagOn(" ON ")).toBe(true);
+    expect(emailCodeFlagOn("0")).toBe(false);
+    const apply = readFileSync(resolve(__dirname, "../../scripts/seo/applyPrerendered.ts"), "utf8");
+    expect(apply).toContain("freeCheckOn = emailCodeFlagOn(viteEnv.VITE_FREE_CHECK_ENABLED)");
   });
 });

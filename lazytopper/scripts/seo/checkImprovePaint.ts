@@ -39,6 +39,7 @@ import {
   PAINT_PRESSED_CLASS,
   PAINT_READY_CLASS,
   markTopLevel,
+  markTopLevelWith,
   refreshWebFontText,
   withPaintTheme,
   type PaintVariant,
@@ -108,6 +109,8 @@ export interface CiPaintConfig {
   fontFamily: string;
   /** On <html> once the script has run: "door" or "off" (what the capture's parity check waits for). */
   stateAttr: string;
+  /** On the route region's top-level static nodes (and so on main.tsx's prerendered copy of them). */
+  staticAttr: string;
 }
 
 export interface CiPaintDecision {
@@ -225,10 +228,13 @@ export function checkImprovePaintConfig(variant: PaintVariant, clock: { from: nu
     fontLoad: "700 1em Fraunces",
     fontFamily: "Fraunces",
     stateAttr: PAINT_STATE_ATTR,
+    staticAttr: STATIC_ATTR,
   };
 }
 
 export const PAINT_STATE_ATTR = "data-lt-paint-state";
+/** Marks the route region's top-level nodes as static (see the script). Never on a React-rendered node. */
+export const STATIC_ATTR = "data-lt-static";
 
 function prelude(config: CiPaintConfig): string {
   return (
@@ -259,14 +265,28 @@ export function checkImprovePaintScript(config: CiPaintConfig): string {
     `var shown=apply(root,decision.kind,config.attr);` +
     `document.documentElement.setAttribute(config.stateAttr,shown);` +
     `if(shown==="off")return;` +
-    `var guard=function(event){var t=event.target;var hit=t&&t.closest?t.closest("["+config.attr+"]"):null;` +
-    `if(!hit)return;event.preventDefault();event.stopPropagation();` +
+    // ★ INERT UNTIL THE STATIC CONTENT IS GONE (review of #1635, B1). "Static" is anything under a
+    // [data-lt-paint] node (until React's first commit) OR under a [data-lt-static] node: the route
+    // region's top-level nodes carry it, and main.tsx's copy of that region (the prerendered fallback,
+    // shown until the route chunk mounts) carries it too. React's own nodes never do, so nothing here
+    // ever touches them. Taps: swallowed and shown pressed (no navigation, no file picker). Fields:
+    // never focused by a pointer (mousedown), blurred if focused another way, and no key, input,
+    // paste or drop reaches them — nothing can be typed that React would then wipe.
+    `var sel="["+config.attr+"],["+config.staticAttr+"]";` +
+    `var staticOf=function(t){return t&&t.closest?t.closest(sel):null;};` +
+    `var field=function(t){return !!(t&&t.closest&&t.closest("input,textarea,select,[contenteditable]"));};` +
+    `var click=function(event){var t=event.target;var hit=staticOf(t);if(!hit)return;event.preventDefault();event.stopPropagation();` +
     `var control=t.closest("button,a,label,input,textarea,select,[role=button]");if(control&&hit.contains(control)){control.classList.add(config.pressedClass);control.setAttribute("aria-busy","true");}};` +
-    `document.addEventListener("click",guard,true);` +
+    `var hold=function(event){if(staticOf(event.target)){event.preventDefault();event.stopPropagation();}};` +
+    `var keys=function(event){if(staticOf(event.target)&&field(event.target)){event.preventDefault();event.stopPropagation();}};` +
+    `var focus=function(event){var t=event.target;if(staticOf(t)&&field(t)&&t.blur)t.blur();};` +
+    `var on=[["click",click],["mousedown",hold],["submit",hold],["drop",hold],["dragstart",hold],["keydown",keys],["keypress",keys],["beforeinput",keys],["input",keys],["paste",keys],["focusin",focus]];` +
+    `for(var i=0;i<on.length;i+=1)document.addEventListener(on[i][0],on[i][1],true);` +
     `var gone=function(){return !root.querySelector("["+config.attr+"]");};` +
+    `var staticGone=function(){return !root.querySelector(sel);};` +
     `var reactIn=function(){for(var n=root.firstElementChild;n;n=n.nextElementSibling)if(!n.hasAttribute(config.attr))return true;return false;};` +
-    `if(typeof MutationObserver==="function"){var watch=new MutationObserver(function(){if(gone()){document.removeEventListener("click",guard,true);watch.disconnect();}});` +
-    `watch.observe(root,{childList:true});}` +
+    `if(typeof MutationObserver==="function"){var watch=new MutationObserver(function(){if(staticGone()){for(var j=0;j<on.length;j+=1)document.removeEventListener(on[j][0],on[j][1],true);watch.disconnect();}});` +
+    `watch.observe(root,{childList:true,subtree:true});}` +
     `document.documentElement.classList.add(config.readyClass);` +
     `if(document.fonts&&typeof document.fonts.load==="function"){document.fonts.load(config.fontLoad).then(function(faces){` +
     `if(faces&&faces.length&&!gone()&&!reactIn()){try{refresh(root,config.attr,config.fontFamily);}catch(e){}}},function(){});}` +
@@ -333,7 +353,20 @@ export function composeRouteShell(firstCommit: string, contentCommit: string): s
 
 /** For comparing a static state with React's DOM: drop the route templates (they render nothing) and the paint marks. */
 export function withoutRouteTemplates(html: string): string {
-  return html.replace(/<template data-lt-route="(?:start|end|prerendered)"><\/template>/g, "").replace(/ data-lt-paint="[a-z-]+"/g, "");
+  return html
+    .replace(/<template data-lt-route="(?:start|end|prerendered)"><\/template>/g, "")
+    .replace(/ data-lt-paint="[a-z-]+"/g, "")
+    .replace(/ data-lt-static=""/g, "");
+}
+
+/** Every top-level element of the route region (between the marks) gains `data-lt-static=""`. */
+export function withStaticRouteRegion(door: string): string {
+  const start = door.indexOf(ROUTE_START);
+  const end = door.lastIndexOf(ROUTE_END);
+  if (start < 0 || end < start) throw new Error("checkImprovePaint: the static state has no route region to mark");
+  const inner = door.slice(start + ROUTE_START.length, end);
+  const marked = markTopLevelWith(inner, STATIC_ATTR, "");
+  return door.slice(0, start + ROUTE_START.length) + marked + door.slice(end);
 }
 
 const VIEWPORT_META = /<meta name="viewport"[^>]*>/g;
@@ -355,5 +388,5 @@ export function buildCheckImprovePaintPage(
   return withPaintTheme(shellHtml)
     .replace(metas[0], () => `${metas[0]}${checkImprovePaintCss(config.variant)}`)
     .replace("</head>", () => `${styles}</head>`)
-    .replace(emptyRoot, () => `<div id="root">${markTopLevel(door, "door")}</div>${checkImprovePaintScript(config)}`);
+    .replace(emptyRoot, () => `<div id="root">${markTopLevel(withStaticRouteRegion(door), "door")}</div>${checkImprovePaintScript(config)}`);
 }
