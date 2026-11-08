@@ -64,6 +64,8 @@ function makePdfStub() {
     setTextColor: vi.fn(),
     setFillColor: vi.fn(),
     rect: rectMock,
+    roundedRect: vi.fn(),
+    getTextWidth: () => 40,
     text: vi.fn(),
     setProperties: propsMock,
   };
@@ -89,7 +91,7 @@ vi.mock("html2canvas", () => ({
   },
 }));
 
-import { exportWorksheetPdf, buildPaperQrMatrix, PAPER_QR_MM } from "./worksheetPdfExport";
+import { exportWorksheetPdf, buildPaperQrMatrix, PAPER_QR_MM, renderBridgePages } from "./worksheetPdfExport";
 
 const ws: PersistedWorksheet = {
   worksheetId: "ws-test",
@@ -190,5 +192,35 @@ describe("GRADE-ROUTE-2 - PDF metadata + footer QR", () => {
     rectMock.mockClear();
     await exportWorksheetPdf(ws, "answers", "PK-M-RN-CT1", { licensee: { name: "A", email: "a@b.c", orderId: "o1" } });
     expect(rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM)).toHaveLength(0);
+  });
+});
+
+describe("BRIDGE-PDF-1 review - free samples and image failures", () => {
+  const bridge = { packLabel: "Real Numbers \u00b7 Chapter Pack", exampleCode: "PK-M-RN-CT1", boardPassCard: true };
+
+  it("a FREE SAMPLE carries no QR, no paper-code metadata and no pages 2-3, even if asked for them", async () => {
+    await exportWorksheetPdf(ws, "questions", "PK-M-RN-CT1", {
+      sample: { line: "x", meta: "sample-meta" },
+      cover: { kicker: "K", title: "T", subtitle: "S", stats: [] },
+      bridge,
+    });
+    expect(rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM)).toHaveLength(0);
+    expect(propsMock.mock.calls.every((c) => (c[0] as { subject?: string }).subject !== "PK-M-RN-CT1")).toBe(true);
+    expect(addPageMock).not.toHaveBeenCalled(); // one page: no cover, no bridge pages
+    expect(addImageMock.mock.calls.filter((c) => c[1] === "JPEG")).toHaveLength(1);
+  });
+
+  it("pages 2-3 are built only when every sample image decoded; a failed build is not cached (the next try can succeed)", async () => {
+    const h2c = vi.fn(async () => ({ width: 1588, height: 2246, toDataURL: () => "data:image/jpeg;base64,BBB" }));
+    // jsdom never decodes an image: naturalWidth 0 -> no pages, and no capture was even attempted
+    const failed = await renderBridgePages(bridge, h2c as never, 5);
+    expect(failed).toEqual([]);
+    expect(h2c).not.toHaveBeenCalled();
+    // the same content again, now with the images decoded: built (so the failure above was not cached)
+    vi.spyOn(HTMLImageElement.prototype, "naturalWidth", "get").mockReturnValue(400);
+    vi.spyOn(HTMLImageElement.prototype, "complete", "get").mockReturnValue(true);
+    const ok = await renderBridgePages(bridge, h2c as never, 5);
+    expect(ok).toHaveLength(2);
+    expect(h2c).toHaveBeenCalledTimes(2);
   });
 });

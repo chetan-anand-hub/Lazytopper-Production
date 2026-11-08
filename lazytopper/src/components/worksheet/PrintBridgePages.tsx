@@ -61,7 +61,7 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
         <div className="lt-br__step">
           <span className="lt-br__stepn">STEP 1</span>
           <span className="lt-br__stept">Write your answers</span>
-          <span className="lt-br__stepb">On plain paper. Write the paper code at the top — it is printed on every paper{data.exampleCode ? <>, e.g. <b>{data.exampleCode}</b>. Or photograph the QR at the bottom of the paper</> : null}.</span>
+          <span className="lt-br__stepb">On plain paper. Write the paper code at the top — it is printed on every paper{data.exampleCode ? <>, e.g. <b className="lt-br__code">{data.exampleCode}</b>. Or photograph the QR at the bottom of the paper</> : null}.</span>
         </div>
         <div className="lt-br__step">
           <span className="lt-br__stepn">STEP 2</span>
@@ -172,6 +172,7 @@ const BRIDGE_CSS = `
 .lt-br--views { gap: 22px; }
 .lt-br *, .lt-br *::before, .lt-br *::after { box-sizing: border-box; }
 .lt-br b { color: #0f1b33; }
+.lt-br__code { white-space: nowrap; }
 .lt-br__hd { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #0f1b33; padding-bottom: 12px; gap: 16px; }
 .lt-br__pk { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #46536b; min-width: 0; overflow-wrap: anywhere; }
 .lt-br__site { font-size: 13px; color: #46536b; flex-shrink: 0; }

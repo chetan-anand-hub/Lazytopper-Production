@@ -60,11 +60,21 @@ describe("BRIDGE-PDF-1 - who gets pages 2-3", () => {
     }
   });
 
-  it("a paid Board Pass holder's files leave the Board Pass card out", async () => {
-    const h = harness(owned("pack_chapter:real-numbers"), { bridge: { paidBoardPass: true } });
-    const [first] = await buildPackFiles(h.ref, h.ctx);
-    await first.build();
-    expect(h.calls[0].bridge?.boardPassCard).toBe(false);
+  it("a paid Board Pass holder's files leave the Board Pass card out; so does an entitlement not yet known (null)", async () => {
+    for (const paidBoardPass of [true, null]) {
+      const h = harness(owned("pack_chapter:real-numbers"), { bridge: { paidBoardPass } });
+      const [first] = await buildPackFiles(h.ref, h.ctx);
+      await first.build();
+      expect(h.calls[0].bridge?.boardPassCard, String(paidBoardPass)).toBe(false);
+    }
+  });
+
+  it("subject pack files are headed by the pack's own title", async () => {
+    const h = harness(owned("pack_subject:maths"), { bridge: { paidBoardPass: false } });
+    const files = await buildPackFiles(h.ref, h.ctx);
+    await files[0].build();
+    await files.find((f) => f.code?.startsWith("PK-M-FULL-"))!.build();
+    expect(h.calls.map((c) => c.bridge?.packLabel)).toEqual(["Maths Subject Pack", "Maths Subject Pack"]);
   });
 
   it("mock pack: each paper shows its own PK code under '<Subject> · Mock Pack'", async () => {
@@ -97,7 +107,9 @@ describe("BRIDGE-PDF-1 - who gets pages 2-3", () => {
 describe("BRIDGE-PDF-1 - labels", () => {
   it("names the pack as the checkout does, never repeating the subject", () => {
     expect(bridgePackLabel("Real Numbers", "pack_chapter", "real-numbers")).toBe("Real Numbers · Chapter Pack");
-    expect(bridgePackLabel("Light", "pack_bundle", "all")).toBe("Light · Maths + Science Bundle");
+    expect(bridgePackLabel("Light", "pack_bundle", "science")).toBe("Maths + Science Bundle");
+    expect(bridgePackLabel("Real Numbers", "pack_subject", "maths")).toBe("Maths Subject Pack");
+    expect(bridgePackLabel("Science", "pack_subject", "science")).toBe("Science Subject Pack");
     expect(bridgePackLabel("Maths", "pack_cbq", "maths")).toBe("Maths CBQ Pack");
     expect(bridgePackLabel("Real Numbers", "pack_cbq", "maths")).toBe("Real Numbers · Maths CBQ Pack");
   });
@@ -171,15 +183,18 @@ describe("BRIDGE-PDF-1 - static assets", () => {
 
 describe("BRIDGE-PDF-1 - the pack instruction line", () => {
   const ws = { worksheetId: "w", createdAt: "2026-11-08T00:00:00.000Z", title: "Real Numbers · Chapter Test 1", subject: "Maths", grade: "10", sectionFilter: "A-E", totalMarks: 1, questions: [] } as never;
-  it("a pack paper points to Home -> Papers waiting, never to Worksheets", () => {
-    const t = render(<WorksheetPrintDoc ws={ws} kind="questions" code="PK-M-RN-CT1" packFile />).container.textContent || "";
-    expect(t).toContain("lazytopper.com → Home → Papers waiting for your answers → Upload answers (code PK-M-RN-CT1)");
-    expect(t).not.toContain("Worksheets");
+  it("a pack paper points to My packs / Home -> Papers waiting (as page 2 does), never to Worksheets; the code never wraps", () => {
+    const { container } = render(<WorksheetPrintDoc ws={ws} kind="questions" code="PK-M-RN-CT1" packFile />);
+    const t = container.textContent || "";
+    expect(t).toContain("lazytopper.com → My packs, or Home → Papers waiting for your answers (code PK-M-RN-CT1)");
+    expect(t).not.toContain("Worksheets →");
+    expect(container.querySelector(".lt-wsp__nowrap")?.textContent).toBe("PK-M-RN-CT1");
   });
-  it("a pack question bank (no code) points to the Answer Checker", () => {
+  it("a pack question bank (no code) points to the pack's coded papers via My packs / Papers waiting, and the Answer Checker for single answers", () => {
     const t = render(<WorksheetPrintDoc ws={ws} kind="questions" packFile />).container.textContent || "";
+    expect(t).toContain("each carry a paper code: get them marked at lazytopper.com → My packs, or Home → Papers waiting for your answers");
     expect(t).toContain("Answer Checker at lazytopper.com/check-improve");
-    expect(t).not.toContain("Worksheets");
+    expect(t).not.toContain("Worksheets →");
   });
   it("an in-app worksheet keeps its line", () => {
     const t = render(<WorksheetPrintDoc ws={ws} kind="questions" code="WS-M-RN-01" />).container.textContent || "";
