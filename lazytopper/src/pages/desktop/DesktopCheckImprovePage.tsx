@@ -384,6 +384,23 @@ const MISTAKE_LABELS: Record<MistakeType, { label: string; fg: string; bg: strin
 };
 
 type AnswerTab = "upload" | "type";
+
+/** FU-CHECKIMPROVE-TABS-ARIA — Left/Right/Home/End move between the tabs of a tablist (selection follows focus). */
+function onTablistKeyDown(e: React.KeyboardEvent<HTMLDivElement>): void {
+  const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
+  if (!keys.includes(e.key)) return;
+  const tabs = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+  const at = tabs.indexOf(e.target as HTMLButtonElement);
+  if (at < 0 || tabs.length === 0) return;
+  e.preventDefault();
+  const next =
+    e.key === "Home" ? 0
+    : e.key === "End" ? tabs.length - 1
+    : e.key === "ArrowLeft" || e.key === "ArrowUp" ? (at - 1 + tabs.length) % tabs.length
+    : (at + 1) % tabs.length;
+  tabs[next].focus();
+  tabs[next].click();
+}
 type GradeStatus = "idle" | "loading" | "error" | "ready";
 type SaveStatus = "idle" | "saving" | "saved" | "save-failed" | "no-user";
 
@@ -3329,13 +3346,16 @@ const DesktopCheckImprovePageInner: React.FC<{
             }}
           >
             <div style={sectionEyebrow}>1 · The question</div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8 }} role="tablist" aria-label="How you give the question" onKeyDown={onTablistKeyDown}>
                 {(["type", "upload"] as const).map((t) => {
                   const active = questionTab === t;
                   return (
                     <button
                       key={t}
                       type="button"
+                      role="tab"
+                      aria-selected={active}
+                      tabIndex={active ? 0 : -1}
                       onClick={() => { setQuestionTab(t); clearDetection(); }}
                       style={{
                         flex: 1, height: 34, borderRadius: 8,
@@ -3698,6 +3718,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                   gap: 4,
                   border: `1px solid ${BORDER}`,
                 }}
+                role="tablist"
+                aria-label="How you give your answer"
+                onKeyDown={onTablistKeyDown}
               >
                 {(["upload", "type"] as AnswerTab[]).map((t) => {
                   const active = tab === t;
@@ -3705,6 +3728,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                     <button
                       key={t}
                       type="button"
+                      role="tab"
+                      aria-selected={active}
+                      tabIndex={active ? 0 : -1}
                       onClick={() => {
                         ciAnswerTouchedRef.current = true; // SHW-2
                         setTab(t);

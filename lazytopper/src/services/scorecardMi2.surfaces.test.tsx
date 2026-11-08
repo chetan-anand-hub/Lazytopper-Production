@@ -396,7 +396,7 @@ async function runCiSingle(body: CheckSolutionResponse) {
   H.checkSolutionImage.mockResolvedValue(clone(body));
   renderCheckImprove();
   await readQuestion(SINGLE_Q);
-  fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+  fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
   fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "My working, as written on the page." } });
   await pressGrade();
   await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));

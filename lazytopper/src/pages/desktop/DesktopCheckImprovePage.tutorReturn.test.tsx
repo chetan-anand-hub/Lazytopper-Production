@@ -187,7 +187,7 @@ describe("QP-SCORECARD-2 C · Check & Improve — the tutor returns to the SAVED
     fireEvent.click(screen.getByRole("button", { name: /(Re-read|Read) the question/ }));
     await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
     await act(async () => {});
-    fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
     fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "Let root 2 = p/q in lowest terms ..." } });
     const grade = await screen.findByRole("button", { name: /Grade my answer|Retry grading/ });
     await waitFor(() => expect(grade).not.toBeDisabled());

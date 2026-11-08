@@ -257,7 +257,7 @@ describe("FU-CI-FLAKE-CI-PDF-6MB · no commit shows 2 pages with Grade live on t
 describe("(a) C&I QUESTION path — a 6 MB phone photo of the question", () => {
   it("★ is accepted and read: the detect call gets a JPEG under the cap", async () => {
     const { container } = renderPage();
-    fireEvent.click(screen.getByRole("button", { name: "Upload question(s)" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
     const inputs = container.querySelectorAll('input[type="file"]');
     const questionInput = inputs[0] as HTMLInputElement;
     choose(questionInput, [sixMbPhoto("question.jpg")]);
@@ -329,7 +329,7 @@ describe("(F4) C&I on a phone — Take photo / Choose from gallery", () => {
   it("★ QUESTION: a camera photo of the question is read", async () => {
     stubPointer(true);
     renderPage();
-    fireEvent.click(screen.getByRole("button", { name: "Upload question(s)" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
     choose(expectCameraInput("ci-question-photo-camera-input"), [sixMbPhoto("question.jpg")]);
     fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
     const read = await screen.findByRole("button", { name: /Read the question/ });
@@ -358,7 +358,7 @@ describe("LOW-END-1 PR-2 · C&I copy", () => {
   it("★ coarse pointer: both PDF-taking pickers say 'Gallery or files'; the tip names the page tray; a loaded photo says 'Tap'", async () => {
     stubPointer(true);
     renderPage();
-    fireEvent.click(screen.getByRole("button", { name: "Upload question(s)" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
     expect(screen.getByTestId("ci-question-photo-gallery").textContent).toContain("Gallery or files");
     cleanup();
     stubPointer(true);
