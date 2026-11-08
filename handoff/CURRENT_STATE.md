@@ -1,3 +1,38 @@
+## [CURRENT - 2026-11-08 (daily) - #1628 - #1635: GST-FU-1, SPEED-CLS-2, SPEED-LOGIN-1/2, SPEED-HUB-3, SPEED-CBQPICK-1, SPEED-NAV-1, SPEED-CI-1] `#1628` `#1629` `#1630` `#1631` `#1632` `#1633` `#1634` `#1635`
+
+*(Daily handoff of 8 Nov, CLAUDE.md section 10, for the 8 PRs merged after `#1627`. `#1628` to `#1631` merged on the evening of 7 Nov UTC, which is 8 Nov 00:47 to 04:18 IST; the other four merged on 8 Nov IST. Trunk at writing: **`ca6f1f1c`** (`#1635`, the last merge) [git ls-remote, re-derived before the branch was made; it did not move]. **No grading behaviour changed (CLAUDE.md section 4a): none of the 8 PRs touches marks, mistake types, departure handling, the objective clamp or a prompt rule.** Facts marked **[gh]** come from each PR's data via the gh REST API; **[owner]** and **[coordinator]** as relayed in this lane's brief.)*
+
+Adds to the blocks below, which stay current for everything this block does not name.
+
+| PR | merge SHA | merged (IST) | what it changed |
+|---|---|---|---|
+| `#1628` GST-FU-1 | `d8eab1c7` | 8 Nov 00:47 | A month-pass holder on `?buy=board_pass` now gets the Board Pass upgrade start (owner, 7 Nov 23:44, "1. Yes"). A `?buy=` link with a remembered state stops at Pay and shows "State: ... - Change"; Razorpay no longer opens by itself. A PendingBell tap is ignored while sign-in loads. Past sales: a Razorpay "no record" answer (no or invalid payment id, 400/404, order mismatch) is permanent, so the form goes to the account email with the reason on the admin row (the refund check is skipped only for these; the owner has never refunded anyone). Any @razorpay.com address counts as no address (past-sale forms, guest receipt, invoice email). Review HOLD B1 (a double buyPass race) was fixed before merge. |
+| `#1629` SPEED-CLS-2 | `1c036883` | 8 Nov 01:48 | The lazy offer card holds its space (only for viewers who see it). The Answer Checker sample-card placeholder is sized. /for-parents keeps its prices in the first render and its late padding is fixed. |
+| `#1630` SPEED-LOGIN-1 | `ca3da65f` | 8 Nov 02:59 | /login ships React's first frame as static HTML (390 and 1280 px; noindex kept). An inline script picks the state, or leaves the page BLANK when in doubt (in-app browsers, sign-in intents, `?method`/`finish`/`mode`/`oobCode`, buy intents, width mismatch, the 1 Dec cut-off). A Google redirect return shows "Signing you in..." only. Static controls are inert and show a pressed state. Review HOLD (a date in a test comment tripped `DATE_SENSITIVE_GUARD`) was fixed. |
+| `#1631` SPEED-LOGIN-2 | `c78e2cae` | 8 Nov 04:18 | A Fraunces metric fallback on `.lt-login-title`, and a font-loaded swap of the static Fraunces nodes, so React's heading never becomes a later LCP (desktop). The swap is guarded and does nothing once React is in `#root`. |
+| `#1632` SPEED-HUB-3 | `2eac530a` | 8 Nov 06:58 | Practice-hub taps navigate one frame after paint (`src/lib/afterNextPaint.ts`, cancellable; `src/lib/useNavigateAfterPaint.ts` drops stale navigations by href and history key under BrowserRouter transitions). Hub sections are memoised; mode cards show a pressed outline. Selection parity proven (the `#1592` fixture). Review HOLD B1 (stale navigation under transitions) was fixed. |
+| `#1633` SPEED-CBQPICK-1 | `debcca6a` | 8 Nov 09:23 | The CBQ chooser (`src/lib/desktop/homeDestinations.tsx`, a gated file; the owner's 8 Nov 08:08 instruction was treated as authorisation for this file and fix) injects its CSS once, on first open. The inline-SVG close is sized like the old glyph. |
+| `#1634` SPEED-NAV-1 | `0a8c728b` | 8 Nov 10:21 | Mobile BottomNav (the `BottomNav` in `App.tsx` ONLY; owner, 8 Nov 05:22, "Ok") paints the pressed tab at once, navigates after paint and prefetches the tab's route chunk. The last tab tapped wins; Back clears; a repeat tap on the same tab is ignored (`nav_pricing_tap` fires once per navigation). Review HOLD B1/B2 (a second tab ignored; the bar dead after Back) was fixed. |
+| `#1635` SPEED-CI-1 | `ca6f1f1c` | 8 Nov 10:45 | The loginPaint pipeline is generalised to per-route paint shells. /check-improve (Answer Checker) gets a static first frame for predictable signed-out first visits (blank when in doubt; the static page is fully inert until the route loads; a plain shell when `VITE_FREE_CHECK_ENABLED` is off). Review HOLD B1 (typing wiped) and B2 (flag ignored) were fixed. |
+
+**Live results [coordinator], lab numbers unless noted.**
+- `#1628`: owner month-pass `?buy=board_pass` -> Pay focused with the state line at 360 and 1280 px. Admin: 23 past sales -> 20 queued, 3 with no email.
+- `#1629`: CLS at 360 / 1280 px. CBQ landing 0.075 / 0.079 -> 0.001 / 0.003. Answer Checker 0.03 / 0.078 -> 0 / 0.001. /for-parents 0.02 / 0.06 -> 0.021 / about 0.004.
+- `#1630`: PSI mobile /login score 97, FCP 0.9 s, LCP 0.9 s (was 3.2 s); desktop 99.
+- `#1631`: desktop /login LCP about 1.8 s -> about 0.6 s.
+- `#1632`: INP Quick Practice 184 -> 24 ms, Important Questions 216 -> 24 ms. Arrival is 18-19 ms later (stated honestly). The owner's topic -> Quick Practice -> Back works. TWO consecutive Real Numbers sets had 0 overlap (the unique-set design is intact, owner 23 Oct ruling).
+- `#1633`: first open 80-88 -> 64-72 ms. The CSS is absent before the first open and present once after; close and reopen work; "Open CBQs" lands correctly.
+- `#1634`: at 360 px, 4 runs, tabs respond in 16-40 ms (were 440-1168 ms) and land correctly, signed out and signed in.
+- `#1635`: desktop LCP 4.0-4.6 s -> 0.54-0.74 s. Phone FCP is earlier; phone LCP is unchanged (about 4 s, a random demo question).
+
+**Grading surfaces (CLAUDE.md section 4a).** NONE moved by any of the 8 PRs. Answer Checker (single and multi-question upload), Worksheet, Chapter Test, Full Mock and Quick Practice: unchanged. The 6 Nov second-surface live checks stay owed.
+
+**Static paint shells switch themselves OFF at 1 Dec 00:00 IST.** The /login and /check-improve static first frames are captured at the current prices. At 1 Dec 00:00 IST (price change) both fall back to the blank shell (safe, slower) until the capture is re-run and merged (`[FU-PAINT-SHELL-1DEC-RECAPTURE]`).
+
+**Stage.** Launch-hardening, conversion and site speed. Speed lanes this window: layout shift, /login, practice hub, CBQ chooser, mobile bottom nav, Answer Checker first paint. Checkout: month-pass upgrade link and the state line before Razorpay.
+
+**Live checks owed.** The 6 Nov grader second-surface checks (`#1583`, `#1584`, `#1585`); the money check; the past-sales form end to end on a real buyer.
+
 ## [CURRENT - 2026-11-07 (daily, second) - #1625 - #1626: GST-INVOICE-BACKDATE-1, PREEXIST-FIX-1; GST invoicing switched ON live] `#1625` `#1626`
 
 *(Second daily handoff of 7 Nov, CLAUDE.md section 10, for the 2 PRs merged after `#1624`. Both merged on 7 Nov: `#1625` at 21:18 IST, `#1626` at 23:19 IST. Trunk at writing: **`6f578d2b`** (`#1626`, the last merge) [git ls-remote, re-derived before the branch was made; it did not move]. **No grading behaviour changed (CLAUDE.md section 4a): neither PR touches marks, mistake types, departure handling, the objective clamp or a prompt rule.** Facts marked **[gh]** come from each PR's data via the gh REST API; **[owner]** and **[coordinator]** as relayed in this lane's brief.)*

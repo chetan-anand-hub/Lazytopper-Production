@@ -1,3 +1,16 @@
+## 2026-11-08 (daily) - #1628 - #1635
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ca6f1f1c`** [git].
+
+- **Done [git/gh]:** 8 PRs merged (table in CURRENT_STATE): `#1628` to `#1635`. No grading change. Speed work shipped for /login, layout shift, the practice hub, the CBQ chooser, the mobile bottom nav and the Answer Checker first paint. GST follow-ups shipped in `#1628`.
+- **NEXT, in order** (the queue is in the project handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-08.md`):
+  1. Re-derive trunk. Read CURRENT_STATE, SURFACE_TRACKER and the "8 Nov (daily)" section of OPEN_QUESTIONS_AND_FOLLOWUPS.
+  2. **1 Dec first, by date:** `[FU-PAINT-SHELL-1DEC-RECAPTURE]`. Re-run the capture (a `[ci-full]` capture PR) on the morning of 1 Dec; until then /login and /check-improve use the blank shell.
+  3. **Islands phase 2:** NCERT Hub, Important Questions, CBQ chapter pages (`[FU-ISLANDS-PHASE-2]`).
+  4. **GST and server follow-ups:** `[FU-BOARDPASS-SERVER-DUP-GUARD]`, `[FU-GST-TEST-ORDERS-14OCT]` (owner to confirm), `[FU-RESEND-PRO]` (free plan runs out about 14 Nov).
+  5. **Pricing-page redesign is ON HOLD** (owner, 7 Nov 23:44, "2. Hold"). Do not start it.
+  6. Carried: the 6 Nov grader second-surface live checks; GSC indexing for the Exemplar Science pages and /packs; the money check; ads "+ GST".
+
 ## 2026-11-07 (daily, second) - #1625 - #1626
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6f578d2b`** [git].

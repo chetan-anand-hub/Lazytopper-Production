@@ -1,3 +1,21 @@
+## 2026-11-08 (daily) - #1628 - #1635: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 7 and 8 Nov 2026, each with its reason where one was given. Tags: **[owner]**, **[coordinator]**.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Month-pass holders get the Board Pass upgrade sheet from `?buy=board_pass` [owner, 7 Nov 23:44, "1. Yes"] | built in `#1628` | the old early return did nothing for a month-pass account; the owner wants them able to upgrade. |
+| Pricing-page redesign is ON HOLD [owner, 7 Nov 23:44, "2. Hold"] | no redesign work starts | the owner chose to hold it. |
+| Delete the old lane branches [owner, 7 Nov 23:44, "3. Yes"] | done through the GitHub UI | the session proxy blocks ref deletion. |
+| Send the state forms [owner, 7 Nov 23:44, "4. Yes"] | past-sale forms queued | past sales must be invoiced (CA). |
+| `App.tsx` is editable for the BottomNav only [owner, 8 Nov 05:22, "Ok"] | `#1634` edits `BottomNav` and nothing else in the file | the file is globally forbidden; the speed fix needed that one component. |
+| The practice hub gives a unique set every time a student comes back [owner, 8 Nov 07:29] | re-states the 23 Oct ruling; the "keep topic on Back" idea is withdrawn | verified live: two consecutive Real Numbers sets had 0 overlap. |
+| This session finishes bottom nav, CBQ chooser and Answer Checker desktop [owner, 8 Nov 08:08] | everything else goes to the next session; the instruction was treated as authorisation to edit the gated `homeDestinations.tsx` for `#1633` | keeps the session's scope small. |
+| Answer Checker paint is kept at 390 px too [coordinator] | no phone exclusion | the reviewer found phone boot-tap INP the same or better, and long-task total unchanged. |
+| The /for-parents heading font-swap CLS (0.021) is left [coordinator] | no further work | it is inside the "good" range. |
+| The prerender re-capture lane is dropped [coordinator] | no lane | the "134 stale fragments" claim was a local artefact. |
+| Razorpay "no record" is permanent for past sales [coordinator; owner] | the form goes to the account email with the reason on the admin row; the refund check is skipped only for these | the owner has never refunded anyone (F2, 7 Nov). |
+
 ## 2026-11-07 (daily, second) - #1625 - #1626: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 7 Nov 2026, each with its reason where one was given. Tags: **[owner]**, **[coordinator]**.
