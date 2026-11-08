@@ -129,7 +129,7 @@ async function typeQuestionAndAnswerSignedOut() {
   fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: QUESTION } });
   fireEvent.click(screen.getByRole("button", { name: /Read the question/ }));
   await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
-  fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+  fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
   fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: ANSWER } });
   // the 800 ms autosave debounce
   await waitFor(() => expect(window.sessionStorage.getItem(CI_DRAFT_KEY)).not.toBeNull(), { timeout: 3000 });

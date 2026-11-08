@@ -135,7 +135,7 @@ describe("FU-CI-TYPEFIRST-MULTI - a whole paper moves a type-first answer tab to
     H.detectQuestion.mockResolvedValue(READ(5));
     render(page());
     await waitFor(() => expect(typeBox()).not.toBeNull());
-    fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
     await readQuestion();
     expect(await screen.findByText("5 questions detected")).toBeTruthy();
     expect(typeBox()).not.toBeNull();

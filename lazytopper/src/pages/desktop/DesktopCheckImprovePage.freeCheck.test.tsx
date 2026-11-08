@@ -153,7 +153,7 @@ async function readQuestion() {
 }
 
 async function gradeTypedAnswer() {
-  fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+  fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
   fireEvent.change(screen.getByLabelText("Type your answer"), {
     target: { value: "Let root 2 = p/q in lowest terms, then 2q^2 = p^2 ..." },
   });

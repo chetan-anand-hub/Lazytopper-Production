@@ -261,3 +261,41 @@ describe("PACK-READY-1 · one message only: the toast yields to a mounted PacksS
     expect(track.ready).not.toHaveBeenCalledWith(expect.anything(), "toast");
   });
 });
+
+describe("FU-MYPACKS-SIGNEDOUT · /packs#my-packs has a target for a signed-out visitor", () => {
+  it("shows the My packs heading and ONE sign-in line that returns to /packs#my-packs; no pack data, no fetch", async () => {
+    auth.user = null;
+    shop("/packs#my-packs");
+    const sec = await screen.findByTestId("packs-mine-signedout");
+    expect(sec.id).toBe("my-packs");
+    expect(sec.querySelector("h2")?.textContent).toBe("My packs");
+    expect(sec.textContent).toContain("Sign in to see your packs");
+    fireEvent.click(screen.getByTestId("packs-mine-signin"));
+    await waitFor(() => expect(where).toBe("/login"));
+    expect(redirectTo).toBe("/packs#my-packs");
+    expect(fetchMine).not.toHaveBeenCalled();
+  });
+
+  it("is only for that hash: plain /packs signed out shows nothing; embedded (pricing) and signed-in are untouched", async () => {
+    auth.user = null;
+    shop("/packs");
+    await waitFor(() => expect(screen.getByText("open mock")).toBeTruthy());
+    expect(screen.queryByTestId("packs-mine-signedout")).toBeNull();
+    cleanup();
+    shop("/pricing#my-packs");
+    await waitFor(() => expect(screen.getByText("open mock")).toBeTruthy());
+    expect(screen.queryByTestId("packs-mine-signedout")).toBeNull();
+    cleanup();
+    auth.user = { uid: "u1" };
+    shop("/packs#my-packs");
+    await screen.findByTestId("packs-mine");
+    expect(screen.queryByTestId("packs-mine-signedout")).toBeNull();
+  });
+
+  it("a local-session user (any account record) never sees the sign-in line", async () => {
+    auth.user = { uid: "local", isLocalSession: true } as unknown as { uid: string };
+    shop("/packs#my-packs");
+    await waitFor(() => expect(screen.getByText("open mock")).toBeTruthy());
+    expect(screen.queryByTestId("packs-mine-signedout")).toBeNull();
+  });
+});

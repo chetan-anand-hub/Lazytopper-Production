@@ -562,7 +562,10 @@ export function DesktopShell({ children }: DesktopShellProps) {
             {/* Notifications bell — HOME-PENDING-1 (owner-approved edit of this file, bell
                 only): a badge with the papers waiting for answers and a popover listing
                 them (components/home/PendingBell, the Home strip's own memoised read).
-                Signed out it is the same inert bell as before. */}
+                Signed out the bell is the sign-in door: a tap navigates to
+                /login?redirect=<this page>, so the student returns here after signing in
+                (PendingBell; still a <button>, not an anchor). While auth is loading a tap
+                does nothing. */}
             <PendingBell user={user} />
 
             {/* Identity / login - kept visually secondary so it doesn't dominate */}
