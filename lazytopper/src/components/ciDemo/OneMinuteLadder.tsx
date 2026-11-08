@@ -179,16 +179,17 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       });
       observer.observe(block, { childList: true, subtree: true });
     }
-    // The same module OffersBlock's lazy() loads: once it has resolved and React has had frames to render it, a block
-    // that still shows no rows has none to show (or the chunk failed): settle then too.
-    const frame = (next: () => void) => {
-      if (!live) return;
-      if (typeof requestAnimationFrame === "function") requestAnimationFrame(next);
-      else window.setTimeout(next, 16);
+    // The same module OffersBlock's lazy() loads. The rows normally appear right after it resolves (the observer above
+    // settles then); a block that has rendered no rows a second after the module is in has none to show (or its chunk
+    // failed): settle then, so the page below is never left hidden. (A few frames were not enough on a slow phone: React
+    // can render the lazy rows later than that, and the rows then moved the shown page — measured 0.285 once at 4x CPU.)
+    let fallback: number | undefined;
+    const later = () => {
+      if (live) fallback = window.setTimeout(done, 1000);
     };
-    const afterFrames = () => frame(() => frame(() => frame(done)));
-    void import("../packs/OfferRows").then(afterFrames, afterFrames);
+    void import("../packs/OfferRows").then(later, later);
     return () => {
+      if (fallback !== undefined) window.clearTimeout(fallback);
       live = false;
       observer?.disconnect();
       document.removeEventListener("click", done);
