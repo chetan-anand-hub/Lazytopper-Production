@@ -169,6 +169,16 @@ describe("an early tap's verdict settles without a reserved height", () => {
     expect(P.prefetch).toHaveBeenCalledTimes(1);
   });
 
+  it("the student's tap released the hide before the rows came: the rows wait too, then show after a later tap", () => {
+    (window as W).__ltStaticTap = { id: "one-min-opt-2", bank: LIGHT };
+    render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+    act(() => {
+      fireEvent.pointerDown(document.body);
+    });
+    expect(ladder().hasAttribute("data-settling")).toBe(false);
+    expect(ladder().hasAttribute("data-rows-wait")).toBe(true);
+  });
+
   it("rows later than the hide: held out of the layout, then shown after the student's next tap (never moving the view)", () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame"] });
     try {

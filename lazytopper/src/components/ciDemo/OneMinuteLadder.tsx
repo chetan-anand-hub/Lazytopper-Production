@@ -179,6 +179,8 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     prefetchOfferRows();
     let live = true;
     let mounted = true;
+    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
+    const rowsIn = () => !!block?.querySelector('[data-testid="offers-packs"]');
     let observer: MutationObserver | undefined;
     let cap: number | undefined;
     const INPUT = ["touchstart", "pointerdown", "wheel", "keydown"] as const;
@@ -195,9 +197,15 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       if (cap !== undefined) window.clearTimeout(cap);
       for (const type of INPUT) window.removeEventListener(type, now, true);
     };
+    // Settling ends with the rows still on their way (the cap, or the student's input first): they wait out of the
+    // layout (rowsWait below) rather than land on top of what the student is now looking at.
+    const holdLateRows = () => {
+      if (mounted && block && !rowsIn()) setRowsWait(true);
+    };
     const done = () => {
       if (!live) return;
       stop();
+      holdLateRows();
       frame(() => frame(() => {
         if (mounted) setSettling(false);
       }));
@@ -206,10 +214,9 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     function now() {
       if (!live) return;
       stop();
+      holdLateRows();
       if (mounted) setSettling(false);
     }
-    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
-    const rowsIn = () => !!block?.querySelector('[data-testid="offers-packs"]');
     for (const type of INPUT) window.addEventListener(type, now, { capture: true, passive: true });
     if (!block || rowsIn()) {
       done();
@@ -220,10 +227,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
         });
         observer.observe(block, { childList: true, subtree: true });
       }
-      cap = window.setTimeout(() => {
-        if (live && !rowsIn() && mounted) setRowsWait(true);
-        done();
-      }, 1500);
+      cap = window.setTimeout(done, 1500);
     }
     return () => {
       mounted = false;
