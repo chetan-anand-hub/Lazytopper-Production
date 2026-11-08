@@ -93,6 +93,7 @@ describe("PaperCodeRouteBanner: pack codes", () => {
     expect(H.saved).toHaveBeenCalledWith("u1", "PK-S-ELE-CBQ2");
     expect(screen.queryByTestId("paper-code-route-go")).toBeNull();
     expect(screen.getByTestId("paper-code-pack-note-go").getAttribute("href")).toBe("/packs#my-packs");
+    expect(screen.getByTestId("paper-code-pack-note-go").textContent).toBe("Go to PDF packs");
     expect(document.body.textContent).not.toMatch(/\bAI\b|Premium|Check & Improve/);
     fireEvent.click(screen.getByTestId("paper-code-route-skip"));
     expect(screen.queryByTestId("paper-code-pack-note")).toBeNull();

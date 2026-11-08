@@ -119,13 +119,15 @@ export default function PaperCodeRouteBanner({ uid, texts, files }: PaperCodeRou
         <style>{CSS}</style>
         <p className="lt-pcr__lead">{packNotSaved} is a paper from a LazyTopper PDF pack.</p>
         <p className="lt-pcr__body">
-          It is not in your papers on this account yet. If you bought the pack, open My packs while signed in and download
-          this paper once. It then waits on Home under &ldquo;Papers waiting for your answers&rdquo;, ready to be marked
-          against its own answer key.
+          It is not in your papers on this account yet. If you bought the pack with this account, download this paper once
+          from My packs on the PDF packs page. It then waits on Home under &ldquo;Papers waiting for your answers&rdquo;,
+          ready to be marked against its own answer key. If you haven&rsquo;t bought it, you can still check your answers
+          here, question by question.
         </p>
         <div className="lt-pcr__actions">
+          {/* FU-4 (review 1643): an owner lands on My packs; anyone else lands on the PDF packs page - the label says so. */}
           <Link className="lt-pcr__go" to="/packs#my-packs" data-testid="paper-code-pack-note-go">
-            Open My packs
+            Go to PDF packs
           </Link>
           <button type="button" className="lt-pcr__skip" onClick={() => setDismissed(true)} data-testid="paper-code-route-skip">
             Grade here anyway

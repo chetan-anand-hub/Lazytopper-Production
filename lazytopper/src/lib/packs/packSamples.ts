@@ -43,8 +43,8 @@ export const PACK_SAMPLES: readonly PackSampleSpec[] = [
   spec("pack_subject", "maths", 1, "worksheet-questions"),
   spec("pack_subject", "science", 1, "worksheet-questions"),
   spec("pack_bundle", "all", 2, "worksheet-questions"),
-  spec("pack_cbq", "maths", 0, "cbq-1-questions"),
-  spec("pack_cbq", "science", 0, "cbq-1-questions"),
+  spec("pack_cbq", "maths", 0, "cbq-set-1-questions"),
+  spec("pack_cbq", "science", 0, "cbq-set-1-questions"),
 ];
 
 export const SAMPLES_DIR = "/samples";
