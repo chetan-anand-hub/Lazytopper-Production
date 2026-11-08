@@ -4,6 +4,9 @@
 //   type from it, and scripts/seo/applyPrerendered.ts imports islandConfig.ts), which has no DOM lib.
 /**
  * SPEED-ISLANDS-1 — the island for prerendered content pages (notes, NCERT and Exemplar solutions).
+ * SPEED-ISLANDS-2 — the same island also serves Important Questions, the CBQ chapter pages and the NCERT Hub: their
+ * controls are all upgrade-and-replay (buttons, the dropdowns via `onChange`), links or native `<details>`; a URL that
+ * asks for a non-default view boots the app at once (`appViewRequested`).
  *
  * ★ WHAT IT DOES. The served page already contains the whole rendered body. Today every visitor then
  * downloads the app entry (~270 KB gzip) and React throws that body away and renders it again — the
@@ -27,7 +30,8 @@
  *   e) `?app=1` forces the app; the build step's allowlist and LT_ISLANDS=0 turn islands off.
  */
 
-import { APP_ENTRY_ATTR, APP_PRELOADS_ATTR, FORCE_APP_PARAM, ISLAND_SCRIPT_ATTR } from "./islandConfig";
+import { APP_ENTRY_ATTR, APP_PRELOADS_ATTR, DESKTOP_QUERY, FORCE_APP_PARAM, ISLAND_SCRIPT_ATTR, ISLAND_VARIANT_ATTR } from "./islandConfig";
+import { packsEntryEnabled } from "./islandFlags";
 import { sendNamedEvent, sendWhatsAppTap, startIslandAnalytics, stopIslandWatches, suppressAppRepeats } from "./islandAnalytics";
 
 /** The value of `<html data-lt-island>`: the island is live, the app is loading, or the app has taken over. */
@@ -45,13 +49,106 @@ export const BOTTOM_NAV_ROUTES: Readonly<Record<string, string>> = {
   // "Pricing" also sends nav_pricing_tap, so it is an upgrade-and-replay (the app sends it, then navigates).
 };
 
-/** Links whose app-side click handler sends an event before navigating: upgrade-and-replay, never a bare navigation. */
-export const TRACKED_LINK = 'a[href="/check-improve"], a[href^="/pricing"]';
+/**
+ * Links whose app-side click handler does something before (or instead of) navigating: upgrade-and-replay, never a
+ * bare navigation. `/check-improve` and `/pricing` send an event first; the NCERT Hub's "All chapters" rows
+ * (`a.lt-nb__allch`, NcertBooksPage.tsx AllChaptersRow) pick the chapter IN PLACE (setParams, scroll kept), which a
+ * full navigation would turn into a reload at the top of the page.
+ */
+export const TRACKED_LINK = 'a[href="/check-improve"], a[href^="/pricing"], a.lt-nb__allch';
 
-/** Where the app adds content the island must not render (rule c): pack offers and the sign-in button. */
-export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal"];
+/**
+ * Where the app adds content the island must not render (rule c): pack offers and prices. Phase 2: the CBQ chapter
+ * page's pack card (its price is in the served markup, PRERENDER-PRICE-GUARD-1, but the app re-renders it from the
+ * live price setting), and the end of the Important Questions list, where the app alone adds the buying block
+ * (HighlyProbableQuestions.tsx ImportantQsOffers, never in the served markup).
+ */
+export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal", "section.lt-cbqs__cta--pack", "div.lt-show-all"];
+/**
+ * SPEED-ISLANDS-2 — pages where the public footer is NOT watched. On the NCERT Hub the footer is the page's only
+ * app-only region, and the hub is so short (360 px: the footer starts ~190 px below the fold) that watching it loads
+ * the app at once. There the footer adds no price and no personalisation: only the quiet "PDF packs" link
+ * (PublicLegalFooter.tsx PacksEntry, lazy, never in the served markup, no price), which the island itself shows from
+ * first paint for a signed-out visitor (`showSignedOutChrome`, ruling of 8 Nov).
+ */
+export const FOOTER_UNWATCHED_PATHS: readonly string[] = ["/ncert-class-10"];
 /** The desktop header row where the app shows "Log in" (signed out): its presence means "desktop variant". */
 export const AUTH_REGION = '[data-testid="pending-bell"]';
+/**
+ * SPEED-ISLANDS-2 (coordinator/cofounder ruling 8 Nov, owner rulings "packs must stay clearly visible" 25 Oct and
+ * "sales first" 30-31 Oct) — the signed-out chrome the app adds is shown by the island from first paint, in the app's
+ * exact markup, so nothing changes at the hand-over:
+ *   - CBQ chapter pages carry App.tsx's top `.navbar`; its right-hand slot is served EMPTY (captured before auth
+ *     resolved). Signed out, App.tsx renders the "Log in" button there (navigate to /login?redirect=<page>).
+ *   - PublicLegalFooter's "PDF packs" link (PacksEntry footer-link, behind VITE_PACKS_ENABLED; hidden only for paid
+ *     Premium, who always have an auth record) after "For parents" — on the NCERT Hub (FOOTER_UNWATCHED_PATHS) while
+ *     its footer is below the fold; every other footer is watched, so the app renders its page-specific href first.
+ * This is safe ONLY because the island runs for a visitor with no auth record (rule a): any record, or a slow or
+ * unreadable store, loads the app instead, and these are rendered only after that check. No price, no personalisation.
+ */
+export const NAVBAR_AUTH_SLOT = ".navbar > div:last-child";
+/** App.tsx's signed-out "Log in" button, style for style. */
+export const LOGIN_BUTTON_STYLE =
+  "border: 1px solid var(--bg-card-border); border-radius: 12px; background: var(--bg-card); color: var(--text-muted); " +
+  "font-weight: 800; font-size: 0.78rem; padding: 6px 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;";
+const LOGIN_ATTR = "data-lt-island-login";
+/** PublicLegalFooter's default packsHref (the NCERT Hub passes none). */
+export const FOOTER_PACKS_HREF = "/pricing#packs";
+
+/** The /login link App.tsx builds for this page (an island path is always a safe internal path). */
+export function loginHrefFor(loc: { pathname: string; search: string }): string {
+  return `/login?redirect=${encodeURIComponent(`${loc.pathname}${loc.search}`)}`;
+}
+
+/** Show the app's signed-out header button and footer pack link. Call only once signed out is established. */
+export function showSignedOutChrome(): void {
+  const slot = document.querySelector(NAVBAR_AUTH_SLOT);
+  if (slot && slot.children.length === 0 && !isReactOwned(slot) && slot.closest("#root")) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("style", LOGIN_BUTTON_STYLE);
+    button.setAttribute(LOGIN_ATTR, "");
+    button.textContent = "Log in";
+    slot.appendChild(button);
+  }
+  // Only where the footer is NOT watched (the NCERT Hub, whose footer passes no packsHref, so the app's link is exactly
+  // FOOTER_PACKS_HREF). Elsewhere the footer is an app-only region: the app loads one screen before it and renders the
+  // link with the page's own href (`/pricing?chapter=<bank>#packs`, pricingPacksHref), which the island cannot know.
+  if (!packsEntryEnabled() || !FOOTER_UNWATCHED_PATHS.includes(window.location.pathname)) return;
+  for (const footer of document.querySelectorAll("#root footer.lt-public-legal")) {
+    // #1640 review FU: never reflow a footer row the visitor can see (desktop hub: CLS 0.008). Below the fold it is free;
+    // in view, the app adds the link when it takes over (desktop hands over on idle), as today.
+    if (footer.getBoundingClientRect().top < window.innerHeight) continue;
+    if (isReactOwned(footer) || [...footer.querySelectorAll("a")].some((a) => a.textContent === "PDF packs")) continue;
+    const parents = [...footer.querySelectorAll('a[href="/for-parents"]')].pop();
+    if (!parents) continue;
+    const link = document.createElement("a");
+    link.href = FOOTER_PACKS_HREF;
+    link.setAttribute("data-discover", "true");
+    link.textContent = "PDF packs";
+    parents.after(link);
+  }
+}
+export const DESKTOP_MIN_WIDTH_PX = 1024;
+
+/** The app's own layout switch (useIsDesktop.ts: `(min-width: 1024px)`). */
+export function desktopWide(): boolean {
+  try {
+    if (typeof window.matchMedia === "function") return window.matchMedia(DESKTOP_QUERY).matches;
+  } catch {
+    /* fall through */
+  }
+  return window.innerWidth >= DESKTOP_MIN_WIDTH_PX;
+}
+
+/**
+ * SPEED-ISLANDS-2 — the capture the build served (`data-lt-variant`, chosen by device) does not fit this window's
+ * layout (chosen by width): a desktop browser narrower than 1024 px, or a tablet in landscape. Today's app re-lays
+ * such a page out at boot, so the island hands over at once rather than keep a layout the app would not show.
+ */
+export function variantMismatch(variant: string, wide: boolean): boolean {
+  return (variant === "desktop" && !wide) || (variant === "mobile" && wide);
+}
 
 /**
  * Byte's peek on a notes page (GUIDE-PUBLIC-1, PublicPeek.tsx) is app-rendered: it shows once per tab after
@@ -134,6 +231,8 @@ type ToggleKind = "hint" | "mm" | "details";
 const toggleState = new Map<string, { d: Descriptor; open: boolean; kind: ToggleKind }>();
 /** Typed answers, by input id. */
 const typed = new Map<string, string>();
+/** SPEED-ISLANDS-2: dropdown choices (the Important Questions topic filter, the NCERT Hub chapter), by select id. */
+const chosen = new Map<string, string>();
 
 function noteRoots(): Element[] {
   return [...document.querySelectorAll(".lt-note")].filter((el) => !isReactOwned(el));
@@ -256,6 +355,10 @@ export function handleOwned(el: Element): boolean {
     recordToggle("mm", el, open);
     return true;
   }
+  if (el.matches(`[${LOGIN_ATTR}]`)) {
+    nav.go(loginHrefFor(window.location));
+    return true;
+  }
   if (el.matches(".lt-note__pdf-btn")) {
     window.print();
     return true;
@@ -278,6 +381,8 @@ export function handleOwned(el: Element): boolean {
 interface IslandConfig {
   appEntry: string;
   preloads: string[];
+  /** "mobile" | "desktop" (the build's capture), or "" from an older build. */
+  variant: string;
 }
 
 /** A tap held for the app, and where it goes if the app never arrives (#1621 review D2). */
@@ -546,6 +651,8 @@ async function lowerCurtain(): Promise<void> {
   let seen = false;
   // Settled: the height held for 2 polls (100 ms) and the reader's text is in the app (or held ~1 s without it).
   while (Date.now() < end && !(stable >= 2 && (seen || stable >= 20))) {
+    // The curtain can go while this waits (finish() from a timeout, a failure): nothing left to lower.
+    if (!curtain) return;
     const height = root.scrollHeight;
     seen = !!findAnchor(readingAnchor(curtain), root);
     stable = height === last ? stable + 1 : 0;
@@ -634,10 +741,15 @@ const READY_TIMEOUT_MS = 30_000;
 const MOUNT_TIMEOUT_MS = 6_000;
 const FIND_TIMEOUT_MS = 6_000;
 
-function pollReady(startedAt: number, loadedAt: () => number): void {
-  if (failed) return;
+/** Bumped by the test seam: a poll from an earlier boot never completes a later one. */
+let epoch = 0;
+
+function pollReady(startedAt: number, loadedAt: () => number, at: number = epoch): void {
+  if (failed || finished || at !== epoch) return;
   if (routeIsReady()) {
-    window.requestAnimationFrame(() => window.setTimeout(() => void complete(), 0));
+    window.requestAnimationFrame(() => window.setTimeout(() => {
+      if (at === epoch) void complete();
+    }, 0));
     return;
   }
   const now = Date.now();
@@ -650,7 +762,7 @@ function pollReady(startedAt: number, loadedAt: () => number): void {
     void complete(); // the app is up but its route never said so: show it, as before
     return;
   }
-  window.setTimeout(() => pollReady(startedAt, loadedAt), 80);
+  window.setTimeout(() => pollReady(startedAt, loadedAt, at), 80);
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
@@ -693,6 +805,22 @@ async function replayState(findTimeoutMs: number): Promise<void> {
     setter?.call(input, value);
     input.dispatchEvent(new Event("input", { bubbles: true }));
   }
+  // 4. Dropdown choices (React-controlled selects: the native setter + a change event reaches onChange). The app may
+  //    render the select a moment after its route mark (data-driven options): wait for it as for a held tap.
+  const pick = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")?.set;
+  for (const [id, value] of chosen) {
+    const end = Date.now() + findTimeoutMs;
+    let select: Element | null | undefined = null;
+    for (;;) {
+      select = appRoot()?.querySelector(`[id="${cssString(id)}"]`);
+      if ((select instanceof HTMLSelectElement && isReactOwned(select)) || Date.now() >= end) break;
+      await sleep(60);
+    }
+    if (!(select instanceof HTMLSelectElement) || !isReactOwned(select) || select.disabled || select.value === value) continue;
+    if (![...select.options].some((o) => o.value === value)) continue; // the app offers no such choice: leave its own
+    pick?.call(select, value);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
 }
 
 /** The app is ready: replay the visitor's state, swap it in without a jump, then complete the held taps. */
@@ -702,9 +830,13 @@ async function complete(): Promise<void> {
     await replayState(FIND_TIMEOUT_MS);
     await lowerCurtain();
     while (queue.length > 0) {
-      const { d } = queue.shift() as Held;
+      const { d, fallback } = queue.shift() as Held;
       const el = await find(d, (e) => !(e as HTMLButtonElement).disabled);
-      el?.click();
+      // #1640 review B1: a held tap is never dropped. If the app has not rendered the control in time (a lazy chunk on a
+      // slow network), a link-like control (a link's href, a bottom-bar route) is completed by a full navigation, which
+      // boots the app on that page; a control with nowhere to go is released (its busy look cleared by finish()).
+      if (el) el.click();
+      else if (fallback) nav.go(fallback);
     }
   } finally {
     finish();
@@ -774,6 +906,7 @@ function hold(el: Element): void {
 
 /** Test seam: forget every module-level state (each test boots a fresh island). */
 export function __resetIslandForTests(): void {
+  epoch += 1;
   while (upgradeCleanups.length > 0) (upgradeCleanups.pop() as () => void)();
   while (cleanups.length > 0) (cleanups.pop() as () => void)();
   config = null;
@@ -786,6 +919,7 @@ export function __resetIslandForTests(): void {
   tabState.clear();
   toggleState.clear();
   typed.clear();
+  chosen.clear();
 }
 
 /* ------------------------------------------------------------------ events */
@@ -840,7 +974,7 @@ function onPointerDown(event: Event): void {
   const el = (event.target as Element | null)?.closest?.(ACTIONABLE);
   if (!el || isReactOwned(el)) return;
   if (failed || (el.matches("a[href]") && !el.matches(TRACKED_LINK))) return; // a navigation (or no app to warm)
-  if (el.matches("summary, .lt-note__tab, .lt-note__mm-node--toggle, .lt-ncs__hintbtn, .lt-note__pdf-btn")) return; // owned
+  if (el.matches(`summary, .lt-note__tab, .lt-note__mm-node--toggle, .lt-ncs__hintbtn, .lt-note__pdf-btn, [${LOGIN_ATTR}]`)) return; // owned
   warm(); // a control that completes in the app (or an answer box): start fetching it now
 }
 
@@ -848,6 +982,10 @@ function onPointerDown(event: Event): void {
 function onToggle(event: Event): void {
   const el = event.target;
   if (!(el instanceof HTMLDetailsElement) || isReactOwned(el)) return;
+  // SPEED-ISLANDS-2: the hidden copy raiseCurtain inserts for the app fires `toggle` for every <details> it carries
+  // open. That is not the visitor's choice, and its descriptor (counted across both copies) names no app element:
+  // replaying it stalled every held tap by FIND_TIMEOUT_MS (6 s) whenever a <details> was open at the upgrade.
+  if (el.closest(`[${HIDDEN_ROOT_ATTR}]`)) return;
   recordToggle("details", el, el.open);
 }
 
@@ -858,6 +996,21 @@ function onInput(event: Event): void {
   // SolutionsPage: Check is enabled once the answer is non-blank. Mirror it, so the tap reaches us.
   const submit = input.form?.querySelector<HTMLButtonElement>('button[type="submit"]');
   if (submit && !isReactOwned(submit)) submit.disabled = !input.value.trim();
+}
+
+/**
+ * SPEED-ISLANDS-2 — a dropdown the app owns (the Important Questions topic filter, the NCERT Hub chapter picker).
+ * Its native control already shows the choice; the app applies it (filters the list, opens the chapter card). So
+ * the choice is recorded, the app is loaded, and the choice is replayed into it (`replayState` step 4).
+ */
+function onChange(event: Event): void {
+  const select = event.target;
+  if (finished || !(select instanceof HTMLSelectElement) || isReactOwned(select) || !select.id) return;
+  chosen.set(select.id, select.value);
+  if (failed) return; // no app is coming: the native control keeps the choice, as with a dead entry on trunk
+  select.classList.add(BUSY_CLASS);
+  select.setAttribute("aria-busy", "true");
+  upgrade();
 }
 
 function onSubmit(event: Event): void {
@@ -925,14 +1078,34 @@ function watchPeek(): void {
   });
 }
 
+/** `upgrade` for a timer: a no-op if the test seam has started another boot since (never fires into a later page). */
+function upgradeFromThisBoot(): () => void {
+  const at = epoch;
+  return () => {
+    if (at === epoch) upgrade();
+  };
+}
+
 export function watchAppRegions(): void {
   watchPeek();
   // Desktop variant: the header's sign-in button is the app's. Load the app once the page is idle.
-  if (document.querySelector(AUTH_REGION)) afterLoad(() => onIdle(upgrade, 2000));
-  const regions = APP_ONLY_REGIONS.flatMap((sel) => [...document.querySelectorAll(sel)]);
+  if (document.querySelector(AUTH_REGION)) afterLoad(() => onIdle(upgradeFromThisBoot(), 2000));
+  // A window resized (or a tablet rotated) across the app's layout switch: the app re-lays the page out today.
+  try {
+    if (typeof window.matchMedia === "function") {
+      const query = window.matchMedia(DESKTOP_QUERY);
+      const onFlip = () => upgrade();
+      query.addEventListener("change", onFlip);
+      cleanups.push(() => query.removeEventListener("change", onFlip));
+    }
+  } catch {
+    /* no media query support: nothing to watch */
+  }
+  const unwatched = FOOTER_UNWATCHED_PATHS.includes(window.location.pathname) ? ["footer.lt-public-legal"] : [];
+  const regions = APP_ONLY_REGIONS.filter((sel) => !unwatched.includes(sel)).flatMap((sel) => [...document.querySelectorAll(sel)]);
   if (regions.length === 0) return;
   if (typeof IntersectionObserver !== "function") {
-    afterLoad(() => onIdle(upgrade, 2000));
+    afterLoad(() => onIdle(upgradeFromThisBoot(), 2000));
     return;
   }
   // Load the app about one screen before the visitor reaches a region the app fills.
@@ -947,6 +1120,45 @@ export function watchAppRegions(): void {
   );
   for (const region of regions) observer.observe(region);
   cleanups.push(() => observer.disconnect());
+}
+
+/* ------------------------------------------------------------------ a view only the app can show */
+
+/** NcertBooksPage.tsx NCERT_HUB_SUBJECT_KEY: the subject this browser last picked on the hub (pinned by the guard test). */
+export const NCERT_HUB_SUBJECT_KEY = "lazytopper.ncertHub.subject";
+
+/**
+ * SPEED-ISLANDS-2 — the served markup is ONE view of a page whose app reads more than the path: the NCERT Hub's
+ * `?subject=` / `?ch=` / `?read=` and legacy `#maths` / `#science` (NcertBooksPage.tsx ncertHubState), and the subject
+ * this browser last picked there (shown when the URL names none); the Important Questions `?topic=` filter
+ * (HighlyProbableQuestions.tsx topicParam, the Exam Trends deep link). A visit that asks for any other view gets the
+ * full app at once, exactly as today, instead of the default view followed by a change of content.
+ */
+export function appViewRequested(loc: { pathname: string; search: string; hash: string }, readStored: () => string | null): boolean {
+  let params: URLSearchParams;
+  try {
+    params = new URLSearchParams(loc.search);
+  } catch {
+    return true;
+  }
+  const has = (name: string) => String(params.get(name) ?? "").trim() !== "";
+  if (loc.pathname === "/ncert-class-10") {
+    if (has("subject") || has("ch") || has("read")) return true;
+    const hash = loc.hash.replace(/^#/, "").toLowerCase();
+    if (hash === "maths" || hash === "science") return true;
+    let stored: string | null = null;
+    try {
+      stored = readStored();
+    } catch {
+      stored = null;
+    }
+    return stored === "science"; // "maths" (or nothing) is the served view
+  }
+  if (loc.pathname.startsWith("/highly-probable/")) {
+    const topic = String(params.get("topic") ?? "").trim();
+    return topic !== "" && topic !== "all";
+  }
+  return false;
 }
 
 /* ------------------------------------------------------------------ signed in? (rule a) */
@@ -1029,7 +1241,7 @@ function readConfig(): IslandConfig | null {
   const appEntry = script?.getAttribute(APP_ENTRY_ATTR) ?? "";
   if (!/^\/assets\/[^/]+\.js$/.test(appEntry)) return null;
   const preloads = (script?.getAttribute(APP_PRELOADS_ATTR) ?? "").split(/\s+/).filter((h) => /^\/assets\/[^/]+\.js$/.test(h));
-  return { appEntry, preloads };
+  return { appEntry, preloads, variant: script?.getAttribute(ISLAND_VARIANT_ATTR) ?? "" };
 }
 
 function injectBusyStyle(): void {
@@ -1052,6 +1264,7 @@ export async function boot(): Promise<void> {
   listen(document, "focusin", onPointerDown, { capture: true, passive: true });
   listen(document, "input", onInput, { capture: true, passive: true });
   listen(document, "submit", onSubmit, { capture: true });
+  listen(document, "change", onChange, { capture: true, passive: true });
   listen(document, "toggle", onToggle, { capture: true, passive: true });
   listen(document, "scroll", markScroll, { capture: true, passive: true });
   listen(window, "wheel", markScroll, { capture: true, passive: true });
@@ -1064,7 +1277,9 @@ export async function boot(): Promise<void> {
   } catch {
     forced = false;
   }
-  if (forced || hasAuthRecordSync()) {
+  const otherView = appViewRequested(window.location, () => window.localStorage.getItem(NCERT_HUB_SUBJECT_KEY));
+  const misfit = variantMismatch(config.variant, desktopWide());
+  if (forced || otherView || misfit || hasAuthRecordSync()) {
     upgrade();
     return;
   }
@@ -1085,6 +1300,7 @@ export async function boot(): Promise<void> {
   }
   if (upgraded) return; // a tap during the check already loaded the app (it sends the page view)
   islandLive = true;
+  showSignedOutChrome();
   startIslandAnalytics();
   watchAppRegions();
 }
