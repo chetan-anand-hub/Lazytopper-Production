@@ -140,7 +140,7 @@ describe("TrialEndScreen", () => {
     const ticks = screen.getByTestId("trial-end-screen-ticks");
     expect(ticks).toHaveTextContent("Answer Checker");
     expect(ticks).toHaveTextContent("Mistake Intelligence");
-    expect(ticks).toHaveTextContent("AI tutor");
+    expect(ticks).toHaveTextContent("Your personal tutor");
     expect(ticks).toHaveTextContent("graded");
     expect(screen.getByTestId("trial-end-screen-packs")).toHaveAttribute("href", "/pricing#packs");
     expect(screen.getByTestId("trial-end-screen-packs")).toHaveTextContent(/PDF packs from ₹49/);

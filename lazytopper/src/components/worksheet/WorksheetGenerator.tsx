@@ -1724,7 +1724,7 @@ function WorksheetGeneratorInner() {
                   <h3 className="lt-ws__signint">Sign in to get this marked</h3>
                   <p className="lt-ws__note">
                     Your worksheet and both PDF downloads are yours already — no account
-                    needed. Marking it is done by AI, so it needs an account — and a new one
+                    needed. CBSE examiner style marking needs an account — and a new one
                     can start a free 7-day trial with everything unlocked.
                   </p>
                   <Link

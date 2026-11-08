@@ -89,7 +89,7 @@ describe("Basic (trial over) at a paper wall", () => {
     const pay = screen.getByTestId("offers-pay");
     expect(pay).toHaveTextContent(`Get it for ${boardPassPriceNow()}`);
     expect(pay).toHaveAttribute("href", "/pricing?buy=board_pass");
-    expect(screen.getByTestId("offers-board-pass")).toHaveTextContent("Every answer marked step by step, your AI tutor, and Mistake Intelligence");
+    expect(screen.getByTestId("offers-board-pass")).toHaveTextContent("Every answer marked step by step, your personal tutor, and Mistake Intelligence");
     await screen.findByTestId("offers-packs");
     expect(rows()).toEqual(["pack_bundle", "pack_cbq", "pack_mock"]);
     expect(screen.getByTestId("offers-buy-pack_mock")).toHaveAttribute("href", "/packs?buy=pack_mock&t=maths");

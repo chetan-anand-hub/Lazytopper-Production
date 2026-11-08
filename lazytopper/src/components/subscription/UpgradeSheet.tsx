@@ -52,6 +52,7 @@ import PaywallActions from "../pricing/PaywallActions";
 import { premiumOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import TrialStartButton from "../pricing/TrialStartButton";
+import { studentFeatureLabel } from "../lock/lockCopy";
 import { isTrialEligible, lowerFirst, useOptionalUid } from "../pricing/trialCta";
 import { trackPaywallAction } from "../../analytics/analytics";
 import OffersBlock from "../packs/OffersBlock";
@@ -237,7 +238,8 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
   // A TRIAL student has the feature today, so the title names what the pass KEEPS after the free
   // week; everyone else keeps the true "<feature> is a Premium feature".
   const onTrial = Boolean(uid) && subscription?.tier === "trial";
-  const title = onTrial ? `Keep ${lowerFirst(featureLabel)} after your free week` : `${featureLabel} is a Premium feature`;
+  const shownLabel = studentFeatureLabel(featureLabel);
+  const title = onTrial ? `Keep ${lowerFirst(shownLabel)} after your free week` : `${shownLabel} is a Premium feature`;
   // [FU-TRIAL-CTA-ON-ASK] - a signed-out visitor, or an account that never had a trial. The record
   // must be known (hydrated) for an account; the server still decides.
   const trialEligible = !uid || isTrialEligible(hydrated, subscription);
@@ -421,12 +423,12 @@ export function formatTrialEnded(iso?: string | null): string | null {
  */
 const PREMIUM_FEATURE_LABELS: Record<string, string> = {
   check_solution: "Checking your answer",
-  mentor: "The AI tutor",
+  mentor: "Your personal tutor",
   step_solution: "Step-by-step solutions",
   // PACK-OWNER-GATES-1 (fix 2) - the ids the SERVER actually sends in a 402 (entitlement.cjs GATED_ROUTES, AI_TIER_GATED_ROUTES and
   // STEP_SOLUTION_FEATURE). Before this, every one of them fell through to "This is a Premium feature". Both spellings are accepted.
   "check-solution": "Checking your answer",
-  tutor: "The AI tutor",
+  tutor: "Your personal tutor",
   "grade-worksheet": "Grading your worksheet",
   grade_worksheet: "Grading your worksheet",
   "detect-question": "Reading questions from your photo",

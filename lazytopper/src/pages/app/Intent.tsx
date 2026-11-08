@@ -35,8 +35,8 @@ const MODES = [
   {
     key: "check",
     title: "Answer Checker",
-    sub: "Upload answers · AI examiner grades",
-    pill: "AI-powered",
+    sub: "Upload answers · marked step by step",
+    pill: "CBSE examiner style marking",
     color: "hsl(280,60%,50%)",
     bg: "rgba(139,92,246,0.08)",
     route: "/check-improve",
@@ -99,7 +99,7 @@ export default function Intent() {
 
             {/* Text */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+              <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px 8px", marginBottom: 3 }}>
                 <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "var(--mob-fg)" }}>
                   {m.title}
                 </span>
