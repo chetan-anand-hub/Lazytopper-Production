@@ -179,8 +179,14 @@ describe("an early tap's verdict settles without a reserved height", () => {
     expect(ladder().hasAttribute("data-rows-wait")).toBe(true);
   });
 
-  it("rows later than the hide: held out of the layout, then shown after the student's next tap (never moving the view)", () => {
+  it("rows later than the hide wait out of the layout while their place is ON screen; shown once it is below the screen", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame"] });
+    let end = 400; // the buying block's end, in view
+    const orig = Element.prototype.getBoundingClientRect;
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if ((this as HTMLElement).dataset?.testid === "offers-block") return { top: end - 300, bottom: end, left: 0, right: 0, width: 0, height: 300, x: 0, y: end - 300, toJSON: () => ({}) } as DOMRect;
+      return orig.call(this);
+    });
     try {
       (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
       render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
@@ -189,12 +195,19 @@ describe("an early tap's verdict settles without a reserved height", () => {
       });
       expect(ladder().hasAttribute("data-settling")).toBe(false);
       expect(ladder().hasAttribute("data-rows-wait")).toBe(true);
-      act(() => (window as W).__rows?.());
-      // jsdom has no layout (the block's end is not below the screen): they wait for the next tap.
-      expect(ladder().hasAttribute("data-rows-wait")).toBe(true);
+      await act(async () => {
+        (window as W).__rows?.();
+        await Promise.resolve();
+      });
+      expect(ladder().hasAttribute("data-rows-wait")).toBe(true); // their place is on screen: they would push the view
       act(() => {
         fireEvent.click(document.body);
         vi.advanceTimersByTime(5);
+      });
+      expect(ladder().hasAttribute("data-rows-wait")).toBe(true); // a tap alone never makes the page jump under it
+      end = window.innerHeight + 20;
+      act(() => {
+        window.dispatchEvent(new Event("scroll"));
       });
       expect(ladder().hasAttribute("data-rows-wait")).toBe(false);
     } finally {
@@ -202,6 +215,39 @@ describe("an early tap's verdict settles without a reserved height", () => {
     }
     const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
     expect(css).toMatch(/\.ci-demo__ladder\[data-rows-wait\] \[data-testid="offers-packs"\] \{\s*display: none;\s*\}/);
+  });
+
+  it("rows whose place is ABOVE the screen: shown with the page scrolled by their height in the same frame (view stays put)", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame"] });
+    const by = vi.fn();
+    const origBy = window.scrollBy;
+    window.scrollBy = by as unknown as typeof window.scrollBy;
+    const orig = Element.prototype.getBoundingClientRect;
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if ((this as HTMLElement).dataset?.testid === "offers-block") {
+        const shown = !!this.querySelector('[data-testid="offers-packs"]') && !this.closest("[data-rows-wait]");
+        const bottom = shown ? -50 + 440 : -50;
+        return { top: bottom - 300, bottom, left: 0, right: 0, width: 0, height: 300, x: 0, y: bottom - 300, toJSON: () => ({}) } as DOMRect;
+      }
+      return orig.call(this);
+    });
+    try {
+      (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
+      render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+      act(() => {
+        vi.advanceTimersByTime(1600);
+      });
+      by.mockClear();
+      await act(async () => {
+        (window as W).__rows?.();
+        await Promise.resolve();
+      });
+      expect(ladder().hasAttribute("data-rows-wait")).toBe(false);
+      expect(by).toHaveBeenCalledWith({ top: 440, behavior: "instant" });
+    } finally {
+      window.scrollBy = origBy;
+      vi.useRealTimers();
+    }
   });
 
   it("rows that never come: released 1.5 s after the landing, never left hidden", () => {

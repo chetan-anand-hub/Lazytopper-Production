@@ -10,7 +10,7 @@
  * challenge, through import() (/check-improve stays bank-free statically).
  * A failed load renders nothing for this step: the card falls back to its sample picker.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { wrongPickFields } from "../../services/mistakePick";
 import { trackFriendChallenge, trackOneMinute } from "../../analytics/analytics";
 import ChallengeFriendButton from "./ChallengeFriendButton";
@@ -237,6 +237,10 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Late rows: shown only where they move nothing the student can see — their place (the end of the buying block) is
+  // BELOW the screen (everything they push is off-screen too), or ABOVE it (then the page is scrolled by their height in
+  // the same frame, before paint, so what is on screen stays exactly put). Checked when they arrive and on every scroll.
+  const lateRowsTop = useRef<number | null>(null);
   useEffect(() => {
     if (!rowsWait) return undefined;
     const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
@@ -244,29 +248,37 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       setRowsWait(false);
       return undefined;
     }
-    let timer: number | undefined;
     const rowsIn = () => !!block.querySelector('[data-testid="offers-packs"]');
-    const placeBelowScreen = () => block.getBoundingClientRect().bottom >= window.innerHeight;
-    const reveal = () => setRowsWait(false);
     const check = () => {
-      if (rowsIn() && placeBelowScreen()) reveal();
-    };
-    const afterInput = () => {
-      if (rowsIn() && timer === undefined) timer = window.setTimeout(reveal, 0);
+      if (!rowsIn()) return;
+      const end = block.getBoundingClientRect().bottom;
+      if (end >= window.innerHeight) {
+        lateRowsTop.current = null;
+        setRowsWait(false);
+      } else if (end <= 0) {
+        lateRowsTop.current = end;
+        setRowsWait(false);
+      }
     };
     const observer = typeof MutationObserver === "function" ? new MutationObserver(check) : undefined;
     observer?.observe(block, { childList: true, subtree: true });
     window.addEventListener("scroll", check, { passive: true });
-    document.addEventListener("click", afterInput);
-    document.addEventListener("keyup", afterInput);
+    window.addEventListener("resize", check, { passive: true });
     check();
     return () => {
       observer?.disconnect();
-      if (timer !== undefined) window.clearTimeout(timer);
       window.removeEventListener("scroll", check);
-      document.removeEventListener("click", afterInput);
-      document.removeEventListener("keyup", afterInput);
+      window.removeEventListener("resize", check);
     };
+  }, [rowsWait]);
+  useLayoutEffect(() => {
+    if (rowsWait || lateRowsTop.current === null) return;
+    const before = lateRowsTop.current;
+    lateRowsTop.current = null;
+    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
+    if (!block || typeof window.scrollBy !== "function") return;
+    const grown = block.getBoundingClientRect().bottom - before;
+    if (grown > 0) window.scrollBy({ top: grown, behavior: "instant" as ScrollBehavior });
   }, [rowsWait]);
 
   // While what lies below the verdict is see-through (settling), screen readers must not read it either: the page
