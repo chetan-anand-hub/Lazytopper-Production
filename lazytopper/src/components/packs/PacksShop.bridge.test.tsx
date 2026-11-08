@@ -44,6 +44,7 @@ vi.mock("./useMyPacksBridge", () => ({
 }));
 
 import PacksShop from "./PacksShop";
+import { hintNow } from "./mineHint";
 import * as packs from "../../services/packs";
 
 const fetchMine = packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>;
@@ -167,7 +168,8 @@ describe("BRIDGE-PANEL-1 · mount", () => {
 
 describe("BRIDGE-PANEL-1 round 3 · the reserved My packs slot (device height hint, owner 22:45)", () => {
   const hintFor = (uid: string, px: number) =>
-    localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: uid, t: Date.now(), h: { [String(window.innerWidth)]: px } }));
+    // The page stamps and checks the hint with the page clock (mineHint.hintNow), so the test does too (also under the clock jobs).
+    localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: uid, t: hintNow(), h: { [String(window.innerWidth)]: px } }));
   beforeEach(() => {
     localStorage.clear();
     delete (window as { __ltMineHint?: unknown }).__ltMineHint;
