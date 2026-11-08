@@ -64,6 +64,60 @@ const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice issued after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 
+/**
+ * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
+ * call time because parentPay.cjs itself requires this module at load (a top-level require here would be a cycle that
+ * hands parentPay a half-built exports object).
+ */
+function coveredTillBoards(storedSubscription, nowMs) {
+  return require('./parentPay.cjs').coveredTillBoards(storedSubscription, nowMs);
+}
+
+/**
+ * MONEY-DUPGUARD-1 (§2.4) - how long an open, unpaid pass order of the caller's is handed back instead of a second one.
+ * Razorpay documents no order expiry, so the bound is ours: 30 minutes, the life of the browser's own pending-order marker
+ * and Pay-button hold (checkout.ts PAY_PENDING_TTL_MS). Two tabs / a re-tap / a ?buy= relaunch all fall well inside it; an
+ * older open order is left alone and a fresh one is made, exactly as before.
+ */
+const REUSE_OPEN_ORDER_MS = 30 * 60 * 1000;
+/** At most this many of the caller's open orders of one pass type are read (equality-only query, no composite index). */
+const REUSE_SCAN_LIMIT = 10;
+/**
+ * Every stored order field that decides WHAT is charged and granted. An open order is reused only when each of these is
+ * identical to the order this request would create (a GST cut-off, a price change, a pack credit or a different GST buyer
+ * state / PIN all make a fresh order). Fields written later (lastFailure, ...) are not compared.
+ */
+const REUSE_MATCH_FIELDS = Object.freeze([
+  'passType', 'amountPaise', 'offerKey', 'packCreditInr', 'packCreditIds', 'baseInr', 'gstInr', 'totalInr', 'gstRate', 'gstBuyer',
+]);
+/** Fields that mark an order as made by someone other than the signed-in student (parent link, guest / pay-for-someone). */
+const NON_STUDENT_ORDER_MARKERS = Object.freeze(['payer', 'parentLinkId', 'recipient', 'guestPhone']);
+/** Razorpay order states in which a NEW payment may still be made (razorpay.com/docs/payments/orders). */
+const RAZORPAY_OPEN_ORDER_STATES = Object.freeze(['created', 'attempted']);
+
+/** Canonical JSON (sorted object keys) so a stored map and a fresh one compare by value. */
+function canonicalJson(value) {
+  if (value === undefined) return 'undefined';
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(value[k])}`).join(',')}}`;
+}
+
+/** Does a stored order charge and grant exactly what `expected` (the order this request would store) does? */
+function sameOrderTerms(stored, expected) {
+  return REUSE_MATCH_FIELDS.every((k) => canonicalJson(stored[k]) === canonicalJson(expected[k]));
+}
+
+/** A stored `createdAt` (Admin SDK Timestamp, Date or ms) as epoch ms, or null. */
+function createdAtMs(v) {
+  if (v instanceof Date) return Number.isFinite(v.getTime()) ? v.getTime() : null;
+  if (v && typeof v.toMillis === 'function') {
+    const ms = v.toMillis();
+    return Number.isFinite(ms) ? ms : null;
+  }
+  return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
 const PAY_WEBHOOK_PATH = '/api/pay/webhook';
@@ -403,6 +457,68 @@ function createPaymentRoutes(deps = {}) {
     return { uid, keys };
   }
 
+  /**
+   * MONEY-DUPGUARD-1 (§2.4) - the id of the caller's newest open pass order that may be handed back, or null.
+   * ALL must hold: our record is the caller's, `created` (never paid / claimed / erased), of the same terms, made within
+   * REUSE_OPEN_ORDER_MS; and RAZORPAY's own order is still open (`created` / `attempted`, nothing paid, same amount, INR)
+   * with no payment on it already authorized or captured (Razorpay refuses a new payment on such an order). Every read
+   * failure, refusal or odd answer -> null (a fresh order: today's behaviour), with a telemetry counter.
+   */
+  async function reusableOpenPassOrder(keys, uid, terms) {
+    let candidate = null;
+    try {
+      const snap = await adminFirestore
+        .collection(PAY_ORDERS_COLLECTION)
+        .where('uid', '==', uid).where('passType', '==', terms.passType).where('status', '==', 'created')
+        .limit(REUSE_SCAN_LIMIT).get();
+      const nowMs = now();
+      for (const d of (snap && snap.docs) || []) {
+        const stored = d.data() || {};
+        const at = createdAtMs(stored.createdAt);
+        if (stored.uid !== uid || stored.status !== 'created' || at === null) continue;
+        // Review F1: only the student's OWN signed-in orders. A parent pay-link order (stored under the CHILD's uid) or a
+        // guest order carries a payer marker: it is someone else's checkout and is never handed to the student.
+        if (NON_STUDENT_ORDER_MARKERS.some((k) => stored[k] !== undefined && stored[k] !== null)) continue;
+        if (at > nowMs || nowMs - at > REUSE_OPEN_ORDER_MS) continue;
+        if (!ID_PATTERN.test(d.id) || !sameOrderTerms(stored, terms)) continue;
+        if (!candidate || at > candidate.at) candidate = { id: d.id, at };
+      }
+    } catch (e) {
+      emit('payments.order.reuse_read_failed');
+      console.error('[pay/order] open-order read failed:', e && e.message);
+      return null;
+    }
+    if (!candidate) return null;
+    try {
+      const got = await razorpay(keys, 'GET', `/orders/${candidate.id}`);
+      const o = got.json || {};
+      if (
+        !got.ok ||
+        o.id !== candidate.id ||
+        !RAZORPAY_OPEN_ORDER_STATES.includes(o.status) ||
+        o.amount !== terms.amountPaise ||
+        o.amount_paid !== 0 ||
+        o.currency !== CURRENCY
+      ) {
+        emit('payments.order.reuse_not_open');
+        return null;
+      }
+      if (o.status === 'attempted') {
+        const listed = await razorpay(keys, 'GET', `/orders/${candidate.id}/payments`);
+        const items = listed.ok && listed.json && Array.isArray(listed.json.items) ? listed.json.items : null;
+        if (!items || items.some((p) => !p || p.status === 'authorized' || p.status === 'captured')) {
+          emit('payments.order.reuse_not_open');
+          return null;
+        }
+      }
+    } catch (e) {
+      emit('payments.order.reuse_read_failed');
+      console.error('[pay/order] open-order Razorpay read failed:', e && e.message);
+      return null;
+    }
+    return candidate.id;
+  }
+
   /* ── Z2 · POST /api/pay/order ───────────────────────────────────────────── */
   async function handleOrder(req, res) {
     if (!enabled()) return sendJson(res, 404, NOT_FOUND_BODY);
@@ -462,6 +578,19 @@ function createPaymentRoutes(deps = {}) {
         }
         quote = tableQuote(TOPUP_PRODUCTS[passType].priceInr, now());
       } else {
+        // MONEY-DUPGUARD-1 (owner 2-3 Nov: "There are no refunds") - an account whose pass ALREADY runs to the boards
+        // buys nothing new with either pass, so no order is made for it (no Razorpay order, nothing stored). The rule is
+        // the ONE guest / parent pay already use (parentPay.cjs `coveredTillBoards`). A month pass that ends before the
+        // boards is not covered, so its Board Pass upgrade is still sold. A failed subscription read never reaches here:
+        // it is the catch below (500, no order) - fail CLOSED.
+        if (coveredTillBoards(stored, now())) {
+          emit('payments.order.pass_already_covered');
+          return sendJson(res, 409, {
+            ok: false,
+            error: 'already_covered',
+            message: 'Your pass already covers you till your boards. There is nothing more to pay.',
+          });
+        }
         // PRICE-FIXED-1 - the month pass is no longer sold to an account that has never bought one, from
         // 2026-11-01T00:00:00+05:30 (server clock). Derived from the server's own records, never the body.
         if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, uid, now()))) {
@@ -499,6 +628,27 @@ function createPaymentRoutes(deps = {}) {
     // GST-INVOICE-1: the state the buyer confirmed (+ optional PIN / business GSTIN). Never refuses an order.
     const gstBuyer = gstBuyerFromBody(body.gstBuyer);
     for (const d of gstBuyer.dropped) emit(`payments.order.gst_buyer_dropped.${d}`);
+
+    // What this request would store (and charge / grant). Also what an open order must match to be handed back.
+    const orderTerms = {
+      passType,
+      amountPaise: quote.amountPaise,
+      ...creditOrderFields(packCreditInr, packCreditIds),
+      ...gstOrderFields(quote),
+      ...gstBuyer.fields,
+      offerKey: quote.offerKey,
+    };
+
+    // MONEY-DUPGUARD-1 (§2.4) - the caller's own open, unpaid order for the SAME terms is handed back instead of a second
+    // order: two tabs then share ONE Razorpay order, and Razorpay binds a single successful payment to an order. Pass
+    // orders only. Any read failure -> a fresh order, exactly as before (never blocks the student).
+    if (!isPack && !isTopup) {
+      const reuse = await reusableOpenPassOrder(keys, uid, orderTerms);
+      if (reuse) {
+        emit('payments.order.reused');
+        return sendJson(res, 200, { ok: true, orderId: reuse, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
+      }
+    }
 
     let created;
     try {
@@ -580,6 +730,12 @@ function createPaymentRoutes(deps = {}) {
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed', upstream: true };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
+      // MONEY-DUPGUARD-1 (review F3) - our order is ALREADY PAID by a different payment: this is a late / second
+      // authorisation on it (Razorpay binds one successful payment to an order and auto-refunds a late authorisation).
+      // Never capture it - leave it uncaptured so it lapses / is refunded - and never grant twice.
+      if (order && order.status === 'paid' && typeof order.paymentId === 'string' && order.paymentId && order.paymentId !== paymentId) {
+        return { error: 'order_already_paid', upstream: false };
+      }
       // PRICING-1 — MANUAL-CAPTURE PATH ONLY. Orders are created WITHOUT payment_capture, so the Razorpay
       // account setting applies (auto-capture is Razorpay's default). Auto-capture: a stale founding order
       // that is captured is honoured at its order price (599) — a captured payment ALWAYS grants (verify,
@@ -649,6 +805,10 @@ function createPaymentRoutes(deps = {}) {
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
     if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
+    if (result.error === 'order_already_paid') {
+      emit('payments.verify.late_auth_not_captured');
+      return reject(res, 'verify', 'order_already_paid');
+    }
     if (result.error) {
       emit(`payments.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
@@ -897,6 +1057,8 @@ function createPaymentRoutes(deps = {}) {
         const result = await fetchCapturedPayment(keys, item.id, amountPaise, order);
         // A stale authorized item must not hide a captured one later on the order: keep looking.
         if (result.error === 'order_expired') { sawExpired = true; continue; }
+        // MONEY-DUPGUARD-1 (F3): a second authorisation on an order already paid by another payment is never captured.
+        if (result.error === 'order_already_paid') { emit('payments.status.late_auth_not_captured'); continue; }
         if (result.error) return { upstream: result.error };
         payment = result.payment;
         if (payment.id !== undefined && payment.id !== item.id) continue;

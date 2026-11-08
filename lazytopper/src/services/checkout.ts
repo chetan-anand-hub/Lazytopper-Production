@@ -51,6 +51,22 @@ export class PayAlreadyOwnedError extends Error {
   }
 }
 
+/**
+ * MONEY-DUPGUARD-1 — the server refused a PASS order because the account's pass already runs to the boards
+ * (HTTP 409 `{ error: "already_covered" }`). Nothing was ordered and Razorpay never opened. Distinct from
+ * `PayAlreadyOwnedError` (packs only).
+ */
+export class PayAlreadyCoveredError extends Error {
+  constructor() {
+    super("already_covered");
+    this.name = "PayAlreadyCoveredError";
+  }
+}
+
+/** MONEY-DUPGUARD-1 — the calm line shown instead of a checkout when the server says the student is already covered. */
+// Review F2: neutral "pass" - a month pass that runs past the board day covers the student too.
+export const PASS_ALREADY_COVERED_COPY = "Your pass already covers you till your boards. There's nothing more to pay.";
+
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
 
@@ -253,6 +269,7 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
   }
   if (!res.ok && parsed && parsed.reason === "order_expired") throw new PayOrderExpiredError();
   if (res.status === 409 && parsed && parsed.error === "already_owned") throw new PayAlreadyOwnedError();
+  if (res.status === 409 && parsed && parsed.error === "already_covered") throw new PayAlreadyCoveredError();
   if (!res.ok || !parsed || parsed.ok !== true) throw new Error(`request failed: ${res.status}`);
   return parsed;
 }
@@ -367,6 +384,8 @@ export type BuyOutcome =
   | { status: "dismissed"; afterFailure?: boolean }
   /** PRICING-1 — the server refused the order as expired (before capture): nothing was taken; start again. */
   | { status: "expired" }
+  /** MONEY-DUPGUARD-1 — the server refused the order: the pass already runs to the boards. No order, no checkout, no charge. */
+  | { status: "already_covered" }
   /**
    * PAY-RECOVER-1 — Razorpay's handler returned a SIGNED success but the server's verify
    * errored (network, timeout, 5xx, a rejection). The money may well have left the account,
@@ -454,6 +473,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
   } catch (e) {
     // GST-INVOICE-1: closing "Your state" is closing the checkout - nothing was ordered, nothing was charged.
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
+    if (e instanceof PayAlreadyCoveredError) return { status: "already_covered" };
     return { status: "failed" };
   }
 }
