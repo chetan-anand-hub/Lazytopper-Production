@@ -49,8 +49,20 @@ import { inAppBrowser } from "../../src/utils/inAppBrowser";
 import { SIGNIN_INTENT_KEY, SIGNIN_INTENT_TTL_MS } from "../../src/services/signinIntent";
 import * as pricing from "../../src/config/pricing";
 
-/** The non-advertised paths served a paint shell. Never in the sitemap; their head is `__shell.html`'s (noindex). */
-export const PAINT_PATHS: readonly string[] = ["/login"];
+/** /login — the first paint shell (SPEED-LOGIN-1). */
+export const LOGIN_PATH = "/login";
+
+/**
+ * SPEED-CI-1 — every non-advertised path served a paint shell, and the states captured for it. Never in
+ * the sitemap; their head is `__shell.html`'s (noindex). `/login` (this file) and `/check-improve`
+ * (`checkImprovePaint.ts`) each bring their own decision script; capture, apply, verify and
+ * `middleware.ts` (via the manifest's `paintPaths`) iterate this one list.
+ */
+export const PAINT_ROUTE_KINDS: Readonly<Record<string, readonly PaintKind[]>> = {
+  "/login": ["door", "signing-in"],
+  "/check-improve": ["door"],
+};
+export const PAINT_PATHS: readonly string[] = Object.keys(PAINT_ROUTE_KINDS);
 
 /** Where the paint captures live inside the committed artifact (`prerendered/`). Never a public URL. */
 export const PAINT_DIR = "__paint";

@@ -166,6 +166,7 @@
     "/topic-hub/trigonometry"
   ],
   "paintPaths": [
-    "/login"
+    "/login",
+    "/check-improve"
   ]
 }

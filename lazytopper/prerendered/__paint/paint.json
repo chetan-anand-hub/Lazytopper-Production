@@ -1,6 +1,7 @@
 {
   "paths": [
-    "/login"
+    "/login",
+    "/check-improve"
   ],
   "clock": {
     "from": 1793989800000,

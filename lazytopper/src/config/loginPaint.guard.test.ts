@@ -201,6 +201,11 @@ const SIGNING =
   '<div style="padding-bottom: 60px;"><main class="lt-signing-in"><p class="lt-signing-in__title" role="status"></p>' +
   '<p class="lt-signing-in__sub">Taking you back to where you were.</p></main></div>';
 
+const CI_DOOR =
+  '<div style="padding-bottom: 60px;"><div class="lt-routenav lt-routenav--page" aria-hidden="true"><div class="lt-routenav__row lt-routenav__row--ghost"></div></div>' +
+  '<template data-lt-route="start"></template><div class="phone-shell"><h1>Answer Checker</h1><button type="button">Check my answer</button></div>' +
+  '<template data-lt-route="end"></template></div><div data-lt-bottomnav=""><button>Home</button></div>';
+
 describe("markTopLevel / the email-code slot", () => {
   it("marks every top-level element and nothing inside", () => {
     const marked = markTopLevel(DOOR, "door");
@@ -549,7 +554,7 @@ describe("applyPaintShells / verifyPaintPages (synthetic build)", () => {
     mkdirSync(out, { recursive: true });
     mkdirSync(art, { recursive: true });
     writeFileSync(join(out, SPA_SHELL), SHELL);
-    writeFileSync(join(art, "manifest.json"), JSON.stringify({ paths: [], ...(manifestPaint ? { paintPaths: ["/login"] } : {}) }));
+    writeFileSync(join(art, "manifest.json"), JSON.stringify({ paths: [], ...(manifestPaint ? { paintPaths: [...PAINT_PATHS] } : {}) }));
     if (withPaint) {
       for (const variant of ["mobile", "desktop"] as const) {
         for (const [kind, html] of [["door", DOOR], ["signing-in", SIGNING]] as const) {
@@ -557,20 +562,25 @@ describe("applyPaintShells / verifyPaintPages (synthetic build)", () => {
           mkdirSync(join(file, ".."), { recursive: true });
           writeFileSync(file, html);
         }
+        // SPEED-CI-1: the Answer Checker's one state (a route region between the marks).
+        const ci = paintFragmentPathFor(art, "/check-improve", "door", variant);
+        mkdirSync(join(ci, ".."), { recursive: true });
+        writeFileSync(ci, CI_DOOR);
       }
-      writeFileSync(join(art, PAINT_DIR, "paint.json"), JSON.stringify({ paths: ["/login"], clock: CLOCK }));
+      writeFileSync(join(art, PAINT_DIR, "paint.json"), JSON.stringify({ paths: [...PAINT_PATHS], clock: CLOCK }));
     }
     return { out, art };
   }
 
   it("writes login.html, login/index.html and __desktop/login.html, and they verify", () => {
     const { out, art } = synthetic(true, true);
-    expect(applyPaintShells(out, art, { emailCodeOn: false, criticalCss: false })).toEqual({ pages: 3, paths: ["/login"] });
+    expect(applyPaintShells(out, art, { emailCodeOn: false, criticalCss: false })).toEqual({ pages: 6, paths: [...PAINT_PATHS] });
     for (const f of ["login.html", "login/index.html", "__desktop/login.html"]) expect(existsSync(join(out, f)), f).toBe(true);
     expect(readFileSync(join(out, "login.html"), "utf8")).toBe(readFileSync(join(out, "login/index.html"), "utf8"));
     expect(readFileSync(join(out, "login.html"), "utf8")).toContain('"variant":"mobile"');
     expect(readFileSync(join(out, "__desktop/login.html"), "utf8")).toContain('"variant":"desktop"');
-    expect(verifyPaintPages(out)).toEqual([]);
+    // The synthetic build has no real assets, so the Answer Checker's inlined route CSS is absent there.
+    expect(verifyPaintPages(out).filter((f) => !f.includes("lacks the route's inlined CSS"))).toEqual([]);
   });
 
   it("verifyPaintPages FAILS a page that lost its noindex", () => {
@@ -603,15 +613,19 @@ describe("the committed artifact", () => {
     for (const path of PAINT_PATHS) {
       expect(sitemapPaths()).not.toContain(path);
       for (const variant of ["mobile", "desktop"] as const) {
-        const door = readFileSync(paintFragmentPathFor(PRERENDERED_DIR, path, "door", variant), "utf8");
-        const signing = readFileSync(paintFragmentPathFor(PRERENDERED_DIR, path, "signing-in", variant), "utf8");
-        expect(door).toContain("Continue with Google");
-        expect(door).not.toContain(EMAIL_CODE_SLOT_HTML);
-        expect(signing).toContain("Taking you back to where you were.");
-        expect(signing).not.toMatch(/Continue with|lt-method|lt-google/);
-        expect(() => markTopLevel(door, "door")).not.toThrow();
-        expect(() => markTopLevel(signing, "signing-in")).not.toThrow();
+        for (const kind of paint.PAINT_ROUTE_KINDS[path]) {
+          const html = readFileSync(paintFragmentPathFor(PRERENDERED_DIR, path, kind, variant), "utf8");
+          expect(() => markTopLevel(html, kind)).not.toThrow();
+          expect(html).not.toContain(EMAIL_CODE_SLOT_HTML);
+        }
       }
+    }
+    for (const variant of ["mobile", "desktop"] as const) {
+      const door = readFileSync(paintFragmentPathFor(PRERENDERED_DIR, "/login", "door", variant), "utf8");
+      const signing = readFileSync(paintFragmentPathFor(PRERENDERED_DIR, "/login", "signing-in", variant), "utf8");
+      expect(door).toContain("Continue with Google");
+      expect(signing).toContain("Taking you back to where you were.");
+      expect(signing).not.toMatch(/Continue with|lt-method|lt-google/);
     }
   });
 });

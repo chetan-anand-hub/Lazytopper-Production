@@ -42,6 +42,7 @@ import { criticalCss } from "./criticalCss";
 import {
   PAINT_DIR,
   PAINT_PATHS,
+  PAINT_ROUTE_KINDS,
   PAINT_RECORD,
   PAINT_VARIANTS,
   type PaintRecord,
@@ -50,6 +51,12 @@ import {
   loginPaintConfig,
   paintFragmentPathFor,
 } from "./loginPaint";
+import {
+  CHECK_IMPROVE_PATH,
+  CHECK_IMPROVE_ROUTE_MODULE,
+  buildCheckImprovePaintPage,
+  checkImprovePaintConfig,
+} from "./checkImprovePaint";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
@@ -946,7 +953,7 @@ export function applyPaintShells(
   for (const path of PAINT_PATHS) {
     if (sitemapPaths().includes(path)) failures.push(`${path}: a paint path must never be advertised`);
     for (const variant of PAINT_VARIANTS) {
-      for (const kind of ["door", "signing-in"] as const) {
+      for (const kind of PAINT_ROUTE_KINDS[path]) {
         if (!existsSync(paintFragmentPathFor(prerenderedDir, path, kind, variant))) {
           failures.push(`${path}: no ${kind} capture for ${variant}`);
         }
@@ -963,15 +970,30 @@ export function applyPaintShells(
   const entryCss = options.criticalCss === false ? null : entryStylesheetOf(shell);
   const entryCssText = entryCss ? readFileSync(join(outDir, "assets", entryCss), "utf8") : "";
   let pages = 0;
+  // SPEED-CI-1: a lazy route's static paint needs the route chunk's own CSS (it otherwise arrives with the
+  // chunk, after the paint): resolved from THIS build, exactly as the advertised pages' allowlisted routes.
+  const realAssets = options.criticalCss !== false;
+  const ciRouteStyles = (): Array<{ file: string; css: string }> => {
+    if (!realAssets) return [];
+    const assetsDir = join(outDir, "assets");
+    const assetFiles = readdirSync(assetsDir);
+    const entryCode = readFileSync(join(assetsDir, entryScriptOf(shell).entry), "utf8");
+    const files = dynamicImportCssOf(entryCode, resolveRouteChunk(CHECK_IMPROVE_ROUTE_MODULE, assetFiles));
+    if (files.length === 0) throw new Error(`applyPrerendered: ${CHECK_IMPROVE_ROUTE_MODULE} has no route CSS to inline`);
+    return files.map((file) => ({ file, css: inlinableCss(file, readFileSync(join(assetsDir, file), "utf8")) }));
+  };
   for (const path of PAINT_PATHS) {
     for (const variant of PAINT_VARIANTS) {
       const read = (kind: "door" | "signing-in") => readFileSync(paintFragmentPathFor(prerenderedDir, path, kind, variant), "utf8");
-      const built = buildLoginPaintPage(
-        shell,
-        { door: read("door"), signingIn: read("signing-in") },
-        loginPaintConfig(variant, record.clock),
-        options.emailCodeOn,
-      );
+      const built =
+        path === CHECK_IMPROVE_PATH
+          ? buildCheckImprovePaintPage(shell, read("door"), checkImprovePaintConfig(variant, record.clock), ciRouteStyles())
+          : buildLoginPaintPage(
+              shell,
+              { door: read("door"), signingIn: read("signing-in") },
+              loginPaintConfig(variant, record.clock),
+              options.emailCodeOn,
+            );
       const html = entryCss ? withCriticalEntryCss(built, entryCss, entryCssText, criticalCss) : built;
       for (const page of paintPagesFor(path).filter((p) => p.variant === variant)) {
         const file = join(outDir, page.file);
@@ -1008,7 +1030,16 @@ export function verifyPaintPages(outDir: string, paths: readonly string[] = PAIN
       if (!/<\/div><script data-lt-paint-script>/.test(html)) failures.push(`${tag}: the paint script does not follow #root`);
       if ((head(html).match(/<style data-lt-paint-css>/g) ?? []).length !== 1) failures.push(`${tag} lacks the paint CSS in its head`);
       if (!/<html\b[^>]*\bdata-theme="light"/.test(html)) failures.push(`${tag} lacks <html data-theme="light">`);
-      if (!html.includes('data-lt-paint="door"') || !html.includes('data-lt-paint="signing-in"')) failures.push(`${tag} lacks a state`);
+      for (const kind of PAINT_ROUTE_KINDS[path] ?? []) {
+        if (!html.includes(`data-lt-paint="${kind}"`)) failures.push(`${tag} lacks its ${kind} state`);
+      }
+      if (path === CHECK_IMPROVE_PATH) {
+        // The route region main.tsx hands to the Suspense fallback, and the route's own CSS.
+        if (!html.includes('<template data-lt-route="start"></template>') || !html.includes('<template data-lt-route="end"></template>')) {
+          failures.push(`${tag} lacks the route marks main.tsx extracts`);
+        }
+        if (!/<style data-lt-inline="DesktopCheckImprovePage-[A-Za-z0-9_-]{8}\.css">/.test(html)) failures.push(`${tag} lacks the route's inlined CSS`);
+      }
       if (html.includes('<link rel="stylesheet" crossorigin href="/assets/index-') && !html.includes(DEFERRED_CSS_ATTR)) {
         failures.push(`${tag} still loads the entry stylesheet render-blocking`);
       }
