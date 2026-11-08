@@ -17,6 +17,7 @@ import ChallengeFriendButton from "./ChallengeFriendButton";
 import { parseChallengeId, type ChallengeQuestion } from "./challengeModel";
 import { markLadderStart } from "./ladderClock";
 import { useClearBottomNav } from "./useClearBottomNav";
+import { prefetchOfferRows } from "./offerRowsPrefetch";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import { correctIndex, fixedStarter, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
@@ -156,6 +157,11 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   // first touch, pointer, wheel or key releases it AT ONCE — a scroll never reveals a hole, and because the hidden nodes
   // stay hit-testable (opacity, not visibility), the very tap that releases them also lands on its control.
   const [settling, setSettling] = useState(early !== null);
+  // Rows that arrive AFTER the hide has ended (a rows chunk > 1.5 s late) are held out of the layout (display: none,
+  // ciDemo.css `[data-rows-wait]`) and shown only where they cannot move what the student is looking at: when their
+  // place (the end of the buying block) is below the screen, or right after the student's next tap / key (input-
+  // excluded, B3: after the click has landed). Prefetching at the tap (offerRowsPrefetch.ts) makes this rare.
+  const [rowsWait, setRowsWait] = useState(false);
   // A scroll (touch drag, wheel, keys) while the early tap's boxes are held shows the hidden landing line again in place
   // (ciDemo.css), so the student never scrolls past a blank hole. A plain tap does not: B3 keeps that tap's target still.
   const [loShown, setLoShown] = useState(false);
@@ -170,6 +176,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   }, [reserve, loShown]);
   useEffect(() => {
     if (!settling) return undefined;
+    prefetchOfferRows();
     let live = true;
     let mounted = true;
     let observer: MutationObserver | undefined;
@@ -213,7 +220,10 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
         });
         observer.observe(block, { childList: true, subtree: true });
       }
-      cap = window.setTimeout(done, 1500);
+      cap = window.setTimeout(() => {
+        if (live && !rowsIn() && mounted) setRowsWait(true);
+        done();
+      }, 1500);
     }
     return () => {
       mounted = false;
@@ -222,6 +232,54 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     // Once, for the early tap this mount started with.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!rowsWait) return undefined;
+    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
+    if (!block) {
+      setRowsWait(false);
+      return undefined;
+    }
+    let timer: number | undefined;
+    const rowsIn = () => !!block.querySelector('[data-testid="offers-packs"]');
+    const placeBelowScreen = () => block.getBoundingClientRect().bottom >= window.innerHeight;
+    const reveal = () => setRowsWait(false);
+    const check = () => {
+      if (rowsIn() && placeBelowScreen()) reveal();
+    };
+    const afterInput = () => {
+      if (rowsIn() && timer === undefined) timer = window.setTimeout(reveal, 0);
+    };
+    const observer = typeof MutationObserver === "function" ? new MutationObserver(check) : undefined;
+    observer?.observe(block, { childList: true, subtree: true });
+    window.addEventListener("scroll", check, { passive: true });
+    document.addEventListener("click", afterInput);
+    document.addEventListener("keyup", afterInput);
+    check();
+    return () => {
+      observer?.disconnect();
+      if (timer !== undefined) window.clearTimeout(timer);
+      window.removeEventListener("scroll", check);
+      document.removeEventListener("click", afterInput);
+      document.removeEventListener("keyup", afterInput);
+    };
+  }, [rowsWait]);
+
+  // While what lies below the verdict is see-through (settling), screen readers must not read it either: the page
+  // under the card gets aria-hidden for exactly that window (only nodes that did not have it), the watch link too (JSX).
+  useEffect(() => {
+    if (!settling) return undefined;
+    const card = verdictRef.current?.closest("section.ci-demo") ?? null;
+    const marked: Element[] = [];
+    for (let n = card?.nextElementSibling ?? null; n; n = n.nextElementSibling) {
+      if (n.hasAttribute("aria-hidden")) continue;
+      n.setAttribute("aria-hidden", "true");
+      marked.push(n);
+    }
+    return () => {
+      for (const n of marked) n.removeAttribute("aria-hidden");
+    };
+  }, [settling]);
 
   // SPEED-SITE-1a-fu: DELIBERATE — the question is chosen once per mount (from the visit's subject hint and seed) and
   // does NOT swap if the subject hint changes later in the visit: a student must never see the question they are
@@ -349,6 +407,8 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       data-testid="one-min-ladder"
       data-step={done ? "verdict" : "tap"}
       data-settling={settling ? "" : undefined}
+      data-rows-wait={rowsWait ? "" : undefined}
+      onPointerDown={prefetchOfferRows}
       data-lo-shown={reserve && loShown ? "" : undefined}
     >
       <LadderMeta subject={mcq.starter.subject} topicName={mcq.topicName} />
@@ -404,7 +464,13 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
         </div>
       ) : null}
 
-      <button type="button" className="ci-demo__link" data-testid="one-min-watch" onClick={onWatch}>
+      <button
+        type="button"
+        className="ci-demo__link"
+        data-testid="one-min-watch"
+        onClick={onWatch}
+        aria-hidden={settling ? true : undefined}
+      >
         {CI_DEMO_COPY.ladderWatch}
       </button>
     </div>

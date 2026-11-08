@@ -26,6 +26,8 @@ vi.mock("../packs/LadderOffers", () => ({
     return <div data-testid="offers-block">{rows ? <section data-testid="offers-packs" /> : null}</div>;
   },
 }));
+const P = vi.hoisted(() => ({ prefetch: vi.fn() }));
+vi.mock("./offerRowsPrefetch", () => ({ prefetchOfferRows: P.prefetch }));
 // The rows chunk the ladder waits on: never resolves in these tests (the DOM decides).
 vi.mock("../packs/OfferRows", () => new Promise(() => undefined));
 
@@ -49,6 +51,7 @@ beforeEach(() => {
   window.sessionStorage.setItem("lazytopper.guideIntent", JSON.stringify({ landing: "/check-improve" }));
   B.block = true;
   B.rowsLater = true;
+  P.prefetch.mockReset();
 });
 afterEach(() => {
   cleanup();
@@ -129,6 +132,66 @@ describe("an early tap's verdict settles without a reserved height", () => {
     expect(ladder().hasAttribute("data-lo-shown")).toBe(true);
     const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
     expect(css).toMatch(/\.ci-demo:has\(\.ci-demo__verdict--reserve\):not\(:has\(\.ci-demo__ladder\[data-lo-shown\]\)\) \+ \.lt-lo,/);
+  });
+
+  it("the page under the card is aria-hidden exactly while it is see-through (and the watch link too)", async () => {
+    B.rowsLater = true;
+    (window as W).__ltStaticTap = { id: "one-min-opt-2", bank: LIGHT };
+    render(
+      <>
+        <CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />
+        <div data-testid="below">page</div>
+        <div data-testid="own" aria-hidden="false">kept</div>
+      </>,
+    );
+    expect(screen.getByTestId("below").getAttribute("aria-hidden")).toBe("true");
+    expect(screen.getByTestId("own").getAttribute("aria-hidden")).toBe("false");
+    expect(screen.getByTestId("one-min-watch").getAttribute("aria-hidden")).toBe("true");
+    act(() => {
+      fireEvent.pointerDown(document.body);
+    });
+    expect(screen.getByTestId("below").hasAttribute("aria-hidden")).toBe(false);
+    expect(screen.getByTestId("own").getAttribute("aria-hidden")).toBe("false");
+    expect(screen.getByTestId("one-min-watch").hasAttribute("aria-hidden")).toBe(false);
+  });
+
+  it("the rows start loading at the tap: an early tap's ladder at once, a ready ladder on its first pointerdown", () => {
+    (window as W).__ltStaticTap = { id: "one-min-opt-2", bank: LIGHT };
+    const first = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+    expect(P.prefetch).toHaveBeenCalled();
+    first.unmount();
+    P.prefetch.mockReset();
+    window.localStorage.clear();
+    __resetLadderVisitForTests();
+    render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+    expect(P.prefetch).not.toHaveBeenCalled();
+    fireEvent.pointerDown(screen.getByTestId("one-min-opt-0"));
+    expect(P.prefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("rows later than the hide: held out of the layout, then shown after the student's next tap (never moving the view)", () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame"] });
+    try {
+      (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
+      render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+      act(() => {
+        vi.advanceTimersByTime(1600);
+      });
+      expect(ladder().hasAttribute("data-settling")).toBe(false);
+      expect(ladder().hasAttribute("data-rows-wait")).toBe(true);
+      act(() => (window as W).__rows?.());
+      // jsdom has no layout (the block's end is not below the screen): they wait for the next tap.
+      expect(ladder().hasAttribute("data-rows-wait")).toBe(true);
+      act(() => {
+        fireEvent.click(document.body);
+        vi.advanceTimersByTime(5);
+      });
+      expect(ladder().hasAttribute("data-rows-wait")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+    const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
+    expect(css).toMatch(/\.ci-demo__ladder\[data-rows-wait\] \[data-testid="offers-packs"\] \{\s*display: none;\s*\}/);
   });
 
   it("rows that never come: released 1.5 s after the landing, never left hidden", () => {

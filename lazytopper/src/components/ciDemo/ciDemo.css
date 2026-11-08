@@ -623,6 +623,11 @@
 .ci-demo:has(.ci-demo__ladder[data-settling]) ~ * {
   opacity: 0;
 }
+/* Pack rows that arrived after the hide ended wait out of the layout until they can appear without moving what the
+   student is looking at (OneMinuteLadder `rowsWait`). */
+.ci-demo__ladder[data-rows-wait] [data-testid="offers-packs"] {
+  display: none;
+}
 .ci-demo__verdict-mark {
   scroll-margin-top: 12px;
 }
