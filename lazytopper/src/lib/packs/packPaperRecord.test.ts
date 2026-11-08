@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
-import { packPaperCode } from "./packPaperCode";
+import { cbqPackExampleCode, packPaperCode } from "./packPaperCode";
 import { PACK_CHAPTER_SLUGS, type OwnedPack } from "../../services/packs";
 import { loadLocalSessionRecords, writeSessionRecord, type SessionRecord } from "../../services/sessionRecords";
 import { loadChapterTestPaper } from "../../services/chapterTestPaperStore";
@@ -189,5 +189,64 @@ describe("pack papers join the existing download -> pending -> upload path", () 
     expect(row).toBeTruthy();
     expect(row.code.startsWith("PK-")).toBe(true);
     expect(row.href).toContain(`${oldCode}-V2`);
+  });
+});
+
+// BRIDGE-CODES-1 (owner 8 Nov 2026: "CBQ packs get the same pages"): every CBQ Pack chapter document is a paper with its own
+// PK- code, filed as a worksheet exactly like the Chapter Pack's `-WS` paper (same upload, same grader, same entitlement).
+describe("CBQ Pack documents carry a pack code and wait on Home like every pack paper", () => {
+  it("codes have the PK- CBQ shape, are unique, and never reuse a Chapter Pack code", () => {
+    const codes = new Set<string>();
+    for (const slug of PACK_CHAPTER_SLUGS) {
+      for (const part of [1, 2, 3]) {
+        const c = packPaperCode({ kind: "cbq", chapter: slug, part });
+        expect(c).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ[123]$/);
+        codes.add(c);
+      }
+      for (const kind of ["ct1", "ct2", "ws"] as const) expect(codes.has(packPaperCode({ kind, chapter: slug }))).toBe(false);
+    }
+    expect(codes.size).toBe(PACK_CHAPTER_SLUGS.length * 3);
+    expect(packPaperCode({ kind: "cbq", chapter: "real-numbers", part: 1 })).toBe("PK-M-RN-CBQ1");
+    expect(cbqPackExampleCode("maths")).toBe("PK-M-RN-CBQ1");
+    expect(cbqPackExampleCode("science")).toBe("PK-S-CRAE-CBQ1");
+  });
+
+  it("a CBQ question document prints its code, files a worksheet pending record and a stored paper; the key shares it", async () => {
+    const pack = owned("pack_cbq:maths");
+    const { ctx, exportPdf } = mk(pack);
+    const files = await buildPackFiles(ref(pack), ctx);
+    expect(files.find((f) => f.group === "Start here")!.code).toBeUndefined();
+    const q1 = files.find((f) => f.id.includes("|real-numbers|cbq-1-questions"))!;
+    const k1 = files.find((f) => f.id.includes("|real-numbers|cbq-1-answers"))!;
+    expect(q1.code).toBe("PK-M-RN-CBQ1");
+    expect(k1.code).toBe("PK-M-RN-CBQ1");
+    await q1.build();
+    expect(exportPdf.mock.calls[0][2]).toBe("PK-M-RN-CBQ1");
+    const rec = loadLocalSessionRecords("u1").find((r) => r.id === "PK-M-RN-CBQ1")!;
+    expect(rec.surface).toBe("worksheet");
+    expect(rec.status).toBe("pending-upload");
+    expect(rec.subject).toBe("maths");
+    const row = pendingFromSessionRecords(loadLocalSessionRecords("u1")).find((p) => p.code === "PK-M-RN-CBQ1")!;
+    expect(row.surface).toBe("worksheet");
+    expect(row.href).toContain("/practice/worksheets?subject=Maths");
+    expect(row.href).toContain("upload=PK-M-RN-CBQ1");
+    await k1.build();
+    expect(loadLocalSessionRecords("u1").filter((r) => r.id === "PK-M-RN-CBQ1")).toHaveLength(1);
+  });
+
+  it("every chapter document of both CBQ packs has a distinct code; the intro page has none", async () => {
+    const seen = new Set<string>();
+    for (const subject of ["maths", "science"] as const) {
+      const pack = owned(`pack_cbq:${subject}`);
+      const files = await buildPackFiles(ref(pack), mk(pack).ctx);
+      const qDocs = files.filter((f) => f.id.endsWith("-questions") && f.id.includes("|cbq-"));
+      expect(qDocs.length).toBeGreaterThan(0);
+      for (const f of qDocs) {
+        expect(f.code, f.id).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ\d+$/);
+        expect(seen.has(f.code!), f.code).toBe(false);
+        seen.add(f.code!);
+      }
+      expect(cbqPackExampleCode(subject)).toBe(qDocs[0].code);
+    }
   });
 });
