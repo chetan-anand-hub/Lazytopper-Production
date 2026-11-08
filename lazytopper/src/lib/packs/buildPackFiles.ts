@@ -11,6 +11,7 @@
  *   subject  the union of its 13 chapters + that subject's mocks, grouped by chapter
  *   bundle   both subjects
  *   cbq      (CBQ-PACK-1) one subject's competency-based questions: a marking-rules page, then per chapter questions + key
+ *            (BRIDGE-CODES-1: each chapter document is a paper, `PK-<M|S>-<TOPIC>-CBQ<k>`, filed as a worksheet)
  *
  * Every draw is seeded by `hashSeed(packId + ":" + index)` — same packId, same question ids, every time.
  * Packs never touch the weekly download limit: nothing here calls the limited-download guard.
@@ -468,6 +469,9 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
               ws: () => worksheetOf({ id: `pack-cbq-${slug}-${pi + 1}`, title, subject: bankSubject, sectionFilter: "Competency-based", questions }),
               mode,
               orderRef,
+              // BRIDGE-CODES-1: each CBQ document prints its own pack code and, once downloaded, waits on Home as a worksheet
+              // (the Chapter Pack's `-WS` path): same upload, same grader, same entitlement.
+              paper: { kind: "worksheet", code: packPaperCode({ kind: "cbq", chapter: slug, part: pi + 1 }), name: title, subject: bankSubject, topicKey: slug },
               cover: {
                 kicker: mode === "questions" ? `${kicker} CBQ PACK` : `${kicker} CBQ PACK \u00b7 ANSWER KEY`,
                 title,
