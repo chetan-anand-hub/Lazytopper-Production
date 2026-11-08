@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
@@ -253,5 +253,45 @@ describe("ASK-COPY-1: the signed-out tutor gate leads with the free week", () =>
       "Sign up free — 7 days of the tutor and step marking. We'll bring you straight back to this chapter.",
     );
     expect(tutorGateNote(false)).not.toMatch(/Log in to open your tutor/);
+  });
+});
+
+describe("chooser styles + close glyph (SPEED-CBQPICK-1)", () => {
+  it("the picker CSS is NOT in <head> before the first open (importing the module adds nothing)", async () => {
+    document.getElementById("lt-picker-css")?.remove();
+    vi.resetModules();
+    await import("./homeDestinations");
+    expect(document.getElementById("lt-picker-css")).toBeNull();
+  });
+
+  it("the picker CSS lives in <head> exactly once, never inside the dialog, across opens", () => {
+    document.getElementById("lt-picker-css")?.remove();
+    const first = renderPicker(true);
+    expect(document.head.querySelectorAll("style#lt-picker-css")).toHaveLength(1);
+    expect(document.head.querySelector("style#lt-picker-css")!.textContent).toContain(".lt-tutor-pop");
+    expect(screen.getByRole("dialog").querySelector("style")).toBeNull();
+    expect(document.querySelector(".lt-tutor-ov style")).toBeNull();
+    first.unmount();
+    renderPicker(false);
+    expect(document.head.querySelectorAll("style#lt-picker-css")).toHaveLength(1);
+  });
+
+  it("the Close button keeps its label and is an SVG (no text glyph to lay out)", () => {
+    renderPicker(true);
+    const close = screen.getByRole("button", { name: "Close" });
+    expect(close.querySelector("svg")).not.toBeNull();
+    expect(close.textContent).toBe("");
+  });
+
+  it("Esc and the Close button still close", () => {
+    let closed = 0;
+    render(
+      <MemoryRouter>
+        <TutorPickerModal open onClose={() => closed++} isSignedIn />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    expect(closed).toBe(2);
   });
 });
