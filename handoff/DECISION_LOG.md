@@ -1,4 +1,4 @@
-## 2026-11-08 (daily, second) - #1637 - #1646: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+## 2026-11-08 (daily, second) - #1637 - #1647: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 8 Nov 2026 (IST), each with its reason where one was given; owner words are verbatim from the session log `ops_0811b.md`. Tags: **[owner]**, **[coordinator]**.
 

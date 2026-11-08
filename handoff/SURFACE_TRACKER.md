@@ -1,4 +1,4 @@
-> **2026-11-08 (daily, second) - #1637 - #1646 (CLAUDE.md section 10).** Scope: Board Pass checkout guard, the CBQ chooser and Answer Checker a11y, the Answer Checker first paint, the island pages (Important Questions, CBQ chapters, NCERT Hub), selling copy and the pricing FAQ. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+> **2026-11-08 (daily, second) - #1637 - #1647 (CLAUDE.md section 10).** Scope: Board Pass checkout guard, the CBQ chooser and Answer Checker a11y, the Answer Checker first paint, the island pages (Important Questions, CBQ chapters, NCERT Hub), selling copy, the pricing FAQ and the graded-sheet header (display and export only). **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
 |---|---|---|---|
@@ -10,7 +10,7 @@
 | Selling copy, /pricing FAQ, Welcome | "CBSE examiner style marking", "your tutor", FAQ "How is my answer marked?" (`#1642`, `#1646`) | **merged, live** | `[FU-AI-DISCLOSURE-LINE]` |
 | /packs, pack PDFs, Answer Checker pack codes, My packs panel | bridge to Board Pass (`#1644`, `#1643`, `#1645`) | **open, reviewed, NOT merged** | merge `#1644` -> `#1643` -> `#1645`; `[FU-MYPACKS-CLS]`, `[FU-CBQ-SAMPLE]` |
 | Answer Checker in-app browsers | static paint for YouTube/Instagram/Facebook (`#1641`) | **open, delta PASS-WITH-FU, NOT merged** | quick fixes, delta, merge, live in-app check |
-| Graded sheet header (all 6 callers) | right kind and marking date (`#1647`) | **open, in review, NOT merged** | review, merge, re-host the sample |
+| Graded sheet header (all 6 callers) | right kind and marking date (`#1647`) | **merged, live** | `[FU-SHEET-DATE-WS-CACHE]`; re-download and re-host the sample |
 
 No grading surface moved.
 

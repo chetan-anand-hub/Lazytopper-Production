@@ -1,11 +1,12 @@
-## 2026-11-08 (daily, second) - #1637 - #1646 - MERGED
+## 2026-11-08 (daily, second) - #1637 - #1647 - MERGED
 
 - DONE. `#1637` (`e96fba2`) MONEY-DUPGUARD-1: a covered account cannot buy a second Board Pass; an open unpaid order is reused. NEXT: `[FU-ENTITLEMENT-PASSEND-FREE]`, the same-instant double-order race.
 - DONE. `#1638` (`62a1e73`) SMALL-FU-1: CBQ chooser a11y, Answer Checker tab ARIA, comments, `/packs#my-packs` signed out. NEXT: `[FU-PRICING-MYPACKS-REDIRECT-CLS]`, `[FU-CBQ-H1-RESERVE]`.
 - DONE. `#1639` (`c814c9b`) SPEED-CI-2: fixed first demo question, phone LCP 4.30 -> 0.91 s. NEXT: `[FU-MAIN-ENTRY-FAIL-BLANK]`, `[FU-LANDING-OFFER-RESERVE]`, `[FU-CI-EARLYTAP-RESERVES]`.
 - DONE. `#1640` (`d615069`) SPEED-ISLANDS-2: island for Important Questions, CBQ chapters, NCERT Hub. Closes `[FU-ISLANDS-PHASE-2]`. NEXT: `[FU-ISLAND-LIGHTHOUSE-POINTER]`.
 - DONE. `#1642` (`2ae5049`) COPY-NOAI-1 and `#1646` (`598896c`) COPY-AIFAQ-1: no "AI" in selling copy; pricing FAQ on how an answer is marked. NEXT: an in-product AI disclosure line (owner decision), `aiClient.ts:513` error text.
-- OPEN, reviewed and left for the next session (merge first, in this order): `#1644` BRIDGE-PDF-1 (ready) -> `#1643` BRIDGE-CODES-1 (CBQ in parts, owed) -> `#1645` BRIDGE-PANEL-1 (panel first screen, owed). Then `#1641` SPEED-CI-3 and `#1647` SHEET-HEADER-1.
+- DONE. `#1647` (`1886217`) SHEET-HEADER-1: graded sheet header shows the right paper kind and the marking date. NEXT: `[FU-SHEET-DATE-WS-CACHE]`, re-download and re-host the sample.
+- OPEN, reviewed and left for the next session (merge first, in this order): `#1644` BRIDGE-PDF-1 (ready) -> `#1643` BRIDGE-CODES-1 (CBQ in parts, owed) -> `#1645` BRIDGE-PANEL-1 (panel first screen, owed). Then `#1641` SPEED-CI-3.
 - NEXT (not built): `[FU-YT-DEMO-VIDEO]`, `[FU-CBQ-SAMPLE]` (after `#1643` is live), the ads items. Pricing-page redesign is ON HOLD (owner).
 
 ## 2026-11-08 (daily) - #1628 - #1635 - MERGED

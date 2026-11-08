@@ -23,9 +23,9 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-11-08 (daily, second) - #1637 - #1646 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+## 2026-11-08 (daily, second) - #1637 - #1647 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
-*Readings are at trunk `598896cc`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block.*
+*Readings are at trunk `1886217`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block.*
 
 **Closed by this window:** `[FU-GST-TEST-ORDERS-14OCT]` CLOSED (owner, 8 Nov 12:10: "yes those two purchases were mine"; orders `order_TnoOI7hNpeRZmM` and `order_TnoU4PmvY04pI0` were his own test payments, no invoice needed). `[FU-BOARDPASS-SERVER-DUP-GUARD]` CLOSED by `#1637`. `[FU-ISLANDS-PHASE-2]` CLOSED by `#1640`. `[FU-CBQ-CHOOSER-A11Y]` CLOSED by `#1638`. `[FU-DESKTOPSHELL-BELL-COMMENT]` CLOSED by `#1638`.
 
@@ -81,7 +81,7 @@ Owner 21:32 (verbatim): "You haven't answered yet on the real marked CBQ sample 
 
 ### [FU-SHEET-DATE-WS-CACHE]
 
-Small. From `#1647`: a Worksheet graded sheet re-downloaded from a cached or reopened grade on the panel prints NO date (honest fallback) because the stored `gradedAt` in `worksheetSessionStore` is outside that lane's allowlist. Expose `gradedAt` from `getWorksheetGrade` rows, or pass it on `WorksheetReopenGrade`. The history-list download already prints the record's date.
+Small. From `#1647`: a Worksheet graded sheet re-downloaded from a cached or reopened grade on the panel prints NO date (honest fallback) because the stored `gradedAt` in `worksheetSessionStore` is outside that lane's allowlist. Expose `gradedAt` from `getWorksheetGrade` rows, or pass it on `WorksheetReopenGrade`. The history-list download already prints the record's date. `#1647` merged 8 Nov 23:08 IST (`18862176`, PASS-WITH-FU at `09eb85a4`). Other FUs from its review: Quick Practice prints the download time as its date (pre-existing); the hosted sample `/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf` must be re-downloaded from the owner account and re-hosted.
 
 ### [FU-MYPACKS-CLS]
 
