@@ -4,6 +4,7 @@ import { CBQ_PACK_EXCLUDED_IDS, CBQ_MIN_CASE_CHARS, cbqPackRows, isCbqPackRow, c
 import { PACK_CHAPTER_SLUGS, chaptersOfSubject, type OwnedPack } from "../../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_SUBJECT_CLAIM } from "./packLabels";
 import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
+import { cbqSets } from "./cbqSets";
 import { isCbq } from "../cbq/cbqClassification";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
@@ -335,11 +336,13 @@ describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
         await loadChapter(slug);
         const rows = cbqPackRows(slug);
         expect(rows.length, slug).toBeGreaterThan(0);
-        const qFiles = files.filter((f) => f.id.includes(`|${slug}|`) && f.label.startsWith("Questions"));
-        expect(qFiles.length, slug).toBe(splitIntoParts(rows).length);
+        // BRIDGE-CODES-1 round 2: the chapter is divided into gradable sets; together they hold EVERY CBQ of the chapter, once.
+        const qFiles = files.filter((f) => f.id.includes(`|${slug}|`) && f.label.endsWith("\u00b7 Questions"));
+        expect(qFiles.length, slug).toBe(cbqSets(rows).length);
         const built = seen.filter((s) => qFiles.some((f) => f.filename === s.file)).flatMap((s) => s.ids);
-        expect(built, slug).toEqual(rows.map((r) => r.id));
-        expect(files.filter((f) => f.id.includes(`|${slug}|`) && f.label.startsWith("Answer key")).length, slug).toBe(qFiles.length);
+        expect([...built].sort(), slug).toEqual(rows.map((r) => r.id).sort());
+        expect(new Set(built).size, slug).toBe(built.length);
+        expect(files.filter((f) => f.id.includes(`|${slug}|`) && f.label.endsWith("\u00b7 Answer key")).length, slug).toBe(qFiles.length);
       }
       // the licensed-order reference is the CBQ pack's own order
       expect(seen.every((s) => s.licensee === "order_pack_cbq")).toBe(true);

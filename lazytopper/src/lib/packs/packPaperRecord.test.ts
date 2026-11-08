@@ -194,30 +194,30 @@ describe("pack papers join the existing download -> pending -> upload path", () 
 
 // BRIDGE-CODES-1 (owner 8 Nov 2026: "CBQ packs get the same pages"): every CBQ Pack chapter document is a paper with its own
 // PK- code, filed as a worksheet exactly like the Chapter Pack's `-WS` paper (same upload, same grader, same entitlement).
-describe("CBQ Pack documents carry a pack code and wait on Home like every pack paper", () => {
+describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper", () => {
   it("codes have the PK- CBQ shape, are unique, and never reuse a Chapter Pack code", () => {
     const codes = new Set<string>();
     for (const slug of PACK_CHAPTER_SLUGS) {
       for (const part of [1, 2, 3]) {
-        const c = packPaperCode({ kind: "cbq", chapter: slug, part });
+        const c = packPaperCode({ kind: "cbq", chapter: slug, set: part });
         expect(c).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ[123]$/);
         codes.add(c);
       }
       for (const kind of ["ct1", "ct2", "ws"] as const) expect(codes.has(packPaperCode({ kind, chapter: slug }))).toBe(false);
     }
     expect(codes.size).toBe(PACK_CHAPTER_SLUGS.length * 3);
-    expect(packPaperCode({ kind: "cbq", chapter: "real-numbers", part: 1 })).toBe("PK-M-RN-CBQ1");
+    expect(packPaperCode({ kind: "cbq", chapter: "real-numbers", set: 1 })).toBe("PK-M-RN-CBQ1");
     expect(cbqPackExampleCode("maths")).toBe("PK-M-RN-CBQ1");
     expect(cbqPackExampleCode("science")).toBe("PK-S-CRAE-CBQ1");
   });
 
-  it("a CBQ question document prints its code, files a worksheet pending record and a stored paper; the key shares it", async () => {
+  it("a CBQ set's question document prints its code, files a worksheet pending record and a stored paper; the key shares it", async () => {
     const pack = owned("pack_cbq:maths");
     const { ctx, exportPdf } = mk(pack);
     const files = await buildPackFiles(ref(pack), ctx);
     expect(files.find((f) => f.group === "Start here")!.code).toBeUndefined();
-    const q1 = files.find((f) => f.id.includes("|real-numbers|cbq-1-questions"))!;
-    const k1 = files.find((f) => f.id.includes("|real-numbers|cbq-1-answers"))!;
+    const q1 = files.find((f) => f.id.includes("|real-numbers|cbq-set-1-questions"))!;
+    const k1 = files.find((f) => f.id.includes("|real-numbers|cbq-set-1-answers"))!;
     expect(q1.code).toBe("PK-M-RN-CBQ1");
     expect(k1.code).toBe("PK-M-RN-CBQ1");
     await q1.build();
@@ -234,12 +234,12 @@ describe("CBQ Pack documents carry a pack code and wait on Home like every pack 
     expect(loadLocalSessionRecords("u1").filter((r) => r.id === "PK-M-RN-CBQ1")).toHaveLength(1);
   });
 
-  it("every chapter document of both CBQ packs has a distinct code; the intro page has none", async () => {
+  it("every set of both CBQ packs has a distinct code; the intro page has none", async () => {
     const seen = new Set<string>();
     for (const subject of ["maths", "science"] as const) {
       const pack = owned(`pack_cbq:${subject}`);
       const files = await buildPackFiles(ref(pack), mk(pack).ctx);
-      const qDocs = files.filter((f) => f.id.endsWith("-questions") && f.id.includes("|cbq-"));
+      const qDocs = files.filter((f) => f.id.endsWith("-questions") && f.id.includes("|cbq-set-"));
       expect(qDocs.length).toBeGreaterThan(0);
       for (const f of qDocs) {
         expect(f.code, f.id).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ\d+$/);

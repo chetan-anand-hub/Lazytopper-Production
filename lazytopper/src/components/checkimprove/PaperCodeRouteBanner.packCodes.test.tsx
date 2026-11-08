@@ -6,11 +6,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 const H = vi.hoisted(() => ({
-  local: [] as Array<{ surface: string }>, cloud: vi.fn(), track: vi.fn(), saved: vi.fn(),
+  local: [] as Array<{ surface: string }>, cloud: vi.fn(), track: vi.fn(), saved: vi.fn(), qr: vi.fn(),
   wsLocal: vi.fn(), wsSnap: vi.fn(), ctPaper: vi.fn(), fmSnap: vi.fn(),
 }));
 vi.mock("../../services/progressStore", () => ({ getSurfaceHistory: (surface: string) => H.local.filter((r) => r.surface === surface) }));
-vi.mock("./decodePaperCode", () => ({ decodePaperCodeFromImage: async () => null }));
+vi.mock("./decodePaperCode", () => ({ decodePaperCodeFromImage: (...a: unknown[]) => H.qr(...a) }));
 vi.mock("./pdfPaperText", () => ({ readPdfPaperText: async () => [] }));
 vi.mock("../../analytics/analytics", () => ({ trackNamedEvent: (...a: unknown[]) => H.track(...a) }));
 vi.mock("../../services/sessionRecords", () => ({ getSessionRecordsFromCloud: (...a: unknown[]) => H.cloud(...a) }));
@@ -28,13 +28,16 @@ const paper = (worksheetId = "pack-x") => ({ worksheetId, questions: STORED.map(
 const rec = (id: string, over: Record<string, unknown> = {}) => ({
   id, surface: "worksheet", subject: "maths", status: "pending-upload", dedupKey: `u1::${id}`, worksheetId: "pack-x", questionIds: ["a", "b", "c"], ...over,
 });
-const view = (texts: string[], uid: string | null = "u1") => render(<MemoryRouter><PaperCodeRouteBanner uid={uid} texts={texts} /></MemoryRouter>);
+const view = (texts: string[], uid: string | null = "u1", files?: Array<{ base64: string | null; mime: string }>) =>
+  render(<MemoryRouter><PaperCodeRouteBanner uid={uid} texts={texts} files={files} /></MemoryRouter>);
+const PHOTO = [{ base64: "/9j/AAAA", mime: "image/jpeg" }];
 
 beforeEach(() => {
   H.local = [];
   H.cloud.mockReset().mockResolvedValue([]);
   H.track.mockReset();
   H.saved.mockReset().mockResolvedValue(false);
+  H.qr.mockReset().mockResolvedValue(null);
   H.wsLocal.mockReset().mockReturnValue(paper());
   H.wsSnap.mockReset().mockResolvedValue(null);
   H.ctPaper.mockReset().mockResolvedValue({ paper: paper() });
@@ -116,5 +119,41 @@ describe("PaperCodeRouteBanner: pack codes", () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(H.saved).not.toHaveBeenCalled();
     expect(screen.queryByTestId("paper-code-pack-note")).toBeNull();
+  });
+
+  // Round 2 (owner 8 Nov 20:17: QR on every pack paper): a code DECODED from the photo's footer QR routes exactly like a typed one.
+  it("QR: a decoded CBQ set code the student downloaded -> the same offer as typing it (file name says nothing)", async () => {
+    H.qr.mockResolvedValue("PK-M-RN-CBQ7");
+    H.local = [rec("PK-M-RN-CBQ7")];
+    view(["IMG_20261108_2015.jpg"], "u1", PHOTO);
+    expect(await screen.findByTestId("paper-code-route-banner")).toBeTruthy();
+    expect(H.qr).toHaveBeenCalledWith({ base64: "/9j/AAAA", mime: "image/jpeg" });
+    expect(screen.getByTestId("paper-code-route-go").getAttribute("href")).toBe(
+      "/practice/worksheets?subject=Maths&scope=full-subject&upload=PK-M-RN-CBQ7",
+    );
+  });
+
+  it("QR: a decoded pack Chapter Test / Mock code -> its review link; not on this account -> the honest My packs note", async () => {
+    H.qr.mockResolvedValue("PK-S-FULL-M5-V2");
+    H.local = [rec("PK-S-FULL-M5-V2", { surface: "full-mock", subject: "science" })];
+    view(["scan.jpg"], "u1", PHOTO);
+    expect((await screen.findByTestId("paper-code-route-go")).getAttribute("href")).toBe(
+      "/full-mock/10/Science?upload=PK-S-FULL-M5-V2&source=home&returnTo=%2F",
+    );
+    cleanup();
+    H.local = [];
+    H.qr.mockResolvedValue("PK-M-TRI-CBQ2");
+    view(["scan.jpg"], "u1", PHOTO);
+    expect(await screen.findByTestId("paper-code-pack-note")).toBeTruthy();
+    expect(H.saved).toHaveBeenCalledWith("u1", "PK-M-TRI-CBQ2");
+    expect(screen.queryByTestId("paper-code-route-go")).toBeNull();
+  });
+
+  it("QR: signed out -> the photo is not even decoded", async () => {
+    H.qr.mockResolvedValue("PK-M-RN-CBQ7");
+    view(["scan.jpg"], null, PHOTO);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(H.qr).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("paper-code-route-banner")).toBeNull();
   });
 });
