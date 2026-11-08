@@ -48,7 +48,7 @@ export function useOptionalUid(): string {
   }
 }
 
-/** "The AI tutor" -> "the AI tutor"; "AI tutor" and "Step-by-step" stay as they are. */
+/** "Your personal tutor" -> "your personal tutor"; labels that do not start Capital+lower ("Step-by-step") stay as they are. */
 export function lowerFirst(label: string): string {
   return /^[A-Z][a-z]/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label;
 }

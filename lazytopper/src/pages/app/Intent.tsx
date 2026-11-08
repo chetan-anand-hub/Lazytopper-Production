@@ -35,8 +35,8 @@ const MODES = [
   {
     key: "check",
     title: "Answer Checker",
-    sub: "Upload answers · AI examiner grades",
-    pill: "AI-powered",
+    sub: "Upload answers · marked like a CBSE examiner",
+    pill: "CBSE examiner style marking",
     color: "hsl(280,60%,50%)",
     bg: "rgba(139,92,246,0.08)",
     route: "/check-improve",

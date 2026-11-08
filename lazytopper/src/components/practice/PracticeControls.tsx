@@ -722,7 +722,7 @@ function FilterPanel({
           >
             <div style={{ fontSize: "0.8rem", color: "hsl(220, 25%, 12%)", lineHeight: 1.5 }}>
               Quick practice works best up to 20 questions. For larger sets - download,
-              solve on paper and get AI feedback against the CBSE marking scheme - use
+              solve on paper and get CBSE examiner style marking against the CBSE marking scheme - use
               the worksheet generator.
             </div>
             <button

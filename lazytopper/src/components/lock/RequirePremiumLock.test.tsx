@@ -96,7 +96,7 @@ afterEach(() => {
 const FEATURES = [
   { label: "Answer Checker", title: "Answer Checker comes with the Board Pass" },
   { label: "Worksheet marking", title: "Worksheet marking comes with the Board Pass" },
-  { label: "Ask the tutor", title: "The AI tutor comes with the Board Pass" },
+  { label: "Ask the tutor", title: "Your personal tutor comes with the Board Pass" },
 ] as const;
 
 describe("LOCK-SELL-1 - the lock sells the Board Pass (feature x trial x pack owner x payments)", () => {
@@ -128,7 +128,7 @@ describe("LOCK-SELL-1 - the lock sells the Board Pass (feature x trial x pack ow
             expect(ticks.map((li) => li.getAttribute("data-tick"))).toEqual(LOCK_TICKS.map((t) => t.id));
             expect(ticks[0].textContent).toContain("Answer Checker");
             expect(ticks[1].textContent).toContain("Mistake Intelligence");
-            expect(ticks[2].textContent).toContain("AI tutor");
+            expect(ticks[2].textContent).toContain("Your personal tutor");
 
             // Price and lines from config, never typed.
             expect(screen.getByTestId("lock-amount").textContent).toBe(boardPassPriceDisplay());
@@ -192,7 +192,7 @@ describe("LOCK-SELL-1 - 'Continue with Basic' exits", () => {
 
   it("other gate labels keep their own name in the headline; no label reads 'This feature'", () => {
     expect(lockHeadline("Exam Simulation")).toBe("Exam Simulation comes with the Board Pass");
-    expect(lockHeadline("The AI tutor")).toBe("The AI tutor comes with the Board Pass");
+    expect(lockHeadline("The AI tutor")).toBe("Your personal tutor comes with the Board Pass");
     expect(lockHeadline(undefined)).toBe("This feature comes with the Board Pass");
   });
 });

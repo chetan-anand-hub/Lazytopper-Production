@@ -63,7 +63,7 @@ describe("RequirePremium — the scorecard lock line (START-HERE-1)", () => {
     gate("/tutor/10/Maths/real-numbers?source=practice");
     await waitFor(() => expect(screen.queryByText("Start my free 7-day trial")).toBeNull());
     // CBQ-TUTOR-GATE-1: the tutor gate now reads the pack allowance first, so the lock arrives a tick later.
-    expect(await screen.findByText("The AI tutor comes with the Board Pass")).toBeInTheDocument();
+    expect(await screen.findByText("Your personal tutor comes with the Board Pass")).toBeInTheDocument();
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
   });
 
@@ -72,7 +72,7 @@ describe("RequirePremium — the scorecard lock line (START-HERE-1)", () => {
     gate("/tutor/10/Maths/real-numbers?source=scorecard");
     await screen.findByText("Start my free 7-day trial");
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
-    expect(screen.getByText("The AI tutor comes with the Board Pass")).toBeInTheDocument();
+    expect(screen.getByText("Your personal tutor comes with the Board Pass")).toBeInTheDocument();
   });
 });
 
@@ -110,7 +110,7 @@ describe("RequirePremium — scorecard lock line, trial vs paid pass (FOLLOWUPS-
   it("★ paid pass expired arriving any other way keeps the ordinary line", async () => {
     hydrate.mockResolvedValue(PAID_EXPIRED);
     gate("/tutor/10/Maths/real-numbers?source=practice");
-    await screen.findByText("The AI tutor comes with the Board Pass");
+    await screen.findByText("Your personal tutor comes with the Board Pass");
     expect(screen.queryByText(SCORECARD_LOCK_COPY_PAID)).toBeNull();
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
   });
