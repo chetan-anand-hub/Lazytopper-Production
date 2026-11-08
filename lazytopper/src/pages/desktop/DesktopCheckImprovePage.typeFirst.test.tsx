@@ -86,16 +86,33 @@ describe("SHW-2 · Check & Improve answer area - type-first for a new student", 
   it("★★ signed-in, zero graded -> Type answer is selected; both tabs show; ONE cloud read", async () => {
     render(page());
     await waitFor(() => expect(typeBox()).not.toBeNull());
-    expect(screen.getByRole("button", { name: "Upload image" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Type answer" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Upload image" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Type answer" })).toBeInTheDocument();
     expect(H.cloudHas).toHaveBeenCalledTimes(1);
+  });
+
+  it("FU-CHECKIMPROVE-TABS-ARIA: both mode groups are tablists, aria-selected follows the choice, arrows move it", async () => {
+    render(page());
+    await waitFor(() => expect(typeBox()).not.toBeNull());
+    const lists = screen.getAllByRole("tablist");
+    expect(lists).toHaveLength(2);
+    const typeTab = screen.getByRole("tab", { name: "Type answer" });
+    const uploadTab = screen.getByRole("tab", { name: "Upload image" });
+    expect(typeTab.getAttribute("aria-selected")).toBe("true");
+    expect(uploadTab.getAttribute("aria-selected")).toBe("false");
+    expect(typeTab.getAttribute("tabindex")).toBe("0");
+    expect(uploadTab.getAttribute("tabindex")).toBe("-1");
+    typeTab.focus();
+    fireEvent.keyDown(typeTab, { key: "ArrowLeft" });
+    await waitFor(() => expect(uploadTab.getAttribute("aria-selected")).toBe("true"));
+    expect(typeTab.getAttribute("aria-selected")).toBe("false");
   });
 
   it("★★ signed-out visitor (free check) -> Upload image stays selected", async () => {
     H.auth = { user: null, loading: false };
     vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
     render(page());
-    expect(await screen.findByRole("button", { name: "Upload image" })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Upload image" })).toBeInTheDocument();
     await act(async () => {});
     await act(async () => {});
     expect(typeBox()).toBeNull();
@@ -105,7 +122,7 @@ describe("SHW-2 · Check & Improve answer area - type-first for a new student", 
   it("★★ CONTROL: a student with graded work -> Upload image stays selected", async () => {
     H.local = [{ id: "QP-M-TRIG-001", surface: "quick-practice", topicKeys: [], questionIds: [], gradedAt: 1 }];
     render(page());
-    expect(await screen.findByRole("button", { name: "Upload image" })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Upload image" })).toBeInTheDocument();
     await act(async () => {});
     await act(async () => {});
     expect(typeBox()).toBeNull();
@@ -114,7 +131,7 @@ describe("SHW-2 · Check & Improve answer area - type-first for a new student", 
   it("★ while the signal is unknown the default stays Upload (no early flip)", async () => {
     H.cloudHas.mockReturnValue(new Promise(() => {}));
     render(page());
-    expect(await screen.findByRole("button", { name: "Upload image" })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Upload image" })).toBeInTheDocument();
     await act(async () => {});
     expect(typeBox()).toBeNull();
   });

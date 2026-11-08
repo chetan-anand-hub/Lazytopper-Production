@@ -493,7 +493,7 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
     H.checkSolutionImage.mockResolvedValue(clone(fx.body));
     renderCheckImprove();
     await readQuestion(fx.request.question);
-    fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
     fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "My working, as written on the page." } });
     await pressGrade();
     await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));
@@ -588,14 +588,14 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
       questions: [{ questionNumber: 1, questionText: "", marks: 3, marksSource: "stated" }],
     });
     const { container } = renderCheckImprove();
-    fireEvent.click(screen.getByRole("button", { name: "Upload question(s)" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
     const qInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
     fireEvent.change(qInput, { target: { files: [new File(["%PDF-1.4"], "question.pdf", { type: "application/pdf" })] } });
     const read = await screen.findByRole("button", { name: /Read the question/ });
     await waitFor(() => expect(read).not.toBeDisabled());
     fireEvent.click(read);
     await waitFor(() => expect(H.detectQuestion).toHaveBeenCalled());
-    fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
     fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "My working, as written on the page." } });
     const grade = await screen.findByRole("button", { name: /Grade my answer/ });
     check(S, "b1.noText.gradeNotOffered", (grade as HTMLButtonElement).disabled === true, "");
@@ -617,7 +617,7 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
     });
     H.checkSolutionImage.mockResolvedValue(clone(fx.body));
     const { container } = renderCheckImprove();
-    fireEvent.click(screen.getByRole("button", { name: "Upload question(s)" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
     // The question card comes first, so its picker is the first file input on the page. A PDF
     // skips the photo pipeline (no canvas in jsdom) and is what a QR hand-off delivers too.
     const qInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
@@ -626,7 +626,7 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
     await waitFor(() => expect(read).not.toBeDisabled());
     fireEvent.click(read);
     await waitFor(() => expect(H.detectQuestion).toHaveBeenCalled());
-    fireEvent.click(screen.getByRole("button", { name: "Type answer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Type answer" }));
     fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "My working, as written on the page." } });
     await pressGrade();
     await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));

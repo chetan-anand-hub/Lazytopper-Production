@@ -25,9 +25,10 @@ const ParentBoardPassSheet = lazy(() => import("../components/parents/ParentBoar
 /**
  * ★ PARENTS-PAY-1 (owner ruling 28 Oct 2026, 07:51 IST) SUPERSEDES the "no price figure" rulings above:
  * the page now shows the price and how a parent pays for the child. The figures come from
- * `config/pricing.ts` (`tillBoardsQuote`; PRICE-FIXED-1: no month price) and are computed AFTER MOUNT, as
- * `TillBoardsOffer` on /pricing does, so the prerendered HTML carries no rupee figure that could
- * go stale; the number-free steps are static. A parent cannot start a payment without the child's
+ * `config/pricing.ts` (`tillBoardsQuote`; PRICE-FIXED-1: no month price). Since SPEED-CLS-2 (#1629) the Pay buttons and the
+ * pack prices are in React's FIRST client commit (`useMounted`); only the "What it costs" figures block fills in just after, inside
+ * a slot that is always rendered. The raw string render (renderToStaticMarkup) still has no rupee figure, which is what the unit
+ * contract checks; the prerendered page carries the prices (PRERENDER-PRICE-GUARD-1). The number-free steps are static. A parent cannot start a payment without the child's
  * account: the server prices the order from the child's record (`ParentPayPanel`), so there is NO
  * checkout here, only the true flow and the WhatsApp contact for help.
  */
@@ -37,8 +38,8 @@ const ParentBoardPassSheet = lazy(() => import("../components/parents/ParentBoar
  * primary "Pay for my child" opens the same "Who will use it?" checkout /pricing opens for the Board Pass (the box says any mobile
  * number or email works - many children have no phone), and every pack card has its own Buy through the shared pack shop
  * (`PacksShop`, the one /packs and /pricing use). The old three-step "child taps Forward link to parents" block and the "opens
- * WhatsApp, no payment on this page" note are gone; WhatsApp is a secondary "Questions?" link. The price figure still arrives after
- * mount, so the prerendered HTML carries no rupee figure.
+ * WhatsApp, no payment on this page" note are gone; WhatsApp is a secondary "Questions?" link. The price on the Pay buttons and pack
+ * cards is in React's first client commit (SPEED-CLS-2; pinned by forParents.price.test.tsx).
  */
 
 /**
@@ -64,7 +65,7 @@ const ParentBoardPassSheet = lazy(() => import("../components/parents/ParentBoar
  *      a visitor who opens the URL directly in a fresh tab (e.g. the link shared on). No new analytics event: the
  *      named-event union lives in `analytics/analytics.ts`, outside this lane.
  *   2. A "See pricing" link to `/pricing` in the "What does it cost?" answer. The page itself
- *      still states NO rupee figure.
+ *      still states NO rupee figure (19 Oct; superseded by PARENTS-PAY-1 above: the page now shows the Board Pass price).
  *   3. A fifth "What your child gets" tile, "A tutor for doubts, explained step by step", with
  *      NO link: the tutor needs an account, and this page offers no route to make one.
  * Still NO sign-up / login link or button on this page. The share button is unchanged.
@@ -224,7 +225,7 @@ type PayPlacement = "hero" | "price";
 
 /**
  * SPEED-CLS-2: true from the FIRST client render, false in a string render (renderToString / renderToStaticMarkup use the server
- * snapshot, so the "no price in static markup" contract holds). The prerendered page already carries these prices
+ * snapshot, so a raw string render has no price: a unit-level contract, not what the prerendered page serves). The prerendered page already carries these prices
  * (PRERENDER-PRICE-GUARD-1) and React's first commit replaces that markup, so a first render WITHOUT them narrowed the Pay /
  * packs-link buttons and emptied the band chips for a frame before the effect filled them in: two layout shifts at hand-over
  * (CLS 0.03-0.06 at 1280). createRoot does not hydrate, so there is no markup to match.
@@ -234,7 +235,7 @@ function useMounted(): boolean {
   return useSyncExternalStore(subscribeNever, () => true, () => false);
 }
 
-/** "Pay for my child · ₹1,917" (GST-EXCL-1: the amount CHARGED, ₹2,262 from 7 Nov 2026): the figure is read AFTER mount (founding/regular logic of /pricing), so the prerender has none. */
+/** "Pay for my child · ₹1,917" (GST-EXCL-1: the amount CHARGED, ₹2,262 from 7 Nov 2026): the figure shows from the first client commit (founding/regular logic of /pricing; `useMounted`); only a string render omits it. */
 function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
   const mounted = useMounted();
   return (
@@ -244,7 +245,7 @@ function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (plac
   );
 }
 
-/** PARENTS-PAY-1 — the price and the real way a parent pays. Figures arrive after mount (see above). */
+/** PARENTS-PAY-1 — the price and the real way a parent pays. The figures block fills in after the first commit, into a slot that is always rendered (see above). */
 function ParentPriceSection({ onPay }: { onPay: (placement: PayPlacement) => void }) {
   const [model, setModel] = useState<ParentPriceModel | null>(null);
   useEffect(() => {
