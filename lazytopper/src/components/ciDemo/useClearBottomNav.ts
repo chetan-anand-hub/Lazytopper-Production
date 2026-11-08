@@ -28,6 +28,9 @@ export function clearScrollDelta(
   return Math.max(0, Math.min(want, keep.top - view.topClear)); // ...but never past the mark
 }
 
+/** The student's own input: any of these cancels a pending correction (a scroll starts with one of them). */
+const USER_INPUT = ["touchstart", "touchmove", "pointerdown", "wheel", "keydown"] as const;
+
 function px(value: string): number {
   const n = parseFloat(value);
   return Number.isFinite(n) ? n : 0;
@@ -55,6 +58,14 @@ export function useClearBottomNav(
       return;
     }
     let check: number | undefined;
+    const disarm = () => {
+      for (const type of USER_INPUT) window.removeEventListener(type, cancel, true);
+    };
+    function cancel() {
+      if (check !== undefined) window.clearTimeout(check);
+      check = undefined;
+      disarm();
+    }
     try {
       const style = window.getComputedStyle(el);
       const topClear = px(window.getComputedStyle(mark).scrollMarginTop);
@@ -66,8 +77,11 @@ export function useClearBottomNav(
       if (dy !== 0 && typeof window.scrollBy === "function") {
         window.scrollBy({ top: dy, behavior });
         // A smooth scroll can be cut short (measured: it stopped 50 px early once, leaving the mark above the screen).
-        // Once it has had time to finish, a mark still off the screen is put back at once, at its margin.
+        // Once it has had time to finish, a mark still off the screen is put back at once, at its margin — UNLESS the
+        // student has touched, scrolled or typed since (review of #1641, B4: their own scroll must never be yanked back).
         check = window.setTimeout(() => {
+          check = undefined;
+          disarm();
           try {
             const k = mark.getBoundingClientRect();
             if (k.top < 0 || k.bottom > window.innerHeight) window.scrollBy({ top: k.top - topClear, behavior: "auto" });
@@ -75,12 +89,13 @@ export function useClearBottomNav(
             /* never throws */
           }
         }, 900);
+        for (const type of USER_INPUT) window.addEventListener(type, cancel, { capture: true, passive: true });
       }
     } catch {
       /* never throws */
     }
     return () => {
-      if (check !== undefined) window.clearTimeout(check);
+      cancel();
     };
     // Once per activation; the refs are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps

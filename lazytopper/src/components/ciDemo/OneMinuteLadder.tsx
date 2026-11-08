@@ -148,65 +148,64 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   useClearBottomNav(verdictRef, picked !== null, markRef);
   // SPEED-CI-3 — SETTLING. An early tap's verdict lands (this first frame) and its buying block's pack rows land a
   // moment later (OffersBlock's lazy OfferRows chunk). No height is reserved for either; instead, from this first frame
-  // until the rows are in, what lies BELOW the verdict (the watch link, the page under the card) is hidden IN PLACE
-  // (ciDemo.css `[data-settling]`): a hidden node that moves is not a layout shift, and it reappears in its final place.
-  // Settled = the rows are in the DOM, or the block has no rows to wait for (no block / the rows chunk resolved and
-  // rendered none), or the student's next tap / key. Nothing above the verdict ever moves.
+  // until the rows are in, what lies BELOW the verdict (the watch link, the page under the card) is made transparent IN
+  // PLACE (ciDemo.css `[data-settling]`, opacity 0): an invisible node that moves is not a layout shift, and it reappears
+  // in its final place. Nothing above the verdict ever moves.
+  // Settled = the rows are in the DOM; or there is no block to wait for; or 1.5 s after the landing (rows that slow, or
+  // none for this chapter, must never leave a blank hole); or the student does ANYTHING (review of #1641, B4/FU): the
+  // first touch, pointer, wheel or key releases it AT ONCE — a scroll never reveals a hole, and because the hidden nodes
+  // stay hit-testable (opacity, not visibility), the very tap that releases them also lands on its control.
   const [settling, setSettling] = useState(early !== null);
   useEffect(() => {
     if (!settling) return undefined;
     let live = true;
     let mounted = true;
     let observer: MutationObserver | undefined;
+    let cap: number | undefined;
+    const INPUT = ["touchstart", "pointerdown", "wheel", "keydown"] as const;
     // ★ Never in the frame the verdict landed in: the hiding must have been PAINTED with the grown verdict, or the page
     // below is seen moving. (Measured: with the rows already cached the effect settled synchronously, before the first
-    // paint, and the page below moved 0.39.) So the release waits two animation frames.
+    // paint, and the page below moved 0.39.) So a release that is not the student's own input waits two frames.
     const frame = (next: () => void) => {
       if (typeof requestAnimationFrame === "function") requestAnimationFrame(next);
       else window.setTimeout(next, 16);
     };
-    const done = () => {
-      if (!live) return;
+    const stop = () => {
       live = false;
       observer?.disconnect();
-      document.removeEventListener("click", done);
-      document.removeEventListener("keyup", done);
+      if (cap !== undefined) window.clearTimeout(cap);
+      for (const type of INPUT) window.removeEventListener(type, now, true);
+    };
+    const done = () => {
+      if (!live) return;
+      stop();
       frame(() => frame(() => {
         if (mounted) setSettling(false);
       }));
     };
+    // The student's own input: release at once (any move it causes is input-excluded).
+    function now() {
+      if (!live) return;
+      stop();
+      if (mounted) setSettling(false);
+    }
     const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
     const rowsIn = () => !!block?.querySelector('[data-testid="offers-packs"]');
+    for (const type of INPUT) window.addEventListener(type, now, { capture: true, passive: true });
     if (!block || rowsIn()) {
       done();
-      return () => {
-        mounted = false;
-      };
+    } else {
+      if (typeof MutationObserver === "function") {
+        observer = new MutationObserver(() => {
+          if (rowsIn()) done();
+        });
+        observer.observe(block, { childList: true, subtree: true });
+      }
+      cap = window.setTimeout(done, 1500);
     }
-    document.addEventListener("click", done);
-    document.addEventListener("keyup", done);
-    if (typeof MutationObserver === "function") {
-      observer = new MutationObserver(() => {
-        if (rowsIn()) done();
-      });
-      observer.observe(block, { childList: true, subtree: true });
-    }
-    // The same module OffersBlock's lazy() loads. The rows normally appear right after it resolves (the observer above
-    // settles then); a block that has rendered no rows a second after the module is in has none to show (or its chunk
-    // failed): settle then, so the page below is never left hidden. (A few frames were not enough on a slow phone: React
-    // can render the lazy rows later than that, and the rows then moved the shown page — measured 0.285 once at 4x CPU.)
-    let fallback: number | undefined;
-    const later = () => {
-      if (live) fallback = window.setTimeout(done, 1000);
-    };
-    void import("../packs/OfferRows").then(later, later);
     return () => {
-      if (fallback !== undefined) window.clearTimeout(fallback);
       mounted = false;
-      live = false;
-      observer?.disconnect();
-      document.removeEventListener("click", done);
-      document.removeEventListener("keyup", done);
+      stop();
     };
     // Once, for the early tap this mount started with.
     // eslint-disable-next-line react-hooks/exhaustive-deps

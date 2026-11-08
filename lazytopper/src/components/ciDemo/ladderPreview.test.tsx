@@ -267,7 +267,9 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     // SPEED-CI-3 (review of #1641): no derived height is reserved for the verdict at any width — only the mark line
     // (the held line above) — and what lies below the landing verdict is hidden in place while it settles.
     expect([...css.matchAll(/\.ci-demo__verdict--reserve\s*\{([^}]*)\}/g)].map((m) => m[1].replace(/\s+/g, ""))).toEqual(["min-height:0;"]);
-    expect(css).toMatch(/\.ci-demo__ladder\[data-settling\] > \.ci-demo__link,\s*\.ci-demo:has\(\.ci-demo__ladder\[data-settling\]\) ~ \* \{\s*visibility: hidden;/);
+    // Two separate rules (an engine without :has drops only the second) and opacity, so the hidden nodes stay tappable.
+    expect(css).toMatch(/\.ci-demo__ladder\[data-settling\] > \.ci-demo__link \{\s*opacity: 0;\s*\}/);
+    expect(css).toMatch(/\.ci-demo:has\(\.ci-demo__ladder\[data-settling\]\) ~ \* \{\s*opacity: 0;\s*\}/);
   });
 
   it("SPEED-CI-3: the watch link's inert and active looks are the same box (only opacity / cursor differ)", () => {

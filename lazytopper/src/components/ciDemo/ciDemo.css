@@ -611,13 +611,17 @@
    numbers: stale with any offer-copy change, wrong with a large Android font, and a box taller than the screen made the
    bring-into-view scroll the student's mark off the screen). An early tap reserves only the mark line (the held
    "Checking your answer…", LadderTapParts.tsx); the box below it is a zero-height marker. When the verdict and its buying
-   block land, what lies below them is hidden in place until they have settled (OneMinuteLadder `data-settling`). */
+   block land, what lies below them is made transparent in place until they have settled (OneMinuteLadder `data-settling`). */
 .ci-demo__verdict--reserve {
   min-height: 0;
 }
-.ci-demo__ladder[data-settling] > .ci-demo__link,
+/* opacity, not visibility: the nodes stay hit-testable, so the tap that releases them (OneMinuteLadder) also acts.
+   Two rules, so an engine without :has still hides the link. */
+.ci-demo__ladder[data-settling] > .ci-demo__link {
+  opacity: 0;
+}
 .ci-demo:has(.ci-demo__ladder[data-settling]) ~ * {
-  visibility: hidden;
+  opacity: 0;
 }
 .ci-demo__verdict-mark {
   scroll-margin-top: 12px;

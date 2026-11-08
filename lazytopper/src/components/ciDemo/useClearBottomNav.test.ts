@@ -72,4 +72,35 @@ describe("useClearBottomNav with a mark to keep", () => {
       window.scrollBy = orig;
     }
   });
+
+  for (const type of ["touchstart", "touchmove", "pointerdown", "wheel", "keydown"]) {
+    it(`B4: the student's own ${type} inside the 900 ms cancels the correction — their scroll is never yanked back`, () => {
+      vi.useFakeTimers();
+      const by = vi.fn();
+      const orig = window.scrollBy;
+      window.scrollBy = by as unknown as typeof window.scrollBy;
+      let markTop = -120;
+      function Probe() {
+        const box = useRef<HTMLDivElement>(null);
+        const mark = useRef<HTMLParagraphElement>(null);
+        useClearBottomNav(box, true, mark);
+        return createElement("div", null, createElement("p", { ref: mark }), createElement("div", { ref: box }));
+      }
+      vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+        const r = (top: number, bottom: number) => ({ top, bottom, left: 0, right: 0, width: 0, height: bottom - top, x: 0, y: top, toJSON: () => ({}) }) as DOMRect;
+        return this.tagName === "P" ? r(markTop, markTop + 21) : r(markTop + 250, markTop + 1500);
+      });
+      try {
+        render(createElement(Probe));
+        expect(by).toHaveBeenCalledTimes(1);
+        vi.advanceTimersByTime(200);
+        window.dispatchEvent(new Event(type));
+        markTop = -600; // the student scrolled on, past the mark
+        vi.advanceTimersByTime(1000);
+        expect(by).toHaveBeenCalledTimes(1);
+      } finally {
+        window.scrollBy = orig;
+      }
+    });
+  }
 });

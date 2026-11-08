@@ -92,15 +92,43 @@ describe("an early tap's verdict settles without a reserved height", () => {
     expect(ladder().hasAttribute("data-settling")).toBe(false);
   });
 
-  it("the student's next tap or key settles it even if the rows never come", async () => {
-    (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
-    render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
-    expect(ladder().hasAttribute("data-settling")).toBe(true);
-    act(() => {
-      fireEvent.keyUp(document.body, { key: "Tab" });
-    });
-    await act(() => new Promise((r) => setTimeout(r, 80)));
-    expect(ladder().hasAttribute("data-settling")).toBe(false);
+  it("the student's own input (key, touch, pointer, wheel) releases it AT ONCE, even if the rows never come", () => {
+    for (const fire of [
+      () => fireEvent.keyDown(document.body, { key: "Tab" }),
+      () => fireEvent.touchStart(document.body),
+      () => fireEvent.pointerDown(document.body),
+      () => fireEvent.wheel(document.body),
+    ]) {
+      window.localStorage.clear(); // a first visit each time (the fixed starter the static tap was made on)
+      __resetLadderVisitForTests();
+      (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
+      const { unmount } = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+      expect(ladder().hasAttribute("data-settling")).toBe(true);
+      act(() => {
+        fire();
+      });
+      // Synchronous: no frame wait, so a scroll never uncovers a hole and the releasing tap lands on a shown control.
+      expect(ladder().hasAttribute("data-settling")).toBe(false);
+      unmount();
+    }
+  });
+
+  it("rows that never come: released 1.5 s after the landing, never left hidden", () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame"] });
+    try {
+      (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
+      render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+      act(() => {
+        vi.advanceTimersByTime(1400);
+      });
+      expect(ladder().hasAttribute("data-settling")).toBe(true);
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      expect(ladder().hasAttribute("data-settling")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("a tap on the ready ladder never settles (nothing was hidden)", () => {
