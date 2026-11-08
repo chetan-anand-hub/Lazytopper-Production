@@ -247,7 +247,9 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
 
   it("(b) the page's landing line is hidden IN PLACE while the verdict box is held (no second offer line, no shift)", () => {
     const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
-    expect(css).toMatch(/\.ci-demo:has\(\.ci-demo__verdict--reserve\) \+ \.lt-lo,\s*\.ci-demo:has\(\.ci-demo__verdict--reserve\) \+ \.lt-lo-slot \{\s*visibility: hidden;/);
+    // SPEED-CI-3: ...until the student scrolls (data-lo-shown), when it is shown again in place.
+    const held = "\\.ci-demo:has\\(\\.ci-demo__verdict--reserve\\):not\\(:has\\(\\.ci-demo__ladder\\[data-lo-shown\\]\\)\\)";
+    expect(css).toMatch(new RegExp(`${held} \\+ \\.lt-lo,\\s*${held} \\+ \\.lt-lo-slot \\{\\s*visibility: hidden;`));
     const page = readFileSync(resolve(__dirname, "../../pages/desktop/DesktopCheckImprovePage.tsx"), "utf8");
     // The landing line is the card's NEXT sibling (what the CSS relies on), and an early tap defers only its removal.
     expect(page).toMatch(/<CiDemoCard[\s\S]*?\/>\s*\)\}\s*\{\/\*[^]*?\*\/\}\s*\{!overlay && ciDemo\.show && !ciMomentUid && !ladderAnsweredHere \? <LandingOffer variant="check" \/> : null\}/);
@@ -264,11 +266,20 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     expect((ul.nextElementSibling as HTMLElement).className).toBe("ci-demo__verdict ci-demo__verdict--reserve");
     const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
     expect(css).toMatch(/\.ci-demo\[data-ci-first\] \.ci-demo__close,\s*\.ci-demo\[data-ci-first\] \.ci-demo__link \{\s*opacity: 0\.45;/);
-    // A reserve for every band, never smaller than the measured right-answer verdict (8 Nov 2026) in that band.
-    const bands = [...css.matchAll(/(?:@media \(min-width: (\d+)px\)\s*\{\s*)?\.ci-demo__verdict--reserve\s*\{\s*min-height: (\d+)px/g)].map((m) => [Number(m[1] ?? 0), Number(m[2])]);
-    const measured: Record<number, number> = { 0: 337, 360: 317, 390: 297, 1024: 235, 1440: 214 };
-    expect(bands.map((b) => b[0])).toEqual([0, 360, 390, 1024, 1440]);
-    for (const [from, h] of bands) expect(h).toBeGreaterThanOrEqual(measured[from]);
+    // SPEED-CI-3 (review of #1641): no derived height is reserved for the verdict at any width — only the mark line
+    // (the held line above) — and what lies below the landing verdict is hidden in place while it settles.
+    expect([...css.matchAll(/\.ci-demo__verdict--reserve\s*\{([^}]*)\}/g)].map((m) => m[1].replace(/\s+/g, ""))).toEqual(["min-height:0;"]);
+    // Two separate rules (an engine without :has drops only the second) and opacity, so the hidden nodes stay tappable.
+    expect(css).toMatch(/\.ci-demo__ladder\[data-settling\] > \.ci-demo__link \{\s*opacity: 0;\s*\}/);
+    expect(css).toMatch(/\.ci-demo:has\(\.ci-demo__ladder\[data-settling\]\) ~ \* \{\s*opacity: 0;\s*\}/);
+  });
+
+  it("SPEED-CI-3: the watch link's inert and active looks are the same box (only opacity / cursor differ)", () => {
+    const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
+    const inert = css.match(/\.ci-demo\[data-ci-first\] \.ci-demo__link \{([^}]*)\}/)?.[1] ?? "";
+    expect(inert.split(";").map((d) => d.split(":")[0].trim()).filter(Boolean).sort()).toEqual(["cursor", "opacity"]);
+    // ...and nothing hides it: it stays visible and tappable once the card is in.
+    expect(css).not.toMatch(/\.ci-demo__link\s*\{[^}]*(visibility|display)\s*:/);
   });
 
   it("a tap on the STATIC paint's right option: 1/1", () => {

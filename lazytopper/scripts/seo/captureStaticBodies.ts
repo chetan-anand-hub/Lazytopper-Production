@@ -816,6 +816,13 @@ export const PAINT_USER_AGENTS = {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
   instagram:
     "Mozilla/5.0 (Linux; Android 14; Pixel 7; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 Instagram 350.0.0.0",
+  // SPEED-CI-3: the in-app browsers the Answer Checker's ads land in (utils/inAppBrowser.ts names each of them).
+  youtube:
+    "Mozilla/5.0 (Linux; Android 13; SM-A145F Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.44.38",
+  youtubeIos:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 com.google.ios.youtube/19.45.4 (iPhone14,5; U; CPU iOS 17_5 like Mac OS X; en_IN)",
+  facebook:
+    "Mozilla/5.0 (Linux; Android 13; V2207 Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.0.0 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/480.0.0.39.108;]",
 } as const;
 
 interface PaintRender {
@@ -1048,8 +1055,11 @@ export interface CiCase {
   touch: boolean;
   userAgent: string;
   served: PaintVariant;
-  /** Seed storage before the load: a prior real visit (same context, other tab), or explicit keys. */
-  seed?: "prior-visit" | { session?: Record<string, string>; local?: Record<string, string> };
+  /**
+   * Seed storage before the load: a prior real visit (same context, other tab), or explicit keys. SPEED-CI-3:
+   * "no-dom-storage" is an Android WebView with DOM storage off (`localStorage` / `sessionStorage` are null).
+   */
+  seed?: "prior-visit" | "no-dom-storage" | { session?: Record<string, string>; local?: Record<string, string> };
   expect: "door" | "off";
   /** SPEED-CI-2: a door's demo card — the first-visit card (fixed question) or today's placeholder. */
   expectDemo?: "first" | "placeholder";
@@ -1076,7 +1086,15 @@ export const CI_PARITY_CASES: readonly CiCase[] = [
   { name: "ci signed-in trace (active uid)", ...CI_DESKTOP, search: "", seed: { local: { "lazytopper.progress.active_uid.v1": "u1" } }, expect: "off" },
   { name: "ci desktop UA in a 900-px window", ...CI_DESKTOP, width: 900, search: "", expect: "off" },
   { name: "ci android tablet 1280 (mobile file, desktop layout)", ...CI_PHONE, width: 1280, height: 800, userAgent: PAINT_USER_AGENTS.tablet, search: "", expect: "off" },
-  { name: "ci Instagram in-app", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.instagram, search: "", expect: "off" },
+  // SPEED-CI-3: in-app browsers render the same first frame (nothing in it reads the user agent), so they get the door;
+  // a web view without DOM storage cannot say "first visit" the way React does (ladderVisit.ts), so it stays off.
+  { name: "ci Instagram in-app", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.instagram, search: "?utm_source=ig&utm_medium=paid&fbclid=x", expect: "door", expectDemo: "first" },
+  { name: "ci YouTube in-app 412", ...CI_PHONE, width: 412, height: 915, userAgent: PAINT_USER_AGENTS.youtube, search: "?utm_source=youtube&utm_medium=video&gclid=y", expect: "door", expectDemo: "first" },
+  { name: "ci YouTube in-app 360, returning visitor", ...CI_PHONE, width: 360, height: 740, userAgent: PAINT_USER_AGENTS.youtube, search: "", seed: "prior-visit", expect: "door", expectDemo: "placeholder" },
+  { name: "ci YouTube in-app, CBQ ad", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.youtube, search: "?utm_source=youtube&utm_content=cbq_short", expect: "door", expectDemo: "placeholder" },
+  { name: "ci YouTube iOS web view", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.youtubeIos, search: "", expect: "door", expectDemo: "first" },
+  { name: "ci Facebook in-app", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.facebook, search: "?fbclid=z", expect: "door", expectDemo: "first" },
+  { name: "ci web view without DOM storage", ...CI_PHONE, userAgent: PAINT_USER_AGENTS.youtube, search: "", seed: "no-dom-storage", expect: "off" },
 ];
 
 /** Text the Answer Checker's static state must / must not carry. */
@@ -1253,6 +1271,11 @@ async function runCheckImproveParity(
           : route.continue(),
       );
       const seed = typeof kase.seed === "object" ? kase.seed : null;
+      if (kase.seed === "no-dom-storage") {
+        await page.addInitScript({
+          content: `(function(){for(var n of ["localStorage","sessionStorage"])Object.defineProperty(window,n,{get:function(){return null;},configurable:true});})();`,
+        });
+      }
       await page.addInitScript({
         content:
           `(function(){if(window.top!==window)return;var seed=${JSON.stringify(seed)};` +
@@ -1311,7 +1334,7 @@ async function capturePaintShells(
   basename: string,
   clock: { from: number; until: number },
   outDir: string,
-): Promise<{ captures: PaintCapture[]; parity: PaintParityResult[] }> {
+): Promise<{ captures: PaintCapture[]; parity: PaintParityResult[]; markChecks: string[] }> {
   const captures: PaintCapture[] = [];
   for (const path of [LOGIN_PATH]) {
     for (const spec of PAINT_CAPTURES) {
@@ -1377,7 +1400,75 @@ async function capturePaintShells(
   // SPEED-CI-1 — the Answer Checker's captures and parity matrix.
   captures.push(...(await captureCheckImprove(browser, origin, basename, checkImproveEagerChunks(outDir))));
   parity.push(...(await runCheckImproveParity(browser, origin, basename, clock, captures)));
-  return { captures, parity };
+  const markChecks = await runEarlyTapMarkChecks(browser, origin, basename, clock, captures);
+  return { captures, parity, markChecks };
+}
+
+/**
+ * SPEED-CI-3 (review of #1641, B1) — after an EARLY tap (on the static paint, before the app has run) the student's own
+ * mark line ("✓ 1/1" / "✗ 0/1 Right answer: …") must be ON SCREEN once the verdict has landed and the page has done
+ * its bring-into-view scroll. Real browser, shipped paint page, phone sizes from 360x640 to 412x915, in-app and Chrome.
+ * Returns one line per case that fails (empty = all good).
+ */
+export const CI_MARK_CASES: ReadonlyArray<{ name: string; width: number; height: number; userAgent: string; option: number }> = [
+  { name: "360x640 YouTube in-app, wrong", width: 360, height: 640, userAgent: PAINT_USER_AGENTS.youtube, option: 2 },
+  { name: "360x740 Chrome, right", width: 360, height: 740, userAgent: PAINT_USER_AGENTS.phone, option: 0 },
+  { name: "412x823 Instagram in-app, right", width: 412, height: 823, userAgent: PAINT_USER_AGENTS.instagram, option: 0 },
+  { name: "412x915 YouTube in-app, wrong", width: 412, height: 915, userAgent: PAINT_USER_AGENTS.youtube, option: 2 },
+];
+
+async function runEarlyTapMarkChecks(
+  browser: Browser,
+  origin: string,
+  basename: string,
+  clock: { from: number; until: number },
+  captures: readonly PaintCapture[],
+): Promise<string[]> {
+  const shell = await (await fetch(`${origin}${basename}/${SPA_SHELL_FILE}`)).text();
+  const door = captures.find((c) => c.path === CHECK_IMPROVE_PATH && c.variant === "mobile")?.html ?? "";
+  const pageHtml = buildCheckImprovePaintPage(shell, door, checkImprovePaintConfig("mobile", clock), []);
+  const failures: string[] = [];
+  for (const kase of CI_MARK_CASES) {
+    const context = await ciContext(browser, { ...kase, touch: true });
+    try {
+      const page = await context.newPage();
+      for (const pattern of APP_API_PATTERNS) await page.route(pattern, (route) => route.abort());
+      let release: () => void = () => undefined;
+      const held = new Promise<void>((done) => (release = done));
+      // The entry waits for the tap, so the tap is made on the STATIC paint (an early tap), every run.
+      await page.route(/\/assets\/index-[^/]*\.js$/, async (route) => {
+        await held;
+        await route.continue().catch(() => undefined);
+      });
+      await page.route(`**${basename}${CHECK_IMPROVE_PATH}*`, (route) =>
+        route.request().resourceType() === "document"
+          ? route.fulfill({ status: 200, contentType: "text/html", body: pageHtml })
+          : route.continue(),
+      );
+      // "commit": the held entry is a module script, so DOMContentLoaded waits for it (it would never fire before the tap).
+      await page.goto(`${origin}${basename}${CHECK_IMPROVE_PATH}?utm_source=youtube`, { waitUntil: "commit", timeout: 60_000 });
+      const option = page.locator(`[data-lt-paint] [data-testid="one-min-opt-${kase.option}"]`);
+      await option.waitFor({ timeout: 30_000 });
+      await option.tap({ noWaitAfter: true });
+      release();
+      await page.locator('[data-testid="one-min-verdict"]').waitFor({ timeout: 45_000 });
+      await page.waitForTimeout(2_000); // the smooth bring-into-view scroll
+      const r = await page.evaluate(() => {
+        const mark = document.querySelector('[data-testid="one-min-verdict"]') as HTMLElement | null;
+        const box = mark ? mark.getBoundingClientRect() : null;
+        return { top: box ? box.top : null, bottom: box ? box.bottom : null, height: window.innerHeight, text: mark ? mark.textContent || "" : "" };
+      });
+      const want = kase.option === 0 ? "✓ 1/1" : "✗ 0/1";
+      if (r.top === null || r.bottom === null) failures.push(`[paint] mark "${kase.name}": no mark line`);
+      else if (r.top < 0 || r.bottom > r.height) failures.push(`[paint] mark "${kase.name}": the mark line is off screen (top ${Math.round(r.top)}, bottom ${Math.round(r.bottom)}, screen ${r.height})`);
+      if (!r.text.startsWith(want)) failures.push(`[paint] mark "${kase.name}": expected "${want}", got "${r.text.slice(0, 30)}"`);
+    } catch (error: unknown) {
+      failures.push(`[paint] mark "${kase.name}": ${String(error).slice(0, 200)}`);
+    } finally {
+      await context.close();
+    }
+  }
+  return failures;
 }
 
 async function main(): Promise<void> {
@@ -1408,7 +1499,7 @@ async function main(): Promise<void> {
   const desktopCaptures: Capture[] = [];
   // SPEED-LOGIN-1: the clock window the paint captures hold for (their OfferStrip copy follows the calendar).
   const paintClock = clockWindowAt(Date.now());
-  let paint: { captures: PaintCapture[]; parity: PaintParityResult[] } = { captures: [], parity: [] };
+  let paint: { captures: PaintCapture[]; parity: PaintParityResult[]; markChecks: string[] } = { captures: [], parity: [], markChecks: [] };
   // ⚠ THE SERVER IS CLOSED ON EVERY PATH OUT OF HERE, INCLUDING A FAILED BROWSER
   // LAUNCH, AND THAT OUTER `try` IS NOT TIDINESS. `chromium.launch()` used to sit
   // OUTSIDE it: on a machine with no browser downloaded the launch threw in ONE
@@ -1457,6 +1548,7 @@ async function main(): Promise<void> {
   const failures = [
     ...validateBothWidths(captures, desktopCaptures),
     ...validatePaintCaptures(paint.captures, paint.parity, { mobile: captures, desktop: desktopCaptures }),
+    ...paint.markChecks,
   ];
   if (failures.length > 0) {
     throw new Error(
@@ -1592,7 +1684,7 @@ async function main(): Promise<void> {
   console.log(
     `PAINT_SHELLS_CAPTURE: paths=${PAINT_PATHS.join(",")} captures=${paint.captures.length} ` +
       `parity_cases=${paint.parity.length} parity_shown=${paint.parity.filter((r) => r.equal === true).length} ` +
-      `parity_off=${paint.parity.filter((r) => r.equal === null).length} clock=${paintClock.from}..${paintClock.until}`,
+      `parity_off=${paint.parity.filter((r) => r.equal === null).length} mark_cases=${CI_MARK_CASES.length} clock=${paintClock.from}..${paintClock.until}`,
   );
 }
 
