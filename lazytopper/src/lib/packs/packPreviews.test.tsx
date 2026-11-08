@@ -136,6 +136,7 @@ describe("syllabus guard on the real previewed worksheets", () => {
   it("none of the files the previews come from carries banned 2026-27 text", async () => {
     const { chapterFiles, cbqFiles, mockFiles } = await import("./buildPackFiles");
     const texts: string[] = [];
+    let built = 0;
     for (const spec of PACK_PREVIEWS) {
       const slug = previewChapterSlug(spec) ?? chaptersOfSubject(spec.subject)[0];
       const target = spec.sku === "pack_chapter" ? slug : spec.sku === "pack_bundle" ? "all" : spec.subject;
@@ -159,9 +160,12 @@ describe("syllabus guard on the real previewed worksheets", () => {
         const hit = files.find((f) => f.id.endsWith(`|${suffix}`) && (spec.sku === "pack_mock" || f.id.includes(`|${slug}|`)));
         expect(hit, `${spec.id} ${suffix}`).toBeTruthy();
         await hit!.build();
+        built += 1;
       }
     }
-    expect(texts).toHaveLength(PACK_PREVIEWS.length * 2);
+    expect(built).toBe(PACK_PREVIEWS.length * 2);
+    // BRIDGE-CODES-1 round 3: a CBQ chapter file holds every set, and the stub exporter sees each set, so it adds one text per set.
+    expect(texts.length).toBeGreaterThanOrEqual(built);
     const hits = scanContentForPhrases(texts.join("\n"), SURFACE_BANNED_PHRASES);
     expect([...hits.keys()]).toEqual([]);
   }, 180000);

@@ -33,6 +33,11 @@ window.__genPreview = async (id, which) => {
       window.__lastText = JSON.stringify(ws);
       return mod.exportWorksheetPdf(ws, mode, code, { ...opts, filename });
     },
+    // BRIDGE-CODES-1 round 3: a CBQ chapter is ONE file holding all its sets - preview it as that file.
+    exportSetsPdf: (sets: Parameters<typeof mod.exportWorksheetSetsPdf>[0], mode: "questions" | "answers", opts?: Parameters<typeof mod.exportWorksheetSetsPdf>[2]) => {
+      window.__lastText = JSON.stringify(sets.map((x) => x.ws));
+      return mod.exportWorksheetSetsPdf(sets, mode, { ...opts, filename });
+    },
   };
   const files: PackFile[] =
     spec.sku === "pack_mock"

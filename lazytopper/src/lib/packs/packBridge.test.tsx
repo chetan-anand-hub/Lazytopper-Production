@@ -10,7 +10,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
 import type { OwnedPack } from "../../services/packs";
-import { BRIDGE_IMG, BRIDGE_SAMPLE_PDF_PATH, BRIDGE_SAMPLE_PDF_URL, bridgePackLabel, cbqBridgeExampleCode, type BridgePagesData } from "./packBridge";
+import { BRIDGE_IMG, BRIDGE_SAMPLE_PDF_PATH, BRIDGE_SAMPLE_PDF_URL, bridgePackLabel, type BridgePagesData } from "./packBridge";
 import { packPaperCode } from "./packPaperCode";
 import { PrintBridgeMarkPage, PrintBridgeViewsPage } from "../../components/worksheet/PrintBridgePages";
 import { WorksheetPrintDoc } from "../../components/worksheet/WorksheetPrintDoc";
@@ -79,16 +79,16 @@ describe("BRIDGE-PDF-1 - who gets pages 2-3", () => {
     }
   });
 
-  it("CBQ pack gets the pages too; with no printed CBQ code (before #1643) the example is null, never an unprinted code", async () => {
+  it("CBQ pack gets the pages too; the example is a code the pack really prints (BRIDGE-CODES-1: a chapter file's first set)", async () => {
     const h = harness(owned("pack_cbq:maths"), { bridge: { paidBoardPass: false } });
     const files = await buildPackFiles(h.ref, h.ctx);
-    await files[0].build();
-    await files[1].build();
-    for (const [i, c] of h.calls.entries()) {
-      expect(c.bridge, files[i].label).toBeDefined();
-      // a CBQ file's own printed code once BRIDGE-CODES-1 gives it one; until then null (the "e.g." clause is left out)
-      expect(c.bridge!.exampleCode).toBe(files[i].code ?? cbqBridgeExampleCode("maths", "real-numbers"));
-    }
+    await files[0].build(); // "How examiners mark a CBQ" (no paper of its own)
+    await files[1].build(); // Real Numbers: ONE file holding every set (the stub exporter is called once per set)
+    expect(h.calls.length).toBe(1 + files[1].codes!.length);
+    for (const c of h.calls) expect(c.bridge).toBeDefined();
+    expect(h.calls[0].bridge!.exampleCode).toBe("PK-M-RN-CBQ1");
+    for (const c of h.calls.slice(1)) expect(c.bridge!.exampleCode).toBe(files[1].codes![0]);
+    expect(files[1].codes![0]).toBe("PK-M-RN-CBQ1");
     expect(h.calls[0].bridge!.packLabel).toBe("Maths CBQ Pack");
     expect(h.calls[1].bridge!.packLabel).toBe("Real Numbers \u00b7 Maths CBQ Pack");
   });

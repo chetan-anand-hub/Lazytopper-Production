@@ -211,27 +211,46 @@ describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper
     expect(cbqPackExampleCode("science")).toBe("PK-S-CRAE-CBQ1");
   });
 
-  it("a CBQ set's question document prints its code, files a worksheet pending record and a stored paper; the key shares it", async () => {
+  it("a CBQ chapter file holds every set: each set prints its own code and files its own worksheet pending record; the key shares them", async () => {
     const pack = owned("pack_cbq:maths");
     const { ctx, exportPdf } = mk(pack);
     const files = await buildPackFiles(ref(pack), ctx);
-    expect(files.find((f) => f.group === "Start here")!.code).toBeUndefined();
-    const q1 = files.find((f) => f.id.includes("|real-numbers|cbq-set-1-questions"))!;
-    const k1 = files.find((f) => f.id.includes("|real-numbers|cbq-set-1-answers"))!;
-    expect(q1.code).toBe("PK-M-RN-CBQ1");
-    expect(k1.code).toBe("PK-M-RN-CBQ1");
-    await q1.build();
-    expect(exportPdf.mock.calls[0][2]).toBe("PK-M-RN-CBQ1");
-    const rec = loadLocalSessionRecords("u1").find((r) => r.id === "PK-M-RN-CBQ1")!;
-    expect(rec.surface).toBe("worksheet");
-    expect(rec.status).toBe("pending-upload");
-    expect(rec.subject).toBe("maths");
-    const row = pendingFromSessionRecords(loadLocalSessionRecords("u1")).find((p) => p.code === "PK-M-RN-CBQ1")!;
+    expect(files.find((f) => f.group === "Start here")!.codes).toBeUndefined();
+    const q = files.find((f) => f.id.endsWith("|real-numbers|cbq-questions"))!;
+    const k = files.find((f) => f.id.endsWith("|real-numbers|cbq-answers"))!;
+    expect(q.code).toBeUndefined();
+    expect(q.codes![0]).toBe("PK-M-RN-CBQ1");
+    expect(k.codes).toEqual(q.codes);
+    await q.build();
+    // the exporter stub sees every set, in order, each with its own code (one file: same filename)
+    expect(exportPdf.mock.calls.map((c) => c[2])).toEqual(q.codes);
+    expect(new Set(exportPdf.mock.calls.map((c) => (c[3] as { filename?: string })?.filename)).size).toBe(1);
+    const recs = loadLocalSessionRecords("u1");
+    for (const code of q.codes!) {
+      const rec = recs.find((r) => r.id === code)!;
+      expect(rec.surface, code).toBe("worksheet");
+      expect(rec.status, code).toBe("pending-upload");
+      expect(rec.subject, code).toBe("maths");
+    }
+    const row = pendingFromSessionRecords(recs).find((p) => p.code === "PK-M-RN-CBQ1")!;
     expect(row.surface).toBe("worksheet");
     expect(row.href).toContain("/practice/worksheets?subject=Maths");
     expect(row.href).toContain("upload=PK-M-RN-CBQ1");
-    await k1.build();
+    await k.build();
     expect(loadLocalSessionRecords("u1").filter((r) => r.id === "PK-M-RN-CBQ1")).toHaveLength(1);
+  });
+
+  it("the real several-papers exporter gets every set in ONE call (no exportPdf seam)", async () => {
+    const pack = owned("pack_cbq:science");
+    const exportSetsPdf = vi.fn(async (..._a: unknown[]) => "ok");
+    const { ctx } = mk(pack, { exportPdf: undefined, exportSetsPdf: exportSetsPdf as never });
+    const q = (await buildPackFiles(ref(pack), ctx)).find((f) => f.id.endsWith("|electricity|cbq-questions"))!;
+    await q.build();
+    expect(exportSetsPdf).toHaveBeenCalledTimes(1);
+    const [sets, mode] = exportSetsPdf.mock.calls[0] as unknown as [Array<{ code: string; ws: { questions: unknown[] } }>, string];
+    expect(mode).toBe("questions");
+    expect(sets.map((x) => x.code)).toEqual(q.codes);
+    for (const x of sets) expect(x.ws.questions.length).toBeGreaterThanOrEqual(10);
   });
 
   it("every set of both CBQ packs has a distinct code; the intro page has none", async () => {
@@ -239,14 +258,16 @@ describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper
     for (const subject of ["maths", "science"] as const) {
       const pack = owned(`pack_cbq:${subject}`);
       const files = await buildPackFiles(ref(pack), mk(pack).ctx);
-      const qDocs = files.filter((f) => f.id.endsWith("-questions") && f.id.includes("|cbq-set-"));
+      const qDocs = files.filter((f) => f.id.endsWith("|cbq-questions"));
       expect(qDocs.length).toBeGreaterThan(0);
       for (const f of qDocs) {
-        expect(f.code, f.id).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ\d+$/);
-        expect(seen.has(f.code!), f.code).toBe(false);
-        seen.add(f.code!);
+        for (const c of f.codes!) {
+          expect(c, f.id).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ\d+$/);
+          expect(seen.has(c), c).toBe(false);
+          seen.add(c);
+        }
       }
-      expect(cbqPackExampleCode(subject)).toBe(qDocs[0].code);
+      expect(cbqPackExampleCode(subject)).toBe(qDocs[0].codes![0]);
     }
   });
 });

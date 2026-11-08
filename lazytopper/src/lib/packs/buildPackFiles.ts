@@ -11,7 +11,8 @@
  *   subject  the union of its 13 chapters + that subject's mocks, grouped by chapter
  *   bundle   both subjects
  *   cbq      (CBQ-PACK-1) one subject's competency-based questions: a marking-rules page, then per chapter questions + key
- *            (BRIDGE-CODES-1: each chapter is divided into gradable sets of ~10-15, `PK-<M|S>-<TOPIC>-CBQ<k>`, filed as worksheets)
+ *            (BRIDGE-CODES-1: one file per chapter holding its gradable sets of ~10-15, `PK-<M|S>-<TOPIC>-CBQ<k>`, each filed as a
+ *            worksheet)
  *
  * Every draw is seeded by `hashSeed(packId + ":" + index)` — same packId, same question ids, every time.
  * Packs never touch the weekly download limit: nothing here calls the limited-download guard.
@@ -19,7 +20,7 @@
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { AuthUser } from "../../context/AuthContext";
 import { registerPackPaper, type PackPaperReg } from "./packPaperRecord";
-import { packPaperCode } from "./packPaperCode";
+import { cbqPackExampleCode, packPaperCode } from "./packPaperCode";
 import {
   chaptersOfSubject,
   hasLicenseeContact,
@@ -70,12 +71,16 @@ export type ExportOpts = {
   bridge?: BridgePagesData;
 };
 type ExportFn = (ws: PersistedWorksheet, mode: "questions" | "answers", code?: string, opts?: ExportOpts) => Promise<string>;
+/** BRIDGE-CODES-1 round 3: several papers in ONE file (worksheetPdfExport `exportWorksheetSetsPdf`). */
+type ExportSetsFn = (sets: Array<{ ws: PersistedWorksheet; code: string }>, mode: "questions" | "answers", opts?: ExportOpts) => Promise<string>;
 
 export interface PackFile {
   id: string;
   label: string;
   /** The paper code printed on the PDF (paper-shaped files only; never on a question-bank section file). */
   code?: string;
+  /** BRIDGE-CODES-1 round 3: a file holding several papers (a CBQ Pack chapter) - every paper code it prints, in order. */
+  codes?: string[];
   /** The group the file is listed under (a chapter name, or "Mock papers"). */
   group: string;
   filename: string;
@@ -97,8 +102,10 @@ export interface BuildContext {
    * "waiting for your answers" under their pack code once downloaded (PACKS-GRADE-1). Absent → no card.
    */
   user?: AuthUser | null;
-  /** Test seam: replaces the lazy import of the PDF exporter. */
+  /** Test seam: replaces the lazy import of the PDF exporter. For a several-paper file without `exportSetsPdf` it is called once per paper. */
   exportPdf?: ExportFn;
+  /** Test seam: replaces the lazy import of the several-papers exporter (a CBQ Pack chapter file). */
+  exportSetsPdf?: ExportSetsFn;
   /** Test seam: the clock, read only when a PDF is built (never while listing files). */
   nowIso?: () => string;
   /** Test seam: replaces the download counter event. */
@@ -119,6 +126,11 @@ async function defaultExport(): Promise<ExportFn> {
   const mod = await import("../../components/worksheet/worksheetPdfExport");
   // PDF-REBRAND-1 adds the 4th argument; until it merges the extra argument is ignored.
   return mod.exportWorksheetPdf as unknown as ExportFn;
+}
+
+async function defaultExportSets(): Promise<ExportSetsFn> {
+  const mod = await import("../../components/worksheet/worksheetPdfExport");
+  return mod.exportWorksheetSetsPdf as unknown as ExportSetsFn;
 }
 
 /** The pack that covers a chapter / the mocks, for the "Order <id>" line. Falls back to the pack being listed. */
@@ -186,6 +198,47 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       // PACKS-GRADE-1: the PDF is out; now the EXISTING download path files the paper under its printed
       // code so the student can upload answers. Best-effort: it never blocks or fails the download.
       if (spec.paper) await registerPackPaper(ctx.user, { ...spec.paper, paper: ws });
+      ctx.onDownload?.(sku);
+    },
+  };
+}
+
+/** BRIDGE-CODES-1 round 3: a file that holds several papers, each its own printed code and its own "waiting" record. */
+interface SetsDocSpec extends Omit<DocSpec, "ws" | "paper"> {
+  sets: Array<{ ws: () => PersistedWorksheet; paper: Omit<PackPaperReg, "paper"> }>;
+}
+
+function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackFile {
+  return {
+    id: spec.id,
+    label: spec.label,
+    codes: spec.sets.map((x) => x.paper.code),
+    group: spec.group,
+    filename: spec.filename,
+    build: async () => {
+      if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
+      const now = (ctx.nowIso ?? (() => new Date().toISOString()))();
+      const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
+      const bridge: BridgePagesData | undefined =
+        ctx.bridge && spec.bridge && papers.length > 0
+          ? { packLabel: spec.bridge.packLabel, exampleCode: papers[0].reg.code, boardPassCard: !ctx.bridge.paidBoardPass }
+          : undefined;
+      const opts: ExportOpts = {
+        licensee: { name: ctx.licensee.name, email: licenseeContact(ctx.licensee), orderId: spec.orderRef },
+        cover: spec.cover,
+        filename: spec.filename,
+        paidAtMs: paidAtOf(ctx.owned, spec.orderRef),
+        ...(bridge ? { bridge } : {}),
+      };
+      if (ctx.exportSetsPdf || !ctx.exportPdf) {
+        const exportSets = ctx.exportSetsPdf ?? (await defaultExportSets());
+        await exportSets(papers.map((p) => ({ ws: p.ws, code: p.reg.code })), spec.mode, opts);
+      } else {
+        // Test seam only (an `exportPdf` stub and no `exportSetsPdf`): every paper goes through it, so guards see each set.
+        for (const p of papers) await ctx.exportPdf(p.ws, spec.mode, p.reg.code, opts);
+      }
+      // Every set of the file waits on Home under its own code, exactly as a one-paper file does.
+      for (const p of papers) await registerPackPaper(ctx.user, { ...p.reg, paper: p.ws });
       ctx.onDownload?.(sku);
     },
   };
@@ -439,9 +492,9 @@ export const CBQ_MARKING_RULES: ReadonlyArray<{ value: string; label: string }> 
 ];
 
 /**
- * Board CBQ Pack, one subject (CBQ-PACK-1): a "How examiners mark a CBQ" first page, then per chapter its CBQs as gradable sets
- * ("Set k of n", ~10-15 questions each, cbqSets.ts; BRIDGE-CODES-1), each a question document (grouped by section, within it by
- * format) with its answer key of worked step-wise solutions. Loads every chapter of the subject first. Nothing here reads the clock
+ * Board CBQ Pack, one subject (CBQ-PACK-1): a "How examiners mark a CBQ" first page, then per chapter ONE question file and ONE
+ * answer-key file holding the chapter's CBQs as gradable sets ("Set k of n", ~10-15 questions each, cbqSets.ts; BRIDGE-CODES-1),
+ * each set starting on a new page with its own code (grouped by section, within it by format; worked step-wise solutions). Loads every chapter of the subject first. Nothing here reads the clock
  * or `Math.random`.
  */
 export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSku, ctx: BuildContext, fallback?: OwnedPack): Promise<PackFile[]> {
@@ -468,7 +521,7 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
           subtitle: "Competency-based questions are marked step by step in the CBSE 2026-27 scheme. Read this once before you start.",
           stats: CBQ_MARKING_RULES.map((r) => ({ ...r })),
         },
-        bridge: { packLabel: bridgePackLabel(bankSubject, sku, subject), exampleCode: () => (slugs[0] ? cbqBridgeExampleCode(subject, slugs[0]) : null) },
+        bridge: { packLabel: bridgePackLabel(bankSubject, sku, subject), exampleCode: () => cbqPackExampleCode(subject) },
       },
       sku,
       ctx,
@@ -479,48 +532,55 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
     const name = chapterName(slug);
     // BRIDGE-CODES-1 round 2 (owner 8 Nov 20:17): the chapter's CBQs as gradable sets of ~10-15 (cbqSets.ts). Every question is in
     // exactly one set, so the pack holds the same questions as before; each set is numbered Q1.. as the paper it is.
+    // Round 3 (owner 8 Nov 21:20, "One pdf per chapter"): ONE questions file and ONE answer-key file per chapter, holding every set in
+    // order; each set starts on a new page with its own title row, printed code and (questions) QR, and waits on Home on its own.
     const sets = cbqSets(cbqPackRows(slug));
-    sets.forEach((set, pi) => {
-      const partTag = ` \u00b7 Set ${pi + 1} of ${sets.length}`;
-      const partFile = `-Set-${pi + 1}-of-${sets.length}`;
-      for (const [mode, modeLabel, modeFile] of MODES) {
-        const title = `${name} \u00b7 Board CBQs${partTag}`;
-        const questions = set.map((q, i) => toWorksheetQuestion(q, i + 1, name));
-        const marks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
-        files.push(
-          makeFile(
-            {
-              id: `${packId}|${slug}|cbq-set-${pi + 1}-${mode}`,
-              label: `Set ${pi + 1} of ${sets.length} \u00b7 ${modeLabel}`,
-              group: name,
-              filename: `LazyTopper-${fileSlug(name)}-CBQ${partFile}-${modeFile}.pdf`,
-              ws: () => worksheetOf({ id: `pack-cbq-${slug}-set-${pi + 1}`, title, subject: bankSubject, sectionFilter: "Competency-based", questions }),
-              mode,
-              orderRef,
-              // BRIDGE-CODES-1: each CBQ set prints its own pack code and, once downloaded, waits on Home as a worksheet
-              // (the Chapter Pack's `-WS` path): same upload, same grader, same entitlement.
-              paper: { kind: "worksheet", code: packPaperCode({ kind: "cbq", chapter: slug, set: pi + 1 }), name: title, subject: bankSubject, topicKey: slug },
-              cover: {
-                kicker: mode === "questions" ? `${kicker} CBQ PACK` : `${kicker} CBQ PACK \u00b7 ANSWER KEY`,
-                title,
-                subtitle: `${name} \u00b7 ${questions.length} ${questions.length === 1 ? "question" : "questions"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
-                // COVER-CLEAN-1: the pack's own facts, read from the same constants the pack page and pricing band use.
-                headline: { value: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+`, label: "CBQs", note: "competency-based questions" },
-                stats: [
-                  { value: String(slugs.length), label: "chapters" },
-                  { value: `${CBQ_MIN_PER_CHAPTER}+`, label: "in every chapter" },
-                  { value: String(CBQ_QUESTION_TYPES.length), label: "question types" },
-                ],
-                types: CBQ_QUESTION_TYPES,
-              },
-              bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) },
-            },
-            sku,
-            ctx,
-          ),
-        );
-      }
+    if (sets.length === 0) continue;
+    const papers = sets.map((set, pi) => {
+      const title = `${name} \u00b7 Board CBQs \u00b7 Set ${pi + 1} of ${sets.length}`;
+      const questions = set.map((q, i) => toWorksheetQuestion(q, i + 1, name));
+      return {
+        ws: () => worksheetOf({ id: `pack-cbq-${slug}-set-${pi + 1}`, title, subject: bankSubject, sectionFilter: "Competency-based", questions }),
+        // BRIDGE-CODES-1: each set is a paper filed as a worksheet (the Chapter Pack's `-WS` path): same upload, grader, entitlement.
+        paper: { kind: "worksheet" as const, code: packPaperCode({ kind: "cbq", chapter: slug, set: pi + 1 }), name: title, subject: bankSubject, topicKey: slug },
+        nQ: questions.length,
+        marks: questions.reduce((m, q) => m + (Number(q.marks) || 0), 0),
+      };
     });
+    const nQ = papers.reduce((m, p) => m + p.nQ, 0);
+    const marks = papers.reduce((m, p) => m + p.marks, 0);
+    for (const [mode, modeLabel, modeFile] of MODES) {
+      const title = `${name} \u00b7 Board CBQs`;
+      files.push(
+        makeSetsFile(
+          {
+            id: `${packId}|${slug}|cbq-${mode}`,
+            label: `${sets.length} sets \u00b7 ${modeLabel}`,
+            group: name,
+            filename: `LazyTopper-${fileSlug(name)}-CBQ-${modeFile}.pdf`,
+            mode,
+            orderRef,
+            sets: papers.map((p) => ({ ws: p.ws, paper: p.paper })),
+            cover: {
+              kicker: mode === "questions" ? `${kicker} CBQ PACK` : `${kicker} CBQ PACK \u00b7 ANSWER KEY`,
+              title,
+              subtitle: `${name} \u00b7 ${nQ} ${nQ === 1 ? "question" : "questions"} in ${sets.length} ${sets.length === 1 ? "set" : "sets"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
+              // COVER-CLEAN-1: the pack's own facts, read from the same constants the pack page and pricing band use.
+              headline: { value: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+`, label: "CBQs", note: "competency-based questions" },
+              stats: [
+                { value: String(slugs.length), label: "chapters" },
+                { value: `${CBQ_MIN_PER_CHAPTER}+`, label: "in every chapter" },
+                { value: String(CBQ_QUESTION_TYPES.length), label: "question types" },
+              ],
+              types: CBQ_QUESTION_TYPES,
+            },
+            bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) },
+          },
+          sku,
+          ctx,
+        ),
+      );
+    }
   }
   return files;
 }

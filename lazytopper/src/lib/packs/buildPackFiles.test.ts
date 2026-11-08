@@ -5,6 +5,7 @@ import { PACK_CHAPTER_SLUGS, chaptersOfSubject, type OwnedPack } from "../../ser
 import { CBQ_CHAPTER_CLAIM, CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_SUBJECT_CLAIM } from "./packLabels";
 import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
 import { cbqSets } from "./cbqSets";
+import { packPaperCode } from "./packPaperCode";
 import { isCbq } from "../cbq/cbqClassification";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
@@ -314,7 +315,8 @@ describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
       for (const id of CBQ_PACK_EXCLUDED_IDS) expect(ids.has(id), id).toBe(false);
       // COVER-CLEAN-1: chapter covers carry the pack facts from the constants; the intro page keeps the marking rules.
       const chapterCovers = covers.filter((c) => c.cover?.headline);
-      expect(chapterCovers.length).toBe(files.length - 1);
+      // BRIDGE-CODES-1 round 3: a chapter file is exported once per set by the stub - count FILES, not export calls.
+      expect(new Set(chapterCovers.map((c) => c.file)).size).toBe(files.length - 1);
       // PACKS-POLISH-1: the cover kicker names the subject ONCE, in both modes.
       const subjectWord = subject.toUpperCase();
       for (const c of chapterCovers) {
@@ -336,13 +338,16 @@ describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
         await loadChapter(slug);
         const rows = cbqPackRows(slug);
         expect(rows.length, slug).toBeGreaterThan(0);
-        // BRIDGE-CODES-1 round 2: the chapter is divided into gradable sets; together they hold EVERY CBQ of the chapter, once.
-        const qFiles = files.filter((f) => f.id.includes(`|${slug}|`) && f.label.endsWith("\u00b7 Questions"));
-        expect(qFiles.length, slug).toBe(cbqSets(rows).length);
-        const built = seen.filter((s) => qFiles.some((f) => f.filename === s.file)).flatMap((s) => s.ids);
-        expect([...built].sort(), slug).toEqual(rows.map((r) => r.id).sort());
-        expect(new Set(built).size, slug).toBe(built.length);
-        expect(files.filter((f) => f.id.includes(`|${slug}|`) && f.label.endsWith("\u00b7 Answer key")).length, slug).toBe(qFiles.length);
+        // BRIDGE-CODES-1 round 3 (owner 8 Nov 21:20 "One pdf per chapter"): ONE questions file and ONE key per chapter, holding every
+        // set (the stub exporter sees each set); together the sets hold EVERY CBQ of the chapter, exactly once, in set order.
+        const qFiles = files.filter((f) => f.id.endsWith(`|${slug}|cbq-questions`));
+        expect(qFiles.length, slug).toBe(1);
+        expect(qFiles[0].codes, slug).toEqual(cbqSets(rows).map((_, i) => packPaperCode({ kind: "cbq", chapter: slug, set: i + 1 })));
+        const built = seen.filter((s) => s.file === qFiles[0].filename).map((s) => s.ids);
+        expect(built, slug).toEqual(cbqSets(rows).map((set) => set.map((r) => r.id)));
+        expect([...built.flat()].sort(), slug).toEqual(rows.map((r) => r.id).sort());
+        expect(new Set(built.flat()).size, slug).toBe(rows.length);
+        expect(files.filter((f) => f.id.endsWith(`|${slug}|cbq-answers`)).length, slug).toBe(1);
       }
       // the licensed-order reference is the CBQ pack's own order
       expect(seen.every((s) => s.licensee === "order_pack_cbq")).toBe(true);

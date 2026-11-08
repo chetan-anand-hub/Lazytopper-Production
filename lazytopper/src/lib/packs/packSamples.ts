@@ -33,7 +33,8 @@ const spec = (sku: PackSku, target: PackSubject | "all", chapterIndex: number, f
 
 /**
  * Every sample. `chapterIndex` is the chapter within the subject (0 = first); `fileSuffix` is the end of the pack file id,
- * so the page is the first page of that real file: a Chapter Test 1 paper, Full Mock 1, a Worksheet, the CBQ questions.
+ * so the page is the first page of that real file: a Chapter Test 1 paper, Full Mock 1, a Worksheet, the CBQ questions (Set 1:
+ * the CBQ chapter file holds every set, and its sample is the first page of its first set).
  */
 export const PACK_SAMPLES: readonly PackSampleSpec[] = [
   spec("pack_chapter", "maths", 0, "ct1-questions"),
@@ -43,8 +44,8 @@ export const PACK_SAMPLES: readonly PackSampleSpec[] = [
   spec("pack_subject", "maths", 1, "worksheet-questions"),
   spec("pack_subject", "science", 1, "worksheet-questions"),
   spec("pack_bundle", "all", 2, "worksheet-questions"),
-  spec("pack_cbq", "maths", 0, "cbq-set-1-questions"),
-  spec("pack_cbq", "science", 0, "cbq-set-1-questions"),
+  spec("pack_cbq", "maths", 0, "cbq-questions"),
+  spec("pack_cbq", "science", 0, "cbq-questions"),
 ];
 
 export const SAMPLES_DIR = "/samples";
