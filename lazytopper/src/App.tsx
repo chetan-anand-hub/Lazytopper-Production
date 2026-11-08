@@ -20,6 +20,8 @@ import { TrialBanner } from "./components/ux/TrialBanner";
 import { useAuth } from "./context/AuthContext";
 import { useHoldsBoardPass } from "./lib/nav/boardPass";
 import { trackNavPricingTap } from "./analytics/analytics";
+import { afterNextPaint } from "./lib/afterNextPaint";
+import { prefetchBottomNavPage } from "./lib/nav/bottomNavPrefetch";
 import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
@@ -476,6 +478,32 @@ export function BottomNav() {
   const { user } = useAuth();
   // NAV-PRICING-1 — above every early return (hook order). False when signed out / not yet hydrated.
   const holdsBoardPass = useHoldsBoardPass();
+  // SPEED-NAV-1 — the destination of the tab just pressed, painted active at once (see `go` below).
+  // Above every early return (hook order). It is a HIGHLIGHT, never a lock: only a repeat tap on
+  // the same tab is ignored. It clears when a navigation commits, on Back/Forward (popstate: a
+  // Back to the location the bar already saw commits no new key), and after PRESS_HOLD_MS at most.
+  const [pressedTab, setPressedTab] = useState<string | null>(null);
+  const pendingNavRef = useRef<(() => void) | null>(null); // cancel() of the deferred push
+  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPushRef = useRef<string | null>(null);
+  useEffect(() => {
+    // A location change that is not the commit of this bar's own last push (Back, another link)
+    // overtakes a push still waiting for its frame.
+    if (pendingNavRef.current && location.pathname + location.search !== lastPushRef.current) {
+      pendingNavRef.current();
+      pendingNavRef.current = null;
+    }
+    if (!pendingNavRef.current) setPressedTab(null);
+  }, [location.key]); // eslint-disable-line react-hooks/exhaustive-deps -- runs per committed location
+  useEffect(() => {
+    const onPop = () => setPressedTab(null);
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      pendingNavRef.current?.(); // a deferred push never outlives the bar
+      if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    };
+  }, []);
 
   const current = location.pathname;
 
@@ -501,7 +529,39 @@ export function BottomNav() {
     return null;
   }
 
-  const go = (path: string) => navigate(path);
+  // SPEED-NAV-1 (8 Nov 2026) — a tab tap used to navigate INSIDE the tap, so the frame after it
+  // waited for the destination route to load and render (lab, 4x CPU, 360 px: Check ~1400 ms,
+  // Pricing ~600 ms with no visible change). Now the pressed tab turns active in the tap's own
+  // frame, the page's chunk starts loading (pointerdown, below), and the push runs one frame later.
+  // - A repeat tap on the SAME tab is ignored (no double push).
+  // - A tap on a DIFFERENT tab takes over: the pending push is cancelled and the new tab navigates
+  //   (as before this change, the last tab tapped wins).
+  // - A push whose moment passed is dropped: if the browser's location (href + history key) moved
+  //   between the tap and the push (Back, another link), it is stale. BrowserRouter commits in a
+  //   transition, so the router's own location can lag; the browser's cannot.
+  const PRESS_HOLD_MS = 8000;
+  const browserLocation = () => {
+    const state = window.history.state as { key?: unknown } | null;
+    return `${window.location.href}#${String(state?.key ?? "")}`;
+  };
+  const go = (path: string) => {
+    if (pressedTab === path) return;
+    pendingNavRef.current?.();
+    setPressedTab(path);
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    pressTimerRef.current = setTimeout(() => setPressedTab(null), PRESS_HOLD_MS);
+    prefetchBottomNavPage(path); // keyboard / no-pointer taps; a no-op after onPointerDown
+    const tappedAt = browserLocation();
+    pendingNavRef.current = afterNextPaint(() => {
+      pendingNavRef.current = null;
+      if (browserLocation() !== tappedAt) {
+        setPressedTab(null);
+        return;
+      }
+      lastPushRef.current = path;
+      navigate(path);
+    });
+  };
   // Light app grammar — same tokens as the grammar primitives / locked design.
   const activeColor = "hsl(152, 55%, 45%)";
   const inactiveColor = "hsl(220, 15%, 42%)";
@@ -540,6 +600,7 @@ export function BottomNav() {
           <path d="M5 10v10h14V10"/>
         </svg>
       ),
+      to: "/browse",
       active: isHomeActive,
       onClick: () => go("/browse"),
     },
@@ -552,6 +613,7 @@ export function BottomNav() {
           <path d="M7 16l4-4 4 4 4-4"/>
         </svg>
       ),
+      to: "/exam-trends",
       active: isExamTrendsActive,
       onClick: () => go("/exam-trends"),
     },
@@ -564,6 +626,7 @@ export function BottomNav() {
           <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
         </svg>
       ),
+      to: "/practice-hub",
       active: isPracticeActive,
       onClick: () => go("/practice-hub"),
     },
@@ -576,6 +639,7 @@ export function BottomNav() {
           <circle cx="12" cy="16" r="1"/>
         </svg>
       ),
+      to: "/check-improve",
       active: isCheckActive,
       onClick: () => go("/check-improve"),
     },
@@ -589,6 +653,7 @@ export function BottomNav() {
               <circle cx="12" cy="7" r="4"/>
             </svg>
           ),
+          to: "/me",
           active: isMeActive,
           onClick: () => go("/me"),
         }
@@ -601,8 +666,10 @@ export function BottomNav() {
               <path d="M7 7h.01"/>
             </svg>
           ),
+          to: "/pricing?source=bottom-nav",
           active: false,
           onClick: () => {
+            if (pressedTab === "/pricing?source=bottom-nav") return; // SPEED-NAV-1: a repeat tap does not navigate, so is not counted
             trackNavPricingTap("bottom_nav");
             go("/pricing?source=bottom-nav");
           },
@@ -625,9 +692,12 @@ export function BottomNav() {
         zIndex: 20,
       }}
     >
-      {navItems.map((item) => (
+      {navItems.map((item) => {
+        const shownActive = pressedTab ? item.to === pressedTab : item.active;
+        return (
         <button
           key={item.label}
+          onPointerDown={() => prefetchBottomNavPage(item.to)}
           onClick={item.onClick}
           style={{
             background: "transparent",
@@ -637,8 +707,8 @@ export function BottomNav() {
             flexDirection: "column",
             alignItems: "center",
             gap: 2,
-            color: item.active ? activeColor : inactiveColor,
-            fontWeight: item.active ? 800 : 600,
+            color: shownActive ? activeColor : inactiveColor,
+            fontWeight: shownActive ? 800 : 600,
             fontSize: "0.6rem",
             letterSpacing: "0.02em",
             textTransform: "uppercase",
@@ -652,7 +722,8 @@ export function BottomNav() {
           {item.icon}
           <span>{item.label}</span>
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "./test/setup";
 import { BottomNav, isMobileSelfChromedRoute, isBareFullScreenRoute, isSignedOutBuyRoute } from "./App";
@@ -44,7 +44,7 @@ describe("BottomNav (mobile tab bar — PR D)", () => {
     }
   });
 
-  it("navigates each tab to its canonical route", () => {
+  it("navigates each tab to its canonical route", async () => {
     setMatchMediaMatches(false);
     const expected: Record<string, string> = {
       Home: "/browse",
@@ -57,7 +57,8 @@ describe("BottomNav (mobile tab bar — PR D)", () => {
       cleanup();
       renderNav("/somewhere");
       fireEvent.click(screen.getByText(label));
-      expect(screen.getByTestId("loc")).toHaveTextContent(route);
+      // SPEED-NAV-1: the navigation runs one frame after the tap.
+      await waitFor(() => expect(screen.getByTestId("loc")).toHaveTextContent(route));
     }
   });
 
