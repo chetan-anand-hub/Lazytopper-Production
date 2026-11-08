@@ -143,9 +143,11 @@ export interface WorksheetPrintDocProps {
   /** PDF-REBRAND-1 - draw the tiled "LazyTopper" watermark. Default true (today's behaviour); a licensed copy turns it
    *  off because the buyer's name and email are printed in every page footer instead. */
   watermark?: boolean;
+  /** BRIDGE-PDF-1 - a purchased pack file: its instruction line points to where a pack paper is uploaded (Home), not Worksheets. */
+  packFile?: boolean;
 }
 
-export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, watermark = true }: WorksheetPrintDocProps) {
+export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, watermark = true, packFile = false }: WorksheetPrintDocProps) {
   const isAnswers = kind === "answers";
   const groups = groupBySection(ws.questions);
   // Enough watermark tiles to cover a multi-page worksheet (overflow clips extras).
@@ -206,8 +208,23 @@ export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, waterm
         ) : (
           <p className="lt-wsp__instr">
             <b>Instructions:</b> Solve on this sheet or separate paper.{" "}
-            <b>Label each answer with its question number (Q1, Q2 &hellip;).</b> When done, upload one PDF of
-            all your answers to get it graded with full solutions. Upload your answers at lazytopper.com &rarr; Worksheets &rarr; Upload answers{code ? <> (code {code})</> : null}.
+            <b>Label each answer with its question number (Q1, Q2 &hellip;).</b>{" "}
+            {/* BRIDGE-PDF-1: a PACK file said "Worksheets -> Upload answers", but a pack paper is not on the Worksheets page: it waits
+                under Home -> "Papers waiting for your answers" (PendingPackGroup "Upload answers"). A pack question bank has no paper to
+                mark, so its answers go to the Answer Checker. In-app sheets keep their line (their Worksheets page does take uploads). */}
+            {!packFile ? (
+              <>
+                When done, upload one PDF of all your answers to get it graded with full solutions. Upload your answers at lazytopper.com
+                &rarr; Worksheets &rarr; Upload answers{code ? <> (code {code})</> : null}.
+              </>
+            ) : code ? (
+              <>
+                When done, upload your answers to get them marked with full solutions: lazytopper.com &rarr; Home &rarr; Papers waiting
+                for your answers &rarr; Upload answers (code {code}).
+              </>
+            ) : (
+              <>When done, check any answer step by step in the Answer Checker at lazytopper.com/check-improve.</>
+            )}
           </p>
         )}
 

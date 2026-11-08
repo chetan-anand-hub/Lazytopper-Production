@@ -1035,6 +1035,8 @@ type FilesState =
 
 function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine: MyPacks; openRequest?: number }) {
   const { user } = useAuth();
+  // BRIDGE-PDF-1: a Board Pass holder's pack files leave the Board Pass card off page 2 (they already have it).
+  const paidBoardPass = usePaidPremium();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [failedId, setFailedId] = useState<string | null>(null);
@@ -1055,6 +1057,8 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
           owned: mine.packs,
           user,
           onDownload: (sku) => trackPackEvent("pack_download", sku),
+          // BRIDGE-PDF-1: the buyer's own files get pages 2-3 ("Get this paper marked" + the sample scorecard).
+          bridge: { paidBoardPass },
         },
       );
       setState({ phase: "ready", groups: groupPackFiles(files) });

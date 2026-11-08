@@ -57,6 +57,7 @@ import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, MATHS_MOCK_PATTERN, MOCKS_PER
 import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
 import { cbqSets } from "./cbqSets";
 import type { PrintCoverProps } from "../../components/worksheet/PrintCover";
+import { bridgePackLabel, cbqBridgeExampleCode, type BridgeContext, type BridgePagesData } from "./packBridge";
 
 /** The 4th argument of `exportWorksheetPdf` (PACKS contract §5; PDF-REBRAND-1 adds it). */
 export type ExportOpts = {
@@ -65,6 +66,8 @@ export type ExportOpts = {
   filename?: string;
   /** PACK-TERMS-1: when the covering pack was paid (ms) - picks the re-download date printed on the cover. Absent -> the later (31 May 2027) date. */
   paidAtMs?: number;
+  /** BRIDGE-PDF-1: pages 2-3 ("Get this paper marked" + the sample scorecard); only on the buyer's download (ctx.bridge). */
+  bridge?: BridgePagesData;
 };
 type ExportFn = (ws: PersistedWorksheet, mode: "questions" | "answers", code?: string, opts?: ExportOpts) => Promise<string>;
 
@@ -100,6 +103,11 @@ export interface BuildContext {
   nowIso?: () => string;
   /** Test seam: replaces the download counter event. */
   onDownload?: (sku: PackSku) => void;
+  /**
+   * BRIDGE-PDF-1: present ONLY on the buyer's own download (My packs). Every file with a paper code to show then gets pages 2-3 after
+   * its cover. Absent (free samples, shop previews, tests) -> no extra pages, files exactly as before.
+   */
+  bridge?: BridgeContext;
 }
 
 /** Papers are drawn with this placeholder stamp; the real "Generated <date>" is set when a file is built. */
@@ -140,6 +148,8 @@ interface DocSpec {
   cover: NonNullable<ExportOpts["cover"]>;
   /** Paper-shaped files only: the pack code + how the existing download path registers it. */
   paper?: Omit<PackPaperReg, "paper">;
+  /** BRIDGE-PDF-1: the page-2/3 header for this file and, for a file without its own code, a paper code from this pack (or null). */
+  bridge?: { packLabel: string; exampleCode: () => string | null };
 }
 
 /** PACK-TERMS-1: the paid time of the owned pack whose order reference is `ref` (the one printed on the file); undefined when unknown. */
@@ -160,12 +170,18 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
       const exportPdf = ctx.exportPdf ?? (await defaultExport());
       const ws = { ...spec.ws(), createdAt: (ctx.nowIso ?? (() => new Date().toISOString()))() };
+      // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
+      const bridge: BridgePagesData | undefined =
+        ctx.bridge && spec.bridge
+          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), boardPassCard: !ctx.bridge.paidBoardPass }
+          : undefined;
       await exportPdf(ws, spec.mode, spec.paper?.code, {
         // The exporter's `email` slot is the contact printed after the name: the email, or the MASKED phone.
         licensee: { name: ctx.licensee.name, email: licenseeContact(ctx.licensee), orderId: spec.orderRef },
         cover: spec.cover,
         filename: spec.filename,
         paidAtMs: paidAtOf(ctx.owned, spec.orderRef),
+        ...(bridge ? { bridge } : {}),
       });
       // PACKS-GRADE-1: the PDF is out; now the EXISTING download path files the paper under its printed
       // code so the student can upload answers. Best-effort: it never blocks or fails the download.
@@ -212,6 +228,12 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   const drawRows = chapterPackDrawRows(slug);
   const orderRef = coveringRef(ctx.owned, "chapter", slug, fallback);
   const files: PackFile[] = [];
+  // BRIDGE-PDF-1: a paper file shows its own code; a question-bank file shows the chapter's first paper code (read at build time,
+  // after the list below is complete).
+  const bridgeFor = (ownCode?: string) => ({
+    packLabel: bridgePackLabel(name, sku, slug),
+    exampleCode: () => ownCode ?? files.find((f) => f.code)?.code ?? null,
+  });
   const cover = (kicker: string, title: string, nQ: number, marks: number) => ({
     kicker: `${kicker} · ${subjectKicker}`,
     title,
@@ -246,6 +268,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
               mode,
               orderRef,
               cover: cover(mode === "questions" ? "CHAPTER QUESTION BANK" : "ANSWER KEY", title, questions.length, marks),
+              bridge: bridgeFor(),
             },
             sku,
             ctx,
@@ -291,6 +314,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
             orderRef,
             paper: { kind: "chapter-test", code: ctCode, name: paper.name ?? paper.title, subject, topicKey: slug },
             cover: cover(`CHAPTER TEST ${n}`, paper.title, paper.questions.length, paper.totalMarks),
+            bridge: bridgeFor(ctCode),
           },
           sku,
           ctx,
@@ -319,6 +343,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
             orderRef,
             paper: { kind: "worksheet", code: wsCode, name: title, subject, topicKey: slug },
             cover: cover("WORKSHEET", title, questions.length, marks),
+            bridge: bridgeFor(wsCode),
           },
           sku,
           ctx,
@@ -372,6 +397,7 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
   const pattern = subject === "maths" ? ` · ${MATHS_MOCK_PATTERN}` : "";
   for (const { n, drawn, name } of drawPackMocks(subject)) {
     const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, mockRows) };
+    const mockCode = packPaperCode({ kind: "mock", subject, n });
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
         makeFile(
@@ -383,7 +409,8 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
             ws: () => paper,
             mode,
             orderRef,
-            paper: { kind: "full-mock", code: packPaperCode({ kind: "mock", subject, n }), name, subject: bankSubject, topicKey: "" },
+            paper: { kind: "full-mock", code: mockCode, name, subject: bankSubject, topicKey: "" },
+            bridge: { packLabel: bridgePackLabel(bankSubject, sku, subject), exampleCode: () => mockCode },
             cover: {
               kicker: `FULL MOCK · ${bankSubject.toUpperCase()}`,
               title: name,
@@ -441,6 +468,7 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
           subtitle: "Competency-based questions are marked step by step in the CBSE 2026-27 scheme. Read this once before you start.",
           stats: CBQ_MARKING_RULES.map((r) => ({ ...r })),
         },
+        bridge: { packLabel: bridgePackLabel(bankSubject, sku, subject), exampleCode: () => (slugs[0] ? cbqBridgeExampleCode(subject, slugs[0]) : null) },
       },
       sku,
       ctx,
@@ -485,6 +513,7 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
                 ],
                 types: CBQ_QUESTION_TYPES,
               },
+              bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) },
             },
             sku,
             ctx,
