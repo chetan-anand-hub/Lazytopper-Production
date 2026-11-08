@@ -606,17 +606,24 @@
 .ci-demo__verdict-mark--held {
   color: #c9d3e0;
 }
+/* SPEED-CI-3 (coordinator: live early-tap CLS 0.019-0.023 at 360, source the watch link): the phone bands were sized
+   from a build WITHOUT the packs flag (verdict 297-337 px). Production's verdict carries the buying block, which lands
+   ~0.3 s after the scorecard: the fixed starter's verdict measured 8 Nov 2026 on a production-flag build (4G/4x,
+   right / wrong) is 1203/1133 px at 320, 1067/997 at 360, 1031/961 at 375, 982/912 at 390, 939/869 at 412 and 768,
+   954/884 at 1023. Below these the verdict pushed the watch link and the page under the card down. The early tap only
+   ever happens on that one fixed question, so these heights are its real ones; any excess is given back after the
+   student's next tap / key (input-excluded). Desktop bands are unchanged (their CLS was 0.001-0.002). */
 .ci-demo__verdict--reserve {
-  min-height: 345px;
+  min-height: 1230px;
 }
 @media (min-width: 360px) {
   .ci-demo__verdict--reserve {
-    min-height: 325px;
+    min-height: 1090px;
   }
 }
 @media (min-width: 390px) {
   .ci-demo__verdict--reserve {
-    min-height: 305px;
+    min-height: 1000px;
   }
 }
 @media (min-width: 1024px) {
@@ -634,15 +641,6 @@
    The page removes it once the student's next tap / key has completed (OneMinuteLadder onSettled). */
 .ci-demo:has(.ci-demo__verdict--reserve) + .lt-lo,
 .ci-demo:has(.ci-demo__verdict--reserve) + .lt-lo-slot {
-  visibility: hidden;
-}
-/* SPEED-CI-3 (coordinator, live c814c9b, early-tap CLS 0.019-0.023 at 360 in 6/6 runs): the watch link sits right under
-   the reserved verdict box, and the real verdict (scorecard + buying block) is TALLER than the reserve on a real
-   account (625 px vs 325 px at 360), so when the ladder lands ~4-5 s after the tap the link alone is pushed down — the
-   only visible node that moves. Its own box never changes (inert and active differ in opacity / cursor only). It is
-   hidden IN PLACE while the reserve is held (a hidden node's move is not a layout shift) and comes back when the
-   reserve is given back after the student's next tap / key (OneMinuteLadder), already in its final place. */
-.ci-demo__verdict--reserve ~ .ci-demo__link {
   visibility: hidden;
 }
 /* FU2: before the card is in, its × and the watch link cannot act yet: they look it (the option taps are kept). */
