@@ -135,7 +135,7 @@ const FAQ_ITEMS = [
     // COPY-AIFAQ-1 (owner, 8 Nov 2026 20:40): the one plain disclosure that marking uses an AI language model. Never says a human
     // marks; never names the provider (24 Oct rule).
     q: "How is my answer marked?",
-    a: "Our marking follows the CBSE step-marking scheme: each step earns its marks, units and keywords count, and an error carried forward is not punished twice. It uses an AI language model trained to mark the way a CBSE examiner would, and every mark comes with the reason.",
+    a: "Our marking follows the CBSE step-marking scheme: each step earns its marks, units and keywords count, and an error carried forward is not punished twice. It uses an AI language model set up to mark the way a CBSE examiner would, and every mark comes with the reason.",
   },
   {
     // PRICE-FIXED-1 (owner, 21:12 IST 31 Oct 2026): both figures imported from the pricing config (never typed); true on every date.
