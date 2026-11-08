@@ -63,6 +63,14 @@ export const TRACKED_LINK = 'a[href="/check-improve"], a[href^="/pricing"], a.lt
  * (HighlyProbableQuestions.tsx ImportantQsOffers, never in the served markup).
  */
 export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal", "section.lt-cbqs__cta--pack", "div.lt-show-all"];
+/**
+ * SPEED-ISLANDS-2 — pages where the public footer is NOT watched. On the NCERT Hub the footer is the page's only
+ * app-only region, and the hub is so short (360 px: the footer starts ~190 px below the fold) that watching it loads
+ * the app at once. There the footer adds no price and no personalisation: only the quiet "PDF packs" link
+ * (PublicLegalFooter.tsx PacksEntry, lazy, never in the served markup), so rule c holds as written (not in the markup,
+ * not rendered by the island); the link appears once the app loads, on the visitor's first app tap.
+ */
+export const FOOTER_UNWATCHED_PATHS: readonly string[] = ["/ncert-class-10"];
 /** The desktop header row where the app shows "Log in" (signed out): its presence means "desktop variant". */
 export const AUTH_REGION = '[data-testid="pending-bell"]';
 
@@ -976,7 +984,8 @@ export function watchAppRegions(): void {
   watchPeek();
   // Desktop variant: the header's sign-in button is the app's. Load the app once the page is idle.
   if (document.querySelector(AUTH_REGION)) afterLoad(() => onIdle(upgrade, 2000));
-  const regions = APP_ONLY_REGIONS.flatMap((sel) => [...document.querySelectorAll(sel)]);
+  const unwatched = FOOTER_UNWATCHED_PATHS.includes(window.location.pathname) ? ["footer.lt-public-legal"] : [];
+  const regions = APP_ONLY_REGIONS.filter((sel) => !unwatched.includes(sel)).flatMap((sel) => [...document.querySelectorAll(sel)]);
   if (regions.length === 0) return;
   if (typeof IntersectionObserver !== "function") {
     afterLoad(() => onIdle(upgrade, 2000));

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve as resolvePath } from "node:path";
 import {
   APP_ONLY_REGIONS,
+  FOOTER_UNWATCHED_PATHS,
   NCERT_HUB_SUBJECT_KEY,
   TRACKED_LINK,
   __resetIslandForTests,
@@ -172,6 +173,50 @@ describe("rule b on the phase-2 pages", () => {
   it("the app-only regions include the CBQ pack card and the end of the Important Questions list", () => {
     expect(APP_ONLY_REGIONS).toEqual(expect.arrayContaining(["section.lt-cbqs__cta--pack", "div.lt-show-all"]));
     expect(TRACKED_LINK).toContain("a.lt-nb__allch");
+  });
+});
+
+describe("rule c on the phase-2 pages — which regions load the app before the visitor reaches them", () => {
+  const observed: Element[] = [];
+  beforeEach(() => {
+    observed.length = 0;
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        observe(el: Element) {
+          observed.push(el);
+        }
+        disconnect() {}
+      },
+    );
+  });
+  afterEach(() => vi.unstubAllGlobals());
+  const FOOTER = '<footer class="lt-public-legal"><a href="/contact">Contact</a></footer>';
+  const PACK = '<section class="lt-cbqs__cta lt-cbqs__cta--pack"><a href="/packs?buy=pack_cbq&amp;t=science">Buy</a></section>';
+
+  it("a CBQ chapter page watches its pack card and its footer", async () => {
+    window.history.replaceState(null, "", "/cbq-class-10/electricity");
+    __resetIslandForTests();
+    document.body.innerHTML = `<div id="root">${PACK}${FOOTER}</div>`;
+    document.head.innerHTML = ISLAND_TAG;
+    await boot();
+    expect(observed.map((e) => e.className).sort()).toEqual(["lt-cbqs__cta lt-cbqs__cta--pack", "lt-public-legal"]);
+  });
+
+  it("the NCERT Hub does not watch its footer (only the lazy 'PDF packs' link, never in the markup): it stays an island", async () => {
+    window.history.replaceState(null, "", "/ncert-class-10");
+    __resetIslandForTests();
+    document.head.innerHTML = ISLAND_TAG;
+    document.body.innerHTML = `<div id="root"><main></main>${FOOTER}</div>`;
+    await boot();
+    expect(observed).toEqual([]);
+    expect(FOOTER_UNWATCHED_PATHS).toEqual(["/ncert-class-10"]);
+    expect(state()).toBe("island");
+  });
+
+  it("the Important Questions list end is watched (the app alone adds the buying block after it)", async () => {
+    await bootAt("/highly-probable/10/Maths");
+    expect(observed.map((e) => e.className)).toEqual(["lt-show-all"]);
   });
 });
 
