@@ -134,3 +134,19 @@ describe("the real download path passes the cached grade into the coaching", () 
     expect(coaching).not.toMatch(/marks to gain/);
   });
 });
+
+// SHEET-HEADER-1 — the history list's re-download names the record's kind and its marking time.
+describe("SHEET-HEADER-1 · history download header", () => {
+  it("★ a worksheet record -> kindLabel 'Worksheet' + gradedAt = record.gradedAt", async () => {
+    h.grade = V1_GRADE;
+    render(<SurfaceHistory surface="worksheet" uid="u-1" />);
+    fireEvent.click(screen.getByRole("button", { name: /Re-open the Real Numbers · Worksheet scorecard/ }));
+    const download = await screen.findByRole("button", { name: /Download graded sheet/ });
+    await act(async () => {
+      fireEvent.click(download);
+    });
+    const args = h.exportPdf.mock.calls[0][0] as unknown as { kindLabel?: string; gradedAt?: number };
+    expect(args.kindLabel).toBe("Worksheet");
+    expect(args.gradedAt).toBe(RECORD.gradedAt);
+  });
+});

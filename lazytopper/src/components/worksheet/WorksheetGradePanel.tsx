@@ -5,6 +5,7 @@ import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import { getWorksheetGrade, listStoredWorksheetsLite } from "../../services/worksheetSessionStore";
 import { worksheetNomenclature } from "./worksheetModel";
 import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
+import { GRADED_SHEET_KIND } from "./WorksheetGradedPrintDoc";
 import ResultsScorecard from "../results/ResultsScorecard";
 import LockedDetailLazy from "../results/LockedDetailLazy";
 import { useDetailLock } from "../results/useDetailLock";
@@ -266,6 +267,9 @@ export default function WorksheetGradePanel({
   }, [ws.questions]);
   const [outcome, setOutcome] = useState<WorksheetGradeOutcome | null>(null);
   const [fromCache, setFromCache] = useState(false);
+  // SHEET-HEADER-1 — when a FRESH grade on this panel was marked. A restored (cached / reopened) grade
+  // carries no marking time here, so its sheet prints no date rather than a wrong one.
+  const freshGradedAtRef = useRef<number | null>(null);
   // PR-A: the auto scorecard popup + the tap-to-reveal sheet state.
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -362,13 +366,15 @@ export default function WorksheetGradePanel({
         name: nomen.name,
         code: nomen.code,
         coaching: buildCoaching(response),
+        kindLabel: GRADED_SHEET_KIND.worksheet,
+        gradedAt: fromCache ? null : freshGradedAtRef.current,
       });
     } catch {
       setDownloadError("Couldn’t build the PDF — please try again.");
     } finally {
       setDownloading(false);
     }
-  }, [response, downloading, ws, nomen]);
+  }, [response, downloading, ws, nomen, fromCache]);
 
   const handlePractise = useCallback(() => {
     const subjectLower = /sci/i.test(ws.subject) ? "science" : "maths";
@@ -453,6 +459,7 @@ export default function WorksheetGradePanel({
             "We couldn’t read that file — check it’s a clear photo or PDF of your answer sheet for this worksheet, then try again. We never guess a mark.",
         );
       } else {
+        freshGradedAtRef.current = Date.now();
         setOutcome(result);
         setFromCache(false);
         setScorecardOpen(true); // auto scorecard popup on grade-complete (§A2)
