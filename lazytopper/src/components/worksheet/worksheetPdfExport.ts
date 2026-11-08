@@ -679,6 +679,9 @@ export interface PdfPaperSet {
   code: string;
 }
 
+/** JPEG quality of a several-paper file's body pages (review 1643: 0.95 -> 0.80 at the same 2x scale). */
+export const SETS_BODY_JPEG_QUALITY = 0.8;
+
 /** One rasterised body page of a multi-paper file. */
 interface SetPage {
   jpeg: string;
@@ -702,7 +705,10 @@ interface SetPage {
 export async function exportWorksheetSetsPdf(
   sets: readonly PdfPaperSet[],
   kind: "questions" | "answers",
-  opts: WorksheetPdfOptions = {},
+  opts: WorksheetPdfOptions & {
+    /** Called as each set starts rendering (1-based), so the download button can say "Preparing… set k of n". */
+    onProgress?: (set: number, of: number) => void;
+  } = {},
 ): Promise<string> {
   if (sets.length === 0) throw new Error("no_paper_sets");
   const filename = opts.filename || `lazytopper-${slug(sets[0].ws.title)}-${kind === "answers" ? "answer-key" : "questions"}.pdf`;
@@ -723,7 +729,8 @@ export async function exportWorksheetSetsPdf(
       paidAtMs: opts.paidAtMs,
     }), async (coverHost) => {
       const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
-      return c.toDataURL("image/jpeg", 0.95);
+      // a several-paper file's cover: the same quality as its body pages (a CBQ part stays small; owner 8 Nov 22:45)
+      return c.toDataURL("image/jpeg", SETS_BODY_JPEG_QUALITY);
     });
   }
   const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await renderBridgePages(opts.bridge, html2canvas) : [];
@@ -735,6 +742,11 @@ export async function exportWorksheetSetsPdf(
   const todo = opts.sample ? sets.slice(0, 1) : sets;
   for (let si = 0; si < todo.length; si += 1) {
     const { ws, code } = todo[si];
+    try {
+      opts.onProgress?.(si + 1, todo.length);
+    } catch {
+      /* a progress listener never stops the PDF */
+    }
     const element = createElement(WorksheetPrintDoc, {
       ws, kind, code, renderSolutionFigure, watermark: !opts.licensee, packFile: Boolean(opts.licensee) && !opts.sample,
     });
@@ -771,7 +783,9 @@ export async function exportWorksheetSetsPdf(
           sctx.fillRect(0, 0, slice.width, slice.height);
           sctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
         }
-        pages.push({ jpeg: slice.toDataURL("image/jpeg", opts.sample ? 0.78 : 0.95), hMm: hPx / pxPerMm, set: si, bodyIndex: page });
+        // Review 1643: 0.80 at the same scale (2x) - about 40% smaller than 0.95 with no visible loss; the QR is drawn as vector
+        // squares by the page chrome, never through this JPEG.
+        pages.push({ jpeg: slice.toDataURL("image/jpeg", opts.sample ? 0.78 : SETS_BODY_JPEG_QUALITY), hMm: hPx / pxPerMm, set: si, bodyIndex: page });
       }
       // Release this set's raster before the next set is drawn.
       canvas.width = 0;

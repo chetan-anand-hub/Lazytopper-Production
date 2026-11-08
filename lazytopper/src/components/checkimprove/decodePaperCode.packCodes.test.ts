@@ -7,7 +7,7 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { buildPaperQrMatrix, drawPaperQr } from "../worksheet/paperQr";
-import { decodeQrFromPixels } from "./decodePaperCode";
+import { decodeQrFromPixels, footerBand } from "./decodePaperCode";
 import { findPaperCodes } from "./paperCodeMatch";
 
 const PAGE_W_MM = 210;
@@ -45,4 +45,22 @@ describe("pack paper QR -> code (photo scale)", () => {
       expect(findPaperCodes([decoded])).toEqual([code]);
     });
   }
+});
+
+describe("footer band pass (review 1643: a small whole page can miss the QR; the bottom band alone reads it)", () => {
+  it("the band is the bottom quarter, and the pack QR position (11-29 mm from the bottom of 297 mm) is inside it", () => {
+    const h = 1170; // A4 at 100 dpi
+    const b = footerBand(h);
+    expect(b.y + b.h).toBe(h);
+    expect(b.h).toBeGreaterThanOrEqual(Math.round(h * 0.25) - 1);
+    const qrTopPx = ((297 - 29) / 297) * h;
+    expect(qrTopPx).toBeGreaterThan(b.y);
+  });
+
+  it("decodes a pack code from the band alone at 100 dpi (827 px page width)", async () => {
+    const { data, w, h } = await renderPage("PK-S-LP-CBQ3", 827);
+    const b = footerBand(h);
+    const band = data.slice(b.y * w * 4, (b.y + b.h) * w * 4);
+    expect(await decodeQrFromPixels(band, w, b.h)).toBe("PK-S-LP-CBQ3");
+  });
 });

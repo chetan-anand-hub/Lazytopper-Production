@@ -48,6 +48,12 @@ async function nativeDecode(bitmap: ImageBitmap): Promise<string | null> {
   }
 }
 
+/** The bottom quarter of a page image (where every paper QR is printed), in source pixels. Pure; exported for tests. */
+export function footerBand(height: number): { y: number; h: number } {
+  const y = Math.floor(height * 0.75);
+  return { y, h: Math.max(1, height - y) };
+}
+
 export async function decodePaperCodeFromImage(input: ImageInput): Promise<string | null> {
   try {
     const blob = toBlob(input);
@@ -69,7 +75,19 @@ export async function decodePaperCodeFromImage(input: ImageInput): Promise<strin
         const hit = await decodeQrFromPixels(ctx.getImageData(0, 0, w, h).data, w, h);
         if (hit) return hit;
       }
-      return null;
+      // BRIDGE-CODES-1 (review 1643): the footer band alone. Every paper QR sits in the bottom band of the page (in-app sheets
+      // bottom-left, pack papers bottom-right); on a small or busy whole-page image the detector can miss it, the band alone it reads.
+      const band = footerBand(bitmap.height);
+      const scale = Math.min(1, SIZES[0] / bitmap.width);
+      const w = Math.max(1, Math.round(bitmap.width * scale));
+      const h = Math.max(1, Math.round(band.h * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return null;
+      ctx.drawImage(bitmap, 0, band.y, bitmap.width, band.h, 0, 0, w, h);
+      return await decodeQrFromPixels(ctx.getImageData(0, 0, w, h).data, w, h);
     } finally {
       bitmap.close?.();
     }

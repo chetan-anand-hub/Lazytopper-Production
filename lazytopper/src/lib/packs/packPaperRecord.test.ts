@@ -211,13 +211,13 @@ describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper
     expect(cbqPackExampleCode("science")).toBe("PK-S-CRAE-CBQ1");
   });
 
-  it("a CBQ chapter file holds every set: each set prints its own code and files its own worksheet pending record; the key shares them", async () => {
+  it("a CBQ part file holds its sets: each set prints its own code and files its own worksheet pending record; the key shares them", async () => {
     const pack = owned("pack_cbq:maths");
     const { ctx, exportPdf } = mk(pack);
     const files = await buildPackFiles(ref(pack), ctx);
     expect(files.find((f) => f.group === "Start here")!.codes).toBeUndefined();
-    const q = files.find((f) => f.id.endsWith("|real-numbers|cbq-questions"))!;
-    const k = files.find((f) => f.id.endsWith("|real-numbers|cbq-answers"))!;
+    const q = files.find((f) => f.id.endsWith("|real-numbers|cbq-part-1-questions"))!;
+    const k = files.find((f) => f.id.endsWith("|real-numbers|cbq-part-1-answers"))!;
     expect(q.code).toBeUndefined();
     expect(q.codes![0]).toBe("PK-M-RN-CBQ1");
     expect(k.codes).toEqual(q.codes);
@@ -244,7 +244,7 @@ describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper
     const pack = owned("pack_cbq:science");
     const exportSetsPdf = vi.fn(async (..._a: unknown[]) => "ok");
     const { ctx } = mk(pack, { exportPdf: undefined, exportSetsPdf: exportSetsPdf as never });
-    const q = (await buildPackFiles(ref(pack), ctx)).find((f) => f.id.endsWith("|electricity|cbq-questions"))!;
+    const q = (await buildPackFiles(ref(pack), ctx)).find((f) => f.id.endsWith("|electricity|cbq-part-1-questions"))!;
     await q.build();
     expect(exportSetsPdf).toHaveBeenCalledTimes(1);
     const [sets, mode] = exportSetsPdf.mock.calls[0] as unknown as [Array<{ code: string; ws: { questions: unknown[] } }>, string];
@@ -258,7 +258,7 @@ describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper
     for (const subject of ["maths", "science"] as const) {
       const pack = owned(`pack_cbq:${subject}`);
       const files = await buildPackFiles(ref(pack), mk(pack).ctx);
-      const qDocs = files.filter((f) => f.id.endsWith("|cbq-questions"));
+      const qDocs = files.filter((f) => f.id.includes("|cbq-part-") && f.id.endsWith("-questions"));
       expect(qDocs.length).toBeGreaterThan(0);
       for (const f of qDocs) {
         for (const c of f.codes!) {

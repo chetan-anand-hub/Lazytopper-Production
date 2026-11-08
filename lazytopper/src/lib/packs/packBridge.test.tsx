@@ -93,7 +93,7 @@ describe("BRIDGE-PDF-1 - who gets pages 2-3", () => {
     const h = harness(owned("pack_cbq:maths"), { bridge: { paidBoardPass: false } });
     const files = await buildPackFiles(h.ref, h.ctx);
     await files[0].build(); // "How examiners mark a CBQ" (no paper of its own)
-    await files[1].build(); // Real Numbers: ONE file holding every set (the stub exporter is called once per set)
+    await files[1].build(); // Real Numbers Part 1: one file holding Sets 1-2 (the stub exporter is called once per set)
     expect(h.calls.length).toBe(1 + files[1].codes!.length);
     for (const c of h.calls) expect(c.bridge).toBeDefined();
     expect(h.calls[0].bridge!.exampleCode).toBe("PK-M-RN-CBQ1");

@@ -68,3 +68,21 @@ describe("cbqSets on the real CBQ pack chapters", () => {
     if (process.env.CBQ_SETS_TABLE === "1") console.log(`CBQSETS\n${table.join("\n")}`);
   }, 300000);
 });
+
+describe("cbqParts (owner 8 Nov 22:45: deliver in parts of 2 sets)", () => {
+  it("splits sets in order into ceil(n/2) near-equal parts of at most 2, every set once", async () => {
+    const { cbqParts, CBQ_SETS_PER_PART } = await import("./buildPackFiles");
+    expect(CBQ_SETS_PER_PART).toBe(2);
+    expect(cbqParts([])).toEqual([]);
+    const mk = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+    expect(cbqParts(mk(9))).toEqual([[1, 2], [3, 4], [5, 6], [7, 8], [9]]);
+    expect(cbqParts(mk(8))).toEqual([[1, 2], [3, 4], [5, 6], [7, 8]]);
+    expect(cbqParts(mk(7))).toEqual([[1, 2], [3, 4], [5, 6], [7]]);
+    for (let n = 1; n <= 12; n += 1) {
+      const p = cbqParts(mk(n));
+      expect(p.flat()).toEqual(mk(n));
+      expect(p.length).toBe(Math.ceil(n / 2));
+      for (const x of p) expect(x.length).toBeLessThanOrEqual(2);
+    }
+  }, 120000);
+});

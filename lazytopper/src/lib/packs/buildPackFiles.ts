@@ -67,6 +67,8 @@ export type ExportOpts = {
   filename?: string;
   /** PACK-TERMS-1: when the covering pack was paid (ms) - picks the re-download date printed on the cover. Absent -> the later (31 May 2027) date. */
   paidAtMs?: number;
+  /** BRIDGE-CODES-1: a several-paper file reports each set as it starts ("Preparing… set k of n"). */
+  onProgress?: (set: number, of: number) => void;
   /** BRIDGE-PDF-1: pages 2-3 ("Get this paper marked" + the sample scorecard); only on the buyer's download (ctx.bridge). */
   bridge?: BridgePagesData;
 };
@@ -84,7 +86,8 @@ export interface PackFile {
   /** The group the file is listed under (a chapter name, or "Mock papers"). */
   group: string;
   filename: string;
-  build: () => Promise<void>;
+  /** `onProgress` (several-paper files only): called as each set starts rendering. */
+  build: (onProgress?: (set: number, of: number) => void) => Promise<void>;
 }
 
 export interface PackRef {
@@ -215,7 +218,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
     codes: spec.sets.map((x) => x.paper.code),
     group: spec.group,
     filename: spec.filename,
-    build: async () => {
+    build: async (onProgress) => {
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
       const now = (ctx.nowIso ?? (() => new Date().toISOString()))();
       const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
@@ -232,7 +235,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
       };
       if (ctx.exportSetsPdf || !ctx.exportPdf) {
         const exportSets = ctx.exportSetsPdf ?? (await defaultExportSets());
-        await exportSets(papers.map((p) => ({ ws: p.ws, code: p.reg.code })), spec.mode, opts);
+        await exportSets(papers.map((p) => ({ ws: p.ws, code: p.reg.code })), spec.mode, onProgress ? { ...opts, onProgress } : opts);
       } else {
         // Test seam only (an `exportPdf` stub and no `exportSetsPdf`): every paper goes through it, so guards see each set.
         for (const p of papers) await ctx.exportPdf(p.ws, spec.mode, p.reg.code, opts);
@@ -532,8 +535,8 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
     const name = chapterName(slug);
     // BRIDGE-CODES-1 round 2 (owner 8 Nov 20:17): the chapter's CBQs as gradable sets of ~10-15 (cbqSets.ts). Every question is in
     // exactly one set, so the pack holds the same questions as before; each set is numbered Q1.. as the paper it is.
-    // Round 3 (owner 8 Nov 21:20, "One pdf per chapter"): ONE questions file and ONE answer-key file per chapter, holding every set in
-    // order; each set starts on a new page with its own title row, printed code and (questions) QR, and waits on Home on its own.
+    // Round 3 (owner 8 Nov 21:20, "One pdf per chapter"): a file holds several sets in order; each set starts on a new page with its
+    // own title row, printed code and (questions) QR, and waits on Home on its own.
     const sets = cbqSets(cbqPackRows(slug));
     if (sets.length === 0) continue;
     const papers = sets.map((set, pi) => {
@@ -547,42 +550,70 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
         marks: questions.reduce((m, q) => m + (Number(q.marks) || 0), 0),
       };
     });
-    const nQ = papers.reduce((m, p) => m + p.nQ, 0);
-    const marks = papers.reduce((m, p) => m + p.marks, 0);
-    for (const [mode, modeLabel, modeFile] of MODES) {
-      const title = `${name} \u00b7 Board CBQs`;
-      files.push(
-        makeSetsFile(
-          {
-            id: `${packId}|${slug}|cbq-${mode}`,
-            label: `${sets.length} sets \u00b7 ${modeLabel}`,
-            group: name,
-            filename: `LazyTopper-${fileSlug(name)}-CBQ-${modeFile}.pdf`,
-            mode,
-            orderRef,
-            sets: papers.map((p) => ({ ws: p.ws, paper: p.paper })),
-            cover: {
-              kicker: mode === "questions" ? `${kicker} CBQ PACK` : `${kicker} CBQ PACK \u00b7 ANSWER KEY`,
-              title,
-              subtitle: `${name} \u00b7 ${nQ} ${nQ === 1 ? "question" : "questions"} in ${sets.length} ${sets.length === 1 ? "set" : "sets"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
-              // COVER-CLEAN-1: the pack's own facts, read from the same constants the pack page and pricing band use.
-              headline: { value: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+`, label: "CBQs", note: "competency-based questions" },
-              stats: [
-                { value: String(slugs.length), label: "chapters" },
-                { value: `${CBQ_MIN_PER_CHAPTER}+`, label: "in every chapter" },
-                { value: String(CBQ_QUESTION_TYPES.length), label: "question types" },
-              ],
-              types: CBQ_QUESTION_TYPES,
+    // Owner 8 Nov 22:45 ("make it deliver/download in parts, that way user wont think that they are stuck"): the chapter's sets are
+    // delivered as PART files of about CBQ_SETS_PER_PART sets each, so every download is quick and finishes on its own.
+    for (const [pk, part] of cbqParts(papers).entries()) {
+      const nParts = cbqParts(papers).length;
+      const first = papers.indexOf(part[0]) + 1;
+      const last = first + part.length - 1;
+      const range = first === last ? `Set ${first}` : `Sets ${first}\u2013${last}`;
+      const nQ = part.reduce((m, p) => m + p.nQ, 0);
+      const marks = part.reduce((m, p) => m + p.marks, 0);
+      for (const [mode, modeLabel, modeFile] of MODES) {
+        const title = `${name} \u00b7 Board CBQs \u00b7 Part ${pk + 1} of ${nParts}`;
+        files.push(
+          makeSetsFile(
+            {
+              id: `${packId}|${slug}|cbq-part-${pk + 1}-${mode}`,
+              label: `Part ${pk + 1} of ${nParts} \u00b7 ${range} \u00b7 ${modeLabel}`,
+              group: name,
+              filename: `LazyTopper-${fileSlug(name)}-CBQ-Part-${pk + 1}-of-${nParts}-Sets-${first}-${last}-${modeFile}.pdf`,
+              mode,
+              orderRef,
+              sets: part.map((p) => ({ ws: p.ws, paper: p.paper })),
+              cover: {
+                kicker: mode === "questions" ? `${kicker} CBQ PACK` : `${kicker} CBQ PACK \u00b7 ANSWER KEY`,
+                title,
+                subtitle: `${name} \u00b7 ${range} of ${papers.length} \u00b7 ${nQ} ${nQ === 1 ? "question" : "questions"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
+                // COVER-CLEAN-1: the pack's own facts, read from the same constants the pack page and pricing band use.
+                headline: { value: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+`, label: "CBQs", note: "competency-based questions" },
+                stats: [
+                  { value: String(slugs.length), label: "chapters" },
+                  { value: `${CBQ_MIN_PER_CHAPTER}+`, label: "in every chapter" },
+                  { value: String(CBQ_QUESTION_TYPES.length), label: "question types" },
+                ],
+                types: CBQ_QUESTION_TYPES,
+              },
+              bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) },
             },
-            bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) },
-          },
-          sku,
-          ctx,
-        ),
-      );
+            sku,
+            ctx,
+          ),
+        );
+      }
     }
   }
   return files;
+}
+
+/**
+ * BRIDGE-CODES-1 (owner 8 Nov 22:45, "deliver/download in parts"): at most this many CBQ sets per PART file. Measured in Chrome with
+ * the real exporter: 3 sets = 4.5-8.4 MB and 14-25 s at 4-6x CPU; 2 sets = 4.3-6.0 MB and ~20 s at 6x (target was <=5 MB, <=10-15 s).
+ */
+export const CBQ_SETS_PER_PART = 2;
+
+/** A chapter's sets split, in order, into ceil(n / CBQ_SETS_PER_PART) parts of near-equal size (9 -> 3+3+3, 8 -> 3+3+2, 7 -> 3+2+2). */
+export function cbqParts<T>(sets: readonly T[]): T[][] {
+  if (sets.length === 0) return [];
+  const n = Math.ceil(sets.length / CBQ_SETS_PER_PART);
+  const out: T[][] = [];
+  let at = 0;
+  for (let i = 0; i < n; i += 1) {
+    const size = Math.ceil((sets.length - at) / (n - i));
+    out.push(sets.slice(at, at + size));
+    at += size;
+  }
+  return out;
 }
 
 /**

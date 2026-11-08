@@ -1031,13 +1031,17 @@ type FilesState =
   | { phase: "closed" }
   | { phase: "loading" }
   | { phase: "error" }
-  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; build: () => Promise<void> }> }> };
+  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; codes?: string[]; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }> }> };
 
 function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine: MyPacks; openRequest?: number }) {
   const { user } = useAuth();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [failedId, setFailedId] = useState<string | null>(null);
+  // BRIDGE-CODES-1: a CBQ chapter file (several sets) takes 20-45 s on a phone - say which set is being prepared.
+  const [progress, setProgress] = useState<string | null>(null);
+  // A CBQ part that finished says so on its own row ("Saved ✓"), so a student sees Part 1 done before starting Part 2.
+  const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(() => new Set());
 
   async function open() {
     if (state.phase === "loading") return;
@@ -1073,16 +1077,19 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
     }
   }
 
-  async function download(file: { id: string; build: () => Promise<void> }) {
+  async function download(file: { id: string; codes?: string[]; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }) {
     if (busyId) return;
     setBusyId(file.id);
     setFailedId(null);
+    setProgress(null);
     try {
-      await file.build();
+      await file.build(file.codes && file.codes.length > 1 ? (k, n) => setProgress(`Preparing\u2026 set ${k} of ${n}`) : undefined);
+      if (file.codes && file.codes.length > 0) setSavedIds((prev) => new Set(prev).add(file.id));
     } catch {
       setFailedId(file.id);
     } finally {
       setBusyId(null);
+      setProgress(null);
     }
   }
 
@@ -1127,11 +1134,11 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
                     <span>{f.label}</span>
                     <button
                       type="button"
-                      className="lt-packs__btn lt-packs__btn--small"
+                      className={f.codes && f.codes.length > 1 ? "lt-packs__btn lt-packs__btn--small lt-packs__btn--sets" : "lt-packs__btn lt-packs__btn--small"}
                       disabled={busyId !== null}
                       onClick={() => void download(f)}
                     >
-                      {busyId === f.id ? "Preparing PDF…" : failedId === f.id ? "Retry" : "Download"}
+                      {busyId === f.id ? progress ?? "Preparing PDF…" : failedId === f.id ? "Retry" : savedIds.has(f.id) ? "Saved \u2713" : "Download"}
                     </button>
                     {failedId === f.id && <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>}
                   </li>
