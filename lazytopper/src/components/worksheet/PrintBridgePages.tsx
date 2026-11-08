@@ -164,8 +164,9 @@ export function PrintBridgeViewsPage({ data, links }: BridgePageProps) {
 }
 
 const BRIDGE_CSS = `
-.lt-br { width: ${BRIDGE_W}px; height: ${BRIDGE_H}px; box-sizing: border-box; padding: 56px 60px 48px; background: #ffffff;
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif; color: #0f1b33; display: flex; flex-direction: column; gap: 26px; overflow: hidden; }
+/* Page 2 runs 20 px tighter than the mock-up (gap 26 -> 20, top 56 -> 48): with the real fonts its last line (the footer) fell off A4. */
+.lt-br { width: ${BRIDGE_W}px; height: ${BRIDGE_H}px; box-sizing: border-box; padding: 48px 60px 44px; background: #ffffff;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif; color: #0f1b33; display: flex; flex-direction: column; gap: 20px; overflow: hidden; }
 .lt-br--views { gap: 22px; }
 .lt-br *, .lt-br *::before, .lt-br *::after { box-sizing: border-box; }
 .lt-br b { color: #0f1b33; }
@@ -200,7 +201,7 @@ const BRIDGE_CSS = `
 .lt-br__pass { background: #f0f7f2; border: 1px solid #bfe0c9; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
 .lt-br__passh { font-size: 16px; font-weight: 700; color: #0f1b33; }
 .lt-br__passb { font-size: 14px; line-height: 1.5; color: #33405a; }
-.lt-br__passl { font-size: 13px; color: #15803d; font-weight: 600; }
+.lt-br__passl { align-self: flex-start; font-size: 13px; color: #15803d; font-weight: 600; }
 .lt-br__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 22px; }
 .lt-br__view { display: flex; flex-direction: column; gap: 6px; }
 .lt-br__vl { font-size: 12px; line-height: 1.4; }

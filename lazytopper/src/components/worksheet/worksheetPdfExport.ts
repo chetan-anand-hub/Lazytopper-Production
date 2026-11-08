@@ -593,7 +593,7 @@ async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas
               return { x: (r.left - box.left) * mm, y: (r.top - box.top) * mm, w: r.width * mm, h: r.height * mm, url: el.dataset.pdfLink ?? "" };
             });
             const c = await html2canvas(h, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: mod.BRIDGE_W });
-            return { jpeg: c.toDataURL("image/jpeg", 0.85), links: areas.filter((a) => a.url && a.w > 0 && a.h > 0) };
+            return { jpeg: c.toDataURL("image/jpeg", 0.72), links: areas.filter((a) => a.url && a.w > 0 && a.h > 0) };
           }),
         );
       }
