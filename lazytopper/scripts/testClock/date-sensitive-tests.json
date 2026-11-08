@@ -699,6 +699,7 @@
     "src/lib/packs/packEntry.test.tsx",
     "src/lib/packs/packPaperRecord.test.ts",
     "src/lib/packs/packPreviews.test.tsx",
+    "src/lib/packs/packSampleBuild.test.ts",
     "src/lib/packs/packSamples.test.tsx",
     "src/lib/tutorSticky/dailyFix.test.ts",
     "src/lib/tutorSticky/trialSummary.test.ts",
