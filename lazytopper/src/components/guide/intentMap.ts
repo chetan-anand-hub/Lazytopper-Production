@@ -314,7 +314,7 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           id,
           title: "Tutor",
           sub: "English or Hinglish is fine",
-          point: "Stuck? Ask the AI Tutor to explain it step by step.",
+          point: "Stuck? Ask your tutor to explain it step by step.",
           action: { kind: "route", path: `/tutor/10/${subject}` },
         };
       case "full_mock":

@@ -58,7 +58,7 @@ describe("L4 · the Premium card", () => {
     expect(PREMIUM_PLUS.map((i) => i.label)).toEqual([
       "Answer Checker — photograph your handwritten answer, marked step by step like a board examiner",
       "Chapter tests, full mocks and worksheets graded, not just downloaded",
-      "Your AI tutor that knows your chapters, your mistakes, your pace",
+      "Your personal tutor that knows your chapters, your mistakes, your pace",
       "Mistake Intelligence — why you lose marks, not just where",
       "Unlimited chapter tests and mocks to open or download",
       "Progress that tells you what to fix next",
@@ -196,7 +196,7 @@ describe("Owner ruling — 'Limited' on Basic only when backed by a constant", (
     expect(questions).toBeGreaterThanOrEqual(7);
     expect(answers).toHaveLength(questions + 1);
     expect(answers).toContain(
-      "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with the ${BOARD_PASS_NAME}.",
+      "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, your personal tutor and Mistake Intelligence come with the ${BOARD_PASS_NAME}.",
     );
     expect(unbackedLimited([desc, ...answers], PAGE_SOURCE + COPY_SOURCE + COMPARE_SOURCE)).toEqual([]);
   });
@@ -272,7 +272,7 @@ describe("PRICING-1 · what Basic does not include is stated, and it is TRUE tod
       graded: "Chapter tests, mocks and worksheets graded",
       check: "Photograph your handwritten answer and get it marked",
       steps: "Step marks, CBSE keywords and units, the way examiners mark",
-      tutor: "AI tutor that knows your chapters and mistakes",
+      tutor: "A personal tutor that knows your chapters and mistakes",
       mi: "Mistake Intelligence — why you lose marks",
       similar: "New questions like the one you got wrong",
     };

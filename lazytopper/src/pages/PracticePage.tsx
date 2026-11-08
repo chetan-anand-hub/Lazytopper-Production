@@ -5237,7 +5237,7 @@ const packTopicKey = useMemo(() => {
     <h3 className="lt-qp-signin__t">Sign in to check your answers</h3>
     <p className="lt-qp-signin__p">
       Everything you scored on the multiple-choice questions is yours already and stays on
-      screen. Marking your written working is done by AI, so it needs an account — and a
+      screen. CBSE examiner style marking of your written working needs an account — and a
       new one can start a free 7-day trial with every Premium feature on.
     </p>
     <Link

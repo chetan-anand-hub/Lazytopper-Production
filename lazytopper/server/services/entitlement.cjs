@@ -233,7 +233,7 @@ const GATED_ROUTES = {
   },
   '/api/tutor': {
     feature: 'tutor',
-    message: "The AI tutor is a Premium feature. You can unlock it whenever you're ready.",
+    message: "Your personal tutor is a Premium feature. You can unlock it whenever you're ready.",
   },
 };
 
