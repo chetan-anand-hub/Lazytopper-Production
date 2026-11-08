@@ -56,19 +56,21 @@ vi.mock("../components/chaptertest/ChapterTestUploadPanel", () => ({
     </div>
   ),
 }));
-const grade = vi.hoisted(() => ({ calls: [] as Array<Record<string, unknown>> }));
+const grade = vi.hoisted(() => ({ calls: [] as Array<Record<string, unknown>>, ok: null as unknown }));
 vi.mock("../services/fullMockGradeService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../services/fullMockGradeService")>();
   return {
     ...actual,
     gradeFullMockUpload: vi.fn(async (args: Record<string, unknown>) => {
       grade.calls.push(args);
+      if (grade.ok) return grade.ok;
       return { ok: false, response: { ok: false, error: "stubbed" }, miOutcomes: [] };
     }),
   };
 });
 
 import FullMockPage from "./FullMockPage";
+import { exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { awaitingPaperResponse } from "../components/papers/paperDownloadRecord";
 import { __resetUsageClientForTests } from "../services/usageClient";
 
@@ -112,6 +114,7 @@ beforeEach(() => {
   fs.docs = {};
   pdf.calls = [];
   grade.calls = [];
+  grade.ok = null;
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ enforced: false }), { status: 200 })));
   vi.spyOn(console, "error").mockImplementation(() => {});
   vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -210,5 +213,51 @@ describe("AWAIT-1 · Upload on a downloaded Full Mock", () => {
     expect(step.textContent).toContain(`${CODE} · objective 2/2`);
     expect(recordWrites()).toHaveLength(0);
     expect(paperWrites()).toHaveLength(0);
+  }, 90000);
+});
+
+// SHEET-HEADER-1 — the graded sheet of a Full Mock says "Full Mock" (never the doc default
+// "Worksheet") and carries the moment the answers were MARKED (never the paper's createdAt).
+describe("SHEET-HEADER-1 · Full Mock graded sheet header", () => {
+  it("★ live grade -> exportGradedWorksheetPdf gets kindLabel 'Full Mock' and the marking time", async () => {
+    const zero = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+    grade.ok = {
+      ok: true,
+      response: {
+        ok: true,
+        results: [
+          { qNumber: 1, couldNotRead: false, objective: true, totalMarks: 1, marksAwarded: 0, annotatedSteps: [], mistakeSummary: zero },
+          { qNumber: 2, couldNotRead: false, objective: true, totalMarks: 1, marksAwarded: 1, annotatedSteps: [], mistakeSummary: zero },
+          { qNumber: 3, couldNotRead: false, totalMarks: 3, marksAwarded: 2, annotatedSteps: [], mistakeSummary: { ...zero, calculation: 1 } },
+        ],
+        totalQuestions: 3, gradedCount: 3, pendingCount: 0, gradedMarksAwarded: 3, gradedMarksTotal: 5, worksheetTotalMarks: 5,
+      },
+      miOutcomes: [],
+    };
+    records.list = [pendingRecord()];
+    fs.docs[`sessionRecords/student-1/fullMockPapers/${CODE}`] = {
+      code: CODE, name: "Maths · Mock #2", subject: "Maths", grade: "10", paper,
+      startedAt: 1, durationMs: 0, objective: null, downloaded: true, savedAt: 1,
+    };
+    fs.docs[`sessionRecords/student-1/records/${CODE}`] = pendingRecord();
+    mount();
+    await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 });
+    fireEvent.click(await screen.findByRole("button", { name: /Upload now/ }));
+    await screen.findByTestId("section-a-picker");
+    fireEvent.click(screen.getAllByRole("button", { name: /^B/ })[1]);
+    fireEvent.click(screen.getByRole("button", { name: /Continue to upload/ }));
+    await screen.findByTestId("upload-step");
+    const before = Date.now();
+    fireEvent.click(screen.getByRole("button", { name: "stub-grade" }));
+    await waitFor(() => expect(grade.calls).toHaveLength(1));
+    const after = Date.now();
+    fireEvent.click(await screen.findByRole("button", { name: /Graded sheet/ }, { timeout: 30000 }));
+    const exp = vi.mocked(exportGradedWorksheetPdf);
+    await waitFor(() => expect(exp).toHaveBeenCalled());
+    const args = exp.mock.calls.at(-1)![0] as { kindLabel?: string; gradedAt?: number | null };
+    expect(args.kindLabel).toBe("Full Mock");
+    expect(typeof args.gradedAt).toBe("number");
+    expect(args.gradedAt as number).toBeGreaterThanOrEqual(before);
+    expect(args.gradedAt as number).toBeLessThanOrEqual(after + 5000);
   }, 90000);
 });

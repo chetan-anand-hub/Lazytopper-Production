@@ -74,7 +74,7 @@ vi.mock("../components/chaptertest/ChapterTestUploadPanel", () => ({
   ),
 }));
 
-const grade = vi.hoisted(() => ({ calls: [] as Array<Record<string, unknown>> }));
+const grade = vi.hoisted(() => ({ calls: [] as Array<Record<string, unknown>>, ok: null as unknown }));
 const mi = vi.hoisted(() => ({ recordMistake: vi.fn(), recordAttempt: vi.fn() }));
 vi.mock("../services/mistakeIntelligence", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../services/mistakeIntelligence")>()),
@@ -90,12 +90,14 @@ vi.mock("../services/chapterTestGradeService", async (importOriginal) => {
     ...actual,
     gradeChapterTestUpload: vi.fn(async (args: Record<string, unknown>) => {
       grade.calls.push(args);
+      if (grade.ok) return grade.ok;
       return { ok: false, response: { ok: false, error: "stubbed" }, miOutcomes: [] };
     }),
   };
 });
 
 import ChapterTestPage from "./ChapterTestPage";
+import { exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { awaitingPaperResponse } from "../components/papers/paperDownloadRecord";
 import { saveChapterTestPaper } from "../services/chapterTestPaperStore";
 
@@ -147,6 +149,7 @@ beforeEach(() => {
   fair.block = false;
   pdf.calls = [];
   grade.calls = [];
+  grade.ok = null;
   records.list = [];
   mi.recordMistake.mockReset();
   mi.recordAttempt.mockReset();
@@ -322,5 +325,48 @@ describe("AWAIT-1 · Upload on a downloaded Chapter Test", () => {
     const step = await screen.findByTestId("upload-step");
     expect(step.textContent).toContain(`${CODE} · objective 2/2`);
     expect(screen.queryByTestId("section-a-picker")).toBeNull();
+  });
+});
+
+// SHEET-HEADER-1 — the graded sheet of a Chapter Test says "Chapter Test" (never the doc default
+// "Worksheet") and carries the moment the answers were MARKED (never the paper's createdAt).
+describe("SHEET-HEADER-1 · Chapter Test graded sheet header", () => {
+  it("★ live grade -> exportGradedWorksheetPdf gets kindLabel 'Chapter Test' and the marking time", async () => {
+    const objective: ObjectiveScore = {
+      results: [
+        { qNumber: 1, id: "q-a1", selected: "2", correct: true, awarded: 1, total: 1 },
+        { qNumber: 2, id: "q-a2", selected: "6", correct: true, awarded: 1, total: 1 },
+      ],
+      awarded: 2, total: 2, answeredCount: 2, totalQuestions: 2,
+    };
+    const response = {
+      ok: true,
+      results: [
+        { qNumber: 1, couldNotRead: false, objective: true, totalMarks: 1, marksAwarded: 1, annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 } },
+        { qNumber: 2, couldNotRead: false, objective: true, totalMarks: 1, marksAwarded: 1, annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 } },
+        { qNumber: 3, couldNotRead: false, totalMarks: 3, marksAwarded: 2, annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 } },
+      ],
+      totalQuestions: 3, gradedCount: 3, pendingCount: 0, gradedMarksAwarded: 4, gradedMarksTotal: 5, worksheetTotalMarks: 5,
+    };
+    grade.ok = { ok: true, response, miOutcomes: [] };
+    records.list = [{ ...pendingRecord(), status: "partial" }];
+    saveChapterTestPaper(auth.user as never, { code: CODE, name: paper.name!, subject: "Maths", topicKey: "real-numbers", paper, objective });
+    await mount();
+    fireEvent.click(await screen.findByText(/Awaiting sheet/, undefined, { timeout: 30000 }));
+    await screen.findByTestId("upload-step");
+    const before = Date.now();
+    fireEvent.click(screen.getByRole("button", { name: "stub-grade" }));
+    await waitFor(() => expect(grade.calls).toHaveLength(1));
+    const after = Date.now();
+    fireEvent.click(await screen.findByRole("button", { name: /Graded sheet/ }, { timeout: 30000 }));
+    const exp = vi.mocked(exportGradedWorksheetPdf);
+    await waitFor(() => expect(exp).toHaveBeenCalled());
+    const args = exp.mock.calls.at(-1)![0] as { kindLabel?: string; gradedAt?: number | null; code: string };
+    expect(args.kindLabel).toBe("Chapter Test");
+    expect(typeof args.gradedAt).toBe("number");
+    expect(args.gradedAt as number).toBeGreaterThanOrEqual(before);
+    expect(args.gradedAt as number).toBeLessThanOrEqual(after + 5000);
+    // never the paper's own date
+    expect(args.gradedAt).not.toBe(Date.parse(paper.createdAt));
   });
 });

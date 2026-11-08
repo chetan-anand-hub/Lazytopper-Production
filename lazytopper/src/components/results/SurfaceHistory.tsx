@@ -13,6 +13,7 @@ import {
 } from "../../services/sessionRecords";
 import { getWorksheetSession, getWorksheetGrade } from "../../services/worksheetSessionStore";
 import { exportGradedWorksheetPdf } from "../worksheet/worksheetPdfExport";
+import { gradedSheetKindFor } from "../worksheet/WorksheetGradedPrintDoc";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { practiceSetPaperKey } from "../../services/limitsClient";
 import ResultsScorecard from "./ResultsScorecard";
@@ -284,6 +285,8 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
           name: record.title,
           code: record.id,
           coaching: storedCoaching(record, grade),
+          kindLabel: gradedSheetKindFor(record.surface),
+          gradedAt: record.gradedAt,
         }).finally(() => {
           downloadingRef.current = false;
           setDownloading(false);
