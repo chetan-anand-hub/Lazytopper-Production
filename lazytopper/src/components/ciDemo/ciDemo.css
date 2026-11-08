@@ -602,39 +602,25 @@
    at the tap the verdict line says "Checking your answer…" in the verdict's own box, and the verdict block below the
    options is reserved at its final height (the tallest, a right answer: measured 8 Nov 2026 on the fixed starter,
    + 8 px), so nothing below the card moves when the verdict lands seconds later. The reserve stays on the real
-   verdict until the student's next tap or key (when a shrink is input-excluded). */
+   verdict until the student's next tap or key (when a shrink is input-excluded). SUPERSEDED for the box by SPEED-CI-3
+   below: only the mark line is held now. */
 .ci-demo__verdict-mark--held {
   color: #c9d3e0;
 }
-/* SPEED-CI-3 (coordinator: live early-tap CLS 0.019-0.023 at 360, source the watch link): the phone bands were sized
-   from a build WITHOUT the packs flag (verdict 297-337 px). Production's verdict carries the buying block, which lands
-   ~0.3 s after the scorecard: the fixed starter's verdict measured 8 Nov 2026 on a production-flag build (4G/4x,
-   right / wrong) is 1203/1133 px at 320, 1067/997 at 360, 1031/961 at 375, 982/912 at 390, 939/869 at 412 and 768,
-   954/884 at 1023. Below these the verdict pushed the watch link and the page under the card down. The early tap only
-   ever happens on that one fixed question, so these heights are its real ones; any excess is given back after the
-   student's next tap / key (input-excluded). Desktop bands are unchanged (their CLS was 0.001-0.002). */
+/* SPEED-CI-3 (review of #1641): NO height is reserved for the verdict at any width any more (fixed heights are derived
+   numbers: stale with any offer-copy change, wrong with a large Android font, and a box taller than the screen made the
+   bring-into-view scroll the student's mark off the screen). An early tap reserves only the mark line (the held
+   "Checking your answer…", LadderTapParts.tsx); the box below it is a zero-height marker. When the verdict and its buying
+   block land, what lies below them is hidden in place until they have settled (OneMinuteLadder `data-settling`). */
 .ci-demo__verdict--reserve {
-  min-height: 1230px;
+  min-height: 0;
 }
-@media (min-width: 360px) {
-  .ci-demo__verdict--reserve {
-    min-height: 1090px;
-  }
+.ci-demo__ladder[data-settling] > .ci-demo__link,
+.ci-demo:has(.ci-demo__ladder[data-settling]) ~ * {
+  visibility: hidden;
 }
-@media (min-width: 390px) {
-  .ci-demo__verdict--reserve {
-    min-height: 1000px;
-  }
-}
-@media (min-width: 1024px) {
-  .ci-demo__verdict--reserve {
-    min-height: 243px;
-  }
-}
-@media (min-width: 1440px) {
-  .ci-demo__verdict--reserve {
-    min-height: 222px;
-  }
+.ci-demo__verdict-mark {
+  scroll-margin-top: 12px;
 }
 /* B3/(b) (review of #1639): while an early tap's verdict box is held, the page's landing line right under the card is
    hidden IN PLACE (same box, nothing moves): the verdict already carries the buying block, so it is never shown twice.

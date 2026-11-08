@@ -142,8 +142,61 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   const [reserve, setReserve] = useState(early !== null);
   const shown = useRef(false);
   const verdictRef = useRef<HTMLDivElement>(null);
+  const markRef = useRef<HTMLParagraphElement>(null);
   // LADDER-NAV-1: the verdict + "Now a 2-mark one" appear below the fold; bring them in once, clear of the BottomNav.
-  useClearBottomNav(verdictRef, picked !== null);
+  // SPEED-CI-3 (review of #1641, B1): ...but never so far that the student's own mark line leaves the screen.
+  useClearBottomNav(verdictRef, picked !== null, markRef);
+  // SPEED-CI-3 — SETTLING. An early tap's verdict lands (this first frame) and its buying block's pack rows land a
+  // moment later (OffersBlock's lazy OfferRows chunk). No height is reserved for either; instead, from this first frame
+  // until the rows are in, what lies BELOW the verdict (the watch link, the page under the card) is hidden IN PLACE
+  // (ciDemo.css `[data-settling]`): a hidden node that moves is not a layout shift, and it reappears in its final place.
+  // Settled = the rows are in the DOM, or the block has no rows to wait for (no block / the rows chunk resolved and
+  // rendered none), or the student's next tap / key. Nothing above the verdict ever moves.
+  const [settling, setSettling] = useState(early !== null);
+  useEffect(() => {
+    if (!settling) return undefined;
+    let live = true;
+    let observer: MutationObserver | undefined;
+    const done = () => {
+      if (!live) return;
+      live = false;
+      observer?.disconnect();
+      document.removeEventListener("click", done);
+      document.removeEventListener("keyup", done);
+      setSettling(false);
+    };
+    const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
+    const rowsIn = () => !!block?.querySelector('[data-testid="offers-packs"]');
+    if (!block || rowsIn()) {
+      done();
+      return undefined;
+    }
+    document.addEventListener("click", done);
+    document.addEventListener("keyup", done);
+    if (typeof MutationObserver === "function") {
+      observer = new MutationObserver(() => {
+        if (rowsIn()) done();
+      });
+      observer.observe(block, { childList: true, subtree: true });
+    }
+    // The same module OffersBlock's lazy() loads: once it has resolved and React has had frames to render it, a block
+    // that still shows no rows has none to show (or the chunk failed): settle then too.
+    const frame = (next: () => void) => {
+      if (!live) return;
+      if (typeof requestAnimationFrame === "function") requestAnimationFrame(next);
+      else window.setTimeout(next, 16);
+    };
+    const afterFrames = () => frame(() => frame(() => frame(done)));
+    void import("../packs/OfferRows").then(afterFrames, afterFrames);
+    return () => {
+      live = false;
+      observer?.disconnect();
+      document.removeEventListener("click", done);
+      document.removeEventListener("keyup", done);
+    };
+    // Once, for the early tap this mount started with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // SPEED-SITE-1a-fu: DELIBERATE — the question is chosen once per mount (from the visit's subject hint and seed) and
   // does NOT swap if the subject hint changes later in the visit: a student must never see the question they are
@@ -266,13 +319,19 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   }
 
   return (
-    <div className="ci-demo__ladder" data-testid="one-min-ladder" data-step={done ? "verdict" : "tap"}>
+    <div
+      className="ci-demo__ladder"
+      data-testid="one-min-ladder"
+      data-step={done ? "verdict" : "tap"}
+      data-settling={settling ? "" : undefined}
+    >
       <LadderMeta subject={mcq.starter.subject} topicName={mcq.topicName} />
       <LadderQuestionText question={mcq.question} />
       {done ? (
         <p
           className={`ci-demo__verdict-mark ${correct ? "ci-demo__verdict-mark--right" : "ci-demo__verdict-mark--wrong"}`}
           data-testid="one-min-verdict"
+          ref={markRef}
           role="status"
         >
           {correct ? "✓ 1/1" : "✗ 0/1"}

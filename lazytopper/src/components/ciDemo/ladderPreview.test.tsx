@@ -264,12 +264,10 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     expect((ul.nextElementSibling as HTMLElement).className).toBe("ci-demo__verdict ci-demo__verdict--reserve");
     const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
     expect(css).toMatch(/\.ci-demo\[data-ci-first\] \.ci-demo__close,\s*\.ci-demo\[data-ci-first\] \.ci-demo__link \{\s*opacity: 0\.45;/);
-    // A reserve for every band, never smaller than the measured verdict (8 Nov 2026) in that band. SPEED-CI-3: the
-    // phone bands are the production-flag verdict (with its buying block), the tallest width in the band, right answer.
-    const bands = [...css.matchAll(/(?:@media \(min-width: (\d+)px\)\s*\{\s*)?\.ci-demo__verdict--reserve\s*\{\s*min-height: (\d+)px/g)].map((m) => [Number(m[1] ?? 0), Number(m[2])]);
-    const measured: Record<number, number> = { 0: 1203, 360: 1067, 390: 982, 1024: 235, 1440: 214 };
-    expect(bands.map((b) => b[0])).toEqual([0, 360, 390, 1024, 1440]);
-    for (const [from, h] of bands) expect(h).toBeGreaterThanOrEqual(measured[from]);
+    // SPEED-CI-3 (review of #1641): no derived height is reserved for the verdict at any width — only the mark line
+    // (the held line above) — and what lies below the landing verdict is hidden in place while it settles.
+    expect([...css.matchAll(/\.ci-demo__verdict--reserve\s*\{([^}]*)\}/g)].map((m) => m[1].replace(/\s+/g, ""))).toEqual(["min-height:0;"]);
+    expect(css).toMatch(/\.ci-demo__ladder\[data-settling\] > \.ci-demo__link,\s*\.ci-demo:has\(\.ci-demo__ladder\[data-settling\]\) ~ \* \{\s*visibility: hidden;/);
   });
 
   it("SPEED-CI-3: the watch link's inert and active looks are the same box (only opacity / cursor differ)", () => {
