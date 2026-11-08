@@ -12,6 +12,7 @@
  */
 import { useEffect, useState } from "react";
 import { isPacksEntryEnabled } from "./packEntry";
+import { writeMineOwner } from "../../components/packs/mineHint";
 
 let cachedUid: string | null = null;
 let cachedOwns: boolean | null = null;
@@ -27,6 +28,8 @@ export function loadOwnsAnyPack(uid: string): Promise<boolean | null> {
       const { fetchMyPacks } = await import("../../services/packs");
       const mine = await fetchMyPacks();
       const owns = mine.packs.length > 0;
+      // BRIDGE-PANEL-1 round 3: a layout hint only (reserve My packs' space on /packs), never read as ownership by anything.
+      if (owns) writeMineOwner(uid);
       cachedUid = uid;
       cachedOwns = owns;
       return owns;

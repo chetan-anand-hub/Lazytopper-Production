@@ -12,6 +12,9 @@
  *      out) has a hint for this width, the slot gets that min-height, and the decision is handed to React on `window.__ltMineHint`
  *      (React cannot re-read the uid key: AuthContext clears it while auth is loading).
  *   2. React's first render (PacksShop) reserves the same height (the hand-over, or the hint for an already-known user).
+ * When the device knows this account owns packs but not yet My packs' height at this width (the first visit after a purchase or a
+ * pay-by-phone claim on this device, or after ownership was read for the account menu), it reserves ONE SCREEN (the viewport
+ * height): the shop then starts below the fold, so whatever height My packs turns out to be, nothing on screen moves.
  * Signed-out visitors and accounts without packs have no hint: an empty div and a script that returns at once (zero layout cost).
  */
 
@@ -59,13 +62,42 @@ function readStored(): StoredHint | null {
 
 const validPx = (px: unknown): px is number => typeof px === "number" && Number.isFinite(px) && px > 0 && px < MINE_HINT_MAX_PX;
 
-/** The reserved height for this account at this width, or null. */
-export function readMineHint(uid: string | null | undefined, width: number, nowMs: number): number | null {
+/**
+ * The reserved height for this account at this width: the remembered height, else (ownership known, height not yet) one screen
+ * (`viewportH`), else null.
+ */
+export function readMineHint(uid: string | null | undefined, width: number, nowMs: number, viewportH: number): number | null {
   if (!uid) return null;
   const v = readStored();
   if (!v || v.u !== uid || nowMs - v.t > MINE_HINT_MAX_AGE_MS || v.t - nowMs > MINE_HINT_MAX_AGE_MS) return null;
   const px = v.h[widthKey(width)];
-  return validPx(px) ? Math.round(px) : null;
+  if (validPx(px)) return Math.round(px);
+  return validPx(viewportH) ? Math.round(viewportH) : null;
+}
+
+/**
+ * The hint's own timestamp for callers far from any page clock (the claim toast, the account menu's ownership read): the page's
+ * time origin plus elapsed time - the same wall time, read without the global clock (that is the clock-guard's concern for date
+ * logic; this is only a 60-day staleness check on a layout hint).
+ */
+export function hintNow(): number {
+  try {
+    return Math.round(performance.timeOrigin + performance.now());
+  } catch {
+    return 0;
+  }
+}
+
+/** This account owns packs (the server said so on this device): keep its heights, or start a record with none. Never throws. */
+export function writeMineOwner(uid: string | null | undefined, nowMs: number = hintNow()): void {
+  if (!uid) return;
+  try {
+    const prev = readStored();
+    const h = prev && prev.u === uid ? prev.h : {};
+    window.localStorage.setItem(MINE_HINT_KEY, JSON.stringify({ u: uid, t: nowMs, h }));
+  } catch {
+    /* nothing to do */
+  }
 }
 
 /** Remember My packs' settled height for this account at this width. Never throws. */
@@ -115,5 +147,7 @@ export const MINE_HINT_SCRIPT =
   ")||'null'),n=Date.now();if(!u||!v||v.u!==u||!v.h||Math.abs(n-v.t)>" +
   String(MINE_HINT_MAX_AGE_MS) +
   ")return;var p=v.h[String(Math.round(d.innerWidth))];if(!(typeof p==='number'&&p>0&&p<" +
+  String(MINE_HINT_MAX_PX) +
+  "))p=d.innerHeight;if(!(p>0&&p<" +
   String(MINE_HINT_MAX_PX) +
   "))return;p=Math.round(p);var s=document.currentScript&&document.currentScript.previousElementSibling;if(s){s.style.minHeight=p+'px';d.__ltMineHint={u:u,px:p}}}catch(e){}})();";

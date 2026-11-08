@@ -1,3 +1,4 @@
+import { writeMineOwner } from "./mineHint";
 import { useEffect, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import type { ClaimedItem } from "../../services/guestPay";
@@ -157,6 +158,8 @@ function close() {
 export function showPackReadyToast(items: ClaimedItem[], uid: string): void {
   try {
     if (!items.length || typeof document === "undefined" || typeof window === "undefined") return;
+    // BRIDGE-PANEL-1 round 3: a pack was just attached to this account on this device - the next /packs load reserves My packs' space.
+    if (items.some((i) => i.kind === "pack")) writeMineOwner(uid);
     wrapHistory();
     if (!host) {
       host = document.createElement("div");
