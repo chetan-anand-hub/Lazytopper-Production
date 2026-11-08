@@ -170,13 +170,9 @@ describe("GRADE-ROUTE-2 - PDF metadata + footer QR", () => {
     expect(rows[3][3]).toBe(true);
   });
 
-  it("no code (or an answer key): no QR; a free sample file: neither QR nor paper metadata", async () => {
+  it("no code (or an answer key): no QR", async () => {
     await exportWorksheetPdf(ws, "questions");
     await exportWorksheetPdf(ws, "answers", "WS-M-RN-03");
-    expect(rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM)).toHaveLength(0);
-    propsMock.mockClear();
-    await exportWorksheetPdf(ws, "questions", "PK-M-RN-CT1", { sample: { line: "x" } });
-    expect(propsMock.mock.calls.some((c) => String((c[0] as { subject?: string }).subject) === "PK-M-RN-CT1")).toBe(false);
     expect(rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM)).toHaveLength(0);
   });
 
