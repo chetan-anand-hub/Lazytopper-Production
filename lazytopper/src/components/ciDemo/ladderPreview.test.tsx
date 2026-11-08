@@ -168,7 +168,9 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     const block = container.querySelector(".ci-demo__verdict") as HTMLElement;
     expect(screen.getByTestId("one-min-verdict").textContent).toContain("✓ 1/1");
     expect(block.className).toContain("ci-demo__verdict--reserve");
-    expect(answered).toHaveBeenCalledTimes(1);
+    // The verdict and the analytics event at once; the page hand-over (which re-lays the page out) at the next input.
+    expect(H.one.mock.calls.filter((c) => c[0] === "one_min_tap_answered")).toHaveLength(1);
+    expect(answered).toHaveBeenCalledTimes(0);
     fireEvent.pointerDown(document.body);
     expect((container.querySelector(".ci-demo__verdict") as HTMLElement).className).not.toContain("ci-demo__verdict--reserve");
     expect(answered).toHaveBeenCalledTimes(1);
@@ -195,6 +197,7 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     (window as W).__ltStaticTap = { id: `one-min-opt-${right}`, bank: LIGHT };
     const answered = ladder();
     expect(screen.getByTestId("one-min-verdict").textContent).toContain("✓ 1/1");
+    fireEvent.pointerDown(document.body);
     expect(answered).toHaveBeenCalledTimes(1);
     expect(answered.mock.calls[0][0]).toMatchObject({ bankId: LIGHT, correct: true });
     expect((window as W).__ltStaticTap).toBeNull();
@@ -204,6 +207,7 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     (window as W).__ltStaticTap = { id: `one-min-opt-${wrong}`, bank: LIGHT };
     const answered = ladder();
     expect(screen.getByTestId("one-min-verdict").textContent).toContain("✗ 0/1");
+    cleanup(); // leaving the card hands the early tap over too: never lost
     expect(answered.mock.calls[0][0]).toMatchObject({ bankId: LIGHT, correct: false });
   });
 

@@ -189,11 +189,16 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   }, [mcq, picked]);
 
   const reported = useRef(false);
+  // The early tap's hand-over to the page (onAnswered) waits for the student's NEXT tap or key: the page answers it by
+  // laying itself out again (AD-LANDING-OFFER-1 removes the landing line), and seconds after the early tap that would be
+  // a counted layout shift; inside an input it is not (review of #1639, FU1). It is sent at once if the page is left or
+  // the card goes away first, so it is never lost. The verdict and the analytics event are not delayed.
+  const handOver = useRef<(() => void) | null>(null);
   useEffect(() => {
     if (early === null || !mcq || reported.current) return;
     reported.current = true;
     takeLadderTap(mcq.starter.bankId);
-    report(mcq, early);
+    report(mcq, early, true);
     // Once, for the early tap this mount started with.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -202,20 +207,38 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   // back is an input-led change (never counted as a layout shift).
   useEffect(() => {
     if (!reserve) return undefined;
-    const release = () => setReserve(false);
+    const flush = () => {
+      const send = handOver.current;
+      handOver.current = null;
+      send?.();
+    };
+    const release = () => {
+      setReserve(false);
+      flush();
+    };
+    const hidden = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
     document.addEventListener("pointerdown", release, true);
     document.addEventListener("keydown", release, true);
+    document.addEventListener("click", release, true);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", hidden);
     return () => {
       document.removeEventListener("pointerdown", release, true);
       document.removeEventListener("keydown", release, true);
+      document.removeEventListener("click", release, true);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", hidden);
+      flush();
     };
   }, [reserve]);
 
   /** The answered tap, recorded: unchanged ONE-MINUTE-1 behaviour (0 or full on the tap alone). */
-  function report(m: LoadedMcq, i: number) {
+  function report(m: LoadedMcq, i: number, later = false) {
     const ok = i === m.right;
     trackOneMinute("one_min_tap_answered", { correct: ok });
-    onAnswered({
+    const answer: LadderAnswer = {
       bankId: m.starter.bankId,
       subject: m.starter.subject,
       topicKey: m.topicKey,
@@ -223,7 +246,9 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       question: m.question,
       correct: ok,
       ...(ok ? {} : wrongPickFields(m.options, m.options[i], m.options[m.right])),
-    });
+    };
+    if (later) handOver.current = () => onAnswered(answer);
+    else onAnswered(answer);
   }
 
   if (!mcq) return <div className="ci-demo__ladder ci-demo__ladder--wait" data-testid="one-min-wait" aria-busy="true" />;
