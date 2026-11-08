@@ -20,8 +20,7 @@
 // chapter; the landing still gates on the chapter's own pool, so a chapter can never reach an
 // empty set even if the manifest were stale.
 
-import { useNavigate } from "react-router-dom";
-import { afterNextPaint } from "../../lib/afterNextPaint";
+import { useNavigateAfterPaint } from "../../lib/useNavigateAfterPaint";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { cbqChapterComingSoon } from "./cbqChapterManifest";
@@ -43,7 +42,7 @@ export interface CbqChapterPickerProps {
 }
 
 export function CbqChapterPicker({ open, onClose }: CbqChapterPickerProps) {
-  const navigate = useNavigate();
+  const navigateAfterPaint = useNavigateAfterPaint();
   return (
     <ChapterPickerModal
       open={open}
@@ -56,7 +55,7 @@ export function CbqChapterPicker({ open, onClose }: CbqChapterPickerProps) {
       isComingSoon={cbqChapterComingSoon}
       // SPEED-HUB-3: the dialog closes in the tap's own frame; the (possibly already-loaded)
       // practice page renders one frame later instead of blocking that paint.
-      onGo={(s, slug) => afterNextPaint(() => navigate(cbqLandingPath(s, slug)))}
+      onGo={(s, slug) => navigateAfterPaint(cbqLandingPath(s, slug))}
     />
   );
 }

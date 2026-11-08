@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES, isHabitOnlyEntry } from "../../lib/mistakeDisplay";
 import type { TypeMarks } from "../../services/meHomeSummary";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { trackSaleMoment } from "../../analytics/analytics";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
@@ -54,7 +54,7 @@ import {
   type LearningSignalMode,
 } from "../../lib/desktop/learningSignals";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
-import { afterNextPaint } from "../../lib/afterNextPaint";
+import { useNavigateAfterPaint } from "../../lib/useNavigateAfterPaint";
 import { EVIDENCE_BASE_YEARS } from "../../config/evidenceBase";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { subscriptFormulas } from "../../lib/chemSubscript";
@@ -684,11 +684,21 @@ function ModeCardImpl({
   extra,
 }: ModeCardProps) {
   const [hover, setHover] = useState(false);
+  // SPEED-HUB-3 (review F1) — the tapped card shows a pressed state in the tap's OWN frame (the
+  // route is pushed after that paint). An outline: no layout shift. Cleared after 2 s in case the
+  // navigation was cancelled (location changed first) and the hub stays on screen.
+  const [pressed, setPressed] = useState(false);
+  useEffect(() => {
+    if (!pressed) return;
+    const t = setTimeout(() => setPressed(false), 2000);
+    return () => clearTimeout(t);
+  }, [pressed]);
   const tone = MODE_ACCENT[accent];
   const disabled = !to;
   return (
     <article
       className="lt-mode-card"
+      data-pressed={pressed ? "true" : undefined}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
@@ -801,7 +811,10 @@ function ModeCardImpl({
         ) : (
           <button
             type="button"
-            onClick={() => onActivate(to)}
+            onClick={() => {
+              setPressed(true);
+              onActivate(to);
+            }}
             style={{
               appearance: "none",
               WebkitAppearance: "none",
@@ -1734,7 +1747,6 @@ function getQuickPracticeSolutionParts(question: PracticeQuestion): string[] {
 }
 
 export default function DesktopPracticePage() {
-  const navigate = useNavigate();
   const location = useLocation();
   const [params] = useSearchParams();
   const { user } = useAuth();
@@ -2297,30 +2309,19 @@ export default function DesktopPracticePage() {
         : `${scope.subject} · ${selectedTopic?.name ?? "pick a topic"}`;
 
   // SPEED-HUB-3 — stable callbacks / elements for the memoised children (same behaviour).
-  // A mode card's destination (Quick Practice, Worksheet, Important Questions, Full Test) may
-  // already be loaded — then navigating inside the tap rendered that whole page before the tap
-  // could paint (256-608 ms lab, 4x CPU). Navigate one frame later instead; a second tap in that
-  // frame is ignored so it can never push the route twice.
-  const pendingNavRef = useRef(false);
-  const navigateTo = useCallback(
-    (to: string) => {
-      if (pendingNavRef.current) return;
-      pendingNavRef.current = true;
-      afterNextPaint(() => {
-        pendingNavRef.current = false;
-        navigate(to);
-      });
-    },
-    [navigate],
-  );
+  // A mode card's destination (Quick Practice, Worksheet, Important Questions, Full Test) or a
+  // past session may already be loaded — then navigating inside the tap rendered that whole page
+  // before the tap could paint (144-248 ms INP lab, 4x CPU). The tapped card shows its pressed
+  // state in the tap's own frame and the route is pushed after that paint: once per gesture, and
+  // never if the hub unmounts or the location changes first (useNavigateAfterPaint).
+  const navigateTo = useNavigateAfterPaint();
   const openCbqPicker = useCallback(() => setCbqPickerOpen(true), []);
   const openCtPicker = useCallback(() => setCtPickerOpen(true), []);
   const closeCbqPicker = useCallback(() => setCbqPickerOpen(false), []);
   const closeCtPicker = useCallback(() => setCtPickerOpen(false), []);
   const openQuickPracticeReview = useCallback(
-    (r: Parameters<typeof buildQuickPracticeReviewHref>[0]) =>
-      afterNextPaint(() => navigate(buildQuickPracticeReviewHref(r))),
-    [navigate],
+    (r: Parameters<typeof buildQuickPracticeReviewHref>[0]) => navigateTo(buildQuickPracticeReviewHref(r)),
+    [navigateTo],
   );
   const quickPracticeExtra = useMemo(
     () => (
@@ -3392,6 +3393,14 @@ export default function DesktopPracticePage() {
             scrollbar-width: none;
           }
           .lt-mode-grid::-webkit-scrollbar { height: 0; }
+          /* SPEED-HUB-3 — pressed feedback, painted in the tap's own frame (outline: no layout shift). */
+          .lt-mode-card[data-pressed="true"] {
+            outline: 2px solid hsla(222, 47%, 24%, 0.45);
+            outline-offset: -2px;
+          }
+          .lt-mode-card[data-pressed="true"] button {
+            opacity: 0.7;
+          }
           .lt-mode-grid > .lt-mode-card {
             scroll-snap-align: center;
             flex: 0 0 calc(100% - 26px);

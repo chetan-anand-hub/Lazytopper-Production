@@ -14,7 +14,12 @@ const { auth } = vi.hoisted(() => ({ auth: { user: null as null | { uid: string;
 // SPEED-HUB-3: the hub's CTAs navigate one frame after the tap (afterNextPaint). This suite pins
 // WHERE they go, not when, so the deferral runs inline here; the timing is pinned in
 // afterNextPaint.test.ts and DesktopPracticePage.multiTopicNav.test.tsx.
-vi.mock("../../lib/afterNextPaint", () => ({ afterNextPaint: (fn: () => void) => fn() }));
+vi.mock("../../lib/afterNextPaint", () => ({
+  afterNextPaint: (fn: () => void) => {
+    fn();
+    return () => {};
+  },
+}));
 vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({ user: auth.user, loading: false }),
 }));
