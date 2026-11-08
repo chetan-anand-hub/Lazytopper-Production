@@ -49,6 +49,9 @@ export interface QuickPracticeGradedSheet {
   coaching: string;
   /** The sheet header's surface word (the shared doc defaults to "Worksheet"). */
   kindLabel: string;
+  /** SHEET-HEADER-1 — when the set was marked (the caller's `createdAt`: the record's `gradedAt` on a
+   *  reopen, the scorecard's own moment on the live set). The header prints this date. */
+  gradedAt: string;
 }
 
 /** The header word on a Quick Practice sheet. */
@@ -192,6 +195,7 @@ export function buildQuickPracticeGradedSheet(args: {
     code,
     coaching,
     kindLabel: QUICK_PRACTICE_SHEET_KIND,
+    gradedAt: createdAt,
   };
 }
 
