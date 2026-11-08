@@ -598,6 +598,8 @@ async function lowerCurtain(): Promise<void> {
   let seen = false;
   // Settled: the height held for 2 polls (100 ms) and the reader's text is in the app (or held ~1 s without it).
   while (Date.now() < end && !(stable >= 2 && (seen || stable >= 20))) {
+    // The curtain can go while this waits (finish() from a timeout, a failure): nothing left to lower.
+    if (!curtain) return;
     const height = root.scrollHeight;
     seen = !!findAnchor(readingAnchor(curtain), root);
     stable = height === last ? stable + 1 : 0;
@@ -686,10 +688,15 @@ const READY_TIMEOUT_MS = 30_000;
 const MOUNT_TIMEOUT_MS = 6_000;
 const FIND_TIMEOUT_MS = 6_000;
 
-function pollReady(startedAt: number, loadedAt: () => number): void {
-  if (failed) return;
+/** Bumped by the test seam: a poll from an earlier boot never completes a later one. */
+let epoch = 0;
+
+function pollReady(startedAt: number, loadedAt: () => number, at: number = epoch): void {
+  if (failed || finished || at !== epoch) return;
   if (routeIsReady()) {
-    window.requestAnimationFrame(() => window.setTimeout(() => void complete(), 0));
+    window.requestAnimationFrame(() => window.setTimeout(() => {
+      if (at === epoch) void complete();
+    }, 0));
     return;
   }
   const now = Date.now();
@@ -702,7 +709,7 @@ function pollReady(startedAt: number, loadedAt: () => number): void {
     void complete(); // the app is up but its route never said so: show it, as before
     return;
   }
-  window.setTimeout(() => pollReady(startedAt, loadedAt), 80);
+  window.setTimeout(() => pollReady(startedAt, loadedAt, at), 80);
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
@@ -842,6 +849,7 @@ function hold(el: Element): void {
 
 /** Test seam: forget every module-level state (each test boots a fresh island). */
 export function __resetIslandForTests(): void {
+  epoch += 1;
   while (upgradeCleanups.length > 0) (upgradeCleanups.pop() as () => void)();
   while (cleanups.length > 0) (cleanups.pop() as () => void)();
   config = null;
