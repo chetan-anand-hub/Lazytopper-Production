@@ -97,6 +97,7 @@ import {
   CHECK_IMPROVE_ROUTE_MODULE,
   CI_DEMO_PLACEHOLDER_HTML,
   buildCheckImprovePaintPage,
+  firstCardProblems,
   checkImprovePaintConfig,
   checkImprovePaintDecisionSource,
   composeRouteShell,
@@ -947,6 +948,9 @@ export interface PaintParityResult {
   /** null when nothing is shown (`off`); otherwise whether the shown DOM equals React's first commit. */
   equal: boolean | null;
   detail?: string;
+  /** SPEED-CI-2 (/check-improve): the static demo card shown, and the one the case expects. */
+  demo?: string;
+  expectDemo?: string;
 }
 
 /** Text every capture of a state must carry, and text it must not. */
@@ -1023,6 +1027,7 @@ export function validatePaintCaptures(
     if (r.decided !== r.expect) failures.push(`[paint] parity "${r.name}": decided ${r.decided}, expected ${r.expect}`);
     if (r.shown !== r.decided) failures.push(`[paint] parity "${r.name}": decided ${r.decided} but the shipped apply left ${r.shown}`);
     if (r.equal === false) failures.push(`[paint] parity "${r.name}": the static ${r.shown} differs from React's first commit${r.detail ? ` — ${r.detail}` : ""}`);
+    if (r.expectDemo !== undefined && r.demo !== r.expectDemo) failures.push(`[paint] parity "${r.name}": demo card ${r.demo}, expected ${r.expectDemo}`);
   }
   return failures;
 }
@@ -1045,18 +1050,24 @@ export interface CiCase {
   /** Seed storage before the load: a prior real visit (same context, other tab), or explicit keys. */
   seed?: "prior-visit" | { session?: Record<string, string>; local?: Record<string, string> };
   expect: "door" | "off";
+  /** SPEED-CI-2: a door's demo card — the first-visit card (fixed question) or today's placeholder. */
+  expectDemo?: "first" | "placeholder";
 }
 
 const CI_PHONE = { width: 390, height: 844, touch: true, userAgent: PAINT_USER_AGENTS.phone, served: "mobile" as const };
 const CI_DESKTOP = { width: 1280, height: 900, touch: false, userAgent: PAINT_USER_AGENTS.desktop, served: "desktop" as const };
 
 export const CI_PARITY_CASES: readonly CiCase[] = [
-  { name: "ci phone 390", ...CI_PHONE, search: "", expect: "door" },
-  { name: "ci phone 360, Google ads params", ...CI_PHONE, width: 360, height: 740, search: "?utm_source=google&utm_medium=cpc&utm_campaign=ci&gclid=x1", expect: "door" },
-  { name: "ci phone, returning signed-out visitor", ...CI_PHONE, search: "", seed: "prior-visit", expect: "door" },
-  { name: "ci desktop 1280", ...CI_DESKTOP, search: "", expect: "door" },
-  { name: "ci desktop 1440, YouTube params", ...CI_DESKTOP, width: 1440, search: "?utm_source=youtube&utm_medium=video&utm_content=a", expect: "door" },
-  { name: "ci desktop, returning signed-out visitor", ...CI_DESKTOP, search: "", seed: "prior-visit", expect: "door" },
+  { name: "ci phone 390", ...CI_PHONE, search: "", expect: "door", expectDemo: "first" },
+  { name: "ci phone 360, Google ads params", ...CI_PHONE, width: 360, height: 740, search: "?utm_source=google&utm_medium=cpc&utm_campaign=ci&gclid=x1", expect: "door", expectDemo: "first" },
+  { name: "ci phone, returning signed-out visitor", ...CI_PHONE, search: "", seed: "prior-visit", expect: "door", expectDemo: "placeholder" },
+  { name: "ci desktop 1280", ...CI_DESKTOP, search: "", expect: "door", expectDemo: "first" },
+  { name: "ci desktop 1440, YouTube params", ...CI_DESKTOP, width: 1440, search: "?utm_source=youtube&utm_medium=video&utm_content=a", expect: "door", expectDemo: "first" },
+  { name: "ci desktop, returning signed-out visitor", ...CI_DESKTOP, search: "", seed: "prior-visit", expect: "door", expectDemo: "placeholder" },
+  // SPEED-CI-2: a Science ad opens on the same fixed starter; a CBQ ad (no ladder) keeps the placeholder.
+  { name: "ci phone, Science ad (subject hint)", ...CI_PHONE, search: "?utm_source=youtube&utm_content=sci_light", expect: "door", expectDemo: "first" },
+  { name: "ci phone, CBQ ad", ...CI_PHONE, search: "?utm_source=youtube&utm_content=cbq_short", expect: "door", expectDemo: "placeholder" },
+  { name: "ci desktop, ladder seen in an earlier visit", ...CI_DESKTOP, search: "", seed: { local: { "lazytopper.ciLadder.seen.v1": "1" } }, expect: "door", expectDemo: "placeholder" },
   { name: "ci parent share link", ...CI_PHONE, search: "?utm_source=parent_share", expect: "off" },
   { name: "ci ?review= code", ...CI_DESKTOP, search: "?review=AB12CD", expect: "off" },
   { name: "ci ?from=for_parents", ...CI_PHONE, search: "?from=for_parents", expect: "off" },
@@ -1085,7 +1096,10 @@ export function validateCheckImproveCapture(c: PaintCapture, tag: string): strin
   if (c.html.split('<template data-lt-route="start"></template>').length !== 2) failures.push(`${tag}: not exactly one route start mark`);
   if (c.html.split('<template data-lt-route="end"></template>').length !== 2) failures.push(`${tag}: not exactly one route end mark`);
   if (c.html.includes(`${PAINT_ATTR}=`)) failures.push(`${tag}: React's own DOM carries ${PAINT_ATTR}`);
-  if (c.html.split(CI_DEMO_PLACEHOLDER_HTML).length !== 2) failures.push(`${tag}: the demo card is not exactly its placeholder (its question is per visit)`);
+  // SPEED-CI-2: the capture records the FIRST-VISIT card (the fixed starter); the script swaps today's placeholder in
+  // for a returning visitor or a CBQ ad, so the placeholder itself must not be captured.
+  for (const problem of firstCardProblems(c.html)) failures.push(`${tag}: ${problem}`);
+  if (c.html.includes(CI_DEMO_PLACEHOLDER_HTML)) failures.push(`${tag}: carries the demo placeholder`);
   if (c.htmlWithApis !== c.html) {
     failures.push(`${tag}: the static state DEPENDS ON A RUNTIME API RESPONSE (or is not deterministic) — ${firstDifference(c.html, c.htmlWithApis)}`);
   }
@@ -1258,6 +1272,7 @@ async function runCheckImproveParity(
       });
       const decided = r.decision ? r.decision.kind : "none";
       const shown = r.s === "" ? "off" : "door";
+      const demo = shown === "off" ? undefined : r.s.includes("data-ci-first") ? "first" : r.s.includes(CI_DEMO_PLACEHOLDER_HTML) ? "placeholder" : "none";
       const a = withoutRouteTemplates(r.s);
       const b = withoutRouteTemplates(r.rr);
       const equal = shown === "off" ? null : a === b;
@@ -1268,6 +1283,8 @@ async function runCheckImproveParity(
         shown,
         equal,
         detail: equal === false ? firstDifference(a, b) : r.decision?.reason,
+        demo,
+        expectDemo: kase.expectDemo,
       });
     } catch (error: unknown) {
       results.push({ name: kase.name, expect: kase.expect, decided: "none", shown: "none", equal: false, detail: String(error) });

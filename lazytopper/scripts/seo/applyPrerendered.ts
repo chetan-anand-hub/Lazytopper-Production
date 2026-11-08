@@ -56,6 +56,7 @@ import {
   CHECK_IMPROVE_ROUTE_MODULE,
   buildCheckImprovePaintPage,
   checkImprovePaintConfig,
+  firstCardProblems,
 } from "./checkImprovePaint";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -1058,6 +1059,9 @@ export function verifyPaintPages(
           failures.push(`${tag} lacks the route marks main.tsx extracts`);
         }
         if (!/<style data-lt-inline="DesktopCheckImprovePage-[A-Za-z0-9_-]{8}\.css">/.test(html)) failures.push(`${tag} lacks the route's inlined CSS`);
+        // SPEED-CI-2: the first-visit demo card (the fixed question) is painted, styled by the inlined route CSS.
+        for (const problem of firstCardProblems(html)) failures.push(`${tag}: ${problem}`);
+        if (!/<style data-lt-inline="[^"]*">[^<]*\.ci-demo__ladder-q\b/.test(html)) failures.push(`${tag}: the inlined route CSS lacks the demo card's styles`);
       }
       if (html.includes('<link rel="stylesheet" crossorigin href="/assets/index-') && !html.includes(DEFERRED_CSS_ATTR)) {
         failures.push(`${tag} still loads the entry stylesheet render-blocking`);
