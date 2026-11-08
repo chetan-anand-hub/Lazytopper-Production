@@ -199,7 +199,8 @@ export default function MyPacksBridge({ packs, paidPass, titleOf, onOpenFiles }:
   const hasPapers = groups.length > 0;
   if (!first && !hasPapers && paidPass) return null;
   return (
-    <div className={`lt-pb${paidPass ? " lt-pb--nopass" : ""}`} data-testid="packs-bridge">
+    <div className={`lt-pb${paidPass ? " lt-pb--nopass" : ""}${!first && !hasPapers ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">
+      {(first || hasPapers) && (
       <div className="lt-pb__main">
         {first && <FirstMarkedCard first={first} />}
         {hasPapers && (
@@ -207,11 +208,11 @@ export default function MyPacksBridge({ packs, paidPass, titleOf, onOpenFiles }:
             <div className="lt-pb__intro">
               <h3 className="lt-pb__h">{BRIDGE_COPY.heading}</h3>
               <p className="lt-pb__p">
-                {BRIDGE_COPY.intro} {BRIDGE_COPY.free}{" "}
-                <a className="lt-pb__sample" href={BRIDGE_SAMPLE_PDF_PATH} target="_blank" rel="noopener" data-testid="packs-bridge-sample">
-                  {BRIDGE_COPY.sample}
-                </a>
+                {BRIDGE_COPY.intro} {BRIDGE_COPY.free}
               </p>
+              <a className="lt-pb__sample" href={BRIDGE_SAMPLE_PDF_PATH} target="_blank" rel="noopener" data-testid="packs-bridge-sample">
+                {BRIDGE_COPY.sample}
+              </a>
             </div>
             {groups.map((g) => (
               <PackPapers key={g.pack.packId} group={g} title={groups.length > 1 ? titleOf(g.pack) : null} onOpenFiles={onOpenFiles} />
@@ -219,6 +220,7 @@ export default function MyPacksBridge({ packs, paidPass, titleOf, onOpenFiles }:
           </>
         )}
       </div>
+      )}
       {!paidPass && <BoardPassCard />}
     </div>
   );

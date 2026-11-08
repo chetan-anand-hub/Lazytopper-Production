@@ -39,10 +39,10 @@
 .lt-packs .lt-pb__btns { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* intro + rows */
-.lt-packs .lt-pb__intro { display: flex; flex-direction: column; gap: 8px; }
+.lt-packs .lt-pb__intro { display: flex; flex-direction: column; gap: 4px; }
 .lt-packs .lt-pb .lt-pb__h { font-family: var(--pk-sans); font-size: 15px; font-weight: 700; letter-spacing: 0; line-height: 1.3; }
 .lt-packs .lt-pb__p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--pb-ink2); }
-.lt-packs .lt-pb a.lt-pb__sample { display: inline-block; padding: 12px 0; margin: -12px 0; font-weight: 600; white-space: nowrap; }
+.lt-packs .lt-pb a.lt-pb__sample { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; font-weight: 600; }
 .lt-packs .lt-pb__pack { display: flex; flex-direction: column; gap: 8px; }
 .lt-packs .lt-pb .lt-pb__packname { font-family: var(--pk-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--pb-ink3); }
 .lt-packs .lt-pb__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -78,5 +78,7 @@
 @media (min-width: 1024px) {
   .lt-packs .lt-pb { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; padding: 24px; }
   .lt-packs .lt-pb--nopass { grid-template-columns: minmax(0, 1fr); }
+  /* Only the Board Pass card (a CBQ pack before its papers have codes): one centred column, never an empty left column. */
+  .lt-packs .lt-pb--passonly { grid-template-columns: minmax(0, 520px); justify-content: start; }
   .lt-packs .lt-pb__rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
