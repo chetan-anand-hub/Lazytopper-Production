@@ -31,6 +31,7 @@ import { buildPaperQrMatrix, drawPaperQr, PAPER_QR_MM } from "./paperQr";
 export { buildPaperQrMatrix, PAPER_QR_MM };
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { PrintCoverProps } from "./PrintCover";
+import type { BridgePagesData } from "../../lib/packs/packBridge";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
 type Doc = import("jspdf").jsPDF;
@@ -172,6 +173,11 @@ export interface WorksheetPdfOptions {
    * so it is drawn as an image: the rupee sign is not in the PDF font). Used only by the sample generator script.
    */
   sample?: { line: string; meta?: string };
+  /**
+   * BRIDGE-PDF-1 - pages 2 and 3 of a PURCHASED pack file ("Get this paper marked like a CBSE examiner" + the sample scorecard),
+   * placed right after the cover. Only with a cover and never on a sample. buildPackFiles passes it only on the buyer's download.
+   */
+  bridge?: BridgePagesData;
 }
 
 interface CoreOptions extends WorksheetPdfOptions {
@@ -470,6 +476,9 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     });
   }
 
+  // BRIDGE-PDF-1: pages 2-3, right after the cover (only a paid file with a cover; never a sample).
+  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await renderBridgePages(opts.bridge, html2canvas) : [];
+
   return withHost(HOST_WIDTH, element, async (host) => {
     // Where a page may be cut, measured now (the laid-out DOM) and converted to canvas pixels after the capture.
     const atomsCss = collectPrintAtoms(host);
@@ -517,11 +526,16 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     );
     // A free sample is the document's FIRST page only (PACK-SAMPLE-1).
     const bodyPages = opts.sample ? 1 : Math.max(1, slices.length);
-    const offset = coverJpeg ? 1 : 0;
+    const offset = (coverJpeg ? 1 : 0) + bridgePages.length;
     const totalPages = bodyPages + offset;
 
     const brand = totalPages > 1 ? await loadBrandDataUrls() : null;
     if (coverJpeg) pdf.addImage(coverJpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+    for (const bp of bridgePages) {
+      pdf.addPage();
+      pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+      if (typeof pdf.link === "function") for (const l of bp.links) pdf.link(l.x, l.y, l.w, l.h, { url: l.url });
+    }
 
     for (let page = 0; page < bodyPages; page += 1) {
       // integer page edges taken from ONE rounding of each cut, so a page never drops or repeats a canvas pixel
@@ -545,6 +559,52 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     pdf.save(filename);
     return filename;
   });
+}
+
+type Html2Canvas = (typeof import("html2canvas"))["default"];
+interface BridgePageRaster {
+  jpeg: string;
+  /** Link areas in mm (A4), from the elements carrying data-pdf-link. */
+  links: Array<{ x: number; y: number; w: number; h: number; url: string }>;
+}
+
+/**
+ * BRIDGE-PDF-1 - rasterise pages 2 and 3 once per distinct content (a pack's files share them), as full-bleed A4 JPEGs. A failure
+ * here never costs the student the paper: it resolves to no pages and the file is produced as before.
+ */
+const bridgeCache = new Map<string, Promise<BridgePageRaster[]>>();
+async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas): Promise<BridgePageRaster[]> {
+  const key = JSON.stringify(data);
+  const hit = bridgeCache.get(key);
+  if (hit) return hit;
+  const job = (async (): Promise<BridgePageRaster[]> => {
+    try {
+      const mod = await import("./PrintBridgePages");
+      const { BRIDGE_SAMPLE_PDF_URL, BRIDGE_PRICING_URL, BRIDGE_PACKS_URL } = await import("../../lib/packs/packBridge");
+      const links = { packs: BRIDGE_PACKS_URL, pricing: BRIDGE_PRICING_URL, sample: BRIDGE_SAMPLE_PDF_URL };
+      const out: BridgePageRaster[] = [];
+      for (const Page of [mod.PrintBridgeMarkPage, mod.PrintBridgeViewsPage]) {
+        out.push(
+          await withHost(mod.BRIDGE_W, createElement(Page, { data, links }), async (h) => {
+            const box = h.getBoundingClientRect();
+            const mm = PAGE_W / mod.BRIDGE_W;
+            const areas = Array.from(h.querySelectorAll<HTMLElement>("[data-pdf-link]")).map((el) => {
+              const r = el.getBoundingClientRect();
+              return { x: (r.left - box.left) * mm, y: (r.top - box.top) * mm, w: r.width * mm, h: r.height * mm, url: el.dataset.pdfLink ?? "" };
+            });
+            const c = await html2canvas(h, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: mod.BRIDGE_W });
+            return { jpeg: c.toDataURL("image/jpeg", 0.85), links: areas.filter((a) => a.url && a.w > 0 && a.h > 0) };
+          }),
+        );
+      }
+      return out;
+    } catch {
+      bridgeCache.delete(key);
+      return [];
+    }
+  })();
+  bridgeCache.set(key, job);
+  return job;
 }
 
 /** "20 Jun 2026" from the sheet's ISO date; "" when it is missing or unreadable. */
@@ -576,7 +636,7 @@ export async function exportWorksheetPdf(
   const filename = opts?.filename || `lazytopper-${slug(ws.title)}-${codeToken(code)}${suffix}.pdf`;
   const renderSolutionFigure = kind === "answers" ? await loadSolutionFigureRenderer() : undefined;
   return renderElementToPdf(
-    createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee }),
+    createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee, packFile: Boolean(opts?.licensee) && !opts?.sample }),
     filename,
     {
       ...opts,
