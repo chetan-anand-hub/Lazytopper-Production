@@ -221,7 +221,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
       const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
       const bridge: BridgePagesData | undefined =
         ctx.bridge && spec.bridge && papers.length > 0
-          ? { packLabel: spec.bridge.packLabel, exampleCode: papers[0].reg.code, boardPassCard: !ctx.bridge.paidBoardPass }
+          ? { packLabel: spec.bridge.packLabel, exampleCode: papers[0].reg.code, boardPassCard: ctx.bridge.paidBoardPass === false }
           : undefined;
       const opts: ExportOpts = {
         licensee: { name: ctx.licensee.name, email: licenseeContact(ctx.licensee), orderId: spec.orderRef },
