@@ -28,7 +28,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } from "node:
 import { tmpdir } from "node:os";
 import { SPA_SHELL, applyPaintShells, verifyPaintPages } from "../../scripts/seo/applyPrerendered";
 import { paintFragmentPathFor, PAINT_DIR } from "../../scripts/seo/loginPaint";
-import { CI_LADDER_SEEN_KEY, ciFirstCardExpectation, firstCardProblems } from "../../scripts/seo/checkImprovePaint";
+import { CI_FIRST_STARTER, CI_LADDER_SEEN_KEY, ciFirstCardExpectation, firstCardProblems } from "../../scripts/seo/checkImprovePaint";
 import { LADDER_SEEN_KEY } from "../components/ciDemo/ladderVisit";
 import { fixedStarter } from "../components/ciDemo/oneMinuteStarters";
 import { CI_PARITY_CASES } from "../../scripts/seo/captureStaticBodies";
@@ -525,6 +525,7 @@ describe("SPEED-CI-2 — the demo card in the static paint", () => {
     expect(CI_LADDER_SEEN_KEY).toBe(LADDER_SEEN_KEY);
     expect(CI_LOCAL_ALLOW[LADDER_SEEN_KEY]).toEqual(["1"]);
     expect(ciFirstCardExpectation().bank).toBe(fixedStarter(null).bankId);
+    expect(CI_FIRST_STARTER).toBe(fixedStarter(null).bankId);
     expect(fixedStarter("Science").bankId).toBe(fixedStarter(null).bankId);
   });
 

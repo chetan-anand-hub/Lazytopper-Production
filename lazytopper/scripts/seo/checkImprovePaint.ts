@@ -34,7 +34,6 @@
  */
 
 import { inAppBrowser } from "../../src/utils/inAppBrowser";
-import { fixedStarter } from "../../src/components/ciDemo/oneMinuteStarters";
 import { STARTER_ROWS } from "../../src/components/ciDemo/oneMinuteStarterRows";
 import {
   PAINT_ATTR,
@@ -386,12 +385,17 @@ export const CI_DEMO_PLACEHOLDER_HTML = '<div class="ci-demo-ph" data-testid="ci
  * door is only ever "first" for no hint or a Science hint (a Maths hint is a CBQ ad: placeholder), and both open on
  * the overall top starter, so ONE card serves every first-visit door.
  */
+export const CI_FIRST_STARTER = "PYQ-S-2024-LIGHT-003";
+
+/**
+ * The fixed starter's id is named here, not computed: oneMinuteStarters.ts reaches the app's React graph, which this
+ * node-side file must not import (tsconfig.node). checkImprovePaint.guard.test.ts asserts it equals
+ * `fixedStarter(null)` and `fixedStarter("Science")`, so a weightage change fails a test, never a student.
+ */
 export function ciFirstCardExpectation(): { bank: string; question: string } {
-  const starter = fixedStarter(null);
-  if (fixedStarter("Science").bankId !== starter.bankId) {
-    throw new Error("checkImprovePaint: the Science first starter is not the overall one; the static door would need a second card");
-  }
-  return { bank: starter.bankId, question: STARTER_ROWS[starter.bankId].question };
+  const row = STARTER_ROWS[CI_FIRST_STARTER];
+  if (!row) throw new Error(`checkImprovePaint: ${CI_FIRST_STARTER} has no copied starter row`);
+  return { bank: CI_FIRST_STARTER, question: row.question };
 }
 
 /** Problems with the demo card of a captured (or built) static state. Empty = good. */
