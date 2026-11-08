@@ -453,6 +453,7 @@
     "src/components/ciDemo/ciDemo.component.test.tsx",
     "src/components/ciDemo/friendChallenge.test.tsx",
     "src/components/ciDemo/ladderPreview.test.tsx",
+    "src/components/ciDemo/ladderSettle.test.tsx",
     "src/components/ciDemo/oneMinuteLadder.saleMoment.test.tsx",
     "src/components/ciDemo/oneMinuteLadder.test.tsx",
     "src/components/ciDemo/useClearBottomNav.test.ts",
