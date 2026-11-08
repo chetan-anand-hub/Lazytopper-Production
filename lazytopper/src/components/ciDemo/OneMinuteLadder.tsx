@@ -107,8 +107,14 @@ export interface OneMinuteLadderProps {
   hint: DesktopSubject | null;
   /** Byte's line for this moment (the card voices it). */
   onLine: (line: string, mood: "tap" | "right" | "wrong") => void;
-  /** The tap happened (signed in: the page records it as an MCQ attempt). */
-  onAnswered: (a: LadderAnswer) => void;
+  /**
+   * The tap happened (signed in: the page records it as an MCQ attempt). SPEED-CI-2: `early` = the tap was made before
+   * the ladder was in (static page / preview); the page records it at once but leaves its LAYOUT as it is until
+   * `onSettled` (the student's next tap or key), so nothing moves seconds after the tap.
+   */
+  onAnswered: (a: LadderAnswer, meta?: { early: true }) => void;
+  /** SPEED-CI-2: after an early tap, the student's next tap / key has completed: the page may lay itself out again. */
+  onSettled?: () => void;
   /** "Now a 2-mark one": hand on to step 2. */
   onNext: (starter: OneMinuteStarter) => void;
   /** "Or watch me mark a board answer": the existing sample picker. */
@@ -119,7 +125,7 @@ export interface OneMinuteLadderProps {
   onUnavailable: () => void;
 }
 
-export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable, onMore }: OneMinuteLadderProps) {
+export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable, onMore, onSettled }: OneMinuteLadderProps) {
   // SPEED-CI-2 (owner ruling 8 Nov 2026): a browser's FIRST ladder opens with the fixed top-weightage starter (the
   // Answer Checker's static paint draws that same question before the app runs); every later visit picks per visit.
   const starter = useMemo(() => (isFirstLadderVisit() ? fixedStarter(hint) : pickStarter(hint, visitSeed())), [hint]);
@@ -189,11 +195,11 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   }, [mcq, picked]);
 
   const reported = useRef(false);
-  // The early tap's hand-over to the page (onAnswered) waits for the student's NEXT tap or key: the page answers it by
-  // laying itself out again (AD-LANDING-OFFER-1 removes the landing line), and seconds after the early tap that would be
-  // a counted layout shift; inside an input it is not (review of #1639, FU1). It is sent at once if the page is left or
-  // the card goes away first, so it is never lost. The verdict and the analytics event are not delayed.
-  const handOver = useRef<(() => void) | null>(null);
+  // SPEED-CI-2 (reviews of #1639, FU1 + B3): an early tap is RECORDED at once (onAnswered, `early`), and the only
+  // thing that waits is layout: the reserved verdict box and the page's landing line (hidden in place meanwhile, by
+  // CSS) are given back AFTER the student's next tap or key has COMPLETED (click / keyup, then a task) — never on
+  // pointerdown (that would move the very thing being tapped, or start with a scroll) — still inside the input's
+  // 500 ms window, so it is not a counted layout shift. Leaving the card settles it too.
   useEffect(() => {
     if (early === null || !mcq || reported.current) return;
     reported.current = true;
@@ -203,39 +209,36 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The reserve holds the verdict block's final height until the student's next tap or key, when giving the space
-  // back is an input-led change (never counted as a layout shift).
+  const settle = useRef(onSettled);
+  settle.current = onSettled;
   useEffect(() => {
     if (!reserve) return undefined;
-    const flush = () => {
-      const send = handOver.current;
-      handOver.current = null;
-      send?.();
-    };
-    const release = () => {
+    let timer: number | undefined;
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
       setReserve(false);
-      flush();
+      settle.current?.();
     };
-    const hidden = () => {
-      if (document.visibilityState === "hidden") flush();
+    const after = () => {
+      if (timer === undefined) timer = window.setTimeout(finish, 0);
     };
-    document.addEventListener("pointerdown", release, true);
-    document.addEventListener("keydown", release, true);
-    document.addEventListener("click", release, true);
-    window.addEventListener("pagehide", flush);
-    document.addEventListener("visibilitychange", hidden);
+    document.addEventListener("click", after);
+    document.addEventListener("keyup", after);
     return () => {
-      document.removeEventListener("pointerdown", release, true);
-      document.removeEventListener("keydown", release, true);
-      document.removeEventListener("click", release, true);
-      window.removeEventListener("pagehide", flush);
-      document.removeEventListener("visibilitychange", hidden);
-      flush();
+      document.removeEventListener("click", after);
+      document.removeEventListener("keyup", after);
+      if (timer !== undefined) window.clearTimeout(timer);
+      if (!done) {
+        done = true;
+        settle.current?.();
+      }
     };
   }, [reserve]);
 
   /** The answered tap, recorded: unchanged ONE-MINUTE-1 behaviour (0 or full on the tap alone). */
-  function report(m: LoadedMcq, i: number, later = false) {
+  function report(m: LoadedMcq, i: number, early = false) {
     const ok = i === m.right;
     trackOneMinute("one_min_tap_answered", { correct: ok });
     const answer: LadderAnswer = {
@@ -247,7 +250,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       correct: ok,
       ...(ok ? {} : wrongPickFields(m.options, m.options[i], m.options[m.right])),
     };
-    if (later) handOver.current = () => onAnswered(answer);
+    if (early) onAnswered(answer, { early: true });
     else onAnswered(answer);
   }
 

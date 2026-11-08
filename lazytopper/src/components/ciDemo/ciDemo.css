@@ -629,6 +629,13 @@
     min-height: 222px;
   }
 }
+/* B3/(b) (review of #1639): while an early tap's verdict box is held, the page's landing line right under the card is
+   hidden IN PLACE (same box, nothing moves): the verdict already carries the buying block, so it is never shown twice.
+   The page removes it once the student's next tap / key has completed (OneMinuteLadder onSettled). */
+.ci-demo:has(.ci-demo__verdict--reserve) + .lt-lo,
+.ci-demo:has(.ci-demo__verdict--reserve) + .lt-lo-slot {
+  visibility: hidden;
+}
 /* FU2: before the card is in, its × and the watch link cannot act yet: they look it (the option taps are kept). */
 .ci-demo[data-ci-first] .ci-demo__close,
 .ci-demo[data-ci-first] .ci-demo__link {

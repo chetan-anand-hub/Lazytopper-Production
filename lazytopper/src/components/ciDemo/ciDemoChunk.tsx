@@ -63,7 +63,9 @@ export interface CiDemoChunkProps {
   /** ONE-MINUTE-1 — Byte's "Check one answer" asked for the ladder: it leads whatever the arrival. */
   ladderForced?: boolean;
   /** ONE-MINUTE-1 step 1 — the tap was answered (the page records it as an MCQ attempt for a signed-in student). */
-  onLadderAnswered?: (a: LadderAnswer) => void;
+  onLadderAnswered?: (a: LadderAnswer, meta?: { early: true }) => void;
+  /** SPEED-CI-2 — after an EARLY tap, the student's next tap / key has completed: the page may change its layout. */
+  onLadderSettled?: () => void;
   /** ONE-MINUTE-1 step 2 — prefill the 2-mark question, seed its confirmed metadata, focus the Type box. */
   onLadderType?: (pick: CiDemoLadderPick) => void;
   /** FIVE-MORE-1: "5 more like this" under the tap verdict. */
@@ -97,7 +99,7 @@ function marginMark(awarded: number, max: number): string {
   return `${formatMarks(awarded)} of ${formatMarks(max)}`;
 }
 
-export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderType, onLadderMore }: CiDemoChunkProps) {
+export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderSettled, onLadderType, onLadderMore }: CiDemoChunkProps) {
   const [view, setView] = useState<View>({ name: "pick" });
   const [ladderOn, setLadderOn] = useState<boolean>(() => ladderLeads(uid, ladderForced));
   const [ladderSay, setLadderSay] = useState<{ line: string; mood: "tap" | "right" | "wrong" }>({ line: CI_DEMO_COPY.ladderHead, mood: "tap" });
@@ -213,7 +215,8 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
       <OneMinuteLadder
         hint={readCiDemoSubjectHint()}
         onLine={(l, mood) => setLadderSay({ line: l, mood })}
-        onAnswered={(a) => onLadderAnswered?.(a)}
+        onAnswered={(a, meta) => onLadderAnswered?.(a, meta)}
+        onSettled={() => onLadderSettled?.()}
         onNext={(st) => goType(st)}
         onMore={onLadderMore}
         onWatch={() => setLadderOn(false)}

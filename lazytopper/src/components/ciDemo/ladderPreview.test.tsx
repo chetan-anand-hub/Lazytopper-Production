@@ -160,21 +160,99 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     return answered;
   }
 
-  it("FU1: an early tap is the ladder's FIRST frame (no later update), inside the reserved box until the next input", () => {
+  it("FU1: an early tap is the ladder's FIRST frame (no later update) and is RECORDED at once; only the layout waits", () => {
     (window as W).__ltStaticTap = { id: `one-min-opt-${right}`, bank: LIGHT };
     const answered = vi.fn();
-    const { container } = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderAnswered={answered} />);
-    // Synchronous: the verdict is there in the render that replaced the preview.
-    const block = container.querySelector(".ci-demo__verdict") as HTMLElement;
+    const settled = vi.fn();
+    const { container } = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderAnswered={answered} onLadderSettled={settled} />);
+    // Synchronous: the verdict is there in the render that replaced the preview, inside the reserved box.
     expect(screen.getByTestId("one-min-verdict").textContent).toContain("✓ 1/1");
-    expect(block.className).toContain("ci-demo__verdict--reserve");
-    // The verdict and the analytics event at once; the page hand-over (which re-lays the page out) at the next input.
-    expect(H.one.mock.calls.filter((c) => c[0] === "one_min_tap_answered")).toHaveLength(1);
-    expect(answered).toHaveBeenCalledTimes(0);
-    fireEvent.pointerDown(document.body);
-    expect((container.querySelector(".ci-demo__verdict") as HTMLElement).className).not.toContain("ci-demo__verdict--reserve");
+    expect((container.querySelector(".ci-demo__verdict") as HTMLElement).className).toContain("ci-demo__verdict--reserve");
+    // (a) the attempt is handed to the page at once (marked early: the page keeps its layout), and counted once.
     expect(answered).toHaveBeenCalledTimes(1);
+    expect(answered.mock.calls[0][0]).toMatchObject({ bankId: LIGHT, correct: true });
+    expect(answered.mock.calls[0][1]).toEqual({ early: true });
     expect(H.one.mock.calls.filter((c) => c[0] === "one_min_tap_answered")).toHaveLength(1);
+    expect(settled).not.toHaveBeenCalled();
+  });
+
+  it("B3: the layout waits until the next tap / key has COMPLETED — never on pointerdown or a scroll — then gives the space back once", () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      (window as W).__ltStaticTap = { id: `one-min-opt-${wrong}`, bank: LIGHT };
+      const answered = vi.fn();
+      const settled = vi.fn();
+      const { container } = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderAnswered={answered} onLadderSettled={settled} />);
+      const reserved = () => (container.querySelector(".ci-demo__verdict") as HTMLElement).className.includes("ci-demo__verdict--reserve");
+      fireEvent.pointerDown(document.body);
+      fireEvent.touchStart(document.body);
+      fireEvent.scroll(window);
+      fireEvent.keyDown(document.body, { key: "Tab" });
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
+      expect(reserved()).toBe(true);
+      expect(settled).not.toHaveBeenCalled();
+      // The click's own handlers run first (the target is where it was); the layout changes in the next task.
+      fireEvent.click(document.body);
+      expect(reserved()).toBe(true);
+      expect(settled).not.toHaveBeenCalled();
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
+      expect(reserved()).toBe(false);
+      expect(settled).toHaveBeenCalledTimes(1);
+      fireEvent.click(document.body);
+      fireEvent.keyUp(document.body, { key: "a" });
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
+      expect(settled).toHaveBeenCalledTimes(1);
+      expect(answered).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("B3: a key that completes (keyup) settles too; leaving the card settles; a tap made on the ready ladder never waits", () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      (window as W).__ltStaticTap = { id: `one-min-opt-${right}`, bank: LIGHT };
+      const settled = vi.fn();
+      const first = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderSettled={settled} />);
+      fireEvent.keyUp(document.body, { key: "Enter" });
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
+      expect(settled).toHaveBeenCalledTimes(1);
+      first.unmount();
+      (window as W).__ltStaticTap = { id: `one-min-opt-${right}`, bank: LIGHT };
+      const left = vi.fn();
+      render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderSettled={left} />).unmount();
+      expect(left).toHaveBeenCalledTimes(1);
+      const normal = vi.fn();
+      const answered = vi.fn();
+      const { container } = render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut onLadderAnswered={answered} onLadderSettled={normal} />);
+      fireEvent.click(screen.getByTestId(`one-min-opt-${wrong}`));
+      expect(answered.mock.calls[0][1]).toBeUndefined();
+      expect((container.querySelector(".ci-demo__verdict") as HTMLElement).className).not.toContain("ci-demo__verdict--reserve");
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
+      expect(normal).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("(b) the page's landing line is hidden IN PLACE while the verdict box is held (no second offer line, no shift)", () => {
+    const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8");
+    expect(css).toMatch(/\.ci-demo:has\(\.ci-demo__verdict--reserve\) \+ \.lt-lo,\s*\.ci-demo:has\(\.ci-demo__verdict--reserve\) \+ \.lt-lo-slot \{\s*visibility: hidden;/);
+    const page = readFileSync(resolve(__dirname, "../../pages/desktop/DesktopCheckImprovePage.tsx"), "utf8");
+    // The landing line is the card's NEXT sibling (what the CSS relies on), and an early tap defers only its removal.
+    expect(page).toMatch(/<CiDemoCard[\s\S]*?\/>\s*\)\}\s*\{\/\*[^]*?\*\/\}\s*\{!overlay && ciDemo\.show && !ciMomentUid && !ladderAnsweredHere \? <LandingOffer variant="check" \/> : null\}/);
+    expect(page).toContain("if (!meta?.early) setLadderAnsweredHere(true);");
+    expect(page).toContain("onLadderSettled={ciLadderSettled}");
   });
 
   it("FU1: the preview holding a tap shows the same reserved boxes (the static guard inserts them too); FU2: × and watch look inert", () => {
@@ -207,7 +285,6 @@ describe("the early tap is answered by the ladder, 0 or full as today", () => {
     (window as W).__ltStaticTap = { id: `one-min-opt-${wrong}`, bank: LIGHT };
     const answered = ladder();
     expect(screen.getByTestId("one-min-verdict").textContent).toContain("✗ 0/1");
-    cleanup(); // leaving the card hands the early tap over too: never lost
     expect(answered.mock.calls[0][0]).toMatchObject({ bankId: LIGHT, correct: false });
   });
 

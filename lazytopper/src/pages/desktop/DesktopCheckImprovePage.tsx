@@ -1937,9 +1937,14 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   // ONE-MINUTE-1 step 1 — the tap is a real MCQ attempt for a signed-in student (the Practice card's own door and
   // identity, so "Tried practice" counts it once); nothing is persisted signed out. No mistake type: a tap has no working.
-  function ciLadderAnswered(a: LadderAnswer) {
+  function ciLadderAnswered(a: LadderAnswer, meta?: { early: true }) {
     reportFirstActionTap("answer_checker");
     recordLadderTap(user, a);
+    // SPEED-CI-2: a tap made before the card was in is recorded at once, but the landing line steps aside only once the
+    // student's next tap has completed (ciLadderSettled): seconds after the tap it would shift the page under them.
+    if (!meta?.early) setLadderAnsweredHere(true);
+  }
+  function ciLadderSettled() {
     setLadderAnsweredHere(true);
   }
 
@@ -3142,6 +3147,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             uid={ciMomentUid}
             ladderForced={ciDemo.ladderForced}
             onLadderAnswered={ciLadderAnswered}
+            onLadderSettled={ciLadderSettled}
             onLadderType={ciDemoLadderType}
             onLadderMore={ciLadderMore}
           />
