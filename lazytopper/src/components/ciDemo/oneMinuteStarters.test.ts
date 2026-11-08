@@ -12,7 +12,7 @@ import { class10TopicRegistry } from "../../data/class10TopicRegistry";
 import { class10ScienceTopicTrendList } from "../../data/class10ScienceTopicTrends";
 import { CI_DEMO_SAMPLES } from "./ciDemoSamples";
 import { STARTER_ROWS } from "./oneMinuteStarterRows";
-import { ONE_MINUTE_STARTERS, STARTER_WEIGHTAGE, correctIndex, pickStarter, visitSeed, whyLine } from "./oneMinuteStarters";
+import { ONE_MINUTE_STARTERS, STARTER_WEIGHTAGE, correctIndex, fixedStarter, pickStarter, visitSeed, whyLine } from "./oneMinuteStarters";
 
 type Row = Record<string, unknown>;
 
@@ -103,6 +103,17 @@ describe("ONE-MINUTE-1 pure rules", () => {
     expect(offered.size).toBe(5);
     expect(offered.has("PYQ-M-2024-ARC-001")).toBe(false);
     expect(Number.isInteger(visitSeed())).toBe(true);
+  });
+  it("SPEED-CI-2 fixedStarter: the hinted subject's top-weightage starter (all six with no hint), fixed", () => {
+    expect(fixedStarter(null).bankId).toBe("PYQ-S-2024-LIGHT-003");
+    expect(fixedStarter("Science").bankId).toBe("PYQ-S-2024-LIGHT-003");
+    expect(fixedStarter("Maths").bankId).toBe("PYQ-M-QE-002");
+    for (const hint of [null, "Maths", "Science"] as const) {
+      const pool = ONE_MINUTE_STARTERS.filter((s) => hint === null || s.subject === hint);
+      const top = Math.max(...pool.map((s) => STARTER_WEIGHTAGE[s.topicKey]));
+      expect(STARTER_WEIGHTAGE[fixedStarter(hint).topicKey]).toBe(top);
+      expect(fixedStarter(hint)).toBe(fixedStarter(hint));
+    }
   });
   it("correctIndex needs exactly one match", () => {
     expect(correctIndex(["a", "b", "c", "d"], "c")).toBe(2);

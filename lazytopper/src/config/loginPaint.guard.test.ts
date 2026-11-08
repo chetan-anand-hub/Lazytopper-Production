@@ -203,7 +203,9 @@ const SIGNING =
 
 const CI_DOOR =
   '<div style="padding-bottom: 60px;"><div class="lt-routenav lt-routenav--page" aria-hidden="true"><div class="lt-routenav__row lt-routenav__row--ghost"></div></div>' +
-  '<template data-lt-route="start"></template><div class="phone-shell"><h1>Answer Checker</h1><button type="button">Check my answer</button></div>' +
+  '<template data-lt-route="start"></template><div class="phone-shell"><h1>Answer Checker</h1><button type="button">Check my answer</button>' +
+  // SPEED-CI-2: the captured first-visit demo card (the fixed starter).
+  '<section class="ci-demo ci-demo--pick" data-ci-first="" data-ci-bank="PYQ-S-2024-LIGHT-003"><p class="ci-demo__ladder-q">The colour of light for which the refractive index of glass is minimum, is :</p></section></div>' +
   '<template data-lt-route="end"></template></div><div data-lt-bottomnav=""><button>Home</button></div>';
 
 describe("markTopLevel / the email-code slot", () => {

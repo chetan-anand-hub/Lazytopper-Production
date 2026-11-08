@@ -19,7 +19,9 @@ import { markLadderStart } from "./ladderClock";
 import { useClearBottomNav } from "./useClearBottomNav";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { LADDER_MORE_COPY } from "./ladderMoreCopy";
-import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
+import { correctIndex, fixedStarter, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
+import { isFirstLadderVisit, markLadderSeen, peekLadderTap, takeLadderTap } from "./ladderVisit";
+import { LadderMeta, LadderOptions, LadderQuestionText, ladderLetter } from "./LadderTapParts";
 import { STARTER_ROWS } from "./oneMinuteStarterRows";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { subscriptFormulas } from "../../lib/chemSubscript";
@@ -47,8 +49,6 @@ interface LoadedMcq {
   topicKey: string;
   topicName: string;
 }
-
-const LETTERS = ["A", "B", "C", "D"];
 
 /** SPEED-SITE-1a — the starter as the bank would give it, with no download; null if it has no copied row. */
 function starterFromRows(starter: OneMinuteStarter): LoadedMcq | null {
@@ -107,8 +107,14 @@ export interface OneMinuteLadderProps {
   hint: DesktopSubject | null;
   /** Byte's line for this moment (the card voices it). */
   onLine: (line: string, mood: "tap" | "right" | "wrong") => void;
-  /** The tap happened (signed in: the page records it as an MCQ attempt). */
-  onAnswered: (a: LadderAnswer) => void;
+  /**
+   * The tap happened (signed in: the page records it as an MCQ attempt). SPEED-CI-2: `early` = the tap was made before
+   * the ladder was in (static page / preview); the page records it at once but leaves its LAYOUT as it is until
+   * `onSettled` (the student's next tap or key), so nothing moves seconds after the tap.
+   */
+  onAnswered: (a: LadderAnswer, meta?: { early: true }) => void;
+  /** SPEED-CI-2: after an early tap, the student's next tap / key has completed: the page may lay itself out again. */
+  onSettled?: () => void;
   /** "Now a 2-mark one": hand on to step 2. */
   onNext: (starter: OneMinuteStarter) => void;
   /** "Or watch me mark a board answer": the existing sample picker. */
@@ -119,13 +125,21 @@ export interface OneMinuteLadderProps {
   onUnavailable: () => void;
 }
 
-export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable, onMore }: OneMinuteLadderProps) {
-  const starter = useMemo(() => pickStarter(hint, visitSeed()), [hint]);
+export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable, onMore, onSettled }: OneMinuteLadderProps) {
+  // SPEED-CI-2 (owner ruling 8 Nov 2026): a browser's FIRST ladder opens with the fixed top-weightage starter (the
+  // Answer Checker's static paint draws that same question before the app runs); every later visit picks per visit.
+  const starter = useMemo(() => (isFirstLadderVisit() ? fixedStarter(hint) : pickStarter(hint, visitSeed())), [hint]);
   // FRIEND-CHALLENGE-1 - a friend's link names one question; an id that resolves to no objective bank row is ignored.
   const [challengeId] = useState<string | null>(() => readChallengeParam());
   // SPEED-SITE-1a: no friend's challenge -> the copied row, on the first render (no bank download, no wait box).
   const [mcq, setMcq] = useState<LoadedMcq | null>(() => (challengeId ? null : starterFromRows(starter)));
-  const [picked, setPicked] = useState<number | null>(null);
+  // SPEED-CI-2: a tap made on THIS question before the ladder could answer (on the static paint or the preview) is the
+  // ladder's FIRST state, not a later update (review of #1639, FU1): the verdict renders in the very frame that replaces
+  // the preview, inside the boxes the early tap reserved (`ci-demo__verdict--reserve`), so nothing moves. It is scored
+  // exactly as a tap here (picked === right: 0 or full), reported once below. A friend's challenge never takes one.
+  const [early] = useState<number | null>(() => (challengeId || !mcq ? null : peekLadderTap(mcq.starter.bankId)));
+  const [picked, setPicked] = useState<number | null>(early);
+  const [reserve, setReserve] = useState(early !== null);
   const shown = useRef(false);
   const verdictRef = useRef<HTMLDivElement>(null);
   // LADDER-NAV-1: the verdict + "Now a 2-mark one" appear below the fold; bring them in once, clear of the BottomNav.
@@ -172,12 +186,73 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       shown.current = true;
       markLadderStart();
       trackOneMinute("one_min_tap_shown");
+      markLadderSeen();
     }
     if (picked === null) onLine(CI_DEMO_COPY.ladderHead, "tap");
     else if (picked === mcq.right) onLine(CI_DEMO_COPY.ladderRight, "right");
     else onLine(CI_DEMO_COPY.ladderWrong, "wrong");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcq, picked]);
+
+  const reported = useRef(false);
+  // SPEED-CI-2 (reviews of #1639, FU1 + B3): an early tap is RECORDED at once (onAnswered, `early`), and the only
+  // thing that waits is layout: the reserved verdict box and the page's landing line (hidden in place meanwhile, by
+  // CSS) are given back AFTER the student's next tap or key has COMPLETED (click / keyup, then a task) — never on
+  // pointerdown (that would move the very thing being tapped, or start with a scroll) — still inside the input's
+  // 500 ms window, so it is not a counted layout shift. Leaving the card settles it too.
+  useEffect(() => {
+    if (early === null || !mcq || reported.current) return;
+    reported.current = true;
+    takeLadderTap(mcq.starter.bankId);
+    report(mcq, early, true);
+    // Once, for the early tap this mount started with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const settle = useRef(onSettled);
+  settle.current = onSettled;
+  useEffect(() => {
+    if (!reserve) return undefined;
+    let timer: number | undefined;
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      setReserve(false);
+      settle.current?.();
+    };
+    const after = () => {
+      if (timer === undefined) timer = window.setTimeout(finish, 0);
+    };
+    document.addEventListener("click", after);
+    document.addEventListener("keyup", after);
+    return () => {
+      document.removeEventListener("click", after);
+      document.removeEventListener("keyup", after);
+      if (timer !== undefined) window.clearTimeout(timer);
+      if (!done) {
+        done = true;
+        settle.current?.();
+      }
+    };
+  }, [reserve]);
+
+  /** The answered tap, recorded: unchanged ONE-MINUTE-1 behaviour (0 or full on the tap alone). */
+  function report(m: LoadedMcq, i: number, early = false) {
+    const ok = i === m.right;
+    trackOneMinute("one_min_tap_answered", { correct: ok });
+    const answer: LadderAnswer = {
+      bankId: m.starter.bankId,
+      subject: m.starter.subject,
+      topicKey: m.topicKey,
+      topicName: m.topicName,
+      question: m.question,
+      correct: ok,
+      ...(ok ? {} : wrongPickFields(m.options, m.options[i], m.options[m.right])),
+    };
+    if (early) onAnswered(answer, { early: true });
+    else onAnswered(answer);
+  }
 
   if (!mcq) return <div className="ci-demo__ladder ci-demo__ladder--wait" data-testid="one-min-wait" aria-busy="true" />;
 
@@ -187,27 +262,13 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   function tap(i: number) {
     if (!mcq || done) return;
     setPicked(i);
-    const ok = i === mcq.right;
-    trackOneMinute("one_min_tap_answered", { correct: ok });
-    onAnswered({
-      bankId: mcq.starter.bankId,
-      subject: mcq.starter.subject,
-      topicKey: mcq.topicKey,
-      topicName: mcq.topicName,
-      question: mcq.question,
-      correct: ok,
-      ...(ok ? {} : wrongPickFields(mcq.options, mcq.options[i], mcq.options[mcq.right])),
-    });
+    report(mcq, i);
   }
 
   return (
     <div className="ci-demo__ladder" data-testid="one-min-ladder" data-step={done ? "verdict" : "tap"}>
-      <p className="ci-demo__ladder-meta">
-        {mcq.starter.subject} · {mcq.topicName} · 1 mark · CBSE board question
-      </p>
-      <p className="ci-demo__ladder-q" data-testid="one-min-question">
-        {mcq.question}
-      </p>
+      <LadderMeta subject={mcq.starter.subject} topicName={mcq.topicName} />
+      <LadderQuestionText question={mcq.question} />
       {done ? (
         <p
           className={`ci-demo__verdict-mark ${correct ? "ci-demo__verdict-mark--right" : "ci-demo__verdict-mark--wrong"}`}
@@ -217,36 +278,15 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
           {correct ? "✓ 1/1" : "✗ 0/1"}
           <span className="ci-demo__verdict-ans">
             {" "}
-            Right answer: {LETTERS[mcq.right]}. {subscriptFormulas(mcq.options[mcq.right])}
+            Right answer: {ladderLetter(mcq.right)}. {subscriptFormulas(mcq.options[mcq.right])}
           </span>
         </p>
       ) : null}
 
-      <ul className="ci-demo__opts" role="list">
-        {mcq.options.map((o, i) => {
-          const state = !done ? "" : i === mcq.right ? " ci-demo__opt--right" : i === picked ? " ci-demo__opt--wrong" : " ci-demo__opt--dim";
-          return (
-            <li key={i}>
-              <button
-                type="button"
-                className={`ci-demo__opt${state}`}
-                data-testid={`one-min-opt-${i}`}
-                disabled={done}
-                aria-pressed={picked === i}
-                onClick={() => tap(i)}
-              >
-                <span className="ci-demo__opt-letter" aria-hidden="true">
-                  {LETTERS[i]}
-                </span>
-                <span className="ci-demo__opt-text">{subscriptFormulas(o)}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <LadderOptions options={mcq.options} right={mcq.right} picked={picked} onTap={tap} />
 
       {done ? (
-        <div className="ci-demo__verdict ci-nav-clear" ref={verdictRef}>
+        <div className={`ci-demo__verdict ci-nav-clear${reserve ? " ci-demo__verdict--reserve" : ""}`} ref={verdictRef}>
           {mcq.why ? (
             <p className="ci-demo__verdict-why" data-testid="one-min-why">
               {mcq.why}
