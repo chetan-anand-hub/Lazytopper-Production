@@ -445,6 +445,7 @@ describe("PRICING-B-1 — Questions parents ask", () => {
     expect(Array.from(more.querySelectorAll("details.lt-pricing-faq-item > summary")).map(s => flat(s))).toEqual([
       "Is Basic really free?",
       "What is the Board Pass?",
+      "How is my answer marked?",
       "What happens when the founding offer ends?",
       "Are there any usage limits?",
       "What happens after the trial ends?",
