@@ -170,13 +170,29 @@ describe("GRADE-ROUTE-2 - PDF metadata + footer QR", () => {
     expect(rows[3][3]).toBe(true);
   });
 
-  it("no code (or an answer key): no QR; a licensed pack / sample file: neither QR nor paper metadata", async () => {
+  it("no code (or an answer key): no QR; a free sample file: neither QR nor paper metadata", async () => {
     await exportWorksheetPdf(ws, "questions");
     await exportWorksheetPdf(ws, "answers", "WS-M-RN-03");
     expect(rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM)).toHaveLength(0);
     propsMock.mockClear();
-    await exportWorksheetPdf(ws, "questions", "WS-M-RN-03", { licensee: { name: "A", email: "a@b.c", orderId: "o1" } });
-    expect(propsMock).not.toHaveBeenCalled();
+    await exportWorksheetPdf(ws, "questions", "PK-M-RN-CT1", { sample: { line: "x" } });
+    expect(propsMock.mock.calls.some((c) => String((c[0] as { subject?: string }).subject) === "PK-M-RN-CT1")).toBe(false);
+    expect(rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM)).toHaveLength(0);
+  });
+
+  it("BRIDGE-PDF-1: a PAID pack question paper carries the code in its metadata and the QR bottom right, >= 10 mm inside every edge", async () => {
+    await exportWorksheetPdf(ws, "questions", "PK-M-RN-CT1", { licensee: { name: "A", email: "a@b.c", orderId: "o1" } });
+    expect((propsMock.mock.calls[0][0] as { subject: string }).subject).toBe("PK-M-RN-CT1");
+    const plates = rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM && c[3] === PAPER_QR_MM);
+    expect(plates).toHaveLength(addPageMock.mock.calls.length + 1); // one per body page (no cover here)
+    const [x, y, w, h] = plates[0] as number[];
+    expect(x).toBeGreaterThanOrEqual(150); // right side, clear of the licence line
+    expect(210 - (x + w)).toBeGreaterThanOrEqual(10);
+    expect(297 - (y + h)).toBeGreaterThanOrEqual(10);
+    expect(y).toBeGreaterThan(297 - 31); // below the footer rule
+    // the answer key of a pack: metadata, no QR
+    rectMock.mockClear();
+    await exportWorksheetPdf(ws, "answers", "PK-M-RN-CT1", { licensee: { name: "A", email: "a@b.c", orderId: "o1" } });
     expect(rectMock.mock.calls.filter((c) => c[2] === PAPER_QR_MM)).toHaveLength(0);
   });
 });

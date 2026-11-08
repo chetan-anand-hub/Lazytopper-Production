@@ -79,13 +79,18 @@ describe("BRIDGE-PDF-1 - who gets pages 2-3", () => {
     }
   });
 
-  it("CBQ pack: no CBQ paper code yet (BRIDGE-CODES-1) -> no bridge pages, never a code that is not printed", async () => {
-    expect(cbqBridgeExampleCode("maths", "real-numbers")).toBeNull();
+  it("CBQ pack gets the pages too; with no printed CBQ code (before #1643) the example is null, never an unprinted code", async () => {
     const h = harness(owned("pack_cbq:maths"), { bridge: { paidBoardPass: false } });
     const files = await buildPackFiles(h.ref, h.ctx);
     await files[0].build();
     await files[1].build();
-    expect(h.calls.every((c) => c.bridge === undefined)).toBe(true);
+    for (const [i, c] of h.calls.entries()) {
+      expect(c.bridge, files[i].label).toBeDefined();
+      // a CBQ file's own printed code once BRIDGE-CODES-1 gives it one; until then null (the "e.g." clause is left out)
+      expect(c.bridge!.exampleCode).toBe(files[i].code ?? cbqBridgeExampleCode("maths", "real-numbers"));
+    }
+    expect(h.calls[0].bridge!.packLabel).toBe("Maths CBQ Pack");
+    expect(h.calls[1].bridge!.packLabel).toBe("Real Numbers \u00b7 Maths CBQ Pack");
   });
 });
 
@@ -116,13 +121,20 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     const t = container.textContent || "";
     expect(t).toContain("Light · Chapter Pack");
     expect(t).toContain("Get this paper marked like a CBSE examiner");
-    expect(t).toContain("it is printed on every paper, e.g. PK-S-LIGHT-CT1.");
+    expect(t).toContain("it is printed on every paper, e.g. PK-S-LIGHT-CT1. Or photograph the QR at the bottom of the paper.");
     expect(t).toContain("with the email or phone number you bought with, and tap the paper.");
     expect(t).toContain("This paper (PK-M-RN-CT1) was written by our team with six deliberate mistakes");
-    expect(t).toContain("Your first paper of each kind is marked free.");
+    expect(t).toContain("Every account gets its first paper of each kind marked free.");
     expect(t).toContain("Board Pass marks every paper you write till your boards");
     expect(t).not.toMatch(/\bAI\b/);
     expect(container.querySelector('[data-pdf-link="https://www.lazytopper.com/pricing"]')).not.toBeNull();
+  });
+
+  it("page 2 without an example code (a CBQ file before #1643): the step reads without an 'e.g.'", () => {
+    const t = render(<PrintBridgeMarkPage data={{ ...data, exampleCode: null }} links={links} />).container.textContent || "";
+    expect(t).toContain("it is printed on every paper.");
+    expect(t).not.toContain("e.g.");
+    expect(t).not.toContain("QR");
   });
 
   it("page 2 for a Board Pass holder: no Board Pass card", () => {

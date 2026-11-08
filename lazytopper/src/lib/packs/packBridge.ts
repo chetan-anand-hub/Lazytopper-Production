@@ -38,8 +38,8 @@ export const BRIDGE_IMG = Object.freeze({
 export interface BridgePagesData {
   /** Top-left header, e.g. "Real Numbers · Chapter Pack". */
   packLabel: string;
-  /** A paper code from THIS pack (step 1: "e.g. PK-M-RN-CT1"). */
-  exampleCode: string;
+  /** A paper code from THIS pack (step 1: "e.g. PK-M-RN-CT1"); null -> the "e.g." clause is left out (a CBQ file before BRIDGE-CODES-1). */
+  exampleCode: string | null;
   /** The Board Pass card on page 2. False for a student who already holds a paid Board Pass (they are not sold it again). */
   boardPassCard: boolean;
 }
@@ -77,8 +77,9 @@ export function bridgePackLabel(scope: string, sku: PackSku, target: string): st
 }
 
 /**
- * BRIDGE-CODES-1 fills this: the printed paper code of a CBQ pack paper (subject, chapter slug). Until CBQ papers print a code, it is
- * null and a CBQ file gets NO bridge pages - step 1 would otherwise tell the student to copy a code that is not printed on the paper.
+ * The example code for a CBQ file that carries no code of its own (the "How examiners mark a CBQ" intro). A CBQ paper file shows its
+ * OWN printed code once BRIDGE-CODES-1 (#1643) gives CBQ files one (buildPackFiles reads `spec.paper.code` first), with no change here.
+ * Until then this is null and page 2 leaves the "e.g. <code>" clause out. After #1643 it can return `cbqPackExampleCode(subject)`.
  */
 export function cbqBridgeExampleCode(_subject: PackSubject, _chapterSlug: string): string | null {
   return null;

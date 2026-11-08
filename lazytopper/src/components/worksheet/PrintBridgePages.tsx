@@ -59,7 +59,7 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
         <div className="lt-br__step">
           <span className="lt-br__stepn">STEP 1</span>
           <span className="lt-br__stept">Write your answers</span>
-          <span className="lt-br__stepb">On plain paper. Write the paper code at the top — it is printed on every paper, e.g. <b>{data.exampleCode}</b>.</span>
+          <span className="lt-br__stepb">On plain paper. Write the paper code at the top — it is printed on every paper{data.exampleCode ? <>, e.g. <b>{data.exampleCode}</b>. Or photograph the QR at the bottom of the paper</> : null}.</span>
         </div>
         <div className="lt-br__step">
           <span className="lt-br__stepn">STEP 2</span>
@@ -101,7 +101,7 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
 
       {data.boardPassCard && (
         <div className="lt-br__pass" data-testid="print-bridge-pass">
-          <span className="lt-br__passh">Your first paper of each kind is marked free.</span>
+          <span className="lt-br__passh">Every account gets its first paper of each kind marked free.</span>
           <span className="lt-br__passb">
             This pack gives you every question at once. <b>Board Pass</b> marks every paper you write till your boards — with CBSE examiner style marking, practice aimed at the topics where you lose marks, and your personal tutor for any doubt.
           </span>

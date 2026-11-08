@@ -146,7 +146,7 @@ interface DocSpec {
   cover: NonNullable<ExportOpts["cover"]>;
   /** Paper-shaped files only: the pack code + how the existing download path registers it. */
   paper?: Omit<PackPaperReg, "paper">;
-  /** BRIDGE-PDF-1: the page-2/3 header for this file and a paper code from this pack (null -> the file gets no bridge pages). */
+  /** BRIDGE-PDF-1: the page-2/3 header for this file and, for a file without its own code, a paper code from this pack (or null). */
   bridge?: { packLabel: string; exampleCode: () => string | null };
 }
 
@@ -168,10 +168,10 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
       const exportPdf = ctx.exportPdf ?? (await defaultExport());
       const ws = { ...spec.ws(), createdAt: (ctx.nowIso ?? (() => new Date().toISOString()))() };
-      const exampleCode = ctx.bridge && spec.bridge ? spec.bridge.exampleCode() : null;
+      // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
       const bridge: BridgePagesData | undefined =
-        ctx.bridge && spec.bridge && exampleCode
-          ? { packLabel: spec.bridge.packLabel, exampleCode, boardPassCard: !ctx.bridge.paidBoardPass }
+        ctx.bridge && spec.bridge
+          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), boardPassCard: !ctx.bridge.paidBoardPass }
           : undefined;
       await exportPdf(ws, spec.mode, spec.paper?.code, {
         // The exporter's `email` slot is the contact printed after the name: the email, or the MASKED phone.

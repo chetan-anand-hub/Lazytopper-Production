@@ -241,8 +241,18 @@ const SCREEN_GEOMETRY: PageGeometry = { top: MARGIN_TOP, footerH: FOOTER_H, bar:
 export const PRINT_GEOMETRY: PageGeometry = { top: 22, footerH: 27, bar: false, headerImgY: 10.6, headerTextY: 15.5, headerRuleY: 18.5, footLineY: PAGE_H - 25, licY: PAGE_H - 20.5, pageY: PAGE_H - 14 };
 /** GRADE-ROUTE-2 - a taller footer band (27 mm) for the sheets that print the 18 mm paper QR; everything else unchanged. */
 const QR_GEOMETRY: PageGeometry = { ...SCREEN_GEOMETRY, footerH: 27, footLineY: PAGE_H - 25 };
+/**
+ * BRIDGE-PDF-1 (owner 8 Nov 20:17 "add QR codes ... all of packs") - a PAID pack question paper with a code also prints the 18 mm paper QR.
+ * GRADE-ROUTE-2 (#1563) left packs out ("licensed packs unchanged"); what that kept safe is kept here: every mark stays >= 10 mm inside the
+ * A4 edge (PAY-PHONE-1, home printers) and the licence line keeps its own row. The QR sits bottom RIGHT (12 mm from the right edge,
+ * 11 mm from the bottom) in a 33 mm footer band, and the licence line / page number / trust line are fitted to the width left of it.
+ */
+export const PACK_QR_GEOMETRY: PageGeometry = { ...PRINT_GEOMETRY, footerH: 33, footLineY: PAGE_H - 31, licY: PAGE_H - 24, pageY: PAGE_H - 15 };
+/** Where the pack QR's top-left corner sits (mm). */
+export const PACK_QR_X = PAGE_W - MARGIN_X - PAPER_QR_MM;
+export const PACK_QR_Y = PAGE_H - 11 - PAPER_QR_MM;
 export function pageGeometry(opts: { licensee?: unknown; sample?: unknown; paperQr?: unknown }): PageGeometry {
-  if (opts.licensee && !opts.sample) return PRINT_GEOMETRY;
+  if (opts.licensee && !opts.sample) return opts.paperQr ? PACK_QR_GEOMETRY : PRINT_GEOMETRY;
   return opts.paperQr && !opts.sample ? QR_GEOMETRY : SCREEN_GEOMETRY;
 }
 const ACCENT_RGB: [number, number, number] = [63, 191, 130];
@@ -289,13 +299,13 @@ function fitLicensee(pdf: Doc, l: { name: string; email: string; orderId: string
 export const PDF_TRUST_LINE = "Made by an IITian (IIT Kanpur) \u00b7 lazytopper.com";
 
 /** Draws the right-hand footer text; drops to 9pt only if it could touch the left "Page N of M" at this width. */
-function drawTrustLine(pdf: Doc, leftText: string, innerW: number, y: number): void {
+function drawTrustLine(pdf: Doc, leftText: string, innerW: number, y: number, rightX = PAGE_W - MARGIN_X): void {
   pdf.setFontSize(10);
   if (typeof pdf.getTextWidth === "function") {
     const gap = 6;
     if (pdf.getTextWidth(leftText) + gap + pdf.getTextWidth(PDF_TRUST_LINE) > innerW) pdf.setFontSize(9);
   }
-  pdf.text(PDF_TRUST_LINE, PAGE_W - MARGIN_X, y, { align: "right" });
+  pdf.text(PDF_TRUST_LINE, rightX, y, { align: "right" });
   pdf.setFontSize(10);
 }
 
@@ -405,12 +415,15 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(...MUTED_RGB);
   if (opts.licensee) {
-    const fit = fitLicensee(pdf, opts.licensee, innerW);
+    // BRIDGE-PDF-1: with the pack QR at the right, the licence line and the trust line keep to the width left of it.
+    const textW = qr ? innerW - PAPER_QR_MM - 4 : innerW;
+    const fit = fitLicensee(pdf, opts.licensee, textW);
     pdf.setFontSize(fit.size);
     pdf.text(fit.text, MARGIN_X, g.licY);
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, g.pageY);
-    drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, g.pageY);
+    drawTrustLine(pdf, `Page ${page} of ${total}`, textW, g.pageY, MARGIN_X + textW);
+    if (qr) drawPaperQr(pdf, qr, PACK_QR_X, PACK_QR_Y);
   } else {
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
@@ -512,7 +525,8 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       const code = latin1(opts.paperCode);
       pdf.setProperties({ title: latin1(`${code} - ${opts.runningHeader ?? "LazyTopper paper"}`), subject: code, keywords: code, author: "LazyTopper" });
     }
-    const qrRows = opts.paperQr && opts.paperCode && !opts.sample && !opts.licensee ? await buildPaperQrMatrix(opts.paperCode) : null;
+    // BRIDGE-PDF-1: a paid pack question paper prints the QR too (bottom right, PACK_QR_GEOMETRY).
+    const qrRows = opts.paperQr && opts.paperCode && !opts.sample ? await buildPaperQrMatrix(opts.paperCode) : null;
     const imgW = PAGE_W - MARGIN_X * 2;
     const geom = pageGeometry(opts);
     const usableH = PAGE_H - geom.top - geom.footerH;
@@ -643,8 +657,9 @@ export async function exportWorksheetPdf(
       edition: editionOf(ws.createdAt),
       runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}`,
       // GRADE-ROUTE-2: every newly generated Worksheet / Chapter Test / Full Mock PDF names its paper in its metadata;
-      // the questions sheet (the one that is written on and uploaded) also carries a small QR. Packs/samples: untouched.
-      ...(code && !opts?.licensee && !opts?.sample ? { paperCode: code, paperQr: kind === "questions" } : {}),
+      // the questions sheet (the one that is written on and uploaded) also carries a small QR. BRIDGE-PDF-1: paid pack papers too
+      // (owner 8 Nov 20:17); free samples stay untouched.
+      ...(code && !opts?.sample ? { paperCode: code, paperQr: kind === "questions" } : {}),
     },
   );
 }
