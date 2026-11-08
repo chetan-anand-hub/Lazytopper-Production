@@ -503,6 +503,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // PACK-READY-1: My packs is lazy and mid-page, and the content above it can still grow after the first scroll, so re-assert on the
   // next frames and at ~300 / ~900 ms (the PacksStrip pattern) - and stop the moment the student scrolls, touches or presses a key.
   const myPacksMounted = Boolean(myPacksRef.current);
+  // FU-MYPACKS-SIGNEDOUT: a signed-out visitor who follows a `/packs#my-packs` link (an email, a wall, an old pricing link) has no packs
+  // to show, and the section above only renders for an account. Give the link an honest target instead of landing nowhere: the
+  // heading and one line that goes to sign-in and comes back here. Only for that hash, only once auth has resolved signed out, never
+  // embedded (/pricing, /for-parents) and never fake content.
+  const signedOutMine = !embedded && !hideMyPacks && !authLoading && !signedIn && location.hash.toLowerCase() === "#my-packs";
   useEffect(() => {
     if (location.hash !== "#my-packs") return undefined;
     let stopped = false;
@@ -525,7 +530,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }));
     timers.push(window.setTimeout(assert, 300), window.setTimeout(assert, 900), window.setTimeout(stop, 950));
     return stop;
-  }, [location.hash, mine, myPacksMounted]);
+  }, [location.hash, mine, myPacksMounted, signedOutMine]);
 
   /** GST-FU-1 review F4: a ?buy= resume held at the pop-up's Pay (remembered state) - the pack and the link's source. */
   const heldResume = useRef<{ key: string; from?: PackCheckoutFrom } | null>(null);
@@ -832,6 +837,19 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
 
   const mineAndStatus = (
     <>
+      {signedOutMine && (
+        <section className="lt-packs__mine" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine-signedout">
+          <div className="lt-packs__w">
+            <h2 id="packs-mine-h">My packs</h2>
+            <p className="lt-packs__note">
+              <Link className="lt-packs__link" to={withSigninRedirect("/login", `${PACKS_RETURN_PATH}#my-packs`)} data-testid="packs-mine-signin">
+                Sign in to see your packs
+              </Link>
+            </p>
+          </div>
+        </section>
+      )}
+
       {showMine && (
         <section className="lt-packs__mine" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine">
           <div className="lt-packs__w">
