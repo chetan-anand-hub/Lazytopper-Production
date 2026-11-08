@@ -156,20 +156,32 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   useEffect(() => {
     if (!settling) return undefined;
     let live = true;
+    let mounted = true;
     let observer: MutationObserver | undefined;
+    // ★ Never in the frame the verdict landed in: the hiding must have been PAINTED with the grown verdict, or the page
+    // below is seen moving. (Measured: with the rows already cached the effect settled synchronously, before the first
+    // paint, and the page below moved 0.39.) So the release waits two animation frames.
+    const frame = (next: () => void) => {
+      if (typeof requestAnimationFrame === "function") requestAnimationFrame(next);
+      else window.setTimeout(next, 16);
+    };
     const done = () => {
       if (!live) return;
       live = false;
       observer?.disconnect();
       document.removeEventListener("click", done);
       document.removeEventListener("keyup", done);
-      setSettling(false);
+      frame(() => frame(() => {
+        if (mounted) setSettling(false);
+      }));
     };
     const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
     const rowsIn = () => !!block?.querySelector('[data-testid="offers-packs"]');
     if (!block || rowsIn()) {
       done();
-      return undefined;
+      return () => {
+        mounted = false;
+      };
     }
     document.addEventListener("click", done);
     document.addEventListener("keyup", done);
@@ -190,6 +202,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     void import("../packs/OfferRows").then(later, later);
     return () => {
       if (fallback !== undefined) window.clearTimeout(fallback);
+      mounted = false;
       live = false;
       observer?.disconnect();
       document.removeEventListener("click", done);

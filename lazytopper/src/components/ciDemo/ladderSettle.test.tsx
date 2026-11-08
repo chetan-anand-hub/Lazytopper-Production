@@ -57,7 +57,18 @@ afterEach(() => {
 });
 
 describe("an early tap's verdict settles without a reserved height", () => {
+  it("rows already there at landing (cached chunk): still settling in the landing frame, released after it", async () => {
+    B.rowsLater = false;
+    (window as W).__ltStaticTap = { id: "one-min-opt-2", bank: LIGHT };
+    render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
+    expect(screen.getByTestId("offers-packs")).toBeTruthy();
+    expect(ladder().hasAttribute("data-settling")).toBe(true);
+    await act(() => new Promise((r) => setTimeout(r, 80)));
+    expect(ladder().hasAttribute("data-settling")).toBe(false);
+  });
+
   it("lands settling, with the verdict and mark in the same first frame; settles when the pack rows arrive", async () => {
+    B.rowsLater = true;
     (window as W).__ltStaticTap = { id: "one-min-opt-2", bank: LIGHT };
     render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
     expect(screen.getByTestId("one-min-verdict").textContent).toContain("✗ 0/1");
@@ -67,24 +78,28 @@ describe("an early tap's verdict settles without a reserved height", () => {
       await Promise.resolve();
     });
     expect(screen.getByTestId("offers-packs")).toBeTruthy();
+    await act(() => new Promise((r) => setTimeout(r, 80)));
     expect(ladder().hasAttribute("data-settling")).toBe(false);
   });
 
-  it("no buying block (packs off / a paid student): settled at once", () => {
+  it("no buying block (packs off / a paid student): settled right after the landing frame has painted, never in it", async () => {
     B.block = false;
     (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
     render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
     expect(screen.getByTestId("one-min-verdict").textContent).toContain("✓ 1/1");
+    expect(ladder().hasAttribute("data-settling")).toBe(true);
+    await act(() => new Promise((r) => setTimeout(r, 80)));
     expect(ladder().hasAttribute("data-settling")).toBe(false);
   });
 
-  it("the student's next tap or key settles it even if the rows never come", () => {
+  it("the student's next tap or key settles it even if the rows never come", async () => {
     (window as W).__ltStaticTap = { id: "one-min-opt-0", bank: LIGHT };
     render(<CiDemoChunk onClose={noop} onCheckOwn={noop} onJumpToOwn={noop} signedOut />);
     expect(ladder().hasAttribute("data-settling")).toBe(true);
     act(() => {
       fireEvent.keyUp(document.body, { key: "Tab" });
     });
+    await act(() => new Promise((r) => setTimeout(r, 80)));
     expect(ladder().hasAttribute("data-settling")).toBe(false);
   });
 
