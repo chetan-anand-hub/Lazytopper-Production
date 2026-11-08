@@ -135,7 +135,9 @@ async function signedOutLadderThenPhotoCta() {
   adArrival();
   render(page());
   fireEvent.click(await screen.findByTestId("one-min-opt-0"));
-  fireEvent.click(screen.getByTestId("one-min-next"));
+  // SPEED-CI-2: a first visit's option can be tapped on the card's preview before the ladder chunk is in; the
+  // ladder answers that held tap when it renders, so its next step appears a moment later.
+  fireEvent.click(await screen.findByTestId("one-min-next"));
   await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
   fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "Step 1 formula. Step 2 substitute. Step 3 answer 5 cm." } });
   await sleep(1000); // the ungraded draft is autosaved (as today)
@@ -163,7 +165,7 @@ describe("HOME-LADDER-2 · a ladder question already graded signed-out must not 
     adArrival();
     render(page());
     fireEvent.click(await screen.findByTestId("one-min-opt-0"));
-    fireEvent.click(screen.getByTestId("one-min-next"));
+    fireEvent.click(await screen.findByTestId("one-min-next")); // SPEED-CI-2: the preview's held tap (see above)
     await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
     const answer = "My own working: v = u + at, so 5 m/s.";
     fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: answer } });

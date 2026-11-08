@@ -58,7 +58,9 @@ function visible(html: string): string {
     .replace(/ data-testid="ci-demo(?:-preview)?"/g, "")
     .replace(/ data-ci-first=""/g, "")
     .replace(/ data-ci-bank="[^"]*"/g, "")
-    .replace(/ aria-disabled="true"/g, "");
+    .replace(/ aria-disabled="true"/g, "")
+    // Byte's drawing is a lazy chunk of its own: an empty avatar box in the first frame, drawn later in BOTH.
+    .replace(/<span class="ci-demo__avatar">[\s\S]*?<\/svg><\/span><\/span>/, '<span class="ci-demo__avatar"></span>');
 }
 
 function chunkFirstFrame(): string {
