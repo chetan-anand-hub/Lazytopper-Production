@@ -68,6 +68,7 @@ import {
   ISLAND_PATH_PREFIXES,
   ISLAND_SCRIPT_ATTR,
   ISLAND_THEME,
+  ISLAND_VARIANT_ATTR,
   isIslandPath,
   islandsEnabled,
 } from "../../src/islands/islandConfig";
@@ -687,7 +688,13 @@ export function modulepreloadHrefsIn(html: string): string[] {
  * body, canonical, meta and JSON-LD are
  * untouched (`islandSwap.guard.test.ts`). Exactly one entry tag, or this THROWS.
  */
-export function withIsland(html: string, shellHtml: string, islandFile: string, appPreloads: readonly string[]): string {
+export function withIsland(
+  html: string,
+  shellHtml: string,
+  islandFile: string,
+  appPreloads: readonly string[],
+  variant?: "mobile" | "desktop",
+): string {
   const { base, entry } = entryScriptOf(shellHtml);
   const tag = `<script type="module" crossorigin src="${base}assets/${entry}"></script>`;
   const count = html.split(tag).length - 1;
@@ -700,7 +707,8 @@ export function withIsland(html: string, shellHtml: string, islandFile: string, 
   const handed = [...shellPreloads, ...appPreloads.filter((href) => !shellPreloads.includes(href))];
   const island =
     `<script type="module" crossorigin src="${base}assets/${islandFile}" ${ISLAND_SCRIPT_ATTR} ` +
-    `${APP_ENTRY_ATTR}="${base}assets/${entry}" ${APP_PRELOADS_ATTR}="${handed.join(" ")}"></script>`;
+    `${APP_ENTRY_ATTR}="${base}assets/${entry}" ${APP_PRELOADS_ATTR}="${handed.join(" ")}"` +
+    `${variant ? ` ${ISLAND_VARIANT_ATTR}="${variant}"` : ""}></script>`;
   return html.replace(/<link\b[^>]*\brel="modulepreload"[^>]*>/g, "").replace(tag, () => island);
 }
 
@@ -781,11 +789,16 @@ export function islandStylesheetHrefsIn(html: string): string[] {
 }
 
 /** The island script tag in a built page: its src and the app entry it upgrades to, or null. */
-export function islandScriptIn(html: string): { src: string; appEntry: string; preloads: string[] } | null {
+export function islandScriptIn(html: string): { src: string; appEntry: string; preloads: string[]; variant: string } | null {
   const tag = html.match(new RegExp(`<script\\b[^>]*\\b${ISLAND_SCRIPT_ATTR}\\b[^>]*>`));
   if (!tag) return null;
   const attr = (name: string) => tag[0].match(new RegExp(`\\b${name}="([^"]*)"`))?.[1] ?? "";
-  return { src: attr("src"), appEntry: attr(APP_ENTRY_ATTR), preloads: attr(APP_PRELOADS_ATTR).split(/\s+/).filter(Boolean) };
+  return {
+    src: attr("src"),
+    appEntry: attr(APP_ENTRY_ATTR),
+    preloads: attr(APP_PRELOADS_ATTR).split(/\s+/).filter(Boolean),
+    variant: attr(ISLAND_VARIANT_ATTR),
+  };
 }
 
 /**
@@ -844,6 +857,10 @@ export function verifyBuiltPages(
             failures.push(`${path}: the ${variant} file ${file} hands the island no route chunk to preload`);
           }
           if (hrefs.length > 0) failures.push(`${path}: the ${variant} file ${file} is an island but still modulepreloads app chunks`);
+          // SPEED-ISLANDS-2: the island knows which capture it serves (a capture that does not fit the window loads the app).
+          if (island.variant !== variant) {
+            failures.push(`${path}: the ${variant} file ${file} island says ${ISLAND_VARIANT_ATTR}="${island.variant}"`);
+          }
           // #1621 review D7: the served <html> carries the app's theme.
           if (!new RegExp(`<html\\b[^>]*\\bdata-theme="${ISLAND_THEME}"`).test(html)) {
             failures.push(`${path}: the ${variant} file ${file} is an island without <html data-theme="${ISLAND_THEME}">`);
@@ -1263,7 +1280,7 @@ export function applyArtifact(
   const islandAssets = islands.size > 0 ? readdirSync(assetsDir) : [];
   const islandFile = islands.size > 0 ? resolveRouteChunk(ISLAND_ENTRY_NAME, islandAssets) : "";
   const islandEntryCode = islands.size > 0 ? readFileSync(join(assetsDir, entryScriptOf(cleanShell).entry), "utf8") : "";
-  const finish = (path: string, html: string, hrefs: readonly string[]): string => {
+  const finish = (path: string, html: string, hrefs: readonly string[], variant: "mobile" | "desktop"): string => {
     const styled = withRouteStyles(html, routeStyles.get(path) ?? []);
     const done = islands.has(path)
       ? withIslandTheme(withIsland(
@@ -1271,6 +1288,7 @@ export function applyArtifact(
           cleanShell,
           islandFile,
           hrefs,
+          variant,
         ))
       : withPreloads(styled, hrefs);
     return entryCss ? withCriticalEntryCss(done, entryCss, entryCssText, criticalCss) : done;
@@ -1297,7 +1315,7 @@ export function applyArtifact(
             `shape, or this step ran twice.`,
         );
       }
-      writeFileSync(file, finish(path, shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs), "utf8");
+      writeFileSync(file, finish(path, shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs, "mobile"), "utf8");
       filesWritten += 1;
     }
     const desktopFile = join(outDir, desktopVariantFile(path));
@@ -1305,7 +1323,7 @@ export function applyArtifact(
     const desktopFragment = desktopFragments.get(path) as string;
     writeFileSync(
       desktopFile,
-      finish(path, stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs),
+      finish(path, stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs, "desktop"),
       "utf8",
     );
     desktopFilesWritten += 1;

@@ -30,7 +30,7 @@
  *   e) `?app=1` forces the app; the build step's allowlist and LT_ISLANDS=0 turn islands off.
  */
 
-import { APP_ENTRY_ATTR, APP_PRELOADS_ATTR, FORCE_APP_PARAM, ISLAND_SCRIPT_ATTR } from "./islandConfig";
+import { APP_ENTRY_ATTR, APP_PRELOADS_ATTR, DESKTOP_QUERY, FORCE_APP_PARAM, ISLAND_SCRIPT_ATTR, ISLAND_VARIANT_ATTR } from "./islandConfig";
 import { sendNamedEvent, sendWhatsAppTap, startIslandAnalytics, stopIslandWatches, suppressAppRepeats } from "./islandAnalytics";
 
 /** The value of `<html data-lt-island>`: the island is live, the app is loading, or the app has taken over. */
@@ -81,6 +81,25 @@ export const AUTH_REGION = '[data-testid="pending-bell"]';
  */
 export const NAVBAR_AUTH_SLOT = ".navbar";
 export const DESKTOP_MIN_WIDTH_PX = 1024;
+
+/** The app's own layout switch (useIsDesktop.ts: `(min-width: 1024px)`). */
+export function desktopWide(): boolean {
+  try {
+    if (typeof window.matchMedia === "function") return window.matchMedia(DESKTOP_QUERY).matches;
+  } catch {
+    /* fall through */
+  }
+  return window.innerWidth >= DESKTOP_MIN_WIDTH_PX;
+}
+
+/**
+ * SPEED-ISLANDS-2 — the capture the build served (`data-lt-variant`, chosen by device) does not fit this window's
+ * layout (chosen by width): a desktop browser narrower than 1024 px, or a tablet in landscape. Today's app re-lays
+ * such a page out at boot, so the island hands over at once rather than keep a layout the app would not show.
+ */
+export function variantMismatch(variant: string, wide: boolean): boolean {
+  return (variant === "desktop" && !wide) || (variant === "mobile" && wide);
+}
 
 /**
  * Byte's peek on a notes page (GUIDE-PUBLIC-1, PublicPeek.tsx) is app-rendered: it shows once per tab after
@@ -309,6 +328,8 @@ export function handleOwned(el: Element): boolean {
 interface IslandConfig {
   appEntry: string;
   preloads: string[];
+  /** "mobile" | "desktop" (the build's capture), or "" from an older build. */
+  variant: string;
 }
 
 /** A tap held for the app, and where it goes if the app never arrives (#1621 review D2). */
@@ -995,8 +1016,18 @@ function watchPeek(): void {
 export function watchAppRegions(): void {
   watchPeek();
   // Desktop variant: the header's sign-in button is the app's. Load the app once the page is idle.
-  const desktopWidth = window.innerWidth >= DESKTOP_MIN_WIDTH_PX;
-  if (document.querySelector(AUTH_REGION) || (desktopWidth && document.querySelector(NAVBAR_AUTH_SLOT))) afterLoad(() => onIdle(upgrade, 2000));
+  if (document.querySelector(AUTH_REGION) || (desktopWide() && document.querySelector(NAVBAR_AUTH_SLOT))) afterLoad(() => onIdle(upgrade, 2000));
+  // A window resized (or a tablet rotated) across the app's layout switch: the app re-lays the page out today.
+  try {
+    if (typeof window.matchMedia === "function") {
+      const query = window.matchMedia(DESKTOP_QUERY);
+      const onFlip = () => upgrade();
+      query.addEventListener("change", onFlip);
+      cleanups.push(() => query.removeEventListener("change", onFlip));
+    }
+  } catch {
+    /* no media query support: nothing to watch */
+  }
   const unwatched = FOOTER_UNWATCHED_PATHS.includes(window.location.pathname) ? ["footer.lt-public-legal"] : [];
   const regions = APP_ONLY_REGIONS.filter((sel) => !unwatched.includes(sel)).flatMap((sel) => [...document.querySelectorAll(sel)]);
   if (regions.length === 0) return;
@@ -1137,7 +1168,7 @@ function readConfig(): IslandConfig | null {
   const appEntry = script?.getAttribute(APP_ENTRY_ATTR) ?? "";
   if (!/^\/assets\/[^/]+\.js$/.test(appEntry)) return null;
   const preloads = (script?.getAttribute(APP_PRELOADS_ATTR) ?? "").split(/\s+/).filter((h) => /^\/assets\/[^/]+\.js$/.test(h));
-  return { appEntry, preloads };
+  return { appEntry, preloads, variant: script?.getAttribute(ISLAND_VARIANT_ATTR) ?? "" };
 }
 
 function injectBusyStyle(): void {
@@ -1174,7 +1205,8 @@ export async function boot(): Promise<void> {
     forced = false;
   }
   const otherView = appViewRequested(window.location, () => window.localStorage.getItem(NCERT_HUB_SUBJECT_KEY));
-  if (forced || otherView || hasAuthRecordSync()) {
+  const misfit = variantMismatch(config.variant, desktopWide());
+  if (forced || otherView || misfit || hasAuthRecordSync()) {
     upgrade();
     return;
   }

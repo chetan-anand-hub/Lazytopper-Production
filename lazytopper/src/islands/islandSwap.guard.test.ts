@@ -94,7 +94,12 @@ describe("withIsland", () => {
       src: "/assets/contentIsland-BBBBBBBB.js",
       appEntry: "/assets/index-AAAAAAAA.js",
       preloads: ["/assets/Note-CCCCCCCC.js", "/assets/tokens-DDDDDDDD.js"],
+      variant: "",
     });
+    // SPEED-ISLANDS-2: the build names the capture it served (mobile / desktop), on the script tag only.
+    const desk = withIsland(page, shell(), "contentIsland-BBBBBBBB.js", [], "desktop");
+    expect(islandScriptIn(desk)?.variant).toBe("desktop");
+    expect(desk.split("<body")[1]).toBe(page.split("<body")[1]);
     expect(swapped).not.toContain(ENTRY);
     const [before, after] = page.split(ENTRY);
     expect(swapped.startsWith(before)).toBe(true);
@@ -130,10 +135,11 @@ describe("verifyBuiltPages — island pages", () => {
     for (const f of ["index-AAAAAAAA.js", "contentIsland-BBBBBBBB.js", "DesktopNotesPage-CCCCCCCC.js", "TopicHubPage-DDDDDDDD.js"]) {
       writeFileSync(join(out, "assets", f), "export{};", "utf8");
     }
-    const island = withIslandTheme(withIsland(shell("<main>N</main>"), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]));
+    const island = (v: "mobile" | "desktop") =>
+      withIslandTheme(withIsland(shell("<main>N</main>"), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"], v));
     for (const f of ["notes/electricity.html", "notes/electricity/index.html", "__desktop/notes/electricity.html"]) {
       mkdirSync(join(out, f, ".."), { recursive: true });
-      writeFileSync(join(out, f), island, "utf8");
+      writeFileSync(join(out, f), island(f.startsWith("__desktop/") ? "desktop" : "mobile"), "utf8");
     }
     return { out, cleanup: () => rmSync(out, { recursive: true, force: true }) };
   }
@@ -144,6 +150,17 @@ describe("verifyBuiltPages — island pages", () => {
       const v = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
       expect(v.failures).toEqual([]);
       expect(v.islandFiles).toBe(3);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("RED: a desktop file whose island says it carries the mobile capture (SPEED-ISLANDS-2)", () => {
+    const { out, cleanup } = build();
+    try {
+      writeFileSync(join(out, "__desktop/notes/electricity.html"), readFileSync(join(out, "notes/electricity.html"), "utf8"), "utf8");
+      const v = verifyBuiltPages(out, ["/notes/electricity"], new Set(["/notes/electricity"]));
+      expect(v.failures.some((f) => f.includes('island says data-lt-variant="mobile"'))).toBe(true);
     } finally {
       cleanup();
     }
@@ -216,7 +233,8 @@ describe("#1621 review D1 — an island page links the lazy stylesheets its serv
       const write = (html: string) => {
         for (const f of ["notes/electricity.html", "notes/electricity/index.html", "__desktop/notes/electricity.html"]) {
           mkdirSync(join(out, f, ".."), { recursive: true });
-          writeFileSync(join(out, f), html, "utf8");
+          const variant = f.startsWith("__desktop/") ? "desktop" : "mobile";
+          writeFileSync(join(out, f), html.replace("<script type=\"module\" crossorigin src=\"/assets/contentIsland-", `<script ${"data-lt-variant"}="${variant}" type="module" crossorigin src="/assets/contentIsland-`), "utf8");
         }
       };
       const bare = withIslandTheme(withIsland(shell(`<main>${KATEX}</main>`), shell(), "contentIsland-BBBBBBBB.js", ["/assets/DesktopNotesPage-CCCCCCCC.js"]));

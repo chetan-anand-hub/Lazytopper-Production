@@ -42,6 +42,15 @@ export const APP_ENTRY_ATTR = "data-lt-app-entry";
 /** Space-separated route-chunk URLs the page used to modulepreload — preloaded on upgrade. */
 export const APP_PRELOADS_ATTR = "data-lt-app-preloads";
 
+/**
+ * SPEED-ISLANDS-2 — which capture the file carries: "mobile" (390-px, the page's own file) or "desktop" (1280-px,
+ * `/__desktop/`; middleware.ts picks it by device, not width). The app lays out by WIDTH (useIsDesktop: >= 1024 px),
+ * so a capture that does not match the window (a desktop browser narrower than 1024 px, a tablet in landscape) is
+ * not what today's app shows after boot: the island then loads the app at once.
+ */
+export const ISLAND_VARIANT_ATTR = "data-lt-variant";
+export const DESKTOP_QUERY = "(min-width: 1024px)";
+
 /** `?app=1` on any island page loads the full app straight away (kill switch for one visit). */
 export const FORCE_APP_PARAM = "app";
 

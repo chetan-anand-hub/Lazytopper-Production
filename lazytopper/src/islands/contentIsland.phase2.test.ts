@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve as resolvePath } from "node:path";
+import { setMatchMediaMatches } from "../test/setup";
 import {
   APP_ONLY_REGIONS,
   FOOTER_UNWATCHED_PATHS,
@@ -9,6 +10,7 @@ import {
   __resetIslandForTests,
   appViewRequested,
   boot,
+  variantMismatch,
 } from "./contentIsland";
 
 /**
@@ -104,6 +106,30 @@ describe("a view only the app can show boots the app at once", () => {
   it("at boot: an Important Questions topic link loads the app straight away", async () => {
     await bootAt("/highly-probable/10/Maths?topic=Circles");
     expect(state()).toBe("upgrading");
+  });
+});
+
+describe("every width — a capture that does not fit the window's layout hands over to the app at once", () => {
+  it("desktop capture below 1024 px, or phone capture at 1024 px and up (useIsDesktop's switch)", () => {
+    expect(variantMismatch("desktop", false)).toBe(true); // a desktop browser at 1023 px
+    expect(variantMismatch("mobile", true)).toBe(true); // a tablet in landscape
+    expect(variantMismatch("desktop", true)).toBe(false);
+    expect(variantMismatch("mobile", false)).toBe(false);
+    expect(variantMismatch("", true)).toBe(false); // an older build's tag: phase-1 behaviour
+  });
+
+  it("at boot", async () => {
+    const at = async (variant: string, width: number) => {
+      setMatchMediaMatches(width >= 1024); // the app's (min-width: 1024px)
+      await bootAt("/cbq-class-10/electricity");
+      document.head.innerHTML = ISLAND_TAG.replace("data-lt-island=", `data-lt-variant="${variant}" data-lt-island=`);
+      __resetIslandForTests();
+      await boot();
+      return state();
+    };
+    expect(await at("desktop", 1023)).toBe("upgrading");
+    expect(await at("mobile", 1024)).toBe("upgrading");
+    expect(await at("mobile", 768)).toBe("island");
   });
 });
 
@@ -236,7 +262,7 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
 
   it("CBQ navbar sign-in slot: a desktop-width window loads the app on idle (Log in appears); a phone stays an island", async () => {
     const at = async (width: number) => {
-      Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+      setMatchMediaMatches(width >= 1024); // the app's (min-width: 1024px)
       window.history.replaceState(null, "", "/cbq-class-10/electricity");
       __resetIslandForTests();
       document.head.innerHTML = ISLAND_TAG;
@@ -247,7 +273,6 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     };
     expect(await at(1280)).toBe("upgrading");
     expect(await at(360)).toBe("island");
-    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
   }, 10_000);
 
   it("the NCERT Hub does not watch its footer (only the lazy 'PDF packs' link, never in the markup): it stays an island", async () => {
