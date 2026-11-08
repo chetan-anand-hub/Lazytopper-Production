@@ -32,3 +32,30 @@ export function usePaidPremium(): boolean {
   }, [uid]);
   return !!uid && paid;
 }
+
+/**
+ * BRIDGE-PDF-1 (review FU-7): does this student hold a PAID Board Pass, decided before their pack files are built? The cached status
+ * alone is not enough: on a fresh device it is the Basic default until the cloud read lands, and a holder would be offered the pass in
+ * the PDF. So unless the cache already says paid, this triggers the cloud reconciliation and waits (at most `timeoutMs`) for its
+ * hydration event. true = paid · false = known not paid · null = unknown (the caller then leaves the Board Pass box out).
+ */
+export async function resolvePaidBoardPass(uid: string, timeoutMs = 3000): Promise<boolean | null> {
+  if (!uid) return null;
+  if (readPaid(uid)) return true;
+  const { hydrateSubscriptionFromCloud } = await import("../../services/subscriptionService");
+  return await new Promise<boolean | null>((resolve) => {
+    let done = false;
+    const finish = (v: boolean | null) => {
+      if (done) return;
+      done = true;
+      off();
+      clearTimeout(timer);
+      resolve(v);
+    };
+    const off = onSubscriptionHydrated((u, status) => {
+      if (u === uid) finish(isPaidPremium(status));
+    });
+    const timer = setTimeout(() => finish(null), timeoutMs);
+    void hydrateSubscriptionFromCloud(uid).catch(() => finish(null));
+  });
+}
