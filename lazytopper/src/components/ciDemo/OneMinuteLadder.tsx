@@ -238,8 +238,9 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   }, []);
 
   // Late rows: shown only where they move nothing the student can see — their place (the end of the buying block) is
-  // BELOW the screen (everything they push is off-screen too), or ABOVE it (then the page is scrolled by their height in
-  // the same frame, before paint, so what is on screen stays exactly put). Checked when they arrive and on every scroll.
+  // BELOW the screen (everything they push is off-screen too), or ABOVE it (scroll anchoring keeps what is on screen
+  // put; where the engine has none, the page is scrolled by their height in the same frame, before paint). Checked when
+  // they arrive and on every scroll.
   const lateRowsTop = useRef<number | null>(null);
   useEffect(() => {
     if (!rowsWait) return undefined;
@@ -277,6 +278,16 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     lateRowsTop.current = null;
     const block = verdictRef.current?.querySelector('[data-testid="offers-block"]') ?? null;
     if (!block || typeof window.scrollBy !== "function") return;
+    // Engines with scroll anchoring (Chromium, Firefox: `overflow-anchor`) already keep the view still for content
+    // inserted above it — compensating again would move it the other way (measured: 0.36-0.48). Others (Safari / iOS
+    // web views) get the same-frame scroll.
+    let anchored = false;
+    try {
+      anchored = typeof CSS !== "undefined" && typeof CSS.supports === "function" && CSS.supports("overflow-anchor", "auto");
+    } catch {
+      anchored = false;
+    }
+    if (anchored) return;
     const grown = block.getBoundingClientRect().bottom - before;
     if (grown > 0) window.scrollBy({ top: grown, behavior: "instant" as ScrollBehavior });
   }, [rowsWait]);

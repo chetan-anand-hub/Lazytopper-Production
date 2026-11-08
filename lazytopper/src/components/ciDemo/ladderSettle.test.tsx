@@ -238,12 +238,15 @@ describe("an early tap's verdict settles without a reserved height", () => {
         vi.advanceTimersByTime(1600);
       });
       by.mockClear();
+      // An engine without scroll anchoring (Safari / iOS web views): the same-frame scroll does it.
+      const supports = vi.spyOn(CSS, "supports").mockReturnValue(false);
       await act(async () => {
         (window as W).__rows?.();
         await Promise.resolve();
       });
       expect(ladder().hasAttribute("data-rows-wait")).toBe(false);
       expect(by).toHaveBeenCalledWith({ top: 440, behavior: "instant" });
+      supports.mockRestore();
     } finally {
       window.scrollBy = origBy;
       vi.useRealTimers();
