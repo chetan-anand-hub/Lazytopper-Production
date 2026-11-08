@@ -455,6 +455,7 @@
     "src/components/ciDemo/ladderPreview.test.tsx",
     "src/components/ciDemo/oneMinuteLadder.saleMoment.test.tsx",
     "src/components/ciDemo/oneMinuteLadder.test.tsx",
+    "src/components/ciDemo/useClearBottomNav.test.ts",
     "src/components/common/SaveStatusToast.test.tsx",
     "src/components/desktop/DesktopShell.accountStatus.test.tsx",
     "src/components/desktop/DesktopShell.legalRow.test.tsx",
