@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BRIDGE_IMG, type BridgePagesData } from "../../lib/packs/packBridge";
+import { MARKS_HEADING } from "../../lib/mistakeDisplay";
 
 /**
  * PrintBridgePages - pages 2 and 3 of every PURCHASED pack PDF (BRIDGE-PDF-1; approved designs bridge-approved/Main.dc.html and
@@ -28,7 +29,8 @@ const CAUGHT: ReadonlyArray<{ what: ReactNode; mark: string }> = [
 const VIEWS: ReadonlyArray<{ alt: string; label: ReactNode }> = [
   { alt: "Scorecard first view: 25.5 out of 31 and what to fix first", label: <><b>1 · Your score</b> and the one thing to fix first</> },
   { alt: "Marks by section and by concept", label: <><b>2 · By section and concept</b> — where the paper went well</> },
-  { alt: "Where your marks went: careless slips, not attempted", label: <><b>3 · Where your marks went</b> — concept gap, slips, presentation</> },
+  // The scorecard's own heading (lib/mistakeDisplay.ts MARKS_HEADING, "Where your marks went"), never a hard-coded copy (G4 guard).
+  { alt: `${MARKS_HEADING}: careless slips, not attempted`, label: <><b>3 · {MARKS_HEADING}</b> — concept gap, slips, presentation</> },
   { alt: "Question 10 marked 1 out of 2: LCM needed, not HCF", label: <><b>4 · Each answer, step by step</b> — Q10, HCF used where LCM was needed</> },
   { alt: "Question 11 marked 2.5 out of 3: 1512 miscopied as 1152", label: <><b>5 · Silly slips caught</b> — Q11, 1512 copied as 1152</> },
   { alt: "Question 14 marked 3.5 out of 4 with error carried forward", label: <><b>6 · Fair like the board</b> — Q14, later steps credited after a slip</> },
