@@ -126,6 +126,15 @@ function fakeRazorpay() {
       const items = [...payments.values()].filter((p) => p.order_id === m[1]).map((p) => ({ ...p }));
       return reply(200, { entity: 'collection', count: items.length, items });
     }
+    // MONEY-DUPGUARD-1: an order as Razorpay reports it (razorpay.com/docs/payments/orders): `created` until a payment is
+    // attempted, `attempted` until one is captured, then `paid` (amount_paid = amount).
+    if (method === 'GET' && (m = u.pathname.match(/^\/v1\/orders\/([^/]+)$/))) {
+      const o = orders.get(m[1]);
+      if (!o) return reply(400, { error: { code: 'BAD_REQUEST_ERROR' } });
+      const its = [...payments.values()].filter((p) => p.order_id === o.id);
+      const paid = its.some((p) => p.status === 'captured');
+      return reply(200, { ...o, status: paid ? 'paid' : its.length ? 'attempted' : 'created', amount_paid: paid ? o.amount : 0, attempts: its.length });
+    }
     if (method === 'GET' && (m = u.pathname.match(/^\/v1\/payments\/([^/]+)$/))) {
       const p = payments.get(m[1]);
       return p ? reply(200, { ...p }) : reply(400, {});
@@ -779,7 +788,10 @@ test('CREDIT · CONFLICT: two orders created on the same pack, both paid -> both
   const srv = await start({ db });
   t.after(srv.close);
   const a = await orderOk(srv, 'u1', 'till_boards');
-  const b = await orderOk(srv, 'u1', 'till_boards');
+  // MONEY-DUPGUARD-1: an identical second request now gets order A back; the conflict is still reachable when the terms
+  // differ (here: a GST buyer state given on the second tab only), so a SECOND order on the same credit is made.
+  const b = await orderOk(srv, 'u1', 'till_boards', { gstBuyer: { stateCode: '29', pin: '560001' } });
+  assert.notEqual(a.orderId, b.orderId);
   assert.equal(a.amountPaise, full - 4900);
   assert.equal(b.amountPaise, full - 4900, 'both were quoted before either was paid');
   const pa = srv.rzp.pay(a.orderId);

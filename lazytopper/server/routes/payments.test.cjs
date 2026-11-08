@@ -162,6 +162,15 @@ function fakeRazorpay() {
       const items = [...payments.values()].filter((p) => p.order_id === m[1]).map((p) => ({ ...p }));
       return reply(200, { entity: 'collection', count: items.length, items });
     }
+    // MONEY-DUPGUARD-1: an order as Razorpay reports it (razorpay.com/docs/payments/orders): `created` until a payment is
+    // attempted, `attempted` until one is captured, then `paid` (amount_paid = amount).
+    if (method === 'GET' && (m = u.pathname.match(/^\/v1\/orders\/([^/]+)$/))) {
+      const o = orders.get(m[1]);
+      if (!o) return reply(400, { error: { code: 'BAD_REQUEST_ERROR' } });
+      const its = [...payments.values()].filter((p) => p.order_id === o.id);
+      const paid = its.some((p) => p.status === 'captured');
+      return reply(200, { ...o, status: paid ? 'paid' : its.length ? 'attempted' : 'created', amount_paid: paid ? o.amount : 0, attempts: its.length });
+    }
     if (method === 'GET' && (m = u.pathname.match(/^\/v1\/payments\/([^/]+)$/))) {
       const p = payments.get(m[1]);
       return p ? reply(200, { ...p }) : reply(400, { error: { code: 'BAD_REQUEST_ERROR' } });
@@ -413,7 +422,9 @@ test('Z4 · a payment of ANOTHER order, a failed payment, or a foreign currency 
   const srv = await startRoutes();
   t.after(srv.close);
   const a = await createOrder(srv);
-  const b = await createOrder(srv);
+  // A DIFFERENT pass type, so it is a second order (MONEY-DUPGUARD-1 hands back the open order for the same terms).
+  const b = await createOrder(srv, 'u1', 'till_boards');
+  assert.notEqual(a.orderId, b.orderId);
   const onB = srv.rzp.pay(b.orderId, { id: 'pay_onB' });
   // Signature forged as if pay_onB belonged to order A (a leaked secret would allow this).
   let r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: a.orderId, paymentId: onB.id, signature: checkoutSig(a.orderId, onB.id) }, headers: asUid('u1') });
@@ -881,7 +892,8 @@ test('STATUS · amount mismatch / currency mismatch / failed / another order\'s 
   const srv = await startRoutes();
   t.after(srv.close);
   const { orderId } = await createOrder(srv);
-  const other = await createOrder(srv);
+  const other = await createOrder(srv, 'u1', 'till_boards'); // a different pass type: a second order (MONEY-DUPGUARD-1)
+  assert.notEqual(orderId, other.orderId);
   srv.rzp.pay(orderId, { id: 'pay_cheap', amount: 100 });
   srv.rzp.pay(orderId, { id: 'pay_cheap_auth', amount: 100, status: 'authorized' });
   srv.rzp.pay(orderId, { id: 'pay_usd', currency: 'USD' });
