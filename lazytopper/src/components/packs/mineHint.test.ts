@@ -88,6 +88,13 @@ describe("MINE_HINT_SCRIPT (the static page)", () => {
     expect(runStaticScript().style.minHeight).toBe("");
     expect(staticMineHandover()).toBeNull();
   });
+  it("PACKS-TIDY-1: a /packs#my-packs link with no hint holds ONE short line for its panel (a class on the slot); nothing without the hash", () => {
+    window.location.hash = "#my-packs";
+    expect(runStaticScript().className).toContain("lt-packs__mineslot--note");
+    expect(staticMineHandover()).toBeNull();
+    window.location.hash = "";
+    expect(runStaticScript().className).not.toContain("lt-packs__mineslot--note");
+  });
   it("broken storage never throws", () => {
     localStorage.setItem(ACTIVE_UID_KEY, "u1");
     localStorage.setItem(MINE_HINT_KEY, "{oops");

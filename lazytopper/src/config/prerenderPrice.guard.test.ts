@@ -79,6 +79,9 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   take(new RegExp(`<li>(${LABELS})(?:<span class="lt-fpk-band__new">NEW</span>)?<span class="lt-fpk-band__price" data-testid="fp-band-price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
   // /packs (PacksPage): tiles, CBQ cards, CBQ buttons, CBQ sentence + footer.
   take(new RegExp(`class="lt-packs__tname">(${LABELS})</span><span class="lt-packs__tprice">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
+  // PACKS-TIDY-1: the Bundle card (h2 name + price) and the collapsed smaller-pack rows (summary name + price).
+  take(new RegExp(`class="lt-pt__name">(${LABELS})</h2><p class="lt-pt__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
+  take(new RegExp(`class="lt-pt__sname">(${LABELS})</span><span class="lt-pt__sprice">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`class="lt-cbq__name">(${LABELS})</h3><p class="lt-cbq__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`(?:>|\\. |^)(${LABELS}) · ${AMT}<`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`(${LABELS}) ${AMT}(?: ·|\\.)`), (m) => m[1], (m) => packExp(m[1]));
@@ -135,10 +138,11 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       for (const l of ["Maths CBQ Pack", "Science CBQ Pack", "Mock Pack", "Chapter Pack", "Maths + Science Bundle"]) expect(fp).toContain(l);
       expect(of("for-parents.html").length).toBeGreaterThanOrEqual(7);
       const pk = of("packs.html").map((x) => x.product);
-      for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "Maths CBQ Pack", "Science CBQ Pack"]) expect(pk).toContain(l);
-      expect(of("packs.html").length).toBeGreaterThanOrEqual(10);
+      // PACKS-TIDY-1: ONE CBQ card with a Maths/Science switch - the static page shows the Maths card (the Science card is the same price, swapped in by the switch).
+      for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "Maths CBQ Pack"]) expect(pk).toContain(l);
+      expect(of("packs.html").length).toBeGreaterThanOrEqual(7); // PACKS-TIDY-1: 10 -> 7 (one CBQ card, one terms line)
     }
-    expect(scan.found.length).toBeGreaterThanOrEqual(34);
+    expect(scan.found.length).toBeGreaterThanOrEqual(28); // PACKS-TIDY-1: 34 -> 28 (packs.html: 7 per variant, was 10)
   });
 
   it("no rupee amount on a priced page is left unchecked", () => {

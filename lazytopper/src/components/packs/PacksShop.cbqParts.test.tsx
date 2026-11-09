@@ -92,7 +92,8 @@ describe("BRIDGE-CODES-1 - a CBQ chapter is ONE row with its parts inside (owner
     fireEvent.click(await screen.findByText("Download files"));
     const rows = await screen.findAllByTestId("cbq-chapter-row");
     expect(rows).toHaveLength(1);
-    expect(rows[0].textContent).toContain("Real Numbers");
+    // PACKS-TIDY-1: the chapter name is the summary of the chapter's own collapsed group around the row.
+    expect(rows[0].closest("details")?.textContent).toContain("Real Numbers");
     const buttons = screen.getAllByTestId("cbq-part-download");
     expect(buttons.map((b) => b.textContent)).toEqual([
       "Part 1 \u00b7 Sets 1\u20133", "Part 2 \u00b7 Sets 4\u20136", "Part 3 \u00b7 Sets 7\u20139",

@@ -24,7 +24,7 @@
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  padding-bottom: 88px; /* clear the mobile bottom nav */
+  padding-bottom: 88px;
 }
 /* BUY-FOCUS-1 — no bottom nav mounted (signed-out visitors, desktop): drop the nav clearance. */
 body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
@@ -35,42 +35,12 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 .lt-packs__w { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
 .lt-packs__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; white-space: nowrap; }
 
-/* hero + tiles */
+/* hero */
 .lt-packs__hero { background: transparent; }
-.lt-packs__herogrid { padding: 0; }
-.lt-packs__copy { background: var(--pk-navy); color: #fff; padding: 22px 20px 26px; display: flex; flex-direction: column; gap: 8px; }
 .lt-packs__kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #6fe0a8; line-height: 1.4; }
-.lt-packs__copy .lt-founder-badge { align-self: flex-start; margin: 2px 0 4px; }
-.lt-packs__copy h1 { font-size: 29px; line-height: 1.15; font-weight: 700; }
 .lt-packs__lede { margin: 0; font-size: 16px; line-height: 1.5; color: #f1f4f8; }
-.lt-packs__lede--long { display: none; }
 .lt-packs__terms--hero { display: none; }
-.lt-packs__tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 16px 12px 0; }
-.lt-packs__cell { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
-.lt-packs__cell .lt-packs__tile { flex: 1 1 auto; }
-.lt-packs__cell .lt-psl { align-self: center; }
-/* the hero is navy only from 1024px: there the link is the light green, below it sits on the soft white page */
-@media (min-width: 1024px) {
-  .lt-packs__cell .lt-psl { color: #6fe0a8; }
-  .lt-packs__cell .lt-psl-pair { color: #dbe4f0; }
-  .lt-packs__cell .lt-psl-pair__dot { color: #9fb0c8; }
-  .lt-packs__cell .lt-psl:hover { color: #9cf0c6; }
-  .lt-packs__cell .lt-psl:focus-visible { outline-color: #e8b94a; }
-}
-.lt-packs__tile {
-  display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-height: 176px; padding: 14px; border-radius: 16px;
-  background: #fff; color: var(--pk-ink); border: 1px solid var(--pk-line2); font: inherit; cursor: pointer; min-width: 0;
-}
-.lt-packs__tile:hover { border-color: var(--pk-navy); }
-.lt-packs__tile--best { border: 2px solid var(--pk-g); padding: 13px; }
-.lt-packs__tkick { font-size: 13px; font-weight: 700; color: var(--pk-gt); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.3; }
-.lt-packs__tname { font-family: var(--pk-serif); font-size: 19px; font-weight: 700; margin-top: 4px; line-height: 1.2; }
-.lt-packs__tprice { font-family: var(--pk-serif); font-size: 26px; font-weight: 700; margin-top: 6px; line-height: 1.1; }
-.lt-packs__tline { font-size: 14px; line-height: 1.4; color: var(--pk-ink2); margin-top: 4px; }
-.lt-packs__tline--long { display: none; }
-.lt-packs__topen { margin-top: auto; padding-top: 8px; font-size: 15px; font-weight: 700; color: var(--pk-gt); }
 .lt-packs__terms { margin: 0; font-size: 14px; line-height: 1.5; color: var(--pk-ink2); }
-.lt-packs__terms--page { padding: 14px 20px 0; text-align: center; }
 .lt-packs__status { margin: 14px 0 0; padding: 12px 14px; background: #e6f4ec; border-radius: 12px; color: var(--pk-gt); font-weight: 600; font-size: 15px; }
 
 /* FAQ */
@@ -81,7 +51,6 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 .lt-packs__faq p { margin: 0 0 14px; color: var(--pk-ink2); font-size: 16px; line-height: 1.6; }
 
 /* buttons */
-.lt-packs__buy { margin-top: auto; }
 .lt-packs__btn { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: #3fbf82; color: #0f1b2d; font: inherit; font-weight: 700; font-size: 15px; padding: 0 16px; cursor: pointer; }
 .lt-packs__btn:disabled { background: #c8d3df; color: #4a5a6e; cursor: not-allowed; }
 .lt-packs__btn--ghost { background: #fff; color: var(--pk-gt); border: 1px solid var(--pk-g); width: auto; min-width: 120px; }
@@ -94,7 +63,6 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 .lt-packs__partbtns { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 200px; min-width: 0; }
 .lt-packs__link { display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; padding: 0 8px; font: inherit; color: var(--pk-gt); text-decoration: underline; cursor: pointer; min-height: 44px; }
 .lt-packs__note { margin: 10px 0 0; font-size: 13.5px; color: var(--pk-ink2); }
-.lt-packs__note--ok { color: var(--pk-gt); font-weight: 600; }
 .lt-packs__note--bad { color: var(--pk-bad); }
 
 /* My packs */
@@ -127,77 +95,14 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 @media (min-width: 1024px) {
   .lt-packs { padding-bottom: 0; }
   .lt-packs__hero { background: var(--pk-navy); }
-  .lt-packs__herogrid { max-width: 1366px; padding: 56px 110px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; align-items: center; }
-  .lt-packs__copy { padding: 0; gap: 20px; background: transparent; }
   .lt-packs__kicker { font-size: 15px; letter-spacing: 0.1em; }
-  .lt-packs__copy h1 { font-size: clamp(40px, 3.9vw, 54px); line-height: 1.08; }
   .lt-packs__lede { font-size: 21px; line-height: 1.6; }
-  .lt-packs__lede--long { display: inline; }
-  .lt-packs__lede--short { display: none; }
   .lt-packs__terms--hero { display: block; font-size: 17px; color: #f1f4f8; }
-  .lt-packs__terms--page { display: none; }
-  .lt-packs__tiles { gap: 14px; padding: 0; }
-  .lt-packs__tile { min-height: 196px; padding: 20px; border-radius: 18px; }
-  .lt-packs__tile--best { padding: 18px; border-width: 3px; }
-  .lt-packs__tkick { font-size: 14px; }
-  .lt-packs__tname { font-size: 23px; margin-top: 6px; }
-  .lt-packs__tprice { font-size: 34px; }
-  .lt-packs__tline { font-size: 16px; line-height: 1.45; }
-  .lt-packs__tline--long { display: block; }
-  .lt-packs__tline--short { display: none; }
-  .lt-packs__topen { font-size: 16px; padding-top: 10px; }
   .lt-packs__faq { padding: 40px 0 24px; }
   .lt-packs__faqgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .lt-packs__faq details { border-radius: 14px; padding: 0 22px; }
   .lt-packs__faq summary { font-size: 18px; min-height: 60px; }
 }
-@media (min-width: 640px) and (max-width: 1023px) {
-  .lt-packs__tiles { max-width: 640px; margin: 0 auto; }
-}
-
-/* The CBQ band sits full-width at the top of the hero (CBQ-PACK-1). */
-.lt-packs__cbqwrap { padding: 0 12px; }
-.lt-packs__cbqwrap .lt-cbq { margin: 16px 0 0; }
-@media (min-width: 1024px) {
-  .lt-packs__cbqwrap { padding: 0; grid-column: 1 / -1; grid-row: 2; }
-  .lt-packs__cbqwrap .lt-cbq { margin: 0; }
-  .lt-packs__copy { grid-column: 1; grid-row: 1; }
-  .lt-packs__shelf { grid-column: 2; grid-row: 1; }
-}
 
 /* PRICING-ONE-1: My packs / status line when the shop sits inside /pricing (no full-page chrome). */
 .lt-packs.lt-packs--embedded { min-height: 0; padding-bottom: 0; background: transparent; max-width: 1040px; margin: 0 auto; width: 100%; }
-
-/* PACKS-CONVERT-1 (owner, 3 Nov 2026) - the shelf order is the DOM order at every width: the Bundle ("Pre-boards pick") alone and
-   full width, then the CBQ band (Maths + Science CBQ packs), then Subject, Mock, Chapter. (Replaces BUY-PATH-1's phone-only
-   `order: -1` on the Bundle cell.) */
-.lt-packs__tiles--lead { grid-template-columns: minmax(0, 1fr); }
-.lt-packs__tiles--lead .lt-packs__tile { min-height: 0; }
-.lt-packs__more .lt-packs__tiles { padding-top: 16px; }
-/* three tiles in two columns: the last one takes the full row instead of sitting alone at half width */
-.lt-packs__tiles--rest > .lt-packs__cell:last-child:nth-child(odd) { grid-column: 1 / -1; }
-/* item 4: one line of what is inside, right above Buy */
-.lt-packs__tcontents { margin: 8px 2px 0; font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--pk-ink2); }
-
-@media (min-width: 1024px) {
-  .lt-packs__herogrid { padding: 36px 110px 56px; row-gap: 28px; align-items: start; }
-  .lt-packs__copy { align-self: center; }
-  .lt-packs__more { grid-column: 1 / -1; grid-row: 3; }
-  .lt-packs__more .lt-packs__tiles { padding-top: 0; }
-  .lt-packs__tiles--rest { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .lt-packs__tiles--rest > .lt-packs__cell:last-child:nth-child(odd) { grid-column: auto; }
-  .lt-packs__tiles--lead .lt-packs__tile { min-height: 0; }
-  .lt-packs__tcontents { color: #dbe4f0; font-size: 15px; }
-  /* the CBQ band on /packs, desktop: heading block on the left, the two packs on the right, so both CBQ packs sit in the first
-     screen with the Bundle. The extra height of the cards goes into the last (1fr) row, never between the heading lines. */
-  .lt-packs__cbqwrap .lt-cbq {
-    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); grid-template-rows: auto auto auto auto 1fr;
-    column-gap: 28px; row-gap: 10px; align-items: start;
-  }
-  .lt-packs__cbqwrap .lt-cbq > * { grid-column: 1; }
-  .lt-packs__cbqwrap .lt-cbq__badge { grid-row: 1; justify-self: start; }
-  .lt-packs__cbqwrap .lt-cbq__title { grid-row: 2; font-size: 30px; }
-  .lt-packs__cbqwrap .lt-cbq__sub { grid-row: 3; }
-  .lt-packs__cbqwrap .lt-cbq__foot { grid-row: 4; }
-  .lt-packs__cbqwrap .lt-cbq__grid { grid-column: 2; grid-row: 1 / -1; margin-top: 0; }
-}

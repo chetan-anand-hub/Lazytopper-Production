@@ -1,0 +1,49 @@
+/*
+ * PACKS-TIDY-1 - My packs as ONE collapsed row per owned pack (native <details>), the compact "first marked" card and the Board Pass /
+ * holder card beside (>= 1024px) or under the rows. Every selector is scoped under `.lt-packs` and uses NEW class names, so the
+ * embedded My packs on /pricing (the old OwnedPackCard) is untouched.
+ */
+/* a /packs#my-packs link: ONE short line is held from the first paint (the static page's script adds the same class), so the line
+   never pushes the heading down. 170px = the panel's measured height at 360px; it is also at least the 1280px height. */
+.lt-packs__mineslot--note { min-height: 170px; }
+.lt-packs__mine--note { min-height: 170px; box-sizing: border-box; }
+
+/* the skeleton shown for a device that knows this account owns packs: a real heading, placeholder rows */
+.lt-packs__mineskel--tidy { display: block; padding: 14px 0 4px; max-width: none; margin: 0; }
+.lt-packs__mineskel--tidy::before { content: none; }
+.lt-packs__skelcard { background: var(--pk-card); border: 1px solid var(--pk-line); border-radius: 16px; padding: 16px; margin: 12px; }
+.lt-packs__skelh { font-size: 22px; margin-bottom: 4px; }
+.lt-packs__skelrows { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.lt-packs__skelrow { display: block; min-height: 56px; border-radius: 14px; background: #eef2f6; border: 1px solid var(--pk-line); }
+@media (min-width: 640px) {
+  .lt-packs__skelcard { max-width: 1180px; margin: 12px auto; }
+}
+
+/* the panel + rows layout */
+.lt-pbt { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 12px; }
+.lt-pbt__main { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+@media (min-width: 1024px) {
+  .lt-pbt { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; }
+  .lt-pbt.lt-pbt--single { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* one owned pack = one row */
+.lt-pm { border: 1px solid var(--pk-line); border-radius: 14px; background: #fff; }
+.lt-pm[open] { border-color: var(--pk-line2); }
+.lt-pm__sum, .lt-pm__gsum { cursor: pointer; list-style: none; -webkit-tap-highlight-color: transparent; }
+.lt-pm__sum::-webkit-details-marker, .lt-pm__gsum::-webkit-details-marker { display: none; }
+.lt-pm__sum { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; min-height: 56px; padding: 8px 14px; }
+.lt-pm__name { grid-column: 1; font-family: var(--pk-serif); font-size: 16px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.lt-pm__meta { grid-column: 1; font-size: 13px; line-height: 1.3; color: var(--pk-ink2); }
+.lt-pm__sum::after, .lt-pm__gsum::after {
+  content: ""; width: 9px; height: 9px; border-right: 2px solid var(--pk-ink2); border-bottom: 2px solid var(--pk-ink2); transform: rotate(45deg); margin: 0 4px 3px 0; transition: transform 0.15s ease;
+}
+.lt-pm__sum::after { grid-column: 2; grid-row: 1 / span 2; }
+.lt-pm[open] > .lt-pm__sum::after, .lt-pm__grp[open] > .lt-pm__gsum::after { transform: rotate(-135deg); margin-bottom: -3px; }
+@media (prefers-reduced-motion: reduce) { .lt-pm__sum::after, .lt-pm__gsum::after { transition: none; } }
+.lt-pm__body { padding: 0 14px 14px; border-top: 1px solid var(--pk-line); }
+.lt-pm__grp { border-bottom: 1px solid var(--pk-line); }
+.lt-pm__grp:last-child { border-bottom: 0; }
+.lt-pm__gsum { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; font-size: 15px; }
+.lt-pm__gname { font-weight: 600; min-width: 0; flex: 1 1 auto; overflow-wrap: anywhere; }
+.lt-pm__gmeta { font-size: 13px; color: var(--pk-ink2); flex: 0 0 auto; }

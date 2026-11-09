@@ -92,3 +92,16 @@
   .lt-packs .lt-pb--passonly { grid-template-columns: minmax(0, 520px); justify-content: start; }
   .lt-packs .lt-pb__rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* PACKS-TIDY-1: the tidy layout's bridge-only pieces (the Panel renders them; they are not needed before it loads) */
+.lt-pbt__side { display: flex; flex-direction: column; gap: 12px; align-self: start; min-width: 0; }
+.lt-pbt__intro { margin: 4px 0 4px; font-size: 14px; line-height: 1.45; color: var(--pk-ink2); }
+.lt-pbt__introp { margin: 0; }
+.lt-packs a.lt-pbt__sample { display: flex; align-items: center; min-height: 44px; font-weight: 600; }
+.lt-packs .lt-pbt .lt-pb__pass { background: #fff; border: 1px solid var(--pk-line); }
+/* the navy first-marked / paper rows blocks, shown inside the white page */
+.lt-packs .lt-packs__mine .lt-pb.lt-pb--inline { margin: 0; padding: 0; gap: 0; background: transparent; border-radius: 0; }
+.lt-packs .lt-pb__first--compact { padding: 12px; gap: 6px; }
+.lt-packs .lt-pb__first--compact .lt-pb__big { font-size: 28px; }
+.lt-packs .lt-pb__first--compact .lt-pb__of { font-size: 16px; }
+.lt-packs .lt-pm .lt-pb.lt-pb--inline { margin-top: 12px; padding: 12px; background: var(--pb-navy); border-radius: 14px; }

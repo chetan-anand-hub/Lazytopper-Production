@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { trackSaleMoment } from "../../analytics/analytics";
 import { trackPackEvent } from "../../lib/packs/packAnalytics";
@@ -58,6 +58,13 @@ export interface MyPacksBridgeProps {
   onBuyPack: (sku: PackSku, target: string | undefined) => void;
   /** Open (and scroll to) one pack's file list - the existing My packs mechanism. */
   onOpenFiles: (packId: string) => void;
+  /**
+   * PACKS-TIDY-1 (opt-in, /packs only): `tidy` lays the panel out as part of the collapsed My packs list - a compact first-marked card
+   * and one intro line on top, the pack rows (`children`) below, the Board Pass / holder card beside them (>= 1024px) or under them.
+   * The per-pack paper rows then live inside each pack's row (PackPapers). Left out: the panel exactly as before.
+   */
+  tidy?: boolean;
+  children?: ReactNode;
 }
 
 interface PackGroup {
@@ -112,7 +119,7 @@ function RowAction({ row, packId, onOpenFiles }: { row: BridgeRow; packId: strin
   );
 }
 
-function PackPapers({ group, title, onOpenFiles }: { group: PackGroup; title: string | null; onOpenFiles: (packId: string) => void }) {
+export function PackPapers({ group, title, onOpenFiles }: { group: PackGroup; title: string | null; onOpenFiles: (packId: string) => void }) {
   const [open, setOpen] = useState(false);
   const rows = open ? group.rows : group.rows.slice(0, BRIDGE_ROWS_COLLAPSED);
   const more = group.rows.length - BRIDGE_ROWS_COLLAPSED;
@@ -142,11 +149,11 @@ function PackPapers({ group, title, onOpenFiles }: { group: PackGroup; title: st
   );
 }
 
-function FirstMarkedCard({ first }: { first: NonNullable<ReturnType<typeof firstMarked>> }) {
+function FirstMarkedCard({ first, compact = false }: { first: NonNullable<ReturnType<typeof firstMarked>>; compact?: boolean }) {
   const { paper, record } = first;
   const line = mistakeLine(record);
   return (
-    <div className="lt-pb__first" data-testid="packs-bridge-first">
+    <div className={compact ? "lt-pb__first lt-pb__first--compact" : "lt-pb__first"} data-testid="packs-bridge-first">
       <span className="lt-pb__firsth">{BRIDGE_COPY.firstMarked}</span>
       <div className="lt-pb__score">
         <span className="lt-pb__big">{roundMarks(Number(record.marksAwarded) || 0)}</span>
@@ -239,7 +246,7 @@ function HolderPacksCard({ offer, onBuy, onNotNow }: { offer: PassOwnerOffer; on
   );
 }
 
-export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuyPack }: MyPacksBridgeProps) {
+export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuyPack, tidy = false, children }: MyPacksBridgeProps) {
   const { records, allowance, paidPass } = data;
   const { groups, first } = useMemo(() => bridgeView(packs, records, { paidPass, allowance }), [packs, records, paidPass, allowance]);
   // The Board Pass card only to an owner KNOWN not to hold a paid Board Pass (never on a guess, never its view event either).
@@ -251,6 +258,46 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
   if (packs.length === 0) return null;
   const hasPapers = groups.length > 0;
   const side = showPass || holderOffer !== null;
+  if (tidy) {
+    const holder = holderOffer ? (
+      <HolderPacksCard
+        offer={holderOffer}
+        onBuy={onBuyPack}
+        onNotNow={() => {
+          snoozePassOffers(Date.now());
+          setSnoozed(true);
+        }}
+      />
+    ) : null;
+    return (
+      <div className={side ? "lt-pbt" : "lt-pbt lt-pbt--single"} data-testid="packs-bridge">
+        <div className="lt-pbt__main">
+          {first && (
+            <div className="lt-pb lt-pb--inline">
+              <FirstMarkedCard first={first} compact />
+            </div>
+          )}
+          {hasPapers && (
+            <div className="lt-pbt__intro">
+              <p className="lt-pbt__introp">
+                {BRIDGE_COPY.intro} {BRIDGE_COPY.free}
+              </p>
+              <a className="lt-pbt__sample" href={BRIDGE_SAMPLE_PDF_PATH} target="_blank" rel="noopener" data-testid="packs-bridge-sample">
+                {BRIDGE_COPY.sample}
+              </a>
+            </div>
+          )}
+          {children}
+        </div>
+        {side && (
+          <div className="lt-pbt__side">
+            {showPass && <BoardPassCard />}
+            {holder}
+          </div>
+        )}
+      </div>
+    );
+  }
   if (!first && !hasPapers && !side) return null;
   return (
     <div className={`lt-pb${!side ? " lt-pb--nopass" : ""}${!first && !hasPapers ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">

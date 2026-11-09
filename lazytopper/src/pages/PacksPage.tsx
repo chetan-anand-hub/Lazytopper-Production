@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../services/subscriptionService";
@@ -7,13 +7,15 @@ import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
-import { chaptersOfSubject, packPriceLabel, type PackSku } from "../services/packs";
-import { PackSampleChoice } from "../components/packs/PackSampleLink";
+import { chaptersOfSubject, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
+import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
+import SubjectSwitch from "../components/packs/SubjectSwitch";
 import CbqBand from "../components/pricing/CbqBand";
 import PackTileBuy, { PackCbqBuy, sampleBuyFor } from "../components/packs/PackTileBuy";
 import type { PacksShopApi } from "../components/packs/PacksShop";
 import "./packs.css";
 import "./packsTrust.css";
+import "./packsTidy.css";
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 // GST-INVOICE-1: the signed-in student's tax invoices (renders nothing unless VITE_GST_STATE_FIELD is on and there are some).
 import MyInvoices from "../components/gstInvoice/MyInvoices";
@@ -73,46 +75,19 @@ export default function PacksPage() {
       <PacksShop returnPath={PACKS_RETURN_PATH}>
         {(api) => (
           <>
-      <section className="lt-packs__hero" aria-labelledby="packs-h1">
-        <div className="lt-packs__w lt-packs__herogrid">
-          <div className="lt-packs__copy">
+      <section className="lt-packs__hero lt-pt__hero" aria-labelledby="packs-h1">
+        <div className="lt-packs__w">
+          <div className="lt-pt__copy">
             <p className="lt-packs__kicker">PDF packs · CBSE Board Exam 2027</p>
             <FounderBadge tone="dark" />
             <BoardPassOwnerLine />
             <h1 id="packs-h1">Every question. Worked solutions.</h1>
-            <p className="lt-packs__lede">
-              <span className="lt-packs__lede--long">Printable Class 10 Maths and Science question banks. Solve with a pen, then check your work against the worked solutions.</span>
-              <span className="lt-packs__lede--short">Print, solve with a pen, check against worked solutions. Tap a pack to see inside.</span>
-            </p>
-            <p className="lt-packs__terms lt-packs__terms--hero">One-time payment · never renews · {REDOWNLOAD_SHORT}</p>
-          </div>
-          {/* PACKS-CONVERT-1 (owner, 3 Nov 2026): the order a visitor meets the packs - the Bundle ("Pre-boards pick") first, then the
-              two CBQ packs (the most wanted samples), then Subject, Mock, Chapter. DOM order = visual order at every width, so the
-              keyboard and screen-reader order match what is seen. */}
-          <div className="lt-packs__shelf">
-            <div className="lt-packs__tiles lt-packs__tiles--lead" role="list">
-              {LEAD_TILES.map((t) => (
-                <PackCell key={t.sku} t={t} api={api} />
-              ))}
-            </div>
-          </div>
-          <div className="lt-packs__cbqwrap">
-            <CbqBand
-              headingId="packs-cbq-h"
-              sampleSurface="packs_cbq"
-              action={(s) => <PackCbqBuy subject={s} api={api} testPrefix="packs-card-cbq" />}
-              sampleBuy={sampleBuyFor(api, "pack_cbq")}
-            />
-          </div>
-          <div className="lt-packs__more">
-            <div className="lt-packs__tiles lt-packs__tiles--rest" role="list">
-              {REST_TILES.map((t) => (
-                <PackCell key={t.sku} t={t} api={api} />
-              ))}
-            </div>
+            <p className="lt-packs__lede">Printable Class 10 Maths and Science question banks. Solve with a pen, then check your work against the worked solutions.</p>
+            <p className="lt-packs__terms lt-pt__terms">One-time payment · never renews · {REDOWNLOAD_SHORT}</p>
           </div>
         </div>
       </section>
+      <Catalogue api={api} />
       {/* TRUST-1: real student proof near the top, under the hero. Click-to-play; nothing loads from YouTube before the tap. */}
       <section className="lt-packs__proof" aria-labelledby="packs-video">
         <div className="lt-packs__w">
@@ -127,9 +102,7 @@ export default function PacksPage() {
         )}
       </PacksShop>
 
-      <MyInvoices />
-
-      <p className="lt-packs__terms lt-packs__terms--page">One-time payment · never renews · {REDOWNLOAD_SHORT}</p>
+      <MyInvoices collapsible />
 
       <section aria-labelledby="packs-faq-h" className="lt-packs__faq">
         <div className="lt-packs__w">
@@ -185,53 +158,128 @@ export default function PacksPage() {
   );
 }
 
-type Tile = { sku: PackSku; id: string; kicker: string; name: string; lineLong: string; lineShort: string; contents?: string; best?: boolean };
+type Tile = { sku: PackSku; id: string; name: string; line: string; contents: string };
 
-/** One pack tile: the tile (opens "See inside"), its one-line contents, Buy, then the free samples (+ the buy that follows a sample). */
-function PackCell({ t, api }: { t: Tile; api: PacksShopApi }) {
-  const season = t.best && isPreboardsSeason();
+/**
+ * PACKS-TIDY-1 (owner, 9 Nov 2026): the shop as ONE short page. The Bundle (featured, always open) and the CBQ Pack (one card, a
+ * Maths / Science switch) first; then ONE group of collapsed rows for the smaller packs (Subject, Mock, Chapter). DOM order = visual
+ * order at every width. Every Buy / sample / See inside below is the unchanged shop code, only placed differently.
+ */
+function Catalogue({ api }: { api: PacksShopApi }) {
+  const [cbqSubject, setCbqSubject] = useState<PackSubject>("maths");
+  const openSku = api.openSku ?? null;
+  const shopSubject = api.subject;
+  // A deep link (`?pack=cbq&subject=science`, `?buy=pack_cbq&t=science`) preselects the switch.
+  useEffect(() => {
+    if (openSku === "pack_cbq" && shopSubject) setCbqSubject(shopSubject);
+  }, [openSku, shopSubject]);
+  const season = isPreboardsSeason();
   return (
-    <div role="listitem" className={t.best ? "lt-packs__cell lt-packs__cell--best" : "lt-packs__cell"}>
-      <button
-        type="button"
-        className={t.best ? "lt-packs__tile lt-packs__tile--best" : "lt-packs__tile"}
-        onClick={() => api.openPack(t.sku)}
-        aria-haspopup="dialog"
-        data-testid={`packs-card-${t.id}`}
-      >
-        <span className="lt-packs__tkick">{season ? PREBOARDS_PICK_BADGE : t.kicker}</span>
-        <span className="lt-packs__tname">{t.name}</span>
-        <span className="lt-packs__tprice">{packPriceLabel(t.sku)}</span>
-        <span className="lt-packs__tline lt-packs__tline--long">{season ? PREBOARDS_PICK_LINE : t.lineLong}</span>
-        <span className="lt-packs__tline lt-packs__tline--short">{season ? PREBOARDS_PICK_LINE : t.lineShort}</span>
-        <span className="lt-packs__topen">See inside →</span>
-      </button>
-      {/* PACKS-CONVERT-1 item 4: what is inside, in one line, right above Buy (counts only from the pack constants). */}
-      {t.contents && (
-        <p className="lt-packs__tcontents" data-testid={`packs-contents-${t.id}`}>
-          {t.contents}
-        </p>
-      )}
-      {/* PACKS-TILE-BUY-1: Buy right on the tile; "See inside" (the tile) and the sample stay secondary. PACK-SAMPLE-1: the sample
-          link is a sibling of the tile button (a link cannot sit inside a button). PACKS-CONVERT-1: after a sample tap, the buy for
-          that pack follows it right there. */}
-      <PackTileBuy sku={t.sku} api={api} />
-      <PackSampleChoice sku={t.sku} surface="packs_tile" buy={sampleBuyFor(api, t.sku)} />
-    </div>
+    <section className="lt-pt" aria-label="Choose a pack">
+      <div className="lt-packs__w">
+        <p className="lt-pt__samples">Free samples: one-page PDFs, no sign-up.</p>
+        <div className="lt-pt__top">
+          <div className="lt-pt__card lt-pt__card--best" data-testid="packs-cell-bundle">
+            <span className="lt-pt__badge">{season ? PREBOARDS_PICK_BADGE : "Best value"}</span>
+            <h2 className="lt-pt__name">{BUNDLE_NAME}</h2>
+            <p className="lt-pt__price">{packPriceLabel("pack_bundle")}</p>
+            <p className="lt-pt__line">{season ? PREBOARDS_PICK_LINE : `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks, one price`}</p>
+            <PackTileBuy sku="pack_bundle" api={api} />
+            <button type="button" className="lt-ptb__see" onClick={() => api.openPack("pack_bundle")} aria-haspopup="dialog" data-testid="packs-card-bundle">
+              See inside &rarr;
+            </button>
+            <PackSampleChoice sku="pack_bundle" surface="packs_tile" buy={sampleBuyFor(api, "pack_bundle")} />
+          </div>
+          <CbqBand
+            variant="switch"
+            subject={cbqSubject}
+            onSubject={setCbqSubject}
+            headingId="packs-cbq-h"
+            sampleSurface="packs_cbq"
+            action={(s) => <PackCbqBuy subject={s} api={api} testPrefix="packs-card-cbq" />}
+            sampleBuy={sampleBuyFor(api, "pack_cbq")}
+          />
+        </div>
+        <section className="lt-pt__more" aria-labelledby="packs-more-h">
+          <h2 id="packs-more-h" className="lt-pt__morehd">Only need one subject, the mocks, or one chapter?</h2>
+          <div className="lt-pt__rows">
+            {SMALL_PACKS.map((t) => (
+              <SmallPackRow key={t.sku} t={t} api={api} />
+            ))}
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}
+
+/** One smaller pack: collapsed = name, price, one line; open = contents, the subject switch (Subject / Mock), Buy, See inside, sample. */
+function SmallPackRow({ t, api }: { t: Tile; api: PacksShopApi }) {
+  const hasSubject = t.sku === "pack_subject" || t.sku === "pack_mock";
+  const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState<PackSubject>("maths");
+  const [tapped, setTapped] = useState<PackSubject | null>(null);
+  const ref = useRef<HTMLDetailsElement | null>(null);
+  const openSku = api.openSku ?? null;
+  const shopSubject = api.subject;
+  // A deep link or a Buy that targets this pack (?chapter=, ?mock=, ?pack=, ?buy=): open its row, preselect the subject, bring it into view.
+  const wasOpenSku = useRef<PackSku | null>(null);
+  useEffect(() => {
+    if (openSku !== t.sku) {
+      wasOpenSku.current = openSku;
+      return;
+    }
+    setOpen(true);
+    if (hasSubject && shopSubject) setSubject(shopSubject);
+    if (wasOpenSku.current !== t.sku) ref.current?.scrollIntoView?.({ block: "nearest" });
+    wasOpenSku.current = openSku;
+  }, [openSku, shopSubject, t.sku, hasSubject]);
+  const next = tapped && hasSubject ? sampleBuyFor(api, t.sku)(tapped) : null;
+  return (
+    <details
+      ref={ref}
+      className="lt-pt__row"
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      data-testid={`packs-row-${t.id}`}
+    >
+      <summary className="lt-pt__sum">
+        <span className="lt-pt__sname">{t.name}</span>
+        <span className="lt-pt__sprice">{packPriceLabel(t.sku)}</span>
+        <span className="lt-pt__sline">{t.line}</span>
+      </summary>
+      <div className="lt-pt__body">
+        <p className="lt-pt__contents" data-testid={`packs-contents-${t.id}`}>{t.contents}</p>
+        {hasSubject && <SubjectSwitch value={subject} onChange={(s) => { setSubject(s); setTapped(null); }} label={`${t.name} subject`} testPrefix={`packs-subject-${t.id}`} />}
+        <PackTileBuy sku={t.sku} api={api} subject={hasSubject ? subject : undefined} />
+        <button
+          type="button"
+          className="lt-ptb__see"
+          onClick={() => (hasSubject && api.openPackWith ? api.openPackWith(t.sku, subject) : api.openPack(t.sku))}
+          aria-haspopup="dialog"
+          data-testid={`packs-card-${t.id}`}
+        >
+          See inside &rarr;
+        </button>
+        {hasSubject ? (
+          <>
+            <PackSampleLink sku={t.sku} target={subject} surface="packs_tile" label={`Free sample (${subjectLabel(subject)})`} onTapped={() => setTapped(subject)} />
+            {next && <SampleBuyNext sku={t.sku} subject={subject} buy={next} />}
+          </>
+        ) : (
+          <PackSampleChoice sku={t.sku} surface="packs_tile" buy={sampleBuyFor(api, t.sku)} />
+        )}
+      </div>
+    </details>
   );
 }
 
 const MATHS_PACK_CHAPTERS = chaptersOfSubject("maths").length;
 const SCIENCE_PACK_CHAPTERS = chaptersOfSubject("science").length;
 
-/** The Bundle leads (its tile already says "All 26 chapters + 16 board mocks", so it needs no extra contents line). */
-const LEAD_TILES: ReadonlyArray<Tile> = [
-  { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: `Maths + Science: all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks — the whole year at one price`, lineShort: `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks, one price`, best: true },
-];
-
-/** After the CBQ packs: price high to low. */
-const REST_TILES: ReadonlyArray<Tile> = [
-  { sku: "pack_subject", id: "subject", kicker: "Whole subject", name: "Subject Pack", lineLong: "Every chapter of Maths or Science — chapter-wise question bank 2026-27", lineShort: "Every chapter, Maths or Science, 2026-27", contents: `${MATHS_PACK_CHAPTERS} Maths or ${SCIENCE_PACK_CHAPTERS} Science chapters · Sections A–E · with keys` },
-  { sku: "pack_mock", id: "mock", kicker: "Board papers", name: "Mock Pack", lineLong: "8 board-pattern mock papers for 2027, with step-marking keys", lineShort: "8 board-pattern mocks for 2027 + keys", contents: `${MOCKS_PER_SUBJECT} full papers for Maths or Science · step-marking keys` },
-  { sku: "pack_chapter", id: "chapter", kicker: "One chapter", name: "Chapter Pack", lineLong: "Important questions for one chapter, with CBSE step-marking key", lineShort: "Important questions + step-marking key", contents: "Sections A–E · chapter tests · a worksheet · with keys" },
+/** The smaller packs, price high to low (same order and the same pack constants as before). */
+const SMALL_PACKS: ReadonlyArray<Tile> = [
+  { sku: "pack_subject", id: "subject", name: "Subject Pack", line: "Every chapter, Maths or Science, 2026-27", contents: `${MATHS_PACK_CHAPTERS} Maths or ${SCIENCE_PACK_CHAPTERS} Science chapters · Sections A–E · with keys` },
+  { sku: "pack_mock", id: "mock", name: "Mock Pack", line: "8 board-pattern mocks for 2027 + keys", contents: `${MOCKS_PER_SUBJECT} full papers for Maths or Science · step-marking keys` },
+  { sku: "pack_chapter", id: "chapter", name: "Chapter Pack", line: "Important questions + step-marking key", contents: "Sections A–E · chapter tests · a worksheet · with keys" },
 ];

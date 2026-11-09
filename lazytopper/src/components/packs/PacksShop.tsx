@@ -1,4 +1,4 @@
-import { Suspense, lazy, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, type MutableRefObject, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import GstStateLine from "../gstInvoice/GstStateLine";
 import { gstStateFieldOn } from "../../services/gstBuyerOrder";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
@@ -60,6 +60,7 @@ import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPre
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
+import "./packsTidyMine.css";
 // BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card for pack owners: chunk + data prepared in one step, rendered complete.
 import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPacksBridgeLoader";
 // BRIDGE-PANEL-1 round 3 (owner 22:45): the per-device height hint that reserves My packs' space before its data arrives.
@@ -284,6 +285,14 @@ export interface PacksShopApi {
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
    */
   parentAsk: (sku: PackSku, target?: string, opts?: { noQr?: boolean }) => ReactNode;
+  /**
+   * PACKS-TIDY-1 (additive, read-only): the pack whose pop-up is open (or null) and the subject the shop currently holds (a deep link,
+   * a Buy, the pop-up's own switch). /packs uses them to open the matching collapsed row and preselect its Maths / Science switch.
+   */
+  openSku?: PackSku | null;
+  subject?: PackSubject;
+  /** PACKS-TIDY-1: open a pack's pop-up on a chosen subject (the row's Maths / Science switch), exactly as openCbq does for the CBQ Pack. */
+  openPackWith?: (sku: PackSku, subject: PackSubject) => void;
 }
 
 /** PACKS-CONVERT-1: `from: "sample"` = the tap came from the "Liked the sample?" button; it rides on `pack_checkout`. */
@@ -896,6 +905,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0 && bridgeSettled));
   // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
   const [namePromptDone, setNamePromptDone] = useState(false);
+  // PACKS-TIDY-1: a signed-in account with no packs that followed a /packs#my-packs link gets an honest line in the reserved space.
+  const signedInNoPacks = slotEnabled && signedIn && !showMine && mine !== null && mine.packs.length === 0 && mineError === false && location.hash.toLowerCase() === "#my-packs";
   const askName =
     !!user &&
     !namePromptDone &&
@@ -907,10 +918,51 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     !packNameSkipped(user.uid);
   const afterPay = buy.phase === "paid" || buy.phase === "checking" || buy.phase === "confirming";
 
+  // PACKS-TIDY-1: on /packs (not /pricing's embedded My packs, not /for-parents) My packs is ONE collapsed row per owned pack.
+  const tidyMine = slotEnabled;
+  const bridgeView = useMemo(() => {
+    const r = bridge?.ready;
+    if (!tidyMine || !bridgeMine || !r || !r.view || !mine) return null;
+    try {
+      return r.view(mine.packs, r.data.records, { paidPass: r.data.paidPass, allowance: r.data.allowance });
+    } catch {
+      return null;
+    }
+  }, [tidyMine, bridgeMine, bridge, mine]);
+  const justBoughtKey = buy.phase === "paid" ? buy.key : "";
+  const readyPackIds = readyRows.map((r) => r.packId).filter(Boolean).join("|");
+  const openFilesOf = (packId: string) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }));
+  const tidyList = (withRows: boolean): ReactNode =>
+    mine && hasLicenseeContact(mine.licensee)
+      ? mine.packs.map((p) => {
+          const group = withRows ? bridgeView?.groups.find((g) => g.pack.packId === p.packId) : undefined;
+          const Rows = withRows ? bridge?.ready?.PackPapers : undefined;
+          return (
+            <OwnedPackCard
+              key={p.packId}
+              pack={p}
+              mine={mine}
+              openRequest={openReq?.packId === p.packId ? openReq.n : 0}
+              tidy={{
+                autoOpen: p.packId === justBoughtKey || readyPackIds.split("|").includes(p.packId),
+                counts: group ? { papers: group.rows.length, marked: group.rows.filter((r) => r.state.kind === "marked").length } : null,
+                papers:
+                  group && Rows ? (
+                    <div className="lt-pb lt-pb--inline">
+                      <Rows group={group} title={null} onOpenFiles={openFilesOf} />
+                    </div>
+                  ) : null,
+              }}
+            />
+          );
+        })
+      : null;
+  const plainTidyList = tidyMine ? <div className="lt-pbt lt-pbt--single"><div className="lt-pbt__main">{tidyList(false)}</div></div> : null;
+
   const mineSections = (
     <>
       {signedOutMine && (
-        <section className="lt-packs__mine" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine-signedout">
+        <section className="lt-packs__mine lt-packs__mine--note" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine-signedout">
           <div className="lt-packs__w">
             <h2 id="packs-mine-h">My packs</h2>
             <p className="lt-packs__note">
@@ -918,6 +970,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                 Sign in to see your packs
               </Link>
             </p>
+          </div>
+        </section>
+      )}
+
+      {signedInNoPacks && (
+        <section className="lt-packs__mine lt-packs__mine--note" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine-empty">
+          <div className="lt-packs__w">
+            <h2 id="packs-mine-h">My packs</h2>
+            <p className="lt-packs__note">No packs on this account yet. Pick one below.</p>
           </div>
         </section>
       )}
@@ -940,13 +1001,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               </p>
             )}
             {/* BRIDGE-PANEL-1: "Get your papers marked" + the Board Pass card (or a Board Pass holder's packs card) at the TOP of My packs. */}
-            {bridgeWanted && bridgeMine && bridge?.ready && mine && (
-              <BridgeBoundary>
+            {bridgeWanted && bridgeMine && bridge?.ready && mine ? (
+              <BridgeBoundary fallback={tidyMine ? plainTidyList : undefined}>
                 <bridge.ready.Panel
+                  tidy={tidyMine}
                   packs={mine.packs}
                   data={bridge.ready.data}
                   titleOf={ownedPackTitle}
-                  onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))}
+                  onOpenFiles={openFilesOf}
                   onBuyPack={(sku, target) => {
                     // The shop's own buy path (as a ?buy= resume does): that pack's pop-up, then its checkout; from = "pass_me".
                     if (sku === "pack_chapter" && target) setChapter(target);
@@ -956,10 +1018,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                     requestCounts(sku === "pack_chapter" ? target : undefined);
                     void handleBuy(sku, target, { from: "pass_me" });
                   }}
-                />
+                >
+                  {tidyMine ? tidyList(true) : undefined}
+                </bridge.ready.Panel>
               </BridgeBoundary>
+            ) : (
+              tidyMine && plainTidyList
             )}
-            {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
+            {!tidyMine && mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
             {/* PACK-READY-1: the name is offered AFTER the files, never in front of the first download (PDFs fall back to the masked phone). */}
             {askName && user && mine && (
               <PackNamePrompt
@@ -978,6 +1044,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     </>
   );
 
+  // PACKS-TIDY-1: a /packs#my-packs link reserves ONE short line for its panel from the first paint (the static page's script does the
+  // same), so the honest "Sign in to see your packs" / "no packs yet" line never pushes the heading down. Only when no owner hint reserved more.
+  const noteSlot = slotEnabled && !reserve && location.hash.toLowerCase() === "#my-packs";
   const mineAndStatus = (
     <>
       {slotEnabled ? (
@@ -985,9 +1054,21 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           {/* BRIDGE-PANEL-1 round 3: My packs lives in a slot that holds the space a returning owner's My packs needs (device hint)
               from the first paint, so nothing below it moves when it arrives. The script after it does that on the STATIC page
               (prerendered capture); in React's own render it is not added (never executed there anyway). */}
-          <div className="lt-packs__mineslot" ref={slotRef} data-testid="packs-mine-slot">
+          <div className={noteSlot ? "lt-packs__mineslot lt-packs__mineslot--note" : "lt-packs__mineslot"} ref={slotRef} data-testid="packs-mine-slot">
             {mineSections}
-            {reserve && !showMine && !signedOutMine && <div className="lt-packs__mineskel" aria-hidden="true" data-testid="packs-mine-skeleton" />}
+            {reserve && !showMine && !signedOutMine && (
+              <div className="lt-packs__mineskel lt-packs__mineskel--tidy" data-testid="packs-mine-skeleton">
+                {/* PACKS-TIDY-1: the heading is real from the first paint (this device knows the account owns packs); the rows are placeholders. */}
+                <div className="lt-packs__skelcard">
+                  <h2 className="lt-packs__skelh">My packs</h2>
+                  <div aria-hidden="true" className="lt-packs__skelrows">
+                    <span className="lt-packs__skelrow" />
+                    <span className="lt-packs__skelrow" />
+                    <span className="lt-packs__skelrow" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           {import.meta.env.PROD && <script dangerouslySetInnerHTML={{ __html: MINE_HINT_SCRIPT }} />}
         </>
@@ -1051,6 +1132,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // Review fix 2: another pack's checkout is open or being checked - every other Buy waits.
     blockedBy: (sku, target) => otherBusy(sku === "pack_chapter" && !target ? "" : packIdOf(sku, target)),
     parentAsk: (sku, target, opts) => parentAskFor(sku, target, opts),
+    openSku,
+    subject,
+    openPackWith: (sku, s) => {
+      setSubject(s);
+      openPack(sku);
+    },
   };
 
   return (
@@ -1144,7 +1231,16 @@ type FilesState =
   | { phase: "error" }
   | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; codes?: string[]; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }> }> };
 
-function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine: MyPacks; openRequest?: number }) {
+/** PACKS-TIDY-1: what a collapsed owned-pack row (tidy My packs) needs beyond the pack itself. */
+interface TidyRow {
+  /** Starts open: the just-bought pack, the pack the "ready" banner names, the pack a #my-packs link lands on. */
+  autoOpen: boolean;
+  /** This pack's marking rows (the bridge's PackPapers, real statuses), when the bridge is ready. */
+  papers?: ReactNode;
+  counts?: { papers: number; marked: number } | null;
+}
+
+function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack; mine: MyPacks; openRequest?: number; tidy?: TidyRow }) {
   const { user } = useAuth();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -1153,6 +1249,12 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
   const [progress, setProgress] = useState<string | null>(null);
   // A CBQ part that finished says so on its own row ("Saved ✓"), so a student sees Part 1 done before starting Part 2.
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(() => new Set());
+  // PACKS-TIDY-1: a native <details> row; its files are built the first time it is opened (a closed row costs nothing).
+  const [rowOpen, setRowOpen] = useState<boolean>(Boolean(tidy?.autoOpen));
+  const autoOpen = Boolean(tidy?.autoOpen);
+  useEffect(() => {
+    if (autoOpen) setRowOpen(true);
+  }, [autoOpen]);
 
   async function open() {
     if (state.phase === "loading") return;
@@ -1209,28 +1311,38 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
   }
 
   // PACK-READY-1: the "Your pack is ready" banner asks for this card's files directly (one tap): open the list and bring it into view.
-  const cardRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | HTMLDetailsElement | null>(null);
   const lastRequest = useRef(0);
   useEffect(() => {
     if (!openRequest || openRequest === lastRequest.current) return;
     lastRequest.current = openRequest;
-    if (state.phase === "closed" || state.phase === "error") void open();
+    if (tidy) setRowOpen(true);
+    else if (state.phase === "closed" || state.phase === "error") void open();
     cardRef.current?.scrollIntoView?.({ block: "start", behavior: "smooth" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openRequest]);
+  useEffect(() => {
+    if (tidy && rowOpen && state.phase === "closed") void open();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rowOpen]);
 
   const when = paidDate(pack.paidAt);
-  return (
-    <div className="lt-packs__own" data-testid="packs-owned" ref={cardRef}>
-      <div className="lt-packs__own-head">
-        <div>
-          <h3>{ownedPackTitle(pack)}</h3>
-          {when && <p className="lt-packs__muted">Bought {when}</p>}
-        </div>
-        <button type="button" className="lt-packs__btn lt-packs__btn--ghost" onClick={() => void open()} aria-expanded={state.phase === "ready"}>
-          {state.phase === "loading" ? "Preparing…" : state.phase === "ready" ? "Hide files" : "Show files"}
-        </button>
-      </div>
+  /** PACKS-TIDY-1: in the tidy row each chapter / group is its own collapsed <details> (a lone group starts open). */
+  function wrapGroup(g: { group: string; files: unknown[] }, node: ReactNode): ReactNode {
+    if (!tidy) return node;
+    const total = state.phase === "ready" ? state.groups.length : 0;
+    return (
+      <details key={g.group} className="lt-pm__grp" open={total === 1 ? true : undefined}>
+        <summary className="lt-pm__gsum">
+          <span className="lt-pm__gname">{g.group}</span>
+          <span className="lt-pm__gmeta">{g.files.length} {g.files.length === 1 ? "file" : "files"}</span>
+        </summary>
+        {node}
+      </details>
+    );
+  }
+  const filesBody = (
+    <>
       {state.phase === "error" && (
         <p className="lt-packs__note lt-packs__note--bad" role="alert">
           We couldn&rsquo;t prepare these files. <button type="button" className="lt-packs__link" onClick={() => void open()}>Retry</button>
@@ -1240,11 +1352,11 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
         (state.groups.length === 0 ? (
           <p className="lt-packs__muted">No printable files could be prepared for this pack yet.</p>
         ) : (
-          state.groups.map((g) =>
+          state.groups.map((g) => wrapGroup(g,
             // BRIDGE-CODES-1 (owner 8 Nov 23:30): a CBQ chapter is ONE row - its parts inside, one tap each (questions, then keys).
             g.files.length > 0 && g.files.every((f) => f.codes && f.codes.length > 0) ? (
               <div key={g.group} className="lt-packs__grp" data-testid="cbq-chapter-row">
-                <h4>{g.group}</h4>
+                {!tidy && <h4>{g.group}</h4>}
                 {(["questions", "answers"] as const).map((mode) => {
                   const parts = g.files.filter((f) => f.id.endsWith(`-${mode}`));
                   if (parts.length === 0) return null;
@@ -1281,7 +1393,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
               </div>
             ) : (
             <div key={g.group} className="lt-packs__grp">
-              <h4>{g.group}</h4>
+              {!tidy && <h4>{g.group}</h4>}
               <ul className="lt-packs__files">
                 {g.files.map((f) => (
                   <li key={f.id}>
@@ -1300,8 +1412,46 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
               </ul>
             </div>
             ),
-          )
+          ))
         ))}
+    </>
+  );
+  if (tidy) {
+    const c = tidy.counts;
+    const meta = c ? `${c.papers} ${c.papers === 1 ? "paper" : "papers"} · ${c.marked} marked` : when ? `Bought ${when}` : "";
+    return (
+      <details
+        className="lt-pm"
+        data-testid="packs-owned"
+        data-pack-id={pack.packId}
+        ref={cardRef as MutableRefObject<HTMLDetailsElement | null>}
+        open={rowOpen}
+        onToggle={(e) => setRowOpen(e.currentTarget.open)}
+      >
+        <summary className="lt-pm__sum">
+          <span className="lt-pm__name">{ownedPackTitle(pack)}</span>
+          {meta && <span className="lt-pm__meta">{meta}</span>}
+        </summary>
+        <div className="lt-pm__body">
+          {tidy.papers}
+          {state.phase === "loading" && <p className="lt-packs__muted" role="status">Preparing your files…</p>}
+          {filesBody}
+        </div>
+      </details>
+    );
+  }
+  return (
+    <div className="lt-packs__own" data-testid="packs-owned" ref={cardRef as MutableRefObject<HTMLDivElement | null>}>
+      <div className="lt-packs__own-head">
+        <div>
+          <h3>{ownedPackTitle(pack)}</h3>
+          {when && <p className="lt-packs__muted">Bought {when}</p>}
+        </div>
+        <button type="button" className="lt-packs__btn lt-packs__btn--ghost" onClick={() => void open()} aria-expanded={state.phase === "ready"}>
+          {state.phase === "loading" ? "Preparing…" : state.phase === "ready" ? "Hide files" : "Show files"}
+        </button>
+      </div>
+      {filesBody}
     </div>
   );
 }

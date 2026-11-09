@@ -1,0 +1,13 @@
+/* SubjectSwitch (PACKS-TIDY-1): a two-option segmented control built on real radio inputs. Targets >= 44px; the selected option carries a check mark. */
+.lt-ss { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #e8edf3; border: 1px solid #c5cfdb; }
+.lt-ss__opt { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 700; color: #2f3e55; -webkit-tap-highlight-color: transparent; }
+.lt-ss__in { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.lt-ss__txt { display: inline-flex; align-items: center; gap: 6px; pointer-events: none; }
+.lt-ss__opt--on { background: #15233a; color: #fff; }
+.lt-ss__tick { color: #6fe0a8; font-weight: 800; }
+.lt-ss__opt:focus-within { outline: 3px solid #136b43; outline-offset: 2px; }
+.lt-ss--dark { background: rgba(255, 255, 255, 0.08); border-color: #5a6f8f; }
+.lt-ss--dark .lt-ss__opt { color: #dbe4f0; }
+.lt-ss--dark .lt-ss__opt--on { background: #3fbf82; color: #07210f; }
+.lt-ss--dark .lt-ss__tick { color: #07210f; }
+.lt-ss--dark .lt-ss__opt:focus-within { outline-color: #e8b94a; }
