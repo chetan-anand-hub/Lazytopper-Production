@@ -164,7 +164,7 @@ interface DocSpec {
   /** Paper-shaped files only: the pack code + how the existing download path registers it. */
   paper?: Omit<PackPaperReg, "paper">;
   /** BRIDGE-PDF-1: the page-2/3 header for this file and, for a file without its own code, a paper code from this pack (or null). */
-  bridge?: { packLabel: string; exampleCode: () => string | null };
+  bridge?: { packLabel: string; exampleCode: () => string | null; /** CBQ-SAMPLE-1: the CBQ Pack shows the CBQ marked sample. */ sample?: "cbq" };
 }
 
 /** PACK-TERMS-1: the paid time of the owned pack whose order reference is `ref` (the one printed on the file); undefined when unknown. */
@@ -188,7 +188,7 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
       const bridge: BridgePagesData | undefined =
         ctx.bridge && spec.bridge
-          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), ownCode: !!spec.paper?.code, boardPassCard: ctx.bridge.paidBoardPass === false }
+          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), ownCode: !!spec.paper?.code, boardPassCard: ctx.bridge.paidBoardPass === false, ...(spec.bridge.sample ? { sample: spec.bridge.sample } : {}) }
           : undefined;
       await exportPdf(ws, spec.mode, spec.paper?.code, {
         // The exporter's `email` slot is the contact printed after the name: the email, or the MASKED phone.
@@ -224,7 +224,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
       const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
       const bridge: BridgePagesData | undefined =
         ctx.bridge && spec.bridge && papers.length > 0
-          ? { packLabel: spec.bridge.packLabel, exampleCode: papers[0].reg.code, ownCode: true, boardPassCard: ctx.bridge.paidBoardPass === false }
+          ? { packLabel: spec.bridge.packLabel, exampleCode: papers[0].reg.code, ownCode: true, boardPassCard: ctx.bridge.paidBoardPass === false, ...(spec.bridge.sample ? { sample: spec.bridge.sample } : {}) }
           : undefined;
       const opts: ExportOpts = {
         licensee: { name: ctx.licensee.name, email: licenseeContact(ctx.licensee), orderId: spec.orderRef },
@@ -524,7 +524,7 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
           subtitle: "Competency-based questions are marked step by step in the CBSE 2026-27 scheme. Read this once before you start.",
           stats: CBQ_MARKING_RULES.map((r) => ({ ...r })),
         },
-        bridge: { packLabel: bridgePackLabel(bankSubject, sku, subject), exampleCode: () => cbqPackExampleCode(subject) },
+        bridge: { packLabel: bridgePackLabel(bankSubject, sku, subject), exampleCode: () => cbqPackExampleCode(subject), sample: "cbq" },
       },
       sku,
       ctx,
@@ -585,7 +585,7 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
                 types: CBQ_QUESTION_TYPES,
               },
               // Owner 8 Nov 23:30: pages 2-3 ("Get this paper marked" + sample scorecard) only in each chapter's Part 1.
-              ...(pk === 0 ? { bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug) } } : {}),
+              ...(pk === 0 ? { bridge: { packLabel: bridgePackLabel(name, sku, subject), exampleCode: () => cbqBridgeExampleCode(subject, slug), sample: "cbq" } } : {}),
             },
             sku,
             ctx,

@@ -10,7 +10,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
 import type { OwnedPack } from "../../services/packs";
-import { BRIDGE_IMG, BRIDGE_PACKS_URL, BRIDGE_SAMPLE_PDF_PATH, BRIDGE_SAMPLE_PDF_URL, bridgePackLabel, type BridgePagesData } from "./packBridge";
+import { BRIDGE_IMG, BRIDGE_IMG_CBQ, BRIDGE_PACKS_URL, BRIDGE_SAMPLE_CBQ_PDF_PATH, BRIDGE_SAMPLE_CBQ_PDF_URL, BRIDGE_SAMPLE_PDF_PATH, BRIDGE_SAMPLE_PDF_URL, bridgePackLabel, type BridgePagesData } from "./packBridge";
 import { packPaperCode } from "./packPaperCode";
 import { PrintBridgeMarkPage, PrintBridgeViewsPage } from "../../components/worksheet/PrintBridgePages";
 import { WorksheetPrintDoc } from "../../components/worksheet/WorksheetPrintDoc";
@@ -104,6 +104,24 @@ describe("BRIDGE-PDF-1 - who gets pages 2-3", () => {
   });
 });
 
+describe("CBQ-SAMPLE-1 - which marked sample a file shows", () => {
+  it("every CBQ Pack file with pages 2-3 shows the CBQ sample; every other pack keeps the Chapter Test sample", async () => {
+    const cbq = harness(owned("pack_cbq:maths"), { bridge: { paidBoardPass: false } });
+    const cf = await buildPackFiles(cbq.ref, cbq.ctx);
+    await cf[0].build();
+    await cf[1].build();
+    expect(cbq.calls.length).toBeGreaterThan(1);
+    for (const c of cbq.calls) expect(c.bridge!.sample).toBe("cbq");
+    for (const pack of [owned("pack_chapter:real-numbers"), owned("pack_mock:maths"), owned("pack_subject:maths")]) {
+      const h = harness(pack, { bridge: { paidBoardPass: false } });
+      const files = await buildPackFiles(h.ref, h.ctx);
+      await files[0].build();
+      expect(h.calls.length, pack.packId).toBeGreaterThan(0);
+      for (const c of h.calls) expect(c.bridge!.sample, pack.packId).toBeUndefined();
+    }
+  });
+});
+
 describe("BRIDGE-CODES-1 - CBQ parts (owner 8 Nov 23:30)", () => {
   it("pages 2-3 only in each chapter's Part 1; Parts 2+ carry none", async () => {
     const h = harness(owned("pack_cbq:maths"), { bridge: { paidBoardPass: false } });
@@ -193,6 +211,48 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     expect(container.querySelectorAll("img")).toHaveLength(7);
     expect(container.querySelector(`[data-pdf-link="${BRIDGE_SAMPLE_PDF_URL}"]`)?.textContent).toContain("See a marked sample");
     expect(t).not.toMatch(/\bAI\b/);
+  });
+});
+
+describe("CBQ-SAMPLE-1 - the CBQ sample pages", () => {
+  const links = { packs: "https://www.lazytopper.com/packs#my-packs", pricing: "https://www.lazytopper.com/pricing", sample: BRIDGE_SAMPLE_CBQ_PDF_URL };
+  const data: BridgePagesData = { packLabel: "Real Numbers \u00b7 Maths CBQ Pack", exampleCode: "PK-M-RN-CBQ1", ownCode: true, boardPassCard: true, sample: "cbq" };
+
+  it("page 2 names the CBQ sample, its four mistakes and its images; nothing of the Chapter Test sample is left", () => {
+    const { container } = render(<PrintBridgeMarkPage data={data} links={links} />);
+    const t = container.textContent || "";
+    expect(t).toContain("This paper (PK-M-RN-CBQ1) was written by our team with four deliberate mistakes, then marked by LazyTopper exactly as yours will be.");
+    expect(t).toContain("Q11 \u00b7 answer 36, no unit (kg)");
+    expect(t).toContain("Q7 \u00b7 found the HCF where the LCM was needed");
+    expect(t).toContain("Q9 \u00b7 96 \u00f7 24 written as 5; later steps still credited");
+    expect(t).toContain("Q3 \u00b7 wrong option, marked on the answer alone");
+    expect(t).not.toContain("PK-M-RN-CT1");
+    expect(t).not.toMatch(/\bAI\b/);
+    const srcs = Array.from(container.querySelectorAll("img")).map((i) => i.getAttribute("src"));
+    expect(srcs).toEqual([BRIDGE_IMG_CBQ.total, BRIDGE_IMG_CBQ.strip]);
+  });
+
+  it("page 3: six views + the next tile from the CBQ scorecard, 28.5 / 32, and the link to the hosted CBQ sheet", () => {
+    const { container } = render(<PrintBridgeViewsPage data={data} links={links} />);
+    const t = container.textContent || "";
+    expect(t).toContain("The scorecard for the sample paper PK-M-RN-CBQ1 \u2014 28.5 / 32.");
+    expect(t).not.toContain("PK-M-RN-CT1");
+    expect(t).not.toContain("25.5");
+    expect(Array.from(container.querySelectorAll("img")).map((i) => i.getAttribute("src"))).toEqual([...BRIDGE_IMG_CBQ.views, BRIDGE_IMG_CBQ.next]);
+    expect(container.querySelector(`[data-pdf-link="${BRIDGE_SAMPLE_CBQ_PDF_URL}"]`)?.textContent).toContain("See a marked sample");
+    expect(t).not.toMatch(/\bAI\b/);
+  });
+
+  it("the CBQ images and the hosted CBQ graded sheet exist; the images are as small as the Chapter Test ones", () => {
+    for (const src of [BRIDGE_IMG_CBQ.total, BRIDGE_IMG_CBQ.strip, BRIDGE_IMG_CBQ.next, ...BRIDGE_IMG_CBQ.views]) {
+      const p = path.join(PUBLIC, src);
+      expect(existsSync(p), src).toBe(true);
+      expect(statSync(p).size, src).toBeLessThan(40_000);
+    }
+    const sample = path.join(PUBLIC, BRIDGE_SAMPLE_CBQ_PDF_PATH);
+    expect(existsSync(sample)).toBe(true);
+    expect(statSync(sample).size).toBeLessThan(5_500_000); // a 10-page graded sheet; fetched only when tapped, never in a route chunk
+    expect(BRIDGE_SAMPLE_CBQ_PDF_PATH.startsWith("/media/")).toBe(true);
   });
 });
 

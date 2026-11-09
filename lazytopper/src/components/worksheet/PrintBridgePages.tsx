@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BRIDGE_IMG, type BridgePagesData } from "../../lib/packs/packBridge";
+import { BRIDGE_IMG, BRIDGE_IMG_CBQ, type BridgePagesData } from "../../lib/packs/packBridge";
 import { MARKS_HEADING } from "../../lib/mistakeDisplay";
 
 /**
@@ -36,6 +36,26 @@ const VIEWS: ReadonlyArray<{ alt: string; label: ReactNode }> = [
   { alt: "Question 14 marked 3.5 out of 4 with error carried forward", label: <><b>6 · Fair like the board</b> — Q14, later steps credited after a slip</> },
 ];
 
+/**
+ * CBQ-SAMPLE-1: the same blocks for the CBQ Pack's sample, PK-M-RN-CBQ1 (28.5 / 32), from its real scorecard and graded sheet. Four
+ * deliberate mistakes; the copy says only what the images show.
+ */
+const CBQ_CAUGHT: ReadonlyArray<{ what: ReactNode; mark: string }> = [
+  { what: <>Q11 · answer <b>36</b>, no unit (kg)</>, mark: "−½ · Presentation" },
+  { what: "Q7 · found the HCF where the LCM was needed", mark: "−1½ · Concept gap" },
+  { what: "Q9 · 96 ÷ 24 written as 5; later steps still credited", mark: "−½ · Calculation" },
+  { what: "Q3 · wrong option, marked on the answer alone", mark: "0 / 1 · Concept gap" },
+];
+
+const CBQ_VIEWS: ReadonlyArray<{ alt: string; label: ReactNode }> = [
+  { alt: "Scorecard first view: 28.5 out of 32", label: <><b>1 · Your score</b> for the whole set</> },
+  { alt: "Marks by section: objective, very short, short and case study", label: <><b>2 · By section</b> — where the paper went well</> },
+  { alt: "Mistakes by kind: concept gap, presentation, calculation slip", label: <><b>3 · Mistakes by kind</b> — concept gap, slips, presentation</> },
+  { alt: "Question 7 marked 0.5 out of 2: HCF found where LCM was needed", label: <><b>4 · Each answer, step by step</b> — Q7, HCF used where LCM was needed</> },
+  { alt: "Question 9 marked 2.5 out of 3 with error carried forward", label: <><b>5 · Fair like the board</b> — Q9, a slip in step 2, later steps credited</> },
+  { alt: "Question 3 marked 0 out of 1: the wrong option, with the correct one shown", label: <><b>6 · A wrong option</b> — Q3, marked on the answer alone</> },
+];
+
 export interface BridgePageProps {
   data: BridgePagesData;
   /** Link targets (absolute URLs) the exporter turns into PDF link areas. */
@@ -44,6 +64,8 @@ export interface BridgePageProps {
 
 /** Page 2 - "Get this paper marked like a CBSE examiner". */
 export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
+  const cbq = data.sample === "cbq";
+  const caught = cbq ? CBQ_CAUGHT : CAUGHT;
   return (
     <div className="lt-br" data-testid="print-bridge-mark">
       <style>{BRIDGE_CSS}</style>
@@ -81,14 +103,14 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
         <div className="lt-br__realL">
           <span className="lt-br__cap">A real marked paper</span>
           <div className="lt-br__shot lt-br__shot--total">
-            <img src={BRIDGE_IMG.total} alt="Scorecard: Real Numbers Chapter Test 1, 25.5 out of 31" />
+            <img src={cbq ? BRIDGE_IMG_CBQ.total : BRIDGE_IMG.total} alt={cbq ? "Scorecard: Real Numbers CBQ Set 1, 28.5 out of 32" : "Scorecard: Real Numbers Chapter Test 1, 25.5 out of 31"} />
           </div>
-          <span className="lt-br__note">This paper (PK-M-RN-CT1) was written by our team with six deliberate mistakes, then marked by LazyTopper exactly as yours will be.</span>
+          <span className="lt-br__note">{cbq ? "This paper (PK-M-RN-CBQ1) was written by our team with four deliberate mistakes, then marked by LazyTopper exactly as yours will be." : "This paper (PK-M-RN-CT1) was written by our team with six deliberate mistakes, then marked by LazyTopper exactly as yours will be."}</span>
         </div>
         <div className="lt-br__realR">
           <span className="lt-br__cap">What the marking caught</span>
           <div className="lt-br__caught">
-            {CAUGHT.map((c, i) => (
+            {caught.map((c, i) => (
               <div key={i} className="lt-br__crow">
                 <span>{c.what}</span>
                 <span className="lt-br__cmark">{c.mark}</span>
@@ -96,7 +118,7 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
             ))}
           </div>
           <div className="lt-br__shot lt-br__shot--q7">
-            <img src={BRIDGE_IMG.q7} alt="Question 7 marked 1.5 out of 2: write the unit cm with your final answer" />
+            <img src={cbq ? BRIDGE_IMG_CBQ.strip : BRIDGE_IMG.q7} alt={cbq ? "Question 11 marked 2.5 out of 3: write the unit kg with your final answer" : "Question 7 marked 1.5 out of 2: write the unit cm with your final answer"} />
           </div>
         </div>
       </div>
@@ -121,6 +143,9 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
 
 /** Page 3 - "What you get back, screen by screen". */
 export function PrintBridgeViewsPage({ data, links }: BridgePageProps) {
+  const cbq = data.sample === "cbq";
+  const views = cbq ? CBQ_VIEWS : VIEWS;
+  const imgs = cbq ? BRIDGE_IMG_CBQ : BRIDGE_IMG;
   return (
     <div className="lt-br lt-br--views" data-testid="print-bridge-views">
       <style>{BRIDGE_CSS}</style>
@@ -130,14 +155,14 @@ export function PrintBridgeViewsPage({ data, links }: BridgePageProps) {
       </div>
       <div className="lt-br__intro lt-br__intro--tight">
         <h1 className="lt-br__h1 lt-br__h1--s">What you get back, screen by screen</h1>
-        <p className="lt-br__lede lt-br__lede--s">The scorecard for the sample paper PK-M-RN-CT1 — 25.5 / 31. Scroll down it on your phone the same way.</p>
+        <p className="lt-br__lede lt-br__lede--s">{cbq ? "The scorecard for the sample paper PK-M-RN-CBQ1 — 28.5 / 32. Scroll down it on your phone the same way." : "The scorecard for the sample paper PK-M-RN-CT1 — 25.5 / 31. Scroll down it on your phone the same way."}</p>
       </div>
 
       <div className="lt-br__grid">
-        {VIEWS.map((v, i) => (
+        {views.map((v, i) => (
           <div key={i} className="lt-br__view">
             <div className="lt-br__shot lt-br__shot--tile">
-              <img src={BRIDGE_IMG.views[i]} alt={v.alt} />
+              <img src={imgs.views[i]} alt={v.alt} />
             </div>
             <span className="lt-br__vl">{v.label}</span>
           </div>
@@ -146,13 +171,21 @@ export function PrintBridgeViewsPage({ data, links }: BridgePageProps) {
 
       <div className="lt-br__next">
         <div className="lt-br__shot lt-br__shot--tile">
-          <img src={BRIDGE_IMG.next} alt="What next: graded answer sheet, practise the marks you lost, solution key" />
+          <img src={imgs.next} alt={cbq ? "What next: mistakes by kind and the Download graded sheet button" : "What next: graded answer sheet, practise the marks you lost, solution key"} />
         </div>
         <div className="lt-br__nextt">
           <span className="lt-br__nexth">7 · Then: a graded answer sheet PDF</span>
           <span className="lt-br__nextb">Every answer marked step by step with "should be" lines, ready to keep in your file — plus practice for the marks you lost.</span>
           <span className="lt-br__nextb">
-            The full sample graded sheet is in <b data-pdf-link={links.sample}>My packs → See a marked sample</b>.
+            {cbq ? (
+              <>
+                The full sample graded sheet opens from <b data-pdf-link={links.sample}>See a marked sample</b>.
+              </>
+            ) : (
+              <>
+                The full sample graded sheet is in <b data-pdf-link={links.sample}>My packs → See a marked sample</b>.
+              </>
+            )}
           </span>
         </div>
       </div>
