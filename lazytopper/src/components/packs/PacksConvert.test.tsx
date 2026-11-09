@@ -77,9 +77,10 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("PACKS-CONVERT-1 · /packs order", () => {
-  it("DOM (= visual) order: Bundle, Maths CBQ, Science CBQ, Subject, Mock, Chapter", () => {
+  it("DOM (= visual) order: Bundle, CBQ (switch), Subject, Mock, Chapter", () => {
     page();
-    const ids = ["packs-card-bundle", "cbq-card-maths", "cbq-card-science", "packs-card-subject", "packs-card-mock", "packs-card-chapter"];
+    // PACKS-TIDY-1: the CBQ Pack is ONE card with a Maths / Science switch; Subject, Mock and Chapter are collapsed rows.
+    const ids = ["packs-cell-bundle", "cbq-card-maths", "packs-row-subject", "packs-row-mock", "packs-row-chapter"];
     const els = ids.map((id) => screen.getByTestId(id));
     for (let i = 1; i < els.length; i++) {
       expect(els[i - 1].compareDocumentPosition(els[i]) & Node.DOCUMENT_POSITION_FOLLOWING, `${ids[i - 1]} before ${ids[i]}`).toBeTruthy();
@@ -95,7 +96,7 @@ describe("PACKS-CONVERT-1 · /packs order", () => {
     expect(screen.getByTestId("packs-contents-subject").textContent).toBe(`${maths} Maths or ${science} Science chapters · Sections A–E · with keys`);
     expect(screen.getByTestId("packs-contents-mock").textContent).toBe(`${MOCKS_PER_SUBJECT} full papers for Maths or Science · step-marking keys`);
     expect(screen.getByTestId("packs-contents-chapter").textContent).toBe("Sections A–E · chapter tests · a worksheet · with keys");
-    expect(screen.getByTestId("packs-card-bundle").textContent).toContain(`${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS}`);
+    expect(screen.getByTestId("packs-cell-bundle").textContent).toContain(`${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS}`);
     // above the Buy
     const line = screen.getByTestId("packs-contents-mock");
     expect(line.compareDocumentPosition(screen.getByTestId("tile-buy-pack_mock-maths")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -125,6 +126,7 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
   it("the CBQ card: Science sample -> buy Science CBQ ₹199; the Bundle sample -> buy the Bundle ₹299", async () => {
     page();
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("cbq-subject-science"));
     fireEvent.click(sampleLink("cbq-science"));
     const cbq = await screen.findByTestId("sample-buy-pack_cbq-science");
     expect(cbq.textContent).toBe(`Liked the sample? Get the Science CBQ Pack · ${packs.packPayLabel("pack_cbq")}`);
@@ -173,6 +175,7 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     owned.packs = [];
     flags.packs = false;
     page();
+    fireEvent.click(screen.getByTestId("packs-subject-mock-science"));
     fireEvent.click(sampleLink("mock-science"));
     expect(screen.queryByTestId("sample-buy-pack_mock-science")).toBeNull();
   });

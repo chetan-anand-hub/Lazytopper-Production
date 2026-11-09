@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import SubjectSwitch from "../packs/SubjectSwitch";
 import { PACK_PRICE_INR, chaptersOfSubject, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 import PackSampleLink, { SampleBuyNext, type SampleBuy } from "../packs/PackSampleLink";
@@ -26,12 +27,54 @@ export interface CbqBandProps {
    * and no ownership read), it is always the one-tap checkout link `/packs?buy=…&from=sample` - /packs then handles an owned pack.
    */
   sampleBuy?: (subject: PackSubject) => SampleBuy | null;
+  /**
+   * PACKS-TIDY-1 (opt-in; /packs only): "switch" = ONE card with a Maths / Science segmented switch and one Buy, instead of the two
+   * parallel cards. `subject` / `onSubject` let the page preselect a subject (a deep link). Left out (/pricing, /cbq-class-10):
+   * the two cards exactly as before.
+   */
+  variant?: "switch";
+  subject?: PackSubject;
+  onSubject?: (s: PackSubject) => void;
 }
 
 /** Review fix 2: `from=sample` rides on the one-tap link; /packs adds it to the ONE pack_checkout it sends on that resume. */
 const hrefBuy = (s: PackSubject): SampleBuy => ({ href: `${buyHrefFor("pack_cbq", s)}&from=sample` });
 
-export default function CbqBand({ action, headingId, sampleSurface, sampleBuy = hrefBuy }: CbqBandProps) {
+export default function CbqBand(props: CbqBandProps) {
+  return props.variant === "switch" ? <CbqSwitchBand {...props} /> : <CbqBandCards {...props} />;
+}
+
+function CbqSwitchBand({ action, headingId, sampleSurface, sampleBuy = hrefBuy, subject, onSubject }: CbqBandProps) {
+  const price = packPriceLabel("pack_cbq");
+  const [own, setOwn] = useState<PackSubject>("maths");
+  const s = subject ?? own;
+  const [tapped, setTapped] = useState<PackSubject | null>(null);
+  return (
+    <section className="lt-cbq lt-cbq--switch" id="cbq" aria-labelledby={headingId} data-testid="cbq-band" data-price={PACK_PRICE_INR.pack_cbq}>
+      <span className="lt-cbq__badge">NEW · CBQ</span>
+      <h2 className="lt-cbq__title" id={headingId}>{CBQ_HEADLINE}</h2>
+      <p className="lt-cbq__sub">Curated CBQs, chapter-wise and topic-wise: MCQ, assertion-reason, short, case study and long answer.</p>
+      <div className="lt-cbq__card" data-testid={`cbq-card-${s}`}>
+        <SubjectSwitch value={s} onChange={(next) => (onSubject ? onSubject(next) : setOwn(next))} label="CBQ Pack subject" tone="on-dark" testPrefix="cbq-subject" />
+        <h3 className="lt-cbq__name">{subjectLabel(s)} CBQ Pack</h3>
+        <p className="lt-cbq__price">{price}</p>
+        <p className="lt-cbq__count">{CBQ_SUBJECT_CLAIM} · every chapter · 1- to 5-mark questions · step-wise worked solutions</p>
+        <ul className="lt-cbq__list">
+          <li>{chaptersOfSubject(s).length} chapters, {CBQ_CHAPTER_CLAIM}</li>
+          <li>Your name on every page</li>
+        </ul>
+        {action(s)}
+        <div className="lt-cbq__sample">
+          <PackSampleLink sku="pack_cbq" target={s} surface={sampleSurface} tone="on-dark" onTapped={() => setTapped(s)} />
+        </div>
+        {tapped === s && <SampleNext subject={s} buy={sampleBuy(s)} />}
+      </div>
+      <p className="lt-cbq__foot">One-time {price} per pack, download till 31 March 2027 · Made by an IITian (IIT Kanpur)</p>
+    </section>
+  );
+}
+
+function CbqBandCards({ action, headingId, sampleSurface, sampleBuy = hrefBuy }: CbqBandProps) {
   const price = packPriceLabel("pack_cbq");
   const [tapped, setTapped] = useState<PackSubject | null>(null);
   return (

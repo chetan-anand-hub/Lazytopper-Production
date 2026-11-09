@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
@@ -92,7 +92,7 @@ describe("PacksPage", () => {
     expect(screen.queryByTestId("packs-mine")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.getByTestId("founder-badge").textContent).toBe("Made by an IITian (IIT Kanpur)");
-    expect(screen.getByTestId("founder-badge").closest(".lt-packs__copy")).not.toBeNull();
+    expect(screen.getByTestId("founder-badge").closest(".lt-pt__copy")).not.toBeNull();
     expect(events.names).toContain("pack_view");
   });
 
@@ -101,17 +101,17 @@ describe("PacksPage", () => {
     try {
       vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30"));
       page();
-      const tile = screen.getByTestId("packs-card-bundle");
+      const tile = screen.getByTestId("packs-cell-bundle");
       expect(tile.textContent).toContain("Pre-boards pick");
       expect(tile.textContent).toContain("All 26 chapters + 16 board mocks \u2014 ready before your pre-boards");
       expect(tile.textContent).toContain("Maths + Science Bundle");
       expect(tile.textContent).toContain("\u20b9299");
       expect(tile.textContent).not.toContain("Best value");
-      for (const id of ["chapter", "mock", "subject"]) expect(screen.getByTestId(`packs-card-${id}`).textContent).not.toContain("Pre-boards pick");
+      for (const id of ["chapter", "mock", "subject"]) expect(screen.getByTestId(`packs-row-${id}`).textContent).not.toContain("Pre-boards pick");
       cleanup();
       vi.setSystemTime(new Date("2026-12-21T00:00:00+05:30"));
       page();
-      const after = screen.getByTestId("packs-card-bundle").textContent ?? "";
+      const after = screen.getByTestId("packs-cell-bundle").textContent ?? "";
       expect(after).toContain("Best value");
       expect(after).toContain("All 26 chapters + 16 mocks, one price");
       expect(after).not.toContain("Pre-boards pick");
@@ -124,15 +124,20 @@ describe("PacksPage", () => {
     page("/packs#cbq");
     const band = screen.getByTestId("cbq-band");
     expect(band.id).toBe("cbq");
-    expect(band.closest(".lt-packs__hero")).not.toBeNull();
+    expect(band.closest(".lt-pt")).not.toBeNull();
     expect(band.textContent).toContain("NEW · CBQ");
     expect(band.textContent).toContain("Half your board paper is competency-based.");
+    // PACKS-TIDY-1: ONE card with a Maths / Science switch (Maths first); switching swaps the whole card together.
     expect(band.textContent).toContain("Maths CBQ Pack");
-    expect(band.textContent).toContain("Science CBQ Pack");
     expect(band.textContent).not.toMatch(/for both|both subjects/i);
     expect(screen.getByTestId("cbq-card-maths").textContent).toContain("₹199");
+    expect(screen.queryByTestId("cbq-card-science")).toBeNull();
+    expect(screen.getByRole("radiogroup", { name: "CBQ Pack subject" })).toBeTruthy();
+    fireEvent.click(screen.getByTestId("cbq-subject-science"));
+    expect(screen.queryByTestId("cbq-card-maths")).toBeNull();
+    expect(band.textContent).toContain("Science CBQ Pack");
     expect(screen.getByTestId("cbq-card-science").textContent).toContain("₹199");
-    for (const line of ["13 chapters", "MCQ · Assertion-Reason · Short answer · Case study · Long answer", "Your name on every page", "download till 31 March 2027", "Made by an IITian (IIT Kanpur)"]) {
+    for (const line of ["13 chapters", "Your name on every page", "download till 31 March 2027", "Made by an IITian (IIT Kanpur)"]) {
       expect(band.textContent, line).toContain(line);
     }
     // the claim is a static floor, visible without any interaction and without loading the bank
@@ -239,8 +244,8 @@ describe("PacksPage", () => {
     const dlg = await screen.findByRole("dialog");
     expect(dlg.textContent).toContain("₹537");
     expect(dlg.textContent).toContain("Chapters included (13)");
-    fireEvent.click(screen.getByRole("radio", { name: "Science" }));
-    expect(screen.getByRole("radio", { name: "Science" }).getAttribute("aria-checked")).toBe("true");
+    fireEvent.click(within(dlg).getByRole("radio", { name: "Science" }));
+    expect(within(dlg).getByRole("radio", { name: "Science" }).getAttribute("aria-checked")).toBe("true");
     expect((screen.getByTestId("packs-buy-pack_subject") as HTMLButtonElement).textContent).toBe("Opens soon");
   });
 
@@ -436,7 +441,12 @@ describe("PacksPage", () => {
     page();
     await waitFor(() => expect(screen.getByTestId("packs-owned")).toBeTruthy());
     expect(screen.getByTestId("packs-owned").textContent).toMatch(/Subject Pack · Maths/);
-    fireEvent.click(screen.getByRole("button", { name: "Show files" }));
+    // PACKS-TIDY-1: one collapsed row per pack (a native <details>); opening it builds the files, no "Show files" button.
+    expect(screen.queryByRole("button", { name: "Show files" })).toBeNull();
+    const row = screen.getByTestId("packs-owned") as HTMLDetailsElement;
+    expect(row.tagName).toBe("DETAILS");
+    expect(row.open).toBe(false);
+    fireEvent.click(row.querySelector("summary") as HTMLElement);
     await waitFor(() => expect(screen.getByText("Section A · Questions")).toBeTruthy());
     expect(screen.getByRole("button", { name: "Download" })).toBeTruthy();
   });

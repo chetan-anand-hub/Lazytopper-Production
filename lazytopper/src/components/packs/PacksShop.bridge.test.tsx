@@ -160,7 +160,8 @@ describe("BRIDGE-PANEL-1 · mount", () => {
     await screen.findByTestId("packs-owned");
     await new Promise((r) => setTimeout(r, 30));
     expect(screen.queryByTestId("packs-bridge")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Show files" }));
+    // PACKS-TIDY-1: the pack is one collapsed row; opening it builds its files (no "Show files" button).
+    fireEvent.click(screen.getByTestId("packs-owned").querySelector("summary") as HTMLElement);
     expect(await screen.findByText("Chapter Test 1 · Questions")).toBeTruthy();
     err.mockRestore();
   });
@@ -169,7 +170,7 @@ describe("BRIDGE-PANEL-1 · mount", () => {
 describe("BRIDGE-PANEL-1 round 3 · the reserved My packs slot (device height hint, owner 22:45)", () => {
   const hintFor = (uid: string, px: number) =>
     // The page stamps and checks the hint with the page clock (mineHint.hintNow), so the test does too (also under the clock jobs).
-    localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: uid, t: hintNow(), h: { [String(window.innerWidth)]: px } }));
+    localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: uid, t: hintNow(), h: { [`t${window.innerWidth}`]: px } }));
   beforeEach(() => {
     localStorage.clear();
     delete (window as { __ltMineHint?: unknown }).__ltMineHint;
@@ -208,8 +209,8 @@ describe("BRIDGE-PANEL-1 round 3 · the reserved My packs slot (device height hi
     await waitFor(() => expect(localStorage.getItem("lt.packs.mineHint.v1")).not.toBeNull());
     const v = JSON.parse(localStorage.getItem("lt.packs.mineHint.v1") || "{}");
     expect(v.u).toBe("u1");
-    expect(Object.keys(v.h)).toEqual([String(window.innerWidth)]);
-    expect(v.h[String(window.innerWidth)]).toBe(812);
+    expect(Object.keys(v.h)).toEqual([`t${window.innerWidth}`]);
+    expect(v.h[`t${window.innerWidth}`]).toBe(812);
     expect(v).not.toHaveProperty("packs");
     spy.mockRestore();
   });

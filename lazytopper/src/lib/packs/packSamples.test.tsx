@@ -149,19 +149,28 @@ describe("/packs", () => {
     expect(hrefOf("lazytopper-sample-chapter-maths")).toBe("/samples/lazytopper-sample-chapter-maths.pdf");
     expect(hrefOf("lazytopper-sample-bundle")).toBe("/samples/lazytopper-sample-bundle.pdf");
     expect(hrefOf("lazytopper-sample-cbq-maths")).toBe("/samples/lazytopper-sample-cbq-maths.pdf");
+    fireEvent.click(screen.getByTestId("cbq-subject-science"));
     expect(hrefOf("lazytopper-sample-cbq-science")).toBe("/samples/lazytopper-sample-cbq-science.pdf");
+    fireEvent.click(screen.getByTestId("cbq-subject-maths"));
     // subject-less tiles offer BOTH subjects (never a hard-coded Maths under a generic label); the bundle has one file, labelled
-    for (const kind of ["chapter", "mock", "subject"]) {
-      const pair = screen.getByTestId(`packs-card-${kind}`).parentElement as HTMLElement;
-      expect(pair.textContent, kind).toContain("Free sample:");
+    // PACKS-TIDY-1: the Chapter Pack still offers both; Subject and Mock rows have a Maths / Science switch and ONE sample for the chosen subject.
+    const chapterCell = screen.getByTestId("packs-card-chapter").parentElement as HTMLElement;
+    expect(chapterCell.textContent).toContain("Free sample:");
+    expect(hrefOf("lazytopper-sample-chapter-science")).toBe("/samples/lazytopper-sample-chapter-science.pdf");
+    expect(chapterCell.querySelectorAll("a.lt-psl")).toHaveLength(2);
+    for (const kind of ["mock", "subject"]) {
+      const cell = screen.getByTestId(`packs-card-${kind}`).parentElement as HTMLElement;
+      expect(cell.querySelectorAll("a.lt-psl"), kind).toHaveLength(1);
+      fireEvent.click(screen.getByTestId(`packs-subject-${kind}-science`));
+      expect(cell.querySelectorAll("a.lt-psl"), kind).toHaveLength(1);
       expect(hrefOf(`lazytopper-sample-${kind}-science`), kind).toBe(`/samples/lazytopper-sample-${kind}-science.pdf`);
-      expect(pair.querySelectorAll("a.lt-psl")).toHaveLength(2);
     }
     expect(screen.getByTestId("pack-sample-lazytopper-sample-bundle").textContent).toContain("Free sample page (Maths)");
     fireEvent.click(screen.getByTestId("pack-sample-lazytopper-sample-mock-science"));
     expect(sampleEvent).toHaveBeenCalledWith("pack_mock:science", "packs_tile");
     fireEvent.click(screen.getByTestId("pack-sample-lazytopper-sample-bundle"));
     expect(sampleEvent).toHaveBeenCalledWith("pack_bundle:all", "packs_tile");
+    fireEvent.click(screen.getByTestId("cbq-subject-science"));
     fireEvent.click(screen.getByTestId("pack-sample-lazytopper-sample-cbq-science"));
     expect(sampleEvent).toHaveBeenCalledWith("pack_cbq:science", "packs_cbq");
   });

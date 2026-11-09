@@ -15,7 +15,8 @@
  * When the device knows this account owns packs but not yet My packs' height at this width (the first visit after a purchase or a
  * pay-by-phone claim on this device, or after ownership was read for the account menu), it reserves ONE SCREEN (the viewport
  * height): the shop then starts below the fold, so whatever height My packs turns out to be, nothing on screen moves.
- * Signed-out visitors and accounts without packs have no hint: an empty div and a script that returns at once (zero layout cost).
+ * Signed-out visitors and accounts without packs have no hint: an empty div and a script that returns at once (zero layout cost); a
+ * `#my-packs` link only adds the class that holds ONE short line for its panel (PACKS-TIDY-1).
  */
 
 export const MINE_HINT_KEY = "lt.packs.mineHint.v1";
@@ -46,7 +47,12 @@ declare global {
   }
 }
 
-const widthKey = (w: number): string => String(Math.round(w));
+/**
+ * PACKS-TIDY-1: heights are stored under "t<width>". My packs became ONE collapsed row per pack (far shorter), so every height measured
+ * for the old layout (under the bare width) must stop reserving space: with a new key an account known to own packs reserves one
+ * screen once, then remembers its real, shorter height.
+ */
+const widthKey = (w: number): string => `t${Math.round(w)}`;
 
 function readStored(): StoredHint | null {
   try {
@@ -140,14 +146,14 @@ export function staticMineHandover(): MineHintHandover | null {
  * readMineHint. Any error -> reserves nothing. In React's own render the script element is inert (React never executes it).
  */
 export const MINE_HINT_SCRIPT =
-  "(function(){try{var d=window,l=d.localStorage,u=l.getItem(" +
-  JSON.stringify(ACTIVE_UID_KEY) +
-  "),v=JSON.parse(l.getItem(" +
+  "(function(){try{var d=window,s=document.currentScript&&document.currentScript.previousElementSibling,p=0,u='';try{var l=d.localStorage,v=JSON.parse(l.getItem(" +
   JSON.stringify(MINE_HINT_KEY) +
-  ")||'null'),n=Date.now();if(!u||!v||v.u!==u||!v.h||Math.abs(n-v.t)>" +
+  ")||'null'),n=Date.now();u=l.getItem(" +
+  JSON.stringify(ACTIVE_UID_KEY) +
+  ");if(u&&v&&v.u===u&&v.h&&Math.abs(n-v.t)<=" +
   String(MINE_HINT_MAX_AGE_MS) +
-  ")return;var p=v.h[String(Math.round(d.innerWidth))];if(!(typeof p==='number'&&p>0&&p<" +
+  "){p=v.h['t'+String(Math.round(d.innerWidth))];if(!(typeof p==='number'&&p>0&&p<" +
   String(MINE_HINT_MAX_PX) +
-  "))p=d.innerHeight;if(!(p>0&&p<" +
+  "))p=d.innerHeight;p=(p>0&&p<" +
   String(MINE_HINT_MAX_PX) +
-  "))return;p=Math.round(p);var s=document.currentScript&&document.currentScript.previousElementSibling;if(s){s.style.minHeight=p+'px';d.__ltMineHint={u:u,px:p}}}catch(e){}})();";
+  ")?Math.round(p):0}}catch(e){p=0}if(!s)return;if(p){s.style.minHeight=p+'px';d.__ltMineHint={u:u,px:p}}else if(d.location.hash.toLowerCase()==='#my-packs')s.className+=' lt-packs__mineslot--note'}catch(e){}})();";

@@ -58,7 +58,7 @@ function GstNote({ sku, show }: { sku: PackSku; show: boolean }) {
   return line ? <span className="lt-ptb__gst" data-testid={`tile-gst-${sku}`}>{line}</span> : null;
 }
 
-export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku; api: PacksShopApi; tone?: "light" | "on-dark" }) {
+export default function PackTileBuy({ sku, api, tone = "light", subject }: { sku: PackSku; api: PacksShopApi; tone?: "light" | "on-dark"; /** PACKS-TIDY-1 (opt-in): Subject / Mock Pack - show the Buy of ONE chosen subject instead of both. */ subject?: PackSubject }) {
   if (!api.buyEnabled) return null;
   // GST-EXCL-1: a Buy button names the amount CHARGED (base + GST from 7 Nov 2026).
   const price = packPayLabel(sku);
@@ -89,10 +89,11 @@ export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku
     );
   }
   if (sku === "pack_cbq") return null; // the CBQ cards use PackCbqBuy (one card per subject)
-  const anyBlocked = SUBJECTS.some((s) => !api.ownsPack(sku, s) && api.blockedBy(sku, s));
+  const shown = subject ? [subject] : SUBJECTS;
+  const anyBlocked = shown.some((s) => !api.ownsPack(sku, s) && api.blockedBy(sku, s));
   return (
-    <div className={`${cls} lt-ptb--pair`}>
-      {SUBJECTS.map((s) =>
+    <div className={subject ? cls : `${cls} lt-ptb--pair`}>
+      {shown.map((s) =>
         api.ownsPack(sku, s) ? (
           <Owned key={s} label={subjectLabel(s)} testId={`tile-owned-${sku}-${s}`} />
         ) : (
@@ -101,7 +102,7 @@ export default function PackTileBuy({ sku, api, tone = "light" }: { sku: PackSku
           </BuyButton>
         ),
       )}
-      <GstNote sku={sku} show={SUBJECTS.some((s) => !api.ownsPack(sku, s))} />
+      <GstNote sku={sku} show={shown.some((s) => !api.ownsPack(sku, s))} />
       <BusyNote show={anyBlocked} />
     </div>
   );

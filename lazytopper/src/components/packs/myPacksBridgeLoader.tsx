@@ -20,6 +20,9 @@ export const BRIDGE_PREPARE_CAP_MS = 2500;
 export interface BridgeReady {
   Panel: ComponentType<MyPacksBridgeProps>;
   data: MyPacksBridgeProps["data"];
+  /** PACKS-TIDY-1: the same chunk's per-pack paper rows (shown inside each owned pack's row) and the pure view that groups them. */
+  PackPapers?: typeof import("./MyPacksBridge").PackPapers;
+  view?: typeof import("./MyPacksBridge").bridgeView;
 }
 
 /** Fetch the panel's chunk and read its data. Resolves null on failure or after the cap. Never rejects. */
@@ -31,7 +34,7 @@ export function prepareMyPacksBridge(
   const work = import("./MyPacksBridge")
     .then(async (m) => {
       const data = await m.prepareBridgeData(user, cachedPaidPass);
-      return data ? ({ Panel: m.default, data } as BridgeReady) : null;
+      return data ? ({ Panel: m.default, data, PackPapers: m.PackPapers, view: m.bridgeView } as BridgeReady) : null;
     })
     .catch(() => null);
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -41,12 +44,12 @@ export function prepareMyPacksBridge(
   return Promise.race([work, cap]).finally(() => clearTimeout(timer));
 }
 
-export class BridgeBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+export class BridgeBoundary extends Component<{ children: ReactNode; /** PACKS-TIDY-1: what to show if the panel fails (the pack rows, so My packs' downloads never vanish). */ fallback?: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
   render() {
-    return this.state.failed ? null : this.props.children;
+    return this.state.failed ? this.props.fallback ?? null : this.props.children;
   }
 }

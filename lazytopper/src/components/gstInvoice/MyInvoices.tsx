@@ -23,13 +23,19 @@ function flagOn(): boolean {
   }
 }
 
-export default function MyInvoices() {
+/**
+ * `collapsible` (PACKS-TIDY-1, /packs only): the block is a native <details>, closed by default; `/packs#invoices` opens it (and the
+ * scroll below lands on it as before). Left out: the block exactly as before.
+ */
+export default function MyInvoices({ collapsible = false }: { collapsible?: boolean } = {}) {
   const { user } = useAuth();
   const uid = user?.uid || "";
   const [items, setItems] = useState<MyInvoice[]>([]);
   const [failed, setFailed] = useState<string | null>(null);
   const { hash } = useLocation();
   const sectionRef = useRef<HTMLElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const wantsOpen = collapsible && hash === INVOICES_HASH;
   const landed = useRef(false);
 
   useEffect(() => {
@@ -51,6 +57,9 @@ export default function MyInvoices() {
   // rendered, scroll it into view - once per landing - and re-assert on the next frames and at ~300 / ~900 ms (My packs above it
   // can still grow), stopping the moment the student scrolls, touches or presses a key.
   const hasItems = items.length > 0;
+  useEffect(() => {
+    if (wantsOpen && hasItems) setOpen(true);
+  }, [wantsOpen, hasItems]);
   useEffect(() => {
     if (!hasItems || hash !== INVOICES_HASH || landed.current) return undefined;
     landed.current = true;
@@ -79,11 +88,8 @@ export default function MyInvoices() {
   }, [hasItems, hash]);
 
   if (!hasItems) return null;
-  return (
-    <section id="invoices" ref={sectionRef} className="lt-inv" aria-labelledby="lt-inv-h" data-testid="my-invoices">
-      <div className="lt-inv__w">
-        <h2 id="lt-inv-h" className="lt-inv__h">Your GST invoices</h2>
-        <ul className="lt-inv__list">
+  const list = (
+    <ul className="lt-inv__list">
           {items.map((inv) => (
             <li key={inv.orderId} className="lt-inv__row">
               <div className="lt-inv__what">
@@ -113,7 +119,25 @@ export default function MyInvoices() {
               )}
             </li>
           ))}
-        </ul>
+    </ul>
+  );
+  return (
+    <section id="invoices" ref={sectionRef} className="lt-inv" aria-labelledby="lt-inv-h" data-testid="my-invoices">
+      <div className="lt-inv__w">
+        {collapsible ? (
+          <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)} className="lt-inv__details">
+            <summary className="lt-inv__sum">
+              <h2 id="lt-inv-h" className="lt-inv__h">Your GST invoices</h2>
+              <span className="lt-inv__count">{items.length}</span>
+            </summary>
+            {list}
+          </details>
+        ) : (
+          <>
+            <h2 id="lt-inv-h" className="lt-inv__h">Your GST invoices</h2>
+            {list}
+          </>
+        )}
       </div>
     </section>
   );

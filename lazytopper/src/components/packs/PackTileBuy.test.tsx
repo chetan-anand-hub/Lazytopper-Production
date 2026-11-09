@@ -35,6 +35,9 @@ import * as packs from "../../services/packs";
 const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
 const mineMock = packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>;
 
+/** PACKS-TIDY-1: one Maths / Science switch per card - pick the subject whose Buy a test wants. */
+const pick = (row: "mock" | "subject" | "cbq", subject: "maths" | "science") => fireEvent.click(screen.getByTestId(row === "cbq" ? `cbq-subject-${subject}` : `packs-subject-${row}-${subject}`));
+
 function page() {
   return render(
     <MemoryRouter initialEntries={["/packs"]}>
@@ -60,20 +63,27 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     const P = packs.PACK_PRICE_INR;
     expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ${packs.packPayLabel("pack_bundle")}`);
     expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.queryByTestId("tile-buy-pack_mock-science")).toBeNull(); // one Buy, for the chosen subject
+    pick("mock", "science");
     expect(screen.getByTestId("tile-buy-pack_mock-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.queryByTestId("tile-buy-pack_mock-maths")).toBeNull();
     expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_subject")}`);
+    pick("subject", "science");
     expect(screen.getByTestId("tile-buy-pack_subject-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_subject")}`);
     expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe(`Choose chapter & buy · ${packs.packPayLabel("pack_chapter")}`);
     expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ${packs.packPayLabel("pack_cbq")}`);
+    pick("cbq", "science");
     expect(screen.getByTestId("tile-buy-pack_cbq-science").textContent).toBe(`Buy Science CBQ · ${packs.packPayLabel("pack_cbq")}`);
+    expect(screen.queryByTestId("tile-buy-pack_cbq-maths")).toBeNull();
     // "See inside" and the samples stay.
     expect(screen.getByTestId("packs-card-mock").textContent).toContain("See inside");
-    expect(screen.getByTestId("packs-card-cbq-maths").textContent).toBe("See inside →");
+    expect(screen.getByTestId("packs-card-cbq-science").textContent).toBe("See inside →");
   });
 
   it("signed in: a tile Buy opens that pack's pop-up and starts the SAME checkout (Science Mock, Bundle, Maths CBQ)", async () => {
     page();
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
+    pick("mock", "science");
     fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0].slice(0, 2)).toEqual(["pack_mock", "science"]);
@@ -104,6 +114,7 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     page();
     expect(await screen.findByTestId("tile-owned-pack_mock-maths")).toHaveProperty("textContent", "✓Maths · You own this");
     expect(screen.queryByTestId("tile-buy-pack_mock-maths")).toBeNull();
+    pick("mock", "science");
     expect(screen.getByTestId("tile-buy-pack_mock-science")).toBeTruthy();
   });
 
@@ -111,6 +122,7 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     auth.user = null;
     flags.guest = true;
     page();
+    pick("cbq", "science");
     fireEvent.click(screen.getByTestId("tile-buy-pack_cbq-science"));
     expect(await screen.findByTestId("guest-pay-sheet")).toBeTruthy();
     cleanup();
@@ -157,6 +169,8 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     fireEvent.click(screen.getByTestId("tile-buy-pack_cbq-maths"));
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     for (const id of ["tile-buy-pack_bundle", "tile-buy-pack_mock-science", "tile-buy-pack_subject-maths", "tile-buy-pack_cbq-science", "tile-buy-pack_chapter"]) {
+      if (id === "tile-buy-pack_mock-science") pick("mock", "science");
+      if (id === "tile-buy-pack_cbq-science") pick("cbq", "science");
       const b = screen.getByTestId(id) as HTMLButtonElement;
       expect(b.disabled, id).toBe(true);
       expect(b.getAttribute("aria-disabled"), id).toBe("true");
@@ -200,6 +214,7 @@ describe("GST-EXCL-1 · the breakup next to every tile Buy and the pop-up Buy", 
     expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe("Choose chapter & buy · ₹49");
     expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe("Buy Maths CBQ · ₹199");
     expect(screen.queryAllByTestId(/^tile-gst-/)).toHaveLength(0);
+    pick("mock", "science");
     fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));
     await waitFor(() => expect(screen.getByTestId("dialog").getAttribute("data-sku")).toBe("pack_mock"));
     expect(screen.queryByTestId("packs-gst-pack_mock")).toBeNull();
@@ -212,7 +227,8 @@ describe("GST-EXCL-1 · the breakup next to every tile Buy and the pop-up Buy", 
     expect(screen.getByTestId("tile-gst-pack_chapter").textContent).toBe("₹49 + ₹9 GST (18%) = ₹58");
     expect(screen.getByTestId("tile-gst-pack_mock").textContent).toBe("₹99 + ₹18 GST (18%) = ₹117");
     expect(screen.getByTestId("tile-gst-pack_subject").textContent).toBe("₹199 + ₹36 GST (18%) = ₹235");
-    expect(screen.getAllByTestId("tile-gst-pack_cbq").map((e) => e.textContent)).toEqual(["₹199 + ₹36 GST (18%) = ₹235", "₹199 + ₹36 GST (18%) = ₹235"]);
+    expect(screen.getAllByTestId("tile-gst-pack_cbq").map((e) => e.textContent)).toEqual(["₹199 + ₹36 GST (18%) = ₹235"]); // one CBQ card now
+    pick("mock", "science");
     fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));
     await waitFor(() => expect(screen.getByTestId("packs-gst-pack_mock").textContent).toBe("₹99 + ₹18 GST (18%) = ₹117"));
   });

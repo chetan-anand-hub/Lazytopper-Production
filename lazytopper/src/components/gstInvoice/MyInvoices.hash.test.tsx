@@ -21,10 +21,10 @@ import MyInvoices from "./MyInvoices";
 const ROW = { orderId: "o1", number: "LT-26-27-000001", description: "Maths CBQ Pack", dateIst: "07 Nov 2026", totalPaise: 23482 };
 const scroll = vi.fn();
 
-function mount(url: string) {
+function mount(url: string, collapsible = false) {
   return render(
     <MemoryRouter initialEntries={[url]}>
-      <MyInvoices />
+      <MyInvoices collapsible={collapsible} />
     </MemoryRouter>,
   );
 }
@@ -86,5 +86,23 @@ describe("PREEXIST-FIX-1 · /packs#invoices lands on the invoices block", () => 
     await answer([]);
     expect(screen.queryByTestId("my-invoices")).toBeNull();
     expect(scroll).not.toHaveBeenCalled();
+  });
+});
+
+describe("PACKS-TIDY-1 · the collapsible variant (/packs)", () => {
+  it("closed by default; /packs#invoices opens it and still scrolls to it", async () => {
+    mount("/packs", true);
+    await answer([ROW]);
+    expect((screen.getByTestId("my-invoices").querySelector("details") as HTMLDetailsElement).open).toBe(false);
+    cleanup();
+    mount("/packs#invoices", true);
+    await answer([ROW]);
+    expect((screen.getByTestId("my-invoices").querySelector("details") as HTMLDetailsElement).open).toBe(true);
+    expect(scroll).toHaveBeenCalled();
+  });
+  it("without the prop the block is exactly as before (no <details>)", async () => {
+    mount("/packs#invoices");
+    await answer([ROW]);
+    expect(screen.getByTestId("my-invoices").querySelector("details")).toBeNull();
   });
 });
