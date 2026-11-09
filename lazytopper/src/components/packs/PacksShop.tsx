@@ -1247,7 +1247,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
   const [failedId, setFailedId] = useState<string | null>(null);
   // BRIDGE-CODES-1: a CBQ chapter file (several sets) takes 20-45 s on a phone - say which set is being prepared.
   const [progress, setProgress] = useState<string | null>(null);
-  // A CBQ part that finished says so on its own row ("Saved ✓"), so a student sees Part 1 done before starting Part 2.
+  // A file that finished says so on its own row ("Saved ✓"), so a student sees Part 1 done before starting Part 2.
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(() => new Set());
   // PACKS-TIDY-1: a native <details> row; its files are built the first time it is opened (a closed row costs nothing).
   const [rowOpen, setRowOpen] = useState<boolean>(Boolean(tidy?.autoOpen));
@@ -1300,7 +1300,8 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
     setProgress(null);
     try {
       await file.build(file.codes && file.codes.length > 1 ? (k, n) => setProgress(`Preparing\u2026 set ${k} of ${n}`) : undefined);
-      if (file.codes && file.codes.length > 0) setSavedIds((prev) => new Set(prev).add(file.id));
+      // PACKS-SAVED-1 (owner 9 Nov): every pack file says "Saved \u2713" after a successful build; a tap still re-downloads.
+      setSavedIds((prev) => new Set(prev).add(file.id));
     } catch (err) {
       // PACKS-STALE-1: same stale-tab case for the file builder's code files - reload once instead of a dead Retry.
       if (!recoverFromChunkError(err)) setFailedId(file.id);
