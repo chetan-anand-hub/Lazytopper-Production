@@ -61,7 +61,7 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
         <div className="lt-br__step">
           <span className="lt-br__stepn">STEP 1</span>
           <span className="lt-br__stept">Write your answers</span>
-          <span className="lt-br__stepb">On plain paper. Write the paper code at the top — it is printed on every paper{data.exampleCode ? <>, e.g. <b className="lt-br__code">{data.exampleCode}</b>. Or photograph the QR at the bottom of the paper</> : null}.</span>
+          <span className="lt-br__stepb">On plain paper. Write the paper code at the top — {data.ownCode === false ? <>each Chapter Test and Worksheet in this pack has one</> : <>it is printed on every paper</>}{data.exampleCode ? <>, e.g. <b className="lt-br__code">{data.exampleCode}</b>{data.ownCode === false ? null : <>. Or photograph the QR at the bottom of the paper</>}</> : null}.</span>
         </div>
         <div className="lt-br__step">
           <span className="lt-br__stepn">STEP 2</span>

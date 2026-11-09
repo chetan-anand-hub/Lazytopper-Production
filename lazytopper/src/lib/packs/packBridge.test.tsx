@@ -10,7 +10,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
 import type { OwnedPack } from "../../services/packs";
-import { BRIDGE_IMG, BRIDGE_SAMPLE_PDF_PATH, BRIDGE_SAMPLE_PDF_URL, bridgePackLabel, type BridgePagesData } from "./packBridge";
+import { BRIDGE_IMG, BRIDGE_PACKS_URL, BRIDGE_SAMPLE_PDF_PATH, BRIDGE_SAMPLE_PDF_URL, bridgePackLabel, type BridgePagesData } from "./packBridge";
 import { packPaperCode } from "./packPaperCode";
 import { PrintBridgeMarkPage, PrintBridgeViewsPage } from "../../components/worksheet/PrintBridgePages";
 import { WorksheetPrintDoc } from "../../components/worksheet/WorksheetPrintDoc";
@@ -158,6 +158,17 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     expect(t).toContain("Board Pass marks every paper you write till your boards");
     expect(t).not.toMatch(/\bAI\b/);
     expect(container.querySelector('[data-pdf-link="https://www.lazytopper.com/pricing"]')).not.toBeNull();
+  });
+
+  it("page 2 in a question-bank file (no code or QR of its own, owner 9 Nov): points to the pack's tests, no QR line", () => {
+    const t = render(<PrintBridgeMarkPage data={{ ...data, exampleCode: "PK-M-RN-CT1", ownCode: false }} links={links} />).container.textContent || "";
+    expect(t).toContain("Write the paper code at the top — each Chapter Test and Worksheet in this pack has one, e.g. PK-M-RN-CT1.");
+    expect(t).not.toContain("QR");
+    expect(t).toContain("Board Pass marks every paper you write till your boards");
+  });
+
+  it("the PDF links to plain /packs (one link, owner 9 Nov)", () => {
+    expect(BRIDGE_PACKS_URL).toBe("https://www.lazytopper.com/packs");
   });
 
   it("page 2 without an example code (a CBQ file before #1643): the step reads without an 'e.g.'", () => {
