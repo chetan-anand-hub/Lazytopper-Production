@@ -1,0 +1,94 @@
+/*
+ * MyPacksBridge (BRIDGE-PANEL-1, approved `MyPacks.dc.html`): the navy "Get your papers marked" panel inside My packs, with the
+ * soft-white Board Pass card. Scoped under `.lt-packs .lt-pb` (a lazy route's stylesheet is global once loaded).
+ * Phone first (360px); at 1024px the Board Pass card moves beside the papers. Every control is at least 44px tall.
+ */
+/* At the top of My packs (owner 22:45), under its heading, above the pack cards. */
+.lt-packs .lt-packs__mine .lt-pb { margin: 12px 0 4px; }
+
+.lt-packs .lt-pb {
+  --pb-navy: #0f1b33;
+  --pb-card: #16264a;
+  --pb-row: #13213f;
+  --pb-line: #2a3d66;
+  --pb-line2: #3b5180;
+  --pb-ink: #f4f6fa;
+  --pb-ink2: #b6c2d8;
+  --pb-ink3: #9fb0cc;
+  --pb-g: #22a05a;
+  --pb-gl: #4ade80;
+  background: var(--pb-navy);
+  color: var(--pb-ink);
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  font-family: var(--pk-sans);
+}
+.lt-packs .lt-pb a { color: var(--pb-gl); }
+.lt-packs .lt-pb :focus-visible { outline: 3px solid var(--pb-gl); outline-offset: 2px; }
+.lt-packs .lt-pb__main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* first marked */
+.lt-packs .lt-pb__first { background: var(--pb-card); border: 1px solid var(--pb-line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.lt-packs .lt-pb__firsth { font-size: 16px; font-weight: 700; line-height: 1.3; }
+.lt-packs .lt-pb__score { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.lt-packs .lt-pb__big { font-family: var(--pk-serif); font-size: 40px; font-weight: 700; line-height: 1; }
+.lt-packs .lt-pb__of { font-size: 18px; color: var(--pb-ink3); }
+.lt-packs .lt-pb__which { font-size: 13px; color: var(--pb-ink2); min-width: 0; overflow-wrap: anywhere; }
+.lt-packs .lt-pb__line { margin: 0; font-size: 13px; line-height: 1.45; color: #d3dbe8; }
+.lt-packs .lt-pb__btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* intro + rows */
+.lt-packs .lt-pb__intro { display: flex; flex-direction: column; gap: 4px; }
+.lt-packs .lt-pb .lt-pb__h { font-family: var(--pk-sans); font-size: 15px; font-weight: 700; letter-spacing: 0; line-height: 1.3; }
+.lt-packs .lt-pb__p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--pb-ink2); }
+.lt-packs .lt-pb a.lt-pb__sample { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; font-weight: 600; }
+.lt-packs .lt-pb__pack { display: flex; flex-direction: column; gap: 8px; }
+.lt-packs .lt-pb .lt-pb__packname { font-family: var(--pk-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--pb-ink3); }
+.lt-packs .lt-pb__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lt-packs .lt-pb__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--pb-row); border-radius: 12px; padding: 6px 12px; min-height: 56px; }
+.lt-packs .lt-pb__rmain { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+.lt-packs .lt-pb__rlabel { font-size: 14px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.lt-packs .lt-pb__rcode { font-size: 12px; line-height: 1.35; color: var(--pb-ink3); overflow-wrap: anywhere; }
+
+.lt-packs .lt-pb a.lt-pb__go,
+.lt-packs .lt-pb button.lt-pb__go {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border-radius: 10px;
+  background: var(--pb-g); color: #fff; border: 1px solid var(--pb-g); font: inherit; font-weight: 600; font-size: 13px; text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.lt-packs .lt-pb a.lt-pb__go--ghost,
+.lt-packs .lt-pb button.lt-pb__go--ghost { background: transparent; border-color: var(--pb-line2); color: var(--pb-ink); }
+.lt-packs .lt-pb__first a.lt-pb__go { font-size: 14px; padding: 0 16px; }
+.lt-packs .lt-pb a.lt-pb__marked { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; font-weight: 600; color: var(--pb-gl); text-decoration: none; white-space: nowrap; }
+.lt-packs .lt-pb a.lt-pb__marked:hover { text-decoration: underline; }
+.lt-packs .lt-pb__more { align-self: flex-start; min-height: 44px; padding: 0 4px; background: none; border: 0; color: var(--pb-ink3); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.lt-packs .lt-pb__more:hover { color: var(--pb-ink); }
+
+/* Board Pass card (soft white on navy) */
+.lt-packs .lt-pb__pass { background: #f4f6fa; color: #0f1b33; border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; align-self: start; }
+.lt-packs .lt-pb__kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #15803d; }
+.lt-packs .lt-pb .lt-pb__passh { font-family: var(--pk-serif); font-size: 22px; font-weight: 700; line-height: 1.2; }
+.lt-packs .lt-pb__points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.4; }
+.lt-packs .lt-pb__points li { display: flex; gap: 10px; align-items: flex-start; }
+.lt-packs .lt-pb__points svg { flex-shrink: 0; margin-top: 1px; color: #15803d; }
+.lt-packs .lt-pb a.lt-pb__passcta { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 12px; background: #15803d; color: #fff; font-weight: 700; font-size: 15px; text-decoration: none; }
+.lt-packs .lt-pb a.lt-pb__passcta:hover { background: #136b43; }
+.lt-packs .lt-pb__keep { font-size: 12px; color: #46536b; text-align: center; }
+
+/* A confirmed Board Pass holder's one quiet packs card (PASS-OWNER-PACKS-1), in the Board Pass card's place. */
+.lt-packs .lt-pb__holderlead { margin: 0; font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+.lt-packs .lt-pb__holderrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lt-packs .lt-pb__holderbuy { flex: 1 1 auto; min-height: 44px; padding: 10px 14px; border: 0; border-radius: 10px; background: #15803d; color: #fff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.lt-packs .lt-pb__holderbuy:hover { background: #136b43; }
+.lt-packs .lt-pb__holderlater { min-height: 44px; padding: 10px 12px; border: 0; background: transparent; color: #46536b; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.lt-packs .lt-pb__holder :focus-visible { outline: 3px solid #15803d; outline-offset: 2px; }
+
+@media (min-width: 1024px) {
+  .lt-packs .lt-pb { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; padding: 24px; }
+  .lt-packs .lt-pb--nopass { grid-template-columns: minmax(0, 1fr); }
+  /* Only the Board Pass card (a CBQ pack before its papers have codes): one centred column, never an empty left column. */
+  .lt-packs .lt-pb--passonly { grid-template-columns: minmax(0, 520px); justify-content: start; }
+  .lt-packs .lt-pb__rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

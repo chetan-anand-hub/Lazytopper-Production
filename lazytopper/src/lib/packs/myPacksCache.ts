@@ -27,6 +27,9 @@ export function loadOwnsAnyPack(uid: string): Promise<boolean | null> {
       const { fetchMyPacks } = await import("../../services/packs");
       const mine = await fetchMyPacks();
       const owns = mine.packs.length > 0;
+      // BRIDGE-PANEL-1 round 3: a layout hint only (reserve My packs' space on /packs), never read as ownership by anything.
+      // Imported on demand so the account menu's eager code does not grow.
+      if (owns) void import("../../components/packs/mineHint").then((m) => m.writeMineOwner(uid)).catch(() => undefined);
       cachedUid = uid;
       cachedOwns = owns;
       return owns;

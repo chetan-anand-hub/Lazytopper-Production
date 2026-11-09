@@ -1,4 +1,4 @@
-import { Suspense, lazy, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import GstStateLine from "../gstInvoice/GstStateLine";
 import { gstStateFieldOn } from "../../services/gstBuyerOrder";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
@@ -60,6 +60,10 @@ import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPre
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
 import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
+// BRIDGE-PANEL-1 - "Get your papers marked" + the Board Pass card for pack owners: chunk + data prepared in one step, rendered complete.
+import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPacksBridgeLoader";
+// BRIDGE-PANEL-1 round 3 (owner 22:45): the per-device height hint that reserves My packs' space before its data arrives.
+import { MINE_HINT_SCRIPT, clearMineHint, hintNow, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -410,6 +414,73 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [eventItems, setEventItems] = useState<ClaimedItem[] | null>(null);
   const claimedItems = eventItems ?? (user ? readRecentClaim(user.uid) : []);
   const paidPass = usePaidPremium();
+  // BRIDGE-PANEL-1: for a pack OWNER on /packs, the panel's chunk + data are prepared in ONE step (capped; on failure / cap there is no
+  // panel this visit) and it renders complete, never growing afterwards, at the TOP of My packs (owner 22:45: My packs first, panel at
+  // its top). My packs is revealed together with it (the first reveal waits for it), into space reserved by the device hint below.
+  const [bridge, setBridge] = useState<{ key: string; ready: BridgeReady | null } | null>(null);
+  const bridgeWanted = !embedded && !hideMyPacks && Boolean(user) && mine !== null && mine.packs.length > 0 && hasLicenseeContact(mine.licensee);
+  const bridgeKey = bridgeWanted && user && mine ? `${user.uid}|${mine.packs.map((p) => p.packId).join(",")}` : "";
+  // Another account's prepared panel never shows (a sign-in switch on the same page).
+  const bridgeMine = bridge !== null && Boolean(user) && bridge.key.startsWith(`${user?.uid}|`);
+  const bridgeSettled = !bridgeWanted || bridgeMine;
+
+  // BRIDGE-PANEL-1 round 3 - the reserved space (mineHint.ts). Cold load: the static page's script decided before the hero painted and
+  // handed the height over; an in-app visit with the account already known reads the hint itself. Dropped (and the hint forgotten)
+  // when the account turns out to own no pack; dropped when a different account (or nobody) is signed in.
+  const slotEnabled = !embedded && !hideMyPacks;
+  const slotRef = useRef<HTMLDivElement | null>(null);
+  const [reserve, setReserve] = useState<{ u: string; px: number } | null>(() => {
+    if (!slotEnabled) return null;
+    const handed = staticMineHandover();
+    if (handed) return handed;
+    if (!user || user.isLocalSession || typeof window === "undefined") return null;
+    const px = readMineHint(user.uid, window.innerWidth, hintNow(), window.innerHeight);
+    return px ? { u: user.uid, px } : null;
+  });
+  // The server says this account owns packs (My packs read, a paid order, a pay-by-phone claim): remember it on this device so the
+  // next /packs load reserves My packs' space from its first paint.
+  useEffect(() => {
+    if (user && !user.isLocalSession && mine && mine.packs.length > 0) writeMineOwner(user.uid);
+  }, [user, mine]);
+  useEffect(() => {
+    if (!reserve || authLoading) return;
+    if (!user || user.uid !== reserve.u) setReserve(null);
+    else if (mine && mine.packs.length === 0) {
+      clearMineHint();
+      setReserve(null);
+    }
+  }, [reserve, authLoading, user, mine]);
+  useLayoutEffect(() => {
+    const el = slotRef.current;
+    if (el) el.style.minHeight = reserve ? `${reserve.px}px` : "";
+  }, [reserve]);
+  // Once My packs is revealed WITH its panel, remember its height for this account at this width (the next visit reserves exactly
+  // that) - once per account + pack set, before any tap can open a file list or expand the papers. If it is at least the reserved
+  // height, the reservation is released (nothing moves); if shorter, the space stays for this visit (no jump up).
+  const measuredKey = useRef("");
+  useLayoutEffect(() => {
+    if (!slotEnabled || !user || !bridgeKey || !bridgeMine || !bridge?.ready || measuredKey.current === bridgeKey) return;
+    const section = myPacksRef.current;
+    if (!section) return;
+    measuredKey.current = bridgeKey;
+    const h = section.getBoundingClientRect().height;
+    if (h > 0) writeMineHint(user.uid, window.innerWidth, h, hintNow());
+    if (reserve && h >= reserve.px) setReserve(null);
+  });
+  const bridgeKeyRef = useRef("");
+  useEffect(() => {
+    if (!bridgeKey || bridgeKeyRef.current === bridgeKey) return;
+    bridgeKeyRef.current = bridgeKey;
+    let live = true;
+    void prepareMyPacksBridge(user, paidPass).then((ready) => {
+      if (live) setBridge({ key: bridgeKey, ready });
+    });
+    return () => {
+      live = false;
+      if (bridgeKeyRef.current === bridgeKey) bridgeKeyRef.current = "";
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per account + pack set; the cached pass flag is read at that moment
+  }, [bridgeKey]);
   const [readyDismissed, setReadyDismissed] = useState(false);
   /** The pack whose file list the banner button asked to open (`n` makes a repeat tap count). */
   const [openReq, setOpenReq] = useState<{ packId: string; n: number } | null>(null);
@@ -530,7 +601,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }));
     timers.push(window.setTimeout(assert, 300), window.setTimeout(assert, 900), window.setTimeout(stop, 950));
     return stop;
-  }, [location.hash, mine, myPacksMounted, signedOutMine]);
+  }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled]);
 
   /** GST-FU-1 review F4: a ?buy= resume held at the pop-up's Pay (remembered state) - the pack and the link's source. */
   const heldResume = useRef<{ key: string; from?: PackCheckoutFrom } | null>(null);
@@ -821,7 +892,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
   // PACKS-CLS-1: the Subject / Bundle total is still loading - the pop-up holds its "Questions" row (no jump when it lands).
   const dialogCounting = (openSku === "pack_subject" || openSku === "pack_bundle") && dialogQuestions === null && !countsFailed;
-  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
+  const showMine = !hideMyPacks && Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0 && bridgeSettled));
   // PAY-PHONE-1 - a phone-only account with no name is asked ONCE (Save or Skip) for the name its PDFs carry.
   const [namePromptDone, setNamePromptDone] = useState(false);
   const askName =
@@ -835,7 +906,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     !packNameSkipped(user.uid);
   const afterPay = buy.phase === "paid" || buy.phase === "checking" || buy.phase === "confirming";
 
-  const mineAndStatus = (
+  const mineSections = (
     <>
       {signedOutMine && (
         <section className="lt-packs__mine" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine-signedout">
@@ -867,6 +938,26 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                 <button type="button" className="lt-packs__link" onClick={() => void loadMine()}>Retry</button>
               </p>
             )}
+            {/* BRIDGE-PANEL-1: "Get your papers marked" + the Board Pass card (or a Board Pass holder's packs card) at the TOP of My packs. */}
+            {bridgeWanted && bridgeMine && bridge?.ready && mine && (
+              <BridgeBoundary>
+                <bridge.ready.Panel
+                  packs={mine.packs}
+                  data={bridge.ready.data}
+                  titleOf={ownedPackTitle}
+                  onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))}
+                  onBuyPack={(sku, target) => {
+                    // The shop's own buy path (as a ?buy= resume does): that pack's pop-up, then its checkout; from = "pass_me".
+                    if (sku === "pack_chapter" && target) setChapter(target);
+                    else if (target) setSubject(target as PackSubject);
+                    setEntrySlide(0);
+                    setOpenSku(sku);
+                    requestCounts(sku === "pack_chapter" ? target : undefined);
+                    void handleBuy(sku, target, { from: "pass_me" });
+                  }}
+                />
+              </BridgeBoundary>
+            )}
             {mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
             {/* PACK-READY-1: the name is offered AFTER the files, never in front of the first download (PDFs fall back to the masked phone). */}
             {askName && user && mine && (
@@ -882,6 +973,25 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
 
           </div>
         </section>
+      )}
+    </>
+  );
+
+  const mineAndStatus = (
+    <>
+      {slotEnabled ? (
+        <>
+          {/* BRIDGE-PANEL-1 round 3: My packs lives in a slot that holds the space a returning owner's My packs needs (device hint)
+              from the first paint, so nothing below it moves when it arrives. The script after it does that on the STATIC page
+              (prerendered capture); in React's own render it is not added (never executed there anyway). */}
+          <div className="lt-packs__mineslot" ref={slotRef} data-testid="packs-mine-slot">
+            {mineSections}
+            {reserve && !showMine && !signedOutMine && <div className="lt-packs__mineskel" aria-hidden="true" data-testid="packs-mine-skeleton" />}
+          </div>
+          {import.meta.env.PROD && <script dangerouslySetInnerHTML={{ __html: MINE_HINT_SCRIPT }} />}
+        </>
+      ) : (
+        mineSections
       )}
 
       {afterPay && openSku === null && (
