@@ -17,8 +17,9 @@ export const BRIDGE_SAMPLE_PDF_PATH = "/media/lazytopper-marked-sample-PK-M-RN-C
 export const BRIDGE_SITE = "https://www.lazytopper.com";
 export const BRIDGE_SAMPLE_PDF_URL = `${BRIDGE_SITE}${BRIDGE_SAMPLE_PDF_PATH}`;
 export const BRIDGE_PRICING_URL = `${BRIDGE_SITE}/pricing`;
-// One link everywhere: My packs is the first thing an owner sees on /packs (#1645), so no hash (owner 9 Nov).
-export const BRIDGE_PACKS_URL = `${BRIDGE_SITE}/packs`;
+// Keep #my-packs: a signed-out reader tapping it from the PDF gets the "sign in to see your packs" line (FU-MYPACKS-SIGNEDOUT);
+// plain /packs would show them only the shop. The printed text stays "lazytopper.com/packs" (typed, it still shows My packs first once signed in).
+export const BRIDGE_PACKS_URL = `${BRIDGE_SITE}/packs#my-packs`;
 
 /** The sample scorecard images (crops of the real PK-M-RN-CT1 scorecard), served from public/media/pack-bridge/. */
 export const BRIDGE_IMG = Object.freeze({

@@ -167,8 +167,8 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     expect(t).toContain("Board Pass marks every paper you write till your boards");
   });
 
-  it("the PDF links to plain /packs (one link, owner 9 Nov)", () => {
-    expect(BRIDGE_PACKS_URL).toBe("https://www.lazytopper.com/packs");
+  it("the PDF link keeps #my-packs (a signed-out reader lands on the sign-in line, not the shop)", () => {
+    expect(BRIDGE_PACKS_URL).toBe("https://www.lazytopper.com/packs#my-packs");
   });
 
   it("page 2 without an example code (a CBQ file before #1643): the step reads without an 'e.g.'", () => {
