@@ -599,8 +599,8 @@ export async function renderBridgePages(data: BridgePagesData, html2canvas: Html
   const job = (async (): Promise<BridgePageRaster[]> => {
     try {
       const mod = await import("./PrintBridgePages");
-      const { BRIDGE_SAMPLE_PDF_URL, BRIDGE_PRICING_URL, BRIDGE_PACKS_URL } = await import("../../lib/packs/packBridge");
-      const links = { packs: BRIDGE_PACKS_URL, pricing: BRIDGE_PRICING_URL, sample: BRIDGE_SAMPLE_PDF_URL };
+      const { BRIDGE_SAMPLE_PDF_URL, BRIDGE_SAMPLE_CBQ_PDF_URL, BRIDGE_PRICING_URL, BRIDGE_PACKS_URL } = await import("../../lib/packs/packBridge");
+      const links = { packs: BRIDGE_PACKS_URL, pricing: BRIDGE_PRICING_URL, sample: data.sample === "cbq" ? BRIDGE_SAMPLE_CBQ_PDF_URL : BRIDGE_SAMPLE_PDF_URL };
       const out: BridgePageRaster[] = [];
       for (const Page of [mod.PrintBridgeMarkPage, mod.PrintBridgeViewsPage]) {
         out.push(

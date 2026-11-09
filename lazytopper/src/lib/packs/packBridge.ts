@@ -36,6 +36,29 @@ export const BRIDGE_IMG = Object.freeze({
   next: "/media/pack-bridge/view7-next.jpg",
 });
 
+/**
+ * CBQ-SAMPLE-1 (owner 8 Nov 21:32 "go ahead"): the CBQ Pack's files show a CBQ sample instead - ONE real paper from the real bank,
+ * PK-M-RN-CBQ1 (Real Numbers, CBQ set 1), written by our team with four deliberate mistakes (a wrong option, a missing unit, a
+ * calculation slip, a concept slip) and marked by the product on 9 Nov 2026: 28.5 / 32. Every other pack keeps PK-M-RN-CT1 above.
+ */
+export const BRIDGE_SAMPLE_CBQ_PDF_PATH = "/media/lazytopper-marked-sample-PK-M-RN-CBQ1.pdf";
+export const BRIDGE_SAMPLE_CBQ_PDF_URL = `${BRIDGE_SITE}${BRIDGE_SAMPLE_CBQ_PDF_PATH}`;
+/** Crops of the real PK-M-RN-CBQ1 scorecard / graded sheet, served from public/media/pack-bridge/cbq/ (same sizes as BRIDGE_IMG). */
+export const BRIDGE_IMG_CBQ = Object.freeze({
+  total: "/media/pack-bridge/cbq/sample-total.jpg",
+  /** The strip beside "What the marking caught": Q11, the unit (kg) missing from a final answer. */
+  strip: "/media/pack-bridge/cbq/q-strip.jpg",
+  views: [
+    "/media/pack-bridge/cbq/view1-score.jpg",
+    "/media/pack-bridge/cbq/view2-sections.jpg",
+    "/media/pack-bridge/cbq/view3-where.jpg",
+    "/media/pack-bridge/cbq/view4-q7.jpg",
+    "/media/pack-bridge/cbq/view5-q9.jpg",
+    "/media/pack-bridge/cbq/view6-q3.jpg",
+  ] as readonly string[],
+  next: "/media/pack-bridge/cbq/view7-next.jpg",
+});
+
 /** What the two pages print for one file. */
 export interface BridgePagesData {
   /** Top-left header, e.g. "Real Numbers · Chapter Pack". */
@@ -44,6 +67,8 @@ export interface BridgePagesData {
   exampleCode: string | null;
   /** This file itself carries a paper code + QR (tests, worksheets, mocks, CBQ sets). False for question-bank sections (owner 9 Nov). */
   ownCode?: boolean;
+  /** Which marked sample the pages show: absent -> PK-M-RN-CT1 (every pack but the CBQ Pack); "cbq" -> PK-M-RN-CBQ1 (CBQ-SAMPLE-1). */
+  sample?: "cbq";
   /** The Board Pass card on page 2. False for a student who already holds a paid Board Pass (they are not sold it again). */
   boardPassCard: boolean;
 }
