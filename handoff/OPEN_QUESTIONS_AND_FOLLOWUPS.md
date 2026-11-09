@@ -23,6 +23,54 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `13161d1`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the 8 Nov night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block. The 9 Nov items come from the coordinator's 9 Nov handoff sections 2-3 (`claude/HANDOFF_COFOUNDER_SESSION_2026-11-09.md`) **[coordinator]**.*
+
+**Closed by this window:** `[FU-PACKS-HOLDER-CARD-OWNER]` CLOSED 9 Nov about 15:20 IST (see its entry). the PACKS-STALE-1 lane's stale-tab "couldn't prepare these files" bug CLOSED for "Show files" and "Download" by `#1649` (other paid paths: see `[FU-PACKS-STALE-OTHER-PATHS]`). `#1641` SPEED-CI-3 shipped: its live in-app check passed (LCP 588-728 ms, CLS 0). **`[FU-CBQ-SAMPLE]` is NOT closed: it is still open** (the real marked CBQ sample and the regenerated CBQ free samples and preview images have not been done; its entry in the earlier block stands). `[FU-MYPACKS-CLS]` is closed by `#1645` for every case except the residual in `[FU-PACK-PANEL-FOLLOWUPS-9NOV]`.
+
+**Still open, carried:** `[FU-CBQ-SAMPLE]`, `[FU-YT-DEMO-VIDEO]`, `[FU-PRICING-MYPACKS-REDIRECT-CLS]`, `[FU-CBQ-H1-RESERVE]`, `[FU-RESEND-PRO]`, `[FU-PAINT-SHELL-1DEC-RECAPTURE]`. Their entries in the earlier blocks stand. `LIMITS_ENFORCE` must stay ON in Railway.
+
+### [FU-PACKS-CSS-BUDGET]
+
+From `#1651` [gh; coordinator]. The `/packs` route grew by about 3 KB gzip. The PR body measured JS 29,911 -> 31,877 B (+1,966 B, over the roughly 1 KB goal, mostly lazy chunks) and CSS 8,238 -> 10,255 B (+2,017 B) with the old unused hero and tile rules left in `packs.css`; the coordinator's later reading, after 69 dead rules were deleted and the bridge-only CSS moved to the owners-only chunk, is route JS +1,948 B and route CSS +1,197 B gzip **[coordinator, 9 Nov handoff section 2]**. The entry chunk is unchanged at 157,589 B gz (no PERF-3 budget touched). The owner ACCEPTED the size cost for a shorter page with no layout jump **[owner]**. Follow-up: a later speed lane could claw it back, for example by splitting the `CbqBand` variant CSS **[coordinator]**; do not let `/packs` grow again without a budget.
+
+### [FU-PACKS-HOLDER-CARD-OWNER]
+
+**CLOSED 9 Nov about 15:20 IST [coordinator, live read in the owner's Chrome]. No code change.** The owner's account (month pass = `paidPass`) showed NEITHER the Board Pass card NOR the holder "packs you don't have yet" card. Cause: the key `lt_pass_offers_snooze_until` had been set by a "Not now" tap earlier that day (24 h, all offers, this device; by design, PASS-OWNER-PACKS-1). With the key removed the holder card renders at 1280 ("CBQ Packs... Science Rs235 - Not now"). Reopen only if a holder with no snooze key sees neither card. Context: `#1645` (owner 8 Nov 22:11) and `#1651` (card beside the first-marked card at 1024 px and up, or under it).
+
+### [FU-PACKS-NONCBQ-SAVED]
+
+A non-CBQ Download in My packs shows "Preparing PDF..." and then goes back to "Download", never "Saved" (also seen in the morning check) **[coordinator]**. Cause **[coordinator, `PacksShop.tsx:1303` at `13161d1`]**: `setSavedIds` runs only when `file.codes.length > 0`, so files without a code never show "Saved". A one-line change is proposed and is pending the owner's OK; the owner's queue lists it after the CBQ sample.
+
+### [FU-PACKS-DOUBLE-PAY-DIALOG]
+
+**OWNER DECISION.** Closing Razorpay after a Bundle Buy leaves our own "Pay Rs353 / Can't pay yourself?" dialog open. This is pre-existing PayRescue behaviour, and the checkout code was untouched by `#1651` **[coordinator, 9 Nov handoff section 3]**. The owner is to decide whether that is wanted; do not build until he has. Related, already recorded: the server refuses a second Board Pass order from a covered account and reuses an open unpaid order (`#1637`); a second authorised payment on an order that is already paid stays open (`[FU-ORDER-REUSE-PARENT-AND-COPY]`, F3).
+
+### [FU-PACKS-PAPER-LINE-MERGE]
+
+Download and Get-marked on ONE line per paper was NOT done in `#1651`: file ids are not paper codes, and the mapping is unsafe without a signed-in test **[coordinator, handoff section 3; gh]**. Today each pack appears once with its marking rows and file groups inside. Design the mapping first (`buildPackFiles.ts` `makeFile` reads the code from the spec; `registerPackPaper` files papers under their `PK-` code; a question-bank file holds none and a file can hold several papers).
+
+### [FU-PACKS-STALE-OTHER-PATHS]
+
+ID minted here, from the `#1649` body [gh]: "Other paid download/grade paths not audited in this PR (follow-up)." `#1649` fixed `PacksShop.tsx` `open()` and `download()` only. Audit every other lazy import on a path a student has PAID for or is about to be graded on (grading upload, worksheet and chapter-test download, CBQ part builds, the guest-pay sheet) for a chunk-load error that falls to a generic Retry; route each to `recoverFromChunkError` (`src/lib/chunkReload.ts`, once per minute per tab). Live-check each with a deploy between page open and tap. Related and open: `[FU-MAIN-ENTRY-FAIL-BLANK]`.
+
+### [FU-PACK-PANEL-FOLLOWUPS-9NOV]
+
+ID minted here. From the `#1645` reviews [reviewer], still open after merge: (1) an owner whose device has never learned they own packs (bought on another device, first `/packs` visit here) gets ONE jump of 0.57-0.85 CLS, cached after; (2) an expired session with a stale last-account key collapses the reserve (0.86, rare); (3) a leftover reserve after "Not now"; (4) the analytics label of the `sale_moment_*` events from `my_packs`; (5) the free-mark line depends on `LIMITS_ENFORCE` staying ON. The earlier `[FU-PACK-PANEL-FOLLOWUPS]` entry stands for the items it names.
+
+### [FU-PACK-PDF-FOLLOWUPS-9NOV]
+
+ID minted here. From the `#1644` and `#1643` reviews [reviewer], still open after merge: the sample scorecard crops had a mouse cursor and a mascot overlap (cursor fixed, mascot pose noted); a Board Pass holder opening files on a fresh device before the subscription hydrates may get the Board Pass card in those files (low impact, the safe direction when unknown is to omit it); every "Show files" by a non-holder waits on a cloud read (usually under 1 s, at most 3 s); pin churn per content edit (`packPaperCodes.pin.json`, `-V2` workflow, FU-3 of the `#1643` review); a handwritten paper code on an answer sheet is not read, only a typed one, a file name, PDF text or the QR (FU-6); a QR on one Electricity page decodes only at 150 dpi or more, fine for phone photos (FU-9); a clipped "(i)/(ii)/(iii)" caption in one Electricity circuit figure (pre-existing). Regenerate the shop preview images and the free-sample PDFs (also in `[FU-CBQ-SAMPLE]`).
+
+### [FU-INAPP-FOLLOWUPS-9NOV]
+
+ID minted here. From the `#1641` reviews [reviewer], open after merge: rows that land after the 1.5 s settle cap can stay hidden on a tall phone until the student scrolls (rare after the prefetch at the tap); an engine without `:has` (Android System WebView 85-104) sees a one-off 0.06-0.09 push at 412 px (below the build target; the existing `[FU-INAPP-NO-HAS-JUMP]` stands); an OfferRows chunk 404 resets the ladder (pre-existing); the verdict panel's `aria-hidden` while settling lasts at most about 1.5 s. Merge in sequence with the pack group was observed.
+
+### [FU-9NOV-NOT-SOURCED]
+
+Kept so an earlier reader of this block finds the name; the two gaps are now sourced **[coordinator, 9 Nov handoff section 3]**. (1) **The Chrome-resize note:** Chrome `resize_window` did not change the viewport in the live check, so 360 px checks need the owner's phone or Playwright (signed out only); the owner's 360 phone check of `#1651` PASSED at 15:09 IST **[owner]**. (2) **Morning-check items still unconfirmed:** the Answer Checker with a typed `PK-` code (the owner is to test it once) and a Chapter Test file showing its code on page 4 only (by design?). Nothing else in this entry is open.
+
 ## 2026-11-08 (daily, second) - #1637 - #1647 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `1886217`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block.*
