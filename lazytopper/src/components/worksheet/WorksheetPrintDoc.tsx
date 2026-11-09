@@ -143,9 +143,11 @@ export interface WorksheetPrintDocProps {
   /** PDF-REBRAND-1 - draw the tiled "LazyTopper" watermark. Default true (today's behaviour); a licensed copy turns it
    *  off because the buyer's name and email are printed in every page footer instead. */
   watermark?: boolean;
+  /** BRIDGE-PDF-1 - a purchased pack file: its instruction line points to where a pack paper is uploaded (Home), not Worksheets. */
+  packFile?: boolean;
 }
 
-export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, watermark = true }: WorksheetPrintDocProps) {
+export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, watermark = true, packFile = false }: WorksheetPrintDocProps) {
   const isAnswers = kind === "answers";
   const groups = groupBySection(ws.questions);
   // Enough watermark tiles to cover a multi-page worksheet (overflow clips extras).
@@ -206,8 +208,28 @@ export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, waterm
         ) : (
           <p className="lt-wsp__instr">
             <b>Instructions:</b> Solve on this sheet or separate paper.{" "}
-            <b>Label each answer with its question number (Q1, Q2 &hellip;).</b> When done, upload one PDF of
-            all your answers to get it graded with full solutions. Upload your answers at lazytopper.com &rarr; Worksheets &rarr; Upload answers{code ? <> (code {code})</> : null}.
+            <b>Label each answer with its question number (Q1, Q2 &hellip;).</b>{" "}
+            {/* BRIDGE-PDF-1: a PACK file said "Worksheets -> Upload answers", but a pack paper is not on the Worksheets page: it is marked
+                from My packs or Home -> "Papers waiting for your answers" (the same route page 2 gives). A pack question bank has no code
+                of its own, so it points to the pack's coded papers (as page 2 does) and to the Answer Checker for single answers. In-app
+                sheets keep their line (their Worksheets page does take uploads). */}
+            {!packFile ? (
+              <>
+                When done, upload one PDF of all your answers to get it graded with full solutions. Upload your answers at lazytopper.com
+                &rarr; Worksheets &rarr; Upload answers{code ? <> (code {code})</> : null}.
+              </>
+            ) : code ? (
+              <>
+                When done, upload your answers to get them marked: lazytopper.com &rarr; My packs, or Home &rarr; Papers waiting for your
+                answers (code <span className="lt-wsp__nowrap">{code}</span>).
+              </>
+            ) : (
+              <>
+                The papers in your pack each carry a paper code: get them marked at lazytopper.com &rarr; My packs, or Home &rarr; Papers
+                waiting for your answers. Any single answer from this bank can be checked in the Answer
+                Checker at lazytopper.com/check-improve.
+              </>
+            )}
           </p>
         )}
 
@@ -402,6 +424,7 @@ const PRINT_CSS = `
 .lt-wsp__instr { font-size: 15px; color: var(--p-ink); border-radius: 8px;
   padding: 10px 14px; margin: 10px 0 8px; background: #eef1f5; }
 .lt-wsp__instr b { color: var(--p-ink); }
+.lt-wsp__nowrap { white-space: nowrap; }
 
 .lt-wsp__sechead { margin: 32px 0 18px; }
 .lt-wsp__sechrow { display: flex; align-items: baseline; justify-content: space-between; }

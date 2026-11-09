@@ -22,6 +22,9 @@ export async function pickSampleFile(spec: PackSampleSpec, exportPdf: NonNullabl
     licensee: { name: "LazyTopper sample", email: "sample@lazytopper.com" },
     owned: [],
     exportPdf,
+    // BRIDGE-CODES-1 round 3: a CBQ chapter file holds every set; its free sample is Set 1 only (the first page of it).
+    exportSetsPdf: (sets: Array<{ ws: Parameters<typeof exportPdf>[0]; code: string }>, mode: "questions" | "answers") =>
+      exportPdf(sets[0].ws, mode, sets[0].code),
   };
   const files =
     spec.sku === "pack_mock"

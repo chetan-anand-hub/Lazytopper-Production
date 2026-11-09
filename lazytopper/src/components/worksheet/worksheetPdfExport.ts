@@ -31,6 +31,7 @@ import { buildPaperQrMatrix, drawPaperQr, PAPER_QR_MM } from "./paperQr";
 export { buildPaperQrMatrix, PAPER_QR_MM };
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { PrintCoverProps } from "./PrintCover";
+import type { BridgePagesData } from "../../lib/packs/packBridge";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
 type Doc = import("jspdf").jsPDF;
@@ -172,6 +173,11 @@ export interface WorksheetPdfOptions {
    * so it is drawn as an image: the rupee sign is not in the PDF font). Used only by the sample generator script.
    */
   sample?: { line: string; meta?: string };
+  /**
+   * BRIDGE-PDF-1 - pages 2 and 3 of a PURCHASED pack file ("Get this paper marked like a CBSE examiner" + the sample scorecard),
+   * placed right after the cover. Only with a cover and never on a sample. buildPackFiles passes it only on the buyer's download.
+   */
+  bridge?: BridgePagesData;
 }
 
 interface CoreOptions extends WorksheetPdfOptions {
@@ -235,8 +241,18 @@ const SCREEN_GEOMETRY: PageGeometry = { top: MARGIN_TOP, footerH: FOOTER_H, bar:
 export const PRINT_GEOMETRY: PageGeometry = { top: 22, footerH: 27, bar: false, headerImgY: 10.6, headerTextY: 15.5, headerRuleY: 18.5, footLineY: PAGE_H - 25, licY: PAGE_H - 20.5, pageY: PAGE_H - 14 };
 /** GRADE-ROUTE-2 - a taller footer band (27 mm) for the sheets that print the 18 mm paper QR; everything else unchanged. */
 const QR_GEOMETRY: PageGeometry = { ...SCREEN_GEOMETRY, footerH: 27, footLineY: PAGE_H - 25 };
+/**
+ * BRIDGE-PDF-1 (owner 8 Nov 20:17 "add QR codes ... all of packs") - a PAID pack question paper with a code also prints the 18 mm paper QR.
+ * GRADE-ROUTE-2 (#1563) left packs out ("licensed packs unchanged"); what that kept safe is kept here: every mark stays >= 10 mm inside the
+ * A4 edge (PAY-PHONE-1, home printers) and the licence line keeps its own row. The QR sits bottom RIGHT (12 mm from the right edge,
+ * 11 mm from the bottom) in a 33 mm footer band, and the licence line / page number / trust line are fitted to the width left of it.
+ */
+export const PACK_QR_GEOMETRY: PageGeometry = { ...PRINT_GEOMETRY, footerH: 33, footLineY: PAGE_H - 31, licY: PAGE_H - 24, pageY: PAGE_H - 15 };
+/** Where the pack QR's top-left corner sits (mm). */
+export const PACK_QR_X = PAGE_W - MARGIN_X - PAPER_QR_MM;
+export const PACK_QR_Y = PAGE_H - 11 - PAPER_QR_MM;
 export function pageGeometry(opts: { licensee?: unknown; sample?: unknown; paperQr?: unknown }): PageGeometry {
-  if (opts.licensee && !opts.sample) return PRINT_GEOMETRY;
+  if (opts.licensee && !opts.sample) return opts.paperQr ? PACK_QR_GEOMETRY : PRINT_GEOMETRY;
   return opts.paperQr && !opts.sample ? QR_GEOMETRY : SCREEN_GEOMETRY;
 }
 const ACCENT_RGB: [number, number, number] = [63, 191, 130];
@@ -283,13 +299,13 @@ function fitLicensee(pdf: Doc, l: { name: string; email: string; orderId: string
 export const PDF_TRUST_LINE = "Made by an IITian (IIT Kanpur) \u00b7 lazytopper.com";
 
 /** Draws the right-hand footer text; drops to 9pt only if it could touch the left "Page N of M" at this width. */
-function drawTrustLine(pdf: Doc, leftText: string, innerW: number, y: number): void {
+function drawTrustLine(pdf: Doc, leftText: string, innerW: number, y: number, rightX = PAGE_W - MARGIN_X): void {
   pdf.setFontSize(10);
   if (typeof pdf.getTextWidth === "function") {
     const gap = 6;
     if (pdf.getTextWidth(leftText) + gap + pdf.getTextWidth(PDF_TRUST_LINE) > innerW) pdf.setFontSize(9);
   }
-  pdf.text(PDF_TRUST_LINE, PAGE_W - MARGIN_X, y, { align: "right" });
+  pdf.text(PDF_TRUST_LINE, rightX, y, { align: "right" });
   pdf.setFontSize(10);
 }
 
@@ -399,12 +415,15 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(...MUTED_RGB);
   if (opts.licensee) {
-    const fit = fitLicensee(pdf, opts.licensee, innerW);
+    // BRIDGE-PDF-1: with the pack QR at the right, the licence line and the trust line keep to the width left of it.
+    const textW = qr ? innerW - PAPER_QR_MM - 4 : innerW;
+    const fit = fitLicensee(pdf, opts.licensee, textW);
     pdf.setFontSize(fit.size);
     pdf.text(fit.text, MARGIN_X, g.licY);
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, g.pageY);
-    drawTrustLine(pdf, `Page ${page} of ${total}`, innerW, g.pageY);
+    drawTrustLine(pdf, `Page ${page} of ${total}`, textW, g.pageY, MARGIN_X + textW);
+    if (qr) drawPaperQr(pdf, qr, PACK_QR_X, PACK_QR_Y);
   } else {
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
@@ -414,7 +433,7 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
 }
 
 /** A detached offscreen host that holds ONLY the element handed in; always cleaned up. */
-async function withHost<T>(width: number, element: ReactElement, run: (host: HTMLElement) => Promise<T>): Promise<T> {
+async function withHost<T>(width: number, element: ReactElement, run: (host: HTMLElement) => Promise<T>, imageTimeoutMs?: number): Promise<T> {
   const host = document.createElement("div");
   host.setAttribute("aria-hidden", "true");
   host.style.position = "fixed";
@@ -433,7 +452,7 @@ async function withHost<T>(width: number, element: ReactElement, run: (host: HTM
     await loadKatex();
     root.render(element);
     await waitForRenderReady();
-    await waitForImages(host);
+    await waitForImages(host, imageTimeoutMs);
     await svgsToImages(host);
     return await run(host);
   } finally {
@@ -470,6 +489,9 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     });
   }
 
+  // BRIDGE-PDF-1: pages 2-3, right after the cover (only a paid file with a cover; never a sample).
+  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await renderBridgePages(opts.bridge, html2canvas) : [];
+
   return withHost(HOST_WIDTH, element, async (host) => {
     // Where a page may be cut, measured now (the laid-out DOM) and converted to canvas pixels after the capture.
     const atomsCss = collectPrintAtoms(host);
@@ -503,7 +525,8 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       const code = latin1(opts.paperCode);
       pdf.setProperties({ title: latin1(`${code} - ${opts.runningHeader ?? "LazyTopper paper"}`), subject: code, keywords: code, author: "LazyTopper" });
     }
-    const qrRows = opts.paperQr && opts.paperCode && !opts.sample && !opts.licensee ? await buildPaperQrMatrix(opts.paperCode) : null;
+    // BRIDGE-PDF-1: a paid pack question paper prints the QR too (bottom right, PACK_QR_GEOMETRY).
+    const qrRows = opts.paperQr && opts.paperCode && !opts.sample ? await buildPaperQrMatrix(opts.paperCode) : null;
     const imgW = PAGE_W - MARGIN_X * 2;
     const geom = pageGeometry(opts);
     const usableH = PAGE_H - geom.top - geom.footerH;
@@ -517,11 +540,16 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     );
     // A free sample is the document's FIRST page only (PACK-SAMPLE-1).
     const bodyPages = opts.sample ? 1 : Math.max(1, slices.length);
-    const offset = coverJpeg ? 1 : 0;
+    const offset = (coverJpeg ? 1 : 0) + bridgePages.length;
     const totalPages = bodyPages + offset;
 
     const brand = totalPages > 1 ? await loadBrandDataUrls() : null;
     if (coverJpeg) pdf.addImage(coverJpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+    for (const bp of bridgePages) {
+      pdf.addPage();
+      pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+      if (typeof pdf.link === "function") for (const l of bp.links) pdf.link(l.x, l.y, l.w, l.h, { url: l.url });
+    }
 
     for (let page = 0; page < bodyPages; page += 1) {
       // integer page edges taken from ONE rounding of each cut, so a page never drops or repeats a canvas pixel
@@ -545,6 +573,60 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     pdf.save(filename);
     return filename;
   });
+}
+
+type Html2Canvas = (typeof import("html2canvas"))["default"];
+interface BridgePageRaster {
+  jpeg: string;
+  /** Link areas in mm (A4), from the elements carrying data-pdf-link. */
+  links: Array<{ x: number; y: number; w: number; h: number; url: string }>;
+}
+
+/**
+ * BRIDGE-PDF-1 - rasterise pages 2 and 3 once per distinct content (a pack's files share them), as full-bleed A4 JPEGs. A failure
+ * here never costs the student the paper: it resolves to no pages and the file is produced as before.
+ */
+const bridgeCache = new Map<string, Promise<BridgePageRaster[]>>();
+/** Every sample image of a bridge page decoded? A blocked or slow image (offline, 2G past the wait) would print an empty navy box. */
+export function bridgeImagesReady(host: HTMLElement): boolean {
+  return Array.from(host.querySelectorAll("img")).every((img) => img.complete && img.naturalWidth > 0);
+}
+/** Exported for tests only. */
+export async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas, imageTimeoutMs?: number): Promise<BridgePageRaster[]> {
+  const key = JSON.stringify(data);
+  const hit = bridgeCache.get(key);
+  if (hit) return hit;
+  const job = (async (): Promise<BridgePageRaster[]> => {
+    try {
+      const mod = await import("./PrintBridgePages");
+      const { BRIDGE_SAMPLE_PDF_URL, BRIDGE_PRICING_URL, BRIDGE_PACKS_URL } = await import("../../lib/packs/packBridge");
+      const links = { packs: BRIDGE_PACKS_URL, pricing: BRIDGE_PRICING_URL, sample: BRIDGE_SAMPLE_PDF_URL };
+      const out: BridgePageRaster[] = [];
+      for (const Page of [mod.PrintBridgeMarkPage, mod.PrintBridgeViewsPage]) {
+        out.push(
+          await withHost(mod.BRIDGE_W, createElement(Page, { data, links }), async (h) => {
+            // Review FU-1: build the pages only when every image decoded; otherwise this file gets NO pages 2-3 (and nothing is
+            // cached, so the next file tries again) rather than pages with empty boxes.
+            if (!bridgeImagesReady(h)) throw new Error("bridge_images_missing");
+            const box = h.getBoundingClientRect();
+            const mm = PAGE_W / mod.BRIDGE_W;
+            const areas = Array.from(h.querySelectorAll<HTMLElement>("[data-pdf-link]")).map((el) => {
+              const r = el.getBoundingClientRect();
+              return { x: (r.left - box.left) * mm, y: (r.top - box.top) * mm, w: r.width * mm, h: r.height * mm, url: el.dataset.pdfLink ?? "" };
+            });
+            const c = await html2canvas(h, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: mod.BRIDGE_W });
+            return { jpeg: c.toDataURL("image/jpeg", 0.72), links: areas.filter((a) => a.url && a.w > 0 && a.h > 0) };
+          }, imageTimeoutMs),
+        );
+      }
+      return out;
+    } catch {
+      bridgeCache.delete(key);
+      return [];
+    }
+  })();
+  bridgeCache.set(key, job);
+  return job;
 }
 
 /** "20 Jun 2026" from the sheet's ISO date; "" when it is missing or unreadable. */
@@ -576,17 +658,174 @@ export async function exportWorksheetPdf(
   const filename = opts?.filename || `lazytopper-${slug(ws.title)}-${codeToken(code)}${suffix}.pdf`;
   const renderSolutionFigure = kind === "answers" ? await loadSolutionFigureRenderer() : undefined;
   return renderElementToPdf(
-    createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee }),
+    createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee, packFile: Boolean(opts?.licensee) && !opts?.sample }),
     filename,
     {
       ...opts,
       edition: editionOf(ws.createdAt),
       runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}`,
       // GRADE-ROUTE-2: every newly generated Worksheet / Chapter Test / Full Mock PDF names its paper in its metadata;
-      // the questions sheet (the one that is written on and uploaded) also carries a small QR. Packs/samples: untouched.
-      ...(code && !opts?.licensee && !opts?.sample ? { paperCode: code, paperQr: kind === "questions" } : {}),
+      // the questions sheet (the one that is written on and uploaded) also carries a small QR. BRIDGE-PDF-1: paid pack papers too
+      // (owner 8 Nov 20:17); free samples stay untouched.
+      ...(code && !opts?.sample ? { paperCode: code, paperQr: kind === "questions" } : {}),
     },
   );
+}
+
+/** BRIDGE-CODES-1 round 3 - one paper inside a multi-paper file. */
+export interface PdfPaperSet {
+  ws: PersistedWorksheet;
+  /** The set's own pack code: printed in its header, and (questions) in its QR on each of its pages. */
+  code: string;
+}
+
+/** JPEG quality of a several-paper file's body pages (review 1643: 0.95 -> 0.80 at the same 2x scale). */
+export const SETS_BODY_JPEG_QUALITY = 0.8;
+/**
+ * Raster scale of a several-paper file's body pages (owner 8 Nov 23:30: "yes, but ensure that print quality is good" - slightly
+ * lower resolution so a CBQ part stays small). 1.5x = 1140 px over the 186 mm print width (~156 px/inch at A4); the code QR is drawn
+ * as vector squares by the page chrome, so it is unaffected. See the print-quality crops in the PR (300 dpi, A4).
+ */
+export const SETS_RASTER_SCALE = 1.5;
+
+/** One rasterised body page of a multi-paper file. */
+interface SetPage {
+  jpeg: string;
+  hMm: number;
+  set: number;
+  /** 0 on the set's first page (its own title row is the header), then 1, 2 ... (the running header is drawn). */
+  bodyIndex: number;
+}
+
+/**
+ * BRIDGE-CODES-1 round 3 (owner ruling 8 Nov 2026 21:20: "One pdf per chapter") - ONE PDF holding several papers (a CBQ Pack
+ * chapter's sets) in order: the cover once, BRIDGE-PDF-1's pages 2-3 once, then each paper rendered by the same WorksheetPrintDoc as a
+ * single paper, STARTING ON A NEW PAGE with its own title row and printed code; on a questions file each of its pages carries ITS OWN
+ * QR (the pack placement, PACK_QR_GEOMETRY), so a photo of any page names the right set. Page numbers run across the whole file.
+ * The file's metadata names NO paper code: one Title/Keywords code would send every upload of every set to the first one.
+ *
+ * A pure addition next to `exportWorksheetPdf` (its single-paper path, renderElementToPdf, is unchanged); it reuses the same
+ * host, atoms, slicing and chrome. Each set is rasterised in its own host and turned into page JPEGs at once, so only one set's
+ * canvas is alive at a time (low-end phones). A free sample (`opts.sample`) is the FIRST set's first page only.
+ */
+export async function exportWorksheetSetsPdf(
+  sets: readonly PdfPaperSet[],
+  kind: "questions" | "answers",
+  opts: WorksheetPdfOptions & {
+    /** Called as each set starts rendering (1-based), so the download button can say "Preparing… set k of n". */
+    onProgress?: (set: number, of: number) => void;
+    /** Test / measurement seam: the body raster scale (default SETS_RASTER_SCALE). */
+    rasterScale?: number;
+  } = {},
+): Promise<string> {
+  if (sets.length === 0) throw new Error("no_paper_sets");
+  const filename = opts.filename || `lazytopper-${slug(sets[0].ws.title)}-${kind === "answers" ? "answer-key" : "questions"}.pdf`;
+  const renderSolutionFigure = kind === "answers" ? await loadSolutionFigureRenderer() : undefined;
+  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+  const edition = editionOf(sets[0].ws.createdAt);
+  const withQr = kind === "questions" && !opts.sample;
+  const base: CoreOptions = { ...opts, edition, paperQr: withQr };
+
+  let coverJpeg: string | null = null;
+  if (opts.cover && !opts.sample) {
+    const { PrintCover, COVER_W } = await import("./PrintCover");
+    const cover = opts.cover;
+    coverJpeg = await withHost(COVER_W, createElement(PrintCover, {
+      ...cover,
+      licenseeLine: opts.licensee ? licenseeLine(opts.licensee) : undefined,
+      edition,
+      paidAtMs: opts.paidAtMs,
+    }), async (coverHost) => {
+      const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+      // a several-paper file's cover: the same quality as its body pages (a CBQ part stays small; owner 8 Nov 22:45)
+      return c.toDataURL("image/jpeg", SETS_BODY_JPEG_QUALITY);
+    });
+  }
+  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await renderBridgePages(opts.bridge, html2canvas) : [];
+
+  const geom = pageGeometry(base);
+  const imgW = PAGE_W - MARGIN_X * 2;
+  const usableH = PAGE_H - geom.top - geom.footerH;
+  const pages: SetPage[] = [];
+  const todo = opts.sample ? sets.slice(0, 1) : sets;
+  for (let si = 0; si < todo.length; si += 1) {
+    const { ws, code } = todo[si];
+    try {
+      opts.onProgress?.(si + 1, todo.length);
+    } catch {
+      /* a progress listener never stops the PDF */
+    }
+    const element = createElement(WorksheetPrintDoc, {
+      ws, kind, code, renderSolutionFigure, watermark: !opts.licensee, packFile: Boolean(opts.licensee) && !opts.sample,
+    });
+    await withHost(HOST_WIDTH, element, async (host) => {
+      const atomsCss = collectPrintAtoms(host);
+      // PAY-PHONE-1 (print), as renderElementToPdf: a question's stem and its options never split across a page break.
+      const top0 = host.getBoundingClientRect().top;
+      host.querySelectorAll(".lt-wsp__q").forEach((q) => {
+        const r = q.getBoundingClientRect();
+        atomsCss.push({ top: r.top - top0, bottom: r.bottom - top0 });
+      });
+      const hostH = host.getBoundingClientRect().height;
+      const canvas = await html2canvas(host, { scale: opts.rasterScale ?? SETS_RASTER_SCALE, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: HOST_WIDTH });
+      const pxPerMm = canvas.width / imgW || 1;
+      const sliceHpx = Math.max(1, Math.floor(usableH * pxPerMm));
+      const yScale = hostH > 0 ? canvas.height / hostH : 1;
+      const atoms = atomsCss.map((a) => ({ top: a.top * yScale, bottom: a.bottom * yScale }));
+      const slices = planSlices(atoms, canvas.height, sliceHpx);
+      // A slice that starts below the last printed unit holds only the sheet's bottom padding: inside a several-paper file that
+      // would be a blank page between two sets, so it is not emitted (the next set starts on the following page anyway).
+      const contentEnd = atoms.reduce((m, a) => Math.max(m, a.bottom), 0);
+      let n = opts.sample ? 1 : Math.max(1, slices.length);
+      while (n > 1 && contentEnd > 0 && Math.round(slices[n - 1].y) >= contentEnd - 1) n -= 1;
+      for (let page = 0; page < n; page += 1) {
+        const yPx = page === 0 ? 0 : Math.round(slices[page].y);
+        const nextY = page + 1 < slices.length ? Math.round(slices[page + 1].y) : canvas.height;
+        const hPx = Math.max(1, Math.min(nextY, canvas.height) - yPx);
+        const slice = document.createElement("canvas");
+        slice.width = canvas.width;
+        slice.height = hPx;
+        const sctx = slice.getContext("2d");
+        if (sctx) {
+          sctx.fillStyle = "#ffffff";
+          sctx.fillRect(0, 0, slice.width, slice.height);
+          sctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
+        }
+        // Review 1643: 0.80 at the same scale (2x) - about 40% smaller than 0.95 with no visible loss; the QR is drawn as vector
+        // squares by the page chrome, never through this JPEG.
+        pages.push({ jpeg: slice.toDataURL("image/jpeg", opts.sample ? 0.78 : SETS_BODY_JPEG_QUALITY), hMm: hPx / pxPerMm, set: si, bodyIndex: page });
+      }
+      // Release this set's raster before the next set is drawn.
+      canvas.width = 0;
+      canvas.height = 0;
+    });
+  }
+
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
+  const qrs = withQr ? await Promise.all(todo.map((t) => buildPaperQrMatrix(t.code))) : todo.map(() => null);
+  const offset = (coverJpeg ? 1 : 0) + bridgePages.length;
+  const totalPages = pages.length + offset;
+  const brand = totalPages > 1 ? await loadBrandDataUrls() : null;
+  if (coverJpeg) pdf.addImage(coverJpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+  for (const bp of bridgePages) {
+    pdf.addPage();
+    pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+    if (typeof pdf.link === "function") for (const l of bp.links) pdf.link(l.x, l.y, l.w, l.h, { url: l.url });
+  }
+  pages.forEach((pg, i) => {
+    if (i > 0 || coverJpeg) pdf.addPage();
+    pdf.addImage(pg.jpeg, "JPEG", MARGIN_X, geom.top, imgW, pg.hMm);
+    const { ws, code } = todo[pg.set];
+    const setOpts: CoreOptions = {
+      ...base,
+      paperCode: code,
+      runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}`,
+    };
+    drawChrome(pdf, i + 1 + offset, totalPages, pg.bodyIndex, setOpts, brand, qrs[pg.set] ?? null);
+  });
+  pdf.save(filename);
+  return filename;
 }
 
 /**
