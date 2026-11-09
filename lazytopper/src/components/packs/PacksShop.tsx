@@ -64,6 +64,7 @@ import PackReadyBanner, { type ReadyRow } from "./PackReadyBanner";
 import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPacksBridgeLoader";
 // BRIDGE-PANEL-1 round 3 (owner 22:45): the per-device height hint that reserves My packs' space before its data arrives.
 import { MINE_HINT_SCRIPT, clearMineHint, hintNow, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
+import { recoverFromChunkError } from "../../lib/chunkReload";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -1182,7 +1183,10 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
         },
       );
       setState({ phase: "ready", groups: groupPackFiles(files) });
-    } catch {
+    } catch (err) {
+      // PACKS-STALE-1: a tab opened before a deploy asks for a code file that no longer exists. Reload once (at most once a
+      // minute per tab, shared with ErrorBoundary) instead of an error that Retry can never clear; stay on "loading" meanwhile.
+      if (recoverFromChunkError(err)) return;
       setState({ phase: "error" });
     }
   }
@@ -1195,8 +1199,9 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
     try {
       await file.build(file.codes && file.codes.length > 1 ? (k, n) => setProgress(`Preparing\u2026 set ${k} of ${n}`) : undefined);
       if (file.codes && file.codes.length > 0) setSavedIds((prev) => new Set(prev).add(file.id));
-    } catch {
-      setFailedId(file.id);
+    } catch (err) {
+      // PACKS-STALE-1: same stale-tab case for the file builder's code files - reload once instead of a dead Retry.
+      if (!recoverFromChunkError(err)) setFailedId(file.id);
     } finally {
       setBusyId(null);
       setProgress(null);
