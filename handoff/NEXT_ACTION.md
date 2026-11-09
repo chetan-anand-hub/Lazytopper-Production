@@ -1,3 +1,19 @@
+## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`13161d1`** [git].
+
+- **Done [git/gh]:** 7 PRs merged (table in CURRENT_STATE): `#1641`, `#1644`, `#1643`, `#1645`, `#1649`, `#1650`, `#1651`. No grading change. The PDF-pack-to-Board-Pass bridge is live (pages 2-3 and a QR in bought packs, CBQ packs as 204 gradable coded sets in parts, the Answer Checker reads `PK-` codes, My packs first on `/packs`); the stale-tab "couldn't prepare these files" bug is fixed; `/packs` is collapsible. The previous block's "`#1641` open" line is superseded: it merged 8 Nov 19:04 UTC.
+- **NEXT, in the owner's order:**
+  1. Re-derive trunk. Read CURRENT_STATE (its 9 Nov block), SURFACE_TRACKER and the "9 Nov (daily)" section of OPEN_QUESTIONS_AND_FOLLOWUPS. List open PRs with the gh REST API (none expected). Read the coordinator's `claude/HANDOFF_COFOUNDER_SESSION_2026-11-09.md` (sections 1-3 hold the rulings and the new FUs this docs lane could not read).
+  2. **CBQ marked sample, then regenerate the CBQ free samples and preview images** (`[FU-CBQ-SAMPLE]`, owner approved about Rs11): write one CBQ set answer sheet with planted mistakes (template `SAMPLE_SHEET_2026-11-08.md`), grade it on the owner account, verify the mistake types and the objective invariant (CLAUDE.md section 13), put it on the CBQ pack pages 2-3; then regenerate the CBQ free-sample PDFs and the shop preview images (still the old "Part k of n" layout).
+  3. `[FU-PACKS-HOLDER-CARD-OWNER]`.
+  4. `[FU-PACKS-NONCBQ-SAVED]`.
+  5. `[FU-PACKS-DOUBLE-PAY-DIALOG]` (an OWNER DECISION is needed first).
+  6. `[FU-PACKS-PAPER-LINE-MERGE]`.
+  7. **Pricing-page redesign stays ON HOLD** (owner). `LIMITS_ENFORCE` must stay ON in Railway.
+- **Live checks owed (this lane could not confirm they were run):** the pack-group live check on the owner account (download a pack: pages 2-3 and the QR; Answer Checker with a `PK-` code; My packs panel on the first screen at 360 and 1280, no jump; a Board Pass holder sees the packs card), a SIGNED-IN live check of `#1651` (collapsed default and auto-open row, CBQ part downloads inside the row, Get marked / Download, Board Pass vs holder card placement, `#invoices`, buy-resume, guest-pay), full regression and the signed-in checklist. Record the results in the next docs PR.
+- **Carried, unchanged:** the YouTube demo `[FU-YT-DEMO-VIDEO]`; `[FU-PRICING-MYPACKS-REDIRECT-CLS]`; `[FU-CBQ-H1-RESERVE]`; the ads items (study-app ad group, "AI" sweep of ad text, search-terms review); dated checks 13-15 Nov Quality Score, 15 Nov Vercel, 16 Nov PDF Packs (read-only), 1 Dec 07:56 IST paint recapture; reminders Google Ads balance and Resend Pro (about 14 Nov, then raise `GST_INVOICE_EMAIL_DAILY_CAP` 10 -> 30).
+
 ## 2026-11-08 (daily, second) - #1637 - #1647
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`1886217`** [git].

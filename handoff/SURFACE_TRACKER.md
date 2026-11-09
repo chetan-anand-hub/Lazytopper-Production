@@ -1,3 +1,18 @@
+> **2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651 (CLAUDE.md section 10).** Scope: the Answer Checker first screen in in-app browsers, the PDF-pack-to-Board-Pass bridge (pack PDFs pages 2-3 and a QR, CBQ coded sets in parts, the Answer Checker reading `PK-` codes, My packs first on `/packs`), the stale-tab fix and the `/packs` collapsible redesign. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the 6 Nov second-surface checks stay owed |
+| Answer Checker in-app browsers (/check-improve) | static first screen for YouTube / Instagram / Facebook web views; the mark stays on screen (`#1641`) | **merged, live** (live in-app check: LCP 588-728 ms, CLS 0) | `[FU-INAPP-FOLLOWUPS-9NOV]` |
+| Answer Checker, pack paper codes | reads a `PK-` code typed, in the file name, in PDF text or from the QR; CBQ sets carry codes (`#1643`) | **merged, live** (decode proven by the reviewer; a live upload with a PK code owed) | a live Answer Checker upload with a `PK-` code; `[FU-PACK-PDF-FOLLOWUPS-9NOV]` |
+| Pack PDFs (bought packs) | pages 2-3 and a paper QR on every question paper; question-bank files drop the QR line (`#1644`, `#1650`) | **merged, live** | live signed-in download check at 360 and 1280 (a non-holder and a holder) |
+| CBQ packs | 204 coded gradable sets, delivered in parts, 79 PDFs per pack (`#1643`) | **merged, live** | `[FU-CBQ-SAMPLE]`; regenerate the CBQ free samples and preview images |
+| /packs (My packs) | My packs first with the panel on top; per-device height hint (`#1645`) | **merged, live** | `[FU-PACK-PANEL-FOLLOWUPS-9NOV]`; `[FU-PACKS-HOLDER-CARD-OWNER]` |
+| /packs (shop and My packs layout) | collapsible redesign: one CBQ card with a Maths/Science switch, folded Subject / Mock / Chapter group, per-pack collapsed rows (`#1651`) | **merged, live** | a signed-in live check (collapsed default, auto-open row, CBQ parts, buy-resume, guest-pay); `[FU-PACKS-CSS-BUDGET]`; `[FU-PACKS-PAPER-LINE-MERGE]` |
+| Pack downloads in a stale tab | one guarded reload instead of "We couldn't prepare these files" (`#1649`) | **merged, live** | `[FU-PACKS-STALE-OTHER-PATHS]` |
+
+No grading surface moved.
+
 > **2026-11-08 (daily, second) - #1637 - #1647 (CLAUDE.md section 10).** Scope: Board Pass checkout guard, the CBQ chooser and Answer Checker a11y, the Answer Checker first paint, the island pages (Important Questions, CBQ chapters, NCERT Hub), selling copy, the pricing FAQ and the graded-sheet header (display and export only). **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

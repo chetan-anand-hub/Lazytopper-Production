@@ -1,3 +1,14 @@
+## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651 - MERGED
+
+- DONE. `#1641` (`ae71e69`) SPEED-CI-3: the Answer Checker static first screen in in-app browsers; the mark never scrolls off. Live in-app LCP 588-728 ms (was about 4 s), CLS 0. NEXT: `[FU-INAPP-NO-HAS-JUMP]`, rows that land late.
+- DONE. `#1644` (`fc5643c`) BRIDGE-PDF-1: pages 2-3 and a paper QR in every bought pack PDF; hosted marked sample v2. NEXT: `[FU-PACK-CODES-FOLLOWUPS]`.
+- DONE. `#1643` (`03d9632`) BRIDGE-CODES-1: CBQ packs as 204 coded gradable sets delivered in parts (79 PDFs per pack); the Answer Checker reads `PK-` codes. NEXT: `[FU-CBQ-SAMPLE]` and regenerate the CBQ free samples and previews.
+- DONE. `#1645` (`e5463a5`) BRIDGE-PANEL-1: My packs first on `/packs` with the panel on top; a layout hint removes the jump for returning owners. NEXT: `[FU-MYPACKS-CLS]` residual (an owner's first visit on a new device).
+- DONE. `#1649` (`77d57bc`) PACKS-STALE-1: a stale tab reloads once instead of failing "Show files" / "Download". NEXT: audit the other paid download and grade paths (`[FU-PACKS-STALE-OTHER-PATHS]`).
+- DONE. `#1650` (`dedef90`): question-bank PDF pages no longer promise a QR they do not carry.
+- DONE. `#1651` (`13161d1`) PACKS-TIDY-1: `/packs` collapsible redesign signed in and out; `/packs` 3978 -> 3010 px at 360. NEXT: a signed-in live check; `[FU-PACKS-CSS-BUDGET]`.
+- NEXT (not built, owner order): CBQ marked sample and regenerated CBQ free samples/previews; `[FU-PACKS-HOLDER-CARD-OWNER]`; `[FU-PACKS-NONCBQ-SAVED]`; `[FU-PACKS-DOUBLE-PAY-DIALOG]` (owner decision); `[FU-PACKS-PAPER-LINE-MERGE]`. Pricing-page redesign is ON HOLD (owner).
+
 ## 2026-11-08 (daily, second) - #1637 - #1647 - MERGED
 
 - DONE. `#1637` (`e96fba2`) MONEY-DUPGUARD-1: a covered account cannot buy a second Board Pass; an open unpaid order is reused. NEXT: `[FU-ENTITLEMENT-PASSEND-FREE]`, the same-instant double-order race.

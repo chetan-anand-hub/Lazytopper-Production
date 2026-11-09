@@ -23,6 +23,54 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `13161d1`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the 8 Nov night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block. **NOT SOURCED by this lane:** the coordinator's 9 Nov handoff (`claude/HANDOFF_COFOUNDER_SESSION_2026-11-09.md`, section 3 = the new follow-ups). The IDs the owner's queue names from it are recorded below with what the PR bodies and reviews support, and the rest of their text is marked NOT SOURCED so nobody reads a name as a finding. Read that section and fill in the bodies in the next docs PR.*
+
+**Closed by this window:** the PACKS-STALE-1 lane's stale-tab "couldn't prepare these files" bug CLOSED for "Show files" and "Download" by `#1649` (other paid paths: see `[FU-PACKS-STALE-OTHER-PATHS]`). `#1641` SPEED-CI-3 shipped: its live in-app check passed (LCP 588-728 ms, CLS 0). **`[FU-CBQ-SAMPLE]` is NOT closed: it is still open** (the real marked CBQ sample and the regenerated CBQ free samples and preview images have not been done; its entry in the earlier block stands). `[FU-MYPACKS-CLS]` is closed by `#1645` for every case except the residual in `[FU-PACK-PANEL-FOLLOWUPS-9NOV]`.
+
+**Still open, carried:** `[FU-CBQ-SAMPLE]`, `[FU-YT-DEMO-VIDEO]`, `[FU-PRICING-MYPACKS-REDIRECT-CLS]`, `[FU-CBQ-H1-RESERVE]`, `[FU-RESEND-PRO]`, `[FU-PAINT-SHELL-1DEC-RECAPTURE]`. Their entries in the earlier blocks stand. `LIMITS_ENFORCE` must stay ON in Railway.
+
+### [FU-PACKS-CSS-BUDGET]
+
+From the `#1651` body [gh]. The `/packs` route grew: JS gzip 29,911 -> 31,877 B (+1,966 B, over the roughly 1 KB goal, mostly lazy chunks) and CSS gzip 8,238 -> 10,255 B (+2,017 B). The old, now unused hero and tile rules were LEFT in `packs.css` on purpose to keep that diff safe. The entry chunk is unchanged at 157,589 B gz (no PERF-3 budget touched). The owner accepted the size cost for a shorter page with no layout jump (the coordinator records it as about 3 KB; that figure is the coordinator's, not re-measured here). Follow-up: delete the dead hero and tile CSS from `packs.css` and re-measure; do not let `/packs` grow again without a budget. The rest of the coordinator's wording is NOT SOURCED.
+
+### [FU-PACKS-HOLDER-CARD-OWNER]
+
+Named in the owner's 9 Nov queue. The finding text is NOT SOURCED by this lane (it is in the coordinator's 9 Nov handoff section 3). Context from the PR bodies: a CONFIRMED Board Pass holder sees one quiet packs card in My packs (the CBQ packs not owned, else the Bundle) instead of the Board Pass card (`#1645`, owner 8 Nov 22:11); `#1651` placed the Board Pass or holder card beside the first-marked card at 1024 px and up, or under it, and lists "Board Pass vs holder card placement" as needing a signed-in live check. Read the coordinator's section 3 before building anything.
+
+### [FU-PACKS-NONCBQ-SAVED]
+
+Named in the owner's 9 Nov queue. The finding text is NOT SOURCED by this lane. Do not guess: read the coordinator's 9 Nov handoff section 3. (The name suggests the "Saved" state that CBQ part buttons show after a download in `#1643`, for non-CBQ files; that reading is an inference, not a source.)
+
+### [FU-PACKS-DOUBLE-PAY-DIALOG]
+
+Named in the owner's 9 Nov queue and flagged there as an OWNER DECISION. The finding text is NOT SOURCED by this lane. Do not build until the owner has decided; read the coordinator's 9 Nov handoff section 3 for the question put to him. Related, already recorded: the server refuses a second Board Pass order from a covered account and reuses an open unpaid order (`#1637`); a second authorised payment on an order that is already paid stays open (`[FU-ORDER-REUSE-PARENT-AND-COPY]`, F3).
+
+### [FU-PACKS-PAPER-LINE-MERGE]
+
+From the `#1651` body [gh]: "Per-paper merge of Download + Get-marked was not done (file ids are not paper codes)." In My packs a paper's Download and its Get-marked row are separate; merging them into one line per paper needs a mapping from a pack FILE id to its paper CODE, which does not exist (a file can hold several papers, and a question-bank file holds none). Design the mapping first (`buildPackFiles.ts` `makeFile` reads the code from the spec; `registerPackPaper` files papers under their `PK-` code).
+
+### [FU-PACKS-STALE-OTHER-PATHS]
+
+ID minted here, from the `#1649` body [gh]: "Other paid download/grade paths not audited in this PR (follow-up)." `#1649` fixed `PacksShop.tsx` `open()` and `download()` only. Audit every other lazy import on a path a student has PAID for or is about to be graded on (grading upload, worksheet and chapter-test download, CBQ part builds, the guest-pay sheet) for a chunk-load error that falls to a generic Retry; route each to `recoverFromChunkError` (`src/lib/chunkReload.ts`, once per minute per tab). Live-check each with a deploy between page open and tap. Related and open: `[FU-MAIN-ENTRY-FAIL-BLANK]`.
+
+### [FU-PACK-PANEL-FOLLOWUPS-9NOV]
+
+ID minted here. From the `#1645` reviews [reviewer], still open after merge: (1) an owner whose device has never learned they own packs (bought on another device, first `/packs` visit here) gets ONE jump of 0.57-0.85 CLS, cached after; (2) an expired session with a stale last-account key collapses the reserve (0.86, rare); (3) a leftover reserve after "Not now"; (4) the analytics label of the `sale_moment_*` events from `my_packs`; (5) the free-mark line depends on `LIMITS_ENFORCE` staying ON. The earlier `[FU-PACK-PANEL-FOLLOWUPS]` entry stands for the items it names.
+
+### [FU-PACK-PDF-FOLLOWUPS-9NOV]
+
+ID minted here. From the `#1644` and `#1643` reviews [reviewer], still open after merge: the sample scorecard crops had a mouse cursor and a mascot overlap (cursor fixed, mascot pose noted); a Board Pass holder opening files on a fresh device before the subscription hydrates may get the Board Pass card in those files (low impact, the safe direction when unknown is to omit it); every "Show files" by a non-holder waits on a cloud read (usually under 1 s, at most 3 s); pin churn per content edit (`packPaperCodes.pin.json`, `-V2` workflow, FU-3 of the `#1643` review); a handwritten paper code on an answer sheet is not read, only a typed one, a file name, PDF text or the QR (FU-6); a QR on one Electricity page decodes only at 150 dpi or more, fine for phone photos (FU-9); a clipped "(i)/(ii)/(iii)" caption in one Electricity circuit figure (pre-existing). Regenerate the shop preview images and the free-sample PDFs (also in `[FU-CBQ-SAMPLE]`).
+
+### [FU-INAPP-FOLLOWUPS-9NOV]
+
+ID minted here. From the `#1641` reviews [reviewer], open after merge: rows that land after the 1.5 s settle cap can stay hidden on a tall phone until the student scrolls (rare after the prefetch at the tap); an engine without `:has` (Android System WebView 85-104) sees a one-off 0.06-0.09 push at 412 px (below the build target; the existing `[FU-INAPP-NO-HAS-JUMP]` stands); an OfferRows chunk 404 resets the ladder (pre-existing); the verdict panel's `aria-hidden` while settling lasts at most about 1.5 s. Merge in sequence with the pack group was observed.
+
+### [FU-9NOV-NOT-SOURCED]
+
+ID minted here, so the gaps cannot be mistaken for a clean bill. The coordinator's 9 Nov handoff section 3 also names: **the Chrome-resize note** and **the two unconfirmed morning-check items**. This docs lane could not read that document and will not guess them. NOT SOURCED: their text, their owners and their dates. Read the coordinator's section 3 and replace this entry with the real findings.
+
 ## 2026-11-08 (daily, second) - #1637 - #1647 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `1886217`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block.*
