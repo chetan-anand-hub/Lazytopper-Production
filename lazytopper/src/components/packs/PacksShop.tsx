@@ -931,6 +931,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   }, [tidyMine, bridgeMine, bridge, mine]);
   const justBoughtKey = buy.phase === "paid" ? buy.key : "";
   const readyPackIds = readyRows.map((r) => r.packId).filter(Boolean).join("|");
+  const openFilesOf = (packId: string) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }));
   const tidyList = (withRows: boolean): ReactNode =>
     mine && hasLicenseeContact(mine.licensee)
       ? mine.packs.map((p) => {
@@ -948,7 +949,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                 papers:
                   group && Rows ? (
                     <div className="lt-pb lt-pb--inline">
-                      <Rows group={group} title={null} onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))} />
+                      <Rows group={group} title={null} onOpenFiles={openFilesOf} />
                     </div>
                   ) : null,
               }}
@@ -956,6 +957,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           );
         })
       : null;
+  const plainTidyList = tidyMine ? <div className="lt-pbt lt-pbt--single"><div className="lt-pbt__main">{tidyList(false)}</div></div> : null;
 
   const mineSections = (
     <>
@@ -999,37 +1001,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               </p>
             )}
             {/* BRIDGE-PANEL-1: "Get your papers marked" + the Board Pass card (or a Board Pass holder's packs card) at the TOP of My packs. */}
-            {tidyMine ? (
-              bridgeWanted && bridgeMine && bridge?.ready && mine ? (
-                <BridgeBoundary fallback={<div className="lt-pbt lt-pbt--single"><div className="lt-pbt__main">{tidyList(false)}</div></div>}>
-                  <bridge.ready.Panel
-                    tidy
-                    packs={mine.packs}
-                    data={bridge.ready.data}
-                    titleOf={ownedPackTitle}
-                    onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))}
-                    onBuyPack={(sku, target) => {
-                      if (sku === "pack_chapter" && target) setChapter(target);
-                      else if (target) setSubject(target as PackSubject);
-                      setEntrySlide(0);
-                      setOpenSku(sku);
-                      requestCounts(sku === "pack_chapter" ? target : undefined);
-                      void handleBuy(sku, target, { from: "pass_me" });
-                    }}
-                  >
-                    {tidyList(true)}
-                  </bridge.ready.Panel>
-                </BridgeBoundary>
-              ) : (
-                <div className="lt-pbt lt-pbt--single"><div className="lt-pbt__main">{tidyList(false)}</div></div>
-              )
-            ) : bridgeWanted && bridgeMine && bridge?.ready && mine && (
-              <BridgeBoundary>
+            {bridgeWanted && bridgeMine && bridge?.ready && mine ? (
+              <BridgeBoundary fallback={tidyMine ? plainTidyList : undefined}>
                 <bridge.ready.Panel
+                  tidy={tidyMine}
                   packs={mine.packs}
                   data={bridge.ready.data}
                   titleOf={ownedPackTitle}
-                  onOpenFiles={(packId) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }))}
+                  onOpenFiles={openFilesOf}
                   onBuyPack={(sku, target) => {
                     // The shop's own buy path (as a ?buy= resume does): that pack's pop-up, then its checkout; from = "pass_me".
                     if (sku === "pack_chapter" && target) setChapter(target);
@@ -1039,8 +1018,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
                     requestCounts(sku === "pack_chapter" ? target : undefined);
                     void handleBuy(sku, target, { from: "pass_me" });
                   }}
-                />
+                >
+                  {tidyMine ? tidyList(true) : undefined}
+                </bridge.ready.Panel>
               </BridgeBoundary>
+            ) : (
+              tidyMine && plainTidyList
             )}
             {!tidyMine && mine && hasLicenseeContact(mine.licensee) && mine.packs.map((p) => <OwnedPackCard key={p.packId} pack={p} mine={mine} openRequest={openReq?.packId === p.packId ? openReq.n : 0} />)}
             {/* PACK-READY-1: the name is offered AFTER the files, never in front of the first download (PDFs fall back to the masked phone). */}
