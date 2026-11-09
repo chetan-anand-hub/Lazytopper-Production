@@ -672,6 +672,162 @@ export async function exportWorksheetPdf(
   );
 }
 
+/** BRIDGE-CODES-1 round 3 - one paper inside a multi-paper file. */
+export interface PdfPaperSet {
+  ws: PersistedWorksheet;
+  /** The set's own pack code: printed in its header, and (questions) in its QR on each of its pages. */
+  code: string;
+}
+
+/** JPEG quality of a several-paper file's body pages (review 1643: 0.95 -> 0.80 at the same 2x scale). */
+export const SETS_BODY_JPEG_QUALITY = 0.8;
+/**
+ * Raster scale of a several-paper file's body pages (owner 8 Nov 23:30: "yes, but ensure that print quality is good" - slightly
+ * lower resolution so a CBQ part stays small). 1.5x = 1140 px over the 186 mm print width (~156 px/inch at A4); the code QR is drawn
+ * as vector squares by the page chrome, so it is unaffected. See the print-quality crops in the PR (300 dpi, A4).
+ */
+export const SETS_RASTER_SCALE = 1.5;
+
+/** One rasterised body page of a multi-paper file. */
+interface SetPage {
+  jpeg: string;
+  hMm: number;
+  set: number;
+  /** 0 on the set's first page (its own title row is the header), then 1, 2 ... (the running header is drawn). */
+  bodyIndex: number;
+}
+
+/**
+ * BRIDGE-CODES-1 round 3 (owner ruling 8 Nov 2026 21:20: "One pdf per chapter") - ONE PDF holding several papers (a CBQ Pack
+ * chapter's sets) in order: the cover once, BRIDGE-PDF-1's pages 2-3 once, then each paper rendered by the same WorksheetPrintDoc as a
+ * single paper, STARTING ON A NEW PAGE with its own title row and printed code; on a questions file each of its pages carries ITS OWN
+ * QR (the pack placement, PACK_QR_GEOMETRY), so a photo of any page names the right set. Page numbers run across the whole file.
+ * The file's metadata names NO paper code: one Title/Keywords code would send every upload of every set to the first one.
+ *
+ * A pure addition next to `exportWorksheetPdf` (its single-paper path, renderElementToPdf, is unchanged); it reuses the same
+ * host, atoms, slicing and chrome. Each set is rasterised in its own host and turned into page JPEGs at once, so only one set's
+ * canvas is alive at a time (low-end phones). A free sample (`opts.sample`) is the FIRST set's first page only.
+ */
+export async function exportWorksheetSetsPdf(
+  sets: readonly PdfPaperSet[],
+  kind: "questions" | "answers",
+  opts: WorksheetPdfOptions & {
+    /** Called as each set starts rendering (1-based), so the download button can say "Preparing… set k of n". */
+    onProgress?: (set: number, of: number) => void;
+    /** Test / measurement seam: the body raster scale (default SETS_RASTER_SCALE). */
+    rasterScale?: number;
+  } = {},
+): Promise<string> {
+  if (sets.length === 0) throw new Error("no_paper_sets");
+  const filename = opts.filename || `lazytopper-${slug(sets[0].ws.title)}-${kind === "answers" ? "answer-key" : "questions"}.pdf`;
+  const renderSolutionFigure = kind === "answers" ? await loadSolutionFigureRenderer() : undefined;
+  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+  const edition = editionOf(sets[0].ws.createdAt);
+  const withQr = kind === "questions" && !opts.sample;
+  const base: CoreOptions = { ...opts, edition, paperQr: withQr };
+
+  let coverJpeg: string | null = null;
+  if (opts.cover && !opts.sample) {
+    const { PrintCover, COVER_W } = await import("./PrintCover");
+    const cover = opts.cover;
+    coverJpeg = await withHost(COVER_W, createElement(PrintCover, {
+      ...cover,
+      licenseeLine: opts.licensee ? licenseeLine(opts.licensee) : undefined,
+      edition,
+      paidAtMs: opts.paidAtMs,
+    }), async (coverHost) => {
+      const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+      // a several-paper file's cover: the same quality as its body pages (a CBQ part stays small; owner 8 Nov 22:45)
+      return c.toDataURL("image/jpeg", SETS_BODY_JPEG_QUALITY);
+    });
+  }
+  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await renderBridgePages(opts.bridge, html2canvas) : [];
+
+  const geom = pageGeometry(base);
+  const imgW = PAGE_W - MARGIN_X * 2;
+  const usableH = PAGE_H - geom.top - geom.footerH;
+  const pages: SetPage[] = [];
+  const todo = opts.sample ? sets.slice(0, 1) : sets;
+  for (let si = 0; si < todo.length; si += 1) {
+    const { ws, code } = todo[si];
+    try {
+      opts.onProgress?.(si + 1, todo.length);
+    } catch {
+      /* a progress listener never stops the PDF */
+    }
+    const element = createElement(WorksheetPrintDoc, {
+      ws, kind, code, renderSolutionFigure, watermark: !opts.licensee, packFile: Boolean(opts.licensee) && !opts.sample,
+    });
+    await withHost(HOST_WIDTH, element, async (host) => {
+      const atomsCss = collectPrintAtoms(host);
+      // PAY-PHONE-1 (print), as renderElementToPdf: a question's stem and its options never split across a page break.
+      const top0 = host.getBoundingClientRect().top;
+      host.querySelectorAll(".lt-wsp__q").forEach((q) => {
+        const r = q.getBoundingClientRect();
+        atomsCss.push({ top: r.top - top0, bottom: r.bottom - top0 });
+      });
+      const hostH = host.getBoundingClientRect().height;
+      const canvas = await html2canvas(host, { scale: opts.rasterScale ?? SETS_RASTER_SCALE, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: HOST_WIDTH });
+      const pxPerMm = canvas.width / imgW || 1;
+      const sliceHpx = Math.max(1, Math.floor(usableH * pxPerMm));
+      const yScale = hostH > 0 ? canvas.height / hostH : 1;
+      const atoms = atomsCss.map((a) => ({ top: a.top * yScale, bottom: a.bottom * yScale }));
+      const slices = planSlices(atoms, canvas.height, sliceHpx);
+      // A slice that starts below the last printed unit holds only the sheet's bottom padding: inside a several-paper file that
+      // would be a blank page between two sets, so it is not emitted (the next set starts on the following page anyway).
+      const contentEnd = atoms.reduce((m, a) => Math.max(m, a.bottom), 0);
+      let n = opts.sample ? 1 : Math.max(1, slices.length);
+      while (n > 1 && contentEnd > 0 && Math.round(slices[n - 1].y) >= contentEnd - 1) n -= 1;
+      for (let page = 0; page < n; page += 1) {
+        const yPx = page === 0 ? 0 : Math.round(slices[page].y);
+        const nextY = page + 1 < slices.length ? Math.round(slices[page + 1].y) : canvas.height;
+        const hPx = Math.max(1, Math.min(nextY, canvas.height) - yPx);
+        const slice = document.createElement("canvas");
+        slice.width = canvas.width;
+        slice.height = hPx;
+        const sctx = slice.getContext("2d");
+        if (sctx) {
+          sctx.fillStyle = "#ffffff";
+          sctx.fillRect(0, 0, slice.width, slice.height);
+          sctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
+        }
+        // Review 1643: 0.80 at the same scale (2x) - about 40% smaller than 0.95 with no visible loss; the QR is drawn as vector
+        // squares by the page chrome, never through this JPEG.
+        pages.push({ jpeg: slice.toDataURL("image/jpeg", opts.sample ? 0.78 : SETS_BODY_JPEG_QUALITY), hMm: hPx / pxPerMm, set: si, bodyIndex: page });
+      }
+      // Release this set's raster before the next set is drawn.
+      canvas.width = 0;
+      canvas.height = 0;
+    });
+  }
+
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
+  const qrs = withQr ? await Promise.all(todo.map((t) => buildPaperQrMatrix(t.code))) : todo.map(() => null);
+  const offset = (coverJpeg ? 1 : 0) + bridgePages.length;
+  const totalPages = pages.length + offset;
+  const brand = totalPages > 1 ? await loadBrandDataUrls() : null;
+  if (coverJpeg) pdf.addImage(coverJpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+  for (const bp of bridgePages) {
+    pdf.addPage();
+    pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+    if (typeof pdf.link === "function") for (const l of bp.links) pdf.link(l.x, l.y, l.w, l.h, { url: l.url });
+  }
+  pages.forEach((pg, i) => {
+    if (i > 0 || coverJpeg) pdf.addPage();
+    pdf.addImage(pg.jpeg, "JPEG", MARGIN_X, geom.top, imgW, pg.hMm);
+    const { ws, code } = todo[pg.set];
+    const setOpts: CoreOptions = {
+      ...base,
+      paperCode: code,
+      runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}`,
+    };
+    drawChrome(pdf, i + 1 + offset, totalPages, pg.bodyIndex, setOpts, brand, qrs[pg.set] ?? null);
+  });
+  pdf.save(filename);
+  return filename;
+}
+
 /**
  * PR-A: render + download the BRANDED GRADED sheet. Renders the SAME grade
  * `response` already on screen (a snapshot, never a re-grade — honesty §2(3)) via

@@ -1031,13 +1031,17 @@ type FilesState =
   | { phase: "closed" }
   | { phase: "loading" }
   | { phase: "error" }
-  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; build: () => Promise<void> }> }> };
+  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; codes?: string[]; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }> }> };
 
 function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine: MyPacks; openRequest?: number }) {
   const { user } = useAuth();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [failedId, setFailedId] = useState<string | null>(null);
+  // BRIDGE-CODES-1: a CBQ chapter file (several sets) takes 20-45 s on a phone - say which set is being prepared.
+  const [progress, setProgress] = useState<string | null>(null);
+  // A CBQ part that finished says so on its own row ("Saved ✓"), so a student sees Part 1 done before starting Part 2.
+  const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(() => new Set());
 
   async function open() {
     if (state.phase === "loading") return;
@@ -1073,16 +1077,19 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
     }
   }
 
-  async function download(file: { id: string; build: () => Promise<void> }) {
+  async function download(file: { id: string; codes?: string[]; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }) {
     if (busyId) return;
     setBusyId(file.id);
     setFailedId(null);
+    setProgress(null);
     try {
-      await file.build();
+      await file.build(file.codes && file.codes.length > 1 ? (k, n) => setProgress(`Preparing\u2026 set ${k} of ${n}`) : undefined);
+      if (file.codes && file.codes.length > 0) setSavedIds((prev) => new Set(prev).add(file.id));
     } catch {
       setFailedId(file.id);
     } finally {
       setBusyId(null);
+      setProgress(null);
     }
   }
 
@@ -1118,7 +1125,46 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
         (state.groups.length === 0 ? (
           <p className="lt-packs__muted">No printable files could be prepared for this pack yet.</p>
         ) : (
-          state.groups.map((g) => (
+          state.groups.map((g) =>
+            // BRIDGE-CODES-1 (owner 8 Nov 23:30): a CBQ chapter is ONE row - its parts inside, one tap each (questions, then keys).
+            g.files.length > 0 && g.files.every((f) => f.codes && f.codes.length > 0) ? (
+              <div key={g.group} className="lt-packs__grp" data-testid="cbq-chapter-row">
+                <h4>{g.group}</h4>
+                {(["questions", "answers"] as const).map((mode) => {
+                  const parts = g.files.filter((f) => f.id.endsWith(`-${mode}`));
+                  if (parts.length === 0) return null;
+                  return (
+                    <div key={mode} className="lt-packs__partrow">
+                      <span className="lt-packs__partkind">{mode === "questions" ? "Questions" : "Answer keys"}</span>
+                      <div className="lt-packs__partbtns">
+                        {parts.map((f) => (
+                          <button
+                            key={f.id}
+                            type="button"
+                            className="lt-packs__btn lt-packs__btn--small lt-packs__btn--sets"
+                            disabled={busyId !== null}
+                            aria-label={`Download ${g.group}: ${f.label}`}
+                            data-testid="cbq-part-download"
+                            onClick={() => void download(f)}
+                          >
+                            {busyId === f.id
+                              ? progress ?? "Preparing\u2026"
+                              : failedId === f.id
+                              ? "Retry"
+                              : savedIds.has(f.id)
+                              ? "Saved \u2713"
+                              : f.label.split(" \u00b7 ").slice(0, 2).join(" \u00b7 ").replace(/ of \d+/, "")}
+                          </button>
+                        ))}
+                      </div>
+                      {parts.some((f) => failedId === f.id) && (
+                        <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
             <div key={g.group} className="lt-packs__grp">
               <h4>{g.group}</h4>
               <ul className="lt-packs__files">
@@ -1127,18 +1173,19 @@ function OwnedPackCard({ pack, mine, openRequest = 0 }: { pack: OwnedPack; mine:
                     <span>{f.label}</span>
                     <button
                       type="button"
-                      className="lt-packs__btn lt-packs__btn--small"
+                      className={f.codes && f.codes.length > 1 ? "lt-packs__btn lt-packs__btn--small lt-packs__btn--sets" : "lt-packs__btn lt-packs__btn--small"}
                       disabled={busyId !== null}
                       onClick={() => void download(f)}
                     >
-                      {busyId === f.id ? "Preparing PDF…" : failedId === f.id ? "Retry" : "Download"}
+                      {busyId === f.id ? progress ?? "Preparing PDF…" : failedId === f.id ? "Retry" : savedIds.has(f.id) ? "Saved \u2713" : "Download"}
                     </button>
                     {failedId === f.id && <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>}
                   </li>
                 ))}
               </ul>
             </div>
-          ))
+            ),
+          )
         ))}
     </div>
   );

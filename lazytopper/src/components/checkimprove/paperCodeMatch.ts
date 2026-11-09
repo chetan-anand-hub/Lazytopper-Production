@@ -7,6 +7,8 @@
  *   Worksheet     `WS-{M|S}-{TOPIC}-{NN}`  worksheetNaming.ts `worksheetNomenclature`   e.g. WS-M-MIX-02
  *   Chapter Test  `CT-{M|S}-{TOPIC}-{NN}`  sessionRecords.ts `chapterTestNomenclature`   e.g. CT-M-RN-02
  *   Full Mock     `FM-{M|S}-{NN}`          sessionRecords.ts `fullMockNomenclature`      e.g. FM-M-04
+ *   Pack paper    `PK-{M|S}-{TOPIC|FULL}-{CT1|CT2|WS|M1..M8|CBQ<k>}[-V<n>]`  lib/packs/packPaperCode.ts  e.g. PK-M-RN-CT1
+ *                 (BRIDGE-CODES-1: printed on every paper-shaped pack file, CBQ Pack documents included)
  * where TOPIC is a short upper-case token (topicAbbr: letters/digits, or MIX / FULL).
  */
 import { getSurfaceHistory } from "../../services/progressStore";
@@ -19,7 +21,17 @@ import { fetchWorksheetPaperSnapshot } from "../../services/worksheetPaperStore"
 import { loadChapterTestPaper } from "../../services/chapterTestPaperStore";
 import { fetchFullMockPaperSnapshot } from "../../services/fullMockPaperStore";
 
-const PAPER_CODE_RE = /\b(?:(?:WS|CT)-[MS]-[A-Z0-9]{1,6}-\d{2,3}|FM-[MS]-\d{2,3})\b/gi;
+const PAPER_CODE_RE =
+  /\b(?:(?:WS|CT)-[MS]-[A-Z0-9]{1,6}-\d{2,3}|FM-[MS]-\d{2,3}|PK-[MS]-[A-Z0-9]{1,6}-(?:CT[12]|WS|M\d{1,2}|CBQ\d{1,2})(?:-V\d{1,2})?)\b/gi;
+
+/**
+ * BRIDGE-CODES-1 - a pack paper code (`PK-`). A pack code is a function of the paper alone and is pinned to its questions
+ * (`packPaperCodes.pin.json`; a changed paper gets a new `-V<n>` code), so one code never names two different papers - the
+ * duplicate-code risk GRADE-ROUTE-3's question check guards against does not exist for it.
+ */
+export function isPackPaperCode(code: string): boolean {
+  return /^PK-/i.test(code);
+}
 
 export type OfferSurface = "worksheet" | "chapter-test" | "full-mock";
 

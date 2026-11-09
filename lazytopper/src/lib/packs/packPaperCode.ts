@@ -1,15 +1,19 @@
 /**
  * Pack paper codes (PACKS-GRADE-1). A paper-shaped pack file prints a stable code so it can be uploaded for
- * grading through the existing path: `PK-<M|S>-<TOPIC|FULL>-<CT1|CT2|WS|M1..M8>`.
+ * grading through the existing path: `PK-<M|S>-<TOPIC|FULL>-<CT1|CT2|WS|M1..M8|CBQ1..CBQn>`.
+ * BRIDGE-CODES-1 (8 Nov 2026): a CBQ Pack chapter is divided into gradable sets of about 10-15 questions (cbqSets.ts); set k is
+ * `PK-<M|S>-<TOPIC>-CBQ<k>` and is filed and graded as a worksheet, exactly as the Chapter Pack's `-WS` paper.
  * The `PK-` prefix cannot collide with in-app codes (`WS-`, `CT-`, `FM-`). The code is a function of the
  * paper alone, never of the pack that sold it, so every re-download (and every covering pack) is one paper.
  */
-import { subjectOfChapter, type PackSubject } from "../../services/packs";
+import { chaptersOfSubject, subjectOfChapter, type PackSubject } from "../../services/packs";
 import { topicAbbr } from "../../components/worksheet/worksheetNaming";
 
 export type PackPaperCodeInput =
   | { kind: "ct1" | "ct2" | "ws"; chapter: string }
-  | { kind: "mock"; subject: PackSubject; n: number };
+  | { kind: "mock"; subject: PackSubject; n: number }
+  /** BRIDGE-CODES-1: a CBQ Pack set of a chapter; `set` is 1-based ("Set k of n"). */
+  | { kind: "cbq"; chapter: string; set: number };
 
 const letter = (s: PackSubject | null): "M" | "S" => (s === "science" ? "S" : "M");
 
@@ -33,6 +37,15 @@ export function packPaperCode(input: PackPaperCodeInput): string {
 
 function baseCode(input: PackPaperCodeInput): string {
   if (input.kind === "mock") return `PK-${letter(input.subject)}-FULL-M${input.n}`;
+  if (input.kind === "cbq") return `PK-${letter(subjectOfChapter(input.chapter))}-${topicAbbr(input.chapter)}-CBQ${input.set}`;
   const tail = input.kind === "ct1" ? "CT1" : input.kind === "ct2" ? "CT2" : "WS";
   return `PK-${letter(subjectOfChapter(input.chapter))}-${topicAbbr(input.chapter)}-${tail}`;
+}
+
+/**
+ * BRIDGE-CODES-1: the example code a CBQ Pack's own pages print ("e.g. PK-M-RN-CBQ1"): the subject's first chapter, Part 1 -
+ * Set 1 - a code that pack really prints. Pure; no bank load.
+ */
+export function cbqPackExampleCode(subject: PackSubject): string {
+  return packPaperCode({ kind: "cbq", chapter: chaptersOfSubject(subject)[0], set: 1 });
 }
