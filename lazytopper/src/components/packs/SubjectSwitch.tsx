@@ -1,4 +1,3 @@
-import { useId } from "react";
 import { subjectLabel, type PackSubject } from "../../services/packs";
 import "./subjectSwitch.css";
 
@@ -21,7 +20,8 @@ export default function SubjectSwitch({
   tone?: "light" | "on-dark";
   testPrefix: string;
 }) {
-  const name = useId();
+  /* a fixed name per switch (testPrefix is unique on a page): useId() counts mounts, which differ run to run and made the prerender non-deterministic */
+  const name = `lt-ss-${testPrefix}`;
   return (
     <div role="radiogroup" aria-label={label} className={tone === "on-dark" ? "lt-ss lt-ss--dark" : "lt-ss"}>
       {(["maths", "science"] as const).map((s) => (
