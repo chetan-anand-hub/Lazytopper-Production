@@ -345,6 +345,7 @@ describe("R2 · a plain sentence, never a raw platform message", () => {
     ["Firefox", new TypeError("NetworkError when attempting to fetch resource.")],
     ["Safari", new TypeError("Load failed")],
     ["generic", new Error("AI API request failed")],
+    ["generic (student-safe wording)", new Error("Couldn't reach the marking service. Please try again.")],
     ["a machine code", new Error("premium_required")],
     ["JSON", new SyntaxError("Unexpected token < in JSON at position 0")],
     ["Invalid JSON", new Error("Invalid JSON")],
