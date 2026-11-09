@@ -197,6 +197,23 @@ describe("BRIDGE-PANEL-1 · papers and the first-marked card", () => {
     expect(screen.getAllByTestId("packs-bridge-row").map((r) => r.getAttribute("data-code"))).toEqual(["PK-M-RN-CBQ1"]);
   });
 
+  it("CBQ-SAMPLE-2: See a marked sample opens the CBQ sample only for a CBQ-only owner; any other pack keeps the Chapter Test sample", () => {
+    const href = () => screen.getByTestId("packs-bridge-sample").getAttribute("href");
+    data.records = [rec({ id: "PK-M-RN-CBQ1", surface: "worksheet", title: "Real Numbers · Board CBQs (Part 1 of 3)" })];
+    show({ packs: [cbq] });
+    expect(href()).toBe("/media/lazytopper-marked-sample-PK-M-RN-CBQ1.pdf");
+    cleanup();
+    show({ packs: [cbq, { ...cbq, packId: "pack_cbq:science", target: "science" }] });
+    expect(href()).toBe("/media/lazytopper-marked-sample-PK-M-RN-CBQ1.pdf");
+    cleanup();
+    show({ packs: [chapter, cbq] }); // a mix: one page-level link, so the Chapter Test sample
+    expect(href()).toBe("/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf");
+    cleanup();
+    data.records = [];
+    show({ packs: [chapter] });
+    expect(href()).toBe("/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf");
+  });
+
   it("a CBQ-only owner whose entitlement is unknown, with no papers yet -> the panel renders nothing", () => {
     data.known = false;
     show({ packs: [cbq], paidPass: true });

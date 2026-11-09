@@ -43,6 +43,16 @@ export interface BridgePaper {
 
 /** The sample graded sheet BRIDGE-PDF-1 hosts once as a static asset (its notes: BRIDGE_SAMPLE_PDF_PATH). */
 export const BRIDGE_SAMPLE_PDF_PATH = "/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf";
+/** CBQ-SAMPLE-2 (owner 9 Nov 16:06): the CBQ Pack's own marked sample (same file as lib/packs/packBridge BRIDGE_SAMPLE_CBQ_PDF_PATH). */
+export const BRIDGE_SAMPLE_CBQ_PDF_PATH = "/media/lazytopper-marked-sample-PK-M-RN-CBQ1.pdf";
+
+/**
+ * Which marked sample "See a marked sample" opens. The link is page-level (one link above all the packs), so the CBQ sample is used only
+ * when the student owns CBQ Packs and nothing else; any other mix (or none) keeps the Chapter Test sample.
+ */
+export function bridgeSamplePath(packs: ReadonlyArray<Pick<OwnedPack, "sku">>): string {
+  return packs.length > 0 && packs.every((p) => p.sku === "pack_cbq") ? BRIDGE_SAMPLE_CBQ_PDF_PATH : BRIDGE_SAMPLE_PDF_PATH;
+}
 
 /** Where "See Board Pass" goes: the existing Board Pass page. No checkout code here. */
 export const BRIDGE_BOARD_PASS_HREF = "/pricing";

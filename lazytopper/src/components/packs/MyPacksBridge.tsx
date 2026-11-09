@@ -20,7 +20,7 @@ import {
   BRIDGE_COPY,
   BRIDGE_PASS_POINTS,
   BRIDGE_ROWS_COLLAPSED,
-  BRIDGE_SAMPLE_PDF_PATH,
+  bridgeSamplePath,
   bridgeRows,
   cbqPapersFromRecords,
   firstMarked,
@@ -248,6 +248,7 @@ function HolderPacksCard({ offer, onBuy, onNotNow }: { offer: PassOwnerOffer; on
 
 export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuyPack, tidy = false, children }: MyPacksBridgeProps) {
   const { records, allowance, paidPass } = data;
+  const samplePath = bridgeSamplePath(packs);
   const { groups, first } = useMemo(() => bridgeView(packs, records, { paidPass, allowance }), [packs, records, paidPass, allowance]);
   // The Board Pass card only to an owner KNOWN not to hold a paid Board Pass (never on a guess, never its view event either).
   const showPass = !paidPass && data.entitlementKnown;
@@ -282,7 +283,7 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
               <p className="lt-pbt__introp">
                 {BRIDGE_COPY.intro} {BRIDGE_COPY.free}
               </p>
-              <a className="lt-pbt__sample" href={BRIDGE_SAMPLE_PDF_PATH} target="_blank" rel="noopener" data-testid="packs-bridge-sample">
+              <a className="lt-pbt__sample" href={samplePath} target="_blank" rel="noopener" data-testid="packs-bridge-sample">
                 {BRIDGE_COPY.sample}
               </a>
             </div>
@@ -311,7 +312,7 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
               <p className="lt-pb__p">
                 {BRIDGE_COPY.intro} {BRIDGE_COPY.free}
               </p>
-              <a className="lt-pb__sample" href={BRIDGE_SAMPLE_PDF_PATH} target="_blank" rel="noopener" data-testid="packs-bridge-sample">
+              <a className="lt-pb__sample" href={samplePath} target="_blank" rel="noopener" data-testid="packs-bridge-sample">
                 {BRIDGE_COPY.sample}
               </a>
             </div>
