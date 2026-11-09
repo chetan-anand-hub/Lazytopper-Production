@@ -23,6 +23,58 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-09 (daily, second) - #1652 - #1656 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `f7038237`. Earlier dated entries are left as written (standing rule 3); each closure below is recorded here, under its own heading (standing rule 1). Items come from the PR bodies **[gh]** and the coordinator's 9 Nov afternoon handoff sections 2-3 (`claude/HANDOFF_COFOUNDER_SESSION_2026-11-09_PM.md`) **[coordinator]**. No grading behaviour changed.*
+
+**Closed by this window:** `[FU-PACKS-HOLDER-CARD-OWNER]` (no bug), `[FU-PACKS-DOUBLE-PAY-DIALOG]` (owner "Keep it"), `[FU-PRICING-MYPACKS-REDIRECT-CLS]`, `[FU-CBQ-H1-RESERVE]`, `[FU-PACKS-NONCBQ-SAVED]` (shipped by `#1653`), `[FU-CBQ-SAMPLE]` (shipped by `#1654`).
+
+**Still open, carried:** `[FU-CBQ-SAMPLE-2-LIVE]`, `[FU-PACKS-PAPER-LINE-MERGE]`, `[FU-PACKS-CSS-BUDGET]`, `[FU-CI-FLAKE-TRIALENDBANNER]`, `[FU-RESEND-PRO]`, `[FU-PAINT-SHELL-1DEC-RECAPTURE]`, and `[FU-YT-DEMO-VIDEO]` (ON HOLD, owner). Their entries in the earlier blocks stand. `LIMITS_ENFORCE` must stay ON in Railway.
+
+### [FU-CBQ-SAMPLE-2-LIVE]
+
+OPEN. Owed after `#1656` **[gh, coordinator]**: on a CBQ-only test account (project memory `areas/test-accounts.md`), My packs -> "See a marked sample" must open the CBQ PDF (`lazytopper-marked-sample-PK-M-RN-CBQ1.pdf`); on any account with a non-CBQ pack it must still open CT1. The rule is page-level (CBQ packs only, one or both subjects). Read-only check; never pay. Also owed from `#1654`: open a bought CBQ Part 1 PDF (pages 2-3) and the hosted sheet URL.
+
+### [FU-PACKS-HOLDER-CARD-OWNER]
+
+CLOSED (no bug) **[coordinator, handoff section 2]**: the cause was `lt_pass_offers_snooze_until`, set by a "Not now" tap (24 h, all offers, per device, by design); cleared in the owner's Chrome, the holder card shows "CBQ Packs... Science Rs235 - Not now". The earlier entry stands.
+
+### [FU-PACKS-DOUBLE-PAY-DIALOG]
+
+CLOSED. The owner decided "Keep it" **[owner, 9 Nov, relayed in the handoff]**: the PayRescue dialog ("Pay Rs353 / Can't pay yourself?") stays after Razorpay is closed. No code change. Reason: see DECISION_LOG.
+
+### [FU-PRICING-MYPACKS-REDIRECT-CLS]
+
+CLOSED by `#1655` item A **[gh]**: no link to `/pricing#my-packs` is left at source (src, server email templates, public, prerendered, scripts); every producer uses `/packs#my-packs`. Remaining mentions are comments, tests and the intentional redirect in `PricingPacks.tsx`, kept for old emails and bookmarks.
+
+### [FU-CBQ-H1-RESERVE]
+
+CLOSED **[gh, `#1655` item B; coordinator]**: the H1 is already reserved by `#1626` (`min-height: calc(4 * 1.15em)` below 768 px, `cbqSeo.css:296`). Live CLS on 3 chapters at 360 = 0 / 0 / 0; at 412 = 0 / 0.011 / 0. WATCH: one run at 412 on carbon-and-its-compounds read 0.011, whose shift source is the samples list (`cbq-samples`), not the H1.
+
+### [FU-PACKS-NONCBQ-SAVED]
+
+CLOSED by `#1653` **[gh]**: the `file.codes.length > 0` guard is gone, so every successful pack download shows "Saved ✓" (owner "Yes, all files"). Tests: `src/components/packs/` 26 files / 274 pass. The earlier entry stands.
+
+### [FU-CBQ-SAMPLE]
+
+CLOSED by `#1654` **[gh]**: the real marked CBQ sample `PK-M-RN-CBQ1` is on CBQ pack pages 2-3 and the CBQ free samples and the 12 previews are regenerated. The earlier entry stands. Residuals from the PR body **[gh]**: a scorecard reopened from "Your worksheets" titles its box "Mistakes the examiner found, by kind" while the fresh-result view says "Where your marks went" (the crop is labelled "Mistakes by kind"); Q7 graded 0.5/2, the low end of the planned range, and is shown as marked, not edited; the live look at a bought CBQ Part 1 PDF is owed (see `[FU-CBQ-SAMPLE-2-LIVE]`).
+
+### [FU-PACKS-PAPER-LINE-MERGE]
+
+STILL OPEN **[coordinator, handoff section 3]**: only with a signed-in test plan (file ids are not paper codes). The earlier entry stands.
+
+### [FU-PACKS-CSS-BUDGET]
+
+UNCHANGED **[coordinator, handoff section 3]**: about +3 KB gzip on `/packs`. The earlier entry stands.
+
+### [FU-CI-FLAKE-TRIALENDBANNER]
+
+ID minted here. **[coordinator, handoff section 3]** `TrialEndBanner.test.tsx` failed once in a vitest shard (3 or 4 of the CI run) and passed on rerun. Cause not investigated. Rule: rerun a known flake once (COMMON rules); if it fails twice, it is a real failure. Investigate only if it recurs.
+
+### [FU-YT-DEMO-VIDEO]
+
+ON HOLD **[owner, 9 Nov 15:26 IST]**: "hold on to the youtube demo video". The earlier entry (script and storyboard to the owner first) stands; do not start it until the owner lifts the hold.
+
 ## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `13161d1`. Earlier dated entries are left as written (standing rule 3). Items come from the session log `ops_0811b.md` **[coordinator]**, the `REVIEW_16xx.md` files **[reviewer]**, the PR bodies **[gh]** and the 8 Nov night handoff. No grading behaviour changed. Every ID below has its own heading and body (standing rule 1); an ID marked "ID minted here" had no name before this block. The 9 Nov items come from the coordinator's 9 Nov handoff sections 2-3 (`claude/HANDOFF_COFOUNDER_SESSION_2026-11-09.md`) **[coordinator]**.*
