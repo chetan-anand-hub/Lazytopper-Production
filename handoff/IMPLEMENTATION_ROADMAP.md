@@ -6,8 +6,8 @@
 - DONE. `#1645` (`e5463a5`) BRIDGE-PANEL-1: My packs first on `/packs` with the panel on top; a layout hint removes the jump for returning owners. NEXT: `[FU-MYPACKS-CLS]` residual (an owner's first visit on a new device).
 - DONE. `#1649` (`77d57bc`) PACKS-STALE-1: a stale tab reloads once instead of failing "Show files" / "Download". NEXT: audit the other paid download and grade paths (`[FU-PACKS-STALE-OTHER-PATHS]`).
 - DONE. `#1650` (`dedef90`): question-bank PDF pages no longer promise a QR they do not carry.
-- DONE. `#1651` (`13161d1`) PACKS-TIDY-1: `/packs` collapsible redesign signed in and out; `/packs` 3978 -> 3010 px at 360. NEXT: a signed-in live check; `[FU-PACKS-CSS-BUDGET]`.
-- NEXT (not built, owner order): CBQ marked sample and regenerated CBQ free samples/previews; `[FU-PACKS-HOLDER-CARD-OWNER]`; `[FU-PACKS-NONCBQ-SAVED]`; `[FU-PACKS-DOUBLE-PAY-DIALOG]` (owner decision); `[FU-PACKS-PAPER-LINE-MERGE]`. Pricing-page redesign is ON HOLD (owner).
+- DONE. `#1651` (`13161d1`) PACKS-TIDY-1: `/packs` collapsible redesign signed in and out; `/packs` 3978 -> 3010 px at 360. Live checks passed (1280 signed in; owner phone 360). NEXT: `[FU-PACKS-CSS-BUDGET]`.
+- NEXT (not built, owner order): CBQ marked sample and regenerated CBQ free samples/previews; `[FU-PACKS-NONCBQ-SAVED]` (one-line change waits for the owner); `[FU-PACKS-HOLDER-CARD-OWNER]` is CLOSED (no code change); `[FU-PACKS-DOUBLE-PAY-DIALOG]` (owner decision); `[FU-PACKS-PAPER-LINE-MERGE]`. Pricing-page redesign is ON HOLD (owner).
 
 ## 2026-11-08 (daily, second) - #1637 - #1647 - MERGED
 

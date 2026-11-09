@@ -7,8 +7,8 @@
 | Answer Checker, pack paper codes | reads a `PK-` code typed, in the file name, in PDF text or from the QR; CBQ sets carry codes (`#1643`) | **merged, live** (decode proven by the reviewer; a live upload with a PK code owed) | a live Answer Checker upload with a `PK-` code; `[FU-PACK-PDF-FOLLOWUPS-9NOV]` |
 | Pack PDFs (bought packs) | pages 2-3 and a paper QR on every question paper; question-bank files drop the QR line (`#1644`, `#1650`) | **merged, live** | live signed-in download check at 360 and 1280 (a non-holder and a holder) |
 | CBQ packs | 204 coded gradable sets, delivered in parts, 79 PDFs per pack (`#1643`) | **merged, live** | `[FU-CBQ-SAMPLE]`; regenerate the CBQ free samples and preview images |
-| /packs (My packs) | My packs first with the panel on top; per-device height hint (`#1645`) | **merged, live** | `[FU-PACK-PANEL-FOLLOWUPS-9NOV]`; `[FU-PACKS-HOLDER-CARD-OWNER]` |
-| /packs (shop and My packs layout) | collapsible redesign: one CBQ card with a Maths/Science switch, folded Subject / Mock / Chapter group, per-pack collapsed rows (`#1651`) | **merged, live** | a signed-in live check (collapsed default, auto-open row, CBQ parts, buy-resume, guest-pay); `[FU-PACKS-CSS-BUDGET]`; `[FU-PACKS-PAPER-LINE-MERGE]` |
+| /packs (My packs) | My packs first with the panel on top; per-device height hint (`#1645`) | **merged, live** | `[FU-PACK-PANEL-FOLLOWUPS-9NOV]`; `[FU-PACKS-HOLDER-CARD-OWNER]` CLOSED (the owner's "Not now" snooze, no code change) |
+| /packs (shop and My packs layout) | collapsible redesign: one CBQ card with a Maths/Science switch, folded Subject / Mock / Chapter group, per-pack collapsed rows (`#1651`) | **merged, live** (1280 signed-in run PASS; owner phone 360 PASS 15:09 IST) | buy-resume and guest-pay signed in; `[FU-PACKS-CSS-BUDGET]`; `[FU-PACKS-PAPER-LINE-MERGE]`; `[FU-PACKS-NONCBQ-SAVED]`; `[FU-PACKS-DOUBLE-PAY-DIALOG]` |
 | Pack downloads in a stale tab | one guarded reload instead of "We couldn't prepare these files" (`#1649`) | **merged, live** | `[FU-PACKS-STALE-OTHER-PATHS]` |
 
 No grading surface moved.
