@@ -1,3 +1,16 @@
+> **2026-11-09 (daily, second) - #1652 - #1656 (CLAUDE.md section 10).** Scope: "Saved ✓" on every pack file, the real marked CBQ sample on CBQ pack pages 2-3 with regenerated CBQ free samples and previews, the My packs sample link for CBQ-only owners, and the grading-failure wording. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the 6 Nov second-surface checks stay owed |
+| /packs (shop and My packs downloads) | "Saved ✓" on every pack file after a successful download, not only CBQ parts (`#1653`) | **merged, live** (Vercel deploy created by hand, see CURRENT_STATE) | `[FU-PACKS-PAPER-LINE-MERGE]`, `[FU-PACKS-CSS-BUDGET]` |
+| /packs (My packs, "See a marked sample") | page-level link opens the CBQ sample when the student owns ONLY CBQ packs; any other mix keeps CT1 (`#1656`) | **merged, live** | `[FU-CBQ-SAMPLE-2-LIVE]` on a CBQ-only test account |
+| CBQ pack pages 2-3 (CBQ pack PDFs) | marked CBQ sample `PK-M-RN-CBQ1` (28.5 / 32) with scorecard crops and a link to the hosted graded sheet; CBQ free samples and 12 previews regenerated (`#1654`) | **merged, live** | a live look at a bought CBQ Part 1 PDF and the hosted sheet URL |
+| Answer Checker / grading transport error wording | the generic failure text reads "Couldn't reach the marking service. Please try again."; graders still swap it for their own fallback (`#1655`) | **merged, live** (wording only) | none |
+| Other surfaces | not moved by these 5 PRs (`#1652` is docs only) | unchanged | |
+
+No grading surface moved.
+
 > **2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651 (CLAUDE.md section 10).** Scope: the Answer Checker first screen in in-app browsers, the PDF-pack-to-Board-Pass bridge (pack PDFs pages 2-3 and a QR, CBQ coded sets in parts, the Answer Checker reading `PK-` codes, My packs first on `/packs`), the stale-tab fix and the `/packs` collapsible redesign. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

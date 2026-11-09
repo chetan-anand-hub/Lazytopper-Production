@@ -1,3 +1,12 @@
+## 2026-11-09 (daily, second) - #1652 - #1656 - MERGED
+
+- DONE. `#1652` (`7cf0c1a`) docs: the first daily docs PR for 9 Nov (7 handoff files). NEXT: this block's PR.
+- DONE. `#1653` (`64b2878`) PACKS-SAVED-1: "Saved ✓" on every pack file after a successful download (was CBQ parts only). Closes `[FU-PACKS-NONCBQ-SAVED]`. NEXT: `[FU-PACKS-PAPER-LINE-MERGE]` (needs a signed-in test plan).
+- DONE. `#1655` (`cf2d5b1`) SMALL-FU-2: the generic grading-failure text is "Couldn't reach the marking service. Please try again."; A (`[FU-PRICING-MYPACKS-REDIRECT-CLS]`) and B (`[FU-CBQ-H1-RESERVE]`) needed no change and are CLOSED.
+- DONE. `#1654` (`7ddef54`) CBQ-SAMPLE-1: the real marked CBQ sample `PK-M-RN-CBQ1` (28.5 / 32, graded live) on CBQ pack pages 2-3; CBQ free samples and 12 previews regenerated. Closes `[FU-CBQ-SAMPLE]`. NEXT: a live look at a bought CBQ Part 1 PDF.
+- DONE. `#1656` (`f703823`) CBQ-SAMPLE-2: My packs "See a marked sample" opens the CBQ sample for a CBQ-only owner (page-level link); else CT1. NEXT: `[FU-CBQ-SAMPLE-2-LIVE]`.
+- NEXT (not built, owner order): `[FU-CBQ-SAMPLE-2-LIVE]`; ads (study-app ad group, "AI" sweep, search-terms review); dated checks (13-15 Nov, 15 Nov, 16 Nov, 1 Dec); Resend Pro about 14 Nov. ON HOLD (owner): `[FU-YT-DEMO-VIDEO]`, the pricing-page redesign.
+
 ## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651 - MERGED
 
 - DONE. `#1641` (`ae71e69`) SPEED-CI-3: the Answer Checker static first screen in in-app browsers; the mark never scrolls off. Live in-app LCP 588-728 ms (was about 4 s), CLS 0. NEXT: `[FU-INAPP-NO-HAS-JUMP]`, rows that land late.

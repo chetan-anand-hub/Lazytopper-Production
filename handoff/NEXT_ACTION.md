@@ -1,3 +1,18 @@
+## 2026-11-09 (daily, second) - #1652 - #1656
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`f7038237`** [git].
+
+- **Done [git/gh]:** 5 PRs merged (table in CURRENT_STATE): `#1652`, `#1653`, `#1655`, `#1654`, `#1656`. No grading change. The previous daily docs PR is in; every pack file shows "Saved ✓"; the real marked CBQ sample is on CBQ pack pages 2-3 and the CBQ free samples and previews are regenerated; My packs opens the CBQ sample for a CBQ-only owner; the generic grading-failure wording is student-safe. `[FU-CBQ-SAMPLE]` is CLOSED by `#1654`; `[FU-PACKS-NONCBQ-SAVED]` is CLOSED by `#1653`.
+- **NEXT, in the owner's order** (the coordinator's handoff is `claude/HANDOFF_COFOUNDER_SESSION_2026-11-09_PM.md`, section 4):
+  1. Re-derive trunk. Read CURRENT_STATE (its second 9 Nov block), SURFACE_TRACKER and the "9 Nov (daily, second)" section of OPEN_QUESTIONS_AND_FOLLOWUPS. List open PRs with the gh REST API (none expected). If `version.json` is not the merge sha about 10 min after a merge, check the Vercel deployments first [coordinator].
+  2. **`[FU-CBQ-SAMPLE-2-LIVE]`** (cheap, one Sonnet run in Chrome on a CBQ-only test account, see the project memory `areas/test-accounts.md`): My packs -> "See a marked sample" opens the CBQ PDF. Read-only; never pay.
+  3. **Ads** (section 5 of the 8 Nov NIGHT handoff): the "study app" ad group in Sign-ups v2 (copy to the owner FIRST); the ad-text "AI" sweep (Google and YouTube); the search-terms review (NCERT Maths, YouTube).
+  4. **Dated checks:** 13-15 Nov Quality Score landing-page rating; 15 Nov Vercel Speed Insights; 16 Nov PDF Packs review (scheduled, read-only); 1 Dec paint recapture (scheduled; the 1 Dec price switch also switches the static paint shells OFF until recaptured, `[FU-PAINT-SHELL-1DEC-RECAPTURE]`).
+  5. **Reminders:** Google Ads balance; **Resend Pro about 14 Nov** (the free plan ends; then raise `GST_INVOICE_EMAIL_DAILY_CAP` from 10 to 30 on Railway; `[FU-RESEND-PRO]`).
+  6. The remaining low-priority review follow-ups (8 Nov NIGHT handoff section 7 item 4): do NOT start unless the owner asks; none was hit by a real student [coordinator].
+- **ON HOLD (owner):** `[FU-YT-DEMO-VIDEO]` (9 Nov 15:26 IST, "hold on to the youtube demo video"); the pricing-page redesign. `LIMITS_ENFORCE` must stay ON in Railway.
+- **Owner housekeeping:** the owner's Downloads folder holds a 4.8 MB Chrome `.tmp` file (`2ac83b4e-68ff-4d21-b422-ab006af4e5a3.tmp`, a copy of the graded PDF); the owner is to delete it (the builder cannot) [gh, `#1654` body; coordinator].
+
 ## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`13161d1`** [git].
