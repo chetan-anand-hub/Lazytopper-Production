@@ -117,3 +117,25 @@ describe("BRIDGE-CODES-1 - a CBQ chapter is ONE row with its parts inside (owner
     expect(buttons[1].textContent).toBe("Part 2 \u00b7 Sets 4\u20136");
   });
 });
+
+describe("PACKS-SAVED-1 - every pack file says Saved after a successful download", () => {
+  it("a non-CBQ file: Download -> Saved; a failed build -> Retry; tapping Saved downloads again", async () => {
+    const ok = vi.fn(async () => undefined);
+    const bad = vi.fn(async () => { throw new Error("boom"); });
+    builder.buildPackFiles.mockResolvedValue([
+      { id: "f-ok", group: "Chapter", label: "Real Numbers - questions", build: ok },
+      { id: "f-bad", group: "Chapter", label: "Real Numbers - answers", build: bad },
+    ]);
+    shop();
+    fireEvent.click(await screen.findByText("Download files"));
+    const okBtn = (await screen.findByText("Real Numbers - questions")).parentElement!.querySelector("button")!;
+    const badBtn = screen.getByText("Real Numbers - answers").parentElement!.querySelector("button")!;
+    expect(okBtn.textContent).toBe("Download");
+    fireEvent.click(okBtn);
+    await waitFor(() => expect(okBtn.textContent).toBe("Saved \u2713"));
+    fireEvent.click(badBtn);
+    await waitFor(() => expect(badBtn.textContent).toBe("Retry"));
+    fireEvent.click(okBtn);
+    await waitFor(() => expect(ok).toHaveBeenCalledTimes(2));
+  });
+});
