@@ -214,10 +214,34 @@ describe("BRIDGE-PANEL-1 · papers and the first-marked card", () => {
     expect(href()).toBe("/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf");
   });
 
-  it("a CBQ-only owner whose entitlement is unknown, with no papers yet -> the panel renders nothing", () => {
+  it("PACKS-FIRSTBUY-1: a NEW CBQ-only buyer (no CBQ paper marked yet, zero records) still gets the intro line and the CBQ sample link - tidy and classic; no rows, no heading invented", () => {
+    for (const tidy of [true, false]) {
+      data.records = [];
+      render(
+        <MemoryRouter>
+          <div className="lt-packs">
+            <MyPacksBridge packs={[cbq]} titleOf={(p) => `T:${p.packId}`} tidy={tidy}
+              data={{ records: [], allowance: null, paidPass: false, entitlementKnown: true }} onBuyPack={buyPack} onOpenFiles={() => undefined} />
+          </div>
+        </MemoryRouter>,
+      );
+      expect(screen.getByTestId("packs-bridge-sample").getAttribute("href")).toBe("/media/lazytopper-marked-sample-PK-M-RN-CBQ1.pdf");
+      expect(screen.queryByTestId("packs-bridge-row")).toBeNull();
+      expect(screen.getByText(/marked/i, { selector: "p" })).toBeTruthy();
+      cleanup();
+    }
+    // a mixed set with no papers is not CBQ-only by sku: unchanged rules (a chapter pack has papers, so its own sample)
+    show({ packs: [chapter, cbq] });
+    expect(screen.getByTestId("packs-bridge-sample").getAttribute("href")).toBe("/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf");
+  });
+
+  it("a CBQ-only owner whose entitlement is unknown, with no papers yet -> no Board Pass / holder card (PACKS-FIRSTBUY-1: only the intro line + sample link)", () => {
     data.known = false;
     show({ packs: [cbq], paidPass: true });
-    expect(screen.queryByTestId("packs-bridge")).toBeNull();
+    expect(screen.getByTestId("packs-bridge-sample")).toBeTruthy();
+    expect(screen.queryByTestId("packs-bridge-pass")).toBeNull();
+    expect(screen.queryByTestId("packs-bridge-holder")).toBeNull();
+    expect(screen.queryByTestId("packs-bridge-row")).toBeNull();
   });
 });
 

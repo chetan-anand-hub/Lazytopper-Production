@@ -13,8 +13,10 @@
  *      (React cannot re-read the uid key: AuthContext clears it while auth is loading).
  *   2. React's first render (PacksShop) reserves the same height (the hand-over, or the hint for an already-known user).
  * When the device knows this account owns packs but not yet My packs' height at this width (the first visit after a purchase or a
- * pay-by-phone claim on this device, or after ownership was read for the account menu), it reserves ONE SCREEN (the viewport
- * height): the shop then starts below the fold, so whatever height My packs turns out to be, nothing on screen moves.
+ * pay-by-phone claim on this device, or after ownership was read for the account menu), it reserves only the height of the My packs
+ * SKELETON (MINE_SKELETON_PX, the same at every width): PACKS-FIRSTBUY-1 - it used to hold ONE SCREEN, which showed a short skeleton
+ * above a screenful of blank space on a buyer's first return from checkout. The shop now sits right under the skeleton; once My packs
+ * is measured the next visit reserves its real height.
  * Signed-out visitors and accounts without packs have no hint: an empty div and a script that returns at once (zero layout cost); a
  * `#my-packs` link only adds the class that holds ONE short line for its panel (PACKS-TIDY-1).
  */
@@ -26,6 +28,12 @@ export const ACTIVE_UID_KEY = "lazytopper.progress.active_uid.v1";
 export const MINE_HINT_MAX_AGE_MS = 60 * 24 * 60 * 60 * 1000;
 /** Heights outside this range are not trusted. */
 export const MINE_HINT_MAX_PX = 6000;
+/**
+ * PACKS-FIRSTBUY-1: the natural height (px) of the My packs skeleton (`.lt-packs__mineskel--tidy`: heading + 3 placeholder rows),
+ * measured at 360 / 412 / 768 / 1023 / 1024 / 1280 / 1440 - 321.2 at every one of them. Reserved (rounded up) when the device knows the
+ * account owns packs but has no measured height for this width. Keep in step with packsTidyMine.css (skelcard / skelrow).
+ */
+export const MINE_SKELETON_PX = 322;
 /** At most this many widths are remembered per device (a phone, its landscape, a laptop...). */
 const MAX_WIDTHS = 6;
 
@@ -69,16 +77,16 @@ function readStored(): StoredHint | null {
 const validPx = (px: unknown): px is number => typeof px === "number" && Number.isFinite(px) && px > 0 && px < MINE_HINT_MAX_PX;
 
 /**
- * The reserved height for this account at this width: the remembered height, else (ownership known, height not yet) one screen
- * (`viewportH`), else null.
+ * The reserved height for this account at this width: the remembered height, else (ownership known, height not yet) the skeleton's
+ * height (MINE_SKELETON_PX), else null.
  */
-export function readMineHint(uid: string | null | undefined, width: number, nowMs: number, viewportH: number): number | null {
+export function readMineHint(uid: string | null | undefined, width: number, nowMs: number): number | null {
   if (!uid) return null;
   const v = readStored();
   if (!v || v.u !== uid || nowMs - v.t > MINE_HINT_MAX_AGE_MS || v.t - nowMs > MINE_HINT_MAX_AGE_MS) return null;
   const px = v.h[widthKey(width)];
   if (validPx(px)) return Math.round(px);
-  return validPx(viewportH) ? Math.round(viewportH) : null;
+  return MINE_SKELETON_PX;
 }
 
 /**
@@ -154,6 +162,8 @@ export const MINE_HINT_SCRIPT =
   String(MINE_HINT_MAX_AGE_MS) +
   "){p=v.h['t'+String(Math.round(d.innerWidth))];if(!(typeof p==='number'&&p>0&&p<" +
   String(MINE_HINT_MAX_PX) +
-  "))p=d.innerHeight;p=(p>0&&p<" +
+  "))p=" +
+  String(MINE_SKELETON_PX) +
+  ";p=(p>0&&p<" +
   String(MINE_HINT_MAX_PX) +
   ")?Math.round(p):0}}catch(e){p=0}if(!s)return;if(p){s.style.minHeight=p+'px';d.__ltMineHint={u:u,px:p}}else if(d.location.hash.toLowerCase()==='#my-packs')s.className+=' lt-packs__mineslot--note'}catch(e){}})();";

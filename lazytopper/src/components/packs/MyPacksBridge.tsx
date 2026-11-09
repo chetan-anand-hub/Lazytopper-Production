@@ -258,6 +258,9 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
   const holderOffer = paidPass && data.entitlementKnown && !snoozed ? pickPassOwnerOffer("pass_me", {}, packs) : null;
   if (packs.length === 0) return null;
   const hasPapers = groups.length > 0;
+  // PACKS-FIRSTBUY-1: a CBQ-only owner has no paper rows until a CBQ paper is marked, but still gets the intro line + the CBQ sample PDF link.
+  const cbqOnly = packs.every((p) => p.sku === "pack_cbq");
+  const showIntro = hasPapers || cbqOnly;
   const side = showPass || holderOffer !== null;
   if (tidy) {
     const holder = holderOffer ? (
@@ -278,7 +281,7 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
               <FirstMarkedCard first={first} compact />
             </div>
           )}
-          {hasPapers && (
+          {showIntro && (
             <div className="lt-pbt__intro">
               <p className="lt-pbt__introp">
                 {BRIDGE_COPY.intro} {BRIDGE_COPY.free}
@@ -299,16 +302,16 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
       </div>
     );
   }
-  if (!first && !hasPapers && !side) return null;
+  if (!first && !showIntro && !side) return null;
   return (
-    <div className={`lt-pb${!side ? " lt-pb--nopass" : ""}${!first && !hasPapers ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">
-      {(first || hasPapers) && (
+    <div className={`lt-pb${!side ? " lt-pb--nopass" : ""}${!first && !showIntro ? " lt-pb--passonly" : ""}`} data-testid="packs-bridge">
+      {(first || showIntro) && (
       <div className="lt-pb__main">
         {first && <FirstMarkedCard first={first} />}
-        {hasPapers && (
+        {showIntro && (
           <>
             <div className="lt-pb__intro">
-              <h3 className="lt-pb__h">{BRIDGE_COPY.heading}</h3>
+              {hasPapers && <h3 className="lt-pb__h">{BRIDGE_COPY.heading}</h3>}
               <p className="lt-pb__p">
                 {BRIDGE_COPY.intro} {BRIDGE_COPY.free}
               </p>
