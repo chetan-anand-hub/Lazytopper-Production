@@ -442,7 +442,7 @@ async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text
     // ── Site-wide ceiling (FU-GLOBAL-SHED). A 429 whose body says `busy_today` is NOT a fault and not the
     //    student's doing: it becomes the SAME typed limit error every surface already renders (name
     //    "DailyLimitError", so gradingErrorMessage keeps the server's own words), with the owner's
-    //    sentence + the one call to action the server chose. Never the generic "AI API request failed".
+    //    sentence + the one call to action the server chose. Never the generic "Couldn't reach the marking service".
     if (res.status === 429 && details?.error === "busy_today") {
       const rawCta = (details as { cta?: unknown }).cta;
       const cta = rawCta === "plans" ? " See plans." : "";
@@ -510,7 +510,7 @@ async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text
     }
 
     console.error("AI API error:", res.status, details);
-    throw new Error(details?.error || details?.message || "AI API request failed");
+    throw new Error(details?.error || details?.message || "Couldn't reach the marking service. Please try again.");
   }
 
   try {

@@ -332,7 +332,7 @@ const STUDENT_FACING_ERRORS: ReadonlySet<string> = new Set([
  * machine codes (snake_case, a bare status).
  */
 const TECHNICAL_MESSAGE =
-  /failed to fetch|networkerror|network ?error|load failed|network request failed|typeerror|syntaxerror|unexpected token|json|ai api|abort|timeout|^[a-z]+(_[a-z]+)+$|\b[45]\d\d\b/i;
+  /failed to fetch|networkerror|network ?error|load failed|network request failed|typeerror|syntaxerror|unexpected token|json|ai api|reach the marking service|abort|timeout|^[a-z]+(_[a-z]+)+$|\b[45]\d\d\b/i;
 
 /**
  * The sentence to show a student for a failed grade. A student-facing error keeps its
