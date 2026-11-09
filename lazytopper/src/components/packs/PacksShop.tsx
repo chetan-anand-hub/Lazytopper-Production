@@ -444,7 +444,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const handed = staticMineHandover();
     if (handed) return handed;
     if (!user || user.isLocalSession || typeof window === "undefined") return null;
-    const px = readMineHint(user.uid, window.innerWidth, hintNow(), window.innerHeight);
+    const px = readMineHint(user.uid, window.innerWidth, hintNow());
     return px ? { u: user.uid, px } : null;
   });
   // The server says this account owns packs (My packs read, a paid order, a pay-by-phone claim): remember it on this device so the

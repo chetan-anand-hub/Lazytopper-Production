@@ -4,7 +4,7 @@
  * reserves nothing for a signed-out visitor, another account, a stale or junk hint.
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { ACTIVE_UID_KEY, MINE_HINT_KEY, MINE_HINT_SCRIPT, clearMineHint, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
+import { ACTIVE_UID_KEY, MINE_HINT_KEY, MINE_HINT_SCRIPT, MINE_SKELETON_PX, clearMineHint, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
 
 const W = 360;
 function runStaticScript(): HTMLDivElement {
@@ -34,29 +34,29 @@ describe("readMineHint / writeMineHint", () => {
     const now = 1_800_000_000_000;
     writeMineHint("u1", 360, 812.4, now);
     writeMineHint("u1", 1280, 560, now);
-    expect(readMineHint("u1", 360, now, 0)).toBe(812);
-    expect(readMineHint("u1", 1280, now, 0)).toBe(560);
-    expect(readMineHint("u1", 412, now, 0)).toBeNull();
-    expect(readMineHint("u2", 360, now, 0)).toBeNull();
-    expect(readMineHint("u1", 360, now + 61 * 24 * 3600 * 1000, 0)).toBeNull();
+    expect(readMineHint("u1", 360, now)).toBe(812);
+    expect(readMineHint("u1", 1280, now)).toBe(560);
+    expect(readMineHint("u1", 412, now)).toBe(MINE_SKELETON_PX);
+    expect(readMineHint("u2", 360, now)).toBeNull();
+    expect(readMineHint("u1", 360, now + 61 * 24 * 3600 * 1000)).toBeNull();
     writeMineHint("u2", 360, 300, now);
-    expect(readMineHint("u1", 1280, now, 0)).toBeNull();
+    expect(readMineHint("u1", 1280, now)).toBeNull();
     writeMineHint("u2", 360, 99999, now);
-    expect(readMineHint("u2", 360, now, 0)).toBe(300);
+    expect(readMineHint("u2", 360, now)).toBe(300);
     localStorage.setItem(MINE_HINT_KEY, "{bad json");
-    expect(readMineHint("u2", 360, now, 0)).toBeNull();
+    expect(readMineHint("u2", 360, now)).toBeNull();
     writeMineHint("u3", 360, 400, now);
     clearMineHint();
     expect(localStorage.getItem(MINE_HINT_KEY)).toBeNull();
   });
-  it("ownership known, no height yet at this width -> one screen (the viewport height); an existing height is kept", () => {
+  it("PACKS-FIRSTBUY-1: ownership known, no height yet at this width -> the SKELETON's height (not a screen); an existing height is kept", () => {
     const now = 1_800_000_000_000;
     writeMineOwner("u1", now);
-    expect(readMineHint("u1", 360, now, 780)).toBe(780);
+    expect(readMineHint("u1", 360, now)).toBe(MINE_SKELETON_PX);
     writeMineHint("u1", 360, 900, now);
     writeMineOwner("u1", now);
-    expect(readMineHint("u1", 360, now, 780)).toBe(900);
-    expect(readMineHint("u2", 360, now, 780)).toBeNull();
+    expect(readMineHint("u1", 360, now)).toBe(900);
+    expect(readMineHint("u2", 360, now)).toBeNull();
   });
   it("stores only a layout hint: account id, time, heights - nothing about packs, passes or prices", () => {
     writeMineHint("u1", 360, 700, 1);
@@ -72,11 +72,17 @@ describe("MINE_HINT_SCRIPT (the static page)", () => {
     expect(slot.style.minHeight).toBe("733px");
     expect(staticMineHandover()).toEqual({ u: "u1", px: 733 });
   });
-  it("ownership known but no height at this width -> one screen (innerHeight)", () => {
+  it("PACKS-FIRSTBUY-1: ownership known but no height at this width -> the skeleton's height, in step with readMineHint", () => {
     localStorage.setItem(ACTIVE_UID_KEY, "u1");
     writeMineHint("u1", 1280, 500, Date.now());
-    expect(runStaticScript().style.minHeight).toBe("780px");
-    expect(staticMineHandover()).toEqual({ u: "u1", px: 780 });
+    expect(runStaticScript().style.minHeight).toBe(`${MINE_SKELETON_PX}px`);
+    expect(staticMineHandover()).toEqual({ u: "u1", px: MINE_SKELETON_PX });
+    expect(readMineHint("u1", W, Date.now())).toBe(MINE_SKELETON_PX);
+  });
+  it("PACKS-FIRSTBUY-1: the fallback is bounded - above zero and well under a 360x640 phone screen (no blank screenful)", () => {
+    expect(MINE_SKELETON_PX).toBeGreaterThan(0);
+    Object.defineProperty(window, "innerHeight", { value: 640, configurable: true });
+    expect(MINE_SKELETON_PX).toBeLessThan(window.innerHeight * 0.6);
   });
   it("signed out (no active account), another account, or a stale hint -> nothing reserved, no hand-over", () => {
     writeMineHint("u1", W, 733, Date.now());
@@ -99,5 +105,17 @@ describe("MINE_HINT_SCRIPT (the static page)", () => {
     localStorage.setItem(ACTIVE_UID_KEY, "u1");
     localStorage.setItem(MINE_HINT_KEY, "{oops");
     expect(() => runStaticScript()).not.toThrow();
+  });
+});
+
+describe("PACKS-FIRSTBUY-1: the captured static pages carry exactly this script (no stale one-screen copy)", () => {
+  it("prerendered /packs (mobile + desktop) contain MINE_HINT_SCRIPT verbatim", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    for (const f of ["prerendered/packs.html", "prerendered/__desktop/packs.html"]) {
+      const html = readFileSync(resolve(process.cwd(), f), "utf8");
+      expect(html.includes(MINE_HINT_SCRIPT), f).toBe(true);
+      expect(html.includes("p=d.innerHeight"), f).toBe(false);
+    }
   });
 });
