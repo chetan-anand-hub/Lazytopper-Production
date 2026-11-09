@@ -17,6 +17,8 @@ export const BRIDGE_SAMPLE_PDF_PATH = "/media/lazytopper-marked-sample-PK-M-RN-C
 export const BRIDGE_SITE = "https://www.lazytopper.com";
 export const BRIDGE_SAMPLE_PDF_URL = `${BRIDGE_SITE}${BRIDGE_SAMPLE_PDF_PATH}`;
 export const BRIDGE_PRICING_URL = `${BRIDGE_SITE}/pricing`;
+// Keep #my-packs: a signed-out reader tapping it from the PDF gets the "sign in to see your packs" line (FU-MYPACKS-SIGNEDOUT);
+// plain /packs would show them only the shop. The printed text stays "lazytopper.com/packs" (typed, it still shows My packs first once signed in).
 export const BRIDGE_PACKS_URL = `${BRIDGE_SITE}/packs#my-packs`;
 
 /** The sample scorecard images (crops of the real PK-M-RN-CT1 scorecard), served from public/media/pack-bridge/. */
@@ -40,6 +42,8 @@ export interface BridgePagesData {
   packLabel: string;
   /** A paper code from THIS pack (step 1: "e.g. PK-M-RN-CT1"); null -> the "e.g." clause is left out (a CBQ file before BRIDGE-CODES-1). */
   exampleCode: string | null;
+  /** This file itself carries a paper code + QR (tests, worksheets, mocks, CBQ sets). False for question-bank sections (owner 9 Nov). */
+  ownCode?: boolean;
   /** The Board Pass card on page 2. False for a student who already holds a paid Board Pass (they are not sold it again). */
   boardPassCard: boolean;
 }

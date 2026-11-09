@@ -188,7 +188,7 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
       const bridge: BridgePagesData | undefined =
         ctx.bridge && spec.bridge
-          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), boardPassCard: ctx.bridge.paidBoardPass === false }
+          ? { packLabel: spec.bridge.packLabel, exampleCode: spec.paper?.code ?? spec.bridge.exampleCode(), ownCode: !!spec.paper?.code, boardPassCard: ctx.bridge.paidBoardPass === false }
           : undefined;
       await exportPdf(ws, spec.mode, spec.paper?.code, {
         // The exporter's `email` slot is the contact printed after the name: the email, or the MASKED phone.
@@ -224,7 +224,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
       const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
       const bridge: BridgePagesData | undefined =
         ctx.bridge && spec.bridge && papers.length > 0
-          ? { packLabel: spec.bridge.packLabel, exampleCode: papers[0].reg.code, boardPassCard: ctx.bridge.paidBoardPass === false }
+          ? { packLabel: spec.bridge.packLabel, exampleCode: papers[0].reg.code, ownCode: true, boardPassCard: ctx.bridge.paidBoardPass === false }
           : undefined;
       const opts: ExportOpts = {
         licensee: { name: ctx.licensee.name, email: licenseeContact(ctx.licensee), orderId: spec.orderRef },
