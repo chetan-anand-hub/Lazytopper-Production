@@ -1,3 +1,14 @@
+> **2026-11-09 (daily, evening; written 11 Nov) - #1657 - #1658 (CLAUDE.md section 10).** Scope: the /packs My packs sample link for CBQ-only owners with no marked paper, and the first-purchase skeleton reserve. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Ads are not product surfaces; the "Study online" ad group is noted in SESSION_LOG only.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the 6 Nov second-surface checks stay owed |
+| /packs (My packs, "See a marked sample") | a CBQ-only owner with no marked CBQ paper now sees the intro line and the CBQ sample link in both layouts (before: only after a CBQ paper was marked) (`#1658`) | **merged, live** (desktop check at 1280 on lazytopper43: href is the CBQ PDF) | the owner's phone check at 360 (`[FU-PACKS-FIRSTBUY-PHONE-CHECK]`) |
+| /packs (My packs first-purchase reserve) | owner known but no measured height for this width reserves a 322 px skeleton (`MINE_SKELETON_PX`) instead of one screen, in the static script, `readMineHint` and both prerendered snapshots; a first-time buyer's shop shifts about 190 px once (`#1658`) | **merged, live** (`window.__ltMineHint.px = 322` live) | `[FU-PACKS-FIRSTBUY-PHONE-CHECK]`; `[FU-PACKS-SIGNEDIN-CLS-MEASURE]`; parked `[FU-PACKS-FIRSTBUY-SKELETON-FILL]` |
+| Other surfaces | not moved by these 2 PRs (`#1657` is docs only) | unchanged | |
+
+No grading surface moved.
+
 > **2026-11-09 (daily, second) - #1652 - #1656 (CLAUDE.md section 10).** Scope: "Saved ✓" on every pack file, the real marked CBQ sample on CBQ pack pages 2-3 with regenerated CBQ free samples and previews, the My packs sample link for CBQ-only owners, and the grading-failure wording. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
