@@ -1,3 +1,18 @@
+## 2026-11-09 (daily, evening; written 11 Nov) - #1657 - #1658
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`62f1483`** [git].
+
+- **Done [git/gh]:** 2 PRs merged (table in CURRENT_STATE): `#1657` (the previous daily docs PR) and `#1658` PACKS-FIRSTBUY-1 (a CBQ-only owner sees the marked-sample link at once; a first purchase reserves 322 px, not a screenful). No grading change. The "Daily docs PR for #1658 is OWED" line in the coordinator's evening handoff is closed by this PR.
+- **NEXT, in the owner's order** (the coordinator's handoff is `claude/HANDOFF_COFOUNDER_SESSION_2026-11-09_EVENING.md`, section 4):
+  1. **Owner's analysis** [owner]: the owner will brief it at the start of the next session ("we will talk about analysis"). Ask what it should answer, propose the method, then run.
+  2. **Owner phone check of `#1658` at 360 on lazytopper43** (`/packs#my-packs`: no big blank; the sample link opens the CBQ PDF) (`[FU-PACKS-FIRSTBUY-PHONE-CHECK]`).
+  3. **"Study online" ad group:** check the 6 image approvals (Pending review); first search terms after 2-3 days; keep ad strength Excellent. Ads copy goes to the owner FIRST, and the claim must be true of the product: it is a website, not an app.
+  4. **Ads sweep:** finish it from downloaded Ads and Assets CSV reports (the page-text read was PARTIAL, about 10 of 61 ads). Propose the 3 wording fixes (the "AI" description on a YouTube Students ad, "answer" in a Parents ad, "crack" in a Search v2 description) and a diagnosis of the NCERT Maths Solutions campaign (6 impressions, 0 clicks in 7 days). **Act ONLY with the owner's approval.** The shared sitelinks with "Solutions" are the owner's call (`[FU-ADS-SOLUTIONS-SITELINKS]`).
+  5. **Dated checks:** 13-15 Nov Quality Score landing-page rating; **about 14 Nov Resend Pro, then raise `GST_INVOICE_EMAIL_DAILY_CAP` from 10 to 30 on Railway** (`[FU-RESEND-PRO]`); 15 Nov Vercel Speed Insights; 16 Nov PDF Packs review (scheduled, read-only); **1 Dec:** the paint recapture (scheduled) and change the "Board Pass Rs1,917 + GST" headline in the "Study online" ad to the new price, Rs2,499 + GST.
+  6. **Parked, low:** `[FU-PACKS-FIRSTBUY-SKELETON-FILL]`, `[FU-PACKS-SIGNEDIN-CLS-MEASURE]`, `[FU-PACKS-PAPER-LINE-MERGE]`, `[FU-PACKS-CSS-BUDGET]`.
+- **ON HOLD (owner):** `[FU-YT-DEMO-VIDEO]`; the pricing-page redesign. `LIMITS_ENFORCE` must stay ON in Railway.
+- **Method notes [coordinator, evening handoff section 5].** Measure CLS only with a buffered `PerformanceObserver` and prove the instrument first. A repo Stop hook flags trunk squash commits as "Unverified" and asks to amend or force-push trunk: never do it (force-push to trunk is forbidden); detaching the shared clone's HEAD silences it.
+
 ## 2026-11-09 (daily, second) - #1652 - #1656
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`f7038237`** [git].

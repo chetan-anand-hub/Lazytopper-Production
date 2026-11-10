@@ -23,6 +23,30 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-09 (daily, evening; written 11 Nov) - #1657 - #1658 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `62f1483`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the `#1658` body **[gh]** and the coordinator's 9 Nov evening handoff and ops log (`claude/HANDOFF_COFOUNDER_SESSION_2026-11-09_EVENING.md`) **[coordinator]**. No grading behaviour changed.*
+
+**New:** `[FU-PACKS-FIRSTBUY-SKELETON-FILL]` (parked), `[FU-PACKS-SIGNEDIN-CLS-MEASURE]`, `[FU-PACKS-FIRSTBUY-PHONE-CHECK]`, `[FU-ADS-SOLUTIONS-SITELINKS]`.
+
+**Still open, carried (their earlier entries stand):** `[FU-PACKS-PAPER-LINE-MERGE]` (needs a signed-in test plan), `[FU-PACKS-CSS-BUDGET]`, `[FU-CBQ-SAMPLE-2-LIVE]`, `[FU-RESEND-PRO]` (about 14 Nov; then `GST_INVOICE_EMAIL_DAILY_CAP` 10 -> 30 on Railway), `[FU-PAINT-SHELL-1DEC-RECAPTURE]`, and `[FU-YT-DEMO-VIDEO]` (ON HOLD, owner). `LIMITS_ENFORCE` must stay ON in Railway.
+
+### [FU-PACKS-FIRSTBUY-SKELETON-FILL]
+
+PARKED, low priority **[owner, 9 Nov 19:47 IST, "go with your recommendations"; coordinator]**. `#1658` removes the blank but a first-time buyer's shop shifts down about 190 px once on the first return (My packs arrives at about 500 px; every later visit reserves the measured height and has zero shift). The better version: reserve one screen again (as `#1645` did) but FILL it with skeleton rows, so there is no blank and no jump. Not started. Touch points if it is picked up: `mineHint.ts` (`MINE_SKELETON_PX`, `MINE_HINT_SCRIPT`, `readMineHint`), the `PacksShop.tsx` slot and skeleton, and the two `prerendered/packs.html` snapshots (the parity test pins the script).
+
+### [FU-PACKS-SIGNEDIN-CLS-MEASURE]
+
+OPEN, UNVERIFIED signal **[coordinator]**. An iframe harness on the owner's tab (signed in; 360, 412, 1280) read the hero (`lt-packs__hero`) shifting 0.25-0.7 on `/packs#my-packs` for BOTH the old one-screen reserve and the new 322 px reserve. The harness itself (iframe plus hash scroll) may cause it; the 9 Nov PACKS-TIDY live read at 1280 was 0.00012. **Re-measure signed in at TOP LEVEL (not in an iframe) with a `PerformanceObserver` with `buffered: true`, and prove the instrument fires first**; do not act before that. Background: the coordinator's first "CLS 0.000" came from `getEntriesByType('layout-shift')`, which returns `[]` in Chrome.
+
+### [FU-PACKS-FIRSTBUY-PHONE-CHECK]
+
+OPEN **[coordinator, evening handoff section 4 item 3]**. The owner's phone check of `#1658` at 360 on lazytopper43 is not yet confirmed: `/packs#my-packs` shows no big blank, and the sample link opens the CBQ PDF. The desktop check (Chrome 1280) passed: `window.__ltMineHint.px = 322` and the `packs-bridge-sample` href is `/media/lazytopper-marked-sample-PK-M-RN-CBQ1.pdf`. To repeat the first-visit case, clear `lt.packs.mineHint.v1` **[gh, `#1658` body]**. Read-only; never pay.
+
+### [FU-ADS-SOLUTIONS-SITELINKS]
+
+OPEN, the owner's decision **[coordinator, evening handoff section 3]**. Shared account assets that use the word "Solutions" are Eligible, were not flagged, and were NOT changed: sitelinks "Class 10 CBQs + Solutions" and "NCERT Solutions Maths" (description "Try first, then see solution"), and a structured snippet listing "NCERT Solution". Suggestion: change "Class 10 CBQs + Solutions" to "Class 10 CBQs + Step Marking" and keep the NCERT one. Do not change anything in the ads account without the owner's approval.
+
 ## 2026-11-09 (daily, second) - #1652 - #1656 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `f7038237`. Earlier dated entries are left as written (standing rule 3); each closure below is recorded here, under its own heading (standing rule 1). Items come from the PR bodies **[gh]** and the coordinator's 9 Nov afternoon handoff sections 2-3 (`claude/HANDOFF_COFOUNDER_SESSION_2026-11-09_PM.md`) **[coordinator]**. No grading behaviour changed.*

@@ -1,3 +1,9 @@
+## 2026-11-09 (daily, evening; written 11 Nov) - #1657 - #1658 - MERGED
+
+- DONE. `#1657` (`b59bbf8`) docs: the previous daily docs PR (`#1652` - `#1656`, 7 handoff files). NEXT: this block's PR.
+- DONE. `#1658` (`62f1483`) PACKS-FIRSTBUY-1: a CBQ-only owner with no marked paper sees the intro and "See a marked sample" (CBQ PDF); a first return after a first purchase reserves the 322 px skeleton (`MINE_SKELETON_PX`) instead of one screen, in the static script, `readMineHint` and the prerendered snapshots (parity test). NEXT: the owner's phone check at 360 (`[FU-PACKS-FIRSTBUY-PHONE-CHECK]`); the parked better version `[FU-PACKS-FIRSTBUY-SKELETON-FILL]`; `[FU-PACKS-SIGNEDIN-CLS-MEASURE]`.
+- NEXT (not built, owner order): the owner's analysis; the "Study online" image approvals; the ads sweep (3 wording fixes, NCERT Maths diagnosis, owner-approved only); dated checks (13-15 Nov, about 14 Nov Resend Pro then `GST_INVOICE_EMAIL_DAILY_CAP` 10 -> 30, 15 Nov, 16 Nov, 1 Dec). ON HOLD (owner): `[FU-YT-DEMO-VIDEO]`, the pricing-page redesign.
+
 ## 2026-11-09 (daily, second) - #1652 - #1656 - MERGED
 
 - DONE. `#1652` (`7cf0c1a`) docs: the first daily docs PR for 9 Nov (7 handoff files). NEXT: this block's PR.
