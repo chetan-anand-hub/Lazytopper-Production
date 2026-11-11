@@ -5,7 +5,7 @@ import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } fro
 import { formatPassDate } from "../services/checkout";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
-import PacksShop, { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
+import PacksShop, { OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
 import { BUNDLE_QUESTIONS_CLAIM } from "../lib/packs/bundleClaim";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
@@ -111,6 +111,11 @@ export const PACKS_LEDE = "Printable Class 10 Maths and Science question banks. 
 export const PACKS_PART_HEADING = "Need only part of it?";
 export const PACKS_CBQ_SEPARATE = "CBQ Packs are separate.";
 export const PACKS_SAMPLES_NOTE = "Free samples: one-page PDFs, no sign-up.";
+/** v1.2 (owner 22:32: "minimise [the scroll] as much as possible by dropdown ribbon"): the folded rows' labels. */
+export const PACKS_ABOUT_BUNDLE = "About the Bundle";
+export const PACKS_VIDEO_SUMMARY = "See how answers are marked (video)";
+export const PACKS_FAQ_COUNT = 7;
+export const PACKS_CBQ_SENTENCE = "Half your board paper is competency-based. Every CBQ type, chapter-wise, with step-wise worked solutions.";
 
 export default function PacksPage() {
   const location = useLocation();
@@ -136,26 +141,38 @@ function PacksPageBody() {
             <Hero api={api} />
             <div className="lt-packs__w lt-pk__strip"><BoardsCountdownStrip /></div>
             <PartPacks api={api} subject={subject} onSubject={setSubject} />
+            {/* v1.2 L3: two compact one-line link rows. The longer sentences ride in the links' accessible names and titles, and the
+                CBQ one is also the FAQ "What are CBQ Packs?" answer. */}
             <section className="lt-packs__w lt-pk__links" aria-label="More from LazyTopper">
-              <Link className="lt-pk-cbq" to={`${CBQ_PACKS_PAGE_PATH}?subject=${subject}`} data-testid="packs-link-cbq">
-                <span className="lt-pk-cbq__kicker">NEW · CBQ</span>
-                <span className="lt-pk-cbq__main">
-                  {CBQ_PACKS_NAME} · {CBQ_SUBJECT_CLAIM} per subject · {packPriceLabel("pack_cbq")} &rarr;
-                </span>
-                <span className="lt-pk-cbq__sub">Half your board paper is competency-based. Every CBQ type, chapter-wise, with step-wise worked solutions.</span>
+              <Link
+                className="lt-pk-lrow lt-pk-lrow--cbq"
+                to={`${CBQ_PACKS_PAGE_PATH}?subject=${subject}`}
+                title={PACKS_CBQ_SENTENCE}
+                aria-label={`${CBQ_PACKS_NAME} · ${CBQ_SUBJECT_CLAIM} per subject · ${packPriceLabel("pack_cbq")}. ${PACKS_CBQ_SENTENCE}`}
+                data-testid="packs-link-cbq"
+              >
+                <span className="lt-pk-lrow__k">NEW</span>
+                <span className="lt-pk-lrow__t">{CBQ_PACKS_NAME} · {packPriceLabel("pack_cbq")} per subject</span>
+                <span className="lt-pk-lrow__a" aria-hidden="true">&rarr;</span>
               </Link>
-              <Link className="lt-pk-bp" to={BOARD_PASS_PAGE_PATH} data-testid="packs-link-board-pass">
-                {CBQ_MARKED_LINE}
+              <Link className="lt-pk-lrow" to={BOARD_PASS_PAGE_PATH} title={CBQ_MARKED_LINE} aria-label={CBQ_MARKED_LINE} data-testid="packs-link-board-pass">
+                <span className="lt-pk-lrow__t">Get your answers marked · Board Pass</span>
+                <span className="lt-pk-lrow__a" aria-hidden="true">&rarr;</span>
               </Link>
             </section>
             {/* TRUST-1: real student proof. Click-to-play; nothing loads from YouTube before the tap. */}
-            <section className="lt-packs__proof" aria-labelledby="packs-video">
+            {/* v1.2 L4: folded. Its poster is a lazy image, so a closed row loads nothing; the transcript stays inside; the video's
+                JSON-LD in the head is unchanged. */}
+            <section className="lt-packs__proof" aria-label="Student video">
               <div className="lt-packs__w">
-                <TestimonialVideo
-                  headingId="packs-video"
-                  heading="Where did his ½ mark go?"
-                  lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
-                />
+                <details className="lt-pk-fold lt-pk-fold--video" data-testid="packs-video-fold">
+                  <summary className="lt-pk-fold__sum">{PACKS_VIDEO_SUMMARY}</summary>
+                  <TestimonialVideo
+                    headingId="packs-video"
+                    heading="Where did his ½ mark go?"
+                    lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
+                  />
+                </details>
               </div>
             </section>
             <BundleStickyBar api={api} />
@@ -168,6 +185,9 @@ function PacksPageBody() {
       <section aria-labelledby="packs-faq-h" className="lt-packs__faq">
         <div className="lt-packs__w">
           <h2 id="packs-faq-h" className="lt-packs__sr">Questions</h2>
+          {/* v1.2 L5: ONE closed row holding every question (each still its own folded answer). */}
+          <details className="lt-pk-fold lt-pk-fold--faq" data-testid="packs-faq-fold">
+          <summary className="lt-pk-fold__sum">Questions ({PACKS_FAQ_COUNT})</summary>
           <div className="lt-packs__faqgrid">
             <details>
               <summary>What&rsquo;s inside a pack?</summary>
@@ -202,8 +222,8 @@ function PacksPageBody() {
             <details>
               <summary>What are CBQ Packs?</summary>
               <p>
-                Competency-based questions (case study, assertion-reason, MCQ, short and long answer), {CBQ_SUBJECT_CLAIM} per subject, chapter-wise with
-                step-wise worked solutions. They are sold on their own page, {packPriceLabel("pack_cbq")} per subject:{" "}
+                {PACKS_CBQ_SENTENCE} Competency-based questions (case study, assertion-reason, MCQ, short and long answer), {CBQ_SUBJECT_CLAIM} per
+                subject, chapter-wise with step-wise worked solutions. They are sold on their own page, {packPriceLabel("pack_cbq")} per subject:{" "}
                 <Link to={CBQ_PACKS_PAGE_PATH}>see the CBQ Packs</Link>.
               </p>
             </details>
@@ -220,6 +240,7 @@ function PacksPageBody() {
               </p>
             </details>
           </div>
+          </details>
         </div>
       </section>
       <PublicLegalFooter />
@@ -263,15 +284,22 @@ function Hero({ api }: { api: PacksShopApi }) {
           <BuyBox twin="pk-buy-bundle" api={api} neutral={`${BUNDLE_NAME} · ${packPriceLabel("pack_bundle")}`} gstSku="pack_bundle" onNeutral={() => api.openPack("pack_bundle")}>
             <PackTileBuy sku="pack_bundle" api={api} />
           </BuyBox>
-          <button type="button" className="lt-ptb__see" onClick={() => api.openPack("pack_bundle")} aria-haspopup="dialog" data-testid="packs-card-bundle">
-            See inside &rarr;
-          </button>
-          <PackSampleChoice sku="pack_bundle" surface="packs_tile" buy={sampleBuyFor(api, "pack_bundle")} />
-          <p className="lt-pk-bundle__line">
-            {season ? PREBOARDS_PICK_LINE : `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks, one price`}. {PACKS_LEDE}
-          </p>
-          <PreboardTileLine />
-          <p className="lt-pk-bundle__small">{PACKS_SAMPLES_NOTE} {PACKS_CBQ_SEPARATE}</p>
+          {/* v1.2 L1: "See inside" and the free sample side by side on one line. */}
+          <div className="lt-pk-bundle__links">
+            <button type="button" className="lt-ptb__see" onClick={() => api.openPack("pack_bundle")} aria-haspopup="dialog" data-testid="packs-card-bundle">
+              See inside &rarr;
+            </button>
+            <PackSampleChoice sku="pack_bundle" surface="packs_tile" buy={sampleBuyFor(api, "pack_bundle")} />
+          </div>
+          {/* v1.2 L1: the three paragraphs under the links, folded into ONE closed row (in the DOM and the prerender). */}
+          <details className="lt-pk-fold lt-pk-fold--about" data-testid="packs-about-bundle">
+            <summary className="lt-pk-fold__sum">{PACKS_ABOUT_BUNDLE}</summary>
+            <p className="lt-pk-bundle__line">
+              {season ? PREBOARDS_PICK_LINE : `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks, one price`}. {PACKS_LEDE}
+            </p>
+            <PreboardTileLine />
+            <p className="lt-pk-bundle__small">{PACKS_SAMPLES_NOTE} {PACKS_CBQ_SEPARATE}</p>
+          </details>
         </div>
       </div>
     </section>
@@ -372,72 +400,106 @@ function PartRow({ t, api, subject, open, onToggle, rowRef }: { t: Tile; api: Pa
   const [tapped, setTapped] = useState<PackSubject | null>(null);
   const next = tapped && tapped === subject && hasSubject ? sampleBuyFor(api, t.sku)(tapped) : null;
   const subj = subjectLabel(subject);
-  // The neutral label names no subject: on the static page the switch can change before the app arrives (the held tap then lands on
-  // the app's Buy for the subject the visitor picked), so a "Maths …" label there could contradict the switch.
-  const neutral = t.sku === "pack_chapter" ? `Choose a chapter · ${packPriceLabel(t.sku)}` : `${t.name} · ${packPriceLabel(t.sku)}`;
-  const onNeutral = () => (t.sku === "pack_chapter" ? api.chooseChapter({ subject }) : api.openPackWith ? api.openPackWith(t.sku, subject) : api.openPack(t.sku));
+  const gst = packGstBreakdown(t.sku);
   return (
     <div className="lt-pk-row" ref={rowRef} data-testid={`packs-row-${t.id}`} data-open={open ? "" : undefined}>
       <details className="lt-pk-row__d" name="lt-pk-rows" open={open} onToggle={(e) => onToggle(t.id, e.currentTarget.open)}>
+        {/* v1.2 L2: the folded row is ONE compact line: name over price on the left; the compact Buy (outside <details>) on the right. */}
         <summary className="lt-pk-row__sum">
           <span className="lt-pk-row__name">{t.name}</span>
           <span className="lt-pk-row__price">{packPriceLabel(t.sku)}</span>
-          <span className="lt-pk-row__line">{t.line}</span>
         </summary>
         <div className="lt-pk-row__body">
+          <p className="lt-pk-row__line">{t.line}</p>
           <p className="lt-pt__contents" data-testid={`packs-contents-${t.id}`}>{t.contents}</p>
           <p className="lt-pk-row__excl">{t.excludes}</p>
+          {gst && <p className="lt-pk-row__gst" data-testid={`tile-gst-${t.sku}`}>{gst}</p>}
           {t.sku === "pack_mock" ? <PreboardTileLine testId="packs-preboard-line-mock" /> : null}
-          <button
-            type="button"
-            className="lt-ptb__see"
-            onClick={() => (hasSubject && api.openPackWith ? api.openPackWith(t.sku, subject) : api.openPack(t.sku))}
-            aria-haspopup="dialog"
-            data-testid={`packs-card-${t.id}`}
-          >
-            See inside &rarr;
-          </button>
-          {hasSubject ? (
-            <>
+          <div className="lt-pk-row__links">
+            <button
+              type="button"
+              className="lt-ptb__see"
+              onClick={() => (hasSubject && api.openPackWith ? api.openPackWith(t.sku, subject) : api.openPack(t.sku))}
+              aria-haspopup="dialog"
+              data-testid={`packs-card-${t.id}`}
+            >
+              See inside &rarr;
+            </button>
+            {hasSubject ? (
               <PackSampleLink sku={t.sku} target={subject} surface="packs_tile" label={`Free sample (${subj})`} onTapped={() => setTapped(subject)} />
-              {next && <SampleBuyNext sku={t.sku} subject={subject} buy={next} />}
-            </>
-          ) : (
-            <PackSampleChoice sku={t.sku} surface="packs_tile" buy={sampleBuyFor(api, t.sku)} />
-          )}
+            ) : (
+              <PackSampleChoice sku={t.sku} surface="packs_tile" buy={sampleBuyFor(api, t.sku)} />
+            )}
+          </div>
+          {next && <SampleBuyNext sku={t.sku} subject={subject} buy={next} />}
         </div>
       </details>
-      <BuyBox twin={`pk-buy-${t.id}`} api={api} neutral={neutral} gstSku={t.sku} onNeutral={onNeutral}>
-        {t.sku === "pack_chapter" ? <ChapterBuy api={api} subject={subject} /> : <PackTileBuy sku={t.sku} api={api} subject={subject} />}
-      </BuyBox>
+      <div className="lt-pk-row__buy" data-lt-twin={`pk-buy-${t.id}`} data-testid={`pk-buy-${t.id}-box`}>
+        <CompactBuy t={t} api={api} subject={subject} />
+      </div>
     </div>
   );
 }
 
 /**
- * The Chapter Pack's Buy on the switch's subject: "Choose a <Subject> chapter · <total>" opens the shop's EXISTING chapter chooser
- * (api.chooseChapter, PRICING-B-1: the picker lists only that subject's chapters), whose Buy is the shop's own. Mirrors PackTileBuy's
- * chapter button (same classes, the GST line, the busy note).
+ * v1.2 L2 - a row's compact Buy, on the switch's subject: "Buy ₹235" / "Buy ₹117" (the shop's own buyNow -> handleBuy, as PackTileBuy),
+ * "Choose chapter" (the shop's EXISTING chapter chooser, limited to that subject: chooseChapter({ subject })). Its accessible name says
+ * the whole thing ("Buy Science Subject Pack · ₹235"). Owned: a "✓ Owned" pill, never a Buy. Another pack's payment open or being
+ * checked: disabled, with the reason as its title. Packs dark (and the static page, captured dark): a neutral price button that opens
+ * the pack's pop-up. The GST breakup is in the opened row. Same box size in every state (CSS), so nothing moves when the app arrives.
  */
-function ChapterBuy({ api, subject }: { api: PacksShopApi; subject: PackSubject }) {
-  const blocked = api.blockedBy("pack_chapter");
-  const gst = packGstBreakdown("pack_chapter");
-  return (
-    <div className="lt-ptb">
+function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: PackSubject }) {
+  const subj = subjectLabel(subject);
+  const sku = t.sku;
+  if (!api.buyEnabled) {
+    // The neutral label names no subject: on the static page the switch can change before the app arrives (the held tap then lands on
+    // the app's Buy for the subject the visitor picked).
+    const onNeutral = () => (sku === "pack_chapter" ? api.chooseChapter({ subject }) : api.openPackWith ? api.openPackWith(sku, subject) : api.openPack(sku));
+    return (
+      <button type="button" className="lt-pk-cbuy" onClick={onNeutral} aria-haspopup="dialog" aria-label={`${t.name} · ${packPriceLabel(sku)}`} data-testid={`pk-buy-${t.id}-neutral`}>
+        {sku === "pack_chapter" ? "Choose chapter" : packPriceLabel(sku)}
+      </button>
+    );
+  }
+  if (sku === "pack_chapter") {
+    const blocked = api.blockedBy(sku);
+    return (
       <button
         type="button"
-        className="lt-ptb__btn"
+        className="lt-pk-cbuy"
         onClick={() => api.chooseChapter({ subject })}
         disabled={blocked}
         aria-disabled={blocked}
         aria-haspopup="dialog"
+        aria-label={`Choose a ${subj} chapter · ${packPayLabel(sku)}`}
+        title={blocked ? OTHER_PAYMENT_BUSY_COPY : undefined}
         data-testid="tile-buy-pack_chapter"
       >
-        {`Choose a ${subjectLabel(subject)} chapter · ${packPayLabel("pack_chapter")}`}
+        Choose chapter
       </button>
-      {gst && <span className="lt-ptb__gst" data-testid="tile-gst-pack_chapter">{gst}</span>}
-      {blocked && <span className="lt-ptb__busy" role="status">Finishing your other payment…</span>}
-    </div>
+    );
+  }
+  if (api.ownsPack(sku, subject)) {
+    return (
+      <span className="lt-pk-cbuy lt-pk-cbuy--owned" aria-label={`You own the ${subj} ${t.name}`} data-testid={`tile-owned-${sku}-${subject}`}>
+        <span aria-hidden="true">&#10003;</span> Owned
+      </span>
+    );
+  }
+  const blocked = api.blockedBy(sku, subject);
+  return (
+    <button
+      type="button"
+      className="lt-pk-cbuy"
+      onClick={() => api.buyNow(sku, subject)}
+      disabled={blocked}
+      aria-disabled={blocked}
+      aria-label={`Buy ${subj} ${t.name} · ${packPayLabel(sku)}`}
+      title={blocked ? OTHER_PAYMENT_BUSY_COPY : undefined}
+      data-testid={`tile-buy-${sku}-${subject}`}
+    >
+      {`Buy ${packPayLabel(sku)}`}
+    </button>
   );
 }
 

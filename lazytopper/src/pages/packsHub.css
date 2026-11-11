@@ -43,7 +43,28 @@
 .lt-pk-bundle__amt { font-family: var(--pk-serif); font-size: 26px; font-weight: 700; }
 .lt-pk-bundle__per { display: inline-block; white-space: nowrap; font-size: 13.5px; font-weight: 600; color: var(--pk-ink2); }
 .lt-pk-bundle .lt-ptb { margin-top: 0; }
-.lt-pk-bundle .lt-ptb__see, .lt-pk-bundle .lt-psl { align-self: center; color: var(--pk-gt); }
+.lt-pk-bundle .lt-ptb__see, .lt-pk-bundle .lt-psl { color: var(--pk-gt); }
+/* v1.2 L1: "See inside" and the sample on one line. */
+.lt-pk-bundle__links { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; min-height: 44px; }
+.lt-pk-bundle__links .lt-ptb__see { padding: 0 4px; }
+/* v1.2 folded rows ("About the Bundle", the video, the questions): a 48 px summary with a chevron; content unchanged inside. */
+.lt-pk-fold { min-width: 0; }
+.lt-pk-fold__sum {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; cursor: pointer; list-style: none;
+  font-weight: 700; font-size: 15px; -webkit-tap-highlight-color: transparent;
+}
+.lt-pk-fold__sum::-webkit-details-marker { display: none; }
+.lt-pk-fold__sum::after {
+  content: ""; flex: 0 0 auto; width: 8px; height: 8px; margin-right: 4px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px); transition: transform 0.15s ease;
+}
+.lt-pk-fold[open] > .lt-pk-fold__sum::after { transform: rotate(-135deg); }
+.lt-pk-fold--about { border-top: 1px solid var(--pk-line); }
+.lt-pk-fold--about > .lt-pk-fold__sum { min-height: 44px; font-size: 14px; color: var(--pk-ink2); }
+.lt-pk-fold--about > p + p, .lt-pk-fold--about > p { margin: 0 0 8px; }
+.lt-pk-fold--video, .lt-pk-fold--faq { background: #fff; border: 1px solid var(--pk-line); border-radius: 14px; padding: 0 16px; }
+.lt-pk-fold--video[open], .lt-pk-fold--faq[open] { padding-bottom: 14px; }
+.lt-pk .lt-packs__proof .lt-pk-fold--video .lt-tv { border: 0; padding: 0; }
 .lt-pk-bundle__line { margin: 0; font-size: 14px; line-height: 1.45; color: var(--pk-ink2); }
 .lt-pk-bundle .lt-pt__preboard { margin: 0; }
 .lt-pk-bundle__small { margin: 0; font-size: 12.5px; line-height: 1.4; color: #4a566b; }
@@ -54,11 +75,25 @@
 .lt-pk-buy .lt-ptb__btn { min-height: 48px; }
 
 .lt-pk__strip { padding-top: 14px; }
+/*
+ * v1.2 L6: the countdown strip, slimmer on phones only (< 768 px) and only on this page: the approved component and its words are
+ * unchanged; only its box is tighter. The slot reserves the same height the strip draws (static page and app match: no shift).
+ */
+@media (max-width: 767px) {
+  .lt-pk__strip { padding-top: 10px; }
+  .lt-pk__strip .lt-boards-slot { min-height: 64px; margin: 0; }
+  .lt-pk__strip .lt-boards-strip { min-height: 64px; height: 64px; padding: 6px 12px; gap: 10px; border-radius: 12px; }
+  .lt-pk__strip .lt-boards-strip__count { min-width: 58px; }
+  .lt-pk__strip .lt-boards-strip__num { font-size: 24px; }
+  .lt-pk__strip .lt-boards-strip__lbl { font-size: 9px; letter-spacing: 0.04em; }
+  .lt-pk__strip .lt-boards-strip__l1 { font-size: 13px; line-height: 1.25; gap: 6px; }
+  .lt-pk__strip .lt-boards-strip__l2 { margin-top: 1px; font-size: 12px; line-height: 1.3; }
+}
 
 /* "Need only part of it?" */
-.lt-pk-part { padding: 20px 0 4px; }
+.lt-pk-part { padding: 16px 0 4px; }
 .lt-pk .lt-pk-part__h { font-size: 20px; line-height: 1.25; margin-bottom: 10px; }
-.lt-pk-part__switch { max-width: 360px; margin-bottom: 12px; }
+.lt-pk-part__switch { max-width: 360px; margin-bottom: 10px; }
 /*
  * The switch's selected look follows the native radio itself (input:checked + its label text), not React's --on class, so a tap on the
  * static page, before the app arrives, shows at once. Sibling selectors only (no :has(): it widened style recalculation on the app swap).
@@ -67,46 +102,55 @@
 .lt-pk .lt-ss__txt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
 .lt-pk .lt-ss__in:checked + .lt-ss__txt { background: #15233a; color: #fff; }
 .lt-pk .lt-ss__in:not(:checked) + .lt-ss__txt .lt-ss__tick { display: none; }
-.lt-pk-rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.lt-pk-rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
 .lt-pk-row { background: #fff; border: 1px solid var(--pk-line); border-radius: 14px; display: flex; flex-direction: column; min-width: 0; }
 .lt-pk-row[data-open] { border-color: var(--pk-line2); }
+/*
+ * v1.2 L2: a folded row is ONE compact line, 64 px: the summary (name over price, chevron) leaves room on the right for the compact Buy,
+ * which sits OUTSIDE the <details> (its own tap target, never folding the row) and is laid over the summary's right end.
+ */
+.lt-pk-row { position: relative; }
 .lt-pk-row__sum {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 2px; align-items: center; min-height: 64px;
-  padding: 10px 14px 6px; cursor: pointer; list-style: none; -webkit-tap-highlight-color: transparent;
+  display: flex; flex-direction: column; justify-content: center; min-height: 64px; padding: 8px 152px 8px 14px; cursor: pointer;
+  list-style: none; -webkit-tap-highlight-color: transparent;
 }
 .lt-pk-row__sum::-webkit-details-marker { display: none; }
-.lt-pk-row__name { grid-column: 1; font-family: var(--pk-serif); font-size: 18px; font-weight: 700; line-height: 1.25; }
-.lt-pk-row__price {
-  grid-column: 2; grid-row: 1; font-family: var(--pk-serif); font-size: 19px; font-weight: 700; padding-right: 22px; position: relative;
-  justify-self: end; white-space: nowrap;
-}
+.lt-pk-row__name { font-family: var(--pk-serif); font-size: 17px; font-weight: 700; line-height: 1.25; white-space: nowrap; }
+.lt-pk-row__price { align-self: flex-start; font-size: 14px; font-weight: 700; line-height: 1.3; color: var(--pk-ink2); padding-right: 20px; position: relative; white-space: nowrap; }
 .lt-pk-row__price::after {
-  content: ""; position: absolute; right: 2px; top: 50%; width: 9px; height: 9px; margin-top: -7px; border-right: 2px solid var(--pk-ink2);
+  content: ""; position: absolute; right: 2px; top: 50%; width: 7px; height: 7px; margin-top: -6px; border-right: 2px solid var(--pk-ink2);
   border-bottom: 2px solid var(--pk-ink2); transform: rotate(45deg); transition: transform 0.15s ease;
 }
-.lt-pk-row__d[open] > .lt-pk-row__sum .lt-pk-row__price::after { transform: rotate(-135deg); margin-top: -3px; }
-.lt-pk-row__line { grid-column: 1 / -1; font-size: 14px; line-height: 1.4; color: var(--pk-ink2); }
-.lt-pk-row__body { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px 4px; border-top: 1px solid var(--pk-line); }
-.lt-pk-row__excl { margin: 0; font-size: 13.5px; line-height: 1.4; color: #4a566b; }
-.lt-pk-row__body .lt-ptb__see, .lt-pk-row__body .lt-psl { align-self: center; color: var(--pk-gt); }
+.lt-pk-row__d[open] > .lt-pk-row__sum .lt-pk-row__price::after { transform: rotate(-135deg); margin-top: -2px; }
+.lt-pk-row__buy { position: absolute; top: 10px; right: 12px; width: 128px; height: 44px; }
+.lt-pk .lt-pk-cbuy {
+  display: flex; align-items: center; justify-content: center; gap: 4px; box-sizing: border-box; width: 100%; height: 44px; padding: 0 8px; border: 0;
+  border-radius: 12px; background: #3fbf82; color: #0f1b2d; font: inherit; font-size: 14.5px; font-weight: 800; line-height: 1.1; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lt-pk .lt-pk-cbuy:disabled { background: #d3dbe5; color: #3c4b60; cursor: not-allowed; }
+.lt-pk .lt-pk-cbuy:focus-visible { outline: 3px solid #136b43; outline-offset: 2px; }
+.lt-pk .lt-pk-cbuy--owned { background: transparent; border: 1.5px solid #9fb0c8; color: #2f3e55; border-radius: 999px; cursor: default; }
+.lt-pk-row__body { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px 12px; border-top: 1px solid var(--pk-line); }
+.lt-pk-row__line { margin: 0; font-size: 14px; line-height: 1.4; color: var(--pk-ink2); }
+.lt-pk-row__excl, .lt-pk-row__gst { margin: 0; font-size: 13.5px; line-height: 1.4; color: #4a566b; }
+.lt-pk-row__gst { font-weight: 600; }
+.lt-pk-row__links { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; }
+.lt-pk-row__body .lt-ptb__see, .lt-pk-row__body .lt-psl { color: var(--pk-gt); }
 .lt-pk-row__body .lt-pt__preboard { margin: 0; }
-.lt-pk-row > .lt-pk-buy { padding: 4px 14px 14px; margin-top: auto; }
 @media (prefers-reduced-motion: reduce) { .lt-pk-row__price::after { transition: none; } }
 
-/* The CBQ link card (amber) and the Board Pass link. */
-.lt-pk__links { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding-top: 18px; }
-.lt-pk .lt-pk-cbq {
-  display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 14px; background: #fff7e6; border: 1.5px solid #f3d48a;
-  color: #4a3200; text-decoration: none; min-height: 44px;
+/* v1.2 L3: the CBQ link (amber) and the Board Pass link, each ONE line. */
+.lt-pk__links { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding-top: 14px; }
+.lt-pk .lt-pk-lrow {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #fff; border: 1px solid var(--pk-line2);
+  color: var(--pk-ink); font-weight: 700; font-size: 15px; line-height: 1.3; text-decoration: none;
 }
-.lt-pk-cbq__kicker { font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; color: #7a4e00; }
-.lt-pk-cbq__main { font-family: var(--pk-serif); font-size: 18px; font-weight: 700; line-height: 1.3; color: #3b2600; }
-.lt-pk-cbq__sub { font-size: 14px; line-height: 1.4; color: #5c4510; }
-.lt-pk .lt-pk-bp {
-  display: flex; align-items: center; min-height: 52px; padding: 12px 16px; border-radius: 14px; background: #fff; border: 1px solid var(--pk-line2);
-  color: var(--pk-ink); font-weight: 700; font-size: 15px; line-height: 1.4; text-decoration: none;
-}
-.lt-pk .lt-pk-cbq:focus-visible, .lt-pk .lt-pk-bp:focus-visible { outline: 3px solid var(--pk-gt); outline-offset: 2px; }
+.lt-pk .lt-pk-lrow--cbq { background: #fff7e6; border: 1.5px solid #f3d48a; color: #3b2600; }
+.lt-pk-lrow__k { flex: 0 0 auto; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; color: #7a4e00; background: #fde7b0; border-radius: 999px; padding: 2px 8px; }
+.lt-pk-lrow__t { flex: 1 1 auto; min-width: 0; }
+.lt-pk-lrow__a { flex: 0 0 auto; }
+.lt-pk .lt-pk-lrow:focus-visible { outline: 3px solid var(--pk-gt); outline-offset: 2px; }
 
 @media (min-width: 640px) {
   .lt-pk-hero { padding: 20px 0 24px; }
@@ -118,6 +162,9 @@
 }
 @media (min-width: 768px) {
   .lt-pk-rows { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+  /* Three cards in a row: the compact Buy goes under the summary (a card is too narrow to share its line). */
+  .lt-pk-row__sum { padding-right: 14px; }
+  .lt-pk-row__buy { position: static; width: auto; margin: 0 14px 14px; }
   .lt-pk__links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
