@@ -22,6 +22,8 @@ const mockSub = vi.hoisted(() => ({
 }));
 const checkout = vi.hoisted(() => ({ enabled: true, buyPass: vi.fn() }));
 const track = vi.hoisted(() => ({ paywall: vi.fn(), named: vi.fn(), begin: vi.fn() }));
+const who = vi.hoisted(() => ({ on: false }));
+const credit = vi.hoisted(() => ({ value: null as null | { creditInr: number; payInr: number; expiresAtMs: number } }));
 
 vi.mock("../context/AuthContext", () => ({ useAuth: () => mockAuth }));
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => mockSub }));
@@ -30,7 +32,7 @@ vi.mock("../components/pricing/useMonthPassAvailable", () => ({ useMonthPassAvai
 vi.mock("../services/subscriptionService", async (orig) => ({ ...(await orig<typeof import("../services/subscriptionService")>()), hydrateSubscriptionFromCloud: vi.fn(async () => ({})) }));
 vi.mock("../services/packs", async (orig) => ({
   ...(await orig<typeof import("../services/packs")>()),
-  fetchMyPacks: vi.fn(async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null })),
+  fetchMyPacks: vi.fn(async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: credit.value })),
 }));
 vi.mock("../services/checkout", async (orig) => ({
   ...(await orig<typeof import("../services/checkout")>()),
@@ -38,7 +40,7 @@ vi.mock("../services/checkout", async (orig) => ({
   buyPass: (...a: unknown[]) => checkout.buyPass(...a),
   authHeaders: async () => ({ Authorization: "Bearer t" }),
 }));
-vi.mock("../services/checkoutWhoFlag", async (orig) => ({ ...(await orig<typeof import("../services/checkoutWhoFlag")>()), isCheckoutWhoClientEnabled: () => false }));
+vi.mock("../services/checkoutWhoFlag", async (orig) => ({ ...(await orig<typeof import("../services/checkoutWhoFlag")>()), isCheckoutWhoClientEnabled: () => who.on }));
 vi.mock("../services/guestPay", async (orig) => ({ ...(await orig<typeof import("../services/guestPay")>()), isGuestPayClientEnabled: () => false }));
 vi.mock("../analytics/analytics", async (orig) => ({
   ...(await orig<typeof import("../analytics/analytics")>()),
@@ -48,6 +50,7 @@ vi.mock("../analytics/analytics", async (orig) => ({
 }));
 
 import BoardPassPage from "./BoardPassPage";
+import { currentSalesPageSurface } from "../analytics/analytics";
 import { tillBoardsButtonLabel } from "../components/pricing/PassCheckout";
 import { PRICING_MANUAL_PAYMENTS_OFF } from "./PricingPage";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM } from "../lib/packs/packLabels";
@@ -88,6 +91,8 @@ beforeEach(() => {
   track.named.mockReset();
   track.begin.mockReset();
   where = "";
+  who.on = false;
+  credit.value = null;
 });
 afterEach(() => cleanup());
 
@@ -117,13 +122,14 @@ describe("PRICING-PAGES-1 /board-pass - signed out (what the prerender captures)
     expect(screen.getByTestId("bp-payline").textContent).toBe("One payment · nothing renews · UPI, card or netbanking");
   });
 
-  it("a hero Pay tap sends /pricing's pay event and starts the same checkout path (signed out -> sign-in, as /pricing)", async () => {
+  it("a hero Pay tap sends the pay event named for THIS page (F4: surface board-pass) and starts the same checkout path (signed out -> sign-in, as /pricing)", async () => {
     await mount();
     const hero = screen.getByTestId("bp-pay-hero").querySelector<HTMLButtonElement>(".lt-pricing-pay--boards")!;
     await act(async () => {
       fireEvent.click(hero);
     });
-    expect(track.paywall).toHaveBeenCalledWith("pay", "pricing");
+    expect(track.paywall).toHaveBeenCalledWith("pay", "board-pass");
+    expect(track.paywall).not.toHaveBeenCalledWith("pay", "pricing");
     expect(track.begin).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(where.startsWith("/login")).toBe(true));
   });
@@ -158,6 +164,13 @@ describe("PRICING-PAGES-1 /board-pass - signed out (what the prerender captures)
       fireEvent.click(screen.getByTestId("bp-trial"));
     });
     expect(where).toBe("/login?reason=start-trial&redirect=%2Fboard-pass");
+  });
+
+  it("F4: the page names itself for the checkout events while mounted, and clears it on leave", async () => {
+    await mount();
+    expect(currentSalesPageSurface()).toBe("board-pass");
+    cleanup();
+    expect(currentSalesPageSurface()).toBeNull();
   });
 
   it("no banned word in the page's own text: AI, answer key, optional, ask (the parent route), refund promise, strike-through", async () => {
@@ -210,6 +223,26 @@ describe("PRICING-PAGES-1 /board-pass - account states", () => {
     await mount("/board-pass?buy=board_pass");
     await act(async () => undefined);
     expect(checkout.buyPass).not.toHaveBeenCalled();
+  });
+
+  it("R1: with a pack credit, the second Pay names the SAME credited total as the hero Pay (the checkout's), and the uncredited GST line is not shown", async () => {
+    who.on = true;
+    mockAuth.user = { uid: "u1", email: "a@b.in" };
+    credit.value = { creditInr: 49, payInr: 2213, expiresAtMs: Date.now() + 3 * DAY };
+    await mount();
+    await waitFor(() => expect(screen.getByTestId("bp-pay-hero").querySelector(".lt-pricing-pay--boards")?.textContent).toContain("₹2,213"));
+    const hero = screen.getByTestId("bp-pay-hero").querySelector(".lt-pricing-pay--boards")!.textContent;
+    await waitFor(() => expect(screen.getByTestId("bp-pay-second-btn").textContent).toBe(hero));
+    expect(screen.getByTestId("bp-gst-slot").textContent).toBe("");
+  });
+
+  it("R1 control: no credit -> both Pays name the same uncredited total and the GST line adds up to it", async () => {
+    who.on = true;
+    mockAuth.user = { uid: "u1", email: "a@b.in" };
+    await mount();
+    const hero = screen.getByTestId("bp-pay-hero").querySelector(".lt-pricing-pay--boards")!.textContent;
+    expect(screen.getByTestId("bp-pay-second-btn").textContent).toBe(hero);
+    expect(screen.getByTestId("bp-gst-slot").textContent).toMatch(/= ₹2,262$/);
   });
 
   it("payments dark: /pricing's manual line (word for word), no Pay button", async () => {

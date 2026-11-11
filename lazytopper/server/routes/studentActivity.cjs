@@ -317,6 +317,9 @@ const ACTIVITY_STATIC_PAGES = Object.freeze([
   'intent',
   'pricing',
   'packs',
+  // PRICING-PAGES-2 F4: the two dedicated sales pages (client src/services/activityPages.ts, drift-tested).
+  'board-pass',
+  'cbq-packs',
   'cbse/class-10',
   'teacher',
   'onboarding',

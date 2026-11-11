@@ -19,7 +19,7 @@ export default function SalesStickyBar({
 }: {
   watch: readonly string[];
   footerSelector?: string;
-  /** Read after mount (the price follows the clock). null hides the bar. */
+  /** Read after mount and on every visibility check (the price follows the clock and the hero Pay). null hides the bar. */
   copy: () => { label: string; button: string } | null;
   onGo: () => void;
   ariaLabel: string;
@@ -39,6 +39,9 @@ export default function SalesStickyBar({
     let frame = 0;
     const check = () => {
       frame = 0;
+      // The copy is re-read too (R1: the Pay amount follows the hero Pay, which names a pack credit once it has loaded).
+      const next = copy();
+      setText((was) => (was && next && was.label === next.label && was.button === next.button ? was : next));
       const anyPay = watch.some((id) => onScreen(document.querySelector(`[data-testid="${id}"]`)));
       setHidden(anyPay || onScreen(document.querySelector(footerSelector)));
     };

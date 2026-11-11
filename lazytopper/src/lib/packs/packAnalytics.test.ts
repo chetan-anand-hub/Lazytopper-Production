@@ -6,7 +6,7 @@ vi.mock("../../services/activityClient", () => ({ recordActivity }));
 const { hint, seen } = vi.hoisted(() => ({ hint: vi.fn<() => boolean | undefined>(() => undefined), seen: vi.fn() }));
 vi.mock("./packSampleSeen", () => ({ signedInHint: hint, reportPackSampleSeen: seen }));
 
-import { __resetPurchaseMemoryForTests } from "../../analytics/analytics";
+import { __resetPurchaseMemoryForTests, setSalesPageSurface, trackBeginCheckoutTap, trackPurchase } from "../../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase, trackPackSampleDownload } from "./packAnalytics";
 
 type Win = { gtag?: unknown; va?: unknown; fbq?: unknown };
@@ -49,6 +49,65 @@ afterEach(() => {
 
 const names = () => recordActivity.mock.calls.map((c) => (c[1] as { name?: string }).name);
 const ga4Names = () => gtagCalls.filter((c) => c[0] === "event").map((c) => c[1]);
+
+
+/**
+ * PRICING-PAGES-2 F4 - the sales-page surface. OFF a sales page (the context is null: /pricing, /packs, every other page) every
+ * payload is EXACTLY what it was (compared as whole objects, before vs after setting and clearing the context). ON /board-pass or
+ * /cbq-packs the same events carry `surface` (GA4, Vercel, first-party data; Meta custom param on the purchase events). No event
+ * is renamed.
+ */
+describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
+  const ga4 = () => gtagCalls.filter((c) => c[0] === "event").map((c) => [c[1], c[2]]);
+  const meta = () => metaCalls.map((c) => [c[1], c[2]]);
+  const firstParty = () => recordActivity.mock.calls.map((c) => c[1]);
+  function run(): unknown {
+    gtagCalls = [];
+    metaCalls = [];
+    vendorCalls = [];
+    recordActivity.mockClear();
+    __resetPurchaseMemoryForTests();
+    window.sessionStorage.clear();
+    const d = { passType: "till_boards" as const, itemName: "Board Pass", valueInr: 2262 };
+    trackBeginCheckoutTap(d, false);
+    trackPurchase({ ...d, transactionId: "pay_1" });
+    trackPackEvent("pack_view", undefined, "packs");
+    trackPackCheckout({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199 }, { signedIn: false });
+    trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "pay_2" });
+    return { ga4: ga4(), meta: meta(), vendor: vendorCalls.map((c) => c.slice()), firstParty: firstParty() };
+  }
+  afterEach(() => setSalesPageSurface(null));
+
+  it("off a sales page: byte-for-byte the same payloads, and no `surface` added to any money event", () => {
+    setSalesPageSurface(null);
+    const before = run();
+    setSalesPageSurface("board-pass");
+    setSalesPageSurface(null);
+    expect(run()).toEqual(before);
+    expect(JSON.stringify(before)).not.toContain("board-pass");
+    expect(JSON.stringify(before)).not.toContain("cbq-packs");
+  });
+
+  it("on /board-pass: begin_checkout and purchase carry surface board-pass (GA4 + Meta custom param); names unchanged", () => {
+    setSalesPageSurface("board-pass");
+    run();
+    const g = ga4();
+    expect(g.map((x) => x[0])).toEqual(expect.arrayContaining(["begin_checkout", "purchase"]));
+    expect((g.find((x) => x[0] === "purchase")![1] as Record<string, unknown>).surface).toBe("board-pass");
+    expect((g.find((x) => x[0] === "begin_checkout")![1] as Record<string, unknown>).surface).toBe("board-pass");
+    expect((meta().find((x) => x[0] === "Purchase")![1] as Record<string, unknown>).surface).toBe("board-pass");
+  });
+
+  it("on /cbq-packs: pack_view surface is cbq-packs (not packs); pack_checkout and pack_purchase carry it", () => {
+    setSalesPageSurface("cbq-packs");
+    run();
+    const g = ga4();
+    expect((g.find((x) => x[0] === "pack_view")![1] as Record<string, unknown>).surface).toBe("cbq-packs");
+    expect((g.find((x) => x[0] === "pack_checkout")![1] as Record<string, unknown>).surface).toBe("cbq-packs");
+    expect((g.find((x) => x[0] === "pack_purchase")![1] as Record<string, unknown>).surface).toBe("cbq-packs");
+    expect(meta().some((x) => (x[1] as Record<string, unknown> | undefined)?.surface === "cbq-packs")).toBe(true);
+  });
+});
 
 describe("pack analytics", () => {
   it("pack_view / pack_download go to the first-party log by name", () => {

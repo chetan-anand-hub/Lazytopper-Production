@@ -85,6 +85,9 @@ export const ACTIVITY_STATIC_PAGES = [
   "intent",
   "pricing",
   "packs",
+  // PRICING-PAGES-2 F4: the two dedicated sales pages (the server list carries the same two, drift-tested).
+  "board-pass",
+  "cbq-packs",
   "cbse/class-10",
   "teacher",
   "onboarding",
@@ -177,6 +180,8 @@ export function pageNameOf(routerPath: string): string | null {
     case "intent":
     case "pricing":
     case "packs":
+    case "board-pass":
+    case "cbq-packs":
     case "teacher":
     case "onboarding":
     case "exam-simulation":

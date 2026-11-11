@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { setSalesPageSurface } from "../analytics/analytics";
+import { preloadBuyChunks } from "../components/packs/PacksShop";
 import { Link, useLocation } from "react-router-dom";
 import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
 import { PackCbqBuy, sampleBuyFor } from "../components/packs/PackTileBuy";
@@ -27,7 +29,7 @@ import {
   QUESTION_BANK_PAGE_PATH,
   questionBankFromPrice,
 } from "../components/salesPages/salesPagesCopy";
-import { PACK_PRICE_INR, chaptersOfSubject, packPriceLabel, subjectLabel, type PackSubject } from "../services/packs";
+import { PACK_PRICE_INR, chaptersOfSubject, isPacksClientEnabled, packPriceLabel, subjectLabel, type PackSubject } from "../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM, REDOWNLOAD_UNTIL } from "../lib/packs/packLabels";
 import "../components/salesPages/salesPages.css";
 import "./cbqPacksPage.css";
@@ -38,6 +40,18 @@ import "./cbqPacksPage.css";
  * sign-in returning HERE (`returnPath`). My packs stays on /packs (the "It's for me" landing is /packs?from=pay#my-packs, as today).
  */
 export default function CbqPacksPage() {
+  // F4: name this page on pack_view / pack_checkout / pack_purchase. Set in the FIRST render, before PacksShop's mount effect sends
+  // pack_view; cleared on leave.
+  useState(() => {
+    setSalesPageSurface("cbq-packs");
+    return null;
+  });
+  useEffect(() => {
+    setSalesPageSurface("cbq-packs");
+    // F1: the Buy opens the pack pop-up and the checkout sheet, both lazy chunks: fetch them now (same specifiers, same chunks).
+    if (isPacksClientEnabled()) preloadBuyChunks();
+    return () => setSalesPageSurface(null);
+  }, []);
   const { search } = useLocation();
   // `?subject=maths|science` (and the one-tap `?buy=pack_cbq&t=science`) picks the switch in the FIRST render; default Maths.
   const [subject, setSubject] = useState<PackSubject>(() => subjectFromSearch(search) ?? "maths");
@@ -131,13 +145,6 @@ function CbqCatalogue({ api, subject, onSubject }: { api: PacksShopApi; subject:
 function CbqBuyCard({ api, subject, onSubject }: { api: PacksShopApi; subject: PackSubject; onSubject: (s: PackSubject) => void }) {
   const [tapped, setTapped] = useState<PackSubject | null>(null);
   const next = tapped === subject ? sampleBuyFor(api, "pack_cbq")(subject) : null;
-  // ★ ONE MARKUP IN EVERY BUILD. The prerender is captured from a build with packs dark, where PackCbqBuy would draw a different
-  // button ("Maths CBQ Pack · ₹199 + GST") than production's Buy. A cold tap on the static page is held by the island and replayed on
-  // the app's matching button, which then would not exist (the tap was lost; /packs has the same gap). So the card always draws the
-  // Buy button; while packs are dark (local / capture builds only) that Buy opens the pack's pop-up, exactly what the dark button did.
-  const buyApi: PacksShopApi = api.buyEnabled
-    ? api
-    : { ...api, buyEnabled: true, buyNow: (_sku, target) => api.openCbq((target as PackSubject) ?? subject), ownsPack: () => false, blockedBy: () => false };
   return (
     <section className="lt-cbq lt-cbq--switch lt-cq-card" id="cbq" aria-labelledby="cq-card-h" data-testid="cbq-band" data-price={PACK_PRICE_INR.pack_cbq}>
       <div className="lt-cbq__card" data-testid={`cbq-card-${subject}`}>
@@ -146,7 +153,11 @@ function CbqBuyCard({ api, subject, onSubject }: { api: PacksShopApi; subject: P
           <h2 className="lt-cbq__name" id="cq-card-h">{subjectLabel(subject)} CBQ Pack</h2>
           <p className="lt-cbq__price lt-cq-card__price">{packPriceLabel("pack_cbq")}</p>
         </div>
-        <PackCbqBuy subject={subject} api={buyApi} testPrefix="cq-card" />
+        {/* R4: the shop's own button (packs off: /packs' neutral "Maths CBQ Pack · ₹199 + GST"; on: Buy). F1: `data-lt-twin` lets
+            the island replay a tap made on the static copy onto the app's button here even though their labels differ. */}
+        <div className="lt-cq-card__buy" data-lt-twin={`cq-buy-${subject}`}>
+          <PackCbqBuy subject={subject} api={api} testPrefix="cq-card" />
+        </div>
         <p className="lt-cbq__count">{CBQ_SUBJECT_CLAIM} · {chaptersOfSubject(subject).length} chapters, {CBQ_CHAPTER_CLAIM} · 1- to 5-mark questions · step-wise worked solutions</p>
         <div className="lt-cbq__sample">
           <PackSampleLink sku="pack_cbq" target={subject} surface="packs_cbq" tone="on-dark" onTapped={() => setTapped(subject)} />
