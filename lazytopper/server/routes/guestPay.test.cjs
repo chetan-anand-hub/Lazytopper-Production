@@ -1942,7 +1942,7 @@ test('SELF · webhook only (verify never arrives): the contact is read from Razo
   const { srv, auth } = await autoRoutes({ env: SELF_ENV });
   t.after(srv.close);
   const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
-  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948', email: 'anaya.k@gmail.com' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
   const w = await sendWebhook(srv, p);
   assert.equal(w.status, 200, w.text);
   await srv.idle();
@@ -2005,4 +2005,35 @@ test('SELF · the old recipient order and phone order are untouched with the sel
   const r = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
   assert.equal(srv.db.read(`payOrders/${r.orderId}`).selfPay, undefined);
   assert.equal(r.verify.selfContact, undefined);
+});
+
+test('SELF · phone AND email on the payment: both are claim keys, no account is made at payment, ONE grant whichever sign-in comes first', async (t) => {
+  for (const order of ['phone-first', 'google-first']) {
+    const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+    t.after(srv.close);
+    const { orderId, verify } = await paidSelfOrder(srv, { contact: '+919876543948', email: 'anaya.k@gmail.com' });
+    assert.deepEqual(verify.json.selfContact, { phone: PHONE, email: EMAIL, first: 'phone' });
+    await srv.idle();
+    const stored = srv.db.read(`payOrders/${orderId}`);
+    assert.equal(stored.status, 'paid_unclaimed');
+    assert.equal(stored.guestPhone, PHONE);
+    assert.equal(stored.guestEmail, EMAIL);
+    assert.deepEqual(auth.created, [], 'no account made at payment');
+    const phoneSide = () => claim(srv, whoAuth('uPhone', { phone: PHONE }));
+    const googleSide = () => claim(srv, whoAuth('uGoogle', { email: EMAIL, ev: true }));
+    const [first, second] = order === 'phone-first' ? [phoneSide, googleSide] : [googleSide, phoneSide];
+    assert.equal((await first()).json.claimed.length, 1, order);
+    assert.deepEqual((await second()).json.claimed, [], `${order}: the other sign-in claims nothing`);
+    assert.equal(srv.db.keys('packEntitlements/').filter((k) => k.includes('/packs/pack_cbq:maths')).length, 1, 'exactly one grant');
+  }
+});
+
+test('SELF · precedence unchanged: phone only and email only still get their one account at payment', async (t) => {
+  for (const [pay, carried] of [[{ contact: '+919876543948' }, { phoneNumber: PHONE }], [{ email: 'anaya.k@gmail.com' }, { email: EMAIL }]]) {
+    const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+    t.after(srv.close);
+    const { orderId } = await paidSelfOrder(srv, pay);
+    await srv.idle();
+    assert.deepEqual(auth.created, [{ uid: autoAccountUid(orderId), emailVerified: false, ...carried }]);
+  }
 });

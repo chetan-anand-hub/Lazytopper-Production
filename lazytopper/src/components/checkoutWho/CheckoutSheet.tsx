@@ -229,7 +229,7 @@ export default function CheckoutSheet({
     const selfError = step.name === "selfOut" ? step.error : undefined;
     body = (
       <>
-        <p className="lt-gps__line" data-testid="who-self-help">{SELF_HELP}</p>
+        <p className="lt-gps__fine" data-testid="who-self-help">{SELF_HELP}</p>
         {selfError && <p className="lt-gps__error" role="alert">{selfError}</p>}
         {step.name === "selfOut" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
         <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>

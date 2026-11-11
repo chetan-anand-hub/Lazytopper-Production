@@ -51,7 +51,7 @@ export const WHO_HAVE_ACCOUNT = "Have an account? Sign in first";
 
 /* ── CHECKOUT-SELF-2 (owner 11 Nov 2026): signed out, "Buy for yourself" comes first ─────────────────────────── */
 export const SELF_TITLE = "Buy for yourself";
-export const SELF_HELP = "Pay first. Then sign in with Google or your mobile number to open it.";
+export const SELF_HELP = "Pay first. Then sign in with the same mobile number or email you give at payment to open it.";
 /** Razorpay itself asks for the mobile number (and email); LazyTopper reads them from the verified payment, never from this page. */
 export const SELF_PAID_NO_CONTACT =
   "We couldn't read a mobile number or email from your payment, so we can't open it for you automatically. Your payment is safe: message us on WhatsApp and we will attach it to your account.";

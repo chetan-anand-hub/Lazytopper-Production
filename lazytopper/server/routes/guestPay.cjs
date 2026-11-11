@@ -1004,7 +1004,11 @@ function createGuestPayRoutes(deps = {}) {
       // MED 2: the account found may be THIS order's own (a concurrent run made it a moment ago) - still "created at
       // payment", through the same path (its labels, its sign-in email, its first sign-in).
       if (!target.uid || (auto && target.uid === autoAccountUid(orderId))) {
-        if (auto) await deliverToNewAccount(orderId, order);
+        // CHECKOUT-SELF-2: a "Buy for me" payment naming BOTH a mobile and an email makes NO account at payment (a new account may
+        // carry only one identifier). The order waits `paid_unclaimed` with BOTH claim keys, so whichever the buyer signs in with
+        // (phone OTP, or Google / email verified) takes it through the ordinary claim: one account, one grant.
+        const selfBoth = order.selfPay === true && !!order.guestPhone && !!order.guestEmail;
+        if (auto && !selfBoth) await deliverToNewAccount(orderId, order);
         return;
       }
       // PAY-ACCOUNT-1 addendum A: one identifier on an account, the other on none -> the existing account gets it and the
