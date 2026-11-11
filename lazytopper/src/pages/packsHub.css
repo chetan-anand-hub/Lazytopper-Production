@@ -49,6 +49,7 @@
 .lt-pk-part__switch { max-width: 360px; margin-bottom: 12px; }
 /* The switch's selected look also follows the native radio (a tap on the static page, before the app arrives, shows at once). */
 .lt-pk .lt-ss__opt:has(.lt-ss__in:checked) { background: #15233a; color: #fff; }
+.lt-pk .lt-ss__opt:not(:has(.lt-ss__in:checked)) { background: transparent; color: #2f3e55; }
 .lt-pk .lt-ss__opt:not(:has(.lt-ss__in:checked)) .lt-ss__tick { display: none; }
 .lt-pk-rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .lt-pk-row { background: #fff; border: 1px solid var(--pk-line); border-radius: 14px; display: flex; flex-direction: column; min-width: 0; }
