@@ -50,8 +50,11 @@ vi.mock("../../services/checkout", async (orig) => ({
 }));
 
 const owned = vi.hoisted(() => ({ packs: [] as Array<{ sku: string; target: string }> }));
-const buyPack = vi.hoisted(() => vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" }> => ({ status: "dismissed" })));
+const buyPack = vi.hoisted(() =>
+  vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" | "pending"; orderId?: string }> => ({ status: "dismissed" })),
+);
 const packsOn = vi.hoisted(() => ({ on: true }));
+const checkOrder = vi.hoisted(() => vi.fn(async (..._a: unknown[]): Promise<{ state: string }> => ({ state: "pending" })));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
   return {
@@ -63,6 +66,7 @@ vi.mock("../../services/packs", async (orig) => {
       boardPassCredit: null,
     })),
     buyPack,
+    checkPackOrder: (...a: unknown[]) => checkOrder(...a),
   };
 });
 const tracked = vi.hoisted(() => ({ checkout: vi.fn(), event: vi.fn() }));
@@ -77,9 +81,10 @@ vi.mock("../../analytics/analytics", async (orig) => {
 });
 vi.mock("../../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
 vi.mock("../PackDialog", () => ({
-  default: (p: { sku: string; subject: string; chapter: string; buy: unknown }) => (
+  default: (p: { sku: string; subject: string; chapter: string; buy: unknown; onClose: () => void }) => (
     <div role="dialog" data-testid="pack-dialog" data-sku={p.sku} data-subject={p.subject} data-chapter={p.chapter}>
       {p.buy as never}
+      <button type="button" data-testid="pack-dialog-close" onClick={p.onClose}>Close</button>
     </div>
   ),
 }));
@@ -678,8 +683,24 @@ describe("PRICING-HUB-2 H2 - Back restores the card the visitor left", () => {
   });
 });
 
-describe("PRICING-HUB-2 H3 - a pack paid for on the hub gets the legacy page's inline My packs block", () => {
-  it("before: no My packs block; after a signed-in Buy is paid: the shop's own My packs block (with its downloads) shows", async () => {
+describe("PRICING-HUB-2 H3 - a VERIFIED pack payment on the hub gets the legacy page's inline My packs block", () => {
+  async function buyScience() {
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("hub-buy-pack_cbq-science"));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science", expect.anything());
+  }
+  /** The student closes the pack pop-up if it is still open (after a verified payment the shop may already have closed it). */
+  async function closePopUp() {
+    await act(async () => {
+      const close = screen.queryByTestId("pack-dialog-close");
+      if (close) fireEvent.click(close);
+      await new Promise((r) => setTimeout(r, 0));
+    });
+  }
+
+  it("paid (server-verified): after the pop-up closes, the shop's own My packs block shows and comes into view", async () => {
     auth.user = { uid: "u1" };
     setSub({});
     buyPack.mockImplementationOnce(async () => {
@@ -688,13 +709,67 @@ describe("PRICING-HUB-2 H3 - a pack paid for on the hub gets the legacy page's i
     });
     await renderAt("/pricing");
     expect(screen.queryByTestId("packs-mine")).toBeNull();
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("hub-buy-pack_cbq-science"));
-      await new Promise((r) => setTimeout(r, 0));
-    });
-    expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science", expect.anything());
+    await buyScience();
+    await closePopUp();
     expect(await screen.findByTestId("packs-mine")).toBeInTheDocument();
+    expect(screen.queryByTestId("packs-open-my-packs")).toBeNull();
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
+  });
+
+  it("checking -> still confirming: NO My packs block, and the shop's own 'Open My packs' link stays (review F1)", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"], now: new Date("2026-11-11T12:00:00+05:30") });
+    try {
+      auth.user = { uid: "u1" };
+      setSub({});
+      buyPack.mockImplementationOnce(async () => ({ status: "pending" as const, orderId: "order_p" }));
+      checkOrder.mockImplementation(async () => ({ state: "pending" }));
+      await renderAt("/pricing");
+      await buyScience();
+      await closePopUp();
+      expect(screen.getByTestId("packs-status").textContent).toMatch(/Checking your payment/);
+      expect(screen.getByTestId("packs-open-my-packs")).toHaveAttribute("href", "/packs#my-packs");
+      expect(screen.queryByTestId("packs-mine")).toBeNull();
+      // Every poll answers "pending": the shop ends on "still confirming". Still no block; the link is still there.
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+      expect(screen.getByTestId("packs-status").textContent).not.toMatch(/Payment received/);
+      expect(screen.getByTestId("packs-open-my-packs")).toBeInTheDocument();
+      expect(screen.queryByTestId("packs-mine")).toBeNull();
+    } finally {
+      checkOrder.mockReset();
+      vi.useRealTimers();
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-11-11T12:00:00+05:30"));
+    }
+  });
+
+  it("checking -> expired: no block ever shows (review F2: only verified ownership opens it)", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"], now: new Date("2026-11-11T12:00:00+05:30") });
+    try {
+      auth.user = { uid: "u1" };
+      setSub({});
+      owned.packs = [{ sku: "pack_bundle", target: "all" }];
+      buyPack.mockImplementationOnce(async () => ({ status: "pending" as const, orderId: "order_e" }));
+      checkOrder.mockImplementation(async () => ({ state: "expired" }));
+      checkOrder.mockImplementationOnce(async () => ({ state: "pending" })); // the first check is still pending
+      await renderAt("/pricing");
+      await buyScience();
+      await closePopUp();
+      // CONTROL: the payment really is being checked (the status line the hub watches is there) - and that alone opens nothing.
+      expect(screen.getByTestId("packs-status").textContent).toMatch(/Checking your payment/);
+      expect(screen.queryByTestId("packs-mine")).toBeNull();
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+      expect(screen.queryByTestId("packs-mine")).toBeNull();
+      expect(screen.queryByText(/Payment received/)).toBeNull();
+    } finally {
+      checkOrder.mockReset();
+      vi.useRealTimers();
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-11-11T12:00:00+05:30"));
+    }
   });
 
   it("an owner who did not buy on this visit still sees the quiet card state, not the block", async () => {

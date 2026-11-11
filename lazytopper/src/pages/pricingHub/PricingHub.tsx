@@ -14,12 +14,12 @@ import { isParentPayClientEnabled } from "../../services/parentPay";
 import { COMPARE_BASIC_HEADER, COMPARE_FEATURE_HEADER, FAIR_USE_TITLE, compareSections, fairUseCopy, type CompareCell } from "../../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { isGuestPayClientEnabled } from "../../services/guestPay";
-import { subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { PACK_PAID_COPY, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
 import { useMonthPassAvailable } from "../../components/pricing/useMonthPassAvailable";
 import PricingProof from "../../components/marketing/PricingProof";
-import PacksShop, { OTHER_PAYMENT_BUSY_COPY, readBuyResume, type PacksShopApi } from "../../components/packs/PacksShop";
+import PacksShop, { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "../../components/packs/PacksShop";
 import { WhatYouGet, useHashLanding } from "../../components/pricing/PricingPacks";
 import { PRICING_CSS } from "../../components/pricing/pricingPageCss";
 import SalesStickyBar from "../../components/salesPages/SalesStickyBar";
@@ -279,29 +279,6 @@ function PassTabPrice() {
 }
 
 /** One pack Buy, exactly the legacy card's rules: owned -> the pill; packs dark -> the pop-up; else the shop's one-tap buy. */
-/**
- * PRICING-HUB-2 H3 - reports once that a pack the visitor sent to checkout FROM THIS PAGE (a card Buy, the phone bar, or a `?buy=`
- * resume) is now owned: the shop counts a just-paid or still-confirming pack as owned (PacksShop `ownsPack` / `settling`).
- */
-function BoughtWatcher({ api, sent, onBought }: { api: PacksShopApi; sent: { current: Array<{ sku: PackSku; target?: string }> }; onBought: () => void }) {
-  const owned = api.buyEnabled && sent.current.some((k) => api.ownsPack(k.sku, k.target));
-  useEffect(() => {
-    if (owned) onBought();
-  }, [owned, onBought]);
-  return null;
-}
-
-/** The shop's api with every one-tap Buy recorded (H3), so the page knows which pack this visit sent to checkout. Same calls. */
-function recordingApi(api: PacksShopApi, sent: { current: Array<{ sku: PackSku; target?: string }> }): PacksShopApi {
-  return {
-    ...api,
-    buyNow: (sku, target, opts) => {
-      if (!(api.buyEnabled && api.ownsPack(sku, target))) sent.current.push({ sku, target });
-      api.buyNow(sku, target, opts);
-    },
-  };
-}
-
 function HubPackBuy({ api, sku, target, label, ariaLabel, testId, ownedLabel }: {
   api: PacksShopApi;
   sku: PackSku;
@@ -422,24 +399,22 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
       /* history unavailable: nothing to remember */
     }
   }, [index]);
-  // H3 - after a pack is paid for from this page, the legacy page's inline My packs block (the shop's own, with its downloads) shows
-  // and comes into view, as on the legacy page. Before that the shop keeps it hidden (each card says "You own this" + "Open My packs").
+  // H3 (+ review F1/F2) - once a pack payment made on this page is VERIFIED (the shop's own status line reads PACK_PAID_COPY, which
+  // it shows only for a server-verified payment), the legacy page's inline My packs block (the shop's own, with its downloads) shows
+  // and comes into view, as on the legacy page. While a payment is checking / confirming, or after it expired, nothing changes: the
+  // shop keeps its own "Open My packs ->" status link (hideMyPacks) and each card's quiet owned state.
   const [boughtHere, setBoughtHere] = useState(false);
-  const sentToCheckout = useRef<Array<{ sku: PackSku; target?: string }>>([]);
-  const [resumeBuy] = useState(() => readBuyResume(location.search));
-  if (resumeBuy && sentToCheckout.current.length === 0) sentToCheckout.current.push({ sku: resumeBuy.sku, target: resumeBuy.target });
-  const markBought = useCallback(() => setBoughtHere(true), []);
   useEffect(() => {
-    // A Buy inside a pack pop-up (e.g. from a `?chapter=` link): the shop's own paid / checking status line appears in its wrapper.
     if (boughtHere || typeof MutationObserver === "undefined") return undefined;
     const wrap = document.querySelector('[data-testid="pricing-hub"] .lt-packs--embedded');
     if (!wrap) return undefined;
     const check = () => {
-      if (wrap.querySelector('[data-testid="packs-status"]')) setBoughtHere(true);
+      const status = wrap.querySelector('[data-testid="packs-status"]');
+      if (status && (status.textContent ?? "").startsWith(PACK_PAID_COPY)) setBoughtHere(true);
     };
     check();
     const mo = new MutationObserver(check);
-    mo.observe(wrap, { childList: true, subtree: true });
+    mo.observe(wrap, { childList: true, subtree: true, characterData: true });
     return () => mo.disconnect();
   }, [boughtHere]);
   useEffect(() => {
@@ -836,11 +811,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           <BoardsCountdownStrip />
           <PacksShop embedded hideMyPacks={!boughtHere} returnPath="/pricing">
             {(shopApi) => {
-              const api = recordingApi(shopApi, sentToCheckout);
+              const api = shopApi;
               apiRef.current = api;
               return (
                 <>
-                  <BoughtWatcher api={shopApi} sent={sentToCheckout} onBought={markBought} />
                   <div className="lt-ph-tabs" role="group" aria-label={HUB_TABS_LABEL} data-testid="hub-tabs">
                     {HUB_CARD_ORDER.map((key, i) => (
                       <button
