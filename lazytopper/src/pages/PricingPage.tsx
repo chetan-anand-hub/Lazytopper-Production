@@ -90,6 +90,8 @@ import {
   subjectFromSearch,
   subjectFromStored,
 } from "../components/pricing/pricingPlansCopy";
+import PricingHub, { type HubLegacyParts } from "./pricingHub/PricingHub";
+import { isPricingHubEnabled } from "./pricingHub/hubFlag";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -371,8 +373,26 @@ export default function PricingPage() {
   const { hash } = useLocation();
   const [parentToken] = useState(() => (isParentPayClientEnabled() ? readParentPayToken(hash) : null));
   if (parentToken) return <ParentPayPanel token={parentToken} />;
+  // PRICING-HUB-1 (owner, 11 Nov 2026): the three-card hub, unless the kill switch VITE_PRICING_HUB_DISABLED=1 is set, which renders
+  // the page below (PricingPlansPage) exactly as before. The parent-pay link above is untouched by either.
+  if (isPricingHubEnabled()) return <PricingHub parts={HUB_LEGACY_PARTS} />;
   return <PricingPlansPage />;
 }
+
+/** PRICING-HUB-1: this page's own private pieces, handed to the hub unchanged (the hub never imports this file: no cycle). */
+const HUB_LEGACY_PARTS: HubLegacyParts = {
+  TillBoardsOffer,
+  PremiumPriceHead,
+  CompareCellView,
+  faqItemsFor,
+  manualPaymentsOff: PRICING_MANUAL_PAYMENTS_OFF,
+  finePrintPaymentsOn: PRICING_FINE_PRINT_PAYMENTS_ON,
+  finePrintPaymentsOff: PRICING_FINE_PRINT_PAYMENTS_OFF,
+  boardsComing: BOARDS_COMING,
+  saveWaitlistEntry,
+  trialEndsOn,
+  returnTargets: RETURN_TARGETS,
+};
 
 /**
  * PRICING-B-1 (owner-approved "Option B v3", 3 Nov 2026). One page for every account state (signed out, Basic, trial, paid):
