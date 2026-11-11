@@ -91,7 +91,6 @@ import {
   subjectFromStored,
 } from "../components/pricing/pricingPlansCopy";
 import PricingHub, { type HubLegacyParts } from "./pricingHub/PricingHub";
-import { isPricingHubEnabled } from "./pricingHub/hubFlag";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -375,7 +374,10 @@ export default function PricingPage() {
   if (parentToken) return <ParentPayPanel token={parentToken} />;
   // PRICING-HUB-1 (owner, 11 Nov 2026): the three-card hub, unless the kill switch VITE_PRICING_HUB_DISABLED=1 is set, which renders
   // the page below (PricingPlansPage) exactly as before. The parent-pay link above is untouched by either.
-  if (isPricingHubEnabled()) return <PricingHub parts={HUB_LEGACY_PARTS} />;
+  // The comparison is written INLINE (not via a helper) so the production build folds it to a constant and drops the page it
+  // does not render (hub build: the legacy page's code is not shipped; kill-switch build: the hub's is not). Same rule as
+  // isPricingHubEnabled() (./pricingHub/hubFlag.ts), which a test pins against this line.
+  if (import.meta.env.VITE_PRICING_HUB_DISABLED !== "1") return <PricingHub parts={HUB_LEGACY_PARTS} />;
   return <PricingPlansPage />;
 }
 
