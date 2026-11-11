@@ -31,6 +31,8 @@ const STATIC_PAGE_LABELS: Record<string, string> = {
   intent: "Getting started",
   pricing: "Pricing",
   packs: "PDF packs page",
+  "board-pass": "Board Pass page",
+  "cbq-packs": "CBQ Packs page",
   "cbse/class-10": "CBSE Class 10 page",
   teacher: "Teacher dashboard",
   onboarding: "Onboarding",
