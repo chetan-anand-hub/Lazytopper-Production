@@ -107,10 +107,11 @@ export const HUB_CSS = `
   }
 
   /* ── The cards row ─────────────────────────────────────────────────────── */
+  /* Phones: each card takes its own height, so a short card's Buy sits right under its content (no stretched gap). */
   .lt-ph-cards {
     position: relative;
     display: flex;
-    align-items: stretch;
+    align-items: flex-start;
     gap: 12px;
     margin: 12px -16px 0;
     padding: 4px 16px 10px;
@@ -278,7 +279,7 @@ export const HUB_CSS = `
   }
   .lt-ph-card--cbq .lt-ph-tile__fig {
     color: var(--ph-amber-ink);
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
   .lt-ph-tile__lbl {
     font-size: 0.76rem;
@@ -643,6 +644,13 @@ export const HUB_CSS = `
     margin-top: 22px;
   }
 
+  /* The H1 keeps two lines' room on phones: the web font swapping in re-wraps it at some widths (412 px: CLS 0.03 on trunk too). */
+  @media (max-width: 599px) {
+    .lt-ph .lt-pricing-title {
+      min-height: 2.4em;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lt-ph-cards {
       scroll-behavior: auto;
@@ -668,6 +676,7 @@ export const HUB_CSS = `
     .lt-ph-cards {
       display: grid;
       grid-template-columns: 1.08fr 1fr 1fr;
+      align-items: stretch;
       gap: 22px;
       margin: 22px 0 0;
       padding: 0;
