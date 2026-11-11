@@ -1,3 +1,50 @@
+## [CURRENT - 2026-11-12 (daily; written 12 Nov) - #1669 - #1674: the /pricing redesign (three-card hub, /board-pass, /cbq-packs, /packs rebuilt as Question Bank + Mocks)] `#1669` `#1670` `#1671` `#1672` `#1673` `#1674`
+
+*(Daily handoff under CLAUDE.md section 10 for the PRs of the pricing redesign, merged 11 Nov 15:45 IST to 12 Nov 04:29 IST. Trunk at writing: **`65a63b1`** (`#1673`, the last merge) [git ls-remote, re-derived before the branch was made; the coordinator's handoff says it is the live version]. **Open PRs: `#1674` (FU-ACTIVITY-PAGE-NAMES-SALES; head `f35c797`, still OPEN at the time of writing; its merge SHA is not known here and is recorded as OPEN) and this docs PR.** **No grading behaviour changed (CLAUDE.md section 4a):** none of the file lists of `#1669` - `#1674` touches marks, mistake types, departure handling, the objective clamp or a prompt rule (checked against each PR's file list; the only server file is `studentActivity.cjs` in `#1670`, the activity page-name list). Facts marked **[gh]** come from each PR's data and body via the gh REST API (REST only; GraphQL is blocked); **[coordinator]** from the coordinator's 12 Nov handoff (`HANDOFF_COFOUNDER_SESSION_2026-11-12.md`; follow-ups in `FOLLOWUPS_PRICING_REDESIGN_2026-11-11.md`).)*
+
+Adds to the blocks below, which stay current for everything this block does not name. This block supersedes the 2026-11-11 (daily) block below only where it says so.
+
+**Why (owner's ask) [coordinator].** /pricing confused students with too many options. Redesign it without losing any sales option and without breaking Razorpay: /pricing = three cards (Board Pass, CBQ Packs, Question Bank + Mocks), each with its own page and its own Buy; ads land on the right page; pages fast for Google Ads; parent-child navigation.
+
+| PR | merge SHA | merged (UTC, then IST) | what it changed |
+|---|---|---|---|
+| `#1669` PRICING-PAGES-1 | `1b0607e` | 11 Nov 10:15 UTC (15:45 IST) | New dedicated pages `/board-pass` and `/cbq-packs`: routes, prerendered heads (desktop variants too), sitemap and llms.txt entries, Buy on the page, additive, islands [gh: 41 files, +2321 -11]. |
+| `#1670` PRICING-PAGES-2 | `07854ae` | 11 Nov 12:39 UTC (18:09 IST) | Fixes the deviations of `#1669`: cold tap, tracking surfaces, priced heads, one Pay price, CLS on font swap [gh: 27 files, +914 -67]. Server `studentActivity.cjs` gained the two page names `board-pass` and `cbq-packs` (additive); Railway deploy ACTIVE per the 12 Nov handoff [coordinator]. The drift test became client subset-of server until `#1674` [gh]. |
+| `#1671` PRICING-HUB-1 | `38bfd52` | 11 Nov 17:28 UTC (22:58 IST) | /pricing becomes the three-card hub; the old layout stays behind the Vercel kill switch `VITE_PRICING_HUB_DISABLED=1` [gh: 12 files, +4179 -7]. |
+| `#1672` PACKS-TIDY-2 | `146631b` | 11 Nov 22:32 UTC (12 Nov 04:02 IST) | /packs rebuilt as "Question Bank + Mocks": Bundle first, one Maths/Science switch, three compact rows, folds for video and FAQ; `/packs#cbq` forwards to `/cbq-packs` keeping utm and gclid [gh: 22 files, +1217 -324; coordinator]. Reviewer money matrix 63/63 [coordinator]. |
+| `#1673` PRICING-HUB-2 | `65a63b1` | 11 Nov 22:59 UTC (12 Nov 04:29 IST) | Reviewer follow-ups on the hub: two distinct "10,000+" claims, card labels, Back returns to the card you left, the inline My packs block only after a verified payment, copy guards cover the hub files, parent-share row (44 px) [gh: 16 files, +601 -23; coordinator]. |
+| `#1674` FU-ACTIVITY-PAGE-NAMES-SALES | **OPEN** | not merged at writing | Owner ruling 12 Nov 04:47 IST: "Fix the missing page names before measuring (follow-up #2)." `services/activityPages.ts` adds `board-pass` and `cbq-packs`; the test returns to exact client = server equality. 2 files, +13 -10, client analytics only [gh]. Live check after merge: signed-in visit to /board-pass, activity batch 2xx, admin view shows "Board Pass page" [gh]. |
+
+Each of `#1669` - `#1673`: one Opus builder, one independent Opus reviewer (PASS-WITH-FOLLOW-UP), CI green, REST squash at the reviewed head, live-checked at 360 and 1280 [coordinator].
+
+**Before / after (live, signed out) [coordinator, handoff section 3].**
+
+| measure | before | after |
+|---|---|---|
+| /pricing page height, phone | 3,541 px | 1,943 px |
+| /pricing page height, desktop | 2,444 px | 1,808 px |
+| /packs page height, phone | 3,226 px | 1,682 px (1,908 with one row open) |
+| /packs page height, desktop | 2,734 px | 1,529 px |
+| /packs Bundle Buy on the first phone screen (360 x 640) | no | yes (bottom 605 px) |
+| /packs CLS | n/a | 0 (360) / 0.005 (1280) |
+| /pricing CLS | n/a | 0.001 / 0 |
+| /packs Lighthouse (10 runs): score, FCP, LCP, TBT | 98, 1.35 s, 1.81 s, 151 ms | 95, 1.13 s, 1.58 s, 247 ms (**owner accepted the score trade**) |
+| /packs tap on Buy 1 s after load | lost | sheet in 1.15 s |
+| /board-pass height, phone | n/a | 2,926 px |
+| /cbq-packs height, phone | n/a | 2,068 px |
+
+**Buy checks live, never paid [coordinator].** /packs Bundle Rs353, Subject Rs235, Mock Rs117 (with GST); `?buy=pack_bundle`; `?buy=pack_subject&t=science`; `/packs#cbq` -> `/cbq-packs` with the ad ids kept; /pricing: four Buys, `?buy=board_pass`, `#cbq`, `#packs`, `from=for_parents`, `?chapter=`, `?pack=cbq&subject=maths`.
+
+**NOT live-checked on `#1673` (needs a signed-in account) [coordinator]:** the parent-share row, and the My packs block after a real pack payment. Owner checks, 12 Nov. The owner's signed-in phone look at /pricing on 12 Nov is done: a small blank space below the offer cards is `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`.
+
+**What is live.** Trunk `65a63b1` per the coordinator. /pricing is the three-card hub; /board-pass and /cbq-packs exist; /packs is Question Bank + Mocks. Kill switch for the hub: `VITE_PRICING_HUB_DISABLED=1` (Vercel). Admin and the server accept the two new page names (Railway ACTIVE); the client does not send them until `#1674` merges.
+
+**Sales baseline 4-11 Nov (the reason for the work) [coordinator].** 8,523 visitors, bounce 68%, 286 sign-ups; pack views about 4.4K -> checkout 93 -> paid 9; Board Pass taps 214 -> checkout 48 -> paid 2. About 1.6 purchases a day against about 20 a day needed. Ads read-only 5-11 Nov (account 488-270-0343): spend Rs93,962, 7,774 clicks; the YouTube sign-up campaign Rs29,397 -> 195 sign-ups, no sales.
+
+**New finding (coordinator, from reading code at `65a63b1`): `[FU-SELFPAY-DUPLICATE-RISK]`.** See OPEN_QUESTIONS_AND_FOLLOWUPS. Owner decision pending.
+
+**State of the repo.** Trunk `65a63b1`. Open PRs: `#1674` and this docs PR. Grading: none (CLAUDE.md section 4a).
+
 ## [CURRENT - 2026-11-11 (daily; written 11 Nov) - #1660 - #1667: test-account flag, "Buy for yourself" checkout, self-pay landing, boards countdown strip, three speed lanes, "answer key" wording] `#1660` `#1661` `#1662` `#1663` `#1664` `#1665` `#1666` `#1667`
 
 *(Daily handoff under CLAUDE.md section 10 for the 8 PRs merged on 11 Nov 2026 IST (04:33 - 10:08 IST), written the same day. Trunk at writing: **`1cb0aae`** (`#1667`, the last merge) [git ls-remote, re-derived before the branch was made; the coordinator's handoff says it is also the live `version.json`]. **Open PRs: none; all 8 are MERGED.** **No grading behaviour changed (CLAUDE.md section 4a):** none of the 8 PRs touches marks, mistake types, departure handling, the objective clamp or a prompt rule. Facts marked **[gh]** come from each PR's data and body via the gh REST API (REST only; GraphQL is blocked); **[coordinator]** and **[owner]** as written in the coordinator's 11 Nov handoff (`HANDOFF_COFOUNDER_SESSION_2026-11-11.md`, sections 1-5) and its ops log (`ops_1111.md`). This is the repo half of the session handoff the owner asked for on 11 Nov at 10:07 IST.)*

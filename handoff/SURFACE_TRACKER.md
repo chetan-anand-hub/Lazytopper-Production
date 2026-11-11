@@ -1,3 +1,17 @@
+> **2026-11-12 (daily; written 12 Nov) - #1669 - #1674 (CLAUDE.md section 10).** Scope: the /pricing hub, /packs, and the two new pages /board-pass and /cbq-packs. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. `#1674` is OPEN at writing, so the page-name cells below are not flipped for it.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the 6 Nov second-surface checks stay owed |
+| /pricing | three-card hub: Board Pass, CBQ Packs, Question Bank + Mocks; the old layout stays behind `VITE_PRICING_HUB_DISABLED=1` (`#1671`); card labels, Back returns to the card you left, inline My packs block only after a verified payment, parent-share row (`#1673`) | **merged, live** (signed-out check 360 and 1280; phone 3,541 -> 1,943 px) | the owner's signed-in checks of the parent-share row and My packs after a real payment; `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`; `[FU-PRICING-NOT-ISLAND]` (Lighthouse about 77) |
+| /board-pass (NEW) | new page with Buy on the page (`#1669`); deviations fixed (`#1670`) | **merged, live** (phone 2,926 px) | a real signed-in payment (owner); `[FU-SALESPAGES-COLD-TAP]`; client page name via `#1674` (OPEN) |
+| /cbq-packs (NEW) | new page with Buy on the page (`#1669`); deviations fixed (`#1670`) | **merged, live** (phone 2,068 px) | a real signed-in payment (owner); `[FU-SALESPAGES-COLD-TAP]`; client page name via `#1674` (OPEN) |
+| /packs | rebuilt as "Question Bank + Mocks": Bundle first, Maths/Science switch, three compact rows, folds; `/packs#cbq` forwards to /cbq-packs keeping utm/gclid (`#1672`) | **merged, live** (phone 3,226 -> 1,682 px; Bundle Buy on the first 360 x 640 screen) | `[FU-PACKS-TBT-AND-LABELS]`; `[FU-PACKS-LPE-CONFOUNDED]`; the 15 Nov Speed Insights reading |
+| Admin activity page names | the server accepts `board-pass` and `cbq-packs` (`#1670`) | server **live**; client sends nothing until `#1674` | merge `#1674` |
+| Other surfaces | not moved by these PRs | unchanged | |
+
+No grading surface moved.
+
 > **2026-11-11 (daily; written 11 Nov) - #1660 - #1667 (CLAUDE.md section 10).** Scope: the signed-out checkout first screen, the self-pay landing, the boards countdown strip and founding line, /for-parents, /practice-hub and /packs first load, the "answer key" website wording, and the admin Purchases test flag. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Ads are not product surfaces (noted in SESSION_LOG only).
 
 | surface | what moved (PR) | state | owed |

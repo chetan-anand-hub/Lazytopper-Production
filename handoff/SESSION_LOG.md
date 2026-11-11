@@ -1,3 +1,25 @@
+## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674: the /pricing redesign in five PRs (trunk `65a63b1`)
+
+**PROVENANCE.** *(Daily handoff of 12 Nov, CLAUDE.md section 10. Covers `#1669`, `#1670`, `#1671`, `#1672`, `#1673` (merged) and `#1674` (OPEN at writing). **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; the story and live measurements **[coordinator]** from `HANDOFF_COFOUNDER_SESSION_2026-11-12.md`; owner words **[owner]** as quoted there or in the PR bodies.)*
+
+**How the window went (IST) [gh for merge times; coordinator].**
+- **15:45 (11 Nov).** `#1669` merged: the two new sales pages. Its review and the coordinator's live check found deviations.
+- **15:40 - 15:44 (11 Nov).** Owner on the deviations: "Things that came out differently from the plan fix all these issues also"; one item (F3) dropped by the owner [gh, `#1670` body].
+- **18:09.** `#1670` merged: cold tap, tracking surfaces, priced heads, one Pay price, CLS on font swap; the server learned the two page names (Railway ACTIVE).
+- **22:58.** `#1671` merged: /pricing is the three-card hub.
+- **04:02 (12 Nov).** `#1672` merged: /packs is Question Bank + Mocks.
+- **04:29.** `#1673` merged: reviewer follow-ups on the hub.
+- **04:47.** Owner on the missing page names: "Fix the missing page names before measuring (follow-up #2)." `#1674` opened (still OPEN at writing).
+- Each PR: one Opus builder, one independent Opus reviewer (PASS-WITH-FOLLOW-UP), CI green, REST squash at the reviewed head, live-checked at 360 and 1280 [coordinator].
+
+**Measured (live, signed out) [coordinator].** /pricing phone 3,541 -> 1,943 px, desktop 2,444 -> 1,808 px; /packs phone 3,226 -> 1,682 px (1,908 with one row open), desktop 2,734 -> 1,529 px; /packs Bundle Buy on the first 360 x 640 screen: no -> yes; /packs Lighthouse (10 runs) 98 -> 95 (FCP 1.35 -> 1.13 s, LCP 1.81 -> 1.58 s, TBT 151 -> 247 ms; owner accepted); a Buy tap 1 s after load: lost -> sheet in 1.15 s. Never paid in any live check.
+
+**Ads (read-only, 5-11 Nov, account 488-270-0343) [coordinator].** Spend Rs93,962, 7,774 clicks; the YouTube sign-up campaign Rs29,397 -> 195 sign-ups, no sales. Owner approved two final-URL edits (not yet made) and said to leave the two "CBQ packs - competency and case study" RSAs on `/packs#cbq`. Details in NEXT_ACTION and DECISION_LOG. Ads are not product surfaces.
+
+**Code reading at `65a63b1` (coordinator) -> `[FU-SELFPAY-DUPLICATE-RISK]`.** The signed-out "Buy for yourself" order (`server/routes/guestPay.cjs`, `handleSelfOrder`, from L741) cannot check ownership: the buyer is unknown until Razorpay returns. A signed-out student who already owns the Board Pass or that pack can therefore pay again; the order is labelled `duplicate_purchase` for admin only. Signed-in paths refuse it (`payments.cjs` L546-556 packs: 409 `already_owned`; L580-592 Board Pass: 409 `already_covered`) and /board-pass hides Pay for a holder. A month-pass holder going to Board Pass checkout is BY DESIGN (owner 8 Nov "1. Yes", `PassCheckout.tsx` L729-737), so handoff follow-up #3 is not a bug.
+
+**State at the end.** Trunk `65a63b1`; open: `#1674` and this docs PR.
+
 ## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667: purchases become the November goal; the checkout opens on "Buy for yourself"; a boards countdown; three speed lanes (trunk `1cb0aae`)
 
 **PROVENANCE.** *(Daily handoff of 11 Nov, CLAUDE.md section 10. Covers 8 merges: `#1660` (the previous daily docs PR), `#1661`, `#1663`, `#1662`, `#1665`, `#1664`, `#1666`, `#1667`. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings **[owner]** and live steps **[coordinator]** from the coordinator's 11 Nov handoff (`HANDOFF_COFOUNDER_SESSION_2026-11-11.md`) and its ops log (`ops_1111.md`). Session chats: 11 Nov `session_01QscBGpyuriWo9ek7YCgpDW`; 9 Nov evening `session_01QscBGms71XeGnerg385JHC`; 9 Nov PM `session_01QscBGpRhN9Lcf4oZoDwTvS`; 9 Nov midday `session_01QscBGnqAwqr7p795CYPESt`; 8 Nov night `session_01QscBGoaMjh25KXpxW4nshZ`.)*

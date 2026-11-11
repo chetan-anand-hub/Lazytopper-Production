@@ -1,3 +1,20 @@
+## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings on the /pricing redesign, each with its reason. Tags: **[owner]**, **[coordinator]**, **[gh]**. Rows come from the coordinator's 12 Nov handoff (`HANDOFF_COFOUNDER_SESSION_2026-11-12.md`) and the PR bodies. Where a source gives the owner's words they are quoted; where it does not, none are, and a reason the sources do not state is marked as not given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **/pricing becomes three cards** [owner, per the coordinator's 12 Nov handoff] | Board Pass, CBQ Packs, Question Bank + Mocks, with no sales option lost and Razorpay unbroken (`#1671`). | /pricing confused students with too many options [coordinator]. |
+| **Each card gets its own dedicated page** [owner] | /board-pass and /cbq-packs are new (`#1669`, `#1670`); /packs becomes Question Bank + Mocks (`#1672`); each page has its own Buy. Ads land on the right page. | The owner's brief: ads land on the right page and navigation is parent-child [coordinator]. |
+| **Fix the deviations of the first build** [owner, 11 Nov 15:40: "Things that came out differently from the plan fix all these issues also"] | `#1670`. F3 dropped by the owner (15:43 - 15:44), so the checkout components were not touched. | The review and the live check found places where `#1669` differed from the plan [gh, `#1670` body]. The reason for dropping F3 is not given in the sources. |
+| **Lighthouse score trade accepted** [owner] | /packs Lighthouse 98 -> 95 (FCP 1.35 -> 1.13 s, LCP 1.81 -> 1.58 s, TBT 151 -> 247 ms) is accepted. | The trade bought a Bundle Buy on the first 360 x 640 screen, a Buy tap 1 s after load that is no longer lost, and lower FCP and LCP [coordinator]. |
+| **"Every question. Worked solutions." stays** [owner] | "As per CBSE marking scheme" is NOT shipped. | Step-marked coverage is not complete: Bundle 9,420 of 10,686, Maths 4,350 of 5,120, Science 5,678 of 6,174; Mock and CBQ are 100% [coordinator]. |
+| **`[FU-BOARDPASS-SIGNIN-RETURN]` (#15) dropped** [owner] | /board-pass "Sign in first" returns to /pricing; the owner dropped the fix. | The reason is not given in the sources. |
+| **Ads: two edits approved, not yet made** [owner] | Search > PDF Packs > "CBQs - case study & competency" RSA: `/cbq-class-10` -> `/cbq-packs`. YouTube > "Parents - CBQ Electricity Short": -> `/cbq-packs?subject=science`. | The new page matches CBQ-intent ads [coordinator; the reason is not stated beyond that]. |
+| **Leave the two "CBQ packs - competency and case study" RSAs on `/packs#cbq`** [owner] | No edit to those two. | `/packs#cbq` forwards to `/cbq-packs` keeping utm and gclid (`#1672`), so they still land correctly [gh; coordinator]. |
+| **Month-pass holder -> Board Pass checkout is by design** [owner 8 Nov "1. Yes"; coordinator code reading 12 Nov] | Follow-up #3 is not a bug (`PassCheckout.tsx` L729-737). | An existing owner ruling. |
+| **Fix the missing page names before measuring** [owner, 12 Nov 04:47 IST] | `#1674` (OPEN at writing). | The funnel measurement (Track B) needs the two pages named in activity data [gh, `#1674` body]. |
+
 ## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 11 Nov 2026 (IST), each with its reason. Tags: **[owner]**, **[coordinator]**, **[gh]**. Rows come from the coordinator's 11 Nov handoff section 2 (`HANDOFF_COFOUNDER_SESSION_2026-11-11.md`), its ops log (`ops_1111.md`) and the PR bodies. Where a source gives the owner's words they are quoted; where it does not, none are. **Also in this block: a correction to the 9 Nov (daily, evening) row "Drop 'class 10 online classes free' ..." (see the last section).**

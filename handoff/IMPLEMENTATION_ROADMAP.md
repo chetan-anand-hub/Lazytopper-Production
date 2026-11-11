@@ -1,3 +1,13 @@
+## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674 - MERGED (except `#1674`)
+
+- DONE. `#1669` (`1b0607e`) PRICING-PAGES-1: new /board-pass and /cbq-packs pages (routes, prerendered heads, Buy on the page). NEXT: none beyond `#1670`.
+- DONE. `#1670` (`07854ae`) PRICING-PAGES-2: the deviations fixed; the server accepts the two page names. NEXT: `[FU-SALESPAGES-COLD-TAP]` (cold early tap about 1.7 s vs the 1.5 s target); `#1674`.
+- DONE. `#1671` (`38bfd52`) PRICING-HUB-1: **the /pricing redesign, three-card hub (Board Pass, CBQ Packs, Question Bank + Mocks), with the kill switch `VITE_PRICING_HUB_DISABLED=1`.** The pricing-page redesign task of the 11 Nov block is DONE. NEXT: `[FU-PRICING-NOT-ISLAND]`.
+- DONE. `#1672` (`146631b`) PACKS-TIDY-2: /packs is Question Bank + Mocks; `/packs#cbq` forwards to /cbq-packs. NEXT: `[FU-PACKS-TBT-AND-LABELS]`.
+- DONE. `#1673` (`65a63b1`) PRICING-HUB-2: reviewer follow-ups on the hub. NEXT: the owner's signed-in checks (parent-share row, My packs after a real payment).
+- OPEN. `#1674` FU-ACTIVITY-PAGE-NAMES-SALES: the client sends the two page names. NEXT: merge it, then Track B.
+- NEXT (not built, owner order): the two approved ad edits; Track B funnel measurement; C and D mock-ups; owner decisions on E (WhatsApp) and F (proof on cards); `[FU-SELFPAY-DUPLICATE-RISK]`; dated checks (13-15 Nov, 15 Nov, 15-16 Nov, 18 Nov, 1 Dec).
+
 ## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667 - MERGED
 
 - DONE. `#1660` (`c0aa7c7`) docs: the previous daily docs PR (records `#1657` and `#1658`). NEXT: this block's PR.
