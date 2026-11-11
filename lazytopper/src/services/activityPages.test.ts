@@ -49,13 +49,14 @@ describe("the client and server page allowlists cannot drift", () => {
   /**
    * PRICING-PAGES-2 C1 (changed from equality): every name the client can send is ACCEPTED by the server (client ⊆ server). A server
    * that does not know a name rejects the whole batch, so the server may lead the client (deploy order: Railway, then the web), never
-   * the other way. Today the server carries two names the client does not send yet: board-pass and cbq-packs.
+   * the other way. FU-ACTIVITY-PAGE-NAMES-SALES: the client now sends board-pass and cbq-packs, so the two lists are equal again.
    */
   it("★ client ⊆ server: every page name and key the client can send, the server accepts", () => {
     expect(clientNamesMissingOnServer(ACTIVITY_PAGE_NAMES, server.ACTIVITY_PAGE_NAMES)).toEqual([]);
     expect(clientNamesMissingOnServer(ACTIVITY_PAGE_KEYS, server.ACTIVITY_PAGE_KEYS)).toEqual([]);
-    // The server's extra names are exactly the two sales pages (so nothing else drifted).
-    expect([...server.ACTIVITY_PAGE_NAMES].filter((n) => !ACTIVITY_PAGE_NAMES.includes(n)).sort()).toEqual(["board-pass", "cbq-packs"]);
+    // And the server carries no name the client lacks: the lists are equal, in the same order.
+    expect([...server.ACTIVITY_PAGE_NAMES].filter((n) => !ACTIVITY_PAGE_NAMES.includes(n))).toEqual([]);
+    expect([...ACTIVITY_PAGE_NAMES]).toEqual([...server.ACTIVITY_PAGE_NAMES]);
   });
 
   it("MUTATION: a name only the client knows turns the subset check red", () => {
@@ -109,10 +110,9 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/legal/:slug": [["/legal/privacy", "legal/privacy"], ["/legal/refunds", "legal/other"]],
   "/pricing": [["/pricing", "pricing"], ["/pricing/", "pricing"]],
   "/packs": [["/packs", "packs"], ["/packs/", "packs"], ["/packs/x", null]], // PACKS-CLIENT-1 — public PDF packs page
-  // PRICING-PAGES-1 — the two public sales pages. No page name (null) from the client yet: PRICING-PAGES-2 C1 adds them to the
-  // SERVER list first; the client names them in a later PR once Railway runs it ([FU-ACTIVITY-PAGE-NAMES-SALES]).
-  "/board-pass": [["/board-pass", null]],
-  "/cbq-packs": [["/cbq-packs", null]],
+  // PRICING-PAGES-1 — the two public sales pages; named since FU-ACTIVITY-PAGE-NAMES-SALES (server accepted them first, #1670).
+  "/board-pass": [["/board-pass", "board-pass"], ["/board-pass/", "board-pass"], ["/board-pass/x", null]],
+  "/cbq-packs": [["/cbq-packs", "cbq-packs"], ["/cbq-packs/", "cbq-packs"], ["/cbq-packs/x", null]],
   "/cbse/class-10": [["/cbse/class-10", "cbse/class-10"]],
   // SEO-5 PR-3 — the public answer-writing guide. Records no page name (null): naming it
   // would need the server's drift-tested page list (server/** is out of that lane's scope).
