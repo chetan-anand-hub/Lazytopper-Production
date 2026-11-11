@@ -41,3 +41,23 @@ export const PACK_PREBOARD_LINE =
   "Sit your pre-board before your pre-board. Check it yourself with the worked solutions — or get it marked like a CBSE examiner with the Board Pass.";
 export const PACK_PREBOARD_LINE_SHORT =
   "Pre-board practice: self-check with worked solutions, or get CBSE-examiner marking with the Board Pass.";
+
+export type BoardsCountdownParts = { days: number; label: string; phase: string; practise: string; full: string };
+
+/** URGENCY-1 v2: the strip's parts (same phase logic as boardsCountdownCopy), or null from 16 Feb 2027 (IST). `full` is the screen-reader sentence. */
+export function boardsCountdownParts(nowMs: number = Date.now()): BoardsCountdownParts | null {
+  const full = boardsCountdownCopy(nowMs);
+  if (!full) return null;
+  const n = daysToBoards(nowMs);
+  const ist = new Date(nowMs + IST_OFFSET_MS);
+  const [, mm = "", dd = ""] = BOARDS_START_ISO.split("-");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const startLabel = `${Number(dd)} ${months[Number(mm) - 1]}`;
+  const phase =
+    ist.getUTCFullYear() === 2026 && ist.getUTCMonth() === 11
+      ? "Pre-boards are on"
+      : ist.getUTCFullYear() === 2026
+        ? "Pre-boards start in December"
+        : `Boards start ${startLabel}`;
+  return { days: n, label: n === 1 ? "DAY TO BOARDS" : "DAYS TO BOARDS", phase, practise: PRACTISE, full };
+}

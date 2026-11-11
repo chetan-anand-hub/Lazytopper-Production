@@ -1,5 +1,0 @@
-.lt-boards-slot { min-height: 4.2em; margin: 12px 0; }
-@media (min-width: 640px) { .lt-boards-slot { min-height: 2.9em; } }
-.lt-boards-strip { box-sizing: border-box; display: block; margin: 0 auto; padding: 10px 14px; max-width: 100%; min-height: 100%; border-radius: 12px; background: #eaf6ee; border: 1px solid #bfe3cb; color: #0f2547; font-size: 14px; font-weight: 600; line-height: 1.45; text-align: center; overflow-wrap: anywhere; }
-.lt-boards-strip--dark { background: rgba(88, 204, 2, 0.12); border-color: rgba(88, 204, 2, 0.4); color: #1a1a2e; }
-.lt-boards-strip--note { min-height: 0; margin-top: 6px; font-size: 13px; }

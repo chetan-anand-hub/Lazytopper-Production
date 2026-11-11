@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { boardsCountdownCopy, daysToBoards, PACK_PREBOARD_LINE, PACK_PREBOARD_LINE_SHORT } from "./boardsCountdown";
+import { boardsCountdownCopy, boardsCountdownParts, daysToBoards, PACK_PREBOARD_LINE, PACK_PREBOARD_LINE_SHORT } from "./boardsCountdown";
 import { boardPassFoundingPriceLine } from "../../config/pricing";
 import BoardsCountdownStrip from "./BoardsCountdownStrip";
 
@@ -36,7 +36,7 @@ describe("URGENCY-1 boards countdown copy (IST boundaries)", () => {
     render(<BoardsCountdownStrip />);
     const el = screen.queryByTestId("boards-countdown-strip");
     const expected = boardsCountdownCopy(Date.now());
-    if (expected) expect(el?.textContent).toBe(expected);
+    if (expected) expect(el?.getAttribute("aria-label")).toBe(expected);
     else expect(el).toBeNull();
   });
 
@@ -44,5 +44,13 @@ describe("URGENCY-1 boards countdown copy (IST boundaries)", () => {
     expect(boardPassFoundingPriceLine(ist("2026-11-30T23:59:00"))).toBe("Founding price ends 30 Nov \u00b7 \u20b91,917 + GST, then \u20b92,499 + GST");
     expect(boardPassFoundingPriceLine(ist("2026-12-01T00:00:00"))).toBeNull();
     expect(boardPassFoundingPriceLine(ist("2026-11-11T09:00:00"))).not.toBeNull();
+  });
+
+  it("v2 parts: phase line per phase, 1 DAY label, null from 16 Feb", () => {
+    expect(boardsCountdownParts(ist("2026-11-30T23:59:00"))).toMatchObject({ days: 78, label: "DAYS TO BOARDS", phase: "Pre-boards start in December" });
+    expect(boardsCountdownParts(ist("2026-12-01T00:00:00"))?.phase).toBe("Pre-boards are on");
+    expect(boardsCountdownParts(ist("2027-01-01T00:00:00"))?.phase).toBe("Boards start 16 Feb");
+    expect(boardsCountdownParts(ist("2027-02-15T09:00:00"))).toMatchObject({ days: 1, label: "DAY TO BOARDS" });
+    expect(boardsCountdownParts(ist("2027-02-16T00:00:00"))).toBeNull();
   });
 });
