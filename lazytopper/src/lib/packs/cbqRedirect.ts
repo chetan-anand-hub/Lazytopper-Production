@@ -1,8 +1,9 @@
 /**
  * PACKS-TIDY-2 (owner, 11 Nov 2026) - the CBQ Packs' buy block left /packs for its own page, /cbq-packs. A link whose target was
  * that block (`/packs#cbq`: Google Ads, old pricing links) must land on the CBQ offer in ONE step: a client redirect (replace) to
- * /cbq-packs that keeps the subject, the ad click ids / utm_* and `from`. PURE and import-free: the island (contentIsland.ts) and
- * the app (PacksPage) both call it, so the static page and the app redirect the same way.
+ * /cbq-packs that keeps the subject, the ad click ids / utm_* and `from`. PURE and import-free. The app (PacksPage) calls it; the
+ * island (contentIsland.ts `islandCbqRedirect`) carries a copy (an import split it into a chunk of its own), and a test runs both on
+ * one table of URLs, so the static page and the app redirect the same way.
  */
 export const CBQ_REDIRECT_PATH = "/cbq-packs";
 

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { __resetIslandForTests, appViewRequested, boot, describe as describeControl, nav, replayRadios, resolve, RADIO_REPLAY_ATTR, TWIN_ATTR } from "./contentIsland";
+import { __resetIslandForTests, appViewRequested, boot, describe as describeControl, islandCbqRedirect, nav, replayRadios, resolve, RADIO_REPLAY_ATTR, TWIN_ATTR } from "./contentIsland";
+import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 
 /**
  * PACKS-TIDY-2 (owner, 11 Nov 2026) - the island's three additive changes for /packs:
@@ -55,6 +56,18 @@ describe("PACKS-TIDY-2 island: /packs#cbq", () => {
       await bootAt(url, "<main></main>");
     }
     expect(replace).not.toHaveBeenCalled();
+  });
+});
+
+describe("PACKS-TIDY-2 island: its copy of the redirect agrees with the app's", () => {
+  it("same answer on every URL of the table", () => {
+    const urls = [
+      ["/packs", "", "#cbq"], ["/packs", "", "#CBQ"], ["/packs", "", ""], ["/packs", "", "#my-packs"], ["/pricing", "", "#cbq"], ["/cbq-packs", "", "#cbq"],
+      ["/packs", "?subject=science&utm_source=google&utm_campaign=x&gclid=g&from=for_parents&tab=2", "#cbq"], ["/packs", "?t=science&fbclid=f", "#cbq"],
+      ["/packs", "?subject=physics&gbraid=g&wbraid=w&msclkid=m", "#cbq"], ["/packs", "?buy=pack_cbq&t=maths", "#cbq"], ["/packs", "?pack=cbq&subject=science", "#cbq"],
+      ["/packs", "?chapter=triangles", "#cbq"], ["/packs", "?mock=maths", "#cbq"], ["/packs", "?view=sample", "#cbq"], ["/packs", "?from=https://evil.example/", "#cbq"],
+    ];
+    for (const [pathname, search, hash] of urls) expect(islandCbqRedirect({ pathname, search, hash }), pathname + search + hash).toBe(cbqRedirectTarget({ pathname, search, hash }));
   });
 });
 

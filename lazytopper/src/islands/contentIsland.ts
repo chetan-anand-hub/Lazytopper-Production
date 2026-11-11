@@ -41,8 +41,6 @@ import {
   ISLAND_VARIANT_ATTR,
 } from "./islandConfig";
 import { packsEntryEnabled } from "./islandFlags";
-// PACKS-TIDY-2: /packs#cbq -> /cbq-packs (pure, import-free; the app's PacksPage uses the same function).
-import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { sendNamedEvent, sendWhatsAppTap, startIslandAnalytics, stopIslandWatches, suppressAppRepeats } from "./islandAnalytics";
 
 /** The value of `<html data-lt-island>`: the island is live, the app is loading, or the app has taken over. */
@@ -1258,6 +1256,30 @@ export function appViewRequested(loc: { pathname: string; search: string; hash: 
   return false;
 }
 
+/**
+ * PACKS-TIDY-2 - `/packs#cbq` -> /cbq-packs, the island's copy of lib/packs/cbqRedirect.ts `cbqRedirectTarget` (the app's PacksPage
+ * uses that one). A COPY on purpose: importing the shared module made Rollup split it into its own chunk, one more request chained
+ * behind the island's script on every island page. contentIsland.packsTidy.test.ts runs both on the same table of URLs.
+ */
+export function islandCbqRedirect(loc: { pathname: string; search: string; hash: string }): string | null {
+  if (loc.pathname !== "/packs" || loc.hash.toLowerCase() !== "#cbq") return null;
+  let q: URLSearchParams;
+  try {
+    q = new URLSearchParams(loc.search);
+  } catch {
+    q = new URLSearchParams();
+  }
+  if (["buy", "pack", "chapter", "mock", "view"].some((k) => q.has(k))) return null;
+  const out = new URLSearchParams();
+  const subject = [q.get("subject"), q.get("t")].find((v) => v === "maths" || v === "science");
+  if (subject) out.set("subject", subject);
+  q.forEach((value, key) => {
+    if (/^(utm_[a-z_]{1,32}|gclid|gbraid|wbraid|fbclid|msclkid|from)$/.test(key) && !out.has(key) && value.length <= 200) out.set(key, value);
+  });
+  const search = out.toString();
+  return `/cbq-packs${search ? `?${search}` : ""}`;
+}
+
 /* ------------------------------------------------------------------ signed in? (rule a) */
 
 const LOCAL_AUTH_KEY = "lazytopper.auth.local.v1";
@@ -1356,7 +1378,7 @@ export async function boot(): Promise<void> {
   if (!config) return;
   // PACKS-TIDY-2: the CBQ Packs' block left /packs; a `/packs#cbq` link lands on /cbq-packs in one step (replace, before anything
   // here is wired). Any other page or hash: null, nothing happens.
-  const cbq = cbqRedirectTarget(window.location);
+  const cbq = islandCbqRedirect(window.location);
   if (cbq) {
     nav.replace(cbq);
     return;
