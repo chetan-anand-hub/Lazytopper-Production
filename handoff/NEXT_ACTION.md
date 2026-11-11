@@ -1,3 +1,19 @@
+## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674
+
+*(The owner items of every block below stand, except where this block narrows them. The 11 Nov item "Pricing page redesign" is DONE by `#1669` - `#1673`.)* Trunk at writing: **`9670339`** [coordinator]. `#1674` MERGED (`9670339`, 12 Nov 04:57 IST).
+
+- **Done [gh]:** `#1669`, `#1670`, `#1671`, `#1672`, `#1673`, `#1674` merged (table in CURRENT_STATE). No grading change.
+- **Today's focus, in the coordinator's 12 Nov order [coordinator, handoff "Today's focus"]:**
+  1. **Owner checks.** Phone /pricing signed in: DONE (a small blank space below the offer cards is `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`). STILL OWED: real signed-in payments on /board-pass and /cbq-packs, the parent-share row, and the My packs block after a real pack payment (`#1673`). Never pay beyond the owner's own test.
+  2. **Track B: measure the funnel.** `#1674` is merged, so the two new pages record their page names.
+  3. **Track A: two ad edits, owner-approved, NOT yet made:** Search > PDF Packs > "CBQs - case study & competency" RSA, final URL `/cbq-class-10` -> `/cbq-packs`; YouTube > "Parents - CBQ Electricity Short", final URL -> `/cbq-packs?subject=science`. **Leave the two "CBQ packs - competency and case study" RSAs on `/packs#cbq`** (the redirect keeps utm and gclid).
+  4. **C and D mock-ups** (C: /for-parents first screen; D: the Board Pass moment). Mock-up first, owner OK before any build.
+  5. **Follow-ups #1, #2, #3, #14** of the board: `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`, `[FU-ACTIVITY-PAGE-NAMES-SALES]` (`#1674`), `[FU-BOARDPASS-MONTHPASS-CHECK]` (by design, see the board), this docs PR.
+  6. **E (WhatsApp follow-up) and F (proof on cards): wait on the owner** (E is an owner decision; F needs owner inputs).
+- **Plan lanes [coordinator]:** A ads; B measure funnel; C /for-parents first screen; D Board Pass moment; E WhatsApp follow-up; F proof on cards.
+- **Owner decision pending:** the signed-out self-pay duplicate guard, `[FU-SELFPAY-DUPLICATE-RISK]`.
+- **Dated checks [coordinator]:** **13-15 Nov** Quality Score, landing-page experience (confounded by the /packs rebuild, `[FU-PACKS-LPE-CONFOUNDED]`). **15 Nov** Vercel Speed Insights. **15-16 Nov** PDF Packs review (budget Rs8,000 a day). **18 Nov** YouTube purchases judgement (scheduled). **1 Dec** prerender re-capture task; deploy after 00:00 IST 1 Dec (`[FU-PRERENDER-DATE-TEXT-1DEC]`). The earlier dated checks in the blocks below that this block does not name stand.
+
 ## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`1cb0aae`** [git].

@@ -23,6 +23,78 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `65a63b1`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the coordinator's 12 Nov handoff section 7 and `FOLLOWUPS_PRICING_REDESIGN_2026-11-11.md` **[coordinator]** and the PR bodies **[gh]**. The numbers in brackets are the handoff's own numbering. No grading behaviour changed.*
+
+**New:** `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`, `[FU-ACTIVITY-PAGE-NAMES-SALES]` (CLOSED by `#1674`, merged `9670339`), `[FU-BOARDPASS-MONTHPASS-CHECK]`, `[FU-SALESPAGES-COLD-TAP]`, `[FU-MARKED-IN-1-MINUTE-CLAIM]`, `[FU-PACKS-TBT-AND-LABELS]`, `[FU-MARKING-SCHEME-CLAIM]`, `[FU-PRICING-NOT-ISLAND]`, `[FU-PRERENDER-DATE-TEXT-1DEC]`, `[FU-HUB-TEST-GAPS]`, `[FU-10000-CLAIM]`, `[FU-PACKS-UNEXERCISED]`, `[FU-PACKS-LPE-CONFOUNDED]`, `[FU-DAILY-DOCS-1112]`, `[FU-BOARDPASS-SIGNIN-RETURN]`, `[FU-SELFPAY-DUPLICATE-RISK]`.
+
+**Still open, carried:** every item named in the 11 Nov block below that this block does not close.
+
+### [FU-HUB-CBQ-CARD-EMPTY-SPACE]
+
+OPEN [1]. The desktop CBQ card on /pricing has empty space; the owner saw a small blank space below the offer cards on his phone too (12 Nov, signed in).
+
+### [FU-ACTIVITY-PAGE-NAMES-SALES]
+
+CLOSED by `#1674` (merged `9670339`, 12 Nov 04:57 IST) [2]. The client sent no page name for /board-pass and /cbq-packs (the server has accepted both since `#1670`). `#1674` added them to `activityPages.ts` and restores exact client = server equality in the test. The signed-in live check is still owed: signed-in visit to /board-pass, activity batch 2xx, admin shows "Board Pass page" [gh]. Do not duplicate: Track B depends on it.
+
+### [FU-BOARDPASS-MONTHPASS-CHECK]
+
+CLOSED, not a bug [3]. A month-pass holder tapping Board Pass went to Razorpay at Rs2,262. This was checked against the 8 Nov ruling: by design (owner 8 Nov "1. Yes", `PassCheckout.tsx` L729-737) [coordinator]. No action.
+
+### [FU-SALESPAGES-COLD-TAP]
+
+OPEN [4]. A cold early tap on /board-pass and /cbq-packs takes about 1.7 s against the 1.5 s target (the reviewer's measurement in the `#1670` body: /board-pass 1.70 s, /cbq-packs 1.68 s at +0.3 s). The trade-off was reported, not claimed: going lower means booting the app before idle, which costs TBT [gh, `#1670` body].
+
+### [FU-MARKED-IN-1-MINUTE-CLAIM]
+
+OPEN [5]. The "Marked in 1 minute" claim: production grading time has never been measured [coordinator]. Measure it on the live product before the claim is relied on. Read-only; this touches no grading behaviour.
+
+### [FU-PACKS-TBT-AND-LABELS]
+
+OPEN [6]. /packs TBT rose by 95 ms (reviewer F2: 151 -> 247 ms in the 10-run Lighthouse; the owner accepted the score trade). Also: the phone sticky bar never shows when everything is folded, and the compact "Buy Rs235" / "Owned" labels do not name the subject [coordinator].
+
+### [FU-MARKING-SCHEME-CLAIM]
+
+OPEN, owner ruling in place [7]. "Every question. Worked solutions." STAYS (owner). "As per CBSE marking scheme" was NOT shipped. Step-marked coverage: Bundle 9,420 of 10,686, Maths 4,350 of 5,120, Science 5,678 of 6,174; Mock and CBQ 100% [coordinator]. Revisit only if the bank coverage is raised.
+
+### [FU-PRICING-NOT-ISLAND]
+
+OPEN [8]. /pricing is not on the fast island path (Lighthouse about 77) [coordinator]. A speed lane for it needs the owner's go; the 11 Nov all-pages preload experiment made /pricing slower on slow 3G, so do not repeat it.
+
+### [FU-PRERENDER-DATE-TEXT-1DEC]
+
+OPEN, dated 1 Dec [9]. The prerendered heads carry date-sensitive text: deploy after 00:00 IST 1 Dec, then run the prerender re-capture task [coordinator].
+
+### [FU-HUB-TEST-GAPS]
+
+OPEN [10]. Test gaps: `CbqPacksPage.tsx:55` cleanup and `BoardPassPage.tsx:412` copyKey are untested; `vitest.config.ts` turns the hub off for the default suite [coordinator].
+
+### [FU-10000-CLAIM]
+
+OPEN, owner call [11]. "10,000+" appears on both the Board Pass card and the Bundle card (two distinct claims after `#1673`). Whether to keep both is the owner's call [coordinator].
+
+### [FU-PACKS-UNEXERCISED]
+
+OPEN [12]. Not exercised in the live checks: the pack file "Saved" state and the CBQ parts rows [coordinator]. Exercise them in the owner's signed-in pack check.
+
+### [FU-PACKS-LPE-CONFOUNDED]
+
+OPEN, dated 13-15 Nov [13]. The 13-15 Nov landing-page-experience reading for /packs is confounded by this rebuild: a change in the Quality Score cannot be attributed to `#1667` alone [coordinator].
+
+### [FU-DAILY-DOCS-1112]
+
+CLOSED by this PR [14]. The daily docs handoff for `#1669` onward (CLAUDE.md section 10): this PR.
+
+### [FU-BOARDPASS-SIGNIN-RETURN]
+
+DROPPED by the owner [15]. /board-pass "Sign in first" returns to /pricing. The owner dropped this fix [coordinator]; recorded so it is not re-raised.
+
+### [FU-SELFPAY-DUPLICATE-RISK]
+
+OPEN, owner decision pending [NEW, coordinator code reading at `65a63b1`, 12 Nov]. The signed-out "Buy for yourself" order (`server/routes/guestPay.cjs`, `handleSelfOrder`, L741 onward) cannot check ownership: the buyer is unknown until Razorpay returns. So a SIGNED-OUT student who already owns the Board Pass or that pack can pay again; the order is labelled `duplicate_purchase` for admin only. Signed-in paths refuse it (`payments.cjs` L546-556 packs: 409 `already_owned`; L580-592 Board Pass: 409 `already_covered`) and /board-pass hides Pay for a holder. Owner decision pending on whether to build a guard on the signed-out self-pay path; any such change is a money path.
+
 ## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `1cb0aae`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the PR bodies **[gh]** and the coordinator's 11 Nov handoff and ops log (`HANDOFF_COFOUNDER_SESSION_2026-11-11.md`, section 4 item 5) **[coordinator]**. No grading behaviour changed.*
