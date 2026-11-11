@@ -10,7 +10,8 @@
  *   Razorpay payment. So a purchase is: status === 'paid' AND a string paymentId AND a finite paidAt. 'created'
  *   is NEVER treated as paid. Orders with no paidAt never match the orderBy below, so they are not even read.
  *
- * ★ Nothing here writes, grants, or re-verifies anything. Totals EXCLUDE admin accounts (owner test purchases).
+ * ★ Nothing here writes, grants, or re-verifies anything. Totals EXCLUDE admin accounts (owner test purchases) and, TEST-ACCOUNTS-1,
+ *   accounts listed in the optional env TEST_ACCOUNT_EMAILS (same flag, same pill; no admin access).
  * CHECKOUT-1 (31 Oct 2026): the same response also carries `abandoned` - orders with status 'created' (never paid, no
  *   paidAt) created more than 30 minutes ago and within the last 30 days, newest first. Read-only; same admin gate, read AFTER it.
  *   The query is a single-field createdAt range (no composite index); the status test is made in memory.
@@ -86,6 +87,11 @@ function adminUidSet() {
   return new Set(String(process.env.ADMIN_FIREBASE_UIDS || '').split(',').map((s) => s.trim()).filter(Boolean));
 }
 
+/** TEST-ACCOUNTS-1 - optional env TEST_ACCOUNT_EMAILS (comma-separated, case-insensitive): owner TEST accounts. Never logged or returned. */
+function testEmailSet() {
+  return new Set(String(process.env.TEST_ACCOUNT_EMAILS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean));
+}
+
 const emptyTotals = () => ({ premium: { count: 0, inr: 0 }, packs: { count: 0, inr: 0 }, topups: { count: 0, inr: 0 }, guestUnclaimed: { count: 0, inr: 0 } });
 
 /**
@@ -138,6 +144,29 @@ function createAdminPurchasesRoutes(deps = {}) {
   }
 
   /**
+   * TEST-ACCOUNTS-1 - the uids flagged "ADMIN / TEST": ADMIN_FIREBASE_UIDS plus the accounts whose email is in
+   * TEST_ACCOUNT_EMAILS (resolved once per request). Unset env = the admin set exactly as before, no Auth call. A failed
+   * lookup just leaves that account unflagged. Returns a Set with an extra `testEmails` property for guest-order emails.
+   */
+  async function flaggedUids() {
+    const set = adminUidSet();
+    const emails = testEmailSet();
+    set.testEmails = emails;
+    if (!emails.size || !firebaseAdmin || typeof firebaseAdmin.auth !== 'function') return set;
+    for (const email of emails) {
+      try {
+        const u = await firebaseAdmin.auth().getUserByEmail(email);
+        if (u && typeof u.uid === 'string' && u.uid) set.add(u.uid);
+      } catch (e) {
+        // not-found is normal (account not created yet); never log the address
+        if (!e || e.code !== 'auth/user-not-found') console.error('[admin-purchases] test-account lookup failed:', e && e.code);
+      }
+    }
+    return set;
+  }
+  const isTestGuestEmail = (admins, v) => !!(admins.testEmails && admins.testEmails.size && typeof v.guestEmail === 'string' && admins.testEmails.has(v.guestEmail.trim().toLowerCase()));
+
+  /**
    * PAY-RESCUE-1 - what Razorpay's signed `payment.failed` webhook left on the order (`lastFailure`, payments.cjs).
    * `attempted` is true only when such a note exists; its absence means we have no record of an attempt.
    */
@@ -174,7 +203,7 @@ function createAdminPurchasesRoutes(deps = {}) {
             kind: kindOf(v.passType),
             amountInr: Number.isFinite(v.amountPaise) ? v.amountPaise / 100 : null, ...gstFieldsOf(v), // GST-EXCL-1: same breakup as every other row
             channel: v.checkoutWho === true ? 'who' : 'guest',
-            isAdminAccount: typeof v.payerUid === 'string' && admins.has(v.payerUid),
+            isAdminAccount: (typeof v.payerUid === 'string' && admins.has(v.payerUid)) || isTestGuestEmail(admins, v),
             recipient: guestRecipient(v),
             payerType: typeof v.payerType === 'string' ? v.payerType : null,
             ...failureFields(v.lastFailure),
@@ -311,7 +340,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           if (v.payer !== GUEST_PAYER || typeof v.paymentId !== 'string' || !v.paymentId) return;
           const atMs = msOf(v.guestPaidAt);
           if (atMs === null || !Number.isFinite(v.amountPaise) || kindOf(v.passType) === 'other') return;
-          if ((typeof v.uid === 'string' && admins.has(v.uid)) || (typeof v.payerUid === 'string' && admins.has(v.payerUid))) return;
+          if ((typeof v.uid === 'string' && admins.has(v.uid)) || (typeof v.payerUid === 'string' && admins.has(v.payerUid)) || isTestGuestEmail(admins, v)) return;
           for (const [key, from] of windows) {
             if (atMs >= from) {
               totals[key].guestUnclaimed.count += 1;
@@ -332,7 +361,7 @@ function createAdminPurchasesRoutes(deps = {}) {
     if (!(await gate(req, res))) return;
     try {
       const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).orderBy('paidAt', 'desc').limit(READ_CAP).get();
-      const admins = adminUidSet();
+      const admins = await flaggedUids();
       const nowMs = now();
       const today = istDayKey(nowMs);
       const start7 = istDayStartMs(addIstDays(today, -6));
