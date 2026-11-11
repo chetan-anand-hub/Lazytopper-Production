@@ -70,6 +70,9 @@ import {
   HUB_CARD_ORDER,
   HUB_CBQ_DETAILS,
   HUB_CBQ_HERO,
+  HUB_CBQ_INSIDE_CHIPS,
+  HUB_CBQ_INSIDE_LINES,
+  HUB_CBQ_INSIDE_TITLE,
   HUB_CBQ_NOT_IN_BUNDLE,
   HUB_CBQ_PRICE_META,
   HUB_CBQ_TAG,
@@ -97,6 +100,8 @@ import {
   QUESTION_BANK_NAME,
   hubBankDetails,
   hubBankPrice,
+  hubBankRows,
+  HUB_BANK_ROWS_TITLE,
   hubBankTag,
   hubBankTicks,
   hubBundleStickyCopy,
@@ -308,11 +313,11 @@ function Tiles({ tiles, testPrefix }: { tiles: ReadonlyArray<{ id: string; figur
   );
 }
 
-function Ticks({ items, label }: { items: ReadonlyArray<{ id: string; strong?: string; text: string }>; label: string }) {
+function Ticks({ items, label }: { items: ReadonlyArray<{ id: string; strong?: string; text: string; phoneOnly?: boolean }>; label: string }) {
   return (
     <ul className="lt-ph-ticks" aria-label={label}>
       {items.map((t) => (
-        <li key={t.id}>
+        <li key={t.id} className={t.phoneOnly ? "lt-ph-phone-only" : undefined}>
           <span className="lt-ph-tick" aria-hidden="true">✓</span>
           <span>
             {t.strong && <strong>{t.strong}</strong>}
@@ -346,7 +351,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     navigate(path);
   };
   const fromParents = searchParams.get("from") === "for_parents";
-  const withFrom = (path: string) => (fromParents ? `${path}?from=for_parents` : path);
+  const withFrom = (path: string) => (fromParents ? `${path}${path.includes("?") ? "&" : "?"}from=for_parents` : path);
   const [waitlistContact, setWaitlistContact] = useState("");
   const [waitlistBoard, setWaitlistBoard] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
@@ -451,16 +456,6 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
       Number.isFinite(passEndMs) &&
       passEndMs > nowMs &&
       passEndMs - nowMs > 7 * 86_400_000);
-
-  // The phone bar mounts only once the page has scrolled: never in the prerender capture (which does not scroll) and never over the
-  // first screen, where the cards' own Pay / Buy are what the visitor reads first.
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    if (scrolled) return undefined;
-    const on = () => setScrolled(true);
-    window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
-  }, [scrolled]);
 
   // The phone bar reads the CURRENT card and shop through refs (its scroll handler keeps the reader it mounted with).
   const selectedRef = useRef<HubCardKey>(selected);
@@ -586,6 +581,18 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
         <p className="lt-ph-hero">{HUB_CBQ_HERO}</p>
         <Tiles tiles={HUB_CBQ_TILES} testPrefix="hub-cbq-tile" />
         <Ticks items={HUB_CBQ_TICKS.map((text, i) => ({ id: String(i), text }))} label={`What the ${CBQ_PACKS_NAME} give`} />
+        {/* Desktop only (CSS): fills the band beside the taller Board Pass card; on phones it would push Buy down. */}
+        <div className="lt-ph-extra" data-testid="hub-cbq-inside">
+          <h3 className="lt-ph-extra__title">{HUB_CBQ_INSIDE_TITLE}</h3>
+          <ul className="lt-ph-chips" aria-label="Question types">
+            {HUB_CBQ_INSIDE_CHIPS.map((c) => (
+              <li key={c} className="lt-ph-chip2">{c}</li>
+            ))}
+          </ul>
+          {HUB_CBQ_INSIDE_LINES.map((l) => (
+            <p key={l} className="lt-ph-extra__line">{l}</p>
+          ))}
+        </div>
         <div className="lt-ph-foot">
           <p className="lt-ph-price">
             <span className="lt-ph-price__amt" data-testid="hub-cbq-price">{hubCbqPrice()}</span>
@@ -637,7 +644,20 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           <strong>{HUB_BANK_CLAIM_FIGURE}</strong>
           {HUB_BANK_CLAIM_REST}
         </p>
-        <Ticks items={hubBankTicks().map((text, i) => ({ id: String(i), text }))} label={`What ${QUESTION_BANK_NAME} gives`} />
+        <Ticks items={hubBankTicks().map((text, i) => ({ id: String(i), text, phoneOnly: i === 2 }))} label={`What ${QUESTION_BANK_NAME} gives`} />
+        {/* Desktop only (CSS): the smaller packs as links to their /packs pop-ups (never a buy path here). */}
+        <div className="lt-ph-extra" data-testid="hub-bank-rows">
+          <h3 className="lt-ph-extra__title">{HUB_BANK_ROWS_TITLE}</h3>
+          {hubBankRows(subject).map((r) => (
+            <Link key={r.id} className="lt-ph-row" to={withFrom(r.to)} data-testid={`hub-bank-row-${r.id}`}>
+              <span className="lt-ph-row__top">
+                <span className="lt-ph-row__name">{r.name}</span>
+                <span className="lt-ph-row__price">{r.price}</span>
+              </span>
+              <span className="lt-ph-row__line">{r.line} &rarr;</span>
+            </Link>
+          ))}
+        </div>
         <div className="lt-ph-foot">
           <p className="lt-ph-price">
             <span className="lt-ph-price__amt" data-testid="hub-bank-price">{hubBankPrice()}</span>
@@ -882,7 +902,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
 
                   {/* The phone bar (StickyPassBar's rules via the sales pages' bar): hidden while any Pay / Buy row is on screen and over
                       the footer; mounted after hydration; never a payment path of its own (it taps the card's own Pay / Buy). */}
-                  {paymentsOn && scrolled && (
+                  {paymentsOn && (
+                    // From hydration (no scroll needed). The wrapper carries the capture's clock-figure test id, so the prerender
+                    // capture strips the bar (captureStaticBodies strip rule 4): it shows the date-driven Board Pass price anyway.
+                    <div className="lt-ph-barwrap" data-testid="till-boards-figures">
                     <SalesStickyBar
                       watch={[PASS_PAY_TESTID, CBQ_BUY_TESTID, BANK_BUY_TESTID]}
                       copy={barCopy}
@@ -891,6 +914,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                       ariaLabel={`${HUB_TAB_NAME[selected]} shortcut`}
                       testId="pricing-sticky-bar"
                     />
+                    </div>
                   )}
                 </>
               );

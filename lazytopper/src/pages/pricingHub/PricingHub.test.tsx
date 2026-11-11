@@ -87,6 +87,10 @@ vi.mock("../PackDialog", () => ({
 import PricingPage from "../PricingPage";
 import { cardForHash, nearestCard } from "./PricingHub";
 import { hubBankTag, hubPositionLine, hubTabPrice } from "./hubCopy";
+import { HUB_CSS } from "./pricingHubCss";
+import { stripAuthChrome, countResidualAuthNodes } from "../../../scripts/seo/captureStaticBodies";
+import { REDOWNLOAD_UNTIL } from "../../lib/packs/packLabels";
+import { CBQ_QUESTION_TYPES } from "../../lib/packs/cbqPackTypes";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
@@ -506,10 +510,7 @@ describe("every Buy is the legacy buy path, with the legacy events (§3)", () =>
     auth.user = { uid: "u1" };
     setSub({});
     await renderAt("/pricing?subject=science");
-    expect(screen.queryByTestId("pricing-sticky-bar")).toBeNull();
-    await act(async () => {
-      window.dispatchEvent(new Event("scroll"));
-    });
+    // On screen from hydration, no scroll needed (round 2 R2).
     const bar = () => screen.getByTestId("pricing-sticky-bar");
     expect(bar()).toHaveTextContent(`Board Pass ${boardPassPriceDisplay()}`);
     fireEvent.click(screen.getByTestId("hub-tab-cbq"));
@@ -521,6 +522,50 @@ describe("every Buy is the legacy buy path, with the legacy events (§3)", () =>
     expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science", expect.anything());
     fireEvent.click(screen.getByTestId("hub-tab-bank"));
     expect(bar()).toHaveTextContent(`Buy ${packPayLabel("pack_bundle")}`);
+  });
+});
+
+describe("round 2", () => {
+  it("R2: the phone bar is never in the prerender - the capture's strip removes it (clock-figure wrapper)", async () => {
+    await renderAt("/pricing");
+    const main = screen.getByTestId("pricing-hub");
+    expect(within(main).getByTestId("pricing-sticky-bar")).toBeInTheDocument();
+    expect(screen.getByTestId("pricing-sticky-bar").closest('[data-testid="till-boards-figures"]')).not.toBeNull();
+    stripAuthChrome(main);
+    expect(within(main).queryByTestId("pricing-sticky-bar")).toBeNull();
+    expect(countResidualAuthNodes(main)).toBe(0);
+    // The cards and their Buys survive the strip.
+    expect(within(main).getByTestId("hub-buy-pack_cbq-maths")).toBeInTheDocument();
+  });
+
+  it("R1: desktop extras - CBQ 'What's inside' and the smaller-pack rows linking to their /packs pop-ups (no buy path)", async () => {
+    await renderAt("/pricing?subject=science&from=for_parents");
+    const inside = screen.getByTestId("hub-cbq-inside");
+    expect(inside).toHaveTextContent("What's inside");
+    expect(inside).toHaveTextContent("Chapter-wise and topic-wise · 1- to 5-mark questions");
+    expect(inside).toHaveTextContent(`Download again any time until ${REDOWNLOAD_UNTIL}`);
+    expect(Array.from(inside.querySelectorAll("li")).map((li) => li.textContent)).toEqual([...CBQ_QUESTION_TYPES]);
+    const rows = screen.getByTestId("hub-bank-rows");
+    expect(within(rows).getByTestId("hub-bank-row-subject")).toHaveTextContent(`Subject Pack${packPriceLabel("pack_subject")}13 chapters + 8 mocks`);
+    expect(within(rows).getByTestId("hub-bank-row-subject")).toHaveAttribute("href", "/packs?pack=subject&subject=science&from=for_parents");
+    expect(within(rows).getByTestId("hub-bank-row-mock")).toHaveTextContent(`Mock Pack${packPriceLabel("pack_mock")}8 board-pattern mocks`);
+    expect(within(rows).getByTestId("hub-bank-row-mock")).toHaveAttribute("href", "/packs?mock=science&from=for_parents");
+    expect(within(rows).getByTestId("hub-bank-row-chapter")).toHaveTextContent(`Chapter Pack${packPriceLabel("pack_chapter")}one chapter`);
+    expect(within(rows).getByTestId("hub-bank-row-chapter")).toHaveAttribute("href", "/packs?pack=chapter&from=for_parents");
+    expect(rows.querySelector("button")).toBeNull();
+    // Desktop-only by CSS (phones would push Buy down); the duplicate "Smaller packs" tick is phone-only.
+    expect(HUB_CSS).toMatch(/\.lt-ph-extra \{\s*display: none;/);
+    expect(document.querySelectorAll('[data-testid="hub-card-bank"] .lt-ph-phone-only')).toHaveLength(1);
+  });
+
+  it("R3: the WhatsApp button is moved clear of the cards on hub phones (page-level rule)", () => {
+    expect(HUB_CSS).toMatch(/body:has\(\.lt-ph\) \.lt-wa-fab \{\s*width: 44px;\s*height: 44px;\s*right: 4px;/);
+  });
+
+  it("R4: the Basic line is the legacy one - 'limited practice' with the limits on", async () => {
+    vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-basic-line")).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)");
   });
 });
 

@@ -643,6 +643,100 @@ export const HUB_CSS = `
   .lt-ph .lt-pp-basicline {
     margin-top: 22px;
   }
+  .lt-ph-barwrap {
+    display: contents;
+  }
+  /* Desktop-only extras (the band beside the taller Board Pass card): hidden below 1024 px, where they would push Buy down. */
+  .lt-ph-extra {
+    display: none;
+  }
+  .lt-ph-extra__title {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4a5a73;
+  }
+  .lt-ph-card--cbq .lt-ph-extra__title {
+    color: var(--ph-amber-ink);
+  }
+  .lt-ph-chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .lt-ph-chip2 {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid #f3c66b;
+    background: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--ph-amber-ink);
+  }
+  .lt-ph-extra__line {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #22324d;
+  }
+  .lt-ph-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--ph-blue-tile);
+    text-decoration: none;
+  }
+  .lt-pricing-page a.lt-ph-row {
+    color: var(--ph-navy);
+  }
+  .lt-ph-row:hover {
+    background: #dde6f4;
+  }
+  .lt-ph-row__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+  .lt-ph-row__price {
+    white-space: nowrap;
+  }
+  .lt-ph-row__line {
+    font-size: 0.78rem;
+    color: #4a5a73;
+  }
+
+  /* WhatsApp button on the hub (phones): the shared button (contact/WhatsAppFab, 52 px at right 16 px) would sit over the right
+     edge of the cards' text. Here it is 44 px at right 4 px, which clears every card's text column at 320-412 px, still above the
+     phone bar (its bottom stays 84 px; the bar is 64 px). The right-aligned rows below the cards keep a matching gutter.
+     Same page-level :has() mechanism the legacy PRICING_CSS uses for the page background and the shell's fixed bar. */
+  @media (max-width: 767px) {
+    body:has(.lt-ph) .lt-wa-fab {
+      width: 44px;
+      height: 44px;
+      right: 4px;
+    }
+    body:has(.lt-ph) .lt-wa-fab__icon {
+      width: 24px;
+      height: 24px;
+    }
+    .lt-ph .lt-pp-basicline {
+      padding-right: 48px;
+    }
+    .lt-ph-fold > summary {
+      padding-right: 52px;
+    }
+  }
+
 
   /* The H1 keeps two lines' room on phones: the web font swapping in re-wraps it at some widths (412 px: CLS 0.03 on trunk too). */
   @media (max-width: 599px) {
@@ -700,6 +794,14 @@ export const HUB_CSS = `
     }
     .lt-ph-folds {
       margin-top: 28px;
+    }
+    .lt-ph-extra {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .lt-ph-phone-only {
+      display: none;
     }
   }
 `;

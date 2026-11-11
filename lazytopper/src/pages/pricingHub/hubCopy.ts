@@ -10,6 +10,7 @@
  */
 import { BOARD_PASS_NAME, formatInr, tillBoardsPriceInr } from "../../config/pricing";
 import { PACK_PRICE_INR, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
+import { subjectPackRow } from "../../components/pricing/pricingPlansCopy";
 import {
   BANK_CBQS_CLAIM,
   BANK_QUESTIONS_CLAIM,
@@ -19,6 +20,8 @@ import {
   CBQ_MIN_PER_CHAPTER,
   CBQ_SUBJECT_CLAIM,
   isPreboardsSeason,
+  MOCKS_PER_SUBJECT,
+  REDOWNLOAD_UNTIL,
 } from "../../lib/packs/packLabels";
 import { CBQ_QUESTION_TYPES } from "../../lib/packs/cbqPackTypes";
 import { BP_MINUTE_LINE, BP_MINUTE_STRONG, BP_TUTOR_BODY, BP_TUTOR_TITLE, CBQ_PACKS_NAME, QUESTION_BANK_NAME } from "../../components/salesPages/salesPagesCopy";
@@ -96,6 +99,17 @@ export function hubCbqBuyAria(s: PackSubject): string {
   return `Buy ${subjectLabel(s)} CBQ Pack, ${packPayLabel("pack_cbq")}`;
 }
 export const HUB_CBQ_NOT_IN_BUNDLE = "Not in the Bundle.";
+/**
+ * Desktop "What's inside" (the band beside the taller Board Pass card): every line is existing, already-true copy - the question
+ * types (cbqPackTypes), "chapter-wise and topic-wise" + "1- to 5-mark questions" (CbqBand.tsx / CbqPacksPage.tsx) and the
+ * re-download date (REDOWNLOAD_UNTIL).
+ */
+export const HUB_CBQ_INSIDE_TITLE = "What's inside";
+export const HUB_CBQ_INSIDE_CHIPS: readonly string[] = CBQ_QUESTION_TYPES;
+export const HUB_CBQ_INSIDE_LINES: readonly string[] = [
+  "Chapter-wise and topic-wise · 1- to 5-mark questions",
+  `Download again any time until ${REDOWNLOAD_UNTIL}`,
+];
 export const HUB_CBQ_DETAILS = "See inside + free sample page →";
 
 /* ── Card 3: Question Bank + Mocks ──────────────────────────────────────── */
@@ -118,6 +132,20 @@ export function hubBankTicks(): readonly string[] {
     `Smaller packs: chapter ${formatInr(PACK_PRICE_INR.pack_chapter)} · mocks ${formatInr(PACK_PRICE_INR.pack_mock)} · subject ${formatInr(PACK_PRICE_INR.pack_subject)} (+ GST)`,
   ];
 }
+/**
+ * Desktop "Smaller packs" rows (the band beside the taller Board Pass card): links to the matching /packs pop-up (packEntry.ts
+ * contract: ?pack=subject&subject=, ?mock=, ?pack=chapter), never a buy path of their own. Prices from the pack config, counts from
+ * the pack constants. The name and the price sit in separate spans (the prerender price guard reads "<Pack name> ₹" as a claim).
+ */
+export function hubBankRows(s: PackSubject): ReadonlyArray<{ id: string; name: string; price: string; line: string; to: string }> {
+  return [
+    { id: "subject", name: "Subject Pack", price: packPriceLabel("pack_subject"), line: subjectPackRow(s).lineShort, to: `/packs?pack=subject&subject=${s}` },
+    { id: "mock", name: "Mock Pack", price: packPriceLabel("pack_mock"), line: `${MOCKS_PER_SUBJECT} board-pattern mocks`, to: `/packs?mock=${s}` },
+    { id: "chapter", name: "Chapter Pack", price: packPriceLabel("pack_chapter"), line: "one chapter", to: "/packs?pack=chapter" },
+  ];
+}
+export const HUB_BANK_ROWS_TITLE = "Smaller packs";
+
 export function hubBankPrice(): string {
   return packPriceLabel("pack_bundle");
 }
