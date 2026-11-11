@@ -682,7 +682,7 @@ test('E · guest: ONE email to the Razorpay address after verify; masked phone +
   assert.equal(mail.body.subject, 'Payment received: Maths Mock Pack (₹99)');
   const text = mail.body.text;
   for (const want of ['Maths Mock Pack', '₹99', p.id, '2 November 2026', '+91 98•••••948', 'your pack is in My packs',
-    '/login?method=phone&redirect=%2Fpacks%23my-packs', 'support@lazytopper.com', '+91 97145 68948']) {
+    '/login?method=phone&redirect=%2Fpacks%3Ffrom%3Dpay%23my-packs', 'support@lazytopper.com', '+91 97145 68948']) {
     assert.ok(text.includes(want), want);
   }
   const all = JSON.stringify(mail.body);
@@ -1166,7 +1166,7 @@ test('WHO · the recipient email copy: pack says My packs; month is never sent',
   const pack = buildRecipientReadyEmail({ passType: 'pack_cbq', packTarget: 'maths', phoneMasked: null, emailMasked: 'an••••@gmail.com', appUrl: 'https://lazytopper.com' });
   assert.ok(pack.subject.startsWith('Your ') && pack.subject.endsWith(' is ready'));
   assert.ok(pack.text.includes('open My packs to download it'));
-  assert.ok(pack.text.includes('%2Fpacks%23my-packs'));
+  assert.ok(pack.text.includes('%2Fpacks%3Ffrom%3Dpay%23my-packs'));
   assert.equal(buildRecipientReadyEmail({ passType: 'month', appUrl: 'x' }), null);
 });
 
@@ -1703,7 +1703,7 @@ test('AUTO · email: "Your LazyTopper account is ready" with ONE one-tap sign-in
   await receiptEmailer.whenIdle();
   // Only the order whose account signs in with the email gets a link; the phone-first order's email gets none.
   assert.deepEqual(links.map((l) => l.email), [EMAIL]);
-  assert.equal(links[0].url, 'https://www.lazytopper.com/login?finish=link&redirect=%2Fpacks%23my-packs');
+  assert.equal(links[0].url, 'https://www.lazytopper.com/login?finish=link&redirect=%2Fpacks%3Ffrom%3Dpay%23my-packs');
   for (const l of links) assert.ok(!l.url.includes('@') && !l.url.includes('9876543948'), 'no email / phone in the continue URL');
   const toPack = resend.sent.filter((m) => m.body.to.includes(EMAIL));
   assert.equal(toPack.length, 1);

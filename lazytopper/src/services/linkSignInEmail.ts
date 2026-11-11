@@ -78,7 +78,7 @@ export async function completeEmailLink(rawEmail: string, href: string = window.
  * packs / Home), never caller-supplied text and never the address. The address is not stored anywhere (owner rule: no email
  * in localStorage): the finish step asks the student to confirm it.
  */
-export const SIGN_IN_LANDINGS = Object.freeze(["/packs#my-packs", "/"]);
+export const SIGN_IN_LANDINGS = Object.freeze(["/packs?from=pay#my-packs", "/packs#my-packs", "/"]);
 export function emailLinkFinishUrl(origin: string, landing: string): string {
   const safe = SIGN_IN_LANDINGS.includes(landing) ? landing : "/";
   return `${origin}/login?finish=link&redirect=${encodeURIComponent(safe)}`;
