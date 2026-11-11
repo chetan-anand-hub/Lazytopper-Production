@@ -95,8 +95,8 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   if (/(^|\/)packs\.html$/.test(file)) {
     take(new RegExp(`class="lt-pk-bundle__amt">${AMT}`), () => "Maths + Science Bundle", () => packExp("Maths + Science Bundle"));
     take(new RegExp(`class="lt-pk-row__name">(${LABELS})</span><span class="lt-pk-row__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
-    take(new RegExp(`>(?:Maths|Science) (Subject Pack|Mock Pack) · ${AMT}<`), (m) => `${m[1]} (neutral button)`, (m) => packExp(m[1]));
-    take(new RegExp(`>Choose a (?:Maths|Science) chapter · ${AMT}<`), () => "Chapter Pack (neutral button)", () => packExp("Chapter Pack"));
+    // (the Bundle / Subject / Mock neutral buttons, ">Subject Pack · ₹199 + GST<", are claimed by the shared "<label> · <amt><" rule above)
+    take(new RegExp(`>Choose a chapter · ${AMT}<`), () => "Chapter Pack (neutral button)", () => packExp("Chapter Pack"));
     take(new RegExp(`CBQs per subject · ${AMT} →`), () => "CBQ Pack (packs link card)", () => packExp("Maths CBQ Pack"));
     take(new RegExp(`their own page, ${AMT} per subject`), () => "CBQ Pack (packs FAQ)", () => packExp("Maths CBQ Pack"));
     const twinSku: Record<string, PackSku> = { bundle: "pack_bundle", subject: "pack_subject", mock: "pack_mock", chapter: "pack_chapter" };
@@ -231,7 +231,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     const after = new Date(GST_EXCLUSIVE_FROM_MS + 1);
     const html =
       `<span class="lt-pk-row__name">Mock Pack</span><span class="lt-pk-row__price">₹98 + GST</span>` +
-      `<div data-lt-twin="pk-buy-mock"><button>Maths Mock Pack · ₹98 + GST</button><span class="lt-ptb__gst">₹98 + ₹18 GST (18%) = ₹116</span></div>`;
+      `<div data-lt-twin="pk-buy-mock"><button>Mock Pack · ₹98 + GST</button><span class="lt-ptb__gst">₹98 + ₹18 GST (18%) = ₹116</span></div>`;
     const r = scanSnapshot("packs.html", html, after, predictCbseExamDate("10"));
     expect(r.unclaimed).toEqual([]);
     expect(mismatchMessages(r.found)).toHaveLength(3);

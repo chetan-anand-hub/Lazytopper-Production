@@ -372,7 +372,9 @@ function PartRow({ t, api, subject, open, onToggle, rowRef }: { t: Tile; api: Pa
   const [tapped, setTapped] = useState<PackSubject | null>(null);
   const next = tapped && tapped === subject && hasSubject ? sampleBuyFor(api, t.sku)(tapped) : null;
   const subj = subjectLabel(subject);
-  const neutral = t.sku === "pack_chapter" ? `Choose a ${subj} chapter · ${packPriceLabel(t.sku)}` : `${subj} ${t.name} · ${packPriceLabel(t.sku)}`;
+  // The neutral label names no subject: on the static page the switch can change before the app arrives (the held tap then lands on
+  // the app's Buy for the subject the visitor picked), so a "Maths …" label there could contradict the switch.
+  const neutral = t.sku === "pack_chapter" ? `Choose a chapter · ${packPriceLabel(t.sku)}` : `${t.name} · ${packPriceLabel(t.sku)}`;
   const onNeutral = () => (t.sku === "pack_chapter" ? api.chooseChapter({ subject }) : api.openPackWith ? api.openPackWith(t.sku, subject) : api.openPack(t.sku));
   return (
     <div className="lt-pk-row" ref={rowRef} data-testid={`packs-row-${t.id}`} data-open={open ? "" : undefined}>

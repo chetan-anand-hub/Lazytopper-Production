@@ -143,7 +143,8 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     expect(screen.queryByTestId("tile-buy-pack_bundle")).toBeNull();
     // PACKS-TIDY-2: a neutral button (no "Buy") holds each Buy's place; it only opens the pack's pop-up.
     expect(screen.getByTestId("pk-buy-bundle-neutral").textContent).toBe(`Maths + Science Bundle · ${packs.packPriceLabel("pack_bundle")}`);
-    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(`Maths Mock Pack · ${packs.packPriceLabel("pack_mock")}`);
+    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(`Mock Pack · ${packs.packPriceLabel("pack_mock")}`);
+    expect(screen.getByTestId("pk-buy-chapter-neutral").textContent).toBe(`Choose a chapter · ${packs.packPriceLabel("pack_chapter")}`);
     expect(document.body.textContent).not.toMatch(/\bBuy\b[^?]/);
     fireEvent.click(screen.getByTestId("pk-buy-bundle-neutral"));
     expect((await screen.findByTestId("dialog")).getAttribute("data-sku")).toBe("pack_bundle");
