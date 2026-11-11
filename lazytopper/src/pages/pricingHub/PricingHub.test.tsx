@@ -1,0 +1,532 @@
+/**
+ * PRICING-HUB-1 (owner, 11 Nov 2026) - /pricing as three cards. Rendered through the REAL route component (PricingPage) with the kill
+ * switch off (VITE_PRICING_HUB_DISABLED stubbed to ""), so these tests exercise exactly what production mounts.
+ *
+ * Proves: the kill switch; every account state the legacy page handles (§0a.3); every inbound link (§0a.4); every Buy goes through the
+ * legacy page's own buy path (PassCheckout / the embedded PacksShop) with the legacy events; the copy rules.
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+
+vi.hoisted(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-11T12:00:00+05:30"));
+});
+
+vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
+vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
+vi.mock("../../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
+
+const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
+
+type Sub = {
+  status: Record<string, unknown>;
+  hydrated: boolean;
+  isTrialActive: boolean;
+  daysLeftInTrial: number;
+  startTrial: ReturnType<typeof vi.fn>;
+};
+const sub = vi.hoisted(() => ({ value: null as unknown as Sub }));
+vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => sub.value }));
+vi.mock("../../services/subscriptionService", async (orig) => ({
+  ...(await orig<typeof import("../../services/subscriptionService")>()),
+  hydrateSubscriptionFromCloud: vi.fn(async () => ({})),
+}));
+
+const monthBuyer = vi.hoisted(() => ({ on: false }));
+vi.mock("../../components/pricing/useMonthPassAvailable", () => ({
+  useMonthPassAvailable: () => monthBuyer.on,
+  fetchMonthPassAvailable: async () => monthBuyer.on,
+  resetMonthPassAvailableForTests: () => undefined,
+}));
+
+const pay = vi.hoisted(() => ({ buyPass: vi.fn() }));
+vi.mock("../../services/checkout", async (orig) => ({
+  ...(await orig<typeof import("../../services/checkout")>()),
+  buyPass: (...a: unknown[]) => pay.buyPass(...a),
+  authHeaders: async () => ({ Authorization: "Bearer t" }),
+}));
+
+const owned = vi.hoisted(() => ({ packs: [] as Array<{ sku: string; target: string }> }));
+const buyPack = vi.hoisted(() => vi.fn(async (..._a: unknown[]) => ({ status: "dismissed" as const })));
+const packsOn = vi.hoisted(() => ({ on: true }));
+vi.mock("../../services/packs", async (orig) => {
+  const actual = await orig<typeof import("../../services/packs")>();
+  return {
+    ...actual,
+    isPacksClientEnabled: () => packsOn.on,
+    fetchMyPacks: vi.fn(async () => ({
+      packs: owned.packs.map((p, i) => ({ packId: `${p.sku}:${p.target}`, sku: p.sku, target: p.target, paidAt: 1_700_000_000_000 + i })),
+      licensee: { name: "Asha", email: "a@b.in" },
+      boardPassCredit: null,
+    })),
+    buyPack,
+  };
+});
+const tracked = vi.hoisted(() => ({ checkout: vi.fn(), event: vi.fn() }));
+vi.mock("../../lib/packs/packAnalytics", async (orig) => {
+  const actual = await orig<typeof import("../../lib/packs/packAnalytics")>();
+  return { ...actual, trackPackCheckout: tracked.checkout, trackPackEvent: tracked.event, trackPackPurchase: vi.fn() };
+});
+const analytics = vi.hoisted(() => ({ paywall: vi.fn(), named: vi.fn() }));
+vi.mock("../../analytics/analytics", async (orig) => {
+  const actual = await orig<typeof import("../../analytics/analytics")>();
+  return { ...actual, trackPaywallAction: analytics.paywall, trackNamedEvent: analytics.named };
+});
+vi.mock("../../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
+vi.mock("../PackDialog", () => ({
+  default: (p: { sku: string; subject: string; chapter: string; buy: unknown }) => (
+    <div role="dialog" data-testid="pack-dialog" data-sku={p.sku} data-subject={p.subject} data-chapter={p.chapter}>
+      {p.buy as never}
+    </div>
+  ),
+}));
+
+import PricingPage from "../PricingPage";
+import { cardForHash, nearestCard } from "./PricingHub";
+import { hubBankTag, hubPositionLine, hubTabPrice } from "./hubCopy";
+import { isPricingHubEnabled } from "./hubFlag";
+import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
+import { boardPassPayDisplay, boardPassPriceDisplay } from "../../config/pricing";
+import { packPayLabel, packPriceLabel } from "../../services/packs";
+import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
+import { PRICING_H1 } from "../../components/pricing/pricingPlansCopy";
+
+const DAY = 86_400_000;
+const FREE = { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: null };
+function setSub(status: Record<string, unknown>, extra: Partial<Sub> = {}) {
+  sub.value = { status: { ...FREE, ...status }, hydrated: true, isTrialActive: false, daysLeftInTrial: 0, startTrial: vi.fn(), ...extra };
+}
+
+function Where() {
+  const l = useLocation();
+  return <div data-testid="where">{`${l.pathname}${l.search}${l.hash}`}</div>;
+}
+async function renderAt(url: string) {
+  await act(async () => {
+    render(
+      <MemoryRouter initialEntries={[url]}>
+        <Routes>
+          <Route path="/pricing" element={<><PricingPage /><Where /></>} />
+          <Route path="/login" element={<Where />} />
+          <Route path="/packs" element={<Where />} />
+          <Route path="/for-parents" element={<Where />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  });
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 0));
+  });
+}
+const where = () => screen.getByTestId("where").textContent ?? "";
+const card = (k: "pass" | "cbq" | "bank") => screen.getByTestId(`hub-card-${k}`);
+
+Element.prototype.scrollIntoView = vi.fn();
+
+beforeEach(() => {
+  vi.stubEnv("VITE_PRICING_HUB_DISABLED", "");
+  vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+  auth.user = null;
+  owned.packs = [];
+  packsOn.on = true;
+  monthBuyer.on = false;
+  setSub({}, { hydrated: false });
+  pay.buyPass.mockReset();
+  pay.buyPass.mockImplementation(() => new Promise(() => undefined));
+  buyPack.mockClear();
+  tracked.checkout.mockClear();
+  tracked.event.mockClear();
+  analytics.paywall.mockClear();
+  analytics.named.mockClear();
+  localStorage.clear();
+  sessionStorage.clear();
+});
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
+
+describe("§0a.1 kill switch", () => {
+  it("unset -> the hub; VITE_PRICING_HUB_DISABLED=1 -> the legacy page, unchanged", async () => {
+    expect(isPricingHubEnabled()).toBe(true);
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-hub")).toBeInTheDocument();
+    expect(screen.queryByTestId("pricing-board-pass")).toBeNull();
+    cleanup();
+    for (const v of ["1", "true", "ON", "yes"]) {
+      vi.stubEnv("VITE_PRICING_HUB_DISABLED", v);
+      expect(isPricingHubEnabled()).toBe(false);
+    }
+    vi.stubEnv("VITE_PRICING_HUB_DISABLED", "1");
+    await renderAt("/pricing");
+    expect(screen.queryByTestId("pricing-hub")).toBeNull();
+    expect(screen.getByTestId("pricing-board-pass")).toBeInTheDocument();
+  });
+});
+
+describe("the page, top to bottom (§2)", () => {
+  it("header: eyebrow, the SAME H1, the founder badge; no subline; the countdown strip; three cards in the DOM in order", async () => {
+    await renderAt("/pricing");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(PRICING_H1);
+    expect(PRICING_H1).toBe("Plans and packs for the 2027 boards");
+    expect(screen.getByText("CBSE CLASS 10 · BOARDS 2027")).toBeInTheDocument();
+    expect(screen.getByTestId("founder-badge")).toHaveTextContent(FOUNDER_BADGE_TEXT);
+    expect(screen.getByTestId("boards-countdown-slot")).toBeInTheDocument();
+    const body = document.body.textContent ?? "";
+    for (const gone of ["Pick where you want to start", "Three ways to prepare", "take them together", "take one"]) expect(body).not.toContain(gone);
+    const cards = Array.from(screen.getByTestId("hub-cards").children).map((c) => c.id);
+    expect(cards).toEqual(["lt-premium-card", "cbq", "packs"]);
+  });
+
+  it("Board Pass card: 1 MINUTE hero, the pinned bank claims, tutor, ticks, price from config, Pay, payline, trial, details link", async () => {
+    await renderAt("/pricing");
+    const c = card("pass");
+    expect(within(c).getByText("START HERE")).toBeInTheDocument();
+    expect(within(c).getByTestId("hub-pass-minute")).toHaveTextContent("1MINUTE1 minute: CBSE-style marking of your answerPhotograph your handwritten answer. See the marks for every step, like a CBSE examiner.");
+    expect(within(c).getByTestId("hub-pass-tile-questions")).toHaveTextContent(`${BANK_QUESTIONS_CLAIM}questions with solutions`);
+    expect(within(c).getByTestId("hub-pass-tile-cbqs")).toHaveTextContent(`${BANK_CBQS_CLAIM}CBQs, every type`);
+    expect(BANK_CBQS_CLAIM).toBe("2,800+");
+    expect(within(c).getByTestId("hub-pass-tutor")).toHaveTextContent("Your personal tutor. Knows your mistakes and explains the exact step you got wrong, any time.");
+    expect(c).toHaveTextContent("Chapter tests, full mocks and worksheets graded");
+    expect(c).toHaveTextContent("Mistake Intelligence: shows the mistakes you repeat");
+    expect(within(c).getByTestId("till-boards-figures")).toHaveTextContent(boardPassPriceDisplay());
+    expect(within(c).getByTestId("till-boards-deadline")).toBeInTheDocument();
+    const payBtn = c.querySelector(".lt-pricing-pay--boards") as HTMLButtonElement;
+    expect(payBtn.textContent).toBe(`Pay ${boardPassPayDisplay()} once till your boards`);
+    expect(within(c).getByTestId("pricing-payline")).toHaveTextContent("One payment · nothing renews · UPI, card or netbanking");
+    expect(within(c).getByTestId("pricing-trial")).toBeInTheDocument();
+    expect(within(c).getByTestId("hub-pass-details")).toHaveAttribute("href", "/board-pass");
+  });
+
+  it("CBQ card: hero, claims, ticks, price + GST, two Buys naming the total, 'Not in the Bundle.', details link", async () => {
+    await renderAt("/pricing");
+    const c = card("cbq");
+    expect(c).toHaveTextContent("ON PAPER · MOST ASKED-FOR");
+    expect(c).toHaveTextContent("Half your board paper is competency-based. Practise every type.");
+    expect(within(c).getByTestId("hub-cbq-tile-subject")).toHaveTextContent(`${CBQ_SUBJECT_CLAIM}in each subject pack`);
+    expect(within(c).getByTestId("hub-cbq-tile-chapter")).toHaveTextContent("100+in every chapter");
+    expect(c).toHaveTextContent("Step-wise worked solutions");
+    expect(c).toHaveTextContent("Printable PDF, your name on every page");
+    expect(within(c).getByTestId("hub-cbq-price")).toHaveTextContent(packPriceLabel("pack_cbq"));
+    expect(within(c).getByTestId("hub-buy-pack_cbq-maths")).toHaveTextContent(`Maths · ${packPayLabel("pack_cbq")}`);
+    expect(within(c).getByTestId("hub-buy-pack_cbq-science")).toHaveTextContent(`Science · ${packPayLabel("pack_cbq")}`);
+    expect(within(c).getByTestId("hub-cbq-not-in-bundle")).toHaveTextContent("Not in the Bundle.");
+    expect(within(c).getByTestId("hub-cbq-details")).toHaveAttribute("href", "/cbq-packs");
+  });
+
+  it("Question Bank card: season tag, tiles, the pinned Bundle claim, ticks with config prices, Bundle Buy, separate line, details", async () => {
+    await renderAt("/pricing");
+    const c = card("bank");
+    expect(within(c).getByTestId("hub-bank-tag")).toHaveTextContent(hubBankTag());
+    expect(hubBankTag(new Date("2026-12-01T00:00:00+05:30"))).toBe("ON PAPER · PRE-BOARDS PICK");
+    expect(hubBankTag(new Date("2026-12-21T00:00:00+05:30"))).toBe("ON PAPER");
+    expect(within(c).getByTestId("hub-bank-tile-chapters")).toHaveTextContent("26chapters, Maths + Science");
+    expect(within(c).getByTestId("hub-bank-tile-mocks")).toHaveTextContent("16board-pattern mock papers");
+    expect(within(c).getByTestId("hub-bank-claim")).toHaveTextContent(`${BUNDLE_QUESTIONS_CLAIM} questions in the Bundle`);
+    expect(c).toHaveTextContent("Smaller packs: chapter ₹49 · mocks ₹99 · subject ₹199 (+ GST)");
+    expect(within(c).getByTestId("hub-bank-price")).toHaveTextContent(packPriceLabel("pack_bundle"));
+    expect(within(c).getByTestId("hub-buy-pack_bundle")).toHaveTextContent(`Buy the Bundle · ${packPayLabel("pack_bundle")}`);
+    expect(within(c).getByTestId("hub-bank-separate")).toHaveTextContent("CBQ Packs are separate.");
+    expect(within(c).getByTestId("hub-bank-details")).toHaveAttribute("href", "/packs");
+  });
+
+  it("tabs: three real buttons with aria-pressed; caption; pager '1 of 3 · next: CBQ Packs'; a tab tap selects its card", async () => {
+    await renderAt("/pricing");
+    const tabs = within(screen.getByTestId("hub-tabs")).getAllByRole("button");
+    expect(tabs.map((t) => t.textContent)).toEqual([`Board Pass${hubTabPrice("pass")}`, `CBQ Packs${hubTabPrice("cbq")}`, `Question Bank${hubTabPrice("bank")}`]);
+    expect(hubTabPrice("cbq")).toBe("₹199");
+    expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["true", "false", "false"]);
+    expect(tabs.map((t) => t.getAttribute("aria-controls"))).toEqual(["lt-premium-card", "cbq", "packs"]);
+    expect(screen.getByText("3 options · tap or swipe · all prices + GST")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("1 of 3 · next: CBQ Packs");
+    fireEvent.click(tabs[2]);
+    expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["false", "false", "true"]);
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("3 of 3 · next: Board Pass");
+  });
+
+  it("folded rows: compare (table + Basic + fair use), the video (id pricing-video), the FAQ - all content in the DOM", async () => {
+    await renderAt("/pricing");
+    const compare = screen.getByTestId("hub-fold-compare");
+    expect(compare.tagName).toBe("DETAILS");
+    expect(within(compare).getByTestId("pricing-what-table")).toBeInTheDocument();
+    expect(within(compare).getByTestId("pricing-compare")).toBeInTheDocument();
+    expect(within(compare).getByTestId("pricing-fair-use")).toBeInTheDocument();
+    expect(within(screen.getByTestId("hub-fold-video")).getByRole("heading", { name: "Where did his ½ mark go?" }).id).toBe("pricing-video");
+    const faq = screen.getByTestId("pricing-faq");
+    expect(faq).toHaveTextContent("Is it a subscription?");
+    expect(within(faq).getByTestId("pricing-faq-more")).toHaveTextContent("Is Basic really free?");
+    expect(screen.getByTestId("pricing-basic-line")).toBeInTheDocument();
+    expect(screen.getByTestId("pricing-otherboards")).toBeInTheDocument();
+    expect(document.querySelector("footer.lt-public-legal")).not.toBeNull();
+  });
+
+  it("copy rules: no AI / answer key / optional / refund / save / strike-through inside the cards", async () => {
+    await renderAt("/pricing");
+    const text = screen.getByTestId("hub-cards").textContent ?? "";
+    for (const bad of [/\bAI\b/, /answer key/i, /optional/i, /refund/i, /\bsave\b/i, /\bask\b/i]) expect(text).not.toMatch(bad);
+    expect(screen.getByTestId("hub-cards").querySelector("s, del, strike")).toBeNull();
+  });
+});
+
+describe("§0a.3 account states", () => {
+  it("signed out: Log in, the trial carries the intent to sign-in, Start free; no parent share", async () => {
+    await renderAt("/pricing");
+    expect(screen.getByRole("button", { name: "Log in" })).toBeInTheDocument();
+    expect(screen.queryByTestId("pricing-parent-share")).toBeNull();
+    fireEvent.click(screen.getByTestId("pricing-trial"));
+    expect(where()).toBe(`/login?reason=start-trial&redirect=${encodeURIComponent("/pricing")}`);
+  });
+
+  it("signed in, trial eligible: one explicit tap starts it (trial_start), never on mount", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(sub.value.startTrial).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("pricing-trial"));
+    expect(sub.value.startTrial).toHaveBeenCalledTimes(1);
+    expect(analytics.named).toHaveBeenCalledWith("trial_start");
+    expect(screen.getByTestId("pricing-trial-state")).toHaveTextContent("Your 7-day trial has started");
+  });
+
+  it("trial active / trial used: the state line, no trial button", async () => {
+    auth.user = { uid: "u1" };
+    setSub({ tier: "trial", trialStartDate: new Date(Date.now() - DAY).toISOString() }, { isTrialActive: true, daysLeftInTrial: 6 });
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-trial-state")).toHaveTextContent("Your trial is active — 6 days left.");
+    cleanup();
+    setSub({ trialStartDate: new Date(Date.now() - 20 * DAY).toISOString() });
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-trial-state")).toHaveTextContent("You've used your free trial.");
+    expect(screen.queryByTestId("pricing-trial")).toBeNull();
+  });
+
+  it("Basic, parent pay on: 'Forward link to parents' beside Pay", async () => {
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+    auth.user = { uid: "u1" };
+    setSub({ trialStartDate: new Date(Date.now() - 20 * DAY).toISOString() });
+    await renderAt("/pricing");
+    expect(within(card("pass")).getByTestId("pricing-parent-share")).toBeInTheDocument();
+  });
+
+  it("month-pass holder: the month block shows; ?buy=board_pass starts the upgrade checkout", async () => {
+    auth.user = { uid: "u1" };
+    monthBuyer.on = true;
+    setSub({ tier: "premium", plan: "pass_month", premiumSince: new Date(Date.now() - DAY).toISOString(), passEnd: new Date(Date.now() + 3 * DAY).toISOString() });
+    await renderAt("/pricing?buy=board_pass");
+    expect(within(card("pass")).getByText("Month pass")).toBeInTheDocument();
+    expect(pay.buyPass).toHaveBeenCalledTimes(1);
+    expect(where()).toBe("/pricing");
+  });
+
+  it("Board Pass owner: no price, no Pay, owned state + practice link; the pack cards still sell; no trial", async () => {
+    auth.user = { uid: "u1" };
+    setSub({ tier: "premium", plan: "pass_till_boards", premiumSince: new Date(Date.now() - DAY).toISOString(), passEnd: "2027-02-17T18:29:59.999Z" });
+    await renderAt("/pricing");
+    const c = card("pass");
+    expect(within(c).getByTestId("hub-pass-owned")).toHaveTextContent("You have the Board Pass");
+    expect(within(c).getByTestId("hub-pass-owned-go")).toHaveAttribute("href", "/practice-hub");
+    expect(within(c).queryByTestId("till-boards-figures")).toBeNull();
+    expect(within(c).queryByTestId("pricing-payline")).toBeNull();
+    expect(c.querySelector(".lt-pricing-pay--boards")).toBeNull();
+    expect(within(c).queryByTestId("pricing-trial")).toBeNull();
+    expect(screen.getByTestId("hub-buy-pack_cbq-maths")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-buy-pack_bundle")).toBeInTheDocument();
+  });
+
+  it("pack owner: the owned card says so + 'Open My packs'; the other subject still sells; no embedded My packs block", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    owned.packs = [{ sku: "pack_cbq", target: "maths" }];
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("hub-buy-pack_cbq-maths-owned")).toHaveTextContent("Maths CBQ · You own this");
+    expect(screen.getByTestId("hub-buy-pack_cbq-science")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-cbq-my-packs")).toHaveAttribute("href", "/packs#my-packs");
+    expect(screen.queryByTestId("hub-bank-my-packs")).toBeNull();
+    expect(screen.queryByTestId("packs-mine")).toBeNull();
+    cleanup();
+    owned.packs = [{ sku: "pack_bundle", target: "all" }];
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("hub-buy-pack_bundle-owned")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-bank-my-packs")).toHaveAttribute("href", "/packs#my-packs");
+  });
+
+  it("payments off: the legacy manual line, no Pay, no payline, no phone bar", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "");
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-manual")).toHaveTextContent("Manual activation during beta.");
+    expect(document.querySelector(".lt-pricing-pay--boards")).toBeNull();
+    expect(screen.queryByTestId("pricing-payline")).toBeNull();
+    expect(screen.queryByTestId("pricing-sticky-bar")).toBeNull();
+  });
+
+  it("packs dark: the pack Buys open the pop-up, never a checkout", async () => {
+    packsOn.on = false;
+    await renderAt("/pricing");
+    fireEvent.click(screen.getByTestId("hub-buy-pack_cbq-science"));
+    expect(await screen.findByTestId("pack-dialog")).toHaveAttribute("data-sku", "pack_cbq");
+    expect(screen.getByTestId("pack-dialog")).toHaveAttribute("data-subject", "science");
+    expect(buyPack).not.toHaveBeenCalled();
+  });
+
+  it("?t= parent token (#pp=) -> ParentPayPanel, not the hub", async () => {
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+    await renderAt(`/pricing#pp=${"a".repeat(43)}`);
+    expect(screen.queryByTestId("pricing-hub")).toBeNull();
+  });
+
+  it("ReturnContextBar for source=login (with a carried redirect) and none for other sources; ParentReturnLink for from=for_parents", async () => {
+    await renderAt("/pricing?source=login&redirect=%2Fcheck-improve");
+    fireEvent.click(screen.getByRole("button", { name: /Back to sign in/ }));
+    expect(where()).toBe(`/login?redirect=${encodeURIComponent("/check-improve")}`);
+    cleanup();
+    for (const s of ["bottom-nav", "account-menu", "trial-end", "sidebar", "lock", "upgrade-sheet"]) {
+      await renderAt(`/pricing?source=${s}&returnTo=%2Fme`);
+      expect(screen.queryByRole("button", { name: /Back to/ })).toBeNull();
+      expect(screen.getByTestId("pricing-hub")).toBeInTheDocument();
+      cleanup();
+    }
+    await renderAt("/pricing?from=for_parents");
+    expect(screen.getByTestId("parent-return")).toHaveAttribute("href", "/for-parents");
+    expect(screen.getByTestId("parent-return-cbq")).toBeInTheDocument();
+    expect(screen.getByTestId("parent-return-packs")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-pass-details")).toHaveAttribute("href", "/board-pass?from=for_parents");
+  });
+});
+
+describe("§0a.4 inbound links", () => {
+  it("#cbq / #packs / #lt-premium-card select their card (and the tab); the pure helpers agree", async () => {
+    expect([cardForHash("#cbq"), cardForHash("#packs"), cardForHash("#lt-premium-card"), cardForHash(""), cardForHash("#pricing-video")]).toEqual([1, 2, 0, 0, 0]);
+    await renderAt("/pricing#cbq");
+    expect(screen.getByTestId("hub-tab-cbq")).toHaveAttribute("aria-pressed", "true");
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
+    cleanup();
+    await renderAt("/pricing?from=for_parents#packs");
+    expect(screen.getByTestId("hub-tab-bank")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("parent-return-packs")).toBeInTheDocument();
+    cleanup();
+    await renderAt("/pricing?from=for_parents#cbq");
+    expect(screen.getByTestId("hub-tab-cbq")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("parent-return-cbq")).toBeInTheDocument();
+  });
+
+  it("#my-packs -> /packs#my-packs (replace), utm kept", async () => {
+    await renderAt("/pricing?utm_source=email#my-packs");
+    expect(where()).toBe("/packs?utm_source=email#my-packs");
+  });
+
+  it("#pricing-video opens the video row", async () => {
+    await renderAt("/pricing#pricing-video");
+    expect((screen.getByTestId("hub-fold-video") as HTMLDetailsElement).open).toBe(true);
+  });
+
+  it("?chapter= / ?pack=cbq&subject= / ?mock= / ?pack=subject open the same pop-up on /pricing (one step from Buy)", async () => {
+    await renderAt("/pricing?chapter=electricity");
+    expect(screen.getByTestId("pack-dialog")).toHaveAttribute("data-sku", "pack_chapter");
+    expect(screen.getByTestId("pack-dialog")).toHaveAttribute("data-chapter", "electricity");
+    cleanup();
+    await renderAt("/pricing?pack=cbq&subject=science");
+    expect(screen.getByTestId("pack-dialog")).toHaveAttribute("data-sku", "pack_cbq");
+    expect(screen.getByTestId("pack-dialog")).toHaveAttribute("data-subject", "science");
+    cleanup();
+    await renderAt("/pricing?mock=maths");
+    expect(screen.getByTestId("pack-dialog")).toHaveAttribute("data-sku", "pack_mock");
+    cleanup();
+    await renderAt("/pricing?pack=subject&subject=maths");
+    expect(screen.getByTestId("pack-dialog")).toHaveAttribute("data-sku", "pack_subject");
+  });
+
+  it("signed-in ?buy=pack_cbq&t=science resumes the CBQ checkout and cleans the URL", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing?buy=pack_cbq&t=science&utm_source=google");
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science", expect.anything());
+    expect(where()).not.toContain("buy=");
+  });
+
+  it("?buy=board_pass signed in (Basic) starts the Board Pass checkout once and cleans the URL, utm kept", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing?buy=board_pass&utm_source=google");
+    expect(pay.buyPass).toHaveBeenCalledTimes(1);
+    expect(where()).toBe("/pricing?utm_source=google");
+  });
+});
+
+describe("every Buy is the legacy buy path, with the legacy events (§3)", () => {
+  it("Pay tap = paywall_action {pay, pricing}; pack_view is sent once with surface 'pricing'", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(tracked.event).toHaveBeenCalledWith("pack_view", undefined, "pricing");
+    fireEvent.click(document.querySelector(".lt-pricing-pay--boards") as HTMLButtonElement);
+    expect(analytics.paywall).toHaveBeenCalledWith("pay", "pricing");
+  });
+
+  it.each([
+    ["hub-buy-pack_cbq-maths", "pack_cbq", "maths"],
+    ["hub-buy-pack_cbq-science", "pack_cbq", "science"],
+    ["hub-buy-pack_bundle", "pack_bundle", undefined],
+  ] as const)("signed in: %s -> buyPack(%s, %s)", async (id, sku, target) => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    await act(async () => {
+      fireEvent.click(screen.getByTestId(id));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(buyPack).toHaveBeenCalledWith(sku, target, expect.anything());
+    expect(tracked.checkout).toHaveBeenCalled();
+  });
+
+  it.each([
+    ["hub-buy-pack_cbq-science", "/pricing?buy=pack_cbq&t=science"],
+    ["hub-buy-pack_bundle", "/pricing?buy=pack_bundle"],
+  ] as const)("signed out (checkout sheet off): %s -> sign in, then resume %s", async (id, resume) => {
+    await renderAt("/pricing");
+    await act(async () => {
+      fireEvent.click(screen.getByTestId(id));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(buyPack).not.toHaveBeenCalled();
+    const w = where();
+    expect(w.startsWith("/login")).toBe(true);
+    expect(decodeURIComponent(new URLSearchParams(w.split("?")[1]).get("redirect") ?? "")).toBe(resume);
+  });
+
+  it("the phone bar follows the selected card: Board Pass -> CBQ (the subject the page follows) -> Bundle; it taps the card's own Buy", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing?subject=science");
+    const bar = () => screen.getByTestId("pricing-sticky-bar");
+    expect(bar()).toHaveTextContent(`Board Pass ${boardPassPriceDisplay()}`);
+    fireEvent.click(screen.getByTestId("hub-tab-cbq"));
+    expect(bar()).toHaveTextContent(`Science CBQ Pack ${packPriceLabel("pack_cbq")}`);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("pricing-sticky-bar-go"));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science", expect.anything());
+    fireEvent.click(screen.getByTestId("hub-tab-bank"));
+    expect(bar()).toHaveTextContent(`Buy ${packPayLabel("pack_bundle")}`);
+  });
+});
+
+describe("pure helpers", () => {
+  it("nearestCard picks the card whose start is nearest the scroll position (the last card wins at max scroll)", () => {
+    const starts = [0, 312, 624];
+    expect(nearestCard(0, starts)).toBe(0);
+    expect(nearestCard(150, starts)).toBe(0);
+    expect(nearestCard(170, starts)).toBe(1);
+    expect(nearestCard(596, starts)).toBe(2);
+    expect(nearestCard(0, [])).toBe(0);
+  });
+  it("hubPositionLine names the next card and wraps", () => {
+    expect([0, 1, 2].map(hubPositionLine)).toEqual(["1 of 3 · next: CBQ Packs", "2 of 3 · next: Question Bank", "3 of 3 · next: Board Pass"]);
+  });
+});
