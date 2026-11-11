@@ -95,15 +95,14 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   if (/(^|\/)packs\.html$/.test(file)) {
     take(new RegExp(`class="lt-pk-bundle__amt">${AMT}`), () => "Maths + Science Bundle", () => packExp("Maths + Science Bundle"));
     take(new RegExp(`class="lt-pk-row__name">(${LABELS})</span><span class="lt-pk-row__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
-    // (the Bundle's neutral button, ">Maths + Science Bundle · ₹299 + GST<", is claimed by the shared "<label> · <amt><" rule above)
-    // v1.2 L2: a folded row's compact neutral button is its price alone, read with the row it sits in.
-    const neutralSku: Record<string, string> = { subject: "Subject Pack", mock: "Mock Pack" };
-    take(new RegExp(`data-testid="pk-buy-(subject|mock)-neutral">${AMT}<`), (m) => `${neutralSku[m[1]]} (neutral button)`, (m) => packExp(neutralSku[m[1]]));
+    // Review N1: the static neutral buttons name the TOTAL charged, as the app's Buy does ("Bundle · ₹353", a row's "₹235").
+    const neutralSku: Record<string, string> = { bundle: "Maths + Science Bundle", subject: "Subject Pack", mock: "Mock Pack" };
+    take(new RegExp(`data-testid="pk-buy-(bundle|subject|mock)-neutral">(?:Bundle · )?${AMT}<`), (m) => `${neutralSku[m[1]]} (neutral button)`, (m) => packPay(neutralSku[m[1]]));
     // v1.2: the accessible names that carry a price (a compact button's "<Pack> · <price>", the CBQ link's full line).
     take(new RegExp(`aria-label="(${LABELS}) · ${AMT}"`), (m) => `${m[1]} (accessible name)`, (m) => packExp(m[1]));
     take(new RegExp(`aria-label="CBQ Packs · [^"·]*· ${AMT}\\.`), () => "CBQ Pack (packs link name)", () => packExp("Maths CBQ Pack"));
-    // v1.2 L3: the one-line CBQ link.
-    take(new RegExp(`CBQ Packs · ${AMT} per subject<`), () => "CBQ Pack (packs link card)", () => packExp("Maths CBQ Pack"));
+    // v1.2 L3 / review N2: the one-line CBQ link ("CBQ PACKS" tag, then the price).
+    take(new RegExp(`class="lt-pk-lrow__t">${AMT} per subject<`), () => "CBQ Pack (packs link card)", () => packExp("Maths CBQ Pack"));
     take(new RegExp(`their own page, ${AMT} per subject`), () => "CBQ Pack (packs FAQ)", () => packExp("Maths CBQ Pack"));
     const twinSku: Record<string, PackSku> = { bundle: "pack_bundle", subject: "pack_subject", mock: "pack_mock", chapter: "pack_chapter" };
     // The Bundle's breakup sits under its Buy (twin box); a row's (v1.2 L2) inside the opened row, marked with its sku.
@@ -241,7 +240,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     const html =
       `<span class="lt-pk-row__name">Mock Pack</span><span class="lt-pk-row__price">₹98 + GST</span>` +
       `<p class="lt-pk-row__gst" data-testid="tile-gst-pack_mock">₹98 + ₹18 GST (18%) = ₹116</p>` +
-      `<div data-lt-twin="pk-buy-mock"><button data-testid="pk-buy-mock-neutral">₹98 + GST</button></div>`;
+      `<div data-lt-twin="pk-buy-mock"><button data-testid="pk-buy-mock-neutral">₹116</button></div>`;
     const r = scanSnapshot("packs.html", html, after, predictCbseExamDate("10"));
     expect(r.unclaimed).toEqual([]);
     expect(mismatchMessages(r.found)).toHaveLength(3);
