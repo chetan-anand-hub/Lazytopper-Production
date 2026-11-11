@@ -12,12 +12,9 @@ import {
   type SessionSubject,
 } from "../../services/sessionRecords";
 import { getWorksheetSession, getWorksheetGrade } from "../../services/worksheetSessionStore";
-import { exportGradedWorksheetPdf } from "../worksheet/worksheetPdfExport";
-import { gradedSheetKindFor } from "../worksheet/WorksheetGradedPrintDoc";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
-import { practiceSetPaperKey } from "../../services/limitsClient";
-import ResultsScorecard from "./ResultsScorecard";
-import { storedWorksheetScorecardVariant } from "./scorecardVariants";
+import { lazySheet } from "../../lib/lazySheet";
+import type { SurfaceHistoryReopenProps } from "./SurfaceHistoryReopen";
 import {
   MISTAKES_BY_KIND_HEADING,
   STORED_MISTAKE_TYPES,
@@ -279,18 +276,25 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
         if (downloadingRef.current) return;
         downloadingRef.current = true;
         setDownloading(true);
-        void exportGradedWorksheetPdf({
-          ws,
-          response: grade,
-          name: record.title,
-          code: record.id,
-          coaching: storedCoaching(record, grade),
-          kindLabel: gradedSheetKindFor(record.surface),
-          gradedAt: record.gradedAt,
-        }).finally(() => {
-          downloadingRef.current = false;
-          setDownloading(false);
-        });
+        // SPEED-PH-1 - the PDF engine loads on the tap (the scorecard shows "Preparing..." while
+        // `downloading`), not with the page; a failed chunk ends the spinner like a failed export.
+        void Promise.all([import("../worksheet/worksheetPdfExport"), import("../worksheet/WorksheetGradedPrintDoc")])
+          .then(([pdf, doc]) =>
+            pdf.exportGradedWorksheetPdf({
+              ws,
+              response: grade,
+              name: record.title,
+              code: record.id,
+              coaching: storedCoaching(record, grade),
+              kindLabel: doc.gradedSheetKindFor(record.surface),
+              gradedAt: record.gradedAt,
+            }),
+          )
+          .catch(() => undefined)
+          .finally(() => {
+            downloadingRef.current = false;
+            setDownloading(false);
+          });
       };
     },
     [],
@@ -359,35 +363,30 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
       )}
 
       {reopen && (
-        <ResultsScorecard
-          // LIMITS-1 PR-2 — a stored re-open obeys the same server lock as the live card; the free
-          // first-of-kind stays open (same key as when it was graded), the rest stay locked.
-          limitKey={{
-            kind: reopen.surface,
-            resultKey: reopen.surface === "quick-practice" ? practiceSetPaperKey(reopen.questionIds) : reopen.id,
-          }}
-          reopened
-          variant={storedWorksheetScorecardVariant(reopen, {
-            gradedDateLabel: formatDate(reopen.gradedAt),
-            onDone: closeReopen,
-            onDownload: gradedSheetHandler(reopen),
-            downloading,
-            response: reopenGrade && reopenGrade.id === reopen.id ? reopenGrade.response : null,
-            questions: getWorksheetSession(reopen.worksheetId)?.questions,
-            onUploadSheet:
-              onUpload && reopen.status !== "graded"
-                ? () => {
-                    closeReopen();
-                    void onUpload(reopen);
-                  }
-                : undefined,
-          })}
+        <ReopenedScorecard
+          record={reopen}
+          gradedDateLabel={formatDate(reopen.gradedAt)}
           onClose={closeReopen}
+          onDownload={gradedSheetHandler(reopen)}
+          downloading={downloading}
+          response={reopenGrade && reopenGrade.id === reopen.id ? reopenGrade.response : null}
+          questions={getWorksheetSession(reopen.worksheetId)?.questions}
+          onUploadSheet={
+            onUpload && reopen.status !== "graded"
+              ? () => {
+                  closeReopen();
+                  void onUpload(reopen);
+                }
+              : undefined
+          }
+          onFailed={closeReopen}
         />
       )}
     </section>
   );
 }
+
+const ReopenedScorecard = lazySheet<SurfaceHistoryReopenProps>(() => import("./SurfaceHistoryReopen"));
 
 const SH_CSS = `
 .lt-sh {
