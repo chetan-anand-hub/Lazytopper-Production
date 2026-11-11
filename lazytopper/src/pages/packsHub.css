@@ -29,7 +29,7 @@
 .lt-pk-tile__lbl { font-size: 11.5px; line-height: 1.25; color: #3d4a5f; overflow-wrap: anywhere; }
 .lt-pk-bundle__price { margin: 0; line-height: 1.2; }
 .lt-pk-bundle__amt { font-family: var(--pk-serif); font-size: 26px; font-weight: 700; }
-.lt-pk-bundle__per { font-size: 13.5px; font-weight: 600; color: var(--pk-ink2); }
+.lt-pk-bundle__per { display: inline-block; white-space: nowrap; font-size: 13.5px; font-weight: 600; color: var(--pk-ink2); }
 .lt-pk-bundle .lt-ptb { margin-top: 0; }
 .lt-pk-bundle .lt-ptb__see, .lt-pk-bundle .lt-psl { align-self: center; color: var(--pk-gt); }
 .lt-pk-bundle__line { margin: 0; font-size: 14px; line-height: 1.45; color: var(--pk-ink2); }

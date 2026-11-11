@@ -13,8 +13,14 @@ describe("PACKS-TIDY-2: /packs#cbq -> /cbq-packs", () => {
     expect(at("", "#cbq", "/cbq-packs")).toBeNull();
   });
 
+  it("never redirects a link that asks /packs for a checkout or a pop-up (?buy= / ?pack= / ?chapter= / ?mock= / ?view=)", () => {
+    for (const q of ["?buy=pack_cbq&t=maths&from=ads_1", "?pack=cbq&subject=science", "?chapter=triangles", "?mock=maths", "?view=sample"]) {
+      expect(at(q), q).toBeNull();
+    }
+  });
+
   it("keeps the subject, ad click ids, utm_* and from; drops everything else", () => {
-    expect(at("?subject=science&utm_source=google&utm_campaign=pdf&gclid=abc&from=for_parents&buy=pack_cbq&x=1")).toBe(
+    expect(at("?subject=science&utm_source=google&utm_campaign=pdf&gclid=abc&from=for_parents&tab=2&x=1")).toBe(
       "/cbq-packs?subject=science&utm_source=google&utm_campaign=pdf&gclid=abc&from=for_parents",
     );
     expect(at("?t=science&fbclid=f1")).toBe("/cbq-packs?subject=science&fbclid=f1");

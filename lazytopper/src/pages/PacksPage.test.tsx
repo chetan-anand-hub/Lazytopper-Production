@@ -77,7 +77,10 @@ describe("PacksPage", () => {
 
   it("renders the v3 hero, four pack tiles with prices, the short FAQ and the cancellation-policy link signed out; no My packs; fires pack_view", () => {
     page();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Every question. Worked solutions.");
+    // PACKS-TIDY-2: ONE h1 names the product (the ads' words); the old h1 is the hero sentence right under it.
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Question Bank + Mocks: Class 10 Maths and Science PDF packs");
+    expect(document.querySelector(".lt-pk-hero__line")?.textContent).toBe("Every question. Worked solutions.");
     for (const id of ["chapter", "mock", "subject", "bundle"]) expect(screen.getByTestId(`packs-card-${id}`)).toBeTruthy();
     const text = document.body.textContent ?? "";
     for (const price of ["₹49", "₹99", "₹199", "₹299"]) expect(text).toContain(price);
@@ -92,7 +95,7 @@ describe("PacksPage", () => {
     expect(screen.queryByTestId("packs-mine")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.getByTestId("founder-badge").textContent).toBe("Made by an IITian (IIT Kanpur)");
-    expect(screen.getByTestId("founder-badge").closest(".lt-pt__copy")).not.toBeNull();
+    expect(screen.getByTestId("founder-badge").closest(".lt-pk-hero__copy")).not.toBeNull();
     expect(events.names).toContain("pack_view");
   });
 
@@ -120,35 +123,30 @@ describe("PacksPage", () => {
     }
   });
 
-  it("CBQ-PACK-1: the CBQ band is in the hero with anchor #cbq: a Maths and a Science pack side by side, each Rs 199 with its own buy button, counts computed", async () => {
-    page("/packs#cbq");
-    const band = screen.getByTestId("cbq-band");
-    expect(band.id).toBe("cbq");
-    expect(band.closest(".lt-pt")).not.toBeNull();
-    expect(band.textContent).toContain("NEW · CBQ");
-    expect(band.textContent).toContain("Half your board paper is competency-based.");
-    // PACKS-TIDY-1: ONE card with a Maths / Science switch (Maths first); switching swaps the whole card together.
-    expect(band.textContent).toContain("Maths CBQ Pack");
-    expect(band.textContent).not.toMatch(/for both|both subjects/i);
-    expect(screen.getByTestId("cbq-card-maths").textContent).toContain("₹199");
-    expect(screen.queryByTestId("cbq-card-science")).toBeNull();
-    expect(screen.getByRole("radiogroup", { name: "CBQ Pack subject" })).toBeTruthy();
-    fireEvent.click(screen.getByTestId("cbq-subject-science"));
-    expect(screen.queryByTestId("cbq-card-maths")).toBeNull();
-    expect(band.textContent).toContain("Science CBQ Pack");
-    expect(screen.getByTestId("cbq-card-science").textContent).toContain("₹199");
-    for (const line of ["13 chapters", "Your name on every page", "download till 31 March 2027", "Made by an IITian (IIT Kanpur)"]) {
-      expect(band.textContent, line).toContain(line);
-    }
-    // the claim is a static floor, visible without any interaction and without loading the bank
-    expect(screen.getByTestId("cbq-card-science").textContent).toContain("1,400+ CBQs · every chapter · 1- to 5-mark questions · step-wise worked solutions");
-    expect(band.textContent).toContain("100+ in every chapter");
+  it("PACKS-TIDY-2: the CBQ block left for /cbq-packs: /packs#cbq lands there in one step (replace, subject + utm kept, no pack_view here); a link card keeps the switch's subject", async () => {
+    // (CBQ-PACK-1's band test, rewritten for the layout ruling: the full CBQ buy block now lives on /cbq-packs.)
+    render(
+      <MemoryRouter initialEntries={["/pricing", "/packs?subject=science&utm_source=google&gclid=g1#cbq"]} initialIndex={1}>
+        <Where />
+        <Routes>
+          <Route path="/packs" element={<PacksPage />} />
+          <Route path="/cbq-packs" element={<div>CBQ PAGE</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByText("CBQ PAGE")).toBeTruthy());
+    expect(screen.getByTestId("where").textContent).toBe("/cbq-packs?subject=science&utm_source=google&gclid=g1");
+    expect(events.names).not.toContain("pack_view");
+    cleanup();
+    page();
+    expect(screen.queryByTestId("cbq-band")).toBeNull();
+    const card = screen.getByTestId("packs-link-cbq");
+    expect(card.getAttribute("href")).toBe("/cbq-packs?subject=maths");
+    expect(card.textContent).toContain("CBQ Packs · 1,400+ CBQs per subject · ₹199");
+    expect(card.textContent).toContain("Half your board paper is competency-based.");
+    fireEvent.click(screen.getByTestId("packs-subject-science"));
+    expect(screen.getByTestId("packs-link-cbq").getAttribute("href")).toBe("/cbq-packs?subject=science");
     expect(loads.n).toBe(0);
-    fireEvent.click(screen.getByTestId("packs-card-cbq-science"));
-    const dlg = await screen.findByRole("dialog");
-    expect(dlg.textContent).toContain("Science CBQ Pack");
-    expect(dlg.textContent).toContain("₹199");
-    expect(screen.getByTestId("packs-buy-pack_cbq")).toBeTruthy();
   });
 
   it("CBQ-PACK-1: ?pack=cbq opens the CBQ pop-up", async () => {
@@ -345,6 +343,8 @@ describe("PacksPage", () => {
     expect((await screen.findByRole("dialog")).textContent).toContain("Maths CBQ Pack");
     await new Promise((r) => setTimeout(r, 50));
     expect(buyMock).toHaveBeenCalledTimes(1);
+    // PACKS-TIDY-2: the stripped URL keeps #cbq, and the checkout stays on /packs (the #cbq redirect is decided once, at landing).
+    expect(screen.getByTestId("where").textContent).toBe("/packs?from=ads_1#cbq");
   });
 
   it("PACKS-BUY-RESUME-1: a chapter pack resumes with its chapter selected; the bundle needs no target", async () => {
@@ -497,7 +497,7 @@ describe("PacksPage", () => {
 describe("TRUST-1 - /packs testimonial and stamp wording", () => {
   it("carries the click-to-play testimonial under the hero, with no YouTube request before the tap", () => {
     const { container } = page();
-    const hero = container.querySelector(".lt-packs__hero")!;
+    const hero = container.querySelector(".lt-pk-hero")!;
     const proof = container.querySelector(".lt-packs__proof")!;
     expect(proof).not.toBeNull();
     expect(hero.compareDocumentPosition(proof) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

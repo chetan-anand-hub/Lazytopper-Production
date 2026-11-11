@@ -95,7 +95,9 @@ export default function PacksPage() {
   // PACKS-TIDY-2: the CBQ Packs' buy block lives on /cbq-packs now. `/packs#cbq` (ads, old links) lands there in ONE step (replace),
   // with the subject, ad ids / utm_* and `from` kept; nothing of /packs mounts first (no pack_view here). The island does the same on
   // the static page (contentIsland.ts boot), so this covers in-app navigation and a page served without the island.
-  const cbqTarget = cbqRedirectTarget(location);
+  // Decided ONCE, on the URL the page mounted with: the shop's own `?buy=` resume later strips `buy` and keeps the hash
+  // (`/packs?buy=pack_cbq&t=maths#cbq` -> `/packs#cbq`), and that must never send a running checkout away from this page.
+  const [cbqTarget] = useState(() => cbqRedirectTarget(location));
   if (cbqTarget) return <Navigate to={cbqTarget} replace />;
   return <PacksPageBody />;
 }

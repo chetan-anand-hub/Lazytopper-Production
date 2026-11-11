@@ -175,7 +175,11 @@ export const PEEK_UPGRADE_FRACTION = 0.25;
 export const PEEK_UPGRADE_DWELL_MS = 8_000;
 
 /** Full-page navigation (an object so the tests can observe it). */
-export const nav = { go: (url: string): void => window.location.assign(url) };
+export const nav = {
+  go: (url: string): void => window.location.assign(url),
+  /** PACKS-TIDY-2: a redirect that replaces the history entry (/packs#cbq -> /cbq-packs). */
+  replace: (url: string): void => window.location.replace(url),
+};
 
 const ACTIONABLE = 'a[href], button, input, select, textarea, summary, label, [role="button"], [role="tab"]';
 const BUSY_CLASS = "lt-island-busy";
@@ -817,6 +821,17 @@ async function find(d: Descriptor, until: (el: HTMLElement) => boolean = () => t
   }
 }
 
+/**
+ * PACKS-TIDY-2 - the radio choices made on the static page, into the app's radios of the same group and value (React-controlled: a
+ * click reaches onChange). Idempotent; nothing recorded -> nothing done.
+ */
+export function replayRadios(): void {
+  for (const [name, value] of radios) {
+    const radio = [...(appRoot()?.querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${cssString(name)}"]`) ?? [])].find((r) => r.value === value);
+    if (radio && isReactOwned(radio) && !radio.disabled && !radio.checked) radio.click();
+  }
+}
+
 /** Put the visitor's state (tabs, toggles, details, typed answers) into the app. Idempotent. */
 async function replayState(findTimeoutMs: number): Promise<void> {
   // 1. Tabs.
@@ -845,11 +860,8 @@ async function replayState(findTimeoutMs: number): Promise<void> {
     setter?.call(input, value);
     input.dispatchEvent(new Event("input", { bubbles: true }));
   }
-  // 3b. PACKS-TIDY-2: radio choices (React-controlled radios: a click on the app's radio of the same group and value reaches onChange).
-  for (const [name, value] of radios) {
-    const radio = [...(appRoot()?.querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${cssString(name)}"]`) ?? [])].find((r) => r.value === value);
-    if (radio && isReactOwned(radio) && !radio.disabled && !radio.checked) radio.click();
-  }
+  // 3b. PACKS-TIDY-2: radio choices.
+  replayRadios();
   // 4. Dropdown choices (React-controlled selects: the native setter + a change event reaches onChange). The app may
   //    render the select a moment after its route mark (data-driven options): wait for it as for a held tap.
   const pick = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")?.set;
@@ -1346,7 +1358,7 @@ export async function boot(): Promise<void> {
   // here is wired). Any other page or hash: null, nothing happens.
   const cbq = cbqRedirectTarget(window.location);
   if (cbq) {
-    window.location.replace(cbq);
+    nav.replace(cbq);
     return;
   }
   setState("island");
