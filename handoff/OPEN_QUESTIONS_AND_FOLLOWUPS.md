@@ -27,7 +27,7 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 *Readings are at trunk `65a63b1`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the coordinator's 12 Nov handoff section 7 and `FOLLOWUPS_PRICING_REDESIGN_2026-11-11.md` **[coordinator]** and the PR bodies **[gh]**. The numbers in brackets are the handoff's own numbering. No grading behaviour changed.*
 
-**New:** `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`, `[FU-ACTIVITY-PAGE-NAMES-SALES]` (CLOSED by `#1674` once it merges; OPEN at writing), `[FU-BOARDPASS-MONTHPASS-CHECK]`, `[FU-SALESPAGES-COLD-TAP]`, `[FU-MARKED-IN-1-MINUTE-CLAIM]`, `[FU-PACKS-TBT-AND-LABELS]`, `[FU-MARKING-SCHEME-CLAIM]`, `[FU-PRICING-NOT-ISLAND]`, `[FU-PRERENDER-DATE-TEXT-1DEC]`, `[FU-HUB-TEST-GAPS]`, `[FU-10000-CLAIM]`, `[FU-PACKS-UNEXERCISED]`, `[FU-PACKS-LPE-CONFOUNDED]`, `[FU-DAILY-DOCS-1112]`, `[FU-BOARDPASS-SIGNIN-RETURN]`, `[FU-SELFPAY-DUPLICATE-RISK]`.
+**New:** `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`, `[FU-ACTIVITY-PAGE-NAMES-SALES]` (CLOSED by `#1674`, merged `9670339`), `[FU-BOARDPASS-MONTHPASS-CHECK]`, `[FU-SALESPAGES-COLD-TAP]`, `[FU-MARKED-IN-1-MINUTE-CLAIM]`, `[FU-PACKS-TBT-AND-LABELS]`, `[FU-MARKING-SCHEME-CLAIM]`, `[FU-PRICING-NOT-ISLAND]`, `[FU-PRERENDER-DATE-TEXT-1DEC]`, `[FU-HUB-TEST-GAPS]`, `[FU-10000-CLAIM]`, `[FU-PACKS-UNEXERCISED]`, `[FU-PACKS-LPE-CONFOUNDED]`, `[FU-DAILY-DOCS-1112]`, `[FU-BOARDPASS-SIGNIN-RETURN]`, `[FU-SELFPAY-DUPLICATE-RISK]`.
 
 **Still open, carried:** every item named in the 11 Nov block below that this block does not close.
 
@@ -37,7 +37,7 @@ OPEN [1]. The desktop CBQ card on /pricing has empty space; the owner saw a smal
 
 ### [FU-ACTIVITY-PAGE-NAMES-SALES]
 
-OPEN at writing; CLOSED by `#1674` once it merges [2]. The client sent no page name for /board-pass and /cbq-packs (the server has accepted both since `#1670`). `#1674` (head `f35c797`) adds them to `activityPages.ts` and restores exact client = server equality in the test. After the merge: signed-in visit to /board-pass, activity batch 2xx, admin shows "Board Pass page" [gh]. Do not duplicate: Track B depends on it.
+CLOSED by `#1674` (merged `9670339`, 12 Nov 04:57 IST) [2]. The client sent no page name for /board-pass and /cbq-packs (the server has accepted both since `#1670`). `#1674` added them to `activityPages.ts` and restores exact client = server equality in the test. The signed-in live check is still owed: signed-in visit to /board-pass, activity batch 2xx, admin shows "Board Pass page" [gh]. Do not duplicate: Track B depends on it.
 
 ### [FU-BOARDPASS-MONTHPASS-CHECK]
 

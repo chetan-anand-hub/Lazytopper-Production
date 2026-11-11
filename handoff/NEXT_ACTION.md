@@ -1,11 +1,11 @@
 ## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674
 
-*(The owner items of every block below stand, except where this block narrows them. The 11 Nov item "Pricing page redesign" is DONE by `#1669` - `#1673`.)* Trunk at writing: **`65a63b1`** [git]. `#1674` is OPEN.
+*(The owner items of every block below stand, except where this block narrows them. The 11 Nov item "Pricing page redesign" is DONE by `#1669` - `#1673`.)* Trunk at writing: **`9670339`** [coordinator]. `#1674` MERGED (`9670339`, 12 Nov 04:57 IST).
 
-- **Done [gh]:** `#1669`, `#1670`, `#1671`, `#1672`, `#1673` merged (table in CURRENT_STATE). No grading change.
+- **Done [gh]:** `#1669`, `#1670`, `#1671`, `#1672`, `#1673`, `#1674` merged (table in CURRENT_STATE). No grading change.
 - **Today's focus, in the coordinator's 12 Nov order [coordinator, handoff "Today's focus"]:**
   1. **Owner checks.** Phone /pricing signed in: DONE (a small blank space below the offer cards is `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`). STILL OWED: real signed-in payments on /board-pass and /cbq-packs, the parent-share row, and the My packs block after a real pack payment (`#1673`). Never pay beyond the owner's own test.
-  2. **Track B: measure the funnel.** Merge `#1674` first so the two new pages record their page names.
+  2. **Track B: measure the funnel.** `#1674` is merged, so the two new pages record their page names.
   3. **Track A: two ad edits, owner-approved, NOT yet made:** Search > PDF Packs > "CBQs - case study & competency" RSA, final URL `/cbq-class-10` -> `/cbq-packs`; YouTube > "Parents - CBQ Electricity Short", final URL -> `/cbq-packs?subject=science`. **Leave the two "CBQ packs - competency and case study" RSAs on `/packs#cbq`** (the redirect keeps utm and gclid).
   4. **C and D mock-ups** (C: /for-parents first screen; D: the Board Pass moment). Mock-up first, owner OK before any build.
   5. **Follow-ups #1, #2, #3, #14** of the board: `[FU-HUB-CBQ-CARD-EMPTY-SPACE]`, `[FU-ACTIVITY-PAGE-NAMES-SALES]` (`#1674`), `[FU-BOARDPASS-MONTHPASS-CHECK]` (by design, see the board), this docs PR.

@@ -13,7 +13,7 @@
 | **Ads: two edits approved, not yet made** [owner] | Search > PDF Packs > "CBQs - case study & competency" RSA: `/cbq-class-10` -> `/cbq-packs`. YouTube > "Parents - CBQ Electricity Short": -> `/cbq-packs?subject=science`. | The new page matches CBQ-intent ads [coordinator; the reason is not stated beyond that]. |
 | **Leave the two "CBQ packs - competency and case study" RSAs on `/packs#cbq`** [owner] | No edit to those two. | `/packs#cbq` forwards to `/cbq-packs` keeping utm and gclid (`#1672`), so they still land correctly [gh; coordinator]. |
 | **Month-pass holder -> Board Pass checkout is by design** [owner 8 Nov "1. Yes"; coordinator code reading 12 Nov] | Follow-up #3 is not a bug (`PassCheckout.tsx` L729-737). | An existing owner ruling. |
-| **Fix the missing page names before measuring** [owner, 12 Nov 04:47 IST] | `#1674` (OPEN at writing). | The funnel measurement (Track B) needs the two pages named in activity data [gh, `#1674` body]. |
+| **Fix the missing page names before measuring** [owner, 12 Nov 04:47 IST] | `#1674` (merged `9670339`, 12 Nov 04:57 IST). | The funnel measurement (Track B) needs the two pages named in activity data [gh, `#1674` body]. |
 
 ## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
