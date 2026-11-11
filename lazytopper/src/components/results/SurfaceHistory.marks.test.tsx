@@ -5,7 +5,7 @@
  * stays record-based counts (the SessionRecord shape is gate-frozen).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { act, render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { act, render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import type { SessionRecord } from "../../services/sessionRecords";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
@@ -117,7 +117,8 @@ describe("the real download path passes the cached grade into the coaching", () 
     await act(async () => {
       fireEvent.click(download);
     });
-    expect(h.exportPdf).toHaveBeenCalledTimes(1);
+    // SPEED-PH-1: the PDF engine is a dynamic import now, so the export fires a tick after the tap.
+    await waitFor(() => expect(h.exportPdf).toHaveBeenCalledTimes(1));
     return h.exportPdf.mock.calls[0][0].coaching;
   }
 
@@ -145,6 +146,7 @@ describe("SHEET-HEADER-1 · history download header", () => {
     await act(async () => {
       fireEvent.click(download);
     });
+    await waitFor(() => expect(h.exportPdf).toHaveBeenCalledTimes(1));
     const args = h.exportPdf.mock.calls[0][0] as unknown as { kindLabel?: string; gradedAt?: number };
     expect(args.kindLabel).toBe("Worksheet");
     expect(args.gradedAt).toBe(RECORD.gradedAt);
