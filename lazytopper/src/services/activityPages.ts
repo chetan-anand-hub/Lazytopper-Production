@@ -85,9 +85,10 @@ export const ACTIVITY_STATIC_PAGES = [
   "intent",
   "pricing",
   "packs",
-  // PRICING-PAGES-2 C1: /board-pass and /cbq-packs are NOT named here yet. The server accepts the two names (studentActivity.cjs),
-  // but a server that does not know a name rejects the WHOLE batch, so the client starts sending them only once Railway runs the new
-  // list ([FU-ACTIVITY-PAGE-NAMES-SALES]). Until then they record no page name (null), as on trunk.
+  // FU-ACTIVITY-PAGE-NAMES-SALES: the two dedicated sales pages. The server has accepted both names since #1670 (Railway deploy
+  // ACTIVE), so the client now sends them. Same position as the server list (studentActivity.cjs).
+  "board-pass",
+  "cbq-packs",
   "cbse/class-10",
   "teacher",
   "onboarding",
@@ -180,6 +181,8 @@ export function pageNameOf(routerPath: string): string | null {
     case "intent":
     case "pricing":
     case "packs":
+    case "board-pass":
+    case "cbq-packs":
     case "teacher":
     case "onboarding":
     case "exam-simulation":
