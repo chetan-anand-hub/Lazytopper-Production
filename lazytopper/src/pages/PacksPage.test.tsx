@@ -41,7 +41,9 @@ vi.mock("../lib/packs/buildPackFiles", () => ({
   groupPackFiles: (files: Array<{ group: string }>) => [{ group: "Triangles", files }],
 }));
 
-import PacksPage, { PACKS_H1, PACKS_H1_LINES } from "./PacksPage";
+import PacksPage, * as packsPage from "./PacksPage";
+import { PACKS_H1, PACKS_H1_LINES } from "./PacksPage";
+import * as salesCopy from "../components/salesPages/salesPagesCopy";
 import * as packs from "../services/packs";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../services/packs";
@@ -84,6 +86,10 @@ describe("PacksPage", () => {
     // A2: the H1 is three fixed lines (one height in every font); joined they are the heading's text, word for word.
     expect(PACKS_H1_LINES.join("")).toBe(PACKS_H1);
     expect(document.querySelectorAll("h1 .lt-pk-hero__l")).toHaveLength(3);
+    // The shared sales-page names / paths / Board Pass line, copied for speed, stay word for word equal to salesPagesCopy's.
+    for (const k of ["QUESTION_BANK_NAME", "CBQ_PACKS_NAME", "CBQ_PACKS_PAGE_PATH", "BOARD_PASS_PAGE_PATH", "CBQ_MARKED_LINE"] as const) {
+      expect(packsPage[k], k).toBe(salesCopy[k]);
+    }
     for (const id of ["chapter", "mock", "subject", "bundle"]) expect(screen.getByTestId(`packs-card-${id}`)).toBeTruthy();
     const text = document.body.textContent ?? "";
     for (const price of ["₹49", "₹99", "₹199", "₹299"]) expect(text).toContain(price);

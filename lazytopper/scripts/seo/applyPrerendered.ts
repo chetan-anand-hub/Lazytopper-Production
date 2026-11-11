@@ -503,8 +503,8 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   SolutionsPage: OWN_ONLY,
   ContactPage: ["ParentReturnLink"],
   // PACKS-TIDY-2 (A2, owner 11 Nov "improve the speed to rank higher in Google ads"): + the four small sheets the island used to LINK
-  // (render-blocking: SubjectSwitch, packReady, myInvoices, stickyPassBar, ~4 KB in all), so /packs paints with no blocking stylesheet.
-  PacksPage: ["FounderBadge", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "TestimonialVideo", "SubjectSwitch", "packReady", "myInvoices", "stickyPassBar"],
+  // (render-blocking: SubjectSwitch, packReady, myInvoices, ~4 KB in all), so /packs paints with no blocking stylesheet.
+  PacksPage: ["FounderBadge", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "TestimonialVideo", "SubjectSwitch", "packReady", "myInvoices"],
   CbqHubPage: ["PackSampleLink", "CbqBand", "CbqChapterPage", "faqContent"],
   CbqChapterPage: ["CbqChapterPage"],
   PricingPage: ["TestimonialVideo"],

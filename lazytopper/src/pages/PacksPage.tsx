@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../services/subscriptionService";
@@ -14,9 +14,8 @@ import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/p
 import SubjectSwitch from "../components/packs/SubjectSwitch";
 import PackTileBuy, { sampleBuyFor } from "../components/packs/PackTileBuy";
 import type { PacksShopApi } from "../components/packs/PacksShop";
-import { subjectFromSearch } from "../components/pricing/pricingPlansCopy";
-import SalesStickyBar from "../components/salesPages/SalesStickyBar";
-import { BOARD_PASS_PAGE_PATH, CBQ_MARKED_LINE, CBQ_PACKS_NAME, CBQ_PACKS_PAGE_PATH, QUESTION_BANK_NAME } from "../components/salesPages/salesPagesCopy";
+import { packsUrlSubject } from "../lib/packs/packsUrlSubject";
+import { BOARD_PASS_NAME } from "../config/pricing";
 import "./packs.css";
 import "./packsTrust.css";
 import "./packsTidy.css";
@@ -76,6 +75,22 @@ function BoardPassOwnerLine() {
   );
 }
 
+/**
+ * A2 (speed): the phone's Bundle bar is its own lazy chunk, fetched after the page is up (it is never in the first paint, and its module
+ * brings the pricing page's copy with it).
+ */
+const SalesStickyBar = lazy(() => import("../components/salesPages/SalesStickyBar"));
+
+/**
+ * The sales pages' shared names, paths and the Board Pass line, word for word (salesPagesCopy.ts); kept here so /packs' first chunk does
+ * not carry that module. PacksPage.test pins each one equal to salesPagesCopy's.
+ */
+export const QUESTION_BANK_NAME = "Question Bank + Mocks";
+export const CBQ_PACKS_NAME = "CBQ Packs";
+export const CBQ_PACKS_PAGE_PATH = "/cbq-packs";
+export const BOARD_PASS_PAGE_PATH = "/board-pass";
+export const CBQ_MARKED_LINE = `Solve on paper, then get your answers marked like a CBSE examiner with the ${BOARD_PASS_NAME} →`;
+
 /** PACKS-TIDY-2 (owner, 11 Nov 2026): the page's product name, eyebrow and H1 (the ads' words: PDF packs, Class 10, worked solutions). */
 export const PACKS_EYEBROW = `${QUESTION_BANK_NAME.toUpperCase()} · CBSE CLASS 10 · BOARDS 2027`;
 export const PACKS_H1 = `${QUESTION_BANK_NAME}: Class 10 Maths and Science PDF packs`;
@@ -112,7 +127,7 @@ export default function PacksPage() {
 function PacksPageBody() {
   const { search } = useLocation();
   // `?subject=` (and `?t=`, `?mock=`, `?chapter=`) picks the ONE Maths / Science switch in the first render; default Maths.
-  const [subject, setSubject] = useState<PackSubject>(() => subjectFromSearch(search) ?? "maths");
+  const [subject, setSubject] = useState<PackSubject>(() => packsUrlSubject(search) ?? "maths");
   return (
     <main className="lt-packs lt-pk" aria-label="LazyTopper PDF packs">
       <PacksShop returnPath={PACKS_RETURN_PATH}>
@@ -434,6 +449,7 @@ function BundleStickyBar({ api }: { api: PacksShopApi }) {
   const show = api.buyEnabled && !api.ownsPack("pack_bundle") && !api.openSku;
   if (!show) return null;
   return (
+    <Suspense fallback={null}>
     <SalesStickyBar
       watch={STICKY_WATCH}
       copy={() => ({ label: `${BUNDLE_NAME} · ${packPriceLabel("pack_bundle")}`, button: `Buy · ${packPayLabel("pack_bundle")}` })}
@@ -441,6 +457,7 @@ function BundleStickyBar({ api }: { api: PacksShopApi }) {
       ariaLabel="Buy the Maths + Science Bundle"
       testId="packs-sticky"
     />
+    </Suspense>
   );
 }
 
