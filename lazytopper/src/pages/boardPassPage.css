@@ -364,3 +364,21 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* PRICING-PAGES-2 R5: as on /cbq-packs, reserve the H1's Fraunces line count so the font swap moves nothing below it (measured
+   fallback -> Fraunces: 2 -> 3 lines at 370-409 px, 1 -> 2 at 660-739 px, 2 -> 3 at 1024-1119 px; line-height 1.2). */
+@media (max-width: 419px) {
+  .lt-bp-hero__h1 {
+    min-height: 3.6em;
+  }
+}
+@media (min-width: 420px) and (max-width: 749px) {
+  .lt-bp-hero__h1 {
+    min-height: 2.4em;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1129px) {
+  .lt-bp-hero__h1 {
+    min-height: 3.6em;
+  }
+}

@@ -163,7 +163,10 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       const bp = scan.found.filter((x) => x.file === `${dir}board-pass.html`).map((x) => x.product);
       expect(bp).toEqual(expect.arrayContaining(["Board Pass (Pay button)", "Board Pass (GST breakup)", "CBQ Pack (sales link)", "Maths + Science Bundle (sales link)"]));
       const cq = scan.found.filter((x) => x.file === `${dir}cbq-packs.html`).map((x) => x.product);
-      expect(cq).toEqual(expect.arrayContaining(["Maths CBQ Pack", "Maths CBQ Pack (one-tap button)", "pack_cbq (GST breakup)", "CBQ Pack (one-time line)", "Chapter Pack (sales 'from' link)"]));
+      // PRICING-PAGES-2 R4: the static page carries the shop's neutral "Maths CBQ Pack · <price>" button (captured with packs dark),
+      // claimed as "Maths CBQ Pack"; the app's Buy + GST breakup are not in the snapshot.
+      expect(cq).toEqual(expect.arrayContaining(["Maths CBQ Pack", "CBQ Pack (one-time line)", "Chapter Pack (sales 'from' link)"]));
+      expect(cq.filter((x) => x === "Maths CBQ Pack").length).toBeGreaterThanOrEqual(2);
     }
     expect(scan.found.length).toBeGreaterThanOrEqual(28); // PACKS-TIDY-1: 34 -> 28 (packs.html: 7 per variant, was 10)
   });

@@ -1105,17 +1105,35 @@ export interface CheckoutDetails {
 
 const CHECKOUT_CURRENCY = "INR";
 
+/**
+ * PRICING-PAGES-2 F4 (owner 11 Nov 2026) - the dedicated sales page the visitor is on, so pay taps, checkout starts, purchases and
+ * pack views from /board-pass and /cbq-packs can be told apart from /pricing and /packs. Set by those two pages ONLY (during their
+ * first render, so it is in place before the shop's own mount events) and cleared when they unmount. Null everywhere else, and
+ * then every payload below is byte-for-byte what it was. Event NAMES never change; a `surface` param is added.
+ */
+export type SalesPageSurface = "board-pass" | "cbq-packs";
+let salesPageSurface: SalesPageSurface | null = null;
+export function setSalesPageSurface(surface: SalesPageSurface | null): void {
+  salesPageSurface = surface;
+}
+export function currentSalesPageSurface(): SalesPageSurface | null {
+  return salesPageSurface;
+}
+
 function checkoutParams(d: CheckoutDetails): { vercel: Record<string, unknown>; ga4: Record<string, unknown>; meta: Record<string, unknown> } {
   const value = typeof d.valueInr === "number" && Number.isFinite(d.valueInr) && d.valueInr > 0 ? d.valueInr : null;
   const money: Record<string, unknown> = value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
+  // PRICING-PAGES-2 F4: on a sales page (and only there) `surface` names it, on Vercel, GA4 and (custom param) Meta.
+  const sales = d.surface === undefined ? salesPageSurface : null;
   const payer: Record<string, unknown> = {
     ...(d.payer === "parent" ? { payer: "parent" } : {}),
     ...(d.surface === "for_parents" ? { surface: "for_parents" } : {}),
+    ...(sales ? { surface: sales } : {}),
   };
   return {
     vercel: { ...money, pass: d.passType, ...payer },
     ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName, ...(value === null ? {} : { price: value }), quantity: 1 }], ...payer },
-    meta: money,
+    meta: sales ? { ...money, surface: sales } : money,
   };
 }
 
@@ -1704,7 +1722,9 @@ export type PaywallSurface =
   // PAY-RESCUE-1 - the "Can't pay yourself?" card shown after a closed or failed checkout.
   | "pay_rescue"
   // TRIAL-SELL-1 - the desktop trial strip (trial days 1-3).
-  | "trial_strip";
+  | "trial_strip"
+  // PRICING-PAGES-2 F4 - the dedicated Board Pass page's Pay buttons.
+  | "board-pass";
 
 const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",

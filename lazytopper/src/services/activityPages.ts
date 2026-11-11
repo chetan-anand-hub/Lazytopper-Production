@@ -85,6 +85,9 @@ export const ACTIVITY_STATIC_PAGES = [
   "intent",
   "pricing",
   "packs",
+  // PRICING-PAGES-2 C1: /board-pass and /cbq-packs are NOT named here yet. The server accepts the two names (studentActivity.cjs),
+  // but a server that does not know a name rejects the WHOLE batch, so the client starts sending them only once Railway runs the new
+  // list ([FU-ACTIVITY-PAGE-NAMES-SALES]). Until then they record no page name (null), as on trunk.
   "cbse/class-10",
   "teacher",
   "onboarding",

@@ -46,6 +46,7 @@ vi.mock("../components/checkoutWho/CheckoutSheet", () => ({
 }));
 
 import CbqPacksPage from "./CbqPacksPage";
+import { currentSalesPageSurface } from "../analytics/analytics";
 import * as packs from "../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../lib/packs/packLabels";
 import { CBQ_H1 } from "../components/salesPages/salesPagesCopy";
@@ -150,16 +151,30 @@ describe("PRICING-PAGES-1 /cbq-packs", () => {
     expect(bank.textContent).toContain(`from ${packPriceLabel("pack_chapter")}`);
   });
 
-  it("packs dark (the capture build): the SAME Buy button is drawn (the island replays a cold tap onto it); it opens the pop-up", async () => {
+  it("R4: packs dark (the kill switch): /packs' own neutral button, not a Buy; it opens the pop-up; F1: wrapped for the island replay", async () => {
     packsFlag.on = false;
     await mount();
-    const buy = screen.getByTestId("tile-buy-pack_cbq-maths");
-    expect(buy.textContent).toBe(`Buy Maths CBQ · ${packPayLabel("pack_cbq")}`);
+    const btn = screen.getByTestId("cq-card-maths");
+    expect(btn.textContent).toBe(`Maths CBQ Pack · ${packPriceLabel("pack_cbq")}`);
+    expect(screen.queryByTestId("tile-buy-pack_cbq-maths")).toBeNull();
+    expect(btn.closest("[data-lt-twin]")?.getAttribute("data-lt-twin")).toBe("cq-buy-maths");
     await act(async () => {
-      fireEvent.click(buy);
+      fireEvent.click(btn);
     });
     expect(buyMock).not.toHaveBeenCalled();
     await waitFor(() => expect(screen.getByTestId("pack-dialog").getAttribute("data-sku")).toBe("pack_cbq"));
+  });
+
+  it("F1: packs on, the Buy sits in the same twin container the static copy's button does", async () => {
+    await mount();
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").closest("[data-lt-twin]")?.getAttribute("data-lt-twin")).toBe("cq-buy-maths");
+  });
+
+  it("F4: the page names itself (pack_view and the pack checkout events read it) while mounted, cleared on leave", async () => {
+    await mount();
+    expect(currentSalesPageSurface()).toBe("cbq-packs");
+    cleanup();
+    expect(currentSalesPageSurface()).toBeNull();
   });
 
   it("no banned word: AI, answer key, optional, crossed-out price", async () => {

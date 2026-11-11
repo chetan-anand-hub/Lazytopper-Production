@@ -6,8 +6,8 @@ vi.mock("../../services/activityClient", () => ({ recordActivity }));
 const { hint, seen } = vi.hoisted(() => ({ hint: vi.fn<() => boolean | undefined>(() => undefined), seen: vi.fn() }));
 vi.mock("./packSampleSeen", () => ({ signedInHint: hint, reportPackSampleSeen: seen }));
 
-import { __resetPurchaseMemoryForTests } from "../../analytics/analytics";
-import { trackPackCheckout, trackPackEvent, trackPackPurchase, trackPackSampleDownload } from "./packAnalytics";
+import { __resetPurchaseMemoryForTests, setSalesPageSurface, trackBeginCheckoutTap, trackPurchase } from "../../analytics/analytics";
+import { __resetPackCheckoutStartsForTests, trackPackCheckout, trackPackEvent, trackPackPurchase, trackPackSampleDownload } from "./packAnalytics";
 
 type Win = { gtag?: unknown; va?: unknown; fbq?: unknown };
 const w = window as unknown as Win;
@@ -34,6 +34,8 @@ beforeEach(() => {
   w.va = (...a: unknown[]) => void vendorCalls.push(a);
   recordActivity.mockClear();
   __resetPurchaseMemoryForTests();
+  __resetPackCheckoutStartsForTests();
+  setSalesPageSurface(null);
   try {
     window.sessionStorage.clear();
   } catch {
@@ -49,6 +51,328 @@ afterEach(() => {
 
 const names = () => recordActivity.mock.calls.map((c) => (c[1] as { name?: string }).name);
 const ga4Names = () => gtagCalls.filter((c) => c[0] === "event").map((c) => c[1]);
+
+
+/**
+ * PRICING-PAGES-2 F4 - the sales-page surface. OFF a sales page (the context is null: /pricing, /packs, every other page) every
+ * payload is EXACTLY what it was (compared as whole objects, before vs after setting and clearing the context). ON /board-pass or
+ * /cbq-packs the same events carry `surface` (GA4, Vercel, first-party data; Meta custom param on the purchase events). No event
+ * is renamed.
+ */
+describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
+  const ga4 = () => gtagCalls.filter((c) => c[0] === "event").map((c) => [c[1], c[2]]);
+  const meta = () => metaCalls.map((c) => [c[1], c[2]]);
+  const firstParty = () => recordActivity.mock.calls.map((c) => c[1]);
+  function run(): unknown {
+    gtagCalls = [];
+    metaCalls = [];
+    vendorCalls = [];
+    recordActivity.mockClear();
+    __resetPurchaseMemoryForTests();
+    __resetPackCheckoutStartsForTests();
+    window.sessionStorage.clear();
+    const d = { passType: "till_boards" as const, itemName: "Board Pass", valueInr: 2262 };
+    trackBeginCheckoutTap(d, false);
+    trackPurchase({ ...d, transactionId: "pay_1" });
+    trackPackEvent("pack_view", undefined, "packs");
+    trackPackCheckout({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199 }, { signedIn: false });
+    trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "pay_2" });
+    return { ga4: ga4(), meta: meta(), vendor: vendorCalls.map((c) => c.slice()), firstParty: firstParty() };
+  }
+  afterEach(() => setSalesPageSurface(null));
+
+  /**
+   * N3: pinned against LITERAL payloads - what trunk (1b0607e) sends for the same calls (the reviewer's trunk/PR dump of these calls
+   * was byte-identical). A change to any vendor payload off the sales pages (e.g. `surface: null` on Meta Purchase) turns this red.
+   */
+  it("off a sales page: the payloads are trunk's, literally (no `surface` on any money event)", () => {
+    setSalesPageSurface("board-pass");
+    setSalesPageSurface(null);
+    expect(run()).toMatchInlineSnapshot(`
+      {
+        "firstParty": [
+          {
+            "data": {
+              "currency": "INR",
+              "pass": "till_boards",
+              "signed_in": false,
+              "value": 2262,
+            },
+            "name": "begin_checkout",
+          },
+          {
+            "data": {
+              "currency": "INR",
+              "pass": "till_boards",
+              "value": 2262,
+            },
+            "name": "purchase",
+          },
+          {
+            "data": {
+              "surface": "packs",
+            },
+            "name": "pack_view",
+          },
+          {
+            "data": {
+              "currency": "INR",
+              "signed_in": false,
+              "sku": "pack_cbq",
+              "value": 199,
+            },
+            "name": "pack_checkout",
+          },
+          {
+            "data": {
+              "currency": "INR",
+              "sku": "pack_cbq",
+              "value": 199,
+            },
+            "name": "pack_purchase",
+          },
+        ],
+        "ga4": [
+          [
+            "begin_checkout",
+            {
+              "currency": "INR",
+              "items": [
+                {
+                  "item_id": "till_boards",
+                  "item_name": "Board Pass",
+                  "price": 2262,
+                  "quantity": 1,
+                },
+              ],
+              "page_location": "https://www.lazytopper.com/packs",
+              "page_referrer": "",
+              "signed_in": false,
+              "value": 2262,
+            },
+          ],
+          [
+            "purchase",
+            {
+              "currency": "INR",
+              "items": [
+                {
+                  "item_id": "till_boards",
+                  "item_name": "Board Pass",
+                  "price": 2262,
+                  "quantity": 1,
+                },
+              ],
+              "page_location": "https://www.lazytopper.com/packs",
+              "page_referrer": "",
+              "transaction_id": "pay_1",
+              "value": 2262,
+            },
+          ],
+          [
+            "conversion",
+            {
+              "currency": "INR",
+              "send_to": "AW-18471331566/6ahqCIbi4q8dEO7N6OdE",
+              "transaction_id": "pay_1",
+              "value": 2262,
+            },
+          ],
+          [
+            "pack_view",
+            {
+              "page_location": "https://www.lazytopper.com/packs",
+              "page_referrer": "",
+              "surface": "packs",
+            },
+          ],
+          [
+            "pack_checkout",
+            {
+              "currency": "INR",
+              "page_location": "https://www.lazytopper.com/packs",
+              "page_referrer": "",
+              "signed_in": false,
+              "sku": "pack_cbq",
+              "value": 199,
+            },
+          ],
+          [
+            "begin_checkout",
+            {
+              "currency": "INR",
+              "items": [
+                {
+                  "item_id": "pack_cbq",
+                  "item_name": "Maths CBQ Pack",
+                  "price": 199,
+                  "quantity": 1,
+                },
+              ],
+              "page_location": "https://www.lazytopper.com/packs",
+              "page_referrer": "",
+              "signed_in": false,
+              "value": 199,
+            },
+          ],
+          [
+            "pack_purchase",
+            {
+              "currency": "INR",
+              "page_location": "https://www.lazytopper.com/packs",
+              "page_referrer": "",
+              "sku": "pack_cbq",
+              "value": 199,
+            },
+          ],
+          [
+            "purchase",
+            {
+              "currency": "INR",
+              "items": [
+                {
+                  "item_id": "pack_cbq",
+                  "item_name": "Maths CBQ Pack",
+                  "price": 199,
+                  "quantity": 1,
+                },
+              ],
+              "page_location": "https://www.lazytopper.com/packs",
+              "page_referrer": "",
+              "transaction_id": "pay_2",
+              "value": 199,
+            },
+          ],
+          [
+            "conversion",
+            {
+              "currency": "INR",
+              "send_to": "AW-18471331566/6ahqCIbi4q8dEO7N6OdE",
+              "transaction_id": "pay_2",
+              "value": 199,
+            },
+          ],
+        ],
+        "meta": [
+          [
+            "InitiateCheckout",
+            {
+              "currency": "INR",
+              "value": 2262,
+            },
+          ],
+          [
+            "Purchase",
+            {
+              "currency": "INR",
+              "value": 2262,
+            },
+          ],
+          [
+            "PackPurchase",
+            {
+              "currency": "INR",
+              "value": 199,
+            },
+          ],
+        ],
+        "vendor": [
+          [
+            "event",
+            {
+              "data": {
+                "currency": "INR",
+                "pass": "till_boards",
+                "signed_in": false,
+                "value": 2262,
+              },
+              "name": "begin_checkout",
+            },
+          ],
+          [
+            "event",
+            {
+              "data": {
+                "currency": "INR",
+                "pass": "till_boards",
+                "value": 2262,
+              },
+              "name": "purchase",
+            },
+          ],
+          [
+            "event",
+            {
+              "data": {
+                "surface": "packs",
+              },
+              "name": "pack_view",
+            },
+          ],
+          [
+            "event",
+            {
+              "data": {
+                "currency": "INR",
+                "signed_in": false,
+                "sku": "pack_cbq",
+                "value": 199,
+              },
+              "name": "pack_checkout",
+            },
+          ],
+          [
+            "event",
+            {
+              "data": {
+                "currency": "INR",
+                "sku": "pack_cbq",
+                "value": 199,
+              },
+              "name": "pack_purchase",
+            },
+          ],
+        ],
+      }
+    `);
+  });
+
+  it("N2: a purchase reports the page its checkout STARTED on, not the page open when it settles", () => {
+    __resetPackCheckoutStartsForTests();
+    const lastPurchase = () => (ga4().filter((x) => x[0] === "pack_purchase").pop()![1] as Record<string, unknown>).surface;
+    setSalesPageSurface("cbq-packs");
+    trackPackCheckout({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199 }, { signedIn: true });
+    setSalesPageSurface("board-pass"); // the student moved on while the order was pending
+    trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "late_1" });
+    expect(lastPurchase()).toBe("cbq-packs");
+    // Started off the sales pages (/packs), settled on /board-pass: no surface (as trunk).
+    setSalesPageSurface(null);
+    trackPackCheckout({ sku: "pack_bundle", itemName: "Bundle", valueInr: 299 }, { signedIn: true });
+    setSalesPageSurface("board-pass");
+    trackPackPurchase({ sku: "pack_bundle", itemName: "Bundle", valueInr: 299, transactionId: "late_2" });
+    expect(lastPurchase()).toBeUndefined();
+  });
+
+  it("on /board-pass: begin_checkout and purchase carry surface board-pass (GA4 + Meta custom param); names unchanged", () => {
+    setSalesPageSurface("board-pass");
+    run();
+    const g = ga4();
+    expect(g.map((x) => x[0])).toEqual(expect.arrayContaining(["begin_checkout", "purchase"]));
+    expect((g.find((x) => x[0] === "purchase")![1] as Record<string, unknown>).surface).toBe("board-pass");
+    expect((g.find((x) => x[0] === "begin_checkout")![1] as Record<string, unknown>).surface).toBe("board-pass");
+    expect((meta().find((x) => x[0] === "Purchase")![1] as Record<string, unknown>).surface).toBe("board-pass");
+  });
+
+  it("on /cbq-packs: pack_view surface is cbq-packs (not packs); pack_checkout and pack_purchase carry it", () => {
+    setSalesPageSurface("cbq-packs");
+    run();
+    const g = ga4();
+    expect((g.find((x) => x[0] === "pack_view")![1] as Record<string, unknown>).surface).toBe("cbq-packs");
+    expect((g.find((x) => x[0] === "pack_checkout")![1] as Record<string, unknown>).surface).toBe("cbq-packs");
+    expect((g.find((x) => x[0] === "pack_purchase")![1] as Record<string, unknown>).surface).toBe("cbq-packs");
+    expect(meta().some((x) => (x[1] as Record<string, unknown> | undefined)?.surface === "cbq-packs")).toBe(true);
+  });
+});
 
 describe("pack analytics", () => {
   it("pack_view / pack_download go to the first-party log by name", () => {

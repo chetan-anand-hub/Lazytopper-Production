@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { TRIAL_DAYS } from "../services/subscriptionService";
-import { trackNamedEvent } from "../analytics/analytics";
+import { currentSalesPageSurface, setSalesPageSurface, trackNamedEvent, trackPaywallAction } from "../analytics/analytics";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
+import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import {
   BOARD_PASS_NAME,
@@ -18,7 +19,7 @@ import {
   type TillBoardsQuote,
 } from "../config/pricing";
 import PassCheckout, { tillBoardsButtonLabel } from "../components/pricing/PassCheckout";
-import PaywallActions, { trackPricingPayTap } from "../components/pricing/PaywallActions";
+import PaywallActions from "../components/pricing/PaywallActions";
 import {
   BOARD_PASS_ONCE,
   FAQ_PAY_FOR_CHILD_Q,
@@ -119,15 +120,55 @@ export function BoardPassPrice() {
   );
 }
 
-/** The GST breakup under the second Pay ("₹1,917 + ₹345 GST (18%) = ₹2,262"), after mount (clock-derived); the slot keeps its line. */
-function GstBreakdownLine() {
+/**
+ * PRICING-PAGES-2 R1 - the hero Pay button's own label, as PassCheckout renders it (it names the credited total for a student with a
+ * pack credit: "Pay ₹2,213"). The second Pay and the phone bar MIRROR it, so every Pay on the page names the amount the checkout
+ * charges. Read from the live button (PassCheckout is unchanged and is the one place that knows the credit); null until it renders.
+ */
+export function useHeroPayLabel(): string | null {
+  const [label, setLabel] = useState<string | null>(null);
+  useEffect(() => {
+    const area = document.querySelector(`[data-testid="${BP_PAY_HERO_TESTID}"]`);
+    if (!area) return undefined;
+    const read = () => {
+      const text = area.querySelector(".lt-pricing-pay--boards")?.textContent?.trim() || null;
+      setLabel((was) => (was === text ? was : text));
+    };
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(area, { subtree: true, childList: true, characterData: true });
+    return () => observer.disconnect();
+  }, []);
+  return label;
+}
+
+/** "Pay ₹2,213" from the hero label ("Pay ₹2,213 once till your boards" or a credited "Pay ₹2,213"); null when it names no amount. */
+export function payAmountOf(label: string | null): string | null {
+  const m = label ? /₹[\d,]+/.exec(label) : null;
+  return m ? m[0] : null;
+}
+
+/**
+ * The GST breakup under the second Pay ("₹1,917 + ₹345 GST (18%) = ₹2,262"), after mount (clock-derived); the slot keeps its line.
+ * R1: shown only while the hero Pay names that same total (no pack credit). With a credit the breakup would not add up to the Pay,
+ * so it is left out (PassCheckout's own credit line sits by the hero Pay).
+ */
+function GstBreakdownLine({ heroLabel }: { heroLabel: string | null }) {
   const [line, setLine] = useState<string | null>(null);
   useEffect(() => setLine(boardPassGstBreakdown()), []);
+  const total = payAmountOf(line ? line.slice(line.lastIndexOf("=")) : null);
+  const matches = heroLabel === null || (total !== null && payAmountOf(heroLabel) === total);
   return (
     <p className="lt-bp-second__gst" data-testid="bp-gst-slot">
-      {line && <span data-testid="till-boards-figures">{line}</span>}
+      {line && matches && <span data-testid="till-boards-figures">{line}</span>}
     </p>
   );
+}
+
+/** F4: a tap on the hero Pay (PassCheckout's `.lt-pricing-pay`) is `paywall_action {pay, board-pass}` (capture phase, as /pricing's). */
+function trackBoardPassPayTap(e: { target: EventTarget | null }): void {
+  const el = e.target as Element | null;
+  if (el && typeof el.closest === "function" && el.closest(".lt-pricing-pay")) trackPaywallAction("pay", "board-pass");
 }
 
 /** "<d Month yyyy>" - the trial's end, derived from the stored start plus TRIAL_DAYS (as /pricing). */
@@ -135,6 +176,11 @@ function trialEndsOn(trialStartDate: string | null): string | null {
   const startMs = trialStartDate ? new Date(trialStartDate).getTime() : NaN;
   if (!Number.isFinite(startMs)) return null;
   return new Date(startMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+}
+
+/** The hero Pay's label right now (for the phone bar, which reads its copy when it mounts). */
+function heroPayLabelNow(): string | null {
+  return document.querySelector(`[data-testid="${BP_PAY_HERO_TESTID}"] .lt-pricing-pay--boards`)?.textContent?.trim() || null;
 }
 
 /** Clicks the hero Pay (PassCheckout's own button, so its events and checkout are exactly /pricing's); else scrolls to it. */
@@ -152,6 +198,22 @@ export function payFromHero(): void {
  * an entitlement, starts a trial on mount, or prices anything: figures come from src/config/pricing and the bank-claim constants.
  */
 export default function BoardPassPage() {
+  // F4: name this page on the checkout / purchase events. Set in the FIRST render (before any child's mount effect), cleared on leave.
+  useState(() => {
+    setSalesPageSurface("board-pass");
+    return null;
+  });
+  useEffect(() => {
+    setSalesPageSurface("board-pass");
+    // F1: a signed-out Pay opens the "Buy for yourself" sheet, a lazy chunk fetched only at the tap. Fetch it as the page mounts
+    // (the same specifier PassCheckout's lazy() uses, so the same chunk, once). Nothing is opened or ordered.
+    if (isPaymentsClientEnabled() && isCheckoutWhoClientEnabled()) void import("../components/checkoutWho/CheckoutSheet").catch(() => undefined);
+    // N1: clear only our own value - on /board-pass -> /cbq-packs the arriving page has already set its own in its first render.
+    return () => {
+      if (currentSalesPageSurface() === "board-pass") setSalesPageSurface(null);
+    };
+  }, []);
+  const heroPayLabel = useHeroPayLabel();
   const navigate = useNavigate();
   const desktop = useDesktopLayout();
   const paymentsOn = isPaymentsClientEnabled();
@@ -242,7 +304,7 @@ export default function BoardPassPage() {
                 <BoardPassPrice />
               )}
               {/* The SAME checkout entry as /pricing: PassCheckout unchanged, its Pay tap reported as /pricing's (capture phase). */}
-              <div className="lt-bp-pay" data-testid={BP_PAY_HERO_TESTID} onClickCapture={trackPricingPayTap}>
+              <div className="lt-bp-pay" data-testid={BP_PAY_HERO_TESTID} onClickCapture={trackBoardPassPayTap}>
                 {paymentsOn ? <PassCheckout /> : <p className="lt-bp-manual" data-testid="bp-manual">{BP_MANUAL_PAYMENTS_OFF}</p>}
               </div>
               {paymentsOn && !owner && (
@@ -304,9 +366,9 @@ export default function BoardPassPage() {
               {paymentsOn ? (
                 <>
                   <button type="button" className="lt-bp-second__pay" onClick={payFromHero} data-testid="bp-pay-second-btn">
-                    {tillBoardsButtonLabel()}
+                    {heroPayLabel ?? tillBoardsButtonLabel()}
                   </button>
-                  <GstBreakdownLine />
+                  <GstBreakdownLine heroLabel={heroPayLabel} />
                 </>
               ) : (
                 <p className="lt-bp-manual">{BP_MANUAL_PAYMENTS_OFF}</p>
@@ -345,8 +407,9 @@ export default function BoardPassPage() {
         {paymentsOn && !owner && subscription.status.tier !== "premium" && (
           <SalesStickyBar
             watch={[BP_PAY_HERO_TESTID, BP_PAY_SECOND_TESTID]}
-            copy={() => boardPassStickyCopy(boardPassPriceDisplay(), boardPassPayDisplay())}
+            copy={() => boardPassStickyCopy(boardPassPriceDisplay(), payAmountOf(heroPayLabelNow()) ?? boardPassPayDisplay())}
             onGo={payFromHero}
+            copyKey={heroPayLabel}
             ariaLabel={`${BOARD_PASS_NAME} shortcut`}
             testId="bp-sticky"
           />

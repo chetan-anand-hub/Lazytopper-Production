@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve as resolvePath } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
@@ -228,7 +231,8 @@ describe("isBareFullScreenRoute (bare full-screen chrome-suppression gate — CT
 });
 
 describe("BUY-FOCUS-1 — bottom nav hidden for signed-out visitors on BUY landing pages", () => {
-  const BUY = ["/packs", "/cbq-class-10", "/cbq-class-10/electricity", "/pricing"];
+  // PRICING-PAGES-2 F2 (reviewer R3): + the two dedicated sales pages.
+  const BUY = ["/packs", "/cbq-class-10", "/cbq-class-10/electricity", "/pricing", "/board-pass", "/cbq-packs"];
 
   it("is hidden when signed out on /packs, /cbq-class-10, a CBQ chapter page and /pricing", () => {
     setMatchMediaMatches(false);
@@ -243,7 +247,7 @@ describe("BUY-FOCUS-1 — bottom nav hidden for signed-out visitors on BUY landi
 
   it("stays shown when signed in on /packs and the CBQ pages", () => {
     setMatchMediaMatches(false);
-    for (const path of ["/packs", "/cbq-class-10", "/cbq-class-10/electricity"]) {
+    for (const path of ["/packs", "/cbq-class-10", "/cbq-class-10/electricity", "/board-pass", "/cbq-packs"]) {
       cleanup();
       renderNav(path);
       expect(screen.getByText("Practice"), path).toBeInTheDocument();
@@ -254,7 +258,7 @@ describe("BUY-FOCUS-1 — bottom nav hidden for signed-out visitors on BUY landi
   it("is unchanged (still shown) for signed-out visitors on other mobile routes", () => {
     setMatchMediaMatches(false);
     auth.user = null;
-    for (const path of ["/practice-hub", "/browse", "/exam-trends", "/packsy", "/cbq-class-100"]) {
+    for (const path of ["/practice-hub", "/browse", "/exam-trends", "/packsy", "/cbq-class-100", "/board-passes", "/cbq-packs-x"]) {
       cleanup();
       renderNav(path);
       expect(screen.getByText("Practice"), path).toBeInTheDocument();
@@ -266,5 +270,20 @@ describe("BUY-FOCUS-1 — bottom nav hidden for signed-out visitors on BUY landi
     expect(isSignedOutBuyRoute("/cbq-class-10/electricity")).toBe(true);
     expect(isSignedOutBuyRoute("/packsy")).toBe(false);
     expect(isSignedOutBuyRoute("/practice-hub")).toBe(false);
+  });
+
+  /**
+   * PRICING-PAGES-2 F2: the two paths PRICING-PAGES-1 added are the ONLY change. Every route pattern in App.tsx (params filled with
+   * "x") is run through isSignedOutBuyRoute: the routes that hide the bar are exactly the old set plus /board-pass and /cbq-packs.
+   */
+  it("over EVERY App.tsx route, only /board-pass and /cbq-packs joined the signed-out buy set", () => {
+    const src = readFileSync(resolvePath(dirname(fileURLToPath(import.meta.url)), "App.tsx"), "utf8");
+    const patterns = [...new Set([...src.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]))];
+    expect(patterns.length).toBeGreaterThan(40); // CONTROL: the scan found the route table
+    const paths = patterns.map((p) => p.replace(/:[A-Za-z]+/g, "x").replace(/\*/g, "x"));
+    const hidden = paths.filter((p) => isSignedOutBuyRoute(p)).sort();
+    const BEFORE = ["/cbq-class-10", "/cbq-class-10/x", "/packs"];
+    expect(hidden).toEqual([...BEFORE, "/board-pass", "/cbq-packs"].sort());
+    expect(paths.filter((p) => !isSignedOutBuyRoute(p)).length).toBe(paths.length - BEFORE.length - 2);
   });
 });

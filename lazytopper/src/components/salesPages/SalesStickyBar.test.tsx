@@ -34,6 +34,26 @@ describe("SalesStickyBar", () => {
     });
     expect(screen.queryByTestId("bar")).toBeNull();
   });
+  it("N5: a new copyKey (the hero Pay renamed by a pack credit) updates the bar at once, with no scroll", async () => {
+    let amount = "Pay ₹2,262";
+    const Bar = ({ k }: { k: string }) => (
+      <>
+        <div data-testid="hero-pay" ref={(el) => { if (el) el.getBoundingClientRect = () => rect(-2000, 60); }} />
+        <SalesStickyBar watch={["hero-pay"]} copy={() => ({ label: "Board Pass", button: amount })} copyKey={k} onGo={vi.fn()} ariaLabel="x" testId="bar" />
+      </>
+    );
+    let view: ReturnType<typeof render> | undefined;
+    await act(async () => {
+      view = render(<Bar k="a" />);
+    });
+    expect(screen.getByTestId("bar-go").textContent).toBe("Pay ₹2,262");
+    amount = "Pay ₹2,213";
+    await act(async () => {
+      view!.rerender(<Bar k="b" />);
+    });
+    expect(screen.getByTestId("bar-go").textContent).toBe("Pay ₹2,213");
+  });
+
   it("shown when neither is on screen; its button runs the page's Pay", async () => {
     const onGo = vi.fn();
     await act(async () => {

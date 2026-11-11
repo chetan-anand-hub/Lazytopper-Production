@@ -56,12 +56,11 @@
   padding: 12px;
   gap: 8px;
 }
+/* R5: name and price on their own lines at every width, so a font swap (fallback -> Fraunces) can never re-wrap the row. */
 .lt-cq-card__head {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 2px 10px;
+  flex-direction: column;
+  gap: 2px;
 }
 .lt-cq .lt-cq-card .lt-cbq__name {
   font-size: 19px;
@@ -133,4 +132,23 @@
   .lt-cq .lt-sp-links--one {
     max-width: 380px;
   }
+}
+
+/* PRICING-PAGES-2 R5: the H1 is painted in the fallback serif first and re-wraps when Fraunces arrives (measured: 2 -> 3 lines at
+   390-439 px, 1 -> 2 at 660-749 px). Reserve the Fraunces line count so the swap moves nothing below it (line-height 1.2). */
+@media (max-width: 449px) {
+  .lt-cq-hero__h1 {
+    min-height: 3.6em;
+  }
+}
+@media (min-width: 450px) and (max-width: 759px) {
+  .lt-cq-hero__h1 {
+    min-height: 2.4em;
+  }
+}
+
+/* PRICING-PAGES-2 R5: the static page carries the shop's neutral button (the prerender is captured with packs dark); the app swaps
+   in Buy + GST line + "See inside" (126 px at every width, measured). Reserve that box so the swap moves nothing below it. */
+.lt-cq-card__buy {
+  min-height: 126px;
 }

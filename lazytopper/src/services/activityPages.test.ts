@@ -39,10 +39,27 @@ const server = requireCjs("../../server/routes/studentActivity.cjs") as {
   isPageKey: (k: unknown) => boolean;
 };
 
+/** The client names the server would reject (an empty list = the server accepts everything the client can send). */
+function clientNamesMissingOnServer(client: readonly string[], server: readonly string[]): string[] {
+  const accepted = new Set(server);
+  return client.filter((n) => !accepted.has(n));
+}
+
 describe("the client and server page allowlists cannot drift", () => {
-  it("★ client ACTIVITY_PAGE_NAMES === server ACTIVITY_PAGE_NAMES (same order)", () => {
-    expect([...ACTIVITY_PAGE_NAMES]).toEqual([...server.ACTIVITY_PAGE_NAMES]);
-    expect([...ACTIVITY_PAGE_KEYS]).toEqual([...server.ACTIVITY_PAGE_KEYS]);
+  /**
+   * PRICING-PAGES-2 C1 (changed from equality): every name the client can send is ACCEPTED by the server (client ⊆ server). A server
+   * that does not know a name rejects the whole batch, so the server may lead the client (deploy order: Railway, then the web), never
+   * the other way. Today the server carries two names the client does not send yet: board-pass and cbq-packs.
+   */
+  it("★ client ⊆ server: every page name and key the client can send, the server accepts", () => {
+    expect(clientNamesMissingOnServer(ACTIVITY_PAGE_NAMES, server.ACTIVITY_PAGE_NAMES)).toEqual([]);
+    expect(clientNamesMissingOnServer(ACTIVITY_PAGE_KEYS, server.ACTIVITY_PAGE_KEYS)).toEqual([]);
+    // The server's extra names are exactly the two sales pages (so nothing else drifted).
+    expect([...server.ACTIVITY_PAGE_NAMES].filter((n) => !ACTIVITY_PAGE_NAMES.includes(n)).sort()).toEqual(["board-pass", "cbq-packs"]);
+  });
+
+  it("MUTATION: a name only the client knows turns the subset check red", () => {
+    expect(clientNamesMissingOnServer([...ACTIVITY_PAGE_NAMES, "client-only-page"], server.ACTIVITY_PAGE_NAMES)).toEqual(["client-only-page"]);
   });
 
   it("★ the chapter list is EXACTLY the app's topic registry (src/lib/desktop/topics.ts)", () => {
@@ -92,8 +109,8 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/legal/:slug": [["/legal/privacy", "legal/privacy"], ["/legal/refunds", "legal/other"]],
   "/pricing": [["/pricing", "pricing"], ["/pricing/", "pricing"]],
   "/packs": [["/packs", "packs"], ["/packs/", "packs"], ["/packs/x", null]], // PACKS-CLIENT-1 — public PDF packs page
-  // PRICING-PAGES-1 — the two public sales pages. No page name (null), like /for-parents: naming them would need the server's
-  // drift-tested page list (server/** is out of this lane's scope).
+  // PRICING-PAGES-1 — the two public sales pages. No page name (null) from the client yet: PRICING-PAGES-2 C1 adds them to the
+  // SERVER list first; the client names them in a later PR once Railway runs it ([FU-ACTIVITY-PAGE-NAMES-SALES]).
   "/board-pass": [["/board-pass", null]],
   "/cbq-packs": [["/cbq-packs", null]],
   "/cbse/class-10": [["/cbse/class-10", "cbse/class-10"]],

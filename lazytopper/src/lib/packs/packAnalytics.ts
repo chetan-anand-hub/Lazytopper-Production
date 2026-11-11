@@ -16,6 +16,7 @@
 import {
   CHECKOUT_CURRENCY,
   analyticsEnabled,
+  currentSalesPageSurface,
   packIsAdminHit,
   purchaseSentMemory,
   readPurchaseSent,
@@ -70,12 +71,36 @@ function sendGa4Only(name: string, params: Record<string, unknown>): void {
 export type PassOwnerOfferSurface = "pass_success" | "pass_download" | "pass_mock" | "pass_me";
 
 /** Where a `pack_view` happened (PRICING-ONE-1): the /packs page or the packs section of /pricing; or a Board Pass owner's offer. */
-export type PackViewSurface = "packs" | "pricing" | "for_parents" | PassOwnerOfferSurface;
+export type PackViewSurface = "packs" | "pricing" | "for_parents" | "cbq-packs" | PassOwnerOfferSurface;
+
+/** PRICING-PAGES-2 F4: the sales page the event happened on (null off those pages: payloads unchanged). */
+function salesSurface(): { surface: string } | Record<string, never> {
+  const s = currentSalesPageSurface();
+  return s ? { surface: s } : {};
+}
+
+/**
+ * PRICING-PAGES-2 N2 - the page each pack's checkout STARTED on (sku -> surface, null = not a sales page), captured at
+ * `pack_checkout`. A purchase confirmed later (a pending order the shop keeps polling after the student moved on) reports the page it
+ * started on, not the page open when it settles. A purchase with no recorded start (none in this tab) uses the page open now.
+ */
+const checkoutStartedOn = new Map<string, string | null>();
+function purchaseSurface(sku: string): { surface: string } | Record<string, never> {
+  const s = checkoutStartedOn.has(sku) ? checkoutStartedOn.get(sku) ?? null : currentSalesPageSurface();
+  return s ? { surface: s } : {};
+}
+/** Test seam: forget the recorded checkout starts. */
+export function __resetPackCheckoutStartsForTests(): void {
+  checkoutStartedOn.clear();
+}
 
 /** `pack_view` (page opened) and `pack_download` (a file saved). `sku` is the pack kind, never an id. `surface` (pack_view only) says which page. */
 export function trackPackEvent(name: "pack_view" | "pack_download", sku?: PackSkuName, surface?: PackViewSurface): void {
   try {
-    const data: Record<string, string> = { ...(sku ? { sku } : {}), ...(surface ? { surface } : {}) };
+    // PRICING-PAGES-2 F4: a pack_view on a sales page names that page (the shop it mounts passes its default "packs").
+    const page = name === "pack_view" ? currentSalesPageSurface() : null;
+    const where = page ?? surface;
+    const data: Record<string, string> = { ...(sku ? { sku } : {}), ...(where ? { surface: where } : {}) };
     const has = Object.keys(data).length > 0;
     sendAnalyticsHit("event", { name, ...(has ? { data } : {}) }, has ? { ga4: data } : {});
   } catch {
@@ -130,7 +155,9 @@ export function trackPackCheckout(details: PackCheckoutDetails, ctx: { signedIn?
       ...(ctx.resumed ? { resumed: true } : {}),
       // PACKS-CONVERT-1: `from: "sample"` marks a Buy tapped on the "Liked the sample?" button that follows a free-sample download.
       ...(ctx.from ? { from: ctx.from } : {}),
+      ...salesSurface(),
     };
+    checkoutStartedOn.set(details.sku, currentSalesPageSurface());
     sendAnalyticsHit("event", { name: "pack_checkout", data: { ...money, sku: details.sku, ...who } }, { ga4: { ...money, sku: details.sku, ...who } });
     sendGa4Only("begin_checkout", { ...money, items: [packItem(details)], ...who });
   } catch {
@@ -145,11 +172,13 @@ export function trackPackPurchase(details: PackCheckoutDetails & { transactionId
     if (!id || purchaseSentMemory.has(id) || readPurchaseSent().includes(id)) return;
     rememberPurchaseSent(id);
     const money = packMoney(details);
-    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku } }, { ga4: { ...money, sku: details.sku }, meta: money });
+    const where = purchaseSurface(details.sku);
+    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta: { ...money, ...where } });
     sendGa4Only("purchase", {
       transaction_id: id,
       ...money,
       items: [packItem(details)],
+      ...where,
     });
     sendAdsConversion(id, details.valueInr); // ADS-TAG-1: same moment as the GA4 purchase above
   } catch {

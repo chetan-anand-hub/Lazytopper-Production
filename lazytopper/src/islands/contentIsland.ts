@@ -196,7 +196,16 @@ export interface Descriptor {
   cls: string;
   text: string;
   ordinal: number;
+  /**
+   * PRICING-PAGES-2 F1 - the key of the nearest `[data-lt-twin]` around the control, when there is one. The served page and the app
+   * may label the same control differently (the prerender is captured with packs dark, so /cbq-packs' Buy reads "Maths CBQ Pack ·
+   * <price>" there and "Buy Maths CBQ · <total>" in the app): a tap is then replayed on the app's first control of the same tag inside
+   * the element with the same key. No `data-lt-twin` on the page (every page but /cbq-packs): unused, matching exactly as before.
+   */
+  twin?: string;
 }
+
+export const TWIN_ATTR = "data-lt-twin";
 
 function scopeOf(el: Element): Element {
   // Never the curtain (raiseCurtain): it is the live copy's wrapper, not a scope the app renders.
@@ -217,7 +226,8 @@ function candidates(scope: Element, d: Pick<Descriptor, "tag" | "cls" | "text">,
 export function describe(el: Element): Descriptor {
   const scope = scopeOf(el);
   const d = { tag: el.tagName.toLowerCase(), cls: norm(el.getAttribute("class")), text: norm(el.textContent) };
-  return { scopeId: scope === document.body ? null : scope.id, ...d, ordinal: Math.max(0, candidates(scope, d, true, null).indexOf(el)) };
+  const twin = el.closest(`[${TWIN_ATTR}]`)?.getAttribute(TWIN_ATTR) || undefined;
+  return { scopeId: scope === document.body ? null : scope.id, ...d, ordinal: Math.max(0, candidates(scope, d, true, null).indexOf(el)), ...(twin ? { twin } : {}) };
 }
 
 /** The React-owned element matching `d`, or null while the app has not rendered it. */
@@ -228,6 +238,12 @@ export function resolve(d: Descriptor): HTMLElement | null {
     : document.body;
   // A scope element that React has not rendered yet (or a served copy) is not the app's: wait.
   if (!scope || (d.scopeId !== null && !isReactOwned(scope))) return null;
+  if (d.twin) {
+    // F1: the app's control of the same tag inside the app's twin container (exact text/class are not required).
+    const box = [...document.querySelectorAll(`[${TWIN_ATTR}]`)].find((el) => el.getAttribute(TWIN_ATTR) === d.twin && isReactOwned(el));
+    const twinEl = box?.querySelector(d.tag);
+    if (twinEl && isReactOwned(twinEl)) return twinEl as HTMLElement;
+  }
   const strict = candidates(scope, d, true, true);
   const found = strict[d.ordinal] ?? candidates(scope, d, false, true)[d.ordinal];
   return (found as HTMLElement | undefined) ?? null;

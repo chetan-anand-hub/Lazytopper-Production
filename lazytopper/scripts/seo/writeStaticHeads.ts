@@ -54,6 +54,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { canonicalFor } from "../../src/config/canonicalUrl";
+import { boardPassPriceDisplay, displayPlusGst } from "../../src/config/pricing";
+import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../src/lib/packs/packLabels";
 import {
   solutionsBreadcrumbName,
   solutionsHeadDescription,
@@ -86,6 +88,37 @@ export function solutionsStaticHeads(): Record<string, PageHead> {
     out[path] = { title: solutionsHeadTitle(page.book, page.ch), description: solutionsHeadDescription(page.book, page.ch) };
   }
   return out;
+}
+
+/**
+ * PRICING-PAGES-2 F5 + R2 (owner, 11 Nov 2026) - the heads of the two sales pages, generated from the pinned constants: the Board
+ * Pass price from src/config/pricing with the page's own date rule (₹1,917 + GST until 30 Nov, ₹2,499 + GST from 00:00 IST 1 Dec),
+ * the bank and CBQ claims from lib/packs/packLabels, the CBQ pack price + GST from HEAD_CBQ_PACK_PRICE_INR. Never a typed figure.
+ * ★ THE HEAD IS STAMPED AT BUILD: it changes on the first DEPLOY (any build) on/after 1 Dec 00:00 IST - no recapture is needed for
+ * the head (the prerendered body's Pay label does need one; see prerenderPrice.guard).
+ */
+export const HEAD_NOW = Date.now();
+/**
+ * The CBQ pack's base price. services/packs.ts (PACK_PRICE_INR) cannot be imported by this Node script (it pulls a CSS file), so the
+ * figure is mirrored here and staticHeads.guard.test.ts pins it EQUAL to PACK_PRICE_INR.pack_cbq: a price change turns CI red.
+ */
+export const HEAD_CBQ_PACK_PRICE_INR = 199;
+/** "in 1 minute" is the Board Pass page's own tile (salesPagesCopy BP_MINUTE_TILE, pinned by the same guard). */
+export function salesPageHeads(now: number): Record<string, PageHead> {
+  return {
+    "/board-pass": {
+      title: "Board Pass: Class 10 Answers Marked Like CBSE | LazyTopper",
+      description:
+        `CBSE-style marking of your answer in 1 minute. Board Pass ${boardPassPriceDisplay(now)} once, till your boards: ` +
+        `${BANK_QUESTIONS_CLAIM} questions, ${BANK_CBQS_CLAIM} CBQs, a personal tutor.`,
+    },
+    "/cbq-packs": {
+      title: "CBQ Packs: Class 10 Maths & Science CBQs | LazyTopper",
+      description:
+        `Printable CBSE Class 10 CBQ packs: ${CBQ_SUBJECT_CLAIM} per subject, ${CBQ_CHAPTER_CLAIM}, step-wise worked solutions. ` +
+        `${displayPlusGst(HEAD_CBQ_PACK_PRICE_INR, now)} per subject.`,
+    },
+  };
 }
 
 /**
@@ -128,21 +161,8 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
     description:
       "Printable CBSE Class 10 Maths & Science question banks with worked solutions. Chapter packs from ₹49, mock papers, one-time payment.",
   },
-  // PRICING-PAGES-1 (owner, 11 Nov 2026: ad relevance). Both restate the page's own H1 and first screen. The Board Pass head names no
-  // figure: its price follows the founding deadline (1 Dec), and a static head cannot (the /pricing head is number-free for the same
-  // reason). The CBQ pack price is fixed (PACK_PRICE_INR), so its head carries it.
-  "/board-pass": {
-    title: "Board Pass: Class 10 Answers Marked Like CBSE | LazyTopper",
-    description:
-      "CBSE-style marking of your handwritten answer in 1 minute, 10,000+ questions with solutions, 2,800+ CBQs, a personal " +
-      "tutor. Pay once.",
-  },
-  "/cbq-packs": {
-    title: "CBQ Packs: Class 10 Maths & Science CBQs | LazyTopper",
-    description:
-      "Printable CBSE Class 10 CBQ packs: 1,400+ competency-based questions per subject, 100+ per chapter, worked " +
-      "solutions. ₹199 + GST per subject.",
-  },
+  // PRICING-PAGES-1 / PRICING-PAGES-2 F5 + R2: built from the pinned constants at BUILD time (salesPageHeads below).
+  ...salesPageHeads(HEAD_NOW),
   "/exam-trends": {
     title: "CBSE Class 10 Exam Trends — Chapter Weightage | LazyTopper",
     description:
