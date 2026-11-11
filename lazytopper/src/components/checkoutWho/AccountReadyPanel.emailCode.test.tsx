@@ -57,7 +57,7 @@ describe("thank-you screen, email case, email code on", () => {
     expect(codes.sendEmailCode).toHaveBeenCalledWith("kid@gmail.com");
     fireEvent.change(screen.getByTestId("email-code-input"), { target: { value: "654321" } });
     await waitFor(() => expect(codes.signInWithEmailCode).toHaveBeenCalledWith("kid@gmail.com", "654321"));
-    await waitFor(() => expect(p.go).toHaveBeenCalledWith("/packs#my-packs"));
+    await waitFor(() => expect(p.go).toHaveBeenCalledWith("/packs?from=pay#my-packs"));
     expect(p.sendEmailLink).not.toHaveBeenCalled();
     // "Send it to my child" stays.
     expect(screen.getByTestId("who-send-child")).toBeTruthy();
@@ -85,7 +85,7 @@ describe("thank-you screen, email case, email code on", () => {
     expect(document.body.textContent).toContain("For you? We email a one-tap sign-in link to that address.");
     fireEvent.click(screen.getByTestId("who-open-me"));
     await screen.findByTestId("who-link-sent");
-    expect(p.sendEmailLink).toHaveBeenCalledWith("kid@gmail.com", "/packs#my-packs");
+    expect(p.sendEmailLink).toHaveBeenCalledWith("kid@gmail.com", "/packs?from=pay#my-packs");
     expect(codes.sendEmailCode).not.toHaveBeenCalled();
     expect(screen.queryByTestId("email-code")).toBeNull();
   });

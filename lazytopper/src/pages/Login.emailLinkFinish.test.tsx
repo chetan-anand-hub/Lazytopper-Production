@@ -71,7 +71,7 @@ function renderDoor(entry: string | { pathname: string; search?: string; state?:
   );
 }
 
-const LINK = "?finish=link&redirect=%2Fpacks%23my-packs&apiKey=k&oobCode=CODE&mode=signIn&lang=en";
+const LINK = "?finish=link&redirect=%2Fpacks%3Ffrom%3Dpay%23my-packs&apiKey=k&oobCode=CODE&mode=signIn&lang=en";
 
 beforeEach(() => {
   authState.user = null;

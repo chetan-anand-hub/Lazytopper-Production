@@ -33,6 +33,7 @@ function mountSheet(over: Partial<Parameters<typeof CheckoutSheet>[0]> = {}) {
     onSignInWithEmail: vi.fn(),
     onClose: vi.fn(),
     buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: true, amountInr: 199, paymentId: "pay_1" })),
+    selfFirst: false, // these tests drive the identifier box (CHECKOUT-SELF-2: signed out now opens at "Buy for yourself" with the flag on)
     ...over,
   };
   render(<CheckoutSheet {...props} />);
@@ -83,7 +84,7 @@ describe("the thank-you screen (flag on)", () => {
     expect(await screen.findByText("Enter the 6-digit code from the SMS.")).toBeTruthy();
     fireEvent.change(screen.getByTestId("who-otp"), { target: { value: "123456" } });
     fireEvent.click(screen.getByTestId("who-otp-verify"));
-    await waitFor(() => expect(go).toHaveBeenCalledWith("/packs#my-packs"));
+    await waitFor(() => expect(go).toHaveBeenCalledWith("/packs?from=pay#my-packs"));
     expect(auth.verifyPhoneOtp).toHaveBeenCalledWith("123456");
   });
 
@@ -113,7 +114,7 @@ describe("the thank-you screen (flag on)", () => {
     );
     expect(screen.queryByTestId("code-sent-change")).toBeNull();
     expect(document.body.textContent).not.toContain("anaya.k@gmail.com");
-    expect(sendEmailLink).toHaveBeenCalledWith("anaya.k@gmail.com", "/packs#my-packs");
+    expect(sendEmailLink).toHaveBeenCalledWith("anaya.k@gmail.com", "/packs?from=pay#my-packs");
     expect(auth.sendPhoneOtp).not.toHaveBeenCalled();
   });
 

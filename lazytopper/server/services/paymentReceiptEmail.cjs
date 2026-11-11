@@ -34,6 +34,8 @@ const { resolveSendWindow } = require('./emailSendWindow.cjs');
 const { emailKey } = require('./emailSuppression.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
+/** SELF-PAY-LAND-1: the pack sign-in landing, marked so a just-paid buyer is not met by the trial-ended screen. */
+const PAID_PACKS_LANDING = '/packs?from=pay#my-packs';
 const DEFAULT_FROM = 'LazyTopper <hello@mail.lazytopper.com>';
 const DEFAULT_REPLY_TO = 'support@lazytopper.com';
 const SUPPORT_EMAIL = 'support@lazytopper.com';
@@ -198,7 +200,7 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
     howHtml = `<p>Sign in at lazytopper.com/login with <strong>${ids.map(escapeHtml).join('</strong> or <strong>')}</strong>, and ${lands}.</p>
 <p>Use exactly what was entered at checkout. Anything else will not find this purchase.</p>`;
   } else if (guestPhoneMasked) {
-    const loginUrl = `${appUrl}/login?method=phone&redirect=${encodeURIComponent(where)}`;
+    const loginUrl = `${appUrl}/login?method=phone&redirect=${encodeURIComponent(isPack ? PAID_PACKS_LANDING : where)}`;
     const lands = isPack ? 'your pack is in My packs' : 'your Premium is switched on';
     howText = `Sign in at lazytopper.com/login with your phone number ${guestPhoneMasked}, and ${lands}.\nSign in: ${loginUrl}\nUse the same number you paid with. A different number will not find this purchase.`;
     howHtml = `<p>Sign in at lazytopper.com/login with your phone number <strong>${escapeHtml(guestPhoneMasked)}</strong>, and ${lands}.</p>
@@ -248,7 +250,7 @@ function buildRecipientReadyEmail({ passType, packTarget, phoneMasked, emailMask
   const name = isPack ? item : 'Board Pass';
   const subject = `Your ${name} is ready`;
   const where = isPack ? '/packs#my-packs' : '/';
-  const loginUrl = `${appUrl}/login?redirect=${encodeURIComponent(where)}`;
+  const loginUrl = `${appUrl}/login?redirect=${encodeURIComponent(isPack ? PAID_PACKS_LANDING : where)}`;
   const ids = [emailMasked ? 'this email address' : '', phoneMasked || ''].filter(Boolean).join(' or ');
   const lands = isPack ? 'and open My packs to download it' : 'and the Board Pass is already there';
   const text = [
@@ -478,7 +480,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       try {
         // Back to /login's finish step (markers only, never the address), then the safe landing: My packs / Home.
         const where = isPackProduct(order.passType) ? '/packs#my-packs' : '/';
-        const link = await deps.emailSignInLink(to, `${config.appUrl}/login?finish=link&redirect=${encodeURIComponent(where)}`);
+        const link = await deps.emailSignInLink(to, `${config.appUrl}/login?finish=link&redirect=${encodeURIComponent(where === "/packs#my-packs" ? PAID_PACKS_LANDING : where)}`);
         accountReady = buildAccountReadyEmail({
           passType: order.passType,
           packTarget: order.packTarget,
