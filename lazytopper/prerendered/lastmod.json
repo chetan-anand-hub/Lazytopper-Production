@@ -3,6 +3,10 @@
     "sha256": "ca4e0ecb01541853d3d9793ae276c3337d182c79054a521a1af075e36846c076",
     "lastmod": "2026-11-08"
   },
+  "/board-pass": {
+    "sha256": "dbc9209c221dd255bfcc3bf1a3912031036c4e2842a7b98cec95022a4de1d785",
+    "lastmod": "2026-11-11"
+  },
   "/cbq-class-10": {
     "sha256": "f15280a107138ccdb25f1a46039d2a903887a17f66b0aff0becb50617dbf422c",
     "lastmod": "2026-11-07"
@@ -110,6 +114,10 @@
   "/cbq-class-10/trigonometry": {
     "sha256": "1a08d039f15af7cd39856ea0110592c2548e503bb1d36eab744617d505b3ad35",
     "lastmod": "2026-11-07"
+  },
+  "/cbq-packs": {
+    "sha256": "4dcf33469f92896e29abd21e53d654ebfb71f9fca7341cc2e17daff99fd3d402",
+    "lastmod": "2026-11-11"
   },
   "/cbse/class-10": {
     "sha256": "4377087eae5a50d7f74d2062b01892e103b056bc4932913e86efc0e53f0d9c3a",

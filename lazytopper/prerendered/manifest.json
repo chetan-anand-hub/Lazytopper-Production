@@ -20,6 +20,7 @@
   },
   "paths": [
     "/",
+    "/board-pass",
     "/cbq-class-10",
     "/cbq-class-10/acids-bases-and-salts",
     "/cbq-class-10/areas-related-to-circles",
@@ -47,6 +48,7 @@
     "/cbq-class-10/surface-areas-and-volumes",
     "/cbq-class-10/triangles",
     "/cbq-class-10/trigonometry",
+    "/cbq-packs",
     "/cbse/class-10",
     "/check-your-answer",
     "/contact",

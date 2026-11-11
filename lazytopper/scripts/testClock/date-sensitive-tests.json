@@ -719,6 +719,8 @@
     "src/lib/packs/packSamples.test.tsx",
     "src/lib/tutorSticky/dailyFix.test.ts",
     "src/lib/tutorSticky/trialSummary.test.ts",
+    "src/pages/BoardPassPage.test.tsx",
+    "src/pages/CbqPacksPage.test.tsx",
     "src/pages/Cbse2027Page.guard.test.tsx",
     "src/pages/ChapterTestFullMock.hiddenUntilSubmit.test.tsx",
     "src/pages/ChapterTestPage.await1.test.tsx",
