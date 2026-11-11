@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
 import { PackCbqBuy, sampleBuyFor } from "../components/packs/PackTileBuy";
-import CbqBand from "../components/pricing/CbqBand";
+import SubjectSwitch from "../components/packs/SubjectSwitch";
+import PackSampleLink, { SampleBuyNext } from "../components/packs/PackSampleLink";
+import "../components/pricing/cbqBand.css";
 import { subjectFromSearch } from "../components/pricing/pricingPlansCopy";
 import BoardsCountdownStrip from "../components/urgency/BoardsCountdownStrip";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
@@ -25,7 +27,8 @@ import {
   QUESTION_BANK_PAGE_PATH,
   questionBankFromPrice,
 } from "../components/salesPages/salesPagesCopy";
-import { subjectLabel, type PackSubject } from "../services/packs";
+import { PACK_PRICE_INR, chaptersOfSubject, packPriceLabel, subjectLabel, type PackSubject } from "../services/packs";
+import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM, REDOWNLOAD_UNTIL } from "../lib/packs/packLabels";
 import "../components/salesPages/salesPages.css";
 import "./cbqPacksPage.css";
 
@@ -81,15 +84,7 @@ function CbqCatalogue({ api, subject, onSubject }: { api: PacksShopApi; subject:
       </section>
 
       <div className="lt-sp__w lt-cq-band">
-        <CbqBand
-          variant="switch"
-          subject={subject}
-          onSubject={onSubject}
-          headingId="cq-band-h"
-          sampleSurface="packs_cbq"
-          action={(s) => <PackCbqBuy subject={s} api={api} testPrefix="cq-card" />}
-          sampleBuy={sampleBuyFor(api, "pack_cbq")}
-        />
+        <CbqBuyCard api={api} subject={subject} onSubject={onSubject} />
         {owned && (
           <p className="lt-cq-owned" role="status" data-testid="cq-owned">
             You own the {subjectLabel(subject)} CBQ Pack. <Link to={MY_PACKS_PATH} data-testid="cq-open-my-packs">{CBQ_OWNED_LINK}</Link>
@@ -125,5 +120,33 @@ function CbqCatalogue({ api, subject, onSubject }: { api: PacksShopApi; subject:
         </div>
       </section>
     </>
+  );
+}
+
+/**
+ * The CBQ Pack card: the shop's own pieces (SubjectSwitch, PackCbqBuy = the /packs Buy path, PackSampleLink + the "Liked the sample?"
+ * step), in the CBQ band's look (cbqBand.css), ordered so the Buy is on the first screen at 360 x 640: switch, name + price, Buy,
+ * then what is in it. (The shared CbqBand puts a headline and a paragraph above the switch, which pushes Buy below the fold here.)
+ */
+function CbqBuyCard({ api, subject, onSubject }: { api: PacksShopApi; subject: PackSubject; onSubject: (s: PackSubject) => void }) {
+  const [tapped, setTapped] = useState<PackSubject | null>(null);
+  const next = tapped === subject ? sampleBuyFor(api, "pack_cbq")(subject) : null;
+  return (
+    <section className="lt-cbq lt-cbq--switch lt-cq-card" id="cbq" aria-labelledby="cq-card-h" data-testid="cbq-band" data-price={PACK_PRICE_INR.pack_cbq}>
+      <div className="lt-cbq__card" data-testid={`cbq-card-${subject}`}>
+        <SubjectSwitch value={subject} onChange={(s) => { onSubject(s); setTapped(null); }} label="CBQ Pack subject" tone="on-dark" testPrefix="cbq-subject" />
+        <div className="lt-cq-card__head">
+          <h2 className="lt-cbq__name" id="cq-card-h">{subjectLabel(subject)} CBQ Pack</h2>
+          <p className="lt-cbq__price lt-cq-card__price">{packPriceLabel("pack_cbq")}</p>
+        </div>
+        <PackCbqBuy subject={subject} api={api} testPrefix="cq-card" />
+        <p className="lt-cbq__count">{CBQ_SUBJECT_CLAIM} · {chaptersOfSubject(subject).length} chapters, {CBQ_CHAPTER_CLAIM} · 1- to 5-mark questions · step-wise worked solutions</p>
+        <div className="lt-cbq__sample">
+          <PackSampleLink sku="pack_cbq" target={subject} surface="packs_cbq" tone="on-dark" onTapped={() => setTapped(subject)} />
+        </div>
+        {next && <SampleBuyNext sku="pack_cbq" subject={subject} buy={next} tone="on-dark" />}
+      </div>
+      <p className="lt-cbq__foot">One-time {packPriceLabel("pack_cbq")} per pack, download till {REDOWNLOAD_UNTIL}</p>
+    </section>
   );
 }
