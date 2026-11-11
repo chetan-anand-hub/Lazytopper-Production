@@ -59,10 +59,14 @@
 .lt-pk-part { padding: 20px 0 4px; }
 .lt-pk .lt-pk-part__h { font-size: 20px; line-height: 1.25; margin-bottom: 10px; }
 .lt-pk-part__switch { max-width: 360px; margin-bottom: 12px; }
-/* The switch's selected look also follows the native radio (a tap on the static page, before the app arrives, shows at once). */
-.lt-pk .lt-ss__opt:has(.lt-ss__in:checked) { background: #15233a; color: #fff; }
-.lt-pk .lt-ss__opt:not(:has(.lt-ss__in:checked)) { background: transparent; color: #2f3e55; }
-.lt-pk .lt-ss__opt:not(:has(.lt-ss__in:checked)) .lt-ss__tick { display: none; }
+/*
+ * The switch's selected look follows the native radio itself (input:checked + its label text), not React's --on class, so a tap on the
+ * static page, before the app arrives, shows at once. Sibling selectors only (no :has(): it widened style recalculation on the app swap).
+ */
+.lt-pk .lt-ss__opt, .lt-pk .lt-ss__opt--on { background: transparent; color: #2f3e55; }
+.lt-pk .lt-ss__txt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+.lt-pk .lt-ss__in:checked + .lt-ss__txt { background: #15233a; color: #fff; }
+.lt-pk .lt-ss__in:not(:checked) + .lt-ss__txt .lt-ss__tick { display: none; }
 .lt-pk-rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .lt-pk-row { background: #fff; border: 1px solid var(--pk-line); border-radius: 14px; display: flex; flex-direction: column; min-width: 0; }
 .lt-pk-row[data-open] { border-color: var(--pk-line2); }
