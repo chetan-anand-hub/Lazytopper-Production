@@ -11,10 +11,14 @@ import "./boardsCountdown.css";
 export default function BoardsCountdownStrip({ tone = "light", testId = "boards-countdown-strip" }: { tone?: "light" | "dark"; testId?: string }) {
   const [text] = useState(() => (import.meta.env?.VITE_BOARDS_STRIP_DISABLED === "1" ? null : boardsCountdownCopy(Date.now())));
   if (!text) return null;
+  // The slot keeps the strip's height. The <p> carries a clock-derived figure, so the prerender capture removes it (captureStaticBodies
+  // strip rule 4) and the slot alone stays in the static file: no build-day number is frozen in, and the page does not shift on mount.
   return (
-    <p className={tone === "dark" ? "lt-boards-strip lt-boards-strip--dark" : "lt-boards-strip"} data-testid={testId}>
-      {text}
-    </p>
+    <div className="lt-boards-slot" data-testid="boards-countdown-slot">
+      <p className={tone === "dark" ? "lt-boards-strip lt-boards-strip--dark" : "lt-boards-strip"} data-testid={testId}>
+        {text}
+      </p>
+    </div>
   );
 }
 
