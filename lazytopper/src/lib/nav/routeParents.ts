@@ -48,6 +48,9 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   // Buying.
   ["/pricing", { parent: "/" }],
   ["/packs", { parent: "/pricing" }],
+  // PRICING-PAGES-1: the dedicated sales pages are children of /pricing ("← Pricing" + Home, as /packs).
+  ["/board-pass", { parent: "/pricing" }],
+  ["/cbq-packs", { parent: "/pricing" }],
 
   // Public pages.
   ["/legal/:slug", { parent: "/" }],

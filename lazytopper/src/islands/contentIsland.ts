@@ -1181,6 +1181,18 @@ export function appViewRequested(loc: { pathname: string; search: string; hash: 
     if (has("buy") || has("t") || has("from")) return true;
     return loc.hash.replace(/^#/, "") !== "";
   }
+  if (loc.pathname === "/board-pass") {
+    // PRICING-PAGES-1: the served view is the signed-out page. A one-tap pay link (?buy=board_pass), a parents' visit
+    // (?from=for_parents: the back link) or any hash is the app's to render at once. utm_* / gclid do not change the view.
+    if (has("buy") || has("from")) return true;
+    return loc.hash.replace(/^#/, "") !== "";
+  }
+  if (loc.pathname === "/cbq-packs") {
+    // PRICING-PAGES-1: the served view is the Maths switch. ?subject= / ?t= (a subject), a one-tap buy (?buy=), the shop's entry
+    // links (?pack= / ?view= / ?chapter= / ?mock=), a sample return or a parents' visit (?from=) or any hash load the app at once.
+    for (const name of ["buy", "t", "subject", "from", "pack", "view", "chapter", "mock"]) if (has(name)) return true;
+    return loc.hash.replace(/^#/, "") !== "";
+  }
   if (loc.pathname.startsWith("/highly-probable/")) {
     const topic = String(params.get("topic") ?? "").trim();
     return topic !== "" && topic !== "all";

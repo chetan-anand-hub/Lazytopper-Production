@@ -80,6 +80,9 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/pricing",
   // PACKS-LEGAL-1 (owner ruling, 25 Oct 2026) — the PDF packs page (route added by PACKS-CLIENT-1).
   "/packs",
+  // PRICING-PAGES-1 (owner, 11 Nov 2026) - the dedicated Board Pass and CBQ Packs sales pages: public, indexable, ad landings.
+  "/board-pass",
+  "/cbq-packs",
   "/exam-trends",
   "/practice-hub",
   "/cbse/class-10",
