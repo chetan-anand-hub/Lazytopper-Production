@@ -89,6 +89,24 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   take(new RegExp(`Buy (Maths|Science) CBQ · ${AMT}<`), (m) => `${m[1]} CBQ Pack (one-tap button)`, (m) => packPay(`${m[1]} CBQ Pack`));
   take(new RegExp(`CBQ Pack ${AMT} per subject`), () => "CBQ Pack (hub hero price line)", () => packExp("Maths CBQ Pack"));
   take(new RegExp(`One-time ${AMT} per pack`), () => "CBQ Pack (one-time line)", () => packExp("Maths CBQ Pack"));
+  // PACKS-TIDY-2: /packs as "Question Bank + Mocks" (captured with packs dark): the Bundle's price, each row's summary price, the
+  // neutral buttons that hold each Buy's place ("Maths + Science Bundle · …", "Maths Subject Pack · …", "Choose a Maths chapter · …"),
+  // the GST breakup under each (its pack read from the twin box around it), the CBQ link card and the CBQ FAQ line.
+  if (/(^|\/)packs\.html$/.test(file)) {
+    take(new RegExp(`class="lt-pk-bundle__amt">${AMT}`), () => "Maths + Science Bundle", () => packExp("Maths + Science Bundle"));
+    take(new RegExp(`class="lt-pk-row__name">(${LABELS})</span><span class="lt-pk-row__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
+    take(new RegExp(`>(?:Maths|Science) (Subject Pack|Mock Pack) · ${AMT}<`), (m) => `${m[1]} (neutral button)`, (m) => packExp(m[1]));
+    take(new RegExp(`>Choose a (?:Maths|Science) chapter · ${AMT}<`), () => "Chapter Pack (neutral button)", () => packExp("Chapter Pack"));
+    take(new RegExp(`CBQs per subject · ${AMT} →`), () => "CBQ Pack (packs link card)", () => packExp("Maths CBQ Pack"));
+    take(new RegExp(`their own page, ${AMT} per subject`), () => "CBQ Pack (packs FAQ)", () => packExp("Maths CBQ Pack"));
+    const twinSku: Record<string, PackSku> = { bundle: "pack_bundle", subject: "pack_subject", mock: "pack_mock", chapter: "pack_chapter" };
+    for (const m of html.matchAll(/data-lt-twin="pk-buy-(\w+)"[\s\S]*?<span class="lt-ptb__gst">(₹[\d,]+ \+ ₹[\d,]+ GST \(18%\) = ₹[\d,]+)</g)) {
+      const sku = twinSku[m[1]];
+      const start = m.index! + m[0].lastIndexOf(m[2]);
+      for (const t of m[2].matchAll(/₹/g)) claimed.add(start + t.index!);
+      found.push({ file, product: `${sku ?? m[1]} (GST breakup)`, shown: m[2], expected: (sku && packGstBreakdown(sku, now)) || "(unknown pack)" });
+    }
+  }
   // PRICING-PAGES-1: the two dedicated sales pages (only there: /pricing carries the same Pay markup and is not a scanned page).
   if (/(^|\/)(board-pass|cbq-packs)\.html$/.test(file)) {
     take(/>Pay ₹([\d,]+) once till your boards</, () => "Board Pass (Pay button)", () => model?.boardPassPayDisplay ?? null);
@@ -154,9 +172,9 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       for (const l of ["Maths CBQ Pack", "Science CBQ Pack", "Mock Pack", "Chapter Pack", "Maths + Science Bundle"]) expect(fp).toContain(l);
       expect(of("for-parents.html").length).toBeGreaterThanOrEqual(7);
       const pk = of("packs.html").map((x) => x.product);
-      // PACKS-TIDY-1: ONE CBQ card with a Maths/Science switch - the static page shows the Maths card (the Science card is the same price, swapped in by the switch).
-      for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "Maths CBQ Pack"]) expect(pk).toContain(l);
-      expect(of("packs.html").length).toBeGreaterThanOrEqual(7); // PACKS-TIDY-1: 10 -> 7 (one CBQ card, one terms line)
+      // PACKS-TIDY-2: the CBQ card left /packs (a link card + an FAQ line name its price); each Buy's place is a neutral button + GST line.
+      for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "CBQ Pack (packs link card)", "pack_bundle (GST breakup)", "pack_chapter (GST breakup)"]) expect(pk).toContain(l);
+      expect(of("packs.html").length).toBeGreaterThanOrEqual(7);
     }
     // PRICING-PAGES-1: both sales pages are scanned in both variants (the Pay / Buy, the card price, the links, the GST breakups).
     for (const dir of ["", "__desktop/"]) {
@@ -207,6 +225,18 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     expect(parentPriceModel(new Date("2026-11-30T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917 + GST");
     expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹2,499 + GST");
     expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassPayDisplay).toBe("₹2,949");
+  });
+
+  it("MUTATION PROOF (PACKS-TIDY-2): a stale /packs row price, neutral button or GST breakup is caught", () => {
+    const after = new Date(GST_EXCLUSIVE_FROM_MS + 1);
+    const html =
+      `<span class="lt-pk-row__name">Mock Pack</span><span class="lt-pk-row__price">₹98 + GST</span>` +
+      `<div data-lt-twin="pk-buy-mock"><button>Maths Mock Pack · ₹98 + GST</button><span class="lt-ptb__gst">₹98 + ₹18 GST (18%) = ₹116</span></div>`;
+    const r = scanSnapshot("packs.html", html, after, predictCbseExamDate("10"));
+    expect(r.unclaimed).toEqual([]);
+    expect(mismatchMessages(r.found)).toHaveLength(3);
+    // the same markup is not read off any other page
+    expect(scanSnapshot("pricing.html", html, after, predictCbseExamDate("10")).found).toHaveLength(0);
   });
 
   it("MUTATION PROOF: a changed pack price is caught", () => {

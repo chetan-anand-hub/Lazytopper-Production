@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { INLINE_ROUTE_CSS } from "../../scripts/seo/applyPrerendered";
+import { INLINE_MARKUP_CSS, INLINE_ROUTE_CSS } from "../../scripts/seo/applyPrerendered";
 
 /**
  * CLS-1 (6 Nov 2026): /packs (0.575), /cbq-class-10 (0.44), the CBQ chapter pages (1.085) and /contact (0.173) shifted because
@@ -21,6 +21,11 @@ describe("CLS-1 first paint", () => {
     // PRICING-PAGES-1: the sales pages inline the shared sales-page sheet (and, /cbq-packs, the shop's CBQ band CSS as /packs does).
     expect(INLINE_ROUTE_CSS.BoardPassPage).toEqual(expect.arrayContaining(["salesPages", "TestimonialVideo"]));
     expect(INLINE_ROUTE_CSS.CbqPacksPage).toEqual(expect.arrayContaining(["salesPages", "CbqBand", "PackTileBuy"]));
+  });
+
+  it("PACKS-TIDY-2 (A2): /packs inlines every sheet its island used to LINK (render-blocking), WhatsApp button included; no other page changes", () => {
+    expect(INLINE_ROUTE_CSS.PacksPage).toEqual(expect.arrayContaining(["SubjectSwitch", "packReady", "myInvoices", "stickyPassBar"]));
+    expect(INLINE_MARKUP_CSS).toEqual({ "/packs": ["WhatsAppFab"] });
   });
 
   it("never inlines KaTeX CSS (it delayed first paint on the notes pages)", () => {
