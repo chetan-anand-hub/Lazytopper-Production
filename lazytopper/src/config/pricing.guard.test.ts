@@ -391,6 +391,10 @@ const SLASH_MONTH = /\/\s*mo(?:nth)?\b/i;
 const OR_P6_SURFACES = [
   "src/config/pricing.ts",
   "src/pages/PricingPage.tsx",
+  // PRICING-HUB-2 H4: the live /pricing (three-card hub) - every source file of it.
+  "src/pages/pricingHub/PricingHub.tsx",
+  "src/pages/pricingHub/hubCopy.ts",
+  "src/pages/pricingHub/pricingHubCss.ts",
   "src/pages/LegalPage.tsx",
   "src/components/auth/OfferStrip.tsx",
   "src/components/auth/MockViewGate.tsx",

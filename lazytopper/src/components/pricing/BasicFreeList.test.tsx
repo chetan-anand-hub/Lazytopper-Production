@@ -50,6 +50,11 @@ describe("one source", () => {
     expect(src).not.toMatch(/const\s+FREE_FEATURES\s*=/);
     expect(src).not.toMatch(/\bFREE_FEATURES\.map\b/);
     expect(src).toMatch(/from "\.\.\/config\/pricingCompare";/);
+    // PRICING-HUB-2 H4: the live /pricing (three-card hub) holds the same rule and reads the same compare module.
+    const hub = readFileSync(resolve(process.cwd(), "src/pages/pricingHub/PricingHub.tsx"), "utf8");
+    expect(hub).not.toMatch(/const\s+FREE_FEATURES\s*=/);
+    expect(hub).not.toMatch(/\bFREE_FEATURES\.map\b/);
+    expect(hub).toMatch(/from "\.\.\/\.\.\/config\/pricingCompare";/);
   });
 
   it("the lock list is exactly Pricing's INCLUDED rows, in order", () => {

@@ -726,10 +726,13 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                   testId={`hub-buy-pack_cbq-${s}`}
                   ownedLabel={`${subjectLabel(s)} CBQ`}
                 />
-                {/* PARENT-PACKS-1: a link that carries THIS subject's CBQ Pack only (signed in; nothing otherwise). */}
-                {api.parentAsk("pack_cbq", s, { noQr: true })}
               </div>
             ))}
+          </div>
+          {/* PARENT-PACKS-1: per subject, a link that carries THAT subject's CBQ Pack only (signed in; nothing otherwise). H6: one quiet
+              row under the Buys - two side by side (Maths left, Science right, under their Buys), or one centred when one is owned. */}
+          <div className="lt-ph-share lt-ph-share--pair" data-testid="hub-cbq-share">
+            {SUBJECTS.map((s) => api.parentAsk("pack_cbq", s, { noQr: true }))}
           </div>
           <p className="lt-ph-sep" data-testid="hub-cbq-not-in-bundle">{HUB_CBQ_NOT_IN_BUNDLE}</p>
           {ownsAny && (
@@ -782,8 +785,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           <div data-testid={BANK_BUY_TESTID}>
             <HubPackBuy api={api} sku="pack_bundle" label={BUNDLE_BUY_LABEL} testId="hub-buy-pack_bundle" ownedLabel="Bundle" />
           </div>
-          {/* PARENT-PACKS-1: "Forward link to parents" + QR for the Bundle (signed in; nothing otherwise). */}
-          {api.parentAsk("pack_bundle")}
+          {/* PARENT-PACKS-1: "Forward link to parents" + QR for the Bundle (signed in; nothing otherwise). H6: one quiet row. */}
+          <div className="lt-ph-share" data-testid="hub-bank-share">
+            {api.parentAsk("pack_bundle")}
+          </div>
           <p className="lt-ph-sep" data-testid="hub-bank-separate">{HUB_BANK_SEPARATE}</p>
           {ownsBundle && (
             <Link className="lt-ph-mypacks" to={MY_PACKS_PATH} data-testid="hub-bank-my-packs">
