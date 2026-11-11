@@ -21,12 +21,13 @@ vi.mock("../services/guestPay", async (orig) => ({ ...(await orig<typeof import(
 vi.mock("../services/checkoutWhoFlag", async (orig) => ({ ...(await orig<typeof import("../services/checkoutWhoFlag")>()), isCheckoutWhoClientEnabled: () => true }));
 vi.mock("../services/gstBuyerOrder", async (orig) => ({ ...(await orig<typeof import("../services/gstBuyerOrder")>()), gstStateFieldOn: () => false }));
 vi.mock("../services/checkout", async (orig) => ({ ...(await orig<typeof import("../services/checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+const packsFlag = vi.hoisted(() => ({ on: true }));
 const mine = vi.hoisted(() => ({ packs: [] as Array<Record<string, unknown>> }));
 vi.mock("../services/packs", async (orig) => {
   const actual = await orig<typeof import("../services/packs")>();
   return {
     ...actual,
-    isPacksClientEnabled: () => true,
+    isPacksClientEnabled: () => packsFlag.on,
     fetchMyPacks: vi.fn(async () => ({ packs: mine.packs, licensee: { name: "Asha", email: "a@b.in" }, boardPassCredit: null })),
     buyPack: vi.fn(async () => ({ status: "dismissed" })),
     checkPackOrder: vi.fn(),
@@ -74,6 +75,7 @@ async function mount(entry = "/cbq-packs") {
 beforeEach(() => {
   auth.user = null;
   auth.loading = false;
+  packsFlag.on = true;
   mine.packs = [];
   buyMock.mockClear();
   packTrack.checkout.mockReset();
@@ -146,6 +148,18 @@ describe("PRICING-PAGES-1 /cbq-packs", () => {
     const bank = screen.getByTestId("cq-link-bank");
     expect(bank.getAttribute("href")).toBe("/packs");
     expect(bank.textContent).toContain(`from ${packPriceLabel("pack_chapter")}`);
+  });
+
+  it("packs dark (the capture build): the SAME Buy button is drawn (the island replays a cold tap onto it); it opens the pop-up", async () => {
+    packsFlag.on = false;
+    await mount();
+    const buy = screen.getByTestId("tile-buy-pack_cbq-maths");
+    expect(buy.textContent).toBe(`Buy Maths CBQ · ${packPayLabel("pack_cbq")}`);
+    await act(async () => {
+      fireEvent.click(buy);
+    });
+    expect(buyMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByTestId("pack-dialog").getAttribute("data-sku")).toBe("pack_cbq"));
   });
 
   it("no banned word: AI, answer key, optional, crossed-out price", async () => {

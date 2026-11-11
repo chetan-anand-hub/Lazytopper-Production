@@ -121,7 +121,7 @@
   .lt-cq-tiles {
     max-width: 560px;
   }
-  .lt-cq .lt-cq-band {
+  .lt-cq .lt-cq-band > * {
     max-width: 760px;
   }
   .lt-cq-inside {
