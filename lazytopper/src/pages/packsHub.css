@@ -1,0 +1,120 @@
+/*
+ * PACKS-TIDY-2 (owner, 11 Nov 2026) - /packs as "Question Bank + Mocks": a navy hero that carries the Bundle's buy block (Buy on the
+ * first screen at 360 x 640), ONE Maths / Science switch over three folding rows (each with its Buy while folded), a CBQ link card and a
+ * Board Pass link. Mobile first, 320-1440; every selector is scoped under `.lt-pk` (a lazy route's CSS is global once loaded). No
+ * horizontal carousel. Sizes are fixed per breakpoint and every text box that can re-wrap on the web-font swap has a reserved height.
+ */
+.lt-pk-hero { background: var(--pk-navy); color: #fff; padding: 12px 0 18px; }
+.lt-pk-hero__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.lt-pk-hero__copy { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.lt-pk-hero__eyebrow { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; line-height: 1.4; color: #6fe0a8; }
+.lt-pk .lt-pk-hero__h1 { font-size: 22px; line-height: 1.18; font-weight: 700; color: #fff; }
+.lt-pk-hero__line { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.35; color: #f1f4f8; }
+.lt-pk-hero__copy .lt-founder-badge { align-self: flex-start; margin: 0; font-size: 13px; padding: 4px 10px; }
+.lt-pk-hero__terms { margin: 0; font-size: 12.5px; line-height: 1.4; color: #c9d4e3; }
+
+/* The Bundle's buy block (white card in the navy hero). */
+.lt-pk-bundle {
+  background: #fff; color: var(--pk-ink); border: 2px solid var(--pk-g); border-radius: 16px; padding: 12px 14px 14px;
+  display: flex; flex-direction: column; gap: 8px; min-width: 0;
+}
+.lt-pk-bundle__badge {
+  align-self: flex-start; background: #e6f4ec; color: var(--pk-gt); font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 3px 9px; border-radius: 999px; line-height: 1.3;
+}
+.lt-pk .lt-pk-bundle__name { font-size: 21px; line-height: 1.2; font-weight: 700; }
+.lt-pk-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.lt-pk-tile { display: flex; flex-direction: column; justify-content: flex-start; background: #e8eef8; border-radius: 10px; padding: 6px 8px; min-width: 0; min-height: 58px; }
+.lt-pk-tile__fig { font-family: var(--pk-serif); font-size: 20px; font-weight: 700; line-height: 1.15; color: #0b1b3a; }
+.lt-pk-tile__lbl { font-size: 11.5px; line-height: 1.25; color: #3d4a5f; overflow-wrap: anywhere; }
+.lt-pk-bundle__price { margin: 0; line-height: 1.2; }
+.lt-pk-bundle__amt { font-family: var(--pk-serif); font-size: 26px; font-weight: 700; }
+.lt-pk-bundle__per { font-size: 13.5px; font-weight: 600; color: var(--pk-ink2); }
+.lt-pk-bundle .lt-ptb { margin-top: 0; }
+.lt-pk-bundle .lt-ptb__see, .lt-pk-bundle .lt-psl { align-self: center; color: var(--pk-gt); }
+.lt-pk-bundle__line { margin: 0; font-size: 14px; line-height: 1.45; color: var(--pk-ink2); }
+.lt-pk-bundle .lt-pt__preboard { margin: 0; }
+.lt-pk-bundle__small { margin: 0; font-size: 12.5px; line-height: 1.4; color: #4a566b; }
+
+/* A Buy box: the same height static (neutral button + GST line) and in the app (Buy + GST line). */
+.lt-pk-buy { min-width: 0; }
+.lt-pk-buy .lt-ptb { margin-top: 0; gap: 6px; }
+.lt-pk-buy .lt-ptb__btn { min-height: 48px; }
+
+.lt-pk__strip { padding-top: 14px; }
+
+/* "Need only part of it?" */
+.lt-pk-part { padding: 20px 0 4px; }
+.lt-pk .lt-pk-part__h { font-size: 20px; line-height: 1.25; margin-bottom: 10px; }
+.lt-pk-part__switch { max-width: 360px; margin-bottom: 12px; }
+/* The switch's selected look also follows the native radio (a tap on the static page, before the app arrives, shows at once). */
+.lt-pk .lt-ss__opt:has(.lt-ss__in:checked) { background: #15233a; color: #fff; }
+.lt-pk .lt-ss__opt:not(:has(.lt-ss__in:checked)) .lt-ss__tick { display: none; }
+.lt-pk-rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.lt-pk-row { background: #fff; border: 1px solid var(--pk-line); border-radius: 14px; display: flex; flex-direction: column; min-width: 0; }
+.lt-pk-row[data-open] { border-color: var(--pk-line2); }
+.lt-pk-row__sum {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 2px; align-items: center; min-height: 64px;
+  padding: 10px 14px 6px; cursor: pointer; list-style: none; -webkit-tap-highlight-color: transparent;
+}
+.lt-pk-row__sum::-webkit-details-marker { display: none; }
+.lt-pk-row__name { grid-column: 1; font-family: var(--pk-serif); font-size: 18px; font-weight: 700; line-height: 1.25; }
+.lt-pk-row__price {
+  grid-column: 2; grid-row: 1; font-family: var(--pk-serif); font-size: 19px; font-weight: 700; padding-right: 22px; position: relative;
+  justify-self: end; white-space: nowrap;
+}
+.lt-pk-row__price::after {
+  content: ""; position: absolute; right: 2px; top: 50%; width: 9px; height: 9px; margin-top: -7px; border-right: 2px solid var(--pk-ink2);
+  border-bottom: 2px solid var(--pk-ink2); transform: rotate(45deg); transition: transform 0.15s ease;
+}
+.lt-pk-row__d[open] > .lt-pk-row__sum .lt-pk-row__price::after { transform: rotate(-135deg); margin-top: -3px; }
+.lt-pk-row__line { grid-column: 1 / -1; font-size: 14px; line-height: 1.4; color: var(--pk-ink2); }
+.lt-pk-row__body { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px 4px; border-top: 1px solid var(--pk-line); }
+.lt-pk-row__excl { margin: 0; font-size: 13.5px; line-height: 1.4; color: #4a566b; }
+.lt-pk-row__body .lt-ptb__see, .lt-pk-row__body .lt-psl { align-self: center; color: var(--pk-gt); }
+.lt-pk-row__body .lt-pt__preboard { margin: 0; }
+.lt-pk-row > .lt-pk-buy { padding: 4px 14px 14px; margin-top: auto; }
+@media (prefers-reduced-motion: reduce) { .lt-pk-row__price::after { transition: none; } }
+
+/* The CBQ link card (amber) and the Board Pass link. */
+.lt-pk__links { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding-top: 18px; }
+.lt-pk .lt-pk-cbq {
+  display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 14px; background: #fff7e6; border: 1.5px solid #f3d48a;
+  color: #4a3200; text-decoration: none; min-height: 44px;
+}
+.lt-pk-cbq__kicker { font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; color: #7a4e00; }
+.lt-pk-cbq__main { font-family: var(--pk-serif); font-size: 18px; font-weight: 700; line-height: 1.3; color: #3b2600; }
+.lt-pk-cbq__sub { font-size: 14px; line-height: 1.4; color: #5c4510; }
+.lt-pk .lt-pk-bp {
+  display: flex; align-items: center; min-height: 52px; padding: 12px 16px; border-radius: 14px; background: #fff; border: 1px solid var(--pk-line2);
+  color: var(--pk-ink); font-weight: 700; font-size: 15px; line-height: 1.4; text-decoration: none;
+}
+.lt-pk .lt-pk-cbq:focus-visible, .lt-pk .lt-pk-bp:focus-visible { outline: 3px solid var(--pk-gt); outline-offset: 2px; }
+
+@media (min-width: 640px) {
+  .lt-pk-hero { padding: 20px 0 24px; }
+  .lt-pk .lt-pk-hero__h1 { font-size: 28px; }
+  .lt-pk-hero__eyebrow { font-size: 12.5px; }
+  .lt-pk-hero__terms { font-size: 14px; }
+  .lt-pk-tile__fig { font-size: 24px; }
+  .lt-pk-tile__lbl { font-size: 12.5px; }
+}
+@media (min-width: 768px) {
+  .lt-pk-rows { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+  .lt-pk__links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .lt-pk-hero { padding: 32px 0 36px; }
+  .lt-pk-hero__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 40px; align-items: center; }
+  .lt-pk-hero__copy { gap: 12px; }
+  .lt-pk-hero__eyebrow { font-size: 14px; letter-spacing: 0.08em; }
+  .lt-pk .lt-pk-hero__h1 { font-size: 44px; line-height: 1.1; }
+  .lt-pk-hero__line { font-size: 21px; }
+  .lt-pk-hero__terms { font-size: 16px; }
+  .lt-pk-bundle { padding: 20px 22px 22px; gap: 10px; }
+  .lt-pk .lt-pk-bundle__name { font-size: 26px; }
+  .lt-pk-bundle__amt { font-size: 32px; }
+  .lt-pk-part { padding: 36px 0 8px; }
+  .lt-pk .lt-pk-part__h { font-size: 26px; }
+  .lt-pk__links { padding-top: 28px; }
+}
