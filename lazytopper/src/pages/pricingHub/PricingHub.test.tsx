@@ -148,6 +148,8 @@ beforeEach(() => {
   analytics.named.mockClear();
   localStorage.clear();
   sessionStorage.clear();
+  // H2 keeps the selected card in window.history.state; MemoryRouter does not reset jsdom's shared history between tests.
+  window.history.replaceState(null, "");
 });
 afterEach(() => {
   cleanup();
@@ -193,7 +195,7 @@ describe("the page, top to bottom (§2)", () => {
     const c = card("pass");
     expect(within(c).getByText("START HERE")).toBeInTheDocument();
     expect(within(c).getByTestId("hub-pass-minute")).toHaveTextContent("1MINUTE1 minute: CBSE-style marking of your answerPhotograph your handwritten answer. See the marks for every step, like a CBSE examiner.");
-    expect(within(c).getByTestId("hub-pass-tile-questions")).toHaveTextContent(`${BANK_QUESTIONS_CLAIM}questions with solutions`);
+    expect(within(c).getByTestId("hub-pass-tile-questions")).toHaveTextContent(`${BANK_QUESTIONS_CLAIM}questions online, with solutions`);
     expect(within(c).getByTestId("hub-pass-tile-cbqs")).toHaveTextContent(`${BANK_CBQS_CLAIM}CBQs, every type`);
     expect(BANK_CBQS_CLAIM).toBe("2,800+");
     expect(within(c).getByTestId("hub-pass-tutor")).toHaveTextContent("Your personal tutor. Knows your mistakes and explains the exact step you got wrong, any time.");
@@ -232,7 +234,7 @@ describe("the page, top to bottom (§2)", () => {
     expect(hubBankTag(new Date("2026-12-21T00:00:00+05:30"))).toBe("ON PAPER");
     expect(within(c).getByTestId("hub-bank-tile-chapters")).toHaveTextContent("26chapters, Maths + Science");
     expect(within(c).getByTestId("hub-bank-tile-mocks")).toHaveTextContent("16board-pattern mock papers");
-    expect(within(c).getByTestId("hub-bank-claim")).toHaveTextContent(`${BUNDLE_QUESTIONS_CLAIM} questions in the Bundle`);
+    expect(within(c).getByTestId("hub-bank-claim")).toHaveTextContent(`${BUNDLE_QUESTIONS_CLAIM} questions to print in the Bundle`);
     expect(c).toHaveTextContent("Smaller packs: chapter ₹49 · mocks ₹99 · subject ₹199 (+ GST)");
     expect(within(c).getByTestId("hub-bank-price")).toHaveTextContent(packPriceLabel("pack_bundle"));
     expect(within(c).getByTestId("hub-buy-pack_bundle")).toHaveTextContent(`Buy the Bundle · ${packPayLabel("pack_bundle")}`);

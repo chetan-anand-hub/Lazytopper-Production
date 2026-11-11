@@ -61,7 +61,8 @@ export const HUB_PASS_MINUTE_UNIT = "MINUTE";
 export { BP_MINUTE_STRONG as HUB_PASS_MINUTE_STRONG, BP_MINUTE_LINE as HUB_PASS_MINUTE_LINE };
 /** Number tiles: the SAME pinned constants /board-pass uses (bankClaims.test.ts counts the real bank). */
 export const HUB_PASS_TILES: ReadonlyArray<{ id: string; figure: string; label: string }> = [
-  { id: "questions", figure: BANK_QUESTIONS_CLAIM, label: "questions with solutions" },
+  // PRICING-HUB-2 H1 (owner 11 Nov 23:14): the pass's bank reads as ONLINE practice, the Bundle's as print - two different things.
+  { id: "questions", figure: BANK_QUESTIONS_CLAIM, label: "questions online, with solutions" },
   { id: "cbqs", figure: BANK_CBQS_CLAIM, label: "CBQs, every type" },
 ];
 export const HUB_PASS_TUTOR_STRONG = `${BP_TUTOR_TITLE}.`;
@@ -124,7 +125,7 @@ export const HUB_BANK_TILES: ReadonlyArray<{ id: string; figure: string; label: 
   { id: "mocks", figure: String(BUNDLE_MOCKS), label: "board-pattern mock papers" },
 ];
 export const HUB_BANK_CLAIM_FIGURE = BUNDLE_QUESTIONS_CLAIM;
-export const HUB_BANK_CLAIM_REST = " questions in the Bundle";
+export const HUB_BANK_CLAIM_REST = " questions to print in the Bundle";
 export function hubBankTicks(): readonly string[] {
   return [
     "Sit a full paper before your pre-board, with the marking guide",

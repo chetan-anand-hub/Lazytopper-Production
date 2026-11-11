@@ -19,7 +19,7 @@ import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
 import { useMonthPassAvailable } from "../../components/pricing/useMonthPassAvailable";
 import PricingProof from "../../components/marketing/PricingProof";
-import PacksShop, { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "../../components/packs/PacksShop";
+import PacksShop, { OTHER_PAYMENT_BUSY_COPY, readBuyResume, type PacksShopApi } from "../../components/packs/PacksShop";
 import { WhatYouGet, useHashLanding } from "../../components/pricing/PricingPacks";
 import { PRICING_CSS } from "../../components/pricing/pricingPageCss";
 import SalesStickyBar from "../../components/salesPages/SalesStickyBar";
@@ -140,10 +140,39 @@ const BANK_BUY_TESTID = "hub-buy-bank";
 
 /** The card a hash names: `#cbq` -> CBQ Packs, `#packs` -> Question Bank, anything else -> the Board Pass. */
 export function cardForHash(hash: string): number {
+  return hashCard(hash) ?? 0;
+}
+
+/** The card a hash NAMES (`#lt-premium-card` / `#cbq` / `#packs`), or null for no hash or any other hash. Pure. */
+export function hashCard(hash: string): number | null {
   const h = hash.toLowerCase();
+  if (h === `#${HUB_CARD_ID.pass}`) return 0;
   if (h === `#${HUB_CARD_ID.cbq}`) return 1;
   if (h === `#${HUB_CARD_ID.bank}`) return 2;
-  return 0;
+  return null;
+}
+
+/**
+ * PRICING-HUB-2 H2 - the card the visitor last had selected on THIS history entry, kept in `history.state` under its own key (merged
+ * with React Router's own fields, so no new entry is pushed and the URL does not change). Back / Forward / a bfcache or reload restore
+ * of the entry brings the same card back; a fresh visit has no such key and opens on the Board Pass. Pure.
+ */
+export const HUB_CARD_STATE_KEY = "ltPricingCard";
+export function savedCard(state: unknown): number | null {
+  if (!state || typeof state !== "object") return null;
+  const v = (state as Record<string, unknown>)[HUB_CARD_STATE_KEY];
+  return typeof v === "number" && Number.isInteger(v) && v >= 0 && v < HUB_CARD_ORDER.length ? v : null;
+}
+/** The card to open on: a hash that names a card wins, then the saved card of this history entry, then the Board Pass. Pure. */
+export function initialCard(hash: string, state: unknown): number {
+  return hashCard(hash) ?? savedCard(state) ?? 0;
+}
+function readHistoryState(): unknown {
+  try {
+    return typeof window !== "undefined" ? window.history.state : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -210,13 +239,13 @@ function useCarousel(initial: number) {
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, [starts]);
-  const goTo = (i: number) => {
+  const goTo = (i: number, instant = false) => {
     setIndex(i);
     const track = trackRef.current;
     const s = starts();
     if (!track || s[i] === undefined || track.scrollWidth <= track.clientWidth) return;
     pinned.current = { index: i, until: Date.now() + 900 };
-    if (typeof track.scrollTo === "function") track.scrollTo({ left: s[i], behavior: prefersCalm() ? "auto" : "smooth" });
+    if (typeof track.scrollTo === "function") track.scrollTo({ left: s[i], behavior: instant || prefersCalm() ? "auto" : "smooth" });
     else track.scrollLeft = s[i];
   };
   return { trackRef, index, goTo };
@@ -250,6 +279,29 @@ function PassTabPrice() {
 }
 
 /** One pack Buy, exactly the legacy card's rules: owned -> the pill; packs dark -> the pop-up; else the shop's one-tap buy. */
+/**
+ * PRICING-HUB-2 H3 - reports once that a pack the visitor sent to checkout FROM THIS PAGE (a card Buy, the phone bar, or a `?buy=`
+ * resume) is now owned: the shop counts a just-paid or still-confirming pack as owned (PacksShop `ownsPack` / `settling`).
+ */
+function BoughtWatcher({ api, sent, onBought }: { api: PacksShopApi; sent: { current: Array<{ sku: PackSku; target?: string }> }; onBought: () => void }) {
+  const owned = api.buyEnabled && sent.current.some((k) => api.ownsPack(k.sku, k.target));
+  useEffect(() => {
+    if (owned) onBought();
+  }, [owned, onBought]);
+  return null;
+}
+
+/** The shop's api with every one-tap Buy recorded (H3), so the page knows which pack this visit sent to checkout. Same calls. */
+function recordingApi(api: PacksShopApi, sent: { current: Array<{ sku: PackSku; target?: string }> }): PacksShopApi {
+  return {
+    ...api,
+    buyNow: (sku, target, opts) => {
+      if (!(api.buyEnabled && api.ownsPack(sku, target))) sent.current.push({ sku, target });
+      api.buyNow(sku, target, opts);
+    },
+  };
+}
+
 function HubPackBuy({ api, sku, target, label, ariaLabel, testId, ownedLabel }: {
   api: PacksShopApi;
   sku: PackSku;
@@ -357,7 +409,71 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const subject = useHubSubject(location.search);
   useHashLanding();
-  const { trackRef, index, goTo } = useCarousel(cardForHash(location.hash));
+  // H2: a card restored from this history entry (Back / Forward / bfcache / reload), when no hash names one.
+  const [restoredCard] = useState(() => (hashCard(location.hash) === null ? savedCard(readHistoryState()) : null));
+  const { trackRef, index, goTo } = useCarousel(initialCard(location.hash, readHistoryState()));
+  // Remember the selected card on this history entry (replaceState, merged: no new entry, no URL change).
+  useEffect(() => {
+    try {
+      const st = window.history.state;
+      if ((savedCard(st) ?? 0) === index) return;
+      window.history.replaceState({ ...(st && typeof st === "object" ? st : {}), [HUB_CARD_STATE_KEY]: index }, "");
+    } catch {
+      /* history unavailable: nothing to remember */
+    }
+  }, [index]);
+  // H3 - after a pack is paid for from this page, the legacy page's inline My packs block (the shop's own, with its downloads) shows
+  // and comes into view, as on the legacy page. Before that the shop keeps it hidden (each card says "You own this" + "Open My packs").
+  const [boughtHere, setBoughtHere] = useState(false);
+  const sentToCheckout = useRef<Array<{ sku: PackSku; target?: string }>>([]);
+  const [resumeBuy] = useState(() => readBuyResume(location.search));
+  if (resumeBuy && sentToCheckout.current.length === 0) sentToCheckout.current.push({ sku: resumeBuy.sku, target: resumeBuy.target });
+  const markBought = useCallback(() => setBoughtHere(true), []);
+  useEffect(() => {
+    // A Buy inside a pack pop-up (e.g. from a `?chapter=` link): the shop's own paid / checking status line appears in its wrapper.
+    if (boughtHere || typeof MutationObserver === "undefined") return undefined;
+    const wrap = document.querySelector('[data-testid="pricing-hub"] .lt-packs--embedded');
+    if (!wrap) return undefined;
+    const check = () => {
+      if (wrap.querySelector('[data-testid="packs-status"]')) setBoughtHere(true);
+    };
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(wrap, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [boughtHere]);
+  useEffect(() => {
+    if (!boughtHere || typeof MutationObserver === "undefined") return undefined;
+    let done = false;
+    const go = () => {
+      const mine = document.getElementById("my-packs");
+      if (done || !mine) return;
+      done = true;
+      mine.scrollIntoView?.({ behavior: prefersCalm() ? "auto" : "smooth", block: "start" });
+    };
+    go();
+    const mo = new MutationObserver(go);
+    mo.observe(document.body, { childList: true, subtree: true });
+    const stop = window.setTimeout(() => mo.disconnect(), 15000);
+    return () => {
+      mo.disconnect();
+      window.clearTimeout(stop);
+    };
+  }, [boughtHere]);
+
+  // Restoring: put the track on that card at once, then (after the browser's own scroll restore) bring it into view if it is not.
+  useEffect(() => {
+    if (restoredCard === null || restoredCard === 0) return undefined;
+    goTo(restoredCard, true);
+    const t = window.setTimeout(() => {
+      const card = document.getElementById(HUB_CARD_ID[HUB_CARD_ORDER[restoredCard]]);
+      const r = card?.getBoundingClientRect();
+      if (card && r && (r.bottom < 80 || r.top > window.innerHeight - 80)) card.scrollIntoView?.({ block: "start" });
+    }, 350);
+    return () => window.clearTimeout(t);
+    // Once, on mount: the restored card is fixed for this mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const selected: HubCardKey = HUB_CARD_ORDER[index] ?? "pass";
 
   // `#pricing-video` (old links): the video now sits in a folded row - open it and bring it into view.
@@ -713,11 +829,13 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
 
         <div className="lt-ph-body">
           <BoardsCountdownStrip />
-          <PacksShop embedded hideMyPacks returnPath="/pricing">
-            {(api) => {
+          <PacksShop embedded hideMyPacks={!boughtHere} returnPath="/pricing">
+            {(shopApi) => {
+              const api = recordingApi(shopApi, sentToCheckout);
               apiRef.current = api;
               return (
                 <>
+                  <BoughtWatcher api={shopApi} sent={sentToCheckout} onBought={markBought} />
                   <div className="lt-ph-tabs" role="group" aria-label={HUB_TABS_LABEL} data-testid="hub-tabs">
                     {HUB_CARD_ORDER.map((key, i) => (
                       <button
