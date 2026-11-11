@@ -882,6 +882,7 @@
     "src/pages/desktop/DesktopTopicHubPage.worksheet.test.tsx",
     "src/pages/gradingJobs.pageResume.test.tsx",
     "src/pages/passesNotSubscriptions.orP7.test.tsx",
+    "src/pages/pricingHub/PricingHub.test.tsx",
     "src/pages/salesPagesSurface.nav.test.tsx",
     "src/pages/tutor/TutorPage.conceptArrival.test.tsx",
     "src/pages/tutor/TutorPage.cutNote.test.tsx",

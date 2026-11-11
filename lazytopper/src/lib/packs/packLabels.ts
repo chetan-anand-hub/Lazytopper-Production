@@ -39,6 +39,14 @@ export const BANK_QUESTIONS_CLAIM = `${BANK_QUESTIONS_MIN.toLocaleString("en-IN"
 export const BANK_CBQS_CLAIM = `${BANK_CBQS_MIN.toLocaleString("en-IN")}+`;
 
 /**
+ * PRICING-HUB-1 (owner 11 Nov 2026: "same for pdf packs/written practice"): the /pricing Question Bank card's "<N>+ questions in the
+ * Bundle". A FLOOR, rounded DOWN, of the real Bundle selection (the 26 chapter sheets, chapterPackRows), pinned by bundleClaim.test.ts
+ * on the real bank like CBQ_MIN_PER_SUBJECT. Measured 11 Nov 2026: 10,686.
+ */
+export const BUNDLE_QUESTIONS_MIN = 10000;
+export const BUNDLE_QUESTIONS_CLAIM = `${BUNDLE_QUESTIONS_MIN.toLocaleString("en-IN")}+`;
+
+/**
  * PREBOARDS-BADGE-1: until the pre-board season ends the Bundle is sold as the "Pre-boards pick" (owner ruling 2 Nov 2026). ONE constant:
  * move this instant to move the season. Name, price and sku never change; after it every surface reverts to the plain copy by itself.
  */

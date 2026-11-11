@@ -17,6 +17,10 @@ export default defineConfig({
     // list the CI clock jobs run. Inactive under LT_TEST_CLOCK. See that file.
     setupFiles: ["./src/test/setup.ts", "./scripts/testClock/clockRecorder.setup.mjs", "./scripts/ops/ci_vitest_yield_setup.mjs"],
     include: ["src/**/*.test.{ts,tsx}"],
+    // PRICING-HUB-1 (11 Nov 2026): /pricing renders the three-card hub unless VITE_PRICING_HUB_DISABLED=1 (src/pages/PricingPage.tsx
+    // default export). The suite runs with the switch ON, so every existing test that renders <PricingPage /> keeps meeting the legacy page
+    // it was written for, unedited; the hub's own tests stub the variable to "" (vi.stubEnv) to render the hub.
+    env: { VITE_PRICING_HUB_DISABLED: "1" },
     // CI-SPEED-3: on CI (GitHub sets CI=true) start the slowest files first, by
     // scripts/ops/vitest-durations.json. ORDER ONLY: the same files run, each still
     // isolated. Local runs keep vitest's default order.
