@@ -150,8 +150,9 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     page();
     expect(screen.queryByTestId("tile-buy-pack_bundle")).toBeNull();
     // PACKS-TIDY-2: a neutral button (no "Buy") holds each Buy's place; it only opens the pack's pop-up.
-    expect(screen.getByTestId("pk-buy-bundle-neutral").textContent).toBe(`Maths + Science Bundle · ${packs.packPriceLabel("pack_bundle")}`);
-    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(packs.packPriceLabel("pack_mock"));
+    // review N1: the neutral buttons name the TOTAL (as the app's Buy does); the GST breakup is under / beside them.
+    expect(screen.getByTestId("pk-buy-bundle-neutral").textContent).toBe(`Bundle · ${packs.packPayLabel("pack_bundle")}`);
+    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(packs.packPayLabel("pack_mock"));
     expect(screen.getByTestId("pk-buy-mock-neutral").getAttribute("aria-label")).toBe(`Mock Pack · ${packs.packPriceLabel("pack_mock")}`);
     expect(screen.getByTestId("pk-buy-chapter-neutral").textContent).toBe("Choose chapter");
     expect(document.body.textContent).not.toMatch(/\bBuy\b[^?]/);

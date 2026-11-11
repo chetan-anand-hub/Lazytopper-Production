@@ -150,8 +150,8 @@ function PacksPageBody() {
                 aria-label={`${CBQ_PACKS_NAME} · ${CBQ_SUBJECT_CLAIM} per subject · ${packPriceLabel("pack_cbq")}. ${PACKS_CBQ_SENTENCE}`}
                 data-testid="packs-link-cbq"
               >
-                <span className="lt-pk-lrow__k">NEW</span>
-                <span className="lt-pk-lrow__t">{CBQ_PACKS_NAME} · {packPriceLabel("pack_cbq")} per subject</span>
+                <span className="lt-pk-lrow__k">{CBQ_PACKS_NAME.toUpperCase()}</span>
+                <span className="lt-pk-lrow__t">{packPriceLabel("pack_cbq")} per subject</span>
                 <span className="lt-pk-lrow__a" aria-hidden="true">&rarr;</span>
               </Link>
               <Link className="lt-pk-lrow" to={BOARD_PASS_PAGE_PATH} title={CBQ_MARKED_LINE} aria-label={CBQ_MARKED_LINE} data-testid="packs-link-board-pass">
@@ -280,7 +280,7 @@ function Hero({ api }: { api: PacksShopApi }) {
             <span className="lt-pk-bundle__amt">{packPriceLabel("pack_bundle")}</span>
             <span className="lt-pk-bundle__per"> · both subjects · pay once</span>
           </p>
-          <BuyBox twin="pk-buy-bundle" api={api} neutral={`${BUNDLE_NAME} · ${packPriceLabel("pack_bundle")}`} gstSku="pack_bundle" onNeutral={() => api.openPack("pack_bundle")}>
+          <BuyBox twin="pk-buy-bundle" api={api} neutral={`Bundle · ${packPayLabel("pack_bundle")}`} gstSku="pack_bundle" onNeutral={() => api.openPack("pack_bundle")}>
             <PackTileBuy sku="pack_bundle" api={api} />
           </BuyBox>
           {/* v1.2 L1: "See inside" and the free sample side by side on one line. */}
@@ -456,7 +456,7 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
     const onNeutral = () => (sku === "pack_chapter" ? api.chooseChapter({ subject }) : api.openPackWith ? api.openPackWith(sku, subject) : api.openPack(sku));
     return (
       <button type="button" className="lt-pk-cbuy" onClick={onNeutral} aria-haspopup="dialog" aria-label={`${t.name} · ${packPriceLabel(sku)}`} data-testid={`pk-buy-${t.id}-neutral`}>
-        {sku === "pack_chapter" ? "Choose chapter" : packPriceLabel(sku)}
+        {sku === "pack_chapter" ? "Choose chapter" : packPayLabel(sku)}
       </button>
     );
   }
@@ -509,7 +509,17 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
  */
 const STICKY_WATCH = ["pk-buy-bundle-box", "pk-buy-subject-box", "pk-buy-mock-box", "pk-buy-chapter-box"] as const;
 function BundleStickyBar({ api }: { api: PacksShopApi }) {
-  const show = api.buyEnabled && !api.ownsPack("pack_bundle") && !api.openSku;
+  // Review F2 (main-thread time while the app takes over): the bar's chunk, render and scroll watchers start only after the visitor's
+  // first scroll on a phone. It never shows before a scroll anyway (the Bundle's Buy is on the first screen), nor from 768 px (its CSS).
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (armed || typeof window === "undefined") return undefined;
+    if (typeof window.matchMedia === "function" && window.matchMedia("(min-width: 768px)").matches) return undefined;
+    const arm = () => setArmed(true);
+    window.addEventListener("scroll", arm, { passive: true, once: true });
+    return () => window.removeEventListener("scroll", arm);
+  }, [armed]);
+  const show = armed && api.buyEnabled && !api.ownsPack("pack_bundle") && !api.openSku;
   if (!show) return null;
   return (
     <Suspense fallback={null}>

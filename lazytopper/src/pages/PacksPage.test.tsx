@@ -152,7 +152,7 @@ describe("PacksPage", () => {
     const card = screen.getByTestId("packs-link-cbq");
     expect(card.getAttribute("href")).toBe("/cbq-packs?subject=maths");
     // v1.2 L3: ONE line on screen; the claim and the sentence are in its accessible name (and in the FAQ "What are CBQ Packs?").
-    expect(card.textContent).toContain("CBQ Packs · ₹199");
+    expect(card.textContent).toBe(`CBQ PACKS${packs.packPriceLabel("pack_cbq")} per subject→`); // review N2: no "NEW" tag
     expect(card.getAttribute("aria-label")).toContain("CBQ Packs · 1,400+ CBQs per subject · ₹199");
     expect(card.getAttribute("aria-label")).toContain("Half your board paper is competency-based.");
     expect(document.body.textContent).toContain("Half your board paper is competency-based.");

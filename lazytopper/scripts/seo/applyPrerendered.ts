@@ -510,8 +510,11 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   PricingPage: ["TestimonialVideo"],
   // PRICING-PAGES-1 (11 Nov 2026): the two sales pages paint from their prerendered bodies (islands); the shared sales-page sheet,
   // the student video's frame and (CBQ) the shop's CBQ band / tile / sample CSS are needed by that first screen.
-  BoardPassPage: ["salesPages", "TestimonialVideo", "PricingProof"],
-  CbqPacksPage: ["salesPages", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy"],
+  // PACKS-TIDY-2 review F1: /packs no longer imports CbqBand and lazy-loads SalesStickyBar, so Rollup split SubjectSwitch (was inside
+  // cbqBand.css) and stickyPassBar (was inside BoardPassPage's CSS) into chunks of their own; inlined here so neither page gains a
+  // render-blocking stylesheet.
+  BoardPassPage: ["salesPages", "TestimonialVideo", "PricingProof", "stickyPassBar"],
+  CbqPacksPage: ["salesPages", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "SubjectSwitch"],
 };
 export const INLINE_ROUTE_CSS_MODULES: readonly string[] = Object.keys(INLINE_ROUTE_CSS);
 

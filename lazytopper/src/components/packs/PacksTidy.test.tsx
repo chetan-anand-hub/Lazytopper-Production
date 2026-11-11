@@ -163,7 +163,8 @@ describe("PACKS-TIDY-2 v1.2 · the page folds (owner 22:32: minimise the scroll)
     expect(about.tagName).toBe("DETAILS");
     expect(about.open).toBe(false);
     expect(about.querySelector("summary")?.textContent).toBe("About the Bundle");
-    for (const t of ["ready before your pre-boards", "Printable Class 10 Maths and Science question banks", "Free samples: one-page PDFs, no sign-up.", "CBQ Packs are separate."]) {
+    // (the season line itself is pinned by PacksPage.test PREBOARDS-BADGE-1 on a fixed clock; here only clock-free words)
+    for (const t of ["All 26 chapters + 16", "Printable Class 10 Maths and Science question banks", "Free samples: one-page PDFs, no sign-up.", "CBQ Packs are separate."]) {
       expect(about.textContent, t).toContain(t);
     }
     // the Buy, See inside and the sample stay outside it (first screen)
@@ -195,6 +196,10 @@ describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
     const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
     buyMock.mockClear();
     page();
+    // review F2: nothing of the bar (chunk, render, watchers) before the visitor's first scroll
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByTestId("packs-sticky")).toBeNull();
+    fireEvent.scroll(window);
     const bar = await screen.findByTestId("packs-sticky");
     expect(bar.textContent).toContain(packs.packPayLabel("pack_bundle"));
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
@@ -206,6 +211,7 @@ describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
     cleanup();
     flags.packs = false;
     page();
+    fireEvent.scroll(window);
     await new Promise((r) => setTimeout(r, 30));
     expect(screen.queryByTestId("packs-sticky")).toBeNull();
     cleanup();
@@ -213,6 +219,8 @@ describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
     owned.packs = [{ packId: "pack_bundle:all", sku: "pack_bundle", target: "all", pricePaidInr: 299, paidAt: 1, orderId: "o" }];
     page();
     await screen.findByTestId("tile-owned-pack_bundle");
+    fireEvent.scroll(window);
+    await new Promise((r) => setTimeout(r, 30));
     expect(screen.queryByTestId("packs-sticky")).toBeNull();
   });
 });
