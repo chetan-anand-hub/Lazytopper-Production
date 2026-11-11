@@ -19,6 +19,8 @@ import "./packsTidy.css";
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 // GST-INVOICE-1: the signed-in student's tax invoices (renders nothing unless VITE_GST_STATE_FIELD is on and there are some).
 import MyInvoices from "../components/gstInvoice/MyInvoices";
+import BoardsCountdownStrip from "../components/urgency/BoardsCountdownStrip";
+import { PACK_PREBOARD_LINE, PACK_PREBOARD_LINE_SHORT } from "../components/urgency/boardsCountdown";
 
 /** PRICING-ONE-1: the shop (My packs, pop-ups, Buy, buy-resume) moved to components/packs/PacksShop; these names stay importable from here. */
 export { PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume };
@@ -87,6 +89,7 @@ export default function PacksPage() {
           </div>
         </div>
       </section>
+      <div className="lt-packs__w"><BoardsCountdownStrip /></div>
       <Catalogue api={api} />
       {/* TRUST-1: real student proof near the top, under the hero. Click-to-play; nothing loads from YouTube before the tap. */}
       <section className="lt-packs__proof" aria-labelledby="packs-video">
@@ -174,6 +177,8 @@ function Catalogue({ api }: { api: PacksShopApi }) {
     if (openSku === "pack_cbq" && shopSubject) setCbqSubject(shopSubject);
   }, [openSku, shopSubject]);
   const season = isPreboardsSeason();
+  // The tile line is evergreen copy and always in the markup (a date-gated line would make the committed prerender go stale on 16 Feb).
+  const preboardLine = <PreboardTileLine />;
   return (
     <section className="lt-pt" aria-label="Choose a pack">
       <div className="lt-packs__w">
@@ -184,6 +189,7 @@ function Catalogue({ api }: { api: PacksShopApi }) {
             <h2 className="lt-pt__name">{BUNDLE_NAME}</h2>
             <p className="lt-pt__price">{packPriceLabel("pack_bundle")}</p>
             <p className="lt-pt__line">{season ? PREBOARDS_PICK_LINE : `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks, one price`}</p>
+            {preboardLine}
             <PackTileBuy sku="pack_bundle" api={api} />
             <button type="button" className="lt-ptb__see" onClick={() => api.openPack("pack_bundle")} aria-haspopup="dialog" data-testid="packs-card-bundle">
               See inside &rarr;
@@ -210,6 +216,16 @@ function Catalogue({ api }: { api: PacksShopApi }) {
         </section>
       </div>
     </section>
+  );
+}
+
+/** URGENCY-1: the one reinforcing line under a pack description (packs = self-check; Board Pass = CBSE-examiner marking). */
+function PreboardTileLine({ testId = "packs-preboard-line-bundle" }: { testId?: string }) {
+  return (
+    <p className="lt-pt__preboard" data-testid={testId}>
+      <span className="lt-pt__pb-long">{PACK_PREBOARD_LINE}</span>
+      <span className="lt-pt__pb-short">{PACK_PREBOARD_LINE_SHORT}</span>
+    </p>
   );
 }
 
@@ -250,6 +266,7 @@ function SmallPackRow({ t, api }: { t: Tile; api: PacksShopApi }) {
       </summary>
       <div className="lt-pt__body">
         <p className="lt-pt__contents" data-testid={`packs-contents-${t.id}`}>{t.contents}</p>
+        {t.sku === "pack_mock" ? <PreboardTileLine testId="packs-preboard-line-mock" /> : null}
         {hasSubject && <SubjectSwitch value={subject} onChange={(s) => { setSubject(s); setTapped(null); }} label={`${t.name} subject`} testPrefix={`packs-subject-${t.id}`} />}
         <PackTileBuy sku={t.sku} api={api} subject={hasSubject ? subject : undefined} />
         <button

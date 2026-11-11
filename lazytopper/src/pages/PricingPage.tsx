@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import BoardsCountdownStrip from "../components/urgency/BoardsCountdownStrip";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -12,12 +13,12 @@ import {
   withSigninRedirect,
 } from "../services/freeCheckClient";
 import {
-  boardPassDeadlineLine,
+  boardPassFoundingPriceLine,
+  FOUNDING_PRICE_LEAD,
   formatInr,
   boardPassFoundingLabel,
   boardPassPriceDisplay,
   FOUNDING_LOCK_COPY,
-  FOUNDING_OFFER_BADGE,
   FOUNDING_OFFER_LIST_FROM_LABEL,
   TILL_BOARDS_AFTER_FOUNDING_INR,
   foundingRateApplies,
@@ -224,11 +225,11 @@ export function boardPassPerDay(now: Date, boardIso: string, priceInr: number): 
 
 /** "Founding member offer ends 30 November. From 1 December: ₹2,499." with the offer's name in bold. */
 function DeadlineLine({ line }: { line: string }) {
-  if (!line.startsWith(FOUNDING_OFFER_BADGE)) return <>{line}</>;
+  if (!line.startsWith(FOUNDING_PRICE_LEAD)) return <>{line}</>;
   return (
     <>
-      <strong>{FOUNDING_OFFER_BADGE}</strong>
-      {line.slice(FOUNDING_OFFER_BADGE.length)}
+      <strong>{FOUNDING_PRICE_LEAD}</strong>
+      {line.slice(FOUNDING_PRICE_LEAD.length)}
     </>
   );
 }
@@ -246,7 +247,7 @@ export function TillBoardsOffer() {
   const [foundingLabel, setFoundingLabel] = useState<string | null>(null);
   useEffect(() => {
     const now = new Date();
-    setDeadline(boardPassDeadlineLine(now));
+    setDeadline(boardPassFoundingPriceLine(now));
     setFoundingLabel(boardPassFoundingLabel(now));
     setQuote(tillBoardsQuote(now, predictCbseExamDate("10")));
   }, []);
@@ -560,6 +561,7 @@ function PricingPlansPage() {
         </div>
 
         <div className="lt-pricing-body">
+          <BoardsCountdownStrip />
           {/* The Board Pass card. A <div>, never a <section>: the prerender strip removes a whole <section> around any /login link. */}
           <div className="lt-pp-pass" id="lt-premium-card" data-testid="pricing-board-pass">
             <div className="lt-pp-pass__main">

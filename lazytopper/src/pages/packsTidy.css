@@ -59,3 +59,9 @@
   .lt-pt__card--best { padding: 23px; }
   .lt-pt__more { margin-top: 32px; }
 }
+
+/* URGENCY-1: the pack tile's pre-board line. The short wording shows on phones, the long one from 640px. */
+.lt-pt__preboard { margin: 0 0 8px; font-size: 13px; line-height: 1.4; color: var(--pk-ink2); font-weight: 600; }
+.lt-pt__pb-short { display: inline; }
+.lt-pt__pb-long { display: none; }
+@media (min-width: 640px) { .lt-pt__pb-short { display: none; } .lt-pt__pb-long { display: inline; } }

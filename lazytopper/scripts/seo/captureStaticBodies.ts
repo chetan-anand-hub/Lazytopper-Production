@@ -481,10 +481,12 @@ export function stripAuthChrome(root: Element): number {
   //        label and saving (PricingPage `TillBoardsOffer`).
   //      · boards-countdown — the landing's "N months" figure (Welcome.tsx). Live
   //        since SEO-FRESH-1 captures the root.
+  //      · boards-countdown-strip — URGENCY-1's "Boards in N days" line (BoardsCountdownStrip); its
+  //        slot (boards-countdown-slot) stays so the reserved height is in the static file.
   //    ⚠ The selector is inlined, not a module constant: this body ships to the
   //    browser via `toString()` and cannot see module scope.
   for (const figure of Array.from(
-    root.querySelectorAll('[data-testid="till-boards-figures"], [data-testid="boards-countdown"]'),
+    root.querySelectorAll('[data-testid="till-boards-figures"], [data-testid="boards-countdown"], [data-testid="boards-countdown-strip"]'),
   )) {
     doomed.push(figure);
   }
@@ -514,7 +516,7 @@ export function countResidualAuthNodes(root: Element): number {
   residual += root.querySelectorAll('[data-testid="shell-greeting"]').length;
   // Clock-derived figures (strip rule 4, PRICING-TB-1 OR-P1) — none may survive.
   residual += root.querySelectorAll(
-    '[data-testid="till-boards-figures"], [data-testid="boards-countdown"]',
+    '[data-testid="till-boards-figures"], [data-testid="boards-countdown"], [data-testid="boards-countdown-strip"]',
   ).length;
   for (const button of Array.from(root.querySelectorAll("button"))) {
     const label = (button.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();

@@ -267,8 +267,8 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     // GST-EXCL-1: 30 Nov is after the 7 Nov GST cut-off - every tag says "+ GST" (the total is at checkout).
     expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917 + GST");
     const line = figures?.querySelector('[data-testid="till-boards-deadline"]');
-    expect(flat(line)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.");
-    expect(flat(line?.querySelector("strong"))).toBe("Founding member offer");
+    expect(flat(line)).toBe("Founding price ends 30 Nov · ₹1,917 + GST, then ₹2,499 + GST");
+    expect(flat(line?.querySelector("strong"))).toBe("Founding price");
     expect(flat(figures)).not.toMatch(/save|20%|shrink|off\b/i);
   });
 

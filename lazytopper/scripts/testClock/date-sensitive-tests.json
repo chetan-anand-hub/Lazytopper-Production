@@ -634,6 +634,7 @@
     "src/components/tutorSticky/TutorCheckCard.test.tsx",
     "src/components/upload/PageTray.test.tsx",
     "src/components/upload/uploadPaths.test.tsx",
+    "src/components/urgency/boardsCountdown.test.tsx",
     "src/components/usage/allAiMetering.test.ts",
     "src/components/usage/fairUse.test.tsx",
     "src/components/usage/fairUseLimitDialog.test.tsx",
