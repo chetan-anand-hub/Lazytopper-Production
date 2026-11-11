@@ -65,17 +65,21 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     page();
     const P = packs.PACK_PRICE_INR;
     expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ${packs.packPayLabel("pack_bundle")}`);
-    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_mock")}`);
+    // v1.2 L2: a compact row Buy shows "Buy <total>"; its accessible name says which pack and subject.
+    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-maths").getAttribute("aria-label")).toBe(`Buy Maths Mock Pack · ${packs.packPayLabel("pack_mock")}`);
     expect(screen.queryByTestId("tile-buy-pack_mock-science")).toBeNull(); // one Buy, for the chosen subject
     pick("mock", "science");
-    expect(screen.getByTestId("tile-buy-pack_mock-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-science").getAttribute("aria-label")).toBe(`Buy Science Mock Pack · ${packs.packPayLabel("pack_mock")}`);
     expect(screen.queryByTestId("tile-buy-pack_mock-maths")).toBeNull();
     // the one switch moved the Subject Pack's Buy with it (Science)
-    expect(screen.getByTestId("tile-buy-pack_subject-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_subject")}`);
-    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe(`Choose a Science chapter · ${packs.packPayLabel("pack_chapter")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-science").getAttribute("aria-label")).toBe(`Buy Science Subject Pack · ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe("Choose chapter");
+    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toBe(`Choose a Science chapter · ${packs.packPayLabel("pack_chapter")}`);
     pick("subject", "maths");
-    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy Maths ${packs.packPayLabel("pack_subject")}`);
-    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe(`Choose a Maths chapter · ${packs.packPayLabel("pack_chapter")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-maths").getAttribute("aria-label")).toBe(`Buy Maths Subject Pack · ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toBe(`Choose a Maths chapter · ${packs.packPayLabel("pack_chapter")}`);
     // PACKS-TIDY-2: no CBQ Buy on /packs (it is on /cbq-packs); the CBQ link card says the price from the pack config.
     expect(screen.queryByTestId("tile-buy-pack_cbq-maths")).toBeNull();
     expect(screen.getByTestId("packs-link-cbq").textContent).toContain(packs.packPriceLabel("pack_cbq"));
@@ -117,7 +121,11 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
       boardPassCredit: null,
     });
     page();
-    expect(await screen.findByTestId("tile-owned-pack_mock-maths")).toHaveProperty("textContent", "✓Maths · You own this");
+    // v1.2 L2: the compact owned pill ("✓ Owned"; its accessible name names the pack); never a Buy.
+    const pill = await screen.findByTestId("tile-owned-pack_mock-maths");
+    expect(pill.tagName).toBe("SPAN");
+    expect(pill.textContent).toBe("✓ Owned");
+    expect(pill.getAttribute("aria-label")).toBe("You own the Maths Mock Pack");
     expect(screen.queryByTestId("tile-buy-pack_mock-maths")).toBeNull();
     pick("mock", "science");
     expect(screen.getByTestId("tile-buy-pack_mock-science")).toBeTruthy();
@@ -143,8 +151,9 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     expect(screen.queryByTestId("tile-buy-pack_bundle")).toBeNull();
     // PACKS-TIDY-2: a neutral button (no "Buy") holds each Buy's place; it only opens the pack's pop-up.
     expect(screen.getByTestId("pk-buy-bundle-neutral").textContent).toBe(`Maths + Science Bundle · ${packs.packPriceLabel("pack_bundle")}`);
-    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(`Mock Pack · ${packs.packPriceLabel("pack_mock")}`);
-    expect(screen.getByTestId("pk-buy-chapter-neutral").textContent).toBe(`Choose a chapter · ${packs.packPriceLabel("pack_chapter")}`);
+    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(packs.packPriceLabel("pack_mock"));
+    expect(screen.getByTestId("pk-buy-mock-neutral").getAttribute("aria-label")).toBe(`Mock Pack · ${packs.packPriceLabel("pack_mock")}`);
+    expect(screen.getByTestId("pk-buy-chapter-neutral").textContent).toBe("Choose chapter");
     expect(document.body.textContent).not.toMatch(/\bBuy\b[^?]/);
     fireEvent.click(screen.getByTestId("pk-buy-bundle-neutral"));
     expect((await screen.findByTestId("dialog")).getAttribute("data-sku")).toBe("pack_bundle");
@@ -222,7 +231,7 @@ describe("GST-EXCL-1 · the breakup next to every tile Buy and the pop-up Buy", 
     vi.setSystemTime(CUT - 1);
     page();
     expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe("Buy · ₹299");
-    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe("Choose a Maths chapter · ₹49");
+    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toBe("Choose a Maths chapter · ₹49");
     expect(screen.queryAllByTestId(/^tile-gst-/)).toHaveLength(0);
     pick("mock", "science");
     fireEvent.click(screen.getByTestId("tile-buy-pack_mock-science"));

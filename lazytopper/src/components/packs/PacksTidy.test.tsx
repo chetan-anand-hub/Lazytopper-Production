@@ -107,7 +107,7 @@ describe("PACKS-TIDY-1 · signed out", () => {
       expect(screen.getByTestId(`pack-sample-lazytopper-sample-${id}-science`)).toBeTruthy();
       expect(screen.queryByTestId(`pack-sample-lazytopper-sample-${id}-maths`)).toBeNull();
     }
-    expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toContain("Choose a Science chapter");
+    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toContain("Choose a Science chapter");
     expect(screen.getByTestId("packs-cell-bundle").textContent).toBe(bundleBefore);
     expect(screen.getByTestId("packs-cell-bundle").textContent).toContain("both subjects");
   });
@@ -152,7 +152,40 @@ describe("PACKS-TIDY-1 · signed out", () => {
     flags.guest = false;
     page();
     fireEvent.click(screen.getByTestId("packs-subject-science"));
-    expect(screen.getByTestId("tile-buy-pack_subject-science").textContent).toBe(`Buy Science ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-science").getAttribute("aria-label")).toBe(`Buy Science Subject Pack · ${packs.packPayLabel("pack_subject")}`);
+  });
+});
+
+describe("PACKS-TIDY-2 v1.2 · the page folds (owner 22:32: minimise the scroll), deleting no text", () => {
+  it("About the Bundle, the video and the questions are closed rows holding their text; each pack row's line, GST breakup, See inside and sample are inside its row", () => {
+    page();
+    const about = screen.getByTestId("packs-about-bundle") as HTMLDetailsElement;
+    expect(about.tagName).toBe("DETAILS");
+    expect(about.open).toBe(false);
+    expect(about.querySelector("summary")?.textContent).toBe("About the Bundle");
+    for (const t of ["ready before your pre-boards", "Printable Class 10 Maths and Science question banks", "Free samples: one-page PDFs, no sign-up.", "CBQ Packs are separate."]) {
+      expect(about.textContent, t).toContain(t);
+    }
+    // the Buy, See inside and the sample stay outside it (first screen)
+    expect(about.contains(screen.getByTestId("tile-buy-pack_bundle"))).toBe(false);
+    expect(about.contains(screen.getByTestId("packs-card-bundle"))).toBe(false);
+    const video = screen.getByTestId("packs-video-fold") as HTMLDetailsElement;
+    expect(video.open).toBe(false);
+    expect(video.querySelector("summary")?.textContent).toBe("See how answers are marked (video)");
+    expect(video.textContent).toContain("Where did his ½ mark go?");
+    expect(video.querySelector("iframe")).toBeNull();
+    const faq = screen.getByTestId("packs-faq-fold") as HTMLDetailsElement;
+    expect(faq.open).toBe(false);
+    expect(faq.querySelector("summary")?.textContent).toBe("Questions (7)");
+    expect(faq.querySelectorAll(".lt-packs__faqgrid > details")).toHaveLength(7);
+    for (const id of ["subject", "mock", "chapter"]) {
+      const d = row(id);
+      expect(d.contains(screen.getByTestId(`pk-buy-${id}-box`)), id).toBe(false);
+      expect(d.contains(screen.getByTestId(`tile-gst-pack_${id}`)), id).toBe(true);
+      expect(d.contains(screen.getByTestId(`packs-card-${id}`)), id).toBe(true);
+      expect(d.querySelector("summary")?.textContent, id).toBe(`${id[0].toUpperCase()}${id.slice(1)} Pack${packs.packPriceLabel(`pack_${id}` as packs.PackSku)}`);
+    }
+    expect(screen.getByTestId("packs-row-subject").textContent).toContain("13 chapters + 8 mocks");
   });
 });
 
