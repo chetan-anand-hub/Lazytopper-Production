@@ -343,9 +343,9 @@ export function packCheckoutDescription(sku: PackSku, target: string | undefined
   const subject = target === "maths" || target === "science" ? subjectLabel(target as PackSubject) : "";
   switch (sku) {
     case "pack_chapter":
-      return `Chapter Pack · ${chapterName || target || "1 chapter"} · important questions with CBSE step-marking key`;
+      return `Chapter Pack · ${chapterName || target || "1 chapter"} · important questions with CBSE step-marking guide`;
     case "pack_mock":
-      return `${subject ? `${subject} ` : ""}Mock Pack · 8 board-pattern mock papers for 2027, with step-marking keys`;
+      return `${subject ? `${subject} ` : ""}Mock Pack · 8 board-pattern mock papers for 2027, with step-marking guide`;
     case "pack_subject":
       return `${subject ? `${subject} ` : ""}Subject Pack · every chapter, chapter-wise question bank 2026-27`;
     case "pack_cbq":

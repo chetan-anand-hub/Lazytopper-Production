@@ -30,7 +30,16 @@
  *   e) `?app=1` forces the app; the build step's allowlist and LT_ISLANDS=0 turn islands off.
  */
 
-import { APP_ENTRY_ATTR, APP_PRELOADS_ATTR, DESKTOP_QUERY, FORCE_APP_PARAM, ISLAND_SCRIPT_ATTR, ISLAND_VARIANT_ATTR } from "./islandConfig";
+import {
+  APP_ENTRY_ATTR,
+  APP_PRELOADS_ATTR,
+  DESKTOP_QUERY,
+  FORCE_APP_PARAM,
+  IDLE_UPGRADE_PATHS,
+  IDLE_UPGRADE_TIMEOUT_MS,
+  ISLAND_SCRIPT_ATTR,
+  ISLAND_VARIANT_ATTR,
+} from "./islandConfig";
 import { packsEntryEnabled } from "./islandFlags";
 import { sendNamedEvent, sendWhatsAppTap, startIslandAnalytics, stopIslandWatches, suppressAppRepeats } from "./islandAnalytics";
 
@@ -53,9 +62,11 @@ export const BOTTOM_NAV_ROUTES: Readonly<Record<string, string>> = {
  * Links whose app-side click handler does something before (or instead of) navigating: upgrade-and-replay, never a
  * bare navigation. `/check-improve` and `/pricing` send an event first; the NCERT Hub's "All chapters" rows
  * (`a.lt-nb__allch`, NcertBooksPage.tsx AllChaptersRow) pick the chapter IN PLACE (setParams, scroll kept), which a
- * full navigation would turn into a reload at the top of the page.
+ * full navigation would turn into a reload at the top of the page. SPEED-PACKS-3: the pack shop's "Free sample page" links
+ * (`a.lt-psl`, PackSampleLink.tsx) send `pack_sample_download` and show the "Liked the sample? Buy" step in their click
+ * handler, so a tap before the app is up completes in the app (the click is replayed within the tap's user activation).
  */
-export const TRACKED_LINK = 'a[href="/check-improve"], a[href^="/pricing"], a.lt-nb__allch';
+export const TRACKED_LINK = 'a[href="/check-improve"], a[href^="/pricing"], a.lt-nb__allch, a.lt-psl';
 
 /**
  * Where the app adds content the island must not render (rule c): pack offers and prices. Phase 2: the CBQ chapter
@@ -1088,6 +1099,15 @@ function upgradeFromThisBoot(): () => void {
 
 export function watchAppRegions(): void {
   watchPeek();
+  // SPEED-PACKS-3: the app loads shortly after first paint on the pack shop (it owns the pack events and the offer strip).
+  // `warm()` at `load` (after the first paint, so nothing is fetched ahead of it) lets a Buy tap in the next second find the
+  // app already downloaded.
+  if (IDLE_UPGRADE_PATHS.includes(window.location.pathname)) {
+    afterLoad(() => {
+      warm();
+      onIdle(upgradeFromThisBoot(), IDLE_UPGRADE_TIMEOUT_MS);
+    });
+  }
   // Desktop variant: the header's sign-in button is the app's. Load the app once the page is idle.
   if (document.querySelector(AUTH_REGION)) afterLoad(() => onIdle(upgradeFromThisBoot(), 2000));
   // A window resized (or a tablet rotated) across the app's layout switch: the app re-lays the page out today.
@@ -1153,6 +1173,13 @@ export function appViewRequested(loc: { pathname: string; search: string; hash: 
       stored = null;
     }
     return stored === "science"; // "maths" (or nothing) is the served view
+  }
+  if (loc.pathname === "/packs") {
+    // SPEED-PACKS-3: the served view is the plain shop. A one-tap buy link (?buy=&t=), a sample return (?from=) or any
+    // hash (#my-packs, #cbq: the app scrolls and shows the signed-out / owned states) is the app's to render at once.
+    // utm_* and other tracking params do NOT change the view (the ad landing carries them).
+    if (has("buy") || has("t") || has("from")) return true;
+    return loc.hash.replace(/^#/, "") !== "";
   }
   if (loc.pathname.startsWith("/highly-probable/")) {
     const topic = String(params.get("topic") ?? "").trim();

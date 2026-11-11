@@ -27,7 +27,7 @@ const ITEMS: ReadonlyArray<{ sku: PackSku; name: string; what: string; cbq?: boo
   { sku: "pack_cbq", name: "Science CBQ Pack", subject: "science", what: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ CBQs, about half the paper is competency-based`, cbq: true },
   { sku: "pack_subject", name: "Subject Pack", what: "every chapter of Maths or Science, chapter-wise question bank 2026-27" },
   { sku: "pack_mock", name: "Mock Pack", what: `${MOCKS_PER_SUBJECT} board-pattern papers` },
-  { sku: "pack_chapter", name: "Chapter Pack", what: "important questions for one chapter, with step-marking key" },
+  { sku: "pack_chapter", name: "Chapter Pack", what: "important questions for one chapter, with step-marking guide" },
   { sku: "pack_bundle", name: BUNDLE_NAME, what: "Maths + Science: every chapter + 8 mocks each, the whole year at one price" },
 ];
 

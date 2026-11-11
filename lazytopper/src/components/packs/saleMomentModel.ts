@@ -98,13 +98,13 @@ export function saleOfferParts(offer: SaleOffer, chapterName?: string | null): S
       return {
         before: `${chapterName ? `${chapterName} Chapter Pack` : "This chapter's Chapter Pack"} `,
         price: offer.price,
-        after: " \u2014 printed questions with answer keys \u2192",
+        after: " \u2014 printed questions with worked solutions \u2192",
       };
     case "pack_mock":
       return {
         before: `${subjectLabel(offer.target as PackSubject)} Mock Pack `,
         price: offer.price,
-        after: ` \u2014 ${MOCKS_PER_SUBJECT} full board mocks, printed with answer keys \u2192`,
+        after: ` \u2014 ${MOCKS_PER_SUBJECT} full board mocks, printed with marking guide \u2192`,
       };
     case "pack_cbq":
       return { before: "Board CBQ Pack ", price: offer.price, after: " \u2014 chapter-wise competency questions, explained step by step \u2192" };
@@ -112,7 +112,7 @@ export function saleOfferParts(offer: SaleOffer, chapterName?: string | null): S
       return {
         before: `${subjectLabel(offer.target as PackSubject)} Subject Pack `,
         price: offer.price,
-        after: " \u2014 every chapter, printed with answer keys \u2192",
+        after: " \u2014 every chapter, printed with worked solutions \u2192",
       };
   }
 }

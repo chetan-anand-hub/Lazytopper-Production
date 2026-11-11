@@ -114,8 +114,8 @@ export default function PacksPage() {
             <details>
               <summary>What&rsquo;s inside a pack?</summary>
               <p>
-                For each chapter: its questions grouped by CBSE section (A to E) with a matching answer key with worked solutions, two chapter
-                tests and one worksheet (each with a key). Mock packs are eight full 80-mark papers per subject with keys. A few questions that depend on a
+                For each chapter: its questions grouped by CBSE section (A to E) with matching step-by-step worked solutions, two chapter
+                tests and one worksheet (each with a marking guide). Mock packs are eight full 80-mark papers per subject with marking guides. A few questions that depend on a
                 diagram we can&rsquo;t print cleanly are left out, so every page can be solved on paper.
               </p>
             </details>
@@ -296,7 +296,7 @@ const SCIENCE_PACK_CHAPTERS = chaptersOfSubject("science").length;
 
 /** The smaller packs, price high to low (same order and the same pack constants as before). */
 const SMALL_PACKS: ReadonlyArray<Tile> = [
-  { sku: "pack_subject", id: "subject", name: "Subject Pack", line: "Every chapter, Maths or Science, 2026-27", contents: `${MATHS_PACK_CHAPTERS} Maths or ${SCIENCE_PACK_CHAPTERS} Science chapters · Sections A–E · with keys` },
-  { sku: "pack_mock", id: "mock", name: "Mock Pack", line: "8 board-pattern mocks for 2027 + keys", contents: `${MOCKS_PER_SUBJECT} full papers for Maths or Science · step-marking keys` },
-  { sku: "pack_chapter", id: "chapter", name: "Chapter Pack", line: "Important questions + step-marking key", contents: "Sections A–E · chapter tests · a worksheet · with keys" },
+  { sku: "pack_subject", id: "subject", name: "Subject Pack", line: "Every chapter, Maths or Science, 2026-27", contents: `${MATHS_PACK_CHAPTERS} Maths or ${SCIENCE_PACK_CHAPTERS} Science chapters · Sections A–E · with marking guide` },
+  { sku: "pack_mock", id: "mock", name: "Mock Pack", line: "8 board-pattern mocks for 2027, with marking guide", contents: `${MOCKS_PER_SUBJECT} full papers for Maths or Science · marking guide` },
+  { sku: "pack_chapter", id: "chapter", name: "Chapter Pack", line: "Important questions + marking guide", contents: "Sections A–E · chapter tests · a worksheet · with marking guide" },
 ];

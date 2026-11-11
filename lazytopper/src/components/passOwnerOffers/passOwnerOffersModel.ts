@@ -57,17 +57,17 @@ export interface PassOwnerOffer {
 
 export const PASS_SUCCESS_LEAD = "Your Board Pass is on. Prefer practising on paper too? The CBQ Packs put the case-based questions in print —";
 export const PASS_ME_CBQ_LEAD = "Practising on paper too? The CBQ Packs put the case-based questions in print —";
-export const PASS_ME_BUNDLE_LEAD = `Practising on paper too? The ${BUNDLE_NAME} puts all ${BUNDLE_CHAPTERS} chapters and ${BUNDLE_MOCKS} board mocks in print, with answer keys —`;
+export const PASS_ME_BUNDLE_LEAD = `Practising on paper too? The ${BUNDLE_NAME} puts all ${BUNDLE_CHAPTERS} chapters and ${BUNDLE_MOCKS} board mocks in print, with worked solutions —`;
 export const NOT_NOW_LABEL = "Not now";
 
 function chapterLead(name: string | null | undefined): string {
-  return `Practising on paper? ${name ? `The ${name} Chapter Pack` : "This chapter’s Chapter Pack"} puts every question of the chapter in print, with answer keys —`;
+  return `Practising on paper? ${name ? `The ${name} Chapter Pack` : "This chapter’s Chapter Pack"} puts every question of the chapter in print, with worked solutions —`;
 }
 function subjectLead(s: PackSubject): string {
-  return `Practising on paper? The ${subjectLabel(s)} Subject Pack puts every chapter in print, with answer keys —`;
+  return `Practising on paper? The ${subjectLabel(s)} Subject Pack puts every chapter in print, with worked solutions —`;
 }
 function mockLead(s: PackSubject): string {
-  return `Sit the next one on paper: the ${subjectLabel(s)} Mock Pack has ${MOCKS_PER_SUBJECT} full board mocks with step-marking keys —`;
+  return `Sit the next one on paper: the ${subjectLabel(s)} Mock Pack has ${MOCKS_PER_SUBJECT} full board mocks with step-marking guide —`;
 }
 const MOCK_BUNDLE_LEAD = `Sit the next one on paper: the ${BUNDLE_NAME} has ${BUNDLE_MOCKS} full board mocks and all ${BUNDLE_CHAPTERS} chapters in print —`;
 

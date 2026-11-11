@@ -109,7 +109,7 @@ export const BUNDLE_BUY_LABEL = `Buy the Bundle · ${packPayLabel("pack_bundle")
 export { BUNDLE_NAME };
 
 export const CHAPTER_TITLE = "Chapter Pack";
-export const CHAPTER_BODY = "One weak chapter: its important questions with the marking key.";
+export const CHAPTER_BODY = "One weak chapter: its important questions with the marking guide.";
 export function chapterBuyLabel(s: PackSubject): string {
   return `Choose a ${subjectLabel(s)} chapter · ${packPayLabel("pack_chapter")}`;
 }
@@ -130,7 +130,7 @@ export function subjectPackRow(s: PackSubject): { name: string; line: string; li
 export function mockPackRow(s: PackSubject): { name: string; line: string; lineShort: string } {
   return {
     name: `${subjectLabel(s)} Mock Pack · ${packPriceLabel("pack_mock")}`,
-    line: `${MOCKS_PER_SUBJECT} board-pattern mocks for 2027, with marking keys`,
+    line: `${MOCKS_PER_SUBJECT} board-pattern mocks for 2027, with marking guide`,
     lineShort: `${MOCKS_PER_SUBJECT} board-pattern mocks for 2027`,
   };
 }

@@ -93,6 +93,20 @@ describe("a view only the app can show boots the app at once", () => {
     expect(at("?topic=Circles")).toBe(true);
   });
 
+  it("SPEED-PACKS-3 /packs: tracking params stay the served view; ?buy=, ?t=, ?from= and any hash load the app at once", () => {
+    const at = (search: string, hash = "") => appViewRequested({ pathname: "/packs", search, hash }, none);
+    expect(at("")).toBe(false);
+    expect(at("?utm_source=google&utm_medium=cpc&gclid=abc&fbclid=x")).toBe(false);
+    expect(at("?buy=pack_bundle")).toBe(true);
+    expect(at("?buy=pack_chapter&t=light")).toBe(true);
+    expect(at("?t=light")).toBe(true);
+    expect(at("?from=sample")).toBe(true);
+    expect(at("?from=pay", "#my-packs")).toBe(true);
+    expect(at("", "#my-packs")).toBe(true);
+    expect(at("", "#cbq")).toBe(true);
+    expect(at("?buy=")).toBe(false);
+  });
+
   it("CBQ chapter pages read nothing but the path", () => {
     expect(appViewRequested({ pathname: "/cbq-class-10/electricity", search: "?topic=x&subject=y", hash: "#science" }, () => "science")).toBe(false);
   });

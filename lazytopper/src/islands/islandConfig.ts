@@ -30,7 +30,19 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
   "/highly-probable/",
   "/cbq-class-10/",
   "/ncert-class-10",
+  // SPEED-PACKS-3 (owner 11 Nov): the PDF Packs ad landing. Unlike the content families, the app is loaded soon after the
+  // first paint (IDLE_UPGRADE_PATHS) because pack_view / pack_checkout and the countdown strip are the app's.
+  "/packs",
 ];
+
+/**
+ * SPEED-PACKS-3 — island paths that load the app once the page is idle (a few hundred ms after `load`) instead of
+ * waiting for a tap or a scroll: the app owns the pack events (pack_view, pack_checkout, guest_pay_*) and the offer
+ * strip, and a visitor who read the page and left without touching it must still be counted.
+ */
+export const IDLE_UPGRADE_PATHS: readonly string[] = ["/packs"];
+/** The idle wait (requestIdleCallback timeout, ms) after `load` (SPEED-PACKS-3 round 3: 200, so the app-rendered Buy buttons appear soon) before an idle-upgrade page loads the app. */
+export const IDLE_UPGRADE_TIMEOUT_MS = 200;
 
 /** The Rollup input name of the island entry (`vite.config.ts` build.rollupOptions.input). */
 export const ISLAND_ENTRY_NAME = "contentIsland";

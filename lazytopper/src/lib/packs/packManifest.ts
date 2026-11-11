@@ -58,10 +58,10 @@ export interface PackManifest {
 }
 
 const CHAPTER_ITEMS: readonly PackManifestItem[] = [
-  { label: "Question sheets, Sections A to E", detail: "Every question of the chapter in board order, each section with its answer key", withKey: true },
-  { label: "Chapter Test 1", detail: "A full test drawn from the chapter, with a worked-solution key", withKey: true },
-  { label: "Chapter Test 2", detail: "A second test with different questions, with a worked-solution key", withKey: true },
-  { label: "Worksheet", detail: "Mixed practice from all sections, with a worked-solution key", withKey: true },
+  { label: "Question sheets, Sections A to E", detail: "Every question of the chapter in board order, each section with worked solutions", withKey: true },
+  { label: "Chapter Test 1", detail: "A full test drawn from the chapter, with worked solutions", withKey: true },
+  { label: "Chapter Test 2", detail: "A second test with different questions, with worked solutions", withKey: true },
+  { label: "Worksheet", detail: "Mixed practice from all sections, with worked solutions", withKey: true },
 ];
 /** Of the chapter's items, those that are papers (tests + worksheet). */
 const CHAPTER_PAPERS = 3;
@@ -85,7 +85,7 @@ function mockGroup(subject: PackSubject): PackManifestGroup {
     heading: `${name} mock papers`,
     items: Array.from({ length: MOCKS_PER_SUBJECT }, (_, i) => ({
       label: `Mock paper ${i + 1}`,
-      detail: `${name} full board pattern${pattern}, 80 marks, with a worked-solution key`,
+      detail: `${name} full board pattern${pattern}, 80 marks, with worked solutions`,
       withKey: true,
     })),
   };
@@ -186,14 +186,14 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
     case "pack_chapter":
       return [
         { label: "Question sheets, Sections A to E", value: questions !== null ? `${nf(questions)} questions` : "A\u2013E" },
-        { label: "Answer keys with worked solutions", value: "A\u2013E" },
-        { label: "Chapter tests + keys", value: "2" },
-        { label: "Worksheet + key", value: "1" },
+        { label: "Worked solutions, step by step", value: "A\u2013E" },
+        { label: "Chapter tests with marking guide", value: "2" },
+        { label: "Worksheet with marking guide", value: "1" },
       ];
     case "pack_mock":
       return [
         { label: "Full board-pattern papers", value: String(MOCKS_PER_SUBJECT) },
-        { label: "Answer keys with worked solutions", value: String(MOCKS_PER_SUBJECT) },
+        { label: "Worked solutions, step by step", value: String(MOCKS_PER_SUBJECT) },
         { label: "Marks per paper", value: "80" },
         ...(subject === "maths" ? [{ label: "Maths level", value: MATHS_MOCK_PATTERN }] : []),
       ];
@@ -202,7 +202,7 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
       return [
         { label: `Chapter packs (${ncert} NCERT chapters)`, value: String(chaptersOfSubject(subject).length) },
         ...questionsRow,
-        { label: "Mock papers + keys", value: String(MOCKS_PER_SUBJECT) },
+        { label: "Mock papers with marking guide", value: String(MOCKS_PER_SUBJECT) },
         { label: "You save", value: rupees(subjectSaving(subject)) },
       ];
     }
@@ -211,14 +211,14 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
         { label: "Competency questions", value: CBQ_SUBJECT_CLAIM },
         { label: "Chapters", value: String(chaptersOfSubject(subject).length) },
         { label: "Formats", value: "MCQ \u00b7 Assertion-Reason \u00b7 Short answer \u00b7 Case study \u00b7 Long answer" },
-        { label: "Step-wise worked solutions", value: "With the answer key" },
+        { label: "Step-wise worked solutions", value: "Included in the pack" },
       ];
     case "pack_bundle":
       return [
         { label: "Chapter packs, both subjects", value: String(PACK_CHAPTER_SLUGS.length) },
         { label: "NCERT chapters covered", value: String(ALL_NCERT_CHAPTERS) },
         ...questionsRow,
-        { label: "Mock papers + keys", value: String(MOCKS_PER_SUBJECT * PACK_SUBJECTS.length) },
+        { label: "Mock papers with marking guide", value: String(MOCKS_PER_SUBJECT * PACK_SUBJECTS.length) },
         { label: `Instead of 2 \u00d7 ${rupees(PACK_PRICE_INR.pack_subject)}`, value: rupees(bundleSavingBase()) },
       ];
   }
