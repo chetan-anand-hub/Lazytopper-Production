@@ -98,6 +98,7 @@ const {
 } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
+const { isPlaceholderAddress } = require('../services/paymentReceiptEmail.cjs');
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('../services/packGrant.cjs');
 
 const GUEST_ORDER_PATH = '/api/pay/guest/order';
@@ -162,6 +163,8 @@ function isSelfPayDisabled(env = process.env) {
 }
 /** CHECKOUT-SELF-2 admin note: the payment carried no Indian mobile and no valid email, so nobody can claim it yet. */
 const SELF_NO_CONTACT_NOTE = 'self_pay_no_usable_contact';
+/** CHECKOUT-SELF-2 admin note: Razorpay's payment record could not be read (it is retried by the next verify / webhook). */
+const SELF_READ_FAILED_NOTE = 'self_pay_contact_read_failed';
 
 /** PAY-ACCOUNT-1 - the prefix of a uid this server created at payment. The client SDK's uids are [A-Za-z0-9] only. */
 const AUTO_ACCOUNT_UID_PREFIX = 'pay-';
@@ -818,16 +821,27 @@ function createGuestPayRoutes(deps = {}) {
       if (!payment) {
         const keys = readKeys();
         if (!keys.keyId || !keys.keySecret) return order;
-        const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
-        if (!fetched.ok || !fetched.json) return order;
+        let fetched = null;
+        try {
+          fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
+        } catch {
+          fetched = null;
+        }
+        if (!fetched || !fetched.ok || !fetched.json) {
+          // F2: flag it for the admin list (a later verify / webhook / delivery retries the read; the note never blocks that).
+          emit('payments.guest.self.contact_read_failed');
+          await ref.set({ adminNote: SELF_READ_FAILED_NOTE }, { merge: true });
+          return order;
+        }
         payment = fetched.json;
         if (payment.id !== undefined && payment.id !== paymentId) return order;
         if (paymentMismatch(payment, { orderId, amountPaise: order.amountPaise })) return order;
       }
       const phone = typeof payment.contact === 'string' ? normaliseIndianMobile(payment.contact) : null;
-      const email = typeof payment.email === 'string' ? normaliseEmail(payment.email) : null;
+      // F1: Razorpay's placeholder (void@razorpay.com, no email given at checkout) is never the buyer's address.
+      const email = typeof payment.email === 'string' && !isPlaceholderAddress(payment.email) ? normaliseEmail(payment.email) : null;
       const fields = phone || email
-        ? { ...(phone ? { guestPhone: phone } : {}), ...(email ? { guestEmail: email } : {}), recipientFirst: phone ? 'phone' : 'email', selfContactFrom: 'payment' }
+        ? { ...(phone ? { guestPhone: phone } : {}), ...(email ? { guestEmail: email } : {}), recipientFirst: phone ? 'phone' : 'email', selfContactFrom: 'payment', ...(order.adminNote === SELF_READ_FAILED_NOTE ? { adminNote: null } : {}) }
         : { adminNote: SELF_NO_CONTACT_NOTE };
       const result = await adminFirestore.runTransaction(async (tx) => {
         const cur = await tx.get(ref);
@@ -1379,6 +1393,7 @@ module.exports = {
   isPayAutoAccountEnabled,
   isSelfPayDisabled,
   SELF_NO_CONTACT_NOTE,
+  SELF_READ_FAILED_NOTE,
   autoAccountUid,
   isAutoAccountUid,
   SECOND_NOT_LINKED_NOTE,

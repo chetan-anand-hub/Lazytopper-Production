@@ -51,6 +51,8 @@ export function whoLine(w: WhoFields): string {
         ? " · NOTE: only one of phone / email had an account; the other was NOT linked to it (the student can link it after verifying)"
         : w.adminNote === "self_pay_no_usable_contact" && !w.claimedBy
           ? " · NOTE: paid via Buy for yourself, but Razorpay's record had no Indian mobile and no email - attach it to the student by hand"
+        : w.adminNote === "self_pay_contact_read_failed" && !w.claimedBy
+          ? " · NOTE: paid via Buy for yourself, but Razorpay's payment record could not be read yet (retried automatically; if it stays, attach by hand)"
         : w.adminNote === "account_not_created" && !w.claimedBy
           ? " · account not created (waiting for the student's sign-in)"
           : "";

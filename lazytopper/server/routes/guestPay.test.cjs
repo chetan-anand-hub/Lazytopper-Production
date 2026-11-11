@@ -2037,3 +2037,56 @@ test('SELF · precedence unchanged: phone only and email only still get their on
     assert.deepEqual(auth.created, [{ uid: autoAccountUid(orderId), emailVerified: false, ...carried }]);
   }
 });
+
+test("SELF · F1: Razorpay's placeholder email (void@razorpay.com) is NOT an email: Indian phone -> phone-only path, account at payment as before", async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const { orderId, verify } = await paidSelfOrder(srv, { contact: '+919876543948', email: 'void@razorpay.com' });
+  assert.deepEqual(verify.json.selfContact, { phone: PHONE, first: 'phone' });
+  await srv.idle();
+  assert.equal(srv.db.read(`payOrders/${orderId}`).guestEmail, undefined);
+  assert.deepEqual(auth.created, [{ uid: autoAccountUid(orderId), emailVerified: false, phoneNumber: PHONE }]);
+  assert.ok(srv.db.read(`packEntitlements/${autoAccountUid(orderId)}/packs/pack_cbq:maths`));
+});
+
+test('SELF · F1: placeholder email + foreign phone -> no usable contact: paid_unclaimed, admin note, no account, nothing sent to void@', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  for (const email of ['void@razorpay.com', 'VOID@Razorpay.com']) {
+    const { orderId, verify } = await paidSelfOrder(srv, { contact: '+14155550100', email });
+    assert.equal(verify.json.selfContact, null);
+    await srv.idle();
+    const stored = srv.db.read(`payOrders/${orderId}`);
+    assert.equal(stored.status, 'paid_unclaimed');
+    assert.equal(stored.adminNote, 'self_pay_no_usable_contact');
+    assert.equal(stored.guestEmail, undefined);
+  }
+  assert.deepEqual(auth.created, []);
+  assert.deepEqual(packDocs(srv.db), []);
+});
+
+test('SELF · F2: the Razorpay payment read failing flags the order for the admin, and a later successful read clears the note and delivers', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
+  srv.rzp.payments.delete(p.id); // the GET inside the contact read now fails
+  const w = await sendWebhook(srv, p);
+  assert.equal(w.status, 200, w.text);
+  await srv.idle();
+  const flagged = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(flagged.status, 'paid_unclaimed');
+  assert.equal(flagged.adminNote, 'self_pay_contact_read_failed');
+  assert.equal(flagged.guestPhone, undefined);
+  assert.deepEqual(auth.created, []);
+  assert.ok(srv.events.includes('payments.guest.self.contact_read_failed'));
+  // Razorpay answers again: the next verify reads it, clears the flag, and the order is delivered
+  srv.rzp.payments.set(p.id, p);
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal(v.json.selfContact.phone, PHONE);
+  await srv.idle();
+  const ok = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(ok.adminNote, null);
+  assert.equal(ok.guestPhone, PHONE);
+  assert.equal(auth.created.length, 1);
+});
