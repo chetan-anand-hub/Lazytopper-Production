@@ -648,7 +648,7 @@ function startEngaged10(): void {
 /* ------------------------------------------------------------------ Speed Insights (speedInsights.ts) */
 
 const KNOWN_TOP_LEVEL = new Set([
-  "/", "/welcome", "/browse", "/login", "/sign-up", "/pricing", "/packs", "/exam-trends", "/practice-hub",
+  "/", "/welcome", "/browse", "/login", "/sign-up", "/pricing", "/packs", "/board-pass", "/cbq-packs", "/exam-trends", "/practice-hub",
   "/check-improve", "/check-your-answer", "/for-parents", "/contact", "/cbq-class-10", "/highly-probable",
   "/ncert-class-10", "/topic-hub", "/me", "/tutor", "/intent", "/practice", "/notes", "/funnel", "/admin",
 ]);

@@ -33,6 +33,10 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
   // SPEED-PACKS-3 (owner 11 Nov): the PDF Packs ad landing. Unlike the content families, the app is loaded soon after the
   // first paint (IDLE_UPGRADE_PATHS) because pack_view / pack_checkout and the countdown strip are the app's.
   "/packs",
+  // PRICING-PAGES-1 (owner 11 Nov: "the page speed is as per requirement of google ad rank"): the two dedicated sales pages,
+  // served exactly like /packs (idle upgrade below: their Pay / Buy, events and countdown strip are the app's).
+  "/board-pass",
+  "/cbq-packs",
 ];
 
 /**
@@ -40,7 +44,7 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
  * waiting for a tap or a scroll: the app owns the pack events (pack_view, pack_checkout, guest_pay_*) and the offer
  * strip, and a visitor who read the page and left without touching it must still be counted.
  */
-export const IDLE_UPGRADE_PATHS: readonly string[] = ["/packs"];
+export const IDLE_UPGRADE_PATHS: readonly string[] = ["/packs", "/board-pass", "/cbq-packs"];
 /** The idle wait (requestIdleCallback timeout, ms) after `load` (SPEED-PACKS-3 round 3: 200, so the app-rendered Buy buttons appear soon) before an idle-upgrade page loads the app. */
 export const IDLE_UPGRADE_TIMEOUT_MS = 200;
 

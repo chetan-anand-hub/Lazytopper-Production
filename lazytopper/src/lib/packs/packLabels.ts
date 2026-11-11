@@ -29,6 +29,16 @@ export const CBQ_SUBJECT_CLAIM = `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}
 export const CBQ_CHAPTER_CLAIM = `${CBQ_MIN_PER_CHAPTER}+ in every chapter`;
 
 /**
+ * PRICING-PAGES-1 (owner 11 Nov 2026: "in boards pass, highlight 10,000+ questions and about 3000 CBQs"): the /board-pass number
+ * tiles. FLOORS, rounded DOWN, read by the page and by bankClaims.test.ts, which counts the real served bank (all 26 chapters), so
+ * CI goes red if the bank ever drops below a claim. Measured 11 Nov 2026: 10,694 served questions, 2,846 CBQs.
+ */
+export const BANK_QUESTIONS_MIN = 10000;
+export const BANK_CBQS_MIN = 2800;
+export const BANK_QUESTIONS_CLAIM = `${BANK_QUESTIONS_MIN.toLocaleString("en-IN")}+`;
+export const BANK_CBQS_CLAIM = `${BANK_CBQS_MIN.toLocaleString("en-IN")}+`;
+
+/**
  * PREBOARDS-BADGE-1: until the pre-board season ends the Bundle is sold as the "Pre-boards pick" (owner ruling 2 Nov 2026). ONE constant:
  * move this instant to move the season. Name, price and sku never change; after it every surface reverts to the plain copy by itself.
  */

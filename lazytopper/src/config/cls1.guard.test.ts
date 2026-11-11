@@ -18,6 +18,9 @@ describe("CLS-1 first paint", () => {
     expect(INLINE_ROUTE_CSS.ContactPage).toBeDefined();
     // PREEXIST-FIX-1: the desktop testimonial frame beside the Board Pass card (pricing hash deep links, CLS 0.28 at 1280 px).
     expect(INLINE_ROUTE_CSS.PricingPage).toEqual(["TestimonialVideo"]);
+    // PRICING-PAGES-1: the sales pages inline the shared sales-page sheet (and, /cbq-packs, the shop's CBQ band CSS as /packs does).
+    expect(INLINE_ROUTE_CSS.BoardPassPage).toEqual(expect.arrayContaining(["salesPages", "TestimonialVideo"]));
+    expect(INLINE_ROUTE_CSS.CbqPacksPage).toEqual(expect.arrayContaining(["salesPages", "CbqBand", "PackTileBuy"]));
   });
 
   it("never inlines KaTeX CSS (it delayed first paint on the notes pages)", () => {

@@ -107,6 +107,26 @@ describe("a view only the app can show boots the app at once", () => {
     expect(at("?buy=")).toBe(false);
   });
 
+  it("PRICING-PAGES-1 /board-pass: tracking params stay the served view; ?buy=, ?from= and any hash load the app at once", () => {
+    const at = (search: string, hash = "") => appViewRequested({ pathname: "/board-pass", search, hash }, none);
+    expect(at("")).toBe(false);
+    expect(at("?utm_source=google&utm_medium=cpc&gclid=abc")).toBe(false);
+    expect(at("?buy=board_pass")).toBe(true);
+    expect(at("?from=for_parents")).toBe(true);
+    expect(at("", "#faq")).toBe(true);
+    expect(at("?buy=")).toBe(false);
+  });
+
+  it("PRICING-PAGES-1 /cbq-packs: the Maths view is served; a subject, a buy, an entry link, ?from= or a hash load the app at once", () => {
+    const at = (search: string, hash = "") => appViewRequested({ pathname: "/cbq-packs", search, hash }, none);
+    expect(at("")).toBe(false);
+    expect(at("?utm_source=youtube&utm_campaign=cbq&gclid=x")).toBe(false);
+    for (const q of ["?subject=science", "?subject=maths", "?buy=pack_cbq&t=science", "?t=maths", "?pack=cbq", "?view=sample", "?from=sample", "?chapter=light", "?mock=maths"]) {
+      expect(at(q), q).toBe(true);
+    }
+    expect(at("", "#cbq")).toBe(true);
+  });
+
   it("CBQ chapter pages read nothing but the path", () => {
     expect(appViewRequested({ pathname: "/cbq-class-10/electricity", search: "?topic=x&subject=y", hash: "#science" }, () => "science")).toBe(false);
   });

@@ -1,0 +1,146 @@
+/* PRICING-PAGES-1 - shared look of the dedicated sales pages (/board-pass, /cbq-packs): deep navy, soft white, green accent.
+   Fluid from 320 px; desktop from 1024 px. Every tap target >= 44 px. Fonts are the app's own (Fraunces, Inter). */
+.lt-sp {
+  --lt-sp-navy: #0b1b3a;
+  --lt-sp-navy-2: #16294d;
+  --lt-sp-ink: #15233a;
+  --lt-sp-ink-2: #3d4a5f;
+  --lt-sp-line: #dfe5ee;
+  --lt-sp-bg: #f6f8fc;
+  --lt-sp-green: #22b573;
+  --lt-sp-green-deep: #0e7c47;
+  --lt-sp-green-dark: #0a5c35;
+  --lt-sp-amber: #f5c668;
+  --lt-sp-amber-deep: #f0a31a;
+  --lt-sp-cream: #fffbea;
+  display: block;
+  background: var(--lt-sp-bg);
+  color: var(--lt-sp-ink);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  padding-bottom: 32px;
+  overflow-x: clip;
+}
+.lt-sp *,
+.lt-sp *::before,
+.lt-sp *::after {
+  box-sizing: border-box;
+}
+.lt-sp__w {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.lt-sp > section,
+.lt-sp > div {
+  margin-top: 20px;
+}
+.lt-sp__strip {
+  margin-top: 16px;
+}
+.lt-sp-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.lt-sp-h2 {
+  margin: 0 0 10px;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--lt-sp-ink);
+}
+.lt-sp-lede {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--lt-sp-ink-2);
+}
+.lt-sp a {
+  color: var(--lt-sp-green-deep);
+}
+
+/* Link cards to the sibling pages. */
+.lt-sp-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.lt-sp-links--one {
+  grid-template-columns: 1fr;
+}
+.lt-sp .lt-sp-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-height: 64px;
+  padding: 12px;
+  border: 2px solid #9db4d6;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--lt-sp-ink);
+  text-decoration: none;
+}
+.lt-sp .lt-sp-link--cbq {
+  background: var(--lt-sp-cream);
+  border-color: var(--lt-sp-amber-deep);
+}
+.lt-sp-link strong {
+  font-size: 0.95rem;
+}
+.lt-sp-link span {
+  font-size: 0.8rem;
+  color: var(--lt-sp-ink-2);
+}
+.lt-sp .lt-sp-link:hover,
+.lt-sp .lt-sp-link:focus-visible {
+  border-color: var(--lt-sp-green-deep);
+}
+
+/* Folded FAQ. */
+.lt-sp-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lt-sp-faq__item {
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-radius: 12px;
+}
+.lt-sp-faq__q {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lt-sp-faq__a {
+  margin: 0;
+  padding: 0 14px 14px;
+  font-size: 0.9rem;
+  color: var(--lt-sp-ink-2);
+}
+
+@media (max-width: 359px) {
+  .lt-sp-links {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 1024px) {
+  .lt-sp__w {
+    padding: 0 32px;
+  }
+  .lt-sp > section,
+  .lt-sp > div {
+    margin-top: 28px;
+  }
+  .lt-sp-h2 {
+    font-size: 1.6rem;
+  }
+}

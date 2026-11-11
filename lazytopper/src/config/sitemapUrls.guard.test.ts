@@ -268,7 +268,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
    * every member must have an AUTHORED spec — advertising a note URL that renders
    * "Notes not found" would be a soft 404 at HTTP 200.
    */
-  it("★ advertises 145 URLs (118 + the 27 CBQ-SEO-1 pages): the 66 before (incl. /packs, PACKS-LEGAL-1), /contact (CONTACT-INDEX-1) and 51 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering + 12 SOLUTIONS-SCI-1/2 Science NCERT pages + 11 SOLUTIONS-SCI-3 Science Exemplar pages)", () => {
+  it("★ advertises 147 URLs (118 + the 27 CBQ-SEO-1 pages + /board-pass and /cbq-packs, PRICING-PAGES-1): the 66 before (incl. /packs, PACKS-LEGAL-1), /contact (CONTACT-INDEX-1) and 51 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering + 12 SOLUTIONS-SCI-1/2 Science NCERT pages + 11 SOLUTIONS-SCI-3 Science Exemplar pages)", () => {
     const paths = sitemapPaths();
     const registry = allDesktopTopics();
     const notes = paths.filter((p) => p.startsWith("/notes/"));
@@ -287,9 +287,12 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // SOLUTIONS-SCI-2: + 9 more Science NCERT pages (all chapters but Heredity, below the 5-row floor).
     // SOLUTIONS-SCI-3: + 11 Science Exemplar pages (all but Magnetic Effects, Our Environment).
     expect(solutionsPaths().length, "published solutions pages").toBe(51);
-    expect(paths.length, "the owner-ruled advertised count").toBe(94 + solutionsPaths().length); // 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters)
-    expect(paths.length).toBe(145);
+    expect(paths.length, "the owner-ruled advertised count").toBe(96 + solutionsPaths().length); // 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters) + 2 PRICING-PAGES-1
+    expect(paths.length).toBe(147);
     expect(paths).toContain("/packs");
+    // PRICING-PAGES-1 (owner, 11 Nov 2026): the dedicated Board Pass and CBQ Packs sales pages.
+    expect(paths).toContain("/board-pass");
+    expect(paths).toContain("/cbq-packs");
 
     for (const path of notes) {
       const slug = path.slice("/notes/".length);

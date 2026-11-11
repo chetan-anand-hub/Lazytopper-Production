@@ -69,6 +69,9 @@ import { captureIncomingReferral } from "./services/referralService";
 import { BRAND_MARK_SRC } from "./config/brandMark";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const PacksPage = lazy(() => import("./pages/PacksPage"));
+// PRICING-PAGES-1 (owner, 11 Nov 2026) - the dedicated Board Pass and CBQ Packs pages.
+const BoardPassPage = lazy(() => import("./pages/BoardPassPage"));
+const CbqPacksPage = lazy(() => import("./pages/CbqPacksPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
@@ -466,6 +469,9 @@ export function isSignedOutBuyRoute(path: string): boolean {
   return (
     path === "/packs" ||
     path.startsWith("/packs/") ||
+    // PRICING-PAGES-1: the two dedicated sales pages are signed-out buy landings too.
+    path === "/board-pass" ||
+    path === "/cbq-packs" ||
     path === "/cbq-class-10" ||
     path.startsWith("/cbq-class-10/")
   );
@@ -1131,6 +1137,8 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
           <Route path="/packs" element={withRouteSuspense(<PacksPage />)} />
+          <Route path="/board-pass" element={withRouteSuspense(<BoardPassPage />)} />
+          <Route path="/cbq-packs" element={withRouteSuspense(<CbqPacksPage />)} />
           {/* CBSE 2027 — a PUBLIC, signed-out page: official CBSE papers, unit marks,
               the two-exam timeline and the trap cards. ONE component at every width,
               responsive by CSS alone (no useIsDesktop) — the ConceptSpine pattern,

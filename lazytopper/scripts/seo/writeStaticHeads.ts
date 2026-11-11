@@ -128,6 +128,21 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
     description:
       "Printable CBSE Class 10 Maths & Science question banks with worked solutions. Chapter packs from ₹49, mock papers, one-time payment.",
   },
+  // PRICING-PAGES-1 (owner, 11 Nov 2026: ad relevance). Both restate the page's own H1 and first screen. The Board Pass head names no
+  // figure: its price follows the founding deadline (1 Dec), and a static head cannot (the /pricing head is number-free for the same
+  // reason). The CBQ pack price is fixed (PACK_PRICE_INR), so its head carries it.
+  "/board-pass": {
+    title: "Board Pass: Class 10 Answers Marked Like CBSE | LazyTopper",
+    description:
+      "CBSE-style marking of your handwritten answer in 1 minute, 10,000+ questions with solutions, 2,800+ CBQs, a personal " +
+      "tutor. Pay once.",
+  },
+  "/cbq-packs": {
+    title: "CBQ Packs: Class 10 Maths & Science CBQs | LazyTopper",
+    description:
+      "Printable CBSE Class 10 CBQ packs: 1,400+ competency-based questions per subject, 100+ per chapter, worked " +
+      "solutions. ₹199 + GST per subject.",
+  },
   "/exam-trends": {
     title: "CBSE Class 10 Exam Trends — Chapter Weightage | LazyTopper",
     description:
@@ -261,6 +276,8 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/", exact: true, modules: [] },
   { prefix: "/pricing", exact: true, modules: ["PricingPage"] },
   { prefix: "/packs", exact: true, modules: ["PacksPage"] },
+  { prefix: "/board-pass", exact: true, modules: ["BoardPassPage"] },
+  { prefix: "/cbq-packs", exact: true, modules: ["CbqPacksPage"] },
   { prefix: "/exam-trends", exact: true, modules: ["ExamTrendsRanked"] },
   { prefix: "/practice-hub", exact: true, modules: ["DesktopPracticePage"] },
   { prefix: "/cbse/class-10", exact: true, modules: ["Cbse2027Page"] },
