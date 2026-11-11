@@ -14,7 +14,7 @@ import { isParentPayClientEnabled } from "../../services/parentPay";
 import { COMPARE_BASIC_HEADER, COMPARE_FEATURE_HEADER, FAIR_USE_TITLE, compareSections, fairUseCopy, type CompareCell } from "../../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { isGuestPayClientEnabled } from "../../services/guestPay";
-import { subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { PACK_PAID_COPY, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
 import { useMonthPassAvailable } from "../../components/pricing/useMonthPassAvailable";
@@ -140,10 +140,39 @@ const BANK_BUY_TESTID = "hub-buy-bank";
 
 /** The card a hash names: `#cbq` -> CBQ Packs, `#packs` -> Question Bank, anything else -> the Board Pass. */
 export function cardForHash(hash: string): number {
+  return hashCard(hash) ?? 0;
+}
+
+/** The card a hash NAMES (`#lt-premium-card` / `#cbq` / `#packs`), or null for no hash or any other hash. Pure. */
+export function hashCard(hash: string): number | null {
   const h = hash.toLowerCase();
+  if (h === `#${HUB_CARD_ID.pass}`) return 0;
   if (h === `#${HUB_CARD_ID.cbq}`) return 1;
   if (h === `#${HUB_CARD_ID.bank}`) return 2;
-  return 0;
+  return null;
+}
+
+/**
+ * PRICING-HUB-2 H2 - the card the visitor last had selected on THIS history entry, kept in `history.state` under its own key (merged
+ * with React Router's own fields, so no new entry is pushed and the URL does not change). Back / Forward / a bfcache or reload restore
+ * of the entry brings the same card back; a fresh visit has no such key and opens on the Board Pass. Pure.
+ */
+export const HUB_CARD_STATE_KEY = "ltPricingCard";
+export function savedCard(state: unknown): number | null {
+  if (!state || typeof state !== "object") return null;
+  const v = (state as Record<string, unknown>)[HUB_CARD_STATE_KEY];
+  return typeof v === "number" && Number.isInteger(v) && v >= 0 && v < HUB_CARD_ORDER.length ? v : null;
+}
+/** The card to open on: a hash that names a card wins, then the saved card of this history entry, then the Board Pass. Pure. */
+export function initialCard(hash: string, state: unknown): number {
+  return hashCard(hash) ?? savedCard(state) ?? 0;
+}
+function readHistoryState(): unknown {
+  try {
+    return typeof window !== "undefined" ? window.history.state : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -210,13 +239,13 @@ function useCarousel(initial: number) {
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, [starts]);
-  const goTo = (i: number) => {
+  const goTo = (i: number, instant = false) => {
     setIndex(i);
     const track = trackRef.current;
     const s = starts();
     if (!track || s[i] === undefined || track.scrollWidth <= track.clientWidth) return;
     pinned.current = { index: i, until: Date.now() + 900 };
-    if (typeof track.scrollTo === "function") track.scrollTo({ left: s[i], behavior: prefersCalm() ? "auto" : "smooth" });
+    if (typeof track.scrollTo === "function") track.scrollTo({ left: s[i], behavior: instant || prefersCalm() ? "auto" : "smooth" });
     else track.scrollLeft = s[i];
   };
   return { trackRef, index, goTo };
@@ -357,7 +386,69 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const subject = useHubSubject(location.search);
   useHashLanding();
-  const { trackRef, index, goTo } = useCarousel(cardForHash(location.hash));
+  // H2: a card restored from this history entry (Back / Forward / bfcache / reload), when no hash names one.
+  const [restoredCard] = useState(() => (hashCard(location.hash) === null ? savedCard(readHistoryState()) : null));
+  const { trackRef, index, goTo } = useCarousel(initialCard(location.hash, readHistoryState()));
+  // Remember the selected card on this history entry (replaceState, merged: no new entry, no URL change).
+  useEffect(() => {
+    try {
+      const st = window.history.state;
+      if ((savedCard(st) ?? 0) === index) return;
+      window.history.replaceState({ ...(st && typeof st === "object" ? st : {}), [HUB_CARD_STATE_KEY]: index }, "");
+    } catch {
+      /* history unavailable: nothing to remember */
+    }
+  }, [index]);
+  // H3 (+ review F1/F2) - once a pack payment made on this page is VERIFIED (the shop's own status line reads PACK_PAID_COPY, which
+  // it shows only for a server-verified payment), the legacy page's inline My packs block (the shop's own, with its downloads) shows
+  // and comes into view, as on the legacy page. While a payment is checking / confirming, or after it expired, nothing changes: the
+  // shop keeps its own "Open My packs ->" status link (hideMyPacks) and each card's quiet owned state.
+  const [boughtHere, setBoughtHere] = useState(false);
+  useEffect(() => {
+    if (boughtHere || typeof MutationObserver === "undefined") return undefined;
+    const wrap = document.querySelector('[data-testid="pricing-hub"] .lt-packs--embedded');
+    if (!wrap) return undefined;
+    const check = () => {
+      const status = wrap.querySelector('[data-testid="packs-status"]');
+      if (status && (status.textContent ?? "").startsWith(PACK_PAID_COPY)) setBoughtHere(true);
+    };
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(wrap, { childList: true, subtree: true, characterData: true });
+    return () => mo.disconnect();
+  }, [boughtHere]);
+  useEffect(() => {
+    if (!boughtHere || typeof MutationObserver === "undefined") return undefined;
+    let done = false;
+    const go = () => {
+      const mine = document.getElementById("my-packs");
+      if (done || !mine) return;
+      done = true;
+      mine.scrollIntoView?.({ behavior: prefersCalm() ? "auto" : "smooth", block: "start" });
+    };
+    go();
+    const mo = new MutationObserver(go);
+    mo.observe(document.body, { childList: true, subtree: true });
+    const stop = window.setTimeout(() => mo.disconnect(), 15000);
+    return () => {
+      mo.disconnect();
+      window.clearTimeout(stop);
+    };
+  }, [boughtHere]);
+
+  // Restoring: put the track on that card at once, then (after the browser's own scroll restore) bring it into view if it is not.
+  useEffect(() => {
+    if (restoredCard === null || restoredCard === 0) return undefined;
+    goTo(restoredCard, true);
+    const t = window.setTimeout(() => {
+      const card = document.getElementById(HUB_CARD_ID[HUB_CARD_ORDER[restoredCard]]);
+      const r = card?.getBoundingClientRect();
+      if (card && r && (r.bottom < 80 || r.top > window.innerHeight - 80)) card.scrollIntoView?.({ block: "start" });
+    }, 350);
+    return () => window.clearTimeout(t);
+    // Once, on mount: the restored card is fixed for this mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const selected: HubCardKey = HUB_CARD_ORDER[index] ?? "pass";
 
   // `#pricing-video` (old links): the video now sits in a folded row - open it and bring it into view.
@@ -610,10 +701,13 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                   testId={`hub-buy-pack_cbq-${s}`}
                   ownedLabel={`${subjectLabel(s)} CBQ`}
                 />
-                {/* PARENT-PACKS-1: a link that carries THIS subject's CBQ Pack only (signed in; nothing otherwise). */}
-                {api.parentAsk("pack_cbq", s, { noQr: true })}
               </div>
             ))}
+          </div>
+          {/* PARENT-PACKS-1: per subject, a link that carries THAT subject's CBQ Pack only (signed in; nothing otherwise). H6: one quiet
+              row under the Buys - two side by side (Maths left, Science right, under their Buys), or one centred when one is owned. */}
+          <div className="lt-ph-share lt-ph-share--pair" data-testid="hub-cbq-share">
+            {SUBJECTS.map((s) => api.parentAsk("pack_cbq", s, { noQr: true }))}
           </div>
           <p className="lt-ph-sep" data-testid="hub-cbq-not-in-bundle">{HUB_CBQ_NOT_IN_BUNDLE}</p>
           {ownsAny && (
@@ -666,8 +760,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           <div data-testid={BANK_BUY_TESTID}>
             <HubPackBuy api={api} sku="pack_bundle" label={BUNDLE_BUY_LABEL} testId="hub-buy-pack_bundle" ownedLabel="Bundle" />
           </div>
-          {/* PARENT-PACKS-1: "Forward link to parents" + QR for the Bundle (signed in; nothing otherwise). */}
-          {api.parentAsk("pack_bundle")}
+          {/* PARENT-PACKS-1: "Forward link to parents" + QR for the Bundle (signed in; nothing otherwise). H6: one quiet row. */}
+          <div className="lt-ph-share" data-testid="hub-bank-share">
+            {api.parentAsk("pack_bundle")}
+          </div>
           <p className="lt-ph-sep" data-testid="hub-bank-separate">{HUB_BANK_SEPARATE}</p>
           {ownsBundle && (
             <Link className="lt-ph-mypacks" to={MY_PACKS_PATH} data-testid="hub-bank-my-packs">
@@ -713,8 +809,9 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
 
         <div className="lt-ph-body">
           <BoardsCountdownStrip />
-          <PacksShop embedded hideMyPacks returnPath="/pricing">
-            {(api) => {
+          <PacksShop embedded hideMyPacks={!boughtHere} returnPath="/pricing">
+            {(shopApi) => {
+              const api = shopApi;
               apiRef.current = api;
               return (
                 <>

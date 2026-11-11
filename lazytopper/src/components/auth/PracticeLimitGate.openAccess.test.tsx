@@ -201,6 +201,9 @@ function unlimitedHits(): string[] {
       .filter((f) => /\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f))
       .map((f) => joinPath(authDir, f)),
     resolvePath(process.cwd(), "src/pages/PricingPage.tsx"),
+    // PRICING-HUB-2 H4: the live /pricing (three-card hub).
+    resolvePath(process.cwd(), "src/pages/pricingHub/PricingHub.tsx"),
+    resolvePath(process.cwd(), "src/pages/pricingHub/hubCopy.ts"),
     resolvePath(process.cwd(), PRICING_COMPARE),
   ];
   const hits: string[] = [];

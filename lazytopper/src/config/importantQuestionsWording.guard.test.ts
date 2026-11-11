@@ -157,6 +157,12 @@ describe("★ IMPQ-RENAME-1 — the feature is 'Important Questions' in every st
     // scan above; the plan copy it now reads lives in config/pricingCompare.ts, outside the
     // scanned directories, so that file is held to the same OLD_NAMES here.
     expect(read("pages/PricingPage.tsx")).not.toContain("Full mocks and important-question sets");
+    // PRICING-HUB-2 H4: the live /pricing (three-card hub) is held to the same OLD_NAMES.
+    for (const f of ["pages/pricingHub/PricingHub.tsx", "pages/pricingHub/hubCopy.ts"]) {
+      const hub = read(f);
+      expect(hub, f).not.toContain("Full mocks and important-question sets");
+      expect(OLD_NAMES.filter((r) => r.test(hub)).map(String), f).toEqual([]);
+    }
     const compare = read("config/pricingCompare.ts");
     expect(OLD_NAMES.filter((r) => r.test(compare)).map(String)).toEqual([]);
     expect(read("pages/desktop/DesktopPracticePage.tsx")).toContain(

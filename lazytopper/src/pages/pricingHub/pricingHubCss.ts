@@ -502,6 +502,57 @@ export const HUB_CSS = `
     font-weight: 700;
     text-align: center;
   }
+  /* H6 - the parent-share actions on the pack cards (PaywallActions, unchanged): one quiet row under the Buy button(s), compact
+     underlined actions side by side with 44 px targets (the OffersBlock precedent), never full-width buttons. An opened share panel
+     takes the whole row. Empty (signed out, owned) -> nothing. */
+  .lt-ph-share:empty {
+    display: none;
+  }
+  .lt-ph-share--pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 0 8px;
+  }
+  .lt-ph-share--pair > :has(.lt-parent-share-sheet, .lt-parent-share-note) {
+    grid-column: 1 / -1;
+  }
+  .lt-ph-share .lt-paywall-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0 12px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+  .lt-ph-share .lt-paywall-parent {
+    width: auto;
+    min-height: 44px;
+    padding: 0 2px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ph-green-dark);
+    font-size: 0.8rem;
+    line-height: 1.2;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* One pack, two actions (the Bundle): side by side on one line from 360 px. */
+  .lt-ph-share:not(.lt-ph-share--pair) .lt-paywall-parent {
+    white-space: nowrap;
+  }
+  .lt-ph-share .lt-paywall-parent:hover {
+    background: transparent;
+    color: var(--ph-green);
+  }
+  .lt-ph-share .lt-parent-share-sheet,
+  .lt-ph-share .lt-parent-share-note {
+    flex: 1 1 100%;
+  }
   .lt-ph-busy {
     margin: 0;
     font-size: 0.78rem;

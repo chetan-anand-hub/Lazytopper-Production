@@ -182,6 +182,18 @@ function faqAnswersFrom(src: string): { questions: number; answers: string[] } {
 }
 
 describe("Owner ruling — 'Limited' on Basic only when backed by a constant", () => {
+  // PRICING-HUB-2 H4: the live /pricing is the three-card hub. It renders the SAME Basic line (basicLineRest(), guarded above) and the
+  // SAME FAQ answers (handed over from PricingPage.tsx, guarded below), and carries no "limited" wording of its own.
+  it("the hub's sources say 'limited' nowhere and read the Basic line and FAQ from the guarded sources", () => {
+    for (const f of ["src/pages/pricingHub/PricingHub.tsx", "src/pages/pricingHub/hubCopy.ts"]) {
+      const code = stripComments(readFileSync(resolve(process.cwd(), f), "utf8"));
+      expect(code, f).not.toMatch(/limited/i);
+    }
+    const hub = readFileSync(resolve(process.cwd(), "src/pages/pricingHub/PricingHub.tsx"), "utf8");
+    expect(hub).toContain("{basicLineRest()}");
+    expect(hub).toContain("parts.faqItemsFor(paymentsOn)");
+  });
+
   it("no Basic item or Basic cell says 'limited' without an enforced, interpolated number", () => {
     const texts = basicTexts();
     expect(texts.length).toBeGreaterThanOrEqual(BASIC_INCLUDES.length);

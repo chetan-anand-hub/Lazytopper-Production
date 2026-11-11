@@ -113,6 +113,30 @@ describe("PARENTS-NAV-1 — each destination shows the back link only for a /for
   }
 });
 
+// PRICING-HUB-2 H5: production /pricing is the three-card hub (the suite runs with its kill switch ON). Same two rules, on the hub.
+describe("PARENTS-NAV-1 — /pricing as the three-card hub (production default)", () => {
+  const hub = DESTINATIONS.find((d) => d.name === "/pricing")!;
+  beforeEach(() => vi.stubEnv("VITE_PRICING_HUB_DISABLED", ""));
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("with ?from=for_parents the link is there and goes back to /for-parents", async () => {
+    await renderAt(hub, "/pricing?from=for_parents");
+    expect(screen.getByTestId("pricing-hub")).toBeTruthy();
+    const link = await screen.findByTestId("parent-return");
+    expect(link.textContent).toBe("← Back to parents page");
+    expect(link.getAttribute("href")).toBe("/for-parents");
+    fireEvent.click(link);
+    expect(await screen.findByTestId("parents-probe")).toBeTruthy();
+  });
+
+  it("a fresh tab without the flag sees nothing new (and nothing is stored)", async () => {
+    await renderAt(hub, "/pricing");
+    expect(screen.getByTestId("pricing-hub")).toBeTruthy();
+    expect(screen.queryByTestId("parent-return")).toBeNull();
+    expect(window.sessionStorage.getItem(PARENT_RETURN_KEY)).toBeNull();
+  });
+});
+
 describe("PARENTS-NAV-1 — one mount line per destination page", () => {
   const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
 

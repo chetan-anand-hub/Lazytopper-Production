@@ -50,6 +50,11 @@ describe("one source", () => {
     expect(src).not.toMatch(/const\s+FREE_FEATURES\s*=/);
     expect(src).not.toMatch(/\bFREE_FEATURES\.map\b/);
     expect(src).toMatch(/from "\.\.\/config\/pricingCompare";/);
+    // PRICING-HUB-2 H4: the live /pricing (three-card hub) holds the same rule and reads the same compare module.
+    const hub = readFileSync(resolve(process.cwd(), "src/pages/pricingHub/PricingHub.tsx"), "utf8");
+    expect(hub).not.toMatch(/const\s+FREE_FEATURES\s*=/);
+    expect(hub).not.toMatch(/\bFREE_FEATURES\.map\b/);
+    expect(hub).toMatch(/from "\.\.\/\.\.\/config\/pricingCompare";/);
   });
 
   it("the lock list is exactly Pricing's INCLUDED rows, in order", () => {
@@ -70,6 +75,26 @@ describe("Pricing's Basic line (PRICING-B-1: the separate Basic card is gone; Ba
     expect(screen.queryByRole("list", { name: "Basic plan features" })).toBeNull();
     for (const f of FREE_FEATURES.filter((x) => !x.included)) expect(line.textContent).not.toContain(f.label);
     expect(BASIC_INCLUDES.length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+// PRICING-HUB-2 H5: the same Basic line on the three-card hub (production /pricing; the suite runs with its kill switch ON).
+describe("Pricing's Basic line on the three-card hub", () => {
+  it("renders the same Basic line and none of the lock-only rows", () => {
+    vi.stubEnv("VITE_PRICING_HUB_DISABLED", "");
+    try {
+      render(
+        <MemoryRouter initialEntries={["/pricing"]}>
+          <PricingPage />
+        </MemoryRouter>,
+      );
+      expect(screen.getByTestId("pricing-hub")).toBeTruthy();
+      const line = screen.getByTestId("pricing-basic-line");
+      expect(line.textContent).toContain("Basic: free forever");
+      for (const f of FREE_FEATURES.filter((x) => !x.included)) expect(line.textContent).not.toContain(f.label);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
 
