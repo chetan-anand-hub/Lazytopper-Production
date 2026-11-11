@@ -156,6 +156,34 @@ describe("PACKS-TIDY-1 · signed out", () => {
   });
 });
 
+describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
+  it("is never its own payment path: its button runs the Bundle's Buy (same pop-up, same buyPack); none while dark, owned or a pop-up is open", async () => {
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    buyMock.mockClear();
+    page();
+    const bar = await screen.findByTestId("packs-sticky");
+    expect(bar.textContent).toContain(packs.packPayLabel("pack_bundle"));
+    await waitFor(() => expect(mineMock).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("packs-sticky-go"));
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0].slice(0, 2)).toEqual(["pack_bundle", undefined]);
+    expect(screen.getByTestId("dialog").getAttribute("data-sku")).toBe("pack_bundle");
+    expect(screen.queryByTestId("packs-sticky")).toBeNull(); // a pop-up is open
+    cleanup();
+    flags.packs = false;
+    page();
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByTestId("packs-sticky")).toBeNull();
+    cleanup();
+    flags.packs = true;
+    owned.packs = [{ packId: "pack_bundle:all", sku: "pack_bundle", target: "all", pricePaidInr: 299, paidAt: 1, orderId: "o" }];
+    page();
+    await screen.findByTestId("tile-owned-pack_bundle");
+    expect(screen.queryByTestId("packs-sticky")).toBeNull();
+  });
+});
+
 describe("PACKS-TIDY-1 · signed in", () => {
   it("My packs: ONE collapsed row per owned pack with its date; the first pack stays collapsed unless it is the ready/bought one", async () => {
     auth.user = { uid: "u1" };
