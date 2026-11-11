@@ -67,8 +67,6 @@ export const HUB_PASS_TICKS: ReadonlyArray<{ id: string; strong?: string; text: 
   { id: "graded", text: "Chapter tests, full mocks and worksheets graded" },
   { id: "mi", strong: "Mistake Intelligence:", text: " shows the mistakes you repeat" },
 ];
-/** Under the Pay button (owner wording, 11 Nov). */
-export const HUB_PASS_PAYLINE = "One payment · nothing renews · UPI, card or netbanking";
 export const HUB_PASS_DETAILS = `See everything in the ${BOARD_PASS_NAME} →`;
 export const HUB_PASS_OWNED = `You have the ${BOARD_PASS_NAME}`;
 export const HUB_PASS_OWNED_GO = "Go to practice →";

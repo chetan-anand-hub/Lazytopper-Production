@@ -196,7 +196,7 @@ describe("the page, top to bottom (§2)", () => {
     expect(within(c).getByTestId("till-boards-deadline")).toBeInTheDocument();
     const payBtn = c.querySelector(".lt-pricing-pay--boards") as HTMLButtonElement;
     expect(payBtn.textContent).toBe(`Pay ${boardPassPayDisplay()} once till your boards`);
-    expect(within(c).getByTestId("pricing-payline")).toHaveTextContent("One payment · nothing renews · UPI, card or netbanking");
+    expect(within(c).getByTestId("pricing-payline")).toHaveTextContent("One payment, not a subscription · UPI, card or netbanking");
     expect(within(c).getByTestId("pricing-trial")).toBeInTheDocument();
     expect(within(c).getByTestId("hub-pass-details")).toHaveAttribute("href", "/board-pass");
   });
@@ -503,6 +503,10 @@ describe("every Buy is the legacy buy path, with the legacy events (§3)", () =>
     auth.user = { uid: "u1" };
     setSub({});
     await renderAt("/pricing?subject=science");
+    expect(screen.queryByTestId("pricing-sticky-bar")).toBeNull();
+    await act(async () => {
+      window.dispatchEvent(new Event("scroll"));
+    });
     const bar = () => screen.getByTestId("pricing-sticky-bar");
     expect(bar()).toHaveTextContent(`Board Pass ${boardPassPriceDisplay()}`);
     fireEvent.click(screen.getByTestId("hub-tab-cbq"));

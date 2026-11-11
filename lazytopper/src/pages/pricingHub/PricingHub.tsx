@@ -13,6 +13,7 @@ import PaywallActions, { trackPricingPayTap } from "../../components/pricing/Pay
 import { isParentPayClientEnabled } from "../../services/parentPay";
 import { COMPARE_BASIC_HEADER, COMPARE_FEATURE_HEADER, FAIR_USE_TITLE, compareSections, fairUseCopy, type CompareCell } from "../../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../../services/checkout";
+import { isGuestPayClientEnabled } from "../../services/guestPay";
 import { subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
@@ -48,6 +49,7 @@ import {
   asBoardPass,
   isCheckoutWhoCopyOn,
   payForChildAnswer,
+  payLine,
   stickyCbqCopy,
   stickyPassCopy,
   subjectFromReferrer,
@@ -84,7 +86,6 @@ import {
   HUB_PASS_MINUTE_UNIT,
   HUB_PASS_OWNED,
   HUB_PASS_OWNED_GO,
-  HUB_PASS_PAYLINE,
   HUB_PASS_TAG,
   HUB_PASS_TICKS,
   HUB_PASS_TILES,
@@ -436,6 +437,16 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
       passEndMs > nowMs &&
       passEndMs - nowMs > 7 * 86_400_000);
 
+  // The phone bar mounts only once the page has scrolled: never in the prerender capture (which does not scroll) and never over the
+  // first screen, where the cards' own Pay / Buy are what the visitor reads first.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (scrolled) return undefined;
+    const on = () => setScrolled(true);
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, [scrolled]);
+
   // The phone bar reads the CURRENT card and shop through refs (its scroll handler keeps the reader it mounted with).
   const selectedRef = useRef<HubCardKey>(selected);
   selectedRef.current = selected;
@@ -537,7 +548,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
         </div>
         {paymentsOn && !boardPassOwner && (
           <p className="lt-pp-payline" data-testid="pricing-payline">
-            {HUB_PASS_PAYLINE}
+            {payLine({ checkoutWho, guestPay: isGuestPayClientEnabled() })}
           </p>
         )}
         {trialAction && <div className="lt-ph-trial lt-pricing-trial-slot">{trialAction}</div>}
@@ -856,7 +867,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
 
                   {/* The phone bar (StickyPassBar's rules via the sales pages' bar): hidden while any Pay / Buy row is on screen and over
                       the footer; mounted after hydration; never a payment path of its own (it taps the card's own Pay / Buy). */}
-                  {paymentsOn && (
+                  {paymentsOn && scrolled && (
                     <SalesStickyBar
                       watch={[PASS_PAY_TESTID, CBQ_BUY_TESTID, BANK_BUY_TESTID]}
                       copy={barCopy}

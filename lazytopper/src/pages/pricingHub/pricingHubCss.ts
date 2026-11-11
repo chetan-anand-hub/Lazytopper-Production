@@ -273,6 +273,7 @@ export const HUB_CSS = `
   }
   .lt-ph-card--cbq .lt-ph-tile__fig {
     color: var(--ph-amber-ink);
+    font-size: 1.25rem;
   }
   .lt-ph-tile__lbl {
     font-size: 0.76rem;
@@ -378,10 +379,17 @@ export const HUB_CSS = `
   .lt-ph-card--pass .lt-pricing-month__name {
     color: #ffffff;
   }
+  /* The legacy sheet lays the Pay area out in a wrapping row from 1024 px (its wide card); in a hub card it stays one column. */
   .lt-ph .lt-pricing-passes {
     display: flex;
     flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
     gap: 8px;
+  }
+  .lt-ph .lt-pricing-passes > *,
+  .lt-ph .lt-pricing-passes .lt-pricing-checkout > * {
+    flex: 0 0 auto;
   }
   .lt-ph .lt-pricing-pay,
   .lt-ph .lt-pricing-passes .lt-pricing-pay {
