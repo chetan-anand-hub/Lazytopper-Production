@@ -93,6 +93,27 @@ describe("PricingPage (public /pricing) reaches the policies", () => {
   });
 });
 
+// PRICING-HUB-2 H5: production /pricing is the three-card hub (vitest.config.ts runs the suite with the kill switch ON, so the
+// block above meets the legacy page). The same assertion, on the hub itself.
+describe("PricingPage, three-card hub (the production default) reaches the policies", () => {
+  it.each(FOOTER_LINKS)("renders a %s link to %s", (label, href) => {
+    vi.stubEnv("VITE_PRICING_HUB_DISABLED", "");
+    try {
+      render(
+        <MemoryRouter initialEntries={["/pricing"]}>
+          <PricingPage />
+        </MemoryRouter>,
+      );
+      expect(screen.getByTestId("pricing-hub")).toBeInTheDocument();
+      const foot = screen.getByRole("contentinfo", { name: "Legal" });
+      expect(within(foot).getByRole("link", { name: label })).toHaveAttribute("href", href);
+      expect(within(foot).getByRole("link", { name: "Contact" })).toHaveAttribute("href", "/contact");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+});
+
 /**
  * ★ Harvested from the RENDERED footer, never re-stated. Asserting assertion 3
  * against a hardcoded list would make it a tautology: repointing a real link at an

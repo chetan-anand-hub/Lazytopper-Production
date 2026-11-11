@@ -50,7 +50,7 @@ vi.mock("../../services/checkout", async (orig) => ({
 }));
 
 const owned = vi.hoisted(() => ({ packs: [] as Array<{ sku: string; target: string }> }));
-const buyPack = vi.hoisted(() => vi.fn(async (..._a: unknown[]) => ({ status: "dismissed" as const })));
+const buyPack = vi.hoisted(() => vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" }> => ({ status: "dismissed" })));
 const packsOn = vi.hoisted(() => ({ on: true }));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
@@ -85,7 +85,7 @@ vi.mock("../PackDialog", () => ({
 }));
 
 import PricingPage from "../PricingPage";
-import { cardForHash, nearestCard } from "./PricingHub";
+import { cardForHash, hashCard, initialCard, nearestCard, savedCard, HUB_CARD_STATE_KEY } from "./PricingHub";
 import { hubBankTag, hubPositionLine, hubTabPrice } from "./hubCopy";
 import { HUB_CSS } from "./pricingHubCss";
 import { stripAuthChrome, countResidualAuthNodes } from "../../../scripts/seo/captureStaticBodies";
@@ -568,6 +568,158 @@ describe("round 2", () => {
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
     await renderAt("/pricing");
     expect(screen.getByTestId("pricing-basic-line")).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)");
+  });
+});
+
+describe("PRICING-HUB-2 H5 - the hub itself (production default) for the page-level rules", () => {
+  it("the legal footer is on the hub, with the policies and Contact", async () => {
+    await renderAt("/pricing");
+    const foot = screen.getByRole("contentinfo", { name: "Legal" });
+    for (const [label, href] of [["Privacy", "/legal/privacy"], ["Terms", "/legal/terms"], ["Cancellation Policy", "/legal/refund"], ["Contact", "/contact"]]) {
+      expect(within(foot).getByRole("link", { name: label })).toHaveAttribute("href", href);
+    }
+  });
+
+  it("the three inbound ids are on the three cards", async () => {
+    await renderAt("/pricing");
+    expect(document.getElementById("lt-premium-card")).toBe(card("pass"));
+    expect(document.getElementById("cbq")).toBe(card("cbq"));
+    expect(document.getElementById("packs")).toBe(card("bank"));
+  });
+
+  /** What one page does for a month-pass holder: the Pay buttons it shows, what its Board Pass Pay starts, what ?buy= starts. */
+  async function monthPassRun(kill: "1" | ""): Promise<{ buttons: string[]; payCall: unknown[]; buyCall: unknown[]; buyCalls: number; url: string }> {
+    vi.stubEnv("VITE_PRICING_HUB_DISABLED", kill);
+    auth.user = { uid: "u1" };
+    monthBuyer.on = true;
+    setSub({ tier: "premium", plan: "pass_month", premiumSince: new Date(Date.now() - DAY).toISOString(), passEnd: new Date(Date.now() + 3 * DAY).toISOString() });
+    pay.buyPass.mockClear();
+    await renderAt("/pricing");
+    const area = screen.getByTestId("pricing-passes");
+    const buttons = Array.from(area.querySelectorAll("button")).map((b) => (b.textContent ?? "").trim()).filter(Boolean);
+    await act(async () => {
+      fireEvent.click(area.querySelector(".lt-pricing-pay--boards") as HTMLButtonElement);
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const payCall = pay.buyPass.mock.calls[0] ?? [];
+    cleanup();
+    pay.buyPass.mockClear();
+    await renderAt("/pricing?buy=board_pass&utm_source=google");
+    const out = { buttons, payCall, buyCall: pay.buyPass.mock.calls[0] ?? [], buyCalls: pay.buyPass.mock.calls.length, url: where() };
+    cleanup();
+    return out;
+  }
+
+  it("month-pass holder: the hub's Pay and /pricing?buy=board_pass do exactly what the legacy page does", async () => {
+    const legacy = await monthPassRun("1");
+    const hub = await monthPassRun("");
+    // Legacy: the Board Pass Pay ("Pay ₹N once till your boards") beside the month renewal; Pay starts the Board Pass checkout
+    // (the upgrade) straight away; ?buy=board_pass starts the same checkout once and strips `buy` (utm kept).
+    expect(legacy.buttons.some((b) => /^Pay ₹[\d,]+ once till your boards$/.test(b))).toBe(true);
+    expect(legacy.payCall.length).toBeGreaterThan(0);
+    expect(legacy.buyCalls).toBe(1);
+    expect(legacy.url).toBe("/pricing?utm_source=google");
+    expect(hub).toEqual(legacy);
+  });
+});
+
+describe("PRICING-HUB-2 H1 - the two 10,000+ claims read as two different things", () => {
+  it("Board Pass: questions ONLINE with solutions; Question Bank: questions to PRINT in the Bundle; each from its pinned constant", async () => {
+    await renderAt("/pricing");
+    const pass = screen.getByTestId("hub-pass-tile-questions").textContent ?? "";
+    const bank = screen.getByTestId("hub-bank-claim").textContent ?? "";
+    expect(pass).toBe(`${BANK_QUESTIONS_CLAIM}questions online, with solutions`);
+    expect(bank).toBe(`${BUNDLE_QUESTIONS_CLAIM} questions to print in the Bundle`);
+    expect(pass.replace(/[\d,+\s]/g, "")).not.toBe(bank.replace(/[\d,+\s]/g, ""));
+  });
+});
+
+describe("PRICING-HUB-2 H2 - Back restores the card the visitor left", () => {
+  it("pure: a card-naming hash wins, then the saved card of this history entry, then the Board Pass", () => {
+    expect([hashCard(""), hashCard("#cbq"), hashCard("#packs"), hashCard("#lt-premium-card"), hashCard("#pricing-video")]).toEqual([null, 1, 2, 0, null]);
+    expect(savedCard({ [HUB_CARD_STATE_KEY]: 2, idx: 3 })).toBe(2);
+    expect([savedCard(null), savedCard({}), savedCard({ [HUB_CARD_STATE_KEY]: 7 }), savedCard({ [HUB_CARD_STATE_KEY]: "1" })]).toEqual([null, null, null, null]);
+    expect(initialCard("", { [HUB_CARD_STATE_KEY]: 1 })).toBe(1);
+    expect(initialCard("#packs", { [HUB_CARD_STATE_KEY]: 1 })).toBe(2);
+    expect(initialCard("", null)).toBe(0);
+  });
+
+  it("selecting a card is remembered on THIS entry (merged state, no new entry, URL unchanged); coming back restores it", async () => {
+    window.history.replaceState({ usr: null, key: "k1", idx: 4 }, "");
+    const entries = window.history.length;
+    const url = window.location.href;
+    await renderAt("/pricing");
+    fireEvent.click(screen.getByTestId("hub-tab-bank"));
+    expect(window.history.state).toEqual({ usr: null, key: "k1", idx: 4, [HUB_CARD_STATE_KEY]: 2 });
+    expect(window.history.length).toBe(entries);
+    expect(window.location.href).toBe(url);
+    cleanup();
+    // Back to this entry (SPA pop, or a bfcache / reload restore of it): the same card is selected.
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-tab-bank")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("3 of 3");
+  });
+
+  it("a fresh visit opens on the Board Pass; a hash still wins over a remembered card; ?buy= is unchanged", async () => {
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-tab-pass")).toHaveAttribute("aria-pressed", "true");
+    cleanup();
+    window.history.replaceState({ [HUB_CARD_STATE_KEY]: 2 }, "");
+    await renderAt("/pricing#cbq");
+    expect(screen.getByTestId("hub-tab-cbq")).toHaveAttribute("aria-pressed", "true");
+    cleanup();
+    window.history.replaceState(null, "");
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing?buy=board_pass&utm_source=google");
+    expect(pay.buyPass).toHaveBeenCalledTimes(1);
+    expect(where()).toBe("/pricing?utm_source=google");
+    expect(screen.getByTestId("hub-tab-pass")).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
+describe("PRICING-HUB-2 H3 - a pack paid for on the hub gets the legacy page's inline My packs block", () => {
+  it("before: no My packs block; after a signed-in Buy is paid: the shop's own My packs block (with its downloads) shows", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    buyPack.mockImplementationOnce(async () => {
+      owned.packs = [{ sku: "pack_cbq", target: "science" }];
+      return { status: "paid" as const };
+    });
+    await renderAt("/pricing");
+    expect(screen.queryByTestId("packs-mine")).toBeNull();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("hub-buy-pack_cbq-science"));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science", expect.anything());
+    expect(await screen.findByTestId("packs-mine")).toBeInTheDocument();
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
+  });
+
+  it("an owner who did not buy on this visit still sees the quiet card state, not the block", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    owned.packs = [{ sku: "pack_cbq", target: "maths" }];
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("hub-buy-pack_cbq-maths-owned")).toBeInTheDocument();
+    expect(screen.queryByTestId("packs-mine")).toBeNull();
+  });
+});
+
+describe("PRICING-HUB-2 H6 - the parent-share actions sit in one row under the pack Buys", () => {
+  it("signed in, nothing owned: the CBQ row holds both subjects' actions, the Bundle row its own; both rows sit after the Buys", async () => {
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    const cbqRow = screen.getByTestId("hub-cbq-share");
+    const pair = screen.getByTestId("hub-buy-cbq");
+    expect(pair.compareDocumentPosition(cbqRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(pair.querySelector(".lt-paywall-actions")).toBeNull();
+    expect(cbqRow.className).toContain("lt-ph-share--pair");
+    const bankRow = screen.getByTestId("hub-bank-share");
+    expect(screen.getByTestId("hub-buy-bank").compareDocumentPosition(bankRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 

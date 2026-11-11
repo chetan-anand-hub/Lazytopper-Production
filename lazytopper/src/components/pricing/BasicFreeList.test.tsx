@@ -78,6 +78,26 @@ describe("Pricing's Basic line (PRICING-B-1: the separate Basic card is gone; Ba
   });
 });
 
+// PRICING-HUB-2 H5: the same Basic line on the three-card hub (production /pricing; the suite runs with its kill switch ON).
+describe("Pricing's Basic line on the three-card hub", () => {
+  it("renders the same Basic line and none of the lock-only rows", () => {
+    vi.stubEnv("VITE_PRICING_HUB_DISABLED", "");
+    try {
+      render(
+        <MemoryRouter initialEntries={["/pricing"]}>
+          <PricingPage />
+        </MemoryRouter>,
+      );
+      expect(screen.getByTestId("pricing-hub")).toBeTruthy();
+      const line = screen.getByTestId("pricing-basic-line");
+      expect(line.textContent).toContain("Basic: free forever");
+      for (const f of FREE_FEATURES.filter((x) => !x.included)) expect(line.textContent).not.toContain(f.label);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+});
+
 // LOCK-SELL-1 (owner, 4 Nov 2026): the full-page lock sells the Board Pass; it no longer lists what is free on Basic.
 describe("RequirePremium — no 'Free on Basic:' list, on every gated feature (LOCK-SELL-1)", () => {
   for (const featureLabel of ["Answer Checker", "Ask the tutor", "Exam Simulation", undefined]) {
