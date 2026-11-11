@@ -1,3 +1,20 @@
+> **2026-11-11 (daily; written 11 Nov) - #1660 - #1667 (CLAUDE.md section 10).** Scope: the signed-out checkout first screen, the self-pay landing, the boards countdown strip and founding line, /for-parents, /practice-hub and /packs first load, the "answer key" website wording, and the admin Purchases test flag. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Ads are not product surfaces (noted in SESSION_LOG only).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the 6 Nov second-surface checks stay owed |
+| /packs (page load) | an island: paints from the prerendered body; the app loads on idle, or at once for `?buy=`, `?t=`, `?from=`, any hash or a signed-in visitor (`#1667`) | **merged, live** (version.json = `1cb0aae` per the coordinator) | `[FU-PACKS-SIGNEDIN-CLS]`; 13-15 Nov Quality Score; 15 Nov Speed Insights; a cold Buy tap takes about 1.9 s at 360/4G [gh] |
+| /packs and the pack website copy | "answer key" / "+ keys" removed from all user-visible website copy, for example "with marking guide"; guard test added; PDFs and `src/data` untouched (`#1667`) | **merged, live** | the pack PDFs themselves are untouched: decide only if Google flags the files |
+| /packs (checkout) and the Board Pass checkout (signed-out sheet) | opens on "Buy for yourself" with the price + GST and one Pay button; "Buying for someone else?" keeps the old identifier box; ParentBoardPassSheet unchanged (`#1662`) | **merged, live** (signed-out /packs Buy shows "Buy for yourself ... Pay Rs353") | the owner's live phone check; `[FU-SELF-PAY-ADMIN-ATTACH]` |
+| /packs?from=pay#my-packs (self-pay landing) | a self-pay buyer lands here; the trial-end screen, countdown bar and early strip are held for that load; receipt-email links carry the marker (`#1665`) | **merged, live** | the owner's live check of the sign-in routes; `[FU-META-FROM-PARAM]` |
+| /packs, /pricing and the upgrade sheet (urgency strip) | boards countdown strip (date-phased, hidden from 16 Feb); on /pricing the founding line "Founding price ends 30 Nov - Rs1,917 + GST, then Rs2,499 + GST" (hidden from 1 Dec 00:00 IST); Mock and Bundle tile pre-board line on /packs (not date-gated) (`#1664`) | **merged, live** (signed-out check 320/360/1280) | `[FU-URGENCY-TILE-CLEANUP]`; the scorecard upgrade line and sale-moment offers have no slot (not built); the /pricing redesign must keep the strip and founding line |
+| /for-parents | head preloads only its route chunk (24 -> 3) (`#1663`); /pricing and /practice-hub unchanged by that PR | **merged, live** | `[FU-FORPARENTS-INP]` |
+| /practice-hub | the PDF export and the re-opened scorecard load on demand; preloads 44 -> 25 (`#1666`) | **merged, live** (owner signed-in check passed 09:33 IST) | none |
+| Admin Purchases (`PurchasesCard`) | rows and totals for accounts in `TEST_ACCOUNT_EMAILS` show "ADMIN / TEST" and are excluded; no admin access granted (`#1661`) | **merged, live** (Railway env set) | the owner's real Rs58 phone test is not covered (offer: phone support) |
+| Other surfaces | not moved by these 8 PRs (`#1660` is docs only) | unchanged | |
+
+No grading surface moved.
+
 > **2026-11-09 (daily, evening; written 11 Nov) - #1657 - #1658 (CLAUDE.md section 10).** Scope: the /packs My packs sample link for CBQ-only owners with no marked paper, and the first-purchase skeleton reserve. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. Ads are not product surfaces; the "Study online" ad group is noted in SESSION_LOG only.
 
 | surface | what moved (PR) | state | owed |
