@@ -904,4 +904,3 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     </main>
   );
 }
-
