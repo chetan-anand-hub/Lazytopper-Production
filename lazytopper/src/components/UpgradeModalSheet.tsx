@@ -1,6 +1,7 @@
 import { PREMIUM_PLUS } from "../config/pricingCompare";
 import { studentFeatureLabel } from "./lock/lockCopy";
 import BoardPassLine from "./pricing/BoardPassLine";
+import BoardsCountdownStrip, { FoundingPriceNote } from "./urgency/BoardsCountdownStrip";
 import type { UseSubscriptionResult } from "../hooks/useSubscription";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BasicFreeList } from "./pricing/BasicFreeList";
@@ -192,6 +193,8 @@ export default function UpgradeModalSheet({
 
         <style>{UPGRADE_CSS}</style>
         <BoardPassLine tone="dark" />
+        <BoardsCountdownStrip tone="dark" testId="upgrade-boards-strip" />
+        <FoundingPriceNote tone="dark" testId="upgrade-founding-note" />
         <div className="lt-upgrade__basic">
           <BasicFreeList />
         </div>

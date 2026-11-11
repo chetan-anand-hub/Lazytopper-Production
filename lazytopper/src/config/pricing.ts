@@ -358,6 +358,18 @@ export function boardPassDeadlineLine(now: Date | number = Date.now()): string |
   if (!foundingOfferOpen(now)) return null;
   return `${FOUNDING_OFFER_BADGE} ends ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}: ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}.`;
 }
+/** URGENCY-1 (owner, 11 Nov 2026): the lead of the founding-price line; one string so the bold span and the text agree. */
+export const FOUNDING_PRICE_LEAD = "Founding price";
+/**
+ * URGENCY-1 - "Founding price ends 30 Nov · ₹1,917 + GST, then ₹2,499 + GST" while the founding offer is open, else null (gone from
+ * 00:00 IST on the closing day). Every figure and the date come from the same constants as boardPassDeadlineLine; nothing is typed twice.
+ * No crossed-out price, no saving claim.
+ */
+export function boardPassFoundingPriceLine(now: Date | number = Date.now()): string | null {
+  if (!foundingOfferOpen(now)) return null;
+  const [day = "", month = ""] = FOUNDING_OFFER_LAST_DAY_LABEL.split(" ");
+  return `${FOUNDING_PRICE_LEAD} ends ${day} ${month.slice(0, 3)} \u00b7 ${boardPassTagFor(TILL_BOARDS_FOUNDING_INR, now)}, then ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}`;
+}
 /**
  * OFFERS-V2 - the short line under a Pay button: "One payment · ₹2,499 from 1 Dec" while the founding offer is open. DERIVED from the same
  * constants as boardPassDeadlineLine (so the date and the figure cannot drift from it); from the deadline on it is the plain "One payment,
