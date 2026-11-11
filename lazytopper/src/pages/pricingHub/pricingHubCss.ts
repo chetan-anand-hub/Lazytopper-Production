@@ -140,6 +140,11 @@ export const HUB_CSS = `
     color: var(--ph-navy);
     overflow-wrap: anywhere;
   }
+  /* Trailing room so the LAST card can snap to the left edge like the others (it sits where the WhatsApp button cannot reach it,
+     and the selected tab always matches the card at the edge). Equals the track's width minus one card. */
+  .lt-ph-card:last-child {
+    margin-right: calc(100% - min(340px, calc(100% - 28px)));
+  }
   .lt-ph-card--pass {
     background: var(--ph-navy);
     border-color: var(--ph-green-bright);
@@ -779,6 +784,9 @@ export const HUB_CSS = `
     }
     .lt-ph-card {
       padding: 22px 22px 20px;
+    }
+    .lt-ph-card:last-child {
+      margin-right: 0;
     }
     .lt-ph-name {
       font-size: 2rem;
