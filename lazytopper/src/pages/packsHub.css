@@ -45,9 +45,9 @@
 .lt-pk-bundle .lt-ptb { margin-top: 0; }
 .lt-pk-bundle .lt-ptb__see, .lt-pk-bundle .lt-psl { color: var(--pk-gt); }
 /* v1.2 L1: "See inside" and the sample on one line. */
-.lt-pk-bundle__links { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; min-height: 44px; }
-.lt-pk-bundle__links .lt-ptb__see { padding: 0 4px; font-size: 14px; white-space: nowrap; }
-.lt-pk-bundle__links .lt-psl { font-size: 14px; white-space: nowrap; margin: 0; }
+.lt-pk-bundle__links, .lt-pk-row__links { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 4px; min-height: 44px; }
+.lt-pk-bundle__links .lt-ptb__see, .lt-pk-row__links .lt-ptb__see { padding: 0 2px; font-size: 13px; white-space: nowrap; }
+.lt-pk-bundle__links .lt-psl, .lt-pk-row__links .lt-psl { font-size: 13px; white-space: nowrap; margin: 0; padding: 6px 2px; gap: 4px; }
 /* v1.2 folded rows ("About the Bundle", the video, the questions): a 48 px summary with a chevron; content unchanged inside. */
 .lt-pk-fold { min-width: 0; }
 .lt-pk-fold__sum {
@@ -136,7 +136,6 @@
 .lt-pk-row__line { margin: 0; font-size: 14px; line-height: 1.4; color: var(--pk-ink2); }
 .lt-pk-row__excl, .lt-pk-row__gst { margin: 0; font-size: 13.5px; line-height: 1.4; color: #4a566b; }
 .lt-pk-row__gst { font-weight: 600; }
-.lt-pk-row__links { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; }
 .lt-pk-row__body .lt-ptb__see, .lt-pk-row__body .lt-psl { color: var(--pk-gt); }
 .lt-pk-row__body .lt-pt__preboard { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .lt-pk-row__price::after { transition: none; } }
